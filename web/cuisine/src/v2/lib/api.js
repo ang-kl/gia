@@ -232,8 +232,11 @@ export async function fetchCatalogue() {
 // progressive NDJSON stream. Omitting them keeps the original single-shot
 // JSON behaviour. Either way the returned Promise resolves with the full
 // final payload, so existing call sites are unaffected.
-export async function searchCuisine({ lat, lng, cuisines, filters, region, lang, resetSeen, freeText, specialMode, anchored, countryCode, ratingPref }, { onBase, onPatch, signal } = {}) {
+export async function searchCuisine({ lat, lng, cuisines, filters, region, lang, resetSeen, freeText, specialMode, anchored, countryCode, ratingPref, widen }, { onBase, onPatch, signal } = {}) {
   const body = { lat, lng, cuisines, filters, region, lang, resetSeen: resetSeen === true };
+  // v0.62.88 — operator "Widen" tap: lift the tight per-city cap to the OTHER
+  // default so a sparse in-range pool (e.g. 4 durian) reaches the wider set.
+  if (widen === true) body.widen = true;
   if (typeof freeText === 'string' && freeText.trim()) body.freeText = freeText.trim();
   // v0.61.126 — Fruits / Durian exclusive special mode. Server reads
   // `body.specialMode`; when set it overrides cuisines + dessert

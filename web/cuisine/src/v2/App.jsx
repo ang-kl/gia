@@ -368,6 +368,10 @@ export default function App() {
   // NDJSON onBase/onPatch, so it never flashes the previous search's result and
   // is blank on the single-shot boot load.
   const [streamFirstName, setStreamFirstName] = useState(null);
+  // v0.62.88 — when the in-range pool is exhausted and re-served (D793 recycle),
+  // the server sends { count, capKm }; the TMA shows an honest "all N within X km"
+  // note + a 🔭 Widen button (re-runs with widen:true → wider OTHER cap).
+  const [allSeenInRange, setAllSeenInRange] = useState(null);
   // v0.61.383 — operator Task 1: the wait can run up to ~60 s, so ROTATE
   // the fact every 15 s (was a single fact for the whole wait). First fact
   // after the 1.5 s flash-guard, then a fresh one every 15 s until the
@@ -2132,6 +2136,7 @@ export default function App() {
     const autoResetOnLowCount = false;
     setLoading(true); setError(null);
     setStreamFirstName(null);   // v0.62.78 — reset the progressive name per search
+    setAllSeenInRange(null);    // v0.62.88 — reset the "all-seen, widen?" note per search
     // v0.62.x — fresh AbortController so the loading pop-up's 🛑 Stop button can
     // cancel this stream; abort any prior in-flight search first.
     try { searchAbortRef.current?.abort(); } catch { /* none in flight */ }
@@ -2147,6 +2152,7 @@ export default function App() {
         // resolved values (SG/JB/OTHER) forward as before.
         region: (snap.region && snap.region !== '__NONE__') ? snap.region : undefined,
         lang,                                             // v0.59.0
+        widen: opts?.widen === true,                      // v0.62.88 — "Widen" tap
         resetSeen: opts?.resetSeen === true || autoResetOnLowCount,  // v0.60.117 / v0.60.188
         // v0.60.126 — Tell-me box as a qualifier. v0.62.32 — an Arrival
         // Plate dish tap passes freeTextOverride so the dish search fires
@@ -2275,6 +2281,9 @@ export default function App() {
         setZeroReasonKey(null);
       }
       setVenues(r.venues || []);
+      // v0.62.88 — "all N within X km" recycle note (null unless the server
+      // re-served an exhausted in-range pool at the tight cap).
+      setAllSeenInRange(r.allSeenInRange || null);
       // v0.62.x — cuisine "What to order" plate (single-cuisine searches);
       // null on combo/no-cuisine → falls back to the geo city plate.
       setCuisinePlate(r.cuisinePlate || null);
@@ -3592,47 +3601,60 @@ export default function App() {
           {/* v0.62.x — operator: overlay text is LEFT-justified; the 🛑 Stop
               pill stays RIGHT-justified (its own row below, `justify-end`). */}
           <div className="w-full max-w-[320px] rounded-3xl border-2 border-tg-accent bg-tg-card pl-5 pr-3 pt-4 pb-3 text-xs text-tg-text shadow-2xl ring-1 ring-tg-accent/30 text-left">
-            {/* v0.62.84 — operator: the 🛑 Stop pill aligns to the LAST text row
-                (`items-end` → the "Rating reset…" row when present), two sizes
-                smaller, and hugs the right border (card pr trimmed + tight gap). */}
-            <div className="flex items-end justify-between gap-2">
-              <div className="min-w-0 flex-1 text-left">
-                {loadingReason === 'rotating' ? (
-                  <>
-                    <div className="font-semibold">{t('loading.head', lang)}</div>
-                    <div className="mt-1">{t('loading.rotating.' + (rotatingIndex + 1), lang)}</div>
-                  </>
-                ) : loadingReason === 'refresh' ? (
-                  t('loading.refresh', lang)
-                ) : (
-                  <>
-                    {/* v0.62.84 — operator: no ⏳ hourglass; the blinking dots
-                        (one at a time, staggered) are the only motion. */}
-                    <div>{t('loading.initial', lang)}<span aria-hidden className="inline-flex">
-                      <span className="animate-blink">.</span>
-                      <span className="animate-blink" style={{ animationDelay: '0.25s' }}>.</span>
-                      <span className="animate-blink" style={{ animationDelay: '0.5s' }}>.</span>
-                    </span></div>
-                    {/* v0.62.82 — the ⭐ twinkles (✨→🌟→⭐→💫) via <AnimatedStar/>;
-                        the glyph is stripped from the i18n title. */}
-                    {ratingReminder && ratingReminder.kind !== 'saved' && (
-                      <div className="mt-2 font-semibold">
-                        {t(ratingReminder.kind === 'intro' ? 'rating.introTitle' : 'rating.resetTitle', lang).replace(/⭐\s*$/, '')}
-                        <AnimatedStar />
-                      </div>
-                    )}
-                  </>
-                )}
-                {/* v0.62.78 — first streamed result's name (bold navy), streaming waits only. */}
+            {loadingReason === 'refresh' ? (
+              /* v0.62.87 — operator: the refresh copy is ONE full-width row (it
+                 must not wrap around the pill); the 🛑 Stop pill sits BELOW it,
+                 flush right. */
+              <>
+                <div>{t('loading.refresh', lang)}</div>
                 {streamFirstName && (
                   <div className="mt-1 font-bold text-blue-900">{streamFirstName}</div>
                 )}
+                <div className="mt-2 flex justify-end">
+                  <button type="button" onClick={stopLoading}
+                    className="shrink-0 px-1.5 py-0.5 rounded-full border-[0.5px] border-amber-500 text-[8px] text-tg-text hover:bg-tg-bg whitespace-nowrap">
+                    {t('loading.stop', lang)}
+                  </button>
+                </div>
+              </>
+            ) : (
+              /* v0.62.87 — operator: the 🛑 Stop pill is VERTICALLY CENTRED beside
+                 the text (items-center), not bottom-aligned; tighter pill. */
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0 flex-1 text-left">
+                  {loadingReason === 'rotating' ? (
+                    <>
+                      <div className="font-semibold">{t('loading.head', lang)}</div>
+                      <div className="mt-1">{t('loading.rotating.' + (rotatingIndex + 1), lang)}</div>
+                    </>
+                  ) : (
+                    <>
+                      {/* v0.62.84 — no ⏳; the blinking dots (one at a time) are the only motion. */}
+                      <div>{t('loading.initial', lang)}<span aria-hidden className="inline-flex">
+                        <span className="animate-blink">.</span>
+                        <span className="animate-blink" style={{ animationDelay: '0.25s' }}>.</span>
+                        <span className="animate-blink" style={{ animationDelay: '0.5s' }}>.</span>
+                      </span></div>
+                      {/* v0.62.82 — the ⭐ twinkles (✨→🌟→⭐→💫) via <AnimatedStar/>. */}
+                      {ratingReminder && ratingReminder.kind !== 'saved' && (
+                        <div className="mt-2 font-semibold">
+                          {t(ratingReminder.kind === 'intro' ? 'rating.introTitle' : 'rating.resetTitle', lang).replace(/⭐\s*$/, '')}
+                          <AnimatedStar />
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {/* v0.62.78 — first streamed result's name (bold navy), streaming waits only. */}
+                  {streamFirstName && (
+                    <div className="mt-1 font-bold text-blue-900">{streamFirstName}</div>
+                  )}
+                </div>
+                <button type="button" onClick={stopLoading}
+                  className="shrink-0 px-1.5 py-0.5 rounded-full border-[0.5px] border-amber-500 text-[8px] text-tg-text hover:bg-tg-bg whitespace-nowrap">
+                  {t('loading.stop', lang)}
+                </button>
               </div>
-              <button type="button" onClick={stopLoading}
-                className="shrink-0 px-2 py-0.5 rounded-full border-[0.5px] border-amber-500 text-[8px] text-tg-text hover:bg-tg-bg">
-                {t('loading.stop', lang)}
-              </button>
-            </div>
+            )}
           </div>
         </div>
       )}
@@ -3688,6 +3710,22 @@ export default function App() {
       {durianRatingNote && !loading && venues.length > 0 && (
         <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
           {t('special.durian.softRating', lang)}
+        </div>
+      )}
+      {/* v0.62.88 — operator: instead of silently re-cycling the same tiny
+          in-range pool, say "that's all N within X km" + offer a one-tap Widen
+          (re-runs at the wider OTHER cap). */}
+      {allSeenInRange && !loading && venues.length > 0 && (
+        <div className="rounded-2xl border border-tg-accent/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text flex items-center justify-between gap-2">
+          <span className="min-w-0">
+            {lang === 'fr'
+              ? `Voilà les ${allSeenInRange.count} adresses dans un rayon de ${allSeenInRange.capKm} km. Les autres sont plus loin.`
+              : `That's all ${allSeenInRange.count} within ~${allSeenInRange.capKm} km. The rest are further out.`}
+          </span>
+          <button type="button" onClick={() => runSearch(state, null, { widen: true })}
+            className="shrink-0 px-2 py-1 rounded-full border border-tg-accent text-[11px] text-tg-text hover:bg-tg-bg whitespace-nowrap">
+            {lang === 'fr' ? '🔭 Élargir' : '🔭 Widen'}
+          </button>
         </div>
       )}
       {specialModeNotice && !loading && (
