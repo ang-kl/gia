@@ -13,6 +13,7 @@ import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT } from './lib/jb-focus-points.js';
 import { groupByAwardCity, initialFitPins, pinsOf } from './lib/michelin-city-groups.js';
 // v0.61.285 — fun-fact modal for the rotating-search wait window.
 import FunFactModal from './components/FunFactModal.jsx';
+import AnimatedStar from './components/AnimatedStar.jsx';
 import { pickFunFact, dishFactsFromPlate } from './lib/fun-facts.js';
 // v0.61.272 — Phase 4 (audit ledger C1+C2): the SG_ONLY_SLUGS whitelist
 // previously stripped Fruits / Durian / Durian Pastry from the chip
@@ -3591,58 +3592,51 @@ export default function App() {
           {/* v0.62.x — operator: overlay text is LEFT-justified; the 🛑 Stop
               pill stays RIGHT-justified (its own row below, `justify-end`). */}
           <div className="w-full max-w-[320px] rounded-3xl border-2 border-tg-accent bg-tg-card px-5 pt-4 pb-3 text-xs text-tg-text shadow-2xl ring-1 ring-tg-accent/30 text-left">
-            {loadingReason === 'rotating' ? (
-              <>
-                <div className="font-semibold">{t('loading.head', lang)}</div>
-                <div className="mt-1">{t('loading.rotating.' + (rotatingIndex + 1), lang)}</div>
-              </>
-            ) : loadingReason === 'refresh' ? (
-              t('loading.refresh', lang)
-            ) : (
-              /* v0.61.409 — operator: "the spinning hourglass be within the
-                 message". The ⏳ now animates inline beside the loading copy;
-                 the separate bottom hourglass in the results list is removed. */
-              <>
-                <div className="flex items-center justify-start gap-2">
-                  {/* v0.62.77 — operator: don't SPIN the ⏳; the blinking … is the
-                      only motion. Glyph stays static beside the text. */}
-                  <span aria-hidden className="inline-block text-base leading-none">⏳</span>
-                  {/* v0.62.x — operator: blink the trailing U+2026 ellipsis. The
-                      glyph lives here (not in the i18n string) so only the
-                      ellipsis animates while "Finding eateries" stays steady. */}
-                  <span>{t('loading.initial', lang)}<span aria-hidden className="animate-blink">{'…'}</span></span>
-                </div>
-                {/* v0.62.x — operator: on relaunch, show the rating-reset (or
-                    first-run intro) copy on the next line, under the "Finding
-                    eateries…" message.
-                    v0.62.72 — operator: drop the grey body sub-line here ("Showing
-                    eateries with generally good Google ratings." / intro equivalent);
-                    the title alone is enough on the loading overlay. The standalone
-                    bottom rating toast (above, ~line 2966) keeps its body line. */}
-                {ratingReminder && ratingReminder.kind !== 'saved' && (
-                  <div className="mt-2">
-                    <div className="font-semibold">{t(ratingReminder.kind === 'intro' ? 'rating.introTitle' : 'rating.resetTitle', lang)}</div>
-                  </div>
+            {/* v0.62.82 — operator: the 🛑 Stop pill shares the SAME ROW as the
+                text (vertically centred on the right), not its own line below. */}
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0 flex-1 text-left">
+                {loadingReason === 'rotating' ? (
+                  <>
+                    <div className="font-semibold">{t('loading.head', lang)}</div>
+                    <div className="mt-1">{t('loading.rotating.' + (rotatingIndex + 1), lang)}</div>
+                  </>
+                ) : loadingReason === 'refresh' ? (
+                  t('loading.refresh', lang)
+                ) : (
+                  <>
+                    <div className="flex items-center justify-start gap-2">
+                      {/* v0.62.77 — operator: don't SPIN the ⏳; glyph stays static. */}
+                      <span aria-hidden className="inline-block text-base leading-none">⏳</span>
+                      {/* v0.62.82 — operator: blink the dots ONE AT A TIME (three
+                          separate dots, staggered) instead of the whole … glyph. */}
+                      <span>{t('loading.initial', lang)}<span aria-hidden className="inline-flex">
+                        <span className="animate-blink">.</span>
+                        <span className="animate-blink" style={{ animationDelay: '0.25s' }}>.</span>
+                        <span className="animate-blink" style={{ animationDelay: '0.5s' }}>.</span>
+                      </span></span>
+                    </div>
+                    {ratingReminder && ratingReminder.kind !== 'saved' && (
+                      <div className="mt-2">
+                        {/* v0.62.82 — operator: the ⭐ blinks, cycling ✨→🌟→⭐.
+                            The glyph is stripped from the i18n title and rendered
+                            by <AnimatedStar/> so only the star animates. */}
+                        <div className="font-semibold">
+                          {t(ratingReminder.kind === 'intro' ? 'rating.introTitle' : 'rating.resetTitle', lang).replace(/⭐\s*$/, '')}
+                          <AnimatedStar />
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
-              </>
-            )}
-            {/* v0.62.78 — operator: "show what it had found progressively". The
-                first streamed result's name (bold navy), OUTSIDE the loadingReason
-                branches so it shows for the refresh overlay too (streaming via
-                onBase populates `venues` while loading). The 'initial' boot load
-                is single-shot (no stream) so it stays blank there; the FunFactModal
-                ('rotating') carries the same line. */}
-            {streamFirstName && (
-              <div className="mt-1 font-bold text-blue-900 text-left">{streamFirstName}</div>
-            )}
-            {/* v0.62.x — operator: EVERY loading pop-up carries the 🛑 Stop
-                curating pill (small font, 0.5px amber/red border), on its own
-                LAST line, flush RIGHT. Aborts the in-flight search (when one is
-                streaming) and drops the overlay; on the boot warm-start it just
-                dismisses the wait. */}
-            <div className="mt-3 flex justify-end">
+                {/* v0.62.78 — first streamed result's name (bold navy). Stays in
+                    the left text column; only on streaming waits (refresh). */}
+                {streamFirstName && (
+                  <div className="mt-1 font-bold text-blue-900">{streamFirstName}</div>
+                )}
+              </div>
               <button type="button" onClick={stopLoading}
-                className="px-2.5 py-1 rounded-full border-[0.5px] border-amber-500 text-[10px] text-tg-text hover:bg-tg-bg">
+                className="shrink-0 px-2.5 py-1 rounded-full border-[0.5px] border-amber-500 text-[10px] text-tg-text hover:bg-tg-bg">
                 {t('loading.stop', lang)}
               </button>
             </div>

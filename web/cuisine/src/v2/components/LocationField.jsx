@@ -797,8 +797,11 @@ function CountryDropdown({ value, onChange, ariaLabel }) {
         onClick={() => setOpen((v) => !v)}
         /* v0.61.364 — operator: shrink the closed COUNTRY pill font by 2px
            (text-sm → text-xs). The open picker-list items below keep text-sm. */
+        /* v0.62.82 — operator: "MY and KUL are so far apart". The 4.5rem
+           min-width left ~1.5rem of empty space to the RIGHT of "🇲🇾 MY ▾",
+           pushing the KUL pill away despite the gap-0 group. Drop it so the
+           country pill sizes to its content and KUL butts right against it. */
         className="bg-transparent text-xs outline-none whitespace-nowrap inline-flex items-center gap-0.5"
-        style={{ minWidth: '4.5rem' }}
       >
         <span aria-hidden>{current.flag}</span>
         <span>{current.code}</span>
