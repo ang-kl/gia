@@ -61,7 +61,17 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
   // meta row down to the cost-range row. Top row now drops the
   // livenessChip; the priceRange row below picks it up alongside
   // the new ♿️ accessibility marker.
-  const meta = [rating, price, open, dist || walk].filter(Boolean).join(' · ');
+  // v0.62.81 — operator: "tell me how far away". The distance moves OUT of this
+  // meta line into its own prominent row below (see `distLine`), so far results
+  // (e.g. KL durian under the wider 45 km cap) read as obviously far. Keep the
+  // walk-minutes here only when the venue is genuinely walkable (<2 km).
+  const nearWalk = (Number.isFinite(venue.distanceM) && venue.distanceM < 2000) ? walk : '';
+  const meta = [rating, price, open, nearWalk].filter(Boolean).join(' · ');
+  const distLine = Number.isFinite(venue.distanceM)
+    ? (venue.distanceM >= 1000
+        ? `~${(venue.distanceM / 1000).toFixed(1)} km`
+        : `${Math.round(venue.distanceM)} m`)
+    : '';
 
   // v0.57.13: open Google Maps via Telegram.WebApp.openLink. Inside
   // the TMA WebView, plain <a target="_blank"> often does nothing —
@@ -225,6 +235,15 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             </div>
           )}
           <div className="text-[11px] text-tg-hint truncate">{meta}</div>
+          {/* v0.62.81 — operator: "scope gets further from set location but
+              didn't tell me how far away". Explicit straight-line distance from
+              the set location, prominent (own row, semibold), so far results read
+              as far at a glance. */}
+          {distLine && (
+            <div className="text-[11px] font-semibold text-tg-text/90 mt-0.5">
+              📍 {distLine} {lang === 'fr' ? 'de votre position' : 'away'}
+            </div>
+          )}
           {venue.area && <div className="text-[11px] text-tg-hint truncate">{venue.area}</div>}
           {/* v0.60.190 — price-range + 🐾 Pet line on the in-app card.
               Mirrors the v0.60.183 formatPriceAndPetLine in

@@ -16222,23 +16222,23 @@ async function cacheBotUsername() {
             console.warn('[Cuisine-Search] outer-ring re-fetch failed (non-fatal):', err.message);
           }
         }
-        // v0.62.79 — SMALL-POOL RECYCLE (operator: durian near Putrajaya "keeps
-        // getting 1 or zero"). A sparse curated pool (≤ one page) gets exhausted
-        // by the per-SESSION seen-set after a couple taps → the page becomes a
-        // dead `all-seen-session` zero, and the client's resetSeen retry only
-        // clears the per-CRITERIA seen, never the session-seen — so it stays
-        // zero forever. For such a small pool, re-serving it (nearest-first)
-        // beats an empty list. Gated to ≤ FOLLOW_UP_SLICE so LARGE pools keep
-        // the genuine "you've seen them all → change criteria" terminal state.
-        if (trulyUnseen.length === 0 && !skipCacheForShuffle
-            && venues.length > 0 && venues.length <= FOLLOW_UP_SLICE) {
-          const recyclePool = (unseenInCriteria.length ? unseenInCriteria : venues)
+        // v0.62.79 — ALL-SEEN RECYCLE (operator: durian "keeps getting 1 or
+        // zero"). A curated pool gets exhausted by the per-SESSION seen-set after
+        // a few taps → the page becomes a dead `all-seen-session` zero, and the
+        // client's resetSeen retry only clears the per-CRITERIA seen, never the
+        // session-seen — so it stays zero forever. When every match has been seen
+        // this session, re-serve the pool (nearest-first) instead of an empty list.
+        // v0.62.80 — drop the ≤FOLLOW_UP_SLICE gate: an 18-venue durian pool (KL,
+        // 45 km cap) was >12 so it kept dead-zeroing. Recycle ANY non-empty
+        // all-seen pool — a re-show always beats a zero.
+        if (trulyUnseen.length === 0 && !skipCacheForShuffle && venues.length > 0) {
+          const recyclePool = venues
             .filter((v) => v && v.placeId)
             .slice()
             .sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
           if (recyclePool.length) {
             trulyUnseen = recyclePool;
-            console.log(`[Cuisine-Search] D793 small-pool recycle: all-seen → re-serving ${recyclePool.length} (pool≤${FOLLOW_UP_SLICE}; beats a dead all-seen zero)`);
+            console.log(`[Cuisine-Search] D793 all-seen recycle: re-serving ${recyclePool.length} (every match already seen this session; beats a dead zero)`);
           }
         }
         const atLastVariant = !cuisineSearchHash || cuisineVariantIdx >= (cuisineVariantCount - 1);

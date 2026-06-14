@@ -3104,7 +3104,7 @@ export default function App() {
           has been picked (1.5 s into a rotating search); the modal
           itself enforces a 3 s on-screen minimum so a fast search
           doesn't yank it mid-sentence. */}
-      <FunFactModal fact={funFact} visible={loading && !!funFact} onStop={stopLoading} firstResultName={streamFirstName} />
+      <FunFactModal fact={funFact} visible={loading && !!funFact} onStop={stopLoading} />
 
       {/* v0.61.322 — the three coherence modals (extracted above into
           `locationModals`, shared with the splash-gate early-return). */}
