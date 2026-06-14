@@ -14667,7 +14667,23 @@ async function cacheBotUsername() {
           if (!Number.isFinite(anchorCap) || anchorCap < WIDEN_CAP_M) {
             anchorCap = WIDEN_CAP_M;
             capSource = 'widen';
-            console.log(`[Cuisine-TMA] D777c widen → anchorCap ${WIDEN_CAP_M}m (operator widen tap)`);
+          }
+          // v0.62.91 — operator: "widen isn't lock in … same list of durian, why".
+          // Root cause: the widen tap only lifted the post-fetch DISTANCE CAP
+          // (anchorCap). The primary pipeline.discover() (and the response cache
+          // key) still ran at the tight city radius, so Places never FETCHED
+          // anything beyond ~15 km — only the special-mode helper widened, and
+          // only to ≤3× the tight start radius. Net effect: a widen re-tap re-ran
+          // the same tight query, found the same handful of durians, and the
+          // all-seen recycle (D793) re-showed them nearest-first → "same list".
+          // Fix: on an explicit widen tap, lift the DISCOVERY radius to the widen
+          // cap too so the wider ring is actually queried. Gated on isOther +
+          // anchorCap=40 km ceiling, so it can't roam past the OTHER geofence.
+          if (searchRadius < WIDEN_CAP_M) {
+            console.log(`[Cuisine-TMA] D777c widen → searchRadius ${searchRadius}m → ${WIDEN_CAP_M}m + anchorCap ${anchorCap}m (operator widen tap)`);
+            searchRadius = WIDEN_CAP_M;
+          } else {
+            console.log(`[Cuisine-TMA] D777c widen → anchorCap ${anchorCap}m (searchRadius already ${searchRadius}m)`);
           }
         }
         // v0.61.328 — OTHER-mode geofence Step 1: hard radius ceiling for
