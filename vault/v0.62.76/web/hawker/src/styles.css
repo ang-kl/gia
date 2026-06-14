@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+body { -webkit-font-smoothing: antialiased; }
+
+/* v0.57.14: stronger contrast for hint/secondary text. */
+:root {
+  --tg-hint: color-mix(in srgb, var(--tg-text, #f5f5f7) 72%, var(--tg-bg, #0e0e10) 28%);
+  /* v0.62.16: see note above --tg-hint — visible-in-dark border. */
+  --tg-border: color-mix(in srgb, var(--tg-text, #f5f5f7) 42%, var(--tg-bg, #0e0e10) 58%);
+}
+
+/* v0.59.18: bump base font-size by 1pt on tablet+ viewports
+   (iPad mini portrait = 744px CSS, iPad landscape = 1133px,
+   Telegram Desktop typically > 800px). Phones stay at the
+   browser default (16px). Tailwind's rem-based scale cascades
+   the change to every sized element. */
+@media (min-width: 600px) {
+  html { font-size: 17px; }
+
+  /* v0.60.42 — tablet/desktop centered column.
+     v0.60.49 — cap raised 800 → 1280 to match cuisine TMA after
+     wide-window letterbox feedback. */
+  body {
+    display: flex;
+    justify-content: center;
+    background-color: var(--tg-card, #1c1c1f);
+  }
+  /* v0.61.231 — cap raised 1280 → 1600 to match the other TMAs so
+     notebook viewports fill the width. */
+  #root {
+    width: 100%;
+    max-width: 1600px;
+    min-height: var(--tg-viewport-stable-height, 100vh);
+    background-color: var(--tg-bg);
+  }
+}
+
+/* v0.62.24 — perimeter border framing the centred TMA column on tablet /
+   desktop / iPad-mini (operator: "border around the perimeter of TMA in dark
+   mode", chose desktop/tablet/iPad-mini). Uses the subtle ~3:1 --tg-border so
+   the app shell is delineated from the letterbox in BOTH light and dark
+   (luminance-derived → colour-blind safe). Mobile full-bleed is intentionally
+   left borderless (no awkward screen-edge line / Telegram-header clipping). */
+@media (min-width: 600px) {
+  #root { border: 1px solid var(--tg-border); }
+}
