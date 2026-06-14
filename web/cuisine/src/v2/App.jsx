@@ -3712,11 +3712,16 @@ export default function App() {
       {(allSeenInRange || widenActive) && !loading && venues.length > 0 && (
         <div className="rounded-2xl border border-tg-accent/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text flex items-center justify-between gap-2">
           <span className="min-w-0">
-            {widenActive
-              ? (lang === 'fr' ? 'Recherche élargie (~40 km).' : 'Wider search on (~40 km).')
-              : (lang === 'fr'
-                  ? `Voilà les ${allSeenInRange?.count} dans un rayon de ${allSeenInRange?.capKm} km. Les autres sont plus loin.`
-                  : `That's all ${allSeenInRange?.count} within ~${allSeenInRange?.capKm} km. The rest are further out.`)}
+            {/* v0.62.92 — honest recycle signal: once the pool (tight OR widened)
+                is fully seen, say so truthfully with the real count + cap instead
+                of silently repeating. The recycle now rotates server-side, so each
+                tap still shows a different window of that pool. When widen is on but
+                the pool isn't exhausted yet, show the plain "wider search on" state. */}
+            {allSeenInRange
+              ? (lang === 'fr'
+                  ? `Vous avez vu les ${allSeenInRange.count} adresses dans un rayon de ~${allSeenInRange.capKm} km.`
+                  : `You've seen all ${allSeenInRange.count} within ~${allSeenInRange.capKm} km.`)
+              : (lang === 'fr' ? 'Recherche élargie (~40 km).' : 'Wider search on (~40 km).')}
           </span>
           <span className="shrink-0 inline-flex items-center gap-1.5">
             <span className="text-[10px] text-tg-hint">{lang === 'fr' ? 'Élargir' : 'Widen'}</span>
