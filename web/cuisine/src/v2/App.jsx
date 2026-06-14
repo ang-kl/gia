@@ -368,6 +368,10 @@ export default function App() {
   // NDJSON onBase/onPatch, so it never flashes the previous search's result and
   // is blank on the single-shot boot load.
   const [streamFirstName, setStreamFirstName] = useState(null);
+  // v0.62.88 — when the in-range pool is exhausted and re-served (D793 recycle),
+  // the server sends { count, capKm }; the TMA shows an honest "all N within X km"
+  // note + a 🔭 Widen button (re-runs with widen:true → wider OTHER cap).
+  const [allSeenInRange, setAllSeenInRange] = useState(null);
   // v0.61.383 — operator Task 1: the wait can run up to ~60 s, so ROTATE
   // the fact every 15 s (was a single fact for the whole wait). First fact
   // after the 1.5 s flash-guard, then a fresh one every 15 s until the
@@ -2132,6 +2136,7 @@ export default function App() {
     const autoResetOnLowCount = false;
     setLoading(true); setError(null);
     setStreamFirstName(null);   // v0.62.78 — reset the progressive name per search
+    setAllSeenInRange(null);    // v0.62.88 — reset the "all-seen, widen?" note per search
     // v0.62.x — fresh AbortController so the loading pop-up's 🛑 Stop button can
     // cancel this stream; abort any prior in-flight search first.
     try { searchAbortRef.current?.abort(); } catch { /* none in flight */ }
@@ -2147,6 +2152,7 @@ export default function App() {
         // resolved values (SG/JB/OTHER) forward as before.
         region: (snap.region && snap.region !== '__NONE__') ? snap.region : undefined,
         lang,                                             // v0.59.0
+        widen: opts?.widen === true,                      // v0.62.88 — "Widen" tap
         resetSeen: opts?.resetSeen === true || autoResetOnLowCount,  // v0.60.117 / v0.60.188
         // v0.60.126 — Tell-me box as a qualifier. v0.62.32 — an Arrival
         // Plate dish tap passes freeTextOverride so the dish search fires
@@ -2275,6 +2281,9 @@ export default function App() {
         setZeroReasonKey(null);
       }
       setVenues(r.venues || []);
+      // v0.62.88 — "all N within X km" recycle note (null unless the server
+      // re-served an exhausted in-range pool at the tight cap).
+      setAllSeenInRange(r.allSeenInRange || null);
       // v0.62.x — cuisine "What to order" plate (single-cuisine searches);
       // null on combo/no-cuisine → falls back to the geo city plate.
       setCuisinePlate(r.cuisinePlate || null);
@@ -3701,6 +3710,22 @@ export default function App() {
       {durianRatingNote && !loading && venues.length > 0 && (
         <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
           {t('special.durian.softRating', lang)}
+        </div>
+      )}
+      {/* v0.62.88 — operator: instead of silently re-cycling the same tiny
+          in-range pool, say "that's all N within X km" + offer a one-tap Widen
+          (re-runs at the wider OTHER cap). */}
+      {allSeenInRange && !loading && venues.length > 0 && (
+        <div className="rounded-2xl border border-tg-accent/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text flex items-center justify-between gap-2">
+          <span className="min-w-0">
+            {lang === 'fr'
+              ? `Voilà les ${allSeenInRange.count} adresses dans un rayon de ${allSeenInRange.capKm} km. Les autres sont plus loin.`
+              : `That's all ${allSeenInRange.count} within ~${allSeenInRange.capKm} km. The rest are further out.`}
+          </span>
+          <button type="button" onClick={() => runSearch(state, null, { widen: true })}
+            className="shrink-0 px-2 py-1 rounded-full border border-tg-accent text-[11px] text-tg-text hover:bg-tg-bg whitespace-nowrap">
+            {lang === 'fr' ? '🔭 Élargir' : '🔭 Widen'}
+          </button>
         </div>
       )}
       {specialModeNotice && !loading && (

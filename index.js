@@ -14656,6 +14656,20 @@ async function cacheBotUsername() {
             }
           } catch (err) { console.warn('[Cuisine-TMA] city-default cap failed:', err.message); }
         }
+        // v0.62.88 — operator "widen" override. When the user taps "Widen" on an
+        // all-seen tiny-pool result (e.g. only 4 durian within Putrajaya's 15 km
+        // cap), lift the tight per-city cap to the OTHER default (40 km) so sparse
+        // destination specialties reach the wider pool. Default OFF — the tight
+        // cap stays the norm; this only fires on the explicit widen tap.
+        const wantWiden = !!(req.body && req.body.widen === true);
+        if (wantWiden && isOther) {
+          const WIDEN_CAP_M = 40000;
+          if (!Number.isFinite(anchorCap) || anchorCap < WIDEN_CAP_M) {
+            anchorCap = WIDEN_CAP_M;
+            capSource = 'widen';
+            console.log(`[Cuisine-TMA] D777c widen → anchorCap ${WIDEN_CAP_M}m (operator widen tap)`);
+          }
+        }
         // v0.61.328 — OTHER-mode geofence Step 1: hard radius ceiling for
         // the OTHER cascade so a curated-city search can't roam the whole
         // country. City picks persist a per-city `radiusCapM` (40 km
@@ -16162,6 +16176,7 @@ async function cacheBotUsername() {
         }
         const unseenInCriteria = venues.filter((v) => v.placeId && !seen.has(v.placeId));
         let trulyUnseen = unseenInCriteria.filter((v) => !sessionSeen.has(v.placeId));
+        let allSeenRecycled = false;   // v0.62.88 — set when D793 re-serves an exhausted pool
         // v0.61.441 — nearest-first ordering (concentric rings). The pool was
         // distance-sorted upstream, but the outer-ring re-fetch below appends
         // out-of-order venues, so (re)sort here defensively. Skip for shuffle
@@ -16286,6 +16301,7 @@ async function cacheBotUsername() {
             .sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
           if (recyclePool.length) {
             trulyUnseen = recyclePool;
+            allSeenRecycled = true;
             console.log(`[Cuisine-Search] D793 all-seen recycle: re-serving ${recyclePool.length} (every match already seen this session; beats a dead zero)`);
           }
         }
@@ -16640,6 +16656,13 @@ async function cacheBotUsername() {
         } catch (err) { console.warn('[Cuisine-Search] cuisine order-plate build failed (non-fatal):', err.message); }
         const payload = {
           venues: dedupedTop, exhausted: dedupExhausted, sessionFull, zeroReason,
+          // v0.62.88 — operator: instead of silently re-serving the same tiny
+          // in-range pool on every tap, tell the user "all N within X km" and
+          // offer a one-tap Widen. Only while still at the tight cap (not after
+          // a widen). The TMA renders the note + 🔭 Widen button.
+          ...(allSeenRecycled && !wantWiden
+            ? { allSeenInRange: { count: dedupedTop.length, capKm: Math.round((Number(anchorCap) || 0) / 1000) } }
+            : {}),
           // v0.62.x item 10 — the tapped dish had no verified spot (after the
           // distance + off-cuisine gate); the TMA shows an honest empty state.
           ...(dishSearchEmpty ? { dishSearchEmpty: dishQueryTerm } : {}),
