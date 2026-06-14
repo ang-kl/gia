@@ -278,10 +278,18 @@ async function enrichSlow(top, ctx) {
   }
   _t.sanctuary = Date.now() - _last; _last = Date.now();
   // v0.59.0 — footfall (BestTime). Dormant without key.
-  try {
-    const { attachFootfallSignals } = require('./footfall-signal');
-    await attachFootfallSignals(redis, top);
-  } catch (err) { console.warn('[Cuisine-Search] footfall failed:', err.message); }
+  // v0.62.77 — O-46: BestTime resolves venues by SG name+address and has poor
+  // non-SG coverage (`resolved=0/N` on MY/etc.), so it spends latency for zero
+  // result. Skip it entirely for non-SG searches. `isSG === false` is the only
+  // skip trigger; absent/undefined ctx keeps the prior (SG-assumed) behaviour.
+  if (ctx.isSG === false) {
+    console.log('[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)');
+  } else {
+    try {
+      const { attachFootfallSignals } = require('./footfall-signal');
+      await attachFootfallSignals(redis, top);
+    } catch (err) { console.warn('[Cuisine-Search] footfall failed:', err.message); }
+  }
   _t.footfall = Date.now() - _last;
   // v0.62.x — one-line phase breakdown so the next "Load failed" log pinpoints
   // the dominant cost (Gemini dishes vs Claude sanctuary vs BestTime vs Routes).
