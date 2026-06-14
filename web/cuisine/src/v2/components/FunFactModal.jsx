@@ -21,7 +21,7 @@ import { factBody, deviceFactLang } from '../lib/fun-facts.js';
 
 const DEFAULT_MIN_MS = 3000;
 
-export default function FunFactModal({ fact, visible, minDisplayMs = DEFAULT_MIN_MS, onStop }) {
+export default function FunFactModal({ fact, visible, minDisplayMs = DEFAULT_MIN_MS, onStop, firstResultName = null }) {
   const [lang] = useLocale();
   // Local `shown` state lets us hold the modal on screen past the
   // caller's `visible=false` flip until min-display elapses.
@@ -108,6 +108,12 @@ export default function FunFactModal({ fact, visible, minDisplayMs = DEFAULT_MIN
         <p className="text-[13px] leading-snug text-tg-text whitespace-pre-line">
           {body}
         </p>
+        {/* v0.62.78 — operator: show WHAT the search has found progressively.
+            The first streamed result's name (bold navy), updated live as the
+            NDJSON base/patch venues land while the wait card is up. */}
+        {firstResultName && (
+          <p className="mt-2 text-[13px] font-bold text-blue-900 truncate">{firstResultName}</p>
+        )}
         {/* v0.62.x — operator: single footer row below the divider, three
             columns spread — "••• Finding eateries…" · "Source: Wikipedia" ·
             [🛑 Stop]. The Stop button moved up from its own line into this row.

@@ -362,6 +362,11 @@ export default function App() {
   // ('initial'), and same-criteria refreshes ('refresh'). Cleared on
   // loading→false; FunFactModal enforces a 3 s minimum on-screen.
   const [funFact, setFunFact] = useState(null);
+  // v0.62.78 — the first STREAMED result's name for the wait card ("show what
+  // it found progressively"). Cleared at each search start; set only by the
+  // NDJSON onBase/onPatch, so it never flashes the previous search's result and
+  // is blank on the single-shot boot load.
+  const [streamFirstName, setStreamFirstName] = useState(null);
   // v0.61.383 — operator Task 1: the wait can run up to ~60 s, so ROTATE
   // the fact every 15 s (was a single fact for the whole wait). First fact
   // after the 1.5 s flash-guard, then a fresh one every 15 s until the
@@ -2125,6 +2130,7 @@ export default function App() {
     // is rolled into this complete disable.
     const autoResetOnLowCount = false;
     setLoading(true); setError(null);
+    setStreamFirstName(null);   // v0.62.78 — reset the progressive name per search
     // v0.62.x — fresh AbortController so the loading pop-up's 🛑 Stop button can
     // cancel this stream; abort any prior in-flight search first.
     try { searchAbortRef.current?.abort(); } catch { /* none in flight */ }
@@ -2172,10 +2178,15 @@ export default function App() {
           if (Array.isArray(ev?.venues)) {
             setVenues(ev.venues);
             setFirstLoadPending(false);
+            // v0.62.78 — surface the first found name in the wait card.
+            setStreamFirstName((ev.venues[0] && ev.venues[0].name) || null);
           }
         },
         onPatch: (mergedVenues) => {
           setVenues(mergedVenues.map((v) => ({ ...v })));
+          if (Array.isArray(mergedVenues) && mergedVenues[0] && mergedVenues[0].name) {
+            setStreamFirstName(mergedVenues[0].name);
+          }
         }
       });
       // v0.61.409 — boot-load race guard. If a coherence check flagged
@@ -3093,7 +3104,7 @@ export default function App() {
           has been picked (1.5 s into a rotating search); the modal
           itself enforces a 3 s on-screen minimum so a fast search
           doesn't yank it mid-sentence. */}
-      <FunFactModal fact={funFact} visible={loading && !!funFact} onStop={stopLoading} />
+      <FunFactModal fact={funFact} visible={loading && !!funFact} onStop={stopLoading} firstResultName={streamFirstName} />
 
       {/* v0.61.322 — the three coherence modals (extracted above into
           `locationModals`, shared with the splash-gate early-return). */}
@@ -3601,12 +3612,6 @@ export default function App() {
                       ellipsis animates while "Finding eateries" stays steady. */}
                   <span>{t('loading.initial', lang)}<span aria-hidden className="animate-blink">{'…'}</span></span>
                 </div>
-                {/* v0.62.77 — operator: one line under "Finding eateries…" shows
-                    the FIRST result's name as the NDJSON stream lands it (onBase
-                    sets `venues` while loading is still true), bold navy. */}
-                {Array.isArray(venues) && venues[0] && venues[0].name && (
-                  <div className="mt-1 font-bold text-blue-900">{venues[0].name}</div>
-                )}
                 {/* v0.62.x — operator: on relaunch, show the rating-reset (or
                     first-run intro) copy on the next line, under the "Finding
                     eateries…" message.
@@ -3620,6 +3625,15 @@ export default function App() {
                   </div>
                 )}
               </>
+            )}
+            {/* v0.62.78 — operator: "show what it had found progressively". The
+                first streamed result's name (bold navy), OUTSIDE the loadingReason
+                branches so it shows for the refresh overlay too (streaming via
+                onBase populates `venues` while loading). The 'initial' boot load
+                is single-shot (no stream) so it stays blank there; the FunFactModal
+                ('rotating') carries the same line. */}
+            {streamFirstName && (
+              <div className="mt-1 font-bold text-blue-900 text-left">{streamFirstName}</div>
             )}
             {/* v0.62.x — operator: EVERY loading pop-up carries the 🛑 Stop
                 curating pill (small font, 0.5px amber/red border), on its own
