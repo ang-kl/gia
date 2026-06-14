@@ -16282,6 +16282,9 @@ async function cacheBotUsername() {
         const enrichCtx = {
           redis, csLang, cuisines, cuisineQueries, searchCenter,
           csChatId, deviceRegion,
+          // v0.62.77 — O-46: footfall (BestTime) only resolves for SG venues;
+          // skip it for non-SG searches (0/N + wasted latency on MY/etc.).
+          isSG: !isOther && !isJB,
           humaniseRestaurantType, enrichPriceRangeDisplay, enrichSanctuaryRead
         };
         await cuisineEnrich.enrichFast(top, enrichCtx);

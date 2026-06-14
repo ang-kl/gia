@@ -3593,12 +3593,20 @@ export default function App() {
                  the separate bottom hourglass in the results list is removed. */
               <>
                 <div className="flex items-center justify-start gap-2">
-                  <span aria-hidden className="inline-block animate-spin text-base leading-none">⏳</span>
+                  {/* v0.62.77 — operator: don't SPIN the ⏳; the blinking … is the
+                      only motion. Glyph stays static beside the text. */}
+                  <span aria-hidden className="inline-block text-base leading-none">⏳</span>
                   {/* v0.62.x — operator: blink the trailing U+2026 ellipsis. The
                       glyph lives here (not in the i18n string) so only the
                       ellipsis animates while "Finding eateries" stays steady. */}
                   <span>{t('loading.initial', lang)}<span aria-hidden className="animate-blink">{'…'}</span></span>
                 </div>
+                {/* v0.62.77 — operator: one line under "Finding eateries…" shows
+                    the FIRST result's name as the NDJSON stream lands it (onBase
+                    sets `venues` while loading is still true), bold navy. */}
+                {Array.isArray(venues) && venues[0] && venues[0].name && (
+                  <div className="mt-1 font-bold text-blue-900">{venues[0].name}</div>
+                )}
                 {/* v0.62.x — operator: on relaunch, show the rating-reset (or
                     first-run intro) copy on the next line, under the "Finding
                     eateries…" message.
