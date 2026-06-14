@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-06-13';   // v0.62.69 refresh: PRs #1004-#1022 (VibeCodingRecord catch-up regen, French audit, URGENT TMA auth guard, the "What to order" cuisine plate arc [Phase 2/2b + city-plate grouping + bug sweep + plate-clear], the rating-filter rework [Refine Google Rating panel + session-scoped reset + boot-overlay copy], the [LocDrift] telemetry + Railway log-collector workflow [hourly → log/, railway-logs branch, cross-deployment merge], the loading-overlay arc [🛑 Stop-curating pill + 10s rotation + modernised then opaque pop-up], and the Putrajaya/Cyberjaya 15km geo-cap drift fix)
+const GEN_DATE = '2026-06-14';   // v0.62.76 refresh: PRs #1023-#1029 (docs/vault catch-up + Register/Technical/Feature backfill for v0.61.301→v0.62.52, the loading/fun-fact overlay polish arc [opaque + blinking ellipsis + left-justify + "Food fact" footer], the cuisine relevance/geofence hardening [Australian/NZ relevance gate, OTHER geofence fail-closed against coordless cross-country leaks], and enrichSlow D707 timing instrumentation for the 20s "Load failed" deadline)
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
