@@ -116,8 +116,10 @@ const STRINGS = {
   // message, plus the confirmation reply that fires from the locpick
   // callback. Cap note is appended when the picked anchor enforces a
   // search-radius ceiling (JB → 30 km, IOI → 15 km).
-  'loc.precinct.prompt':       { en: '🗺 <b>Quick-pick anchor</b> — tap a precinct or Malaysia city below, or share your live pin above:',
-                                 fr: '🗺 <b>Sélection rapide</b> — touchez un quartier ou une ville malaisienne ci-dessous, ou partagez votre position en direct :' },
+  // v0.62.85 — operator: simpler prompt. Was "🗺 Quick-pick anchor — tap a
+  // precinct or Malaysia city below, or share your live pin above:".
+  'loc.precinct.prompt':       { en: '📍 Choose a city below, or saved location',
+                                 fr: '📍 Choisissez une ville ci-dessous, ou un lieu enregistré' },
   'loc.set.success':           { en: '📍 Location set to <b>{label}</b>.{cap}',
                                  fr: '📍 Position définie sur <b>{label}</b>.{cap}' },
   // v0.61.412 — operator: when the user PICKS a new search area in a TMA and
