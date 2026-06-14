@@ -3591,10 +3591,11 @@ export default function App() {
               blurs the page behind). */}
           {/* v0.62.x — operator: overlay text is LEFT-justified; the 🛑 Stop
               pill stays RIGHT-justified (its own row below, `justify-end`). */}
-          <div className="w-full max-w-[320px] rounded-3xl border-2 border-tg-accent bg-tg-card px-5 pt-4 pb-3 text-xs text-tg-text shadow-2xl ring-1 ring-tg-accent/30 text-left">
-            {/* v0.62.82 — operator: the 🛑 Stop pill shares the SAME ROW as the
-                text (vertically centred on the right), not its own line below. */}
-            <div className="flex items-center justify-between gap-3">
+          <div className="w-full max-w-[320px] rounded-3xl border-2 border-tg-accent bg-tg-card pl-5 pr-3 pt-4 pb-3 text-xs text-tg-text shadow-2xl ring-1 ring-tg-accent/30 text-left">
+            {/* v0.62.84 — operator: the 🛑 Stop pill aligns to the LAST text row
+                (`items-end` → the "Rating reset…" row when present), two sizes
+                smaller, and hugs the right border (card pr trimmed + tight gap). */}
+            <div className="flex items-end justify-between gap-2">
               <div className="min-w-0 flex-1 text-left">
                 {loadingReason === 'rotating' ? (
                   <>
@@ -3605,38 +3606,30 @@ export default function App() {
                   t('loading.refresh', lang)
                 ) : (
                   <>
-                    <div className="flex items-center justify-start gap-2">
-                      {/* v0.62.77 — operator: don't SPIN the ⏳; glyph stays static. */}
-                      <span aria-hidden className="inline-block text-base leading-none">⏳</span>
-                      {/* v0.62.82 — operator: blink the dots ONE AT A TIME (three
-                          separate dots, staggered) instead of the whole … glyph. */}
-                      <span>{t('loading.initial', lang)}<span aria-hidden className="inline-flex">
-                        <span className="animate-blink">.</span>
-                        <span className="animate-blink" style={{ animationDelay: '0.25s' }}>.</span>
-                        <span className="animate-blink" style={{ animationDelay: '0.5s' }}>.</span>
-                      </span></span>
-                    </div>
+                    {/* v0.62.84 — operator: no ⏳ hourglass; the blinking dots
+                        (one at a time, staggered) are the only motion. */}
+                    <div>{t('loading.initial', lang)}<span aria-hidden className="inline-flex">
+                      <span className="animate-blink">.</span>
+                      <span className="animate-blink" style={{ animationDelay: '0.25s' }}>.</span>
+                      <span className="animate-blink" style={{ animationDelay: '0.5s' }}>.</span>
+                    </span></div>
+                    {/* v0.62.82 — the ⭐ twinkles (✨→🌟→⭐→💫) via <AnimatedStar/>;
+                        the glyph is stripped from the i18n title. */}
                     {ratingReminder && ratingReminder.kind !== 'saved' && (
-                      <div className="mt-2">
-                        {/* v0.62.82 — operator: the ⭐ blinks, cycling ✨→🌟→⭐.
-                            The glyph is stripped from the i18n title and rendered
-                            by <AnimatedStar/> so only the star animates. */}
-                        <div className="font-semibold">
-                          {t(ratingReminder.kind === 'intro' ? 'rating.introTitle' : 'rating.resetTitle', lang).replace(/⭐\s*$/, '')}
-                          <AnimatedStar />
-                        </div>
+                      <div className="mt-2 font-semibold">
+                        {t(ratingReminder.kind === 'intro' ? 'rating.introTitle' : 'rating.resetTitle', lang).replace(/⭐\s*$/, '')}
+                        <AnimatedStar />
                       </div>
                     )}
                   </>
                 )}
-                {/* v0.62.78 — first streamed result's name (bold navy). Stays in
-                    the left text column; only on streaming waits (refresh). */}
+                {/* v0.62.78 — first streamed result's name (bold navy), streaming waits only. */}
                 {streamFirstName && (
                   <div className="mt-1 font-bold text-blue-900">{streamFirstName}</div>
                 )}
               </div>
               <button type="button" onClick={stopLoading}
-                className="shrink-0 px-2.5 py-1 rounded-full border-[0.5px] border-amber-500 text-[10px] text-tg-text hover:bg-tg-bg">
+                className="shrink-0 px-2 py-0.5 rounded-full border-[0.5px] border-amber-500 text-[8px] text-tg-text hover:bg-tg-bg">
                 {t('loading.stop', lang)}
               </button>
             </div>

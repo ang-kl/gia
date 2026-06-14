@@ -116,8 +116,10 @@ const STRINGS = {
   // message, plus the confirmation reply that fires from the locpick
   // callback. Cap note is appended when the picked anchor enforces a
   // search-radius ceiling (JB → 30 km, IOI → 15 km).
-  'loc.precinct.prompt':       { en: '🗺 <b>Quick-pick anchor</b> — tap a precinct or Malaysia city below, or share your live pin above:',
-                                 fr: '🗺 <b>Sélection rapide</b> — touchez un quartier ou une ville malaisienne ci-dessous, ou partagez votre position en direct :' },
+  // v0.62.85 — operator: simpler prompt. Was "🗺 Quick-pick anchor — tap a
+  // precinct or Malaysia city below, or share your live pin above:".
+  'loc.precinct.prompt':       { en: '📍 Choose a city below, or saved location',
+                                 fr: '📍 Choisissez une ville ci-dessous, ou un lieu enregistré' },
   'loc.set.success':           { en: '📍 Location set to <b>{label}</b>.{cap}',
                                  fr: '📍 Position définie sur <b>{label}</b>.{cap}' },
   // v0.61.412 — operator: when the user PICKS a new search area in a TMA and
@@ -133,8 +135,13 @@ const STRINGS = {
   // one-tap follow-up to run a place-anchored search at the picked
   // anchor (instead of making them type a query). callback_data is
   // `locsearch:<precinctId>`.
-  'loc.searchPick.prompt':     { en: '_Want to see top eateries at <b>{place}</b>?_',
-                                 fr: '_Voulez-vous voir les meilleurs établissements à <b>{place}</b> ?_' },
+  // v0.62.83 — was sent with parse_mode:'Markdown' (so the _italic_ rendered but
+  // the <b> tags showed literally). Now HTML, matching loc.set.success. Also drop
+  // the over-claiming "top"/"meilleurs": the place-anchored search returns
+  // rating-floored NEARBY eateries (the button just says "See eateries here"),
+  // not a curated top-list — so don't promise "top".
+  'loc.searchPick.prompt':     { en: '<i>Want to see eateries at <b>{place}</b>?</i>',
+                                 fr: '<i>Voulez-vous voir les établissements à <b>{place}</b> ?</i>' },
   'loc.searchPick.btn':        { en: '🔍 See eateries here',
                                  fr: '🔍 Voir les établissements ici' },
   // v0.61.119 — place-anchored search (hawker centre / MRT / mall /

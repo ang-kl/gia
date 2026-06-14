@@ -1825,6 +1825,10 @@ async function runLocationCommand(chatId) {
       // nothing usable comes back.
       const PLUS_CODE_RE = /^[2-9CFGHJMPQRVWX]{2,}\+[2-9CFGHJMPQRVWX]+\b/;
       let placeLine = `${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}`;
+      // v0.62.85 — operator: stale-pin card shows a clean two-line location —
+      // the place NAME, then "<locality>, <state>, <country>".
+      let locName = '';
+      let locArea = '';
       try {
         const apiKey = process.env.GOOGLE_MAPS_API_KEY;
         if (apiKey) {
@@ -1849,6 +1853,13 @@ async function runLocationCommand(chatId) {
               || findComp('sublocality')
               || findComp('route')
               || findComp('locality');
+            // v0.62.85 — name + "locality, state, country" for the card.
+            locName = friendly || '';
+            locArea = [
+              findComp('locality') || findComp('postal_town') || findComp('administrative_area_level_2'),
+              findComp('administrative_area_level_1'),
+              findComp('country')
+            ].filter(Boolean).join(', ');
             const isPlus = PLUS_CODE_RE.test(r.formatted_address);
             if (isPlus) {
               placeLine = friendly || `near ${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}`;
@@ -1863,9 +1874,13 @@ async function runLocationCommand(chatId) {
         console.warn('[/location] reverse-geocode failed:', err.message);
       }
       const isStale = ageM != null && ageM > 30;
-      const staleNote = isStale
-        ? '\n\n⚠️ This is more than 30 minutes old, so the cuisine picker will *ignore it* and ask for a fresh GPS reading. Tap the button below to share a fresh pin, or run `/location <place>`.'
-        : '\n\n_Bots can\'t read your device GPS automatically. Tap the button below to share a fresh pin, or run `/location <place>` to anchor manually._';
+      // v0.62.85 — operator: restructured card. Clean two-line location, a
+      // divider, the staleness note, then the three ways to set a place
+      // (pick / type / current GPS). The commands are monospace.
+      const locBlock = locArea ? `${locName || placeLine}\n${locArea}` : (locName || placeLine);
+      const howToSet =
+        '⌨️ Type a place\n`/location <place>`\n`/l <place>`\n\n' +
+        '📍 Use current GPS\n`/location current`\n`/l current`';
       const opts = {
         parse_mode: 'Markdown',
         disable_web_page_preview: true,
@@ -1875,11 +1890,14 @@ async function runLocationCommand(chatId) {
           resize_keyboard: true
         }
       };
-      await safeSend(chatId,
-        `📍 ${placeLine}${ageStr}\n${mapsUrl}${staleNote}\n\n` +
-        'To change: `/location <place>` (e.g. `/location Tanjong Pagar MRT`) or tap 📍 below.',
-        opts
-      );
+      const cardBody = isStale
+        ? `📍 *Current Location*\n\n${locBlock}\n\n────────────────\n\n` +
+          '⚠️ Shared over 30 minutes ago.\nPlease choose a new location.\n\n' +
+          '📌 Pick a city below\n\n' + howToSet
+        : `📍 *Current Location*\n\n${locBlock}${ageStr}\n${mapsUrl}\n\n────────────────\n\n` +
+          "_Bots can't read your device GPS automatically — pick a city below, or:_\n\n" +
+          howToSet;
+      await safeSend(chatId, cardBody, opts);
       // v0.61.122 — follow-up message with quick-pick inline buttons
       // (10 STB precincts + JB + IOI Resort City Putrajaya). Sent
       // separately because Telegram's reply_markup is either a custom
@@ -1918,14 +1936,28 @@ async function runLocationCommand(chatId) {
 // (Tourist Areas / Regions / JB / IOI City Mall / Others / Saved
 // Location). Tourist Areas and Regions are submenus that edit the
 // current message in-place (no new message stacking).
-function _buildTopLevelKeyboard() {
+function _buildTopLevelKeyboard(curLoc = null) {
+  // v0.62.85 — operator: the second MY slot is a DYNAMIC "current location"
+  // quick-pick — the last-set location's flag + label + " · current". Tapping it
+  // re-anchors there (reuses the lr:0 most-recent-recent handler). Falls back to
+  // the IOI City Mall precinct when there's no saved location yet.
+  // NB: Telegram inline buttons are plain single-line text — no italic / 2nd row
+  // / flush-right / font sizes — so "current" rides inline in the label.
+  let curBtn = { text: '🇲🇾 IOI City Mall', callback_data: 'locpick:ioi-resort-putrajaya' };
+  if (curLoc && String(curLoc.label || '').trim()) {
+    const flag = curLoc.country ? (findCountryPref(curLoc.country)?.flag || '🌍') : '📍';
+    curBtn = { text: `${flag} ${String(curLoc.label).trim().slice(0, 22)} · current`, callback_data: 'lr:0' };
+  }
   return {
     inline_keyboard: [
-      [{ text: '🇸🇬 Tourist Areas →', callback_data: 'locpick:menu_tourist' }],
-      [{ text: '🇸🇬 Regions →',       callback_data: 'locpick:menu_regions' }],
+      // v0.62.85 — operator: Tourist Areas + Regions share one row.
+      [
+        { text: '🇸🇬 Tourist Areas →', callback_data: 'locpick:menu_tourist' },
+        { text: '🇸🇬 Regions →',       callback_data: 'locpick:menu_regions' }
+      ],
       [
         { text: '🇲🇾 Johor Bahru',    callback_data: 'locpick:jb' },
-        { text: '🇲🇾 IOI City Mall',  callback_data: 'locpick:ioi-resort-putrajaya' }
+        curBtn
       ],
       [
         { text: '🌏 Others',          callback_data: 'locpick:others' },
@@ -1933,6 +1965,15 @@ function _buildTopLevelKeyboard() {
       ]
     ]
   };
+}
+
+// v0.62.85 — fetch the most-recent saved location (= the current anchor) for the
+// dynamic quick-pick button label. Best-effort; null falls back to IOI City Mall.
+async function _currentLocForQuickPick(chatId) {
+  try {
+    const r = await listRecentLocations(redis, chatId);
+    return (Array.isArray(r) && r.length) ? r[0] : null;
+  } catch { return null; }
 }
 
 function _buildTouristAreasKeyboard() {
@@ -1970,10 +2011,11 @@ async function sendLocationQuickPicks(chatId) {
     const { resolveLang } = require('./user-prefs');
     const lang = await resolveLang(redis, chatId, null).catch(() => 'en');
     const { t: tQP } = require('./i18n');
+    const curLoc = await _currentLocForQuickPick(chatId);
     await bot.sendMessage(chatId, tQP('loc.precinct.prompt', lang), {
       parse_mode: 'HTML',
       disable_web_page_preview: true,
-      reply_markup: _buildTopLevelKeyboard()
+      reply_markup: _buildTopLevelKeyboard(curLoc)
     });
   } catch (err) {
     console.warn('[/location] sendLocationQuickPicks failed:', err.message);
@@ -3328,7 +3370,8 @@ bot.on('callback_query', async (q) => {
         if (id === 'menu_root') {
           if (messageId) {
             try {
-              await bot.editMessageReplyMarkup(_buildTopLevelKeyboard(),
+              const curLoc = await _currentLocForQuickPick(chatId);
+              await bot.editMessageReplyMarkup(_buildTopLevelKeyboard(curLoc),
                 { chat_id: chatId, message_id: messageId });
             } catch { /* non-fatal */ }
           }
@@ -3431,7 +3474,12 @@ bot.on('callback_query', async (q) => {
           await bot.sendMessage(chatId,
             tnLP('loc.searchPick.prompt', cbLang, { place: p.label }),
             {
-              parse_mode: 'Markdown',
+              // v0.62.83 — HTML (was Markdown) so the <b> place name renders
+              // bold instead of showing literal tags. p.label is a curated
+              // precinct/city label (no HTML-special chars), matching the
+              // loc.set.success HTML message above.
+              parse_mode: 'HTML',
+              disable_web_page_preview: true,
               reply_markup: { inline_keyboard: [[{ text: t('loc.searchPick.btn', cbLang), callback_data: `locsearch:${p.id}` }]] }
             });
         } catch (err) { console.warn('[locpick] search-here button send failed:', err.message); }
