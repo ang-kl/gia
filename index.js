@@ -3431,7 +3431,12 @@ bot.on('callback_query', async (q) => {
           await bot.sendMessage(chatId,
             tnLP('loc.searchPick.prompt', cbLang, { place: p.label }),
             {
-              parse_mode: 'Markdown',
+              // v0.62.83 — HTML (was Markdown) so the <b> place name renders
+              // bold instead of showing literal tags. p.label is a curated
+              // precinct/city label (no HTML-special chars), matching the
+              // loc.set.success HTML message above.
+              parse_mode: 'HTML',
+              disable_web_page_preview: true,
               reply_markup: { inline_keyboard: [[{ text: t('loc.searchPick.btn', cbLang), callback_data: `locsearch:${p.id}` }]] }
             });
         } catch (err) { console.warn('[locpick] search-here button send failed:', err.message); }
