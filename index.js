@@ -15420,8 +15420,10 @@ async function cacheBotUsername() {
             const perCuisine = await Promise.all(cuisinesForDiscover.map((q) =>
               pipeline.discover({
                 lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
-                cuisines: [q], maxResults: 15, regionCode: searchRegionCode,
-                lang: csLang, expandSingaporean: !skipExpand
+                // v0.62.92 — deeper per-cuisine recall on a widen tap (B), same
+                // rationale as the single-cuisine path: 15 → 30 + a 2nd page.
+                cuisines: [q], maxResults: wantWiden ? 30 : 15, regionCode: searchRegionCode,
+                lang: csLang, expandSingaporean: !skipExpand, maxPages: wantWiden ? 2 : 1
               }).catch((err) => {
                 console.warn(`[Cuisine-Search] per-cuisine discover "${q}" failed: ${err.message}`);
                 return [];
@@ -15499,7 +15501,13 @@ async function cacheBotUsername() {
               if (!pool) {
                 const cand = await pipeline.discover({
                   lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
-                  cuisines: cuisinesForDiscover, maxResults: 30, regionCode: searchRegionCode,
+                  // v0.62.92 — deeper recall on an explicit widen tap (B): bump
+                  // the per-query fetch from 30 (→2 Places pages, ~40 raw) to 60
+                  // (→3 pages, ~60 raw) so a dense OTHER-region pool (e.g. KL
+                  // durians at the 40 km widen radius) surfaces more genuinely-
+                  // unique venues before the all-seen recycle ever kicks in.
+                  // Widen-only, so normal searches pay nothing extra.
+                  cuisines: cuisinesForDiscover, maxResults: wantWiden ? 60 : 30, regionCode: searchRegionCode,
                   lang: csLang,                                    // v0.59.0
                   expandSingaporean: !skipExpand,                  // v0.59.26
                   maxPages: 3,                                     // v0.60.116
@@ -16193,6 +16201,7 @@ async function cacheBotUsername() {
         const unseenInCriteria = venues.filter((v) => v.placeId && !seen.has(v.placeId));
         let trulyUnseen = unseenInCriteria.filter((v) => !sessionSeen.has(v.placeId));
         let allSeenRecycled = false;   // v0.62.88 — set when D793 re-serves an exhausted pool
+        let allSeenRecycledCount = 0;  // v0.62.92 — full recycled-pool size (for the honest "seen all N" signal)
         // v0.61.441 — nearest-first ordering (concentric rings). The pool was
         // distance-sorted upstream, but the outer-ring re-fetch below appends
         // out-of-order venues, so (re)sort here defensively. Skip for shuffle
@@ -16316,9 +16325,31 @@ async function cacheBotUsername() {
             .slice()
             .sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
           if (recyclePool.length) {
-            trulyUnseen = recyclePool;
+            // v0.62.92 — ROTATE the recycle (operator: "keeps repeating same
+            // eateries"). The old code re-served the pool nearest-first and the
+            // slice took the same top 12 on EVERY tap, so the farther venues
+            // never surfaced. Advance a per-session, per-criteria cursor so each
+            // recycle serves the NEXT window and cycles the whole pool. The
+            // cursor is a 30-min Redis counter; absent Redis it stays at 1
+            // (offset 0 — the prior nearest-first behaviour, no regression).
+            let rot = 1;
+            try {
+              if (redis.isOpen && csChatId && dedupHash) {
+                const rk = `cuisine:recycle:${csChatId}:${dedupHash}`;
+                rot = await redis.incr(rk);
+                await redis.expire(rk, 30 * 60).catch(() => {});
+              }
+            } catch (err) { console.warn('[Cuisine-Search] recycle cursor read failed:', err.message); }
+            const len = recyclePool.length;
+            const step = (sliceCap > 0 ? sliceCap : 12);
+            const offset = ((((rot - 1) * step) % len) + len) % len;
+            const rotated = offset
+              ? recyclePool.slice(offset).concat(recyclePool.slice(0, offset))
+              : recyclePool;
+            trulyUnseen = rotated;
             allSeenRecycled = true;
-            console.log(`[Cuisine-Search] D793 all-seen recycle: re-serving ${recyclePool.length} (every match already seen this session; beats a dead zero)`);
+            allSeenRecycledCount = len;
+            console.log(`[Cuisine-Search] D793 all-seen recycle: re-serving ${len} rotated by ${offset} (cursor ${rot}; every match already seen this session; beats a dead zero)`);
           }
         }
         const atLastVariant = !cuisineSearchHash || cuisineVariantIdx >= (cuisineVariantCount - 1);
@@ -16674,10 +16705,15 @@ async function cacheBotUsername() {
           venues: dedupedTop, exhausted: dedupExhausted, sessionFull, zeroReason,
           // v0.62.88 — operator: instead of silently re-serving the same tiny
           // in-range pool on every tap, tell the user "all N within X km" and
-          // offer a one-tap Widen. Only while still at the tight cap (not after
-          // a widen). The TMA renders the note + 🔭 Widen button.
-          ...(allSeenRecycled && !wantWiden
-            ? { allSeenInRange: { count: dedupedTop.length, capKm: Math.round((Number(anchorCap) || 0) / 1000) } }
+          // offer a one-tap Widen.
+          // v0.62.92 — honest recycle signal (operator: "keeps repeating same
+          // eateries"). Now ALSO sent after a widen (capKm = the widened 40 km),
+          // so once the wider pool is exhausted the TMA says "you've seen all N
+          // within ~40 km" instead of silently repeating. `count` is the FULL
+          // recycled-pool size (not the page) so the number is truthful, and the
+          // rotation above means each tap still shows a different window of it.
+          ...(allSeenRecycled
+            ? { allSeenInRange: { count: allSeenRecycledCount || dedupedTop.length, capKm: Math.round((Number(anchorCap) || 0) / 1000), widened: !!wantWiden } }
             : {}),
           // v0.62.x item 10 — the tapped dish had no verified spot (after the
           // distance + off-cuisine gate); the TMA shows an honest empty state.
