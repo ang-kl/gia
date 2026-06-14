@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-13",
-  "count": 1009,
+  "generated": "2026-06-14",
+  "count": 1016,
   "records": [
     {
       "pr": 1,
@@ -28870,6 +28870,203 @@
       "reworkCue": false,
       "reworkOf": 1019,
       "burst": true
+    },
+    {
+      "pr": 1023,
+      "status": "merged",
+      "merged": "2026-06-13 09:32:31",
+      "day": "2026-06-13",
+      "version": "0.62.69",
+      "minor": "0.62",
+      "category": "copy",
+      "area": "Docs / vault",
+      "intent": "Reword: docs+vault catch-up (VibeCodingRecord #1004–#1022 · Register/Technical v0.62.69 · vault/v0.62.69) + loading/fun-fact overlay copy (v0.62.70–72)",
+      "approach": "Docs/vault catch-up + TMA overlay polish: VibeCodingRecord regen through #1022, Register/Technical v0.62.69 snapshots, vault/v0.62.69 (187MB); first-load overlay opaque copy (\"Finding eateries…\" + blinking U+2026 ellipsis + \"Stop…",
+      "codeImpact": "1557 files — TMA:cuisine, doc, vault, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/",
+        "vault",
+        "TMA:cuisine"
+      ],
+      "nFiles": 1557,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "legal",
+        "doc/vault"
+      ],
+      "title": "docs+vault catch-up (VibeCodingRecord #1004–#1022 · Register/Technical v0.62.69 · vault/v0.62.69) + loading/fun-fact overlay copy (v0.62.70–72)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1024,
+      "status": "merged",
+      "merged": "2026-06-13 09:56:15",
+      "day": "2026-06-13",
+      "version": "0.62.73",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: left-justify loading-overlay text, keep 🛑 Stop right (v0.62.73)",
+      "approach": "Operator: the first-load overlay text must be left-justified, the 🛑 Stop pill right-justified.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "fix(cuisine-tma): left-justify loading-overlay text, keep 🛑 Stop right (v0.62.73)",
+      "reworkCue": false,
+      "reworkOf": 1022,
+      "burst": true
+    },
+    {
+      "pr": 1025,
+      "status": "merged",
+      "merged": "2026-06-13 10:53:13",
+      "day": "2026-06-13",
+      "version": "0.61.301",
+      "minor": "0.61",
+      "category": "docs",
+      "area": "Recognised lists",
+      "intent": "Update docs: drop O-43 + backfill Register/Technical/Feature for v0.61.301→v0.62.52",
+      "approach": "Drop O-43 (AI-credit alerting → won't-do); resolve O-44 with three arc-level rollups (register/technical/feature -0_62_52) covering the v0.61.301→v0.62.52 gap (PRs #807–#1011): Michelin multi-country, location coherence, geo-scoping,…",
+      "codeImpact": "6 files — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: drop O-43 + backfill Register/Technical/Feature for v0.61.301→v0.62.52",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1026,
+      "status": "merged",
+      "merged": "2026-06-13 11:20:22",
+      "day": "2026-06-13",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: close O-42 won't-fix (durian all-seen-criteria self-heals)",
+      "approach": "Operator: close O-42.",
+      "codeImpact": "3 files — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 3,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs(register): close O-42 won't-fix (durian all-seen-criteria self-heals)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1027,
+      "status": "merged",
+      "merged": "2026-06-13 11:56:29",
+      "day": "2026-06-13",
+      "version": "0.62.74",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "Fix: relevance gate for Australian/NZ — drop generic-Western false positives (v0.62.74)",
+      "approach": "Operator: an \"Australian\" search at IOI City Mall Putrajaya returned a Spanish/Iberico \"Southern European Deli\" in Cheras.",
+      "codeImpact": "6 files — index.js, durian-gemini-verifier.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "durian-gemini-verifier.js",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "fix(cuisine): relevance gate for Australian/NZ — drop generic-Western false positives (v0.62.74)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1028,
+      "status": "merged",
+      "merged": "2026-06-13 12:56:32",
+      "day": "2026-06-13",
+      "version": "0.62.75",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "Fix: OTHER geofence fail-closed — stop coordless cross-country leaks (v0.62.75)",
+      "approach": "Operator: a Russian search in Putrajaya returned Kapitan Restaurant in Singapore (~330km).",
+      "codeImpact": "5 files — cuisine-geo-scope.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "cuisine-geo-scope.js",
+        "doc",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "fix(cuisine): OTHER geofence fail-closed — stop coordless cross-country leaks (v0.62.75)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1029,
+      "status": "merged",
+      "merged": "2026-06-13 14:09:42",
+      "day": "2026-06-13",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Pipeline / discovery",
+      "intent": "Add: instrument enrichSlow with per-phase timing (D707)",
+      "approach": "Operator \"Load failed\" = the search hit the 20s D706 deadline (22.5s).",
+      "codeImpact": "4 files — cuisine-enrich.js, doc, package",
+      "modules": [
+        "cuisine-enrich.js",
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "perf(cuisine): instrument enrichSlow with per-phase timing (D707)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
     }
   ]
 }

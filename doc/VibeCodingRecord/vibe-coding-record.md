@@ -1,22 +1,22 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-06-13 from a snapshot of all 1009 pull requests (#1–#1009).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-06-14 from a snapshot of all 1016 pull requests (#1–#1016).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 1009 total — 999 merged, 10 closed without merge.
+- **PRs:** 1016 total — 1006 merged, 10 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #1022 · 2026-06-13 06:50:01 · _fix(cuisine-tma): make first-load overlay opaque to match the fun-fact card (v0.62.69)_
+- **Latest:** #1029 · 2026-06-13 14:09:42 · _perf(cuisine): instrument enrichSlow with per-phase timing (D707)_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 666 |
-| fix | 134 |
-| docs | 66 |
-| copy | 44 |
+| feature | 667 |
+| fix | 137 |
+| docs | 68 |
+| copy | 45 |
 | prompt-tune | 42 |
 | refactor | 28 |
 | test | 15 |
@@ -26,16 +26,16 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 328 |
-| Core / misc | 149 |
-| Docs / vault | 86 |
+| Cuisine Picker | 329 |
+| Core / misc | 151 |
+| Docs / vault | 88 |
 | Transport / carpark | 61 |
-| Recognised lists | 56 |
+| Recognised lists | 57 |
 | Search / free-text | 54 |
 | Hawker NEA | 52 |
 | /hidden surprise | 42 |
 | Infra / setup | 35 |
-| Pipeline / discovery | 27 |
+| Pipeline / discovery | 28 |
 | /eat /drink flow | 20 |
 | Weather | 19 |
 | Commands / chat UX | 16 |
@@ -1061,6 +1061,13 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 1020 | merged | 2026-06-13 02:15:33 |  | feature | Core / misc | Add files via upload | Add files via upload | 1 file — log/ | — | — |
 | 1021 | merged | 2026-06-13 05:56:43 | 0.62.68 | fix | Infra / setup | Fix: tight 15km cap for Putrajaya/Cyberjaya — stop Klang Valley drift to KL (v0.62.68) | ## What & why Closes the location-drift surfaced in the operator's Railway log (`log/logs.1781315803421.json`, 12-06 '26, `chat 313940231`): ``` [LocDrift] set-location label:"Putrajaya" cap_m:null [LocDrift] search-anchor… | 5 files — city-centroids.js, tests, doc, package | — | tests; doc/vault |
 | 1022 | merged | 2026-06-13 06:50:01 | 0.62.69 | fix | Cuisine Picker | Fix: make first-load overlay opaque to match the fun-fact card (v0.62.69) | ## What & why Operator: the **first load** showed a translucent pop-up while the later **"Did you know?"** card was solid — they didn't match. | 4 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 1023 | merged | 2026-06-13 09:32:31 | 0.62.69 | copy | Docs / vault | Reword: docs+vault catch-up (VibeCodingRecord #1004–#1022 · Register/Technical v0.62.69 · vault/v0.62.69) + loading/fun-fact overlay copy (v0.62.70–72) | Docs/vault catch-up + TMA overlay polish: VibeCodingRecord regen through #1022, Register/Technical v0.62.69 snapshots, vault/v0.62.69 (187MB); first-load overlay opaque copy ("Finding eateries…" + blinking U+2026 ellipsis + "Stop… | 1557 files — TMA:cuisine, doc, vault, package, public/ | cuisine | legal; doc/vault |
+| 1024 | merged | 2026-06-13 09:56:15 | 0.62.73 | fix | Cuisine Picker | Fix: left-justify loading-overlay text, keep 🛑 Stop right (v0.62.73) | Operator: the first-load overlay text must be left-justified, the 🛑 Stop pill right-justified. | 4 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 1025 | merged | 2026-06-13 10:53:13 | 0.61.301 | docs | Recognised lists | Update docs: drop O-43 + backfill Register/Technical/Feature for v0.61.301→v0.62.52 | Drop O-43 (AI-credit alerting → won't-do); resolve O-44 with three arc-level rollups (register/technical/feature -0_62_52) covering the v0.61.301→v0.62.52 gap (PRs #807–#1011): Michelin multi-country, location coherence, geo-scoping,… | 6 files — doc | — | doc/vault |
+| 1026 | merged | 2026-06-13 11:20:22 |  | docs | Docs / vault | Update docs: close O-42 won't-fix (durian all-seen-criteria self-heals) | Operator: close O-42. | 3 files — doc | — | doc/vault |
+| 1027 | merged | 2026-06-13 11:56:29 | 0.62.74 | fix | Core / misc | Fix: relevance gate for Australian/NZ — drop generic-Western false positives (v0.62.74) | Operator: an "Australian" search at IOI City Mall Putrajaya returned a Spanish/Iberico "Southern European Deli" in Cheras. | 6 files — index.js, durian-gemini-verifier.js, tests, doc, package | — | tests; doc/vault |
+| 1028 | merged | 2026-06-13 12:56:32 | 0.62.75 | fix | Core / misc | Fix: OTHER geofence fail-closed — stop coordless cross-country leaks (v0.62.75) | Operator: a Russian search in Putrajaya returned Kapitan Restaurant in Singapore (~330km). | 5 files — cuisine-geo-scope.js, tests, doc, package | — | tests; doc/vault |
+| 1029 | merged | 2026-06-13 14:09:42 |  | feature | Pipeline / discovery | Add: instrument enrichSlow with per-phase timing (D707) | Operator "Load failed" = the search hit the 20s D706 deadline (22.5s). | 4 files — cuisine-enrich.js, doc, package | — | doc/vault |
 
 ---
 
