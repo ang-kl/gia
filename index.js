@@ -1936,7 +1936,18 @@ async function runLocationCommand(chatId) {
 // (Tourist Areas / Regions / JB / IOI City Mall / Others / Saved
 // Location). Tourist Areas and Regions are submenus that edit the
 // current message in-place (no new message stacking).
-function _buildTopLevelKeyboard() {
+function _buildTopLevelKeyboard(curLoc = null) {
+  // v0.62.85 — operator: the second MY slot is a DYNAMIC "current location"
+  // quick-pick — the last-set location's flag + label + " · current". Tapping it
+  // re-anchors there (reuses the lr:0 most-recent-recent handler). Falls back to
+  // the IOI City Mall precinct when there's no saved location yet.
+  // NB: Telegram inline buttons are plain single-line text — no italic / 2nd row
+  // / flush-right / font sizes — so "current" rides inline in the label.
+  let curBtn = { text: '🇲🇾 IOI City Mall', callback_data: 'locpick:ioi-resort-putrajaya' };
+  if (curLoc && String(curLoc.label || '').trim()) {
+    const flag = curLoc.country ? (findCountryPref(curLoc.country)?.flag || '🌍') : '📍';
+    curBtn = { text: `${flag} ${String(curLoc.label).trim().slice(0, 22)} · current`, callback_data: 'lr:0' };
+  }
   return {
     inline_keyboard: [
       // v0.62.85 — operator: Tourist Areas + Regions share one row.
@@ -1946,7 +1957,7 @@ function _buildTopLevelKeyboard() {
       ],
       [
         { text: '🇲🇾 Johor Bahru',    callback_data: 'locpick:jb' },
-        { text: '🇲🇾 IOI City Mall',  callback_data: 'locpick:ioi-resort-putrajaya' }
+        curBtn
       ],
       [
         { text: '🌏 Others',          callback_data: 'locpick:others' },
@@ -1954,6 +1965,15 @@ function _buildTopLevelKeyboard() {
       ]
     ]
   };
+}
+
+// v0.62.85 — fetch the most-recent saved location (= the current anchor) for the
+// dynamic quick-pick button label. Best-effort; null falls back to IOI City Mall.
+async function _currentLocForQuickPick(chatId) {
+  try {
+    const r = await listRecentLocations(redis, chatId);
+    return (Array.isArray(r) && r.length) ? r[0] : null;
+  } catch { return null; }
 }
 
 function _buildTouristAreasKeyboard() {
@@ -1991,10 +2011,11 @@ async function sendLocationQuickPicks(chatId) {
     const { resolveLang } = require('./user-prefs');
     const lang = await resolveLang(redis, chatId, null).catch(() => 'en');
     const { t: tQP } = require('./i18n');
+    const curLoc = await _currentLocForQuickPick(chatId);
     await bot.sendMessage(chatId, tQP('loc.precinct.prompt', lang), {
       parse_mode: 'HTML',
       disable_web_page_preview: true,
-      reply_markup: _buildTopLevelKeyboard()
+      reply_markup: _buildTopLevelKeyboard(curLoc)
     });
   } catch (err) {
     console.warn('[/location] sendLocationQuickPicks failed:', err.message);
@@ -3349,7 +3370,8 @@ bot.on('callback_query', async (q) => {
         if (id === 'menu_root') {
           if (messageId) {
             try {
-              await bot.editMessageReplyMarkup(_buildTopLevelKeyboard(),
+              const curLoc = await _currentLocForQuickPick(chatId);
+              await bot.editMessageReplyMarkup(_buildTopLevelKeyboard(curLoc),
                 { chat_id: chatId, message_id: messageId });
             } catch { /* non-fatal */ }
           }
