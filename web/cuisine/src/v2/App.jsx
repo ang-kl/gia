@@ -458,11 +458,22 @@ export default function App() {
   // 'reset' (idle/entry), 'intro' (first time on this device) or 'saved'
   // (after the panel's Save). Bottom toast, auto-dismissed ~7 s.
   const [ratingReminder, setRatingReminder] = useState(null);
+  // v0.62.95 — operator: "Keep the rating line for as long as the loading
+  // overlay is up < 15 seconds." The flat 7 s auto-dismiss dropped the
+  // "Rating reset…" sub-line mid-wait on slow (>7 s) first loads (operator's
+  // two-card screenshots: card 1 had the line, card 2 was the SAME overlay
+  // after the 7 s timer fired). Now: while the loading overlay is up, hold the
+  // reminder; once loading ends, fall back to the original ~7 s toast life —
+  // but in every case enforce a hard 15 s ceiling from when it first showed.
+  const ratingReminderShownAtRef = useRef(0);
   useEffect(() => {
-    if (!ratingReminder) return undefined;
-    const id = setTimeout(() => setRatingReminder(null), 7000);
+    if (!ratingReminder) { ratingReminderShownAtRef.current = 0; return undefined; }
+    if (!ratingReminderShownAtRef.current) ratingReminderShownAtRef.current = Date.now();
+    const capLeft = Math.max(0, 15000 - (Date.now() - ratingReminderShownAtRef.current));
+    const delay = loading ? capLeft : Math.min(7000, capLeft);
+    const id = setTimeout(() => setRatingReminder(null), delay);
     return () => clearTimeout(id);
-  }, [ratingReminder]);
+  }, [ratingReminder, loading]);
   // Reset the pref to the Good+ default, persisting only when it actually
   // changes (keeps Redis + chat /rating in agreement without no-op POSTs).
   const ratingPrefReminderRef = useRef('3.7');

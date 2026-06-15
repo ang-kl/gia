@@ -16912,7 +16912,7 @@ async function cacheBotUsername() {
 
     app.post('/api/cuisine/nl-query', async (req, res) => {
       try {
-        const { text, lat, lng, filters = {}, lang: nlLangIn } = req.body || {};
+        const { text, lat, lng, filters = {}, lang: nlLangIn, region: nlRegion, countryCode: nlCountry } = req.body || {};
         if (!text || !text.trim()) return res.status(400).json({ error: 'missing text' });
 
         // v0.58.19: harden the LLM endpoint —
@@ -17097,13 +17097,47 @@ async function cacheBotUsername() {
             console.log(`[NL-Query] D772 brand-name prepended — "${trimmed}" + ${JSON.stringify(cuisineNames)}`);
           }
         }
+        // v0.62.94 — colloquial dish-alias expansion (operator: "how about:
+        // Dai Lok"). "dai lok" alone is ambiguous to Places (matches lok-lok
+        // 淥淥 / Tai Ka Lok 大家乐, not the 大碌麵 Hokkien-Mee dish — only the
+        // "mee" token disambiguated). Prepend the canonical dish term(s) so the
+        // nickname resolves to the right places. See dish-aliases.js.
+        try {
+          const { expandDishAliases } = require('./dish-aliases');
+          const alias = expandDishAliases(text);
+          if (alias) {
+            // Drop the ambiguous verbatim query the brand-passthrough prepended
+            // (bare "dai lok" pulls lok-lok 淥淥 noise) — we now know the dish.
+            const trimmedLC = typeof text === 'string' ? text.trim().toLowerCase() : '';
+            cuisineQueries = cuisineQueries.filter((q) => q && q.toLowerCase() !== trimmedLC);
+            const fresh = alias.terms.filter(
+              (t) => !cuisineQueries.some((q) => q && q.toLowerCase() === t.toLowerCase())
+            );
+            cuisineQueries = [...fresh, ...cuisineQueries];
+            console.log(`[NL-Query] D774 dish-alias ${alias.label} → queries ${JSON.stringify(cuisineQueries.slice(0, 4))}…`);
+          }
+        } catch (err) {
+          console.warn(`[NL-Query] dish-alias skipped: ${err.message}`);
+        }
         // v0.59.0: resolve active lang for NL discovery.
         const { resolveLang: resolveLangNL } = require('./user-prefs');
         const nlBodyLang = (typeof nlLangIn === 'string' && ['en','fr'].includes(nlLangIn)) ? nlLangIn : null;
         const nlLang = nlBodyLang || await resolveLangNL(redis, chatId, null);
+        // v0.62.94 — operator ("dai lok mee kl … results so narrowed vs Google
+        // Maps"): the NL path under-fetched. Two fixes here + a wider slice
+        // below. (1) regionCode was never passed → discover defaulted to 'SG'
+        // even for a Malaysia user; derive it from the forwarded region/country
+        // (mirrors the main-search searchRegionCode rule). (2) paginate to 3
+        // pages so the candidate pool is ~60 (Google-Maps-elastic) not ~20.
+        let nlRegionCode;
+        if (nlRegion === 'JB' || nlRegion === 'MY-PUT') nlRegionCode = 'MY';
+        else if (nlRegion === 'OTHER') nlRegionCode = (typeof nlCountry === 'string' && /^[A-Z]{2}$/i.test(nlCountry)) ? nlCountry.toUpperCase() : undefined;
+        else if (nlRegion === 'SG') nlRegionCode = 'SG';
+        else nlRegionCode = (typeof nlCountry === 'string' && /^[A-Z]{2}$/i.test(nlCountry)) ? nlCountry.toUpperCase() : undefined;
+        console.log(`[NL-Query] D773 discover region=${nlRegion || '?'} → regionCode=${nlRegionCode || 'none'} (deep: maxPages=3)`);
         const candidates = await pipeline.discover({
-          lat: searchLat, lng: searchLng, radius: 50000, cuisines: cuisineQueries, maxResults: 30,
-          lang: nlLang                                     // v0.59.0
+          lat: searchLat, lng: searchLng, radius: 50000, cuisines: cuisineQueries,
+          maxResults: 60, regionCode: nlRegionCode, lang: nlLang, maxPages: 3
         });
         let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
         // v0.57.5 / v0.58.31: shared deny-list module — type gate +
@@ -17186,7 +17220,12 @@ async function cacheBotUsername() {
         // v0.61.436 — per-chat guarded rating floor (code review: the
         // Tell-me NL path ignored the rating pill).
         venues = await applyChatRatingFloor(chatId, venues, 'NL-Query');
-        const topNL = venues.slice(0, 12);
+        // v0.62.94 — show more (operator: "so narrowed vs Google Maps"). The NL
+        // path is one-shot (no across-tap pagination), so the single slice is all
+        // the user ever sees — 12 read as a fraction of Google's list. With the
+        // deeper ~60-candidate pool above, surface 24. Enrichment below
+        // (travel-times batched, crowd, footfall) runs on this slice.
+        const topNL = venues.slice(0, 24);
         for (const v of topNL) {
           if (v.openNow === false) {
             v.closedTodayLabel = closedTodayStringNL(v.regularPeriods);
