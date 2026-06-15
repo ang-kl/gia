@@ -3333,12 +3333,16 @@ export default function App() {
                 /* v0.62.97 — operator: all four buttons are liquid-glass 3D
                    rectangles with a slightly less-curved edge (rounded-full →
                    rounded-xl) + the shared .glass-pill frosting. Selected region
-                   gets an accent ring + tint; the action + idle pills stay frosted. */
-                className={`glass-pill flex-1 min-w-0 px-2 py-1.5 rounded-xl border text-[11px] whitespace-nowrap inline-flex items-center justify-center gap-1 ${sel ? 'border-tg-accent text-tg-accent ring-1 ring-tg-accent/50' : 'border-tg-border/60 text-tg-text'}`}>
+                   gets an accent ring + tint; the action + idle pills stay frosted.
+                   v0.62.98 — operator: spell out "Johor Bahru" (no truncation) and
+                   shrink the 🌏 Cities button's padding to free that width. JB takes
+                   flex-1 (absorbs the row's slack so the long label fits); Current /
+                   Singapore / Cities size to their content, Cities tightest (px-1). */
+                className={`glass-pill ${r.id === 'JB' ? 'flex-1' : 'flex-none'} ${r.id === 'OTHER' ? 'px-1' : 'px-1.5'} py-1.5 rounded-xl border text-[11px] whitespace-nowrap inline-flex items-center justify-center gap-1 ${sel ? 'border-tg-accent text-tg-accent ring-1 ring-tg-accent/50' : 'border-tg-border/60 text-tg-text'}`}>
                 {(r.flag.endsWith('.png') || r.flag.endsWith('.svg'))
                   ? <img src={r.flag} alt="" width="18" height="12" className="rounded-sm border border-tg-border/40 flex-shrink-0" />
                   : <span aria-hidden>{r.flag}</span>}
-                <span className="truncate">{r.label}</span>
+                <span>{r.label}</span>
               </button>
             );
           })}

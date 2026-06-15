@@ -5,6 +5,7 @@ import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../lib/coun
 import { citiesForCountry, cityRadiusCapM } from '../lib/cities.js';
 // v0.61.277 — shared with App.jsx for the JB region-pill auto-anchor.
 import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT, JB_FOCUS_KEYS, JB_FOCUS_CHIP_LABELS } from '../lib/jb-focus-points.js';
+import { isJbCoords } from '../lib/coords-to-country.js';
 
 // v0.58.7: location anchor field. Shows the user's current
 // neighbourhood as a placeholder, and lets them search for a
@@ -521,8 +522,18 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
                 // before the search fires. Other regions and any
                 // anchored/pick-already state fall through to the
                 // existing onSearch wiring unchanged.
-                if (region === 'JB' && !anchorDiffers && !pickedLabel
-                    && !query.trim()) {
+                // v0.62.98 — operator: 📍 Current on a Johor highway kept locking
+                // to Mid Valley Southkey. Root cause: a Current pick makes the
+                // anchor EQUAL the device GPS, so `!anchorDiffers` was true and
+                // the snap fired — overriding the user's real location with the
+                // focus default. The snap is only meant for "JB region but the
+                // search point is NOT yet in Johor" (e.g. user physically in SG
+                // toggled JB). So gate on the EFFECTIVE point: only snap when the
+                // anchor/GPS isn't already inside Johor.
+                const effPt = (anchor && Number.isFinite(anchor.lat) && Number.isFinite(anchor.lng))
+                  ? anchor : userLoc;
+                if (region === 'JB' && !pickedLabel && !query.trim()
+                    && !(effPt && isJbCoords(effPt))) {
                   const fp = JB_FOCUS_POINTS[jbFocusKey];
                   onSelect?.({ lat: fp.lat, lng: fp.lng, label: fp.name });
                   return;
