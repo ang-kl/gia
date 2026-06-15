@@ -565,7 +565,12 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
             {JB_FOCUS_KEYS.map((key) => {
               const fp = JB_FOCUS_POINTS[key];
               const label = JB_FOCUS_CHIP_LABELS[key] || fp.name;
-              const active = jbFocusKey === key;
+              // v0.62.100 — operator: "Southkey" showed highlighted even when the
+              // anchor was the live 📍 Current spot (e.g. Senai). A chip is only
+              // "active" when the committed anchor IS that focus point (~1 km),
+              // so a Current / typed pick leaves all chips inactive.
+              const active = !!(anchor && Number.isFinite(anchor.lat) && Number.isFinite(anchor.lng)
+                && Math.abs(anchor.lat - fp.lat) < 0.01 && Math.abs(anchor.lng - fp.lng) < 0.01);
               return (
                 <button
                   key={key}

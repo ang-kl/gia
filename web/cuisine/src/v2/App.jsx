@@ -3302,11 +3302,23 @@ export default function App() {
                       && Number.isFinite(locationAnchor.lng)
                       && isJbCoords(locationAnchor);
                     if (!anchorIsJb) {
-                      const fp = JB_FOCUS_POINTS[JB_FOCUS_DEFAULT];
-                      onLocationSelect({
-                        lat: fp.lat, lng: fp.lng, label: fp.name,
-                        noAutoFire: true
-                      });
+                      // v0.62.100 — operator: "set my current location instead of
+                      // hardcoding to SOUTHKEY". If the live device GPS is already
+                      // in Johor, anchor THERE; only fall back to the Southkey
+                      // focus default when the device isn't in JB (e.g. browsing
+                      // JB from Singapore).
+                      if (userLoc && isJbCoords(userLoc)) {
+                        onLocationSelect({
+                          lat: userLoc.lat, lng: userLoc.lng,
+                          fly: true, noAutoFire: true
+                        });
+                      } else {
+                        const fp = JB_FOCUS_POINTS[JB_FOCUS_DEFAULT];
+                        onLocationSelect({
+                          lat: fp.lat, lng: fp.lng, label: fp.name,
+                          noAutoFire: true
+                        });
+                      }
                     }
                   }
                   // v0.62.97 — operator bug: 🇸🇬 after a non-SG anchor (Johor → SG)
