@@ -17097,6 +17097,28 @@ async function cacheBotUsername() {
             console.log(`[NL-Query] D772 brand-name prepended — "${trimmed}" + ${JSON.stringify(cuisineNames)}`);
           }
         }
+        // v0.62.94 — colloquial dish-alias expansion (operator: "how about:
+        // Dai Lok"). "dai lok" alone is ambiguous to Places (matches lok-lok
+        // 淥淥 / Tai Ka Lok 大家乐, not the 大碌麵 Hokkien-Mee dish — only the
+        // "mee" token disambiguated). Prepend the canonical dish term(s) so the
+        // nickname resolves to the right places. See dish-aliases.js.
+        try {
+          const { expandDishAliases } = require('./dish-aliases');
+          const alias = expandDishAliases(text);
+          if (alias) {
+            // Drop the ambiguous verbatim query the brand-passthrough prepended
+            // (bare "dai lok" pulls lok-lok 淥淥 noise) — we now know the dish.
+            const trimmedLC = typeof text === 'string' ? text.trim().toLowerCase() : '';
+            cuisineQueries = cuisineQueries.filter((q) => q && q.toLowerCase() !== trimmedLC);
+            const fresh = alias.terms.filter(
+              (t) => !cuisineQueries.some((q) => q && q.toLowerCase() === t.toLowerCase())
+            );
+            cuisineQueries = [...fresh, ...cuisineQueries];
+            console.log(`[NL-Query] D774 dish-alias ${alias.label} → queries ${JSON.stringify(cuisineQueries.slice(0, 4))}…`);
+          }
+        } catch (err) {
+          console.warn(`[NL-Query] dish-alias skipped: ${err.message}`);
+        }
         // v0.59.0: resolve active lang for NL discovery.
         const { resolveLang: resolveLangNL } = require('./user-prefs');
         const nlBodyLang = (typeof nlLangIn === 'string' && ['en','fr'].includes(nlLangIn)) ? nlLangIn : null;
