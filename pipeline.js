@@ -965,7 +965,7 @@ function pagesForRequest(maxResults, maxPages) {
   return Math.max(1, Math.min(Math.max(Number(maxPages) || 1, neededPages), 3));
 }
 
-async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', lang = 'en', diag = noopDiag(), expandSingaporean = true, applyDishTailThrottle = true, maxPages = 1, queryOverride = null }) {
+async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', lang = 'en', diag = noopDiag(), expandSingaporean = true, applyDishTailThrottle = true, maxPages = 1, queryOverride = null, fanOutSeeds = false }) {
   const languageCode = lang === 'fr' ? 'fr' : 'en';
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!mapsApiKey) {
@@ -1049,15 +1049,9 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
         'X-Goog-Api-Key': mapsApiKey,
         'X-Goog-FieldMask': `${DISCOVER_FIELD_MASK},nextPageToken`
       };
-      const textBody = {
-        // v0.60.117 — when the caller passes a queryOverride (the
-        // Cuisine TMA escalates to alternate phrasings like
-        // "best Italian restaurant Singapore" once the default
-        // "Italian cuisine restaurant" pool is exhausted), use it
-        // verbatim; otherwise the v0.57.15 default phrasing.
-        textQuery: (typeof queryOverride === 'string' && queryOverride.trim())
-          ? queryOverride.trim()
-          : `${cuisineQuery} cuisine restaurant`,
+      // Common Text Search body, shared by the single-query path and the
+      // per-seed fan-out below. `textQuery` is set per-path.
+      const baseTextBody = {
         includedType: 'restaurant',
         strictTypeFiltering: false,
         regionCode,
@@ -1073,6 +1067,50 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
           }
         },
         openNow: false // Surface closed venues too — refine layer decides
+      };
+      // v0.62.93 — SPECIAL-MODE SEED FAN-OUT. The OR-join above sends ALL
+      // synonym seeds as one query, so Google returns ONE prominence-ranked
+      // set — which badly under-recalls the NEAR pool (durian from IOI City
+      // Mall: 4 within 15 km via OR-join vs 39 actually present). When the
+      // caller sets `fanOutSeeds` (special modes only), run EACH seed as its
+      // own Text Search and merge+dedup by placeId, so the UNION of per-term
+      // nearest results surfaces (incl. low-prominence stalls like "97 Durian",
+      // a `wholesaler` 11.8 km away that never ranked into the OR-query top set).
+      // One page per seed keeps the cost bounded (~N seeds vs 1 call); the
+      // synonym seeds are already specific, so the bare seed is the textQuery.
+      if (fanOutSeeds && effectiveCuisines.length > 1) {
+        const seenIds = new Set();
+        const merged = [];
+        for (const seed of effectiveCuisines) {
+          const q = String(seed || '').trim();
+          if (!q) continue;
+          try {
+            const { data: sd } = await axios.post(
+              PLACES_TEXT_URL, { ...baseTextBody, textQuery: q },
+              { headers: PLACES_PAGE_HEADERS, timeout: 8000 }
+            );
+            for (const p of (sd?.places || [])) {
+              if (p && p.id && !seenIds.has(p.id)) { seenIds.add(p.id); merged.push(p); }
+            }
+          } catch (err) {
+            console.warn(`[discover] fan-out seed "${q}" failed: ${err.message}`);
+          }
+        }
+        data = { places: merged };
+        diag('D710b', 'special-mode seed fan-out', true, { seeds: effectiveCuisines.length, merged: merged.length });
+        const msFan = Date.now() - t0;
+        void msFan;
+      } else {
+      const textBody = {
+        // v0.60.117 — when the caller passes a queryOverride (the
+        // Cuisine TMA escalates to alternate phrasings like
+        // "best Italian restaurant Singapore" once the default
+        // "Italian cuisine restaurant" pool is exhausted), use it
+        // verbatim; otherwise the v0.57.15 default phrasing.
+        ...baseTextBody,
+        textQuery: (typeof queryOverride === 'string' && queryOverride.trim())
+          ? queryOverride.trim()
+          : `${cuisineQuery} cuisine restaurant`,
       };
       const { data: textData } = await axios.post(PLACES_TEXT_URL, textBody, { headers: PLACES_PAGE_HEADERS, timeout: 8000 });
       data = textData;
@@ -1107,6 +1145,7 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
           break;
         }
       }
+      }   // v0.62.93 — end single-query (non-fan-out) path
     } else {
       // v0.59.42: when Dessert is selected, query the dessert-shaped
       // type set instead of the generic restaurant set. Empty-cuisine

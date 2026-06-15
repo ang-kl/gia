@@ -15511,7 +15511,12 @@ async function cacheBotUsername() {
                   lang: csLang,                                    // v0.59.0
                   expandSingaporean: !skipExpand,                  // v0.59.26
                   maxPages: 3,                                     // v0.60.116
-                  queryOverride: vOverride                         // v0.60.117
+                  queryOverride: vOverride,                        // v0.60.117
+                  // v0.62.93 — special modes (durian/fruits) use synonym seeds;
+                  // fan each out as its own Text Search + dedup instead of the
+                  // OR-join, so the near pool isn't lost to prominence ranking
+                  // (durian: 4 → ~39 within 15 km, incl. 97 Durian).
+                  fanOutSeeds: !!specialMode
                 });
                 pool = Array.isArray(cand) ? cand : (cand?.venues || []);
                 if (poolKey && redis.isOpen && pool.length >= 3) {
