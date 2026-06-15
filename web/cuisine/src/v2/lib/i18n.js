@@ -28,13 +28,19 @@ const STRINGS = {
   'header.tagline':            { en: '💬 Tell me or 🔍 Search', fr: '💬 Dis-moi ou 🔍 Rechercher' },
   'region.singapore':          { en: 'Singapore', fr: 'Singapour' },
   'region.johor':              { en: 'Johor Bahru', fr: 'Johor Bahru' },
+  // v0.62.97 — 📍 Current: action button that anchors to the live device GPS.
+  'region.current':            { en: 'Current', fr: 'Ma position' },
+  'region.current.error':      { en: "Couldn't get your current location — check location permission.",
+                                 fr: "Impossible d'obtenir votre position — vérifiez l'autorisation de localisation." },
   // v0.61.159 — third region pill on the Cuisine TMA, part of the
   // location-classification phased build's PR 5/5.
   // v0.61.185 — pill semantics generalised from "Putrajaya" → "Others"
   // (matches location-mode.js's SG | JB | OTHER classifier). The
   // pill now covers any non-SG/JB anchor: Putrajaya, KL, Penang,
   // Batam, etc. Cap bumped 15 km → 20 km (operator's spec).
-  'region.others':             { en: 'Others', fr: 'Autres' },
+  // v0.62.97 — operator renamed "Others" → "Cities" (the pill opens the
+  // country+city picker, so "Cities" reads truer than the vague "Others").
+  'region.others':             { en: 'Cities', fr: 'Villes' },
   // v0.60.213 — two-line footer.
   'footer.howto':              { en: '📍 Enter location or 💬 type dish · Tap 🔍 to search',
                                  fr: '📍 Saisir un lieu ou 💬 taper un plat · 🔍 pour rechercher' },
