@@ -202,6 +202,19 @@ export default function App() {
   // the SG device GPS (the country-drift bug). Resets to false on reload, so
   // device-follow still works on a plain GPS start with no pick.
   const explicitPickRef = useRef(false);
+  // v0.62.97 — operator: tapping 🇸🇬 after a non-SG anchor (e.g. Johor → SG)
+  // used to keep the old anchor (KL's Mid Valley) and only flip the flag.
+  // Remember the last REAL Singapore anchor so the pill can restore it;
+  // fall back to Merlion Park when none has been picked yet. Seeded from
+  // localStorage so it survives reloads.
+  const MERLION = { lat: 1.2867892, lng: 103.8545014, name: 'Merlion Park' };
+  const lastSgAnchorRef = useRef(null);
+  if (lastSgAnchorRef.current === null && typeof localStorage !== 'undefined') {
+    try {
+      const raw = localStorage.getItem('gia.lastSgAnchor');
+      lastSgAnchorRef.current = raw ? JSON.parse(raw) : undefined;
+    } catch { lastSgAnchorRef.current = undefined; }
+  }
   const syncStartedRef = useRef(false);
   useEffect(() => {
     if (syncStartedRef.current) return;
@@ -2707,6 +2720,33 @@ export default function App() {
   // v0.61.29 — LocationField pick handler, hoisted to a named callback
   // so the field can render in the banner slot above the map instead
   // of inside the collapsed Search-criteria section.
+  // v0.62.97 — operator: a 📍 Current button that sets the anchor to the LIVE
+  // device location (not the cached anchor), identical for free-chat and the
+  // Telegram device. navigator.geolocation is the common path in both runtimes
+  // (the Telegram WebView proxies it to the device GPS), so a single code path
+  // serves both. maximumAge:0 forces a fresh fix (never the cached position).
+  // Per operator: set + fly only — the user taps 🔍 to search (parity with the
+  // SG/JB/Cities pills).
+  const pickCurrentLocation = React.useCallback(() => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      setLocMoveNote({ text: t('region.current.error', lang) });
+      return;
+    }
+    explicitPickRef.current = true;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords || {};
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+          setLocMoveNote({ text: t('region.current.error', lang) });
+          return;
+        }
+        onLocationSelect({ lat: latitude, lng: longitude, label: t('region.current', lang), fly: true, noAutoFire: true });
+      },
+      () => { setLocMoveNote({ text: t('region.current.error', lang) }); },
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 12000 }
+    );
+  }, [lang]);
+
   function onLocationSelect(p) {
     if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) {
       // v0.62.33 — operator: "i switch from putrajaya to Hanoi, the what to
@@ -2801,6 +2841,11 @@ export default function App() {
       if (!p.noSyncRegion) {
         const c = coordsToCountry({ lat: p.lat, lng: p.lng });
         if (c === 'SG') {
+          // v0.62.97 — remember this SG anchor so the 🇸🇬 pill can restore it
+          // later (the Merlion fallback is itself an SG coord, so it persists
+          // too — acceptable: it just becomes the remembered SG spot).
+          lastSgAnchorRef.current = { lat: p.lat, lng: p.lng, name: p.label || '' };
+          try { localStorage.setItem('gia.lastSgAnchor', JSON.stringify(lastSgAnchorRef.current)); } catch { /* private mode */ }
           setState((s) => (s.region === 'SG' ? s : { ...s, region: 'SG' }));
         } else if (c === 'MY') {
           const target = isJbCoords({ lat: p.lat, lng: p.lng }) ? 'JB' : 'OTHER';
@@ -3192,6 +3237,9 @@ export default function App() {
             falls back to the 🌏 globe. */}
         <div className="flex gap-1.5">
           {[
+            // v0.62.97 — 📍 Current: an ACTION (not a region toggle) that anchors
+            // to the live device GPS. Listed first so "set me here" reads left→right.
+            { id: 'CURRENT', flag: '📍', label: t('region.current', lang), action: true },
             { id: 'SG', flag: '🇸🇬', label: t('region.singapore', lang) },
             { id: 'JB', flag: 'MY_Johor_flag.png', label: t('region.johor', lang) },
             // v0.61.185 — third pill for OTHER (anything not SG/JB:
@@ -3207,10 +3255,13 @@ export default function App() {
               label: t('region.others', lang)
             }
           ].map((r) => {
-            const sel = (state.region || 'SG') === r.id;
+            // v0.62.97 — 📍 Current is an action button, never a "selected" region.
+            const sel = !r.action && (state.region || 'SG') === r.id;
             return (
               <button key={r.id} type="button"
                 onClick={() => {
+                  // v0.62.97 — 📍 Current: resolve LIVE GPS, then bail (no region toggle).
+                  if (r.id === 'CURRENT') { pickCurrentLocation(); return; }
                   explicitPickRef.current = true;   // v0.61.438 — F2: a pill tap is explicit
                   setState((s) => {
                     // v0.60.199 — ✳️ Michelin list is SG-only; when the
@@ -3258,13 +3309,36 @@ export default function App() {
                       });
                     }
                   }
+                  // v0.62.97 — operator bug: 🇸🇬 after a non-SG anchor (Johor → SG)
+                  // kept KL's Mid Valley and only swapped the flag. Mirror the JB
+                  // auto-anchor: when the current anchor isn't in Singapore, restore
+                  // the last real SG pick, else Merlion Park. fly:true so the map
+                  // actually moves there; noAutoFire so the user taps 🔍 (pill parity).
+                  if (r.id === 'SG') {
+                    const anchorInSg = locationAnchor
+                      && Number.isFinite(locationAnchor.lat)
+                      && Number.isFinite(locationAnchor.lng)
+                      && coordsToCountry(locationAnchor) === 'SG';
+                    if (!anchorInSg) {
+                      const sg = lastSgAnchorRef.current || MERLION;
+                      onLocationSelect({
+                        lat: sg.lat, lng: sg.lng, label: sg.name || MERLION.name,
+                        fly: true, noAutoFire: true
+                      });
+                    }
+                  }
                 }}
-                aria-pressed={sel}
-                className={`flex-1 px-2.5 py-1 rounded-full border text-xs whitespace-nowrap inline-flex items-center justify-center gap-1.5 ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'bg-tg-card text-tg-text border-tg-border'}`}>
+                aria-pressed={r.action ? undefined : sel}
+                aria-label={r.action ? r.label : undefined}
+                /* v0.62.97 — operator: all four buttons are liquid-glass 3D
+                   rectangles with a slightly less-curved edge (rounded-full →
+                   rounded-xl) + the shared .glass-pill frosting. Selected region
+                   gets an accent ring + tint; the action + idle pills stay frosted. */
+                className={`glass-pill flex-1 min-w-0 px-2 py-1.5 rounded-xl border text-[11px] whitespace-nowrap inline-flex items-center justify-center gap-1 ${sel ? 'border-tg-accent text-tg-accent ring-1 ring-tg-accent/50' : 'border-tg-border/60 text-tg-text'}`}>
                 {(r.flag.endsWith('.png') || r.flag.endsWith('.svg'))
                   ? <img src={r.flag} alt="" width="18" height="12" className="rounded-sm border border-tg-border/40 flex-shrink-0" />
                   : <span aria-hidden>{r.flag}</span>}
-                <span>{r.label}</span>
+                <span className="truncate">{r.label}</span>
               </button>
             );
           })}
