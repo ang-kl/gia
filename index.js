@@ -218,7 +218,10 @@ async function reverseGeocodeAddress(lat, lng) {
   if (!apiKey) return null;
   const gLat = lat.toFixed(4);
   const gLng = lng.toFixed(4);
-  const cacheKey = `revgeo:addr:v3:${gLat}:${gLng}`;
+  // v0.62.99 — cache key bumped v3→v4: payload now also carries the parsed
+  // streetNumber / route / locality so the "Area set" notify can compose a
+  // proper street address (street no. + road, city, ISO-2 country).
+  const cacheKey = `revgeo:addr:v4:${gLat}:${gLng}`;
   try {
     if (redis.isOpen) {
       const cached = await redis.get(cacheKey);
@@ -280,7 +283,13 @@ async function reverseGeocodeAddress(lat, lng) {
     const country = countryComp?.long_name || findComp('country') || null;
     const countryCode = countryComp?.short_name || null;
     const adminAreaLevel1 = findComp('administrative_area_level_1') || null;
-    const payload = { name, formatted, country, countryCode, adminAreaLevel1 };
+    // v0.62.99 — parsed street parts for the "Area set" notify line. A missing
+    // street_number is the "street name is ambiguous" signal (per operator)
+    // that triggers the nearest-landmark lookup.
+    const streetNumber = findComp('street_number') || null;
+    const route = findComp('route') || null;
+    const locality = findComp('locality') || findComp('postal_town') || null;
+    const payload = { name, formatted, country, countryCode, adminAreaLevel1, streetNumber, route, locality };
     try {
       if (redis.isOpen) await redis.set(cacheKey, JSON.stringify(payload), { EX: 24 * 60 * 60 });
     } catch { /* cache-write fail is non-fatal */ }
@@ -289,6 +298,72 @@ async function reverseGeocodeAddress(lat, lng) {
     console.warn('[reverseGeocode] failed:', err.message);
     return null;
   }
+}
+
+// v0.62.99 — operator: when the reverse-geocoded street name is ambiguous (no
+// house number), the "Area set" notify should append "(near <landmark>)".
+// Find the most prominent nearby place within 400 m. Cached 24 h; '∅' marks a
+// confirmed no-result so we don't re-call. Only invoked on the ambiguous path,
+// so it adds at most one Places call per new ambiguous pick.
+async function nearestLandmark(lat, lng) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) return null;
+  const cacheKey = `revgeo:landmark:v1:${lat.toFixed(4)}:${lng.toFixed(4)}`;
+  try {
+    if (redis.isOpen) {
+      const cached = await redis.get(cacheKey);
+      if (cached) return cached === '∅' ? null : cached;
+    }
+  } catch { /* cache miss is fine */ }
+  try {
+    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=400&key=${apiKey}`;
+    const { data } = await axios.get(url, { timeout: 5000 });
+    // Prominence-ranked; skip administrative/road rows — we want a building or
+    // POI a human would recognise ("Fullerton Hotel", not "Esplanade Dr").
+    const SKIP = new Set(['locality', 'political', 'route', 'neighborhood',
+      'sublocality', 'postal_code', 'plus_code']);
+    const hit = (data?.results || []).find((x) => x?.name
+      && Array.isArray(x.types) && !x.types.some((t) => SKIP.has(t)));
+    const name = hit?.name || null;
+    try {
+      if (redis.isOpen) await redis.set(cacheKey, name || '∅', { EX: 24 * 60 * 60 });
+    } catch { /* non-fatal */ }
+    return name;
+  } catch (err) {
+    console.warn('[nearestLandmark] failed:', err.message);
+    return null;
+  }
+}
+
+// v0.62.99 — operator: the "Area set" chat line must be a geo-coordinate-
+// resolved address, never a bare label ("Current" / "George Town" / "Merlion").
+// Compose: <b>name</b> · street no.+road, city, ISO-2 country (near landmark?).
+// Always rebuilt from the coords; the client label is only a last-ditch
+// fallback when the reverse-geocode itself fails.
+async function buildAreaSetLine(lat, lng, fallbackLabel) {
+  const esc = (s) => escapeHtmlForTelegram(String(s == null ? '' : s));
+  const geo = await reverseGeocodeAddress(lat, lng).catch(() => null);
+  if (!geo) {
+    const nm = (fallbackLabel || '').trim() || `${lat.toFixed(3)}, ${lng.toFixed(3)}`;
+    return `<b>${esc(nm)}</b>`;
+  }
+  const name = (geo.name || (fallbackLabel || '').trim() || 'Area');
+  const street = [geo.streetNumber, geo.route].filter(Boolean).join(' ').trim();
+  const ambiguous = !geo.streetNumber;   // no house number → ambiguous street
+  const parts = [];
+  if (street) parts.push(street);
+  if (geo.locality && geo.locality !== name) parts.push(geo.locality);
+  if (geo.countryCode) parts.push(geo.countryCode);   // ISO-2 per operator
+  let landmark = '';
+  if (ambiguous) {
+    const lm = await nearestLandmark(lat, lng).catch(() => null);
+    if (lm && lm !== name) landmark = lm;
+  }
+  let html = `<b>${esc(name)}</b>`;
+  if (parts.length) html += ` · ${esc(parts.join(', '))}`;
+  if (landmark) html += ` ${esc(`(near ${landmark})`)}`;
+  return html;
 }
 
 // v0.61.400 — tidyRecentLabel (full street+building+city display string
@@ -1286,20 +1361,18 @@ async function notifySearchAreaSet({ chatId, prev, lat, lng, label }) {
       || haversineMeters({ lat: prev.lat, lng: prev.lng }, { lat, lng }) > 1000;
     const labelChanged = !!label && !!prev && prev.label && prev.label !== label;
     if (!movedFar && !labelChanged) return;   // same area → stay quiet
-    let name = (label || '').trim();
-    if (!name) {
-      const geo = await reverseGeocodeAddress(lat, lng).catch(() => null);
-      name = (geo && (geo.name || geo.formatted)) || `${lat.toFixed(3)}, ${lng.toFixed(3)}`;
-    }
+    // v0.62.99 — always resolve a real address from the coords (the client
+    // label "Current"/"Merlion Park"/"George Town" is no longer shown verbatim).
+    const areaHtml = await buildAreaSetLine(lat, lng, label);
     const { resolveLang } = require('./user-prefs');
     const { tn } = require('./i18n');
     const lang = await resolveLang(redis, chatId);
     await bot.sendMessage(
       chatId,
-      tn('loc.searchArea.set', lang, { label: escapeHtmlForTelegram(name) }),
-      { parse_mode: 'HTML' }
+      tn('loc.searchArea.set', lang, { area: areaHtml }),
+      { parse_mode: 'HTML', disable_web_page_preview: true }
     );
-    console.log(`[set-location] search-area notify chat=${chatId} label="${name.slice(0, 40)}"`);
+    console.log(`[set-location] search-area notify chat=${chatId} area="${areaHtml.replace(/<[^>]+>/g, '').slice(0, 60)}"`);
   } catch (err) {
     console.warn('[set-location] search-area notify failed:', err && err.message);
   }
