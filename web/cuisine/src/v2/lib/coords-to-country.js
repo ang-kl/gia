@@ -39,11 +39,16 @@ const SG_LNG_MAX = 104.10;
 // ~1.358 (Tuas). The previous flat SG_LAT_MAX=1.47 was correct for
 // the central/east half (Woodlands/Sembawang/Pulau Ubin/Tekong) but
 // over-claimed Iskandar Puteri / Legoland for SG. Split the SG
-// bbox so coords west of lng 103.70 get a tighter SG_LAT_MAX of
-// 1.42, leaving Legoland (1.4296, 103.6321) and Iskandar Puteri /
-// Pendas / Bukit Indah correctly classified as JB.
+// bbox so coords west of lng 103.70 get a tighter SG_LAT_MAX.
+// v0.62.100 — operator: 📍 Current on the Iskandar Puteri / Gelang Patah
+// highway (lat ~1.40–1.42) showed the 🇸🇬 flag. The earlier cap of 1.42
+// still swallowed that Malaysian strip as SG. Lowered to 1.36 so it sits
+// just above Tuas (Second Link CIQ ~1.349 → stays SG) and just below
+// Tanjung Pelepas (~1.363) / Gelang Patah / Iskandar Puteri / Legoland
+// (1.4296) → all correctly MY/JB. West of 103.70 there is no inhabited
+// SG land above ~1.35, so this only reclassifies Malaysian coords.
 const SG_LNG_WEST_THRESHOLD = 103.70;
-const SG_LAT_MAX_WEST = 1.42;
+const SG_LAT_MAX_WEST = 1.36;
 
 // Johor state extent (the chunk of Malaysia adjacent to SG). The
 // southernmost MY land mass: Pontian → Kulai → Mersing → Desaru +
