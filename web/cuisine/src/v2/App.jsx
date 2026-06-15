@@ -466,14 +466,31 @@ export default function App() {
   // reminder; once loading ends, fall back to the original ~7 s toast life —
   // but in every case enforce a hard 15 s ceiling from when it first showed.
   const ratingReminderShownAtRef = useRef(0);
+  // v0.62.96 — operator: "on first load why repeat this leaked pop-up message
+  // which is after the first card". The initial loading overlay already shows
+  // the reset/intro line; the same reminder then re-appeared as the bottom
+  // toast once the overlay closed (the existing suppression only held WHILE
+  // loading — and v0.62.95 keeps the reminder alive up to 15 s, so the leak
+  // became reliable). Track whether the overlay displayed this reminder and, if
+  // so, never repeat it as a toast (see the toast's render guard below).
+  const [reminderShownInOverlay, setReminderShownInOverlay] = useState(false);
   useEffect(() => {
-    if (!ratingReminder) { ratingReminderShownAtRef.current = 0; return undefined; }
+    if (!ratingReminder) {
+      ratingReminderShownAtRef.current = 0;
+      setReminderShownInOverlay(false);
+      return undefined;
+    }
     if (!ratingReminderShownAtRef.current) ratingReminderShownAtRef.current = Date.now();
+    // The initial overlay shows this reminder for non-'saved' kinds while a
+    // first-load (non-rotating / non-refresh) search runs — mark it consumed.
+    if (loading && loadingReason !== 'rotating' && loadingReason !== 'refresh' && ratingReminder.kind !== 'saved') {
+      setReminderShownInOverlay(true);
+    }
     const capLeft = Math.max(0, 15000 - (Date.now() - ratingReminderShownAtRef.current));
     const delay = loading ? capLeft : Math.min(7000, capLeft);
     const id = setTimeout(() => setRatingReminder(null), delay);
     return () => clearTimeout(id);
-  }, [ratingReminder, loading]);
+  }, [ratingReminder, loading, loadingReason]);
   // Reset the pref to the Good+ default, persisting only when it actually
   // changes (keeps Redis + chat /rating in agreement without no-op POSTs).
   const ratingPrefReminderRef = useRef('3.7');
@@ -3002,8 +3019,10 @@ export default function App() {
           the two never overlap. Tap to dismiss; auto-hides after 7 s.
           v0.62.x — on RELAUNCH the reset/intro copy is shown INSIDE the initial
           loading overlay (below "Please wait…"), so suppress this toast while
-          that overlay is up to avoid the duplicate. */}
-      {ratingReminder && !(loading && !funFact && loadingReason !== 'rotating' && loadingReason !== 'refresh' && ratingReminder.kind !== 'saved') && (
+          that overlay is up to avoid the duplicate.
+          v0.62.96 — and once the overlay has shown it, never repeat it as a
+          toast after the overlay closes (`reminderShownInOverlay`). */}
+      {ratingReminder && !reminderShownInOverlay && !(loading && !funFact && loadingReason !== 'rotating' && loadingReason !== 'refresh' && ratingReminder.kind !== 'saved') && (
         <div className="pointer-events-none fixed inset-x-0 bottom-14 z-50 flex justify-center px-3">
           <button
             type="button"
