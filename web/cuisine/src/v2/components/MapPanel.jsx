@@ -668,23 +668,22 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         pinNode.addEventListener('mouseover', onMouseOver);
         pinNode.addEventListener('mouseout', onMouseOut);
       }
-      // v0.58.51: click on desktop → open Google Maps via tg.openLink.
-      // v0.58.54: on touch devices, click instead opens the InfoWindow
-      // preview with the embedded "📍 Open in Google Maps" CTA. The
-      // user taps once for preview, again for Maps — matches Google
-      // Maps' own native mobile pattern.
+      // v0.62.114 — operator: tapping a venue pin INSIDE the TMA must open the
+      // in-app info card, never jump out to the Google Maps app. The prior
+      // touch-vs-desktop split (v0.58.51/54) sent every NON-touch click straight
+      // to openInGoogleMaps(v) — so on Telegram Desktop (or any device not
+      // detected as touch) a pin tap left the Mini App. That's wrong on every
+      // platform. Always open the InfoWindow preview; it already carries the
+      // explicit "Google Map ↗" CTA (window.__giaOpenMap) for users who do want
+      // to leave. Mirrors the result-card tap path and the Hawker TMA.
       marker.addListener('click', () => {
         pinFocusRef.current = v.placeId;
         onPinTap?.(v.placeId);
-        if (isTouchRef.current) {
-          if (infoWindowRef.current) {
-            infoWindowRef.current.setContent(infoHtml);
-            infoWindowRef.current.open(mapRef.current, marker);
-            openInfoIdRef.current = v.placeId;
-            maybeShowTransit(v.placeId);   // v0.62.106 — SG + zoom≥14 transit context
-          }
-        } else {
-          openInGoogleMaps(v);
+        if (infoWindowRef.current) {
+          infoWindowRef.current.setContent(infoHtml);
+          infoWindowRef.current.open(mapRef.current, marker);
+          openInfoIdRef.current = v.placeId;
+          maybeShowTransit(v.placeId);   // v0.62.106 — transit context on tap
         }
       });
       markersRef.current.push(marker);
