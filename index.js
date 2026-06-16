@@ -18188,6 +18188,20 @@ async function cacheBotUsername() {
       if (!best) return null;
       return { name: best.name, codes: best.codes, lines: best.lines, lat: best.lat, lng: best.lng };
     }
+    // v0.62.107 — operator #4: the hawker card lists the 2 NEAREST stations
+    // (was 1). Sorted-by-distance variant.
+    function nearestStationsTo(lat, lng, n = 2) {
+      const cosLat = Math.cos(lat * Math.PI / 180);
+      const scored = [];
+      for (const s of loadMrtCoords()) {
+        if (s.status !== 'operational') continue;
+        const dx = (s.lng - lng) * cosLat;
+        const dy = s.lat - lat;
+        scored.push({ s, d: dx * dx + dy * dy });
+      }
+      scored.sort((a, b) => a.d - b.d);
+      return scored.slice(0, n).map(({ s }) => ({ name: s.name, codes: s.codes, lines: s.lines, lat: s.lat, lng: s.lng }));
+    }
     app.get('/api/hawker/centre-transit', async (req, res) => {
       try {
         const lat = Number(req.query.lat);
@@ -18196,27 +18210,29 @@ async function cacheBotUsername() {
           res.status(400).json({ error: 'lat/lng required' });
           return;
         }
-        const CACHE_KEY = `hawker:transit:${lat.toFixed(4)},${lng.toFixed(4)}`;
+        // v0.62.107 — cache key bumped v2: payload now carries 2 stations + 3
+        // bus stops (was 1 station + 2 bus stops).
+        const CACHE_KEY = `hawker:transit:v2:${lat.toFixed(4)},${lng.toFixed(4)}`;
         if (redis.isOpen) {
           const cached = await redis.get(CACHE_KEY).catch(() => null);
           if (cached) { res.json(JSON.parse(cached)); return; }
         }
-        const station = nearestStationTo(lat, lng);
-        // v0.61.10 — attach the nearest station's exits (verbatim
-        // EXIT_CODE values) for the hawker map-pin transit template.
-        if (station && station.name) {
-          const ex = exitsForStation(station.name);
-          if (ex && ex.length) {
-            station.exits = ex.map((e) => e && e.exit).filter(Boolean);
+        // v0.62.107 — operator #4: 2 nearest stations (each with exits), 3 bus stops.
+        const stations = nearestStationsTo(lat, lng, 2);
+        for (const st of stations) {
+          if (st && st.name) {
+            const ex = exitsForStation(st.name);
+            if (ex && ex.length) st.exits = ex.map((e) => e && e.exit).filter(Boolean);
           }
         }
+        const station = stations[0] || null;   // back-compat for any old reader
         let busStops = [];
         try {
-          if (redis.isOpen) busStops = await transport.nearestStops(redis, lat, lng, 800, 2);
+          if (redis.isOpen) busStops = await transport.nearestStops(redis, lat, lng, 800, 3);
         } catch (err) {
           console.warn('[hawker-transit] bus stops:', err.message);
         }
-        const payload = { station, busStops };
+        const payload = { station, stations, busStops };
         if (redis.isOpen) {
           redis.set(CACHE_KEY, JSON.stringify(payload), { EX: 1800 }).catch(() => {});
         }

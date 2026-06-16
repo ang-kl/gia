@@ -173,8 +173,16 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       const c = (centresRef.current || []).find((x) => `${x.name}|${x.postal || ''}` === key);
       if (c?.mapsUrl) openLink(c.mapsUrl);
     };
+    // v0.62.107 — open the Train Mini App focused on a station code (the hawker
+    // card's 🚉 links). Same /app/transport?station=<CODE> deep-link the Cuisine
+    // card uses (Transport TMA reads ?station= on boot).
+    window.__giaHawkerOpenTransport = (code) => {
+      if (!code) return;
+      openLink(`${window.location.origin}/app/transport?station=${encodeURIComponent(code)}`);
+    };
     return () => {
       try { delete window.__giaHawkerOpenMap; } catch { window.__giaHawkerOpenMap = undefined; }
+      try { delete window.__giaHawkerOpenTransport; } catch { window.__giaHawkerOpenTransport = undefined; }
     };
   }, []);
 
@@ -279,20 +287,22 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     if (c.address) {
       h += `<div style="color:${p.sub};margin-top:3px;">📇 ${escapeHtml(c.address)}</div>`;
     }
+    // v0.62.107 — operator #4: nearest 3 bus stops + 2 stations; the station
+    // codes deep-link the Train Mini App (not Google Maps).
     const bus = transit && Array.isArray(transit.busStops) ? transit.busStops : [];
-    for (const b of bus.slice(0, 2)) {
+    for (const b of bus.slice(0, 3)) {
       if (!Number.isFinite(b.lat) || !Number.isFinite(b.lng)) continue;
       h += `<div style="margin-top:2px;"><a href="${escapeHtml(gmaps(b.lat, b.lng))}" target="_blank" rel="noopener" style="color:${p.link};">🚌 ${escapeHtml(b.code || '')} ${escapeHtml(b.description || '')}</a></div>`;
     }
-    const st = transit && transit.station;
-    if (st && st.name && Number.isFinite(st.lat) && Number.isFinite(st.lng)) {
+    const stations = (transit && Array.isArray(transit.stations) && transit.stations.length)
+      ? transit.stations
+      : (transit && transit.station ? [transit.station] : []);
+    for (const st of stations.slice(0, 2)) {
+      if (!st || !st.name) continue;
       const codes = Array.isArray(st.codes) ? st.codes.join('/') : '';
+      const first = (Array.isArray(st.codes) && st.codes[0]) || '';
       const lines = Array.isArray(st.lines) && st.lines.length ? ` · ${st.lines.join('/')}` : '';
-      h += `<div style="margin-top:2px;"><a href="${escapeHtml(gmaps(st.lat, st.lng))}" target="_blank" rel="noopener" style="color:${p.link};">🚉 ${escapeHtml(codes)} ${escapeHtml(st.name)}${escapeHtml(lines)}</a></div>`;
-      const exits = Array.isArray(st.exits) ? st.exits.filter(Boolean) : [];
-      if (exits.length) {
-        h += `<div style="color:${p.sub};margin-top:2px;">${escapeHtml(exits.join(', '))}</div>`;
-      }
+      h += `<div style="margin-top:2px;"><a href="#" onclick="window.__giaHawkerOpenTransport&&window.__giaHawkerOpenTransport('${escapeHtml(first)}');return false;" style="color:${p.link};text-decoration:underline;cursor:pointer;">🚉 ${escapeHtml(codes)} ${escapeHtml(st.name)}${escapeHtml(lines)}</a></div>`;
     }
     // v0.61.31 — standard trailing "Google Map ↗" hyperlink (every TMA).
     h += `<div style="margin-top:4px;"><a href="#" onclick="window.__giaHawkerOpenMap('${escapeHtml(key)}'); return false;" style="color:${p.link};text-decoration:underline;cursor:pointer;">Google Map ↗</a></div>`;
