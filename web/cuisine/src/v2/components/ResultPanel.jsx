@@ -233,6 +233,16 @@ export default function ResultPanel({
   useEffect(() => {
     if (typeof onPageChange === 'function') onPageChange(pagedVenues);
   }, [pagedVenues, onPageChange]);
+  // v0.62.104 — operator: result cards lost the rank badge that the map pins
+  // still carry. The map numbers the page it plots (visibleVenues = pagedVenues)
+  // 1-based, so key each venue to its position in pagedVenues; ResultCard renders
+  // the matching badge regardless of paging or city-grouping order.
+  const rankByKey = useMemo(() => {
+    const m = new Map();
+    (pagedVenues || []).forEach((v, i) => { if (v) m.set(v.placeId || v.name, i + 1); });
+    return m;
+  }, [pagedVenues]);
+  const rankOf = (v) => (v ? rankByKey.get(v.placeId || v.name) : null);
 
   // v0.61.403 — progressive reveal of the FIRST impression (parity with
   // gia-web v0.1.151): paint the curated first batch one card at a time
@@ -504,7 +514,7 @@ export default function ResultPanel({
                     </div>
                   )}
                   {g.venues.map((v, i) => (
-                    <ResultCard key={v.placeId || `${g.city || ''}-${i}`} venue={v} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} />
+                    <ResultCard key={v.placeId || `${g.city || ''}-${i}`} venue={v} number={rankOf(v)} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} />
                   ))}
                 </React.Fragment>
               ));
@@ -547,7 +557,7 @@ export default function ResultPanel({
                       {lang === 'fr' ? 'Ouvert il y a 3 à 6 mois' : 'Opened 3–6 months ago'}
                     </div>
                   )}
-                  <ResultCard venue={v} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} />
+                  <ResultCard venue={v} number={rankOf(v)} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} />
                 </React.Fragment>
               );
             });
