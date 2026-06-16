@@ -75,6 +75,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   const overlayLayersRef = useRef(overlayLayers);
   useEffect(() => { overlayLayersRef.current = overlayLayers; }, [overlayLayers]);
   const markersRef = useRef([]);
+  const markerByIdRef = useRef(new Map());
   const userMarkerRef = useRef(null);
   // v0.61.10 — ⚠️ traffic-accident markers within 250 m of the search
   // anchor, shown while cuisine results are on the map.
@@ -346,6 +347,13 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     const v = (venuesRef.current || []).find((x) => x.placeId === focusedPlaceId);
     if (v && Number.isFinite(v.lat) && Number.isFinite(v.lng)) {
       mapRef.current.panTo({ lat: v.lat, lng: v.lng });
+      // v0.62.105 — operator: tapping a result card should HIGHLIGHT the spot,
+      // not just pan. Open that pin's info popup (same content as a pin tap).
+      const entry = markerByIdRef.current.get(focusedPlaceId);
+      if (entry && infoWindowRef.current) {
+        infoWindowRef.current.setContent(entry.infoHtml);
+        infoWindowRef.current.open(mapRef.current, entry.marker);
+      }
     }
   }, [focusedPlaceId]);
 
@@ -447,6 +455,10 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     const { AdvancedMarkerElement, PinElement } = window.google.maps.marker;
     for (const m of markersRef.current) m.map = null;
     markersRef.current = [];
+    // v0.62.105 — key venue markers + their popup HTML by placeId so a result-
+    // card tap can OPEN the pin's info popup (highlight the location), not just
+    // pan to it.
+    markerByIdRef.current = new Map();
     const bounds = new window.google.maps.LatLngBounds();
     // v0.58.53: hoist InfoWindow init above the userLoc block so the
     // anchor-pin hover wiring sees a populated ref on the first sync.
@@ -606,6 +618,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         }
       });
       markersRef.current.push(marker);
+      if (v.placeId) markerByIdRef.current.set(v.placeId, { marker, infoHtml });
       bounds.extend({ lat: v.lat, lng: v.lng });
     }
     // v0.58.16: reverted v0.58.15's "extend bounds with radius circle"

@@ -191,15 +191,10 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
     <button type="button" onClick={() => onTap?.(venue.placeId)}
       className={`w-full text-left rounded-lg border bg-tg-card p-2.5 flex flex-col gap-1 ${focused ? 'border-tg-accent' : 'border-tg-border'}`}>
       <div className="flex items-start gap-2">
-        {/* v0.62.104 — operator: restore the rank badge so each card matches its
-            numbered map pin (same 1-based position in the current page). Mirrors
-            the green map droplet (#34C759). */}
+        {/* v0.62.105 — operator: drop the green circle; the rank is a plain
+            "1." … "12." ordinal matching the numbered map pin. */}
         {Number.isFinite(number) && (
-          <span
-            aria-hidden
-            className="mt-0.5 grid h-5 w-5 flex-shrink-0 place-items-center rounded-full text-[11px] font-bold text-white"
-            style={{ background: '#34C759' }}
-          >{number}</span>
+          <span className="mt-0.5 flex-shrink-0 text-sm font-semibold text-tg-hint tabular-nums">{number}.</span>
         )}
         <div className="flex-1 min-w-0">
           <div className="font-semibold text-sm leading-tight truncate">{venue.name}</div>
