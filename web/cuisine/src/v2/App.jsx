@@ -28,6 +28,7 @@ import LocationField from './components/LocationField.jsx';
 import MapPanel from './components/MapPanel.jsx';
 import TellMePanel from './components/TellMePanel.jsx';
 import ResultPanel from './components/ResultPanel.jsx';
+import ResultCarousel from './components/ResultCarousel.jsx';
 import ArrivalPlate from './components/ArrivalPlate.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import BackFab from './components/BackFab.jsx';
@@ -3495,11 +3496,27 @@ export default function App() {
         region={state.region}
         onMapMove={setMapViewLocation}
         flyTo={flyTarget}
+        /* v0.62.125 — tap on the empty map exits the result carousel
+           (back to the vertical list), per operator "tap-out → list". */
+        onDeselect={() => setFocusedPlaceId(null)}
         /* v0.62.6 — Michelin city-grouping: fit-bounds over the given pins
            (set-city pins in Case A, all visible pins in Case B, a tapped
            city group's pins on jump-row tap). Null on non-Michelin pages. */
         fitPins={fitPins}
-      />
+      >
+        {/* v0.62.125 — music-app "now playing" carousel: when a result card is
+            selected it floats over the lower map, the picked card centred +
+            auto-expanded, neighbours peeking; ✕/tap-out returns to the list. */}
+        {focusedPlaceId && (
+          <ResultCarousel
+            venues={visibleVenues.length ? visibleVenues : venues}
+            focusedPlaceId={focusedPlaceId}
+            onSelect={setFocusedPlaceId}
+            onClose={() => setFocusedPlaceId(null)}
+            specialMode={state.specialMode || null}
+          />
+        )}
+      </MapPanel>
 
       {/* v0.60.84 — ActiveFilters chip bar removed from this slot per
           operator 2026-05-10. The pills now live inside the Search

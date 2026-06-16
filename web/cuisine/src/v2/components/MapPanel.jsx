@@ -93,7 +93,11 @@ function transitBlockHtml(transit) {
   return rows.join('');
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, onMapMove, flyTo, fitPins, children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, onMapMove, flyTo, fitPins, onDeselect, children }) {
+  // v0.62.125 — onDeselect (tap empty map → exit the result carousel) kept in a
+  // ref so the long-lived map-click handler always calls the current prop.
+  const onDeselectRef = useRef(null);
+  useEffect(() => { onDeselectRef.current = onDeselect; }, [onDeselect]);
   const [lang] = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -293,7 +297,10 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       }
     };
     window.__giaMapInfoClose = closeInfo;
-    mapRef.current.addListener('click', closeInfo);
+    // v0.62.125 — a tap on the empty map closes the popup AND deselects (exits
+    // the result carousel → back to the list). onDeselect is map-click-only, so
+    // the in-card ✕ (which also calls closeInfo) doesn't force-exit the carousel.
+    mapRef.current.addListener('click', () => { closeInfo(); onDeselectRef.current?.(); });
     syncMarkers();
   }
 
