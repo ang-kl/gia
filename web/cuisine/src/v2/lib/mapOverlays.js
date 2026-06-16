@@ -1206,6 +1206,9 @@ export function createOverlayController(map, googleMaps, opts) {
       if (layers.train) applyVisibility('train');
       if (layers.busstop) applyVisibility('busstop');
       if (layers.exits) applyVisibility('exits');
+      // v0.62.109 — re-tier the transient on-tap transit (3 bus + 2 stations)
+      // so it tracks the live busTier/trainTier bands as the user zooms.
+      renderVenueTransit();
       // v0.61.97 — the amenity layers re-tier on zoom (dot / glyph /
       // label) — see amenityTier.
       for (const n of ['attractions', 'clinics', 'police', 'hospitals', 'parks', 'carpark']) {
@@ -1242,7 +1245,10 @@ export function createOverlayController(map, googleMaps, opts) {
   // v0.62.106 — operator: tapping a venue (SG, zoom ≥ 14) surfaces the nearby
   // bus stops + 2 nearest stations even when the Train/Bus toggles are OFF.
   // These transient pins are drawn on the venue tap and cleared on card close.
+  // v0.62.109 — store the resolved bus/station markers so renderVenueTransit()
+  // can re-tier them (busTier/trainTier) on every zoom change.
   let venueTransitPins = [];
+  let venueTransitData = null;   // { buses:[{marker,code}], stations:[item] }
   // v0.61.95 — operator part 5: monochrome state + the coloured SVG
   // train-line overlay (lazily built — see makeTrainColourOverlay).
   let monochrome = false;
@@ -1551,6 +1557,27 @@ export function createOverlayController(map, googleMaps, opts) {
   function clearVenueTransit() {
     for (const m of venueTransitPins) m.map = null;
     venueTransitPins = [];
+    venueTransitData = null;
+  }
+  // v0.62.109 — operator: the transient on-tap transit must be drawn at the
+  // EXACT zoom tiers the toggled overlays use — busTier(zoom) for bus stops,
+  // trainTier(tma, zoom) for stations — and re-tier on zoom change. This
+  // swaps each marker's content to the current band (no rebuild).
+  function renderVenueTransit() {
+    if (!venueTransitData) return;
+    const z = map.getZoom?.() || 0;
+    for (const e of venueTransitData.buses) {
+      e.marker.content = busTierNode(busTier(z), e.code);
+    }
+    if (venueTransitData.stations.length) {
+      const tier = trainTier(tma, z, false);
+      const mode = tier.station === 'pill' ? 'pill'
+        : tier.station === 'sq-sm' ? 'sq-sm'
+        : 'chip:' + (tier.scale || 1);
+      for (const it of venueTransitData.stations) {
+        it.marker.content = trainStationNode(mode, it);
+      }
+    }
   }
   function _haversineM(aLat, aLng, bLat, bLng) {
     const toR = (d) => (d * Math.PI) / 180;
@@ -1582,21 +1609,26 @@ export function createOverlayController(map, googleMaps, opts) {
       })
       .filter((x) => Number.isFinite(x.d))
       .sort((x, y) => x.d - y.d).slice(0, 2);
-    // draw transient markers (reuse existing rendering); skip if layer already on
+    // draw transient markers; skip a layer that's already on (it renders them
+    // itself). Content is set by renderVenueTransit() at the live zoom tier.
+    venueTransitData = { buses: [], stations: [] };
+    const z0 = map.getZoom?.() || 0;
     if (!(layers.busstop && layers.busstop.visible)) {
       for (const b of buses) {
         const marker = new AdvancedMarkerElement({
-          position: { lat: b.lat, lng: b.lng }, content: busPinNode(b.code, true), gmpClickable: true
+          position: { lat: b.lat, lng: b.lng }, content: busTierNode(busTier(z0), b.code), gmpClickable: true
         });
         marker.addListener('click', () => openBusInfo(map, info, b, marker));
         marker.map = map;
         venueTransitPins.push(marker);
+        venueTransitData.buses.push({ marker, code: b.code });
       }
     }
     if (!(layers.train && layers.train.visible)) {
       const items = buildTrainStations(stations.map((x) => x.s));
-      for (const it of items) { it.marker.map = map; venueTransitPins.push(it.marker); }
+      for (const it of items) { it.marker.map = map; venueTransitPins.push(it.marker); venueTransitData.stations.push(it); }
     }
+    renderVenueTransit();   // tier the freshly-drawn markers for the current zoom
     out.bus = buses.map((b) => ({ code: b.code, name: b.description || b.name || '' }));
     out.stations = stations.map((x) => ({ codes: Array.isArray(x.s.codes) ? x.s.codes : [], name: x.s.name || '' }));
     return out;

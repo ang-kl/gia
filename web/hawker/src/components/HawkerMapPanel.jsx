@@ -347,6 +347,13 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
         const cached = transitCacheRef.current[c.name];
         infoWindowRef.current.setContent(buildInfoHtml(c, key, cached || null));
         infoWindowRef.current.open(mapRef.current, marker);
+        // v0.62.109 — operator: on a centre tap, draw the nearest 3 bus stops +
+        // 2 stations on the MAP (toggle-independent), rendered at the live
+        // busTier/trainTier zoom band. Transient — replaced on the next tap and
+        // cleared on card close (controller.closeInfo). Mirrors the Cuisine TMA.
+        if (Number.isFinite(c.lat) && Number.isFinite(c.lng)) {
+          overlayControllerRef.current?.showVenueTransit?.(c.lat, c.lng);
+        }
         // v0.61.10 — lazy-fetch nearest station + bus stops, then
         // refresh the open bubble with the transit template.
         if (!cached && Number.isFinite(c.lat) && Number.isFinite(c.lng)) {

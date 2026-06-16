@@ -373,11 +373,12 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // panning now lives in its own effect below.
   useEffect(() => { syncMarkers(); }, [venues, userLoc, searchCenter?.lat, searchCenter?.lng]); // eslint-disable-line
 
-  // v0.62.106 — operator (#3/#4, SG only): on a venue tap at zoom ≥ 14, surface
-  // the nearest 3 bus stops + 2 stations on the MAP (toggle-independent) and
-  // append them to the open card. Reuses the controller's showVenueTransit
-  // (existing marker rendering). The async result re-renders the card only if
-  // its popup is still the open one.
+  // v0.62.106 — operator (#3/#4, SG only): on a venue tap, surface the nearest
+  // 3 bus stops + 2 stations on the MAP (toggle-independent) and append them to
+  // the open card. Reuses the controller's showVenueTransit.
+  // v0.62.109 — operator: drop the zoom ≥ 14 gate — show at ANY zoom; the
+  // markers render at the live busTier/trainTier band (tiny squares when far
+  // out, labels when zoomed in), and re-tier on zoom change.
   function maybeShowTransit(placeId) {
     const ctrl = overlayControllerRef.current;
     // v0.62.106 — these pins are TEMPORARY: every venue/card tap (and tap-out,
@@ -388,7 +389,6 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     const entry = placeId && markerByIdRef.current.get(placeId);
     if (!ctrl || !ctrl.showVenueTransit || !entry) return;
     if ((region || 'SG') !== 'SG') return;
-    if ((mapRef.current?.getZoom?.() || 0) < 14) return;
     ctrl.showVenueTransit(entry.lat, entry.lng).then((transit) => {
       if (!transit || (!transit.bus.length && !transit.stations.length)) return;
       if (openInfoIdRef.current !== placeId || !infoWindowRef.current) return;
