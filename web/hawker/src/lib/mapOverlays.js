@@ -801,8 +801,13 @@ function gmapsLinkRow(lat, lng) {
 export function infoCard(inner, gmaps) {
   const c = infoPalette();
   const tail = gmaps ? gmapsLinkRow(gmaps.lat, gmaps.lng) : '';
-  return '<div style="position:relative;background:' + c.bg + ';'
+  // v0.62.129 — operator: the map pop-up card is SKEUOMORPHIC (not liquid glass)
+  // — a raised, beveled card (gradient + drop shadow + inset highlight + border).
+  return '<div style="position:relative;'
+    + 'background:linear-gradient(180deg,' + c.bg + ',color-mix(in srgb,' + c.bg + ' 86%,#000 14%));'
     + 'border-radius:14px;padding:9px 30px 9px 12px;color:' + c.fg + ';'
+    + 'border:1px solid color-mix(in srgb,' + c.fg + ' 20%,transparent);'
+    + 'box-shadow:0 6px 16px rgba(0,0,0,0.30),0 1px 0 rgba(0,0,0,0.10),inset 0 1px 0 rgba(255,255,255,0.85);'
     + 'font-size:13px;font-weight:500;line-height:1.5;max-width:248px;">'
     + '<span onclick="window.__giaMapInfoClose&&window.__giaMapInfoClose()" '
     + 'style="position:absolute;top:4px;right:6px;width:20px;height:20px;'
