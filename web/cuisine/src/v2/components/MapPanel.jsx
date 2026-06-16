@@ -384,6 +384,11 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // its popup is still the open one.
   function maybeShowTransit(placeId) {
     const ctrl = overlayControllerRef.current;
+    // v0.62.106 — these pins are TEMPORARY: every venue/card tap (and tap-out,
+    // via closeInfo) drops the previous set first, so they never linger. They
+    // only re-appear on the next qualifying tap; the persistent Train/Bus layer
+    // markers (when toggled on) are separate and untouched.
+    ctrl?.clearVenueTransit?.();
     const entry = placeId && markerByIdRef.current.get(placeId);
     if (!ctrl || !ctrl.showVenueTransit || !entry) return;
     if ((region || 'SG') !== 'SG') return;
