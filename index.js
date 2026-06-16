@@ -3744,13 +3744,18 @@ bot.on('callback_query', async (q) => {
           await safeSend(chatId, t('wake2.offerExpired', cbLang));
           return;
         }
-        // Overwrite the cached anchor with the device GPS. This is the
-        // standard setUserLocation path — no precinct, no addressComponents
-        // (would need a separate Places reverse-geocode to populate those;
-        // the deviceStreet we surfaced is a reverse-geocode but not a
-        // structured-parts breakdown). The user can re-set via the Menu
-        // TMA for the richer pill if they want it back.
-        await setUserLocation(redis, chatId, offer.lat, offer.lng);
+        // Overwrite the cached anchor with the device GPS. v0.62.101 — operator:
+        // after "📍 Use current location" the Cuisine TMA still showed the OLD
+        // anchor's name ("Gelang Patah") in the location field even though the
+        // map + flag had moved to the device spot (Telok Blangah). Root cause:
+        // this write updated the coords but passed NO label, so the stale label
+        // survived in the cache (a fresh payload otherwise drops the old name).
+        // Pass `offer.street` — the device name we already reverse-geocoded and
+        // showed the user in the prompt — so the field now reads where they
+        // accepted. (Still no structured addressComponents; the Menu TMA can
+        // re-set for the richer pill.)
+        await setUserLocation(redis, chatId, offer.lat, offer.lng,
+          (offer.street && String(offer.street).trim()) ? { label: String(offer.street).trim() } : {});
         await redis.del(`wake2:offer:${chatId}`).catch(() => {});
         await safeSend(chatId,
           tn('wake2.currentApplied', cbLang, { street: escapeHtmlForTelegram(offer.street || '') }),

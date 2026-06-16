@@ -202,6 +202,10 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       cameraControl: true,
       cameraControlOptions: { position: window.google.maps.ControlPosition.LEFT_BOTTOM },
       keyboardShortcuts: true,
+      // v0.62.102 — operator: zooming out far enough hung the embedded map
+      // (world-view tile/marker blow-up). Gate the camera on all three TMA maps:
+      // minZoom 5 (no global zoom-out) … maxZoom 20 (no over-zoom past street).
+      minZoom: 5, maxZoom: 20,
       gestureHandling: 'greedy', mapId: mapIdRef.current
     });
     mapRef.current.addListener('idle', handleIdle);
