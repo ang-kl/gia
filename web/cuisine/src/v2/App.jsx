@@ -3508,20 +3508,20 @@ export default function App() {
            (set-city pins in Case A, all visible pins in Case B, a tapped
            city group's pins on jump-row tap). Null on non-Michelin pages. */
         fitPins={fitPins}
-      >
-        {/* v0.62.125 — music-app "now playing" carousel: when a result card is
-            selected it floats over the lower map, the picked card centred +
-            auto-expanded, neighbours peeking; ✕/tap-out returns to the list. */}
-        {focusedPlaceId && (
-          <ResultCarousel
-            venues={visibleVenues.length ? visibleVenues : venues}
-            focusedPlaceId={focusedPlaceId}
-            onSelect={setFocusedPlaceId}
-            onClose={() => setFocusedPlaceId(null)}
-            specialMode={state.specialMode || null}
-          />
-        )}
-      </MapPanel>
+      />
+
+      {/* v0.62.128 — operator: the result carousel now docks at the FOOTER
+          (off the map) rather than overlaying it. Fixed above the FAB cluster;
+          ✕ or a tap on the empty map returns to the list. */}
+      {focusedPlaceId && (
+        <ResultCarousel
+          venues={visibleVenues.length ? visibleVenues : venues}
+          focusedPlaceId={focusedPlaceId}
+          onSelect={setFocusedPlaceId}
+          onClose={() => setFocusedPlaceId(null)}
+          specialMode={state.specialMode || null}
+        />
+      )}
 
       {/* v0.60.84 — ActiveFilters chip bar removed from this slot per
           operator 2026-05-10. The pills now live inside the Search
