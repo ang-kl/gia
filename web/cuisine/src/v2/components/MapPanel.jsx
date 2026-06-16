@@ -82,7 +82,12 @@ function transitBlockHtml(transit) {
     rows.push(`<div style="font-size:12px;color:${p.sub};margin-top:3px;">🚆 ${links}</div>`);
   }
   if (Array.isArray(transit.bus) && transit.bus.length) {
-    const codes = transit.bus.map((b) => escapeHtml(b.code)).join(' · ');
+    // v0.62.120 — operator: the bus-stop codes are now hyperlinks too (parity
+    // with the station links above). Tap → pan + open live arrivals on this map.
+    const codes = transit.bus.map((b) => {
+      const code = escapeHtml(b.code);
+      return `<a href="#" onclick="window.__giaFocusBusStop&&window.__giaFocusBusStop('${code}');return false;" style="color:${p.link};text-decoration:underline;cursor:pointer;">${code}</a>`;
+    }).join(' · ');
     rows.push(`<div style="font-size:12px;color:${p.sub};margin-top:2px;">🚌 ${codes}</div>`);
   }
   return rows.join('');
@@ -201,11 +206,17 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     window.__giaFocusStation = (code) => {
       overlayControllerRef.current?.focusStation?.(code);
     };
+    // v0.62.120 — operator: bus-stop codes in the venue card are hyperlinks too;
+    // tap → pan + open the stop's live-arrivals popup on this map.
+    window.__giaFocusBusStop = (code) => {
+      overlayControllerRef.current?.focusBusStop?.(code);
+    };
     return () => {
       touchMql.removeEventListener?.('change', onTouchChange);
       tabletMql.removeEventListener?.('change', onTabletChange);
       try { delete window.__giaOpenMap; } catch { window.__giaOpenMap = undefined; }
       try { delete window.__giaFocusStation; } catch { window.__giaFocusStation = undefined; }
+      try { delete window.__giaFocusBusStop; } catch { window.__giaFocusBusStop = undefined; }
     };
   }, []);
 
