@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-14",
-  "count": 1016,
+  "generated": "2026-06-16",
+  "count": 1042,
   "records": [
     {
       "pr": 1,
@@ -29064,6 +29064,751 @@
         "doc/vault"
       ],
       "title": "perf(cuisine): instrument enrichSlow with per-phase timing (D707)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1030,
+      "status": "merged",
+      "merged": "2026-06-14 02:27:50",
+      "day": "2026-06-14",
+      "version": "0.62.76",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: docs+vault catch-up to v0.62.76 (VibeCodingRecord #1023–#1029 · Register/Technical · vault/v0.62.76)",
+      "approach": "Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is…",
+      "codeImpact": "1557 files — doc, vault, public/",
+      "modules": [
+        "doc",
+        "public/",
+        "vault"
+      ],
+      "nFiles": 1557,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "legal",
+        "doc/vault"
+      ],
+      "title": "docs+vault catch-up to v0.62.76 (VibeCodingRecord #1023–#1029 · Register/Technical · vault/v0.62.76)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1031,
+      "status": "merged",
+      "merged": "2026-06-14 05:53:36",
+      "day": "2026-06-14",
+      "version": "0.62.77",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: wait pop-up first-result name + blink-not-spin; BestTime SG-only (v0.62.77)",
+      "approach": "Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is…",
+      "codeImpact": "7 files — index.js, cuisine-enrich.js, TMA:cuisine, doc, package",
+      "modules": [
+        "cuisine-enrich.js",
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "feat(cuisine-tma): wait pop-up first-result name + blink-not-spin; BestTime SG-only (v0.62.77)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1032,
+      "status": "merged",
+      "merged": "2026-06-14 06:23:54",
+      "day": "2026-06-14",
+      "version": "0.62.78",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: wait-card progressive name (v0.62.78) + durian zero-results root fix (v0.62.79)",
+      "approach": "Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is…",
+      "codeImpact": "7 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "fix(cuisine): wait-card progressive name (v0.62.78) + durian zero-results root fix (v0.62.79)",
+      "reworkCue": false,
+      "reworkOf": 1031,
+      "burst": true
+    },
+    {
+      "pr": 1033,
+      "status": "merged",
+      "merged": "2026-06-14 06:50:59",
+      "day": "2026-06-14",
+      "version": "0.62.80",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: durian all-seen recycle + progressive-name placement & prominent distance (v0.62.80–81)",
+      "approach": "Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is…",
+      "codeImpact": "7 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "fix(cuisine): durian all-seen recycle + progressive-name placement & prominent distance (v0.62.80–81)",
+      "reworkCue": false,
+      "reworkOf": 1032,
+      "burst": true
+    },
+    {
+      "pr": 1034,
+      "status": "merged",
+      "merged": "2026-06-14 07:37:15",
+      "day": "2026-06-14",
+      "version": "0.62.82",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: wait-card polish + MY/KUL gap fix (v0.62.82)",
+      "approach": "Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is…",
+      "codeImpact": "6 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "feat(cuisine-tma): wait-card polish + MY/KUL gap fix (v0.62.82)",
+      "reworkCue": false,
+      "reworkOf": 1033,
+      "burst": true
+    },
+    {
+      "pr": 1035,
+      "status": "merged",
+      "merged": "2026-06-14 08:14:50",
+      "day": "2026-06-14",
+      "version": "0.62.83",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: location prompt HTML, wait-card polish, quick-pick row/dynamic-current + /location card (v0.62.83–86)",
+      "approach": "Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is…",
+      "codeImpact": "6 files — index.js, i18n.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "i18n.js",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "fix(bot+tma): location prompt HTML, wait-card polish, quick-pick row/dynamic-current + /location card (v0.62.83–86)",
+      "reworkCue": false,
+      "reworkOf": 1034,
+      "burst": true
+    },
+    {
+      "pr": 1036,
+      "status": "merged",
+      "merged": "2026-06-14 08:40:10",
+      "day": "2026-06-14",
+      "version": "0.62.87",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: wait-card alignment (v0.62.87) + durian-repeat \"🔭 Widen\" prompt (v0.62.88)",
+      "approach": "Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is…",
+      "codeImpact": "6 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "fix(cuisine): wait-card alignment (v0.62.87) + durian-repeat \"🔭 Widen\" prompt (v0.62.88)",
+      "reworkCue": false,
+      "reworkOf": 1035,
+      "burst": true
+    },
+    {
+      "pr": 1037,
+      "status": "merged",
+      "merged": "2026-06-14 09:11:33",
+      "day": "2026-06-14",
+      "version": "0.62.89",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: Stop pill bottom-right + sticky Widen switch & liquid-glass buttons (v0.62.89–90)",
+      "approach": "Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is…",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "fix(cuisine-tma): Stop pill bottom-right + sticky Widen switch & liquid-glass buttons (v0.62.89–90)",
+      "reworkCue": false,
+      "reworkOf": 1036,
+      "burst": true
+    },
+    {
+      "pr": 1038,
+      "status": "merged",
+      "merged": "2026-06-14 10:23:07",
+      "day": "2026-06-14",
+      "version": "0.62.91",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: widen tap lifts the discovery radius, not just the cap (v0.62.91)",
+      "approach": "Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is…",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "fix(cuisine): widen tap lifts the discovery radius, not just the cap (v0.62.91)",
+      "reworkCue": false,
+      "reworkOf": 1037,
+      "burst": true
+    },
+    {
+      "pr": 1039,
+      "status": "merged",
+      "merged": "2026-06-14 13:39:29",
+      "day": "2026-06-14",
+      "version": "0.62.92",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: stop the widen repeat — deeper recall + recycle rotation + honest signal (v0.62.92)",
+      "approach": "Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is…",
+      "codeImpact": "5 files — index.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "fix(cuisine): stop the widen repeat — deeper recall + recycle rotation + honest signal (v0.62.92)",
+      "reworkCue": false,
+      "reworkOf": 1038,
+      "burst": true
+    },
+    {
+      "pr": 1040,
+      "status": "merged",
+      "merged": "2026-06-14 16:05:32",
+      "day": "2026-06-14",
+      "version": "0.62.92",
+      "minor": "0.62",
+      "category": "docs",
+      "area": "Cuisine Picker",
+      "intent": "Update docs: record PR #1039 merge (widen-repeat trio v0.62.92 → PROD) — № 778",
+      "approach": "Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is…",
+      "codeImpact": "2 files — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "doc(journal): record PR #1039 merge (widen-repeat trio v0.62.92 → PROD) — № 778",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1041,
+      "status": "merged",
+      "merged": "2026-06-15 00:16:24",
+      "day": "2026-06-15",
+      "version": "0.62.93",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: special-mode seed fan-out — stop OR-join under-recall (v0.62.93)",
+      "approach": "Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is…",
+      "codeImpact": "3 files — index.js, pipeline.js, package",
+      "modules": [
+        "index.js",
+        "package",
+        "pipeline.js"
+      ],
+      "nFiles": 3,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state"
+      ],
+      "title": "fix(cuisine): special-mode seed fan-out — stop OR-join under-recall (v0.62.93)",
+      "reworkCue": false,
+      "reworkOf": 1040,
+      "burst": true
+    },
+    {
+      "pr": 1042,
+      "status": "merged",
+      "merged": "2026-06-15 03:01:07",
+      "day": "2026-06-15",
+      "version": "",
+      "minor": "",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: widen NL/Tell-me path + dish-alias + 15s rating line",
+      "approach": "Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is…",
+      "codeImpact": "7 files — index.js, dish-aliases.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "dish-aliases.js",
+        "doc",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "fix(cuisine): widen NL/Tell-me path + dish-alias + 15s rating line",
+      "reworkCue": false,
+      "reworkOf": 1041,
+      "burst": true
+    },
+    {
+      "pr": 1043,
+      "status": "merged",
+      "merged": "2026-06-15 04:39:14",
+      "day": "2026-06-15",
+      "version": "",
+      "minor": "",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "Fix: stop rating-reset toast repeating after first-load card",
+      "approach": "Operator (IMG_2415): on first load the rating-reset message showed twice — once inside the loading overlay (\"Finding eateries… / Rating reset to Good+ ≥ 3.7\") and then AGAIN as the standalone bottom toast after the card closed.",
+      "codeImpact": "2 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 2,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "fix(cuisine): stop rating-reset toast repeating after first-load card",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1044,
+      "status": "merged",
+      "merged": "2026-06-15 10:47:44",
+      "day": "2026-06-15",
+      "version": "",
+      "minor": "",
+      "category": "refactor",
+      "area": "Infra / setup",
+      "intent": "Refactor: 📍 Current + SG re-anchor + Cities rename + glass pills",
+      "approach": "Operator (region pill row + IMG_0634 liquid-glass reference + Railway log): 1.",
+      "codeImpact": "3 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "feat(cuisine): 📍 Current + SG re-anchor + Cities rename + glass pills",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1045,
+      "status": "merged",
+      "merged": "2026-06-15 11:12:27",
+      "day": "2026-06-15",
+      "version": "",
+      "minor": "",
+      "category": "fix",
+      "area": "Maps / geo / location",
+      "intent": "Fix: 📍 Current respects live GPS in Johor + spell out \"Johor Bahru\"",
+      "approach": "Operator (IMG_2426/2427 + Railway log audit): tapping 📍 Current on a Johor highway \"keeps locking me to MIDVALLEY\".",
+      "codeImpact": "3 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "fix(cuisine): 📍 Current respects live GPS in Johor + spell out \"Johor Bahru\"",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1046,
+      "status": "merged",
+      "merged": "2026-06-15 12:02:44",
+      "day": "2026-06-15",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: \"Area set\" notify resolves a real geo-address, not a bare label",
+      "approach": "Operator (IMG_2428/2429): the \"Search area set to: …\" chat message showed bare labels — \"Current\", \"George Town\", \"Merlion Park\" — instead of a resolved address.",
+      "codeImpact": "3 files — index.js, i18n.js, package",
+      "modules": [
+        "i18n.js",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 3,
+      "tmas": [],
+      "impactTags": [],
+      "title": "feat(bot): \"Area set\" notify resolves a real geo-address, not a bare label",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1047,
+      "status": "merged",
+      "merged": "2026-06-15 12:24:08",
+      "day": "2026-06-15",
+      "version": "",
+      "minor": "",
+      "category": "fix",
+      "area": "Maps / geo / location",
+      "intent": "Fix: correct 🇸🇬-flag for west-Johor + prefer live GPS over Southkey",
+      "approach": "Operator (IMG_2430/2431, on a Johor highway near JB): 📍 Current \"shows right location but why Singapore flag\", and the app keeps \"hardcoding to SOUTHKEY\".",
+      "codeImpact": "4 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "fix(cuisine): correct 🇸🇬-flag for west-Johor + prefer live GPS over Southkey",
+      "reworkCue": false,
+      "reworkOf": 1045,
+      "burst": false
+    },
+    {
+      "pr": 1048,
+      "status": "merged",
+      "merged": "2026-06-16 01:06:16",
+      "day": "2026-06-16",
+      "version": "0.62.101",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: \"Use current location\" relabel (v0.62.101) + Google Map zoom gate on 3 TMAs (v0.62.102)",
+      "approach": "fix(bot): \"Use current location\" now relabels the field to the device spot (v0.62.101) Operator (IMG_1053): opened the Cuisine TMA via /cuisine, accepted the wake \"📍 Use current location\" prompt (device = Telok Blangah, SG). The map +…",
+      "codeImpact": "5 files — index.js, TMA:cuisine, TMA:hawker, TMA:transport, package",
+      "modules": [
+        "index.js",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [],
+      "title": "fix: \"Use current location\" relabel (v0.62.101) + Google Map zoom gate on 3 TMAs (v0.62.102)",
+      "reworkCue": false,
+      "reworkOf": 1042,
+      "burst": true
+    },
+    {
+      "pr": 1049,
+      "status": "merged",
+      "merged": "2026-06-16 01:48:28",
+      "day": "2026-06-16",
+      "version": "0.62.103",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: rebuild /about as a recruiter-facing project showcase (v0.62.103)",
+      "approach": "feat(about): rebuild /about as a recruiter-facing project showcase (v0.62.103) Operator: \"I need a professional uplift to showcase as a project submission\" → chosen direction recruiter/portfolio, full rewrite, build step allowed; then…",
+      "codeImpact": "13 files — index.js, ci, package, config",
+      "modules": [
+        "ci",
+        "config",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 13,
+      "tmas": [],
+      "impactTags": [],
+      "title": "feat(about): rebuild /about as a recruiter-facing project showcase (v0.62.103)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1050,
+      "status": "merged",
+      "merged": "2026-06-16 02:10:19",
+      "day": "2026-06-16",
+      "version": "0.62.104",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "Fix: restore result-card rank badge matching the map pin (v0.62.104)",
+      "approach": "Operator (IMG_2436/2437): the numbered green map pins no longer had a corresponding number on the result cards, so you can't tell which card is which pin.",
+      "codeImpact": "3 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "fix(cuisine): restore result-card rank badge matching the map pin (v0.62.104)",
+      "reworkCue": true,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1051,
+      "status": "merged",
+      "merged": "2026-06-16 02:25:36",
+      "day": "2026-06-16",
+      "version": "0.62.105",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "Fix: plain \"N.\" card rank + card tap highlights the map pin (v0.62.105)",
+      "approach": "Operator: revert the green circle badge — the card rank should read as a plain \"1.\" … \"12.\" ordinal; and tapping a card should HIGHLIGHT the location on the map (not just silently pan).",
+      "codeImpact": "3 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "fix(cuisine): plain \"N.\" card rank + card tap highlights the map pin (v0.62.105)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1052,
+      "status": "merged",
+      "merged": "2026-06-16 02:41:30",
+      "day": "2026-06-16",
+      "version": "0.62.106",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Weather",
+      "intent": "Add: SG venue tap shows nearby transit on map + in card (v0.62.106)",
+      "approach": "feat(cuisine): SG venue tap shows nearby transit on map + in card (v0.62.106) Operator #3/#4 (Singapore only): tapping a venue should reveal the nearby bus stops + 2 nearest train stations — on the map (toggle-independent) and inside the…",
+      "codeImpact": "4 files — TMA:cuisine, TMA:transport, package",
+      "modules": [
+        "package",
+        "TMA:cuisine",
+        "TMA:transport"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine",
+        "transport"
+      ],
+      "impactTags": [],
+      "title": "feat(cuisine): SG venue tap shows nearby transit on map + in card (v0.62.106)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1053,
+      "status": "merged",
+      "merged": "2026-06-16 02:49:38",
+      "day": "2026-06-16",
+      "version": "0.62.107",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: card lists 3 bus stops + 2 stations, codes deep-link Train (v0.62.107)",
+      "approach": "Operator #4 (Hawker card): the hawker map-pin card already showed transit (v0.61.10) but with 2 bus stops + 1 station linked to Google Maps.",
+      "codeImpact": "3 files — index.js, TMA:hawker, package",
+      "modules": [
+        "index.js",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [],
+      "title": "feat(hawker): card lists 3 bus stops + 2 stations, codes deep-link Train (v0.62.107)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1054,
+      "status": "merged",
+      "merged": "2026-06-16 03:41:42",
+      "day": "2026-06-16",
+      "version": "0.62.108",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "Fix: flush-left \"1 · name\" card + station links jump in-app (v0.62.108)",
+      "approach": "Operator (two of three asks; #3 zoom-tier rendering follows): #1 — ResultCard layout: the rank was a left COLUMN that indented the whole card body under the name.",
+      "codeImpact": "6 files — TMA:cuisine, TMA:hawker, package",
+      "modules": [
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine",
+        "hawker"
+      ],
+      "impactTags": [],
+      "title": "fix(tma): flush-left \"1 · name\" card + station links jump in-app (v0.62.108)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1055,
+      "status": "merged",
+      "merged": "2026-06-16 04:25:58",
+      "day": "2026-06-16",
+      "version": "0.62.112",
+      "minor": "0.62",
+      "category": "copy",
+      "area": "Hawker NEA",
+      "intent": "Reword: on-tap transit tiers + Hawker parity + full-width Menu dropdown + \"other cities\" copy + pin blink (v0.62.112)",
+      "approach": "feat(tma): on-tap transit rendered at live zoom tiers + Hawker parity (v0.62.109) Operator (#3): the transient on-tap transit (nearest 3 bus stops + 2 train stations, drawn even when the Train/Bus toggles are OFF) must render at the EXACT…",
+      "codeImpact": "8 files — index.js, i18n.js, TMA:cuisine, TMA:menu, TMA:hawker, package",
+      "modules": [
+        "i18n.js",
+        "index.js",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker"
+      ],
+      "impactTags": [],
+      "title": "feat(tma): on-tap transit tiers + Hawker parity + full-width Menu dropdown + \"other cities\" copy + pin blink (v0.62.112)",
       "reworkCue": false,
       "reworkOf": null,
       "burst": false

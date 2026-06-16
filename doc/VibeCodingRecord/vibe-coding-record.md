@@ -1,24 +1,24 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-06-14 from a snapshot of all 1016 pull requests (#1–#1016).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-06-16 from a snapshot of all 1042 pull requests (#1–#1042).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 1016 total — 1006 merged, 10 closed without merge.
+- **PRs:** 1042 total — 1032 merged, 10 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #1029 · 2026-06-13 14:09:42 · _perf(cuisine): instrument enrichSlow with per-phase timing (D707)_
+- **Latest:** #1055 · 2026-06-16 04:25:58 · _feat(tma): on-tap transit tiers + Hawker parity + full-width Menu dropdown + "other cities" copy + pin blink (v0.62.112)_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 667 |
-| fix | 137 |
-| docs | 68 |
-| copy | 45 |
+| feature | 673 |
+| fix | 154 |
+| docs | 69 |
+| copy | 46 |
 | prompt-tune | 42 |
-| refactor | 28 |
+| refactor | 29 |
 | test | 15 |
 | infra | 14 |
 
@@ -26,22 +26,22 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 329 |
-| Core / misc | 151 |
+| Cuisine Picker | 344 |
+| Core / misc | 156 |
 | Docs / vault | 88 |
 | Transport / carpark | 61 |
 | Recognised lists | 57 |
 | Search / free-text | 54 |
-| Hawker NEA | 52 |
+| Hawker NEA | 54 |
 | /hidden surprise | 42 |
-| Infra / setup | 35 |
+| Infra / setup | 36 |
 | Pipeline / discovery | 28 |
 | /eat /drink flow | 20 |
-| Weather | 19 |
+| Weather | 20 |
 | Commands / chat UX | 16 |
 | Language / i18n | 15 |
+| Maps / geo / location | 15 |
 | Menu hub | 14 |
-| Maps / geo / location | 13 |
 | Privacy / legal | 9 |
 | Oversight / usage stats | 8 |
 | Buddy / sharing | 5 |
@@ -1068,6 +1068,32 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 1027 | merged | 2026-06-13 11:56:29 | 0.62.74 | fix | Core / misc | Fix: relevance gate for Australian/NZ — drop generic-Western false positives (v0.62.74) | Operator: an "Australian" search at IOI City Mall Putrajaya returned a Spanish/Iberico "Southern European Deli" in Cheras. | 6 files — index.js, durian-gemini-verifier.js, tests, doc, package | — | tests; doc/vault |
 | 1028 | merged | 2026-06-13 12:56:32 | 0.62.75 | fix | Core / misc | Fix: OTHER geofence fail-closed — stop coordless cross-country leaks (v0.62.75) | Operator: a Russian search in Putrajaya returned Kapitan Restaurant in Singapore (~330km). | 5 files — cuisine-geo-scope.js, tests, doc, package | — | tests; doc/vault |
 | 1029 | merged | 2026-06-13 14:09:42 |  | feature | Pipeline / discovery | Add: instrument enrichSlow with per-phase timing (D707) | Operator "Load failed" = the search hit the 20s D706 deadline (22.5s). | 4 files — cuisine-enrich.js, doc, package | — | doc/vault |
+| 1030 | merged | 2026-06-14 02:27:50 | 0.62.76 | feature | Cuisine Picker | Add: docs+vault catch-up to v0.62.76 (VibeCodingRecord #1023–#1029 · Register/Technical · vault/v0.62.76) | Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is… | 1557 files — doc, vault, public/ | — | Redis/state; legal; doc/vault |
+| 1031 | merged | 2026-06-14 05:53:36 | 0.62.77 | feature | Cuisine Picker | Add: wait pop-up first-result name + blink-not-spin; BestTime SG-only (v0.62.77) | Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is… | 7 files — index.js, cuisine-enrich.js, TMA:cuisine, doc, package | cuisine | Redis/state; doc/vault |
+| 1032 | merged | 2026-06-14 06:23:54 | 0.62.78 | fix | Cuisine Picker | Fix: wait-card progressive name (v0.62.78) + durian zero-results root fix (v0.62.79) | Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is… | 7 files — index.js, TMA:cuisine, doc, package | cuisine | Redis/state; doc/vault |
+| 1033 | merged | 2026-06-14 06:50:59 | 0.62.80 | fix | Cuisine Picker | Fix: durian all-seen recycle + progressive-name placement & prominent distance (v0.62.80–81) | Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is… | 7 files — index.js, TMA:cuisine, doc, package | cuisine | Redis/state; doc/vault |
+| 1034 | merged | 2026-06-14 07:37:15 | 0.62.82 | fix | Cuisine Picker | Fix: wait-card polish + MY/KUL gap fix (v0.62.82) | Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is… | 6 files — TMA:cuisine, doc, package | cuisine | Redis/state; doc/vault |
+| 1035 | merged | 2026-06-14 08:14:50 | 0.62.83 | fix | Cuisine Picker | Fix: location prompt HTML, wait-card polish, quick-pick row/dynamic-current + /location card (v0.62.83–86) | Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is… | 6 files — index.js, i18n.js, TMA:cuisine, doc, package | cuisine | Redis/state; doc/vault |
+| 1036 | merged | 2026-06-14 08:40:10 | 0.62.87 | fix | Cuisine Picker | Fix: wait-card alignment (v0.62.87) + durian-repeat "🔭 Widen" prompt (v0.62.88) | Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is… | 6 files — index.js, TMA:cuisine, doc, package | cuisine | Redis/state; doc/vault |
+| 1037 | merged | 2026-06-14 09:11:33 | 0.62.89 | fix | Cuisine Picker | Fix: Stop pill bottom-right + sticky Widen switch & liquid-glass buttons (v0.62.89–90) | Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is… | 5 files — TMA:cuisine, doc, package | cuisine | Redis/state; doc/vault |
+| 1038 | merged | 2026-06-14 10:23:07 | 0.62.91 | fix | Cuisine Picker | Fix: widen tap lifts the discovery radius, not just the cap (v0.62.91) | Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is… | 4 files — index.js, doc, package | — | Redis/state; doc/vault |
+| 1039 | merged | 2026-06-14 13:39:29 | 0.62.92 | fix | Cuisine Picker | Fix: stop the widen repeat — deeper recall + recycle rotation + honest signal (v0.62.92) | Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is… | 5 files — index.js, TMA:cuisine, doc, package | cuisine | Redis/state; doc/vault |
+| 1040 | merged | 2026-06-14 16:05:32 | 0.62.92 | docs | Cuisine Picker | Update docs: record PR #1039 merge (widen-repeat trio v0.62.92 → PROD) — № 778 | Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is… | 2 files — doc | — | Redis/state; doc/vault |
+| 1041 | merged | 2026-06-15 00:16:24 | 0.62.93 | fix | Cuisine Picker | Fix: special-mode seed fan-out — stop OR-join under-recall (v0.62.93) | Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is… | 3 files — index.js, pipeline.js, package | — | Redis/state |
+| 1042 | merged | 2026-06-15 03:01:07 |  | fix | Cuisine Picker | Fix: widen NL/Tell-me path + dish-alias + 15s rating line | Cuisine search: kill the 500s + concentric rings (per-city tuned) Two operator-reported, source-traced bugs in /api/cuisine/search: 1. HTTPS 500s — the route's single terminal catch turned ANY throw into a 500. Every external await is… | 7 files — index.js, dish-aliases.js, TMA:cuisine, tests, doc, package | cuisine | Redis/state; tests; doc/vault |
+| 1043 | merged | 2026-06-15 04:39:14 |  | fix | Core / misc | Fix: stop rating-reset toast repeating after first-load card | Operator (IMG_2415): on first load the rating-reset message showed twice — once inside the loading overlay ("Finding eateries… / Rating reset to Good+ ≥ 3.7") and then AGAIN as the standalone bottom toast after the card closed. | 2 files — TMA:cuisine, package | cuisine | — |
+| 1044 | merged | 2026-06-15 10:47:44 |  | refactor | Infra / setup | Refactor: 📍 Current + SG re-anchor + Cities rename + glass pills | Operator (region pill row + IMG_0634 liquid-glass reference + Railway log): 1. | 3 files — TMA:cuisine, package | cuisine | — |
+| 1045 | merged | 2026-06-15 11:12:27 |  | fix | Maps / geo / location | Fix: 📍 Current respects live GPS in Johor + spell out "Johor Bahru" | Operator (IMG_2426/2427 + Railway log audit): tapping 📍 Current on a Johor highway "keeps locking me to MIDVALLEY". | 3 files — TMA:cuisine, package | cuisine | — |
+| 1046 | merged | 2026-06-15 12:02:44 |  | feature | Core / misc | Add: "Area set" notify resolves a real geo-address, not a bare label | Operator (IMG_2428/2429): the "Search area set to: …" chat message showed bare labels — "Current", "George Town", "Merlion Park" — instead of a resolved address. | 3 files — index.js, i18n.js, package | — | — |
+| 1047 | merged | 2026-06-15 12:24:08 |  | fix | Maps / geo / location | Fix: correct 🇸🇬-flag for west-Johor + prefer live GPS over Southkey | Operator (IMG_2430/2431, on a Johor highway near JB): 📍 Current "shows right location but why Singapore flag", and the app keeps "hardcoding to SOUTHKEY". | 4 files — TMA:cuisine, package | cuisine | — |
+| 1048 | merged | 2026-06-16 01:06:16 | 0.62.101 | fix | Cuisine Picker | Fix: "Use current location" relabel (v0.62.101) + Google Map zoom gate on 3 TMAs (v0.62.102) | fix(bot): "Use current location" now relabels the field to the device spot (v0.62.101) Operator (IMG_1053): opened the Cuisine TMA via /cuisine, accepted the wake "📍 Use current location" prompt (device = Telok Blangah, SG). The map +… | 5 files — index.js, TMA:cuisine, TMA:hawker, TMA:transport, package | cuisine+hawker+transport | — |
+| 1049 | merged | 2026-06-16 01:48:28 | 0.62.103 | feature | Hawker NEA | Add: rebuild /about as a recruiter-facing project showcase (v0.62.103) | feat(about): rebuild /about as a recruiter-facing project showcase (v0.62.103) Operator: "I need a professional uplift to showcase as a project submission" → chosen direction recruiter/portfolio, full rewrite, build step allowed; then… | 13 files — index.js, ci, package, config | — | — |
+| 1050 | merged | 2026-06-16 02:10:19 | 0.62.104 | fix | Core / misc | Fix: restore result-card rank badge matching the map pin (v0.62.104) | Operator (IMG_2436/2437): the numbered green map pins no longer had a corresponding number on the result cards, so you can't tell which card is which pin. | 3 files — TMA:cuisine, package | cuisine | — |
+| 1051 | merged | 2026-06-16 02:25:36 | 0.62.105 | fix | Core / misc | Fix: plain "N." card rank + card tap highlights the map pin (v0.62.105) | Operator: revert the green circle badge — the card rank should read as a plain "1." … "12." ordinal; and tapping a card should HIGHLIGHT the location on the map (not just silently pan). | 3 files — TMA:cuisine, package | cuisine | — |
+| 1052 | merged | 2026-06-16 02:41:30 | 0.62.106 | feature | Weather | Add: SG venue tap shows nearby transit on map + in card (v0.62.106) | feat(cuisine): SG venue tap shows nearby transit on map + in card (v0.62.106) Operator #3/#4 (Singapore only): tapping a venue should reveal the nearby bus stops + 2 nearest train stations — on the map (toggle-independent) and inside the… | 4 files — TMA:cuisine, TMA:transport, package | cuisine+transport | — |
+| 1053 | merged | 2026-06-16 02:49:38 | 0.62.107 | feature | Cuisine Picker | Add: card lists 3 bus stops + 2 stations, codes deep-link Train (v0.62.107) | Operator #4 (Hawker card): the hawker map-pin card already showed transit (v0.61.10) but with 2 bus stops + 1 station linked to Google Maps. | 3 files — index.js, TMA:hawker, package | hawker | — |
+| 1054 | merged | 2026-06-16 03:41:42 | 0.62.108 | fix | Core / misc | Fix: flush-left "1 · name" card + station links jump in-app (v0.62.108) | Operator (two of three asks; #3 zoom-tier rendering follows): #1 — ResultCard layout: the rank was a left COLUMN that indented the whole card body under the name. | 6 files — TMA:cuisine, TMA:hawker, package | cuisine+hawker | — |
+| 1055 | merged | 2026-06-16 04:25:58 | 0.62.112 | copy | Hawker NEA | Reword: on-tap transit tiers + Hawker parity + full-width Menu dropdown + "other cities" copy + pin blink (v0.62.112) | feat(tma): on-tap transit rendered at live zoom tiers + Hawker parity (v0.62.109) Operator (#3): the transient on-tap transit (nearest 3 bus stops + 2 train stations, drawn even when the Train/Bus toggles are OFF) must render at the EXACT… | 8 files — index.js, i18n.js, TMA:cuisine, TMA:menu, TMA:hawker, package | cuisine+menu+hawker | — |
 
 ---
 
