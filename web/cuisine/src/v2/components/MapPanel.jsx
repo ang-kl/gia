@@ -77,7 +77,7 @@ function transitBlockHtml(transit) {
       const codes = Array.isArray(s.codes) ? s.codes : [];
       const label = ((codes.join('/') + ' ') + (s.name || '')).trim();
       const first = codes[0] || '';
-      return `<a href="#" onclick="window.__giaOpenTransport&&window.__giaOpenTransport('${escapeHtml(first)}');return false;" style="color:${p.link};text-decoration:underline;cursor:pointer;">${escapeHtml(label)}</a>`;
+      return `<a href="#" onclick="window.__giaFocusStation&&window.__giaFocusStation('${escapeHtml(first)}');return false;" style="color:${p.link};text-decoration:underline;cursor:pointer;">${escapeHtml(label)}</a>`;
     }).join(' · ');
     rows.push(`<div style="font-size:12px;color:${p.sub};margin-top:3px;">🚆 ${links}</div>`);
   }
@@ -189,21 +189,17 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       const v = (venuesRef.current || []).find((x) => x.placeId === placeId);
       if (v) openInGoogleMaps(v);
     };
-    // v0.62.106 — open the Train Mini App focused on a station code (the venue
-    // card's 🚆 links). Same-host /app/transport?station=<CODE>; the Transport
-    // TMA reads ?station= on boot.
-    window.__giaOpenTransport = (code) => {
-      if (!code) return;
-      const url = `${window.location.origin}/app/transport?station=${encodeURIComponent(code)}`;
-      const w = tg();
-      if (w && typeof w.openLink === 'function') w.openLink(url, { try_instant_view: false });
-      else window.open(url, '_blank', 'noopener');
+    // v0.62.108 — operator: the venue card's 🚆 station link jumps to that
+    // station ON THIS map and opens its info (stay in the Cuisine TMA — was an
+    // out-of-TMA Train-app deep link).
+    window.__giaFocusStation = (code) => {
+      overlayControllerRef.current?.focusStation?.(code);
     };
     return () => {
       touchMql.removeEventListener?.('change', onTouchChange);
       tabletMql.removeEventListener?.('change', onTabletChange);
       try { delete window.__giaOpenMap; } catch { window.__giaOpenMap = undefined; }
-      try { delete window.__giaOpenTransport; } catch { window.__giaOpenTransport = undefined; }
+      try { delete window.__giaFocusStation; } catch { window.__giaFocusStation = undefined; }
     };
   }, []);
 
