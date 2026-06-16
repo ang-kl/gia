@@ -140,6 +140,12 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // the popup in place without the map jumping (a result-card tap, by
   // contrast, still pans the map to bring the venue into view).
   const pinFocusRef = useRef(null);
+  // v0.62.115 — operator: a result-card tap zooms the map IN to 17 (so the
+  // blinking pin lands you on the street), and a tap on the empty map (or the
+  // card's ✕, via closeInfo) returns to the zoom you were at before. This holds
+  // that pre-focus zoom; it's captured only once per focus burst (so tapping
+  // card after card keeps the original level) and cleared on restore.
+  const prevFocusZoomRef = useRef(null);
   // v0.61.310 — capture the registered Map ID from /maps-key so the
   // Map constructor uses the operator's MAP_ID env var when set
   // (custom vector styling + branding). Mirrors the Transport TMA's
@@ -267,6 +273,13 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       infoWindowRef.current?.close();
       overlayControllerRef.current?.closeInfo?.();   // also clears venue transit pins
       openInfoIdRef.current = null;
+      // v0.62.115 — restore the pre-focus zoom captured when a result card was
+      // tapped (see the focusedPlaceId effect). Tap on the empty map / ✕ → back
+      // to the zoom you were browsing at.
+      if (prevFocusZoomRef.current != null && mapRef.current) {
+        mapRef.current.setZoom(prevFocusZoomRef.current);
+        prevFocusZoomRef.current = null;
+      }
     };
     window.__giaMapInfoClose = closeInfo;
     mapRef.current.addListener('click', closeInfo);
@@ -406,6 +419,14 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     const v = (venuesRef.current || []).find((x) => x.placeId === focusedPlaceId);
     if (v && Number.isFinite(v.lat) && Number.isFinite(v.lng)) {
       mapRef.current.panTo({ lat: v.lat, lng: v.lng });
+      // v0.62.115 — operator: a result-card tap zooms IN to 17 so the blinking
+      // pin drops you onto the street. Capture the current zoom ONCE per focus
+      // burst (don't overwrite if we already zoomed in for a prior card) so a
+      // later tap on the empty map / ✕ (closeInfo) can return to it.
+      if (prevFocusZoomRef.current == null) {
+        prevFocusZoomRef.current = mapRef.current.getZoom?.() ?? null;
+      }
+      mapRef.current.setZoom(17);
       // v0.62.112 — operator: a result-card tap should BLINK the eatery's map
       // pin for ~2-3 s so the eye lands on it. flashPin pulses a hollow ring
       // (44px, wider than the default to clear the venue droplet) for ~2.5 s.
