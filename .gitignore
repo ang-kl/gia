@@ -15,3 +15,5 @@ public/hawker/
 public/transport/
 # Vite build output for the Oversight admin TMA (v0.60.142). Source: web/oversight/.
 public/oversight/
+# Vite build output for the /about project showcase (v0.62.103). Source: web/about/.
+public/about/
