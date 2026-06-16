@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
-import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
+import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
 // v0.61.70 — venue pin carrying the venue's 1-based result number (its
@@ -75,9 +75,14 @@ function transitBlockHtml(transit) {
   if (Array.isArray(transit.stations) && transit.stations.length) {
     const links = transit.stations.map((s) => {
       const codes = Array.isArray(s.codes) ? s.codes : [];
-      const label = ((codes.join('/') + ' ') + (s.name || '')).trim();
       const first = codes[0] || '';
-      return `<a href="#" onclick="window.__giaFocusStation&&window.__giaFocusStation('${escapeHtml(first)}');return false;" style="color:${p.link};text-decoration:underline;cursor:pointer;">${escapeHtml(label)}</a>`;
+      // v0.62.130 — operator: each station code rides its OFFICIAL MRT line
+      // colour (NS red, EW green, CC orange, DT blue, TE brown, BP/LRT grey…)
+      // via codeHex, as a small white-on-colour chip — instead of a plain link.
+      const chips = codes.map((code) =>
+        `<span style="display:inline-block;background:${codeHex(code)};color:#fff;border-radius:5px;padding:0 4px;margin:0 1px;font-weight:700;font-size:11px;line-height:1.6;">${escapeHtml(code)}</span>`
+      ).join('');
+      return `<a href="#" onclick="window.__giaFocusStation&&window.__giaFocusStation('${escapeHtml(first)}');return false;" style="color:${p.sub};text-decoration:none;cursor:pointer;white-space:nowrap;">${chips} ${escapeHtml(s.name || '')}</a>`;
     }).join(' · ');
     rows.push(`<div style="font-size:12px;color:${p.sub};margin-top:3px;">🚆 ${links}</div>`);
   }
