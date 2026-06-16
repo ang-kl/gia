@@ -1239,6 +1239,10 @@ export function createOverlayController(map, googleMaps, opts) {
   // on a station tap even when the Exit overlay is off, so the card's
   // "Exit #" links can always force-render + flash their target pin.
   let stationExitPins = [];
+  // v0.62.106 — operator: tapping a venue (SG, zoom ≥ 14) surfaces the nearby
+  // bus stops + 2 nearest stations even when the Train/Bus toggles are OFF.
+  // These transient pins are drawn on the venue tap and cleared on card close.
+  let venueTransitPins = [];
   // v0.61.95 — operator part 5: monochrome state + the coloured SVG
   // train-line overlay (lazily built — see makeTrainColourOverlay).
   let monochrome = false;
@@ -1536,6 +1540,66 @@ export function createOverlayController(map, googleMaps, opts) {
       marker.map = map;
       stationExitPins.push(marker);
     }
+  }
+
+  // v0.62.106 — operator: on a venue tap (host gates to SG + zoom ≥ 14), show
+  // the nearest 3 bus stops + 2 stations on the map regardless of the Train /
+  // Bus toggles, and return the same set so the venue card can list them.
+  // Reuses the existing marker rendering (buildTrainStations / busPinNode) —
+  // only the WHEN is new. Skips drawing a layer's pins when that layer is
+  // already visible (avoid duplicates); still returns the data for the card.
+  function clearVenueTransit() {
+    for (const m of venueTransitPins) m.map = null;
+    venueTransitPins = [];
+  }
+  function _haversineM(aLat, aLng, bLat, bLng) {
+    const toR = (d) => (d * Math.PI) / 180;
+    const dLat = toR(bLat - aLat), dLng = toR(bLng - aLng);
+    const h = Math.sin(dLat / 2) ** 2
+      + Math.cos(toR(aLat)) * Math.cos(toR(bLat)) * Math.sin(dLng / 2) ** 2;
+    return 6371000 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+  }
+  async function showVenueTransit(lat, lng) {
+    clearVenueTransit();
+    const out = { bus: [], stations: [] };
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return out;
+    let bsData, stData;
+    try { [bsData, stData] = await Promise.all([fetchBusStops(), fetchStations()]); }
+    catch { return out; }
+    // nearest 3 bus stops
+    const buses = (bsData?.busstops || [])
+      .filter((b) => b && Number.isFinite(b.lat) && Number.isFinite(b.lng) && b.code)
+      .map((b) => ({ b, d: _haversineM(lat, lng, b.lat, b.lng) }))
+      .sort((x, y) => x.d - y.d).slice(0, 3).map((x) => x.b);
+    // nearest 2 stations (prefer exit-centroid coord; skip future lines)
+    const stations = (stData?.stations || [])
+      .filter((s) => s && s.status !== 'future')
+      .map((s) => {
+        const ec = s.exit_centroid;
+        const slat = (ec && Number.isFinite(ec.lat)) ? ec.lat : s.lat;
+        const slng = (ec && Number.isFinite(ec.lng)) ? ec.lng : s.lng;
+        return { s, slat, slng, d: (Number.isFinite(slat) && Number.isFinite(slng)) ? _haversineM(lat, lng, slat, slng) : Infinity };
+      })
+      .filter((x) => Number.isFinite(x.d))
+      .sort((x, y) => x.d - y.d).slice(0, 2);
+    // draw transient markers (reuse existing rendering); skip if layer already on
+    if (!(layers.busstop && layers.busstop.visible)) {
+      for (const b of buses) {
+        const marker = new AdvancedMarkerElement({
+          position: { lat: b.lat, lng: b.lng }, content: busPinNode(b.code, true), gmpClickable: true
+        });
+        marker.addListener('click', () => openBusInfo(map, info, b, marker));
+        marker.map = map;
+        venueTransitPins.push(marker);
+      }
+    }
+    if (!(layers.train && layers.train.visible)) {
+      const items = buildTrainStations(stations.map((x) => x.s));
+      for (const it of items) { it.marker.map = map; venueTransitPins.push(it.marker); }
+    }
+    out.bus = buses.map((b) => ({ code: b.code, name: b.description || b.name || '' }));
+    out.stations = stations.map((x) => ({ codes: Array.isArray(x.s.codes) ? x.s.codes : [], name: x.s.name || '' }));
+    return out;
   }
 
   // v0.61.57 — CR6 Phase 3: render + open the station info card popup
@@ -2239,7 +2303,11 @@ export function createOverlayController(map, googleMaps, opts) {
       info.close();
       clearStationBusStops();
       clearStationExitPins();
+      clearVenueTransit();   // v0.62.106 — drop venue-tap transit pins too
     },
+    // v0.62.106 — venue-tap transit context (host gates SG + zoom ≥ 14).
+    showVenueTransit,
+    clearVenueTransit,
     async setLayer(name, visible) {
       if (destroyed) return;
       if (!visible && !layers[name]) return;

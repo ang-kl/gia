@@ -64,6 +64,30 @@ function escapeHtml(s) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+// v0.62.106 — operator (SG only): append a transit block to the venue card —
+// nearest 2 stations as "TE12 Napier" (code + name), each deep-linking the
+// Train Mini App, and the nearest 3 bus-stop codes. `transit` is the shape
+// returned by the overlay controller's showVenueTransit().
+function transitBlockHtml(transit) {
+  if (!transit) return '';
+  const p = infoPalette();
+  const rows = [];
+  if (Array.isArray(transit.stations) && transit.stations.length) {
+    const links = transit.stations.map((s) => {
+      const codes = Array.isArray(s.codes) ? s.codes : [];
+      const label = ((codes.join('/') + ' ') + (s.name || '')).trim();
+      const first = codes[0] || '';
+      return `<a href="#" onclick="window.__giaOpenTransport&&window.__giaOpenTransport('${escapeHtml(first)}');return false;" style="color:${p.link};text-decoration:underline;cursor:pointer;">${escapeHtml(label)}</a>`;
+    }).join(' · ');
+    rows.push(`<div style="font-size:12px;color:${p.sub};margin-top:3px;">🚆 ${links}</div>`);
+  }
+  if (Array.isArray(transit.bus) && transit.bus.length) {
+    const codes = transit.bus.map((b) => escapeHtml(b.code)).join(' · ');
+    rows.push(`<div style="font-size:12px;color:${p.sub};margin-top:2px;">🚌 ${codes}</div>`);
+  }
+  return rows.join('');
+}
+
 export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, onMapMove, flyTo, fitPins, children }) {
   const [lang] = useLocale();
   const containerRef = useRef(null);
@@ -76,6 +100,9 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   useEffect(() => { overlayLayersRef.current = overlayLayers; }, [overlayLayers]);
   const markersRef = useRef([]);
   const markerByIdRef = useRef(new Map());
+  // v0.62.106 — placeId whose info popup is currently open, so the async
+  // transit fetch only re-renders the card if it's still the open one.
+  const openInfoIdRef = useRef(null);
   const userMarkerRef = useRef(null);
   // v0.61.10 — ⚠️ traffic-accident markers within 250 m of the search
   // anchor, shown while cuisine results are on the map.
@@ -162,10 +189,21 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       const v = (venuesRef.current || []).find((x) => x.placeId === placeId);
       if (v) openInGoogleMaps(v);
     };
+    // v0.62.106 — open the Train Mini App focused on a station code (the venue
+    // card's 🚆 links). Same-host /app/transport?station=<CODE>; the Transport
+    // TMA reads ?station= on boot.
+    window.__giaOpenTransport = (code) => {
+      if (!code) return;
+      const url = `${window.location.origin}/app/transport?station=${encodeURIComponent(code)}`;
+      const w = tg();
+      if (w && typeof w.openLink === 'function') w.openLink(url, { try_instant_view: false });
+      else window.open(url, '_blank', 'noopener');
+    };
     return () => {
       touchMql.removeEventListener?.('change', onTouchChange);
       tabletMql.removeEventListener?.('change', onTabletChange);
       try { delete window.__giaOpenMap; } catch { window.__giaOpenMap = undefined; }
+      try { delete window.__giaOpenTransport; } catch { window.__giaOpenTransport = undefined; }
     };
   }, []);
 
@@ -231,7 +269,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     // expose a global the in-card ✕ button calls.
     const closeInfo = () => {
       infoWindowRef.current?.close();
-      overlayControllerRef.current?.closeInfo?.();
+      overlayControllerRef.current?.closeInfo?.();   // also clears venue transit pins
+      openInfoIdRef.current = null;
     };
     window.__giaMapInfoClose = closeInfo;
     mapRef.current.addListener('click', closeInfo);
@@ -338,6 +377,25 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // panning now lives in its own effect below.
   useEffect(() => { syncMarkers(); }, [venues, userLoc, searchCenter?.lat, searchCenter?.lng]); // eslint-disable-line
 
+  // v0.62.106 — operator (#3/#4, SG only): on a venue tap at zoom ≥ 14, surface
+  // the nearest 3 bus stops + 2 stations on the MAP (toggle-independent) and
+  // append them to the open card. Reuses the controller's showVenueTransit
+  // (existing marker rendering). The async result re-renders the card only if
+  // its popup is still the open one.
+  function maybeShowTransit(placeId) {
+    const ctrl = overlayControllerRef.current;
+    const entry = placeId && markerByIdRef.current.get(placeId);
+    if (!ctrl || !ctrl.showVenueTransit || !entry) return;
+    if ((region || 'SG') !== 'SG') return;
+    if ((mapRef.current?.getZoom?.() || 0) < 14) return;
+    ctrl.showVenueTransit(entry.lat, entry.lng).then((transit) => {
+      if (!transit || (!transit.bus.length && !transit.stations.length)) return;
+      if (openInfoIdRef.current !== placeId || !infoWindowRef.current) return;
+      const block = transitBlockHtml(transit);
+      if (block) infoWindowRef.current.setContent(infoCard(entry.innerHtml + block));
+    }).catch(() => {});
+  }
+
   // v0.61.86 — pan the map to a focused venue, but only when the focus
   // came from a result-card tap. A pin tap (pinFocusRef holds that
   // placeId) opens the popup in place and must not move the map.
@@ -353,6 +411,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       if (entry && infoWindowRef.current) {
         infoWindowRef.current.setContent(entry.infoHtml);
         infoWindowRef.current.open(mapRef.current, entry.marker);
+        openInfoIdRef.current = focusedPlaceId;
+        maybeShowTransit(focusedPlaceId);   // v0.62.106
       }
     }
   }, [focusedPlaceId]);
@@ -576,9 +636,12 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       const buildingHtml = v.insideBuilding
         ? `<div style="font-size:12px;color:${p.sub};margin-top:3px;">🏢 ${escapeHtml(tr('card.insideBuilding', lang))}</div>`
         : '';
-      const infoHtml = infoCard(
+      // v0.62.106 — keep the inner HTML so the transit block can be appended
+      // (SG, zoom ≥ 14) once showVenueTransit resolves.
+      const innerHtml =
         `<div style="font-weight:600;font-size:13px;">${escapeHtml(v.name || '')}</div>
-         ${addressHtml}${footfallHtml}${travelHtml}${ratingHtml}${healthierHtml}${buildingHtml}${ctaHtml}`);
+         ${addressHtml}${footfallHtml}${travelHtml}${ratingHtml}${healthierHtml}${buildingHtml}${ctaHtml}`;
+      const infoHtml = infoCard(innerHtml);
       const onMouseOver = () => {
         if (!infoWindowRef.current) return;
         infoWindowRef.current.setContent(infoHtml);
@@ -612,13 +675,15 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           if (infoWindowRef.current) {
             infoWindowRef.current.setContent(infoHtml);
             infoWindowRef.current.open(mapRef.current, marker);
+            openInfoIdRef.current = v.placeId;
+            maybeShowTransit(v.placeId);   // v0.62.106 — SG + zoom≥14 transit context
           }
         } else {
           openInGoogleMaps(v);
         }
       });
       markersRef.current.push(marker);
-      if (v.placeId) markerByIdRef.current.set(v.placeId, { marker, infoHtml });
+      if (v.placeId) markerByIdRef.current.set(v.placeId, { marker, infoHtml, innerHtml, lat: v.lat, lng: v.lng });
       bounds.extend({ lat: v.lat, lng: v.lng });
     }
     // v0.58.16: reverted v0.58.15's "extend bounds with radius circle"

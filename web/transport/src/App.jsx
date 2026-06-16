@@ -75,6 +75,32 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // v0.62.106 — deep-link: /app/transport?station=<CODE> focuses that station
+  // on the Google map (the Cuisine venue card's 🚆 links use this). Resolve the
+  // code → station from the live dataset and focus it. We set ONLY focusedStation
+  // (+ gmap view) — not focusedCode — so the line-change effect below can't wipe
+  // it. Runs once on mount.
+  useEffect(() => {
+    let cancelled = false;
+    let wanted = '';
+    try { wanted = (new URLSearchParams(window.location.search).get('station') || '').trim().toUpperCase(); }
+    catch { wanted = ''; }
+    if (!wanted) return undefined;
+    fetch('/api/transport/stations')
+      .then((r) => r.json())
+      .then((d) => {
+        if (cancelled) return;
+        const stations = Array.isArray(d?.stations) ? d.stations : [];
+        const st = stations.find((s) => Array.isArray(s.codes)
+          && s.codes.some((c) => String(c).toUpperCase() === wanted));
+        if (!st) return;
+        setFocusedStation({ ...st, tappedCode: wanted });
+        setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
+      })
+      .catch(() => { /* deep-link best-effort */ });
+    return () => { cancelled = true; };
+  }, []);
+
   // v0.61.14 — a station selection belongs to one focused line; clear
   // it whenever the focused line changes so the map / detail don't
   // show a station from the previous line.
