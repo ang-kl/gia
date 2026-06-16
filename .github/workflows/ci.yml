@@ -141,7 +141,7 @@ jobs:
         run: npm test
 
   build:
-    name: TMA build (cuisine + menu + hawker + transport + oversight + about)
+    name: TMA build (cuisine + menu + hawker + transport + oversight)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
