@@ -52,13 +52,35 @@ function titleCaseDish(s) {
     (w) => w.charAt(0).toUpperCase() + w.slice(1));
 }
 
+// v0.62.116 — operator: the one-line "peek" of the local-food-picks plate
+// reformats each dish so the qualifier LEADS — "Laksa (Katong)" → "Katong
+// Laksa", "Bak Kut Teh (Teochew)" → "Teochew Bak Kut Teh", "Wanton Mee (SG
+// Style)" → "SG Wanton Mee" (the trailing word "Style" is dropped). Names with
+// no parenthetical pass through unchanged. Display-only: d.dish stays the
+// search query / aria-label / React key. Pair with titleCaseDish for casing.
+function leadWithQualifier(s) {
+  const m = String(s || '').match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+  if (!m) return String(s || '').trim();
+  const base = m[1].trim();
+  const qual = m[2].trim().replace(/\s*\bstyle\b\s*$/i, '').trim();
+  return qual ? `${qual} ${base}` : base;
+}
+
 export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
   const [open, setOpen] = useState(false);
   const [factIdx, setFactIdx] = useState(null);   // index of the open 📜 bubble
   // v0.62.37 — the "More local classics" sub-section (overlay-fed, names only).
   const [classicsOpen, setClassicsOpen] = useState(false);
+  // v0.62.116 — operator: the geo "Local food picks" plate is now a 3-STAGE
+  // toggle (was a 2-state open/closed). Each tap advances 0 → 1 → 2 → 0:
+  //   0 collapsed — the label only;
+  //   1 peek      — label + a one-line "A • B • C" summary (leadWithQualifier);
+  //   2 full      — label + the tap-to-search dish rows + "More classics".
+  // So two taps fully expand, and one more tap closes. Separate from `open`,
+  // which still drives the cuisine-mode "What to order" banner above.
+  const [geoStage, setGeoStage] = useState(0);
   // New city / cuisine → collapse + close any bubble.
-  useEffect(() => { setOpen(false); setFactIdx(null); setClassicsOpen(false); }, [plate?.city, plate?.cuisineSlug]);
+  useEffect(() => { setOpen(false); setGeoStage(0); setFactIdx(null); setClassicsOpen(false); }, [plate?.city, plate?.cuisineSlug]);
 
   const fr = lang === 'fr';
 
@@ -207,25 +229,29 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
 
   return (
     <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
-      {/* collapsed line — whole row toggles */}
+      {/* v0.62.116 — 3-stage row toggle: 0 label-only → 1 one-line peek →
+          2 full dish rows → 0. The whole row advances the stage. */}
       <button
         type="button"
         className="w-full text-left flex items-start gap-1 min-h-[28px]"
-        aria-expanded={open}
-        aria-label={fr ? `À goûter à ${plate.city}` : `What to try in ${plate.city}`}
-        onClick={() => { setOpen(!open); setFactIdx(null); }}
+        aria-expanded={geoStage > 0}
+        aria-label={fr ? `Sélection locale à ${plate.city}` : `Local food picks in ${plate.city}`}
+        onClick={() => { setGeoStage((geoStage + 1) % 3); setFactIdx(null); }}
       >
-        <span aria-hidden>🍽</span>
+        <span aria-hidden>📍</span>
         <span className="flex-1">
-          <b>{fr ? 'À goûter ici' : 'What to try here'}:</b>{' '}
-          {open
-            ? (fr ? 'Touchez un plat pour trouver des adresses. Touchez 📜 pour en savoir plus.' : 'Tap a dish to find eateries. Tap 📜 to learn more')
-            : names.map(titleCaseDish).join(', ')}
+          <b>{fr ? 'Sélection locale' : 'Local food picks'}:</b>
+          {geoStage === 1 && (
+            <>{' '}{names.map((n) => titleCaseDish(leadWithQualifier(n))).join(' • ')}</>
+          )}
+          {geoStage === 2 && (
+            <>{' '}{fr ? 'Touchez un plat pour trouver des adresses. Touchez 📜 pour en savoir plus.' : 'Tap a dish to find eateries. Tap 📜 to learn more'}</>
+          )}
         </span>
-        <span aria-hidden className="text-tg-hint">{open ? '▴' : '▾'}</span>
+        <span aria-hidden className="text-tg-hint">{geoStage === 2 ? '▴' : '▾'}</span>
       </button>
 
-      {open && (
+      {geoStage === 2 && (
         <div className="mt-1.5 flex flex-col">
           {plate.honestEmpty && (
             <div className="text-tg-hint pb-1">
