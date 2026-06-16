@@ -1165,6 +1165,7 @@ export function createOverlayController(map, googleMaps, opts) {
     if (layers.train) applyVisibility('train');
     if (layers.busstop) applyVisibility('busstop');
     if (layers.exits) applyVisibility('exits');
+    renderVenueTransit();   // v0.62.109 — re-tier the on-tap transit on zoom
     // v0.61.97 — the amenity layers re-tier on zoom (dot / glyph /
     // label) — see amenityTier.
     for (const n of ['attractions', 'clinics', 'police', 'hospitals', 'parks', 'carpark']) {
@@ -1197,6 +1198,12 @@ export function createOverlayController(map, googleMaps, opts) {
   // on a station tap even when the Exit overlay is off, so the card's
   // "Exit #" links can always force-render + flash their target pin.
   let stationExitPins = [];
+  // v0.62.109 — operator: tapping a hawker centre surfaces its nearest 3 bus
+  // stops + 2 stations on the MAP (toggle-independent), drawn at the live
+  // busTier/trainTier zoom band and re-tiered on zoom. Transient — cleared on
+  // the next centre tap / card close. Mirrors the Cuisine TMA.
+  let venueTransitPins = [];
+  let venueTransitData = null;   // { buses:[{marker,code}], stations:[item] }
   // v0.61.95 — operator part 5: monochrome state + the coloured SVG
   // train-line overlay (lazily built — see makeTrainColourOverlay).
   let monochrome = false;
@@ -1449,6 +1456,81 @@ export function createOverlayController(map, googleMaps, opts) {
     if ((map.getZoom?.() || 0) < 15) map.setZoom(15);
     map.panTo({ lat, lng });
     handleStationTap(it);
+  }
+
+  // v0.62.109 — transient on-tap transit for a hawker centre (mirrors Cuisine):
+  // nearest 3 bus + 2 stations, drawn even when the toggles are off, rendered
+  // at the live busTier/trainTier band and re-tiered on zoom change.
+  function _haversineM(aLat, aLng, bLat, bLng) {
+    const toR = (d) => (d * Math.PI) / 180;
+    const dLat = toR(bLat - aLat), dLng = toR(bLng - aLng);
+    const h = Math.sin(dLat / 2) ** 2
+      + Math.cos(toR(aLat)) * Math.cos(toR(bLat)) * Math.sin(dLng / 2) ** 2;
+    return 6371000 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+  }
+  function clearVenueTransit() {
+    for (const m of venueTransitPins) m.map = null;
+    venueTransitPins = [];
+    venueTransitData = null;
+  }
+  function renderVenueTransit() {
+    if (!venueTransitData) return;
+    const z = map.getZoom?.() || 0;
+    for (const e of venueTransitData.buses) {
+      e.marker.content = busTierNode(busTier(z), e.code);
+    }
+    if (venueTransitData.stations.length) {
+      const tier = trainTier(tma, z, false);
+      const mode = tier.station === 'pill' ? 'pill'
+        : tier.station === 'sq-sm' ? 'sq-sm'
+        : 'chip:' + (tier.scale || 1);
+      for (const it of venueTransitData.stations) {
+        it.marker.content = trainStationNode(mode, it);
+      }
+    }
+  }
+  async function showVenueTransit(lat, lng) {
+    clearVenueTransit();
+    const out = { bus: [], stations: [] };
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return out;
+    let bsData, stData;
+    try { [bsData, stData] = await Promise.all([fetchBusStops(), fetchStations()]); }
+    catch { return out; }
+    const buses = (bsData?.busstops || [])
+      .filter((b) => b && Number.isFinite(b.lat) && Number.isFinite(b.lng) && b.code)
+      .map((b) => ({ b, d: _haversineM(lat, lng, b.lat, b.lng) }))
+      .sort((x, y) => x.d - y.d).slice(0, 3).map((x) => x.b);
+    const stations = (stData?.stations || [])
+      .filter((s) => s && s.status !== 'future')
+      .map((s) => {
+        const ec = s.exit_centroid;
+        const slat = (ec && Number.isFinite(ec.lat)) ? ec.lat : s.lat;
+        const slng = (ec && Number.isFinite(ec.lng)) ? ec.lng : s.lng;
+        return { s, d: (Number.isFinite(slat) && Number.isFinite(slng)) ? _haversineM(lat, lng, slat, slng) : Infinity };
+      })
+      .filter((x) => Number.isFinite(x.d))
+      .sort((x, y) => x.d - y.d).slice(0, 2);
+    venueTransitData = { buses: [], stations: [] };
+    const z0 = map.getZoom?.() || 0;
+    if (!(layers.busstop && layers.busstop.visible)) {
+      for (const b of buses) {
+        const marker = new AdvancedMarkerElement({
+          position: { lat: b.lat, lng: b.lng }, content: busTierNode(busTier(z0), b.code), gmpClickable: true
+        });
+        marker.addListener('click', () => openBusInfo(map, info, b, marker));
+        marker.map = map;
+        venueTransitPins.push(marker);
+        venueTransitData.buses.push({ marker, code: b.code });
+      }
+    }
+    if (!(layers.train && layers.train.visible)) {
+      const items = buildTrainStations(stations.map((x) => x.s));
+      for (const it of items) { it.marker.map = map; venueTransitPins.push(it.marker); venueTransitData.stations.push(it); }
+    }
+    renderVenueTransit();
+    out.bus = buses.map((b) => ({ code: b.code, name: b.description || b.name || '' }));
+    out.stations = stations.map((x) => ({ codes: Array.isArray(x.s.codes) ? x.s.codes : [], name: x.s.name || '' }));
+    return out;
   }
 
   // v0.61.66 — flash a transient pulsing halo over a point for ~2 s, so a
@@ -2230,8 +2312,11 @@ export function createOverlayController(map, googleMaps, opts) {
       clearStationBusStops();
       clearStationExitPins();
       clearStationFocus();   // v0.62.108 — drop the focus-station pin too
+      clearVenueTransit();   // v0.62.109 — and the on-tap transit pins
     },
     focusStation,
+    showVenueTransit,
+    clearVenueTransit,
     async setLayer(name, visible) {
       if (destroyed) return;
       if (!visible && !layers[name]) return;

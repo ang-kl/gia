@@ -11743,7 +11743,7 @@ async function registerCommandsMenu() {
     // setMyShortDescription (120-char "About" pane); the body here is
     // the menu list + a tap-to-open hint.
     const enDescription =
-      `/cuisine (or /c) · ${_periodicalCountsStr.cuisines} cuisines, SG + Johor Bahru, quick filters\n` +
+      `/cuisine (or /c) · ${_periodicalCountsStr.cuisines} cuisines, SG, Johor Bahru + other cities, quick filters\n` +
       "/location (or /l) · change location [street]\n" +
       `/hawker · >${_periodicalCountsStr.hawker} hawker centres (2025)\n` +
       "/recognised · Michelin, Bib Gourmand, Asia 50/100\n" +
@@ -11757,7 +11757,7 @@ async function registerCommandsMenu() {
       "/forgetme · erase stored data\n\n" +
       "Tap 🍴 Cuisine Picker to jump in.";
     const frDescription =
-      `/cuisine (ou /c) · ${_periodicalCountsStr.cuisines} cuisines, SG + Johor Bahru, filtres\n` +
+      `/cuisine (ou /c) · ${_periodicalCountsStr.cuisines} cuisines, SG, Johor Bahru + autres villes, filtres\n` +
       "/location (ou /l) · changer de lieu [rue]\n" +
       `/hawker · plus de ${_periodicalCountsStr.hawker} hawker centres (2025)\n` +
       "/recognised · Michelin, Bib Gourmand, Asia 50/100\n" +
