@@ -141,7 +141,7 @@ jobs:
         run: npm test
 
   build:
-    name: TMA build (cuisine + menu + hawker + transport + oversight)
+    name: TMA build (cuisine + menu + hawker + transport + oversight + about)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -159,5 +159,5 @@ jobs:
       # obvious in the Actions UI without scrolling.
       - name: Install root deps (skip postinstall TMA build)
         run: npm install --no-audit --no-fund --ignore-scripts
-      - name: Build all 5 TMAs
+      - name: Build all TMAs + /about showcase
         run: npm run build
