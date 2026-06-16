@@ -261,13 +261,25 @@ async function reverseGeocodeAddress(lat, lng) {
     // POI / premise first — "Raffles City", "ION Orchard", "Marina
     // Bay Sands" beat the planning subzone. Then route (street name)
     // before falling through to the broader area names.
+    // v0.62.118 — operator: a GPS share must resolve to the BUILDING / STREET,
+    // not the broad planning area. Google Maps shows "115 Bukit Merah View"; we
+    // showed "Bukit Merah" (the sublocality / planning subzone) because the
+    // street tier sat BELOW neighborhood/sublocality here — contradicting the
+    // comment above, which already intended street before the area names. A
+    // named building (POI / premise / establishment, e.g. "ION Orchard",
+    // "Marina Bay Sands") still wins first; then the street ("<no.> <route>");
+    // the neighborhood / sublocality / locality area names are now the FALLBACK,
+    // used only when no building or street resolves.
+    const _streetNumber = findComp('street_number');
+    const _route = findComp('route');
+    const _street = _route ? (_streetNumber ? `${_streetNumber} ${_route}` : _route) : '';
     const name = findComp('point_of_interest')
       || findComp('premise')
       || findComp('establishment')
+      || _street
       || findComp('neighborhood')
       || findComp('sublocality_level_1')
       || findComp('sublocality')
-      || findComp('route')
       || findComp('locality')
       || r.formatted_address?.split(',')[0]
       || 'Singapore';
