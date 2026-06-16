@@ -11435,8 +11435,8 @@
     },
     "Keat Hong": {
       "station_name": "Keat Hong",
-      "lat": 1.3858,
-      "lng": 103.7491,
+      "lat": 1.3786,
+      "lng": 103.749,
       "exit_centroid": {
         "lat": 1.378465,
         "lng": 103.749227,
@@ -11479,8 +11479,8 @@
     },
     "Teck Whye": {
       "station_name": "Teck Whye",
-      "lat": 1.3897,
-      "lng": 103.7503,
+      "lat": 1.3766,
+      "lng": 103.7537,
       "exit_centroid": {
         "lat": 1.376564,
         "lng": 103.753826,
@@ -11523,8 +11523,8 @@
     },
     "Phoenix": {
       "station_name": "Phoenix",
-      "lat": 1.3858,
-      "lng": 103.7544,
+      "lat": 1.3786,
+      "lng": 103.758,
       "exit_centroid": {
         "lat": 1.378614,
         "lng": 103.758252,
@@ -11572,8 +11572,8 @@
     },
     "Petir": {
       "station_name": "Petir",
-      "lat": 1.3779,
-      "lng": 103.77,
+      "lat": 1.3777,
+      "lng": 103.7667,
       "exit_centroid": {
         "lat": 1.377603,
         "lng": 103.766793,
@@ -11670,8 +11670,8 @@
     },
     "Bangkit": {
       "station_name": "Bangkit",
-      "lat": 1.3787,
-      "lng": 103.7733,
+      "lat": 1.38,
+      "lng": 103.7727,
       "exit_centroid": {
         "lat": 1.379853,
         "lng": 103.772591,
