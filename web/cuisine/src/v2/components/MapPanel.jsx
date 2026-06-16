@@ -406,6 +406,10 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     const v = (venuesRef.current || []).find((x) => x.placeId === focusedPlaceId);
     if (v && Number.isFinite(v.lat) && Number.isFinite(v.lng)) {
       mapRef.current.panTo({ lat: v.lat, lng: v.lng });
+      // v0.62.112 — operator: a result-card tap should BLINK the eatery's map
+      // pin for ~2-3 s so the eye lands on it. flashPin pulses a hollow ring
+      // (44px, wider than the default to clear the venue droplet) for ~2.5 s.
+      overlayControllerRef.current?.flashPin?.(v.lat, v.lng, 44);
       // v0.62.105 — operator: tapping a result card should HIGHLIGHT the spot,
       // not just pan. Open that pin's info popup (same content as a pin tap).
       const entry = markerByIdRef.current.get(focusedPlaceId);

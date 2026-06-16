@@ -1473,24 +1473,28 @@ export function createOverlayController(map, googleMaps, opts) {
     openStationCard(item);
   }
 
-  // v0.61.66 — flash a transient pulsing halo over a point for ~2 s, so a
+  // v0.61.66 — flash a transient pulsing halo over a point for ~2.5 s, so a
   // station-card "Bus Stop №" tap visibly draws the eye to the stop after
   // the map pans there. v0.61.68 — a hollow ring (was a solid 🚏 pin) so
   // it reads as a highlight over the real bus-stop pin, not a duplicate.
-  function flashPin(lat, lng) {
+  // v0.62.112 — optional `size` (operator: a result-card tap should blink the
+  // eatery's map pin for 2-3 s); the venue droplet is larger, so it passes a
+  // wider ring. Bumped to 5 pulses (~2.5 s) so the blink clearly registers.
+  function flashPin(lat, lng, size) {
     if (typeof document === 'undefined'
       || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
     ensureGreyscaleStyle();
+    const s = Number.isFinite(size) ? size : 32;
     const el = document.createElement('div');
-    el.style.cssText = 'width:32px;height:32px;border-radius:50%;'
+    el.style.cssText = 'width:' + s + 'px;height:' + s + 'px;border-radius:50%;'
       + 'border:3px solid ' + AMENITY_BUS_BG + ';background:rgba(21,101,192,0.18);'
       + 'box-shadow:0 0 6px ' + AMENITY_BUS_BG + ';'
-      + 'animation:gia-pin-flash 0.5s ease-in-out 4;';
+      + 'animation:gia-pin-flash 0.5s ease-in-out 5;';
     const m = new AdvancedMarkerElement({
       position: { lat, lng }, content: el, zIndex: 9999
     });
     m.map = map;
-    setTimeout(() => { m.map = null; }, 2000);
+    setTimeout(() => { m.map = null; }, 2600);
   }
 
   // v0.61.68 — the open station card's bus stops. Draws the station's
@@ -2365,6 +2369,7 @@ export function createOverlayController(map, googleMaps, opts) {
     showVenueTransit,
     clearVenueTransit,
     focusStation,
+    flashPin,
     async setLayer(name, visible) {
       if (destroyed) return;
       if (!visible && !layers[name]) return;
