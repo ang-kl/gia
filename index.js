@@ -6502,7 +6502,7 @@ async function renderHiddenVenueCards(chatId, lang, verifiedVenues, anchorLat, a
       name: heading,
       placeId: v.id || '',
       area: v.address || '',
-      restaurantType: humaniseRestaurantType(v.primaryTypeDisplayName, v.primaryType),
+      restaurantType: humaniseRestaurantType(v.primaryTypeDisplayName, v.primaryType, v.types),
       rating: typeof v.rating === 'number' ? v.rating : null,
       userRatingCount: typeof v.userRatingCount === 'number' ? v.userRatingCount : null,
       lat: Number.isFinite(v.lat) ? v.lat : null,
@@ -8397,14 +8397,51 @@ function flagFor(cuisine) {
 //   "Cantonese restaurant"  → "Cantonese"
 //   "Restaurant japonais"   → "japonais"
 //   "sushi_restaurant"      → "Sushi" (raw enum fallback)
-function humaniseRestaurantType(displayText, primaryTypeEnum) {
+//
+// v0.62.117 — operator: Google Maps shows "The Butcher's Wife" as a
+// "Gluten-free restaurant", but the API's primaryType / primaryTypeDisplayName
+// is the GENERIC "restaurant". The specific cuisine subtype
+// ("gluten_free_restaurant") lives in `places.types[]`. So the resolution order
+// is now: (1) the localized primaryTypeDisplayName when it's already specific;
+// (2) the most specific cuisine subtype mined from types[]; (3) the raw
+// primaryType enum when it's itself specific (cafe / bakery / bar); (4) nothing
+// — when ALL we have is a bare "Restaurant" / "Food" the line is HIDDEN rather
+// than showing a useless generic label.
+const GENERIC_VENUE_TYPE = new Set([
+  'restaurant', 'food', 'store', 'meal takeaway', 'meal delivery',
+  'point of interest', 'establishment', 'food store', 'grocery store',
+  'grocery or supermarket'
+]);
+function _humaniseTypeEnum(enumStr) {
+  return String(enumStr || '')
+    .replace(/_/g, ' ')
+    .replace(/[\p{L}][\p{L}'’-]*/gu, (w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .replace(/\s+restaurant$/i, '')
+    .replace(/^restaurant\s+/i, '')
+    .trim();
+}
+function _isGenericType(s) {
+  return GENERIC_VENUE_TYPE.has(String(s || '').trim().toLowerCase());
+}
+function humaniseRestaurantType(displayText, primaryTypeEnum, typesArr) {
+  // (1) localized display name, when it's already specific.
   let s = (displayText && String(displayText).trim()) || '';
-  if (!s && primaryTypeEnum) {
-    s = String(primaryTypeEnum).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-  }
-  if (!s) return '';
   s = s.replace(/\s+restaurant$/i, '').replace(/^restaurant\s+/i, '').trim();
-  return s;
+  if (s && !_isGenericType(s)) return s;
+  // (2) mine types[] for a specific cuisine subtype (e.g. gluten_free_restaurant
+  //     → "Gluten-free"). These all end in "_restaurant" in the Places (New) API.
+  const types = Array.isArray(typesArr) ? typesArr.map(String) : [];
+  for (const t of types) {
+    if (/_restaurant$/i.test(t)) {
+      const h = _humaniseTypeEnum(t);
+      if (h && !_isGenericType(h)) return h;
+    }
+  }
+  // (3) raw primaryType enum when it is itself specific (cafe / bakery / bar …).
+  const pe = _humaniseTypeEnum(primaryTypeEnum);
+  if (pe && !_isGenericType(pe)) return pe;
+  // (4) only a generic "Restaurant" / "Food" anywhere — hide the line.
+  return '';
 }
 
 // v0.61.230 — `regionCode` is now an option (default 'SG' kept for
@@ -8426,6 +8463,7 @@ async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5,
     'places.id', 'places.displayName', 'places.formattedAddress', 'places.location',
     'places.rating', 'places.userRatingCount', 'places.businessStatus',
     'places.googleMapsUri', 'places.primaryType', 'places.primaryTypeDisplayName',
+    'places.types',
     'places.regularOpeningHours.weekdayDescriptions',
     'places.websiteUri', 'places.nationalPhoneNumber', 'places.priceLevel'
   ].join(',');
@@ -8471,9 +8509,13 @@ async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5,
         phone: p?.nationalPhoneNumber || '',
         priceLevel: PRICE_NUM[p?.priceLevel] || null,
         primaryType: p?.primaryType || '',
+        // v0.62.117 — carry Places types[] so downstream paths (e.g. the
+        // hidden-verify cards' humaniseRestaurantType) can mine the specific
+        // cuisine subtype, not just the generic primaryType.
+        types: Array.isArray(p?.types) ? p.types : [],
         // v0.60.45 — surface a localized cuisine label below the venue
         // name on every result card (Sushi / Japanese / Cantonese, etc.).
-        restaurantType: humaniseRestaurantType(p?.primaryTypeDisplayName?.text, p?.primaryType),
+        restaurantType: humaniseRestaurantType(p?.primaryTypeDisplayName?.text, p?.primaryType, p?.types),
         url: p?.googleMapsUri || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p?.displayName?.text || '')}`
       }));
     // v0.60.229 — close the /s filter gap: the technique/dish fan-out
@@ -9578,6 +9620,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     'places.id', 'places.displayName', 'places.formattedAddress', 'places.location',
     'places.rating', 'places.userRatingCount', 'places.businessStatus',
     'places.googleMapsUri', 'places.primaryType', 'places.primaryTypeDisplayName',
+    'places.types',
     'places.regularOpeningHours.weekdayDescriptions',
     'places.websiteUri', 'places.nationalPhoneNumber', 'places.priceLevel',
     'places.reviews', 'places.editorialSummary',
@@ -9765,7 +9808,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       // Guide label; fall back to Places' localized primaryTypeDisplayName.
       restaurantType: entry.michelinCuisineLabel
         ? humaniseRestaurantType(entry.michelinCuisineLabel, '')
-        : humaniseRestaurantType(placesData?.primaryTypeDisplayName?.text, placesData?.primaryType),
+        : humaniseRestaurantType(placesData?.primaryTypeDisplayName?.text, placesData?.primaryType, placesData?.types),
       michelinVegetarian: entry.vegetarian === true,
       michelinHalal: entry.halal === true,
       // v0.60.192 — pass-through the three new Places fields the v0.60.183
