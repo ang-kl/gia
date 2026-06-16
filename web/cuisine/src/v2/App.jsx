@@ -3343,15 +3343,16 @@ export default function App() {
                 }}
                 aria-pressed={r.action ? undefined : sel}
                 aria-label={r.action ? r.label : undefined}
-                /* v0.62.97 — operator: all four buttons are liquid-glass 3D
-                   rectangles with a slightly less-curved edge (rounded-full →
-                   rounded-xl) + the shared .glass-pill frosting. Selected region
-                   gets an accent ring + tint; the action + idle pills stay frosted.
-                   v0.62.98 — operator: spell out "Johor Bahru" (no truncation) and
-                   shrink the 🌏 Cities button's padding to free that width. JB takes
-                   flex-1 (absorbs the row's slack so the long label fits); Current /
-                   Singapore / Cities size to their content, Cities tightest (px-1). */
-                className={`glass-pill ${r.id === 'JB' ? 'flex-1' : 'flex-none'} ${r.id === 'OTHER' ? 'px-1' : 'px-1.5'} py-1.5 rounded-xl border text-[11px] whitespace-nowrap inline-flex items-center justify-center gap-1 ${sel ? 'border-tg-accent text-tg-accent ring-1 ring-tg-accent/50' : 'border-tg-border/60 text-tg-text'}`}>
+                /* v0.62.97 — all four buttons are liquid-glass 3D rectangles
+                   (rounded-xl + .glass-pill frosting).
+                   v0.62.126 — operator: Johor Bahru hogged the row's slack
+                   (flex-1) while the others were content-width, so it looked
+                   over-padded. Every pill is now flex-1 (equal share of the row)
+                   with uniform px-1, so Current / Singapore / Johor Bahru /
+                   Cities read as equally spaced. Selected pill drops the flat
+                   ring for the .glass-pill--selected treatment (skeuomorphic /
+                   pressed-in in dark mode). */
+                className={`glass-pill flex-1 basis-0 px-1 py-1.5 rounded-xl border text-[11px] whitespace-nowrap inline-flex items-center justify-center gap-1 ${sel ? 'glass-pill--selected border-tg-accent text-tg-accent' : 'border-tg-border/60 text-tg-text'}`}>
                 {(r.flag.endsWith('.png') || r.flag.endsWith('.svg'))
                   ? <img src={r.flag} alt="" width="18" height="12" className="rounded-sm border border-tg-border/40 flex-shrink-0" />
                   : <span aria-hidden>{r.flag}</span>}
