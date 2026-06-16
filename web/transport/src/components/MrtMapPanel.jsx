@@ -331,6 +331,9 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       cameraControl: true,
       cameraControlOptions: { position: window.google.maps.ControlPosition.LEFT_BOTTOM },
       keyboardShortcuts: true,
+      // v0.62.102 — operator: the embedded map hung when zoomed out far (world
+      // view). Gate the camera: minZoom 5 (no global zoom-out) … maxZoom 20.
+      minZoom: 5, maxZoom: 20,
       gestureHandling: 'greedy'
     });
     // v0.61.22 — headerDisabled drops Google's white header + ✕ so the

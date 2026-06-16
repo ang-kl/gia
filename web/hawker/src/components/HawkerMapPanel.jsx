@@ -207,6 +207,9 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       cameraControl: true,
       cameraControlOptions: { position: window.google.maps.ControlPosition.LEFT_BOTTOM },
       keyboardShortcuts: true,
+      // v0.62.102 — operator: the embedded map hung when zoomed out far (world
+      // view). Gate the camera: minZoom 5 (no global zoom-out) … maxZoom 20.
+      minZoom: 5, maxZoom: 20,
       gestureHandling: 'greedy'
     });
     setMapsKeyState('ready');
@@ -363,7 +366,9 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
         mapRef.current.setOptions({ maxZoom: 16 });
         mapRef.current.fitBounds(bounds, 60);
         window.google.maps.event.addListenerOnce(mapRef.current, 'idle', () => {
-          mapRef.current?.setOptions({ maxZoom: null });
+          // v0.62.102 — release the fit-only 16 cap back to the standing 20 gate
+          // (was `null`, which removed the cap entirely).
+          mapRef.current?.setOptions({ maxZoom: 20 });
         });
       } else {
         mapRef.current.panTo(bounds.getCenter());
