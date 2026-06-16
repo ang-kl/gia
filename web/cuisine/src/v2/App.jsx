@@ -3204,7 +3204,11 @@ export default function App() {
       {/* v0.61.322 — the three coherence modals (extracted above into
           `locationModals`, shared with the splash-gate early-return). */}
       {locationModals}
-      <header className="flex flex-col gap-1.5">
+      {/* v0.62.127 — operator: the header (soleat · Cuisine · langs · weather ·
+          region pills) is now a FLOATING, always-present bar — sticky to the top
+          with a frosted backdrop. Negative inline margins let the frosting span
+          the container's px gutters full-bleed. */}
+      <header className="sticky top-0 z-30 -mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 py-2 flex flex-col gap-1.5 backdrop-blur bg-tg-bg/85 border-b border-tg-border/50">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <img src="soleat-icon.png" alt="soleat" width="24" height="24" className="rounded-full flex-shrink-0" />
