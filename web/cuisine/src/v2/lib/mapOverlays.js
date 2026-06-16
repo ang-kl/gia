@@ -1602,6 +1602,30 @@ export function createOverlayController(map, googleMaps, opts) {
     return out;
   }
 
+  // v0.62.108 — operator: tapping a station code in the venue card jumps to that
+  // station ON THIS map and opens its info card (stay in the TMA — was an
+  // out-of-TMA Train-app deep link). Reuses the station tap (handleStationTap).
+  async function focusStation(code) {
+    if (!code) return;
+    const want = String(code).toUpperCase();
+    let stData;
+    try { stData = await fetchStations(); } catch { return; }
+    const s = (stData?.stations || []).find((x) => Array.isArray(x.codes)
+      && x.codes.some((c) => String(c).toUpperCase() === want));
+    if (!s) return;
+    const ec = s.exit_centroid;
+    const lat = (ec && Number.isFinite(ec.lat)) ? ec.lat : s.lat;
+    const lng = (ec && Number.isFinite(ec.lng)) ? ec.lng : s.lng;
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    const it = buildTrainStations([s])[0];
+    if (!it) return;
+    it.marker.map = map;
+    venueTransitPins.push(it.marker);   // cleared with the rest on close
+    if ((map.getZoom?.() || 0) < 15) map.setZoom(15);
+    map.panTo({ lat, lng });
+    handleStationTap(it);
+  }
+
   // v0.61.57 — CR6 Phase 3: render + open the station info card popup
   // for a tapped station, from the data/stations.json record.
   function openStationCard(item) {
@@ -2308,6 +2332,7 @@ export function createOverlayController(map, googleMaps, opts) {
     // v0.62.106 — venue-tap transit context (host gates SG + zoom ≥ 14).
     showVenueTransit,
     clearVenueTransit,
+    focusStation,
     async setLayer(name, visible) {
       if (destroyed) return;
       if (!visible && !layers[name]) return;

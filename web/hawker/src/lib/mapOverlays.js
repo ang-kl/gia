@@ -1421,6 +1421,36 @@ export function createOverlayController(map, googleMaps, opts) {
     openStationCard(item);
   }
 
+  // v0.62.108 — operator: tapping a station code in the hawker card jumps to
+  // that station ON THIS map + opens its info (stay in the Hawker TMA — was an
+  // out-of-TMA Train-app deep link). Mirrors the Cuisine TMA's focusStation.
+  let stationFocusPins = [];
+  function clearStationFocus() {
+    for (const m of stationFocusPins) m.map = null;
+    stationFocusPins = [];
+  }
+  async function focusStation(code) {
+    if (!code) return;
+    const want = String(code).toUpperCase();
+    clearStationFocus();
+    let stData;
+    try { stData = await fetchStations(); } catch { return; }
+    const s = (stData?.stations || []).find((x) => Array.isArray(x.codes)
+      && x.codes.some((c) => String(c).toUpperCase() === want));
+    if (!s) return;
+    const ec = s.exit_centroid;
+    const lat = (ec && Number.isFinite(ec.lat)) ? ec.lat : s.lat;
+    const lng = (ec && Number.isFinite(ec.lng)) ? ec.lng : s.lng;
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    const it = buildTrainStations([s])[0];
+    if (!it) return;
+    it.marker.map = map;
+    stationFocusPins.push(it.marker);
+    if ((map.getZoom?.() || 0) < 15) map.setZoom(15);
+    map.panTo({ lat, lng });
+    handleStationTap(it);
+  }
+
   // v0.61.66 — flash a transient pulsing halo over a point for ~2 s, so a
   // station-card "Bus Stop №" tap visibly draws the eye to the stop after
   // the map pans there. v0.61.68 — a hollow ring (was a solid 🚏 pin) so
@@ -2199,7 +2229,9 @@ export function createOverlayController(map, googleMaps, opts) {
       info.close();
       clearStationBusStops();
       clearStationExitPins();
+      clearStationFocus();   // v0.62.108 — drop the focus-station pin too
     },
+    focusStation,
     async setLayer(name, visible) {
       if (destroyed) return;
       if (!visible && !layers[name]) return;

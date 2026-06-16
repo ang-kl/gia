@@ -190,14 +190,11 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
   return (
     <button type="button" onClick={() => onTap?.(venue.placeId)}
       className={`w-full text-left rounded-lg border bg-tg-card p-2.5 flex flex-col gap-1 ${focused ? 'border-tg-accent' : 'border-tg-border'}`}>
-      <div className="flex items-start gap-2">
-        {/* v0.62.105 — operator: drop the green circle; the rank is a plain
-            "1." … "12." ordinal matching the numbered map pin. */}
-        {Number.isFinite(number) && (
-          <span className="mt-0.5 flex-shrink-0 text-sm font-semibold text-tg-hint tabular-nums">{number}.</span>
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="font-semibold text-sm leading-tight truncate">{venue.name}</div>
+      {/* v0.62.108 — operator: rank reads "1 · <name>" inline; every row below
+          is flush-left (no indent — was a 2-col flex that offset the whole body). */}
+      <div className="font-semibold text-sm leading-tight">
+        {Number.isFinite(number) && <span className="text-tg-hint font-semibold tabular-nums">{number} · </span>}{venue.name}
+      </div>
           {/* v0.61.359 — native-script name in "( )" below the name (RULE A/B
               applied server-side; absent when redundant with the device lang). */}
           {venue.nameLocal && (
@@ -370,8 +367,6 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               </span>
             </div>
           )}
-        </div>
-      </div>
       {/* v0.62.x — Maps + Copy + social-profile brand buttons share ONE
           wrapping row (operator). Socials (max 3, priority IG → TikTok →
           Facebook → X → YouTube → Threads) are lazy-fetched and render
