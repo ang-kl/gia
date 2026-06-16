@@ -39,6 +39,19 @@ const COUNTRY_LABEL = {
   BN: { en: 'Bruneian',    fr: 'brunéiens' }
 };
 
+// v0.62.113 — operator: dish names must read as a proper Title (each word
+// capitalised) to look professional — not sentence-case. e.g. "Bak kut teh
+// (Teochew)" → "Bak Kut Teh (Teochew)", "Wanton mee (SG style)" → "Wanton Mee
+// (SG Style)". Title-cases the VISIBLE label only; the raw d.dish stays the
+// search query, aria-label and React key. Uppercases the first letter of each
+// word and leaves the rest untouched, so acronyms ("SG"), parenthetical
+// qualifiers ("(Teochew)") and diacritics ("Phở") all survive (/u → \p{L}
+// matches accented letters).
+function titleCaseDish(s) {
+  return String(s || '').replace(/[\p{L}][\p{L}'’]*/gu,
+    (w) => w.charAt(0).toUpperCase() + w.slice(1));
+}
+
 export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
   const [open, setOpen] = useState(false);
   const [factIdx, setFactIdx] = useState(null);   // index of the open 📜 bubble
@@ -77,7 +90,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
             <b>{fr ? 'À commander en' : 'What to order in'} {title}:</b>{' '}
             {open
               ? (fr ? 'Touchez un plat pour trouver des adresses. Touchez 📜 pour en savoir plus.' : 'Tap a dish to find eateries. Tap 📜 to learn more')
-              : headliners.map((h) => h.dish).join(', ') + (groups.length ? '…' : '')}
+              : headliners.map((h) => titleCaseDish(h.dish)).join(', ') + (groups.length ? '…' : '')}
           </span>
           <span aria-hidden className="text-tg-hint">{open ? '▴' : '▾'}</span>
         </button>
@@ -100,7 +113,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                     aria-label={(fr ? 'Chercher ' : 'Search ') + d.dish}
                     onClick={() => { if (onTryDish) onTryDish(d.dish); }}
                   >
-                    <span className="font-medium">{d.dish}</span>
+                    <span className="font-medium">{titleCaseDish(d.dish)}</span>
                     {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
                   </button>
                   {d.note && (
@@ -119,7 +132,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                     aria-label={fr ? 'Fermer' : 'Close'}
                     onClick={() => setFactIdx(null)}
                   >
-                    <div className="font-semibold">📜 {d.dish}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
+                    <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                     <div className="mt-1">{(fr ? d.note.fr : d.note.en) || d.note.en || ''}</div>
                     <div className="mt-1 text-tg-hint text-right">{fr ? '[ toucher pour fermer ]' : '[ tap to close ]'}</div>
                   </button>
@@ -146,7 +159,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                         aria-label={(fr ? 'Chercher ' : 'Search ') + d.dish}
                         onClick={() => { if (onTryDish) onTryDish(d.dish); }}
                       >
-                        <span>{d.dish}</span>
+                        <span>{titleCaseDish(d.dish)}</span>
                         {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
                       </button>
                       <button
@@ -164,7 +177,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                       aria-label={(fr ? 'Chercher ' : 'Search ') + d.dish}
                       onClick={() => { if (onTryDish) onTryDish(d.dish); }}
                     >
-                      <span>{d.dish}</span>
+                      <span>{titleCaseDish(d.dish)}</span>
                       {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
                     </button>
                   ))}
@@ -176,7 +189,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                     aria-label={fr ? 'Fermer' : 'Close'}
                     onClick={() => setFactIdx(null)}
                   >
-                    <div className="font-semibold">📜 {openDish.dish}{openDish.local && openDish.local !== openDish.dish ? ` · ${openDish.local}` : ''}</div>
+                    <div className="font-semibold">📜 {titleCaseDish(openDish.dish)}{openDish.local && openDish.local !== openDish.dish ? ` · ${openDish.local}` : ''}</div>
                     <div className="mt-1">{(fr ? openDish.note.fr : openDish.note.en) || openDish.note.en || ''}</div>
                     <div className="mt-1 text-tg-hint text-right">{fr ? '[ toucher pour fermer ]' : '[ tap to close ]'}</div>
                   </button>
@@ -207,7 +220,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
           <b>{fr ? 'À goûter ici' : 'What to try here'}:</b>{' '}
           {open
             ? (fr ? 'Touchez un plat pour trouver des adresses. Touchez 📜 pour en savoir plus.' : 'Tap a dish to find eateries. Tap 📜 to learn more')
-            : names.join(', ')}
+            : names.map(titleCaseDish).join(', ')}
         </span>
         <span aria-hidden className="text-tg-hint">{open ? '▴' : '▾'}</span>
       </button>
@@ -230,7 +243,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                   aria-label={(fr ? 'Chercher ' : 'Search ') + d.dish}
                   onClick={() => { if (onTryDish) onTryDish(d.dish); }}
                 >
-                  <span className="font-medium">{d.dish}</span>
+                  <span className="font-medium">{titleCaseDish(d.dish)}</span>
                   {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
                   {/* v0.62.x — device-language gloss for native dish names
                       (operator: translate/explain e.g. "Phở Hà Nội" →
@@ -256,7 +269,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                   aria-label={fr ? 'Fermer' : 'Close'}
                   onClick={() => setFactIdx(null)}
                 >
-                  <div className="font-semibold">📜 {d.dish}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
+                  <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                   <div className="mt-1">{(d.history && (fr ? d.history.fr : d.history.en)) || ''}</div>
                   <div className="mt-1 text-tg-hint">
                     {(TIER_LABEL[d.tier] || {})[fr ? 'fr' : 'en'] || d.tier} · {d.claim}
@@ -314,7 +327,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                               className="min-h-[44px] px-2.5 rounded-xl border border-tg-hint/40 text-left"
                               aria-label={(fr ? 'Chercher ' : 'Search ') + d.dish}
                               onClick={() => { if (onTryDish) onTryDish(d.dish); }}
-                            >{d.dish}</button>
+                            >{titleCaseDish(d.dish)}</button>
                           ))}
                         </div>
                       </div>
@@ -329,7 +342,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                         className="min-h-[44px] px-2.5 rounded-xl border border-tg-hint/40 text-left"
                         aria-label={(fr ? 'Chercher ' : 'Search ') + name}
                         onClick={() => { if (onTryDish) onTryDish(name); }}
-                      >{name}</button>
+                      >{titleCaseDish(name)}</button>
                     ))}
                   </div>
                 )}
