@@ -25,6 +25,26 @@ body { -webkit-font-smoothing: antialiased; }
               0 2px 6px rgba(0, 0, 0, 0.18);
 }
 
+/* v0.62.126 — selected region pill. Operator: "when selected in dark mode,
+   should be UI Skeuomorphism styling." Light mode keeps a flat accent tint;
+   dark mode gets a tactile, pressed-in (debossed) treatment — an accent
+   gradient fill + inset shadow so the active region reads as physically
+   pressed. Accent-derived, so it follows the user's Telegram theme. */
+.glass-pill--selected {
+  background-color: color-mix(in srgb, var(--tg-accent, #3390ec) 16%, transparent);
+}
+[data-theme="dark"] .glass-pill--selected {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--tg-accent, #3390ec) 34%, transparent),
+    color-mix(in srgb, var(--tg-accent, #3390ec) 12%, transparent)
+  );
+  border-color: color-mix(in srgb, var(--tg-accent, #3390ec) 70%, var(--tg-text, #f5f5f7) 30%);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.55),
+              inset 0 -1px 0 rgba(255, 255, 255, 0.10),
+              0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
 /* v0.57.14: stronger contrast for hint/secondary text. Telegram's
    themeParams.hint_color is often a low-contrast gray (#98989f-ish)
    that fails partial-color-blindness readability. Derive --tg-hint
