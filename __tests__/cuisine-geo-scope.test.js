@@ -49,6 +49,31 @@ describe('SG region — concentric distance, no Johor bleed', () => {
     expect(r.venues.map((x) => x.name)).toEqual(['sgVenue']);
   });
 
+  // v0.62.121 — operator bug: a "Polish" search in SG drifted to Warsaw, Poland.
+  // A coordless (distanceM null) FOREIGN Places text-match must NOT pass the SG
+  // cap (it did, via withinCap's null-pass), while a coordless SG-addressed
+  // (curated) venue is still kept.
+  it('drops a coordless foreign match (Poland) but keeps a coordless SG venue', async () => {
+    const venues = [
+      v(10000, { name: 'sgWithin' }),
+      v(null, { name: 'staryDom', area: 'Puławska 104/106, 02-620 Warszawa, Poland' }),
+      v(null, { name: 'curatedSg', area: '32 Maxwell Rd, Singapore 069115' })
+    ];
+    const r = await scopeVenuesByRegion({ venues, anchorCap: 30000, lat: 1.3, lng: 103.8, ...deps() });
+    expect(r.venues.map((x) => x.name).sort()).toEqual(['curatedSg', 'sgWithin']);
+  });
+
+  // v0.62.121 — the never-empty floor must not resurface a cross-country match
+  // when nothing is within cap: a finite far Poland venue (>120 km) stays out.
+  it('floor never resurfaces a >120km foreign venue when the SG pool is empty', async () => {
+    const venues = [
+      v(9400000, { name: 'warsawFar', area: 'Warszawa, Poland' }),
+      v(null, { name: 'warsawCoordless', area: 'Warszawa, Poland' })
+    ];
+    const r = await scopeVenuesByRegion({ venues, anchorCap: 30000, lat: 1.3, lng: 103.8, ...deps() });
+    expect(r.venues).toEqual([]);
+  });
+
   it('cap precedence: anchorCap → searchRadius → SG default', async () => {
     const mk = () => [v(15000, { name: 'a' }), v(25000, { name: 'b' })];
     // searchRadius used when no anchorCap (20km → drops the 25km venue)

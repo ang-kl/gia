@@ -136,11 +136,36 @@ async function scopeVenuesByRegion({
     log(`[Cuisine-Search] D703d OTHER-scope ${beforeOther} → ${out.length} (≤${cap}m of set location; coordless / out-of-range excluded)`);
   } else if (!isJB) {
     // 3) SG — concentric distance cap, minus cross-border Johor bleed.
+    // v0.62.121 — operator: a "Polish" search in Singapore drifted to actual
+    // Warsaw, Poland restaurants. Root cause is the mirror of the OTHER-branch
+    // leak above: `withinCap` keeps a venue whose `distanceM` is null (intended
+    // for coordless CURATED-local venues), but a rare-cuisine Places text-match
+    // can arrive coordless from far away (the Poland venues) and slip through —
+    // so the SG cap logged "N → N", dropping nothing. Two guards, matching the
+    // OTHER hardening but preserving genuine coordless-SG venues:
+    //   • a coordless venue is kept only if it's SG-addressed (Singapore in the
+    //     area/name) — coordless FOREIGN matches are dropped;
+    //   • the never-empty floor draws only from FINITE-distance venues within
+    //     the 120 km hard cap, so it can never resurface a cross-country result.
     const cap = resolveCap(anchorCap, searchRadius, SG_DEFAULT_CAP_M);
     const beforeSg = out.length;
-    const kept = out.filter((v) => withinCap(v, cap) && !JOHOR_RE.test(hay(v)));
-    out = floor(kept, out);
-    log(`[Cuisine-Search] D703s SG-scope ${beforeSg} → ${out.length} (≤${cap}m of set location, no johor)`);
+    const notJohor = (v) => !JOHOR_RE.test(hay(v));
+    // A coordless venue can't be distance-scoped. Keep it ONLY when it's
+    // genuinely local — an empty address (a curated SG venue with no formatted
+    // address) or one that names Singapore. A coordless venue with a non-empty,
+    // non-Singapore address is a far FOREIGN Places text-match (the Poland leak)
+    // and is dropped.
+    const localCoordless = (v) => {
+      const a = ((v && v.area) || '').trim();
+      return a === '' || SINGAPORE_RE.test(a);
+    };
+    const kept = out.filter((v) => notJohor(v) && (
+      Number.isFinite(v.distanceM) ? v.distanceM <= cap : localCoordless(v)
+    ));
+    const fallback = out.filter((v) => notJohor(v)
+      && Number.isFinite(v.distanceM) && v.distanceM <= HARD_CAP_M);
+    out = floor(kept, fallback);
+    log(`[Cuisine-Search] D703s SG-scope ${beforeSg} → ${out.length} (≤${cap}m of set location; coordless kept only if SG-addressed, no johor; floor ≤${HARD_CAP_M}m)`);
   }
 
   return { venues: out, jbFallbackToOther };
