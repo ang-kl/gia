@@ -12252,14 +12252,19 @@ async function cacheBotUsername() {
 
     app.use('/static', express.static(path.join(__dirname, 'public')));
 
-    // v0.61.313 — public /about page. Self-contained HTML/CSS3/vanilla JS
-    // at public/about.html; explains the two Soleat search surfaces
-    // (Cuisine 🔍 + chat /cuisine) and the design choices behind them
-    // vs Google Maps. WCAG 2.1 AA: semantic landmarks, skip-link, focus-
-    // visible, contrast ≥ 4.5:1, touch targets ≥ 44 px, prefers-reduced-
-    // motion + prefers-color-scheme honoured. No external CDN deps.
-    app.get('/about', (req, res) => {
-      res.set('Cache-Control', 'public, max-age=600'); // 10-min CDN/browser cache
+    // v0.62.103 — /about is now the built React project-showcase (web/about →
+    // public/about, Vite base '/about/'): a recruiter-facing page on the cross-
+    // border concept, the word-interpretation + location-bound design, and the
+    // Hawker / Train map nuances. Serve its hashed assets (index:false so the
+    // explicit route owns the HTML + a short cache so a redeploy isn't masked),
+    // and keep the previous self-contained page reachable at /about-classic.
+    app.use('/about', express.static(path.join(__dirname, 'public', 'about'), { index: false, maxAge: '1h' }));
+    app.get(['/about', '/about/'], (req, res) => {
+      res.set('Cache-Control', 'public, max-age=300');
+      res.sendFile(path.join(__dirname, 'public', 'about', 'index.html'));
+    });
+    app.get('/about-classic', (req, res) => {
+      res.set('Cache-Control', 'public, max-age=600');
       res.sendFile(path.join(__dirname, 'public', 'about.html'));
     });
 
