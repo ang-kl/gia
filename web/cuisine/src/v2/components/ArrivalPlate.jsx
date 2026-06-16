@@ -79,8 +79,13 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
   // So two taps fully expand, and one more tap closes. Separate from `open`,
   // which still drives the cuisine-mode "What to order" banner above.
   const [geoStage, setGeoStage] = useState(0);
+  // v0.62.123 — operator: the cuisine-mode "Cuisine:" plate gets the SAME
+  // 3-stage toggle the geo plate has (it was still a 2-state `open` — that's
+  // why the two-tier collapse "wasn't wired"). 0 collapsed → 1 one-line peek →
+  // 2 full → 0.
+  const [cuisineStage, setCuisineStage] = useState(0);
   // New city / cuisine → collapse + close any bubble.
-  useEffect(() => { setOpen(false); setGeoStage(0); setFactIdx(null); setClassicsOpen(false); }, [plate?.city, plate?.cuisineSlug]);
+  useEffect(() => { setOpen(false); setGeoStage(0); setCuisineStage(0); setFactIdx(null); setClassicsOpen(false); }, [plate?.city, plate?.cuisineSlug]);
 
   const fr = lang === 'fr';
 
@@ -103,21 +108,24 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
         <button
           type="button"
           className="w-full text-left flex items-start gap-1 min-h-[28px]"
-          aria-expanded={open}
-          aria-label={(fr ? 'À commander en ' : 'What to order in ') + (plate.cuisineLabel || plate.cuisineSlug)}
-          onClick={() => { setOpen(!open); setFactIdx(null); }}
+          aria-expanded={cuisineStage > 0}
+          aria-label={'Cuisine: ' + (plate.cuisineLabel || plate.cuisineSlug)}
+          onClick={() => { setCuisineStage((cuisineStage + 1) % 3); setFactIdx(null); }}
         >
           <span aria-hidden>🍽</span>
           <span className="flex-1">
-            <b>{fr ? 'À commander en' : 'What to order in'} {title}:</b>{' '}
-            {open
-              ? (fr ? 'Touchez un plat pour trouver des adresses. Touchez 📜 pour en savoir plus.' : 'Tap a dish to find eateries. Tap 📜 to learn more')
-              : headliners.map((h) => titleCaseDish(h.dish)).join(', ') + (groups.length ? '…' : '')}
+            <b>{fr ? 'Cuisine :' : 'Cuisine:'} {title}</b>
+            {cuisineStage === 1 && (
+              <>{' '}{headliners.map((h) => titleCaseDish(h.dish)).join(', ') + (groups.length ? '…' : '')}</>
+            )}
+            {cuisineStage === 2 && (
+              <>{' '}{fr ? 'Touchez un plat pour trouver des adresses. Touchez 📜 pour en savoir plus.' : 'Tap a dish to find eateries. Tap 📜 to learn more'}</>
+            )}
           </span>
-          <span aria-hidden className="text-tg-hint">{open ? '▴' : '▾'}</span>
+          <span aria-hidden className="text-tg-hint">{cuisineStage === 2 ? '▴' : '▾'}</span>
         </button>
 
-        {open && (
+        {cuisineStage === 2 && (
           <div className="mt-1.5 flex flex-col">
             {explainer && <div className="text-tg-hint pb-1.5">📜 {explainer}</div>}
             {plate.populationLow && (
