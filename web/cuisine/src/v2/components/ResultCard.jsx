@@ -103,6 +103,12 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
   // user pasting forward) the full standardised template.
   const [copying, setCopying] = useState(false);
   const [copied, setCopied] = useState(false);
+  // v0.62.124 — operator: result cards collapse to identity + meta + price +
+  // 🍲 Try; everything from the address down is hidden until expanded. The
+  // FOCUSED/selected card auto-expands (the music-app carousel's centred card
+  // reuses this); a manual ⌄/⌃ toggle flips it for any card.
+  const [expanded, setExpanded] = useState(!!focused);
+  useEffect(() => { if (focused) setExpanded(true); }, [focused]);
   // v0.61.225 — lazy-load the venue's social-profile URLs once on
   // mount. Server caches results 30d under social:<placeId>, so most
   // browses resolve in milliseconds; cold cache calls Gemini (~1-2s)
@@ -240,9 +246,9 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             </div>
           )}
           <div className="text-[11px] text-tg-hint truncate">{meta}</div>
-          {/* v0.62.122 — distance moved up into the meta row (distMeta); the
-              standalone "📍 … away" row was removed to avoid showing it twice. */}
-          {venue.area && <div className="text-[11px] text-tg-hint truncate">{venue.area}</div>}
+          {/* v0.62.122 — distance moved up into the meta row (distMeta).
+              v0.62.124 — the address row moved DOWN into the collapsible
+              section (below price/pet), per the operator re-order. */}
           {/* v0.60.190 — price-range + 🐾 Pet line on the in-app card.
               Mirrors the v0.60.183 formatPriceAndPetLine in
               venue-templates.js (Copy-All / /s server-side render).
@@ -269,31 +275,12 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               ].filter(Boolean).join(' · ')}
             </div>
           )}
-          {/* v0.59.23: primary "What to order" line — LLM-picked
-              signature dish if present (rankAndNarrate path), else
-              fall back to the first reviewer-extracted dish from
-              the dishes array (TMA HTTP /api/cuisine/search path
-              that uses pipeline.discover() directly with no LLM
-              rank). Mirrors /hidden's signature_dish surface. */}
+          {/* v0.59.23 / v0.62.x — primary "What to order" line. v0.62.124: this
+              stays VISIBLE even when the card is collapsed (operator: strongest
+              "should I tap" cue), so it sits ABOVE the collapse boundary. */}
           {(() => {
             const primaryDish = venue.signatureDish
               || (Array.isArray(venue.dishes) && venue.dishes.length ? venue.dishes[0] : '');
-            // v0.60.159 — when `signatureDish` is set, the prior logic
-            // (`venue.dishes.slice(0, 3)`) ALSO included `dishes[0]`, which
-            // for Michelin/Bib-Gourmand entries equals `signatureDish` after
-            // the v0.60.153 force-fill pass. Result: "🍴 Try · X" + "X · Y · Z"
-            // — same dish duplicated. Filter out any rest-list entry that
-            // matches `primaryDish` (case-insensitive trim) before slicing.
-            // Operator screenshot 2026-05-14: Cheok Kee + Hong Kong Yummy Soup.
-            // v0.60.163 — exact-match wasn't enough. The substring case
-            // also leaks: "Wanton mee" (primary) vs "Char siew wanton mee"
-            // (rest) reads as a duplicate. Operator 2026-05-14 screenshot:
-            // Chef Kang's Noodle House — `Try · Wanton mee` followed by
-            // `Char siew wanton mee · Dumpling noodle`. Tighten the filter
-            // to drop any rest entry where the primary is a substring of
-            // the rest OR vice versa. Also dedupe within the rest list
-            // itself so two LLM-narrated names that normalise the same
-            // (e.g. "Pork rib soup" + "Pork rib soup ") only render once.
             const norm = (s) => String(s || '').trim().toLowerCase();
             const primaryNorm = norm(primaryDish);
             const seen = new Set();
@@ -310,26 +297,37 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
                   return true;
                 }).slice(0, 3)
               : [];
-            return (
-              <>
-                {/* v0.62.x — primary + secondary dishes on ONE row (operator):
-                    "🍲 Try · {primary} • {secondary} • …". The secondary dishes
-                    stay text-tg-hint as a "more from the menu" annotation. */}
-                {primaryDish && (
-                  <div className="text-[12px] text-tg-text mt-1 leading-snug">
-                    🍲 <span className="font-medium">{tr('card.whatToOrder', lang)}</span> · {primaryDish}
-                    {restDishes.length > 0 && (
-                      <span className="text-tg-hint">{restDishes.map((d) => ` • ${d}`).join('')}</span>
-                    )}
-                  </div>
+            return primaryDish ? (
+              <div className="text-[12px] text-tg-text mt-1 leading-snug">
+                🍲 <span className="font-medium">{tr('card.whatToOrder', lang)}</span> · {primaryDish}
+                {restDishes.length > 0 && (
+                  <span className="text-tg-hint">{restDishes.map((d) => ` • ${d}`).join('')}</span>
                 )}
-              </>
-            );
+              </div>
+            ) : null;
           })()}
+
+          {/* v0.62.124 — collapse toggle. Collapsed = identity + meta + price +
+              🍲 Try (above); everything below is revealed on expand. A focused/
+              selected card auto-expands. The toggle stops propagation so it
+              doesn't fire the card's onTap (map focus / future carousel). */}
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
+            aria-expanded={expanded}
+            className="self-start text-[11px] text-tg-accent mt-1 font-medium"
+          >
+            {expanded
+              ? (lang === 'fr' ? '⌃ moins' : '⌃ less')
+              : (lang === 'fr' ? '⌄ détails, avis & liens' : '⌄ details, review & links')}
+          </button>
+
+          {expanded && (<>
+          {/* v0.62.124 — address moved BELOW the price/pet row, into the
+              collapsible section (operator row re-order). */}
+          {venue.area && <div className="text-[11px] text-tg-hint truncate">{venue.area}</div>}
           {/* v0.62.37 — ⭐ Recommend tie-in (D792): the venue's own evidence
-              mentions one of the anchored city's unique dishes. Tier in
-              WORDS, no colour signal — colour-blind safe. Only present when
-              the ⭐ Recommend filter was on for this search. */}
+              mentions one of the anchored city's unique dishes. Tier in WORDS. */}
           {venue.cityDish && venue.cityDish.dish && (
             <div className="text-[12px] text-tg-text mt-1 leading-snug">
               ⭐ <span className="font-medium">{(() => {
@@ -339,64 +337,49 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               })()}</span> · {venue.cityDish.dish}
             </div>
           )}
-          {venue.vibe && <div className="text-[12px] text-tg-text mt-1 leading-snug">{venue.vibe}</div>}
+          {/* v0.60.16 — Michelin / Bib Gourmand annotation row (star-tier + year). */}
+          {venue.michelinCategory && (
+            <div className="text-[11px] text-tg-text mt-1 font-semibold">
+              {michelinAnnotation(venue.michelinCategory, venue.michelinYear || 2025)}
+            </div>
+          )}
+          {/* v0.62.0 — HPB Healthier Choice + inside-building share ONE row. */}
+          {(venue.healthierChoice || venue.insideBuilding) && (
+            <div className="text-[11px] text-tg-text mt-1">
+              {[
+                venue.healthierChoice && `🥗 ${tr('card.healthierChoice', lang)}`,
+                venue.insideBuilding && `🏢 ${tr('card.insideBuilding', lang)}`
+              ].filter(Boolean).join('   ')}
+            </div>
+          )}
+          {/* v0.62.124 — review moved near the end (operator). */}
           {typeof venue.recentReview === 'string' && venue.recentReview.trim() && (
             <div className="flex items-start gap-1 text-[11px] text-tg-hint mt-1 leading-snug italic">
               <span aria-hidden="true">💬</span>
               <span>
                 "{venue.recentReview}"
-                {/* v0.61.417 — operator: the review's date ("X ago", Google's
-                    own relative time) a few spaces after the closing quote, as
-                    dated evidence for the review. */}
                 {typeof venue.recentReviewAgo === 'string' && venue.recentReviewAgo && (
                   <span className="not-italic ml-2 text-tg-hint">{venue.recentReviewAgo}</span>
                 )}
-                {/* v0.61.151 — nationality-language review tag. Backend
-                    sets recentReviewTranslatedFlag when the surfaced
-                    review is in the cuisine nationality's language
-                    AND rating > 3.8 (per operator spec). Format:
-                    "(  <flag>  translated)" with spaces around the
-                    flag for visual separation. */}
                 {typeof venue.recentReviewTranslatedFlag === 'string' && venue.recentReviewTranslatedFlag && (
                   <span className="not-italic"> ( {venue.recentReviewTranslatedFlag} translated)</span>
                 )}
               </span>
             </div>
           )}
-      {/* v0.62.x — Maps + Copy + social-profile brand buttons share ONE
-          wrapping row (operator). Socials (max 3, priority IG → TikTok →
-          Facebook → X → YouTube → Threads) are lazy-fetched and render
-          nothing until present, so the row simply shows Maps + Copy first. */}
-      <div className="flex flex-wrap gap-1.5 mt-1">
-        <button type="button" onClick={openMaps}
-          className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">📍 Maps</button>
-        <button type="button" onClick={copy} disabled={copying}
-          className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">
-          {copying ? '…' : copied ? (lang === 'fr' ? '✓ Envoyé' : '✓ Sent') : tr('btn.copyOne', lang)}
-        </button>
-        <SocialButtons profiles={socialProfiles} bare />
-      </div>
-      {/* v0.60.16 — Michelin / Bib Gourmand annotation row. Rendered
-          below the Maps + Copy buttons when /api/cuisine/search
-          attached michelinCategory to the venue payload.
-          v0.60.45 — cuisine label moved out of this row into the new
-          restaurantType line below the venue name. The annotation
-          here is now just star-tier + year. */}
-      {venue.michelinCategory && (
-        <div className="text-[11px] text-tg-text mt-1 font-semibold">
-          {michelinAnnotation(venue.michelinCategory, venue.michelinYear || 2025)}
-        </div>
-      )}
-      {/* v0.62.0 — HPB Healthier Choice + inside-building.
-          v0.62.122 — operator: both share ONE row now. */}
-      {(venue.healthierChoice || venue.insideBuilding) && (
-        <div className="text-[11px] text-tg-text mt-1">
-          {[
-            venue.healthierChoice && `🥗 ${tr('card.healthierChoice', lang)}`,
-            venue.insideBuilding && `🏢 ${tr('card.insideBuilding', lang)}`
-          ].filter(Boolean).join('   ')}
-        </div>
-      )}
+          {/* v0.62.124 — vibe moved to AFTER the review (operator). */}
+          {venue.vibe && <div className="text-[12px] text-tg-text mt-1 leading-snug">{venue.vibe}</div>}
+          {/* v0.62.124 — Maps + Copy + socials are now the LAST row (operator). */}
+          <div className="flex flex-wrap gap-1.5 mt-1">
+            <button type="button" onClick={openMaps}
+              className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">📍 Maps</button>
+            <button type="button" onClick={copy} disabled={copying}
+              className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">
+              {copying ? '…' : copied ? (lang === 'fr' ? '✓ Envoyé' : '✓ Sent') : tr('btn.copyOne', lang)}
+            </button>
+            <SocialButtons profiles={socialProfiles} bare />
+          </div>
+          </>)}
     </button>
   );
 }
