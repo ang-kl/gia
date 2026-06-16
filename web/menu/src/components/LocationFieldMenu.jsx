@@ -244,6 +244,89 @@ function CountryDropdownMenu({ value, onChange, ariaLabel }) {
   );
 }
 
+// v0.62.110 — operator: the native <select> precinct picker opened a NARROW
+// iOS popover that wrapped long anchor names ("IOI Resort City, Putrajaya
+// (20 km)") onto two cramped lines. A native <select> popover's width isn't
+// CSS-controllable, so this is a custom full-width dropdown (same pattern as
+// CountryDropdownMenu / CityDropdownMenu above): the open panel spans the
+// field's FULL width (left-0 right-0) and every row is whitespace-nowrap, so
+// each precinct name reads on a single line. Options + grouping + labels are
+// identical to the prior <select> (SG STB / SG region / Malaysia).
+function PrecinctDropdownMenu({ precincts, value, onChange, disabled, lang }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    function onDocClick(e) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+    }
+    function onKey(e) { if (e.key === 'Escape') setOpen(false); }
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+  const myCap = (p) => (p.radiusCapM ? ` (${Math.round(p.radiusCapM / 1000)} km)` : '');
+  const groups = [
+    { key: 'sg', flag: '🇸🇬', label: t('location.dropdownGroupSg', lang), items: precincts.sg },
+    { key: 'sgRegion', flag: '🇸🇬', label: t('location.dropdownGroupSgReg', lang), items: precincts.sgRegion },
+    { key: 'my', flag: '🇲🇾', label: t('location.dropdownGroupMy', lang), items: precincts.my }
+  ];
+  const labelFor = (p, flag) => `${flag} ${p.label}${flag === '🇲🇾' ? myCap(p) : ''}`;
+  const all = [...precincts.sg, ...precincts.sgRegion, ...precincts.my];
+  const current = value ? all.find((p) => p.id === value) : null;
+  const curFlag = current && precincts.my.some((p) => p.id === current.id) ? '🇲🇾' : '🇸🇬';
+  function pick(id) {
+    setOpen(false);
+    onChange?.(id);
+  }
+  return (
+    <div ref={wrapRef} className="relative">
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        disabled={disabled}
+        onClick={() => setOpen((v) => !v)}
+        className="w-full text-[13px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text inline-flex items-center justify-between gap-2 disabled:opacity-50"
+      >
+        <span className="truncate">{current ? labelFor(current, curFlag) : t('location.dropdownLabel', lang)}</span>
+        <span aria-hidden className="text-tg-hint text-[10px] flex-shrink-0">▾</span>
+      </button>
+      {open && (
+        <ul
+          role="listbox"
+          className="absolute left-0 right-0 top-full mt-1 z-30 max-h-72 overflow-y-auto rounded-md border border-tg-border bg-tg-card shadow-lg py-0.5"
+        >
+          {groups.filter((g) => g.items.length > 0).map((g) => (
+            <li key={g.key} role="presentation">
+              <div className="px-3 py-1 text-[11px] text-tg-hint">{g.label}</div>
+              <ul role="group">
+                {g.items.map((p) => {
+                  const sel = current && p.id === current.id;
+                  return (
+                    <li key={p.id} role="option" aria-selected={sel}>
+                      <button
+                        type="button"
+                        onClick={() => pick(p.id)}
+                        className={`w-full text-left px-3 py-1.5 text-[13px] whitespace-nowrap hover:bg-tg-bg focus:bg-tg-bg focus:outline-none ${sel ? 'bg-tg-bg/60 font-semibold' : ''}`}
+                      >
+                        {labelFor(p, g.flag)}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor }) {
   // v0.61.254 — operator: "in the location card, has two boxes is
   // currently wrong see picture. it should be Cuisine TMA's location
@@ -492,8 +575,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     }).then((body) => { if (body?.ok) setExpanded(false); });
   }
 
-  function onPickerChange(e) {
-    const id = e.target.value;
+  function onPickerChange(id) {
     setPickerValue(id);
     if (!id) return;
     // v0.61.223 — sync the flag dropdown to match the picked
@@ -771,35 +853,13 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
           regardless of region (operator: "the quick pick dropdown
           select still there and not remove in the Menu TMA"). Was
           v0.61.192: hidden when region was OTHER / MY-PUT. */}
-      <select
+      <PrecinctDropdownMenu
+        precincts={precincts}
         value={pickerValue}
         onChange={onPickerChange}
         disabled={busy}
-        className="text-[13px] px-2 py-1.5 rounded bg-tg-bg border border-tg-border text-tg-text"
-      >
-        <option value="">{t('location.dropdownLabel', lang)}</option>
-        {precincts.sg.length > 0 && (
-          <optgroup label={t('location.dropdownGroupSg', lang)}>
-            {precincts.sg.map((p) => (
-              <option key={p.id} value={p.id}>🇸🇬 {p.label}</option>
-            ))}
-          </optgroup>
-        )}
-        {precincts.sgRegion.length > 0 && (
-          <optgroup label={t('location.dropdownGroupSgReg', lang)}>
-            {precincts.sgRegion.map((p) => (
-              <option key={p.id} value={p.id}>🇸🇬 {p.label}</option>
-            ))}
-          </optgroup>
-        )}
-        {precincts.my.length > 0 && (
-          <optgroup label={t('location.dropdownGroupMy', lang)}>
-            {precincts.my.map((p) => (
-              <option key={p.id} value={p.id}>🇲🇾 {p.label}{p.radiusCapM ? ` (${Math.round(p.radiusCapM/1000)} km)` : ''}</option>
-            ))}
-          </optgroup>
-        )}
-      </select>
+        lang={lang}
+      />
       {/* v0.61.223 — form mode now driven by countryPref (SG vs non-SG),
           not by currentAnchor.region. Flag dropdown is ALWAYS visible
           (was OTHER-mode-only in v0.61.192). When countryPref === 'SG'
