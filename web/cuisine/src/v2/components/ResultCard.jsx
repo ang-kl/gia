@@ -18,9 +18,9 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
         ? `${(venue.distanceM / 1000).toFixed(2)}km`
         : `${Math.round(venue.distanceM)}m`)
     : '';
-  const walk = Number.isFinite(venue.walkMinutes)
-    ? (lang === 'fr' ? `${venue.walkMinutes} min à pied` : `${venue.walkMinutes} min walk`)
-    : '';
+  // v0.62.122 — operator: the straight-line walk-minutes estimate was confusing
+  // next to the distance row, so it's dropped. (`venue.walkMinutes` still rides
+  // the payload for the copy/chat template.)
   // v0.58.55: localise Open / Closed.
   // v0.61.246 — when the venue is currently open, prefer the
   // server-attached openClosingLabel ("Open · Closes 3:00 PM ·
@@ -65,13 +65,16 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
   // meta line into its own prominent row below (see `distLine`), so far results
   // (e.g. KL durian under the wider 45 km cap) read as obviously far. Keep the
   // walk-minutes here only when the venue is genuinely walkable (<2 km).
-  const nearWalk = (Number.isFinite(venue.distanceM) && venue.distanceM < 2000) ? walk : '';
-  const meta = [rating, price, open, nearWalk].filter(Boolean).join(' · ');
-  const distLine = Number.isFinite(venue.distanceM)
+  // v0.62.122 — operator: drop the walk-minutes from the meta row and surface
+  // the straight-line DISTANCE here instead (replaces the standalone
+  // "📍 … away" row that used to sit below). One distance signal, in the meta.
+  const distLabel = Number.isFinite(venue.distanceM)
     ? (venue.distanceM >= 1000
         ? `~${(venue.distanceM / 1000).toFixed(1)} km`
         : `${Math.round(venue.distanceM)} m`)
     : '';
+  const distMeta = distLabel ? `📍 ${distLabel}${lang === 'fr' ? '' : ' away'}` : '';
+  const meta = [rating, price, open, distMeta].filter(Boolean).join(' · ');
 
   // v0.57.13: open Google Maps via Telegram.WebApp.openLink. Inside
   // the TMA WebView, plain <a target="_blank"> often does nothing —
@@ -237,15 +240,8 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             </div>
           )}
           <div className="text-[11px] text-tg-hint truncate">{meta}</div>
-          {/* v0.62.81 — operator: "scope gets further from set location but
-              didn't tell me how far away". Explicit straight-line distance from
-              the set location, prominent (own row, semibold), so far results read
-              as far at a glance. */}
-          {distLine && (
-            <div className="text-[11px] font-semibold text-tg-text/90 mt-0.5">
-              📍 {distLine} {lang === 'fr' ? 'de votre position' : 'away'}
-            </div>
-          )}
+          {/* v0.62.122 — distance moved up into the meta row (distMeta); the
+              standalone "📍 … away" row was removed to avoid showing it twice. */}
           {venue.area && <div className="text-[11px] text-tg-hint truncate">{venue.area}</div>}
           {/* v0.60.190 — price-range + 🐾 Pet line on the in-app card.
               Mirrors the v0.60.183 formatPriceAndPetLine in
@@ -391,16 +387,14 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           {michelinAnnotation(venue.michelinCategory, venue.michelinYear || 2025)}
         </div>
       )}
-      {/* v0.62.0 — HPB Healthier Choice + inside-building rows, after
-          the Michelin row (server attaches the flags to the payload). */}
-      {venue.healthierChoice && (
+      {/* v0.62.0 — HPB Healthier Choice + inside-building.
+          v0.62.122 — operator: both share ONE row now. */}
+      {(venue.healthierChoice || venue.insideBuilding) && (
         <div className="text-[11px] text-tg-text mt-1">
-          🥗 {tr('card.healthierChoice', lang)}
-        </div>
-      )}
-      {venue.insideBuilding && (
-        <div className="text-[11px] text-tg-hint mt-1">
-          🏢 {tr('card.insideBuilding', lang)}
+          {[
+            venue.healthierChoice && `🥗 ${tr('card.healthierChoice', lang)}`,
+            venue.insideBuilding && `🏢 ${tr('card.insideBuilding', lang)}`
+          ].filter(Boolean).join('   ')}
         </div>
       )}
     </button>
