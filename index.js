@@ -16823,7 +16823,13 @@ async function cacheBotUsername() {
         // in-memory; no Places spend; fail-open.
         let cuisineOrderPlate = null;
         try {
-          const _cuiSlugs = (cuisines || []).map((s) => String(s || '').toLowerCase()).filter((s) => s && s !== 'michelin');
+          // v0.62.123 — operator: these are NOT cuisines, so they must never
+          // produce a "Cuisine:" order-plate. durian / durian-pastry / fruits /
+          // dessert already ride specialMode; michelin / bib-gourmand / fusion
+          // are category chips, not cuisines — exclude them explicitly so a
+          // mixed or category-only selection never builds a bogus plate.
+          const NON_CUISINE_PLATE = new Set(['michelin', 'bib-gourmand', 'bib', 'fusion', 'dessert', 'desserts']);
+          const _cuiSlugs = (cuisines || []).map((s) => String(s || '').toLowerCase()).filter((s) => s && !NON_CUISINE_PLATE.has(s));
           if (!specialMode && _cuiSlugs.length === 1) {
             const slug = _cuiSlugs[0];
             const ov = require('./nation-overlay').getNationOverlay(slug);
