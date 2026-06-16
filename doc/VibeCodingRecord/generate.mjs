@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-06-14';   // v0.62.76 refresh: PRs #1023-#1029 (docs/vault catch-up + Register/Technical/Feature backfill for v0.61.301→v0.62.52, the loading/fun-fact overlay polish arc [opaque + blinking ellipsis + left-justify + "Food fact" footer], the cuisine relevance/geofence hardening [Australian/NZ relevance gate, OTHER geofence fail-closed against coordless cross-country leaks], and enrichSlow D707 timing instrumentation for the 20s "Load failed" deadline)
+const GEN_DATE = '2026-06-16';   // v0.62.112 refresh: PRs #1030-#1055 (docs/vault catch-up to v0.62.76; cuisine search 500-guard + per-city concentric rings; then the Maps/transit arc — Hawker card lists 3 bus + 2 stations with Train deep-links, flush-left "1 \u00b7 name" result card, station links jump in-app, on-tap transit rendered at the live busTier/trainTier zoom tiers + Hawker parity, full-width custom Menu location dropdown, "other cities" marketing copy, and a result-card eatery-pin blink)
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
