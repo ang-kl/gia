@@ -1625,7 +1625,7 @@ export function createOverlayController(map, googleMaps, opts) {
         marker.addListener('click', () => openBusInfo(map, info, b, marker));
         marker.map = map;
         venueTransitPins.push(marker);
-        venueTransitData.buses.push({ marker, code: b.code });
+        venueTransitData.buses.push({ marker, code: b.code, b });
       }
     }
     if (!(layers.train && layers.train.visible)) {
@@ -1660,6 +1660,38 @@ export function createOverlayController(map, googleMaps, opts) {
     if ((map.getZoom?.() || 0) < 15) map.setZoom(15);
     map.panTo({ lat, lng });
     handleStationTap(it);
+  }
+
+  // v0.62.120 — operator: the bus-stop codes in the venue card must be
+  // hyperlinks too (parity with the station codes). Tapping one pans + flashes
+  // the stop on THIS map and opens its live-arrivals popup (same as tapping the
+  // bus pin) — stays in the TMA. Prefers the marker already drawn by the
+  // venue-tap (showVenueTransit); falls back to the LTA catalogue when the Bus
+  // Stop layer is on (venue pins skipped) so the link still works.
+  async function focusBusStop(code) {
+    if (!code) return;
+    const want = String(code).toUpperCase();
+    let entry = (venueTransitData?.buses || []).find((x) => String(x.code).toUpperCase() === want);
+    let b = entry?.b, marker = entry?.marker;
+    if (!b) {
+      let data;
+      try { data = await fetchBusStops(); } catch { return; }
+      b = (data?.busstops || []).find((x) => String(x.code).toUpperCase() === want);
+      if (!b || !Number.isFinite(b.lat) || !Number.isFinite(b.lng)) return;
+      marker = new AdvancedMarkerElement({
+        position: { lat: b.lat, lng: b.lng },
+        content: busTierNode(busTier(map.getZoom?.() || 0), b.code), gmpClickable: true
+      });
+      marker.addListener('click', () => openBusInfo(map, info, b, marker));
+      marker.map = map;
+      venueTransitPins.push(marker);   // cleared with the rest on close
+    }
+    if (Number.isFinite(b.lat) && Number.isFinite(b.lng)) {
+      if ((map.getZoom?.() || 0) < 16) map.setZoom(16);
+      map.panTo({ lat: b.lat, lng: b.lng });
+      flashPin(b.lat, b.lng);
+    }
+    openBusInfo(map, info, b, marker);
   }
 
   // v0.61.57 — CR6 Phase 3: render + open the station info card popup
@@ -2369,6 +2401,7 @@ export function createOverlayController(map, googleMaps, opts) {
     showVenueTransit,
     clearVenueTransit,
     focusStation,
+    focusBusStop,
     flashPin,
     async setLayer(name, visible) {
       if (destroyed) return;
