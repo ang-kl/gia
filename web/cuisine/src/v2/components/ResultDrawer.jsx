@@ -86,9 +86,9 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
         {/* v0.62.151 — operator: a terminal card after the last result. Scroll to
             the right end → "Last card" + how to refine. */}
         <div className="snap-center shrink-0 basis-[82%] max-h-[10.5rem] rounded-lg shadow-xl bg-tg-card border border-tg-border flex flex-col items-center justify-center text-center gap-1 px-3 py-4">
-          <div className="text-[12px] font-semibold text-tg-text">{lang === 'fr' ? 'Dernière carte' : 'Last card'}</div>
-          <div className="text-[11px] text-tg-hint leading-snug">📍 {lang === 'fr' ? 'saisir un lieu' : 'enter location'} · 💬 {lang === 'fr' ? 'tapez un plat' : 'Type dish'}</div>
-          <div className="text-[11px] text-tg-hint leading-snug">{lang === 'fr' ? 'Touchez 🔍 pour rechercher' : 'Tap 🔍 to search'}</div>
+          <div className="text-[13px] font-semibold text-tg-text">{lang === 'fr' ? 'Dernière carte' : 'Last card'}</div>
+          <div className="text-[12px] text-tg-hint leading-snug">📍 {lang === 'fr' ? 'saisir un lieu' : 'enter location'} · 💬 {lang === 'fr' ? 'tapez un plat' : 'Type dish'}</div>
+          <div className="text-[12px] text-tg-hint leading-snug">{lang === 'fr' ? 'Touchez 🔍 pour rechercher' : 'Tap 🔍 to search'}</div>
         </div>
         {/* v0.62.155 — loop clone of the FIRST card (jumps back to the real one
             on reach, see the scroll effect above). */}

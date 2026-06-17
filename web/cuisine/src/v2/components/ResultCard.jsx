@@ -230,20 +230,20 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           {/* v0.61.359 — native-script name in "( )" below the name (RULE A/B
               applied server-side; absent when redundant with the device lang). */}
           {venue.nameLocal && (
-            <div className="text-xs text-tg-hint leading-tight truncate">({venue.nameLocal})</div>
+            <div className="text-[13px] text-tg-hint leading-tight truncate">({venue.nameLocal})</div>
           )}
           {/* v0.61.382 — readable foreign-name line: a device-language
               romanisation + brief gloss (Gemini, server-side) for a name in
               a script the reader can't read. Shown under the native name,
               never replacing it. 🔤 marks "how to read it" (icon, not colour). */}
           {venue.nameReading && (
-            <div className="text-[11px] text-tg-hint leading-tight truncate">🔤 {venue.nameReading}</div>
+            <div className="text-[12px] text-tg-hint leading-tight truncate">🔤 {venue.nameReading}</div>
           )}
           {/* v0.62.x item 7 — device-language MEANING of a foreign-language
               (Latin-script) name, e.g. "Tầm vị" → "(seeking flavour)". Gemini,
               server-side, cached. Next row in brackets, never replacing. */}
           {venue.nameGloss && (
-            <div className="text-[11px] text-tg-hint leading-tight truncate">({venue.nameGloss})</div>
+            <div className="text-[12px] text-tg-hint leading-tight truncate">({venue.nameGloss})</div>
           )}
           {/* v0.60.45 — restaurant type line. Sourced from
               michelinCuisineLabel (when present) or Places API
@@ -252,7 +252,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               venue name so users see the cuisine descriptor at a
               glance without scanning chips. */}
           {venue.restaurantType && (
-            <div className="text-[11px] text-tg-text/80 truncate">{venue.restaurantType}</div>
+            <div className="text-[12px] text-tg-text/80 truncate">{venue.restaurantType}</div>
           )}
           {/* v0.61.255 — operator: "For Durian Pastry, if the
               resturant/eateries is not Durian per se, but a note in
@@ -264,11 +264,11 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               trigger: name-substring check. */}
           {specialMode === 'durian-pastry'
             && !/durian/i.test(venue.name || '') && (
-            <div className="text-[10px] italic text-tg-hint truncate">
+            <div className="text-[11px] italic text-tg-hint truncate">
               {lang === 'fr' ? 'Renseignez-vous pour le pâtisserie durian saisonnier' : 'Inquire for seasonal durian pastry'}
             </div>
           )}
-          <div className="text-[11px] text-tg-hint truncate">{meta}</div>
+          <div className="text-[12px] text-tg-hint truncate">{meta}</div>
           {/* v0.62.122 — distance moved up into the meta row (distMeta).
               v0.62.124 — the address row moved DOWN into the collapsible
               section (below price/pet), per the operator re-order. */}
@@ -289,7 +289,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               · ♿️ if eatery included in Google Search. Next to
               cost-range. Move Crowd to same row as cost-range." */}
           {(venue.priceRangeDisplay || venue.wheelchairAccessible === true || venue.allowsDogs === true || livenessChip) && (
-            <div className="text-[11px] text-tg-text/80 truncate mt-0.5">
+            <div className="text-[12px] text-tg-text/80 truncate mt-0.5">
               {[
                 venue.priceRangeDisplay,
                 venue.wheelchairAccessible === true && '♿️',
@@ -321,7 +321,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
                 }).slice(0, 3)
               : [];
             return primaryDish ? (
-              <div className="text-[12px] text-tg-text mt-1 leading-snug">
+              <div className="text-[13px] text-tg-text mt-1 leading-snug">
                 🍲 <span className="font-medium">{tr('card.whatToOrder', lang)}</span> · {primaryDish}
                 {restDishes.length > 0 && (
                   <span className="text-tg-hint">{restDishes.map((d) => ` • ${d}`).join('')}</span>
@@ -338,7 +338,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             type="button"
             onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
             aria-expanded={expanded}
-            className="self-start text-[11px] text-tg-accent mt-1 font-medium"
+            className="self-start text-[12px] text-tg-accent mt-1 font-medium"
           >
             {expanded
               ? (lang === 'fr' ? '⌃ moins' : '⌃ less')
@@ -348,11 +348,11 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           {expanded && (<>
           {/* v0.62.124 — address moved BELOW the price/pet row, into the
               collapsible section (operator row re-order). */}
-          {venue.area && <div className="text-[11px] text-tg-hint break-words leading-snug">{shortenCountry(venue.area)}</div>}
+          {venue.area && <div className="text-[12px] text-tg-hint break-words leading-snug">{shortenCountry(venue.area)}</div>}
           {/* v0.62.37 — ⭐ Recommend tie-in (D792): the venue's own evidence
               mentions one of the anchored city's unique dishes. Tier in WORDS. */}
           {venue.cityDish && venue.cityDish.dish && (
-            <div className="text-[12px] text-tg-text mt-1 leading-snug">
+            <div className="text-[13px] text-tg-text mt-1 leading-snug">
               ⭐ <span className="font-medium">{(() => {
                 const t2 = venue.cityDish.tier;
                 if (lang === 'fr') return t2 === 'city-icon' ? 'Icône de la ville' : t2 === 'regional' ? 'Classique régional' : 'Classique national';
@@ -362,13 +362,13 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           )}
           {/* v0.60.16 — Michelin / Bib Gourmand annotation row (star-tier + year). */}
           {venue.michelinCategory && (
-            <div className="text-[11px] text-tg-text mt-1 font-semibold">
+            <div className="text-[12px] text-tg-text mt-1 font-semibold">
               {michelinAnnotation(venue.michelinCategory, venue.michelinYear || 2025)}
             </div>
           )}
           {/* v0.62.0 — HPB Healthier Choice + inside-building share ONE row. */}
           {(venue.healthierChoice || venue.insideBuilding) && (
-            <div className="text-[11px] text-tg-text mt-1">
+            <div className="text-[12px] text-tg-text mt-1">
               {[
                 venue.healthierChoice && `🥗 ${tr('card.healthierChoice', lang)}`,
                 venue.insideBuilding && `🏢 ${tr('card.insideBuilding', lang)}`
@@ -377,7 +377,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           )}
           {/* v0.62.124 — review moved near the end (operator). */}
           {typeof venue.recentReview === 'string' && venue.recentReview.trim() && (
-            <div className="flex items-start gap-1 text-[11px] text-tg-hint mt-1 leading-snug italic">
+            <div className="flex items-start gap-1 text-[12px] text-tg-hint mt-1 leading-snug italic">
               <span aria-hidden="true">💬</span>
               <span>
                 "{venue.recentReview}"
@@ -391,13 +391,13 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             </div>
           )}
           {/* v0.62.124 — vibe moved to AFTER the review (operator). */}
-          {venue.vibe && <div className="text-[12px] text-tg-text mt-1 leading-snug">{venue.vibe}</div>}
+          {venue.vibe && <div className="text-[13px] text-tg-text mt-1 leading-snug">{venue.vibe}</div>}
           {/* v0.62.124 — Maps + Copy + socials are now the LAST row (operator). */}
           <div className="flex flex-wrap gap-1.5 mt-1">
             <button type="button" onClick={openMaps}
-              className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">📍 Maps</button>
+              className="text-[12px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">📍 Maps</button>
             <button type="button" onClick={copy} disabled={copying}
-              className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">
+              className="text-[12px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">
               {copying ? '…' : copied ? (lang === 'fr' ? '✓ Envoyé' : '✓ Sent') : tr('btn.copyOne', lang)}
             </button>
             <SocialButtons profiles={socialProfiles} bare />
