@@ -2700,6 +2700,9 @@ export default function App() {
     // Location + Local-food-picks fields fold back into the floating header
     // (still reachable by scrolling to the top).
     setModePeek(false);
+    // v0.62.140 — firing from the criteria bottom sheet closes it so the
+    // (horizontal) results are unobscured.
+    setCriteriaOpen(false);
     setLoadingReason(lastRunSnap !== null && !dirty ? 'refresh' : 'rotating');
     // v0.61.354 — if a city is previewed, 🔍 COMMITS it as the active search
     // location (and searches there). Reuse onLocationSelect WITHOUT cityPreview
@@ -3175,7 +3178,9 @@ export default function App() {
         className="bg-tg-bg text-tg-text py-3 flex flex-col gap-2 max-w-[1600px] mx-auto px-3 md:px-6 lg:px-8"
         style={{
           minHeight: 'var(--tg-viewport-stable-height, 100vh)',
-          paddingBottom: 'env(safe-area-inset-bottom, 0)'
+          // v0.62.140 — reserve space for the taller fixed footer row so page
+        // content (chips / vertical list) is never hidden behind it.
+        paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))'
         }}
       >
         {locationModals}
@@ -3225,7 +3230,9 @@ export default function App() {
         // 100vh that iPad WebView resolves to the full sheet (including
         // Telegram's bottom chrome) and leaves a drag-up gap.
         minHeight: 'var(--tg-viewport-stable-height, 100vh)',
-        paddingBottom: 'env(safe-area-inset-bottom, 0)'
+        // v0.62.140 — reserve space for the taller fixed footer row so page
+        // content (chips / vertical list) is never hidden behind it.
+        paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))'
       }}
     >
       {/* v0.61.285 — fun-fact modal during the rotating-search wait
@@ -3590,17 +3597,9 @@ export default function App() {
           criteria header below the title (visible only when collapsed)
           — see the <ActiveFilters /> mount further down. */}
 
-      {/* v0.59.0: Tell-me input box also moved BELOW the map. Always
-          visible — single-line composer, expands the conversation
-          inline. Replaces the v0.57.30 FlipPanel back-face. */}
-      <TellMePanel
-        value={nlText}
-        onChange={setNlText}
-        onSubmit={handleNLSubmit}
-        onReplace={handleNLReplace}
-        lastPrompt={lastPrompt}
-        loading={loading}
-      />
+      {/* v0.62.140 — operator: the free-text "What are you craving?" composer
+          moved OUT of the page flow into the fixed footer row (see the footer
+          rebuild below). */}
 
       {/* v0.59.0: Search criteria — collapsible. Filter chips
           (Open-now / New / Halal / Price / Filters), location field,
@@ -3613,10 +3612,19 @@ export default function App() {
           the background to distinguish it"). Header gains an
           explicit "Collapse"/"Edit search" pill on the right so the
           collapse affordance isn't just a small chevron. */}
+      {/* v0.62.140 — operator: the Search-criteria card is now a footer-docked
+          BOTTOM SHEET. Open (criteriaOpen) → fixed above the footer row, opaque,
+          scrollable, with the existing "Collapse" header + in-sheet "🔍 Search"
+          bar (which still fires + loads more). Closed → just the active-filter
+          chips in flow (the header lives in the footer as "Edit search ▾" /
+          the blue 🔍). */}
       <div
-        className="rounded-2xl border border-tg-accent/40 overflow-hidden"
-        style={{ backgroundColor: 'color-mix(in srgb, var(--tg-card) 88%, var(--tg-accent) 12%)' }}
+        className={criteriaOpen
+          ? 'fixed inset-x-2 bottom-[6.75rem] z-40 max-h-[68vh] overflow-y-auto rounded-2xl border border-tg-accent/50 shadow-2xl'
+          : (criteriaSummary.length > 0 ? 'px-0.5 mb-1' : 'hidden')}
+        style={criteriaOpen ? { backgroundColor: 'color-mix(in srgb, var(--tg-card) 94%, var(--tg-accent) 6%)' } : undefined}
       >
+        {criteriaOpen && (
         <button
           type="button"
           onClick={() => setCriteriaOpen((o) => !o)}
@@ -3643,13 +3651,16 @@ export default function App() {
             </div>
           </div>
         </button>
+        )}
         {/* v0.60.84 — operator 2026-05-10: pills now live inside the
             criteria card below the toggle button (visible only when
             collapsed AND something is selected). Replaces the v0.60.80
             text preview "Japanese • Open now • $$". Mounted as a
             sibling of the <button>, not nested inside it — nested
             <button> in <button> is invalid HTML and breaks the X-tap
-            removal on each pill. */}
+            removal on each pill.
+            v0.62.140 — when collapsed this chip row is the only thing the
+            criteria card renders in flow (the header moved to the footer). */}
         {!criteriaOpen && criteriaSummary.length > 0 && (
           <div className="px-3 pb-2 -mt-1">
             <ActiveFilters
@@ -4351,19 +4362,28 @@ export default function App() {
           construction. Bowl shape (rounded-t-md rounded-b-[16px])
           across all three FABs per Human Lead 2026-05-09 — replaces
           the prior rounded-full circles. */}
+      {/* v0.62.140 — operator footer rebuild (pictures 1 & 3): one bottom ROW —
+          ⇠ end · Edit search ▾ · 💬 free-text · ↑ top — with the blue 🔍 (opens
+          the criteria bottom sheet) floating above. The old standalone 🔍
+          fire/load-more FAB is retired; firing + load-more now run from the
+          in-sheet "🔍 Search · Show me places to eat" bar. */}
       <div
-        className="fixed left-4 right-4 z-30 pointer-events-none flex items-end justify-between gap-3"
-        style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
+        className="fixed left-2 right-2 z-30 pointer-events-none flex flex-col gap-1.5"
+        style={{ bottom: 'calc(0.5rem + env(safe-area-inset-bottom, 0px))' }}
       >
-        {/* v0.60.154 — left cluster: End / ⇠ Back / ⇢ Next. The Back FAB
-            replaces the v0.60.148 right-column ⇠ button (now removed)
-            and reverts to the original "End" position the operator
-            preferred; it walks the client-side page-history cache
-            (`pages` + `cursor`) instead of round-tripping
-            /api/cuisine/session/back, so navigation is instant and no
-            re-curation happens. The ⇢ Next button only renders when
-            the user has stepped back and there is forward history. */}
-        <div className="flex items-end gap-2 pointer-events-none">
+        {/* Blue 🔍 — opens the Search-criteria sheet (right-aligned, above row). */}
+        <div className="flex justify-end pr-1 pointer-events-none">
+          <button
+            type="button"
+            onClick={() => setCriteriaOpen(true)}
+            aria-label={lang === 'fr' ? 'Ouvrir les critères de recherche' : 'Open search criteria'}
+            className={`pointer-events-auto w-11 h-11 rounded-full bg-tg-accent text-tg-accent-text border-2 border-white/40 shadow-lg flex items-center justify-center text-base active:scale-95 transition-all ${
+              (searchHintActive || searchFabFlash) ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''
+            }`}
+          >🔍</button>
+        </div>
+        {/* Main footer row. */}
+        <div className="flex items-center gap-1.5 pointer-events-auto">
           <BackFab
             inline
             mode={cursor > 0 ? 'back' : 'close'}
@@ -4376,98 +4396,46 @@ export default function App() {
               aria-label={lang === 'fr' ? 'Liste suivante' : 'Next list'}
               title={lang === 'fr' ? 'Liste suivante' : 'Next list'}
               style={fabBgFg(false)}
-              className="pointer-events-auto px-2 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-1 active:scale-95 whitespace-nowrap"
+              className="pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-1 active:scale-95 whitespace-nowrap shrink-0"
             >
               <span aria-hidden="true">⇢</span>
-              <span>{lang === 'fr' ? 'Suivant' : 'next'}</span>
             </button>
           )}
-        </div>
-        <div className="flex flex-col gap-2 items-end pointer-events-none">
-          {/* v0.62.138 — "back to horizontal" FAB. In VERTICAL mode the floating
-              strip (which carries its own ↴ toggle + ✕) is gone, so this FAB is
-              the way back to the horizontal cards. Two font-sizes smaller than
-              the 🔍 (text-[9px]). The horizontal→vertical toggle lives in the
-              ResultDrawer's stacked controls. */}
+          {/* Edit search ▾ — opens the same criteria sheet as the blue 🔍. */}
+          <button
+            type="button"
+            onClick={() => setCriteriaOpen((o) => !o)}
+            aria-label={lang === 'fr' ? 'Modifier la recherche' : 'Edit search'}
+            style={fabBgFg(false)}
+            className={`pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-0.5 active:scale-95 whitespace-nowrap shrink-0 ${
+              !criteriaOpen && editSearchPulse ? 'ring-2 ring-tg-accent animate-pulse' : ''
+            }`}
+          >
+            <span>{t('btn.editSearch', lang)}</span>
+            <span aria-hidden="true">▾</span>
+          </button>
+          {/* 💬 free-text composer — fills the row. */}
+          <div className="flex-1 min-w-0">
+            <TellMePanel
+              value={nlText}
+              onChange={setNlText}
+              onSubmit={handleNLSubmit}
+              onReplace={handleNLReplace}
+              lastPrompt={lastPrompt}
+              loading={loading}
+            />
+          </div>
+          {/* ↰ back-to-horizontal (vertical mode only). */}
           {drawerMode === 'vertical' && (visibleVenues.length || venues.length) > 0 && (
             <button
               type="button"
               onClick={() => setDrawerMode('horizontal')}
               aria-label={lang === 'fr' ? 'Basculer en affichage horizontal' : 'Switch to horizontal layout'}
               style={fabBgFg(false)}
-              className="pointer-events-auto px-1.5 h-6 rounded-t-md rounded-b-[12px] border border-tg-border shadow-md text-[9px] font-semibold flex items-center justify-center gap-0.5 active:scale-95 transition-all whitespace-nowrap"
-            >
-              <span aria-hidden="true">↰</span>
-              <span>{lang === 'fr' ? 'horizontal' : 'horizontal'}</span>
-            </button>
+              className="pointer-events-auto px-1.5 h-8 rounded-t-md rounded-b-[12px] border border-tg-border shadow-md text-[9px] font-semibold flex items-center justify-center active:scale-95 transition-all whitespace-nowrap shrink-0"
+            ><span aria-hidden="true">↰</span></button>
           )}
-          {/* v0.60.97 — operator: "flip the position of 'Search 🔍'
-              and 'top' / 'down'. 'Search 🔍' be on top of 'top' /
-              'down'." Search FAB now renders FIRST (top of column);
-              scroll FAB renders SECOND (below).
-              v0.61.174 — v0.61.79's left-of-FAB 👉 arrow retired.
-              Replaced with a speech-bubble tooltip ABOVE the 🔍 ("More
-              eats? Tap 🔍") for the same flash window, now 5 s. The
-              tail is a 8 px rotated square positioned at the bottom-
-              center of the bubble body (same bg, no border on the
-              tail's hidden edges) so the silhouette reads as a true
-              chat bubble pointing down at the FAB. */}
-          <div className="relative pointer-events-none">
-            {(searchHintActive || searchFabFlash) && (
-              <div
-                aria-hidden="true"
-                className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 animate-pulse drop-shadow-md select-none pointer-events-none"
-              >
-                <div className="relative bg-tg-accent text-tg-bg text-[10px] font-semibold rounded-2xl px-2.5 py-1 whitespace-nowrap shadow-md">
-                  {t('panel.bubble.moreEats', lang)}
-                  {/* Downward tail — rotated square hugging the bottom
-                      edge so half the diamond sits under the bubble
-                      body. Same bg as the body for a seamless join. */}
-                  <span
-                    className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-2 h-2 bg-tg-accent rotate-45"
-                  />
-                </div>
-              </div>
-            )}
-            {/* v0.61.180 — disable the 🔍 FAB when the cumulative
-                pool is exhausted (finalBatch=true + knownTotal ===
-                venues.length means the user has been shown
-                everything Places returned AND the next tap would
-                fetch zero). Closes operator's earlier complaint
-                "subsequent tap return zero because of the five
-                near location". `dirty` (criteria changed) re-enables
-                the button — a new query has its own pool. */}
-            {(() => {
-              const poolExhausted = !!finalBatch && Number.isFinite(knownTotal) && venues && venues.length === knownTotal;
-              // v0.61.440 — a PREVIEWED city (Others dropdown / map pick that
-              // hasn't been committed yet) re-enables the FAB so the user can
-              // tap 🔍 to commit + search there. Operator bug: after a thin
-              // Others result left poolExhausted=true, picking a new city left
-              // the FAB stuck disabled (the preview doesn't change `dirty`,
-              // which ignores location) — so the new city could never be
-              // searched via the FAB. The server's per-location seen-set
-              // (v0.61.440) means that committed search returns a fresh
-              // non-final batch, clearing poolExhausted on its own afterwards.
-              const isDisabled = loading || (poolExhausted && !dirty && !selectedCityLocation);
-              return (
-                <button
-                  type="button"
-                  onClick={triggerSearch}
-                  disabled={isDisabled}
-                  aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat'}
-                  title={poolExhausted && !dirty
-                    ? (lang === 'fr' ? 'Aucun autre résultat — modifiez les critères' : 'No more results — change criteria')
-                    : undefined}
-                  style={fabBgFg(dirty)}
-                  className={`pointer-events-auto w-7 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center active:scale-95 transition-all ${
-                    isDisabled ? 'opacity-40'
-                    : dirty ? 'ring-2 ring-offset-1 ring-tg-accent'
-                    : ''
-                  } ${(searchHintActive || searchFabFlash) && !isDisabled ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
-                >🔍</button>
-              );
-            })()}
-          </div>
+          {/* ↑ top / ↓ down scroll. */}
           <button
             type="button"
             onClick={() => window.scrollTo({
@@ -4476,7 +4444,7 @@ export default function App() {
             })}
             aria-label={scrolledPastHero ? t('btn.backToTop', lang) : 'Scroll down'}
             style={fabBgFg(false)}
-            className="pointer-events-auto px-1.5 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center active:scale-95 transition-all whitespace-nowrap"
+            className="pointer-events-auto px-1.5 h-8 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center active:scale-95 transition-all whitespace-nowrap shrink-0"
           >{scrolledPastHero ? t('btn.topShort', lang) : t('btn.downShort', lang)}</button>
         </div>
       </div>
