@@ -30,8 +30,7 @@ export default function AffectedTicker({ affectedCodes, focusedCode, onFocus, st
   }
   return (
     <div
-      className="rounded-lg border border-tg-border px-2 py-2 flex flex-col gap-1.5"
-      style={{ backgroundColor: 'color-mix(in srgb, var(--tg-card) 88%, var(--tg-accent) 12%)' }}
+      className="rounded-2xl border border-tg-border/60 bg-tg-bg/80 backdrop-blur shadow-lg px-2 py-2 flex flex-col gap-1.5"
     >
       <div className="text-xs font-semibold text-tg-text px-1">{t('ticker.title', lang)}</div>
       <div className="overflow-x-auto whitespace-nowrap">
