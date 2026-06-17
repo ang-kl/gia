@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-16",
-  "count": 1042,
+  "generated": "2026-06-17",
+  "count": 1069,
   "records": [
     {
       "pr": 1,
@@ -29812,6 +29812,714 @@
       "reworkCue": false,
       "reworkOf": null,
       "burst": false
+    },
+    {
+      "pr": 1056,
+      "status": "merged",
+      "merged": "2026-06-16 04:53:01",
+      "day": "2026-06-16",
+      "version": "0.62.112",
+      "minor": "0.62",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: refresh ledger to PRs #1030-#1055 (v0.62.112 snapshot)",
+      "approach": "/vibe-journal refresh.",
+      "codeImpact": "7 files — doc, public/",
+      "modules": [
+        "doc",
+        "public/"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs(vibe-journal): refresh ledger to PRs #1030-#1055 (v0.62.112 snapshot)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1057,
+      "status": "merged",
+      "merged": "2026-06-16 05:45:36",
+      "day": "2026-06-16",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Commands / chat UX",
+      "intent": "Update docs: Soleat 2-page primer (public/doc/soleat-about.html)",
+      "approach": "Adds the Soleat 2-page primer as a self-contained HTML page at public/doc/soleat-about.html.",
+      "codeImpact": "1 file — public/",
+      "modules": [
+        "public/"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: Soleat 2-page primer (public/doc/soleat-about.html)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1059,
+      "status": "merged",
+      "merged": "2026-06-16 08:20:04",
+      "day": "2026-06-16",
+      "version": "0.62.114",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: venue pin tap stays in the TMA, no jump to Google Maps (v0.62.114)",
+      "approach": "Tapping a Google Maps venue pin inside the Cuisine TMA jumped OUT to the Google Maps app.",
+      "codeImpact": "2 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 2,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "fix(cuisine): venue pin tap stays in the TMA, no jump to Google Maps (v0.62.114)",
+      "reworkCue": false,
+      "reworkOf": 1053,
+      "burst": false
+    },
+    {
+      "pr": 1060,
+      "status": "merged",
+      "merged": "2026-06-16 08:27:15",
+      "day": "2026-06-16",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Core / misc",
+      "intent": "Update docs: UI consistency audit + skeuomorphism verdict (public/doc/soleat-ui-audit.html)",
+      "approach": "Materialises the UI consistency audit as a self-contained HTML report at public/doc/soleat-ui-audit.html.",
+      "codeImpact": "1 file — public/",
+      "modules": [
+        "public/"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: UI consistency audit + skeuomorphism verdict (public/doc/soleat-ui-audit.html)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1061,
+      "status": "merged",
+      "merged": "2026-06-16 09:14:16",
+      "day": "2026-06-16",
+      "version": "0.62.115",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: result-card / pin tap zooms map to 17, tap-out restores prior zoom (cuisine + hawker, v0.62.115)",
+      "approach": "Cuisine result-card tap -> setZoom(17) alongside pan + blink (flashPin) + popup.",
+      "codeImpact": "3 files — TMA:cuisine, TMA:hawker, package",
+      "modules": [
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine",
+        "hawker"
+      ],
+      "impactTags": [],
+      "title": "feat: result-card / pin tap zooms map to 17, tap-out restores prior zoom (cuisine + hawker, v0.62.115)",
+      "reworkCue": true,
+      "reworkOf": 1055,
+      "burst": false
+    },
+    {
+      "pr": 1062,
+      "status": "merged",
+      "merged": "2026-06-16 09:25:44",
+      "day": "2026-06-16",
+      "version": "0.62.116",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: \"Local food picks\" plate - 3-stage collapse + qualifier-led one-liner (v0.62.116)",
+      "approach": "Reworks the geo What-to-try-here plate: renamed to Local food picks (FR Selection locale); collapsed by default with a two-staged expand (0 label -> 1 peek one-line A-B-C -> 2 full dish rows).",
+      "codeImpact": "2 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 2,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "feat(cuisine): \"Local food picks\" plate - 3-stage collapse + qualifier-led one-liner (v0.62.116)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1063,
+      "status": "merged",
+      "merged": "2026-06-16 09:32:25",
+      "day": "2026-06-16",
+      "version": "0.62.117",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: venue type line uses specific cuisine from places.types[], hides if generic (v0.62.117)",
+      "approach": "Google Maps showed The Butcher's Wife as a Gluten-free restaurant but the TMA showed generic Restaurant.",
+      "codeImpact": "2 files — index.js, package",
+      "modules": [
+        "index.js",
+        "package"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [],
+      "title": "feat: venue type line uses specific cuisine from places.types[], hides if generic (v0.62.117)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1064,
+      "status": "merged",
+      "merged": "2026-06-16 09:35:29",
+      "day": "2026-06-16",
+      "version": "0.62.118",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Transport / carpark",
+      "intent": "Fix: GPS reverse-geocode resolves to building/street, not the planning area (v0.62.118)",
+      "approach": "A shared GPS location showed the pill Bukit Merah (planning subzone) when Google Maps shows 115 Bukit Merah View.",
+      "codeImpact": "2 files — index.js, package",
+      "modules": [
+        "index.js",
+        "package"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [],
+      "title": "fix: GPS reverse-geocode resolves to building/street, not the planning area (v0.62.118)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1065,
+      "status": "merged",
+      "merged": "2026-06-16 10:07:08",
+      "day": "2026-06-16",
+      "version": "0.62.119",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "Fix: correct wrong Bukit Panjang LRT station coordinates (v0.62.119)",
+      "approach": "BP LRT station pins sat at the wrong locations (the line read correctly).",
+      "codeImpact": "3 files — data, package",
+      "modules": [
+        "data",
+        "package"
+      ],
+      "nFiles": 3,
+      "tmas": [],
+      "impactTags": [],
+      "title": "fix(transport): correct wrong Bukit Panjang LRT station coordinates (v0.62.119)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1066,
+      "status": "merged",
+      "merged": "2026-06-16 10:17:35",
+      "day": "2026-06-16",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Hawker NEA",
+      "intent": "Update docs: \"Local food picks\" rework MVP mockup (global-first + Bib near here + SG hawker choice)",
+      "approach": "A visual MVP mockup (not a build) of the reworked Local food picks plate: global-first curated city picks (Tokyo gets Tokyo dishes); keep the Bib Gourmand near-here curation; flag 2-3 nearby hawker centres as a choice (Singapore mode only).",
+      "codeImpact": "1 file — public/",
+      "modules": [
+        "public/"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: \"Local food picks\" rework MVP mockup (global-first + Bib near here + SG hawker choice)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1067,
+      "status": "merged",
+      "merged": "2026-06-16 10:50:52",
+      "day": "2026-06-16",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Hawker NEA",
+      "intent": "Update docs: Hawker mini-app rework MVP mockup (per-centre detail + Bib stalls)",
+      "approach": "A visual MVP mockup (not built) of a Hawker mini-app rework - the per-centre detail view that the Local food picks hawker-centre layer would deep-link into.",
+      "codeImpact": "1 file — public/",
+      "modules": [
+        "public/"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: Hawker mini-app rework MVP mockup (per-centre detail + Bib stalls)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1068,
+      "status": "merged",
+      "merged": "2026-06-16 11:04:10",
+      "day": "2026-06-16",
+      "version": "0.62.120",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Weather",
+      "intent": "Add: bus-stop codes in the venue card are hyperlinks too (v0.62.120)",
+      "approach": "The eatery card's transit block linked train stations but showed bus-stop codes as plain text.",
+      "codeImpact": "3 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "feat(cuisine): bus-stop codes in the venue card are hyperlinks too (v0.62.120)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1069,
+      "status": "merged",
+      "merged": "2026-06-16 11:16:56",
+      "day": "2026-06-16",
+      "version": "0.62.121",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "Fix: SG search no longer drifts to foreign venues (Polish -> Poland) (v0.62.121)",
+      "approach": "Selecting Polish with a Singapore set location returned actual Warsaw restaurants at the list tail (D703s SG-scope 60 -> 60, dropped nothing).",
+      "codeImpact": "3 files — cuisine-geo-scope.js, tests, package",
+      "modules": [
+        "tests",
+        "cuisine-geo-scope.js",
+        "package"
+      ],
+      "nFiles": 3,
+      "tmas": [],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "fix(cuisine): SG search no longer drifts to foreign venues (Polish -> Poland) (v0.62.121)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1071,
+      "status": "merged",
+      "merged": "2026-06-16 21:34:10",
+      "day": "2026-06-16",
+      "version": "0.62.123",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: cuisine plate - \"Cuisine:\" label, 3-stage collapse, non-cuisine exclusion (v0.62.123)",
+      "approach": "Cuisine What-to-order plate: relabel What to order in {X} (X is a cuisine, not a place) -> Cuisine: {flag}{X}; the 3-stage collapse (added to the GEO plate in v0.62.116) is now wired to the cuisine branch (cuisineStage 0 label -> 1 peek…",
+      "codeImpact": "3 files — index.js, TMA:cuisine, package",
+      "modules": [
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "feat(cuisine): cuisine plate - \"Cuisine:\" label, 3-stage collapse, non-cuisine exclusion (v0.62.123)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1072,
+      "status": "merged",
+      "merged": "2026-06-17 05:50:54",
+      "day": "2026-06-17",
+      "version": "0.62.123",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: cuisine plate - \"Cuisine:\" label, 3-stage collapse, non-cuisine exclusion (v0.62.123)",
+      "approach": "Re-merge of the v0.62.123 cuisine-plate change (relabel to Cuisine: {flag}{X}, 3-stage collapse on the cuisine branch, NON_CUISINE_PLATE exclusion of michelin/bib/fusion).",
+      "codeImpact": "3 files — index.js, TMA:cuisine, package",
+      "modules": [
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "feat(cuisine): cuisine plate - \"Cuisine:\" label, 3-stage collapse, non-cuisine exclusion (v0.62.123)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1073,
+      "status": "merged",
+      "merged": "2026-06-17 05:55:26",
+      "day": "2026-06-17",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Core / misc",
+      "intent": "Update docs: Eatery Card redesign + music-app carousel MVP mockup",
+      "approach": "The Eatery Card redesign + music-app carousel mockup.",
+      "codeImpact": "1 file — public/",
+      "modules": [
+        "public/"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: Eatery Card redesign + music-app carousel MVP mockup",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1074,
+      "status": "merged",
+      "merged": "2026-06-17 06:05:36",
+      "day": "2026-06-17",
+      "version": "0.62.124",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: result card - re-order rows + collapse (Try stays visible) (v0.62.124)",
+      "approach": "Mockup-approved restructure of the Eatery Card.",
+      "codeImpact": "2 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 2,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "feat(cuisine): result card - re-order rows + collapse (Try stays visible) (v0.62.124)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1075,
+      "status": "merged",
+      "merged": "2026-06-17 06:18:46",
+      "day": "2026-06-17",
+      "version": "0.62.125",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: music-app result carousel over the map (v0.62.125)",
+      "approach": "When a result card is selected, the list becomes a horizontal swipe-carousel floating over the lower map: picked card centred + auto-expanded, neighbours peeking; map recenters/zoom-17/blinks (v0.62.115 wiring); X or empty-map tap -> back…",
+      "codeImpact": "4 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "feat(cuisine): music-app result carousel over the map (v0.62.125)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1076,
+      "status": "merged",
+      "merged": "2026-06-17 06:38:47",
+      "day": "2026-06-17",
+      "version": "0.62.126",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: equal-width region pills + skeuomorphic selected pill in dark mode (v0.62.126)",
+      "approach": "Region picker (Current/Singapore/Johor Bahru/Cities): 1) Equal-width pills - JB hogged the slack (flex-1 vs content-width); all four are now flex-1 basis-0 px-1, equal width.",
+      "codeImpact": "4 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "feat(cuisine): equal-width region pills + skeuomorphic selected pill in dark mode (v0.62.126)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1077,
+      "status": "merged",
+      "merged": "2026-06-17 06:55:09",
+      "day": "2026-06-17",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Cuisine Picker",
+      "intent": "Update docs: Cuisine TMA floating-layout MVP mockup (footer carousel + search FAB + floating header)",
+      "approach": "A visual MVP mockup (not built) of the Cuisine TMA reorganized into floating chrome over a full-bleed map: 1) carousel floats at the footer replacing the vertical list; 2) search bar -> a floating FAB that expands to a full search card;…",
+      "codeImpact": "1 file — public/",
+      "modules": [
+        "public/"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: Cuisine TMA floating-layout MVP mockup (footer carousel + search FAB + floating header)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1078,
+      "status": "merged",
+      "merged": "2026-06-17 07:00:39",
+      "day": "2026-06-17",
+      "version": "0.62.127",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Weather",
+      "intent": "Add: floating always-present header (v0.62.127) - floating-layout step 1",
+      "approach": "Floating-layout step 1 of 4.",
+      "codeImpact": "2 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 2,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "feat(cuisine): floating always-present header (v0.62.127) - floating-layout step 1",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1079,
+      "status": "merged",
+      "merged": "2026-06-17 07:05:44",
+      "day": "2026-06-17",
+      "version": "0.62.128",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: dock result carousel at the footer, off the map (v0.62.128)",
+      "approach": "Floating-layout step 2 of the footer rebuild.",
+      "codeImpact": "3 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "feat(cuisine): dock result carousel at the footer, off the map (v0.62.128)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1080,
+      "status": "merged",
+      "merged": "2026-06-17 07:24:47",
+      "day": "2026-06-17",
+      "version": "0.62.129",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: skeuomorphic map pop-up info card across all TMAs (v0.62.129)",
+      "approach": "The Google-map pop-up card (the InfoWindow tapped open from a pin) is now skeuomorphic, not liquid glass: infoCard() renders a raised, beveled physical card - top-light to bottom-shade gradient, hairline border, soft drop shadow + inset…",
+      "codeImpact": "4 files — TMA:cuisine, TMA:hawker, TMA:transport, package",
+      "modules": [
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [],
+      "title": "feat(maps): skeuomorphic map pop-up info card across all TMAs (v0.62.129)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1081,
+      "status": "merged",
+      "merged": "2026-06-17 07:28:04",
+      "day": "2026-06-17",
+      "version": "0.62.130",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: line-coloured station code chips in the venue pop-up (v0.62.130)",
+      "approach": "In the Cuisine eatery pop-up, the nearest-station codes now ride their official MRT line background colour instead of a plain link.",
+      "codeImpact": "3 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "feat(cuisine): line-coloured station code chips in the venue pop-up (v0.62.130)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1082,
+      "status": "merged",
+      "merged": "2026-06-17 01:11:43",
+      "day": "2026-06-17",
+      "version": "0.62.131",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Infra / setup",
+      "intent": "Fix: rating-toast leak on close + sync package-lock (v0.62.131)",
+      "approach": "1) Bug: the Rating reset to Good+ >=3.7 footer toast survived in state when the TMA went hidden, flashing into the close and lingering on reopen; the visibilitychange handler now dismisses it (setRatingReminder(null)) the moment the TMA…",
+      "codeImpact": "3 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "fix(cuisine): rating-toast leak on close + sync package-lock (v0.62.131)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1083,
+      "status": "merged",
+      "merged": "2026-06-17 01:20:05",
+      "day": "2026-06-17",
+      "version": "0.62.132",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: default result-map zoom 11 -> 12 across all TMAs (v0.62.132)",
+      "approach": "Default result-map zoom 11 -> 12 across all three map TMAs: cuisine MapPanel init zoom + no-fresh-search recenter -> 12; hawker SG_DEFAULT_ZOOM 11->12; transport SG_DEFAULT_ZOOM 11->12.",
+      "codeImpact": "5 files — TMA:cuisine, TMA:hawker, TMA:transport, package",
+      "modules": [
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [],
+      "title": "feat(maps): default result-map zoom 11 -> 12 across all TMAs (v0.62.132)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1084,
+      "status": "merged",
+      "merged": "2026-06-17 02:55:48",
+      "day": "2026-06-17",
+      "version": "0.62.133",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: centre-map (U+21B9) button across all TMAs; drop Google nav pad (v0.62.133)",
+      "approach": "Remove Google's native zoom/pan pad and add a centre map button between + and - in every map.",
+      "codeImpact": "6 files — TMA:cuisine, TMA:hawker, TMA:transport, package, public/",
+      "modules": [
+        "package",
+        "public/",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [],
+      "title": "feat(maps): centre-map (U+21B9) button across all TMAs; drop Google nav pad (v0.62.133)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
     }
   ]
 }
