@@ -1,6 +1,6 @@
 {
   "generated": "2026-06-17",
-  "count": 1069,
+  "count": 1078,
   "records": [
     {
       "pr": 1,
@@ -30520,6 +30520,268 @@
       "reworkCue": false,
       "reworkOf": null,
       "burst": true
+    },
+    {
+      "pr": 1085,
+      "status": "merged",
+      "merged": "2026-06-17 03:09:44",
+      "day": "2026-06-17",
+      "version": "0.62.114",
+      "minor": "0.62",
+      "category": "docs",
+      "area": "Cuisine Picker",
+      "intent": "journal + feature list + vibe-journal catch-up (v0.62.114 → v0.62.133)",
+      "approach": "## What Documentation catch-up for the **v0.62.114 → v0.62.133** UI-rework arc (PRs **#1056–#1084**, all squash-merged to `main`), per the `doc/CLAUDE.md` contract.",
+      "codeImpact": "16 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 16,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: journal + feature list + vibe-journal catch-up (v0.62.114 → v0.62.133)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1086,
+      "status": "merged",
+      "merged": "2026-06-17 03:12:17",
+      "day": "2026-06-17",
+      "version": "0.62.134",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: remove Google native camera nav cluster from all 3 TMAs",
+      "approach": "## What Operator (17-06 '26): remove the Google-rendered **camera nav cluster** (the +/pan-arrows/tilt widget, bottom-left of the map) from **all three TMAs**.",
+      "codeImpact": "4 files — TMA:cuisine, TMA:hawker, TMA:transport, package",
+      "modules": [
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.134: remove Google native camera nav cluster from all 3 TMAs",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1087,
+      "status": "merged",
+      "merged": "2026-06-17 03:26:28",
+      "day": "2026-06-17",
+      "version": "0.62.135",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: opaque header in light mode + reveal Location/food-picks on mode tap",
+      "approach": "## What Operator (17-06 '26), two parts of the header request: 1.",
+      "codeImpact": "2 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 2,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.135: opaque header in light mode + reveal Location/food-picks on mode tap",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1088,
+      "status": "merged",
+      "merged": "2026-06-17 03:28:26",
+      "day": "2026-06-17",
+      "version": "0.62.136",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: floating result drawer (vertical default) + ↰/↴ horizontal toggle",
+      "approach": "## What Operator (17-06 '26): replace the horizontal result **carousel** (v0.62.125–128) with a **Google-Maps-style floating drawer** — a **vertical** scrolling list by default, flippable to the old horizontal swipe layout via a toggle FAB.",
+      "codeImpact": "3 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.136: floating result drawer (vertical default) + ↰/↴ horizontal toggle",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1089,
+      "status": "merged",
+      "merged": "2026-06-17 04:21:47",
+      "day": "2026-06-17",
+      "version": "0.62.137",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Menu TMA neo-skeuomorphism — restyle tiles + rebuild the train area",
+      "approach": "## What Operator (17-06 '26): *\"change the layout of MENU TMA, it isn't neo-skeuomorphism.",
+      "codeImpact": "4 files — TMA:menu, package",
+      "modules": [
+        "package",
+        "TMA:menu"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.137: Menu TMA neo-skeuomorphism — restyle tiles + rebuild the train area",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1090,
+      "status": "merged",
+      "merged": "2026-06-17 04:37:01",
+      "day": "2026-06-17",
+      "version": "0.62.138",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Search / free-text",
+      "intent": "Add: results default to horizontal floating strip; vertical on toggle",
+      "approach": "## What (PR A of 2 — the \"urgent\" Cuisine results rework) Operator (17-06 '26): results should **default to the horizontal floating card strip** over the map (no vertical list shown); a card tap in horizontal mode should **only blink the…",
+      "codeImpact": "4 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.138: results default to horizontal floating strip; vertical on toggle",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1091,
+      "status": "merged",
+      "merged": "2026-06-17 04:43:14",
+      "day": "2026-06-17",
+      "version": "0.62.139",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: horizontal result cards — bottom-aligned + scroll-to-expand",
+      "approach": "## What Operator (17-06 '26): bottom-align the horizontal floating cards, and give each a scrollbar so scrolling reveals the expanded detail — two ways to view (expand/collapse **or** scroll).",
+      "codeImpact": "4 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.139: horizontal result cards — bottom-aligned + scroll-to-expand",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1092,
+      "status": "merged",
+      "merged": "2026-06-17 04:53:16",
+      "day": "2026-06-17",
+      "version": "0.62.140",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Search / free-text",
+      "intent": "Add: Cuisine footer rebuild — free-text + Edit-search in footer; criteria bottom sheet",
+      "approach": "## What (PR B of the \"urgent\" Cuisine rework — pictures 1-3) Operator: move the **search card + free-text** out of the page flow into the **footer**; the **blue 🔍 opens the criteria panel** (its in-sheet Search bar fires + loads more).",
+      "codeImpact": "2 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 2,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.140: Cuisine footer rebuild — free-text + Edit-search in footer; criteria bottom sheet",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1093,
+      "status": "merged",
+      "merged": "2026-06-17 05:19:49",
+      "day": "2026-06-17",
+      "version": "0.62.141",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: results/footer refinements — compact cards, zoom-14, footer list+toggle",
+      "approach": "## What Operator refinements on the Cuisine results + footer: 1.",
+      "codeImpact": "4 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.141: results/footer refinements — compact cards, zoom-14, footer list+toggle",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
     }
   ]
 }

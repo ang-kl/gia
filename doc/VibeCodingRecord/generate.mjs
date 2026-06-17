@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-06-17';   // v0.62.133 catch-up: PRs #1056-#1084 (vibe-journal refresh + Soleat primer / UI-audit / 4 MVP mockup docs; then the UI-rework arc - venue-pin tap stays in-TMA, result-card/pin zoom-17 + tap-out restore, "Local food picks" + "Cuisine:" 3-stage collapse plates, places.types[] specific cuisine line, GPS building/street reverse-geocode, BP-LRT coord fix, bus-stop code hyperlinks, SG-search foreign-drift fix, result-card re-order/collapse, music-app result carousel then footer dock, floating header, equal-width skeuomorphic region pills, skeuomorphic map pop-up card, line-coloured station chips, rating-toast leak fix + package-lock sync, default zoom 11->12, centre-map button replacing Google's nav pad)
+const GEN_DATE = '2026-06-17';   // v0.62.141 catch-up: PRs #1085-#1093 (docs catch-up #1085; then the map/results/footer-rework arc - remove Google camera nav cluster, opaque header + reveal Location/food-picks on mode tap, floating result drawer, Menu TMA neo-skeuomorphism (tiles + train area), results default to horizontal floating strip + vertical-on-toggle, bottom-aligned scroll-to-expand cards, footer rebuild (free-text + Edit-search in footer, criteria bottom sheet), and refinements (compact 5-row cards, tap->zoom-14, footer list+toggle, shorter footer))
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 

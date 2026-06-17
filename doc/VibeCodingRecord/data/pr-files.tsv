@@ -857,3 +857,12 @@
 1082	package-lock.json,package.json,web/cuisine/src/v2/App.jsx
 1083	package-lock.json,package.json,web/cuisine/src/v2/components/MapPanel.jsx,web/hawker/src/components/HawkerMapPanel.jsx,web/transport/src/components/MrtMapPanel.jsx
 1084	package-lock.json,package.json,public/app.js,web/cuisine/src/v2/components/MapPanel.jsx,web/hawker/src/components/HawkerMapPanel.jsx,web/transport/src/components/MrtMapPanel.jsx
+1085	doc/.serial-state.yml,doc/Feature/feature-0_62_133-17_06_26-1200.md,doc/Journal/journal-0_62_133-17_06_26-1200.md,doc/VibeCodingRecord/data/pr-files.tsv,doc/VibeCodingRecord/data/prs.ndjson,doc/VibeCodingRecord/generate.mjs,doc/VibeCodingRecord/records.tsv,doc/VibeCodingRecord/vibe-coding-record.md,package-lock.json,package.json,public/app.js,public/doc/vibe-journal.html,public/doc/vibe-journal.json,web/cuisine/src/v2/components/MapPanel.jsx,web/hawker/src/components/HawkerMapPanel.jsx,web/transport/src/components/MrtMapPanel.jsx
+1086	package.json,web/cuisine/src/v2/components/MapPanel.jsx,web/hawker/src/components/HawkerMapPanel.jsx,web/transport/src/components/MrtMapPanel.jsx
+1087	package.json,web/cuisine/src/v2/App.jsx
+1088	package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/components/ResultDrawer.jsx
+1089	package.json,web/menu/src/components/Tile.jsx,web/menu/src/components/TrainPanel.jsx,web/menu/src/styles.css
+1090	package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/components/MapPanel.jsx,web/cuisine/src/v2/components/ResultDrawer.jsx
+1091	package.json,web/cuisine/src/styles.css,web/cuisine/src/v2/components/ResultCard.jsx,web/cuisine/src/v2/components/ResultDrawer.jsx
+1092	package.json,web/cuisine/src/v2/App.jsx
+1093	package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/components/MapPanel.jsx,web/cuisine/src/v2/components/ResultDrawer.jsx
