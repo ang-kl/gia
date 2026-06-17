@@ -98,7 +98,7 @@ function transitBlockHtml(transit) {
   return rows.join('');
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, onMapMove, flyTo, fitPins, onDeselect, children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, onMapMove, flyTo, fitPins, onDeselect, blinkOnly = false, children }) {
   // v0.62.125 — onDeselect (tap empty map → exit the result carousel) kept in a
   // ref so the long-lived map-click handler always calls the current prop.
   const onDeselectRef = useRef(null);
@@ -160,6 +160,12 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // that pre-focus zoom; it's captured only once per focus burst (so tapping
   // card after card keeps the original level) and cleared on restore.
   const prevFocusZoomRef = useRef(null);
+  // v0.62.138 — operator: in HORIZONTAL result mode, tapping a card should ONLY
+  // blink the map pin — no zoom-to-17, no info pop-up card. (The pop-up + zoom
+  // stay for VERTICAL mode, where the result is a full list.) Held in a ref so
+  // the focusedPlaceId effect reads the latest mode without re-subscribing.
+  const blinkOnlyRef = useRef(blinkOnly);
+  useEffect(() => { blinkOnlyRef.current = blinkOnly; }, [blinkOnly]);
   // v0.61.310 — capture the registered Map ID from /maps-key so the
   // Map constructor uses the operator's MAP_ID env var when set
   // (custom vector styling + branding). Mirrors the Transport TMA's
@@ -443,6 +449,12 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     const v = (venuesRef.current || []).find((x) => x.placeId === focusedPlaceId);
     if (v && Number.isFinite(v.lat) && Number.isFinite(v.lng)) {
       mapRef.current.panTo({ lat: v.lat, lng: v.lng });
+      // v0.62.138 — horizontal mode: blink the pin only, then stop (no zoom-in,
+      // no info pop-up). The pin pulse alone signals which card is centred.
+      if (blinkOnlyRef.current) {
+        overlayControllerRef.current?.flashPin?.(v.lat, v.lng, 44);
+        return;
+      }
       // v0.62.115 — operator: a result-card tap zooms IN to 17 so the blinking
       // pin drops you onto the street. Capture the current zoom ONCE per focus
       // burst (don't overwrite if we already zoomed in for a prior card) so a

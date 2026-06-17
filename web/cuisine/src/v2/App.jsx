@@ -443,10 +443,17 @@ export default function App() {
   useEffect(() => { setWidenActive(false); }, [JSON.stringify(state.cuisines || [])]);
   const [error, setError] = useState(null);
   const [focusedPlaceId, setFocusedPlaceId] = useState(null);
-  // v0.62.136 — floating ResultDrawer mode. 'vertical' (Google-Maps-style
-  // bottom sheet, the operator's default) or 'horizontal' (the legacy swipe
-  // carousel). Toggled by the ↰/↴ FAB above the 🔍 search FAB.
-  const [drawerMode, setDrawerMode] = useState('vertical');
+  // v0.62.138 — operator: results DEFAULT to the horizontal floating card strip
+  // (ResultDrawer) over the map; the vertical list (page ResultPanel) is hidden
+  // until the user toggles to 'vertical'. 'horizontal' | 'vertical'.
+  const [drawerMode, setDrawerMode] = useState('horizontal');
+  // v0.62.138 — ✕ "close list" dismisses the floating horizontal strip (→ map
+  // only). Reset to false whenever a fresh result set arrives so a new search
+  // re-shows the cards.
+  const [drawerDismissed, setDrawerDismissed] = useState(false);
+  // v0.62.138 — a fresh (or grown) result set re-shows the floating strip even
+  // if the user had dismissed the previous one.
+  useEffect(() => { if (venues.length) setDrawerDismissed(false); }, [venues]);
   // v0.61.0 — map overlay layer toggles. Map-view state only; kept out
   // of `state` so it never enters the search query or a saved snapshot.
   const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, colour: true, train: true, exits: false, taxis: false, parks: false, police: false, clinics: false, hospitals: false });
@@ -3554,25 +3561,27 @@ export default function App() {
         /* v0.62.125 — tap on the empty map exits the result carousel
            (back to the vertical list), per operator "tap-out → list". */
         onDeselect={() => setFocusedPlaceId(null)}
+        /* v0.62.138 — horizontal mode: a card tap blinks the pin only (no zoom,
+           no info pop-up). Vertical mode keeps the full pop/zoom behaviour. */
+        blinkOnly={drawerMode === 'horizontal'}
         /* v0.62.6 — Michelin city-grouping: fit-bounds over the given pins
            (set-city pins in Case A, all visible pins in Case B, a tapped
            city group's pins on jump-row tap). Null on non-Michelin pages. */
         fitPins={fitPins}
       />
 
-      {/* v0.62.136 — operator: the footer result carousel (v0.62.128) is now a
-          Google-Maps-style floating DRAWER, vertical by default. Selecting a
-          card/pin opens it above the FAB cluster (map visible behind); the ↰/↴
-          FAB flips it to the legacy horizontal swipe layout. ✕ or a tap on the
-          empty map returns to the list. */}
-      {focusedPlaceId && (
+      {/* v0.62.138 — operator: results DEFAULT to the horizontal floating card
+          strip over the map (auto-shown when a result set exists, no pin tap
+          needed). The vertical list is hidden until toggled. ✕ dismisses the
+          strip (→ map only); ↴ toggles to the vertical ResultPanel. */}
+      {drawerMode === 'horizontal' && !drawerDismissed && (visibleVenues.length || venues.length) > 0 && (
         <ResultDrawer
           venues={visibleVenues.length ? visibleVenues : venues}
           focusedPlaceId={focusedPlaceId}
           onSelect={setFocusedPlaceId}
-          onClose={() => setFocusedPlaceId(null)}
+          onClose={() => setDrawerDismissed(true)}
+          onToggleMode={() => setDrawerMode('vertical')}
           specialMode={state.specialMode || null}
-          mode={drawerMode}
         />
       )}
 
@@ -4016,7 +4025,12 @@ export default function App() {
         </div>
       )}
 
-      <div ref={resultPanelRef}>
+      {/* v0.62.138 — the vertical result list is HIDDEN in horizontal mode
+          (the floating strip is the result UI then). Kept MOUNTED (not
+          unmounted) so its pagination still feeds the map's visible-page
+          markers (onPageChange → visibleVenues) and the ↴ toggle reveals it
+          instantly. */}
+      <div ref={resultPanelRef} className={drawerMode === 'vertical' ? '' : 'hidden'}>
         {/* v0.60.149 — Michelin walk-through indicator. Reduces user
             surprise that each 🔍 tap loads 12 of ~130 curated venues
             rather than the whole curated list in one shot (which timed
@@ -4370,23 +4384,21 @@ export default function App() {
           )}
         </div>
         <div className="flex flex-col gap-2 items-end pointer-events-none">
-          {/* v0.62.136 — result-drawer orientation toggle. Renders ABOVE the
-              🔍 FAB, only while the floating drawer is open (a card/pin is
-              selected). Two font-sizes smaller than the 🔍 (text-[9px]).
-              In vertical mode it offers "↰ horizontal"; in horizontal mode it
-              offers "↴ vertical". */}
-          {focusedPlaceId && (
+          {/* v0.62.138 — "back to horizontal" FAB. In VERTICAL mode the floating
+              strip (which carries its own ↴ toggle + ✕) is gone, so this FAB is
+              the way back to the horizontal cards. Two font-sizes smaller than
+              the 🔍 (text-[9px]). The horizontal→vertical toggle lives in the
+              ResultDrawer's stacked controls. */}
+          {drawerMode === 'vertical' && (visibleVenues.length || venues.length) > 0 && (
             <button
               type="button"
-              onClick={() => setDrawerMode((m) => (m === 'vertical' ? 'horizontal' : 'vertical'))}
-              aria-label={drawerMode === 'vertical'
-                ? (lang === 'fr' ? 'Basculer en affichage horizontal' : 'Switch to horizontal layout')
-                : (lang === 'fr' ? 'Basculer en affichage vertical' : 'Switch to vertical layout')}
+              onClick={() => setDrawerMode('horizontal')}
+              aria-label={lang === 'fr' ? 'Basculer en affichage horizontal' : 'Switch to horizontal layout'}
               style={fabBgFg(false)}
               className="pointer-events-auto px-1.5 h-6 rounded-t-md rounded-b-[12px] border border-tg-border shadow-md text-[9px] font-semibold flex items-center justify-center gap-0.5 active:scale-95 transition-all whitespace-nowrap"
             >
-              <span aria-hidden="true">{drawerMode === 'vertical' ? '↰' : '↴'}</span>
-              <span>{drawerMode === 'vertical' ? 'horizontal' : 'vertical'}</span>
+              <span aria-hidden="true">↰</span>
+              <span>{lang === 'fr' ? 'horizontal' : 'horizontal'}</span>
             </button>
           )}
           {/* v0.60.97 — operator: "flip the position of 'Search 🔍'
