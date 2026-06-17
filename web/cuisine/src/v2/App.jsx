@@ -2769,7 +2769,15 @@ export default function App() {
           setLocMoveNote({ text: t('region.current.error', lang) });
           return;
         }
-        onLocationSelect({ lat: latitude, lng: longitude, label: t('region.current', lang), fly: true, noAutoFire: true });
+        // v0.62.145 — operator (recurring): 📍 Current must RESOLVE to a real
+        // place, not anchor under the literal word "Current". Reverse-geocode
+        // the live coords to a building/street/area name and commit THAT as the
+        // anchor label (so the banner + "Anchored at …" + name-resolver all show
+        // the real spot). Fall back to "Current" only if the lookup fails.
+        const commit = (label) => onLocationSelect({ lat: latitude, lng: longitude, label, fly: true, noAutoFire: true });
+        reverseGeocode({ lat: latitude, lng: longitude })
+          .then((r) => commit((r?.name || '').trim() || t('region.current', lang)))
+          .catch(() => commit(t('region.current', lang)));
       },
       () => { setLocMoveNote({ text: t('region.current.error', lang) }); },
       { enableHighAccuracy: true, maximumAge: 0, timeout: 12000 }
