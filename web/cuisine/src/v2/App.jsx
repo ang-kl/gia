@@ -4361,7 +4361,7 @@ export default function App() {
                     ? (lang === 'fr' ? 'Afficher la liste' : 'Show list')
                     : (lang === 'fr' ? 'Fermer la liste' : 'Close list')}
                   className="pointer-events-auto text-[10px] leading-none px-2 py-1.5 rounded-full bg-tg-card/95 border border-tg-border text-tg-text shadow active:scale-95 whitespace-nowrap"
-                >{drawerDismissed ? '▤' : '✕'} {lang === 'fr' ? 'liste' : 'list'}</button>
+                ><span aria-hidden="true">{drawerDismissed ? '📖' : '📘'}</span> {lang === 'fr' ? 'liste' : 'list'}</button>
                 {!drawerDismissed && (
                   <button
                     type="button"
@@ -4370,7 +4370,7 @@ export default function App() {
                       ? (lang === 'fr' ? 'Affichage vertical' : 'Vertical layout')
                       : (lang === 'fr' ? 'Affichage horizontal' : 'Horizontal layout')}
                     className="pointer-events-auto text-[10px] leading-none px-2 py-1.5 rounded-full bg-tg-card/95 border border-tg-border text-tg-text shadow active:scale-95 whitespace-nowrap flex items-center gap-0.5"
-                  ><span aria-hidden="true">{drawerMode === 'horizontal' ? '↴' : '↰'}</span> {drawerMode === 'horizontal' ? 'vertical' : 'horizontal'}</button>
+                  ><span aria-hidden="true">{drawerMode === 'horizontal' ? '⮷' : '⮲'}</span> {drawerMode === 'horizontal' ? 'vertical' : 'horizontal'}</button>
                 )}
               </div>
             )}
