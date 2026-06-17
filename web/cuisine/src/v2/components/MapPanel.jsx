@@ -255,13 +255,14 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // v0.61.18 — suppress Google's native POI/transit info cards so a
       // station tap hits our overlay marker, not Google's own popup.
       clickableIcons: false,
-      // v0.61.89 — streamline: all three TMA maps share one options block: keep
-      // Google's native camera control (pan/tilt/rotate) + keyboard
-      // shortcuts on. The camera widget is pinned to LEFT_BOTTOM so it
-      // clears the custom nav cluster (top-right) and the 📍 recenter
-      // button (bottom-right).
-      cameraControl: true,
-      cameraControlOptions: { position: window.google.maps.ControlPosition.LEFT_BOTTOM },
+      // v0.61.89 — streamline: all three TMA maps share one options block.
+      // v0.62.134 — operator (17-06 '26): remove Google's native camera
+      // control (the +/pan-arrows/tilt cluster) from every TMA. It duplicated
+      // our custom nav cluster (top-right: Reset / + / ↹ centre / − / expand)
+      // and the 📍 recenter button, and read as clutter. The custom cluster +
+      // ↹ centre-map button (v0.62.133) now own all on-map navigation.
+      // Prior (superseded): cameraControl:true @ LEFT_BOTTOM, kept since v0.61.89.
+      cameraControl: false,
       keyboardShortcuts: true,
       // v0.62.102 — operator: zooming out far enough hung the embedded map
       // (world-view tile/marker blow-up). Gate the camera on all three TMA maps:
