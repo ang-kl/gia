@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-06-16';   // v0.62.112 refresh: PRs #1030-#1055 (docs/vault catch-up to v0.62.76; cuisine search 500-guard + per-city concentric rings; then the Maps/transit arc — Hawker card lists 3 bus + 2 stations with Train deep-links, flush-left "1 \u00b7 name" result card, station links jump in-app, on-tap transit rendered at the live busTier/trainTier zoom tiers + Hawker parity, full-width custom Menu location dropdown, "other cities" marketing copy, and a result-card eatery-pin blink)
+const GEN_DATE = '2026-06-17';   // v0.62.133 catch-up: PRs #1056-#1084 (vibe-journal refresh + Soleat primer / UI-audit / 4 MVP mockup docs; then the UI-rework arc - venue-pin tap stays in-TMA, result-card/pin zoom-17 + tap-out restore, "Local food picks" + "Cuisine:" 3-stage collapse plates, places.types[] specific cuisine line, GPS building/street reverse-geocode, BP-LRT coord fix, bus-stop code hyperlinks, SG-search foreign-drift fix, result-card re-order/collapse, music-app result carousel then footer dock, floating header, equal-width skeuomorphic region pills, skeuomorphic map pop-up card, line-coloured station chips, rating-toast leak fix + package-lock sync, default zoom 11->12, centre-map button replacing Google's nav pad)
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
