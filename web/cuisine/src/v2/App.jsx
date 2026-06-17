@@ -596,10 +596,16 @@ export default function App() {
   // area (header + both fields go solid, per light/dark theme) so the user
   // can confirm the new area before tapping 🔍. We scroll back to the top so
   // the in-flow fields are in view, and flag `modePeek` to drive the opaque
-  // treatment. Firing a search clears it (back to the liquid-glass header).
-  // The fields stay in normal flow, so scrolling to the top always shows
-  // them regardless of peek.
+  // treatment. v0.62.144 — the fields are HIDDEN unless modePeek; firing a
+  // search OR a downward scroll gesture clears it (fields disappear, header back
+  // to liquid glass). Matches vertical mode (where the result list scrolls them
+  // off); horizontal mode is a short page so they needed the explicit hide.
   const [modePeek, setModePeek] = useState(false);
+  // v0.62.144 — track scroll position so a DOWNWARD scroll gesture dismisses the
+  // peek (operator: the fields should disappear once you act/scroll, header back
+  // to liquid glass). The programmatic scroll-to-top on a mode tap moves UPWARD,
+  // so it never trips this.
+  const lastScrollYRef = useRef(0);
   // v0.59.21: 3 s pulse on the 🔍 Search FAB after the user closes
   // the cuisine drawer with at least one cuisine selected — subtle
   // CTA "now press search" hint per Human Lead 2026-05-07.
@@ -811,9 +817,16 @@ export default function App() {
     // scrolled to or near the page bottom" — i.e. show ⇡ top, else
     // ⇣ down.
     function onScroll() {
-      const reached = (window.scrollY || 0) + window.innerHeight;
+      const y = window.scrollY || 0;
+      const reached = y + window.innerHeight;
       const fullH = document.documentElement.scrollHeight;
       setScrolledPastHero(reached >= fullH - 50);
+      // v0.62.144 — a downward scroll gesture dismisses the mode-tap peek (the
+      // Location / Local-food-picks staging fields hide; header → liquid glass).
+      // Direction-gated so the upward programmatic scroll-to-top on a mode tap
+      // doesn't dismiss it.
+      if (y > lastScrollYRef.current + 4 && y > 24) setModePeek(false);
+      lastScrollYRef.current = y;
     }
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
@@ -3400,13 +3413,17 @@ export default function App() {
         </div>
       </header>
 
-      {/* v0.62.135 — Location + "Local food picks" staging area. Normally
-          flows as plain content under the header; when a mode pill is tapped
-          (modePeek) it gets a solid card background + ring so the two fields
-          read as an opaque panel to confirm before searching. */}
+      {/* v0.62.135 — Location + "Local food picks" staging area.
+          v0.62.144 — operator: these two fields are HIDDEN by default (header
+          alone, liquid glass — same as vertical mode once scrolled). They appear
+          ONLY for refinement when a DIFFERENT mode pill is tapped (modePeek →
+          opaque solid card + ring), and disappear again once a search fires or
+          the user scrolls down. Previously they stayed in flow (just changed
+          opacity), so in horizontal mode — a short, non-scrolling page — they
+          never went away. */}
       <div className={modePeek
-        ? 'bg-tg-bg rounded-b-xl shadow-md ring-1 ring-tg-border px-2 py-2 -mx-1 flex flex-col gap-2 transition-all'
-        : 'flex flex-col gap-2 transition-all'}>
+        ? 'bg-tg-bg rounded-b-xl shadow-md ring-1 ring-tg-border px-2 py-2 -mx-1 flex flex-col gap-2'
+        : 'hidden'}>
       {/* v0.61.29 — the editable LocationField sits here, above the map.
           It replaces the static "📍 <place> · N places nearby" status
           banner; the field was previously buried in the collapsed
