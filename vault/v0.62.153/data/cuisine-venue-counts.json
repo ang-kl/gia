@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": "cuisine-venue-counts/v1",
+    "generatedAt": null,
+    "generator": "placeholder — run scripts/recount-cuisine-venues.js",
+    "scopeCount": 48,
+    "pagesIssued": null,
+    "elapsedMs": null,
+    "cappedSlugs": [],
+    "errorCount": 0
+  },
+  "total": null,
+  "perSlug": {
+    "peranakan": null, "eurasian": null,
+    "north-indian": null, "bengali": null, "gujarati": null, "nepalese": null, "sri-lankan": null, "pakistani": null,
+    "thai": null, "filipino": null, "vietnamese": null, "burmese": null,
+    "japanese": null, "korean": null, "taiwanese": null,
+    "american": null, "mexican": null, "brazilian": null, "argentinian": null,
+    "australian": null, "new-zealand": null, "australasia": null,
+    "shanghainese": null, "northeastern": null, "northwestern": null,
+    "italian": null, "spanish": null, "greek": null, "french": null, "british": null, "german": null, "austrian": null,
+    "swiss": null, "portuguese": null, "russian": null, "ukrainian": null, "polish": null, "scandinavian": null,
+    "lebanese": null, "persian": null, "moroccan": null, "egyptian": null, "jordanian": null, "israeli": null,
+    "uzbek": null, "georgian": null,
+    "african": null, "south-african": null
+  },
+  "errors": {}
+}
