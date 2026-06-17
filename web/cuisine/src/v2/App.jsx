@@ -28,7 +28,10 @@ import LocationField from './components/LocationField.jsx';
 import MapPanel from './components/MapPanel.jsx';
 import TellMePanel from './components/TellMePanel.jsx';
 import ResultPanel from './components/ResultPanel.jsx';
-import ResultCarousel from './components/ResultCarousel.jsx';
+// v0.62.136 — operator: the horizontal result CAROUSEL is replaced by the
+// Google-Maps-style ResultDrawer (vertical by default; flips to horizontal
+// via the ↰/↴ toggle FAB). ResultCarousel.jsx is retired from the render.
+import ResultDrawer from './components/ResultDrawer.jsx';
 import ArrivalPlate from './components/ArrivalPlate.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import BackFab from './components/BackFab.jsx';
@@ -440,6 +443,10 @@ export default function App() {
   useEffect(() => { setWidenActive(false); }, [JSON.stringify(state.cuisines || [])]);
   const [error, setError] = useState(null);
   const [focusedPlaceId, setFocusedPlaceId] = useState(null);
+  // v0.62.136 — floating ResultDrawer mode. 'vertical' (Google-Maps-style
+  // bottom sheet, the operator's default) or 'horizontal' (the legacy swipe
+  // carousel). Toggled by the ↰/↴ FAB above the 🔍 search FAB.
+  const [drawerMode, setDrawerMode] = useState('vertical');
   // v0.61.0 — map overlay layer toggles. Map-view state only; kept out
   // of `state` so it never enters the search query or a saved snapshot.
   const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, colour: true, train: true, exits: false, taxis: false, parks: false, police: false, clinics: false, hospitals: false });
@@ -3518,16 +3525,19 @@ export default function App() {
         fitPins={fitPins}
       />
 
-      {/* v0.62.128 — operator: the result carousel now docks at the FOOTER
-          (off the map) rather than overlaying it. Fixed above the FAB cluster;
-          ✕ or a tap on the empty map returns to the list. */}
+      {/* v0.62.136 — operator: the footer result carousel (v0.62.128) is now a
+          Google-Maps-style floating DRAWER, vertical by default. Selecting a
+          card/pin opens it above the FAB cluster (map visible behind); the ↰/↴
+          FAB flips it to the legacy horizontal swipe layout. ✕ or a tap on the
+          empty map returns to the list. */}
       {focusedPlaceId && (
-        <ResultCarousel
+        <ResultDrawer
           venues={visibleVenues.length ? visibleVenues : venues}
           focusedPlaceId={focusedPlaceId}
           onSelect={setFocusedPlaceId}
           onClose={() => setFocusedPlaceId(null)}
           specialMode={state.specialMode || null}
+          mode={drawerMode}
         />
       )}
 
@@ -4325,6 +4335,25 @@ export default function App() {
           )}
         </div>
         <div className="flex flex-col gap-2 items-end pointer-events-none">
+          {/* v0.62.136 — result-drawer orientation toggle. Renders ABOVE the
+              🔍 FAB, only while the floating drawer is open (a card/pin is
+              selected). Two font-sizes smaller than the 🔍 (text-[9px]).
+              In vertical mode it offers "↰ horizontal"; in horizontal mode it
+              offers "↴ vertical". */}
+          {focusedPlaceId && (
+            <button
+              type="button"
+              onClick={() => setDrawerMode((m) => (m === 'vertical' ? 'horizontal' : 'vertical'))}
+              aria-label={drawerMode === 'vertical'
+                ? (lang === 'fr' ? 'Basculer en affichage horizontal' : 'Switch to horizontal layout')
+                : (lang === 'fr' ? 'Basculer en affichage vertical' : 'Switch to vertical layout')}
+              style={fabBgFg(false)}
+              className="pointer-events-auto px-1.5 h-6 rounded-t-md rounded-b-[12px] border border-tg-border shadow-md text-[9px] font-semibold flex items-center justify-center gap-0.5 active:scale-95 transition-all whitespace-nowrap"
+            >
+              <span aria-hidden="true">{drawerMode === 'vertical' ? '↰' : '↴'}</span>
+              <span>{drawerMode === 'vertical' ? 'horizontal' : 'vertical'}</span>
+            </button>
+          )}
           {/* v0.60.97 — operator: "flip the position of 'Search 🔍'
               and 'top' / 'down'. 'Search 🔍' be on top of 'top' /
               'down'." Search FAB now renders FIRST (top of column);
