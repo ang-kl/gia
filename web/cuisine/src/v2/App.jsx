@@ -4381,21 +4381,8 @@ export default function App() {
                 className="pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center active:scale-95 whitespace-nowrap shrink-0"
               ><span aria-hidden="true">⇢ {lang === 'fr' ? 'suivant' : 'next'}</span></button>
             )}
-            {/* v0.62.147 — operator #3: "Edit search" → 🍲 Cuisine (still opens the
-                criteria sheet; ▾ keeps the open affordance). */}
-            <button
-              type="button"
-              onClick={() => setCriteriaOpen((o) => !o)}
-              aria-label={lang === 'fr' ? 'Modifier la recherche' : 'Edit search'}
-              style={fabBgFg(false)}
-              className={`pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-0.5 active:scale-95 whitespace-nowrap shrink-0 ${
-                !criteriaOpen && editSearchPulse ? 'ring-2 ring-tg-accent animate-pulse' : ''
-              }`}
-            >
-              <span aria-hidden="true">🍲</span>
-              <span>Cuisine</span>
-              <span aria-hidden="true">▾</span>
-            </button>
+            {/* v0.62.152 — operator #4: the 🍲 Cuisine button moved DOWN to sit
+                beside the free-text bar (see below). */}
           </div>
           {/* Right stack: 🔍 search (opens criteria) + the combined top/back FAB. */}
           <div className="flex flex-col items-end gap-1.5 pointer-events-none">
@@ -4436,17 +4423,32 @@ export default function App() {
             </div>
           </div>
         </div>
-        {/* Floating free-text bar — second-last row, its OWN translucent card so
-            focusing it no longer flashes the page background white. */}
-        <div className="pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur shadow-lg border border-tg-border px-1 py-0.5">
-          <TellMePanel
-            value={nlText}
-            onChange={setNlText}
-            onSubmit={handleNLSubmit}
-            onReplace={handleNLReplace}
-            lastPrompt={lastPrompt}
-            loading={loading}
-          />
+        {/* v0.62.152 — operator #4: 🍲 Cuisine button BESIDE the free-text bar.
+            Second-last row; the bar keeps its own translucent card (the
+            white-flash fix). */}
+        <div className="flex items-stretch gap-1.5">
+          <button
+            type="button"
+            onClick={() => setCriteriaOpen((o) => !o)}
+            aria-label={lang === 'fr' ? 'Cuisine — critères de recherche' : 'Cuisine — search criteria'}
+            className={`pointer-events-auto shrink-0 px-2.5 rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg text-[11px] font-semibold flex items-center gap-0.5 active:scale-95 whitespace-nowrap ${
+              !criteriaOpen && editSearchPulse ? 'ring-2 ring-tg-accent animate-pulse' : ''
+            }`}
+          >
+            <span aria-hidden="true">🍲</span>
+            <span>Cuisine</span>
+            <span aria-hidden="true">▾</span>
+          </button>
+          <div className="flex-1 min-w-0 pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur shadow-lg border border-tg-border px-1 py-0.5">
+            <TellMePanel
+              value={nlText}
+              onChange={setNlText}
+              onSubmit={handleNLSubmit}
+              onReplace={handleNLReplace}
+              lastPrompt={lastPrompt}
+              loading={loading}
+            />
+          </div>
         </div>
         {/* The footer — ONLY the 2 text lines. */}
         <footer className="px-3 text-[9px] text-tg-hint text-center leading-tight pointer-events-none">
