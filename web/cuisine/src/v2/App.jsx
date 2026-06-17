@@ -4393,16 +4393,28 @@ export default function App() {
             {/* v0.62.152 — operator #4: the 🍲 Cuisine button moved DOWN to sit
                 beside the free-text bar (see below). */}
           </div>
-          {/* Right stack: 🔍 search (opens criteria) + the combined top/back FAB. */}
+          {/* Right stack: 🔍 search FAB. v0.62.156 — operator: the 🔍 FAB FIRES the
+              search again (run / load-more), it no longer opens the criteria sheet
+              (that's the 🍲 Cuisine word). Pool-exhausted disable restored. */}
           <div className="flex flex-col items-end gap-1.5 pointer-events-none">
-            <button
-              type="button"
-              onClick={() => setCriteriaOpen(true)}
-              aria-label={lang === 'fr' ? 'Ouvrir les critères de recherche' : 'Open search criteria'}
-              className={`pointer-events-auto w-9 h-9 rounded-full bg-tg-accent text-tg-accent-text border-2 border-white/40 shadow-lg flex items-center justify-center text-base active:scale-95 transition-all shrink-0 ${
-                (searchHintActive || searchFabFlash) ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''
-              }`}
-            >🔍</button>
+            {(() => {
+              const poolExhausted = !!finalBatch && Number.isFinite(knownTotal) && venues && venues.length === knownTotal;
+              const isDisabled = loading || (poolExhausted && !dirty && !selectedCityLocation);
+              return (
+                <button
+                  type="button"
+                  onClick={triggerSearch}
+                  disabled={isDisabled}
+                  aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat'}
+                  title={poolExhausted && !dirty
+                    ? (lang === 'fr' ? 'Aucun autre résultat — modifiez les critères' : 'No more results — change criteria')
+                    : undefined}
+                  className={`pointer-events-auto w-9 h-9 rounded-full bg-tg-accent text-tg-accent-text border-2 border-white/40 shadow-lg flex items-center justify-center text-base active:scale-95 transition-all shrink-0 ${
+                    isDisabled ? 'opacity-40' : ''
+                  } ${(searchHintActive || searchFabFlash) && !isDisabled ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
+                >🔍</button>
+              );
+            })()}
           </div>
         </div>
         {/* v0.62.155 — operator: the free-text bar with the combined ⇡top/🔚end FAB
