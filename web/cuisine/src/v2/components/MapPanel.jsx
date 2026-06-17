@@ -925,8 +925,11 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       {/* v0.61.51 — nav cluster shifted to top-12 so the quick-button
           row has clean horizontal space. v0.61.59 — the Colour-mode
           pill moved out of this cluster into the quick-toggle row
-          (after Bus Stop); the cluster is now Reset / + / − / expand. */}
-      <div className="absolute top-12 right-2 flex flex-col gap-1 z-10">
+          (after Bus Stop); the cluster is now Reset / + / − / expand.
+          v0.62.163 — operator: moved to the LEFT edge (left-2) so the 5-button
+          column starts nearer the top-left corner; still top-12, which clears
+          the MapControls toggle row (top-2). */}
+      <div className="absolute top-12 left-2 flex flex-col gap-1 z-10">
         {/* v0.61.37 — Reset: recenter to the search anchor / default view. */}
         <button
           type="button"
@@ -992,7 +995,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           type="button"
           onClick={handleRecenterClick}
           disabled={!userLoc}
-          className="absolute bottom-3 right-3 z-10 text-[11px] font-bold leading-none opacity-90 text-gray-900 select-none rounded-full px-2 py-1"
+          className="absolute bottom-3 right-3 z-[35] text-[11px] font-bold leading-none opacity-90 text-gray-900 select-none rounded-full px-2 py-1"
           style={{ background: 'rgba(0,0,0,0.1)' }}
           aria-label={tr('btn.showLocation', lang)}
           title={tr('btn.showLocation', lang)}
