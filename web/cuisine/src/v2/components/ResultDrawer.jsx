@@ -35,6 +35,24 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
     firstRef.current = false;
   }, [focusedPlaceId, list.length]);
 
+  // v0.62.155 — operator: a true looping carousel. A clone of the FIRST card is
+  // appended after the "Last card"; when the user scrolls onto it (the far-right
+  // end), jump the track instantly back to the real first card so swiping wraps
+  // around seamlessly.
+  const loopTimerRef = useRef(null);
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return undefined;
+    const onScroll = () => {
+      if (loopTimerRef.current) clearTimeout(loopTimerRef.current);
+      if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 6) {
+        loopTimerRef.current = setTimeout(() => { el.scrollTo({ left: 0, behavior: 'auto' }); }, 240);
+      }
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => { el.removeEventListener('scroll', onScroll); if (loopTimerRef.current) clearTimeout(loopTimerRef.current); };
+  }, [list.length]);
+
   if (!list.length) return null;
 
   return (
@@ -71,6 +89,18 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
           <div className="text-[12px] font-semibold text-tg-text">{lang === 'fr' ? 'Dernière carte' : 'Last card'}</div>
           <div className="text-[11px] text-tg-hint leading-snug">📍 {lang === 'fr' ? 'saisir un lieu' : 'enter location'} · 💬 {lang === 'fr' ? 'tapez un plat' : 'Type dish'}</div>
           <div className="text-[11px] text-tg-hint leading-snug">{lang === 'fr' ? 'Touchez 🔍 pour rechercher' : 'Tap 🔍 to search'}</div>
+        </div>
+        {/* v0.62.155 — loop clone of the FIRST card (jumps back to the real one
+            on reach, see the scroll effect above). */}
+        <div className="card-scroll snap-center shrink-0 basis-[82%] max-h-[10.5rem] overflow-y-auto rounded-lg shadow-xl" aria-hidden="true">
+          <ResultCard
+            venue={list[0]}
+            number={1}
+            focused={false}
+            onTap={() => onSelect && onSelect(list[0].placeId)}
+            specialMode={specialMode}
+            defaultExpanded
+          />
         </div>
       </div>
     </div>
