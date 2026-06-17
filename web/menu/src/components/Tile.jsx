@@ -63,8 +63,12 @@ export default function Tile({ icon, iconImage, label, onClick, disabled = false
       style={{ ...TILE_STYLE, ...(disabled ? { cursor: 'not-allowed', opacity: 0.4 } : {}) }}
       aria-disabled={disabled || undefined}
       title={disabled ? disabledTooltip : undefined}
-      className={`flex flex-col items-center justify-center gap-0.5 rounded-md bg-tg-card border border-tg-border p-1.5 transition${
-        disabled ? '' : ' active:bg-tg-accent active:text-tg-accent-text'
+      /* v0.62.137 — neo-skeuomorphic tile: raised frosted pill (.skeuo-pill)
+         with an inset top highlight + soft drop shadow; tap presses it in
+         (debossed) via .skeuo-pill:active. Replaces the flat bg-tg-card +
+         accent-flash. Disabled tiles drop the press affordance. */
+      className={`flex flex-col items-center justify-center gap-0.5 rounded-xl border border-tg-border/70 p-1.5 transition text-tg-text${
+        disabled ? '' : ' skeuo-pill'
       }`}
     >
       {showImage
