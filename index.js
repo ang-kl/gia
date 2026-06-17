@@ -1715,6 +1715,74 @@ bot.onText(/^\/hidden(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   }
 });
 
+// v0.62.165 — /ztest <type> — deterministic "set-menu" scout PROBE. Hidden dev
+// command (not in setMyCommands). Uses the caller's STORED location to pull
+// nearby candidates from Places (New) searchText, then scrapes each venue's OWN
+// website for the localized keyword (set-lunch / set-dinner / signature / chef).
+// No LLM, no API key in any URL. The reply is a per-venue diagnostic so we can
+// measure the real scrape hit-rate before building the user-facing feature.
+bot.onText(/^\/ztest(?:@\w+)?(?:\s+(\S+))?$/i, async (msg) => {
+  const chatId = msg.chat.id;
+  const { KEYWORD_MATRIX, scoutSetMenu } = require('./ztest-scout');
+  const types = Object.keys(KEYWORD_MATRIX);
+  const rawType = (msg.text.match(/^\/ztest(?:@\w+)?(?:\s+(\S+))?$/i)?.[1] || '')
+    .toLowerCase().replace(/_/g, '-');
+
+  if (!rawType || !types.includes(rawType)) {
+    await safeSend(chatId,
+      `🧪 <b>/ztest</b> — set-menu scout (probe)\nUsage: <code>/ztest set-lunch</code>\nTypes: ${types.map((x) => `<code>${x}</code>`).join(' · ')}`,
+      { parse_mode: 'HTML', disable_web_page_preview: true });
+    return;
+  }
+
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) { await safeSend(chatId, '🧪 /ztest offline — GOOGLE_MAPS_API_KEY missing.'); return; }
+
+  const loc = await getUserLocation(redis, chatId, null).catch(() => null);
+  if (!loc || !Number.isFinite(loc.lat) || !Number.isFinite(loc.lng)) {
+    await safeSend(chatId, '📍 I need your location first. Share it via /location, then run <code>/ztest set-lunch</code> again.',
+      { parse_mode: 'HTML' });
+    return;
+  }
+
+  // redis cache (10 min) keyed by rounded location + type — bounds repeat cost.
+  const cacheKey = `ztest:${rawType}:${loc.lat.toFixed(3)}:${loc.lng.toFixed(3)}`;
+  let report = null;
+  try { const c = await redis.get(cacheKey); if (c) report = JSON.parse(c); } catch { /* ignore cache read */ }
+
+  if (!report) {
+    await safeSend(chatId,
+      `🔍 Scouting <b>${escapeHtmlForTelegram(rawType)}</b> near ${loc.label ? escapeHtmlForTelegram(String(loc.label)) : 'you'}… (up to 8 spots)`,
+      { parse_mode: 'HTML' });
+    report = await scoutSetMenu({ lat: loc.lat, lng: loc.lng, type: rawType, apiKey, max: 8, concurrency: 4 });
+    if (report && !report.error) {
+      try { await redis.setEx(cacheKey, 600, JSON.stringify(report)); } catch { /* ignore cache write */ }
+    }
+  }
+
+  if (!report || report.error) {
+    await safeSend(chatId, `🧪 /ztest error: <code>${escapeHtmlForTelegram(String(report?.error || 'unknown'))}</code>`,
+      { parse_mode: 'HTML' });
+    return;
+  }
+
+  const STATUS_ICON = { hit: '✅', 'no-website': '🌐', 'scrape-failed': '⚠️', 'no-match': '·' };
+  const lines = [`🧪 <b>/ztest ${escapeHtmlForTelegram(rawType)}</b> — scanned ${report.scanned}, <b>${report.hitCount} hit(s)</b>`];
+  for (const r of report.results) {
+    const icon = STATUS_ICON[r.status] || '·';
+    lines.push(`\n${icon} <b>${escapeHtmlForTelegram(r.name)}</b> · ${escapeHtmlForTelegram(r.priceTier)}${r.photoEligible ? ' · 📷' : ''}`);
+    if (r.status === 'hit') {
+      for (const m of r.matches.slice(0, 3)) {
+        lines.push(`   ${m.hasPrice ? '💲' : '–'} ${escapeHtmlForTelegram(m.text)}`);
+      }
+    } else {
+      lines.push(`   <i>${r.status}</i>`);
+    }
+  }
+  lines.push('\n<i>Probe — deterministic scrape, no AI. Cached 10 min.</i>');
+  await safeSend(chatId, lines.join('\n'), { parse_mode: 'HTML', disable_web_page_preview: true });
+});
+
 // v0.57.21: /privacy — what data the bot collects, how long it's
 // retained, and which third parties it queries. OPERATOR_LINKEDIN
 // env var (optional) appends an authorship credit line.
