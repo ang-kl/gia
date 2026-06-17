@@ -153,7 +153,7 @@
     const mk = (glyph, label, fn) => {
       const b = document.createElement('button');
       b.type = 'button'; b.textContent = glyph; b.title = label; b.setAttribute('aria-label', label);
-      b.style.cssText = 'width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.92);'
+      b.style.cssText = 'width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,1);'
         + 'color:#1c1c1f;border:1px solid #cbd5e1;box-shadow:0 1px 4px rgba(0,0,0,0.3);'
         + 'font-size:18px;font-weight:700;line-height:1;cursor:pointer;display:flex;'
         + 'align-items:center;justify-content:center;';
