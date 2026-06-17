@@ -30,7 +30,7 @@ export default function AffectedTicker({ affectedCodes, focusedCode, onFocus, st
   }
   return (
     <div
-      className={`rounded-2xl border border-tg-border/60 bg-tg-bg/80 backdrop-blur shadow-lg flex flex-col ${compact ? 'px-1.5 py-1 gap-0' : 'px-2 py-2 gap-1.5'}`}
+      className={`rounded-2xl bg-tg-bg/80 liquid-glass flex flex-col ${compact ? 'px-1.5 py-1 gap-0' : 'px-2 py-2 gap-1.5'}`}
     >
       {/* v0.62.166 — compact (FAB) form drops the title row; the coloured line
           badges already read as a selector. Title moves to an aria-label. */}

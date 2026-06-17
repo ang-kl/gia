@@ -4383,7 +4383,7 @@ export default function App() {
             sit as an end-to-end liquid-glass-80% strip JUST ABOVE this row (below
             the 🔍 FAB). Moved here from above the FABs. */}
         {criteriaSummary.length > 0 && (
-          <div className="pointer-events-auto -mx-2 px-3 py-1.5 bg-tg-bg/80 backdrop-blur border-y border-tg-border/50 shadow-md">
+          <div className="pointer-events-auto -mx-2 px-3 py-1.5 bg-tg-bg/80 liquid-glass border-y border-tg-border/40">
             <ActiveFilters
               cuisines={state.cuisines}
               filters={state.filters}
