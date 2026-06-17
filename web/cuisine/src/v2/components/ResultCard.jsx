@@ -3,8 +3,28 @@ import { tg } from '../../api/tg.js';
 import { copyOneToChat, fetchSocialProfiles } from '../lib/api.js';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import SocialButtons from './SocialButtons.jsx';
+import { OTHER_COUNTRIES } from '../lib/countries.js';
 
 const PRICE_LABEL = { 1: '$', 2: '$$', 3: '$$$', 4: '$$$$' };
+
+// v0.62.151 — operator: long foreign addresses should swap the spelled-out
+// country name for its short 2-letter code (e.g. "…, Johor, Malaysia" → "…,
+// Johor, MY"). Map built from OTHER_COUNTRIES (+ Singapore).
+const COUNTRY_CODE = (() => {
+  const m = new Map([['singapore', 'SG']]);
+  for (const c of OTHER_COUNTRIES || []) if (c?.name && c?.code) m.set(String(c.name).toLowerCase(), c.code);
+  return m;
+})();
+function shortenCountry(area) {
+  if (!area) return area;
+  const parts = String(area).split(',');
+  if (parts.length < 2) return area;
+  const last = parts[parts.length - 1].trim().replace(/\.+$/, '');
+  const code = COUNTRY_CODE.get(last.toLowerCase());
+  if (!code) return area;
+  parts[parts.length - 1] = ` ${code}`;
+  return parts.join(',');
+}
 
 export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null, number = null, defaultExpanded = false }) {
   const [lang] = useLocale();
@@ -328,7 +348,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           {expanded && (<>
           {/* v0.62.124 — address moved BELOW the price/pet row, into the
               collapsible section (operator row re-order). */}
-          {venue.area && <div className="text-[11px] text-tg-hint truncate">{venue.area}</div>}
+          {venue.area && <div className="text-[11px] text-tg-hint break-words leading-snug">{shortenCountry(venue.area)}</div>}
           {/* v0.62.37 — ⭐ Recommend tie-in (D792): the venue's own evidence
               mentions one of the anchored city's unique dishes. Tier in WORDS. */}
           {venue.cityDish && venue.cityDish.dish && (
