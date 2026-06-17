@@ -175,17 +175,20 @@ export default function App() {
         paddingBottom: 'env(safe-area-inset-bottom, 0)'
       }}
     >
-      <div className="px-3 pt-3 pb-2 border-b border-tg-border flex items-center gap-2">
+      {/* v0.62.164 — operator: neo-skeuomorphic header card — 🍚 title + live
+          weather + a tactile NEA pill. Raised frosted surface (theme-agnostic,
+          colour-blind safe); floats with a margin instead of a full-bleed
+          border so it reads as a physical card. */}
+      <div className="skeuo-card mx-2 mt-2 rounded-2xl px-3 py-2.5 flex items-center gap-2 relative z-10">
         <img src="/app/hawker/soleat-icon.png" alt="soleat" width="28" height="28" className="rounded-full flex-shrink-0" />
         <div className="min-w-0 flex-1">
           <h1 className="text-base font-semibold leading-tight">{t('header.title', lang)}</h1>
-          {/* v0.60.219 — operator: replace the build-version line with
-              a live Singapore weather emoji. */}
+          {/* v0.60.219 — live Singapore weather emoji. */}
           <p className="text-[10px] text-tg-hint leading-tight">
             <WeatherBadge />
           </p>
         </div>
-        <button onClick={() => openLink(NEA_HOME)} className="text-xs px-2.5 py-1.5 rounded-full border border-tg-border bg-tg-card">
+        <button onClick={() => openLink(NEA_HOME)} className="skeuo-pill text-xs px-3 py-1.5 rounded-full text-tg-text active:scale-95">
           NEA ↗
         </button>
       </div>
@@ -197,12 +200,16 @@ export default function App() {
         {err && <p className="text-xs text-red-500 p-3">⚠ {err}</p>}
         {!busy && !err && (
           <>
+            {/* v0.62.164 — operator: region chips as liquid-glass-80% pills
+                (bg-tg-bg/80 backdrop-blur); the active region reads as a
+                debossed accent (skeuo-pill--selected) — pressed-in, not just
+                a flat colour, so it's distinguishable without relying on hue. */}
             <div className="flex flex-wrap gap-1.5 px-1">
               {regionList.map((r) => {
                 const sel = r.region === activeRegion;
                 return (
                   <button key={r.region} onClick={() => setActiveRegion(r.region)} aria-pressed={sel}
-                    className={`px-2.5 py-1 rounded-full border text-xs whitespace-nowrap ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'bg-tg-card text-tg-text border-tg-border'}`}>
+                    className={`px-2.5 py-1 rounded-full border text-xs whitespace-nowrap backdrop-blur active:scale-95 ${sel ? 'skeuo-pill--selected border-tg-accent/50 font-semibold' : 'bg-tg-bg/80 text-tg-text border-tg-border/60'}`}>
                     <span className="mr-1">{REGION_EMOJI[r.region] || '·'}</span>{regionLabel(r.region)} ({r.count})
                   </button>
                 );
@@ -210,7 +217,9 @@ export default function App() {
             </div>
             {active && (
               <>
-                <div className="px-1 text-[11px] text-tg-hint">
+                {/* v0.62.164 — operator: the "Central — 22 …" section header as a
+                    liquid-glass-80% strip (bg-tg-bg/80 backdrop-blur). */}
+                <div className="mx-1 px-2.5 py-1 rounded-lg bg-tg-bg/80 backdrop-blur border border-tg-border/50 shadow-sm text-[11px] text-tg-hint">
                   <strong className="text-tg-text">{regionLabel(active.region)}</strong>
                   {tn('list.headingBody', lang, { n: active.count })}
                 </div>

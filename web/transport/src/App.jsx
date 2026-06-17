@@ -135,47 +135,51 @@ export default function App() {
         paddingBottom: 'env(safe-area-inset-bottom, 0)'
       }}
     >
-      <header className="flex items-baseline justify-between">
-        <div>
+      {/* v0.62.164 — operator: ONE neo-skeuomorphic header card. Row 1 = title +
+          live weather + line-status; row 2 = timestamp; row 3 = the zoom/explore
+          tip; row 4 = the 🗺/📍 view toggle as tactile skeuo pills. The map tucks
+          UP under this card (negative mt below) so it "goes below it".
+          NOTE colour-blind safe: line status pairs the ✓ glyph / a count with
+          the hue, so it never relies on green-vs-orange alone. */}
+      <header className="skeuo-card rounded-2xl px-3 py-2.5 flex flex-col gap-1.5 relative z-10">
+        <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5">
           <h1 className="text-base sm:text-lg font-bold leading-tight">{t('header.title', lang)}</h1>
-          {/* v0.60.219 — live Singapore weather emoji beside the timestamp. */}
-          <div className="text-[11px] text-tg-hint flex items-center gap-1.5">
-            <span>{data.timestampSGT || ''}</span>
-            <WeatherBadge />
-          </div>
+          {/* v0.60.219 — live Singapore weather emoji. */}
+          <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
+          <span className="text-[11px] ml-auto">
+            {affectedCodes.length === 0
+              ? <span className="text-green-500">{t('header.allNormal', lang)}</span>
+              : <span className="text-orange-500">{tn(affectedCodes.length === 1 ? 'header.linesAffected' : 'header.linesAffectedPlural', lang, { n: affectedCodes.length })}</span>}
+          </span>
         </div>
-        <div className="text-[11px] text-tg-hint">
-          {affectedCodes.length === 0
-            ? <span className="text-green-500">{t('header.allNormal', lang)}</span>
-            : <span className="text-orange-500">{tn(affectedCodes.length === 1 ? 'header.linesAffected' : 'header.linesAffectedPlural', lang, { n: affectedCodes.length })}</span>}
+        <div className="text-[11px] text-tg-hint">{data.timestampSGT || ''}</div>
+        {/* v0.60.85 — the zoom/explore tip nudges first-time users toward the
+            interactive Google Map when they want to look up a station. */}
+        <div className="text-[11px] text-tg-hint italic">
+          {mapView === 'png' ? t('view.tipToGmap', lang) : t('view.tipZoomIn', lang)}
+        </div>
+        <div className="inline-flex self-start gap-1.5 text-[11px] font-medium">
+          <button
+            type="button"
+            onClick={() => setMapView('png')}
+            aria-pressed={mapView === 'png'}
+            className={`skeuo-pill px-3 py-1 rounded-lg active:scale-95 ${mapView === 'png' ? 'skeuo-pill--selected font-semibold' : 'text-tg-text'}`}
+          >{t('view.btnSchematic', lang)}</button>
+          <button
+            type="button"
+            onClick={() => setMapView('gmap')}
+            aria-pressed={mapView === 'gmap'}
+            className={`skeuo-pill px-3 py-1 rounded-lg active:scale-95 ${mapView === 'gmap' ? 'skeuo-pill--selected font-semibold' : 'text-tg-text'}`}
+          >{t('view.btnGoogleMap', lang)}</button>
         </div>
       </header>
 
-      {/* v0.60.85 — view toggle. PNG (default, clean schematic) vs
-          Google Map (~177 pins, opt-in because the pin density is
-          high in central SG). Hint line above the toggle nudges
-          first-time users toward the interactive view when they
-          want to look up a specific station. */}
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-center justify-between gap-2">
-          <div className="text-[11px] text-tg-hint italic flex-1 min-w-0">
-            {mapView === 'png' ? t('view.tipToGmap', lang) : t('view.tipZoomIn', lang)}
-          </div>
-          <div className="inline-flex rounded-md border border-tg-border overflow-hidden text-[11px] font-medium flex-shrink-0">
-            <button
-              type="button"
-              onClick={() => setMapView('png')}
-              aria-pressed={mapView === 'png'}
-              className={`px-2.5 py-1 ${mapView === 'png' ? 'bg-tg-accent text-tg-accent-text' : 'bg-tg-card text-tg-text'}`}
-            >{t('view.btnSchematic', lang)}</button>
-            <button
-              type="button"
-              onClick={() => setMapView('gmap')}
-              aria-pressed={mapView === 'gmap'}
-              className={`px-2.5 py-1 ${mapView === 'gmap' ? 'bg-tg-accent text-tg-accent-text' : 'bg-tg-card text-tg-text'}`}
-            >{t('view.btnGoogleMap', lang)}</button>
-          </div>
-        </div>
+      {/* v0.62.164 — the map tucks UP under the header card (negative mt cancels
+          the column gap-3; lower z so the header's frosted base + shadow sit over
+          the map's top edge). The "Scroll to view another train line" ticker then
+          overlaps the map's BOTTOM as a liquid-glass-80% card (-mt-10, z-10) so
+          the map shows through below it. */}
+      <div className="-mt-3 relative z-0 flex flex-col">
         {mapView === 'png'
           ? <SystemMap focusedCode={focusedCode} affectedCodes={affectedCodes} />
           : <MrtMapPanel
@@ -188,6 +192,27 @@ export default function App() {
               overlayLayers={overlayLayers}
               onOverlayChange={setOverlayLayers}
             />}
+        {/* v0.60.99 — operator: include LRT lines (BPL + SLRT + PLRT) in the
+            default scroll, not just heavy rail. When no lines are affected, show
+            every operating line including LRTs. */}
+        <div className="-mt-10 relative z-10 mx-1">
+          <AffectedTicker
+            affectedCodes={affectedCodes.length ? affectedCodes : LINES.filter((l) => !l.future).map((l) => l.code)}
+            focusedCode={focusedCode}
+            onFocus={(code) => {
+              setFocusedCode(code);
+              // v0.60.99 — auto-switch to Google Map ONLY on the first line-chip
+              // tap when still on the initial Schematic view. The "All Lines"
+              // reset (code === null) is ignored; later taps respect the current
+              // view. See Codex review on PR #342.
+              if (code && !autoSwitchedRef.current) {
+                autoSwitchedRef.current = true;
+                setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
+              }
+            }}
+            statusByLine={statusByLine}
+          />
+        </div>
       </div>
 
       {focusedLine && (
@@ -201,28 +226,9 @@ export default function App() {
         />
       )}
 
-      {/* v0.60.99 — operator: include LRT lines (BPL + SLRT + PLRT)
-          in the default scroll, not just heavy rail. When no lines
-          are affected, show every operating line including LRTs. */}
-      <AffectedTicker
-        affectedCodes={affectedCodes.length ? affectedCodes : LINES.filter((l) => !l.future).map((l) => l.code)}
-        focusedCode={focusedCode}
-        onFocus={(code) => {
-          setFocusedCode(code);
-          // v0.60.99 — auto-switch to Google Map ONLY on the first
-          // line-chip tap when still on the initial Schematic view.
-          // The "All Lines" reset (code === null) is ignored; after
-          // the one-shot fires, later taps respect whatever view
-          // the user is currently on (so Schematic-after-toggle
-          // sticks). See Codex review on PR #342.
-          if (code && !autoSwitchedRef.current) {
-            autoSwitchedRef.current = true;
-            setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
-          }
-        }}
-        statusByLine={statusByLine}
-      />
-
+      {/* v0.62.164 — the AffectedTicker moved UP to overlap the map's bottom edge
+          (see the map block above). LineStatusPanel now renders directly below
+          the map+ticker, so picking a line in the ticker reveals its status here. */}
       <LocationCard address={data.address} nearest={data.nearestMrt} />
 
       <EngineeringList closures={data.engineering || []} />

@@ -65,3 +65,58 @@ body { -webkit-font-smoothing: antialiased; }
 @media (min-width: 600px) {
   #root { border: 1px solid var(--tg-border); }
 }
+
+/* v0.62.164 — operator: bring the Train surface into the same neo-skeuomorphic
+   language as Cuisine & Menu (raised frosted header card + tactile toggle
+   pills). Theme-AGNOSTIC — color-mix over the Telegram theme vars + neutral
+   rgba shadows — so it reads in BOTH light and dark and uses luminance only
+   (no hue), colour-blind safe per the deuteranopia rule. Ported from
+   web/menu/src/styles.css (.skeuo-*). The liquid-glass-80% ticker uses
+   Tailwind `bg-tg-bg/80 backdrop-blur` in markup, matching the Cuisine strip. */
+
+/* Raised, frosted glass surface — the header card. */
+.skeuo-card {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--tg-text, #f5f5f7) 7%, var(--tg-card, #1c1c1f)),
+    var(--tg-card, #1c1c1f)
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22),
+              inset 0 -1px 0 rgba(0, 0, 0, 0.10),
+              0 3px 10px rgba(0, 0, 0, 0.20);
+}
+
+/* Raised, tappable glass pill — the 🗺/📍 view toggle. */
+.skeuo-pill {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--tg-text, #f5f5f7) 9%, var(--tg-card, #1c1c1f)),
+    color-mix(in srgb, var(--tg-text, #f5f5f7) 2%, var(--tg-card, #1c1c1f))
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28),
+              inset 0 -1px 0 rgba(0, 0, 0, 0.10),
+              0 2px 6px rgba(0, 0, 0, 0.18);
+}
+.skeuo-pill:active {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--tg-text, #f5f5f7) 3%, var(--tg-card, #1c1c1f)),
+    color-mix(in srgb, var(--tg-text, #f5f5f7) 8%, var(--tg-card, #1c1c1f))
+  );
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.45),
+              inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+  transform: translateY(0.5px);
+}
+
+/* Selected view — accent-tinted + debossed so the active toggle reads pressed. */
+.skeuo-pill--selected {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--tg-accent, #3390ec) 32%, var(--tg-card, #1c1c1f)),
+    color-mix(in srgb, var(--tg-accent, #3390ec) 14%, var(--tg-card, #1c1c1f))
+  );
+  color: var(--tg-text, #f5f5f7);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.38),
+              inset 0 -1px 0 rgba(255, 255, 255, 0.10),
+              0 1px 3px rgba(0, 0, 0, 0.18);
+}
