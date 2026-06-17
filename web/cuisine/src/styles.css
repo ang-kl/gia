@@ -21,6 +21,14 @@ body { -webkit-font-smoothing: antialiased; }
 .card-scroll::-webkit-scrollbar-thumb { background: var(--tg-border); border-radius: 3px; }
 .card-scroll::-webkit-scrollbar-track { background: transparent; }
 
+/* v0.62.153 — operator: a visible scrollbar for the WHOLE TMA in both the
+   vertical and horizontal result styles. Thin, luminance-derived --tg-border
+   thumb (light + dark, colour-blind safe). */
+html { scrollbar-width: thin; scrollbar-color: var(--tg-border) transparent; }
+html::-webkit-scrollbar { width: 8px; }
+html::-webkit-scrollbar-thumb { background: var(--tg-border); border-radius: 4px; }
+html::-webkit-scrollbar-track { background: transparent; }
+
 /* v0.62.90 — operator: "liquid glass 3D curved rectangle button". Frosted,
    translucent fill + backdrop blur + a soft top highlight and drop shadow, so
    the wait-card Stop pill and the Widen switch read as glass. Standardised

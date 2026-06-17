@@ -166,6 +166,15 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // the focusedPlaceId effect reads the latest mode without re-subscribing.
   const blinkOnlyRef = useRef(blinkOnly);
   useEffect(() => { blinkOnlyRef.current = blinkOnly; }, [blinkOnly]);
+  // v0.62.153 — operator: a card tap zooms to 15 when the spot is CROWDED (>4
+  // pins clustered there), else 14. Plus a LEARNED preference: if the user
+  // manually zooms OUT to 13/14 twice within ~3 s, that becomes the card-tap
+  // zoom for the rest of the session (resets on TMA close = component remount).
+  // progZoomRef makes the zoom_changed learner ignore our own setZoom calls.
+  const prefZoomRef = useRef(null);
+  const progZoomRef = useRef(false);
+  const zoomOutHistRef = useRef([]);
+  const lastZoomRef = useRef(null);
   // v0.61.310 — capture the registered Map ID from /maps-key so the
   // Map constructor uses the operator's MAP_ID env var when set
   // (custom vector styling + branding). Mirrors the Transport TMA's
@@ -286,8 +295,23 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     });
     // v0.61.89 — troubleshooting: seed + track the bottom-right zoom-level readout.
     setZoomLevel(mapRef.current.getZoom());
+    lastZoomRef.current = mapRef.current.getZoom();
     mapRef.current.addListener('zoom_changed', () => {
-      setZoomLevel(mapRef.current?.getZoom?.());
+      const z = mapRef.current?.getZoom?.();
+      setZoomLevel(z);
+      const prev = lastZoomRef.current;
+      lastZoomRef.current = z;
+      // v0.62.153 — learn the user's preferred card-tap zoom: ignore our own
+      // programmatic setZoom; otherwise, a manual zoom-OUT that lands on 13/14,
+      // done twice within ~3 s, sets the preference to that level.
+      if (progZoomRef.current) { progZoomRef.current = false; return; }
+      if (prev != null && z < prev && (z === 13 || z === 14)) {
+        const now = Date.now();
+        const hist = (zoomOutHistRef.current || []).filter((t) => now - t < 3000);
+        hist.push(now);
+        zoomOutHistRef.current = hist;
+        if (hist.length >= 2) prefZoomRef.current = z;
+      }
     });
     // v0.61.168 — thread the region mode into the overlay controller
     // so the carpark layer can pick LTA (SG) vs Places (JB/MY-PUT).
@@ -457,7 +481,17 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         if (prevFocusZoomRef.current == null) {
           prevFocusZoomRef.current = mapRef.current.getZoom?.() ?? null;
         }
-        mapRef.current.setZoom(14);
+        // v0.62.153 — learned preference wins; else 15 when >4 pins cluster
+        // within ~150 m of the tapped venue ("many pins in one location"), else 14.
+        let targetZoom = prefZoomRef.current;
+        if (targetZoom == null) {
+          const near = (venuesRef.current || []).filter((x) =>
+            Number.isFinite(x?.lat) && Number.isFinite(x?.lng)
+            && Math.abs(x.lat - v.lat) < 0.0014 && Math.abs(x.lng - v.lng) < 0.0014).length;
+          targetZoom = near > 4 ? 15 : 14;
+        }
+        progZoomRef.current = true;
+        mapRef.current.setZoom(targetZoom);
         overlayControllerRef.current?.flashPin?.(v.lat, v.lng, 44);
         return;
       }
