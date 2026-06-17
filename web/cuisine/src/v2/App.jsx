@@ -3425,6 +3425,21 @@ export default function App() {
             );
           })}
         </div>
+        {/* v0.62.158 — operator: "Local food picks" floats WITH the header (opaque,
+            sticky) once results are out — pulled out of the mode-tap reveal. */}
+        {(cuisinePlate || arrivalPlate) && !loading && venues.length > 0 && (
+          <div className="-mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 pt-1 border-t border-tg-border/40 bg-tg-bg">
+            <ArrivalPlate
+              plate={cuisinePlate || arrivalPlate}
+              lang={lang}
+              onTryDish={(dish) => {
+                setNlText(dish);
+                setLoadingReason('rotating');
+                runSearch(state, null, { freeTextOverride: dish });
+              }}
+            />
+          </div>
+        )}
       </header>
 
       {/* v0.62.135 — Location + "Local food picks" staging area.
@@ -3514,23 +3529,9 @@ export default function App() {
         />
       )}
 
-      {/* v0.62.32 — Arrival Plate (operator UI pick A): compact collapsed
-          banner under the location field; expands to curated what-to-try
-          rows with 📜 fact-cards. Tapping a dish fires the dish search via
-          freeTextOverride (no state race). Hidden while a search streams. */}
-      {/* v0.62.x — cuisine "What to order" plate replaces the geo city plate
-          when a cuisine is selected (operator: SG → Georgian → Georgian dishes). */}
-      {(cuisinePlate || arrivalPlate) && !loading && (
-        <ArrivalPlate
-          plate={cuisinePlate || arrivalPlate}
-          lang={lang}
-          onTryDish={(dish) => {
-            setNlText(dish);
-            setLoadingReason('rotating');
-            runSearch(state, null, { freeTextOverride: dish });
-          }}
-        />
-      )}
+      {/* v0.62.158 — the "Local food picks" plate moved UP into the sticky header
+          (shown once results are out); only the Location field remains in this
+          mode-tap reveal panel. */}
       </div>
 
       {(() => {
