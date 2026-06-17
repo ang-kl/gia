@@ -8,7 +8,6 @@ import MrtMapPanel from './components/MrtMapPanel.jsx';
 import AffectedTicker from './components/AffectedTicker.jsx';
 import EngineeringList from './components/EngineeringList.jsx';
 import LocationCard from './components/LocationCard.jsx';
-import BackFab from './components/BackFab.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
 
 // v0.60.213 — build version for the footer tag line.
@@ -226,7 +225,7 @@ export default function App() {
           reaches the corner FABs; z-40 stays under the z-50 FABs. The line chips
           scroll horizontally inside it (compact = no title row). */}
       <div
-        className="fixed left-1/2 -translate-x-1/2 z-40 w-auto max-w-[calc(100vw-12rem)] pointer-events-none"
+        className="fixed left-2 right-24 z-40 pointer-events-none"
         style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
       >
         <div className="pointer-events-auto">
@@ -248,22 +247,34 @@ export default function App() {
         </div>
       </div>
 
-      <BackFab />
-
-      {/* v0.60.93 — bottom-right scroll FAB. Mirrors Cuisine TMA's
-          ↑ top button (same inverse theme colour as BackFab so the
-          pair reads as a matched set). ↓ scrolls one viewport down
-          when above the hero threshold; ↑ scrolls to top otherwise. */}
-      <button
-        type="button"
-        onClick={() => window.scrollTo({
-          top: atBottom ? 0 : window.scrollY + window.innerHeight,
-          behavior: 'smooth'
-        })}
-        aria-label={atBottom ? t('fab.topAria', lang) : t('fab.downAria', lang)}
-        style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f', bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
-        className="fixed right-4 px-1.5 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-1 active:scale-95 z-50 whitespace-nowrap"
-      >{atBottom ? t('fab.top', lang) : t('fab.down', lang)}</button>
+      {/* v0.62.170 — operator: back/end + top/down MERGED into ONE compact text
+          FAB (mirrors Cuisine's combined top/end card), bottom-right, by TEXT.
+          Tight padding (small text-to-border gap). Freeing the left corner lets
+          the line ticker (above) span a wider row. */}
+      <div
+        className="fixed right-3 z-50 pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg px-2 py-0.5 flex flex-col items-stretch justify-center gap-0.5 text-[10px] leading-tight font-semibold"
+        style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
+      >
+        {/* top → scroll to top when at bottom, else scroll one viewport down */}
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: atBottom ? 0 : window.scrollY + window.innerHeight, behavior: 'smooth' })}
+          aria-label={atBottom ? t('fab.topAria', lang) : t('fab.downAria', lang)}
+          className="text-tg-link no-underline active:scale-95 whitespace-nowrap text-center"
+        >{atBottom ? t('fab.top', lang) : t('fab.down', lang)}</button>
+        <div className="h-px bg-tg-border/40" />
+        {/* back → pop history, else close the WebApp (mirrors the old BackFab) */}
+        <button
+          type="button"
+          onClick={() => {
+            const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
+            if (typeof window !== 'undefined' && window.history.length > 1) window.history.back();
+            else if (w && typeof w.close === 'function') w.close();
+          }}
+          aria-label={(typeof window !== 'undefined' && window.history.length > 1) ? t('fab.backAria', lang) : t('fab.endAria', lang)}
+          className="text-tg-link no-underline active:scale-95 whitespace-nowrap text-center"
+        >{(typeof window !== 'undefined' && window.history.length > 1) ? t('fab.back', lang) : t('fab.end', lang)}</button>
+      </div>
     </div>
   );
 }
