@@ -4328,139 +4328,115 @@ export default function App() {
 
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
-      {/* v0.60.213 — two-line footer: a how-to line + an
-          "Experimental · <region> · v<build>" tag line.
-          v0.60.217 — no border; font +1pt; region restored. */}
-      <footer className="mx-2 mb-0 mt-1 px-3 py-1 text-[9px] text-tg-hint text-center leading-tight">
-        <div>{t('footer.howto', lang)}</div>
-        {/* v0.61.186 — footer now resolves all three pill states.
-            Was missing 'OTHER' (introduced in v0.61.185); operator
-            on Putrajaya would see "Singapore" in the footer even
-            with the 🌏 Others pill selected. */}
-        {/* v0.61.392 — operator: drop the "built <date> <time> UTC" chip
-            from the Cuisine footer (it was never removed since v0.61.182);
-            keep just the version, which is enough to identify a deploy. */}
-        <div>{t('footer.experimental', lang)} · {
-          state.region === 'JB' ? t('region.johor', lang)
-          : state.region === 'OTHER' ? t('region.others', lang)
-          : t('region.singapore', lang)
-        } · v{BUILD_VERSION}</div>
-      </footer>
-
-      {/* v0.59.1: floating action buttons. Always-visible 🔍 Search
-          (so the user can re-run a search without scrolling back to
-          the criteria builder), plus a contextual ↑ Top that only
-          appears when the user has scrolled past the hero (map +
-          active filters). Stacked bottom-right, fixed positioning,
-          z-30 to sit above the result panel. */}
-      {/* v0.60.58 — single bottom row holding BackFab (left) + the
-          right-side stack (top + search). Previously each FAB was its
-          own `fixed bottom-4` element; in practice the left and right
-          ones rendered at very slightly different baselines on some
-          devices. A shared row container makes alignment by
-          construction. Bowl shape (rounded-t-md rounded-b-[16px])
-          across all three FABs per Human Lead 2026-05-09 — replaces
-          the prior rounded-full circles. */}
-      {/* v0.62.140 — operator footer rebuild (pictures 1 & 3): one bottom ROW —
-          ⇠ end · Edit search ▾ · 💬 free-text · ↑ top — with the blue 🔍 (opens
-          the criteria bottom sheet) floating above. The old standalone 🔍
-          fire/load-more FAB is retired; firing + load-more now run from the
-          in-sheet "🔍 Search · Show me places to eat" bar. */}
+      {/* v0.62.146 — operator: the FOOTER is only the 2 text lines (howto +
+          version); every control floats as a FAB over the map for more map
+          space. One fixed bottom cluster: corner FAB stacks over the map, then a
+          floating free-text bar (second-last row, above Edit-search), then the
+          2-line footer. */}
       <div
-        className="fixed left-2 right-2 z-30 pointer-events-none flex flex-col gap-1"
-        style={{ bottom: 'calc(0.35rem + env(safe-area-inset-bottom, 0px))' }}
+        className="fixed inset-x-0 bottom-0 z-30 pointer-events-none px-2 flex flex-col gap-1.5"
+        style={{ paddingBottom: 'calc(0.3rem + env(safe-area-inset-bottom, 0px))' }}
       >
-        {/* v0.62.141 — top row: list on/off + vertical/horizontal toggle (when a
-            result set exists) on the left; the blue 🔍 (opens the criteria sheet)
-            on the right. Closing the list leaves the switch here to turn it back
-            on; the v/h toggle only shows while the list is open ("when active"). */}
-        <div className="flex items-center justify-between gap-1.5 pointer-events-none">
-          <div className="flex items-center gap-1.5 pointer-events-none">
+        {/* Corner FABs over the map — left stack grows up from above the free-text
+            bar (list+v/h · end · Edit search); right stack is 🔍 search · ↕ top.
+            The map shows through the gap between them. */}
+        <div className="flex items-end justify-between gap-2 pointer-events-none">
+          <div className="flex flex-col items-start gap-1.5 pointer-events-none">
             {(visibleVenues.length || venues.length) > 0 && (
-              <button
-                type="button"
-                onClick={() => setDrawerDismissed((d) => !d)}
-                aria-label={drawerDismissed
-                  ? (lang === 'fr' ? 'Afficher la liste' : 'Show list')
-                  : (lang === 'fr' ? 'Fermer la liste' : 'Close list')}
-                className="pointer-events-auto text-[11px] leading-none px-2.5 py-1.5 rounded-full bg-tg-card/95 border border-tg-border text-tg-text shadow active:scale-95 whitespace-nowrap"
-              >{drawerDismissed ? '▤' : '✕'} {lang === 'fr' ? 'liste' : 'list'}</button>
+              <div className="flex items-center gap-1.5 pointer-events-none">
+                <button
+                  type="button"
+                  onClick={() => setDrawerDismissed((d) => !d)}
+                  aria-label={drawerDismissed
+                    ? (lang === 'fr' ? 'Afficher la liste' : 'Show list')
+                    : (lang === 'fr' ? 'Fermer la liste' : 'Close list')}
+                  className="pointer-events-auto text-[10px] leading-none px-2 py-1.5 rounded-full bg-tg-card/95 border border-tg-border text-tg-text shadow active:scale-95 whitespace-nowrap"
+                >{drawerDismissed ? '▤' : '✕'} {lang === 'fr' ? 'liste' : 'list'}</button>
+                {!drawerDismissed && (
+                  <button
+                    type="button"
+                    onClick={() => setDrawerMode((m) => (m === 'horizontal' ? 'vertical' : 'horizontal'))}
+                    aria-label={drawerMode === 'horizontal'
+                      ? (lang === 'fr' ? 'Affichage vertical' : 'Vertical layout')
+                      : (lang === 'fr' ? 'Affichage horizontal' : 'Horizontal layout')}
+                    className="pointer-events-auto text-[10px] leading-none px-2 py-1.5 rounded-full bg-tg-card/95 border border-tg-border text-tg-text shadow active:scale-95 whitespace-nowrap flex items-center gap-0.5"
+                  ><span aria-hidden="true">{drawerMode === 'horizontal' ? '↴' : '↰'}</span> {drawerMode === 'horizontal' ? 'vertical' : 'horizontal'}</button>
+                )}
+              </div>
             )}
-            {(visibleVenues.length || venues.length) > 0 && !drawerDismissed && (
-              <button
-                type="button"
-                onClick={() => setDrawerMode((m) => (m === 'horizontal' ? 'vertical' : 'horizontal'))}
-                aria-label={drawerMode === 'horizontal'
-                  ? (lang === 'fr' ? 'Affichage vertical' : 'Vertical layout')
-                  : (lang === 'fr' ? 'Affichage horizontal' : 'Horizontal layout')}
-                className="pointer-events-auto text-[11px] leading-none px-2.5 py-1.5 rounded-full bg-tg-card/95 border border-tg-border text-tg-text shadow active:scale-95 whitespace-nowrap flex items-center gap-0.5"
-              ><span aria-hidden="true">{drawerMode === 'horizontal' ? '↴' : '↰'}</span> {drawerMode === 'horizontal' ? 'vertical' : 'horizontal'}</button>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={() => setCriteriaOpen(true)}
-            aria-label={lang === 'fr' ? 'Ouvrir les critères de recherche' : 'Open search criteria'}
-            className={`pointer-events-auto w-9 h-9 rounded-full bg-tg-accent text-tg-accent-text border-2 border-white/40 shadow-lg flex items-center justify-center text-base active:scale-95 transition-all shrink-0 ${
-              (searchHintActive || searchFabFlash) ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''
-            }`}
-          >🔍</button>
-        </div>
-        {/* Main footer row. */}
-        <div className="flex items-center gap-1.5 pointer-events-auto">
-          <BackFab
-            inline
-            mode={cursor > 0 ? 'back' : 'close'}
-            onBack={() => setCursor((c) => Math.max(0, c - 1))}
-          />
-          {cursor < pages.length - 1 && (
+            <div className="flex items-end gap-1.5 pointer-events-none">
+              <BackFab
+                inline
+                mode={cursor > 0 ? 'back' : 'close'}
+                onBack={() => setCursor((c) => Math.max(0, c - 1))}
+              />
+              {cursor < pages.length - 1 && (
+                <button
+                  type="button"
+                  onClick={() => setCursor((c) => Math.min(pages.length - 1, c + 1))}
+                  aria-label={lang === 'fr' ? 'Liste suivante' : 'Next list'}
+                  style={fabBgFg(false)}
+                  className="pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center active:scale-95 whitespace-nowrap shrink-0"
+                ><span aria-hidden="true">⇢</span></button>
+              )}
+            </div>
+            {/* Edit search ▾ — FAB, just above the free-text bar. */}
             <button
               type="button"
-              onClick={() => setCursor((c) => Math.min(pages.length - 1, c + 1))}
-              aria-label={lang === 'fr' ? 'Liste suivante' : 'Next list'}
-              title={lang === 'fr' ? 'Liste suivante' : 'Next list'}
+              onClick={() => setCriteriaOpen((o) => !o)}
+              aria-label={lang === 'fr' ? 'Modifier la recherche' : 'Edit search'}
               style={fabBgFg(false)}
-              className="pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-1 active:scale-95 whitespace-nowrap shrink-0"
+              className={`pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-0.5 active:scale-95 whitespace-nowrap shrink-0 ${
+                !criteriaOpen && editSearchPulse ? 'ring-2 ring-tg-accent animate-pulse' : ''
+              }`}
             >
-              <span aria-hidden="true">⇢</span>
+              <span>{t('btn.editSearch', lang)}</span>
+              <span aria-hidden="true">▾</span>
             </button>
-          )}
-          {/* Edit search ▾ — opens the same criteria sheet as the blue 🔍. */}
-          <button
-            type="button"
-            onClick={() => setCriteriaOpen((o) => !o)}
-            aria-label={lang === 'fr' ? 'Modifier la recherche' : 'Edit search'}
-            style={fabBgFg(false)}
-            className={`pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-0.5 active:scale-95 whitespace-nowrap shrink-0 ${
-              !criteriaOpen && editSearchPulse ? 'ring-2 ring-tg-accent animate-pulse' : ''
-            }`}
-          >
-            <span>{t('btn.editSearch', lang)}</span>
-            <span aria-hidden="true">▾</span>
-          </button>
-          {/* 💬 free-text composer — fills the row. */}
-          <div className="flex-1 min-w-0">
-            <TellMePanel
-              value={nlText}
-              onChange={setNlText}
-              onSubmit={handleNLSubmit}
-              onReplace={handleNLReplace}
-              lastPrompt={lastPrompt}
-              loading={loading}
-            />
           </div>
-          {/* ↑ top / ↓ down scroll. */}
-          <button
-            type="button"
-            onClick={() => window.scrollTo({
-              top: scrolledPastHero ? 0 : window.scrollY + window.innerHeight,
-              behavior: 'smooth'
-            })}
-            aria-label={scrolledPastHero ? t('btn.backToTop', lang) : 'Scroll down'}
-            style={fabBgFg(false)}
-            className="pointer-events-auto px-1.5 h-8 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center active:scale-95 transition-all whitespace-nowrap shrink-0"
-          >{scrolledPastHero ? t('btn.topShort', lang) : t('btn.downShort', lang)}</button>
+          {/* Right stack: 🔍 search (opens criteria) + ↕ top. */}
+          <div className="flex flex-col items-end gap-1.5 pointer-events-none">
+            <button
+              type="button"
+              onClick={() => setCriteriaOpen(true)}
+              aria-label={lang === 'fr' ? 'Ouvrir les critères de recherche' : 'Open search criteria'}
+              className={`pointer-events-auto w-9 h-9 rounded-full bg-tg-accent text-tg-accent-text border-2 border-white/40 shadow-lg flex items-center justify-center text-base active:scale-95 transition-all shrink-0 ${
+                (searchHintActive || searchFabFlash) ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''
+              }`}
+            >🔍</button>
+            <button
+              type="button"
+              onClick={() => window.scrollTo({
+                top: scrolledPastHero ? 0 : window.scrollY + window.innerHeight,
+                behavior: 'smooth'
+              })}
+              aria-label={scrolledPastHero ? t('btn.backToTop', lang) : 'Scroll down'}
+              style={fabBgFg(false)}
+              className="pointer-events-auto px-1.5 h-8 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center active:scale-95 transition-all whitespace-nowrap shrink-0"
+            >{scrolledPastHero ? t('btn.topShort', lang) : t('btn.downShort', lang)}</button>
+          </div>
         </div>
+        {/* Floating free-text bar — second-last row, its OWN translucent card so
+            focusing it no longer flashes the page background white. */}
+        <div className="pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur shadow-lg border border-tg-border px-1 py-0.5">
+          <TellMePanel
+            value={nlText}
+            onChange={setNlText}
+            onSubmit={handleNLSubmit}
+            onReplace={handleNLReplace}
+            lastPrompt={lastPrompt}
+            loading={loading}
+          />
+        </div>
+        {/* The footer — ONLY the 2 text lines. */}
+        <footer className="px-3 text-[9px] text-tg-hint text-center leading-tight pointer-events-none">
+          <div>{t('footer.howto', lang)}</div>
+          <div>{t('footer.experimental', lang)} · {
+            state.region === 'JB' ? t('region.johor', lang)
+            : state.region === 'OTHER' ? t('region.others', lang)
+            : t('region.singapore', lang)
+          } · v{BUILD_VERSION}</div>
+        </footer>
       </div>
     </div>
   );

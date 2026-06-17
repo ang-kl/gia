@@ -36,7 +36,7 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
   if (!list.length) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-[5.5rem] z-30 px-1 pointer-events-none max-w-[1600px] mx-auto">
+    <div className="fixed inset-x-0 bottom-[6.5rem] z-30 px-1 pointer-events-none max-w-[1600px] mx-auto">
       {/* v0.62.141 — operator: the list + vertical/horizontal controls moved to
           the FOOTER (out of the strip). Cards are BOTTOM-aligned (items-end),
           and each is a COMPACT ~5-row scroll panel (card-scroll = visible thin
