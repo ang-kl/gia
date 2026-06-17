@@ -416,6 +416,8 @@ function applyVerified(block, verified) {
   if (verified && !require('./newness-criteria').isStrictNew({
     oldestReviewDays: verified.oldestReviewDays,
     rating: verified.rating,
+    // v0.62.160 — a high review count refutes the strict-new claim too.
+    reviewCount: verified.userRatingCount != null ? verified.userRatingCount : verified.reviewCount,
   })) {
     lines = lines.map(stripOpeningClaim);
   }

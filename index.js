@@ -16148,7 +16148,10 @@ async function cacheBotUsername() {
           // strict and fill as separate, visually-divided groups.
           const refuted = venues.filter((v) => {
             v._recencyBand = newness.recencyBand(v._oldestReviewDays);
-            return newness.passesNewness({ oldestReviewDays: v._oldestReviewDays, rating: v.rating });
+            // v0.62.160 — pass userRatingCount so a high review count refutes
+            // newness even when the ≤5-review date heuristic mis-reads an
+            // established venue as recent (BOMUL Samgyetang 3,759 reviews leak).
+            return newness.passesNewness({ oldestReviewDays: v._oldestReviewDays, rating: v.rating, reviewCount: v.userRatingCount });
           });
           // v0.61.399 — operator (URGENT): review-time can only REFUTE, never
           // CONFIRM newness, so it must DEMOTE, not EMPTY the list. In an
@@ -16172,7 +16175,7 @@ async function cacheBotUsername() {
             delete v._oldestReviewDays;
             if (!v._recencyBand) v._recencyBand = 'strict';
           }
-          console.log(`[Cuisine-New] newness refute: ${beforeNew} → ${venues.length} kept (≤${newness.NEW_FILL_DAYS}d, rated>${newness.NEW_RATING_FLOOR}${flooredToBias ? '; floor — kept biased pool, none proven-new' : ''})`);
+          console.log(`[Cuisine-New] newness refute: ${beforeNew} → ${venues.length} kept (≤${newness.NEW_FILL_DAYS}d, rated>${newness.NEW_RATING_FLOOR}, reviews≤${newness.NEW_REVIEW_COUNT_CEIL}${flooredToBias ? '; floor — kept biased pool, none proven-new' : ''})`);
         }
         // v0.60.165 — petFriendly strict post-filter with text-query
         // fallback. Places' `allowsDogs` attribute is well-populated in

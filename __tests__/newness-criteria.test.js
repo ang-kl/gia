@@ -71,9 +71,16 @@ describe('newness-criteria — passesNewness (count never a factor)', () => {
   it('drops a rated venue below the floor even when brand new', () => {
     expect(N.passesNewness({ oldestReviewDays: 5, rating: 2.9 })).toBe(false);
   });
-  it('ignores any userRatingCount passed in (count is not a factor)', () => {
-    expect(N.passesNewness({ oldestReviewDays: 30, rating: 4.5, userRatingCount: 99999 })).toBe(true);
-    expect(N.passesNewness({ oldestReviewDays: 800, rating: 4.5, userRatingCount: 1 })).toBe(false);
+  it('a high reviewCount REFUTES newness (BOMUL Samgyetang 3,759-review SG leak); count can only refute', () => {
+    // established by count, even though the ≤5-review date heuristic reads recent or null
+    expect(N.passesNewness({ oldestReviewDays: 30, rating: 4.5, reviewCount: 99999 })).toBe(false);
+    expect(N.passesNewness({ oldestReviewDays: null, rating: 4.9, reviewCount: 3759 })).toBe(false);
+    // a genuinely-new place under the ceiling still passes
+    expect(N.passesNewness({ oldestReviewDays: 30, rating: 4.5, reviewCount: 50 })).toBe(true);
+    // unknown count proves nothing → passes
+    expect(N.passesNewness({ oldestReviewDays: 30, rating: 4.5 })).toBe(true);
+    // count is refute-ONLY: a low count can't rescue a date-old venue
+    expect(N.passesNewness({ oldestReviewDays: 800, rating: 4.5, reviewCount: 1 })).toBe(false);
   });
   it('defaults: empty input is strict-eligible + unrated → passes', () => {
     expect(N.passesNewness()).toBe(true);
