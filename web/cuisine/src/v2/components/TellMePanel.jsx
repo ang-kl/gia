@@ -30,16 +30,23 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
 
   return (
     <div className="flex flex-col gap-1 px-0.5">
-      {/* v0.62.147 — operator: the "Last asked … · Replace" remark sits ABOVE
-          the free-text field, not below it. */}
+      {/* v0.62.147 — operator: the "Last asked …" remark sits ABOVE the free-text
+          field, not below it.
+          v0.62.167 — operator: the last-searched text ITSELF is now the link that
+          replaces the search (tap "satay" to replace). The separate "Replace
+          instead of merge" link is removed. */}
       {lastPrompt && !submitting && (
         <div className="text-[11px] text-tg-hint px-1.5 italic">
-          {lang === 'fr' ? 'Dernière demande' : 'Last asked'}: "{lastPrompt}"
-          {onReplace && (
-            <>
-              {' · '}
-              <button onClick={onReplace} className="underline not-italic">{lang === 'fr' ? 'Remplacer au lieu de fusionner' : 'Replace instead of merge'}</button>
-            </>
+          {lang === 'fr' ? 'Dernière demande' : 'Last asked'}:{' '}
+          {onReplace ? (
+            <button
+              onClick={onReplace}
+              className="not-italic underline text-tg-link active:scale-95"
+              aria-label={lang === 'fr' ? `Remplacer la recherche par « ${lastPrompt} »` : `Replace the search with "${lastPrompt}"`}
+              title={lang === 'fr' ? 'Remplacer au lieu de fusionner' : 'Replace instead of merge'}
+            >"{lastPrompt}"</button>
+          ) : (
+            <span>"{lastPrompt}"</span>
           )}
         </div>
       )}
