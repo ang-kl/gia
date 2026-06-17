@@ -212,13 +212,12 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       // v0.61.18 — suppress Google's native POI/transit info cards so a
       // station tap hits our overlay marker, not Google's own popup.
       clickableIcons: false,
-      // v0.61.89 — streamline: all three TMA maps share one options block: keep
-      // Google's native camera control (pan/tilt/rotate) + keyboard
-      // shortcuts on. The camera widget is pinned to LEFT_BOTTOM so it
-      // clears the custom nav cluster (top-right) and the bottom-right
-      // controls.
-      cameraControl: true,
-      cameraControlOptions: { position: window.google.maps.ControlPosition.LEFT_BOTTOM },
+      // v0.61.89 — streamline: all three TMA maps share one options block.
+      // v0.62.134 — operator (17-06 '26): remove Google's native camera
+      // control (the +/pan-arrows/tilt cluster) from every TMA — it duplicated
+      // the custom nav cluster (top-right) + ↹ centre-map button (v0.62.133).
+      // Prior (superseded): cameraControl:true @ LEFT_BOTTOM, kept since v0.61.89.
+      cameraControl: false,
       keyboardShortcuts: true,
       // v0.62.102 — operator: the embedded map hung when zoomed out far (world
       // view). Gate the camera: minZoom 5 (no global zoom-out) … maxZoom 20.

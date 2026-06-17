@@ -606,6 +606,15 @@ export default function App() {
   // v0.59.1: floating Search + Top buttons. `↑ Top` only surfaces
   // once the user has scrolled past the hero (map + active chips).
   const [scrolledPastHero, setScrolledPastHero] = useState(false);
+  // v0.62.135 — operator (17-06 '26): tapping a DIFFERENT region/mode pill
+  // surfaces the Location + "Local food picks" fields as an OPAQUE staging
+  // area (header + both fields go solid, per light/dark theme) so the user
+  // can confirm the new area before tapping 🔍. We scroll back to the top so
+  // the in-flow fields are in view, and flag `modePeek` to drive the opaque
+  // treatment. Firing a search clears it (back to the liquid-glass header).
+  // The fields stay in normal flow, so scrolling to the top always shows
+  // them regardless of peek.
+  const [modePeek, setModePeek] = useState(false);
   // v0.59.21: 3 s pulse on the 🔍 Search FAB after the user closes
   // the cuisine drawer with at least one cuisine selected — subtle
   // CTA "now press search" hint per Human Lead 2026-05-07.
@@ -2680,6 +2689,10 @@ export default function App() {
   // Wired to the floating 🔍 FAB, the big "🔍 Search · Show me places
   // to eat" button, and the location-field's own 🔍 button.
   function triggerSearch() {
+    // v0.62.135 — firing a search collapses the mode-tap reveal panel; the
+    // Location + Local-food-picks fields fold back into the floating header
+    // (still reachable by scrolling to the top).
+    setModePeek(false);
     setLoadingReason(lastRunSnap !== null && !dirty ? 'refresh' : 'rotating');
     // v0.61.354 — if a city is previewed, 🔍 COMMITS it as the active search
     // location (and searches there). Reuse onLocationSelect WITHOUT cityPreview
@@ -3223,7 +3236,12 @@ export default function App() {
           region pills) is now a FLOATING, always-present bar — sticky to the top
           with a frosted backdrop. Negative inline margins let the frosting span
           the container's px gutters full-bleed. */}
-      <header className="sticky top-0 z-30 -mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 py-2 flex flex-col gap-1.5 backdrop-blur bg-tg-bg/85 border-b border-tg-border/50">
+      {/* v0.62.135 — operator: the header read as too low-contrast in light
+          mode (bg-tg-bg/85 frosted). Bumped the resting frosting to /90 + a
+          border + shadow for AA separation, and the liquid glass is preserved
+          on scroll. On a mode-pill tap (modePeek) the bar goes fully OPAQUE
+          (solid bg, no translucency) to stage the Location + food-picks edit. */}
+      <header className={`sticky top-0 z-30 -mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 py-2 flex flex-col gap-1.5 border-b transition-colors ${modePeek ? 'bg-tg-bg border-tg-border shadow-md' : 'bg-tg-bg/90 backdrop-blur border-tg-border/60 shadow-sm'}`}>
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <img src="soleat-icon.png" alt="soleat" width="24" height="24" className="rounded-full flex-shrink-0" />
@@ -3280,6 +3298,15 @@ export default function App() {
             return (
               <button key={r.id} type="button"
                 onClick={() => {
+                  // v0.62.135 — a mode-pill tap (region switch or the 📍 Current
+                  // action) surfaces the Location + Local-food-picks fields as an
+                  // opaque staging area so the user can confirm the new area before
+                  // tapping 🔍. Scroll the in-flow fields back into view and flag the
+                  // opaque peek. Re-tapping the already-active region is a no-op.
+                  if (r.action || r.id !== (state.region || 'SG')) {
+                    setModePeek(true);
+                    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }
                   // v0.62.97 — 📍 Current: resolve LIVE GPS, then bail (no region toggle).
                   if (r.id === 'CURRENT') { pickCurrentLocation(); return; }
                   explicitPickRef.current = true;   // v0.61.438 — F2: a pill tap is explicit
@@ -3382,6 +3409,13 @@ export default function App() {
         </div>
       </header>
 
+      {/* v0.62.135 — Location + "Local food picks" staging area. Normally
+          flows as plain content under the header; when a mode pill is tapped
+          (modePeek) it gets a solid card background + ring so the two fields
+          read as an opaque panel to confirm before searching. */}
+      <div className={modePeek
+        ? 'bg-tg-bg rounded-b-xl shadow-md ring-1 ring-tg-border px-2 py-2 -mx-1 flex flex-col gap-2 transition-all'
+        : 'flex flex-col gap-2 transition-all'}>
       {/* v0.61.29 — the editable LocationField sits here, above the map.
           It replaces the static "📍 <place> · N places nearby" status
           banner; the field was previously buried in the collapsed
@@ -3475,6 +3509,7 @@ export default function App() {
           }}
         />
       )}
+      </div>
 
       {(() => {
         // v0.61.353 — "↩ Back to last search area". Shows when the map view
