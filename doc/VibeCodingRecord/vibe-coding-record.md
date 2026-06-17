@@ -1,21 +1,21 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-06-17 from a snapshot of all 1069 pull requests (#1–#1069).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-06-17 from a snapshot of all 1078 pull requests (#1–#1078).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 1069 total — 1059 merged, 10 closed without merge.
+- **PRs:** 1078 total — 1068 merged, 10 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #1084 · 2026-06-17 02:55:48 · _feat(maps): centre-map (U+21B9) button across all TMAs; drop Google nav pad (v0.62.133)_
+- **Latest:** #1093 · 2026-06-17 05:19:49 · _v0.62.141: results/footer refinements — compact cards, zoom-14, footer list+toggle_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 688 |
+| feature | 696 |
 | fix | 159 |
-| docs | 76 |
+| docs | 77 |
 | copy | 46 |
 | prompt-tune | 42 |
 | refactor | 29 |
@@ -26,13 +26,13 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 346 |
-| Core / misc | 164 |
+| Cuisine Picker | 351 |
+| Core / misc | 166 |
 | Docs / vault | 89 |
 | Transport / carpark | 63 |
 | Hawker NEA | 60 |
 | Recognised lists | 60 |
-| Search / free-text | 54 |
+| Search / free-text | 56 |
 | /hidden surprise | 42 |
 | Infra / setup | 37 |
 | Pipeline / discovery | 28 |
@@ -1121,6 +1121,15 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 1082 | merged | 2026-06-17 01:11:43 | 0.62.131 | fix | Infra / setup | Fix: rating-toast leak on close + sync package-lock (v0.62.131) | 1) Bug: the Rating reset to Good+ >=3.7 footer toast survived in state when the TMA went hidden, flashing into the close and lingering on reopen; the visibilitychange handler now dismisses it (setRatingReminder(null)) the moment the TMA… | 3 files — TMA:cuisine, package | cuisine | — |
 | 1083 | merged | 2026-06-17 01:20:05 | 0.62.132 | feature | Hawker NEA | Add: default result-map zoom 11 -> 12 across all TMAs (v0.62.132) | Default result-map zoom 11 -> 12 across all three map TMAs: cuisine MapPanel init zoom + no-fresh-search recenter -> 12; hawker SG_DEFAULT_ZOOM 11->12; transport SG_DEFAULT_ZOOM 11->12. | 5 files — TMA:cuisine, TMA:hawker, TMA:transport, package | cuisine+hawker+transport | — |
 | 1084 | merged | 2026-06-17 02:55:48 | 0.62.133 | feature | Hawker NEA | Add: centre-map (U+21B9) button across all TMAs; drop Google nav pad (v0.62.133) | Remove Google's native zoom/pan pad and add a centre map button between + and - in every map. | 6 files — TMA:cuisine, TMA:hawker, TMA:transport, package, public/ | cuisine+hawker+transport | — |
+| 1085 | merged | 2026-06-17 03:09:44 | 0.62.114 | docs | Cuisine Picker | journal + feature list + vibe-journal catch-up (v0.62.114 → v0.62.133) | ## What Documentation catch-up for the **v0.62.114 → v0.62.133** UI-rework arc (PRs **#1056–#1084**, all squash-merged to `main`), per the `doc/CLAUDE.md` contract. | 16 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package, public/ | cuisine+hawker+transport | doc/vault |
+| 1086 | merged | 2026-06-17 03:12:17 | 0.62.134 | feature | Cuisine Picker | Add: remove Google native camera nav cluster from all 3 TMAs | ## What Operator (17-06 '26): remove the Google-rendered **camera nav cluster** (the +/pan-arrows/tilt widget, bottom-left of the map) from **all three TMAs**. | 4 files — TMA:cuisine, TMA:hawker, TMA:transport, package | cuisine+hawker+transport | tests |
+| 1087 | merged | 2026-06-17 03:26:28 | 0.62.135 | feature | Cuisine Picker | Add: opaque header in light mode + reveal Location/food-picks on mode tap | ## What Operator (17-06 '26), two parts of the header request: 1. | 2 files — TMA:cuisine, package | cuisine | tests |
+| 1088 | merged | 2026-06-17 03:28:26 | 0.62.136 | feature | Cuisine Picker | Add: floating result drawer (vertical default) + ↰/↴ horizontal toggle | ## What Operator (17-06 '26): replace the horizontal result **carousel** (v0.62.125–128) with a **Google-Maps-style floating drawer** — a **vertical** scrolling list by default, flippable to the old horizontal swipe layout via a toggle FAB. | 3 files — TMA:cuisine, package | cuisine | tests |
+| 1089 | merged | 2026-06-17 04:21:47 | 0.62.137 | feature | Cuisine Picker | Add: Menu TMA neo-skeuomorphism — restyle tiles + rebuild the train area | ## What Operator (17-06 '26): *"change the layout of MENU TMA, it isn't neo-skeuomorphism. | 4 files — TMA:menu, package | menu | tests |
+| 1090 | merged | 2026-06-17 04:37:01 | 0.62.138 | feature | Search / free-text | Add: results default to horizontal floating strip; vertical on toggle | ## What (PR A of 2 — the "urgent" Cuisine results rework) Operator (17-06 '26): results should **default to the horizontal floating card strip** over the map (no vertical list shown); a card tap in horizontal mode should **only blink the… | 4 files — TMA:cuisine, package | cuisine | tests |
+| 1091 | merged | 2026-06-17 04:43:14 | 0.62.139 | feature | Core / misc | Add: horizontal result cards — bottom-aligned + scroll-to-expand | ## What Operator (17-06 '26): bottom-align the horizontal floating cards, and give each a scrollbar so scrolling reveals the expanded detail — two ways to view (expand/collapse **or** scroll). | 4 files — TMA:cuisine, package | cuisine | tests |
+| 1092 | merged | 2026-06-17 04:53:16 | 0.62.140 | feature | Search / free-text | Add: Cuisine footer rebuild — free-text + Edit-search in footer; criteria bottom sheet | ## What (PR B of the "urgent" Cuisine rework — pictures 1-3) Operator: move the **search card + free-text** out of the page flow into the **footer**; the **blue 🔍 opens the criteria panel** (its in-sheet Search bar fires + loads more). | 2 files — TMA:cuisine, package | cuisine | tests |
+| 1093 | merged | 2026-06-17 05:19:49 | 0.62.141 | feature | Core / misc | Add: results/footer refinements — compact cards, zoom-14, footer list+toggle | ## What Operator refinements on the Cuisine results + footer: 1. | 4 files — TMA:cuisine, package | cuisine | tests |
 
 ---
 
