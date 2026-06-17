@@ -912,7 +912,9 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         className={overlayLayers && overlayLayers.colour === false ? 'gia-greyscale-map' : undefined}
         style={{
           width: '100%',
-          height: expanded ? '90vh' : (isTablet ? 'min(640px, 60vh)' : 'min(420px, 50vh)'),
+          // v0.62.155 — operator: fill the white space below the map. Grow the
+          // map so it reaches down toward the footer FABs (mobile 50→66vh).
+          height: expanded ? '90vh' : (isTablet ? 'min(720px, 68vh)' : 'min(620px, 66vh)'),
           minHeight: 240
         }}
       />

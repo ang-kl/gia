@@ -4348,18 +4348,20 @@ export default function App() {
             The map shows through the gap between them. */}
         <div className="flex items-end justify-between gap-2 pointer-events-none">
           <div className="flex flex-col items-start gap-1.5 pointer-events-none">
-            {/* v0.62.150 — operator: the list FAB is PERMANENT (always available
-                like the other FABs), no longer gated on having results; the ⮲/⮷
-                orientation toggle shows while the list is open. */}
-            <div className="flex items-center gap-1.5 pointer-events-none">
+            {/* v0.62.155 — operator: list · vertical · 🍲 Cuisine are ONE card of
+                hyperlink-style WORDS (no underline, not button-focus), in TWO
+                rows. The list FAB is permanent; the orientation word shows while
+                the list is open. */}
+            <div className="pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg px-2.5 py-1 flex flex-col items-start gap-0.5 text-[10px] leading-tight font-semibold">
+              <div className="flex items-center gap-2.5">
                 <button
                   type="button"
                   onClick={() => setDrawerDismissed((d) => !d)}
                   aria-label={drawerDismissed
                     ? (lang === 'fr' ? 'Afficher la liste' : 'Show list')
                     : (lang === 'fr' ? 'Fermer la liste' : 'Close list')}
-                  className="pointer-events-auto text-[10px] leading-none px-2 py-1.5 rounded-full bg-tg-card/95 border border-tg-border text-tg-text shadow active:scale-95 whitespace-nowrap"
-                ><span aria-hidden="true">{drawerDismissed ? '📖' : '📘'}</span> {lang === 'fr' ? 'liste' : 'list'}</button>
+                  className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
+                >{drawerDismissed ? '📖' : '📘'} {lang === 'fr' ? 'liste' : 'list'}</button>
                 {!drawerDismissed && (
                   <button
                     type="button"
@@ -4367,9 +4369,16 @@ export default function App() {
                     aria-label={drawerMode === 'horizontal'
                       ? (lang === 'fr' ? 'Affichage vertical' : 'Vertical layout')
                       : (lang === 'fr' ? 'Affichage horizontal' : 'Horizontal layout')}
-                    className="pointer-events-auto text-[10px] leading-none px-2 py-1.5 rounded-full bg-tg-card/95 border border-tg-border text-tg-text shadow active:scale-95 whitespace-nowrap flex items-center gap-0.5"
-                  ><span aria-hidden="true">{drawerMode === 'horizontal' ? '⮷' : '⮲'}</span> {drawerMode === 'horizontal' ? 'vertical' : 'horizontal'}</button>
+                    className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
+                  >{drawerMode === 'horizontal' ? '⮷' : '⮲'} {drawerMode === 'horizontal' ? 'vertical' : 'horizontal'}</button>
                 )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setCriteriaOpen((o) => !o)}
+                aria-label={lang === 'fr' ? 'Cuisine — critères de recherche' : 'Cuisine — search criteria'}
+                className={`text-tg-link no-underline active:scale-95 whitespace-nowrap ${!criteriaOpen && editSearchPulse ? 'animate-pulse' : ''}`}
+              >🍲 Cuisine ▾</button>
             </div>
             {/* ⇢ next (rare — only after stepping back through page history). */}
             {cursor < pages.length - 1 && (
@@ -4394,51 +4403,12 @@ export default function App() {
                 (searchHintActive || searchFabFlash) ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''
               }`}
             >🔍</button>
-            {/* v0.62.147 — operator #2: one white FAB, TWO lines of hyperlink-style
-                text (no underline) — top/down then back/end. */}
-            <div className="pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg px-2.5 py-1 flex flex-col items-stretch gap-0.5 text-[10px] leading-tight font-semibold shrink-0">
-              <button
-                type="button"
-                onClick={() => window.scrollTo({
-                  top: scrolledPastHero ? 0 : window.scrollY + window.innerHeight,
-                  behavior: 'smooth'
-                })}
-                aria-label={scrolledPastHero ? t('btn.backToTop', lang) : 'Scroll down'}
-                className="text-tg-link no-underline active:scale-95 whitespace-nowrap text-center"
-              >{scrolledPastHero ? `↑ ${t('btn.topShort', lang)}` : `↓ ${t('btn.downShort', lang)}`}</button>
-              <div className="h-px bg-tg-border/40" />
-              <button
-                type="button"
-                onClick={() => {
-                  if (cursor > 0) { setCursor((c) => Math.max(0, c - 1)); return; }
-                  const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
-                  if (w && typeof w.close === 'function') {
-                    try { w.close(); } catch { /* webview tearing down */ }
-                    setTimeout(() => { try { w.close(); } catch { /* noop */ } }, 350);
-                  }
-                }}
-                aria-label={cursor > 0 ? t('btn.fabBackAria', lang) : t('btn.fabEndAria', lang)}
-                className="text-tg-link no-underline active:scale-95 whitespace-nowrap text-center"
-              >{cursor > 0 ? `↩ ${t('btn.fabBack', lang)}` : `🔚 ${t('btn.fabEnd', lang)}`}</button>
-            </div>
           </div>
         </div>
-        {/* v0.62.152 — operator #4: 🍲 Cuisine button BESIDE the free-text bar.
-            Second-last row; the bar keeps its own translucent card (the
-            white-flash fix). */}
+        {/* v0.62.155 — operator: the free-text bar with the combined ⇡top/🔚end FAB
+            BESIDE its right (the duplicate ↑/↓ arrow dropped); 🍲 Cuisine moved
+            into the left controls card above. */}
         <div className="flex items-stretch gap-1.5">
-          <button
-            type="button"
-            onClick={() => setCriteriaOpen((o) => !o)}
-            aria-label={lang === 'fr' ? 'Cuisine — critères de recherche' : 'Cuisine — search criteria'}
-            className={`pointer-events-auto shrink-0 px-2.5 rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg text-[11px] font-semibold flex items-center gap-0.5 active:scale-95 whitespace-nowrap ${
-              !criteriaOpen && editSearchPulse ? 'ring-2 ring-tg-accent animate-pulse' : ''
-            }`}
-          >
-            <span aria-hidden="true">🍲</span>
-            <span>Cuisine</span>
-            <span aria-hidden="true">▾</span>
-          </button>
           <div className="flex-1 min-w-0 pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur shadow-lg border border-tg-border px-1 py-0.5">
             <TellMePanel
               value={nlText}
@@ -4448,6 +4418,31 @@ export default function App() {
               lastPrompt={lastPrompt}
               loading={loading}
             />
+          </div>
+          <div className="pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg px-2.5 py-1 flex flex-col items-stretch justify-center gap-0.5 text-[10px] leading-tight font-semibold shrink-0">
+            <button
+              type="button"
+              onClick={() => window.scrollTo({
+                top: scrolledPastHero ? 0 : window.scrollY + window.innerHeight,
+                behavior: 'smooth'
+              })}
+              aria-label={scrolledPastHero ? t('btn.backToTop', lang) : 'Scroll down'}
+              className="text-tg-link no-underline active:scale-95 whitespace-nowrap text-center"
+            >{scrolledPastHero ? t('btn.topShort', lang) : t('btn.downShort', lang)}</button>
+            <div className="h-px bg-tg-border/40" />
+            <button
+              type="button"
+              onClick={() => {
+                if (cursor > 0) { setCursor((c) => Math.max(0, c - 1)); return; }
+                const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
+                if (w && typeof w.close === 'function') {
+                  try { w.close(); } catch { /* webview tearing down */ }
+                  setTimeout(() => { try { w.close(); } catch { /* noop */ } }, 350);
+                }
+              }}
+              aria-label={cursor > 0 ? t('btn.fabBackAria', lang) : t('btn.fabEndAria', lang)}
+              className="text-tg-link no-underline active:scale-95 whitespace-nowrap text-center"
+            >{cursor > 0 ? `↩ ${t('btn.fabBack', lang)}` : `🔚 ${t('btn.fabEnd', lang)}`}</button>
           </div>
         </div>
         {/* The footer — ONLY the 2 text lines. */}

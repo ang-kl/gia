@@ -41,6 +41,13 @@ export default function ActiveFilters({ cuisines = [], filters = {}, onRemoveCui
 
   return (
     <div className="flex flex-wrap items-center gap-1.5 px-0.5 pt-0.5">
+      {/* v0.62.155 — operator: "Reset all" sits FIRST (left), then the selected
+          cuisine / quick-filter chips follow. */}
+      <button
+        type="button"
+        onClick={onResetAll}
+        className="text-[11px] text-tg-link underline mr-0.5"
+      >{resetLabel}</button>
       {cuisines.map((slug) => {
         // v0.62.19 — resolve the catalogue display name (e.g. 'durian' →
         // "Durian Fruits", matching the drawer + result-header) instead of the
@@ -76,11 +83,6 @@ export default function ActiveFilters({ cuisines = [], filters = {}, onRemoveCui
           {p}
         </ChipReadOnly>
       ))}
-      <button
-        type="button"
-        onClick={onResetAll}
-        className="text-[11px] text-tg-link underline ml-auto"
-      >{resetLabel}</button>
     </div>
   );
 }
