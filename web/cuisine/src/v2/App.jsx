@@ -3316,17 +3316,13 @@ export default function App() {
                   // opaque peek. Re-tapping the already-active region is a no-op.
                   if (r.action || r.id !== (state.region || 'SG')) {
                     setModePeek(true);
-                    // v0.62.148 — operator: "i change from johor to Singapore, but
-                    // the search results are still Malaysia." A mode switch must
-                    // not leave the PREVIOUS region's results on screen. Clear the
-                    // stale pool so the wrong-country cards/pins vanish; per the
-                    // operator's "no auto-fire" choice the user re-runs the search
-                    // (🍲 Cuisine / 🔍) at the new anchor. Explicit-pick-wins
-                    // (explicitPickRef → shouldFollowDevice) keeps the new region
-                    // from being dragged back to the physical GPS.
-                    setVenues([]);
-                    setFocusedPlaceId(null);
-                    setDrawerDismissed(false);
+                    // v0.62.150 — operator: a mode switch must NOT wipe the result
+                    // list/strip — the results "always be there", same as the
+                    // vertical listing. (Supersedes the v0.62.148 clear, which made
+                    // the strip + list FAB vanish on every switch.) The previous
+                    // region's results persist until the user re-runs the search
+                    // (no auto-fire) at the new anchor; the list FAB is now a
+                    // permanent control (below) so it never disappears either.
                     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
                   }
                   // v0.62.97 — 📍 Current: resolve LIVE GPS, then bail (no region toggle).
@@ -4352,8 +4348,10 @@ export default function App() {
             The map shows through the gap between them. */}
         <div className="flex items-end justify-between gap-2 pointer-events-none">
           <div className="flex flex-col items-start gap-1.5 pointer-events-none">
-            {(visibleVenues.length || venues.length) > 0 && (
-              <div className="flex items-center gap-1.5 pointer-events-none">
+            {/* v0.62.150 — operator: the list FAB is PERMANENT (always available
+                like the other FABs), no longer gated on having results; the ⮲/⮷
+                orientation toggle shows while the list is open. */}
+            <div className="flex items-center gap-1.5 pointer-events-none">
                 <button
                   type="button"
                   onClick={() => setDrawerDismissed((d) => !d)}
@@ -4372,8 +4370,7 @@ export default function App() {
                     className="pointer-events-auto text-[10px] leading-none px-2 py-1.5 rounded-full bg-tg-card/95 border border-tg-border text-tg-text shadow active:scale-95 whitespace-nowrap flex items-center gap-0.5"
                   ><span aria-hidden="true">{drawerMode === 'horizontal' ? '⮷' : '⮲'}</span> {drawerMode === 'horizontal' ? 'vertical' : 'horizontal'}</button>
                 )}
-              </div>
-            )}
+            </div>
             {/* ⇢ next (rare — only after stepping back through page history). */}
             {cursor < pages.length - 1 && (
               <button
