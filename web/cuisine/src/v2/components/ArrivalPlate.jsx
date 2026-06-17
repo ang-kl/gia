@@ -140,8 +140,12 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                   <button
                     type="button"
                     className="flex-1 text-left py-2.5 min-h-[44px]"
-                    aria-label={(fr ? 'Chercher ' : 'Search ') + d.dish}
-                    onClick={() => { if (onTryDish) onTryDish(d.dish); }}
+                    aria-label={(d.note ? (fr ? 'Expliquer ' : 'Explain ') : (fr ? 'Chercher ' : 'Search ')) + d.dish}
+                    /* v0.62.162 — operator: EXPLAIN FIRST. A dish with a curated note
+                       opens its explanation card (native script + the validated fact);
+                       the card's "Find eateries" then runs the search. Curated-only —
+                       no invented text. Dishes with no note search directly. */
+                    onClick={() => { if (d.note) setFactIdx(factIdx === 'h' + i ? null : 'h' + i); else if (onTryDish) onTryDish(d.dish); }}
                   >
                     <span className="font-medium">{titleCaseDish(d.dish)}</span>
                     {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
@@ -156,16 +160,23 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                   )}
                 </div>
                 {d.note && factIdx === 'h' + i && (
-                  <button
-                    type="button"
-                    className="w-full text-left mb-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2"
-                    aria-label={fr ? 'Fermer' : 'Close'}
-                    onClick={() => setFactIdx(null)}
-                  >
+                  <div className="mb-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
                     <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                     <div className="mt-1">{(fr ? d.note.fr : d.note.en) || d.note.en || ''}</div>
-                    <div className="mt-1 text-tg-hint text-right">{fr ? '[ toucher pour fermer ]' : '[ tap to close ]'}</div>
-                  </button>
+                    <div className="mt-2 flex items-center justify-between gap-2">
+                      <button
+                        type="button"
+                        className="text-[13px] font-semibold px-3 py-1.5 rounded-full bg-tg-accent text-tg-accent-text"
+                        onClick={() => { setFactIdx(null); if (onTryDish) onTryDish(d.dish); }}
+                      >🔍 {fr ? 'Trouver des adresses' : 'Find eateries'}</button>
+                      <button
+                        type="button"
+                        className="text-tg-hint text-[12px]"
+                        aria-label={fr ? 'Fermer' : 'Close'}
+                        onClick={() => setFactIdx(null)}
+                      >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                    </div>
+                  </div>
                 )}
               </React.Fragment>
             ))}
@@ -186,8 +197,9 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                       <button
                         type="button"
                         className="min-h-[40px] pl-2.5 pr-1.5 text-left"
-                        aria-label={(fr ? 'Chercher ' : 'Search ') + d.dish}
-                        onClick={() => { if (onTryDish) onTryDish(d.dish); }}
+                        aria-label={(fr ? 'Expliquer ' : 'Explain ') + d.dish}
+                        /* v0.62.162 — explain first: a curated chip opens its card. */
+                        onClick={() => setFactIdx(factIdx === g.group + ':' + d.dish ? null : g.group + ':' + d.dish)}
                       >
                         <span>{titleCaseDish(d.dish)}</span>
                         {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
@@ -213,16 +225,23 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                   ))}
                 </div>
                 {openDish && (
-                  <button
-                    type="button"
-                    className="w-full text-left mt-1.5 mb-0.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2"
-                    aria-label={fr ? 'Fermer' : 'Close'}
-                    onClick={() => setFactIdx(null)}
-                  >
+                  <div className="mt-1.5 mb-0.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
                     <div className="font-semibold">📜 {titleCaseDish(openDish.dish)}{openDish.local && openDish.local !== openDish.dish ? ` · ${openDish.local}` : ''}</div>
                     <div className="mt-1">{(fr ? openDish.note.fr : openDish.note.en) || openDish.note.en || ''}</div>
-                    <div className="mt-1 text-tg-hint text-right">{fr ? '[ toucher pour fermer ]' : '[ tap to close ]'}</div>
-                  </button>
+                    <div className="mt-2 flex items-center justify-between gap-2">
+                      <button
+                        type="button"
+                        className="text-[13px] font-semibold px-3 py-1.5 rounded-full bg-tg-accent text-tg-accent-text"
+                        onClick={() => { const dish = openDish.dish; setFactIdx(null); if (onTryDish) onTryDish(dish); }}
+                      >🔍 {fr ? 'Trouver des adresses' : 'Find eateries'}</button>
+                      <button
+                        type="button"
+                        className="text-tg-hint text-[12px]"
+                        aria-label={fr ? 'Fermer' : 'Close'}
+                        onClick={() => setFactIdx(null)}
+                      >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                    </div>
+                  </div>
                 )}
               </div>
             );})}
@@ -274,8 +293,12 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                 <button
                   type="button"
                   className="flex-1 text-left py-2.5 min-h-[44px]"
-                  aria-label={(fr ? 'Chercher ' : 'Search ') + d.dish}
-                  onClick={() => { if (onTryDish) onTryDish(d.dish); }}
+                  aria-label={(fr ? 'Expliquer ' : 'Explain ') + d.dish}
+                  /* v0.62.162 — operator: EXPLAIN FIRST. Tapping a Local-food-picks
+                     dish opens its curated explanation card (native script + the
+                     validated, sourced history + how it differs by region); the
+                     card's "Find eateries" then runs the search. */
+                  onClick={() => setFactIdx(factIdx === i ? null : i)}
                 >
                   <span className="font-medium">{titleCaseDish(d.dish)}</span>
                   {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
@@ -297,12 +320,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                 >📜</button>
               </div>
               {factIdx === i && (
-                <button
-                  type="button"
-                  className="w-full text-left mb-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2"
-                  aria-label={fr ? 'Fermer' : 'Close'}
-                  onClick={() => setFactIdx(null)}
-                >
+                <div className="mb-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
                   <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                   <div className="mt-1">{(d.history && (fr ? d.history.fr : d.history.en)) || ''}</div>
                   <div className="mt-1 text-tg-hint">
@@ -314,8 +332,21 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                       {(fr ? 'source : ' : 'source: ') + d.sources.map((s) => s.name).join(' · ')}
                     </div>
                   )}
-                  <div className="mt-1 text-tg-hint text-right">{fr ? '[ toucher pour fermer ]' : '[ tap to close ]'}</div>
-                </button>
+                  {/* v0.62.162 — explain-first: search runs only on "Find eateries". */}
+                  <div className="mt-2 flex items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      className="text-[13px] font-semibold px-3 py-1.5 rounded-full bg-tg-accent text-tg-accent-text"
+                      onClick={() => { setFactIdx(null); if (onTryDish) onTryDish(d.dish); }}
+                    >🔍 {fr ? 'Trouver des adresses' : 'Find eateries'}</button>
+                    <button
+                      type="button"
+                      className="text-tg-hint text-[12px]"
+                      aria-label={fr ? 'Fermer' : 'Close'}
+                      onClick={() => setFactIdx(null)}
+                    >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                  </div>
+                </div>
               )}
             </React.Fragment>
           ))}
