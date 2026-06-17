@@ -34,7 +34,6 @@ import ResultPanel from './components/ResultPanel.jsx';
 import ResultDrawer from './components/ResultDrawer.jsx';
 import ArrivalPlate from './components/ArrivalPlate.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
-import BackFab from './components/BackFab.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
 import { useLocale, t, tn } from './lib/i18n.js';
 import { tg, hasInitData } from '../api/tg.js';
@@ -4364,23 +4363,18 @@ export default function App() {
                 )}
               </div>
             )}
-            <div className="flex items-end gap-1.5 pointer-events-none">
-              <BackFab
-                inline
-                mode={cursor > 0 ? 'back' : 'close'}
-                onBack={() => setCursor((c) => Math.max(0, c - 1))}
-              />
-              {cursor < pages.length - 1 && (
-                <button
-                  type="button"
-                  onClick={() => setCursor((c) => Math.min(pages.length - 1, c + 1))}
-                  aria-label={lang === 'fr' ? 'Liste suivante' : 'Next list'}
-                  style={fabBgFg(false)}
-                  className="pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center active:scale-95 whitespace-nowrap shrink-0"
-                ><span aria-hidden="true">⇢</span></button>
-              )}
-            </div>
-            {/* Edit search ▾ — FAB, just above the free-text bar. */}
+            {/* ⇢ next (rare — only after stepping back through page history). */}
+            {cursor < pages.length - 1 && (
+              <button
+                type="button"
+                onClick={() => setCursor((c) => Math.min(pages.length - 1, c + 1))}
+                aria-label={lang === 'fr' ? 'Liste suivante' : 'Next list'}
+                style={fabBgFg(false)}
+                className="pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center active:scale-95 whitespace-nowrap shrink-0"
+              ><span aria-hidden="true">⇢ {lang === 'fr' ? 'suivant' : 'next'}</span></button>
+            )}
+            {/* v0.62.147 — operator #3: "Edit search" → 🍲 Cuisine (still opens the
+                criteria sheet; ▾ keeps the open affordance). */}
             <button
               type="button"
               onClick={() => setCriteriaOpen((o) => !o)}
@@ -4390,11 +4384,12 @@ export default function App() {
                 !criteriaOpen && editSearchPulse ? 'ring-2 ring-tg-accent animate-pulse' : ''
               }`}
             >
-              <span>{t('btn.editSearch', lang)}</span>
+              <span aria-hidden="true">🍲</span>
+              <span>Cuisine</span>
               <span aria-hidden="true">▾</span>
             </button>
           </div>
-          {/* Right stack: 🔍 search (opens criteria) + ↕ top. */}
+          {/* Right stack: 🔍 search (opens criteria) + the combined top/back FAB. */}
           <div className="flex flex-col items-end gap-1.5 pointer-events-none">
             <button
               type="button"
@@ -4404,16 +4399,33 @@ export default function App() {
                 (searchHintActive || searchFabFlash) ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''
               }`}
             >🔍</button>
-            <button
-              type="button"
-              onClick={() => window.scrollTo({
-                top: scrolledPastHero ? 0 : window.scrollY + window.innerHeight,
-                behavior: 'smooth'
-              })}
-              aria-label={scrolledPastHero ? t('btn.backToTop', lang) : 'Scroll down'}
-              style={fabBgFg(false)}
-              className="pointer-events-auto px-1.5 h-8 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center active:scale-95 transition-all whitespace-nowrap shrink-0"
-            >{scrolledPastHero ? t('btn.topShort', lang) : t('btn.downShort', lang)}</button>
+            {/* v0.62.147 — operator #2: one white FAB, TWO lines of hyperlink-style
+                text (no underline) — top/down then back/end. */}
+            <div className="pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg px-2.5 py-1 flex flex-col items-stretch gap-0.5 text-[10px] leading-tight font-semibold shrink-0">
+              <button
+                type="button"
+                onClick={() => window.scrollTo({
+                  top: scrolledPastHero ? 0 : window.scrollY + window.innerHeight,
+                  behavior: 'smooth'
+                })}
+                aria-label={scrolledPastHero ? t('btn.backToTop', lang) : 'Scroll down'}
+                className="text-tg-link no-underline active:scale-95 whitespace-nowrap text-center"
+              >{scrolledPastHero ? `↑ ${t('btn.topShort', lang)}` : `↓ ${t('btn.downShort', lang)}`}</button>
+              <div className="h-px bg-tg-border/40" />
+              <button
+                type="button"
+                onClick={() => {
+                  if (cursor > 0) { setCursor((c) => Math.max(0, c - 1)); return; }
+                  const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
+                  if (w && typeof w.close === 'function') {
+                    try { w.close(); } catch { /* webview tearing down */ }
+                    setTimeout(() => { try { w.close(); } catch { /* noop */ } }, 350);
+                  }
+                }}
+                aria-label={cursor > 0 ? t('btn.fabBackAria', lang) : t('btn.fabEndAria', lang)}
+                className="text-tg-link no-underline active:scale-95 whitespace-nowrap text-center"
+              >{cursor > 0 ? `↩ ${t('btn.fabBack', lang)}` : `🔚 ${t('btn.fabEnd', lang)}`}</button>
+            </div>
           </div>
         </div>
         {/* Floating free-text bar — second-last row, its OWN translucent card so

@@ -30,6 +30,19 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
 
   return (
     <div className="flex flex-col gap-1 px-0.5">
+      {/* v0.62.147 — operator: the "Last asked … · Replace" remark sits ABOVE
+          the free-text field, not below it. */}
+      {lastPrompt && !submitting && (
+        <div className="text-[11px] text-tg-hint px-1.5 italic">
+          {lang === 'fr' ? 'Dernière demande' : 'Last asked'}: "{lastPrompt}"
+          {onReplace && (
+            <>
+              {' · '}
+              <button onClick={onReplace} className="underline not-italic">{lang === 'fr' ? 'Remplacer au lieu de fusionner' : 'Replace instead of merge'}</button>
+            </>
+          )}
+        </div>
+      )}
       {/* v0.60.207 — operator: in Telegram dark mode the default
           `tg-border` (≈#2a2a2e) is near-invisible against `tg-card`
           (≈#1c1c1f), so the free-text box had no perceptible edge.
@@ -63,17 +76,6 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
           }`}
         >{submitting ? '…' : '→'}</button>
       </div>
-      {lastPrompt && !submitting && (
-        <div className="text-[11px] text-tg-hint px-1.5 italic">
-          {lang === 'fr' ? 'Dernière demande' : 'Last asked'}: "{lastPrompt}"
-          {onReplace && (
-            <>
-              {' · '}
-              <button onClick={onReplace} className="underline not-italic">{lang === 'fr' ? 'Remplacer au lieu de fusionner' : 'Replace instead of merge'}</button>
-            </>
-          )}
-        </div>
-      )}
     </div>
   );
 }
