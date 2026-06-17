@@ -320,16 +320,16 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       // auth overlay (operator screenshot 2026-05-11).
       mapId: mapIdRef.current,
       // v0.61.89 — streamline: all three TMA maps now share one options block:
-      // disableDefaultUI strips the native chrome, then the camera
-      // control (pan/tilt/rotate) + keyboard shortcuts are re-enabled.
-      // mapType / streetView / fullscreen stay off (off under
-      // disableDefaultUI:true — no longer listed). The camera widget is
-      // pinned to LEFT_BOTTOM so it clears the bottom-right Overview button.
+      // disableDefaultUI strips the native chrome; mapType / streetView /
+      // fullscreen stay off.
+      // v0.62.134 — operator (17-06 '26): remove Google's native camera
+      // control (the +/pan-arrows/tilt cluster) from every TMA — it duplicated
+      // the custom nav cluster (top-right) + ↹ centre-map button (v0.62.133).
+      // Prior (superseded): cameraControl:true @ LEFT_BOTTOM, kept since v0.61.89.
       disableDefaultUI: true,
       zoomControl: false,
       clickableIcons: false,
-      cameraControl: true,
-      cameraControlOptions: { position: window.google.maps.ControlPosition.LEFT_BOTTOM },
+      cameraControl: false,
       keyboardShortcuts: true,
       // v0.62.102 — operator: the embedded map hung when zoomed out far (world
       // view). Gate the camera: minZoom 5 (no global zoom-out) … maxZoom 20.
