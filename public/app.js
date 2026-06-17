@@ -135,9 +135,35 @@
       zoom: 16,
       mapId: MAP_ID,
       disableDefaultUI: true,
-      zoomControl: true,
+      // v0.62.133 — operator: drop Google's native zoom/pan pad; render our own
+      // + / ↹ centre / − cluster instead (parity with the TMA maps).
+      zoomControl: false,
       gestureHandling: 'greedy'
     });
+    addMapControls(center);
+  }
+
+  // v0.62.133 — custom map controls (replaces the removed Google pad): a
+  // vertical + / ↹ centre / − cluster. ↹ recenters on the initial centre.
+  function addMapControls(homeCenter) {
+    if (!map || map.__giaControls) return;
+    map.__giaControls = true;
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:5px;margin:10px;';
+    const mk = (glyph, label, fn) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = glyph; b.title = label; b.setAttribute('aria-label', label);
+      b.style.cssText = 'width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.92);'
+        + 'color:#1c1c1f;border:1px solid #cbd5e1;box-shadow:0 1px 4px rgba(0,0,0,0.3);'
+        + 'font-size:18px;font-weight:700;line-height:1;cursor:pointer;display:flex;'
+        + 'align-items:center;justify-content:center;';
+      b.addEventListener('click', function (e) { e.preventDefault(); fn(); });
+      return b;
+    };
+    wrap.appendChild(mk('+', 'Zoom in', function () { map.setZoom((map.getZoom() || 12) + 1); }));
+    wrap.appendChild(mk('↹', 'Centre map', function () { if (homeCenter) map.panTo(homeCenter); }));
+    wrap.appendChild(mk('−', 'Zoom out', function () { map.setZoom((map.getZoom() || 12) - 1); }));
+    map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(wrap);
   }
 
   function clearMarkers() {
