@@ -3425,10 +3425,12 @@ export default function App() {
             );
           })}
         </div>
-        {/* v0.62.158 — operator: "Local food picks" floats WITH the header (opaque,
-            sticky) once results are out — pulled out of the mode-tap reveal. */}
+        {/* v0.62.158 — operator: "Local food picks" floats WITH the header once
+            results are out (pulled out of the mode-tap reveal).
+            v0.62.161 — operator: liquid-glass 80% (translucent + blur) so the map
+            scrolls up BEHIND it. */}
         {(cuisinePlate || arrivalPlate) && !loading && venues.length > 0 && (
-          <div className="-mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 pt-1 border-t border-tg-border/40 bg-tg-bg">
+          <div className="-mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 pt-1 border-t border-tg-border/40 bg-tg-bg/80 backdrop-blur">
             <ArrivalPlate
               plate={cuisinePlate || arrivalPlate}
               lang={lang}
@@ -3665,28 +3667,8 @@ export default function App() {
             sibling of the <button>, not nested inside it — nested
             <button> in <button> is invalid HTML and breaks the X-tap
             removal on each pill.
-            v0.62.140 — when collapsed this chip row is the only thing the
-            criteria card renders in flow (the header moved to the footer). */}
-        {!criteriaOpen && criteriaSummary.length > 0 && (
-          <div className="px-3 pb-2 -mt-1">
-            <ActiveFilters
-              cuisines={state.cuisines}
-              filters={state.filters}
-              onRemoveCuisine={removeCuisine}
-              onRemoveFilter={removeFilter}
-              onResetAll={clearAll}
-              // v0.62.19 — resolve the catalogue display name so the criteria
-              // chip matches the drawer ('durian' → "Durian Fruits"), not the
-              // raw slug. v0.62.31 — memoized Map (was an O(catalogue) flatten
-              // per chip per render) + Michelin parity: show the country-aware
-              // edition label exactly like comboLine does.
-              nameForCuisine={(slug) => {
-                if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
-                return cuisineNameBySlug.get(slug) || null;
-              }}
-            />
-          </div>
-        )}
+            v0.62.161 — the collapsed chip row moved OUT of the criteria card to a
+            floating liquid-glass strip above the footer FABs (see the footer). */}
         {criteriaOpen && (
           <div className="flex flex-col gap-2 px-3 pb-3">
             {/* v0.62.37 — operator: tapping ⭐ Recommend shows a ~7-second
@@ -4344,6 +4326,25 @@ export default function App() {
         className="fixed inset-x-0 bottom-0 z-30 pointer-events-none px-2 flex flex-col gap-1.5"
         style={{ paddingBottom: 'calc(0.3rem + env(safe-area-inset-bottom, 0px))' }}
       >
+        {/* v0.62.161 — operator: when a cuisine/filter is selected, the active
+            filter pills (Reset all · ‹Singaporean› · ‹Chinese› …) float as an
+            end-to-end liquid-glass-80% strip ABOVE the FABs, so the map + the
+            vertical list show behind it. */}
+        {criteriaSummary.length > 0 && (
+          <div className="pointer-events-auto -mx-2 px-3 py-1.5 bg-tg-bg/80 backdrop-blur border-y border-tg-border/50 shadow-md">
+            <ActiveFilters
+              cuisines={state.cuisines}
+              filters={state.filters}
+              onRemoveCuisine={removeCuisine}
+              onRemoveFilter={removeFilter}
+              onResetAll={clearAll}
+              nameForCuisine={(slug) => {
+                if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
+                return cuisineNameBySlug.get(slug) || null;
+              }}
+            />
+          </div>
+        )}
         {/* Corner FABs over the map — left stack grows up from above the free-text
             bar (list+v/h · end · Edit search); right stack is 🔍 search · ↕ top.
             The map shows through the gap between them. */}
