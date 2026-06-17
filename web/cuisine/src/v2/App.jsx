@@ -3316,6 +3316,17 @@ export default function App() {
                   // opaque peek. Re-tapping the already-active region is a no-op.
                   if (r.action || r.id !== (state.region || 'SG')) {
                     setModePeek(true);
+                    // v0.62.148 — operator: "i change from johor to Singapore, but
+                    // the search results are still Malaysia." A mode switch must
+                    // not leave the PREVIOUS region's results on screen. Clear the
+                    // stale pool so the wrong-country cards/pins vanish; per the
+                    // operator's "no auto-fire" choice the user re-runs the search
+                    // (🍲 Cuisine / 🔍) at the new anchor. Explicit-pick-wins
+                    // (explicitPickRef → shouldFollowDevice) keeps the new region
+                    // from being dragged back to the physical GPS.
+                    setVenues([]);
+                    setFocusedPlaceId(null);
+                    setDrawerDismissed(false);
                     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
                   }
                   // v0.62.97 — 📍 Current: resolve LIVE GPS, then bail (no region toggle).
