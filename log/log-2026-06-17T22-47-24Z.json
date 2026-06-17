@@ -1,0 +1,439 @@
+{
+  "since": "2026-06-17T21:42:24Z",
+  "until": "2026-06-17T22:47:24Z",
+  "count": 48,
+  "logs": [
+    {
+      "timestamp": "2026-06-17T21:43:07.415844057Z",
+      "message": "Starting Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:07.426736168Z",
+      "message": "npm warn config production Use `--omit=dev` instead.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:07.426740805Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:07.426748586Z",
+      "message": "> soleat@0.62.170 start",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:07.426754463Z",
+      "message": "> node index.js",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:07.426759082Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:07.660064153Z",
+      "message": "[webhook-domain] fallback not configured — skipping health check",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:08.410260182Z",
+      "message": "[Updates] Webhook registered: https://soleat.net/webhook",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:08.456613639Z",
+      "message": "[Bot] Identity confirmed: @soleat_bot",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:09.742901445Z",
+      "message": "[setMyDescription] failed (non-fatal): ETELEGRAM: 400 Bad Request: BOT_DESC_INVALID",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:10.767833030Z",
+      "message": "[Boot] MAP_ID configured: db1201f307409c29…",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:11.453581973Z",
+      "message": "[Holidays] 11 SG PH loaded from cache",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:11.453586339Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:11.453590340Z",
+      "message": "[Pulse] Status updated at 5:43:11 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:11.592017894Z",
+      "message": "[Vibe] Cached 3 live places (Google Maps).",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:11.602766431Z",
+      "message": "🚀 soleat is live and sniffing...",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:11.602773128Z",
+      "message": "[HTTP] Listening on :8080",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:11.604974533Z",
+      "message": "[Transport] Bus stops cache: imported=0, skipped=fresh",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:12.277583924Z",
+      "message": "Stopping Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b901494b-cd4e-4820-bb26-0689b5c8570c",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:12.781508491Z",
+      "message": "npm error path /app",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b901494b-cd4e-4820-bb26-0689b5c8570c",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:12.781520971Z",
+      "message": "npm error command failed",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b901494b-cd4e-4820-bb26-0689b5c8570c",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:12.781528050Z",
+      "message": "npm error signal SIGTERM",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b901494b-cd4e-4820-bb26-0689b5c8570c",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:12.781531540Z",
+      "message": "npm error command sh -c node index.js",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b901494b-cd4e-4820-bb26-0689b5c8570c",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:43:12.781535070Z",
+      "message": "npm error A complete log of this run can be found in: /root/.npm/_logs/2026-06-17T21_36_07_993Z-debug-0.log",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b901494b-cd4e-4820-bb26-0689b5c8570c",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:48:12.523664854Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:48:12.523671370Z",
+      "message": "[Pulse] Status updated at 5:48:11 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:53:13.574389588Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:53:13.574394595Z",
+      "message": "[Pulse] Status updated at 5:53:12 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:58:14.565946561Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T21:58:14.565951786Z",
+      "message": "[Pulse] Status updated at 5:58:11 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T22:03:15.788857858Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T22:03:15.788865849Z",
+      "message": "[Pulse] Status updated at 6:03:11 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T22:08:15.847518394Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T22:08:15.847524164Z",
+      "message": "[Pulse] Status updated at 6:08:11 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T22:13:16.787922264Z",
+      "message": "[Pulse] Status updated at 6:13:11 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T22:13:16.787946176Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T22:18:17.973349352Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T22:18:17.973360162Z",
+      "message": "[Pulse] Status updated at 6:18:11 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T22:23:18.344646882Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T22:23:18.344653536Z",
+      "message": "[Pulse] Status updated at 6:23:12 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T22:28:18.414002765Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T22:28:18.414065423Z",
+      "message": "[Pulse] Status updated at 6:28:11 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T22:33:19.177531356Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T22:33:19.177538446Z",
+      "message": "[Pulse] Status updated at 6:33:12 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T22:38:19.997461468Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T22:38:19.997471490Z",
+      "message": "[Pulse] Status updated at 6:38:12 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T22:43:19.863559533Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T22:43:19.863570456Z",
+      "message": "[Pulse] Status updated at 6:43:11 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "e655b43d-4330-4bf3-a9c2-0bbdd412bb90",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
