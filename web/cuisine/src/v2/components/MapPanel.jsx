@@ -449,9 +449,15 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     const v = (venuesRef.current || []).find((x) => x.placeId === focusedPlaceId);
     if (v && Number.isFinite(v.lat) && Number.isFinite(v.lng)) {
       mapRef.current.panTo({ lat: v.lat, lng: v.lng });
-      // v0.62.138 — horizontal mode: blink the pin only, then stop (no zoom-in,
-      // no info pop-up). The pin pulse alone signals which card is centred.
+      // v0.62.141 — horizontal mode: a card tap zooms the map to 14 + blinks the
+      // pin, but opens NO info pop-up (the card is in the strip below). Capture
+      // the pre-tap zoom once so a tap on the empty map / ✕ (closeInfo) zooms
+      // back out. (Vertical mode keeps the 17 + pop-up path below.)
       if (blinkOnlyRef.current) {
+        if (prevFocusZoomRef.current == null) {
+          prevFocusZoomRef.current = mapRef.current.getZoom?.() ?? null;
+        }
+        mapRef.current.setZoom(14);
         overlayControllerRef.current?.flashPin?.(v.lat, v.lng, 44);
         return;
       }

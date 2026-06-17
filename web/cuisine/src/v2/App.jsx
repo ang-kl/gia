@@ -3178,9 +3178,9 @@ export default function App() {
         className="bg-tg-bg text-tg-text py-3 flex flex-col gap-2 max-w-[1600px] mx-auto px-3 md:px-6 lg:px-8"
         style={{
           minHeight: 'var(--tg-viewport-stable-height, 100vh)',
-          // v0.62.140 — reserve space for the taller fixed footer row so page
-        // content (chips / vertical list) is never hidden behind it.
-        paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))'
+          // v0.62.141 — reserve just enough for the compacted 2-row footer
+        // (operator: the blank footer band was too tall — roughly halved).
+        paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))'
         }}
       >
         {locationModals}
@@ -3230,9 +3230,9 @@ export default function App() {
         // 100vh that iPad WebView resolves to the full sheet (including
         // Telegram's bottom chrome) and leaves a drag-up gap.
         minHeight: 'var(--tg-viewport-stable-height, 100vh)',
-        // v0.62.140 — reserve space for the taller fixed footer row so page
-        // content (chips / vertical list) is never hidden behind it.
-        paddingBottom: 'calc(7rem + env(safe-area-inset-bottom, 0px))'
+        // v0.62.141 — reserve just enough for the compacted 2-row footer
+        // (operator: the blank footer band was too tall — roughly halved).
+        paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))'
       }}
     >
       {/* v0.61.285 — fun-fact modal during the rotating-search wait
@@ -3577,17 +3577,14 @@ export default function App() {
         fitPins={fitPins}
       />
 
-      {/* v0.62.138 — operator: results DEFAULT to the horizontal floating card
-          strip over the map (auto-shown when a result set exists, no pin tap
-          needed). The vertical list is hidden until toggled. ✕ dismisses the
-          strip (→ map only); ↴ toggles to the vertical ResultPanel. */}
+      {/* v0.62.141 — results DEFAULT to the horizontal floating strip (auto-shown
+          when a result set exists). The list on/off + vertical/horizontal
+          controls now live in the FOOTER (not on the strip). */}
       {drawerMode === 'horizontal' && !drawerDismissed && (visibleVenues.length || venues.length) > 0 && (
         <ResultDrawer
           venues={visibleVenues.length ? visibleVenues : venues}
           focusedPlaceId={focusedPlaceId}
           onSelect={setFocusedPlaceId}
-          onClose={() => setDrawerDismissed(true)}
-          onToggleMode={() => setDrawerMode('vertical')}
           specialMode={state.specialMode || null}
         />
       )}
@@ -4041,7 +4038,7 @@ export default function App() {
           unmounted) so its pagination still feeds the map's visible-page
           markers (onPageChange → visibleVenues) and the ↴ toggle reveals it
           instantly. */}
-      <div ref={resultPanelRef} className={drawerMode === 'vertical' ? '' : 'hidden'}>
+      <div ref={resultPanelRef} className={drawerMode === 'vertical' && !drawerDismissed ? '' : 'hidden'}>
         {/* v0.60.149 — Michelin walk-through indicator. Reduces user
             surprise that each 🔍 tap loads 12 of ~130 curated venues
             rather than the whole curated list in one shot (which timed
@@ -4332,7 +4329,7 @@ export default function App() {
       {/* v0.60.213 — two-line footer: a how-to line + an
           "Experimental · <region> · v<build>" tag line.
           v0.60.217 — no border; font +1pt; region restored. */}
-      <footer className="mx-2 mb-2 mt-2 px-3 py-2 text-[9px] text-tg-hint text-center leading-tight">
+      <footer className="mx-2 mb-0 mt-1 px-3 py-1 text-[9px] text-tg-hint text-center leading-tight">
         <div>{t('footer.howto', lang)}</div>
         {/* v0.61.186 — footer now resolves all three pill states.
             Was missing 'OTHER' (introduced in v0.61.185); operator
@@ -4368,16 +4365,41 @@ export default function App() {
           fire/load-more FAB is retired; firing + load-more now run from the
           in-sheet "🔍 Search · Show me places to eat" bar. */}
       <div
-        className="fixed left-2 right-2 z-30 pointer-events-none flex flex-col gap-1.5"
-        style={{ bottom: 'calc(0.5rem + env(safe-area-inset-bottom, 0px))' }}
+        className="fixed left-2 right-2 z-30 pointer-events-none flex flex-col gap-1"
+        style={{ bottom: 'calc(0.35rem + env(safe-area-inset-bottom, 0px))' }}
       >
-        {/* Blue 🔍 — opens the Search-criteria sheet (right-aligned, above row). */}
-        <div className="flex justify-end pr-1 pointer-events-none">
+        {/* v0.62.141 — top row: list on/off + vertical/horizontal toggle (when a
+            result set exists) on the left; the blue 🔍 (opens the criteria sheet)
+            on the right. Closing the list leaves the switch here to turn it back
+            on; the v/h toggle only shows while the list is open ("when active"). */}
+        <div className="flex items-center justify-between gap-1.5 pointer-events-none">
+          <div className="flex items-center gap-1.5 pointer-events-none">
+            {(visibleVenues.length || venues.length) > 0 && (
+              <button
+                type="button"
+                onClick={() => setDrawerDismissed((d) => !d)}
+                aria-label={drawerDismissed
+                  ? (lang === 'fr' ? 'Afficher la liste' : 'Show list')
+                  : (lang === 'fr' ? 'Fermer la liste' : 'Close list')}
+                className="pointer-events-auto text-[11px] leading-none px-2.5 py-1.5 rounded-full bg-tg-card/95 border border-tg-border text-tg-text shadow active:scale-95 whitespace-nowrap"
+              >{drawerDismissed ? '▤' : '✕'} {lang === 'fr' ? 'liste' : 'list'}</button>
+            )}
+            {(visibleVenues.length || venues.length) > 0 && !drawerDismissed && (
+              <button
+                type="button"
+                onClick={() => setDrawerMode((m) => (m === 'horizontal' ? 'vertical' : 'horizontal'))}
+                aria-label={drawerMode === 'horizontal'
+                  ? (lang === 'fr' ? 'Affichage vertical' : 'Vertical layout')
+                  : (lang === 'fr' ? 'Affichage horizontal' : 'Horizontal layout')}
+                className="pointer-events-auto text-[11px] leading-none px-2.5 py-1.5 rounded-full bg-tg-card/95 border border-tg-border text-tg-text shadow active:scale-95 whitespace-nowrap flex items-center gap-0.5"
+              ><span aria-hidden="true">{drawerMode === 'horizontal' ? '↴' : '↰'}</span> {drawerMode === 'horizontal' ? 'vertical' : 'horizontal'}</button>
+            )}
+          </div>
           <button
             type="button"
             onClick={() => setCriteriaOpen(true)}
             aria-label={lang === 'fr' ? 'Ouvrir les critères de recherche' : 'Open search criteria'}
-            className={`pointer-events-auto w-11 h-11 rounded-full bg-tg-accent text-tg-accent-text border-2 border-white/40 shadow-lg flex items-center justify-center text-base active:scale-95 transition-all ${
+            className={`pointer-events-auto w-9 h-9 rounded-full bg-tg-accent text-tg-accent-text border-2 border-white/40 shadow-lg flex items-center justify-center text-base active:scale-95 transition-all shrink-0 ${
               (searchHintActive || searchFabFlash) ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''
             }`}
           >🔍</button>
@@ -4425,16 +4447,6 @@ export default function App() {
               loading={loading}
             />
           </div>
-          {/* ↰ back-to-horizontal (vertical mode only). */}
-          {drawerMode === 'vertical' && (visibleVenues.length || venues.length) > 0 && (
-            <button
-              type="button"
-              onClick={() => setDrawerMode('horizontal')}
-              aria-label={lang === 'fr' ? 'Basculer en affichage horizontal' : 'Switch to horizontal layout'}
-              style={fabBgFg(false)}
-              className="pointer-events-auto px-1.5 h-8 rounded-t-md rounded-b-[12px] border border-tg-border shadow-md text-[9px] font-semibold flex items-center justify-center active:scale-95 transition-all whitespace-nowrap shrink-0"
-            ><span aria-hidden="true">↰</span></button>
-          )}
           {/* ↑ top / ↓ down scroll. */}
           <button
             type="button"

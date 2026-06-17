@@ -15,10 +15,8 @@
 
 import React, { useEffect, useRef } from 'react';
 import ResultCard from './ResultCard.jsx';
-import { useLocale } from '../lib/i18n.js';
 
-export default function ResultDrawer({ venues, focusedPlaceId, onSelect, onClose, onToggleMode, specialMode = null }) {
-  const [lang] = useLocale();
+export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null }) {
   const trackRef = useRef(null);
   const list = Array.isArray(venues) ? venues : [];
 
@@ -38,28 +36,12 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, onClose
   if (!list.length) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-16 z-30 px-1 pb-1 pointer-events-none max-w-[1600px] mx-auto">
-      {/* Stacked controls, top-right: ✕ list (dismiss) above ↴ vertical (toggle). */}
-      <div className="flex justify-end px-2 pb-1 pointer-events-none">
-        <div className="flex flex-col items-end gap-1 pointer-events-none">
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label={lang === 'fr' ? 'Fermer la liste' : 'Close list'}
-            className="pointer-events-auto text-[12px] leading-none px-2.5 py-1 rounded-full bg-tg-card/95 border border-tg-border text-tg-text shadow active:scale-95"
-          >✕ {lang === 'fr' ? 'liste' : 'list'}</button>
-          <button
-            type="button"
-            onClick={onToggleMode}
-            aria-label={lang === 'fr' ? 'Affichage vertical' : 'Vertical layout'}
-            className="pointer-events-auto text-[12px] leading-none px-2.5 py-1 rounded-full bg-tg-card/95 border border-tg-border text-tg-text shadow active:scale-95 flex items-center gap-0.5"
-          ><span aria-hidden="true">↴</span> {lang === 'fr' ? 'vertical' : 'vertical'}</button>
-        </div>
-      </div>
-      {/* v0.62.139 — operator: cards are BOTTOM-aligned (items-end) so they grow
-          upward from above the footer, and each card is a short scroll panel
-          (card-scroll = visible thin scrollbar) rendering its EXPANDED content,
-          so the detail is reachable two ways — scroll the card OR tap ⌄/⌃. */}
+    <div className="fixed inset-x-0 bottom-[5.5rem] z-30 px-1 pointer-events-none max-w-[1600px] mx-auto">
+      {/* v0.62.141 — operator: the list + vertical/horizontal controls moved to
+          the FOOTER (out of the strip). Cards are BOTTOM-aligned (items-end),
+          and each is a COMPACT ~5-row scroll panel (card-scroll = visible thin
+          scrollbar) rendering its full content, so the detail is reachable two
+          ways — scroll the card OR tap the in-card ⌄/⌃ to expand. */}
       <div
         ref={trackRef}
         className="flex items-end gap-2 overflow-x-auto snap-x snap-mandatory px-[9%] pb-1 pointer-events-auto"
@@ -69,7 +51,7 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, onClose
           <div
             key={v.placeId || i}
             data-pid={v.placeId || ''}
-            className="card-scroll snap-center shrink-0 basis-[82%] max-h-[46vh] overflow-y-auto rounded-lg shadow-xl"
+            className="card-scroll snap-center shrink-0 basis-[82%] max-h-[10.5rem] overflow-y-auto rounded-lg shadow-xl"
           >
             <ResultCard
               venue={v}
