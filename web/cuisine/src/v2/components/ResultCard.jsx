@@ -26,7 +26,7 @@ function shortenCountry(area) {
   return parts.join(',');
 }
 
-export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null, number = null, defaultExpanded = false }) {
+export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null, number = null, defaultExpanded = false, horizontal = false, autoExpandFocus = true }) {
   const [lang] = useLocale();
   if (!venue) return null;
   const rating = venue.rating ? `★${venue.rating.toFixed(1)}` : '';
@@ -130,8 +130,12 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
   // v0.62.139 — operator: in the horizontal floating strip every card renders
   // EXPANDED inside a short scroll panel, so the detail is reachable two ways:
   // scroll the card OR tap the ⌄/⌃ toggle. `defaultExpanded` seeds that.
-  const [expanded, setExpanded] = useState(!!focused || !!defaultExpanded);
-  useEffect(() => { if (focused) setExpanded(true); }, [focused]);
+  // v0.62.168 — operator: in the HORIZONTAL strip cards collapse by DEFAULT
+  // (autoExpandFocus=false + no defaultExpanded), so a focused/centred card no
+  // longer auto-opens; the user taps "⌄ details" per card. Vertical list keeps
+  // the focus-auto-expand.
+  const [expanded, setExpanded] = useState((autoExpandFocus && !!focused) || !!defaultExpanded);
+  useEffect(() => { if (focused && autoExpandFocus) setExpanded(true); }, [focused, autoExpandFocus]);
   // v0.61.225 — lazy-load the venue's social-profile URLs once on
   // mount. Server caches results 30d under social:<placeId>, so most
   // browses resolve in milliseconds; cold cache calls Gemini (~1-2s)
@@ -221,10 +225,12 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
 
   return (
     <button type="button" onClick={() => onTap?.(venue.placeId)}
-      className={`w-full text-left rounded-lg border bg-tg-card p-2.5 flex flex-col gap-1 ${focused ? 'border-tg-accent' : 'border-tg-border'}`}>
+      className={`w-full text-left rounded-lg border bg-tg-card p-2.5 flex flex-col gap-1 ${horizontal ? 'min-h-full' : ''} ${focused ? 'border-tg-accent' : 'border-tg-border'}`}>
       {/* v0.62.108 — operator: rank reads "1 · <name>" inline; every row below
-          is flush-left (no indent — was a 2-col flex that offset the whole body). */}
-      <div className="font-semibold text-sm leading-tight">
+          is flush-left (no indent — was a 2-col flex that offset the whole body).
+          v0.62.168 — operator: in the horizontal strip the name is smaller and
+          stays ONE ROW (truncate, no word-wrap); the rank prefix is kept inline. */}
+      <div className={`font-semibold leading-tight ${horizontal ? 'text-[13px] truncate' : 'text-sm'}`}>
         {Number.isFinite(number) && <span className="text-tg-hint font-semibold tabular-nums">{number} · </span>}{venue.name}
       </div>
           {/* v0.61.359 — native-script name in "( )" below the name (RULE A/B
@@ -268,7 +274,19 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               {lang === 'fr' ? 'Renseignez-vous pour le pâtisserie durian saisonnier' : 'Inquire for seasonal durian pastry'}
             </div>
           )}
-          <div className="text-[12px] text-tg-hint truncate">{meta}</div>
+          {/* v0.62.168 — operator: in the horizontal strip this row WRAPS BY FIELD
+              — each of rating / price / open / distance is whitespace-nowrap, so
+              e.g. "Open today 8:00" drops to the next line as a whole, never
+              breaking mid-value. Vertical keeps the single-line truncate. */}
+          {horizontal ? (
+            <div className="text-[12px] text-tg-hint">
+              {[rating, price, open, distMeta].filter(Boolean).map((seg, idx, arr) => (
+                <span key={idx} className="whitespace-nowrap">{seg}{idx < arr.length - 1 ? ' · ' : ''}</span>
+              ))}
+            </div>
+          ) : (
+            <div className="text-[12px] text-tg-hint truncate">{meta}</div>
+          )}
           {/* v0.62.122 — distance moved up into the meta row (distMeta).
               v0.62.124 — the address row moved DOWN into the collapsible
               section (below price/pet), per the operator re-order. */}
@@ -330,6 +348,15 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             ) : null;
           })()}
 
+          {/* v0.62.168 — operator: Michelin / Bib row is ROW #5, VISIBLE before
+              expanding (moved OUT of the collapsible section below). Tier + year
+              in WORDS (✳️ / ⭐), never colour. */}
+          {venue.michelinCategory && (
+            <div className="text-[12px] text-tg-text mt-1 font-semibold">
+              {michelinAnnotation(venue.michelinCategory, venue.michelinYear || 2025)}
+            </div>
+          )}
+
           {/* v0.62.124 — collapse toggle. Collapsed = identity + meta + price +
               🍲 Try (above); everything below is revealed on expand. A focused/
               selected card auto-expands. The toggle stops propagation so it
@@ -360,12 +387,8 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               })()}</span> · {venue.cityDish.dish}
             </div>
           )}
-          {/* v0.60.16 — Michelin / Bib Gourmand annotation row (star-tier + year). */}
-          {venue.michelinCategory && (
-            <div className="text-[12px] text-tg-text mt-1 font-semibold">
-              {michelinAnnotation(venue.michelinCategory, venue.michelinYear || 2025)}
-            </div>
-          )}
+          {/* v0.62.168 — the Michelin / Bib row moved UP to row #5 (always visible,
+              before the expand toggle). */}
           {/* v0.62.0 — HPB Healthier Choice + inside-building share ONE row. */}
           {(venue.healthierChoice || venue.insideBuilding) && (
             <div className="text-[12px] text-tg-text mt-1">
