@@ -3436,6 +3436,10 @@ export default function App() {
               lang={lang}
               onTryDish={(dish) => {
                 setNlText(dish);
+                // v0.62.169 — operator: a dish picked from Local Food Classic now
+                // shows as "Last asked: <dish>" above the free-text, exactly like a
+                // typed query (it IS the last query).
+                setLastPrompt(dish);
                 setLoadingReason('rotating');
                 runSearch(state, null, { freeTextOverride: dish });
               }}

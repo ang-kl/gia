@@ -166,7 +166,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                     <div className="mt-2 flex items-center justify-between gap-2">
                       <button
                         type="button"
-                        className="text-[13px] font-semibold px-3 py-1.5 rounded-full bg-tg-accent text-tg-accent-text"
+                        className="glass-pill shrink-0 px-2.5 py-0.5 rounded-full border-[0.5px] border-tg-accent/70 text-[10px] font-semibold text-tg-text"
                         onClick={() => { setFactIdx(null); if (onTryDish) onTryDish(d.dish); }}
                       >🔍 {fr ? 'Trouver des adresses' : 'Find eateries'}</button>
                       <button
@@ -231,7 +231,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                     <div className="mt-2 flex items-center justify-between gap-2">
                       <button
                         type="button"
-                        className="text-[13px] font-semibold px-3 py-1.5 rounded-full bg-tg-accent text-tg-accent-text"
+                        className="glass-pill shrink-0 px-2.5 py-0.5 rounded-full border-[0.5px] border-tg-accent/70 text-[10px] font-semibold text-tg-text"
                         onClick={() => { const dish = openDish.dish; setFactIdx(null); if (onTryDish) onTryDish(dish); }}
                       >🔍 {fr ? 'Trouver des adresses' : 'Find eateries'}</button>
                       <button
@@ -254,20 +254,24 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
   if (!plate || !Array.isArray(plate.dishes) || plate.dishes.length === 0) return null;
   const names = plate.dishes.map((d) => d.dish);
 
+  // v0.62.169 — operator: "Local food picks" renamed to "Local Food Classic".
+  // The card is BORDERLESS at rest; a border appears once the user opens it
+  // (expands a stage OR opens a 📜 fact card) so it reads as a card only when active.
+  const geoActive = geoStage > 0 || factIdx != null;
   return (
-    <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+    <div className={`rounded-2xl ${geoActive ? 'border border-tg-border' : 'border border-transparent'} bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text`}>
       {/* v0.62.116 — 3-stage row toggle: 0 label-only → 1 one-line peek →
           2 full dish rows → 0. The whole row advances the stage. */}
       <button
         type="button"
         className="w-full text-left flex items-start gap-1 min-h-[28px]"
         aria-expanded={geoStage > 0}
-        aria-label={fr ? `Sélection locale à ${plate.city}` : `Local food picks in ${plate.city}`}
+        aria-label={fr ? `Classiques locaux à ${plate.city}` : `Local Food Classic in ${plate.city}`}
         onClick={() => { setGeoStage((geoStage + 1) % 3); setFactIdx(null); }}
       >
         <span aria-hidden>📍</span>
         <span className="flex-1">
-          <b>{fr ? 'Sélection locale' : 'Local food picks'}:</b>
+          <b>{fr ? 'Classiques locaux' : 'Local Food Classic'}:</b>
           {geoStage === 1 && (
             <>{' '}{names.map((n) => titleCaseDish(leadWithQualifier(n))).join(' • ')}</>
           )}
@@ -377,40 +381,55 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                     grouped the classics by food group (plate.classicGroups), show
                     ascending-size labelled sections; else fall back to the flat
                     chip wall (back-compat / overlay-less countries). */}
-                {classicsOpen && Array.isArray(plate.classicGroups) && plate.classicGroups.length > 0 ? (
-                  <div className="max-h-72 overflow-y-auto pb-2">
-                    {plate.classicGroups.map((g) => (
-                      <div key={g.group} className="pt-1 pb-0.5">
-                        <div className="text-tg-hint text-[11px] pb-1">
-                          {(fr ? g.label.fr : g.label.en)} <span className="opacity-70">({g.dishes.length})</span>
-                        </div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {g.dishes.map((d) => (
+                {classicsOpen && (() => {
+                  // v0.62.169 — operator: NO pills. Show the classics as a
+                  // middle-dot-separated tappable list of dish names. A dish with
+                  // curated history (server attaches {note} to the classic) opens
+                  // its explanation card; one without falls back to a direct search.
+                  // (Full "every classic explains" needs the server to attach a
+                  // curated note to ALL classics — tracked as a follow-up.)
+                  const flat = Array.isArray(plate.classicGroups) && plate.classicGroups.length > 0
+                    ? plate.classicGroups.flatMap((g) => g.dishes)
+                    : (plate.classics || []).map((n) => ({ dish: n }));
+                  const openCl = flat.find((d) => (d.note && (d.note.en || d.note.fr)) && factIdx === 'cl:' + d.dish);
+                  return (
+                    <div className="max-h-72 overflow-y-auto pb-2 px-1 text-[12px] leading-relaxed">
+                      {flat.map((d, idx) => {
+                        const hasNote = d.note && (d.note.en || d.note.fr);
+                        return (
+                          <React.Fragment key={d.dish}>
+                            {idx > 0 && <span className="text-tg-hint"> · </span>}
                             <button
-                              key={d.dish}
                               type="button"
-                              className="min-h-[44px] px-2.5 rounded-xl border border-tg-hint/40 text-left"
-                              aria-label={(fr ? 'Chercher ' : 'Search ') + d.dish}
-                              onClick={() => { if (onTryDish) onTryDish(d.dish); }}
+                              className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
+                              aria-label={(hasNote ? (fr ? 'Expliquer ' : 'Explain ') : (fr ? 'Chercher ' : 'Search ')) + d.dish}
+                              onClick={() => { if (hasNote) setFactIdx(factIdx === 'cl:' + d.dish ? null : 'cl:' + d.dish); else if (onTryDish) onTryDish(d.dish); }}
                             >{titleCaseDish(d.dish)}</button>
-                          ))}
+                          </React.Fragment>
+                        );
+                      })}
+                      {openCl && (
+                        <div className="mt-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
+                          <div className="font-semibold">📜 {titleCaseDish(openCl.dish)}{openCl.local && openCl.local !== openCl.dish ? ` · ${openCl.local}` : ''}</div>
+                          <div className="mt-1">{(fr ? openCl.note.fr : openCl.note.en) || openCl.note.en || ''}</div>
+                          <div className="mt-2 flex items-center justify-between gap-2">
+                            <button
+                              type="button"
+                              className="glass-pill shrink-0 px-2.5 py-0.5 rounded-full border-[0.5px] border-tg-accent/70 text-[10px] font-semibold text-tg-text"
+                              onClick={() => { const dish = openCl.dish; setFactIdx(null); if (onTryDish) onTryDish(dish); }}
+                            >🔍 {fr ? 'Trouver des adresses' : 'Find eateries'}</button>
+                            <button
+                              type="button"
+                              className="text-tg-hint text-[12px]"
+                              aria-label={fr ? 'Fermer' : 'Close'}
+                              onClick={() => setFactIdx(null)}
+                            >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : classicsOpen && (
-                  <div className="max-h-64 overflow-y-auto pb-2 flex flex-wrap gap-1.5">
-                    {plate.classics.map((name) => (
-                      <button
-                        key={name}
-                        type="button"
-                        className="min-h-[44px] px-2.5 rounded-xl border border-tg-hint/40 text-left"
-                        aria-label={(fr ? 'Chercher ' : 'Search ') + name}
-                        onClick={() => { if (onTryDish) onTryDish(name); }}
-                      >{titleCaseDish(name)}</button>
-                    ))}
-                  </div>
-                )}
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             );
           })()}
