@@ -251,7 +251,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // dropped so the first paint already shows the same Singapore-
       // wide framing the search results will land in, avoiding a
       // zoom-out flicker the moment results arrive.
-      center, zoom: 11, disableDefaultUI: true, zoomControl: false,
+      center, zoom: 12, disableDefaultUI: true, zoomControl: false,
       // v0.61.18 — suppress Google's native POI/transit info cards so a
       // station tap hits our overlay marker, not Google's own popup.
       clickableIcons: false,
@@ -782,7 +782,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           // New result set → frame its centroid at z11 (existing behaviour).
           lastFitVenuesRef.current = venues;
           mapRef.current.setCenter(center);
-          mapRef.current.setZoom(11);
+          mapRef.current.setZoom(12);   // v0.62.132 — default result zoom 11→12
         } else if (searchCenterChanged) {
           // v0.61.320 — anchor picked but no fresh search yet: follow the
           // pick to the city centre instead of sitting on the stale venue

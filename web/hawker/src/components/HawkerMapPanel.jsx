@@ -31,7 +31,7 @@ import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle } 
 import MapControls from './MapControls.jsx';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
-const SG_DEFAULT_ZOOM = 11;
+const SG_DEFAULT_ZOOM = 12;   // v0.62.132 — default 11->12
 
 function escapeHtml(s) {
   return String(s == null ? '' : s)
@@ -197,7 +197,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     const { Map } = window.google.maps;
     mapRef.current = new Map(containerRef.current, {
       center: SG_CENTROID,
-      zoom: 11,
+      zoom: SG_DEFAULT_ZOOM,
       // v0.60.47 — mapId required by AdvancedMarkerElement since
       // 2024. Without it some browser/network combos throw the
       // "This page can't load Google Maps correctly" auth dialog
@@ -413,7 +413,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     } else if (firstFitRef.current) {
       // No coords for this region — recenter on SG (first load only).
       mapRef.current.setCenter(SG_CENTROID);
-      mapRef.current.setZoom(11);
+      mapRef.current.setZoom(SG_DEFAULT_ZOOM);
     }
   }
 
