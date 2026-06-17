@@ -1,21 +1,21 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-06-16 from a snapshot of all 1042 pull requests (#1–#1042).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-06-17 from a snapshot of all 1069 pull requests (#1–#1069).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 1042 total — 1032 merged, 10 closed without merge.
+- **PRs:** 1069 total — 1059 merged, 10 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #1055 · 2026-06-16 04:25:58 · _feat(tma): on-tap transit tiers + Hawker parity + full-width Menu dropdown + "other cities" copy + pin blink (v0.62.112)_
+- **Latest:** #1084 · 2026-06-17 02:55:48 · _feat(maps): centre-map (U+21B9) button across all TMAs; drop Google nav pad (v0.62.133)_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 673 |
-| fix | 154 |
-| docs | 69 |
+| feature | 688 |
+| fix | 159 |
+| docs | 76 |
 | copy | 46 |
 | prompt-tune | 42 |
 | refactor | 29 |
@@ -26,20 +26,20 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 344 |
-| Core / misc | 156 |
-| Docs / vault | 88 |
-| Transport / carpark | 61 |
-| Recognised lists | 57 |
+| Cuisine Picker | 346 |
+| Core / misc | 164 |
+| Docs / vault | 89 |
+| Transport / carpark | 63 |
+| Hawker NEA | 60 |
+| Recognised lists | 60 |
 | Search / free-text | 54 |
-| Hawker NEA | 54 |
 | /hidden surprise | 42 |
-| Infra / setup | 36 |
+| Infra / setup | 37 |
 | Pipeline / discovery | 28 |
+| Weather | 22 |
 | /eat /drink flow | 20 |
-| Weather | 20 |
-| Commands / chat UX | 16 |
-| Language / i18n | 15 |
+| Commands / chat UX | 17 |
+| Language / i18n | 16 |
 | Maps / geo / location | 15 |
 | Menu hub | 14 |
 | Privacy / legal | 9 |
@@ -1094,6 +1094,33 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 1053 | merged | 2026-06-16 02:49:38 | 0.62.107 | feature | Cuisine Picker | Add: card lists 3 bus stops + 2 stations, codes deep-link Train (v0.62.107) | Operator #4 (Hawker card): the hawker map-pin card already showed transit (v0.61.10) but with 2 bus stops + 1 station linked to Google Maps. | 3 files — index.js, TMA:hawker, package | hawker | — |
 | 1054 | merged | 2026-06-16 03:41:42 | 0.62.108 | fix | Core / misc | Fix: flush-left "1 · name" card + station links jump in-app (v0.62.108) | Operator (two of three asks; #3 zoom-tier rendering follows): #1 — ResultCard layout: the rank was a left COLUMN that indented the whole card body under the name. | 6 files — TMA:cuisine, TMA:hawker, package | cuisine+hawker | — |
 | 1055 | merged | 2026-06-16 04:25:58 | 0.62.112 | copy | Hawker NEA | Reword: on-tap transit tiers + Hawker parity + full-width Menu dropdown + "other cities" copy + pin blink (v0.62.112) | feat(tma): on-tap transit rendered at live zoom tiers + Hawker parity (v0.62.109) Operator (#3): the transient on-tap transit (nearest 3 bus stops + 2 train stations, drawn even when the Train/Bus toggles are OFF) must render at the EXACT… | 8 files — index.js, i18n.js, TMA:cuisine, TMA:menu, TMA:hawker, package | cuisine+menu+hawker | — |
+| 1056 | merged | 2026-06-16 04:53:01 | 0.62.112 | docs | Docs / vault | Update docs: refresh ledger to PRs #1030-#1055 (v0.62.112 snapshot) | /vibe-journal refresh. | 7 files — doc, public/ | — | doc/vault |
+| 1057 | merged | 2026-06-16 05:45:36 |  | docs | Commands / chat UX | Update docs: Soleat 2-page primer (public/doc/soleat-about.html) | Adds the Soleat 2-page primer as a self-contained HTML page at public/doc/soleat-about.html. | 1 file — public/ | — | doc/vault |
+| 1059 | merged | 2026-06-16 08:20:04 | 0.62.114 | fix | Cuisine Picker | Fix: venue pin tap stays in the TMA, no jump to Google Maps (v0.62.114) | Tapping a Google Maps venue pin inside the Cuisine TMA jumped OUT to the Google Maps app. | 2 files — TMA:cuisine, package | cuisine | — |
+| 1060 | merged | 2026-06-16 08:27:15 |  | docs | Core / misc | Update docs: UI consistency audit + skeuomorphism verdict (public/doc/soleat-ui-audit.html) | Materialises the UI consistency audit as a self-contained HTML report at public/doc/soleat-ui-audit.html. | 1 file — public/ | — | doc/vault |
+| 1061 | merged | 2026-06-16 09:14:16 | 0.62.115 | feature | Hawker NEA | Add: result-card / pin tap zooms map to 17, tap-out restores prior zoom (cuisine + hawker, v0.62.115) | Cuisine result-card tap -> setZoom(17) alongside pan + blink (flashPin) + popup. | 3 files — TMA:cuisine, TMA:hawker, package | cuisine+hawker | — |
+| 1062 | merged | 2026-06-16 09:25:44 | 0.62.116 | feature | Language / i18n | Add: "Local food picks" plate - 3-stage collapse + qualifier-led one-liner (v0.62.116) | Reworks the geo What-to-try-here plate: renamed to Local food picks (FR Selection locale); collapsed by default with a two-staged expand (0 label -> 1 peek one-line A-B-C -> 2 full dish rows). | 2 files — TMA:cuisine, package | cuisine | — |
+| 1063 | merged | 2026-06-16 09:32:25 | 0.62.117 | feature | Core / misc | Add: venue type line uses specific cuisine from places.types[], hides if generic (v0.62.117) | Google Maps showed The Butcher's Wife as a Gluten-free restaurant but the TMA showed generic Restaurant. | 2 files — index.js, package | — | — |
+| 1064 | merged | 2026-06-16 09:35:29 | 0.62.118 | fix | Transport / carpark | Fix: GPS reverse-geocode resolves to building/street, not the planning area (v0.62.118) | A shared GPS location showed the pill Bukit Merah (planning subzone) when Google Maps shows 115 Bukit Merah View. | 2 files — index.js, package | — | — |
+| 1065 | merged | 2026-06-16 10:07:08 | 0.62.119 | fix | Core / misc | Fix: correct wrong Bukit Panjang LRT station coordinates (v0.62.119) | BP LRT station pins sat at the wrong locations (the line read correctly). | 3 files — data, package | — | — |
+| 1066 | merged | 2026-06-16 10:17:35 |  | docs | Hawker NEA | Update docs: "Local food picks" rework MVP mockup (global-first + Bib near here + SG hawker choice) | A visual MVP mockup (not a build) of the reworked Local food picks plate: global-first curated city picks (Tokyo gets Tokyo dishes); keep the Bib Gourmand near-here curation; flag 2-3 nearby hawker centres as a choice (Singapore mode only). | 1 file — public/ | — | doc/vault |
+| 1067 | merged | 2026-06-16 10:50:52 |  | docs | Hawker NEA | Update docs: Hawker mini-app rework MVP mockup (per-centre detail + Bib stalls) | A visual MVP mockup (not built) of a Hawker mini-app rework - the per-centre detail view that the Local food picks hawker-centre layer would deep-link into. | 1 file — public/ | — | doc/vault |
+| 1068 | merged | 2026-06-16 11:04:10 | 0.62.120 | feature | Weather | Add: bus-stop codes in the venue card are hyperlinks too (v0.62.120) | The eatery card's transit block linked train stations but showed bus-stop codes as plain text. | 3 files — TMA:cuisine, package | cuisine | — |
+| 1069 | merged | 2026-06-16 11:16:56 | 0.62.121 | fix | Core / misc | Fix: SG search no longer drifts to foreign venues (Polish -> Poland) (v0.62.121) | Selecting Polish with a Singapore set location returned actual Warsaw restaurants at the list tail (D703s SG-scope 60 -> 60, dropped nothing). | 3 files — cuisine-geo-scope.js, tests, package | — | tests |
+| 1071 | merged | 2026-06-16 21:34:10 | 0.62.123 | feature | Recognised lists | Add: cuisine plate - "Cuisine:" label, 3-stage collapse, non-cuisine exclusion (v0.62.123) | Cuisine What-to-order plate: relabel What to order in {X} (X is a cuisine, not a place) -> Cuisine: {flag}{X}; the 3-stage collapse (added to the GEO plate in v0.62.116) is now wired to the cuisine branch (cuisineStage 0 label -> 1 peek… | 3 files — index.js, TMA:cuisine, package | cuisine | — |
+| 1072 | merged | 2026-06-17 05:50:54 | 0.62.123 | feature | Recognised lists | Add: cuisine plate - "Cuisine:" label, 3-stage collapse, non-cuisine exclusion (v0.62.123) | Re-merge of the v0.62.123 cuisine-plate change (relabel to Cuisine: {flag}{X}, 3-stage collapse on the cuisine branch, NON_CUISINE_PLATE exclusion of michelin/bib/fusion). | 3 files — index.js, TMA:cuisine, package | cuisine | — |
+| 1073 | merged | 2026-06-17 05:55:26 |  | docs | Core / misc | Update docs: Eatery Card redesign + music-app carousel MVP mockup | The Eatery Card redesign + music-app carousel mockup. | 1 file — public/ | — | doc/vault |
+| 1074 | merged | 2026-06-17 06:05:36 | 0.62.124 | feature | Recognised lists | Add: result card - re-order rows + collapse (Try stays visible) (v0.62.124) | Mockup-approved restructure of the Eatery Card. | 2 files — TMA:cuisine, package | cuisine | — |
+| 1075 | merged | 2026-06-17 06:18:46 | 0.62.125 | feature | Core / misc | Add: music-app result carousel over the map (v0.62.125) | When a result card is selected, the list becomes a horizontal swipe-carousel floating over the lower map: picked card centred + auto-expanded, neighbours peeking; map recenters/zoom-17/blinks (v0.62.115 wiring); X or empty-map tap -> back… | 4 files — TMA:cuisine, package | cuisine | — |
+| 1076 | merged | 2026-06-17 06:38:47 | 0.62.126 | feature | Core / misc | Add: equal-width region pills + skeuomorphic selected pill in dark mode (v0.62.126) | Region picker (Current/Singapore/Johor Bahru/Cities): 1) Equal-width pills - JB hogged the slack (flex-1 vs content-width); all four are now flex-1 basis-0 px-1, equal width. | 4 files — TMA:cuisine, package | cuisine | — |
+| 1077 | merged | 2026-06-17 06:55:09 |  | docs | Cuisine Picker | Update docs: Cuisine TMA floating-layout MVP mockup (footer carousel + search FAB + floating header) | A visual MVP mockup (not built) of the Cuisine TMA reorganized into floating chrome over a full-bleed map: 1) carousel floats at the footer replacing the vertical list; 2) search bar -> a floating FAB that expands to a full search card;… | 1 file — public/ | — | doc/vault |
+| 1078 | merged | 2026-06-17 07:00:39 | 0.62.127 | feature | Weather | Add: floating always-present header (v0.62.127) - floating-layout step 1 | Floating-layout step 1 of 4. | 2 files — TMA:cuisine, package | cuisine | — |
+| 1079 | merged | 2026-06-17 07:05:44 | 0.62.128 | feature | Core / misc | Add: dock result carousel at the footer, off the map (v0.62.128) | Floating-layout step 2 of the footer rebuild. | 3 files — TMA:cuisine, package | cuisine | — |
+| 1080 | merged | 2026-06-17 07:24:47 | 0.62.129 | feature | Hawker NEA | Add: skeuomorphic map pop-up info card across all TMAs (v0.62.129) | The Google-map pop-up card (the InfoWindow tapped open from a pin) is now skeuomorphic, not liquid glass: infoCard() renders a raised, beveled physical card - top-light to bottom-shade gradient, hairline border, soft drop shadow + inset… | 4 files — TMA:cuisine, TMA:hawker, TMA:transport, package | cuisine+hawker+transport | — |
+| 1081 | merged | 2026-06-17 07:28:04 | 0.62.130 | feature | Transport / carpark | Add: line-coloured station code chips in the venue pop-up (v0.62.130) | In the Cuisine eatery pop-up, the nearest-station codes now ride their official MRT line background colour instead of a plain link. | 3 files — TMA:cuisine, package | cuisine | — |
+| 1082 | merged | 2026-06-17 01:11:43 | 0.62.131 | fix | Infra / setup | Fix: rating-toast leak on close + sync package-lock (v0.62.131) | 1) Bug: the Rating reset to Good+ >=3.7 footer toast survived in state when the TMA went hidden, flashing into the close and lingering on reopen; the visibilitychange handler now dismisses it (setRatingReminder(null)) the moment the TMA… | 3 files — TMA:cuisine, package | cuisine | — |
+| 1083 | merged | 2026-06-17 01:20:05 | 0.62.132 | feature | Hawker NEA | Add: default result-map zoom 11 -> 12 across all TMAs (v0.62.132) | Default result-map zoom 11 -> 12 across all three map TMAs: cuisine MapPanel init zoom + no-fresh-search recenter -> 12; hawker SG_DEFAULT_ZOOM 11->12; transport SG_DEFAULT_ZOOM 11->12. | 5 files — TMA:cuisine, TMA:hawker, TMA:transport, package | cuisine+hawker+transport | — |
+| 1084 | merged | 2026-06-17 02:55:48 | 0.62.133 | feature | Hawker NEA | Add: centre-map (U+21B9) button across all TMAs; drop Google nav pad (v0.62.133) | Remove Google's native zoom/pan pad and add a centre map button between + and - in every map. | 6 files — TMA:cuisine, TMA:hawker, TMA:transport, package, public/ | cuisine+hawker+transport | — |
 
 ---
 
