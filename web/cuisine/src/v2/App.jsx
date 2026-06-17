@@ -4400,26 +4400,27 @@ export default function App() {
           {/* v0.62.157 — operator: list · vertical · 🍲 Cuisine controls on the SAME
               ROW, to the LEFT of the free-text (hyperlink words, two rows). */}
           <div className="pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg px-2.5 py-1 flex flex-col items-start justify-center gap-0.5 text-[10px] leading-tight font-semibold shrink-0">
-            <div className="flex items-center gap-2.5">
+            {/* v0.62.167 — operator: STACK results · vertical · Cuisine, each on
+                its own line, so the card is narrower and the free-text bar gets
+                more width. "list" renamed to "results". */}
+            <button
+              type="button"
+              onClick={() => setDrawerDismissed((d) => !d)}
+              aria-label={drawerDismissed
+                ? (lang === 'fr' ? 'Afficher les résultats' : 'Show results')
+                : (lang === 'fr' ? 'Fermer les résultats' : 'Close results')}
+              className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
+            >{drawerDismissed ? '📖' : '📘'} {lang === 'fr' ? 'résultats' : 'results'}</button>
+            {!drawerDismissed && (
               <button
                 type="button"
-                onClick={() => setDrawerDismissed((d) => !d)}
-                aria-label={drawerDismissed
-                  ? (lang === 'fr' ? 'Afficher la liste' : 'Show list')
-                  : (lang === 'fr' ? 'Fermer la liste' : 'Close list')}
+                onClick={() => setDrawerMode((m) => (m === 'horizontal' ? 'vertical' : 'horizontal'))}
+                aria-label={drawerMode === 'horizontal'
+                  ? (lang === 'fr' ? 'Affichage vertical' : 'Vertical layout')
+                  : (lang === 'fr' ? 'Affichage horizontal' : 'Horizontal layout')}
                 className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
-              >{drawerDismissed ? '📖' : '📘'} {lang === 'fr' ? 'liste' : 'list'}</button>
-              {!drawerDismissed && (
-                <button
-                  type="button"
-                  onClick={() => setDrawerMode((m) => (m === 'horizontal' ? 'vertical' : 'horizontal'))}
-                  aria-label={drawerMode === 'horizontal'
-                    ? (lang === 'fr' ? 'Affichage vertical' : 'Vertical layout')
-                    : (lang === 'fr' ? 'Affichage horizontal' : 'Horizontal layout')}
-                  className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
-                >{drawerMode === 'horizontal' ? '⮷' : '⮲'} {drawerMode === 'horizontal' ? 'vertical' : 'horizontal'}</button>
-              )}
-            </div>
+              >{drawerMode === 'horizontal' ? '⮷' : '⮲'} {drawerMode === 'horizontal' ? 'vertical' : 'horizontal'}</button>
+            )}
             <button
               type="button"
               onClick={() => setCriteriaOpen((o) => !o)}
