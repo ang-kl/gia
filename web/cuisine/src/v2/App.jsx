@@ -4348,38 +4348,8 @@ export default function App() {
             The map shows through the gap between them. */}
         <div className="flex items-end justify-between gap-2 pointer-events-none">
           <div className="flex flex-col items-start gap-1.5 pointer-events-none">
-            {/* v0.62.155 — operator: list · vertical · 🍲 Cuisine are ONE card of
-                hyperlink-style WORDS (no underline, not button-focus), in TWO
-                rows. The list FAB is permanent; the orientation word shows while
-                the list is open. */}
-            <div className="pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg px-2.5 py-1 flex flex-col items-start gap-0.5 text-[10px] leading-tight font-semibold">
-              <div className="flex items-center gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setDrawerDismissed((d) => !d)}
-                  aria-label={drawerDismissed
-                    ? (lang === 'fr' ? 'Afficher la liste' : 'Show list')
-                    : (lang === 'fr' ? 'Fermer la liste' : 'Close list')}
-                  className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
-                >{drawerDismissed ? '📖' : '📘'} {lang === 'fr' ? 'liste' : 'list'}</button>
-                {!drawerDismissed && (
-                  <button
-                    type="button"
-                    onClick={() => setDrawerMode((m) => (m === 'horizontal' ? 'vertical' : 'horizontal'))}
-                    aria-label={drawerMode === 'horizontal'
-                      ? (lang === 'fr' ? 'Affichage vertical' : 'Vertical layout')
-                      : (lang === 'fr' ? 'Affichage horizontal' : 'Horizontal layout')}
-                    className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
-                  >{drawerMode === 'horizontal' ? '⮷' : '⮲'} {drawerMode === 'horizontal' ? 'vertical' : 'horizontal'}</button>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => setCriteriaOpen((o) => !o)}
-                aria-label={lang === 'fr' ? 'Cuisine — critères de recherche' : 'Cuisine — search criteria'}
-                className={`text-tg-link no-underline active:scale-95 whitespace-nowrap ${!criteriaOpen && editSearchPulse ? 'animate-pulse' : ''}`}
-              >🍲 Cuisine ▾</button>
-            </div>
+            {/* v0.62.157 — operator: list · vertical · 🍲 Cuisine controls moved DOWN
+                to the SAME ROW as the free-text (its left side — see below). */}
             {/* ⇢ next (rare — only after stepping back through page history). */}
             {cursor < pages.length - 1 && (
               <button
@@ -4421,6 +4391,36 @@ export default function App() {
             BESIDE its right (the duplicate ↑/↓ arrow dropped); 🍲 Cuisine moved
             into the left controls card above. */}
         <div className="flex items-stretch gap-1.5">
+          {/* v0.62.157 — operator: list · vertical · 🍲 Cuisine controls on the SAME
+              ROW, to the LEFT of the free-text (hyperlink words, two rows). */}
+          <div className="pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg px-2.5 py-1 flex flex-col items-start justify-center gap-0.5 text-[10px] leading-tight font-semibold shrink-0">
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => setDrawerDismissed((d) => !d)}
+                aria-label={drawerDismissed
+                  ? (lang === 'fr' ? 'Afficher la liste' : 'Show list')
+                  : (lang === 'fr' ? 'Fermer la liste' : 'Close list')}
+                className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
+              >{drawerDismissed ? '📖' : '📘'} {lang === 'fr' ? 'liste' : 'list'}</button>
+              {!drawerDismissed && (
+                <button
+                  type="button"
+                  onClick={() => setDrawerMode((m) => (m === 'horizontal' ? 'vertical' : 'horizontal'))}
+                  aria-label={drawerMode === 'horizontal'
+                    ? (lang === 'fr' ? 'Affichage vertical' : 'Vertical layout')
+                    : (lang === 'fr' ? 'Affichage horizontal' : 'Horizontal layout')}
+                  className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
+                >{drawerMode === 'horizontal' ? '⮷' : '⮲'} {drawerMode === 'horizontal' ? 'vertical' : 'horizontal'}</button>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => setCriteriaOpen((o) => !o)}
+              aria-label={lang === 'fr' ? 'Cuisine — critères de recherche' : 'Cuisine — search criteria'}
+              className={`text-tg-link no-underline active:scale-95 whitespace-nowrap ${!criteriaOpen && editSearchPulse ? 'animate-pulse' : ''}`}
+            >🍲 Cuisine ▾</button>
+          </div>
           <div className="flex-1 min-w-0 pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur shadow-lg border border-tg-border px-1 py-0.5">
             <TellMePanel
               value={nlText}
