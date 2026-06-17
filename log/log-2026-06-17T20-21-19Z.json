@@ -1,0 +1,1429 @@
+{
+  "since": "2026-06-17T19:16:19Z",
+  "until": "2026-06-17T20:21:19Z",
+  "count": 158,
+  "logs": [
+    {
+      "timestamp": "2026-06-17T19:18:11.694122423Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T19:18:11.694133912Z",
+      "message": "[Pulse] Status updated at 3:18:06 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T19:23:11.654982848Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T19:23:11.654991048Z",
+      "message": "[Pulse] Status updated at 3:23:06 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T19:28:11.566148715Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T19:28:11.566168860Z",
+      "message": "[Pulse] Status updated at 3:28:06 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T19:33:11.499815580Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T19:33:11.499990765Z",
+      "message": "[Pulse] Status updated at 3:33:06 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T19:38:11.384044005Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T19:38:11.384047726Z",
+      "message": "[Pulse] Status updated at 3:38:06 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T19:43:11.205597456Z",
+      "message": "[Pulse] Status updated at 3:43:06 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T19:43:11.205672358Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T19:48:11.125030279Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T19:48:11.125034372Z",
+      "message": "[Pulse] Status updated at 3:48:06 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T19:53:10.882512763Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T19:53:10.882516004Z",
+      "message": "[Pulse] Status updated at 3:53:06 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T19:58:10.663481366Z",
+      "message": "[Pulse] Status updated at 3:58:06 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T19:58:10.663551657Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:03:10.549366198Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:03:10.549373958Z",
+      "message": "[Pulse] Status updated at 4:03:06 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:08:10.353007500Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:08:10.353011718Z",
+      "message": "[Pulse] Status updated at 4:08:06 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:11:00.057359769Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:11:00.057365989Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:11:00.057369276Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:11:00.057372335Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:11:00.057375037Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:11:30.057588413Z",
+      "message": "[HawkerVault] coords: 122/122 centres geocoded",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:11:30.057596532Z",
+      "message": "[HawkerVault] stalls: 37/122 centres with stall metadata",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:13:10.213813486Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:13:10.213817231Z",
+      "message": "[Pulse] Status updated at 4:13:06 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:29.867025685Z",
+      "message": "[VLOG 313940231] {\"kind\":\"cuisine-search-incoming\",\"lat\":1.2760601999999999,\"lng\":103.79189889999999,\"cuisines\":[],\"filters\":{\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]},\"prices\":[],\"region\":\"SG\",\"freeTextLen\":0,\"resetSeen\":false,\"lang\":\"en\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:29.867031923Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:29.867037268Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.27606,103.7919],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:29.867041142Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.2761,103.7919 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:29.867045955Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:29.867049369Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:29.867052831Z",
+      "message": "[Cuisine-Search] D703s SG-scope 60 → 60 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:29.867056287Z",
+      "message": "[Cuisine-Search] sliceCap=12 firstBatch=false finalBatch=false range=37-48 seenBefore=36 hash=eb176232",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:29.867059965Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:29.867063114Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:29.867066788Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:29.867070150Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:29.867073932Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:49.869127907Z",
+      "message": "[Cuisine-Search] D706 deadline-degraded (>20000ms — returning early with 12 gathered venues to avoid a gateway 502)",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:50.096200642Z",
+      "message": "[footfall] besttime resolved=0/12",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:50.096206055Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (12v): crowd=2092ms translate=1ms reviewCache=1ms dishes=4480ms finalise=0ms travel=371ms sanctuary=1957ms footfall=18024ms total=26927ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:50.096210947Z",
+      "message": "[Cuisine-Search] seen-set append skipped (deadline fired — venues not delivered as a page)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:50.133275685Z",
+      "message": "[Cuisine-Search] D704 returning 12 venues to client (poolCount=48 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:50.133278788Z",
+      "message": "[VLOG 313940231] {\"kind\":\"redis-ttl\",\"key\":\"cuisine:session-meta:313940231\",\"ttl\":1771}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:50.133281534Z",
+      "message": "[VLOG 313940231] {\"kind\":\"redis-ttl\",\"key\":\"cuisine:session-seen:313940231\",\"ttl\":-2}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:16:50.133284134Z",
+      "message": "[VLOG 313940231] {\"kind\":\"cuisine-search-exit\",\"ms\":28289,\"venues\":12,\"exhausted\":false,\"sessionFull\":false,\"pageStackDepth\":0,\"cached\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:20.132812583Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[\"austrian\"] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.2761,103.7919 radius=20000 anchored=false skipShuffle=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:20.132819956Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[\"Austrian\"] cuisineMetas.length=1 allSelectedAreGated=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:20.132823767Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/3 returned 57 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:20.132827254Z",
+      "message": "[Cuisine-Search] D703e Gemini-label post-filter (austrian): 57 → 55  (dropped=2 unrelated, unlabeled=44 passed through)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:20.132831628Z",
+      "message": "[Cuisine-Search] D703f online verify-then-cache (austrian): batched=30, labels written=30, dropped=19 unrelated (55 → 36)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:20.132835136Z",
+      "message": "[Cuisine-Search] D703s SG-scope 21 → 0 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:20.132838296Z",
+      "message": "[Cuisine-Search] D791 nearby-refetch 20000m → 25000m (have 0/12 fresh, cap=30000)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:20.132841932Z",
+      "message": "[Cuisine-Search] D791 outer-ring re-fetch +12 fresh (fetches=1, to 25000m); unseen now 12",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:20.132844315Z",
+      "message": "[VLOG 313940231] {\"kind\":\"cuisine-search-incoming\",\"lat\":1.2760601999999999,\"lng\":103.79189889999999,\"cuisines\":[\"austrian\"],\"filters\":{\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]},\"prices\":[],\"region\":\"SG\",\"freeTextLen\":0,\"resetSeen\":false,\"lang\":\"en\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:20.132848084Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:20.132851611Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.27606,103.7919],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:20.134528335Z",
+      "message": "[Cuisine-Search] D790 nearby-widen tier=1 radiusM=10000 satisfied=true from=12 to=8",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:20.134534546Z",
+      "message": "[Cuisine-Search] sliceCap=12 firstBatch=true finalBatch=false range=1-12 seenBefore=0 hash=8851c5cb",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:20.134538226Z",
+      "message": "[Cuisine-Search] D786 curated-try slug=austrian country=SG unfamiliar=true filled=3/12 (reviewDishes=3 noVerifiedMention=6)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:23.996753922Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.041875390Z",
+      "message": "[footfall] BestTime 5xx for ChIJswRqCegZ2jER_p6Pj-eAyiU → Request failed with status code 502",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.041885598Z",
+      "message": "[footfall] BestTime 5xx for ChIJZwV7-csZ2jERiSymrXdm60A → Request failed with status code 502",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.041890737Z",
+      "message": "[footfall] BestTime 5xx for ChIJxbJGSKAHbUcRYkajfP16obQ → Request failed with status code 502",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.041895650Z",
+      "message": "[footfall] BestTime 5xx for ChIJVXnrK4oHbUcR5gTT8Qy2FZU → Request failed with status code 502",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.041900845Z",
+      "message": "[footfall] BestTime 5xx for ChIJdQFVXzc92jERSQfPy1jZBwE → Request failed with status code 502",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.041906669Z",
+      "message": "[footfall] besttime resolved=0/12",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.041912484Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (12v): crowd=2183ms translate=0ms reviewCache=1ms dishes=6004ms finalise=0ms travel=406ms sanctuary=4327ms footfall=12467ms total=25388ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.041917012Z",
+      "message": "[Cuisine-Search] D704 returning 12 venues to client (poolCount=12 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.041921364Z",
+      "message": "[VLOG 313940231] {\"kind\":\"redis-ttl\",\"key\":\"cuisine:session-meta:313940231\",\"ttl\":1800}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.041926648Z",
+      "message": "[VLOG 313940231] {\"kind\":\"redis-ttl\",\"key\":\"cuisine:session-seen:313940231\",\"ttl\":1800}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.041931561Z",
+      "message": "[VLOG 313940231] {\"kind\":\"cuisine-search-exit\",\"ms\":29875,\"venues\":12,\"exhausted\":false,\"sessionFull\":false,\"pageStackDepth\":1,\"cached\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.041936990Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/search\",\"ms\":30144,\"ok\":true,\"stream\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.042089308Z",
+      "message": "[footfall] BestTime 5xx for ChIJATuzdGkZ2jERIaznroVFQp4 → Request failed with status code 502",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.042092942Z",
+      "message": "[footfall] BestTime 5xx for ChIJp4zYJ6QZ2jERqGdrsL7QL2Q → Request failed with status code 502",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.042096008Z",
+      "message": "[footfall] BestTime 5xx for ChIJCUEDxqgZ2jERLoWQ7ycLoQ8 → Request failed with status code 502",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.042958070Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/user-location\",\"ms\":280,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.042963802Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":234,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.042968662Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":234,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.042973397Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":235,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.042978288Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":234,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.042982997Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":235,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.042989106Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":235,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.042995259Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":355,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.043002461Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":356,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.043011198Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":383,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.043015933Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":769,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.043020463Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":859,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.043025333Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":881,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.043029452Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":903,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.044761052Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":915,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.044770607Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":1687,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:44.044780118Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":1684,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:46.188072192Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":5066,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:17:46.211185631Z",
+      "message": "[VLOG-CLIENT 313940231] {\"kind\":\"fetch\",\"method\":\"POST\",\"url\":\"/api/cuisine/social-profiles\",\"ms\":5068,\"ok\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:18:16.216361227Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:18:16.216365965Z",
+      "message": "[Pulse] Status updated at 4:18:06 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:18:46.218463013Z",
+      "message": "[VLOG 313940231] {\"kind\":\"cuisine-search-incoming\",\"lat\":1.2760601999999999,\"lng\":103.79189889999999,\"cuisines\":[],\"filters\":{\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]},\"prices\":[],\"region\":\"SG\",\"freeTextLen\":0,\"resetSeen\":false,\"lang\":\"en\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:18:46.218467525Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:18:46.218470946Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.27606,103.7919],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:18:46.218473982Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.2761,103.7919 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:18:46.218476826Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:18:46.218480047Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:18:46.218488689Z",
+      "message": "[Cuisine-Search] D703s SG-scope 60 → 60 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:18:46.218491804Z",
+      "message": "[Cuisine-Search] sliceCap=12 firstBatch=false finalBatch=false range=37-48 seenBefore=36 hash=eb176232",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:18:50.583548977Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:10.590292455Z",
+      "message": "[Cuisine-Search] D706 deadline-degraded (>20000ms — returning early with 12 gathered venues to avoid a gateway 502)",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:12.453792332Z",
+      "message": "[twa-auth] 401 GET /country-pref ip=119.234.35.179, 79.127.217.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:12.453796634Z",
+      "message": "[twa-auth] 401 GET /user-language ip=119.234.35.179, 79.127.217.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:12.453799970Z",
+      "message": "[twa-auth] 401 GET /rating-pref ip=119.234.35.179, 79.127.217.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:12.455267131Z",
+      "message": "[twa-auth] 401 POST /user-location ip=119.234.35.179, 79.127.217.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:13.255915805Z",
+      "message": "[footfall] besttime resolved=0/12",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:13.255919757Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (12v): crowd=2236ms translate=1ms reviewCache=1ms dishes=6002ms finalise=0ms travel=320ms sanctuary=4215ms footfall=18020ms total=30795ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:13.255923659Z",
+      "message": "[Cuisine-Search] seen-set append skipped (deadline fired — venues not delivered as a page)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:13.255928723Z",
+      "message": "[Cuisine-Search] D704 returning 12 venues to client (poolCount=48 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:13.255932355Z",
+      "message": "[VLOG 313940231] {\"kind\":\"redis-ttl\",\"key\":\"cuisine:session-meta:313940231\",\"ttl\":1768}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:13.255935886Z",
+      "message": "[VLOG 313940231] {\"kind\":\"redis-ttl\",\"key\":\"cuisine:session-seen:313940231\",\"ttl\":-2}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:13.255939594Z",
+      "message": "[VLOG 313940231] {\"kind\":\"cuisine-search-exit\",\"ms\":31996,\"venues\":12,\"exhausted\":false,\"sessionFull\":false,\"pageStackDepth\":0,\"cached\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:14.304766795Z",
+      "message": "[twa-auth] 401 POST /user-location ip=119.234.35.179, 79.127.217.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:14.304771523Z",
+      "message": "[twa-auth] 401 POST /search ip=119.234.35.179, 79.127.217.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:14.304776682Z",
+      "message": "[twa-auth] 401 POST /set-location ip=119.234.35.179, 79.127.217.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:18.294802989Z",
+      "message": "[twa-auth] 401 GET /rating-pref ip=119.234.35.179, 79.127.217.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:18.294811489Z",
+      "message": "[twa-auth] 401 GET /user-language ip=119.234.35.179, 79.127.217.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:18.294815359Z",
+      "message": "[twa-auth] 401 POST /user-location ip=119.234.35.179, 79.127.217.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:18.294818544Z",
+      "message": "[twa-auth] 401 POST /set-location ip=119.234.35.179, 79.127.217.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:18.294821673Z",
+      "message": "[twa-auth] 401 POST /search ip=119.234.35.179, 79.127.217.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:18.295005859Z",
+      "message": "[twa-auth] 401 POST /user-location ip=119.234.35.179, 79.127.217.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:18.295009025Z",
+      "message": "[twa-auth] 401 GET /country-pref ip=119.234.35.179, 79.127.217.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:37.934238888Z",
+      "message": "[VLOG 313940231] {\"kind\":\"cuisine-search-incoming\",\"lat\":1.2760601999999999,\"lng\":103.79189889999999,\"cuisines\":[],\"filters\":{\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]},\"prices\":[],\"region\":\"SG\",\"freeTextLen\":0,\"resetSeen\":false,\"lang\":\"en\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:37.934246706Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:37.934251303Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.27606,103.7919],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:37.934257357Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.2761,103.7919 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:37.934261514Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:37.934266113Z",
+      "message": "[location-cache] D787 label-guard: kept \"Pasir Panjang MRT Station (CC26)\" over an ambient label-less write",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:37.934270067Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":[1.27149,103.80999],\"to\":[1.27216,103.81127],\"moved_m\":160,\"label\":\"Singapore\",\"region\":\"SG\",\"country\":null,\"cap_m\":null,\"ambient\":true,\"kept\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:37.934273909Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:37.934277543Z",
+      "message": "[Cuisine-Search] D703s SG-scope 60 → 60 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:37.934281513Z",
+      "message": "[Cuisine-Search] sliceCap=12 firstBatch=false finalBatch=false range=37-48 seenBefore=36 hash=eb176232",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:39.743501581Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:59.743046583Z",
+      "message": "[Cuisine-Search] D706 deadline-degraded (>20000ms — returning early with 12 gathered venues to avoid a gateway 502)",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:59.743051362Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":[1.27149,103.80999],\"to\":[1.27216,103.81127],\"moved_m\":160,\"label\":\"Singapore\",\"region\":\"SG\",\"country\":null,\"cap_m\":null,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:59.743056455Z",
+      "message": "[set-location] chat=313940231 → 1.2722,103.8113 label=\"Singapore\"  SG",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:59.743059877Z",
+      "message": "[footfall] besttime resolved=0/12",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:59.743062998Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (12v): crowd=2087ms translate=0ms reviewCache=1ms dishes=6002ms finalise=0ms travel=284ms sanctuary=1335ms footfall=18024ms total=27733ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:59.743066786Z",
+      "message": "[Cuisine-Search] seen-set append skipped (deadline fired — venues not delivered as a page)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:59.743071078Z",
+      "message": "[Cuisine-Search] D704 returning 12 venues to client (poolCount=48 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:59.743074539Z",
+      "message": "[VLOG 313940231] {\"kind\":\"redis-ttl\",\"key\":\"cuisine:session-meta:313940231\",\"ttl\":1771}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:59.743078826Z",
+      "message": "[VLOG 313940231] {\"kind\":\"redis-ttl\",\"key\":\"cuisine:session-seen:313940231\",\"ttl\":-2}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:19:59.743085258Z",
+      "message": "[VLOG 313940231] {\"kind\":\"cuisine-search-exit\",\"ms\":29086,\"venues\":12,\"exhausted\":false,\"sessionFull\":false,\"pageStackDepth\":0,\"cached\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:20:29.750231951Z",
+      "message": "[NL-Query] D772 brand-name prepended — \"satay\" + [\"Singaporean\"]",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:20:29.750236119Z",
+      "message": "[NL-Query] D773 discover region=SG → regionCode=SG (deep: maxPages=3)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-17T20:20:38.487292206Z",
+      "message": "[footfall] besttime resolved=0/24",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "478cbdd0-8415-4ec0-898b-c5b221619ba8",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
