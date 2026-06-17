@@ -132,7 +132,9 @@ export default function App() {
       style={{
         // v0.59.20: Telegram-stable viewport height (avoids iPad gap).
         minHeight: 'var(--tg-viewport-stable-height, 100vh)',
-        paddingBottom: 'env(safe-area-inset-bottom, 0)'
+        // v0.62.166 — clear the fixed bottom FAB band (ticker + corner FABs) so
+        // the footer / last content never hides behind it.
+        paddingBottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px))'
       }}
     >
       {/* v0.62.164 — operator: ONE neo-skeuomorphic header card. Row 1 = title +
@@ -176,10 +178,10 @@ export default function App() {
 
       {/* v0.62.164 — the map tucks UP under the header card (negative mt cancels
           the column gap-3; lower z so the header's frosted base + shadow sit over
-          the map's top edge). The "Scroll to view another train line" ticker then
-          overlaps the map's BOTTOM as a liquid-glass-80% card (-mt-10, z-10) so
-          the map shows through below it. */}
-      <div className="-mt-3 relative z-0 flex flex-col">
+          the map's top edge).
+          v0.62.166 — operator: the line ticker is no longer inside/over the map —
+          it's a floating FAB bar at the bottom (see below, beside the corner FABs). */}
+      <div className="-mt-3 relative z-0">
         {mapView === 'png'
           ? <SystemMap focusedCode={focusedCode} affectedCodes={affectedCodes} />
           : <MrtMapPanel
@@ -192,27 +194,6 @@ export default function App() {
               overlayLayers={overlayLayers}
               onOverlayChange={setOverlayLayers}
             />}
-        {/* v0.60.99 — operator: include LRT lines (BPL + SLRT + PLRT) in the
-            default scroll, not just heavy rail. When no lines are affected, show
-            every operating line including LRTs. */}
-        <div className="-mt-10 relative z-10 mx-1">
-          <AffectedTicker
-            affectedCodes={affectedCodes.length ? affectedCodes : LINES.filter((l) => !l.future).map((l) => l.code)}
-            focusedCode={focusedCode}
-            onFocus={(code) => {
-              setFocusedCode(code);
-              // v0.60.99 — auto-switch to Google Map ONLY on the first line-chip
-              // tap when still on the initial Schematic view. The "All Lines"
-              // reset (code === null) is ignored; later taps respect the current
-              // view. See Codex review on PR #342.
-              if (code && !autoSwitchedRef.current) {
-                autoSwitchedRef.current = true;
-                setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
-              }
-            }}
-            statusByLine={statusByLine}
-          />
-        </div>
       </div>
 
       {focusedLine && (
@@ -238,6 +219,34 @@ export default function App() {
         <div>Source: LTA TrainServiceAlerts (live) + curated engineering schedule</div>
         <div>{t('footer.tag', lang)} · v{BUILD_VERSION}</div>
       </footer>
+
+      {/* v0.62.166 — operator: the line ticker is a floating FAB bar at the
+          bottom, OUTSIDE the map, centred BETWEEN the back/end FAB (left) and the
+          top/down FAB (right). Width-capped (max-w 100vw-12rem) so it never
+          reaches the corner FABs; z-40 stays under the z-50 FABs. The line chips
+          scroll horizontally inside it (compact = no title row). */}
+      <div
+        className="fixed left-1/2 -translate-x-1/2 z-40 w-auto max-w-[calc(100vw-12rem)] pointer-events-none"
+        style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
+      >
+        <div className="pointer-events-auto">
+          <AffectedTicker
+            compact
+            affectedCodes={affectedCodes.length ? affectedCodes : LINES.filter((l) => !l.future).map((l) => l.code)}
+            focusedCode={focusedCode}
+            onFocus={(code) => {
+              setFocusedCode(code);
+              // v0.60.99 — first line-chip tap on the Schematic view auto-switches
+              // to Google Map (one-shot); the "All Lines" reset (null) is ignored.
+              if (code && !autoSwitchedRef.current) {
+                autoSwitchedRef.current = true;
+                setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
+              }
+            }}
+            statusByLine={statusByLine}
+          />
+        </div>
+      </div>
 
       <BackFab />
 
