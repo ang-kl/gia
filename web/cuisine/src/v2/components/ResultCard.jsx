@@ -6,7 +6,7 @@ import SocialButtons from './SocialButtons.jsx';
 
 const PRICE_LABEL = { 1: '$', 2: '$$', 3: '$$$', 4: '$$$$' };
 
-export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null, number = null }) {
+export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null, number = null, defaultExpanded = false }) {
   const [lang] = useLocale();
   if (!venue) return null;
   const rating = venue.rating ? `★${venue.rating.toFixed(1)}` : '';
@@ -107,7 +107,10 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
   // 🍲 Try; everything from the address down is hidden until expanded. The
   // FOCUSED/selected card auto-expands (the music-app carousel's centred card
   // reuses this); a manual ⌄/⌃ toggle flips it for any card.
-  const [expanded, setExpanded] = useState(!!focused);
+  // v0.62.139 — operator: in the horizontal floating strip every card renders
+  // EXPANDED inside a short scroll panel, so the detail is reachable two ways:
+  // scroll the card OR tap the ⌄/⌃ toggle. `defaultExpanded` seeds that.
+  const [expanded, setExpanded] = useState(!!focused || !!defaultExpanded);
   useEffect(() => { if (focused) setExpanded(true); }, [focused]);
   // v0.61.225 — lazy-load the venue's social-profile URLs once on
   // mount. Server caches results 30d under social:<placeId>, so most

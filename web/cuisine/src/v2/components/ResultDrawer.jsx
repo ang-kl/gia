@@ -56,16 +56,20 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, onClose
           ><span aria-hidden="true">↴</span> {lang === 'fr' ? 'vertical' : 'vertical'}</button>
         </div>
       </div>
+      {/* v0.62.139 — operator: cards are BOTTOM-aligned (items-end) so they grow
+          upward from above the footer, and each card is a short scroll panel
+          (card-scroll = visible thin scrollbar) rendering its EXPANDED content,
+          so the detail is reachable two ways — scroll the card OR tap ⌄/⌃. */}
       <div
         ref={trackRef}
-        className="flex gap-2 overflow-x-auto snap-x snap-mandatory px-[9%] pb-1 pointer-events-auto"
+        className="flex items-end gap-2 overflow-x-auto snap-x snap-mandatory px-[9%] pb-1 pointer-events-auto"
         style={{ scrollbarWidth: 'none' }}
       >
         {list.map((v, i) => (
           <div
             key={v.placeId || i}
             data-pid={v.placeId || ''}
-            className="snap-center shrink-0 basis-[82%] max-h-[42vh] overflow-y-auto rounded-lg shadow-xl"
+            className="card-scroll snap-center shrink-0 basis-[82%] max-h-[46vh] overflow-y-auto rounded-lg shadow-xl"
           >
             <ResultCard
               venue={v}
@@ -73,6 +77,7 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, onClose
               focused={v.placeId === focusedPlaceId}
               onTap={() => onSelect && onSelect(v.placeId)}
               specialMode={specialMode}
+              defaultExpanded
             />
           </div>
         ))}
