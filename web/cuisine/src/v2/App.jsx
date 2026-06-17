@@ -520,7 +520,15 @@ export default function App() {
     if (typeof document === 'undefined') return undefined;
     let hiddenAt = null;
     const onVis = () => {
-      if (document.hidden) { hiddenAt = Date.now(); return; }
+      if (document.hidden) {
+        hiddenAt = Date.now();
+        // v0.62.131 — operator: the "Rating reset…" toast leaked through a TMA
+        // close — a showing toast survived in state and flashed into the close
+        // (and lingered on the next quick reopen). Dismiss it the moment the
+        // TMA goes hidden so it never bleeds past the close.
+        setRatingReminder(null);
+        return;
+      }
       if (hiddenAt && Date.now() - hiddenAt >= 120000) {
         resetRatingToDefault();
         setRatingReminder({ kind: 'reset' });
