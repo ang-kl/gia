@@ -519,39 +519,17 @@ export default function App() {
     const id = setTimeout(() => setRatingReminder(null), delay);
     return () => clearTimeout(id);
   }, [ratingReminder, loading, loadingReason]);
-  // Reset the pref to the Good+ default, persisting only when it actually
-  // changes (keeps Redis + chat /rating in agreement without no-op POSTs).
-  const ratingPrefReminderRef = useRef('3.7');
-  useEffect(() => { ratingPrefReminderRef.current = ratingPref; }, [ratingPref]);
-  const resetRatingToDefault = React.useCallback(() => {
-    if (ratingPrefReminderRef.current !== '3.7') saveRatingPref('3.7').catch(() => {});
-    setRatingPref('3.7');
-    setRatingLoaded(true);
-  }, []);
-  // Return-from-idle trigger: hidden ≥2 min, then visible again. The 2-min
-  // floor keeps quick app-flips (e.g. copying an address) quiet.
+  // v0.62.143 — operator: a custom rating must survive an idle-return (it was
+  // resetting to Good+ 3.7 after ≥2 min hidden — the "leak" the operator saw).
+  // The idle-return RESET is removed; the only visibility work kept is
+  // dismissing a still-showing reminder toast as the TMA goes hidden, so it
+  // can't bleed past a close (v0.62.131).
   useEffect(() => {
     if (typeof document === 'undefined') return undefined;
-    let hiddenAt = null;
-    const onVis = () => {
-      if (document.hidden) {
-        hiddenAt = Date.now();
-        // v0.62.131 — operator: the "Rating reset…" toast leaked through a TMA
-        // close — a showing toast survived in state and flashed into the close
-        // (and lingered on the next quick reopen). Dismiss it the moment the
-        // TMA goes hidden so it never bleeds past the close.
-        setRatingReminder(null);
-        return;
-      }
-      if (hiddenAt && Date.now() - hiddenAt >= 120000) {
-        resetRatingToDefault();
-        setRatingReminder({ kind: 'reset' });
-      }
-      hiddenAt = null;
-    };
+    const onVis = () => { if (document.hidden) setRatingReminder(null); };
     document.addEventListener('visibilitychange', onVis);
     return () => document.removeEventListener('visibilitychange', onVis);
-  }, [resetRatingToDefault]);
+  }, []);
   // v0.60.47 — 3s pulse on the "Edit search" pill after warm-start
   // delivers the first 5 suggestions. Mirrors the searchHintActive
   // pattern below for the floating 🔍 FAB.
@@ -1212,23 +1190,22 @@ export default function App() {
     (async () => {
       const r = await fetchRatingPref();
       if (cancelled) return;
-      // v0.62.x — G3 (operator-confirmed): a fresh ENTRY resets the rating to
-      // the Good+ 3.7 default, persisting over any stale saved value so chat
-      // /rating agrees. The fetch is still awaited first so the persist only
-      // fires when the saved value genuinely differed.
-      if (r?.ratingPref && r.ratingPref !== '3.7') saveRatingPref('3.7').catch(() => {});
-      setRatingPref('3.7');
+      // v0.62.143 — operator (17-06 '26): "Leaks again occasionally show the
+      // ratings set to 3.7" → a custom rating must PERSIST, not snap back to
+      // Good+ 3.7. This REVERSES the prior v0.62.x G3 decision (entry/idle reset
+      // to 3.7). The pill now seeds from the saved server value (the user's last
+      // /rating or TMA choice); a never-set user still gets DEFAULT_RATING 3.7
+      // from getUserRatingPref. No forced persist of 3.7 over a saved value.
+      setRatingPref(r?.ratingPref || '3.7');
       setRatingLoaded(true);
-      // First time on this device → the intro pop-up ("Rating set to … Change
-      // it anytime"); afterwards every entry shows the reset pop-up instead.
-      let intro = false;
+      // First time on this device → the one-off intro pop-up ("Rating set to …
+      // Change it anytime"). No "reset" toast on later entries — nothing resets.
       try {
         if (typeof localStorage !== 'undefined' && !localStorage.getItem('gia.rating.introSeen')) {
-          intro = true;
           localStorage.setItem('gia.rating.introSeen', '1');
+          setRatingReminder({ kind: 'intro' });
         }
-      } catch { /* storage disabled → treat as a returning user */ }
-      setRatingReminder({ kind: intro ? 'intro' : 'reset' });
+      } catch { /* storage disabled → skip the one-off intro */ }
     })();
     return () => { cancelled = true; };
   }, []);
