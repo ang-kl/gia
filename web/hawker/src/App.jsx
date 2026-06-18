@@ -157,7 +157,7 @@ export default function App() {
   };
   const multiPinUrl = active ? buildMultiPinUrl(active.centres) : null;
   const fallbackGoogleUrl = active
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('hawker centres ' + activeRegion + ' Singapore')}`
+    ? `https://maps.google.com/?q=${encodeURIComponent('hawker centres ' + activeRegion + ' Singapore')}`
     : '';
   const allOnMapUrl = multiPinUrl || fallbackGoogleUrl;
 
@@ -295,7 +295,7 @@ export default function App() {
                                 /* v0.62.177 — operator: link to the REAL named place, not a
                                    bare coordinate pin. Query by station name (+ "MRT Station")
                                    so Google Maps resolves the actual station card. */
-                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${tr.station.name || ''} MRT Station Singapore`)}`}
+                                href={`https://maps.google.com/?q=${encodeURIComponent(`${tr.station.name || ''} MRT Station Singapore`)}`}
                                 target="_blank" rel="noreferrer"
                                 className="text-[#1a73e8] underline"
                               >
@@ -308,7 +308,7 @@ export default function App() {
                                 /* v0.62.177 — query by the bus-stop code + description so it
                                    resolves to the actual stop (Google indexes SG stop codes),
                                    not a nameless coordinate. */
-                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(['Bus Stop', b.code, b.description, 'Singapore'].filter(Boolean).join(' '))}`}
+                                href={`https://maps.google.com/?q=${encodeURIComponent(['Bus Stop', b.code, b.description, 'Singapore'].filter(Boolean).join(' '))}`}
                                 target="_blank" rel="noreferrer"
                                 className="text-[#1a73e8] underline"
                               >🚌 {b.code} {b.description}</a>
