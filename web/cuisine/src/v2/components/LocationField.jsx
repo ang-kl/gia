@@ -98,7 +98,7 @@ function haversineKm(lat1, lng1, lat2, lng2) {
 // ~150 km) while excluding any cross-country jump (SG→Japan ~3300 km).
 const NEAREST_CITY_MAX_KM = 500;
 
-export default function LocationField({ userLoc, region, onSelect, anchor = null, suffix = '', onSearch = null, countryPref = DEFAULT_OTHER_COUNTRY, onCountryChange = null, selectedCity = null }) {
+export default function LocationField({ userLoc, region, onSelect, anchor = null, suffix = '', onSearch = null, countryPref = DEFAULT_OTHER_COUNTRY, onCountryChange = null, selectedCity = null, onActivity = null }) {
   // v0.61.191 — branch on region AFTER all hooks below have been
   // declared (React Rules of Hooks: same order every render). The
   // OTHER picker is wholly its own sub-component; the SG/JB path
@@ -390,6 +390,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
         suffix={suffix}
         onSearch={onSearch}
         userLoc={userLoc}
+        onActivity={onActivity}
       />
     );
   }
@@ -403,7 +404,9 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
           MY_Johor_flag.png image for JB (mirrors the region-pill
           row's flag-handling convention).
           Open (input) state keeps the single-row layout (input + ✏️). */}
-      <div className="rounded-md border border-tg-accent bg-tg-card px-3 py-1.5">
+      {/* v0.62.189 — operator: WHITE field, blue accent border REMOVED
+          (loc-field-surface: white in light, card+hint in dark). */}
+      <div className="rounded-md border loc-field-surface px-3 py-1.5">
         {drawerOpen ? (
           <div>
             <div className="flex items-center justify-between py-0.5">
@@ -476,7 +479,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
               type="text"
               autoFocus
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => { setQuery(e.target.value); onActivity?.(); }}
               onBlur={() => setTimeout(() => setOpen(false), 200)}
               onKeyDown={handleKeyDown}
               enterKeyHint="search"
@@ -879,7 +882,7 @@ function CountryDropdown({ value, onChange, ariaLabel }) {
 //     operator's #6 ("country and city but no street → centre of
 //     the city to search") still works: pick city → anchor at city
 //     centroid with noAutoFire; tap 🔍 → search at city centroid.
-function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, selectedCity, suffix, onSearch, userLoc }) {
+function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, selectedCity, suffix, onSearch, userLoc, onActivity = null }) {
   const [lang] = useLocale();
   const [query, setQuery] = useState('');
   // v0.61.418 — set true by the country dropdown's onChange so the auto-pick
@@ -1209,7 +1212,7 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
           the picker; tap 🔍 to fire the search at the current
           anchor (forwarded onSearch prop). */}
       {showCompact ? (
-        <div className="rounded-md border border-tg-accent bg-tg-card px-3 py-1.5">
+        <div className="rounded-md border loc-field-surface px-3 py-1.5">
           <div className="flex items-center gap-2">
             <span aria-hidden className="text-tg-accent">📍</span>
             <button
@@ -1236,7 +1239,7 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
         </div>
       ) : (
       <div className="relative">
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border loc-field-surface">
           {/* v0.61.208 — custom dropdown: closed shows "<flag> <CC>"
               (compact), opened shows "<flag> <Name>" (descriptive).
               Native <select> can't differentiate closed vs open
@@ -1271,7 +1274,7 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
           <input
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => { setQuery(e.target.value); onActivity?.(); }}
             onKeyDown={handleKey}
             enterKeyHint="search"
             placeholder={displayLocName || tr('loc.other.placeholder', lang)}
