@@ -1755,6 +1755,20 @@ bot.onText(/^\/ztest(?:@\w+)?(?:\s+(\S+))?$/i, async (msg) => {
       `🔍 Scouting <b>${escapeHtmlForTelegram(rawType)}</b> near ${loc.label ? escapeHtmlForTelegram(String(loc.label)) : 'you'}… (up to 8 spots)`,
       { parse_mode: 'HTML' });
     report = await scoutSetMenu({ lat: loc.lat, lng: loc.lng, type: rawType, apiKey, max: 8, concurrency: 4 });
+    // v0.62.202 — operator: VISUAL-RECOGNITION fallback. For venues where the
+    // deterministic scrape did NOT find the menu text ("the menu doesn't
+    // specify"), run Gemini vision over the venue's first Places photo to detect
+    // the set / signature + price. Bounded to the first 4 to cap cost; fail-soft.
+    if (report && !report.error && process.env.GEMINI_API_KEY) {
+      try {
+        const { visualScout } = require('./ztest-vision');
+        const fb = report.results.filter((r) => r.status !== 'hit' && r.photoName).slice(0, 4);
+        await Promise.all(fb.map(async (r) => {
+          try { r.visual = await visualScout({ photoName: r.photoName, type: rawType, apiKey, geminiKey: process.env.GEMINI_API_KEY }); }
+          catch { r.visual = null; }
+        }));
+      } catch (e) { console.warn('[ztest] visual fallback failed:', e.message); }
+    }
     if (report && !report.error) {
       try { await redis.setEx(cacheKey, 600, JSON.stringify(report)); } catch { /* ignore cache write */ }
     }
@@ -1770,16 +1784,28 @@ bot.onText(/^\/ztest(?:@\w+)?(?:\s+(\S+))?$/i, async (msg) => {
   const lines = [`🧪 <b>/ztest ${escapeHtmlForTelegram(rawType)}</b> — scanned ${report.scanned}, <b>${report.hitCount} hit(s)</b>`];
   for (const r of report.results) {
     const icon = STATUS_ICON[r.status] || '·';
-    lines.push(`\n${icon} <b>${escapeHtmlForTelegram(r.name)}</b> · ${escapeHtmlForTelegram(r.priceTier)}${r.photoEligible ? ' · 📷' : ''}`);
+    // v0.62.202 — per-spot Google Maps link (precise coords, else name); the
+    // venue NAME is the hyperlink.
+    const mapsLink = (Number.isFinite(r.lat) && Number.isFinite(r.lng))
+      ? `https://maps.google.com/?q=${r.lat},${r.lng}`
+      : `https://maps.google.com/?q=${encodeURIComponent(r.name + ' Singapore')}`;
+    const nameHtml = `<a href="${mapsLink}">${escapeHtmlForTelegram(r.name)}</a>`;
+    // v0.62.202 — surface the set / signature COST when scraped.
+    const priceTag = r.setPrice ? ` · 💲${escapeHtmlForTelegram(r.setPrice)}` : '';
+    lines.push(`\n${icon} ${nameHtml} · ${escapeHtmlForTelegram(r.priceTier)}${priceTag}${r.photoEligible ? ' · 📷' : ''}`);
     if (r.status === 'hit') {
       for (const m of r.matches.slice(0, 3)) {
         lines.push(`   ${m.hasPrice ? '💲' : '–'} ${escapeHtmlForTelegram(m.text)}`);
       }
+    } else if (r.visual && r.visual.found) {
+      // v0.62.202 — visual-recognition result (the menu didn't specify in text).
+      const vis = (r.visual.items || []).map((it) => escapeHtmlForTelegram(it.name + (it.price ? ` — ${it.price}` : ''))).join('; ');
+      lines.push(`   📷 <i>visual:</i> ${vis || escapeHtmlForTelegram(r.visual.note || 'menu seen')}`);
     } else {
-      lines.push(`   <i>${r.status}</i>`);
+      lines.push(`   <i>${escapeHtmlForTelegram(r.status)}${r.visual ? ' · 📷 no menu in photo' : ''}</i>`);
     }
   }
-  lines.push('\n<i>Probe — deterministic scrape, no AI. Cached 10 min.</i>');
+  lines.push('\n<i>Probe — scrape + Gemini-vision fallback. Cached 10 min.</i>');
   await safeSend(chatId, lines.join('\n'), { parse_mode: 'HTML', disable_web_page_preview: true });
 });
 

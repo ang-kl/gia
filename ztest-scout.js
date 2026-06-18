@@ -162,6 +162,12 @@ async function scoutOne(place, keywords, getHtml) {
   const website = (place && place.websiteUri) || null;
   const hasPhotos = Array.isArray(place && place.photos) && place.photos.length > 0;
   const priceEligible = ELIGIBLE_TIERS.has(priceLevel);
+  // v0.62.202 — carry the placeId + coords (for the per-spot Google Maps link)
+  // and the first photo reference (for the visual-recognition fallback).
+  const placeId = (place && place.id) || null;
+  const lat = place && place.location && Number(place.location.latitude);
+  const lng = place && place.location && Number(place.location.longitude);
+  const photoName = hasPhotos ? (place.photos[0] && place.photos[0].name) || null : null;
 
   let matches = [];
   let status;
@@ -176,13 +182,22 @@ async function scoutOne(place, keywords, getHtml) {
       status = matches.length ? 'hit' : 'no-match';
     }
   }
+  // v0.62.202 — operator: surface the COST of the set / signature. Pull the
+  // price token from the first price-bearing matched line.
+  const priced = matches.find((m) => m.hasPrice);
+  const setPrice = priced ? ((priced.text.match(PRICE_RE) || [])[0] || null) : null;
   return {
     name,
+    placeId,
+    lat: Number.isFinite(lat) ? lat : null,
+    lng: Number.isFinite(lng) ? lng : null,
+    photoName,
     priceTier: priceLevel.replace('PRICE_LEVEL_', ''),
     website,
     photoEligible: priceEligible && hasPhotos,
     status,
-    matches
+    matches,
+    setPrice
   };
 }
 
