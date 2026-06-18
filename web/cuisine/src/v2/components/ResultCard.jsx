@@ -97,7 +97,13 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
   // v0.62.189 — operator (IMG_2514): in the HORIZONTAL strip the ★rating + $price
   // ride the cuisine-type row ("Italian · ★4.5 · $$$"), so the meta line below
   // carries only open-hours + distance. The vertical list keeps the full meta.
-  const meta = (horizontal ? [open, distMeta] : [rating, price, open, distMeta])
+  // v0.62.212 — operator (IMG_1069, card style A): the horizontal strip prefixes
+  // the open-hours with a 🕙 clock so the line scans at a glance (distMeta already
+  // carries 📍); the rendered line is allowed to WRAP to 2 lines (line-clamp-2)
+  // instead of hard-truncating to a single "…".
+  const meta = (horizontal
+    ? [open ? `🕙 ${open}` : '', distMeta]
+    : [rating, price, open, distMeta])
     .filter(Boolean).join(' · ');
 
   // v0.57.13: open Google Maps via Telegram.WebApp.openLink. Inside
@@ -266,7 +272,13 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               no type they read "★4.5 · $$$". Vertical keeps the bare type line. */}
           {(venue.restaurantType || (horizontal && (rating || price))) && (
             <div className="text-[12px] text-tg-text/80 truncate">
-              {[venue.restaurantType, horizontal && rating, horizontal && price].filter(Boolean).join(' · ')}
+              {[
+                // v0.62.212 — card style A: 🍴 prefixes the cuisine type on the
+                // horizontal card so the type/rating/price row reads at a glance.
+                venue.restaurantType ? (horizontal ? `🍴 ${venue.restaurantType}` : venue.restaurantType) : '',
+                horizontal && rating,
+                horizontal && price
+              ].filter(Boolean).join(' · ')}
             </div>
           )}
           {/* v0.61.255 — operator: "For Durian Pastry, if the
@@ -285,7 +297,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           )}
           {/* v0.62.176 — operator: REVERTED the v0.62.168 "wrap by field" meta;
               single-line meta (truncate) again, same as the vertical list. */}
-          <div className="text-[12px] text-tg-hint truncate">{meta}</div>
+          <div className={`text-[12px] text-tg-hint ${horizontal ? 'line-clamp-2' : 'truncate'}`}>{meta}</div>
           {/* v0.62.122 — distance moved up into the meta row (distMeta).
               v0.62.124 — the address row moved DOWN into the collapsible
               section (below price/pet), per the operator re-order. */}
@@ -306,9 +318,15 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               · ♿️ if eatery included in Google Search. Next to
               cost-range. Move Crowd to same row as cost-range." */}
           {(venue.priceRangeDisplay || venue.wheelchairAccessible === true || venue.allowsDogs === true || livenessChip) && (
-            <div className="text-[12px] text-tg-text/80 truncate mt-0.5">
+            <div className={`text-[12px] text-tg-text/80 mt-0.5 ${horizontal ? 'line-clamp-2' : 'truncate'}`}>
               {[
-                venue.priceRangeDisplay,
+                // v0.62.212 — card style A: the horizontal card drops the bulky
+                // secondary-currency "(≈M$…)" conversion (still on the expanded
+                // card + copy) and prefixes 💵 so price scans fast; the row may
+                // wrap to 2 lines rather than truncate.
+                venue.priceRangeDisplay
+                  ? (horizontal ? `💵 ${venue.priceRangeDisplay.replace(/\s*\([^)]*\)\s*$/, '')}` : venue.priceRangeDisplay)
+                  : '',
                 venue.wheelchairAccessible === true && '♿️',
                 venue.allowsDogs === true && (lang === 'fr' ? '🐾 Animaux autorisés' : '🐾 Pet allowed'),
                 livenessChip
