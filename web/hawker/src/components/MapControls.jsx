@@ -61,9 +61,14 @@ export default function MapControls({
 
   return (
     <div ref={wrapRef} className="absolute top-2 left-2 right-12 z-10">
-      {/* v0.61.70 — single non-wrapping row; the font is small enough
-          that the Colour pill + the ⋯ menu + 3 toggles all fit. */}
-      <div className="flex flex-row flex-nowrap gap-0.5 items-start">
+      {/* v0.61.70 — single row; the font is small enough that the Colour
+          pill + the ⋯ menu + 3 toggles all fit.
+          v0.62.211 — operator (IMG_1069): with a 4th layer pill (Hawker on the
+          Cuisine map) the no-wrap row overflowed the right-12 bound and the
+          last pill was CLIPPED ("cannot see the Hawker"). Allow the row to WRAP
+          to a 2nd line so every layer pill renders fully and identically —
+          none is cut off. Byte-identical across all three TMA copies. */}
+      <div className="flex flex-row flex-wrap gap-0.5 items-start">
         {/* v0.61.78 — the ⋯/⋮ overflow menu: now the first button in
             the row, at the top-left corner (was after the Colour pill).
             A white square button with a larger, brighter glyph. The
@@ -77,7 +82,7 @@ export default function MapControls({
               aria-expanded={menuOpen}
               aria-label={menuLabel}
               title={menuLabel}
-              className={'w-7 h-7 rounded-md bg-white/70 text-black '
+              className={'w-7 h-7 rounded-md bg-white text-black '
                 + 'border border-gray-300 shadow-md flex items-center '
                 + 'justify-center text-base font-bold leading-none active:scale-95'}
             ><span aria-hidden>{overflowGlyph()}</span></button>
