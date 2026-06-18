@@ -144,6 +144,21 @@ describe('v0.62.37 — overlay classics + D792 city tie-in', () => {
     expect(dd.isKnownDishName('kaya toast')).toBe(true);
   });
 
+  it('v0.62.175 — curated classics-notes.js batch reaches the SG plate (chilli crab)', () => {
+    const p = cp.platesForCity('Singapore');
+    const all = (p.classicGroups || []).flatMap((g) => g.dishes);
+    const cc = all.find((d) => d.dish === 'chilli crab');
+    expect(cc).toBeTruthy();
+    expect(cc.local).toBe('辣椒螃蟹');               // native script merged in
+    expect(cc.note.en.length).toBeGreaterThan(0);
+    expect(cc.note.en.length).toBeLessThanOrEqual(140);
+    expect(cc.note.fr.length).toBeLessThanOrEqual(140);
+    expect(Array.isArray(cc.sources) && cc.sources.length > 0).toBe(true);  // sourced
+    // a chunk of SG classics now explain (this batch = 30).
+    const noted = all.filter((d) => d.note && (d.note.en || d.note.fr));
+    expect(noted.length).toBeGreaterThanOrEqual(25);
+  });
+
   it('v0.62.174 — grouped classics carry curated { local, note } from the nation overlay', () => {
     // Tokyo's Japanese overlay includes sukiyaki with a curated note + native script;
     // platesForCity must enrich the grouped classic (was stripped to a bare name).

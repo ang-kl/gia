@@ -5340,6 +5340,7 @@ const COUNTRY_OVERLAY_SLUG = Object.freeze({
 // Lazy-required like place-search-variance: keep this module a pure data
 // registry until the overlay is actually needed.
 let _nationOverlay = null;
+let _classicNotes = null;   // v0.62.175 — curated classics-notes.js (lazy)
 
 // Diacritic/case fold for the classics-vs-plate dedupe (plate dish names in
 // the comparison are romanised — no CJK handling needed here).
@@ -5406,6 +5407,17 @@ function _overlayDishMeta(countryCode) {
       if (Array.isArray(d.sources) && d.sources.length) meta.sources = d.sources;
       if (Object.keys(meta).length) m.set(_fold(d.name), meta);
     }
+    // v0.62.175 — merge the curated classics-notes.js batch (web-sourced +
+    // adversarially verified). These WIN over any inline overlay note.
+    try {
+      if (!_classicNotes) _classicNotes = require('./classics-notes');
+      const extra = _classicNotes.CLASSIC_NOTES[String(countryCode || '').toUpperCase()];
+      if (extra) {
+        for (const [name, meta] of Object.entries(extra)) {
+          if (meta && (meta.local || meta.note)) m.set(_fold(name), meta);
+        }
+      }
+    } catch { /* classics-notes.js is optional */ }
     return m.size ? m : null;
   } catch {
     return null;
