@@ -62,8 +62,11 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
        v0.62.186 — operator (IMG_2507 #2): the chips are now their OWN full-width
        strip row (not inline in the controls row), so the cluster grows another
        ~1.5rem when filters show — lift to 10rem so the cards clear the strip
-       ("result card is behind the strip margin"). */
-    <div className={`fixed inset-x-0 ${hasFilters ? 'bottom-[10rem]' : 'bottom-[6.5rem]'} z-30 px-1 pointer-events-none max-w-[1600px] mx-auto`}>
+       ("result card is behind the strip margin").
+       v0.62.190 — cards float ABOVE the unified glass dock (taller than the old
+       separate control cards): clear it with 8rem, or 10rem when the filter band
+       is also showing above the dock. */
+    <div className={`fixed inset-x-0 ${hasFilters ? 'bottom-[10rem]' : 'bottom-[8rem]'} z-30 px-1 pointer-events-none max-w-[1600px] mx-auto`}>
       {/* v0.62.141 — operator: the list + vertical/horizontal controls moved to
           the FOOTER (out of the strip). Cards are BOTTOM-aligned (items-end),
           and each is a COMPACT ~5-row scroll panel (card-scroll = visible thin

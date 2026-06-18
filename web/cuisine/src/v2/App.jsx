@@ -3271,7 +3271,7 @@ export default function App() {
 
   return (
     <div
-      className="bg-tg-bg text-tg-text py-3 flex flex-col gap-2 max-w-[1600px] mx-auto px-3 md:px-6 lg:px-8"
+      className="bg-tg-bg text-tg-text pt-3 flex flex-col gap-2 max-w-[1600px] mx-auto px-3 md:px-6 lg:px-8"
       style={{
         // v0.59.20: use Telegram's stable viewport variable so the
         // container tracks the *visible* iframe height, not the buggy
@@ -3282,7 +3282,12 @@ export default function App() {
         // (operator: the blank footer band was too tall — roughly halved).
         // v0.62.189 — operator (IMG_2516): "too much white space, I like the
         // bottom to fill" — reserve halved again (5rem → 2.5rem).
-        paddingBottom: 'calc(2.5rem + env(safe-area-inset-bottom, 0px))'
+        // v0.62.190 — full-redesign: HORIZONTAL mode is a full-bleed map that
+        // fills behind the floating dock, so NO bottom reserve (the dock owns
+        // the bottom). Vertical mode keeps the 2.5rem reserve for the list.
+        paddingBottom: drawerMode === 'horizontal'
+          ? 'env(safe-area-inset-bottom, 0px)'
+          : 'calc(2.5rem + env(safe-area-inset-bottom, 0px))'
       }}
     >
       {/* v0.61.285 — fun-fact modal during the rotating-search wait
@@ -3783,6 +3788,10 @@ export default function App() {
       <MapPanel
         venues={visibleVenues.length ? visibleVenues : venues}
         userLoc={userLoc}
+        /* v0.62.190 — horizontal mode: full-bleed map that FILLS the viewport
+           behind the floating dock (no white band). Vertical keeps the framed
+           fixed-height card above the scrolling list. */
+        fill={drawerMode === 'horizontal'}
         focusedPlaceId={focusedPlaceId}
         onPinTap={setFocusedPlaceId}
         searchCenter={searchCenter || userLoc}
@@ -4546,22 +4555,30 @@ export default function App() {
         className="fixed inset-x-0 bottom-0 z-30 pointer-events-none px-2 flex flex-col gap-1.5"
         style={{ paddingBottom: 'calc(0.15rem + env(safe-area-inset-bottom, 0px) * 0.5)' }}
       >
-        {/* v0.62.163 — operator: the active-filter strip moved DOWN to sit JUST
-            ABOVE the list/cuisine + free-text row (it used to float here, above
-            the FABs). The 🔍 FAB row keeps a higher stacking (relative z-20) so 🔍
-            paints IN FRONT of the strip; the map's 🔭 zoom readout is z-[35]
-            (above this z-30 cluster, below z-40 modals) for the same reason. */}
-        {/* Corner FABs over the map — left stack grows up from above the free-text
-            bar (list+v/h · end · Edit search); right stack is 🔍 search · ↕ top.
-            The map shows through the gap between them. */}
-        {/* v0.62.178 — operator redesign: the free-text bar is now END-TO-END (ROW A)
-            with the → submit MERGED into the 🔍 search at its right end. The old
-            standalone 🔍 FAB + the separate active-filter strip are gone; the
-            selected cuisine/filter chips move into ROW B below. */}
-        {/* v0.62.183 — operator: the free-text bar had TWO borders (this wrapper +
-            TellMePanel's own input border). Dropped the wrapper pill (border/bg/
-            shadow) so only the free-text field's own border remains. */}
-        <div className="pointer-events-auto px-0.5">
+        {/* v0.62.190 — full-redesign (operator: kill the white band + the 3
+            disconnected floating elements). The active-filter chips stay a
+            full-width band ABOVE the dock; everything else (free-text + 🔍, the
+            two control cards, the 2 footer text lines) is unified into ONE frosted
+            glass command DOCK. The full-bleed map fills behind it — no white. */}
+        {criteriaSummary.length > 0 && (
+          <div className="pointer-events-auto -mx-2 px-3 py-1 bg-tg-bg/90 liquid-glass border-y border-tg-border/40 shadow-sm flex items-center overflow-x-auto">
+            <ActiveFilters
+              cuisines={state.cuisines}
+              filters={state.filters}
+              onRemoveCuisine={removeCuisine}
+              onRemoveFilter={removeFilter}
+              onResetAll={clearAll}
+              nameForCuisine={(slug) => {
+                if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
+                return cuisineNameBySlug.get(slug) || null;
+              }}
+            />
+          </div>
+        )}
+        {/* v0.62.190 — the unified glass command DOCK: rounded-top, full-bleed,
+            frosted; free-text + 🔍 on top, a slim control row below, then a tiny
+            experimental/region/version tag. A soft top shadow lifts it off the map. */}
+        <div className="pointer-events-auto -mx-2 px-3 pt-2 pb-1 rounded-t-3xl bg-tg-bg/92 liquid-glass border-t border-tg-border/50 shadow-[0_-6px_24px_rgba(0,0,0,0.22)] flex flex-col gap-1.5">
           {(() => {
             const poolExhausted = !!finalBatch && Number.isFinite(knownTotal) && venues && venues.length === knownTotal;
             const searchDisabled = loading || (poolExhausted && !dirty && !selectedCityLocation);
@@ -4580,107 +4597,85 @@ export default function App() {
               />
             );
           })()}
-        </div>
-        {/* v0.62.186 — operator (IMG_2507 #2): the selected cuisine/filter chips
-            are a full-width END-TO-END strip ("strip margin and not a pill"),
-            ABOVE the controls row — not a bordered pill squeezed between the two
-            control cards. -mx-2 cancels the cluster gutter so it spans edge to
-            edge; border-y (not a rounded pill) gives the clean band. The result
-            cards clear it via the taller `hasFilters` drawer offset. */}
-        {criteriaSummary.length > 0 && (
-          <div className="pointer-events-auto -mx-2 px-3 py-1 bg-tg-bg/90 liquid-glass border-y border-tg-border/40 shadow-sm flex items-center overflow-x-auto">
-            <ActiveFilters
-              cuisines={state.cuisines}
-              filters={state.filters}
-              onRemoveCuisine={removeCuisine}
-              onRemoveFilter={removeFilter}
-              onResetAll={clearAll}
-              nameForCuisine={(slug) => {
-                if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
-                return cuisineNameBySlug.get(slug) || null;
-              }}
-            />
-          </div>
-        )}
-        {/* v0.62.178 — ROW B controls: results/vertical (+ ⇢ next) · top/back nav. */}
-        <div className="flex items-stretch gap-1.5 justify-between">
-          <div className="pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg px-2.5 py-1 flex flex-col items-start justify-center gap-0.5 text-[10px] leading-tight font-semibold shrink-0">
-            <button
-              type="button"
-              onClick={() => setDrawerDismissed((d) => !d)}
-              aria-label={drawerDismissed
-                ? (lang === 'fr' ? 'Afficher les résultats' : 'Show results')
-                : (lang === 'fr' ? 'Fermer les résultats' : 'Close results')}
-              className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
-            >{drawerDismissed
-              ? `📖 ${lang === 'fr' ? 'afficher résultats' : 'show results'}`
-              : `📘 ${lang === 'fr' ? 'masquer résultats' : 'hide results'}`}</button>
-            {!drawerDismissed && (
+          {/* slim control row — results · layout · next  |  down · end. Inline icon
+              chips (no bordered cards); aria-labels carry the full text. */}
+          <div className="flex items-center justify-between gap-1 text-[11px] font-semibold text-tg-link">
+            <div className="flex items-center gap-0.5 min-w-0">
+              <button
+                type="button"
+                onClick={() => setDrawerDismissed((d) => !d)}
+                aria-label={drawerDismissed
+                  ? (lang === 'fr' ? 'Afficher les résultats' : 'Show results')
+                  : (lang === 'fr' ? 'Masquer les résultats' : 'Hide results')}
+                className="px-2 py-2 rounded-lg active:scale-95 whitespace-nowrap"
+              >{drawerDismissed
+                ? `📖 ${lang === 'fr' ? 'afficher résultats' : 'show results'}`
+                : `📘 ${lang === 'fr' ? 'masquer résultats' : 'hide results'}`}</button>
+              {!drawerDismissed && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = drawerMode === 'horizontal' ? 'vertical' : 'horizontal';
+                    setDrawerMode(next);
+                    // v0.62.177 — switching TO vertical scrolls to the list start
+                    // ("Results #") + a brief highlight so the user sees where it is.
+                    if (next === 'vertical') {
+                      setResultsFlash(true);
+                      setTimeout(() => resultPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+                      setTimeout(() => setResultsFlash(false), 1700);
+                    }
+                  }}
+                  aria-label={drawerMode === 'horizontal'
+                    ? (lang === 'fr' ? 'Affichage vertical' : 'Vertical layout')
+                    : (lang === 'fr' ? 'Affichage horizontal' : 'Horizontal layout')}
+                  className="px-2 py-2 rounded-lg active:scale-95 whitespace-nowrap"
+                >{drawerMode === 'horizontal'
+                  ? `⊿ ${lang === 'fr' ? 'liste' : 'list'}`
+                  : `◸ ${lang === 'fr' ? 'carte' : 'map'}`}</button>
+              )}
+              {cursor < pages.length - 1 && (
+                <button
+                  type="button"
+                  onClick={() => setCursor((c) => Math.min(pages.length - 1, c + 1))}
+                  aria-label={lang === 'fr' ? 'Liste suivante' : 'Next list'}
+                  className="px-2 py-2 rounded-lg active:scale-95 whitespace-nowrap"
+                >⇢ {lang === 'fr' ? 'suivant' : 'next'}</button>
+              )}
+            </div>
+            <div className="flex items-center gap-0.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => window.scrollTo({
+                  top: scrolledPastHero ? 0 : window.scrollY + window.innerHeight,
+                  behavior: 'smooth'
+                })}
+                aria-label={scrolledPastHero ? t('btn.backToTop', lang) : 'Scroll down'}
+                className="px-2 py-2 rounded-lg active:scale-95 whitespace-nowrap"
+              >{scrolledPastHero ? t('btn.topShort', lang) : t('btn.downShort', lang)}</button>
               <button
                 type="button"
                 onClick={() => {
-                  const next = drawerMode === 'horizontal' ? 'vertical' : 'horizontal';
-                  setDrawerMode(next);
-                  // v0.62.177 — switching TO vertical scrolls to the list start
-                  // ("Results #") + a brief highlight so the user sees where it is.
-                  if (next === 'vertical') {
-                    setResultsFlash(true);
-                    setTimeout(() => resultPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
-                    setTimeout(() => setResultsFlash(false), 1700);
+                  if (cursor > 0) { setCursor((c) => Math.max(0, c - 1)); return; }
+                  const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
+                  if (w && typeof w.close === 'function') {
+                    try { w.close(); } catch { /* webview tearing down */ }
+                    setTimeout(() => { try { w.close(); } catch { /* noop */ } }, 350);
                   }
                 }}
-                aria-label={drawerMode === 'horizontal'
-                  ? (lang === 'fr' ? 'Affichage vertical' : 'Vertical layout')
-                  : (lang === 'fr' ? 'Affichage horizontal' : 'Horizontal layout')}
-                className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
-              >{drawerMode === 'horizontal' ? '⊿' : '◸'} {drawerMode === 'horizontal'
-                ? (lang === 'fr' ? 'Afficher le style vertical' : 'Show Vertical style')
-                : (lang === 'fr' ? 'Afficher le style horizontal' : 'Show Horizontal style')}</button>
-            )}
-            {cursor < pages.length - 1 && (
-              <button
-                type="button"
-                onClick={() => setCursor((c) => Math.min(pages.length - 1, c + 1))}
-                aria-label={lang === 'fr' ? 'Liste suivante' : 'Next list'}
-                className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
-              >⇢ {lang === 'fr' ? 'suivant' : 'next'}</button>
-            )}
+                aria-label={cursor > 0 ? t('btn.fabBackAria', lang) : t('btn.fabEndAria', lang)}
+                className="px-2 py-2 rounded-lg active:scale-95 whitespace-nowrap"
+              >{cursor > 0 ? `↩ ${t('btn.fabBack', lang)}` : `🔚 ${t('btn.fabEnd', lang)}`}</button>
+            </div>
           </div>
-          <div className="pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg px-2.5 py-1 flex flex-col items-stretch justify-center gap-0.5 text-[10px] leading-tight font-semibold shrink-0">
-            <button
-              type="button"
-              onClick={() => window.scrollTo({
-                top: scrolledPastHero ? 0 : window.scrollY + window.innerHeight,
-                behavior: 'smooth'
-              })}
-              aria-label={scrolledPastHero ? t('btn.backToTop', lang) : 'Scroll down'}
-              className="text-tg-link no-underline active:scale-95 whitespace-nowrap text-center"
-            >{scrolledPastHero ? t('btn.topShort', lang) : t('btn.downShort', lang)}</button>
-            <div className="h-px bg-tg-border/40" />
-            <button
-              type="button"
-              onClick={() => {
-                if (cursor > 0) { setCursor((c) => Math.max(0, c - 1)); return; }
-                const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
-                if (w && typeof w.close === 'function') {
-                  try { w.close(); } catch { /* webview tearing down */ }
-                  setTimeout(() => { try { w.close(); } catch { /* noop */ } }, 350);
-                }
-              }}
-              aria-label={cursor > 0 ? t('btn.fabBackAria', lang) : t('btn.fabEndAria', lang)}
-              className="text-tg-link no-underline active:scale-95 whitespace-nowrap text-center"
-            >{cursor > 0 ? `↩ ${t('btn.fabBack', lang)}` : `🔚 ${t('btn.fabEnd', lang)}`}</button>
+          {/* tiny experimental / region / version tag (was 2 footer text lines). */}
+          <div className="text-[9px] text-tg-hint text-center leading-none pb-0.5 pointer-events-none">
+            {t('footer.experimental', lang)} · {
+              state.region === 'JB' ? t('region.johor', lang)
+              : state.region === 'OTHER' ? t('region.others', lang)
+              : t('region.singapore', lang)
+            } · v{BUILD_VERSION}
           </div>
         </div>
-        {/* The footer — ONLY the 2 text lines. */}
-        <footer className="px-3 text-[9px] text-tg-hint text-center leading-tight pointer-events-none">
-          <div>{t('footer.howto', lang)}</div>
-          <div>{t('footer.experimental', lang)} · {
-            state.region === 'JB' ? t('region.johor', lang)
-            : state.region === 'OTHER' ? t('region.others', lang)
-            : t('region.singapore', lang)
-          } · v{BUILD_VERSION}</div>
-        </footer>
       </div>
     </div>
   );
