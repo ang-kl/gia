@@ -3214,6 +3214,416 @@ const CUISINE_NOTES = {
         }
       ]
     }
+  },
+  "vietnamese": {
+    "pho bo": {
+      "local": "Phở bò",
+      "note": {
+        "en": "Vietnamese beef noodle soup of rice noodles in an aromatic spiced bone broth, originating in early 20th-century northern Vietnam.",
+        "fr": "Soupe vietnamienne de nouilles de riz au bœuf dans un bouillon d'os épicé, née au début du XXe siècle dans le nord du Vietnam."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Phở bò",
+          "url": "https://www.tasteatlas.com/pho-bo"
+        },
+        {
+          "name": "Wikipedia — Pho",
+          "url": "https://en.wikipedia.org/wiki/Pho"
+        }
+      ]
+    },
+    "pho ga": {
+      "local": "Phở gà",
+      "note": {
+        "en": "The chicken version of Vietnamese pho: rice noodles and shredded chicken in a clear simmered broth, popularized in northern Vietnam.",
+        "fr": "La version au poulet du pho vietnamien : nouilles de riz et poulet effiloché dans un bouillon clair mijoté, popularisée au nord du Vietnam."
+      },
+      "sources": [
+        {
+          "name": "Pho - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pho"
+        },
+        {
+          "name": "Pho Ga Explained - KimEcopak",
+          "url": "https://www.kimecopak.ca/blogs/cuisine/what-is-pho-ga"
+        }
+      ]
+    },
+    "banh mi": {
+      "local": "Bánh mì",
+      "note": {
+        "en": "Vietnamese sandwich on a crisp, airy baguette (a French colonial legacy) filled with pâté, meats, pickled veg and herbs.",
+        "fr": "Sandwich vietnamien sur une baguette croustillante (héritage colonial français) garni de pâté, viandes, légumes marinés et herbes."
+      },
+      "sources": [
+        {
+          "name": "Bánh mì - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/B%C3%A1nh_m%C3%AC"
+        },
+        {
+          "name": "Bánh mì - TasteAtlas",
+          "url": "https://www.tasteatlas.com/banh-mi"
+        }
+      ]
+    },
+    "bun cha": {
+      "local": "Bún chả",
+      "note": {
+        "en": "Grilled pork over rice vermicelli with herbs and a dipping sauce, a Hanoi specialty traditionally eaten at lunchtime.",
+        "fr": "Porc grillé sur vermicelles de riz, avec herbes et sauce trempette, spécialité de Hanoï traditionnellement mangée au déjeuner."
+      },
+      "sources": [
+        {
+          "name": "Bun cha - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Bun_cha"
+        },
+        {
+          "name": "Bún Chả - TasteAtlas",
+          "url": "https://www.tasteatlas.com/bun-cha"
+        }
+      ]
+    },
+    "bun bo hue": {
+      "local": "Bún bò Huế",
+      "note": {
+        "en": "A spicy beef-and-pork rice-noodle soup from Huế, central Vietnam, defined by lemongrass and shrimp paste, from the Nguyễn-lord era.",
+        "fr": "Soupe épicée de nouilles de riz au bœuf de Huế (Vietnam central), à la citronnelle et pâte de crevettes, de l'époque des seigneurs Nguyễn."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Bún bò Huế",
+          "url": "https://en.wikipedia.org/wiki/B%C3%BAn_b%C3%B2_Hu%E1%BA%BF"
+        },
+        {
+          "name": "TasteAtlas — Bún bò Huế",
+          "url": "https://www.tasteatlas.com/bun-bo-hue"
+        }
+      ]
+    },
+    "bun rieu": {
+      "local": "bún riêu",
+      "note": {
+        "en": "A Vietnamese rice-vermicelli noodle soup in a tomato broth topped with paste from pounded freshwater paddy crabs (bún riêu cua).",
+        "fr": "Une soupe vietnamienne de vermicelles de riz dans un bouillon de tomate garnie de pâte de crabes d'eau douce pilés (bún riêu cua)."
+      },
+      "sources": [
+        {
+          "name": "Bún riêu - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/B%C3%BAn_ri%C3%AAu"
+        },
+        {
+          "name": "Bún Riêu - TasteAtlas",
+          "url": "https://www.tasteatlas.com/bun-rieu"
+        }
+      ]
+    },
+    "bun thit nuong": {
+      "local": "Bún thịt nướng",
+      "note": {
+        "en": "A Southern Vietnamese bowl of cold rice vermicelli topped with marinated grilled pork, fresh herbs, peanuts and nuoc cham fish sauce.",
+        "fr": "Un bol du sud du Vietnam de vermicelles de riz froids garnis de porc grille marine, d'herbes fraiches, de cacahuetes et de sauce nuoc cham."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Bún thịt nướng",
+          "url": "https://en.wikipedia.org/wiki/B%C3%BAn_th%E1%BB%8Bt_n%C6%B0%E1%BB%9Bng"
+        },
+        {
+          "name": "TasteAtlas - Bún Thịt Nướng",
+          "url": "https://www.tasteatlas.com/bun-thit-nuong"
+        }
+      ]
+    },
+    "goi cuon": {
+      "local": "Gỏi cuốn",
+      "note": {
+        "en": "Vietnamese fresh rice-paper rolls of pork, prawn, rice vermicelli and herbs, served uncooked at room temperature, unlike the fried chả giò.",
+        "fr": "Rouleaux vietnamiens frais en galette de riz, garnis de porc, crevette, vermicelles et herbes, servis non frits, à l'inverse du chả giò."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Gỏi cuốn",
+          "url": "https://en.wikipedia.org/wiki/G%E1%BB%8Fi_cu%E1%BB%91n"
+        },
+        {
+          "name": "TasteAtlas — Gỏi cuốn (Vietnamese Summer Rolls)",
+          "url": "https://www.tasteatlas.com/goi-cuon"
+        }
+      ]
+    },
+    "cha gio (nem ran)": {
+      "local": "Chả giò (Nem rán)",
+      "note": {
+        "en": "Vietnamese deep-fried spring rolls of seasoned pork, mushrooms and vermicelli in rice paper; called chả giò in the south, nem rán in the…",
+        "fr": "Rouleaux de printemps frits vietnamiens au porc, champignons et vermicelles en galette de riz ; chả giò au sud, nem rán au nord."
+      },
+      "sources": [
+        {
+          "name": "Chả giò - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ch%E1%BA%A3_gi%C3%B2"
+        },
+        {
+          "name": "Vietnamese Fried Spring Rolls (Chả giò) - TasteAtlas",
+          "url": "https://www.tasteatlas.com/cha-gio"
+        }
+      ]
+    },
+    "com tam": {
+      "local": "Cơm tấm",
+      "note": {
+        "en": "Cơm tấm is a southern Vietnamese dish of broken rice grains, originally a cheap food Mekong Delta farmers made from fragmented milled rice.",
+        "fr": "Le cơm tấm est un plat du sud du Vietnam à base de brisures de riz, jadis un mets bon marché des paysans du delta du Mékong."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Cơm tấm",
+          "url": "https://en.wikipedia.org/wiki/C%C6%A1m_t%E1%BA%A5m"
+        },
+        {
+          "name": "Michelin Guide — What Is Cơm Tấm?",
+          "url": "https://guide.michelin.com/vn/en/article/dining-out/what-is-com-tam-com-tam-ba-ghien"
+        }
+      ]
+    },
+    "banh xeo": {
+      "local": "Bánh xèo",
+      "note": {
+        "en": "A crispy Vietnamese pancake of rice flour, water and turmeric, filled with pork, shrimp and bean sprouts; named for its sizzling sound.",
+        "fr": "Une crêpe vietnamienne croustillante de farine de riz, d'eau et de curcuma, garnie de porc, de crevettes et de germes ; nommée d'après son…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Bánh xèo",
+          "url": "https://en.wikipedia.org/wiki/B%C3%A1nh_x%C3%A8o"
+        },
+        {
+          "name": "TasteAtlas — Bánh Xèo",
+          "url": "https://www.tasteatlas.com/banh-xeo"
+        }
+      ]
+    },
+    "banh khot": {
+      "local": "Bánh Khọt",
+      "note": {
+        "en": "Southern Vietnamese mini savory pancakes of turmeric-coconut rice batter, topped with shrimp and crisped in molds; a Vung Tau specialty.",
+        "fr": "Petites crepes salees du sud du Vietnam, a base de riz au curcuma et coco, garnies de crevettes; specialite de Vung Tau."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Banh Khot",
+          "url": "https://www.tasteatlas.com/banh-khot"
+        },
+        {
+          "name": "Wikipedia - Banh",
+          "url": "https://en.wikipedia.org/wiki/B%C3%A1nh"
+        }
+      ]
+    },
+    "cao lau": {
+      "local": "Cao lầu",
+      "note": {
+        "en": "A Hội An noodle dish of thick chewy rice noodles, char siu pork and greens, whose noodles need local ash-lye and Ba Le well water.",
+        "fr": "Plat de nouilles de Hội An aux nouilles de riz épaisses, porc char siu et herbes, dont les nouilles exigent lessive de cendres et eau du…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Cao Lầu",
+          "url": "https://www.tasteatlas.com/cao-lau"
+        },
+        {
+          "name": "Wikipedia - Cao lầu",
+          "url": "https://en.wikipedia.org/wiki/Cao_l%E1%BA%A7u"
+        }
+      ]
+    },
+    "mi quang": {
+      "local": "Mì Quảng",
+      "note": {
+        "en": "Turmeric rice-noodle dish from Quảng Nam, central Vietnam, with little broth, peanuts and sesame crackers; named national heritage in 2024.",
+        "fr": "Plat de nouilles de riz au curcuma du Quảng Nam, centre du Vietnam, peu de bouillon, cacahuètes et galettes de sésame ; patrimoine 2024."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Mì Quảng",
+          "url": "https://en.wikipedia.org/wiki/M%C3%AC_Qu%E1%BA%A3ng"
+        },
+        {
+          "name": "Michelin Guide — What Is Da Nang's Mi Quang",
+          "url": "https://guide.michelin.com/vn/en/article/features/what-is-da-nang-mi-quang"
+        }
+      ]
+    },
+    "cha ca la vong": {
+      "local": "Chả Cá Lã Vọng",
+      "note": {
+        "en": "Hanoi dish of cá lăng catfish marinated in turmeric, charcoal-grilled with dill and scallion, served with bún and mắm tôm; an eatery opened…",
+        "fr": "Plat hanoïen de poisson-chat cá lăng au curcuma, grillé au charbon avec aneth et ciboule, servi avec bún et mắm tôm; un restaurant ouvert…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Chả cá Lã Vọng",
+          "url": "https://en.wikipedia.org/wiki/Cha_Ca_La_Vong"
+        },
+        {
+          "name": "TasteAtlas — Chả cá lã Vọng",
+          "url": "https://www.tasteatlas.com/cha-ca-la-vong"
+        }
+      ]
+    },
+    "bo kho": {
+      "local": "Bò kho",
+      "note": {
+        "en": "Southern Vietnamese beef-and-carrot stew with lemongrass and star anise; arose under French colonial rule, which introduced beef.",
+        "fr": "Ragoût de bœuf et carottes du sud du Vietnam à la citronnelle et anis étoilé, né sous la colonisation française qui introduisit le bœuf."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Bò kho",
+          "url": "https://en.wikipedia.org/wiki/B%C3%B2_kho"
+        },
+        {
+          "name": "TasteAtlas — Bò Kho",
+          "url": "https://www.tasteatlas.com/bo-kho"
+        }
+      ]
+    },
+    "ca kho to": {
+      "local": "Cá kho tộ",
+      "note": {
+        "en": "Southern Vietnamese dish of catfish or snakehead braised (kho) in a clay pot (tộ) with fish sauce and caramelized sugar.",
+        "fr": "Plat du sud du Vietnam: poisson-chat ou tête-de-serpent braisé (kho) en pot d'argile (tộ) au nuoc-mâm et sucre caramélisé."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas",
+          "url": "https://www.tasteatlas.com/ca-kho-to"
+        },
+        {
+          "name": "Hungry Huy",
+          "url": "https://www.hungryhuy.com/ca-kho-to-recipe-vietnamese-braised-fish/"
+        }
+      ]
+    },
+    "thit kho trung": {
+      "local": "Thịt Kho Trứng",
+      "note": {
+        "en": "Vietnamese pork belly and hard-boiled eggs braised in fish sauce and coconut water, a staple eaten at Tet (Lunar New Year).",
+        "fr": "Poitrine de porc et œufs durs vietnamiens braisés au nuoc-mam et à l'eau de coco, plat phare du Têt (Nouvel An lunaire)."
+      },
+      "sources": [
+        {
+          "name": "Caramelized pork and eggs - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Caramelized_pork_and_eggs"
+        },
+        {
+          "name": "Thịt Kho Trứng - Vicky Pham",
+          "url": "https://vickypham.com/blog/braised-pork-and-boiled-eggs-in-coconut-juice-thit-kho-tau/"
+        }
+      ]
+    },
+    "canh chua": {
+      "local": "Canh chua",
+      "note": {
+        "en": "A Southern Vietnamese sour soup from the Mekong Delta, made with fish, pineapple and tomato, soured with tamarind.",
+        "fr": "Une soupe aigre du sud du Vietnam, du delta du Mekong, au poisson, ananas et tomate, acidulee au tamarin."
+      },
+      "sources": [
+        {
+          "name": "Canh chua - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Canh_chua"
+        },
+        {
+          "name": "Canh Chua - TasteAtlas",
+          "url": "https://www.tasteatlas.com/canh-chua"
+        }
+      ]
+    },
+    "nem nuong": {
+      "local": "Nem nướng",
+      "note": {
+        "en": "Vietnamese grilled seasoned ground-pork sausage, a specialty of Nha Trang (Khánh Hòa Province), served with rice paper, herbs and nước chấm.",
+        "fr": "Saucisse vietnamienne de porc haché assaisonné grillée, spécialité de Nha Trang (province de Khánh Hòa), servie avec galettes de riz…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Nem nướng",
+          "url": "https://en.wikipedia.org/wiki/Nem_n%C6%B0%E1%BB%9Bng"
+        },
+        {
+          "name": "TasteAtlas — Nem Nướng",
+          "url": "https://www.tasteatlas.com/nem-nuong"
+        }
+      ]
+    },
+    "xoi": {
+      "local": "Xôi",
+      "note": {
+        "en": "Vietnamese steamed glutinous (sticky) rice dish, served sweet or savory, traditionally a popular breakfast and street-vendor food.",
+        "fr": "Plat vietnamien de riz gluant cuit à la vapeur, sucré ou salé, traditionnellement prisé au petit-déjeuner et chez les vendeurs de rue."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Xôi",
+          "url": "https://en.wikipedia.org/wiki/X%C3%B4i"
+        },
+        {
+          "name": "TasteAtlas - Xôi",
+          "url": "https://www.tasteatlas.com/xoi"
+        }
+      ]
+    },
+    "che": {
+      "local": "Chè",
+      "note": {
+        "en": "Vietnamese sweet soup or pudding made with a water or coconut-cream base and beans, jelly, sticky rice or fruit, served hot or cold.",
+        "fr": "Soupe ou crème sucrée vietnamienne à base d'eau ou de lait de coco, avec haricots, gelée, riz gluant ou fruits, servie chaude ou froide."
+      },
+      "sources": [
+        {
+          "name": "Chè - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ch%C3%A8"
+        },
+        {
+          "name": "Chè - TasteAtlas",
+          "url": "https://www.tasteatlas.com/che"
+        }
+      ]
+    },
+    "vietnamese coffee (ca phe sua da)": {
+      "local": "Cà phê sữa đá",
+      "note": {
+        "en": "Dark-roast robusta dripped through a metal phin filter onto sweetened condensed milk over ice, a French-colonial take on cafe au lait.",
+        "fr": "Robusta torrefie fonce filtre au phin metallique sur lait concentre sucre et glacons, version coloniale francaise du cafe au lait."
+      },
+      "sources": [
+        {
+          "name": "Vietnamese iced coffee - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Vietnamese_iced_coffee"
+        },
+        {
+          "name": "A Guide to Vietnamese Coffee - Michelin Guide",
+          "url": "https://guide.michelin.com/en/article/features/iconic-dishes-a-guide-to-vietnamese-coffee"
+        }
+      ]
+    },
+    "vietnamese egg coffee (ca phe trung)": {
+      "local": "Cà Phê Trứng",
+      "note": {
+        "en": "Hanoi coffee topped with a whipped foam of egg yolk and condensed milk, created in 1946 at Cafe Giang as a milk substitute.",
+        "fr": "Cafe de Hanoi nappe d'une mousse fouettee de jaune d'oeuf et lait concentre, cree en 1946 au Cafe Giang en remplacement du lait."
+      },
+      "sources": [
+        {
+          "name": "Egg coffee - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Egg_coffee"
+        },
+        {
+          "name": "Michelin Guide - How to Make Vietnam's Iconic Egg Coffee the MICHELIN Way",
+          "url": "https://guide.michelin.com/vn/en/article/dining-in/how-to-make-vietnam-egg-coffee-the-michelin-way"
+        }
+      ]
+    }
   }
 };
 
