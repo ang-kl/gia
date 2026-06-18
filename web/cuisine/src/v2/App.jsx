@@ -804,6 +804,27 @@ export default function App() {
   // classic" pill (a glassmorphism dropdown), so the header stays compact + the map
   // gets more room. classicOpen drives that dropdown.
   const [classicOpen, setClassicOpen] = useState(false);
+  // v0.62.189 — operator (IMG_2516): after 8 s IDLE in the refine-location editor,
+  // auto-CLOSE it and let the Cuisine + Local-classic tabs re-appear. Re-armed on
+  // open, on a mode-tab tap, and on every keystroke in the field (onActivity);
+  // closing only flips UI state (no search fires — honours the no-auto-fire rule).
+  const locIdleTimerRef = useRef(null);
+  const armLocIdleClose = () => {
+    if (locIdleTimerRef.current) clearTimeout(locIdleTimerRef.current);
+    locIdleTimerRef.current = setTimeout(() => {
+      setModePeek(false);
+      setRegionExpanded(false);
+    }, 8000);
+  };
+  useEffect(() => {
+    if (!modePeek) {
+      if (locIdleTimerRef.current) { clearTimeout(locIdleTimerRef.current); locIdleTimerRef.current = null; }
+      return undefined;
+    }
+    armLocIdleClose();
+    return () => { if (locIdleTimerRef.current) clearTimeout(locIdleTimerRef.current); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modePeek]);
   // v0.62.180 — operator: "Back to last search area" must NOT show on first load
   // (there's no prior area to return to). Flips true on the first user-initiated
   // location change (region pill / location pick / search).
@@ -3205,7 +3226,9 @@ export default function App() {
           minHeight: 'var(--tg-viewport-stable-height, 100vh)',
           // v0.62.141 — reserve just enough for the compacted 2-row footer
         // (operator: the blank footer band was too tall — roughly halved).
-        paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))'
+        // v0.62.189 — operator (IMG_2516): "too much white space, I like the
+        // bottom to fill" — reserve halved again (5rem → 2.5rem).
+        paddingBottom: 'calc(2.5rem + env(safe-area-inset-bottom, 0px))'
         }}
       >
         {locationModals}
@@ -3257,7 +3280,9 @@ export default function App() {
         minHeight: 'var(--tg-viewport-stable-height, 100vh)',
         // v0.62.141 — reserve just enough for the compacted 2-row footer
         // (operator: the blank footer band was too tall — roughly halved).
-        paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))'
+        // v0.62.189 — operator (IMG_2516): "too much white space, I like the
+        // bottom to fill" — reserve halved again (5rem → 2.5rem).
+        paddingBottom: 'calc(2.5rem + env(safe-area-inset-bottom, 0px))'
       }}
     >
       {/* v0.61.285 — fun-fact modal during the rotating-search wait
@@ -3391,6 +3416,11 @@ export default function App() {
             // which carries the selection by SHAPE — colour-blind safe.
             const borderCls = sel ? 'border-tg-accent' : 'border-tg-border/60';
             const textCls = sel ? 'text-tg-accent' : 'text-tg-text';
+            // v0.62.189 — operator (IMG_2515): "Johor Bahru" must show in FULL (it
+            // was truncating to "Johor B…"). Give the JB tab its content width; the
+            // other three modes proportion the remaining row space (flex-1).
+            const isJB = r.id === 'JB';
+            const widthCls = isJB ? 'shrink-0 whitespace-nowrap' : 'flex-1 basis-0 min-w-0 overflow-hidden';
             return (
               <button key={r.id} type="button"
                 onClick={() => {
@@ -3413,6 +3443,7 @@ export default function App() {
                   // here"); the region-change anchor logic below stays guarded on a
                   // real change, so no search fires.
                   setModePeek(true);
+                  armLocIdleClose();   // v0.62.189 — (re)start the 8 s idle-close timer
                   // v0.62.150 — operator: a mode switch must NOT wipe the result
                   // list/strip — the results "always be there", same as the
                   // vertical listing. The previous region's results persist until
@@ -3510,12 +3541,12 @@ export default function App() {
                    ring for the .glass-pill--selected treatment (skeuomorphic /
                    pressed-in in dark mode). */
                 className={modePeek
-                  ? `folio-tab flex-1 basis-0 min-w-0 overflow-hidden justify-center inline-flex items-center gap-1 active:scale-95 ${sel ? 'folio-tab--active' : ''}`
-                  : `glass-pill flex-1 basis-0 px-1 py-1.5 rounded-xl border text-[11px] whitespace-nowrap inline-flex items-center justify-center gap-1 ${sel ? 'glass-pill--selected ' : ''}${borderCls} ${textCls}`}>
+                  ? `folio-tab ${widthCls} justify-center inline-flex items-center gap-1 active:scale-95 ${sel ? 'folio-tab--active' : ''}`
+                  : `glass-pill ${isJB ? 'shrink-0' : 'flex-1 basis-0'} px-1 py-1.5 rounded-xl border text-[11px] whitespace-nowrap inline-flex items-center justify-center gap-1 ${sel ? 'glass-pill--selected ' : ''}${borderCls} ${textCls}`}>
                 {(r.flag.endsWith('.png') || r.flag.endsWith('.svg'))
                   ? <img src={r.flag} alt="" width="18" height="12" className="rounded-sm border border-tg-border/40 flex-shrink-0" />
                   : <span aria-hidden>{r.flag}</span>}
-                <span className="truncate">{r.label}</span>
+                <span className={isJB ? '' : 'truncate'}>{r.label}</span>
               </button>
             );
           })}
@@ -3549,6 +3580,9 @@ export default function App() {
                     : tn('banner.places.many', lang, { n: venues.length })))}
               onSelect={onLocationSelect}
               onSearch={triggerSearch}
+              /* v0.62.189 — typing in the field re-arms the 8 s idle-close timer
+                 so the editor never closes mid-entry. */
+              onActivity={armLocIdleClose}
               /* v0.61.191 — OTHER region's country picker. countryPref is
                  one of the 16 ISO codes from countries.js; onCountryChange
                  updates state.countryPref so the next Places search-by-
@@ -4510,7 +4544,7 @@ export default function App() {
           2-line footer. */}
       <div
         className="fixed inset-x-0 bottom-0 z-30 pointer-events-none px-2 flex flex-col gap-1.5"
-        style={{ paddingBottom: 'calc(0.3rem + env(safe-area-inset-bottom, 0px))' }}
+        style={{ paddingBottom: 'calc(0.15rem + env(safe-area-inset-bottom, 0px) * 0.5)' }}
       >
         {/* v0.62.163 — operator: the active-filter strip moved DOWN to sit JUST
             ABOVE the list/cuisine + free-text row (it used to float here, above
@@ -4578,7 +4612,9 @@ export default function App() {
                 ? (lang === 'fr' ? 'Afficher les résultats' : 'Show results')
                 : (lang === 'fr' ? 'Fermer les résultats' : 'Close results')}
               className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
-            >{drawerDismissed ? '📖' : '📘'} {lang === 'fr' ? 'résultats' : 'results'}</button>
+            >{drawerDismissed
+              ? `📖 ${lang === 'fr' ? 'afficher résultats' : 'show results'}`
+              : `📘 ${lang === 'fr' ? 'masquer résultats' : 'hide results'}`}</button>
             {!drawerDismissed && (
               <button
                 type="button"

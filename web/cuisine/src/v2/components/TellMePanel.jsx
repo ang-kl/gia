@@ -60,7 +60,9 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
           medium-contrast colour the Telegram theme adapts for both
           light and dark — and bumped to a 2px width so the input
           reads as a distinct, tappable field. */}
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl border-2 border-tg-hint/60 bg-tg-card">
+      {/* v0.62.189 — operator (IMG_2516): trim the free-text bar height ~20%
+          (py-1.5 → py-1, FAB 9 → 8) so the map/results get more room. */}
+      <div className="flex items-center gap-2 px-3 py-1 rounded-2xl border-2 border-tg-hint/60 bg-tg-card">
         <span aria-hidden className="text-tg-hint flex-shrink-0">💬</span>
         <input
           type="text"
@@ -83,7 +85,7 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
             ? (lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat')
             : tr('tellme.submit', lang)}
           className={searchIcon
-            ? `w-9 h-9 rounded-full bg-tg-accent text-tg-accent-text border-2 border-white/40 shadow-lg flex items-center justify-center text-base disabled:opacity-40 flex-shrink-0 transition-all active:scale-95 ${
+            ? `w-8 h-8 rounded-full bg-tg-accent text-tg-accent-text border-2 border-white/40 shadow-lg flex items-center justify-center text-base disabled:opacity-40 flex-shrink-0 transition-all active:scale-95 ${
                 (searchPulse || (text.trim() && !submitting && !loading)) && !searchDisabled ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''
               }`
             : `text-xs px-2.5 py-1 rounded-full bg-tg-accent text-tg-accent-text disabled:opacity-40 flex-shrink-0 transition-all ${

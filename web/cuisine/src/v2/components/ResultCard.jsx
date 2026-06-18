@@ -94,7 +94,11 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
         : `${Math.round(venue.distanceM)} m`)
     : '';
   const distMeta = distLabel ? `📍 ${distLabel}${lang === 'fr' ? '' : ' away'}` : '';
-  const meta = [rating, price, open, distMeta].filter(Boolean).join(' · ');
+  // v0.62.189 — operator (IMG_2514): in the HORIZONTAL strip the ★rating + $price
+  // ride the cuisine-type row ("Italian · ★4.5 · $$$"), so the meta line below
+  // carries only open-hours + distance. The vertical list keeps the full meta.
+  const meta = (horizontal ? [open, distMeta] : [rating, price, open, distMeta])
+    .filter(Boolean).join(' · ');
 
   // v0.57.13: open Google Maps via Telegram.WebApp.openLink. Inside
   // the TMA WebView, plain <a target="_blank"> often does nothing —
@@ -257,8 +261,13 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               word stripped server-side. Renders directly under the
               venue name so users see the cuisine descriptor at a
               glance without scanning chips. */}
-          {venue.restaurantType && (
-            <div className="text-[12px] text-tg-text/80 truncate">{venue.restaurantType}</div>
+          {/* v0.62.189 — operator (IMG_2514): horizontal cards put ★rating + $price
+              on this cuisine-type row (e.g. "Italian · ★4.5 · $$$"); when there's
+              no type they read "★4.5 · $$$". Vertical keeps the bare type line. */}
+          {(venue.restaurantType || (horizontal && (rating || price))) && (
+            <div className="text-[12px] text-tg-text/80 truncate">
+              {[venue.restaurantType, horizontal && rating, horizontal && price].filter(Boolean).join(' · ')}
+            </div>
           )}
           {/* v0.61.255 — operator: "For Durian Pastry, if the
               resturant/eateries is not Durian per se, but a note in
