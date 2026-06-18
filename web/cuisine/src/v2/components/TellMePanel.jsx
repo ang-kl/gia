@@ -62,7 +62,10 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
           reads as a distinct, tappable field. */}
       {/* v0.62.189 — operator (IMG_2516): trim the free-text bar height ~20%
           (py-1.5 → py-1, FAB 9 → 8) so the map/results get more room. */}
-      <div className="flex items-center gap-2 px-3 py-1 rounded-2xl border-2 border-tg-hint/60 bg-tg-card">
+      {/* v0.62.206 — operator: the free-text field was a curved pill that read
+          with "white spacing" in dark mode. Make it a square-edged BOX
+          (rounded-md) with a solid card fill. */}
+      <div className="flex items-center gap-2 px-3 py-1 rounded-md border-2 border-tg-hint/60 bg-tg-card">
         <span aria-hidden className="text-tg-hint flex-shrink-0">💬</span>
         <input
           type="text"
