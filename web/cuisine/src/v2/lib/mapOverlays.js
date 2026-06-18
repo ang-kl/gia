@@ -566,6 +566,66 @@ function busTierNode(tier, code) {
   return el;
 }
 
+// v0.62.193 — operator: the 🍚 Hawker overlay now renders with the SAME
+// zoom-tier ladder as the Train-line / Bus-stop overlays — H-coded pins
+// (H1, H2, H3…, numbered by distance to the search anchor):
+//   z17+  'full'  : H-chip + the FULL hawker-centre name, word-wrapped @120 px
+//   z16   'code'  : just the H1/H2/H3 navy chip (declutter — "hawker nearby")
+//   z15   'short' : H-chip (1 px smaller) + a SHORT area name ("Tanjong Pagar")
+//   z13–14 'mini' : a small H navy chip
+//   z<13  'dot'   : a tiny navy dot
+const HAWKER_NAVY = '#1a237e';   // Material Indigo 900 — the operator's "dark navy"
+function hawkerTier(zoom) {
+  if (zoom >= 17) return 'full';
+  if (zoom >= 16) return 'code';
+  if (zoom >= 15) return 'short';
+  if (zoom >= 13) return 'mini';
+  return 'dot';
+}
+// Derive the short area label from a hawker-centre name: drop the generic
+// facility words, keep up to the first two words ("Tanjong Pagar Plaza Market &
+// Food Centre" → "Tanjong Pagar"; "Chinatown Complex …" → "Chinatown").
+function hawkerShort(name) {
+  let s = String(name || '').trim();
+  s = s.replace(/\s*[-–—]?\s*(Blk|Block)\b.*$/i, '');
+  s = s.replace(/\s*(Market\s*(&|and)?\s*Food\s*Centre|Food\s*Centre|Hawker\s*Centre|Food\s*Court|Market|Complex|Centre)\b.*$/i, '').trim();
+  const words = s.split(/\s+/).filter(Boolean);
+  return words.slice(0, 2).join(' ') || String(name || '');
+}
+function hawkerNavyChipEl(code, fontPx) {
+  const c = document.createElement('span');
+  c.textContent = code;
+  c.style.cssText = 'display:inline-block;background:' + HAWKER_NAVY + ';color:#fff;'
+    + 'border-radius:5px;padding:0 4px;margin-right:4px;font-weight:800;'
+    + 'font-size:' + fontPx + 'px;line-height:1.5;';
+  return c;
+}
+function hawkerTierNode(tier, code, name, short) {
+  const el = document.createElement('div');
+  if (tier === 'code' || tier === 'mini') {
+    const sz = tier === 'mini' ? 9 : 11;
+    el.textContent = code;
+    el.style.cssText = 'display:inline-block;background:' + HAWKER_NAVY + ';color:#fff;'
+      + 'border-radius:6px;padding:1px 5px;font-weight:800;font-size:' + sz + 'px;'
+      + 'line-height:1.5;border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:pointer;';
+  } else if (tier === 'short' || tier === 'full') {
+    const nameFont = 11;
+    el.style.cssText = (tier === 'full'
+        ? 'display:inline-block;max-width:120px;white-space:normal;word-break:break-word;line-height:1.3;padding:2px 6px;'
+        : 'display:inline-flex;align-items:center;white-space:nowrap;line-height:1.5;padding:1px 6px;')
+      + 'background:#fff;color:#1c1c1f;border-radius:8px;border:1.5px solid #fff;'
+      + 'box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:pointer;font-weight:700;font-size:' + nameFont + 'px;';
+    el.appendChild(hawkerNavyChipEl(code, nameFont - 1));
+    const t = document.createElement('span');
+    t.textContent = tier === 'full' ? (name || '') : (short || name || '');
+    el.appendChild(t);
+  } else { // 'dot'
+    el.style.cssText = 'width:10px;height:10px;border-radius:50%;background:' + HAWKER_NAVY + ';'
+      + 'border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.45);cursor:pointer;';
+  }
+  return el;
+}
+
 // v0.61.82 — CR-5: compact zoomed-out exit marker. A low-chrome text
 // node carrying only the alphanumeric exit identifier (e.g. "A", "12");
 // a white halo keeps it legible over the greyscale base map. Above the
@@ -1360,6 +1420,35 @@ export function createOverlayController(map, googleMaps, opts) {
     });
   }
 
+  // v0.62.193 — Hawker-centre overlay markers, tiered like the bus stops. Each
+  // centre gets an H-code (H1, H2, H3…) numbered by distance to the search
+  // anchor so the NEARBY centres read H1/H2/H3; applyVisibility swaps
+  // marker.content per hawkerTier as the user zooms. radius-clipped (the
+  // `_hawker` items go through the same inRadius gate, so only the surrounding
+  // centres draw).
+  function buildHawkerMarkers(features) {
+    const z0 = map.getZoom?.() || 0;
+    const hinfo = poiInfo('🍚');
+    let ordered = (features || []).slice();
+    if (anchor && Number.isFinite(anchor.lat) && Number.isFinite(anchor.lng)) {
+      ordered.sort((a, b) =>
+        metresBetween(anchor.lat, anchor.lng, a.lat, a.lng)
+        - metresBetween(anchor.lat, anchor.lng, b.lat, b.lng));
+    }
+    return ordered.map((f, i) => {
+      const code = 'H' + (i + 1);
+      const short = hawkerShort(f.name);
+      const marker = new AdvancedMarkerElement({
+        position: { lat: f.lat, lng: f.lng },
+        content: hawkerTierNode(hawkerTier(z0), code, f.name, short),
+        title: f.name || '',
+        gmpClickable: true
+      });
+      marker.addListener('click', () => { info.setContent(hinfo(f)); info.open(map, marker); });
+      return { marker, lat: f.lat, lng: f.lng, _hawker: true, _code: code, _name: f.name || '', _short: short, _hawkerTier: null };
+    });
+  }
+
   // v0.61.24 — MRT-exit overlay pins; a tap opens the Exit Template popup.
   // v0.61.82 — CR-5: dual-state like the bus-stop pins. Compact bare
   // identifier ("A") when zoomed out; full white "Exit A" card at/above
@@ -1924,12 +2013,15 @@ export function createOverlayController(map, googleMaps, opts) {
       entry = { kind: 'marker', visible: false,
         items: buildBusMarkers(d.busstops) };
     } else if (name === 'hawker') {
-      // v0.62.184 — 🍚 Hawker centres, tiered (dot → glyph → glyph+name) +
-      // radius-clipped via applyVisibility, so only those near the results draw.
+      // v0.62.184 — 🍚 Hawker centres, radius-clipped via applyVisibility so only
+      // those near the results draw.
+      // v0.62.193 — operator: render with the Train/Bus zoom-tier ladder —
+      // H-coded pins (H1/H2/H3 by anchor distance), short area name @z15, full
+      // name @z17 (see buildHawkerMarkers / hawkerTier).
       const d = await fetchHawkerCentres();
       if (destroyed) return null;
       entry = { kind: 'marker', visible: false,
-        items: buildMarkers(d.centres, '#E65100', '🍚', poiInfo('🍚'), null, true) };
+        items: buildHawkerMarkers(d.centres) };
     } else if (name === 'train') {
       const [lp, st] = await Promise.all([fetchLinePaths(), fetchStations()]);
       if (destroyed) return null;
@@ -2364,6 +2456,13 @@ export function createOverlayController(map, googleMaps, opts) {
         if (it._busTier !== bt) {
           it.marker.content = busTierNode(bt, it._code);
           it._busTier = bt;
+        }
+      } else if (it._hawker && e.visible && near) {
+        // v0.62.193 — H-coded hawker pins follow the hawkerTier ladder.
+        const ht = hawkerTier(zoom);
+        if (it._hawkerTier !== ht) {
+          it.marker.content = hawkerTierNode(ht, it._code, it._name, it._short);
+          it._hawkerTier = ht;
         }
       } else if (it._exit && e.visible && near) {
         const want = zoomedIn ? it.full : it.compact;
