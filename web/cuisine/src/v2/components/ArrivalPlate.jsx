@@ -84,8 +84,11 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
   // why the two-tier collapse "wasn't wired"). 0 collapsed → 1 one-line peek →
   // 2 full → 0.
   const [cuisineStage, setCuisineStage] = useState(0);
+  // v0.62.181 — operator: food-group sections rendered as folio FOLDER TABS; this
+  // is the active tab (the group whose dishes show in the connected content panel).
+  const [activeGroup, setActiveGroup] = useState(0);
   // New city / cuisine → collapse + close any bubble.
-  useEffect(() => { setOpen(false); setGeoStage(0); setCuisineStage(0); setFactIdx(null); setClassicsOpen(false); }, [plate?.city, plate?.cuisineSlug]);
+  useEffect(() => { setOpen(false); setGeoStage(0); setCuisineStage(0); setFactIdx(null); setClassicsOpen(false); setActiveGroup(0); }, [plate?.city, plate?.cuisineSlug]);
 
   const fr = lang === 'fr';
 
@@ -180,71 +183,62 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                 )}
               </React.Fragment>
             ))}
-            {/* food-group sections, ascending size; dish chips → same search.
-                v0.62.x Phase 2b — chips whose dish carries a curated `note`
-                become a SPLIT chip: name → search, 📜 → fact card rendered
-                full-width under the section (factIdx keyed group:dish). */}
-            {groups.map((g) => {
+            {/* v0.62.181 — operator: food-group sections as FOLIO FOLDER TABS — the
+                group "type" is a glass tab physically connected to the content
+                panel below; the panel lists that type's dishes as a middle-dot
+                list (explain-first when curated; else a direct search). */}
+            {groups.length > 0 && (() => {
+              const gi = Math.min(activeGroup, groups.length - 1);
+              const g = groups[gi];
               const openDish = g.dishes.find((d) => d.note && factIdx === g.group + ':' + d.dish);
               return (
-              <div key={g.group} className="border-t border-tg-border/40 pt-1.5 pb-1">
-                <div className="text-tg-hint text-[11px] pb-1">
-                  {(fr ? g.label.fr : g.label.en)} <span className="opacity-70">({g.dishes.length})</span>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {g.dishes.map((d) => d.note ? (
-                    <span key={d.dish} className="inline-flex items-stretch rounded-xl border border-tg-hint/40 overflow-hidden">
+                <div className="mt-1.5">
+                  <div className="folio-tabs overflow-x-auto whitespace-nowrap">
+                    {groups.map((gg, i) => (
                       <button
+                        key={gg.group}
                         type="button"
-                        className="min-h-[40px] pl-2.5 pr-1.5 text-left"
-                        aria-label={(fr ? 'Expliquer ' : 'Explain ') + d.dish}
-                        /* v0.62.162 — explain first: a curated chip opens its card. */
-                        onClick={() => setFactIdx(factIdx === g.group + ':' + d.dish ? null : g.group + ':' + d.dish)}
-                      >
-                        <span>{titleCaseDish(d.dish)}</span>
-                        {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
-                      </button>
-                      <button
-                        type="button"
-                        className="min-h-[40px] px-2 border-l border-tg-hint/30 text-[13px]"
-                        aria-label={(fr ? 'Histoire de ' : 'History of ') + d.dish}
-                        onClick={() => setFactIdx(factIdx === g.group + ':' + d.dish ? null : g.group + ':' + d.dish)}
-                      >📜</button>
-                    </span>
-                  ) : (
-                    <button
-                      key={d.dish}
-                      type="button"
-                      className="min-h-[40px] px-2.5 rounded-xl border border-tg-hint/40 text-left"
-                      aria-label={(fr ? 'Chercher ' : 'Search ') + d.dish}
-                      onClick={() => { if (onTryDish) onTryDish(d.dish); }}
-                    >
-                      <span>{titleCaseDish(d.dish)}</span>
-                      {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
-                    </button>
-                  ))}
-                </div>
-                {openDish && (
-                  <div className="mt-1.5 mb-0.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
-                    <div className="font-semibold">📜 {titleCaseDish(openDish.dish)}{openDish.local && openDish.local !== openDish.dish ? ` · ${openDish.local}` : ''}</div>
-                    <div className="mt-1">{(fr ? openDish.note.fr : openDish.note.en) || openDish.note.en || ''}</div>
-                    <div className="mt-2 flex items-center justify-between gap-2">
-                      <button
-                        type="button"
-                        className="glass-pill shrink-0 px-2.5 py-0.5 rounded-full border-[0.5px] border-tg-accent/70 text-[10px] font-semibold text-tg-text"
-                        onClick={() => { const dish = openDish.dish; setFactIdx(null); if (onTryDish) onTryDish(dish); }}
-                      >🔍 {fr ? 'Trouver des adresses' : 'Find eateries'}</button>
-                      <button
-                        type="button"
-                        className="text-tg-hint text-[12px]"
-                        aria-label={fr ? 'Fermer' : 'Close'}
-                        onClick={() => setFactIdx(null)}
-                      >{fr ? '[ fermer ]' : '[ close ]'}</button>
-                    </div>
+                        aria-selected={i === gi}
+                        onClick={() => { setActiveGroup(i); setFactIdx(null); }}
+                        className={`folio-tab shrink-0 active:scale-95 ${i === gi ? 'folio-tab--active' : ''}`}
+                      >{(fr ? gg.label.fr : gg.label.en)} <span className="opacity-70">({gg.dishes.length})</span></button>
+                    ))}
                   </div>
-                )}
-              </div>
-            );})}
+                  <div className="folio-panel px-2.5 py-2 text-[12px] leading-relaxed">
+                    {g.dishes.map((d, idx) => (
+                      <React.Fragment key={d.dish}>
+                        {idx > 0 && <span className="text-tg-hint"> · </span>}
+                        <button
+                          type="button"
+                          className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
+                          aria-label={(d.note ? (fr ? 'Expliquer ' : 'Explain ') : (fr ? 'Chercher ' : 'Search ')) + d.dish}
+                          onClick={() => { if (d.note) setFactIdx(factIdx === g.group + ':' + d.dish ? null : g.group + ':' + d.dish); else if (onTryDish) onTryDish(d.dish); }}
+                        >{titleCaseDish(d.dish)}{d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}</button>
+                      </React.Fragment>
+                    ))}
+                    {openDish && (
+                      <div className="mt-2 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
+                        <div className="font-semibold">📜 {titleCaseDish(openDish.dish)}{openDish.local && openDish.local !== openDish.dish ? ` · ${openDish.local}` : ''}</div>
+                        <div className="mt-1">{(fr ? openDish.note.fr : openDish.note.en) || openDish.note.en || ''}</div>
+                        <div className="mt-2 flex items-center justify-between gap-2">
+                          <button
+                            type="button"
+                            className="glass-pill shrink-0 px-2.5 py-0.5 rounded-full border-[0.5px] border-tg-accent/70 text-[10px] font-semibold text-tg-text"
+                            onClick={() => { const dish = openDish.dish; setFactIdx(null); if (onTryDish) onTryDish(dish); }}
+                          >🔍 {fr ? 'Trouver des adresses' : 'Find eateries'}</button>
+                          <button
+                            type="button"
+                            className="text-tg-hint text-[12px]"
+                            aria-label={fr ? 'Fermer' : 'Close'}
+                            onClick={() => setFactIdx(null)}
+                          >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
       </div>
