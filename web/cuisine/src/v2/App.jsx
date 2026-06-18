@@ -468,6 +468,11 @@ export default function App() {
   // calm; once warm-start finishes we briefly pulse the "Edit search"
   // pill so the builder is discoverable without forcing it open.
   const [criteriaOpen, setCriteriaOpen] = useState(false);
+  // v0.62.188 — operator (IMG_2509 follow-up "1"): the header Cuisine FOLIO TAB
+  // now opens its picker INLINE (a .folio-panel connected to the tab), parallel
+  // to the Local-classic tab — instead of the footer "Edit search" bottom sheet.
+  // This is its own flag so the footer criteria sheet (criteriaOpen) is untouched.
+  const [cuisinePickOpen, setCuisinePickOpen] = useState(false);
   // v0.61.426 — per-chat minimum-rating preference, shared with the
   // chat-side /rating (/ra) command via one Redis key. Kept as a dedicated
   // hook (NOT in `state`) so the filter-reset paths (`{...defaultState()}`)
@@ -3613,21 +3618,21 @@ export default function App() {
             <div className="folio-tabs">
               <button
                 type="button"
-                onClick={() => { setClassicOpen(false); setCriteriaOpen((o) => !o); }}
-                aria-expanded={criteriaOpen}
+                onClick={() => { setClassicOpen(false); setCriteriaOpen(false); setCuisinePickOpen((o) => !o); }}
+                aria-expanded={cuisinePickOpen}
                 aria-label={names.length
                   ? (lang === 'fr' ? `Cuisines : ${names.join(', ')}` : `Cuisines: ${names.join(', ')}`)
                   : (lang === 'fr' ? 'Choisir votre cuisine' : 'Choose your cuisine')}
-                className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] active:scale-95 ${criteriaOpen ? 'folio-tab--active' : ''} ${!names.length ? 'text-tg-accent font-semibold' : ''} ${!names.length && editSearchPulse ? 'animate-pulse' : ''}`}
+                className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] active:scale-95 ${cuisinePickOpen ? 'folio-tab--active' : ''} ${!names.length ? 'text-tg-accent font-semibold' : ''} ${!names.length && editSearchPulse ? 'animate-pulse' : ''}`}
               >
                 <span aria-hidden className="shrink-0">🍲</span>
                 <span className="flex-1 text-left truncate">{cuisineLabel}</span>
-                <span aria-hidden className="shrink-0 opacity-70">{criteriaOpen ? '▴' : '▾'}</span>
+                <span aria-hidden className="shrink-0 opacity-70">{cuisinePickOpen ? '▴' : '▾'}</span>
               </button>
               {hasPlate && (
                 <button
                   type="button"
-                  onClick={() => { setCriteriaOpen(false); setClassicOpen((o) => !o); }}
+                  onClick={() => { setCriteriaOpen(false); setCuisinePickOpen(false); setClassicOpen((o) => !o); }}
                   aria-expanded={classicOpen}
                   className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] active:scale-95 ${classicOpen ? 'folio-tab--active' : ''}`}
                 >
@@ -3639,6 +3644,43 @@ export default function App() {
             </div>
           );
         })()}
+        {/* v0.62.188 — operator (IMG_2509 follow-up "1"): the Cuisine picker opens
+            INLINE as a folio-panel connected to its tab (parallel to Local-classic),
+            replacing the footer bottom sheet for the HEADER tab. Pick chips → tap
+            🔍 Search to fire (no auto-fire). The footer "Edit search" sheet
+            (criteriaOpen) is untouched. */}
+        {!regionExpanded && cuisinePickOpen && catalogue && (
+          <div className="folio-panel px-2.5 py-2 max-h-[60vh] overflow-y-auto">
+            <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
+              region={state.region}
+              countryPref={state.countryPref}
+              michelinCuisines={(() => {
+                const cc = state.region === 'SG' ? 'SG'
+                  : (state.region === 'MY-PUT' || state.region === 'JB') ? 'MY'
+                  : String(state.countryPref || '').toUpperCase();
+                const byCC = michelinCuisinesByCC && michelinCuisinesByCC[cc];
+                if (!byCC) return null;
+                const city = selectedCityLocation?.name || locationAnchor?.name || null;
+                if (city && byCC.byCity && Array.isArray(byCC.byCity[city])) return byCC.byCity[city];
+                return Array.isArray(byCC.all) ? byCC.all : null;
+              })()}
+              specialMode={state.specialMode || null}
+              onSpecialModeChange={(mode) => setState((s) => ({ ...s, specialMode: mode || null }))}
+              onChange={(c) => setState((s) => ({ ...s, cuisines: c }))}
+              onCategoryClose={() => {
+                if (state.cuisines.length > 0) {
+                  setSearchHintActive(true);
+                  setTimeout(() => setSearchHintActive(false), 5000);
+                }
+              }} />
+            <button
+              type="button"
+              onClick={() => { setCuisinePickOpen(false); triggerSearch(); }}
+              disabled={loading}
+              className="mt-2 w-full text-xs font-semibold px-3 py-2 rounded-xl bg-tg-accent text-tg-bg active:scale-[0.99] disabled:opacity-50"
+            >{t('btn.search', lang)}</button>
+          </div>
+        )}
         {/* v0.62.176 — "Pick local classic" dropdown: the Local Food Classic plate as
             a glassmorphism "conversation" panel, shown ONLY when the pill is tapped
             (so the header stays compact and the map gets the space). */}
