@@ -908,15 +908,21 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
        rounded card frame + gutters). Vertical mode keeps the framed fixed-height
        card so the scrolling list reads below it. */
     <div className={fill
-      ? 'flex-1 min-h-0 -mx-3 md:-mx-6 lg:-mx-8 overflow-hidden relative bg-tg-card'
+      ? 'flex-1 min-h-[60vh] -mx-3 md:-mx-6 lg:-mx-8 overflow-hidden relative bg-tg-card'
       : 'rounded-lg border border-tg-border bg-tg-card overflow-hidden relative'}>
       {/* v0.58.17: map height scales with viewport (phone ~240 px floor; tablet/
-          desktop taller). v0.62.190: fill mode → height 100% of the flex-1 box. */}
+          desktop taller).
+          v0.62.191 — operator: the map looked SQUEEZED. Root cause: a percentage
+          height inside a flex-grow item does NOT resolve in Telegram's webview, so
+          the fill-mode map collapsed to its 240 px floor with empty card space
+          below. Fill the flex-1 box with ABSOLUTE inset-0 instead (reliable
+          regardless of percentage-height resolution); the wrapper also carries a
+          60vh floor so the map is always tall. */}
       <div
         ref={containerRef}
-        className={overlayLayers && overlayLayers.colour === false ? 'gia-greyscale-map' : undefined}
+        className={`${overlayLayers && overlayLayers.colour === false ? 'gia-greyscale-map' : ''} ${fill ? 'absolute inset-0' : ''}`.trim() || undefined}
         style={fill
-          ? { width: '100%', height: '100%', minHeight: 240 }
+          ? { width: '100%', height: '100%' }
           : {
               width: '100%',
               // v0.62.155 — operator: fill the white space below the map. Grow the
