@@ -446,6 +446,9 @@ export default function App() {
   // (ResultDrawer) over the map; the vertical list (page ResultPanel) is hidden
   // until the user toggles to 'vertical'. 'horizontal' | 'vertical'.
   const [drawerMode, setDrawerMode] = useState('horizontal');
+  // v0.62.177 — operator: switching to the vertical list scrolls to + briefly
+  // highlights where it starts ("Results #") so the user sees where it went.
+  const [resultsFlash, setResultsFlash] = useState(false);
   // v0.62.138 — ✕ "close list" dismisses the floating horizontal strip (→ map
   // only). Reset to false whenever a fresh result set arrives so a new search
   // re-shows the cards.
@@ -4136,7 +4139,7 @@ export default function App() {
           unmounted) so its pagination still feeds the map's visible-page
           markers (onPageChange → visibleVenues) and the ↴ toggle reveals it
           instantly. */}
-      <div ref={resultPanelRef} className={drawerMode === 'vertical' && !drawerDismissed ? '' : 'hidden'}>
+      <div ref={resultPanelRef} className={`${drawerMode === 'vertical' && !drawerDismissed ? '' : 'hidden'} ${resultsFlash ? 'rounded-xl ring-2 ring-tg-accent ring-offset-2 transition-shadow scroll-mt-20' : 'scroll-mt-20'}`}>
         {/* v0.60.149 — Michelin walk-through indicator. Reduces user
             surprise that each 🔍 tap loads 12 of ~130 curated venues
             rather than the whole curated list in one shot (which timed
@@ -4521,7 +4524,17 @@ export default function App() {
             {!drawerDismissed && (
               <button
                 type="button"
-                onClick={() => setDrawerMode((m) => (m === 'horizontal' ? 'vertical' : 'horizontal'))}
+                onClick={() => {
+                  const next = drawerMode === 'horizontal' ? 'vertical' : 'horizontal';
+                  setDrawerMode(next);
+                  // v0.62.177 — switching TO vertical scrolls to the list start
+                  // ("Results #") + a brief highlight so the user sees where it is.
+                  if (next === 'vertical') {
+                    setResultsFlash(true);
+                    setTimeout(() => resultPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+                    setTimeout(() => setResultsFlash(false), 1700);
+                  }
+                }}
                 aria-label={drawerMode === 'horizontal'
                   ? (lang === 'fr' ? 'Affichage vertical' : 'Vertical layout')
                   : (lang === 'fr' ? 'Affichage horizontal' : 'Horizontal layout')}
