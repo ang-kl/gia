@@ -348,7 +348,9 @@ const STRINGS = {
   'tellme.submit':             { en: 'Submit', fr: 'Envoyer' },
 
   // ----- Location field -----
-  'loc.searchLocation':        { en: 'Search location', fr: 'Rechercher un lieu' },
+  // v0.62.186 — operator (IMG_2507 #3): the empty field must prompt the user
+  // to ENTER a location (paired with a ✏️ pencil in the resting state).
+  'loc.searchLocation':        { en: 'Enter a location', fr: 'Saisir un lieu' },
   // v0.61.50 — loading-overlay messages (operator-specified copy).
   // v0.61.409 — leading ⏳ removed; the overlay card now renders a SPINNING
   // hourglass within the message (operator: "the spinning hourglass be within

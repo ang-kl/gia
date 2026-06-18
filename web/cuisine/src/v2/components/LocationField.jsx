@@ -354,6 +354,10 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
   const currentSafe = _isCountryOnly(currentLabel) ? '' : currentLabel;
   const resting = pickedSafe || anchorSafe || currentSafe || tr('loc.searchLocation', lang);
   const showClear = !!(pickedSafe || (anchorDiffers && anchorSafe));
+  // v0.62.186 — operator (IMG_2507 #3): when no real location is set yet, the
+  // resting label is the "Enter a location" placeholder — show it in hint style
+  // with a ✏️ pencil so it's obviously editable (vs a committed street/building).
+  const hasLoc = !!(pickedSafe || anchorSafe || currentSafe);
 
   // v0.61.265 — operator: "i select johor bahru, the street name
   // should be erased in the box." Region switching invalidates any
@@ -483,12 +487,12 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="flex-1 min-w-0 text-left text-sm text-tg-text inline-flex items-center gap-1.5"
+              className={`flex-1 min-w-0 text-left text-sm inline-flex items-center gap-1.5 ${hasLoc ? 'text-tg-text' : 'text-tg-hint'}`}
             >
-              {region === 'SG' && (
+              {hasLoc && region === 'SG' && (
                 <span aria-hidden className="flex-shrink-0">🇸🇬</span>
               )}
-              {region === 'JB' && (
+              {hasLoc && region === 'JB' && (
                 <img
                   src="MY_Johor_flag.png"
                   alt=""
@@ -497,6 +501,9 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
                   className="rounded-sm border border-tg-border/40 flex-shrink-0"
                 />
               )}
+              {/* v0.62.186 — operator (IMG_2507 #3): empty field → ✏️ pencil +
+                  "Enter a location" prompt so the edit affordance is obvious. */}
+              {!hasLoc && <span aria-hidden className="flex-shrink-0">✏️</span>}
               <span className="truncate">{resting}</span>
             </button>
           )}

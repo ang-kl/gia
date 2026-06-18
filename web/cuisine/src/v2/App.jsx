@@ -3342,11 +3342,18 @@ export default function App() {
         {/* v0.62.176 — operator: when "Click to change" is tapped (regionExpanded),
             the 4 mode pills sit in ONE glassmorphism container (the refine-location
             field appears just below, via modePeek); it collapses once a region is
-            picked or a location is typed/committed. */}
-        <div className={`flex gap-1.5 ${
+            picked or a location is typed/committed.
+            v0.62.186 — operator (IMG_2507 #5): "the background should wrap the
+            refine location." The 4 borderless modes AND the refine LocationField
+            now live INSIDE this single liquid-glass panel (the field was a
+            separate card below the header before). Collapsed (results showing,
+            editor closed) the whole block hides behind the "Set location is …"
+            line above. */}
+        <div className={
           venues.length > 0 && !regionExpanded ? 'hidden'
-            : (venues.length > 0 && regionExpanded ? 'bg-tg-bg/80 liquid-glass rounded-xl p-1.5' : '')
-        }`}>
+            : (modePeek ? 'bg-tg-bg/90 liquid-glass rounded-xl p-1.5 flex flex-col gap-2' : 'flex flex-col gap-1.5')
+        }>
+          <div className="flex gap-1.5">
           {[
             // v0.62.97 — 📍 Current: an ACTION (not a region toggle) that anchors
             // to the live device GPS. Listed first so "set me here" reads left→right.
@@ -3368,6 +3375,15 @@ export default function App() {
           ].map((r) => {
             // v0.62.97 — 📍 Current is an action button, never a "selected" region.
             const sel = !r.action && (state.region || 'SG') === r.id;
+            // v0.62.186 — operator (IMG_2507 #5): "the border of the four mode
+            // should remove, the background should wrap the refine location."
+            // When the editor is open (modePeek) the 4 pills are BORDERLESS — the
+            // single liquid-glass panel (the wrapper below) carries the frame; the
+            // selected pill still reads via .glass-pill--selected (pressed-in) +
+            // accent text (shape + label, colour-blind safe). Closed (first-load,
+            // no editor) the pills keep their individual borders.
+            const borderCls = modePeek ? 'border-transparent' : (sel ? 'border-tg-accent' : 'border-tg-border/60');
+            const textCls = sel ? 'text-tg-accent' : 'text-tg-text';
             return (
               <button key={r.id} type="button"
                 onClick={() => {
@@ -3381,18 +3397,20 @@ export default function App() {
                   // action) surfaces the Location + Local-food-picks fields as an
                   // opaque staging area so the user can confirm the new area before
                   // tapping 🔍. Scroll the in-flow fields back into view and flag the
-                  // opaque peek. Re-tapping the already-active region is a no-op.
-                  if (r.action || r.id !== (state.region || 'SG')) {
-                    setModePeek(true);
-                    // v0.62.150 — operator: a mode switch must NOT wipe the result
-                    // list/strip — the results "always be there", same as the
-                    // vertical listing. (Supersedes the v0.62.148 clear, which made
-                    // the strip + list FAB vanish on every switch.) The previous
-                    // region's results persist until the user re-runs the search
-                    // (no auto-fire) at the new anchor; the list FAB is now a
-                    // permanent control (below) so it never disappears either.
-                    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }
+                  // opaque peek.
+                  // v0.62.186 — operator (IMG_2507 #3): "Currently is Singapore, I
+                  // click on Singapore but the refine location field didn't appear."
+                  // The old `r.id !== state.region` gate skipped modePeek when
+                  // re-tapping the ALREADY-selected region, so the editor never
+                  // opened. ALWAYS open the editor now (re-tap = "let me refine
+                  // here"); the region-change anchor logic below stays guarded on a
+                  // real change, so no search fires.
+                  setModePeek(true);
+                  // v0.62.150 — operator: a mode switch must NOT wipe the result
+                  // list/strip — the results "always be there", same as the
+                  // vertical listing. The previous region's results persist until
+                  // the user re-runs the search (no auto-fire) at the new anchor.
+                  if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
                   // v0.62.97 — 📍 Current: resolve LIVE GPS, then bail (no region toggle).
                   if (r.id === 'CURRENT') { pickCurrentLocation(); return; }
                   explicitPickRef.current = true;   // v0.61.438 — F2: a pill tap is explicit
@@ -3484,7 +3502,7 @@ export default function App() {
                    Cities read as equally spaced. Selected pill drops the flat
                    ring for the .glass-pill--selected treatment (skeuomorphic /
                    pressed-in in dark mode). */
-                className={`glass-pill flex-1 basis-0 px-1 py-1.5 rounded-xl border text-[11px] whitespace-nowrap inline-flex items-center justify-center gap-1 ${sel ? 'glass-pill--selected border-tg-accent text-tg-accent' : 'border-tg-border/60 text-tg-text'}`}>
+                className={`glass-pill flex-1 basis-0 px-1 py-1.5 rounded-xl border text-[11px] whitespace-nowrap inline-flex items-center justify-center gap-1 ${sel ? 'glass-pill--selected ' : ''}${borderCls} ${textCls}`}>
                 {(r.flag.endsWith('.png') || r.flag.endsWith('.svg'))
                   ? <img src={r.flag} alt="" width="18" height="12" className="rounded-sm border border-tg-border/40 flex-shrink-0" />
                   : <span aria-hidden>{r.flag}</span>}
@@ -3492,6 +3510,67 @@ export default function App() {
               </button>
             );
           })}
+          </div>
+          {/* v0.62.186 — operator (IMG_2507 #5): the refine LocationField moved UP
+              into this same liquid-glass panel so ONE background wraps the 4 modes
+              + the field (it was a separate ringed card BELOW the header before).
+              Shown only while the editor is open (modePeek). No auto-fire —
+              onSelect just sets the anchor; the user taps 🔍 (onSearch). */}
+          {modePeek && (!userLoc ? (
+            <div className="text-[11px] text-tg-hint italic px-1 py-1">
+              📍 {lang === 'fr' ? 'Localisation en cours…' : 'Locating you…'}
+            </div>
+          ) : (
+            <LocationField
+              userLoc={userLoc}
+              region={state.region}
+              anchor={locationAnchor}
+              /* v0.61.423 — the previewed city (an OTHER city-dropdown pick that
+                 hasn't been committed via 🔍 yet) so the picker's field shows the
+                 SELECTION instead of the stale committed anchor. */
+              selectedCity={selectedCityLocation}
+              suffix={loading
+                ? t('banner.locating.suffix', lang)
+                : (!venues.length
+                  ? t('banner.no.match', lang)
+                  : (venues.length === 1
+                    ? t('banner.places.one', lang)
+                    : tn('banner.places.many', lang, { n: venues.length })))}
+              onSelect={onLocationSelect}
+              onSearch={triggerSearch}
+              /* v0.61.191 — OTHER region's country picker. countryPref is
+                 one of the 16 ISO codes from countries.js; onCountryChange
+                 updates state.countryPref so the next Places search-by-
+                 country call constrains to the right country. */
+              countryPref={state.countryPref || 'MY'}
+              onCountryChange={(code) => {
+                // v0.61.421 — operator: "I change from Japan to Hanoi it reset the
+                // OTHER mode and unhinged the others button." Re-assert region in
+                // the SAME setState as countryPref so no concurrent effect can
+                // transiently flip the pill away. (MY-PUT legacy is preserved.)
+                // v0.61.437 — code review F5: switching to a country with NO
+                // curated Michelin list (AU/NZ/ID/BN/…) kept a selected 'michelin'
+                // chip → an unexplained zero. Strip it here too (3-state rule; only
+                // on a provable `false`, never while the catalogue is loading).
+                explicitPickRef.current = true;   // v0.61.438 — F2: dropdown pick is explicit
+                // v0.62.x — operator: "the city dishes should clear once country
+                // and city is change." A country switch invalidates the old city's
+                // plate, so wipe BOTH plates — the next city pick + search re-fill.
+                setArrivalPlate(null);
+                setCuisinePlate(null);
+                setState((s) => {
+                  const allowed = michelinAllowedFor('OTHER', code, catalogue);
+                  const nextCuisines = allowed === false
+                    ? (s.cuisines || []).filter((c) => String(c).toLowerCase() !== 'michelin')
+                    : s.cuisines;
+                  return { ...s, countryPref: code, cuisines: nextCuisines, region: s.region === 'MY-PUT' ? 'MY-PUT' : 'OTHER' };
+                });
+                // v0.61.196 — fire-and-forget push to /api/cuisine/country-pref
+                // so the chat /location (v0.61.195) picks up the same value.
+                saveCountryPref(code).catch(() => { /* non-fatal */ });
+              }}
+            />
+          ))}
         </div>
         {/* v0.62.172 — operator: the Cuisine PICKER is the TMA's core action but
             was a tiny footer link ("how would a user know to tap it?"). Surface it
@@ -3580,97 +3659,10 @@ export default function App() {
         )}
       </header>
 
-      {/* v0.62.135 — Location + "Local food picks" staging area.
-          v0.62.144 — operator: these two fields are HIDDEN by default (header
-          alone, liquid glass — same as vertical mode once scrolled). They appear
-          ONLY for refinement when a DIFFERENT mode pill is tapped (modePeek →
-          opaque solid card + ring), and disappear again once a search fires or
-          the user scrolls down. Previously they stayed in flow (just changed
-          opacity), so in horizontal mode — a short, non-scrolling page — they
-          never went away. */}
-      <div className={modePeek
-        ? 'bg-tg-bg rounded-b-xl shadow-md ring-1 ring-tg-border px-2 py-2 -mx-1 flex flex-col gap-2'
-        : 'hidden'}>
-      {/* v0.61.29 — the editable LocationField sits here, above the map.
-          It replaces the static "📍 <place> · N places nearby" status
-          banner; the field was previously buried in the collapsed
-          Search-criteria section, so the anchor couldn't be changed
-          without expanding it (and the Google map has no text input).
-          The place count / search status now rides as a suffix.
-          The !userLoc branch keeps the v0.58.23 "Locating you…" state
-          shown while geolocation resolves. */}
-      {!userLoc ? (
-        <div className="text-[11px] text-tg-hint italic px-1 py-1">
-          📍 {lang === 'fr' ? 'Localisation en cours…' : 'Locating you…'}
-        </div>
-      ) : (
-        /* v0.61.247 — reverted the v0.61.241 mt-7 wrapper (operator:
-           "don't have large UI spacing gaps between SG/JB/Others
-           button inside the Cuisine TMA"). The location-suffix
-           speech bubble was removed in this PR so the 28 px breathing
-           room is no longer needed; the region pill row sits tight
-           above the LocationField again. */
-        <LocationField
-          userLoc={userLoc}
-          region={state.region}
-          anchor={locationAnchor}
-          /* v0.61.423 — the previewed city (an OTHER city-dropdown pick that
-             hasn't been committed via 🔍 yet) so the picker's field shows the
-             SELECTION instead of the stale committed anchor. */
-          selectedCity={selectedCityLocation}
-          suffix={loading
-            ? t('banner.locating.suffix', lang)
-            : (!venues.length
-              ? t('banner.no.match', lang)
-              : (venues.length === 1
-                ? t('banner.places.one', lang)
-                : tn('banner.places.many', lang, { n: venues.length })))}
-          onSelect={onLocationSelect}
-          onSearch={triggerSearch}
-          /* v0.61.191 — OTHER region's country picker. countryPref is
-             one of the 16 ISO codes from countries.js; onCountryChange
-             updates state.countryPref so the next Places search-by-
-             country call constrains to the right country. */
-          countryPref={state.countryPref || 'MY'}
-          onCountryChange={(code) => {
-            // v0.61.421 — operator: "I change from Japan to Hanoi it reset the
-            // OTHER mode and unhinged the others button. Ensure others/sg/johor
-            // bahru isn't easily unhinged." The country dropdown only ever shows
-            // in OTHER mode, so changing the country must KEEP the OTHER pill
-            // selected. Re-assert region in the SAME setState as countryPref so
-            // no concurrent effect can transiently flip the pill away. (MY-PUT
-            // legacy is preserved; anything else snaps to OTHER.)
-            // v0.61.437 — code review F5: switching to a country with NO
-            // curated Michelin list (AU/NZ/ID/BN/…) kept a selected
-            // 'michelin' chip → the next search returned an unexplained
-            // zero. Strip it here too (the same 3-state rule as the region
-            // pill; only on a provable `false` — never while the catalogue
-            // is still loading).
-            explicitPickRef.current = true;   // v0.61.438 — F2: dropdown pick is explicit
-            // v0.62.x — operator: "the city dishes should clear once country
-            // and city is change." A country switch invalidates the old city's
-            // plate (e.g. VN/Hanoi dishes lingering over MY/Putrajaya), so wipe
-            // BOTH plates here too — the city pick + next search re-fill them.
-            setArrivalPlate(null);
-            setCuisinePlate(null);
-            setState((s) => {
-              const allowed = michelinAllowedFor('OTHER', code, catalogue);
-              const nextCuisines = allowed === false
-                ? (s.cuisines || []).filter((c) => String(c).toLowerCase() !== 'michelin')
-                : s.cuisines;
-              return { ...s, countryPref: code, cuisines: nextCuisines, region: s.region === 'MY-PUT' ? 'MY-PUT' : 'OTHER' };
-            });
-            // v0.61.196 — fire-and-forget push to /api/cuisine/country-pref
-            // so the chat /location (v0.61.195) picks up the same value.
-            saveCountryPref(code).catch(() => { /* non-fatal */ });
-          }}
-        />
-      )}
-
-      {/* v0.62.158 — the "Local food picks" plate moved UP into the sticky header
-          (shown once results are out); only the Location field remains in this
-          mode-tap reveal panel. */}
-      </div>
+      {/* v0.62.186 — operator (IMG_2507 #5): the standalone "Location staging"
+          card that used to sit here (a separate ringed panel below the header)
+          was merged UP into the header's liquid-glass mode panel, so ONE glass
+          background now wraps the 4 modes + the refine LocationField. */}
 
       {(() => {
         // v0.61.353 — "↩ Back to last search area". Shows when the map view
@@ -3729,7 +3721,10 @@ export default function App() {
       {/* v0.62.141 — results DEFAULT to the horizontal floating strip (auto-shown
           when a result set exists). The list on/off + vertical/horizontal
           controls now live in the FOOTER (not on the strip). */}
-      {drawerMode === 'horizontal' && !drawerDismissed && (visibleVenues.length || venues.length) > 0 && (
+      {/* v0.62.186 — operator (IMG_2507 #1): "close the result when I click the
+          location." When the location editor is open (regionExpanded), hide the
+          horizontal result strip so the modes + refine field stage cleanly. */}
+      {drawerMode === 'horizontal' && !drawerDismissed && !regionExpanded && (visibleVenues.length || venues.length) > 0 && (
         <ResultDrawer
           venues={visibleVenues.length ? visibleVenues : venues}
           focusedPlaceId={focusedPlaceId}
@@ -4500,10 +4495,29 @@ export default function App() {
             );
           })()}
         </div>
-        {/* v0.62.178 — ROW B: results/vertical controls (+ ⇢ next) · the selected
-            cuisine/filter chips (moved here from the old end-to-end margin strip,
-            now filling the freed middle space) · top/back nav. */}
-        <div className="flex items-stretch gap-1.5">
+        {/* v0.62.186 — operator (IMG_2507 #2): the selected cuisine/filter chips
+            are a full-width END-TO-END strip ("strip margin and not a pill"),
+            ABOVE the controls row — not a bordered pill squeezed between the two
+            control cards. -mx-2 cancels the cluster gutter so it spans edge to
+            edge; border-y (not a rounded pill) gives the clean band. The result
+            cards clear it via the taller `hasFilters` drawer offset. */}
+        {criteriaSummary.length > 0 && (
+          <div className="pointer-events-auto -mx-2 px-3 py-1 bg-tg-bg/90 liquid-glass border-y border-tg-border/40 shadow-sm flex items-center overflow-x-auto">
+            <ActiveFilters
+              cuisines={state.cuisines}
+              filters={state.filters}
+              onRemoveCuisine={removeCuisine}
+              onRemoveFilter={removeFilter}
+              onResetAll={clearAll}
+              nameForCuisine={(slug) => {
+                if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
+                return cuisineNameBySlug.get(slug) || null;
+              }}
+            />
+          </div>
+        )}
+        {/* v0.62.178 — ROW B controls: results/vertical (+ ⇢ next) · top/back nav. */}
+        <div className="flex items-stretch gap-1.5 justify-between">
           <div className="pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg px-2.5 py-1 flex flex-col items-start justify-center gap-0.5 text-[10px] leading-tight font-semibold shrink-0">
             <button
               type="button"
@@ -4542,24 +4556,6 @@ export default function App() {
                 aria-label={lang === 'fr' ? 'Liste suivante' : 'Next list'}
                 className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
               >⇢ {lang === 'fr' ? 'suivant' : 'next'}</button>
-            )}
-          </div>
-          {/* selected cuisine/filter chips — was the end-to-end margin strip. */}
-          <div className="flex-1 min-w-0 pointer-events-auto rounded-2xl bg-tg-bg/90 liquid-glass border border-tg-border/50 shadow-lg px-2 flex items-center overflow-x-auto">
-            {criteriaSummary.length > 0 ? (
-              <ActiveFilters
-                cuisines={state.cuisines}
-                filters={state.filters}
-                onRemoveCuisine={removeCuisine}
-                onRemoveFilter={removeFilter}
-                onResetAll={clearAll}
-                nameForCuisine={(slug) => {
-                  if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
-                  return cuisineNameBySlug.get(slug) || null;
-                }}
-              />
-            ) : (
-              <span className="text-[10px] text-tg-hint italic px-1 whitespace-nowrap">{lang === 'fr' ? 'Aucune cuisine / plat' : 'No cuisine / dish yet'}</span>
             )}
           </div>
           <div className="pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg px-2.5 py-1 flex flex-col items-stretch justify-center gap-0.5 text-[10px] leading-tight font-semibold shrink-0">
