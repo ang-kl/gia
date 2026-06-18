@@ -8661,6 +8661,5088 @@ const CUISINE_NOTES = {
         }
       ]
     }
+  },
+  "eurasian": {
+    "devil curry": {
+      "local": "Kari Debal",
+      "note": {
+        "en": "A fiery Eurasian Kristang curry of Portuguese-Malaccan origin, soured with vinegar; \"debal\" means leftovers, eaten after Christmas.",
+        "fr": "Un curry eurasien kristang très épicé d'origine portugaise-malaccaise, acidulé au vinaigre ; \"debal\" signifie restes, mangé après Noël."
+      },
+      "sources": [
+        {
+          "name": "Devil's curry - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Devil's_curry"
+        },
+        {
+          "name": "Devil's Curry - Authentic Eurasian Curry Debal - Rasa Malaysia",
+          "url": "https://rasamalaysia.com/devils-curry/"
+        }
+      ]
+    },
+    "sugee cake": {
+      "local": "Sugee cake (सूजी, sūjī — Hindi for semolina)",
+      "note": {
+        "en": "Dense Eurasian (Kristang) celebration cake of semolina, ground almonds and butter; \"sugee\" is Hindi for semolina.",
+        "fr": "Gâteau de fête eurasien (Kristang), dense, à la semoule, aux amandes moulues et au beurre ; « sugee » signifie semoule en hindi."
+      },
+      "sources": [
+        {
+          "name": "TASTE — Sugee Cake: Malaysia's Take on Semolina Cake",
+          "url": "https://tastecooking.com/sugee-cake-traces-semolinas-path-malaysia/"
+        },
+        {
+          "name": "Quentin's Eurasian Restaurant — Sugee Cake: A Timeless Eurasian Celebration Classic",
+          "url": "https://www.quentins.com.sg/blogs/news/sugee-cake-a-timeless-eurasian-celebration-classic"
+        }
+      ]
+    },
+    "pork vindaloo eurasian": {
+      "local": "Vindaloo (carne de vinha d'alhos)",
+      "note": {
+        "en": "Eurasian/Kristang pork curry of garlic, vinegar and chillies. The name and method come from the Portuguese carne de vinha d'alhos (meat in…",
+        "fr": "Curry de porc eurasien (kristang) a l'ail, au vinaigre et au piment. Son nom et sa methode viennent du carne de vinha d'alhos portugais…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia: Vindaloo",
+          "url": "https://en.wikipedia.org/wiki/Vindaloo"
+        },
+        {
+          "name": "Wikipedia: Carne de vinha d'alhos",
+          "url": "https://en.wikipedia.org/wiki/Carne_de_vinha_d%27alhos"
+        }
+      ]
+    },
+    "eurasian curry chicken": {
+      "local": "Kari Debal",
+      "note": {
+        "en": "A fiery Eurasian-Kristang chicken curry from Portuguese Malacca, flavoured with candlenuts, galangal and vinegar; \"debal\" means \"leftover.\"",
+        "fr": "Un curry de poulet eurasien-kristang epice de Malacca portugaise, releve de noix de bancoul, galanga et vinaigre; \"debal\" signifie \"restes.\""
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Devil's curry",
+          "url": "https://en.wikipedia.org/wiki/Devil%27s_curry"
+        },
+        {
+          "name": "Eurasian Association Singapore - Eurasian Food",
+          "url": "https://www.eurasians.sg/eurasian-food"
+        }
+      ]
+    },
+    "feng (curry of pork offal)": {
+      "local": "feng",
+      "note": {
+        "en": "Spicy Kristang (Portuguese-Eurasian) curry of diced pig offal, traced to 16th-c. Malacca and served at Christmas.",
+        "fr": "Curry kristang (eurasien-portugais) epice d'abats de porc en des, ne au Malacca du XVIe siecle, servi a Noel."
+      },
+      "sources": [
+        {
+          "name": "Roots.gov.sg — Eurasian Cuisine in Singapore (National Heritage Board)",
+          "url": "https://www.roots.gov.sg/ich-landing/ich/eurasian-cuisine-in-singapore"
+        },
+        {
+          "name": "Singapore Noodles — On feng (Pamelia Chia)",
+          "url": "https://sgpnoodles.substack.com/p/on-feng"
+        }
+      ]
+    },
+    "eurasian beef stew": {
+      "local": "Beef Smore",
+      "note": {
+        "en": "A thick, dark, rich braised beef stew of the Eurasian community of Singapore and Malaysia, built on a European base with Asian flavourings…",
+        "fr": "Un ragout de boeuf braise, epais, fonce et riche de la communaute eurasienne de Singapour et de Malaisie, sur une base europeenne aux…"
+      },
+      "sources": [
+        {
+          "name": "LinsFood - Eurasian Beef Smore, a Eurasian Recipe from Singapore and Malaysia",
+          "url": "https://www.linsfood.com/eurasian-beef-smore-a-eurasian-recipe/"
+        },
+        {
+          "name": "Wikipedia - Semur (Indonesian stew)",
+          "url": "https://en.wikipedia.org/wiki/Semur_(Indonesian_stew)"
+        }
+      ]
+    },
+    "semur ayam": {
+      "local": "semur ayam",
+      "note": {
+        "en": "Javanese-Indonesian chicken stew braised in sweet soy sauce (kecap manis) and spices; \"semur\" derives from the Dutch \"smoor\" (to braise).",
+        "fr": "Ragoût de poulet javanais-indonésien braisé au soja sucré (kecap manis) et aux épices ; \"semur\" vient du néerlandais \"smoor\" (braiser)."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Semur Ayam",
+          "url": "https://www.tasteatlas.com/semur-ayam"
+        },
+        {
+          "name": "Wikipedia - Sweet soy sauce (kecap manis)",
+          "url": "https://en.wikipedia.org/wiki/Sweet_soy_sauce"
+        }
+      ]
+    },
+    "salted vegetable duck soup": {
+      "local": "Itek Tim (咸菜鸭)",
+      "note": {
+        "en": "A savoury-sour duck soup simmered with salted/pickled mustard greens (kiam chye), tamarind skin, sour plum, ginger and tomato. Itek Tim is…",
+        "fr": "Une soupe de canard aigre-salée mijotée avec des feuilles de moutarde marinées (kiam chye), de l'écorce de tamarin, de la prune aigre, du…"
+      },
+      "sources": [
+        {
+          "name": "Johor Kaki — History of Peranakan Itek Tim (Salted Vegetable Duck Soup 咸菜鸭汤)",
+          "url": "https://johorkaki.blogspot.com/2022/09/history-of-peranakan-dish-itek-tim.html"
+        },
+        {
+          "name": "The Burning Kitchen — Salted Vegetable Duck Soup (咸菜鸭汤 Kiam Chye Ark)",
+          "url": "https://theburningkitchen.com/salted-vegetable-duck-soup/"
+        }
+      ]
+    },
+    "ferradura": {
+      "local": "木糠布丁 (serradura)",
+      "note": {
+        "en": "Likely \"serradura\" (Portuguese for \"sawdust\"): a Macanese-Portuguese cold pudding layering whipped cream with crushed Marie biscuits.",
+        "fr": "Probablement la « serradura » (« sciure » en portugais) : entremets froid macano-portugais en couches de crème fouettée et biscuits Marie…"
+      },
+      "sources": [
+        {
+          "name": "Serradura - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Serradura"
+        },
+        {
+          "name": "Serradura (Sawdust Pudding) 木糠布丁 - Easy Portuguese Recipes",
+          "url": "https://www.easyportugueserecipes.com/sawdust-pudding-serradura-%E6%9C%A8%E7%B3%A0%E5%B8%83%E4%B8%81/"
+        }
+      ]
+    },
+    "eurasian pork chop": {
+      "local": "Devil's Curry (Kristang: Kari Debal / Curry Debal; \"debal\" = leftover)",
+      "note": {
+        "en": "A fiery Kristang Eurasian curry of chicken and pork in a vinegar-sharpened gravy of candlenuts, galangal, mustard seed, chilli and ginger…",
+        "fr": "Un curry eurasien kristang relevé de poulet et de porc dans une sauce acidulée au vinaigre, aux noix de bancoul, au galanga, à la moutarde…"
+      },
+      "sources": [
+        {
+          "name": "Eurasian Association, Singapore — Eurasian Food (lists Curry Debal / Devil Curry)",
+          "url": "https://www.eurasians.sg/eurasian-food"
+        },
+        {
+          "name": "Wikipedia — Devil's curry (Kristang kari debal)",
+          "url": "https://en.wikipedia.org/wiki/Devil%27s_curry"
+        }
+      ]
+    },
+    "portuguese egg tart": {
+      "local": "Pastel de nata",
+      "note": {
+        "en": "Portuguese egg-custard tart in flaky pastry, created before the 18th century by monks at Lisbon's Jerónimos Monastery in Belém.",
+        "fr": "Tartelette portugaise à la crème aux œufs en pâte feuilletée, créée avant le XVIIIe siècle par les moines du monastère des Hiéronymites à…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Pastel de nata",
+          "url": "https://en.wikipedia.org/wiki/Pastel_de_nata"
+        },
+        {
+          "name": "Pastéis de Belém — History",
+          "url": "https://pasteisdebelem.pt/en/history/"
+        }
+      ]
+    },
+    "love letters (kuih kapit)": {
+      "local": "kuih kapit (kueh kapit)",
+      "note": {
+        "en": "A thin crispy folded wafer of coconut milk, egg and flour baked in a clamped patterned iron mould; of Dutch colonial origin.",
+        "fr": "Une gaufrette fine et croustillante de lait de coco, oeuf et farine, cuite dans un moule a fer serre; d'origine coloniale neerlandaise."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Kue semprong",
+          "url": "https://en.wikipedia.org/wiki/Kue_semprong"
+        },
+        {
+          "name": "Michelin Guide — Iconic Dishes: Love Letters",
+          "url": "https://guide.michelin.com/sg/en/article/features/iconic-dishes-love-letters-and-other-sweet-snacks-for-your-sweetheart"
+        }
+      ]
+    },
+    "pineapple tart": {
+      "local": "kuih tart nanas (Baba Malay: kuih tair)",
+      "note": {
+        "en": "Peranakan buttery pastry topped or filled with spiced pineapple jam, said to date to 16th-century Portuguese-influenced Malacca; eaten at…",
+        "fr": "Patisserie peranakan au beurre garnie de confiture d'ananas epicee, attribuee a Malacca du XVIe siecle; mangee au Nouvel An chinois."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Pineapple tart",
+          "url": "https://en.wikipedia.org/wiki/Pineapple_tart"
+        },
+        {
+          "name": "Singapore Noodles (Pamelia Chia) - A deep-dive: pineapple tarts",
+          "url": "https://sgpnoodles.substack.com/p/a-deep-dive-pineapple-tarts"
+        }
+      ]
+    },
+    "eurasian fishball curry": {
+      "local": "Singgang Serani",
+      "note": {
+        "en": "No distinct Eurasian fishball curry is documented; the genuine Eurasian (Kristang/Serani) fish dish is Singgang Serani, a tart…",
+        "fr": "Aucun curry de boulettes de poisson eurasien n'est attesté; le plat eurasien (kristang) authentique est le Singgang Serani, ragout de…"
+      },
+      "sources": [
+        {
+          "name": "LinsFood — Singgang Serani, a Eurasian Fish Curry from Singapore and Malaysia",
+          "url": "https://www.linsfood.com/singgang-serani-eurasian-fish-curry/"
+        },
+        {
+          "name": "Wikipedia — Kristang people",
+          "url": "https://en.wikipedia.org/wiki/Kristang_people"
+        }
+      ]
+    },
+    "roast suckling pig": {
+      "local": "leitão",
+      "note": {
+        "en": "A whole young (suckling) pig roasted until the skin turns crisp and crackling while the meat stays tender; leitão is a traditional…",
+        "fr": "Un jeune cochon (de lait) entier rôti jusqu'à ce que la peau devienne croustillante tandis que la viande reste tendre; le leitão est un…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Leitão assado no forno",
+          "url": "https://www.tasteatlas.com/leitao-assado-no-forno"
+        },
+        {
+          "name": "Portugalist - Leitão (Portuguese suckling pig)",
+          "url": "https://www.portugalist.com/leitao/"
+        }
+      ]
+    },
+    "eurasian smoore": {
+      "local": "Semur",
+      "note": {
+        "en": "A Eurasian (Kristang) dark braised beef stew of Singapore and Malaysia, a local take on a Western-style beef stew; the name traces to the…",
+        "fr": "Un ragout de boeuf braise sombre eurasien (kristang) de Singapour et de Malaisie, une version locale du ragout de boeuf de style…"
+      },
+      "sources": [
+        {
+          "name": "Eurasian cuisine of Singapore and Malaysia - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Eurasian_cuisine_of_Singapore_and_Malaysia"
+        },
+        {
+          "name": "Semur (Indonesian stew) - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Semur_(Indonesian_stew)"
+        }
+      ]
+    },
+    "soyok": {
+      "local": "Soy limang terung",
+      "note": {
+        "en": "Best match in the record is the Kristang \"soy limang\" dish family: a Malacca Eurasian preparation of fried eggplant (terung), fish, or egg…",
+        "fr": "Le meilleur rapprochement dans les sources est la famille de plats kristang \"soy limang\" : une preparation eurasienne de Malacca a base…"
+      },
+      "sources": [
+        {
+          "name": "Soy Limang Terung (Eggplants with Lime and Soy Sauce) - Singaporean Malaysian Recipes",
+          "url": "https://www.singaporeanmalaysianrecipes.com/soy-limang-terung-kristang/"
+        }
+      ]
+    },
+    "curry debal alt": {
+      "local": "Kari Debal",
+      "note": {
+        "en": "Fiery Eurasian Kristang curry of Portuguese-Malacca origin, traditionally made from Christmas leftovers ('debal' means leftover).",
+        "fr": "Curry eurasien kristang ardent d'origine portugaise-malaccaise, fait des restes de Noel ('debal' signifie reste)."
+      },
+      "sources": [
+        {
+          "name": "Devil's curry - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Devil's_curry"
+        },
+        {
+          "name": "The 'Devil's Curry' of Melaka's Kristang Community - Atlas Obscura",
+          "url": "https://www.atlasobscura.com/foods/debal-curry-devils-curry"
+        }
+      ]
+    }
+  },
+  "north-indian": {
+    "butter chicken": {
+      "local": "मुर्ग़ मक्खनी (murġ makkhanī)",
+      "note": {
+        "en": "North Indian curry of tandoori chicken in a spiced tomato, butter and cream gravy, popularized in the 1950s at Moti Mahal in Old Delhi…",
+        "fr": "Curry nord-indien de poulet tandoori dans une sauce épicée à la tomate, au beurre et à la crème, popularisé dans les années 1950 au Moti…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Butter chicken",
+          "url": "https://en.wikipedia.org/wiki/Butter_chicken"
+        },
+        {
+          "name": "BBC/Al Jazeera — Butter chicken court battle (Moti Mahal vs Daryaganj origin)",
+          "url": "https://www.aljazeera.com/features/2024/2/17/butter-chicken-battle-how-the-dish-brought-two-indian-restaurants-to-court"
+        }
+      ]
+    },
+    "dal makhani": {
+      "local": "दाल मखनी",
+      "note": {
+        "en": "A North Indian dish of whole black lentils (urad) slow-cooked with butter and cream; its modern form was created at Moti Mahal, Delhi.",
+        "fr": "Plat nord-indien de lentilles noires entières (urad) mijotees au beurre et a la creme; sa forme moderne nait au Moti Mahal, a Delhi."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Dal makhani",
+          "url": "https://en.wikipedia.org/wiki/Dal_makhani"
+        },
+        {
+          "name": "Moti Mahal — Dal Makhani History",
+          "url": "https://motimahal.in/dal-makhani-history-punjabi-recipe-that-revolutionized-the-face-of-black-lentils-forever/"
+        }
+      ]
+    },
+    "palak paneer": {
+      "local": "पालक पनीर",
+      "note": {
+        "en": "A North Indian (Punjabi) vegetarian dish of paneer cubes simmered in a spiced spinach (palak) puree.",
+        "fr": "Plat vegetarien nord-indien (Pendjab) de cubes de paneer mijotes dans une puree d'epinards (palak) epicee."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Palak paneer",
+          "url": "https://en.wikipedia.org/wiki/Palak_paneer"
+        }
+      ]
+    },
+    "saag paneer": {
+      "local": "साग पनीर",
+      "note": {
+        "en": "A Punjabi dish of paneer cheese cubes in puréed leafy greens (saag), traditionally mustard leaves rather than spinach alone.",
+        "fr": "Plat pendjabi de cubes de fromage paneer dans une purée de feuilles vertes (saag), traditionnellement de la moutarde plutôt que des…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Saag",
+          "url": "https://en.wikipedia.org/wiki/Saag"
+        },
+        {
+          "name": "Wikipedia — Sarson ka saag",
+          "url": "https://en.wikipedia.org/wiki/Sarson_ka_saag"
+        }
+      ]
+    },
+    "paneer tikka": {
+      "local": "पनीर टिक्का",
+      "note": {
+        "en": "North Indian dish of paneer cubes marinated in spiced yogurt and grilled in a tandoor; a vegetarian counterpart to chicken tikka.",
+        "fr": "Plat du nord de l'Inde de cubes de paneer marinés au yaourt épicé et grillés au tandoor; pendant végétarien du chicken tikka."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Paneer tikka",
+          "url": "https://en.wikipedia.org/wiki/Paneer_tikka"
+        },
+        {
+          "name": "Wikipedia — Tikka (food)",
+          "url": "https://en.wikipedia.org/wiki/Tikka_(food)"
+        }
+      ]
+    },
+    "chicken tikka masala": {
+      "local": "चिकन टिक्का मसाला",
+      "note": {
+        "en": "A curry of roasted marinated chicken in a spiced tomato-cream sauce, widely credited to 1970s British-Asian cooks in Glasgow.",
+        "fr": "Un curry de poulet mariné et rôti dans une sauce épicée tomate-crème, attribué aux cuisiniers anglo-asiatiques de Glasgow des années 1970."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Chicken tikka masala",
+          "url": "https://en.wikipedia.org/wiki/Chicken_tikka_masala"
+        },
+        {
+          "name": "Britannica — Chicken tikka masala",
+          "url": "https://www.britannica.com/topic/chicken-tikka-masala"
+        }
+      ]
+    },
+    "chicken tikka": {
+      "local": "चिकन टिक्का (chicken ṭikkā)",
+      "note": {
+        "en": "Boneless chicken pieces marinated in yogurt and spices and grilled in a tandoor; from Mughal cuisine, tied to Emperor Babur's reign.",
+        "fr": "Morceaux de poulet desosses marines au yaourt et aux epices puis grilles au tandoor; issu de la cuisine moghole, lie au regne de Babur."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Chicken tikka",
+          "url": "https://en.wikipedia.org/wiki/Chicken_tikka"
+        },
+        {
+          "name": "Wikipedia - Tikka (food)",
+          "url": "https://en.wikipedia.org/wiki/Tikka_(food)"
+        }
+      ]
+    },
+    "rogan josh": {
+      "local": "Persian روغن جوش (roghan josh)",
+      "note": {
+        "en": "Aromatic braised mutton or lamb curry, a staple of Kashmiri cuisine and the wazwan feast, of Persian origin and brought to Kashmir by the…",
+        "fr": "Curry aromatique de mouton ou d'agneau braisé, plat emblématique de la cuisine cachemirie et du festin wazwan, d'origine persane et apporté…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Rogan josh",
+          "url": "https://en.wikipedia.org/wiki/Rogan_josh"
+        }
+      ]
+    },
+    "seekh kebab": {
+      "local": "सीख कबाब / سیخ کباب",
+      "note": {
+        "en": "Skewered, spiced minced meat (usually lamb) grilled in a tandoor; \"seekh\" means skewer, of Central Asian/Mughal origin.",
+        "fr": "Viande hachée épicée (souvent agneau) embrochée et grillée au tandoor; \"seekh\" signifie brochette, d'origine moghole."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Seekh kebab",
+          "url": "https://en.wikipedia.org/wiki/Seekh_kebab"
+        },
+        {
+          "name": "TasteAtlas – Seekh kabab",
+          "url": "https://www.tasteatlas.com/seekh-kabab"
+        }
+      ]
+    },
+    "shami kebab": {
+      "local": "शामी कबाब / شامی کباب",
+      "note": {
+        "en": "A Mughal-era patty of minced meat and chana dal with spices, originating in Lucknow's Awadhi cuisine, fried after binding with egg.",
+        "fr": "Galette d'origine moghole faite de viande hachee et de chana dal epicees, nee de la cuisine awadhi de Lucknow, frite apres liaison a l'oeuf."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Shami kebab",
+          "url": "https://en.wikipedia.org/wiki/Shami_kebab"
+        },
+        {
+          "name": "Slurrp — History and Origin of Shami Kabab",
+          "url": "https://www.slurrp.com/article/history-and-origin-of-shami-kabab-a-nawabi-delight-from-lucknow-up-1726388221465"
+        }
+      ]
+    },
+    "galouti kebab": {
+      "local": "गलौटी कबाब",
+      "note": {
+        "en": "A soft, spiced minced-meat (lamb/mutton) patty from Lucknow's Awadhi cuisine, named for melting in the mouth (gilawat).",
+        "fr": "Galette de viande hachee (agneau/mouton) epicee et fondante de la cuisine awadhi de Lucknow, nommee car elle fond en bouche (gilawat)."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Galouti Kebab",
+          "url": "https://www.tasteatlas.com/galouti-kebab"
+        },
+        {
+          "name": "Wikipedia — Tunday ke kabab (Galouti kebab)",
+          "url": "https://en.wikipedia.org/wiki/Tunde_ke_kabab"
+        }
+      ]
+    },
+    "tandoori chicken": {
+      "local": "तंदूरी चिकन (तंदूरी मुर्ग़)",
+      "note": {
+        "en": "North Indian dish of chicken marinated in yogurt and spices, roasted in a clay tandoor; popularized at Delhi's Moti Mahal in the late 1940s.",
+        "fr": "Plat nord-indien de poulet mariné au yaourt et aux épices, rôti dans un tandoor en argile; popularisé au Moti Mahal de Delhi à la fin des…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Tandoori chicken",
+          "url": "https://en.wikipedia.org/wiki/Tandoori_chicken"
+        },
+        {
+          "name": "TasteAtlas — Tandoori Chicken (Tandoori Murgh)",
+          "url": "https://www.tasteatlas.com/tandoori-chicken"
+        }
+      ]
+    },
+    "naan": {
+      "local": "नान",
+      "note": {
+        "en": "A leavened teardrop-shaped flatbread baked in a tandoor; of Persian origin, documented in India by poet Amir Khusrau around 1300 CE.",
+        "fr": "Pain plat levé en forme de larme cuit au tandoor; d'origine perse, documenté en Inde par le poète Amir Khusrau vers 1300."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Naan",
+          "url": "https://en.wikipedia.org/wiki/Naan"
+        },
+        {
+          "name": "Britannica - Naan",
+          "url": "https://www.britannica.com/topic/naan"
+        }
+      ]
+    },
+    "butter naan": {
+      "local": "बटर नान (नान)",
+      "note": {
+        "en": "Leavened tandoor-baked white-flour flatbread, of Persian/Mughal origin, brushed with melted butter or ghee.",
+        "fr": "Pain plat levé à la farine blanche cuit au tandoor, d'origine perse/moghole, badigeonné de beurre fondu ou de ghee."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Naan",
+          "url": "https://en.wikipedia.org/wiki/Naan"
+        },
+        {
+          "name": "Britannica — Naan",
+          "url": "https://www.britannica.com/topic/naan"
+        }
+      ]
+    },
+    "garlic naan": {
+      "local": "लहसुन नान (lahsun nān)",
+      "note": {
+        "en": "A leavened flatbread, traditionally baked in a tandoor and topped with crushed garlic; the name comes from the Persian \"nān\" (bread), and…",
+        "fr": "Un pain plat levé, traditionnellement cuit au tandoor et garni d'ail écrasé ; son nom vient du persan « nān » (pain), et le naan était déjà…"
+      },
+      "sources": [
+        {
+          "name": "Britannica – Naan",
+          "url": "https://www.britannica.com/topic/naan"
+        },
+        {
+          "name": "Wikipedia – Naan",
+          "url": "https://en.wikipedia.org/wiki/Naan"
+        }
+      ]
+    },
+    "roti / chapati": {
+      "local": "चपाती (chapātī)",
+      "note": {
+        "en": "Unleavened whole-wheat (atta) flatbread of the Indian subcontinent, cooked on a tava; name derives from Sanskrit carpaṭī, \"thin cake.\"",
+        "fr": "Pain plat sans levain en farine de blé complet (atta) du sous-continent indien, cuit sur un tava ; du sanskrit carpaṭī, « galette fine »."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Chapati",
+          "url": "https://en.wikipedia.org/wiki/Chapati"
+        },
+        {
+          "name": "Encyclopaedia Britannica — chapati",
+          "url": "https://britannica.com/topic/chapati"
+        }
+      ]
+    },
+    "paratha": {
+      "local": "पराठा (parāṭhā)",
+      "note": {
+        "en": "A North Indian whole-wheat flatbread, folded and rolled with ghee into multiple layers then shallow-fried; the name combines parat (layer)…",
+        "fr": "Pain plat nord-indien de blé complet, plié et roulé au ghee en plusieurs couches puis frit à la poêle ; son nom associe parat (couche) et…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Paratha",
+          "url": "https://en.wikipedia.org/wiki/Paratha"
+        },
+        {
+          "name": "TasteAtlas - Paratha",
+          "url": "https://www.tasteatlas.com/paratha"
+        }
+      ]
+    },
+    "aloo paratha": {
+      "local": "आलू पराठा",
+      "note": {
+        "en": "A North Indian, Punjab-origin breakfast flatbread of whole-wheat dough stuffed with spiced mashed potato and griddle-cooked in ghee.",
+        "fr": "Pain plat du petit-dejeuner originaire du Pendjab, en Inde du Nord, en ble complet farci de puree de pommes de terre epicee, cuit au ghee."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Aloo paratha",
+          "url": "https://en.wikipedia.org/wiki/Aloo_paratha"
+        },
+        {
+          "name": "TasteAtlas - Aloo Paratha",
+          "url": "https://www.tasteatlas.com/aloo-paratha"
+        }
+      ]
+    },
+    "kulcha": {
+      "local": "ਕੁਲਚਾ",
+      "note": {
+        "en": "A leavened refined-wheat flatbread from the Punjab region, baked in a tandoor; its name derives from a Persian word for a disc-shaped loaf.",
+        "fr": "Un pain plat levé en farine de blé raffinée de la région du Pendjab, cuit au tandoor ; son nom vient d'un mot persan désignant une miche en…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Kulcha",
+          "url": "https://en.wikipedia.org/wiki/Kulcha"
+        },
+        {
+          "name": "TasteAtlas - Amritsari Kulcha",
+          "url": "https://www.tasteatlas.com/amritsari-kulcha"
+        }
+      ]
+    },
+    "dal tadka": {
+      "local": "दाल तड़का",
+      "note": {
+        "en": "A North Indian dish of cooked lentils (often toor/chana dal) finished with a tadka, spices bloomed in hot ghee or oil.",
+        "fr": "Plat nord-indien de lentilles cuites (souvent toor/chana dal) finies par un tadka, des épices revenues dans du ghee ou de l'huile."
+      },
+      "sources": [
+        {
+          "name": "Veg Recipes of India - Restaurant Style Dal Tadka",
+          "url": "https://www.vegrecipesofindia.com/restaurant-style-dal-tadka/"
+        },
+        {
+          "name": "Tarla Dalal - Punjabi Dal Tadka",
+          "url": "https://www.tarladalal.com/dal-tadka-punjabi-dal-tadka-30903r"
+        }
+      ]
+    },
+    "dal fry": {
+      "local": "दाल फ्राई",
+      "note": {
+        "en": "North Indian dish of cooked toor dal (split pigeon peas) finished with a fried tempering (tadka) of ghee, onions, tomatoes and spices.",
+        "fr": "Plat nord-indien de toor dal (pois cassés) mijotee, fini par un tadka frit de ghee, oignons, tomates et epices."
+      },
+      "sources": [
+        {
+          "name": "Swasthi's Recipes - Dal Fry (Restaurant Style)",
+          "url": "https://www.indianhealthyrecipes.com/dal-fry-recipe/"
+        },
+        {
+          "name": "Dassana's Veg Recipes of India - Dal Fry",
+          "url": "https://www.vegrecipesofindia.com/dal-fry/"
+        }
+      ]
+    },
+    "chana masala": {
+      "local": "चना मसाला",
+      "note": {
+        "en": "A North Indian chickpea curry in a spiced tomato-based sauce, originating in the Punjab region of the Indian subcontinent.",
+        "fr": "Curry de pois chiches nord-indien dans une sauce tomate epicee, originaire de la region du Pendjab du sous-continent indien."
+      },
+      "sources": [
+        {
+          "name": "Chana masala - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Chana_masala"
+        }
+      ]
+    },
+    "rajma": {
+      "local": "राजमा",
+      "note": {
+        "en": "North Indian curry of red kidney beans (brought from Mexico) in a spiced onion-tomato gravy, served with rice as rajma chawal.",
+        "fr": "Curry nord-indien de haricots rouges (venus du Mexique) en sauce epicee oignon-tomate, servi avec du riz: le rajma chawal."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Rajma",
+          "url": "https://en.wikipedia.org/wiki/Rajma"
+        },
+        {
+          "name": "Tarla Dalal - Rajma (kidney beans) glossary",
+          "url": "https://www.tarladalal.com/glossary-rajma-kidney-beans-197i"
+        }
+      ]
+    },
+    "samosa": {
+      "local": "समोसा",
+      "note": {
+        "en": "A fried pastry with a savoury filling, often spiced potato; introduced to India in the 13th-14th c. from Central Asia and the Middle East.",
+        "fr": "Un chausson frit a la garniture salee, souvent de pomme de terre epicee; introduit en Inde aux 13e-14e s. depuis l'Asie centrale et le…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Samosa",
+          "url": "https://en.wikipedia.org/wiki/Samosa"
+        },
+        {
+          "name": "Swiggy - Tracing the Origin of Samosa",
+          "url": "https://blog.swiggy.com/food/history-of-samosa/"
+        }
+      ]
+    },
+    "pakora": {
+      "local": "पकौड़ा",
+      "note": {
+        "en": "South Asian fritter of vegetables in spiced gram-flour (besan) batter, deep-fried; name from Sanskrit pakvavata, a fried lump of pulse.",
+        "fr": "Beignet sud-asiatique de legumes dans une pate epicee de farine de pois chiche (besan), frit; du sanskrit pakvavata, boulette de…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Pakora",
+          "url": "https://en.wikipedia.org/wiki/Pakora"
+        },
+        {
+          "name": "Encyclopaedia Britannica - Pakora",
+          "url": "https://www.britannica.com/topic/pakora"
+        }
+      ]
+    },
+    "chaat": {
+      "local": "चाट",
+      "note": {
+        "en": "A family of tangy-spicy fried-dough street snacks from Uttar Pradesh, North India; the name means \"to lick/taste\".",
+        "fr": "Famille d'en-cas de rue acidulés-épicés à base de pâte frite, originaire de l'Uttar Pradesh; son nom signifie « lécher/goûter »."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Chaat",
+          "url": "https://en.wikipedia.org/wiki/Chaat"
+        },
+        {
+          "name": "Britannica — Chaat",
+          "url": "https://www.britannica.com/topic/chaat"
+        }
+      ]
+    },
+    "pani puri": {
+      "local": "पानी पूरी (pānī pūrī)",
+      "note": {
+        "en": "North Indian street snack: a hollow deep-fried crisp puri filled with spiced potato or chickpea and dipped in tangy, spicy water (pani).",
+        "fr": "En-cas de rue nord-indien: une puri creuse frite, garnie de pomme de terre ou pois chiches epices et trempee dans une eau epicee et…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Panipuri",
+          "url": "https://en.wikipedia.org/wiki/Panipuri"
+        },
+        {
+          "name": "The Better India - Pani Puri origins",
+          "url": "https://thebetterindia.com/90031/pani-puri-golgappa-phuchka-history-magadh-mahabharat/"
+        }
+      ]
+    },
+    "bhel puri": {
+      "local": "भेलपूरी",
+      "note": {
+        "en": "A savoury Mumbai (West Indian) street-food chaat of puffed rice, sev and crisp puris tossed with potato, onion and tangy tamarind and green…",
+        "fr": "Un chaat salé de rue de Mumbai (Inde de l'Ouest), à base de riz soufflé, de sev et de petits puris croustillants, mêlé de pommes de terre…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Bhel puri",
+          "url": "https://en.wikipedia.org/wiki/Bhel_puri"
+        }
+      ]
+    },
+    "gulab jamun": {
+      "local": "गुलाब जामुन (gulāb jāmun)",
+      "note": {
+        "en": "Deep-fried milk-solid (khoya) dough balls soaked in rose- and cardamom-scented sugar syrup, with Persian/Mughal-era roots in North India.",
+        "fr": "Boulettes frites de khoya (lait réduit) trempées dans un sirop de sucre à la rose et cardamome, d'origine persane et moghole en Inde du…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Gulab jamun",
+          "url": "https://en.wikipedia.org/wiki/Gulab_jamun"
+        },
+        {
+          "name": "Wiktionary - gulab jamun",
+          "url": "https://en.wiktionary.org/wiki/gulab_jamun"
+        }
+      ]
+    },
+    "jalebi": {
+      "local": "जलेबी",
+      "note": {
+        "en": "Deep-fried coils of fermented batter soaked in sugar syrup; of Persian (zulbiya) origin, spread to India in medieval times.",
+        "fr": "Spirales de pate fermentee frites puis trempees dans un sirop de sucre; d'origine perse (zulbiya), arrivee en Inde au Moyen Age."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Jalebi",
+          "url": "https://en.wikipedia.org/wiki/Jalebi"
+        },
+        {
+          "name": "TasteAtlas - Zulbia",
+          "url": "https://www.tasteatlas.com/zulbia"
+        }
+      ]
+    }
+  },
+  "south-indian": {
+    "dosa": {
+      "local": "தோசை",
+      "note": {
+        "en": "Thin South Indian crepe of fermented ground rice and black gram; references appear in ancient Tamil Sangam literature.",
+        "fr": "Fine crêpe sud-indienne de riz et de lentilles noires fermentés; mentionnée dans l'ancienne littérature tamoule du Sangam."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Dosa (food)",
+          "url": "https://en.wikipedia.org/wiki/Dosa_(food)"
+        },
+        {
+          "name": "Wiktionary — தோசை",
+          "url": "https://en.wiktionary.org/wiki/%E0%AE%A4%E0%AF%8B%E0%AE%9A%E0%AF%88"
+        }
+      ]
+    },
+    "masala dosa": {
+      "local": "ಮಸಾಲೆ ದೋಸೆ",
+      "note": {
+        "en": "A crisp fermented rice-and-lentil crepe stuffed with a spiced potato filling, a dish of South India. It is generally agreed to have been…",
+        "fr": "Une crepe croustillante de riz et lentilles fermentes garnie d'une preparation de pommes de terre epicees, un plat du sud de l'Inde. On…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Masala dosa",
+          "url": "https://en.wikipedia.org/wiki/Masala_dosa"
+        }
+      ]
+    },
+    "paper dosa": {
+      "local": "பேப்பர் தோசை (pēppar tōsai)",
+      "note": {
+        "en": "A wafer-thin, extra-crispy South Indian dosa made from a fermented batter of rice and urad dal (black gram), spread paper-thin on a hot…",
+        "fr": "Une dosa sud-indienne très fine et croustillante, à base d'une pâte fermentée de riz et d'urad dal (lentilles noires), étalée en couche…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Paper Dosa",
+          "url": "https://www.tasteatlas.com/paper-dosa"
+        },
+        {
+          "name": "Wikipedia — Dosa (food)",
+          "url": "https://en.wikipedia.org/wiki/Dosa_(food)"
+        }
+      ]
+    },
+    "rava dosa": {
+      "local": "ரவா தோசை (rava dōsai)",
+      "note": {
+        "en": "A crisp, lacy South Indian crepe of semolina (rava), rice and wheat flour that needs no fermentation, unlike the traditional dosa.",
+        "fr": "Crêpe sud-indienne croustillante et dentelée à base de semoule (rava), de farine de riz et de blé, sans fermentation, contrairement au dosa…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Rava dosa",
+          "url": "https://www.tasteatlas.com/rava-dosa"
+        },
+        {
+          "name": "Wikipedia — Bombay rava (semolina/rava used for rava dosa)",
+          "url": "https://en.wikipedia.org/wiki/Bombay_rava"
+        }
+      ]
+    },
+    "idli": {
+      "local": "இட்லி (iṭli)",
+      "note": {
+        "en": "A South Indian steamed savoury cake of fermented rice and black gram. An early form, \"iddalige\" (made from a black-gram batter, without…",
+        "fr": "Galette salée sud-indienne cuite à la vapeur, à base de riz et de lentilles noires fermentés. Une forme ancienne, « iddalige » (à base de…"
+      },
+      "sources": [
+        {
+          "name": "Idli - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Idli"
+        },
+        {
+          "name": "idli - Wiktionary",
+          "url": "https://en.wiktionary.org/wiki/idli"
+        }
+      ]
+    },
+    "vada": {
+      "local": "வடை",
+      "note": {
+        "en": "A savoury deep-fried fritter or doughnut of ground lentils native to South India, attested in Tamil Sangam literature (100 BCE–300 CE).",
+        "fr": "Beignet salé frit à base de lentilles moulues, originaire d'Inde du Sud, attesté dans la littérature tamoule Sangam (100 av. J.-C.–300 ap.)."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Vada (food)",
+          "url": "https://en.wikipedia.org/wiki/Vada_(food)"
+        },
+        {
+          "name": "Wikipedia — Medu vada",
+          "url": "https://en.wikipedia.org/wiki/Medu_vada"
+        }
+      ]
+    },
+    "medu vada": {
+      "local": "மெது வடை",
+      "note": {
+        "en": "South Indian doughnut-shaped fritter of ground black lentil (urad dal); \"medu\" means \"soft\" in Tamil and Kannada.",
+        "fr": "Beignet sud-indien en forme de donut, à base de lentilles noires moulues (urad dal) ; \"medu\" signifie \"moelleux\" en tamoul et en kannada."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Medu vada",
+          "url": "https://en.wikipedia.org/wiki/Medu_vada"
+        },
+        {
+          "name": "TasteAtlas - Medu Vada",
+          "url": "https://www.tasteatlas.com/medu-vada"
+        }
+      ]
+    },
+    "uttapam": {
+      "local": "ஊத்தப்பம்",
+      "note": {
+        "en": "A thick savoury South Indian pancake of fermented rice-and-lentil batter, topped with vegetables; a Tamil Nadu dosa variant.",
+        "fr": "Une crepe epaisse et salee du sud de l'Inde, a base de pate fermentee de riz et lentilles garnie de legumes; variante du dosa du Tamil Nadu."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Uttapam",
+          "url": "https://en.wikipedia.org/wiki/Uttapam"
+        },
+        {
+          "name": "Wiktionary — ஊத்தப்பம்",
+          "url": "https://en.wiktionary.org/wiki/%E0%AE%8A%E0%AE%A4%E0%AF%8D%E0%AE%A4%E0%AE%AA%E0%AF%8D%E0%AE%AA%E0%AE%AE%E0%AF%8D"
+        }
+      ]
+    },
+    "upma": {
+      "local": "உப்புமா",
+      "note": {
+        "en": "South Indian thick savoury porridge of dry-roasted semolina; its name blends uppu (salt) and mavu (ground meal).",
+        "fr": "Bouillie salee epaisse du sud de l'Inde a base de semoule grillee; son nom unit uppu (sel) et mavu (mouture)."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Upma",
+          "url": "https://en.wikipedia.org/wiki/Upma"
+        },
+        {
+          "name": "TasteAtlas - Upma",
+          "url": "https://tasteatlas.com/upma"
+        }
+      ]
+    },
+    "pongal": {
+      "local": "பொங்கல்",
+      "note": {
+        "en": "Tamil dish of rice boiled with moong lentils or milk, savoury (ven) or sweet (sakkarai); its name means \"to boil over\".",
+        "fr": "Plat tamoul de riz bouilli avec lentilles moong ou lait, salé (ven) ou sucré (sakkarai) ; son nom signifie « déborder »."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Pongal (dish)",
+          "url": "https://en.wikipedia.org/wiki/Pongal_(dish)"
+        }
+      ]
+    },
+    "sambar": {
+      "local": "சாம்பார்",
+      "note": {
+        "en": "South Indian tamarind and toor-dal vegetable stew, served over rice or with idli; an established Tamil dish by the 16th century.",
+        "fr": "Ragoût végétal sud-indien à base de tamarin et de lentilles toor, servi sur du riz ou avec l'idli; plat tamoul établi au XVIe siècle."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Sambar (dish)",
+          "url": "https://en.wikipedia.org/wiki/Sambar_(dish)"
+        },
+        {
+          "name": "Restaurant India — Sambar: A Nutritious South Indian Delight with a Rich History",
+          "url": "https://www.restaurantindia.in/article/sambar-a-nutritious-south-indian-delight-with-a-rich-history.12436"
+        }
+      ]
+    },
+    "rasam": {
+      "local": "ரசம்",
+      "note": {
+        "en": "A tangy, peppery South Indian soup made with tamarind, tomato and spices, traditionally served over or alongside rice; its name comes from…",
+        "fr": "Soupe sud-indienne acidulee et poivree a base de tamarin, de tomate et d'epices, traditionnellement servie sur ou avec du riz; son nom…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Rasam (dish)",
+          "url": "https://en.wikipedia.org/wiki/Rasam_(dish)"
+        },
+        {
+          "name": "TASTE - Rasam: Southern India's Peppery Comfort Food",
+          "url": "https://tastecooking.com/rasam-southern-indias-peppery-comfort/"
+        }
+      ]
+    },
+    "coconut chutney": {
+      "local": "தேங்காய் சட்னி (thengai chutney)",
+      "note": {
+        "en": "A South Indian condiment of ground fresh coconut with chillies, ginger and curry leaves, originating in the coastal Old Madras Presidency.",
+        "fr": "Condiment sud-indien de noix de coco fraîche broyée avec piments, gingembre et feuilles de curry, originaire des côtes de l'ancienne…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Coconut chutney",
+          "url": "https://en.wikipedia.org/wiki/Coconut_chutney"
+        },
+        {
+          "name": "TasteAtlas — Coconut Chutney",
+          "url": "https://www.tasteatlas.com/coconut-chutney"
+        }
+      ]
+    },
+    "tomato chutney": {
+      "local": "தக்காளி சட்னி (Thakkāḷi chutney)",
+      "note": {
+        "en": "South Indian condiment of tomatoes ground with roasted lentils, chilli and spices, served with idli, dosa and other tiffin dishes.",
+        "fr": "Condiment du sud de l'Inde fait de tomates broyees avec des lentilles grillees, du piment et des epices, servi avec idli et dosa."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Tomato chutney",
+          "url": "https://en.wikipedia.org/wiki/Tomato_chutney"
+        },
+        {
+          "name": "Dassana's Veg Recipes - Tomato Chutney (South Indian Style)",
+          "url": "https://www.vegrecipesofindia.com/tomato-chutney-recipe/"
+        }
+      ]
+    },
+    "chettinad chicken": {
+      "local": "செட்டிநாடு கோழிக்கறி (Cheṭṭināṭu kōḻikkaṟi)",
+      "note": {
+        "en": "A spicy South Indian chicken curry from the Chettinad region of Tamil Nadu, built on freshly ground masalas, black pepper and kalpasi…",
+        "fr": "Un curry de poulet epice du sud de l'Inde, originaire de la region du Chettinad au Tamil Nadu, base sur des masalas fraichement moulus, du…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Chicken Chettinad",
+          "url": "https://en.wikipedia.org/wiki/Chicken_Chettinad"
+        },
+        {
+          "name": "Tamil Wikipedia - செட்டிநாடு கோழிக்கறி",
+          "url": "https://ta.wikipedia.org/wiki/செட்டிநாடு_கோழிக்கறி"
+        }
+      ]
+    },
+    "kerala fish curry": {
+      "local": "മീൻ കറി (Meen Curry)",
+      "note": {
+        "en": "Kerala fish curry (Meen Curry) is a tangy South Indian fish stew soured with kudampuli (Malabar tamarind) and curry leaves.",
+        "fr": "Le curry de poisson du Kerala (Meen Curry) est un ragout de poisson sud-indien acidule au kudampuli (tamarin de Malabar) et feuilles de…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Malabar matthi curry",
+          "url": "https://en.wikipedia.org/wiki/Malabar_matthi_curry"
+        },
+        {
+          "name": "Swasthi's Recipes - Kerala Meen (Fish) Curry",
+          "url": "https://www.indianhealthyrecipes.com/kerala-meen-fish-curry/"
+        }
+      ]
+    },
+    "avial": {
+      "local": "അവിയൽ",
+      "note": {
+        "en": "Thick Kerala stew of mixed vegetables and grated coconut seasoned with curry leaves, a staple of the South Indian sadhya feast.",
+        "fr": "Ragoût épais du Kerala mêlant légumes variés et noix de coco râpée aux feuilles de curry, plat phare du festin sud-indien sadhya."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Avial",
+          "url": "https://en.wikipedia.org/wiki/Avial"
+        },
+        {
+          "name": "TasteAtlas - Avial",
+          "url": "https://www.tasteatlas.com/avial"
+        }
+      ]
+    },
+    "appam": {
+      "local": "அப்பம் / അപ്പം",
+      "note": {
+        "en": "A thin South Indian pancake of fermented rice batter and coconut milk, cooked in a wok-like pan called an appachatti; popular in Tamil…",
+        "fr": "Crêpe fine du sud de l'Inde à base de pâte de riz fermentée et de lait de coco, cuite dans une poêle en forme de wok appelée appachatti…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Appam",
+          "url": "https://en.wikipedia.org/wiki/Appam"
+        }
+      ]
+    },
+    "puttu": {
+      "local": "புட்டு / പുട്ട്",
+      "note": {
+        "en": "A South Indian and Sri Lankan breakfast of ground rice steamed in a cylinder with layers of grated coconut.",
+        "fr": "Petit-déjeuner sud-indien et sri-lankais de riz moulu cuit à la vapeur en cylindre avec des couches de noix de coco râpée."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Puttu",
+          "url": "https://en.wikipedia.org/wiki/Puttu"
+        },
+        {
+          "name": "Onmanorama – Puttu origin",
+          "url": "https://www.onmanorama.com/food/features/2025/07/08/puttu-origin-portuguese-myth.html"
+        }
+      ]
+    },
+    "kerala beef fry": {
+      "local": "ബീഫ് ഉലർത്തിയത് (Beef Ularthiyathu)",
+      "note": {
+        "en": "Kerala dish of beef slow-roasted with spices, curry leaves and coconut slivers in coconut oil, rooted in Syrian Christian households.",
+        "fr": "Plat du Kerala de bœuf rôti lentement aux épices, feuilles de curry et lamelles de noix de coco, issu des foyers chrétiens syriens."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Kerala beef fry",
+          "url": "https://en.wikipedia.org/wiki/Kerala_beef_fry"
+        },
+        {
+          "name": "Maria's Menu — Kerala Style Beef Ularthiyathu / Olathiyathu",
+          "url": "https://mariasmenu.com/kerala-recipes/beef-olathiyathu"
+        }
+      ]
+    },
+    "andhra mutton curry": {
+      "local": "మటన్ కూర (mutton kūra) / మాంసం కూర (māṁsaṁ kūra)",
+      "note": {
+        "en": "A fiery Andhra (Telugu) goat/lamb curry simmered in onion, ginger-garlic and red chilli, famed for its intense \"kaaram\" heat.",
+        "fr": "Curry de chèvre ou d'agneau andhra (telugu), mijoté avec oignon, ail-gingembre et piment rouge, réputé pour son intense piquant « kaaram »."
+      },
+      "sources": [
+        {
+          "name": "Andhra cuisine – Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Telugu_cuisine"
+        },
+        {
+          "name": "Mutton Curry / Mamsam Kura, Andhra Mutton Curry – Cooking4allSeasons",
+          "url": "https://www.cooking4allseasons.com/mutton-curry-mamsam-kura-andhra-mutton/"
+        }
+      ]
+    },
+    "chettinad pepper crab": {
+      "local": "நண்டு மிளகு வறுவல் (Nandu Milagu Varuval)",
+      "note": {
+        "en": "A spicy Chettinad-style crab fry (varuval) from Tamil Nadu, semi-dry with a thick masala coating, cooked with shallots, curry leaves and a…",
+        "fr": "Un sauté de crabe (varuval) epice de style Chettinad, originaire du Tamil Nadu, semi-sec et nappe d'un masala epais, cuit avec des…"
+      },
+      "sources": [
+        {
+          "name": "Chettinadu Nandu Varuval Recipe (Crab Fry Dry With Baby Onions) - Archana's Kitchen",
+          "url": "https://www.archanaskitchen.com/recipe/chettinadu-nandu-varuval-recipe-crab-fry-dry-with-baby-onions"
+        },
+        {
+          "name": "Chettinad cuisine - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Chettinad_cuisine"
+        }
+      ]
+    },
+    "hyderabadi haleem": {
+      "local": "حیدرآبادی حلیم",
+      "note": {
+        "en": "A GI-tagged Hyderabadi stew of meat, lentils and pounded wheat, brought by Hadhrami Arab (Chaush) soldiers under the Nizams.",
+        "fr": "Ragout hyderabadi labellise IG, fait de viande, lentilles et ble pile, apporte par les soldats arabes hadhramis (Chaush) sous les Nizams."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Hyderabadi haleem",
+          "url": "https://en.wikipedia.org/wiki/Hyderabadi_haleem"
+        },
+        {
+          "name": "TasteAtlas - Hyderabadi Haleem",
+          "url": "https://www.tasteatlas.com/hyderabadi-haleem"
+        }
+      ]
+    },
+    "thali": {
+      "local": "थाली (thālī); Tamil சாப்பாடு (sāppāḍu)",
+      "note": {
+        "en": "A round platter and the complete meal served on it: rice with dal, vegetables, curd, pickle, papad and a sweet, arranged for balanced…",
+        "fr": "Plateau rond et le repas complet qu'on y sert : riz, dal, légumes, caillé, pickle, papad et un dessert, pour des saveurs équilibrées."
+      },
+      "sources": [
+        {
+          "name": "Thali - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Thali"
+        },
+        {
+          "name": "South Indian cuisine - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/South_Indian_cuisine"
+        }
+      ]
+    },
+    "payasam": {
+      "local": "പായസം / பாயசம் (pāyasaṁ; Skt. पायस pāyasa)",
+      "note": {
+        "en": "South Indian sweet pudding of rice, vermicelli or lentils boiled in milk or coconut milk with jaggery or sugar; name from Sanskrit pāyasa.",
+        "fr": "Pudding sucré sud-indien de riz, vermicelles ou lentilles cuits dans du lait ou lait de coco avec jaggery ou sucre; du sanskrit pāyasa."
+      },
+      "sources": [
+        {
+          "name": "Wiktionary: payasam",
+          "url": "https://en.wiktionary.org/wiki/payasam"
+        },
+        {
+          "name": "Wikipedia: Kheer",
+          "url": "https://en.wikipedia.org/wiki/Kheer"
+        }
+      ]
+    },
+    "mysore pak": {
+      "local": "ಮೈಸೂರು ಪಾಕ್",
+      "note": {
+        "en": "A South Indian fudge-like sweet of gram flour, ghee and sugar, created in the early 1900s in the royal kitchen of Mysore, Karnataka.",
+        "fr": "Confiserie sud-indienne fondante de farine de pois chiche, ghee et sucre, créée vers 1900 dans la cuisine royale de Mysore, au Karnataka."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Mysore pak",
+          "url": "https://en.wikipedia.org/wiki/Mysore_pak"
+        },
+        {
+          "name": "Karnataka.com - The Guru Sweets, Mysore and the History of Mysore Pak",
+          "url": "https://www.karnataka.com/recipe-and-food/guru-sweets-mysore-the-history-of-mysore-pak/"
+        }
+      ]
+    },
+    "filter coffee": {
+      "local": "காபி (Kāpi)",
+      "note": {
+        "en": "South Indian coffee-and-chicory decoction brewed in a metal filter, mixed with hot milk and sugar and frothed between tumbler and dabarah.",
+        "fr": "Décoction sud-indienne de café et chicorée filtrée au filtre métallique, mélangée à du lait chaud et du sucre, moussée entre gobelet et…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Indian filter coffee",
+          "url": "https://en.wikipedia.org/wiki/Indian_filter_coffee"
+        },
+        {
+          "name": "The Better India - History of Filter Coffee in India",
+          "url": "https://thebetterindia.com/food/filter-coffee-history-india-south-indian-kitchens-11801245"
+        }
+      ]
+    }
+  },
+  "pakistani": {
+    "nihari": {
+      "local": "نہاری",
+      "note": {
+        "en": "A slow-cooked beef, lamb or goat shank stew from Mughal-era India, traditionally eaten at dawn; its name derives from Arabic \"nahâr\"…",
+        "fr": "Ragoût de jarret de bœuf, d'agneau ou de chèvre mijoté de l'Inde moghole, mangé à l'aube ; son nom vient de l'arabe \"nahâr\" (matin)."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Nihari",
+          "url": "https://en.wikipedia.org/wiki/Nihari"
+        },
+        {
+          "name": "TasteAtlas - Nihari",
+          "url": "https://www.tasteatlas.com/nihari"
+        }
+      ]
+    },
+    "haleem": {
+      "local": "حلیم",
+      "note": {
+        "en": "A thick stew of pounded wheat, lentils and slow-cooked meat, derived from Arab harees and a Ramadan iftar staple in Pakistan.",
+        "fr": "Un ragout epais de ble concasse, lentilles et viande mijotee, issu du harees arabe et plat phare de l'iftar du ramadan au Pakistan."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Haleem",
+          "url": "https://en.wikipedia.org/wiki/Haleem"
+        },
+        {
+          "name": "Wikipedia — Hyderabadi haleem",
+          "url": "https://en.wikipedia.org/wiki/Hyderabadi_haleem"
+        }
+      ]
+    },
+    "chicken karahi": {
+      "local": "چکن کڑاہی",
+      "note": {
+        "en": "A Pakistani and North Indian chicken curry cooked in a karahi (a deep wok-like pan), famous in Lahore in the Punjab region. It is…",
+        "fr": "Un curry de poulet pakistanais et nord-indien cuit dans une karahi (une poêle profonde en forme de wok), réputé à Lahore dans la région du…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Chicken karahi",
+          "url": "https://en.wikipedia.org/wiki/Chicken_karahi"
+        }
+      ]
+    },
+    "mutton karahi": {
+      "local": "مٹن کڑاہی (کڑاہی گوشت)",
+      "note": {
+        "en": "Pakistani goat/lamb curry stir-fried in a karahi (wok) with tomatoes, ginger and chillies, tied to the Khyber Pakhtunkhwa region.",
+        "fr": "Curry pakistanais de chèvre ou d'agneau sauté au karahi (wok) avec tomates, gingembre et piments, lié à la région du Khyber Pakhtunkhwa."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Chicken karahi (covers gosht/mutton variant)",
+          "url": "https://en.wikipedia.org/wiki/Chicken_karahi"
+        },
+        {
+          "name": "Dawn.com – Mutton karahi is delicious. Where did it come from?",
+          "url": "https://images.dawn.com/news/1180728/mutton-karahi-is-delicious-where-did-it-come-from"
+        }
+      ]
+    },
+    "chapli kebab": {
+      "local": "چپلی کباب",
+      "note": {
+        "en": "A flat spiced minced-meat (beef, mutton or chicken) patty from Peshawar, Khyber Pakhtunkhwa, central to Pashtun cuisine.",
+        "fr": "Galette plate de viande hachee epicee (boeuf, mouton ou poulet) de Peshawar, au Khyber Pakhtunkhwa, emblematique de la cuisine pachtoune."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Chapli kebab",
+          "url": "https://en.wikipedia.org/wiki/Chapli_kebab"
+        },
+        {
+          "name": "TasteAtlas - Best Meat Dishes in Pakistan",
+          "url": "https://www.tasteatlas.com/best-rated-meat-dishes-in-pakistan"
+        }
+      ]
+    },
+    "seekh kebab pakistani": {
+      "local": "سیخ کباب",
+      "note": {
+        "en": "Spiced minced meat (often beef in Pakistan, also lamb or chicken) shaped into logs on skewers and grilled or cooked in a tandoor; the name…",
+        "fr": "Viande hachée épicée (souvent du bœuf au Pakistan, aussi de l'agneau ou du poulet) façonnée en boudins sur des brochettes puis grillée ou…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Seekh kebab",
+          "url": "https://en.wikipedia.org/wiki/Seekh_kebab"
+        },
+        {
+          "name": "Wiktionary - seekh kebab",
+          "url": "https://en.wiktionary.org/wiki/seekh_kebab"
+        }
+      ]
+    },
+    "beef pulao": {
+      "local": "بیف پلاؤ",
+      "note": {
+        "en": "A Pakistani basmati-rice pilaf cooked in a spiced beef stock made by slow-simmering bone-in beef. It belongs to the pilaf (pulao) family…",
+        "fr": "Pilaf pakistanais de riz basmati cuit dans un bouillon de bœuf épicé, préparé en mijotant longuement du bœuf avec os. Il appartient à la…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Bannu pulao",
+          "url": "https://en.wikipedia.org/wiki/Bannu_pulao"
+        },
+        {
+          "name": "Wikipedia — Pilaf",
+          "url": "https://en.wikipedia.org/wiki/Pilaf"
+        }
+      ]
+    },
+    "mutton paya": {
+      "local": "پایہ (Mutton Pāya)",
+      "note": {
+        "en": "A slow-cooked South Asian stew of mutton trotters and spices, eaten with naan; \"paya\" means foot/leg in Urdu.",
+        "fr": "Un ragout sud-asiatique mijote de pieds de mouton et d'epices, mange avec du naan ; \"paya\" signifie pied/jambe en ourdou."
+      },
+      "sources": [
+        {
+          "name": "Paya (food) - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Paya_(food)"
+        }
+      ]
+    },
+    "siri paya": {
+      "local": "سری پائے",
+      "note": {
+        "en": "A slow-cooked Pakistani stew of animal head (siri) and trotters (paya), Mughal-introduced and eaten as a winter breakfast with naan.",
+        "fr": "Ragoût pakistanais mijoté de tête (siri) et de pieds (paya) d'animal, introduit par les Moghols et mangé l'hiver au petit-déjeuner avec du…"
+      },
+      "sources": [
+        {
+          "name": "Paya (food) - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Paya_(food)"
+        },
+        {
+          "name": "Siri Paya - TasteAtlas",
+          "url": "https://www.tasteatlas.com/siri-paya"
+        }
+      ]
+    },
+    "chicken jalfrezi pakistani": {
+      "local": "چکن جلفریزی",
+      "note": {
+        "en": "A stir-fried curry of chicken with onions, peppers and tomato; the jalfrezi technique originated in British Raj eastern India to use up…",
+        "fr": "Un curry sauté de poulet aux oignons, poivrons et tomate ; la technique jalfrezi est née dans l'Inde orientale du Raj pour accommoder les…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Jalfrezi",
+          "url": "https://en.wikipedia.org/wiki/Jalfrezi"
+        },
+        {
+          "name": "TasteAtlas – Jalfrezi",
+          "url": "https://www.tasteatlas.com/jalfrezi"
+        }
+      ]
+    },
+    "lahori chargha": {
+      "local": "لاہوری چرغہ",
+      "note": {
+        "en": "A whole chicken from Lahore, Pakistan, marinated in spiced yoghurt, steamed, then deep-fried until crisp; \"chargha\" is Pashto for chicken.",
+        "fr": "Un poulet entier de Lahore, au Pakistan, mariné au yaourt épicé, cuit à la vapeur puis frit jusqu'à être croustillant ; \"chargha\" signifie…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Chargha",
+          "url": "https://en.wikipedia.org/wiki/Chargha"
+        },
+        {
+          "name": "Hinz Cooking — Lahori Chicken Chargha",
+          "url": "https://hinzcooking.com/lahori-chargha/"
+        }
+      ]
+    },
+    "peshawari naan": {
+      "local": "پشاوری نان",
+      "note": {
+        "en": "Naan from Peshawar, Pakistan, filled with a sweet paste of ground almonds, desiccated coconut and raisins or sultanas.",
+        "fr": "Naan de Peshawar, au Pakistan, fourré d'une pâte sucrée d'amandes moulues, de noix de coco séchée et de raisins secs."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Peshwari Naan",
+          "url": "https://www.tasteatlas.com/peshwari-naan"
+        },
+        {
+          "name": "Wiktionary - Peshwari naan",
+          "url": "https://en.wiktionary.org/wiki/Peshwari_naan"
+        }
+      ]
+    },
+    "balti gosht": {
+      "local": "بالٹی گوشت",
+      "note": {
+        "en": "A spiced meat curry cooked fast over high heat and served in a pressed-steel \"balti\" bowl, popularised in 1970s Birmingham.",
+        "fr": "Curry de viande épicé cuit rapidement à feu vif et servi dans un bol en acier \"balti\", popularisé à Birmingham dans les années 1970."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Balti (food)",
+          "url": "https://en.wikipedia.org/wiki/Balti_(food)"
+        },
+        {
+          "name": "National Geographic — The story behind balti, the Pakistani dish born in Birmingham",
+          "url": "https://www.nationalgeographic.com/travel/article/story-behind-balti-birmingham-uk"
+        }
+      ]
+    },
+    "saag paneer pakistani": {
+      "local": "ساگ پنیر",
+      "note": {
+        "en": "A Punjabi dish of pureed leafy greens (mustard greens, spinach) simmered with spices and cubes of paneer cheese, popular across Pakistan…",
+        "fr": "Plat pendjabi de feuilles vertes en puree (moutarde, epinards) mijotees aux epices avec des des de fromage paneer, populaire au Pakistan et…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia: Saag",
+          "url": "https://en.wikipedia.org/wiki/Saag"
+        },
+        {
+          "name": "Wikipedia: Sarson ka saag",
+          "url": "https://en.wikipedia.org/wiki/Sarson_ka_saag"
+        }
+      ]
+    },
+    "aloo gosht": {
+      "local": "آلو گوشت",
+      "note": {
+        "en": "A South Asian meat curry of lamb, mutton or beef cooked with potatoes in a stew-like shorba gravy, popular in Pakistan.",
+        "fr": "Un curry de viande sud-asiatique d'agneau, mouton ou bœuf mijoté avec des pommes de terre dans une sauce shorba, populaire au Pakistan."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Aloo gosht",
+          "url": "https://en.wikipedia.org/wiki/Aloo_gosht"
+        },
+        {
+          "name": "kfoods - Aloo Gosht Recipe (آلو گوشت)",
+          "url": "https://kfoods.com/recipes/aloo-gosht_urid218"
+        }
+      ]
+    },
+    "palak gosht": {
+      "local": "پالک گوشت",
+      "note": {
+        "en": "Pakistani curry of mutton or goat slow-cooked with fresh spinach and aromatic spices; the name means \"spinach meat\".",
+        "fr": "Curry pakistanais de mouton ou de chèvre mijoté avec des épinards frais et des épices; son nom signifie \"épinard viande\"."
+      },
+      "sources": [
+        {
+          "name": "Food Tribune (The Express Tribune, Pakistan)",
+          "url": "https://food.tribune.com.pk/en/recipe/palak-gosht"
+        },
+        {
+          "name": "KFoods (Urdu recipe, پالک گوشت)",
+          "url": "https://kfoods.com/recipes/palak-gosht_urid16621"
+        }
+      ]
+    },
+    "chana pulao": {
+      "local": "چنا پلاؤ",
+      "note": {
+        "en": "A Pakistani one-pot pilaf of basmati rice and chickpeas (kabuli chana) cooked with whole spices and caramelized onions.",
+        "fr": "Pilaf pakistanais en un seul plat, à base de riz basmati et de pois chiches (kabuli chana), cuit aux épices entières et oignons caramélisés."
+      },
+      "sources": [
+        {
+          "name": "Tea for Turmeric — Chana Pulao",
+          "url": "https://www.teaforturmeric.com/chana-pulao/"
+        },
+        {
+          "name": "Pakistan Eats — Pakistani Style Chana Pulao (Chickpea Pilaf)",
+          "url": "https://www.pakistaneats.com/recipes/chana-pulao-chickpea-pilaf/"
+        }
+      ]
+    },
+    "keema matar": {
+      "local": "قیمہ مٹر",
+      "note": {
+        "en": "A South Asian dish of spiced minced meat (goat, lamb, or beef) cooked with green peas, associated with the Mughals.",
+        "fr": "Un plat sud-asiatique de viande hachee epicee (chevre, agneau ou boeuf) cuite avec des petits pois, associe aux Moghols."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Keema matar",
+          "url": "https://en.wikipedia.org/wiki/Keema_matar"
+        },
+        {
+          "name": "Curious Cuisiniere - Keema Matar (Pakistani Ground Beef Curry with Peas)",
+          "url": "https://www.curiouscuisiniere.com/keema-matar-ground-beef-curry/"
+        }
+      ]
+    },
+    "kheer pakistani": {
+      "local": "کھیر",
+      "note": {
+        "en": "South Asian rice pudding of milk, rice and sugar with cardamom; its name derives from the Sanskrit word for milk, kshira.",
+        "fr": "Riz au lait sud-asiatique au lait, riz et sucre parfume a la cardamome; son nom vient du mot sanskrit kshira, le lait."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Kheer",
+          "url": "https://en.wikipedia.org/wiki/Kheer"
+        },
+        {
+          "name": "UrduPoint Dictionary - Kheer (کھیر)",
+          "url": "https://www.urdupoint.com/dictionary/urdu-to-english/kheer-meaning-in-english/121626.html"
+        }
+      ]
+    },
+    "ras malai": {
+      "local": "রসমালাই (Bengali: roshmalai)",
+      "note": {
+        "en": "Bengali-origin dessert of chhena (paneer) dumplings soaked in sweetened cardamom- and saffron-flavoured thickened milk (rabri).",
+        "fr": "Dessert d'origine bengalie : boulettes de chhena (paneer) trempées dans un lait épaissi sucré parfumé à la cardamome et au safran."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Ras malai",
+          "url": "https://en.wikipedia.org/wiki/Ras_malai"
+        },
+        {
+          "name": "TasteAtlas — Ras malai",
+          "url": "https://www.tasteatlas.com/ras-malai"
+        }
+      ]
+    },
+    "gulab jamun pakistani": {
+      "local": "گلاب جامن",
+      "note": {
+        "en": "Deep-fried milk-solid (khoya) dumplings soaked in rose-scented sugar syrup; a Mughal-era South Asian sweet named for Persian gulab (rose…",
+        "fr": "Boulettes de khoya (solides de lait) frites et trempées dans un sirop de sucre parfumé à la rose ; douceur sud-asiatique de l'ère moghole…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Gulab jamun",
+          "url": "https://en.wikipedia.org/wiki/Gulab_jamun"
+        }
+      ]
+    },
+    "shahi tukda": {
+      "local": "شاہی ٹکڑا (Urdu) / शाही टुकड़ा (Hindi)",
+      "note": {
+        "en": "A Mughal-era bread pudding of ghee-fried bread soaked in cardamom sugar syrup and topped with saffron-flavoured rabri (thickened milk); the…",
+        "fr": "Pain perdu d'époque moghole : tranches de pain frites au ghee, trempées dans un sirop sucré à la cardamome et garnies de rabri (lait…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Shahi tukra",
+          "url": "https://en.wikipedia.org/wiki/Shahi_tukra"
+        },
+        {
+          "name": "Atlas Obscura (Gastro Obscura) — Shahi Tukda",
+          "url": "https://www.atlasobscura.com/foods/shahi-tukda"
+        }
+      ]
+    },
+    "pakistani milk tea (doodh patti)": {
+      "local": "دودھ پتی چائے",
+      "note": {
+        "en": "Pakistani milk tea brewed entirely in whole milk (no water) with black tea leaves; a staple across Pakistan and North India.",
+        "fr": "Thé au lait pakistanais infusé entièrement dans du lait entier, sans eau, avec du thé noir; incontournable au Pakistan et en Inde du Nord."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Doodh pati chai",
+          "url": "https://en.wikipedia.org/wiki/Doodh_pati_chai"
+        }
+      ]
+    }
+  },
+  "italian": {
+    "pizza margherita": {
+      "local": "Pizza Margherita",
+      "note": {
+        "en": "Neapolitan pizza of tomato, mozzarella and basil; popularly named in 1889 for Queen Margherita, its colours echoing the Italian flag.",
+        "fr": "Pizza napolitaine a la tomate, mozzarella et basilic; nommee en 1889 pour la reine Margherita, ses couleurs rappelant le drapeau italien."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Pizza Margherita",
+          "url": "https://en.wikipedia.org/wiki/Pizza_Margherita"
+        },
+        {
+          "name": "National Geographic - Pizza Margherita may be fit for a queen",
+          "url": "https://www.nationalgeographic.com/history/history-magazine/article/pizza-margherita-may-be-fit-for-a-queen-but-was-it-named-after-one"
+        }
+      ]
+    },
+    "pizza marinara": {
+      "local": "Pizza alla marinara",
+      "note": {
+        "en": "A classic Neapolitan pizza topped with tomato, garlic, oregano and olive oil but no cheese; reputedly Naples' oldest tomato pizza.",
+        "fr": "Pizza napolitaine classique garnie de tomate, ail, origan et huile d'olive, sans fromage; serait la plus ancienne pizza tomate de Naples."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Pizza marinara",
+          "url": "https://en.wikipedia.org/wiki/Pizza_marinara"
+        },
+        {
+          "name": "Pizza Marinara Recipe (Classic Neapolitan Style) - Coley Cooks",
+          "url": "https://coleycooks.com/pizza-marinara/"
+        }
+      ]
+    },
+    "focaccia": {
+      "local": "focaccia (Genoese: fugassa)",
+      "note": {
+        "en": "A flat oven-baked Italian bread, dimpled and brushed with olive oil and salt; widely associated with Liguria and Genoa.",
+        "fr": "Pain plat italien cuit au four, alvéolé et badigeonné d'huile d'olive et de sel; associé surtout à la Ligurie et à Gênes."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Focaccia",
+          "url": "https://en.wikipedia.org/wiki/Focaccia"
+        },
+        {
+          "name": "Delicious Italy - Origins of Focaccia",
+          "url": "https://www.deliciousitaly.com/liguria-food/origins-of-focaccia"
+        }
+      ]
+    },
+    "spaghetti carbonara": {
+      "local": "spaghetti alla carbonara",
+      "note": {
+        "en": "Roman pasta dish made with egg, Pecorino Romano cheese, guanciale (cured pork cheek) and black pepper; the modern dish took shape in Italy…",
+        "fr": "Plat de pates romain a base d'oeuf, de fromage Pecorino Romano, de guanciale (joue de porc) et de poivre noir; le plat moderne a pris forme…"
+      },
+      "sources": [
+        {
+          "name": "Britannica — Carbonara",
+          "url": "https://www.britannica.com/topic/carbonara"
+        },
+        {
+          "name": "Wikipedia — Carbonara",
+          "url": "https://en.wikipedia.org/wiki/Carbonara"
+        }
+      ]
+    },
+    "cacio e pepe": {
+      "local": "cacio e pepe",
+      "note": {
+        "en": "Roman pasta of tonnarelli or spaghetti tossed with grated Pecorino Romano, black pepper and starchy water; name means \"cheese and pepper\".",
+        "fr": "Pates romaines (tonnarelli ou spaghetti) au Pecorino Romano rape, poivre noir et eau de cuisson; le nom signifie \"fromage et poivre\"."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Cacio e pepe",
+          "url": "https://en.wikipedia.org/wiki/Cacio_e_pepe"
+        },
+        {
+          "name": "TasteAtlas - Best Rated Dishes with Pecorino Romano",
+          "url": "https://www.tasteatlas.com/best-rated-dishes-with-pecorino-romano"
+        }
+      ]
+    },
+    "pasta alla gricia": {
+      "local": "pasta alla gricia",
+      "note": {
+        "en": "Roman pasta from Lazio made with guanciale, Pecorino Romano and black pepper; predates amatriciana, which adds tomato.",
+        "fr": "Pates romaines du Latium au guanciale, Pecorino Romano et poivre noir; anterieures a l'amatriciana, qui ajoute la tomate."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Pasta alla gricia",
+          "url": "https://en.wikipedia.org/wiki/Pasta_alla_gricia"
+        },
+        {
+          "name": "Recipes from Italy - Authentic Pasta alla Gricia",
+          "url": "https://www.recipesfromitaly.com/pasta-alla-gricia/"
+        }
+      ]
+    },
+    "pasta amatriciana": {
+      "local": "Pasta all'amatriciana",
+      "note": {
+        "en": "Italian pasta from Amatrice (Lazio) in a sauce of guanciale, tomato and Pecorino, evolved from the older tomato-less gricia.",
+        "fr": "Pates italiennes d'Amatrice (Latium) en sauce de guanciale, tomate et Pecorino, issues de l'ancienne gricia sans tomate."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Amatriciana sauce",
+          "url": "https://en.wikipedia.org/wiki/Amatriciana_sauce"
+        },
+        {
+          "name": "Recipes from Italy - Authentic Amatriciana",
+          "url": "https://www.recipesfromitaly.com/amatriciana-pasta-recipe/"
+        }
+      ]
+    },
+    "spaghetti aglio e olio": {
+      "local": "spaghetti aglio e olio",
+      "note": {
+        "en": "Neapolitan cucina povera pasta of spaghetti tossed with garlic, extra-virgin olive oil and (often) chilli, once called vermicelli alla…",
+        "fr": "Pâtes napolitaines de cuisine povera : spaghetti à l'ail, huile d'olive vierge et souvent piment, jadis dits vermicelli alla Borbonica."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Spaghetti aglio e olio",
+          "url": "https://en.wikipedia.org/wiki/Spaghetti_aglio_e_olio"
+        },
+        {
+          "name": "TasteAtlas — Spaghetti Aglio e Olio",
+          "url": "https://www.tasteatlas.com/aglio-e-olio"
+        }
+      ]
+    },
+    "lasagna alla bolognese": {
+      "local": "lasagne alla bolognese",
+      "note": {
+        "en": "Baked Bolognese dish of green spinach egg-pasta layered with ragù and béchamel; its recipe is registered with Bologna's Chamber of Commerce.",
+        "fr": "Plat bolonais au four de pâtes aux œufs et épinards en couches de ragù et béchamel ; sa recette est déposée à la Chambre de commerce de…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Lasagna",
+          "url": "https://en.wikipedia.org/wiki/Lasagna"
+        },
+        {
+          "name": "National Geographic — Lasagne: history and variations of a true Italian classic",
+          "url": "https://www.nationalgeographic.com/travel/article/lasagne-history-countless-variations-true-italian-classic"
+        }
+      ]
+    },
+    "tagliatelle al ragù": {
+      "local": "Tagliatelle al ragù alla bolognese",
+      "note": {
+        "en": "Bologna egg-pasta ribbons in a slow-cooked beef-and-pork ragù; the official recipe was filed with Bologna's Chamber of Commerce in 1982.",
+        "fr": "Rubans de pâtes aux œufs de Bologne nappés d'un ragù mijoté de bœuf et porc ; recette officielle déposée à la Chambre de commerce en 1982."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Tagliatelle al Ragù alla Bolognese",
+          "url": "https://www.tasteatlas.com/bolognese"
+        },
+        {
+          "name": "Recipes from Italy — Authentic Tagliatelle Bolognese",
+          "url": "https://www.recipesfromitaly.com/tagliatelle-bolognese/"
+        }
+      ]
+    },
+    "risotto alla milanese": {
+      "local": "risotto alla milanese",
+      "note": {
+        "en": "Creamy saffron-tinted risotto from Milan, in Lombardy; its first written recipe appears in 1829 in Giovanni Felice Luraschi's cookbook…",
+        "fr": "Risotto cremeux teinte de safran de Milan, en Lombardie; sa premiere recette ecrite figure en 1829 dans le livre de cuisine Nuovo cuoco…"
+      },
+      "sources": [
+        {
+          "name": "Risotto alla milanese - Wikipedia (Italian)",
+          "url": "https://it.wikipedia.org/wiki/Risotto_alla_milanese"
+        },
+        {
+          "name": "Risotto alla milanese - Memorie di Angelina",
+          "url": "https://memoriediangelina.com/2026/03/11/risotto-alla-milanese-milanese-style-risotto/"
+        }
+      ]
+    },
+    "risotto ai funghi": {
+      "local": "risotto ai funghi",
+      "note": {
+        "en": "Northern Italian creamy rice dish slow-cooked with mushrooms (classically porcini), using arborio or carnaroli rice, butter and Parmigiano.",
+        "fr": "Plat de riz cremeux du nord de l'Italie, mijote avec des champignons (cepes), a base de riz arborio ou carnaroli, beurre et parmesan."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Risotto ai Funghi Porcini",
+          "url": "https://www.tasteatlas.com/risotto-ai-funghi-porcini"
+        },
+        {
+          "name": "Wikipedia - Risotto",
+          "url": "https://en.wikipedia.org/wiki/Risotto"
+        }
+      ]
+    },
+    "osso buco alla milanese": {
+      "local": "ossobuco alla milanese",
+      "note": {
+        "en": "Milanese (Lombard) dish of cross-cut veal shanks braised in white wine and broth, served with gremolata; name means \"bone with a hole\".",
+        "fr": "Plat milanais (lombard) de jarrets de veau coupés en travers, braisés au vin blanc et bouillon, servis avec gremolata ; \"os troué\"."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Ossobuco",
+          "url": "https://en.wikipedia.org/wiki/Ossobuco"
+        },
+        {
+          "name": "Recipes from Italy — Authentic Italian Osso Buco (Alla Milanese)",
+          "url": "https://www.recipesfromitaly.com/traditional-osso-buco-recipe/"
+        }
+      ]
+    },
+    "vitello tonnato": {
+      "local": "vitello tonnato",
+      "note": {
+        "en": "Piedmontese dish of cold thinly sliced veal under a creamy tuna, anchovy, caper and mayonnaise sauce, served chilled.",
+        "fr": "Plat piemontais de veau froid finement tranche, nappe d'une sauce cremeuse au thon, anchois, capres et mayonnaise, servi froid."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Vitello tonnato",
+          "url": "https://en.wikipedia.org/wiki/Vitello_tonnato"
+        }
+      ]
+    },
+    "saltimbocca": {
+      "local": "Saltimbocca alla romana",
+      "note": {
+        "en": "Roman veal escalope topped with prosciutto and sage, cooked in white wine and butter; the name means \"jumps in the mouth.\"",
+        "fr": "Escalope de veau romaine garnie de prosciutto et de sauge, cuite au vin blanc et au beurre ; le nom signifie « saute en bouche »."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Saltimbocca",
+          "url": "https://en.wikipedia.org/wiki/Saltimbocca"
+        },
+        {
+          "name": "Turismo Roma - Saltimbocca alla romana",
+          "url": "https://www.turismoroma.it/en/page/saltimbocca-alla-romana"
+        }
+      ]
+    },
+    "parmigiana di melanzane": {
+      "local": "parmigiana di melanzane",
+      "note": {
+        "en": "Southern Italian baked dish of fried eggplant slices layered with tomato sauce and cheese; an early ancestor appears in Vincenzo Corrado's…",
+        "fr": "Plat italien du Sud: tranches d'aubergine frites en couches avec sauce tomate et fromage; un ancetre figure dans le livre de cuisine Il…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Parmigiana",
+          "url": "https://en.wikipedia.org/wiki/Parmigiana"
+        },
+        {
+          "name": "Wikipedia (Italian) - Il Cuoco Galante",
+          "url": "https://it.wikipedia.org/wiki/Il_Cuoco_Galante"
+        }
+      ]
+    },
+    "caponata": {
+      "local": "caponata siciliana",
+      "note": {
+        "en": "A Sicilian agrodolce (sweet-and-sour) dish of fried eggplant with celery, olives, capers and tomato; first recorded in 1709.",
+        "fr": "Plat sicilien en agrodolce (aigre-doux) d'aubergines frites avec celeri, olives, capres et tomate; atteste des 1709."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Caponata",
+          "url": "https://en.wikipedia.org/wiki/Caponata"
+        },
+        {
+          "name": "Philosokitchen - Sicilian Caponata: history & recipes",
+          "url": "https://philosokitchen.com/sicilian-caponata-history-recipe/"
+        }
+      ]
+    },
+    "arancini": {
+      "local": "arancini",
+      "note": {
+        "en": "Sicilian deep-fried rice balls stuffed with ragu, cheese or peas, breaded and golden; said to date to Arab-ruled Sicily around the 10th…",
+        "fr": "Boules de riz frites siciliennes farcies de ragu, fromage ou petits pois, panees et dorees; remonteraient a la Sicile arabe du Xe siecle."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Arancini",
+          "url": "https://en.wikipedia.org/wiki/Arancini"
+        },
+        {
+          "name": "Best of Sicily Magazine - Arancini/Arancine",
+          "url": "http://www.bestofsicily.com/mag/art214.htm"
+        }
+      ]
+    },
+    "cannoli": {
+      "local": "cannolo (pl. cannoli); Sicilian cannolu (pl. cannola)",
+      "note": {
+        "en": "Sicilian fried pastry tube filled with sweetened ricotta, originating around Palermo under 9th-11th-century Arab rule; name from canna…",
+        "fr": "Tube de pate frite sicilien fourre de ricotta sucree, ne pres de Palerme sous la domination arabe (IXe-XIe s.); nom tire de canna (moule en…"
+      },
+      "sources": [
+        {
+          "name": "Cannoli - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Cannoli"
+        },
+        {
+          "name": "Cannoli - TasteAtlas",
+          "url": "https://www.tasteatlas.com/cannoli"
+        }
+      ]
+    },
+    "tiramisu": {
+      "local": "tiramisù",
+      "note": {
+        "en": "Italian no-bake dessert of coffee-soaked savoiardi (ladyfingers) layered with mascarpone, egg yolk, sugar and cream, dusted with cocoa; it…",
+        "fr": "Dessert italien sans cuisson de biscuits savoiardi (boudoirs) imbibes de cafe, garnis de mascarpone, jaune d'oeuf, sucre et creme…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Tiramisu",
+          "url": "https://en.wikipedia.org/wiki/Tiramisu"
+        },
+        {
+          "name": "Gourmet Traveller - History of tiramisù",
+          "url": "https://www.gourmettraveller.com.au/explainers/what-is-tiramisu-history/"
+        }
+      ]
+    },
+    "panna cotta": {
+      "local": "panna cotta",
+      "note": {
+        "en": "A molded northern Italian dessert of sweetened cream set with gelatin; its name means \"cooked cream\" and it is tied to the Piedmont region.",
+        "fr": "Un dessert moule du nord de l'Italie, fait de creme sucree prise a la gelatine ; son nom signifie \"creme cuite\" et il est lie au Piemont."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Panna cotta",
+          "url": "https://en.wikipedia.org/wiki/Panna_cotta"
+        },
+        {
+          "name": "Tasting Table - The Origin Of Italy's Panna Cotta",
+          "url": "https://www.tastingtable.com/1990487/panna-cotta-italy-origins/"
+        }
+      ]
+    },
+    "gelato": {
+      "local": "gelato",
+      "note": {
+        "en": "Italian artisanal frozen dessert with lower butterfat (6-9%) and less churned-in air than ice cream, giving a denser, more intense flavour.",
+        "fr": "Dessert glace artisanal italien a faible teneur en matiere grasse (6-9%) et moins d'air que la creme glacee, d'ou une texture plus dense et…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Gelato",
+          "url": "https://en.wikipedia.org/wiki/Gelato"
+        },
+        {
+          "name": "Britannica - Gelato",
+          "url": "https://www.britannica.com/topic/gelato"
+        }
+      ]
+    },
+    "affogato": {
+      "local": "affogato al caffè",
+      "note": {
+        "en": "Italian dessert of a scoop of vanilla or fiordilatte gelato \"drowned\" (affogato) in a shot of hot espresso.",
+        "fr": "Dessert italien : une boule de gelato vanille ou fiordilatte « noyée » (affogato) sous un expresso chaud."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Affogato",
+          "url": "https://en.wikipedia.org/wiki/Affogato"
+        },
+        {
+          "name": "Venchi — What is an Affogato?",
+          "url": "https://uk.venchi.com/blog/what-is-affogato"
+        }
+      ]
+    },
+    "gnocchi": {
+      "local": "gnocchi",
+      "note": {
+        "en": "Italian soft dough dumplings, most often potato-based; the name derives from \"nocchio\" (knot in wood) or \"nocca\" (knuckle).",
+        "fr": "Petites quenelles italiennes de pâte molle, le plus souvent à la pomme de terre ; le nom vient de \"nocchio\" (nœud du bois) ou \"nocca\"…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Gnocchi",
+          "url": "https://en.wikipedia.org/wiki/Gnocchi"
+        },
+        {
+          "name": "Britannica - Gnocchi",
+          "url": "https://www.britannica.com/topic/gnocchi"
+        }
+      ]
+    },
+    "ravioli": {
+      "local": "ravioli (sing. raviolo)",
+      "note": {
+        "en": "Italian stuffed pasta of a filling sealed in thin dough; documented from the 14th century (Francesco Datini's letters; the Venetian…",
+        "fr": "Pâtes farcies italiennes, garniture scellée dans une pâte fine; attestées dès le XIVe siècle (lettres de Francesco Datini; le manuscrit…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Ravioli",
+          "url": "https://en.wikipedia.org/wiki/Ravioli"
+        },
+        {
+          "name": "Wikipedia - Filled pasta",
+          "url": "https://en.wikipedia.org/wiki/Filled_pasta"
+        }
+      ]
+    },
+    "tortellini in brodo": {
+      "local": "Tortellini in brodo",
+      "note": {
+        "en": "Emilia-Romagna stuffed pasta filled with pork, prosciutto, mortadella and Parmigiano, served in capon broth; Bologna and Modena both claim…",
+        "fr": "Pates farcies d'Emilie-Romagne au porc, prosciutto, mortadelle et parmesan, servies dans un bouillon de chapon; Bologne et Modene la…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Tortellini",
+          "url": "https://en.wikipedia.org/wiki/Tortellini"
+        },
+        {
+          "name": "TasteAtlas - Tortellini in Brodo",
+          "url": "https://www.tasteatlas.com/tortellini-in-brodo"
+        }
+      ]
+    },
+    "bruschetta": {
+      "local": "bruschetta",
+      "note": {
+        "en": "Italian antipasto of grilled bread rubbed with garlic and olive oil; the name comes from Roman dialect bruscare, 'to toast over coals'.",
+        "fr": "Antipasto italien de pain grille frotte d'ail et d'huile d'olive; le nom vient du dialecte romain bruscare, 'griller sur la braise'."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Bruschetta",
+          "url": "https://en.wikipedia.org/wiki/Bruschetta"
+        },
+        {
+          "name": "L'Italo-Americano - The history and many flavors of bruschetta",
+          "url": "https://italoamericano.org/bruschetta/"
+        }
+      ]
+    },
+    "caprese salad": {
+      "local": "Insalata caprese",
+      "note": {
+        "en": "Italian salad of sliced fresh mozzarella, tomatoes and basil with olive oil; named after Capri, its colours echo the Italian flag.",
+        "fr": "Salade italienne de mozzarella fraiche, tomates et basilic a l'huile d'olive; nommee d'apres Capri, ses couleurs rappellent le drapeau…"
+      },
+      "sources": [
+        {
+          "name": "Caprese salad — Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Caprese_salad"
+        },
+        {
+          "name": "Insalata Caprese — Eataly",
+          "url": "https://www.eataly.com/us_en/magazine/recipes/appetizer-recipes/insalata-caprese"
+        }
+      ]
+    },
+    "prosciutto e melone": {
+      "local": "prosciutto e melone",
+      "note": {
+        "en": "Italian summer antipasto of thin-sliced cured prosciutto crudo draped over sweet melon (often cantaloupe), pairing salty and sweet.",
+        "fr": "Antipasto italien d'ete fait de fines tranches de prosciutto crudo sur du melon sucre (souvent cantaloup), alliant sale et sucre."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Melon with ham",
+          "url": "https://en.wikipedia.org/wiki/Melon_with_ham"
+        },
+        {
+          "name": "Eataly - Prosciutto e Melone: The Story of Italian Ham and Melon",
+          "url": "https://www.eataly.com/us_en/magazine/culture-and-tradition/history-of-prosciutto-melone"
+        }
+      ]
+    },
+    "panettone": {
+      "local": "panettone",
+      "note": {
+        "en": "A tall, dome-shaped sweet leavened bread from Milan, studded with raisins and candied citron, traditionally eaten at Christmas.",
+        "fr": "Pain levé sucré en forme de dôme originaire de Milan, garni de raisins secs et de cédrat confit, traditionnellement mangé à Noël."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Panettone",
+          "url": "https://en.wikipedia.org/wiki/Panettone"
+        },
+        {
+          "name": "ITALY Magazine — Panettone: Where and How It Originated",
+          "url": "https://www.italymagazine.com/dual-language/panettone-where-and-how-it-originated"
+        }
+      ]
+    }
+  },
+  "french": {
+    "boeuf bourguignon": {
+      "local": "bœuf bourguignon",
+      "note": {
+        "en": "A traditional beef stew from Burgundy, France, where beef is slowly braised in red Burgundy wine with lardons, onions and mushrooms.",
+        "fr": "Ragoût de bœuf traditionnel de Bourgogne, où le bœuf est braisé lentement au vin rouge avec lardons, oignons et champignons."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Beef bourguignon",
+          "url": "https://en.wikipedia.org/wiki/Beef_bourguignon"
+        },
+        {
+          "name": "TasteAtlas — Beef Bourguignon",
+          "url": "https://www.tasteatlas.com/beef-bourguignon"
+        }
+      ]
+    },
+    "coq au vin": {
+      "local": "coq au vin",
+      "note": {
+        "en": "A French braised stew of chicken cooked in red wine with lardons, mushrooms and onions, rooted in Burgundy peasant cookery.",
+        "fr": "Ragout francais de poulet braise au vin rouge avec lardons, champignons et oignons, issu de la cuisine paysanne bourguignonne."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Coq au vin",
+          "url": "https://en.wikipedia.org/wiki/Coq_au_vin"
+        },
+        {
+          "name": "TasteAtlas - Coq au Vin",
+          "url": "https://www.tasteatlas.com/coq-au-vin"
+        }
+      ]
+    },
+    "cassoulet": {
+      "local": "Cassoulet",
+      "note": {
+        "en": "A slow-cooked Languedoc stew of white beans with sausage and duck or goose confit, named after the cassole earthenware pot.",
+        "fr": "Ragout languedocien mijote de haricots blancs, saucisse et confit de canard ou d'oie, nomme d'apres la cassole en terre cuite."
+      },
+      "sources": [
+        {
+          "name": "Cassoulet — Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Cassoulet"
+        },
+        {
+          "name": "Cassoulet — Encyclopaedia Britannica",
+          "url": "https://www.britannica.com/topic/cassoulet"
+        }
+      ]
+    },
+    "ratatouille": {
+      "local": "ratatouille niçoise",
+      "note": {
+        "en": "A Provençal stewed vegetable dish from Nice of courgette, aubergine, peppers, tomato and onion, dating to the 18th century.",
+        "fr": "Plat provençal de légumes mijotés originaire de Nice (courgette, aubergine, poivrons, tomate, oignon), datant du XVIIIe siècle."
+      },
+      "sources": [
+        {
+          "name": "Ratatouille — Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ratatouille"
+        },
+        {
+          "name": "Ratatouille: history and origins — Gambero Rosso International",
+          "url": "https://www.gamberorossointernational.com/news/food-news/food-on-movie-moments-the-true-story-of-french-ratatouille/"
+        }
+      ]
+    },
+    "bouillabaisse": {
+      "local": "bouillabaisse",
+      "note": {
+        "en": "A traditional Provencal fish stew from Marseille, originally made by fishermen from unsold bony rockfish, flavoured with saffron.",
+        "fr": "Ragout de poisson provencal traditionnel de Marseille, fait a l'origine par les pecheurs avec des poissons de roche invendus, parfume au…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Bouillabaisse",
+          "url": "https://en.wikipedia.org/wiki/Bouillabaisse"
+        },
+        {
+          "name": "Marseille Tourism - Bouillabaisse",
+          "url": "https://www.marseille-tourisme.com/en/discover-marseille/gastronomy-in-marseille/culinary-specialities-of-marseille/bouillabaisse/"
+        }
+      ]
+    },
+    "soupe à l'oignon": {
+      "local": "soupe à l'oignon",
+      "note": {
+        "en": "French soup of sautéed onions cooked in meat stock or water, usually served gratinéed with bread (or croutons) and cheese; a medieval onion…",
+        "fr": "Soupe française d'oignons revenus puis cuits au bouillon de viande ou à l'eau, généralement servie gratinée avec du pain (ou des croûtons)…"
+      },
+      "sources": [
+        {
+          "name": "French onion soup — Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/French_onion_soup"
+        },
+        {
+          "name": "Soupe à l'oignon — Wikipédia",
+          "url": "https://fr.wikipedia.org/wiki/Soupe_%C3%A0_l%27oignon"
+        }
+      ]
+    },
+    "croque monsieur": {
+      "local": "croque-monsieur",
+      "note": {
+        "en": "A hot French ham-and-cheese sandwich, traditionally made with Gruyère and often topped with béchamel sauce; its earliest known reference…",
+        "fr": "Sandwich chaud français au jambon et fromage, traditionnellement au gruyère et souvent nappé de sauce béchamel ; sa plus ancienne mention…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Croque monsieur",
+          "url": "https://en.wikipedia.org/wiki/Croque_monsieur"
+        },
+        {
+          "name": "Devour Tours — History of the Croque Monsieur",
+          "url": "https://devourtours.com/blog/croque-monsieur/"
+        }
+      ]
+    },
+    "croque madame": {
+      "local": "croque-madame",
+      "note": {
+        "en": "A French grilled ham-and-cheese sandwich, usually with bechamel, topped with a fried (or poached) egg whose shape is said to resemble a…",
+        "fr": "Un croque-monsieur francais au jambon et au fromage, generalement nappe de bechamel, coiffe d'un oeuf au plat (ou poche) dont la forme…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Croque monsieur",
+          "url": "https://en.wikipedia.org/wiki/Croque_monsieur"
+        },
+        {
+          "name": "Croque-madame - Wikipedia (French)",
+          "url": "https://fr.wikipedia.org/wiki/Croque-madame"
+        }
+      ]
+    },
+    "duck confit": {
+      "local": "confit de canard",
+      "note": {
+        "en": "French dish of duck legs salt-cured and slow-cooked in their own fat; a preservation method from Gascony in southwest France.",
+        "fr": "Plat francais de cuisses de canard salees et cuites lentement dans leur graisse; methode de conservation originaire de Gascogne."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Duck confit",
+          "url": "https://en.wikipedia.org/wiki/Duck_confit"
+        },
+        {
+          "name": "Mon Panier Latin - Confit de canard",
+          "url": "https://monpanierlatin.co.uk/blogs/mpl-blog/confit-de-canard"
+        }
+      ]
+    },
+    "foie gras": {
+      "local": "foie gras",
+      "note": {
+        "en": "French delicacy of duck or goose liver fattened by gavage (force-feeding), a technique tracing back to the ancient Egyptians.",
+        "fr": "Mets francais de foie de canard ou d'oie engraisse par gavage, une technique remontant a l'Egypte ancienne."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Foie gras",
+          "url": "https://en.wikipedia.org/wiki/Foie_gras"
+        },
+        {
+          "name": "Britannica - Foie gras",
+          "url": "https://www.britannica.com/topic/foie-gras"
+        }
+      ]
+    },
+    "escargots de bourgogne": {
+      "local": "escargots de Bourgogne",
+      "note": {
+        "en": "French Burgundy snails (Helix pomatia) baked in their shells with garlic-parsley butter, a classic popularised in the 19th century.",
+        "fr": "Escargots de Bourgogne (Helix pomatia) cuits en coquille au beurre persillé à l'ail, plat français classique popularisé au XIXe siècle."
+      },
+      "sources": [
+        {
+          "name": "Wikipédia — Helix pomatia (escargot de Bourgogne)",
+          "url": "https://fr.wikipedia.org/wiki/Escargot_gros_blanc"
+        },
+        {
+          "name": "Burgundy Tourism — Burgundy Snails",
+          "url": "https://www.burgundy-tourism.com/discover-burgundy/gastronomy-and-regional-products/local-products-of-burgundy/burgundy-snails/"
+        }
+      ]
+    },
+    "steak frites": {
+      "local": "steak-frites",
+      "note": {
+        "en": "A French-Belgian bistro classic of pan-fried beefsteak served with deep-fried chipped potatoes; Belgium claims to be its country of origin.",
+        "fr": "Un classique des bistrots franco-belges: un steak de boeuf poele servi avec des frites; la Belgique revendique le pays d'origine."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Steak frites",
+          "url": "https://en.wikipedia.org/wiki/Steak_frites"
+        },
+        {
+          "name": "TasteAtlas - Steak-frites",
+          "url": "https://www.tasteatlas.com/steak-frites"
+        }
+      ]
+    },
+    "steak tartare": {
+      "local": "steak tartare",
+      "note": {
+        "en": "French dish of finely chopped raw beef seasoned and served with a raw egg yolk; popularized in early-1900s Paris bistros.",
+        "fr": "Plat francais de boeuf cru finement hache, assaisonne et servi avec un jaune d'oeuf cru; popularise dans les bistrots parisiens du debut du…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Steak tartare",
+          "url": "https://en.wikipedia.org/wiki/Steak_tartare"
+        },
+        {
+          "name": "Britannica - Steak tartare",
+          "url": "https://www.britannica.com/topic/steak-tartare"
+        }
+      ]
+    },
+    "sole meunière": {
+      "local": "sole meunière",
+      "note": {
+        "en": "Classic French dish of sole floured and pan-fried in butter, finished with lemon juice and parsley; \"meunière\" means \"miller's-wife style.\"",
+        "fr": "Plat classique français de sole farinée et poêlée au beurre, relevée de jus de citron et de persil ; « meunière » signifie « à la façon de…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Sole meunière",
+          "url": "https://en.wikipedia.org/wiki/Sole_meuni%C3%A8re"
+        }
+      ]
+    },
+    "blanquette de veau": {
+      "local": "blanquette de veau",
+      "note": {
+        "en": "A classic French veal stew in which the meat is simmered (never browned) in white stock and served in a velouté sauce enriched with cream…",
+        "fr": "Ragout de veau francais classique dont la viande mijote sans coloration dans un bouillon blanc, servie en sauce veloutee a la creme et au…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Blanquette de veau",
+          "url": "https://en.wikipedia.org/wiki/Blanquette_de_veau"
+        }
+      ]
+    },
+    "pot-au-feu": {
+      "local": "pot-au-feu",
+      "note": {
+        "en": "French dish of beef and root vegetables slowly simmered in broth; one of the oldest peasant winter dishes, served as broth then meat.",
+        "fr": "Plat français de bœuf et légumes-racines mijotés dans un bouillon; un des plus anciens plats paysans d'hiver, servi bouillon puis viande."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Pot-au-feu",
+          "url": "https://en.wikipedia.org/wiki/Pot-au-feu"
+        },
+        {
+          "name": "TasteAtlas - Pot-au-feu",
+          "url": "https://www.tasteatlas.com/pot-au-feu"
+        }
+      ]
+    },
+    "quiche lorraine": {
+      "local": "quiche lorraine",
+      "note": {
+        "en": "An open savoury tart from France's Lorraine region filled with an egg-and-cream custard and lardons (smoked bacon).",
+        "fr": "Tarte salee ouverte de la region francaise de Lorraine garnie d'un appareil aux oeufs et a la creme et de lardons."
+      },
+      "sources": [
+        {
+          "name": "Quiche Lorraine — Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Quiche_Lorraine"
+        },
+        {
+          "name": "Everything you need to know about quiche lorraine — National Geographic",
+          "url": "https://www.nationalgeographic.com/travel/article/everything-you-need-to-know-about-quiche-lorraine"
+        }
+      ]
+    },
+    "soufflé au fromage": {
+      "local": "soufflé au fromage",
+      "note": {
+        "en": "Baked French dish of cheese, béchamel and beaten egg whites that puffs up; the soufflé emerged in early-18th-century France.",
+        "fr": "Plat français cuit au four de fromage, béchamel et blancs d'œufs montés qui gonfle ; le soufflé apparaît en France au début du XVIIIe…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Soufflé",
+          "url": "https://en.wikipedia.org/wiki/Souffl%C3%A9"
+        },
+        {
+          "name": "RecipeTin Eats – Cheese Soufflé (Soufflé au Fromage)",
+          "url": "https://www.recipetineats.com/cheese-souffle-souffle-au-fromage/"
+        }
+      ]
+    },
+    "tarte tatin": {
+      "local": "tarte Tatin",
+      "note": {
+        "en": "A French upside-down caramelised apple tart, created by accident by the Tatin sisters at their hotel in Lamotte-Beuvron in the 1880s.",
+        "fr": "Une tarte aux pommes caramelisees renversee, creee par accident par les soeurs Tatin a leur hotel de Lamotte-Beuvron dans les annees 1880."
+      },
+      "sources": [
+        {
+          "name": "Tarte Tatin — Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Tarte_Tatin"
+        },
+        {
+          "name": "The History of Tarte Tatin — PBS Food",
+          "url": "https://www.pbs.org/food/stories/the-history-of-tarte-tatin"
+        }
+      ]
+    },
+    "crème brûlée": {
+      "local": "crème brûlée",
+      "note": {
+        "en": "French custard dessert with a caramelized sugar crust; earliest known recipe is in François Massialot's 1691 cookbook.",
+        "fr": "Dessert français à base de crème aux œufs nappée de sucre caramélisé ; première recette connue dans le livre de Massialot (1691)."
+      },
+      "sources": [
+        {
+          "name": "Crème brûlée - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Cr%C3%A8me_br%C3%BBl%C3%A9e"
+        },
+        {
+          "name": "François Massialot - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Fran%C3%A7ois_Massialot"
+        }
+      ]
+    },
+    "macarons": {
+      "local": "macaron",
+      "note": {
+        "en": "A French almond-meringue sandwich cookie filled with ganache, buttercream or jam; the modern filled Paris version is credited to Pierre…",
+        "fr": "Biscuit francais a base de meringue d'amande, fourre de ganache, creme au beurre ou confiture ; la version parisienne moderne, fourree, est…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Macaron",
+          "url": "https://en.wikipedia.org/wiki/Macaron"
+        },
+        {
+          "name": "Bake from Scratch - Origin of a Classic: Macarons",
+          "url": "https://bakefromscratch.com/origin-of-a-classic-macarons/"
+        }
+      ]
+    },
+    "mille-feuille": {
+      "local": "mille-feuille",
+      "note": {
+        "en": "French dessert of three layers of puff pastry alternating with pastry cream, traditionally finished with icing or powdered sugar; the name…",
+        "fr": "Dessert francais compose de trois couches de pate feuilletee alternant avec de la creme patissiere, traditionnellement glace ou saupoudre…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Mille-feuille",
+          "url": "https://en.wikipedia.org/wiki/Mille-feuille"
+        },
+        {
+          "name": "TasteAtlas — Mille-feuille (authentic recipe)",
+          "url": "https://www.tasteatlas.com/mille-feuille/recipe"
+        }
+      ]
+    },
+    "paris-brest": {
+      "local": "Paris-Brest",
+      "note": {
+        "en": "French ring of choux pastry filled with praline mousseline cream, created in 1910 for the Paris–Brest–Paris cycle race; shaped like a wheel.",
+        "fr": "Couronne de pâte à choux garnie de crème mousseline pralinée, créée en 1910 pour la course cycliste Paris–Brest–Paris ; en forme de roue."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Paris–Brest",
+          "url": "https://en.wikipedia.org/wiki/Paris%E2%80%93Brest"
+        },
+        {
+          "name": "Mon Panier Latin – Paris-Brest: A Classic French Pastry",
+          "url": "https://monpanierlatin.co.uk/blogs/mpl-blog/paris-brest-classic-french-pastry"
+        }
+      ]
+    },
+    "croissant": {
+      "local": "croissant",
+      "note": {
+        "en": "A crescent-shaped French viennoiserie of flaky laminated yeast dough, inspired by the 19th-century Austrian kipferl.",
+        "fr": "Viennoiserie francaise en forme de croissant, en pate levee feuilletee, inspiree du kipferl autrichien du XIXe siecle."
+      },
+      "sources": [
+        {
+          "name": "Croissant - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Croissant"
+        },
+        {
+          "name": "A Brief History of the Croissant - Institute of Culinary Education",
+          "url": "https://www.ice.edu/blog/brief-history-croissant-austrian-kipferl-layered-french-luxury"
+        }
+      ]
+    },
+    "pain au chocolat": {
+      "local": "pain au chocolat",
+      "note": {
+        "en": "French viennoiserie of laminated, yeast-leavened buttery dough wrapped around chocolate batons, popularized via Austrian baker August Zang.",
+        "fr": "Viennoiserie francaise en pate levee feuilletee au beurre enroulee autour de barres de chocolat, popularisee par le boulanger autrichien…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Pain au chocolat",
+          "url": "https://en.wikipedia.org/wiki/Pain_au_chocolat"
+        },
+        {
+          "name": "Tasting Table - The Austrian Origins Of Pain Au Chocolat",
+          "url": "https://www.tastingtable.com/1626523/pain-au-chocolat-origin/"
+        }
+      ]
+    },
+    "tarte flambée alsacienne": {
+      "local": "Flammekueche",
+      "note": {
+        "en": "Thin Alsatian flatbread topped with crème fraîche, onions and lardons, baked in a wood-fired oven by farmers using leftover bread dough.",
+        "fr": "Fine galette alsacienne garnie de crème fraîche, d'oignons et de lardons, cuite au four à bois par les paysans avec un reste de pâte à pain."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Flammekueche",
+          "url": "https://en.wikipedia.org/wiki/Flammekueche"
+        },
+        {
+          "name": "Taste France Magazine — Flammekueche (Alsatian Tarte Flambée)",
+          "url": "https://www.tastefrance.com/recipes/everyday-recipes/flammekueche-alsatian-tarte-flambee"
+        }
+      ]
+    }
+  },
+  "spanish": {
+    "paella de mariscos": {
+      "local": "paella de mariscos",
+      "note": {
+        "en": "Spanish seafood paella of saffron rice cooked with shrimp, mussels and clams, popular in Valencia and along the Spanish coast.",
+        "fr": "Paella espagnole aux fruits de mer, riz au safran cuit avec crevettes, moules et palourdes, populaire a Valence et sur la cote."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Paella de mariscos",
+          "url": "https://tasteatlas.com/paella-de-mariscos"
+        },
+        {
+          "name": "Wikipedia - Paella",
+          "url": "https://en.wikipedia.org/wiki/Paella"
+        }
+      ]
+    },
+    "arroz negro": {
+      "local": "arròs negre",
+      "note": {
+        "en": "A Valencian and Catalan rice dish with cuttlefish or squid, dyed black by their ink, similar to seafood paella.",
+        "fr": "Un plat de riz valencien et catalan a la seiche ou au calmar, noirci par leur encre, proche de la paella de fruits de mer."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Arròs negre",
+          "url": "https://en.wikipedia.org/wiki/Arr%C3%B2s_negre"
+        },
+        {
+          "name": "Wikibooks Cookbook - Arroz Negro (Valencian Squid Rice)",
+          "url": "https://en.wikibooks.org/wiki/Cookbook:Arroz_negro"
+        }
+      ]
+    },
+    "gazpacho": {
+      "local": "gazpacho",
+      "note": {
+        "en": "Andalusian cold soup of raw tomato, pepper, cucumber, garlic, bread, oil and vinegar; tomatoes arrived from the Americas in the 16th…",
+        "fr": "Soupe froide andalouse de tomate, poivron, concombre, ail, pain, huile et vinaigre crus ; la tomate vint des Amériques au XVIe siècle."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Gazpacho",
+          "url": "https://en.wikipedia.org/wiki/Gazpacho"
+        },
+        {
+          "name": "Britannica - Gazpacho",
+          "url": "https://www.britannica.com/topic/gazpacho"
+        }
+      ]
+    },
+    "jamón ibérico": {
+      "local": "jamón ibérico",
+      "note": {
+        "en": "A Spanish dry-cured ham made from black Iberian pigs native to the Iberian Peninsula, traditionally salted and aged for months to years.",
+        "fr": "Jambon espagnol séché et affiné, issu du porc ibérique noir de la péninsule Ibérique, salé puis affiné durant des mois, voire des années."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Jamón ibérico",
+          "url": "https://en.wikipedia.org/wiki/Jam%C3%B3n_ib%C3%A9rico"
+        }
+      ]
+    },
+    "chorizo": {
+      "local": "chorizo",
+      "note": {
+        "en": "A Spanish cured pork sausage seasoned with garlic and pimentón (smoked paprika), which gave it its red color after arriving from the…",
+        "fr": "Saucisse de porc espagnole sechee, assaisonnee d'ail et de pimenton (paprika fume), qui lui donne sa couleur rouge depuis son arrivee des…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Chorizo",
+          "url": "https://en.wikipedia.org/wiki/Chorizo"
+        },
+        {
+          "name": "Great British Chefs - Chorizo: A History",
+          "url": "https://www.greatbritishchefs.com/features/chorizo-history-culture"
+        }
+      ]
+    },
+    "fabada asturiana": {
+      "local": "fabada asturiana",
+      "note": {
+        "en": "A rich Asturian stew of large white fabes beans with cured pork (chorizo, morcilla, tocino), likely originating in the 19th-20th century.",
+        "fr": "Un riche ragout asturien de gros haricots blancs fabes et de porc (chorizo, morcilla, tocino), apparu probablement aux 19e-20e siecles."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Fabada asturiana",
+          "url": "https://en.wikipedia.org/wiki/Fabada_asturiana"
+        },
+        {
+          "name": "TasteAtlas - Fabada Asturiana",
+          "url": "https://www.tasteatlas.com/fabada/recipe"
+        }
+      ]
+    },
+    "gambas al ajillo": {
+      "local": "gambas al ajillo",
+      "note": {
+        "en": "A Spanish tapa of prawns sizzled in olive oil with garlic (and often chili), traditionally served in an earthenware casserole.",
+        "fr": "Une tapa espagnole de crevettes saisies dans l'huile d'olive avec de l'ail (souvent du piment), servie en cassolette de terre cuite."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Al ajillo",
+          "url": "https://en.wikipedia.org/wiki/Al_ajillo"
+        }
+      ]
+    },
+    "crema catalana": {
+      "local": "crema catalana",
+      "note": {
+        "en": "A Catalan milk-based custard topped with caramelized sugar, first named \"crema catalana\" in a 1745 cookbook by friar Juan de Altamiras.",
+        "fr": "Une crème catalane à base de lait nappée de sucre caramélisé, nommée pour la première fois en 1745 dans un livre du frère Juan de Altamiras."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Crema catalana",
+          "url": "https://en.wikipedia.org/wiki/Crema_catalana"
+        },
+        {
+          "name": "Catalunya.com – Crema Cremada de Sant Josep",
+          "url": "https://www.catalunya.com/crema-cremada-de-sant-josep-26-1-35?language=en"
+        }
+      ]
+    },
+    "cava": {
+      "local": "cava",
+      "note": {
+        "en": "Spanish sparkling wine made by the traditional bottle-fermentation method (second fermentation in the bottle), first produced in 1872 at…",
+        "fr": "Vin mousseux espagnol élaboré selon la méthode traditionnelle de fermentation en bouteille (seconde fermentation en bouteille), produit…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Cava (Spanish wine)",
+          "url": "https://en.wikipedia.org/wiki/Cava_(Spanish_wine)"
+        },
+        {
+          "name": "D.O. Cava — The History of Cava",
+          "url": "https://www.cava.wine/en/regulatory-board/cava-designation-of-origin/cava-history/"
+        }
+      ]
+    }
+  },
+  "lebanese": {
+    "mezze platter": {
+      "local": "مَزّة (mazza)",
+      "note": {
+        "en": "A Levantine assortment of small shared appetizer dishes (dips, salads, grilled bites); the name derives via Turkish from Persian maze…",
+        "fr": "Assortiment levantin de petits plats d'entrée à partager (trempettes, salades, grillades) ; le nom vient du persan maze, « goût », via le…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Meze",
+          "url": "https://en.wikipedia.org/wiki/Meze"
+        },
+        {
+          "name": "Wiktionary — مزة",
+          "url": "https://en.wiktionary.org/wiki/%D9%85%D8%B2%D8%A9"
+        }
+      ]
+    },
+    "warak enab": {
+      "local": "ورق عنب",
+      "note": {
+        "en": "Lebanese grape leaves rolled around spiced rice (often with minced meat) and simmered in lemony broth; akin to Ottoman dolma/sarma.",
+        "fr": "Feuilles de vigne libanaises roulées autour de riz épicé (souvent avec viande hachée), mijotées dans un bouillon citronné; proche du dolma…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Stuffed leaves",
+          "url": "https://en.wikipedia.org/wiki/Stuffed_leaves"
+        },
+        {
+          "name": "The Matbakh — Lebanese Stuffed Grape Leaves (Warak Enab)",
+          "url": "https://thematbakh.com/stuffed-grape-leaves-warak-enab/"
+        }
+      ]
+    },
+    "maamoul": {
+      "local": "معمول (maʿmūl)",
+      "note": {
+        "en": "A Levantine semolina shortbread cookie filled with dates, pistachios or walnuts, traditionally made for Easter and Eid.",
+        "fr": "Un biscuit levantin en pate de semoule fourre de dattes, pistaches ou noix, traditionnellement prepare pour Paques et l'Aid."
+      },
+      "sources": [
+        {
+          "name": "Ma'amoul - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ma'amoul"
+        },
+        {
+          "name": "Lebanese cuisine - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lebanese_cuisine"
+        }
+      ]
+    },
+    "lebanese coffee": {
+      "local": "قهوة (qahwa)",
+      "note": {
+        "en": "A form of Arabic coffee (qahwa), brewed strong in the Turkish style from finely ground beans and traditionally scented with cardamom.",
+        "fr": "Une forme de café arabe (qahwa), infusé fort à la turque à partir de grains finement moulus et traditionnellement parfumé à la cardamome."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Arabic coffee",
+          "url": "https://en.wikipedia.org/wiki/Arabic_coffee"
+        },
+        {
+          "name": "TasteAtlas - Ghahwa (Qahwa)",
+          "url": "https://www.tasteatlas.com/ghahwa"
+        }
+      ]
+    }
+  },
+  "mexican": {
+    "tacos de carnitas": {
+      "local": "tacos de carnitas",
+      "note": {
+        "en": "Tacos filled with carnitas, pork braised in its own lard (a confit technique), a dish credited to Quiroga in Michoacán, Mexico.",
+        "fr": "Tacos garnis de carnitas, du porc braisé dans son propre saindoux (technique du confit), plat attribué à Quiroga au Michoacán, au Mexique."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Carnitas",
+          "url": "https://en.wikipedia.org/wiki/Carnitas"
+        },
+        {
+          "name": "Mexico News Daily — State by Plate: Michoacán and carnitas",
+          "url": "https://mexiconewsdaily.com/food/state-by-plate-carnitas-michoacan/"
+        }
+      ]
+    },
+    "tacos de barbacoa": {
+      "local": "tacos de barbacoa",
+      "note": {
+        "en": "Mexican tacos of meat (lamb in Hidalgo) slow-cooked in a maguey-leaf-lined underground pit; the name comes from Taino \"barabicu.\"",
+        "fr": "Tacos mexicains de viande (agneau a Hidalgo) cuite lentement dans une fosse tapissee de feuilles de maguey ; le nom vient du taino…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Barbacoa",
+          "url": "https://en.wikipedia.org/wiki/Barbacoa"
+        },
+        {
+          "name": "Mexico News Daily - Barbacoa of Hidalgo",
+          "url": "https://mexiconewsdaily.com/food/state-by-plate-barbacoa-of-hidalgo/"
+        }
+      ]
+    },
+    "tacos de pescado": {
+      "local": "tacos de pescado",
+      "note": {
+        "en": "Mexican corn tortillas filled with battered fried or grilled fish and cabbage, originating in Baja California, notably Ensenada.",
+        "fr": "Tortillas de mais mexicaines garnies de poisson frit en pate ou grille et de chou, originaires de Basse-Californie, notamment Ensenada."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Tacos de Pescado",
+          "url": "https://www.tasteatlas.com/tacos-de-pescado"
+        },
+        {
+          "name": "Eat Your World - Tacos de Pescado (Fish Tacos)",
+          "url": "https://eatyourworld.com/destinations/mexico/baja-california/what-to-eat/tacos-de-pescado-fish-tacos/"
+        }
+      ]
+    },
+    "mole poblano": {
+      "local": "mole poblano",
+      "note": {
+        "en": "A thick dark Mexican sauce from Puebla blending dried chiles, spices, nuts and chocolate, traditionally served over turkey or chicken.",
+        "fr": "Sauce mexicaine epaisse et sombre de Puebla melant piments secs, epices, noix et chocolat, servie sur dinde ou poulet."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Mole Poblano",
+          "url": "https://www.tasteatlas.com/mole-poblano"
+        },
+        {
+          "name": "Alimentarium — Mole",
+          "url": "https://www.alimentarium.org/en/fact-sheet/mole"
+        }
+      ]
+    },
+    "mole negro oaxaqueño": {
+      "local": "Mole negro oaxaqueño",
+      "note": {
+        "en": "Oaxaca's emblematic black mole, the most complex of the state's seven moles, a dark sauce of chilhuacle chiles, dark chocolate, spices and…",
+        "fr": "Le mole noir emblématique d'Oaxaca, le plus complexe des sept moles de l'État, sauce sombre de piments chilhuacle, chocolat noir, épices et…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Seven Moles of Oaxaca",
+          "url": "https://www.tasteatlas.com/best-rated-seven-moles-of-oaxaca-varieties-in-the-world"
+        },
+        {
+          "name": "MexConnect — Oaxacan black mole (Mole negro oaxaqueño)",
+          "url": "https://www.mexconnect.com/articles/2027-oaxacan-black-mole-mole-negro-oaxaqueno/"
+        }
+      ]
+    },
+    "mole verde": {
+      "local": "Mole verde",
+      "note": {
+        "en": "A Mexican green mole sauce of ground pumpkin seeds, fresh chiles and herbs like cilantro, counted among Oaxaca's seven traditional moles.",
+        "fr": "Une sauce mole verte mexicaine de graines de courge moulues, piments frais et herbes comme la coriandre, parmi les sept moles d'Oaxaca."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Mole / Pipian",
+          "url": "https://www.tasteatlas.com/mole"
+        },
+        {
+          "name": "Wikipedia - Mole (sauce)",
+          "url": "https://en.wikipedia.org/wiki/Mole_(sauce)"
+        }
+      ]
+    },
+    "chiles en nogada": {
+      "local": "Chiles en nogada",
+      "note": {
+        "en": "Puebla dish of poblano chiles stuffed with picadillo under a walnut cream sauce with pomegranate, created in 1821 in Mexico's flag colors.",
+        "fr": "Plat de Puebla : piments poblano farcis de picadillo sous une crème de noix avec grenade, créé en 1821 aux couleurs du drapeau mexicain."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Chiles en nogada",
+          "url": "https://en.wikipedia.org/wiki/Chiles_en_nogada"
+        },
+        {
+          "name": "TasteAtlas - Chiles en nogada",
+          "url": "https://www.tasteatlas.com/chiles-en-nogada"
+        }
+      ]
+    },
+    "cochinita pibil": {
+      "local": "cochinita pibil",
+      "note": {
+        "en": "A Yucatecan slow-roasted pork dish marinated in achiote and sour orange, wrapped in banana leaf and cooked in a pib (earth oven).",
+        "fr": "Plat yucateque de porc roti lentement, marine a l'achiote et a l'orange amere, enveloppe de feuille de bananier et cuit dans un four…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Cochinita pibil",
+          "url": "https://en.wikipedia.org/wiki/Cochinita_pibil"
+        },
+        {
+          "name": "TasteAtlas - Cochinita Pibil",
+          "url": "https://www.tasteatlas.com/cochinita-pibil"
+        }
+      ]
+    },
+    "pozole": {
+      "local": "pozole",
+      "note": {
+        "en": "A traditional Mexican soup of hominy with pork or chicken and chiles, dating to pre-Hispanic times; its name is from Nahuatl \"pozolli.\"",
+        "fr": "Soupe mexicaine traditionnelle de maïs hominy au porc ou poulet et piments, d'origine prehispanique; son nom vient du nahuatl \"pozolli\"."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Pozole",
+          "url": "https://en.wikipedia.org/wiki/Pozole"
+        },
+        {
+          "name": "Wiktionary — pozole",
+          "url": "https://en.wiktionary.org/wiki/pozole"
+        }
+      ]
+    },
+    "birria": {
+      "local": "birria",
+      "note": {
+        "en": "A Mexican slow-cooked, chili-marinated meat stew from Jalisco, traditionally goat, created after the Spanish introduced goats in the 16th…",
+        "fr": "Ragout mexicain de viande marinee au piment et mijotee, de Jalisco, traditionnellement au chevreau, ne apres l'arrivee des chevres…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Birria",
+          "url": "https://en.wikipedia.org/wiki/Birria"
+        },
+        {
+          "name": "TasteAtlas — Birria",
+          "url": "https://www.tasteatlas.com/birria"
+        }
+      ]
+    },
+    "enchiladas": {
+      "local": "enchiladas",
+      "note": {
+        "en": "Mexican corn tortillas rolled around a filling and bathed in chili sauce; the name comes from Spanish enchilar, \"to season with chili.\"",
+        "fr": "Tortillas de maïs mexicaines roulées autour d'une garniture et nappées de sauce au piment; le nom vient de l'espagnol enchilar."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Enchilada",
+          "url": "https://en.wikipedia.org/wiki/Enchilada"
+        },
+        {
+          "name": "TasteAtlas - Enchiladas varieties",
+          "url": "https://www.tasteatlas.com/best-rated-enchiladas-varieties-in-the-world"
+        }
+      ]
+    },
+    "chilaquiles": {
+      "local": "Chilaquiles",
+      "note": {
+        "en": "Mexican breakfast dish of fried or lightly crisped corn-tortilla pieces simmered in red or green salsa, typically topped with cheese, crema…",
+        "fr": "Plat mexicain du matin: morceaux de tortilla de maïs frits ou croustillants mijotés dans une salsa rouge ou verte, généralement garnis de…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Chilaquiles",
+          "url": "https://en.wikipedia.org/wiki/Chilaquiles"
+        },
+        {
+          "name": "TasteAtlas - Chilaquiles",
+          "url": "https://www.tasteatlas.com/chilaquiles"
+        }
+      ]
+    },
+    "tostadas": {
+      "local": "tostada",
+      "note": {
+        "en": "A Mexican dish of a flat deep-fried or toasted corn tortilla topped with refried beans, meat and garnishes; \"tostada\" is Spanish for…",
+        "fr": "Plat mexicain composé d'une tortilla de maïs plate frite ou grillée garnie de haricots, viande et garnitures ; « tostada » signifie «…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Tostada (tortilla)",
+          "url": "https://en.wikipedia.org/wiki/Tostada_(tortilla)"
+        },
+        {
+          "name": "Britannica - Tostada",
+          "url": "https://www.britannica.com/topic/tostado"
+        }
+      ]
+    },
+    "ceviche mexicano": {
+      "local": "ceviche mexicano",
+      "note": {
+        "en": "Mexican-style ceviche: raw fish or seafood cured in lime juice, mixed with tomato, onion, chili and cilantro, often served on tostadas.",
+        "fr": "Ceviche a la mexicaine : poisson ou fruits de mer crus cuits au jus de citron vert, avec tomate, oignon, piment et coriandre, souvent sur…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Ceviche Colima (Mexico)",
+          "url": "https://www.tasteatlas.com/ceviche-colima"
+        },
+        {
+          "name": "TasteAtlas - Ceviche",
+          "url": "https://www.tasteatlas.com/ceviche"
+        }
+      ]
+    },
+    "aguachile": {
+      "local": "aguachile",
+      "note": {
+        "en": "A spicy raw-shrimp dish from coastal Sinaloa, Mexico, cured in lime juice with chiltepin chilies, cucumber, and red onion.",
+        "fr": "Un plat epice de crevettes crues du littoral de Sinaloa, au Mexique, marinees au citron vert avec piments chiltepin, concombre et oignon…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Aguachile",
+          "url": "https://en.wikipedia.org/wiki/Aguachile"
+        },
+        {
+          "name": "TasteAtlas - Aguachile",
+          "url": "https://tasteatlas.com/aguachile"
+        }
+      ]
+    },
+    "tequila reposado": {
+      "local": "tequila reposado",
+      "note": {
+        "en": "Mexican agave spirit rested in oak barrels for two months to under a year; \"reposado\" means \"rested\" in Spanish.",
+        "fr": "Spiritueux mexicain d'agave reposé en fûts de chêne de deux mois à moins d'un an ; \"reposado\" signifie \"reposé\" en espagnol."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Tequila",
+          "url": "https://en.wikipedia.org/wiki/Tequila"
+        },
+        {
+          "name": "Distiller - Reposado Tequila Guide",
+          "url": "https://distiller.com/articles/distillers-reposado-tequila-guide"
+        }
+      ]
+    }
+  },
+  "taiwanese": {
+    "beef noodle soup": {
+      "local": "牛肉麵 (niúròu miàn)",
+      "note": {
+        "en": "Taiwan's de facto national dish: wheat noodles in braised beef broth, popularized after 1949 by Sichuanese Kuomintang immigrants.",
+        "fr": "Plat national de facto de Taïwan : nouilles de blé en bouillon de bœuf braisé, popularisé après 1949 par les immigrés Kuomintang du Sichuan."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Taiwanese beef noodle soup",
+          "url": "https://en.wikipedia.org/wiki/Taiwanese_beef_noodle_soup"
+        }
+      ]
+    },
+    "oyster omelette taiwan": {
+      "local": "蚵仔煎 (ô-á-tsian)",
+      "note": {
+        "en": "A Taiwanese night-market street food of Southern Min origin: oysters and egg fried, then bound with a sweet potato starch batter.",
+        "fr": "Street food taïwanaise d'origine min méridionale : huîtres et œuf frits, puis liés par une pâte de fécule de patate douce."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Oyster omelette",
+          "url": "https://en.wikipedia.org/wiki/Oyster_omelette"
+        },
+        {
+          "name": "Taipei Times — The Story of Oyster Omelet 蚵仔煎的故事",
+          "url": "https://www.taipeitimes.com/News/lang/archives/2024/02/19/2003813734"
+        }
+      ]
+    },
+    "three cup chicken": {
+      "local": "三杯雞",
+      "note": {
+        "en": "Taiwanese braised chicken cooked in equal cups of sesame oil, rice wine and soy sauce, finished with Thai basil; rooted in Jiangxi.",
+        "fr": "Poulet braisé taïwanais cuit en parts égales d'huile de sésame, vin de riz et sauce soja, parfumé au basilic thaï; originaire du Jiangxi."
+      },
+      "sources": [
+        {
+          "name": "Michelin Guide Taiwan — The Many Lives of Three Cup Chicken",
+          "url": "https://guide.michelin.com/tw/en/article/features/taiwanese-three-cups-chicken-origins-michelin-restaurants"
+        },
+        {
+          "name": "The Woks of Life — Three Cup Chicken (San Bei Ji)",
+          "url": "https://thewoksoflife.com/three-cup-chicken-san-bei-ji/"
+        }
+      ]
+    },
+    "gua bao": {
+      "local": "割包 (also written 刈包)",
+      "note": {
+        "en": "Taiwanese street-food snack of a folded steamed bun filled with braised pork belly, pickled mustard greens, peanut powder and cilantro…",
+        "fr": "En-cas de rue taiwanais: un pain vapeur plié garni de poitrine de porc braisée, moutarde marinée, poudre de cacahuète et coriandre…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Gua Bao",
+          "url": "https://www.tasteatlas.com/gua-bao"
+        },
+        {
+          "name": "Red House Spice - Gua Bao (pork belly buns, 刈包)",
+          "url": "https://redhousespice.com/gua-bao-pork-belly-buns/"
+        }
+      ]
+    },
+    "xiao long bao": {
+      "local": "小籠包 (xiǎolóngbāo)",
+      "note": {
+        "en": "A steamed soup dumpling of pork and melting aspic broth, originating in Nanxiang near Shanghai and globalized by Taiwan's Din Tai Fung.",
+        "fr": "Un ravioli vapeur farci de porc et de bouillon en gelée fondante, originaire de Nanxiang près de Shanghai, mondialisé par Din Tai Fung à…"
+      },
+      "sources": [
+        {
+          "name": "Wiktionary — xiaolongbao",
+          "url": "https://en.wiktionary.org/wiki/xiaolongbao"
+        },
+        {
+          "name": "Wikipedia — Din Tai Fung",
+          "url": "https://en.wikipedia.org/wiki/Din_Tai_Fung"
+        }
+      ]
+    },
+    "popcorn chicken taiwan": {
+      "local": "鹽酥雞",
+      "note": {
+        "en": "Taiwanese night-market snack of bite-sized chicken dredged in sweet potato starch, deep-fried, and tossed with salt, white pepper, and…",
+        "fr": "En-cas des marchés de nuit taïwanais : poulet en bouchées pané à la fécule de patate douce, frit, puis assaisonné de sel, poivre blanc et…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Taiwanese fried chicken",
+          "url": "https://en.wikipedia.org/wiki/Taiwanese_fried_chicken"
+        },
+        {
+          "name": "Taiwan Obsessed — Taiwanese Foods",
+          "url": "https://www.taiwanobsessed.com/taiwanese-foods/"
+        }
+      ]
+    },
+    "scallion pancake": {
+      "local": "蔥油餅 (cōng yóu bǐng)",
+      "note": {
+        "en": "A savory pan-fried Chinese flatbread of unleavened wheat dough layered with minced scallions and oil; its name literally means \"scallion…",
+        "fr": "Une galette chinoise salee de pate de ble non levee, feuilletee d'oignons verts haches et d'huile; son nom signifie litteralement « galette…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Cong you bing",
+          "url": "https://en.wikipedia.org/wiki/Cong_you_bing"
+        },
+        {
+          "name": "Taiwanese American - Cōng yóu Bǐng",
+          "url": "https://www.taiwaneseamerican.org/2022/12/scallion-pancakes-taiwanese-identity/"
+        }
+      ]
+    },
+    "mango shaved ice": {
+      "local": "芒果冰",
+      "note": {
+        "en": "Taiwanese shaved-ice dessert made of finely shaved ice topped with fresh mango chunks, condensed milk and often mango ice cream; recognized…",
+        "fr": "Dessert taiwanais de glace finement pilée garnie de morceaux de mangue fraîche, de lait concentré et souvent de glace à la mangue ; reconnu…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Mango shaved ice",
+          "url": "https://en.wikipedia.org/wiki/Mango_shaved_ice"
+        },
+        {
+          "name": "TasteAtlas — Mango Shaved Ice",
+          "url": "https://www.tasteatlas.com/mango-shaved-ice"
+        }
+      ]
+    },
+    "pineapple cake": {
+      "local": "鳳梨酥",
+      "note": {
+        "en": "A Taiwanese pastry of buttery shortbread crust around pineapple (often winter-melon) jam, popularized from a ceremonial wedding gift.",
+        "fr": "Pâtisserie taïwanaise de croûte sablée beurrée fourrée de confiture d'ananas (souvent de courge), issue d'un cadeau de mariage."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Pineapple cake",
+          "url": "https://en.wikipedia.org/wiki/Pineapple_cake"
+        },
+        {
+          "name": "Taipei Times — The Story of Pineapple Cakes",
+          "url": "https://www.taipeitimes.com/News/lang/archives/2024/06/17/2003819441"
+        }
+      ]
+    },
+    "taiwanese sausage": {
+      "local": "香腸 (xiāngcháng)",
+      "note": {
+        "en": "A sweet, garlicky fresh pork sausage grilled at Taiwan's night markets, distinguished from Chinese lap cheong by its high sugar content.",
+        "fr": "Saucisse de porc fraîche, sucrée et aillée, grillée sur les marchés de nuit taïwanais, distincte du lap cheong chinois par sa forte teneur…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Ian Chhiang (Taiwanese sausage)",
+          "url": "https://tasteatlas.com/ian-chhiang"
+        },
+        {
+          "name": "FoodMap — What is Taiwanese Sausage (臺灣香腸)?",
+          "url": "https://www.foodmap.in/taiwan/taiwanese-sausage"
+        }
+      ]
+    },
+    "danzi noodles": {
+      "local": "擔仔麵 (dànzǎimiàn)",
+      "note": {
+        "en": "Tainan snack of thin wheat noodles in shrimp-pork broth with minced pork, shrimp and cilantro; sold by fisherman Hong Yutou around 1895 in…",
+        "fr": "En-cas de Tainan: fines nouilles de blé en bouillon crevette-porc, garnies de porc haché, crevette et coriandre; créé par le pêcheur Hong…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia: Tàⁿ-á-mī (danzai noodles)",
+          "url": "https://en.wikipedia.org/wiki/Ta-a_mi"
+        },
+        {
+          "name": "Get Me To Taiwan: Du Hsiao Yueh Danzai Noodle (Slack Season Noodle)",
+          "url": "https://www.getmetotaiwan.com/food/du-hsiao-yueh-danzai-noodle-slack-season-noodle/"
+        }
+      ]
+    },
+    "iron egg": {
+      "local": "鐵蛋",
+      "note": {
+        "en": "A Taiwanese snack of small eggs repeatedly stewed in spiced soy sauce and air-dried until dark, chewy and intensely savory; popularized in…",
+        "fr": "Snack taïwanais d'œufs mijotés à répétition dans une sauce soja épicée puis séchés à l'air, devenus foncés, fermes et savoureux; popularisé…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Iron egg",
+          "url": "https://en.wikipedia.org/wiki/Iron_egg"
+        },
+        {
+          "name": "Wikipedia — Tamsui Old Street",
+          "url": "https://en.wikipedia.org/wiki/Tamsui_Old_Street"
+        }
+      ]
+    },
+    "taiwan night market dishes": {
+      "local": "夜市小吃",
+      "note": {
+        "en": "Xiaochi (\"small eats\") sold cheaply in small portions to eat while walking at Taiwan's night markets; staples include oyster omelette and…",
+        "fr": "Xiaochi (\"petites bouchees\"), portions bon marche a manger en marchant dans les marches de nuit taiwanais ; omelette aux huitres et tofu…"
+      },
+      "sources": [
+        {
+          "name": "Night markets in Taiwan - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Night_markets_in_Taiwan"
+        },
+        {
+          "name": "Xiaochi - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Xiaochi"
+        }
+      ]
+    },
+    "bubble tea": {
+      "local": "珍珠奶茶",
+      "note": {
+        "en": "Taiwanese tea drink with milk and chewy tapioca pearls, created in 1980s Taichung/Tainan tea houses.",
+        "fr": "Boisson taïwanaise au thé, lait et perles de tapioca moelleuses, créée dans les années 1980 à Taichung/Tainan."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Bubble tea",
+          "url": "https://en.wikipedia.org/wiki/Bubble_tea"
+        },
+        {
+          "name": "CNN Travel — The origins of bubble tea",
+          "url": "https://www.cnn.com/travel/bubble-tea-origin-history-taiwan-intl-hnk/index.html"
+        }
+      ]
+    },
+    "milk tea taiwan style": {
+      "local": "珍珠奶茶",
+      "note": {
+        "en": "Sweet Taiwanese black-tea-and-milk drink with chewy tapioca pearls, invented in Taichung/Tainan tea houses in the 1980s.",
+        "fr": "Boisson taïwanaise sucrée au thé noir et au lait, garnie de perles de tapioca, créée dans des maisons de thé des années 1980."
+      },
+      "sources": [
+        {
+          "name": "National Geographic — Origins and cultural impact of boba tea, Taiwan's iconic drink",
+          "url": "https://www.nationalgeographic.com/travel/article/what-is-boba-bubble-tea-taiwan"
+        },
+        {
+          "name": "CNN Travel — The origins of bubble tea, one of Taiwan's most beloved beverages",
+          "url": "https://www.cnn.com/travel/bubble-tea-origin-history-taiwan-intl-hnk"
+        }
+      ]
+    },
+    "taiwan beer": {
+      "local": "台灣啤酒",
+      "note": {
+        "en": "Taiwan's best-selling lager, brewed by state-owned TTL; first made in 1920 under Japanese rule as Takasago Beer and renamed in 1946.",
+        "fr": "La lager la plus vendue de Taïwan, brassée par TTL (État); créée en 1920 sous occupation japonaise sous le nom Takasago, renommée en 1946."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Taiwan Beer",
+          "url": "https://en.wikipedia.org/wiki/Taiwan_Beer"
+        },
+        {
+          "name": "Wikipedia - Beer in Taiwan",
+          "url": "https://en.wikipedia.org/wiki/Beer_in_Taiwan"
+        }
+      ]
+    }
+  },
+  "hong-kong": {
+    "hk-style milk tea": {
+      "local": "港式奶茶 (絲襪奶茶)",
+      "note": {
+        "en": "Hong Kong tea drink of strong Ceylon black tea brewed through a cloth bag and mixed with evaporated milk; a 2017 intangible cultural…",
+        "fr": "Boisson hongkongaise de thé noir de Ceylan infusé dans un sac en tissu et mêlé de lait évaporé; patrimoine culturel immatériel depuis 2017."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Hong Kong-style milk tea",
+          "url": "https://en.wikipedia.org/wiki/Hong_Kong%E2%80%93style_milk_tea"
+        },
+        {
+          "name": "Hong Kong Public Libraries — Intangible Culinary Heritage",
+          "url": "https://www.hkpl.gov.hk/en/extension-activities/event-detail/296444/chinese-culture-and-our-intangible-culinary-heritage-hong-kong-style-milk-tea-pineapple-bun-and-egg-tart"
+        }
+      ]
+    },
+    "egg tart": {
+      "local": "蛋撻 (daan taat)",
+      "note": {
+        "en": "A Cantonese custard tart of egg custard in a flaky or shortcrust shell, inspired by the English custard tart and popularized in 1920s…",
+        "fr": "Une tartelette cantonaise au flan d'œufs dans une croûte feuilletée ou sablée, inspirée de la tarte anglaise et popularisée dans le Canton…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Egg tart",
+          "url": "https://en.wikipedia.org/wiki/Egg_tart"
+        },
+        {
+          "name": "South China Morning Post - The history of egg tarts",
+          "url": "https://www.scmp.com/lifestyle/food-drink/article/3102712/history-egg-tarts-savoury-sweet-england-canton-short-crust"
+        }
+      ]
+    },
+    "pineapple bun": {
+      "local": "菠蘿包",
+      "note": {
+        "en": "Hong Kong sweet bun topped with a crackly sugary crust resembling a pineapple's surface; it contains no actual pineapple.",
+        "fr": "Petit pain sucre de Hong Kong garni d'une croute craquante et sucree evoquant un ananas; il ne contient aucun ananas."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Pineapple bun",
+          "url": "https://en.wikipedia.org/wiki/Pineapple_bun"
+        },
+        {
+          "name": "Wiktionary - 菠蘿包",
+          "url": "https://en.wiktionary.org/wiki/%E8%8F%A0%E8%98%BF%E5%8C%85"
+        }
+      ]
+    },
+    "french toast hk-style": {
+      "local": "西多士",
+      "note": {
+        "en": "Two slices of bread filled with peanut butter (or fruit jam), dipped in beaten egg and fried, then served with butter and topped with…",
+        "fr": "Deux tranches de pain garnies de beurre de cacahuète (ou de confiture), trempées dans l'œuf battu et frites, puis servies avec du beurre et…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — French toast (Hong Kong section)",
+          "url": "https://en.wikipedia.org/wiki/French_toast"
+        },
+        {
+          "name": "Michelin Guide — The Evolution of Cha Chaan Teng: Hong Kong's Iconic Dishes and Local Dining Culture",
+          "url": "https://guide.michelin.com/sg/en/article/features/evolution-of-cha-chaan-teng-hong-kong-s-iconic-dishes-and-local-dining-culture"
+        }
+      ]
+    },
+    "hk-style wonton noodle": {
+      "local": "雲吞麵",
+      "note": {
+        "en": "A Cantonese-origin dish of thin egg noodles in a hot broth with pork-and-shrimp wontons. It came to Hong Kong from Guangzhou by around the…",
+        "fr": "Plat d'origine cantonaise composé de fines nouilles aux oeufs dans un bouillon chaud avec des wontons porc-crevette. Il est arrive a Hong…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Wonton noodles",
+          "url": "https://en.wikipedia.org/wiki/Wonton_noodles"
+        },
+        {
+          "name": "Wikipedia - Mak's Noodle",
+          "url": "https://en.wikipedia.org/wiki/Mak%27s_Noodle"
+        }
+      ]
+    },
+    "clay pot rice": {
+      "local": "煲仔飯",
+      "note": {
+        "en": "Cantonese rice dish cooked in a clay pot over flame, topped with cured sausage or meat and prized for its crispy bottom crust.",
+        "fr": "Plat de riz cantonais cuit en marmite d'argile sur flamme, garni de saucisse ou viande et prisé pour sa croûte croustillante."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Claypot rice",
+          "url": "https://en.wikipedia.org/wiki/Claypot_rice"
+        },
+        {
+          "name": "Michelin Guide — Kwan Kee Clay Pot Rice, Hong Kong",
+          "url": "https://guide.michelin.com/tw/zh_TW/hong-kong-region/hong-kong/restaurant/kwan-kee-clay-pot-rice-queen-s-road-west"
+        }
+      ]
+    },
+    "siu mei platter": {
+      "local": "燒味拼盤",
+      "note": {
+        "en": "Cantonese platter of siu mei (燒味) roast meats — char siu, crispy siu yuk pork belly and roast duck — a Hong Kong staple from Guangdong.",
+        "fr": "Plateau cantonais de siu mei (燒味) : viandes rôties — char siu, porc croustillant siu yuk et canard laqué — un classique hongkongais du…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Siu mei",
+          "url": "https://en.wikipedia.org/wiki/Siu_mei"
+        },
+        {
+          "name": "Wikipedia — Siu yuk",
+          "url": "https://en.wikipedia.org/wiki/Siu_yuk"
+        }
+      ]
+    },
+    "char chaan teng dishes": {
+      "local": "茶餐廳",
+      "note": {
+        "en": "Eclectic, affordable Hong Kong-style diner fare blending Chinese and Western dishes, which emerged from 1940s-50s British colonial-era tea…",
+        "fr": "Plats de bistrot hongkongais bon marche melant cuisines chinoise et occidentale, nes des cafes-salons de the de l'epoque coloniale…"
+      },
+      "sources": [
+        {
+          "name": "Cha chaan teng - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Cha_chaan_teng"
+        },
+        {
+          "name": "The Evolution of Cha Chaan Teng - Michelin Guide",
+          "url": "https://guide.michelin.com/my/en/article/features/evolution-of-cha-chaan-teng-hong-kong-s-iconic-dishes-and-local-dining-culture"
+        }
+      ]
+    },
+    "macaroni soup": {
+      "local": "火腿通粉",
+      "note": {
+        "en": "Hong Kong cha chaan teng breakfast staple of elbow macaroni in a clear chicken broth, typically topped with ham; a localised \"Soy Sauce…",
+        "fr": "Plat du petit-déjeuner des cha chaan teng de Hong Kong : macaronis dans un bouillon de poulet clair, généralement garni de jambon ; un plat…"
+      },
+      "sources": [
+        {
+          "name": "Michelin Guide — The Evolution of Cha Chaan Teng: Hong Kong's Iconic Dishes",
+          "url": "https://guide.michelin.com/my/en/article/features/evolution-of-cha-chaan-teng-hong-kong-s-iconic-dishes-and-local-dining-culture"
+        },
+        {
+          "name": "Taste Cooking — The Comfort of Macaroni in a Hong Kong Diner",
+          "url": "https://tastecooking.com/breakfast-cha-chaan-tengs/"
+        }
+      ]
+    },
+    "hk-style baked pork chop rice": {
+      "local": "焗豬扒飯",
+      "note": {
+        "en": "A Hong Kong cha chaan teng dish of egg fried rice topped with a pork chop, tomato sauce and cheese, then baked; a mid-20th-century…",
+        "fr": "Plat des cha chaan teng de Hong Kong: riz frit a l'oeuf garni d'une cotelette de porc, sauce tomate et fromage, puis gratine; fusion…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Baked pork chop rice",
+          "url": "https://en.wikipedia.org/wiki/Baked_pork_chop_rice"
+        },
+        {
+          "name": "South China Morning Post - Baked pork chop rice: the history of a defining Hong Kong comfort food",
+          "url": "https://www.scmp.com/magazines/post-magazine/food-drink/article/3209325/baked-pork-chop-rice-history-defining-hong-kong-comfort-food-its-humble-roots-and-fine-dining"
+        }
+      ]
+    },
+    "hk-style baked seafood rice": {
+      "local": "芝士焗海鮮飯",
+      "note": {
+        "en": "A Hong Kong cha chaan teng \"soy-sauce Western\" baked rice of fried rice with seafood under cheese and white or tomato sauce, rooted in the…",
+        "fr": "Un riz au four « occidental sauce soja » des cha chaan teng de Hong Kong : riz frit aux fruits de mer sous fromage et sauce blanche ou…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Baked pork chop rice (HK cha chaan teng baked rice)",
+          "url": "https://en.wikipedia.org/wiki/Baked_pork_chop_rice"
+        },
+        {
+          "name": "BC Dairy — Hong Kong Style Baked Seafood Rice",
+          "url": "https://bcdairy.ca/hong-kong-style-baked-seafood/"
+        }
+      ]
+    },
+    "curry fish balls": {
+      "local": "咖喱魚蛋",
+      "note": {
+        "en": "Hong Kong street snack of deep-fried fish balls simmered in spicy curry sauce, popularised by 1950s hawkers using British-era Indian curry.",
+        "fr": "En-cas de rue hongkongais de boulettes de poisson frites mijotees dans une sauce curry epicee, popularise par les marchands ambulants des…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Curry fish ball",
+          "url": "https://en.wikipedia.org/wiki/Curry_fish_ball"
+        },
+        {
+          "name": "Michelin Guide – The Journey of Hong Kong's Iconic Fish Ball",
+          "url": "https://guide.michelin.com/hk/en/article/features/bouncing-through-time-the-journey-iconic-fish-ball-hong-kong"
+        }
+      ]
+    },
+    "siu mai street": {
+      "local": "魚肉燒賣",
+      "note": {
+        "en": "Hong Kong street snack of fish-paste siu mai, usually strung on bamboo skewers and eaten with sweet soy sauce and chilli oil; an affordable…",
+        "fr": "En-cas de rue hongkongais : siu mai à la pâte de poisson, généralement enfilés sur des brochettes en bambou et servis avec sauce soja…"
+      },
+      "sources": [
+        {
+          "name": "daigasikfaan — Fish Siu Mai [魚肉燒賣]",
+          "url": "https://daigasikfaan.co/fish-siu-mai/"
+        },
+        {
+          "name": "Rita the Foodie — Nostalgic Hong Kong Style Fish Siu Mai",
+          "url": "https://www.ritathefoodie.com/post/nostalgic-hong-kong-style-fish-siu-mai"
+        }
+      ]
+    },
+    "dim sum hong kong": {
+      "local": "點心",
+      "note": {
+        "en": "Bite-sized Cantonese dishes (dumplings, buns, rolls) eaten with tea (yum cha). Cantonese dim sum culture developed and was refined in…",
+        "fr": "Petits plats cantonais (raviolis, brioches, rouleaux) pris avec du thé (yum cha). La culture cantonaise du dim sum s'est développée et…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Dim sum",
+          "url": "https://en.wikipedia.org/wiki/Dim_sum"
+        },
+        {
+          "name": "Localiiz - Hidden Hong Kong: A history of dim sum in Hong Kong",
+          "url": "https://www.localiiz.com/post/food-drink-history-dim-sum-hong-kong"
+        }
+      ]
+    },
+    "shrimp wonton noodle": {
+      "local": "鮮蝦雲吞麵",
+      "note": {
+        "en": "Cantonese dish of thin egg noodles in a light, savoury broth with wontons made of shrimp and pork; one of the earliest mainstream-media…",
+        "fr": "Plat cantonais de fines nouilles aux œufs dans un bouillon léger et savoureux, avec des wontons aux crevettes et au porc ; l'une des…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Wonton noodles",
+          "url": "https://en.wikipedia.org/wiki/Wonton_noodles"
+        },
+        {
+          "name": "South China Morning Post — Where to eat the best wonton noodles in Hong Kong, and how the dumplings reached the city",
+          "url": "https://www.scmp.com/lifestyle/food-drink/article/3281498/where-eat-best-wonton-noodles-hong-kong-and-how-dumplings-reached-city"
+        }
+      ]
+    },
+    "beef brisket noodle": {
+      "local": "牛腩麵",
+      "note": {
+        "en": "Hong Kong Cantonese noodle soup of slow-braised beef brisket and tendon, in either a clear Teochew-style broth or a rich braise.",
+        "fr": "Soupe de nouilles cantonaise de Hong Kong au gros de poitrine et tendon de bœuf braisés, en bouillon clair teochew ou braise riche."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Kau Kee Restaurant (九記牛腩)",
+          "url": "https://en.wikipedia.org/wiki/Kau_Kee_Restaurant"
+        },
+        {
+          "name": "The Burning Kitchen — Braised Beef Brisket Noodles (牛腩面/Ngau Lam Mein)",
+          "url": "https://theburningkitchen.com/beef-brisket-noodles/"
+        }
+      ]
+    },
+    "roasted goose": {
+      "local": "燒鵝",
+      "note": {
+        "en": "A Cantonese siu mei roast meat, goose roasted to crisp skin over charcoal and served with sour plum sauce.",
+        "fr": "Une viande rotie siu mei cantonaise, l'oie rotie a la peau croustillante au charbon, servie avec une sauce aigre aux prunes."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Roast goose",
+          "url": "https://en.wikipedia.org/wiki/Roast_goose"
+        },
+        {
+          "name": "MICHELIN Guide - Kam's Roast Goose, Hong Kong",
+          "url": "https://guide.michelin.com/hk/en/hong-kong-region/hong-kong/restaurant/kam-s-roast-goose"
+        }
+      ]
+    },
+    "sweet and sour pork hk": {
+      "local": "咕嚕肉",
+      "note": {
+        "en": "Cantonese dish of batter-fried pork in a sweet-sour sauce, originating in 18th-century Guangdong (Canton).",
+        "fr": "Plat cantonais de porc pané frit dans une sauce aigre-douce, originaire du Guangdong (Canton) au XVIIIe siecle."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Sweet and sour pork",
+          "url": "https://en.wikipedia.org/wiki/Sweet_and_sour_pork"
+        },
+        {
+          "name": "South China Morning Post - Legends: Sweet and Sour Pork",
+          "url": "https://www.scmp.com/lifestyle/food-drink/article/1118279/legends-sweet-and-sour-pork"
+        }
+      ]
+    },
+    "typhoon shelter crab": {
+      "local": "避風塘炒蟹",
+      "note": {
+        "en": "Hong Kong stir-fried crab smothered in crispy fried garlic, chili and fermented black beans, born among 1960s Causeway Bay boat-dwelling…",
+        "fr": "Crabe sauté de Hong Kong nappé d'ail frit croustillant, de piment et de soja noir fermenté, né chez les familles de bateaux de Causeway Bay…"
+      },
+      "sources": [
+        {
+          "name": "Michelin Guide — Typhoon Shelter Crab: Hong Kong's Iconic Harbor-born Dish",
+          "url": "https://guide.michelin.com/hk/en/article/features/typhoon-shelter-crab-hong-kong-iconic-dish"
+        },
+        {
+          "name": "The Mala Market — Hong Kong Typhoon Shelter Crab (避風塘炒蟹)",
+          "url": "https://blog.themalamarket.com/typhoon-shelter-crab-bifengtang-chao-xie/"
+        }
+      ]
+    },
+    "mantis shrimp": {
+      "local": "瀨尿蝦",
+      "note": {
+        "en": "Hong Kong seafood whose Cantonese name 瀨尿蝦 literally means \"urinating shrimp\" (\"pissing shrimp\"), nicknamed for the jet of water it sprays…",
+        "fr": "Fruit de mer hongkongais dont le nom cantonais 瀨尿蝦 signifie littéralement « crevette qui urine » (« crevette pisseuse »), surnommée ainsi…"
+      },
+      "sources": [
+        {
+          "name": "Wiktionary — 瀨尿蝦 (mantis shrimp / one who wets himself)",
+          "url": "https://en.wiktionary.org/wiki/%E7%80%A8%E5%B0%BF%E8%9D%A6"
+        },
+        {
+          "name": "CantoDict — 瀨尿蝦 (squillid mantis shrimp; slang bed/pants wetter)",
+          "url": "http://www.cantonese.sheik.co.uk/dictionary/words/20489/"
+        }
+      ]
+    },
+    "yuan yang": {
+      "local": "鴛鴦",
+      "note": {
+        "en": "A Hong Kong cha chaan teng drink blending coffee with Hong Kong-style milk tea (about 3:7), named after mandarin ducks for the pairing.",
+        "fr": "Boisson des cha chaan teng de Hong Kong mêlant café et thé au lait hongkongais (environ 3:7), nommée d'après les canards mandarins."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Yuenyeung",
+          "url": "https://en.wikipedia.org/wiki/Yuenyeung"
+        },
+        {
+          "name": "TasteAtlas — Yuanyang",
+          "url": "https://www.tasteatlas.com/yuanyang"
+        }
+      ]
+    },
+    "hk-style lemon tea": {
+      "local": "港式檸檬茶 (凍檸茶)",
+      "note": {
+        "en": "A cha chaan teng staple of strong sweetened black tea served over ice with lemon slices the drinker muddles with a spoon.",
+        "fr": "Un classique des cha chaan teng: thé noir fort et sucré servi glacé avec des tranches de citron écrasées à la cuillère."
+      },
+      "sources": [
+        {
+          "name": "South China Morning Post — Hand-crushed lemon tea takes off in Hong Kong",
+          "url": "https://www.scmp.com/magazines/post-magazine/food-drink/article/3265990/hand-crushed-lemon-tea-takes-hong-kong-we-test-best-version"
+        },
+        {
+          "name": "HKU Food Culture in Hong Kong — Hong Kong-style iced lemon tea",
+          "url": "https://learning.hku.hk/ccch9051/group-40/items/show/12"
+        }
+      ]
+    },
+    "horlicks hk-style": {
+      "local": "好立克",
+      "note": {
+        "en": "A hot or iced sweetened malted-milk drink served at Hong Kong cha chaan teng, a remnant of British colonial-era tastes.",
+        "fr": "Une boisson chaude ou glacee de lait malte sucre servie dans les cha chaan teng de Hong Kong, vestige du gout colonial britannique."
+      },
+      "sources": [
+        {
+          "name": "Localiiz - Quintessential Hong Kong diner drinks",
+          "url": "https://www.localiiz.com/post/food-drink-cha-chaan-teng-guide-quintessential-hong-kong-diner-drinks-beverages"
+        },
+        {
+          "name": "好立克 - Cantonese Wikipedia",
+          "url": "https://zh-yue.wikipedia.org/wiki/%E5%A5%BD%E7%AB%8B%E5%85%8B"
+        }
+      ]
+    }
+  },
+  "shanghainese": {
+    "xiao long bao": {
+      "local": "小笼包 (小籠包)",
+      "note": {
+        "en": "Steamed Shanghai-style soup dumpling with a thin wrapper enclosing seasoned pork and gelatinized broth that melts into soup when steamed…",
+        "fr": "Bouchee vapeur de style shanghaien : une fine pate enveloppe du porc assaisonne et un bouillon gelifie qui fond en soupe a la cuisson. La…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Xiaolongbao",
+          "url": "https://en.wikipedia.org/wiki/Xiaolongbao"
+        },
+        {
+          "name": "South China Morning Post - Legends: the two stories behind xiaolongbao",
+          "url": "https://www.scmp.com/lifestyle/food-drink/article/1129426/legends-two-stories-behind-xiaolongbao"
+        }
+      ]
+    },
+    "shengjianbao": {
+      "local": "生煎包 (shēngjiānbāo)",
+      "note": {
+        "en": "Small pan-fried pork-and-gelatin buns from Suzhou and Shanghai, a common Shanghai breakfast since the early 1920s.",
+        "fr": "Petits pains poêlés au porc et à la gélatine de Suzhou et Shanghai, déjeuner shanghaïen courant depuis le début des années 1920."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Shengjian mantou",
+          "url": "https://en.wikipedia.org/wiki/Shengjian_mantou"
+        },
+        {
+          "name": "Wiktionary — 生煎包",
+          "url": "https://en.wiktionary.org/wiki/%E7%94%9F%E7%85%8E%E5%8C%85"
+        }
+      ]
+    },
+    "hong shao rou": {
+      "local": "红烧肉 (hóngshāo ròu)",
+      "note": {
+        "en": "Chinese red-braised (\"red-cooked\") pork belly simmered with soy sauce, sugar and Shaoxing rice wine into a glossy caramelized sauce; the…",
+        "fr": "Poitrine de porc braisée à la chinoise (cuisson « rouge ») dans sauce soja, sucre et vin de riz Shaoxing, pour une sauce caramélisée…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Red braised pork belly",
+          "url": "https://en.wikipedia.org/wiki/Red_braised_pork_belly"
+        },
+        {
+          "name": "Omnivore's Cookbook - Hong Shao Rou",
+          "url": "https://omnivorescookbook.com/hong-shao-rou/"
+        }
+      ]
+    },
+    "drunken chicken": {
+      "local": "醉鸡 (zuìjī)",
+      "note": {
+        "en": "A cold Jiangnan appetizer of poached chicken marinated in Shaoxing yellow wine (huangjiu), served chilled.",
+        "fr": "Entree froide du Jiangnan : poulet poche marine dans le vin jaune de Shaoxing (huangjiu), servi frais."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Drunken chicken",
+          "url": "https://en.wikipedia.org/wiki/Drunken_chicken"
+        },
+        {
+          "name": "TasteAtlas — Zui ji",
+          "url": "https://www.tasteatlas.com/cold-chicken-cooked-in-wine"
+        }
+      ]
+    },
+    "lion's head meatball": {
+      "local": "狮子头",
+      "note": {
+        "en": "A large braised pork meatball from Huaiyang cuisine, originating in Yangzhou and Zhenjiang in Jiangsu province; the name comes from the…",
+        "fr": "Grosse boulette de porc braisee de la cuisine Huaiyang, originaire de Yangzhou et Zhenjiang dans la province du Jiangsu ; son nom vient de…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Lion's Head (food)",
+          "url": "https://en.wikipedia.org/wiki/Lion's_Head_(food)"
+        },
+        {
+          "name": "South China Morning Post – Legends: Lion's Head meatballs",
+          "url": "https://www.scmp.com/lifestyle/food-drink/article/1077059/legends-lions-head-meatballs"
+        }
+      ]
+    },
+    "squirrel fish": {
+      "local": "松鼠鱖魚 (sōngshǔ guìyú)",
+      "note": {
+        "en": "Suzhou (Jiangsu) classic of deboned mandarin fish scored, deep-fried into a squirrel shape and topped with sweet-and-sour sauce.",
+        "fr": "Classique de Suzhou (Jiangsu) : poisson mandarin désossé, incisé, frit en forme d'écureuil et nappé de sauce aigre-douce."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Squirrel fish",
+          "url": "https://en.wikipedia.org/wiki/Squirrel_fish"
+        },
+        {
+          "name": "Atlas Obscura / Gastro Obscura – squirrel-shaped fish",
+          "url": "https://www.atlasobscura.com/articles/how-did-squirrel-shaped-fish-become-popular"
+        }
+      ]
+    },
+    "beggar's chicken jiangsu": {
+      "local": "叫化鸡",
+      "note": {
+        "en": "A whole chicken stuffed, wrapped in lotus leaves and clay, then slow-baked; legend ties its origin to a beggar in Jiangsu/Hangzhou.",
+        "fr": "Un poulet entier farci, enveloppe de feuilles de lotus et d'argile, puis cuit lentement; la legende l'attribue a un mendiant du…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Beggar's chicken",
+          "url": "https://en.wikipedia.org/wiki/Beggar%27s_chicken"
+        },
+        {
+          "name": "eHangzhou - Traditional Hangzhou dish: Beggar's chicken",
+          "url": "https://www.ehangzhou.gov.cn/2020-08/04/c_270828.htm"
+        }
+      ]
+    },
+    "soup dumplings": {
+      "local": "小笼包 (xiǎolóngbāo)",
+      "note": {
+        "en": "Steamed Shanghainese buns filled with pork and soup-forming aspic, originating in Nanxiang near Shanghai in the 1870s.",
+        "fr": "Bouchons shanghaïens vapeur farcis de porc et de gelée formant un bouillon, nés à Nanxiang près de Shanghai vers 1870."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Xiaolongbao",
+          "url": "https://en.wikipedia.org/wiki/Xiaolongbao"
+        },
+        {
+          "name": "South China Morning Post — The history of xiaolongbao",
+          "url": "https://www.scmp.com/lifestyle/food-drink/article/3097791/history-xiaolongbao-or-soup-dumplings-outskirts-shanghai"
+        }
+      ]
+    },
+    "pan-fried noodles shanghai": {
+      "local": "上海粗炒面 (Shànghǎi cū chǎo miàn)",
+      "note": {
+        "en": "Shanghai thick stir-fried wheat noodles tossed with pork, Chinese cabbage and dark soy sauce; the dish is associated with Shanghainese…",
+        "fr": "Nouilles de blé épaisses sautées de Shanghai avec porc, chou chinois et sauce soja foncée; le plat est associé aux immigrants shanghaïens…"
+      },
+      "sources": [
+        {
+          "name": "SBS Food — Shanghai fried noodles",
+          "url": "https://www.sbs.com.au/food/recipe/shanghai-fried-noodles/01jfpqut3"
+        },
+        {
+          "name": "The Woks of Life — Shanghai Fried Noodles (Cu Chao Mian)",
+          "url": "https://thewoksoflife.com/shanghai-fried-noodles/"
+        }
+      ]
+    },
+    "shanghai fried noodles": {
+      "local": "上海粗炒 (Shànghǎi cūchǎo)",
+      "note": {
+        "en": "A Shanghai dish of thick wheat noodles stir-fried in light and dark soy sauce, typically with pork and bok choy.",
+        "fr": "Plat shanghaïen de nouilles de blé épaisses sautées dans la sauce soja claire et foncée, souvent avec porc et bok choy."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Shanghai fried noodles",
+          "url": "https://en.wikipedia.org/wiki/Shanghai_fried_noodles"
+        },
+        {
+          "name": "The Woks of Life — Shanghai Fried Noodles (Cu Chao Mian)",
+          "url": "https://thewoksoflife.com/shanghai-fried-noodles/"
+        }
+      ]
+    },
+    "crab roe noodle": {
+      "local": "蟹黄面",
+      "note": {
+        "en": "A Jiangnan (Shanghai/Suzhou) noodle dish topped with golden hairy-crab roe and meat in a rich sauce, traditionally an autumn crab-season…",
+        "fr": "Un plat de nouilles du Jiangnan (Shanghai/Suzhou) garni de chair et de corail dorés de crabe poilu en sauce, mets traditionnel de la saison…"
+      },
+      "sources": [
+        {
+          "name": "Woks of Love — Golden Crab Roe Noodles (Xie Huang Mian)",
+          "url": "https://woksoflove.com/golden-crab-roe-noodles-xie-huang-mian/"
+        },
+        {
+          "name": "Wander in China — Xie Huang Mian (Crab Roe Noodles): A Golden Delight",
+          "url": "https://www.wanderinchina.com/en/chinese-food/crab-roe-noodles/"
+        }
+      ]
+    },
+    "hairy crab": {
+      "local": "大闸蟹 (dàzháxiè)",
+      "note": {
+        "en": "Chinese mitten crab (Eriocheir sinensis), an autumn delicacy prized for its roe, most famously farmed in Yangcheng Lake near Suzhou.",
+        "fr": "Crabe chinois a mitaines (Eriocheir sinensis), met d'automne prise pour ses oeufs, surtout eleve dans le lac Yangcheng pres de Suzhou."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Chinese mitten crab",
+          "url": "https://en.wikipedia.org/wiki/Chinese_mitten_crab"
+        },
+        {
+          "name": "China Highlights — Hairy Crab, the Shanghai Delicacy",
+          "url": "https://www.chinahighlights.com/shanghai/delicacy-tourist-should-try.htm"
+        }
+      ]
+    },
+    "shanghai wontons": {
+      "local": "上海馄饨 (上海菜肉馄饨)",
+      "note": {
+        "en": "Shanghai wontons (húntun) are pork-and-greens dumplings in clear broth, served either as tiny xiao huntun or hearty large da huntun.",
+        "fr": "Les wontons de Shanghai (húntun) sont des raviolis au porc et légumes en bouillon clair, en petits xiao huntun ou grands da huntun copieux."
+      },
+      "sources": [
+        {
+          "name": "The Woks of Life — Shanghai Wonton Soup",
+          "url": "https://thewoksoflife.com/shanghai-wonton-soup/"
+        },
+        {
+          "name": "Auntie Emily's Kitchen — Shanghai Style Wontons",
+          "url": "https://auntieemily.com/shanghai-style-wontons/"
+        }
+      ]
+    },
+    "sticky rice shumai shanghai": {
+      "local": "糯米烧卖 (上海烧卖)",
+      "note": {
+        "en": "Shanghai-style steamed dumpling filled with glutinous rice, marinated pork and mushrooms, a Jiangnan staple distinct from Cantonese…",
+        "fr": "Bouchée vapeur de Shanghai farcie de riz gluant, porc mariné et champignons, spécialité du Jiangnan, différente du siu mai cantonais."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Shumai",
+          "url": "https://en.wikipedia.org/wiki/Shumai"
+        },
+        {
+          "name": "The Woks of Life - Sticky Rice Shumai (Zhi Pi Shao Mai)",
+          "url": "https://woksoflove.com/sticky-rice-shumai-with-mushroom-and-pork-zhi-pi-shao-mai/"
+        }
+      ]
+    },
+    "shanghainese smoked fish": {
+      "local": "上海熏鱼 (xūn yú)",
+      "note": {
+        "en": "Shanghai cold appetiser of deep-fried fish marinated in sweet soy and five-spice; despite its name it is fried, not smoked.",
+        "fr": "Entrée froide shanghaïenne de poisson frit mariné au soja sucré et cinq-épices; malgré son nom, il est frit, non fumé."
+      },
+      "sources": [
+        {
+          "name": "The Woks of Life - Shanghai Smoked Fish, Xun Yu",
+          "url": "https://thewoksoflife.com/shanghai-smoked-fish-xun-yu/"
+        },
+        {
+          "name": "The Mala Market - Fish Vendor's Shanghai Smoked Fish (Xunyu)",
+          "url": "https://blog.themalamarket.com/shanghai-smoked-fish/"
+        }
+      ]
+    },
+    "eight treasure rice": {
+      "local": "八宝饭 (bā bǎo fàn)",
+      "note": {
+        "en": "A sweet Chinese dish of steamed glutinous rice with red bean paste, dried fruits and nuts, eaten at celebrations, especially Lunar New Year.",
+        "fr": "Plat chinois sucre de riz gluant cuit a la vapeur, garni de pate de haricots rouges, fruits secs et noix, mange aux fetes, surtout au…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Eight treasure rice",
+          "url": "https://en.wikipedia.org/wiki/Eight_treasure_rice"
+        },
+        {
+          "name": "Red House Spice - Eight Treasure Rice Pudding (Ba Bao Fan, 八宝饭)",
+          "url": "https://redhousespice.com/eight-treasure-rice/"
+        }
+      ]
+    },
+    "jiangsu duck blood soup": {
+      "local": "鸭血粉丝汤",
+      "note": {
+        "en": "A Nanjing (Jiangsu) delicacy: a light duck broth with coagulated duck blood, sweet-potato vermicelli and duck offal (liver, gizzard…",
+        "fr": "Spécialité de Nankin (Jiangsu) : un bouillon de canard léger avec du sang de canard coagulé, des vermicelles de patate douce et des abats…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Duck blood and vermicelli soup",
+          "url": "https://en.wikipedia.org/wiki/Duck_blood_and_vermicelli_soup"
+        },
+        {
+          "name": "TasteAtlas - Duck blood and vermicelli soup (Ya xie fen si tang)",
+          "url": "https://www.tasteatlas.com/duck-blood-and-vermicelli-soup"
+        }
+      ]
+    },
+    "rice cake noodles": {
+      "local": "炒年糕 (chǎo niángāo)",
+      "note": {
+        "en": "Shanghainese stir-fry of chewy oval rice cakes (nian gao) with pork and bok choy in a savory soy-based sauce; nian gao is a traditional…",
+        "fr": "Sauté shanghaïen de galettes de riz ovales et moelleuses (nian gao) avec porc et bok choy dans une sauce salée à base de soja ; le nian gao…"
+      },
+      "sources": [
+        {
+          "name": "The Woks of Life — Stir-fried Rice Cakes (Nian Gao / 炒年糕)",
+          "url": "https://thewoksoflife.com/stir-fried-sticky-rice-cakes-nian-gao/"
+        },
+        {
+          "name": "Red House Spice — Stir-Fried Rice Cakes (Chao Nian Gao / 炒年糕)",
+          "url": "https://redhousespice.com/stir-fried-rice-cakes/"
+        }
+      ]
+    },
+    "drunken shrimp": {
+      "local": "醉虾 (zuìxiā)",
+      "note": {
+        "en": "A Jiangnan dish of live freshwater shrimp immersed in strong rice wine, served still moving or briefly cooked.",
+        "fr": "Plat du Jiangnan de crevettes d'eau douce vivantes plongees dans du vin de riz fort, servies encore frementes ou cuites brievement."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Drunken shrimp",
+          "url": "https://en.wikipedia.org/wiki/Drunken_shrimp"
+        },
+        {
+          "name": "Global Times - A Shanghai surprise: the drunken shrimp delicacy",
+          "url": "https://www.globaltimes.cn/content/527697.shtml"
+        }
+      ]
+    },
+    "youtiao": {
+      "local": "油條 (yóutiáo)",
+      "note": {
+        "en": "A long golden deep-fried strip of wheat-flour dough eaten at breakfast, often with congee or soy milk; a key ingredient in Shanghai's cifan…",
+        "fr": "Une longue lanière de pate de ble frite et doree, mangee au petit-dejeuner avec congee ou lait de soja; ingredient cle du cifan tuan…"
+      },
+      "sources": [
+        {
+          "name": "Youtiao - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Youtiao"
+        },
+        {
+          "name": "Hidden Hong Kong: A history of the youtiao (Chinese crullers) - Localiiz",
+          "url": "https://www.localiiz.com/post/history-youtiao-chinese-crullers"
+        }
+      ]
+    }
+  },
+  "hunan": {
+    "chairman mao's red braised pork": {
+      "local": "毛氏红烧肉 (Máo shì hóngshāoròu)",
+      "note": {
+        "en": "A Hunan-style braised pork belly associated with Mao Zedong, who came from Hunan; cubes of fatty pork are slow-cooked and take their glossy…",
+        "fr": "Poitrine de porc braisée de style hunanais associée à Mao Zedong, originaire du Hunan ; des cubes de porc gras mijotent lentement et tirent…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Chairman Mao's red-braised pork (Máo Shì hóngshāoròu)",
+          "url": "https://www.tasteatlas.com/mao-shi-hongshaorou"
+        },
+        {
+          "name": "The Woks of Life — Chairman Mao's Red Braised Pork Belly",
+          "url": "https://thewoksoflife.com/red-braised-pork-belly-mao/"
+        }
+      ]
+    },
+    "hunan-style steamed fish head": {
+      "local": "剁椒鱼头 (Duòjiāo Yútóu)",
+      "note": {
+        "en": "A Hunan (Xiang) dish of a large carp head steamed under chopped fermented red chilies, ginger and garlic, often traced to Xiangtan.",
+        "fr": "Plat hunanais (xiang) de tête de carpe cuite à la vapeur sous des piments rouges fermentés hachés, gingembre et ail, originaire de Xiangtan."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Duòjiāo Yútóu",
+          "url": "https://www.tasteatlas.com/duojiao-yutou"
+        },
+        {
+          "name": "Chinese Food Wiki — Steamed Fish Head with Chop Bell Pepper",
+          "url": "https://www.chinesefoodwiki.org/Steamed_Fish_Head_with_Chop_Bell_Pepper"
+        }
+      ]
+    },
+    "stir-fried pork with chili": {
+      "local": "辣椒炒肉 (làjiāo chǎoròu)",
+      "note": {
+        "en": "A Hunan home-style stir-fry of sliced pork and fresh green chilies; chilies took hold in the region after their late-Ming arrival in China.",
+        "fr": "Sauté hunanais familial de porc émincé et de piments verts frais ; le piment s'y est implanté après son arrivée en Chine sous les Ming…"
+      },
+      "sources": [
+        {
+          "name": "People's Daily Online — Hunan culinary delight: Stir-fried pork with chili pepper",
+          "url": "https://en.people.cn/n3/2023/0602/c90000-20027181.html"
+        },
+        {
+          "name": "China Daily — Sauteed pork with pepper (辣椒炒肉, la jiao chao rou)",
+          "url": "https://govt.chinadaily.com.cn/s/201803/13/WS5b786b8f498e855160e8e5f4/sauteed-pork-with-pepper-la-jiao-chao-rou-la-jiao-chao-rou.html"
+        }
+      ]
+    },
+    "dry-pot chicken hunan": {
+      "local": "干锅鸡",
+      "note": {
+        "en": "Spicy chicken stir-fried with chili and garlic served in a soupless \"dry\" hot pot; differs from wet hot pot by having no broth base.",
+        "fr": "Poulet epice saute au piment et a l'ail servi en marmite \"seche\" sans bouillon, ce qui le distingue de la fondue chinoise classique."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Dry pot chicken",
+          "url": "https://en.wikipedia.org/wiki/Dry_pot_chicken"
+        },
+        {
+          "name": "Fat Dough — Dry Pot Chicken 干锅鸡",
+          "url": "https://www.fatdough.sg/post/drypot-chicken"
+        }
+      ]
+    },
+    "hunan smoked pork": {
+      "local": "湖南腊肉 (Húnán làròu)",
+      "note": {
+        "en": "Hunan cured pork belly, salted then cold-smoked over wood in winter as a preservation method central to Hunanese cooking.",
+        "fr": "Poitrine de porc saumurée du Hunan, fumée à froid au bois en hiver pour la conserver, pilier de la cuisine hunanaise."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Húnán Làròu",
+          "url": "https://www.tasteatlas.com/hunan-larou"
+        },
+        {
+          "name": "Wikipedia — Hunan cuisine",
+          "url": "https://en.wikipedia.org/wiki/Hunan_cuisine"
+        }
+      ]
+    },
+    "changsha stinky tofu": {
+      "local": "长沙臭豆腐",
+      "note": {
+        "en": "Hunan street snack of brine-fermented tofu, deep-fried jet-black and chili-topped; born in Qing-era Changsha and now a national heritage…",
+        "fr": "En-cas de rue du Hunan, tofu fermenté en saumure, frit noir et pimenté; né à Changsha sous les Qing, aujourd'hui patrimoine national."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Changsha stinky tofu",
+          "url": "https://en.wikipedia.org/wiki/Changsha_stinky_tofu"
+        },
+        {
+          "name": "China Daily — Stinky tofu tycoon, a Changsha success story",
+          "url": "https://www.chinadaily.com.cn/a/202405/08/WS663ae12aa31082fc043c5ddc.html"
+        }
+      ]
+    },
+    "hunan rice noodles": {
+      "local": "湖南米粉 (Húnán mǐfěn)",
+      "note": {
+        "en": "A Hunan breakfast staple of rice noodles served in broth with chili oil and toppings; in Changsha, over 6,000 noodle houses sustain a…",
+        "fr": "Plat du petit-déjeuner hunanais : nouilles de riz en bouillon, huile pimentée et garnitures ; à Changsha, plus de 6 000 échoppes…"
+      },
+      "sources": [
+        {
+          "name": "China Daily — Rice noodle breakfast gives Hunan diners a taste of hope",
+          "url": "https://www.chinadaily.com.cn/a/202002/27/WS5e57029da31012821727a9bd.html"
+        },
+        {
+          "name": "Khabar Asia — Suck It Up: The Art of Eating Changsha's Signature Rice Noodles",
+          "url": "https://khabarasia.com/travel/20250328-suck-it-up-the-art-of-eating-changshas-signature-rice-noodles/"
+        }
+      ]
+    },
+    "crispy fried duck hunan": {
+      "local": "香酥鸭",
+      "note": {
+        "en": "Twice-cooked Chinese duck, spice-marinated then steamed and deep-fried for crisp skin; a Hunan-style take on the fragrant crispy duck…",
+        "fr": "Canard chinois cuit deux fois, marine aux epices puis cuit a la vapeur et frit pour une peau croustillante; version hunanaise du canard…"
+      },
+      "sources": [
+        {
+          "name": "Gastronomic Routes - Hunan style crispy duck",
+          "url": "https://en.rotasgastronomicas.com/recipe_of_hunan_style_crispy_duck_583.html"
+        },
+        {
+          "name": "The Mala Market - Sichuan Crispy Duck (Xiangsu Ya, 香酥鸭)",
+          "url": "https://blog.themalamarket.com/sichuan-crispy-duck-xiang-su-yazi/"
+        }
+      ]
+    },
+    "hunan beef noodles": {
+      "local": "常德牛肉粉",
+      "note": {
+        "en": "A Hunan rice-noodle soup with spicy braised beef and rich broth, most famous from Changde, eaten as a breakfast staple.",
+        "fr": "Soupe de nouilles de riz du Hunan au boeuf braisé épicé et bouillon riche, célèbre à Changde, mangée au petit-déjeuner."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Changde niurou fen",
+          "url": "https://www.tasteatlas.com/changde-niurou-fen"
+        },
+        {
+          "name": "Hunan Government - Changde Jinshi beef rice noodles",
+          "url": "https://whhlyt.hunan.gov.cn/whhlyt/english/TourismInRegions/Changde/ChangdeFood/202206/t20220602_24798363.html"
+        }
+      ]
+    },
+    "orange beef hunan": {
+      "local": "陳皮牛 (chénpí niú) / 橙皮牛肉 (chéngpí niúròu)",
+      "note": {
+        "en": "A crispy deep-fried beef in a sweet-spicy dried-citrus-peel sauce. This Americanized \"Hunan\"-style orange beef is attributed to chef T.T…",
+        "fr": "Un bœuf frit croustillant dans une sauce aigre-douce à l'écorce d'agrume séchée. Cette version « Hunan » américanisée du bœuf à l'orange…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Shun Lee Palace (crisp orange-flavored beef attributed to chef T.T. Wang at his Hunan Restaurant)",
+          "url": "https://en.wikipedia.org/wiki/Shun_Lee_Palace"
+        },
+        {
+          "name": "Wikipedia — General Tso's chicken (T.T. Wang, Hunan Restaurant, New York, early 1970s)",
+          "url": "https://en.wikipedia.org/wiki/General_Tso%27s_chicken"
+        }
+      ]
+    },
+    "spicy crayfish hunan": {
+      "local": "麻辣小龙虾",
+      "note": {
+        "en": "Crayfish stir-fried with chili, Sichuan pepper and garlic; a Changsha, Hunan summer street-food staple popularized only since the 1990s.",
+        "fr": "Écrevisses sautées au piment, poivre du Sichuan et ail; spécialité estivale de rue de Changsha (Hunan), popularisée depuis les années 1990."
+      },
+      "sources": [
+        {
+          "name": "The World of Chinese – Claws Celebre",
+          "url": "https://www.theworldofchinese.com/2019/09/claws-celebre/"
+        },
+        {
+          "name": "China Daily – Spicy crayfish and urbanization",
+          "url": "https://www.chinadaily.com.cn/opinion/2017-07/13/content_30094472.htm"
+        }
+      ]
+    },
+    "hunan pickled vegetables": {
+      "local": "湖南酸菜",
+      "note": {
+        "en": "Hunan-style suancai, a fermented mustard-green pickle (a type of paocai) flavoured with extra ginger and chili typical of Hunan cuisine.",
+        "fr": "Suancai du Hunan, un condiment de moutarde verte fermentee (type de paocai) releve de gingembre et de piment, typique de la cuisine…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Suan cai",
+          "url": "https://en.wikipedia.org/wiki/Suan_cai"
+        },
+        {
+          "name": "China Xian Tour - Xiang (Hunan) Cuisine Guide",
+          "url": "https://www.chinaxiantour.com/travel-guide/hunan-cuisine"
+        }
+      ]
+    },
+    "hunan pumpkin cake": {
+      "local": "南瓜饼 (nánguā bǐng)",
+      "note": {
+        "en": "A Chinese sweet snack of glutinous (sticky) rice flour and mashed pumpkin, often filled with red bean paste and coated in sesame, then…",
+        "fr": "Galette sucrée chinoise de farine de riz gluant et de potiron, souvent fourrée à la pâte de haricots rouges, enrobée de sésame et poêlée."
+      },
+      "sources": [
+        {
+          "name": "The Woks of Life — Chinese Pumpkin Cake (Nan Gua Bing)",
+          "url": "https://thewoksoflife.com/chinese-pumpkin-cake-nan-gua-bing/"
+        },
+        {
+          "name": "Omnivore's Cookbook — Chinese Pumpkin Cake (南瓜饼)",
+          "url": "https://omnivorescookbook.com/chinese-pumpkin-cake/"
+        }
+      ]
+    },
+    "mao family dishes": {
+      "local": "毛家菜 (Máojiācài)",
+      "note": {
+        "en": "A Shaoshan-born style of Hunan home cooking based on Chairman Mao's favorite dishes, led by Mao-style red-braised pork.",
+        "fr": "Style de cuisine familiale hunanaise né à Shaoshan, fondé sur les plats favoris du président Mao, dont le porc braisé à la Mao."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Chairman Mao's red-braised pork (Máo Shì hóngshāoròu)",
+          "url": "https://www.tasteatlas.com/mao-shi-hongshaorou"
+        },
+        {
+          "name": "VisitOurChina — Shaoshan Cuisine (Mao's cuisine)",
+          "url": "https://www.visitourchina.com/shaoshan/guide/shaoshan-cuisine.html"
+        }
+      ]
+    },
+    "hunan dry-fried green beans": {
+      "local": "干煸四季豆 (gānbiān sìjìdòu)",
+      "note": {
+        "en": "Green beans dry-fried (gānbiān) until blistered and wrinkled, then tossed with minced pork, dried chili and Sichuan peppercorn; a classic…",
+        "fr": "Haricots verts cuits à sec (gānbiān) jusqu'à cloquer et se rider, puis sautés au porc haché, piment séché et poivre du Sichuan ; technique…"
+      },
+      "sources": [
+        {
+          "name": "Omnivore's Cookbook — Sichuan Dry Fried Green Beans (干煸四季豆)",
+          "url": "https://omnivorescookbook.com/szechuan-dry-fried-green-beans/"
+        },
+        {
+          "name": "The Woks of Life — Gan Bian Si Ji Dou: Sichuan Dry Fried String Beans",
+          "url": "https://thewoksoflife.com/dry-fried-string-beans-sichuan/"
+        }
+      ]
+    }
+  },
+  "filipino": {
+    "adobo": {
+      "local": "adobo (adobô)",
+      "note": {
+        "en": "Philippine national dish of meat or vegetables stewed in vinegar, soy sauce, garlic and pepper; the method predates the Spanish name…",
+        "fr": "Plat national philippin de viande ou legumes mijotes dans le vinaigre, la sauce soja, l'ail et le poivre; la methode precede son nom…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Philippine adobo",
+          "url": "https://en.wikipedia.org/wiki/Philippine_adobo"
+        },
+        {
+          "name": "TasteAtlas - Adobo",
+          "url": "https://www.tasteatlas.com/adobo"
+        }
+      ]
+    },
+    "chicken adobo": {
+      "local": "adobong manók",
+      "note": {
+        "en": "Filipino chicken braised in vinegar, soy sauce, garlic and pepper; a pre-colonial method first recorded by the Spanish in 1613.",
+        "fr": "Poulet philippin braisé au vinaigre, sauce soja, ail et poivre; methode precoloniale d'abord consignee par les Espagnols en 1613."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Philippine adobo",
+          "url": "https://en.wikipedia.org/wiki/Philippine_adobo"
+        },
+        {
+          "name": "TasteAtlas — Adobo",
+          "url": "https://www.tasteatlas.com/adobo"
+        }
+      ]
+    },
+    "pork adobo": {
+      "local": "adobong baboy",
+      "note": {
+        "en": "Filipino braised pork simmered in vinegar, soy sauce, garlic and bay leaf; its pre-Hispanic vinegar method was later named by the Spanish.",
+        "fr": "Porc braisé philippin mijoté au vinaigre, sauce soja, ail et laurier; sa méthode pré-hispanique au vinaigre fut nommée par les Espagnols."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Philippine adobo",
+          "url": "https://en.wikipedia.org/wiki/Philippine_adobo"
+        },
+        {
+          "name": "TasteAtlas - Adobong baboy",
+          "url": "https://www.tasteatlas.com/adobong-baboy"
+        }
+      ]
+    },
+    "lechon": {
+      "local": "lechón",
+      "note": {
+        "en": "Whole pig spit-roasted over charcoal for crisp skin; a Philippine festive dish of pre-Hispanic Austronesian origin with a Spanish-derived…",
+        "fr": "Cochon entier rôti à la broche sur charbon pour une peau croustillante; plat festif philippin d'origine austronésienne préhispanique au nom…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Philippine lechon",
+          "url": "https://en.wikipedia.org/wiki/Philippine_lechon"
+        },
+        {
+          "name": "Food Philippines - Learning about lechon",
+          "url": "https://foodphilippines.com/story/learning-about-lechon/"
+        }
+      ]
+    },
+    "pancit": {
+      "local": "pansit (扁食)",
+      "note": {
+        "en": "Filipino stir-fried noodle dish; pancit is the generic Filipino term for noodles. The name comes from Philippine Hokkien, most reliably…",
+        "fr": "Plat philippin de nouilles sautees ; pancit est le terme generique pour les nouilles aux Philippines. Le nom vient du hokkien des…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Pancit",
+          "url": "https://en.wikipedia.org/wiki/Pancit"
+        },
+        {
+          "name": "Wiktionary - pancit",
+          "url": "https://en.wiktionary.org/wiki/pancit"
+        }
+      ]
+    },
+    "pancit bihon": {
+      "local": "Pancit bihon (\"bihon\" from Hokkien 米粉, bí-hún)",
+      "note": {
+        "en": "Filipino stir-fried rice-vermicelli noodle dish of Chinese-Hokkien origin; \"bihon\" derives from Hokkien 米粉 (bí-hún), rice vermicelli.",
+        "fr": "Plat philippin de vermicelles de riz sautés d'origine sino-hokkien; « bihon » vient du hokkien 米粉 (bí-hún), vermicelle de riz."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Rice vermicelli (bihon / 米粉 etymology)",
+          "url": "https://en.wikipedia.org/wiki/Rice_vermicelli"
+        },
+        {
+          "name": "Wikipedia - Pancit",
+          "url": "https://en.wikipedia.org/wiki/Pancit"
+        }
+      ]
+    },
+    "lumpia": {
+      "local": "lumpia",
+      "note": {
+        "en": "Filipino spring roll of meat/vegetable filling in a thin wrapper, derived from Chinese spring rolls; name from Hokkien lun-pia (moist…",
+        "fr": "Rouleau de printemps philippin garni de viande/legumes dans une fine pate, derive du rouleau chinois; nom du hokkien lun-pia (pate humide)."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Lumpia",
+          "url": "https://en.wikipedia.org/wiki/Lumpia"
+        },
+        {
+          "name": "Wikipedia - Lumpiang Shanghai",
+          "url": "https://en.wikipedia.org/wiki/Lumpiang_Shanghai"
+        }
+      ]
+    },
+    "lumpia shanghai": {
+      "local": "Lumpiang Shanghai",
+      "note": {
+        "en": "Filipino deep-fried spring roll of ground pork and finely chopped vegetables (carrots, onion, garlic) in a thin wrapper, deep-fried until…",
+        "fr": "Rouleau de printemps philippin frit, au porc hache et aux legumes finement haches (carottes, oignon, ail) dans une fine galette, frit…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Lumpiang Shanghai",
+          "url": "https://en.wikipedia.org/wiki/Lumpiang_Shanghai"
+        }
+      ]
+    },
+    "halo-halo": {
+      "local": "halo-halo",
+      "note": {
+        "en": "Filipino shaved-ice dessert (Tagalog \"mix-mix\") of sweetened beans, fruit and milk, derived from Japanese kakigori brought by migrants.",
+        "fr": "Dessert philippin de glace pilée (« mix-mix » en tagalog) aux haricots sucrés, fruits et lait, issu du kakigori japonais apporté par des…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Halo-Halo",
+          "url": "https://www.tasteatlas.com/halo-halo"
+        },
+        {
+          "name": "SBS Filipino - How well do you know your halo-halo?",
+          "url": "https://www.sbs.com.au/language/filipino/en/article/beating-the-heat-and-more-how-well-do-you-know-your-halo-halo/vmebloj2s"
+        }
+      ]
+    },
+    "kare-kare": {
+      "local": "Kare-kare",
+      "note": {
+        "en": "A Filipino stew of oxtail, tripe and vegetables in a thick peanut sauce coloured with annatto, traditionally served with bagoong shrimp…",
+        "fr": "Ragout philippin de queue de boeuf, tripes et legumes dans une sauce epaisse aux arachides coloree au rocou, servi avec le bagoong."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Kare-kare",
+          "url": "https://en.wikipedia.org/wiki/Kare-kare"
+        },
+        {
+          "name": "Tasting Table - Kare-Kare: The Comforting Filipino Peanut Stew",
+          "url": "https://www.tastingtable.com/1074582/kare-kare-the-comforting-filipino-peanut-stew/"
+        }
+      ]
+    },
+    "sisig": {
+      "local": "sisig",
+      "note": {
+        "en": "Kapampangan dish of chopped, grilled pig's head, ears and jowl seasoned with calamansi, onion and chili; popularized at Aling Lucing's in…",
+        "fr": "Plat kapampangan de tete, oreilles et bajoue de porc hachees et grillees, assaisonnees de calamansi, oignon et piment; popularise chez…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Sisig",
+          "url": "https://en.wikipedia.org/wiki/Sisig"
+        },
+        {
+          "name": "TasteAtlas — Sisig",
+          "url": "https://www.tasteatlas.com/sisig"
+        }
+      ]
+    },
+    "crispy pata": {
+      "local": "crispy pata",
+      "note": {
+        "en": "Filipino deep-fried pork leg (trotter), boiled with spices then fried for crackling skin; popularized at Barrio Fiesta restaurant around…",
+        "fr": "Jarret de porc philippin frit, bouilli aux épices puis frit pour une peau croustillante; popularisé au restaurant Barrio Fiesta vers 1958."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Crispy pata",
+          "url": "https://en.wikipedia.org/wiki/Crispy_pata"
+        },
+        {
+          "name": "Philstar - Rod Ongpauco: The man who invented Crispy Pata",
+          "url": "https://www.philstar.com/entertainment/2017/07/19/1727533/rod-ongpauco-man-who-invented-crispy-pata"
+        }
+      ]
+    },
+    "chicken inasal": {
+      "local": "inasal nga manok",
+      "note": {
+        "en": "Visayan chargrilled chicken from Bacolod, marinated in calamansi, coconut vinegar and annatto; \"inasal\" is Hiligaynon for char-grilled.",
+        "fr": "Poulet grille visayan de Bacolod, marine au calamansi, vinaigre de coco et roucou; \"inasal\" signifie grille au charbon en hiligaynon."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Chicken inasal",
+          "url": "https://en.wikipedia.org/wiki/Chicken_inasal"
+        },
+        {
+          "name": "TasteAtlas (via Digicast Negros) - Bacolod Chicken Inasal",
+          "url": "https://digicastnegros.com/bacolod-chicken-inasal-ranks-no-1-on-tasteatlas-top-100-filipino-dishes/"
+        }
+      ]
+    },
+    "beef tapa": {
+      "local": "tapa",
+      "note": {
+        "en": "Filipino thin-sliced beef cured with salt and spices, classically pan-fried and served as breakfast tapsilog with garlic rice and a fried…",
+        "fr": "Boeuf philippin en fines tranches saumure au sel et epices, frit et servi au petit-dejeuner en tapsilog avec riz a l'ail et oeuf au plat."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Tapa (Filipino cuisine)",
+          "url": "https://en.wikipedia.org/wiki/Tapa_(Filipino_cuisine)"
+        },
+        {
+          "name": "TasteAtlas — Tapsilog",
+          "url": "https://tasteatlas.com/tapsilog"
+        }
+      ]
+    },
+    "longganisa": {
+      "local": "longganisa",
+      "note": {
+        "en": "Filipino pork sausage, sweet (hamonado) or garlicky (de recado), whose name and form derive from the Spanish longaniza.",
+        "fr": "Saucisse de porc philippine, sucree (hamonado) ou ailee (de recado), dont le nom et la forme derivent du longaniza espagnol."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Longaniza",
+          "url": "https://en.wikipedia.org/wiki/Longaniza"
+        },
+        {
+          "name": "Wikipedia - Vigan longganisa",
+          "url": "https://en.wikipedia.org/wiki/Vigan_longganisa"
+        }
+      ]
+    },
+    "bangus": {
+      "local": "bangús",
+      "note": {
+        "en": "Bangus is milkfish (Chanos chanos), the Philippines' national fish (popularly so, though not designated by law), a silvery food fish raised…",
+        "fr": "Le bangus est le poisson-lait (Chanos chanos), poisson national des Philippines (par usage populaire, sans statut légal), élevé en bassins…"
+      },
+      "sources": [
+        {
+          "name": "Britannica — Milkfish",
+          "url": "https://www.britannica.com/animal/milkfish"
+        },
+        {
+          "name": "FAO — Overview of Philippine Aquaculture (milkfish)",
+          "url": "https://www.fao.org/4/x6943e/x6943e06.htm"
+        }
+      ]
+    },
+    "ube halaya": {
+      "local": "halayang ube",
+      "note": {
+        "en": "Filipino dessert of boiled, mashed purple yam (ube) cooked with milk and butter into a jam; \"halaya\" comes from Spanish \"jalea\" (jelly).",
+        "fr": "Dessert philippin d'igname violette (ube) bouillie et ecrasee, cuite avec lait et beurre en confiture; \"halaya\" vient de l'espagnol \"jalea\"…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Ube halaya",
+          "url": "https://en.wikipedia.org/wiki/Ube_halaya"
+        },
+        {
+          "name": "TasteAtlas — Ube Halaya",
+          "url": "https://www.tasteatlas.com/ube-halaya"
+        }
+      ]
+    },
+    "leche flan": {
+      "local": "leche flan",
+      "note": {
+        "en": "Filipino crème caramel of egg yolks, condensed and evaporated milk over caramelized sugar, steamed in oval llanera tins; introduced under…",
+        "fr": "Crème caramel philippine aux jaunes d'œufs, lait concentré et évaporé sur sucre caramélisé, cuite à la vapeur en moules llanera, héritée de…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Crème caramel (Leche flan section)",
+          "url": "https://en.wikipedia.org/wiki/Cr%C3%A8me_caramel"
+        },
+        {
+          "name": "Wikipedia — List of Philippine desserts",
+          "url": "https://en.wikipedia.org/wiki/List_of_Philippine_desserts"
+        }
+      ]
+    },
+    "bibingka": {
+      "local": "bibingka (bibingkang galapóng)",
+      "note": {
+        "en": "A Filipino baked rice cake of ground rice and coconut milk cooked in banana-leaf-lined clay over coals, eaten at Simbang Gabi Christmas…",
+        "fr": "Gateau de riz philippin a base de riz moulu et de lait de coco, cuit sur braises dans une terre cuite, mange aux messes de l'aube de Noel…"
+      },
+      "sources": [
+        {
+          "name": "Bibingka - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Bibingka"
+        },
+        {
+          "name": "A Bibingka story, and other Christmas chapters - Philstar.com",
+          "url": "https://www.philstar.com/lifestyle/food-and-leisure/2025/12/24/2496517/bibingka-story-and-other-christmas-chapters"
+        }
+      ]
+    },
+    "puto": {
+      "local": "puto",
+      "note": {
+        "en": "A Filipino steamed rice cake of slightly fermented ground-rice dough (galapong), often eaten with savory dishes like dinuguan.",
+        "fr": "Gateau de riz philippin cuit a la vapeur, a base de pate de riz moulu legerement fermentee (galapong), souvent servi avec des plats sales…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Puto (food)",
+          "url": "https://en.wikipedia.org/wiki/Puto_(food)"
+        },
+        {
+          "name": "TasteAtlas - Puto",
+          "url": "https://www.tasteatlas.com/puto"
+        }
+      ]
+    },
+    "ensaymada": {
+      "local": "ensaymada",
+      "note": {
+        "en": "Soft Filipino brioche bun topped with butter, sugar and grated cheese, adapted from Mallorca's ensaïmada during Spanish rule.",
+        "fr": "Brioche philippine moelleuse garnie de beurre, de sucre et de fromage râpé, adaptée de l'ensaïmada majorquine sous la domination espagnole."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Ensaïmada",
+          "url": "https://en.wikipedia.org/wiki/Ensa%C3%AFmada"
+        },
+        {
+          "name": "World Grain - Ensaymada: A Philippine specialty",
+          "url": "https://www.world-grain.com/articles/18986-ensaymada-a-philippine-specialty"
+        }
+      ]
+    },
+    "san miguel beer": {
+      "local": "San Miguel Pale Pilsen (La Fábrica de Cerveza San Miguel)",
+      "note": {
+        "en": "Filipino pale lager first brewed in 1890 as La Fábrica de Cerveza San Miguel in Manila, Southeast Asia's first brewery.",
+        "fr": "Lager blonde philippine brassée dès 1890 sous le nom La Fábrica de Cerveza San Miguel à Manille, première brasserie d'Asie du Sud-Est."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — San Miguel Beer",
+          "url": "https://en.wikipedia.org/wiki/San_Miguel_Beer"
+        },
+        {
+          "name": "Wikipedia — San Miguel Brewery",
+          "url": "https://en.wikipedia.org/wiki/San_Miguel_Brewery"
+        }
+      ]
+    },
+    "calamansi juice filipino": {
+      "local": "Calamansi juice (kalamansî)",
+      "note": {
+        "en": "Filipino lemonade made from fresh-squeezed native calamansi citrus, sweetened and chilled; a hot unsweetened version is a folk cold remedy.",
+        "fr": "Limonade philippine faite de calamansi frais, agrume local, sucree et glacee; chaude et non sucree, elle soigne le rhume."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Calamansi juice (Samalamig)",
+          "url": "https://en.wikipedia.org/wiki/Calamansi_juice"
+        },
+        {
+          "name": "TasteAtlas — Calamansi",
+          "url": "https://www.tasteatlas.com/calamansi"
+        }
+      ]
+    }
+  },
+  "burmese": {
+    "mohinga": {
+      "local": "မုန့်ဟင်းခါး",
+      "note": {
+        "en": "Mohinga is Myanmar's national dish, a rice-vermicelli soup in a catfish, lemongrass and banana-stem broth, eaten at breakfast.",
+        "fr": "Le mohinga, plat national du Myanmar, est une soupe de vermicelles de riz au bouillon de poisson-chat, citronnelle et tronc de bananier…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Mohinga",
+          "url": "https://en.wikipedia.org/wiki/Mohinga"
+        },
+        {
+          "name": "TasteAtlas - Mohinga",
+          "url": "https://www.tasteatlas.com/mohinga"
+        }
+      ]
+    },
+    "lahpet thoke": {
+      "local": "လက်ဖက်သုပ်",
+      "note": {
+        "en": "A Burmese salad of fermented tea leaves tossed with crunchy nuts, seeds, fried garlic and tomato, historically exchanged as a peace…",
+        "fr": "Une salade birmane de feuilles de thé fermentées mêlées de noix croquantes, graines, ail frit et tomate, jadis échangée en gage de paix…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Lahpet",
+          "url": "https://en.wikipedia.org/wiki/Lahpet"
+        }
+      ]
+    },
+    "ohn no khao swe": {
+      "local": "အုန်းနို့ခေါက်ဆွဲ",
+      "note": {
+        "en": "Burmese dish of wheat noodles in a chicken and coconut-milk broth thickened with chickpea flour; its name means \"coconut milk noodles.\"",
+        "fr": "Plat birman de nouilles de ble dans un bouillon de poulet au lait de coco epaissi a la farine de pois chiche ; son nom signifie \"nouilles…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Ohn no khao swè",
+          "url": "https://en.wikipedia.org/wiki/Ohn_no_khao_sw%C3%A8"
+        },
+        {
+          "name": "TasteAtlas — Ohn no Khao Swè",
+          "url": "https://www.tasteatlas.com/ohn-no-khao-swe"
+        }
+      ]
+    },
+    "shan noodles": {
+      "local": "ရှမ်းခေါက်ဆွဲ (Shan khauk swè)",
+      "note": {
+        "en": "A Shan State dish of rice noodles in a seasoned tomato-and-meat (chicken or pork) sauce, served dry with peanuts and pickled greens.",
+        "fr": "Plat de l'État Shan: nouilles de riz dans une sauce tomate-viande (poulet ou porc), servies sèches avec cacahuètes et légumes marinés."
+      },
+      "sources": [
+        {
+          "name": "Myanmar.com — Shan Noodles (Shan Khauk Swè)",
+          "url": "https://myanmar.com/food-drinks/shan-noodles/"
+        },
+        {
+          "name": "Wikipedia — Khauk swè",
+          "url": "https://en.wikipedia.org/wiki/Khauk_sw%C3%A8"
+        }
+      ]
+    },
+    "burmese curry": {
+      "local": "ဟင်း (hin)",
+      "note": {
+        "en": "Hin, Myanmar's rice-accompanying curries, are simmered with aromatics until oil separates and rises to the top, a style called sibyan ('oil…",
+        "fr": "Le hin, curry birman servi avec du riz, mijote avec des aromates jusqu'a ce que l'huile remonte en surface, un style nomme sibyan ('l'huile…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Burmese curry",
+          "url": "https://en.wikipedia.org/wiki/Burmese_curry"
+        },
+        {
+          "name": "TasteAtlas — Burmese Chicken Curry",
+          "url": "https://www.tasteatlas.com/burmese-chicken-curry"
+        }
+      ]
+    },
+    "chickpea tofu": {
+      "local": "တိုဖူး (Shan tofu / to hpu)",
+      "note": {
+        "en": "Soy-free tofu of Shan origin, made by cooking chickpea (besan) or yellow-split-pea flour with water, turmeric and salt until creamy, then…",
+        "fr": "Tofu sans soja d'origine shan, obtenu en faisant cuire de la farine de pois chiche (besan) ou de pois cassés avec de l'eau, du curcuma et…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia: Burmese tofu",
+          "url": "https://en.wikipedia.org/wiki/Burmese_tofu"
+        },
+        {
+          "name": "Wikipedia: Tofu Nway",
+          "url": "https://en.wikipedia.org/wiki/Tofu_Nway"
+        }
+      ]
+    },
+    "shan-style tofu salad": {
+      "local": "တိုဖူးသုပ် (to hpu thouk)",
+      "note": {
+        "en": "A Burmese salad of soft chickpea-flour tofu of Shan origin, tossed with peanuts, garlic, chilli, herbs and a tangy dressing.",
+        "fr": "Salade birmane de tofu mou à la farine de pois chiche, d'origine shan, mêlé d'arachides, ail, piment, herbes et sauce acidulée."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Burmese tofu",
+          "url": "https://en.wikipedia.org/wiki/Burmese_tofu"
+        },
+        {
+          "name": "196 flavors — Chickpea Tofu Salad (Tohu Thoke)",
+          "url": "https://www.196flavors.com/burma-chickpea-tofu-salad-tohu-thoke/"
+        }
+      ]
+    },
+    "balachaung": {
+      "local": "ဘာလချောင်ကြော် (balachaung kyaw; also ငါးပိကြော် ngapi kyaw)",
+      "note": {
+        "en": "Burmese fried relish of dried shrimp, shrimp paste, fried garlic, shallots/onions and chillies, fried crisp and served as a dry…",
+        "fr": "Condiment birman frit à base de crevettes séchées, pâte de crevette, ail et échalotes frits et piments, croustillant et servi avec le riz…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Ngapi (covers Balachaung / ngapi kyaw)",
+          "url": "https://en.wikipedia.org/wiki/Ngapi"
+        },
+        {
+          "name": "Asia Society — Burmese Dried Shrimp Relish (Balachaung)",
+          "url": "https://asiasociety.org/blog/asia/burmese-dried-shrimp-relish-balachaung"
+        }
+      ]
+    },
+    "burmese fish curry": {
+      "local": "ငါးဆီပြန် (nga hsi pyan)",
+      "note": {
+        "en": "Burmese fish curry, often called nga hsi pyan (\"the oil returns\"), simmers turmeric-rubbed fish in onion, garlic, chilli and tomato until…",
+        "fr": "Curry de poisson birman, souvent appelé nga hsi pyan (\"l'huile revient\"), mijote le poisson au curcuma avec oignon, ail, piment et tomate…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia: Burmese curry",
+          "url": "https://en.wikipedia.org/wiki/Burmese_curry"
+        },
+        {
+          "name": "Trisha's Kitchen Alchemy: Nga Sipyan (Burmese Tomato Fish Curry)",
+          "url": "https://trishaskitchenalchemy.wordpress.com/2016/10/15/nga-sipyan-burmese-tomato-fish-curry/"
+        }
+      ]
+    },
+    "si jet khauk swe": {
+      "local": "ဆီချက်ခေါက်ဆွဲ",
+      "note": {
+        "en": "Burmese fried noodle dish of egg or wheat noodles tossed in garlic-infused oil (sigyet), linked to the Sino-Burmese community.",
+        "fr": "Plat birman de nouilles aux oeufs ou de ble sautees dans une huile parfumee a l'ail (sigyet), lie a la communaute sino-birmane."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Sigyet khauk swè",
+          "url": "https://en.wikipedia.org/wiki/Sigyet_khauk_sw%C3%A8"
+        },
+        {
+          "name": "Great British Chefs — Garlic Oil Noodles (Si Chet Khao Swe)",
+          "url": "https://www.greatbritishchefs.com/recipes/garlic-oil-noodles-recipe"
+        }
+      ]
+    },
+    "falooda": {
+      "local": "ဖာလူဒါ",
+      "note": {
+        "en": "Cold rose-syrup milk dessert-drink of Indo-Persian origin; the Burmese version adds custard flan, sago and agar jelly.",
+        "fr": "Boisson-dessert froide au lait et sirop de rose d'origine indo-persane; la version birmane ajoute flan, sagou et gelée d'agar."
+      },
+      "sources": [
+        {
+          "name": "Falooda - Wikipedia (Kiddle)",
+          "url": "https://kids.kiddle.co/Falooda"
+        },
+        {
+          "name": "Falooda, the most popular dessert in Myanmar? - Myanmar Travel Essentials",
+          "url": "https://www.myanmartravelessentials.com/on-the-street/falooda-the-most-popular-dessert-in-myanmar/"
+        }
+      ]
+    },
+    "paratha burmese style": {
+      "local": "ပလာတာ (palata)",
+      "note": {
+        "en": "Palata is a flaky layered Burmese flatbread derived from the South Asian paratha, made by stretching and folding oiled dough; in Myanmar…",
+        "fr": "Le palata est un pain plat birman feuilleté dérivé du paratha sud-asiatique, fait en étirant et pliant une pâte huilée; au Myanmar, le…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Paratha (Burmese palata; Martyrs' Day / Aung San)",
+          "url": "https://en.wikipedia.org/wiki/Paratha"
+        },
+        {
+          "name": "Wikipedia — Burmese cuisine",
+          "url": "https://en.wikipedia.org/wiki/Burmese_cuisine"
+        }
+      ]
+    },
+    "aloo paratha burmese": {
+      "local": "ပလာတာ (palata)",
+      "note": {
+        "en": "A Burmese flaky, layered flatbread derived from the South Asian paratha, spelled 'palata' in Myanmar. It was introduced through Indian…",
+        "fr": "Pain plat birman feuilleté et en couches, dérivé du paratha sud-asiatique et appelé « palata » en Birmanie. Introduit par la migration…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Paratha (states paratha is spelled 'palata' in Myanmar)",
+          "url": "https://en.wikipedia.org/wiki/Paratha"
+        },
+        {
+          "name": "Wikipedia — Aloo paratha (notes Burmese palata, incl. pea-filled and 'bei palata' versions)",
+          "url": "https://en.wikipedia.org/wiki/Aloo_paratha"
+        }
+      ]
+    }
+  },
+  "sri-lankan": {
+    "sri lankan fish curry": {
+      "local": "මාළු මිරිසට (Malu mirisata)",
+      "note": {
+        "en": "Spicy Sri Lankan fish curry of fish simmered with chilli, turmeric, garlic and ginger, popular in coastal areas where seafood is a staple.",
+        "fr": "Curry de poisson sri-lankais epice, mijote avec piment, curcuma, ail et gingembre, populaire sur les cotes ou les fruits de mer sont un…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Malu mirisata",
+          "url": "https://en.wikipedia.org/wiki/Malu_mirisata"
+        },
+        {
+          "name": "Wikipedia - Fish curry",
+          "url": "https://en.wikipedia.org/wiki/Fish_curry"
+        }
+      ]
+    },
+    "hoppers": {
+      "local": "ආප්ප (āppa)",
+      "note": {
+        "en": "A Sri Lankan bowl-shaped pancake of fermented rice flour and coconut milk, with crisp edges and a spongy centre; evolved from South Indian…",
+        "fr": "Crêpe sri-lankaise en forme de bol, à base de farine de riz fermentée et de lait de coco, aux bords croustillants; issue de l'appam…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia: Appam",
+          "url": "https://en.wikipedia.org/wiki/Appam"
+        },
+        {
+          "name": "196 flavors: Sri Lankan Appam (Appa, Hoppers)",
+          "url": "https://www.196flavors.com/sri-lanka-appam-appa-hoppers/"
+        }
+      ]
+    },
+    "string hoppers": {
+      "local": "ඉඳිආප්ප (idiyāppa)",
+      "note": {
+        "en": "Steamed nests of rice-flour noodles squeezed through a press; a Sri Lankan and South Indian staple eaten with coconut milk or curry.",
+        "fr": "Nids de nouilles de farine de riz pressees et cuites a la vapeur; un classique sri-lankais et sud-indien servi avec lait de coco ou curry."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Idiyappam",
+          "url": "https://en.wikipedia.org/wiki/Idiyappam"
+        },
+        {
+          "name": "196 flavors - Idiyappam (String Hoppers)",
+          "url": "https://www.196flavors.com/idiyappam-string-hoppers/"
+        }
+      ]
+    },
+    "lamprais": {
+      "local": "ලම්ප්‍රයිස්",
+      "note": {
+        "en": "Sri Lankan Dutch Burgher dish of stock-cooked rice, mixed-meat curry, sambol and frikkadels wrapped in banana leaf and baked.",
+        "fr": "Plat des Burghers hollandais du Sri Lanka : riz cuit au bouillon, curry de viandes, sambol et frikkadels, en feuille de bananier puis cuit…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Lamprais",
+          "url": "https://en.wikipedia.org/wiki/Lamprais"
+        },
+        {
+          "name": "TasteAtlas - Lamprais",
+          "url": "https://www.tasteatlas.com/lamprais"
+        }
+      ]
+    },
+    "pol sambol": {
+      "local": "පොල් සම්බෝල",
+      "note": {
+        "en": "Sri Lankan relish of grated coconut, shallots, chilli, lime and salt, often with Maldive fish, traditionally ground on a granite miris gala.",
+        "fr": "Condiment sri-lankais de noix de coco rapee, echalotes, piment, citron vert et sel, souvent au poisson maldivien, broye sur un miris gala…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Pol sambol",
+          "url": "https://en.wikipedia.org/wiki/Pol_sambol"
+        }
+      ]
+    },
+    "seeni sambol": {
+      "local": "සීනි සම්බෝල",
+      "note": {
+        "en": "A sweet-and-spicy Sri Lankan caramelised onion relish; its name comes from \"seeni\" (sugar) and \"sambol\" (condiment).",
+        "fr": "Un condiment sri-lankais d'oignons caramelises sucre-epice; son nom vient de \"seeni\" (sucre) et \"sambol\" (condiment)."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Seeni sambol",
+          "url": "https://en.wikipedia.org/wiki/Seeni_sambol"
+        },
+        {
+          "name": "196 flavors - Seeni Sambol",
+          "url": "https://www.196flavors.com/sri-lanka-seeni-sambol/"
+        }
+      ]
+    },
+    "parippu": {
+      "local": "පරිප්පු",
+      "note": {
+        "en": "Sri Lankan red-lentil curry, the island's everyday staple, distinguished from Indian dal by coconut milk and a hot tempering.",
+        "fr": "Curry sri-lankais de lentilles corail, plat quotidien de l'île, distingué du dal indien par le lait de coco et un tempérage chaud."
+      },
+      "sources": [
+        {
+          "name": "Island Smile - Sri Lankan Dhal Curry (parippu)",
+          "url": "https://www.islandsmile.org/sri-lankan-dhal-curry-parippu/"
+        },
+        {
+          "name": "The Flavor Bender - Red Lentil Curry (Sri Lankan Dhal Curry)",
+          "url": "https://www.theflavorbender.com/dhal-red-lentil-curry/"
+        }
+      ]
+    },
+    "mallum": {
+      "local": "මැල්ලුම්",
+      "note": {
+        "en": "Sri Lankan side dish of finely shredded greens lightly fried with grated coconut, chilli and spices; name derives from Sinhala for \"to…",
+        "fr": "Plat d'accompagnement sri-lankais de légumes verts émincés sautés avec coco râpée, piment et épices; le nom vient du cinghalais…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Mallung",
+          "url": "https://en.wikipedia.org/wiki/Mallung"
+        },
+        {
+          "name": "Oxford English Dictionary — mallung, n.",
+          "url": "https://www.oed.com/dictionary/mallung_n"
+        }
+      ]
+    },
+    "ceylon tea": {
+      "local": "සිලෝන් තේ (Silōn tē)",
+      "note": {
+        "en": "Black tea from Sri Lanka, sold under the historic colonial name \"Ceylon\"; commercial cultivation began in 1867 when Scottish planter James…",
+        "fr": "Thé noir du Sri Lanka, commercialisé sous l'ancien nom colonial « Ceylan » ; sa culture commerciale débuta en 1867 lorsque le planteur…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Ceylon tea",
+          "url": "https://en.wikipedia.org/wiki/Ceylon_tea"
+        },
+        {
+          "name": "Wikipedia — James Taylor (tea planter)",
+          "url": "https://en.wikipedia.org/wiki/James_Taylor_(tea_planter)"
+        }
+      ]
+    }
   }
 };
 
