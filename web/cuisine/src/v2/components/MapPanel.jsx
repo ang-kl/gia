@@ -396,6 +396,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     ctrl.setLayer('taxis', !!L.taxis);
     ctrl.setLayer('carpark', !!L.carpark);
     ctrl.setLayer('busstop', !!L.busstop);
+    ctrl.setLayer('hawker', !!L.hawker);   // v0.62.184
     ctrl.setLayer('exits', !!L.exits);
     ctrl.setLayer('clinics', !!L.clinics);
     ctrl.setLayer('hospitals', !!L.hospitals);
@@ -885,7 +886,10 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     // v0.61.158 backend endpoint + v0.61.168 controller wiring.
     // v0.61.219 — OTHER region forces it off (anchor too coarse).
     { key: 'carpark',     icon: '🅿️', label: tr('layer.carpark', lang), disabled: isOther },
-    { key: 'busstop',     icon: '🚌', label: tr('layer.busstop', lang), disabled: isNonSg || isOther }
+    { key: 'busstop',     icon: '🚌', label: tr('layer.busstop', lang), disabled: isNonSg || isOther },
+    // v0.62.184 — operator: 🍚 Hawker centres surrounding the results (SG-only
+    // dataset; radius-clipped client-side so only nearby centres show).
+    { key: 'hawker',      icon: '🍚', label: tr('layer.hawker', lang), disabled: isNonSg || isOther }
   ];
   const menuToggles = [
     { key: 'exits',       icon: '',   label: tr('layer.exits', lang), disabled: isNonSg || isOther },

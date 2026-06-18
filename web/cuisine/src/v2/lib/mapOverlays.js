@@ -400,6 +400,18 @@ function fetchBusStops() {
   }
   return busStopsPromise;
 }
+
+// v0.62.184 — hawker-centre overlay (Cuisine map): fetched once, then
+// radius-clipped to the anchor so only the centres SURROUNDING the results show.
+let hawkerPromise = null;
+function fetchHawkerCentres() {
+  if (!hawkerPromise) {
+    hawkerPromise = fetch('/api/geo/hawker-centres')
+      .then((r) => r.json())
+      .catch(() => ({ centres: [] }));
+  }
+  return hawkerPromise;
+}
 let linePathsPromise = null;
 function fetchLinePaths() {
   if (!linePathsPromise) {
@@ -1911,6 +1923,13 @@ export function createOverlayController(map, googleMaps, opts) {
       if (destroyed) return null;
       entry = { kind: 'marker', visible: false,
         items: buildBusMarkers(d.busstops) };
+    } else if (name === 'hawker') {
+      // v0.62.184 — 🍚 Hawker centres, tiered (dot → glyph → glyph+name) +
+      // radius-clipped via applyVisibility, so only those near the results draw.
+      const d = await fetchHawkerCentres();
+      if (destroyed) return null;
+      entry = { kind: 'marker', visible: false,
+        items: buildMarkers(d.centres, '#E65100', '🍚', poiInfo('🍚'), null, true) };
     } else if (name === 'train') {
       const [lp, st] = await Promise.all([fetchLinePaths(), fetchStations()]);
       if (destroyed) return null;
