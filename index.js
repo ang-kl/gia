@@ -18253,7 +18253,10 @@ async function cacheBotUsername() {
         // Grid lat/lng to ~50 m so nearby pings hit the same cache key.
         const gLat = lat.toFixed(4);
         const gLng = lng.toFixed(4);
-        const cacheKey = `revgeo:${gLat}:${gLng}`;
+        // v0.62.211 — cache key bumped v1→v2: the "name" now carries the street
+        // ("Block 49, Sims Place" not bare "Block 49"), so stale block-only
+        // entries must not be served.
+        const cacheKey = `revgeo:v2:${gLat}:${gLng}`;
         const apiKey = process.env.GOOGLE_MAPS_API_KEY;
         if (!apiKey) {
           return res.status(503).json({ error: 'GOOGLE_MAPS_API_KEY unset' });
@@ -18273,7 +18276,17 @@ async function cacheBotUsername() {
           const fine = await reverseGeocodeAddress(lat, lng);
           const NAT_RX = /\b(catchment|reservoir|forest|nature reserve|park|wetland|river|canal)\b/i;
           if (fine && fine.name && fine.name !== 'Singapore' && !NAT_RX.test(fine.name)) {
-            const payload = { name: fine.name, formatted: fine.formatted || `${lat.toFixed(4)}, ${lng.toFixed(4)}` };
+            // v0.62.211 — operator (IMG_1069): the "Set location is" line showed a
+            // bare building/block name ("Block 49") because reverseGeocodeAddress
+            // ranks POI/premise above the street. Append the resolved road
+            // (fine.route) so it reads "Block 49, Sims Place" — unless the road is
+            // already part of the name (e.g. the name IS the street address).
+            const _road = (fine.route || '').trim();
+            const _base = fine.name.trim();
+            const _name = (_road && !_base.toLowerCase().includes(_road.toLowerCase()))
+              ? `${_base}, ${_road}`
+              : _base;
+            const payload = { name: _name, formatted: fine.formatted || `${lat.toFixed(4)}, ${lng.toFixed(4)}` };
             try { await redis.set(cacheKey, JSON.stringify(payload), { EX: 60 * 60 }); } catch { /* non-fatal */ }
             return res.json(payload);
           }
