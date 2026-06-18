@@ -198,6 +198,12 @@ html::-webkit-scrollbar-thumb:hover { background: var(--tg-hint); }
    mode = white; dark mode keeps contrast with the card surface + a subtle hint
    border (the text stays --tg-text, readable on both). Width comes from the
    Tailwind `border` utility; this class only sets fill + border colour. */
+/* v0.62.199 — operator: the scroll panels (local-classic / cuisine pickers)
+   showed a scrollbar that read oddly "beside the tabs". Hide it; wheel /
+   trackpad / touch scrolling still works. */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
 .loc-field-surface {
   background: #ffffff;
   border-color: #cbd5e1; /* slate-300 — neutral, not blue */

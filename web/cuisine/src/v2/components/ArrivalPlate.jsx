@@ -151,7 +151,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
               <>{' '}{headliners.map((h) => titleCaseDish(h.dish)).join(', ') + (groups.length ? '…' : '')}</>
             )}
             {cuisineStage === 2 && (
-              <>{' '}{fr ? 'Touchez un plat pour trouver des adresses. Touchez 📜 pour en savoir plus.' : 'Tap a dish to find eateries. Tap 📜 to learn more'}</>
+              <>{' '}{fr ? 'Touchez un plat pour en savoir plus, puis « Trouver des adresses ».' : 'Tap a dish to learn more, then 🔍 Find eateries.'}</>
             )}
           </span>
           <span aria-hidden className="text-tg-hint">{cuisineStage === 2 ? '▴' : '▾'}</span>
@@ -172,12 +172,12 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                   <button
                     type="button"
                     className="flex-1 text-left py-2.5 min-h-[44px]"
-                    aria-label={(d.note ? (fr ? 'Expliquer ' : 'Explain ') : (fr ? 'Chercher ' : 'Search ')) + d.dish}
-                    /* v0.62.162 — operator: EXPLAIN FIRST. A dish with a curated note
-                       opens its explanation card (native script + the validated fact);
-                       the card's "Find eateries" then runs the search. Curated-only —
-                       no invented text. Dishes with no note search directly. */
-                    onClick={() => { if (d.note) setFactIdx(factIdx === 'h' + i ? null : 'h' + i); else if (onTryDish) onTryDish(d.dish); }}
+                    aria-label={(fr ? 'Expliquer ' : 'Explain ') + d.dish}
+                    /* v0.62.199 — operator (RECURRING no-auto-fire): tapping a dish
+                       must NOT fire a search — it ALWAYS opens the card; only the
+                       card's "Find eateries" runs the search. Uncurated dishes get a
+                       "write-up coming soon" card (still no auto-fire). */
+                    onClick={() => setFactIdx(factIdx === 'h' + i ? null : 'h' + i)}
                   >
                     <span className="font-medium">{titleCaseDish(d.dish)}</span>
                     {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
@@ -191,10 +191,12 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                     >📜</button>
                   )}
                 </div>
-                {d.note && factIdx === 'h' + i && (
+                {factIdx === 'h' + i && (
                   <div className="mb-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
                     <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
-                    <div className="mt-1">{(fr ? d.note.fr : d.note.en) || d.note.en || ''}</div>
+                    {d.note
+                      ? <div className="mt-1">{(fr ? d.note.fr : d.note.en) || d.note.en || ''}</div>
+                      : <div className="mt-1 text-tg-hint italic">{fr ? 'Description bientôt — touchez « Trouver des adresses ».' : 'Write-up coming soon — tap “Find eateries”.'}</div>}
                     <div className="mt-2 flex items-center justify-between gap-2">
                       <button
                         type="button"
@@ -232,24 +234,32 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                       >{(fr ? gg.label.fr : gg.label.en)} <span className="opacity-70">({gg.dishes.length})</span></button>
                     ))}
                   </div>
-                  <div className="folio-panel px-2.5 py-2 text-[12px] leading-relaxed">
+                  {/* v0.62.199 — operator: the "More" list read CRAMMED. Looser line
+                      height + per-dish padding so the wrapped middle-dot list breathes
+                      and the tap targets separate. The list scrolls INTERNALLY (so the
+                      scrollbar sits in the panel, below the tabs — not beside them). */}
+                  <div className="folio-panel px-2.5 py-2.5 text-[12px] leading-loose max-h-[34vh] overflow-y-auto no-scrollbar">
                     {/* v0.62.194 — operator: the explanation opens INLINE right after
                         the tapped dish (was at the bottom of the panel). */}
                     {g.dishes.map((d, idx) => {
-                      const isOpen = d.note && factIdx === g.group + ':' + d.dish;
+                      // v0.62.199 — no auto-fire: tapping ANY dish opens its card
+                      // (curated note or a "coming soon" stub); only Find eateries searches.
+                      const isOpen = factIdx === g.group + ':' + d.dish;
                       return (
                       <React.Fragment key={d.dish}>
                         {idx > 0 && <span className="text-tg-hint"> · </span>}
                         <button
                           type="button"
-                          className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
-                          aria-label={(d.note ? (fr ? 'Expliquer ' : 'Explain ') : (fr ? 'Chercher ' : 'Search ')) + d.dish}
-                          onClick={() => { if (d.note) setFactIdx(factIdx === g.group + ':' + d.dish ? null : g.group + ':' + d.dish); else if (onTryDish) onTryDish(d.dish); }}
+                          className="inline-block text-tg-link no-underline active:scale-95 whitespace-nowrap py-0.5"
+                          aria-label={(fr ? 'Expliquer ' : 'Explain ') + d.dish}
+                          onClick={() => setFactIdx(factIdx === g.group + ':' + d.dish ? null : g.group + ':' + d.dish)}
                         >{titleCaseDish(d.dish)}{d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}</button>
                         {isOpen && (
                           <div className="my-2 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2 whitespace-normal">
                             <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
-                            <div className="mt-1">{(fr ? d.note.fr : d.note.en) || d.note.en || ''}</div>
+                            {d.note
+                              ? <div className="mt-1">{(fr ? d.note.fr : d.note.en) || d.note.en || ''}</div>
+                              : <div className="mt-1 text-tg-hint italic">{fr ? 'Description bientôt — touchez « Trouver des adresses ».' : 'Write-up coming soon — tap “Find eateries”.'}</div>}
                             {/* v0.62.182 — show the curated source (A3 rule). */}
                             {Array.isArray(d.sources) && d.sources.length > 0 && (
                               <div className="mt-0.5 text-tg-hint">
