@@ -13,14 +13,17 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 // `freeText` qualifier instead of silently dropping it. Also: Enter no
 // longer fires a search — only the → button here or the 🔍 Search
 // buttons / FAB do (operator 2026-05-11).
-export default function TellMePanel({ value = '', onChange, onSubmit, onReplace, lastPrompt, loading }) {
+export default function TellMePanel({ value = '', onChange, onSubmit, onReplace, lastPrompt, loading, searchIcon = false, onEmptySearch, searchDisabled = false, searchPulse = false }) {
   const [lang] = useLocale();
   const [submitting, setSubmitting] = useState(false);
   const text = typeof value === 'string' ? value : '';
 
   async function submit() {
     const t = text.trim();
-    if (!t || submitting) return;
+    // v0.62.178 — operator: the end button is now the 🔍 SEARCH (→ merged into the
+    // FAB). With text → submit the free-text; empty → run the criteria search.
+    if (!t) { if (searchIcon && onEmptySearch && !searchDisabled && !loading) onEmptySearch(); return; }
+    if (submitting) return;
     setSubmitting(true);
     try {
       await onSubmit?.(t);
@@ -68,20 +71,25 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
           className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint min-w-0"
           aria-label={tr('tellme.aria', lang)}
         />
+        {/* v0.62.178 — operator: the → submit is MERGED with the 🔍 search FAB at
+            the end of the (now end-to-end) bar. searchIcon makes it the round 🔍
+            that searches whether or not text is typed; it inherits the FAB's
+            disable (pool exhausted) + pulse (hint/flash) states. */}
         <button
           type="button"
           onClick={submit}
-          disabled={!text.trim() || submitting || loading}
-          aria-label={tr('tellme.submit', lang)}
-          // v0.59.21: pulse + ring when the input has text (and we're
-          // not loading/submitting) so the user notices the submit
-          // arrow is the next-step CTA. Per Human Lead 2026-05-07.
-          className={`text-xs px-2.5 py-1 rounded-full bg-tg-accent text-tg-accent-text disabled:opacity-40 flex-shrink-0 transition-all ${
-            text.trim() && !submitting && !loading
-              ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent'
-              : ''
-          }`}
-        >{submitting ? '…' : '→'}</button>
+          disabled={(searchIcon ? (searchDisabled || loading) : (!text.trim() || submitting || loading))}
+          aria-label={searchIcon
+            ? (lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat')
+            : tr('tellme.submit', lang)}
+          className={searchIcon
+            ? `w-9 h-9 rounded-full bg-tg-accent text-tg-accent-text border-2 border-white/40 shadow-lg flex items-center justify-center text-base disabled:opacity-40 flex-shrink-0 transition-all active:scale-95 ${
+                (searchPulse || (text.trim() && !submitting && !loading)) && !searchDisabled ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''
+              }`
+            : `text-xs px-2.5 py-1 rounded-full bg-tg-accent text-tg-accent-text disabled:opacity-40 flex-shrink-0 transition-all ${
+                text.trim() && !submitting && !loading ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''
+              }`}
+        >{submitting ? '…' : (searchIcon ? '🔍' : '→')}</button>
       </div>
     </div>
   );
