@@ -98,7 +98,7 @@ function transitBlockHtml(transit) {
   return rows.join('');
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, onMapMove, flyTo, fitPins, onDeselect, blinkOnly = false, children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, onMapMove, flyTo, fitPins, onDeselect, blinkOnly = false, fill = false, children }) {
   // v0.62.125 — onDeselect (tap empty map → exit the result carousel) kept in a
   // ref so the long-lived map-click handler always calls the current prop.
   const onDeselectRef = useRef(null);
@@ -902,25 +902,28 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   ];
 
   return (
-    <div className="rounded-lg border border-tg-border bg-tg-card overflow-hidden relative">
-      {/* v0.58.17: map height now scales with viewport. Phone keeps
-          ~240 px (50vh on a 480 px viewport ≈ 240); tablet/desktop
-          get up to 420 px so the map isn't a tiny strip on a tall
-          screen. min-height clamps to 240 so it never shrinks below
-          the original.
-          v0.58.54: tablet form-factor (≥700 px wide, e.g. iPad Mini)
-          gets a taller cap of 640 px / 60vh — 420 was only ~37 % of a
-          1133 px iPad portrait viewport, which felt cramped. */}
+    /* v0.62.190 — operator (full-redesign): in horizontal mode the map is
+       FULL-BLEED and FILLS the viewport behind a floating glass dock (no white
+       band). `fill` makes the wrapper a flex-1 child + edge-to-edge (drops the
+       rounded card frame + gutters). Vertical mode keeps the framed fixed-height
+       card so the scrolling list reads below it. */
+    <div className={fill
+      ? 'flex-1 min-h-0 -mx-3 md:-mx-6 lg:-mx-8 overflow-hidden relative bg-tg-card'
+      : 'rounded-lg border border-tg-border bg-tg-card overflow-hidden relative'}>
+      {/* v0.58.17: map height scales with viewport (phone ~240 px floor; tablet/
+          desktop taller). v0.62.190: fill mode → height 100% of the flex-1 box. */}
       <div
         ref={containerRef}
         className={overlayLayers && overlayLayers.colour === false ? 'gia-greyscale-map' : undefined}
-        style={{
-          width: '100%',
-          // v0.62.155 — operator: fill the white space below the map. Grow the
-          // map so it reaches down toward the footer FABs (mobile 50→66vh).
-          height: expanded ? '90vh' : (isTablet ? 'min(720px, 68vh)' : 'min(620px, 66vh)'),
-          minHeight: 240
-        }}
+        style={fill
+          ? { width: '100%', height: '100%', minHeight: 240 }
+          : {
+              width: '100%',
+              // v0.62.155 — operator: fill the white space below the map. Grow the
+              // map so it reaches down toward the footer FABs (mobile 50→66vh).
+              height: expanded ? '90vh' : (isTablet ? 'min(720px, 68vh)' : 'min(620px, 66vh)'),
+              minHeight: 240
+            }}
       />
       {/* v0.63.1 — custom map-control row, top-right: zoom +/- and the
           expand toggle. v0.61.9 — horizontal row, smaller buttons.
@@ -966,6 +969,9 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           className="w-7 h-7 rounded-full bg-white/80 text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
           aria-label={tr('map.zoomOut', lang)}
         ><span aria-hidden>－</span></button>
+        {/* v0.62.190 — the expand/collapse toggle is hidden in fill mode (the map
+            already fills the viewport, so it would be a no-op button). */}
+        {!fill && (
         <button
           type="button"
           onClick={() => setExpanded((e) => !e)}
@@ -973,6 +979,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           aria-label={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
           title={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
         ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>
+        )}
       </div>
       {/* v0.61.36 — Phase G/C floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls
