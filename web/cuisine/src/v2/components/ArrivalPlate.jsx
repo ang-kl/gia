@@ -66,6 +66,35 @@ function leadWithQualifier(s) {
   return qual ? `${qual} ${base}` : base;
 }
 
+// v0.62.194 — operator: categorise the "More classics" by MEAL TYPE so a
+// foreigner knows what each is / when to eat it. Honest, keyword-based buckets;
+// hawker food is mostly all-day, so we DON'T fabricate a lunch-vs-dinner split
+// (no source for it) — savoury dishes fall under "All-day". Display order = a
+// natural meal arc: breakfast → all-day → drinks → desserts.
+const MEAL_BUCKETS = [
+  { key: 'breakfast', icon: '🍳', en: 'Breakfast & snacks', fr: 'Petit-déj. & snacks' },
+  { key: 'mains',     icon: '🍱', en: 'All-day dishes',      fr: 'Plats (toute la journée)' },
+  { key: 'drink',     icon: '🥤', en: 'Drinks',              fr: 'Boissons' },
+  { key: 'dessert',   icon: '🍮', en: 'Desserts',            fr: 'Desserts' }
+];
+// High-confidence keyword sets (kept conservative to avoid mis-bucketing a
+// savoury dish; "coffee" is excluded so "Coffee Pork Ribs" stays a main).
+const DRINK_RE = /\b(kopi|teh|milo|horlicks|bandung|yuan\s*yang|juice|sugarcane|winter\s*melon|chrysanthemum|barley\s*water|lime\s*juice|calamansi|sour\s*plum\s*drink|grass\s*jelly\s*drink|soda|isotonic|100\s*plus|lemon\s*tea|milk\s*tea|bubble\s*tea|shake|lassi|soya?\s*bean\s*drink|cordial|sirap|kosong|coconut\s*water)\b/i;
+const DESSERT_RE = /\b(tau\s*huay|douhua|chendol|cendol|ice\s*ka[cz]ang|pengat|pudding|red\s*bean|gula\s*melaka|tang\s*yuan|pulut\s*hitam|cheng\s*tng|tau\s*suan|orh\s*nee|sago|pomelo|grass\s*jelly|bubur|ondeh|ang\s*ku|goreng\s*pisang|pisang\s*goreng|ice\s*cream|ko\s*swee|cheng\s*teng|\bkaya\b)\b/i;
+const BREAKFAST_RE = /\b(kaya\s*toast|\btoast\b|you\s*tiao|dough\s*fritter|soft.?boiled|half.?boiled|prata|roti\s*john|congee|porridge|dim\s*sum|brunch|chwee\s*kueh|min\s*jiang)\b/i;
+function mealCategory(name) {
+  const s = String(name || '');
+  if (DRINK_RE.test(s)) return 'drink';
+  if (BREAKFAST_RE.test(s)) return 'breakfast';
+  if (DESSERT_RE.test(s)) return 'dessert';
+  return 'mains';
+}
+function categoriseClassics(flat) {
+  const by = { breakfast: [], mains: [], drink: [], dessert: [] };
+  for (const d of (flat || [])) by[mealCategory(d.dish)].push(d);
+  return MEAL_BUCKETS.map((b) => ({ ...b, dishes: by[b.key] })).filter((b) => b.dishes.length);
+}
+
 export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
   const [open, setOpen] = useState(false);
   const [factIdx, setFactIdx] = useState(null);   // index of the open 📜 bubble
@@ -190,7 +219,6 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
             {groups.length > 0 && (() => {
               const gi = Math.min(activeGroup, groups.length - 1);
               const g = groups[gi];
-              const openDish = g.dishes.find((d) => d.note && factIdx === g.group + ':' + d.dish);
               return (
                 <div className="mt-1.5">
                   <div className="folio-tabs overflow-x-auto whitespace-nowrap">
@@ -205,7 +233,11 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                     ))}
                   </div>
                   <div className="folio-panel px-2.5 py-2 text-[12px] leading-relaxed">
-                    {g.dishes.map((d, idx) => (
+                    {/* v0.62.194 — operator: the explanation opens INLINE right after
+                        the tapped dish (was at the bottom of the panel). */}
+                    {g.dishes.map((d, idx) => {
+                      const isOpen = d.note && factIdx === g.group + ':' + d.dish;
+                      return (
                       <React.Fragment key={d.dish}>
                         {idx > 0 && <span className="text-tg-hint"> · </span>}
                         <button
@@ -214,33 +246,34 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                           aria-label={(d.note ? (fr ? 'Expliquer ' : 'Explain ') : (fr ? 'Chercher ' : 'Search ')) + d.dish}
                           onClick={() => { if (d.note) setFactIdx(factIdx === g.group + ':' + d.dish ? null : g.group + ':' + d.dish); else if (onTryDish) onTryDish(d.dish); }}
                         >{titleCaseDish(d.dish)}{d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}</button>
-                      </React.Fragment>
-                    ))}
-                    {openDish && (
-                      <div className="mt-2 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
-                        <div className="font-semibold">📜 {titleCaseDish(openDish.dish)}{openDish.local && openDish.local !== openDish.dish ? ` · ${openDish.local}` : ''}</div>
-                        <div className="mt-1">{(fr ? openDish.note.fr : openDish.note.en) || openDish.note.en || ''}</div>
-                        {/* v0.62.182 — show the curated source (A3 rule). */}
-                        {Array.isArray(openDish.sources) && openDish.sources.length > 0 && (
-                          <div className="mt-0.5 text-tg-hint">
-                            {(fr ? 'source : ' : 'source: ') + openDish.sources.map((s) => s.name).join(' · ')}
+                        {isOpen && (
+                          <div className="my-2 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2 whitespace-normal">
+                            <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
+                            <div className="mt-1">{(fr ? d.note.fr : d.note.en) || d.note.en || ''}</div>
+                            {/* v0.62.182 — show the curated source (A3 rule). */}
+                            {Array.isArray(d.sources) && d.sources.length > 0 && (
+                              <div className="mt-0.5 text-tg-hint">
+                                {(fr ? 'source : ' : 'source: ') + d.sources.map((s) => s.name).join(' · ')}
+                              </div>
+                            )}
+                            <div className="mt-2 flex items-center justify-between gap-2">
+                              <button
+                                type="button"
+                                className="glass-pill shrink-0 px-2.5 py-0.5 rounded-full border-[0.5px] border-tg-accent/70 text-[10px] font-semibold text-tg-text"
+                                onClick={() => { const dish = d.dish; setFactIdx(null); if (onTryDish) onTryDish(dish); }}
+                              >🔍 {fr ? 'Trouver des adresses' : 'Find eateries'}</button>
+                              <button
+                                type="button"
+                                className="text-tg-hint text-[12px]"
+                                aria-label={fr ? 'Fermer' : 'Close'}
+                                onClick={() => setFactIdx(null)}
+                              >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                            </div>
                           </div>
                         )}
-                        <div className="mt-2 flex items-center justify-between gap-2">
-                          <button
-                            type="button"
-                            className="glass-pill shrink-0 px-2.5 py-0.5 rounded-full border-[0.5px] border-tg-accent/70 text-[10px] font-semibold text-tg-text"
-                            onClick={() => { const dish = openDish.dish; setFactIdx(null); if (onTryDish) onTryDish(dish); }}
-                          >🔍 {fr ? 'Trouver des adresses' : 'Find eateries'}</button>
-                          <button
-                            type="button"
-                            className="text-tg-hint text-[12px]"
-                            aria-label={fr ? 'Fermer' : 'Close'}
-                            onClick={() => setFactIdx(null)}
-                          >{fr ? '[ fermer ]' : '[ close ]'}</button>
-                        </div>
-                      </div>
-                    )}
+                      </React.Fragment>
+                      );
+                    })}
                   </div>
                 </div>
               );
@@ -382,57 +415,68 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                     ascending-size labelled sections; else fall back to the flat
                     chip wall (back-compat / overlay-less countries). */}
                 {classicsOpen && (() => {
-                  // v0.62.169 — operator: NO pills. Show the classics as a
-                  // middle-dot-separated tappable list of dish names. A dish with
-                  // curated history (server attaches {note} to the classic) opens
-                  // its explanation card; one without falls back to a direct search.
-                  // (Full "every classic explains" needs the server to attach a
-                  // curated note to ALL classics — tracked as a follow-up.)
+                  // v0.62.169 — classics as a middle-dot tappable list; a dish with
+                  // curated history opens its explanation card, else a direct search.
+                  // v0.62.194 — operator: (1) CATEGORISE by meal type (Breakfast /
+                  // All-day / Drinks / Desserts) so a foreigner knows what each is;
+                  // (2) the explanation card opens INLINE right after the tapped
+                  // dish (was rendered once at the BOTTOM of the whole list).
                   const flat = Array.isArray(plate.classicGroups) && plate.classicGroups.length > 0
                     ? plate.classicGroups.flatMap((g) => g.dishes)
                     : (plate.classics || []).map((n) => ({ dish: n }));
-                  const openCl = flat.find((d) => (d.note && (d.note.en || d.note.fr)) && factIdx === 'cl:' + d.dish);
-                  return (
-                    <div className="max-h-72 overflow-y-auto pb-2 px-1 text-[12px] leading-relaxed">
-                      {flat.map((d, idx) => {
-                        const hasNote = d.note && (d.note.en || d.note.fr);
-                        return (
-                          <React.Fragment key={d.dish}>
-                            {idx > 0 && <span className="text-tg-hint"> · </span>}
-                            <button
-                              type="button"
-                              className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
-                              aria-label={(hasNote ? (fr ? 'Expliquer ' : 'Explain ') : (fr ? 'Chercher ' : 'Search ')) + d.dish}
-                              onClick={() => { if (hasNote) setFactIdx(factIdx === 'cl:' + d.dish ? null : 'cl:' + d.dish); else if (onTryDish) onTryDish(d.dish); }}
-                            >{titleCaseDish(d.dish)}</button>
-                          </React.Fragment>
-                        );
-                      })}
-                      {openCl && (
-                        <div className="mt-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
-                          <div className="font-semibold">📜 {titleCaseDish(openCl.dish)}{openCl.local && openCl.local !== openCl.dish ? ` · ${openCl.local}` : ''}</div>
-                          <div className="mt-1">{(fr ? openCl.note.fr : openCl.note.en) || openCl.note.en || ''}</div>
-                          {/* v0.62.174 — show the curated source when present (A3 rule). */}
-                          {Array.isArray(openCl.sources) && openCl.sources.length > 0 && (
-                            <div className="mt-0.5 text-tg-hint">
-                              {(fr ? 'source : ' : 'source: ') + openCl.sources.map((s) => s.name).join(' · ')}
-                            </div>
-                          )}
-                          <div className="mt-2 flex items-center justify-between gap-2">
-                            <button
-                              type="button"
-                              className="glass-pill shrink-0 px-2.5 py-0.5 rounded-full border-[0.5px] border-tg-accent/70 text-[10px] font-semibold text-tg-text"
-                              onClick={() => { const dish = openCl.dish; setFactIdx(null); if (onTryDish) onTryDish(dish); }}
-                            >🔍 {fr ? 'Trouver des adresses' : 'Find eateries'}</button>
-                            <button
-                              type="button"
-                              className="text-tg-hint text-[12px]"
-                              aria-label={fr ? 'Fermer' : 'Close'}
-                              onClick={() => setFactIdx(null)}
-                            >{fr ? '[ fermer ]' : '[ close ]'}</button>
-                          </div>
+                  const sections = categoriseClassics(flat);
+                  const clCard = (d) => (
+                    <div className="my-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2 whitespace-normal">
+                      <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
+                      <div className="mt-1">{(fr ? d.note.fr : d.note.en) || d.note.en || ''}</div>
+                      {/* v0.62.174 — show the curated source when present (A3 rule). */}
+                      {Array.isArray(d.sources) && d.sources.length > 0 && (
+                        <div className="mt-0.5 text-tg-hint">
+                          {(fr ? 'source : ' : 'source: ') + d.sources.map((s) => s.name).join(' · ')}
                         </div>
                       )}
+                      <div className="mt-2 flex items-center justify-between gap-2">
+                        <button
+                          type="button"
+                          className="glass-pill shrink-0 px-2.5 py-0.5 rounded-full border-[0.5px] border-tg-accent/70 text-[10px] font-semibold text-tg-text"
+                          onClick={() => { const dish = d.dish; setFactIdx(null); if (onTryDish) onTryDish(dish); }}
+                        >🔍 {fr ? 'Trouver des adresses' : 'Find eateries'}</button>
+                        <button
+                          type="button"
+                          className="text-tg-hint text-[12px]"
+                          aria-label={fr ? 'Fermer' : 'Close'}
+                          onClick={() => setFactIdx(null)}
+                        >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                      </div>
+                    </div>
+                  );
+                  return (
+                    <div className="max-h-72 overflow-y-auto pb-2 px-1 text-[12px] leading-relaxed">
+                      {sections.map((sec) => (
+                        <div key={sec.key} className="pt-1.5 first:pt-0">
+                          <div className="text-[11px] font-semibold text-tg-text/70 pb-0.5">
+                            {sec.icon} {fr ? sec.fr : sec.en}<span className="text-tg-hint font-normal"> ({sec.dishes.length})</span>
+                          </div>
+                          <div>
+                            {sec.dishes.map((d, idx) => {
+                              const hasNote = d.note && (d.note.en || d.note.fr);
+                              const isOpen = hasNote && factIdx === 'cl:' + d.dish;
+                              return (
+                                <React.Fragment key={d.dish}>
+                                  {idx > 0 && <span className="text-tg-hint"> · </span>}
+                                  <button
+                                    type="button"
+                                    className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
+                                    aria-label={(hasNote ? (fr ? 'Expliquer ' : 'Explain ') : (fr ? 'Chercher ' : 'Search ')) + d.dish}
+                                    onClick={() => { if (hasNote) setFactIdx(factIdx === 'cl:' + d.dish ? null : 'cl:' + d.dish); else if (onTryDish) onTryDish(d.dish); }}
+                                  >{titleCaseDish(d.dish)}</button>
+                                  {isOpen && clCard(d)}
+                                </React.Fragment>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   );
                 })()}
