@@ -292,7 +292,10 @@ export default function App() {
                           <div className="mt-1 flex flex-col gap-0.5 text-[10px]">
                             {tr.station && (
                               <a
-                                href={`https://www.google.com/maps/search/?api=1&query=${tr.station.lat},${tr.station.lng}`}
+                                /* v0.62.177 — operator: link to the REAL named place, not a
+                                   bare coordinate pin. Query by station name (+ "MRT Station")
+                                   so Google Maps resolves the actual station card. */
+                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${tr.station.name || ''} MRT Station Singapore`)}`}
                                 target="_blank" rel="noreferrer"
                                 className="text-[#1a73e8] underline"
                               >
@@ -302,7 +305,10 @@ export default function App() {
                             )}
                             {(tr.busStops || []).map((b, j) => (
                               <a key={j}
-                                href={`https://www.google.com/maps/search/?api=1&query=${b.lat},${b.lng}`}
+                                /* v0.62.177 — query by the bus-stop code + description so it
+                                   resolves to the actual stop (Google indexes SG stop codes),
+                                   not a nameless coordinate. */
+                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(['Bus Stop', b.code, b.description, 'Singapore'].filter(Boolean).join(' '))}`}
                                 target="_blank" rel="noreferrer"
                                 className="text-[#1a73e8] underline"
                               >🚌 {b.code} {b.description}</a>
