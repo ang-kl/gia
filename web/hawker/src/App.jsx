@@ -209,7 +209,7 @@ export default function App() {
                 const sel = r.region === activeRegion;
                 return (
                   <button key={r.region} onClick={() => setActiveRegion(r.region)} aria-pressed={sel}
-                    className={`px-2.5 py-1 rounded-full text-xs whitespace-nowrap active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/80 liquid-glass text-tg-text'}`}>
+                    className={`px-2.5 py-1 rounded-full text-xs whitespace-nowrap active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/90 liquid-glass text-tg-text'}`}>
                     <span className="mr-1">{REGION_EMOJI[r.region] || '·'}</span>{regionLabel(r.region)} ({r.count})
                   </button>
                 );
@@ -219,7 +219,7 @@ export default function App() {
               <>
                 {/* v0.62.164 — operator: the "Central — 22 …" section header as a
                     liquid-glass-80% strip (bg-tg-bg/80 backdrop-blur). */}
-                <div className="mx-1 px-2.5 py-1 rounded-lg bg-tg-bg/80 liquid-glass text-[11px] text-tg-hint">
+                <div className="mx-1 px-2.5 py-1 rounded-lg bg-tg-bg/90 liquid-glass text-[11px] text-tg-hint">
                   <strong className="text-tg-text">{regionLabel(active.region)}</strong>
                   {tn('list.headingBody', lang, { n: active.count })}
                 </div>

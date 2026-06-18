@@ -17,7 +17,7 @@ import React, { useEffect, useRef } from 'react';
 import ResultCard from './ResultCard.jsx';
 import { useLocale } from '../lib/i18n.js';
 
-export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null }) {
+export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null, hasFilters = false }) {
   const [lang] = useLocale();
   const trackRef = useRef(null);
   const list = Array.isArray(venues) ? venues : [];
@@ -56,7 +56,10 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
   if (!list.length) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-[6.5rem] z-30 px-1 pointer-events-none max-w-[1600px] mx-auto">
+    /* v0.62.172 — operator: the result strip must sit ABOVE the active-filter
+       strip. When filters are showing the footer cluster is ~2rem taller, so
+       lift the drawer to clear it (8.5rem vs 6.5rem). */
+    <div className={`fixed inset-x-0 ${hasFilters ? 'bottom-[8.5rem]' : 'bottom-[6.5rem]'} z-30 px-1 pointer-events-none max-w-[1600px] mx-auto`}>
       {/* v0.62.141 — operator: the list + vertical/horizontal controls moved to
           the FOOTER (out of the strip). Cards are BOTTOM-aligned (items-end),
           and each is a COMPACT ~5-row scroll panel (card-scroll = visible thin
@@ -71,7 +74,7 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
           <div
             key={v.placeId || i}
             data-pid={v.placeId || ''}
-            className="card-scroll snap-center shrink-0 basis-[82%] h-[10.5rem] overflow-y-auto rounded-lg shadow-xl"
+            className="card-scroll snap-center shrink-0 basis-[82%] max-h-[10.5rem] overflow-y-auto rounded-lg shadow-xl"
           >
             {/* v0.62.168 — operator: horizontal cards are UNIFORM size (fixed
                 h-[10.5rem] + min-h-full fills it), COLLAPSED by default
@@ -90,14 +93,14 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
         ))}
         {/* v0.62.151 — operator: a terminal card after the last result. Scroll to
             the right end → "Last card" + how to refine. */}
-        <div className="snap-center shrink-0 basis-[82%] h-[10.5rem] rounded-lg shadow-xl bg-tg-card border border-tg-border flex flex-col items-center justify-center text-center gap-1 px-3 py-4">
+        <div className="snap-center shrink-0 basis-[82%] max-h-[10.5rem] rounded-lg shadow-xl bg-tg-card border border-tg-border flex flex-col items-center justify-center text-center gap-1 px-3 py-4">
           <div className="text-[13px] font-semibold text-tg-text">{lang === 'fr' ? 'Dernière carte' : 'Last card'}</div>
           <div className="text-[12px] text-tg-hint leading-snug">📍 {lang === 'fr' ? 'saisir un lieu' : 'enter location'} · 💬 {lang === 'fr' ? 'tapez un plat' : 'Type dish'}</div>
           <div className="text-[12px] text-tg-hint leading-snug">{lang === 'fr' ? 'Touchez 🔍 pour rechercher' : 'Tap 🔍 to search'}</div>
         </div>
         {/* v0.62.155 — loop clone of the FIRST card (jumps back to the real one
             on reach, see the scroll effect above). */}
-        <div className="card-scroll snap-center shrink-0 basis-[82%] h-[10.5rem] overflow-y-auto rounded-lg shadow-xl" aria-hidden="true">
+        <div className="card-scroll snap-center shrink-0 basis-[82%] max-h-[10.5rem] overflow-y-auto rounded-lg shadow-xl" aria-hidden="true">
           <ResultCard
             venue={list[0]}
             number={1}

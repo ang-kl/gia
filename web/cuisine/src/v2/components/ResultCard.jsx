@@ -225,7 +225,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
 
   return (
     <button type="button" onClick={() => onTap?.(venue.placeId)}
-      className={`w-full text-left rounded-lg border bg-tg-card p-2.5 flex flex-col gap-1 ${horizontal ? 'min-h-full' : ''} ${focused ? 'border-tg-accent' : 'border-tg-border'}`}>
+      className={`w-full text-left rounded-lg border bg-tg-card p-2.5 flex flex-col gap-1 ${focused ? 'border-tg-accent' : 'border-tg-border'}`}>
       {/* v0.62.108 — operator: rank reads "1 · <name>" inline; every row below
           is flush-left (no indent — was a 2-col flex that offset the whole body).
           v0.62.168 — operator: in the horizontal strip the name is smaller and
