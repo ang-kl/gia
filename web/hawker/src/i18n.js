@@ -42,7 +42,7 @@ const STRINGS = {
   'map.more':                { en: 'More layers', fr: 'Plus de couches' },
   'layer.carpark':           { en: 'Carpark', fr: 'Parking' },
   'layer.exits':             { en: 'Station Exits', fr: 'Sorties de station' },
-  'layer.train':             { en: 'Train Line', fr: 'Ligne de train' },
+  'layer.train':             { en: 'Train', fr: 'Train' },
   'layer.all':               { en: 'All', fr: 'Tout' },
 
   // Regions — labels for Central/South/East/North/West (API returns EN

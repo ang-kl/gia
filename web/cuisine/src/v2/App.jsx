@@ -4649,7 +4649,10 @@ export default function App() {
         {/* v0.62.190 — the unified glass command DOCK: rounded-top, full-bleed,
             frosted; free-text + 🔍 on top, a slim control row below, then a tiny
             experimental/region/version tag. A soft top shadow lifts it off the map. */}
-        <div className="pointer-events-auto -mx-2 px-3 pt-2 pb-1 rounded-t-3xl bg-tg-bg/92 liquid-glass border-t border-tg-border/50 shadow-[0_-6px_24px_rgba(0,0,0,0.22)] flex flex-col gap-1.5">
+        {/* v0.62.206 — operator (dark mode): the dock read as a CURVED card with
+            the map showing in the rounded corners. Make it a FLAT full-width band
+            (no rounded-t) + more opaque (/92 → /96) so the map doesn't tint it. */}
+        <div className="pointer-events-auto -mx-2 px-3 pt-2 pb-1 bg-tg-bg/96 liquid-glass border-t border-tg-border/50 shadow-[0_-6px_24px_rgba(0,0,0,0.22)] flex flex-col gap-1.5">
           {(() => {
             const poolExhausted = !!finalBatch && Number.isFinite(knownTotal) && venues && venues.length === knownTotal;
             const searchDisabled = loading || (poolExhausted && !dirty && !selectedCityLocation);
