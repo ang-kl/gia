@@ -950,14 +950,14 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
             mapRef.current?.setCenter(searchCenter || userLoc || { lat: 1.3521, lng: 103.8198 });
             mapRef.current?.setZoom(14);
           }}
-          className="w-7 h-7 rounded-full bg-white/80 text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
           aria-label={tr('map.reset', lang)}
           title={tr('map.reset', lang)}
         ><span aria-hidden>⛶⟲</span></button>
         <button
           type="button"
           onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 14) + 1)}
-          className="w-7 h-7 rounded-full bg-white/80 text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
           aria-label={tr('map.zoomIn', lang)}
         ><span aria-hidden>＋</span></button>
         {/* v0.62.133 — operator: a "centre map" (↹) button between + and −,
@@ -965,14 +965,14 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         <button
           type="button"
           onClick={() => mapRef.current?.panTo(searchCenter || userLoc || { lat: 1.3521, lng: 103.8198 })}
-          className="w-7 h-7 rounded-full bg-white/80 text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
           aria-label={lang === 'fr' ? 'Centrer la carte' : 'Centre map'}
           title={lang === 'fr' ? 'Centrer la carte' : 'Centre map'}
         ><span aria-hidden>↹</span></button>
         <button
           type="button"
           onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 14) - 1)}
-          className="w-7 h-7 rounded-full bg-white/80 text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
           aria-label={tr('map.zoomOut', lang)}
         ><span aria-hidden>－</span></button>
         {/* v0.62.190 — the expand/collapse toggle is hidden in fill mode (the map
@@ -981,7 +981,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         <button
           type="button"
           onClick={() => setExpanded((e) => !e)}
-          className="w-7 h-7 rounded-full bg-white/80 text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
           aria-label={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
           title={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
         ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>

@@ -473,6 +473,21 @@ export default function App() {
   // to the Local-classic tab — instead of the footer "Edit search" bottom sheet.
   // This is its own flag so the footer criteria sheet (criteriaOpen) is untouched.
   const [cuisinePickOpen, setCuisinePickOpen] = useState(false);
+  // v0.62.204 — operator: the cuisine / local-classic picker overlays must drop
+  // down JUST BELOW the header tabs (in front of the map) — NOT at the footer.
+  // Measure the (sticky) header's bottom edge so the overlays anchor there.
+  const headerRef = useRef(null);
+  const [headerBottom, setHeaderBottom] = useState(120);
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return undefined;
+    const update = () => setHeaderBottom(Math.round(el.getBoundingClientRect().bottom));
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener('resize', update);
+    return () => { ro.disconnect(); window.removeEventListener('resize', update); };
+  }, []);
   // v0.61.426 — per-chat minimum-rating preference, shared with the
   // chat-side /rating (/ra) command via one Redis key. Kept as a dedicated
   // hook (NOT in `state`) so the filter-reset paths (`{...defaultState()}`)
@@ -3311,7 +3326,7 @@ export default function App() {
           border + shadow for AA separation, and the liquid glass is preserved
           on scroll. On a mode-pill tap (modePeek) the bar goes fully OPAQUE
           (solid bg, no translucency) to stage the Location + food-picks edit. */}
-      <header className={`sticky top-0 z-30 -mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 py-2 flex flex-col gap-1.5 border-b transition-colors ${modePeek ? 'bg-tg-bg border-tg-border shadow-md' : 'bg-tg-bg/90 backdrop-blur border-tg-border/60 shadow-sm'}`}>
+      <header ref={headerRef} className={`sticky top-0 z-30 -mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 py-2 flex flex-col gap-1.5 border-b transition-colors ${modePeek ? 'bg-tg-bg border-tg-border shadow-md' : 'bg-tg-bg/90 backdrop-blur border-tg-border/60 shadow-sm'}`}>
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <img src="soleat-icon.png" alt="soleat" width="24" height="24" className="rounded-full flex-shrink-0" />
@@ -3738,7 +3753,8 @@ export default function App() {
           (Open-now / Halal / Price / …) + the cuisine grid + 🔍 Search. Hidden
           result cards while open (see the ResultDrawer gate). */}
       {cuisinePickOpen && catalogue && (
-        <div className="fixed inset-x-2 bottom-[8.5rem] z-40 max-h-[66vh] overflow-y-auto no-scrollbar rounded-2xl border border-tg-accent/50 bg-tg-card shadow-2xl px-3 py-2.5 flex flex-col gap-2">
+        <div className="fixed inset-x-2 z-40 overflow-y-auto no-scrollbar rounded-2xl border border-tg-accent/50 bg-tg-card shadow-2xl px-3 py-2.5 flex flex-col gap-2"
+          style={{ top: headerBottom + 4, maxHeight: `calc(100dvh - ${headerBottom + 4}px - 9rem)` }}>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-tg-text">🍲 {lang === 'fr' ? 'Choisir votre cuisine' : 'Choose your cuisine'}</span>
             <button type="button" onClick={() => setCuisinePickOpen(false)} aria-label={lang === 'fr' ? 'Fermer' : 'Close'} className="text-tg-hint hover:text-tg-text text-sm leading-none px-1">✕</button>
@@ -3803,7 +3819,8 @@ export default function App() {
       )}
       {/* v0.62.195 — the LOCAL-CLASSIC picker as a fixed overlay too (was inline). */}
       {classicOpen && (cuisinePlate || arrivalPlate) && !loading && venues.length > 0 && (
-        <div className="fixed inset-x-2 bottom-[8.5rem] z-40 max-h-[66vh] overflow-y-auto no-scrollbar rounded-2xl border border-tg-accent/50 bg-tg-card shadow-2xl px-2.5 py-2">
+        <div className="fixed inset-x-2 z-40 overflow-y-auto no-scrollbar rounded-2xl border border-tg-accent/50 bg-tg-card shadow-2xl px-2.5 py-2"
+          style={{ top: headerBottom + 4, maxHeight: `calc(100dvh - ${headerBottom + 4}px - 9rem)` }}>
           <div className="flex items-center justify-between pb-1">
             <span className="text-xs font-semibold text-tg-text">📍 {lang === 'fr' ? 'Plats classiques locaux' : 'Pick local classic'}</span>
             <button type="button" onClick={() => setClassicOpen(false)} aria-label={lang === 'fr' ? 'Fermer' : 'Close'} className="text-tg-hint hover:text-tg-text text-sm leading-none px-1">✕</button>
