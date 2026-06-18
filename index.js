@@ -16906,7 +16906,20 @@ async function cacheBotUsername() {
             const ov = require('./nation-overlay').getNationOverlay(slug);
             if (ov && Array.isArray(ov.iconicDishes) && ov.iconicDishes.length) {
               const { groupCuisineDishes } = require('./dish-food-group');
-              const grouped = groupCuisineDishes(ov.iconicDishes);
+              // v0.62.182 — enrich the cuisine's iconic dishes with curated
+              // { local, note, sources } from classics-notes.js CUISINE_NOTES[slug]
+              // so the "Pick local classic" cuisine plate explains each dish (the
+              // geo classics already do via city-plates.js). Additive, fail-open.
+              let _iconic = ov.iconicDishes;
+              try {
+                const { CUISINE_NOTES } = require('./classics-notes');
+                const cnotes = CUISINE_NOTES && CUISINE_NOTES[slug];
+                if (cnotes) _iconic = ov.iconicDishes.map((d) => {
+                  const m = d && cnotes[d.name];
+                  return m ? { ...d, ...m } : d;
+                });
+              } catch { /* classics-notes optional */ }
+              const grouped = groupCuisineDishes(_iconic);
               const label = slug.split('-').map((w) => w ? w[0].toUpperCase() + w.slice(1) : w).join(' ');
               cuisineOrderPlate = {
                 mode: 'cuisine',
