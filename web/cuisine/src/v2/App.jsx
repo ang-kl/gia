@@ -3351,9 +3351,14 @@ export default function App() {
             line above. */}
         <div className={
           venues.length > 0 && !regionExpanded ? 'hidden'
-            : (modePeek ? 'bg-tg-bg/90 liquid-glass rounded-xl p-1.5 flex flex-col gap-2' : 'flex flex-col gap-1.5')
+            : (modePeek ? '' : 'flex flex-col gap-1.5')
         }>
-          <div className="flex gap-1.5">
+          {/* v0.62.187 — operator (IMG_2509): when the editor is open the 4 location
+              modes are FOLIO FOLDER-TABS — the selected region tab is physically
+              connected to the refine-field panel below (.folio-panel), inactive
+              modes read as translucent index markers. Closed (first-load) they stay
+              the plain pill row. */}
+          <div className={modePeek ? 'folio-tabs' : 'flex gap-1.5'}>
           {[
             // v0.62.97 — 📍 Current: an ACTION (not a region toggle) that anchors
             // to the live device GPS. Listed first so "set me here" reads left→right.
@@ -3375,14 +3380,11 @@ export default function App() {
           ].map((r) => {
             // v0.62.97 — 📍 Current is an action button, never a "selected" region.
             const sel = !r.action && (state.region || 'SG') === r.id;
-            // v0.62.186 — operator (IMG_2507 #5): "the border of the four mode
-            // should remove, the background should wrap the refine location."
-            // When the editor is open (modePeek) the 4 pills are BORDERLESS — the
-            // single liquid-glass panel (the wrapper below) carries the frame; the
-            // selected pill still reads via .glass-pill--selected (pressed-in) +
-            // accent text (shape + label, colour-blind safe). Closed (first-load,
-            // no editor) the pills keep their individual borders.
-            const borderCls = modePeek ? 'border-transparent' : (sel ? 'border-tg-accent' : 'border-tg-border/60');
+            // v0.62.187 — closed (non-editor, first-load) state keeps the plain
+            // pill border; the editor-open state renders folio folder-tabs (the
+            // selected region = .folio-tab--active connected to the panel below),
+            // which carries the selection by SHAPE — colour-blind safe.
+            const borderCls = sel ? 'border-tg-accent' : 'border-tg-border/60';
             const textCls = sel ? 'text-tg-accent' : 'text-tg-text';
             return (
               <button key={r.id} type="button"
@@ -3502,11 +3504,13 @@ export default function App() {
                    Cities read as equally spaced. Selected pill drops the flat
                    ring for the .glass-pill--selected treatment (skeuomorphic /
                    pressed-in in dark mode). */
-                className={`glass-pill flex-1 basis-0 px-1 py-1.5 rounded-xl border text-[11px] whitespace-nowrap inline-flex items-center justify-center gap-1 ${sel ? 'glass-pill--selected ' : ''}${borderCls} ${textCls}`}>
+                className={modePeek
+                  ? `folio-tab flex-1 basis-0 min-w-0 overflow-hidden justify-center inline-flex items-center gap-1 active:scale-95 ${sel ? 'folio-tab--active' : ''}`
+                  : `glass-pill flex-1 basis-0 px-1 py-1.5 rounded-xl border text-[11px] whitespace-nowrap inline-flex items-center justify-center gap-1 ${sel ? 'glass-pill--selected ' : ''}${borderCls} ${textCls}`}>
                 {(r.flag.endsWith('.png') || r.flag.endsWith('.svg'))
                   ? <img src={r.flag} alt="" width="18" height="12" className="rounded-sm border border-tg-border/40 flex-shrink-0" />
                   : <span aria-hidden>{r.flag}</span>}
-                <span>{r.label}</span>
+                <span className="truncate">{r.label}</span>
               </button>
             );
           })}
@@ -3516,7 +3520,9 @@ export default function App() {
               + the field (it was a separate ringed card BELOW the header before).
               Shown only while the editor is open (modePeek). No auto-fire —
               onSelect just sets the anchor; the user taps 🔍 (onSearch). */}
-          {modePeek && (!userLoc ? (
+          {modePeek && (
+            <div className="folio-panel px-2.5 py-2">
+            {!userLoc ? (
             <div className="text-[11px] text-tg-hint italic px-1 py-1">
               📍 {lang === 'fr' ? 'Localisation en cours…' : 'Locating you…'}
             </div>
@@ -3570,7 +3576,9 @@ export default function App() {
                 saveCountryPref(code).catch(() => { /* non-fatal */ });
               }}
             />
-          ))}
+            )}
+            </div>
+          )}
         </div>
         {/* v0.62.172 — operator: the Cuisine PICKER is the TMA's core action but
             was a tiny footer link ("how would a user know to tap it?"). Surface it
@@ -3597,8 +3605,12 @@ export default function App() {
           });
           const cuisineLabel = names.length ? names.join(' · ') : (lang === 'fr' ? 'Choisir votre cuisine' : 'Choose your cuisine');
           const hasPlate = !!(cuisinePlate || arrivalPlate) && venues.length > 0;
+          // v0.62.187 — operator (IMG_2509): Cuisine + Local-classic render as
+          // FOLIO FOLDER-TABS. The open picker is .folio-tab--active; the
+          // Local-classic tab connects to its plate panel just below
+          // (.folio-panel). Empty cuisine keeps the accent + pulse CTA.
           return (
-            <div className="flex gap-1.5">
+            <div className="folio-tabs">
               <button
                 type="button"
                 onClick={() => { setClassicOpen(false); setCriteriaOpen((o) => !o); }}
@@ -3606,24 +3618,22 @@ export default function App() {
                 aria-label={names.length
                   ? (lang === 'fr' ? `Cuisines : ${names.join(', ')}` : `Cuisines: ${names.join(', ')}`)
                   : (lang === 'fr' ? 'Choisir votre cuisine' : 'Choose your cuisine')}
-                className={`flex-1 min-w-0 glass-pill flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-[12px] active:scale-[0.99] ${
-                  names.length ? 'border-tg-border/60 text-tg-text' : 'border-tg-accent text-tg-accent font-semibold'
-                } ${!names.length && editSearchPulse ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
+                className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] active:scale-95 ${criteriaOpen ? 'folio-tab--active' : ''} ${!names.length ? 'text-tg-accent font-semibold' : ''} ${!names.length && editSearchPulse ? 'animate-pulse' : ''}`}
               >
                 <span aria-hidden className="shrink-0">🍲</span>
                 <span className="flex-1 text-left truncate">{cuisineLabel}</span>
-                <span aria-hidden className="text-tg-hint shrink-0">{criteriaOpen ? '▴' : '▾'}</span>
+                <span aria-hidden className="shrink-0 opacity-70">{criteriaOpen ? '▴' : '▾'}</span>
               </button>
               {hasPlate && (
                 <button
                   type="button"
                   onClick={() => { setCriteriaOpen(false); setClassicOpen((o) => !o); }}
                   aria-expanded={classicOpen}
-                  className="flex-1 min-w-0 glass-pill flex items-center gap-1.5 rounded-xl border border-tg-border/60 text-tg-text px-2.5 py-1.5 text-[12px] active:scale-[0.99]"
+                  className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] active:scale-95 ${classicOpen ? 'folio-tab--active' : ''}`}
                 >
                   <span aria-hidden className="shrink-0">📍</span>
                   <span className="flex-1 text-left truncate">{lang === 'fr' ? 'Plats classiques locaux' : 'Pick local classic'}</span>
-                  <span aria-hidden className="text-tg-hint shrink-0">{classicOpen ? '▴' : '▾'}</span>
+                  <span aria-hidden className="shrink-0 opacity-70">{classicOpen ? '▴' : '▾'}</span>
                 </button>
               )}
             </div>
@@ -3633,7 +3643,7 @@ export default function App() {
             a glassmorphism "conversation" panel, shown ONLY when the pill is tapped
             (so the header stays compact and the map gets the space). */}
         {classicOpen && (cuisinePlate || arrivalPlate) && !loading && venues.length > 0 && (
-          <div className="-mx-2 px-2 py-1 rounded-2xl bg-tg-bg/80 liquid-glass border border-tg-border/50 shadow-lg max-h-[60vh] overflow-y-auto">
+          <div className="folio-panel px-2.5 py-2 max-h-[60vh] overflow-y-auto">
             <ArrivalPlate
               plate={(() => {
                 // v0.62.173 — PR B2: pin the just-searched dish to the FRONT.
