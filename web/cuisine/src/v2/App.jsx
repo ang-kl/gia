@@ -4555,26 +4555,9 @@ export default function App() {
         className="fixed inset-x-0 bottom-0 z-30 pointer-events-none px-2 flex flex-col gap-1.5"
         style={{ paddingBottom: 'calc(0.15rem + env(safe-area-inset-bottom, 0px) * 0.5)' }}
       >
-        {/* v0.62.190 — full-redesign (operator: kill the white band + the 3
-            disconnected floating elements). The active-filter chips stay a
-            full-width band ABOVE the dock; everything else (free-text + 🔍, the
-            two control cards, the 2 footer text lines) is unified into ONE frosted
-            glass command DOCK. The full-bleed map fills behind it — no white. */}
-        {criteriaSummary.length > 0 && (
-          <div className="pointer-events-auto -mx-2 px-3 py-1 bg-tg-bg/90 liquid-glass border-y border-tg-border/40 shadow-sm flex items-center overflow-x-auto">
-            <ActiveFilters
-              cuisines={state.cuisines}
-              filters={state.filters}
-              onRemoveCuisine={removeCuisine}
-              onRemoveFilter={removeFilter}
-              onResetAll={clearAll}
-              nameForCuisine={(slug) => {
-                if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
-                return cuisineNameBySlug.get(slug) || null;
-              }}
-            />
-          </div>
-        )}
+        {/* v0.62.192 — operator: the "Reset all" + cuisine/dish chips no longer
+            float as a band ABOVE the dock; they now sit as small text INSIDE the
+            dock, just below the free-text field (see the ActiveFilters mount). */}
         {/* v0.62.190 — the unified glass command DOCK: rounded-top, full-bleed,
             frosted; free-text + 🔍 on top, a slim control row below, then a tiny
             experimental/region/version tag. A soft top shadow lifts it off the map. */}
@@ -4597,6 +4580,23 @@ export default function App() {
               />
             );
           })()}
+          {/* v0.62.192 — operator: the active filters (Reset all + selected
+              cuisine/dish) as small text directly BELOW the free-text field. */}
+          {criteriaSummary.length > 0 && (
+            <div className="-mt-0.5 overflow-x-auto">
+              <ActiveFilters
+                cuisines={state.cuisines}
+                filters={state.filters}
+                onRemoveCuisine={removeCuisine}
+                onRemoveFilter={removeFilter}
+                onResetAll={clearAll}
+                nameForCuisine={(slug) => {
+                  if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
+                  return cuisineNameBySlug.get(slug) || null;
+                }}
+              />
+            </div>
+          )}
           {/* slim control row — results · layout · next  |  down · end. Inline icon
               chips (no bordered cards); aria-labels carry the full text. */}
           <div className="flex items-center justify-between gap-1 text-[11px] font-semibold text-tg-link">
