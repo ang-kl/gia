@@ -4444,75 +4444,35 @@ export default function App() {
         {/* Corner FABs over the map — left stack grows up from above the free-text
             bar (list+v/h · end · Edit search); right stack is 🔍 search · ↕ top.
             The map shows through the gap between them. */}
-        <div className="relative z-20 flex items-end justify-between gap-2 pointer-events-none">
-          <div className="flex flex-col items-start gap-1.5 pointer-events-none">
-            {/* v0.62.157 — operator: list · vertical · 🍲 Cuisine controls moved DOWN
-                to the SAME ROW as the free-text (its left side — see below). */}
-            {/* ⇢ next (rare — only after stepping back through page history). */}
-            {cursor < pages.length - 1 && (
-              <button
-                type="button"
-                onClick={() => setCursor((c) => Math.min(pages.length - 1, c + 1))}
-                aria-label={lang === 'fr' ? 'Liste suivante' : 'Next list'}
-                style={fabBgFg(false)}
-                className="pointer-events-auto px-2 h-8 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center active:scale-95 whitespace-nowrap shrink-0"
-              ><span aria-hidden="true">⇢ {lang === 'fr' ? 'suivant' : 'next'}</span></button>
-            )}
-            {/* v0.62.152 — operator #4: the 🍲 Cuisine button moved DOWN to sit
-                beside the free-text bar (see below). */}
-          </div>
-          {/* Right stack: 🔍 search FAB. v0.62.156 — operator: the 🔍 FAB FIRES the
-              search again (run / load-more), it no longer opens the criteria sheet
-              (that's the 🍲 Cuisine word). Pool-exhausted disable restored. */}
-          <div className="flex flex-col items-end gap-1.5 pointer-events-none">
-            {(() => {
-              const poolExhausted = !!finalBatch && Number.isFinite(knownTotal) && venues && venues.length === knownTotal;
-              const isDisabled = loading || (poolExhausted && !dirty && !selectedCityLocation);
-              return (
-                <button
-                  type="button"
-                  onClick={triggerSearch}
-                  disabled={isDisabled}
-                  aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat'}
-                  title={poolExhausted && !dirty
-                    ? (lang === 'fr' ? 'Aucun autre résultat — modifiez les critères' : 'No more results — change criteria')
-                    : undefined}
-                  className={`pointer-events-auto w-9 h-9 rounded-full bg-tg-accent text-tg-accent-text border-2 border-white/40 shadow-lg flex items-center justify-center text-base active:scale-95 transition-all shrink-0 ${
-                    isDisabled ? 'opacity-40' : ''
-                  } ${(searchHintActive || searchFabFlash) && !isDisabled ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
-                >🔍</button>
-              );
-            })()}
-          </div>
+        {/* v0.62.178 — operator redesign: the free-text bar is now END-TO-END (ROW A)
+            with the → submit MERGED into the 🔍 search at its right end. The old
+            standalone 🔍 FAB + the separate active-filter strip are gone; the
+            selected cuisine/filter chips move into ROW B below. */}
+        <div className="pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur shadow-lg border border-tg-border px-1.5 py-0.5">
+          {(() => {
+            const poolExhausted = !!finalBatch && Number.isFinite(knownTotal) && venues && venues.length === knownTotal;
+            const searchDisabled = loading || (poolExhausted && !dirty && !selectedCityLocation);
+            return (
+              <TellMePanel
+                value={nlText}
+                onChange={setNlText}
+                onSubmit={handleNLSubmit}
+                onReplace={handleNLReplace}
+                lastPrompt={lastPrompt}
+                loading={loading}
+                searchIcon
+                onEmptySearch={triggerSearch}
+                searchDisabled={searchDisabled}
+                searchPulse={searchHintActive || searchFabFlash}
+              />
+            );
+          })()}
         </div>
-        {/* v0.62.163 — operator: the active-filter pills (Reset all · ‹cuisine› …)
-            sit as an end-to-end liquid-glass-80% strip JUST ABOVE this row (below
-            the 🔍 FAB). Moved here from above the FABs. */}
-        {criteriaSummary.length > 0 && (
-          <div className="pointer-events-auto -mx-2 px-3 py-1.5 bg-tg-bg/90 liquid-glass border-y border-tg-border/40">
-            <ActiveFilters
-              cuisines={state.cuisines}
-              filters={state.filters}
-              onRemoveCuisine={removeCuisine}
-              onRemoveFilter={removeFilter}
-              onResetAll={clearAll}
-              nameForCuisine={(slug) => {
-                if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
-                return cuisineNameBySlug.get(slug) || null;
-              }}
-            />
-          </div>
-        )}
-        {/* v0.62.155 — operator: the free-text bar with the combined ⇡top/🔚end FAB
-            BESIDE its right (the duplicate ↑/↓ arrow dropped); 🍲 Cuisine moved
-            into the left controls card above. */}
+        {/* v0.62.178 — ROW B: results/vertical controls (+ ⇢ next) · the selected
+            cuisine/filter chips (moved here from the old end-to-end margin strip,
+            now filling the freed middle space) · top/back nav. */}
         <div className="flex items-stretch gap-1.5">
-          {/* v0.62.157 — operator: list · vertical · 🍲 Cuisine controls on the SAME
-              ROW, to the LEFT of the free-text (hyperlink words, two rows). */}
           <div className="pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg px-2.5 py-1 flex flex-col items-start justify-center gap-0.5 text-[10px] leading-tight font-semibold shrink-0">
-            {/* v0.62.167 — operator: STACK results · vertical · Cuisine, each on
-                its own line, so the card is narrower and the free-text bar gets
-                more width. "list" renamed to "results". */}
             <button
               type="button"
               onClick={() => setDrawerDismissed((d) => !d)}
@@ -4543,19 +4503,32 @@ export default function App() {
                 ? (lang === 'fr' ? 'Afficher le style vertical' : 'Show Vertical style')
                 : (lang === 'fr' ? 'Afficher le style horizontal' : 'Show Horizontal style')}</button>
             )}
-            {/* v0.62.172 — operator: the 🍲 Cuisine entry moved UP to the prominent
-                header bar (under the region pills). The footer link is removed so
-                there's ONE obvious entry. */}
+            {cursor < pages.length - 1 && (
+              <button
+                type="button"
+                onClick={() => setCursor((c) => Math.min(pages.length - 1, c + 1))}
+                aria-label={lang === 'fr' ? 'Liste suivante' : 'Next list'}
+                className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
+              >⇢ {lang === 'fr' ? 'suivant' : 'next'}</button>
+            )}
           </div>
-          <div className="flex-1 min-w-0 pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur shadow-lg border border-tg-border px-1 py-0.5">
-            <TellMePanel
-              value={nlText}
-              onChange={setNlText}
-              onSubmit={handleNLSubmit}
-              onReplace={handleNLReplace}
-              lastPrompt={lastPrompt}
-              loading={loading}
-            />
+          {/* selected cuisine/filter chips — was the end-to-end margin strip. */}
+          <div className="flex-1 min-w-0 pointer-events-auto rounded-2xl bg-tg-bg/90 liquid-glass border border-tg-border/50 shadow-lg px-2 flex items-center overflow-x-auto">
+            {criteriaSummary.length > 0 ? (
+              <ActiveFilters
+                cuisines={state.cuisines}
+                filters={state.filters}
+                onRemoveCuisine={removeCuisine}
+                onRemoveFilter={removeFilter}
+                onResetAll={clearAll}
+                nameForCuisine={(slug) => {
+                  if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
+                  return cuisineNameBySlug.get(slug) || null;
+                }}
+              />
+            ) : (
+              <span className="text-[10px] text-tg-hint italic px-1 whitespace-nowrap">{lang === 'fr' ? 'Aucune cuisine / plat' : 'No cuisine / dish yet'}</span>
+            )}
           </div>
           <div className="pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg px-2.5 py-1 flex flex-col items-stretch justify-center gap-0.5 text-[10px] leading-tight font-semibold shrink-0">
             <button
