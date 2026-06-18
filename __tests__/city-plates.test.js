@@ -143,4 +143,21 @@ describe('v0.62.37 — overlay classics + D792 city tie-in', () => {
     expect(dd.isKnownDishName('bak chor mee')).toBe(true);
     expect(dd.isKnownDishName('kaya toast')).toBe(true);
   });
+
+  it('v0.62.174 — grouped classics carry curated { local, note } from the nation overlay', () => {
+    // Tokyo's Japanese overlay includes sukiyaki with a curated note + native script;
+    // platesForCity must enrich the grouped classic (was stripped to a bare name).
+    const p = cp.platesForCity('Tokyo');
+    expect(Array.isArray(p.classicGroups)).toBe(true);
+    const all = p.classicGroups.flatMap((g) => g.dishes);
+    const noted = all.filter((d) => d.note && (d.note.en || d.note.fr));
+    expect(noted.length).toBeGreaterThan(0);            // enrichment reached the UI shape
+    const sukiyaki = all.find((d) => d.dish === 'sukiyaki');
+    expect(sukiyaki).toBeTruthy();
+    expect(sukiyaki.local).toBe('すき焼き');
+    expect(sukiyaki.note.en).toMatch(/beef/i);
+    // names without a curated note are unaffected — still a bare { dish } object.
+    const bare = all.find((d) => !d.note);
+    expect(bare && typeof bare.dish === 'string').toBe(true);
+  });
 });

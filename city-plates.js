@@ -5385,6 +5385,33 @@ function _classicsForEntry(entry) {
   return out.length ? out : null;
 }
 
+// v0.62.174 — fold(name) → { local, note, sources } for a country's overlay
+// dishes, so the "More classics" list can carry the SAME curated depth as the
+// city-unique rows (operator: "each classic must have an explanation"). Built
+// from NATION_OVERLAY[slug].iconicDishes; only dishes that actually carry curated
+// fields are mapped (purely additive — names with no note are unaffected).
+function _overlayDishMeta(countryCode) {
+  try {
+    const slug = COUNTRY_OVERLAY_SLUG[String(countryCode || '').toUpperCase()];
+    if (!slug) return null;
+    if (!_nationOverlay) _nationOverlay = require('./nation-overlay');
+    const o = _nationOverlay.NATION_OVERLAY[slug];
+    if (!o || !Array.isArray(o.iconicDishes)) return null;
+    const m = new Map();
+    for (const d of o.iconicDishes) {
+      if (!d || !d.name) continue;
+      const meta = {};
+      if (d.local) meta.local = d.local;
+      if (d.note && (d.note.en || d.note.fr)) meta.note = d.note;
+      if (Array.isArray(d.sources) && d.sources.length) meta.sources = d.sources;
+      if (Object.keys(meta).length) m.set(_fold(d.name), meta);
+    }
+    return m.size ? m : null;
+  } catch {
+    return null;
+  }
+}
+
 // platesForCity('Sapporo') → { city, country, honestEmpty?, dishes, classics? } | null
 function platesForCity(cityName) {
   if (!cityName) return null;
@@ -5400,6 +5427,21 @@ function platesForCity(cityName) {
       const g = _dishFoodGroup.groupDishNames(classics);
       if (Array.isArray(g) && g.length) classicGroups = g;
     } catch { classicGroups = null; }
+  }
+  // v0.62.174 — enrich each grouped classic with its curated { local, note,
+  // sources } from the nation overlay, so the client opens an explanation card
+  // for any classic that has one (the client already renders d.note — PR B1).
+  if (classicGroups) {
+    const meta = _overlayDishMeta(entry.country);
+    if (meta) {
+      classicGroups = classicGroups.map((g) => ({
+        ...g,
+        dishes: g.dishes.map((d) => {
+          const m = d && meta.get(_fold(d.dish));
+          return m ? { ...d, ...m } : d;
+        })
+      }));
+    }
   }
   return {
     city: cityName, ...entry,
