@@ -2972,16 +2972,15 @@ export default function App() {
           setArrivalPlate(resp?.plate || null);
         }).catch(() => {});
       }
-      // v0.61.237 — auto-fire the search with the explicit new anchor.
-      // Microtask deferral so the locationAnchor + searchCenter state
-      // updates have committed before runSearch reads `state`.
-      // v0.61.241 — OTHER city-dropdown picks pass noAutoFire (operator:
-      // "you fire search after selecting the city is wrong. It should
-      // wait until clicking the search button."). Free-text picks +
-      // SG/JB Autocomplete picks still auto-fire — that flow already
-      // has a search gesture baked in.
-      if ((p.label || '').trim() && !p.noAutoFire) {
-        Promise.resolve().then(() => runSearch(state, { lat: p.lat, lng: p.lng }));
+      // v0.62.183 — operator (emphatic + repeated): a LOCATION pick must NEVER
+      // auto-fire a search. It sets the anchor only; the user taps 🔍 to search.
+      // This removes the v0.61.237 auto-fire (which still fired on SG/JB
+      // autocomplete + free-text picks) — the most-thrashed policy, now settled on
+      // the operator's explicit no-auto-fire rule. A pick still flashes the 🔍 FAB
+      // (searchHintActive) so the next step is obvious.
+      if ((p.label || '').trim()) {
+        setSearchHintActive(true);
+        setTimeout(() => setSearchHintActive(false), 5000);
       }
     } else {
       setLocationAnchor(null);
@@ -4478,7 +4477,10 @@ export default function App() {
             with the → submit MERGED into the 🔍 search at its right end. The old
             standalone 🔍 FAB + the separate active-filter strip are gone; the
             selected cuisine/filter chips move into ROW B below. */}
-        <div className="pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur shadow-lg border border-tg-border px-1.5 py-0.5">
+        {/* v0.62.183 — operator: the free-text bar had TWO borders (this wrapper +
+            TellMePanel's own input border). Dropped the wrapper pill (border/bg/
+            shadow) so only the free-text field's own border remains. */}
+        <div className="pointer-events-auto px-0.5">
           {(() => {
             const poolExhausted = !!finalBatch && Number.isFinite(knownTotal) && venues && venues.length === knownTotal;
             const searchDisabled = loading || (poolExhausted && !dirty && !selectedCityLocation);
