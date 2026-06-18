@@ -412,6 +412,12 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                         <div className="mt-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
                           <div className="font-semibold">📜 {titleCaseDish(openCl.dish)}{openCl.local && openCl.local !== openCl.dish ? ` · ${openCl.local}` : ''}</div>
                           <div className="mt-1">{(fr ? openCl.note.fr : openCl.note.en) || openCl.note.en || ''}</div>
+                          {/* v0.62.174 — show the curated source when present (A3 rule). */}
+                          {Array.isArray(openCl.sources) && openCl.sources.length > 0 && (
+                            <div className="mt-0.5 text-tg-hint">
+                              {(fr ? 'source : ' : 'source: ') + openCl.sources.map((s) => s.name).join(' · ')}
+                            </div>
+                          )}
                           <div className="mt-2 flex items-center justify-between gap-2">
                             <button
                               type="button"
