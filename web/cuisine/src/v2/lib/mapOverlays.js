@@ -572,9 +572,13 @@ function busTierNode(tier, code) {
 //   z17+  'full'  : H-chip + the FULL hawker-centre name, word-wrapped @120 px
 //   z16   'code'  : just the H1/H2/H3 navy chip (declutter — "hawker nearby")
 //   z15   'short' : H-chip (1 px smaller) + a SHORT area name ("Tanjong Pagar")
-//   z13–14 'mini' : a small H navy chip
-//   z<13  'dot'   : a tiny navy dot
-const HAWKER_NAVY = '#1a237e';   // Material Indigo 900 — the operator's "dark navy"
+//   z13–14 'mini' : a small H chip
+//   z<13  'dot'   : a tiny dot
+// v0.62.196 — operator colour spec: the H## code chip is PINK→BLUE (gradient)
+// with WHITE text; the area/name label is YELLOW with BLACK text.
+const HAWKER_CODE_BG = 'linear-gradient(135deg,#ec4899 0%,#3b82f6 100%)'; // "pink-blue"
+const HAWKER_LABEL_BG = '#FFEB3B';   // yellow text-background
+const HAWKER_LABEL_TEXT = '#111111'; // black text
 function hawkerTier(zoom) {
   if (zoom >= 17) return 'full';
   if (zoom >= 16) return 'code';
@@ -592,10 +596,10 @@ function hawkerShort(name) {
   const words = s.split(/\s+/).filter(Boolean);
   return words.slice(0, 2).join(' ') || String(name || '');
 }
-function hawkerNavyChipEl(code, fontPx) {
+function hawkerCodeChipEl(code, fontPx) {
   const c = document.createElement('span');
   c.textContent = code;
-  c.style.cssText = 'display:inline-block;background:' + HAWKER_NAVY + ';color:#fff;'
+  c.style.cssText = 'display:inline-block;background:' + HAWKER_CODE_BG + ';color:#fff;'
     + 'border-radius:5px;padding:0 4px;margin-right:4px;font-weight:800;'
     + 'font-size:' + fontPx + 'px;line-height:1.5;';
   return c;
@@ -603,24 +607,26 @@ function hawkerNavyChipEl(code, fontPx) {
 function hawkerTierNode(tier, code, name, short) {
   const el = document.createElement('div');
   if (tier === 'code' || tier === 'mini') {
+    // pink→blue H chip, white text
     const sz = tier === 'mini' ? 9 : 11;
     el.textContent = code;
-    el.style.cssText = 'display:inline-block;background:' + HAWKER_NAVY + ';color:#fff;'
+    el.style.cssText = 'display:inline-block;background:' + HAWKER_CODE_BG + ';color:#fff;'
       + 'border-radius:6px;padding:1px 5px;font-weight:800;font-size:' + sz + 'px;'
       + 'line-height:1.5;border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:pointer;';
   } else if (tier === 'short' || tier === 'full') {
+    // YELLOW label, BLACK text; the H chip stays pink→blue / white
     const nameFont = 11;
     el.style.cssText = (tier === 'full'
         ? 'display:inline-block;max-width:120px;white-space:normal;word-break:break-word;line-height:1.3;padding:2px 6px;'
         : 'display:inline-flex;align-items:center;white-space:nowrap;line-height:1.5;padding:1px 6px;')
-      + 'background:#fff;color:#1c1c1f;border-radius:8px;border:1.5px solid #fff;'
+      + 'background:' + HAWKER_LABEL_BG + ';color:' + HAWKER_LABEL_TEXT + ';border-radius:8px;border:1.5px solid #fff;'
       + 'box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:pointer;font-weight:700;font-size:' + nameFont + 'px;';
-    el.appendChild(hawkerNavyChipEl(code, nameFont - 1));
+    el.appendChild(hawkerCodeChipEl(code, nameFont - 1));
     const t = document.createElement('span');
     t.textContent = tier === 'full' ? (name || '') : (short || name || '');
     el.appendChild(t);
-  } else { // 'dot'
-    el.style.cssText = 'width:10px;height:10px;border-radius:50%;background:' + HAWKER_NAVY + ';'
+  } else { // 'dot' — small pink→blue dot
+    el.style.cssText = 'width:10px;height:10px;border-radius:50%;background:' + HAWKER_CODE_BG + ';'
       + 'border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.45);cursor:pointer;';
   }
   return el;
