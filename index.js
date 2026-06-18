@@ -17913,6 +17913,24 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.62.184 — operator: a "🍚 Hawker" overlay on the Cuisine map. Serves the
+    // 122-centre vault coords (data/hawker-coords.json) as a flat { centres:
+    // [{name,lat,lng}] } list; the client radius-clips them to the map anchor, so
+    // only hawker centres SURROUNDING the results show (not every centre). Static
+    // data → no cache needed.
+    app.get('/api/geo/hawker-centres', (_req, res) => {
+      try {
+        const coords = require('./data/hawker-coords.json') || {};
+        const centres = Object.entries(coords)
+          .filter(([, v]) => v && Number.isFinite(v.lat) && Number.isFinite(v.lng))
+          .map(([name, v]) => ({ name, lat: v.lat, lng: v.lng }));
+        res.json({ centres });
+      } catch (err) {
+        console.error('[geo-hawker-centres]', err.message);
+        res.json({ centres: [] });
+      }
+    });
+
     // v0.61.10 — realtime platform-crowd levels for the transport map.
     // Returns { crowd: { "<stationCode>": "l" | "m" | "h" } } from LTA's
     // PCDRealTime feed (transport.fetchPlatformCrowdAll), Redis-cached

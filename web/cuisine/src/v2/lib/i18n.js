@@ -270,6 +270,7 @@ const STRINGS = {
   'layer.exits':               { en: 'Station Exits', fr: 'Sorties de station' },
   'layer.train':               { en: 'Train Line', fr: 'Ligne de train' },
   'layer.busstop':             { en: 'Bus Stop', fr: 'Arrêt de bus' },
+  'layer.hawker':              { en: 'Hawker', fr: 'Hawker' },
   'layer.colour':              { en: 'Colour', fr: 'Couleur' },
   'layer.colour.on':           { en: '☑️ Monochrome', fr: '☑️ Monochrome' },
   'layer.colour.off':          { en: '🎨 Color', fr: '🎨 Couleur' },
