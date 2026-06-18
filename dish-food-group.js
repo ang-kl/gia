@@ -105,6 +105,7 @@ function slimDish(d) {
   const o = { dish: d.name };
   if (d.local) o.local = d.local;
   if (d.note && (d.note.en || d.note.fr)) o.note = d.note;
+  if (Array.isArray(d.sources) && d.sources.length) o.sources = d.sources;  // v0.62.182
   return o;
 }
 
