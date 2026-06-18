@@ -18264,6 +18264,20 @@ async function cacheBotUsername() {
             return res.json({ ...JSON.parse(cached), cached: true });
           }
         } catch { /* cache miss is fine */ }
+        // v0.62.207 — operator (4a): prefer a SPECIFIC place (POI / building /
+        // street) via the shared fine-grained resolver, so the "Set location is"
+        // line shows a real spot instead of "pinpointing…". reverseGeocodeAddress
+        // already walks POI → premise → street → neighbourhood. Falls through to
+        // the coarse neighbourhood logic below only when it yields nothing usable.
+        try {
+          const fine = await reverseGeocodeAddress(lat, lng);
+          const NAT_RX = /\b(catchment|reservoir|forest|nature reserve|park|wetland|river|canal)\b/i;
+          if (fine && fine.name && fine.name !== 'Singapore' && !NAT_RX.test(fine.name)) {
+            const payload = { name: fine.name, formatted: fine.formatted || `${lat.toFixed(4)}, ${lng.toFixed(4)}` };
+            try { await redis.set(cacheKey, JSON.stringify(payload), { EX: 60 * 60 }); } catch { /* non-fatal */ }
+            return res.json(payload);
+          }
+        } catch { /* fall through to the coarse resolver below */ }
         const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&result_type=neighborhood|sublocality|locality&key=${apiKey}`;
         const axios = require('axios');
         const { data } = await axios.get(url, { timeout: 5000 });

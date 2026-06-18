@@ -3987,6 +3987,121 @@ const CUISINE_NOTES = {
           "url": "https://thailandfoundation.or.th/khanom-bueang/"
         }
       ]
+    },
+    "tom yum goong": {
+      "local": "ต้มยำกุ้ง",
+      "note": {
+        "en": "Thai hot-and-sour shrimp soup with lemongrass, galangal and kaffir lime; inscribed on UNESCO's Intangible Cultural Heritage list in 2024.",
+        "fr": "Soupe thaïe aigre-piquante aux crevettes, citronnelle, galanga et combava; inscrite au patrimoine culturel immatériel de l'UNESCO en 2024."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Tom yum kung",
+          "url": "https://en.wikipedia.org/wiki/Tom_yum_kung"
+        },
+        {
+          "name": "UNESCO Intangible Cultural Heritage — Tomyum Kung",
+          "url": "https://ich.unesco.org/en/RL/tomyum-kung-01879"
+        }
+      ]
+    },
+    "red curry (gaeng phed)": {
+      "local": "แกงเผ็ด",
+      "note": {
+        "en": "Thai curry of red chilli paste simmered in coconut milk with meat or tofu; its red colour comes from dried red spur chillies.",
+        "fr": "Curry thai de pate de piment rouge mijotee au lait de coco avec viande ou tofu; sa couleur rouge vient des piments rouges seches."
+      },
+      "sources": [
+        {
+          "name": "Red curry - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Red_curry"
+        },
+        {
+          "name": "Thai curry - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Thai_curry"
+        }
+      ]
+    },
+    "massaman curry": {
+      "local": "แกงมัสมั่น",
+      "note": {
+        "en": "A mild, rich Thai coconut curry of Persian-Muslim origin, spiced with cardamom, cinnamon and cloves; name from Persian \"mosalmân\" (Muslim).",
+        "fr": "Curry thaï doux et riche au lait de coco, d'origine perso-musulmane, parfumé à la cardamome, cannelle et clou de girofle; nom du persan «…"
+      },
+      "sources": [
+        {
+          "name": "Massaman curry - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Massaman_curry"
+        },
+        {
+          "name": "Deconstructing massaman curry, Thailand's mellow classic - National Geographic",
+          "url": "https://www.nationalgeographic.com/travel/article/deconstructing-massaman-curry-thailand-mellow-classic"
+        }
+      ]
+    },
+    "panang curry": {
+      "local": "พะแนง",
+      "note": {
+        "en": "A thick, rich, mildly sweet Thai coconut-milk curry from central Thailand, documented as early as the 1889 cookbook Tam Raa Kap Khao.",
+        "fr": "Curry thaï épais, riche et légèrement sucré au lait de coco, originaire du centre de la Thaïlande, attesté dès le livre de cuisine Tam Raa…"
+      },
+      "sources": [
+        {
+          "name": "Phanaeng - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Phanaeng"
+        },
+        {
+          "name": "Phanaeng Curry: A Thai Culinary Delight - Thailand Foundation",
+          "url": "https://www.thailandfoundation.or.th/culture_heritage/phanaeng-curry-a-thai-culinary-delight/"
+        }
+      ]
+    },
+    "jungle curry (gaeng pa)": {
+      "local": "แกงป่า",
+      "note": {
+        "en": "A fiery, watery Thai curry from the inland forests, traditionally made with wild game and notably without coconut milk.",
+        "fr": "Un curry thaï ardent et liquide des forêts intérieures, traditionnellement au gibier et notablement sans lait de coco."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Kaeng pa",
+          "url": "https://en.wikipedia.org/wiki/Kaeng_pa"
+        },
+        {
+          "name": "Wiktionary - แกงป่า",
+          "url": "https://en.wiktionary.org/wiki/%E0%B9%81%E0%B8%81%E0%B8%87%E0%B8%9B%E0%B9%88%E0%B8%B2"
+        }
+      ]
+    },
+    "khao soi": {
+      "local": "ข้าวซอย",
+      "note": {
+        "en": "Northern Thai coconut-curry egg-noodle soup, brought via Chin Haw Yunnanese Muslim traders from Myanmar.",
+        "fr": "Soupe de nouilles aux oeufs au curry de coco du nord de la Thailande, apportee par les marchands musulmans Chin Haw du Yunnan."
+      },
+      "sources": [
+        {
+          "name": "Khao soi - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Khao_soi"
+        }
+      ]
+    },
+    "som tam": {
+      "local": "ส้มตำ",
+      "note": {
+        "en": "A spicy Thai salad of shredded unripe papaya pounded with chilli, lime and fish sauce; its name means \"sour-pounded,\" with Lao/Isan roots.",
+        "fr": "Salade thaïe épicée de papaye verte râpée pilée au piment, citron vert et nuoc-mâm ; son nom signifie « pilé-aigre », d'origine lao/isan."
+      },
+      "sources": [
+        {
+          "name": "Green papaya salad - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Green_papaya_salad"
+        },
+        {
+          "name": "Decoding Som Tam, Thailand's Delicious Papaya Salad - Michelin Guide",
+          "url": "https://guide.michelin.com/en/article/features/decoding-the-delicious-som-tam"
+        }
+      ]
     }
   },
   "malaysian": {
@@ -7008,6 +7123,1541 @@ const CUISINE_NOTES = {
         {
           "name": "Wikipedia — Hot pot",
           "url": "https://en.wikipedia.org/wiki/Hot_pot"
+        }
+      ]
+    },
+    "chongqing hot pot": {
+      "local": "重庆火锅 (Chóngqìng huǒguō)",
+      "note": {
+        "en": "A spicy, numbing (málà) Sichuan-style hot pot built on dried chilis and Sichuan peppercorns, with its history dating to the 1920s among…",
+        "fr": "Fondue chinoise épicée et anesthésiante (málà) à base de piments séchés et de poivre du Sichuan, dont l'histoire remonte aux années 1920…"
+      },
+      "sources": [
+        {
+          "name": "Chongqing hot pot - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Chongqing_hot_pot"
+        },
+        {
+          "name": "Hot pot - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Hot_pot"
+        }
+      ]
+    },
+    "fish-fragrant pork (yu xiang rou si)": {
+      "local": "鱼香肉丝 (yúxiāng ròusī)",
+      "note": {
+        "en": "Sichuan dish of shredded pork in sweet-sour-spicy \"fish-fragrant\" sauce; it contains no fish, the name echoes Sichuan fish-cooking…",
+        "fr": "Plat sichuanais de porc émincé en sauce aigre-douce-épicée dite \"parfum de poisson\" ; sans poisson, le nom évoque l'assaisonnement du…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Yuxiang shredded pork",
+          "url": "https://en.wikipedia.org/wiki/Yuxiang_shredded_pork"
+        },
+        {
+          "name": "The Mala Market — Yuxiang Pork (Yu Xiang Rou Si)",
+          "url": "https://blog.themalamarket.com/chengdu-challenge-25-yu-xiang-pork-yu-xiang-rou-si/"
+        }
+      ]
+    },
+    "fish-fragrant aubergine": {
+      "local": "鱼香茄子 (yúxiāng qiézi)",
+      "note": {
+        "en": "Sichuan stir-fried eggplant in \"yuxiang\" sauce of pickled chili, doubanjiang, garlic, ginger, sugar and vinegar; named for a fish flavour…",
+        "fr": "Aubergine sautée du Sichuan en sauce « yuxiang » de piment mariné, doubanjiang, ail, gingembre, sucre et vinaigre ; nommée d'après un goût…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Yuxiang",
+          "url": "https://en.wikipedia.org/wiki/Yuxiang"
+        },
+        {
+          "name": "The Woks of Life — Fish Fragrant Eggplant (Yuxiang Qiezi)",
+          "url": "https://thewoksoflife.com/fish-fragrant-eggplant-yuxiang-qiezi/"
+        }
+      ]
+    },
+    "husband and wife lung slices (fu qi fei pian)": {
+      "local": "夫妻肺片 (fūqī fèipiàn)",
+      "note": {
+        "en": "Cold Sichuan dish of thinly sliced beef and offal in mala chili-Sichuan-pepper sauce, named for a 1930s Chengdu couple's street stall.",
+        "fr": "Plat sichuanais froid de bœuf et d'abats émincés en sauce mala au piment et poivre du Sichuan, nommé d'après un couple de Chengdu des…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Fuqi feipian",
+          "url": "https://en.wikipedia.org/wiki/Fuqi_feipian"
+        },
+        {
+          "name": "The Woks of Life - Sichuan Fuqi Feipian",
+          "url": "https://thewoksoflife.com/fuqi-feipian-sichuan/"
+        }
+      ]
+    },
+    "mouthwatering chicken (kou shui ji)": {
+      "local": "口水鸡 (Kǒushuǐ Jī)",
+      "note": {
+        "en": "Cold Sichuan dish of poached chicken in numbing-spicy (málà) chili oil; the name, literally \"saliva chicken,\" evokes a mouth-watering…",
+        "fr": "Plat sichuanais froid de poulet poché dans une huile pimentée engourdissante (málà) ; le nom, littéralement « poulet à la salive », évoque…"
+      },
+      "sources": [
+        {
+          "name": "China Sichuan Food — Saliva Chicken (Mouthwatering Chicken)",
+          "url": "https://www.chinasichuanfood.com/saliva-chicken/"
+        },
+        {
+          "name": "Red House Spice — Mouth-watering chicken (Kou Shui Ji, 口水鸡)",
+          "url": "https://redhousespice.com/mouth-watering-chicken/"
+        }
+      ]
+    },
+    "boiled fish in chili oil (shui zhu yu)": {
+      "local": "水煮鱼",
+      "note": {
+        "en": "Sichuan dish of poached fish fillets in a fiery broth of dried chilies and Sichuan peppercorns, originating in Chongqing's Yubei District…",
+        "fr": "Plat du Sichuan de filets de poisson pochés dans un bouillon ardent de piments secs et de poivre du Sichuan, né dans le district de Yubei…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Shuǐ Zhǔ Yú",
+          "url": "https://www.tasteatlas.com/shui-zhu-yu"
+        },
+        {
+          "name": "Michelin Guide — The Piquant Tale of Sichuan Water-boiled Fish",
+          "url": "https://guide.michelin.com/hk/en/article/features/sichuan-cuisine-water-boiled-fish"
+        }
+      ]
+    },
+    "boiled beef in chili oil (shui zhu niu rou)": {
+      "local": "水煮牛肉 (shuǐ zhǔ niú ròu)",
+      "note": {
+        "en": "Sichuan dish of thinly sliced beef briefly poached in a spicy, numbing broth of doubanjiang, dried chilies and Sichuan pepper, then doused…",
+        "fr": "Plat du Sichuan de fines tranches de bœuf brièvement pochées dans un bouillon épicé et anesthésiant de doubanjiang, piments séchés et…"
+      },
+      "sources": [
+        {
+          "name": "Sichuan Water-Boiled Beef (Shuizhu Niurou) - The Mala Market",
+          "url": "https://blog.themalamarket.com/chengdu-challenge-12-shui-zhu-beef-shui-zhu-niu-rou/"
+        },
+        {
+          "name": "Shuizhu - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Shuizhu"
+        }
+      ]
+    },
+    "ma la xiang guo": {
+      "local": "麻辣香锅",
+      "note": {
+        "en": "A Sichuan-style stir-fried \"dry hot pot\" of self-chosen meats and vegetables in chili and numbing peppercorn, no broth.",
+        "fr": "« Hot pot sec » sichuanais sauté de viandes et légumes choisis, au piment et poivre engourdissant, sans bouillon."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Mala xiang guo",
+          "url": "https://en.wikipedia.org/wiki/Mala_xiang_guo"
+        },
+        {
+          "name": "Omnivore's Cookbook - Ma La Xiang Guo",
+          "url": "https://omnivorescookbook.com/ma-la-xiang-guo/"
+        }
+      ]
+    },
+    "chongqing chicken (la zi ji)": {
+      "local": "辣子鸡 (làzǐjī)",
+      "note": {
+        "en": "A Chongqing Sichuan dish of fried chicken bites tossed with mounds of dried chilies and Sichuan peppercorns, popularized near Geleshan from…",
+        "fr": "Plat sichuanais de Chongqing : bouchées de poulet frites mêlées de montagnes de piments séchés et de poivre du Sichuan, popularisé près de…"
+      },
+      "sources": [
+        {
+          "name": "Laziji - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Laziji"
+        },
+        {
+          "name": "Chongqing Chicken (Sichuan La Zi Ji) - The Woks of Life",
+          "url": "https://thewoksoflife.com/chongqing-chicken/"
+        }
+      ]
+    },
+    "sichuan dry-fried green beans": {
+      "local": "干煸四季豆",
+      "note": {
+        "en": "Classic Sichuan dish of green beans blistered dry (gan bian) until shriveled, then tossed with pork, chili, Sichuan pepper and yacai.",
+        "fr": "Plat sichuanais classique de haricots verts saisis a sec (gan bian) jusqu'a flétrissure, sautés avec porc, piment, poivre du Sichuan et…"
+      },
+      "sources": [
+        {
+          "name": "The Mala Market - Ganbian Sijidou",
+          "url": "https://blog.themalamarket.com/chengdu-challenge-16-dry-fried-green-beans-gan-bian-si-ji-dou/"
+        },
+        {
+          "name": "Red House Spice - Sichuan Dry Fried Green Beans",
+          "url": "https://redhousespice.com/dry-fried-green-beans/"
+        }
+      ]
+    },
+    "chengdu dan dan noodles": {
+      "local": "担担面 (dàn dàn miàn)",
+      "note": {
+        "en": "Sichuan noodles in spicy chili-oil and Sichuan-pepper sauce with minced pork and preserved greens, named for the carrying pole street…",
+        "fr": "Nouilles du Sichuan en sauce pimentee au poivre du Sichuan, avec porc hache et legumes confits, nommees d'apres la palanche des vendeurs…"
+      },
+      "sources": [
+        {
+          "name": "Dandan noodles - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Dandan_noodles"
+        },
+        {
+          "name": "Dan Dan Noodles, Sichuan Dan Dan Mian - TravelChinaGuide",
+          "url": "https://www.travelchinaguide.com/dan-dan-noodles.htm"
+        }
+      ]
+    },
+    "zhong dumplings": {
+      "local": "钟水饺",
+      "note": {
+        "en": "Chengdu boiled pork dumplings dressed in sweetened spiced soy sauce and chili oil, created in 1893 by Zhong Xiesen (courtesy name Shaobai).",
+        "fr": "Raviolis de porc bouillis de Chengdu, nappés de sauce soja sucrée épicée et d'huile pimentée, créés en 1893 par Zhong Xiesen (nom de…"
+      },
+      "sources": [
+        {
+          "name": "Baidu Baike (English) - Zhong Dumplings",
+          "url": "https://baike.baidu.com/en/item/Zhong%20Dumplings/1495462"
+        },
+        {
+          "name": "Red House Spice - Sichuan Dumplings (Zhong Dumplings / 钟水饺)",
+          "url": "https://redhousespice.com/sichuan-dumplings/"
+        }
+      ]
+    },
+    "chao shou": {
+      "local": "抄手 (chāoshǒu)",
+      "note": {
+        "en": "Sichuan-style wonton, named \"crossed arms\" for its fold; the spicy chili-oil version is hong you chao shou (红油抄手).",
+        "fr": "Wonton du Sichuan, nommé \"bras croisés\" pour son pliage; la version pimentée à l'huile rouge est le hong you chao shou (红油抄手)."
+      },
+      "sources": [
+        {
+          "name": "Chaoshou (Sichuan-Style Wontons) - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Sichuan-Style_Wontons"
+        },
+        {
+          "name": "Sichuan Spicy Wonton in Chili Oil (红油抄手) - Red House Spice",
+          "url": "https://redhousespice.com/sichuan-spicy-wonton-in-chili-oil/"
+        }
+      ]
+    },
+    "sichuan-style smoked duck (zhang cha ya)": {
+      "local": "樟茶鸭 (Zhāngchá yā)",
+      "note": {
+        "en": "A quintessential Sichuan dish: duck marinated for several hours, hot-smoked over tea leaves and camphor, then steamed and deep-fried until…",
+        "fr": "Plat emblématique du Sichuan : canard mariné plusieurs heures, fumé à chaud sur feuilles de thé et de camphre, puis cuit à la vapeur et…"
+      },
+      "sources": [
+        {
+          "name": "Zhangcha duck - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Zhangcha_duck"
+        },
+        {
+          "name": "Tea-Smoked Duck (Zhang Cha Ya Zi) - Saveur",
+          "url": "https://www.saveur.com/article/Recipes/Zhang-Cha-Ya-Zi/"
+        }
+      ]
+    },
+    "beggar's chicken": {
+      "local": "叫化雞 (Jiàohuā jī)",
+      "note": {
+        "en": "A Hangzhou dish of whole chicken stuffed, wrapped in lotus leaves and clay, then slow-baked; tied to a beggar's improvised cooking legend.",
+        "fr": "Un plat de Hangzhou : poulet entier farci, enveloppé de feuilles de lotus et d'argile, puis cuit lentement; lié à la légende d'un mendiant."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Beggar's chicken",
+          "url": "https://en.wikipedia.org/wiki/Beggar%27s_chicken"
+        },
+        {
+          "name": "TasteAtlas — Jiàohuā jī",
+          "url": "https://www.tasteatlas.com/beggars-chicken"
+        }
+      ]
+    },
+    "sichuan cold noodle": {
+      "local": "凉面 (liángmiàn)",
+      "note": {
+        "en": "A Sichuan wheat-noodle dish served at room temperature in a sour, sweet and spicy dressing of chili oil, black vinegar and Sichuan pepper…",
+        "fr": "Plat sichuanais de nouilles de blé servi à température ambiante dans une sauce aigre, sucrée et piquante d'huile pimentée, vinaigre noir et…"
+      },
+      "sources": [
+        {
+          "name": "Red House Spice — Cold Noodles with Sichuan Dressing (Liang Mian, 凉面)",
+          "url": "https://redhousespice.com/cold-noodles-with-sichuan-dressing/"
+        },
+        {
+          "name": "The Mala Market — Ma's Sichuan Liangmian (四川凉面) Spicy Cold Noodles",
+          "url": "https://blog.themalamarket.com/sichuan-liangmian/"
+        }
+      ]
+    },
+    "saliva chicken (kou shui ji) alt name": {
+      "local": "口水鸡 (Kǒushuǐ jī)",
+      "note": {
+        "en": "Sichuan cold appetizer of poached chicken in numbing chili oil; the name (\"mouthwatering chicken\") is linked to poet Guo Moruo.",
+        "fr": "Entrée froide du Sichuan de poulet poché en huile pimentée engourdissante ; le nom (\"poulet à saliver\") est lié au poète Guo Moruo."
+      },
+      "sources": [
+        {
+          "name": "China Sichuan Food — Saliva Chicken (Mouthwatering Chicken)",
+          "url": "https://www.chinasichuanfood.com/saliva-chicken/"
+        },
+        {
+          "name": "Week in China — Koushui Ji (Saliva Chicken 口水鸡)",
+          "url": "https://www.weekinchina.com/chapter/china-in-50-dishes/sichuan-chuan-cai/koushui-ji-saliva-chicken-%E5%8F%A3%E6%B0%B4%E9%B8%A1/"
+        }
+      ]
+    },
+    "pock-marked old woman tofu (mapo doufu alt)": {
+      "local": "麻婆豆腐 (mápó dòufu)",
+      "note": {
+        "en": "Spicy Sichuan dish of soft tofu and minced meat in a málà chilli-bean sauce, named after a pockmarked Chengdu cook, Chen Mapo, c.1862.",
+        "fr": "Plat sichuanais épicé de tofu soyeux et viande hachée en sauce málà aux fèves pimentées, nommé d'après Chen Mapo, cuisinière grêlée de…"
+      },
+      "sources": [
+        {
+          "name": "Mapo tofu - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Mapo_tofu"
+        },
+        {
+          "name": "A Classic Dish: Mapo Tofu - The World of Chinese",
+          "url": "https://www.theworldofchinese.com/2015/09/mapo-tofu/"
+        }
+      ]
+    },
+    "sichuan pickled mustard greens": {
+      "local": "榨菜 (zhàcài)",
+      "note": {
+        "en": "Salt-pressed, chili-rubbed fermented mustard stem (Brassica juncea) from Fuling, Chongqing; spicy, sour and salty.",
+        "fr": "Tige de moutarde fermentée, pressée au sel et frottée de piment, de Fuling (Chongqing); épicée, acide et salée."
+      },
+      "sources": [
+        {
+          "name": "Zha cai - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Zha_cai"
+        },
+        {
+          "name": "5 Best Preserved Mustard Greens in China - TasteAtlas",
+          "url": "https://www.tasteatlas.com/best-rated-pickled-mustard-greens-in-china"
+        }
+      ]
+    },
+    "sichuan-style spicy crayfish": {
+      "local": "麻辣小龙虾 (málà xiǎolóngxiā)",
+      "note": {
+        "en": "Freshwater crayfish wok-cooked or braised in a Sichuan málà (numbing-spicy) sauce of dried chilli and Sichuan pepper; introduced to China…",
+        "fr": "Écrevisses d'eau douce sautées au wok ou braisées dans une sauce sichuanaise málà (engourdissante et piquante) au piment séché et poivre du…"
+      },
+      "sources": [
+        {
+          "name": "The World of Chinese — Claws Celebre",
+          "url": "https://www.theworldofchinese.com/2019/09/claws-celebre/"
+        },
+        {
+          "name": "The Mala Market — Mala Crawfish Boil (Mala Xiaolongxia)",
+          "url": "https://blog.themalamarket.com/chengdu-challenge-17-mala-crawfish-boil-mala-xiao-longxia/"
+        }
+      ]
+    },
+    "mala beef noodle": {
+      "local": "麻辣牛肉面 (málà niúròumiàn)",
+      "note": {
+        "en": "A Sichuan beef noodle soup in which beef is braised and served in a rich, moderately spicy broth made with Pixian chili bean paste…",
+        "fr": "Soupe de nouilles au bœuf du Sichuan, où le bœuf est braisé puis servi dans un bouillon riche et modérément épicé à base de pâte de piment…"
+      },
+      "sources": [
+        {
+          "name": "Sichuan Red-Braised Beef Noodle Soup (Hongshao Niurou Mian) - The Mala Market",
+          "url": "https://blog.themalamarket.com/sichuan-red-braised-beef-noodle-soup-hong-shao-niu-rou-mian-using-the-instant-pot-or-not/"
+        }
+      ]
+    }
+  },
+  "hokkien": {
+    "lor mee": {
+      "local": "滷麵",
+      "note": {
+        "en": "Hokkien noodle dish from Zhangzhou, Fujian: thick yellow noodles in a starchy, egg-thickened braising gravy, now a SE Asian hawker staple.",
+        "fr": "Plat de nouilles hokkien de Zhangzhou (Fujian) : nouilles jaunes en sauce braisée épaissie aux œufs, classique des hawkers d'Asie du SE."
+      },
+      "sources": [
+        {
+          "name": "Lor mee - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lor_mee"
+        },
+        {
+          "name": "Lor Mee - TasteAtlas",
+          "url": "https://www.tasteatlas.com/lor-mee"
+        }
+      ]
+    },
+    "ngoh hiang": {
+      "local": "五香 (ngó͘-hiong / lor bak)",
+      "note": {
+        "en": "A Hokkien-Teochew roll of minced pork and prawn seasoned with five-spice powder (五香, its namesake), wrapped in tofu skin and deep-fried.",
+        "fr": "Un rouleau hokkien-teochew de porc et crevette hachés assaisonné au cinq-épices (五香, son homonyme), enroulé dans une feuille de tofu et…"
+      },
+      "sources": [
+        {
+          "name": "Ngo hiang - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ngo_hiang"
+        },
+        {
+          "name": "Ngoh Hiang / Lor Bak / 五香 - Nyonya Cooking",
+          "url": "https://www.nyonyacooking.com/recipes/ngoh-hiang-lor-bak~ytL8BmpNv"
+        }
+      ]
+    },
+    "bak kwa": {
+      "local": "肉乾 (肉干; Hokkien bah-koaⁿ / bak-kwa)",
+      "note": {
+        "en": "Sweet-savoury grilled dried pork (jerky-like) of Fujianese Hokkien origin, now a prized Lunar New Year gift in Singapore and Malaysia.",
+        "fr": "Porc séché grillé sucré-salé d'origine hokkien du Fujian, devenu un cadeau prisé du Nouvel An lunaire à Singapour et en Malaisie."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Bakkwa",
+          "url": "https://en.wikipedia.org/wiki/Bakkwa"
+        },
+        {
+          "name": "NLB Infopedia (Singapore) — Bak kwa",
+          "url": "https://eresources.nlb.gov.sg/infopedia/articles/SIP_1746_2010-12-30.html"
+        }
+      ]
+    },
+    "mee suah": {
+      "local": "麵線",
+      "note": {
+        "en": "Very thin salted wheat-flour noodles from Fujian, China; their long unbroken threads symbolise longevity at birthdays and festivals.",
+        "fr": "Nouilles de blé salées très fines du Fujian, en Chine; leurs longs fils intacts symbolisent la longévité aux anniversaires et fêtes."
+      },
+      "sources": [
+        {
+          "name": "Misua - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Misua"
+        },
+        {
+          "name": "Misua 麵線 - the birthday cake of the Hokkien (Min) people - Carry It Like Harry",
+          "url": "https://carryitlikeharry.com/hokkien-misua-mee-suah-noodles/"
+        }
+      ]
+    },
+    "kong bak pau": {
+      "local": "扣肉包 (khòng-bah-pau)",
+      "note": {
+        "en": "A Hokkien dish of soy-braised pork belly slid into a folded steamed lotus-leaf bun and topped with coriander, popular among the Hokkien…",
+        "fr": "Plat hokkien de poitrine de porc braisee au soja, glissee dans un pain vapeur plie (pain feuille de lotus) et garnie de coriandre…"
+      },
+      "sources": [
+        {
+          "name": "Koah-pau - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Koah-pau"
+        },
+        {
+          "name": "Kong bak bao - Pamelia Chia (Singapore Noodles)",
+          "url": "https://sgpnoodles.substack.com/p/kong-bak-bao"
+        }
+      ]
+    },
+    "ee fu mee": {
+      "local": "伊麵 (yī miàn)",
+      "note": {
+        "en": "Flat Cantonese egg noodles, parboiled then deep-fried to a golden, spongy texture; eaten braised and as longevity noodles.",
+        "fr": "Nouilles plates cantonaises aux œufs, précuites puis frites jusqu'à une texture dorée et spongieuse ; servies braisées et comme nouilles de…"
+      },
+      "sources": [
+        {
+          "name": "Yi mein - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Yi_mein"
+        },
+        {
+          "name": "Michelin Guide - Recipe: Ee-Fu Noodles by Elegant Inn, Kuala Lumpur",
+          "url": "https://guide.michelin.com/jp/en/article/dining-in/recipe-best-ee-fu-noodles-elegant-in-kuala-lumpur-malaysia"
+        }
+      ]
+    },
+    "tau sar piah": {
+      "local": "豆沙饼",
+      "note": {
+        "en": "A flaky pastry filled with mung bean paste, made in both salty and sweet versions. Brought to Penang by Fujian (Hokkien) immigrants and now…",
+        "fr": "Une pâtisserie feuilletée fourrée de pâte de haricot mungo, déclinée en versions salée et sucrée. Apportée à Penang par des immigrants du…"
+      },
+      "sources": [
+        {
+          "name": "What To Cook Today - Penang Tau Sar Piah / Tambun Biscuits",
+          "url": "https://whattocooktoday.com/tau-sar-piah.html"
+        },
+        {
+          "name": "ieatishootipost - Tau Sar Piah: Singapore's very own pastry!",
+          "url": "https://ieatishootipost.sg/special-feature-tau-sar-piah-singapores-very-own-pastry/"
+        }
+      ]
+    },
+    "bak chang (rice dumpling)": {
+      "local": "肉粽 (bah-chàng)",
+      "note": {
+        "en": "Hokkien glutinous rice dumpling wrapped in bamboo leaves with pork, mushrooms and chestnuts, eaten at the Dragon Boat Festival.",
+        "fr": "Boulette de riz gluant hokkien en feuilles de bambou, fourrée de porc, champignons et châtaignes, mangée à la Fête des bateaux-dragons."
+      },
+      "sources": [
+        {
+          "name": "Zongzi - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Zongzi"
+        }
+      ]
+    },
+    "hokkien-style braised pig trotter": {
+      "local": "滷豬腳 (lor tu kha)",
+      "note": {
+        "en": "Fujian/Hokkien pig trotter braised long and slow in dark and light soy sauce until tender; in Taiwan often served with vermicelli to dispel…",
+        "fr": "Pied de porc hokkien (Fujian) braisé lentement dans la sauce soja claire et foncée; à Taïwan servi souvent avec des vermicelles pour…"
+      },
+      "sources": [
+        {
+          "name": "Lu Zhu Jiao (滷豬腳/卤猪脚) Braised Pork Feet — Taiwanbao",
+          "url": "https://taiwanbao.blogspot.com/2020/10/lu-zhu-jiao-braised-pork-feet.html"
+        },
+        {
+          "name": "Tau Yu Bak (Braised Pork in Soy Sauce) — Nyonya Cooking",
+          "url": "https://www.nyonyacooking.com/recipes/tau-yu-bak-braised-pork-in-soy-sauce~HyeZOPjPfqZQ"
+        }
+      ]
+    },
+    "hokkien-style steamed fish": {
+      "local": "红糟鱼 (hóng zāo yú)",
+      "note": {
+        "en": "A traditional Fujian (Hokkien) freshwater-fish dish in which the fish is salted, deep-fried and marinated in hong zao, the red lees left…",
+        "fr": "Plat traditionnel du Fujian (hokkien) a base de poisson d'eau douce, sale, frit puis marine dans le hong zao, la lie rouge issue du…"
+      },
+      "sources": [
+        {
+          "name": "Red Fermented Rice Fish - Baidu Baike",
+          "url": "https://baike.baidu.com/en/item/Red%20Fermented%20Rice%20Fish/105536"
+        },
+        {
+          "name": "红糟鱼 - 百度百科",
+          "url": "https://baike.baidu.com/item/%E7%BA%A2%E7%B3%9F%E9%B1%BC/3070226"
+        }
+      ]
+    },
+    "hokkien fried rice (with prawn paste)": {
+      "local": "福建炒飯",
+      "note": {
+        "en": "Egg fried rice topped with a thick prawn-and-seafood gravy; despite its name, this Cantonese restaurant dish did not originate in Fujian.",
+        "fr": "Riz sauté aux œufs nappé d'une sauce épaisse aux crevettes et fruits de mer ; malgré son nom, ce plat cantonais n'est pas né au Fujian."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Hokkien fried rice",
+          "url": "https://en.wikipedia.org/wiki/Hokkien_fried_rice"
+        },
+        {
+          "name": "TasteAtlas — Hokkien fried rice (Fuk gin caau faan)",
+          "url": "https://www.tasteatlas.com/hokkien-fried-rice"
+        }
+      ]
+    },
+    "ang ku kueh": {
+      "local": "紅龜粿",
+      "note": {
+        "en": "A Hokkien glutinous-rice cake, red and shaped like a tortoise for longevity, with sweet mung bean or peanut filling, steamed on banana leaf.",
+        "fr": "Gateau hokkien en riz gluant, rouge et en forme de tortue pour la longevite, fourre de haricot mungo ou cacahuete sucres, cuit a la vapeur…"
+      },
+      "sources": [
+        {
+          "name": "Ang ku kueh - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ang_ku_kueh"
+        },
+        {
+          "name": "Roots.gov.sg - Ang Ku Kueh: Significance, Traditions, And Its Relevance Today",
+          "url": "https://www.roots.gov.sg/stories-landing/stories/Ang-Ku-Kueh-Significance-Traditions-And-Its-Relevance-Today/Ang-Ku-Kueh-Significance-Traditions-And-Its-Relevance-Today"
+        }
+      ]
+    },
+    "ti kway / png kueh": {
+      "local": "紅桃粿 (âng-thô-kóe / png kueh)",
+      "note": {
+        "en": "A Teochew peach-shaped steamed cake with a pink-dyed glutinous-rice-flour skin wrapped over a savoury filling of glutinous rice, peanuts…",
+        "fr": "Gâteau teochew vapeur en forme de pêche, à la peau de farine de riz gluant teintée en rose, fourré d'une garniture salée de riz gluant…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Red peach cake (紅桃粿)",
+          "url": "https://en.wikipedia.org/wiki/Red_peach_cake"
+        },
+        {
+          "name": "ieatishootipost – Teochew Kueh: Why is there Red and White Png Kueh?",
+          "url": "https://ieatishootipost.sg/teochew-kueh-why-is-there-red-and-white-png-kueh/"
+        }
+      ]
+    },
+    "mee sua kueh": {
+      "local": "面线糕",
+      "note": {
+        "en": "Hokkien savoury cake of wheat-flour vermicelli (mee sua) bound with meat and vegetables, then steamed firm and sliced, often for festive…",
+        "fr": "Gâteau salé hokkien de vermicelles de blé (mee sua) liés à de la viande et des légumes, cuit à la vapeur puis tranché, souvent pour les…"
+      },
+      "sources": [
+        {
+          "name": "What To Cook Today - Mee Sua Kueh (面线糕)",
+          "url": "https://whattocooktoday.com/mee-suah-kueh.html"
+        },
+        {
+          "name": "Kampung Eats - Auntie Pauline's Mee Suah Kueh",
+          "url": "https://kampungeats.com/auntie-paulines-mee-suah-kueh/"
+        }
+      ]
+    },
+    "peng kueh (red rice cake)": {
+      "local": "紅桃粿 (png kueh)",
+      "note": {
+        "en": "A pink, peach-shaped Teochew (not Hokkien) glutinous-rice kueh with a soft glutinous-rice-flour skin wrapped over a savoury filling of…",
+        "fr": "Kueh teochew (et non hokkien) rose en forme de pêche, à peau de farine de riz gluant enveloppant une farce salée de riz gluant, arachides…"
+      },
+      "sources": [
+        {
+          "name": "Red peach cake - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Red_peach_cake"
+        },
+        {
+          "name": "Keeping Chinese Tradition Alive with this 红桃粿 P'ng Kueh Vegetarian Recipe - My Blue Tea",
+          "url": "https://www.mybluetea.com.au/post/keeping-chinese-tradition-alive-with-png-kueh-vegetarian-recipe"
+        }
+      ]
+    },
+    "kueh chang (savoury rice dumpling)": {
+      "local": "肉粽 (bah-chàng / bak chang)",
+      "note": {
+        "en": "Hokkien savoury glutinous-rice dumpling wrapped in bamboo leaves, filled with pork, mushroom and salted egg, eaten at the Dragon Boat…",
+        "fr": "Boulette hokkien de riz gluant salee enveloppee de feuilles de bambou, fourree de porc, champignon et oeuf sale, mangee a la Fete des…"
+      },
+      "sources": [
+        {
+          "name": "Zongzi - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Zongzi"
+        },
+        {
+          "name": "Michelin Guide - Rice Dumplings, Dragon Boat Festival Singapore",
+          "url": "https://guide.michelin.com/sg/en/article/dining-in/rice-dumplings-dragon-boat-festival-2026"
+        }
+      ]
+    },
+    "hokkien lor bak": {
+      "local": "滷肉 (ló͘-bah)",
+      "note": {
+        "en": "Hokkien five-spice meat roll of minced pork and prawn wrapped in beancurd skin and deep-fried, brought by Fujian migrants to Penang.",
+        "fr": "Rouleau de viande hokkien aux cinq épices, porc et crevette hachés enroulés dans de la peau de tofu et frits, apporté à Penang par les…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas – Loh Bak",
+          "url": "https://www.tasteatlas.com/lo-bah"
+        },
+        {
+          "name": "CCS.City – Loh Bak and Ngo Hiang: Tracing the Paths of Migrants from Fujian to Southeast Asia",
+          "url": "https://ccs.city/en/chinese-cultural-club/chinese-culinary/loh-bak-and-ngo-hiang"
+        }
+      ]
+    },
+    "oyster vermicelli (orh ah mee suah)": {
+      "local": "蚵仔麵線",
+      "note": {
+        "en": "Taiwanese noodle soup of fresh oysters and thin wheat misua in a starch-thickened broth, rooted in Fujianese migrant cooking.",
+        "fr": "Soupe de nouilles taiwanaise d'huîtres fraîches et de fines misua de blé dans un bouillon lié, issue de la cuisine migrante du Fujian."
+      },
+      "sources": [
+        {
+          "name": "Oyster vermicelli — Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Oyster_vermicelli"
+        },
+        {
+          "name": "The Story of Oyster Misua 蚵仔麵線的故事 — Taipei Times",
+          "url": "https://www.taipeitimes.com/News/lang/archives/2024/04/01/2003815750"
+        }
+      ]
+    },
+    "hokkien yam rice": {
+      "local": "芋頭飯 (芋头饭)",
+      "note": {
+        "en": "One-pot Hokkien rice dish cooking rice with taro, pork belly, dried shrimp and shiitake; a traditional, economical home meal in SG/Malaysia.",
+        "fr": "Plat hokkien de riz en une casserole cuit avec taro, poitrine de porc, crevettes séchées et shiitake; repas familial traditionnel et…"
+      },
+      "sources": [
+        {
+          "name": "Nyonya Cooking – Yam Rice",
+          "url": "https://www.nyonyacooking.com/recipes/yam-rice~BJcLMM08m"
+        },
+        {
+          "name": "Taste of Asian Food – Taro rice (Yam rice/芋头饭)",
+          "url": "https://tasteasianfood.com/taro-rice/"
+        }
+      ]
+    },
+    "hokkien bee hoon (white)": {
+      "local": "白米粉",
+      "note": {
+        "en": "Singaporean stir-fried white rice vermicelli simmered in a rich, starchy stock with seafood (prawns, squid), egg and vegetables; it has no…",
+        "fr": "Vermicelles de riz blancs sautes a la singapourienne, mijotes dans un bouillon riche et nappant avec des fruits de mer (crevettes, calmar)…"
+      },
+      "sources": [
+        {
+          "name": "ieatishootipost — Seafood White Beehoon: Beginning of a new trend",
+          "url": "https://ieatishootipost.sg/seafood-white-beehoon-beginning-new-trend/"
+        },
+        {
+          "name": "Tony Johor Kaki — Sembawang White Bee Hoon (You Huak) White Restaurant 友发餐室白米粉",
+          "url": "https://johorkaki.blogspot.com/2015/11/sembawang-white-bee-hoon-you-huak.html"
+        }
+      ]
+    },
+    "amoy spring roll": {
+      "local": "薄餅 (po̍h-piáⁿ)",
+      "note": {
+        "en": "A fresh, unfried Hokkien spring roll from Xiamen (Amoy) in Fujian, wrapping more than ten fillings in a soft, paper-thin wheat crepe…",
+        "fr": "Un rouleau de printemps hokkien frais et non frit de Xiamen (Amoy), dans le Fujian, qui enveloppe plus de dix garnitures dans une fine…"
+      },
+      "sources": [
+        {
+          "name": "Popiah - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Popiah"
+        },
+        {
+          "name": "Xiamen spring roll - Baidu Baike",
+          "url": "https://baike.baidu.com/en/item/Xiamen%20spring%20roll/136218"
+        }
+      ]
+    },
+    "hokkien claypot mee": {
+      "local": "砂煲福建面",
+      "note": {
+        "en": "A Singapore variant of fried Hokkien prawn mee, yellow noodles and bee hoon in prawn-stock gravy served bubbling hot in a clay pot.",
+        "fr": "Variante singapourienne du Hokkien mee aux crevettes, nouilles jaunes et bee hoon dans un bouillon de crevettes, servi bouillonnant en pot…"
+      },
+      "sources": [
+        {
+          "name": "Hokkien mee - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Hokkien_mee"
+        },
+        {
+          "name": "Kim Keat Hokkien Mee: Famous Claypot Hokkien Mee - Eatbook.sg",
+          "url": "https://eatbook.sg/kim-keat/"
+        }
+      ]
+    },
+    "hae bee hiam": {
+      "local": "蝦米薟 (hê-bí-hiam)",
+      "note": {
+        "en": "A Peranakan dry spiced sambal of pounded dried shrimp, chilli, coconut and aromatics, used as a condiment or as rempah udang filling.",
+        "fr": "Un sambal sec peranakan de crevettes séchées pilées, piment, noix de coco et aromates, servi en condiment ou comme farce du rempah udang."
+      },
+      "sources": [
+        {
+          "name": "Hae bee hiam - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Hae_bee_hiam"
+        },
+        {
+          "name": "Baba GT Lye's Hae Bee Hiam: Recipes and Stories - NHB Peranakan Museum",
+          "url": "https://www.nhb.gov.sg/peranakanmuseum/learn/digital-resources/gt-lye-hae-bee-hiam"
+        }
+      ]
+    },
+    "lor ark hokkien": {
+      "local": "滷鴨 (卤鸭)",
+      "note": {
+        "en": "Lor ark, braised duck simmered in a dark soy master stock with five-spice, star anise, cloves, cinnamon and galangal; the Hokkien version…",
+        "fr": "Lor ark, canard braisé mijoté dans un bouillon maître au soja noir avec cinq-épices, anis étoilé, clous de girofle, cannelle et galanga…"
+      },
+      "sources": [
+        {
+          "name": "The Burning Kitchen — Hokkien Braised Duck (Lor Ark)",
+          "url": "https://theburningkitchen.com/hokkien-braised-duck/"
+        }
+      ]
+    },
+    "hokkien-style steamed prawns": {
+      "local": "佛跳墙",
+      "note": {
+        "en": "An elaborate Fujian (Hokkien) banquet stew from Fuzhou, slow-simmered from premium ingredients such as abalone, sea cucumber, fish maw and…",
+        "fr": "Un ragoût de banquet élaboré du Fujian (hokkien), originaire de Fuzhou, mijoté longuement à partir d'ingrédients de choix comme l'ormeau…"
+      },
+      "sources": [
+        {
+          "name": "Fujian cuisine - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Fujian_cuisine"
+        },
+        {
+          "name": "Local Cuisine: Fuzhou, the Umami Capital - Fujian Provincial Government",
+          "url": "https://wb.fujian.gov.cn/English/momentsinfujian/202112/t20211224_5799269.htm"
+        }
+      ]
+    }
+  },
+  "teochew": {
+    "bak chor mee": {
+      "local": "肉脞麵 (肉脞面)",
+      "note": {
+        "en": "Teochew minced-pork noodle dish (egg or flat mee pok) tossed in chilli-vinegar or served in pork broth, brought by Chaoshan immigrants to…",
+        "fr": "Plat de nouilles teochew au porc haché (mee pok ou aux œufs), au piment-vinaigre ou en bouillon, apporté à Singapour par les immigrés du…"
+      },
+      "sources": [
+        {
+          "name": "Mee pok - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Mee_pok"
+        },
+        {
+          "name": "Michelin Guide - Bak Chor Mee",
+          "url": "https://guide.michelin.com/sg/en/article/dining-out/iconic-dishes-hill-street-tai-hwa-bak-chor-mee"
+        }
+      ]
+    },
+    "teochew braised duck": {
+      "local": "潮州滷鴨",
+      "note": {
+        "en": "Teochew duck braised slowly in a reusable galangal-scented master stock (滷水) until tender; a Chaoshan staple carried abroad by Chinese…",
+        "fr": "Canard teochew braisé lentement dans un bouillon-mère réutilisable (滷水) parfumé au galanga jusqu'à tendreté; spécialité du Chaoshan…"
+      },
+      "sources": [
+        {
+          "name": "Master stock - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Master_stock"
+        },
+        {
+          "name": "Teochew Braised Duck Recipe - ieatishootipost",
+          "url": "https://ieatishootipost.sg/teochew-braised-duck-recipe/"
+        }
+      ]
+    },
+    "teochew porridge (mui)": {
+      "local": "潮州糜 (muē)",
+      "note": {
+        "en": "Teochew rice porridge from China's Chaoshan region, with whole softened grains (not broken like Cantonese congee), served with small side…",
+        "fr": "Bouillie de riz teochew de la region de Chaoshan en Chine, aux grains entiers ramollis (non delayes), servie avec de petits accompagnements."
+      },
+      "sources": [
+        {
+          "name": "Teochew porridge - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Teochew_porridge"
+        },
+        {
+          "name": "History of Teochew Porridge - Johor Kaki",
+          "url": "https://johorkaki.blogspot.com/2023/02/history-of-teochew-porridge-chaoshan.html"
+        }
+      ]
+    },
+    "orh nee": {
+      "local": "芋泥",
+      "note": {
+        "en": "A Teochew dessert of mashed yam (taro) sweetened and enriched with shallot oil or lard, traditionally closing a Teochew banquet.",
+        "fr": "Un dessert teochew de taro (igname) ecrase, sucre et enrichi d'huile d'echalote ou de saindoux, cloturant un banquet teochew."
+      },
+      "sources": [
+        {
+          "name": "Michelin Guide Singapore",
+          "url": "https://guide.michelin.com/sg/en/article/dining-out/6-restaurants-for-authentic-teochew-fare"
+        },
+        {
+          "name": "Fortune Food - The Rich Legacy of Teochew Orh Nee",
+          "url": "https://fortunefood.sg/blogs/spotlight/the-rich-legacy-of-teochew-orh-nee"
+        }
+      ]
+    },
+    "teochew steamed pomfret": {
+      "local": "潮州蒸鲳鱼",
+      "note": {
+        "en": "Teochew dish of whole white or silver pomfret steamed with salted sour plums, pickled mustard greens and ginger for a tangy savoury broth.",
+        "fr": "Plat teochew de pomfret blanc entier cuit a la vapeur avec prunes salees, moutarde marinee et gingembre, donnant un bouillon aigre-sale."
+      },
+      "sources": [
+        {
+          "name": "Foodelicacy — Quick and Easy Teochew Steamed Pomfret",
+          "url": "https://www.foodelicacy.com/teochew-style-steamed-pomfret/"
+        },
+        {
+          "name": "The Burning Kitchen — Teochew Steamed Pomfret (Dao Chior)",
+          "url": "https://theburningkitchen.com/teochew-steamed-chinese-pomfret-dao-chior-recipe/"
+        }
+      ]
+    },
+    "cold crab teochew-style": {
+      "local": "潮州冻蟹",
+      "note": {
+        "en": "Teochew dish of steamed crab chilled and served cold, paired with a galangal-and-brown-sugar vinegar dip to offset the crab's \"cold\" nature.",
+        "fr": "Plat teochew de crabe cuit a la vapeur, refroidi et servi froid, avec un vinaigre au galanga et sucre roux equilibrant la nature « froide »…"
+      },
+      "sources": [
+        {
+          "name": "Teochew cuisine - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Teochew_cuisine"
+        },
+        {
+          "name": "Michelin Guide - 6 Restaurants For Authentic Teochew Fare",
+          "url": "https://guide.michelin.com/sg/en/article/dining-out/6-restaurants-for-authentic-teochew-fare"
+        }
+      ]
+    },
+    "teochew fish maw soup": {
+      "local": "鱼鳔羹",
+      "note": {
+        "en": "Teochew soup of dried fish maw (swim bladder, one of China's four sea delicacies) simmered with pork ribs, mushrooms and scallops, eaten at…",
+        "fr": "Soupe teochew de vessie natatoire séchée (l'un des quatre trésors marins chinois) mijotée avec côtes de porc, champignons et pétoncles…"
+      },
+      "sources": [
+        {
+          "name": "Four sea delicacies - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Four_sea_delicacies"
+        },
+        {
+          "name": "Fish maw - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Fish_maw"
+        }
+      ]
+    },
+    "teochew oyster cake": {
+      "local": "蠔烙 (orh luak)",
+      "note": {
+        "en": "Teochew-style oyster cake (orh luak), a Southern Min savoury oyster pancake bound with duck egg and sweet potato flour, then pan-fried.",
+        "fr": "Galette aux huîtres à la teochew (orh luak), crêpe salée du Min méridional liée à l'œuf de cane et à la fécule de patate douce, poêlée."
+      },
+      "sources": [
+        {
+          "name": "Oyster omelette - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Oyster_omelette"
+        },
+        {
+          "name": "Cracking The Oyster Omelette Code: From Orh Luak to Orh Suan - SilverStreak",
+          "url": "https://silverstreak.sg/cracking-the-oyster-omelette-code-from-orh-luak-to-orh-suan/"
+        }
+      ]
+    },
+    "soon kueh": {
+      "local": "笋粿 (筍粿)",
+      "note": {
+        "en": "A Teochew steamed dumpling whose name means \"bamboo shoot cake\"; in Singapore the filling is usually jicama or turnip instead.",
+        "fr": "Un dumpling teochew cuit à la vapeur dont le nom signifie « gâteau de pousse de bambou »; à Singapour, on le farcit plutôt de jicama ou de…"
+      },
+      "sources": [
+        {
+          "name": "Soon kueh - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Soon_kueh"
+        },
+        {
+          "name": "Culturepaedia (Singapore Chinese Cultural Centre)",
+          "url": "https://culturepaedia.singaporeccc.org.sg/popular-culture/how-soon-kueh-braised-duck-bak-chor-mee-and-teochew-porridge-became-uniquely-singaporean/"
+        }
+      ]
+    },
+    "png kueh": {
+      "local": "紅桃粿",
+      "note": {
+        "en": "A Teochew stuffed dumpling with a pink-dyed glutinous-rice-flour skin shaped like a peach, filled with seasoned glutinous rice, peanuts…",
+        "fr": "Une boulette teochew farcie, a la peau de farine de riz gluant teintee rose et faconnee en forme de peche, garnie de riz gluant assaisonne…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Red peach cake (紅桃粿 / 飯粿)",
+          "url": "https://en.wikipedia.org/wiki/Red_peach_cake"
+        },
+        {
+          "name": "ieatishootipost - Teochew Kueh: Why is there Red and White Png Kueh?",
+          "url": "https://ieatishootipost.sg/teochew-kueh-why-is-there-red-and-white-png-kueh/"
+        }
+      ]
+    },
+    "mee pok dry": {
+      "local": "麵薄（乾）",
+      "note": {
+        "en": "Flat yellow egg noodle of Teochew (Chaoshan) origin, tossed dry in a chili-vinegar-soy sauce rather than served in soup.",
+        "fr": "Nouille plate et jaune aux œufs d'origine teochew (Chaoshan), servie sèche, mêlée à une sauce piment-vinaigre-soja plutôt qu'en soupe."
+      },
+      "sources": [
+        {
+          "name": "Mee pok - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Mee_pok"
+        }
+      ]
+    },
+    "fishball noodle": {
+      "local": "鱼丸面 (Teochew mee pok / mee kia, 面薄)",
+      "note": {
+        "en": "A Teochew (Chaoshan) noodle dish of flat mee pok or thin mee kia topped with springy fish balls, served dry in chilli-vinegar sauce or in…",
+        "fr": "Plat de nouilles teochew (Chaoshan) à base de mee pok plat ou mee kia fin, garni de boulettes de poisson, servi sec en sauce…"
+      },
+      "sources": [
+        {
+          "name": "Mee pok - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Mee_pok"
+        },
+        {
+          "name": "Teochew Mee Pok And Fish Ball Noodles - Guai Shu Shu",
+          "url": "https://kwgls.wordpress.com/2015/04/04/teochew-mee-pok-and-fish-ball-noodles-%E6%BD%AE%E5%B7%9E%E8%82%89%E8%84%9E%E9%9D%A2-%EF%BC%8C%E6%BD%AE%E5%B7%9E%E9%B1%BC%E5%9C%86%E9%9D%A2%EF%BC%89/"
+        }
+      ]
+    },
+    "fish soup bee hoon": {
+      "local": "鱼片米粉",
+      "note": {
+        "en": "A Singaporean soup of sliced fish and rice vermicelli (bee hoon) in a savoury broth, available since at least the 1920s and commonly…",
+        "fr": "Une soupe singapourienne de tranches de poisson et de vermicelles de riz (bee hoon) dans un bouillon savoureux, existant depuis au moins…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Fish soup bee hoon",
+          "url": "https://en.wikipedia.org/wiki/Fish_soup_bee_hoon"
+        },
+        {
+          "name": "SETHLUI — Origins Of Singapore Fish Soup",
+          "url": "https://sethlui.com/origins-fish-soup-singapore/"
+        }
+      ]
+    },
+    "sliced fish soup": {
+      "local": "鱼片汤",
+      "note": {
+        "en": "A popular Singapore dish believed to have originated from the Teochews, consisting of sliced fish in broth with vegetables and beancurd; it…",
+        "fr": "Plat populaire de Singapour, que l'on pense d'origine teochew, composé de tranches de poisson dans un bouillon avec des légumes et du tofu…"
+      },
+      "sources": [
+        {
+          "name": "Sliced fish soup - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Sliced_fish_soup"
+        }
+      ]
+    },
+    "kway chap": {
+      "local": "粿汁",
+      "note": {
+        "en": "Teochew dish of flat rice sheets in a dark soy braise served with pork offal, belly, beancurd and braised eggs, from China's Chaoshan…",
+        "fr": "Plat teochew de feuilles de riz plates dans un bouillon de soja brun, servi avec abats de porc, poitrine, tofu et oeufs braises, originaire…"
+      },
+      "sources": [
+        {
+          "name": "Kway chap - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Kway_chap"
+        },
+        {
+          "name": "Kway Chap - Roots (National Library Board / National Heritage Board, Singapore)",
+          "url": "https://www.roots.gov.sg/ich-landing/ich/kway-chap"
+        }
+      ]
+    },
+    "yusheng (lou hei)": {
+      "local": "鱼生 (撈起 / lou hei)",
+      "note": {
+        "en": "A raw-fish-and-shredded-vegetable salad tossed communally at Chinese New Year for prosperity; its modern Singapore form was created in 1964.",
+        "fr": "Une salade de poisson cru et de légumes émincés mélangée en commun au Nouvel An chinois pour la prospérité; sa forme singapourienne moderne…"
+      },
+      "sources": [
+        {
+          "name": "Yusheng - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Yusheng"
+        },
+        {
+          "name": "Yusheng and Lo hei - Roots (Singapore National Heritage Board)",
+          "url": "https://www.roots.gov.sg/ich-landing/ich/yusheng-and-lo-hei"
+        }
+      ]
+    },
+    "mua chee": {
+      "local": "麻糍",
+      "note": {
+        "en": "A chewy glutinous rice dough snack coated in ground peanuts, sesame and sugar, brought to Singapore by Hokkien and Teochew settlers.",
+        "fr": "Une collation de pâte de riz gluant moelleuse enrobée d'arachides moulues, de sésame et de sucre, apportée à Singapour par les Hokkien et…"
+      },
+      "sources": [
+        {
+          "name": "Singapore Noodles — Muah chee 麻糍 (Pamelia Chia)",
+          "url": "https://sgpnoodles.substack.com/p/muah-chee"
+        },
+        {
+          "name": "ieatishootipost — Hougang 6 Mile Muah Chee",
+          "url": "https://ieatishootipost.sg/hougang-6-mile-muah-chee-how-can-we-preserve-our-heritage-foods/"
+        }
+      ]
+    },
+    "cheng tng": {
+      "local": "清汤",
+      "note": {
+        "en": "A sweet \"clear soup\" dessert (清汤 means \"clear soup\") of Teochew origin in Singapore and Malaysia, served hot or cold. The lightly…",
+        "fr": "Dessert sucré en \"soupe claire\" (清汤 signifie \"soupe claire\"), d'origine teochew à Singapour et en Malaisie, servi chaud ou froid. Le…"
+      },
+      "sources": [
+        {
+          "name": "Singaporean Mandarin Database - 清汤 (Cheng Tng), Language Councils Singapore",
+          "url": "https://www.languagecouncils.sg/mandarin/en/learning-resources/singaporean-mandarin-database/terms/cheng-tng"
+        },
+        {
+          "name": "Cool Down with Cheng Tng - Makansutra",
+          "url": "https://makansutra.com/cool-down-with-cheng-tng/"
+        }
+      ]
+    },
+    "ku chye kueh": {
+      "local": "韭菜粿",
+      "note": {
+        "en": "A Teochew steamed dumpling filled with garlic chives and dried shrimp, originating from the Chaoshan region of Guangdong, China.",
+        "fr": "Une bouchée teochew cuite à la vapeur, farcie de ciboule chinoise et de crevettes séchées, originaire de la région du Chaoshan, en Chine."
+      },
+      "sources": [
+        {
+          "name": "Huang Kitchen — Ku Chai Kuih (Steamed Chive Dumplings) 蒸韭菜粿",
+          "url": "https://huangkitchen.com/ku-chai-kuih-steamed-chive-dumplings/"
+        },
+        {
+          "name": "Guai Shu Shu — Teochew Ku Chai Kuih (潮州韭菜粿)",
+          "url": "https://www.guaishushu1.com/garlic-chives-steamed-rice-caketeochew-ku-chai-kuih-%E6%BD%AE%E5%B7%9E%E9%9F%AD%E8%8F%9C%E7%B2%BF%EF%BC%89/"
+        }
+      ]
+    },
+    "teochew bak kut teh peppery": {
+      "local": "潮州肉骨茶",
+      "note": {
+        "en": "Pork-rib soup in the Teochew style: a clear, light, garlicky and peppery broth seasoned mainly with white pepper and garlic. This Teochew…",
+        "fr": "Soupe de côtes de porc à la teochew : un bouillon clair, léger, relevé d'ail et de poivre, assaisonné surtout de poivre blanc et d'ail…"
+      },
+      "sources": [
+        {
+          "name": "Bak kut teh — Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Bak_kut_teh"
+        },
+        {
+          "name": "Bak kut teh — Infopedia, National Library Board Singapore",
+          "url": "https://eresources.nlb.gov.sg/infopedia/articles/SIP_1800_2011-03-18.html"
+        }
+      ]
+    },
+    "lor ark (braised duck rice)": {
+      "local": "潮州滷鴨",
+      "note": {
+        "en": "Teochew dish of duck braised in a soy and five-spice master stock, sliced over rice; brought to Southeast Asia by Chaozhou migrants.",
+        "fr": "Plat teochew de canard braisé dans un bouillon-maître au soja et cinq-épices, tranché sur du riz; apporté par les migrants de Chaozhou."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas – Teochew braised duck (Lor ark)",
+          "url": "https://www.tasteatlas.com/teochew-braised-duck"
+        },
+        {
+          "name": "Grokipedia – Duck rice",
+          "url": "https://grokipedia.com/page/Duck_rice"
+        }
+      ]
+    },
+    "teochew steamed crab": {
+      "local": "潮州冻蟹",
+      "note": {
+        "en": "Teochew cold crab: a steamed, then chilled roe crab from Chaoshan, served cold with a sweet ginger-vinegar dip to offset its \"cooling\"…",
+        "fr": "Crabe froid Teochew : un crabe à œufs cuit à la vapeur puis réfrigéré, du Chaoshan, servi froid avec un trempette vinaigre-gingembre sucrée."
+      },
+      "sources": [
+        {
+          "name": "Teochew cuisine - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Teochew_cuisine"
+        },
+        {
+          "name": "Teochew Food: Complete Guide to Chaoshan Cuisine - Umamicart",
+          "url": "https://www.umamicart.com/blog/2026/04/29/teochew-food-guide/"
+        }
+      ]
+    },
+    "orh luak (oyster omelette teochew)": {
+      "local": "蠔烙",
+      "note": {
+        "en": "Teochew pan-fried omelette of oysters in a sweet-potato-starch and duck-egg batter, originating in the Chaoshan region of southern China.",
+        "fr": "Omelette teochew d'huitres poelee dans une pate d'amidon de patate douce et d'oeuf de cane, originaire de la region de Chaoshan au sud de…"
+      },
+      "sources": [
+        {
+          "name": "Oyster omelette - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Oyster_omelette"
+        },
+        {
+          "name": "We Are What We Eat - Teochew or-luak, The Teochew Store",
+          "url": "https://www.theteochewstore.org/blogs/latest/42605507-we-are-what-we-eat-what-our-favourite-plate-of-teochew-or-luak-tells-us-about-our-history"
+        }
+      ]
+    },
+    "beef kway teow soup": {
+      "local": "牛肉粿条汤",
+      "note": {
+        "en": "A noodle dish of flat rice noodles (kway teow) with sliced beef; in the Teochew style it is served in soup. The Teochew flat rice noodle…",
+        "fr": "Plat de nouilles de riz plates (kway teow) au boeuf emince ; dans le style teochew, il est servi en soupe. La nouille de riz plate teochew…"
+      },
+      "sources": [
+        {
+          "name": "Beef kway teow - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Beef_kway_teow"
+        },
+        {
+          "name": "The Different Types of Kway Teow Dishes in Malaysia and Singapore - Michelin Guide",
+          "url": "https://guide.michelin.com/vn/en/article/features/different-types-of-kway-teow-dishes-in-malaysia-and-singapore"
+        }
+      ]
+    },
+    "teochew-style roast goose": {
+      "local": "滷水鵝 (lǔshuǐ é)",
+      "note": {
+        "en": "Chaoshan dish of lion-head goose slow-cooked whole in a reused soy-and-spice master stock (lou sui); served with garlic-vinegar.",
+        "fr": "Plat du Chaoshan d'oie a tete de lion mijotee entiere dans un bouillon-mere au soja et epices reutilise; servie avec vinaigre a l'ail."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Lǔshuǐ'é",
+          "url": "https://www.tasteatlas.com/lushuie"
+        },
+        {
+          "name": "Wikipedia - Teochew cuisine",
+          "url": "https://en.wikipedia.org/wiki/Teochew_cuisine"
+        }
+      ]
+    }
+  },
+  "hainanese": {
+    "hainanese pork chop": {
+      "local": "海南猪扒",
+      "note": {
+        "en": "A breaded deep-fried pork chop in tomato sweet-sour gravy, created by Hainanese cooks in colonial Singapore/Malaya as localized Western…",
+        "fr": "Côtelette de porc panée et frite, sauce tomate aigre-douce, créée par des cuisiniers hainanais dans la Malaisie/Singapour coloniale."
+      },
+      "sources": [
+        {
+          "name": "Travelling Foodies — Hainanese Deep Fried Pork Chops",
+          "url": "https://travellingfoodies.wordpress.com/2012/07/11/hainanese-deep-fried-pork-chops/"
+        },
+        {
+          "name": "Medium — The Secret History of Chicken Chop, Malaysia's Original 'Western Food'",
+          "url": "https://medium.com/@sixtybolts/the-secret-history-of-chicken-chop-malaysias-original-western-food-aa50c4a96166"
+        }
+      ]
+    },
+    "hainanese curry rice": {
+      "local": "海南咖喱饭",
+      "note": {
+        "en": "Singaporean dish of rice doused in curry gravy with pork chop, curry chicken and chap chye, created by Hainanese cooks in colonial-era…",
+        "fr": "Plat singapourien de riz nappé de sauce curry avec côtelette de porc, poulet au curry et chap chye, créé par des cuisiniers hainanais à…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Hainanese curry rice",
+          "url": "https://en.wikipedia.org/wiki/Hainanese_curry_rice"
+        },
+        {
+          "name": "Roots (NLB Singapore) - Hainanese Curry Rice",
+          "url": "https://www.roots.gov.sg/ich-landing/ich/hainanese-curry-rice"
+        }
+      ]
+    },
+    "hainanese mutton soup": {
+      "local": "海南羊肉汤",
+      "note": {
+        "en": "Hainanese herbal soup of goat slow-stewed with medicinal herbs and red fermented bean curd, traditionally made with Hainan's Dongshan goat.",
+        "fr": "Soupe hainanaise de chèvre mijotée avec des herbes médicinales et du tofu fermenté rouge, faite traditionnellement avec la chèvre Dongshan…"
+      },
+      "sources": [
+        {
+          "name": "National Library Board Singapore (NLB) — Hainanese mutton soup",
+          "url": "https://www.nlb.gov.sg/main/article-detail?cmsuuid=b10b9362-84cd-4127-8cfc-3489c6a75b0b"
+        },
+        {
+          "name": "Carry It Like Harry — Hainanese Herbal Mutton Soup 海南羊肉汤",
+          "url": "https://carryitlikeharry.com/hainanese-herbal-mutton-soup-%E6%B5%B7%E5%8D%97%E7%BE%8A%E8%82%89%E6%B1%A4/"
+        }
+      ]
+    },
+    "hainanese chicken curry": {
+      "local": "海南咖喱鸡",
+      "note": {
+        "en": "Mild curry chicken, a signature component of Singapore's Hainanese curry rice, created by Hainanese cooks under British and Peranakan…",
+        "fr": "Poulet au curry doux, element phare du riz au curry hainanais de Singapour, cree par des cuisiniers hainanais d'influence britannique et…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Hainanese curry rice",
+          "url": "https://en.wikipedia.org/wiki/Hainanese_curry_rice"
+        },
+        {
+          "name": "Roots.gov.sg (NLB) - Hainanese Curry Rice",
+          "url": "https://www.roots.gov.sg/ich-landing/ich/hainanese-curry-rice"
+        }
+      ]
+    },
+    "wenchang chicken": {
+      "local": "文昌鸡",
+      "note": {
+        "en": "A Hainanese \"white-cut\" poached free-range chicken from Wenchang, Hainan, the breed and dish that gave rise to Hainanese chicken rice.",
+        "fr": "Poulet fermier poché \"découpé blanc\" hainanais de Wenchang, Hainan, race et plat à l'origine du riz au poulet hainanais."
+      },
+      "sources": [
+        {
+          "name": "Wenchang chicken - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Wenchang_chicken"
+        },
+        {
+          "name": "Michelin Guide - The Different Types of Chicken Rice Around Asia",
+          "url": "https://guide.michelin.com/en/article/features/same-same-but-different-the-different-types-of-chicken-rice-around-asia"
+        }
+      ]
+    },
+    "coconut chicken (hainan style)": {
+      "local": "椰子鸡",
+      "note": {
+        "en": "Hainanese hot pot of Wenchang chicken cooked in fresh young-coconut water, which makes up most of the clear, mild broth; widely popularized…",
+        "fr": "Fondue (hot pot) hainanaise de poulet Wenchang cuit dans l'eau de jeune noix de coco fraîche, qui compose l'essentiel du bouillon clair et…"
+      },
+      "sources": [
+        {
+          "name": "The Mala Market — Hainan Coconut Chicken Hotpot (Yeziji, 椰子鸡)",
+          "url": "https://blog.themalamarket.com/hainan-coconut-chicken-hotpot-yeziji/"
+        },
+        {
+          "name": "EyeShenzhen — Seasons introduces coconut chicken hot pot to Shenzhen",
+          "url": "https://www.eyeshenzhen.com/content/2017-07/03/content_16624571.htm"
+        }
+      ]
+    },
+    "hainanese yam rice": {
+      "local": "芋头饭",
+      "note": {
+        "en": "A savoury Southeast Asian Chinese one-pot rice dish cooked with diced taro (yam), Chinese sausage, dried prawns and mushrooms, often served…",
+        "fr": "Un plat chinois d'Asie du Sud-Est : riz salé cuit en une marmite avec taro (igname), saucisse chinoise, crevettes séchées et champignons…"
+      },
+      "sources": [
+        {
+          "name": "Malaysian Chinese cuisine - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Malaysian_Chinese_cuisine"
+        },
+        {
+          "name": "Yam Rice - Rasa Malaysia",
+          "url": "https://rasamalaysia.com/yam-rice-recipe/"
+        }
+      ]
+    },
+    "jiaji duck": {
+      "local": "加积鸭 (Jiājī yā)",
+      "note": {
+        "en": "One of Hainan's four famous dishes: a poached duck from Jiaji town, Qionghai, of a breed brought from overseas by returning Chinese.",
+        "fr": "Un des quatre plats célèbres du Hainan : un canard poché de la ville de Jiaji, à Qionghai, d'une race rapportée d'outre-mer par des Chinois…"
+      },
+      "sources": [
+        {
+          "name": "CGTN — Jiaji Duck, one of the four famous dishes of Hainan",
+          "url": "https://news.cgtn.com/news/2023-04-20/Jiaji-Duck-one-of-the-four-famous-dishes-of-Hainan-1j6Vv3jggSs/index.html"
+        },
+        {
+          "name": "Hainan Government (ehainan.gov.cn) — Jiaji Duck",
+          "url": "http://www.ehainan.gov.cn/2018-02/01/c_132052.htm"
+        }
+      ]
+    }
+  },
+  "hakka": {
+    "salt baked chicken": {
+      "local": "盐焗鸡 (鹽焗雞)",
+      "note": {
+        "en": "A signature Hakka dish in which a whole chicken is cooked encased in hot salt. It traces to the Dongjiang region of Guangdong, where…",
+        "fr": "Plat hakka emblematique ou un poulet entier cuit enrobe de sel chaud. Il remonte a la region du Dongjiang (Guangdong), ou les ouvriers des…"
+      },
+      "sources": [
+        {
+          "name": "The Woks of Life - Salt Baked Chicken",
+          "url": "https://thewoksoflife.com/salt-baked-chicken/"
+        },
+        {
+          "name": "Baidu Baike (EN) - Dongjiang Salt-Baked Chicken",
+          "url": "https://baike.baidu.com/en/item/Dongjiang%20Salt-Baked%20Chicken/100297"
+        }
+      ]
+    },
+    "hakka stuffed tofu": {
+      "local": "釀豆腐 (酿豆腐)",
+      "note": {
+        "en": "Hakka dish of tofu cubes stuffed with a ground pork and/or fish-paste filling, devised as a substitute for dumplings when wheat flour for…",
+        "fr": "Plat hakka de cubes de tofu farcis d'une préparation de porc haché et/ou de pâte de poisson, créé pour remplacer les raviolis lorsque la…"
+      },
+      "sources": [
+        {
+          "name": "Yong tau foo - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Yong_tau_foo"
+        },
+        {
+          "name": "Michelin Guide - Iconic Dishes: A Crash Course on Yong Tau Foo, a Dish of Hakka Origins",
+          "url": "https://guide.michelin.com/sg/en/article/features/what-is-yong-tau-foo"
+        }
+      ]
+    },
+    "mei cai kou rou": {
+      "local": "梅菜扣肉",
+      "note": {
+        "en": "A Hakka signature dish of steamed pork belly layered over preserved dried mustard greens (mei cai), a celebration and reunion staple.",
+        "fr": "Plat emblematique hakka de poitrine de porc cuite a la vapeur sur des feuilles de moutarde sechees (mei cai), servi lors des fetes et…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Meigan cai",
+          "url": "https://en.wikipedia.org/wiki/Meigan_cai"
+        },
+        {
+          "name": "The Woks of Life - Mei Cai Kou Rou",
+          "url": "https://thewoksoflife.com/mei-cai-kou-rou-pork-belly/"
+        }
+      ]
+    },
+    "hakka noodles": {
+      "local": "Hakka noodles (Indo-Chinese; no authentic Chinese name — \"Hakka\" refers to the Kolkata restaurateurs' dialect group)",
+      "note": {
+        "en": "An Indo-Chinese dish of boiled wheat noodles stir-fried in a wok with vegetables and soy sauce, created by Kolkata's Hakka Chinese…",
+        "fr": "Plat indo-chinois de nouilles de blé bouillies puis sautées au wok avec légumes et sauce soja, créé par la communauté chinoise hakka de…"
+      },
+      "sources": [
+        {
+          "name": "Indian Chinese cuisine - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Indian_Chinese_cuisine"
+        },
+        {
+          "name": "Hakka Noodle: The Story of the Kolkata Chinese - Spatial Histories of Modern East and Southeast Asia",
+          "url": "https://www.spatialhistory.net/cities/2022/02/hakka-noodle-the-story-of-the-kolkata-chinese/"
+        }
+      ]
+    },
+    "pounded tea": {
+      "local": "擂茶",
+      "note": {
+        "en": "Hakka tea-based beverage or gruel made from tea leaves, herbs, roasted nuts, seeds and grains ground together in a bowl; often served with…",
+        "fr": "Boisson ou bouillie hakka faite de feuilles de the, d'herbes, de noix grillees, de graines et de cereales broyees ensemble dans un bol…"
+      },
+      "sources": [
+        {
+          "name": "Lei cha - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lei_cha"
+        },
+        {
+          "name": "A Crash Course on \"Lei Cha\" or Thunder Tea Rice - Michelin Guide",
+          "url": "https://guide.michelin.com/my/en/article/features/what-is-thunder-tea-rice"
+        }
+      ]
+    },
+    "hakka pork belly with taro": {
+      "local": "芋頭扣肉 (Wu Tau Kau Yuk)",
+      "note": {
+        "en": "A Hakka festive dish of fried pork belly layered with taro slices, steamed then inverted onto a plate (扣肉 = \"inverted meat\").",
+        "fr": "Plat de fête hakka de poitrine de porc frite en couches avec des tranches de taro, cuit à la vapeur puis renversé sur l'assiette."
+      },
+      "sources": [
+        {
+          "name": "The Woks of Life - Hakka Steamed Pork Belly with Taro (Wu Tau Kau Yuk)",
+          "url": "https://thewoksoflife.com/steamed-pork-belly-with-taro/"
+        },
+        {
+          "name": "Sift & Simmer - Hakka Pork Belly with Taro (芋頭扣肉)",
+          "url": "https://www.siftandsimmer.com/hakka-pork-belly-with-taro-%E8%8A%8B%E9%A0%AD%E6%89%A3%E8%82%89/"
+        }
+      ]
+    },
+    "three-cup mushroom hakka": {
+      "local": "三杯菇",
+      "note": {
+        "en": "Vegetarian take on the Hakka-origin three-cup (sanbei) style: mushrooms simmered in sesame oil, soy sauce and rice wine with garlic, ginger…",
+        "fr": "Version vegetarienne du style hakka aux trois tasses (sanbei) : champignons mijotes dans l'huile de sesame, la sauce soja et le vin de riz…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Sanbeiji (three-cup, Hakka origin in Ningdu)",
+          "url": "https://en.wikipedia.org/wiki/Sanbeiji"
+        },
+        {
+          "name": "SCMP — Three-cup mushrooms recipe (Thai basil, garlic, ginger)",
+          "url": "https://www.scmp.com/cooking/recipe/three-cup-mushrooms/article/3026635"
+        }
+      ]
+    },
+    "hakka rice cake": {
+      "local": "喜粄 (xǐbǎn)",
+      "note": {
+        "en": "A Hakka steamed rice cake traditionally made from rice and red (brown) sugar, given a chewy texture and reddish colour. It is offered to…",
+        "fr": "Gâteau de riz hakka cuit à la vapeur, traditionnellement préparé à base de riz et de sucre roux (sucre brun), à la texture moelleuse et à…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Hee pan",
+          "url": "https://en.wikipedia.org/wiki/Hee_pan"
+        },
+        {
+          "name": "Hakka Affairs Council (Taiwan) - Hakka festival foods",
+          "url": "https://english.hakka.gov.tw/Content/Content?NodeID=685&PageID=39978&LanguageType=ENG"
+        }
+      ]
+    },
+    "hakka stuffed bitter gourd": {
+      "local": "釀苦瓜 (niàng kǔguā)",
+      "note": {
+        "en": "Hakka dish of bitter gourd stuffed with minced pork or fish paste, a bitter-melon variant of yong tau foo (釀, \"to stuff\").",
+        "fr": "Plat hakka de margose farcie de porc haché ou de pâte de poisson, variante au melon amer du yong tau foo (釀, « farcir »)."
+      },
+      "sources": [
+        {
+          "name": "Yong tau foo - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Yong_tau_foo"
+        },
+        {
+          "name": "Michelin Guide: What is Yong Tau Foo, a Dish of Hakka Origins",
+          "url": "https://guide.michelin.com/sg/en/article/features/what-is-yong-tau-foo"
+        }
+      ]
+    },
+    "hakka pork lard noodles": {
+      "local": "客家腌面",
+      "note": {
+        "en": "Hakka dry-tossed noodles (yan mian) dressed with pork lard, seasoned fish sauce and deep-fried garlic, topped with sliced scallions.",
+        "fr": "Nouilles hakka sautées à sec (yan mian) assaisonnées de saindoux de porc, de sauce de poisson et d'ail frit, garnies de ciboule émincée."
+      },
+      "sources": [
+        {
+          "name": "Chinese Cooking Demystified — The Original Hakka Noodles (客家腌面)",
+          "url": "https://chinesecookingdemystified.substack.com/p/the-original-hakka-noodles"
+        },
+        {
+          "name": "Marc Winer — Yan Mian Noodles (腌面), Chinese Fried Garlic Noodles",
+          "url": "https://marcwiner.com/en/fried-garlic-noodles/"
+        }
+      ]
+    },
+    "hakka rice wine chicken": {
+      "local": "娘酒鸡",
+      "note": {
+        "en": "Traditional Hakka winter dish of chicken fried with ginger and simmered in glutinous rice (mother) wine, eaten by new mothers for…",
+        "fr": "Plat hakka d'hiver de poulet sauté au gingembre et mijoté dans le vin de riz gluant, consommé en post-partum par les jeunes mères."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Hakka rice wine",
+          "url": "https://en.wikipedia.org/wiki/Hakka_rice_wine"
+        },
+        {
+          "name": "Guai Shu Shu — Authentic Hakka Confinement Dish, Yellow Wine Chicken (客家黄酒鸡)",
+          "url": "https://www.guaishushu1.com/authentic-hakka-confinement-dish-yellow-wine-chicken-%E5%AE%A2%E5%AE%B6%E9%BB%84%E9%85%92%E9%B8%A1%EF%BC%89/"
+        }
+      ]
+    },
+    "preserved vegetable braised pork": {
+      "local": "梅菜扣肉",
+      "note": {
+        "en": "A signature Hakka dish of pork belly steamed or braised atop salt-cured, dried preserved mustard greens (mei cai) in a dark soy gravy.",
+        "fr": "Plat hakka emblematique de poitrine de porc cuite a la vapeur ou braisee sur des feuilles de moutarde salees et sechees (mei cai), en sauce…"
+      },
+      "sources": [
+        {
+          "name": "The Woks of Life — Mei Cai Kou Rou (Pork Belly with Preserved Vegetables)",
+          "url": "https://thewoksoflife.com/mei-cai-kou-rou-pork-belly/"
+        },
+        {
+          "name": "Hakka Affairs Council (Taiwan) — Stewed pork belly with preserved vegetables",
+          "url": "https://english.hakka.gov.tw/Content/Content?NodeID=686&PageID=41767&LanguageType=ENG"
         }
       ]
     }
