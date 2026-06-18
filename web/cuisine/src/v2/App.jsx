@@ -792,6 +792,10 @@ export default function App() {
   // one-line "Set location is: <X>. Click to change" to give the map more room;
   // tapping the line (or this flag) re-expands the pills.
   const [regionExpanded, setRegionExpanded] = useState(false);
+  // v0.62.176 — operator: the Local Food Classic plate is now behind a "Pick local
+  // classic" pill (a glassmorphism dropdown), so the header stays compact + the map
+  // gets more room. classicOpen drives that dropdown.
+  const [classicOpen, setClassicOpen] = useState(false);
   // v0.62.173 — operator: a dish searched from Local Food Classic is pinned to the
   // FRONT of the plate's picks (1st), so the just-searched dish leads.
   const [pinnedDish, setPinnedDish] = useState(null);
@@ -2696,6 +2700,10 @@ export default function App() {
     // Location + Local-food-picks fields fold back into the floating header
     // (still reachable by scrolling to the top).
     setModePeek(false);
+    // v0.62.176 — operator: once the user types/commits a location the
+    // glassmorphism location-editor box hides away (region pills re-collapse).
+    setRegionExpanded(false);
+    setClassicOpen(false);
     // v0.62.140 — firing from the criteria bottom sheet closes it so the
     // (horizontal) results are unobscured.
     setCriteriaOpen(false);
@@ -3298,16 +3306,23 @@ export default function App() {
         {venues.length > 0 && !regionExpanded && (
           <button
             type="button"
-            onClick={() => setRegionExpanded(true)}
+            onClick={() => { setRegionExpanded(true); setModePeek(true); }}
             aria-label={lang === 'fr' ? 'Changer le lieu' : 'Change location'}
             className="text-[11px] text-tg-hint text-left leading-tight px-0.5 active:scale-[0.99]"
           >
-            📍 {lang === 'fr' ? 'Lieu défini : ' : 'Set location is: '}
-            <span className="text-tg-text font-medium">{locationName || t('region.singapore', lang)}</span>.{' '}
-            <span className="underline text-tg-link">{lang === 'fr' ? 'Changer' : 'Click to change'}</span>
+            {/* v0.62.176 — operator: "Click to change" on a SECOND line. */}
+            <div>📍 {lang === 'fr' ? 'Lieu défini : ' : 'Set location is: '}<span className="text-tg-text font-medium">{locationName || t('region.singapore', lang)}</span></div>
+            <div className="underline text-tg-link">{lang === 'fr' ? 'Changer' : 'Click to change'}</div>
           </button>
         )}
-        <div className={`flex gap-1.5 ${venues.length > 0 && !regionExpanded ? 'hidden' : ''}`}>
+        {/* v0.62.176 — operator: when "Click to change" is tapped (regionExpanded),
+            the 4 mode pills sit in ONE glassmorphism container (the refine-location
+            field appears just below, via modePeek); it collapses once a region is
+            picked or a location is typed/committed. */}
+        <div className={`flex gap-1.5 ${
+          venues.length > 0 && !regionExpanded ? 'hidden'
+            : (venues.length > 0 && regionExpanded ? 'bg-tg-bg/80 liquid-glass rounded-xl p-1.5' : '')
+        }`}>
           {[
             // v0.62.97 — 📍 Current: an ACTION (not a region toggle) that anchors
             // to the live device GPS. Listed first so "set me here" reads left→right.
@@ -3458,43 +3473,61 @@ export default function App() {
             existing CuisineDrawer (setCriteriaOpen). Collapses to a thin row once
             results are showing so the map keeps its space. Colour-blind safe —
             the 🍲 glyph + "›" chevron + label carry it, not hue alone. */}
+        {/* v0.62.176 — operator: TWO compact pills below the location line replace
+            the full-width cuisine bar + the always-on Local Food Classic plate, so
+            the map gets more room. Each opens its list as a glassmorphism
+            "conversation" dropdown: "Choose your cuisine" → the cuisine picker
+            (CuisineDrawer / criteriaOpen); "Pick local classic" → the plate below.
+            Before any results, only "Choose your cuisine" shows (full-width accent
+            CTA, pulses) since there's no plate yet. */}
         {(() => {
           const picked = state.cuisines || [];
           const names = picked.map((slug) => {
             if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
             return cuisineNameBySlug.get(slug) || slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
           });
-          const compact = venues.length > 0;
-          const chooseLabel = lang === 'fr' ? 'Choisir votre cuisine' : 'Choose your cuisine';
+          const cuisineLabel = names.length ? names.join(' · ') : (lang === 'fr' ? 'Choisir votre cuisine' : 'Choose your cuisine');
+          const hasPlate = !!(cuisinePlate || arrivalPlate) && venues.length > 0;
           return (
-            <button
-              type="button"
-              onClick={() => setCriteriaOpen(true)}
-              aria-label={names.length
-                ? (lang === 'fr' ? `Cuisines : ${names.join(', ')} — modifier` : `Cuisines: ${names.join(', ')} — edit`)
-                : chooseLabel}
-              className={`w-full glass-pill flex items-center gap-2 rounded-xl border active:scale-[0.99] ${
-                names.length ? 'border-tg-border/60 text-tg-text' : 'border-tg-accent text-tg-accent'
-              } ${compact ? 'px-2.5 py-1 text-[12px]' : 'px-3 py-2 text-sm font-semibold'} ${
-                !names.length && !compact && editSearchPulse ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''
-              }`}
-            >
-              <span aria-hidden className="shrink-0">🍲</span>
-              <span className="flex-1 text-left truncate">{names.length ? names.join(' · ') : chooseLabel}</span>
-              <span aria-hidden className="text-tg-hint shrink-0">›</span>
-            </button>
+            <div className="flex gap-1.5">
+              <button
+                type="button"
+                onClick={() => { setClassicOpen(false); setCriteriaOpen((o) => !o); }}
+                aria-expanded={criteriaOpen}
+                aria-label={names.length
+                  ? (lang === 'fr' ? `Cuisines : ${names.join(', ')}` : `Cuisines: ${names.join(', ')}`)
+                  : (lang === 'fr' ? 'Choisir votre cuisine' : 'Choose your cuisine')}
+                className={`flex-1 min-w-0 glass-pill flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-[12px] active:scale-[0.99] ${
+                  names.length ? 'border-tg-border/60 text-tg-text' : 'border-tg-accent text-tg-accent font-semibold'
+                } ${!names.length && editSearchPulse ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
+              >
+                <span aria-hidden className="shrink-0">🍲</span>
+                <span className="flex-1 text-left truncate">{cuisineLabel}</span>
+                <span aria-hidden className="text-tg-hint shrink-0">{criteriaOpen ? '▴' : '▾'}</span>
+              </button>
+              {hasPlate && (
+                <button
+                  type="button"
+                  onClick={() => { setCriteriaOpen(false); setClassicOpen((o) => !o); }}
+                  aria-expanded={classicOpen}
+                  className="flex-1 min-w-0 glass-pill flex items-center gap-1.5 rounded-xl border border-tg-border/60 text-tg-text px-2.5 py-1.5 text-[12px] active:scale-[0.99]"
+                >
+                  <span aria-hidden className="shrink-0">📍</span>
+                  <span className="flex-1 text-left truncate">{lang === 'fr' ? 'Plats classiques locaux' : 'Pick local classic'}</span>
+                  <span aria-hidden className="text-tg-hint shrink-0">{classicOpen ? '▴' : '▾'}</span>
+                </button>
+              )}
+            </div>
           );
         })()}
-        {/* v0.62.158 — operator: "Local food picks" floats WITH the header once
-            results are out (pulled out of the mode-tap reveal).
-            v0.62.161 — operator: liquid-glass 80% (translucent + blur) so the map
-            scrolls up BEHIND it. */}
-        {(cuisinePlate || arrivalPlate) && !loading && venues.length > 0 && (
-          <div className="-mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 pt-1 border-t border-tg-border/40 bg-tg-bg/90 liquid-glass">
+        {/* v0.62.176 — "Pick local classic" dropdown: the Local Food Classic plate as
+            a glassmorphism "conversation" panel, shown ONLY when the pill is tapped
+            (so the header stays compact and the map gets the space). */}
+        {classicOpen && (cuisinePlate || arrivalPlate) && !loading && venues.length > 0 && (
+          <div className="-mx-2 px-2 py-1 rounded-2xl bg-tg-bg/80 liquid-glass border border-tg-border/50 shadow-lg max-h-[60vh] overflow-y-auto">
             <ArrivalPlate
               plate={(() => {
-                // v0.62.173 — PR B2: pin the just-searched dish to the FRONT of the
-                // plate's picks so it leads (1st), pushing the others down.
+                // v0.62.173 — PR B2: pin the just-searched dish to the FRONT.
                 const p = cuisinePlate || arrivalPlate;
                 if (!p || !pinnedDish || !Array.isArray(p.dishes)) return p;
                 const i = p.dishes.findIndex((d) => d && d.dish === pinnedDish);
@@ -3506,12 +3539,9 @@ export default function App() {
               lang={lang}
               onTryDish={(dish) => {
                 setNlText(dish);
-                // v0.62.169 — operator: a dish picked from Local Food Classic now
-                // shows as "Last asked: <dish>" above the free-text, exactly like a
-                // typed query (it IS the last query).
-                setLastPrompt(dish);
-                // v0.62.173 — PR B2: pin it to the front of the picks (1st).
-                setPinnedDish(dish);
+                setLastPrompt(dish);     // v0.62.169 — shows as "Last asked: <dish>"
+                setPinnedDish(dish);     // v0.62.173 — pin to the front of the picks
+                setClassicOpen(false);   // v0.62.176 — close the dropdown on search
                 setLoadingReason('rotating');
                 runSearch(state, null, { freeTextOverride: dish });
               }}

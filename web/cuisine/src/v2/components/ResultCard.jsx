@@ -228,9 +228,9 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
       className={`w-full text-left rounded-lg border bg-tg-card p-2.5 flex flex-col gap-1 ${focused ? 'border-tg-accent' : 'border-tg-border'}`}>
       {/* v0.62.108 — operator: rank reads "1 · <name>" inline; every row below
           is flush-left (no indent — was a 2-col flex that offset the whole body).
-          v0.62.168 — operator: in the horizontal strip the name is smaller and
-          stays ONE ROW (truncate, no word-wrap); the rank prefix is kept inline. */}
-      <div className={`font-semibold leading-tight ${horizontal ? 'text-[13px] truncate' : 'text-sm'}`}>
+          v0.62.176 — operator: REVERTED the v0.62.168 horizontal word-wrap (the
+          name-one-row truncate); the name renders normally again. */}
+      <div className="font-semibold text-sm leading-tight">
         {Number.isFinite(number) && <span className="text-tg-hint font-semibold tabular-nums">{number} · </span>}{venue.name}
       </div>
           {/* v0.61.359 — native-script name in "( )" below the name (RULE A/B
@@ -274,19 +274,9 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               {lang === 'fr' ? 'Renseignez-vous pour le pâtisserie durian saisonnier' : 'Inquire for seasonal durian pastry'}
             </div>
           )}
-          {/* v0.62.168 — operator: in the horizontal strip this row WRAPS BY FIELD
-              — each of rating / price / open / distance is whitespace-nowrap, so
-              e.g. "Open today 8:00" drops to the next line as a whole, never
-              breaking mid-value. Vertical keeps the single-line truncate. */}
-          {horizontal ? (
-            <div className="text-[12px] text-tg-hint">
-              {[rating, price, open, distMeta].filter(Boolean).map((seg, idx, arr) => (
-                <span key={idx} className="whitespace-nowrap">{seg}{idx < arr.length - 1 ? ' · ' : ''}</span>
-              ))}
-            </div>
-          ) : (
-            <div className="text-[12px] text-tg-hint truncate">{meta}</div>
-          )}
+          {/* v0.62.176 — operator: REVERTED the v0.62.168 "wrap by field" meta;
+              single-line meta (truncate) again, same as the vertical list. */}
+          <div className="text-[12px] text-tg-hint truncate">{meta}</div>
           {/* v0.62.122 — distance moved up into the meta row (distMeta).
               v0.62.124 — the address row moved DOWN into the collapsible
               section (below price/pet), per the operator re-order. */}
