@@ -3415,7 +3415,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => { setFlyTarget({ lat: anchor.lat, lng: anchor.lng, zoom: 14, _k: Date.now() }); setSelectedCityLocation(null); }}
-                    className="px-2 py-0.5 rounded-full border border-[#ef4444] text-[#ef4444] font-semibold bg-[#ef4444]/10 leading-tight whitespace-nowrap active:scale-95"
+                    className="underline font-semibold text-[#ef4444] leading-tight whitespace-nowrap active:scale-95"
                     title={lang === 'fr' ? 'Recentrer la carte sur la dernière zone de recherche' : 'Recentre the map on your last search area'}
                   >↩ {lang === 'fr' ? 'Retour à la dernière zone' : 'Back to last search area'}</button>
                 );
