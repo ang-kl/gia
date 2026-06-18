@@ -2426,6 +2426,29 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
     await runLocationCommand(chatId);
     return;
   }
+  // v0.62.197 — operator bug: `/location <place>` persisted only the `loc:`
+  // coords, NOT the `userlocale:` mode that the SG-only gate (isSgOnlyCommandAllowed
+  // → /hawker, /weather, …) reads — so /hawker kept insisting the user change
+  // location even after `/location Singapore`. After an EXPLICIT set, classify the
+  // coords and FORCE-adopt the locale (no drift prompt — the user chose it
+  // deliberately, so 'outside'/'suppressed' drift must still adopt, not nag).
+  const persistExplicitLocale = async (la, lo) => {
+    try {
+      const { classifyAndPersist } = require('./location-classify');
+      const { setUserLocale, clearDriftSuppress } = require('./location-locale');
+      const reverseGeocodeFn = async ({ lat: a, lng: b }) => {
+        const rg = await reverseGeocodeAddress(a, b);
+        return rg ? { country: rg.country || null, adminAreaLevel1: rg.adminAreaLevel1 || null, placeName: rg.name || null, formatted: rg.formatted || null } : null;
+      };
+      const res = await classifyAndPersist({ chatId, lat: la, lng: lo, redis, reverseGeocodeFn });
+      // 'none' → already persisted (first registration); 'inside' → already the
+      // right locale. Only 'outside'/'suppressed' need a force-adopt.
+      if (res && res.candidate && (res.drift === 'outside' || res.drift === 'suppressed')) {
+        await setUserLocale(redis, chatId, res.candidate);
+        if (typeof clearDriftSuppress === 'function') await clearDriftSuppress(redis, chatId).catch(() => {});
+      }
+    } catch (e) { console.warn('[/l] persistExplicitLocale failed:', e.message); }
+  };
   // v0.61.93 — try a station code / bus-stop number / station exit
   // before falling back to Google geocoding. A failure here is
   // non-fatal — fall through to the geocoder.
@@ -2433,6 +2456,7 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
     const coded = resolveCodedLocation(text);
     if (coded) {
       await setUserLocation(redis, chatId, coded.lat, coded.lng);
+      await persistExplicitLocale(coded.lat, coded.lng);   // v0.62.197 — also set userlocale: mode
       // v0.61.197 — recent-locations LRU push.
       addRecentLocation(redis, chatId, { lat: coded.lat, lng: coded.lng, label: coded.label }).catch(() => {});
       console.log(`[/l] resolved coded input "${text}" -> ${coded.label}`);
@@ -2485,6 +2509,7 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
         return;
       }
       await setUserLocation(redis, chatId, lat, lng);
+      await persistExplicitLocale(lat, lng);   // v0.62.197 — also set userlocale: mode (SG gate)
       // v0.61.197 — recent-locations LRU push.
       addRecentLocation(redis, chatId, {
         lat, lng,
@@ -2533,6 +2558,7 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
       region: 'OTHER',
       label
     });
+    await persistExplicitLocale(lat, lng);   // v0.62.197 — also set userlocale: mode
     // v0.61.197 — recent-locations LRU push.
     addRecentLocation(redis, chatId, {
       lat, lng,

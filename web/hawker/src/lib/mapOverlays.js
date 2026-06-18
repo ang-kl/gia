@@ -784,7 +784,7 @@ export function makeTrainColourOverlay(googleMaps) {
 // v0.61.31 — standard Google-Maps deep link. Every map pin info popup
 // ends with this text hyperlink — a TMA-wide convention, never a button.
 function gmapsUrl(lat, lng) {
-  return 'https://www.google.com/maps/search/?api=1&query=' + lat + ',' + lng;
+  return 'https://maps.google.com/?q=' + lat + ',' + lng;
 }
 function gmapsLinkRow(lat, lng) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return '';
