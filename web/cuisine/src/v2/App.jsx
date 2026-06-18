@@ -863,7 +863,14 @@ export default function App() {
     const anchorActive = !!(locationAnchor && Number.isFinite(locationAnchor.lat) && Number.isFinite(locationAnchor.lng));
     const eff = anchorActive ? locationAnchor : userLoc;
     if (!eff?.lat || !eff?.lng) { setLocationName(''); return; }
-    if (anchorActive && (locationAnchor.name || '').trim()) { setLocationName(locationAnchor.name.trim()); return; }
+    // v0.62.209 — operator (RECURRING, "pinpointing… didn't resolve"): a GENERIC
+    // anchor name (e.g. "Singapore" from /location Singapore) must NOT be shown
+    // verbatim — the collapsed-line guard rejects it → "pinpointing…" forever.
+    // Treat a generic anchor name as no-name and fall through to the now
+    // fine-grained (v0.62.207) reverse-geocode so a real precinct shows.
+    const _anchorNm = (locationAnchor && locationAnchor.name || '').trim();
+    const _genericNm = new Set(['singapore','malaysia','indonesia','thailand','vietnam','japan','korea','south korea','china','taiwan','hong kong','macau','macao','australia','new zealand','brunei','philippines','johor bahru','johor','cities']);
+    if (anchorActive && _anchorNm && !_genericNm.has(_anchorNm.toLowerCase())) { setLocationName(_anchorNm); return; }
     let cancelled = false;
     reverseGeocode({ lat: eff.lat, lng: eff.lng })
       .then((r) => { if (!cancelled) setLocationName(r?.name || ''); })
@@ -3771,7 +3778,7 @@ export default function App() {
         // folder-tab reference. Full-bleed, FLUSH to the header bottom (top:
         // headerBottom, flat top, rounded bottom) + frosted folio bg, so it reads
         // as a drawer pulling down from the active .folio-tab--active tab.
-        <div className="fixed inset-x-0 z-40 overflow-y-auto no-scrollbar rounded-b-2xl border-b border-x border-tg-border/50 bg-tg-bg/96 liquid-glass shadow-xl px-3 py-2.5 flex flex-col gap-2"
+        <div className="fixed inset-x-0 z-40 overflow-y-auto no-scrollbar rounded-b-2xl border-b border-x border-tg-border/50 bg-tg-card shadow-xl px-3 py-2.5 flex flex-col gap-2"
           style={{ top: headerBottom, maxHeight: `calc(100dvh - ${headerBottom}px - 9rem)` }}>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-tg-text">🍲 {lang === 'fr' ? 'Choisir votre cuisine' : 'Choose your cuisine'}</span>
@@ -3838,7 +3845,7 @@ export default function App() {
       {/* v0.62.195 — the LOCAL-CLASSIC picker as a fixed overlay too (was inline). */}
       {classicOpen && (cuisinePlate || arrivalPlate) && !loading && venues.length > 0 && (
         // v0.62.208 — connected to its tab (flush, frosted folder-drawer), like cuisine.
-        <div className="fixed inset-x-0 z-40 overflow-y-auto no-scrollbar rounded-b-2xl border-b border-x border-tg-border/50 bg-tg-bg/96 liquid-glass shadow-xl px-2.5 py-2"
+        <div className="fixed inset-x-0 z-40 overflow-y-auto no-scrollbar rounded-b-2xl border-b border-x border-tg-border/50 bg-tg-card shadow-xl px-2.5 py-2"
           style={{ top: headerBottom, maxHeight: `calc(100dvh - ${headerBottom}px - 9rem)` }}>
           <div className="flex items-center justify-between pb-1">
             <span className="text-xs font-semibold text-tg-text">📍 {lang === 'fr' ? 'Plats classiques locaux' : 'Pick local classic'}</span>
