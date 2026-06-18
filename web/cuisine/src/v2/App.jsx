@@ -2737,6 +2737,7 @@ export default function App() {
     // glassmorphism location-editor box hides away (region pills re-collapse).
     setRegionExpanded(false);
     setClassicOpen(false);
+    setCuisinePickOpen(false);   // v0.62.195 — close the cuisine picker overlay on search
     // v0.62.180 — a committed search means there's now a "last search area".
     setLocChanged(true);
     // v0.62.140 — firing from the criteria bottom sheet closes it so the
@@ -3475,6 +3476,7 @@ export default function App() {
                   // here"); the region-change anchor logic below stays guarded on a
                   // real change, so no search fires.
                   setModePeek(true);
+                  setCuisinePickOpen(false); setClassicOpen(false);   // v0.62.195 — editor + picker are mutually exclusive
                   armLocIdleClose();   // v0.62.189 — (re)start the 8 s idle-close timer
                   // v0.62.150 — operator: a mode switch must NOT wipe the result
                   // list/strip — the results "always be there", same as the
@@ -3715,66 +3717,10 @@ export default function App() {
             replacing the footer bottom sheet for the HEADER tab. Pick chips → tap
             🔍 Search to fire (no auto-fire). The footer "Edit search" sheet
             (criteriaOpen) is untouched. */}
-        {!regionExpanded && cuisinePickOpen && catalogue && (
-          <div className="folio-panel px-2.5 py-2 max-h-[60vh] overflow-y-auto">
-            <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
-              region={state.region}
-              countryPref={state.countryPref}
-              michelinCuisines={(() => {
-                const cc = state.region === 'SG' ? 'SG'
-                  : (state.region === 'MY-PUT' || state.region === 'JB') ? 'MY'
-                  : String(state.countryPref || '').toUpperCase();
-                const byCC = michelinCuisinesByCC && michelinCuisinesByCC[cc];
-                if (!byCC) return null;
-                const city = selectedCityLocation?.name || locationAnchor?.name || null;
-                if (city && byCC.byCity && Array.isArray(byCC.byCity[city])) return byCC.byCity[city];
-                return Array.isArray(byCC.all) ? byCC.all : null;
-              })()}
-              specialMode={state.specialMode || null}
-              onSpecialModeChange={(mode) => setState((s) => ({ ...s, specialMode: mode || null }))}
-              onChange={(c) => setState((s) => ({ ...s, cuisines: c }))}
-              onCategoryClose={() => {
-                if (state.cuisines.length > 0) {
-                  setSearchHintActive(true);
-                  setTimeout(() => setSearchHintActive(false), 5000);
-                }
-              }} />
-            <button
-              type="button"
-              onClick={() => { setCuisinePickOpen(false); triggerSearch(); }}
-              disabled={loading}
-              className="mt-2 w-full text-xs font-semibold px-3 py-2 rounded-xl bg-tg-accent text-tg-bg active:scale-[0.99] disabled:opacity-50"
-            >{t('btn.search', lang)}</button>
-          </div>
-        )}
-        {/* v0.62.176 — "Pick local classic" dropdown: the Local Food Classic plate as
-            a glassmorphism "conversation" panel, shown ONLY when the pill is tapped
-            (so the header stays compact and the map gets the space). */}
-        {classicOpen && (cuisinePlate || arrivalPlate) && !loading && venues.length > 0 && (
-          <div className="folio-panel px-2.5 py-2 max-h-[60vh] overflow-y-auto">
-            <ArrivalPlate
-              plate={(() => {
-                // v0.62.173 — PR B2: pin the just-searched dish to the FRONT.
-                const p = cuisinePlate || arrivalPlate;
-                if (!p || !pinnedDish || !Array.isArray(p.dishes)) return p;
-                const i = p.dishes.findIndex((d) => d && d.dish === pinnedDish);
-                if (i <= 0) return p;
-                const dishes = [...p.dishes];
-                const [pin] = dishes.splice(i, 1);
-                return { ...p, dishes: [pin, ...dishes] };
-              })()}
-              lang={lang}
-              onTryDish={(dish) => {
-                setNlText(dish);
-                setLastPrompt(dish);     // v0.62.169 — shows as "Last asked: <dish>"
-                setPinnedDish(dish);     // v0.62.173 — pin to the front of the picks
-                setClassicOpen(false);   // v0.62.176 — close the dropdown on search
-                setLoadingReason('rotating');
-                runSearch(state, null, { freeTextOverride: dish });
-              }}
-            />
-          </div>
-        )}
+        {/* v0.62.195 — operator: the cuisine + local-classic pickers no longer sit
+            INLINE in the header (they pushed the map down + dropped the quick
+            filters). They now render as fixed bottom-sheet OVERLAYS at root level
+            (in front of the map; the map stays put). See below `</header>`. */}
       </header>
 
       {/* v0.62.186 — operator (IMG_2507 #5): the standalone "Location staging"
@@ -3784,6 +3730,105 @@ export default function App() {
 
       {/* v0.62.194 — the "↩ Back to last search area" helper moved UP into the
           header, beside "Click to change" (one line, bright red). */}
+
+      {/* v0.62.195 — operator: the CUISINE picker is a fixed OVERLAY in front of
+          the map (was inline, pushing the map down). It carries the QUICK FILTERS
+          (Open-now / Halal / Price / …) + the cuisine grid + 🔍 Search. Hidden
+          result cards while open (see the ResultDrawer gate). */}
+      {cuisinePickOpen && catalogue && (
+        <div className="fixed inset-x-2 bottom-[8.5rem] z-40 max-h-[66vh] overflow-y-auto rounded-2xl border border-tg-accent/50 bg-tg-card shadow-2xl px-3 py-2.5 flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-tg-text">🍲 {lang === 'fr' ? 'Choisir votre cuisine' : 'Choose your cuisine'}</span>
+            <button type="button" onClick={() => setCuisinePickOpen(false)} aria-label={lang === 'fr' ? 'Fermer' : 'Close'} className="text-tg-hint hover:text-tg-text text-sm leading-none px-1">✕</button>
+          </div>
+          {recommendHint && (
+            <div className="rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2 text-[12px] leading-snug text-tg-text">
+              {t('filter.recommend.hint', lang)}
+            </div>
+          )}
+          <QuickFilters
+            filters={state.filters}
+            onChange={(f) => {
+              if (f.recommend && !state.filters?.recommend) {
+                setRecommendHint(true);
+                if (recommendHintTimerRef.current) clearTimeout(recommendHintTimerRef.current);
+                recommendHintTimerRef.current = setTimeout(() => setRecommendHint(false), 7000);
+              } else if (!f.recommend && recommendHint) {
+                setRecommendHint(false);
+                if (recommendHintTimerRef.current) clearTimeout(recommendHintTimerRef.current);
+              }
+              setState((s) => ({ ...s, filters: f }));
+            }}
+            specialModeActive={!!state.specialMode}
+            ratingPref={ratingPref}
+            ratingDisabled={(state.cuisines || []).includes('michelin')}
+            onRatingSave={(value) => {
+              setRatingPref(value);
+              setRatingLoaded(true);
+              saveRatingPref(value).catch(() => {});
+              setRatingReminder({ kind: 'saved' });
+            }}
+          />
+          <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
+            region={state.region}
+            countryPref={state.countryPref}
+            michelinCuisines={(() => {
+              const cc = state.region === 'SG' ? 'SG'
+                : (state.region === 'MY-PUT' || state.region === 'JB') ? 'MY'
+                : String(state.countryPref || '').toUpperCase();
+              const byCC = michelinCuisinesByCC && michelinCuisinesByCC[cc];
+              if (!byCC) return null;
+              const city = selectedCityLocation?.name || locationAnchor?.name || null;
+              if (city && byCC.byCity && Array.isArray(byCC.byCity[city])) return byCC.byCity[city];
+              return Array.isArray(byCC.all) ? byCC.all : null;
+            })()}
+            specialMode={state.specialMode || null}
+            onSpecialModeChange={(mode) => setState((s) => ({ ...s, specialMode: mode || null }))}
+            onChange={(c) => setState((s) => ({ ...s, cuisines: c }))}
+            onCategoryClose={() => {
+              if (state.cuisines.length > 0) {
+                setSearchHintActive(true);
+                setTimeout(() => setSearchHintActive(false), 5000);
+              }
+            }} />
+          <button
+            type="button"
+            onClick={() => { setCuisinePickOpen(false); triggerSearch(); }}
+            disabled={loading}
+            className="w-full text-sm font-semibold px-3 py-2 rounded-xl bg-tg-accent text-tg-accent-text active:scale-[0.99] disabled:opacity-50"
+          >{t('btn.search', lang)}</button>
+        </div>
+      )}
+      {/* v0.62.195 — the LOCAL-CLASSIC picker as a fixed overlay too (was inline). */}
+      {classicOpen && (cuisinePlate || arrivalPlate) && !loading && venues.length > 0 && (
+        <div className="fixed inset-x-2 bottom-[8.5rem] z-40 max-h-[66vh] overflow-y-auto rounded-2xl border border-tg-accent/50 bg-tg-card shadow-2xl px-2.5 py-2">
+          <div className="flex items-center justify-between pb-1">
+            <span className="text-xs font-semibold text-tg-text">📍 {lang === 'fr' ? 'Plats classiques locaux' : 'Pick local classic'}</span>
+            <button type="button" onClick={() => setClassicOpen(false)} aria-label={lang === 'fr' ? 'Fermer' : 'Close'} className="text-tg-hint hover:text-tg-text text-sm leading-none px-1">✕</button>
+          </div>
+          <ArrivalPlate
+            plate={(() => {
+              // v0.62.173 — PR B2: pin the just-searched dish to the FRONT.
+              const p = cuisinePlate || arrivalPlate;
+              if (!p || !pinnedDish || !Array.isArray(p.dishes)) return p;
+              const i = p.dishes.findIndex((d) => d && d.dish === pinnedDish);
+              if (i <= 0) return p;
+              const dishes = [...p.dishes];
+              const [pin] = dishes.splice(i, 1);
+              return { ...p, dishes: [pin, ...dishes] };
+            })()}
+            lang={lang}
+            onTryDish={(dish) => {
+              setNlText(dish);
+              setLastPrompt(dish);
+              setPinnedDish(dish);
+              setClassicOpen(false);
+              setLoadingReason('rotating');
+              runSearch(state, null, { freeTextOverride: dish });
+            }}
+          />
+        </div>
+      )}
 
       <MapPanel
         venues={visibleVenues.length ? visibleVenues : venues}
@@ -3819,7 +3864,10 @@ export default function App() {
       {/* v0.62.186 — operator (IMG_2507 #1): "close the result when I click the
           location." When the location editor is open (regionExpanded), hide the
           horizontal result strip so the modes + refine field stage cleanly. */}
-      {drawerMode === 'horizontal' && !drawerDismissed && !regionExpanded && (visibleVenues.length || venues.length) > 0 && (
+      {/* v0.62.195 — operator: hide the horizontal result cards while ANY picker
+          overlay is open (location editor, cuisine, or local-classic) so the
+          overlay reads in front of the map without the cards behind it. */}
+      {drawerMode === 'horizontal' && !drawerDismissed && !regionExpanded && !cuisinePickOpen && !classicOpen && (visibleVenues.length || venues.length) > 0 && (
         <ResultDrawer
           venues={visibleVenues.length ? visibleVenues : venues}
           focusedPlaceId={focusedPlaceId}
