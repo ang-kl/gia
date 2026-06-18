@@ -277,6 +277,10 @@ export default function App() {
     return stop;
   }, []); // eslint-disable-line
   const [venues, setVenues] = useState([]);
+  // v0.62.205 — operator: when the "New" filter found nothing provably new nearby
+  // and fell back to established spots, the server flags noProvenNew so we can say
+  // "no new <cuisine> nearby" instead of passing established off as new.
+  const [noProvenNew, setNoProvenNew] = useState(false);
   // v0.60.82 — server's AND/OR combo metadata for multi-cuisine
   // searches. { attempted: bool, matched: bool }. When attempted &&
   // !matched, ResultPanel renders the "No exact cuisine combination
@@ -2411,6 +2415,7 @@ export default function App() {
         setZeroReasonKey(null);
       }
       setVenues(r.venues || []);
+      setNoProvenNew(!!r.noProvenNew);   // v0.62.205 — "no new nearby" banner flag
       // v0.62.88 — "all N within X km" recycle note (null unless the server
       // re-served an exhausted in-range pool at the tight cap).
       setAllSeenInRange(r.allSeenInRange || null);
@@ -2651,6 +2656,7 @@ export default function App() {
         countryCode: (state.region === 'OTHER' || state.region === 'MY-PUT') ? state.countryPref : undefined
       });
       setVenues(r.venues || []);
+      setNoProvenNew(!!r.noProvenNew);   // v0.62.205 — "no new nearby" banner flag
       setCuisinePlate(r.cuisinePlate || null);   // v0.62.x — clear/refresh the cuisine plate on NL queries too
       setComboInfo(null);  // v0.60.82 — NL query bypasses the AND/OR combo logic
       setFirstLoadPending(false);
@@ -3738,6 +3744,14 @@ export default function App() {
             INLINE in the header (they pushed the map down + dropped the quick
             filters). They now render as fixed bottom-sheet OVERLAYS at root level
             (in front of the map; the map stays put). See below `</header>`. */}
+        {/* v0.62.205 — operator: when the New filter found nothing PROVABLY new
+            nearby, say so (rather than passing established spots off as new). The
+            ↩-free amber note is colour-blind safe (orange + ℹ️, never red/green). */}
+        {noProvenNew && venues.length > 0 && (state.filters?.newlyOpened) && (
+          <div className="text-[11px] text-[#b45309] bg-[#fef3c7] border border-[#f59e0b]/50 rounded-lg px-2.5 py-1 leading-snug">
+            ℹ️ {lang === 'fr' ? 'Aucune adresse récemment ouverte à proximité — voici les établies.' : 'No newly-opened spots nearby — showing established ones.'}
+          </div>
+        )}
       </header>
 
       {/* v0.62.186 — operator (IMG_2507 #5): the standalone "Location staging"

@@ -16244,6 +16244,9 @@ async function cacheBotUsername() {
         // beat 3.0 — this OVERRIDES the global 3.7 floor on this surface (see
         // the newlyOpened-aware floor passed to applyRatingFloor below). Review
         // count is never a factor. (Was: ≤121 d only, no in-block rating bar.)
+        // v0.62.205 — set true when the New filter found nothing provably new and
+        // fell back to the established/biased pool (operator: "say no new nearby").
+        let noProvenNew = false;
         if (filters.newlyOpened) {
           const { oldestReviewDays } = require('./hidden-verify');
           const newness = require('./newness-criteria');
@@ -16283,6 +16286,10 @@ async function cacheBotUsername() {
           // the "newly opened"-biased recall pool so New still returns its
           // best-effort newest set.
           const flooredToBias = refuted.length === 0 && preRefute.length > 0;
+          // v0.62.205 — operator: when NOTHING is provably new nearby, say so
+          // ("no new <cuisine> nearby") rather than silently passing established
+          // spots off as new. This flag rides the response → the TMA banner.
+          noProvenNew = flooredToBias;
           // v0.61.441 — routed through the shared never-empty floor (pool-
           // floor.js) so this and the other anti-collapse guards speak one
           // rule. Behaviour identical: refuted unless it would empty, then
@@ -16987,7 +16994,7 @@ async function cacheBotUsername() {
           }
         } catch (err) { console.warn('[Cuisine-Search] cuisine order-plate build failed (non-fatal):', err.message); }
         const payload = {
-          venues: dedupedTop, exhausted: dedupExhausted, sessionFull, zeroReason,
+          venues: dedupedTop, exhausted: dedupExhausted, sessionFull, zeroReason, noProvenNew,
           // v0.62.88 — operator: instead of silently re-serving the same tiny
           // in-range pool on every tap, tell the user "all N within X km" and
           // offer a one-tap Widen.
