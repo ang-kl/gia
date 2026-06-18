@@ -3421,7 +3421,7 @@ export default function App() {
               connected to the refine-field panel below (.folio-panel), inactive
               modes read as translucent index markers. Closed (first-load) they stay
               the plain pill row. */}
-          <div className={modePeek ? 'folio-tabs' : 'flex gap-1.5'}>
+          <div className={modePeek ? 'folio-tabs overflow-x-auto no-scrollbar' : 'flex gap-1.5 overflow-x-auto no-scrollbar'}>
           {[
             // v0.62.97 — 📍 Current: an ACTION (not a region toggle) that anchors
             // to the live device GPS. Listed first so "set me here" reads left→right.
@@ -3452,8 +3452,10 @@ export default function App() {
             // v0.62.189 — operator (IMG_2515): "Johor Bahru" must show in FULL (it
             // was truncating to "Johor B…"). Give the JB tab its content width; the
             // other three modes proportion the remaining row space (flex-1).
-            const isJB = r.id === 'JB';
-            const widthCls = isJB ? 'shrink-0 whitespace-nowrap' : 'flex-1 basis-0 min-w-0 overflow-hidden';
+            // v0.62.201 — operator: EVERY mode tab sizes to its content (no
+            // truncation) so "Johor Bahru" AND a bold "Singapore" both show in
+            // FULL; the row scrolls horizontally if it overflows a narrow phone.
+            const widthCls = 'shrink-0 whitespace-nowrap';
             return (
               <button key={r.id} type="button"
                 onClick={() => {
@@ -3576,11 +3578,11 @@ export default function App() {
                    pressed-in in dark mode). */
                 className={modePeek
                   ? `folio-tab ${widthCls} justify-center inline-flex items-center gap-1 active:scale-95 ${sel ? 'folio-tab--active' : ''}`
-                  : `glass-pill ${isJB ? 'shrink-0' : 'flex-1 basis-0'} px-1 py-1.5 rounded-xl border text-[11px] whitespace-nowrap inline-flex items-center justify-center gap-1 ${sel ? 'glass-pill--selected ' : ''}${borderCls} ${textCls}`}>
+                  : `glass-pill shrink-0 px-2 py-1.5 rounded-xl border text-[11px] whitespace-nowrap inline-flex items-center justify-center gap-1 ${sel ? 'glass-pill--selected ' : ''}${borderCls} ${textCls}`}>
                 {(r.flag.endsWith('.png') || r.flag.endsWith('.svg'))
                   ? <img src={r.flag} alt="" width="18" height="12" className="rounded-sm border border-tg-border/40 flex-shrink-0" />
                   : <span aria-hidden>{r.flag}</span>}
-                <span className={isJB ? '' : 'truncate'}>{r.label}</span>
+                <span>{r.label}</span>
               </button>
             );
           })}
@@ -3848,7 +3850,14 @@ export default function App() {
         flyTo={flyTarget}
         /* v0.62.125 — tap on the empty map exits the result carousel
            (back to the vertical list), per operator "tap-out → list". */
-        onDeselect={() => setFocusedPlaceId(null)}
+        onDeselect={() => {
+          setFocusedPlaceId(null);
+          // v0.62.201 — operator: tapping the map (an area OTHER than the mode
+          // tabs) SAVES the current location, CLOSES the refine-location editor,
+          // and brings back the "Choose your cuisine" + "Pick local classic"
+          // pickers. The anchor is already committed; nothing fires.
+          if (modePeek || regionExpanded) { setModePeek(false); setRegionExpanded(false); }
+        }}
         /* v0.62.138 — horizontal mode: a card tap blinks the pin only (no zoom,
            no info pop-up). Vertical mode keeps the full pop/zoom behaviour. */
         blinkOnly={drawerMode === 'horizontal'}
