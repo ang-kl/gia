@@ -3425,12 +3425,46 @@ export default function App() {
             );
           })}
         </div>
+        {/* v0.62.172 — operator: the Cuisine PICKER is the TMA's core action but
+            was a tiny footer link ("how would a user know to tap it?"). Surface it
+            as a PROMINENT header bar right under the region pills: an accent CTA
+            when no cuisine is picked, the picks summary once chosen. Opens the
+            existing CuisineDrawer (setCriteriaOpen). Collapses to a thin row once
+            results are showing so the map keeps its space. Colour-blind safe —
+            the 🍲 glyph + "›" chevron + label carry it, not hue alone. */}
+        {(() => {
+          const picked = state.cuisines || [];
+          const names = picked.map((slug) => {
+            if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
+            return cuisineNameBySlug.get(slug) || slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+          });
+          const compact = venues.length > 0;
+          const chooseLabel = lang === 'fr' ? 'Choisir votre cuisine' : 'Choose your cuisine';
+          return (
+            <button
+              type="button"
+              onClick={() => setCriteriaOpen(true)}
+              aria-label={names.length
+                ? (lang === 'fr' ? `Cuisines : ${names.join(', ')} — modifier` : `Cuisines: ${names.join(', ')} — edit`)
+                : chooseLabel}
+              className={`w-full glass-pill flex items-center gap-2 rounded-xl border active:scale-[0.99] ${
+                names.length ? 'border-tg-border/60 text-tg-text' : 'border-tg-accent text-tg-accent'
+              } ${compact ? 'px-2.5 py-1 text-[12px]' : 'px-3 py-2 text-sm font-semibold'} ${
+                !names.length && !compact && editSearchPulse ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''
+              }`}
+            >
+              <span aria-hidden className="shrink-0">🍲</span>
+              <span className="flex-1 text-left truncate">{names.length ? names.join(' · ') : chooseLabel}</span>
+              <span aria-hidden className="text-tg-hint shrink-0">›</span>
+            </button>
+          );
+        })()}
         {/* v0.62.158 — operator: "Local food picks" floats WITH the header once
             results are out (pulled out of the mode-tap reveal).
             v0.62.161 — operator: liquid-glass 80% (translucent + blur) so the map
             scrolls up BEHIND it. */}
         {(cuisinePlate || arrivalPlate) && !loading && venues.length > 0 && (
-          <div className="-mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 pt-1 border-t border-tg-border/40 bg-tg-bg/80 backdrop-blur">
+          <div className="-mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 pt-1 border-t border-tg-border/40 bg-tg-bg/90 liquid-glass">
             <ArrivalPlate
               plate={cuisinePlate || arrivalPlate}
               lang={lang}
@@ -3601,6 +3635,7 @@ export default function App() {
           focusedPlaceId={focusedPlaceId}
           onSelect={setFocusedPlaceId}
           specialMode={state.specialMode || null}
+          hasFilters={criteriaSummary.length > 0}
         />
       )}
 
@@ -4383,7 +4418,7 @@ export default function App() {
             sit as an end-to-end liquid-glass-80% strip JUST ABOVE this row (below
             the 🔍 FAB). Moved here from above the FABs. */}
         {criteriaSummary.length > 0 && (
-          <div className="pointer-events-auto -mx-2 px-3 py-1.5 bg-tg-bg/80 liquid-glass border-y border-tg-border/40">
+          <div className="pointer-events-auto -mx-2 px-3 py-1.5 bg-tg-bg/90 liquid-glass border-y border-tg-border/40">
             <ActiveFilters
               cuisines={state.cuisines}
               filters={state.filters}
@@ -4425,12 +4460,9 @@ export default function App() {
                 className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
               >{drawerMode === 'horizontal' ? '⮷' : '⮲'} {drawerMode === 'horizontal' ? 'vertical' : 'horizontal'}</button>
             )}
-            <button
-              type="button"
-              onClick={() => setCriteriaOpen((o) => !o)}
-              aria-label={lang === 'fr' ? 'Cuisine — critères de recherche' : 'Cuisine — search criteria'}
-              className={`text-tg-link no-underline active:scale-95 whitespace-nowrap ${!criteriaOpen && editSearchPulse ? 'animate-pulse' : ''}`}
-            >🍲 Cuisine ▾</button>
+            {/* v0.62.172 — operator: the 🍲 Cuisine entry moved UP to the prominent
+                header bar (under the region pills). The footer link is removed so
+                there's ONE obvious entry. */}
           </div>
           <div className="flex-1 min-w-0 pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur shadow-lg border border-tg-border px-1 py-0.5">
             <TellMePanel
