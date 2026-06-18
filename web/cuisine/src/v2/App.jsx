@@ -788,6 +788,13 @@ export default function App() {
   // change (server caches 24h per grid cell so repeat calls are
   // free).
   const [locationName, setLocationName] = useState('');
+  // v0.62.173 — PR B2. When results are showing, the region pills collapse to a
+  // one-line "Set location is: <X>. Click to change" to give the map more room;
+  // tapping the line (or this flag) re-expands the pills.
+  const [regionExpanded, setRegionExpanded] = useState(false);
+  // v0.62.173 — operator: a dish searched from Local Food Classic is pinned to the
+  // FRONT of the plate's picks (1st), so the just-searched dish leads.
+  const [pinnedDish, setPinnedDish] = useState(null);
   useEffect(() => {
     // v0.60.120 — the banner label tracks the *active search location*:
     // the place the user locked in via the Search-criteria builder /
@@ -3284,7 +3291,23 @@ export default function App() {
             v0.61.205: OTHER pill flag is now dynamic — `MY_Putrajaya_flag.png`
             when the server-cached anchor is IOI Resort City Putrajaya, else
             falls back to the 🌏 globe. */}
-        <div className="flex gap-1.5">
+        {/* v0.62.173 — PR B2: once results are showing, collapse the four region
+            pills into ONE line ("Set location is: <X>. Click to change", temp-size
+            font) just below the title, to give the map more room. Tapping it
+            re-expands the pills; picking a region collapses again. */}
+        {venues.length > 0 && !regionExpanded && (
+          <button
+            type="button"
+            onClick={() => setRegionExpanded(true)}
+            aria-label={lang === 'fr' ? 'Changer le lieu' : 'Change location'}
+            className="text-[11px] text-tg-hint text-left leading-tight px-0.5 active:scale-[0.99]"
+          >
+            📍 {lang === 'fr' ? 'Lieu défini : ' : 'Set location is: '}
+            <span className="text-tg-text font-medium">{locationName || t('region.singapore', lang)}</span>.{' '}
+            <span className="underline text-tg-link">{lang === 'fr' ? 'Changer' : 'Click to change'}</span>
+          </button>
+        )}
+        <div className={`flex gap-1.5 ${venues.length > 0 && !regionExpanded ? 'hidden' : ''}`}>
           {[
             // v0.62.97 — 📍 Current: an ACTION (not a region toggle) that anchors
             // to the live device GPS. Listed first so "set me here" reads left→right.
@@ -3309,6 +3332,9 @@ export default function App() {
             return (
               <button key={r.id} type="button"
                 onClick={() => {
+                  // v0.62.173 — after picking a region, re-collapse the pills to the
+                  // one-line summary (PR B2).
+                  setRegionExpanded(false);
                   // v0.62.135 — a mode-pill tap (region switch or the 📍 Current
                   // action) surfaces the Location + Local-food-picks fields as an
                   // opaque staging area so the user can confirm the new area before
@@ -3466,7 +3492,17 @@ export default function App() {
         {(cuisinePlate || arrivalPlate) && !loading && venues.length > 0 && (
           <div className="-mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 pt-1 border-t border-tg-border/40 bg-tg-bg/90 liquid-glass">
             <ArrivalPlate
-              plate={cuisinePlate || arrivalPlate}
+              plate={(() => {
+                // v0.62.173 — PR B2: pin the just-searched dish to the FRONT of the
+                // plate's picks so it leads (1st), pushing the others down.
+                const p = cuisinePlate || arrivalPlate;
+                if (!p || !pinnedDish || !Array.isArray(p.dishes)) return p;
+                const i = p.dishes.findIndex((d) => d && d.dish === pinnedDish);
+                if (i <= 0) return p;
+                const dishes = [...p.dishes];
+                const [pin] = dishes.splice(i, 1);
+                return { ...p, dishes: [pin, ...dishes] };
+              })()}
               lang={lang}
               onTryDish={(dish) => {
                 setNlText(dish);
@@ -3474,6 +3510,8 @@ export default function App() {
                 // shows as "Last asked: <dish>" above the free-text, exactly like a
                 // typed query (it IS the last query).
                 setLastPrompt(dish);
+                // v0.62.173 — PR B2: pin it to the front of the picks (1st).
+                setPinnedDish(dish);
                 setLoadingReason('rotating');
                 runSearch(state, null, { freeTextOverride: dish });
               }}
@@ -4458,7 +4496,9 @@ export default function App() {
                   ? (lang === 'fr' ? 'Affichage vertical' : 'Vertical layout')
                   : (lang === 'fr' ? 'Affichage horizontal' : 'Horizontal layout')}
                 className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
-              >{drawerMode === 'horizontal' ? '⮷' : '⮲'} {drawerMode === 'horizontal' ? 'vertical' : 'horizontal'}</button>
+              >{drawerMode === 'horizontal' ? '⊿' : '◸'} {drawerMode === 'horizontal'
+                ? (lang === 'fr' ? 'Afficher le style vertical' : 'Show Vertical style')
+                : (lang === 'fr' ? 'Afficher le style horizontal' : 'Show Horizontal style')}</button>
             )}
             {/* v0.62.172 — operator: the 🍲 Cuisine entry moved UP to the prominent
                 header bar (under the region pills). The footer link is removed so
