@@ -799,6 +799,10 @@ export default function App() {
   // classic" pill (a glassmorphism dropdown), so the header stays compact + the map
   // gets more room. classicOpen drives that dropdown.
   const [classicOpen, setClassicOpen] = useState(false);
+  // v0.62.180 — operator: "Back to last search area" must NOT show on first load
+  // (there's no prior area to return to). Flips true on the first user-initiated
+  // location change (region pill / location pick / search).
+  const [locChanged, setLocChanged] = useState(false);
   // v0.62.173 — operator: a dish searched from Local Food Classic is pinned to the
   // FRONT of the plate's picks (1st), so the just-searched dish leads.
   const [pinnedDish, setPinnedDish] = useState(null);
@@ -2707,6 +2711,8 @@ export default function App() {
     // glassmorphism location-editor box hides away (region pills re-collapse).
     setRegionExpanded(false);
     setClassicOpen(false);
+    // v0.62.180 — a committed search means there's now a "last search area".
+    setLocChanged(true);
     // v0.62.140 — firing from the criteria bottom sheet closes it so the
     // (horizontal) results are unobscured.
     setCriteriaOpen(false);
@@ -3314,9 +3320,25 @@ export default function App() {
             className="text-[11px] text-tg-hint text-left leading-tight px-0.5 active:scale-[0.99]"
           >
             {/* v0.62.176 — operator: "Click to change" on a SECOND line. */}
-            <div>📍 {lang === 'fr' ? 'Lieu défini : ' : 'Set location is: '}<span className="text-tg-text font-medium">{locationName || t('region.singapore', lang)}</span></div>
+            <div>📍 {lang === 'fr' ? 'Lieu défini : ' : 'Set location is: '}<span className="text-tg-text font-medium">{(() => {
+              // v0.62.180 — operator (RECURRING, do not regress): this must be a
+              // specific street / building / precinct — NEVER a country or region
+              // name. Reject the generic names + the old "Singapore" fallback;
+              // while the precinct is still resolving, show a "pinpointing…"
+              // placeholder rather than the country.
+              const generic = new Set(['singapore','malaysia','indonesia','thailand','vietnam','japan','korea','south korea','china','taiwan','hong kong','macau','macao','australia','new zealand','brunei','philippines','johor bahru','johor','cities']);
+              const nm = (locationName || '').trim();
+              return (nm && !generic.has(nm.toLowerCase())) ? nm : (lang === 'fr' ? 'localisation…' : 'pinpointing…');
+            })()}</span></div>
             <div className="underline text-tg-link">{lang === 'fr' ? 'Changer' : 'Click to change'}</div>
           </button>
+        )}
+        {/* v0.62.180 — operator: while the location editor is open, REMIND that
+            nothing auto-fires — the user must tap 🔍 to search. */}
+        {venues.length > 0 && regionExpanded && (
+          <div className="text-[10px] text-tg-accent italic px-1 -mb-0.5">
+            {lang === 'fr' ? 'Choisissez un lieu, puis touchez 🔍 pour rechercher — rien ne se lance avant.' : 'Pick a spot, then tap 🔍 to search — nothing fires until you tap it.'}
+          </div>
         )}
         {/* v0.62.176 — operator: when "Click to change" is tapped (regionExpanded),
             the 4 mode pills sit in ONE glassmorphism container (the refine-location
@@ -3350,9 +3372,12 @@ export default function App() {
             return (
               <button key={r.id} type="button"
                 onClick={() => {
-                  // v0.62.173 — after picking a region, re-collapse the pills to the
-                  // one-line summary (PR B2).
-                  setRegionExpanded(false);
+                  // v0.62.180 — operator: tapping a mode KEEPS the location editor
+                  // open (the 4 modes + the location field) so the user can refine;
+                  // it collapses only when a search is COMMITTED (triggerSearch).
+                  // No auto-fire — the anchor moves with noAutoFire below.
+                  setLocChanged(true);
+                  setRegionExpanded(true);
                   // v0.62.135 — a mode-pill tap (region switch or the 📍 Current
                   // action) surfaces the Location + Local-food-picks fields as an
                   // opaque staging area so the user can confirm the new area before
@@ -3482,8 +3507,11 @@ export default function App() {
             "conversation" dropdown: "Choose your cuisine" → the cuisine picker
             (CuisineDrawer / criteriaOpen); "Pick local classic" → the plate below.
             Before any results, only "Choose your cuisine" shows (full-width accent
-            CTA, pulses) since there's no plate yet. */}
-        {(() => {
+            CTA, pulses) since there's no plate yet.
+            v0.62.180 — operator: HIDE both pills while the location editor is open
+            (regionExpanded), so the 4 modes + location field stage cleanly; they
+            reappear once a search is committed. */}
+        {!regionExpanded && (() => {
           const picked = state.cuisines || [];
           const names = picked.map((slug) => {
             if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
@@ -3653,6 +3681,8 @@ export default function App() {
         // search anchor (positive control — the aircraft-handoff model).
         const anchor = (locationAnchor && Number.isFinite(locationAnchor.lat) && Number.isFinite(locationAnchor.lng))
           ? locationAnchor : userLoc;
+        // v0.62.180 — operator: suppress on first load; only after a user change.
+        if (!locChanged) return null;
         if (!anchor || !mapViewLocation) return null;
         const R = 6371000, toRad = (d) => d * Math.PI / 180;
         const dLat = toRad(mapViewLocation.lat - anchor.lat), dLng = toRad(mapViewLocation.lng - anchor.lng);
