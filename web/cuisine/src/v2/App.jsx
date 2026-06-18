@@ -3347,12 +3347,7 @@ export default function App() {
             font) just below the title, to give the map more room. Tapping it
             re-expands the pills; picking a region collapses again. */}
         {venues.length > 0 && !regionExpanded && (
-          <button
-            type="button"
-            onClick={() => { setRegionExpanded(true); setModePeek(true); }}
-            aria-label={lang === 'fr' ? 'Changer le lieu' : 'Change location'}
-            className="text-[11px] text-tg-hint text-left leading-tight px-0.5 active:scale-[0.99]"
-          >
+          <div className="text-[11px] text-tg-hint text-left leading-tight px-0.5">
             {/* v0.62.176 — operator: "Click to change" on a SECOND line. */}
             <div>📍 {lang === 'fr' ? 'Lieu défini : ' : 'Set location is: '}<span className="text-tg-text font-medium">{(() => {
               // v0.62.180 — operator (RECURRING, do not regress): this must be a
@@ -3364,8 +3359,40 @@ export default function App() {
               const nm = (locationName || '').trim();
               return (nm && !generic.has(nm.toLowerCase())) ? nm : (lang === 'fr' ? 'localisation…' : 'pinpointing…');
             })()}</span></div>
-            <div className="underline text-tg-link">{lang === 'fr' ? 'Changer' : 'Click to change'}</div>
-          </button>
+            {/* v0.62.194 — operator: "Click to change" + "↩ Back to last search area"
+                sit on ONE line, highlighted in BRIGHT RED. The ↩ glyph + underline are
+                a SHAPE cue too (the operator's no-colour-alone rule still holds). */}
+            <div className="flex items-center gap-2 flex-wrap mt-0.5">
+              <button
+                type="button"
+                onClick={() => { setRegionExpanded(true); setModePeek(true); }}
+                aria-label={lang === 'fr' ? 'Changer le lieu' : 'Change location'}
+                className="underline font-semibold text-[#ef4444] active:scale-95"
+              >{lang === 'fr' ? 'Changer' : 'Click to change'}</button>
+              {(() => {
+                // v0.61.353 — "↩ Back to last search area": shows when the map view
+                // has drifted >600 m from the confirmed anchor; flies the map back
+                // WITHOUT changing the search anchor. v0.62.194 — moved up here to
+                // sit beside "Click to change" (one line, bright red).
+                const anchor = (locationAnchor && Number.isFinite(locationAnchor.lat) && Number.isFinite(locationAnchor.lng))
+                  ? locationAnchor : userLoc;
+                if (!locChanged || !anchor || !mapViewLocation) return null;
+                const R = 6371000, toRad = (d) => d * Math.PI / 180;
+                const dLat = toRad(mapViewLocation.lat - anchor.lat), dLng = toRad(mapViewLocation.lng - anchor.lng);
+                const hav = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(anchor.lat)) * Math.cos(toRad(mapViewLocation.lat)) * Math.sin(dLng / 2) ** 2;
+                const distM = 2 * R * Math.asin(Math.sqrt(hav));
+                if (distM < 600) return null;
+                return (
+                  <button
+                    type="button"
+                    onClick={() => { setFlyTarget({ lat: anchor.lat, lng: anchor.lng, zoom: 14, _k: Date.now() }); setSelectedCityLocation(null); }}
+                    className="px-2 py-0.5 rounded-full border border-[#ef4444] text-[#ef4444] font-semibold bg-[#ef4444]/10 leading-tight whitespace-nowrap active:scale-95"
+                    title={lang === 'fr' ? 'Recentrer la carte sur la dernière zone de recherche' : 'Recentre the map on your last search area'}
+                  >↩ {lang === 'fr' ? 'Retour à la dernière zone' : 'Back to last search area'}</button>
+                );
+              })()}
+            </div>
+          </div>
         )}
         {/* v0.62.180 — operator: while the location editor is open, REMIND that
             nothing auto-fires — the user must tap 🔍 to search. */}
@@ -3755,35 +3782,8 @@ export default function App() {
           was merged UP into the header's liquid-glass mode panel, so ONE glass
           background now wraps the 4 modes + the refine LocationField. */}
 
-      {(() => {
-        // v0.61.353 — "↩ Back to last search area". Shows when the map view
-        // has drifted meaningfully (>600 m) from the confirmed search anchor
-        // (manual pan / city preview). Low-weight orange helper (operator's
-        // no-red accessibility rule); flies the map back WITHOUT changing the
-        // search anchor (positive control — the aircraft-handoff model).
-        const anchor = (locationAnchor && Number.isFinite(locationAnchor.lat) && Number.isFinite(locationAnchor.lng))
-          ? locationAnchor : userLoc;
-        // v0.62.180 — operator: suppress on first load; only after a user change.
-        if (!locChanged) return null;
-        if (!anchor || !mapViewLocation) return null;
-        const R = 6371000, toRad = (d) => d * Math.PI / 180;
-        const dLat = toRad(mapViewLocation.lat - anchor.lat), dLng = toRad(mapViewLocation.lng - anchor.lng);
-        const hav = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(anchor.lat)) * Math.cos(toRad(mapViewLocation.lat)) * Math.sin(dLng / 2) ** 2;
-        const distM = 2 * R * Math.asin(Math.sqrt(hav));
-        if (distM < 600) return null;
-        return (
-          <div className="px-1 -mt-0.5 mb-1">
-            <button
-              type="button"
-              onClick={() => { setFlyTarget({ lat: anchor.lat, lng: anchor.lng, zoom: 14, _k: Date.now() }); setSelectedCityLocation(null); }}
-              className="text-[11px] px-2.5 py-0.5 rounded-full border border-[#f59e0b] text-[#d97706] bg-transparent leading-tight whitespace-nowrap"
-              title={lang === 'fr' ? 'Recentrer la carte sur la dernière zone de recherche' : 'Recentre the map on your last search area'}
-            >
-              ↩ {lang === 'fr' ? 'Retour à la dernière zone de recherche' : 'Back to last search area'}
-            </button>
-          </div>
-        );
-      })()}
+      {/* v0.62.194 — the "↩ Back to last search area" helper moved UP into the
+          header, beside "Click to change" (one line, bright red). */}
 
       <MapPanel
         venues={visibleVenues.length ? visibleVenues : venues}
