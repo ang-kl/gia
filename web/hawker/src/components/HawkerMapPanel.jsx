@@ -283,7 +283,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   // + line), and that station's exits. The transit half is null until
   // /api/hawker/centre-transit resolves, then the bubble refreshes.
   function buildInfoHtml(c, key, transit) {
-    const gmaps = (lat, lng) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+    const gmaps = (lat, lng) => `https://maps.google.com/?q=${lat},${lng}`;
     // v0.61.22 — themed rounded card (infoCard) with an in-card ✕;
     // secondary text uses the theme palette so nothing washes out.
     const p = infoPalette();
