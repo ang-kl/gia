@@ -77,7 +77,7 @@ export default function MapControls({
               aria-expanded={menuOpen}
               aria-label={menuLabel}
               title={menuLabel}
-              className={'w-7 h-7 rounded-md bg-white/70 text-black '
+              className={'w-7 h-7 rounded-md bg-white text-black '
                 + 'border border-gray-300 shadow-md flex items-center '
                 + 'justify-center text-base font-bold leading-none active:scale-95'}
             ><span aria-hidden>{overflowGlyph()}</span></button>
