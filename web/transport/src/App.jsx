@@ -37,7 +37,10 @@ export default function App() {
   // system network and suggest to user to toggle to see Google
   // Map as 184 pins in the map of singapore will be very cramp and
   // ugly." Default = 'png'; user opts into 'gmap' via toggle.
-  const [mapView, setMapView] = useState('png');
+  // v0.62.223 — operator (IMG_2537) REVERSED this: "also start in google
+  // map mode". Default is now 'gmap'; the schematic PNG stays one tap away
+  // via the view toggle (the prior 2026-05-10 rationale kept above).
+  const [mapView, setMapView] = useState('gmap');
   // v0.63.0 — map overlay layer toggles (parks / attractions / taxis /
   // carpark), shown only on the interactive Google Map view.
   const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, colour: true, train: true, exits: false, taxis: false, parks: false, police: false, clinics: false, hospitals: false });
