@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Tile from './components/Tile.jsx';
 import TrainPanel from './components/TrainPanel.jsx';
-import BackFab from './components/BackFab.jsx';
+import FooterNav from './components/FooterNav.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import LocationFieldMenu from './components/LocationFieldMenu.jsx';
 import { tg } from './tg.js';
@@ -844,21 +844,18 @@ export default function App() {
         <div>{t('footer.tag', lang)} · v{BUILD_VERSION}</div>
       </div>
 
-      <BackFab />
-
-      {/* v0.60.96 — scroll FAB. Standardised across all four TMAs
-          per operator: bottom-right, aqua, text label "⇣ down" /
-          "⇡ top" toggled by atBottom state. */}
-      <button
-        type="button"
-        onClick={() => window.scrollTo({
-          top: atBottom ? 0 : window.scrollY + window.innerHeight,
-          behavior: 'smooth'
-        })}
-        aria-label={atBottom ? t('btn.fabTopAria', lang) : t('btn.fabDownAria', lang)}
-        style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f', bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
-        className="fixed right-4 px-1.5 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[11px] font-semibold flex items-center justify-center gap-1 active:scale-95 z-50 whitespace-nowrap"
-      >{atBottom ? t('btn.fabTop', lang) : t('btn.fabDown', lang)}</button>
+      {/* v0.62.213 — operator (IMG_1069 item 6): the separate bottom-left BackFab
+          + bottom-right scroll FAB are replaced by ONE standardised FooterNav row
+          (⇡ top / ⇣ down · ↩ back / 🔚 end), mirroring the Cuisine TMA footer. */}
+      <FooterNav
+        atBottom={atBottom}
+        labels={{
+          top: t('btn.fabTop', lang), down: t('btn.fabDown', lang),
+          topAria: t('btn.fabTopAria', lang), downAria: t('btn.fabDownAria', lang),
+          back: t('btn.fabBack', lang), end: t('btn.fabEnd', lang),
+          backAria: t('btn.fabBackAria', lang), endAria: t('btn.fabEndAria', lang)
+        }}
+      />
     </div>
   );
 }
