@@ -15128,6 +15128,6531 @@ const CUISINE_NOTES = {
         }
       ]
     }
+  },
+  "greek": {
+    "moussaka": {
+      "local": "μουσακάς",
+      "note": {
+        "en": "Baked Greek casserole of layered eggplant, spiced minced meat and béchamel; the modern version was created by Nikolaos Tselementes in the…",
+        "fr": "Gratin grec d'aubergines, de viande hachée épicée et de béchamel ; la version moderne fut créée par Nikolaos Tselementes dans les années…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Moussaka",
+          "url": "https://en.wikipedia.org/wiki/Moussaka"
+        },
+        {
+          "name": "Britannica — Moussaka",
+          "url": "https://www.britannica.com/topic/moussaka"
+        }
+      ]
+    },
+    "souvlaki": {
+      "local": "σουβλάκι",
+      "note": {
+        "en": "Greek dish of small skewer-grilled meat pieces served on or in pita; its name derives from the Medieval Greek souvla, meaning spit.",
+        "fr": "Plat grec de petits morceaux de viande grillés en brochette, servis dans ou avec un pita; son nom vient du grec medieval souvla, broche."
+      },
+      "sources": [
+        {
+          "name": "Souvlaki - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Souvlaki"
+        },
+        {
+          "name": "The Ancient Roots of Greek Souvlaki - GreekReporter",
+          "url": "https://greekreporter.com/2023/09/16/ancient-roots-greek-souvlaki/"
+        }
+      ]
+    },
+    "gyros": {
+      "local": "γύρος",
+      "note": {
+        "en": "Greek dish of meat (usually pork or chicken) cooked on a vertical rotisserie, served in pita with tomato, onion and tzatziki.",
+        "fr": "Plat grec de viande (souvent porc ou poulet) cuite sur broche verticale, servie en pita avec tomate, oignon et tzatziki."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Gyros",
+          "url": "https://en.wikipedia.org/wiki/Gyros"
+        },
+        {
+          "name": "Diane Kochilas – History of Gyro",
+          "url": "https://www.dianekochilas.com/gyro-ancient-street-food-history/"
+        }
+      ]
+    },
+    "spanakopita": {
+      "local": "σπανακόπιτα",
+      "note": {
+        "en": "Greek savory pie of spinach and feta cheese layered in phyllo pastry; the name combines spanaki (spinach) and pita (pie).",
+        "fr": "Tourte grecque salee aux epinards et a la feta en pate phyllo; son nom combine spanaki (epinard) et pita (tourte)."
+      },
+      "sources": [
+        {
+          "name": "Savory spinach pie - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Savory_spinach_pie"
+        },
+        {
+          "name": "spanakopita - Wiktionary",
+          "url": "https://en.wiktionary.org/wiki/spanakopita"
+        }
+      ]
+    },
+    "tiropita": {
+      "local": "τυρόπιτα",
+      "note": {
+        "en": "A Greek pastry of layered buttered phyllo filled with a cheese-and-egg mixture, traced by scholars to the ancient placenta cake (plakous).",
+        "fr": "Une pâtisserie grecque de pâte phyllo beurrée en couches garnie de fromage et d'œufs, rattachée par les érudits à l'antique gâteau placenta…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Tiropita",
+          "url": "https://en.wikipedia.org/wiki/Tiropita"
+        }
+      ]
+    },
+    "pastitsio": {
+      "local": "παστίτσιο",
+      "note": {
+        "en": "Greek baked pasta dish layering tubular pasta, spiced ground-meat sauce and béchamel; its modern form was codified by chef Tselementes in…",
+        "fr": "Plat grec de pâtes au four superposant pâtes tubulaires, sauce à la viande épicée et béchamel ; sa forme moderne fut codifiée par le chef…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Pastitsio",
+          "url": "https://en.wikipedia.org/wiki/Pastitsio"
+        }
+      ]
+    },
+    "dolmades": {
+      "local": "ντολμάδες",
+      "note": {
+        "en": "Greek grape leaves wrapped around rice, herbs and often lamb, simmered in lemony broth; the name comes from the Turkic verb dolmak, to fill.",
+        "fr": "Feuilles de vigne grecques garnies de riz, d'herbes et souvent d'agneau, mijotees au citron; le nom vient du verbe turc dolmak, remplir."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Stuffed leaves",
+          "url": "https://en.wikipedia.org/wiki/Stuffed_leaves"
+        },
+        {
+          "name": "Britannica — Dolma",
+          "url": "https://www.britannica.com/topic/dolma"
+        }
+      ]
+    },
+    "horiatiki salad": {
+      "local": "χωριάτικη σαλάτα",
+      "note": {
+        "en": "Greek \"village salad\" of tomatoes, cucumber, onion, olives and a feta block, popularized mid-20th century to skirt price controls.",
+        "fr": "\"Salade villageoise\" grecque de tomates, concombre, oignon, olives et bloc de feta, popularisée au milieu du XXe siècle pour contourner le…"
+      },
+      "sources": [
+        {
+          "name": "Greek salad — Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Greek_salad"
+        },
+        {
+          "name": "Greek Salad (Horiatiki): Authentic Recipe and Surprising Origins — Food Around Athens",
+          "url": "https://foodaroundathens.com/2025/09/09/greek-salad-horiatiki-authentic-recipe-and-surprising-origins/"
+        }
+      ]
+    },
+    "tzatziki": {
+      "local": "τζατζίκι",
+      "note": {
+        "en": "A Greek dip of strained yogurt, cucumber and garlic, adapted from Ottoman Turkish cacık.",
+        "fr": "Une sauce grecque de yaourt égoutté, concombre et ail, adaptée du cacık turc ottoman."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Tzatziki",
+          "url": "https://en.wikipedia.org/wiki/Tzatziki"
+        },
+        {
+          "name": "Wiktionary — tzatziki",
+          "url": "https://en.wiktionary.org/wiki/tzatziki"
+        }
+      ]
+    },
+    "hummus greek style": {
+      "local": "χούμους",
+      "note": {
+        "en": "A purée of chickpeas, tahini, lemon and olive oil of Levantine origin, adopted into Greek meze cuisine in recent decades.",
+        "fr": "Une purée de pois chiches, tahini, citron et huile d'olive d'origine levantine, intégrée au meze grec depuis quelques décennies."
+      },
+      "sources": [
+        {
+          "name": "Wiktionary — χούμους",
+          "url": "https://en.wiktionary.org/wiki/%CF%87%CE%BF%CF%8D%CE%BC%CE%BF%CF%85%CF%82"
+        },
+        {
+          "name": "My Greek Dish — Homemade Hummus",
+          "url": "https://www.mygreekdish.com/recipe/3-easy-delicious-homemade-hummus-recipes/"
+        }
+      ]
+    },
+    "taramasalata": {
+      "local": "ταραμοσαλάτα",
+      "note": {
+        "en": "A Greek meze of salted, cured fish roe (tarama) whipped with bread or potato, olive oil and lemon, traditional at Lent.",
+        "fr": "Un meze grec de œufs de poisson salés et séchés (tarama) montés au pain ou à la pomme de terre, huile d'olive et citron, typique du Carême."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Taramasalata",
+          "url": "https://en.wikipedia.org/wiki/Taramasalata"
+        }
+      ]
+    },
+    "saganaki": {
+      "local": "σαγανάκι",
+      "note": {
+        "en": "Greek appetizer of firm cheese dredged in flour and pan-fried, named after the small two-handled frying pan (sagani) it is cooked in.",
+        "fr": "Entrée grecque de fromage ferme fariné et poêlé, nommée d'après la petite poêle à deux anses (sagani) où il cuit."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Saganaki",
+          "url": "https://en.wikipedia.org/wiki/Saganaki"
+        },
+        {
+          "name": "Wiktionary — σαγανάκι",
+          "url": "https://en.wiktionary.org/wiki/%CF%83%CE%B1%CE%B3%CE%B1%CE%BD%CE%AC%CE%BA%CE%B9"
+        }
+      ]
+    },
+    "greek octopus": {
+      "local": "χταπόδι",
+      "note": {
+        "en": "Octopus, often grilled over charcoal, is a quintessential Greek seafood meze served in seaside tavernas with ouzo.",
+        "fr": "Le poulpe, souvent grille au charbon, est un meze grec de fruits de mer emblematique servi dans les tavernes avec de l'ouzo."
+      },
+      "sources": [
+        {
+          "name": "Diane Kochilas - Classic Grilled Octopus (Ktapodi stin Skara)",
+          "url": "https://www.dianekochilas.com/classic-grilled-octopus-ktapodi-stin-skara/"
+        },
+        {
+          "name": "My Greek Dish - Greek-style Octopus (Xtapodi)",
+          "url": "https://www.mygreekdish.com/recipe/greek-style-octopus/"
+        }
+      ]
+    },
+    "kleftiko": {
+      "local": "κλέφτικο",
+      "note": {
+        "en": "Greek slow-roasted lamb sealed and cooked in a pit, named after the klephts who hid \"stolen meat\" from Ottoman rulers.",
+        "fr": "Agneau grec rôti lentement et scellé dans une fosse, nommé d'après les klephtes cachant la \"viande volée\" aux Ottomans."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Kleftiko",
+          "url": "https://en.wikipedia.org/wiki/Kleftiko"
+        },
+        {
+          "name": "Hill Street Grocer — The story of Lamb Kleftiko",
+          "url": "https://hillstreetgrocer.com/featured-content/articles/greek-classic-story-lamb-kleftiko"
+        }
+      ]
+    },
+    "stifado": {
+      "local": "στιφάδο",
+      "note": {
+        "en": "A Greek slow-cooked stew of meat (traditionally rabbit or beef) and pearl onions in red wine and spices, of Venetian origin.",
+        "fr": "Ragout grec mijote de viande (traditionnellement lapin ou boeuf) et petits oignons au vin rouge et epices, d'origine venitienne."
+      },
+      "sources": [
+        {
+          "name": "Wiktionary: στιφάδο",
+          "url": "https://en.wiktionary.org/wiki/%CF%83%CF%84%CE%B9%CF%86%CE%AC%CE%B4%CE%BF"
+        },
+        {
+          "name": "196 flavors: Stifado",
+          "url": "https://www.196flavors.com/greece-stifado/"
+        }
+      ]
+    },
+    "avgolemono": {
+      "local": "αυγολέμονο",
+      "note": {
+        "en": "A Greek family of egg-yolk-and-lemon-juice sauces or soups beaten with broth and heated to thicken; its name literally means \"egg-lemon.\"",
+        "fr": "Famille grecque de sauces ou soupes au jaune d'oeuf et jus de citron, battue avec du bouillon et chauffee pour epaissir ; son nom signifie…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Avgolemono",
+          "url": "https://en.wikipedia.org/wiki/Avgolemono"
+        }
+      ]
+    },
+    "baklava greek": {
+      "local": "μπακλαβάς",
+      "note": {
+        "en": "A sweet pastry of layered phyllo, chopped nuts and honey syrup, rooted in Byzantine and Ottoman kitchens.",
+        "fr": "Une pâtisserie sucrée de pâte phyllo en couches, noix concassées et sirop de miel, née des cuisines byzantine et ottomane."
+      },
+      "sources": [
+        {
+          "name": "Baklava - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Baklava"
+        },
+        {
+          "name": "μπακλαβάς - Wiktionary",
+          "url": "https://en.wiktionary.org/wiki/%CE%BC%CF%80%CE%B1%CE%BA%CE%BB%CE%B1%CE%B2%CE%AC%CF%82"
+        }
+      ]
+    },
+    "galaktoboureko": {
+      "local": "Γαλακτομπούρεκο",
+      "note": {
+        "en": "A Greek dessert of semolina custard baked between layers of buttered phyllo, then soaked in cooled citrus-scented syrup.",
+        "fr": "Un dessert grec de crème de semoule cuite entre des couches de pâte phyllo beurrée, puis imbibée de sirop parfumé aux agrumes."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Galaktoboureko",
+          "url": "https://en.wikipedia.org/wiki/Galaktoboureko"
+        },
+        {
+          "name": "Mia Kouppa — Galaktoboureko (Γαλακτομπούρεκο)",
+          "url": "https://miakouppa.com/galaktoboureko-%CE%B3%CE%B1%CE%BB%CE%B1%CE%BA%CF%84%CE%BF%CE%BC%CF%80%CE%BF%CF%8D%CF%81%CE%B5%CE%BA%CE%BF/"
+        }
+      ]
+    },
+    "loukoumades": {
+      "local": "λουκουμάδες",
+      "note": {
+        "en": "Greek deep-fried dough balls soaked in honey syrup and cinnamon; among the oldest recorded desserts, served to ancient Olympic victors.",
+        "fr": "Beignets grecs frits trempes dans un sirop de miel et de cannelle; parmi les plus anciens desserts attestes, offerts aux vainqueurs…"
+      },
+      "sources": [
+        {
+          "name": "Wiktionary - λουκουμάς",
+          "url": "https://en.wiktionary.org/wiki/%CE%BB%CE%BF%CF%85%CE%BA%CE%BF%CF%85%CE%BC%CE%AC%CF%82"
+        },
+        {
+          "name": "Greek Reporter - Tales of loukoumades",
+          "url": "https://greekreporter.com/2023/08/08/loukoumades-from-the-ancient-olympics-to-the-present-day/"
+        }
+      ]
+    },
+    "feta cheese": {
+      "local": "Φέτα",
+      "note": {
+        "en": "Greek brined white cheese from sheep's milk (plus up to 30% goat), granted EU PDO status in 2002 limiting the name to traditional Greek…",
+        "fr": "Fromage grec blanc en saumure au lait de brebis (et jusqu'à 30% de chèvre), protégé par l'AOP de l'UE depuis 2002 dans certaines régions…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Feta",
+          "url": "https://en.wikipedia.org/wiki/Feta"
+        },
+        {
+          "name": "WIPO — Defining a Name's Origin: The Case of Feta",
+          "url": "https://www.wipo.int/en/web/ip-advantage/w/stories/defining-a-name-s-origin-the-case-of-feta"
+        }
+      ]
+    },
+    "halloumi greek style": {
+      "local": "Χαλλούμι",
+      "note": {
+        "en": "Cypriot semi-hard brined cheese, traditionally from sheep and goat milk (the EU PDO recipe also permits cow milk, but sheep/goat must…",
+        "fr": "Fromage chypriote semi-ferme en saumure, traditionnellement au lait de brebis et de chevre (la recette AOP autorise aussi le lait de vache…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Halloumi",
+          "url": "https://en.wikipedia.org/wiki/Halloumi"
+        },
+        {
+          "name": "European Commission - European Commission registers Χαλλούμι/Halloumi/Hellim as a Protected Designation of Origin (PDO)",
+          "url": "https://ec.europa.eu/commission/presscorner/detail/en/ip_21_1623"
+        }
+      ]
+    },
+    "greek yogurt with honey": {
+      "local": "Γιαούρτι με μέλι",
+      "note": {
+        "en": "Thick strained Greek yogurt drizzled with honey, traditionally topped with walnuts; eaten in Greece as a light dessert, snack, or…",
+        "fr": "Yaourt grec épais et égoutté, nappé de miel et traditionnellement garni de noix; consommé en Grèce comme dessert léger, en-cas ou…"
+      },
+      "sources": [
+        {
+          "name": "My Greek Dish — Greek Yogurt with Honey and Walnuts (Yiaourti me meli)",
+          "url": "https://www.mygreekdish.com/recipe/greek-yogurt-with-honey-walnuts-recipe-yiaourti-meli/"
+        },
+        {
+          "name": "Wikipedia — Oxygala (ancient Greek soured-milk product; Galen noted it was eaten with honey)",
+          "url": "https://en.wikipedia.org/wiki/Oxygala"
+        }
+      ]
+    },
+    "ouzo": {
+      "local": "ούζο",
+      "note": {
+        "en": "A dry anise-flavored aperitif from Greece and Cyprus, distilled from rectified spirits; with EU Protected Designation of Origin since 2006.",
+        "fr": "Apéritif sec grec et chypriote parfumé à l'anis, distillé à partir d'alcool rectifié; appellation d'origine protégée de l'UE depuis 2006."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Ouzo",
+          "url": "https://en.wikipedia.org/wiki/Ouzo"
+        }
+      ]
+    },
+    "retsina": {
+      "local": "Ρετσίνα",
+      "note": {
+        "en": "Greek resinated white (or rosé) wine flavored with Aleppo pine resin, a practice dating to antiquity when resin sealed wine amphorae.",
+        "fr": "Vin grec blanc (ou rosé) résiné aromatisé à la résine de pin d'Alep, pratique remontant à l'Antiquité où la résine scellait les amphores."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Retsina",
+          "url": "https://en.wikipedia.org/wiki/Retsina"
+        },
+        {
+          "name": "Wines of Greece — Retsina: From Tradition to a New Era",
+          "url": "https://winesofgreece.org/retsina-from-tradition-to-a-new-era/"
+        }
+      ]
+    },
+    "greek coffee": {
+      "local": "Ελληνικός καφές",
+      "note": {
+        "en": "A strong unfiltered coffee of finely ground beans simmered in a briki pot, introduced via the Ottoman Empire and renamed from Turkish…",
+        "fr": "Un café fort non filtré de grains finement moulus, mijoté dans un briki, introduit par l'Empire ottoman puis rebaptisé du café turc."
+      },
+      "sources": [
+        {
+          "name": "AllinCrete Travel Guide",
+          "url": "https://www.allincrete.com/greek-coffee-a-guide-to-the-history-brewing-and-serving-of-this-traditional-beverage/"
+        },
+        {
+          "name": "Greece High Definition",
+          "url": "https://www.greecehighdefinition.com/blog/history-of-greek-coffee-preparation-ellinikos-kafes"
+        }
+      ]
+    }
+  },
+  "turkish": {
+    "döner kebab": {
+      "local": "döner kebap",
+      "note": {
+        "en": "Turkish dish of seasoned meat stacked and cooked on a vertical rotisserie, originating in 19th-century Ottoman Bursa.",
+        "fr": "Plat turc de viande assaisonnée, empilée et cuite sur une broche verticale, né dans la Bursa ottomane du XIXe siècle."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Doner kebab",
+          "url": "https://en.wikipedia.org/wiki/Doner_kebab"
+        },
+        {
+          "name": "National Geographic - What is doner kebab",
+          "url": "https://www.nationalgeographic.com/travel/article/what-is-turkish-doner-kebab"
+        }
+      ]
+    },
+    "shish kebab": {
+      "local": "şiş kebap",
+      "note": {
+        "en": "A Turkish dish of skewered, grilled cubes of meat (traditionally lamb); the name combines şiş (skewer) and kebap (roasted meat).",
+        "fr": "Un plat turc de cubes de viande grillés en brochette (traditionnellement l'agneau) ; le nom unit şiş (broche) et kebap (viande rôtie)."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Shish kebab",
+          "url": "https://en.wikipedia.org/wiki/Shish_kebab"
+        },
+        {
+          "name": "Britannica - Shish kebab",
+          "url": "https://www.britannica.com/topic/shish-kebab"
+        }
+      ]
+    },
+    "adana kebab": {
+      "local": "Adana kebabı",
+      "note": {
+        "en": "A spicy hand-minced lamb kebab skewered and grilled, named after Adana, Turkey; registered as a geographical indication in 2005.",
+        "fr": "Brochette de viande d'agneau hachée et épicée, grillée, nommée d'après Adana en Turquie; indication géographique enregistrée en 2005."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Adana kebabı",
+          "url": "https://en.wikipedia.org/wiki/Adana_kebab%C4%B1"
+        }
+      ]
+    },
+    "iskender kebab": {
+      "local": "İskender kebap",
+      "note": {
+        "en": "Turkish dish of sliced döner meat over pita with tomato sauce, yogurt and melted butter, invented by İskender Efendi in Bursa in 1867.",
+        "fr": "Plat turc de döner tranché sur du pain pita avec sauce tomate, yaourt et beurre fondu, inventé par İskender Efendi à Bursa en 1867."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — İskender kebap",
+          "url": "https://en.wikipedia.org/wiki/%C4%B0skender_kebap"
+        },
+        {
+          "name": "Turkey Travel Planner — Iskender Kebap",
+          "url": "https://turkeytravelplanner.com/details/Food/IskenderKebap.html"
+        }
+      ]
+    },
+    "lahmacun": {
+      "local": "lahmacun",
+      "note": {
+        "en": "A thin Turkish flatbread topped with spiced minced meat; its name derives from Arabic \"lahm bi-ajin\" (meat with dough).",
+        "fr": "Une fine galette turque garnie de viande hachee epicee; son nom vient de l'arabe \"lahm bi-ajin\" (viande avec pate)."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Lahmacun",
+          "url": "https://en.wikipedia.org/wiki/Lahmacun"
+        }
+      ]
+    },
+    "pide": {
+      "local": "pide",
+      "note": {
+        "en": "A boat-shaped Turkish flatbread baked with toppings such as cheese, minced meat or egg, often called \"Turkish pizza.\"",
+        "fr": "Pain plat turc en forme de barque, garni de fromage, viande hachee ou oeuf, souvent appele \"pizza turque.\""
+      },
+      "sources": [
+        {
+          "name": "İçli pide - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/İçli_pide"
+        }
+      ]
+    },
+    "borek": {
+      "local": "börek",
+      "note": {
+        "en": "A filled pastry of thin yufka dough layered with cheese, meat or greens, rooted in Central Asian Turkic flatbread-making.",
+        "fr": "Une pâtisserie farcie en fines feuilles de yufka garnie de fromage, viande ou herbes, issue des galettes turques d'Asie centrale."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Börek",
+          "url": "https://en.wikipedia.org/wiki/B%C3%B6rek"
+        },
+        {
+          "name": "History Today - A History of Börek",
+          "url": "https://www.historytoday.com/archive/historians-cookbook/history-borek"
+        }
+      ]
+    },
+    "su böreği": {
+      "local": "su böreği",
+      "note": {
+        "en": "A Turkish layered börek whose yufka sheets are boiled before baking, filled with white cheese and parsley.",
+        "fr": "Un börek turc en couches dont les feuilles de yufka sont bouillies avant cuisson, garni de fromage blanc et de persil."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Su böreği",
+          "url": "https://en.wikipedia.org/wiki/Su_b%C3%B6re%C4%9Fi"
+        },
+        {
+          "name": "Cooking Gorgeous — Su Boregi (Water Borek)",
+          "url": "https://cookingorgeous.com/blog/su-boregi-water-borek/"
+        }
+      ]
+    },
+    "manti": {
+      "local": "Mantı",
+      "note": {
+        "en": "Small Turkish dumplings filled with spiced lamb or beef, served in garlicky yoghurt; the earliest recipe appears in a 15th-century Ottoman…",
+        "fr": "Petits raviolis turcs farcis d'agneau ou de bœuf épicé, servis au yaourt à l'ail ; la plus ancienne recette figure dans un livre ottoman du…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Manti (food)",
+          "url": "https://en.wikipedia.org/wiki/Manti_(food)"
+        }
+      ]
+    },
+    "köfte": {
+      "local": "köfte",
+      "note": {
+        "en": "Turkish seasoned ground-meat balls or patties (usually lamb or beef, or a mix), flavoured with onion and spices; the name is from Persian…",
+        "fr": "Boulettes ou galettes turques de viande hachée assaisonnée (souvent agneau ou bœuf, ou un mélange), parfumées à l'oignon et aux épices; le…"
+      },
+      "sources": [
+        {
+          "name": "Köfte, the iconic Turkish meatball and its many variations - Daily Sabah",
+          "url": "https://www.dailysabah.com/life/food/kofte-the-iconic-turkish-meatball-and-its-many-variations"
+        },
+        {
+          "name": "Kofta - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Kofta"
+        }
+      ]
+    },
+    "kuru fasulye": {
+      "local": "kuru fasulye",
+      "note": {
+        "en": "Turkish stew of white beans simmered with onion, tomato paste or tomato sauce, and olive oil; often considered the national dish of Turkey.",
+        "fr": "Ragout turc de haricots blancs mijotes avec oignon, concentre ou sauce tomate et huile d'olive ; souvent considere comme le plat national…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Kuru fasulye",
+          "url": "https://en.wikipedia.org/wiki/Kuru_fasulye"
+        },
+        {
+          "name": "TasteAtlas - Kuru Fasulye",
+          "url": "https://www.tasteatlas.com/kuru-fasulye"
+        }
+      ]
+    },
+    "mantı": {
+      "local": "mantı",
+      "note": {
+        "en": "Small Turkish dumplings filled with spiced ground meat, served with garlic yogurt and butter; earliest Ottoman recipe dates to the 15th…",
+        "fr": "Petits raviolis turcs farcis de viande hachée épicée, servis avec yaourt à l'ail et beurre ; la première recette ottomane date du XVe…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Manti (food)",
+          "url": "https://en.wikipedia.org/wiki/Manti_(food)"
+        },
+        {
+          "name": "TasteAtlas — Mantı",
+          "url": "https://tasteatlas.com/manti"
+        }
+      ]
+    },
+    "imam bayildi": {
+      "local": "İmam bayıldı",
+      "note": {
+        "en": "Ottoman-era dish of whole aubergine stuffed with onion, garlic and tomato and simmered in olive oil; the name means \"the imam fainted.\"",
+        "fr": "Plat d'origine ottomane d'aubergine entière farcie d'oignon, d'ail et de tomate, mijotée à l'huile d'olive ; le nom signifie « l'imam s'est…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — İmam bayıldı",
+          "url": "https://en.wikipedia.org/wiki/%C4%B0mam_bay%C4%B1ld%C4%B1"
+        }
+      ]
+    },
+    "hünkar beğendi": {
+      "local": "Hünkâr Beğendi",
+      "note": {
+        "en": "Ottoman dish (\"Sultan's Delight\") of lamb stew over a creamy bechamel-eggplant puree, a celebrated Turkish palace recipe.",
+        "fr": "Plat ottoman (Delice du sultan): ragout d'agneau sur une puree d'aubergine a la bechamel, celebre recette du palais turc."
+      },
+      "sources": [
+        {
+          "name": "Turkish Foodie - Hünkar Beğendi",
+          "url": "https://turkishfoodie.com/hunkar-begendi/"
+        },
+        {
+          "name": "Meer - The legend of Ottoman cuisine: Hünkar Beğendi",
+          "url": "https://www.meer.com/en/75967-the-legend-of-ottoman-cuisine-hunkar-begendi"
+        }
+      ]
+    },
+    "iç pilav": {
+      "local": "İç pilav",
+      "note": {
+        "en": "Turkish rice pilaf with pine nuts, currants and spices, an Ottoman palace dish used as a side or as stuffing for poultry and lamb.",
+        "fr": "Pilaf de riz turc aux pignons, raisins de Corinthe et épices, plat de palais ottoman servi en accompagnement ou en farce pour volaille et…"
+      },
+      "sources": [
+        {
+          "name": "Give Recipe — Ic Pilav (Turkish Rice with Currants and Pine Nuts)",
+          "url": "https://www.giverecipe.com/rice-with-currants/"
+        },
+        {
+          "name": "Ozlem's Turkish Table — Kestaneli İç Pilav",
+          "url": "https://ozlemsturkishtable.com/2021/12/rice-pilaf-with-chestnuts-pine-nuts-and-currants-kestaneli-ic-pilav/"
+        }
+      ]
+    },
+    "meze platter turkish": {
+      "local": "meze",
+      "note": {
+        "en": "A Turkish selection of small shared appetiser dishes served before or with rakı; the word comes from Persian maze, meaning taste.",
+        "fr": "Un assortiment turc de petits plats à partager servis avant ou avec le rakı; le mot vient du persan maze, signifiant goût."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Meze",
+          "url": "https://en.wikipedia.org/wiki/Meze"
+        },
+        {
+          "name": "Wikipedia — Turkish cuisine",
+          "url": "https://en.wikipedia.org/wiki/Turkish_cuisine"
+        }
+      ]
+    },
+    "cacık": {
+      "local": "cacık",
+      "note": {
+        "en": "A Turkish dish of strained yogurt with cucumber, garlic and herbs, often thinned with water and served as a cold soup.",
+        "fr": "Plat turc de yaourt égoutté avec concombre, ail et herbes, souvent allongé d'eau et servi en soupe froide."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia: Tzatziki (cacık)",
+          "url": "https://en.wikipedia.org/wiki/Tzatziki"
+        }
+      ]
+    },
+    "baklava turkish": {
+      "local": "baklava",
+      "note": {
+        "en": "A rich pastry of layered filo filled with chopped nuts and soaked in syrup, perfected in Ottoman kitchens; Gaziantep baklava holds EU…",
+        "fr": "Patisserie de fines couches de pate filo garnie de noix concassees et imbibee de sirop, perfectionnee sous les Ottomans; le baklava de…"
+      },
+      "sources": [
+        {
+          "name": "Baklava - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Baklava"
+        }
+      ]
+    },
+    "künefe": {
+      "local": "künefe",
+      "note": {
+        "en": "A warm Turkish dessert of shredded kadayıf pastry layered with unsalted melting cheese, baked crisp and soaked in sugar syrup; associated…",
+        "fr": "Dessert turc chaud de pâte kadayıf effilochée garnie de fromage fondant non salé, cuit croustillant et imbibé de sirop ; lié à…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Künefe",
+          "url": "https://www.tasteatlas.com/best-rated-desserts-in-turkey"
+        },
+        {
+          "name": "Turkish Foodie - Künefe",
+          "url": "https://turkishfoodie.com/kunefe/"
+        }
+      ]
+    },
+    "lokma": {
+      "local": "lokma",
+      "note": {
+        "en": "Leavened deep-fried dough balls soaked in sweet syrup or honey, from the medieval Arabic luqmat al-qadi adopted by the Ottoman palace.",
+        "fr": "Boules de pate levee frites trempees dans un sirop sucre ou du miel, issues du luqmat al-qadi arabe medieval adopte par le palais ottoman."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Lokma",
+          "url": "https://en.wikipedia.org/wiki/Lokma"
+        }
+      ]
+    },
+    "turkish delight": {
+      "local": "lokum (rahat lokum)",
+      "note": {
+        "en": "A chewy Turkish confection of starch and sugar gel, often with nuts or rosewater, refined into its modern form in 18th-century Istanbul.",
+        "fr": "Confiserie turque moelleuse de gel d'amidon et de sucre, souvent aux noix ou a l'eau de rose, perfectionnee au 18e siecle a Istanbul."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Turkish delight",
+          "url": "https://en.wikipedia.org/wiki/Turkish_delight"
+        }
+      ]
+    },
+    "simit": {
+      "local": "simit",
+      "note": {
+        "en": "A circular Turkish sesame-encrusted bread with Byzantine roots (the 9th-century kollikion), documented in Istanbul since the 1520s and sold…",
+        "fr": "Pain turc circulaire enrobe de graines de sesame, aux racines byzantines (le kollikion du IXe siecle), atteste a Istanbul depuis les annees…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Simit",
+          "url": "https://en.wikipedia.org/wiki/Simit"
+        },
+        {
+          "name": "TasteAtlas - Simit",
+          "url": "https://www.tasteatlas.com/simit"
+        }
+      ]
+    },
+    "turkish tea (çay)": {
+      "local": "Çay",
+      "note": {
+        "en": "Strong black tea brewed in a stacked double teapot and served in tulip-shaped glasses, mostly grown in Rize on Turkey's Black Sea coast…",
+        "fr": "Thé noir corsé infusé dans une théière double superposée et servi dans des verres tulipe, cultivé surtout à Rize sur la côte turque de la…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Tea in Turkey",
+          "url": "https://en.wikipedia.org/wiki/Tea_in_Turkey"
+        },
+        {
+          "name": "TasteAtlas - Rize çayı",
+          "url": "https://tasteatlas.com/rize-cayi"
+        }
+      ]
+    },
+    "turkish coffee": {
+      "local": "Türk kahvesi",
+      "note": {
+        "en": "Finely ground unfiltered coffee simmered in a cezve, an Ottoman tradition since the 16th century, UNESCO-listed in 2013.",
+        "fr": "Café non filtré finement moulu mijoté dans un cezve, tradition ottomane du XVIe siècle, inscrite à l'UNESCO en 2013."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Turkish coffee",
+          "url": "https://en.wikipedia.org/wiki/Turkish_coffee"
+        },
+        {
+          "name": "UNESCO — Turkish coffee culture and tradition",
+          "url": "https://www.unesco.org/en/articles/turkish-coffee-not-just-drink-culture"
+        }
+      ]
+    },
+    "ayran": {
+      "local": "ayran",
+      "note": {
+        "en": "A cold savory Turkic drink of yogurt, water and salt, attested in al-Kashgari's c.1072 Turkic dictionary Diwan Lughat al-Turk.",
+        "fr": "Boisson turcique froide et salee a base de yaourt, d'eau et de sel, attestee vers 1072 dans le dictionnaire turc Diwan Lughat al-Turk."
+      },
+      "sources": [
+        {
+          "name": "Ayran - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ayran"
+        },
+        {
+          "name": "Diwan Lughat al-Turk - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/D%C4%ABw%C4%81n_Lugh%C4%81t_al-Turk"
+        }
+      ]
+    },
+    "rakı": {
+      "local": "rakı",
+      "note": {
+        "en": "Turkey's national anise-flavored spirit, twice-distilled from grape pomace, that turns milky white when water is added.",
+        "fr": "Spiritueux national turc parfumé à l'anis, deux fois distillé à partir de marc de raisin, qui devient blanc laiteux avec de l'eau."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Rakı",
+          "url": "https://en.wikipedia.org/wiki/Rak%C4%B1"
+        }
+      ]
+    }
+  },
+  "german": {
+    "schnitzel": {
+      "local": "Schnitzel",
+      "note": {
+        "en": "A thin slice of meat (often veal, pork or chicken), breaded and pan-fried; the name derives from the German sniz, 'slice'.",
+        "fr": "Une fine tranche de viande (souvent veau, porc ou poulet), panee et poelee ; le nom vient de l'allemand sniz, « tranche »."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Schnitzel",
+          "url": "https://en.wikipedia.org/wiki/Schnitzel"
+        },
+        {
+          "name": "Britannica - Schnitzel",
+          "url": "https://www.britannica.com/topic/schnitzel"
+        }
+      ]
+    },
+    "wiener schnitzel": {
+      "local": "Wiener Schnitzel",
+      "note": {
+        "en": "A Viennese specialty and Austrian national dish of thin, breaded, pan-fried veal cutlet; the name first appears in print in the 19th…",
+        "fr": "Specialite viennoise et plat national autrichien: une fine escalope de veau panee et frite a la poele, dont le nom apparait au XIXe siecle."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Schnitzel",
+          "url": "https://en.wikipedia.org/wiki/Schnitzel"
+        },
+        {
+          "name": "National Geographic - A Taste of Old World Europe: Wiener Schnitzel",
+          "url": "https://www.nationalgeographic.com/travel/article/a-taste-of-old-world-europe-wiener-schnitzel"
+        }
+      ]
+    },
+    "schweinshaxe": {
+      "local": "Schweinshaxe",
+      "note": {
+        "en": "A Bavarian roasted pork knuckle (ham hock), originally a peasant dish making cheap, tough cuts palatable; served with dumplings and cabbage.",
+        "fr": "Jarret de porc rôti bavarois, à l'origine un plat paysan rendant savoureux des morceaux durs et bon marché; servi avec quenelles et chou."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Schweinshaxe",
+          "url": "https://en.wikipedia.org/wiki/Schweinshaxe"
+        }
+      ]
+    },
+    "bratwurst": {
+      "local": "Bratwurst",
+      "note": {
+        "en": "German fried sausage of pork, beef or veal, documented in Franconia (Nuremberg) since 1313; over 40 regional varieties exist.",
+        "fr": "Saucisse allemande grillée de porc, bœuf ou veau, attestée en Franconie (Nuremberg) depuis 1313; plus de 40 variétés régionales."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Bratwurst",
+          "url": "https://en.wikipedia.org/wiki/Bratwurst"
+        }
+      ]
+    },
+    "weisswurst": {
+      "local": "Weißwurst",
+      "note": {
+        "en": "A Bavarian sausage of minced veal and pork fatback, invented in Munich in 1857 and traditionally eaten before noon.",
+        "fr": "Une saucisse bavaroise de veau haché et de lard de porc, inventée à Munich en 1857 et traditionnellement mangée avant midi."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Weißwurst",
+          "url": "https://en.wikipedia.org/wiki/Wei%C3%9Fwurst"
+        }
+      ]
+    },
+    "sauerkraut": {
+      "local": "Sauerkraut",
+      "note": {
+        "en": "Finely shredded cabbage fermented in its own salt brine by lactic acid bacteria, which convert its sugars to lactic acid; its German name…",
+        "fr": "Chou finement râpé fermenté dans sa propre saumure salée par des bactéries lactiques, qui transforment ses sucres en acide lactique; son…"
+      },
+      "sources": [
+        {
+          "name": "Germanfoods.org",
+          "url": "https://germanfoods.org/german-food-facts/sauerkraut-superfood/"
+        },
+        {
+          "name": "TasteAtlas",
+          "url": "https://www.tasteatlas.com/sauerkraut"
+        }
+      ]
+    },
+    "spätzle": {
+      "local": "Spätzle",
+      "note": {
+        "en": "Soft egg noodle/dumpling from Swabia in southern Germany; the name derives from \"Spatz\" (sparrow), evoking the noodles' small irregular…",
+        "fr": "Pâte aux œufs molle de Souabe, dans le sud de l'Allemagne; le nom vient de \"Spatz\" (moineau), évoquant la forme petite et irrégulière des…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Spätzle",
+          "url": "https://en.wikipedia.org/wiki/Sp%C3%A4tzle"
+        },
+        {
+          "name": "Wikipedia - Swabian cuisine",
+          "url": "https://en.wikipedia.org/wiki/Swabian_cuisine"
+        }
+      ]
+    },
+    "käsespätzle": {
+      "local": "Käsespätzle",
+      "note": {
+        "en": "Traditional Swabian/Allgäu dish of soft egg-noodle spätzle layered with grated mountain cheese (Bergkäse) and topped with caramelized…",
+        "fr": "Plat traditionnel souabe/de l'Allgäu de spätzle (pâtes aux œufs) en couches avec du fromage de montagne (Bergkäse) et des oignons…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Käsespätzle",
+          "url": "https://en.wikipedia.org/wiki/K%C3%A4sesp%C3%A4tzle"
+        },
+        {
+          "name": "Wikipedia — Spätzle",
+          "url": "https://en.wikipedia.org/wiki/Sp%C3%A4tzle"
+        }
+      ]
+    },
+    "rouladen": {
+      "local": "Rinderrouladen",
+      "note": {
+        "en": "German braised beef rolls filled with bacon, onions, mustard and pickles; the name comes from French rouler (to roll).",
+        "fr": "Roulades de bœuf braisées allemandes garnies de lard, oignons, moutarde et cornichons; le nom vient du français rouler."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Rinderroulade",
+          "url": "https://en.wikipedia.org/wiki/Rinderroulade"
+        },
+        {
+          "name": "Wikipedia – Roulade (Rouladen)",
+          "url": "https://en.wikipedia.org/wiki/Rouladen"
+        }
+      ]
+    },
+    "sauerbraten": {
+      "local": "Sauerbraten",
+      "note": {
+        "en": "A traditional German pot roast of beef marinated several days in vinegar and wine, then braised and served with a sweet-sour gravy.",
+        "fr": "Roti braise allemand traditionnel de boeuf marine plusieurs jours dans le vinaigre et le vin, servi avec une sauce aigre-douce."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Sauerbraten",
+          "url": "https://en.wikipedia.org/wiki/Sauerbraten"
+        }
+      ]
+    },
+    "königsberger klopse": {
+      "local": "Königsberger Klopse",
+      "note": {
+        "en": "East Prussian veal meatballs simmered in a creamy white caper sauce, named after the city of Königsberg (now Kaliningrad).",
+        "fr": "Boulettes de veau de Prusse-Orientale mijotées dans une sauce blanche crémeuse aux câpres, du nom de la ville de Königsberg."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Königsberger Klopse",
+          "url": "https://en.wikipedia.org/wiki/K%C3%B6nigsberger_Klopse"
+        }
+      ]
+    },
+    "knödel": {
+      "local": "Knödel",
+      "note": {
+        "en": "Central European boiled dumplings of bread, flour or potato; rooted in Bavaria, named from Old High German for \"knot.\"",
+        "fr": "Boulettes pochées d'Europe centrale à base de pain, farine ou pomme de terre; originaires de Bavière, du vieux haut allemand \"nœud.\""
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Knödel",
+          "url": "https://en.wikipedia.org/wiki/Kn%C3%B6del"
+        },
+        {
+          "name": "Wikipedia — Semmelknödel",
+          "url": "https://en.wikipedia.org/wiki/Semmelkn%C3%B6del"
+        }
+      ]
+    },
+    "kartoffelpuffer": {
+      "local": "Kartoffelpuffer",
+      "note": {
+        "en": "German shallow-fried pancakes of grated potato, onion and egg, also called Reibekuchen, served savoury or sweet with apple sauce.",
+        "fr": "Galettes allemandes de pomme de terre rapee, oignon et oeuf, frites a la poele, dites Reibekuchen, servies salees ou sucrees avec compote…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia: Reibekuchen",
+          "url": "https://en.wikipedia.org/wiki/Reibekuchen"
+        },
+        {
+          "name": "Wikipedia: Potato pancake",
+          "url": "https://en.wikipedia.org/wiki/Potato_pancake"
+        }
+      ]
+    },
+    "eisbein": {
+      "local": "Eisbein",
+      "note": {
+        "en": "A German dish of cured, boiled pork knuckle (hind-leg hock), often served with sauerkraut and pea puree, popular in Berlin.",
+        "fr": "Plat allemand de jarret de porc saumure et bouilli, souvent servi avec choucroute et puree de pois, populaire a Berlin."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Eisbein",
+          "url": "https://en.wikipedia.org/wiki/Eisbein"
+        },
+        {
+          "name": "TasteAtlas - Eisbein",
+          "url": "https://tasteatlas.com/eisbein"
+        }
+      ]
+    },
+    "frankfurter würstchen": {
+      "local": "Frankfurter Würstchen",
+      "note": {
+        "en": "Thin parboiled pork sausage in sheep casing, smoked at low temperature; protected to the Frankfurt area since 1860.",
+        "fr": "Fine saucisse de porc pochée en boyau de mouton, fumée à basse température; protégée à la région de Francfort depuis 1860."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Frankfurter Würstchen",
+          "url": "https://en.wikipedia.org/wiki/Frankfurter_W%C3%BCrstchen"
+        }
+      ]
+    },
+    "currywurst": {
+      "local": "Currywurst",
+      "note": {
+        "en": "German street food of sliced pork sausage in curried tomato-ketchup sauce, credited to Herta Heuwer in Berlin in 1949.",
+        "fr": "Plat de rue allemand de saucisse de porc tranchee en sauce ketchup au curry, attribuee a Herta Heuwer a Berlin en 1949."
+      },
+      "sources": [
+        {
+          "name": "Currywurst — Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Currywurst"
+        },
+        {
+          "name": "The story behind currywurst — National Geographic",
+          "url": "https://www.nationalgeographic.com/travel/article/what-is-currywurst-where-to-eat-berlin-germany"
+        }
+      ]
+    },
+    "döner kebab german": {
+      "local": "Döner Kebab",
+      "note": {
+        "en": "A flatbread sandwich of vertical-spit grilled meat with salad and sauce, popularized in 1970s Berlin by Turkish guest workers.",
+        "fr": "Un sandwich en pain plat de viande grillée à la broche verticale avec salade et sauce, popularisé dans le Berlin des années 1970 par des…"
+      },
+      "sources": [
+        {
+          "name": "Doner kebab - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Doner_kebab"
+        },
+        {
+          "name": "Kadir Nurman - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Kadir_Nurman"
+        }
+      ]
+    },
+    "flammkuchen": {
+      "local": "Flammkuchen",
+      "note": {
+        "en": "Thin Alsatian/German flatbread topped with creme fraiche, onions and bacon, born from farmers testing wood-fired oven heat with leftover…",
+        "fr": "Fine galette alsacienne/allemande garnie de creme fraiche, oignons et lardons, nee quand les paysans testaient la chaleur du four a bois…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Flammekueche",
+          "url": "https://en.wikipedia.org/wiki/Flammekueche"
+        }
+      ]
+    },
+    "black forest cake": {
+      "local": "Schwarzwälder Kirschtorte",
+      "note": {
+        "en": "German layered chocolate sponge cake with sour cherries, Kirsch cherry brandy and whipped cream; its modern form dates to about 1915.",
+        "fr": "Gâteau allemand à étages de génoise au chocolat, cerises acides, kirsch et crème fouettée ; sa forme moderne date d'environ 1915."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Black Forest gateau",
+          "url": "https://en.wikipedia.org/wiki/Black_Forest_gateau"
+        }
+      ]
+    },
+    "apfelstrudel": {
+      "local": "Apfelstrudel",
+      "note": {
+        "en": "A Viennese pastry of apple, sugar, raisins and cinnamon wrapped in paper-thin stretched dough; oldest known recipe dates to 1697.",
+        "fr": "Pâtisserie viennoise de pomme, sucre, raisins secs et cannelle dans une pâte étirée très fine; sa plus ancienne recette date de 1697."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Apple strudel",
+          "url": "https://en.wikipedia.org/wiki/Apple_strudel"
+        }
+      ]
+    },
+    "lebkuchen": {
+      "local": "Lebkuchen",
+      "note": {
+        "en": "Honey-sweetened spiced German cake, akin to gingerbread, invented by Franconian monks in the 13th century and famed in Nuremberg.",
+        "fr": "Gateau allemand epice et sucre au miel, proche du pain d'epices, invente par des moines franconiens au XIIIe siecle, celebre a Nuremberg."
+      },
+      "sources": [
+        {
+          "name": "Lebkuchen - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lebkuchen"
+        },
+        {
+          "name": "Nuremberg Gingerbread - Christkindlesmarkt.de",
+          "url": "https://www.christkindlesmarkt.de/en/your-visit/food-drinks/nuremberg-gingerbread-a-symbol-of-the-season-1.2373619"
+        }
+      ]
+    },
+    "stollen": {
+      "local": "Stollen",
+      "note": {
+        "en": "A dense German Christmas fruit bread (Christstollen) of yeast dough enriched with candied peel, raisins, nuts and butter and dusted with…",
+        "fr": "Un pain de Noel allemand dense (Christstollen) a base de pate levee enrichie d'ecorces confites, de raisins secs, de noix et de beurre…"
+      },
+      "sources": [
+        {
+          "name": "Schutzverband Dresdner Stollen e.V. — Dresden Christmas Stollen (history, first documented 1474)",
+          "url": "https://www.dresdnerstollen.com/en/dresden-christmas-stollen/"
+        },
+        {
+          "name": "Wikipedia — Stollen",
+          "url": "https://en.wikipedia.org/wiki/Stollen"
+        }
+      ]
+    },
+    "pretzels": {
+      "local": "Brezel",
+      "note": {
+        "en": "A knot-shaped baked bread of German origin, used as a bakers' guild emblem in southern Germany since at least the 12th century.",
+        "fr": "Un pain cuit en forme de nœud d'origine allemande, emblème des guildes de boulangers du sud de l'Allemagne depuis le XIIe siècle au moins."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Pretzel",
+          "url": "https://en.wikipedia.org/wiki/Pretzel"
+        }
+      ]
+    },
+    "rye bread": {
+      "local": "Roggenbrot",
+      "note": {
+        "en": "A traditional German bread of mostly rye flour, leavened with sourdough since rye's low gluten resists yeast, giving a dense, tangy loaf.",
+        "fr": "Pain allemand traditionnel surtout de farine de seigle, levé au levain car le faible gluten du seigle résiste à la levure, donnant une mie…"
+      },
+      "sources": [
+        {
+          "name": "Rye bread - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Rye_bread"
+        },
+        {
+          "name": "Mischbrot - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Mischbrot"
+        }
+      ]
+    },
+    "german beer": {
+      "local": "Bier",
+      "note": {
+        "en": "German beer, traditionally brewed under the Reinheitsgebot, the Bavarian purity law of 1516 that permitted only three ingredients: water…",
+        "fr": "Bière allemande, traditionnellement brassée selon le Reinheitsgebot, la loi de pureté bavaroise de 1516 qui n'autorisait que trois…"
+      },
+      "sources": [
+        {
+          "name": "Reinheitsgebot - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Reinheitsgebot"
+        },
+        {
+          "name": "Beer in Germany - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Beer_in_Germany"
+        }
+      ]
+    },
+    "riesling wine": {
+      "local": "Riesling",
+      "note": {
+        "en": "Aromatic German white wine from a Rhine grape first documented in 1435, made dry to sweet with high acidity and floral aromas.",
+        "fr": "Vin blanc allemand aromatique d'un cepage rhenan documente des 1435, sec a doux, a forte acidite et aromes floraux."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Riesling",
+          "url": "https://en.wikipedia.org/wiki/Riesling"
+        },
+        {
+          "name": "MasterClass - Learn About Riesling",
+          "url": "https://www.masterclass.com/articles/learn-about-riesling-grapes-wine-history-and-region"
+        }
+      ]
+    },
+    "apfelschorle": {
+      "local": "Apfelschorle",
+      "note": {
+        "en": "A German soft drink of apple juice mixed with carbonated mineral water; RhönSprudel's Apple Plus, launched in 1994, was the first…",
+        "fr": "Boisson allemande de jus de pomme mélangé à de l'eau minérale gazeuse; Apple Plus de RhönSprudel, lancée en 1994, fut la première version…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Apfelschorle",
+          "url": "https://en.wikipedia.org/wiki/Apfelschorle"
+        },
+        {
+          "name": "RhönSprudel - Apple Plus ist Getränk des Jahres 2021 (press release confirming 1994 first ready-mixed Apfelschorle)",
+          "url": "https://www.rhoensprudel.de/presse/rhoensprudel-apple-plus-getraenk-des-jahres"
+        }
+      ]
+    }
+  },
+  "british": {
+    "fish and chips": {
+      "local": "fish and chips",
+      "note": {
+        "en": "Britain's national dish of battered deep-fried fish (usually cod or haddock) served with chips; the pairing emerged in 1860s London, with…",
+        "fr": "Plat national britannique de poisson frit en pate (souvent cabillaud ou eglefin) servi avec des frites; l'association nait dans le Londres…"
+      },
+      "sources": [
+        {
+          "name": "Britannica — Fish and chips",
+          "url": "https://www.britannica.com/topic/fish-and-chips"
+        },
+        {
+          "name": "Historic UK — The History of Fish and Chips",
+          "url": "https://www.historic-uk.com/CultureUK/Fish-Chips/"
+        }
+      ]
+    },
+    "full english breakfast": {
+      "local": "Full English breakfast",
+      "note": {
+        "en": "A cooked breakfast of bacon, eggs, sausage, baked beans, tomato, black pudding and toast; popularised across British classes in the early…",
+        "fr": "Un petit-déjeuner chaud de bacon, œufs, saucisse, haricots, tomate, boudin noir et toast; popularisé en Grande-Bretagne au début du XXe…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Full breakfast",
+          "url": "https://en.wikipedia.org/wiki/Full_breakfast"
+        },
+        {
+          "name": "History Hit — The Full English Breakfast",
+          "url": "https://www.historyhit.com/history-full-english-breakfast/"
+        }
+      ]
+    },
+    "shepherd's pie": {
+      "local": "shepherd's pie",
+      "note": {
+        "en": "British baked dish of minced lamb or mutton topped with mashed potato; the name is first recorded in the 19th century.",
+        "fr": "Plat britannique cuit au four, d'agneau ou de mouton hache nappe de puree de pommes de terre ; nom atteste au XIXe siecle."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Shepherd's pie",
+          "url": "https://en.wikipedia.org/wiki/Shepherd's_pie"
+        }
+      ]
+    },
+    "cottage pie": {
+      "local": "Cottage pie",
+      "note": {
+        "en": "British baked dish of minced beef in gravy under a mashed-potato crust; the name is first recorded in 1791.",
+        "fr": "Plat britannique de bœuf haché en sauce sous une croûte de purée; le nom apparaît dès 1791."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Shepherd's pie",
+          "url": "https://en.wikipedia.org/wiki/Shepherd's_pie"
+        }
+      ]
+    },
+    "beef wellington": {
+      "local": "Beef Wellington",
+      "note": {
+        "en": "A British dish of beef fillet coated in pâté and duxelles, wrapped in puff pastry and baked; named in honour of the Duke of Wellington.",
+        "fr": "Un plat britannique de filet de bœuf enrobé de pâté et de duxelles, enveloppé de pâte feuilletée et cuit; nommé en l'honneur du duc de…"
+      },
+      "sources": [
+        {
+          "name": "Britannica — Beef Wellington",
+          "url": "https://www.britannica.com/topic/beef-Wellington"
+        },
+        {
+          "name": "Tasting Table — The Noble History Behind the UK's Beloved Beef Wellington",
+          "url": "https://www.tastingtable.com/1112177/the-noble-history-behind-the-uks-beloved-beef-wellington/"
+        }
+      ]
+    },
+    "bangers and mash": {
+      "local": "Bangers and mash",
+      "note": {
+        "en": "A traditional British dish of sausages and mashed potato with onion gravy; \"bangers\" recalls WWI-era sausages that burst when cooked.",
+        "fr": "Plat britannique traditionnel de saucisses et puree de pommes de terre avec sauce a l'oignon; \"bangers\" evoque les saucisses qui eclataient…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Bangers and mash",
+          "url": "https://en.wikipedia.org/wiki/Bangers_and_mash"
+        },
+        {
+          "name": "Britannica — Bangers and mash",
+          "url": "https://www.britannica.com/topic/bangers-and-mash"
+        }
+      ]
+    },
+    "toad in the hole": {
+      "local": "Toad in the hole",
+      "note": {
+        "en": "A British dish of sausages baked in Yorkshire-pudding batter. The name dates to the 18th century (meat cooked in batter); Mrs Beeton's 1861…",
+        "fr": "Plat britannique de saucisses cuites dans une pate a Yorkshire pudding. Le nom remonte au XVIIIe siecle (viande cuite dans une pate); le…"
+      },
+      "sources": [
+        {
+          "name": "Toad in the hole - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Toad_in_the_hole"
+        },
+        {
+          "name": "Toad-in-the-Hole: History & a Recipe - British Food: A History",
+          "url": "https://britishfoodhistory.com/2026/02/06/toad-in-the-hole-history-a-recipe/"
+        }
+      ]
+    },
+    "yorkshire pudding": {
+      "local": "Yorkshire pudding",
+      "note": {
+        "en": "A baked English batter of eggs, flour and milk cooked in dripping; named in Hannah Glasse's 1747 cookbook and served with roast meat.",
+        "fr": "Pate anglaise cuite a base d'oeufs, farine et lait dans la graisse de roti; nommee dans le livre de Hannah Glasse en 1747, servie avec le…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Yorkshire pudding",
+          "url": "https://en.wikipedia.org/wiki/Yorkshire_pudding"
+        },
+        {
+          "name": "Historic UK — History and origins of the Yorkshire Pudding",
+          "url": "https://www.historic-uk.com/CultureUK/Yorkshire-Pudding/"
+        }
+      ]
+    },
+    "sunday roast": {
+      "local": "Sunday roast",
+      "note": {
+        "en": "A traditional British Sunday meal of roast meat, roast potatoes, vegetables, Yorkshire pudding and gravy, rooted in post-church dining.",
+        "fr": "Repas dominical britannique traditionnel de viande rotie, pommes de terre, legumes, Yorkshire pudding et sauce, lie au repas d'apres-messe."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Sunday roast",
+          "url": "https://en.wikipedia.org/wiki/Sunday_roast"
+        }
+      ]
+    },
+    "roast beef": {
+      "local": "Roast beef",
+      "note": {
+        "en": "British oven-roasted beef joint, the classic Sunday roast centrepiece served with Yorkshire pudding, roast potatoes and gravy.",
+        "fr": "Rôti de bœuf britannique cuit au four, pièce maîtresse du Sunday roast, servi avec Yorkshire pudding, pommes de terre rôties et sauce."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Sunday roast",
+          "url": "https://en.wikipedia.org/wiki/Sunday_roast"
+        }
+      ]
+    },
+    "cornish pasty": {
+      "local": "Cornish pasty",
+      "note": {
+        "en": "A D-shaped baked pastry of beef, potato, swede and onion from Cornwall; tied to 19th-century tin miners and PGI-protected since 2011.",
+        "fr": "Chausson cuit en D garni de boeuf, pomme de terre, rutabaga et oignon des Cornouailles; lie aux mineurs d'etain du XIXe, IGP depuis 2011."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Pasty",
+          "url": "https://en.wikipedia.org/wiki/Pasty"
+        },
+        {
+          "name": "Cornish Pasty Association - History",
+          "url": "https://cornishpastyassociation.co.uk/about-the-pasty/history/"
+        }
+      ]
+    },
+    "scotch egg": {
+      "local": "Scotch egg",
+      "note": {
+        "en": "A British snack of a soft- or hard-boiled egg wrapped in sausage meat, breadcrumbed and fried; Fortnum & Mason claims to have created it in…",
+        "fr": "En-cas britannique : un œuf mollet ou dur enrobé de chair à saucisse, pané et frit ; Fortnum & Mason prétend l'avoir créé en 1738."
+      },
+      "sources": [
+        {
+          "name": "Britannica — Scotch egg",
+          "url": "https://www.britannica.com/topic/Scotch-egg"
+        },
+        {
+          "name": "Tasting Table — The Mysterious Origins Of Scotch Eggs",
+          "url": "https://www.tastingtable.com/1007982/the-mysterious-origins-of-scotch-eggs/"
+        }
+      ]
+    },
+    "haggis": {
+      "local": "haggis",
+      "note": {
+        "en": "Scotland's national savoury pudding of minced sheep's pluck (heart, liver and lungs), oatmeal and suet, traditionally encased in a sheep's…",
+        "fr": "Pudding salé national écossais d'abats de mouton hachés (cœur, foie et poumons), d'avoine et de suif, traditionnellement enfermé dans une…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Haggis",
+          "url": "https://en.wikipedia.org/wiki/Haggis"
+        },
+        {
+          "name": "Britannica - Haggis",
+          "url": "https://www.britannica.com/topic/haggis"
+        }
+      ]
+    },
+    "black pudding": {
+      "local": "Black pudding",
+      "note": {
+        "en": "A British and Irish blood sausage of pig's blood, fat and oatmeal, recorded as \"blak podyngs\" since around 1450.",
+        "fr": "Un boudin noir britannique et irlandais a base de sang de porc, de gras et de flocons d'avoine, atteste vers 1450."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Black pudding",
+          "url": "https://en.wikipedia.org/wiki/Black_pudding"
+        },
+        {
+          "name": "Britannica — Black pudding",
+          "url": "https://www.britannica.com/topic/black-pudding"
+        }
+      ]
+    },
+    "chicken tikka masala": {
+      "local": "चिकन टिक्का मसाला (Chicken Tikka Masala)",
+      "note": {
+        "en": "Chunks of marinated grilled chicken (tikka) in a spiced creamy tomato sauce, widely credited as a British-Indian invention and a UK…",
+        "fr": "Morceaux de poulet grille marine (tikka) dans une sauce tomate cremeuse epicee, considere comme une invention anglo-indienne et plat…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Chicken tikka masala",
+          "url": "https://en.wikipedia.org/wiki/Chicken_tikka_masala"
+        },
+        {
+          "name": "Britannica — Chicken tikka masala",
+          "url": "https://www.britannica.com/topic/chicken-tikka-masala"
+        }
+      ]
+    },
+    "balti curry": {
+      "local": "balti (बाल्टी / بالٹی)",
+      "note": {
+        "en": "A British Pakistani curry developed in 1970s Birmingham, cooked and served in a thin steel 'balti' bowl (Hindi/Urdu for bucket).",
+        "fr": "Un curry britannico-pakistanais né dans le Birmingham des années 1970, cuit et servi dans un bol en acier « balti » (« seau » en…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Balti (food)",
+          "url": "https://en.wikipedia.org/wiki/Balti_(food)"
+        },
+        {
+          "name": "National Geographic — The story behind balti, the Pakistani dish born in Birmingham",
+          "url": "https://www.nationalgeographic.com/travel/article/story-behind-balti-birmingham-uk"
+        }
+      ]
+    },
+    "cream tea": {
+      "local": "cream tea",
+      "note": {
+        "en": "A British afternoon tea of scones served with clotted cream and jam, associated with Devon and Cornwall since at least the 19th century.",
+        "fr": "Un thé de l'après-midi britannique composé de scones servis avec de la crème caillée et de la confiture, lié au Devon et aux Cornouailles."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Cream tea",
+          "url": "https://en.wikipedia.org/wiki/Cream_tea"
+        },
+        {
+          "name": "Active England — A Complete Guide to an English Cream Tea",
+          "url": "https://activeenglandtours.com/stories/cream-or-jam-first-a-complete-guide-to-an-english-cream-tea/"
+        }
+      ]
+    },
+    "victoria sponge": {
+      "local": "Victoria sponge",
+      "note": {
+        "en": "A British layer cake of two sponge halves filled with jam (and often cream), named after Queen Victoria, who enjoyed it at afternoon tea.",
+        "fr": "Gateau anglais a deux genoises fourrees de confiture (et souvent de creme), nomme d'apres la reine Victoria, qui l'appreciait au the."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia: Sponge cake (Victoria sponge)",
+          "url": "https://en.wikipedia.org/wiki/Sponge_cake"
+        },
+        {
+          "name": "Baking Heritage: Victoria Sponge history",
+          "url": "https://bakingheritage.com/history/victoria-sponge-cake-a-slice-of-history-and-the-queens-favourite-treat"
+        }
+      ]
+    },
+    "eton mess": {
+      "local": "Eton mess",
+      "note": {
+        "en": "An English dessert of strawberries, meringue and whipped cream, first mentioned in print in 1893 and linked to Eton College.",
+        "fr": "Un dessert anglais de fraises, meringue et crème fouettée, mentionné pour la première fois en 1893 et lié au collège d'Eton."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Eton mess",
+          "url": "https://en.wikipedia.org/wiki/Eton_mess"
+        },
+        {
+          "name": "History Hit - Eton Mess: The History of a Classic English Dessert",
+          "url": "https://www.historyhit.com/eton-mess-the-history-of-a-classic-english-dessert/"
+        }
+      ]
+    },
+    "sticky toffee pudding": {
+      "local": "Sticky toffee pudding",
+      "note": {
+        "en": "A moist English sponge cake made with chopped dates, covered in toffee sauce, popularised in Cumbria's Lake District from the 1970s.",
+        "fr": "Un moelleux gateau eponge anglais aux dattes hachees, nappe de sauce au caramel, popularise dans le Lake District de Cumbria des annees…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Sticky toffee pudding",
+          "url": "https://en.wikipedia.org/wiki/Sticky_toffee_pudding"
+        },
+        {
+          "name": "Britannica - Sticky toffee pudding",
+          "url": "https://www.britannica.com/topic/sticky-toffee-pudding"
+        }
+      ]
+    },
+    "trifle": {
+      "local": "trifle",
+      "note": {
+        "en": "A British layered dessert of sponge, fruit, custard and cream. The name first appears in Thomas Dawson's 1585 The Good Huswifes Jewell…",
+        "fr": "Dessert britannique en couches de génoise, fruits, crème anglaise et chantilly. Le nom apparaît dès 1585 dans The Good Huswifes Jewell de…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Trifle",
+          "url": "https://en.wikipedia.org/wiki/Trifle"
+        },
+        {
+          "name": "Wikipedia — The Good Huswifes Jewell",
+          "url": "https://en.wikipedia.org/wiki/The_Good_Huswifes_Jewell"
+        }
+      ]
+    },
+    "crumpets": {
+      "local": "crumpet",
+      "note": {
+        "en": "A small round yeast-leavened griddle bread with a holed top, eaten toasted with butter; a British teatime staple since the Victorian era.",
+        "fr": "Petit pain rond à la levure cuit à la plaque, criblé de trous sur le dessus, grillé et beurré; un classique du thé britannique depuis l'ère…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Crumpet",
+          "url": "https://en.wikipedia.org/wiki/Crumpet"
+        },
+        {
+          "name": "Britannica — Crumpet",
+          "url": "https://www.britannica.com/topic/crumpet"
+        }
+      ]
+    },
+    "marmite on toast": {
+      "local": "Marmite on toast",
+      "note": {
+        "en": "British breakfast staple: yeast-extract spread (invented 1902 in Burton upon Trent) thinly spread on hot buttered toast.",
+        "fr": "Classique du petit-dejeuner britannique : pate d'extrait de levure (creee en 1902 a Burton upon Trent) tartinee finement sur du pain grille…"
+      },
+      "sources": [
+        {
+          "name": "Gambero Rosso International - The curious story of Marmite",
+          "url": "https://www.gamberorossointernational.com/news/the-curious-story-of-marmite-spread-made-with-brewers-yeast-extract/"
+        },
+        {
+          "name": "The Kitchn - What Is Marmite, and Why Is It So Good?",
+          "url": "https://www.thekitchn.com/what-is-marmite-and-why-is-it-so-good-240563"
+        }
+      ]
+    },
+    "english breakfast tea": {
+      "local": "English Breakfast Tea",
+      "note": {
+        "en": "A full-bodied blend of black teas (typically Assam, Ceylon and Kenyan), traditionally drunk with milk; first popularised in the 19th…",
+        "fr": "Un melange corse de thes noirs (generalement Assam, Ceylan et Kenya), traditionnellement bu avec du lait, popularise au XIXe siecle."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - English breakfast tea",
+          "url": "https://en.wikipedia.org/wiki/English_breakfast_tea"
+        }
+      ]
+    },
+    "earl grey tea": {
+      "local": "Earl Grey tea",
+      "note": {
+        "en": "A British black tea flavoured with oil of bergamot, traditionally named after 1830s Prime Minister Charles, 2nd Earl Grey.",
+        "fr": "Un thé noir britannique parfumé à l'huile de bergamote, traditionnellement nommé d'après Charles, 2e comte Grey, Premier ministre des…"
+      },
+      "sources": [
+        {
+          "name": "Oxford English Dictionary — 'Earl Grey'",
+          "url": "https://www.oed.com/discover/earl-grey/"
+        },
+        {
+          "name": "Rishi Tea — The History of Earl Grey",
+          "url": "https://www.rishi-tea.com/blogs/journal/the-history-of-earl-grey"
+        }
+      ]
+    },
+    "pimm's": {
+      "local": "Pimm's (Pimm's No. 1 Cup)",
+      "note": {
+        "en": "A gin-based English fruit-cup liqueur invented by London oyster-bar owner James Pimm around 1823-40, served in a summer cocktail.",
+        "fr": "Liqueur anglaise de fruits a base de gin, creee par James Pimm, tenancier d'un bar a huitres londonien, vers 1823-1840."
+      },
+      "sources": [
+        {
+          "name": "Pimm's - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pimm's"
+        },
+        {
+          "name": "Pimm's Cup - Britannica",
+          "url": "https://www.britannica.com/topic/Pimms-Cup"
+        }
+      ]
+    },
+    "british ale": {
+      "local": "British ale",
+      "note": {
+        "en": "A top-fermented beer from malted barley; historically the unhopped English brew, distinct from hopped \"beer\" until hops arrived in the…",
+        "fr": "Bière de fermentation haute issue d'orge maltée; jadis le brassin anglais sans houblon, distinct de la \"bière\" houblonnée avant le houblon…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Beer in England",
+          "url": "https://en.wikipedia.org/wiki/Beer_in_England"
+        },
+        {
+          "name": "Beer Day Britain — British Beer History",
+          "url": "https://www.beerdaybritain.co.uk/history/"
+        }
+      ]
+    }
+  },
+  "portuguese": {
+    "bacalhau": {
+      "local": "bacalhau",
+      "note": {
+        "en": "Portuguese dried and salted cod, a national staple tied to the 16th-century Portuguese cod fisheries off Newfoundland (Bacalhau da Terra…",
+        "fr": "Morue séchée et salée portugaise, aliment national lié aux pêcheries portugaises de morue de Terre-Neuve au XVIe siècle (Bacalhau da Terra…"
+      },
+      "sources": [
+        {
+          "name": "Portugal.com — Bacalhau: Understanding the Portuguese Obsession with Cod",
+          "url": "https://www.portugal.com/history-and-culture/bacalhau-understanding-the-portuguese-obsession-with-cod/"
+        },
+        {
+          "name": "Wikipedia — Bacalhau",
+          "url": "https://en.wikipedia.org/wiki/Bacalhau"
+        }
+      ]
+    },
+    "bacalhau à brás": {
+      "local": "Bacalhau à Brás",
+      "note": {
+        "en": "Portuguese dish of shredded salt cod, onions and matchstick fried potatoes bound with egg, originating in 19th-century Bairro Alto, Lisbon.",
+        "fr": "Plat portugais de morue salée effilochée, oignons et pommes de terre paille liés à l'œuf, né au XIXe siècle au Bairro Alto, à Lisbonne."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Bacalhau à Brás",
+          "url": "https://en.wikipedia.org/wiki/Bacalhau_%C3%A0_Br%C3%A1s"
+        },
+        {
+          "name": "196 flavors – Bacalhau à Brás",
+          "url": "https://www.196flavors.com/portugal-bacalhau-a-bras/"
+        }
+      ]
+    },
+    "bacalhau com natas": {
+      "local": "Bacalhau com natas",
+      "note": {
+        "en": "A Portuguese oven-baked casserole of salt cod, fried potatoes and onions layered with cream, often seasoned with nutmeg.",
+        "fr": "Gratin portugais de morue salee, pommes de terre frites et oignons nappes de creme, souvent releve de muscade."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Bacalhau com natas",
+          "url": "https://en.wikipedia.org/wiki/Bacalhau_com_natas"
+        }
+      ]
+    },
+    "francesinha": {
+      "local": "francesinha",
+      "note": {
+        "en": "A Porto sandwich of bread, layered hot meats and melted cheese drenched in a beer-tomato sauce, created in the 1950s.",
+        "fr": "Sandwich de Porto au pain, viandes chaudes en couches et fromage fondu nappe d'une sauce biere-tomate, cree dans les annees 1950."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia: Francesinha",
+          "url": "https://en.wikipedia.org/wiki/Francesinha"
+        },
+        {
+          "name": "Atlas Obscura: Francesinha",
+          "url": "https://www.atlasobscura.com/foods/francesinha-sandwich-porto-portugal"
+        }
+      ]
+    },
+    "caldo verde": {
+      "local": "caldo verde",
+      "note": {
+        "en": "Portuguese soup of shredded couve-galega (collard greens), potato, olive oil and onion, originating in the Minho region of the north.",
+        "fr": "Soupe portugaise de couve-galega (chou) emincee, pomme de terre, huile d'olive et oignon, originaire de la region du Minho, au nord."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Caldo verde",
+          "url": "https://en.wikipedia.org/wiki/Caldo_verde"
+        }
+      ]
+    },
+    "cataplana": {
+      "local": "cataplana",
+      "note": {
+        "en": "A Portuguese seafood stew from the Algarve, steam-cooked in a hinged clamshell copper pan rooted in Moorish-era North African cookware.",
+        "fr": "Un ragout de fruits de mer portugais de l'Algarve, cuit a la vapeur dans une marmite en cuivre articulee d'origine maure nord-africaine."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Cataplana",
+          "url": "https://en.wikipedia.org/wiki/Cataplana"
+        },
+        {
+          "name": "Taste Tavira - The Origins of the Cataplana",
+          "url": "https://tastetavira.com/the-origins-of-the-cataplana-a-taste-of-algarves-culinary-history/"
+        }
+      ]
+    },
+    "arroz de marisco": {
+      "local": "arroz de marisco",
+      "note": {
+        "en": "A soupy Portuguese rice-and-shellfish dish, similar to paella, named one of the 7 Wonders of Portuguese Gastronomy (Sete Maravilhas da…",
+        "fr": "Plat portugais de riz et fruits de mer en sauce, proche de la paella, elu l'une des 7 merveilles de la gastronomie portugaise (Sete…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Arroz de marisco",
+          "url": "https://en.wikipedia.org/wiki/Arroz_de_marisco"
+        },
+        {
+          "name": "We Travel Portugal — The Seven Wonders of Portuguese Gastronomy",
+          "url": "https://wetravelportugal.com/national-dish-portugal/"
+        }
+      ]
+    },
+    "porco preto": {
+      "local": "porco preto",
+      "note": {
+        "en": "Prized acorn-fed black Iberian pork from Portugal's Alentejo region, valued for its marbled, nutty-flavoured meat.",
+        "fr": "Porc noir ibérique du Portugal, nourri aux glands dans l'Alentejo, prisé pour sa viande persillée au goût de noisette."
+      },
+      "sources": [
+        {
+          "name": "Portugal Resident – Iberian black pig",
+          "url": "https://www.portugalresident.com/iberian-black-pig/"
+        },
+        {
+          "name": "The Lisbon Guide – Portuguese Black Pork",
+          "url": "https://lisbonguide.org/the-savory-legacy-of-portuguese-black-pork-exploring-products-tracing-facts/"
+        }
+      ]
+    },
+    "alheira": {
+      "local": "alheira",
+      "note": {
+        "en": "A Portuguese smoked sausage of poultry/game and bread, invented by Sephardic Jews after 1497 to mimic pork and evade the Inquisition.",
+        "fr": "Saucisse fumée portugaise de volaille/gibier et de pain, inventee par les juifs sefarades apres 1497 pour imiter le porc et tromper…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Alheira",
+          "url": "https://en.wikipedia.org/wiki/Alheira"
+        },
+        {
+          "name": "TasteAtlas - Alheira de Barroso-Montalegre",
+          "url": "https://www.tasteatlas.com/alheira-de-barroso-montalegre"
+        }
+      ]
+    },
+    "feijoada portuguesa": {
+      "local": "Feijoada à Portuguesa",
+      "note": {
+        "en": "A Portuguese bean-and-meat stew of beans with pork, sausages and bacon, originating in the Trás-os-Montes region of northern Portugal.",
+        "fr": "Ragoût portugais de haricots avec porc, saucisses et lard, originaire de la région de Trás-os-Montes, dans le nord du Portugal."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Feijoada",
+          "url": "https://en.wikipedia.org/wiki/Feijoada"
+        },
+        {
+          "name": "Taste of Lisboa - How the global journey of feijoada began in Portugal",
+          "url": "https://www.tasteoflisboa.com/blog/how-the-global-journey-of-feijoada-began-in-portugal/"
+        }
+      ]
+    },
+    "bifana": {
+      "local": "bifana",
+      "note": {
+        "en": "A Portuguese sandwich of thin pork slices simmered in garlic and wine on a crusty roll, often credited to Vendas Novas in the Alentejo.",
+        "fr": "Un sandwich portugais de fines tranches de porc mijotees a l'ail et au vin dans un petit pain croustillant, souvent attribue a Vendas Novas…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Bifana",
+          "url": "https://en.wikipedia.org/wiki/Bifana"
+        },
+        {
+          "name": "Portugal.com - The Bifana: Portugal's Beloved Pork Sandwich",
+          "url": "https://www.portugal.com/recipes/the-bifana-portugals-beloved-pork-sandwich/"
+        }
+      ]
+    },
+    "pastel de nata": {
+      "local": "pastel de nata (plural: pastéis de nata)",
+      "note": {
+        "en": "A Portuguese egg-custard tart in flaky puff pastry, created before the 18th century by monks at the Jerónimos Monastery in Belém, Lisbon.",
+        "fr": "Une tartelette portugaise à la crème pâtissière dans une pâte feuilletée, créée avant le XVIIIe siècle par les moines du monastère des…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Pastel de nata",
+          "url": "https://en.wikipedia.org/wiki/Pastel_de_nata"
+        },
+        {
+          "name": "Portugal.com — Pastel de Nata: The Portuguese Custard Tart",
+          "url": "https://www.portugal.com/food-drink/pastel-de-nata-the-portuguese-custard-tart/"
+        }
+      ]
+    },
+    "pastéis de belém": {
+      "local": "Pastéis de Belém",
+      "note": {
+        "en": "Portuguese flaky-pastry custard tarts, made since 1837 at the Antiga Confeitaria de Belém in Lisbon from a Jerónimos Monastery recipe.",
+        "fr": "Tartelettes portugaises à la crème en pâte feuilletée, faites depuis 1837 à l'Antiga Confeitaria de Belém à Lisbonne, d'une recette du…"
+      },
+      "sources": [
+        {
+          "name": "Atlas Obscura — Pastéis de Belém",
+          "url": "https://www.atlasobscura.com/places/pasteis-de-belem-lisbon-portugal"
+        },
+        {
+          "name": "Portugal.com — Pasteis de Belem",
+          "url": "https://www.portugal.com/location/pasteis-de-belem/"
+        }
+      ]
+    },
+    "pão de queijo portuguese style": {
+      "local": "pão de queijo",
+      "note": {
+        "en": "A small gluten-free cheese bread of tapioca flour and cheese, originating in Minas Gerais during Portuguese colonial Brazil.",
+        "fr": "Petit pain au fromage sans gluten, à base de fécule de manioc et de fromage, né au Minas Gerais durant le Brésil colonial portugais."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Pão de queijo",
+          "url": "https://en.wikipedia.org/wiki/P%C3%A3o_de_queijo"
+        },
+        {
+          "name": "TasteAtlas - Pão de Queijo",
+          "url": "https://www.tasteatlas.com/pao-de-queijo"
+        }
+      ]
+    },
+    "bolinhos de bacalhau": {
+      "local": "bolinhos de bacalhau",
+      "note": {
+        "en": "Portuguese deep-fried fritters of salt cod, potato, egg and parsley, served as an appetizer; called pasteis de bacalhau in the south.",
+        "fr": "Beignets portugais frits de morue salee, pomme de terre, oeuf et persil, servis en entree; nommes pasteis de bacalhau dans le sud."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Bolinhos de bacalhau",
+          "url": "https://en.wikipedia.org/wiki/Bolinhos_de_bacalhau"
+        }
+      ]
+    },
+    "chouriço": {
+      "local": "chouriço",
+      "note": {
+        "en": "Portuguese smoked pork sausage cured with paprika, garlic and wine; milder on paprika and stronger on garlic than Spanish chorizo.",
+        "fr": "Saucisse de porc fumée portugaise au paprika, ail et vin; moins de paprika et plus d'ail que le chorizo espagnol."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Chouriço",
+          "url": "https://www.tasteatlas.com/chourico"
+        },
+        {
+          "name": "Wikipedia - Chorizo",
+          "url": "https://en.wikipedia.org/wiki/Chorizo"
+        }
+      ]
+    },
+    "piri-piri chicken": {
+      "local": "Frango piri-piri",
+      "note": {
+        "en": "Portuguese butterflied grilled chicken marinated in chilli-garlic piri-piri sauce, popularised in the Algarve from African colonial…",
+        "fr": "Poulet portugais grille en crapaudine, marine dans une sauce piri-piri pimentee a l'ail, popularise en Algarve via les colonies africaines."
+      },
+      "sources": [
+        {
+          "name": "WeTravelPortugal — Piri Piri Chicken",
+          "url": "https://wetravelportugal.com/piri-piri-chicken/"
+        },
+        {
+          "name": "VICE — The Origin of Piri-Piri Chicken in Portugal",
+          "url": "https://www.vice.com/en/article/nandos-piri-piri-chicken-origin-portugal/"
+        }
+      ]
+    },
+    "queijo da serra": {
+      "local": "Queijo Serra da Estrela",
+      "note": {
+        "en": "Portugal's oldest cheese, a buttery raw ewe's-milk cheese curdled with cardoon flower; granted EU PDO status in 1996.",
+        "fr": "Le plus ancien fromage du Portugal, onctueux, au lait cru de brebis caillé à la fleur de chardon; AOP depuis 1996."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Serra da Estrela cheese",
+          "url": "https://en.wikipedia.org/wiki/Serra_da_Estrela_cheese"
+        },
+        {
+          "name": "Produtos Tradicionais Portugueses — Queijo Serra da Estrela PDO",
+          "url": "https://tradicional.dgadr.gov.pt/en/categories/cheese-and-other-dairy-products/377-queijo-da-serra-da-estrela-en"
+        }
+      ]
+    },
+    "arroz doce": {
+      "local": "arroz doce",
+      "note": {
+        "en": "Creamy Portuguese rice pudding flavoured with lemon and cinnamon, traditionally dusted with cinnamon patterns and served at Christmas and…",
+        "fr": "Riz au lait portugais cremeux parfume au citron et a la cannelle, decore de motifs de cannelle et servi a Noel et aux fetes."
+      },
+      "sources": [
+        {
+          "name": "Tasting Table - Arroz Doce history",
+          "url": "https://www.tastingtable.com/1614421/arroz-doce-portuguese-rice-pudding-history/"
+        },
+        {
+          "name": "Portugal.com - Arroz Doce recipe",
+          "url": "https://www.portugal.com/recipes/arroz-doce-the-classic-portuguese-rice-pudding-recipe/"
+        }
+      ]
+    },
+    "pão alentejano": {
+      "local": "Pão Alentejano",
+      "note": {
+        "en": "A traditional wheat sourdough bread from Portugal's Alentejo region, baked in wood-fired ovens and folded so one end rises higher (\"pão de…",
+        "fr": "Pain de blé au levain traditionnel de la région portugaise de l'Alentejo, cuit au four à bois et plié pour qu'une extrémité soit plus haute."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Pão Alentejano",
+          "url": "https://en.wikipedia.org/wiki/P%C3%A3o_Alentejano"
+        },
+        {
+          "name": "Slow Food Foundation — Alentejo Bread (Ark of Taste)",
+          "url": "https://www.fondazioneslowfood.com/en/ark-of-taste-slow-food/alentejo-bread/"
+        }
+      ]
+    },
+    "caldeirada": {
+      "local": "Caldeirada",
+      "note": {
+        "en": "Portuguese (and Galician) fishermen's stew of mixed fish, shellfish and potatoes, named after the \"caldeira\" cooking pot.",
+        "fr": "Ragout de pecheurs portugais (et galicien) melant poissons, fruits de mer et pommes de terre, nomme d'apres le chaudron \"caldeira\"."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Caldeirada",
+          "url": "https://en.wikipedia.org/wiki/Caldeirada"
+        },
+        {
+          "name": "Tasty Trails - What Is Caldeirada?",
+          "url": "https://tastytrails.pt/what-is-caldeirada-portugal-fish-stew/"
+        }
+      ]
+    },
+    "port wine": {
+      "local": "vinho do Porto",
+      "note": {
+        "en": "A sweet fortified wine from Portugal's Douro Valley, made by adding grape brandy to halt fermentation; named for the city of Porto.",
+        "fr": "Vin doux fortifié de la vallée du Douro au Portugal, obtenu en ajoutant de l'eau-de-vie pour stopper la fermentation; nommé d'après Porto."
+      },
+      "sources": [
+        {
+          "name": "Britannica — Port",
+          "url": "https://www.britannica.com/topic/port-wine"
+        },
+        {
+          "name": "Cellar Tours — Port Wine Guide",
+          "url": "https://www.cellartours.com/blog/portugal/a-guide-to-port-wine-history-styles-and-modern-trends"
+        }
+      ]
+    },
+    "vinho verde": {
+      "local": "Vinho Verde",
+      "note": {
+        "en": "A young Portuguese DOC wine from the northern Minho region, released 3–6 months after harvest and often slightly effervescent.",
+        "fr": "Un vin portugais jeune en DOC de la région du Minho, au nord, mis en vente 3 à 6 mois après les vendanges et souvent légèrement pétillant."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Vinho Verde",
+          "url": "https://en.wikipedia.org/wiki/Vinho_Verde"
+        },
+        {
+          "name": "Wikipedia – Minho wine region",
+          "url": "https://en.wikipedia.org/wiki/Minho_wine_region"
+        }
+      ]
+    },
+    "madeira wine": {
+      "local": "Vinho da Madeira",
+      "note": {
+        "en": "A Portuguese fortified wine from Madeira island, aged by heating (estufa), a method born from 18th-century ocean voyages.",
+        "fr": "Un vin muté portugais de l'île de Madère, vieilli par chauffage (estufa), méthode née des voyages maritimes du XVIIIe siècle."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Madeira wine",
+          "url": "https://en.wikipedia.org/wiki/Madeira_wine"
+        },
+        {
+          "name": "Britannica — Madeira",
+          "url": "https://www.britannica.com/topic/Madeira-wine"
+        }
+      ]
+    }
+  },
+  "american": {
+    "hamburger": {
+      "local": "hamburger",
+      "note": {
+        "en": "A sandwich of a cooked ground beef patty in a sliced bun; popularized in the US and named after Hamburg, Germany.",
+        "fr": "Un sandwich avec un steak haché de bœuf dans un pain tranché; popularisé aux États-Unis et nommé d'après Hambourg, en Allemagne."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Hamburger",
+          "url": "https://en.wikipedia.org/wiki/Hamburger"
+        },
+        {
+          "name": "Wikipedia — History of the hamburger",
+          "url": "https://en.wikipedia.org/wiki/History_of_the_hamburger"
+        }
+      ]
+    },
+    "cheeseburger": {
+      "local": "cheeseburger",
+      "note": {
+        "en": "A hamburger topped with a slice of melted cheese, reputedly first made in 1920s Pasadena, California, by Lionel Sternberger.",
+        "fr": "Un hamburger garni d'une tranche de fromage fondu, qui aurait ete cree dans les annees 1920 a Pasadena, en Californie, par Lionel…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Cheeseburger",
+          "url": "https://en.wikipedia.org/wiki/Cheeseburger"
+        },
+        {
+          "name": "Visit Pasadena - How the Cheeseburger Was Invented",
+          "url": "https://www.visitpasadena.com/blog/how-the-cheeseburger-was-invented-in-pasadena/"
+        }
+      ]
+    },
+    "hot dog": {
+      "local": "Hot dog",
+      "note": {
+        "en": "An American sausage of German origin (frankfurter/wiener) served in a sliced bun; the name dates to US street vendors around 1884.",
+        "fr": "Saucisse americaine d'origine allemande (francfort/Vienne) servie dans un pain fendu; le nom remonte aux vendeurs de rue americains vers…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Hot dog",
+          "url": "https://en.wikipedia.org/wiki/Hot_dog"
+        },
+        {
+          "name": "Britannica - Hot dog",
+          "url": "https://www.britannica.com/topic/hot-dog"
+        }
+      ]
+    },
+    "bbq brisket": {
+      "local": "Texas smoked brisket",
+      "note": {
+        "en": "Slow-smoked beef brisket, an iconic Texas barbecue dish. It was first smoked in the U.S. by Jewish immigrants who arrived in Texas in the…",
+        "fr": "Poitrine de boeuf fumee lentement, plat emblematique du barbecue texan. Elle fut d'abord fumee aux Etats-Unis par des immigrants juifs…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia: Texas smoked brisket",
+          "url": "https://en.wikipedia.org/wiki/Texas_smoked_brisket"
+        },
+        {
+          "name": "Texas Monthly: The History of Smoked Brisket",
+          "url": "https://www.texasmonthly.com/bbq/smoked-brisket-history/"
+        }
+      ]
+    },
+    "bbq pulled pork": {
+      "local": "BBQ pulled pork",
+      "note": {
+        "en": "A Southern US barbecue dish of pork shoulder slow-smoked until tender, then shredded and dressed in sauce, rooted in indigenous barbacoa…",
+        "fr": "Plat de barbecue du Sud des États-Unis: épaule de porc fumée lentement jusqu'à tendreté, effilochée et nappée de sauce, issu du barbacoa…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Pulled pork",
+          "url": "https://en.wikipedia.org/wiki/Pulled_pork"
+        },
+        {
+          "name": "Gambero Rosso — Pulled pork history",
+          "url": "https://www.gamberorossointernational.com/news/food-news/pulled-pork-history-recipe-and-where-to-eat-it/"
+        }
+      ]
+    },
+    "bbq ribs": {
+      "local": "barbecue ribs",
+      "note": {
+        "en": "Pork or beef ribs slow-cooked over smoke with a spice rub or sauce; a Southern US staple rooted in African American and Indigenous (Taino…",
+        "fr": "Cotes de porc ou de boeuf fumees lentement avec epices ou sauce ; plat emblematique du Sud americain issu des traditions afro-americaines…"
+      },
+      "sources": [
+        {
+          "name": "From Pit to Plate: How We Became a Barbecue Nation - Atlanta History Center",
+          "url": "https://www.atlantahistorycenter.com/blog/from-pit-to-plate-a-brief-history-of-american-barbecue/"
+        },
+        {
+          "name": "Where to Eat the Best Barbecue Ribs in the USA - TasteAtlas",
+          "url": "https://www.tasteatlas.com/barbecue-ribs/wheretoeat/usa"
+        }
+      ]
+    },
+    "mac and cheese": {
+      "local": "Macaroni and cheese",
+      "note": {
+        "en": "American comfort dish of macaroni in cheese sauce; popularized by James Hemings for Jefferson and by Kraft's 1937 boxed version.",
+        "fr": "Plat reconfortant americain de macaronis en sauce au fromage, popularise par James Hemings pour Jefferson et la version Kraft de 1937."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Macaroni and cheese",
+          "url": "https://en.wikipedia.org/wiki/Macaroni_and_cheese"
+        },
+        {
+          "name": "Smithsonian Magazine — A Brief History of America's Appetite for Macaroni and Cheese",
+          "url": "https://www.smithsonianmag.com/history/brief-history-americas-appetite-for-macaroni-cheese-180969185/"
+        }
+      ]
+    },
+    "fried chicken": {
+      "local": "fried chicken",
+      "note": {
+        "en": "Southern US dish of seasoned flour-coated chicken pieces deep- or pan-fried; born from Scottish frying and West African seasoning.",
+        "fr": "Plat du Sud des USA: morceaux de poulet panes a la farine epicee et frits; ne du frire ecossais et de l'assaisonnement ouest-africain."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Fried chicken",
+          "url": "https://en.wikipedia.org/wiki/Fried_chicken"
+        }
+      ]
+    },
+    "buffalo wings": {
+      "local": "Buffalo wings",
+      "note": {
+        "en": "Deep-fried unbreaded chicken wings coated in cayenne-vinegar hot sauce, created in 1964 at the Anchor Bar in Buffalo, New York.",
+        "fr": "Ailes de poulet frites non panées enrobées de sauce piquante au cayenne et vinaigre, créées en 1964 à l'Anchor Bar de Buffalo, New York."
+      },
+      "sources": [
+        {
+          "name": "Anchor Bar — History",
+          "url": "https://anchorbar.com/history/"
+        },
+        {
+          "name": "Wikipedia — Anchor Bar",
+          "url": "https://en.wikipedia.org/wiki/Anchor_Bar"
+        }
+      ]
+    },
+    "philly cheesesteak": {
+      "local": "Philly Cheesesteak",
+      "note": {
+        "en": "A Philadelphia sandwich of thinly sliced griddled beef on a long roll. The steak sandwich was created around 1930 by brothers Pat and Harry…",
+        "fr": "Un sandwich de Philadelphie composé de bœuf émincé grillé sur un pain long. Le sandwich au steak fut créé vers 1930 par les frères Pat et…"
+      },
+      "sources": [
+        {
+          "name": "Cheesesteak - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Cheesesteak"
+        },
+        {
+          "name": "Pat's King of Steaks - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pat's_King_of_Steaks"
+        }
+      ]
+    },
+    "new york pizza": {
+      "local": "New York-style pizza",
+      "note": {
+        "en": "Large, foldable thin-crust pizza sold by the slice, developed by Italian immigrants in NYC after Lombardi's opened in 1905.",
+        "fr": "Grande pizza fine et pliable vendue à la part, créée par des immigrés italiens à New York après l'ouverture de Lombardi's en 1905."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — New York-style pizza",
+          "url": "https://en.wikipedia.org/wiki/New_York%E2%80%93style_pizza"
+        },
+        {
+          "name": "PMQ Pizza — How New York-Style Pizza Became Iconic",
+          "url": "https://www.pmq.com/new-york-style-pizza/"
+        }
+      ]
+    },
+    "chicago deep dish pizza": {
+      "local": "Chicago Deep-Dish Pizza",
+      "note": {
+        "en": "A thick, pan-baked pizza with a tall buttery crust, cheese, fillings and chunky tomato sauce on top, created in 1943 at Pizzeria Uno…",
+        "fr": "Pizza épaisse cuite au moule, à croûte haute et beurrée, garnie de fromage et de sauce tomate sur le dessus, créée en 1943 au Pizzeria Uno…"
+      },
+      "sources": [
+        {
+          "name": "Uno Pizzeria & Grill - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Uno_Pizzeria_%26_Grill"
+        },
+        {
+          "name": "The History of Chicago Deep-Dish Pizza - The Kitchn",
+          "url": "https://www.thekitchn.com/the-history-of-the-all-american-chicago-deep-dish-pie-227610"
+        }
+      ]
+    },
+    "clam chowder": {
+      "local": "clam chowder",
+      "note": {
+        "en": "A New England soup of clams, potatoes, salt pork and onions, originating in the 18th-century northeastern US.",
+        "fr": "Une soupe de Nouvelle-Angleterre aux palourdes, pommes de terre, lard et oignons, originaire du nord-est des États-Unis au XVIIIe siècle."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Clam chowder",
+          "url": "https://en.wikipedia.org/wiki/Clam_chowder"
+        },
+        {
+          "name": "What's Cooking America – History of New England Clam Chowder",
+          "url": "https://whatscookingamerica.net/history/chowder/newenglandchowder.htm"
+        }
+      ]
+    },
+    "lobster roll": {
+      "local": "lobster roll",
+      "note": {
+        "en": "New England sandwich of lobster meat (cold with mayo in Maine, warm with butter in Connecticut) in a split-top bun, dating to 1920s…",
+        "fr": "Sandwich de Nouvelle-Angleterre au homard (froid a la mayonnaise dans le Maine, chaud au beurre dans le Connecticut) en pain fendu, ne dans…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Lobster roll",
+          "url": "https://en.wikipedia.org/wiki/Lobster_roll"
+        }
+      ]
+    },
+    "gumbo": {
+      "local": "gombo",
+      "note": {
+        "en": "Louisiana stew of meat or shellfish, the \"holy trinity\" and a dark roux, thickened with okra or filé; named state dish in 2004.",
+        "fr": "Ragoût louisianais de viande ou fruits de mer, à la « sainte trinité » et roux foncé, lié à l'okra ou au filé ; plat officiel depuis 2004."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Gumbo",
+          "url": "https://en.wikipedia.org/wiki/Gumbo"
+        },
+        {
+          "name": "64 Parishes — Gumbo",
+          "url": "https://64parishes.org/entry/gumbo"
+        }
+      ]
+    },
+    "jambalaya": {
+      "local": "jambalaya",
+      "note": {
+        "en": "Louisiana rice dish of meat, sausage and seafood with vegetables; Creole and Cajun roots, often linked to Spanish settlers' adaptation of…",
+        "fr": "Plat de riz louisianais de viande, saucisse et fruits de mer aux legumes; racines creoles et cajuns, souvent lie a une adaptation de la…"
+      },
+      "sources": [
+        {
+          "name": "Encyclopaedia Britannica - Jambalaya",
+          "url": "https://www.britannica.com/topic/jambalaya"
+        },
+        {
+          "name": "Wikipedia - Jambalaya",
+          "url": "https://en.wikipedia.org/wiki/Jambalaya"
+        }
+      ]
+    },
+    "po' boy": {
+      "local": "po' boy (poor boy)",
+      "note": {
+        "en": "A New Orleans submarine sandwich on French bread, said to be created by the Martin brothers to feed strikers in the 1929 streetcar strike.",
+        "fr": "Un sandwich sous-marin de la Nouvelle-Orleans sur pain francais, cree, dit-on, par les freres Martin pour nourrir les grevistes du tramway…"
+      },
+      "sources": [
+        {
+          "name": "Po' boy - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Po'_boy"
+        },
+        {
+          "name": "Po-Boy Sandwich - 64 Parishes",
+          "url": "https://64parishes.org/entry/po-boy-sandwich"
+        }
+      ]
+    },
+    "beignet": {
+      "local": "beignet",
+      "note": {
+        "en": "A square of deep-fried yeasted dough dusted with powdered sugar, brought to New Orleans by French-speaking colonists in the 18th century…",
+        "fr": "Carre de pate levee frite et saupoudre de sucre glace, apporte a la Nouvelle-Orleans par les colons francophones au 18e siecle et devenu un…"
+      },
+      "sources": [
+        {
+          "name": "64 Parishes - Beignets",
+          "url": "https://64parishes.org/entry/beignets"
+        },
+        {
+          "name": "Britannica - beignet",
+          "url": "https://www.britannica.com/topic/beignet"
+        }
+      ]
+    },
+    "biscuits and gravy": {
+      "local": "Biscuits and gravy",
+      "note": {
+        "en": "A Southern US breakfast of soft biscuits under white pork-sausage gravy, rooted in late-1800s Appalachia.",
+        "fr": "Petit-déjeuner du Sud des États-Unis : biscuits moelleux nappés de sauce blanche à la chair à saucisse, né dans l'Appalachie de la fin du…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Biscuits and gravy",
+          "url": "https://en.wikipedia.org/wiki/Biscuits_and_gravy"
+        },
+        {
+          "name": "Wikipedia — Sausage gravy",
+          "url": "https://en.wikipedia.org/wiki/Sausage_gravy"
+        }
+      ]
+    },
+    "soul food platter": {
+      "local": "Soul food platter",
+      "note": {
+        "en": "African American Southern US cuisine rooted in slavery-era cooking; a platter typically pairs fried chicken, collard greens and cornbread.",
+        "fr": "Cuisine afro-américaine du Sud des États-Unis née à l'époque de l'esclavage; l'assiette réunit poulet frit, chou vert et pain de maïs."
+      },
+      "sources": [
+        {
+          "name": "Britannica - Soul food",
+          "url": "https://www.britannica.com/topic/soul-food-cuisine"
+        },
+        {
+          "name": "African American Registry - Soul Food, a brief history",
+          "url": "https://aaregistry.org/story/soul-food-a-brief-history/"
+        }
+      ]
+    },
+    "pancakes": {
+      "local": "Pancakes",
+      "note": {
+        "en": "Thick, fluffy American breakfast cakes of flour, eggs, milk and baking powder, stacked and served with butter and maple syrup.",
+        "fr": "Crêpes américaines épaisses et moelleuses à base de farine, œufs, lait et levure, empilées et servies avec beurre et sirop d'érable."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - American Pancakes",
+          "url": "https://www.tasteatlas.com/american-pancakes"
+        },
+        {
+          "name": "Smithsonian Magazine - A Brief History of Pancakes",
+          "url": "https://www.smithsonianmag.com/history/a-brief-history-of-pancakes-180981667/"
+        }
+      ]
+    },
+    "bagel with lox": {
+      "local": "bagel with lox (lox from Yiddish לאַקס, laks)",
+      "note": {
+        "en": "A uniquely American Jewish-deli dish of a bagel with brine-cured salmon (lox, from Yiddish laks) and cream cheese, popularized in 1900s New…",
+        "fr": "Plat judéo-américain de deli: un bagel garni de saumon en saumure (lox, du yiddish laks) et de fromage à la crème, popularisé à New York…"
+      },
+      "sources": [
+        {
+          "name": "Smithsonian Magazine — Bagels and Lox Are a Uniquely American Creation",
+          "url": "https://www.smithsonianmag.com/smart-news/bagels-and-lox-are-a-uniquely-american-creation-578/"
+        },
+        {
+          "name": "Etymonline — Lox",
+          "url": "https://www.etymonline.com/word/lox"
+        }
+      ]
+    },
+    "pastrami sandwich": {
+      "local": "Pastrami on rye",
+      "note": {
+        "en": "A New York Jewish-deli sandwich of spiced cured beef on rye, first sold by immigrant butcher Sussman Volk around 1887-1888.",
+        "fr": "Un sandwich des delis juifs de New York, au boeuf saumure epice sur pain de seigle, vendu vers 1887-1888 par le boucher immigre Sussman…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Pastrami on rye",
+          "url": "https://en.wikipedia.org/wiki/Pastrami_on_rye"
+        },
+        {
+          "name": "Wikipedia - Pastrami",
+          "url": "https://en.wikipedia.org/wiki/Pastrami"
+        }
+      ]
+    },
+    "reuben": {
+      "local": "Reuben",
+      "note": {
+        "en": "Grilled American sandwich of corned beef, sauerkraut, Swiss cheese and Russian dressing on rye, widely credited to 1920s Omaha, Nebraska.",
+        "fr": "Sandwich americain grille au boeuf sale, choucroute, gruyere suisse et sauce russe sur pain de seigle, attribue a Omaha (Nebraska) dans les…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Reuben sandwich",
+          "url": "https://en.wikipedia.org/wiki/Reuben_sandwich"
+        },
+        {
+          "name": "Britannica - Reuben sandwich",
+          "url": "https://www.britannica.com/topic/Reuben-sandwich"
+        }
+      ]
+    },
+    "apple pie": {
+      "local": "apple pie",
+      "note": {
+        "en": "A double-crusted baked pastry filled with spiced apples; though an American icon, the earliest recipe is English, dating to the late 1300s.",
+        "fr": "Une tarte cuite a double croute garnie de pommes epicees; icone americaine, mais sa plus ancienne recette est anglaise, datant de la fin…"
+      },
+      "sources": [
+        {
+          "name": "Mental Floss - How Did Apple Pie Become an Iconic American Dessert?",
+          "url": "https://www.mentalfloss.com/article/627296/how-did-apple-pie-become-iconic-american-dessert"
+        },
+        {
+          "name": "Food52 - Apple Pie Origin Story",
+          "url": "https://food52.com/story/24688-apple-pie-origin-story"
+        }
+      ]
+    },
+    "chocolate chip cookie": {
+      "local": "Chocolate chip cookie",
+      "note": {
+        "en": "A sweet drop cookie studded with chocolate chips, created by Ruth Wakefield at the Toll House Inn in Massachusetts in the late 1930s.",
+        "fr": "Un biscuit sucré parsemé de pépites de chocolat, créé par Ruth Wakefield au Toll House Inn, au Massachusetts, à la fin des années 1930."
+      },
+      "sources": [
+        {
+          "name": "The Sugar Association — History of the Chocolate Chip Cookie",
+          "url": "https://www.sugar.org/blog/the-history-of-the-chocolate-chip-cookie/"
+        },
+        {
+          "name": "New England — Ruth Wakefield's Original Toll House Cookies Recipe",
+          "url": "https://newengland.com/food/original-toll-house-cookies/"
+        }
+      ]
+    },
+    "cheesecake new york": {
+      "local": "New York-Style Cheesecake",
+      "note": {
+        "en": "A dense, rich baked cheesecake made with a cream-cheese base, popularized in 1920s NYC by restaurateur Arnold Reuben.",
+        "fr": "Un cheesecake cuit, dense et riche, a base de fromage frais, popularise dans le New York des annees 1920 par le restaurateur Arnold Reuben."
+      },
+      "sources": [
+        {
+          "name": "The Takeout - What Makes New York Style Cheesecake Different?",
+          "url": "https://www.thetakeout.com/2103255/what-makes-nyc-cheesecake-different/"
+        },
+        {
+          "name": "CooksInfo - Arnold Reuben: New York Restaurateur",
+          "url": "https://www.cooksinfo.com/arnold-reuben"
+        }
+      ]
+    },
+    "coca-cola": {
+      "local": "Coca-Cola",
+      "note": {
+        "en": "Carbonated cola soft drink invented in 1886 by pharmacist John Pemberton in Atlanta, originally sold as a five-cent soda-fountain tonic.",
+        "fr": "Boisson gazeuse au cola inventee en 1886 par le pharmacien John Pemberton a Atlanta, vendue d'abord comme tonique de fontaine a cinq cents."
+      },
+      "sources": [
+        {
+          "name": "Coca-Cola Company - Our History",
+          "url": "https://www.coca-colacompany.com/about-us/history"
+        },
+        {
+          "name": "Library of Congress - World's First Coca-Cola Served",
+          "url": "https://guides.loc.gov/this-month-in-business-history/may/first-coca-cola-served"
+        }
+      ]
+    },
+    "american craft beer": {
+      "local": "American craft beer",
+      "note": {
+        "en": "Beer made by small, independent U.S. breweries; the movement began in the late 1970s after homebrewing was legalized in 1978.",
+        "fr": "Biere produite par de petites brasseries americaines independantes; le mouvement debuta a la fin des annees 1970 apres la legalisation du…"
+      },
+      "sources": [
+        {
+          "name": "Britannica — Craft beer",
+          "url": "https://www.britannica.com/topic/craft-beer"
+        },
+        {
+          "name": "Britannica — American craft beer revolution",
+          "url": "https://www.britannica.com/event/American-craft-beer-revolution"
+        }
+      ]
+    },
+    "bourbon": {
+      "local": "Bourbon",
+      "note": {
+        "en": "American barrel-aged whiskey made mainly from corn, recognized by Congress in 1964 as a distinctive product of the United States.",
+        "fr": "Whiskey americain vieilli en fut, fait surtout de mais, reconnu par le Congres en 1964 comme produit distinctif des Etats-Unis."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Bourbon whiskey",
+          "url": "https://en.wikipedia.org/wiki/Bourbon_whiskey"
+        }
+      ]
+    }
+  },
+  "australian": {
+    "meat pie": {
+      "local": "Meat pie",
+      "note": {
+        "en": "A handheld pie of diced or minced beef in thick gravy, built on a firm shortcrust base with a flaky puff-pastry lid; an Australian staple…",
+        "fr": "Une tourte individuelle garnie de boeuf hache ou en des dans une sauce epaisse, montee sur un fond de pate brisee ferme et coiffee d'un…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Meat pie (Australia and New Zealand)",
+          "url": "https://en.wikipedia.org/wiki/Meat_pie_(Australia_and_New_Zealand)"
+        },
+        {
+          "name": "Australian Food History Timeline — The great Australian pie",
+          "url": "https://australianfoodtimeline.com.au/great-australian-pie/"
+        }
+      ]
+    },
+    "vegemite on toast": {
+      "local": "Vegemite on toast",
+      "note": {
+        "en": "Australian toast spread thinly with Vegemite, a salty yeast-extract paste invented by Cyril Callister in Melbourne in 1922.",
+        "fr": "Tartine australienne tartinee d'une fine couche de Vegemite, une pate salee d'extrait de levure inventee par Cyril Callister a Melbourne en…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Vegemite on toast",
+          "url": "https://tasteatlas.com/vegemite-on-toast"
+        },
+        {
+          "name": "Mental Floss - A Brief History of Vegemite",
+          "url": "https://www.mentalfloss.com/article/650489/vegemites-history-and-ingredients"
+        }
+      ]
+    },
+    "lamington": {
+      "local": "Lamington",
+      "note": {
+        "en": "An Australian dessert of sponge cake squares coated in chocolate icing and desiccated coconut, named after Lord Lamington, Governor of…",
+        "fr": "Un dessert australien fait de cubes de gateau eponge enrobes de glacage au chocolat et de noix de coco rapee, nomme d'apres Lord Lamington…"
+      },
+      "sources": [
+        {
+          "name": "Lamington — Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lamington"
+        },
+        {
+          "name": "A history of the Lamington — Ferguson Plarre's Bakehouse",
+          "url": "https://www.fergusonplarre.com.au/blog/history-of-lamington"
+        }
+      ]
+    },
+    "pavlova": {
+      "local": "pavlova",
+      "note": {
+        "en": "A meringue-based dessert with a crisp crust and soft centre, topped with cream and fruit, named after Russian ballerina Anna Pavlova.",
+        "fr": "Un dessert a base de meringue, croustillant dehors et moelleux dedans, garni de creme et de fruits, nomme d'apres la ballerine russe Anna…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Pavlova",
+          "url": "https://en.wikipedia.org/wiki/Pavlova"
+        },
+        {
+          "name": "TasteAtlas — Pavlova (Australia)",
+          "url": "https://tasteatlas.com/pavlova-australia"
+        }
+      ]
+    },
+    "anzac biscuit": {
+      "local": "Anzac biscuit",
+      "note": {
+        "en": "A sweet Australian and New Zealand biscuit of rolled oats, coconut, flour, butter and golden syrup, bound without eggs so it keeps well…",
+        "fr": "Biscuit sucre australien et neo-zelandais a base de flocons d'avoine, noix de coco, farine, beurre et sirop dore, sans oeufs pour mieux se…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Anzac biscuit",
+          "url": "https://en.wikipedia.org/wiki/Anzac_biscuit"
+        },
+        {
+          "name": "TasteAtlas - Anzac biscuits",
+          "url": "https://www.tasteatlas.com/anzac-biscuits/"
+        }
+      ]
+    },
+    "barramundi": {
+      "local": "barramundi",
+      "note": {
+        "en": "A mild, white-fleshed Australian fish (Lates calcarifer); its name comes from the Gangulu Aboriginal language meaning \"large-scaled river…",
+        "fr": "Poisson australien a chair blanche et au gout doux (Lates calcarifer); son nom vient de la langue aborigene gangulu et signifie \"poisson de…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Barramundi",
+          "url": "https://en.wikipedia.org/wiki/Barramundi"
+        },
+        {
+          "name": "State Library of Queensland — Barramundi, what's in a name?",
+          "url": "https://www.slq.qld.gov.au/blog/barramundi-whats-name"
+        }
+      ]
+    },
+    "chiko roll": {
+      "local": "Chiko Roll",
+      "note": {
+        "en": "Australian deep-fried savoury snack of cabbage, barley, carrot and beef in a thick pastry tube, invented by Frank McEncroe and first sold…",
+        "fr": "En-cas australien frit, fait de chou, orge, carotte et boeuf dans un tube de pate epaisse, invente par Frank McEncroe et vendu des 1951."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Chiko Roll",
+          "url": "https://en.wikipedia.org/wiki/Chiko_Roll"
+        },
+        {
+          "name": "Australian Food Timeline – Chiko Roll introduced",
+          "url": "https://australianfoodtimeline.com.au/chiko-roll/"
+        }
+      ]
+    },
+    "damper": {
+      "local": "Damper",
+      "note": {
+        "en": "Traditional Australian bush bread of flour, water and salt, kneaded and baked in the coals of a campfire; a 19th-century staple of…",
+        "fr": "Pain de brousse australien traditionnel a base de farine, d'eau et de sel, petri et cuit dans les braises d'un feu de camp ; aliment de…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Damper (food)",
+          "url": "https://en.wikipedia.org/wiki/Damper_(food)"
+        },
+        {
+          "name": "Australian Food Timeline - Damper first mentioned",
+          "url": "https://australianfoodtimeline.com.au/australian-damper/"
+        }
+      ]
+    },
+    "australian bbq": {
+      "local": "Sausage sizzle (Aussie barbie)",
+      "note": {
+        "en": "Australian outdoor barbecue tradition; the sausage sizzle — a grilled \"snag\" on white bread with onions — became the election-day…",
+        "fr": "Tradition australienne du barbecue en plein air ; la « sausage sizzle » — saucisse grillée sur pain blanc aux oignons — devenue la «…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Sausage sizzle",
+          "url": "https://en.wikipedia.org/wiki/Sausage_sizzle"
+        },
+        {
+          "name": "196 flavors — Sausage Sizzle (Traditional Australian Recipe)",
+          "url": "https://www.196flavors.com/sausage-sizzle/"
+        }
+      ]
+    },
+    "snags on bread": {
+      "local": "snags on bread (sausage sizzle)",
+      "note": {
+        "en": "Australian/NZ sausage (\"snag\") grilled and served on a single slice of white bread with onions and sauce, a fundraiser staple.",
+        "fr": "Saucisse australienne/néo-zélandaise (« snag ») grillée, servie sur une tranche de pain blanc avec oignons et sauce, vedette des collectes…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Sausage sizzle",
+          "url": "https://en.wikipedia.org/wiki/Sausage_sizzle"
+        },
+        {
+          "name": "Wikipedia — Democracy sausage",
+          "url": "https://en.wikipedia.org/wiki/Democracy_sausage"
+        }
+      ]
+    },
+    "fairy bread": {
+      "local": "Fairy bread",
+      "note": {
+        "en": "Australian children's party treat of buttered white bread cut into triangles and topped with hundreds and thousands; first named in 1929.",
+        "fr": "Friandise australienne pour fetes d'enfants: pain blanc beurre coupe en triangles et couvert de vermicelles colores; nomme des 1929."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas",
+          "url": "https://tasteatlas.com/fairy-bread"
+        },
+        {
+          "name": "Australian Food Timeline",
+          "url": "https://australianfoodtimeline.com.au/fairy-bread/"
+        }
+      ]
+    },
+    "tim tam": {
+      "local": "Tim Tam",
+      "note": {
+        "en": "Australian chocolate biscuit made of two malted biscuits sandwiching a chocolate cream filling, coated in chocolate; introduced by Arnott's…",
+        "fr": "Biscuit australien au chocolat compose de deux biscuits maltes garnis d'une creme chocolatee et enrobes de chocolat; lance par Arnott's et…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Tim Tam",
+          "url": "https://en.wikipedia.org/wiki/Tim_Tam"
+        }
+      ]
+    },
+    "flat white": {
+      "local": "flat white",
+      "note": {
+        "en": "An espresso-based coffee topped with steamed microfoam milk, originating in Australia or New Zealand in the 1980s.",
+        "fr": "Un cafe a base d'espresso nappe de mousse de lait micro-aeree, ne en Australie ou Nouvelle-Zelande dans les annees 1980."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Flat white",
+          "url": "https://en.wikipedia.org/wiki/Flat_white"
+        },
+        {
+          "name": "Perfect Daily Grind - Exploring the origins of the flat white",
+          "url": "https://perfectdailygrind.com/?p=96929"
+        }
+      ]
+    },
+    "avocado toast": {
+      "local": "avocado toast",
+      "note": {
+        "en": "Mashed or sliced avocado on toasted bread, popularised at Bill Granger's Sydney café Bills in 1993 as a café-breakfast staple.",
+        "fr": "Avocat écrasé ou tranché sur pain grillé, popularisé au café Bills de Bill Granger à Sydney en 1993 comme plat de petit-déjeuner."
+      },
+      "sources": [
+        {
+          "name": "Australian Food Timeline — Avocado on toast",
+          "url": "https://australianfoodtimeline.com.au/avocado-on-toast/"
+        },
+        {
+          "name": "Chowhound — Bill's diner, first avocado toast in Australia",
+          "url": "https://www.chowhound.com/1922832/bills-diner-first-avocado-toast-australia/"
+        }
+      ]
+    },
+    "aussie burger": {
+      "local": "Aussie burger (with the lot)",
+      "note": {
+        "en": "Australian hamburger topped with the lot—beef, fried egg, bacon, pineapple and canned beetroot, a style that emerged in 1940s cafes and…",
+        "fr": "Hamburger australien garni du tout : boeuf, oeuf au plat, bacon, ananas et betterave en conserve, un style apparu dans les cafes des annees…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas – Australian Burger",
+          "url": "https://www.tasteatlas.com/australian-burger"
+        },
+        {
+          "name": "SBS Food – How did beetroot end up on our burger?",
+          "url": "https://www.sbs.com.au/food/article/how-did-beetroot-end-up-on-our-burger/mrl2mk09b"
+        }
+      ]
+    },
+    "parmigiana": {
+      "local": "Chicken parmigiana (\"parma\" / \"parmi\")",
+      "note": {
+        "en": "An Australian pub staple of crumbed chicken schnitzel topped with ham, napoli tomato sauce and melted cheese, adapted from Italian eggplant…",
+        "fr": "Plat de pub australien: escalope de poulet panee garnie de jambon, sauce tomate napoli et fromage fondu, derive de l'aubergine alla…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Chicken parmesan",
+          "url": "https://en.wikipedia.org/wiki/Chicken_parmesan"
+        },
+        {
+          "name": "TasteAtlas - Chicken Parmigiana",
+          "url": "https://www.tasteatlas.com/chicken-parmigiana"
+        }
+      ]
+    },
+    "kangaroo steak": {
+      "local": "Kangaroo steak",
+      "note": {
+        "en": "A lean, gamey Australian game steak eaten since Indigenous times; legal for sale as human food only after South Australia lifted its ban in…",
+        "fr": "Un steak de gibier australien maigre et gibier, consomme depuis les temps autochtones; vendable comme aliment seulement apres la levee de…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Kangaroo Steak",
+          "url": "https://www.tasteatlas.com/kangaroo-steak"
+        },
+        {
+          "name": "Wikipedia - Kangaroo meat",
+          "url": "https://en.wikipedia.org/wiki/Kangaroo_meat"
+        }
+      ]
+    },
+    "crocodile fillet": {
+      "local": "crocodile fillet",
+      "note": {
+        "en": "Tender white tail-fillet of farmed saltwater crocodile, grilled like steak; a Top End delicacy of northern Australia.",
+        "fr": "Tendre filet blanc de queue de crocodile marin d'élevage, grillé comme un steak ; spécialité du nord de l'Australie."
+      },
+      "sources": [
+        {
+          "name": "Chef's Pencil — Crocodile Meat: Taste, Best Cuts, Popularity",
+          "url": "https://www.chefspencil.com/crocodile-meat/"
+        },
+        {
+          "name": "Hospitality Directory — 5 Places To Eat Crocodile In Australia",
+          "url": "https://www.hospitalitydirectory.com.au/industry-news/7293-5-places-to-eat-crocodile-in-australia/"
+        }
+      ]
+    },
+    "barramundi pie": {
+      "local": "barramundi pie",
+      "note": {
+        "en": "Australian savoury pie of flaky barramundi and potato; the word \"barramundi\" comes from the Gangulu Aboriginal language of central…",
+        "fr": "Tourte australienne au barramundi feuilleté et à la pomme de terre ; le mot « barramundi » vient de la langue aborigène gangulu du centre…"
+      },
+      "sources": [
+        {
+          "name": "Women's Weekly Food – Barramundi and potato pie",
+          "url": "https://www.womensweeklyfood.com.au/recipe/dinner/barramundi-and-potato-pie-1847/"
+        },
+        {
+          "name": "State Library of Queensland – Barramundi, what's in a name?",
+          "url": "https://www.slq.qld.gov.au/blog/barramundi-whats-name"
+        }
+      ]
+    },
+    "bush tucker": {
+      "local": "bush tucker",
+      "note": {
+        "en": "Bush tucker is any native Australian plant or animal food, such as quandong, witchetty grubs and kangaroo, eaten by Indigenous Australians…",
+        "fr": "Le bush tucker designe tout aliment vegetal ou animal natif d'Australie (quandong, vers witchetty, kangourou) consomme par les Aborigenes…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Bush tucker",
+          "url": "https://en.wikipedia.org/wiki/Bush_tucker"
+        }
+      ]
+    },
+    "flat white australian": {
+      "local": "Flat White",
+      "note": {
+        "en": "An espresso coffee topped with steamed milk and a thin layer of microfoam, popularised in Australia in the mid-1980s.",
+        "fr": "Un cafe espresso recouvert de lait vapeur et d'une fine couche de micromousse, popularise en Australie au milieu des annees 1980."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Flat white",
+          "url": "https://en.wikipedia.org/wiki/Flat_white"
+        },
+        {
+          "name": "Australian Geographic — Who invented the flat white?",
+          "url": "https://www.australiangeographic.com.au/news/2024/04/who-invented-the-flat-white/"
+        }
+      ]
+    },
+    "long black": {
+      "local": "Long black",
+      "note": {
+        "en": "An Australian/New Zealand coffee made by pouring a double espresso shot over hot water, which preserves a more pronounced crema than an…",
+        "fr": "Un cafe australien/neo-zelandais fait en versant un double espresso sur de l'eau chaude, ce qui preserve une crema plus prononcee que celle…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Long black",
+          "url": "https://en.wikipedia.org/wiki/Long_black"
+        },
+        {
+          "name": "Barista Courses Australia - What is long black coffee",
+          "url": "https://baristacoursesaustralia.com.au/blog/what-is-long-black-coffee/"
+        }
+      ]
+    },
+    "australian wine": {
+      "local": "Australian wine",
+      "note": {
+        "en": "Wine made in Australia since the first vines were planted in Sydney in 1788, now famed for Shiraz.",
+        "fr": "Vin produit en Australie depuis la plantation des premières vignes à Sydney en 1788, réputé pour la Syrah."
+      },
+      "sources": [
+        {
+          "name": "South Australian wine - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/South_Australian_wine"
+        },
+        {
+          "name": "Wine Australia - The history of Australian Wine",
+          "url": "https://www.wineaustralia.com/whats-happening/stories-of-australian-wine/march-2016/the-history,-evolution-and-revolution-of-australia"
+        }
+      ]
+    }
+  },
+  "bengali": {
+    "macher jhol": {
+      "local": "মাছের ঝোল",
+      "note": {
+        "en": "A Bengali and Odia light, spiced fish stew with potatoes simmered in a turmeric broth, served with rice as an everyday staple.",
+        "fr": "Un ragout de poisson bengali et odia, leger et epice, aux pommes de terre mijotees dans un bouillon au curcuma, servi avec du riz."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Machher jhol",
+          "url": "https://en.wikipedia.org/wiki/Machher_jhol"
+        },
+        {
+          "name": "TasteAtlas - Macher jhol",
+          "url": "https://www.tasteatlas.com/macher-jhol"
+        }
+      ]
+    },
+    "shorshe ilish": {
+      "local": "সর্ষে ইলিশ",
+      "note": {
+        "en": "A Bengali dish of hilsa fish simmered in a pungent ground-mustard gravy, widely regarded as the national dish of Bangladesh.",
+        "fr": "Un plat bengali de poisson hilsa mijoté dans une sauce piquante à la moutarde, considéré comme le plat national du Bangladesh."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Shorshe ilish",
+          "url": "https://en.wikipedia.org/wiki/Shorshe_ilish"
+        },
+        {
+          "name": "TasteAtlas — Shorshe Ilish",
+          "url": "https://tasteatlas.com/shorshe-ilish-west-bengal"
+        }
+      ]
+    },
+    "chingri malai curry": {
+      "local": "চিংড়ি মালাই কারি",
+      "note": {
+        "en": "Bengali curry of king/tiger prawns in spiced coconut milk; \"malai\" derives from Malay, reflecting Bengal-Southeast Asia trade.",
+        "fr": "Curry bengali de grosses crevettes au lait de coco épicé; « malai » vient de « malais », fruit du commerce Bengale-Asie du Sud-Est."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Chingri malai curry",
+          "url": "https://en.wikipedia.org/wiki/Chingri_malai_curry"
+        }
+      ]
+    },
+    "kosha mangsho": {
+      "local": "কষা মাংস",
+      "note": {
+        "en": "A Bengali slow-cooked dry mutton (goat) curry braised in mustard oil and spices; a staple of Durga Puja and Sunday feasts.",
+        "fr": "Curry bengali de mouton (chèvre) mijoté à sec dans l'huile de moutarde et les épices ; incontournable du Durga Puja et des repas du…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Mutton curry",
+          "url": "https://en.wikipedia.org/wiki/Mutton_curry"
+        },
+        {
+          "name": "Bong Eats – Mutton Kosha",
+          "url": "https://www.bongeats.com/recipe/mutton-kosha"
+        }
+      ]
+    },
+    "luchi alur dom": {
+      "local": "লুচি আলুর দম",
+      "note": {
+        "en": "Bengali breakfast pairing of deep-fried maida flatbread (luchi, attested 1660) with a spiced, slightly sweet dum-cooked potato curry.",
+        "fr": "Plat bengali du matin: pain frit de farine maida (luchi, attesté en 1660) accompagné d'un curry de pommes de terre épicé et légèrement…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Luchi",
+          "url": "https://en.wikipedia.org/wiki/Luchi"
+        },
+        {
+          "name": "Chef's Pencil – Luchi & Alur Dom",
+          "url": "https://www.chefspencil.com/luchi-alur-dom-bengali-luchi-aloo-dum/"
+        }
+      ]
+    },
+    "rosogolla": {
+      "local": "রসগোল্লা",
+      "note": {
+        "en": "Spongy chhena (curd-cheese) balls boiled in light sugar syrup; Bengalis credit Nabin Chandra Das (Kolkata, 1868) for it.",
+        "fr": "Boulettes spongieuses de chhena (fromage caillé) cuites dans un sirop léger; les Bengalis l'attribuent à Nabin Chandra Das (Kolkata, 1868)."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Rasgulla",
+          "url": "https://en.wikipedia.org/wiki/Rasgulla"
+        },
+        {
+          "name": "Wiktionary — রসগোল্লা",
+          "url": "https://en.wiktionary.org/wiki/%E0%A6%B0%E0%A6%B8%E0%A6%97%E0%A7%8B%E0%A6%B2%E0%A7%8D%E0%A6%B2%E0%A6%BE"
+        }
+      ]
+    },
+    "mishti doi": {
+      "local": "মিষ্টি দই",
+      "note": {
+        "en": "A Bengali fermented sweet yogurt of boiled milk set with sugar or jaggery in earthenware, traced to 19th-century Bengal.",
+        "fr": "Yaourt sucré bengali fermente, fait de lait bouilli pris au sucre ou au jaggery dans des pots en terre, ne au Bengale du XIXe siecle."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Mishti doi",
+          "url": "https://en.wikipedia.org/wiki/Mishti_doi"
+        }
+      ]
+    },
+    "shukto": {
+      "local": "শুক্তো",
+      "note": {
+        "en": "A lightly bitter Bengali mixed-vegetable dish, traditionally eaten first in a meal, an Ayurvedic custom of opening with bitters.",
+        "fr": "Plat bengali de legumes melanges legerement amer, traditionnellement mange en debut de repas, coutume ayurvedique des amers."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Shukto",
+          "url": "https://en.wikipedia.org/wiki/Shukto"
+        }
+      ]
+    },
+    "aloo posto": {
+      "local": "আলু পোস্ত",
+      "note": {
+        "en": "A traditional West Bengal vegetarian dish of potatoes cooked in a mildly spiced poppy-seed (posto) paste with mustard oil.",
+        "fr": "Plat vegetarien traditionnel du Bengale-Occidental: pommes de terre mijotees dans une pate de graines de pavot (posto) legerement epicee a…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Aloo Posto",
+          "url": "https://www.tasteatlas.com/aloo-posto"
+        },
+        {
+          "name": "Dassana's Veg Recipes - Aloo Posto",
+          "url": "https://www.vegrecipesofindia.com/aloo-posto-recipe/"
+        }
+      ]
+    },
+    "cholar dal": {
+      "local": "ছোলার ডাল",
+      "note": {
+        "en": "A sweet-savoury Bengali split-Bengal-gram (chana dal) lentil dish tempered with whole spices, coconut and raisins, eaten at Durga Puja with…",
+        "fr": "Un plat bengali de lentilles de pois chiches cassés (chana dal), doux-salé, relevé d'épices entières, de noix de coco et de raisins secs…"
+      },
+      "sources": [
+        {
+          "name": "Veg Recipes of India - Cholar Dal",
+          "url": "https://www.vegrecipesofindia.com/cholar-dal-bengali-cholar-dal/"
+        },
+        {
+          "name": "Holy Cow Vegan - Cholar Dal (Bengali Chana Dal)",
+          "url": "https://holycowvegan.net/cholar-dal/"
+        }
+      ]
+    },
+    "begun bhaja": {
+      "local": "বেগুন ভাজা",
+      "note": {
+        "en": "A Bengali side dish of eggplant slices coated in turmeric and spices, then pan-fried in mustard oil.",
+        "fr": "Plat d'accompagnement bengali de tranches d'aubergine enrobees de curcuma et d'epices, frites a l'huile de moutarde."
+      },
+      "sources": [
+        {
+          "name": "Bengali Begun Bhaja Recipe - Whisk Affair",
+          "url": "https://www.whiskaffair.com/bengali-begun-bhaja-recipe/"
+        },
+        {
+          "name": "Begun Bhaja Recipe (Baingan Bhaja) - Dassana's Veg Recipes",
+          "url": "https://www.vegrecipesofindia.com/baingan-fry-baingan-bhaja-eggplant-fries/"
+        }
+      ]
+    },
+    "panta bhat": {
+      "local": "পান্তা ভাত",
+      "note": {
+        "en": "A Bengali dish of leftover rice soaked and fermented in water overnight, eaten with salt, onion and chili, especially at Pohela Boishakh.",
+        "fr": "Plat bengali de riz cuit trempe et fermente dans l'eau toute la nuit, mange avec sel, oignon et piment, surtout au Pohela Boishakh."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Panta bhat",
+          "url": "https://en.wikipedia.org/wiki/Panta_bhat"
+        },
+        {
+          "name": "Wikipedia - Pohela Boishakh",
+          "url": "https://en.wikipedia.org/wiki/Pohela_Boishakh"
+        }
+      ]
+    },
+    "biryani kolkata": {
+      "local": "কলকাতা বিরিয়ানি",
+      "note": {
+        "en": "A mild, fragrant rice-and-meat biryani distinguished by potato and boiled egg, brought to Kolkata by the exiled Awadh Nawab Wajid Ali Shah…",
+        "fr": "Un biryani de riz et de viande, doux et parfumé, marqué par la pomme de terre et l'oeuf dur, apporté à Calcutta par le nawab d'Awadh exilé…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Kolkata biryani",
+          "url": "https://en.wikipedia.org/wiki/Kolkata_biryani"
+        },
+        {
+          "name": "Live History India - Who put the Potato in the Kolkata Biryani?",
+          "url": "https://www.livehistoryindia.com/story/living-culture/who-put-the-potato-in-the-kolkata-biryani"
+        }
+      ]
+    },
+    "phuchka": {
+      "local": "ফুচকা",
+      "note": {
+        "en": "A Bengali street snack: a deep-fried hollow puri shell filled with spiced potato and tangy tamarind water, the eastern Indian form of…",
+        "fr": "Un en-cas de rue bengali : une coque de puri creuse frite garnie de pomme de terre épicée et d'eau de tamarin acidulée, la forme orientale…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Panipuri",
+          "url": "https://en.wikipedia.org/wiki/Panipuri"
+        },
+        {
+          "name": "Wiktionary – phuchka",
+          "url": "https://en.wiktionary.org/wiki/phuchka"
+        }
+      ]
+    },
+    "jhal muri": {
+      "local": "ঝালমুড়ি",
+      "note": {
+        "en": "A Bengali street snack of puffed rice tossed with Bombay mix (chanachur), chopped vegetables, spices and pungent mustard oil, sold from…",
+        "fr": "En-cas de rue bengali de riz soufflé mélangé à du Bombay mix (chanachur), des légumes coupés, des épices et de l'huile de moutarde…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Jhalmuri",
+          "url": "https://en.wikipedia.org/wiki/Jhalmuri"
+        },
+        {
+          "name": "TasteAtlas - Jhalmuri",
+          "url": "https://www.tasteatlas.com/jahlmuri"
+        }
+      ]
+    },
+    "sandesh": {
+      "local": "সন্দেশ (Shôndesh)",
+      "note": {
+        "en": "A Bengali sweet made from chhena (acid-curdled milk curd) and sugar. The chhena-based form is commonly linked to acid milk-curdling…",
+        "fr": "Douceur bengalie a base de chhena (caille de lait obtenu par acidification) et de sucre. Sa forme au chhena est souvent associee aux…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Chhena",
+          "url": "https://en.wikipedia.org/wiki/Chhena"
+        },
+        {
+          "name": "Wikipedia - Sandesh (confectionery)",
+          "url": "https://en.wikipedia.org/wiki/Sandesh_(confectionery)"
+        }
+      ]
+    },
+    "payesh": {
+      "local": "পায়েস",
+      "note": {
+        "en": "Bengali milk-and-rice pudding, the regional form of kheer/payasam, traditionally made with aromatic Gobindobhog rice and jaggery (nolen…",
+        "fr": "Pudding bengali au lait et au riz, forme régionale du kheer/payasam, fait traditionnellement de riz aromatique Gobindobhog et de jaggery…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Kheer",
+          "url": "https://en.wikipedia.org/wiki/Kheer"
+        },
+        {
+          "name": "Nolen Gurer Payesh (Bengali rice pudding with Gobindobhog rice and date-palm jaggery) – Bong Eats",
+          "url": "https://www.bongeats.com/recipe/nolen-gurer-payesh"
+        }
+      ]
+    },
+    "chomchom": {
+      "local": "চমচম",
+      "note": {
+        "en": "A traditional Bengali sweet of chhena coated with coconut or mawa, whose famed oval Porabari (Tangail) variety dates to the mid-19th…",
+        "fr": "Une sucrerie bengalie traditionnelle de chhena enrobee de coco ou de mawa, dont la variete ovale de Porabari (Tangail) date du milieu du…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Chomchom",
+          "url": "https://en.wikipedia.org/wiki/Chomchom"
+        },
+        {
+          "name": "Slurrp - Chomchom From Bengal: History and Significance",
+          "url": "https://www.slurrp.com/article/chomchom-from-bengal-the-history-and-significance-of-the-dessert-explained-1723546037293"
+        }
+      ]
+    },
+    "kati roll": {
+      "local": "কাঠি রোল",
+      "note": {
+        "en": "A Kolkata street-food wrap of skewer-roasted kebab in paratha, said to have originated at Nizam's restaurant in the 1930s-60s.",
+        "fr": "Un wrap de rue de Kolkata fait de kebab roti a la brochette dans un paratha, ne au restaurant Nizam's entre les annees 1930 et 1960."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Kati roll",
+          "url": "https://en.wikipedia.org/wiki/Kati_roll"
+        },
+        {
+          "name": "Culture Trip - How the Kathi Roll Originated at Nizam's",
+          "url": "https://theculturetrip.com/asia/india/articles/how-the-famous-kathi-roll-originated-at-kolkatas-nizams-restaurant"
+        }
+      ]
+    },
+    "macher kalia": {
+      "local": "মাছের কালিয়া",
+      "note": {
+        "en": "A rich Bengali festive fish curry of fried river fish in a spiced onion gravy, derived from the Mughlai 'qaliya' of the Nawabs of Bengal.",
+        "fr": "Riche curry de poisson bengali de fete, poisson de riviere frit en sauce epicee a l'oignon, derive du qaliya moghol des nababs du Bengale."
+      },
+      "sources": [
+        {
+          "name": "Bong Eats - Katla Machher Kalia",
+          "url": "https://www.bongeats.com/recipe/katla-kalia"
+        },
+        {
+          "name": "Pikturenama - Macher Kalia, Bengali Fish Kalia",
+          "url": "https://pikturenama.com/macher-kalia-bengali-fish-recipe/"
+        }
+      ]
+    },
+    "panch phoron tempering": {
+      "local": "পাঁচ ফোড়ন (pãch phoṛon)",
+      "note": {
+        "en": "Bengali whole-spice blend of cumin, fennel, nigella, fenugreek and mustard seeds, fried in hot oil to temper (phoron) dals and curries.",
+        "fr": "Mélange bengali de cumin, fenouil, nigelle, fenugrec et moutarde, frit dans l'huile chaude pour parfumer (phoron) dals et currys."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Panch phoron",
+          "url": "https://en.wikipedia.org/wiki/Panch_phoron"
+        },
+        {
+          "name": "Dassana's Veg Recipes of India",
+          "url": "https://www.vegrecipesofindia.com/panch-phoran-bengali-recipe/"
+        }
+      ]
+    },
+    "bhuna khichuri": {
+      "local": "ভুনা খিচুড়ি",
+      "note": {
+        "en": "A dry, grainy Bengali rice-and-lentil dish where rice and moong dal are fried (\"bhuna\") with whole spices before cooking, unlike soft…",
+        "fr": "Plat bengali de riz et lentilles, sec et granuleux, ou le riz et le dal moong sont frits (\"bhuna\") avec des epices avant cuisson."
+      },
+      "sources": [
+        {
+          "name": "Wikibooks Cookbook: Bhuna Khichuri (Bengali Rice and Lentils)",
+          "url": "https://en.wikibooks.org/wiki/Cookbook:Bhuna_Khichuri_(Bengali_Rice_and_Lentils)"
+        },
+        {
+          "name": "Wikipedia: Bhuna",
+          "url": "https://en.wikipedia.org/wiki/Bhuna"
+        }
+      ]
+    }
+  },
+  "gujarati": {
+    "dhokla": {
+      "local": "ઢોકળાં",
+      "note": {
+        "en": "A Gujarati steamed savoury sponge of fermented rice and chickpea (gram) batter; a precursor \"dukkia\" appears in a 1066 CE Jain text.",
+        "fr": "Éponge salée gujaratie cuite à la vapeur, à base de riz et de pois chiche fermentés; un ancêtre, le « dukkia », figure dans un texte jaïn…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Dhokla",
+          "url": "https://en.wikipedia.org/wiki/Dhokla"
+        },
+        {
+          "name": "Wiktionary — dhokla",
+          "url": "https://en.wiktionary.org/wiki/dhokla"
+        }
+      ]
+    },
+    "khandvi": {
+      "local": "ખાંડવી",
+      "note": {
+        "en": "Soft, rolled Gujarati snack of gram-flour (besan) and buttermilk batter, tempered with mustard seeds and curry leaves.",
+        "fr": "Encas gujarati en fins rouleaux de pâte de farine de pois chiche (besan) et babeurre, relevé de graines de moutarde et feuilles de curry."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Khandvi (food)",
+          "url": "https://en.wikipedia.org/wiki/Khandvi_(food)"
+        },
+        {
+          "name": "Veg Recipes of India — Khandvi",
+          "url": "https://www.vegrecipesofindia.com/khandvi-recipe-how-to-make-khandvi/"
+        }
+      ]
+    },
+    "thepla": {
+      "local": "થેપલા",
+      "note": {
+        "en": "A soft Gujarati spiced wholewheat flatbread, often made with fenugreek (methi), that keeps for days and is a classic travel food.",
+        "fr": "Pain plat gujarati moelleux au blé complet épicé, souvent au fenugrec (methi), qui se conserve plusieurs jours et accompagne les voyages."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Thepla",
+          "url": "https://en.wikipedia.org/wiki/Thepla"
+        },
+        {
+          "name": "Veg Recipes of India - Gujarati Methi Thepla",
+          "url": "https://www.vegrecipesofindia.com/methi-thepla-gujarati-methi-thepla/"
+        }
+      ]
+    },
+    "handvo": {
+      "local": "હાંડવો",
+      "note": {
+        "en": "A savory Gujarati cake of fermented rice-and-lentil batter mixed with vegetables like bottle gourd, baked until crisp.",
+        "fr": "Un gateau sale gujarati a base de pate fermentee de riz et lentilles, avec des legumes, cuit jusqu'a croustillant."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Handvo",
+          "url": "https://en.wikipedia.org/wiki/Handvo"
+        },
+        {
+          "name": "TasteAtlas — Handvo",
+          "url": "https://www.tasteatlas.com/handvo"
+        }
+      ]
+    },
+    "gujarati thali": {
+      "local": "ગુજરાતી થાળી",
+      "note": {
+        "en": "A vegetarian platter from Gujarat, India, serving shaak, dal, kadhi, rice, rotli, farsan and sweets together; \"thali\" means \"plate\".",
+        "fr": "Un plateau vegetarien du Gujarat, en Inde, reunissant shaak, dal, kadhi, riz, rotli, farsan et douceurs ; \"thali\" signifie \"assiette\"."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Gujarati Thali",
+          "url": "https://en.wikipedia.org/wiki/Gujarati_Thali"
+        },
+        {
+          "name": "TasteAtlas - Best Rated Dishes in Gujarat",
+          "url": "https://www.tasteatlas.com/best-rated-dishes-in-gujarat"
+        }
+      ]
+    },
+    "undhiyu": {
+      "local": "ઊંધિયું",
+      "note": {
+        "en": "A Gujarati mixed-vegetable casserole from Surat, named after \"undhu\" (upside-down), as it was traditionally cooked in inverted buried…",
+        "fr": "Un mélange de légumes gujarati de Surat, nommé d'après \"undhu\" (à l'envers), car cuit jadis dans des pots de terre enterrés et renversés."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Undhiyu",
+          "url": "https://en.wikipedia.org/wiki/Undhiyu"
+        },
+        {
+          "name": "Veg Recipes of India - Surti Undhiyu",
+          "url": "https://www.vegrecipesofindia.com/undhiyu-recipe-gujarati-undhiyu-recipe/"
+        }
+      ]
+    },
+    "dal dhokli": {
+      "local": "દાળ ઢોકળી",
+      "note": {
+        "en": "A Gujarati and Rajasthani one-pot comfort meal of diamond-shaped wheat-flour dumplings (dhokli) simmered in a sweet-sour toor dal.",
+        "fr": "Plat réconfortant gujarati et rajasthani en un seul pot, fait de losanges de pâte de blé (dhokli) mijotés dans un dal de pois cassés…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Dal dhokli",
+          "url": "https://en.wikipedia.org/wiki/Dal_dhokli"
+        },
+        {
+          "name": "Tarla Dalal – Traditional Gujarati Dal Dhokli",
+          "url": "https://www.tarladalal.com/dal-dhokli--gujarat-recipe-578r"
+        }
+      ]
+    },
+    "khaman": {
+      "local": "ખમણ",
+      "note": {
+        "en": "A soft, spongy steamed Gujarati snack (farsan) made from ground chana dal or gram flour, often tempered and mildly sweet-tangy.",
+        "fr": "En-cas gujarati (farsan) moelleux et spongieux, cuit à la vapeur à base de pois chiches moulus ou de farine de gram, souvent légèrement…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Khaman",
+          "url": "https://en.wikipedia.org/wiki/Khaman"
+        },
+        {
+          "name": "Tarla Dalal — Gujarati Khaman Dhokla",
+          "url": "https://www.tarladalal.com/khaman-dhokla-soft-gujarat-khaman-dhokla-33269r"
+        }
+      ]
+    },
+    "fafda": {
+      "local": "ફાફડા",
+      "note": {
+        "en": "Fafda is a crispy Gujarati snack of deep-fried gram-flour (besan) strips, a farsan papad often eaten with jalebi, notably on Dussehra.",
+        "fr": "Le fafda est un en-cas croustillant du Gujarat fait de lamelles de farine de pois chiche frites, un farsan souvent mangé avec du jalebi…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Fafda",
+          "url": "https://en.wikipedia.org/wiki/Fafda"
+        },
+        {
+          "name": "Wiktionary — fafda",
+          "url": "https://en.wiktionary.org/wiki/fafda"
+        }
+      ]
+    },
+    "jalebi gujarati": {
+      "local": "જલેબી",
+      "note": {
+        "en": "Deep-fried, coil-shaped batter sweet soaked in sugar syrup; in Gujarat traditionally paired with fafda and eaten on Dussehra.",
+        "fr": "Friandise frite en spirale trempée dans un sirop de sucre; au Gujarat, servie avec le fafda et mangée pour Dussehra."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Jalebi",
+          "url": "https://en.wikipedia.org/wiki/Jalebi"
+        },
+        {
+          "name": "Wikipedia - Fafda",
+          "url": "https://en.wikipedia.org/wiki/Fafda"
+        }
+      ]
+    },
+    "kachori": {
+      "local": "કચોરી",
+      "note": {
+        "en": "A deep-fried, flaky pastry stuffed with spiced moong dal or peas; originated in Rajasthan's Marwar region and popular across Gujarat.",
+        "fr": "Une pâtisserie feuilletée frite, farcie de moong dal ou de pois épicés ; originaire du Marwar au Rajasthan et populaire au Gujarat."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Kachori",
+          "url": "https://en.wikipedia.org/wiki/Kachori"
+        },
+        {
+          "name": "Tarla Dalal - Mag Dal Ni Kachori (Gujarat)",
+          "url": "https://www.tarladalal.com/mag-dal-ni-kachori--gujarat-recipe-564r"
+        }
+      ]
+    },
+    "shrikhand": {
+      "local": "શ્રીખંડ",
+      "note": {
+        "en": "A Gujarati and Marathi dessert of strained yogurt sweetened and flavored with cardamom and saffron, dated by historian K. T. Achaya to c…",
+        "fr": "Dessert gujarati et marathe de yaourt égoutté, sucré et parfumé à la cardamome et au safran, daté par l'historien K. T. Achaya vers 500 av…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Shrikhand",
+          "url": "https://en.wikipedia.org/wiki/Shrikhand"
+        },
+        {
+          "name": "FoodViva — Shrikhand Recipe (Gujarati)",
+          "url": "https://foodviva.com/desserts-sweets-recipes/shrikhand-recipe/"
+        }
+      ]
+    },
+    "basundi": {
+      "local": "બાસુંદી",
+      "note": {
+        "en": "A sweet dessert of milk slowly boiled until reduced by half, flavoured with cardamom and saffron, made on festivals like Bhai Dooj.",
+        "fr": "Dessert sucré de lait bouilli lentement jusqu'à réduction de moitié, parfumé à la cardamome et au safran, préparé lors de fêtes comme Bhai…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Basundi",
+          "url": "https://en.wikipedia.org/wiki/Basundi"
+        },
+        {
+          "name": "Recipe in Gujarati — Basundi",
+          "url": "https://www.recipeingujarati.com/basundi-recipe-in-gujarati-basundi-banavani-rit-gujarati-ma/"
+        }
+      ]
+    },
+    "mohanthal": {
+      "local": "મોહનથાળ",
+      "note": {
+        "en": "A dense Gujarati/Rajasthani fudge of gram flour (besan), ghee and sugar, often offered as prasad at Diwali and Janmashtami.",
+        "fr": "Un fudge dense du Gujarat et du Rajasthan a base de farine de pois chiche, de ghee et de sucre, souvent offert en prasad a Diwali."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Mohanthal",
+          "url": "https://en.wikipedia.org/wiki/Mohanthal"
+        },
+        {
+          "name": "Wikidata — Mohanthal (Q74495320)",
+          "url": "https://www.wikidata.org/wiki/Q74495320"
+        }
+      ]
+    },
+    "khichdi": {
+      "local": "ખીચડી",
+      "note": {
+        "en": "A soft one-pot dish of rice and lentils cooked with ghee and spices; the Gujarati version is milder and more porridge-like.",
+        "fr": "Un plat mijoté de riz et de lentilles cuit au ghee et aux épices; la version gujaratie est plus douce et proche d'une bouillie."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Khichdi (dish)",
+          "url": "https://en.wikipedia.org/wiki/Khichdi_(dish)"
+        },
+        {
+          "name": "South China Morning Post — how khichdi became India's 'national dish'",
+          "url": "https://www.scmp.com/magazines/post-magazine/travel/article/2128642/how-khichdi-mix-lentils-and-rice-became-indias"
+        }
+      ]
+    },
+    "sev tameta nu shaak": {
+      "local": "સેવ ટમેટાનું શાક",
+      "note": {
+        "en": "A Gujarati sweet-and-tangy tomato curry topped with crispy chickpea-flour sev, originating in the Kathiawad (Saurashtra) region.",
+        "fr": "Un curry de tomates gujarati aigre-doux garni de sev croustillant de farine de pois chiches, originaire de la region du Kathiawad…"
+      },
+      "sources": [
+        {
+          "name": "Dassana's Veg Recipes of India - Sev Tameta Nu Shaak",
+          "url": "https://www.vegrecipesofindia.com/sev-tameta-nu-shaak-recipe/"
+        },
+        {
+          "name": "Tarla Dalal - Gujarati Sev Tameta Nu Shaak",
+          "url": "https://www.tarladalal.com/sev-tameta-gujarat-sev-tameta-nu-shaak-recipe-605r"
+        }
+      ]
+    },
+    "bhakri": {
+      "local": "ભાખરી",
+      "note": {
+        "en": "A rustic round unleavened flatbread of Gujarat made from wheat, jowar or bajra flour, with a crisp outer layer.",
+        "fr": "Un pain plat rond et rustique sans levain du Gujarat, fait de farine de blé, de jowar ou de bajra, à la croûte croustillante."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Bhakri",
+          "url": "https://en.wikipedia.org/wiki/Bhakri"
+        },
+        {
+          "name": "Tarla Dalal - Crispy Gujarati Bhakri",
+          "url": "https://www.tarladalal.com/bhakri--gujarat-recipe-628r"
+        }
+      ]
+    },
+    "kadhi gujarati": {
+      "local": "ગુજરાતી કઢી",
+      "note": {
+        "en": "A Gujarati yogurt-and-gram-flour curry from western India, distinctively sweetened with jaggery or sugar and served with khichdi or rice.",
+        "fr": "Un curry gujarati de yaourt et farine de pois chiche de l'ouest de l'Inde, sucre au jaggery, servi avec khichdi ou riz."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Gujarati kadhi",
+          "url": "https://en.wikipedia.org/wiki/Gujarati_kadhi"
+        },
+        {
+          "name": "Wikipedia — Kadhi",
+          "url": "https://en.wikipedia.org/wiki/Kadhi"
+        }
+      ]
+    },
+    "patra": {
+      "local": "પાત્રા",
+      "note": {
+        "en": "Gujarati farsan of colocasia leaves spread with spiced gram-flour paste, rolled, steamed, sliced and tempered or fried.",
+        "fr": "Farsan gujarati de feuilles de colocase enduites de pâte épicée à la farine de pois chiche, roulées, cuites à la vapeur puis sautées."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Patrode",
+          "url": "https://en.wikipedia.org/wiki/Patrode"
+        },
+        {
+          "name": "Tarla Dalal — Paatra (Gujarat) recipe",
+          "url": "https://www.tarladalal.com/paatra--gujarat-recipe-552r"
+        }
+      ]
+    },
+    "lapsi": {
+      "local": "લાપસી",
+      "note": {
+        "en": "A Gujarati sweet of roasted broken wheat (fada) cooked in ghee with jaggery or sugar and cardamom, served at auspicious occasions.",
+        "fr": "Dessert gujarati de blé concassé (fada) grillé, cuit au ghee avec du jaggery ou du sucre et de la cardamome, servi lors d'occasions…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Laapsi",
+          "url": "https://en.wikipedia.org/wiki/Laapsi"
+        },
+        {
+          "name": "Tarla Dalal - Lapsi (Fada ni Lapsi)",
+          "url": "https://www.tarladalal.com/lapsi-fada-ni-lapsi-gujarat-broken-wheat-dessert-recipe-632r"
+        }
+      ]
+    },
+    "dudhi muthia": {
+      "local": "દૂધી મુઠીયા",
+      "note": {
+        "en": "Gujarati steamed dumplings of grated bottle gourd (dudhi/lauki) bound with chickpea (besan) and wheat flour; named from muthi (fist), the…",
+        "fr": "Boulettes gujaraties cuites a la vapeur, a base de courge bouteille rapee (dudhi) liee avec de la farine de pois chiche (besan) et de ble…"
+      },
+      "sources": [
+        {
+          "name": "Ministry of Curry — Dudhi Muthia",
+          "url": "https://ministryofcurry.com/dudhi-muthia-vegan-steamed-dumplings-instant-pot/"
+        },
+        {
+          "name": "Sanjana Feasts — Gujarati Dudhi Muthiya",
+          "url": "https://www.sanjanafeasts.co.uk/2020/03/gujarati-dudhi-muthiya/"
+        }
+      ]
+    }
+  },
+  "nepalese": {
+    "momos": {
+      "local": "मम (momo)",
+      "note": {
+        "en": "Steamed dumplings filled with meat or vegetables, a staple of Nepali cuisine traced to Tibetan trade across the Himalayas.",
+        "fr": "Raviolis vapeur farcis de viande ou de légumes, plat emblématique de la cuisine népalaise issu du commerce tibétain himalayen."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Momo (food)",
+          "url": "https://en.wikipedia.org/wiki/Momo_(food)"
+        },
+        {
+          "name": "Smithsonian Magazine — A History of Momo",
+          "url": "https://www.smithsonianmag.com/travel/a-history-of-momo-the-dumpling-that-defines-nepali-cuisine-180988395/"
+        }
+      ]
+    },
+    "dal bhat": {
+      "local": "दाल भात",
+      "note": {
+        "en": "Nepal's national dish of steamed rice (bhat) with lentil soup (dal), eaten daily with tarkari curry and achar pickles.",
+        "fr": "Plat national du Nepal: riz vapeur (bhat) et soupe de lentilles (dal), mange quotidiennement avec curry tarkari et achar."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Dal bhat",
+          "url": "https://en.wikipedia.org/wiki/Dal_bhat"
+        },
+        {
+          "name": "TasteAtlas — Dal bhat",
+          "url": "https://www.tasteatlas.com/dal-bhat"
+        }
+      ]
+    },
+    "sel roti": {
+      "local": "सेल रोटी",
+      "note": {
+        "en": "A traditional Nepali ring-shaped sweet bread of fermented rice-flour batter, deep-fried and eaten especially at the Dashain and Tihar…",
+        "fr": "Pain sucre nepalais traditionnel en anneau, fait de pate de farine de riz fermentee et frite, consomme surtout aux fetes de Dashain et…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Sel roti",
+          "url": "https://en.wikipedia.org/wiki/Sel_roti"
+        }
+      ]
+    },
+    "thukpa": {
+      "local": "थुक्पा (Tibetan: ཐུག་པ)",
+      "note": {
+        "en": "A noodle soup of Tibetan origin, widely eaten in Nepal, made with hand-pulled or cut noodles in broth with vegetables or meat.",
+        "fr": "Une soupe de nouilles d'origine tibétaine, très prisée au Népal, à base de nouilles dans un bouillon avec légumes ou viande."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Thukpa",
+          "url": "https://en.wikipedia.org/wiki/Thukpa"
+        },
+        {
+          "name": "Slurrp — Thukpa From Tibet: History and Origin",
+          "url": "https://www.slurrp.com/article/thukpa-from-tibet-the-history-and-origin-of-the-noodle-soup-explained-1724650595347"
+        }
+      ]
+    },
+    "gundruk": {
+      "local": "गुन्द्रुक",
+      "note": {
+        "en": "A Nepalese side dish of leafy greens (mustard, radish, cauliflower) preserved by non-salted spontaneous lactic-acid fermentation, then…",
+        "fr": "Plat d'accompagnement nepalais de feuilles vertes (moutarde, radis, chou-fleur) conservees par fermentation lactique spontanee sans sel…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Gundruk",
+          "url": "https://en.wikipedia.org/wiki/Gundruk"
+        }
+      ]
+    },
+    "chatamari": {
+      "local": "चतांमरि",
+      "note": {
+        "en": "A thin rice-flour crepe from Newar cuisine of Nepal's Kathmandu Valley, topped with meat, egg or vegetables and eaten on festive occasions.",
+        "fr": "Une fine crêpe de farine de riz de la cuisine newar de la vallée de Katmandou au Népal, garnie de viande, d'œuf ou de légumes, servie lors…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Chataamari",
+          "url": "https://en.wikipedia.org/wiki/Chataamari"
+        },
+        {
+          "name": "Wikipedia — Newar cuisine",
+          "url": "https://en.wikipedia.org/wiki/Newar_cuisine"
+        }
+      ]
+    },
+    "newari kachila": {
+      "local": "कचिला (Kachilā)",
+      "note": {
+        "en": "A Newari delicacy of spiced raw minced buffalo meat finished with hot mustard oil; name means \"raw meat\" in Nepal Bhasa.",
+        "fr": "Un mets newari de viande de buffle crue hachée et épicée, nappée d'huile de moutarde brûlante; son nom signifie « viande crue »."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Kachilaa",
+          "url": "https://en.wikipedia.org/wiki/Kachilaa"
+        },
+        {
+          "name": "TasteAtlas - Kachilā",
+          "url": "https://www.tasteatlas.com/kachila"
+        }
+      ]
+    },
+    "yomari": {
+      "local": "योमरि",
+      "note": {
+        "en": "A Newari steamed rice-flour dumpling filled with chaku (jaggery) or khuwa, central to the Yomari Punhi harvest festival in Nepal's…",
+        "fr": "Une boulette newari de farine de riz cuite à la vapeur, fourrée de chaku (jaggery) ou de khuwa, au cœur de la fête des récoltes Yomari…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Yomari",
+          "url": "https://en.wikipedia.org/wiki/Yomari"
+        },
+        {
+          "name": "Wikipedia — Yomari Punhi",
+          "url": "https://en.wikipedia.org/wiki/Yomari_Punhi"
+        }
+      ]
+    },
+    "aloo tama": {
+      "local": "आलू तामा",
+      "note": {
+        "en": "A Nepali soup of fermented bamboo shoots, potatoes and black-eyed peas, prized for its sour taste and popular in Newar communities.",
+        "fr": "Une soupe nepalaise de pousses de bambou fermentees, pommes de terre et doliques, prisee pour son gout aigre et populaire chez les Newar."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Aloo tama",
+          "url": "https://en.wikipedia.org/wiki/Aloo_tama"
+        },
+        {
+          "name": "The Gundruk - Aalu Tama",
+          "url": "https://www.thegundruk.com/aalo-tama-soup/"
+        }
+      ]
+    },
+    "kwati": {
+      "local": "क्वाँटी",
+      "note": {
+        "en": "A Newari soup of nine sprouted beans, traditionally eaten at the Gun Punhi (Janai Purnima) full-moon festival in Nepal.",
+        "fr": "Une soupe newari de neuf legumineuses germees, traditionnellement mangee lors de la fete de pleine lune Gun Punhi au Nepal."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Kwati (soup)",
+          "url": "https://en.wikipedia.org/wiki/Kwati_(soup)"
+        },
+        {
+          "name": "The Kathmandu Post - Who said kwati needed nine beans?",
+          "url": "https://kathmandupost.com/food/2019/08/09/who-said-kwati-needed-nine-beans"
+        }
+      ]
+    },
+    "choila": {
+      "local": "छोयला",
+      "note": {
+        "en": "A Newar dish from Nepal's Kathmandu Valley of spiced, grilled meat (traditionally buffalo), seasoned with mustard oil, garlic and chilies.",
+        "fr": "Plat newar de la vallee de Katmandou au Nepal, fait de viande grillee epicee (traditionnellement du buffle), relevee d'huile de moutarde…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Choila",
+          "url": "https://en.wikipedia.org/wiki/Choila"
+        },
+        {
+          "name": "GOYA - The Smoky Origins of the Newari Choila",
+          "url": "https://www.goya.in/blog/chhoila-a-spicy-meat-dish-indigenous-to-nepals-newars"
+        }
+      ]
+    },
+    "sekuwa": {
+      "local": "सेकुवा",
+      "note": {
+        "en": "Nepalese skewered meat (goat, chicken or buffalo) marinated in spices and grilled over open flame, associated with Dharan in eastern Nepal.",
+        "fr": "Brochettes de viande nepalaises (chevre, poulet ou buffle) marinees aux epices et grillees a la flamme, associees a Dharan dans l'est du…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Sekuwa",
+          "url": "https://en.wikipedia.org/wiki/Sekuwa"
+        },
+        {
+          "name": "TasteAtlas - Sekuwa",
+          "url": "https://tasteatlas.com/sekuwa"
+        }
+      ]
+    },
+    "dhindo": {
+      "local": "ढिँडो",
+      "note": {
+        "en": "A thick Nepali porridge of buckwheat, millet or corn flour stirred into boiling water; a hill-region staple long seen as humbler than rice.",
+        "fr": "Une bouillie nepalaise epaisse de farine de sarrasin, millet ou mais melangee a l'eau bouillante; aliment de base des collines longtemps…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Dhindo",
+          "url": "https://en.wikipedia.org/wiki/Dhindo"
+        },
+        {
+          "name": "Global Press Journal — Dhindo, a Traditional Buckwheat Porridge",
+          "url": "https://globalpressjournal.com/asia/nepal/dhindo-traditional-buckwheat-porridge-gains-popularity-kathmandu-restaurants/"
+        }
+      ]
+    },
+    "jhol momo": {
+      "local": "झोल मोमो",
+      "note": {
+        "en": "Nepali dish of steamed momo dumplings served in jhol achar, a spicy tomato-sesame broth; a Kathmandu winter specialty.",
+        "fr": "Plat népalais de raviolis momo vapeur servis dans le jhol achar, bouillon épicé tomate-sésame, spécialité hivernale de Katmandou."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Jhol momo (Momo food)",
+          "url": "https://en.wikipedia.org/wiki/Jhol_momo"
+        },
+        {
+          "name": "Eat Your World — Momo jhol achar in Kathmandu",
+          "url": "https://eatyourworld.com/destinations/asia/nepal/kathmandu/what-to-eat/momo-jhol-achar/"
+        }
+      ]
+    },
+    "sukuti": {
+      "local": "सुकुटी",
+      "note": {
+        "en": "A Nepalese dried meat, usually buffalo, goat or lamb, spice-marinated and sun- or air-dried to preserve it through harsh Himalayan winters.",
+        "fr": "Viande sechee nepalaise, generalement de buffle, chevre ou agneau, marinee aux epices et sechee au soleil pour la conserver durant les…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Sukuti",
+          "url": "https://en.wikipedia.org/wiki/Sukuti"
+        },
+        {
+          "name": "TasteAtlas - Sukuti",
+          "url": "https://www.tasteatlas.com/sukuti"
+        }
+      ]
+    },
+    "bara": {
+      "local": "बारा (वः)",
+      "note": {
+        "en": "A Newari savoury pancake of ground black lentil (maas), traditionally served as auspicious sagun food at festivals in the Kathmandu Valley.",
+        "fr": "Une galette salée newari de lentilles noires moulues (maas), servie comme nourriture porte-bonheur (sagun) lors des fêtes de la vallée de…"
+      },
+      "sources": [
+        {
+          "name": "Nepali Taste — Bara (Newari Black Lentil Pancake)",
+          "url": "https://nepalesetaste.com/recipes/bara/"
+        },
+        {
+          "name": "theGundruk.com — Bara (Wo:) The Newari Pancake",
+          "url": "https://www.thegundruk.com/bara-wo-the-newari-pancake/"
+        }
+      ]
+    },
+    "chhoyala": {
+      "local": "छोयला",
+      "note": {
+        "en": "A Newar dish from Nepal's Kathmandu Valley of grilled spiced buffalo meat, traditionally smoke-charred (haku chhoyala) and served in the…",
+        "fr": "Plat newar de la vallee de Katmandou (Nepal) fait de viande de buffle grillee et epicee, traditionnellement fumee (haku chhoyala) et servi…"
+      },
+      "sources": [
+        {
+          "name": "Choila — Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Choila"
+        },
+        {
+          "name": "The Smoky Origins of the Newari Choila — GOYA",
+          "url": "https://www.goya.in/blog/chhoila-a-spicy-meat-dish-indigenous-to-nepals-newars"
+        }
+      ]
+    },
+    "lapsi": {
+      "local": "लप्सी",
+      "note": {
+        "en": "A small sour Himalayan hog-plum fruit (Choerospondias axillaris) native to Nepal, eaten fresh, pickled, or made into the spicy candy…",
+        "fr": "Petit fruit acide de l'Himalaya (Choerospondias axillaris) du Népal, mangé frais, mariné ou transformé en bonbon épicé titaura."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Choerospondias axillaris",
+          "url": "https://en.wikipedia.org/wiki/Choerospondias_axillaris"
+        },
+        {
+          "name": "Nepali Times — The love of lapsi",
+          "url": "https://nepalitimes.com/the-love-of-lapsi"
+        }
+      ]
+    },
+    "juju dhau": {
+      "local": "जुजु धौ",
+      "note": {
+        "en": "A thick, mildly sweet set buffalo-milk yogurt from Bhaktapur, Nepal, made by Newars in clay pots; its name means \"king of yogurt\" in Nepal…",
+        "fr": "Yaourt ferme, legerement sucre, au lait de bufflonne de Bhaktapur (Nepal), fait par les Newars en pots d'argile ; son nom signifie « roi du…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Dhau",
+          "url": "https://en.wikipedia.org/wiki/Dhau"
+        },
+        {
+          "name": "Taste of Nepal — Juju Dhau (King of Yogurt from Bhaktapur)",
+          "url": "http://tasteofnepal.blogspot.com/2012/02/juju-dhau-king-of-yogurt-from-bhaktapur.html"
+        }
+      ]
+    },
+    "sinki soup": {
+      "local": "सिन्की",
+      "note": {
+        "en": "A traditional Nepali soup based on sinki, radish tap roots fermented by lactic-acid bacteria, then sun-dried and stored.",
+        "fr": "Une soupe nepalaise traditionnelle a base de sinki, des racines de radis fermentees par bacteries lactiques puis sechees au soleil."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Sinki (food)",
+          "url": "https://en.wikipedia.org/wiki/Sinki_(food)"
+        },
+        {
+          "name": "Sinki: A traditional lactic acid fermented radish tap root product (ResearchGate)",
+          "url": "https://www.researchgate.net/publication/247877260_Sinki_A_traditional_lactic_acid_fermented_radish_tap_root_product"
+        }
+      ]
+    },
+    "bhutuwa": {
+      "local": "भुटुवा",
+      "note": {
+        "en": "A Nepali stir-fry of bite-sized meat (chicken, pork or lamb) sauteed in mustard oil with cumin, turmeric, fenugreek and chili.",
+        "fr": "Saute nepalais de viande en bouchees (poulet, porc ou agneau) cuite a l'huile de moutarde avec cumin, curcuma, fenugrec et piment."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Bhutuwa",
+          "url": "https://www.tasteatlas.com/bhutuwa"
+        },
+        {
+          "name": "Girl Cooks World - Bangur Bhutuwa (Nepali Spicy Stir-Fried Pork)",
+          "url": "https://girlcooksworld.com/bangur-bhutuwa-nepali-spicy-stir-fried-pork/"
+        }
+      ]
+    }
+  },
+  "austrian": {
+    "wiener schnitzel": {
+      "local": "Wiener Schnitzel",
+      "note": {
+        "en": "A thin breaded, pan-fried veal cutlet that is a national dish of Austria; the name first appears in a Viennese cookbook in 1831.",
+        "fr": "Fine escalope de veau panee et frite a la poele, plat national autrichien; le nom apparait pour la premiere fois dans un livre de cuisine…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Wiener schnitzel",
+          "url": "https://en.wikipedia.org/wiki/Wiener_schnitzel"
+        },
+        {
+          "name": "Austria.info - Original Wiener Schnitzel recipe",
+          "url": "https://www.austria.info/en-us/recipes/wiener-schnitzel/"
+        }
+      ]
+    },
+    "sachertorte": {
+      "local": "Sachertorte",
+      "note": {
+        "en": "A Viennese chocolate sponge cake layered with apricot jam under a dark chocolate glaze, invented by Franz Sacher in 1832.",
+        "fr": "Un gateau viennois au chocolat fourre de confiture d'abricot sous un glacage au chocolat noir, invente par Franz Sacher en 1832."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Sachertorte",
+          "url": "https://en.wikipedia.org/wiki/Sachertorte"
+        },
+        {
+          "name": "Fine Dining Lovers - Sachertorte",
+          "url": "https://www.finedininglovers.com/explore/articles/sachertorte-story-behind-austrias-most-famous-dessert"
+        }
+      ]
+    },
+    "apfelstrudel": {
+      "local": "Apfelstrudel",
+      "note": {
+        "en": "Austrian apple strudel of paper-thin pastry filled with tart apples, sugar, cinnamon, raisins and breadcrumbs; oldest recipe dates to 1696.",
+        "fr": "Strudel autrichien aux pommes en pate fine garni de pommes acidulees, sucre, cannelle, raisins secs et chapelure; recette des 1696."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Apple strudel",
+          "url": "https://en.wikipedia.org/wiki/Apple_strudel"
+        },
+        {
+          "name": "Visiting Vienna - Viennese Apple Strudel",
+          "url": "https://www.visitingvienna.com/eatingdrinking/food/apfelstrudel/"
+        }
+      ]
+    },
+    "tafelspitz": {
+      "local": "Tafelspitz",
+      "note": {
+        "en": "Viennese boiled beef (rump cut) simmered in broth with root vegetables, served with apple-horseradish; a favourite of Emperor Franz Joseph…",
+        "fr": "Bœuf bouilli viennois (pointe de culotte) mijoté au bouillon avec des légumes-racines, servi au raifort-pomme; plat favori de l'empereur…"
+      },
+      "sources": [
+        {
+          "name": "Austria.info (Austrian National Tourist Office)",
+          "url": "https://www.austria.info/en-us/recipes/tafelspitz/"
+        },
+        {
+          "name": "Visiting Vienna - Tafelspitz",
+          "url": "https://www.visitingvienna.com/eatingdrinking/food/tafelspitz/"
+        }
+      ]
+    },
+    "kaiserschmarrn": {
+      "local": "Kaiserschmarrn",
+      "note": {
+        "en": "Austrian shredded, caramelized pancake dessert dusted with sugar, named after Emperor Franz Joseph I and often served with fruit compote.",
+        "fr": "Dessert autrichien de crepe dechiquetee et caramelisee saupoudree de sucre, nomme d'apres l'empereur Francois-Joseph Ier, servi avec une…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Kaiserschmarrn",
+          "url": "https://en.wikipedia.org/wiki/Kaiserschmarrn"
+        },
+        {
+          "name": "The Local - The delicious origins of Kaiserschmarrn",
+          "url": "https://www.thelocal.at/20181219/the-delicious-origins-of-kaiserschmarrn"
+        }
+      ]
+    },
+    "goulash austrian": {
+      "local": "Wiener Saftgulasch",
+      "note": {
+        "en": "Viennese beef-and-onion stew in a thick paprika gravy, refined from Hungarian gulyás after it reached Vienna in the early 19th century.",
+        "fr": "Ragoût viennois de bœuf et d'oignons en sauce épaisse au paprika, adapté du gulyás hongrois arrivé à Vienne au début du XIXe siècle."
+      },
+      "sources": [
+        {
+          "name": "Wien.info (Vienna Tourist Board)",
+          "url": "https://www.wien.info/en/dine-drink/viennese-cuisine/recipes/meat-fish/viennese-goulash-364202"
+        },
+        {
+          "name": "Wikipedia – Goulash",
+          "url": "https://en.wikipedia.org/wiki/Goulash"
+        }
+      ]
+    },
+    "knödel": {
+      "local": "Knödel",
+      "note": {
+        "en": "Boiled Central European dumpling made from bread, flour or potato, served savory as a side or sweet with fruit like apricot or plum.",
+        "fr": "Boulette bouillie d'Europe centrale a base de pain, farine ou pomme de terre, servie salee en accompagnement ou sucree aux fruits."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Knödel",
+          "url": "https://en.wikipedia.org/wiki/Kn%C3%B6del"
+        },
+        {
+          "name": "Visiting Vienna - The Knödel or dumpling",
+          "url": "https://www.visitingvienna.com/eatingdrinking/food/knodel/"
+        }
+      ]
+    },
+    "palatschinken": {
+      "local": "Palatschinke",
+      "note": {
+        "en": "Thin Austrian crêpe-style pancake of egg, milk and flour, often filled with apricot jam; the name derives via Hungarian from Latin placenta…",
+        "fr": "Fine crêpe autrichienne à base d'œuf, lait et farine, souvent garnie de confiture d'abricot; le nom vient, via le hongrois, du latin…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Palatschinke",
+          "url": "https://en.wikipedia.org/wiki/Palatschinke"
+        }
+      ]
+    },
+    "beuschel": {
+      "local": "Beuschel",
+      "note": {
+        "en": "A Viennese ragout of veal lungs and heart in a tangy sour-cream sauce, popularized in 19th-century Austria and served with bread dumplings.",
+        "fr": "Ragout viennois de poumon et cœur de veau en sauce acidulée à la crème, popularisé au 19e siècle, servi avec des quenelles de pain."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Beuschel",
+          "url": "https://en.wikipedia.org/wiki/Beuschel"
+        },
+        {
+          "name": "TasteAtlas – Beuschel",
+          "url": "https://www.tasteatlas.com/beuschel"
+        }
+      ]
+    },
+    "selch fleisch": {
+      "local": "Selchfleisch",
+      "note": {
+        "en": "Austrian/South German cured and smoked pork, its name from the dialect verb \"selchen\" (to smoke); often served with sauerkraut or split-pea…",
+        "fr": "Porc salé et fumé d'Autriche et du sud de l'Allemagne, nommé d'après le verbe dialectal \"selchen\" (fumer); servi avec choucroute ou purée…"
+      },
+      "sources": [
+        {
+          "name": "Collins German-English Dictionary: Selchfleisch",
+          "url": "https://www.collinsdictionary.com/dictionary/german-english/selchfleisch"
+        }
+      ]
+    },
+    "käsespätzle": {
+      "local": "Käsespätzle",
+      "note": {
+        "en": "An Alpine egg-noodle dish layered with cheese and fried onions, traditional to Vorarlberg and Tyrol in Austria and to Swabia.",
+        "fr": "Plat alpin de pâtes aux œufs en couches avec du fromage et des oignons frits, traditionnel du Vorarlberg, du Tyrol et de Souabe."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Käsespätzle",
+          "url": "https://en.wikipedia.org/wiki/K%C3%A4sesp%C3%A4tzle"
+        }
+      ]
+    },
+    "linzer torte": {
+      "local": "Linzer Torte",
+      "note": {
+        "en": "Austrian lattice-topped tart of nutty spiced shortcrust filled with fruit preserve, named after Linz; recipes date to at least 1653.",
+        "fr": "Tarte autrichienne a pate sablee aux noix et epices garnie de confiture, en treillis, nommee d'apres Linz; recettes des 1653."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Linzertorte",
+          "url": "https://en.wikipedia.org/wiki/Linzertorte"
+        },
+        {
+          "name": "196 flavors - Linzer Torte",
+          "url": "https://www.196flavors.com/linzer-torte/"
+        }
+      ]
+    },
+    "marillenknödel": {
+      "local": "Marillenknödel",
+      "note": {
+        "en": "Austrian dough dumpling wrapped around a whole apricot, boiled then rolled in buttered breadcrumbs and sugar; emblematic of the Wachau…",
+        "fr": "Quenelle autrichienne de pâte enrobant un abricot entier, bouillie puis roulée dans la chapelure beurrée et le sucre ; emblématique de la…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Marillenknödel",
+          "url": "https://en.wikipedia.org/wiki/Marillenkn%C3%B6del"
+        },
+        {
+          "name": "Austria.info - Apricot Dumplings (Marillenknödel)",
+          "url": "https://www.austria.info/en-gb/recipes/apricot-dumplings/"
+        }
+      ]
+    },
+    "zwetschgenknödel": {
+      "local": "Zwetschgenknödel",
+      "note": {
+        "en": "Austrian dessert of a whole plum wrapped in potato dough, boiled and rolled in buttered breadcrumbs; rooted in Austro-Hungarian cuisine.",
+        "fr": "Dessert autrichien d'une prune entière enrobée de pâte de pomme de terre, bouillie et roulée dans la chapelure beurrée; issu de la cuisine…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Zwetschgenknödel",
+          "url": "https://www.tasteatlas.com/twestchen-knodel"
+        },
+        {
+          "name": "Little Vienna — Plum Dumplings",
+          "url": "https://www.lilvienna.com/plum-dumplings/"
+        }
+      ]
+    },
+    "topfenstrudel": {
+      "local": "Topfenstrudel",
+      "note": {
+        "en": "Austrian Viennese dessert of thin strudel pastry filled with sweetened quark (Topfen); it entered Viennese cuisine via Hungary.",
+        "fr": "Dessert viennois autrichien de fine pate a strudel garnie de quark sucre (Topfen) ; arrive a Vienne via la Hongrie."
+      },
+      "sources": [
+        {
+          "name": "vienna.info - Topfenstrudel (Cream cheese strudel)",
+          "url": "https://www.wien.info/en/dine-drink/viennese-cuisine/recipes/sweets-desserts/cream-cheese-strudel-343748"
+        },
+        {
+          "name": "Wikipedia - Strudel",
+          "url": "https://en.wikipedia.org/wiki/Strudel"
+        }
+      ]
+    },
+    "vanillekipferl": {
+      "local": "Vanillekipferl",
+      "note": {
+        "en": "Crescent-shaped Viennese shortbread cookies made with ground nuts and dusted in vanilla sugar, a traditional Austrian Christmas treat.",
+        "fr": "Biscuits sablés viennois en forme de croissant, aux noix moulues et saupoudrés de sucre vanillé, gourmandise de Noël autrichienne."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Vanillekipferl",
+          "url": "https://en.wikipedia.org/wiki/Vanillekipferl"
+        },
+        {
+          "name": "196 flavors - Vanillekipferl Traditional Austrian Recipe",
+          "url": "https://www.196flavors.com/vanillekipferl/"
+        }
+      ]
+    },
+    "mozartkugel": {
+      "local": "Mozartkugel",
+      "note": {
+        "en": "Round Salzburg chocolate of pistachio marzipan and nougat, created in 1890 by confectioner Paul Fürst and named after Mozart.",
+        "fr": "Chocolat rond de Salzbourg au massepain de pistache et nougat, créé en 1890 par le confiseur Paul Fürst et nommé d'après Mozart."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Mozartkugel",
+          "url": "https://en.wikipedia.org/wiki/Mozartkugel"
+        },
+        {
+          "name": "salzburg.info — The Mozartkugel in Salzburg",
+          "url": "https://www.salzburg.info/en/magazin/city-feeling/a-salzburg-original-the-mozartkugel_a_1593380"
+        }
+      ]
+    },
+    "gulaschsuppe": {
+      "local": "Gulaschsuppe",
+      "note": {
+        "en": "An Austrian soup-like version of Hungarian goulash, a paprika-rich beef stew made liquid in Viennese taverns and coffeehouses.",
+        "fr": "Version autrichienne, en soupe, du goulache hongrois : un ragout de boeuf au paprika rendu liquide dans les tavernes viennoises."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Rindsgulasch (Austria)",
+          "url": "https://www.tasteatlas.com/rindsgulasch"
+        },
+        {
+          "name": "Wikipedia — Austrian cuisine",
+          "url": "https://en.wikipedia.org/wiki/Austrian_cuisine"
+        }
+      ]
+    },
+    "rindsuppe mit frittaten": {
+      "local": "Rindsuppe mit Frittaten (Frittatensuppe)",
+      "note": {
+        "en": "Austrian clear beef broth served with thin strips of rolled, sliced pancakes (Frittaten), a classic Viennese starter soup.",
+        "fr": "Bouillon de bœuf clair autrichien garni de fines lanières de crêpes roulées, une soupe-entrée viennoise classique."
+      },
+      "sources": [
+        {
+          "name": "Vienna.info (official Vienna tourism) — Frittaten Soup",
+          "url": "https://www.wien.info/en/dine-drink/viennese-cuisine/recipes/soups-garnishes-starters/frittaten-346454"
+        },
+        {
+          "name": "GuteKueche.at — Frittatensuppe",
+          "url": "https://www.gutekueche.at/frittatensuppe-artikel-3482"
+        }
+      ]
+    },
+    "powidltascherl": {
+      "local": "Powidltascherl",
+      "note": {
+        "en": "Austrian-Bohemian potato-dough pockets filled with Powidl (thick sugarless plum jam) and tossed in buttered breadcrumbs.",
+        "fr": "Chaussons autrichiens-bohemiens en pate de pomme de terre fourres au Powidl (confiture de prunes epaisse sans sucre), roules dans la…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas",
+          "url": "https://www.tasteatlas.com/powidltascherl"
+        },
+        {
+          "name": "Wikipedia – Powidl",
+          "url": "https://en.wikipedia.org/wiki/Powidl"
+        }
+      ]
+    },
+    "topfenpalatschinken": {
+      "local": "Topfenpalatschinken",
+      "note": {
+        "en": "Austrian baked dessert of thin Palatschinken crêpes filled with sweetened Topfen (curd cheese) and gratinated in the oven, a Viennese…",
+        "fr": "Dessert autrichien de fines crêpes Palatschinken garnies de Topfen (fromage blanc) sucré et gratinées au four, un classique viennois."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Topfenpalatschinken",
+          "url": "https://www.tasteatlas.com/topfenpalatschinken"
+        },
+        {
+          "name": "Vienna.info - Topfenpalatschinken (Curd Cheese Pancakes)",
+          "url": "https://www.wien.info/en/dine-drink/viennese-cuisine/recipes/sweets-desserts/cheese-crepes-342526"
+        }
+      ]
+    }
+  },
+  "swiss": {
+    "fondue": {
+      "local": "Fondue",
+      "note": {
+        "en": "Swiss dish of cheese melted with wine and eaten by dipping bread; earliest known recipe appeared in a 1699 Zurich cookbook.",
+        "fr": "Plat suisse de fromage fondu avec du vin, mange en y trempant du pain; la premiere recette connue parait dans un livre zurichois de 1699."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Fondue",
+          "url": "https://en.wikipedia.org/wiki/Fondue"
+        },
+        {
+          "name": "About Switzerland (Swiss Federal authorities) — Fondue",
+          "url": "https://www.aboutswitzerland.eda.admin.ch/en/fondue-the-convivial-swiss-dish-par-excellence"
+        }
+      ]
+    },
+    "raclette": {
+      "local": "Raclette",
+      "note": {
+        "en": "Swiss dish from the canton of Valais where cheese is melted and scraped onto boiled potatoes; the name comes from French \"racler\", to…",
+        "fr": "Plat suisse du canton du Valais où le fromage est fondu puis raclé sur des pommes de terre; le nom vient de \"racler\"."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Raclette",
+          "url": "https://en.wikipedia.org/wiki/Raclette"
+        },
+        {
+          "name": "TasteAtlas — Raclette",
+          "url": "https://www.tasteatlas.com/raclette"
+        }
+      ]
+    },
+    "rösti": {
+      "local": "Rösti",
+      "note": {
+        "en": "Swiss fried grated-potato cake, originally a Bern farmers' breakfast, now the national dish; name is from Swiss German rösten, to fry.",
+        "fr": "Galette suisse de pommes de terre râpées frites, jadis petit-déjeuner des paysans bernois, aujourd'hui plat national; du suisse-allemand…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Rösti",
+          "url": "https://en.wikipedia.org/wiki/R%C3%B6sti"
+        },
+        {
+          "name": "Fine Dining Lovers – Cooking the Classics: Swiss Rösti",
+          "url": "https://www.finedininglovers.com/explore/articles/cooking-classics-swiss-rosti"
+        }
+      ]
+    },
+    "zürcher geschnetzeltes": {
+      "local": "Zürcher Geschnetzeltes",
+      "note": {
+        "en": "A Zürich dish of veal strips (sometimes with kidney and mushrooms) in white wine, cream and demiglace; first recorded in a 1947 cookbook.",
+        "fr": "Plat zurichois d'émincé de veau (parfois avec rognon et champignons) au vin blanc, crème et demi-glace; cité dès un livre de 1947."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Zürcher Geschnetzeltes",
+          "url": "https://en.wikipedia.org/wiki/Z%C3%BCrcher_Geschnetzeltes"
+        },
+        {
+          "name": "TasteAtlas - Zürcher Geschnetzeltes",
+          "url": "https://www.tasteatlas.com/zurcher-geschnetzeltes"
+        }
+      ]
+    },
+    "älplermagronen": {
+      "local": "Älplermagronen",
+      "note": {
+        "en": "Swiss Alpine \"herdsman's macaroni\" of pasta, potatoes, cream, cheese and onions, traditionally served with applesauce; a hearty herdsmen's…",
+        "fr": "Macaroni alpin suisse de pâtes, pommes de terre, crème, fromage et oignons, traditionnellement servi avec une compote de pommes ; plat…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Älplermagronen",
+          "url": "https://en.wikipedia.org/wiki/%C3%84lplermagronen"
+        },
+        {
+          "name": "The Stories of Le Gruyère AOP - Älplermagronen is a Swiss comfort food",
+          "url": "https://gruyerestories.com/alplermagronen-is-a-swiss-comfort-food/"
+        }
+      ]
+    },
+    "cervelat": {
+      "local": "Cervelat",
+      "note": {
+        "en": "Switzerland's national sausage, made of roughly equal parts beef, pork, bacon and pork rind, lightly smoked then boiled. The oldest known…",
+        "fr": "Saucisse nationale suisse, composee a parts a peu pres egales de boeuf, porc, lard et couenne, legerement fumee puis bouillie. La plus…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Cervelat",
+          "url": "https://en.wikipedia.org/wiki/Cervelat"
+        },
+        {
+          "name": "New in Zurich - Cervelat, Switzerland's National Sausage",
+          "url": "https://newinzurich.com/2024/07/cervelat-switzerlands-national-sausage/"
+        }
+      ]
+    },
+    "birchermüesli": {
+      "local": "Birchermüesli",
+      "note": {
+        "en": "Swiss raw oat, fruit and nut breakfast dish created around 1900 by physician Maximilian Bircher-Benner as a health-diet meal.",
+        "fr": "Plat suisse de petit-déjeuner à base de flocons d'avoine, fruits et noix, créé vers 1900 par le médecin Maximilian Bircher-Benner."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Muesli",
+          "url": "https://en.wikipedia.org/wiki/Muesli"
+        },
+        {
+          "name": "Swiss National Library – Birchermüesli, a Swiss dish goes global",
+          "url": "https://www.nb.admin.ch/snl/en/home/research/all-questions/birchermueesli.html"
+        }
+      ]
+    },
+    "chocolate swiss": {
+      "local": "Schweizer Schokolade",
+      "note": {
+        "en": "Swiss-made chocolate, famed for milk chocolate invented by Daniel Peter in 1875 and Lindt's conching process for its melt-in-mouth texture.",
+        "fr": "Chocolat suisse, célèbre pour le chocolat au lait inventé par Daniel Peter en 1875 et le conchage de Lindt à la texture fondante."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Swiss chocolate",
+          "url": "https://en.wikipedia.org/wiki/Swiss_chocolate"
+        },
+        {
+          "name": "TasteAtlas — Best Chocolates in Switzerland",
+          "url": "https://www.tasteatlas.com/best-rated-chocolates-in-switzerland"
+        }
+      ]
+    },
+    "emmentaler cheese": {
+      "local": "Emmentaler AOP",
+      "note": {
+        "en": "A pale, firm Swiss whole-cow's-milk cheese with characteristic holes, named after the Emme valley in the canton of Bern and AOP-protected…",
+        "fr": "Fromage suisse au lait de vache entier, ferme et clair, aux trous caractéristiques, nommé d'après la vallée de l'Emme (canton de Berne) et…"
+      },
+      "sources": [
+        {
+          "name": "Emmentaler AOP Switzerland — Our history",
+          "url": "https://www.emmentaler.ch/en/our-history"
+        },
+        {
+          "name": "Cuisine Helvetica — 10 Facts About Emmentaler",
+          "url": "https://cuisinehelvetica.com/2019/05/13/10-facts-about-emmentaler/"
+        }
+      ]
+    },
+    "gruyère": {
+      "local": "Le Gruyère AOP",
+      "note": {
+        "en": "A firm Swiss cow's-milk cheese named after the town of Gruyères in the canton of Fribourg, produced in the region since 1115, and granted…",
+        "fr": "Fromage suisse à pâte dure au lait de vache, nommé d'après la ville de Gruyères dans le canton de Fribourg, produit dans la région depuis…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Gruyère cheese",
+          "url": "https://en.wikipedia.org/wiki/Gruy%C3%A8re_cheese"
+        },
+        {
+          "name": "Le Gruyère AOP - Protected Designation of Origin (AOP)",
+          "url": "https://www.gruyere.com/en/le-gruyere-aop/protected-designation-of-origin-aop"
+        }
+      ]
+    },
+    "appenzeller cheese": {
+      "local": "Appenzeller",
+      "note": {
+        "en": "A hard washed-rind cow's-milk cheese from northeast Switzerland, cured with a secret herbal brine; first documented in 1282.",
+        "fr": "Fromage suisse a pate dure et croute lavee, au lait de vache, affine avec une saumure d'herbes secrete; atteste des 1282."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Appenzeller cheese",
+          "url": "https://en.wikipedia.org/wiki/Appenzeller_cheese"
+        },
+        {
+          "name": "Cheese.com - Appenzeller",
+          "url": "https://www.cheese.com/appenzeller/"
+        }
+      ]
+    },
+    "papet vaudois": {
+      "local": "Papet vaudois",
+      "note": {
+        "en": "A dish from the canton of Vaud, Switzerland of leeks and potatoes boiled with white wine and cream, traditionally served with a…",
+        "fr": "Plat du canton de Vaud (Suisse) de poireaux et de pommes de terre mijotés au vin blanc et à la crème, servi traditionnellement avec une…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Papet Vaudois",
+          "url": "https://en.wikipedia.org/wiki/Papet_Vaudois"
+        },
+        {
+          "name": "Switzerland Tourism - Papet vaudois: a crafty creation",
+          "url": "https://www.myswitzerland.com/en-gb/experiences/food-wine/papet-vaudois-a-crafty-creation/"
+        }
+      ]
+    },
+    "capuns": {
+      "local": "capuns",
+      "note": {
+        "en": "Swiss Graubünden specialty of spätzle dough with dried meat (Bündnerfleisch/Salsiz) wrapped in chard leaves and simmered in broth and milk.",
+        "fr": "Spécialité grisonne suisse de pâte à spätzle et viande séchée (Bündnerfleisch/Salsiz) enroulée dans des feuilles de bette, mijotée au…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Capuns",
+          "url": "https://en.wikipedia.org/wiki/Capuns"
+        },
+        {
+          "name": "Switzerland Highlights — Capuns, Graubünden specialty",
+          "url": "https://www.switzerland-highlights.com/en/capuns-graubuenden-specialty/"
+        }
+      ]
+    },
+    "pizzoccheri ticino": {
+      "local": "Pizzoccheri",
+      "note": {
+        "en": "Flat buckwheat-and-wheat ribbon pasta baked with potatoes, chard and cheese; the Swiss form is the Italian-speaking Val Poschiavo (Grisons)…",
+        "fr": "Pâtes plates au sarrasin et froment cuites avec pommes de terre, bettes et fromage; la forme suisse vient du Val Poschiavo italophone…"
+      },
+      "sources": [
+        {
+          "name": "Pizzoccheri - Switzerland Tourism",
+          "url": "https://www.myswitzerland.com/en-us/experiences/food-wine/pizzoccheri/"
+        },
+        {
+          "name": "Pizzoccheri - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pizzoccheri"
+        }
+      ]
+    },
+    "berner platte": {
+      "local": "Berner Platte",
+      "note": {
+        "en": "A Bernese platter of separately boiled meats (pork, smoked beef, sausages) with juniper sauerkraut, beans and potatoes, tied to an 1798…",
+        "fr": "Une assiette bernoise de viandes bouillies separement (porc, boeuf fume, saucisses) avec choucroute au genievre, haricots et pommes de…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Berner Platte",
+          "url": "https://en.wikipedia.org/wiki/Berner_Platte"
+        },
+        {
+          "name": "TasteAtlas - Berner Platte",
+          "url": "https://www.tasteatlas.com/berner-platte"
+        }
+      ]
+    },
+    "basler läckerli": {
+      "local": "Basler Läckerli",
+      "note": {
+        "en": "A hard spiced biscuit from Basel, Switzerland, made with honey, hazelnuts, almonds, candied peel and Kirsch, dating back centuries.",
+        "fr": "Un biscuit dur épicé de Bâle, en Suisse, fait de miel, noisettes, amandes, écorces confites et Kirsch, vieux de plusieurs siècles."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Basler Läckerli",
+          "url": "https://en.wikipedia.org/wiki/Basler_L%C3%A4ckerli"
+        }
+      ]
+    },
+    "zopf": {
+      "local": "Zopf (Züpfe)",
+      "note": {
+        "en": "Swiss braided bread of white flour, milk, eggs and butter, traditionally egg-washed and eaten on Sunday mornings; Bernese bakers made it…",
+        "fr": "Pain tressé suisse à base de farine blanche, lait, œufs et beurre, doré à l'œuf et mangé le dimanche matin; les boulangers bernois le font…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Zopf",
+          "url": "https://en.wikipedia.org/wiki/Zopf"
+        },
+        {
+          "name": "Helvetic Kitchen - Zopf, a history",
+          "url": "https://www.helvetickitchen.com/curiosities/zopf"
+        }
+      ]
+    },
+    "toblerone": {
+      "local": "Toblerone",
+      "note": {
+        "en": "Triangular Swiss milk chocolate with honey-almond nougat, created by Theodor Tobler in Bern in 1908.",
+        "fr": "Chocolat suisse au lait triangulaire au nougat miel-amande, cree par Theodor Tobler a Berne en 1908."
+      },
+      "sources": [
+        {
+          "name": "Theodor Tobler — Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Theodor_Tobler"
+        },
+        {
+          "name": "Toblerone must remove Matterhorn from packaging — NPR",
+          "url": "https://www.npr.org/2023/03/06/1161259572/toblerone-matterhorn-packaging-swissness"
+        }
+      ]
+    },
+    "luxemburgerli": {
+      "local": "Luxemburgerli",
+      "note": {
+        "en": "A small, light Swiss macaron of two almond-meringue shells with a buttercream filling, sold by Zurich's Confiserie Sprüngli since 1957…",
+        "fr": "Petit macaron suisse leger compose de deux coques de meringue aux amandes garnies de creme au beurre, vendu par la Confiserie Sprungli de…"
+      },
+      "sources": [
+        {
+          "name": "Confiserie Sprüngli (official) - Luxemburgerli",
+          "url": "https://www.spruengli.ch/en/spruengli-world/luxemburgerli.html"
+        },
+        {
+          "name": "Wikipedia - Confiserie Sprüngli (states first Luxemburgerli sold 1957)",
+          "url": "https://en.wikipedia.org/wiki/Confiserie_Spr%C3%BCngli"
+        }
+      ]
+    },
+    "engadiner nusstorte": {
+      "local": "Engadiner Nusstorte (Romansh: Tuorta da nuschs)",
+      "note": {
+        "en": "A caramelised walnut-filled shortcrust tart from Graubünden, Switzerland, popularised by Engadine baker Fausto Pult in the 1920s.",
+        "fr": "Tarte en pâte brisée garnie de noix caramélisées des Grisons, en Suisse, popularisée par le boulanger engadinois Fausto Pult dans les…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Bündner Nusstorte",
+          "url": "https://en.wikipedia.org/wiki/B%C3%BCndner_Nusstorte"
+        },
+        {
+          "name": "Helvetic Kitchen — Tuorta da Nuschs",
+          "url": "https://www.helvetickitchen.com/recipes/2017/7/21/turtadanuschs"
+        }
+      ]
+    },
+    "älplermagronen with apfelmus": {
+      "local": "Älplermagronen mit Apfelmus",
+      "note": {
+        "en": "Swiss Alpine herders' dish of macaroni, potatoes, cream, cheese and fried onions, served with applesauce to cut the richness.",
+        "fr": "Plat des bergers alpins suisses : macaronis, pommes de terre, crème, fromage et oignons frits, servi avec compote de pommes."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Älplermagronen",
+          "url": "https://en.wikipedia.org/wiki/%C3%84lplermagronen"
+        },
+        {
+          "name": "Adventure Interlaken – Älplermagronen",
+          "url": "https://adventureinterlaken.info/alplermagronen-the-original-swiss-macaroni-and-cheese-from-the-alps/"
+        }
+      ]
+    }
+  },
+  "russian": {
+    "borscht": {
+      "local": "борщ",
+      "note": {
+        "en": "A sour Eastern European beet soup of Ukrainian origin; UNESCO inscribed its Ukrainian cooking culture as heritage in 2022.",
+        "fr": "Soupe aigre de betterave d'Europe de l'Est, d'origine ukrainienne ; l'UNESCO a inscrit sa culture culinaire ukrainienne en 2022."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Borscht",
+          "url": "https://en.wikipedia.org/wiki/Borscht"
+        },
+        {
+          "name": "UNESCO — Culture of Ukrainian borscht cooking",
+          "url": "https://ich.unesco.org/en/USL/culture-of-ukrainian-borscht-cooking-01852"
+        }
+      ]
+    },
+    "pelmeni": {
+      "local": "пельмени",
+      "note": {
+        "en": "Russian dumplings of unleavened dough filled with minced meat, originating as a Ural-Siberian regional dish before spreading across Russia.",
+        "fr": "Raviolis russes en pâte non levée farcis de viande hachée, nés comme plat régional de l'Oural et de Sibérie avant de gagner toute la Russie."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Pelmeni",
+          "url": "https://en.wikipedia.org/wiki/Pelmeni"
+        },
+        {
+          "name": "Russiapedia (RT) — Pelmeni",
+          "url": "https://russiapedia.rt.com/of-russian-origin/pelmeni/"
+        }
+      ]
+    },
+    "beef stroganoff": {
+      "local": "бефстроганов",
+      "note": {
+        "en": "Russian dish of sautéed beef strips in a sour-cream (smetana) sauce, named after the 19th-century Stroganov noble family.",
+        "fr": "Plat russe de lamelles de bœuf sautées dans une sauce à la crème aigre (smetana), nommé d'après la famille noble Stroganov du XIXe siècle."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Beef Stroganoff",
+          "url": "https://en.wikipedia.org/wiki/Beef_Stroganoff"
+        },
+        {
+          "name": "Encyclopaedia Britannica — beef Stroganoff",
+          "url": "https://www.britannica.com/topic/beef-Stroganoff"
+        }
+      ]
+    },
+    "blini": {
+      "local": "блины",
+      "note": {
+        "en": "Thin Russian pancakes of yeast-raised wheat or buckwheat batter, an ancient Slavic dish round like the sun, eaten at Maslenitsa.",
+        "fr": "Fines crêpes russes à base de pâte levée de blé ou de sarrasin, plat slave ancien rond comme le soleil, mangé à Maslenitsa."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Blini",
+          "url": "https://en.wikipedia.org/wiki/Blini"
+        },
+        {
+          "name": "Russiapedia - Blini",
+          "url": "https://russiapedia.rt.com/of-russian-origin/blini/"
+        }
+      ]
+    },
+    "pirozhki": {
+      "local": "пирожки",
+      "note": {
+        "en": "Small baked or fried yeast-dough buns stuffed with savoury or sweet fillings; the name is a diminutive of the larger Russian pie, pirog.",
+        "fr": "Petits pains de pate levee cuits au four ou frits, fourres salees ou sucrees ; le nom est un diminutif du grand chausson russe, le pirog."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Pirozhki",
+          "url": "https://en.wikipedia.org/wiki/Pirozhki"
+        },
+        {
+          "name": "Britannica - Pirozhki",
+          "url": "https://www.britannica.com/topic/pirozhki"
+        }
+      ]
+    },
+    "shchi": {
+      "local": "щи",
+      "note": {
+        "en": "A traditional Russian cabbage (or sauerkraut) soup dating to roughly the 9th century, when cabbage spread among East Slavic tribes.",
+        "fr": "Soupe russe traditionnelle au chou (ou choucroute), remontant au IXe siecle environ, quand le chou s'est repandu chez les tribus slaves…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Shchi",
+          "url": "https://en.wikipedia.org/wiki/Shchi"
+        },
+        {
+          "name": "The Moscow Times - Russia's National Treasure: Cabbage Soup",
+          "url": "https://www.themoscowtimes.com/2020/12/26/russias-national-treasure-cabbage-soup-a72490"
+        }
+      ]
+    },
+    "solyanka": {
+      "local": "солянка",
+      "note": {
+        "en": "A thick, sour Russian soup of meat, fish or mushrooms with pickled cucumbers and a salty-sour broth; the soup form emerged in the 1830s…",
+        "fr": "Soupe russe epaisse et aigre, a base de viande, poisson ou champignons, avec des cornichons et un bouillon sale et acidule; sa forme en…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Solyanka",
+          "url": "https://en.wikipedia.org/wiki/Solyanka"
+        },
+        {
+          "name": "The Moscow Times - How Russian Solyanka Was Born From Polish Bigos",
+          "url": "https://www.themoscowtimes.com/2022/09/24/how-russian-solyanka-was-born-from-polish-bigos-a78881"
+        }
+      ]
+    },
+    "vinaigrette salad": {
+      "local": "Винегрет",
+      "note": {
+        "en": "Russian salad of diced boiled beets, potatoes, carrots, onion and pickles dressed in oil; its name derives from French \"vinaigrette\".",
+        "fr": "Salade russe de betteraves, pommes de terre, carottes, oignon et cornichons cuits, assaisonnee a l'huile; son nom vient du francais…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Vinegret",
+          "url": "https://en.wikipedia.org/wiki/Vinegret"
+        },
+        {
+          "name": "Russiapedia (RT) — Vinegret",
+          "url": "https://russiapedia.rt.com/of-russian-origin/vinegret/"
+        }
+      ]
+    },
+    "olivier salad": {
+      "local": "салат Оливье",
+      "note": {
+        "en": "A Russian salad of diced potatoes, egg, and vegetables bound with mayonnaise, created in the 1860s by chef Lucien Olivier in Moscow.",
+        "fr": "Une salade russe de pommes de terre, d'oeuf et de legumes en des, liee a la mayonnaise, creee dans les annees 1860 par le chef Lucien…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Olivier salad",
+          "url": "https://en.wikipedia.org/wiki/Olivier_salad"
+        },
+        {
+          "name": "196 flavors - Olivier Salad",
+          "url": "https://www.196flavors.com/olivier-salad/"
+        }
+      ]
+    },
+    "selyodka pod shuboy": {
+      "local": "Селёдка под шубой",
+      "note": {
+        "en": "Russian layered salad of salt-cured herring under grated potato, carrot, onion, egg and beet bound with mayonnaise; a Soviet-era New Year's…",
+        "fr": "Salade russe en couches de hareng salé sous pomme de terre, carotte, oignon, œuf et betterave à la mayonnaise; incontournable du Nouvel An…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Dressed herring",
+          "url": "https://en.wikipedia.org/wiki/Dressed_herring"
+        },
+        {
+          "name": "Atlas Obscura - Herring Under a Fur Coat",
+          "url": "https://www.atlasobscura.com/foods/herring-under-a-fur-coat-russia"
+        }
+      ]
+    },
+    "kasha": {
+      "local": "каша",
+      "note": {
+        "en": "Slavic porridge, most often made from roasted buckwheat groats, long a staple of Russian peasant cuisine.",
+        "fr": "Bouillie slave, le plus souvent à base de sarrasin grillé, longtemps un aliment de base de la cuisine paysanne russe."
+      },
+      "sources": [
+        {
+          "name": "Kasha — Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Kasha"
+        }
+      ]
+    },
+    "kvass": {
+      "local": "квас",
+      "note": {
+        "en": "A mildly alcoholic Slavic drink fermented from rye or black bread; its first written mention is in the Primary Chronicle, describing the…",
+        "fr": "Boisson slave legerement alcoolisee fermentee a partir de pain de seigle ou noir; sa premiere mention ecrite figure dans la Chronique des…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Kvass",
+          "url": "https://en.wikipedia.org/wiki/Kvass"
+        },
+        {
+          "name": "Wiktionary - kvas",
+          "url": "https://en.wiktionary.org/wiki/kvas"
+        }
+      ]
+    },
+    "medovik": {
+      "local": "Медовик",
+      "note": {
+        "en": "Russian honey layer cake of thin honey-baked sponge layers filled with sour cream or condensed-milk cream, popular across the former USSR.",
+        "fr": "Gâteau russe au miel à couches fines de génoise au miel garnies de crème à la crème aigre ou au lait concentré, courant dans l'ex-URSS."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Medovik",
+          "url": "https://en.wikipedia.org/wiki/Medovik"
+        },
+        {
+          "name": "The Moscow Times — Medovik: Russia's Famous and Mysterious Honey Cake",
+          "url": "https://www.themoscowtimes.com/2022/07/23/medovik-russias-famous-and-mysterious-honey-cake-a78387"
+        }
+      ]
+    },
+    "syrniki": {
+      "local": "сырники",
+      "note": {
+        "en": "Eastern Slavic fried pancakes of tvorog (curd cheese), eggs and flour; the dish is referenced in the 1550s Russian household manual…",
+        "fr": "Galettes frites slaves orientales au tvorog (fromage caillé), œufs et farine ; le plat est mentionné dans le manuel domestique russe…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Syrniki",
+          "url": "https://en.wikipedia.org/wiki/Syrniki"
+        },
+        {
+          "name": "The Moscow Times — Where's the Cheese in Russian Cheese Pancakes?",
+          "url": "https://www.themoscowtimes.com/2022/10/01/wheres-the-cheese-in-russian-cheese-pancakes-a78943"
+        }
+      ]
+    },
+    "vatrushka": {
+      "local": "ватрушка",
+      "note": {
+        "en": "An Eastern Slavic round sweet yeast-dough bun with a centre well of tvorog (curd cheese), often topped with raisins.",
+        "fr": "Petit pain rond slave oriental en pâte levée sucrée, garni en son centre de tvorog (fromage blanc), souvent aux raisins secs."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Vatrushka",
+          "url": "https://en.wikipedia.org/wiki/Vatrushka"
+        },
+        {
+          "name": "Wiktionary — ватрушка",
+          "url": "https://en.wiktionary.org/wiki/%D0%B2%D0%B0%D1%82%D1%80%D1%83%D1%88%D0%BA%D0%B0"
+        }
+      ]
+    },
+    "okroshka": {
+      "local": "окрошка",
+      "note": {
+        "en": "A cold Russian soup of raw vegetables, boiled potatoes, eggs and meat in kvass or kefir, traditionally eaten in summer.",
+        "fr": "Soupe froide russe de légumes crus, pommes de terre, œufs et viande dans du kvass ou kéfir, mangée en été."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Okroshka",
+          "url": "https://en.wikipedia.org/wiki/Okroshka"
+        },
+        {
+          "name": "Russia Beyond - Okroshka, cold soup with kvass",
+          "url": "https://www.rbth.com/multimedia/video/2013/09/02/delicious_russia_okroshka_cold_soup_with_kvass_29407"
+        }
+      ]
+    },
+    "ukha": {
+      "local": "уха",
+      "note": {
+        "en": "A clear Russian fish soup of root vegetables and fish; the word once meant meat broth and only came to mean fish soup by the late 17th…",
+        "fr": "Soupe de poisson russe claire aux légumes-racines; le mot désignait jadis un bouillon de viande et ne signifie soupe de poisson que depuis…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Ukha",
+          "url": "https://en.wikipedia.org/wiki/Ukha"
+        },
+        {
+          "name": "Russia Beyond - 10 centuries of real Russian ukha soup",
+          "url": "https://www.rbth.com/russian_kitchen/2017/05/26/10-centuries-of-real-russian-ukha-soup-tradition-and-modernity_771280"
+        }
+      ]
+    },
+    "beef stew russian": {
+      "local": "Бефстроганов",
+      "note": {
+        "en": "A 19th-century Russian dish of sauteed beef strips in a sour-cream (smetana) sauce, named after the Stroganov noble family; the first known…",
+        "fr": "Plat russe du XIXe siecle de lanieres de boeuf sautees en sauce a la creme aigre (smetana), nomme d'apres la famille noble Stroganov; la…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Beef Stroganoff",
+          "url": "https://en.wikipedia.org/wiki/Beef_Stroganoff"
+        },
+        {
+          "name": "TasteAtlas - Beef Stroganoff",
+          "url": "https://www.tasteatlas.com/beef-stroganoff"
+        }
+      ]
+    },
+    "vareniki": {
+      "local": "вареники",
+      "note": {
+        "en": "Boiled half-moon dumplings of unleavened dough filled with potato, cheese, or fruit, emblematic of Ukrainian and Russian cuisine.",
+        "fr": "Raviolis bouillis en demi-lune de pâte non levée, fourrés de pomme de terre, fromage ou fruits, emblématiques des cuisines ukrainienne et…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Varenyky",
+          "url": "https://en.wikipedia.org/wiki/Varenyky"
+        },
+        {
+          "name": "Recipes From Europe - Varenyky (Ukrainian Dumplings)",
+          "url": "https://www.recipesfromeurope.com/varenyky/"
+        }
+      ]
+    },
+    "golubtsy": {
+      "local": "Голубцы",
+      "note": {
+        "en": "Russian cabbage rolls of minced meat and rice simmered in tomato sauce. The name comes from golub (\"dove/pigeon\"), so golubtsy means…",
+        "fr": "Roulades de chou russes de viande hachée et de riz mijotées en sauce tomate. Le nom vient de goloub (« colombe/pigeon »), si bien que…"
+      },
+      "sources": [
+        {
+          "name": "Russia Beyond — These homemade 'pigeons' will make you fall in love with Russian cabbage rolls",
+          "url": "https://www.rbth.com/russian-kitchen/329327-homemade-russian-cabbage-rolls"
+        },
+        {
+          "name": "TasteAtlas — Golubtsy",
+          "url": "https://www.tasteatlas.com/golubtsy"
+        }
+      ]
+    },
+    "kulebyaka": {
+      "local": "кулебя́ка",
+      "note": {
+        "en": "A Russian pirog (pie) traditionally filled with layered salmon or sturgeon, rice or buckwheat, egg, mushrooms and dill.",
+        "fr": "Un pirog russe (tourte) traditionnellement garni de couches de saumon ou esturgeon, riz ou sarrasin, œuf, champignons et aneth."
+      },
+      "sources": [
+        {
+          "name": "Coulibiac - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Coulibiac"
+        }
+      ]
+    },
+    "chebureki": {
+      "local": "чебуреки (Crimean Tatar: çiberek)",
+      "note": {
+        "en": "Deep-fried crescent turnovers filled with minced meat and onion, a Crimean Tatar dish that spread across the former Soviet Union.",
+        "fr": "Chaussons frits en croissant garnis de viande hachée et d'oignon, plat tatar de Crimée répandu dans l'ex-URSS."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Chebureki",
+          "url": "https://en.wikipedia.org/wiki/Chebureki"
+        },
+        {
+          "name": "Wiktionary — чебурек",
+          "url": "https://en.wiktionary.org/wiki/%D1%87%D0%B5%D0%B1%D1%83%D1%80%D0%B5%D0%BA"
+        }
+      ]
+    }
+  },
+  "ukrainian": {
+    "borscht ukrainian": {
+      "local": "борщ",
+      "note": {
+        "en": "A Ukrainian beetroot-based sour soup whose cooking culture UNESCO inscribed as Intangible Cultural Heritage in 2022.",
+        "fr": "Soupe aigre ukrainienne à base de betterave dont la culture culinaire a été inscrite au patrimoine immatériel de l'UNESCO en 2022."
+      },
+      "sources": [
+        {
+          "name": "Borscht - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Borscht"
+        },
+        {
+          "name": "Culture of Ukrainian borscht cooking - UNESCO",
+          "url": "https://ich.unesco.org/en/USL/culture-of-ukrainian-borscht-cooking-01852"
+        }
+      ]
+    },
+    "varenyky": {
+      "local": "вареники",
+      "note": {
+        "en": "Ukrainian boiled dumplings of unleavened dough with savoury or sweet fillings; the name derives from varyty, \"to boil.\"",
+        "fr": "Raviolis ukrainiens bouillis en pate non levee, a garniture salee ou sucree; le nom vient de varyty, \"bouillir.\""
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Varenyky",
+          "url": "https://en.wikipedia.org/wiki/Varenyky"
+        },
+        {
+          "name": "Wikipedia - Ukrainian cuisine",
+          "url": "https://en.wikipedia.org/wiki/Ukrainian_cuisine"
+        }
+      ]
+    },
+    "salo": {
+      "local": "сало",
+      "note": {
+        "en": "Salo is cured (dry-salted or brined) pork fatback, eaten raw and sliced thin with rye bread and garlic; a Ukrainian national dish.",
+        "fr": "Le salo est du lard de porc salé ou saumuré, mangé cru en fines tranches avec pain de seigle et ail; plat national ukrainien."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas",
+          "url": "https://www.tasteatlas.com/salo"
+        },
+        {
+          "name": "Atlas Obscura",
+          "url": "https://www.atlasobscura.com/foods/salo-pork-ukraine"
+        }
+      ]
+    },
+    "chicken kyiv": {
+      "local": "котлета по-київськи",
+      "note": {
+        "en": "A cutlet of pounded chicken fillet rolled around cold butter, breaded and fried; the disputed origin dates to the 19th century.",
+        "fr": "Une escalope de filet de poulet aplati roulé autour de beurre froid, pané et frit ; son origine disputée remonte au XIXe siècle."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Chicken Kiev",
+          "url": "https://en.wikipedia.org/wiki/Chicken_Kiev"
+        },
+        {
+          "name": "196 flavors — Chicken Kiev, Traditional Ukrainian Recipe",
+          "url": "https://www.196flavors.com/ukraine-chicken-kiev/"
+        }
+      ]
+    },
+    "holubtsi": {
+      "local": "голубці",
+      "note": {
+        "en": "Ukrainian cabbage rolls of leaves wrapped around meat and rice; the name derives from \"holub\" (pigeon) for their plump shape.",
+        "fr": "Roulades de chou ukrainiennes garnies de viande et de riz; le nom vient de « holub » (pigeon), pour leur forme dodue."
+      },
+      "sources": [
+        {
+          "name": "The Taste of Ukraine - Holubtsi history and recipes",
+          "url": "https://thetasteofukraine.com/holubtsi-in-ukrainian-cuisine-history-and-recipes/"
+        },
+        {
+          "name": "Ukrainian Flavors (Medium) - History of cabbage rolls",
+          "url": "https://medium.com/@ukrainianflavors/holubtsi-the-history-of-cabbage-rolls-in-ukrainian-cuisine-53dae9c2f730"
+        }
+      ]
+    },
+    "deruny": {
+      "local": "деруни",
+      "note": {
+        "en": "Ukrainian shallow-fried pancakes of grated raw potato, onion and egg; the name comes from derty, \"to grate.\"",
+        "fr": "Galettes ukrainiennes de pommes de terre rapees, oignon et oeuf, frites; le nom vient de derty, \"raper.\""
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Deruny / Potato pancake",
+          "url": "https://en.wikipedia.org/wiki/Deruny"
+        },
+        {
+          "name": "Budget Bytes – Deruny (Ukrainian Potato Pancakes)",
+          "url": "https://www.budgetbytes.com/deruny-potato-pancakes/"
+        }
+      ]
+    },
+    "pampushky": {
+      "local": "пампушки",
+      "note": {
+        "en": "Soft Ukrainian yeast buns, savory ones brushed with garlic sauce and served as a side to borscht.",
+        "fr": "Petits pains levés ukrainiens, les salés nappés de sauce à l'ail et servis en accompagnement du bortsch."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Pampushka",
+          "url": "https://en.wikipedia.org/wiki/Pampushka"
+        },
+        {
+          "name": "Wiktionary — пампушка",
+          "url": "https://en.wiktionary.org/wiki/%D0%BF%D0%B0%D0%BC%D0%BF%D1%83%D1%88%D0%BA%D0%B0"
+        }
+      ]
+    },
+    "paska": {
+      "local": "Паска",
+      "note": {
+        "en": "Ukrainian egg-enriched Easter bread; its name derives from Pesach (Passover) and is tied to Eastern Christian Easter rites.",
+        "fr": "Pain de Pâques ukrainien enrichi aux œufs ; son nom vient de Pessah (Pâque) et est lié aux rites pascals chrétiens orientaux."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Paska (bread)",
+          "url": "https://en.wikipedia.org/wiki/Paska_(bread)"
+        }
+      ]
+    },
+    "syrniky": {
+      "local": "сирники",
+      "note": {
+        "en": "Fried Ukrainian pancakes made from quark/curd cheese (syr), egg and flour, usually served with sour cream or jam.",
+        "fr": "Galettes ukrainiennes frites a base de fromage blanc caille (syr), d'oeuf et de farine, servies avec creme aigre ou confiture."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Syrniki",
+          "url": "https://en.wikipedia.org/wiki/Syrniki"
+        }
+      ]
+    },
+    "uzvar": {
+      "local": "узвар",
+      "note": {
+        "en": "Ukrainian drink of dried fruits (pears, apples, plums and other dried fruits/berries) that is brought just to a boil and then steeped, not…",
+        "fr": "Boisson ukrainienne de fruits secs (poires, pommes, prunes et autres fruits ou baies sechees) que l'on porte juste a ebullition puis que…"
+      },
+      "sources": [
+        {
+          "name": "Ukrainian Recipes - Uzvar (Dried fruit compote), Popular Ukrainian Christmas drink",
+          "url": "https://ukrainian-recipes.com/uzvar-dried-fruit-compote-popular-ukrainian-christmas-drink.html"
+        },
+        {
+          "name": "Authentic Ukraine - Uzvar",
+          "url": "https://authenticukraine.com.ua/en/food/uzvar"
+        }
+      ]
+    },
+    "kotleta po kyivsky": {
+      "local": "котлета по-київськи",
+      "note": {
+        "en": "Ukrainian dish of a boned chicken breast rolled around chilled herb butter, breaded and fried; popularized in the Soviet era.",
+        "fr": "Plat ukrainien de blanc de poulet désossé roulé autour de beurre aux herbes, pané et frit; popularisé à l'époque soviétique."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Kotleta po Kyivsky",
+          "url": "https://www.tasteatlas.com/chicken-kyiv"
+        },
+        {
+          "name": "Wikipedia — Chicken Kiev",
+          "url": "https://en.wikipedia.org/wiki/Chicken_Kiev"
+        }
+      ]
+    },
+    "halushky": {
+      "local": "галушки",
+      "note": {
+        "en": "Ukrainian dumplings of unfilled boiled dough, documented in 18th-century left-bank Ukraine and tied to the city of Poltava.",
+        "fr": "Quenelles ukrainiennes de pate bouillie sans garniture, attestees au 18e siecle en Ukraine de la rive gauche et liees a la ville de Poltava."
+      },
+      "sources": [
+        {
+          "name": "Authentic Ukraine - Poltava halushky",
+          "url": "https://authenticukraine.com.ua/en/food/poltavski-galuski"
+        },
+        {
+          "name": "Wikipedia - Ukrainian cuisine",
+          "url": "https://en.wikipedia.org/wiki/Ukrainian_cuisine"
+        }
+      ]
+    },
+    "mlyntsi": {
+      "local": "Млинці",
+      "note": {
+        "en": "Thin Ukrainian pancakes akin to crepes, served sweet or savoury; the name derives from \"mlyn\" (млин, mill), via the diminutive млинець.",
+        "fr": "Fines crepes ukrainiennes, sucrees ou salees; le nom derive de \"mlyn\" (млин, moulin), via le diminutif млинець."
+      },
+      "sources": [
+        {
+          "name": "млинець — Wiktionary (etymology: from млин \"mlyn/mill\" + -ець)",
+          "url": "https://en.wiktionary.org/wiki/%D0%BC%D0%BB%D0%B8%D0%BD%D0%B5%D1%86%D1%8C"
+        },
+        {
+          "name": "Bread Experience — Mlyntsi | Ukrainian Thin Pancakes Crepes",
+          "url": "https://www.breadexperience.com/mlyntsi-thin-pancakes-crepes/"
+        }
+      ]
+    },
+    "kapusta": {
+      "local": "капуста",
+      "note": {
+        "en": "Ukrainian braised cabbage or sauerkraut dish; a sauerkraut version with peas is traditionally one of the twelve meatless dishes served at…",
+        "fr": "Plat ukrainien de chou braisé ou de choucroute; une version à la choucroute avec des pois est traditionnellement l'un des douze plats…"
+      },
+      "sources": [
+        {
+          "name": "The Rusnaks – Ukrainian Baked Sauerkraut (Kapusta) with Sausage (Kobasa)",
+          "url": "https://rusnak.ca/Ukrainian-Baked-Sauerkraut-Kapusta-with-Sausage-Kobasa-The-Rusnaks"
+        },
+        {
+          "name": "Wikipedia – Twelve-dish Christmas Eve supper",
+          "url": "https://en.wikipedia.org/wiki/Twelve-dish_Christmas_Eve_supper"
+        }
+      ]
+    },
+    "kvas ukrainian": {
+      "local": "квас",
+      "note": {
+        "en": "A low-alcohol Slavic drink made by fermenting rye bread or flour, known in Ukraine since at least the 10th century.",
+        "fr": "Boisson slave peu alcoolisée obtenue par fermentation de pain ou de farine de seigle, connue en Ukraine depuis au moins le Xe siècle."
+      },
+      "sources": [
+        {
+          "name": "Kvass - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Kvass"
+        },
+        {
+          "name": "Ukrainian Traditional Rye Bread Kvass Recipe - Etnocook",
+          "url": "https://etnocook.com/ukrainian-bread-kvass/"
+        }
+      ]
+    },
+    "vushka": {
+      "local": "вушка",
+      "note": {
+        "en": "Tiny Ukrainian \"little ear\" dumplings stuffed with dried mushrooms, traditionally served in red borscht on Christmas Eve (Sviat Vechir).",
+        "fr": "Petites raviolis ukrainiennes en forme d'oreille farcies de champignons sechés, servies dans le bortsch rouge la veille de Noël."
+      },
+      "sources": [
+        {
+          "name": "Chef's Pencil — Mushroom Vushka (Ukrainian Mushroom Dumplings)",
+          "url": "https://www.chefspencil.com/mushroom-vushka/"
+        },
+        {
+          "name": "Ukrainian Flavors — Vushka / Uszka: The Tiny Ukrainian Christmas Dumplings",
+          "url": "https://ukrainianflavors.com/blogs/blog-uf/vushka-the-tiny-ukrainian-christmas-dumplings-with-a-big-story"
+        }
+      ]
+    },
+    "verhuny": {
+      "local": "вергуни",
+      "note": {
+        "en": "Verhuny (also verguny; in some regions khrusty) are a traditional Ukrainian deep-fried unleavened-dough pastry of the brushwood/angel-wings…",
+        "fr": "Les verhuny (aussi verguny ; khrusty dans certaines regions) sont une patisserie ukrainienne traditionnelle en pate non levee frite, de…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia (uk) - Вергуни",
+          "url": "https://uk.wikipedia.org/wiki/Вергуни"
+        },
+        {
+          "name": "Authentic Ukraine - Verhuny",
+          "url": "https://authenticukraine.com.ua/en/food/verguni"
+        }
+      ]
+    },
+    "crimean tatar chebureki": {
+      "local": "çiberek (çiğ börek)",
+      "note": {
+        "en": "Deep-fried half-moon turnover of thin unleavened dough filled with seasoned minced meat and onion, the national dish of the Crimean Tatars.",
+        "fr": "Chausson frit en demi-lune de pâte fine sans levain garni de viande hachée et d'oignon assaisonnés, plat national des Tatars de Crimée."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Chebureki",
+          "url": "https://en.wikipedia.org/wiki/Chebureki"
+        },
+        {
+          "name": "TasteAtlas — Chebureki",
+          "url": "https://www.tasteatlas.com/cig-borek"
+        }
+      ]
+    },
+    "odessan forshmak": {
+      "local": "одеський форшмак",
+      "note": {
+        "en": "A chopped-herring spread of salt herring, apple, onion and egg, an Ashkenazi Jewish dish that became emblematic of Odesa cuisine.",
+        "fr": "Une tartinade de hareng hache avec pomme, oignon et oeuf, plat juif ashkenaze devenu emblematique de la cuisine d'Odessa."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Forshmak",
+          "url": "https://en.wikipedia.org/wiki/Forshmak"
+        },
+        {
+          "name": "Odessa Journal — Jewish culture in Odessa cuisine: Forshmak",
+          "url": "https://odessa-journal.com/forshmak"
+        }
+      ]
+    },
+    "lard sandwiches": {
+      "local": "сало",
+      "note": {
+        "en": "Salo, cured raw pork fatback sliced thin onto rye bread with garlic, is a near-national Ukrainian dish honored by a Salo Museum in Lviv.",
+        "fr": "Le salo, gras de porc cru salé tranché fin sur du pain de seigle avec de l'ail, est un plat quasi national ukrainien, honoré par un musée…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Museum of Salo",
+          "url": "https://en.wikipedia.org/wiki/Museum_of_Salo"
+        },
+        {
+          "name": "Michelin Guide – Uniquely Ukrainian: 5 Ingredients To Stock Up (salo, brynza, uzvar)",
+          "url": "https://guide.michelin.com/sg/en/article/travel/ukrainian-cuisine-5-ingredients-to-stock-up"
+        }
+      ]
+    },
+    "domashnya kovbasa": {
+      "local": "домашня ковбаса",
+      "note": {
+        "en": "Ukrainian homemade pork sausage (\"domashnya\" = homemade) of coarsely ground pork seasoned heavily with garlic and black pepper, stuffed…",
+        "fr": "Saucisse de porc maison ukrainienne (« domashnya » = fait maison), à base de porc haché grossièrement et fortement assaisonné d'ail et de…"
+      },
+      "sources": [
+        {
+          "name": "Taste of Artisan – Ukrainian Sausage",
+          "url": "https://tasteofartisan.com/ukrainian-sausage/"
+        },
+        {
+          "name": "Food.com – Ukrainian Homemade Sausage (Kovbasa)",
+          "url": "https://www.food.com/recipe/ukrainian-homemade-sausage-kovbasa-77547"
+        }
+      ]
+    }
+  },
+  "polish": {
+    "pierogi": {
+      "local": "pierogi",
+      "note": {
+        "en": "Polish half-moon dumplings of unleavened dough with savory or sweet fillings, documented in Poland's first cookbook in 1682.",
+        "fr": "Raviolis polonais en demi-lune de pate non levee, a garniture salee ou sucree, attestes dans le premier livre de cuisine polonais en 1682."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Pierogi",
+          "url": "https://en.wikipedia.org/wiki/Pierogi"
+        },
+        {
+          "name": "Britannica - Pierogi",
+          "url": "https://www.britannica.com/topic/pierogi"
+        }
+      ]
+    },
+    "bigos": {
+      "local": "bigos",
+      "note": {
+        "en": "Poland's national dish, a hunter's stew of chopped meats slow-simmered with sauerkraut and fresh cabbage; documented since the 17th century.",
+        "fr": "Plat national polonais, un ragout de chasseur de viandes mijotees longuement avec choucroute et chou frais; atteste depuis le XVIIe siecle."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Bigos",
+          "url": "https://en.wikipedia.org/wiki/Bigos"
+        },
+        {
+          "name": "TasteAtlas - Bigos",
+          "url": "https://tasteatlas.com/bigos"
+        }
+      ]
+    },
+    "kielbasa": {
+      "local": "kiełbasa",
+      "note": {
+        "en": "Any meat sausage from Poland and a staple of Polish cuisine, traditionally made from pork (though beef, veal, turkey and other meats are…",
+        "fr": "Toute saucisse de viande polonaise et un pilier de la cuisine polonaise, traditionnellement à base de porc (mais aussi de bœuf, de veau, de…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Kielbasa",
+          "url": "https://en.wikipedia.org/wiki/Kielbasa"
+        },
+        {
+          "name": "TasteAtlas - Kiełbasa Polska",
+          "url": "https://www.tasteatlas.com/kiebasa-polska"
+        }
+      ]
+    },
+    "zurek": {
+      "local": "żurek",
+      "note": {
+        "en": "Polish soup of soured rye flour (a sourdough-like fermented starter called zakwas) served with white sausage and hard-boiled egg…",
+        "fr": "Soupe polonaise à base de farine de seigle fermentée (un levain appelé zakwas), servie avec saucisse blanche et œuf dur, traditionnellement…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Sour cereal soup",
+          "url": "https://en.wikipedia.org/wiki/Sour_cereal_soup"
+        },
+        {
+          "name": "Smachno — Żurek: traditional Polish soup made with rye sourdough",
+          "url": "https://smachno.blog/en/zurek-traditional-polish-soup/"
+        }
+      ]
+    },
+    "rosol": {
+      "local": "rosół",
+      "note": {
+        "en": "Traditional Polish clear meat broth, most popularly chicken (rosół z kury), simmered with vegetables and served with thin noodles.",
+        "fr": "Bouillon de viande clair polonais traditionnel, le plus souvent au poulet (rosół z kury), mijoté avec des légumes et servi avec de fines…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Rosół",
+          "url": "https://en.wikipedia.org/wiki/Ros%C3%B3%C5%82"
+        },
+        {
+          "name": "TasteAtlas - Rosół",
+          "url": "https://www.tasteatlas.com/rosol"
+        }
+      ]
+    },
+    "golabki": {
+      "local": "gołąbki",
+      "note": {
+        "en": "Polish cabbage rolls of minced meat and rice in tomato sauce; the name means \"little pigeons.\"",
+        "fr": "Roulés de chou polonais farcis de viande hachée et de riz en sauce tomate ; le nom signifie « petits pigeons »."
+      },
+      "sources": [
+        {
+          "name": "Polana — Gołąbki! The history of Polish Stuffed Cabbage",
+          "url": "https://www.polana.com/blogs/blog/golabki-the-history-of-polish-stuffed-cabbage"
+        },
+        {
+          "name": "Poland Unraveled — Gołąbki: the Tasty History and Traditional Recipe",
+          "url": "https://polandunraveled.com/golabki-history-recipe/"
+        }
+      ]
+    },
+    "placki ziemniaczane": {
+      "local": "placki ziemniaczane",
+      "note": {
+        "en": "Polish fried potato pancakes made from grated raw potato, onion and egg; a documented 17th-century monastery recipe (from Stoczek…",
+        "fr": "Galettes polonaises de pommes de terre crues rapees, avec oignon et oeuf; une recette monastique documentee du XVIIe siecle (Stoczek…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Placki Ziemniaczane",
+          "url": "https://www.tasteatlas.com/placki-ziemniaczane"
+        },
+        {
+          "name": "Wikipedia - Potato pancake",
+          "url": "https://en.wikipedia.org/wiki/Potato_pancake"
+        }
+      ]
+    },
+    "kotlet schabowy": {
+      "local": "kotlet schabowy",
+      "note": {
+        "en": "A Polish breadcrumb-coated pork loin (or chop) cutlet, derived from the Viennese schnitzel, that appeared in the 19th century (recorded in…",
+        "fr": "Une escalope panee de longe (ou de cotelette) de porc polonaise, derivee du schnitzel viennois, apparue au XIXe siecle (attestee dans un…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Kotlet schabowy",
+          "url": "https://en.wikipedia.org/wiki/Kotlet_schabowy"
+        },
+        {
+          "name": "TasteAtlas — Kotlet schabowy",
+          "url": "https://www.tasteatlas.com/schabowy/kotlet-schabowy"
+        }
+      ]
+    },
+    "mizeria": {
+      "local": "mizeria",
+      "note": {
+        "en": "A Polish salad of thinly sliced cucumbers in sour cream; its name derives from Latin \"miseria\" (poverty/misery).",
+        "fr": "Une salade polonaise de concombres finement tranchés a la creme aigre ; son nom vient du latin \"miseria\" (misere)."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Mizeria",
+          "url": "https://en.wikipedia.org/wiki/Mizeria"
+        },
+        {
+          "name": "Wiktionary - mizeria",
+          "url": "https://en.wiktionary.org/wiki/mizeria"
+        }
+      ]
+    },
+    "barszcz polish": {
+      "local": "barszcz czerwony",
+      "note": {
+        "en": "A Polish sour beetroot soup, often a clear broth from fermented beet juice, traditionally served on Christmas Eve with uszka dumplings.",
+        "fr": "Soupe polonaise aigre de betterave, souvent un bouillon clair de jus de betterave fermente, servie a Noel avec des raviolis uszka."
+      },
+      "sources": [
+        {
+          "name": "Borscht - Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Borscht"
+        },
+        {
+          "name": "Barszcz Czysty Czerwony - TasteAtlas",
+          "url": "https://www.tasteatlas.com/barszcz-czysty-czerwony"
+        }
+      ]
+    },
+    "oscypek": {
+      "local": "oscypek",
+      "note": {
+        "en": "A smoked, spindle-shaped salted sheep's-milk cheese from Poland's Tatra Mountains, hand-made by highlanders and EU PDO-protected.",
+        "fr": "Fromage fume de lait de brebis sale, en forme de fuseau, des Tatras polonaises, fait main par les montagnards et protege AOP."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Oscypek",
+          "url": "https://en.wikipedia.org/wiki/Oscypek"
+        },
+        {
+          "name": "Slow Food Foundation - Oscypek Presidium",
+          "url": "https://www.fondazioneslowfood.com/en/slow-food-presidia/oscypek/"
+        }
+      ]
+    },
+    "paczki": {
+      "local": "pączki",
+      "note": {
+        "en": "Polish deep-fried filled doughnuts of rich egg-and-butter dough, traditionally eaten on Fat Thursday (Tłusty Czwartek) before Lent.",
+        "fr": "Beignets polonais frits et fourrés, à pâte riche en œufs et beurre, mangés le Jeudi gras (Tłusty Czwartek) avant le Carême."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Pączki",
+          "url": "https://en.wikipedia.org/wiki/P%C4%85czki"
+        },
+        {
+          "name": "Wikipedia – Fat Thursday",
+          "url": "https://en.wikipedia.org/wiki/Fat_Thursday"
+        }
+      ]
+    },
+    "makowiec": {
+      "local": "makowiec",
+      "note": {
+        "en": "A traditional Polish sweet yeast roll filled with ground poppy seeds, honey and nuts, eaten especially at Christmas and Easter.",
+        "fr": "Roulé polonais traditionnel à la pâte levée, fourré de graines de pavot moulues, miel et noix, servi surtout à Noël et à Pâques."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Makowiec",
+          "url": "https://en.wikipedia.org/wiki/Makowiec"
+        },
+        {
+          "name": "Polonist - Makowiec: Polish Poppy Seed Roll",
+          "url": "https://www.polonist.com/poppy-seed-roll-makowiec/"
+        }
+      ]
+    },
+    "sernik": {
+      "local": "sernik",
+      "note": {
+        "en": "Baked Polish cheesecake made from twaróg (curd cheese), dating to the 17th century with roots in Christian and Jewish culinary traditions.",
+        "fr": "Cheesecake polonais cuit à base de twaróg (fromage caillé), datant du XVIIe siècle, aux racines chrétiennes et juives."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Sernik",
+          "url": "https://en.wikipedia.org/wiki/Sernik"
+        },
+        {
+          "name": "196 flavors – Sernik (Traditional Polish Cheesecake)",
+          "url": "https://www.196flavors.com/poland-sernik/"
+        }
+      ]
+    },
+    "flaki": {
+      "local": "flaki",
+      "note": {
+        "en": "A Polish beef-tripe soup eaten since the 14th century, said to be a favourite of King Wladyslaw II Jagiello, spiced with marjoram and…",
+        "fr": "Une soupe polonaise aux tripes de boeuf consommee depuis le 14e siecle, dit-on plat favori du roi Ladislas II Jagellon, epicee a la…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Flaki",
+          "url": "https://en.wikipedia.org/wiki/Flaki"
+        },
+        {
+          "name": "Tasting Poland - Flaki",
+          "url": "https://www.tastingpoland.com/food/flaki.html"
+        }
+      ]
+    },
+    "kapusta kiszona": {
+      "local": "kapusta kiszona",
+      "note": {
+        "en": "Traditional Polish sauerkraut: cabbage preserved by lactic-acid fermentation with salt, a centuries-old staple served with meats and…",
+        "fr": "Choucroute polonaise traditionnelle : chou conserve par fermentation lactique au sel, aliment seculaire servi avec viandes et pierogi."
+      },
+      "sources": [
+        {
+          "name": "Polish Foodies — Kapusta Kiszona (Homemade Polish Sauerkraut Recipe)",
+          "url": "https://polishfoodies.com/kapusta-kiszona-homemade-polish-sauerkraut-recipe/"
+        },
+        {
+          "name": "CookINPolish — Kapusta Kiszona (Sauerkraut)",
+          "url": "https://cookinpolish.com/kapusta-kiszona-sauerkraut/"
+        }
+      ]
+    },
+    "mazurek": {
+      "local": "mazurek",
+      "note": {
+        "en": "A flat Polish Easter shortcrust cake topped with kajmak, nuts, jam or chocolate, traditional since the 19th century.",
+        "fr": "Gateau de Paques polonais plat en pate sablee garni de kajmak, noix, confiture ou chocolat, traditionnel depuis le XIXe siecle."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Mazurek (cake)",
+          "url": "https://en.wikipedia.org/wiki/Mazurek_(cake)"
+        },
+        {
+          "name": "Worldchefs - Mazurek Easter Cake",
+          "url": "https://worldchefs.org/mazurek-easter-cake/"
+        }
+      ]
+    },
+    "pierogi ruskie": {
+      "local": "pierogi ruskie",
+      "note": {
+        "en": "Polish boiled dumplings filled with mashed potato and twaróg curd cheese; \"ruskie\" means Ruthenian, after the historic region of Red…",
+        "fr": "Raviolis polonais bouillis fourrés de purée de pomme de terre et de fromage blanc twaróg ; « ruskie » signifie ruthène, d'après la région…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Pierogi",
+          "url": "https://en.wikipedia.org/wiki/Pierogi"
+        },
+        {
+          "name": "Polonist – Potato and Cheese Pierogi (Ruskie)",
+          "url": "https://www.polonist.com/pierogi-ruskie-potato-cheese/"
+        }
+      ]
+    },
+    "chlodnik": {
+      "local": "chłodnik litewski",
+      "note": {
+        "en": "A Polish-Lithuanian cold beet soup of grated beets in kefir or buttermilk with cucumber, dill and egg, dating to the Commonwealth era.",
+        "fr": "Soupe froide polono-lituanienne de betteraves râpées au kéfir ou babeurre, avec concombre, aneth et œuf, datant du Commonwealth."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Cold beet soup",
+          "url": "https://en.wikipedia.org/wiki/Cold_beet_soup"
+        },
+        {
+          "name": "Polonist – Polish Cold Beet Soup (Chłodnik)",
+          "url": "https://www.polonist.com/polish-cold-beet-soup-chlodnik/"
+        }
+      ]
+    },
+    "pyzy": {
+      "local": "pyzy",
+      "note": {
+        "en": "Large oval Polish dumplings made from potato or yeast dough, often stuffed with meat and served with bacon bits or onions.",
+        "fr": "Grosses boulettes ovales polonaises a base de pomme de terre ou de pate levee, souvent farcies de viande et servies avec lardons ou oignons."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Pyzy (dish)",
+          "url": "https://en.wikipedia.org/wiki/Pyzy_(dish)"
+        },
+        {
+          "name": "Polonist - Pyzy: Polish Potato Dumplings",
+          "url": "https://www.polonist.com/pyzy-potato-dumplings-kluski/"
+        }
+      ]
+    },
+    "zapiekanka": {
+      "local": "zapiekanka",
+      "note": {
+        "en": "A Polish toasted open-faced baguette topped with sauteed mushrooms, cheese and ketchup; a street food born in the 1970s.",
+        "fr": "Une demi-baguette polonaise gratinee garnie de champignons sautes, fromage et ketchup; street food nee dans les annees 1970."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Zapiekanka",
+          "url": "https://en.wikipedia.org/wiki/Zapiekanka"
+        }
+      ]
+    }
+  },
+  "scandinavian": {
+    "gravlax": {
+      "local": "gravlax",
+      "note": {
+        "en": "A Nordic dish of raw salmon dry-cured in salt, sugar and dill, dating to medieval Swedish fishermen who buried (graved) it to ferment.",
+        "fr": "Plat nordique de saumon cru salé au sel, sucre et aneth, remontant aux pêcheurs suédois médiévaux qui l'enterraient pour le faire fermenter."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Gravlax",
+          "url": "https://en.wikipedia.org/wiki/Gravlax"
+        },
+        {
+          "name": "196 flavors — Gravlax",
+          "url": "https://www.196flavors.com/sweden-salmon-gravlax/"
+        }
+      ]
+    },
+    "smörrebröd": {
+      "local": "smørrebrød",
+      "note": {
+        "en": "Danish open-faced sandwich on buttered rye bread (rugbrød) with toppings like herring or roast beef; popularised in 19th-century industrial…",
+        "fr": "Tartine danoise ouverte sur pain de seigle beurré (rugbrød) garnie de hareng ou rôti de bœuf, popularisée dans le Danemark industriel du…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Smørrebrød",
+          "url": "https://en.wikipedia.org/wiki/Sm%C3%B8rrebr%C3%B8d"
+        },
+        {
+          "name": "Scandinavia Standard — Guide to Smørrebrød",
+          "url": "https://www.scandinaviastandard.com/getting-to-know-smorrebrod-the-ultimate-guide-to-danish-open-faced-sandwiches/"
+        }
+      ]
+    },
+    "köttbullar": {
+      "local": "köttbullar",
+      "note": {
+        "en": "Swedish meatballs made from a blend of ground beef and pork, seasoned with allspice and white pepper; the first printed recipe appeared in…",
+        "fr": "Boulettes de viande suédoises composées d'un mélange de bœuf et de porc hachés, assaisonnées de piment de la Jamaïque et de poivre blanc…"
+      },
+      "sources": [
+        {
+          "name": "SwedishFood.com — Meatballs (Köttbullar)",
+          "url": "https://www.swedishfood.com/mains/meatballs"
+        },
+        {
+          "name": "Internet Archive — Cajsa Warg, Hjelpreda i Hushållningen för Unga Fruentimber (1755, first edition)",
+          "url": "https://archive.org/details/hjelpreda-i-hushallningen-for-unga-fruentimber-1-uppl-1755"
+        }
+      ]
+    },
+    "lutefisk": {
+      "local": "lutefisk",
+      "note": {
+        "en": "A traditional Nordic Christmas dish of dried whitefish (usually cod) rehydrated and cured in lye, giving a gelatinous texture.",
+        "fr": "Plat de Noël nordique traditionnel de poisson blanc séché (souvent la morue) réhydraté et traité à la soude, à texture gélatineuse."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Lutefisk",
+          "url": "https://en.wikipedia.org/wiki/Lutefisk"
+        },
+        {
+          "name": "Visit Norway — Lutefisk",
+          "url": "https://www.visitnorway.com/things-to-do/food-and-drink/lutefisk/"
+        }
+      ]
+    },
+    "rakfisk": {
+      "local": "rakfisk",
+      "note": {
+        "en": "Norwegian dish of salted, brine-fermented freshwater trout, eaten raw; an inland preservation method dating to the Middle Ages.",
+        "fr": "Plat norvegien de truite d'eau douce salee et fermentee en saumure, mangee crue ; methode de conservation remontant au Moyen Age."
+      },
+      "sources": [
+        {
+          "name": "Atlas Obscura - Rakfisk",
+          "url": "https://www.atlasobscura.com/foods/rakfisk-norwegian-fermented-fish"
+        },
+        {
+          "name": "Remitly - Norwegian Rakfisk facts",
+          "url": "https://www.remitly.com/blog/lifestyle-culture/nationaldishes-rakfisk-fascinating-facts-norway/"
+        }
+      ]
+    },
+    "janssons frestelse": {
+      "local": "Janssons frestelse",
+      "note": {
+        "en": "A Swedish casserole of potatoes, onions, cream and pickled sprats (called \"ansjovis\"); recipe first published 1940, now a Christmas classic.",
+        "fr": "Gratin suedois de pommes de terre, oignons, creme et sprats marines (dits \"ansjovis\"); recette publiee en 1940, classique de Noel."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Jansson's temptation",
+          "url": "https://en.wikipedia.org/wiki/Jansson%27s_temptation"
+        },
+        {
+          "name": "TasteAtlas - Janssons frestelse",
+          "url": "https://tasteatlas.com/janssons-frestelse"
+        }
+      ]
+    },
+    "sill (pickled herring)": {
+      "local": "inlagd sill",
+      "note": {
+        "en": "Swedish dish of salted herring marinated in vinegar, sugar, onion and spices, traditionally served at Midsummer, Christmas and Easter.",
+        "fr": "Plat suédois de hareng salé mariné dans du vinaigre, du sucre, de l'oignon et des épices, servi à la Saint-Jean, à Noël et à Pâques."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Inlagd sill",
+          "url": "https://tasteatlas.com/inlagd-sill"
+        },
+        {
+          "name": "Wikipedia — Soused herring",
+          "url": "https://en.wikipedia.org/wiki/Soused_herring"
+        }
+      ]
+    },
+    "kanelbullar": {
+      "local": "kanelbullar",
+      "note": {
+        "en": "Swedish cardamom-spiced cinnamon buns, central to the fika coffee break and honoured by Kanelbullens dag every 4 October since 1999.",
+        "fr": "Brioches suedoises a la cannelle et cardamome, au coeur du fika et celebrees chaque 4 octobre depuis 1999 par le Kanelbullens dag."
+      },
+      "sources": [
+        {
+          "name": "Sweden.se – Cinnamon buns",
+          "url": "https://sweden.se/culture/food/cinnamon-buns"
+        },
+        {
+          "name": "The Local – Six sticky facts about Sweden's beloved bun",
+          "url": "https://www.thelocal.se/20161004/six-sticky-facts-about-swedens-beloved-bun"
+        }
+      ]
+    },
+    "lefse": {
+      "local": "lefse",
+      "note": {
+        "en": "A soft Norwegian flatbread, traditionally potato-based after potatoes reached Norway in the 1750s, often served with butter at holidays.",
+        "fr": "Un pain plat norvégien moelleux, traditionnellement à base de pomme de terre depuis l'arrivée de celle-ci en Norvège vers 1750."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Lefse",
+          "url": "https://en.wikipedia.org/wiki/Lefse"
+        },
+        {
+          "name": "The Daring Gourmet — Lefse (Norwegian Potato Flatbread)",
+          "url": "https://www.daringgourmet.com/norwegian-potato-lefse/"
+        }
+      ]
+    },
+    "rye bread danish": {
+      "local": "rugbrød",
+      "note": {
+        "en": "Dense Danish sourdough rye bread, a national staple for centuries (until potatoes spread in the late 19th century) and the base for the…",
+        "fr": "Pain de seigle danois au levain, dense, aliment de base national depuis des siècles (jusqu'à la diffusion de la pomme de terre à la fin du…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Rugbrød",
+          "url": "https://en.wikipedia.org/wiki/Rugbr%C3%B8d"
+        },
+        {
+          "name": "TasteAtlas — Rugbrød",
+          "url": "https://www.tasteatlas.com/rugbrd"
+        }
+      ]
+    },
+    "smörgåstårta": {
+      "local": "smörgåstårta",
+      "note": {
+        "en": "A savoury Swedish layered sandwich cake of bread, creamy fillings and cold cuts/fish/eggs, first recorded in a 1934 newspaper.",
+        "fr": "Un gâteau-sandwich suédois salé en couches de pain, garnitures crémeuses et charcuterie/poisson/œufs, mentionné dès 1934."
+      },
+      "sources": [
+        {
+          "name": "The Local Sweden – Swedish word of the day: smörgåstårta",
+          "url": "https://www.thelocal.se/20191113/swedish-word-of-the-day-smrgstrta"
+        },
+        {
+          "name": "True North Kitchen – Smörgåstårta (Swedish Sandwich Cake)",
+          "url": "https://true-north-kitchen.com/smorgastarta-swedish-sandwich-cake/"
+        }
+      ]
+    },
+    "reindeer steak": {
+      "local": "Reinsdyrstek",
+      "note": {
+        "en": "Norwegian/Sami reindeer steak, fried or grilled in reindeer fat and butter, seasoned with salt and pepper, served medium-rare with…",
+        "fr": "Steak de renne norvegien/sami, poele ou grille a la graisse de renne et au beurre, assaisonne de sel et de poivre, servi saignant avec…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Reinsdyr Mørbrad",
+          "url": "https://www.tasteatlas.com/reinsdyr-morbrad"
+        },
+        {
+          "name": "Wikipedia - Sautéed reindeer",
+          "url": "https://en.wikipedia.org/wiki/Saut%C3%A9ed_reindeer"
+        }
+      ]
+    },
+    "aquavit": {
+      "local": "akvavit",
+      "note": {
+        "en": "Scandinavian distilled spirit flavored mainly with caraway or dill, produced since the 15th century; its name comes from the Latin aqua…",
+        "fr": "Spiritueux scandinave distillé, aromatisé surtout au carvi ou à l'aneth, produit depuis le XVe siècle ; son nom vient du latin aqua vitae…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Akvavit",
+          "url": "https://en.wikipedia.org/wiki/Akvavit"
+        },
+        {
+          "name": "TasteAtlas — Akvavit",
+          "url": "https://www.tasteatlas.com/akvavit"
+        }
+      ]
+    },
+    "lingonberry jam": {
+      "local": "Lingonsylt",
+      "note": {
+        "en": "A tart Swedish preserve of lingonberries, traditionally made to last the winter and served with meatballs, pancakes and fried herring.",
+        "fr": "Confiture suedoise acidulee d'airelles rouges, jadis preparee pour l'hiver et servie avec boulettes, crepes et hareng frit."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Lingonberry jam",
+          "url": "https://en.wikipedia.org/wiki/Lingonberry_jam"
+        },
+        {
+          "name": "Swedish Food — Lingonberries",
+          "url": "https://www.swedishfood.com/lingonberries"
+        }
+      ]
+    },
+    "cloudberry": {
+      "local": "Multekrem",
+      "note": {
+        "en": "Norwegian dessert of cloudberries folded into sweetened whipped cream, traditionally served at Christmas with krumkake.",
+        "fr": "Dessert norvegien de mures arctiques melees a de la creme fouettee sucree, servi a Noel avec des krumkake."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Multekrem",
+          "url": "https://en.wikipedia.org/wiki/Multekrem"
+        },
+        {
+          "name": "Scandinavia Standard - Guide to Cloudberries",
+          "url": "https://www.scandinaviastandard.com/a-guide-to-cloudberries-all-about-the-norths-most-sought-after-fruit/"
+        }
+      ]
+    },
+    "semla": {
+      "local": "semla (pl. semlor)",
+      "note": {
+        "en": "A Swedish cardamom-spiced wheat bun filled with almond paste and whipped cream, eaten since the 16th century around Shrove Tuesday (Fat…",
+        "fr": "Brioche suedoise au cardamome fourree de pate d'amande et de creme fouettee, consommee depuis le XVIe siecle autour de Mardi gras."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Semla",
+          "url": "https://en.wikipedia.org/wiki/Semla"
+        },
+        {
+          "name": "sweden.se - The semla, a Swedish delicacy",
+          "url": "https://sweden.se/culture/food/the-semla-a-swedish-delicacy"
+        }
+      ]
+    },
+    "kalops": {
+      "local": "kalops",
+      "note": {
+        "en": "A traditional Swedish/Finnish beef stew with onion, allspice and bay leaf, first described in Cajsa Warg's 1755 cookbook.",
+        "fr": "Un ragoût de bœuf suédois/finlandais traditionnel à l'oignon, au piment de la Jamaïque et au laurier, décrit dès le livre de cuisine de…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Kalops (cuisine)",
+          "url": "https://en.wikipedia.org/wiki/Kalops_(cuisine)"
+        }
+      ]
+    },
+    "blodpudding": {
+      "local": "blodpudding",
+      "note": {
+        "en": "A Swedish baked blood pudding of pig's blood, flour and beer, traditionally fried in slices and served with lingonberry jam.",
+        "fr": "Un boudin suédois cuit au four à base de sang de porc, de farine et de bière, frit en tranches et servi avec de la confiture d'airelles."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Blodpudding",
+          "url": "https://www.tasteatlas.com/blodpudding"
+        },
+        {
+          "name": "Skjalden - Blodpudding (Swedish blood pudding)",
+          "url": "https://skjalden.com/blodpudding/"
+        }
+      ]
+    },
+    "frikadeller": {
+      "local": "frikadeller",
+      "note": {
+        "en": "Danish pan-fried meatballs of minced pork (sometimes with veal), onion, egg and milk; a beloved national dish eaten in the region for over…",
+        "fr": "Boulettes danoises poelees de porc hache (parfois avec du veau), oignon, oeuf et lait ; plat national apprecie, consomme dans la region…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas - Frikadeller",
+          "url": "https://www.tasteatlas.com/frikadeller"
+        },
+        {
+          "name": "Eating Europe - Frikadeller: A Guide to Denmark's Beloved Meatballs",
+          "url": "https://www.eatingeurope.com/blog/frikadeller-danish-meatballs/"
+        }
+      ]
+    },
+    "flæskesteg": {
+      "local": "flæskesteg",
+      "note": {
+        "en": "A Danish roast pork cooked with the rind on for crisp crackling, a national dish that became common after ovens spread in homes c.1860.",
+        "fr": "Roti de porc danois cuit avec la couenne pour une croute croustillante, plat national repandu apres l'arrivee des fours vers 1860."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Flæskesteg",
+          "url": "https://en.wikipedia.org/wiki/Fl%C3%A6skesteg"
+        },
+        {
+          "name": "Skjalden - Flæskesteg, Denmark's Classic Roast Pork",
+          "url": "https://skjalden.com/flaeskesteg/"
+        }
+      ]
+    },
+    "æbleskiver": {
+      "local": "æbleskiver",
+      "note": {
+        "en": "Danish spherical pancake-like pastries fried in a special cast-iron pan, traditional at Christmas; the oldest printed recipe dates to 1703.",
+        "fr": "Beignets danois sphériques cuits dans une poêle en fonte spéciale, traditionnels à Noël; la plus ancienne recette imprimée date de 1703."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Æbleskiver",
+          "url": "https://en.wikipedia.org/wiki/%C3%86bleskiver"
+        },
+        {
+          "name": "Slow Food Foundation — Ark of Taste: Æbleskive",
+          "url": "https://www.fondazioneslowfood.com/en/ark-of-taste-slow-food/aebleskiver-2/"
+        }
+      ]
+    },
+    "toscakaka": {
+      "local": "toscakaka",
+      "note": {
+        "en": "A Swedish almond sponge cake topped with a baked caramelised almond glaze, a classic of the Nordic fika coffee break.",
+        "fr": "Gateau eponge suedois aux amandes nappe d'un glacage d'amandes caramelisees cuit, classique du fika nordique."
+      },
+      "sources": [
+        {
+          "name": "Wiktionary: toscakaka",
+          "url": "https://en.m.wiktionary.org/wiki/toscakaka"
+        },
+        {
+          "name": "Scandinavian Cookbook: Tosca Cake (Swedish Almond Cake)",
+          "url": "https://scandinaviancookbook.com/tosca-cake-swedish-almond-cake/"
+        }
+      ]
+    }
+  },
+  "persian": {
+    "chelo kabab": {
+      "local": "چلوکباب (chelow kabāb)",
+      "note": {
+        "en": "Iran's national dish: saffron-buttered steamed rice (chelow) with grilled kebab, popularised under the Qajar dynasty.",
+        "fr": "Plat national iranien : riz cuit vapeur au safran et beurre (chelow) avec kebab grillé, popularisé sous la dynastie Qajar."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Chelow kabab",
+          "url": "https://en.wikipedia.org/wiki/Chelow_kabab"
+        },
+        {
+          "name": "Pars Times — History of Chelo-Kabab",
+          "url": "https://www.parstimes.com/cuisine/chelokabab.html"
+        }
+      ]
+    },
+    "ghormeh sabzi": {
+      "local": "قورمه سبزی",
+      "note": {
+        "en": "Iranian herb stew of fried parsley, cilantro and fenugreek with kidney beans, lamb and dried Persian lime, regarded as the national dish.",
+        "fr": "Ragout iranien d'herbes (persil, coriandre, fenugrec), haricots rouges, agneau et citron seche, considere comme le plat national."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Ghormeh sabzi",
+          "url": "https://en.wikipedia.org/wiki/Ghormeh_sabzi"
+        },
+        {
+          "name": "TasteAtlas — Ghormeh sabzi",
+          "url": "https://www.tasteatlas.com/ghormeh-sabzi"
+        }
+      ]
+    },
+    "fesenjan": {
+      "local": "خورش فسنجان",
+      "note": {
+        "en": "Iranian khoresh (stew) of poultry simmered in ground walnuts and pomegranate molasses, originating in Gilan, traditionally with duck.",
+        "fr": "Khoresh (ragout) iranien de volaille mijotee dans des noix moulues et de la melasse de grenade, originaire du Gilan, traditionnellement au…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Fesenjān",
+          "url": "https://en.wikipedia.org/wiki/Fesenj%C4%81n"
+        },
+        {
+          "name": "The Mediterranean Dish — Fesenjan (Persian Pomegranate & Walnut Stew)",
+          "url": "https://www.themediterraneandish.com/fesenjan-persian-pomegranate-walnut-stew/"
+        }
+      ]
+    },
+    "tahdig": {
+      "local": "ته‌دیگ",
+      "note": {
+        "en": "A crisp golden crust of rice (or bread/potato) formed at the bottom of the pot in Persian cooking; the name means \"bottom of the pot.\"",
+        "fr": "Croûte de riz (ou pain/pomme de terre) dorée et croustillante formée au fond de la marmite en cuisine perse ; son nom signifie « fond de la…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Tahdig",
+          "url": "https://www.tasteatlas.com/tahdig"
+        },
+        {
+          "name": "Wikipedia — Tahchin",
+          "url": "https://en.wikipedia.org/wiki/Tahchin"
+        }
+      ]
+    },
+    "zereshk polo": {
+      "local": "زرشک‌پلو",
+      "note": {
+        "en": "Persian saffron-basmati pilaf studded with tart-sweet barberries (zereshk), a festive dish often served with chicken (morgh).",
+        "fr": "Pilaf persan de riz basmati au safran parsemé d'épine-vinette aigre-douce (zereshk), plat de fête souvent servi avec du poulet (morgh)."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Zereshk polo",
+          "url": "https://en.wikipedia.org/wiki/Zereshk_polo"
+        },
+        {
+          "name": "Cooking With Ayeh — Zereshk Polo (Persian Barberry Rice)",
+          "url": "https://cookingwithayeh.com/zereshk-polo-persian-barberry-rice/"
+        }
+      ]
+    },
+    "khoresh bademjan": {
+      "local": "خورش بادمجان",
+      "note": {
+        "en": "Iranian stew of fried eggplant and tomato with lamb or beef and a souring agent, served over steamed rice.",
+        "fr": "Ragoût iranien d'aubergine frite et de tomate avec de l'agneau ou du bœuf et un acidifiant, servi sur du riz."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Khoresh bademjan",
+          "url": "https://en.wikipedia.org/wiki/Khoresh_bademjan"
+        },
+        {
+          "name": "Persian Mama - Khoresh Bademjan",
+          "url": "https://persianmama.com/khoresh-bademjan-persian-eggplant-stew-with-beef/"
+        }
+      ]
+    },
+    "ash reshteh": {
+      "local": "آش رشته",
+      "note": {
+        "en": "Thick Persian soup of herbs, beans, lentils and reshteh noodles, finished with kashk; the noodles are said to symbolize good fortune for…",
+        "fr": "Soupe persane epaisse aux herbes, haricots, lentilles et nouilles reshteh, nappee de kashk; les nouilles symbolisent la bonne fortune pour…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Aush reshteh",
+          "url": "https://en.wikipedia.org/wiki/Aush_reshteh"
+        },
+        {
+          "name": "TasteAtlas - Ash reshteh",
+          "url": "https://www.tasteatlas.com/ash-reshteh"
+        }
+      ]
+    },
+    "kashk e bademjan": {
+      "local": "کشک بادمجان",
+      "note": {
+        "en": "A staple Iranian warm dip of mashed eggplant and kashk (fermented dried-yogurt whey), topped with fried onion, garlic, mint and walnuts.",
+        "fr": "Un dip iranien chaud, à base d'aubergine en purée et de kashk (petit-lait de yaourt séché fermenté), garni d'oignon frit, d'ail, de menthe…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Kashk bademjan",
+          "url": "https://en.wikipedia.org/wiki/Kashk_bademjan"
+        }
+      ]
+    },
+    "joojeh kabab": {
+      "local": "جوجه کباب",
+      "note": {
+        "en": "Popular Iranian grilled chicken kebab marinated in saffron, onion and lemon juice; \"joojeh\" means young chicken in Persian.",
+        "fr": "Brochette de poulet grille iranienne populaire, marinee au safran, oignon et citron; \"joojeh\" signifie jeune poulet en persan."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Jujeh kabab",
+          "url": "https://en.wikipedia.org/wiki/Jujeh_kabab"
+        },
+        {
+          "name": "TasteAtlas — Jujeh kabab",
+          "url": "https://www.tasteatlas.com/jujeh-kabab"
+        }
+      ]
+    },
+    "kuku sabzi": {
+      "local": "کوکوی سبزی",
+      "note": {
+        "en": "An Iranian herb-packed egg dish (a thin frittata) with parsley, coriander, dill and chives, traditionally served at Nowruz, the Persian New…",
+        "fr": "Plat iranien d'oeufs riche en herbes (frittata fine) au persil, coriandre, aneth et ciboulette, servi traditionnellement a Norouz, le…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Kuku (food)",
+          "url": "https://en.wikipedia.org/wiki/Kuku_(food)"
+        },
+        {
+          "name": "The Mediterranean Dish - Kuku Sabzi",
+          "url": "https://www.themediterraneandish.com/kuku-sabzi-persian-baked-omelet/"
+        }
+      ]
+    },
+    "mirza ghasemi": {
+      "local": "میرزا قاسمی",
+      "note": {
+        "en": "A smoky Iranian dip from Gilan of grilled aubergine with garlic, tomato and egg, named after 19th-century Rasht governor Mohammad Qasim…",
+        "fr": "Caviar iranien fumé du Gilan, d'aubergine grillée à l'ail, tomate et œuf, nommé d'après Mohammad Qasim Khan, gouverneur de Rasht au XIXe…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Mirza ghassemi",
+          "url": "https://en.wikipedia.org/wiki/Mirza_ghassemi"
+        }
+      ]
+    },
+    "sabzi polo ba mahi": {
+      "local": "سبزی پلو با ماهی",
+      "note": {
+        "en": "Persian herb rice (parsley, dill, chives, coriander) served with fried fish, traditionally eaten on Nowruz, the Persian New Year.",
+        "fr": "Riz persan aux herbes (persil, aneth, ciboulette, coriandre) servi avec du poisson frit, traditionnellement mangé à Norouz, le Nouvel An…"
+      },
+      "sources": [
+        {
+          "name": "Persian Mama — Sabzi Polo ba Mahi",
+          "url": "https://persianmama.com/sabzi-polo-ba-mahi/"
+        },
+        {
+          "name": "Iran Front Page — Dishes Served in Iran During Nowruz",
+          "url": "https://ifpnews.com/dishes-served-iran-nowruz-sabzi-polo-ba-mahi/"
+        }
+      ]
+    },
+    "lubia polo": {
+      "local": "لوبیا پلو",
+      "note": {
+        "en": "Iranian layered rice dish of green beans and spiced ground beef or lamb in tomato sauce, perfumed with saffron and cinnamon.",
+        "fr": "Plat iranien de riz en couches avec haricots verts et viande hachee epicee en sauce tomate, parfume au safran et a la cannelle."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia - Loobia polo",
+          "url": "https://en.wikipedia.org/wiki/Loobia_polo"
+        },
+        {
+          "name": "Labsalliebe - Loobia Polo (لوبیا پلو)",
+          "url": "https://labsalliebe.com/en/loobia-polo-persian-rice-with-green-beans-and-ground-meat-%D9%84%D9%88%D8%A8%DB%8C%D8%A7-%D9%BE%D9%84%D9%88/"
+        }
+      ]
+    },
+    "halim": {
+      "local": "حلیم",
+      "note": {
+        "en": "A thick Persian porridge of wheat slow-cooked with shredded meat, eaten at breakfast; it descends from the medieval Arab dish harees.",
+        "fr": "Bouillie persane epaisse de ble mijote longuement avec de la viande effilochee, mangee au petit-dejeuner; elle derive du plat arabe…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Haleem",
+          "url": "https://en.wikipedia.org/wiki/Haleem"
+        },
+        {
+          "name": "Termeh Travel — Persian Halim",
+          "url": "https://blog.termehtravel.com/persian-halim/"
+        }
+      ]
+    },
+    "faloodeh": {
+      "local": "فالوده",
+      "note": {
+        "en": "A Persian semi-frozen sorbet of thin starch vermicelli in rosewater-lime syrup, native to Shiraz and among the world's oldest frozen…",
+        "fr": "Sorbet persan semi-glacé de fins vermicelles d'amidon dans un sirop d'eau de rose et citron vert, originaire de Chiraz, parmi les plus…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Faloodeh",
+          "url": "https://en.wikipedia.org/wiki/Faloodeh"
+        },
+        {
+          "name": "TasteAtlas — Best Desserts in Iran",
+          "url": "https://www.tasteatlas.com/best-rated-desserts-in-iran"
+        }
+      ]
+    },
+    "saffron rice persian": {
+      "local": "چلو زعفرانی",
+      "note": {
+        "en": "Persian steamed long-grain white rice (chelow) garnished with bloomed saffron that tints it gold, a staple of Iranian cuisine; Iran…",
+        "fr": "Riz blanc persan a grain long cuit a la vapeur (chelow) garni de safran infuse qui le colore en dore, plat de base de la cuisine iranienne…"
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas — Chelo",
+          "url": "https://www.tasteatlas.com/chelo"
+        },
+        {
+          "name": "Wikipedia — Saffron",
+          "url": "https://en.wikipedia.org/wiki/Saffron"
+        }
+      ]
+    },
+    "barberry polo": {
+      "local": "زرشک‌پلو (zereshk polo)",
+      "note": {
+        "en": "Iranian rice dish of saffron-scented basmati topped with tart red barberries, a festive dish often served with chicken (morgh).",
+        "fr": "Plat de riz iranien de basmati safrané garni d'épine-vinette rouge acidulée, plat de fête souvent servi avec du poulet (morgh)."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Zereshk polo",
+          "url": "https://en.wikipedia.org/wiki/Zereshk_polo"
+        },
+        {
+          "name": "Cooking With Ayeh — Zereshk Polo (Persian Barberry Rice)",
+          "url": "https://cookingwithayeh.com/zereshk-polo-persian-barberry-rice/"
+        }
+      ]
+    },
+    "eggplant kashk": {
+      "local": "کشک بادمجان",
+      "note": {
+        "en": "Iranian dip of roasted mashed eggplant with kashk (drained fermented whey), fried onion, garlic, mint and walnuts, eaten with bread.",
+        "fr": "Trempette iranienne d'aubergine rôtie écrasée au kashk (petit-lait fermenté), oignon frit, ail, menthe et noix, mangée avec du pain."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Kashk bademjan",
+          "url": "https://en.wikipedia.org/wiki/Kashk_bademjan"
+        },
+        {
+          "name": "Wikidata — Kashk e badamjan",
+          "url": "https://www.wikidata.org/wiki/Q16937065"
+        }
+      ]
+    },
+    "shirazi salad": {
+      "local": "سالاد شیرازی (sālād-e shirāzi)",
+      "note": {
+        "en": "Persian diced cucumber, tomato and onion salad from Shiraz, dressed with verjuice or lime; emerged after tomatoes reached Iran in the late…",
+        "fr": "Salade persane de Chiraz, concombre, tomate et oignon en dés, au verjus ou citron vert; apparue après l'arrivee de la tomate en Iran vers…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Shirazi salad",
+          "url": "https://en.wikipedia.org/wiki/Shirazi_salad"
+        }
+      ]
+    },
+    "doogh": {
+      "local": "دوغ",
+      "note": {
+        "en": "A cold, savory Persian drink of yogurt (or buttermilk) diluted with water, salted, and flavored with mint; often carbonated. Traditionally…",
+        "fr": "Boisson perse froide et salee a base de yaourt (ou de babeurre) dilue dans l'eau, sale et parfume a la menthe, souvent gazeifiee…"
+      },
+      "sources": [
+        {
+          "name": "Wikipedia — Doogh",
+          "url": "https://en.wikipedia.org/wiki/Doogh"
+        },
+        {
+          "name": "Sadaf — Doogh: The Refreshing Persian Yogurt Drink",
+          "url": "https://www.sadaf.com/blogs/guides/doogh-the-refreshing-persian-yogurt-drink"
+        }
+      ]
+    },
+    "baklava persian": {
+      "local": "باقلوا",
+      "note": {
+        "en": "Persian baghlava is a layered nut pastry flavored with cardamom and rosewater syrup, traditionally associated with the city of Tabriz.",
+        "fr": "Le baghlava persan est une pâtisserie feuilletée aux noix parfumée à la cardamome et au sirop d'eau de rose, traditionnellement liée à la…"
+      },
+      "sources": [
+        {
+          "name": "The Caspian Chef — Baghlava, Persian Baklava",
+          "url": "https://thecaspianchef.com/2018/11/persian-baklava-baghlava/"
+        },
+        {
+          "name": "Persian Mama — Baklava / Baghlava باقلوا",
+          "url": "https://persianmama.com/baklava-baghlava/"
+        }
+      ]
+    }
   }
 };
 
