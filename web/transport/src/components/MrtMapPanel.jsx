@@ -815,7 +815,10 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         // operator 2026-05-11 ("too long"). Phone: ≤50vh capped at
         // 420 px; minHeight 240 px so the map remains usable on tiny
         // viewports. v0.63.0 — expand toggle grows it to ~90vh.
-        style={{ height: expanded ? '90vh' : 'min(420px, 50vh)', minHeight: '240px', width: '100%' }}
+        // v0.62.223 — operator (IMG_2537) REVERSED the "too long" cap:
+        // "lengthen like cuisine TMA". Cuisine's full-bleed map is min-h-[60vh];
+        // match that feel here at 70vh (the header takes the top), minHeight 420 px.
+        style={{ height: expanded ? '90vh' : '70vh', minHeight: '420px', width: '100%' }}
         aria-label={t('mrt.aria.map', lang)}
       />
       {/* v0.63.1 — custom map-control row, top-right: zoom +/- and the
