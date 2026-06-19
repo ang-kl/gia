@@ -343,19 +343,22 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
               <button
                 key={d.dish}
                 type="button"
-                className="text-left py-2 min-h-[44px] border-b border-tg-border/30"
+                /* v0.62.221 — operator (IMG_2535): a <button> centres its content, so
+                   the 1-line cell (e.g. "Laksa") floated mid-height next to a 2-line
+                   cell. `flex items-start justify-start` TOP-aligns every cell and
+                   the wrapper span keeps the name+native+gloss flowing flush-left. */
+                className="flex items-start justify-start text-left py-2 min-h-[44px] border-b border-tg-border/30"
                 aria-label={(fr ? 'Expliquer ' : 'Explain ') + d.dish}
                 aria-expanded={factIdx === i}
-                /* v0.62.162 — EXPLAIN FIRST: tapping a dish opens its curated
-                   explanation (native script + sourced history); the card's "Find
-                   eateries" then runs the search. */
                 onClick={() => setFactIdx(factIdx === i ? null : i)}
               >
-                <span className="font-medium">{titleCaseDish(d.dish)}</span>
-                {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
-                {d.gloss && (d.gloss.en || d.gloss.fr) && (
-                  <span className="text-tg-hint"> · {(fr ? d.gloss.fr : d.gloss.en) || d.gloss.en}</span>
-                )}
+                <span className="min-w-0">
+                  <span className="font-medium">{titleCaseDish(d.dish)}</span>
+                  {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
+                  {d.gloss && (d.gloss.en || d.gloss.fr) && (
+                    <span className="text-tg-hint"> · {(fr ? d.gloss.fr : d.gloss.en) || d.gloss.en}</span>
+                  )}
+                </span>
               </button>
             ))}
           </div>
