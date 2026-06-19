@@ -39,7 +39,11 @@ const STRINGS = {
   // v0.60.122 — 'Hawker' → 'Hawker Centre, Food Centre' per operator
   // 2026-05-11 (the only multi-word exception to the v0.60.55 rule).
   'tile.cuisine.label':    { en: 'Cuisine',     fr: 'Cuisine' },
-  'tile.hawker.label':     { en: 'Hawker Centre, Food Centre', fr: 'Hawker Centre, Food Centre' },
+  // v0.62.215 — Train is now a first-class hub tile; short label fits the 3-col
+  // grid. Hawker shortened from "Hawker Centre, Food Centre" so all three tiles
+  // read evenly across one row.
+  'tile.train.label':      { en: 'Train',       fr: 'Train' },
+  'tile.hawker.label':     { en: 'Hawker',      fr: 'Hawker' },
   'tile.recognised.label': { en: 'Recognised',  fr: 'Reconnus' },
 
   // ----- Discover tiles -----

@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Tile from './components/Tile.jsx';
-import TrainPanel from './components/TrainPanel.jsx';
 import FooterNav from './components/FooterNav.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import LocationFieldMenu from './components/LocationFieldMenu.jsx';
@@ -21,7 +20,7 @@ import { saveRatingPref } from './api.js';
 // has anchored to JB or IOI Resort City Putrajaya (region 'JB' or
 // 'MY-PUT'), App.jsx flips these to disabled with the
 // `tile.disabledMy` tooltip.
-const SG_ONLY_TILES = new Set(['hawker', 'incidents', 'busnearest', 'weather']);
+const SG_ONLY_TILES = new Set(['hawker', 'train', 'incidents', 'busnearest', 'weather']);
 
 // v0.61.362 — countries the Menu flag/picker can show (SG + the OTHER
 // list). The 20 s location-sync only flips the flag to a country in this
@@ -44,41 +43,29 @@ const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION
 // Plan-route tiles dropped (still reachable via slash commands; the
 // hub focuses on the most-used surfaces). Each section now renders
 // 2 tiles in a grid-cols-2 layout.
+// v0.62.215 — operator: slim the hub to the THREE key TMAs — Cuisine / Train /
+// Hawker — as navigate tiles, plus the Location setting. The old Discover
+// (search / weather) and Plan (incidents / bus) DISPATCH tiles and the live
+// TrainPanel are dropped; those surfaces stay reachable via slash commands.
+// The Train tile is now a first-class navigate tile (→ /app/transport) carrying
+// the cropped Soleat train logo PNG.
 const SECTIONS = [
   {
-    id: 'eat',
-    titleKey: 'section.eat',
+    id: 'apps',
+    titleKey: null,   // three obvious app tiles need no section header
     tiles: [
       { id: 'cuisine', icon: '🍛', iconImage: '/app/menu/cuisine-icon.png', labelKey: 'tile.cuisine.label', kind: 'navigate', path: '/app/cuisine' },
+      { id: 'train',   icon: '🚆', iconImage: '/app/menu/train-logo.png',   labelKey: 'tile.train.label',   kind: 'navigate', path: '/app/transport' },
       { id: 'hawker',  icon: '🥢', iconImage: '/app/menu/hawker-icon.png',  labelKey: 'tile.hawker.label',  kind: 'navigate', path: '/app/hawker' }
     ]
   },
-  {
-    id: 'discover',
-    titleKey: 'section.discover',
-    tiles: [
-      { id: 'search',  icon: '🔍', iconImage: '/app/menu/search-icon.png', labelKey: 'tile.search.label',  kind: 'dispatch' },
-      { id: 'weather', icon: '🌇', labelKey: 'tile.weather.label', kind: 'dispatch' }
-    ]
-  },
-  {
-    id: 'plan',
-    titleKey: 'section.plan',
-    tiles: [
-      { id: 'incidents',  icon: '🚧', labelKey: 'tile.incidents.label',  kind: 'dispatch' },
-      { id: 'busnearest', icon: '🚏', iconImage: '/app/menu/bus-icon.png', labelKey: 'tile.busNearest.label', kind: 'dispatch' }
-    ]
-  },
-  // v0.61.125 — Location section split out of PLAN per operator. The
-  // search anchor + LocationFieldMenu live here as their own section
-  // below PLAN, so users see it as a first-class feature rather than
-  // a sub-row of train/incidents/bus. No tile grid — the section just
-  // holds the field component (LocationFieldMenu) rendered inside
-  // the section render below.
+  // v0.61.125 — Location is its own section so users see it as a first-class
+  // feature. No tile grid — the field renders via the `section.id === 'location'`
+  // branch below.
   {
     id: 'location',
     titleKey: 'section.location',
-    tiles: []   // no tile grid; field rendered via the `section.id === 'location'` branch
+    tiles: []
   }
 ];
 
@@ -129,23 +116,9 @@ export default function App() {
     onScroll();
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-  // v0.60.54 / v0.60.55 — fetch cached LTA train status once on
-  // mount. Endpoint reads Redis only, so no extra LTA roundtrip.
-  const [live, setLive] = useState({ code: null, updatedAt: null });
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/api/menu/live')
-      .then((r) => r.ok ? r.json() : null)
-      .then((b) => {
-        if (cancelled) return;
-        setLive({
-          code: b?.train?.code || null,
-          updatedAt: b?.train?.updatedAt || null
-        });
-      })
-      .catch(() => { /* silent — panel just shows warmup label */ });
-    return () => { cancelled = true; };
-  }, []);
+  // v0.62.215 — the live LTA train-status fetch (/api/menu/live) was removed with
+  // the TrainPanel; Train is now a plain navigate tile into the Transport TMA,
+  // which fetches its own live status.
 
   // v0.61.123 — cached user-location anchor (region + radiusCapM +
   // label) for the LocationFieldMenu summary line + disabled-tile
@@ -747,25 +720,10 @@ export default function App() {
       <div className="flex-1 px-3 pb-2 flex flex-col gap-1.5">
         {SECTIONS.map((section) => (
           <section key={section.id} className="flex flex-col gap-1">
-            <h2 className="text-[11px] uppercase tracking-wide text-tg-hint pl-1">
-              {t(section.titleKey, lang)}
-            </h2>
-            {section.id === 'plan' && (
-              /* TrainPanel is SG-only — grey it out when a Malaysia
-                 anchor is set. Done via an opacity wrapper since
-                 TrainPanel takes no disabled prop. v0.61.125 — the
-                 LocationFieldMenu moved out to its own section
-                 (`section.id === 'location'` below). */
-              <div
-                style={(isMy || regionUnresolved) ? { opacity: 0.4, pointerEvents: 'none' } : {}}
-                title={isMy ? t('tile.disabledMy', lang) : undefined}
-              >
-                <TrainPanel
-                  live={live}
-                  lang={lang}
-                  onFullStatus={() => dispatchCmd('train')}
-                />
-              </div>
+            {section.titleKey && (
+              <h2 className="text-[11px] uppercase tracking-wide text-tg-hint pl-1">
+                {t(section.titleKey, lang)}
+              </h2>
             )}
             {section.id === 'location' && (
               /* v0.61.125 — own section: location anchor picker. The
@@ -794,12 +752,11 @@ export default function App() {
                 />
               </>
             )}
-            {/* v0.60.67 — each section now carries 2 tiles after the
-                operator slim, so grid drops from 3 cols to 2 cols
-                (each tile gets ~170 px on a 375 px phone).
-                v0.61.123 — SG-only tiles flip to disabled when a
+            {/* v0.62.215 — the hub's one app section carries the THREE key
+                TMAs, so the grid is 3 cols (each tile ~115 px on a 375 px phone).
+                v0.61.123 — SG-only tiles (Train, Hawker) flip to disabled when a
                 Malaysia anchor is set. */}
-            <div className="grid grid-cols-2 gap-1.5">
+            <div className="grid grid-cols-3 gap-1.5">
               {section.tiles.map((tile) => {
                 const disabled = (isMy || regionUnresolved) && SG_ONLY_TILES.has(tile.id);
                 return (
