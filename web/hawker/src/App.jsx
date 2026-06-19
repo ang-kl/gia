@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { openLink, initData, tg } from './tg.js';
 import { t, tn, useLocale } from './i18n.js';
 import HawkerMapPanel from './components/HawkerMapPanel.jsx';
-import BackFab from './components/BackFab.jsx';
+import FooterNav from './components/FooterNav.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
 
 // v0.60.59 — render "🍳 38 stalls · Operating" / "🍳 38 stands ·
@@ -193,8 +193,6 @@ export default function App() {
         </button>
       </div>
 
-      <BackFab />
-
       <div className="flex-1 overflow-y-auto px-2 py-3 flex flex-col gap-2">
         {busy && <p className="text-xs text-tg-hint p-3">{t('status.loading', lang)}</p>}
         {err && <p className="text-xs text-red-500 p-3">⚠ {err}</p>}
@@ -343,20 +341,18 @@ export default function App() {
         </footer>
       </div>
 
-      {/* v0.60.94 — bottom-right scroll FAB. Same aqua treatment as
-          BackFab so the bottom-left + bottom-right pair reads as a
-          matched set. ↓ scrolls one viewport when at the top; ↑
-          scrolls back to top once past the hero threshold. */}
-      <button
-        type="button"
-        onClick={() => window.scrollTo({
-          top: atBottom ? 0 : window.scrollY + window.innerHeight,
-          behavior: 'smooth'
-        })}
-        aria-label={atBottom ? t('btn.fabTopAria', lang) : t('btn.fabDownAria', lang)}
-        style={{ backgroundColor: '#7FDBDB', color: '#1c1c1f', bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
-        className="fixed right-4 px-1.5 h-7 rounded-t-md rounded-b-[14px] border border-tg-border shadow-md text-[10px] font-semibold flex items-center justify-center gap-1 active:scale-95 z-50 whitespace-nowrap"
-      >{atBottom ? t('btn.fabTop', lang) : t('btn.fabDown', lang)}</button>
+      {/* v0.62.213 — operator (IMG_1069 item 6): the separate bottom-left BackFab
+          + bottom-right scroll FAB are replaced by ONE standardised FooterNav row
+          (⇡ top / ⇣ down · ↩ back / 🔚 end), mirroring the Cuisine TMA footer. */}
+      <FooterNav
+        atBottom={atBottom}
+        labels={{
+          top: t('btn.fabTop', lang), down: t('btn.fabDown', lang),
+          topAria: t('btn.fabTopAria', lang), downAria: t('btn.fabDownAria', lang),
+          back: t('btn.fabBack', lang), end: t('btn.fabEnd', lang),
+          backAria: t('btn.fabBackAria', lang), endAria: t('btn.fabEndAria', lang)
+        }}
+      />
     </div>
   );
 }

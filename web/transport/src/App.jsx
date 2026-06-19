@@ -6,6 +6,7 @@ import LineStatusPanel from './components/LineStatusPanel.jsx';
 import SystemMap from './components/SystemMap.jsx';
 import MrtMapPanel from './components/MrtMapPanel.jsx';
 import AffectedTicker from './components/AffectedTicker.jsx';
+import FooterNav from './components/FooterNav.jsx';
 import EngineeringList from './components/EngineeringList.jsx';
 import LocationCard from './components/LocationCard.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
@@ -247,34 +248,18 @@ export default function App() {
         </div>
       </div>
 
-      {/* v0.62.170 — operator: back/end + top/down MERGED into ONE compact text
-          FAB (mirrors Cuisine's combined top/end card), bottom-right, by TEXT.
-          Tight padding (small text-to-border gap). Freeing the left corner lets
-          the line ticker (above) span a wider row. */}
-      <div
-        className="fixed right-3 z-50 pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg px-2 py-0.5 flex flex-col items-stretch justify-center gap-0.5 text-[10px] leading-tight font-semibold"
-        style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
-      >
-        {/* top → scroll to top when at bottom, else scroll one viewport down */}
-        <button
-          type="button"
-          onClick={() => window.scrollTo({ top: atBottom ? 0 : window.scrollY + window.innerHeight, behavior: 'smooth' })}
-          aria-label={atBottom ? t('fab.topAria', lang) : t('fab.downAria', lang)}
-          className="text-tg-link no-underline active:scale-95 whitespace-nowrap text-center"
-        >{atBottom ? t('fab.top', lang) : t('fab.down', lang)}</button>
-        <div className="h-px bg-tg-border/40" />
-        {/* back → pop history, else close the WebApp (mirrors the old BackFab) */}
-        <button
-          type="button"
-          onClick={() => {
-            const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
-            if (typeof window !== 'undefined' && window.history.length > 1) window.history.back();
-            else if (w && typeof w.close === 'function') w.close();
-          }}
-          aria-label={(typeof window !== 'undefined' && window.history.length > 1) ? t('fab.backAria', lang) : t('fab.endAria', lang)}
-          className="text-tg-link no-underline active:scale-95 whitespace-nowrap text-center"
-        >{(typeof window !== 'undefined' && window.history.length > 1) ? t('fab.back', lang) : t('fab.end', lang)}</button>
-      </div>
+      {/* v0.62.213 — operator (IMG_1069 item 6): the merged back/end + top/down FAB
+          is replaced by the shared FooterNav row so Menu / Train / Hawker all match
+          the Cuisine TMA footer. The left corner stays free for the line ticker. */}
+      <FooterNav
+        atBottom={atBottom}
+        labels={{
+          top: t('fab.top', lang), down: t('fab.down', lang),
+          topAria: t('fab.topAria', lang), downAria: t('fab.downAria', lang),
+          back: t('fab.back', lang), end: t('fab.end', lang),
+          backAria: t('fab.backAria', lang), endAria: t('fab.endAria', lang)
+        }}
+      />
     </div>
   );
 }
