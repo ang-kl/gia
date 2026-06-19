@@ -752,11 +752,12 @@ export default function App() {
                 />
               </>
             )}
-            {/* v0.62.215 — the hub's one app section carries the THREE key
-                TMAs, so the grid is 3 cols (each tile ~115 px on a 375 px phone).
+            {/* v0.62.219 — operator ("make it professional"): the three key TMAs
+                render as a VERTICAL LIST of full-width rows (Tile is now a row with
+                icon/logo + label + › chevron), so the wide Train logo reads legibly.
                 v0.61.123 — SG-only tiles (Train, Hawker) flip to disabled when a
                 Malaysia anchor is set. */}
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="flex flex-col gap-1.5">
               {section.tiles.map((tile) => {
                 const disabled = (isMy || regionUnresolved) && SG_ONLY_TILES.has(tile.id);
                 return (
