@@ -6,7 +6,6 @@ import LineStatusPanel from './components/LineStatusPanel.jsx';
 import SystemMap from './components/SystemMap.jsx';
 import MrtMapPanel from './components/MrtMapPanel.jsx';
 import AffectedTicker from './components/AffectedTicker.jsx';
-import FooterNav from './components/FooterNav.jsx';
 import EngineeringList from './components/EngineeringList.jsx';
 import LocationCard from './components/LocationCard.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
@@ -132,9 +131,9 @@ export default function App() {
       style={{
         // v0.59.20: Telegram-stable viewport height (avoids iPad gap).
         minHeight: 'var(--tg-viewport-stable-height, 100vh)',
-        // v0.62.166 — clear the fixed bottom FAB band (ticker + corner FABs) so
-        // the footer / last content never hides behind it.
-        paddingBottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px))'
+        // v0.62.217 — clear the fixed bottom bar (full-width ticker + version/
+        // controls row) so the last content never hides behind it.
+        paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))'
       }}
     >
       {/* v0.62.164 — operator: ONE neo-skeuomorphic header card. Row 1 = title +
@@ -214,22 +213,23 @@ export default function App() {
 
       <EngineeringList closures={data.engineering || []} />
 
-      {/* v0.60.217 — footer: no border; font +1pt. */}
+      {/* v0.60.217 — footer: no border; font +1pt. v0.62.217 — the version line
+          moved to the fixed bottom bar (with the back/top buttons), per operator;
+          the data-source attribution stays here in-flow. */}
       <footer className="mx-2 mb-2 mt-2 px-3 py-2 text-[9px] text-tg-hint text-center leading-tight">
         <div>Source: LTA TrainServiceAlerts (live) + curated engineering schedule</div>
-        <div>{t('footer.tag', lang)} · v{BUILD_VERSION}</div>
       </footer>
 
-      {/* v0.62.166 — operator: the line ticker is a floating FAB bar at the
-          bottom, OUTSIDE the map, centred BETWEEN the back/end FAB (left) and the
-          top/down FAB (right). Width-capped (max-w 100vw-12rem) so it never
-          reaches the corner FABs; z-40 stays under the z-50 FABs. The line chips
-          scroll horizontally inside it (compact = no title row). */}
+      {/* v0.62.217 — operator: structured Train-TMA bottom. The line ticker now
+          spans the FULL width (margin to margin) directly ABOVE the controls; the
+          controls row carries the version (left) and the top/down + back/end
+          buttons (right), all pinned to the bottom. Replaces the floating centred
+          ticker FAB + the fixed FooterNav. z-40 sits over the page content. */}
       <div
-        className="fixed left-2 right-24 z-40 pointer-events-none"
-        style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
+        className="fixed bottom-0 inset-x-0 z-40 bg-tg-bg/95 backdrop-blur border-t border-tg-border"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
-        <div className="pointer-events-auto">
+        <div className="px-2 pt-1.5 pb-0.5">
           <AffectedTicker
             compact
             affectedCodes={affectedCodes.length ? affectedCodes : LINES.filter((l) => !l.future).map((l) => l.code)}
@@ -246,20 +246,30 @@ export default function App() {
             statusByLine={statusByLine}
           />
         </div>
+        <div className="flex items-center justify-between gap-2 px-3 pb-1">
+          <span className="text-[9px] text-tg-hint leading-tight min-w-0 truncate">
+            {t('footer.tag', lang)} · v{BUILD_VERSION}
+          </span>
+          <div className="flex items-center gap-1 text-[11px] font-semibold text-tg-link shrink-0">
+            <button
+              type="button"
+              onClick={() => window.scrollTo({ top: atBottom ? 0 : window.scrollY + window.innerHeight, behavior: 'smooth' })}
+              aria-label={atBottom ? t('fab.topAria', lang) : t('fab.downAria', lang)}
+              className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
+            >{atBottom ? t('fab.top', lang) : t('fab.down', lang)}</button>
+            <button
+              type="button"
+              onClick={() => {
+                const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
+                if (typeof window !== 'undefined' && window.history.length > 1) window.history.back();
+                else if (w && typeof w.close === 'function') w.close();
+              }}
+              aria-label={(typeof window !== 'undefined' && window.history.length > 1) ? t('fab.backAria', lang) : t('fab.endAria', lang)}
+              className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
+            >{(typeof window !== 'undefined' && window.history.length > 1) ? `⇠ ${t('fab.back', lang)}` : `🔚 ${t('fab.end', lang)}`}</button>
+          </div>
+        </div>
       </div>
-
-      {/* v0.62.213 — operator (IMG_1069 item 6): the merged back/end + top/down FAB
-          is replaced by the shared FooterNav row so Menu / Train / Hawker all match
-          the Cuisine TMA footer. The left corner stays free for the line ticker. */}
-      <FooterNav
-        atBottom={atBottom}
-        labels={{
-          top: t('fab.top', lang), down: t('fab.down', lang),
-          topAria: t('fab.topAria', lang), downAria: t('fab.downAria', lang),
-          back: t('fab.back', lang), end: t('fab.end', lang),
-          backAria: t('fab.backAria', lang), endAria: t('fab.endAria', lang)
-        }}
-      />
     </div>
   );
 }
