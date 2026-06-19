@@ -319,7 +319,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
             <>{' '}{names.map((n) => titleCaseDish(leadWithQualifier(n))).join(' • ')}</>
           )}
           {geoStage === 2 && (
-            <>{' '}{fr ? 'Touchez un plat pour trouver des adresses. Touchez 📜 pour en savoir plus.' : 'Tap a dish to find eateries. Tap 📜 to learn more'}</>
+            <>{' '}{fr ? 'Touchez un plat pour apprendre et trouver.' : 'Tap a dish to learn and to find'}</>
           )}
         </span>
         <span aria-hidden className="text-tg-hint">{geoStage === 2 ? '▴' : '▾'}</span>
@@ -334,69 +334,63 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                 : `No ${plate.city}-only dish — regional specialities and classics:`}
             </div>
           )}
-          {plate.dishes.map((d, i) => (
-            <React.Fragment key={d.dish}>
-              <div className="flex items-center gap-1.5 border-t border-tg-border/40">
-                <button
-                  type="button"
-                  className="flex-1 text-left py-2.5 min-h-[44px]"
-                  aria-label={(fr ? 'Expliquer ' : 'Explain ') + d.dish}
-                  /* v0.62.162 — operator: EXPLAIN FIRST. Tapping a Local-food-picks
-                     dish opens its curated explanation card (native script + the
-                     validated, sourced history + how it differs by region); the
-                     card's "Find eateries" then runs the search. */
-                  onClick={() => setFactIdx(factIdx === i ? null : i)}
-                >
-                  <span className="font-medium">{titleCaseDish(d.dish)}</span>
-                  {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
-                  {/* v0.62.x — device-language gloss for native dish names
-                      (operator: translate/explain e.g. "Phở Hà Nội" →
-                      "Hanoi beef noodle soup"). Curated short {en,fr} in
-                      city-plates.js; the long history stays in the 📜 card.
-                      The per-row "find eateries" affordance was removed — the
-                      header now explains the tap action once. */}
-                  {d.gloss && (d.gloss.en || d.gloss.fr) && (
-                    <span className="text-tg-hint"> · {(fr ? d.gloss.fr : d.gloss.en) || d.gloss.en}</span>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  className="px-2 py-2.5 min-h-[44px] min-w-[44px] text-[14px]"
-                  aria-label={(fr ? 'Histoire de ' : 'History of ') + d.dish}
-                  onClick={() => setFactIdx(factIdx === i ? null : i)}
-                >📜</button>
-              </div>
-              {factIdx === i && (
-                <div className="mb-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
-                  <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
-                  <div className="mt-1">{(d.history && (fr ? d.history.fr : d.history.en)) || ''}</div>
-                  <div className="mt-1 text-tg-hint">
-                    {(TIER_LABEL[d.tier] || {})[fr ? 'fr' : 'en'] || d.tier} · {d.claim}
-                    {d.differsFrom ? <> · {fr ? 'diffère de' : 'differs from'} {d.differsFrom}</> : null}
-                  </div>
-                  {Array.isArray(d.sources) && d.sources.length > 0 && (
-                    <div className="mt-0.5 text-tg-hint">
-                      {(fr ? 'source : ' : 'source: ') + d.sources.map((s) => s.name).join(' · ')}
-                    </div>
-                  )}
-                  {/* v0.62.162 — explain-first: search runs only on "Find eateries". */}
-                  <div className="mt-2 flex items-center justify-between gap-2">
-                    <button
-                      type="button"
-                      className="text-[13px] font-semibold px-3 py-1.5 rounded-full bg-tg-accent text-tg-accent-text"
-                      onClick={() => { setFactIdx(null); if (onTryDish) onTryDish(d.dish); }}
-                    >🔍 {fr ? 'Trouver des adresses' : 'Find eateries'}</button>
-                    <button
-                      type="button"
-                      className="text-tg-hint text-[12px]"
-                      aria-label={fr ? 'Fermer' : 'Close'}
-                      onClick={() => setFactIdx(null)}
-                    >{fr ? '[ fermer ]' : '[ close ]'}</button>
-                  </div>
+          {/* v0.62.220 — operator: the headliner dishes render in TWO COLUMNS,
+              names only — the per-row 📜 button is gone (tapping a dish already
+              opens its explanation). The opened explanation card spans the full
+              width BELOW the grid (factIdx is the active dish index). */}
+          <div className="grid grid-cols-2 gap-x-3 border-t border-tg-border/40">
+            {plate.dishes.map((d, i) => (
+              <button
+                key={d.dish}
+                type="button"
+                className="text-left py-2 min-h-[44px] border-b border-tg-border/30"
+                aria-label={(fr ? 'Expliquer ' : 'Explain ') + d.dish}
+                aria-expanded={factIdx === i}
+                /* v0.62.162 — EXPLAIN FIRST: tapping a dish opens its curated
+                   explanation (native script + sourced history); the card's "Find
+                   eateries" then runs the search. */
+                onClick={() => setFactIdx(factIdx === i ? null : i)}
+              >
+                <span className="font-medium">{titleCaseDish(d.dish)}</span>
+                {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
+                {d.gloss && (d.gloss.en || d.gloss.fr) && (
+                  <span className="text-tg-hint"> · {(fr ? d.gloss.fr : d.gloss.en) || d.gloss.en}</span>
+                )}
+              </button>
+            ))}
+          </div>
+          {factIdx != null && plate.dishes[factIdx] && (() => {
+            const d = plate.dishes[factIdx];
+            return (
+              <div className="mt-1.5 mb-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
+                <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
+                <div className="mt-1">{(d.history && (fr ? d.history.fr : d.history.en)) || ''}</div>
+                <div className="mt-1 text-tg-hint">
+                  {(TIER_LABEL[d.tier] || {})[fr ? 'fr' : 'en'] || d.tier} · {d.claim}
+                  {d.differsFrom ? <> · {fr ? 'diffère de' : 'differs from'} {d.differsFrom}</> : null}
                 </div>
-              )}
-            </React.Fragment>
-          ))}
+                {Array.isArray(d.sources) && d.sources.length > 0 && (
+                  <div className="mt-0.5 text-tg-hint">
+                    {(fr ? 'source : ' : 'source: ') + d.sources.map((s) => s.name).join(' · ')}
+                  </div>
+                )}
+                {/* v0.62.162 — explain-first: search runs only on "Find eateries". */}
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    className="text-[13px] font-semibold px-3 py-1.5 rounded-full bg-tg-accent text-tg-accent-text"
+                    onClick={() => { setFactIdx(null); if (onTryDish) onTryDish(d.dish); }}
+                  >🔍 {fr ? 'Trouver des adresses' : 'Find eateries'}</button>
+                  <button
+                    type="button"
+                    className="text-tg-hint text-[12px]"
+                    aria-label={fr ? 'Fermer' : 'Close'}
+                    onClick={() => setFactIdx(null)}
+                  >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* v0.62.37 — "More local classics" (operator pick A): the country's
               NATION_OVERLAY iconic dishes, names only — no 📜 (curated-only

@@ -717,7 +717,10 @@ export default function App() {
         </div>
       </div>
 
-      <div className="flex-1 px-3 pb-2 flex flex-col gap-1.5">
+      {/* v0.62.220 — operator ("too much gap"): drop flex-1 so the content sits at
+          its natural height instead of stretching to fill the viewport and pushing
+          the footer chips far down — the hub now reads compact. */}
+      <div className="px-3 pb-2 flex flex-col gap-1.5">
         {SECTIONS.map((section) => (
           <section key={section.id} className="flex flex-col gap-1">
             {section.titleKey && (
@@ -805,7 +808,10 @@ export default function App() {
       {/* v0.62.213 — operator (IMG_1069 item 6): the separate bottom-left BackFab
           + bottom-right scroll FAB are replaced by ONE standardised FooterNav row
           (⇡ top / ⇣ down · ↩ back / 🔚 end), mirroring the Cuisine TMA footer. */}
+      {/* v0.62.220 — operator: drop the "top" (scroll) button — the hub is a short
+          screen with nothing to scroll; leave just back/end. */}
       <FooterNav
+        showScroll={false}
         atBottom={atBottom}
         labels={{
           top: t('btn.fabTop', lang), down: t('btn.fabDown', lang),

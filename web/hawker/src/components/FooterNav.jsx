@@ -13,7 +13,11 @@ import React from 'react';
 // because the three apps' i18n keys differ (btn.fab* on Menu/Hawker, fab.* on
 // Train). Byte-identical across web/menu, web/transport, web/hawker — edit one,
 // copy to the others.
-export default function FooterNav({ atBottom, labels }) {
+//
+// v0.62.220 — operator: `showScroll` (default true). The Menu hub is a short,
+// compact screen with nothing to scroll, so it passes showScroll={false} to drop
+// the ⇡ top / ⇣ down button (and its divider), leaving just back/end.
+export default function FooterNav({ atBottom, labels, showScroll = true }) {
   const hasHistory = typeof window !== 'undefined' && window.history.length > 1;
   const onBackEnd = () => {
     const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
@@ -28,13 +32,17 @@ export default function FooterNav({ atBottom, labels }) {
       className="fixed right-3 z-50 pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg px-1 py-0.5 flex items-center gap-0.5 text-[11px] font-semibold text-tg-link"
       style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
     >
-      <button
-        type="button"
-        onClick={() => window.scrollTo({ top: atBottom ? 0 : window.scrollY + window.innerHeight, behavior: 'smooth' })}
-        aria-label={atBottom ? labels.topAria : labels.downAria}
-        className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
-      >{atBottom ? labels.top : labels.down}</button>
-      <div className="w-px self-stretch bg-tg-border/50" aria-hidden="true" />
+      {showScroll && (
+        <>
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: atBottom ? 0 : window.scrollY + window.innerHeight, behavior: 'smooth' })}
+            aria-label={atBottom ? labels.topAria : labels.downAria}
+            className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
+          >{atBottom ? labels.top : labels.down}</button>
+          <div className="w-px self-stretch bg-tg-border/50" aria-hidden="true" />
+        </>
+      )}
       <button
         type="button"
         onClick={onBackEnd}
