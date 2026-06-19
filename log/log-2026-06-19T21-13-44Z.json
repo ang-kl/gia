@@ -1,0 +1,241 @@
+{
+  "since": "2026-06-19T20:08:44Z",
+  "until": "2026-06-19T21:13:44Z",
+  "count": 26,
+  "logs": [
+    {
+      "timestamp": "2026-06-19T20:09:36.455582712Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:09:36.455586017Z",
+      "message": "[Pulse] Status updated at 4:09:28 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:14:37.867319832Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:14:37.867323827Z",
+      "message": "[Pulse] Status updated at 4:14:28 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:19:29.403452608Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:19:29.403455989Z",
+      "message": "[Pulse] Status updated at 4:19:28 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:24:31.587374175Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:24:31.587377261Z",
+      "message": "[Pulse] Status updated at 4:24:28 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:29:33.555711225Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:29:33.555715823Z",
+      "message": "[Pulse] Status updated at 4:29:28 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:34:34.796210852Z",
+      "message": "[Pulse] Status updated at 4:34:28 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:34:34.796273146Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:39:36.372127518Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:39:36.372131866Z",
+      "message": "[Pulse] Status updated at 4:39:28 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:44:28.289658501Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:44:28.783490843Z",
+      "message": "[Pulse] Status updated at 4:44:28 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:49:30.246689595Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:49:30.246692340Z",
+      "message": "[Pulse] Status updated at 4:49:28 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:54:31.817915065Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:54:31.817919235Z",
+      "message": "[Pulse] Status updated at 4:54:28 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:59:33.743959237Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T20:59:33.743964547Z",
+      "message": "[Pulse] Status updated at 4:59:28 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T21:04:35.433915138Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T21:04:35.433919724Z",
+      "message": "[Pulse] Status updated at 5:04:28 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T21:09:36.908031478Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-19T21:09:36.908034660Z",
+      "message": "[Pulse] Status updated at 5:09:28 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "a3917fd3-bbef-41a5-8690-62fbbaaec6aa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
