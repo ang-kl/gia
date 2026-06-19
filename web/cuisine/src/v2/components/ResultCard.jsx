@@ -93,7 +93,13 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
         ? `~${(venue.distanceM / 1000).toFixed(1)} km`
         : `${Math.round(venue.distanceM)} m`)
     : '';
-  const distMeta = distLabel ? `📍 ${distLabel}${lang === 'fr' ? '' : ' away'}` : '';
+  // v0.62.216 — operator (IMG_2533): keep 📍 glued to the distance so when the meta
+  // line wraps, "📍 ~12.2 km away" moves to the next line as ONE unit (it was
+  // breaking right after 📍, stranding the pin on the line above). Non-breaking
+  // spaces inside the token; the surrounding " · " joins stay breakable.
+  const distMeta = distLabel
+    ? `📍 ${distLabel}${lang === 'fr' ? '' : ' away'}`.replace(/ /g, '\u00A0')
+    : '';
   // v0.62.189 — operator (IMG_2514): in the HORIZONTAL strip the ★rating + $price
   // ride the cuisine-type row ("Italian · ★4.5 · $$$"), so the meta line below
   // carries only open-hours + distance. The vertical list keeps the full meta.

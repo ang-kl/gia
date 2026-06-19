@@ -1012,7 +1012,11 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           type="button"
           onClick={handleRecenterClick}
           disabled={!userLoc}
-          className="absolute top-3 right-3 z-[35] text-[11px] font-bold leading-none text-gray-900 select-none rounded-full px-2 py-1 border border-gray-300 shadow-md"
+          /* v0.62.216 — operator (IMG_2532): drop the zoom/recentre pill BELOW the
+             layer-pill row (was top-3, overlapping the Hawker pill at the row's
+             right end). top-12 clears the ~top-2 pill row; the nav cluster sits
+             top-12 on the LEFT, so the right side here stays clear. */
+          className="absolute top-12 right-3 z-[35] text-[11px] font-bold leading-none text-gray-900 select-none rounded-full px-2 py-1 border border-gray-300 shadow-md"
           style={{ background: '#FFFFFF' }}
           aria-label={tr('btn.showLocation', lang)}
           title={tr('btn.showLocation', lang)}

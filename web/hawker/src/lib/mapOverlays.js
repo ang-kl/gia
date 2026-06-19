@@ -652,10 +652,14 @@ function rectPinNode(bg, text) {
 export function giaToggleStyle(on, disabled) {
   return {
     background: on ? '#1565C0' : '#FFFFFF',
-    color: on ? '#FFFFFF' : '#374151',
+    // v0.62.216 — operator (IMG_2532): every layer pill must share the Monochrome
+    // pill's SOLID white background. Disabled no longer fades the whole pill to 50%
+    // opacity (which read as translucent over the map) — it's signalled by a muted
+    // text colour instead, so the background stays opaque white in every state.
+    color: on ? '#FFFFFF' : (disabled ? '#9CA3AF' : '#374151'),
     border: '1px solid ' + (on ? '#0D47A1' : '#D1D5DB'),
     boxShadow: '0 1px 4px rgba(0,0,0,0.45)',
-    opacity: disabled ? 0.5 : 1
+    opacity: 1
   };
 }
 
