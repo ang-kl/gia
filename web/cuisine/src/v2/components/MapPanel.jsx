@@ -1012,8 +1012,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           type="button"
           onClick={handleRecenterClick}
           disabled={!userLoc}
-          className="absolute top-3 right-3 z-[35] text-[11px] font-bold leading-none opacity-90 text-gray-900 select-none rounded-full px-2 py-1"
-          style={{ background: 'rgba(0,0,0,0.1)' }}
+          className="absolute top-3 right-3 z-[35] text-[11px] font-bold leading-none text-gray-900 select-none rounded-full px-2 py-1 border border-gray-300 shadow-md"
+          style={{ background: '#FFFFFF' }}
           aria-label={tr('btn.showLocation', lang)}
           title={tr('btn.showLocation', lang)}
         >

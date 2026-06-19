@@ -71,6 +71,46 @@ export function applyTelegramTheme() {
     writeViewportVar();
     w.onEvent('viewportChanged', writeViewportVar);
   });
+
+  // v0.62.214 — operator (back arrow "isn't working for all TMA"): the Transport
+  // TMA never wired Telegram's BackButton, so the native back arrow did nothing.
+  // Mirror the cuisine/hawker wiring: show the arrow, return to the in-app Menu
+  // hub when we arrived from it (same-origin /app/* referrer), else close the
+  // WebApp. Defensively unregister any prior handler (handlers persist across
+  // same-origin navigations within one WebApp session and would otherwise stack).
+  safe('back-button', () => {
+    if (!w.BackButton || typeof w.BackButton.show !== 'function') return;
+    w.BackButton.show();
+    const handler = () => {
+      let fromHub = false;
+      try {
+        const ref = (typeof document !== 'undefined' && document.referrer)
+          ? new URL(document.referrer) : null;
+        fromHub = !!ref && ref.origin === window.location.origin
+          && ref.pathname.indexOf('/app/') === 0;
+      } catch { /* noop */ }
+      if (fromHub && typeof window !== 'undefined' && window.history.length > 1) {
+        window.history.back();
+      } else if (typeof w.close === 'function') {
+        w.close();
+      }
+    };
+    try {
+      if (typeof w.offEvent === 'function' && w.__giaBackHandler) {
+        w.offEvent('backButtonClicked', w.__giaBackHandler);
+      }
+      if (typeof w.BackButton.offClick === 'function' && w.__giaBackHandler) {
+        w.BackButton.offClick(w.__giaBackHandler);
+      }
+    } catch { /* noop */ }
+    w.__giaBackHandler = handler;
+    if (typeof w.onEvent === 'function') {
+      w.onEvent('backButtonClicked', handler);
+    } else if (typeof w.BackButton.onClick === 'function') {
+      w.BackButton.onClick(handler);
+    }
+  });
+
   const tp = w.themeParams || {};
   const root = document.documentElement;
   const set = (k, v) => v && root.style.setProperty(k, v);

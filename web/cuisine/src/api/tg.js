@@ -78,7 +78,19 @@ export function applyTelegramTheme() {
     if (!w.BackButton || typeof w.BackButton.show !== 'function') return;
     w.BackButton.show();
     const handler = () => {
-      if (typeof window !== 'undefined' && window.history.length > 1) {
+      // v0.62.214 — operator (back arrow "isn't working"): window.history.length is
+      // unreliable in the Telegram webview (seeded >1 even with nowhere to go), so a
+      // back press did NOTHING on a deep-linked open. Return to the in-app Menu hub
+      // ONLY when we genuinely arrived from it (same-origin /app/* referrer);
+      // otherwise CLOSE the WebApp so the back arrow always does something.
+      let fromHub = false;
+      try {
+        const ref = (typeof document !== 'undefined' && document.referrer)
+          ? new URL(document.referrer) : null;
+        fromHub = !!ref && ref.origin === window.location.origin
+          && ref.pathname.indexOf('/app/') === 0;
+      } catch { /* noop */ }
+      if (fromHub && typeof window !== 'undefined' && window.history.length > 1) {
         window.history.back();
       } else if (typeof w.close === 'function') {
         w.close();

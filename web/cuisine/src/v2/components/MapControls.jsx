@@ -63,12 +63,16 @@ export default function MapControls({
     <div ref={wrapRef} className="absolute top-2 left-2 right-12 z-10">
       {/* v0.61.70 — single row; the font is small enough that the Colour
           pill + the ⋯ menu + 3 toggles all fit.
-          v0.62.211 — operator (IMG_1069): with a 4th layer pill (Hawker on the
-          Cuisine map) the no-wrap row overflowed the right-12 bound and the
-          last pill was CLIPPED ("cannot see the Hawker"). Allow the row to WRAP
-          to a 2nd line so every layer pill renders fully and identically —
-          none is cut off. Byte-identical across all three TMA copies. */}
-      <div className="flex flex-row flex-wrap gap-0.5 items-start">
+          v0.62.214 — operator (IMG_1069): the v0.62.211 WRAP pushed the 4th
+          (Hawker) pill onto a 2nd line under the ⋯ menu — operator wants it back
+          on ONE row beside Bus Stop. Restore a single non-wrapping row; the COLOUR
+          pill + layer toggles live in an inner horizontally-SCROLLABLE strip
+          (overflow-x-auto + no-scrollbar) so the Hawker pill stays inline beside
+          Bus Stop and is reachable on a narrow viewport instead of being hard-
+          clipped. The ⋯ menu (and its drop-down) stays OUTSIDE that strip — an
+          overflow-x container also clips overflow-y, which would otherwise crop
+          the layers drop-down. Byte-identical across the three TMA copies. */}
+      <div className="flex flex-row flex-nowrap gap-0.5 items-start">
         {/* v0.61.78 — the ⋯/⋮ overflow menu: now the first button in
             the row, at the top-left corner (was after the Colour pill).
             A white square button with a larger, brighter glyph. The
@@ -115,6 +119,10 @@ export default function MapControls({
             )}
           </div>
         )}
+        {/* v0.62.214 — inner horizontally-scrollable strip (see note above): the
+            Colour pill + layer toggles scroll here; the ⋯ menu above stays put so
+            its drop-down isn't clipped by the overflow container. */}
+        <div className="flex flex-row flex-nowrap gap-0.5 items-start overflow-x-auto no-scrollbar min-w-0">
         {/* Colour-mode pill: sits right after the ⋯/⋮ menu. CR8 —
             single neutral style (no on/off colour flip); state is
             conveyed by the label text. */}
@@ -144,6 +152,7 @@ export default function MapControls({
             <span aria-hidden>{it.icon}</span>{it.label}
           </button>
         ))}
+        </div>
       </div>
     </div>
   );
