@@ -66,31 +66,34 @@ function leadWithQualifier(s) {
   return qual ? `${qual} ${base}` : base;
 }
 
-// v0.62.194 — operator: categorise the "More classics" by MEAL TYPE so a
-// foreigner knows what each is / when to eat it. Honest, keyword-based buckets;
-// hawker food is mostly all-day, so we DON'T fabricate a lunch-vs-dinner split
-// (no source for it) — savoury dishes fall under "All-day". Display order = a
-// natural meal arc: breakfast → all-day → drinks → desserts.
+// v0.62.224 — operator (skip-halal answer): split the "More classics" into just
+// TWO buckets — WHOLE MEALS vs DISHES & SNACKS — instead of the prior 4 meal-type
+// buckets. A "whole meal" is a substantial savoury plate (rice/noodle/main);
+// drinks, sweets, breakfast/snack items and savoury sides are "dishes & snacks".
+// Keyword-based + honest (hawker classics aren't cleanly meal-timed); the keyword
+// sets below are kept conservative to avoid mis-bucketing.
+// (v0.62.194 prior version, superseded: breakfast / all-day / drinks / desserts.)
 const MEAL_BUCKETS = [
-  { key: 'breakfast', icon: '🍳', en: 'Breakfast & snacks', fr: 'Petit-déj. & snacks' },
-  { key: 'mains',     icon: '🍱', en: 'All-day dishes',      fr: 'Plats (toute la journée)' },
-  { key: 'drink',     icon: '🥤', en: 'Drinks',              fr: 'Boissons' },
-  { key: 'dessert',   icon: '🍮', en: 'Desserts',            fr: 'Desserts' }
+  { key: 'wholemeal', icon: '🍱', en: 'Whole meals',     fr: 'Repas complets' },
+  { key: 'dishes',    icon: '🥢', en: 'Dishes & snacks', fr: 'Plats & snacks' }
 ];
 // High-confidence keyword sets (kept conservative to avoid mis-bucketing a
-// savoury dish; "coffee" is excluded so "Coffee Pork Ribs" stays a main).
+// savoury dish; "coffee" is excluded so "Coffee Pork Ribs" stays a whole meal).
 const DRINK_RE = /\b(kopi|teh|milo|horlicks|bandung|yuan\s*yang|juice|sugarcane|winter\s*melon|chrysanthemum|barley\s*water|lime\s*juice|calamansi|sour\s*plum\s*drink|grass\s*jelly\s*drink|soda|isotonic|100\s*plus|lemon\s*tea|milk\s*tea|bubble\s*tea|shake|lassi|soya?\s*bean\s*drink|cordial|sirap|kosong|coconut\s*water)\b/i;
 const DESSERT_RE = /\b(tau\s*huay|douhua|chendol|cendol|ice\s*ka[cz]ang|pengat|pudding|red\s*bean|gula\s*melaka|tang\s*yuan|pulut\s*hitam|cheng\s*tng|tau\s*suan|orh\s*nee|sago|pomelo|grass\s*jelly|bubur|ondeh|ang\s*ku|goreng\s*pisang|pisang\s*goreng|ice\s*cream|ko\s*swee|cheng\s*teng|\bkaya\b)\b/i;
 const BREAKFAST_RE = /\b(kaya\s*toast|\btoast\b|you\s*tiao|dough\s*fritter|soft.?boiled|half.?boiled|prata|roti\s*john|congee|porridge|dim\s*sum|brunch|chwee\s*kueh|min\s*jiang)\b/i;
+// v0.62.224 — clearly snacky/side items that are NOT a full meal on their own.
+// Conservative: only names that are rarely the head of a "whole meal" dish.
+const SNACK_RE = /\b(satay|sate|otah|otak-otak|rojak|popiah|ngoh\s*hiang|curry\s*puff|currypuff|vadai|samosa|begedil|kueh\s*pie\s*tee|epok-epok|fried\s*wonton)\b/i;
+// A dish is a "whole meal" by default; drinks, sweets, breakfast/snack and
+// savoury-side keywords demote it to "dishes & snacks".
 function mealCategory(name) {
   const s = String(name || '');
-  if (DRINK_RE.test(s)) return 'drink';
-  if (BREAKFAST_RE.test(s)) return 'breakfast';
-  if (DESSERT_RE.test(s)) return 'dessert';
-  return 'mains';
+  if (DRINK_RE.test(s) || DESSERT_RE.test(s) || BREAKFAST_RE.test(s) || SNACK_RE.test(s)) return 'dishes';
+  return 'wholemeal';
 }
 function categoriseClassics(flat) {
-  const by = { breakfast: [], mains: [], drink: [], dessert: [] };
+  const by = { wholemeal: [], dishes: [] };
   for (const d of (flat || [])) by[mealCategory(d.dish)].push(d);
   return MEAL_BUCKETS.map((b) => ({ ...b, dishes: by[b.key] })).filter((b) => b.dishes.length);
 }
