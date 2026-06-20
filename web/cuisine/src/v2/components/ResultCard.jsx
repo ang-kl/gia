@@ -363,7 +363,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               : [];
             return primaryDish ? (
               <div className="text-[13px] text-tg-text mt-1 leading-snug">
-                🍲 <span className="font-medium">{tr('card.whatToOrder', lang)}</span> · {primaryDish}
+                🍲 <span className="font-medium">{tr('card.whatToOrder', lang)}:</span> {primaryDish}
                 {restDishes.length > 0 && (
                   <span className="text-tg-hint">{restDishes.map((d) => ` • ${d}`).join('')}</span>
                 )}
@@ -388,7 +388,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             type="button"
             onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
             aria-expanded={expanded}
-            className="self-start text-[12px] text-tg-accent mt-1 font-medium"
+            className="self-start mt-1.5 px-2.5 py-0.5 rounded-full border border-tg-accent/50 text-[11px] text-tg-accent font-medium active:scale-95 transition-transform"
           >
             {expanded
               ? (lang === 'fr' ? '⌃ moins' : '⌃ less')

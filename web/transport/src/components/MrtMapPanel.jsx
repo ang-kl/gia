@@ -829,7 +829,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           row has clean horizontal space. v0.61.59 — the Colour-mode
           pill moved out of this cluster into the quick-toggle row
           (after Bus Stop); the cluster is now Reset / + / − / expand. */}
-      <div className="absolute top-12 right-2 flex flex-col gap-1 z-10">
+      <div className="absolute top-12 left-2 flex flex-col gap-1 z-10">
         {/* v0.61.37 — Reset: recenter to the Singapore default view. */}
         <button
           type="button"
