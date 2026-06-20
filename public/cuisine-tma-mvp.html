@@ -219,14 +219,8 @@
     <!-- ── CUISINE PANEL ── -->
     <div id="panelCuisine">
 
-      <!-- Header -->
-      <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px 10px;">
-        <span style="font-size:14px; font-weight:700;">🍲 Choose your cuisine</span>
-        <button onclick="clearCuisines()" style="color:#8e8e93; font-size:20px; line-height:1; background:none; border:none; cursor:pointer; padding:0 4px;" title="Clear selection">×</button>
-      </div>
-
       <!-- Filter chips row -->
-      <div style="display:flex; gap:6px; padding:0 12px 12px; overflow-x:auto;">
+      <div style="display:flex; gap:6px; padding:10px 12px 10px; overflow-x:auto; align-items:center;">
         <button class="chip" id="chip-new" onclick="toggleChip('new')">
           <span style="font-size:9px; font-weight:800; background:#e74c3c; color:#fff; padding:1px 4px; border-radius:3px;">NEW</span>
         </button>
@@ -234,6 +228,7 @@
         <button class="chip" id="chip-pet" onclick="toggleChip('pet')">🐾 Pet</button>
         <button class="chip" id="chip-filters" onclick="toggleChip('filters')">⊙ Filters</button>
         <button class="chip active" id="chip-rating" onclick="toggleChip('rating')">⭐ ≥3.7</button>
+        <button onclick="clearCuisines()" style="margin-left:auto; color:#8e8e93; font-size:20px; line-height:1; background:none; border:none; cursor:pointer; padding:0 4px; flex-shrink:0;" title="Clear selection">×</button>
       </div>
 
       <div style="height:1px; background:#f0ede8; margin:0 12px;"></div>
@@ -255,11 +250,8 @@
     <div id="panelClassic" style="display:none;">
 
       <!-- Header -->
-      <div style="padding:12px 16px 10px;">
-        <div style="font-size:14px; font-weight:700; display:flex; align-items:center; gap:6px;">
-          📍 Local Food Classic
-          <span style="font-size:12px; font-weight:500; color:#8e8e93;">Singapore</span>
-        </div>
+      <div style="padding:10px 16px 8px;">
+        <div style="font-size:14px; font-weight:700;">📍 Singapore</div>
         <div style="font-size:11px; color:#8e8e93; margin-top:2px;">Tap a dish to learn more, then 🔍 Find eateries.</div>
       </div>
 
@@ -416,9 +408,9 @@ function renderDishGrid() {
     btn.style.fontFamily = 'inherit';
     btn.onclick = () => toggleFact(i);
     btn.innerHTML = `
-      <span style="min-width:0;">
+      <span style="min-width:0; word-break:break-word;">
         <span style="font-size:12px; font-weight:600;">${d.dish}</span>
-        ${d.local ? `<span style="color:#8e8e93; font-size:11px;"> ${d.local}</span>` : ''}
+        ${d.local ? `<span style="color:#8e8e93; font-size:11px; white-space:nowrap;"> ${d.local}</span>` : ''}
       </span>
     `;
     grid.appendChild(btn);
@@ -436,7 +428,7 @@ function toggleFact(idx) {
   const d = DISHES[idx];
   area.innerHTML = `
     <div class="fact-card">
-      <div style="font-weight:700; font-size:13px; margin-bottom:6px;">📜 ${d.dish}${d.local ? ' · <span style="font-weight:400; color:#8e8e93;">' + d.local + '</span>' : ''}</div>
+      <div style="font-weight:700; font-size:13px; margin-bottom:6px;">📜 ${d.dish}${d.local ? ' · <span style="font-weight:400; color:#8e8e93; white-space:nowrap;">' + d.local + '</span>' : ''}</div>
       <div style="font-size:12px; line-height:1.55; color:#333;">${d.history}</div>
       ${d.sources ? `<div style="font-size:11px; color:#8e8e93; margin-top:6px;">source: ${d.sources.join(' · ')}</div>` : ''}
       <div style="display:flex; align-items:center; justify-content:space-between; margin-top:12px; gap:8px;">

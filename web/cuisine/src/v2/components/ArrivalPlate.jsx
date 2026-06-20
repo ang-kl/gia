@@ -182,7 +182,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                     onClick={() => setFactIdx(factIdx === 'h' + i ? null : 'h' + i)}
                   >
                     <span className="font-medium">{titleCaseDish(d.dish)}</span>
-                    {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
+                    {d.local && d.local !== d.dish && <span className="text-tg-hint whitespace-nowrap"> {d.local}</span>}
                   </button>
                   {d.note && (
                     <button
@@ -255,7 +255,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                           className="inline-block text-tg-link no-underline active:scale-95 whitespace-nowrap py-0.5"
                           aria-label={(fr ? 'Expliquer ' : 'Explain ') + d.dish}
                           onClick={() => setFactIdx(factIdx === g.group + ':' + d.dish ? null : g.group + ':' + d.dish)}
-                        >{titleCaseDish(d.dish)}{d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}</button>
+                        >{titleCaseDish(d.dish)}{d.local && d.local !== d.dish && <span className="text-tg-hint whitespace-nowrap"> {d.local}</span>}</button>
                         {isOpen && (
                           <div className="my-2 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2 whitespace-normal">
                             <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
@@ -358,7 +358,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
               >
                 <span className="min-w-0">
                   <span className="font-medium">{titleCaseDish(d.dish)}</span>
-                  {d.local && d.local !== d.dish && <span className="text-tg-hint"> {d.local}</span>}
+                  {d.local && d.local !== d.dish && <span className="text-tg-hint whitespace-nowrap"> {d.local}</span>}
                   {d.gloss && (d.gloss.en || d.gloss.fr) && (
                     <span className="text-tg-hint"> · {(fr ? d.gloss.fr : d.gloss.en) || d.gloss.en}</span>
                   )}
