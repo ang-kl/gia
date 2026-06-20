@@ -297,18 +297,20 @@
 <script>
 // ══ Data ══════════════════════════════════════════════════
 const CATEGORIES = [
-  { id:'common-sg',    emoji:'🌟', label:'Common in Singapore',       sub:'Hawker, Peranakan' },
-  { id:'sea',          emoji:'🌴', label:'Southeast Asian',            sub:'Thai, Viet, Filipino' },
-  { id:'east-asian',   emoji:'🍜', label:'East Asian',                 sub:'Japanese, Korean' },
-  { id:'china-reg',    emoji:'🥢', label:'China (Regional)',           sub:'Cantonese, Sichuan' },
-  { id:'south-asian',  emoji:'🌶', label:'South Asian',                sub:'Indian, Sri Lankan' },
-  { id:'middle-east',  emoji:'🕌', label:'Middle Eastern & Central Asian', sub:'Lebanese, Persian' },
-  { id:'european',     emoji:'🇪🇺', label:'European',                 sub:'French, Italian' },
-  { id:'slavic',       emoji:'🪆', label:'Slavic / Eastern European', sub:'Russian, Polish' },
-  { id:'americas',     emoji:'🌎', label:'Americas',                   sub:'Mexican, Peruvian' },
-  { id:'australasia',  emoji:'🦘', label:'Australasia',               sub:'Oz, Pacific' },
-  { id:'african',      emoji:'🌍', label:'African',                    sub:'Ethiopian, Moroccan' },
-  { id:'dessert',      emoji:'☕', label:'Dessert, Fruits',            sub:'Durian, Sweet' },
+  { id:'common-sg',    emoji:'🌟', label:'Common in Singapore',          sub:'Hawker, Peranakan, etc.' },
+  { id:'sea',          emoji:'🌴', label:'Southeast Asian',               sub:'Thai, Viet, Filipino, etc.' },
+  { id:'east-asian',   emoji:'🍜', label:'East Asian',                    sub:'Japanese, Korean, etc.' },
+  { id:'china-reg',    emoji:'🥢', label:'China (Regional)',              sub:'Cantonese, Sichuan, etc.' },
+  { id:'south-asian',  emoji:'🌶', label:'South Asian',                   sub:'Indian, Sri Lankan, etc.' },
+  { id:'middle-east',  emoji:'🕌', label:'Middle Eastern & Central Asian',sub:'Lebanese, Persian, etc.' },
+  { id:'european',     emoji:'🇪🇺', label:'European',                    sub:'French, Italian, etc.' },
+  { id:'slavic',       emoji:'🪆', label:'Slavic / Eastern European',    sub:'Russian, Polish, etc.' },
+  { id:'americas',     emoji:'🌎', label:'Americas',                      sub:'Mexican, Peruvian, etc.' },
+  { id:'australasia',  emoji:'🦘', label:'Australasia',                  sub:'Oz, Pacific, etc.' },
+  { id:'african',      emoji:'🌍', label:'African',                       sub:'Ethiopian, Moroccan, etc.' },
+  { id:'dessert',      emoji:'🍮', label:'Dessert, Fruits',               sub:'Sweet, Durian, Pastry, etc.' },
+  { id:'fusion',       emoji:'🔀', label:'Fusion',                        sub:'Cross-cultural, Modern' },
+  { id:'michelin',     emoji:'✳️', label:'Michelin / Bib Gourmand',      sub:'SG curated list', sgOnly:true },
 ];
 
 const DISHES = [
@@ -357,7 +359,10 @@ function renderCuisineGrid() {
     div.onclick = () => toggleCuisine(cat.id);
     div.innerHTML = `
       <span style="font-size:18px; flex-shrink:0;">${cat.emoji}</span>
-      <span style="flex:1; min-width:0; font-size:12px; font-weight:600; line-height:1.3;">${cat.label}</span>
+      <span style="flex:1; min-width:0;">
+        <div style="font-size:12px; font-weight:600; line-height:1.3;">${cat.label}${cat.sgOnly ? ' <span style="font-size:9px; color:#8e8e93; font-weight:400;">🇸🇬</span>' : ''}</div>
+        <div style="font-size:10px; color:#8e8e93; margin-top:1px;">${cat.sub}</div>
+      </span>
       ${sel ? '<span class="count">[1]</span>' : ''}
       <span class="arrow">${sel ? '✓' : '▸'}</span>
     `;
