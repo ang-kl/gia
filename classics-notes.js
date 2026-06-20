@@ -8424,6 +8424,65 @@ const CUISINE_NOTES = {
           "url": "http://www.ehainan.gov.cn/2018-02/01/c_132052.htm"
         }
       ]
+    },
+    "hainanese chicken rice": {
+      "local": "海南鸡饭",
+      "note": {
+        "en": "Poached chicken with fragrant rice cooked in stock; Singapore's unofficial national dish, evolved from Wenchang chicken.",
+        "fr": "Poulet poché, riz cuit au bouillon aromatisé ; plat emblématique de Singapour issu de la tradition haïnanaise."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Hainanese chicken rice",
+          "url": "https://en.wikipedia.org/wiki/Hainanese_chicken_rice"
+        },
+        {
+          "name": "NLB Infopedia – Hainanese chicken rice",
+          "url": "https://www.nlb.gov.sg/main/article-detail?cmsuuid=ceddd346-4072-4981-b20d-f771bea7dd81"
+        },
+        {
+          "name": "Roots.gov.sg – Chicken Rice",
+          "url": "https://www.roots.gov.sg/ich-landing/ich/chicken-rice"
+        }
+      ]
+    },
+    "hele crab": {
+      "local": "和乐蟹",
+      "note": {
+        "en": "Steamed mud crab from Hele Town, Wanning; famed for golden roe and sweet flesh, one of Hainan's four signature dishes.",
+        "fr": "Crabe de vase cuit à la vapeur, Hele Town, Wanning ; roe doré, chair sucrée, l'un des quatre plats phares de Hainan."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Hainan cuisine",
+          "url": "https://en.wikipedia.org/wiki/Hainan_cuisine"
+        },
+        {
+          "name": "Official Hainan Gov – Hele Crab",
+          "url": "https://en.hainan.gov.cn/englishsite/sDining/202506/dabafbe9c9a44b3881292ce674302947.shtml"
+        },
+        {
+          "name": "CITS – Four Famous Dishes of Hainan",
+          "url": "https://www.cits.net/china-travel-guide/four-most-famous-dishes-in-hainan-cuisine-hainan-food.html"
+        }
+      ]
+    },
+    "hainan rice noodles": {
+      "local": "海南粉",
+      "note": {
+        "en": "Thick vermicelli served at room temperature with peanuts, pickled vegetables, shredded meat and a thick savory sauce.",
+        "fr": "Vermicelle épais servi à température ambiante avec cacahuètes, légumes marinés, viande effilée et une sauce savoureuse."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Hainan cuisine",
+          "url": "https://en.wikipedia.org/wiki/Hainan_cuisine"
+        },
+        {
+          "name": "Planet Kasper – Realm of Hainan Noodles",
+          "url": "http://planetkasper.com/realm-of-hainan-noodles/"
+        }
+      ]
     }
   },
   "hakka": {
@@ -8628,6 +8687,138 @@ const CUISINE_NOTES = {
         {
           "name": "Hakka Affairs Council (Taiwan) — Stewed pork belly with preserved vegetables",
           "url": "https://english.hakka.gov.tw/Content/Content?NodeID=686&PageID=41767&LanguageType=ENG"
+        }
+      ]
+    },
+    "yong tau foo": {
+      "local": "酿豆腐",
+      "note": {
+        "en": "Hakka dish of tofu and vegetables stuffed with fish paste or minced pork, served in broth or dry with sauce.",
+        "fr": "Plat hakka de tofu et légumes farcis de pâte de poisson ou de porc, servi en bouillon ou à sec."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Yong tau foo",
+          "url": "https://en.wikipedia.org/wiki/Yong_tau_foo"
+        },
+        {
+          "name": "Michelin Guide SG – What is Yong Tau Foo",
+          "url": "https://guide.michelin.com/sg/en/article/features/what-is-yong-tau-foo"
+        }
+      ]
+    },
+    "abacus seeds": {
+      "local": "算盘子",
+      "note": {
+        "en": "Dimpled taro-and-tapioca dumplings stir-fried with minced pork, dried shrimp, and mushrooms; shaped like abacus beads.",
+        "fr": "Boulettes de taro et tapioca sautées avec du porc haché, des crevettes séchées et des champignons; en forme de boulier."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Abacus seeds",
+          "url": "https://en.wikipedia.org/wiki/Abacus_seeds"
+        },
+        {
+          "name": "My Singapore Food – Hakka Abacus Seeds",
+          "url": "https://mysingaporefood.com/story/hakka-abacus-seeds-%E7%AE%97%E7%9B%98%E5%AD%90/"
+        }
+      ]
+    },
+    "thunder tea rice": {
+      "local": "擂茶饭",
+      "note": {
+        "en": "Hakka rice topped with finely chopped vegetables and tofu, served with a pounded green tea and herb soup poured over.",
+        "fr": "Riz hakka garni de légumes émincés et de tofu, accompagné d'une soupe de thé vert et d'herbes pilées."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Lei cha",
+          "url": "https://en.wikipedia.org/wiki/Lei_cha"
+        },
+        {
+          "name": "Michelin Guide SG – What is Thunder Tea Rice",
+          "url": "https://guide.michelin.com/sg/en/article/features/what-is-thunder-tea-rice"
+        }
+      ]
+    },
+    "cukiok (hakka braised pork trotter)": {
+      "local": "燜猪脚",
+      "note": {
+        "en": "Hakka slow-braised pig's trotters in soy sauce, black bean paste, and spices until gelatinous and deeply savoury.",
+        "fr": "Jarrets de porc braisés lentement à la sauce soja et à la pâte de haricots noirs jusqu'à texture gélatineuse."
+      },
+      "sources": [
+        {
+          "name": "Hakka cuisine – Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Hakka_cuisine"
+        },
+        {
+          "name": "Hungry Onion – Hakka beef meatballs Gar Lok",
+          "url": "https://www.hungryonion.org/t/singapore-best-hakka-style-beef-meatballs-at-gar-lok-eating-house/11867"
+        }
+      ]
+    },
+    "steamed minced pork with mui choy": {
+      "local": "梅菜蒸猪肉",
+      "note": {
+        "en": "Minced pork patty mixed with sweet-salty preserved mustard greens (mui choy) and steamed until juicy; a Hakka home staple.",
+        "fr": "Galette de porc haché mélangé à de la moutarde séchée sucrée-salée, cuite à la vapeur; plat familial hakka."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Steam minced pork",
+          "url": "https://en.wikipedia.org/wiki/Steam_minced_pork"
+        },
+        {
+          "name": "Soy Rice Fire – Hakka Steamed Pork with Mui Choy",
+          "url": "https://soyricefire.com/hakka-steamed-pork-with-mui-choy-%E5%AE%A2%E5%AE%B6%E6%A2%85%E8%8F%9C%E8%92%B8%E8%82%89/"
+        }
+      ]
+    },
+    "hakka duck stuffed with glutinous rice": {
+      "local": "糯米鸭",
+      "note": {
+        "en": "Whole deboned duck filled with seasoned sticky rice, mushrooms, and dried shrimp, then braised or steamed until tender.",
+        "fr": "Canard entier désossé farci de riz gluant assaisonné, de champignons et de crevettes séchées, braisé ou cuit vapeur."
+      },
+      "sources": [
+        {
+          "name": "Hakka cuisine – Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Hakka_cuisine"
+        },
+        {
+          "name": "ckbk – Duck Stuffed with Glutinous Rice",
+          "url": "https://app.ckbk.com/recipe/chin31006c03s001ss008r009/duck-stuffed-with-glutinous-rice"
+        }
+      ]
+    },
+    "hakka beef meatball soup": {
+      "local": "牛肉丸汤",
+      "note": {
+        "en": "Bouncy hand-pounded beef meatballs served in a clear bone broth; a Hakka specialty found at hawker stalls in Singapore.",
+        "fr": "Boulettes de bœuf pilées à la main servies dans un bouillon limpide d'os; spécialité hakka des centres de restauration."
+      },
+      "sources": [
+        {
+          "name": "Hakka cuisine – Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Hakka_cuisine"
+        },
+        {
+          "name": "Mothership SG – Hakka beef balls The Beef House",
+          "url": "https://mothership.sg/2021/01/hakka-beef-ball-beef-house/"
+        }
+      ]
+    },
+    "hakka steamed glutinous rice cake (ci ba)": {
+      "local": "粢粑",
+      "note": {
+        "en": "Glutinous rice pounded into a sticky cake, then shaped and coated in peanut powder or sesame; eaten as a snack or dessert.",
+        "fr": "Riz gluant pilé en galette collante, façonné et enrobé de poudre de cacahuètes ou de sésame; dégusté en collation."
+      },
+      "sources": [
+        {
+          "name": "Hakka cuisine – Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Hakka_cuisine"
         }
       ]
     }
@@ -13966,6 +14157,40 @@ const CUISINE_NOTES = {
         {
           "name": "The Mala Market — Sichuan Dry-Fried Green Beans (Ganbian Sijidou)",
           "url": "https://blog.themalamarket.com/chengdu-challenge-16-dry-fried-green-beans-gan-bian-si-ji-dou/"
+        }
+      ]
+    },
+    "dong'an chicken": {
+      "local": "东安子鸡",
+      "note": {
+        "en": "Poached chicken stir-fried with vinegar, dried chili, and Sichuan pepper; a Tang-dynasty Hunan classic named after Dong'an County.",
+        "fr": "Poulet poché puis sauté au vinaigre, piment séché et poivre du Sichuan ; classique hunanese de la dynastie Tang."
+      },
+      "sources": [
+        {
+          "name": "Wikipedia – Dong'an chicken",
+          "url": "https://en.wikipedia.org/wiki/Dong%27an_chicken"
+        },
+        {
+          "name": "TasteAtlas – Dōng'ān Zǐjī",
+          "url": "https://www.tasteatlas.com/dongan-ziji"
+        }
+      ]
+    },
+    "changde beef rice noodle": {
+      "local": "常德牛肉粉",
+      "note": {
+        "en": "Slow-braised beef brisket over silky rice noodles in a spiced bone broth; the iconic breakfast of Changde city, Hunan.",
+        "fr": "Bœuf braisé lentement sur nouilles de riz dans un bouillon d'os épicé ; petit-déjeuner emblématique de Changde, Hunan."
+      },
+      "sources": [
+        {
+          "name": "TasteAtlas – Chángdé Niúròu Fěn",
+          "url": "https://www.tasteatlas.com/changde-niurou-fen"
+        },
+        {
+          "name": "Week in China – Changde Beef Rice Noodle",
+          "url": "https://www.weekinchina.com/2014/09/changde-beef-rice-noodle/"
         }
       ]
     }
@@ -27714,6 +27939,32 @@ const CUISINE_NOTES = {
         {
           "name": "Encyclopedia.com — Fusion Cuisine",
           "url": "https://www.encyclopedia.com/food/encyclopedias-almanacs-transcripts-and-maps/fusion-cuisine"
+        }
+      ]
+    },
+    "satay beef burger": {
+      "local": "沙爹牛肉汉堡",
+      "note": {
+        "en": "Beef patty with spiced peanut satay sauce, cucumber, and onion in a sesame bun, a National Day homage to Singapore's iconic Satay Club.",
+        "fr": "Steak haché avec sauce satay aux cacahuètes épicées, concombre et oignon en sesame bun, hommage au Satay Club."
+      },
+      "sources": [
+        {
+          "name": "HungryGoWhere – McDonald's Satay Burgers National Day (2024)",
+          "url": "https://hungrygowhere.com/food-news/mcdonalds-satay-burgers-national-day/"
+        }
+      ]
+    },
+    "yuzu cheesecake": {
+      "local": "柚子芝士蛋糕",
+      "note": {
+        "en": "Half-baked Japanese-style cheesecake layered with tangy yuzu curd, sold by Singapore specialty cake shops including Cat and the Fiddle.",
+        "fr": "Cheesecake mi-cuit japonais avec gelée de yuzu acidulée, vendu dans les pâtisseries spécialisées de Singapour."
+      },
+      "sources": [
+        {
+          "name": "Cat and the Fiddle – Tangy Yuzu Cheesecake product page",
+          "url": "http://www.catandthefiddle.com/cheesecakes/maneki_neko_yuzu_lemon_cheese_cake"
         }
       ]
     }
