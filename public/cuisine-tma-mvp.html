@@ -408,9 +408,9 @@ function renderDishGrid() {
     btn.style.fontFamily = 'inherit';
     btn.onclick = () => toggleFact(i);
     btn.innerHTML = `
-      <span style="min-width:0;">
+      <span style="min-width:0; word-break:break-word;">
         <span style="font-size:12px; font-weight:600;">${d.dish}</span>
-        ${d.local ? `<span style="color:#8e8e93; font-size:11px;"> ${d.local}</span>` : ''}
+        ${d.local ? `<span style="color:#8e8e93; font-size:11px; white-space:nowrap;"> ${d.local}</span>` : ''}
       </span>
     `;
     grid.appendChild(btn);
@@ -428,7 +428,7 @@ function toggleFact(idx) {
   const d = DISHES[idx];
   area.innerHTML = `
     <div class="fact-card">
-      <div style="font-weight:700; font-size:13px; margin-bottom:6px;">📜 ${d.dish}${d.local ? ' · <span style="font-weight:400; color:#8e8e93;">' + d.local + '</span>' : ''}</div>
+      <div style="font-weight:700; font-size:13px; margin-bottom:6px;">📜 ${d.dish}${d.local ? ' · <span style="font-weight:400; color:#8e8e93; white-space:nowrap;">' + d.local + '</span>' : ''}</div>
       <div style="font-size:12px; line-height:1.55; color:#333;">${d.history}</div>
       ${d.sources ? `<div style="font-size:11px; color:#8e8e93; margin-top:6px;">source: ${d.sources.join(' · ')}</div>` : ''}
       <div style="display:flex; align-items:center; justify-content:space-between; margin-top:12px; gap:8px;">
