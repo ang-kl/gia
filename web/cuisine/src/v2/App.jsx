@@ -3713,7 +3713,9 @@ export default function App() {
           // Local-classic tab connects to its plate panel just below
           // (.folio-panel). Empty cuisine keeps the accent + pulse CTA.
           return (
-            <div className="folio-tabs">
+            // v0.62.225 — operator: the Cuisine + Local-Food-Pick tabs are
+            // skeuomorphic MANILA FOLDERS (light-only); `folio--manila` skins them.
+            <div className="folio-tabs folio--manila">
               <button
                 type="button"
                 onClick={() => { setClassicOpen(false); setCriteriaOpen(false); setCuisinePickOpen((o) => !o); }}
@@ -3778,7 +3780,7 @@ export default function App() {
         // folder-tab reference. Full-bleed, FLUSH to the header bottom (top:
         // headerBottom, flat top, rounded bottom) + frosted folio bg, so it reads
         // as a drawer pulling down from the active .folio-tab--active tab.
-        <div className="fixed inset-x-0 z-40 overflow-y-auto no-scrollbar rounded-b-2xl border-b border-x border-tg-border/50 bg-tg-card shadow-xl px-3 py-2.5 flex flex-col gap-2"
+        <div className="folder-drawer fixed inset-x-0 z-40 overflow-y-auto no-scrollbar rounded-b-2xl border-b border-x px-3 py-2.5 flex flex-col gap-2"
           style={{ top: headerBottom, maxHeight: `calc(100dvh - ${headerBottom}px - 9rem)` }}>
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-tg-text">🍲 {lang === 'fr' ? 'Choisir votre cuisine' : 'Choose your cuisine'}</span>
@@ -3845,7 +3847,7 @@ export default function App() {
       {/* v0.62.195 — the LOCAL-CLASSIC picker as a fixed overlay too (was inline). */}
       {classicOpen && (cuisinePlate || arrivalPlate) && !loading && venues.length > 0 && (
         // v0.62.208 — connected to its tab (flush, frosted folder-drawer), like cuisine.
-        <div className="fixed inset-x-0 z-40 overflow-y-auto no-scrollbar rounded-b-2xl border-b border-x border-tg-border/50 bg-tg-card shadow-xl px-2.5 py-2"
+        <div className="folder-drawer fixed inset-x-0 z-40 overflow-y-auto no-scrollbar rounded-b-2xl border-b border-x px-2.5 py-2"
           style={{ top: headerBottom, maxHeight: `calc(100dvh - ${headerBottom}px - 9rem)` }}>
           <div className="flex items-center justify-between pb-1">
             <span className="text-xs font-semibold text-tg-text">📍 {lang === 'fr' ? 'Plats classiques locaux' : 'Pick local classic'}</span>
