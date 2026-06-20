@@ -15,7 +15,7 @@ import React, { useState } from 'react';
 // (Train, Hawker) to disabled when a Malaysia anchor is set. Visual: opacity 0.4,
 // cursor not-allowed; tap surfaces the tooltip via Telegram's showAlert instead of
 // running onClick.
-export default function Tile({ icon, iconImage, label, onClick, disabled = false, disabledTooltip = '' }) {
+export default function Tile({ icon, iconImage, label, subtitle = '', onClick, disabled = false, disabledTooltip = '' }) {
   const [imgFailed, setImgFailed] = useState(false);
   const showImage = iconImage && !imgFailed;
   const handleClick = (e) => {
@@ -61,8 +61,12 @@ export default function Tile({ icon, iconImage, label, onClick, disabled = false
           )
           : <span className="text-2xl leading-none">{icon}</span>}
       </span>
-      <span className="flex-1 text-[15px] font-semibold leading-tight">{label}</span>
-      <span aria-hidden className="shrink-0 text-tg-hint text-xl leading-none">›</span>
+      {/* v0.62.226 — title + subtitle stack; subtitle says what you can search. */}
+      <span className="flex-1 min-w-0 flex flex-col leading-tight">
+        <span className="text-[15px] font-semibold">{label}</span>
+        {subtitle && <span className="text-[11px] text-tg-text/60 leading-snug mt-0.5">{subtitle}</span>}
+      </span>
+      <span aria-hidden className="shrink-0 self-center text-tg-hint text-xl leading-none">›</span>
     </button>
   );
 }

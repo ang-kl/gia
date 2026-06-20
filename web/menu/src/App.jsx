@@ -49,14 +49,24 @@ const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION
 // TrainPanel are dropped; those surfaces stay reachable via slash commands.
 // The Train tile is now a first-class navigate tile (→ /app/transport) carrying
 // the cropped Soleat train logo PNG.
+// v0.62.226 — operator: Cuisine stands alone (works region-wide); Train + Hawker
+// are SG-only, grouped inside a bordered "🇸🇬 Singapore" box. Each tile carries a
+// `subKey` subtitle saying what you can search.
 const SECTIONS = [
   {
-    id: 'apps',
-    titleKey: null,   // three obvious app tiles need no section header
+    id: 'cuisine-app',
+    titleKey: null,
     tiles: [
-      { id: 'cuisine', icon: '🍛', iconImage: '/app/menu/cuisine-icon.png', labelKey: 'tile.cuisine.label', kind: 'navigate', path: '/app/cuisine' },
-      { id: 'train',   icon: '🚆', iconImage: '/app/menu/train-logo.png',   labelKey: 'tile.train.label',   kind: 'navigate', path: '/app/transport' },
-      { id: 'hawker',  icon: '🥢', iconImage: '/app/menu/hawker-icon.png',  labelKey: 'tile.hawker.label',  kind: 'navigate', path: '/app/hawker' }
+      { id: 'cuisine', icon: '🍛', iconImage: '/app/menu/cuisine-icon.png', labelKey: 'tile.cuisine.label', subKey: 'tile.cuisine.sub', kind: 'navigate', path: '/app/cuisine' }
+    ]
+  },
+  {
+    id: 'sg',
+    titleKey: 'section.sg',   // "🇸🇬 Singapore"
+    boxed: true,
+    tiles: [
+      { id: 'train',  icon: '🚆', iconImage: '/app/menu/train-logo.png',  labelKey: 'tile.train.label',  subKey: 'tile.train.sub',  kind: 'navigate', path: '/app/transport' },
+      { id: 'hawker', icon: '🥢', iconImage: '/app/menu/hawker-icon.png', labelKey: 'tile.hawker.label', subKey: 'tile.hawker.sub', kind: 'navigate', path: '/app/hawker' }
     ]
   },
   // v0.61.125 — Location is its own section so users see it as a first-class
@@ -720,10 +730,27 @@ export default function App() {
       {/* v0.62.220 — operator ("too much gap"): drop flex-1 so the content sits at
           its natural height instead of stretching to fill the viewport and pushing
           the footer chips far down — the hub now reads compact. */}
-      <div className="px-3 pb-2 flex flex-col gap-1.5">
-        {SECTIONS.map((section) => (
+      <div className="px-3 pb-2 flex flex-col gap-2.5">
+        {SECTIONS.map((section) => {
+          const tileEls = section.tiles.map((tile) => {
+            const disabled = (isMy || regionUnresolved) && SG_ONLY_TILES.has(tile.id);
+            return (
+              <Tile
+                key={tile.id}
+                icon={tile.icon}
+                iconImage={tile.iconImage}
+                label={t(tile.labelKey, lang)}
+                subtitle={tile.subKey ? t(tile.subKey, lang) : ''}
+                onClick={() => handle(tile)}
+                disabled={disabled}
+                disabledTooltip={disabled ? t('tile.disabledMy', lang) : ''}
+              />
+            );
+          });
+          return (
           <section key={section.id} className="flex flex-col gap-1">
-            {section.titleKey && (
+            {/* boxed sections render their heading INSIDE the box (below) */}
+            {!section.boxed && section.titleKey && (
               <h2 className="text-[11px] uppercase tracking-wide text-tg-hint pl-1">
                 {t(section.titleKey, lang)}
               </h2>
@@ -755,54 +782,47 @@ export default function App() {
                 />
               </>
             )}
-            {/* v0.62.219 — operator ("make it professional"): the three key TMAs
-                render as a VERTICAL LIST of full-width rows (Tile is now a row with
-                icon/logo + label + › chevron), so the wide Train logo reads legibly.
-                v0.61.123 — SG-only tiles (Train, Hawker) flip to disabled when a
-                Malaysia anchor is set. */}
-            <div className="flex flex-col gap-1.5">
-              {section.tiles.map((tile) => {
-                const disabled = (isMy || regionUnresolved) && SG_ONLY_TILES.has(tile.id);
-                return (
-                  <Tile
-                    key={tile.id}
-                    icon={tile.icon}
-                    iconImage={tile.iconImage}
-                    label={t(tile.labelKey, lang)}
-                    onClick={() => handle(tile)}
-                    disabled={disabled}
-                    disabledTooltip={disabled ? t('tile.disabledMy', lang) : ''}
-                  />
-                );
-              })}
-            </div>
+            {/* v0.62.226 — Train + Hawker (SG-only) sit inside a bordered
+                "🇸🇬 Singapore" box; Cuisine (region-wide) stands alone. Each tile
+                is a full-width row with title + subtitle + › chevron. */}
+            {section.tiles.length > 0 && (
+              section.boxed ? (
+                <div className="rounded-2xl border border-tg-border bg-tg-card/30 px-2 pt-2 pb-2 flex flex-col gap-1.5">
+                  {section.titleKey && (
+                    <div className="text-[12px] font-semibold text-tg-text pl-1 pb-0.5">{t(section.titleKey, lang)}</div>
+                  )}
+                  {tileEls}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-1.5">{tileEls}</div>
+              )
+            )}
           </section>
-        ))}
-        <p className="text-[11px] text-tg-hint text-center pt-0.5 px-2 leading-snug">
-          {t('hint.tap', lang)}
-        </p>
+          );
+        })}
       </div>
 
-      {/* v0.60.67 — LocaleToggle moved to the hero subtitle row, so
-          the footer trims down to just Privacy + Forget me chips. */}
-      <div className="px-3 pb-1.5 flex flex-wrap gap-1.5 justify-center items-center">
-        {FOOTER_CHIPS.map((chip) => (
-          <button
-            key={chip.id}
-            onClick={() => dispatchCmd(chip.id)}
-            className="text-[11px] px-2 py-0.5 rounded-full bg-tg-card border border-tg-border text-tg-hint active:bg-tg-accent active:text-tg-accent-text transition"
-          >
-            {t(chip.labelKey, lang)}
-          </button>
-        ))}
-      </div>
-
-      {/* v0.60.213 — standardised "Experimental · Singapore · v<build>"
-          tag line. v0.60.217 — no border; font +1pt.
-          v0.60.222 — operator: dropped the "Soleat <v> · 2026" brand
-          line; the tag line is the whole footer now. */}
-      <div className="mx-2 mb-2 mt-1 px-3 py-2 text-center text-[10px] text-tg-hint leading-tight">
-        <div>{t('footer.tag', lang)} · v{BUILD_VERSION}</div>
+      {/* v0.62.226 — operator: the footer block (tap-hint + Privacy/Forget-me +
+          version tag) is pinned to the BOTTOM (mt-auto pushes it down in the
+          min-height flex column). Contrast standardised across light/dark: text
+          uses text-tg-text/N (the theme's own text colour, faded) instead of the
+          low-contrast --tg-hint, so it reads cleanly on both backgrounds. */}
+      <div className="mt-auto px-3 pt-3 pb-2 flex flex-col items-center gap-2">
+        <p className="text-[11px] text-tg-text/70 text-center leading-snug">{t('hint.tap', lang)}</p>
+        <div className="flex flex-wrap gap-1.5 justify-center items-center">
+          {FOOTER_CHIPS.map((chip) => (
+            <button
+              key={chip.id}
+              onClick={() => dispatchCmd(chip.id)}
+              className="text-[11px] px-2 py-0.5 rounded-full bg-tg-card border border-tg-border text-tg-text/80 active:bg-tg-accent active:text-tg-accent-text transition"
+            >
+              {t(chip.labelKey, lang)}
+            </button>
+          ))}
+        </div>
+        <div className="text-center text-[10px] text-tg-text/60 leading-tight">
+          <div>{t('footer.tag', lang)} · v{BUILD_VERSION}</div>
+        </div>
       </div>
 
       {/* v0.62.213 — operator (IMG_1069 item 6): the separate bottom-left BackFab
