@@ -439,7 +439,10 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                   const clCard = (d) => (
                     <div className="my-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2 whitespace-normal">
                       <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
-                      <div className="mt-1">{(fr ? d.note.fr : d.note.en) || d.note.en || ''}</div>
+                      {d.note && (d.note.en || d.note.fr)
+                        ? <div className="mt-1">{(fr ? d.note.fr : d.note.en) || d.note.en || ''}</div>
+                        : <div className="mt-1 text-tg-hint">{fr ? 'Fiche en cours de rédaction.' : 'Write-up coming soon.'}</div>
+                      }
                       {/* v0.62.174 — show the curated source when present (A3 rule). */}
                       {Array.isArray(d.sources) && d.sources.length > 0 && (
                         <div className="mt-0.5 text-tg-hint">
@@ -471,15 +474,15 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                           <div>
                             {sec.dishes.map((d, idx) => {
                               const hasNote = d.note && (d.note.en || d.note.fr);
-                              const isOpen = hasNote && factIdx === 'cl:' + d.dish;
+                              const isOpen = factIdx === 'cl:' + d.dish;
                               return (
                                 <React.Fragment key={d.dish}>
                                   {idx > 0 && <span className="text-tg-hint"> · </span>}
                                   <button
                                     type="button"
                                     className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
-                                    aria-label={(hasNote ? (fr ? 'Expliquer ' : 'Explain ') : (fr ? 'Chercher ' : 'Search ')) + d.dish}
-                                    onClick={() => { if (hasNote) setFactIdx(factIdx === 'cl:' + d.dish ? null : 'cl:' + d.dish); else if (onTryDish) onTryDish(d.dish); }}
+                                    aria-label={(fr ? 'Expliquer ' : 'Explain ') + d.dish}
+                                    onClick={() => setFactIdx(factIdx === 'cl:' + d.dish ? null : 'cl:' + d.dish)}
                                   >{SPICY_RE.test(d.dish) && <span aria-label="spicy">🌶 </span>}{titleCaseDish(d.dish)}</button>
                                   {isOpen && clCard(d)}
                                 </React.Fragment>
