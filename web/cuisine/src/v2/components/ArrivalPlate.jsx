@@ -67,33 +67,32 @@ function leadWithQualifier(s) {
 }
 
 // v0.62.224 — operator (skip-halal answer): split the "More classics" into just
-// TWO buckets — WHOLE MEALS vs DISHES & SNACKS — instead of the prior 4 meal-type
-// buckets. A "whole meal" is a substantial savoury plate (rice/noodle/main);
-// drinks, sweets, breakfast/snack items and savoury sides are "dishes & snacks".
-// Keyword-based + honest (hawker classics aren't cleanly meal-timed); the keyword
-// sets below are kept conservative to avoid mis-bucketing.
-// (v0.62.194 prior version, superseded: breakfast / all-day / drinks / desserts.)
+// FIVE buckets: Breakfast / Lunch & Dinner / Snacks & sides / Desserts / Drinks.
+// Keyword-based; conservative to avoid mis-bucketing. Default bucket = 'main'.
+// "coffee" excluded from DRINK_RE so "Coffee Pork Ribs" stays a main meal.
 const MEAL_BUCKETS = [
-  { key: 'wholemeal', icon: '🍱', en: 'Whole meals',     fr: 'Repas complets' },
-  { key: 'dishes',    icon: '🥢', en: 'Dishes & snacks', fr: 'Plats & snacks' }
+  { key: 'breakfast', icon: '☕', en: 'Breakfast',        fr: 'Petit-déjeuner' },
+  { key: 'main',      icon: '🍽', en: 'Lunch & Dinner',   fr: 'Déjeuner & Dîner' },
+  { key: 'snack',     icon: '🥢', en: 'Snacks & sides',   fr: 'Encas & accompagnements' },
+  { key: 'dessert',   icon: '🧁', en: 'Desserts',          fr: 'Desserts' },
+  { key: 'drink',     icon: '🥤', en: 'Drinks',            fr: 'Boissons' },
 ];
-// High-confidence keyword sets (kept conservative to avoid mis-bucketing a
-// savoury dish; "coffee" is excluded so "Coffee Pork Ribs" stays a whole meal).
-const DRINK_RE = /\b(kopi|teh|milo|horlicks|bandung|yuan\s*yang|juice|sugarcane|winter\s*melon|chrysanthemum|barley\s*water|lime\s*juice|calamansi|sour\s*plum\s*drink|grass\s*jelly\s*drink|soda|isotonic|100\s*plus|lemon\s*tea|milk\s*tea|bubble\s*tea|shake|lassi|soya?\s*bean\s*drink|cordial|sirap|kosong|coconut\s*water)\b/i;
-const DESSERT_RE = /\b(tau\s*huay|douhua|chendol|cendol|ice\s*ka[cz]ang|pengat|pudding|red\s*bean|gula\s*melaka|tang\s*yuan|pulut\s*hitam|cheng\s*tng|tau\s*suan|orh\s*nee|sago|pomelo|grass\s*jelly|bubur|ondeh|ang\s*ku|goreng\s*pisang|pisang\s*goreng|ice\s*cream|ko\s*swee|cheng\s*teng|\bkaya\b)\b/i;
-const BREAKFAST_RE = /\b(kaya\s*toast|\btoast\b|you\s*tiao|dough\s*fritter|soft.?boiled|half.?boiled|prata|roti\s*john|congee|porridge|dim\s*sum|brunch|chwee\s*kueh|min\s*jiang)\b/i;
-// v0.62.224 — clearly snacky/side items that are NOT a full meal on their own.
-// Conservative: only names that are rarely the head of a "whole meal" dish.
-const SNACK_RE = /\b(satay|sate|otah|otak-otak|rojak|popiah|ngoh\s*hiang|curry\s*puff|currypuff|vadai|samosa|begedil|kueh\s*pie\s*tee|epok-epok|fried\s*wonton)\b/i;
-// A dish is a "whole meal" by default; drinks, sweets, breakfast/snack and
-// savoury-side keywords demote it to "dishes & snacks".
+const DRINK_RE = /\b(kopi|teh|milo|horlicks|bandung|yuan\s*yang|juice|sugarcane|winter\s*melon|chrysanthemum|barley\s*water|lime\s*juice|calamansi|sour\s*plum\s*drink|grass\s*jelly\s*drink|soda|isotonic|100\s*plus|lemon\s*tea|milk\s*tea|bubble\s*tea|boba\b|shake\b|lassi|soya?\s*bean\s*drink|cordial|sirap|kosong|coconut\s*water|cha\s*yen|nam\s*manao|sinh\s*to|ca\s*phe|tra\s*da|sikhye|smoothie|horchata|ayran|doogh|thai\s*tea|rose\s*milk|nimbu\s*pani|lemonade|teh\s*tarik|taro\s*milk)\b/i;
+const DESSERT_RE = /\b(tau\s*huay|douhua|chendol|cendol|ice\s*ka[cz]ang|pengat|pudding|red\s*bean\s*soup|gula\s*melaka|tang\s*yuan|pulut\s*hitam|cheng\s*tng|tau\s*suan|orh\s*nee|sago\b|pomelo\b|grass\s*jelly|bubur\s*cha\s*cha|ondeh|ang\s*ku|goreng\s*pisang|pisang\s*goreng|ice\s*cream|ko\s*swee|cheng\s*teng|\bkaya\b|bingsu|mochi|daifuku|dorayaki|halo.?halo|taho\b|halva|baklava|knafeh|gulab\s*jamun|jalebi|rasgulla|kheer|payasam|mango\s*sticky\s*rice|sticky\s*rice.*mango|woon\b|che\b|banh\s*flan|tong\s*sui|sweet\s*soup|kanom\b|khanom\b)\b/i;
+const BREAKFAST_RE = /\b(kaya\s*toast|\btoast\b|you\s*tiao|dough\s*fritter|soft.?boiled|half.?boiled|prata\b|roti\s*canai|roti\s*john|congee|porridge|dim\s*sum|brunch|chwee\s*kueh|min\s*jiang|idli\b|dosa\b|uttapam|upma\b|appam\b|puttu\b|pongal\b|medu\s*vada|string\s*hoppers|hoppers\b|bubur\s*ayam|juk\b|zhou\b|fried\s*dough)\b/i;
+const SNACK_RE = /\b(satay|sate\b|otah\b|otak-otak|rojak\b|popiah\b|ngoh\s*hiang|curry\s*puff|currypuff|vadai\b|samosa|begedil|kueh\s*pie\s*tee|epok-epok|fried\s*wonton|spring\s*roll|lumpia\b|empanada|gyoza\b|takoyaki|tteok\b|chapati\b|paratha\b|naan\b|tosai\b|murukku|keropok|kerupuk|prawn\s*crackers|fish\s*ball|meatball\b|skewer\b|kebab\b|kimbap|gimbap|onigiri|tempura\b)\b/i;
+// Spicy marker — used for inline 🌶 display only (does not affect bucketing).
+const SPICY_RE = /\b(laksa|rendang|sambal|curry|chilli|chili|tom\s*yum|tom\s*kha|larb\b|som\s*tam|vindaloo|rogan\s*josh|tteokbokki|buldak|mala\b|mapo|asam\s*pedas|gulai\b|masak\s*lemak|bun\s*bo\s*hue|otak-otak|ayam\s*berempah|soto\s*betawi|pad\s*krapao|pad\s*prik|kaeng|gaeng\b|tom\s*saap)\b/i;
 function mealCategory(name) {
   const s = String(name || '');
-  if (DRINK_RE.test(s) || DESSERT_RE.test(s) || BREAKFAST_RE.test(s) || SNACK_RE.test(s)) return 'dishes';
-  return 'wholemeal';
+  if (DRINK_RE.test(s)) return 'drink';
+  if (DESSERT_RE.test(s)) return 'dessert';
+  if (BREAKFAST_RE.test(s)) return 'breakfast';
+  if (SNACK_RE.test(s)) return 'snack';
+  return 'main';
 }
 function categoriseClassics(flat) {
-  const by = { wholemeal: [], dishes: [] };
+  const by = { breakfast: [], main: [], snack: [], dessert: [], drink: [] };
   for (const d of (flat || [])) by[mealCategory(d.dish)].push(d);
   return MEAL_BUCKETS.map((b) => ({ ...b, dishes: by[b.key] })).filter((b) => b.dishes.length);
 }
@@ -481,7 +480,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
                                     className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
                                     aria-label={(hasNote ? (fr ? 'Expliquer ' : 'Explain ') : (fr ? 'Chercher ' : 'Search ')) + d.dish}
                                     onClick={() => { if (hasNote) setFactIdx(factIdx === 'cl:' + d.dish ? null : 'cl:' + d.dish); else if (onTryDish) onTryDish(d.dish); }}
-                                  >{titleCaseDish(d.dish)}</button>
+                                  >{SPICY_RE.test(d.dish) && <span aria-label="spicy">🌶 </span>}{titleCaseDish(d.dish)}</button>
                                   {isOpen && clCard(d)}
                                 </React.Fragment>
                               );
