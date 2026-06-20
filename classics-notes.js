@@ -2725,7 +2725,7 @@ const CUISINE_NOTES = {
       "local": "ayam buah keluak",
       "note": {
         "en": "Peranakan chicken braised in spicy tamarind gravy with buah keluak (Pangium edule) nuts, whose raw cyanide needs days of soaking.",
-        "fr": "Poulet peranakan braise en sauce epicee au tamarin, aux noix buah keluak (Pangium edule), dont le cyanure cru exige des jours de trempage."
+        "fr": "Poulet peranakan braisé en sauce épicée au tamarin, aux noix buah keluak (Pangium edule), dont le cyanure cru exige des jours de trempage."
       },
       "sources": [
         {
@@ -2742,7 +2742,7 @@ const CUISINE_NOTES = {
       "local": "babi pongteh",
       "note": {
         "en": "Peranakan (Nonya) braised pork in fermented soybean paste (taucheo) with garlic, shallots and palm sugar; sweet-salty-savoury.",
-        "fr": "Porc braise peranakan (nonya) a la pate de soja fermente (taucheo), ail, echalotes et sucre de palme; sucre-sale-savoureux."
+        "fr": "Porc braisé peranakan (nonya) à la pate de soja fermenté (taucheo), ail, echalotes et sucre de palme; sucre-sale-savoureux."
       },
       "sources": [
         {
@@ -2776,7 +2776,7 @@ const CUISINE_NOTES = {
       "local": "nasi ulam",
       "note": {
         "en": "Nyonya herb rice: rice tossed with finely-chopped fresh herbs (kaffir lime, daun kesum, basil, lemongrass, turmeric leaf) and flaked fish.",
-        "fr": "Riz aux herbes nyonya : riz mele d'herbes fraiches hachees (combava, daun kesum, basilic, citronnelle, curcuma) et de poisson emiette."
+        "fr": "Riz aux herbes nyonya : riz mele d'herbes fraîches hachées (combava, daun kesum, basilic, citronnelle, curcuma) et de poisson émietté."
       },
       "sources": [
         {
@@ -2861,7 +2861,7 @@ const CUISINE_NOTES = {
       "local": "ayam tempra",
       "note": {
         "en": "Nyonya braised chicken cooked with plenty of onions and dark/light soy sauce, finished with calamansi or lime; savoury-sweet-tangy.",
-        "fr": "Poulet braise nyonya cuit avec beaucoup d'oignons et sauce soja claire et foncee, releve de calamansi ou citron vert; sucre-sale-acidule."
+        "fr": "Poulet braisé nyonya cuit avec beaucoup d'oignons et sauce soja claire et foncee, relevé de calamansi ou citron vert; sucre-sale-acidule."
       },
       "sources": [
         {
@@ -2878,7 +2878,7 @@ const CUISINE_NOTES = {
       "local": "Asam Pedas",
       "note": {
         "en": "Malay for \"sour spicy\": fish in a tamarind-soured chilli-and-spice broth; the Peranakan version is known as gerang asam ikan.",
-        "fr": "\"Aigre-piquant\" en malais : poisson dans un bouillon de piment acidulé au tamarin ; la version peranakan se nomme gerang asam ikan."
+        "fr": "\"Aigre-piquant\" en malais : poisson dans un bouillon de piment acidulé au tamarin ; la version peranakan se nommé gerang asam ikan."
       },
       "sources": [
         {
@@ -2946,7 +2946,7 @@ const CUISINE_NOTES = {
       "local": "Rendang Nyonya",
       "note": {
         "en": "Peranakan take on Minangkabau (W. Sumatra) rendang: beef slow-braised in spiced coconut milk, deepened by toasted-coconut kerisik.",
-        "fr": "Version peranakane du rendang minangkabau (Sumatra) : boeuf mijote au lait de coco epice, relevé du kerisik (coco grillee)."
+        "fr": "Version peranakane du rendang minangkabau (Sumatra) : bœuf mijoté au lait de coco épice, relevé du kerisik (coco grillée)."
       },
       "sources": [
         {
@@ -3031,7 +3031,7 @@ const CUISINE_NOTES = {
       "local": "kueh dadar gulung",
       "note": {
         "en": "Nyonya rolled pandan crepe, green from pandan/daun suji, wrapped round grated coconut cooked in gula melaka; \"dadar\"=pancake, \"gulung\"=roll.",
-        "fr": "Crepe roulee nyonya au pandan, verte grace au pandan/daun suji, garnie de coco rape au gula melaka; \"dadar\"=crepe, \"gulung\"=rouler."
+        "fr": "Crêpe roulee nyonya au pandan, verte grace au pandan/daun suji, garnie de coco rape au gula melaka; \"dadar\"=crêpe, \"gulung\"=rouler."
       },
       "sources": [
         {
@@ -3065,7 +3065,7 @@ const CUISINE_NOTES = {
       "local": "bingka ubi kayu",
       "note": {
         "en": "Baked cassava (ubi kayu) cake of grated tapioca, coconut milk and sugar; dense, chewy with a caramelised crisp top; a Malay/Nyonya kueh.",
-        "fr": "Gateau de manioc (ubi kayu) cuit au four: tapioca rape, lait de coco et sucre; dense, moelleux, croute caramelisee; un kueh malais/nyonya."
+        "fr": "Gateau de manioc (ubi kayu) cuit au four: tapioca rape, lait de coco et sucre; dense, moelleux, croute caramélisée; un kueh malais/nyonya."
       },
       "sources": [
         {
@@ -3099,7 +3099,7 @@ const CUISINE_NOTES = {
       "local": "pengat durian",
       "note": {
         "en": "A \"pengat\" cooks fruit in coconut milk and sugar; the Nyonya version simmers durian pulp with gula melaka into a thick custardy dessert.",
-        "fr": "Un \"pengat\" cuit un fruit dans le lait de coco et le sucre; la version nyonya mijote la chair du durian au gula melaka, texture onctueuse."
+        "fr": "Un \"pengat\" cuit un fruit dans le lait de coco et le sucre; la version nyonya mijoté la chair du durian au gula melaka, texture onctueuse."
       },
       "sources": [
         {
@@ -3116,7 +3116,7 @@ const CUISINE_NOTES = {
       "local": "Bingka Ambon (Bika Ambon)",
       "note": {
         "en": "Yeast-leavened tapioca-and-coconut-milk cake with a chewy honeycomb crumb, usually pandan or kaffir-lime scented; from Medan, Sumatra.",
-        "fr": "Gateau de tapioca et lait de coco leve a la levure, mie alveolee et moelleuse, parfume au pandan ou combava; originaire de Medan, Sumatra."
+        "fr": "Gateau de tapioca et lait de coco leve à la levure, mie alveolee et moelleuse, parfume au pandan ou combava; originaire de Medan, Sumatra."
       },
       "sources": [
         {
@@ -3150,7 +3150,7 @@ const CUISINE_NOTES = {
       "local": "kuih lapis sagu",
       "note": {
         "en": "Steamed Malay-Peranakan layered kuih of sago/tapioca starch and coconut milk; soft bouncy QQ texture, colourful layers peeled one by one.",
-        "fr": "Kuih malais-peranakan a la vapeur, couches de sagou/tapioca au lait de coco; texture tendre elastique, couches colorees pelees une a une."
+        "fr": "Kuih malais-peranakan à la vapeur, couches de sagou/tapioca au lait de coco; texture tendre elastique, couches colorees pelees une a une."
       },
       "sources": [
         {
@@ -3322,7 +3322,7 @@ const CUISINE_NOTES = {
       "local": "Bún thịt nướng",
       "note": {
         "en": "A Southern Vietnamese bowl of cold rice vermicelli topped with marinated grilled pork, fresh herbs, peanuts and nuoc cham fish sauce.",
-        "fr": "Un bol du sud du Vietnam de vermicelles de riz froids garnis de porc grille marine, d'herbes fraiches, de cacahuetes et de sauce nuoc cham."
+        "fr": "Un bol du sud du Vietnam de vermicelles de riz froids garnis de porc grillé mariné, d'herbes fraîches, de cacahuetes et de sauce nuoc cham."
       },
       "sources": [
         {
@@ -3355,7 +3355,7 @@ const CUISINE_NOTES = {
     "cha gio (nem ran)": {
       "local": "Chả giò (Nem rán)",
       "note": {
-        "en": "Vietnamese deep-fried spring rolls of seasoned pork, mushrooms and vermicelli in rice paper; called chả giò in the south, nem rán in the…",
+        "en": "Vietnamese deep-fried spring rolls of seasoned pork, mushrooms and vermicelli in rice paper;",
         "fr": "Rouleaux de printemps frits vietnamiens au porc, champignons et vermicelles en galette de riz ; chả giò au sud, nem rán au nord."
       },
       "sources": [
@@ -3390,7 +3390,7 @@ const CUISINE_NOTES = {
       "local": "Bánh xèo",
       "note": {
         "en": "A crispy Vietnamese pancake of rice flour, water and turmeric, filled with pork, shrimp and bean sprouts; named for its sizzling sound.",
-        "fr": "Une crêpe vietnamienne croustillante de farine de riz, d'eau et de curcuma, garnie de porc, de crevettes et de germes ; nommée d'après son…"
+        "fr": "Une crêpe vietnamienne croustillante de farine de riz, d'eau et de curcuma, garnie de porc, de crevettes et de germes ;"
       },
       "sources": [
         {
@@ -3407,7 +3407,7 @@ const CUISINE_NOTES = {
       "local": "Bánh Khọt",
       "note": {
         "en": "Southern Vietnamese mini savory pancakes of turmeric-coconut rice batter, topped with shrimp and crisped in molds; a Vung Tau specialty.",
-        "fr": "Petites crepes salees du sud du Vietnam, a base de riz au curcuma et coco, garnies de crevettes; specialite de Vung Tau."
+        "fr": "Petites crêpes salees du sud du Vietnam, a base de riz au curcuma et coco, garnies de crevettes; spécialité de Vung Tau."
       },
       "sources": [
         {
@@ -3424,7 +3424,7 @@ const CUISINE_NOTES = {
       "local": "Cao lầu",
       "note": {
         "en": "A Hội An noodle dish of thick chewy rice noodles, char siu pork and greens, whose noodles need local ash-lye and Ba Le well water.",
-        "fr": "Plat de nouilles de Hội An aux nouilles de riz épaisses, porc char siu et herbes, dont les nouilles exigent lessive de cendres et eau du…"
+        "fr": "Plat de nouilles de Hội An aux nouilles de riz épaisses, porc char siu et herbes."
       },
       "sources": [
         {
@@ -3457,8 +3457,8 @@ const CUISINE_NOTES = {
     "cha ca la vong": {
       "local": "Chả Cá Lã Vọng",
       "note": {
-        "en": "Hanoi dish of cá lăng catfish marinated in turmeric, charcoal-grilled with dill and scallion, served with bún and mắm tôm; an eatery opened…",
-        "fr": "Plat hanoïen de poisson-chat cá lăng au curcuma, grillé au charbon avec aneth et ciboule, servi avec bún et mắm tôm; un restaurant ouvert…"
+        "en": "Hanoi dish of cá lăng catfish marinated in turmeric, charcoal-grilled with dill and scallion, served with bún and mắm tôm;",
+        "fr": "Plat hanoïen de poisson-chat cá lăng au curcuma, grillé au charbon avec aneth et ciboule, servi avec bún et mắm tôm;"
       },
       "sources": [
         {
@@ -3543,7 +3543,7 @@ const CUISINE_NOTES = {
       "local": "Nem nướng",
       "note": {
         "en": "Vietnamese grilled seasoned ground-pork sausage, a specialty of Nha Trang (Khánh Hòa Province), served with rice paper, herbs and nước chấm.",
-        "fr": "Saucisse vietnamienne de porc haché assaisonné grillée, spécialité de Nha Trang (province de Khánh Hòa), servie avec galettes de riz…"
+        "fr": "Saucisse vietnamienne de porc haché assaisonné grillée, spécialité de Nha Trang (province de Khánh Hòa)"
       },
       "sources": [
         {
@@ -3611,7 +3611,7 @@ const CUISINE_NOTES = {
       "local": "Cà Phê Trứng",
       "note": {
         "en": "Hanoi coffee topped with a whipped foam of egg yolk and condensed milk, created in 1946 at Cafe Giang as a milk substitute.",
-        "fr": "Cafe de Hanoi nappe d'une mousse fouettee de jaune d'oeuf et lait concentre, cree en 1946 au Cafe Giang en remplacement du lait."
+        "fr": "Cafe de Hanoi nappe d'une mousse fouettee de jaune d'oeuf et lait concentre, créé en 1946 au Cafe Giang en remplacement du lait."
       },
       "sources": [
         {
@@ -3630,7 +3630,7 @@ const CUISINE_NOTES = {
       "local": "ผัดไทย",
       "note": {
         "en": "A Thai stir-fried rice noodle dish with egg, tofu, tamarind and peanuts, invented in the 1930s-40s under PM Plaek Phibunsongkhram.",
-        "fr": "Plat thai de nouilles de riz sautees aux oeufs, tofu, tamarin et cacahuetes, invente vers 1930-40 sous le Premier ministre Plaek…"
+        "fr": "Plat thai de nouilles de riz sautées aux oeufs, tofu, tamarin et cacahuetes."
       },
       "sources": [
         {
@@ -3646,8 +3646,8 @@ const CUISINE_NOTES = {
     "tom kha gai": {
       "local": "ต้มข่าไก่",
       "note": {
-        "en": "Thai hot-and-sour chicken soup in coconut milk flavoured with galangal, lemongrass and lime leaves; its name literally means \"boiled…",
-        "fr": "Soupe thaïlandaise de poulet aigre-piquante au lait de coco parfumée au galanga, citronnelle et feuilles de combava ; son nom signifie «…"
+        "en": "Thai hot-and-sour chicken soup in coconut milk flavoured with galangal, lemongrass and lime leaves;",
+        "fr": "Soupe thaïlandaise de poulet aigre-piquante au lait de coco parfumée au galanga, citronnelle et feuilles de combava ;"
       },
       "sources": [
         {
@@ -3681,7 +3681,7 @@ const CUISINE_NOTES = {
       "local": "ลาบไก่",
       "note": {
         "en": "A Lao-origin Isan minced-chicken salad tossed with lime, fish sauce, chili, herbs and toasted ground rice (khao khua).",
-        "fr": "Salade de poulet hache d'origine lao (Isan), assaisonnee de citron vert, sauce poisson, piment, herbes et riz grille moulu (khao khua)."
+        "fr": "Salade de poulet haché d'origine lao (Isan), assaisonnee de citron vert, sauce poisson, piment, herbes et riz grillé moulu (khao khua)."
       },
       "sources": [
         {
@@ -3698,7 +3698,7 @@ const CUISINE_NOTES = {
       "local": "ลาบหมู",
       "note": {
         "en": "A spicy Thai/Lao minced-pork salad from Isan, dressed with lime, fish sauce, chilli, herbs and toasted rice powder.",
-        "fr": "Salade epicee de porc hache thai/lao de l'Isan, assaisonnee de citron vert, sauce poisson, piment, herbes et riz grille."
+        "fr": "Salade épicée de porc haché thai/lao de l'Isan, assaisonnee de citron vert, sauce poisson, piment, herbes et riz grillé."
       },
       "sources": [
         {
@@ -3714,8 +3714,8 @@ const CUISINE_NOTES = {
     "nam tok": {
       "local": "น้ำตก",
       "note": {
-        "en": "A spicy Isan/Lao grilled-meat salad (pork: หมูน้ำตก, beef: เนื้อย่างน้ำตก) dressed with toasted rice powder, chilli, lime, fish sauce and…",
-        "fr": "Salade épicée de viande grillée d'Isan/du Laos (porc ou bœuf), assaisonnée de riz grillé moulu, piment, citron vert, sauce de poisson et…"
+        "en": "A spicy Isan/Lao grilled-meat salad (pork: หมูน้ำตก, beef: เนื้อย่างน้ำตก)",
+        "fr": "Salade épicée de viande grillée d'Isan/du Laos (porc ou bœuf)"
       },
       "sources": [
         {
@@ -3731,8 +3731,8 @@ const CUISINE_NOTES = {
     "khao pad": {
       "local": "ข้าวผัด",
       "note": {
-        "en": "A Thai fried rice (RTGS: khao phat) typical of central Thai cuisine, made with Thai jasmine rice, egg and meat (commonly chicken, shrimp or…",
-        "fr": "Riz frit thaïlandais (khao phat) typique de la cuisine du centre de la Thaïlande, préparé avec du riz jasmin, des oeufs et de la viande…"
+        "en": "A Thai fried rice (RTGS: khao phat)",
+        "fr": "Riz frit thaïlandais (khao phat)"
       },
       "sources": [
         {
@@ -3761,7 +3761,7 @@ const CUISINE_NOTES = {
     "pad krapow moo": {
       "local": "ผัดกะเพราหมู",
       "note": {
-        "en": "Thai stir-fry of minced pork with holy basil, garlic and chillies over rice; the dish arose under Rama VII as Chinese immigrants began…",
+        "en": "Thai stir-fry of minced pork with holy basil, garlic and chillies over rice;",
         "fr": "Sauté thaïlandais de porc haché au basilic sacré, ail et piments sur du riz; le plat est né sous Rama VII grâce aux immigrants chinois."
       },
       "sources": [
@@ -3779,7 +3779,7 @@ const CUISINE_NOTES = {
       "local": "ผัดซีอิ๊ว",
       "note": {
         "en": "Thai stir-fried wide rice noodles in soy sauce with Chinese broccoli and egg; brought by Teochew Chinese immigrants from Guangdong.",
-        "fr": "Nouilles de riz larges sautées thaïes à la sauce soja, avec brocoli chinois et œuf ; apportées par les immigrés chinois teochew du…"
+        "fr": "Nouilles de riz larges sautées thaïes à la sauce soja, avec brocoli chinois et œuf ;"
       },
       "sources": [
         {
@@ -3791,8 +3791,8 @@ const CUISINE_NOTES = {
     "pad kee mao": {
       "local": "ผัดขี้เมา",
       "note": {
-        "en": "Spicy Thai stir-fried wide rice noodles with holy basil and chili; its name \"phat khi mao\" means \"drunkard's stir-fry\", though it has no…",
-        "fr": "Nouilles de riz larges thaïes sautées épicées au basilic sacré et piment; son nom « phat khi mao » signifie « sauté de l'ivrogne », bien…"
+        "en": "Spicy Thai stir-fried wide rice noodles with holy basil and chili;",
+        "fr": "Nouilles de riz larges thaïes sautées épicées au basilic sacré et piment;"
       },
       "sources": [
         {
@@ -3808,8 +3808,8 @@ const CUISINE_NOTES = {
     "boat noodles (kuay teow rua)": {
       "local": "ก๋วยเตี๋ยวเรือ",
       "note": {
-        "en": "Strongly-flavoured Thai pork or beef noodle soup whose dark broth is thickened with blood, named for the canal boats vendors once sold it…",
-        "fr": "Soupe thaïe de nouilles au porc ou au bœuf au goût intense, dont le bouillon foncé est lié au sang, nommée d'après les bateaux des canaux…"
+        "en": "Strongly-flavoured Thai pork or beef noodle soup whose dark broth is thickened with blood.",
+        "fr": "Soupe thaïe de nouilles au porc ou au bœuf au goût intense, dont le bouillon foncé est lié au sang."
       },
       "sources": [
         {
@@ -3842,8 +3842,8 @@ const CUISINE_NOTES = {
     "thai chicken rice (khao man gai)": {
       "local": "ข้าวมันไก่",
       "note": {
-        "en": "Thai poached chicken over chicken-fat rice with dipping sauce, the local form of Hainanese chicken rice brought by Hainanese Chinese…",
-        "fr": "Poulet poché thaïlandais sur riz au gras de poulet avec sauce, version locale du riz au poulet hainanais apporté par les immigrants chinois…"
+        "en": "Thai poached chicken over chicken-fat rice with dipping sauce, the local form of Hainanese chicken rice brought by Hainanese Chinese",
+        "fr": "Poulet poché thaïlandais sur riz au gras de poulet avec sauce, version locale du riz au poulet hainanais apporté par les immigrants chinois"
       },
       "sources": [
         {
@@ -3876,8 +3876,8 @@ const CUISINE_NOTES = {
     "thai fishcake (tod mun pla)": {
       "local": "ทอดมันปลา",
       "note": {
-        "en": "Thai deep-fried fish cakes of minced fish (traditionally clown featherback) pounded springy with red curry paste and kaffir lime, served…",
-        "fr": "Galettes de poisson thaïes frites, à base de poisson haché (traditionnellement le poisson-couteau) battu jusqu'à être élastique, avec pâte…"
+        "en": "Thai deep-fried fish cakes of minced fish (traditionally clown featherback)",
+        "fr": "Galettes de poisson thaïes frites, à base de poisson haché (traditionnellement le poisson-couteau)"
       },
       "sources": [
         {
@@ -3893,8 +3893,8 @@ const CUISINE_NOTES = {
     "mango sticky rice": {
       "local": "ข้าวเหนียวมะม่วง (khao niao mamuang)",
       "note": {
-        "en": "Thai dessert of glutinous rice cooked with sweet coconut milk and topped with fresh ripe mango, usually eaten during the peak mango season…",
-        "fr": "Dessert thaï de riz gluant cuit avec du lait de coco sucré et garni de mangue fraîche bien mûre, généralement dégusté pendant la pleine…"
+        "en": "Thai dessert of glutinous rice cooked with sweet coconut milk and topped with fresh ripe mango.",
+        "fr": "Dessert thaï de riz gluant cuit avec du lait de coco sucré et garni de mangue fraîche bien mûre."
       },
       "sources": [
         {
@@ -3910,8 +3910,8 @@ const CUISINE_NOTES = {
     "thai coconut ice cream": {
       "local": "ไอติมกะทิ (i-tim kati)",
       "note": {
-        "en": "Thai dairy-free coconut-milk ice cream, a street dessert sold by vendors and served in a coconut shell or in a soft bun/bread roll with…",
-        "fr": "Glace thaïlandaise au lait de coco sans produits laitiers, dessert de rue vendu par des marchands et servi dans une coque de noix de coco…"
+        "en": "Thai dairy-free coconut-milk ice cream, a street dessert sold by vendors and served in a coconut shell or in a soft bun/bread roll with",
+        "fr": "Glace thaïlandaise au lait de coco sans produits laitiers, dessert de rue vendu par des marchands et servi dans une coque de noix de coco"
       },
       "sources": [
         {
@@ -3927,8 +3927,8 @@ const CUISINE_NOTES = {
     "thai milk tea (cha yen)": {
       "local": "ชาเย็น",
       "note": {
-        "en": "Iced Thai drink ('cha yen' means 'cold tea') of strongly brewed black tea — Ceylon or a locally grown Assam landrace — sweetened with sugar…",
-        "fr": "Boisson thaïe glacée (« cha yen » signifie « thé froid ») de thé noir infusé fort — Ceylan ou une variété locale d'Assam — sucrée au sucre…"
+        "en": "Iced Thai drink ('cha yen' means 'cold tea')",
+        "fr": "Boisson thaïe glacée (« cha yen » signifie « thé froid »)"
       },
       "sources": [
         {
@@ -3975,7 +3975,7 @@ const CUISINE_NOTES = {
       "local": "ขนมเบื้อง",
       "note": {
         "en": "A crispy Thai taco-shaped crepe of rice and mung-bean flour with meringue and sweet or savoury toppings, dating to the Ayutthaya era.",
-        "fr": "Crepe thailandaise croustillante en forme de taco, a base de farine de riz et de haricot mungo, garnie de meringue, datant de l'ere…"
+        "fr": "Crêpe thailandaise croustillante en forme de taco, a base de farine de riz et de haricot mungo, garnie de meringue."
       },
       "sources": [
         {
@@ -4009,7 +4009,7 @@ const CUISINE_NOTES = {
       "local": "แกงเผ็ด",
       "note": {
         "en": "Thai curry of red chilli paste simmered in coconut milk with meat or tofu; its red colour comes from dried red spur chillies.",
-        "fr": "Curry thai de pate de piment rouge mijotee au lait de coco avec viande ou tofu; sa couleur rouge vient des piments rouges seches."
+        "fr": "Curry thai de pate de piment rouge mijotée au lait de coco avec viande ou tofu; sa couleur rouge vient des piments rouges seches."
       },
       "sources": [
         {
@@ -4026,7 +4026,7 @@ const CUISINE_NOTES = {
       "local": "แกงมัสมั่น",
       "note": {
         "en": "A mild, rich Thai coconut curry of Persian-Muslim origin, spiced with cardamom, cinnamon and cloves; name from Persian \"mosalmân\" (Muslim).",
-        "fr": "Curry thaï doux et riche au lait de coco, d'origine perso-musulmane, parfumé à la cardamome, cannelle et clou de girofle; nom du persan «…"
+        "fr": "Curry thaï doux et riche au lait de coco, d'origine perso-musulmane, parfumé à la cardamome, cannelle et clou de girofle;"
       },
       "sources": [
         {
@@ -4043,7 +4043,7 @@ const CUISINE_NOTES = {
       "local": "พะแนง",
       "note": {
         "en": "A thick, rich, mildly sweet Thai coconut-milk curry from central Thailand, documented as early as the 1889 cookbook Tam Raa Kap Khao.",
-        "fr": "Curry thaï épais, riche et légèrement sucré au lait de coco, originaire du centre de la Thaïlande, attesté dès le livre de cuisine Tam Raa…"
+        "fr": "Curry thaï épais, riche et légèrement sucré au lait de coco, originaire du centre de la Thaïlande."
       },
       "sources": [
         {
@@ -4108,7 +4108,7 @@ const CUISINE_NOTES = {
     "nasi lemak": {
       "local": "nasi lemak",
       "note": {
-        "en": "Malaysia's national dish of rice cooked in coconut milk and pandan, served with sambal, anchovies, peanuts, cucumber and egg; recorded by…",
+        "en": "Malaysia's national dish of rice cooked in coconut milk and pandan, served with sambal, anchovies, peanuts, cucumber and egg;",
         "fr": "Plat national malaisien de riz cuit au lait de coco et pandan, servi avec sambal, anchois, cacahuetes, concombre et oeuf; atteste des 1875."
       },
       "sources": [
@@ -4143,7 +4143,7 @@ const CUISINE_NOTES = {
       "local": "咖哩麵",
       "note": {
         "en": "Penang curry mee is a spicy coconut-curry noodle soup of Hokkien noodles and vermicelli, distinctively served with coagulated pig's blood.",
-        "fr": "Le curry mee de Penang est une soupe de nouilles au curry-coco epicee, melant nouilles Hokkien et vermicelles, servie avec du sang de porc…"
+        "fr": "Le curry mee de Penang est une soupe de nouilles au curry-coco épicée, melant nouilles Hokkien et vermicelles."
       },
       "sources": [
         {
@@ -4177,7 +4177,7 @@ const CUISINE_NOTES = {
       "local": "Sarawak laksa (砂拉越叻沙)",
       "note": {
         "en": "Kuching, Sarawak noodle soup of rice vermicelli in a prawn-and-sambal-belacan broth; named TasteAtlas's best dish in Asia in 2021.",
-        "fr": "Soupe de nouilles de Kuching (Sarawak), vermicelles de riz dans un bouillon de crevettes et sambal belacan; meilleur plat d'Asie selon…"
+        "fr": "Soupe de nouilles de Kuching (Sarawak), vermicelles de riz dans un bouillon de crevettes et sambal belacan;"
       },
       "sources": [
         {
@@ -4194,7 +4194,7 @@ const CUISINE_NOTES = {
       "local": "nasi kandar",
       "note": {
         "en": "A Penang dish of steamed rice with assorted curries, named for the shoulder pole (kandar) early Indian-Muslim vendors used to carry it.",
-        "fr": "Plat de Penang composé de riz vapeur et de currys variés, nomme d'apres la palanche (kandar) des vendeurs indo-musulmans d'antan."
+        "fr": "Plat de Penang composé de riz vapeur et de currys variés, nommé d'apres la palanche (kandar) des vendeurs indo-musulmans d'antan."
       },
       "sources": [
         {
@@ -4210,8 +4210,8 @@ const CUISINE_NOTES = {
     "wantan mee dry malaysian": {
       "local": "雲吞麵 (云吞面)",
       "note": {
-        "en": "Cantonese-origin egg noodles tossed dry in dark soy with char siu and wonton dumplings; a Malaysian hawker take serving the broth on the…",
-        "fr": "Nouilles aux oeufs d'origine cantonaise sautees a sec au soja noir avec char siu et raviolis wonton; version malaisienne servant le…"
+        "en": "Cantonese-origin egg noodles tossed dry in dark soy with char siu and wonton dumplings;",
+        "fr": "Nouilles aux oeufs d'origine cantonaise sautées a sec au soja noir avec char siu et raviolis wonton;"
       },
       "sources": [
         {
@@ -4228,7 +4228,7 @@ const CUISINE_NOTES = {
       "local": "apam balik",
       "note": {
         "en": "A folded Malaysian pancake of coconut-milk batter filled with crushed peanuts, sugar and sweetcorn, rooted in Fujianese cuisine.",
-        "fr": "Crepe malaisienne pliee, a base de lait de coco, garnie de cacahuetes pilees, de sucre et de mais, d'origine fujianaise."
+        "fr": "Crêpe malaisienne pliee, a base de lait de coco, garnie de cacahuetes pilees, de sucre et de mais, d'origine fujianaise."
       },
       "sources": [
         {
@@ -4245,7 +4245,7 @@ const CUISINE_NOTES = {
       "local": "滷麵 (Penang Loh Mee)",
       "note": {
         "en": "Penang-style braised Hokkien noodle dish in a thick starchy gravy, lighter than the Singapore version, with origins in Zhangzhou, China.",
-        "fr": "Plat de nouilles hokkien braisées de style Penang dans une sauce épaisse à l'amidon, plus légère qu'à Singapour, originaire de Zhangzhou…"
+        "fr": "Plat de nouilles hokkien braisées de style Penang dans une sauce épaisse à l'amidon, plus légère qu'à Singapour."
       },
       "sources": [
         {
@@ -4261,8 +4261,8 @@ const CUISINE_NOTES = {
     "cucur udang": {
       "local": "cucur udang",
       "note": {
-        "en": "A Malaysian and Singaporean deep-fried prawn fritter of battered prawns, onion and chives, a Malay street-vendor snack served with sweet…",
-        "fr": "Beignet de crevettes frit malaisien et singapourien, fait de crevettes, oignon et ciboule en pate, vendu par les marchands malais avec une…"
+        "en": "A Malaysian and Singaporean deep-fried prawn fritter of battered prawns, onion and chives.",
+        "fr": "Beignet de crevettes frit malaisien et singapourien, fait de crevettes, oignon et ciboule en pate."
       },
       "sources": [
         {
@@ -4279,7 +4279,7 @@ const CUISINE_NOTES = {
       "local": "rendang (Minangkabau: randang)",
       "note": {
         "en": "Slow-cooked dry meat curry stewed in coconut milk and spices, originating with the Minangkabau people of West Sumatra.",
-        "fr": "Curry de viande sec mijoté lentement dans du lait de coco et des epices, originaire des Minangkabau de Sumatra occidental."
+        "fr": "Curry de viande sec mijoté lentement dans du lait de coco et des épices, originaire des Minangkabau de Sumatra occidental."
       },
       "sources": [
         {
@@ -4296,7 +4296,7 @@ const CUISINE_NOTES = {
       "local": "kuih lapis (九層糕)",
       "note": {
         "en": "A soft steamed Peranakan layer cake of rice and tapioca flour, sugar and coconut milk, traditionally built in nine coloured layers.",
-        "fr": "Gateau peranakan moelleux cuit a la vapeur, fait de farine de riz et de tapioca, sucre et lait de coco, en neuf couches colorees."
+        "fr": "Gateau peranakan moelleux cuit à la vapeur, fait de farine de riz et de tapioca, sucre et lait de coco, en neuf couches colorees."
       },
       "sources": [
         {
@@ -4329,8 +4329,8 @@ const CUISINE_NOTES = {
     "apam": {
       "local": "أڤم باليق",
       "note": {
-        "en": "In Malay, \"apam\" broadly means any fluffy batter-based kuih. The most documented form, apam balik (lit. \"turnover pancake\"; also terang…",
-        "fr": "En malais, \"apam\" designe largement tout kuih moelleux a base de pate. Sa forme la plus connue, l'apam balik (litt. \"crepe retournee\"…"
+        "en": "In Malay, \"apam\" broadly means any fluffy batter-based kuih. The most documented form, apam balik (lit. \"turnover pancake\";",
+        "fr": "En malais, \"apam\" designe largement tout kuih moelleux a base de pate. Sa forme la plus connue, l'apam balik (litt."
       },
       "sources": [
         {
@@ -4346,8 +4346,8 @@ const CUISINE_NOTES = {
     "nasi kerabu": {
       "local": "nasi kerabu",
       "note": {
-        "en": "Malay rice dish from Kelantan and Terengganu whose rice is tinted blue with butterfly pea flowers, served with herbs, salad and fried fish…",
-        "fr": "Plat de riz malais de Kelantan et Terengganu dont le riz est teinte en bleu par la fleur de pois bleu, servi avec herbes, salade et poisson…"
+        "en": "Malay rice dish from Kelantan and Terengganu whose rice is tinted blue with butterfly pea flowers, served with herbs.",
+        "fr": "Plat de riz malais de Kelantan et Terengganu dont le riz est teinte en bleu par la fleur de pois bleu, servi avec herbes."
       },
       "sources": [
         {
@@ -4364,7 +4364,7 @@ const CUISINE_NOTES = {
       "local": "Roti John",
       "note": {
         "en": "A Southeast Asian street-food omelette sandwich of a baguette griddled with egg, onions and minced meat, originating in 1960s Singapore.",
-        "fr": "Sandwich-omelette de rue d'Asie du Sud-Est: une baguette grillee a l'oeuf, oignons et viande hachee, ne dans le Singapour des annees 1960."
+        "fr": "Sandwich-omelette de rue d'Asie du Sud-Est: une baguette grillée a l'oeuf, oignons et viande hachée, ne dans le Singapour des annees 1960."
       },
       "sources": [
         {
@@ -4432,7 +4432,7 @@ const CUISINE_NOTES = {
       "local": "Laksa Kari (Curry Mee / Laksa Lemak)",
       "note": {
         "en": "A Kuala Lumpur coconut-curry noodle soup of Peranakan-Chinese origin, served with tofu puffs, cockles, long beans and mint.",
-        "fr": "Une soupe de nouilles au curry et lait de coco de Kuala Lumpur, d'origine sino-peranakan, servie avec tofu, coques, haricots longs et…"
+        "fr": "Une soupe de nouilles au curry et lait de coco de Kuala Lumpur, d'origine sino-peranakan, servie avec tofu, coques."
       },
       "sources": [
         {
@@ -4449,7 +4449,7 @@ const CUISINE_NOTES = {
       "local": "炒粿條",
       "note": {
         "en": "Stir-fried flat rice noodles with prawns, cockles, Chinese sausage and bean sprouts; a Teochew dockworkers' dish from Penang.",
-        "fr": "Nouilles de riz plates sautees aux crevettes, coques, saucisse chinoise et germes de soja; plat teochew des dockers de Penang."
+        "fr": "Nouilles de riz plates sautées aux crevettes, coques, saucisse chinoise et germes de soja; plat teochew des dockers de Penang."
       },
       "sources": [
         {
@@ -4465,8 +4465,8 @@ const CUISINE_NOTES = {
     "hokkien mee kl": {
       "local": "福建面 (Hokkien mee, KL-style; Cantonese: 大碌麵 tai lok mee)",
       "note": {
-        "en": "Kuala Lumpur dish of thick yellow noodles braised in dark soy sauce with pork, prawns and crispy lard, created in 1920s KL by Hokkien…",
-        "fr": "Plat de Kuala Lumpur fait de nouilles jaunes epaisses braisees a la sauce soja noire avec porc, crevettes et lard croustillant, cree dans…"
+        "en": "Kuala Lumpur dish of thick yellow noodles braised in dark soy sauce with pork, prawns and crispy lard.",
+        "fr": "Plat de Kuala Lumpur fait de nouilles jaunes epaisses braisées à la sauce soja noire avec porc, crevettes et lard croustillant."
       },
       "sources": [
         {
@@ -4482,8 +4482,8 @@ const CUISINE_NOTES = {
     "hokkien mee penang": {
       "local": "檳城福建麵 (hae mee)",
       "note": {
-        "en": "Penang's spicy prawn-and-pork noodle soup with a rich prawn-head and pork-bone stock, descended from Fujianese (Hokkien) immigrant cooking…",
-        "fr": "Soupe de nouilles épicée aux crevettes et au porc de Penang, à base d'un bouillon riche de têtes de crevettes et d'os de porc, issue de la…"
+        "en": "Penang's spicy prawn-and-pork noodle soup with a rich prawn-head and pork-bone stock, descended from Fujianese (Hokkien)",
+        "fr": "Soupe de nouilles épicée aux crevettes et au porc de Penang, à base d'un bouillon riche de têtes de crevettes et d'os de porc."
       },
       "sources": [
         {
@@ -4499,8 +4499,8 @@ const CUISINE_NOTES = {
     "mee mamak goreng": {
       "local": "mee goreng mamak",
       "note": {
-        "en": "Malaysian stir-fried yellow egg noodles in a sweet, spicy sauce (typically kecap manis, chilli paste and tomato), introduced by the…",
-        "fr": "Nouilles aux oeufs jaunes sautees, sauce sucree et epicee (kecap manis, pate de piment et tomate), introduites par la communaute…"
+        "en": "Malaysian stir-fried yellow egg noodles in a sweet, spicy sauce (typically kecap manis, chilli paste and tomato)",
+        "fr": "Nouilles aux oeufs jaunes sautées, sauce sucree et épicée (kecap manis, pate de piment et tomate)"
       },
       "sources": [
         {
@@ -4517,7 +4517,7 @@ const CUISINE_NOTES = {
       "local": "teh tarik",
       "note": {
         "en": "A Malaysian hot black tea with condensed milk, repeatedly poured (\"pulled\") between two vessels for froth; created by Indian-Muslim vendors.",
-        "fr": "Thé noir chaud malaisien au lait concentré, versé en va-et-vient (\"tiré\") entre deux récipients pour la mousse; créé par des marchands…"
+        "fr": "Thé noir chaud malaisien au lait concentré, versé en va-et-vient (\"tiré\") entre deux récipients pour la mousse;"
       },
       "sources": [
         {
@@ -4534,7 +4534,7 @@ const CUISINE_NOTES = {
       "local": "點心 (dím sām)",
       "note": {
         "en": "Cantonese bite-sized steamed or fried small dishes served with tea, brought to Kuala Lumpur by 20th-century Cantonese migrants.",
-        "fr": "Petites bouchees cantonaises cuites a la vapeur ou frites servies avec du the, apportees a Kuala Lumpur par les migrants cantonais du XXe…"
+        "fr": "Petites bouchees cantonaises cuites à la vapeur ou frites servies avec du the."
       },
       "sources": [
         {
@@ -4585,7 +4585,7 @@ const CUISINE_NOTES = {
       "local": "Kuih kapit",
       "note": {
         "en": "A thin, crisp Malaysian wafer of coconut milk, rice flour and egg clamped between hot iron moulds, nicknamed \"love letters.\"",
-        "fr": "Une fine gaufrette malaisienne croustillante de lait de coco, farine de riz et oeuf cuite entre des moules en fer brulants, surnommee…"
+        "fr": "Une fine gaufrette malaisienne croustillante de lait de coco, farine de riz et oeuf cuite entre des moules en fer brulants."
       },
       "sources": [
         {
@@ -4601,7 +4601,7 @@ const CUISINE_NOTES = {
     "ais kacang malaysian": {
       "local": "ais kacang (ABC – air batu campur)",
       "note": {
-        "en": "Malaysian shaved-ice dessert (\"bean ice\"), aka ABC, layering red beans, jellies and syrups; dates to the early 20th century as ice became…",
+        "en": "Malaysian shaved-ice dessert (\"bean ice\"), aka ABC, layering red beans, jellies and syrups;",
         "fr": "Dessert malaisien de glace pilée (\"glace aux haricots\"), dit ABC, garni de haricots rouges, gelées et sirops; apparu au début du XXe siècle."
       },
       "sources": [
@@ -4617,7 +4617,7 @@ const CUISINE_NOTES = {
       "local": "nasi goreng",
       "note": {
         "en": "Indonesian/Malay fried rice stir-fried with sweet soy sauce (kecap manis), shallots, garlic and shrimp paste, often using leftover rice.",
-        "fr": "Riz frit indonesien/malais saute au soja sucre (kecap manis), echalotes, ail et pate de crevettes, souvent a partir de riz de la veille."
+        "fr": "Riz frit indonesien/malais sauté au soja sucre (kecap manis), echalotes, ail et pate de crevettes, souvent a partir de riz de la veille."
       },
       "sources": [
         {
@@ -4634,7 +4634,7 @@ const CUISINE_NOTES = {
       "local": "rendang",
       "note": {
         "en": "A Minangkabau dish from West Sumatra of meat slow-cooked in coconut milk and spices until dry, originally made to preserve meat.",
-        "fr": "Plat minangkabau de Sumatra occidental, viande mijotee dans du lait de coco et des epices jusqu'a evaporation, conçu pour la conserver."
+        "fr": "Plat minangkabau de Sumatra occidental, viande mijotée dans du lait de coco et des épices jusqu'a evaporation, conçu pour la conserver."
       },
       "sources": [
         {
@@ -4650,7 +4650,7 @@ const CUISINE_NOTES = {
     "bakso": {
       "local": "bakso (Hokkien-derived: 肉酥, bak-so)",
       "note": {
-        "en": "Indonesian beef-paste meatballs served in broth with noodles; the name derives from Hokkien bak-so (肉酥), reflecting Chinese-Indonesian…",
+        "en": "Indonesian beef-paste meatballs served in broth with noodles; the name derives from Hokkien bak-so (肉酥)",
         "fr": "Boulettes indonésiennes de pâte de bœuf servies en bouillon avec nouilles; le nom vient du hokkien bak-so (肉酥), d'origine sino-indonésienne."
       },
       "sources": [
@@ -4667,8 +4667,8 @@ const CUISINE_NOTES = {
     "soto betawi": {
       "local": "Soto Betawi",
       "note": {
-        "en": "Jakarta beef-and-offal soup simmered in a rich, creamy broth of coconut milk (often combined with cow's milk), seasoned with spices such as…",
-        "fr": "Soupe de boeuf et d'abats de Jakarta mijotee dans un bouillon riche et cremeux au lait de coco (souvent melange a du lait de vache)…"
+        "en": "Jakarta beef-and-offal soup simmered in a rich, creamy broth of coconut milk (often combined with cow's milk)",
+        "fr": "Soupe de bœuf et d'abats de Jakarta mijotée dans un bouillon riche et cremeux au lait de coco (souvent mélangé a du lait de vache)"
       },
       "sources": [
         {
@@ -4701,7 +4701,7 @@ const CUISINE_NOTES = {
     "soto kudus": {
       "local": "Soto Kudus",
       "note": {
-        "en": "A clear, aromatic Indonesian soup from Kudus, Central Java, made with chicken or water buffalo, the latter used out of respect for local…",
+        "en": "A clear, aromatic Indonesian soup from Kudus, Central Java, made with chicken or water buffalo.",
         "fr": "Une soupe indonesienne claire et aromatique de Kudus (Java central), au poulet ou au buffle, ce dernier par respect pour les hindous locaux."
       },
       "sources": [
@@ -4719,7 +4719,7 @@ const CUISINE_NOTES = {
       "local": "rawon",
       "note": {
         "en": "East Javanese beef soup, blackened and given a nutty flavor by ground keluak nuts; named world's best soup by TasteAtlas in 2024.",
-        "fr": "Soupe de boeuf de Java oriental, noircie et parfumee par les noix de keluak; elue meilleure soupe du monde par TasteAtlas en 2024."
+        "fr": "Soupe de bœuf de Java oriental, noircie et parfumee par les noix de keluak; elue meilleure soupe du monde par TasteAtlas en 2024."
       },
       "sources": [
         {
@@ -4735,8 +4735,8 @@ const CUISINE_NOTES = {
     "ayam betutu": {
       "local": "ayam betutu",
       "note": {
-        "en": "Balinese whole chicken rubbed and stuffed with base genep (bumbu betutu) spice paste, wrapped in banana leaves and slow-cooked over or…",
-        "fr": "Poulet entier balinais frotte et farci de pate d'epices base genep (bumbu betutu), enveloppe de feuilles de bananier et cuit lentement sur…"
+        "en": "Balinese whole chicken rubbed and stuffed with base genep (bumbu betutu)",
+        "fr": "Poulet entier balinais frotte et farci de pate d'épices base genep (bumbu betutu)"
       },
       "sources": [
         {
@@ -4752,8 +4752,8 @@ const CUISINE_NOTES = {
     "babi guling": {
       "local": "babi guling",
       "note": {
-        "en": "Balinese spit-roasted suckling pig whose cavity is stuffed with a spice paste (turmeric, garlic, ginger and other spices), traditionally…",
-        "fr": "Cochon de lait balinais rôti à la broche dont la cavité est farcie d'une pâte d'épices (curcuma, ail, gingembre et autres épices), préparé…"
+        "en": "Balinese spit-roasted suckling pig whose cavity is stuffed with a spice paste (turmeric, garlic, ginger and other spices)",
+        "fr": "Cochon de lait balinais rôti à la broche dont la cavité est farcie d'une pâte d'épices (curcuma, ail, gingembre et autres épices)"
       },
       "sources": [
         {
@@ -4769,8 +4769,8 @@ const CUISINE_NOTES = {
     "pepes ikan": {
       "local": "pepes ikan",
       "note": {
-        "en": "Indonesian dish of spiced fish wrapped in a banana leaf then steamed or grilled; Sundanese in origin, the name deriving from the Sundanese…",
-        "fr": "Plat indonesien de poisson epice enveloppe dans une feuille de bananier puis cuit a la vapeur ou grille; d'origine soundanaise, son nom…"
+        "en": "Indonesian dish of spiced fish wrapped in a banana leaf then steamed or grilled;",
+        "fr": "Plat indonesien de poisson épice enveloppe dans une feuille de bananier puis cuit à la vapeur ou grillé;"
       },
       "sources": [
         {
@@ -4804,7 +4804,7 @@ const CUISINE_NOTES = {
       "local": "Gulai kambing",
       "note": {
         "en": "Indonesian goat or mutton curry simmered in coconut milk and turmeric-based spices, rooted in Minangkabau cuisine of West Sumatra.",
-        "fr": "Curry indonesien de chevre ou mouton mijote au lait de coco et epices au curcuma, issu de la cuisine minangkabau de Sumatra-Ouest."
+        "fr": "Curry indonesien de chevre ou mouton mijoté au lait de coco et épices au curcuma, issu de la cuisine minangkabau de Sumatra-Ouest."
       },
       "sources": [
         {
@@ -4820,8 +4820,8 @@ const CUISINE_NOTES = {
     "gulai ikan": {
       "local": "gulai ikan",
       "note": {
-        "en": "Indonesian fish stew simmered in a coconut-milk sauce coloured and spiced with turmeric; gulai is strongly associated with the Minangkabau…",
-        "fr": "Ragout de poisson indonesien mijote dans une sauce au lait de coco coloree et parfumee au curcuma ; le gulai est fortement associe a la…"
+        "en": "Indonesian fish stew simmered in a coconut-milk sauce coloured and spiced with turmeric;",
+        "fr": "Ragout de poisson indonesien mijoté dans une sauce au lait de coco coloree et parfumee au curcuma ;"
       },
       "sources": [
         {
@@ -4923,7 +4923,7 @@ const CUISINE_NOTES = {
       "local": "lontong sayur",
       "note": {
         "en": "Indonesian breakfast dish of compressed rice cakes (lontong) in a coconut-milk vegetable soup, popular in Betawi and Minangkabau cuisine.",
-        "fr": "Plat indonesien du petit-dejeuner, galettes de riz compresse (lontong) dans une soupe de legumes au lait de coco, des cuisines betawi et…"
+        "fr": "Plat indonesien du petit-dejeuner, galettes de riz compresse (lontong)"
       },
       "sources": [
         {
@@ -4939,8 +4939,8 @@ const CUISINE_NOTES = {
     "martabak telur": {
       "local": "martabak telur",
       "note": {
-        "en": "An Indonesian savoury fried stuffed pancake filled with egg, seasoned ground meat and scallions, introduced by Arab and Indian Muslim…",
-        "fr": "Une crepe indonesienne salee, frite et farcie d'oeuf, de viande hachee epicee et de ciboule, introduite par des marchands musulmans arabes…"
+        "en": "An Indonesian savoury fried stuffed pancake filled with egg, seasoned ground meat and scallions.",
+        "fr": "Une crêpe indonesienne salee, frite et farcie d'oeuf, de viande hachée épicée et de ciboule."
       },
       "sources": [
         {
@@ -4957,7 +4957,7 @@ const CUISINE_NOTES = {
       "local": "martabak manis",
       "note": {
         "en": "A thick sweet Indonesian pancake folded over fillings, originating in the Bangka Belitung Islands among ethnic Chinese as \"Hok Lo Pan\".",
-        "fr": "Une epaisse crepe sucree indonesienne pliee sur sa garniture, nee aux iles Bangka Belitung chez les Sino-Indonesiens sous le nom \"Hok Lo…"
+        "fr": "Une epaisse crêpe sucree indonesienne pliee sur sa garniture, nee aux iles Bangka Belitung chez les Sino-Indonesiens sous le nom \"Hok Lo"
       },
       "sources": [
         {
@@ -4973,8 +4973,8 @@ const CUISINE_NOTES = {
     "siomay": {
       "local": "siomay",
       "note": {
-        "en": "Indonesian steamed fish dumpling in peanut sauce, adapted by Chinese immigrants from Cantonese shumai using mackerel; Bandung style is most…",
-        "fr": "Bouchee indonesienne de poisson vapeur en sauce cacahuete, adaptee du shumai cantonais au maquereau; la version de Bandung est la plus…"
+        "en": "Indonesian steamed fish dumpling in peanut sauce, adapted by Chinese immigrants from Cantonese shumai using mackerel;",
+        "fr": "Bouchee indonesienne de poisson vapeur en sauce cacahuete, adaptee du shumai cantonais au maquereau;"
       },
       "sources": [
         {
@@ -5007,8 +5007,8 @@ const CUISINE_NOTES = {
     "rujak": {
       "local": "rujak (rujak buah)",
       "note": {
-        "en": "Indonesian Javanese-origin spicy fruit-and-vegetable salad in a palm-sugar, tamarind, chili and shrimp-paste sauce; named in a 901 CE…",
-        "fr": "Salade indonesienne d'origine javanaise de fruits et legumes pimentee, sauce au sucre de palme, tamarin, piment et pate de crevettes; citee…"
+        "en": "Indonesian Javanese-origin spicy fruit-and-vegetable salad in a palm-sugar, tamarind, chili and shrimp-paste sauce;",
+        "fr": "Salade indonesienne d'origine javanaise de fruits et legumes pimentee, sauce au sucre de palme, tamarin, piment et pate de crevettes;"
       },
       "sources": [
         {
@@ -5020,8 +5020,8 @@ const CUISINE_NOTES = {
     "asinan": {
       "local": "asinan",
       "note": {
-        "en": "Indonesian salad of brined or vinegared vegetables or fruit; name derives from \"asin\" (salty); main types are asinan Betawi and asinan…",
-        "fr": "Salade indonesienne de legumes ou fruits saumures ou vinaigres; le nom vient de \"asin\" (sale); types principaux: asinan Betawi et asinan…"
+        "en": "Indonesian salad of brined or vinegared vegetables or fruit; name derives from \"asin\" (salty);",
+        "fr": "Salade indonesienne de legumes ou fruits saumures ou vinaigres; le nom vient de \"asin\" (sale);"
       },
       "sources": [
         {
@@ -5037,8 +5037,8 @@ const CUISINE_NOTES = {
     "tempeh goreng": {
       "local": "Tempe goreng",
       "note": {
-        "en": "Indonesian deep-fried tempeh, the most popular dish made from Java's traditional fermented soybean cake, often marinated in garlic and…",
-        "fr": "Tempeh frit indonesien, le plat le plus populaire a base du gateau de soja fermente traditionnel de Java, souvent marine a l'ail et a la…"
+        "en": "Indonesian deep-fried tempeh, the most popular dish made from Java's traditional fermented soybean cake.",
+        "fr": "Tempeh frit indonesien, le plat le plus populaire a base du gateau de soja fermenté traditionnel de Java."
       },
       "sources": [
         {
@@ -5068,7 +5068,7 @@ const CUISINE_NOTES = {
       "local": "nasi uduk",
       "note": {
         "en": "Indonesian rice steamed in coconut milk with clove, lemongrass and cassia bark; a Betawi specialty of Jakarta, served with side dishes.",
-        "fr": "Riz indonesien cuit au lait de coco avec clou de girofle, citronnelle et cannelle; specialite betawi de Jakarta, servi avec accompagnements."
+        "fr": "Riz indonesien cuit au lait de coco avec clou de girofle, citronnelle et cannelle; spécialité betawi de Jakarta, servi avec accompagnements."
       },
       "sources": [
         {
@@ -5085,7 +5085,7 @@ const CUISINE_NOTES = {
       "local": "Dadar gulung",
       "note": {
         "en": "Indonesian rolled pancake, green from pandan or suji leaf, filled with grated coconut and palm sugar (gula melaka); popular in Java.",
-        "fr": "Crepe roulee indonesienne, verdie au pandan ou suji, garnie de noix de coco rapee et sucre de palme (gula melaka); populaire a Java."
+        "fr": "Crêpe roulee indonesienne, verdie au pandan ou suji, garnie de noix de coco rapee et sucre de palme (gula melaka); populaire a Java."
       },
       "sources": [
         {
@@ -5120,8 +5120,8 @@ const CUISINE_NOTES = {
     "sashimi": {
       "local": "刺身",
       "note": {
-        "en": "Thinly sliced raw fish or other raw meat, served with a soy-sauce dip and condiments such as wasabi; the Japanese word sashimi dates from…",
-        "fr": "Fines tranches de poisson cru ou d'autre viande crue, servies avec une sauce soja et des condiments comme le wasabi ; le mot japonais…"
+        "en": "Thinly sliced raw fish or other raw meat, served with a soy-sauce dip and condiments such as wasabi;",
+        "fr": "Fines tranches de poisson cru ou d'autre viande crue, servies avec une sauce soja et des condiments comme le wasabi ;"
       },
       "sources": [
         {
@@ -5206,7 +5206,7 @@ const CUISINE_NOTES = {
       "local": "塩ラーメン (shio rāmen)",
       "note": {
         "en": "Japanese wheat-noodle soup in a light, clear salt-seasoned broth; the oldest ramen style, traditionally tied to Hakodate, Hokkaido.",
-        "fr": "Soupe japonaise de nouilles de blé dans un bouillon clair et léger assaisonné au sel; le plus ancien style de ramen, lié à Hakodate…"
+        "fr": "Soupe japonaise de nouilles de blé dans un bouillon clair et léger assaisonné au sel;"
       },
       "sources": [
         {
@@ -5222,8 +5222,8 @@ const CUISINE_NOTES = {
     "tsukemen": {
       "local": "つけ麺",
       "note": {
-        "en": "Japanese ramen style where chilled noodles are dipped into a separate bowl of strong, concentrated hot broth; invented in 1961 in Tokyo by…",
-        "fr": "Style de ramen japonais où des nouilles refroidies se trempent dans un bol séparé de bouillon chaud, fort et concentré ; inventé en 1961 à…"
+        "en": "Japanese ramen style where chilled noodles are dipped into a separate bowl of strong, concentrated hot broth;",
+        "fr": "Style de ramen japonais où des nouilles refroidies se trempent dans un bol séparé de bouillon chaud, fort et concentré ;"
       },
       "sources": [
         {
@@ -5240,7 +5240,7 @@ const CUISINE_NOTES = {
       "local": "天ぷら (てんぷら, tempura)",
       "note": {
         "en": "Japanese dish of seafood or vegetables in light batter, deep-fried; introduced by 16th-century Portuguese missionaries via Nanban trade.",
-        "fr": "Plat japonais de fruits de mer ou légumes en pâte légère et frits, introduit au XVIe siècle par les missionnaires portugais via le commerce…"
+        "fr": "Plat japonais de fruits de mer ou légumes en pâte légère et frits, introduit au XVIe siècle par les missionnaires portugais via le commerce"
       },
       "sources": [
         {
@@ -5269,8 +5269,8 @@ const CUISINE_NOTES = {
     "chicken katsu": {
       "local": "チキンカツ (chikinkatsu / 鶏カツ tori katsu)",
       "note": {
-        "en": "A Japanese yōshoku dish of panko-breaded deep-fried chicken cutlet, derived from tonkatsu, itself adapted from European breaded cutlets in…",
-        "fr": "Un plat japonais yōshoku d'escalope de poulet panée au panko et frite, dérivé du tonkatsu, lui-même adapté des escalopes panées européennes…"
+        "en": "A Japanese yōshoku dish of panko-breaded deep-fried chicken cutlet, derived from tonkatsu.",
+        "fr": "Un plat japonais yōshoku d'escalope de poulet panée au panko et frite, dérivé du tonkatsu."
       },
       "sources": [
         {
@@ -5286,8 +5286,8 @@ const CUISINE_NOTES = {
     "katsu curry": {
       "local": "カツカレー",
       "note": {
-        "en": "Japanese yoshoku dish of a breaded, deep-fried tonkatsu cutlet (usually pork) served over rice with Japanese curry. Its origin is disputed…",
-        "fr": "Plat japonais de type yoshoku compose d'une escalope panee et frite (tonkatsu, generalement de porc) servie sur du riz avec du curry…"
+        "en": "Japanese yoshoku dish of a breaded, deep-fried tonkatsu cutlet (usually pork) served over rice with Japanese curry.",
+        "fr": "Plat japonais de type yoshoku compose d'une escalope panee et frite (tonkatsu, generalement de porc)"
       },
       "sources": [
         {
@@ -5304,7 +5304,7 @@ const CUISINE_NOTES = {
       "local": "カレーライス (karē raisu)",
       "note": {
         "en": "A mild, thick curry over rice, introduced via the British Royal Navy and first appearing in Japanese cookbooks in 1872 (Meiji era).",
-        "fr": "Un curry doux et épais servi sur du riz, introduit via la Royal Navy britannique et apparu dans les livres de cuisine japonais en 1872 (ère…"
+        "fr": "Un curry doux et épais servi sur du riz, introduit via la Royal Navy britannique et apparu dans les livres de cuisine japonais en 1872 (ère"
       },
       "sources": [
         {
@@ -5321,7 +5321,7 @@ const CUISINE_NOTES = {
       "local": "餃子",
       "note": {
         "en": "Pan-fried crescent dumplings of ground meat and vegetables; Japan's adaptation of Chinese jiaozi, popularized after World War II.",
-        "fr": "Raviolis en croissant poêlés farcis de viande hachée et légumes ; adaptation japonaise du jiaozi chinois, popularisée après la Seconde…"
+        "fr": "Raviolis en croissant poêlés farcis de viande hachée et légumes ;"
       },
       "sources": [
         {
@@ -5355,7 +5355,7 @@ const CUISINE_NOTES = {
       "local": "お好み焼き",
       "note": {
         "en": "A savory Japanese pancake of batter and shredded cabbage griddle-cooked with varied toppings; its name means \"grilled as you like.\"",
-        "fr": "Une galette japonaise salee de pate et de chou emince cuite a la plaque avec garnitures variees; son nom signifie \"grille comme on aime.\""
+        "fr": "Une galette japonaise salee de pate et de chou emince cuite à la plaque avec garnitures variees; son nom signifie \"grillé comme on aime.\""
       },
       "sources": [
         {
@@ -5371,8 +5371,8 @@ const CUISINE_NOTES = {
     "yakitori": {
       "local": "焼き鳥（やきとり）",
       "note": {
-        "en": "Japanese skewered chicken grilled over charcoal and seasoned with tare (a soy-based sweet-savoury sauce) or salt; the name 焼き鳥 literally…",
-        "fr": "Brochettes de poulet japonaises grillées au charbon de bois et assaisonnées de tare (sauce sucrée-salée à base de soja) ou de sel ; le nom…"
+        "en": "Japanese skewered chicken grilled over charcoal and seasoned with tare (a soy-based sweet-savoury sauce) or salt;",
+        "fr": "Brochettes de poulet japonaises grillées au charbon de bois et assaisonnées de tare (sauce sucrée-salée à base de soja) ou de sel ;"
       },
       "sources": [
         {
@@ -5388,8 +5388,8 @@ const CUISINE_NOTES = {
     "yakiniku": {
       "local": "焼肉",
       "note": {
-        "en": "Japanese grilled meat (literally \"grilled meat\"), where diners cook bite-sized beef and offal over a tabletop fire; popularized post-WWII…",
-        "fr": "Viande grillée japonaise (litt. \"viande grillée\"), où l'on cuit bœuf et abats en bouchées sur un grill de table; popularisée après 1945…"
+        "en": "Japanese grilled meat (literally \"grilled meat\"), where diners cook bite-sized beef and offal over a tabletop fire;",
+        "fr": "Viande grillée japonaise (litt. \"viande grillée\"), où l'on cuit bœuf et abats en bouchées sur un grill de table;"
       },
       "sources": [
         {
@@ -5401,8 +5401,8 @@ const CUISINE_NOTES = {
     "shabu shabu": {
       "local": "しゃぶしゃぶ",
       "note": {
-        "en": "Japanese nabemono hot pot of thinly sliced meat and vegetables swished in boiling water; named at Osaka's Suehiro restaurant, trademarked…",
-        "fr": "Fondue japonaise (nabemono) de fines tranches de viande et legumes plongees dans l'eau bouillante; nommee au restaurant Suehiro d'Osaka…"
+        "en": "Japanese nabemono hot pot of thinly sliced meat and vegetables swished in boiling water;",
+        "fr": "Fondue japonaise (nabemono) de fines tranches de viande et legumes plongees dans l'eau bouillante;"
       },
       "sources": [
         {
@@ -5436,7 +5436,7 @@ const CUISINE_NOTES = {
       "local": "鰻丼 (うな丼, unadon)",
       "note": {
         "en": "A rice bowl topped with kabayaki-style grilled eel glazed in sweet soy tare; the first donburi dish, created in Edo-era Tokyo (c. 1810).",
-        "fr": "Un bol de riz garni d'anguille grillee facon kabayaki nappee de tare sucree au soja; premier donburi, cree a Tokyo a l'epoque d'Edo (v…"
+        "fr": "Un bol de riz garni d'anguille grillée facon kabayaki nappee de tare sucree au soja;"
       },
       "sources": [
         {
@@ -5470,7 +5470,7 @@ const CUISINE_NOTES = {
       "local": "カツ丼",
       "note": {
         "en": "Japanese rice bowl topped with a breaded deep-fried pork cutlet (tonkatsu) simmered with egg and onion in dashi-based sauce.",
-        "fr": "Bol de riz japonais garni d'une escalope de porc panee et frite (tonkatsu) mijotee avec oeuf et oignon dans une sauce au dashi."
+        "fr": "Bol de riz japonais garni d'une escalope de porc panee et frite (tonkatsu) mijotée avec oeuf et oignon dans une sauce au dashi."
       },
       "sources": [
         {
@@ -5516,8 +5516,8 @@ const CUISINE_NOTES = {
     "udon": {
       "local": "うどん (饂飩)",
       "note": {
-        "en": "Udon is a thick, chewy Japanese wheat-flour noodle (made from wheat flour, water and salt) commonly served in a dashi-based broth. Its…",
-        "fr": "L'udon est une nouille japonaise épaisse et moelleuse à base de farine de blé (farine de blé, eau et sel), généralement servie dans un…"
+        "en": "Udon is a thick, chewy Japanese wheat-flour noodle (made from wheat flour, water and salt) commonly served in a dashi-based broth.",
+        "fr": "L'udon est une nouille japonaise épaisse et moelleuse à base de farine de blé (farine de blé, eau et sel)"
       },
       "sources": [
         {
@@ -5568,7 +5568,7 @@ const CUISINE_NOTES = {
       "local": "日本酒（酒）",
       "note": {
         "en": "Japanese alcoholic drink brewed from rice polished to remove bran, fermented with kōji mold; true sake dates to the Nara period (710-794).",
-        "fr": "Boisson alcoolisée japonaise brassée à partir de riz poli, fermenté avec la moisissure kōji ; le vrai saké remonte à l'époque de Nara…"
+        "fr": "Boisson alcoolisée japonaise brassée à partir de riz poli, fermenté avec la moisissure kōji ;"
       },
       "sources": [
         {
@@ -5585,7 +5585,7 @@ const CUISINE_NOTES = {
       "local": "抹茶",
       "note": {
         "en": "Finely stone-ground powder of shade-grown Japanese green tea, introduced from China by Zen monk Eisai around 1191.",
-        "fr": "Poudre finement broyee a la meule de the vert japonais cultive a l'ombre, introduit de Chine par le moine zen Eisai vers 1191."
+        "fr": "Poudre finement broyee à la meule de the vert japonais cultive a l'ombre, introduit de Chine par le moine zen Eisai vers 1191."
       },
       "sources": [
         {
@@ -5604,7 +5604,7 @@ const CUISINE_NOTES = {
       "local": "비빔밥",
       "note": {
         "en": "A Korean dish of warm rice topped with seasoned vegetables (namul), gochujang, egg and meat, mixed before eating; name means \"mixed rice\".",
-        "fr": "Plat coréen de riz chaud garni de légumes assaisonnés (namul), gochujang, œuf et viande, mélangés avant de manger ; son nom signifie « riz…"
+        "fr": "Plat coréen de riz chaud garni de légumes assaisonnés (namul), gochujang, œuf et viande, mélangés avant de manger ;"
       },
       "sources": [
         {
@@ -5620,8 +5620,8 @@ const CUISINE_NOTES = {
     "dolsot bibimbap": {
       "local": "돌솥비빔밥",
       "note": {
-        "en": "Korean mixed-rice dish served in a sizzling stone pot (dolsot) that crisps the rice and cooks a raw egg; the variant arose in 1960s-70s…",
-        "fr": "Plat coreen de riz melange servi dans un pot en pierre brulant (dolsot) qui croustille le riz et cuit un oeuf cru; variante nee dans les…"
+        "en": "Korean mixed-rice dish served in a sizzling stone pot (dolsot) that crisps the rice and cooks a raw egg;",
+        "fr": "Plat coreen de riz mélangé servi dans un pot en pierre brulant (dolsot) qui croustille le riz et cuit un oeuf cru;"
       },
       "sources": [
         {
@@ -5638,7 +5638,7 @@ const CUISINE_NOTES = {
       "local": "불고기",
       "note": {
         "en": "Korean grilled dish of thin marinated slices of beef; its name means \"fire meat\" and traces to Pyongan Province cooking.",
-        "fr": "Plat coreen grille de fines tranches de boeuf marine; son nom signifie \"viande de feu\" et vient de la province du Pyongan."
+        "fr": "Plat coreen grillé de fines tranches de bœuf mariné; son nom signifie \"viande de feu\" et vient de la province du Pyongan."
       },
       "sources": [
         {
@@ -5655,7 +5655,7 @@ const CUISINE_NOTES = {
       "local": "갈비",
       "note": {
         "en": "Korean grilled beef short ribs marinated in soy sauce, sugar, garlic and sesame; \"galbi\" means \"rib\" in Korean.",
-        "fr": "Travers de boeuf grillés coréens marinés dans sauce soja, sucre, ail et sesame ; \"galbi\" signifie \"cote\" en coreen."
+        "fr": "Travers de bœuf grillés coréens marinés dans sauce soja, sucre, ail et sesame ; \"galbi\" signifie \"cote\" en coreen."
       },
       "sources": [
         {
@@ -5671,8 +5671,8 @@ const CUISINE_NOTES = {
     "samgyeopsal": {
       "local": "삼겹살",
       "note": {
-        "en": "Korean grilled pork belly cooked at the table; its name means \"three-layered flesh,\" referring to the alternating layers of lean meat and…",
-        "fr": "Poitrine de porc coréenne grillée à table ; son nom signifie « chair à trois couches », en référence aux couches alternées de viande maigre…"
+        "en": "Korean grilled pork belly cooked at the table;",
+        "fr": "Poitrine de porc coréenne grillée à table ;"
       },
       "sources": [
         {
@@ -5705,8 +5705,8 @@ const CUISINE_NOTES = {
     "kimchi jjigae": {
       "local": "김치찌개",
       "note": {
-        "en": "A common Korean stew of fermented kimchi simmered with pork, tofu and scallions, thought to have developed after chili peppers reached…",
-        "fr": "Un ragout coreen courant de kimchi fermente mijote avec porc, tofu et oignons verts, apparu apres l'arrivee du piment en Coree."
+        "en": "A common Korean stew of fermented kimchi simmered with pork, tofu and scallions.",
+        "fr": "Un ragout coreen courant de kimchi fermenté mijoté avec porc, tofu et oignons verts, apparu apres l'arrivee du piment en Coree."
       },
       "sources": [
         {
@@ -5723,7 +5723,7 @@ const CUISINE_NOTES = {
       "local": "순두부찌개",
       "note": {
         "en": "A Korean spicy stew built around sundubu, extra-soft uncurdled tofu, simmered with chili, seafood or meat and a cracked egg.",
-        "fr": "Ragout coreen epice a base de sundubu, tofu extra-mou non caille, mijote avec piment, fruits de mer ou viande et un oeuf casse."
+        "fr": "Ragout coreen épice a base de sundubu, tofu extra-mou non caille, mijoté avec piment, fruits de mer ou viande et un oeuf casse."
       },
       "sources": [
         {
@@ -5740,7 +5740,7 @@ const CUISINE_NOTES = {
       "local": "된장찌개",
       "note": {
         "en": "A Korean soybean-paste (doenjang) stew with vegetables, tofu and often meat or seafood; doenjang dates to the Three Kingdoms period.",
-        "fr": "Ragoût coréen à la pâte de soja (doenjang) avec légumes, tofu et souvent viande ou fruits de mer; le doenjang remonte à l'époque des Trois…"
+        "fr": "Ragoût coréen à la pâte de soja (doenjang) avec légumes, tofu et souvent viande ou fruits de mer;"
       },
       "sources": [
         {
@@ -5757,7 +5757,7 @@ const CUISINE_NOTES = {
       "local": "부대찌개",
       "note": {
         "en": "A Korean \"army stew\" of kimchi, broth, and US-military surplus meats like Spam and hot dogs, born from post-Korean War (1953) food scarcity.",
-        "fr": "Un \"ragoût de l'armée\" coréen au kimchi, bouillon et surplus de viande militaire US (Spam, saucisses), né de la pénurie d'après-guerre…"
+        "fr": "Un \"ragoût de l'armée\" coréen au kimchi, bouillon et surplus de viande militaire US (Spam, saucisses)"
       },
       "sources": [
         {
@@ -5790,8 +5790,8 @@ const CUISINE_NOTES = {
     "japchae": {
       "local": "잡채",
       "note": {
-        "en": "Korean stir-fried dish; today made with sweet-potato glass noodles (dangmyeon), vegetables and meat. The name dates to an…",
-        "fr": "Plat coréen sauté ; aujourd'hui préparé avec des nouilles de verre à la patate douce (dangmyeon), des légumes et de la viande. Le nom…"
+        "en": "Korean stir-fried dish; today made with sweet-potato glass noodles (dangmyeon), vegetables and meat.",
+        "fr": "Plat coréen sauté ; aujourd'hui préparé avec des nouilles de verre à la patate douce (dangmyeon), des légumes et de la viande."
       },
       "sources": [
         {
@@ -5804,7 +5804,7 @@ const CUISINE_NOTES = {
       "local": "짜장면",
       "note": {
         "en": "Korean-Chinese wheat noodles in a thick chunjang (black bean) sauce with pork and vegetables, created by Shandong immigrants in Incheon.",
-        "fr": "Nouilles de ble sino-coreennes nappees d'une sauce epaisse au chunjang (haricots noirs), porc et legumes, creees par des immigres de…"
+        "fr": "Nouilles de ble sino-coreennes nappees d'une sauce epaisse au chunjang (haricots noirs)"
       },
       "sources": [
         {
@@ -5821,7 +5821,7 @@ const CUISINE_NOTES = {
       "local": "짬뽕",
       "note": {
         "en": "A Korean-Chinese spicy seafood noodle soup in a red gochugaru broth, named after Japanese chanpon during the Japanese occupation.",
-        "fr": "Soupe de nouilles sino-coreenne aux fruits de mer dans un bouillon rouge au gochugaru, nommee d'apres le chanpon japonais sous l'occupation."
+        "fr": "Soupe de nouilles sino-coreenne aux fruits de mer dans un bouillon rouge au gochugaru, nommée d'apres le chanpon japonais sous l'occupation."
       },
       "sources": [
         {
@@ -5833,8 +5833,8 @@ const CUISINE_NOTES = {
     "naengmyeon": {
       "local": "냉면",
       "note": {
-        "en": "Korean cold buckwheat noodle dish of North Korean origin (Pyongyang/Hamhung), recorded since the Joseon era in the 19th-century…",
-        "fr": "Plat coréen de nouilles froides de sarrasin, originaire de Corée du Nord (Pyongyang/Hamhung), attesté dès l'ère Joseon dans le…"
+        "en": "Korean cold buckwheat noodle dish of North Korean origin (Pyongyang/Hamhung)",
+        "fr": "Plat coréen de nouilles froides de sarrasin, originaire de Corée du Nord (Pyongyang/Hamhung)"
       },
       "sources": [
         {
@@ -5850,8 +5850,8 @@ const CUISINE_NOTES = {
     "tteokbokki": {
       "local": "떡볶이",
       "note": {
-        "en": "A Korean dish of cylindrical rice cakes (garae-tteok) simmered in spicy gochujang sauce; the popular spicy form is credited to Ma Bok-rim…",
-        "fr": "Plat coreen de gateaux de riz cylindriques (garae-tteok) mijotes dans une sauce piquante au gochujang ; sa forme epicee populaire est…"
+        "en": "A Korean dish of cylindrical rice cakes (garae-tteok) simmered in spicy gochujang sauce;",
+        "fr": "Plat coreen de gateaux de riz cylindriques (garae-tteok) mijotés dans une sauce piquante au gochujang ;"
       },
       "sources": [
         {
@@ -5884,7 +5884,7 @@ const CUISINE_NOTES = {
     "bossam": {
       "local": "보쌈",
       "note": {
-        "en": "Korean dish of boiled pork belly, thinly sliced and wrapped in cabbage or lettuce leaves; name means \"wrapped,\" tied to winter…",
+        "en": "Korean dish of boiled pork belly, thinly sliced and wrapped in cabbage or lettuce leaves;",
         "fr": "Plat coréen de poitrine de porc bouillie, tranchée fine et enveloppée dans du chou ou de la laitue; \"bossam\" signifie \"emballé\"."
       },
       "sources": [
@@ -5901,8 +5901,8 @@ const CUISINE_NOTES = {
     "jokbal": {
       "local": "족발",
       "note": {
-        "en": "Korean pig's trotters braised in soy sauce, ginger, garlic and rice wine; popularized in 1960s Jangchung-dong, Seoul, by North Korean…",
-        "fr": "Pieds de porc coréens braisés à la sauce soja, gingembre, ail et vin de riz; popularisés dans les années 1960 à Jangchung-dong, Séoul, par…"
+        "en": "Korean pig's trotters braised in soy sauce, ginger, garlic and rice wine;",
+        "fr": "Pieds de porc coréens braisés à la sauce soja, gingembre, ail et vin de riz;"
       },
       "sources": [
         {
@@ -5935,8 +5935,8 @@ const CUISINE_NOTES = {
     "seollangtang": {
       "local": "설렁탕",
       "note": {
-        "en": "Korean ox bone soup of leg bones and brisket simmered for hours into a milky broth, served with rice; name tied to Joseon-era Seonnongje…",
-        "fr": "Soupe coréenne d'os de bœuf et de poitrine mijotés des heures en bouillon laiteux, servie avec du riz; nom lié aux rites Seonnongje de…"
+        "en": "Korean ox bone soup of leg bones and brisket simmered for hours into a milky broth, served with rice;",
+        "fr": "Soupe coréenne d'os de bœuf et de poitrine mijotés des heures en bouillon laiteux, servie avec du riz;"
       },
       "sources": [
         {
@@ -5969,8 +5969,8 @@ const CUISINE_NOTES = {
     "samgyetang": {
       "local": "삼계탕 (蔘鷄湯)",
       "note": {
-        "en": "Korean soup of a whole young chicken stuffed with glutinous rice and ginseng, eaten on the hottest summer (sambok) days; reached its modern…",
-        "fr": "Soupe coréenne d'un poulet entier farci de riz gluant et de ginseng, mangée durant les jours d'été (sambok); forme moderne fixée dans les…"
+        "en": "Korean soup of a whole young chicken stuffed with glutinous rice and ginseng, eaten on the hottest summer (sambok) days;",
+        "fr": "Soupe coréenne d'un poulet entier farci de riz gluant et de ginseng, mangée durant les jours d'été (sambok);"
       },
       "sources": [
         {
@@ -5987,7 +5987,7 @@ const CUISINE_NOTES = {
       "local": "호떡",
       "note": {
         "en": "A Korean filled pancake street food, sweet with brown sugar, cinnamon and nuts, brought by Chinese merchants in the late 1800s.",
-        "fr": "Une crêpe coréenne fourrée vendue dans la rue, sucrée au sucre roux, cannelle et noix, apportée par des marchands chinois à la fin du XIXe…"
+        "fr": "Une crêpe coréenne fourrée vendue dans la rue, sucrée au sucre roux, cannelle et noix."
       },
       "sources": [
         {
@@ -5999,8 +5999,8 @@ const CUISINE_NOTES = {
     "bingsu": {
       "local": "빙수",
       "note": {
-        "en": "A Korean milk-based shaved-ice dessert with sweet toppings that may include chopped fruit, condensed milk, fruit syrup, tteok, and red…",
-        "fr": "Dessert coréen à base de glace pilée au lait, garni de fruits, de lait concentré, de sirop de fruits, de tteok ou de haricots rouges…"
+        "en": "A Korean milk-based shaved-ice dessert with sweet toppings that may include chopped fruit, condensed milk, fruit syrup, tteok.",
+        "fr": "Dessert coréen à base de glace pilée au lait, garni de fruits, de lait concentré, de sirop de fruits."
       },
       "sources": [
         {
@@ -6017,7 +6017,7 @@ const CUISINE_NOTES = {
       "local": "반찬 (飯饌)",
       "note": {
         "en": "An assortment of small Korean side dishes served with rice, traced to Buddhist meat-bans of the mid-Three Kingdoms era.",
-        "fr": "Un assortiment de petits plats d'accompagnement coréens servis avec du riz, né des interdits bouddhistes de la viande de l'ère des Trois…"
+        "fr": "Un assortiment de petits plats d'accompagnement coréens servis avec du riz."
       },
       "sources": [
         {
@@ -6033,8 +6033,8 @@ const CUISINE_NOTES = {
     "kimchi": {
       "local": "김치",
       "note": {
-        "en": "Korean dish of salted, fermented vegetables (usually napa cabbage) seasoned with chili; chili was only added after peppers reached Korea in…",
-        "fr": "Plat coréen de légumes salés et fermentés (souvent du chou napa) assaisonnés au piment; le piment ne fut ajouté qu'après son arrivée en…"
+        "en": "Korean dish of salted, fermented vegetables (usually napa cabbage) seasoned with chili;",
+        "fr": "Plat coréen de légumes salés et fermentés (souvent du chou napa) assaisonnés au piment;"
       },
       "sources": [
         {
@@ -6068,7 +6068,7 @@ const CUISINE_NOTES = {
       "local": "막걸리",
       "note": {
         "en": "Korea's oldest traditional alcoholic drink: a milky, lightly sparkling 6-9% rice wine fermented from rice and the starter nuruk.",
-        "fr": "La plus ancienne boisson alcoolisee traditionnelle de Coree : un vin de riz laiteux et legerement petillant de 6 a 9 %, fermente avec le…"
+        "fr": "La plus ancienne boisson alcoolisee traditionnelle de Coree : un vin de riz laiteux et legerement petillant de 6 a 9 %."
       },
       "sources": [
         {
@@ -6087,7 +6087,7 @@ const CUISINE_NOTES = {
       "local": "北京烤鸭",
       "note": {
         "en": "Beijing roast duck famed for thin, crispy skin, served sliced with pancakes; its first specialist restaurant, Bianyifang, opened in 1416.",
-        "fr": "Canard laqué de Pékin réputé pour sa peau fine et croustillante, servi tranché avec des crêpes; premier restaurant spécialisé, Bianyifang…"
+        "fr": "Canard laqué de Pékin réputé pour sa peau fine et croustillante, servi tranché avec des crêpes;"
       },
       "sources": [
         {
@@ -6150,8 +6150,8 @@ const CUISINE_NOTES = {
     "sweet and sour pork": {
       "local": "咕嚕肉",
       "note": {
-        "en": "Cantonese dish of batter-fried pork in a sweet-sour sauce, adapted in Qing-dynasty Guangzhou from sweet-sour ribs into boneless cubes for…",
-        "fr": "Plat cantonais de porc frit en pate dans une sauce aigre-douce, adapte a Canton sous les Qing depuis les travers aigres-doux en cubes…"
+        "en": "Cantonese dish of batter-fried pork in a sweet-sour sauce, adapted in Qing-dynasty Guangzhou from sweet-sour ribs into boneless cubes for",
+        "fr": "Plat cantonais de porc frit en pate dans une sauce aigre-douce, adapte a Canton sous les Qing depuis les travers aigres-doux en cubes"
       },
       "sources": [
         {
@@ -6167,8 +6167,8 @@ const CUISINE_NOTES = {
     "hot pot": {
       "local": "火锅 (huǒguō)",
       "note": {
-        "en": "A communal Chinese dish of simmering broth in which diners cook raw meats and vegetables at the table; the copper pot is traced to the…",
-        "fr": "Plat chinois convivial de bouillon mijoté où les convives cuisent viandes et légumes à table; la marmite en cuivre remonte à l'époque des…"
+        "en": "A communal Chinese dish of simmering broth in which diners cook raw meats and vegetables at the table;",
+        "fr": "Plat chinois convivial de bouillon mijoté où les convives cuisent viandes et légumes à table;"
       },
       "sources": [
         {
@@ -6180,8 +6180,8 @@ const CUISINE_NOTES = {
     "zhajiangmian": {
       "local": "炸醬麵 (炸酱面, zhájiàngmiàn)",
       "note": {
-        "en": "Northern Chinese dish of thick wheat noodles topped with zhajiang, a fried fermented-soybean-and-pork sauce; the Beijing style is one of…",
-        "fr": "Plat du nord de la Chine: nouilles de blé épaisses nappées de zhajiang, sauce frite de soja fermenté et de porc; la version pékinoise est…"
+        "en": "Northern Chinese dish of thick wheat noodles topped with zhajiang, a fried fermented-soybean-and-pork sauce;",
+        "fr": "Plat du nord de la Chine: nouilles de blé épaisses nappées de zhajiang, sauce frite de soja fermenté et de porc;"
       },
       "sources": [
         {
@@ -6194,7 +6194,7 @@ const CUISINE_NOTES = {
       "local": "煎饼 (jiānbǐng)",
       "note": {
         "en": "A savory Chinese street-breakfast crepe of wheat/grain batter, egg and crispy cracker, tracing to Shandong some 2,000 years ago.",
-        "fr": "Crêpe salée chinoise du petit-déjeuner, à base de pâte de blé, d'œuf et de cracker croustillant, originaire du Shandong il y a environ 2000…"
+        "fr": "Crêpe salée chinoise du petit-déjeuner, à base de pâte de blé, d'œuf et de cracker croustillant."
       },
       "sources": [
         {
@@ -6210,8 +6210,8 @@ const CUISINE_NOTES = {
     "baozi": {
       "local": "包子 (bāozi)",
       "note": {
-        "en": "A Chinese yeast-leavened steamed bun made from wheat flour, filled with savoury fillings (such as pork or vegetables) or sweet ones (such…",
-        "fr": "Petit pain chinois levé et cuit à la vapeur, à base de farine de blé, garni d'une farce salée (porc, légumes) ou sucrée (pâte de haricots…"
+        "en": "A Chinese yeast-leavened steamed bun made from wheat flour, filled with savoury fillings (such as pork or vegetables)",
+        "fr": "Petit pain chinois levé et cuit à la vapeur, à base de farine de blé, garni d'une farce salée (porc, légumes)"
       },
       "sources": [
         {
@@ -6241,7 +6241,7 @@ const CUISINE_NOTES = {
       "local": "饅頭 (馒头)",
       "note": {
         "en": "A plain, fluffy steamed wheat bun and staple of northern China, attested in writing as “mantou” by the Western Jin dynasty (c. 300 CE).",
-        "fr": "Petit pain de blé cuit à la vapeur, nature et moelleux, aliment de base du nord de la Chine, attesté sous le nom « mantou » dès les Jin (v…"
+        "fr": "Petit pain de blé cuit à la vapeur, nature et moelleux, aliment de base du nord de la Chine."
       },
       "sources": [
         {
@@ -6258,7 +6258,7 @@ const CUISINE_NOTES = {
       "local": "兰州拉面 (兰州牛肉面)",
       "note": {
         "en": "Hand-pulled wheat noodles in a clear stewed-beef broth from Lanzhou, Gansu, developed by China's Hui Muslims along the Silk Road.",
-        "fr": "Nouilles de ble etirees a la main dans un bouillon clair de boeuf mijote, de Lanzhou (Gansu), creees par les Hui musulmans sur la route de…"
+        "fr": "Nouilles de ble etirees à la main dans un bouillon clair de bœuf mijoté, de Lanzhou (Gansu)"
       },
       "sources": [
         {
@@ -6275,7 +6275,7 @@ const CUISINE_NOTES = {
       "local": "𰻞𰻞麵 (biángbiáng miàn)",
       "note": {
         "en": "Thick, belt-like hand-pulled Shaanxi noodles whose name uses biáng, a 58-stroke character among the most complex in modern Chinese.",
-        "fr": "Nouilles larges du Shaanxi, étirées à la main, dont le nom emploie biáng, caractère de 58 traits parmi les plus complexes du chinois…"
+        "fr": "Nouilles larges du Shaanxi, étirées à la main, dont le nom emploie biáng."
       },
       "sources": [
         {
@@ -6309,7 +6309,7 @@ const CUISINE_NOTES = {
       "local": "西湖醋鱼 (xīhú cùyú)",
       "note": {
         "en": "A Hangzhou specialty of poached grass carp in a sweet-sour vinegar sauce, dating to the Southern Song dynasty.",
-        "fr": "Specialite de Hangzhou: carpe herbivore pochee dans une sauce aigre-douce au vinaigre, datant des Song du Sud."
+        "fr": "Spécialité de Hangzhou: carpe herbivore pochee dans une sauce aigre-douce au vinaigre, datant des Song du Sud."
       },
       "sources": [
         {
@@ -6325,8 +6325,8 @@ const CUISINE_NOTES = {
     "yangzhou fried rice": {
       "local": "扬州炒饭 (Yángzhōu chǎofàn)",
       "note": {
-        "en": "Chinese egg fried rice with vegetables and usually two proteins (shrimp and ham), named for Yangzhou and popularized by Qing official Yi…",
-        "fr": "Riz sauté chinois aux œufs, légumes et souvent deux protéines (crevette et jambon), nommé d'après Yangzhou et popularisé par le mandarin Yi…"
+        "en": "Chinese egg fried rice with vegetables and usually two proteins (shrimp and ham)",
+        "fr": "Riz sauté chinois aux œufs, légumes et souvent deux protéines (crevette et jambon)"
       },
       "sources": [
         {
@@ -6411,7 +6411,7 @@ const CUISINE_NOTES = {
       "local": "粽子",
       "note": {
         "en": "Glutinous rice with sweet or savoury fillings wrapped in bamboo leaves, eaten at the Dragon Boat Festival to honour poet Qu Yuan.",
-        "fr": "Riz gluant aux garnitures sucrées ou salées enveloppé de feuilles de bambou, mangé à la Fête des Bateaux-Dragons en l'honneur du poète Qu…"
+        "fr": "Riz gluant aux garnitures sucrées ou salées enveloppé de feuilles de bambou."
       },
       "sources": [
         {
@@ -6427,8 +6427,8 @@ const CUISINE_NOTES = {
     "chow mein": {
       "local": "炒麵 (chǎomiàn)",
       "note": {
-        "en": "Chinese stir-fried noodle dish with meat and vegetables; the name (炒麵, \"stir-fried noodles\") derives from the Taishanese pronunciation of…",
-        "fr": "Plat chinois de nouilles sautées avec viande et légumes ; le nom (炒麵, « nouilles sautées ») vient de la prononciation taishanaise des…"
+        "en": "Chinese stir-fried noodle dish with meat and vegetables; the name (炒麵, \"stir-fried noodles\")",
+        "fr": "Plat chinois de nouilles sautées avec viande et légumes ; le nom (炒麵, « nouilles sautées »)"
       },
       "sources": [
         {
@@ -6495,8 +6495,8 @@ const CUISINE_NOTES = {
     "spring rolls": {
       "local": "春卷 (chūnjuǎn)",
       "note": {
-        "en": "Savoury rolls of vegetables, sometimes meat, wrapped in thin wheat pancakes and pan-fried or deep-fried. Eaten at the Chinese Spring…",
-        "fr": "Rouleaux salés de légumes, parfois de viande, enveloppés dans de fines crêpes de blé puis frits. Consommés lors de la fête du printemps…"
+        "en": "Savoury rolls of vegetables, sometimes meat, wrapped in thin wheat pancakes and pan-fried or deep-fried.",
+        "fr": "Rouleaux salés de légumes, parfois de viande, enveloppés dans de fines crêpes de blé puis frits."
       },
       "sources": [
         {
@@ -6532,7 +6532,7 @@ const CUISINE_NOTES = {
       "local": "蝦餃",
       "note": {
         "en": "Cantonese dim sum dumpling of shrimp in a thin translucent wheat-starch wrapper, originating in early-20th-century Guangzhou teahouses.",
-        "fr": "Bouchee dim sum cantonaise de crevettes dans une fine pate translucide d'amidon de ble, nee dans les maisons de the de Canton au debut du…"
+        "fr": "Bouchee dim sum cantonaise de crevettes dans une fine pate translucide d'amidon de ble."
       },
       "sources": [
         {
@@ -6549,7 +6549,7 @@ const CUISINE_NOTES = {
       "local": "燒賣 (sīu-máai)",
       "note": {
         "en": "An open-topped Cantonese dim sum dumpling of pork and shrimp in a thin wheat wrapper; the dish originated in Hohhot, Inner Mongolia.",
-        "fr": "Bouchée cantonaise dim sum ouverte, au porc et aux crevettes dans une fine pâte de blé ; le plat est originaire de Hohhot, en…"
+        "fr": "Bouchée cantonaise dim sum ouverte, au porc et aux crevettes dans une fine pâte de blé ;"
       },
       "sources": [
         {
@@ -6566,7 +6566,7 @@ const CUISINE_NOTES = {
       "local": "叉燒包",
       "note": {
         "en": "Cantonese steamed or baked bun filled with barbecued char siu pork, served as dim sum during yum cha in southern China.",
-        "fr": "Petit pain cantonais cuit a la vapeur ou au four, fourre de porc char siu, servi en dim sum lors du yum cha en Chine du Sud."
+        "fr": "Petit pain cantonais cuit à la vapeur ou au four, fourre de porc char siu, servi en dim sum lors du yum cha en Chine du Sud."
       },
       "sources": [
         {
@@ -6629,8 +6629,8 @@ const CUISINE_NOTES = {
     "siu yuk (roast pork belly)": {
       "local": "燒肉",
       "note": {
-        "en": "Cantonese roast pork belly, a variety of siu mei roasted meats, made by roasting pork with salt and vinegar at high heat for…",
-        "fr": "Poitrine de porc rôtie cantonaise, une variété de viandes rôties siu mei, cuite avec sel et vinaigre à feu vif pour une couenne…"
+        "en": "Cantonese roast pork belly, a variety of siu mei roasted meats, made by roasting pork with salt and vinegar at high heat for",
+        "fr": "Poitrine de porc rôtie cantonaise, une variété de viandes rôties siu mei."
       },
       "sources": [
         {
@@ -6646,8 +6646,8 @@ const CUISINE_NOTES = {
     "roast duck": {
       "local": "燒鴨 (siu1 aap3)",
       "note": {
-        "en": "Cantonese roast duck, a whole duck seasoned with five-spice and roasted crisp-skinned; a classic of the siu mei hanging-roasted-meats…",
-        "fr": "Canard rôti cantonais, un canard entier assaisonné aux cinq-épices et rôti à peau croustillante; un classique de la tradition siu mei des…"
+        "en": "Cantonese roast duck, a whole duck seasoned with five-spice and roasted crisp-skinned;",
+        "fr": "Canard rôti cantonais, un canard entier assaisonné aux cinq-épices et rôti à peau croustillante;"
       },
       "sources": [
         {
@@ -6663,8 +6663,8 @@ const CUISINE_NOTES = {
     "roast goose": {
       "local": "燒鵝",
       "note": {
-        "en": "Cantonese siu-mei roast goose: a whole goose seasoned and roasted at high temperature in a charcoal furnace to give crisp skin with juicy…",
-        "fr": "Oie rôtie cantonaise (siu mei) : une oie entière assaisonnée et rôtie à haute température dans un four à charbon pour obtenir une peau…"
+        "en": "Cantonese siu-mei roast goose: a whole goose seasoned and roasted at high temperature in a charcoal furnace to give crisp skin with juicy",
+        "fr": "Oie rôtie cantonaise (siu mei)"
       },
       "sources": [
         {
@@ -6698,7 +6698,7 @@ const CUISINE_NOTES = {
       "local": "清蒸魚",
       "note": {
         "en": "A whole fish steamed with ginger and scallion, dressed in light soy sauce and hot oil; a Cantonese banquet and Lunar New Year staple.",
-        "fr": "Un poisson entier cuit à la vapeur au gingembre et à l'oignon vert, nappé de sauce soja légère et d'huile chaude ; un classique des…"
+        "fr": "Un poisson entier cuit à la vapeur au gingembre et à l'oignon vert, nappé de sauce soja légère et d'huile chaude ;"
       },
       "sources": [
         {
@@ -6749,7 +6749,7 @@ const CUISINE_NOTES = {
       "local": "滑蛋河粉",
       "note": {
         "en": "Cantonese wok-fried flat rice noodles smothered in a silky egg gravy with pork and seafood, a zi char staple in Malaysia and Singapore.",
-        "fr": "Nouilles de riz plates cantonaises sautees au wok, nappees d'une sauce onctueuse aux oeufs, porc et fruits de mer, classique des zi char en…"
+        "fr": "Nouilles de riz plates cantonaises sautées au wok, nappees d'une sauce onctueuse aux oeufs, porc et fruits de mer."
       },
       "sources": [
         {
@@ -6765,7 +6765,7 @@ const CUISINE_NOTES = {
     "beef hor fun (dry-fried ngau hor)": {
       "local": "乾炒牛河",
       "note": {
-        "en": "Cantonese stir-fry of flat shahe rice noodles, beef and bean sprouts; the dry-fried (gon chau) style arose when cooks ran out of starch…",
+        "en": "Cantonese stir-fry of flat shahe rice noodles, beef and bean sprouts; the dry-fried (gon chau)",
         "fr": "Sauté cantonais de nouilles de riz plates shahe, de bœuf et de germes de soja; le style sauté à sec naquit d'une pénurie de fécule."
       },
       "sources": [
@@ -6783,7 +6783,7 @@ const CUISINE_NOTES = {
       "local": "揚州炒飯",
       "note": {
         "en": "Wok-fried rice with mixed proteins like shrimp and char siu pork; named for Yangzhou, it was popularized by Qing official Yi Bingshou.",
-        "fr": "Riz sauté au wok avec protéines variées comme crevettes et porc char siu; nommé d'après Yangzhou, popularisé par le mandarin Qing Yi…"
+        "fr": "Riz sauté au wok avec protéines variées comme crevettes et porc char siu;"
       },
       "sources": [
         {
@@ -6795,8 +6795,8 @@ const CUISINE_NOTES = {
     "sweet & sour pork (gu lou yuk)": {
       "local": "咕嚕肉",
       "note": {
-        "en": "Cantonese dish of batter-coated, deep-fried pork tossed in a sweet-and-sour sauce; it originated in Cantonese cuisine in 18th-century…",
-        "fr": "Plat cantonais de porc enrobé de pâte, frit puis enrobé d'une sauce aigre-douce ; né dans la cuisine cantonaise du Guangdong au XVIIIe…"
+        "en": "Cantonese dish of batter-coated, deep-fried pork tossed in a sweet-and-sour sauce;",
+        "fr": "Plat cantonais de porc enrobé de pâte, frit puis enrobé d'une sauce aigre-douce ;"
       },
       "sources": [
         {
@@ -6812,8 +6812,8 @@ const CUISINE_NOTES = {
     "claypot frog leg porridge": {
       "local": "砂煲田雞粥",
       "note": {
-        "en": "A Singaporean-Cantonese congee of American bullfrog legs with ginger and scallion, simmered in a claypot; its Geylang late-night supper…",
-        "fr": "Un congee sino-cantonais de Singapour, aux cuisses de grenouille-taureau américaine, gingembre et oignon vert, mijotées en marmite d'argile…"
+        "en": "A Singaporean-Cantonese congee of American bullfrog legs with ginger and scallion, simmered in a claypot;",
+        "fr": "Un congee sino-cantonais de Singapour, aux cuisses de grenouille-taureau américaine, gingembre et oignon vert."
       },
       "sources": [
         {
@@ -6830,7 +6830,7 @@ const CUISINE_NOTES = {
       "local": "老火湯",
       "note": {
         "en": "Cantonese \"old fire soup,\" a clear broth of meat, bones and herbs simmered slowly for hours; a Guangzhou daily staple by the late Qing era.",
-        "fr": "\"Soupe au vieux feu\" cantonaise, un bouillon clair de viande, d'os et d'herbes mijoté des heures; aliment quotidien de Canton dès la fin…"
+        "fr": "\"Soupe au vieux feu\" cantonaise, un bouillon clair de viande, d'os et d'herbes mijoté des heures;"
       },
       "sources": [
         {
@@ -6863,8 +6863,8 @@ const CUISINE_NOTES = {
     "cantonese seafood platter": {
       "local": "粵式海鮮拼盤",
       "note": {
-        "en": "A banquet-style assorted platter of fresh prawns, scallops and fish, typically steamed Cantonese-style with light seasoning, reflecting…",
-        "fr": "Plateau assorti de style banquet, avec crevettes, coquilles Saint-Jacques et poisson frais, generalement cuits a la vapeur facon cantonaise…"
+        "en": "A banquet-style assorted platter of fresh prawns, scallops and fish, typically steamed Cantonese-style with light seasoning.",
+        "fr": "Plateau assorti de style banquet, avec crevettes, coquilles Saint-Jacques et poisson frais."
       },
       "sources": [
         {
@@ -6880,8 +6880,8 @@ const CUISINE_NOTES = {
     "har lok (prawns in shell)": {
       "local": "干煎虾碌",
       "note": {
-        "en": "Cantonese dish of whole shell-on prawns dry-fried then tossed in a ketchup-and-Worcestershire sauce; a festive centrepiece before cereal…",
-        "fr": "Plat cantonais de crevettes entieres en carapace, poelees a sec puis enrobees d'une sauce ketchup-Worcestershire; un classique festif…"
+        "en": "Cantonese dish of whole shell-on prawns dry-fried then tossed in a ketchup-and-Worcestershire sauce;",
+        "fr": "Plat cantonais de crevettes entieres en carapace, poêlées a sec puis enrobees d'une sauce ketchup-Worcestershire;"
       },
       "sources": [
         {
@@ -6897,7 +6897,7 @@ const CUISINE_NOTES = {
     "egg tart (dan tat)": {
       "local": "蛋撻 (daahn tāat)",
       "note": {
-        "en": "A Cantonese custard tart of egg filling in a flaky or shortcrust shell, derived from the English custard tart and first sold in 1920s…",
+        "en": "A Cantonese custard tart of egg filling in a flaky or shortcrust shell.",
         "fr": "Tartelette cantonaise à la crème d'œufs en pâte feuilletée ou sablée, dérivée de la tarte anglaise et vendue dès les années 1920 à Canton."
       },
       "sources": [
@@ -6915,7 +6915,7 @@ const CUISINE_NOTES = {
       "local": "菊花茶 (gūk fā chàh)",
       "note": {
         "en": "A floral infusion of dried chrysanthemum flowers, popularized in the Song dynasty and served as a cooling drink at Cantonese yum cha.",
-        "fr": "Une infusion florale de fleurs de chrysanthème séchées, popularisée sous la dynastie Song et servie comme boisson rafraîchissante au yum…"
+        "fr": "Une infusion florale de fleurs de chrysanthème séchées, popularisée sous la dynastie Song et servie comme boisson rafraîchissante au yum"
       },
       "sources": [
         {
@@ -6995,8 +6995,8 @@ const CUISINE_NOTES = {
     "cantonese-style steamed prawns": {
       "local": "蒜蓉粉絲蒸蝦",
       "note": {
-        "en": "Classic Cantonese dish of whole prawns topped with minced garlic and steamed over mung-bean vermicelli; auspicious as \"ha\" (prawn) sounds…",
-        "fr": "Plat cantonais classique de crevettes entieres a l'ail haché, cuites a la vapeur sur des vermicelles de soja; auspicieux car \"ha\"…"
+        "en": "Classic Cantonese dish of whole prawns topped with minced garlic and steamed over mung-bean vermicelli; auspicious as \"ha\" (prawn)",
+        "fr": "Plat cantonais classique de crevettes entieres a l'ail haché, cuites à la vapeur sur des vermicelles de soja;"
       },
       "sources": [
         {
@@ -7049,7 +7049,7 @@ const CUISINE_NOTES = {
       "local": "回锅肉 (huíguōròu)",
       "note": {
         "en": "A Sichuan dish of pork belly first simmered whole, then sliced and stir-fried with chili bean paste, so the meat is \"returned to the wok.\"",
-        "fr": "Plat du Sichuan de poitrine de porc d'abord mijotée entière, puis tranchée et sautée avec de la pâte de piment, la viande étant ainsi «…"
+        "fr": "Plat du Sichuan de poitrine de porc d'abord mijotée entière, puis tranchée et sautée avec de la pâte de piment."
       },
       "sources": [
         {
@@ -7065,8 +7065,8 @@ const CUISINE_NOTES = {
     "dan dan noodles": {
       "local": "担担面 (擔擔麵)",
       "note": {
-        "en": "Sichuan street-food noodle dish from Chengdu, served with thin wheat noodles in a spicy chili-oil (mala) sauce with Sichuan pepper, minced…",
-        "fr": "Plat de nouilles de rue du Sichuan, originaire de Chengdu : nouilles de blé fines dans une sauce piquante à l'huile de piment (mala), avec…"
+        "en": "Sichuan street-food noodle dish from Chengdu, served with thin wheat noodles in a spicy chili-oil (mala)",
+        "fr": "Plat de nouilles de rue du Sichuan, originaire de Chengdu : nouilles de blé fines dans une sauce piquante à l'huile de piment (mala)"
       },
       "sources": [
         {
@@ -7082,8 +7082,8 @@ const CUISINE_NOTES = {
     "sichuan hot pot": {
       "local": "四川火锅 (Sìchuān huǒguō)",
       "note": {
-        "en": "A communal simmering broth dish flavored with numbing-spicy málà (Sichuan peppercorn and chili), rooted in early-20th-century Yangtze River…",
-        "fr": "Un plat de bouillon mijoté à partager, parfumé au málà (poivre du Sichuan et piment), né au début du XXe siècle chez les ouvriers du fleuve…"
+        "en": "A communal simmering broth dish flavored with numbing-spicy málà (Sichuan peppercorn and chili)",
+        "fr": "Un plat de bouillon mijoté à partager, parfumé au málà (poivre du Sichuan et piment)"
       },
       "sources": [
         {
@@ -7099,8 +7099,8 @@ const CUISINE_NOTES = {
     "chongqing hot pot": {
       "local": "重庆火锅 (Chóngqìng huǒguō)",
       "note": {
-        "en": "A spicy, numbing (málà) Sichuan-style hot pot built on dried chilis and Sichuan peppercorns, with its history dating to the 1920s among…",
-        "fr": "Fondue chinoise épicée et anesthésiante (málà) à base de piments séchés et de poivre du Sichuan, dont l'histoire remonte aux années 1920…"
+        "en": "A spicy, numbing (málà)",
+        "fr": "Fondue chinoise épicée et anesthésiante (málà)"
       },
       "sources": [
         {
@@ -7116,8 +7116,8 @@ const CUISINE_NOTES = {
     "fish-fragrant pork (yu xiang rou si)": {
       "local": "鱼香肉丝 (yúxiāng ròusī)",
       "note": {
-        "en": "Sichuan dish of shredded pork in sweet-sour-spicy \"fish-fragrant\" sauce; it contains no fish, the name echoes Sichuan fish-cooking…",
-        "fr": "Plat sichuanais de porc émincé en sauce aigre-douce-épicée dite \"parfum de poisson\" ; sans poisson, le nom évoque l'assaisonnement du…"
+        "en": "Sichuan dish of shredded pork in sweet-sour-spicy \"fish-fragrant\" sauce;",
+        "fr": "Plat sichuanais de porc émincé en sauce aigre-douce-épicée dite \"parfum de poisson\" ;"
       },
       "sources": [
         {
@@ -7133,8 +7133,8 @@ const CUISINE_NOTES = {
     "fish-fragrant aubergine": {
       "local": "鱼香茄子 (yúxiāng qiézi)",
       "note": {
-        "en": "Sichuan stir-fried eggplant in \"yuxiang\" sauce of pickled chili, doubanjiang, garlic, ginger, sugar and vinegar; named for a fish flavour…",
-        "fr": "Aubergine sautée du Sichuan en sauce « yuxiang » de piment mariné, doubanjiang, ail, gingembre, sucre et vinaigre ; nommée d'après un goût…"
+        "en": "Sichuan stir-fried eggplant in \"yuxiang\" sauce of pickled chili, doubanjiang, garlic, ginger, sugar and vinegar;",
+        "fr": "Aubergine sautée du Sichuan en sauce « yuxiang » de piment mariné, doubanjiang, ail, gingembre, sucre et vinaigre ;"
       },
       "sources": [
         {
@@ -7151,7 +7151,7 @@ const CUISINE_NOTES = {
       "local": "夫妻肺片 (fūqī fèipiàn)",
       "note": {
         "en": "Cold Sichuan dish of thinly sliced beef and offal in mala chili-Sichuan-pepper sauce, named for a 1930s Chengdu couple's street stall.",
-        "fr": "Plat sichuanais froid de bœuf et d'abats émincés en sauce mala au piment et poivre du Sichuan, nommé d'après un couple de Chengdu des…"
+        "fr": "Plat sichuanais froid de bœuf et d'abats émincés en sauce mala au piment et poivre du Sichuan."
       },
       "sources": [
         {
@@ -7167,8 +7167,8 @@ const CUISINE_NOTES = {
     "mouthwatering chicken (kou shui ji)": {
       "local": "口水鸡 (Kǒushuǐ Jī)",
       "note": {
-        "en": "Cold Sichuan dish of poached chicken in numbing-spicy (málà) chili oil; the name, literally \"saliva chicken,\" evokes a mouth-watering…",
-        "fr": "Plat sichuanais froid de poulet poché dans une huile pimentée engourdissante (málà) ; le nom, littéralement « poulet à la salive », évoque…"
+        "en": "Cold Sichuan dish of poached chicken in numbing-spicy (málà) chili oil;",
+        "fr": "Plat sichuanais froid de poulet poché dans une huile pimentée engourdissante (málà) ;"
       },
       "sources": [
         {
@@ -7184,8 +7184,8 @@ const CUISINE_NOTES = {
     "boiled fish in chili oil (shui zhu yu)": {
       "local": "水煮鱼",
       "note": {
-        "en": "Sichuan dish of poached fish fillets in a fiery broth of dried chilies and Sichuan peppercorns, originating in Chongqing's Yubei District…",
-        "fr": "Plat du Sichuan de filets de poisson pochés dans un bouillon ardent de piments secs et de poivre du Sichuan, né dans le district de Yubei…"
+        "en": "Sichuan dish of poached fish fillets in a fiery broth of dried chilies and Sichuan peppercorns.",
+        "fr": "Plat du Sichuan de filets de poisson pochés dans un bouillon ardent de piments secs et de poivre du Sichuan."
       },
       "sources": [
         {
@@ -7201,8 +7201,8 @@ const CUISINE_NOTES = {
     "boiled beef in chili oil (shui zhu niu rou)": {
       "local": "水煮牛肉 (shuǐ zhǔ niú ròu)",
       "note": {
-        "en": "Sichuan dish of thinly sliced beef briefly poached in a spicy, numbing broth of doubanjiang, dried chilies and Sichuan pepper, then doused…",
-        "fr": "Plat du Sichuan de fines tranches de bœuf brièvement pochées dans un bouillon épicé et anesthésiant de doubanjiang, piments séchés et…"
+        "en": "Sichuan dish of thinly sliced beef briefly poached in a spicy, numbing broth of doubanjiang, dried chilies and Sichuan pepper.",
+        "fr": "Plat du Sichuan de fines tranches de bœuf brièvement pochées dans un bouillon épicé et anesthésiant de doubanjiang."
       },
       "sources": [
         {
@@ -7235,8 +7235,8 @@ const CUISINE_NOTES = {
     "chongqing chicken (la zi ji)": {
       "local": "辣子鸡 (làzǐjī)",
       "note": {
-        "en": "A Chongqing Sichuan dish of fried chicken bites tossed with mounds of dried chilies and Sichuan peppercorns, popularized near Geleshan from…",
-        "fr": "Plat sichuanais de Chongqing : bouchées de poulet frites mêlées de montagnes de piments séchés et de poivre du Sichuan, popularisé près de…"
+        "en": "A Chongqing Sichuan dish of fried chicken bites tossed with mounds of dried chilies and Sichuan peppercorns.",
+        "fr": "Plat sichuanais de Chongqing : bouchées de poulet frites mêlées de montagnes de piments séchés et de poivre du Sichuan."
       },
       "sources": [
         {
@@ -7253,7 +7253,7 @@ const CUISINE_NOTES = {
       "local": "干煸四季豆",
       "note": {
         "en": "Classic Sichuan dish of green beans blistered dry (gan bian) until shriveled, then tossed with pork, chili, Sichuan pepper and yacai.",
-        "fr": "Plat sichuanais classique de haricots verts saisis a sec (gan bian) jusqu'a flétrissure, sautés avec porc, piment, poivre du Sichuan et…"
+        "fr": "Plat sichuanais classique de haricots verts saisis a sec (gan bian)"
       },
       "sources": [
         {
@@ -7269,8 +7269,8 @@ const CUISINE_NOTES = {
     "chengdu dan dan noodles": {
       "local": "担担面 (dàn dàn miàn)",
       "note": {
-        "en": "Sichuan noodles in spicy chili-oil and Sichuan-pepper sauce with minced pork and preserved greens, named for the carrying pole street…",
-        "fr": "Nouilles du Sichuan en sauce pimentee au poivre du Sichuan, avec porc hache et legumes confits, nommees d'apres la palanche des vendeurs…"
+        "en": "Sichuan noodles in spicy chili-oil and Sichuan-pepper sauce with minced pork and preserved greens.",
+        "fr": "Nouilles du Sichuan en sauce pimentee au poivre du Sichuan, avec porc haché et legumes confits."
       },
       "sources": [
         {
@@ -7287,7 +7287,7 @@ const CUISINE_NOTES = {
       "local": "钟水饺",
       "note": {
         "en": "Chengdu boiled pork dumplings dressed in sweetened spiced soy sauce and chili oil, created in 1893 by Zhong Xiesen (courtesy name Shaobai).",
-        "fr": "Raviolis de porc bouillis de Chengdu, nappés de sauce soja sucrée épicée et d'huile pimentée, créés en 1893 par Zhong Xiesen (nom de…"
+        "fr": "Raviolis de porc bouillis de Chengdu, nappés de sauce soja sucrée épicée et d'huile pimentée."
       },
       "sources": [
         {
@@ -7320,8 +7320,8 @@ const CUISINE_NOTES = {
     "sichuan-style smoked duck (zhang cha ya)": {
       "local": "樟茶鸭 (Zhāngchá yā)",
       "note": {
-        "en": "A quintessential Sichuan dish: duck marinated for several hours, hot-smoked over tea leaves and camphor, then steamed and deep-fried until…",
-        "fr": "Plat emblématique du Sichuan : canard mariné plusieurs heures, fumé à chaud sur feuilles de thé et de camphre, puis cuit à la vapeur et…"
+        "en": "A quintessential Sichuan dish: duck marinated for several hours, hot-smoked over tea leaves and camphor.",
+        "fr": "Plat emblématique du Sichuan : canard mariné plusieurs heures, fumé à chaud sur feuilles de thé et de camphre."
       },
       "sources": [
         {
@@ -7354,8 +7354,8 @@ const CUISINE_NOTES = {
     "sichuan cold noodle": {
       "local": "凉面 (liángmiàn)",
       "note": {
-        "en": "A Sichuan wheat-noodle dish served at room temperature in a sour, sweet and spicy dressing of chili oil, black vinegar and Sichuan pepper…",
-        "fr": "Plat sichuanais de nouilles de blé servi à température ambiante dans une sauce aigre, sucrée et piquante d'huile pimentée, vinaigre noir et…"
+        "en": "A Sichuan wheat-noodle dish served at room temperature in a sour, sweet and spicy dressing of chili oil.",
+        "fr": "Plat sichuanais de nouilles de blé servi à température ambiante dans une sauce aigre, sucrée et piquante d'huile pimentée."
       },
       "sources": [
         {
@@ -7389,7 +7389,7 @@ const CUISINE_NOTES = {
       "local": "麻婆豆腐 (mápó dòufu)",
       "note": {
         "en": "Spicy Sichuan dish of soft tofu and minced meat in a málà chilli-bean sauce, named after a pockmarked Chengdu cook, Chen Mapo, c.1862.",
-        "fr": "Plat sichuanais épicé de tofu soyeux et viande hachée en sauce málà aux fèves pimentées, nommé d'après Chen Mapo, cuisinière grêlée de…"
+        "fr": "Plat sichuanais épicé de tofu soyeux et viande hachée en sauce málà aux fèves pimentées, nommé d'après Chen Mapo."
       },
       "sources": [
         {
@@ -7422,8 +7422,8 @@ const CUISINE_NOTES = {
     "sichuan-style spicy crayfish": {
       "local": "麻辣小龙虾 (málà xiǎolóngxiā)",
       "note": {
-        "en": "Freshwater crayfish wok-cooked or braised in a Sichuan málà (numbing-spicy) sauce of dried chilli and Sichuan pepper; introduced to China…",
-        "fr": "Écrevisses d'eau douce sautées au wok ou braisées dans une sauce sichuanaise málà (engourdissante et piquante) au piment séché et poivre du…"
+        "en": "Freshwater crayfish wok-cooked or braised in a Sichuan málà (numbing-spicy) sauce of dried chilli and Sichuan pepper;",
+        "fr": "Écrevisses d'eau douce sautées au wok ou braisées dans une sauce sichuanaise málà (engourdissante et piquante)"
       },
       "sources": [
         {
@@ -7439,8 +7439,8 @@ const CUISINE_NOTES = {
     "mala beef noodle": {
       "local": "麻辣牛肉面 (málà niúròumiàn)",
       "note": {
-        "en": "A Sichuan beef noodle soup in which beef is braised and served in a rich, moderately spicy broth made with Pixian chili bean paste…",
-        "fr": "Soupe de nouilles au bœuf du Sichuan, où le bœuf est braisé puis servi dans un bouillon riche et modérément épicé à base de pâte de piment…"
+        "en": "A Sichuan beef noodle soup in which beef is braised and served in a rich.",
+        "fr": "Soupe de nouilles au bœuf du Sichuan, où le bœuf est braisé puis servi dans un bouillon riche et modérément épicé à base de pâte de piment"
       },
       "sources": [
         {
@@ -7472,7 +7472,7 @@ const CUISINE_NOTES = {
       "local": "五香 (ngó͘-hiong / lor bak)",
       "note": {
         "en": "A Hokkien-Teochew roll of minced pork and prawn seasoned with five-spice powder (五香, its namesake), wrapped in tofu skin and deep-fried.",
-        "fr": "Un rouleau hokkien-teochew de porc et crevette hachés assaisonné au cinq-épices (五香, son homonyme), enroulé dans une feuille de tofu et…"
+        "fr": "Un rouleau hokkien-teochew de porc et crevette hachés assaisonné au cinq-épices (五香, son homonyme)"
       },
       "sources": [
         {
@@ -7522,8 +7522,8 @@ const CUISINE_NOTES = {
     "kong bak pau": {
       "local": "扣肉包 (khòng-bah-pau)",
       "note": {
-        "en": "A Hokkien dish of soy-braised pork belly slid into a folded steamed lotus-leaf bun and topped with coriander, popular among the Hokkien…",
-        "fr": "Plat hokkien de poitrine de porc braisee au soja, glissee dans un pain vapeur plie (pain feuille de lotus) et garnie de coriandre…"
+        "en": "A Hokkien dish of soy-braised pork belly slid into a folded steamed lotus-leaf bun and topped with coriander.",
+        "fr": "Plat hokkien de poitrine de porc braisée au soja, glissee dans un pain vapeur plie (pain feuille de lotus)"
       },
       "sources": [
         {
@@ -7540,7 +7540,7 @@ const CUISINE_NOTES = {
       "local": "伊麵 (yī miàn)",
       "note": {
         "en": "Flat Cantonese egg noodles, parboiled then deep-fried to a golden, spongy texture; eaten braised and as longevity noodles.",
-        "fr": "Nouilles plates cantonaises aux œufs, précuites puis frites jusqu'à une texture dorée et spongieuse ; servies braisées et comme nouilles de…"
+        "fr": "Nouilles plates cantonaises aux œufs, précuites puis frites jusqu'à une texture dorée et spongieuse ;"
       },
       "sources": [
         {
@@ -7556,8 +7556,8 @@ const CUISINE_NOTES = {
     "tau sar piah": {
       "local": "豆沙饼",
       "note": {
-        "en": "A flaky pastry filled with mung bean paste, made in both salty and sweet versions. Brought to Penang by Fujian (Hokkien) immigrants and now…",
-        "fr": "Une pâtisserie feuilletée fourrée de pâte de haricot mungo, déclinée en versions salée et sucrée. Apportée à Penang par des immigrants du…"
+        "en": "A flaky pastry filled with mung bean paste, made in both salty and sweet versions. Brought to Penang by Fujian (Hokkien)",
+        "fr": "Une pâtisserie feuilletée fourrée de pâte de haricot mungo, déclinée en versions salée et sucrée."
       },
       "sources": [
         {
@@ -7586,8 +7586,8 @@ const CUISINE_NOTES = {
     "hokkien-style braised pig trotter": {
       "local": "滷豬腳 (lor tu kha)",
       "note": {
-        "en": "Fujian/Hokkien pig trotter braised long and slow in dark and light soy sauce until tender; in Taiwan often served with vermicelli to dispel…",
-        "fr": "Pied de porc hokkien (Fujian) braisé lentement dans la sauce soja claire et foncée; à Taïwan servi souvent avec des vermicelles pour…"
+        "en": "Fujian/Hokkien pig trotter braised long and slow in dark and light soy sauce until tender;",
+        "fr": "Pied de porc hokkien (Fujian) braisé lentement dans la sauce soja claire et foncée;"
       },
       "sources": [
         {
@@ -7603,8 +7603,8 @@ const CUISINE_NOTES = {
     "hokkien-style steamed fish": {
       "local": "红糟鱼 (hóng zāo yú)",
       "note": {
-        "en": "A traditional Fujian (Hokkien) freshwater-fish dish in which the fish is salted, deep-fried and marinated in hong zao, the red lees left…",
-        "fr": "Plat traditionnel du Fujian (hokkien) a base de poisson d'eau douce, sale, frit puis marine dans le hong zao, la lie rouge issue du…"
+        "en": "A traditional Fujian (Hokkien)",
+        "fr": "Plat traditionnel du Fujian (hokkien)"
       },
       "sources": [
         {
@@ -7638,7 +7638,7 @@ const CUISINE_NOTES = {
       "local": "紅龜粿",
       "note": {
         "en": "A Hokkien glutinous-rice cake, red and shaped like a tortoise for longevity, with sweet mung bean or peanut filling, steamed on banana leaf.",
-        "fr": "Gateau hokkien en riz gluant, rouge et en forme de tortue pour la longevite, fourre de haricot mungo ou cacahuete sucres, cuit a la vapeur…"
+        "fr": "Gateau hokkien en riz gluant, rouge et en forme de tortue pour la longevite, fourre de haricot mungo ou cacahuete sucres."
       },
       "sources": [
         {
@@ -7654,8 +7654,8 @@ const CUISINE_NOTES = {
     "ti kway / png kueh": {
       "local": "紅桃粿 (âng-thô-kóe / png kueh)",
       "note": {
-        "en": "A Teochew peach-shaped steamed cake with a pink-dyed glutinous-rice-flour skin wrapped over a savoury filling of glutinous rice, peanuts…",
-        "fr": "Gâteau teochew vapeur en forme de pêche, à la peau de farine de riz gluant teintée en rose, fourré d'une garniture salée de riz gluant…"
+        "en": "A Teochew peach-shaped steamed cake with a pink-dyed glutinous-rice-flour skin wrapped over a savoury filling of glutinous rice.",
+        "fr": "Gâteau teochew vapeur en forme de pêche, à la peau de farine de riz gluant teintée en rose."
       },
       "sources": [
         {
@@ -7671,8 +7671,8 @@ const CUISINE_NOTES = {
     "mee sua kueh": {
       "local": "面线糕",
       "note": {
-        "en": "Hokkien savoury cake of wheat-flour vermicelli (mee sua) bound with meat and vegetables, then steamed firm and sliced, often for festive…",
-        "fr": "Gâteau salé hokkien de vermicelles de blé (mee sua) liés à de la viande et des légumes, cuit à la vapeur puis tranché, souvent pour les…"
+        "en": "Hokkien savoury cake of wheat-flour vermicelli (mee sua)",
+        "fr": "Gâteau salé hokkien de vermicelles de blé (mee sua)"
       },
       "sources": [
         {
@@ -7688,8 +7688,8 @@ const CUISINE_NOTES = {
     "peng kueh (red rice cake)": {
       "local": "紅桃粿 (png kueh)",
       "note": {
-        "en": "A pink, peach-shaped Teochew (not Hokkien) glutinous-rice kueh with a soft glutinous-rice-flour skin wrapped over a savoury filling of…",
-        "fr": "Kueh teochew (et non hokkien) rose en forme de pêche, à peau de farine de riz gluant enveloppant une farce salée de riz gluant, arachides…"
+        "en": "A pink, peach-shaped Teochew (not Hokkien)",
+        "fr": "Kueh teochew (et non hokkien)"
       },
       "sources": [
         {
@@ -7705,8 +7705,8 @@ const CUISINE_NOTES = {
     "kueh chang (savoury rice dumpling)": {
       "local": "肉粽 (bah-chàng / bak chang)",
       "note": {
-        "en": "Hokkien savoury glutinous-rice dumpling wrapped in bamboo leaves, filled with pork, mushroom and salted egg, eaten at the Dragon Boat…",
-        "fr": "Boulette hokkien de riz gluant salee enveloppee de feuilles de bambou, fourree de porc, champignon et oeuf sale, mangee a la Fete des…"
+        "en": "Hokkien savoury glutinous-rice dumpling wrapped in bamboo leaves, filled with pork, mushroom and salted egg.",
+        "fr": "Boulette hokkien de riz gluant salee enveloppee de feuilles de bambou, fourree de porc, champignon et oeuf sale."
       },
       "sources": [
         {
@@ -7723,7 +7723,7 @@ const CUISINE_NOTES = {
       "local": "滷肉 (ló͘-bah)",
       "note": {
         "en": "Hokkien five-spice meat roll of minced pork and prawn wrapped in beancurd skin and deep-fried, brought by Fujian migrants to Penang.",
-        "fr": "Rouleau de viande hokkien aux cinq épices, porc et crevette hachés enroulés dans de la peau de tofu et frits, apporté à Penang par les…"
+        "fr": "Rouleau de viande hokkien aux cinq épices, porc et crevette hachés enroulés dans de la peau de tofu et frits."
       },
       "sources": [
         {
@@ -7757,7 +7757,7 @@ const CUISINE_NOTES = {
       "local": "芋頭飯 (芋头饭)",
       "note": {
         "en": "One-pot Hokkien rice dish cooking rice with taro, pork belly, dried shrimp and shiitake; a traditional, economical home meal in SG/Malaysia.",
-        "fr": "Plat hokkien de riz en une casserole cuit avec taro, poitrine de porc, crevettes séchées et shiitake; repas familial traditionnel et…"
+        "fr": "Plat hokkien de riz en une casserole cuit avec taro, poitrine de porc, crevettes séchées et shiitake;"
       },
       "sources": [
         {
@@ -7773,8 +7773,8 @@ const CUISINE_NOTES = {
     "hokkien bee hoon (white)": {
       "local": "白米粉",
       "note": {
-        "en": "Singaporean stir-fried white rice vermicelli simmered in a rich, starchy stock with seafood (prawns, squid), egg and vegetables; it has no…",
-        "fr": "Vermicelles de riz blancs sautes a la singapourienne, mijotes dans un bouillon riche et nappant avec des fruits de mer (crevettes, calmar)…"
+        "en": "Singaporean stir-fried white rice vermicelli simmered in a rich, starchy stock with seafood (prawns, squid), egg and vegetables;",
+        "fr": "Vermicelles de riz blancs sautés à la singapourienne, mijotés dans un bouillon riche et nappant avec des fruits de mer (crevettes, calmar)"
       },
       "sources": [
         {
@@ -7790,8 +7790,8 @@ const CUISINE_NOTES = {
     "amoy spring roll": {
       "local": "薄餅 (po̍h-piáⁿ)",
       "note": {
-        "en": "A fresh, unfried Hokkien spring roll from Xiamen (Amoy) in Fujian, wrapping more than ten fillings in a soft, paper-thin wheat crepe…",
-        "fr": "Un rouleau de printemps hokkien frais et non frit de Xiamen (Amoy), dans le Fujian, qui enveloppe plus de dix garnitures dans une fine…"
+        "en": "A fresh, unfried Hokkien spring roll from Xiamen (Amoy)",
+        "fr": "Un rouleau de printemps hokkien frais et non frit de Xiamen (Amoy)"
       },
       "sources": [
         {
@@ -7808,7 +7808,7 @@ const CUISINE_NOTES = {
       "local": "砂煲福建面",
       "note": {
         "en": "A Singapore variant of fried Hokkien prawn mee, yellow noodles and bee hoon in prawn-stock gravy served bubbling hot in a clay pot.",
-        "fr": "Variante singapourienne du Hokkien mee aux crevettes, nouilles jaunes et bee hoon dans un bouillon de crevettes, servi bouillonnant en pot…"
+        "fr": "Variante singapourienne du Hokkien mee aux crevettes, nouilles jaunes et bee hoon dans un bouillon de crevettes."
       },
       "sources": [
         {
@@ -7841,8 +7841,8 @@ const CUISINE_NOTES = {
     "lor ark hokkien": {
       "local": "滷鴨 (卤鸭)",
       "note": {
-        "en": "Lor ark, braised duck simmered in a dark soy master stock with five-spice, star anise, cloves, cinnamon and galangal; the Hokkien version…",
-        "fr": "Lor ark, canard braisé mijoté dans un bouillon maître au soja noir avec cinq-épices, anis étoilé, clous de girofle, cannelle et galanga…"
+        "en": "Lor ark, braised duck simmered in a dark soy master stock with five-spice, star anise, cloves, cinnamon and galangal;",
+        "fr": "Lor ark, canard braisé mijoté dans un bouillon maître au soja noir avec cinq-épices, anis étoilé, clous de girofle."
       },
       "sources": [
         {
@@ -7854,8 +7854,8 @@ const CUISINE_NOTES = {
     "hokkien-style steamed prawns": {
       "local": "佛跳墙",
       "note": {
-        "en": "An elaborate Fujian (Hokkien) banquet stew from Fuzhou, slow-simmered from premium ingredients such as abalone, sea cucumber, fish maw and…",
-        "fr": "Un ragoût de banquet élaboré du Fujian (hokkien), originaire de Fuzhou, mijoté longuement à partir d'ingrédients de choix comme l'ormeau…"
+        "en": "An elaborate Fujian (Hokkien)",
+        "fr": "Un ragoût de banquet élaboré du Fujian (hokkien)"
       },
       "sources": [
         {
@@ -7873,8 +7873,8 @@ const CUISINE_NOTES = {
     "bak chor mee": {
       "local": "肉脞麵 (肉脞面)",
       "note": {
-        "en": "Teochew minced-pork noodle dish (egg or flat mee pok) tossed in chilli-vinegar or served in pork broth, brought by Chaoshan immigrants to…",
-        "fr": "Plat de nouilles teochew au porc haché (mee pok ou aux œufs), au piment-vinaigre ou en bouillon, apporté à Singapour par les immigrés du…"
+        "en": "Teochew minced-pork noodle dish (egg or flat mee pok)",
+        "fr": "Plat de nouilles teochew au porc haché (mee pok ou aux œufs)"
       },
       "sources": [
         {
@@ -7890,8 +7890,8 @@ const CUISINE_NOTES = {
     "teochew braised duck": {
       "local": "潮州滷鴨",
       "note": {
-        "en": "Teochew duck braised slowly in a reusable galangal-scented master stock (滷水) until tender; a Chaoshan staple carried abroad by Chinese…",
-        "fr": "Canard teochew braisé lentement dans un bouillon-mère réutilisable (滷水) parfumé au galanga jusqu'à tendreté; spécialité du Chaoshan…"
+        "en": "Teochew duck braised slowly in a reusable galangal-scented master stock (滷水) until tender;",
+        "fr": "Canard teochew braisé lentement dans un bouillon-mère réutilisable (滷水) parfumé au galanga jusqu'à tendreté;"
       },
       "sources": [
         {
@@ -7907,7 +7907,7 @@ const CUISINE_NOTES = {
     "teochew porridge (mui)": {
       "local": "潮州糜 (muē)",
       "note": {
-        "en": "Teochew rice porridge from China's Chaoshan region, with whole softened grains (not broken like Cantonese congee), served with small side…",
+        "en": "Teochew rice porridge from China's Chaoshan region, with whole softened grains (not broken like Cantonese congee)",
         "fr": "Bouillie de riz teochew de la region de Chaoshan en Chine, aux grains entiers ramollis (non delayes), servie avec de petits accompagnements."
       },
       "sources": [
@@ -7942,7 +7942,7 @@ const CUISINE_NOTES = {
       "local": "潮州蒸鲳鱼",
       "note": {
         "en": "Teochew dish of whole white or silver pomfret steamed with salted sour plums, pickled mustard greens and ginger for a tangy savoury broth.",
-        "fr": "Plat teochew de pomfret blanc entier cuit a la vapeur avec prunes salees, moutarde marinee et gingembre, donnant un bouillon aigre-sale."
+        "fr": "Plat teochew de pomfret blanc entier cuit à la vapeur avec prunes salees, moutarde marinée et gingembre, donnant un bouillon aigre-sale."
       },
       "sources": [
         {
@@ -7959,7 +7959,7 @@ const CUISINE_NOTES = {
       "local": "潮州冻蟹",
       "note": {
         "en": "Teochew dish of steamed crab chilled and served cold, paired with a galangal-and-brown-sugar vinegar dip to offset the crab's \"cold\" nature.",
-        "fr": "Plat teochew de crabe cuit a la vapeur, refroidi et servi froid, avec un vinaigre au galanga et sucre roux equilibrant la nature « froide »…"
+        "fr": "Plat teochew de crabe cuit à la vapeur, refroidi et servi froid, avec un vinaigre au galanga et sucre roux equilibrant la nature « froide »"
       },
       "sources": [
         {
@@ -7975,8 +7975,8 @@ const CUISINE_NOTES = {
     "teochew fish maw soup": {
       "local": "鱼鳔羹",
       "note": {
-        "en": "Teochew soup of dried fish maw (swim bladder, one of China's four sea delicacies) simmered with pork ribs, mushrooms and scallops, eaten at…",
-        "fr": "Soupe teochew de vessie natatoire séchée (l'un des quatre trésors marins chinois) mijotée avec côtes de porc, champignons et pétoncles…"
+        "en": "Teochew soup of dried fish maw (swim bladder, one of China's four sea delicacies)",
+        "fr": "Soupe teochew de vessie natatoire séchée (l'un des quatre trésors marins chinois)"
       },
       "sources": [
         {
@@ -8010,7 +8010,7 @@ const CUISINE_NOTES = {
       "local": "笋粿 (筍粿)",
       "note": {
         "en": "A Teochew steamed dumpling whose name means \"bamboo shoot cake\"; in Singapore the filling is usually jicama or turnip instead.",
-        "fr": "Un dumpling teochew cuit à la vapeur dont le nom signifie « gâteau de pousse de bambou »; à Singapour, on le farcit plutôt de jicama ou de…"
+        "fr": "Un dumpling teochew cuit à la vapeur dont le nom signifie « gâteau de pousse de bambou »;"
       },
       "sources": [
         {
@@ -8026,8 +8026,8 @@ const CUISINE_NOTES = {
     "png kueh": {
       "local": "紅桃粿",
       "note": {
-        "en": "A Teochew stuffed dumpling with a pink-dyed glutinous-rice-flour skin shaped like a peach, filled with seasoned glutinous rice, peanuts…",
-        "fr": "Une boulette teochew farcie, a la peau de farine de riz gluant teintee rose et faconnee en forme de peche, garnie de riz gluant assaisonne…"
+        "en": "A Teochew stuffed dumpling with a pink-dyed glutinous-rice-flour skin shaped like a peach, filled with seasoned glutinous rice.",
+        "fr": "Une boulette teochew farcie, à la peau de farine de riz gluant teintee rose et faconnee en forme de peche."
       },
       "sources": [
         {
@@ -8056,8 +8056,8 @@ const CUISINE_NOTES = {
     "fishball noodle": {
       "local": "鱼丸面 (Teochew mee pok / mee kia, 面薄)",
       "note": {
-        "en": "A Teochew (Chaoshan) noodle dish of flat mee pok or thin mee kia topped with springy fish balls, served dry in chilli-vinegar sauce or in…",
-        "fr": "Plat de nouilles teochew (Chaoshan) à base de mee pok plat ou mee kia fin, garni de boulettes de poisson, servi sec en sauce…"
+        "en": "A Teochew (Chaoshan)",
+        "fr": "Plat de nouilles teochew (Chaoshan)"
       },
       "sources": [
         {
@@ -8073,8 +8073,8 @@ const CUISINE_NOTES = {
     "fish soup bee hoon": {
       "local": "鱼片米粉",
       "note": {
-        "en": "A Singaporean soup of sliced fish and rice vermicelli (bee hoon) in a savoury broth, available since at least the 1920s and commonly…",
-        "fr": "Une soupe singapourienne de tranches de poisson et de vermicelles de riz (bee hoon) dans un bouillon savoureux, existant depuis au moins…"
+        "en": "A Singaporean soup of sliced fish and rice vermicelli (bee hoon)",
+        "fr": "Une soupe singapourienne de tranches de poisson et de vermicelles de riz (bee hoon)"
       },
       "sources": [
         {
@@ -8090,8 +8090,8 @@ const CUISINE_NOTES = {
     "sliced fish soup": {
       "local": "鱼片汤",
       "note": {
-        "en": "A popular Singapore dish believed to have originated from the Teochews, consisting of sliced fish in broth with vegetables and beancurd; it…",
-        "fr": "Plat populaire de Singapour, que l'on pense d'origine teochew, composé de tranches de poisson dans un bouillon avec des légumes et du tofu…"
+        "en": "A popular Singapore dish believed to have originated from the Teochews, consisting of sliced fish in broth with vegetables and beancurd;",
+        "fr": "Plat populaire de Singapour, que l'on pense d'origine teochew, composé de tranches de poisson dans un bouillon avec des légumes et du tofu"
       },
       "sources": [
         {
@@ -8103,8 +8103,8 @@ const CUISINE_NOTES = {
     "kway chap": {
       "local": "粿汁",
       "note": {
-        "en": "Teochew dish of flat rice sheets in a dark soy braise served with pork offal, belly, beancurd and braised eggs, from China's Chaoshan…",
-        "fr": "Plat teochew de feuilles de riz plates dans un bouillon de soja brun, servi avec abats de porc, poitrine, tofu et oeufs braises, originaire…"
+        "en": "Teochew dish of flat rice sheets in a dark soy braise served with pork offal, belly, beancurd and braised eggs.",
+        "fr": "Plat teochew de feuilles de riz plates dans un bouillon de soja brun, servi avec abats de porc, poitrine, tofu et oeufs braisés."
       },
       "sources": [
         {
@@ -8121,7 +8121,7 @@ const CUISINE_NOTES = {
       "local": "鱼生 (撈起 / lou hei)",
       "note": {
         "en": "A raw-fish-and-shredded-vegetable salad tossed communally at Chinese New Year for prosperity; its modern Singapore form was created in 1964.",
-        "fr": "Une salade de poisson cru et de légumes émincés mélangée en commun au Nouvel An chinois pour la prospérité; sa forme singapourienne moderne…"
+        "fr": "Une salade de poisson cru et de légumes émincés mélangée en commun au Nouvel An chinois pour la prospérité;"
       },
       "sources": [
         {
@@ -8138,7 +8138,7 @@ const CUISINE_NOTES = {
       "local": "麻糍",
       "note": {
         "en": "A chewy glutinous rice dough snack coated in ground peanuts, sesame and sugar, brought to Singapore by Hokkien and Teochew settlers.",
-        "fr": "Une collation de pâte de riz gluant moelleuse enrobée d'arachides moulues, de sésame et de sucre, apportée à Singapour par les Hokkien et…"
+        "fr": "Une collation de pâte de riz gluant moelleuse enrobée d'arachides moulues, de sésame et de sucre."
       },
       "sources": [
         {
@@ -8154,8 +8154,8 @@ const CUISINE_NOTES = {
     "cheng tng": {
       "local": "清汤",
       "note": {
-        "en": "A sweet \"clear soup\" dessert (清汤 means \"clear soup\") of Teochew origin in Singapore and Malaysia, served hot or cold. The lightly…",
-        "fr": "Dessert sucré en \"soupe claire\" (清汤 signifie \"soupe claire\"), d'origine teochew à Singapour et en Malaisie, servi chaud ou froid. Le…"
+        "en": "A sweet \"clear soup\" dessert (清汤 means \"clear soup\") of Teochew origin in Singapore and Malaysia, served hot or cold.",
+        "fr": "Dessert sucré en \"soupe claire\" (清汤 signifie \"soupe claire\"), d'origine teochew à Singapour et en Malaisie, servi chaud ou froid."
       },
       "sources": [
         {
@@ -8188,8 +8188,8 @@ const CUISINE_NOTES = {
     "teochew bak kut teh peppery": {
       "local": "潮州肉骨茶",
       "note": {
-        "en": "Pork-rib soup in the Teochew style: a clear, light, garlicky and peppery broth seasoned mainly with white pepper and garlic. This Teochew…",
-        "fr": "Soupe de côtes de porc à la teochew : un bouillon clair, léger, relevé d'ail et de poivre, assaisonné surtout de poivre blanc et d'ail…"
+        "en": "Pork-rib soup in the Teochew style: a clear, light, garlicky and peppery broth seasoned mainly with white pepper and garlic.",
+        "fr": "Soupe de côtes de porc à la teochew : un bouillon clair, léger, relevé d'ail et de poivre."
       },
       "sources": [
         {
@@ -8222,7 +8222,7 @@ const CUISINE_NOTES = {
     "teochew steamed crab": {
       "local": "潮州冻蟹",
       "note": {
-        "en": "Teochew cold crab: a steamed, then chilled roe crab from Chaoshan, served cold with a sweet ginger-vinegar dip to offset its \"cooling\"…",
+        "en": "Teochew cold crab: a steamed, then chilled roe crab from Chaoshan, served cold with a sweet ginger-vinegar dip to offset its \"cooling\"",
         "fr": "Crabe froid Teochew : un crabe à œufs cuit à la vapeur puis réfrigéré, du Chaoshan, servi froid avec un trempette vinaigre-gingembre sucrée."
       },
       "sources": [
@@ -8240,7 +8240,7 @@ const CUISINE_NOTES = {
       "local": "蠔烙",
       "note": {
         "en": "Teochew pan-fried omelette of oysters in a sweet-potato-starch and duck-egg batter, originating in the Chaoshan region of southern China.",
-        "fr": "Omelette teochew d'huitres poelee dans une pate d'amidon de patate douce et d'oeuf de cane, originaire de la region de Chaoshan au sud de…"
+        "fr": "Omelette teochew d'huitres poêlée dans une pate d'amidon de patate douce et d'oeuf de cane."
       },
       "sources": [
         {
@@ -8256,8 +8256,8 @@ const CUISINE_NOTES = {
     "beef kway teow soup": {
       "local": "牛肉粿条汤",
       "note": {
-        "en": "A noodle dish of flat rice noodles (kway teow) with sliced beef; in the Teochew style it is served in soup. The Teochew flat rice noodle…",
-        "fr": "Plat de nouilles de riz plates (kway teow) au boeuf emince ; dans le style teochew, il est servi en soupe. La nouille de riz plate teochew…"
+        "en": "A noodle dish of flat rice noodles (kway teow) with sliced beef; in the Teochew style it is served in soup.",
+        "fr": "Plat de nouilles de riz plates (kway teow) au bœuf emince ; dans le style teochew, il est servi en soupe."
       },
       "sources": [
         {
@@ -8274,7 +8274,7 @@ const CUISINE_NOTES = {
       "local": "滷水鵝 (lǔshuǐ é)",
       "note": {
         "en": "Chaoshan dish of lion-head goose slow-cooked whole in a reused soy-and-spice master stock (lou sui); served with garlic-vinegar.",
-        "fr": "Plat du Chaoshan d'oie a tete de lion mijotee entiere dans un bouillon-mere au soja et epices reutilise; servie avec vinaigre a l'ail."
+        "fr": "Plat du Chaoshan d'oie a tête de lion mijotée entiere dans un bouillon-mere au soja et épices reutilise; servie avec vinaigre a l'ail."
       },
       "sources": [
         {
@@ -8292,7 +8292,7 @@ const CUISINE_NOTES = {
     "hainanese pork chop": {
       "local": "海南猪扒",
       "note": {
-        "en": "A breaded deep-fried pork chop in tomato sweet-sour gravy, created by Hainanese cooks in colonial Singapore/Malaya as localized Western…",
+        "en": "A breaded deep-fried pork chop in tomato sweet-sour gravy, created by Hainanese cooks in colonial Singapore/Malaya as localized Western",
         "fr": "Côtelette de porc panée et frite, sauce tomate aigre-douce, créée par des cuisiniers hainanais dans la Malaisie/Singapour coloniale."
       },
       "sources": [
@@ -8309,8 +8309,8 @@ const CUISINE_NOTES = {
     "hainanese curry rice": {
       "local": "海南咖喱饭",
       "note": {
-        "en": "Singaporean dish of rice doused in curry gravy with pork chop, curry chicken and chap chye, created by Hainanese cooks in colonial-era…",
-        "fr": "Plat singapourien de riz nappé de sauce curry avec côtelette de porc, poulet au curry et chap chye, créé par des cuisiniers hainanais à…"
+        "en": "Singaporean dish of rice doused in curry gravy with pork chop, curry chicken and chap chye.",
+        "fr": "Plat singapourien de riz nappé de sauce curry avec côtelette de porc, poulet au curry et chap chye."
       },
       "sources": [
         {
@@ -8327,7 +8327,7 @@ const CUISINE_NOTES = {
       "local": "海南羊肉汤",
       "note": {
         "en": "Hainanese herbal soup of goat slow-stewed with medicinal herbs and red fermented bean curd, traditionally made with Hainan's Dongshan goat.",
-        "fr": "Soupe hainanaise de chèvre mijotée avec des herbes médicinales et du tofu fermenté rouge, faite traditionnellement avec la chèvre Dongshan…"
+        "fr": "Soupe hainanaise de chèvre mijotée avec des herbes médicinales et du tofu fermenté rouge."
       },
       "sources": [
         {
@@ -8343,8 +8343,8 @@ const CUISINE_NOTES = {
     "hainanese chicken curry": {
       "local": "海南咖喱鸡",
       "note": {
-        "en": "Mild curry chicken, a signature component of Singapore's Hainanese curry rice, created by Hainanese cooks under British and Peranakan…",
-        "fr": "Poulet au curry doux, element phare du riz au curry hainanais de Singapour, cree par des cuisiniers hainanais d'influence britannique et…"
+        "en": "Mild curry chicken, a signature component of Singapore's Hainanese curry rice.",
+        "fr": "Poulet au curry doux, element phare du riz au curry hainanais de Singapour."
       },
       "sources": [
         {
@@ -8377,8 +8377,8 @@ const CUISINE_NOTES = {
     "coconut chicken (hainan style)": {
       "local": "椰子鸡",
       "note": {
-        "en": "Hainanese hot pot of Wenchang chicken cooked in fresh young-coconut water, which makes up most of the clear, mild broth; widely popularized…",
-        "fr": "Fondue (hot pot) hainanaise de poulet Wenchang cuit dans l'eau de jeune noix de coco fraîche, qui compose l'essentiel du bouillon clair et…"
+        "en": "Hainanese hot pot of Wenchang chicken cooked in fresh young-coconut water, which makes up most of the clear, mild broth;",
+        "fr": "Fondue (hot pot)"
       },
       "sources": [
         {
@@ -8394,8 +8394,8 @@ const CUISINE_NOTES = {
     "hainanese yam rice": {
       "local": "芋头饭",
       "note": {
-        "en": "A savoury Southeast Asian Chinese one-pot rice dish cooked with diced taro (yam), Chinese sausage, dried prawns and mushrooms, often served…",
-        "fr": "Un plat chinois d'Asie du Sud-Est : riz salé cuit en une marmite avec taro (igname), saucisse chinoise, crevettes séchées et champignons…"
+        "en": "A savoury Southeast Asian Chinese one-pot rice dish cooked with diced taro (yam)",
+        "fr": "Un plat chinois d'Asie du Sud-Est : riz salé cuit en une marmite avec taro (igname)"
       },
       "sources": [
         {
@@ -8412,7 +8412,7 @@ const CUISINE_NOTES = {
       "local": "加积鸭 (Jiājī yā)",
       "note": {
         "en": "One of Hainan's four famous dishes: a poached duck from Jiaji town, Qionghai, of a breed brought from overseas by returning Chinese.",
-        "fr": "Un des quatre plats célèbres du Hainan : un canard poché de la ville de Jiaji, à Qionghai, d'une race rapportée d'outre-mer par des Chinois…"
+        "fr": "Un des quatre plats célèbres du Hainan : un canard poché de la ville de Jiaji, à Qionghai."
       },
       "sources": [
         {
@@ -8489,8 +8489,8 @@ const CUISINE_NOTES = {
     "salt baked chicken": {
       "local": "盐焗鸡 (鹽焗雞)",
       "note": {
-        "en": "A signature Hakka dish in which a whole chicken is cooked encased in hot salt. It traces to the Dongjiang region of Guangdong, where…",
-        "fr": "Plat hakka emblematique ou un poulet entier cuit enrobe de sel chaud. Il remonte a la region du Dongjiang (Guangdong), ou les ouvriers des…"
+        "en": "A signature Hakka dish in which a whole chicken is cooked encased in hot salt.",
+        "fr": "Plat hakka emblematique ou un poulet entier cuit enrobe de sel chaud. Il remonte à la region du Dongjiang (Guangdong)"
       },
       "sources": [
         {
@@ -8506,8 +8506,8 @@ const CUISINE_NOTES = {
     "hakka stuffed tofu": {
       "local": "釀豆腐 (酿豆腐)",
       "note": {
-        "en": "Hakka dish of tofu cubes stuffed with a ground pork and/or fish-paste filling, devised as a substitute for dumplings when wheat flour for…",
-        "fr": "Plat hakka de cubes de tofu farcis d'une préparation de porc haché et/ou de pâte de poisson, créé pour remplacer les raviolis lorsque la…"
+        "en": "Hakka dish of tofu cubes stuffed with a ground pork and/or fish-paste filling.",
+        "fr": "Plat hakka de cubes de tofu farcis d'une préparation de porc haché et/ou de pâte de poisson."
       },
       "sources": [
         {
@@ -8524,7 +8524,7 @@ const CUISINE_NOTES = {
       "local": "梅菜扣肉",
       "note": {
         "en": "A Hakka signature dish of steamed pork belly layered over preserved dried mustard greens (mei cai), a celebration and reunion staple.",
-        "fr": "Plat emblematique hakka de poitrine de porc cuite a la vapeur sur des feuilles de moutarde sechees (mei cai), servi lors des fetes et…"
+        "fr": "Plat emblematique hakka de poitrine de porc cuite à la vapeur sur des feuilles de moutarde sechees (mei cai)"
       },
       "sources": [
         {
@@ -8540,8 +8540,8 @@ const CUISINE_NOTES = {
     "hakka noodles": {
       "local": "Hakka noodles (Indo-Chinese; no authentic Chinese name — \"Hakka\" refers to the Kolkata restaurateurs' dialect group)",
       "note": {
-        "en": "An Indo-Chinese dish of boiled wheat noodles stir-fried in a wok with vegetables and soy sauce, created by Kolkata's Hakka Chinese…",
-        "fr": "Plat indo-chinois de nouilles de blé bouillies puis sautées au wok avec légumes et sauce soja, créé par la communauté chinoise hakka de…"
+        "en": "An Indo-Chinese dish of boiled wheat noodles stir-fried in a wok with vegetables and soy sauce.",
+        "fr": "Plat indo-chinois de nouilles de blé bouillies puis sautées au wok avec légumes et sauce soja."
       },
       "sources": [
         {
@@ -8557,8 +8557,8 @@ const CUISINE_NOTES = {
     "pounded tea": {
       "local": "擂茶",
       "note": {
-        "en": "Hakka tea-based beverage or gruel made from tea leaves, herbs, roasted nuts, seeds and grains ground together in a bowl; often served with…",
-        "fr": "Boisson ou bouillie hakka faite de feuilles de the, d'herbes, de noix grillees, de graines et de cereales broyees ensemble dans un bol…"
+        "en": "Hakka tea-based beverage or gruel made from tea leaves, herbs, roasted nuts, seeds and grains ground together in a bowl;",
+        "fr": "Boisson ou bouillie hakka faite de feuilles de the, d'herbes, de noix grillées."
       },
       "sources": [
         {
@@ -8591,8 +8591,8 @@ const CUISINE_NOTES = {
     "three-cup mushroom hakka": {
       "local": "三杯菇",
       "note": {
-        "en": "Vegetarian take on the Hakka-origin three-cup (sanbei) style: mushrooms simmered in sesame oil, soy sauce and rice wine with garlic, ginger…",
-        "fr": "Version vegetarienne du style hakka aux trois tasses (sanbei) : champignons mijotes dans l'huile de sesame, la sauce soja et le vin de riz…"
+        "en": "Vegetarian take on the Hakka-origin three-cup (sanbei)",
+        "fr": "Version vegetarienne du style hakka aux trois tasses (sanbei)"
       },
       "sources": [
         {
@@ -8608,8 +8608,8 @@ const CUISINE_NOTES = {
     "hakka rice cake": {
       "local": "喜粄 (xǐbǎn)",
       "note": {
-        "en": "A Hakka steamed rice cake traditionally made from rice and red (brown) sugar, given a chewy texture and reddish colour. It is offered to…",
-        "fr": "Gâteau de riz hakka cuit à la vapeur, traditionnellement préparé à base de riz et de sucre roux (sucre brun), à la texture moelleuse et à…"
+        "en": "A Hakka steamed rice cake traditionally made from rice and red (brown) sugar, given a chewy texture and reddish colour.",
+        "fr": "Gâteau de riz hakka cuit à la vapeur, traditionnellement préparé à base de riz et de sucre roux (sucre brun)"
       },
       "sources": [
         {
@@ -8659,7 +8659,7 @@ const CUISINE_NOTES = {
     "hakka rice wine chicken": {
       "local": "娘酒鸡",
       "note": {
-        "en": "Traditional Hakka winter dish of chicken fried with ginger and simmered in glutinous rice (mother) wine, eaten by new mothers for…",
+        "en": "Traditional Hakka winter dish of chicken fried with ginger and simmered in glutinous rice (mother)",
         "fr": "Plat hakka d'hiver de poulet sauté au gingembre et mijoté dans le vin de riz gluant, consommé en post-partum par les jeunes mères."
       },
       "sources": [
@@ -8677,7 +8677,7 @@ const CUISINE_NOTES = {
       "local": "梅菜扣肉",
       "note": {
         "en": "A signature Hakka dish of pork belly steamed or braised atop salt-cured, dried preserved mustard greens (mei cai) in a dark soy gravy.",
-        "fr": "Plat hakka emblematique de poitrine de porc cuite a la vapeur ou braisee sur des feuilles de moutarde salees et sechees (mei cai), en sauce…"
+        "fr": "Plat hakka emblematique de poitrine de porc cuite à la vapeur ou braisée sur des feuilles de moutarde salees et sechees (mei cai)"
       },
       "sources": [
         {
@@ -8828,7 +8828,7 @@ const CUISINE_NOTES = {
       "local": "Kari Debal",
       "note": {
         "en": "A fiery vinegar-based Kristang (Portuguese-Eurasian) curry from Malacca, traditionally made after Christmas from leftover roast meats.",
-        "fr": "Un curry kristang (eurasien-portugais) de Malacca, epice et a base de vinaigre, prepare apres Noel avec les restes de viandes roties."
+        "fr": "Un curry kristang (eurasien-portugais) de Malacca, épice et a base de vinaigre, préparé apres Noel avec les restes de viandes roties."
       },
       "sources": [
         {
@@ -8845,7 +8845,7 @@ const CUISINE_NOTES = {
       "local": "sugee cake (suji; from Hindi सूजी, sūjī = semolina)",
       "note": {
         "en": "A dense, buttery semolina-and-almond cake of the Portuguese-Eurasian (Kristang) community of Malacca and Singapore.",
-        "fr": "Gateau dense et beurre a la semoule et aux amandes de la communaute eurasienne portugaise (Kristang) de Malacca et Singapour."
+        "fr": "Gateau dense et beurre à la semoule et aux amandes de la communaute eurasienne portugaise (Kristang) de Malacca et Singapour."
       },
       "sources": [
         {
@@ -8878,8 +8878,8 @@ const CUISINE_NOTES = {
     "eurasian curry chicken": {
       "local": "Kari Debal",
       "note": {
-        "en": "A fiery Kristang (Portuguese-Eurasian) chicken curry with vinegar, candlenuts and mustard seed, traditionally made from leftover Christmas…",
-        "fr": "Un curry de poulet kristang (eurasien-portugais) tres epice au vinaigre, noix de bancoul et moutarde, fait des restes de viandes de Noel."
+        "en": "A fiery Kristang (Portuguese-Eurasian)",
+        "fr": "Un curry de poulet kristang (eurasien-portugais) tres épice au vinaigre, noix de bancoul et moutarde, fait des restes de viandes de Noel."
       },
       "sources": [
         {
@@ -8912,8 +8912,8 @@ const CUISINE_NOTES = {
     "eurasian beef stew": {
       "local": "Beef Smore (Smoor)",
       "note": {
-        "en": "A dark, rich beef stew of Singapore and Malaysia's Eurasian (Kristang) community, braised with dark/sweet soy sauce, ginger and warming…",
-        "fr": "Un ragout de boeuf sombre et riche de la communaute eurasienne (Kristang) de Singapour et de Malaisie, braise avec de la sauce soja…"
+        "en": "A dark, rich beef stew of Singapore and Malaysia's Eurasian (Kristang)",
+        "fr": "Un ragout de bœuf sombre et riche de la communaute eurasienne (Kristang)"
       },
       "sources": [
         {
@@ -8930,7 +8930,7 @@ const CUISINE_NOTES = {
       "local": "semur ayam",
       "note": {
         "en": "A Javanese chicken stew braised in sweet soy sauce (kecap manis) and spices, derived from the Dutch braising technique \"smoor.\"",
-        "fr": "Ragout de poulet javanais braise dans la sauce soja sucree (kecap manis) et des epices, issu de la technique de braisage neerlandaise…"
+        "fr": "Ragout de poulet javanais braisé dans la sauce soja sucree (kecap manis)"
       },
       "sources": [
         {
@@ -8946,8 +8946,8 @@ const CUISINE_NOTES = {
     "salted vegetable duck soup": {
       "local": "Itek Tim (咸菜鸭)",
       "note": {
-        "en": "A tangy duck and salted-mustard-green (kiam chye) soup; the Peranakan/Nyonya Itek Tim is an adaptation of the Hokkien-Teochew kiam chye…",
-        "fr": "Soupe acidulée de canard et de moutarde salée (kiam chye); l'Itek Tim peranakan/nyonya est une adaptation du kiam chye ark hokkien-teochew…"
+        "en": "A tangy duck and salted-mustard-green (kiam chye) soup;",
+        "fr": "Soupe acidulée de canard et de moutarde salée (kiam chye);"
       },
       "sources": [
         {
@@ -8964,7 +8964,7 @@ const CUISINE_NOTES = {
       "local": "Bolo de Ferradura",
       "note": {
         "en": "A traditional Portuguese horseshoe-shaped festive bread, spiced with anise and cinnamon, given by brides to wedding guests for good luck.",
-        "fr": "Un pain de fete portugais traditionnel en forme de fer a cheval, parfume a l'anis et a la cannelle, offert par les mariees pour porter…"
+        "fr": "Un pain de fete portugais traditionnel en forme de fer a cheval, parfume a l'anis et à la cannelle."
       },
       "sources": [
         {
@@ -8980,8 +8980,8 @@ const CUISINE_NOTES = {
     "eurasian pork chop": {
       "local": "Eurasian pork chop",
       "note": {
-        "en": "A British-influenced deep-fried pork chop cutlet in Singapore Eurasian cuisine, coated in crushed soda biscuits (commonly cream crackers)…",
-        "fr": "Une cotelette de porc frite d'influence britannique dans la cuisine eurasienne de Singapour, panee de biscuits soda emiettes (souvent des…"
+        "en": "A British-influenced deep-fried pork chop cutlet in Singapore Eurasian cuisine, coated in crushed soda biscuits (commonly cream crackers)",
+        "fr": "Une cotelette de porc frite d'influence britannique dans la cuisine eurasienne de Singapour."
       },
       "sources": [
         {
@@ -8993,8 +8993,8 @@ const CUISINE_NOTES = {
     "portuguese egg tart": {
       "local": "pastel de nata",
       "note": {
-        "en": "A flaky puff-pastry tart with caramelised egg-custard filling, created by Catholic monks at Lisbon's Jeronimos Monastery before the 18th…",
-        "fr": "Une tartelette feuilletee a la creme d'oeufs caramelisee, creee par des moines au monastere des Hieronymites de Lisbonne avant le XVIIIe…"
+        "en": "A flaky puff-pastry tart with caramelised egg-custard filling, created by Catholic monks at Lisbon's Jeronimos Monastery before the 18th",
+        "fr": "Une tartelette feuilletee à la creme d'oeufs caramélisée, créée par des moines au monastere des Hieronymites de Lisbonne avant le XVIIIe"
       },
       "sources": [
         {
@@ -9011,7 +9011,7 @@ const CUISINE_NOTES = {
       "local": "kuih kapit",
       "note": {
         "en": "Thin crisp wafer of egg, sugar and coconut-milk batter clamped in patterned irons over charcoal, derived from Dutch egg-roll wafers.",
-        "fr": "Fine gaufrette croustillante d'oeufs, sucre et lait de coco, pressee dans des fers a motifs sur braise, derivee des gaufres hollandaises."
+        "fr": "Fine gaufrette croustillante d'oeufs, sucre et lait de coco, pressee dans des fers a motifs sur braisé, derivee des gaufres hollandaises."
       },
       "sources": [
         {
@@ -9027,8 +9027,8 @@ const CUISINE_NOTES = {
     "pineapple tart": {
       "local": "kuih tat nanas",
       "note": {
-        "en": "A bite-size, buttery tart filled or topped with pineapple jam slowly caramelised with spices such as cinnamon, star anise and cloves…",
-        "fr": "Petite tartelette beurree garnie de confiture d'ananas lentement caramelisee avec des epices comme la cannelle, l'anis etoile et le clou de…"
+        "en": "A bite-size, buttery tart filled or topped with pineapple jam slowly caramelised with spices such as cinnamon.",
+        "fr": "Petite tartelette beurree garnie de confiture d'ananas lentement caramélisée avec des épices comme la cannelle."
       },
       "sources": [
         {
@@ -9045,7 +9045,7 @@ const CUISINE_NOTES = {
       "local": "咖哩魚蛋",
       "note": {
         "en": "Teochew-rooted fish balls in spicy curry sauce, a Hong Kong street-food staple popularised by post-war 1950s hawker carts.",
-        "fr": "Boulettes de poisson d'origine teochew en sauce curry epicee, en-cas de rue hongkongais popularise par les marchands ambulants des annees…"
+        "fr": "Boulettes de poisson d'origine teochew en sauce curry épicée, en-cas de rue hongkongais popularise par les marchands ambulants des annees"
       },
       "sources": [
         {
@@ -9061,8 +9061,8 @@ const CUISINE_NOTES = {
     "roast suckling pig": {
       "local": "feng",
       "note": {
-        "en": "A rich Eurasian curry of diced pork and pig's offal slow-cooked in a blend of spices, traditionally served at the Eurasian community's…",
-        "fr": "Un riche curry eurasien de porc et d'abats de porc en dés, mijoté dans un mélange d'épices, traditionnellement servi à la table de Noël de…"
+        "en": "A rich Eurasian curry of diced pork and pig's offal slow-cooked in a blend of spices.",
+        "fr": "Un riche curry eurasien de porc et d'abats de porc en dés, mijoté dans un mélange d'épices."
       },
       "sources": [
         {
@@ -9078,8 +9078,8 @@ const CUISINE_NOTES = {
     "eurasian smoore": {
       "local": "Smore",
       "note": {
-        "en": "A thick, dark Eurasian beef stew from Singapore and Malaysia — a local take on the Western-style beef stew, darkened with soy sauce and…",
-        "fr": "Un ragout de boeuf eurasien epais et fonce de Singapour et de Malaisie — une version locale du ragout de boeuf occidental, fonce a la sauce…"
+        "en": "A thick, dark Eurasian beef stew from Singapore and Malaysia — a local take on the Western-style beef stew.",
+        "fr": "Un ragout de bœuf eurasien epais et fonce de Singapour et de Malaisie — une version locale du ragout de bœuf occidental."
       },
       "sources": [
         {
@@ -9108,8 +9108,8 @@ const CUISINE_NOTES = {
     "curry debal alt": {
       "local": "Kari Debal",
       "note": {
-        "en": "Fiery Eurasian Kristang curry of Portuguese-Malacca origin, spiced with candlenut and vinegar; \"debal\" means leftovers, eaten after…",
-        "fr": "Curry eurasien kristang ardent d'origine portugaise-malaccaise, relevé de noix de bancoul et vinaigre ; \"debal\" signifie restes, mangé…"
+        "en": "Fiery Eurasian Kristang curry of Portuguese-Malacca origin, spiced with candlenut and vinegar;",
+        "fr": "Curry eurasien kristang ardent d'origine portugaise-malaccaise, relevé de noix de bancoul et vinaigre ;"
       },
       "sources": [
         {
@@ -9144,8 +9144,8 @@ const CUISINE_NOTES = {
     "dal makhani": {
       "local": "दाल मखनी",
       "note": {
-        "en": "A creamy Punjabi dish of slow-cooked black lentils and kidney beans simmered with butter and cream, created at Moti Mahal, Delhi, in the…",
-        "fr": "Plat punjabi cremeux de lentilles noires et haricots rouges mijotes au beurre et a la creme, cree au Moti Mahal a Delhi au debut des annees…"
+        "en": "A creamy Punjabi dish of slow-cooked black lentils and kidney beans simmered with butter and cream, created at Moti Mahal, Delhi.",
+        "fr": "Plat punjabi cremeux de lentilles noires et haricots rouges mijotés au beurre et à la creme."
       },
       "sources": [
         {
@@ -9212,8 +9212,8 @@ const CUISINE_NOTES = {
     "chicken tikka masala": {
       "local": "चिकन टिक्का मसाला",
       "note": {
-        "en": "Chunks of marinated, roasted chicken (chicken tikka) served in a spiced creamy tomato sauce; widely believed to have been created by South…",
-        "fr": "Morceaux de poulet marine et roti (chicken tikka) servis dans une sauce cremeuse a la tomate epicee; largement consideree comme ayant ete…"
+        "en": "Chunks of marinated, roasted chicken (chicken tikka) served in a spiced creamy tomato sauce;",
+        "fr": "Morceaux de poulet mariné et roti (chicken tikka) servis dans une sauce cremeuse à la tomate épicée;"
       },
       "sources": [
         {
@@ -9229,8 +9229,8 @@ const CUISINE_NOTES = {
     "chicken tikka": {
       "local": "मुर्ग़ टिक्का (Murġ Ṭikkā)",
       "note": {
-        "en": "North Indian appetizer of small boneless chicken pieces marinated in spiced yoghurt and char-grilled on skewers in a tandoor; it derives…",
-        "fr": "Entree nord-indienne de petits morceaux de poulet desosse marines au yaourt epice et grilles en brochettes au tandoor; elle est issue de la…"
+        "en": "North Indian appetizer of small boneless chicken pieces marinated in spiced yoghurt and char-grilled on skewers in a tandoor;",
+        "fr": "Entree nord-indienne de petits morceaux de poulet désossé marinés au yaourt épice et grillés en brochettes au tandoor;"
       },
       "sources": [
         {
@@ -9246,8 +9246,8 @@ const CUISINE_NOTES = {
     "rogan josh": {
       "local": "रोग़न जोश",
       "note": {
-        "en": "Aromatic Kashmiri braised mutton/lamb curry of Persian origin, brought to North India by the Mughals in the 16th century; the name is from…",
-        "fr": "Curry kashmiri de mouton ou d'agneau braisé, d'origine perse, introduit dans le nord de l'Inde par les Moghols au XVIe siècle ; le nom…"
+        "en": "Aromatic Kashmiri braised mutton/lamb curry of Persian origin, brought to North India by the Mughals in the 16th century;",
+        "fr": "Curry kashmiri de mouton ou d'agneau braisé, d'origine perse, introduit dans le nord de l'Inde par les Moghols au XVIe siècle ;"
       },
       "sources": [
         {
@@ -9259,8 +9259,8 @@ const CUISINE_NOTES = {
     "seekh kebab": {
       "local": "सीख कबाब / سیخ کباب",
       "note": {
-        "en": "Spiced minced or ground meat — usually lamb, beef or chicken — moulded into cylinders on skewers and grilled, often in a tandoor; a kebab…",
-        "fr": "Viande hachée épicée — généralement agneau, bœuf ou poulet — moulée en cylindres sur des brochettes et grillée, souvent au tandoor ; un…"
+        "en": "Spiced minced or ground meat — usually lamb, beef or chicken — moulded into cylinders on skewers and grilled, often in a tandoor;",
+        "fr": "Viande hachée épicée — généralement agneau, bœuf ou poulet — moulée en cylindres sur des brochettes et grillée, souvent au tandoor ;"
       },
       "sources": [
         {
@@ -9276,8 +9276,8 @@ const CUISINE_NOTES = {
     "shami kebab": {
       "local": "شامی کباب / शामी कबाब",
       "note": {
-        "en": "South Asian shallow-fried patty of minced meat (usually beef, lamb or mutton) ground with chana dal (chickpeas), bound with egg and spices…",
-        "fr": "Galette sud-asiatique frite a la poele, faite de viande hachee (generalement boeuf, agneau ou mouton) melangee au chana dal (pois chiches)…"
+        "en": "South Asian shallow-fried patty of minced meat (usually beef, lamb or mutton) ground with chana dal (chickpeas)",
+        "fr": "Galette sud-asiatique frite à la poêlé, faite de viande hachée (generalement bœuf, agneau ou mouton) mélangée au chana dal (pois chiches)"
       },
       "sources": [
         {
@@ -9293,8 +9293,8 @@ const CUISINE_NOTES = {
     "galouti kebab": {
       "local": "गलौटी कबाब",
       "note": {
-        "en": "Spiced minced-mutton patty from Awadhi (Lucknow) royal kitchens, named for its soft \"melt-in-the-mouth\" texture, said made for a toothless…",
-        "fr": "Galette de mouton hache epice des cuisines royales d'Awadh (Lucknow), nommee pour sa texture fondante, dit-on creee pour un Nawab edente."
+        "en": "Spiced minced-mutton patty from Awadhi (Lucknow)",
+        "fr": "Galette de mouton haché épice des cuisines royales d'Awadh (Lucknow), nommée pour sa texture fondante, dit-on créée pour un Nawab edente."
       },
       "sources": [
         {
@@ -9344,8 +9344,8 @@ const CUISINE_NOTES = {
     "butter naan": {
       "local": "बटर नान",
       "note": {
-        "en": "A leavened North Indian tandoor-baked flatbread brushed with butter, popularised in Mughal royal kitchens before reaching the masses by the…",
-        "fr": "Pain plat levé du nord de l'Inde cuit au tandoor et badigeonné de beurre, popularisé dans les cuisines royales moghol avant de se répandre…"
+        "en": "A leavened North Indian tandoor-baked flatbread brushed with butter, popularised in Mughal royal kitchens before reaching the masses by the",
+        "fr": "Pain plat levé du nord de l'Inde cuit au tandoor et badigeonné de beurre."
       },
       "sources": [
         {
@@ -9463,8 +9463,8 @@ const CUISINE_NOTES = {
     "dal fry": {
       "local": "दाल फ्राई",
       "note": {
-        "en": "A North Indian dish of soft-cooked toor dal (split pigeon peas) simmered with a fried, sauteed tempering of ghee or oil, whole and ground…",
-        "fr": "Plat du nord de l'Inde de dal de toor (pois d'Angole casses) cuits, mijotes avec un assaisonnement frit au ghee ou a l'huile, d'epices…"
+        "en": "A North Indian dish of soft-cooked toor dal (split pigeon peas)",
+        "fr": "Plat du nord de l'Inde de dal de toor (pois d'Angole casses)"
       },
       "sources": [
         {
@@ -9510,8 +9510,8 @@ const CUISINE_NOTES = {
     "samosa": {
       "local": "समोसा",
       "note": {
-        "en": "A fried triangular pastry with spiced potato or meat filling; its name and form come from the Persian sambosag, reaching India by the…",
-        "fr": "Chausson frit triangulaire farci de pommes de terre epicees ou de viande; son nom vient du persan sambosag, arrive en Inde aux 13e-14e s."
+        "en": "A fried triangular pastry with spiced potato or meat filling;",
+        "fr": "Chausson frit triangulaire farci de pommes de terre épicées ou de viande; son nom vient du persan sambosag, arrive en Inde aux 13e-14e s."
       },
       "sources": [
         {
@@ -9528,7 +9528,7 @@ const CUISINE_NOTES = {
       "local": "पकौड़ा",
       "note": {
         "en": "A deep-fried fritter of vegetables coated in spiced gram-flour (besan) batter; its name derives from Sanskrit pakvavaṭa, 'cooked lump'.",
-        "fr": "Beignet frit de légumes enrobés d'une pâte épicée à la farine de pois chiche (besan); son nom vient du sanskrit pakvavaṭa, « boulette cuite…"
+        "fr": "Beignet frit de légumes enrobés d'une pâte épicée à la farine de pois chiche (besan);"
       },
       "sources": [
         {
@@ -9561,8 +9561,8 @@ const CUISINE_NOTES = {
     "pani puri": {
       "local": "पानी पूरी (pānī pūrī)",
       "note": {
-        "en": "North Indian street snack of crisp hollow puri shells filled with spiced water, tamarind chutney, potato and chickpeas; called golgappa in…",
-        "fr": "Encas de rue du nord de l'Inde: coques de puri creuses garnies d'eau epicee, chutney de tamarin, pomme de terre et pois chiches; dit…"
+        "en": "North Indian street snack of crisp hollow puri shells filled with spiced water, tamarind chutney, potato and chickpeas;",
+        "fr": "Encas de rue du nord de l'Inde: coques de puri creuses garnies d'eau épicée, chutney de tamarin, pomme de terre et pois chiches;"
       },
       "sources": [
         {
@@ -9595,8 +9595,8 @@ const CUISINE_NOTES = {
     "gulab jamun": {
       "local": "गुलाब जामुन (gulāb jāmun)",
       "note": {
-        "en": "South Asian dessert (mithai) of milk-solid (khoya) balls deep-fried in ghee or oil and soaked in a sugar syrup flavoured with cardamom and…",
-        "fr": "Dessert d'Asie du Sud (mithai) : boules de khoya (solides de lait) frites au ghee ou à l'huile, puis trempées dans un sirop de sucre…"
+        "en": "South Asian dessert (mithai) of milk-solid (khoya)",
+        "fr": "Dessert d'Asie du Sud (mithai) : boules de khoya (solides de lait)"
       },
       "sources": [
         {
@@ -9631,8 +9631,8 @@ const CUISINE_NOTES = {
     "dosa": {
       "local": "தோசை (tōcai)",
       "note": {
-        "en": "South Indian thin crepe made from a fermented batter of rice and urad dal (black gram); according to food historian K. T. Achaya…",
-        "fr": "Crêpe fine du sud de l'Inde, à base d'une pâte fermentée de riz et de lentilles urad (gram noir) ; selon l'historien de l'alimentation K…"
+        "en": "South Indian thin crepe made from a fermented batter of rice and urad dal (black gram); according to food historian K. T.",
+        "fr": "Crêpe fine du sud de l'Inde, à base d'une pâte fermentée de riz et de lentilles urad (gram noir) ;"
       },
       "sources": [
         {
@@ -9683,7 +9683,7 @@ const CUISINE_NOTES = {
       "local": "ரவை தோசை (ravai dōsai)",
       "note": {
         "en": "A thin, lacy, crispy South Indian crepe of semolina (rava), rice flour and maida, made instantly with no grinding or fermentation.",
-        "fr": "Une crêpe sud-indienne fine, dentelée et croustillante de semoule (rava), farine de riz et maïda, préparée instantanément sans broyage ni…"
+        "fr": "Une crêpe sud-indienne fine, dentelée et croustillante de semoule (rava)"
       },
       "sources": [
         {
@@ -9700,7 +9700,7 @@ const CUISINE_NOTES = {
       "local": "இட்லி",
       "note": {
         "en": "A South Indian steamed cake of fermented rice and black lentils, first referenced in a 10th-century Kannada text as \"iddalige\".",
-        "fr": "Galette sud-indienne cuite a la vapeur, a base de riz et de lentilles noires fermentes, citee des le Xe siecle sous le nom \"iddalige\"."
+        "fr": "Galette sud-indienne cuite à la vapeur, a base de riz et de lentilles noires fermentés, citee des le Xe siecle sous le nom \"iddalige\"."
       },
       "sources": [
         {
@@ -9768,7 +9768,7 @@ const CUISINE_NOTES = {
       "local": "உப்புமா",
       "note": {
         "en": "South Indian savoury breakfast porridge of roasted semolina; its name combines uppu (salt) and mavu (ground meal).",
-        "fr": "Bouillie salee du petit-dejeuner sud-indien a base de semoule grillee; son nom unit uppu (sel) et mavu (farine moulue)."
+        "fr": "Bouillie salee du petit-dejeuner sud-indien a base de semoule grillée; son nom unit uppu (sel) et mavu (farine moulue)."
       },
       "sources": [
         {
@@ -9785,7 +9785,7 @@ const CUISINE_NOTES = {
       "local": "பொங்கல்",
       "note": {
         "en": "A Tamil dish of rice boiled in milk, central to the harvest festival of the same name; its name means \"to boil over.\"",
-        "fr": "Plat tamoul de riz bouilli dans du lait, au coeur de la fete des recoltes eponyme; son nom signifie \"deborder\"."
+        "fr": "Plat tamoul de riz bouilli dans du lait, au cœur de la fete des recoltes eponyme; son nom signifie \"deborder\"."
       },
       "sources": [
         {
@@ -9801,8 +9801,8 @@ const CUISINE_NOTES = {
     "sambar": {
       "local": "சாம்பார்",
       "note": {
-        "en": "South Indian lentil-based vegetable stew, made with pigeon peas (toor dal), tamarind broth, and a spice mix called sambar powder; a staple…",
-        "fr": "Ragout sud-indien a base de lentilles et de legumes, prepare avec des pois d'Angole (toor dal), un bouillon de tamarin et un melange…"
+        "en": "South Indian lentil-based vegetable stew, made with pigeon peas (toor dal), tamarind broth, and a spice mix called sambar powder;",
+        "fr": "Ragout sud-indien a base de lentilles et de legumes, préparé avec des pois d'Angole (toor dal)"
       },
       "sources": [
         {
@@ -9818,8 +9818,8 @@ const CUISINE_NOTES = {
     "rasam": {
       "local": "ரசம்",
       "note": {
-        "en": "A thin, tangy South Indian soup of tamarind, tomato and spices, served with or over rice. Its name traces to Sanskrit रस (rasa), meaning…",
-        "fr": "Soupe sud-indienne fine et acidulée au tamarin, à la tomate et aux épices, servie avec ou sur du riz. Son nom vient du sanskrit रस (rasa)…"
+        "en": "A thin, tangy South Indian soup of tamarind, tomato and spices, served with or over rice. Its name traces to Sanskrit रस (rasa)",
+        "fr": "Soupe sud-indienne fine et acidulée au tamarin, à la tomate et aux épices, servie avec ou sur du riz. Son nom vient du sanskrit रस (rasa)"
       },
       "sources": [
         {
@@ -9835,8 +9835,8 @@ const CUISINE_NOTES = {
     "coconut chutney": {
       "local": "தேங்காய் சட்னி (theṅkāy caṭṉi)",
       "note": {
-        "en": "A South Indian condiment of ground fresh coconut, chillies and tamarind, from the coastal Madras Presidency, served with idli, dosa and…",
-        "fr": "Condiment sud-indien de noix de coco fraîche moulue, piments et tamarin, de la côte de la présidence de Madras, servi avec idli, dosa et…"
+        "en": "A South Indian condiment of ground fresh coconut, chillies and tamarind, from the coastal Madras Presidency, served with idli.",
+        "fr": "Condiment sud-indien de noix de coco fraîche moulue, piments et tamarin, de la côte de la présidence de Madras, servi avec idli."
       },
       "sources": [
         {
@@ -9865,8 +9865,8 @@ const CUISINE_NOTES = {
     "chettinad chicken": {
       "local": "செட்டிநாடு கோழி (Chettinad kozhi)",
       "note": {
-        "en": "Spicy chicken curry from the Chettinad region of Tamil Nadu, India, built on a freshly ground masala of coconut, black pepper and whole…",
-        "fr": "Curry de poulet épicé de la région du Chettinad au Tamil Nadu, en Inde, fait d'un masala fraîchement moulu de noix de coco, poivre noir et…"
+        "en": "Spicy chicken curry from the Chettinad region of Tamil Nadu, India, built on a freshly ground masala of coconut.",
+        "fr": "Curry de poulet épicé de la région du Chettinad au Tamil Nadu, en Inde, fait d'un masala fraîchement moulu de noix de coco."
       },
       "sources": [
         {
@@ -9883,7 +9883,7 @@ const CUISINE_NOTES = {
       "local": "മീൻ കറി (Meen curry)",
       "note": {
         "en": "Tangy, spicy Kerala fish curry traditionally soured with kudampuli (Malabar tamarind) and cooked in a clay pot (manchatti).",
-        "fr": "Curry de poisson du Kerala, épicé et acidulé, traditionnellement aigri au kudampuli (tamarin de Malabar) et cuit dans un pot d'argile…"
+        "fr": "Curry de poisson du Kerala, épicé et acidulé, traditionnellement aigri au kudampuli (tamarin de Malabar)"
       },
       "sources": [
         {
@@ -9930,7 +9930,7 @@ const CUISINE_NOTES = {
       "local": "പുട്ട് (Malayalam) / புட்டு (Tamil)",
       "note": {
         "en": "A South Indian and Sri Lankan breakfast of steamed ground-rice cylinders layered with grated coconut, served with kadala curry.",
-        "fr": "Petit-dejeuner sud-indien et sri-lankais de cylindres de riz moulu cuits a la vapeur en couches avec de la noix de coco rapee, servi avec…"
+        "fr": "Petit-dejeuner sud-indien et sri-lankais de cylindres de riz moulu cuits à la vapeur en couches avec de la noix de coco rapee."
       },
       "sources": [
         {
@@ -9943,7 +9943,7 @@ const CUISINE_NOTES = {
       "local": "ബീഫ് ഉലർത്തിയത് (Beef Ularthiyathu)",
       "note": {
         "en": "Kerala dish of beef slow-roasted with spices, curry leaves and coconut slivers in coconut oil, traditional to Syrian Christians.",
-        "fr": "Plat du Kerala de bœuf rôti lentement aux épices, feuilles de curry et copeaux de noix de coco à l'huile de coco, traditionnel des…"
+        "fr": "Plat du Kerala de bœuf rôti lentement aux épices, feuilles de curry et copeaux de noix de coco à l'huile de coco."
       },
       "sources": [
         {
@@ -9977,7 +9977,7 @@ const CUISINE_NOTES = {
       "local": "செட்டிநாடு நண்டு மிளகு வறுவல் (Chettinad Nandu Milagu Varuval)",
       "note": {
         "en": "A spicy crab dish from the Chettiar community of Tamil Nadu, stir-fried semi-dry with freshly ground black pepper, fennel and curry leaves.",
-        "fr": "Un plat de crabe epice de la communaute Chettiar du Tamil Nadu, saute a sec avec du poivre noir fraichement moulu, du fenouil et des…"
+        "fr": "Un plat de crabe épice de la communaute Chettiar du Tamil Nadu, sauté a sec avec du poivre noir fraichement moulu."
       },
       "sources": [
         {
@@ -10010,8 +10010,8 @@ const CUISINE_NOTES = {
     "thali": {
       "local": "थाली (thālī)",
       "note": {
-        "en": "An Indian meal of several small dishes served together on a round platter, the small bowls (katori) arranged around the edge; \"thali\" is…",
-        "fr": "Repas indien composé de plusieurs petits plats servis ensemble sur un plateau rond, les petits bols (katori) disposés sur le pourtour ; «…"
+        "en": "An Indian meal of several small dishes served together on a round platter, the small bowls (katori) arranged around the edge;",
+        "fr": "Repas indien composé de plusieurs petits plats servis ensemble sur un plateau rond, les petits bols (katori) disposés sur le pourtour ;"
       },
       "sources": [
         {
@@ -10041,7 +10041,7 @@ const CUISINE_NOTES = {
       "local": "ಮೈಸೂರು ಪಾಕ್",
       "note": {
         "en": "A South Indian sweet of gram flour, ghee and sugar, created in the early-1900s royal kitchens of Mysore, Karnataka.",
-        "fr": "Confiserie sud-indienne de farine de pois chiche, ghee et sucre, creee au debut du XXe siecle dans les cuisines royales de Mysore…"
+        "fr": "Confiserie sud-indienne de farine de pois chiche, ghee et sucre, créée au debut du XXe siecle dans les cuisines royales de Mysore"
       },
       "sources": [
         {
@@ -10074,8 +10074,8 @@ const CUISINE_NOTES = {
     "meals (sappadu)": {
       "local": "சாப்பாடு",
       "note": {
-        "en": "A Tamil Nadu full rice meal traditionally served on a banana leaf, with steamed rice eaten alongside sambar, rasam, poriyal (dry…",
-        "fr": "Un repas complet de riz du Tamil Nadu, traditionnellement servi sur une feuille de bananier, avec du riz vapeur accompagné de sambar…"
+        "en": "A Tamil Nadu full rice meal traditionally served on a banana leaf, with steamed rice eaten alongside sambar, rasam.",
+        "fr": "Un repas complet de riz du Tamil Nadu, traditionnellement servi sur une feuille de bananier."
       },
       "sources": [
         {
@@ -10093,8 +10093,8 @@ const CUISINE_NOTES = {
     "nihari": {
       "local": "نہاری",
       "note": {
-        "en": "A slow-cooked beef, mutton or goat shank stew from Mughal-era Delhi/Lucknow; its name derives from Arabic \"nahar\" (morning), as it was…",
-        "fr": "Ragout de jarret de boeuf, mouton ou chevre mijote, ne a Delhi/Lucknow sous les Moghols; son nom vient de l'arabe \"nahar\" (matin), car…"
+        "en": "A slow-cooked beef, mutton or goat shank stew from Mughal-era Delhi/Lucknow; its name derives from Arabic \"nahar\" (morning)",
+        "fr": "Ragout de jarret de bœuf, mouton ou chevre mijoté, ne a Delhi/Lucknow sous les Moghols; son nom vient de l'arabe \"nahar\" (matin)"
       },
       "sources": [
         {
@@ -10111,7 +10111,7 @@ const CUISINE_NOTES = {
       "local": "حلیم",
       "note": {
         "en": "A slow-cooked stew of wheat or barley, lentils and meat, derived from the Arabian dish harees and popular during Ramadan.",
-        "fr": "Un ragout mijote de ble ou d'orge, lentilles et viande, derive du plat arabe harees et apprecie pendant le Ramadan."
+        "fr": "Un ragout mijoté de ble ou d'orge, lentilles et viande, derive du plat arabe harees et apprecie pendant le Ramadan."
       },
       "sources": [
         {
@@ -10127,8 +10127,8 @@ const CUISINE_NOTES = {
     "chicken karahi": {
       "local": "چکن کڑاہی",
       "note": {
-        "en": "Pakistani chicken curry traditionally associated with the Punjab region and the city of Lahore, cooked in a wok-like karahi pan with…",
-        "fr": "Curry de poulet pakistanais traditionnellement associé à la région du Pendjab et à la ville de Lahore, cuit dans un wok karahi avec…"
+        "en": "Pakistani chicken curry traditionally associated with the Punjab region and the city of Lahore.",
+        "fr": "Curry de poulet pakistanais traditionnellement associé à la région du Pendjab et à la ville de Lahore."
       },
       "sources": [
         {
@@ -10145,7 +10145,7 @@ const CUISINE_NOTES = {
       "local": "مٹن کڑاہی",
       "note": {
         "en": "Pakistani curry of bone-in mutton slow-cooked in a tomato, ginger and garlic gravy in a karahi (wok); originated in the North-West Frontier.",
-        "fr": "Curry pakistanais de mouton à l'os mijoté dans une sauce tomate, gingembre et ail dans un karahi (wok) ; originaire de la North-West…"
+        "fr": "Curry pakistanais de mouton à l'os mijoté dans une sauce tomate, gingembre et ail dans un karahi (wok) ;"
       },
       "sources": [
         {
@@ -10162,7 +10162,7 @@ const CUISINE_NOTES = {
       "local": "چپلی کباب",
       "note": {
         "en": "A spiced, flat minced-beef or lamb patty from Pashtun cuisine, said to have originated in Peshawar, Khyber Pakhtunkhwa.",
-        "fr": "Galette plate de boeuf ou d'agneau hache et epice, de la cuisine pachtoune, originaire de Peshawar au Khyber Pakhtunkhwa."
+        "fr": "Galette plate de bœuf ou d'agneau haché et épice, de la cuisine pachtoune, originaire de Peshawar au Khyber Pakhtunkhwa."
       },
       "sources": [
         {
@@ -10179,7 +10179,7 @@ const CUISINE_NOTES = {
       "local": "سیخ کباب",
       "note": {
         "en": "Spiced minced meat (usually lamb or beef) molded onto skewers and grilled; \"seekh\" means skewer in Urdu, from the Indian subcontinent.",
-        "fr": "Viande hachee epicee (souvent agneau ou boeuf) moulee sur des brochettes et grillee ; \"seekh\" signifie brochette en ourdou, du…"
+        "fr": "Viande hachée épicée (souvent agneau ou bœuf) moulee sur des brochettes et grillée ;"
       },
       "sources": [
         {
@@ -10195,8 +10195,8 @@ const CUISINE_NOTES = {
     "beef pulao": {
       "local": "بیف پلاؤ (گوشت پلاؤ)",
       "note": {
-        "en": "A Pakistani one-pot dish of basmati rice cooked in a spiced beef broth (yakhni); the Wikipedia 'Pilaf' article names Bannu beef pulao as…",
-        "fr": "Plat pakistanais en une seule marmite, de riz basmati cuit dans un bouillon de boeuf epice (yakhni) ; l'article Wikipedia 'Pilaf' cite le…"
+        "en": "A Pakistani one-pot dish of basmati rice cooked in a spiced beef broth (yakhni);",
+        "fr": "Plat pakistanais en une seule marmite, de riz basmati cuit dans un bouillon de bœuf épice (yakhni) ;"
       },
       "sources": [
         {
@@ -10213,7 +10213,7 @@ const CUISINE_NOTES = {
       "local": "مٹن پایہ",
       "note": {
         "en": "A South Asian stew of slow-cooked goat/lamb trotters in spiced broth; \"paya\" means feet in Urdu, eaten as a winter breakfast in Pakistan.",
-        "fr": "Ragout sud-asiatique de pieds de chevre/agneau mijotes dans un bouillon epice ; \"paya\" signifie pieds en ourdou, mange au petit-dejeuner en…"
+        "fr": "Ragout sud-asiatique de pieds de chevre/agneau mijotés dans un bouillon épice ;"
       },
       "sources": [
         {
@@ -10226,7 +10226,7 @@ const CUISINE_NOTES = {
       "local": "سری پائے",
       "note": {
         "en": "A slow-cooked Pakistani stew of animal head (siri) and trotters (paya), traditionally eaten as a winter breakfast with naan.",
-        "fr": "Un ragout pakistanais mijote de tete d'animal (siri) et de pieds (paya), traditionnellement mange au petit-dejeuner d'hiver avec du naan."
+        "fr": "Un ragout pakistanais mijoté de tête d'animal (siri) et de pieds (paya), traditionnellement mange au petit-dejeuner d'hiver avec du naan."
       },
       "sources": [
         {
@@ -10272,8 +10272,8 @@ const CUISINE_NOTES = {
     "peshawari naan": {
       "local": "پشاوری نان",
       "note": {
-        "en": "A leavened, tandoor-baked flatbread from Peshawar, Pakistan, filled with a sweet paste of ground almonds, desiccated coconut and raisins…",
-        "fr": "Un pain plat levé cuit au tandoor, originaire de Peshawar au Pakistan, fourré d'une pâte sucrée d'amandes moulues, de noix de coco séchée…"
+        "en": "A leavened, tandoor-baked flatbread from Peshawar, Pakistan, filled with a sweet paste of ground almonds.",
+        "fr": "Un pain plat levé cuit au tandoor, originaire de Peshawar au Pakistan, fourré d'une pâte sucrée d'amandes moulues."
       },
       "sources": [
         {
@@ -10290,7 +10290,7 @@ const CUISINE_NOTES = {
       "local": "بالٹی گوشت",
       "note": {
         "en": "A spiced meat curry stir-fried and served in a thin pressed-steel wok (balti), developed by Birmingham's Pakistani community in the 1970s.",
-        "fr": "Curry de viande epicee sautee et servie dans un wok fin en acier (balti), cree par la communaute pakistanaise de Birmingham dans les annees…"
+        "fr": "Curry de viande épicée sautée et servie dans un wok fin en acier (balti)"
       },
       "sources": [
         {
@@ -10324,7 +10324,7 @@ const CUISINE_NOTES = {
       "local": "آلو گوشت",
       "note": {
         "en": "A meat-and-potato curry in shorba gravy from Pakistan, India and Bangladesh; the name means \"potato\" (aloo) and \"meat\" (gosht).",
-        "fr": "Un curry de viande et pommes de terre en sauce shorba du Pakistan, d'Inde et du Bangladesh ; le nom signifie pomme de terre (aloo) et…"
+        "fr": "Un curry de viande et pommes de terre en sauce shorba du Pakistan, d'Inde et du Bangladesh ; le nom signifie pomme de terre (aloo)"
       },
       "sources": [
         {
@@ -10337,7 +10337,7 @@ const CUISINE_NOTES = {
       "local": "پالک گوشت",
       "note": {
         "en": "A South Asian curry of bone-in goat, lamb or mutton slow-cooked in spiced spinach gravy; palak means spinach and gosht meat in Urdu.",
-        "fr": "Un curry sud-asiatique de chevre, d'agneau ou de mouton mijote dans une sauce epicee aux epinards ; palak signifie epinard et gosht viande…"
+        "fr": "Un curry sud-asiatique de chevre, d'agneau ou de mouton mijoté dans une sauce épicée aux epinards ;"
       },
       "sources": [
         {
@@ -10354,7 +10354,7 @@ const CUISINE_NOTES = {
       "local": "چنا پُلاؤ",
       "note": {
         "en": "Pakistani one-pot pilaf of basmati rice and chickpeas simmered with whole spices; the white 'kabuli' chana is named for Kabul, Afghanistan.",
-        "fr": "Pilaf pakistanais en une marmite, de riz basmati et de pois chiches mijotes aux epices ; le « kabuli » chana doit son nom a Kaboul."
+        "fr": "Pilaf pakistanais en une marmite, de riz basmati et de pois chiches mijotés aux épices ; le « kabuli » chana doit son nom a Kaboul."
       },
       "sources": [
         {
@@ -10370,8 +10370,8 @@ const CUISINE_NOTES = {
     "keema matar": {
       "local": "قیمہ مٹر",
       "note": {
-        "en": "A South Asian semi-dry curry of minced meat and green peas, associated with Mughal cuisine; its name derives from Chaghatai Turkic for…",
-        "fr": "Curry semi-sec sud-asiatique de viande hachee et de petits pois, lie a la cuisine moghole; son nom vient du turc tchaghatai pour viande…"
+        "en": "A South Asian semi-dry curry of minced meat and green peas, associated with Mughal cuisine;",
+        "fr": "Curry semi-sec sud-asiatique de viande hachée et de petits pois, lie à la cuisine moghole;"
       },
       "sources": [
         {
@@ -10418,7 +10418,7 @@ const CUISINE_NOTES = {
       "local": "گلاب جامن",
       "note": {
         "en": "Deep-fried milk-solid (khoya) dumplings soaked in rose-and-cardamom sugar syrup, a Mughal-era sweet of Persian origin popular in Pakistan.",
-        "fr": "Boulettes de khoya (solides du lait) frites, trempees dans un sirop de sucre a la rose et cardamome, douceur d'origine perse de l'epoque…"
+        "fr": "Boulettes de khoya (solides du lait)"
       },
       "sources": [
         {
@@ -10452,7 +10452,7 @@ const CUISINE_NOTES = {
       "local": "دودھ پتی چائے",
       "note": {
         "en": "South Asian milk tea where black tea leaves and sugar are boiled directly in milk instead of water, often with cardamom.",
-        "fr": "Thé au lait sud-asiatique où le thé noir et le sucre sont bouillis directement dans du lait plutôt que de l'eau, souvent avec de la…"
+        "fr": "Thé au lait sud-asiatique où le thé noir et le sucre sont bouillis directement dans du lait plutôt que de l'eau."
       },
       "sources": [
         {
@@ -10467,7 +10467,7 @@ const CUISINE_NOTES = {
       "local": "Pizza Margherita",
       "note": {
         "en": "Neapolitan pizza of tomato, mozzarella and basil, popularly said to be named in 1889 for Queen Margherita of Savoy.",
-        "fr": "Pizza napolitaine a la tomate, mozzarella et basilic, dite nommee en 1889 en l'honneur de la reine Marguerite de Savoie."
+        "fr": "Pizza napolitaine à la tomate, mozzarella et basilic, dite nommée en 1889 en l'honneur de la reine Marguerite de Savoie."
       },
       "sources": [
         {
@@ -10484,7 +10484,7 @@ const CUISINE_NOTES = {
       "local": "Pizza alla marinara",
       "note": {
         "en": "A Neapolitan pizza topped with tomato, garlic, oregano and olive oil but no cheese, named for the seafarers who ate it.",
-        "fr": "Une pizza napolitaine garnie de tomate, ail, origan et huile d'olive, sans fromage, nommee d'apres les marins qui la mangeaient."
+        "fr": "Une pizza napolitaine garnie de tomate, ail, origan et huile d'olive, sans fromage, nommée d'apres les marins qui la mangeaient."
       },
       "sources": [
         {
@@ -10497,7 +10497,7 @@ const CUISINE_NOTES = {
       "local": "focaccia",
       "note": {
         "en": "Flat oven-baked Italian yeast bread brushed with olive oil and salt, from Latin panis focacius (\"hearth bread\"); a Ligurian/Genoese staple.",
-        "fr": "Pain plat italien cuit au four, badigeonne d'huile d'olive et de sel, du latin panis focacius (\"pain de foyer\"); specialite ligure/genoise."
+        "fr": "Pain plat italien cuit au four, badigeonne d'huile d'olive et de sel, du latin panis focacius (\"pain de foyer\"); spécialité ligure/genoise."
       },
       "sources": [
         {
@@ -10547,8 +10547,8 @@ const CUISINE_NOTES = {
     "pasta alla gricia": {
       "local": "Pasta alla gricia",
       "note": {
-        "en": "Roman pasta dressed with guanciale (cured pork cheek), Pecorino Romano and black pepper; widely considered the oldest of the four classic…",
-        "fr": "Pâtes romaines au guanciale (joue de porc séchée), Pecorino Romano et poivre noir ; largement considérées comme les plus anciennes des…"
+        "en": "Roman pasta dressed with guanciale (cured pork cheek), Pecorino Romano and black pepper;",
+        "fr": "Pâtes romaines au guanciale (joue de porc séchée), Pecorino Romano et poivre noir ;"
       },
       "sources": [
         {
@@ -10594,7 +10594,7 @@ const CUISINE_NOTES = {
     "lasagna alla bolognese": {
       "local": "lasagne alla bolognese",
       "note": {
-        "en": "Baked Bologna dish layering green spinach egg-pasta with ragù, béchamel and Parmigiano; recipe filed with Bologna's Chamber of Commerce in…",
+        "en": "Baked Bologna dish layering green spinach egg-pasta with ragù, béchamel and Parmigiano;",
         "fr": "Plat bolognais au four: pâtes vertes aux épinards, ragù, béchamel et parmesan; recette déposée à la Chambre de commerce de Bologne en 2003."
       },
       "sources": [
@@ -10611,8 +10611,8 @@ const CUISINE_NOTES = {
     "tagliatelle al ragù": {
       "local": "Tagliatelle al ragù",
       "note": {
-        "en": "Bolognese egg-pasta ribbons served with a slow-cooked meat ragù; the Accademia Italiana della Cucina deposited an official ragù alla…",
-        "fr": "Rubans de pâtes aux œufs bolonais servis avec un ragù de viande mijoté ; l'Accademia Italiana della Cucina a déposé une recette officielle…"
+        "en": "Bolognese egg-pasta ribbons served with a slow-cooked meat ragù;",
+        "fr": "Rubans de pâtes aux œufs bolonais servis avec un ragù de viande mijoté ;"
       },
       "sources": [
         {
@@ -10646,7 +10646,7 @@ const CUISINE_NOTES = {
       "local": "risotto ai funghi",
       "note": {
         "en": "Creamy northern-Italian rice dish of arborio or carnaroli rice slow-cooked with mushrooms, often prized porcini.",
-        "fr": "Plat de riz cremeux du nord de l'Italie, riz arborio ou carnaroli mijote avec des champignons, souvent des cepes."
+        "fr": "Plat de riz cremeux du nord de l'Italie, riz arborio ou carnaroli mijoté avec des champignons, souvent des cepes."
       },
       "sources": [
         {
@@ -10663,7 +10663,7 @@ const CUISINE_NOTES = {
       "local": "ossobuco alla milanese",
       "note": {
         "en": "Milanese (Lombard) braised cross-cut veal shanks in white wine and broth, finished with gremolata; the name means \"bone with a hole.\"",
-        "fr": "Jarrets de veau coupés en tranches, braisés au vin blanc et au bouillon à la milanaise, finis à la gremolata ; le nom signifie « os à trou…"
+        "fr": "Jarrets de veau coupés en tranches, braisés au vin blanc et au bouillon à la milanaise, finis à la gremolata ;"
       },
       "sources": [
         {
@@ -10697,7 +10697,7 @@ const CUISINE_NOTES = {
       "local": "Saltimbocca (alla romana)",
       "note": {
         "en": "Roman veal cutlets wrapped with prosciutto and sage, cooked in white wine; the name means \"jumps in the mouth.\"",
-        "fr": "Escalopes de veau romaines enveloppees de prosciutto et de sauge, cuites au vin blanc; le nom signifie \"saute en bouche.\""
+        "fr": "Escalopes de veau romaines enveloppees de prosciutto et de sauge, cuites au vin blanc; le nom signifie \"sauté en bouche.\""
       },
       "sources": [
         {
@@ -10713,8 +10713,8 @@ const CUISINE_NOTES = {
     "parmigiana di melanzane": {
       "local": "parmigiana di melanzane",
       "note": {
-        "en": "Southern Italian baked dish of fried sliced eggplant layered with tomato sauce and cheese; the modern tomato-ragu version first appeared in…",
-        "fr": "Plat du sud de l'Italie compose d'aubergines frites en tranches, disposees en couches avec une sauce tomate et du fromage, puis gratinees…"
+        "en": "Southern Italian baked dish of fried sliced eggplant layered with tomato sauce and cheese;",
+        "fr": "Plat du sud de l'Italie compose d'aubergines frites en tranches, disposees en couches avec une sauce tomate et du fromage."
       },
       "sources": [
         {
@@ -10730,8 +10730,8 @@ const CUISINE_NOTES = {
     "caponata": {
       "local": "caponata",
       "note": {
-        "en": "Sicilian sweet-and-sour (agrodolce) dish of chopped, fried eggplant with celery, olives, capers and vinegar; first attested in 1709 in…",
-        "fr": "Plat sicilien aigre-doux (agrodolce) d'aubergines frites coupees, avec celeri, olives, capres et vinaigre; atteste pour la premiere fois en…"
+        "en": "Sicilian sweet-and-sour (agrodolce) dish of chopped, fried eggplant with celery, olives, capers and vinegar;",
+        "fr": "Plat sicilien aigre-doux (agrodolce) d'aubergines frites coupees, avec celeri, olives, capres et vinaigre;"
       },
       "sources": [
         {
@@ -10747,8 +10747,8 @@ const CUISINE_NOTES = {
     "arancini": {
       "local": "arancini (arancine)",
       "note": {
-        "en": "Sicilian deep-fried, breadcrumb-coated rice balls filled with ragù, cheese or peas; the name means \"little oranges\" for their shape and…",
-        "fr": "Boulettes de riz siciliennes panées et frites, fourrées au ragù, fromage ou petits pois; le nom signifie \"petites oranges\" pour leur forme…"
+        "en": "Sicilian deep-fried, breadcrumb-coated rice balls filled with ragù, cheese or peas;",
+        "fr": "Boulettes de riz siciliennes panées et frites, fourrées au ragù, fromage ou petits pois;"
       },
       "sources": [
         {
@@ -10764,8 +10764,8 @@ const CUISINE_NOTES = {
     "cannoli": {
       "local": "cannolo siciliano (pl. cannoli)",
       "note": {
-        "en": "Sicilian fried pastry tube filled with sweetened ricotta cream; food historians trace its origin to Caltanissetta, Sicily, under Arab rule…",
-        "fr": "Tube de pate frite sicilien garni de creme de ricotta sucree; les historiens de l'alimentation en situent l'origine a Caltanissetta, en…"
+        "en": "Sicilian fried pastry tube filled with sweetened ricotta cream;",
+        "fr": "Tube de pate frite sicilien garni de creme de ricotta sucree;"
       },
       "sources": [
         {
@@ -10799,7 +10799,7 @@ const CUISINE_NOTES = {
       "local": "panna cotta",
       "note": {
         "en": "Italian molded dessert of sweetened cream set with gelatin; the name means \"cooked cream\" and it's linked to the Piedmont region.",
-        "fr": "Dessert italien moule de creme sucree prise a la gelatine ; le nom signifie \"creme cuite\" et il est lie au Piemont."
+        "fr": "Dessert italien moule de creme sucree prise à la gelatine ; le nom signifie \"creme cuite\" et il est lie au Piemont."
       },
       "sources": [
         {
@@ -10815,7 +10815,7 @@ const CUISINE_NOTES = {
     "gelato": {
       "local": "gelato",
       "note": {
-        "en": "Italian frozen dessert (Latin gelatus, \"frozen\"), made with more milk and less cream than ice cream, so lower in fat and churned with less…",
+        "en": "Italian frozen dessert (Latin gelatus, \"frozen\")",
         "fr": "Dessert glace italien (du latin gelatus, \"gele\"), fait avec plus de lait et moins de creme que la glace, donc moins gras et moins aere."
       },
       "sources": [
@@ -10846,7 +10846,7 @@ const CUISINE_NOTES = {
       "local": "gnocchi",
       "note": {
         "en": "Italian dumplings, most often made from potato, flour and egg; the name comes from \"nocchio\" (a knot in wood) or \"nocca\" (knuckle).",
-        "fr": "Quenelles italiennes, le plus souvent à base de pomme de terre, farine et œuf; le nom vient de \"nocchio\" (nœud du bois) ou \"nocca\"…"
+        "fr": "Quenelles italiennes, le plus souvent à base de pomme de terre, farine et œuf; le nom vient de \"nocchio\" (nœud du bois)"
       },
       "sources": [
         {
@@ -10862,8 +10862,8 @@ const CUISINE_NOTES = {
     "ravioli": {
       "local": "ravioli",
       "note": {
-        "en": "Italian stuffed pasta of filling enveloped in thin pasta dough; documented since the 14th century, with early references in the letters of…",
-        "fr": "Pates farcies italiennes, garniture enveloppee dans une fine pate; attestees des le 14e siecle, avec des references anciennes dans les…"
+        "en": "Italian stuffed pasta of filling enveloped in thin pasta dough;",
+        "fr": "Pates farcies italiennes, garniture enveloppee dans une fine pate;"
       },
       "sources": [
         {
@@ -10876,7 +10876,7 @@ const CUISINE_NOTES = {
       "local": "tortellini in brodo",
       "note": {
         "en": "Ring-shaped meat-stuffed pasta from Bologna and Modena, traditionally served in capon broth; the recipe was registered in Bologna in 1974.",
-        "fr": "Pates fourrees a la viande en forme d'anneau de Bologne et Modene, servies dans un bouillon de chapon; recette deposee a Bologne en 1974."
+        "fr": "Pates fourrees à la viande en forme d'anneau de Bologne et Modene, servies dans un bouillon de chapon; recette deposee a Bologne en 1974."
       },
       "sources": [
         {
@@ -10892,8 +10892,8 @@ const CUISINE_NOTES = {
     "bruschetta": {
       "local": "bruschetta",
       "note": {
-        "en": "Italian antipasto of grilled bread rubbed with garlic and dressed with olive oil and salt; its name comes from Roman dialect \"bruscare\" (to…",
-        "fr": "Antipasto italien de pain grillé frotté d'ail et assaisonné d'huile d'olive et de sel ; son nom vient du dialecte romain \"bruscare\"…"
+        "en": "Italian antipasto of grilled bread rubbed with garlic and dressed with olive oil and salt;",
+        "fr": "Antipasto italien de pain grillé frotté d'ail et assaisonné d'huile d'olive et de sel ;"
       },
       "sources": [
         {
@@ -10910,7 +10910,7 @@ const CUISINE_NOTES = {
       "local": "Insalata caprese",
       "note": {
         "en": "Italian salad of sliced fresh mozzarella, tomatoes, and basil with olive oil and salt, originating on the island of Capri.",
-        "fr": "Salade italienne de mozzarella fraiche, tomates et basilic en tranches, a l'huile d'olive et au sel, originaire de l'ile de Capri."
+        "fr": "Salade italienne de mozzarella fraîche, tomates et basilic en tranches, a l'huile d'olive et au sel, originaire de l'ile de Capri."
       },
       "sources": [
         {
@@ -10943,8 +10943,8 @@ const CUISINE_NOTES = {
     "panettone": {
       "local": "panettone (Milanese: panattón)",
       "note": {
-        "en": "A tall, domed sweet leavened bread studded with raisins and candied citrus peel, associated with the city of Milan and traditionally eaten…",
-        "fr": "Un pain levé sucré, haut et bombé, garni de raisins secs et d'écorces d'agrumes confites, associé à la ville de Milan et traditionnellement…"
+        "en": "A tall, domed sweet leavened bread studded with raisins and candied citrus peel.",
+        "fr": "Un pain levé sucré, haut et bombé, garni de raisins secs et d'écorces d'agrumes confites."
       },
       "sources": [
         {
@@ -10962,8 +10962,8 @@ const CUISINE_NOTES = {
     "boeuf bourguignon": {
       "local": "bœuf bourguignon",
       "note": {
-        "en": "A French beef stew associated with the Burgundy region, made of beef braised in red wine (often red Burgundy) with onions, mushrooms and a…",
-        "fr": "Un ragoût de bœuf français associé à la région de Bourgogne : du bœuf braisé au vin rouge (souvent un bourgogne rouge) avec oignons…"
+        "en": "A French beef stew associated with the Burgundy region, made of beef braised in red wine (often red Burgundy)",
+        "fr": "Un ragoût de bœuf français associé à la région de Bourgogne : du bœuf braisé au vin rouge (souvent un bourgogne rouge)"
       },
       "sources": [
         {
@@ -10980,7 +10980,7 @@ const CUISINE_NOTES = {
       "local": "coq au vin",
       "note": {
         "en": "A French braise of chicken cooked in red wine with lardons and mushrooms, traditionally tied to Burgundy.",
-        "fr": "Un plat francais de poulet braise au vin rouge avec lardons et champignons, traditionnellement lie a la Bourgogne."
+        "fr": "Un plat francais de poulet braisé au vin rouge avec lardons et champignons, traditionnellement lie à la Bourgogne."
       },
       "sources": [
         {
@@ -11013,8 +11013,8 @@ const CUISINE_NOTES = {
     "ratatouille": {
       "local": "ratatouille niçoise",
       "note": {
-        "en": "A Provençal stewed vegetable dish from Nice made with tomatoes, courgettes, aubergines, peppers and onions, rooted in 18th-century peasant…",
-        "fr": "Plat provençal de légumes mijotés originaire de Nice à base de tomates, courgettes, aubergines, poivrons et oignons, issu de la cuisine…"
+        "en": "A Provençal stewed vegetable dish from Nice made with tomatoes, courgettes, aubergines, peppers and onions.",
+        "fr": "Plat provençal de légumes mijotés originaire de Nice à base de tomates, courgettes, aubergines, poivrons et oignons."
       },
       "sources": [
         {
@@ -11047,8 +11047,8 @@ const CUISINE_NOTES = {
     "soupe à l'oignon": {
       "local": "soupe à l'oignon",
       "note": {
-        "en": "French soup of sliced onions cooked until softened and golden in beef stock, usually served gratinéed with bread and cheese (typically…",
-        "fr": "Soupe française d'oignons émincés cuits jusqu'à tendreté et coloration dans un bouillon de bœuf, généralement servie gratinée avec du pain…"
+        "en": "French soup of sliced onions cooked until softened and golden in beef stock.",
+        "fr": "Soupe française d'oignons émincés cuits jusqu'à tendreté et coloration dans un bouillon de bœuf."
       },
       "sources": [
         {
@@ -11111,8 +11111,8 @@ const CUISINE_NOTES = {
     "foie gras": {
       "local": "foie gras",
       "note": {
-        "en": "A French delicacy of fattened duck or goose liver produced by gavage, a force-feeding technique dating to ancient Egypt over 4,000 years…",
-        "fr": "Specialite francaise de foie de canard ou d'oie engraisse par gavage, technique remontant a l'Egypte ancienne il y a plus de 4 000 ans."
+        "en": "A French delicacy of fattened duck or goose liver produced by gavage, a force-feeding technique dating to ancient Egypt over 4.",
+        "fr": "Spécialité francaise de foie de canard ou d'oie engraisse par gavage, technique remontant a l'Egypte ancienne il y a plus de 4 000 ans."
       },
       "sources": [
         {
@@ -11145,8 +11145,8 @@ const CUISINE_NOTES = {
     "steak frites": {
       "local": "steak-frites",
       "note": {
-        "en": "A French-Belgian brasserie dish of beefsteak with deep-fried chipped potatoes, often served with bearnaise; considered a national dish of…",
-        "fr": "Plat de brasserie franco-belge compose d'un bifteck et de frites, souvent servi avec une sauce bearnaise; considere comme un plat national…"
+        "en": "A French-Belgian brasserie dish of beefsteak with deep-fried chipped potatoes, often served with bearnaise;",
+        "fr": "Plat de brasserie franco-belge compose d'un bifteck et de frites, souvent servi avec une sauce bearnaise;"
       },
       "sources": [
         {
@@ -11162,8 +11162,8 @@ const CUISINE_NOTES = {
     "steak tartare": {
       "local": "steak tartare",
       "note": {
-        "en": "A French dish of chopped raw beef bound with raw egg yolk and seasoned with capers, mustard, and onions; once called beefsteak a…",
-        "fr": "Plat francais de boeuf cru hache lie au jaune d'oeuf cru, assaisonne de capres, moutarde et oignons; jadis nomme beefsteak a l'americaine."
+        "en": "A French dish of chopped raw beef bound with raw egg yolk and seasoned with capers, mustard, and onions;",
+        "fr": "Plat francais de bœuf cru haché lie au jaune d'oeuf cru, assaisonne de capres, moutarde et oignons; jadis nommé beefsteak a l'americaine."
       },
       "sources": [
         {
@@ -11192,8 +11192,8 @@ const CUISINE_NOTES = {
     "blanquette de veau": {
       "local": "blanquette de veau",
       "note": {
-        "en": "French white veal stew: the meat is poached (never browned) in a white stock and served in a sauce veloute enriched with cream and egg…",
-        "fr": "Ragout blanc de veau: la viande est pochee (jamais saisie) dans un bouillon blanc puis servie dans une sauce veloutee liee a la creme et au…"
+        "en": "French white veal stew: the meat is poached (never browned)",
+        "fr": "Ragout blanc de veau: la viande est pochee (jamais saisie)"
       },
       "sources": [
         {
@@ -11209,8 +11209,8 @@ const CUISINE_NOTES = {
     "pot-au-feu": {
       "local": "pot-au-feu",
       "note": {
-        "en": "Classic French dish of beef and root vegetables slow-boiled in clear broth; name means 'pot on the fire', rooted in medieval peasant…",
-        "fr": "Plat français classique de bœuf et légumes-racines mijotés dans un bouillon clair ; le nom signifie « pot sur le feu », issu de la cuisine…"
+        "en": "Classic French dish of beef and root vegetables slow-boiled in clear broth;",
+        "fr": "Plat français classique de bœuf et légumes-racines mijotés dans un bouillon clair ;"
       },
       "sources": [
         {
@@ -11226,8 +11226,8 @@ const CUISINE_NOTES = {
     "quiche lorraine": {
       "local": "quiche lorraine",
       "note": {
-        "en": "Savoury open tart from the Lorraine region of France: a custard of eggs and cream with bacon or smoked lardons baked in a pastry shell…",
-        "fr": "Tarte salee de la region Lorraine, en France : un appareil aux oeufs et a la creme avec du lard ou des lardons fumes, cuit dans une pate…"
+        "en": "Savoury open tart from the Lorraine region of France: a custard of eggs and cream with bacon or smoked lardons baked in a pastry shell",
+        "fr": "Tarte salee de la region Lorraine, en France : un appareil aux oeufs et à la creme avec du lard ou des lardons fumes."
       },
       "sources": [
         {
@@ -11261,7 +11261,7 @@ const CUISINE_NOTES = {
       "local": "tarte Tatin",
       "note": {
         "en": "A French upside-down caramelized apple tart popularized in the 1880s by the Tatin sisters at their hotel in Lamotte-Beuvron, Sologne.",
-        "fr": "Tarte aux pommes caramelisees renversee, popularisee dans les annees 1880 par les soeurs Tatin a leur hotel de Lamotte-Beuvron, en Sologne."
+        "fr": "Tarte aux pommes caramélisées renversee, popularisee dans les annees 1880 par les soeurs Tatin a leur hotel de Lamotte-Beuvron, en Sologne."
       },
       "sources": [
         {
@@ -11294,8 +11294,8 @@ const CUISINE_NOTES = {
     "macarons": {
       "local": "macaron",
       "note": {
-        "en": "French meringue-based sandwich cookie made of almond flour, egg white and sugar, with a ganache or buttercream filling; the Parisian…",
-        "fr": "Biscuit francais a la meringue, fait de poudre d'amande, blanc d'oeuf et sucre, garni de ganache ou creme au beurre; la forme parisienne…"
+        "en": "French meringue-based sandwich cookie made of almond flour, egg white and sugar, with a ganache or buttercream filling;",
+        "fr": "Biscuit francais à la meringue, fait de poudre d'amande, blanc d'oeuf et sucre, garni de ganache ou creme au beurre;"
       },
       "sources": [
         {
@@ -11311,8 +11311,8 @@ const CUISINE_NOTES = {
     "mille-feuille": {
       "local": "mille-feuille",
       "note": {
-        "en": "A French pastry traditionally made of three layers of puff pastry with two layers of pastry cream (creme patissiere) between them; its name…",
-        "fr": "Patisserie francaise traditionnellement composee de trois couches de pate feuilletee garnies de deux couches de creme patissiere ; son nom…"
+        "en": "A French pastry traditionally made of three layers of puff pastry with two layers of pastry cream (creme patissiere) between them;",
+        "fr": "Patisserie francaise traditionnellement composee de trois couches de pate feuilletee garnies de deux couches de creme patissiere ;"
       },
       "sources": [
         {
@@ -11325,7 +11325,7 @@ const CUISINE_NOTES = {
       "local": "Paris-Brest",
       "note": {
         "en": "French choux pastry ring filled with praline cream and flaked almonds, created in 1910 to honour the Paris-Brest-Paris bike race.",
-        "fr": "Couronne de pate a choux garnie de creme pralinee et d'amandes effilees, creee en 1910 en hommage a la course cycliste Paris-Brest-Paris."
+        "fr": "Couronne de pate a choux garnie de creme pralinee et d'amandes effilees, créée en 1910 en hommage à la course cycliste Paris-Brest-Paris."
       },
       "sources": [
         {
@@ -11337,8 +11337,8 @@ const CUISINE_NOTES = {
     "croissant": {
       "local": "croissant",
       "note": {
-        "en": "A French crescent-shaped viennoiserie made from a laminated, butter-folded yeast dough. Inspired by the Austrian kipferl, which a Viennese…",
-        "fr": "Viennoiserie francaise en forme de croissant, en pate levee feuilletee au beurre. Inspiree du kipferl autrichien, introduit a Paris par une…"
+        "en": "A French crescent-shaped viennoiserie made from a laminated, butter-folded yeast dough.",
+        "fr": "Viennoiserie francaise en forme de croissant, en pate levee feuilletee au beurre."
       },
       "sources": [
         {
@@ -11354,8 +11354,8 @@ const CUISINE_NOTES = {
     "pain au chocolat": {
       "local": "pain au chocolat",
       "note": {
-        "en": "French viennoiserie of laminated yeast dough, like a croissant, wrapped around one or two bars of dark chocolate; called chocolatine in SW…",
-        "fr": "Viennoiserie francaise en pate levee feuilletee, comme le croissant, enroulee autour d'une ou deux barres de chocolat noir ; dite…"
+        "en": "French viennoiserie of laminated yeast dough, like a croissant, wrapped around one or two bars of dark chocolate;",
+        "fr": "Viennoiserie francaise en pate levee feuilletee, comme le croissant, enroulee autour d'une ou deux barres de chocolat noir ;"
       },
       "sources": [
         {
@@ -11371,8 +11371,8 @@ const CUISINE_NOTES = {
     "tarte flambée alsacienne": {
       "local": "tarte flambée (alsacien : Flammekueche)",
       "note": {
-        "en": "Alsatian thin bread-dough tart topped with crème fraîche, onions and lardons, baked in a wood-fired oven; a peasant dish dating to at least…",
-        "fr": "Tarte alsacienne de pâte à pain fine garnie de crème fraîche, oignons et lardons, cuite au four à bois ; plat paysan remontant au moins au…"
+        "en": "Alsatian thin bread-dough tart topped with crème fraîche, onions and lardons, baked in a wood-fired oven;",
+        "fr": "Tarte alsacienne de pâte à pain fine garnie de crème fraîche, oignons et lardons, cuite au four à bois ;"
       },
       "sources": [
         {
@@ -11388,8 +11388,8 @@ const CUISINE_NOTES = {
     "éclair": {
       "local": "éclair",
       "note": {
-        "en": "An oblong French choux-pastry filled with cream (typically crème pâtissière) and topped with fondant icing. It originated in 19th-century…",
-        "fr": "Pâtisserie française allongée en pâte à choux, fourrée de crème (généralement de la crème pâtissière) et glacée au fondant. Elle apparaît…"
+        "en": "An oblong French choux-pastry filled with cream (typically crème pâtissière) and topped with fondant icing.",
+        "fr": "Pâtisserie française allongée en pâte à choux, fourrée de crème (généralement de la crème pâtissière) et glacée au fondant."
       },
       "sources": [
         {
@@ -11459,7 +11459,7 @@ const CUISINE_NOTES = {
       "local": "Paella de marisco",
       "note": {
         "en": "Valencian seafood rice dish of prawns, mussels, clams and squid in saffron fish stock, cooked in a wide flat pan ('paella').",
-        "fr": "Plat valencien de riz aux fruits de mer (crevettes, moules, palourdes, calmar) au safran, cuit dans une grande poele plate ('paella')."
+        "fr": "Plat valencien de riz aux fruits de mer (crevettes, moules, palourdes, calmar) au safran, cuit dans une grande poêlé plate ('paella')."
       },
       "sources": [
         {
@@ -11492,8 +11492,8 @@ const CUISINE_NOTES = {
     "gazpacho": {
       "local": "gazpacho",
       "note": {
-        "en": "A cold soup of raw, blended vegetables from Andalusia in southern Spain. Earlier versions used bread, olive oil, water, vinegar and garlic…",
-        "fr": "Une soupe froide de legumes crus mixes, originaire d'Andalousie, dans le sud de l'Espagne. Les premieres versions etaient faites de pain…"
+        "en": "A cold soup of raw, blended vegetables from Andalusia in southern Spain.",
+        "fr": "Une soupe froide de legumes crus mixes, originaire d'Andalousie, dans le sud de l'Espagne."
       },
       "sources": [
         {
@@ -11522,7 +11522,7 @@ const CUISINE_NOTES = {
     "chorizo": {
       "local": "chorizo",
       "note": {
-        "en": "A cured Iberian pork sausage seasoned with smoked paprika (pimentón), which gives its red colour and arrived from the Americas in the 16th…",
+        "en": "A cured Iberian pork sausage seasoned with smoked paprika (pimentón)",
         "fr": "Saucisse de porc ibérique séchée assaisonnée au paprika fumé (pimentón), qui lui donne sa couleur rouge et arriva d'Amérique au XVIe siècle."
       },
       "sources": [
@@ -11539,8 +11539,8 @@ const CUISINE_NOTES = {
     "fabada asturiana": {
       "local": "Fabada asturiana",
       "note": {
-        "en": "A rich Asturian stew of creamy fabes (white beans) and cured pork compango (chorizo, morcilla and lacon or tocino); its first written…",
-        "fr": "Un riche ragout asturien de fabes (haricots blancs) cremeux et de porc affine compango (chorizo, morcilla, lacon ou tocino) ; sa premiere…"
+        "en": "A rich Asturian stew of creamy fabes (white beans) and cured pork compango (chorizo, morcilla and lacon or tocino);",
+        "fr": "Un riche ragout asturien de fabes (haricots blancs) cremeux et de porc affine compango (chorizo, morcilla, lacon ou tocino) ;"
       },
       "sources": [
         {
@@ -11557,7 +11557,7 @@ const CUISINE_NOTES = {
       "local": "gambas al ajillo",
       "note": {
         "en": "A Spanish tapa of prawns sauteed in olive oil with garlic and dried chili, said to have originated in Madrid.",
-        "fr": "Tapa espagnole de crevettes sautees a l'huile d'olive avec ail et piment seche, dont l'origine serait Madrid."
+        "fr": "Tapa espagnole de crevettes sautées a l'huile d'olive avec ail et piment seche, dont l'origine serait Madrid."
       },
       "sources": [
         {
@@ -11573,8 +11573,8 @@ const CUISINE_NOTES = {
     "crema catalana": {
       "local": "crema catalana",
       "note": {
-        "en": "Catalan custard flavored with lemon zest and cinnamon and finished with a brittle caramelized-sugar crust. A precursor unburnt custard…",
-        "fr": "Crème catalane parfumée au zeste de citron et à la cannelle, recouverte d'une fine croûte de sucre caramélisé. Une crème non brûlée…"
+        "en": "Catalan custard flavored with lemon zest and cinnamon and finished with a brittle caramelized-sugar crust.",
+        "fr": "Crème catalane parfumée au zeste de citron et à la cannelle, recouverte d'une fine croûte de sucre caramélisé."
       },
       "sources": [
         {
@@ -11604,7 +11604,7 @@ const CUISINE_NOTES = {
       "local": "paella valenciana",
       "note": {
         "en": "Valencia's rice dish cooked in a wide flat pan, traditionally with chicken, rabbit, beans and saffron over an open flame.",
-        "fr": "Plat de riz valencien cuit dans une poele large et plate, traditionnellement avec poulet, lapin, haricots et safran sur flamme vive."
+        "fr": "Plat de riz valencien cuit dans une poêlé large et plate, traditionnellement avec poulet, lapin, haricots et safran sur flamme vive."
       },
       "sources": [
         {
@@ -11672,7 +11672,7 @@ const CUISINE_NOTES = {
       "local": "Jamón serrano",
       "note": {
         "en": "Spanish dry-cured ham from white-breed pigs, salted then air-dried 6-18 months; its name means \"mountain ham\" and it holds EU TSG status.",
-        "fr": "Jambon espagnol séché de porcs de race blanche, salé puis séché 6 à 18 mois ; son nom signifie « jambon de montagne » et il a le statut STG…"
+        "fr": "Jambon espagnol séché de porcs de race blanche, salé puis séché 6 à 18 mois ;"
       },
       "sources": [
         {
@@ -11689,7 +11689,7 @@ const CUISINE_NOTES = {
       "local": "croquetas",
       "note": {
         "en": "Spanish breaded fritters with a creamy bechamel filling (often jamon), deep-fried and served as a classic tapa.",
-        "fr": "Beignets panes espagnols a la garniture cremeuse de bechamel (souvent jambon), frits et servis en tapa classique."
+        "fr": "Beignets panes espagnols à la garniture cremeuse de bechamel (souvent jambon), frits et servis en tapa classique."
       },
       "sources": [
         {
@@ -11705,8 +11705,8 @@ const CUISINE_NOTES = {
     "patatas bravas": {
       "local": "patatas bravas",
       "note": {
-        "en": "A Spanish tapa of fried white-potato cubes served hot with a spicy paprika-based brava sauce (often made with pimenton de la Vera). The…",
-        "fr": "Tapa espagnole de cubes de pomme de terre frits servis chauds avec une sauce brava piquante au paprika (souvent au pimenton de la Vera). Le…"
+        "en": "A Spanish tapa of fried white-potato cubes served hot with a spicy paprika-based brava sauce (often made with pimenton de la Vera).",
+        "fr": "Tapa espagnole de cubes de pomme de terre frits servis chauds avec une sauce brava piquante au paprika (souvent au pimenton de la Vera)."
       },
       "sources": [
         {
@@ -11752,8 +11752,8 @@ const CUISINE_NOTES = {
     "cocido madrileño": {
       "local": "cocido madrileño",
       "note": {
-        "en": "A Madrid chickpea-and-meat stew traditionally served in three separate courses (vuelcos): broth with noodles, then chickpeas and…",
-        "fr": "Un ragoût madrilène de pois chiches et de viandes servi traditionnellement en trois services (vuelcos) : bouillon aux nouilles, puis pois…"
+        "en": "A Madrid chickpea-and-meat stew traditionally served in three separate courses (vuelcos)",
+        "fr": "Un ragoût madrilène de pois chiches et de viandes servi traditionnellement en trois services (vuelcos)"
       },
       "sources": [
         {
@@ -11769,8 +11769,8 @@ const CUISINE_NOTES = {
     "pisto": {
       "local": "pisto manchego",
       "note": {
-        "en": "Spanish stewed vegetable dish from Castilla-La Mancha made of tomatoes, peppers, onion and courgette slow-cooked in olive oil; its name…",
-        "fr": "Plat espagnol de legumes mijotes originaire de Castille-La Manche, a base de tomates, poivrons, oignon et courgette cuits lentement a…"
+        "en": "Spanish stewed vegetable dish from Castilla-La Mancha made of tomatoes, peppers, onion and courgette slow-cooked in olive oil;",
+        "fr": "Plat espagnol de legumes mijotés originaire de Castille-La Manche, a base de tomates, poivrons."
       },
       "sources": [
         {
@@ -11817,7 +11817,7 @@ const CUISINE_NOTES = {
       "local": "txangurro",
       "note": {
         "en": "Basque word for spider crab; in \"txangurro a la donostiarra\" the meat is baked in its shell, created in early-1900s San Sebastian.",
-        "fr": "Mot basque pour l'araignee de mer; dans le \"txangurro a la donostiarra\", la chair est gratinee dans sa carapace, ne a San Sebastian au…"
+        "fr": "Mot basque pour l'araignee de mer;"
       },
       "sources": [
         {
@@ -11834,7 +11834,7 @@ const CUISINE_NOTES = {
       "local": "pintxos",
       "note": {
         "en": "Basque small snacks usually skewered on bread with a toothpick; the Basque-spelled form of Spanish \"pincho,\" popularised in San Sebastian.",
-        "fr": "Petites bouchees basques, generalement piquees sur du pain avec un cure-dent; forme basque du \"pincho\" espagnol, popularisee a…"
+        "fr": "Petites bouchees basques, generalement piquees sur du pain avec un cure-dent;"
       },
       "sources": [
         {
@@ -11868,7 +11868,7 @@ const CUISINE_NOTES = {
       "local": "churros con chocolate",
       "note": {
         "en": "Spanish deep-fried ridged choux-dough sticks, piped from a star nozzle and dipped in thick hot chocolate, eaten for breakfast or merienda.",
-        "fr": "Beignets espagnols cannelés en pate a choux frite, faconnes a la douille etoilee et trempes dans un chocolat chaud epais, au petit-dejeuner…"
+        "fr": "Beignets espagnols cannelés en pate a choux frite, faconnes à la douille etoilee et trempes dans un chocolat chaud epais."
       },
       "sources": [
         {
@@ -11884,8 +11884,8 @@ const CUISINE_NOTES = {
     "flan": {
       "local": "flan (flan de huevo)",
       "note": {
-        "en": "A baked egg-milk-and-sugar caramel custard (crème caramel); in Spain and Latin America \"flan\" names this dessert, from Old French/Latin for…",
-        "fr": "Crème caramel cuite à base d'œufs, de lait et de sucre; en Espagne et Amérique latine, « flan » désigne ce dessert, du latin « gâteau plat…"
+        "en": "A baked egg-milk-and-sugar caramel custard (crème caramel);",
+        "fr": "Crème caramel cuite à base d'œufs, de lait et de sucre;"
       },
       "sources": [
         {
@@ -11935,8 +11935,8 @@ const CUISINE_NOTES = {
     "horchata de chufa": {
       "local": "horchata de chufa",
       "note": {
-        "en": "A sweet Valencian drink made from tiger nuts (chufa), water and sugar; the Spanish tiger-nut crop is largely used to make it, with Alboraya…",
-        "fr": "Boisson valencienne sucree a base de souchets (chufa), d'eau et de sucre; l'essentiel de la recolte espagnole de souchets sert a la…"
+        "en": "A sweet Valencian drink made from tiger nuts (chufa), water and sugar;",
+        "fr": "Boisson valencienne sucree a base de souchets (chufa), d'eau et de sucre;"
       },
       "sources": [
         {
@@ -11954,8 +11954,8 @@ const CUISINE_NOTES = {
     "mezze platter": {
       "local": "مَزّة",
       "note": {
-        "en": "An assortment of small Levantine/Eastern Mediterranean appetizer dishes (hummus, tabbouleh, olives, stuffed grape leaves) served as…",
-        "fr": "Assortiment de petits plats apéritifs levantins/méditerranéens (houmous, taboulé, olives, feuilles de vigne) servis en entrée avant le…"
+        "en": "An assortment of small Levantine/Eastern Mediterranean appetizer dishes (hummus, tabbouleh, olives, stuffed grape leaves)",
+        "fr": "Assortiment de petits plats apéritifs levantins/méditerranéens (houmous, taboulé, olives, feuilles de vigne)"
       },
       "sources": [
         {
@@ -12002,7 +12002,7 @@ const CUISINE_NOTES = {
       "local": "قهوة ('ahweh)",
       "note": {
         "en": "A strong, finely-ground unfiltered coffee brewed Turkish-style in a long-handled rakwa pot, often scented with cardamom.",
-        "fr": "Un cafe fort, non filtre et finement moulu, prepare a la turque dans une cafetiere rakwa, souvent parfume a la cardamome."
+        "fr": "Un cafe fort, non filtre et finement moulu, préparé à la turque dans une cafetiere rakwa, souvent parfume à la cardamome."
       },
       "sources": [
         {
@@ -12019,7 +12019,7 @@ const CUISINE_NOTES = {
       "local": "حُمُّص بِطَحِينة (ḥummuṣ bi-ṭaḥīna)",
       "note": {
         "en": "A Levantine dip of mashed chickpeas blended with tahini, lemon and garlic; \"hummus\" is Arabic for \"chickpea\".",
-        "fr": "Une trempette levantine de pois chiches ecrases melanges a du tahini, du citron et de l'ail ; \"hummus\" signifie \"pois chiche\" en arabe."
+        "fr": "Une trempette levantine de pois chiches ecrases mélangés a du tahini, du citron et de l'ail ; \"hummus\" signifie \"pois chiche\" en arabe."
       },
       "sources": [
         {
@@ -12035,8 +12035,8 @@ const CUISINE_NOTES = {
     "baba ghanoush": {
       "local": "بابا غنوج",
       "note": {
-        "en": "A Levantine dip of smoky roasted eggplant mashed with tahini, olive oil, and lemon juice; the name combines Arabic baba (\"daddy\") and…",
-        "fr": "Une trempette levantine d'aubergine grillée fumée écrasée avec tahini, huile d'olive et citron ; son nom combine l'arabe baba (« papa ») et…"
+        "en": "A Levantine dip of smoky roasted eggplant mashed with tahini, olive oil, and lemon juice; the name combines Arabic baba (\"daddy\")",
+        "fr": "Une trempette levantine d'aubergine grillée fumée écrasée avec tahini, huile d'olive et citron ; son nom combine l'arabe baba (« papa »)"
       },
       "sources": [
         {
@@ -12069,8 +12069,8 @@ const CUISINE_NOTES = {
     "falafel": {
       "local": "فلافل",
       "note": {
-        "en": "Deep-fried fritter of ground chickpeas and/or fava beans with herbs and spices; most likely of Egyptian origin, where it is traditionally…",
-        "fr": "Beignet frit de pois chiches et/ou de feves moulus, avec herbes et epices; probablement d'origine egyptienne, ou il est traditionnellement…"
+        "en": "Deep-fried fritter of ground chickpeas and/or fava beans with herbs and spices;",
+        "fr": "Beignet frit de pois chiches et/ou de feves moulus, avec herbes et épices;"
       },
       "sources": [
         {
@@ -12086,8 +12086,8 @@ const CUISINE_NOTES = {
     "tabbouleh": {
       "local": "تبّولة",
       "note": {
-        "en": "A Levantine salad of finely chopped parsley, soaked bulgur, tomato, mint and onion in lemon and olive oil, an unofficial national dish of…",
-        "fr": "Une salade levantine de persil haché, boulgour trempé, tomate, menthe et oignon au citron et huile d'olive, plat national officieux du…"
+        "en": "A Levantine salad of finely chopped parsley, soaked bulgur, tomato, mint and onion in lemon and olive oil.",
+        "fr": "Une salade levantine de persil haché, boulgour trempé, tomate, menthe et oignon au citron et huile d'olive."
       },
       "sources": [
         {
@@ -12121,7 +12121,7 @@ const CUISINE_NOTES = {
       "local": "شاورما",
       "note": {
         "en": "Levantine spit-roasted, thinly sliced marinated meat wrapped in flatbread; its name comes from Turkish cevirme, meaning to turn.",
-        "fr": "Viande marinee du Levant, rotie a la broche et tranchee finement dans du pain plat; son nom vient du turc cevirme, tourner."
+        "fr": "Viande marinée du Levant, rotie à la broche et tranchee finement dans du pain plat; son nom vient du turc cevirme, tourner."
       },
       "sources": [
         {
@@ -12150,8 +12150,8 @@ const CUISINE_NOTES = {
     "kibbeh": {
       "local": "كبة",
       "note": {
-        "en": "Levantine dish of spiced lean ground meat and bulgur wheat, considered a national dish of Lebanon and Syria; the name derives from the…",
-        "fr": "Plat levantin de viande hachee maigre epicee et de boulgour, considere comme plat national du Liban et de la Syrie; le nom vient de la…"
+        "en": "Levantine dish of spiced lean ground meat and bulgur wheat, considered a national dish of Lebanon and Syria;",
+        "fr": "Plat levantin de viande hachée maigre épicée et de boulgour, considere comme plat national du Liban et de la Syrie;"
       },
       "sources": [
         {
@@ -12185,7 +12185,7 @@ const CUISINE_NOTES = {
       "local": "كَفْتَة",
       "note": {
         "en": "Levantine grilled kebab of ground beef or lamb mixed with parsley, onion and spices; name is from Persian kufta, \"to grind.\"",
-        "fr": "Kebab grille levantin de bœuf ou d'agneau hache, mele de persil, d'oignon et d'epices ; le nom vient du persan kufta, « moudre »."
+        "fr": "Kebab grillé levantin de bœuf ou d'agneau haché, mele de persil, d'oignon et d'épices ; le nom vient du persan kufta, « moudre »."
       },
       "sources": [
         {
@@ -12219,7 +12219,7 @@ const CUISINE_NOTES = {
       "local": "فتّة",
       "note": {
         "en": "Levantine layered dish of toasted flatbread, chickpeas and garlicky yogurt; its name comes from Arabic \"fatta\", to crumble bread.",
-        "fr": "Plat levantin en couches de pain plat grille, pois chiches et yaourt a l'ail; son nom vient de l'arabe \"fatta\", emietter le pain."
+        "fr": "Plat levantin en couches de pain plat grillé, pois chiches et yaourt a l'ail; son nom vient de l'arabe \"fatta\", emietter le pain."
       },
       "sources": [
         {
@@ -12235,8 +12235,8 @@ const CUISINE_NOTES = {
     "manakish": {
       "local": "مناقيش",
       "note": {
-        "en": "A Levantine flatbread topped with za'atar, cheese or minced meat; its name derives from naqasha, \"to engrave,\" for the dough's dimpled…",
-        "fr": "Pain plat levantin garni de za'atar, fromage ou viande hachee; son nom vient de naqasha, \"graver,\" pour la pate marquee d'empreintes."
+        "en": "A Levantine flatbread topped with za'atar, cheese or minced meat;",
+        "fr": "Pain plat levantin garni de za'atar, fromage ou viande hachée; son nom vient de naqasha, \"graver,\" pour la pate marquee d'empreintes."
       },
       "sources": [
         {
@@ -12282,8 +12282,8 @@ const CUISINE_NOTES = {
     "knafeh": {
       "local": "كُنافة",
       "note": {
-        "en": "A Middle Eastern pastry of shredded or semolina dough and sweet cheese soaked in syrup; the iconic Nabulsi style originated in Ottoman-era…",
-        "fr": "Une pâtisserie moyen-orientale de pâte filée ou de semoule et de fromage doux nappée de sirop ; le style nabulsi est né à Naplouse à…"
+        "en": "A Middle Eastern pastry of shredded or semolina dough and sweet cheese soaked in syrup;",
+        "fr": "Une pâtisserie moyen-orientale de pâte filée ou de semoule et de fromage doux nappée de sirop ;"
       },
       "sources": [
         {
@@ -12316,8 +12316,8 @@ const CUISINE_NOTES = {
     "halva": {
       "local": "حلاوة طحينية (ḥalāwa ṭaḥīniyya)",
       "note": {
-        "en": "A dense, dry, crumbly sweet of sesame paste (tahini) and sugar; per Wikipedia (citing Al Adib magazine) a factory for tahini halwa was…",
-        "fr": "Confiserie dense, sèche et friable de pâte de sésame (tahini) et de sucre ; selon Wikipédia (citant la revue Al Adib), une fabrique de…"
+        "en": "A dense, dry, crumbly sweet of sesame paste (tahini) and sugar; per Wikipedia (citing Al Adib magazine)",
+        "fr": "Confiserie dense, sèche et friable de pâte de sésame (tahini) et de sucre ; selon Wikipédia (citant la revue Al Adib)"
       },
       "sources": [
         {
@@ -12365,8 +12365,8 @@ const CUISINE_NOTES = {
     "tacos de barbacoa": {
       "local": "tacos de barbacoa",
       "note": {
-        "en": "Mexican tacos filled with meat (often lamb or beef) slow-cooked in a maguey-leaf-lined underground pit, a method named from the Taino word…",
-        "fr": "Tacos mexicains garnis de viande (souvent agneau ou boeuf) cuite lentement dans une fosse tapissee de feuilles de maguey, methode nommee…"
+        "en": "Mexican tacos filled with meat (often lamb or beef)",
+        "fr": "Tacos mexicains garnis de viande (souvent agneau ou bœuf)"
       },
       "sources": [
         {
@@ -12382,8 +12382,8 @@ const CUISINE_NOTES = {
     "tacos de pescado": {
       "local": "tacos de pescado",
       "note": {
-        "en": "Baja California corn tortillas filled with fried or grilled fish, shredded cabbage and crema, with the modern Ensenada style dating to the…",
-        "fr": "Tortillas de mais de Basse-Californie garnies de poisson frit ou grille, de chou emince et de crema, le style moderne d'Ensenada datant de…"
+        "en": "Baja California corn tortillas filled with fried or grilled fish, shredded cabbage and crema.",
+        "fr": "Tortillas de mais de Basse-Californie garnies de poisson frit ou grillé, de chou emince et de crema."
       },
       "sources": [
         {
@@ -12400,7 +12400,7 @@ const CUISINE_NOTES = {
       "local": "mole poblano",
       "note": {
         "en": "Dark Puebla sauce of chiles, spices and chocolate served over turkey; legend credits 17th-c. nuns of the Santa Rosa convent.",
-        "fr": "Sauce sombre de Puebla aux piments, epices et chocolat servie sur de la dinde; la legende l'attribue aux nonnes du couvent Santa Rosa."
+        "fr": "Sauce sombre de Puebla aux piments, épices et chocolat servie sur de la dinde; la legende l'attribue aux nonnes du couvent Santa Rosa."
       },
       "sources": [
         {
@@ -12417,7 +12417,7 @@ const CUISINE_NOTES = {
       "local": "mole negro oaxaqueño",
       "note": {
         "en": "Oaxaca's signature dark, complex sauce of chilhuacle chiles, chocolate and 30+ ingredients, typically served over chicken or turkey.",
-        "fr": "La sauce sombre et complexe emblématique d'Oaxaca, à base de piments chilhuacle, de chocolat et de plus de 30 ingrédients, servie sur…"
+        "fr": "La sauce sombre et complexe emblématique d'Oaxaca, à base de piments chilhuacle, de chocolat et de plus de 30 ingrédients."
       },
       "sources": [
         {
@@ -12434,7 +12434,7 @@ const CUISINE_NOTES = {
       "local": "Mole verde",
       "note": {
         "en": "A green Mexican mole sauce of tomatillos, green chiles, fresh herbs and ground pumpkin seeds; one of the seven classic moles of Oaxaca.",
-        "fr": "Une sauce mole verte mexicaine a base de tomatilles, piments verts, herbes fraiches et graines de courge moulues; l'un des sept moles…"
+        "fr": "Une sauce mole verte mexicaine a base de tomatilles, piments verts, herbes fraîches et graines de courge moulues;"
       },
       "sources": [
         {
@@ -12450,8 +12450,8 @@ const CUISINE_NOTES = {
     "chiles en nogada": {
       "local": "Chiles en nogada",
       "note": {
-        "en": "Poblano chiles stuffed with fruity meat picadillo, topped with walnut cream, pomegranate and parsley; a patriotic Puebla dish tied to…",
-        "fr": "Piments poblano farcis de picadillo fruite a la viande, nappes de creme de noix, grenade et persil; plat patriotique de Puebla lie a…"
+        "en": "Poblano chiles stuffed with fruity meat picadillo, topped with walnut cream, pomegranate and parsley;",
+        "fr": "Piments poblano farcis de picadillo fruite à la viande, nappes de creme de noix, grenade et persil;"
       },
       "sources": [
         {
@@ -12484,8 +12484,8 @@ const CUISINE_NOTES = {
     "pozole": {
       "local": "pozole (Nahuatl: pozolli)",
       "note": {
-        "en": "A traditional Mexican hominy stew with pork or chicken and chiles, known in Mesoamerica since pre-Columbian times as an Aztec ceremonial…",
-        "fr": "Ragoût mexicain traditionnel de maïs hominy, porc ou poulet et piments, connu en Mésoamérique depuis l'époque précolombienne comme plat…"
+        "en": "A traditional Mexican hominy stew with pork or chicken and chiles, known in Mesoamerica since pre-Columbian times as an Aztec ceremonial",
+        "fr": "Ragoût mexicain traditionnel de maïs hominy, porc ou poulet et piments."
       },
       "sources": [
         {
@@ -12498,7 +12498,7 @@ const CUISINE_NOTES = {
       "local": "birria",
       "note": {
         "en": "A slow-cooked chili-marinated meat stew (traditionally goat) from Jalisco, Mexico, dating to the Spanish colonial era.",
-        "fr": "Un ragout de viande mijotee, marinee au piment (traditionnellement de chevre), du Jalisco, au Mexique, datant de l'epoque coloniale…"
+        "fr": "Un ragout de viande mijotée, marinée au piment (traditionnellement de chevre)"
       },
       "sources": [
         {
@@ -12531,8 +12531,8 @@ const CUISINE_NOTES = {
     "chilaquiles": {
       "local": "chilaquiles",
       "note": {
-        "en": "A traditional Mexican breakfast of fried tortilla pieces simmered in red or green chili salsa and usually topped with cheese, cream, onion…",
-        "fr": "Un petit-dejeuner mexicain traditionnel de morceaux de tortilla frits mijotes dans une sauce chili rouge ou verte, generalement garnis de…"
+        "en": "A traditional Mexican breakfast of fried tortilla pieces simmered in red or green chili salsa and usually topped with cheese, cream.",
+        "fr": "Un petit-dejeuner mexicain traditionnel de morceaux de tortilla frits mijotés dans une sauce chili rouge ou verte."
       },
       "sources": [
         {
@@ -12549,7 +12549,7 @@ const CUISINE_NOTES = {
       "local": "tostada",
       "note": {
         "en": "A Mexican dish of a flat corn tortilla toasted or deep-fried until crisp, then topped with beans, meat, lettuce and other ingredients.",
-        "fr": "Plat mexicain compose d'une tortilla de mais plate, grillee ou frite jusqu'a etre croustillante, garnie de haricots, viande et legumes."
+        "fr": "Plat mexicain compose d'une tortilla de mais plate, grillée ou frite jusqu'a etre croustillante, garnie de haricots, viande et legumes."
       },
       "sources": [
         {
@@ -12566,7 +12566,7 @@ const CUISINE_NOTES = {
       "local": "Ceviche mexicano",
       "note": {
         "en": "Mexican-style ceviche: raw fish or seafood cured in lime juice, mixed with tomato, onion, cilantro and chili, often with avocado.",
-        "fr": "Ceviche a la mexicaine : poisson ou fruits de mer crus cuits au jus de citron vert, avec tomate, oignon, coriandre et piment, souvent avec…"
+        "fr": "Ceviche à la mexicaine : poisson ou fruits de mer crus cuits au jus de citron vert, avec tomate, oignon, coriandre et piment."
       },
       "sources": [
         {
@@ -12583,7 +12583,7 @@ const CUISINE_NOTES = {
       "local": "aguachile",
       "note": {
         "en": "A Sinaloa, Mexico seafood dish of raw shrimp cured in lime juice with chiltepin chili water, onion and cucumber.",
-        "fr": "Un plat de fruits de mer du Sinaloa, au Mexique, de crevettes crues marinees au citron vert avec eau de piment chiltepin, oignon et…"
+        "fr": "Un plat de fruits de mer du Sinaloa, au Mexique, de crevettes crues marinées au citron vert avec eau de piment chiltepin."
       },
       "sources": [
         {
@@ -12600,7 +12600,7 @@ const CUISINE_NOTES = {
       "local": "Tequila reposado",
       "note": {
         "en": "A Mexican blue-agave spirit \"rested\" (reposado) in oak from two to twelve months, giving it a golden colour and mellow agave-oak flavour.",
-        "fr": "Spiritueux mexicain d'agave bleue \"reposé\" (reposado) en fûts de chêne de deux à douze mois, d'où sa couleur dorée et son goût d'agave et…"
+        "fr": "Spiritueux mexicain d'agave bleue \"reposé\" (reposado)"
       },
       "sources": [
         {
@@ -12617,7 +12617,7 @@ const CUISINE_NOTES = {
       "local": "tacos al pastor",
       "note": {
         "en": "Spit-grilled, chili-and-achiote-marinated pork tacos from Puebla, Mexico, adapted from Lebanese shawarma and popularized in the 1960s.",
-        "fr": "Tacos de porc grille a la broche, marine au piment et achiote, de Puebla, Mexique, adapte du shawarma libanais, popularise dans les annees…"
+        "fr": "Tacos de porc grillé à la broche, mariné au piment et achiote, de Puebla, Mexique, adapte du shawarma libanais."
       },
       "sources": [
         {
@@ -12634,7 +12634,7 @@ const CUISINE_NOTES = {
       "local": "tamal (pl. tamales)",
       "note": {
         "en": "Mesoamerican dish of nixtamalized-corn masa, with savory or sweet filling, steamed in a corn husk or banana leaf; name from Nahuatl tamalli.",
-        "fr": "Plat mesoamericain de masa de mais nixtamalise, fourre sale ou sucre, cuit a la vapeur dans une feuille de mais ou de bananier; nom du…"
+        "fr": "Plat mesoamericain de masa de mais nixtamalise, fourre sale ou sucre, cuit à la vapeur dans une feuille de mais ou de bananier;"
       },
       "sources": [
         {
@@ -12667,8 +12667,8 @@ const CUISINE_NOTES = {
     "quesadillas": {
       "local": "quesadilla",
       "note": {
-        "en": "A Mexican corn or wheat tortilla folded over melted cheese (queso). The name is a Spanish diminutive of \"quesada,\" literally \"little cheesy…",
-        "fr": "Tortilla mexicaine de maïs ou de blé pliée sur du fromage fondu (queso). Le nom est un diminutif espagnol de \"quesada\", littéralement «…"
+        "en": "A Mexican corn or wheat tortilla folded over melted cheese (queso).",
+        "fr": "Tortilla mexicaine de maïs ou de blé pliée sur du fromage fondu (queso)."
       },
       "sources": [
         {
@@ -12685,7 +12685,7 @@ const CUISINE_NOTES = {
       "local": "Flautas (tacos dorados)",
       "note": {
         "en": "Mexican rolled tortillas filled with meat or cheese and deep-fried crisp; named \"flutes\" for their shape, larger than taquitos.",
-        "fr": "Tortillas mexicaines roulees, garnies de viande ou de fromage et frites; nommees \"flutes\" pour leur forme, plus grandes que les taquitos."
+        "fr": "Tortillas mexicaines roulees, garnies de viande ou de fromage et frites; nommées \"flutes\" pour leur forme, plus grandes que les taquitos."
       },
       "sources": [
         {
@@ -12701,8 +12701,8 @@ const CUISINE_NOTES = {
     "elote": {
       "local": "elote (from Nahuatl ēlōtl)",
       "note": {
-        "en": "Mexican street-food corn on the cob, grilled or boiled, then topped with mayonnaise or crema, crumbled Cotija cheese, chili powder and…",
-        "fr": "Épi de maïs de rue mexicain, grillé ou bouilli, puis garni de mayonnaise ou de crema, de cotija émietté, de piment en poudre et de citron…"
+        "en": "Mexican street-food corn on the cob, grilled or boiled, then topped with mayonnaise or crema, crumbled Cotija cheese.",
+        "fr": "Épi de maïs de rue mexicain, grillé ou bouilli, puis garni de mayonnaise ou de crema, de cotija émietté."
       },
       "sources": [
         {
@@ -12735,8 +12735,8 @@ const CUISINE_NOTES = {
     "guacamole": {
       "local": "āhuacamōlli",
       "note": {
-        "en": "Mexican avocado-based dip whose name comes from Classical Nahuatl āhuacamōlli, literally 'avocado sauce' (āhuacatl 'avocado' + mōlli…",
-        "fr": "Sauce mexicaine à base d'avocat dont le nom vient du nahuatl classique āhuacamōlli, littéralement « sauce d'avocat » (āhuacatl « avocat » +…"
+        "en": "Mexican avocado-based dip whose name comes from Classical Nahuatl āhuacamōlli.",
+        "fr": "Sauce mexicaine à base d'avocat dont le nom vient du nahuatl classique āhuacamōlli."
       },
       "sources": [
         {
@@ -12765,7 +12765,7 @@ const CUISINE_NOTES = {
     "salsa verde": {
       "local": "salsa verde",
       "note": {
-        "en": "A Mexican spicy green sauce of tomatillos and green chili peppers, dating to the Aztec Empire as documented by physician Francisco…",
+        "en": "A Mexican spicy green sauce of tomatillos and green chili peppers, dating to the Aztec Empire as documented by physician Francisco",
         "fr": "Sauce verte piquante mexicaine a base de tomatilles et de piments verts, datant de l'Empire azteque selon le medecin Francisco Hernandez."
       },
       "sources": [
@@ -12783,7 +12783,7 @@ const CUISINE_NOTES = {
       "local": "churros",
       "note": {
         "en": "Fried choux-dough sticks dusted in cinnamon sugar, brought to Mexico by Spanish conquistadors in the 16th century, often filled with cajeta.",
-        "fr": "Bâtonnets de pâte à choux frits roulés dans le sucre cannelle, apportés au Mexique par les conquistadors au XVIe siècle, souvent fourrés à…"
+        "fr": "Bâtonnets de pâte à choux frits roulés dans le sucre cannelle, apportés au Mexique par les conquistadors au XVIe siècle."
       },
       "sources": [
         {
@@ -12817,7 +12817,7 @@ const CUISINE_NOTES = {
       "local": "Horchata mexicana (horchata de arroz)",
       "note": {
         "en": "A sweet Mexican rice-and-cinnamon drink, adapted from the Spanish tiger-nut horchata de chufa of Valencia.",
-        "fr": "Boisson mexicaine sucree au riz et a la cannelle, adaptee de l'horchata de chufa espagnole de Valence."
+        "fr": "Boisson mexicaine sucree au riz et à la cannelle, adaptee de l'horchata de chufa espagnole de Valence."
       },
       "sources": [
         {
@@ -12834,7 +12834,7 @@ const CUISINE_NOTES = {
       "local": "mezcal",
       "note": {
         "en": "Mexican spirit distilled from the pit-roasted, fermented heart of agave; its name comes from Nahuatl \"mexcalli,\" meaning oven-cooked agave.",
-        "fr": "Spiritueux mexicain distille du coeur d'agave roti en fosse et fermente ; son nom vient du nahuatl \"mexcalli\", agave cuit au four."
+        "fr": "Spiritueux mexicain distille du cœur d'agave roti en fosse et fermenté ; son nom vient du nahuatl \"mexcalli\", agave cuit au four."
       },
       "sources": [
         {
@@ -12866,7 +12866,7 @@ const CUISINE_NOTES = {
       "local": "蚵仔煎 (ô-á-tsian)",
       "note": {
         "en": "A night-market street food of eggs, small oysters and sweet potato starch, of Hokkien/Teochew origin, popular across Taiwan.",
-        "fr": "Street food des marchés de nuit à base d'œufs, de petites huîtres et de fécule de patate douce, d'origine hokkien/teochew, populaire à…"
+        "fr": "Street food des marchés de nuit à base d'œufs, de petites huîtres et de fécule de patate douce, d'origine hokkien/teochew."
       },
       "sources": [
         {
@@ -12900,7 +12900,7 @@ const CUISINE_NOTES = {
       "local": "刈包 (割包)",
       "note": {
         "en": "Taiwanese folded steamed bun holding red-cooked pork belly, pickled mustard greens and peanuts; rooted in Fujian (Quanzhou/Fuzhou).",
-        "fr": "Pain vapeur taiwanais plie garni de poitrine de porc braisee, moutarde marinee et cacahuetes; originaire du Fujian (Quanzhou/Fuzhou)."
+        "fr": "Pain vapeur taiwanais plie garni de poitrine de porc braisée, moutarde marinée et cacahuetes; originaire du Fujian (Quanzhou/Fuzhou)."
       },
       "sources": [
         {
@@ -12916,8 +12916,8 @@ const CUISINE_NOTES = {
     "xiao long bao": {
       "local": "小籠包",
       "note": {
-        "en": "Steamed soup dumplings of pork and aspic-set broth, originating in late-19th-century Nanxiang near Shanghai; popularized worldwide via…",
-        "fr": "Raviolis vapeur farcis de porc et de bouillon en gelée, nés à Nanxiang près de Shanghai au XIXe siècle, popularisés par Din Tai Fung à…"
+        "en": "Steamed soup dumplings of pork and aspic-set broth, originating in late-19th-century Nanxiang near Shanghai;",
+        "fr": "Raviolis vapeur farcis de porc et de bouillon en gelée, nés à Nanxiang près de Shanghai au XIXe siècle."
       },
       "sources": [
         {
@@ -12950,8 +12950,8 @@ const CUISINE_NOTES = {
     "scallion pancake": {
       "local": "蔥油餅 (cōngyóubǐng)",
       "note": {
-        "en": "A savory unleavened Chinese flatbread of wheat dough folded with oil and minced scallions, then pan-fried until crisp and flaky; commonly…",
-        "fr": "Une galette chinoise salée, à base de pâte de blé sans levain, repliée avec de l'huile et de la ciboule émincée, puis frite à la poêle…"
+        "en": "A savory unleavened Chinese flatbread of wheat dough folded with oil and minced scallions, then pan-fried until crisp and flaky;",
+        "fr": "Une galette chinoise salée, à base de pâte de blé sans levain, repliée avec de l'huile et de la ciboule émincée."
       },
       "sources": [
         {
@@ -12967,8 +12967,8 @@ const CUISINE_NOTES = {
     "mango shaved ice": {
       "local": "芒果冰",
       "note": {
-        "en": "Taiwanese summer shaved-ice dessert of fresh mango, condensed milk and often mango ice cream, a seasonal variety of tshuah-ping introduced…",
-        "fr": "Dessert taïwanais estival de glace pilée à la mangue fraîche, lait concentré et souvent glace mangue, variante saisonnière du tshuah-ping…"
+        "en": "Taiwanese summer shaved-ice dessert of fresh mango, condensed milk and often mango ice cream.",
+        "fr": "Dessert taïwanais estival de glace pilée à la mangue fraîche, lait concentré et souvent glace mangue."
       },
       "sources": [
         {
@@ -13002,7 +13002,7 @@ const CUISINE_NOTES = {
       "local": "台灣香腸 (香腸, xiāngcháng)",
       "note": {
         "en": "A fresh, plump pork sausage from Taiwan made of coarsely chopped pork and fat, notably sweet, often chargrilled at night markets.",
-        "fr": "Une saucisse de porc fraîche et dodue de Taïwan, faite de porc et de gras grossièrement hachés, nettement sucrée, souvent grillée aux…"
+        "fr": "Une saucisse de porc fraîche et dodue de Taïwan, faite de porc et de gras grossièrement hachés, nettement sucrée."
       },
       "sources": [
         {
@@ -13018,7 +13018,7 @@ const CUISINE_NOTES = {
     "danzi noodles": {
       "local": "擔仔麵 (dānzǎi miàn)",
       "note": {
-        "en": "A Tainan snack of thin wheat noodles in shrimp-and-pork broth topped with minced pork and a prawn, sold by fishermen in the 1890s…",
+        "en": "A Tainan snack of thin wheat noodles in shrimp-and-pork broth topped with minced pork and a prawn.",
         "fr": "Snack de Tainan : nouilles de blé fines en bouillon crevette-porc, garnies de porc haché et d'une crevette, vendu par les pêcheurs dès 1890."
       },
       "sources": [
@@ -13036,7 +13036,7 @@ const CUISINE_NOTES = {
       "local": "鐵蛋",
       "note": {
         "en": "Taiwanese snack of small eggs repeatedly stewed in soy and spices then air-dried until dark and chewy; popularized in Tamsui around 1980.",
-        "fr": "En-cas taïwanais de petits œufs mijotés à répétition dans sauce soja et épices puis séchés à l'air, sombres et fermes ; popularisé à Tamsui…"
+        "fr": "En-cas taïwanais de petits œufs mijotés à répétition dans sauce soja et épices puis séchés à l'air, sombres et fermes ;"
       },
       "sources": [
         {
@@ -13053,7 +13053,7 @@ const CUISINE_NOTES = {
       "local": "夜市小吃 (yèshì xiǎochī)",
       "note": {
         "en": "Taiwanese night-market \"small eats\" (xiaochi): bite-sized stall dishes like oyster omelette and stinky tofu, meant for grazing many at once.",
-        "fr": "Les « petits plats » (xiaochi) des marchés nocturnes taiwanais : bouchées d'étal comme l'omelette aux huîtres et le tofu puant, à picorer…"
+        "fr": "Les « petits plats » (xiaochi)"
       },
       "sources": [
         {
@@ -13103,8 +13103,8 @@ const CUISINE_NOTES = {
     "taiwan beer": {
       "local": "台灣啤酒",
       "note": {
-        "en": "Taiwan's best-selling beer, a lager brewed by the Taiwan Tobacco and Liquor Corporation; its Gold Medal style is 5% ABV. First brewed in…",
-        "fr": "La biere la plus vendue de Taiwan, une lager brassee par la Taiwan Tobacco and Liquor Corporation; sa version Gold Medal titre 5%. Brassee…"
+        "en": "Taiwan's best-selling beer, a lager brewed by the Taiwan Tobacco and Liquor Corporation; its Gold Medal style is 5% ABV.",
+        "fr": "La biere la plus vendue de Taiwan, une lager brassee par la Taiwan Tobacco and Liquor Corporation; sa version Gold Medal titre 5%."
       },
       "sources": [
         {
@@ -13120,8 +13120,8 @@ const CUISINE_NOTES = {
     "lu rou fan": {
       "local": "滷肉飯",
       "note": {
-        "en": "Taiwanese rice bowl topped with finely chopped or minced pork stewed in soy sauce; a staple street food common in Taiwan and southern…",
-        "fr": "Bol de riz taïwanais garni de porc finement haché ou émincé mijoté à la sauce soja ; un plat de rue courant à Taïwan et dans le sud du…"
+        "en": "Taiwanese rice bowl topped with finely chopped or minced pork stewed in soy sauce;",
+        "fr": "Bol de riz taïwanais garni de porc finement haché ou émincé mijoté à la sauce soja ;"
       },
       "sources": [
         {
@@ -13154,8 +13154,8 @@ const CUISINE_NOTES = {
     "din tai fung dumplings": {
       "local": "小籠包",
       "note": {
-        "en": "Xiaolongbao, the soup-filled steamed dumpling that became the signature of Taipei's Din Tai Fung. The business opened as a cooking-oil shop…",
-        "fr": "Le xiaolongbao, raviole vapeur garnie de bouillon, devenu l'emblème du Din Tai Fung de Taipei. L'enseigne a ouvert comme magasin d'huile de…"
+        "en": "Xiaolongbao, the soup-filled steamed dumpling that became the signature of Taipei's Din Tai Fung.",
+        "fr": "Le xiaolongbao, raviole vapeur garnie de bouillon, devenu l'emblème du Din Tai Fung de Taipei."
       },
       "sources": [
         {
@@ -13173,8 +13173,8 @@ const CUISINE_NOTES = {
     "hk-style milk tea": {
       "local": "絲襪奶茶（港式奶茶）",
       "note": {
-        "en": "Hong Kong black tea blended with evaporated milk, repeatedly strained through a cloth \"silk-stocking\" sackcloth bag (the 'pulling'…",
-        "fr": "Thé noir hongkongais mélangé à du lait évaporé, filtré à plusieurs reprises dans un sac en toile dit « bas de soie » (la technique du «…"
+        "en": "Hong Kong black tea blended with evaporated milk, repeatedly strained through a cloth \"silk-stocking\" sackcloth bag (the 'pulling'",
+        "fr": "Thé noir hongkongais mélangé à du lait évaporé, filtré à plusieurs reprises dans un sac en toile dit « bas de soie » (la technique du «"
       },
       "sources": [
         {
@@ -13190,8 +13190,8 @@ const CUISINE_NOTES = {
     "egg tart": {
       "local": "蛋撻 (daahn tāat)",
       "note": {
-        "en": "Cantonese flaky-pastry tart filled with sweet egg custard, adapted from the British custard tart and popularised in Hong Kong cha chaan…",
-        "fr": "Tartelette cantonaise à pâte feuilletée garnie de crème aux œufs sucrée, dérivée du custard tart britannique, popularisée dans les cha…"
+        "en": "Cantonese flaky-pastry tart filled with sweet egg custard, adapted from the British custard tart and popularised in Hong Kong cha chaan",
+        "fr": "Tartelette cantonaise à pâte feuilletée garnie de crème aux œufs sucrée, dérivée du custard tart britannique."
       },
       "sources": [
         {
@@ -13241,8 +13241,8 @@ const CUISINE_NOTES = {
     "hk-style wonton noodle": {
       "local": "雲吞麵",
       "note": {
-        "en": "Cantonese dish of thin egg noodles topped with prawn-and-pork wontons in a light, dried-flounder broth. It originated in Guangzhou (Canton)…",
-        "fr": "Plat cantonais de fines nouilles aux oeufs garnies de wontons crevette-porc dans un bouillon clair a la sole sechee. Originaire de Canton…"
+        "en": "Cantonese dish of thin egg noodles topped with prawn-and-pork wontons in a light, dried-flounder broth. It originated in Guangzhou (Canton)",
+        "fr": "Plat cantonais de fines nouilles aux oeufs garnies de wontons crevette-porc dans un bouillon clair à la sole sechee."
       },
       "sources": [
         {
@@ -13259,7 +13259,7 @@ const CUISINE_NOTES = {
       "local": "煲仔飯",
       "note": {
         "en": "Cantonese rice dish cooked and served in a small clay pot, prized for its crispy bottom rice crust and toppings like Chinese sausage.",
-        "fr": "Plat de riz cantonais cuit et servi dans un petit pot en terre, prisé pour sa croûte de riz croustillante et ses garnitures comme le…"
+        "fr": "Plat de riz cantonais cuit et servi dans un petit pot en terre, prisé pour sa croûte de riz croustillante et ses garnitures comme le"
       },
       "sources": [
         {
@@ -13292,7 +13292,7 @@ const CUISINE_NOTES = {
     "char chaan teng dishes": {
       "local": "茶餐廳",
       "note": {
-        "en": "Eclectic, affordable Hong Kong tea-restaurant fare blending Cantonese and Hong Kong-style Western dishes, evolving from 1940s-50s bing sutt…",
+        "en": "Eclectic, affordable Hong Kong tea-restaurant fare blending Cantonese and Hong Kong-style Western dishes.",
         "fr": "Cuisine éclectique et abordable des salons de thé hongkongais mêlant plats cantonais et occidentaux, issue des bing sutt des années 1940-50."
       },
       "sources": [
@@ -13310,7 +13310,7 @@ const CUISINE_NOTES = {
       "local": "火腿通粉",
       "note": {
         "en": "Hong Kong cha chaan teng breakfast of soft elbow macaroni in light chicken broth with ham, born in 1950s bing sutt diners.",
-        "fr": "Petit-déjeuner des cha chaan teng de Hong Kong : macaronis dans un bouillon de poulet léger au jambon, né dans les bing sutt des années…"
+        "fr": "Petit-déjeuner des cha chaan teng de Hong Kong : macaronis dans un bouillon de poulet léger au jambon."
       },
       "sources": [
         {
@@ -13343,8 +13343,8 @@ const CUISINE_NOTES = {
     "hk-style baked seafood rice": {
       "local": "白汁海鮮焗飯",
       "note": {
-        "en": "Hong Kong cha chaan teng baked dish of egg-fried rice topped with seafood in white cream sauce and cheese, a post-1950s \"soy-sauce Western\"…",
-        "fr": "Plat cuit au four des cha chaan teng de Hong Kong: riz frit aux oeufs, fruits de mer en sauce blanche et fromage, gratin \"occidental sino\"…"
+        "en": "Hong Kong cha chaan teng baked dish of egg-fried rice topped with seafood in white cream sauce and cheese.",
+        "fr": "Plat cuit au four des cha chaan teng de Hong Kong: riz frit aux oeufs, fruits de mer en sauce blanche et fromage."
       },
       "sources": [
         {
@@ -13361,7 +13361,7 @@ const CUISINE_NOTES = {
       "local": "咖喱魚蛋",
       "note": {
         "en": "Hong Kong street-food snack of deep-fried fish balls simmered in curry sauce, popular on skewers since the 1950s.",
-        "fr": "En-cas de rue hongkongais fait de boulettes de poisson frites mijotées dans une sauce au curry, populaire en brochette depuis les années…"
+        "fr": "En-cas de rue hongkongais fait de boulettes de poisson frites mijotées dans une sauce au curry."
       },
       "sources": [
         {
@@ -13394,8 +13394,8 @@ const CUISINE_NOTES = {
     "dim sum hong kong": {
       "local": "點心",
       "note": {
-        "en": "Cantonese bite-sized steamed or fried dishes traditionally served with tea (the meal is called yum cha, \"drinking tea\"); the name dim sum…",
-        "fr": "Petits plats cantonais cuits à la vapeur ou frits, traditionnellement servis avec du thé (le repas s'appelle yum cha, « boire le thé »)…"
+        "en": "Cantonese bite-sized steamed or fried dishes traditionally served with tea (the meal is called yum cha, \"drinking tea\");",
+        "fr": "Petits plats cantonais cuits à la vapeur ou frits, traditionnellement servis avec du thé (le repas s'appelle yum cha, « boire le thé »)"
       },
       "sources": [
         {
@@ -13411,8 +13411,8 @@ const CUISINE_NOTES = {
     "shrimp wonton noodle": {
       "local": "雲吞麵",
       "note": {
-        "en": "Cantonese dish of shrimp (or shrimp-and-pork) wontons served with thin egg noodles in a light broth made from dried flounder. Wonton…",
-        "fr": "Plat cantonais de raviolis aux crevettes (ou crevettes et porc) servis avec de fines nouilles aux œufs dans un bouillon léger à base de…"
+        "en": "Cantonese dish of shrimp (or shrimp-and-pork) wontons served with thin egg noodles in a light broth made from dried flounder.",
+        "fr": "Plat cantonais de raviolis aux crevettes (ou crevettes et porc)"
       },
       "sources": [
         {
@@ -13445,8 +13445,8 @@ const CUISINE_NOTES = {
     "roasted goose": {
       "local": "燒鵝",
       "note": {
-        "en": "A Cantonese siu mei dish of charcoal-roasted seasoned goose with crisp skin, normally served with plum sauce; in Hong Kong the Sham Tseng…",
-        "fr": "Plat cantonais siu mei d'oie assaisonnée rôtie au charbon, à peau croustillante, généralement servie avec une sauce aux prunes; à Hong…"
+        "en": "A Cantonese siu mei dish of charcoal-roasted seasoned goose with crisp skin, normally served with plum sauce;",
+        "fr": "Plat cantonais siu mei d'oie assaisonnée rôtie au charbon, à peau croustillante, généralement servie avec une sauce aux prunes;"
       },
       "sources": [
         {
@@ -13479,8 +13479,8 @@ const CUISINE_NOTES = {
     "typhoon shelter crab": {
       "local": "避風塘炒蟹",
       "note": {
-        "en": "Hong Kong stir-fried crab coated in crisp fried garlic, chilli and fermented black beans, originating with the boat-dwelling fishing…",
-        "fr": "Crabe sauté hongkongais enrobé d'ail frit croustillant, de piment et de haricots noirs fermentés, né chez les familles de pêcheurs vivant…"
+        "en": "Hong Kong stir-fried crab coated in crisp fried garlic, chilli and fermented black beans.",
+        "fr": "Crabe sauté hongkongais enrobé d'ail frit croustillant, de piment et de haricots noirs fermentés."
       },
       "sources": [
         {
@@ -13514,7 +13514,7 @@ const CUISINE_NOTES = {
       "local": "鴛鴦",
       "note": {
         "en": "A Hong Kong cha chaan teng drink mixing coffee with milk tea (about 3:7); named for mandarin ducks, a symbol of pairing.",
-        "fr": "Boisson hongkongaise des cha chaan teng melant cafe et the au lait (env. 3:7); nommee d'apres les canards mandarins, symbole du couple."
+        "fr": "Boisson hongkongaise des cha chaan teng melant cafe et the au lait (env. 3:7); nommée d'apres les canards mandarins, symbole du couple."
       },
       "sources": [
         {
@@ -13547,8 +13547,8 @@ const CUISINE_NOTES = {
     "horlicks hk-style": {
       "local": "好立克",
       "note": {
-        "en": "A malted-barley milk drink, a legacy of Hong Kong's British colonial era, served hot or iced at cha chaan tengs as a caffeine-free comfort…",
-        "fr": "Boisson lactee au malt d'orge, heritage de l'epoque coloniale britannique de Hong Kong, servie chaude ou glacee dans les cha chaan teng…"
+        "en": "A malted-barley milk drink, a legacy of Hong Kong's British colonial era.",
+        "fr": "Boisson lactee au malt d'orge, heritage de l'epoque coloniale britannique de Hong Kong."
       },
       "sources": [
         {
@@ -13584,7 +13584,7 @@ const CUISINE_NOTES = {
       "local": "生煎包 (生煎饅頭, shēngjiān bāo)",
       "note": {
         "en": "Small pan-fried pork baozi with a crisp base and soupy filling; originated in Suzhou, a Shanghai breakfast staple since the early 1920s.",
-        "fr": "Petit baozi de porc poêlé à base croustillante et farce en bouillon ; né à Suzhou, incontournable du petit-déjeuner shanghaïen depuis les…"
+        "fr": "Petit baozi de porc poêlé à base croustillante et farce en bouillon ;"
       },
       "sources": [
         {
@@ -13601,7 +13601,7 @@ const CUISINE_NOTES = {
       "local": "红烧肉 (hóngshāo ròu)",
       "note": {
         "en": "Pork belly cubes braised \"red-cooked\" in soy sauce, sugar and Shaoxing wine; a Jiangnan/Shanghai classic with a glossy reddish-brown sauce.",
-        "fr": "Cubes de poitrine de porc braisés \"à la rouge\" dans sauce soja, sucre et vin de Shaoxing ; un classique de Shanghai à la sauce brun-rouge…"
+        "fr": "Cubes de poitrine de porc braisés \"à la rouge\" dans sauce soja, sucre et vin de Shaoxing ;"
       },
       "sources": [
         {
@@ -13634,8 +13634,8 @@ const CUISINE_NOTES = {
     "lion's head meatball": {
       "local": "獅子頭 (狮子头, Shīzitóu)",
       "note": {
-        "en": "Large stewed pork meatball from Huaiyang cuisine (Yangzhou/Zhenjiang), named for its lion-head shape; entered Shanghai cuisine via…",
-        "fr": "Grosse boulette de porc mijotee de la cuisine Huaiyang (Yangzhou/Zhenjiang), nommee pour sa forme de tete de lion; entree dans la cuisine…"
+        "en": "Large stewed pork meatball from Huaiyang cuisine (Yangzhou/Zhenjiang), named for its lion-head shape;",
+        "fr": "Grosse boulette de porc mijotée de la cuisine Huaiyang (Yangzhou/Zhenjiang), nommée pour sa forme de tête de lion;"
       },
       "sources": [
         {
@@ -13651,8 +13651,8 @@ const CUISINE_NOTES = {
     "squirrel fish": {
       "local": "松鼠鳜鱼",
       "note": {
-        "en": "A Suzhou/Jiangsu dish of deboned mandarin fish carved into a squirrel shape, deep-fried and doused in sweet-and-sour sauce, popularized in…",
-        "fr": "Plat de Suzhou (Jiangsu) : un poisson mandarin désossé, sculpté en forme d'écureuil, frit et nappé de sauce aigre-douce, popularisé sous…"
+        "en": "A Suzhou/Jiangsu dish of deboned mandarin fish carved into a squirrel shape, deep-fried and doused in sweet-and-sour sauce.",
+        "fr": "Plat de Suzhou (Jiangsu)"
       },
       "sources": [
         {
@@ -13703,7 +13703,7 @@ const CUISINE_NOTES = {
       "local": "两面黄 (liǎng miàn huáng)",
       "note": {
         "en": "Shanghai/Suzhou pan-fried noodles, golden and crispy on both sides (hence \"two sides yellow\"), topped with stir-fried pork or shrimp.",
-        "fr": "Nouilles poêlées de Shanghai/Suzhou, dorées et croustillantes des deux côtés (d'où \"deux côtés jaunes\"), garnies de porc ou crevettes…"
+        "fr": "Nouilles poêlées de Shanghai/Suzhou, dorées et croustillantes des deux côtés (d'où \"deux côtés jaunes\")"
       },
       "sources": [
         {
@@ -13719,8 +13719,8 @@ const CUISINE_NOTES = {
     "shanghai fried noodles": {
       "local": "上海粗炒面 (Shànghǎi cū chǎo miàn)",
       "note": {
-        "en": "Shanghai stir-fry of thick, chewy wheat noodles tossed with light and dark soy sauce, pork and leafy greens; carried to Hong Kong by…",
-        "fr": "Sauté shanghaïen de nouilles de blé épaisses et moelleuses, sauces soja claire et foncée, porc et légumes verts; apporté à Hong Kong par…"
+        "en": "Shanghai stir-fry of thick, chewy wheat noodles tossed with light and dark soy sauce, pork and leafy greens;",
+        "fr": "Sauté shanghaïen de nouilles de blé épaisses et moelleuses, sauces soja claire et foncée, porc et légumes verts;"
       },
       "sources": [
         {
@@ -13804,8 +13804,8 @@ const CUISINE_NOTES = {
     "shanghainese smoked fish": {
       "local": "熏鱼 (xūn yú)",
       "note": {
-        "en": "A cold Shanghai/Jiangnan appetizer of fish deep-fried until dark then steeped in a sweet-savory soy, sugar, Shaoxing wine and five-spice…",
-        "fr": "Entrée froide de Shanghai/Jiangnan: poisson frit jusqu'à brunir puis macéré dans une marinade sucrée-salée (soja, sucre, vin de Shaoxing…"
+        "en": "A cold Shanghai/Jiangnan appetizer of fish deep-fried until dark then steeped in a sweet-savory soy, sugar.",
+        "fr": "Entrée froide de Shanghai/Jiangnan: poisson frit jusqu'à brunir puis macéré dans une marinade sucrée-salée (soja, sucre."
       },
       "sources": [
         {
@@ -13822,7 +13822,7 @@ const CUISINE_NOTES = {
       "local": "八宝饭 (Bābǎo fàn)",
       "note": {
         "en": "A sweet steamed glutinous-rice pudding topped with eight dried fruits, nuts and red bean paste, eaten especially at Chinese New Year.",
-        "fr": "Un pudding sucré de riz gluant cuit à la vapeur, garni de huit fruits secs, noix et pâte de haricots rouges, mangé surtout au Nouvel An…"
+        "fr": "Un pudding sucré de riz gluant cuit à la vapeur, garni de huit fruits secs, noix et pâte de haricots rouges."
       },
       "sources": [
         {
@@ -13908,8 +13908,8 @@ const CUISINE_NOTES = {
     "chairman mao's red braised pork": {
       "local": "毛氏红烧肉 (Máo shì hóngshāoròu)",
       "note": {
-        "en": "Hunan braised pork-belly cubes in a sweet-savoury caramel-soy sauce with dried chillies, named for Mao Zedong, whose Shaoshan hometown dish…",
-        "fr": "Cubes de poitrine de porc braisée du Hunan en sauce caramel-soja sucrée-salée aux piments, nommée d'après Mao Zedong, plat de son village…"
+        "en": "Hunan braised pork-belly cubes in a sweet-savoury caramel-soy sauce with dried chillies, named for Mao Zedong.",
+        "fr": "Cubes de poitrine de porc braisée du Hunan en sauce caramel-soja sucrée-salée aux piments, nommée d'après Mao Zedong."
       },
       "sources": [
         {
@@ -13926,7 +13926,7 @@ const CUISINE_NOTES = {
       "local": "剁椒鱼头 (duòjiāo yútóu)",
       "note": {
         "en": "Hunan (Xiang cuisine) dish of a bighead carp head steamed under fermented chopped red chili (duojiao), salt, garlic and ginger.",
-        "fr": "Plat hunanais (cuisine Xiang) de tête de carpe à grosse tête cuite vapeur sous du piment rouge fermenté hache (duojiao), sel, ail et…"
+        "fr": "Plat hunanais (cuisine Xiang) de tête de carpe à grosse tête cuite vapeur sous du piment rouge fermenté haché (duojiao)"
       },
       "sources": [
         {
@@ -13943,7 +13943,7 @@ const CUISINE_NOTES = {
       "local": "辣椒炒肉 (làjiāo chǎo ròu)",
       "note": {
         "en": "A Hunan home-style stir-fry of pork slices and fresh green chili peppers, traced to the Ming-Qing era and dubbed the soul of Xiang cuisine.",
-        "fr": "Un sauté hunanais familial de tranches de porc et de piments verts frais, remontant a l'epoque Ming-Qing et surnomme l'ame de la cuisine…"
+        "fr": "Un sauté hunanais familial de tranches de porc et de piments verts frais."
       },
       "sources": [
         {
@@ -13959,8 +13959,8 @@ const CUISINE_NOTES = {
     "dry-pot chicken hunan": {
       "local": "干锅鸡 (gān guō jī)",
       "note": {
-        "en": "A dry hot-pot dish of chicken fast-fried in oil with chili and garlic, served without a soup base; its origin is traced to Guizhou's Miao…",
-        "fr": "Plat de poulet en marmite sèche, sauté rapidement à l'huile avec piment et ail, sans bouillon; origine attribuée aux Miao du Guizhou ou au…"
+        "en": "A dry hot-pot dish of chicken fast-fried in oil with chili and garlic, served without a soup base;",
+        "fr": "Plat de poulet en marmite sèche, sauté rapidement à l'huile avec piment et ail, sans bouillon;"
       },
       "sources": [
         {
@@ -13976,8 +13976,8 @@ const CUISINE_NOTES = {
     "hunan smoked pork": {
       "local": "湖南腊肉 (Húnán làròu)",
       "note": {
-        "en": "Hunanese cured pork belly: salted and air-dried, then cold-smoked over a cool wood fire so the smoke flavours the meat without cooking it…",
-        "fr": "Poitrine de porc de la cuisine xiang du Hunan : salee et sechee a l'air, puis fumee a froid sur un feu de bois doux qui parfume la viande…"
+        "en": "Hunanese cured pork belly: salted and air-dried, then cold-smoked over a cool wood fire so the smoke flavours the meat without cooking it",
+        "fr": "Poitrine de porc de la cuisine xiang du Hunan : salee et sechee a l'air."
       },
       "sources": [
         {
@@ -13993,8 +13993,8 @@ const CUISINE_NOTES = {
     "changsha stinky tofu": {
       "local": "长沙臭豆腐 (Chángshā chòu dòufu)",
       "note": {
-        "en": "Deep-fried black fermented tofu from Changsha, Hunan, the bean curd brined in a mix of winter bamboo shoots, shiitake mushrooms and koji…",
-        "fr": "Tofu fermenté noir frit de Changsha, dans le Hunan, le caillé de soja saumuré dans un mélange de pousses de bambou d'hiver, de champignons…"
+        "en": "Deep-fried black fermented tofu from Changsha, Hunan, the bean curd brined in a mix of winter bamboo shoots.",
+        "fr": "Tofu fermenté noir frit de Changsha, dans le Hunan, le caillé de soja saumuré dans un mélange de pousses de bambou d'hiver."
       },
       "sources": [
         {
@@ -14010,8 +14010,8 @@ const CUISINE_NOTES = {
     "hunan rice noodles": {
       "local": "湖南米粉 (长沙米粉)",
       "note": {
-        "en": "Changsha-style Hunan rice noodles: flat rice noodles (the local favorite over round ones, for soaking up flavor) served in a long-simmered…",
-        "fr": "Nouilles de riz du Hunan, style Changsha : nouilles de riz plates (préférées aux rondes, car elles absorbent mieux le bouillon) servies…"
+        "en": "Changsha-style Hunan rice noodles: flat rice noodles (the local favorite over round ones, for soaking up flavor)",
+        "fr": "Nouilles de riz du Hunan, style Changsha : nouilles de riz plates (préférées aux rondes, car elles absorbent mieux le bouillon)"
       },
       "sources": [
         {
@@ -14044,8 +14044,8 @@ const CUISINE_NOTES = {
     "hunan beef noodles": {
       "local": "常德牛肉粉 (Chángdé niúròu fěn)",
       "note": {
-        "en": "Changde beef rice-noodle soup from Hunan, China: round rice noodles in a spicy chilli-and-Sichuan-peppercorn beef broth, eaten as a…",
-        "fr": "Soupe de vermicelles de riz au boeuf de Changde (Hunan, Chine) : nouilles de riz rondes dans un bouillon de boeuf pimente, plat de…"
+        "en": "Changde beef rice-noodle soup from Hunan, China: round rice noodles in a spicy chilli-and-Sichuan-peppercorn beef broth.",
+        "fr": "Soupe de vermicelles de riz au bœuf de Changde (Hunan, Chine)"
       },
       "sources": [
         {
@@ -14061,8 +14061,8 @@ const CUISINE_NOTES = {
     "orange beef hunan": {
       "local": "陈皮牛肉",
       "note": {
-        "en": "A Chinese dish of crispy deep-fried beef stir-fried with dried tangerine/mandarin peel (chenpi) and dried chili. The traditional version…",
-        "fr": "Plat chinois de bœuf frit croustillant sauté avec de l'écorce de mandarine séchée (chenpi) et du piment séché. La version traditionnelle…"
+        "en": "A Chinese dish of crispy deep-fried beef stir-fried with dried tangerine/mandarin peel (chenpi) and dried chili.",
+        "fr": "Plat chinois de bœuf frit croustillant sauté avec de l'écorce de mandarine séchée (chenpi) et du piment séché."
       },
       "sources": [
         {
@@ -14078,8 +14078,8 @@ const CUISINE_NOTES = {
     "spicy crayfish hunan": {
       "local": "口味虾",
       "note": {
-        "en": "Changsha (Hunan) night-time specialty of fresh crayfish stir-fried with heavy spices including chili, Sichuan peppercorn and garlic; the…",
-        "fr": "Spécialité nocturne de Changsha (Hunan): écrevisses fraîches sautées avec des épices fortes dont piment, poivre du Sichuan et ail…"
+        "en": "Changsha (Hunan) night-time specialty of fresh crayfish stir-fried with heavy spices including chili, Sichuan peppercorn and garlic;",
+        "fr": "Spécialité nocturne de Changsha (Hunan)"
       },
       "sources": [
         {
@@ -14096,7 +14096,7 @@ const CUISINE_NOTES = {
       "local": "酸菜",
       "note": {
         "en": "Suan cai, fermented salted mustard greens or cabbage; the Hunan style adds ginger and chilies and dates to ancient preservation practices.",
-        "fr": "Le suan cai, des feuilles de moutarde ou du chou salés et fermentés; la version hunanaise ajoute gingembre et piments, issue de pratiques…"
+        "fr": "Le suan cai, des feuilles de moutarde ou du chou salés et fermentés;"
       },
       "sources": [
         {
@@ -14113,7 +14113,7 @@ const CUISINE_NOTES = {
       "local": "南瓜饼 (nánguā bǐng)",
       "note": {
         "en": "Pan-fried cake of pumpkin and glutinous rice flour, chewy inside and crisp outside, often filled with red bean paste and coated in sesame.",
-        "fr": "Galette poêlée de potiron et de farine de riz gluant, moelleuse dedans et croustillante dehors, souvent fourrée de pâte de haricots rouges…"
+        "fr": "Galette poêlée de potiron et de farine de riz gluant, moelleuse dedans et croustillante dehors."
       },
       "sources": [
         {
@@ -14199,8 +14199,8 @@ const CUISINE_NOTES = {
     "adobo": {
       "local": "Adobo",
       "note": {
-        "en": "Filipino unofficial national dish: meat or seafood simmered in vinegar, soy sauce, garlic and bay leaf; a pre-Hispanic cooking method later…",
-        "fr": "Plat national officieux philippin : viande ou fruits de mer mijotes au vinaigre, sauce soja, ail et laurier ; methode de cuisson…"
+        "en": "Filipino unofficial national dish: meat or seafood simmered in vinegar, soy sauce, garlic and bay leaf;",
+        "fr": "Plat national officieux philippin : viande ou fruits de mer mijotés au vinaigre, sauce soja, ail et laurier ;"
       },
       "sources": [
         {
@@ -14233,8 +14233,8 @@ const CUISINE_NOTES = {
     "pork adobo": {
       "local": "adobong baboy",
       "note": {
-        "en": "Filipino pork braised in vinegar, soy sauce, garlic, bay leaf and peppercorns; the vinegar method predates Spanish rule as a way to…",
-        "fr": "Porc philippin braisé au vinaigre, sauce soja, ail, laurier et poivre; la méthode au vinaigre, antérieure à la domination espagnole…"
+        "en": "Filipino pork braised in vinegar, soy sauce, garlic, bay leaf and peppercorns;",
+        "fr": "Porc philippin braisé au vinaigre, sauce soja, ail, laurier et poivre;"
       },
       "sources": [
         {
@@ -14251,7 +14251,7 @@ const CUISINE_NOTES = {
       "local": "lechón",
       "note": {
         "en": "A whole pig spit-roasted over charcoal for crisp skin; a Spanish-colonial-era term, it is the centerpiece of Filipino fiestas.",
-        "fr": "Un porc entier rôti à la broche sur braises pour une peau croustillante ; terme colonial espagnol, vedette des fêtes philippines."
+        "fr": "Un porc entier rôti à la broche sur braisés pour une peau croustillante ; terme colonial espagnol, vedette des fêtes philippines."
       },
       "sources": [
         {
@@ -14268,7 +14268,7 @@ const CUISINE_NOTES = {
       "local": "pansit (pancit)",
       "note": {
         "en": "Filipino stir-fried noodle dish from Chinese traders; name is Hokkien for conveniently or quickly cooked food.",
-        "fr": "Plat philippin de nouilles sautees venu des marchands chinois; le nom signifie en hokkien plat cuit rapidement."
+        "fr": "Plat philippin de nouilles sautées venu des marchands chinois; le nom signifie en hokkien plat cuit rapidement."
       },
       "sources": [
         {
@@ -14318,8 +14318,8 @@ const CUISINE_NOTES = {
     "lumpia shanghai": {
       "local": "Lumpiang Shanghai",
       "note": {
-        "en": "Filipino deep-fried spring roll of seasoned ground pork in a thin wrapper, derived from Chinese (Hokkien/Fujian) lumpia and nativized…",
-        "fr": "Rouleau de printemps philippin frit, garni de porc hache assaisonne dans une fine galette, derive du lumpia chinois (hokkien/Fujian) et…"
+        "en": "Filipino deep-fried spring roll of seasoned ground pork in a thin wrapper, derived from Chinese (Hokkien/Fujian)",
+        "fr": "Rouleau de printemps philippin frit, garni de porc haché assaisonne dans une fine galette, derive du lumpia chinois (hokkien/Fujian)"
       },
       "sources": [
         {
@@ -14335,8 +14335,8 @@ const CUISINE_NOTES = {
     "halo-halo": {
       "local": "haluhalo",
       "note": {
-        "en": "Filipino shaved-ice dessert layered with sweet beans, fruits and evaporated milk; evolved from Japanese kakigori brought by pre-war…",
-        "fr": "Dessert philippin de glace pilée garni de haricots sucrés, fruits et lait concentré; issu du kakigori japonais apporté par des migrants…"
+        "en": "Filipino shaved-ice dessert layered with sweet beans, fruits and evaporated milk;",
+        "fr": "Dessert philippin de glace pilée garni de haricots sucrés, fruits et lait concentré;"
       },
       "sources": [
         {
@@ -14353,7 +14353,7 @@ const CUISINE_NOTES = {
       "local": "kare-kare",
       "note": {
         "en": "Filipino stew of oxtail and vegetables in a thick peanut sauce tinted with annatto, served with bagoong shrimp paste.",
-        "fr": "Ragout philippin de queue de boeuf et legumes dans une sauce epaisse aux cacahuetes teintee de rocou, servi avec du bagoong."
+        "fr": "Ragout philippin de queue de bœuf et legumes dans une sauce epaisse aux cacahuetes teintee de rocou, servi avec du bagoong."
       },
       "sources": [
         {
@@ -14369,8 +14369,8 @@ const CUISINE_NOTES = {
     "sisig": {
       "local": "Sísig",
       "note": {
-        "en": "Sizzling Kapampangan dish of chopped grilled pig's face, ears and liver with calamansi, onion and chili; popularized by Aling Lucing in…",
-        "fr": "Plat kapampangan grésillant de joue, oreilles et foie de porc grillés hachés, calamansi, oignon et piment; popularisé par Aling Lucing à…"
+        "en": "Sizzling Kapampangan dish of chopped grilled pig's face, ears and liver with calamansi, onion and chili;",
+        "fr": "Plat kapampangan grésillant de joue, oreilles et foie de porc grillés hachés, calamansi, oignon et piment;"
       },
       "sources": [
         {
@@ -14387,7 +14387,7 @@ const CUISINE_NOTES = {
       "local": "crispy pata",
       "note": {
         "en": "Filipino dish of a whole pork leg (pata) boiled with aromatics then deep-fried until the skin crackles, served with a soy-vinegar dip.",
-        "fr": "Plat philippin de jarret de porc entier (pata) bouilli aux aromates puis frit jusqu'a ce que la peau croustille, servi avec une sauce…"
+        "fr": "Plat philippin de jarret de porc entier (pata)"
       },
       "sources": [
         {
@@ -14420,8 +14420,8 @@ const CUISINE_NOTES = {
     "beef tapa": {
       "local": "tapa (tapang baka)",
       "note": {
-        "en": "Filipino thin-sliced beef cured or dried with salt and spices as a preservation method (now usually marinated), pan-fried and served with…",
-        "fr": "Boeuf philippin en fines tranches, sale et seche aux epices comme methode de conservation (aujourd'hui plutot marine), poele et servi avec…"
+        "en": "Filipino thin-sliced beef cured or dried with salt and spices as a preservation method (now usually marinated)",
+        "fr": "Bœuf philippin en fines tranches, sale et seche aux épices comme methode de conservation (aujourd'hui plutot mariné)"
       },
       "sources": [
         {
@@ -14437,8 +14437,8 @@ const CUISINE_NOTES = {
     "longganisa": {
       "local": "longganisa",
       "note": {
-        "en": "A Filipino pork sausage seasoned with garlic, black pepper, salt and vinegar, derived from the Spanish longaniza; it is broadly classified…",
-        "fr": "Saucisse de porc philippine assaisonnee d'ail, de poivre noir, de sel et de vinaigre, derivee de la longaniza espagnole; elle se classe en…"
+        "en": "A Filipino pork sausage seasoned with garlic, black pepper, salt and vinegar, derived from the Spanish longaniza;",
+        "fr": "Saucisse de porc philippine assaisonnee d'ail, de poivre noir, de sel et de vinaigre, derivee de la longaniza espagnole;"
       },
       "sources": [
         {
@@ -14488,8 +14488,8 @@ const CUISINE_NOTES = {
     "leche flan": {
       "local": "Leche flan",
       "note": {
-        "en": "A rich Filipino caramel custard of egg yolks, milk and caramelised sugar, derived from Spanish crème caramel introduced during colonial…",
-        "fr": "Un riche flan caramel philippin à base de jaunes d'œufs, de lait et de sucre caramélisé, issu de la crème caramel espagnole de l'époque…"
+        "en": "A rich Filipino caramel custard of egg yolks, milk and caramelised sugar.",
+        "fr": "Un riche flan caramel philippin à base de jaunes d'œufs, de lait et de sucre caramélisé."
       },
       "sources": [
         {
@@ -14505,8 +14505,8 @@ const CUISINE_NOTES = {
     "bibingka": {
       "local": "bibingka",
       "note": {
-        "en": "A Filipino rice cake made from galapong (rice batter) and coconut milk, baked in banana-leaf-lined clay pots and eaten especially at…",
-        "fr": "Gateau de riz philippin a base de galapong (pate de riz) et de lait de coco, cuit dans des moules en terre tapisses de feuilles de…"
+        "en": "A Filipino rice cake made from galapong (rice batter)",
+        "fr": "Gateau de riz philippin a base de galapong (pate de riz)"
       },
       "sources": [
         {
@@ -14523,7 +14523,7 @@ const CUISINE_NOTES = {
       "local": "puto",
       "note": {
         "en": "Filipino steamed rice cake traditionally made from slightly fermented rice dough (galapong), often eaten with savory dishes like dinuguan.",
-        "fr": "Gateau de riz philippin cuit a la vapeur, fait de pate de riz legerement fermentee (galapong), souvent mange avec des plats sales comme le…"
+        "fr": "Gateau de riz philippin cuit à la vapeur, fait de pate de riz legerement fermentée (galapong)"
       },
       "sources": [
         {
@@ -14557,7 +14557,7 @@ const CUISINE_NOTES = {
       "local": "San Miguel (Cerveza San Miguel)",
       "note": {
         "en": "Filipino pale lager first brewed in 1890 in San Miguel, Manila, as La Fabrica de Cerveza de San Miguel — Southeast Asia's first brewery.",
-        "fr": "Lager blonde philippine brassee pour la premiere fois en 1890 a San Miguel, Manille, sous le nom de La Fabrica de Cerveza de San Miguel —…"
+        "fr": "Lager blonde philippine brassee pour la premiere fois en 1890 a San Miguel, Manille."
       },
       "sources": [
         {
@@ -14573,8 +14573,8 @@ const CUISINE_NOTES = {
     "calamansi juice filipino": {
       "local": "Kalamansi",
       "note": {
-        "en": "Filipino lemonade made from the juice of calamansi (Citrus × microcarpa) — a kumquat-mandarin citrus hybrid closely associated with the…",
-        "fr": "Limonade philippine préparée avec le jus de calamansi (Citrus × microcarpa), un agrume hybride kumquat-mandarine étroitement associé aux…"
+        "en": "Filipino lemonade made from the juice of calamansi (Citrus × microcarpa)",
+        "fr": "Limonade philippine préparée avec le jus de calamansi (Citrus × microcarpa)"
       },
       "sources": [
         {
@@ -14590,8 +14590,8 @@ const CUISINE_NOTES = {
     "sinigang": {
       "local": "sinigáng",
       "note": {
-        "en": "A sour and savory Filipino soup or stew most often soured with tamarind (sampalok), though other sour fruits such as unripe mango or…",
-        "fr": "Soupe ou ragoût philippin aigre-doux, généralement acidulé au tamarin (sampalok), bien que d'autres fruits acides comme la mangue verte ou…"
+        "en": "A sour and savory Filipino soup or stew most often soured with tamarind (sampalok)",
+        "fr": "Soupe ou ragoût philippin aigre-doux, généralement acidulé au tamarin (sampalok)"
       },
       "sources": [
         {
@@ -14607,8 +14607,8 @@ const CUISINE_NOTES = {
     "lechon kawali": {
       "local": "litsong kawali (lechon kawali)",
       "note": {
-        "en": "Filipino crispy deep-fried pork belly: the meat is first boiled in seasoned water, then deep-fried in a kawali (pan or wok) until the skin…",
-        "fr": "Poitrine de porc philippine croustillante et frite : la viande est d'abord bouillie dans une eau assaisonnee, puis frite dans un kawali…"
+        "en": "Filipino crispy deep-fried pork belly: the meat is first boiled in seasoned water, then deep-fried in a kawali (pan or wok)",
+        "fr": "Poitrine de porc philippine croustillante et frite : la viande est d'abord bouillie dans une eau assaisonnee."
       },
       "sources": [
         {
@@ -14624,8 +14624,8 @@ const CUISINE_NOTES = {
     "pancit canton": {
       "local": "pancit canton",
       "note": {
-        "en": "A Filipino stir-fried wheat-flour egg noodle dish with meat and vegetables, adapted from noodle traditions brought by Hokkien Chinese…",
-        "fr": "Plat philippin de nouilles aux oeufs de farine de ble sautees avec viande et legumes, issu des traditions apportees par les marchands…"
+        "en": "A Filipino stir-fried wheat-flour egg noodle dish with meat and vegetables.",
+        "fr": "Plat philippin de nouilles aux oeufs de farine de ble sautées avec viande et legumes."
       },
       "sources": [
         {
@@ -14661,7 +14661,7 @@ const CUISINE_NOTES = {
       "local": "လက်ဖက်သုပ်",
       "note": {
         "en": "Burmese salad of fermented (pickled) tea leaves mixed with fried beans, nuts, sesame and garlic oil; once a peace offering between kingdoms.",
-        "fr": "Salade birmane de feuilles de the fermentees (marinees) melangees a des feves frites, noix, sesame et huile d'ail ; jadis offrande de paix…"
+        "fr": "Salade birmane de feuilles de the fermentées (marinées) mélangées a des feves frites, noix, sesame et huile d'ail ;"
       },
       "sources": [
         {
@@ -14677,8 +14677,8 @@ const CUISINE_NOTES = {
     "ohn no khao swe": {
       "local": "အုန်းနို့ခေါက်ဆွဲ",
       "note": {
-        "en": "Burmese wheat-noodle soup in a curried chicken and coconut-milk broth thickened with chickpea flour; its name literally means \"coconut milk…",
-        "fr": "Soupe birmane de nouilles de blé dans un bouillon de poulet au curry et lait de coco lié à la farine de pois chiche; son nom signifie «…"
+        "en": "Burmese wheat-noodle soup in a curried chicken and coconut-milk broth thickened with chickpea flour;",
+        "fr": "Soupe birmane de nouilles de blé dans un bouillon de poulet au curry et lait de coco lié à la farine de pois chiche;"
       },
       "sources": [
         {
@@ -14779,8 +14779,8 @@ const CUISINE_NOTES = {
     "burmese fish curry": {
       "local": "ငါးဆီပြန် (nga hsi pyan)",
       "note": {
-        "en": "Myanmar's everyday tomato-based fish curry. It belongs to the hsibyan (ဆီပြန်, \"oil returns\") family: the curry is simmered until the water…",
-        "fr": "Le curry de poisson quotidien du Myanmar, a base de tomate. Il appartient a la famille hsibyan (ဆီပြန်, \"l'huile revient\") : on laisse…"
+        "en": "Myanmar's everyday tomato-based fish curry. It belongs to the hsibyan (ဆီပြန်, \"oil returns\")",
+        "fr": "Le curry de poisson quotidien du Myanmar, a base de tomate. Il appartient à la famille hsibyan (ဆီပြန်, \"l'huile revient\")"
       },
       "sources": [
         {
@@ -14797,7 +14797,7 @@ const CUISINE_NOTES = {
       "local": "ဆီချက်ခေါက်ဆွဲ",
       "note": {
         "en": "Burmese egg or wheat noodles tossed in garlic-infused oil and fried garlic, often topped with duck; tied to the Sino-Burmese community.",
-        "fr": "Nouilles birmanes aux oeufs ou au ble, melangees a l'huile parfumee a l'ail et a l'ail frit, souvent garnies de canard; liees a la…"
+        "fr": "Nouilles birmanes aux oeufs ou au ble, mélangées a l'huile parfumee a l'ail et a l'ail frit, souvent garnies de canard;"
       },
       "sources": [
         {
@@ -14848,7 +14848,7 @@ const CUISINE_NOTES = {
       "local": "ပလာတာ (palata)",
       "note": {
         "en": "Palata is Myanmar's flaky fried flatbread, adapted from South Asian paratha in the colonial era, eaten with curry, egg or potato.",
-        "fr": "Le palata est la galette feuilletee frite birmane, adaptee du paratha sud-asiatique a l'epoque coloniale, mangee avec curry, oeuf ou pomme…"
+        "fr": "Le palata est la galette feuilletee frite birmane, adaptee du paratha sud-asiatique a l'epoque coloniale, mangee avec curry."
       },
       "sources": [
         {
@@ -14899,7 +14899,7 @@ const CUISINE_NOTES = {
       "local": "လက်ဖက်ထမင်း",
       "note": {
         "en": "A Burmese rice dish of fermented tea leaves (lahpet) mixed with rice, peanuts, garlic and fried beans, traditionally served at a meal's end.",
-        "fr": "Plat birman de riz mélangé à des feuilles de thé fermentées (lahpet), cacahuètes, ail et haricots frits, servi traditionnellement en fin de…"
+        "fr": "Plat birman de riz mélangé à des feuilles de thé fermentées (lahpet)"
       },
       "sources": [
         {
@@ -14965,7 +14965,7 @@ const CUISINE_NOTES = {
       "local": "මාළු මිරිසට (Malu mirisata)",
       "note": {
         "en": "A spicy Sri Lankan fish curry of chilli, onion and turmeric, popular in coastal areas where fish is a staple, served with rice.",
-        "fr": "Un curry de poisson sri-lankais épicé au piment, oignon et curcuma, populaire sur les côtes où le poisson est un aliment de base, servi…"
+        "fr": "Un curry de poisson sri-lankais épicé au piment, oignon et curcuma, populaire sur les côtes où le poisson est un aliment de base."
       },
       "sources": [
         {
@@ -14994,8 +14994,8 @@ const CUISINE_NOTES = {
     "string hoppers": {
       "local": "ඉඳිආප්ප (Sinhala) / இடியாப்பம் (Tamil, idiyappam)",
       "note": {
-        "en": "Steamed nests of rice-flour noodles squeezed through a press or mould, eaten in Sri Lanka and South India (Tamil Nadu and Kerala). The name…",
-        "fr": "Nids de nouilles de farine de riz cuits a la vapeur, presses au moule, consommes au Sri Lanka et dans le sud de l'Inde (Tamil Nadu et…"
+        "en": "Steamed nests of rice-flour noodles squeezed through a press or mould, eaten in Sri Lanka and South India (Tamil Nadu and Kerala).",
+        "fr": "Nids de nouilles de farine de riz cuits à la vapeur, presses au moule."
       },
       "sources": [
         {
@@ -15011,8 +15011,8 @@ const CUISINE_NOTES = {
     "lamprais": {
       "local": "ලම්ප්‍රයිස්",
       "note": {
-        "en": "Sri Lankan Dutch Burgher dish of stock-cooked rice with curries and sambols wrapped in a banana leaf and baked; name is Dutch for \"lump of…",
-        "fr": "Plat des Burghers néerlandais du Sri Lanka : riz cuit au bouillon, currys et sambols enveloppés dans une feuille de bananier et cuits au…"
+        "en": "Sri Lankan Dutch Burgher dish of stock-cooked rice with curries and sambols wrapped in a banana leaf and baked;",
+        "fr": "Plat des Burghers néerlandais du Sri Lanka : riz cuit au bouillon, currys et sambols enveloppés dans une feuille de bananier et cuits au"
       },
       "sources": [
         {
@@ -15097,7 +15097,7 @@ const CUISINE_NOTES = {
       "local": "සිලෝන් තේ (Silōn tē)",
       "note": {
         "en": "Black tea grown in Sri Lanka (formerly Ceylon); commercial cultivation began in 1867 when James Taylor planted Loolecondera estate, Kandy.",
-        "fr": "Thé noir cultivé au Sri Lanka (anciennement Ceylan) ; la culture commerciale débuta en 1867 avec la plantation de Loolecondera par James…"
+        "fr": "Thé noir cultivé au Sri Lanka (anciennement Ceylan) ;"
       },
       "sources": [
         {
@@ -15113,8 +15113,8 @@ const CUISINE_NOTES = {
     "rice and curry": {
       "local": "බත් කරි",
       "note": {
-        "en": "Sri Lanka's national dish: a mound of steamed rice served with several curries (vegetable, lentil and usually a fish or meat curry) plus…",
-        "fr": "Plat national du Sri Lanka : un monticule de riz vapeur servi avec plusieurs currys (légumes, lentilles et généralement un curry de poisson…"
+        "en": "Sri Lanka's national dish: a mound of steamed rice served with several curries (vegetable, lentil and usually a fish or meat curry)",
+        "fr": "Plat national du Sri Lanka : un monticule de riz vapeur servi avec plusieurs currys (légumes."
       },
       "sources": [
         {
@@ -15160,8 +15160,8 @@ const CUISINE_NOTES = {
     "devilled chicken": {
       "local": "චිකන් ඩෙවල් (chikan ḍeval)",
       "note": {
-        "en": "Sri Lankan-Chinese fusion stir-fry of crispy fried chicken with onions, peppers and a fiery sauce; \"devilled\" is a British colonial term…",
-        "fr": "Sauté sri-lankais-chinois de poulet frit croustillant aux oignons et poivrons en sauce épicée; \"devilled\" vient d'un terme colonial…"
+        "en": "Sri Lankan-Chinese fusion stir-fry of crispy fried chicken with onions, peppers and a fiery sauce;",
+        "fr": "Sauté sri-lankais-chinois de poulet frit croustillant aux oignons et poivrons en sauce épicée;"
       },
       "sources": [
         {
@@ -15211,8 +15211,8 @@ const CUISINE_NOTES = {
     "sri lankan crab curry": {
       "local": "කකුළුවෝ ව්‍යංජනය (Kakuluwo)",
       "note": {
-        "en": "A spicy crab curry from northern Sri Lanka (Jaffna), with mud or blue swimmer crab simmered in coconut milk, curry leaves and drumstick…",
-        "fr": "Un curry de crabe épicé du nord du Sri Lanka (Jaffna), au crabe de vase ou nageur mijoté au lait de coco, feuilles de curry et gousses de…"
+        "en": "A spicy crab curry from northern Sri Lanka (Jaffna)",
+        "fr": "Un curry de crabe épicé du nord du Sri Lanka (Jaffna)"
       },
       "sources": [
         {
@@ -15229,7 +15229,7 @@ const CUISINE_NOTES = {
       "local": "කිරිබත් (kiribath)",
       "note": {
         "en": "Kiribath is a Sri Lankan rice cake cooked in coconut milk, the traditional first dish of the Sinhala and Tamil New Year and new beginnings.",
-        "fr": "Le kiribath est un gateau de riz sri-lankais cuit au lait de coco, plat traditionnel du Nouvel An cinghalais et tamoul et des nouveaux…"
+        "fr": "Le kiribath est un gateau de riz sri-lankais cuit au lait de coco, plat traditionnel du Nouvel An cinghalais et tamoul et des nouveaux"
       },
       "sources": [
         {
@@ -15246,7 +15246,7 @@ const CUISINE_NOTES = {
       "local": "වටලප්පන්",
       "note": {
         "en": "A Sri Lankan steamed coconut-milk and jaggery egg custard, brought by Sri Lankan Malays and derived from the Malay dish serikaya.",
-        "fr": "Un flan sri-lankais cuit a la vapeur a base de lait de coco, de jaggery et d'oeufs, apporte par les Malais sri-lankais et derive du…"
+        "fr": "Un flan sri-lankais cuit à la vapeur a base de lait de coco, de jaggery et d'oeufs."
       },
       "sources": [
         {
@@ -15263,7 +15263,7 @@ const CUISINE_NOTES = {
       "local": "පිට්ටு / புட்டு",
       "note": {
         "en": "Steamed cylinders of ground rice layered with grated coconut, a breakfast staple native to Sri Lanka and South India.",
-        "fr": "Cylindres cuits a la vapeur de riz moulu en couches avec de la noix de coco rapee, plat de petit-dejeuner du Sri Lanka et de l'Inde du Sud."
+        "fr": "Cylindres cuits à la vapeur de riz moulu en couches avec de la noix de coco rapee, plat de petit-dejeuner du Sri Lanka et de l'Inde du Sud."
       },
       "sources": [
         {
@@ -15279,8 +15279,8 @@ const CUISINE_NOTES = {
     "roast paan": {
       "local": "රෝස්ට් පාන් (Sinhala; lit. \"roasted bread\")",
       "note": {
-        "en": "Sri Lankan pull-apart bread that is baked and then roasted/grilled a second time, usually with coconut oil, giving a crisp crust and a soft…",
-        "fr": "Pain sri-lankais à partager, d'abord cuit puis rôti ou grillé une seconde fois, généralement à l'huile de coco, donnant une croûte…"
+        "en": "Sri Lankan pull-apart bread that is baked and then roasted/grilled a second time, usually with coconut oil.",
+        "fr": "Pain sri-lankais à partager, d'abord cuit puis rôti ou grillé une seconde fois, généralement à l'huile de coco."
       },
       "sources": [
         {
@@ -15297,7 +15297,7 @@ const CUISINE_NOTES = {
       "local": "කොළ කැඳ",
       "note": {
         "en": "Sri Lankan herbal rice congee with coconut milk and leafy-green juice, rooted in Buddhist monastic tradition as a restorative breakfast.",
-        "fr": "Bouillie de riz aux herbes srilankaise au lait de coco et jus de feuilles vertes, issue de la tradition monastique bouddhiste comme…"
+        "fr": "Bouillie de riz aux herbes srilankaise au lait de coco et jus de feuilles vertes."
       },
       "sources": [
         {
@@ -15311,8 +15311,8 @@ const CUISINE_NOTES = {
     "moussaka": {
       "local": "μουσακάς",
       "note": {
-        "en": "Baked Greek casserole of layered eggplant, spiced minced meat and béchamel; the modern version was created by Nikolaos Tselementes in the…",
-        "fr": "Gratin grec d'aubergines, de viande hachée épicée et de béchamel ; la version moderne fut créée par Nikolaos Tselementes dans les années…"
+        "en": "Baked Greek casserole of layered eggplant, spiced minced meat and béchamel;",
+        "fr": "Gratin grec d'aubergines, de viande hachée épicée et de béchamel ;"
       },
       "sources": [
         {
@@ -15363,7 +15363,7 @@ const CUISINE_NOTES = {
       "local": "σπανακόπιτα",
       "note": {
         "en": "Greek savory pie of spinach and feta cheese layered in phyllo pastry; the name combines spanaki (spinach) and pita (pie).",
-        "fr": "Tourte grecque salee aux epinards et a la feta en pate phyllo; son nom combine spanaki (epinard) et pita (tourte)."
+        "fr": "Tourte grecque salee aux epinards et à la feta en pate phyllo; son nom combine spanaki (epinard) et pita (tourte)."
       },
       "sources": [
         {
@@ -15380,7 +15380,7 @@ const CUISINE_NOTES = {
       "local": "τυρόπιτα",
       "note": {
         "en": "A Greek pastry of layered buttered phyllo filled with a cheese-and-egg mixture, traced by scholars to the ancient placenta cake (plakous).",
-        "fr": "Une pâtisserie grecque de pâte phyllo beurrée en couches garnie de fromage et d'œufs, rattachée par les érudits à l'antique gâteau placenta…"
+        "fr": "Une pâtisserie grecque de pâte phyllo beurrée en couches garnie de fromage et d'œufs."
       },
       "sources": [
         {
@@ -15392,8 +15392,8 @@ const CUISINE_NOTES = {
     "pastitsio": {
       "local": "παστίτσιο",
       "note": {
-        "en": "Greek baked pasta dish layering tubular pasta, spiced ground-meat sauce and béchamel; its modern form was codified by chef Tselementes in…",
-        "fr": "Plat grec de pâtes au four superposant pâtes tubulaires, sauce à la viande épicée et béchamel ; sa forme moderne fut codifiée par le chef…"
+        "en": "Greek baked pasta dish layering tubular pasta, spiced ground-meat sauce and béchamel;",
+        "fr": "Plat grec de pâtes au four superposant pâtes tubulaires, sauce à la viande épicée et béchamel ;"
       },
       "sources": [
         {
@@ -15406,7 +15406,7 @@ const CUISINE_NOTES = {
       "local": "ντολμάδες",
       "note": {
         "en": "Greek grape leaves wrapped around rice, herbs and often lamb, simmered in lemony broth; the name comes from the Turkic verb dolmak, to fill.",
-        "fr": "Feuilles de vigne grecques garnies de riz, d'herbes et souvent d'agneau, mijotees au citron; le nom vient du verbe turc dolmak, remplir."
+        "fr": "Feuilles de vigne grecques garnies de riz, d'herbes et souvent d'agneau, mijotées au citron; le nom vient du verbe turc dolmak, remplir."
       },
       "sources": [
         {
@@ -15423,7 +15423,7 @@ const CUISINE_NOTES = {
       "local": "χωριάτικη σαλάτα",
       "note": {
         "en": "Greek \"village salad\" of tomatoes, cucumber, onion, olives and a feta block, popularized mid-20th century to skirt price controls.",
-        "fr": "\"Salade villageoise\" grecque de tomates, concombre, oignon, olives et bloc de feta, popularisée au milieu du XXe siècle pour contourner le…"
+        "fr": "\"Salade villageoise\" grecque de tomates, concombre, oignon, olives et bloc de feta."
       },
       "sources": [
         {
@@ -15504,7 +15504,7 @@ const CUISINE_NOTES = {
       "local": "χταπόδι",
       "note": {
         "en": "Octopus, often grilled over charcoal, is a quintessential Greek seafood meze served in seaside tavernas with ouzo.",
-        "fr": "Le poulpe, souvent grille au charbon, est un meze grec de fruits de mer emblematique servi dans les tavernes avec de l'ouzo."
+        "fr": "Le poulpe, souvent grillé au charbon, est un meze grec de fruits de mer emblematique servi dans les tavernes avec de l'ouzo."
       },
       "sources": [
         {
@@ -15538,7 +15538,7 @@ const CUISINE_NOTES = {
       "local": "στιφάδο",
       "note": {
         "en": "A Greek slow-cooked stew of meat (traditionally rabbit or beef) and pearl onions in red wine and spices, of Venetian origin.",
-        "fr": "Ragout grec mijote de viande (traditionnellement lapin ou boeuf) et petits oignons au vin rouge et epices, d'origine venitienne."
+        "fr": "Ragout grec mijoté de viande (traditionnellement lapin ou bœuf) et petits oignons au vin rouge et épices, d'origine venitienne."
       },
       "sources": [
         {
@@ -15555,7 +15555,7 @@ const CUISINE_NOTES = {
       "local": "αυγολέμονο",
       "note": {
         "en": "A Greek family of egg-yolk-and-lemon-juice sauces or soups beaten with broth and heated to thicken; its name literally means \"egg-lemon.\"",
-        "fr": "Famille grecque de sauces ou soupes au jaune d'oeuf et jus de citron, battue avec du bouillon et chauffee pour epaissir ; son nom signifie…"
+        "fr": "Famille grecque de sauces ou soupes au jaune d'oeuf et jus de citron, battue avec du bouillon et chauffee pour epaissir ;"
       },
       "sources": [
         {
@@ -15602,7 +15602,7 @@ const CUISINE_NOTES = {
       "local": "λουκουμάδες",
       "note": {
         "en": "Greek deep-fried dough balls soaked in honey syrup and cinnamon; among the oldest recorded desserts, served to ancient Olympic victors.",
-        "fr": "Beignets grecs frits trempes dans un sirop de miel et de cannelle; parmi les plus anciens desserts attestes, offerts aux vainqueurs…"
+        "fr": "Beignets grecs frits trempes dans un sirop de miel et de cannelle;"
       },
       "sources": [
         {
@@ -15618,8 +15618,8 @@ const CUISINE_NOTES = {
     "feta cheese": {
       "local": "Φέτα",
       "note": {
-        "en": "Greek brined white cheese from sheep's milk (plus up to 30% goat), granted EU PDO status in 2002 limiting the name to traditional Greek…",
-        "fr": "Fromage grec blanc en saumure au lait de brebis (et jusqu'à 30% de chèvre), protégé par l'AOP de l'UE depuis 2002 dans certaines régions…"
+        "en": "Greek brined white cheese from sheep's milk (plus up to 30% goat)",
+        "fr": "Fromage grec blanc en saumure au lait de brebis (et jusqu'à 30% de chèvre)"
       },
       "sources": [
         {
@@ -15635,8 +15635,8 @@ const CUISINE_NOTES = {
     "halloumi greek style": {
       "local": "Χαλλούμι",
       "note": {
-        "en": "Cypriot semi-hard brined cheese, traditionally from sheep and goat milk (the EU PDO recipe also permits cow milk, but sheep/goat must…",
-        "fr": "Fromage chypriote semi-ferme en saumure, traditionnellement au lait de brebis et de chevre (la recette AOP autorise aussi le lait de vache…"
+        "en": "Cypriot semi-hard brined cheese, traditionally from sheep and goat milk (the EU PDO recipe also permits cow milk.",
+        "fr": "Fromage chypriote semi-ferme en saumure, traditionnellement au lait de brebis et de chevre (la recette AOP autorise aussi le lait de vache"
       },
       "sources": [
         {
@@ -15652,8 +15652,8 @@ const CUISINE_NOTES = {
     "greek yogurt with honey": {
       "local": "Γιαούρτι με μέλι",
       "note": {
-        "en": "Thick strained Greek yogurt drizzled with honey, traditionally topped with walnuts; eaten in Greece as a light dessert, snack, or…",
-        "fr": "Yaourt grec épais et égoutté, nappé de miel et traditionnellement garni de noix; consommé en Grèce comme dessert léger, en-cas ou…"
+        "en": "Thick strained Greek yogurt drizzled with honey, traditionally topped with walnuts;",
+        "fr": "Yaourt grec épais et égoutté, nappé de miel et traditionnellement garni de noix;"
       },
       "sources": [
         {
@@ -15699,7 +15699,7 @@ const CUISINE_NOTES = {
     "greek coffee": {
       "local": "Ελληνικός καφές",
       "note": {
-        "en": "A strong unfiltered coffee of finely ground beans simmered in a briki pot, introduced via the Ottoman Empire and renamed from Turkish…",
+        "en": "A strong unfiltered coffee of finely ground beans simmered in a briki pot.",
         "fr": "Un café fort non filtré de grains finement moulus, mijoté dans un briki, introduit par l'Empire ottoman puis rebaptisé du café turc."
       },
       "sources": [
@@ -15783,7 +15783,7 @@ const CUISINE_NOTES = {
       "local": "lahmacun",
       "note": {
         "en": "A thin Turkish flatbread topped with spiced minced meat; its name derives from Arabic \"lahm bi-ajin\" (meat with dough).",
-        "fr": "Une fine galette turque garnie de viande hachee epicee; son nom vient de l'arabe \"lahm bi-ajin\" (viande avec pate)."
+        "fr": "Une fine galette turque garnie de viande hachée épicée; son nom vient de l'arabe \"lahm bi-ajin\" (viande avec pate)."
       },
       "sources": [
         {
@@ -15796,7 +15796,7 @@ const CUISINE_NOTES = {
       "local": "pide",
       "note": {
         "en": "A boat-shaped Turkish flatbread baked with toppings such as cheese, minced meat or egg, often called \"Turkish pizza.\"",
-        "fr": "Pain plat turc en forme de barque, garni de fromage, viande hachee ou oeuf, souvent appele \"pizza turque.\""
+        "fr": "Pain plat turc en forme de barque, garni de fromage, viande hachée ou oeuf, souvent appele \"pizza turque.\""
       },
       "sources": [
         {
@@ -15842,8 +15842,8 @@ const CUISINE_NOTES = {
     "manti": {
       "local": "Mantı",
       "note": {
-        "en": "Small Turkish dumplings filled with spiced lamb or beef, served in garlicky yoghurt; the earliest recipe appears in a 15th-century Ottoman…",
-        "fr": "Petits raviolis turcs farcis d'agneau ou de bœuf épicé, servis au yaourt à l'ail ; la plus ancienne recette figure dans un livre ottoman du…"
+        "en": "Small Turkish dumplings filled with spiced lamb or beef, served in garlicky yoghurt;",
+        "fr": "Petits raviolis turcs farcis d'agneau ou de bœuf épicé, servis au yaourt à l'ail ;"
       },
       "sources": [
         {
@@ -15855,8 +15855,8 @@ const CUISINE_NOTES = {
     "köfte": {
       "local": "köfte",
       "note": {
-        "en": "Turkish seasoned ground-meat balls or patties (usually lamb or beef, or a mix), flavoured with onion and spices; the name is from Persian…",
-        "fr": "Boulettes ou galettes turques de viande hachée assaisonnée (souvent agneau ou bœuf, ou un mélange), parfumées à l'oignon et aux épices; le…"
+        "en": "Turkish seasoned ground-meat balls or patties (usually lamb or beef, or a mix), flavoured with onion and spices;",
+        "fr": "Boulettes ou galettes turques de viande hachée assaisonnée (souvent agneau ou bœuf, ou un mélange), parfumées à l'oignon et aux épices;"
       },
       "sources": [
         {
@@ -15873,7 +15873,7 @@ const CUISINE_NOTES = {
       "local": "kuru fasulye",
       "note": {
         "en": "Turkish stew of white beans simmered with onion, tomato paste or tomato sauce, and olive oil; often considered the national dish of Turkey.",
-        "fr": "Ragout turc de haricots blancs mijotes avec oignon, concentre ou sauce tomate et huile d'olive ; souvent considere comme le plat national…"
+        "fr": "Ragout turc de haricots blancs mijotés avec oignon, concentre ou sauce tomate et huile d'olive ;"
       },
       "sources": [
         {
@@ -15889,8 +15889,8 @@ const CUISINE_NOTES = {
     "mantı": {
       "local": "mantı",
       "note": {
-        "en": "Small Turkish dumplings filled with spiced ground meat, served with garlic yogurt and butter; earliest Ottoman recipe dates to the 15th…",
-        "fr": "Petits raviolis turcs farcis de viande hachée épicée, servis avec yaourt à l'ail et beurre ; la première recette ottomane date du XVe…"
+        "en": "Small Turkish dumplings filled with spiced ground meat, served with garlic yogurt and butter;",
+        "fr": "Petits raviolis turcs farcis de viande hachée épicée, servis avec yaourt à l'ail et beurre ;"
       },
       "sources": [
         {
@@ -15907,7 +15907,7 @@ const CUISINE_NOTES = {
       "local": "İmam bayıldı",
       "note": {
         "en": "Ottoman-era dish of whole aubergine stuffed with onion, garlic and tomato and simmered in olive oil; the name means \"the imam fainted.\"",
-        "fr": "Plat d'origine ottomane d'aubergine entière farcie d'oignon, d'ail et de tomate, mijotée à l'huile d'olive ; le nom signifie « l'imam s'est…"
+        "fr": "Plat d'origine ottomane d'aubergine entière farcie d'oignon, d'ail et de tomate, mijotée à l'huile d'olive ;"
       },
       "sources": [
         {
@@ -15920,7 +15920,7 @@ const CUISINE_NOTES = {
       "local": "Hünkâr Beğendi",
       "note": {
         "en": "Ottoman dish (\"Sultan's Delight\") of lamb stew over a creamy bechamel-eggplant puree, a celebrated Turkish palace recipe.",
-        "fr": "Plat ottoman (Delice du sultan): ragout d'agneau sur une puree d'aubergine a la bechamel, celebre recette du palais turc."
+        "fr": "Plat ottoman (Delice du sultan): ragout d'agneau sur une puree d'aubergine à la bechamel, celebre recette du palais turc."
       },
       "sources": [
         {
@@ -15937,7 +15937,7 @@ const CUISINE_NOTES = {
       "local": "İç pilav",
       "note": {
         "en": "Turkish rice pilaf with pine nuts, currants and spices, an Ottoman palace dish used as a side or as stuffing for poultry and lamb.",
-        "fr": "Pilaf de riz turc aux pignons, raisins de Corinthe et épices, plat de palais ottoman servi en accompagnement ou en farce pour volaille et…"
+        "fr": "Pilaf de riz turc aux pignons, raisins de Corinthe et épices, plat de palais ottoman servi en accompagnement ou en farce pour volaille et"
       },
       "sources": [
         {
@@ -15983,8 +15983,8 @@ const CUISINE_NOTES = {
     "baklava turkish": {
       "local": "baklava",
       "note": {
-        "en": "A rich pastry of layered filo filled with chopped nuts and soaked in syrup, perfected in Ottoman kitchens; Gaziantep baklava holds EU…",
-        "fr": "Patisserie de fines couches de pate filo garnie de noix concassees et imbibee de sirop, perfectionnee sous les Ottomans; le baklava de…"
+        "en": "A rich pastry of layered filo filled with chopped nuts and soaked in syrup, perfected in Ottoman kitchens;",
+        "fr": "Patisserie de fines couches de pate filo garnie de noix concassees et imbibee de sirop, perfectionnee sous les Ottomans;"
       },
       "sources": [
         {
@@ -15996,8 +15996,8 @@ const CUISINE_NOTES = {
     "künefe": {
       "local": "künefe",
       "note": {
-        "en": "A warm Turkish dessert of shredded kadayıf pastry layered with unsalted melting cheese, baked crisp and soaked in sugar syrup; associated…",
-        "fr": "Dessert turc chaud de pâte kadayıf effilochée garnie de fromage fondant non salé, cuit croustillant et imbibé de sirop ; lié à…"
+        "en": "A warm Turkish dessert of shredded kadayıf pastry layered with unsalted melting cheese, baked crisp and soaked in sugar syrup;",
+        "fr": "Dessert turc chaud de pâte kadayıf effilochée garnie de fromage fondant non salé, cuit croustillant et imbibé de sirop ;"
       },
       "sources": [
         {
@@ -16039,8 +16039,8 @@ const CUISINE_NOTES = {
     "simit": {
       "local": "simit",
       "note": {
-        "en": "A circular Turkish sesame-encrusted bread with Byzantine roots (the 9th-century kollikion), documented in Istanbul since the 1520s and sold…",
-        "fr": "Pain turc circulaire enrobe de graines de sesame, aux racines byzantines (le kollikion du IXe siecle), atteste a Istanbul depuis les annees…"
+        "en": "A circular Turkish sesame-encrusted bread with Byzantine roots (the 9th-century kollikion)",
+        "fr": "Pain turc circulaire enrobe de graines de sesame, aux racines byzantines (le kollikion du IXe siecle)"
       },
       "sources": [
         {
@@ -16056,8 +16056,8 @@ const CUISINE_NOTES = {
     "turkish tea (çay)": {
       "local": "Çay",
       "note": {
-        "en": "Strong black tea brewed in a stacked double teapot and served in tulip-shaped glasses, mostly grown in Rize on Turkey's Black Sea coast…",
-        "fr": "Thé noir corsé infusé dans une théière double superposée et servi dans des verres tulipe, cultivé surtout à Rize sur la côte turque de la…"
+        "en": "Strong black tea brewed in a stacked double teapot and served in tulip-shaped glasses.",
+        "fr": "Thé noir corsé infusé dans une théière double superposée et servi dans des verres tulipe."
       },
       "sources": [
         {
@@ -16123,7 +16123,7 @@ const CUISINE_NOTES = {
       "local": "Schnitzel",
       "note": {
         "en": "A thin slice of meat (often veal, pork or chicken), breaded and pan-fried; the name derives from the German sniz, 'slice'.",
-        "fr": "Une fine tranche de viande (souvent veau, porc ou poulet), panee et poelee ; le nom vient de l'allemand sniz, « tranche »."
+        "fr": "Une fine tranche de viande (souvent veau, porc ou poulet), panee et poêlée ; le nom vient de l'allemand sniz, « tranche »."
       },
       "sources": [
         {
@@ -16139,8 +16139,8 @@ const CUISINE_NOTES = {
     "wiener schnitzel": {
       "local": "Wiener Schnitzel",
       "note": {
-        "en": "A Viennese specialty and Austrian national dish of thin, breaded, pan-fried veal cutlet; the name first appears in print in the 19th…",
-        "fr": "Specialite viennoise et plat national autrichien: une fine escalope de veau panee et frite a la poele, dont le nom apparait au XIXe siecle."
+        "en": "A Viennese specialty and Austrian national dish of thin, breaded, pan-fried veal cutlet;",
+        "fr": "Spécialité viennoise et plat national autrichien: une fine escalope de veau panee et frite à la poêlé, dont le nom apparait au XIXe siecle."
       },
       "sources": [
         {
@@ -16195,8 +16195,8 @@ const CUISINE_NOTES = {
     "sauerkraut": {
       "local": "Sauerkraut",
       "note": {
-        "en": "Finely shredded cabbage fermented in its own salt brine by lactic acid bacteria, which convert its sugars to lactic acid; its German name…",
-        "fr": "Chou finement râpé fermenté dans sa propre saumure salée par des bactéries lactiques, qui transforment ses sucres en acide lactique; son…"
+        "en": "Finely shredded cabbage fermented in its own salt brine by lactic acid bacteria, which convert its sugars to lactic acid;",
+        "fr": "Chou finement râpé fermenté dans sa propre saumure salée par des bactéries lactiques, qui transforment ses sucres en acide lactique;"
       },
       "sources": [
         {
@@ -16212,8 +16212,8 @@ const CUISINE_NOTES = {
     "spätzle": {
       "local": "Spätzle",
       "note": {
-        "en": "Soft egg noodle/dumpling from Swabia in southern Germany; the name derives from \"Spatz\" (sparrow), evoking the noodles' small irregular…",
-        "fr": "Pâte aux œufs molle de Souabe, dans le sud de l'Allemagne; le nom vient de \"Spatz\" (moineau), évoquant la forme petite et irrégulière des…"
+        "en": "Soft egg noodle/dumpling from Swabia in southern Germany; the name derives from \"Spatz\" (sparrow)",
+        "fr": "Pâte aux œufs molle de Souabe, dans le sud de l'Allemagne; le nom vient de \"Spatz\" (moineau)"
       },
       "sources": [
         {
@@ -16229,8 +16229,8 @@ const CUISINE_NOTES = {
     "käsespätzle": {
       "local": "Käsespätzle",
       "note": {
-        "en": "Traditional Swabian/Allgäu dish of soft egg-noodle spätzle layered with grated mountain cheese (Bergkäse) and topped with caramelized…",
-        "fr": "Plat traditionnel souabe/de l'Allgäu de spätzle (pâtes aux œufs) en couches avec du fromage de montagne (Bergkäse) et des oignons…"
+        "en": "Traditional Swabian/Allgäu dish of soft egg-noodle spätzle layered with grated mountain cheese (Bergkäse)",
+        "fr": "Plat traditionnel souabe/de l'Allgäu de spätzle (pâtes aux œufs) en couches avec du fromage de montagne (Bergkäse)"
       },
       "sources": [
         {
@@ -16264,7 +16264,7 @@ const CUISINE_NOTES = {
       "local": "Sauerbraten",
       "note": {
         "en": "A traditional German pot roast of beef marinated several days in vinegar and wine, then braised and served with a sweet-sour gravy.",
-        "fr": "Roti braise allemand traditionnel de boeuf marine plusieurs jours dans le vinaigre et le vin, servi avec une sauce aigre-douce."
+        "fr": "Roti braisé allemand traditionnel de bœuf mariné plusieurs jours dans le vinaigre et le vin, servi avec une sauce aigre-douce."
       },
       "sources": [
         {
@@ -16307,7 +16307,7 @@ const CUISINE_NOTES = {
       "local": "Kartoffelpuffer",
       "note": {
         "en": "German shallow-fried pancakes of grated potato, onion and egg, also called Reibekuchen, served savoury or sweet with apple sauce.",
-        "fr": "Galettes allemandes de pomme de terre rapee, oignon et oeuf, frites a la poele, dites Reibekuchen, servies salees ou sucrees avec compote…"
+        "fr": "Galettes allemandes de pomme de terre rapee, oignon et oeuf, frites à la poêlé, dites Reibekuchen."
       },
       "sources": [
         {
@@ -16371,7 +16371,7 @@ const CUISINE_NOTES = {
       "local": "Döner Kebab",
       "note": {
         "en": "A flatbread sandwich of vertical-spit grilled meat with salad and sauce, popularized in 1970s Berlin by Turkish guest workers.",
-        "fr": "Un sandwich en pain plat de viande grillée à la broche verticale avec salade et sauce, popularisé dans le Berlin des années 1970 par des…"
+        "fr": "Un sandwich en pain plat de viande grillée à la broche verticale avec salade et sauce."
       },
       "sources": [
         {
@@ -16387,8 +16387,8 @@ const CUISINE_NOTES = {
     "flammkuchen": {
       "local": "Flammkuchen",
       "note": {
-        "en": "Thin Alsatian/German flatbread topped with creme fraiche, onions and bacon, born from farmers testing wood-fired oven heat with leftover…",
-        "fr": "Fine galette alsacienne/allemande garnie de creme fraiche, oignons et lardons, nee quand les paysans testaient la chaleur du four a bois…"
+        "en": "Thin Alsatian/German flatbread topped with creme fraiche, onions and bacon.",
+        "fr": "Fine galette alsacienne/allemande garnie de creme fraîche, oignons et lardons."
       },
       "sources": [
         {
@@ -16427,7 +16427,7 @@ const CUISINE_NOTES = {
       "local": "Lebkuchen",
       "note": {
         "en": "Honey-sweetened spiced German cake, akin to gingerbread, invented by Franconian monks in the 13th century and famed in Nuremberg.",
-        "fr": "Gateau allemand epice et sucre au miel, proche du pain d'epices, invente par des moines franconiens au XIIIe siecle, celebre a Nuremberg."
+        "fr": "Gateau allemand épice et sucre au miel, proche du pain d'épices, invente par des moines franconiens au XIIIe siecle, celebre a Nuremberg."
       },
       "sources": [
         {
@@ -16443,8 +16443,8 @@ const CUISINE_NOTES = {
     "stollen": {
       "local": "Stollen",
       "note": {
-        "en": "A dense German Christmas fruit bread (Christstollen) of yeast dough enriched with candied peel, raisins, nuts and butter and dusted with…",
-        "fr": "Un pain de Noel allemand dense (Christstollen) a base de pate levee enrichie d'ecorces confites, de raisins secs, de noix et de beurre…"
+        "en": "A dense German Christmas fruit bread (Christstollen)",
+        "fr": "Un pain de Noel allemand dense (Christstollen)"
       },
       "sources": [
         {
@@ -16474,7 +16474,7 @@ const CUISINE_NOTES = {
       "local": "Roggenbrot",
       "note": {
         "en": "A traditional German bread of mostly rye flour, leavened with sourdough since rye's low gluten resists yeast, giving a dense, tangy loaf.",
-        "fr": "Pain allemand traditionnel surtout de farine de seigle, levé au levain car le faible gluten du seigle résiste à la levure, donnant une mie…"
+        "fr": "Pain allemand traditionnel surtout de farine de seigle, levé au levain car le faible gluten du seigle résiste à la levure."
       },
       "sources": [
         {
@@ -16490,8 +16490,8 @@ const CUISINE_NOTES = {
     "german beer": {
       "local": "Bier",
       "note": {
-        "en": "German beer, traditionally brewed under the Reinheitsgebot, the Bavarian purity law of 1516 that permitted only three ingredients: water…",
-        "fr": "Bière allemande, traditionnellement brassée selon le Reinheitsgebot, la loi de pureté bavaroise de 1516 qui n'autorisait que trois…"
+        "en": "German beer, traditionally brewed under the Reinheitsgebot, the Bavarian purity law of 1516 that permitted only three ingredients: water",
+        "fr": "Bière allemande, traditionnellement brassée selon le Reinheitsgebot."
       },
       "sources": [
         {
@@ -16524,8 +16524,8 @@ const CUISINE_NOTES = {
     "apfelschorle": {
       "local": "Apfelschorle",
       "note": {
-        "en": "A German soft drink of apple juice mixed with carbonated mineral water; RhönSprudel's Apple Plus, launched in 1994, was the first…",
-        "fr": "Boisson allemande de jus de pomme mélangé à de l'eau minérale gazeuse; Apple Plus de RhönSprudel, lancée en 1994, fut la première version…"
+        "en": "A German soft drink of apple juice mixed with carbonated mineral water;",
+        "fr": "Boisson allemande de jus de pomme mélangé à de l'eau minérale gazeuse;"
       },
       "sources": [
         {
@@ -16543,8 +16543,8 @@ const CUISINE_NOTES = {
     "fish and chips": {
       "local": "fish and chips",
       "note": {
-        "en": "Britain's national dish of battered deep-fried fish (usually cod or haddock) served with chips; the pairing emerged in 1860s London, with…",
-        "fr": "Plat national britannique de poisson frit en pate (souvent cabillaud ou eglefin) servi avec des frites; l'association nait dans le Londres…"
+        "en": "Britain's national dish of battered deep-fried fish (usually cod or haddock) served with chips;",
+        "fr": "Plat national britannique de poisson frit en pate (souvent cabillaud ou eglefin) servi avec des frites;"
       },
       "sources": [
         {
@@ -16560,8 +16560,8 @@ const CUISINE_NOTES = {
     "full english breakfast": {
       "local": "Full English breakfast",
       "note": {
-        "en": "A cooked breakfast of bacon, eggs, sausage, baked beans, tomato, black pudding and toast; popularised across British classes in the early…",
-        "fr": "Un petit-déjeuner chaud de bacon, œufs, saucisse, haricots, tomate, boudin noir et toast; popularisé en Grande-Bretagne au début du XXe…"
+        "en": "A cooked breakfast of bacon, eggs, sausage, baked beans, tomato, black pudding and toast;",
+        "fr": "Un petit-déjeuner chaud de bacon, œufs, saucisse, haricots, tomate, boudin noir et toast;"
       },
       "sources": [
         {
@@ -16578,7 +16578,7 @@ const CUISINE_NOTES = {
       "local": "shepherd's pie",
       "note": {
         "en": "British baked dish of minced lamb or mutton topped with mashed potato; the name is first recorded in the 19th century.",
-        "fr": "Plat britannique cuit au four, d'agneau ou de mouton hache nappe de puree de pommes de terre ; nom atteste au XIXe siecle."
+        "fr": "Plat britannique cuit au four, d'agneau ou de mouton haché nappe de puree de pommes de terre ; nom atteste au XIXe siecle."
       },
       "sources": [
         {
@@ -16604,7 +16604,7 @@ const CUISINE_NOTES = {
       "local": "Beef Wellington",
       "note": {
         "en": "A British dish of beef fillet coated in pâté and duxelles, wrapped in puff pastry and baked; named in honour of the Duke of Wellington.",
-        "fr": "Un plat britannique de filet de bœuf enrobé de pâté et de duxelles, enveloppé de pâte feuilletée et cuit; nommé en l'honneur du duc de…"
+        "fr": "Un plat britannique de filet de bœuf enrobé de pâté et de duxelles, enveloppé de pâte feuilletée et cuit;"
       },
       "sources": [
         {
@@ -16621,7 +16621,7 @@ const CUISINE_NOTES = {
       "local": "Bangers and mash",
       "note": {
         "en": "A traditional British dish of sausages and mashed potato with onion gravy; \"bangers\" recalls WWI-era sausages that burst when cooked.",
-        "fr": "Plat britannique traditionnel de saucisses et puree de pommes de terre avec sauce a l'oignon; \"bangers\" evoque les saucisses qui eclataient…"
+        "fr": "Plat britannique traditionnel de saucisses et puree de pommes de terre avec sauce a l'oignon;"
       },
       "sources": [
         {
@@ -16637,8 +16637,8 @@ const CUISINE_NOTES = {
     "toad in the hole": {
       "local": "Toad in the hole",
       "note": {
-        "en": "A British dish of sausages baked in Yorkshire-pudding batter. The name dates to the 18th century (meat cooked in batter); Mrs Beeton's 1861…",
-        "fr": "Plat britannique de saucisses cuites dans une pate a Yorkshire pudding. Le nom remonte au XVIIIe siecle (viande cuite dans une pate); le…"
+        "en": "A British dish of sausages baked in Yorkshire-pudding batter. The name dates to the 18th century (meat cooked in batter);",
+        "fr": "Plat britannique de saucisses cuites dans une pate a Yorkshire pudding. Le nom remonte au XVIIIe siecle (viande cuite dans une pate);"
       },
       "sources": [
         {
@@ -16655,7 +16655,7 @@ const CUISINE_NOTES = {
       "local": "Yorkshire pudding",
       "note": {
         "en": "A baked English batter of eggs, flour and milk cooked in dripping; named in Hannah Glasse's 1747 cookbook and served with roast meat.",
-        "fr": "Pate anglaise cuite a base d'oeufs, farine et lait dans la graisse de roti; nommee dans le livre de Hannah Glasse en 1747, servie avec le…"
+        "fr": "Pate anglaise cuite a base d'oeufs, farine et lait dans la graisse de roti;"
       },
       "sources": [
         {
@@ -16698,7 +16698,7 @@ const CUISINE_NOTES = {
       "local": "Cornish pasty",
       "note": {
         "en": "A D-shaped baked pastry of beef, potato, swede and onion from Cornwall; tied to 19th-century tin miners and PGI-protected since 2011.",
-        "fr": "Chausson cuit en D garni de boeuf, pomme de terre, rutabaga et oignon des Cornouailles; lie aux mineurs d'etain du XIXe, IGP depuis 2011."
+        "fr": "Chausson cuit en D garni de bœuf, pomme de terre, rutabaga et oignon des Cornouailles; lie aux mineurs d'etain du XIXe, IGP depuis 2011."
       },
       "sources": [
         {
@@ -16714,7 +16714,7 @@ const CUISINE_NOTES = {
     "scotch egg": {
       "local": "Scotch egg",
       "note": {
-        "en": "A British snack of a soft- or hard-boiled egg wrapped in sausage meat, breadcrumbed and fried; Fortnum & Mason claims to have created it in…",
+        "en": "A British snack of a soft- or hard-boiled egg wrapped in sausage meat, breadcrumbed and fried;",
         "fr": "En-cas britannique : un œuf mollet ou dur enrobé de chair à saucisse, pané et frit ; Fortnum & Mason prétend l'avoir créé en 1738."
       },
       "sources": [
@@ -16731,8 +16731,8 @@ const CUISINE_NOTES = {
     "haggis": {
       "local": "haggis",
       "note": {
-        "en": "Scotland's national savoury pudding of minced sheep's pluck (heart, liver and lungs), oatmeal and suet, traditionally encased in a sheep's…",
-        "fr": "Pudding salé national écossais d'abats de mouton hachés (cœur, foie et poumons), d'avoine et de suif, traditionnellement enfermé dans une…"
+        "en": "Scotland's national savoury pudding of minced sheep's pluck (heart, liver and lungs)",
+        "fr": "Pudding salé national écossais d'abats de mouton hachés (cœur, foie et poumons)"
       },
       "sources": [
         {
@@ -16765,8 +16765,8 @@ const CUISINE_NOTES = {
     "chicken tikka masala": {
       "local": "चिकन टिक्का मसाला (Chicken Tikka Masala)",
       "note": {
-        "en": "Chunks of marinated grilled chicken (tikka) in a spiced creamy tomato sauce, widely credited as a British-Indian invention and a UK…",
-        "fr": "Morceaux de poulet grille marine (tikka) dans une sauce tomate cremeuse epicee, considere comme une invention anglo-indienne et plat…"
+        "en": "Chunks of marinated grilled chicken (tikka)",
+        "fr": "Morceaux de poulet grillé mariné (tikka)"
       },
       "sources": [
         {
@@ -16783,7 +16783,7 @@ const CUISINE_NOTES = {
       "local": "balti (बाल्टी / بالٹی)",
       "note": {
         "en": "A British Pakistani curry developed in 1970s Birmingham, cooked and served in a thin steel 'balti' bowl (Hindi/Urdu for bucket).",
-        "fr": "Un curry britannico-pakistanais né dans le Birmingham des années 1970, cuit et servi dans un bol en acier « balti » (« seau » en…"
+        "fr": "Un curry britannico-pakistanais né dans le Birmingham des années 1970."
       },
       "sources": [
         {
@@ -16817,7 +16817,7 @@ const CUISINE_NOTES = {
       "local": "Victoria sponge",
       "note": {
         "en": "A British layer cake of two sponge halves filled with jam (and often cream), named after Queen Victoria, who enjoyed it at afternoon tea.",
-        "fr": "Gateau anglais a deux genoises fourrees de confiture (et souvent de creme), nomme d'apres la reine Victoria, qui l'appreciait au the."
+        "fr": "Gateau anglais a deux genoises fourrees de confiture (et souvent de creme), nommé d'apres la reine Victoria, qui l'appreciait au the."
       },
       "sources": [
         {
@@ -16851,7 +16851,7 @@ const CUISINE_NOTES = {
       "local": "Sticky toffee pudding",
       "note": {
         "en": "A moist English sponge cake made with chopped dates, covered in toffee sauce, popularised in Cumbria's Lake District from the 1970s.",
-        "fr": "Un moelleux gateau eponge anglais aux dattes hachees, nappe de sauce au caramel, popularise dans le Lake District de Cumbria des annees…"
+        "fr": "Un moelleux gateau eponge anglais aux dattes hachées, nappe de sauce au caramel."
       },
       "sources": [
         {
@@ -16867,8 +16867,8 @@ const CUISINE_NOTES = {
     "trifle": {
       "local": "trifle",
       "note": {
-        "en": "A British layered dessert of sponge, fruit, custard and cream. The name first appears in Thomas Dawson's 1585 The Good Huswifes Jewell…",
-        "fr": "Dessert britannique en couches de génoise, fruits, crème anglaise et chantilly. Le nom apparaît dès 1585 dans The Good Huswifes Jewell de…"
+        "en": "A British layered dessert of sponge, fruit, custard and cream.",
+        "fr": "Dessert britannique en couches de génoise, fruits, crème anglaise et chantilly."
       },
       "sources": [
         {
@@ -16885,7 +16885,7 @@ const CUISINE_NOTES = {
       "local": "crumpet",
       "note": {
         "en": "A small round yeast-leavened griddle bread with a holed top, eaten toasted with butter; a British teatime staple since the Victorian era.",
-        "fr": "Petit pain rond à la levure cuit à la plaque, criblé de trous sur le dessus, grillé et beurré; un classique du thé britannique depuis l'ère…"
+        "fr": "Petit pain rond à la levure cuit à la plaque, criblé de trous sur le dessus, grillé et beurré;"
       },
       "sources": [
         {
@@ -16902,7 +16902,7 @@ const CUISINE_NOTES = {
       "local": "Marmite on toast",
       "note": {
         "en": "British breakfast staple: yeast-extract spread (invented 1902 in Burton upon Trent) thinly spread on hot buttered toast.",
-        "fr": "Classique du petit-dejeuner britannique : pate d'extrait de levure (creee en 1902 a Burton upon Trent) tartinee finement sur du pain grille…"
+        "fr": "Classique du petit-dejeuner britannique : pate d'extrait de levure (créée en 1902 a Burton upon Trent)"
       },
       "sources": [
         {
@@ -16918,8 +16918,8 @@ const CUISINE_NOTES = {
     "english breakfast tea": {
       "local": "English Breakfast Tea",
       "note": {
-        "en": "A full-bodied blend of black teas (typically Assam, Ceylon and Kenyan), traditionally drunk with milk; first popularised in the 19th…",
-        "fr": "Un melange corse de thes noirs (generalement Assam, Ceylan et Kenya), traditionnellement bu avec du lait, popularise au XIXe siecle."
+        "en": "A full-bodied blend of black teas (typically Assam, Ceylon and Kenyan), traditionally drunk with milk;",
+        "fr": "Un mélangé corse de thes noirs (generalement Assam, Ceylan et Kenya), traditionnellement bu avec du lait, popularise au XIXe siecle."
       },
       "sources": [
         {
@@ -16932,7 +16932,7 @@ const CUISINE_NOTES = {
       "local": "Earl Grey tea",
       "note": {
         "en": "A British black tea flavoured with oil of bergamot, traditionally named after 1830s Prime Minister Charles, 2nd Earl Grey.",
-        "fr": "Un thé noir britannique parfumé à l'huile de bergamote, traditionnellement nommé d'après Charles, 2e comte Grey, Premier ministre des…"
+        "fr": "Un thé noir britannique parfumé à l'huile de bergamote, traditionnellement nommé d'après Charles, 2e comte Grey."
       },
       "sources": [
         {
@@ -16949,7 +16949,7 @@ const CUISINE_NOTES = {
       "local": "Pimm's (Pimm's No. 1 Cup)",
       "note": {
         "en": "A gin-based English fruit-cup liqueur invented by London oyster-bar owner James Pimm around 1823-40, served in a summer cocktail.",
-        "fr": "Liqueur anglaise de fruits a base de gin, creee par James Pimm, tenancier d'un bar a huitres londonien, vers 1823-1840."
+        "fr": "Liqueur anglaise de fruits a base de gin, créée par James Pimm, tenancier d'un bar a huitres londonien, vers 1823-1840."
       },
       "sources": [
         {
@@ -16965,8 +16965,8 @@ const CUISINE_NOTES = {
     "british ale": {
       "local": "British ale",
       "note": {
-        "en": "A top-fermented beer from malted barley; historically the unhopped English brew, distinct from hopped \"beer\" until hops arrived in the…",
-        "fr": "Bière de fermentation haute issue d'orge maltée; jadis le brassin anglais sans houblon, distinct de la \"bière\" houblonnée avant le houblon…"
+        "en": "A top-fermented beer from malted barley;",
+        "fr": "Bière de fermentation haute issue d'orge maltée;"
       },
       "sources": [
         {
@@ -16984,8 +16984,8 @@ const CUISINE_NOTES = {
     "bacalhau": {
       "local": "bacalhau",
       "note": {
-        "en": "Portuguese dried and salted cod, a national staple tied to the 16th-century Portuguese cod fisheries off Newfoundland (Bacalhau da Terra…",
-        "fr": "Morue séchée et salée portugaise, aliment national lié aux pêcheries portugaises de morue de Terre-Neuve au XVIe siècle (Bacalhau da Terra…"
+        "en": "Portuguese dried and salted cod, a national staple tied to the 16th-century Portuguese cod fisheries off Newfoundland (Bacalhau da Terra",
+        "fr": "Morue séchée et salée portugaise, aliment national lié aux pêcheries portugaises de morue de Terre-Neuve au XVIe siècle (Bacalhau da Terra"
       },
       "sources": [
         {
@@ -17019,7 +17019,7 @@ const CUISINE_NOTES = {
       "local": "Bacalhau com natas",
       "note": {
         "en": "A Portuguese oven-baked casserole of salt cod, fried potatoes and onions layered with cream, often seasoned with nutmeg.",
-        "fr": "Gratin portugais de morue salee, pommes de terre frites et oignons nappes de creme, souvent releve de muscade."
+        "fr": "Gratin portugais de morue salee, pommes de terre frites et oignons nappes de creme, souvent relevé de muscade."
       },
       "sources": [
         {
@@ -17032,7 +17032,7 @@ const CUISINE_NOTES = {
       "local": "francesinha",
       "note": {
         "en": "A Porto sandwich of bread, layered hot meats and melted cheese drenched in a beer-tomato sauce, created in the 1950s.",
-        "fr": "Sandwich de Porto au pain, viandes chaudes en couches et fromage fondu nappe d'une sauce biere-tomate, cree dans les annees 1950."
+        "fr": "Sandwich de Porto au pain, viandes chaudes en couches et fromage fondu nappe d'une sauce biere-tomate, créé dans les annees 1950."
       },
       "sources": [
         {
@@ -17062,7 +17062,7 @@ const CUISINE_NOTES = {
       "local": "cataplana",
       "note": {
         "en": "A Portuguese seafood stew from the Algarve, steam-cooked in a hinged clamshell copper pan rooted in Moorish-era North African cookware.",
-        "fr": "Un ragout de fruits de mer portugais de l'Algarve, cuit a la vapeur dans une marmite en cuivre articulee d'origine maure nord-africaine."
+        "fr": "Un ragout de fruits de mer portugais de l'Algarve, cuit à la vapeur dans une marmite en cuivre articulee d'origine maure nord-africaine."
       },
       "sources": [
         {
@@ -17078,8 +17078,8 @@ const CUISINE_NOTES = {
     "arroz de marisco": {
       "local": "arroz de marisco",
       "note": {
-        "en": "A soupy Portuguese rice-and-shellfish dish, similar to paella, named one of the 7 Wonders of Portuguese Gastronomy (Sete Maravilhas da…",
-        "fr": "Plat portugais de riz et fruits de mer en sauce, proche de la paella, elu l'une des 7 merveilles de la gastronomie portugaise (Sete…"
+        "en": "A soupy Portuguese rice-and-shellfish dish, similar to paella, named one of the 7 Wonders of Portuguese Gastronomy (Sete Maravilhas da",
+        "fr": "Plat portugais de riz et fruits de mer en sauce, proche de la paella."
       },
       "sources": [
         {
@@ -17113,7 +17113,7 @@ const CUISINE_NOTES = {
       "local": "alheira",
       "note": {
         "en": "A Portuguese smoked sausage of poultry/game and bread, invented by Sephardic Jews after 1497 to mimic pork and evade the Inquisition.",
-        "fr": "Saucisse fumée portugaise de volaille/gibier et de pain, inventee par les juifs sefarades apres 1497 pour imiter le porc et tromper…"
+        "fr": "Saucisse fumée portugaise de volaille/gibier et de pain, inventee par les juifs sefarades apres 1497 pour imiter le porc et tromper"
       },
       "sources": [
         {
@@ -17147,7 +17147,7 @@ const CUISINE_NOTES = {
       "local": "bifana",
       "note": {
         "en": "A Portuguese sandwich of thin pork slices simmered in garlic and wine on a crusty roll, often credited to Vendas Novas in the Alentejo.",
-        "fr": "Un sandwich portugais de fines tranches de porc mijotees a l'ail et au vin dans un petit pain croustillant, souvent attribue a Vendas Novas…"
+        "fr": "Un sandwich portugais de fines tranches de porc mijotées a l'ail et au vin dans un petit pain croustillant."
       },
       "sources": [
         {
@@ -17164,7 +17164,7 @@ const CUISINE_NOTES = {
       "local": "pastel de nata (plural: pastéis de nata)",
       "note": {
         "en": "A Portuguese egg-custard tart in flaky puff pastry, created before the 18th century by monks at the Jerónimos Monastery in Belém, Lisbon.",
-        "fr": "Une tartelette portugaise à la crème pâtissière dans une pâte feuilletée, créée avant le XVIIIe siècle par les moines du monastère des…"
+        "fr": "Une tartelette portugaise à la crème pâtissière dans une pâte feuilletée."
       },
       "sources": [
         {
@@ -17181,7 +17181,7 @@ const CUISINE_NOTES = {
       "local": "Pastéis de Belém",
       "note": {
         "en": "Portuguese flaky-pastry custard tarts, made since 1837 at the Antiga Confeitaria de Belém in Lisbon from a Jerónimos Monastery recipe.",
-        "fr": "Tartelettes portugaises à la crème en pâte feuilletée, faites depuis 1837 à l'Antiga Confeitaria de Belém à Lisbonne, d'une recette du…"
+        "fr": "Tartelettes portugaises à la crème en pâte feuilletée, faites depuis 1837 à l'Antiga Confeitaria de Belém à Lisbonne."
       },
       "sources": [
         {
@@ -17215,7 +17215,7 @@ const CUISINE_NOTES = {
       "local": "bolinhos de bacalhau",
       "note": {
         "en": "Portuguese deep-fried fritters of salt cod, potato, egg and parsley, served as an appetizer; called pasteis de bacalhau in the south.",
-        "fr": "Beignets portugais frits de morue salee, pomme de terre, oeuf et persil, servis en entree; nommes pasteis de bacalhau dans le sud."
+        "fr": "Beignets portugais frits de morue salee, pomme de terre, oeuf et persil, servis en entree; nommés pasteis de bacalhau dans le sud."
       },
       "sources": [
         {
@@ -17244,8 +17244,8 @@ const CUISINE_NOTES = {
     "piri-piri chicken": {
       "local": "Frango piri-piri",
       "note": {
-        "en": "Portuguese butterflied grilled chicken marinated in chilli-garlic piri-piri sauce, popularised in the Algarve from African colonial…",
-        "fr": "Poulet portugais grille en crapaudine, marine dans une sauce piri-piri pimentee a l'ail, popularise en Algarve via les colonies africaines."
+        "en": "Portuguese butterflied grilled chicken marinated in chilli-garlic piri-piri sauce.",
+        "fr": "Poulet portugais grillé en crapaudine, mariné dans une sauce piri-piri pimentee a l'ail, popularise en Algarve via les colonies africaines."
       },
       "sources": [
         {
@@ -17278,8 +17278,8 @@ const CUISINE_NOTES = {
     "arroz doce": {
       "local": "arroz doce",
       "note": {
-        "en": "Creamy Portuguese rice pudding flavoured with lemon and cinnamon, traditionally dusted with cinnamon patterns and served at Christmas and…",
-        "fr": "Riz au lait portugais cremeux parfume au citron et a la cannelle, decore de motifs de cannelle et servi a Noel et aux fetes."
+        "en": "Creamy Portuguese rice pudding flavoured with lemon and cinnamon, traditionally dusted with cinnamon patterns and served at Christmas and",
+        "fr": "Riz au lait portugais cremeux parfume au citron et à la cannelle, decore de motifs de cannelle et servi a Noel et aux fetes."
       },
       "sources": [
         {
@@ -17295,7 +17295,7 @@ const CUISINE_NOTES = {
     "pão alentejano": {
       "local": "Pão Alentejano",
       "note": {
-        "en": "A traditional wheat sourdough bread from Portugal's Alentejo region, baked in wood-fired ovens and folded so one end rises higher (\"pão de…",
+        "en": "A traditional wheat sourdough bread from Portugal's Alentejo region, baked in wood-fired ovens and folded so one end rises higher (\"pão de",
         "fr": "Pain de blé au levain traditionnel de la région portugaise de l'Alentejo, cuit au four à bois et plié pour qu'une extrémité soit plus haute."
       },
       "sources": [
@@ -17313,7 +17313,7 @@ const CUISINE_NOTES = {
       "local": "Caldeirada",
       "note": {
         "en": "Portuguese (and Galician) fishermen's stew of mixed fish, shellfish and potatoes, named after the \"caldeira\" cooking pot.",
-        "fr": "Ragout de pecheurs portugais (et galicien) melant poissons, fruits de mer et pommes de terre, nomme d'apres le chaudron \"caldeira\"."
+        "fr": "Ragout de pecheurs portugais (et galicien) melant poissons, fruits de mer et pommes de terre, nommé d'apres le chaudron \"caldeira\"."
       },
       "sources": [
         {
@@ -17400,7 +17400,7 @@ const CUISINE_NOTES = {
       "local": "cheeseburger",
       "note": {
         "en": "A hamburger topped with a slice of melted cheese, reputedly first made in 1920s Pasadena, California, by Lionel Sternberger.",
-        "fr": "Un hamburger garni d'une tranche de fromage fondu, qui aurait ete cree dans les annees 1920 a Pasadena, en Californie, par Lionel…"
+        "fr": "Un hamburger garni d'une tranche de fromage fondu, qui aurait ete créé dans les annees 1920 a Pasadena, en Californie."
       },
       "sources": [
         {
@@ -17417,7 +17417,7 @@ const CUISINE_NOTES = {
       "local": "Hot dog",
       "note": {
         "en": "An American sausage of German origin (frankfurter/wiener) served in a sliced bun; the name dates to US street vendors around 1884.",
-        "fr": "Saucisse americaine d'origine allemande (francfort/Vienne) servie dans un pain fendu; le nom remonte aux vendeurs de rue americains vers…"
+        "fr": "Saucisse americaine d'origine allemande (francfort/Vienne) servie dans un pain fendu;"
       },
       "sources": [
         {
@@ -17433,8 +17433,8 @@ const CUISINE_NOTES = {
     "bbq brisket": {
       "local": "Texas smoked brisket",
       "note": {
-        "en": "Slow-smoked beef brisket, an iconic Texas barbecue dish. It was first smoked in the U.S. by Jewish immigrants who arrived in Texas in the…",
-        "fr": "Poitrine de boeuf fumee lentement, plat emblematique du barbecue texan. Elle fut d'abord fumee aux Etats-Unis par des immigrants juifs…"
+        "en": "Slow-smoked beef brisket, an iconic Texas barbecue dish. It was first smoked in the U.S.",
+        "fr": "Poitrine de bœuf fumee lentement, plat emblematique du barbecue texan."
       },
       "sources": [
         {
@@ -17450,8 +17450,8 @@ const CUISINE_NOTES = {
     "bbq pulled pork": {
       "local": "BBQ pulled pork",
       "note": {
-        "en": "A Southern US barbecue dish of pork shoulder slow-smoked until tender, then shredded and dressed in sauce, rooted in indigenous barbacoa…",
-        "fr": "Plat de barbecue du Sud des États-Unis: épaule de porc fumée lentement jusqu'à tendreté, effilochée et nappée de sauce, issu du barbacoa…"
+        "en": "A Southern US barbecue dish of pork shoulder slow-smoked until tender, then shredded and dressed in sauce.",
+        "fr": "Plat de barbecue du Sud des États-Unis: épaule de porc fumée lentement jusqu'à tendreté, effilochée et nappée de sauce."
       },
       "sources": [
         {
@@ -17467,8 +17467,8 @@ const CUISINE_NOTES = {
     "bbq ribs": {
       "local": "barbecue ribs",
       "note": {
-        "en": "Pork or beef ribs slow-cooked over smoke with a spice rub or sauce; a Southern US staple rooted in African American and Indigenous (Taino…",
-        "fr": "Cotes de porc ou de boeuf fumees lentement avec epices ou sauce ; plat emblematique du Sud americain issu des traditions afro-americaines…"
+        "en": "Pork or beef ribs slow-cooked over smoke with a spice rub or sauce;",
+        "fr": "Cotes de porc ou de bœuf fumees lentement avec épices ou sauce ;"
       },
       "sources": [
         {
@@ -17502,7 +17502,7 @@ const CUISINE_NOTES = {
       "local": "fried chicken",
       "note": {
         "en": "Southern US dish of seasoned flour-coated chicken pieces deep- or pan-fried; born from Scottish frying and West African seasoning.",
-        "fr": "Plat du Sud des USA: morceaux de poulet panes a la farine epicee et frits; ne du frire ecossais et de l'assaisonnement ouest-africain."
+        "fr": "Plat du Sud des USA: morceaux de poulet panes à la farine épicée et frits; ne du frire ecossais et de l'assaisonnement ouest-africain."
       },
       "sources": [
         {
@@ -17531,8 +17531,8 @@ const CUISINE_NOTES = {
     "philly cheesesteak": {
       "local": "Philly Cheesesteak",
       "note": {
-        "en": "A Philadelphia sandwich of thinly sliced griddled beef on a long roll. The steak sandwich was created around 1930 by brothers Pat and Harry…",
-        "fr": "Un sandwich de Philadelphie composé de bœuf émincé grillé sur un pain long. Le sandwich au steak fut créé vers 1930 par les frères Pat et…"
+        "en": "A Philadelphia sandwich of thinly sliced griddled beef on a long roll.",
+        "fr": "Un sandwich de Philadelphie composé de bœuf émincé grillé sur un pain long."
       },
       "sources": [
         {
@@ -17565,8 +17565,8 @@ const CUISINE_NOTES = {
     "chicago deep dish pizza": {
       "local": "Chicago Deep-Dish Pizza",
       "note": {
-        "en": "A thick, pan-baked pizza with a tall buttery crust, cheese, fillings and chunky tomato sauce on top, created in 1943 at Pizzeria Uno…",
-        "fr": "Pizza épaisse cuite au moule, à croûte haute et beurrée, garnie de fromage et de sauce tomate sur le dessus, créée en 1943 au Pizzeria Uno…"
+        "en": "A thick, pan-baked pizza with a tall buttery crust, cheese, fillings and chunky tomato sauce on top.",
+        "fr": "Pizza épaisse cuite au moule, à croûte haute et beurrée, garnie de fromage et de sauce tomate sur le dessus."
       },
       "sources": [
         {
@@ -17599,8 +17599,8 @@ const CUISINE_NOTES = {
     "lobster roll": {
       "local": "lobster roll",
       "note": {
-        "en": "New England sandwich of lobster meat (cold with mayo in Maine, warm with butter in Connecticut) in a split-top bun, dating to 1920s…",
-        "fr": "Sandwich de Nouvelle-Angleterre au homard (froid a la mayonnaise dans le Maine, chaud au beurre dans le Connecticut) en pain fendu, ne dans…"
+        "en": "New England sandwich of lobster meat (cold with mayo in Maine, warm with butter in Connecticut)",
+        "fr": "Sandwich de Nouvelle-Angleterre au homard (froid à la mayonnaise dans le Maine, chaud au beurre dans le Connecticut)"
       },
       "sources": [
         {
@@ -17629,8 +17629,8 @@ const CUISINE_NOTES = {
     "jambalaya": {
       "local": "jambalaya",
       "note": {
-        "en": "Louisiana rice dish of meat, sausage and seafood with vegetables; Creole and Cajun roots, often linked to Spanish settlers' adaptation of…",
-        "fr": "Plat de riz louisianais de viande, saucisse et fruits de mer aux legumes; racines creoles et cajuns, souvent lie a une adaptation de la…"
+        "en": "Louisiana rice dish of meat, sausage and seafood with vegetables;",
+        "fr": "Plat de riz louisianais de viande, saucisse et fruits de mer aux legumes;"
       },
       "sources": [
         {
@@ -17647,7 +17647,7 @@ const CUISINE_NOTES = {
       "local": "po' boy (poor boy)",
       "note": {
         "en": "A New Orleans submarine sandwich on French bread, said to be created by the Martin brothers to feed strikers in the 1929 streetcar strike.",
-        "fr": "Un sandwich sous-marin de la Nouvelle-Orleans sur pain francais, cree, dit-on, par les freres Martin pour nourrir les grevistes du tramway…"
+        "fr": "Un sandwich sous-marin de la Nouvelle-Orleans sur pain francais, créé, dit-on."
       },
       "sources": [
         {
@@ -17663,8 +17663,8 @@ const CUISINE_NOTES = {
     "beignet": {
       "local": "beignet",
       "note": {
-        "en": "A square of deep-fried yeasted dough dusted with powdered sugar, brought to New Orleans by French-speaking colonists in the 18th century…",
-        "fr": "Carre de pate levee frite et saupoudre de sucre glace, apporte a la Nouvelle-Orleans par les colons francophones au 18e siecle et devenu un…"
+        "en": "A square of deep-fried yeasted dough dusted with powdered sugar, brought to New Orleans by French-speaking colonists in the 18th century",
+        "fr": "Carre de pate levee frite et saupoudre de sucre glace, apporte à la Nouvelle-Orleans par les colons francophones au 18e siecle et devenu un"
       },
       "sources": [
         {
@@ -17681,7 +17681,7 @@ const CUISINE_NOTES = {
       "local": "Biscuits and gravy",
       "note": {
         "en": "A Southern US breakfast of soft biscuits under white pork-sausage gravy, rooted in late-1800s Appalachia.",
-        "fr": "Petit-déjeuner du Sud des États-Unis : biscuits moelleux nappés de sauce blanche à la chair à saucisse, né dans l'Appalachie de la fin du…"
+        "fr": "Petit-déjeuner du Sud des États-Unis : biscuits moelleux nappés de sauce blanche à la chair à saucisse."
       },
       "sources": [
         {
@@ -17731,8 +17731,8 @@ const CUISINE_NOTES = {
     "bagel with lox": {
       "local": "bagel with lox (lox from Yiddish לאַקס, laks)",
       "note": {
-        "en": "A uniquely American Jewish-deli dish of a bagel with brine-cured salmon (lox, from Yiddish laks) and cream cheese, popularized in 1900s New…",
-        "fr": "Plat judéo-américain de deli: un bagel garni de saumon en saumure (lox, du yiddish laks) et de fromage à la crème, popularisé à New York…"
+        "en": "A uniquely American Jewish-deli dish of a bagel with brine-cured salmon (lox, from Yiddish laks)",
+        "fr": "Plat judéo-américain de deli: un bagel garni de saumon en saumure (lox, du yiddish laks)"
       },
       "sources": [
         {
@@ -17749,7 +17749,7 @@ const CUISINE_NOTES = {
       "local": "Pastrami on rye",
       "note": {
         "en": "A New York Jewish-deli sandwich of spiced cured beef on rye, first sold by immigrant butcher Sussman Volk around 1887-1888.",
-        "fr": "Un sandwich des delis juifs de New York, au boeuf saumure epice sur pain de seigle, vendu vers 1887-1888 par le boucher immigre Sussman…"
+        "fr": "Un sandwich des delis juifs de New York, au bœuf saumure épice sur pain de seigle."
       },
       "sources": [
         {
@@ -17766,7 +17766,7 @@ const CUISINE_NOTES = {
       "local": "Reuben",
       "note": {
         "en": "Grilled American sandwich of corned beef, sauerkraut, Swiss cheese and Russian dressing on rye, widely credited to 1920s Omaha, Nebraska.",
-        "fr": "Sandwich americain grille au boeuf sale, choucroute, gruyere suisse et sauce russe sur pain de seigle, attribue a Omaha (Nebraska) dans les…"
+        "fr": "Sandwich americain grillé au bœuf sale, choucroute, gruyere suisse et sauce russe sur pain de seigle, attribue a Omaha (Nebraska)"
       },
       "sources": [
         {
@@ -17783,7 +17783,7 @@ const CUISINE_NOTES = {
       "local": "apple pie",
       "note": {
         "en": "A double-crusted baked pastry filled with spiced apples; though an American icon, the earliest recipe is English, dating to the late 1300s.",
-        "fr": "Une tarte cuite a double croute garnie de pommes epicees; icone americaine, mais sa plus ancienne recette est anglaise, datant de la fin…"
+        "fr": "Une tarte cuite a double croute garnie de pommes épicées;"
       },
       "sources": [
         {
@@ -17851,7 +17851,7 @@ const CUISINE_NOTES = {
       "local": "American craft beer",
       "note": {
         "en": "Beer made by small, independent U.S. breweries; the movement began in the late 1970s after homebrewing was legalized in 1978.",
-        "fr": "Biere produite par de petites brasseries americaines independantes; le mouvement debuta a la fin des annees 1970 apres la legalisation du…"
+        "fr": "Biere produite par de petites brasseries americaines independantes;"
       },
       "sources": [
         {
@@ -17882,8 +17882,8 @@ const CUISINE_NOTES = {
     "meat pie": {
       "local": "Meat pie",
       "note": {
-        "en": "A handheld pie of diced or minced beef in thick gravy, built on a firm shortcrust base with a flaky puff-pastry lid; an Australian staple…",
-        "fr": "Une tourte individuelle garnie de boeuf hache ou en des dans une sauce epaisse, montee sur un fond de pate brisee ferme et coiffee d'un…"
+        "en": "A handheld pie of diced or minced beef in thick gravy, built on a firm shortcrust base with a flaky puff-pastry lid;",
+        "fr": "Une tourte individuelle garnie de bœuf haché ou en des dans une sauce epaisse."
       },
       "sources": [
         {
@@ -17900,7 +17900,7 @@ const CUISINE_NOTES = {
       "local": "Vegemite on toast",
       "note": {
         "en": "Australian toast spread thinly with Vegemite, a salty yeast-extract paste invented by Cyril Callister in Melbourne in 1922.",
-        "fr": "Tartine australienne tartinee d'une fine couche de Vegemite, une pate salee d'extrait de levure inventee par Cyril Callister a Melbourne en…"
+        "fr": "Tartine australienne tartinee d'une fine couche de Vegemite, une pate salee d'extrait de levure inventee par Cyril Callister a Melbourne en"
       },
       "sources": [
         {
@@ -17916,8 +17916,8 @@ const CUISINE_NOTES = {
     "lamington": {
       "local": "Lamington",
       "note": {
-        "en": "An Australian dessert of sponge cake squares coated in chocolate icing and desiccated coconut, named after Lord Lamington, Governor of…",
-        "fr": "Un dessert australien fait de cubes de gateau eponge enrobes de glacage au chocolat et de noix de coco rapee, nomme d'apres Lord Lamington…"
+        "en": "An Australian dessert of sponge cake squares coated in chocolate icing and desiccated coconut, named after Lord Lamington.",
+        "fr": "Un dessert australien fait de cubes de gateau eponge enrobes de glacage au chocolat et de noix de coco rapee."
       },
       "sources": [
         {
@@ -17934,7 +17934,7 @@ const CUISINE_NOTES = {
       "local": "pavlova",
       "note": {
         "en": "A meringue-based dessert with a crisp crust and soft centre, topped with cream and fruit, named after Russian ballerina Anna Pavlova.",
-        "fr": "Un dessert a base de meringue, croustillant dehors et moelleux dedans, garni de creme et de fruits, nomme d'apres la ballerine russe Anna…"
+        "fr": "Un dessert a base de meringue, croustillant dehors et moelleux dedans, garni de creme et de fruits."
       },
       "sources": [
         {
@@ -17950,8 +17950,8 @@ const CUISINE_NOTES = {
     "anzac biscuit": {
       "local": "Anzac biscuit",
       "note": {
-        "en": "A sweet Australian and New Zealand biscuit of rolled oats, coconut, flour, butter and golden syrup, bound without eggs so it keeps well…",
-        "fr": "Biscuit sucre australien et neo-zelandais a base de flocons d'avoine, noix de coco, farine, beurre et sirop dore, sans oeufs pour mieux se…"
+        "en": "A sweet Australian and New Zealand biscuit of rolled oats, coconut, flour, butter and golden syrup.",
+        "fr": "Biscuit sucre australien et neo-zelandais a base de flocons d'avoine, noix de coco, farine, beurre et sirop dore."
       },
       "sources": [
         {
@@ -17967,8 +17967,8 @@ const CUISINE_NOTES = {
     "barramundi": {
       "local": "barramundi",
       "note": {
-        "en": "A mild, white-fleshed Australian fish (Lates calcarifer); its name comes from the Gangulu Aboriginal language meaning \"large-scaled river…",
-        "fr": "Poisson australien a chair blanche et au gout doux (Lates calcarifer); son nom vient de la langue aborigene gangulu et signifie \"poisson de…"
+        "en": "A mild, white-fleshed Australian fish (Lates calcarifer);",
+        "fr": "Poisson australien a chair blanche et au gout doux (Lates calcarifer);"
       },
       "sources": [
         {
@@ -17984,8 +17984,8 @@ const CUISINE_NOTES = {
     "chiko roll": {
       "local": "Chiko Roll",
       "note": {
-        "en": "Australian deep-fried savoury snack of cabbage, barley, carrot and beef in a thick pastry tube, invented by Frank McEncroe and first sold…",
-        "fr": "En-cas australien frit, fait de chou, orge, carotte et boeuf dans un tube de pate epaisse, invente par Frank McEncroe et vendu des 1951."
+        "en": "Australian deep-fried savoury snack of cabbage, barley, carrot and beef in a thick pastry tube.",
+        "fr": "En-cas australien frit, fait de chou, orge, carotte et bœuf dans un tube de pate epaisse, invente par Frank McEncroe et vendu des 1951."
       },
       "sources": [
         {
@@ -18001,8 +18001,8 @@ const CUISINE_NOTES = {
     "damper": {
       "local": "Damper",
       "note": {
-        "en": "Traditional Australian bush bread of flour, water and salt, kneaded and baked in the coals of a campfire; a 19th-century staple of…",
-        "fr": "Pain de brousse australien traditionnel a base de farine, d'eau et de sel, petri et cuit dans les braises d'un feu de camp ; aliment de…"
+        "en": "Traditional Australian bush bread of flour, water and salt, kneaded and baked in the coals of a campfire;",
+        "fr": "Pain de brousse australien traditionnel a base de farine, d'eau et de sel, petri et cuit dans les braisés d'un feu de camp ;"
       },
       "sources": [
         {
@@ -18018,8 +18018,8 @@ const CUISINE_NOTES = {
     "australian bbq": {
       "local": "Sausage sizzle (Aussie barbie)",
       "note": {
-        "en": "Australian outdoor barbecue tradition; the sausage sizzle — a grilled \"snag\" on white bread with onions — became the election-day…",
-        "fr": "Tradition australienne du barbecue en plein air ; la « sausage sizzle » — saucisse grillée sur pain blanc aux oignons — devenue la «…"
+        "en": "Australian outdoor barbecue tradition;",
+        "fr": "Tradition australienne du barbecue en plein air ;"
       },
       "sources": [
         {
@@ -18036,7 +18036,7 @@ const CUISINE_NOTES = {
       "local": "snags on bread (sausage sizzle)",
       "note": {
         "en": "Australian/NZ sausage (\"snag\") grilled and served on a single slice of white bread with onions and sauce, a fundraiser staple.",
-        "fr": "Saucisse australienne/néo-zélandaise (« snag ») grillée, servie sur une tranche de pain blanc avec oignons et sauce, vedette des collectes…"
+        "fr": "Saucisse australienne/néo-zélandaise (« snag »)"
       },
       "sources": [
         {
@@ -18053,7 +18053,7 @@ const CUISINE_NOTES = {
       "local": "Fairy bread",
       "note": {
         "en": "Australian children's party treat of buttered white bread cut into triangles and topped with hundreds and thousands; first named in 1929.",
-        "fr": "Friandise australienne pour fetes d'enfants: pain blanc beurre coupe en triangles et couvert de vermicelles colores; nomme des 1929."
+        "fr": "Friandise australienne pour fetes d'enfants: pain blanc beurre coupe en triangles et couvert de vermicelles colores; nommé des 1929."
       },
       "sources": [
         {
@@ -18069,8 +18069,8 @@ const CUISINE_NOTES = {
     "tim tam": {
       "local": "Tim Tam",
       "note": {
-        "en": "Australian chocolate biscuit made of two malted biscuits sandwiching a chocolate cream filling, coated in chocolate; introduced by Arnott's…",
-        "fr": "Biscuit australien au chocolat compose de deux biscuits maltes garnis d'une creme chocolatee et enrobes de chocolat; lance par Arnott's et…"
+        "en": "Australian chocolate biscuit made of two malted biscuits sandwiching a chocolate cream filling, coated in chocolate;",
+        "fr": "Biscuit australien au chocolat compose de deux biscuits maltes garnis d'une creme chocolatee et enrobes de chocolat;"
       },
       "sources": [
         {
@@ -18116,8 +18116,8 @@ const CUISINE_NOTES = {
     "aussie burger": {
       "local": "Aussie burger (with the lot)",
       "note": {
-        "en": "Australian hamburger topped with the lot—beef, fried egg, bacon, pineapple and canned beetroot, a style that emerged in 1940s cafes and…",
-        "fr": "Hamburger australien garni du tout : boeuf, oeuf au plat, bacon, ananas et betterave en conserve, un style apparu dans les cafes des annees…"
+        "en": "Australian hamburger topped with the lot—beef, fried egg, bacon, pineapple and canned beetroot.",
+        "fr": "Hamburger australien garni du tout : bœuf, oeuf au plat, bacon, ananas et betterave en conserve."
       },
       "sources": [
         {
@@ -18133,8 +18133,8 @@ const CUISINE_NOTES = {
     "parmigiana": {
       "local": "Chicken parmigiana (\"parma\" / \"parmi\")",
       "note": {
-        "en": "An Australian pub staple of crumbed chicken schnitzel topped with ham, napoli tomato sauce and melted cheese, adapted from Italian eggplant…",
-        "fr": "Plat de pub australien: escalope de poulet panee garnie de jambon, sauce tomate napoli et fromage fondu, derive de l'aubergine alla…"
+        "en": "An Australian pub staple of crumbed chicken schnitzel topped with ham, napoli tomato sauce and melted cheese.",
+        "fr": "Plat de pub australien: escalope de poulet panee garnie de jambon, sauce tomate napoli et fromage fondu."
       },
       "sources": [
         {
@@ -18150,8 +18150,8 @@ const CUISINE_NOTES = {
     "kangaroo steak": {
       "local": "Kangaroo steak",
       "note": {
-        "en": "A lean, gamey Australian game steak eaten since Indigenous times; legal for sale as human food only after South Australia lifted its ban in…",
-        "fr": "Un steak de gibier australien maigre et gibier, consomme depuis les temps autochtones; vendable comme aliment seulement apres la levee de…"
+        "en": "A lean, gamey Australian game steak eaten since Indigenous times;",
+        "fr": "Un steak de gibier australien maigre et gibier, consomme depuis les temps autochtones;"
       },
       "sources": [
         {
@@ -18184,8 +18184,8 @@ const CUISINE_NOTES = {
     "barramundi pie": {
       "local": "barramundi pie",
       "note": {
-        "en": "Australian savoury pie of flaky barramundi and potato; the word \"barramundi\" comes from the Gangulu Aboriginal language of central…",
-        "fr": "Tourte australienne au barramundi feuilleté et à la pomme de terre ; le mot « barramundi » vient de la langue aborigène gangulu du centre…"
+        "en": "Australian savoury pie of flaky barramundi and potato;",
+        "fr": "Tourte australienne au barramundi feuilleté et à la pomme de terre ;"
       },
       "sources": [
         {
@@ -18201,8 +18201,8 @@ const CUISINE_NOTES = {
     "bush tucker": {
       "local": "bush tucker",
       "note": {
-        "en": "Bush tucker is any native Australian plant or animal food, such as quandong, witchetty grubs and kangaroo, eaten by Indigenous Australians…",
-        "fr": "Le bush tucker designe tout aliment vegetal ou animal natif d'Australie (quandong, vers witchetty, kangourou) consomme par les Aborigenes…"
+        "en": "Bush tucker is any native Australian plant or animal food, such as quandong, witchetty grubs and kangaroo.",
+        "fr": "Le bush tucker designe tout aliment vegetal ou animal natif d'Australie (quandong, vers witchetty, kangourou)"
       },
       "sources": [
         {
@@ -18231,8 +18231,8 @@ const CUISINE_NOTES = {
     "long black": {
       "local": "Long black",
       "note": {
-        "en": "An Australian/New Zealand coffee made by pouring a double espresso shot over hot water, which preserves a more pronounced crema than an…",
-        "fr": "Un cafe australien/neo-zelandais fait en versant un double espresso sur de l'eau chaude, ce qui preserve une crema plus prononcee que celle…"
+        "en": "An Australian/New Zealand coffee made by pouring a double espresso shot over hot water.",
+        "fr": "Un cafe australien/neo-zelandais fait en versant un double espresso sur de l'eau chaude."
       },
       "sources": [
         {
@@ -18268,7 +18268,7 @@ const CUISINE_NOTES = {
       "local": "মাছের ঝোল",
       "note": {
         "en": "A Bengali and Odia light, spiced fish stew with potatoes simmered in a turmeric broth, served with rice as an everyday staple.",
-        "fr": "Un ragout de poisson bengali et odia, leger et epice, aux pommes de terre mijotees dans un bouillon au curcuma, servi avec du riz."
+        "fr": "Un ragout de poisson bengali et odia, leger et épice, aux pommes de terre mijotées dans un bouillon au curcuma, servi avec du riz."
       },
       "sources": [
         {
@@ -18315,7 +18315,7 @@ const CUISINE_NOTES = {
       "local": "কষা মাংস",
       "note": {
         "en": "A Bengali slow-cooked dry mutton (goat) curry braised in mustard oil and spices; a staple of Durga Puja and Sunday feasts.",
-        "fr": "Curry bengali de mouton (chèvre) mijoté à sec dans l'huile de moutarde et les épices ; incontournable du Durga Puja et des repas du…"
+        "fr": "Curry bengali de mouton (chèvre) mijoté à sec dans l'huile de moutarde et les épices ;"
       },
       "sources": [
         {
@@ -18332,7 +18332,7 @@ const CUISINE_NOTES = {
       "local": "লুচি আলুর দম",
       "note": {
         "en": "Bengali breakfast pairing of deep-fried maida flatbread (luchi, attested 1660) with a spiced, slightly sweet dum-cooked potato curry.",
-        "fr": "Plat bengali du matin: pain frit de farine maida (luchi, attesté en 1660) accompagné d'un curry de pommes de terre épicé et légèrement…"
+        "fr": "Plat bengali du matin: pain frit de farine maida (luchi, attesté en 1660)"
       },
       "sources": [
         {
@@ -18366,7 +18366,7 @@ const CUISINE_NOTES = {
       "local": "মিষ্টি দই",
       "note": {
         "en": "A Bengali fermented sweet yogurt of boiled milk set with sugar or jaggery in earthenware, traced to 19th-century Bengal.",
-        "fr": "Yaourt sucré bengali fermente, fait de lait bouilli pris au sucre ou au jaggery dans des pots en terre, ne au Bengale du XIXe siecle."
+        "fr": "Yaourt sucré bengali fermenté, fait de lait bouilli pris au sucre ou au jaggery dans des pots en terre, ne au Bengale du XIXe siecle."
       },
       "sources": [
         {
@@ -18379,7 +18379,7 @@ const CUISINE_NOTES = {
       "local": "শুক্তো",
       "note": {
         "en": "A lightly bitter Bengali mixed-vegetable dish, traditionally eaten first in a meal, an Ayurvedic custom of opening with bitters.",
-        "fr": "Plat bengali de legumes melanges legerement amer, traditionnellement mange en debut de repas, coutume ayurvedique des amers."
+        "fr": "Plat bengali de legumes mélangés legerement amer, traditionnellement mange en debut de repas, coutume ayurvedique des amers."
       },
       "sources": [
         {
@@ -18392,7 +18392,7 @@ const CUISINE_NOTES = {
       "local": "আলু পোস্ত",
       "note": {
         "en": "A traditional West Bengal vegetarian dish of potatoes cooked in a mildly spiced poppy-seed (posto) paste with mustard oil.",
-        "fr": "Plat vegetarien traditionnel du Bengale-Occidental: pommes de terre mijotees dans une pate de graines de pavot (posto) legerement epicee a…"
+        "fr": "Plat vegetarien traditionnel du Bengale-Occidental: pommes de terre mijotées dans une pate de graines de pavot (posto)"
       },
       "sources": [
         {
@@ -18408,8 +18408,8 @@ const CUISINE_NOTES = {
     "cholar dal": {
       "local": "ছোলার ডাল",
       "note": {
-        "en": "A sweet-savoury Bengali split-Bengal-gram (chana dal) lentil dish tempered with whole spices, coconut and raisins, eaten at Durga Puja with…",
-        "fr": "Un plat bengali de lentilles de pois chiches cassés (chana dal), doux-salé, relevé d'épices entières, de noix de coco et de raisins secs…"
+        "en": "A sweet-savoury Bengali split-Bengal-gram (chana dal)",
+        "fr": "Un plat bengali de lentilles de pois chiches cassés (chana dal)"
       },
       "sources": [
         {
@@ -18426,7 +18426,7 @@ const CUISINE_NOTES = {
       "local": "বেগুন ভাজা",
       "note": {
         "en": "A Bengali side dish of eggplant slices coated in turmeric and spices, then pan-fried in mustard oil.",
-        "fr": "Plat d'accompagnement bengali de tranches d'aubergine enrobees de curcuma et d'epices, frites a l'huile de moutarde."
+        "fr": "Plat d'accompagnement bengali de tranches d'aubergine enrobees de curcuma et d'épices, frites a l'huile de moutarde."
       },
       "sources": [
         {
@@ -18443,7 +18443,7 @@ const CUISINE_NOTES = {
       "local": "পান্তা ভাত",
       "note": {
         "en": "A Bengali dish of leftover rice soaked and fermented in water overnight, eaten with salt, onion and chili, especially at Pohela Boishakh.",
-        "fr": "Plat bengali de riz cuit trempe et fermente dans l'eau toute la nuit, mange avec sel, oignon et piment, surtout au Pohela Boishakh."
+        "fr": "Plat bengali de riz cuit trempe et fermenté dans l'eau toute la nuit, mange avec sel, oignon et piment, surtout au Pohela Boishakh."
       },
       "sources": [
         {
@@ -18459,8 +18459,8 @@ const CUISINE_NOTES = {
     "biryani kolkata": {
       "local": "কলকাতা বিরিয়ানি",
       "note": {
-        "en": "A mild, fragrant rice-and-meat biryani distinguished by potato and boiled egg, brought to Kolkata by the exiled Awadh Nawab Wajid Ali Shah…",
-        "fr": "Un biryani de riz et de viande, doux et parfumé, marqué par la pomme de terre et l'oeuf dur, apporté à Calcutta par le nawab d'Awadh exilé…"
+        "en": "A mild, fragrant rice-and-meat biryani distinguished by potato and boiled egg.",
+        "fr": "Un biryani de riz et de viande, doux et parfumé, marqué par la pomme de terre et l'oeuf dur."
       },
       "sources": [
         {
@@ -18476,8 +18476,8 @@ const CUISINE_NOTES = {
     "phuchka": {
       "local": "ফুচকা",
       "note": {
-        "en": "A Bengali street snack: a deep-fried hollow puri shell filled with spiced potato and tangy tamarind water, the eastern Indian form of…",
-        "fr": "Un en-cas de rue bengali : une coque de puri creuse frite garnie de pomme de terre épicée et d'eau de tamarin acidulée, la forme orientale…"
+        "en": "A Bengali street snack: a deep-fried hollow puri shell filled with spiced potato and tangy tamarind water.",
+        "fr": "Un en-cas de rue bengali : une coque de puri creuse frite garnie de pomme de terre épicée et d'eau de tamarin acidulée."
       },
       "sources": [
         {
@@ -18493,8 +18493,8 @@ const CUISINE_NOTES = {
     "jhal muri": {
       "local": "ঝালমুড়ি",
       "note": {
-        "en": "A Bengali street snack of puffed rice tossed with Bombay mix (chanachur), chopped vegetables, spices and pungent mustard oil, sold from…",
-        "fr": "En-cas de rue bengali de riz soufflé mélangé à du Bombay mix (chanachur), des légumes coupés, des épices et de l'huile de moutarde…"
+        "en": "A Bengali street snack of puffed rice tossed with Bombay mix (chanachur)",
+        "fr": "En-cas de rue bengali de riz soufflé mélangé à du Bombay mix (chanachur)"
       },
       "sources": [
         {
@@ -18510,8 +18510,8 @@ const CUISINE_NOTES = {
     "sandesh": {
       "local": "সন্দেশ (Shôndesh)",
       "note": {
-        "en": "A Bengali sweet made from chhena (acid-curdled milk curd) and sugar. The chhena-based form is commonly linked to acid milk-curdling…",
-        "fr": "Douceur bengalie a base de chhena (caille de lait obtenu par acidification) et de sucre. Sa forme au chhena est souvent associee aux…"
+        "en": "A Bengali sweet made from chhena (acid-curdled milk curd) and sugar.",
+        "fr": "Douceur bengalie a base de chhena (caille de lait obtenu par acidification) et de sucre."
       },
       "sources": [
         {
@@ -18527,8 +18527,8 @@ const CUISINE_NOTES = {
     "payesh": {
       "local": "পায়েস",
       "note": {
-        "en": "Bengali milk-and-rice pudding, the regional form of kheer/payasam, traditionally made with aromatic Gobindobhog rice and jaggery (nolen…",
-        "fr": "Pudding bengali au lait et au riz, forme régionale du kheer/payasam, fait traditionnellement de riz aromatique Gobindobhog et de jaggery…"
+        "en": "Bengali milk-and-rice pudding, the regional form of kheer/payasam, traditionally made with aromatic Gobindobhog rice and jaggery (nolen",
+        "fr": "Pudding bengali au lait et au riz, forme régionale du kheer/payasam, fait traditionnellement de riz aromatique Gobindobhog et de jaggery"
       },
       "sources": [
         {
@@ -18544,8 +18544,8 @@ const CUISINE_NOTES = {
     "chomchom": {
       "local": "চমচম",
       "note": {
-        "en": "A traditional Bengali sweet of chhena coated with coconut or mawa, whose famed oval Porabari (Tangail) variety dates to the mid-19th…",
-        "fr": "Une sucrerie bengalie traditionnelle de chhena enrobee de coco ou de mawa, dont la variete ovale de Porabari (Tangail) date du milieu du…"
+        "en": "A traditional Bengali sweet of chhena coated with coconut or mawa, whose famed oval Porabari (Tangail)",
+        "fr": "Une sucrerie bengalie traditionnelle de chhena enrobee de coco ou de mawa, dont la variete ovale de Porabari (Tangail)"
       },
       "sources": [
         {
@@ -18562,7 +18562,7 @@ const CUISINE_NOTES = {
       "local": "কাঠি রোল",
       "note": {
         "en": "A Kolkata street-food wrap of skewer-roasted kebab in paratha, said to have originated at Nizam's restaurant in the 1930s-60s.",
-        "fr": "Un wrap de rue de Kolkata fait de kebab roti a la brochette dans un paratha, ne au restaurant Nizam's entre les annees 1930 et 1960."
+        "fr": "Un wrap de rue de Kolkata fait de kebab roti à la brochette dans un paratha, ne au restaurant Nizam's entre les annees 1930 et 1960."
       },
       "sources": [
         {
@@ -18579,7 +18579,7 @@ const CUISINE_NOTES = {
       "local": "মাছের কালিয়া",
       "note": {
         "en": "A rich Bengali festive fish curry of fried river fish in a spiced onion gravy, derived from the Mughlai 'qaliya' of the Nawabs of Bengal.",
-        "fr": "Riche curry de poisson bengali de fete, poisson de riviere frit en sauce epicee a l'oignon, derive du qaliya moghol des nababs du Bengale."
+        "fr": "Riche curry de poisson bengali de fete, poisson de riviere frit en sauce épicée a l'oignon, derive du qaliya moghol des nababs du Bengale."
       },
       "sources": [
         {
@@ -18612,8 +18612,8 @@ const CUISINE_NOTES = {
     "bhuna khichuri": {
       "local": "ভুনা খিচুড়ি",
       "note": {
-        "en": "A dry, grainy Bengali rice-and-lentil dish where rice and moong dal are fried (\"bhuna\") with whole spices before cooking, unlike soft…",
-        "fr": "Plat bengali de riz et lentilles, sec et granuleux, ou le riz et le dal moong sont frits (\"bhuna\") avec des epices avant cuisson."
+        "en": "A dry, grainy Bengali rice-and-lentil dish where rice and moong dal are fried (\"bhuna\")",
+        "fr": "Plat bengali de riz et lentilles, sec et granuleux, ou le riz et le dal moong sont frits (\"bhuna\") avec des épices avant cuisson."
       },
       "sources": [
         {
@@ -18632,7 +18632,7 @@ const CUISINE_NOTES = {
       "local": "ઢોકળાં",
       "note": {
         "en": "A Gujarati steamed savoury sponge of fermented rice and chickpea (gram) batter; a precursor \"dukkia\" appears in a 1066 CE Jain text.",
-        "fr": "Éponge salée gujaratie cuite à la vapeur, à base de riz et de pois chiche fermentés; un ancêtre, le « dukkia », figure dans un texte jaïn…"
+        "fr": "Éponge salée gujaratie cuite à la vapeur, à base de riz et de pois chiche fermentés;"
       },
       "sources": [
         {
@@ -18683,7 +18683,7 @@ const CUISINE_NOTES = {
       "local": "હાંડવો",
       "note": {
         "en": "A savory Gujarati cake of fermented rice-and-lentil batter mixed with vegetables like bottle gourd, baked until crisp.",
-        "fr": "Un gateau sale gujarati a base de pate fermentee de riz et lentilles, avec des legumes, cuit jusqu'a croustillant."
+        "fr": "Un gateau sale gujarati a base de pate fermentée de riz et lentilles, avec des legumes, cuit jusqu'a croustillant."
       },
       "sources": [
         {
@@ -18716,7 +18716,7 @@ const CUISINE_NOTES = {
     "undhiyu": {
       "local": "ઊંધિયું",
       "note": {
-        "en": "A Gujarati mixed-vegetable casserole from Surat, named after \"undhu\" (upside-down), as it was traditionally cooked in inverted buried…",
+        "en": "A Gujarati mixed-vegetable casserole from Surat, named after \"undhu\" (upside-down)",
         "fr": "Un mélange de légumes gujarati de Surat, nommé d'après \"undhu\" (à l'envers), car cuit jadis dans des pots de terre enterrés et renversés."
       },
       "sources": [
@@ -18734,7 +18734,7 @@ const CUISINE_NOTES = {
       "local": "દાળ ઢોકળી",
       "note": {
         "en": "A Gujarati and Rajasthani one-pot comfort meal of diamond-shaped wheat-flour dumplings (dhokli) simmered in a sweet-sour toor dal.",
-        "fr": "Plat réconfortant gujarati et rajasthani en un seul pot, fait de losanges de pâte de blé (dhokli) mijotés dans un dal de pois cassés…"
+        "fr": "Plat réconfortant gujarati et rajasthani en un seul pot, fait de losanges de pâte de blé (dhokli)"
       },
       "sources": [
         {
@@ -18751,7 +18751,7 @@ const CUISINE_NOTES = {
       "local": "ખમણ",
       "note": {
         "en": "A soft, spongy steamed Gujarati snack (farsan) made from ground chana dal or gram flour, often tempered and mildly sweet-tangy.",
-        "fr": "En-cas gujarati (farsan) moelleux et spongieux, cuit à la vapeur à base de pois chiches moulus ou de farine de gram, souvent légèrement…"
+        "fr": "En-cas gujarati (farsan)"
       },
       "sources": [
         {
@@ -18768,7 +18768,7 @@ const CUISINE_NOTES = {
       "local": "ફાફડા",
       "note": {
         "en": "Fafda is a crispy Gujarati snack of deep-fried gram-flour (besan) strips, a farsan papad often eaten with jalebi, notably on Dussehra.",
-        "fr": "Le fafda est un en-cas croustillant du Gujarat fait de lamelles de farine de pois chiche frites, un farsan souvent mangé avec du jalebi…"
+        "fr": "Le fafda est un en-cas croustillant du Gujarat fait de lamelles de farine de pois chiche frites."
       },
       "sources": [
         {
@@ -18818,8 +18818,8 @@ const CUISINE_NOTES = {
     "shrikhand": {
       "local": "શ્રીખંડ",
       "note": {
-        "en": "A Gujarati and Marathi dessert of strained yogurt sweetened and flavored with cardamom and saffron, dated by historian K. T. Achaya to c…",
-        "fr": "Dessert gujarati et marathe de yaourt égoutté, sucré et parfumé à la cardamome et au safran, daté par l'historien K. T. Achaya vers 500 av…"
+        "en": "A Gujarati and Marathi dessert of strained yogurt sweetened and flavored with cardamom and saffron, dated by historian K. T.",
+        "fr": "Dessert gujarati et marathe de yaourt égoutté, sucré et parfumé à la cardamome et au safran, daté par l'historien K. T."
       },
       "sources": [
         {
@@ -18836,7 +18836,7 @@ const CUISINE_NOTES = {
       "local": "બાસુંદી",
       "note": {
         "en": "A sweet dessert of milk slowly boiled until reduced by half, flavoured with cardamom and saffron, made on festivals like Bhai Dooj.",
-        "fr": "Dessert sucré de lait bouilli lentement jusqu'à réduction de moitié, parfumé à la cardamome et au safran, préparé lors de fêtes comme Bhai…"
+        "fr": "Dessert sucré de lait bouilli lentement jusqu'à réduction de moitié, parfumé à la cardamome et au safran."
       },
       "sources": [
         {
@@ -18887,7 +18887,7 @@ const CUISINE_NOTES = {
       "local": "સેવ ટમેટાનું શાક",
       "note": {
         "en": "A Gujarati sweet-and-tangy tomato curry topped with crispy chickpea-flour sev, originating in the Kathiawad (Saurashtra) region.",
-        "fr": "Un curry de tomates gujarati aigre-doux garni de sev croustillant de farine de pois chiches, originaire de la region du Kathiawad…"
+        "fr": "Un curry de tomates gujarati aigre-doux garni de sev croustillant de farine de pois chiches."
       },
       "sources": [
         {
@@ -18955,7 +18955,7 @@ const CUISINE_NOTES = {
       "local": "લાપસી",
       "note": {
         "en": "A Gujarati sweet of roasted broken wheat (fada) cooked in ghee with jaggery or sugar and cardamom, served at auspicious occasions.",
-        "fr": "Dessert gujarati de blé concassé (fada) grillé, cuit au ghee avec du jaggery ou du sucre et de la cardamome, servi lors d'occasions…"
+        "fr": "Dessert gujarati de blé concassé (fada)"
       },
       "sources": [
         {
@@ -18971,8 +18971,8 @@ const CUISINE_NOTES = {
     "dudhi muthia": {
       "local": "દૂધી મુઠીયા",
       "note": {
-        "en": "Gujarati steamed dumplings of grated bottle gourd (dudhi/lauki) bound with chickpea (besan) and wheat flour; named from muthi (fist), the…",
-        "fr": "Boulettes gujaraties cuites a la vapeur, a base de courge bouteille rapee (dudhi) liee avec de la farine de pois chiche (besan) et de ble…"
+        "en": "Gujarati steamed dumplings of grated bottle gourd (dudhi/lauki) bound with chickpea (besan) and wheat flour; named from muthi (fist)",
+        "fr": "Boulettes gujaraties cuites à la vapeur, a base de courge bouteille rapee (dudhi) liee avec de la farine de pois chiche (besan)"
       },
       "sources": [
         {
@@ -19024,8 +19024,8 @@ const CUISINE_NOTES = {
     "sel roti": {
       "local": "सेल रोटी",
       "note": {
-        "en": "A traditional Nepali ring-shaped sweet bread of fermented rice-flour batter, deep-fried and eaten especially at the Dashain and Tihar…",
-        "fr": "Pain sucre nepalais traditionnel en anneau, fait de pate de farine de riz fermentee et frite, consomme surtout aux fetes de Dashain et…"
+        "en": "A traditional Nepali ring-shaped sweet bread of fermented rice-flour batter.",
+        "fr": "Pain sucre nepalais traditionnel en anneau, fait de pate de farine de riz fermentée et frite."
       },
       "sources": [
         {
@@ -19054,8 +19054,8 @@ const CUISINE_NOTES = {
     "gundruk": {
       "local": "गुन्द्रुक",
       "note": {
-        "en": "A Nepalese side dish of leafy greens (mustard, radish, cauliflower) preserved by non-salted spontaneous lactic-acid fermentation, then…",
-        "fr": "Plat d'accompagnement nepalais de feuilles vertes (moutarde, radis, chou-fleur) conservees par fermentation lactique spontanee sans sel…"
+        "en": "A Nepalese side dish of leafy greens (mustard, radish, cauliflower)",
+        "fr": "Plat d'accompagnement nepalais de feuilles vertes (moutarde, radis, chou-fleur)"
       },
       "sources": [
         {
@@ -19068,7 +19068,7 @@ const CUISINE_NOTES = {
       "local": "चतांमरि",
       "note": {
         "en": "A thin rice-flour crepe from Newar cuisine of Nepal's Kathmandu Valley, topped with meat, egg or vegetables and eaten on festive occasions.",
-        "fr": "Une fine crêpe de farine de riz de la cuisine newar de la vallée de Katmandou au Népal, garnie de viande, d'œuf ou de légumes, servie lors…"
+        "fr": "Une fine crêpe de farine de riz de la cuisine newar de la vallée de Katmandou au Népal, garnie de viande, d'œuf ou de légumes."
       },
       "sources": [
         {
@@ -19101,8 +19101,8 @@ const CUISINE_NOTES = {
     "yomari": {
       "local": "योमरि",
       "note": {
-        "en": "A Newari steamed rice-flour dumpling filled with chaku (jaggery) or khuwa, central to the Yomari Punhi harvest festival in Nepal's…",
-        "fr": "Une boulette newari de farine de riz cuite à la vapeur, fourrée de chaku (jaggery) ou de khuwa, au cœur de la fête des récoltes Yomari…"
+        "en": "A Newari steamed rice-flour dumpling filled with chaku (jaggery)",
+        "fr": "Une boulette newari de farine de riz cuite à la vapeur, fourrée de chaku (jaggery)"
       },
       "sources": [
         {
@@ -19119,7 +19119,7 @@ const CUISINE_NOTES = {
       "local": "आलू तामा",
       "note": {
         "en": "A Nepali soup of fermented bamboo shoots, potatoes and black-eyed peas, prized for its sour taste and popular in Newar communities.",
-        "fr": "Une soupe nepalaise de pousses de bambou fermentees, pommes de terre et doliques, prisee pour son gout aigre et populaire chez les Newar."
+        "fr": "Une soupe nepalaise de pousses de bambou fermentées, pommes de terre et doliques, prisee pour son gout aigre et populaire chez les Newar."
       },
       "sources": [
         {
@@ -19153,7 +19153,7 @@ const CUISINE_NOTES = {
       "local": "छोयला",
       "note": {
         "en": "A Newar dish from Nepal's Kathmandu Valley of spiced, grilled meat (traditionally buffalo), seasoned with mustard oil, garlic and chilies.",
-        "fr": "Plat newar de la vallee de Katmandou au Nepal, fait de viande grillee epicee (traditionnellement du buffle), relevee d'huile de moutarde…"
+        "fr": "Plat newar de la vallee de Katmandou au Nepal, fait de viande grillée épicée (traditionnellement du buffle)"
       },
       "sources": [
         {
@@ -19170,7 +19170,7 @@ const CUISINE_NOTES = {
       "local": "सेकुवा",
       "note": {
         "en": "Nepalese skewered meat (goat, chicken or buffalo) marinated in spices and grilled over open flame, associated with Dharan in eastern Nepal.",
-        "fr": "Brochettes de viande nepalaises (chevre, poulet ou buffle) marinees aux epices et grillees a la flamme, associees a Dharan dans l'est du…"
+        "fr": "Brochettes de viande nepalaises (chevre, poulet ou buffle)"
       },
       "sources": [
         {
@@ -19187,7 +19187,7 @@ const CUISINE_NOTES = {
       "local": "ढिँडो",
       "note": {
         "en": "A thick Nepali porridge of buckwheat, millet or corn flour stirred into boiling water; a hill-region staple long seen as humbler than rice.",
-        "fr": "Une bouillie nepalaise epaisse de farine de sarrasin, millet ou mais melangee a l'eau bouillante; aliment de base des collines longtemps…"
+        "fr": "Une bouillie nepalaise epaisse de farine de sarrasin, millet ou mais mélangée a l'eau bouillante;"
       },
       "sources": [
         {
@@ -19221,7 +19221,7 @@ const CUISINE_NOTES = {
       "local": "सुकुटी",
       "note": {
         "en": "A Nepalese dried meat, usually buffalo, goat or lamb, spice-marinated and sun- or air-dried to preserve it through harsh Himalayan winters.",
-        "fr": "Viande sechee nepalaise, generalement de buffle, chevre ou agneau, marinee aux epices et sechee au soleil pour la conserver durant les…"
+        "fr": "Viande sechee nepalaise, generalement de buffle, chevre ou agneau, marinée aux épices et sechee au soleil pour la conserver durant les"
       },
       "sources": [
         {
@@ -19238,7 +19238,7 @@ const CUISINE_NOTES = {
       "local": "बारा (वः)",
       "note": {
         "en": "A Newari savoury pancake of ground black lentil (maas), traditionally served as auspicious sagun food at festivals in the Kathmandu Valley.",
-        "fr": "Une galette salée newari de lentilles noires moulues (maas), servie comme nourriture porte-bonheur (sagun) lors des fêtes de la vallée de…"
+        "fr": "Une galette salée newari de lentilles noires moulues (maas), servie comme nourriture porte-bonheur (sagun)"
       },
       "sources": [
         {
@@ -19254,8 +19254,8 @@ const CUISINE_NOTES = {
     "chhoyala": {
       "local": "छोयला",
       "note": {
-        "en": "A Newar dish from Nepal's Kathmandu Valley of grilled spiced buffalo meat, traditionally smoke-charred (haku chhoyala) and served in the…",
-        "fr": "Plat newar de la vallee de Katmandou (Nepal) fait de viande de buffle grillee et epicee, traditionnellement fumee (haku chhoyala) et servi…"
+        "en": "A Newar dish from Nepal's Kathmandu Valley of grilled spiced buffalo meat, traditionally smoke-charred (haku chhoyala)",
+        "fr": "Plat newar de la vallee de Katmandou (Nepal) fait de viande de buffle grillée et épicée, traditionnellement fumee (haku chhoyala)"
       },
       "sources": [
         {
@@ -19271,7 +19271,7 @@ const CUISINE_NOTES = {
     "lapsi": {
       "local": "लप्सी",
       "note": {
-        "en": "A small sour Himalayan hog-plum fruit (Choerospondias axillaris) native to Nepal, eaten fresh, pickled, or made into the spicy candy…",
+        "en": "A small sour Himalayan hog-plum fruit (Choerospondias axillaris)",
         "fr": "Petit fruit acide de l'Himalaya (Choerospondias axillaris) du Népal, mangé frais, mariné ou transformé en bonbon épicé titaura."
       },
       "sources": [
@@ -19288,8 +19288,8 @@ const CUISINE_NOTES = {
     "juju dhau": {
       "local": "जुजु धौ",
       "note": {
-        "en": "A thick, mildly sweet set buffalo-milk yogurt from Bhaktapur, Nepal, made by Newars in clay pots; its name means \"king of yogurt\" in Nepal…",
-        "fr": "Yaourt ferme, legerement sucre, au lait de bufflonne de Bhaktapur (Nepal), fait par les Newars en pots d'argile ; son nom signifie « roi du…"
+        "en": "A thick, mildly sweet set buffalo-milk yogurt from Bhaktapur, Nepal, made by Newars in clay pots;",
+        "fr": "Yaourt ferme, legerement sucre, au lait de bufflonne de Bhaktapur (Nepal), fait par les Newars en pots d'argile ;"
       },
       "sources": [
         {
@@ -19306,7 +19306,7 @@ const CUISINE_NOTES = {
       "local": "सिन्की",
       "note": {
         "en": "A traditional Nepali soup based on sinki, radish tap roots fermented by lactic-acid bacteria, then sun-dried and stored.",
-        "fr": "Une soupe nepalaise traditionnelle a base de sinki, des racines de radis fermentees par bacteries lactiques puis sechees au soleil."
+        "fr": "Une soupe nepalaise traditionnelle a base de sinki, des racines de radis fermentées par bacteries lactiques puis sechees au soleil."
       },
       "sources": [
         {
@@ -19323,7 +19323,7 @@ const CUISINE_NOTES = {
       "local": "भुटुवा",
       "note": {
         "en": "A Nepali stir-fry of bite-sized meat (chicken, pork or lamb) sauteed in mustard oil with cumin, turmeric, fenugreek and chili.",
-        "fr": "Saute nepalais de viande en bouchees (poulet, porc ou agneau) cuite a l'huile de moutarde avec cumin, curcuma, fenugrec et piment."
+        "fr": "Sauté nepalais de viande en bouchees (poulet, porc ou agneau) cuite a l'huile de moutarde avec cumin, curcuma, fenugrec et piment."
       },
       "sources": [
         {
@@ -19342,7 +19342,7 @@ const CUISINE_NOTES = {
       "local": "Wiener Schnitzel",
       "note": {
         "en": "A thin breaded, pan-fried veal cutlet that is a national dish of Austria; the name first appears in a Viennese cookbook in 1831.",
-        "fr": "Fine escalope de veau panee et frite a la poele, plat national autrichien; le nom apparait pour la premiere fois dans un livre de cuisine…"
+        "fr": "Fine escalope de veau panee et frite à la poêlé, plat national autrichien;"
       },
       "sources": [
         {
@@ -19392,8 +19392,8 @@ const CUISINE_NOTES = {
     "tafelspitz": {
       "local": "Tafelspitz",
       "note": {
-        "en": "Viennese boiled beef (rump cut) simmered in broth with root vegetables, served with apple-horseradish; a favourite of Emperor Franz Joseph…",
-        "fr": "Bœuf bouilli viennois (pointe de culotte) mijoté au bouillon avec des légumes-racines, servi au raifort-pomme; plat favori de l'empereur…"
+        "en": "Viennese boiled beef (rump cut) simmered in broth with root vegetables, served with apple-horseradish;",
+        "fr": "Bœuf bouilli viennois (pointe de culotte) mijoté au bouillon avec des légumes-racines, servi au raifort-pomme;"
       },
       "sources": [
         {
@@ -19410,7 +19410,7 @@ const CUISINE_NOTES = {
       "local": "Kaiserschmarrn",
       "note": {
         "en": "Austrian shredded, caramelized pancake dessert dusted with sugar, named after Emperor Franz Joseph I and often served with fruit compote.",
-        "fr": "Dessert autrichien de crepe dechiquetee et caramelisee saupoudree de sucre, nomme d'apres l'empereur Francois-Joseph Ier, servi avec une…"
+        "fr": "Dessert autrichien de crêpe dechiquetee et caramélisée saupoudree de sucre, nommé d'apres l'empereur Francois-Joseph Ier."
       },
       "sources": [
         {
@@ -19460,8 +19460,8 @@ const CUISINE_NOTES = {
     "palatschinken": {
       "local": "Palatschinke",
       "note": {
-        "en": "Thin Austrian crêpe-style pancake of egg, milk and flour, often filled with apricot jam; the name derives via Hungarian from Latin placenta…",
-        "fr": "Fine crêpe autrichienne à base d'œuf, lait et farine, souvent garnie de confiture d'abricot; le nom vient, via le hongrois, du latin…"
+        "en": "Thin Austrian crêpe-style pancake of egg, milk and flour, often filled with apricot jam;",
+        "fr": "Fine crêpe autrichienne à base d'œuf, lait et farine, souvent garnie de confiture d'abricot;"
       },
       "sources": [
         {
@@ -19490,8 +19490,8 @@ const CUISINE_NOTES = {
     "selch fleisch": {
       "local": "Selchfleisch",
       "note": {
-        "en": "Austrian/South German cured and smoked pork, its name from the dialect verb \"selchen\" (to smoke); often served with sauerkraut or split-pea…",
-        "fr": "Porc salé et fumé d'Autriche et du sud de l'Allemagne, nommé d'après le verbe dialectal \"selchen\" (fumer); servi avec choucroute ou purée…"
+        "en": "Austrian/South German cured and smoked pork, its name from the dialect verb \"selchen\" (to smoke);",
+        "fr": "Porc salé et fumé d'Autriche et du sud de l'Allemagne, nommé d'après le verbe dialectal \"selchen\" (fumer);"
       },
       "sources": [
         {
@@ -19517,7 +19517,7 @@ const CUISINE_NOTES = {
       "local": "Linzer Torte",
       "note": {
         "en": "Austrian lattice-topped tart of nutty spiced shortcrust filled with fruit preserve, named after Linz; recipes date to at least 1653.",
-        "fr": "Tarte autrichienne a pate sablee aux noix et epices garnie de confiture, en treillis, nommee d'apres Linz; recettes des 1653."
+        "fr": "Tarte autrichienne a pate sablee aux noix et épices garnie de confiture, en treillis, nommée d'apres Linz; recettes des 1653."
       },
       "sources": [
         {
@@ -19533,8 +19533,8 @@ const CUISINE_NOTES = {
     "marillenknödel": {
       "local": "Marillenknödel",
       "note": {
-        "en": "Austrian dough dumpling wrapped around a whole apricot, boiled then rolled in buttered breadcrumbs and sugar; emblematic of the Wachau…",
-        "fr": "Quenelle autrichienne de pâte enrobant un abricot entier, bouillie puis roulée dans la chapelure beurrée et le sucre ; emblématique de la…"
+        "en": "Austrian dough dumpling wrapped around a whole apricot, boiled then rolled in buttered breadcrumbs and sugar;",
+        "fr": "Quenelle autrichienne de pâte enrobant un abricot entier, bouillie puis roulée dans la chapelure beurrée et le sucre ;"
       },
       "sources": [
         {
@@ -19551,7 +19551,7 @@ const CUISINE_NOTES = {
       "local": "Zwetschgenknödel",
       "note": {
         "en": "Austrian dessert of a whole plum wrapped in potato dough, boiled and rolled in buttered breadcrumbs; rooted in Austro-Hungarian cuisine.",
-        "fr": "Dessert autrichien d'une prune entière enrobée de pâte de pomme de terre, bouillie et roulée dans la chapelure beurrée; issu de la cuisine…"
+        "fr": "Dessert autrichien d'une prune entière enrobée de pâte de pomme de terre, bouillie et roulée dans la chapelure beurrée;"
       },
       "sources": [
         {
@@ -19619,7 +19619,7 @@ const CUISINE_NOTES = {
       "local": "Gulaschsuppe",
       "note": {
         "en": "An Austrian soup-like version of Hungarian goulash, a paprika-rich beef stew made liquid in Viennese taverns and coffeehouses.",
-        "fr": "Version autrichienne, en soupe, du goulache hongrois : un ragout de boeuf au paprika rendu liquide dans les tavernes viennoises."
+        "fr": "Version autrichienne, en soupe, du goulache hongrois : un ragout de bœuf au paprika rendu liquide dans les tavernes viennoises."
       },
       "sources": [
         {
@@ -19653,7 +19653,7 @@ const CUISINE_NOTES = {
       "local": "Powidltascherl",
       "note": {
         "en": "Austrian-Bohemian potato-dough pockets filled with Powidl (thick sugarless plum jam) and tossed in buttered breadcrumbs.",
-        "fr": "Chaussons autrichiens-bohemiens en pate de pomme de terre fourres au Powidl (confiture de prunes epaisse sans sucre), roules dans la…"
+        "fr": "Chaussons autrichiens-bohemiens en pate de pomme de terre fourres au Powidl (confiture de prunes epaisse sans sucre)"
       },
       "sources": [
         {
@@ -19669,7 +19669,7 @@ const CUISINE_NOTES = {
     "topfenpalatschinken": {
       "local": "Topfenpalatschinken",
       "note": {
-        "en": "Austrian baked dessert of thin Palatschinken crêpes filled with sweetened Topfen (curd cheese) and gratinated in the oven, a Viennese…",
+        "en": "Austrian baked dessert of thin Palatschinken crêpes filled with sweetened Topfen (curd cheese)",
         "fr": "Dessert autrichien de fines crêpes Palatschinken garnies de Topfen (fromage blanc) sucré et gratinées au four, un classique viennois."
       },
       "sources": [
@@ -19705,7 +19705,7 @@ const CUISINE_NOTES = {
     "raclette": {
       "local": "Raclette",
       "note": {
-        "en": "Swiss dish from the canton of Valais where cheese is melted and scraped onto boiled potatoes; the name comes from French \"racler\", to…",
+        "en": "Swiss dish from the canton of Valais where cheese is melted and scraped onto boiled potatoes;",
         "fr": "Plat suisse du canton du Valais où le fromage est fondu puis raclé sur des pommes de terre; le nom vient de \"racler\"."
       },
       "sources": [
@@ -19723,7 +19723,7 @@ const CUISINE_NOTES = {
       "local": "Rösti",
       "note": {
         "en": "Swiss fried grated-potato cake, originally a Bern farmers' breakfast, now the national dish; name is from Swiss German rösten, to fry.",
-        "fr": "Galette suisse de pommes de terre râpées frites, jadis petit-déjeuner des paysans bernois, aujourd'hui plat national; du suisse-allemand…"
+        "fr": "Galette suisse de pommes de terre râpées frites, jadis petit-déjeuner des paysans bernois, aujourd'hui plat national;"
       },
       "sources": [
         {
@@ -19756,8 +19756,8 @@ const CUISINE_NOTES = {
     "älplermagronen": {
       "local": "Älplermagronen",
       "note": {
-        "en": "Swiss Alpine \"herdsman's macaroni\" of pasta, potatoes, cream, cheese and onions, traditionally served with applesauce; a hearty herdsmen's…",
-        "fr": "Macaroni alpin suisse de pâtes, pommes de terre, crème, fromage et oignons, traditionnellement servi avec une compote de pommes ; plat…"
+        "en": "Swiss Alpine \"herdsman's macaroni\" of pasta, potatoes, cream, cheese and onions, traditionally served with applesauce;",
+        "fr": "Macaroni alpin suisse de pâtes, pommes de terre, crème, fromage et oignons, traditionnellement servi avec une compote de pommes ;"
       },
       "sources": [
         {
@@ -19773,8 +19773,8 @@ const CUISINE_NOTES = {
     "cervelat": {
       "local": "Cervelat",
       "note": {
-        "en": "Switzerland's national sausage, made of roughly equal parts beef, pork, bacon and pork rind, lightly smoked then boiled. The oldest known…",
-        "fr": "Saucisse nationale suisse, composee a parts a peu pres egales de boeuf, porc, lard et couenne, legerement fumee puis bouillie. La plus…"
+        "en": "Switzerland's national sausage, made of roughly equal parts beef, pork, bacon and pork rind, lightly smoked then boiled.",
+        "fr": "Saucisse nationale suisse, composee a parts a peu pres egales de bœuf, porc, lard et couenne, legerement fumee puis bouillie."
       },
       "sources": [
         {
@@ -19824,8 +19824,8 @@ const CUISINE_NOTES = {
     "emmentaler cheese": {
       "local": "Emmentaler AOP",
       "note": {
-        "en": "A pale, firm Swiss whole-cow's-milk cheese with characteristic holes, named after the Emme valley in the canton of Bern and AOP-protected…",
-        "fr": "Fromage suisse au lait de vache entier, ferme et clair, aux trous caractéristiques, nommé d'après la vallée de l'Emme (canton de Berne) et…"
+        "en": "A pale, firm Swiss whole-cow's-milk cheese with characteristic holes, named after the Emme valley in the canton of Bern and AOP-protected",
+        "fr": "Fromage suisse au lait de vache entier, ferme et clair, aux trous caractéristiques, nommé d'après la vallée de l'Emme (canton de Berne)"
       },
       "sources": [
         {
@@ -19841,8 +19841,8 @@ const CUISINE_NOTES = {
     "gruyère": {
       "local": "Le Gruyère AOP",
       "note": {
-        "en": "A firm Swiss cow's-milk cheese named after the town of Gruyères in the canton of Fribourg, produced in the region since 1115, and granted…",
-        "fr": "Fromage suisse à pâte dure au lait de vache, nommé d'après la ville de Gruyères dans le canton de Fribourg, produit dans la région depuis…"
+        "en": "A firm Swiss cow's-milk cheese named after the town of Gruyères in the canton of Fribourg, produced in the region since 1115.",
+        "fr": "Fromage suisse à pâte dure au lait de vache, nommé d'après la ville de Gruyères dans le canton de Fribourg."
       },
       "sources": [
         {
@@ -19875,8 +19875,8 @@ const CUISINE_NOTES = {
     "papet vaudois": {
       "local": "Papet vaudois",
       "note": {
-        "en": "A dish from the canton of Vaud, Switzerland of leeks and potatoes boiled with white wine and cream, traditionally served with a…",
-        "fr": "Plat du canton de Vaud (Suisse) de poireaux et de pommes de terre mijotés au vin blanc et à la crème, servi traditionnellement avec une…"
+        "en": "A dish from the canton of Vaud, Switzerland of leeks and potatoes boiled with white wine and cream.",
+        "fr": "Plat du canton de Vaud (Suisse)"
       },
       "sources": [
         {
@@ -19893,7 +19893,7 @@ const CUISINE_NOTES = {
       "local": "capuns",
       "note": {
         "en": "Swiss Graubünden specialty of spätzle dough with dried meat (Bündnerfleisch/Salsiz) wrapped in chard leaves and simmered in broth and milk.",
-        "fr": "Spécialité grisonne suisse de pâte à spätzle et viande séchée (Bündnerfleisch/Salsiz) enroulée dans des feuilles de bette, mijotée au…"
+        "fr": "Spécialité grisonne suisse de pâte à spätzle et viande séchée (Bündnerfleisch/Salsiz)"
       },
       "sources": [
         {
@@ -19909,8 +19909,8 @@ const CUISINE_NOTES = {
     "pizzoccheri ticino": {
       "local": "Pizzoccheri",
       "note": {
-        "en": "Flat buckwheat-and-wheat ribbon pasta baked with potatoes, chard and cheese; the Swiss form is the Italian-speaking Val Poschiavo (Grisons)…",
-        "fr": "Pâtes plates au sarrasin et froment cuites avec pommes de terre, bettes et fromage; la forme suisse vient du Val Poschiavo italophone…"
+        "en": "Flat buckwheat-and-wheat ribbon pasta baked with potatoes, chard and cheese; the Swiss form is the Italian-speaking Val Poschiavo (Grisons)",
+        "fr": "Pâtes plates au sarrasin et froment cuites avec pommes de terre, bettes et fromage;"
       },
       "sources": [
         {
@@ -19926,8 +19926,8 @@ const CUISINE_NOTES = {
     "berner platte": {
       "local": "Berner Platte",
       "note": {
-        "en": "A Bernese platter of separately boiled meats (pork, smoked beef, sausages) with juniper sauerkraut, beans and potatoes, tied to an 1798…",
-        "fr": "Une assiette bernoise de viandes bouillies separement (porc, boeuf fume, saucisses) avec choucroute au genievre, haricots et pommes de…"
+        "en": "A Bernese platter of separately boiled meats (pork, smoked beef, sausages)",
+        "fr": "Une assiette bernoise de viandes bouillies separement (porc, bœuf fume, saucisses)"
       },
       "sources": [
         {
@@ -19956,8 +19956,8 @@ const CUISINE_NOTES = {
     "zopf": {
       "local": "Zopf (Züpfe)",
       "note": {
-        "en": "Swiss braided bread of white flour, milk, eggs and butter, traditionally egg-washed and eaten on Sunday mornings; Bernese bakers made it…",
-        "fr": "Pain tressé suisse à base de farine blanche, lait, œufs et beurre, doré à l'œuf et mangé le dimanche matin; les boulangers bernois le font…"
+        "en": "Swiss braided bread of white flour, milk, eggs and butter, traditionally egg-washed and eaten on Sunday mornings;",
+        "fr": "Pain tressé suisse à base de farine blanche, lait, œufs et beurre, doré à l'œuf et mangé le dimanche matin;"
       },
       "sources": [
         {
@@ -19974,7 +19974,7 @@ const CUISINE_NOTES = {
       "local": "Toblerone",
       "note": {
         "en": "Triangular Swiss milk chocolate with honey-almond nougat, created by Theodor Tobler in Bern in 1908.",
-        "fr": "Chocolat suisse au lait triangulaire au nougat miel-amande, cree par Theodor Tobler a Berne en 1908."
+        "fr": "Chocolat suisse au lait triangulaire au nougat miel-amande, créé par Theodor Tobler a Berne en 1908."
       },
       "sources": [
         {
@@ -19990,8 +19990,8 @@ const CUISINE_NOTES = {
     "luxemburgerli": {
       "local": "Luxemburgerli",
       "note": {
-        "en": "A small, light Swiss macaron of two almond-meringue shells with a buttercream filling, sold by Zurich's Confiserie Sprüngli since 1957…",
-        "fr": "Petit macaron suisse leger compose de deux coques de meringue aux amandes garnies de creme au beurre, vendu par la Confiserie Sprungli de…"
+        "en": "A small, light Swiss macaron of two almond-meringue shells with a buttercream filling.",
+        "fr": "Petit macaron suisse leger compose de deux coques de meringue aux amandes garnies de creme au beurre."
       },
       "sources": [
         {
@@ -20008,7 +20008,7 @@ const CUISINE_NOTES = {
       "local": "Engadiner Nusstorte (Romansh: Tuorta da nuschs)",
       "note": {
         "en": "A caramelised walnut-filled shortcrust tart from Graubünden, Switzerland, popularised by Engadine baker Fausto Pult in the 1920s.",
-        "fr": "Tarte en pâte brisée garnie de noix caramélisées des Grisons, en Suisse, popularisée par le boulanger engadinois Fausto Pult dans les…"
+        "fr": "Tarte en pâte brisée garnie de noix caramélisées des Grisons, en Suisse."
       },
       "sources": [
         {
@@ -20129,7 +20129,7 @@ const CUISINE_NOTES = {
       "local": "щи",
       "note": {
         "en": "A traditional Russian cabbage (or sauerkraut) soup dating to roughly the 9th century, when cabbage spread among East Slavic tribes.",
-        "fr": "Soupe russe traditionnelle au chou (ou choucroute), remontant au IXe siecle environ, quand le chou s'est repandu chez les tribus slaves…"
+        "fr": "Soupe russe traditionnelle au chou (ou choucroute)"
       },
       "sources": [
         {
@@ -20145,8 +20145,8 @@ const CUISINE_NOTES = {
     "solyanka": {
       "local": "солянка",
       "note": {
-        "en": "A thick, sour Russian soup of meat, fish or mushrooms with pickled cucumbers and a salty-sour broth; the soup form emerged in the 1830s…",
-        "fr": "Soupe russe epaisse et aigre, a base de viande, poisson ou champignons, avec des cornichons et un bouillon sale et acidule; sa forme en…"
+        "en": "A thick, sour Russian soup of meat, fish or mushrooms with pickled cucumbers and a salty-sour broth;",
+        "fr": "Soupe russe epaisse et aigre, a base de viande, poisson ou champignons, avec des cornichons et un bouillon sale et acidule;"
       },
       "sources": [
         {
@@ -20163,7 +20163,7 @@ const CUISINE_NOTES = {
       "local": "Винегрет",
       "note": {
         "en": "Russian salad of diced boiled beets, potatoes, carrots, onion and pickles dressed in oil; its name derives from French \"vinaigrette\".",
-        "fr": "Salade russe de betteraves, pommes de terre, carottes, oignon et cornichons cuits, assaisonnee a l'huile; son nom vient du francais…"
+        "fr": "Salade russe de betteraves, pommes de terre, carottes, oignon et cornichons cuits, assaisonnee a l'huile;"
       },
       "sources": [
         {
@@ -20180,7 +20180,7 @@ const CUISINE_NOTES = {
       "local": "салат Оливье",
       "note": {
         "en": "A Russian salad of diced potatoes, egg, and vegetables bound with mayonnaise, created in the 1860s by chef Lucien Olivier in Moscow.",
-        "fr": "Une salade russe de pommes de terre, d'oeuf et de legumes en des, liee a la mayonnaise, creee dans les annees 1860 par le chef Lucien…"
+        "fr": "Une salade russe de pommes de terre, d'oeuf et de legumes en des, liee à la mayonnaise."
       },
       "sources": [
         {
@@ -20196,8 +20196,8 @@ const CUISINE_NOTES = {
     "selyodka pod shuboy": {
       "local": "Селёдка под шубой",
       "note": {
-        "en": "Russian layered salad of salt-cured herring under grated potato, carrot, onion, egg and beet bound with mayonnaise; a Soviet-era New Year's…",
-        "fr": "Salade russe en couches de hareng salé sous pomme de terre, carotte, oignon, œuf et betterave à la mayonnaise; incontournable du Nouvel An…"
+        "en": "Russian layered salad of salt-cured herring under grated potato, carrot, onion, egg and beet bound with mayonnaise;",
+        "fr": "Salade russe en couches de hareng salé sous pomme de terre, carotte, oignon, œuf et betterave à la mayonnaise;"
       },
       "sources": [
         {
@@ -20226,8 +20226,8 @@ const CUISINE_NOTES = {
     "kvass": {
       "local": "квас",
       "note": {
-        "en": "A mildly alcoholic Slavic drink fermented from rye or black bread; its first written mention is in the Primary Chronicle, describing the…",
-        "fr": "Boisson slave legerement alcoolisee fermentee a partir de pain de seigle ou noir; sa premiere mention ecrite figure dans la Chronique des…"
+        "en": "A mildly alcoholic Slavic drink fermented from rye or black bread;",
+        "fr": "Boisson slave legerement alcoolisee fermentée a partir de pain de seigle ou noir;"
       },
       "sources": [
         {
@@ -20260,8 +20260,8 @@ const CUISINE_NOTES = {
     "syrniki": {
       "local": "сырники",
       "note": {
-        "en": "Eastern Slavic fried pancakes of tvorog (curd cheese), eggs and flour; the dish is referenced in the 1550s Russian household manual…",
-        "fr": "Galettes frites slaves orientales au tvorog (fromage caillé), œufs et farine ; le plat est mentionné dans le manuel domestique russe…"
+        "en": "Eastern Slavic fried pancakes of tvorog (curd cheese), eggs and flour;",
+        "fr": "Galettes frites slaves orientales au tvorog (fromage caillé), œufs et farine ;"
       },
       "sources": [
         {
@@ -20311,8 +20311,8 @@ const CUISINE_NOTES = {
     "ukha": {
       "local": "уха",
       "note": {
-        "en": "A clear Russian fish soup of root vegetables and fish; the word once meant meat broth and only came to mean fish soup by the late 17th…",
-        "fr": "Soupe de poisson russe claire aux légumes-racines; le mot désignait jadis un bouillon de viande et ne signifie soupe de poisson que depuis…"
+        "en": "A clear Russian fish soup of root vegetables and fish;",
+        "fr": "Soupe de poisson russe claire aux légumes-racines;"
       },
       "sources": [
         {
@@ -20328,8 +20328,8 @@ const CUISINE_NOTES = {
     "beef stew russian": {
       "local": "Бефстроганов",
       "note": {
-        "en": "A 19th-century Russian dish of sauteed beef strips in a sour-cream (smetana) sauce, named after the Stroganov noble family; the first known…",
-        "fr": "Plat russe du XIXe siecle de lanieres de boeuf sautees en sauce a la creme aigre (smetana), nomme d'apres la famille noble Stroganov; la…"
+        "en": "A 19th-century Russian dish of sauteed beef strips in a sour-cream (smetana) sauce, named after the Stroganov noble family;",
+        "fr": "Plat russe du XIXe siecle de lanieres de bœuf sautées en sauce à la creme aigre (smetana), nommé d'apres la famille noble Stroganov;"
       },
       "sources": [
         {
@@ -20346,7 +20346,7 @@ const CUISINE_NOTES = {
       "local": "вареники",
       "note": {
         "en": "Boiled half-moon dumplings of unleavened dough filled with potato, cheese, or fruit, emblematic of Ukrainian and Russian cuisine.",
-        "fr": "Raviolis bouillis en demi-lune de pâte non levée, fourrés de pomme de terre, fromage ou fruits, emblématiques des cuisines ukrainienne et…"
+        "fr": "Raviolis bouillis en demi-lune de pâte non levée, fourrés de pomme de terre, fromage ou fruits."
       },
       "sources": [
         {
@@ -20362,8 +20362,8 @@ const CUISINE_NOTES = {
     "golubtsy": {
       "local": "Голубцы",
       "note": {
-        "en": "Russian cabbage rolls of minced meat and rice simmered in tomato sauce. The name comes from golub (\"dove/pigeon\"), so golubtsy means…",
-        "fr": "Roulades de chou russes de viande hachée et de riz mijotées en sauce tomate. Le nom vient de goloub (« colombe/pigeon »), si bien que…"
+        "en": "Russian cabbage rolls of minced meat and rice simmered in tomato sauce. The name comes from golub (\"dove/pigeon\")",
+        "fr": "Roulades de chou russes de viande hachée et de riz mijotées en sauce tomate. Le nom vient de goloub (« colombe/pigeon »)"
       },
       "sources": [
         {
@@ -20556,8 +20556,8 @@ const CUISINE_NOTES = {
     "uzvar": {
       "local": "узвар",
       "note": {
-        "en": "Ukrainian drink of dried fruits (pears, apples, plums and other dried fruits/berries) that is brought just to a boil and then steeped, not…",
-        "fr": "Boisson ukrainienne de fruits secs (poires, pommes, prunes et autres fruits ou baies sechees) que l'on porte juste a ebullition puis que…"
+        "en": "Ukrainian drink of dried fruits (pears, apples, plums and other dried fruits/berries)",
+        "fr": "Boisson ukrainienne de fruits secs (poires, pommes, prunes et autres fruits ou baies sechees)"
       },
       "sources": [
         {
@@ -20591,7 +20591,7 @@ const CUISINE_NOTES = {
       "local": "галушки",
       "note": {
         "en": "Ukrainian dumplings of unfilled boiled dough, documented in 18th-century left-bank Ukraine and tied to the city of Poltava.",
-        "fr": "Quenelles ukrainiennes de pate bouillie sans garniture, attestees au 18e siecle en Ukraine de la rive gauche et liees a la ville de Poltava."
+        "fr": "Quenelles ukrainiennes de pate bouillie sans garniture, attestees au 18e siecle en Ukraine de la rive gauche et liees à la ville de Poltava."
       },
       "sources": [
         {
@@ -20608,7 +20608,7 @@ const CUISINE_NOTES = {
       "local": "Млинці",
       "note": {
         "en": "Thin Ukrainian pancakes akin to crepes, served sweet or savoury; the name derives from \"mlyn\" (млин, mill), via the diminutive млинець.",
-        "fr": "Fines crepes ukrainiennes, sucrees ou salees; le nom derive de \"mlyn\" (млин, moulin), via le diminutif млинець."
+        "fr": "Fines crêpes ukrainiennes, sucrees ou salees; le nom derive de \"mlyn\" (млин, moulin), via le diminutif млинець."
       },
       "sources": [
         {
@@ -20624,8 +20624,8 @@ const CUISINE_NOTES = {
     "kapusta": {
       "local": "капуста",
       "note": {
-        "en": "Ukrainian braised cabbage or sauerkraut dish; a sauerkraut version with peas is traditionally one of the twelve meatless dishes served at…",
-        "fr": "Plat ukrainien de chou braisé ou de choucroute; une version à la choucroute avec des pois est traditionnellement l'un des douze plats…"
+        "en": "Ukrainian braised cabbage or sauerkraut dish;",
+        "fr": "Plat ukrainien de chou braisé ou de choucroute;"
       },
       "sources": [
         {
@@ -20675,8 +20675,8 @@ const CUISINE_NOTES = {
     "verhuny": {
       "local": "вергуни",
       "note": {
-        "en": "Verhuny (also verguny; in some regions khrusty) are a traditional Ukrainian deep-fried unleavened-dough pastry of the brushwood/angel-wings…",
-        "fr": "Les verhuny (aussi verguny ; khrusty dans certaines regions) sont une patisserie ukrainienne traditionnelle en pate non levee frite, de…"
+        "en": "Verhuny (also verguny; in some regions khrusty)",
+        "fr": "Les verhuny (aussi verguny ; khrusty dans certaines regions)"
       },
       "sources": [
         {
@@ -20710,7 +20710,7 @@ const CUISINE_NOTES = {
       "local": "одеський форшмак",
       "note": {
         "en": "A chopped-herring spread of salt herring, apple, onion and egg, an Ashkenazi Jewish dish that became emblematic of Odesa cuisine.",
-        "fr": "Une tartinade de hareng hache avec pomme, oignon et oeuf, plat juif ashkenaze devenu emblematique de la cuisine d'Odessa."
+        "fr": "Une tartinade de hareng haché avec pomme, oignon et oeuf, plat juif ashkenaze devenu emblematique de la cuisine d'Odessa."
       },
       "sources": [
         {
@@ -20727,7 +20727,7 @@ const CUISINE_NOTES = {
       "local": "сало",
       "note": {
         "en": "Salo, cured raw pork fatback sliced thin onto rye bread with garlic, is a near-national Ukrainian dish honored by a Salo Museum in Lviv.",
-        "fr": "Le salo, gras de porc cru salé tranché fin sur du pain de seigle avec de l'ail, est un plat quasi national ukrainien, honoré par un musée…"
+        "fr": "Le salo, gras de porc cru salé tranché fin sur du pain de seigle avec de l'ail, est un plat quasi national ukrainien."
       },
       "sources": [
         {
@@ -20743,8 +20743,8 @@ const CUISINE_NOTES = {
     "domashnya kovbasa": {
       "local": "домашня ковбаса",
       "note": {
-        "en": "Ukrainian homemade pork sausage (\"domashnya\" = homemade) of coarsely ground pork seasoned heavily with garlic and black pepper, stuffed…",
-        "fr": "Saucisse de porc maison ukrainienne (« domashnya » = fait maison), à base de porc haché grossièrement et fortement assaisonné d'ail et de…"
+        "en": "Ukrainian homemade pork sausage (\"domashnya\" = homemade)",
+        "fr": "Saucisse de porc maison ukrainienne (« domashnya » = fait maison)"
       },
       "sources": [
         {
@@ -20780,7 +20780,7 @@ const CUISINE_NOTES = {
       "local": "bigos",
       "note": {
         "en": "Poland's national dish, a hunter's stew of chopped meats slow-simmered with sauerkraut and fresh cabbage; documented since the 17th century.",
-        "fr": "Plat national polonais, un ragout de chasseur de viandes mijotees longuement avec choucroute et chou frais; atteste depuis le XVIIe siecle."
+        "fr": "Plat national polonais, un ragout de chasseur de viandes mijotées longuement avec choucroute et chou frais; atteste depuis le XVIIe siecle."
       },
       "sources": [
         {
@@ -20796,8 +20796,8 @@ const CUISINE_NOTES = {
     "kielbasa": {
       "local": "kiełbasa",
       "note": {
-        "en": "Any meat sausage from Poland and a staple of Polish cuisine, traditionally made from pork (though beef, veal, turkey and other meats are…",
-        "fr": "Toute saucisse de viande polonaise et un pilier de la cuisine polonaise, traditionnellement à base de porc (mais aussi de bœuf, de veau, de…"
+        "en": "Any meat sausage from Poland and a staple of Polish cuisine, traditionally made from pork (though beef, veal.",
+        "fr": "Toute saucisse de viande polonaise et un pilier de la cuisine polonaise, traditionnellement à base de porc (mais aussi de bœuf, de veau."
       },
       "sources": [
         {
@@ -20813,8 +20813,8 @@ const CUISINE_NOTES = {
     "zurek": {
       "local": "żurek",
       "note": {
-        "en": "Polish soup of soured rye flour (a sourdough-like fermented starter called zakwas) served with white sausage and hard-boiled egg…",
-        "fr": "Soupe polonaise à base de farine de seigle fermentée (un levain appelé zakwas), servie avec saucisse blanche et œuf dur, traditionnellement…"
+        "en": "Polish soup of soured rye flour (a sourdough-like fermented starter called zakwas)",
+        "fr": "Soupe polonaise à base de farine de seigle fermentée (un levain appelé zakwas)"
       },
       "sources": [
         {
@@ -20831,7 +20831,7 @@ const CUISINE_NOTES = {
       "local": "rosół",
       "note": {
         "en": "Traditional Polish clear meat broth, most popularly chicken (rosół z kury), simmered with vegetables and served with thin noodles.",
-        "fr": "Bouillon de viande clair polonais traditionnel, le plus souvent au poulet (rosół z kury), mijoté avec des légumes et servi avec de fines…"
+        "fr": "Bouillon de viande clair polonais traditionnel, le plus souvent au poulet (rosół z kury)"
       },
       "sources": [
         {
@@ -20864,8 +20864,8 @@ const CUISINE_NOTES = {
     "placki ziemniaczane": {
       "local": "placki ziemniaczane",
       "note": {
-        "en": "Polish fried potato pancakes made from grated raw potato, onion and egg; a documented 17th-century monastery recipe (from Stoczek…",
-        "fr": "Galettes polonaises de pommes de terre crues rapees, avec oignon et oeuf; une recette monastique documentee du XVIIe siecle (Stoczek…"
+        "en": "Polish fried potato pancakes made from grated raw potato, onion and egg;",
+        "fr": "Galettes polonaises de pommes de terre crues rapees, avec oignon et oeuf;"
       },
       "sources": [
         {
@@ -20881,8 +20881,8 @@ const CUISINE_NOTES = {
     "kotlet schabowy": {
       "local": "kotlet schabowy",
       "note": {
-        "en": "A Polish breadcrumb-coated pork loin (or chop) cutlet, derived from the Viennese schnitzel, that appeared in the 19th century (recorded in…",
-        "fr": "Une escalope panee de longe (ou de cotelette) de porc polonaise, derivee du schnitzel viennois, apparue au XIXe siecle (attestee dans un…"
+        "en": "A Polish breadcrumb-coated pork loin (or chop)",
+        "fr": "Une escalope panee de longe (ou de cotelette)"
       },
       "sources": [
         {
@@ -20899,7 +20899,7 @@ const CUISINE_NOTES = {
       "local": "mizeria",
       "note": {
         "en": "A Polish salad of thinly sliced cucumbers in sour cream; its name derives from Latin \"miseria\" (poverty/misery).",
-        "fr": "Une salade polonaise de concombres finement tranchés a la creme aigre ; son nom vient du latin \"miseria\" (misere)."
+        "fr": "Une salade polonaise de concombres finement tranchés à la creme aigre ; son nom vient du latin \"miseria\" (misere)."
       },
       "sources": [
         {
@@ -20916,7 +20916,7 @@ const CUISINE_NOTES = {
       "local": "barszcz czerwony",
       "note": {
         "en": "A Polish sour beetroot soup, often a clear broth from fermented beet juice, traditionally served on Christmas Eve with uszka dumplings.",
-        "fr": "Soupe polonaise aigre de betterave, souvent un bouillon clair de jus de betterave fermente, servie a Noel avec des raviolis uszka."
+        "fr": "Soupe polonaise aigre de betterave, souvent un bouillon clair de jus de betterave fermenté, servie a Noel avec des raviolis uszka."
       },
       "sources": [
         {
@@ -21000,8 +21000,8 @@ const CUISINE_NOTES = {
     "flaki": {
       "local": "flaki",
       "note": {
-        "en": "A Polish beef-tripe soup eaten since the 14th century, said to be a favourite of King Wladyslaw II Jagiello, spiced with marjoram and…",
-        "fr": "Une soupe polonaise aux tripes de boeuf consommee depuis le 14e siecle, dit-on plat favori du roi Ladislas II Jagellon, epicee a la…"
+        "en": "A Polish beef-tripe soup eaten since the 14th century, said to be a favourite of King Wladyslaw II Jagiello.",
+        "fr": "Une soupe polonaise aux tripes de bœuf consommee depuis le 14e siecle, dit-on plat favori du roi Ladislas II Jagellon."
       },
       "sources": [
         {
@@ -21017,7 +21017,7 @@ const CUISINE_NOTES = {
     "kapusta kiszona": {
       "local": "kapusta kiszona",
       "note": {
-        "en": "Traditional Polish sauerkraut: cabbage preserved by lactic-acid fermentation with salt, a centuries-old staple served with meats and…",
+        "en": "Traditional Polish sauerkraut: cabbage preserved by lactic-acid fermentation with salt.",
         "fr": "Choucroute polonaise traditionnelle : chou conserve par fermentation lactique au sel, aliment seculaire servi avec viandes et pierogi."
       },
       "sources": [
@@ -21051,8 +21051,8 @@ const CUISINE_NOTES = {
     "pierogi ruskie": {
       "local": "pierogi ruskie",
       "note": {
-        "en": "Polish boiled dumplings filled with mashed potato and twaróg curd cheese; \"ruskie\" means Ruthenian, after the historic region of Red…",
-        "fr": "Raviolis polonais bouillis fourrés de purée de pomme de terre et de fromage blanc twaróg ; « ruskie » signifie ruthène, d'après la région…"
+        "en": "Polish boiled dumplings filled with mashed potato and twaróg curd cheese;",
+        "fr": "Raviolis polonais bouillis fourrés de purée de pomme de terre et de fromage blanc twaróg ;"
       },
       "sources": [
         {
@@ -21103,7 +21103,7 @@ const CUISINE_NOTES = {
       "local": "zapiekanka",
       "note": {
         "en": "A Polish toasted open-faced baguette topped with sauteed mushrooms, cheese and ketchup; a street food born in the 1970s.",
-        "fr": "Une demi-baguette polonaise gratinee garnie de champignons sautes, fromage et ketchup; street food nee dans les annees 1970."
+        "fr": "Une demi-baguette polonaise gratinee garnie de champignons sautés, fromage et ketchup; street food nee dans les annees 1970."
       },
       "sources": [
         {
@@ -21134,8 +21134,8 @@ const CUISINE_NOTES = {
     "smörrebröd": {
       "local": "smørrebrød",
       "note": {
-        "en": "Danish open-faced sandwich on buttered rye bread (rugbrød) with toppings like herring or roast beef; popularised in 19th-century industrial…",
-        "fr": "Tartine danoise ouverte sur pain de seigle beurré (rugbrød) garnie de hareng ou rôti de bœuf, popularisée dans le Danemark industriel du…"
+        "en": "Danish open-faced sandwich on buttered rye bread (rugbrød) with toppings like herring or roast beef;",
+        "fr": "Tartine danoise ouverte sur pain de seigle beurré (rugbrød)"
       },
       "sources": [
         {
@@ -21151,8 +21151,8 @@ const CUISINE_NOTES = {
     "köttbullar": {
       "local": "köttbullar",
       "note": {
-        "en": "Swedish meatballs made from a blend of ground beef and pork, seasoned with allspice and white pepper; the first printed recipe appeared in…",
-        "fr": "Boulettes de viande suédoises composées d'un mélange de bœuf et de porc hachés, assaisonnées de piment de la Jamaïque et de poivre blanc…"
+        "en": "Swedish meatballs made from a blend of ground beef and pork, seasoned with allspice and white pepper;",
+        "fr": "Boulettes de viande suédoises composées d'un mélange de bœuf et de porc hachés."
       },
       "sources": [
         {
@@ -21186,7 +21186,7 @@ const CUISINE_NOTES = {
       "local": "rakfisk",
       "note": {
         "en": "Norwegian dish of salted, brine-fermented freshwater trout, eaten raw; an inland preservation method dating to the Middle Ages.",
-        "fr": "Plat norvegien de truite d'eau douce salee et fermentee en saumure, mangee crue ; methode de conservation remontant au Moyen Age."
+        "fr": "Plat norvegien de truite d'eau douce salee et fermentée en saumure, mangee crue ; methode de conservation remontant au Moyen Age."
       },
       "sources": [
         {
@@ -21203,7 +21203,7 @@ const CUISINE_NOTES = {
       "local": "Janssons frestelse",
       "note": {
         "en": "A Swedish casserole of potatoes, onions, cream and pickled sprats (called \"ansjovis\"); recipe first published 1940, now a Christmas classic.",
-        "fr": "Gratin suedois de pommes de terre, oignons, creme et sprats marines (dits \"ansjovis\"); recette publiee en 1940, classique de Noel."
+        "fr": "Gratin suedois de pommes de terre, oignons, creme et sprats marinés (dits \"ansjovis\"); recette publiee en 1940, classique de Noel."
       },
       "sources": [
         {
@@ -21237,7 +21237,7 @@ const CUISINE_NOTES = {
       "local": "kanelbullar",
       "note": {
         "en": "Swedish cardamom-spiced cinnamon buns, central to the fika coffee break and honoured by Kanelbullens dag every 4 October since 1999.",
-        "fr": "Brioches suedoises a la cannelle et cardamome, au coeur du fika et celebrees chaque 4 octobre depuis 1999 par le Kanelbullens dag."
+        "fr": "Brioches suedoises à la cannelle et cardamome, au cœur du fika et celebrees chaque 4 octobre depuis 1999 par le Kanelbullens dag."
       },
       "sources": [
         {
@@ -21270,8 +21270,8 @@ const CUISINE_NOTES = {
     "rye bread danish": {
       "local": "rugbrød",
       "note": {
-        "en": "Dense Danish sourdough rye bread, a national staple for centuries (until potatoes spread in the late 19th century) and the base for the…",
-        "fr": "Pain de seigle danois au levain, dense, aliment de base national depuis des siècles (jusqu'à la diffusion de la pomme de terre à la fin du…"
+        "en": "Dense Danish sourdough rye bread, a national staple for centuries (until potatoes spread in the late 19th century)",
+        "fr": "Pain de seigle danois au levain, dense, aliment de base national depuis des siècles (jusqu'à la diffusion de la pomme de terre à la fin du"
       },
       "sources": [
         {
@@ -21304,8 +21304,8 @@ const CUISINE_NOTES = {
     "reindeer steak": {
       "local": "Reinsdyrstek",
       "note": {
-        "en": "Norwegian/Sami reindeer steak, fried or grilled in reindeer fat and butter, seasoned with salt and pepper, served medium-rare with…",
-        "fr": "Steak de renne norvegien/sami, poele ou grille a la graisse de renne et au beurre, assaisonne de sel et de poivre, servi saignant avec…"
+        "en": "Norwegian/Sami reindeer steak, fried or grilled in reindeer fat and butter, seasoned with salt and pepper.",
+        "fr": "Steak de renne norvegien/sami, poêlé ou grillé à la graisse de renne et au beurre, assaisonne de sel et de poivre."
       },
       "sources": [
         {
@@ -21321,8 +21321,8 @@ const CUISINE_NOTES = {
     "aquavit": {
       "local": "akvavit",
       "note": {
-        "en": "Scandinavian distilled spirit flavored mainly with caraway or dill, produced since the 15th century; its name comes from the Latin aqua…",
-        "fr": "Spiritueux scandinave distillé, aromatisé surtout au carvi ou à l'aneth, produit depuis le XVe siècle ; son nom vient du latin aqua vitae…"
+        "en": "Scandinavian distilled spirit flavored mainly with caraway or dill, produced since the 15th century;",
+        "fr": "Spiritueux scandinave distillé, aromatisé surtout au carvi ou à l'aneth, produit depuis le XVe siècle ;"
       },
       "sources": [
         {
@@ -21339,7 +21339,7 @@ const CUISINE_NOTES = {
       "local": "Lingonsylt",
       "note": {
         "en": "A tart Swedish preserve of lingonberries, traditionally made to last the winter and served with meatballs, pancakes and fried herring.",
-        "fr": "Confiture suedoise acidulee d'airelles rouges, jadis preparee pour l'hiver et servie avec boulettes, crepes et hareng frit."
+        "fr": "Confiture suedoise acidulee d'airelles rouges, jadis préparée pour l'hiver et servie avec boulettes, crêpes et hareng frit."
       },
       "sources": [
         {
@@ -21372,7 +21372,7 @@ const CUISINE_NOTES = {
     "semla": {
       "local": "semla (pl. semlor)",
       "note": {
-        "en": "A Swedish cardamom-spiced wheat bun filled with almond paste and whipped cream, eaten since the 16th century around Shrove Tuesday (Fat…",
+        "en": "A Swedish cardamom-spiced wheat bun filled with almond paste and whipped cream.",
         "fr": "Brioche suedoise au cardamome fourree de pate d'amande et de creme fouettee, consommee depuis le XVIe siecle autour de Mardi gras."
       },
       "sources": [
@@ -21390,7 +21390,7 @@ const CUISINE_NOTES = {
       "local": "kalops",
       "note": {
         "en": "A traditional Swedish/Finnish beef stew with onion, allspice and bay leaf, first described in Cajsa Warg's 1755 cookbook.",
-        "fr": "Un ragoût de bœuf suédois/finlandais traditionnel à l'oignon, au piment de la Jamaïque et au laurier, décrit dès le livre de cuisine de…"
+        "fr": "Un ragoût de bœuf suédois/finlandais traditionnel à l'oignon, au piment de la Jamaïque et au laurier."
       },
       "sources": [
         {
@@ -21419,8 +21419,8 @@ const CUISINE_NOTES = {
     "frikadeller": {
       "local": "frikadeller",
       "note": {
-        "en": "Danish pan-fried meatballs of minced pork (sometimes with veal), onion, egg and milk; a beloved national dish eaten in the region for over…",
-        "fr": "Boulettes danoises poelees de porc hache (parfois avec du veau), oignon, oeuf et lait ; plat national apprecie, consomme dans la region…"
+        "en": "Danish pan-fried meatballs of minced pork (sometimes with veal), onion, egg and milk;",
+        "fr": "Boulettes danoises poêlées de porc haché (parfois avec du veau), oignon, oeuf et lait ;"
       },
       "sources": [
         {
@@ -21471,7 +21471,7 @@ const CUISINE_NOTES = {
       "local": "toscakaka",
       "note": {
         "en": "A Swedish almond sponge cake topped with a baked caramelised almond glaze, a classic of the Nordic fika coffee break.",
-        "fr": "Gateau eponge suedois aux amandes nappe d'un glacage d'amandes caramelisees cuit, classique du fika nordique."
+        "fr": "Gateau eponge suedois aux amandes nappe d'un glacage d'amandes caramélisées cuit, classique du fika nordique."
       },
       "sources": [
         {
@@ -21524,7 +21524,7 @@ const CUISINE_NOTES = {
       "local": "خورش فسنجان",
       "note": {
         "en": "Iranian khoresh (stew) of poultry simmered in ground walnuts and pomegranate molasses, originating in Gilan, traditionally with duck.",
-        "fr": "Khoresh (ragout) iranien de volaille mijotee dans des noix moulues et de la melasse de grenade, originaire du Gilan, traditionnellement au…"
+        "fr": "Khoresh (ragout)"
       },
       "sources": [
         {
@@ -21541,7 +21541,7 @@ const CUISINE_NOTES = {
       "local": "ته‌دیگ",
       "note": {
         "en": "A crisp golden crust of rice (or bread/potato) formed at the bottom of the pot in Persian cooking; the name means \"bottom of the pot.\"",
-        "fr": "Croûte de riz (ou pain/pomme de terre) dorée et croustillante formée au fond de la marmite en cuisine perse ; son nom signifie « fond de la…"
+        "fr": "Croûte de riz (ou pain/pomme de terre) dorée et croustillante formée au fond de la marmite en cuisine perse ;"
       },
       "sources": [
         {
@@ -21591,8 +21591,8 @@ const CUISINE_NOTES = {
     "ash reshteh": {
       "local": "آش رشته",
       "note": {
-        "en": "Thick Persian soup of herbs, beans, lentils and reshteh noodles, finished with kashk; the noodles are said to symbolize good fortune for…",
-        "fr": "Soupe persane epaisse aux herbes, haricots, lentilles et nouilles reshteh, nappee de kashk; les nouilles symbolisent la bonne fortune pour…"
+        "en": "Thick Persian soup of herbs, beans, lentils and reshteh noodles, finished with kashk;",
+        "fr": "Soupe persane epaisse aux herbes, haricots, lentilles et nouilles reshteh, nappee de kashk;"
       },
       "sources": [
         {
@@ -21609,7 +21609,7 @@ const CUISINE_NOTES = {
       "local": "جوجه کباب",
       "note": {
         "en": "Popular Iranian grilled chicken kebab marinated in saffron, onion and lemon juice; \"joojeh\" means young chicken in Persian.",
-        "fr": "Brochette de poulet grille iranienne populaire, marinee au safran, oignon et citron; \"joojeh\" signifie jeune poulet en persan."
+        "fr": "Brochette de poulet grillé iranienne populaire, marinée au safran, oignon et citron; \"joojeh\" signifie jeune poulet en persan."
       },
       "sources": [
         {
@@ -21625,8 +21625,8 @@ const CUISINE_NOTES = {
     "kuku sabzi": {
       "local": "کوکوی سبزی",
       "note": {
-        "en": "An Iranian herb-packed egg dish (a thin frittata) with parsley, coriander, dill and chives, traditionally served at Nowruz, the Persian New…",
-        "fr": "Plat iranien d'oeufs riche en herbes (frittata fine) au persil, coriandre, aneth et ciboulette, servi traditionnellement a Norouz, le…"
+        "en": "An Iranian herb-packed egg dish (a thin frittata)",
+        "fr": "Plat iranien d'oeufs riche en herbes (frittata fine)"
       },
       "sources": [
         {
@@ -21642,8 +21642,8 @@ const CUISINE_NOTES = {
     "mirza ghasemi": {
       "local": "میرزا قاسمی",
       "note": {
-        "en": "A smoky Iranian dip from Gilan of grilled aubergine with garlic, tomato and egg, named after 19th-century Rasht governor Mohammad Qasim…",
-        "fr": "Caviar iranien fumé du Gilan, d'aubergine grillée à l'ail, tomate et œuf, nommé d'après Mohammad Qasim Khan, gouverneur de Rasht au XIXe…"
+        "en": "A smoky Iranian dip from Gilan of grilled aubergine with garlic, tomato and egg.",
+        "fr": "Caviar iranien fumé du Gilan, d'aubergine grillée à l'ail, tomate et œuf, nommé d'après Mohammad Qasim Khan."
       },
       "sources": [
         {
@@ -21656,7 +21656,7 @@ const CUISINE_NOTES = {
       "local": "سبزی پلو با ماهی",
       "note": {
         "en": "Persian herb rice (parsley, dill, chives, coriander) served with fried fish, traditionally eaten on Nowruz, the Persian New Year.",
-        "fr": "Riz persan aux herbes (persil, aneth, ciboulette, coriandre) servi avec du poisson frit, traditionnellement mangé à Norouz, le Nouvel An…"
+        "fr": "Riz persan aux herbes (persil, aneth, ciboulette, coriandre)"
       },
       "sources": [
         {
@@ -21673,7 +21673,7 @@ const CUISINE_NOTES = {
       "local": "لوبیا پلو",
       "note": {
         "en": "Iranian layered rice dish of green beans and spiced ground beef or lamb in tomato sauce, perfumed with saffron and cinnamon.",
-        "fr": "Plat iranien de riz en couches avec haricots verts et viande hachee epicee en sauce tomate, parfume au safran et a la cannelle."
+        "fr": "Plat iranien de riz en couches avec haricots verts et viande hachée épicée en sauce tomate, parfume au safran et à la cannelle."
       },
       "sources": [
         {
@@ -21690,7 +21690,7 @@ const CUISINE_NOTES = {
       "local": "حلیم",
       "note": {
         "en": "A thick Persian porridge of wheat slow-cooked with shredded meat, eaten at breakfast; it descends from the medieval Arab dish harees.",
-        "fr": "Bouillie persane epaisse de ble mijote longuement avec de la viande effilochee, mangee au petit-dejeuner; elle derive du plat arabe…"
+        "fr": "Bouillie persane epaisse de ble mijoté longuement avec de la viande effilochee, mangee au petit-dejeuner;"
       },
       "sources": [
         {
@@ -21706,8 +21706,8 @@ const CUISINE_NOTES = {
     "faloodeh": {
       "local": "فالوده",
       "note": {
-        "en": "A Persian semi-frozen sorbet of thin starch vermicelli in rosewater-lime syrup, native to Shiraz and among the world's oldest frozen…",
-        "fr": "Sorbet persan semi-glacé de fins vermicelles d'amidon dans un sirop d'eau de rose et citron vert, originaire de Chiraz, parmi les plus…"
+        "en": "A Persian semi-frozen sorbet of thin starch vermicelli in rosewater-lime syrup.",
+        "fr": "Sorbet persan semi-glacé de fins vermicelles d'amidon dans un sirop d'eau de rose et citron vert, originaire de Chiraz."
       },
       "sources": [
         {
@@ -21723,8 +21723,8 @@ const CUISINE_NOTES = {
     "saffron rice persian": {
       "local": "چلو زعفرانی",
       "note": {
-        "en": "Persian steamed long-grain white rice (chelow) garnished with bloomed saffron that tints it gold, a staple of Iranian cuisine; Iran…",
-        "fr": "Riz blanc persan a grain long cuit a la vapeur (chelow) garni de safran infuse qui le colore en dore, plat de base de la cuisine iranienne…"
+        "en": "Persian steamed long-grain white rice (chelow) garnished with bloomed saffron that tints it gold, a staple of Iranian cuisine;",
+        "fr": "Riz blanc persan a grain long cuit à la vapeur (chelow)"
       },
       "sources": [
         {
@@ -21774,8 +21774,8 @@ const CUISINE_NOTES = {
     "shirazi salad": {
       "local": "سالاد شیرازی (sālād-e shirāzi)",
       "note": {
-        "en": "Persian diced cucumber, tomato and onion salad from Shiraz, dressed with verjuice or lime; emerged after tomatoes reached Iran in the late…",
-        "fr": "Salade persane de Chiraz, concombre, tomate et oignon en dés, au verjus ou citron vert; apparue après l'arrivee de la tomate en Iran vers…"
+        "en": "Persian diced cucumber, tomato and onion salad from Shiraz, dressed with verjuice or lime;",
+        "fr": "Salade persane de Chiraz, concombre, tomate et oignon en dés, au verjus ou citron vert;"
       },
       "sources": [
         {
@@ -21787,8 +21787,8 @@ const CUISINE_NOTES = {
     "doogh": {
       "local": "دوغ",
       "note": {
-        "en": "A cold, savory Persian drink of yogurt (or buttermilk) diluted with water, salted, and flavored with mint; often carbonated. Traditionally…",
-        "fr": "Boisson perse froide et salee a base de yaourt (ou de babeurre) dilue dans l'eau, sale et parfume a la menthe, souvent gazeifiee…"
+        "en": "A cold, savory Persian drink of yogurt (or buttermilk) diluted with water, salted, and flavored with mint; often carbonated.",
+        "fr": "Boisson perse froide et salee a base de yaourt (ou de babeurre)"
       },
       "sources": [
         {
@@ -21805,7 +21805,7 @@ const CUISINE_NOTES = {
       "local": "باقلوا",
       "note": {
         "en": "Persian baghlava is a layered nut pastry flavored with cardamom and rosewater syrup, traditionally associated with the city of Tabriz.",
-        "fr": "Le baghlava persan est une pâtisserie feuilletée aux noix parfumée à la cardamome et au sirop d'eau de rose, traditionnellement liée à la…"
+        "fr": "Le baghlava persan est une pâtisserie feuilletée aux noix parfumée à la cardamome et au sirop d'eau de rose."
       },
       "sources": [
         {
@@ -21874,8 +21874,8 @@ const CUISINE_NOTES = {
     "harira": {
       "local": "الحريرة (ḥarīra)",
       "note": {
-        "en": "A North African tomato-based soup with lentils, chickpeas and meat, most popular in Morocco and traditionally eaten to break the Ramadan…",
-        "fr": "Une soupe nord-africaine à base de tomate, lentilles, pois chiches et viande, très populaire au Maroc et traditionnellement consommée pour…"
+        "en": "A North African tomato-based soup with lentils, chickpeas and meat, most popular in Morocco and traditionally eaten to break the Ramadan",
+        "fr": "Une soupe nord-africaine à base de tomate, lentilles, pois chiches et viande."
       },
       "sources": [
         {
@@ -21926,7 +21926,7 @@ const CUISINE_NOTES = {
       "local": "شرمولة",
       "note": {
         "en": "A North African herb-and-spice marinade or relish of cilantro, garlic, cumin and lemon, traditionally used to flavor fish and seafood.",
-        "fr": "Une marinade ou un condiment nord-africain aux herbes et epices (coriandre, ail, cumin, citron), traditionnellement utilise pour le poisson…"
+        "fr": "Une marinade ou un condiment nord-africain aux herbes et épices (coriandre, ail, cumin, citron)"
       },
       "sources": [
         {
@@ -21942,8 +21942,8 @@ const CUISINE_NOTES = {
     "rfissa": {
       "local": "رفيسة",
       "note": {
-        "en": "Moroccan dish of stewed chicken, lentils and fenugreek served over shredded msemen or trid bread, derived from the medieval Arab dish…",
-        "fr": "Plat marocain de poulet, lentilles et fenugrec mijotes servis sur du msemen ou du trid emiette, derive du plat arabe medieval tharid."
+        "en": "Moroccan dish of stewed chicken, lentils and fenugreek served over shredded msemen or trid bread.",
+        "fr": "Plat marocain de poulet, lentilles et fenugrec mijotés servis sur du msemen ou du trid émietté, derive du plat arabe medieval tharid."
       },
       "sources": [
         {
@@ -21960,7 +21960,7 @@ const CUISINE_NOTES = {
       "local": "مسمن",
       "note": {
         "en": "A square, folded laminated flatbread of Berber origin from the Maghreb, layered with oil or smen and pan-fried until flaky.",
-        "fr": "Une galette feuilletee carree et pliee, d'origine berbere du Maghreb, enrichie d'huile ou de smen et frite a la poele."
+        "fr": "Une galette feuilletee carree et pliee, d'origine berbere du Maghreb, enrichie d'huile ou de smen et frite à la poêlé."
       },
       "sources": [
         {
@@ -21990,7 +21990,7 @@ const CUISINE_NOTES = {
       "local": "بريوات",
       "note": {
         "en": "A Moroccan sweet or savory turnover wrapped in thin warqa pastry, fried or baked, often filled with meat or fish, almond paste, or cheese.",
-        "fr": "Chausson marocain sucré ou salé enroulé dans une fine pâte warqa, frit ou cuit, souvent farci de viande ou de poisson, de pâte d'amande ou…"
+        "fr": "Chausson marocain sucré ou salé enroulé dans une fine pâte warqa, frit ou cuit, souvent farci de viande ou de poisson."
       },
       "sources": [
         {
@@ -22040,8 +22040,8 @@ const CUISINE_NOTES = {
     "chicken tagine preserved lemon": {
       "local": "دجاج مقلي (Djaj Mqualli)",
       "note": {
-        "en": "Moroccan slow-cooked chicken tagine with preserved lemon, green olives and saffron. It is a 'mqualli' tagine — the style cooked in oil and…",
-        "fr": "Tajine marocain de poulet mijoté au citron confit, olives vertes et safran. C'est un tajine « mqualli » — le style cuit à l'huile et coloré…"
+        "en": "Moroccan slow-cooked chicken tagine with preserved lemon, green olives and saffron.",
+        "fr": "Tajine marocain de poulet mijoté au citron confit, olives vertes et safran."
       },
       "sources": [
         {
@@ -22058,7 +22058,7 @@ const CUISINE_NOTES = {
       "local": "لحم بالبرقوق (Lham bel barkouk)",
       "note": {
         "en": "A Moroccan tagine of lamb slow-cooked with honey-glazed prunes and warm spices, traditionally served at weddings and to honour guests.",
-        "fr": "Un tagine marocain d'agneau mijoté avec des pruneaux glacés au miel et des épices, servi traditionnellement aux mariages et pour honorer…"
+        "fr": "Un tagine marocain d'agneau mijoté avec des pruneaux glacés au miel et des épices."
       },
       "sources": [
         {
@@ -22091,8 +22091,8 @@ const CUISINE_NOTES = {
     "moroccan mint tea": {
       "local": "أتاي بالنعناع (atāy bi-naʿnāʿ)",
       "note": {
-        "en": "North African preparation of Chinese gunpowder green tea brewed with spearmint and sugar; it became widespread in Morocco in the 1850s when…",
-        "fr": "Préparation nord-africaine de thé vert chinois (gunpowder) infusé à la menthe verte et au sucre ; elle s'est répandue au Maroc dans les…"
+        "en": "North African preparation of Chinese gunpowder green tea brewed with spearmint and sugar;",
+        "fr": "Préparation nord-africaine de thé vert chinois (gunpowder) infusé à la menthe verte et au sucre ;"
       },
       "sources": [
         {
@@ -22122,7 +22122,7 @@ const CUISINE_NOTES = {
       "local": "غريبة",
       "note": {
         "en": "A Moroccan crumbly shortbread cookie of semolina, almond or coconut, often scented with orange blossom and served with mint tea.",
-        "fr": "Un biscuit sable marocain friable a la semoule, l'amande ou la noix de coco, parfume a la fleur d'oranger, servi avec du the a la menthe."
+        "fr": "Un biscuit sable marocain friable à la semoule, l'amande ou la noix de coco, parfume à la fleur d'oranger, servi avec du the à la menthe."
       },
       "sources": [
         {
@@ -22139,7 +22139,7 @@ const CUISINE_NOTES = {
       "local": "طنجية مراكشية",
       "note": {
         "en": "A Marrakech slow-cooked meat stew named after the clay urn it cooks in, traditionally buried in hammam-furnace ashes for hours.",
-        "fr": "Ragout de viande mijote de Marrakech nomme d'apres l'urne en terre cuite ou il cuit, traditionnellement enfoui des heures dans les cendres…"
+        "fr": "Ragout de viande mijoté de Marrakech nommé d'apres l'urne en terre cuite ou il cuit."
       },
       "sources": [
         {
@@ -22155,8 +22155,8 @@ const CUISINE_NOTES = {
     "bissara": {
       "local": "بِصَّارة",
       "note": {
-        "en": "A North African soup or dip of dried puréed fava beans seasoned with garlic, olive oil and cumin; its origins are traced to Pharaonic…",
-        "fr": "Soupe ou trempette nord-africaine de fèves séchées en purée, assaisonnée d'ail, d'huile d'olive et de cumin; ses origines remontent à…"
+        "en": "A North African soup or dip of dried puréed fava beans seasoned with garlic, olive oil and cumin;",
+        "fr": "Soupe ou trempette nord-africaine de fèves séchées en purée, assaisonnée d'ail, d'huile d'olive et de cumin;"
       },
       "sources": [
         {
@@ -22191,8 +22191,8 @@ const CUISINE_NOTES = {
     "ful medames": {
       "local": "فول مدمس",
       "note": {
-        "en": "Egypt's national dish, eaten especially at breakfast: fava beans slowly simmered, then dressed with olive oil, lemon juice and garlic. The…",
-        "fr": "Plat national egyptien, consomme surtout au petit-dejeuner : des feves mijotees longuement, puis assaisonnees d'huile d'olive, de jus de…"
+        "en": "Egypt's national dish, eaten especially at breakfast: fava beans slowly simmered, then dressed with olive oil, lemon juice and garlic.",
+        "fr": "Plat national egyptien, consomme surtout au petit-dejeuner : des feves mijotées longuement, puis assaisonnees d'huile d'olive."
       },
       "sources": [
         {
@@ -22209,7 +22209,7 @@ const CUISINE_NOTES = {
       "local": "ملوخية",
       "note": {
         "en": "An Egyptian green soup of finely chopped jute mallow (Corchorus olitorius) leaves, first recorded in the 11th century CE.",
-        "fr": "Une soupe verte egyptienne de feuilles de corete potagere (Corchorus olitorius) hachees, attestee des le XIe siecle."
+        "fr": "Une soupe verte egyptienne de feuilles de corete potagere (Corchorus olitorius) hachées, attestee des le XIe siecle."
       },
       "sources": [
         {
@@ -22225,8 +22225,8 @@ const CUISINE_NOTES = {
     "shawarma egyptian": {
       "local": "شاورما",
       "note": {
-        "en": "A Levantine street food of spit-roasted meat shaved off a vertical rotisserie; the Egyptian version is typically made with chicken and…",
-        "fr": "Plat de rue levantin de viande rotie a la broche verticale; la version egyptienne est generalement preparee au poulet et garnie de sauce…"
+        "en": "A Levantine street food of spit-roasted meat shaved off a vertical rotisserie;",
+        "fr": "Plat de rue levantin de viande rotie à la broche verticale;"
       },
       "sources": [
         {
@@ -22243,7 +22243,7 @@ const CUISINE_NOTES = {
       "local": "محشي (maḥshī)",
       "note": {
         "en": "Egyptian assortment of vegetables (squash, peppers, vine leaves) stuffed with seasoned rice and slow-cooked in broth; an Ottoman-era staple.",
-        "fr": "Assortiment egyptien de legumes (courgettes, poivrons, feuilles de vigne) farcis de riz epice et mijotes dans un bouillon; un classique de…"
+        "fr": "Assortiment egyptien de legumes (courgettes, poivrons, feuilles de vigne) farcis de riz épice et mijotés dans un bouillon;"
       },
       "sources": [
         {
@@ -22259,8 +22259,8 @@ const CUISINE_NOTES = {
     "fattah": {
       "local": "الفتة المصرية",
       "note": {
-        "en": "Egyptian festive dish of crispy fried bread, rice, meat and a garlic-tomato sauce; popularized at public street feasts under the Fatimids…",
-        "fr": "Plat de fête égyptien de pain frit croustillant, riz, viande et sauce tomate à l'ail ; popularisé lors des banquets publics sous les…"
+        "en": "Egyptian festive dish of crispy fried bread, rice, meat and a garlic-tomato sauce;",
+        "fr": "Plat de fête égyptien de pain frit croustillant, riz, viande et sauce tomate à l'ail ;"
       },
       "sources": [
         {
@@ -22277,7 +22277,7 @@ const CUISINE_NOTES = {
       "local": "كفتة الحاتي (kufta al-ḥātī)",
       "note": {
         "en": "Egyptian grilled skewers of spiced minced beef and lamb; the word kofta derives from Persian and appears in early Arab cookbooks.",
-        "fr": "Brochettes egyptiennes grillees de boeuf et d'agneau haches epices; le mot kofta vient du persan, atteste dans les premiers livres de…"
+        "fr": "Brochettes egyptiennes grillées de bœuf et d'agneau hachés épices;"
       },
       "sources": [
         {
@@ -22294,7 +22294,7 @@ const CUISINE_NOTES = {
       "local": "فطير مشلتت",
       "note": {
         "en": "An Egyptian flaky pastry of many thin dough-and-ghee layers, dating to ancient Egypt where it was offered in temples to the gods.",
-        "fr": "Une pâtisserie feuilletée égyptienne aux nombreuses fines couches de pâte et de ghee, remontant à l'Égypte antique où on l'offrait aux…"
+        "fr": "Une pâtisserie feuilletée égyptienne aux nombreuses fines couches de pâte et de ghee."
       },
       "sources": [
         {
@@ -22324,7 +22324,7 @@ const CUISINE_NOTES = {
       "local": "حواوشي",
       "note": {
         "en": "Egyptian baked bread stuffed with spiced minced meat, onions and parsley, often credited to a Cairo butcher named al-Hawawsh.",
-        "fr": "Pain egyptien cuit au four farci de viande hachee epicee, d'oignons et de persil, souvent attribue a un boucher cairote nomme al-Hawawsh."
+        "fr": "Pain egyptien cuit au four farci de viande hachée épicée, d'oignons et de persil, souvent attribue a un boucher cairote nommé al-Hawawsh."
       },
       "sources": [
         {
@@ -22421,8 +22421,8 @@ const CUISINE_NOTES = {
     "mulukhiyah with rabbit": {
       "local": "ملوخية بالأرانب",
       "note": {
-        "en": "A thick Egyptian soup of finely chopped jute mallow (Corchorus olitorius) leaves cooked with garlic and coriander, traditionally served…",
-        "fr": "Une soupe egyptienne epaisse de feuilles de corete potagere (Corchorus olitorius) finement hachees, cuites a l'ail et la coriandre, servie…"
+        "en": "A thick Egyptian soup of finely chopped jute mallow (Corchorus olitorius)",
+        "fr": "Une soupe egyptienne epaisse de feuilles de corete potagere (Corchorus olitorius)"
       },
       "sources": [
         {
@@ -22438,8 +22438,8 @@ const CUISINE_NOTES = {
     "roz me'ammar": {
       "local": "رُزّ مَعَمَّر",
       "note": {
-        "en": "Egyptian baked rice dish: short-grain rice slow-baked in a clay pot (beram/bram) with milk, butter and cream until the top forms a…",
-        "fr": "Plat egyptien de riz au four: riz a grain court cuit lentement dans un pot en terre (beram/bram) avec lait, beurre et creme jusqu'a former…"
+        "en": "Egyptian baked rice dish: short-grain rice slow-baked in a clay pot (beram/bram)",
+        "fr": "Plat egyptien de riz au four: riz a grain court cuit lentement dans un pot en terre (beram/bram)"
       },
       "sources": [
         {
@@ -22456,7 +22456,7 @@ const CUISINE_NOTES = {
       "local": "كبدة إسكندراني",
       "note": {
         "en": "Alexandrian-style fried beef liver seasoned with garlic, cumin, and chili, a street-food specialty of Alexandria, Egypt.",
-        "fr": "Foie de boeuf frit a l'alexandrine assaisonne d'ail, de cumin et de piment, specialite de rue d'Alexandrie, en Egypte."
+        "fr": "Foie de bœuf frit a l'alexandrine assaisonne d'ail, de cumin et de piment, spécialité de rue d'Alexandrie, en Egypte."
       },
       "sources": [
         {
@@ -22468,8 +22468,8 @@ const CUISINE_NOTES = {
     "fasolia bil zayt": {
       "local": "فاصوليا بالزيت",
       "note": {
-        "en": "A Levantine (Palestinian, Jordanian, Syrian) vegan dish of green beans braised slowly in olive oil with onion, tomato and garlic…",
-        "fr": "Plat végan du Levant (Palestine, Jordanie, Syrie) de haricots verts mijotes lentement dans l'huile d'olive avec oignon, tomate et ail…"
+        "en": "A Levantine (Palestinian, Jordanian, Syrian)",
+        "fr": "Plat végan du Levant (Palestine, Jordanie, Syrie)"
       },
       "sources": [
         {
@@ -22482,7 +22482,7 @@ const CUISINE_NOTES = {
       "local": "صيادية (Sayadieh)",
       "note": {
         "en": "Sayadieh is a spiced rice-and-fish dish whose name means \"fisherman's,\" originating on the Mediterranean coast of Egypt, Syria and Lebanon.",
-        "fr": "La sayadieh est un plat de riz epice et de poisson dont le nom signifie \"du pecheur,\" ne sur la cote mediterraneenne d'Egypte, de Syrie et…"
+        "fr": "La sayadieh est un plat de riz épice et de poisson dont le nom signifie \"du pecheur,\" ne sur la cote mediterraneenne d'Egypte."
       },
       "sources": [
         {
@@ -22501,7 +22501,7 @@ const CUISINE_NOTES = {
       "local": "منسف",
       "note": {
         "en": "Jordan's national dish of lamb cooked in fermented dried yogurt (jameed) and served over rice on a communal platter.",
-        "fr": "Plat national jordanien d'agneau cuit dans du yaourt sec fermente (jameed), servi sur du riz dans un grand plat commun."
+        "fr": "Plat national jordanien d'agneau cuit dans du yaourt sec fermenté (jameed), servi sur du riz dans un grand plat commun."
       },
       "sources": [
         {
@@ -22513,8 +22513,8 @@ const CUISINE_NOTES = {
     "maqluba": {
       "local": "مَقْلُوبَة",
       "note": {
-        "en": "A Levantine upside-down rice dish layered with meat and fried vegetables; its name means \"upside-down\" and it appears in a 13th-century…",
-        "fr": "Plat levantin de riz renversé, étagé de viande et de légumes frits ; son nom signifie « renversé », attesté dans un livre de cuisine…"
+        "en": "A Levantine upside-down rice dish layered with meat and fried vegetables;",
+        "fr": "Plat levantin de riz renversé, étagé de viande et de légumes frits ;"
       },
       "sources": [
         {
@@ -22598,8 +22598,8 @@ const CUISINE_NOTES = {
     "mezze jordanian": {
       "local": "مزة",
       "note": {
-        "en": "An assortment of small Levantine appetizer dishes (dips, salads, pickles) served before or alongside the main course; the name derives via…",
-        "fr": "Un assortiment de petits plats levantins d'amuse-bouche (trempettes, salades, pickles) servis avant ou avec le plat principal ; le nom…"
+        "en": "An assortment of small Levantine appetizer dishes (dips, salads, pickles) served before or alongside the main course;",
+        "fr": "Un assortiment de petits plats levantins d'amuse-bouche (trempettes, salades, pickles) servis avant ou avec le plat principal ;"
       },
       "sources": [
         {
@@ -22616,7 +22616,7 @@ const CUISINE_NOTES = {
       "local": "زَرْب",
       "note": {
         "en": "Zarb is a traditional Jordanian Bedouin feast of lamb, chicken or goat and vegetables slow-cooked in an underground sand pit over hot coals.",
-        "fr": "Le zarb est un festin bedouin jordanien de mouton, poulet ou chevre et legumes cuits lentement dans une fosse de sable sous des braises."
+        "fr": "Le zarb est un festin bedouin jordanien de mouton, poulet ou chevre et legumes cuits lentement dans une fosse de sable sous des braisés."
       },
       "sources": [
         {
@@ -22650,7 +22650,7 @@ const CUISINE_NOTES = {
       "local": "محشي",
       "note": {
         "en": "Mahshi (\"stuffed\" in Arabic) is a Levantine dish of vegetables such as zucchini, eggplant or peppers stuffed with rice and minced meat.",
-        "fr": "Le mahshi (\"farci\" en arabe) est un plat levantin de legumes comme courgettes, aubergines ou poivrons farcis de riz et de viande hachee."
+        "fr": "Le mahshi (\"farci\" en arabe) est un plat levantin de legumes comme courgettes, aubergines ou poivrons farcis de riz et de viande hachée."
       },
       "sources": [
         {
@@ -22667,7 +22667,7 @@ const CUISINE_NOTES = {
       "local": "جميد",
       "note": {
         "en": "Hard, salted balls of dried fermented sheep or goat yogurt from Jordan, the key ingredient of the national dish mansaf.",
-        "fr": "Boules dures et salees de yaourt de brebis ou de chevre fermente et seche, originaires de Jordanie, ingredient cle du mansaf national."
+        "fr": "Boules dures et salees de yaourt de brebis ou de chevre fermenté et seche, originaires de Jordanie, ingredient cle du mansaf national."
       },
       "sources": [
         {
@@ -22701,7 +22701,7 @@ const CUISINE_NOTES = {
       "local": "ورق عنب",
       "note": {
         "en": "Levantine grape leaves rolled around rice and minced meat, simmered in lemony broth; a staple of Jordanian and wider Arab cuisine.",
-        "fr": "Feuilles de vigne levantines roulees autour de riz et de viande hachee, mijotees dans un bouillon citronne; un classique jordanien et arabe."
+        "fr": "Feuilles de vigne levantines roulees autour de riz et de viande hachée, mijotées dans un bouillon citronne; un classique jordanien et arabe."
       },
       "sources": [
         {
@@ -22731,7 +22731,7 @@ const CUISINE_NOTES = {
       "local": "كُبَّة",
       "note": {
         "en": "Levantine dish of spiced ground meat and bulgur wheat, eaten across Jordan baked, fried, or raw (kibbeh nayyeh); a regional staple.",
-        "fr": "Plat levantin de viande hachee epicee et de boulgour, mange en Jordanie cuit, frit ou cru (kibbeh nayyeh) ; un classique regional."
+        "fr": "Plat levantin de viande hachée épicée et de boulgour, mange en Jordanie cuit, frit ou cru (kibbeh nayyeh) ; un classique regional."
       },
       "sources": [
         {
@@ -22748,7 +22748,7 @@ const CUISINE_NOTES = {
       "local": "تبّولة",
       "note": {
         "en": "A Levantine salad of finely chopped parsley, bulgur, tomato, mint and onion in lemon and olive oil, popular across Jordan.",
-        "fr": "Une salade levantine de persil hache, boulghour, tomate, menthe et oignon au citron et huile d'olive, populaire en Jordanie."
+        "fr": "Une salade levantine de persil haché, boulghour, tomate, menthe et oignon au citron et huile d'olive, populaire en Jordanie."
       },
       "sources": [
         {
@@ -22881,8 +22881,8 @@ const CUISINE_NOTES = {
     "israeli salad": {
       "local": "סָלָט קָצוּץ",
       "note": {
-        "en": "A finely chopped salad of tomato, cucumber, onion and pepper, rooted in Levantine Arab salads that Jewish immigrants encountered in Ottoman…",
-        "fr": "Une salade finement hachée de tomate, concombre, oignon et poivron, issue des salades arabes levantines que les immigrants juifs ont…"
+        "en": "A finely chopped salad of tomato, cucumber, onion and pepper, rooted in Levantine Arab salads that Jewish immigrants encountered in Ottoman",
+        "fr": "Une salade finement hachée de tomate, concombre, oignon et poivron, issue des salades arabes levantines que les immigrants juifs ont"
       },
       "sources": [
         {
@@ -22912,7 +22912,7 @@ const CUISINE_NOTES = {
       "local": "עמבה",
       "note": {
         "en": "A tangy pickled-mango condiment spiced with fenugreek and turmeric, brought to Israel by Iraqi Jews in the 1950s.",
-        "fr": "Un condiment acidulé de mangue marinee, releve au fenugrec et curcuma, apporte en Israel par les Juifs irakiens dans les annees 1950."
+        "fr": "Un condiment acidulé de mangue marinée, relevé au fenugrec et curcuma, apporte en Israel par les Juifs irakiens dans les annees 1950."
       },
       "sources": [
         {
@@ -22946,7 +22946,7 @@ const CUISINE_NOTES = {
       "local": "מלבי",
       "note": {
         "en": "Israeli milk pudding (Hebrew for Arabic muhallabia), set with cornstarch and topped with rose syrup, pistachios and coconut.",
-        "fr": "Flan au lait israelien (version hebraique du muhallabia arabe), pris a la maizena, nappe de sirop de rose, pistaches et coco."
+        "fr": "Flan au lait israelien (version hebraique du muhallabia arabe), pris à la maizena, nappe de sirop de rose, pistaches et coco."
       },
       "sources": [
         {
@@ -22993,7 +22993,7 @@ const CUISINE_NOTES = {
       "local": "טשאָלנט (Yiddish) / חמין (Hebrew, hamin)",
       "note": {
         "en": "Slow-simmered Jewish Sabbath stew of meat, beans, potatoes and barley, developed by Ashkenazi Jews to avoid cooking on Shabbat.",
-        "fr": "Ragout juif du Chabbat mijote lentement (viande, haricots, pommes de terre, orge), cree par les juifs ashkenazes pour eviter de cuisiner le…"
+        "fr": "Ragout juif du Chabbat mijoté lentement (viande, haricots, pommes de terre, orge)"
       },
       "sources": [
         {
@@ -23009,8 +23009,8 @@ const CUISINE_NOTES = {
     "bourekas": {
       "local": "בורקס",
       "note": {
-        "en": "A baked savory pastry of puff or filo dough with cheese, potato or spinach, brought to Israel by Sephardi Jews from Ottoman Turkey and the…",
-        "fr": "Un chausson salé en pâte feuilletée garni de fromage, pomme de terre ou épinards, apporté en Israël par les Juifs séfarades de Turquie…"
+        "en": "A baked savory pastry of puff or filo dough with cheese, potato or spinach.",
+        "fr": "Un chausson salé en pâte feuilletée garni de fromage, pomme de terre ou épinards."
       },
       "sources": [
         {
@@ -23040,7 +23040,7 @@ const CUISINE_NOTES = {
       "local": "שווארמה",
       "note": {
         "en": "Levantine-origin spit-roasted meat wrap; the Israeli version typically uses dark-meat turkey with tahini, prepared kosher.",
-        "fr": "Sandwich de viande rôtie à la broche d'origine levantine; la version israélienne utilise souvent de la dinde brune avec du tahini, préparée…"
+        "fr": "Sandwich de viande rôtie à la broche d'origine levantine;"
       },
       "sources": [
         {
@@ -23056,8 +23056,8 @@ const CUISINE_NOTES = {
     "labneh": {
       "local": "لبنة",
       "note": {
-        "en": "Levantine (Arab) strained yogurt thickened to a soft, spreadable cheese, traditional across Palestine, Lebanon, Syria and Jordan and served…",
-        "fr": "Yaourt egoutte levantin (arabe) epaissi en un fromage frais tartinable, traditionnel en Palestine, au Liban, en Syrie et en Jordanie, servi…"
+        "en": "Levantine (Arab)",
+        "fr": "Yaourt egoutte levantin (arabe)"
       },
       "sources": [
         {
@@ -23090,8 +23090,8 @@ const CUISINE_NOTES = {
     "kibbeh israeli": {
       "local": "קובה (kubbeh)",
       "note": {
-        "en": "Semolina dumplings stuffed with spiced minced meat, simmered in soup — most famously a crimson beet broth (marak kubbeh selek/adom)…",
-        "fr": "Boulettes de semoule farcies de viande hachée épicée, mijotées en soupe — le plus souvent un bouillon de betterave rouge (marak kubbeh…"
+        "en": "Semolina dumplings stuffed with spiced minced meat, simmered in soup — most famously a crimson beet broth (marak kubbeh selek/adom)",
+        "fr": "Boulettes de semoule farcies de viande hachée épicée, mijotées en soupe — le plus souvent un bouillon de betterave rouge (marak kubbeh"
       },
       "sources": [
         {
@@ -23107,8 +23107,8 @@ const CUISINE_NOTES = {
     "rugelach": {
       "local": "רוגלך",
       "note": {
-        "en": "Crescent or rolled Ashkenazi Jewish pastry filled with nuts, jam, chocolate or poppy seed, originating in the Jewish communities of Eastern…",
-        "fr": "Patisserie juive ashkenaze en croissant ou roulee, fourree de noix, confiture, chocolat ou pavot, originaire des communautes juives…"
+        "en": "Crescent or rolled Ashkenazi Jewish pastry filled with nuts, jam, chocolate or poppy seed.",
+        "fr": "Patisserie juive ashkenaze en croissant ou roulee, fourree de noix, confiture, chocolat ou pavot."
       },
       "sources": [
         {
@@ -23124,8 +23124,8 @@ const CUISINE_NOTES = {
     "halva israeli": {
       "local": "חלווה",
       "note": {
-        "en": "A dense, dairy-free Israeli confection of tahini (sesame paste) mixed with sugar at high heat, rooted in Ottoman tahin helvasi developed in…",
-        "fr": "Confiserie israelienne dense et sans produits laitiers, faite de tahini (pate de sesame) melangee au sucre a haute temperature, issue du…"
+        "en": "A dense, dairy-free Israeli confection of tahini (sesame paste)",
+        "fr": "Confiserie israelienne dense et sans produits laitiers, faite de tahini (pate de sesame)"
       },
       "sources": [
         {
@@ -23195,7 +23195,7 @@ const CUISINE_NOTES = {
       "local": "Lagʻmon",
       "note": {
         "en": "A Central Asian hand-pulled noodle dish with meat and vegetables, of Uyghur/Dungan origin, its name from Chinese lamian (pulled noodles).",
-        "fr": "Plat centrasiatique de nouilles etirees a la main avec viande et legumes, d'origine ouigoure/dounganе, son nom vient du chinois lamian."
+        "fr": "Plat centrasiatique de nouilles etirees à la main avec viande et legumes, d'origine ouigoure/dounganе, son nom vient du chinois lamian."
       },
       "sources": [
         {
@@ -23280,7 +23280,7 @@ const CUISINE_NOTES = {
       "local": "chuchvara (Чучвара)",
       "note": {
         "en": "Small Uzbek dumplings of finely chopped meat (never pork), boiled or fried and often served in broth as soup; kin to Central Asian dushpara.",
-        "fr": "Petits raviolis ouzbeks de viande hachee fine (jamais de porc), bouillis ou frits et souvent servis en soupe; parents du dushpara d'Asie…"
+        "fr": "Petits raviolis ouzbeks de viande hachée fine (jamais de porc), bouillis ou frits et souvent servis en soupe;"
       },
       "sources": [
         {
@@ -23297,7 +23297,7 @@ const CUISINE_NOTES = {
       "local": "Beshbarmoq",
       "note": {
         "en": "Central Asian dish of boiled meat (lamb, beef or horse) over flat noodles with onion broth, eaten by hand; its name means \"five fingers\".",
-        "fr": "Plat d'Asie centrale de viande bouillie (mouton, bœuf ou cheval) sur nouilles plates au bouillon d'oignon, mangé à la main ; son nom…"
+        "fr": "Plat d'Asie centrale de viande bouillie (mouton, bœuf ou cheval) sur nouilles plates au bouillon d'oignon, mangé à la main ;"
       },
       "sources": [
         {
@@ -23314,7 +23314,7 @@ const CUISINE_NOTES = {
       "local": "Dimlama (Димлама)",
       "note": {
         "en": "An Uzbek slow-cooked stew of meat and layered vegetables steamed in their own juices in a sealed pot, traditionally made at harvest time.",
-        "fr": "Ragout ouzbek de viande et de legumes en couches, mijote lentement dans son jus en cocotte fermee, traditionnellement prepare aux recoltes."
+        "fr": "Ragout ouzbek de viande et de legumes en couches, mijoté lentement dans son jus en cocotte fermee, traditionnellement préparé aux recoltes."
       },
       "sources": [
         {
@@ -23330,8 +23330,8 @@ const CUISINE_NOTES = {
     "halim uzbek": {
       "local": "Halim / Halisa (Халим)",
       "note": {
-        "en": "Uzbek halim (halisa) is a thick, sticky porridge of boiled wheat slow-cooked with lamb or beef, part of the wider Central Asian and South…",
-        "fr": "Le halim ouzbek (halisa) est une bouillie épaisse et collante de blé bouilli mijoté longuement avec de l'agneau ou du boeuf, appartenant a…"
+        "en": "Uzbek halim (halisa)",
+        "fr": "Le halim ouzbek (halisa)"
       },
       "sources": [
         {
@@ -23348,7 +23348,7 @@ const CUISINE_NOTES = {
       "local": "xonim (хоним)",
       "note": {
         "en": "An Uzbek steamed roll of thin dough wrapped around potato, onion and sometimes minced meat, served with sour cream and tomato sauce.",
-        "fr": "Un roulé uzbek cuit à la vapeur, pâte fine garnie de pomme de terre, oignon et parfois viande hachée, servi avec crème aigre et sauce…"
+        "fr": "Un roulé uzbek cuit à la vapeur, pâte fine garnie de pomme de terre, oignon et parfois viande hachée."
       },
       "sources": [
         {
@@ -23364,7 +23364,7 @@ const CUISINE_NOTES = {
     "chak chak": {
       "local": "chakchak (Чак-чак)",
       "note": {
-        "en": "A Central Asian sweet of hazelnut-sized unleavened dough balls deep-fried and bound with honey; in Uzbekistan also served as noodles or…",
+        "en": "A Central Asian sweet of hazelnut-sized unleavened dough balls deep-fried and bound with honey;",
         "fr": "Confiserie d'Asie centrale de boules de pate non levee frites et liees au miel; en Ouzbekistan aussi servie en nouilles ou flocons."
       },
       "sources": [
@@ -23398,8 +23398,8 @@ const CUISINE_NOTES = {
     "katyk": {
       "local": "qatiq",
       "note": {
-        "en": "A thick Turkic fermented-milk product (a denser yogurt than ayran), made by fermenting boiled milk; in Uzbekistan it forms the base of…",
-        "fr": "Produit laitier fermenté turc épais (un yaourt plus dense que l'ayran), obtenu en fermentant du lait bouilli; en Ouzbékistan il sert de…"
+        "en": "A thick Turkic fermented-milk product (a denser yogurt than ayran), made by fermenting boiled milk;",
+        "fr": "Produit laitier fermenté turc épais (un yaourt plus dense que l'ayran), obtenu en fermentant du lait bouilli;"
       },
       "sources": [
         {
@@ -23415,8 +23415,8 @@ const CUISINE_NOTES = {
     "mastava": {
       "local": "Mastava (Мастава)",
       "note": {
-        "en": "A hearty Uzbek and Tajik rice-and-meat soup, sometimes called liquid pilaf, finished with yogurt or sour milk (katyk); its name derives…",
-        "fr": "Soupe ouzbeke et tadjike consistante au riz et a la viande, parfois appelee plov liquide, servie avec du yaourt ou du lait fermente…"
+        "en": "A hearty Uzbek and Tajik rice-and-meat soup, sometimes called liquid pilaf, finished with yogurt or sour milk (katyk);",
+        "fr": "Soupe ouzbeke et tadjike consistante au riz et à la viande, parfois appelee plov liquide."
       },
       "sources": [
         {
@@ -23432,8 +23432,8 @@ const CUISINE_NOTES = {
     "kazy": {
       "local": "Qazi",
       "note": {
-        "en": "A traditional horse-meat-and-fat sausage stuffed in horse intestine, rooted in Central Asian Turkic nomadic cooking; served sliced or in…",
-        "fr": "Saucisse traditionnelle de viande et de gras de cheval en boyau de cheval, issue de la cuisine nomade turcique d'Asie centrale; servie…"
+        "en": "A traditional horse-meat-and-fat sausage stuffed in horse intestine, rooted in Central Asian Turkic nomadic cooking;",
+        "fr": "Saucisse traditionnelle de viande et de gras de cheval en boyau de cheval, issue de la cuisine nomade turcique d'Asie centrale;"
       },
       "sources": [
         {
@@ -23450,7 +23450,7 @@ const CUISINE_NOTES = {
       "local": "atala",
       "note": {
         "en": "An Uzbek flour soup or porridge of butter-fried flour stirred into milk or water, traditionally given to women after childbirth.",
-        "fr": "Une soupe ou bouillie ouzbeke de farine frite au beurre, mélangée à du lait ou de l'eau, traditionnellement donnée aux femmes après…"
+        "fr": "Une soupe ou bouillie ouzbeke de farine frite au beurre, mélangée à du lait ou de l'eau."
       },
       "sources": [
         {
@@ -23466,8 +23466,8 @@ const CUISINE_NOTES = {
     "hasip": {
       "local": "hasip (xasip / хасип)",
       "note": {
-        "en": "An Uzbek homemade sausage of minced mutton, liver and offal mixed with rice, stuffed into cleaned sheep intestine, then boiled and served…",
-        "fr": "Une saucisse ouzbèke maison de mouton haché, foie et abats mélangés à du riz, en boyau de mouton nettoyé, puis bouillie et servie en…"
+        "en": "An Uzbek homemade sausage of minced mutton, liver and offal mixed with rice, stuffed into cleaned sheep intestine.",
+        "fr": "Une saucisse ouzbèke maison de mouton haché, foie et abats mélangés à du riz, en boyau de mouton nettoyé."
       },
       "sources": [
         {
@@ -23536,8 +23536,8 @@ const CUISINE_NOTES = {
     "khinkali": {
       "local": "ხინკალი",
       "note": {
-        "en": "Georgian twisted dough dumpling filled with spiced meat and broth; the dish is traditionally credited to the eastern mountain peoples of…",
-        "fr": "Boulette georgienne en pate torsadee, garnie de viande epicee et de bouillon ; le plat est traditionnellement attribue aux peuples des…"
+        "en": "Georgian twisted dough dumpling filled with spiced meat and broth;",
+        "fr": "Boulette georgienne en pate torsadee, garnie de viande épicée et de bouillon ;"
       },
       "sources": [
         {
@@ -23554,7 +23554,7 @@ const CUISINE_NOTES = {
       "local": "საცივი",
       "note": {
         "en": "Georgian dish of poultry (chicken or turkey) in a garlic-walnut sauce, served cold (its name means \"cold dish\"), a winter-holiday staple.",
-        "fr": "Plat géorgien de volaille (poulet ou dinde) en sauce ail-noix, servi froid (son nom signifie « plat froid »), incontournable des fêtes…"
+        "fr": "Plat géorgien de volaille (poulet ou dinde) en sauce ail-noix, servi froid (son nom signifie « plat froid »)"
       },
       "sources": [
         {
@@ -23571,7 +23571,7 @@ const CUISINE_NOTES = {
       "local": "ლობიო",
       "note": {
         "en": "Georgian bean dish of cooked or stewed beans seasoned with coriander, walnuts, garlic and onion; the name means \"beans\".",
-        "fr": "Plat georgien de haricots cuits ou mijotes, assaisonnes de coriandre, noix, ail et oignon ; le nom signifie \"haricots\"."
+        "fr": "Plat georgien de haricots cuits ou mijotés, assaisonnes de coriandre, noix, ail et oignon ; le nom signifie \"haricots\"."
       },
       "sources": [
         {
@@ -23588,7 +23588,7 @@ const CUISINE_NOTES = {
       "local": "მწვადი",
       "note": {
         "en": "Georgian skewered dish of cubed pork, lamb or veal grilled over open fire, traditionally on grapevine wood; centrepiece of the supra feast.",
-        "fr": "Plat georgien de brochettes de porc, agneau ou veau grillees au feu de bois, souvent sur sarments de vigne; piece maitresse du festin supra."
+        "fr": "Plat georgien de brochettes de porc, agneau ou veau grillées au feu de bois, souvent sur sarments de vigne; piece maitresse du festin supra."
       },
       "sources": [
         {
@@ -23605,7 +23605,7 @@ const CUISINE_NOTES = {
       "local": "ჩაქაფული",
       "note": {
         "en": "A Georgian springtime stew of young lamb or veal simmered with tarragon, dry white wine, sour tkemali plums and herbs.",
-        "fr": "Ragout georgien printanier d'agneau ou de veau mijote avec estragon, vin blanc sec, prunes tkemali acides et herbes."
+        "fr": "Ragout georgien printanier d'agneau ou de veau mijoté avec estragon, vin blanc sec, prunes tkemali acides et herbes."
       },
       "sources": [
         {
@@ -23622,7 +23622,7 @@ const CUISINE_NOTES = {
       "local": "ჩახოხბილი",
       "note": {
         "en": "A Georgian stew of chicken braised with tomatoes, onions and herbs; its name derives from khokhobi (pheasant), the original meat.",
-        "fr": "Ragout georgien de poulet mijote aux tomates, oignons et herbes; son nom vient de khokhobi (faisan), la viande d'origine."
+        "fr": "Ragout georgien de poulet mijoté aux tomates, oignons et herbes; son nom vient de khokhobi (faisan), la viande d'origine."
       },
       "sources": [
         {
@@ -23639,7 +23639,7 @@ const CUISINE_NOTES = {
       "local": "ფხალი (pkhali)",
       "note": {
         "en": "Georgian cold appetizer of minced vegetables (spinach, beet, beans) bound with ground walnuts, garlic, vinegar and herbs.",
-        "fr": "Entree georgienne froide de legumes haches (epinards, betterave, haricots) lies aux noix moulues, ail, vinaigre et herbes."
+        "fr": "Entree georgienne froide de legumes hachés (epinards, betterave, haricots) lies aux noix moulues, ail, vinaigre et herbes."
       },
       "sources": [
         {
@@ -23673,7 +23673,7 @@ const CUISINE_NOTES = {
       "local": "ჩურჩხელა",
       "note": {
         "en": "A traditional Georgian candle-shaped confection of nuts threaded on a string, repeatedly dipped in thickened grape must and sun-dried.",
-        "fr": "Confiserie georgienne traditionnelle en forme de bougie, faite de noix enfilees, trempees dans du mout de raisin epaissi et sechees au…"
+        "fr": "Confiserie georgienne traditionnelle en forme de bougie, faite de noix enfilees."
       },
       "sources": [
         {
@@ -23774,8 +23774,8 @@ const CUISINE_NOTES = {
     "kuchmachi": {
       "local": "კუჭმაჭი",
       "note": {
-        "en": "A traditional Georgian dish of offal (chicken or pork liver, heart and gizzards) cooked with walnuts and herbs, garnished with pomegranate…",
-        "fr": "Plat georgien traditionnel d'abats (foie, coeur et gesier de poulet ou de porc) cuits aux noix et herbes, garni de graines de grenade."
+        "en": "A traditional Georgian dish of offal (chicken or pork liver, heart and gizzards)",
+        "fr": "Plat georgien traditionnel d'abats (foie, cœur et gesier de poulet ou de porc) cuits aux noix et herbes, garni de graines de grenade."
       },
       "sources": [
         {
@@ -23826,7 +23826,7 @@ const CUISINE_NOTES = {
       "local": "ფხალი",
       "note": {
         "en": "Georgian vegetable pate of minced cooked greens or veg blended with a walnut, garlic and herb paste, served as a cold appetizer.",
-        "fr": "Pate vegetal georgien de legumes cuits haches melanges a une pate de noix, ail et herbes, servi en entree froide."
+        "fr": "Pate vegetal georgien de legumes cuits hachés mélangés a une pate de noix, ail et herbes, servi en entree froide."
       },
       "sources": [
         {
@@ -23842,8 +23842,8 @@ const CUISINE_NOTES = {
     "georgian wine qvevri": {
       "local": "ქვევრი",
       "note": {
-        "en": "Georgian wine fermented and aged in egg-shaped buried clay vessels (qvevri), a method UNESCO inscribed on the Representative List of the…",
-        "fr": "Vin georgien fermente et vieilli dans des jarres d'argile enterrees en forme d'oeuf (qvevri), methode inscrite en 2013 sur la Liste…"
+        "en": "Georgian wine fermented and aged in egg-shaped buried clay vessels (qvevri)",
+        "fr": "Vin georgien fermenté et vieilli dans des jarres d'argile enterrees en forme d'oeuf (qvevri)"
       },
       "sources": [
         {
@@ -23875,7 +23875,7 @@ const CUISINE_NOTES = {
       "local": "feijoada à brasileira",
       "note": {
         "en": "A Brazilian stew of black beans with salted and smoked pork and beef cuts; first recorded in Recife, Pernambuco, in 1827.",
-        "fr": "Ragout bresilien de haricots noirs avec porc et boeuf sales et fumes; mentionne pour la premiere fois a Recife, Pernambouc, en 1827."
+        "fr": "Ragout bresilien de haricots noirs avec porc et bœuf sales et fumes; mentionne pour la premiere fois a Recife, Pernambouc, en 1827."
       },
       "sources": [
         {
@@ -23905,7 +23905,7 @@ const CUISINE_NOTES = {
       "local": "Churrasco",
       "note": {
         "en": "Brazilian barbecue of salted meat grilled on skewers (espetos) over wood embers, originating with the gauchos of the southern Pampas.",
-        "fr": "Barbecue bresilien de viande salee grillee sur des broches (espetos) sur braises de bois, ne chez les gauchos des Pampas du Sud."
+        "fr": "Barbecue bresilien de viande salee grillée sur des broches (espetos) sur braisés de bois, ne chez les gauchos des Pampas du Sud."
       },
       "sources": [
         {
@@ -23921,8 +23921,8 @@ const CUISINE_NOTES = {
     "moqueca": {
       "local": "moqueca",
       "note": {
-        "en": "Brazilian seafood stew rooted in the Indigenous \"pokeka\" wrapping technique, with baiana (dendê, coconut) and capixaba (lighter, tomato)…",
-        "fr": "Ragoût brésilien de fruits de mer issu de la technique indigène \"pokeka\", avec les variantes baiana (dendê, coco) et capixaba (plus légère…"
+        "en": "Brazilian seafood stew rooted in the Indigenous \"pokeka\" wrapping technique, with baiana (dendê, coconut) and capixaba (lighter, tomato)",
+        "fr": "Ragoût brésilien de fruits de mer issu de la technique indigène \"pokeka\", avec les variantes baiana (dendê, coco)"
       },
       "sources": [
         {
@@ -23938,8 +23938,8 @@ const CUISINE_NOTES = {
     "coxinha": {
       "local": "coxinha",
       "note": {
-        "en": "A Brazilian teardrop-shaped deep-fried snack of shredded chicken in dough, named \"little thigh\" for its drumstick shape; born in…",
-        "fr": "Beignet bresilien en forme de goutte, a base de poulet effiloche dans une pate frite, nomme \"petite cuisse\"; ne au XIXe siecle a Sao Paulo."
+        "en": "A Brazilian teardrop-shaped deep-fried snack of shredded chicken in dough, named \"little thigh\" for its drumstick shape;",
+        "fr": "Beignet bresilien en forme de goutte, a base de poulet effiloche dans une pate frite, nommé \"petite cuisse\"; ne au XIXe siecle a Sao Paulo."
       },
       "sources": [
         {
@@ -23951,8 +23951,8 @@ const CUISINE_NOTES = {
     "brigadeiro": {
       "local": "brigadeiro",
       "note": {
-        "en": "Brazilian fudge ball of condensed milk, cocoa and butter rolled in sprinkles, created in 1940s Rio to back presidential candidate Eduardo…",
-        "fr": "Confiserie bresilienne de lait concentre, cacao et beurre enrobee de vermicelles, creee a Rio dans les annees 1940 pour le candidat Eduardo…"
+        "en": "Brazilian fudge ball of condensed milk, cocoa and butter rolled in sprinkles.",
+        "fr": "Confiserie bresilienne de lait concentre, cacao et beurre enrobee de vermicelles."
       },
       "sources": [
         {
@@ -23998,8 +23998,8 @@ const CUISINE_NOTES = {
     "feijão tropeiro": {
       "local": "Feijão tropeiro",
       "note": {
-        "en": "A Minas Gerais bean dish with beans, cassava farofa, sausage and eggs, created by 17th-19th c. tropeiro mule drivers from non-perishable…",
-        "fr": "Un plat de haricots du Minas Gerais avec farofa de manioc, saucisse et œufs, créé par les muletiers tropeiros (XVIIe-XIXe s.) avec des…"
+        "en": "A Minas Gerais bean dish with beans, cassava farofa, sausage and eggs, created by 17th-19th c.",
+        "fr": "Un plat de haricots du Minas Gerais avec farofa de manioc, saucisse et œufs, créé par les muletiers tropeiros (XVIIe-XIXe s.)"
       },
       "sources": [
         {
@@ -24059,7 +24059,7 @@ const CUISINE_NOTES = {
       "local": "caipirinha",
       "note": {
         "en": "Brazil's national cocktail of cachaça, lime and sugar over ice, originating in rural São Paulo and made cultural heritage in 2003.",
-        "fr": "Cocktail national du Brésil à base de cachaça, citron vert et sucre sur glace, né dans l'intérieur de São Paulo, patrimoine culturel depuis…"
+        "fr": "Cocktail national du Brésil à base de cachaça, citron vert et sucre sur glace, né dans l'intérieur de São Paulo."
       },
       "sources": [
         {
@@ -24076,7 +24076,7 @@ const CUISINE_NOTES = {
       "local": "farofa",
       "note": {
         "en": "Brazilian toasted cassava flour, often fried with butter, bacon and onion, served as a side dish for feijoada and churrasco.",
-        "fr": "Farine de manioc grillee bresilienne, souvent frite au beurre, lardons et oignon, servie en accompagnement de la feijoada et du churrasco."
+        "fr": "Farine de manioc grillée bresilienne, souvent frite au beurre, lardons et oignon, servie en accompagnement de la feijoada et du churrasco."
       },
       "sources": [
         {
@@ -24089,7 +24089,7 @@ const CUISINE_NOTES = {
       "local": "picanha",
       "note": {
         "en": "A prized Brazilian beef cut (the rump cap, biceps femoris with its fat cap), traditionally grilled on skewers in churrascarias.",
-        "fr": "Une coupe de boeuf bresilienne prisee (le couvercle de rumsteck avec sa couche de gras), grillee en brochettes dans les churrascarias."
+        "fr": "Une coupe de bœuf bresilienne prisee (le couvercle de rumsteck avec sa couche de gras), grillée en brochettes dans les churrascarias."
       },
       "sources": [
         {
@@ -24166,7 +24166,7 @@ const CUISINE_NOTES = {
       "local": "sopa de palmito",
       "note": {
         "en": "A Brazilian creamy soup made from hearts of palm (palmito), an abundant local ingredient, with onion, garlic, broth and cream.",
-        "fr": "Une soupe cremeuse bresilienne a base de coeur de palmier (palmito), ingredient local abondant, avec oignon, ail, bouillon et creme."
+        "fr": "Une soupe cremeuse bresilienne a base de cœur de palmier (palmito), ingredient local abondant, avec oignon, ail, bouillon et creme."
       },
       "sources": [
         {
@@ -24183,7 +24183,7 @@ const CUISINE_NOTES = {
       "local": "barreado",
       "note": {
         "en": "Slow-cooked beef stew from the coast of Paraná, Brazil, simmered 12-15 hours in a clay pot sealed shut with cassava-flour paste.",
-        "fr": "Ragout de boeuf mijote de la cote du Parana, au Bresil, cuit 12 a 15 heures dans une marmite en terre scellee a la farine de manioc."
+        "fr": "Ragout de bœuf mijoté de la cote du Parana, au Bresil, cuit 12 a 15 heures dans une marmite en terre scellee à la farine de manioc."
       },
       "sources": [
         {
@@ -24219,7 +24219,7 @@ const CUISINE_NOTES = {
       "local": "asado",
       "note": {
         "en": "Argentine live-fire barbecue of beef and other cuts grilled over wood embers on a parrilla, rooted in 18th-century gaucho campfire cooking.",
-        "fr": "Barbecue argentin au feu de bois de bœuf et autres morceaux grillés sur une parrilla, issu de la cuisine au feu des gauchos du XVIIIe…"
+        "fr": "Barbecue argentin au feu de bois de bœuf et autres morceaux grillés sur une parrilla."
       },
       "sources": [
         {
@@ -24236,7 +24236,7 @@ const CUISINE_NOTES = {
       "local": "empanada argentina",
       "note": {
         "en": "A baked or fried wheat-dough pastry filled with spiced beef, olives and egg, brought to Argentina by Spanish colonists.",
-        "fr": "Un chausson de pate de ble cuit au four ou frit, garni de boeuf epice, d'olives et d'oeuf, apporte par les colons espagnols."
+        "fr": "Un chausson de pate de ble cuit au four ou frit, garni de bœuf épice, d'olives et d'oeuf, apporte par les colons espagnols."
       },
       "sources": [
         {
@@ -24253,7 +24253,7 @@ const CUISINE_NOTES = {
       "local": "milanesa",
       "note": {
         "en": "Thin breaded, fried meat cutlet (beef, chicken or pork), brought to Argentina by Italian immigrants from Milan's cotoletta alla milanese.",
-        "fr": "Fine escalope de viande panee et frite (boeuf, poulet ou porc), apportee en Argentine par les immigrants italiens depuis la cotoletta alla…"
+        "fr": "Fine escalope de viande panee et frite (bœuf, poulet ou porc)"
       },
       "sources": [
         {
@@ -24269,8 +24269,8 @@ const CUISINE_NOTES = {
     "choripán": {
       "local": "choripán",
       "note": {
-        "en": "An Argentine (and broader Río de la Plata) grilled-chorizo sandwich whose name fuses chorizo + pan. Its origins are traced to gaucho asado…",
-        "fr": "Sandwich argentin (et plus largement du Río de la Plata) au chorizo grillé, dont le nom fusionne chorizo + pan. Ses origines remontent à la…"
+        "en": "An Argentine (and broader Río de la Plata) grilled-chorizo sandwich whose name fuses chorizo + pan.",
+        "fr": "Sandwich argentin (et plus largement du Río de la Plata) au chorizo grillé, dont le nom fusionne chorizo + pan."
       },
       "sources": [
         {
@@ -24321,7 +24321,7 @@ const CUISINE_NOTES = {
       "local": "humita (Quechua: umint'a)",
       "note": {
         "en": "Pre-Hispanic Andean dish of fresh grated corn paste wrapped in a corn husk and steamed; its name derives from Quechua umint'a.",
-        "fr": "Plat andin pre-hispanique de mais frais rape en pate, enveloppe dans une feuille de mais et cuit a la vapeur; son nom vient du quechua…"
+        "fr": "Plat andin pre-hispanique de mais frais rape en pate, enveloppe dans une feuille de mais et cuit à la vapeur;"
       },
       "sources": [
         {
@@ -24354,8 +24354,8 @@ const CUISINE_NOTES = {
     "alfajores": {
       "local": "alfajores",
       "note": {
-        "en": "Two soft biscuits sandwiching dulce de leche, often sugar- or chocolate-coated; the Argentine national cookie, from a Moorish-Spanish…",
-        "fr": "Deux biscuits moelleux fourres de dulce de leche, souvent enrobes de sucre ou de chocolat ; biscuit national argentin, d'origine…"
+        "en": "Two soft biscuits sandwiching dulce de leche, often sugar- or chocolate-coated;",
+        "fr": "Deux biscuits moelleux fourres de dulce de leche, souvent enrobes de sucre ou de chocolat ;"
       },
       "sources": [
         {
@@ -24371,8 +24371,8 @@ const CUISINE_NOTES = {
     "provoleta": {
       "local": "provoleta",
       "note": {
-        "en": "Argentine asado appetizer of a thick provolone slice grilled until crusty and gooey, created in 1940s Cordoba by Calabrian immigrant…",
-        "fr": "Entree d'asado argentin: une tranche epaisse de provolone grillee jusqu'a etre croustillante et fondante, creee dans les annees 1940 a…"
+        "en": "Argentine asado appetizer of a thick provolone slice grilled until crusty and gooey.",
+        "fr": "Entree d'asado argentin: une tranche epaisse de provolone grillée jusqu'a etre croustillante et fondante."
       },
       "sources": [
         {
@@ -24389,7 +24389,7 @@ const CUISINE_NOTES = {
       "local": "chimichurri",
       "note": {
         "en": "Argentine uncooked herb sauce of parsley, garlic, oregano, vinegar and oil, created by 19th-century gauchos for grilled asado meats.",
-        "fr": "Sauce argentine crue de persil, ail, origan, vinaigre et huile, creee au XIXe siecle par les gauchos pour les viandes grillees de l'asado."
+        "fr": "Sauce argentine crue de persil, ail, origan, vinaigre et huile, créée au XIXe siecle par les gauchos pour les viandes grillées de l'asado."
       },
       "sources": [
         {
@@ -24419,7 +24419,7 @@ const CUISINE_NOTES = {
       "local": "medialunas",
       "note": {
         "en": "Small, sweet crescent-shaped Argentinian pastry of the factura family, made with butter or lard; an Argentine take on the French croissant.",
-        "fr": "Petite viennoiserie argentine sucree en forme de croissant, de la famille des facturas, faite au beurre ou au saindoux; version argentine…"
+        "fr": "Petite viennoiserie argentine sucree en forme de croissant, de la famille des facturas, faite au beurre ou au saindoux;"
       },
       "sources": [
         {
@@ -24452,8 +24452,8 @@ const CUISINE_NOTES = {
     "parrilla mixta": {
       "local": "parrillada",
       "note": {
-        "en": "Argentine mixed grill (parrillada) of assorted asado cuts served with sausages such as chorizo and morcilla (blood sausage) and offal like…",
-        "fr": "Grillade mixte argentine (parrillada) de morceaux d'asado variés, servie avec des saucisses comme le chorizo et la morcilla (boudin) et des…"
+        "en": "Argentine mixed grill (parrillada) of assorted asado cuts served with sausages such as chorizo and morcilla (blood sausage)",
+        "fr": "Grillade mixte argentine (parrillada) de morceaux d'asado variés, servie avec des saucisses comme le chorizo et la morcilla (boudin)"
       },
       "sources": [
         {
@@ -24470,7 +24470,7 @@ const CUISINE_NOTES = {
       "local": "tira de asado",
       "note": {
         "en": "Argentine asado dish of beef short ribs cross-cut flanken-style into long strips through the bone, salted and grilled over embers.",
-        "fr": "Plat d'asado argentin de cotes de boeuf coupees en travers de l'os en longues bandes, salees et grillees sur la braise."
+        "fr": "Plat d'asado argentin de cotes de bœuf coupees en travers de l'os en longues bandes, salees et grillées sur la braisé."
       },
       "sources": [
         {
@@ -24486,8 +24486,8 @@ const CUISINE_NOTES = {
     "bife de chorizo": {
       "local": "bife de chorizo",
       "note": {
-        "en": "Argentine thick-cut strip loin steak (US New York strip / short loin) with a fat cap, grilled over wood or charcoal for asado; named for…",
-        "fr": "Steak argentin epais de faux-filet (entrecote New York / aloyau) avec une couche de gras, grille au feu de bois ou au charbon pour l'asado…"
+        "en": "Argentine thick-cut strip loin steak (US New York strip / short loin) with a fat cap, grilled over wood or charcoal for asado;",
+        "fr": "Steak argentin epais de faux-filet (entrecote New York / aloyau)"
       },
       "sources": [
         {
@@ -24504,7 +24504,7 @@ const CUISINE_NOTES = {
       "local": "Morcilla",
       "note": {
         "en": "Argentine blood sausage of pig's blood, fat and spices, of Spanish origin and a staple of the asado barbecue.",
-        "fr": "Boudin noir argentin a base de sang de porc, gras et epices, d'origine espagnole et piece maitresse de l'asado."
+        "fr": "Boudin noir argentin a base de sang de porc, gras et épices, d'origine espagnole et piece maitresse de l'asado."
       },
       "sources": [
         {
@@ -24521,7 +24521,7 @@ const CUISINE_NOTES = {
       "local": "Bife de vacío",
       "note": {
         "en": "Argentine beef cut from the flank/belly between ribs and hip, a beloved asado favourite slow-grilled over coals with its fat cap on.",
-        "fr": "Coupe de bœuf argentine du flanc entre côtes et hanche, prisée à l'asado, grillée lentement sur braises avec sa couche de gras."
+        "fr": "Coupe de bœuf argentine du flanc entre côtes et hanche, prisée à l'asado, grillée lentement sur braisés avec sa couche de gras."
       },
       "sources": [
         {
@@ -24571,8 +24571,8 @@ const CUISINE_NOTES = {
     "cazuela criolla": {
       "local": "Cazuela criolla",
       "note": {
-        "en": "A Latin American (Southern Cone) stew of meat (beef or pork), potatoes, corn and tomato, cooked and served in an earthenware pot called a…",
-        "fr": "Ragoût latino-americain (Cone Sud) a base de viande (boeuf ou porc), pommes de terre, mais et tomate, cuit et servi dans un plat en terre…"
+        "en": "A Latin American (Southern Cone) stew of meat (beef or pork)",
+        "fr": "Ragoût latino-americain (Cone Sud) a base de viande (bœuf ou porc)"
       },
       "sources": [
         {
@@ -24590,7 +24590,7 @@ const CUISINE_NOTES = {
     "hangi": {
       "local": "hāngī",
       "note": {
-        "en": "A traditional Maori feast of meat and vegetables cooked over heated stones in an earth oven (umu), a method brought from Polynesia…",
+        "en": "A traditional Maori feast of meat and vegetables cooked over heated stones in an earth oven (umu)",
         "fr": "Festin maori traditionnel de viande et legumes cuits sur des pierres chauffees dans un four en terre (umu), methode apportee de Polynesie."
       },
       "sources": [
@@ -24607,8 +24607,8 @@ const CUISINE_NOTES = {
     "lamb roast nz": {
       "local": "Roast lamb",
       "note": {
-        "en": "A British-derived Sunday roast of leg of lamb with roasted potatoes, kumara and pumpkin, long a staple New Zealand family meal until the…",
-        "fr": "Roti dominical d'origine britannique: gigot d'agneau avec pommes de terre, kumara et courge, longtemps un plat familial neo-zelandais…"
+        "en": "A British-derived Sunday roast of leg of lamb with roasted potatoes, kumara and pumpkin.",
+        "fr": "Roti dominical d'origine britannique: gigot d'agneau avec pommes de terre, kumara et courge."
       },
       "sources": [
         {
@@ -24624,8 +24624,8 @@ const CUISINE_NOTES = {
     "pavlova nz": {
       "local": "pavlova",
       "note": {
-        "en": "A meringue-based dessert with crisp crust and soft centre, topped with cream and fruit; named after ballerina Anna Pavlova, with a 1929 NZ…",
-        "fr": "Dessert a base de meringue, croute croustillante et coeur moelleux, garni de creme et de fruits; nomme d'apres la ballerine Anna Pavlova…"
+        "en": "A meringue-based dessert with crisp crust and soft centre, topped with cream and fruit;",
+        "fr": "Dessert a base de meringue, croute croustillante et cœur moelleux, garni de creme et de fruits;"
       },
       "sources": [
         {
@@ -24675,8 +24675,8 @@ const CUISINE_NOTES = {
     "marlborough sounds mussels": {
       "local": "Kūtai (Perna canaliculus)",
       "note": {
-        "en": "New Zealand green-lipped mussels (kūtai) farmed in the Marlborough Sounds since the 1960s; ~70% of national Greenshell production grows…",
-        "fr": "Moules vertes néo-zélandaises (kūtai) élevées dans les Marlborough Sounds depuis les années 1960; ~70% de la production nationale y est…"
+        "en": "New Zealand green-lipped mussels (kūtai) farmed in the Marlborough Sounds since the 1960s;",
+        "fr": "Moules vertes néo-zélandaises (kūtai) élevées dans les Marlborough Sounds depuis les années 1960;"
       },
       "sources": [
         {
@@ -24693,7 +24693,7 @@ const CUISINE_NOTES = {
       "local": "Kōura (Kaikōura)",
       "note": {
         "en": "New Zealand red rock lobster from Kaikōura, whose Māori name means \"to eat crayfish\"; long a key Māori food, now grilled with garlic butter.",
-        "fr": "Langouste rouge néo-zélandaise de Kaikōura, dont le nom māori signifie « manger des langoustes »; longtemps aliment māori clé, servie…"
+        "fr": "Langouste rouge néo-zélandaise de Kaikōura, dont le nom māori signifie « manger des langoustes »;"
       },
       "sources": [
         {
@@ -24777,8 +24777,8 @@ const CUISINE_NOTES = {
     "lolly cake": {
       "local": "lolly cake",
       "note": {
-        "en": "A New Zealand no-bake treat of crushed malt biscuits, butter and condensed milk bound with fruity Eskimo or Explorer lollies, rolled in…",
-        "fr": "Une friandise neo-zelandaise sans cuisson de biscuits malt emiettes, beurre et lait concentre, liee avec des bonbons fruites, roulee dans…"
+        "en": "A New Zealand no-bake treat of crushed malt biscuits, butter and condensed milk bound with fruity Eskimo or Explorer lollies.",
+        "fr": "Une friandise neo-zelandaise sans cuisson de biscuits malt émiettés, beurre et lait concentre, liee avec des bonbons fruites."
       },
       "sources": [
         {
@@ -24808,7 +24808,7 @@ const CUISINE_NOTES = {
       "local": "Anzac biscuit",
       "note": {
         "en": "Egg-free oat, coconut and golden-syrup biscuit linked to WWI's ANZAC corps; the name and recipe date to around 1919-1920.",
-        "fr": "Biscuit sans oeuf a l'avoine, noix de coco et sirop dore lie au corps ANZAC de la Premiere Guerre; nom et recette datent de 1919-1920…"
+        "fr": "Biscuit sans oeuf a l'avoine, noix de coco et sirop dore lie au corps ANZAC de la Premiere Guerre;"
       },
       "sources": [
         {
@@ -24841,8 +24841,8 @@ const CUISINE_NOTES = {
     "green-lipped mussel": {
       "local": "Kūtai (kuku)",
       "note": {
-        "en": "A large bivalve (Perna canaliculus) endemic to New Zealand, long eaten by Māori as kūtai and now widely cultivated and marketed under the…",
-        "fr": "Un grand bivalve (Perna canaliculus) endémique de Nouvelle-Zélande, consommé de longue date par les Māori sous le nom de kūtai et…"
+        "en": "A large bivalve (Perna canaliculus)",
+        "fr": "Un grand bivalve (Perna canaliculus)"
       },
       "sources": [
         {
@@ -24859,7 +24859,7 @@ const CUISINE_NOTES = {
       "local": "New Zealand venison (Cervena)",
       "note": {
         "en": "New Zealand pasture-raised farmed deer meat, marketed since 1992 under the Cervena appellation guaranteeing tender, grass-fed venison.",
-        "fr": "Viande de cerf d'elevage neo-zelandais nourri a l'herbe, commercialisee depuis 1992 sous l'appellation Cervena garantissant une venaison…"
+        "fr": "Viande de cerf d'elevage neo-zelandais nourri a l'herbe, commercialisee depuis 1992 sous l'appellation Cervena garantissant une venaison"
       },
       "sources": [
         {
@@ -24876,7 +24876,7 @@ const CUISINE_NOTES = {
       "local": "Rāwaru tempura",
       "note": {
         "en": "NZ-endemic blue cod (rāwaru) in light tempura batter; the firm white fish was a valued traditional food for South Island Māori.",
-        "fr": "Morue bleue de Nouvelle-Zélande (rāwaru) en pâte tempura légère ; ce poisson blanc ferme était un aliment traditionnel des Maoris de l'île…"
+        "fr": "Morue bleue de Nouvelle-Zélande (rāwaru) en pâte tempura légère ;"
       },
       "sources": [
         {
@@ -24893,7 +24893,7 @@ const CUISINE_NOTES = {
       "local": "Kiwiburger",
       "note": {
         "en": "A McDonald's New Zealand burger with a beef patty, griddled egg and beetroot, added to the national menu in 1991.",
-        "fr": "Un burger de McDonald's Nouvelle-Zelande avec steak de boeuf, oeuf grille et betterave, ajoute au menu national en 1991."
+        "fr": "Un burger de McDonald's Nouvelle-Zelande avec steak de bœuf, oeuf grillé et betterave, ajoute au menu national en 1991."
       },
       "sources": [
         {
@@ -24909,8 +24909,8 @@ const CUISINE_NOTES = {
     "cheese roll": {
       "local": "Cheese roll",
       "note": {
-        "en": "A New Zealand snack of bread spread with a cheese, onion and evaporated-milk filling, rolled and toasted; a Southland staple since the…",
-        "fr": "Snack néo-zélandais : une tranche de pain garnie de fromage, oignon et lait concentré, roulée puis grillée ; spécialité du Southland depuis…"
+        "en": "A New Zealand snack of bread spread with a cheese, onion and evaporated-milk filling, rolled and toasted;",
+        "fr": "Snack néo-zélandais : une tranche de pain garnie de fromage, oignon et lait concentré, roulée puis grillée ;"
       },
       "sources": [
         {
@@ -24963,7 +24963,7 @@ const CUISINE_NOTES = {
       "local": "lovo",
       "note": {
         "en": "Traditional Fijian feast cooked in an underground earth oven of heated stones, with meat, fish and root crops wrapped in banana leaves.",
-        "fr": "Festin fidjien traditionnel cuit dans un four de terre souterrain de pierres chaudes, viande, poisson et tubercules enveloppes de feuilles…"
+        "fr": "Festin fidjien traditionnel cuit dans un four de terre souterrain de pierres chaudes, viande."
       },
       "sources": [
         {
@@ -25013,8 +25013,8 @@ const CUISINE_NOTES = {
     "luau pig": {
       "local": "kālua puaʻa",
       "note": {
-        "en": "A whole pig slow-roasted in an imu (underground hot-rock oven), wrapped in ti or banana leaves, served as the centerpiece of a Hawaiian…",
-        "fr": "Cochon entier rôti lentement dans un imu (four souterrain à pierres chaudes), enveloppé de feuilles de ti, servi au centre d'un luau…"
+        "en": "A whole pig slow-roasted in an imu (underground hot-rock oven)",
+        "fr": "Cochon entier rôti lentement dans un imu (four souterrain à pierres chaudes)"
       },
       "sources": [
         {
@@ -25031,7 +25031,7 @@ const CUISINE_NOTES = {
       "local": "Sapasui",
       "note": {
         "en": "Samoa's national dish of bean-thread noodles, meat and vegetables in soy-ginger sauce, brought by Chinese laborers in the early 1900s.",
-        "fr": "Plat national samoan de vermicelles de soja, viande et legumes en sauce soja-gingembre, apporte par les ouvriers chinois au debut du XXe…"
+        "fr": "Plat national samoan de vermicelles de soja, viande et legumes en sauce soja-gingembre."
       },
       "sources": [
         {
@@ -25047,7 +25047,7 @@ const CUISINE_NOTES = {
     "sapasui": {
       "local": "sapasui",
       "note": {
-        "en": "Samoan stir-fry of vermicelli noodles, meat and vegetables in soy sauce; a localised chop suey brought by Chinese laborers in the early…",
+        "en": "Samoan stir-fry of vermicelli noodles, meat and vegetables in soy sauce;",
         "fr": "Sauté samoan de vermicelles, viande et legumes au soja; un chop suey localise apporte par les ouvriers chinois au debut du XXe siecle."
       },
       "sources": [
@@ -25081,8 +25081,8 @@ const CUISINE_NOTES = {
     "coconut bread": {
       "local": "pani popo",
       "note": {
-        "en": "Samoan soft sweet yeast buns baked in a sweetened coconut milk (or coconut cream) sauce, which soaks into the rolls to give a gooey, sticky…",
-        "fr": "Petits pains samoans levés, moelleux et sucrés, cuits dans une sauce au lait (ou à la crème) de coco sucrée qui impregne les pains et leur…"
+        "en": "Samoan soft sweet yeast buns baked in a sweetened coconut milk (or coconut cream)",
+        "fr": "Petits pains samoans levés, moelleux et sucrés, cuits dans une sauce au lait (ou à la crème)"
       },
       "sources": [
         {
@@ -25116,7 +25116,7 @@ const CUISINE_NOTES = {
       "local": "palusami",
       "note": {
         "en": "Palusami is a Samoan dish of young taro leaves wrapped around coconut cream, then baked or steamed, traditionally in an umu earth oven.",
-        "fr": "Le palusami est un plat samoan de jeunes feuilles de taro enveloppant de la creme de coco, cuit au four ou a la vapeur, traditionnellement…"
+        "fr": "Le palusami est un plat samoan de jeunes feuilles de taro enveloppant de la creme de coco, cuit au four ou à la vapeur."
       },
       "sources": [
         {
@@ -25133,7 +25133,7 @@ const CUISINE_NOTES = {
       "local": "Spiny rock lobster (Panulirus ornatus)",
       "note": {
         "en": "A clawless spiny rock lobster (Panulirus) of the Indo-Pacific, prized across Pacific islands and often grilled or curried.",
-        "fr": "Une langouste sans pinces (Panulirus) de l'Indo-Pacifique, prisee dans les iles du Pacifique, souvent grillee ou en curry."
+        "fr": "Une langouste sans pinces (Panulirus) de l'Indo-Pacifique, prisee dans les iles du Pacifique, souvent grillée ou en curry."
       },
       "sources": [
         {
@@ -25184,7 +25184,7 @@ const CUISINE_NOTES = {
       "local": "[UNVERIFIED: no such dish found]",
       "note": {
         "en": "No documented Australasian/Maori dish named \"kaipake\" was found; the nearest real Maori word, \"kaipuke\", means ship, not food.",
-        "fr": "Aucun plat australasien ou maori nomme \"kaipake\" n'a ete trouve; le mot maori voisin, \"kaipuke\", signifie navire, pas un aliment."
+        "fr": "Aucun plat australasien ou maori nommé \"kaipake\" n'a ete trouve; le mot maori voisin, \"kaipuke\", signifie navire, pas un aliment."
       },
       "sources": [
         {
@@ -25201,7 +25201,7 @@ const CUISINE_NOTES = {
       "local": "vakalolo",
       "note": {
         "en": "Vakalolo is a traditional Fijian dessert of grated cassava blended with coconut and sugar, then steamed in banana leaves.",
-        "fr": "Le vakalolo est un dessert fidjien traditionnel de manioc rape melange a la noix de coco et au sucre, cuit a la vapeur dans des feuilles de…"
+        "fr": "Le vakalolo est un dessert fidjien traditionnel de manioc rape mélangé à la noix de coco et au sucre."
       },
       "sources": [
         {
@@ -25235,7 +25235,7 @@ const CUISINE_NOTES = {
       "local": "ʻOta ʻika",
       "note": {
         "en": "Tongan national dish of raw fish marinated in citrus juice and coconut milk with diced vegetables; eaten across Polynesia.",
-        "fr": "Plat national tongien de poisson cru marine au jus d'agrumes et au lait de coco avec legumes en des, repandu en Polynesie."
+        "fr": "Plat national tongien de poisson cru mariné au jus d'agrumes et au lait de coco avec legumes en des, repandu en Polynesie."
       },
       "sources": [
         {
@@ -25251,8 +25251,8 @@ const CUISINE_NOTES = {
     "antipodean cafe brunch": {
       "local": "Antipodean café brunch",
       "note": {
-        "en": "Australian/New Zealand cafe brunch style built around poached eggs, smashed avocado on toast and a flat white; the smashed-avo brunch was…",
-        "fr": "Style de brunch de café australien et néo-zélandais articulé autour d'œufs pochés, d'avocat écrasé sur toast et d'un flat white ; le brunch…"
+        "en": "Australian/New Zealand cafe brunch style built around poached eggs, smashed avocado on toast and a flat white;",
+        "fr": "Style de brunch de café australien et néo-zélandais articulé autour d'œufs pochés, d'avocat écrasé sur toast et d'un flat white ;"
       },
       "sources": [
         {
@@ -25268,8 +25268,8 @@ const CUISINE_NOTES = {
     "pasifika fusion plate": {
       "local": "Pasifika",
       "note": {
-        "en": "A contemporary New Zealand style of Pacific Island cuisine that reinterprets traditional home-cooked dishes (taro, coconut cream, raw…",
-        "fr": "Un style néo-zélandais contemporain de cuisine des îles du Pacifique qui réinterprète des plats traditionnels faits maison (taro, lait de…"
+        "en": "A contemporary New Zealand style of Pacific Island cuisine that reinterprets traditional home-cooked dishes (taro, coconut cream.",
+        "fr": "Un style néo-zélandais contemporain de cuisine des îles du Pacifique qui réinterprète des plats traditionnels faits maison (taro."
       },
       "sources": [
         {
@@ -25287,8 +25287,8 @@ const CUISINE_NOTES = {
     "macanese egg tart": {
       "local": "葡撻 (葡式蛋撻)",
       "note": {
-        "en": "A Macau custard tart with a caramelized, scorched top and a margarine-based, crispier pastry that distinguishes it from Portuguese pastel…",
-        "fr": "Une tarte à la crème de Macao au dessus caramélisé et légèrement brûlé, à la pâte plus croustillante (à base de margarine) qui la distingue…"
+        "en": "A Macau custard tart with a caramelized, scorched top and a margarine-based.",
+        "fr": "Une tarte à la crème de Macao au dessus caramélisé et légèrement brûlé, à la pâte plus croustillante (à base de margarine)"
       },
       "sources": [
         {
@@ -25304,8 +25304,8 @@ const CUISINE_NOTES = {
     "african chicken": {
       "local": "Galinha à Africana (非洲雞)",
       "note": {
-        "en": "Macanese roast chicken in a paprika, chili, peanut and coconut sauce, born of Portuguese spice-trade routes through Africa (its piri-piri…",
-        "fr": "Poulet rôti macanais dans une sauce au paprika, piment, cacahuète et coco, né des routes portugaises des épices via l'Afrique (son piquant…"
+        "en": "Macanese roast chicken in a paprika, chili, peanut and coconut sauce, born of Portuguese spice-trade routes through Africa (its piri-piri",
+        "fr": "Poulet rôti macanais dans une sauce au paprika, piment, cacahuète et coco."
       },
       "sources": [
         {
@@ -25322,7 +25322,7 @@ const CUISINE_NOTES = {
       "local": "免治",
       "note": {
         "en": "Macau's national dish: minced beef and/or pork stir-fried with diced potatoes, often topped with a fried egg, served over rice.",
-        "fr": "Plat national de Macao : boeuf et/ou porc hache saute avec pommes de terre en des, souvent surmonte d'un oeuf au plat, sur du riz."
+        "fr": "Plat national de Macao : bœuf et/ou porc haché sauté avec pommes de terre en des, souvent surmonte d'un oeuf au plat, sur du riz."
       },
       "sources": [
         {
@@ -25389,8 +25389,8 @@ const CUISINE_NOTES = {
     "serradura": {
       "local": "木糠布丁",
       "note": {
-        "en": "A no-bake Macanese-Portuguese chilled dessert layering whipped cream with finely crushed Marie biscuits; \"serradura\" is Portuguese for…",
-        "fr": "Dessert glace macano-portugais sans cuisson, alternant creme fouettee et biscuits Marie finement emiettes; \"serradura\" signifie \"sciure\" en…"
+        "en": "A no-bake Macanese-Portuguese chilled dessert layering whipped cream with finely crushed Marie biscuits;",
+        "fr": "Dessert glace macano-portugais sans cuisson, alternant creme fouettee et biscuits Marie finement émiettés;"
       },
       "sources": [
         {
@@ -25407,7 +25407,7 @@ const CUISINE_NOTES = {
       "local": "豬扒包",
       "note": {
         "en": "Macanese sandwich of a fried or grilled bone-in pork chop in a crisp bread roll, rooted in the Portuguese bifana.",
-        "fr": "Sandwich macanais d'une cotelette de porc frite ou grillee dans un petit pain croustillant, derive de la bifana portugaise."
+        "fr": "Sandwich macanais d'une cotelette de porc frite ou grillée dans un petit pain croustillant, derive de la bifana portugaise."
       },
       "sources": [
         {
@@ -25423,8 +25423,8 @@ const CUISINE_NOTES = {
     "almond cookies": {
       "local": "杏仁餅",
       "note": {
-        "en": "A Macau specialty biscuit made chiefly of ground mung bean with sugar and almond. It was originally made without almond and named for its…",
-        "fr": "Biscuit specialite de Macao, fait surtout de haricot mungo moulu, avec sucre et amande. A l'origine sans amande, il tire son nom de sa…"
+        "en": "A Macau specialty biscuit made chiefly of ground mung bean with sugar and almond.",
+        "fr": "Biscuit spécialité de Macao, fait surtout de haricot mungo moulu, avec sucre et amande."
       },
       "sources": [
         {
@@ -25440,8 +25440,8 @@ const CUISINE_NOTES = {
     "bacalhau macau": {
       "local": "Bacalhau",
       "note": {
-        "en": "Portuguese dried salted cod (bacalhau), a staple ingredient brought to Macau through colonial trade and central to Macanese fusion cuisine…",
-        "fr": "Morue salee et sechee portugaise (bacalhau), ingredient de base apporte a Macao par le commerce colonial et au coeur de la cuisine fusion…"
+        "en": "Portuguese dried salted cod (bacalhau)",
+        "fr": "Morue salee et sechee portugaise (bacalhau)"
       },
       "sources": [
         {
@@ -25474,8 +25474,8 @@ const CUISINE_NOTES = {
     "feijoada macau": {
       "local": "Feijoada à moda de Macau",
       "note": {
-        "en": "Macanese bean-and-pork stew adapted from Portuguese feijoada, made with red kidney beans, mixed pork cuts (such as spare ribs and pig…",
-        "fr": "Ragoût macanais de haricots et de porc adapté de la feijoada portugaise, préparé avec des haricots rouges, des morceaux de porc variés…"
+        "en": "Macanese bean-and-pork stew adapted from Portuguese feijoada, made with red kidney beans.",
+        "fr": "Ragoût macanais de haricots et de porc adapté de la feijoada portugaise, préparé avec des haricots rouges."
       },
       "sources": [
         {
@@ -25491,8 +25491,8 @@ const CUISINE_NOTES = {
     "chilli crab macanese": {
       "local": "Caril de caranguejo",
       "note": {
-        "en": "Macanese fusion crab dish: softshell crab fried then simmered with turmeric, curry powder, chilli, ginger and garlic, blending Portuguese…",
-        "fr": "Plat de crabe macanais fusion : crabe mou frit puis mijoté avec curcuma, curry, piment, gingembre et ail, mêlant cuisines portugaise…"
+        "en": "Macanese fusion crab dish: softshell crab fried then simmered with turmeric, curry powder, chilli, ginger and garlic.",
+        "fr": "Plat de crabe macanais fusion : crabe mou frit puis mijoté avec curcuma, curry, piment, gingembre et ail."
       },
       "sources": [
         {
@@ -25509,7 +25509,7 @@ const CUISINE_NOTES = {
       "local": "Capela",
       "note": {
         "en": "A Macanese baked meatloaf of beef, pork, chorizo, olives and bread topped with bacon and cheese, rooted in Portuguese home cooking.",
-        "fr": "Pain de viande macanais cuit au four, de boeuf, porc, chorizo, olives et pain, garni de bacon et fromage, d'origine portugaise."
+        "fr": "Pain de viande macanais cuit au four, de bœuf, porc, chorizo, olives et pain, garni de bacon et fromage, d'origine portugaise."
       },
       "sources": [
         {
@@ -25555,8 +25555,8 @@ const CUISINE_NOTES = {
     "caca-mato": {
       "local": "caca-mato",
       "note": {
-        "en": "[UNVERIFIED] No dish or drink named \"caca-mato\" could be confirmed in Macanese cuisine sources; the name appears in no reputable food…",
-        "fr": "[NON VERIFIE] Aucun plat ou boisson nomme \"caca-mato\" n'a pu etre confirme dans la cuisine macanaise; ce nom ne figure dans aucune source…"
+        "en": "[UNVERIFIED] No dish or drink named \"caca-mato\" could be confirmed in Macanese cuisine sources;",
+        "fr": "[NON VERIFIE] Aucun plat ou boisson nommé \"caca-mato\" n'a pu etre confirme dans la cuisine macanaise;"
       },
       "sources": [
         {
@@ -25573,7 +25573,7 @@ const CUISINE_NOTES = {
       "local": "葡撻 (pou tat)",
       "note": {
         "en": "Macau's Portuguese-style egg custard tart, created in 1989 by British pharmacist Andrew Stow at Lord Stow's Bakery in Coloane.",
-        "fr": "Tarte macanaise a la creme d'oeufs de style portugais, creee en 1989 par le pharmacien britannique Andrew Stow a la Lord Stow's Bakery de…"
+        "fr": "Tarte macanaise à la creme d'oeufs de style portugais, créée en 1989 par le pharmacien britannique Andrew Stow à la Lord Stow's Bakery de"
       },
       "sources": [
         {
@@ -25590,7 +25590,7 @@ const CUISINE_NOTES = {
       "local": "Batatada",
       "note": {
         "en": "A Macanese baked pudding-cake of sweet potato or yam blended with coconut, butter and egg yolks, served at festive cha gordo gatherings.",
-        "fr": "Un gateau-pudding macanais de patate douce ou d'igname melange a la noix de coco, au beurre et aux jaunes d'oeufs, servi lors des cha gordo…"
+        "fr": "Un gateau-pudding macanais de patate douce ou d'igname mélangé à la noix de coco, au beurre et aux jaunes d'oeufs."
       },
       "sources": [
         {
@@ -25607,7 +25607,7 @@ const CUISINE_NOTES = {
       "local": "木糠布丁 (Serradura)",
       "note": {
         "en": "Macanese \"sawdust pudding\" of layered whipped cream and crushed Marie biscuits, a Portuguese-colonial dessert popular across Macau.",
-        "fr": "Pouding macanais dit \"sciure\", couches de creme fouettee et de biscuits Marie ecrases, dessert d'origine coloniale portugaise repandu a…"
+        "fr": "Pouding macanais dit \"sciure\", couches de creme fouettee et de biscuits Marie ecrases."
       },
       "sources": [
         {
@@ -25676,8 +25676,8 @@ const CUISINE_NOTES = {
     "dongbei pork dumplings": {
       "local": "东北饺子 (Dōngběi jiǎozi)",
       "note": {
-        "en": "Northeast-Chinese (Manchurian) boiled dumplings whose signature filling pairs minced pork with suancai (fermented sour cabbage), a New Year…",
-        "fr": "Raviolis bouillis du nord-est de la Chine (Mandchourie) dont la garniture phare marie le porc haché au suancai (chou fermenté), un plat du…"
+        "en": "Northeast-Chinese (Manchurian) boiled dumplings whose signature filling pairs minced pork with suancai (fermented sour cabbage)",
+        "fr": "Raviolis bouillis du nord-est de la Chine (Mandchourie) dont la garniture phare marie le porc haché au suancai (chou fermenté)"
       },
       "sources": [
         {
@@ -25694,7 +25694,7 @@ const CUISINE_NOTES = {
       "local": "小鸡炖蘑菇",
       "note": {
         "en": "Northeastern Chinese (Dongbei) stew of young chicken braised with wild hazel mushrooms and glass noodles, one of the region's famous stews.",
-        "fr": "Ragout du nord-est de la Chine (Dongbei) de poulet braise avec des champignons sauvages de noisetier et des vermicelles, un des ragouts…"
+        "fr": "Ragout du nord-est de la Chine (Dongbei)"
       },
       "sources": [
         {
@@ -25710,8 +25710,8 @@ const CUISINE_NOTES = {
     "cong you bing dongbei": {
       "local": "葱油饼",
       "note": {
-        "en": "Cong you bing is a Chinese savory pan-fried flatbread made from unleavened wheat dough folded into layers with oil and minced scallions…",
-        "fr": "Le cong you bing est une galette chinoise salée poêlée, faite de pâte de blé non levée pliée en couches avec de l'huile et des oignons…"
+        "en": "Cong you bing is a Chinese savory pan-fried flatbread made from unleavened wheat dough folded into layers with oil and minced scallions",
+        "fr": "Le cong you bing est une galette chinoise salée poêlée, faite de pâte de blé non levée pliée en couches avec de l'huile et des oignons"
       },
       "sources": [
         {
@@ -25727,8 +25727,8 @@ const CUISINE_NOTES = {
     "jianbing northeastern": {
       "local": "煎饼 (jiānbing)",
       "note": {
-        "en": "A northern Chinese griddle pancake, in the Shandong style made from coarse grains such as corn, sorghum or millet, which gives it a harder…",
-        "fr": "Une crepe nordique chinoise, dans le style du Shandong faite de cereales grossieres comme le mais, le sorgho ou le millet, ce qui lui donne…"
+        "en": "A northern Chinese griddle pancake, in the Shandong style made from coarse grains such as corn, sorghum or millet.",
+        "fr": "Une crêpe nordique chinoise, dans le style du Shandong faite de cereales grossieres comme le mais, le sorgho ou le millet."
       },
       "sources": [
         {
@@ -25744,7 +25744,7 @@ const CUISINE_NOTES = {
     "huo guo dongbei": {
       "local": "东北酸菜火锅",
       "note": {
-        "en": "Northeastern Chinese hot pot built on a fermented napa-cabbage (suancai) broth with pork, blood sausage and tofu, born of winter…",
+        "en": "Northeastern Chinese hot pot built on a fermented napa-cabbage (suancai)",
         "fr": "Fondue du nord-est de la Chine à base de bouillon de chou fermenté (suancai), avec porc, boudin et tofu, née de la conservation hivernale."
       },
       "sources": [
@@ -25778,8 +25778,8 @@ const CUISINE_NOTES = {
     "changchun braised duck": {
       "local": "清蒸白鱼",
       "note": {
-        "en": "A steamed freshwater white fish (from the Songhua River/Lake) that is a signature dish of Jilin (Dongbei) cuisine in Northeastern China…",
-        "fr": "Un poisson blanc d'eau douce cuit à la vapeur (de la rivière/du lac Songhua), plat emblématique de la cuisine du Jilin (Dongbei) dans le…"
+        "en": "A steamed freshwater white fish (from the Songhua River/Lake) that is a signature dish of Jilin (Dongbei)",
+        "fr": "Un poisson blanc d'eau douce cuit à la vapeur (de la rivière/du lac Songhua), plat emblématique de la cuisine du Jilin (Dongbei)"
       },
       "sources": [
         {
@@ -25808,8 +25808,8 @@ const CUISINE_NOTES = {
     "dongbei xiang chang": {
       "local": "东北红肠 (哈尔滨红肠)",
       "note": {
-        "en": "Northeastern China's red sausage, a garlic-flavored smoked pork sausage with a dark-red surface that was brought to Harbin by Russian (and…",
-        "fr": "Saucisse rouge du nord-est de la Chine, une saucisse de porc fumée à l'ail à la surface rouge foncé, introduite à Harbin par des immigrants…"
+        "en": "Northeastern China's red sausage, a garlic-flavored smoked pork sausage with a dark-red surface that was brought to Harbin by Russian (and",
+        "fr": "Saucisse rouge du nord-est de la Chine, une saucisse de porc fumée à l'ail à la surface rouge foncé."
       },
       "sources": [
         {
@@ -25826,7 +25826,7 @@ const CUISINE_NOTES = {
       "local": "烧麦",
       "note": {
         "en": "Steamed open-topped dumpling of pork or sticky-rice filling in a thin wheat wrapper; recorded from the late Yuan era and spread via Hohhot.",
-        "fr": "Bouchée vapeur à dessus ouvert, fourrée de porc ou de riz gluant dans une fine pâte de blé; attestée dès la fin des Yuan, diffusée via…"
+        "fr": "Bouchée vapeur à dessus ouvert, fourrée de porc ou de riz gluant dans une fine pâte de blé;"
       },
       "sources": [
         {
@@ -25842,8 +25842,8 @@ const CUISINE_NOTES = {
     "three rice porridge": {
       "local": "三米粥 (sān mǐ zhōu) — literal rendering of \"three rice porridge\"; the recipe is published under its English title and a single attested native name was not confirmed",
       "note": {
-        "en": "A Chinese congee (zhōu, 粥) cooked from three grains—purple rice, round glutinous rice and quinoa—simmered soft in a rice cooker, per the…",
-        "fr": "Un congee chinois (zhōu, 粥) cuit avec trois grains—riz noir (riz pourpre), riz gluant rond et quinoa—mijotés jusqu'à tendreté au cuiseur à…"
+        "en": "A Chinese congee (zhōu, 粥)",
+        "fr": "Un congee chinois (zhōu, 粥) cuit avec trois grains—riz noir (riz pourpre)"
       },
       "sources": [
         {
@@ -25859,8 +25859,8 @@ const CUISINE_NOTES = {
     "cold dongbei dishes": {
       "local": "东北凉菜 (Dōngběi liángcài)",
       "note": {
-        "en": "Dongbei liangcai are Northeastern Chinese cold dishes served as appetizers, such as smashed garlic cucumber (pai huang gua) and…",
-        "fr": "Les dongbei liangcai sont des plats froids du Nord-Est chinois servis en entrée, comme le concombre écrasé à l'ail (pai huang gua) et les…"
+        "en": "Dongbei liangcai are Northeastern Chinese cold dishes served as appetizers, such as smashed garlic cucumber (pai huang gua)",
+        "fr": "Les dongbei liangcai sont des plats froids du Nord-Est chinois servis en entrée, comme le concombre écrasé à l'ail (pai huang gua)"
       },
       "sources": [
         {
@@ -25876,8 +25876,8 @@ const CUISINE_NOTES = {
     "fermented soybean dongbei": {
       "local": "东北大酱 (dōngběi dàjiàng)",
       "note": {
-        "en": "Dongbei dajiang is a traditional Northeast Chinese fermented soybean paste, naturally fermented by molds, Bacillus, yeast and lactic-acid…",
-        "fr": "Le dongbei dajiang est une pâte de soja fermentée traditionnelle du nord-est de la Chine, issue d'une fermentation naturelle par des…"
+        "en": "Dongbei dajiang is a traditional Northeast Chinese fermented soybean paste, naturally fermented by molds, Bacillus.",
+        "fr": "Le dongbei dajiang est une pâte de soja fermentée traditionnelle du nord-est de la Chine."
       },
       "sources": [
         {
@@ -25893,8 +25893,8 @@ const CUISINE_NOTES = {
     "lamb dumpling soup": {
       "local": "羊肉汤饺 (yángròu tāngjiǎo)",
       "note": {
-        "en": "Northern Chinese mutton-filled jiaozi served in broth, eaten at the Dongzhi winter-solstice festival; traced to Han physician Zhang…",
-        "fr": "Jiaozi farcis au mouton servis en bouillon dans le nord de la Chine, mangés au solstice d'hiver Dongzhi; lié à la soupe de raviolis du…"
+        "en": "Northern Chinese mutton-filled jiaozi served in broth, eaten at the Dongzhi winter-solstice festival;",
+        "fr": "Jiaozi farcis au mouton servis en bouillon dans le nord de la Chine, mangés au solstice d'hiver Dongzhi;"
       },
       "sources": [
         {
@@ -25910,8 +25910,8 @@ const CUISINE_NOTES = {
     "fried glutinous rice cakes": {
       "local": "油炸糕 (yóu zhá gāo)",
       "note": {
-        "en": "A Northern and Northeast China street snack of glutinous- and yellow-rice dough wrapped around red bean paste and sugar (or sesame)…",
-        "fr": "Un en-cas de rue du nord et du nord-est de la Chine: pâte de riz gluant et de riz jaune fourrée de pâte de haricots rouges et de sucre (ou…"
+        "en": "A Northern and Northeast China street snack of glutinous- and yellow-rice dough wrapped around red bean paste and sugar (or sesame)",
+        "fr": "Un en-cas de rue du nord et du nord-est de la Chine: pâte de riz gluant et de riz jaune fourrée de pâte de haricots rouges et de sucre (ou"
       },
       "sources": [
         {
@@ -25927,8 +25927,8 @@ const CUISINE_NOTES = {
     "elm seed dumpling": {
       "local": "榆钱饭",
       "note": {
-        "en": "A northern Chinese spring dish of fresh elm samaras (yuqian, 榆钱) mixed with wheat flour or cornmeal and steamed; once eaten as famine food…",
-        "fr": "Plat printanier du nord de la Chine: samares d'orme fraiches (yuqian, 榆钱) melees de farine de ble ou de mais puis cuites a la vapeur; jadis…"
+        "en": "A northern Chinese spring dish of fresh elm samaras (yuqian, 榆钱) mixed with wheat flour or cornmeal and steamed;",
+        "fr": "Plat printanier du nord de la Chine: samares d'orme fraîches (yuqian, 榆钱) melees de farine de ble ou de mais puis cuites à la vapeur;"
       },
       "sources": [
         {
@@ -25963,8 +25963,8 @@ const CUISINE_NOTES = {
     "lanzhou lamian": {
       "local": "兰州拉面 (Lánzhōu lāmiàn)",
       "note": {
-        "en": "Hand-pulled halal beef noodle soup from Lanzhou, Gansu; its creation is locally attributed to Ma Baozi, a Hui Muslim cook, and it is a…",
-        "fr": "Soupe de nouilles au boeuf halal etiree a la main de Lanzhou (Gansu) ; sa creation est attribuee localement a Ma Baozi, un cuisinier…"
+        "en": "Hand-pulled halal beef noodle soup from Lanzhou, Gansu;",
+        "fr": "Soupe de nouilles au bœuf halal etiree à la main de Lanzhou (Gansu) ;"
       },
       "sources": [
         {
@@ -25976,8 +25976,8 @@ const CUISINE_NOTES = {
     "biang biang noodles": {
       "local": "biángbiáng麵 (biángbiáng面)",
       "note": {
-        "en": "Wide, thick, belt-like hand-pulled wheat noodles from Shaanxi cuisine, associated with Xi'an. The onomatopoeic name imitates the sound of…",
-        "fr": "Larges nouilles de blé épaisses, en forme de ceinture, étirées à la main, issues de la cuisine du Shaanxi et associées à Xi'an. Le nom…"
+        "en": "Wide, thick, belt-like hand-pulled wheat noodles from Shaanxi cuisine, associated with Xi'an.",
+        "fr": "Larges nouilles de blé épaisses, en forme de ceinture, étirées à la main, issues de la cuisine du Shaanxi et associées à Xi'an."
       },
       "sources": [
         {
@@ -26011,7 +26011,7 @@ const CUISINE_NOTES = {
       "local": "羊肉泡馍",
       "note": {
         "en": "A Xi'an Shaanxi specialty of hand-torn unleavened flatbread soaked in a spiced mutton broth, with roots in the Tang dynasty.",
-        "fr": "Specialite de Xi'an au Shaanxi: pain plat sans levain emiette, trempe dans un bouillon de mouton epice, aux origines remontant aux Tang."
+        "fr": "Spécialité de Xi'an au Shaanxi: pain plat sans levain émietté, trempe dans un bouillon de mouton épice, aux origines remontant aux Tang."
       },
       "sources": [
         {
@@ -26028,7 +26028,7 @@ const CUISINE_NOTES = {
       "local": "凉皮",
       "note": {
         "en": "Liangpi (\"cold skin\") are wide, cold wheat or rice noodles from Shaanxi, China, served in a tangy, spicy chili-vinegar sauce.",
-        "fr": "Le liangpi (\"peau froide\") est une nouvelle large froide de blé ou de riz du Shaanxi, en Chine, servie dans une sauce piquante au piment et…"
+        "fr": "Le liangpi (\"peau froide\")"
       },
       "sources": [
         {
@@ -26045,7 +26045,7 @@ const CUISINE_NOTES = {
       "local": "大盘鸡 (Dàpánjī)",
       "note": {
         "en": "A spicy Xinjiang stew of chicken, potatoes and peppers over belt noodles, invented in Shawan in the 1980s.",
-        "fr": "Un ragoût epice du Xinjiang de poulet, pommes de terre et poivrons sur nouilles, cree a Shawan dans les annees 1980."
+        "fr": "Un ragoût épice du Xinjiang de poulet, pommes de terre et poivrons sur nouilles, créé a Shawan dans les annees 1980."
       },
       "sources": [
         {
@@ -26061,8 +26061,8 @@ const CUISINE_NOTES = {
     "hand-pulled noodles xibei": {
       "local": "西贝莜面村 (Xībèi Yóumiàn Cūn)",
       "note": {
-        "en": "Youmian (莜面) hand-rolled oat noodles, the signature of Xibei Youmian Cun (\"Xibei Oat Noodle Village\"), a Chinese chain serving Northwestern…",
-        "fr": "Youmian (莜面), nouilles d'avoine roulées à la main, spécialité de Xibei Youmian Cun (« Village des nouilles d'avoine Xibei »), chaîne…"
+        "en": "Youmian (莜面) hand-rolled oat noodles, the signature of Xibei Youmian Cun (\"Xibei Oat Noodle Village\")",
+        "fr": "Youmian (莜面), nouilles d'avoine roulées à la main, spécialité de Xibei Youmian Cun (« Village des nouilles d'avoine Xibei »)"
       },
       "sources": [
         {
@@ -26095,7 +26095,7 @@ const CUISINE_NOTES = {
     "jian bing northwestern": {
       "local": "煎饼",
       "note": {
-        "en": "A savory Chinese griddle crepe of wheat and mung-bean batter folded with egg, sauces and crisp cracker, originating in Shandong, northern…",
+        "en": "A savory Chinese griddle crepe of wheat and mung-bean batter folded with egg, sauces and crisp cracker, originating in Shandong.",
         "fr": "Crêpe chinoise salée de blé et haricot mungo pliée avec œuf, sauces et craquant, originaire du Shandong, au nord de la Chine."
       },
       "sources": [
@@ -26113,7 +26113,7 @@ const CUISINE_NOTES = {
       "local": "羊肉串 (yáng ròu chuàn)",
       "note": {
         "en": "Cumin-spiced grilled lamb skewers (chuan'r) from northwestern China, originating with the Uyghur and Hui communities of Xinjiang.",
-        "fr": "Brochettes d'agneau grillees au cumin (chuan'r) du nord-ouest de la Chine, nees chez les communautes ouighoure et hui du Xinjiang."
+        "fr": "Brochettes d'agneau grillées au cumin (chuan'r) du nord-ouest de la Chine, nees chez les communautes ouighoure et hui du Xinjiang."
       },
       "sources": [
         {
@@ -26181,7 +26181,7 @@ const CUISINE_NOTES = {
       "local": "兰州牛肉面",
       "note": {
         "en": "Hand-pulled halal beef-broth noodles created by the Hui Muslims of Lanzhou, Gansu, in northwest China.",
-        "fr": "Nouilles halal tirees a la main dans un bouillon de boeuf, creees par les musulmans hui de Lanzhou, au Gansu, dans le nord-ouest de la…"
+        "fr": "Nouilles halal tirees à la main dans un bouillon de bœuf, créées par les musulmans hui de Lanzhou, au Gansu."
       },
       "sources": [
         {
@@ -26197,8 +26197,8 @@ const CUISINE_NOTES = {
     "beef noodle lanzhou": {
       "local": "兰州牛肉面 (兰州拉面)",
       "note": {
-        "en": "Hand-pulled noodles in clear beef broth from Lanzhou, Gansu; codified c.1915 by Hui Muslim chef Ma Baozi as \"one clear, two white, three…",
-        "fr": "Nouilles etirees a la main dans un bouillon de bœuf clair de Lanzhou, Gansu ; codifie vers 1915 par le chef hui musulman Ma Baozi."
+        "en": "Hand-pulled noodles in clear beef broth from Lanzhou, Gansu; codified c.",
+        "fr": "Nouilles etirees à la main dans un bouillon de bœuf clair de Lanzhou, Gansu ; codifie vers 1915 par le chef hui musulman Ma Baozi."
       },
       "sources": [
         {
@@ -26232,7 +26232,7 @@ const CUISINE_NOTES = {
       "local": "岐山臊子面",
       "note": {
         "en": "Hand-rolled, thin-cut wheat noodles from Qishan County, Shaanxi, served in a sour-spicy vinegar broth with a minced-pork \"saozi\" topping.",
-        "fr": "Nouilles de blé abaissées à la main et coupées fines du comté de Qishan (Shaanxi), dans un bouillon aigre-piquant au vinaigre avec une…"
+        "fr": "Nouilles de blé abaissées à la main et coupées fines du comté de Qishan (Shaanxi)"
       },
       "sources": [
         {
@@ -26248,8 +26248,8 @@ const CUISINE_NOTES = {
     "xibei dumpling soup": {
       "local": "酸汤水饺 (suān tāng shuǐjiǎo)",
       "note": {
-        "en": "Hot-and-sour dumpling soup from Shaanxi in northwestern China: plump dumplings (pork in this version; beef or lamb is common in Shaanxi…",
-        "fr": "Soupe de raviolis aigre-piquante du Shaanxi, dans le nord-ouest de la Chine : raviolis dodus (au porc dans cette version ; au bœuf ou à…"
+        "en": "Hot-and-sour dumpling soup from Shaanxi in northwestern China: plump dumplings (pork in this version;",
+        "fr": "Soupe de raviolis aigre-piquante du Shaanxi, dans le nord-ouest de la Chine : raviolis dodus (au porc dans cette version ;"
       },
       "sources": [
         {
@@ -26265,8 +26265,8 @@ const CUISINE_NOTES = {
     "xinjiang big plate chicken": {
       "local": "新疆大盘鸡 (Xīnjiāng dàpánjī)",
       "note": {
-        "en": "A Xinjiang stew of chicken, potatoes and peppers in chili-spiced sauce, often with belt noodles, originating in Shawan County in the…",
-        "fr": "Ragout du Xinjiang de poulet, pommes de terre et poivrons en sauce pimentee, souvent avec nouilles plates, ne dans le comte de Shawan dans…"
+        "en": "A Xinjiang stew of chicken, potatoes and peppers in chili-spiced sauce, often with belt noodles.",
+        "fr": "Ragout du Xinjiang de poulet, pommes de terre et poivrons en sauce pimentee, souvent avec nouilles plates."
       },
       "sources": [
         {
@@ -26282,8 +26282,8 @@ const CUISINE_NOTES = {
     "hui hui style stew": {
       "local": "回回羊湯",
       "note": {
-        "en": "Lamb soups and stews in the Huihui (Chinese Muslim) style were a prominent part of the Islamic- and Central-Asian-influenced dishes…",
-        "fr": "Les soupes et ragouts d'agneau a la facon huihui (musulmane chinoise) figuraient parmi les plats d'influence islamique et centrasiatique…"
+        "en": "Lamb soups and stews in the Huihui (Chinese Muslim)",
+        "fr": "Les soupes et ragouts d'agneau à la facon huihui (musulmane chinoise)"
       },
       "sources": [
         {
@@ -26299,8 +26299,8 @@ const CUISINE_NOTES = {
     "garlic-vinegar dipping": {
       "local": "蒜蘸面",
       "note": {
-        "en": "Northwest Chinese home-cooking dish: fresh wheat noodles (often rolled and cut into flat sheets) served in a large basin of water, then…",
-        "fr": "Plat familial du nord-ouest de la Chine: nouilles de blé fraîches (souvent découpées en larges feuilles plates) servies dans une grande…"
+        "en": "Northwest Chinese home-cooking dish: fresh wheat noodles (often rolled and cut into flat sheets)",
+        "fr": "Plat familial du nord-ouest de la Chine: nouilles de blé fraîches (souvent découpées en larges feuilles plates)"
       },
       "sources": [
         {
@@ -26336,7 +26336,7 @@ const CUISINE_NOTES = {
       "local": "Suya (Hausa: tsire / suya)",
       "note": {
         "en": "Spiced, skewered grilled meat (usually beef) coated in a peanut-and-chili spice mix (yaji), originating with the Hausa of northern Nigeria.",
-        "fr": "Brochettes de viande grillee epicee (souvent du boeuf) enrobees d'un melange d'arachide et de piment (yaji), originaires des Haoussa du…"
+        "fr": "Brochettes de viande grillée épicée (souvent du bœuf) enrobees d'un mélangé d'arachide et de piment (yaji)"
       },
       "sources": [
         {
@@ -26353,7 +26353,7 @@ const CUISINE_NOTES = {
       "local": "እንጀራ",
       "note": {
         "en": "A sour, spongy fermented flatbread of Ethiopia and Eritrea, traditionally made from teff flour, a grain domesticated there millennia ago.",
-        "fr": "Une galette fermentee, spongieuse et acidulee d'Ethiopie et d'Erythree, faite traditionnellement de farine de teff, cereale domestiquee…"
+        "fr": "Une galette fermentée, spongieuse et acidulee d'Ethiopie et d'Erythree, faite traditionnellement de farine de teff."
       },
       "sources": [
         {
@@ -26370,7 +26370,7 @@ const CUISINE_NOTES = {
       "local": "ዶሮ ወጥ",
       "note": {
         "en": "Spicy Ethiopian and Eritrean chicken-and-egg stew built on berbere and niter kibbeh, widely regarded as Ethiopia's national dish.",
-        "fr": "Ragout epice ethiopien et erythreen de poulet et d'oeufs a base de berbere et de niter kibbeh, considere comme le plat national de…"
+        "fr": "Ragout épice ethiopien et erythreen de poulet et d'oeufs a base de berbere et de niter kibbeh."
       },
       "sources": [
         {
@@ -26403,8 +26403,8 @@ const CUISINE_NOTES = {
     "bunny chow": {
       "local": "Bunny chow",
       "note": {
-        "en": "Indian South African fast food of a hollowed-out white bread loaf filled with curry, originating among Durban's Indian community in the…",
-        "fr": "Plat indo-sud-africain composé d'une miche de pain blanc evidee remplie de curry, ne dans la communaute indienne de Durban dans les annees…"
+        "en": "Indian South African fast food of a hollowed-out white bread loaf filled with curry.",
+        "fr": "Plat indo-sud-africain composé d'une miche de pain blanc evidee remplie de curry."
       },
       "sources": [
         {
@@ -26421,7 +26421,7 @@ const CUISINE_NOTES = {
       "local": "Chakalaka",
       "note": {
         "en": "A spicy South African vegetable relish of tomatoes, beans and chili, said to have originated in Johannesburg's gold-mining townships.",
-        "fr": "Un relish de legumes sud-africain epice a base de tomates, haricots et piment, ne, dit-on, dans les townships miniers de Johannesburg."
+        "fr": "Un relish de legumes sud-africain épice a base de tomates, haricots et piment, ne, dit-on, dans les townships miniers de Johannesburg."
       },
       "sources": [
         {
@@ -26433,8 +26433,8 @@ const CUISINE_NOTES = {
     "biltong": {
       "local": "Biltong",
       "note": {
-        "en": "Air-dried, salt-and-vinegar-cured strips of meat (often beef or game such as kudu or ostrich) from Southern Africa; the name comes from…",
-        "fr": "Lanieres de viande (souvent boeuf ou gibier comme le koudou ou l'autruche) sechees a l'air et salees au vinaigre, d'Afrique australe; le…"
+        "en": "Air-dried, salt-and-vinegar-cured strips of meat (often beef or game such as kudu or ostrich) from Southern Africa;",
+        "fr": "Lanieres de viande (souvent bœuf ou gibier comme le koudou ou l'autruche) sechees a l'air et salees au vinaigre, d'Afrique australe;"
       },
       "sources": [
         {
@@ -26446,8 +26446,8 @@ const CUISINE_NOTES = {
     "couscous north african": {
       "local": "كسكس / Seksu",
       "note": {
-        "en": "A Maghrebi Berber staple of steamed durum-wheat semolina granules served with a meat and vegetable stew; its knowledge and practices were…",
-        "fr": "Plat berberé du Maghreb à base de semoule de blé dur roulée et cuite à la vapeur, servie avec un ragoût de viande et de légumes ; ses…"
+        "en": "A Maghrebi Berber staple of steamed durum-wheat semolina granules served with a meat and vegetable stew;",
+        "fr": "Plat berberé du Maghreb à base de semoule de blé dur roulée et cuite à la vapeur, servie avec un ragoût de viande et de légumes ;"
       },
       "sources": [
         {
@@ -26464,7 +26464,7 @@ const CUISINE_NOTES = {
       "local": "طاجين (ṭajīn)",
       "note": {
         "en": "A Maghrebi slow-cooked stew of meat, vegetables and spices, named for the conical Berber-origin earthenware pot it is cooked in.",
-        "fr": "Ragout maghrebin mijote de viande, legumes et epices, nomme d'apres le plat conique en terre cuite d'origine berbere ou il cuit."
+        "fr": "Ragout maghrebin mijoté de viande, legumes et épices, nommé d'apres le plat conique en terre cuite d'origine berbere ou il cuit."
       },
       "sources": [
         {
@@ -26515,7 +26515,7 @@ const CUISINE_NOTES = {
       "local": "nyama choma",
       "note": {
         "en": "Swahili for \"grilled meat,\" an East African dish of roasted beef or goat rooted in Maasai pastoralist cooking; Kenya's national delicacy.",
-        "fr": "\"Viande grillee\" en swahili, plat est-africain de boeuf ou chevre roti issu de la cuisine pastorale maasai; delice national du Kenya."
+        "fr": "\"Viande grillée\" en swahili, plat est-africain de bœuf ou chevre roti issu de la cuisine pastorale maasai; delice national du Kenya."
       },
       "sources": [
         {
@@ -26532,7 +26532,7 @@ const CUISINE_NOTES = {
       "local": "mọ́yín-mọyín",
       "note": {
         "en": "A Nigerian steamed pudding of peeled blended beans, peppers and onions, originating with the Yoruba of southwestern Nigeria.",
-        "fr": "Un flan nigerian cuit a la vapeur, fait de haricots epluches mixes, poivrons et oignons, originaire des Yoruba du sud-ouest du Nigeria."
+        "fr": "Un flan nigerian cuit à la vapeur, fait de haricots epluches mixes, poivrons et oignons, originaire des Yoruba du sud-ouest du Nigeria."
       },
       "sources": [
         {
@@ -26549,7 +26549,7 @@ const CUISINE_NOTES = {
       "local": "puff-puff",
       "note": {
         "en": "West African deep-fried sweet yeast dough balls, named in Nigeria and known as buff loaf, beignet or botokoin elsewhere.",
-        "fr": "Boules de pate levee sucree frites d'Afrique de l'Ouest, nommees au Nigeria et appelees buff loaf, beignet ou botokoin ailleurs."
+        "fr": "Boules de pate levee sucree frites d'Afrique de l'Ouest, nommées au Nigeria et appelees buff loaf, beignet ou botokoin ailleurs."
       },
       "sources": [
         {
@@ -26592,7 +26592,7 @@ const CUISINE_NOTES = {
       "local": "mandazi (sing. andazi)",
       "note": {
         "en": "A sweet, cardamom-spiced fried dough from the Swahili Coast of East Africa, eaten across Kenya, Tanzania and Uganda.",
-        "fr": "Une pate frite sucree et parfumee a la cardamome, originaire de la cote swahilie d'Afrique de l'Est, consommee au Kenya, en Tanzanie et en…"
+        "fr": "Une pate frite sucree et parfumee à la cardamome, originaire de la cote swahilie d'Afrique de l'Est, consommee au Kenya."
       },
       "sources": [
         {
@@ -26608,8 +26608,8 @@ const CUISINE_NOTES = {
     "plantain dishes": {
       "local": "Dodo / Kelewele / Alloco",
       "note": {
-        "en": "West African fried-plantain dishes: Nigerian dodo (plain fried plantain), Ghanaian kelewele (ripe plantain cubes spiced with ginger and…",
-        "fr": "Plats ouest-africains a base de plantain frit : le dodo nigerian (plantain frit nature), le kelewele ghaneen (des de plantain mur epices au…"
+        "en": "West African fried-plantain dishes: Nigerian dodo (plain fried plantain)",
+        "fr": "Plats ouest-africains a base de plantain frit : le dodo nigerian (plantain frit nature)"
       },
       "sources": [
         {
@@ -26662,7 +26662,7 @@ const CUISINE_NOTES = {
       "local": "bobotie",
       "note": {
         "en": "South African Cape Malay baked dish of spiced minced meat topped with an egg-based custard, often served with yellow rice.",
-        "fr": "Plat sud-africain cap-malais de viande hachee epicee, nappee d'un flan aux oeufs, souvent servi avec du riz jaune."
+        "fr": "Plat sud-africain cap-malais de viande hachée épicée, nappee d'un flan aux oeufs, souvent servi avec du riz jaune."
       },
       "sources": [
         {
@@ -26678,8 +26678,8 @@ const CUISINE_NOTES = {
     "biltong": {
       "local": "biltong",
       "note": {
-        "en": "Air-dried, vinegar- and salt-cured strips of meat (often beef or game) from Southern Africa, with Khoikhoi roots and Voortrekker-era…",
-        "fr": "Lanieres de viande (souvent boeuf ou gibier) sechees a l'air, salees et marinees au vinaigre, d'Afrique australe, aux origines khoikhoi et…"
+        "en": "Air-dried, vinegar- and salt-cured strips of meat (often beef or game)",
+        "fr": "Lanieres de viande (souvent bœuf ou gibier)"
       },
       "sources": [
         {
@@ -26692,7 +26692,7 @@ const CUISINE_NOTES = {
       "local": "boerewors",
       "note": {
         "en": "South African coiled farmer's sausage (Afrikaans boer + wors) of beef, pork or lamb that must by law be at least 90% meat.",
-        "fr": "Saucisse fermiere sud-africaine en spirale (afrikaans boer + wors), de boeuf, porc ou agneau, legalement composee d'au moins 90% de viande."
+        "fr": "Saucisse fermiere sud-africaine en spirale (afrikaans boer + wors), de bœuf, porc ou agneau, legalement composee d'au moins 90% de viande."
       },
       "sources": [
         {
@@ -26709,7 +26709,7 @@ const CUISINE_NOTES = {
       "local": "Bunny chow",
       "note": {
         "en": "A hollowed-out loaf of white bread filled with curry, created by Indian South Africans in Durban around the 1940s.",
-        "fr": "Une miche de pain blanc evidee et remplie de curry, creee par les Indiens sud-africains de Durban vers les annees 1940."
+        "fr": "Une miche de pain blanc evidee et remplie de curry, créée par les Indiens sud-africains de Durban vers les annees 1940."
       },
       "sources": [
         {
@@ -26726,7 +26726,7 @@ const CUISINE_NOTES = {
       "local": "Chakalaka",
       "note": {
         "en": "A spicy South African vegetable relish of tomatoes, onions and beans, said to have originated among migrant mineworkers near Johannesburg.",
-        "fr": "Un condiment sud-africain épicé de légumes (tomates, oignons, haricots), né selon la tradition chez les mineurs migrants près de…"
+        "fr": "Un condiment sud-africain épicé de légumes (tomates, oignons, haricots)"
       },
       "sources": [
         {
@@ -26738,8 +26738,8 @@ const CUISINE_NOTES = {
     "potjiekos": {
       "local": "potjiekos",
       "note": {
-        "en": "A South African (Afrikaans) stew of meat and vegetables, layered and slow-cooked outdoors over coals in a round, three-legged cast-iron pot…",
-        "fr": "Un ragout sud-africain (afrikaner) de viande et de legumes, disposes en couches et mijotes en plein air sur des braises dans une marmite…"
+        "en": "A South African (Afrikaans)",
+        "fr": "Un ragout sud-africain (afrikaner)"
       },
       "sources": [
         {
@@ -26755,8 +26755,8 @@ const CUISINE_NOTES = {
     "vetkoek": {
       "local": "vetkoek",
       "note": {
-        "en": "South African deep-fried dough bread (Afrikaans for \"fat cake\"), thought to have originated with the 1830s Dutch Voortrekker settlers; also…",
-        "fr": "Pain frit sud-africain (\"gateau gras\" en afrikaans), originaire des colons voortrekkers neerlandais des annees 1830 ; egalement appele…"
+        "en": "South African deep-fried dough bread (Afrikaans for \"fat cake\"), thought to have originated with the 1830s Dutch Voortrekker settlers;",
+        "fr": "Pain frit sud-africain (\"gateau gras\" en afrikaans), originaire des colons voortrekkers neerlandais des annees 1830 ;"
       },
       "sources": [
         {
@@ -26772,8 +26772,8 @@ const CUISINE_NOTES = {
     "koeksisters": {
       "local": "koeksister",
       "note": {
-        "en": "Traditional Afrikaner plaited (or twisted) doughnut, deep-fried and immediately dipped in cold sugar syrup; the name and dish have mixed…",
-        "fr": "Beignet afrikaner traditionnel tresse (ou torsade), frit puis trempe aussitot dans un sirop de sucre froid; son nom et sa preparation ont…"
+        "en": "Traditional Afrikaner plaited (or twisted) doughnut, deep-fried and immediately dipped in cold sugar syrup;",
+        "fr": "Beignet afrikaner traditionnel tresse (ou torsade), frit puis trempe aussitot dans un sirop de sucre froid;"
       },
       "sources": [
         {
@@ -26807,7 +26807,7 @@ const CUISINE_NOTES = {
       "local": "sosatie",
       "note": {
         "en": "Cape Malay-origin South African skewers of marinated lamb or mutton with dried apricots, grilled braai-style; name from Malay sate + saus.",
-        "fr": "Brochettes sud-africaines d'origine cap-malaise d'agneau ou mouton marine aux abricots secs, grillees au braai; nom du malais sate + saus."
+        "fr": "Brochettes sud-africaines d'origine cap-malaise d'agneau ou mouton mariné aux abricots secs, grillées au braai; nom du malais sate + saus."
       },
       "sources": [
         {
@@ -26837,7 +26837,7 @@ const CUISINE_NOTES = {
       "local": "amasi",
       "note": {
         "en": "Thick sour fermented milk from southern Africa, traditionally made by souring raw cow's milk in a calabash (igula).",
-        "fr": "Lait fermenté aigre et epais d'Afrique australe, traditionnellement obtenu en faisant cailler le lait cru de vache dans une calebasse…"
+        "fr": "Lait fermenté aigre et epais d'Afrique australe, traditionnellement obtenu en faisant cailler le lait cru de vache dans une calebasse"
       },
       "sources": [
         {
@@ -26853,8 +26853,8 @@ const CUISINE_NOTES = {
     "chakalaka with pap": {
       "local": "Chakalaka le pap",
       "note": {
-        "en": "A spicy South African vegetable relish of tomato, beans and chilli, served with pap (maize-meal porridge); widely attributed to migrant…",
-        "fr": "Relish sud-africaine epicee de tomate, haricots et piment, servie avec du pap (bouillie de farine de mais); largement attribuee aux mineurs…"
+        "en": "A spicy South African vegetable relish of tomato, beans and chilli, served with pap (maize-meal porridge);",
+        "fr": "Relish sud-africaine épicée de tomate, haricots et piment, servie avec du pap (bouillie de farine de mais);"
       },
       "sources": [
         {
@@ -26870,8 +26870,8 @@ const CUISINE_NOTES = {
     "cape malay curry": {
       "local": "Kaaps-Maleise kerrie",
       "note": {
-        "en": "A mild, aromatic South African curry developed by the Cape Malay community from enslaved Indonesian, Indian and Malagasy people brought to…",
-        "fr": "Un curry sud-africain doux et aromatique cree par la communaute Cape Malay, descendante d'esclaves indonesiens, indiens et malgaches amenes…"
+        "en": "A mild, aromatic South African curry developed by the Cape Malay community from enslaved Indonesian.",
+        "fr": "Un curry sud-africain doux et aromatique créé par la communaute Cape Malay, descendante d'esclaves indonesiens."
       },
       "sources": [
         {
@@ -26888,7 +26888,7 @@ const CUISINE_NOTES = {
       "local": "snoekbraai",
       "note": {
         "en": "South African dish of snoek (Thyrsites atun) grilled over coals, basted with apricot jam, butter and garlic; a Western Cape institution.",
-        "fr": "Plat sud-africain de snoek (Thyrsites atun) grillé sur braises, badigeonné de confiture d'abricot, beurre et ail; institution du…"
+        "fr": "Plat sud-africain de snoek (Thyrsites atun) grillé sur braisés, badigeonné de confiture d'abricot, beurre et ail;"
       },
       "sources": [
         {
@@ -26905,7 +26905,7 @@ const CUISINE_NOTES = {
       "local": "bobotie",
       "note": {
         "en": "South African Cape Malay baked dish of spiced curried minced meat under an egg-and-milk custard topping.",
-        "fr": "Plat sud-africain cape malais de viande hachee epicee au curry, cuit sous une couche de flan aux oeufs et au lait."
+        "fr": "Plat sud-africain cape malais de viande hachée épicée au curry, cuit sous une couche de flan aux oeufs et au lait."
       },
       "sources": [
         {
@@ -26938,8 +26938,8 @@ const CUISINE_NOTES = {
     "rooibos tea": {
       "local": "rooibos",
       "note": {
-        "en": "A caffeine-free herbal tea from the Aspalathus linearis bush, endemic to South Africa's Cederberg region and traditionally used by the…",
-        "fr": "Une tisane sans cafeine issue de l'arbuste Aspalathus linearis, endemique de la region du Cederberg en Afrique du Sud, utilisee par les…"
+        "en": "A caffeine-free herbal tea from the Aspalathus linearis bush, endemic to South Africa's Cederberg region and traditionally used by the",
+        "fr": "Une tisane sans cafeine issue de l'arbuste Aspalathus linearis, endemique de la region du Cederberg en Afrique du Sud."
       },
       "sources": [
         {
@@ -27007,7 +27007,7 @@ const CUISINE_NOTES = {
       "local": "boereworsrol (worsbroodjie)",
       "note": {
         "en": "South African street food of grilled boerewors farmer's sausage in a bun with tomato-onion relish, common at braais and markets.",
-        "fr": "Plat de rue sud-africain: saucisse boerewors grillee dans un pain avec relish tomate-oignon, courant aux braais et marches."
+        "fr": "Plat de rue sud-africain: saucisse boerewors grillée dans un pain avec relish tomate-oignon, courant aux braais et marches."
       },
       "sources": [
         {
@@ -27026,7 +27026,7 @@ const CUISINE_NOTES = {
       "local": "Vindaloo",
       "note": {
         "en": "A spicy Goan curry of meat marinated in vinegar, garlic and chillies, adapted from the Portuguese dish carne de vinha d'alhos.",
-        "fr": "Un curry goannais epice de viande marinee au vinaigre, ail et piments, adapte du plat portugais carne de vinha d'alhos."
+        "fr": "Un curry goannais épice de viande marinée au vinaigre, ail et piments, adapte du plat portugais carne de vinha d'alhos."
       },
       "sources": [
         {
@@ -27042,8 +27042,8 @@ const CUISINE_NOTES = {
     "xacuti": {
       "local": "शागोती (śāgotī)",
       "note": {
-        "en": "A complex Goan curry of chicken, lamb or beef in toasted coconut, poppy seeds, dried red chillies and spices, said to originate in Arambol…",
-        "fr": "Un curry goanais complexe de poulet, agneau ou bœuf au coco grillé, graines de pavot, piments rouges et épices, originaire du village…"
+        "en": "A complex Goan curry of chicken, lamb or beef in toasted coconut, poppy seeds, dried red chillies and spices.",
+        "fr": "Un curry goanais complexe de poulet, agneau ou bœuf au coco grillé, graines de pavot, piments rouges et épices."
       },
       "sources": [
         {
@@ -27076,8 +27076,8 @@ const CUISINE_NOTES = {
     "balchao": {
       "local": "balchão",
       "note": {
-        "en": "A spicy, vinegary Goan prawn (or fish/pork) pickle-style dish of Indo-Portuguese origin, introduced to Goa by the Portuguese most likely…",
-        "fr": "Plat goanais d'origine indo-portugaise, de crevettes (ou poisson/porc) à la sauce épicée et vinaigrée façon pickle, introduit à Goa par les…"
+        "en": "A spicy, vinegary Goan prawn (or fish/pork)",
+        "fr": "Plat goanais d'origine indo-portugaise, de crevettes (ou poisson/porc)"
       },
       "sources": [
         {
@@ -27094,7 +27094,7 @@ const CUISINE_NOTES = {
       "local": "Sorpotel",
       "note": {
         "en": "A tangy Goan pork-and-offal curry cooked with vinegar and spices, adapted from the Portuguese dish sarapatel.",
-        "fr": "Curry goanais de porc et d'abats mijote au vinaigre et aux epices, adapte du plat portugais sarapatel."
+        "fr": "Curry goanais de porc et d'abats mijoté au vinaigre et aux épices, adapte du plat portugais sarapatel."
       },
       "sources": [
         {
@@ -27110,8 +27110,8 @@ const CUISINE_NOTES = {
     "bebinca": {
       "local": "बेबिंका (Konkani; also \"bibik\")",
       "note": {
-        "en": "An Indo-Portuguese layered cake from Goa made with egg yolks, coconut milk, sugar, ghee and flour, traditionally baked in 7 to 16 layers…",
-        "fr": "Un gateau goanais indo-portugais en couches a base de jaunes d'oeufs, lait de coco, sucre, ghee et farine, traditionnellement cuit en 7 a…"
+        "en": "An Indo-Portuguese layered cake from Goa made with egg yolks, coconut milk, sugar, ghee and flour.",
+        "fr": "Un gateau goanais indo-portugais en couches a base de jaunes d'oeufs, lait de coco, sucre, ghee et farine."
       },
       "sources": [
         {
@@ -27127,8 +27127,8 @@ const CUISINE_NOTES = {
     "fish curry rice goan": {
       "local": "Xit Kodi (Xitt Kodi)",
       "note": {
-        "en": "Goa's everyday staple of tangy coconut-and-tamarind fish curry served over rice, known in Konkani as Xit Kodi (literally 'rice and curry')…",
-        "fr": "Plat de base quotidien de Goa: curry de poisson au coco et au tamarin, acidule, servi sur du riz, appele Xit Kodi en konkani (litteralement…"
+        "en": "Goa's everyday staple of tangy coconut-and-tamarind fish curry served over rice, known in Konkani as Xit Kodi (literally 'rice and curry')",
+        "fr": "Plat de base quotidien de Goa: curry de poisson au coco et au tamarin, acidule, servi sur du riz."
       },
       "sources": [
         {
@@ -27145,7 +27145,7 @@ const CUISINE_NOTES = {
       "local": "Balchão",
       "note": {
         "en": "Goan dish of fried prawns in a spicy, vinegary, pickle-like sauce, derived from a Portuguese colonial preparation linked to Macao/Malacca.",
-        "fr": "Plat goanais de crevettes frites dans une sauce épicée et vinaigrée, type pickle, issu d'une préparation coloniale portugaise liée à…"
+        "fr": "Plat goanais de crevettes frites dans une sauce épicée et vinaigrée, type pickle."
       },
       "sources": [
         {
@@ -27174,8 +27174,8 @@ const CUISINE_NOTES = {
     "feni": {
       "local": "फेण",
       "note": {
-        "en": "Goan spirit distilled from cashew-apple juice or coconut palm sap; cashew feni was granted a Geographical Indication tag in 2009 as a…",
-        "fr": "Spiritueux goanais distillé à partir du jus de pomme de cajou ou de sève de cocotier; le feni de cajou a obtenu une Indication Géographique…"
+        "en": "Goan spirit distilled from cashew-apple juice or coconut palm sap;",
+        "fr": "Spiritueux goanais distillé à partir du jus de pomme de cajou ou de sève de cocotier;"
       },
       "sources": [
         {
@@ -27192,7 +27192,7 @@ const CUISINE_NOTES = {
       "local": "caldinho",
       "note": {
         "en": "A mild yellow Goan coconut-milk curry of fish, prawns or vegetables; its name comes from Portuguese 'caldinho', meaning 'little broth'.",
-        "fr": "Un curry goanais doux et jaune au lait de coco, au poisson, aux crevettes ou aux légumes; son nom vient du portugais « caldinho », « petit…"
+        "fr": "Un curry goanais doux et jaune au lait de coco, au poisson, aux crevettes ou aux légumes;"
       },
       "sources": [
         {
@@ -27242,8 +27242,8 @@ const CUISINE_NOTES = {
     "crab xec xec": {
       "local": "Xec Xec (Konkani, pronounced \"shek shek\")",
       "note": {
-        "en": "A Goan crab curry in a thick gravy of roasted coconut and spices. The name is Konkani for \"shaking,\" describing the thick, sticky gravy…",
-        "fr": "Un curry de crabe goanais dans une sauce épaisse de noix de coco grillée et d'épices. Le nom vient du konkani et signifie \"secouer\"…"
+        "en": "A Goan crab curry in a thick gravy of roasted coconut and spices.",
+        "fr": "Un curry de crabe goanais dans une sauce épaisse de noix de coco grillée et d'épices."
       },
       "sources": [
         {
@@ -27260,7 +27260,7 @@ const CUISINE_NOTES = {
       "local": "Assado de Porco",
       "note": {
         "en": "A Goan Catholic pork roast of Portuguese origin, marinated in spices and palm vinegar, served as a centrepiece at wedding banquets.",
-        "fr": "Un roti de porc goanais catholique d'origine portugaise, marine aux epices et au vinaigre de palme, piece maitresse des banquets de mariage."
+        "fr": "Un roti de porc goanais catholique d'origine portugaise, mariné aux épices et au vinaigre de palme, piece maitresse des banquets de mariage."
       },
       "sources": [
         {
@@ -27277,7 +27277,7 @@ const CUISINE_NOTES = {
       "local": "arroz doce",
       "note": {
         "en": "A creamy egg-yolk-and-cinnamon rice pudding of Portuguese origin, adopted into Goan cuisine during Portuguese colonial rule.",
-        "fr": "Un riz au lait cremeux au jaune d'oeuf et a la cannelle, d'origine portugaise, adopte dans la cuisine goanaise sous la colonisation…"
+        "fr": "Un riz au lait cremeux au jaune d'oeuf et à la cannelle, d'origine portugaise."
       },
       "sources": [
         {
@@ -27311,7 +27311,7 @@ const CUISINE_NOTES = {
       "local": "Alle Belle",
       "note": {
         "en": "Soft Goan crepe-style pancake rolled around a coconut and palm-jaggery filling, traditionally made by Catholic families on Shrove Tuesday.",
-        "fr": "Crêpe goanaise moelleuse roulée autour d'une garniture de noix de coco et de jaggery de palme, faite par les familles catholiques au Mardi…"
+        "fr": "Crêpe goanaise moelleuse roulée autour d'une garniture de noix de coco et de jaggery de palme."
       },
       "sources": [
         {
@@ -27327,8 +27327,8 @@ const CUISINE_NOTES = {
     "apa de camarao": {
       "local": "Apa de Camarão",
       "note": {
-        "en": "Goan-Portuguese prawn pie. Two traditional styles exist: a sweet rice-coconut-toddy batter baked around a prawn balchao filling, and a…",
-        "fr": "Tourte aux crevettes indo-portugaise de Goa. Il en existe deux styles traditionnels : une pate sucree de riz, coco et vin de palme cuite…"
+        "en": "Goan-Portuguese prawn pie.",
+        "fr": "Tourte aux crevettes indo-portugaise de Goa."
       },
       "sources": [
         {
@@ -27344,8 +27344,8 @@ const CUISINE_NOTES = {
     "goan poi bread": {
       "local": "poee / poie (पोय)",
       "note": {
-        "en": "A round Goan leavened bread with a soft pocket, made from equal parts refined (maida) and whole-wheat flour and baked by Goa's traditional…",
-        "fr": "Pain levé goanais rond a la mie souple en forme de poche, fait a parts egales de farine raffinee (maida) et de farine complete, cuit par…"
+        "en": "A round Goan leavened bread with a soft pocket, made from equal parts refined (maida)",
+        "fr": "Pain levé goanais rond à la mie souple en forme de poche, fait a parts egales de farine raffinee (maida)"
       },
       "sources": [
         {
@@ -27394,7 +27394,7 @@ const CUISINE_NOTES = {
       "local": "crème brûlée",
       "note": {
         "en": "A rich custard topped with a hard caramelised sugar crust; its first printed recipe appeared in François Massialot's 1691 French cookbook.",
-        "fr": "Une crème riche coiffée d'une croûte de sucre caramélisé; sa première recette imprimée parut dans un livre de cuisine français de Massialot…"
+        "fr": "Une crème riche coiffée d'une croûte de sucre caramélisé;"
       },
       "sources": [
         {
@@ -27428,7 +27428,7 @@ const CUISINE_NOTES = {
       "local": "Fondant au chocolat",
       "note": {
         "en": "Small French chocolate cake with a soft molten center, credited to chef Michel Bras, who created it in 1981 in Aveyron.",
-        "fr": "Petit gateau francais au chocolat a coeur coulant, attribue au chef Michel Bras, qui le crea en 1981 en Aveyron."
+        "fr": "Petit gateau francais au chocolat a cœur coulant, attribue au chef Michel Bras, qui le crea en 1981 en Aveyron."
       },
       "sources": [
         {
@@ -27444,7 +27444,7 @@ const CUISINE_NOTES = {
     "macarons": {
       "local": "macaron",
       "note": {
-        "en": "A French almond-meringue sandwich cookie with ganache or buttercream filling; the Parisian double-shell form emerged in the early…",
+        "en": "A French almond-meringue sandwich cookie with ganache or buttercream filling;",
         "fr": "Biscuit francais a base de meringue d'amande, fourre de ganache ou de creme; la forme parisienne a deux coques apparait au XIXe-XXe siecle."
       },
       "sources": [
@@ -27461,8 +27461,8 @@ const CUISINE_NOTES = {
     "opera cake": {
       "local": "L'Opéra",
       "note": {
-        "en": "French cake of almond Joconde sponge soaked in coffee syrup, layered with coffee buttercream and chocolate ganache; popularized by Dalloyau…",
-        "fr": "Gateau francais a la genoise Joconde aux amandes imbibee de sirop de cafe, fourree de creme au beurre cafe et de ganache, popularise par…"
+        "en": "French cake of almond Joconde sponge soaked in coffee syrup, layered with coffee buttercream and chocolate ganache;",
+        "fr": "Gateau francais à la genoise Joconde aux amandes imbibee de sirop de cafe, fourree de creme au beurre cafe et de ganache."
       },
       "sources": [
         {
@@ -27491,8 +27491,8 @@ const CUISINE_NOTES = {
     "mille-feuille": {
       "local": "mille-feuille",
       "note": {
-        "en": "French \"thousand-leaf\" dessert of three layers of puff pastry alternating with two layers of pastry cream; the earliest documented…",
-        "fr": "Dessert français « mille-feuille » composé de trois couches de pâte feuilletée alternant avec deux couches de crème pâtissière ; les…"
+        "en": "French \"thousand-leaf\" dessert of three layers of puff pastry alternating with two layers of pastry cream;",
+        "fr": "Dessert français « mille-feuille » composé de trois couches de pâte feuilletée alternant avec deux couches de crème pâtissière ;"
       },
       "sources": [
         {
@@ -27505,7 +27505,7 @@ const CUISINE_NOTES = {
       "local": "panna cotta",
       "note": {
         "en": "Italian dessert of sweetened cream set with gelatin and moulded, originating in the northern Piedmont region.",
-        "fr": "Dessert italien de creme sucree prise a la gelatine et moulee, originaire de la region nord du Piemont."
+        "fr": "Dessert italien de creme sucree prise à la gelatine et moulee, originaire de la region nord du Piemont."
       },
       "sources": [
         {
@@ -27521,7 +27521,7 @@ const CUISINE_NOTES = {
     "eclair": {
       "local": "éclair",
       "note": {
-        "en": "A French choux-pastry filled with cream and topped with icing, named for the French word for \"lightning,\" first appearing in 19th-century…",
+        "en": "A French choux-pastry filled with cream and topped with icing, named for the French word for \"lightning.",
         "fr": "Pâtisserie française en pâte à choux fourrée de crème et glacée, nommée d'après l'éclair, apparue au XIXe siècle à Lyon."
       },
       "sources": [
@@ -27547,8 +27547,8 @@ const CUISINE_NOTES = {
     "pavlova": {
       "local": "Pavlova",
       "note": {
-        "en": "A meringue-based dessert with a crisp crust and soft, light centre, topped with whipped cream and fresh fruit. It is named after the…",
-        "fr": "Dessert a base de meringue, a la croute croustillante et au coeur tendre et leger, garni de creme fouettee et de fruits frais. Il porte le…"
+        "en": "A meringue-based dessert with a crisp crust and soft, light centre, topped with whipped cream and fresh fruit.",
+        "fr": "Dessert a base de meringue, à la croute croustillante et au cœur tendre et leger, garni de creme fouettee et de fruits frais."
       },
       "sources": [
         {
@@ -27564,8 +27564,8 @@ const CUISINE_NOTES = {
     "tarte tatin": {
       "local": "Tarte Tatin",
       "note": {
-        "en": "A French upside-down tart of apples caramelized in butter and sugar, created by the Tatin sisters at their Lamotte-Beuvron hotel in the…",
-        "fr": "Tarte renversee francaise aux pommes caramelisees au beurre et au sucre, creee par les soeurs Tatin a leur hotel de Lamotte-Beuvron dans…"
+        "en": "A French upside-down tart of apples caramelized in butter and sugar, created by the Tatin sisters at their Lamotte-Beuvron hotel in the",
+        "fr": "Tarte renversee francaise aux pommes caramélisées au beurre et au sucre."
       },
       "sources": [
         {
@@ -27646,7 +27646,7 @@ const CUISINE_NOTES = {
       "local": "croquembouche",
       "note": {
         "en": "A French conical tower of cream-filled choux puffs bound with caramel, given its modern form by chef Antonin Careme.",
-        "fr": "Piece montee francaise en cone de choux fourres a la creme lies au caramel, mise en forme moderne par le chef Antonin Careme."
+        "fr": "Piece montee francaise en cone de choux fourres à la creme lies au caramel, mise en forme moderne par le chef Antonin Careme."
       },
       "sources": [
         {
@@ -27658,8 +27658,8 @@ const CUISINE_NOTES = {
     "lava cake": {
       "local": "Fondant au chocolat",
       "note": {
-        "en": "A small chocolate cake with a warm, runny centre. Chef Jean-Georges Vongerichten created his version in New York in 1987 and is credited…",
-        "fr": "Petit gateau au chocolat a coeur coulant et chaud. Le chef Jean-Georges Vongerichten en cree sa version a New York en 1987 et est credite…"
+        "en": "A small chocolate cake with a warm, runny centre.",
+        "fr": "Petit gateau au chocolat a cœur coulant et chaud."
       },
       "sources": [
         {
@@ -27705,8 +27705,8 @@ const CUISINE_NOTES = {
     "religieuse": {
       "local": "religieuse",
       "note": {
-        "en": "French pastry of two stacked choux buns filled with chocolate or coffee crème pâtissière, named for its nun-like shape, created mid-19th…",
-        "fr": "Pâtisserie française faite de deux choux superposés garnis de crème pâtissière au chocolat ou café, nommée d'après sa forme de nonne, créée…"
+        "en": "French pastry of two stacked choux buns filled with chocolate or coffee crème pâtissière, named for its nun-like shape.",
+        "fr": "Pâtisserie française faite de deux choux superposés garnis de crème pâtissière au chocolat ou café, nommée d'après sa forme de nonne."
       },
       "sources": [
         {
@@ -27722,8 +27722,8 @@ const CUISINE_NOTES = {
     "bombe alaska": {
       "local": "Bombe Alaska",
       "note": {
-        "en": "A flambeed variant of baked Alaska: ice cream and cake under browned meringue, doused in dark rum and set alight tableside. Baked Alaska…",
-        "fr": "Une variante flambee du baked Alaska : glace et gateau sous une meringue doree, arrosee de rhum brun et flambee a table. Le baked Alaska a…"
+        "en": "A flambeed variant of baked Alaska: ice cream and cake under browned meringue, doused in dark rum and set alight tableside.",
+        "fr": "Une variante flambee du baked Alaska : glace et gateau sous une meringue doree, arrosee de rhum brun et flambee a table."
       },
       "sources": [
         {
@@ -27758,8 +27758,8 @@ const CUISINE_NOTES = {
     "laksa carbonara": {
       "local": "Laksa Carbonara",
       "note": {
-        "en": "A fusion pasta marrying Italian carbonara — egg, hard cheese (Pecorino Romano) and cured pork, with no cream — to the coconut-and-spice…",
-        "fr": "Une pâte fusion mariant la carbonara italienne — œuf, fromage à pâte dure (Pecorino Romano) et porc séché, sans crème — au rempah épicé à…"
+        "en": "A fusion pasta marrying Italian carbonara — egg, hard cheese (Pecorino Romano)",
+        "fr": "Une pâte fusion mariant la carbonara italienne — œuf, fromage à pâte dure (Pecorino Romano)"
       },
       "sources": [
         {
@@ -27776,7 +27776,7 @@ const CUISINE_NOTES = {
       "local": "croissant rendang",
       "note": {
         "en": "A fusion pastry pairing a French croissant with rendang, the Minangkabau slow-cooked spiced-coconut meat.",
-        "fr": "Viennoiserie fusion unissant le croissant français au rendang, viande minangkabau mijotee a la coco epicee."
+        "fr": "Viennoiserie fusion unissant le croissant français au rendang, viande minangkabau mijotée à la coco épicée."
       },
       "sources": [
         {
@@ -27793,7 +27793,7 @@ const CUISINE_NOTES = {
       "local": "pizza sambal",
       "note": {
         "en": "Fusion pizza topped with sambal, a Southeast Asian chilli paste, often with chicken and mozzarella; popular in Malaysia and Singapore.",
-        "fr": "Pizza fusion garnie de sambal, une pâte de piment d'Asie du Sud-Est, souvent avec poulet et mozzarella; populaire en Malaisie et à…"
+        "fr": "Pizza fusion garnie de sambal, une pâte de piment d'Asie du Sud-Est, souvent avec poulet et mozzarella;"
       },
       "sources": [
         {
@@ -27809,8 +27809,8 @@ const CUISINE_NOTES = {
     "hainanese chicken risotto": {
       "local": "海南鸡烩饭 (Hainanese Chicken Risotto)",
       "note": {
-        "en": "A modern fusion dish that applies the Italian arborio risotto technique to the flavours of Singapore's Hainanese chicken rice — a creamy…",
-        "fr": "Plat fusion moderne appliquant la technique italienne du risotto au riz arborio aux saveurs du riz au poulet hainanais de Singapour : une…"
+        "en": "A modern fusion dish that applies the Italian arborio risotto technique to the flavours of Singapore's Hainanese chicken rice — a creamy",
+        "fr": "Plat fusion moderne appliquant la technique italienne du risotto au riz arborio aux saveurs du riz au poulet hainanais de Singapour : une"
       },
       "sources": [
         {
@@ -27826,8 +27826,8 @@ const CUISINE_NOTES = {
     "kaya french toast": {
       "local": "Kaya French Toast (kaya: Malay for \"rich\")",
       "note": {
-        "en": "Fusion dish: Western French toast made with kaya, the Singaporean-Malaysian coconut-egg-and-pandan jam, reinventing the classic kaya toast…",
-        "fr": "Plat fusion : pain perdu occidental prepare avec du kaya, la confiture singapourienne-malaisienne de coco, d'oeuf et de pandan, reinventant…"
+        "en": "Fusion dish: Western French toast made with kaya, the Singaporean-Malaysian coconut-egg-and-pandan jam.",
+        "fr": "Plat fusion : pain perdu occidental préparé avec du kaya, la confiture singapourienne-malaisienne de coco, d'oeuf et de pandan."
       },
       "sources": [
         {
@@ -27861,7 +27861,7 @@ const CUISINE_NOTES = {
       "local": "炒粿条 (truffle)",
       "note": {
         "en": "A modern fusion take on Singapore/Malaysia's wok-fried flat rice noodle dish char kway teow (炒粿条), enriched with truffle or truffle oil.",
-        "fr": "Version fusion moderne du char kway teow (炒粿条), plat de nouilles de riz plates sautees au wok de Singapour/Malaisie, rehausse de truffe ou…"
+        "fr": "Version fusion moderne du char kway teow (炒粿条)"
       },
       "sources": [
         {
@@ -27895,7 +27895,7 @@ const CUISINE_NOTES = {
       "local": "Mod-Sin (Modern Singaporean)",
       "note": {
         "en": "A multi-course menu of Mod-Sin (Modern Singaporean) cuisine, a fusion style coined by chef Willin Low at Wild Rocket in 2005.",
-        "fr": "Un menu degustation de cuisine Mod-Sin (singapourienne moderne), un style fusion invente par le chef Willin Low au Wild Rocket en 2005."
+        "fr": "Un menu dégustation de cuisine Mod-Sin (singapourienne moderne), un style fusion invente par le chef Willin Low au Wild Rocket en 2005."
       },
       "sources": [
         {
