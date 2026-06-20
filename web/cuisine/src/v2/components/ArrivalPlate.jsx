@@ -318,9 +318,11 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
         <span aria-hidden>📍</span>
         <span className="flex-1">
           <b>{fr ? 'Classiques locaux' : 'Local Food Classic'}:</b>
-          {geoStage === 1 && (
-            <>{' '}{names.map((n) => titleCaseDish(leadWithQualifier(n))).join(' • ')}</>
-          )}
+          {geoStage === 1 && (() => {
+            const shown = names.slice(0, 2).map((n) => titleCaseDish(leadWithQualifier(n)));
+            const rest = names.length - 2;
+            return <>{' '}{shown.join(' • ')}{rest > 0 ? ` +${rest}` : ''}</>;
+          })()}
           {geoStage === 2 && (
             <>{' '}{fr ? 'Touchez un plat pour apprendre et trouver.' : 'Tap a dish to learn and to find'}</>
           )}
