@@ -31,7 +31,11 @@ const axios = require('axios');
 const FORECAST_URL = 'https://besttime.app/api/v1/forecasts';
 const LIVE_URL     = 'https://besttime.app/api/v1/forecasts/live';
 const CACHE_TTL    = 30 * 60;   // 30 min
-const REQUEST_TIMEOUT_MS = 6000;
+// v0.62.229 — operator (Cuisine-Search timed out after Michelin): tighten the
+// per-call BestTime timeout 6000→3500ms. Paired with the overall budget in
+// attachFootfallSignals below, this stops a slow/down BestTime from eating the
+// 20s search deadline (it was ~18s for 12 venues × 6s in batches of 4).
+const REQUEST_TIMEOUT_MS = 3500;
 
 function cacheKey(placeId) {
   // BestTime is venue-resolved (by name + address); the result doesn't
@@ -96,26 +100,39 @@ async function fetchOne(redis, venue, apiKey) {
 // Concurrency: capped at 4 parallel BestTime calls so we don't hit
 // the per-IP rate ceiling on a single search. With our typical 5–12
 // venue result list, this is 2-3 batches.
-async function attachFootfallSignals(redis, venues) {
+async function attachFootfallSignals(redis, venues, budgetMs = 4500) {
   if (!Array.isArray(venues) || !venues.length) return venues || [];
   const apiKey = process.env.BESTTIME_API_KEY;
   if (!apiKey) return venues;
   const queue = venues.filter((v) => v?.placeId && v?.name);
   const PAR = 4;
   let resolved = 0;
-  for (let i = 0; i < queue.length; i += PAR) {
-    const batch = queue.slice(i, i + PAR);
-    const results = await Promise.all(batch.map((v) => fetchOne(redis, v, apiKey).catch(() => null)));
-    batch.forEach((v, idx) => {
-      const r = results[idx];
-      if (r) { v.footfall = r; resolved += 1; }
-    });
-  }
-  // v0.59.6: debug log — Railway can confirm BestTime is being called
-  // and how many venues resolved. 0/N after the deploy points at a key
-  // or plan-tier issue; >0/N confirms wiring is healthy and any
-  // missing chips reflect BestTime's SG venue coverage gap.
-  console.log(`[footfall] besttime resolved=${resolved}/${queue.length}`);
+  // The batch loop runs as a detached promise so we can RACE it against an
+  // overall budget — footfall is a non-critical chip and must never block the
+  // result. Each venue is mutated by reference, so even if the budget wins the
+  // race, any batch that finishes later still attaches harmlessly.
+  const run = (async () => {
+    for (let i = 0; i < queue.length; i += PAR) {
+      const batch = queue.slice(i, i + PAR);
+      const results = await Promise.all(batch.map((v) => fetchOne(redis, v, apiKey).catch(() => null)));
+      batch.forEach((v, idx) => {
+        const r = results[idx];
+        if (r) { v.footfall = r; resolved += 1; }
+      });
+    }
+  })();
+  // v0.62.229 — operator (Cuisine-Search D706 deadline-degraded after Michelin):
+  // hard-cap the WHOLE footfall enrichment at budgetMs. When BestTime is slow/down
+  // (resolved 0/N) the batched 3.5s-per-call loop could still eat ~7–11s and, on
+  // top of the Places gather, blow the 20s search deadline → 0 venues returned.
+  let timer;
+  const guard = new Promise((r) => { timer = setTimeout(r, budgetMs); });
+  const timedOut = (await Promise.race([run.then(() => false, () => false), guard.then(() => true)])) === true;
+  clearTimeout(timer);
+  // v0.59.6: debug log — Railway can confirm BestTime is being called and how
+  // many venues resolved; 0/N points at a key/plan-tier (or, now, a slow BestTime
+  // that hit the budget) issue, >0/N confirms healthy wiring.
+  console.log(`[footfall] besttime resolved=${resolved}/${queue.length}${timedOut ? ` (budget ${budgetMs}ms hit — returned without full footfall)` : ''}`);
   return venues;
 }
 
