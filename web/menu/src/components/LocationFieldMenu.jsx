@@ -809,7 +809,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
               className="flex-1 min-w-0 text-left text-sm text-tg-text inline-flex items-center gap-1.5"
             >
               {flagEl}
-              <span className="truncate">{composedLabel || currentAnchor.label || ''}</span>
+              <span className="truncate">{_safeLabel(composedLabel, currentAnchor.label)}</span>
             </button>
             <span aria-hidden className="text-tg-hint text-xs flex-shrink-0">✏️</span>
           </div>
