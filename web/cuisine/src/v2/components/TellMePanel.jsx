@@ -94,7 +94,9 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
             : `text-xs px-2.5 py-1 rounded-full bg-tg-accent text-tg-accent-text disabled:opacity-40 flex-shrink-0 transition-all ${
                 text.trim() && !submitting && !loading ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''
               }`}
-        >{submitting ? '…' : (searchIcon ? '🔍' : '→')}</button>
+        >{submitting ? '…' : (searchIcon
+          ? <img src="/app/cuisine/magnify-cooking.png" alt="" className="w-5 h-5 object-contain" />
+          : '→')}</button>
       </div>
     </div>
   );

@@ -3736,7 +3736,9 @@ export default function App() {
                   aria-expanded={classicOpen}
                   className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] active:scale-95 ${classicOpen ? 'folio-tab--active' : ''}`}
                 >
-                  <span aria-hidden className="shrink-0">📍</span>
+                  {/* v0.62.228 — operator: the Magnify (cooking-method) icon marks
+                      Local Food Pick + search. */}
+                  <img src="/app/cuisine/magnify-cooking.png" alt="" aria-hidden className="shrink-0 w-4 h-4 object-contain" />
                   <span className="flex-1 text-left truncate">{lang === 'fr' ? 'Plats classiques locaux' : 'Pick local classic'}</span>
                   <span aria-hidden className="shrink-0 opacity-70">{classicOpen ? '▴' : '▾'}</span>
                 </button>
