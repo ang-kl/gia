@@ -5864,19 +5864,6 @@ const CUISINE_NOTES = {
         }
       ]
     },
-    "kimbap": {
-      "local": "김밥",
-      "note": {
-        "en": "Korean dish of cooked rice, vegetables and often meat or egg rolled in dried gim (seaweed) and sliced; name first recorded 1935.",
-        "fr": "Plat coréen de riz, légumes et souvent viande ou œuf roulés dans du gim (algue séchée) puis tranchés; nom attesté dès 1935."
-      },
-      "sources": [
-        {
-          "name": "Gimbap - Wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Gimbap"
-        }
-      ]
-    },
     "mandu": {
       "local": "만두",
       "note": {
@@ -6434,23 +6421,6 @@ const CUISINE_NOTES = {
         {
           "name": "Zongzi at Dragon Boat Festival - China Highlights",
           "url": "https://www.chinahighlights.com/festivals/dragon-boat-festival-zongzi.htm"
-        }
-      ]
-    },
-    "mooncake": {
-      "local": "月餅 (月饼)",
-      "note": {
-        "en": "A dense round Chinese pastry filled with lotus-seed or sweet-bean paste, often with a salted egg yolk, eaten at the Mid-Autumn Festival.",
-        "fr": "Pâtisserie chinoise ronde et dense fourrée de pâte de lotus ou de haricot sucré, souvent avec un jaune d'œuf salé, dégustée à la fête de la…"
-      },
-      "sources": [
-        {
-          "name": "Mooncake - Wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Mooncake"
-        },
-        {
-          "name": "Mooncake | Britannica",
-          "url": "https://www.britannica.com/topic/moon-cake"
         }
       ]
     },
@@ -12115,23 +12085,6 @@ const CUISINE_NOTES = {
         {
           "name": "Food Heritage Foundation - Makdous: A Healthy Pickled Delight",
           "url": "https://food-heritage.org/makdous-a-healthy-pickled-delight/"
-        }
-      ]
-    },
-    "lebanese arak": {
-      "local": "عَرَق",
-      "note": {
-        "en": "Lebanon's national drink: a clear, anise-flavored spirit triple-distilled from Levantine grapes, with aniseed added in the final…",
-        "fr": "Boisson nationale du Liban : spiritueux clair anisé, triple-distillé à partir de raisins levantins, l'anis étant ajouté à la dernière…"
-      },
-      "sources": [
-        {
-          "name": "Wikipedia - Arak (drink)",
-          "url": "https://en.wikipedia.org/wiki/Arak_(drink)"
-        },
-        {
-          "name": "The Arab Weekly - The story of arak",
-          "url": "https://thearabweekly.com/story-arak-lebanese-drink-infused-tradition"
         }
       ]
     },
@@ -21427,19 +21380,6 @@ const CUISINE_NOTES = {
         }
       ]
     },
-    "kashk e bademjan": {
-      "local": "کشک بادمجان",
-      "note": {
-        "en": "A staple Iranian warm dip of mashed eggplant and kashk (fermented dried-yogurt whey), topped with fried onion, garlic, mint and walnuts.",
-        "fr": "Un dip iranien chaud, à base d'aubergine en purée et de kashk (petit-lait de yaourt séché fermenté), garni d'oignon frit, d'ail, de menthe…"
-      },
-      "sources": [
-        {
-          "name": "Wikipedia — Kashk bademjan",
-          "url": "https://en.wikipedia.org/wiki/Kashk_bademjan"
-        }
-      ]
-    },
     "joojeh kabab": {
       "local": "جوجه کباب",
       "note": {
@@ -22461,23 +22401,6 @@ const CUISINE_NOTES = {
         {
           "name": "Kaleela – How To Make Zarb, A Traditional Jordanian Dish",
           "url": "https://kaleela.com/en/blog/how-to-make-zarb-a-traditional-jordanian-dish/"
-        }
-      ]
-    },
-    "makloubeh": {
-      "local": "مَقْلُوبَة",
-      "note": {
-        "en": "A Levantine layered rice dish with meat and fried vegetables, flipped upside-down to serve; its name means \"upside-down\" in Arabic.",
-        "fr": "Plat levantin de riz en couches avec viande et legumes frits, retourne a l'envers pour servir; son nom signifie \"a l'envers\" en arabe."
-      },
-      "sources": [
-        {
-          "name": "Wikipedia - Maqluba",
-          "url": "https://en.wikipedia.org/wiki/Maqluba"
-        },
-        {
-          "name": "Wikipedia - Jordanian cuisine",
-          "url": "https://en.wikipedia.org/wiki/Jordanian_cuisine"
         }
       ]
     },
