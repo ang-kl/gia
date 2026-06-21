@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
+import Icon from './Icon.jsx';
 
 // v0.59.0: standalone "Tell me" panel — replaces the v0.57.30 FlipPanel
 // back-face textarea + flip animation. Always visible below the map
@@ -66,7 +67,7 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
           with "white spacing" in dark mode. Make it a square-edged BOX
           (rounded-md) with a solid card fill. */}
       <div className="flex items-center gap-2 px-3 py-1 rounded-md border-2 border-tg-hint/60 bg-tg-card">
-        <span aria-hidden className="text-tg-hint flex-shrink-0">💬</span>
+        <Icon name="message" className="w-4 h-4 text-tg-hint flex-shrink-0" />
         <input
           type="text"
           value={text}
@@ -94,7 +95,9 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
             : `text-xs px-2.5 py-1 rounded-full bg-tg-accent text-tg-accent-text disabled:opacity-40 flex-shrink-0 transition-all ${
                 text.trim() && !submitting && !loading ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''
               }`}
-        >{submitting ? '…' : (searchIcon ? '🔍' : '→')}</button>
+        >{submitting ? '…' : (searchIcon
+          ? <Icon name="search" className="w-[18px] h-[18px]" />
+          : <Icon name="arrow-right" className="w-4 h-4" />)}</button>
       </div>
     </div>
   );
