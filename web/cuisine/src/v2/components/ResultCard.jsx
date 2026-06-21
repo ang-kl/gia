@@ -241,7 +241,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
 
   return (
     <button type="button" onClick={() => onTap?.(venue.placeId)}
-      className={`w-full text-left rounded-lg border flex flex-col ${horizontal ? 'gap-0.5 px-2.5 py-1.5 bg-tg-card/80 backdrop-blur-md' : 'gap-1 p-2.5 bg-tg-card'} ${focused ? 'border-tg-accent' : 'border-tg-border'}`}>
+      className={`w-full text-left rounded-lg border bg-tg-card flex flex-col ${horizontal ? 'gap-0.5 px-2.5 py-1.5' : 'gap-1 p-2.5'} ${focused ? 'border-tg-accent' : 'border-tg-border'}`}>
       {/* v0.62.108 — operator: rank reads "1 · <name>" inline; every row below
           is flush-left (no indent — was a 2-col flex that offset the whole body).
           v0.62.176 — operator: REVERTED the v0.62.168 horizontal word-wrap (the
