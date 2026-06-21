@@ -81,7 +81,7 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
           <div
             key={v.placeId || i}
             data-pid={v.placeId || ''}
-            className="card-scroll snap-center shrink-0 basis-[82%] max-h-[60vh] overflow-y-auto rounded-lg shadow-xl"
+            className="card-scroll snap-center shrink-0 basis-[82%] max-w-[22rem] max-h-[60vh] overflow-y-auto rounded-lg shadow-xl"
           >
             {/* v0.62.168 — operator: horizontal cards are UNIFORM size (fixed
                 h-[10.5rem] + min-h-full fills it), COLLAPSED by default
@@ -100,14 +100,14 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
         ))}
         {/* v0.62.151 — operator: a terminal card after the last result. Scroll to
             the right end → "Last card" + how to refine. */}
-        <div className="snap-center shrink-0 basis-[82%] max-h-[60vh] rounded-lg shadow-xl bg-tg-card border border-tg-border flex flex-col items-center justify-center text-center gap-1 px-3 py-4">
+        <div className="snap-center shrink-0 basis-[82%] max-w-[22rem] max-h-[60vh] rounded-lg shadow-xl bg-tg-card/80 backdrop-blur-md border border-tg-border flex flex-col items-center justify-center text-center gap-1 px-3 py-4">
           <div className="text-[13px] font-semibold text-tg-text">{lang === 'fr' ? 'Dernière carte' : 'Last card'}</div>
           <div className="text-[12px] text-tg-hint leading-snug">📍 {lang === 'fr' ? 'saisir un lieu' : 'enter location'} · 💬 {lang === 'fr' ? 'tapez un plat' : 'Type dish'}</div>
           <div className="text-[12px] text-tg-hint leading-snug">{lang === 'fr' ? 'Touchez 🔍 pour rechercher' : 'Tap 🔍 to search'}</div>
         </div>
         {/* v0.62.155 — loop clone of the FIRST card (jumps back to the real one
             on reach, see the scroll effect above). */}
-        <div className="card-scroll snap-center shrink-0 basis-[82%] max-h-[60vh] overflow-y-auto rounded-lg shadow-xl" aria-hidden="true">
+        <div className="card-scroll snap-center shrink-0 basis-[82%] max-w-[22rem] max-h-[60vh] overflow-y-auto rounded-lg shadow-xl" aria-hidden="true">
           <ResultCard
             venue={list[0]}
             number={1}

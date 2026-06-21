@@ -3784,8 +3784,9 @@ export default function App() {
         // as a drawer pulling down from the active .folio-tab--active tab.
         <div className="folder-drawer fixed inset-x-0 z-40 overflow-y-auto no-scrollbar rounded-b-2xl border-b border-x px-3 py-2.5 flex flex-col gap-2"
           style={{ top: headerBottom, maxHeight: `calc(100dvh - ${headerBottom}px - 9rem)` }}>
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-tg-text">🍲 {lang === 'fr' ? 'Choisir votre cuisine' : 'Choose your cuisine'}</span>
+          {/* v0.62.246 — operator: the folio TAB already reads "Choose your
+              cuisine"; drop the duplicate body title, keep only the × close. */}
+          <div className="flex items-center justify-end">
             <button type="button" onClick={() => setCuisinePickOpen(false)} aria-label={lang === 'fr' ? 'Fermer' : 'Close'} className="text-tg-hint hover:text-tg-text text-sm leading-none px-1">✕</button>
           </div>
           {recommendHint && (
@@ -3851,8 +3852,10 @@ export default function App() {
         // v0.62.208 — connected to its tab (flush, frosted folder-drawer), like cuisine.
         <div className="folder-drawer fixed inset-x-0 z-40 overflow-y-auto no-scrollbar rounded-b-2xl border-b border-x px-2.5 py-2"
           style={{ top: headerBottom, maxHeight: `calc(100dvh - ${headerBottom}px - 9rem)` }}>
-          <div className="flex items-center justify-between pb-1">
-            <span className="text-xs font-semibold text-tg-text">📍 {lang === 'fr' ? 'Plats classiques locaux' : 'Pick local classic'}</span>
+          {/* v0.62.246 — operator: the folio TAB already reads "Pick local
+              classic"; drop the duplicate body title, keep only the × close.
+              (The plate below still shows the city name, e.g. "📍 Singapore".) */}
+          <div className="flex items-center justify-end pb-1">
             <button type="button" onClick={() => setClassicOpen(false)} aria-label={lang === 'fr' ? 'Fermer' : 'Close'} className="text-tg-hint hover:text-tg-text text-sm leading-none px-1">✕</button>
           </div>
           <ArrivalPlate
