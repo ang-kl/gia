@@ -463,19 +463,12 @@ export default function App() {
   // v0.61.0 — map overlay layer toggles. Map-view state only; kept out
   // of `state` so it never enters the search query or a saved snapshot.
   const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, hawker: false, colour: true, train: true, exits: false, taxis: false, parks: false, police: false, clinics: false, hospitals: false });
-  // v0.59.0: collapsible "Search criteria" section. Default collapsed
-  // when a search has already produced results so the user can scan
-  // results without scrolling past the builder.
-  // v0.60.47: default closed on first render — the warm-start fetch
-  // takes ~4s and an open builder dominating the viewport while
-  // results loaded behind it confused users. Now the page opens
-  // calm; once warm-start finishes we briefly pulse the "Edit search"
-  // pill so the builder is discoverable without forcing it open.
-  const [criteriaOpen, setCriteriaOpen] = useState(false);
-  // v0.62.188 — operator (IMG_2509 follow-up "1"): the header Cuisine FOLIO TAB
-  // now opens its picker INLINE (a .folio-panel connected to the tab), parallel
-  // to the Local-classic tab — instead of the footer "Edit search" bottom sheet.
-  // This is its own flag so the footer criteria sheet (criteriaOpen) is untouched.
+  // v0.62.249 — operator ("why are there two codes"): the legacy footer
+  // "Search criteria" bottom sheet (`criteriaOpen`) is REMOVED. It rendered a
+  // SECOND copy of QuickFilters + CuisineDrawer that could resurface (with the
+  // pre-white-panel styling) when a search was interrupted. Everything now goes
+  // through the single header FOLIO drawer (`cuisinePickOpen`) below, which
+  // already carries the filters, the cuisine grid, and its own 🔍 Search button.
   const [cuisinePickOpen, setCuisinePickOpen] = useState(false);
   // v0.62.204 — operator: the cuisine / local-classic picker overlays must drop
   // down JUST BELOW the header tabs (in front of the map) — NOT at the footer.
@@ -2403,7 +2396,7 @@ export default function App() {
         // below explains it.
         if (isRetryCall) {
           setZeroRetried(true);
-          setCriteriaOpen(true);
+          setCuisinePickOpen(true);   // v0.62.249 — open the folio picker (was the old criteria sheet)
         }
         const zr = r.zeroReason;
         setZeroReasonKey(
@@ -2496,7 +2489,7 @@ export default function App() {
       // search returned zero venues so the user can adjust filters
       // without re-expanding.
       if (Array.isArray(r.venues) && r.venues.length > 0) {
-        setCriteriaOpen(false);
+        setCuisinePickOpen(false);   // v0.62.249 — collapse the folio picker once results arrive
       }
       // End-of-list note rendered separately at the result list bottom
       // (sticky, not a popup). Cleared on the next non-exhausted search.
@@ -2768,9 +2761,7 @@ export default function App() {
     setCuisinePickOpen(false);   // v0.62.195 — close the cuisine picker overlay on search
     // v0.62.180 — a committed search means there's now a "last search area".
     setLocChanged(true);
-    // v0.62.140 — firing from the criteria bottom sheet closes it so the
-    // (horizontal) results are unobscured.
-    setCriteriaOpen(false);
+    // v0.62.249 — (removed the redundant setCriteriaOpen(false); the old sheet is gone.)
     setLoadingReason(lastRunSnap !== null && !dirty ? 'refresh' : 'rotating');
     // v0.61.354 — if a city is previewed, 🔍 COMMITS it as the active search
     // location (and searches there). Reuse onLocationSelect WITHOUT cityPreview
@@ -3718,7 +3709,7 @@ export default function App() {
             <div className="folio-tabs folio--manila">
               <button
                 type="button"
-                onClick={() => { setClassicOpen(false); setCriteriaOpen(false); setCuisinePickOpen((o) => !o); }}
+                onClick={() => { setClassicOpen(false); setCuisinePickOpen((o) => !o); }}
                 aria-expanded={cuisinePickOpen}
                 aria-label={names.length
                   ? (lang === 'fr' ? `Cuisines : ${names.join(', ')}` : `Cuisines: ${names.join(', ')}`)
@@ -3732,7 +3723,7 @@ export default function App() {
               {hasPlate && (
                 <button
                   type="button"
-                  onClick={() => { setCriteriaOpen(false); setCuisinePickOpen(false); setClassicOpen((o) => !o); }}
+                  onClick={() => { setCuisinePickOpen(false); setClassicOpen((o) => !o); }}
                   aria-expanded={classicOpen}
                   className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] active:scale-95 ${classicOpen ? 'folio-tab--active' : ''}`}
                 >
@@ -3747,10 +3738,10 @@ export default function App() {
           );
         })()}
         {/* v0.62.188 — operator (IMG_2509 follow-up "1"): the Cuisine picker opens
-            INLINE as a folio-panel connected to its tab (parallel to Local-classic),
-            replacing the footer bottom sheet for the HEADER tab. Pick chips → tap
-            🔍 Search to fire (no auto-fire). The footer "Edit search" sheet
-            (criteriaOpen) is untouched. */}
+            INLINE as a folio-panel connected to its tab (parallel to Local-classic).
+            Pick chips → tap 🔍 Search to fire (no auto-fire).
+            v0.62.249 — this is now the ONLY cuisine picker; the legacy footer
+            "Search criteria" bottom sheet was removed (see the state comment). */}
         {/* v0.62.195 — operator: the cuisine + local-classic pickers no longer sit
             INLINE in the header (they pushed the map down + dropped the quick
             filters). They now render as fixed bottom-sheet OVERLAYS at root level
@@ -3945,137 +3936,6 @@ export default function App() {
           moved OUT of the page flow into the fixed footer row (see the footer
           rebuild below). */}
 
-      {/* v0.59.0: Search criteria — collapsible. Filter chips
-          (Open-now / New / Halal / Price / Filters), location field,
-          cuisine drawer, Search button all live inside. Tapping the
-          header toggles open/closed; chevron flips ▾↔▸. Active
-          filters above stay visible regardless.
-          v0.58.29: subtle accent tint on the card background so it
-          reads distinct from the surrounding tg-card panels (per
-          Human Lead — "Search card could have a lighter shade than
-          the background to distinguish it"). Header gains an
-          explicit "Collapse"/"Edit search" pill on the right so the
-          collapse affordance isn't just a small chevron. */}
-      {/* v0.62.140 — operator: the Search-criteria card is now a footer-docked
-          BOTTOM SHEET. Open (criteriaOpen) → fixed above the footer row, opaque,
-          scrollable, with the existing "Collapse" header + in-sheet "🔍 Search"
-          bar (which still fires + loads more). Closed → just the active-filter
-          chips in flow (the header lives in the footer as "Edit search ▾" /
-          the blue 🔍). */}
-      <div
-        className={criteriaOpen
-          ? 'fixed inset-x-2 bottom-[6.75rem] z-40 max-h-[68vh] overflow-y-auto rounded-2xl border border-tg-accent/50 shadow-2xl'
-          : (criteriaSummary.length > 0 ? 'px-0.5 mb-1' : 'hidden')}
-        style={criteriaOpen ? { backgroundColor: 'color-mix(in srgb, var(--tg-card) 94%, var(--tg-accent) 6%)' } : undefined}
-      >
-        {/* v0.60.84 — operator 2026-05-10: pills now live inside the
-            criteria card below the toggle button (visible only when
-            collapsed AND something is selected). Replaces the v0.60.80
-            text preview "Japanese • Open now • $$". Mounted as a
-            sibling of the <button>, not nested inside it — nested
-            <button> in <button> is invalid HTML and breaks the X-tap
-            removal on each pill.
-            v0.62.161 — the collapsed chip row moved OUT of the criteria card to a
-            floating liquid-glass strip above the footer FABs (see the footer). */}
-        {criteriaOpen && (
-          <div className="flex flex-col gap-2 px-3 pb-3">
-            {/* v0.62.37 — operator: tapping ⭐ Recommend shows a ~7-second
-                explainer of what it does. Blue accent, words only. */}
-            {recommendHint && (
-              <div className="rounded-xl border border-tg-accent/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
-                {t('filter.recommend.hint', lang)}
-              </div>
-            )}
-            <QuickFilters
-              filters={state.filters}
-              onClose={() => setCriteriaOpen(false)}
-              onChange={(f) => {
-                // v0.62.37 — ⭐ Recommend checked → arm the 7 s explainer.
-                if (f.recommend && !state.filters?.recommend) {
-                  setRecommendHint(true);
-                  if (recommendHintTimerRef.current) clearTimeout(recommendHintTimerRef.current);
-                  recommendHintTimerRef.current = setTimeout(() => setRecommendHint(false), 7000);
-                } else if (!f.recommend && recommendHint) {
-                  setRecommendHint(false);
-                  if (recommendHintTimerRef.current) clearTimeout(recommendHintTimerRef.current);
-                }
-                setState((s) => ({ ...s, filters: f }));
-              }}
-              specialModeActive={!!state.specialMode}
-              ratingPref={ratingPref}
-              // v0.61.429 — Michelin / Bib Gourmand is a curated awards list;
-              // a rating floor makes no sense there (and the server already
-              // routes it through handleMichelinSearch, which never applies
-              // the floor). Disable the rating pill so it's clearly N/A.
-              ratingDisabled={(state.cuisines || []).includes('michelin')}
-              onRatingSave={(value) => {
-                // v0.61.426 — commit the rating pill choice: relabel locally
-                // + persist to Redis (shared with /rating).
-                // v0.61.428 — the value is now authoritative (the user chose
-                // it), so mark it loaded and forward it on the next search.
-                setRatingPref(value);
-                setRatingLoaded(true);
-                saveRatingPref(value).catch(() => {});
-                // v0.62.x — operator: confirm the commit with a brief
-                // "Search rating updated" toast.
-                setRatingReminder({ kind: 'saved' });
-              }}
-            />
-            {/* v0.61.29 — LocationField moved out of this collapsed
-                section to the banner slot above the map; see the
-                `!userLoc ? … : <LocationField …>` block near the top.
-                v0.61.126 — specialMode + onSpecialModeChange wired so
-                the Fruits / Durian exclusive toggles inside the drawer
-                lift state up to App.jsx. */}
-            <CuisineDrawer catalogue={catalogue} selected={state.cuisines}
-              region={state.region}
-              countryPref={state.countryPref}
-              /* v0.61.445 — resolve the allowed Michelin cuisine slugs for the
-                 picked country+city (null = unknown coverage → fail open). */
-              michelinCuisines={(() => {
-                const cc = state.region === 'SG' ? 'SG'
-                  : (state.region === 'MY-PUT' || state.region === 'JB') ? 'MY'
-                  : String(state.countryPref || '').toUpperCase();
-                const byCC = michelinCuisinesByCC && michelinCuisinesByCC[cc];
-                if (!byCC) return null;
-                const city = selectedCityLocation?.name || locationAnchor?.name || null;
-                if (city && byCC.byCity && Array.isArray(byCC.byCity[city])) return byCC.byCity[city];
-                return Array.isArray(byCC.all) ? byCC.all : null;
-              })()}
-              specialMode={state.specialMode || null}
-              onSpecialModeChange={(mode) => setState((s) => ({ ...s, specialMode: mode || null }))}
-              onChange={(c) => setState((s) => ({ ...s, cuisines: c }))}
-              onCategoryClose={() => {
-                if (state.cuisines.length > 0) {
-                  setSearchHintActive(true);
-                  setTimeout(() => setSearchHintActive(false), 5000);  // v0.61.174: 3s → 5s
-                }
-              }} />
-            <div className="flex gap-1.5 items-center">
-              <button
-                type="button"
-                onClick={triggerSearch}
-                disabled={loading}
-                className={`flex-1 text-xs font-semibold px-3 py-2 rounded-2xl transition-colors whitespace-nowrap ${
-                  loading ? 'bg-tg-card text-tg-hint border border-tg-border'
-                  : dirty ? 'bg-tg-accent text-tg-accent-text ring-2 ring-offset-1 ring-tg-accent ring-offset-tg-bg'
-                  : 'bg-tg-accent text-tg-accent-text'
-                }`}
-              >
-                {loading ? t('btn.searchPleaseWait', lang) : t('btn.searchFull', lang)}
-              </button>
-              {canClear && (
-                <button
-                  type="button"
-                  onClick={clearAll}
-                  disabled={loading}
-                  className="shrink-0 text-xs px-3 py-2 rounded-2xl border border-tg-border bg-tg-card text-tg-text"
-                >{t('btn.clear', lang)}</button>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
 
       {/* v0.60.166 — operator: on first TMA load, grey-off all
           selections (Edit-search pill, Search-criteria dropdown,
@@ -4611,7 +4471,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => {
-                setCriteriaOpen(true);
+                setCuisinePickOpen(true);   // v0.62.249 — open the folio picker (was the old criteria sheet)
                 setZeroRetried(false);
                 lastZeroRetrySnapRef.current = null;
                 runSearch(state, null, { resetSeen: true });
