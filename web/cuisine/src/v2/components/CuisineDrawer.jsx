@@ -84,6 +84,15 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
   function CategoryCard({ cat }) {
     const selectedInCat = cat.cuisines.filter((c) => selected.includes(c.slug)).length;
     const label = labelFor(cat);
+    // v0.62.242 — operator (MVP parity): each card previews the cuisines it
+    // holds, matching the approved cuisine-tma-mvp.html ("Singaporean,
+    // Peranakan, Eurasian" under "Common in Singapore"). Non-inventive — the
+    // names come straight from cat.cuisines[].name; CSS line-clamp truncates
+    // to two lines and adds the "…". Single-item categories (Dessert, Fusion)
+    // skip it — the label already names the one cuisine.
+    const subtitle = cat.cuisines.length > 1
+      ? cat.cuisines.map((c) => c.name).filter(Boolean).join(', ')
+      : '';
     // v0.59.23: single-item categories (Dessert, Fusion) skip the
     // drill-down sub-drawer — tapping the card toggles the only
     // entry directly. Per Human Lead 2026-05-07: "if i click fusion
@@ -126,10 +135,15 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
         title={regionDisabled
           ? `${label} — ${lang === 'fr' ? 'pas de liste Michelin ici' : 'no Michelin list here'}`
           : undefined}
-        className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-left transition-colors ${regionDisabled ? 'opacity-50 cursor-not-allowed bg-tg-card border-tg-border' : (selectedInCat > 0 || (isSingle && isOnlySelected) ? 'bg-[#DCEBFF] border-tg-accent text-[#0c2540]' : 'bg-tg-card border-tg-border hover:border-tg-accent')}`}
+        className={`flex items-center gap-2 px-3 py-2 rounded-2xl border text-left transition-colors ${regionDisabled ? 'opacity-50 cursor-not-allowed bg-tg-card border-tg-border' : (selectedInCat > 0 || (isSingle && isOnlySelected) ? 'bg-[#DCEBFF] border-tg-accent text-[#0c2540]' : 'bg-tg-card border-tg-border hover:border-tg-accent')}`}
       >
         <span aria-hidden className="flex-shrink-0">{cat.emoji}</span>
-        <span className="text-xs font-semibold whitespace-normal break-words leading-tight line-clamp-2 flex-1">{label}</span>
+        <span className="flex-1 min-w-0">
+          <span className="block text-xs font-semibold whitespace-normal break-words leading-tight line-clamp-2">{label}</span>
+          {subtitle && (
+            <span className={`block text-[10px] leading-tight line-clamp-2 mt-0.5 ${selectedInCat > 0 ? 'text-[#0c2540]/70' : 'text-tg-hint'}`}>{subtitle}</span>
+          )}
+        </span>
         {!isSingle && selectedInCat > 0 && (
           <span className="text-tg-accent text-[10px] font-semibold flex-shrink-0">[{selectedInCat}]</span>
         )}
