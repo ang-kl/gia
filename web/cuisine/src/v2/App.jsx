@@ -3965,34 +3965,6 @@ export default function App() {
           : (criteriaSummary.length > 0 ? 'px-0.5 mb-1' : 'hidden')}
         style={criteriaOpen ? { backgroundColor: 'color-mix(in srgb, var(--tg-card) 94%, var(--tg-accent) 6%)' } : undefined}
       >
-        {criteriaOpen && (
-        <button
-          type="button"
-          onClick={() => setCriteriaOpen((o) => !o)}
-          aria-expanded={criteriaOpen}
-          className="w-full flex items-start gap-2 px-3 py-2.5 text-xs font-semibold text-tg-text hover:bg-tg-bg/30 transition-colors"
-        >
-          <span aria-hidden className="text-tg-accent text-base leading-none mt-0.5">{criteriaOpen ? '▾' : '▸'}</span>
-          {/* v0.60.80 — title + selected-criteria preview stacked in one
-              flex column. The count badge ("1c · 0f") was meaningless;
-              replace with a one-size-smaller line showing the real
-              selections separated by " • ". Hidden when nothing is
-              selected so the header collapses to a single row. */}
-          <div className="flex-1 text-left min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="flex-1">{lang === 'fr' ? 'Critères de recherche' : 'Search criteria'}</span>
-              <span
-                aria-hidden
-                className={`text-[11px] font-semibold px-2 py-0.5 rounded-full bg-tg-accent text-tg-accent-text transition-shadow ${
-                  !criteriaOpen && editSearchPulse ? 'ring-2 ring-tg-accent ring-offset-1 animate-pulse' : ''
-                }`}
-              >
-                {criteriaOpen ? t('btn.collapse', lang) : t('btn.editSearch', lang)}
-              </span>
-            </div>
-          </div>
-        </button>
-        )}
         {/* v0.60.84 — operator 2026-05-10: pills now live inside the
             criteria card below the toggle button (visible only when
             collapsed AND something is selected). Replaces the v0.60.80
@@ -4013,6 +3985,7 @@ export default function App() {
             )}
             <QuickFilters
               filters={state.filters}
+              onClose={() => setCriteriaOpen(false)}
               onChange={(f) => {
                 // v0.62.37 — ⭐ Recommend checked → arm the 7 s explainer.
                 if (f.recommend && !state.filters?.recommend) {
