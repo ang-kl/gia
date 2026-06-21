@@ -370,10 +370,16 @@ export default function App() {
     setLoading(false);
     // v0.62.250 — a manual Stop must leave a CLEAN, current-code state: clear the
     // boot-load posture (else fun-facts stay suppressed + the follow-sync guard
-    // stays armed) and un-dismiss the horizontal glass drawer so whatever venues
-    // already streamed in show in the NEW card style — never a stale fallback.
+    // stays armed) and un-dismiss the horizontal drawer so whatever venues
+    // already streamed in show — never a stale fallback.
     if (firstLoadPendingRef.current) setFirstLoadPending(false);
     setDrawerDismissed(false);
+    // v0.62.256 — operator: hitting Stop was revealing the "Choose your cuisine"
+    // picker that had stayed OPEN under the loading overlay (a normal search
+    // auto-closes it on results; a Stop never did). Close BOTH folio pickers so
+    // Stop lands on the clean map, not a panel.
+    setCuisinePickOpen(false);
+    setClassicOpen(false);
   }, []);
   // v0.61.50 — cycle the 6 rotating loading titles every 1.5 s while a
   // user-triggered search with changed criteria is in flight.
