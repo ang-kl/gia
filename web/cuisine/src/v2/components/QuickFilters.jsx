@@ -124,7 +124,7 @@ function RatingOption({ checked, onSelect, label, hint }) {
 // The auto-off useEffect below also clears any pre-existing
 // filters.halal when special mode activates so the request body
 // doesn't carry a stale modifier.
-export default function QuickFilters({ filters, onChange, specialModeActive = false, ratingPref = RATING_PRESET, onRatingSave, ratingDisabled = false }) {
+export default function QuickFilters({ filters, onChange, specialModeActive = false, ratingPref = RATING_PRESET, onRatingSave, ratingDisabled = false, onClose }) {
   const [lang] = useLocale();
   const [moreOpen, setFiltersOpen] = useState(false);
   // v0.61.426 — rating pill panel. `ratingOpen` toggles the 4-option
@@ -278,6 +278,11 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
             <span className="mr-0.5" aria-hidden>⭐</span>{ratingPillLabel(ratingPref, lang, tr)}
           </Chip>
         </span>
+        {onClose && (
+          <button type="button" onClick={onClose}
+            aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
+            className="ml-auto text-tg-hint text-xl leading-none px-1 flex-shrink-0">×</button>
+        )}
       </div>
       {moreOpen && (
         // v0.60.188 — operator: the previous "💲 Price ▾" dropdown
