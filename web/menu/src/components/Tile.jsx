@@ -15,7 +15,10 @@ import React, { useState } from 'react';
 // (Train, Hawker) to disabled when a Malaysia anchor is set. Visual: opacity 0.4,
 // cursor not-allowed; tap surfaces the tooltip via Telegram's showAlert instead of
 // running onClick.
-export default function Tile({ icon, iconImage, label, subtitle = '', onClick, disabled = false, disabledTooltip = '' }) {
+// v0.62.243 — optional `imgClass` overrides the icon-image sizing for a single
+// tile (operator: the Hawker glyph reads small in the shared 36 px box — scale
+// it up without changing the row height, so the tiles stay aligned).
+export default function Tile({ icon, iconImage, label, subtitle = '', onClick, disabled = false, disabledTooltip = '', imgClass = 'max-h-9 max-w-full object-contain' }) {
   const [imgFailed, setImgFailed] = useState(false);
   const showImage = iconImage && !imgFailed;
   const handleClick = (e) => {
@@ -54,7 +57,7 @@ export default function Tile({ icon, iconImage, label, subtitle = '', onClick, d
             <img
               src={iconImage}
               alt=""
-              className="max-h-9 max-w-full object-contain"
+              className={imgClass}
               loading="lazy"
               onError={() => setImgFailed(true)}
             />
