@@ -273,7 +273,7 @@ async function reverseGeocodeAddress(lat, lng) {
     const _streetNumber = findComp('street_number');
     const _route = findComp('route');
     const _street = _route ? (_streetNumber ? `${_streetNumber} ${_route}` : _route) : '';
-    const name = findComp('point_of_interest')
+    let name = findComp('point_of_interest')
       || findComp('premise')
       || findComp('establishment')
       || _street
@@ -283,6 +283,16 @@ async function reverseGeocodeAddress(lat, lng) {
       || findComp('locality')
       || r.formatted_address?.split(',')[0]
       || 'Singapore';
+    // v0.62.253 — operator (recurring "street name resolution"): a bare HDB block
+    // number ("Block 49" / "Blk 49A") is the premise that wins the cascade above,
+    // but on its own it's ambiguous SG-wide. When the picked name is just a block
+    // number AND a route was resolved, append the street so the anchor reads
+    // "Block 49, Telok Blangah Drive". Non-inventive — `_route` is the geocoded
+    // route; only appended when not already present in the name.
+    if (name && _route && /^(blk|block|blok)\s*\d+[a-z]?$/i.test(name.trim())
+        && !name.toLowerCase().includes(_route.toLowerCase())) {
+      name = `${name}, ${_route}`;
+    }
     const formatted = r.formatted_address || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
     // v0.61.156 — surface country + admin_area_level_1 so the
     // location-mode classifier (rule §2.3) can map the fix into
