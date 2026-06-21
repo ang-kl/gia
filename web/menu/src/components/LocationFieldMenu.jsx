@@ -71,6 +71,20 @@ function _haversineKm(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+// v0.62.254 — mirror of the Cuisine TMA's NEAREST_CITY_MAX_KM
+// (LocationField.jsx). The nearest-cities.js auto-pick only applies
+// when the anchor is plausibly IN the selected country; beyond this
+// the anchor is treated as a cross-country stale pin and the picker
+// defaults to the capital. 500 km clears every in-country gap
+// (HK districts ~30 km, Sibu→Kuching ~150 km) while excluding any
+// cross-country jump (SG→Japan ~3300 km).
+const NEAREST_CITY_MAX_KM = 500;
+
+// v0.62.254 — Singapore has no cities.js catalogue (it uses the
+// SG-mode free-text form), so an explicit SG country pick commits this
+// centroid directly. Coords mirror iata-cities.js 'SIN'.
+const SG_CENTROID = Object.freeze({ lat: 1.3521, lng: 103.8198, label: 'Singapore' });
+
 function CityDropdownMenu({ countryCode, value, onChange, ariaLabel }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
@@ -108,7 +122,7 @@ function CityDropdownMenu({ countryCode, value, onChange, ariaLabel }) {
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="text-sm bg-transparent text-tg-text border border-tg-border rounded px-1.5 py-0.5 whitespace-nowrap inline-flex items-center gap-0.5"
+        className="text-xs bg-transparent text-tg-text border border-tg-border rounded px-1.5 py-0.5 whitespace-nowrap inline-flex items-center gap-0.5"
         style={{ minWidth: '3.5rem' }}
       >
         <span className="font-mono tracking-tight">{current ? current.code : '— —'}</span>
@@ -209,8 +223,12 @@ function CountryDropdownMenu({ value, onChange, ariaLabel }) {
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="bg-transparent text-sm outline-none whitespace-nowrap inline-flex items-center gap-0.5"
-        style={{ minWidth: '4.5rem' }}
+        /* v0.62.254 — mirror Cuisine TMA's CountryDropdown (v0.61.364 text-xs,
+           v0.62.82 no min-width). The old text-sm + minWidth 4.5rem left ~1.5rem
+           of empty space to the RIGHT of "🇮🇩 ID ▾", pushing the city pill far
+           away (operator: "the gap between country and city in menu tma is so
+           wide"). Sizing to content + the gap-0 wrapper below butts them together. */
+        className="bg-transparent text-xs outline-none whitespace-nowrap inline-flex items-center gap-0.5"
       >
         <span aria-hidden>{current.flag}</span>
         <span>{current.code}</span>
@@ -356,6 +374,11 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
   // (matches the v0.61.254 auto-collapse-after-pick contract).
   const [expanded, setExpanded] = useState(false);
   useEffect(() => {
+    // v0.62.254 — skip exactly one collapse when the anchor moved
+    // because the user just picked a new country (keepExpandedRef). The
+    // user is mid-edit and about to type a street; collapsing here would
+    // eject them back to the compact pill.
+    if (keepExpandedRef.current) { keepExpandedRef.current = false; return; }
     if (currentAnchor && Number.isFinite(currentAnchor.lat) && Number.isFinite(currentAnchor.lng)) {
       setExpanded(false);
     } else {
@@ -391,6 +414,20 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
   // form set-locations to that city's centroid directly (skips the
   // geocode round-trip that the free-text path would otherwise need).
   const [cityPick, setCityPick] = useState('');
+  // v0.62.254 — operator: "once I select the country (SG) it should
+  // [be] saved first then i type in the street name." Mirrors the
+  // Cuisine TMA's userChangedCountryRef (LocationField.jsx): set true
+  // by updateCountryPref so the cityPick effect knows the country
+  // change was USER-initiated (vs boot / GPS hydration) and commits
+  // the new country's capital/centroid as the anchor immediately —
+  // so the subsequent street autocomplete biases to the new country,
+  // not the stale (e.g. Jakarta) anchor.
+  const userChangedCountryRef = useRef(false);
+  // v0.62.254 — a country-pick commit moves currentAnchor, which would
+  // otherwise trip the auto-collapse effect below and kick the user
+  // out of the picker mid-edit. This ref suppresses that single
+  // collapse so the user stays expanded to type the street.
+  const keepExpandedRef = useRef(false);
 
   // v0.61.209 — seed countryPref from the server (`country-pref:<chatId>`)
   // on mount so the Menu TMA's OTHER picker opens on whatever the user
@@ -423,6 +460,11 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
   // v0.61.209 — fire-and-forget push to /api/cuisine/country-pref when
   // the user changes the flag dropdown. Mirrors Cuisine TMA's
   // saveCountryPref helper.
+  // v0.62.254 — note: userChangedCountryRef is set at the country
+  // DROPDOWN onChange sites (the genuine user picks), NOT here — this
+  // helper is also called by onPickerChange (precinct sync), and a
+  // precinct pick must keep its own committed location, not be
+  // overridden by the capital-commit.
   function updateCountryPref(code) {
     setCountryPref(code);
     // v0.61.265 — operator: "i select johor bahru, the street name
@@ -534,27 +576,61 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentAnchor?.country, currentAnchor?.lat, currentAnchor?.lng]);
 
+  // v0.62.254 — operator: "once I select the country (SG) it should
+  // [be] saved first then i type in the street name, the drop down
+  // list shows jakarta." Mirrors the Cuisine TMA's auto-pick effect
+  // (LocationField.jsx): on an EXPLICIT country pick, commit the new
+  // country's capital/centroid as the anchor so the street
+  // autocomplete biases to the new country, not the stale anchor.
+  // Boot / GPS hydration (userChangedCountryRef === false) keeps the
+  // prior nearest-city restore and never re-commits.
   useEffect(() => {
-    const list = citiesForCountry(countryPref);
-    if (!list.length) { setCityPick(''); return; }
-    // (a) anchor label matches a cities.js entry directly.
-    const anchorName = (currentAnchor?.label || '').trim();
-    if (anchorName) {
-      const hit = list.find((c) => c.name === anchorName);
-      if (hit) { setCityPick(hit.name); return; }
-    }
-    // (b) anchor has coords → pick nearest cities.js entry by haversine.
-    if (currentAnchor && Number.isFinite(currentAnchor.lat) && Number.isFinite(currentAnchor.lng)) {
-      let best = null;
-      let bestD = Infinity;
-      for (const c of list) {
-        const d = _haversineKm(currentAnchor.lat, currentAnchor.lng, c.lat, c.lng);
-        if (d < bestD) { bestD = d; best = c; }
+    const explicitCountryPick = userChangedCountryRef.current;
+    // SG has no cities.js catalogue (it uses the SG-mode free-text
+    // form). On an explicit SG pick, commit the Singapore centroid so
+    // the SG-mode autocomplete — which biases off currentAnchor —
+    // re-anchors away from the old (e.g. Jakarta) pin.
+    if (countryPref === 'SG') {
+      setCityPick('');
+      if (explicitCountryPick) {
+        userChangedCountryRef.current = false;
+        keepExpandedRef.current = true;
+        postSetLocation({ ...SG_CENTROID, country: 'SG' });
       }
-      if (best) { setCityPick(best.name); return; }
+      return;
     }
-    // (c) no anchor → capital (first entry).
-    setCityPick(list[0].name);
+    const list = citiesForCountry(countryPref);
+    if (!list.length) { setCityPick(''); userChangedCountryRef.current = false; return; }
+    let picked = null;
+    if (!explicitCountryPick) {
+      // (a) anchor label matches a cities.js entry directly.
+      const anchorName = (currentAnchor?.label || '').trim();
+      if (anchorName) {
+        const hit = list.find((c) => c.name === anchorName);
+        if (hit) picked = hit;
+      }
+      // (b) nearest cities.js entry by haversine — but ONLY when the
+      //     anchor is plausibly IN this country (≤ 500 km). A stale
+      //     cross-country pin falls through to the capital.
+      if (!picked && currentAnchor && Number.isFinite(currentAnchor.lat) && Number.isFinite(currentAnchor.lng)) {
+        let best = null;
+        let bestD = Infinity;
+        for (const c of list) {
+          const d = _haversineKm(currentAnchor.lat, currentAnchor.lng, c.lat, c.lng);
+          if (d < bestD) { bestD = d; best = c; }
+        }
+        if (best && bestD <= NEAREST_CITY_MAX_KM) picked = best;
+      }
+    }
+    // (c) explicit pick or no in-country anchor → capital (first entry).
+    if (!picked) picked = list[0];
+    setCityPick(picked.name);
+    if (explicitCountryPick) {
+      userChangedCountryRef.current = false;
+      keepExpandedRef.current = true;
+      postSetLocation({ lat: picked.lat, lng: picked.lng, label: picked.name, country: countryPref });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countryPref, currentAnchor?.label, currentAnchor?.lat, currentAnchor?.lng]);
 
   // v0.61.226 — city picked from the cascading child dropdown. Sets
@@ -883,17 +959,24 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
               streams suggestions every 250 ms and a click on a
               suggestion row commits the anchor. */}
           <div className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-tg-accent bg-tg-card">
-            <CountryDropdownMenu
-              value={countryPref}
-              onChange={(code) => updateCountryPref(code)}
-              ariaLabel={t('loc.other.country', lang)}
-            />
-            <CityDropdownMenu
-              countryCode={countryPref}
-              value={cityPick}
-              onChange={(name) => onCityPick(name)}
-              ariaLabel={t('loc.other.city', lang) || 'City'}
-            />
+            {/* v0.62.254 — operator: "the gap between country and city in menu
+                tma is so wide, whereas cuisine tma is close." Wrap both pills in
+                a gap-0 group so they butt together (mirrors Cuisine TMA's
+                LocationField v0.61.364), while the outer row keeps gap-1.5
+                before the input. */}
+            <div className="flex items-center flex-shrink-0">
+              <CountryDropdownMenu
+                value={countryPref}
+                onChange={(code) => { userChangedCountryRef.current = true; updateCountryPref(code); }}
+                ariaLabel={t('loc.other.country', lang)}
+              />
+              <CityDropdownMenu
+                countryCode={countryPref}
+                value={cityPick}
+                onChange={(name) => onCityPick(name)}
+                ariaLabel={t('loc.other.city', lang) || 'City'}
+              />
+            </div>
             <input
               type="text"
               value={textValue}
@@ -956,7 +1039,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
                 form to OTHER mode on the next render. */}
             <CountryDropdownMenu
               value={countryPref}
-              onChange={(code) => updateCountryPref(code)}
+              onChange={(code) => { userChangedCountryRef.current = true; updateCountryPref(code); }}
               ariaLabel={t('loc.other.country', lang)}
             />
             <input
