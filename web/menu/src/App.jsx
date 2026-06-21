@@ -66,7 +66,7 @@ const SECTIONS = [
     boxed: true,
     tiles: [
       { id: 'train',  icon: '🚆', iconImage: '/app/menu/train-logo.png',  labelKey: 'tile.train.label',  subKey: 'tile.train.sub',  kind: 'navigate', path: '/app/transport' },
-      { id: 'hawker', icon: '🥢', iconImage: '/app/menu/hawker-icon.png', labelKey: 'tile.hawker.label', subKey: 'tile.hawker.sub', kind: 'navigate', path: '/app/hawker' }
+      { id: 'hawker', icon: '🥢', iconImage: '/app/menu/hawker-icon.png', iconImgClass: 'max-h-9 max-w-full object-contain scale-[1.6]', labelKey: 'tile.hawker.label', subKey: 'tile.hawker.sub', kind: 'navigate', path: '/app/hawker' }
     ]
   },
   // v0.61.125 — Location is its own section so users see it as a first-class
@@ -739,6 +739,7 @@ export default function App() {
                 key={tile.id}
                 icon={tile.icon}
                 iconImage={tile.iconImage}
+                imgClass={tile.iconImgClass || 'max-h-9 max-w-full object-contain'}
                 label={t(tile.labelKey, lang)}
                 subtitle={tile.subKey ? t(tile.subKey, lang) : ''}
                 onClick={() => handle(tile)}

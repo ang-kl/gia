@@ -316,14 +316,19 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
       >
         <span aria-hidden>📍</span>
         <span className="flex-1">
-          <b>{fr ? 'Classiques locaux' : 'Local Food Classic'}:</b>
+          {/* v0.62.243 — operator (MVP parity): the header is the CITY NAME
+              ("📍 Singapore"), not the generic "Local Food Classic:" label —
+              the folio tab "Pick local classic" already names the section, and
+              the aria-label still carries it for screen readers. Stage-2 subtext
+              matches the cuisine-mode plate: "learn more, then 🔍 Find eateries". */}
+          <b>{plate.city}</b>
           {geoStage === 1 && (() => {
             const shown = names.slice(0, 2).map((n) => titleCaseDish(leadWithQualifier(n)));
             const rest = names.length - 2;
             return <>{' '}{shown.join(' • ')}{rest > 0 ? ` +${rest}` : ''}</>;
           })()}
           {geoStage === 2 && (
-            <>{' '}{fr ? 'Touchez un plat pour apprendre et trouver.' : 'Tap a dish to learn and to find'}</>
+            <>{' '}{fr ? 'Touchez un plat pour en savoir plus, puis « Trouver des adresses ».' : 'Tap a dish to learn more, then 🔍 Find eateries.'}</>
           )}
         </span>
         <span aria-hidden className="text-tg-hint">{geoStage === 2 ? '▴' : '▾'}</span>

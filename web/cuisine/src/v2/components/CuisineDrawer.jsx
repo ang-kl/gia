@@ -87,11 +87,14 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
     // v0.62.242 — operator (MVP parity): each card previews the cuisines it
     // holds, matching the approved cuisine-tma-mvp.html ("Singaporean,
     // Peranakan, Eurasian" under "Common in Singapore"). Non-inventive — the
-    // names come straight from cat.cuisines[].name; CSS line-clamp truncates
-    // to two lines and adds the "…". Single-item categories (Dessert, Fusion)
-    // skip it — the label already names the one cuisine.
-    const subtitle = cat.cuisines.length > 1
-      ? cat.cuisines.map((c) => c.name).filter(Boolean).join(', ')
+    // names come straight from cat.cuisines[].name.
+    // v0.62.243 — operator: cap the preview at the FIRST TWO names, then
+    // ", etc." when there are more (the full join ran to ~12 names for
+    // China-regional). Single-item categories (Dessert, Fusion) skip it —
+    // the label already names the one cuisine.
+    const previewNames = cat.cuisines.map((c) => c.name).filter(Boolean);
+    const subtitle = previewNames.length > 1
+      ? previewNames.slice(0, 2).join(', ') + (previewNames.length > 2 ? ', etc.' : '')
       : '';
     // v0.59.23: single-item categories (Dessert, Fusion) skip the
     // drill-down sub-drawer — tapping the card toggles the only
