@@ -65,7 +65,7 @@ const SECTIONS = [
     titleKey: 'section.sg',   // "🇸🇬 Singapore"
     boxed: true,
     tiles: [
-      { id: 'train',  icon: '🚆', iconImage: '/app/menu/train-logo.png',  labelKey: 'tile.train.label',  subKey: 'tile.train.sub',  kind: 'navigate', path: '/app/transport' },
+      { id: 'train',  icon: '🚆', iconImage: '/app/menu/train-logo-v2.png',  labelKey: 'tile.train.label',  subKey: 'tile.train.sub',  kind: 'navigate', path: '/app/transport' },
       { id: 'hawker', icon: '🥢', iconImage: '/app/menu/hawker-icon.png', iconImgClass: 'max-h-9 max-w-full object-contain scale-[1.3]', labelKey: 'tile.hawker.label', subKey: 'tile.hawker.sub', kind: 'navigate', path: '/app/hawker' }
     ]
   },
