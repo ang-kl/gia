@@ -596,6 +596,22 @@ export default function App() {
   // v0.62.x — mirror the active plate into activePlateRef so the loading
   // fun-fact picker can surface its 📜 dish explanations (declared above).
   useEffect(() => { activePlateRef.current = cuisinePlate || arrivalPlate; }, [cuisinePlate, arrivalPlate]);
+  // v0.62.259 — operator (urgent): trace the folio-tab loading state so a MISSING
+  // "Pick local classic ▾" tab is diagnosable. The tab only shows when a plate
+  // AND venues are both present (hasPlate). This logs which side is missing.
+  useEffect(() => {
+    const hasPlate = !!(cuisinePlate || arrivalPlate) && venues.length > 0;
+    console.log('[Cuisine-TMA-v2] LOADING folio tabs →', {
+      loading,
+      venues: venues.length,
+      cuisinePlate: !!cuisinePlate,
+      arrivalPlate: !!arrivalPlate,
+      hasPlate,
+      classicTabShown: hasPlate,
+      cuisinePickOpen,
+      classicOpen,
+    });
+  }, [loading, venues.length, cuisinePlate, arrivalPlate, cuisinePickOpen, classicOpen]);
   // v0.62.37 — the ⭐ Recommend 7-second explainer (operator: "when tap, it
   // will show in few 7 seconds what is this 'Recommend' means").
   const [recommendHint, setRecommendHint] = useState(false);
@@ -3726,7 +3742,11 @@ export default function App() {
                 aria-label={names.length
                   ? (lang === 'fr' ? `Cuisines : ${names.join(', ')}` : `Cuisines: ${names.join(', ')}`)
                   : (lang === 'fr' ? 'Choisir votre cuisine' : 'Choose your cuisine')}
-                className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] active:scale-95 ${cuisinePickOpen ? 'folio-tab--active' : ''} ${!names.length ? 'text-tg-accent font-semibold' : ''} ${!names.length && editSearchPulse ? 'animate-pulse' : ''}`}
+                // v0.62.259 — operator: the accent-blue CTA on an empty cuisine
+                // tab made it MISMATCH the grey "Pick local classic" tab once both
+                // showed. Apply the blue CTA only BEFORE results (no plate yet);
+                // once both tabs are loaded they share the standard manila colour.
+                className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] active:scale-95 ${cuisinePickOpen ? 'folio-tab--active' : ''} ${!names.length && !hasPlate ? 'text-tg-accent font-semibold' : ''} ${!names.length && !hasPlate && editSearchPulse ? 'animate-pulse' : ''}`}
               >
                 <span aria-hidden className="shrink-0">🍲</span>
                 <span className="flex-1 text-left truncate">{cuisineLabel}</span>
