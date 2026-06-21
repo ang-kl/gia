@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-06-17';   // v0.62.153 catch-up: PRs #1094-#1105 (docs catch-up #1094; rating persists [no idle/entry reset to 3.7]; hide Location/food-picks fields except on mode-tap [horizontal-mode fix]; 📍 Current resolves to a real place; footer = 2 text lines + everything floats as FABs; "Last asked" above free-text + combined top/back FAB + Edit-search→🍲 Cuisine; mode switch clears then PERSISTS stale results + permanent list FAB [📖/📘 · ⮲/⮷]; result-card address wraps + country→IATA code + horizontal "Last card"; 🍲 Cuisine beside free-text; cluster-aware tap-zoom 15/14 + learned zoom preference + TMA scrollbar)
+const GEN_DATE = '2026-06-21';   // v0.62.153→v0.62.240 catch-up: PRs #1106-#1201 (multi-day arc — map/UI polish [glassmorphism, full-bleed map, dock reorg, hawker/menu zoom tiers], location editor + folio tabs + cuisine picker, large curation pass [L1/L2 dishes, note-truncation + FR-diacritic fixes, thin-slug curation, within-slug de-dup], classics 5-bucket split + spicy markers + More-classics auto-fire fix, CJK local-script wrap fix, MVP cuisine-picker preview [subtitle corrections from real catalogue, Fusion + Michelin/Bib categories], filter-panel × close + "Search criteria" header removal, icon transparency/flood-fill, BestTime budget-cap timeout fix)
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
