@@ -18,7 +18,7 @@ import React, { useState } from 'react';
 // v0.62.243 — optional `imgClass` overrides the icon-image sizing for a single
 // tile (operator: the Hawker glyph reads small in the shared 36 px box — scale
 // it up without changing the row height, so the tiles stay aligned).
-export default function Tile({ icon, iconImage, label, subtitle = '', onClick, disabled = false, disabledTooltip = '', imgClass = 'max-h-9 max-w-full object-contain' }) {
+export default function Tile({ icon, iconImage, label, subtitle = '', onClick, disabled = false, disabledTooltip = '', imgClass = 'max-h-12 max-w-full object-contain' }) {
   const [imgFailed, setImgFailed] = useState(false);
   const showImage = iconImage && !imgFailed;
   const handleClick = (e) => {
@@ -50,8 +50,12 @@ export default function Tile({ icon, iconImage, label, subtitle = '', onClick, d
     >
       {/* Fixed icon/logo box so every label starts at the same x. The landscape
           Train logo fills the box width (object-contain, height-capped); square
-          emoji/illustration icons centre within it. */}
-      <span className="flex items-center justify-center shrink-0 w-16 h-9">
+          food illustrations centre within it.
+          v0.62.252 — operator (IMG_1086): the square food icons read much smaller
+          than the landscape Train logo. Grew the box to w-16 h-12 (64×48) so the
+          square food fills ~48×48 and the landscape Train ~64×40 — similar visual
+          area, so all three tiles carry a consistent icon size. */}
+      <span className="flex items-center justify-center shrink-0 w-16 h-12">
         {showImage
           ? (
             <img
