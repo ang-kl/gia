@@ -210,43 +210,48 @@ html::-webkit-scrollbar-thumb:hover { background: var(--tg-hint); }
    shadows; the active tab merges into the drawer; a blue neon backlight glows
    behind it. LIGHT-ONLY: a warm "paper" palette is forced via --tg-* overrides so
    the content inside stays dark-on-cream even in the app's dark mode. */
+/* v0.62.244 — operator: match the approved cuisine-tma-mvp.html EXACTLY
+   (".panel { background:#fff }" + ".cat-card { background:#faf9f7 }"). The
+   v0.62.225 cream "manila folder" skin is REVERSED to the demo's WHITE panel +
+   off-white cards + flat grey/white tabs, so BOTH folio tabs ("Choose your
+   cuisine" / "Pick local classic") read as one cohesive white panel instead of
+   two differently-toned drawers. AU-7: the prior manila palette stays in git
+   history; these `--tg-*` overrides still force a light, dark-on-white surface
+   even in the app's dark mode. */
 .folio--manila, .folder-drawer {
-  --tg-text: #3a3326;
-  --tg-hint: #7a6f59;
-  --tg-card: #fffdf6;
-  --tg-bg: #f4eedd;
-  --tg-border: #d9cea8;
-  color: #3a3326;
+  --tg-text: #1c1c1e;
+  --tg-hint: #8e8e93;
+  --tg-card: #faf9f7;
+  --tg-bg: #ffffff;
+  --tg-border: #e8e5e0;
+  color: #1c1c1e;
 }
 .folio--manila { gap: 6px; }
 .folio--manila .folio-tab {
-  border: 1px solid #d9cea8;
+  border: 1px solid #d1cec9;
   border-bottom: none;
-  border-radius: 13px 13px 0 0;
-  padding: 6px 13px 9px;
-  color: #7a6f59;
-  background: linear-gradient(180deg, #e7dec4, #ddd2b2);
+  border-radius: 10px 10px 0 0;
+  padding: 7px 14px 8px;
+  color: #8e8e93;
+  background: #e3dfd9;                    /* demo inactive tab */
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 5px 9px rgba(0, 0, 0, 0.26);
-  transform: translateY(3px);            /* inactive folders sit lower / behind */
+  box-shadow: none;
+  transform: translateY(1px);            /* inactive tab sits a hair lower */
 }
 .folio--manila .folio-tab--active {
-  color: #3a3326;
-  font-weight: 700;
-  background: linear-gradient(180deg, #fbf6e9, #f4eedd);
-  transform: translateY(0);              /* frontmost folder sits highest */
+  color: #1c1c1e;
+  font-weight: 600;
+  background: #ffffff;                    /* demo active tab merges into white panel */
+  transform: translateY(0);
   z-index: 3;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 8px 15px rgba(0, 0, 0, 0.30);
-  margin-bottom: -2px;                   /* merge into the drawer below */
+  box-shadow: none;
+  margin-bottom: -1px;                   /* merge into the drawer below */
 }
 .folder-drawer {
-  background: linear-gradient(180deg, #f4eedd, #efe7d2) !important;
-  border-color: #d9cea8 !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 14px 26px rgba(0, 0, 0, 0.40),
-    0 0 24px rgba(45, 127, 249, 0.30) !important;   /* blue neon backlight */
+  background: #ffffff !important;        /* demo .panel */
+  border-color: #d1cec9 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10) !important;   /* demo panel shadow */
 }
 
 /* v0.62.189 — operator (IMG_2515): the refine-location input is a WHITE field
