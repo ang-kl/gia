@@ -1731,16 +1731,18 @@ bot.onText(/^\/hidden(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
 // website for the localized keyword (set-lunch / set-dinner / signature / chef).
 // No LLM, no API key in any URL. The reply is a per-venue diagnostic so we can
 // measure the real scrape hit-rate before building the user-facing feature.
-bot.onText(/^\/ztest(?:@\w+)?(?:\s+(\S+))?$/i, async (msg) => {
+bot.onText(/^\/ztest(?:@\w+)?(?:\s+(.+))?$/i, async (msg) => {
   const chatId = msg.chat.id;
-  const { KEYWORD_MATRIX, scoutSetMenu } = require('./ztest-scout');
-  const types = Object.keys(KEYWORD_MATRIX);
-  const rawType = (msg.text.match(/^\/ztest(?:@\w+)?(?:\s+(\S+))?$/i)?.[1] || '')
-    .toLowerCase().replace(/_/g, '-');
+  const { scoutSetMenu, phraseToType } = require('./ztest-scout');
+  // v0.62.279 — accept natural phrases ("set lunch", "set dinner", "signature
+  // dish", "popular dish") and resolve them to a scout type, instead of the
+  // single hyphenated token (e.g. "set-lunch").
+  const rawPhrase = (msg.text.match(/^\/ztest(?:@\w+)?(?:\s+(.+))?$/i)?.[1] || '').trim();
+  const rawType = phraseToType(rawPhrase);
 
-  if (!rawType || !types.includes(rawType)) {
+  if (!rawType) {
     await safeSend(chatId,
-      `🧪 <b>/ztest</b> — set-menu scout (probe)\nUsage: <code>/ztest set-lunch</code>\nTypes: ${types.map((x) => `<code>${x}</code>`).join(' · ')}`,
+      `🧪 <b>/ztest</b> — set-menu scout (probe)\nUsage: <code>/ztest set lunch</code>\nTry: <code>set lunch</code> · <code>set dinner</code> · <code>signature dish</code> · <code>popular dish</code>`,
       { parse_mode: 'HTML', disable_web_page_preview: true });
     return;
   }
@@ -1750,7 +1752,7 @@ bot.onText(/^\/ztest(?:@\w+)?(?:\s+(\S+))?$/i, async (msg) => {
 
   const loc = await getUserLocation(redis, chatId, null).catch(() => null);
   if (!loc || !Number.isFinite(loc.lat) || !Number.isFinite(loc.lng)) {
-    await safeSend(chatId, '📍 I need your location first. Share it via /location, then run <code>/ztest set-lunch</code> again.',
+    await safeSend(chatId, '📍 I need your location first. Share it via /location, then run <code>/ztest set lunch</code> again.',
       { parse_mode: 'HTML' });
     return;
   }
