@@ -241,7 +241,10 @@ html::-webkit-scrollbar-thumb:hover { background: var(--tg-hint); }
 }
 .folio--manila .folio-tab--active {
   color: #1c1c1e;
-  font-weight: 600;
+  /* v0.62.255 — operator: "the panel header title should be bold." The active
+     folio tab is the cuisine / local-classic drawer's header title; bump
+     semibold (600) → bold (700). Background stays the demo white (unchanged). */
+  font-weight: 700;
   background: #ffffff;                    /* demo active tab merges into white panel */
   transform: translateY(0);
   z-index: 3;

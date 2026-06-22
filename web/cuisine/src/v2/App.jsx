@@ -3413,7 +3413,19 @@ export default function App() {
             <div className="flex items-center gap-2 flex-wrap mt-0.5">
               <button
                 type="button"
-                onClick={() => { setRegionExpanded(true); setModePeek(true); }}
+                onClick={() => {
+                  // v0.62.255 — operator: "when i select local food pick or choose
+                  // your cuisine, then click change location … close the panel body
+                  // first then open the location." The cuisine + local-classic
+                  // drawers are folio overlays at `top: headerBottom`; opening the
+                  // location editor underneath them stacked the two (IMG_2544 — the
+                  // "📍 Singapore" plate sat over the location field). Close the
+                  // panel body first, THEN expand the editor — mirrors the
+                  // region-tab contract below ("editor + picker are mutually
+                  // exclusive").
+                  setCuisinePickOpen(false); setClassicOpen(false);
+                  setRegionExpanded(true); setModePeek(true);
+                }}
                 aria-label={lang === 'fr' ? 'Changer le lieu' : 'Change location'}
                 className="underline font-semibold text-[#ef4444] active:scale-95"
               >{lang === 'fr' ? 'Changer' : 'Click to change'}</button>
