@@ -14,7 +14,7 @@ import Icon from './Icon.jsx';
 // `freeText` qualifier instead of silently dropping it. Also: Enter no
 // longer fires a search — only the → button here or the 🔍 Search
 // buttons / FAB do (operator 2026-05-11).
-export default function TellMePanel({ value = '', onChange, onSubmit, onReplace, lastPrompt, loading, searchIcon = false, onEmptySearch, searchDisabled = false, searchPulse = false }) {
+export default function TellMePanel({ value = '', onChange, onSubmit, onReplace, lastPrompt, loading, searchIcon = false, onEmptySearch, searchDisabled = false, searchPulse = false, autoFocus = false, onBlurClose }) {
   const [lang] = useLocale();
   const [submitting, setSubmitting] = useState(false);
   const text = typeof value === 'string' ? value : '';
@@ -72,7 +72,9 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
           type="text"
           value={text}
           onChange={(e) => onChange?.(e.target.value)}
+          onBlur={() => { if (onBlurClose) setTimeout(() => onBlurClose(), 150); }}
           disabled={submitting || loading}
+          autoFocus={autoFocus}
           placeholder={tr('tellme.placeholder', lang)}
           className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint min-w-0"
           aria-label={tr('tellme.aria', lang)}
