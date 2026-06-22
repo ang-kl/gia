@@ -3338,6 +3338,14 @@ export default function App() {
           : 'calc(2.5rem + env(safe-area-inset-bottom, 0px))'
       }}
     >
+      {/* v0.62.260 — TEMP on-screen DEBUG strip (operator can't open a browser
+          console — the TMA needs Telegram initData). Shows the folio-tab loading
+          state so a MISSING "Pick local classic" tab is screenshot-diagnosable.
+          Y = true, n = false. REMOVE once diagnosed. Colour-blind safe (mono,
+          shape-by-case, white-on-black). */}
+      <div className="fixed top-0 inset-x-0 z-[100] bg-black/85 text-white text-[10px] font-mono px-2 py-0.5 leading-tight pointer-events-none break-all">
+        DBG venues={venues.length} cuisinePlate={cuisinePlate ? 'Y' : 'n'} arrivalPlate={arrivalPlate ? 'Y' : 'n'} hasPlate={(!!(cuisinePlate || arrivalPlate) && venues.length > 0) ? 'Y' : 'n'} pick={cuisinePickOpen ? 'Y' : 'n'} classic={classicOpen ? 'Y' : 'n'} loading={loading ? 'Y' : 'n'}
+      </div>
       {/* v0.61.285 — fun-fact modal during the rotating-search wait
           window. NLB-sourced food-history facts replace the generic
           "still loading" rotating-titles. Visible only when a fact

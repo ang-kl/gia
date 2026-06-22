@@ -661,6 +661,11 @@ export default function App() {
         paddingBottom: 'env(safe-area-inset-bottom, 0)'
       }}
     >
+      {/* v0.62.260 — TEMP on-screen DEBUG strip (operator can't open a console).
+          Mirrors the Cuisine TMA strip; REMOVE once diagnosed. */}
+      <div className="fixed top-0 inset-x-0 z-[100] bg-black/85 text-white text-[10px] font-mono px-2 py-0.5 leading-tight pointer-events-none break-all">
+        DBG anchorLoading={anchorLoading ? 'Y' : 'n'} anchor={anchor?.label || 'none'} region={anchor?.region || '-'} lang={lang}
+      </div>
       {/* v0.62.x — idle-return rating-reset pop-up (same copy as Cuisine). */}
       {ratingResetNote && (
         <div className="pointer-events-none fixed inset-x-0 bottom-14 z-50 flex justify-center px-3">
