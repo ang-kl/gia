@@ -18,7 +18,7 @@ import React, { useState } from 'react';
 // v0.62.243 — optional `imgClass` overrides the icon-image sizing for a single
 // tile (operator: the Hawker glyph reads small in the shared 36 px box — scale
 // it up without changing the row height, so the tiles stay aligned).
-export default function Tile({ icon, iconImage, label, subtitle = '', onClick, disabled = false, disabledTooltip = '', imgClass = 'max-h-12 max-w-full object-contain' }) {
+export default function Tile({ icon, iconImage, label, subtitle = '', onClick, disabled = false, disabledTooltip = '', imgClass = 'max-h-12 max-w-full object-contain', boxClass = 'w-16 h-16' }) {
   const [imgFailed, setImgFailed] = useState(false);
   const showImage = iconImage && !imgFailed;
   const handleClick = (e) => {
@@ -58,7 +58,7 @@ export default function Tile({ icon, iconImage, label, subtitle = '', onClick, d
           v0.62.263 — operator (IMG_2552): the Cuisine + Hawker line-art drawings
           were still too small to read. Box grown to h-14 (56) so the square food
           icons (iconImgClass max-h-14) fill ~56×56; Train stays width-bound at 64. */}
-      <span className="flex items-center justify-center shrink-0 w-16 h-16">
+      <span className={`flex items-center justify-center shrink-0 ${boxClass}`}>
         {showImage
           ? (
             <img
