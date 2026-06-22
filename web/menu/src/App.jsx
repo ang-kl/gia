@@ -58,7 +58,7 @@ const SECTIONS = [
     titleKey: null,
     tiles: [
       // v0.62.263 — operator (IMG_2552): bigger line-art drawing (was max-h-9 ≈ 36px → unreadable).
-      { id: 'cuisine', icon: '🍛', iconImage: '/app/menu/cuisine-icon-v3.png', iconImgClass: 'max-h-16 max-w-full object-contain icon-navy', labelKey: 'tile.cuisine.label', subKey: 'tile.cuisine.sub', kind: 'navigate', path: '/app/cuisine' }
+      { id: 'cuisine', icon: '🍛', iconImage: '/app/menu/cuisine-icon-v3.png', iconImgClass: 'max-h-[74px] max-w-full object-contain icon-navy', iconBoxClass: 'w-[74px] h-[74px]', labelKey: 'tile.cuisine.label', subKey: 'tile.cuisine.sub', kind: 'navigate', path: '/app/cuisine' }
     ]
   },
   {
@@ -754,6 +754,7 @@ export default function App() {
                 icon={tile.icon}
                 iconImage={tile.iconImage}
                 imgClass={tile.iconImgClass || 'max-h-12 max-w-full object-contain'}
+                boxClass={tile.iconBoxClass || 'w-16 h-16'}
                 label={t(tile.labelKey, lang)}
                 subtitle={tile.subKey ? t(tile.subKey, lang) : ''}
                 onClick={() => handle(tile)}
