@@ -837,7 +837,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
             mapRef.current?.setCenter(SG_CENTROID);
             mapRef.current?.setZoom(SG_DEFAULT_ZOOM);
           }}
-          className="w-7 h-7 rounded-md bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-[11px] font-bold leading-none active:scale-95"
+          className="w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-[11px] font-bold leading-none active:scale-95"
           aria-label={t('map.reset', lang)}
           title={t('map.reset', lang)}
         ><span aria-hidden>{zoomLevel != null ? Math.round(zoomLevel) : '⟲'}</span></button>
