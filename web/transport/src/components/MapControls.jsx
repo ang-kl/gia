@@ -83,7 +83,7 @@ export default function MapControls({
               aria-expanded={menuOpen}
               aria-label={menuLabel}
               title={menuLabel}
-              className={'w-7 h-7 rounded-md bg-white text-black '
+              className={'w-5 h-7 rounded-md bg-white text-black '
                 + 'border border-gray-300 shadow-md flex items-center '
                 + 'justify-center text-base font-bold leading-none active:scale-95'}
             ><span aria-hidden>⋮</span></button>
@@ -119,7 +119,11 @@ export default function MapControls({
         {/* v0.62.214 — inner horizontally-scrollable strip (see note above): the
             Colour pill + layer toggles scroll here; the ⋯ menu above stays put so
             its drop-down isn't clipped by the overflow container. */}
-        <div className="flex flex-row flex-nowrap gap-0.5 items-start overflow-x-auto no-scrollbar min-w-0">
+        {/* v0.62.274 — operator: the 🍚 Hawker pill kept getting clipped at the
+            right edge (5 pills never fit one row, even shrunk). Let the row WRAP
+            so every layer pill — including Hawker — is fully visible. Pills wrap
+            to the RIGHT of the ⋮ button (not under it), keeping it tidy. */}
+        <div className="flex flex-row flex-wrap gap-0.5 items-start min-w-0">
         {/* Colour-mode pill: sits right after the ⋯/⋮ menu. CR8 —
             single neutral style (no on/off colour flip); state is
             conveyed by the label text. */}
