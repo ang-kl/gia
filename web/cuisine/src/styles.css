@@ -21,21 +21,17 @@ body { -webkit-font-smoothing: antialiased; }
 .card-scroll::-webkit-scrollbar-thumb { background: var(--tg-border); border-radius: 3px; }
 .card-scroll::-webkit-scrollbar-track { background: transparent; }
 
-/* v0.62.158 — operator: the whole-TMA scrollbar must be ALWAYS on, obvious and
-   thick. `overflow-y: scroll` keeps the track reserved/visible (no overlay
-   auto-hide on engines that honour it); a wide thumb + a filled track make it
-   unmistakable. NOTE: iOS Safari / the Telegram WebView use OS overlay
-   scrollbars that ignore ::-webkit-scrollbar sizing and only flash on scroll —
-   a permanently-pinned thick bar there is an OS limitation, not a CSS gap. */
-html { overflow-y: scroll; scrollbar-width: auto; scrollbar-color: var(--tg-border) var(--tg-card); }
-html::-webkit-scrollbar { width: 14px; }
-html::-webkit-scrollbar-track { background: var(--tg-card); }
-html::-webkit-scrollbar-thumb {
-  background: var(--tg-border);
-  border-radius: 7px;
-  border: 3px solid var(--tg-card);
-}
-html::-webkit-scrollbar-thumb:hover { background: var(--tg-hint); }
+/* v0.62.272 — operator REVERSES v0.62.158 ("always on, obvious, thick"):
+   the page scrollbar is now THIN + UNOBTRUSIVE, becoming visible only as the
+   pointer nears the edge (hover). Prior rule (preserved for trace, AU-7):
+   `html { overflow-y: scroll; scrollbar-width: auto } html::-webkit-scrollbar { width: 14px }`
+   + filled track. iOS / Telegram WebView already overlay-hide; this tunes desktop. */
+html { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+html:hover { scrollbar-color: var(--tg-border, rgba(140,140,140,0.55)) transparent; }
+html::-webkit-scrollbar { width: 7px; height: 7px; }
+html::-webkit-scrollbar-track { background: transparent; }
+html::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; transition: background 0.2s; }
+html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,140,0.55)); }
 
 /* v0.62.90 — operator: "liquid glass 3D curved rectangle button". Frosted,
    translucent fill + backdrop blur + a soft top highlight and drop shadow, so
