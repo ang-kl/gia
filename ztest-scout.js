@@ -44,6 +44,25 @@ function isEligibleType(t) {
   return Object.prototype.hasOwnProperty.call(KEYWORD_MATRIX, t);
 }
 
+// v0.62.279 — resolve a free-text phrase ("set lunch", "set dinner", "signature
+// dish", "popular dish") to a KEYWORD_MATRIX type. Tries the normalised phrase
+// as a type key first, then matches against each type's localized keyword list
+// (either string contains the other), so natural phrasing maps to the scout
+// intent without the hyphenated token. Returns null when nothing matches.
+function phraseToType(input) {
+  const raw = String(input || '').trim().toLowerCase();
+  if (!raw) return null;
+  const norm = raw.replace(/[_\s]+/g, '-');
+  if (Object.prototype.hasOwnProperty.call(KEYWORD_MATRIX, norm)) return norm;
+  for (const [type, kws] of Object.entries(KEYWORD_MATRIX)) {
+    for (const k of kws) {
+      const kl = String(k).toLowerCase();
+      if (raw === kl || raw.includes(kl) || kl.includes(raw)) return type;
+    }
+  }
+  return null;
+}
+
 // SSRF-lite guard: only http(s), reject private / loopback / link-local hosts.
 // Returns a normalized URL string, or null if the target is unsafe/unparseable.
 function safeHttpUrl(uri) {
@@ -230,6 +249,7 @@ async function scoutSetMenu({ lat, lng, type, apiKey, max = 8, concurrency = 4 }
 module.exports = {
   KEYWORD_MATRIX,
   ELIGIBLE_TIERS,
+  phraseToType,
   scoutSetMenu,
   scoutOne,
   scrapeForKeywords,
