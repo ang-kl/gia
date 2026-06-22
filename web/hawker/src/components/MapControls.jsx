@@ -18,14 +18,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { giaToggleStyle } from '../lib/mapOverlays.js';
 
-// Platform-detected overflow glyph: the horizontal ellipsis is the
-// iOS / iPadOS / macOS "more" affordance, the vertical ellipsis the
-// Android / desktop one.
-function overflowGlyph() {
-  if (typeof navigator === 'undefined') return '⋯';
-  const ua = (navigator.userAgent || '') + ' ' + (navigator.platform || '');
-  return /iPhone|iPad|iPod|Macintosh|Mac OS/i.test(ua) ? '⋯' : '⋮';
-}
+// v0.62.271 — operator: always the VERTICAL ellipsis (⋮), regardless of
+// platform (the prior code showed a horizontal ⋯ on iOS/macOS).
 
 // Layout-only pill class; colours come from giaToggleStyle (inline).
 // v0.61.70 — smaller text + tighter padding + shrink-0 so all pills fit
@@ -89,7 +83,7 @@ export default function MapControls({
               className={'w-7 h-7 rounded-md bg-white text-black '
                 + 'border border-gray-300 shadow-md flex items-center '
                 + 'justify-center text-base font-bold leading-none active:scale-95'}
-            ><span aria-hidden>{overflowGlyph()}</span></button>
+            ><span aria-hidden>⋮</span></button>
             {menuOpen && (
               <div className="absolute top-full left-0 mt-1 flex flex-col gap-0.5 p-1
                 rounded-xl bg-white border border-gray-300 shadow-lg
