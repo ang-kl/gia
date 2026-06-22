@@ -64,30 +64,31 @@ describe('integration — load real cuisines_js.MD file', () => {
   });
 
   it('groups by category with expected counts', () => {
-    // v0.59.2: regrouped per Human Lead. Source markdown still has
-    // 8 categories in the original layout; cuisines-vault remaps at
-    // load time into a 10-bucket world-region view.
-    // v0.59.21: 2 new top-level categories (dessert + fusion).
-    // v0.61.141: dessert category gains Fruits + Durian + Durian
-    //            Pastry (1 → 4). Source label also renamed to
-    //            "Dessert, Fruits".
+    // v0.59.2: regrouped per Human Lead into a world-region view.
+    // v0.62.265: CATEGORY_MERGE collapses 14 → 8 picker buckets (operator:
+    //   "14 buttons too many"). The 5 merged-away buckets re-home into
+    //   survivors — china-regional → east-asian; slavic-eastern-european →
+    //   european; australasia → americas; african → middle-eastern; fusion →
+    //   dessert. Cuisine slugs + the 69 total are unchanged; only grouping.
     const by = vault.getByCategory();
     const counts = Object.fromEntries(by.map((c) => [c.id, c.cuisines.length]));
     expect(counts['common-here']).toBe(3);          // Singaporean, Peranakan, Eurasian
-    expect(counts['southeast-asian']).toBe(6);      // Malaysian, Indonesian, Thai, Filipino, Vietnamese, Burmese (all remapped from common-here). v0.59.36: Laotian + Timorese removed.
-    expect(counts['east-asian']).toBe(4);           // Japanese, Chinese, Korean, Taiwanese
-    expect(counts['china-regional']).toBe(12);      // v0.59.35: + Hong Kong, Macau
-    expect(counts['south-asian']).toBe(7);          // 5 source + South Indian + North Indian. v0.59.35: composition change (-Goan -Tibetan +Sri Lankan +Pakistani), count unchanged
-    expect(counts['middle-eastern']).toBe(7);       // v0.59.35: -Afghan, Uzbek+Georgian moved to slavic-eastern-european → 7
-    expect(counts['european']).toBe(15);            // v0.59.38: -Belgian -Dutch -Irish +European generic = 15
-    expect(counts['slavic-eastern-european']).toBe(2); // v0.59.35: new bucket — Uzbek, Georgian
-    expect(counts['americas']).toBe(4);             // v0.59.35: Argentinian (source) + American, Mexican, Brazilian (remap). -Peruvian -Cuban -Jamaican = 4
-    expect(counts['australasia']).toBe(2);          // v0.61.234: Australian, New Zealand (catch-all dropped)
-    expect(counts['african']).toBe(2);              // v0.59.34: African + South African
-    expect(counts['dessert']).toBe(4);              // v0.61.141: Dessert + Fruits + Durian + Durian Pastry
-    expect(counts['fusion']).toBe(1);               // v0.59.21: Fusion
+    expect(counts['southeast-asian']).toBe(6);      // Malaysian, Indonesian, Thai, Filipino, Vietnamese, Burmese
+    expect(counts['east-asian']).toBe(16);          // v0.62.265: 4 (JP/CN/KR/TW) + 12 china-regional
+    expect(counts['south-asian']).toBe(7);          // 5 source + South Indian + North Indian
+    expect(counts['middle-eastern']).toBe(9);       // v0.62.265: 7 + 2 African
+    expect(counts['european']).toBe(17);            // v0.62.265: 15 + 2 Slavic/Eastern (Uzbek, Georgian)
+    expect(counts['americas']).toBe(6);             // v0.62.265: 4 + 2 Australasia (Australian, New Zealand)
+    expect(counts['dessert']).toBe(5);              // v0.62.265: 4 (Dessert+Fruits+Durian+Durian Pastry) + 1 Fusion
+    // The 5 merged-away buckets no longer appear as their own categories.
+    expect(counts['china-regional']).toBeUndefined();
+    expect(counts['slavic-eastern-european']).toBeUndefined();
+    expect(counts['australasia']).toBeUndefined();
+    expect(counts['african']).toBeUndefined();
+    expect(counts['fusion']).toBeUndefined();
+    expect(by.length).toBe(8);
     const total = Object.values(counts).reduce((a, b) => a + b, 0);
-    expect(total).toBe(69);   // v0.61.234: was 70, Australasia catch-all removed
+    expect(total).toBe(69);   // unchanged — cuisines regrouped, none added/removed
   });
 
   // v0.60.22 — defend against the duplicate-Michelin bug. The

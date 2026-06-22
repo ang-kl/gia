@@ -33,19 +33,30 @@ const CATEGORY_META = [
   { id: 'common-here',             emoji: '🌟' },
   { id: 'southeast-asian',         emoji: '🌴' },
   { id: 'east-asian',              emoji: '🍜' },
-  { id: 'china-regional',          emoji: '🐉' },
   { id: 'south-asian',             emoji: '🌶' },
   { id: 'middle-eastern',          emoji: '🕌' },
   { id: 'european',                emoji: '🇪🇺' },
-  // v0.59.35 — Slavic / Eastern European (new bucket).
-  { id: 'slavic-eastern-european', emoji: '🪆' },
   { id: 'americas',                emoji: '🌎' },
-  { id: 'australasia',             emoji: '🦘' },
-  { id: 'african',                 emoji: '🌍' },
-  // v0.59.21 — new top-level categories per Human Lead 2026-05-07.
-  { id: 'dessert',                 emoji: '🍮' },
-  { id: 'fusion',                  emoji: '🌐' }
+  { id: 'dessert',                 emoji: '🍮' }
 ];
+
+// v0.62.265 — operator: the 14 category buttons were too many. Merge 5 buckets
+// into survivors (the "Balanced" consolidation), applied in parseSource so
+// every cuisine in a merged-away bucket re-homes into its survivor:
+//   china-regional          → east-asian     (Sichuan/Cantonese/HK/… join Japanese/Chinese/Korean/Taiwanese)
+//   slavic-eastern-european → european       (Uzbek, Georgian)
+//   australasia             → americas       (the survivor is relabelled "Americas & Oceania")
+//   african                 → middle-eastern (relabelled "Middle East & Africa")
+//   fusion                  → dessert        (relabelled "Sweets & Fusion")
+// Cuisine SLUGS are unchanged — only the picker grouping. The synthetic Michelin
+// tile (appended by /api/cuisine/catalogue) is unaffected.
+const CATEGORY_MERGE = {
+  'china-regional':          'east-asian',
+  'slavic-eastern-european': 'european',
+  'australasia':             'americas',
+  'african':                 'middle-eastern',
+  'fusion':                  'dessert'
+};
 
 // v0.59.0: per-cuisine flag emoji. Drives the flag prefix on each
 // pill in the new 2-column drill-down drawer. Sub-regional Chinese
@@ -226,11 +237,13 @@ const CATEGORY_LABEL_OVERRIDE = {
   'east-asian':              'East Asian',
   'china-regional':          'China (Regional)',
   'south-asian':             'South Asian',
-  'middle-eastern':          'Middle Eastern & Central Asian',
+  // v0.62.265 — middle-eastern absorbs African → relabel.
+  'middle-eastern':          'Middle East & Africa',
   'european':                'European',
   // v0.59.35 — new bucket per Human Lead 2026-05-07.
   'slavic-eastern-european': 'Slavic / Eastern European',
-  'americas':                'Americas',
+  // v0.62.265 — americas absorbs Australasia → relabel.
+  'americas':                'Americas & Oceania',
   'australasia':             'Australasia',
   'african':                 'African',
   // v0.59.21 — new top-level categories per Human Lead 2026-05-07.
@@ -238,7 +251,8 @@ const CATEGORY_LABEL_OVERRIDE = {
   // moved Fruits + Durian (narrowed to durian fruit only) + Durian
   // Pastry (NEW, durian pastry only) into the category. Source label
   // in doc/Feature/cuisines_js.MD also updated to match.
-  'dessert':                 'Dessert, Fruits',
+  // v0.62.265 — dessert absorbs Fusion → relabel "Sweets & Fusion".
+  'dessert':                 'Sweets & Fusion',
   'fusion':                  'Fusion'
 };
 
@@ -274,7 +288,9 @@ function parseSource(text) {
       // v0.59.2: apply regroup overlay. Each cuisine's
       // categoryId may be remapped to its new world-region
       // bucket; categoryLabel + categoryEmoji follow.
-      const remappedId = SLUG_TO_CATEGORY[slug] || id;
+      const baseId = SLUG_TO_CATEGORY[slug] || id;
+      // v0.62.265 — collapse merged-away buckets into their survivor.
+      const remappedId = CATEGORY_MERGE[baseId] || baseId;
       const remappedMeta = remappedId === id
         ? meta
         : (CATEGORY_META.find((c) => c.id === remappedId) || meta);

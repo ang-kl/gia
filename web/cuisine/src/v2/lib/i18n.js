@@ -129,8 +129,8 @@ const STRINGS = {
   // 7-second explainer below shows on check.
   'filter.recommend':          { en: 'Recommend', fr: 'Recommander' },
   'filter.recommend.hint':     {
-    en: '⭐ Recommend: highlights places whose own reviews serve this cuisine’s special dishes or this city’s unique dishes.',
-    fr: '⭐ Recommander : met en avant les lieux dont les avis mentionnent les plats phares de cette cuisine ou les plats uniques de la ville.'
+    en: '⭐ Recommend: show places known for this cuisine’s signature dishes or the city’s must-try dishes.',
+    fr: '⭐ Recommander : montre les lieux réputés pour les plats phares de cette cuisine ou les incontournables de la ville.'
   },
   'filter.homeBased':          { en: 'Home-based', fr: 'À domicile' },
   'filter.newlyOpened':        { en: 'Newly opened', fr: 'Récemment ouvert' },
@@ -409,14 +409,19 @@ const STRINGS = {
   // CATEGORY_META ids.
   'cat.commonHere':            { en: 'Common in Singapore', fr: 'Courant à Singapour' },
   'cat.southeastAsian':        { en: 'Southeast Asian', fr: 'Asie du Sud-Est' },
+  // v0.62.265 — East Asian now also holds the regional Chinese cuisines.
   'cat.eastAsian':             { en: 'East Asian', fr: 'Asie de l’Est' },
   'cat.chinaRegional':         { en: 'China (Regional)', fr: 'Chine (régional)' },
   'cat.southAsian':            { en: 'South Asian', fr: 'Asie du Sud' },
-  'cat.middleEastern':         { en: 'Middle Eastern & Central Asian', fr: 'Moyen-Orient & Asie centrale' },
+  // v0.62.265 — absorbs African; relabel.
+  'cat.middleEastern':         { en: 'Middle East & Africa', fr: 'Moyen-Orient & Afrique' },
   'cat.european':              { en: 'European', fr: 'Européenne' },
-  'cat.americas':              { en: 'Americas', fr: 'Amériques' },
+  // v0.62.265 — absorbs Australasia; relabel.
+  'cat.americas':              { en: 'Americas & Oceania', fr: 'Amériques & Océanie' },
   'cat.australasia':           { en: 'Australasia', fr: 'Australasie' },
   'cat.african':               { en: 'African', fr: 'Africaine' },
+  // v0.62.265 — Dessert + Fusion merged into one card.
+  'cat.sweetsFusion':          { en: 'Sweets & Fusion', fr: 'Desserts & Fusion' },
 
   // v0.61.278 — O-25: surfaced when the server's JB-hybrid filter
   // wipes the pool (JB pill picked at non-JB coords) and falls back
