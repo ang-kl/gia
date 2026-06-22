@@ -115,3 +115,12 @@ body { -webkit-font-smoothing: antialiased; }
   filter: brightness(0) saturate(100%) invert(16%) sepia(52%) saturate(2400%)
           hue-rotate(216deg) brightness(95%) contrast(95%);
 }
+
+/* v0.62.272 — operator: page scrollbar THIN + unobtrusive, visible only as the
+   pointer nears the edge (hover). Matches the other TMAs. */
+html { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+html:hover { scrollbar-color: var(--tg-border, rgba(140,140,140,0.55)) transparent; }
+html::-webkit-scrollbar { width: 7px; height: 7px; }
+html::-webkit-scrollbar-track { background: transparent; }
+html::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; transition: background 0.2s; }
+html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,140,0.55)); }
