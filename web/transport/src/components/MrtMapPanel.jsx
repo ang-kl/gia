@@ -399,6 +399,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     ctrl.setLayer('taxis', !!layers.taxis);
     ctrl.setLayer('carpark', !!layers.carpark);
     ctrl.setLayer('busstop', !!layers.busstop);
+    ctrl.setLayer('hawker', !!layers.hawker);   // v0.62.278 — shared hawker overlay
     ctrl.setLayer('exits', !!layers.exits);
     ctrl.setLayer('clinics', !!layers.clinics);
     ctrl.setLayer('hospitals', !!layers.hospitals);
@@ -794,7 +795,10 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   const rowToggles = [
     { key: 'train',       icon: '🚉', label: t('layer.train', lang) },
     { key: 'carpark',     icon: '🅿️', label: t('layer.carpark', lang) },
-    { key: 'busstop',     icon: '🚌', label: t('layer.busstop', lang) }
+    { key: 'busstop',     icon: '🚌', label: t('layer.busstop', lang) },
+    // v0.62.278 — operator: 🍚 Hawker overlay pill, standardized from Cuisine.
+    // OFF by default in the Train TMA (see App overlayLayers default).
+    { key: 'hawker',      icon: '🍚', label: t('layer.hawker', lang) }
   ];
   const menuToggles = [
     { key: 'exits',       icon: '',   label: t('layer.exits', lang) },
