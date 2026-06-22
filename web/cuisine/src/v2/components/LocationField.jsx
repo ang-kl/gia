@@ -508,6 +508,9 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
                   "Enter a location" prompt so the edit affordance is obvious. */}
               {!hasLoc && <span aria-hidden className="flex-shrink-0">✏️</span>}
               <span className="truncate">{resting}</span>
+              {hasLoc && (
+                <span className="flex-shrink-0 text-[10px] text-tg-hint italic">· {lang === 'fr' ? 'modifier' : 'tap to change'}</span>
+              )}
             </button>
           )}
           {loading && <span className="text-tg-hint text-xs">…</span>}
@@ -558,7 +561,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
         </div>
         {!open && suffix && suffixVisible && (
           <div className="text-[10px] text-tg-hint italic text-right leading-tight mt-0.5">
-            {suffix} · {lang === 'fr' ? 'touchez pour changer' : 'tap to change'} 🔝
+            {suffix}
           </div>
         )}
         {/* v0.61.268 — operator #4: focus-point chip.
