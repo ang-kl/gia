@@ -14,17 +14,18 @@ const MAX_SELECTED = 5;
 // v0.59.6: server returns canonical EN category labels; the TMA
 // localises via this id → i18n-key map so drawer cards render in
 // the active locale.
+// v0.62.265 — category buttons consolidated 14 → 9 (server-side CATEGORY_MERGE).
+// China-regional → East Asian; Slavic → European; Australasia → Americas &
+// Oceania; African → Middle East & Africa; Fusion → Sweets & Fusion (dessert).
 const CATEGORY_LABEL_KEY = {
   'common-here':     'cat.commonHere',
   'southeast-asian': 'cat.southeastAsian',
   'east-asian':      'cat.eastAsian',
-  'china-regional':  'cat.chinaRegional',
   'south-asian':     'cat.southAsian',
-  'middle-eastern':  'cat.middleEastern',
+  'middle-eastern':  'cat.middleEastern',   // now "Middle East & Africa"
   'european':        'cat.european',
-  'americas':        'cat.americas',
-  'australasia':     'cat.australasia',
-  'african':         'cat.african'
+  'americas':        'cat.americas',         // now "Americas & Oceania"
+  'dessert':         'cat.sweetsFusion'      // Dessert + Fusion
 };
 
 // v0.59.0: cuisine drawer rebuilt as a 2-column grid of category
@@ -84,18 +85,10 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
   function CategoryCard({ cat }) {
     const selectedInCat = cat.cuisines.filter((c) => selected.includes(c.slug)).length;
     const label = labelFor(cat);
-    // v0.62.242 — operator (MVP parity): each card previews the cuisines it
-    // holds, matching the approved cuisine-tma-mvp.html ("Singaporean,
-    // Peranakan, Eurasian" under "Common in Singapore"). Non-inventive — the
-    // names come straight from cat.cuisines[].name.
-    // v0.62.243 — operator: cap the preview at the FIRST TWO names, then
-    // ", etc." when there are more (the full join ran to ~12 names for
-    // China-regional). Single-item categories (Dessert, Fusion) skip it —
-    // the label already names the one cuisine.
-    const previewNames = cat.cuisines.map((c) => c.name).filter(Boolean);
-    const subtitle = previewNames.length > 1
-      ? previewNames.slice(0, 2).join(', ') + (previewNames.length > 2 ? ', etc.' : '')
-      : '';
+    // v0.62.265 — operator: drop the example-cuisine subtitle ("Japanese,
+    // Chinese, etc.") under each card — the category name carries it and the
+    // drill-down still lists every cuisine. (Was v0.62.242/.243: a 2-name
+    // preview from cat.cuisines[].name.)
     // v0.59.23: single-item categories (Dessert, Fusion) skip the
     // drill-down sub-drawer — tapping the card toggles the only
     // entry directly. Per Human Lead 2026-05-07: "if i click fusion
@@ -143,9 +136,6 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
         <span aria-hidden className="flex-shrink-0">{cat.emoji}</span>
         <span className="flex-1 min-w-0">
           <span className="block text-xs font-semibold whitespace-normal break-words leading-tight line-clamp-2">{label}</span>
-          {subtitle && (
-            <span className={`block text-[10px] leading-tight line-clamp-2 mt-0.5 ${selectedInCat > 0 ? 'text-[#0c2540]/70' : 'text-tg-hint'}`}>{subtitle}</span>
-          )}
         </span>
         {!isSingle && selectedInCat > 0 && (
           <span className="text-tg-accent text-[10px] font-semibold flex-shrink-0">[{selectedInCat}]</span>

@@ -3751,7 +3751,10 @@ export default function App() {
             if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
             return cuisineNameBySlug.get(slug) || slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
           });
-          const cuisineLabel = names.length ? names.join(' · ') : (lang === 'fr' ? 'Choisir votre cuisine' : 'Choose your cuisine');
+          // v0.62.265 — operator: "Choose your cuisine" truncated in Telegram;
+          // the tab holds the cuisine grid AND the filter chips, so the empty
+          // state now reads "Cuisine & filters" (shorter + names the filters).
+          const cuisineLabel = names.length ? names.join(' · ') : (lang === 'fr' ? 'Cuisine & filtres' : 'Cuisine & filters');
           const hasPlate = !!(cuisinePlate || arrivalPlate) && venues.length > 0;
           // v0.62.187 — operator (IMG_2509): Cuisine + Local-classic render as
           // FOLIO FOLDER-TABS. The open picker is .folio-tab--active; the
@@ -3767,7 +3770,7 @@ export default function App() {
                 aria-expanded={cuisinePickOpen}
                 aria-label={names.length
                   ? (lang === 'fr' ? `Cuisines : ${names.join(', ')}` : `Cuisines: ${names.join(', ')}`)
-                  : (lang === 'fr' ? 'Choisir votre cuisine' : 'Choose your cuisine')}
+                  : (lang === 'fr' ? 'Cuisine & filtres' : 'Cuisine & filters')}
                 // v0.62.259 — operator: the accent-blue CTA on an empty cuisine
                 // tab made it MISMATCH the grey "Pick local classic" tab once both
                 // showed. Apply the blue CTA only BEFORE results (no plate yet);
