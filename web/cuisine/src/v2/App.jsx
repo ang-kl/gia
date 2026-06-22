@@ -596,22 +596,6 @@ export default function App() {
   // v0.62.x — mirror the active plate into activePlateRef so the loading
   // fun-fact picker can surface its 📜 dish explanations (declared above).
   useEffect(() => { activePlateRef.current = cuisinePlate || arrivalPlate; }, [cuisinePlate, arrivalPlate]);
-  // v0.62.259 — operator (urgent): trace the folio-tab loading state so a MISSING
-  // "Pick local classic ▾" tab is diagnosable. The tab only shows when a plate
-  // AND venues are both present (hasPlate). This logs which side is missing.
-  useEffect(() => {
-    const hasPlate = !!(cuisinePlate || arrivalPlate) && venues.length > 0;
-    console.log('[Cuisine-TMA-v2] LOADING folio tabs →', {
-      loading,
-      venues: venues.length,
-      cuisinePlate: !!cuisinePlate,
-      arrivalPlate: !!arrivalPlate,
-      hasPlate,
-      classicTabShown: hasPlate,
-      cuisinePickOpen,
-      classicOpen,
-    });
-  }, [loading, venues.length, cuisinePlate, arrivalPlate, cuisinePickOpen, classicOpen]);
   // v0.62.37 — the ⭐ Recommend 7-second explainer (operator: "when tap, it
   // will show in few 7 seconds what is this 'Recommend' means").
   const [recommendHint, setRecommendHint] = useState(false);
@@ -844,6 +828,28 @@ export default function App() {
   // classic" pill (a glassmorphism dropdown), so the header stays compact + the map
   // gets more room. classicOpen drives that dropdown.
   const [classicOpen, setClassicOpen] = useState(false);
+  // v0.62.259 — operator (urgent): trace the folio-tab loading state so a MISSING
+  // "Pick local classic ▾" tab is diagnosable. The tab only shows when a plate
+  // AND venues are both present (hasPlate). This logs which side is missing.
+  // v0.62.261 — MOVED here (was up by activePlateRef ~L598): the effect's dep
+  // array references `classicOpen`, which is declared on the line above. At its
+  // old position the const was still in the temporal dead zone, so evaluating
+  // the dep array during render threw `ReferenceError: Cannot access 'classicOpen'
+  // before initialization` → the Cuisine TMA crashed (white screen). Build + unit
+  // tests never render <App>, so CI stayed green.
+  useEffect(() => {
+    const hasPlate = !!(cuisinePlate || arrivalPlate) && venues.length > 0;
+    console.log('[Cuisine-TMA-v2] LOADING folio tabs →', {
+      loading,
+      venues: venues.length,
+      cuisinePlate: !!cuisinePlate,
+      arrivalPlate: !!arrivalPlate,
+      hasPlate,
+      classicTabShown: hasPlate,
+      cuisinePickOpen,
+      classicOpen,
+    });
+  }, [loading, venues.length, cuisinePlate, arrivalPlate, cuisinePickOpen, classicOpen]);
   // v0.62.189 — operator (IMG_2516): after 8 s IDLE in the refine-location editor,
   // auto-CLOSE it and let the Cuisine + Local-classic tabs re-appear. Re-armed on
   // open, on a mode-tab tap, and on every keystroke in the field (onActivity);
