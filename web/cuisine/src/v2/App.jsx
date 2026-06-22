@@ -469,6 +469,8 @@ export default function App() {
   // only). Reset to false whenever a fresh result set arrives so a new search
   // re-shows the cards.
   const [drawerDismissed, setDrawerDismissed] = useState(false);
+  // v0.62.280 — collapsed (💬 FAB) vs expanded (full-width pill) free-text composer.
+  const [composerOpen, setComposerOpen] = useState(false);
   // v0.62.138 — a fresh (or grown) result set re-shows the floating strip even
   // if the user had dismissed the previous one.
   useEffect(() => { if (venues.length) setDrawerDismissed(false); }, [venues]);
@@ -4576,11 +4578,15 @@ export default function App() {
         {/* v0.62.206 — operator (dark mode): the dock read as a CURVED card with
             the map showing in the rounded corners. Make it a FLAT full-width band
             (no rounded-t) + more opaque (/92 → /96) so the map doesn't tint it. */}
-        <div className="pointer-events-auto -mx-2 px-3 pt-2 pb-1 bg-tg-bg/96 liquid-glass border-t border-tg-border/50 shadow-[0_-6px_24px_rgba(0,0,0,0.22)] flex flex-col gap-1">
-          {(() => {
-            const poolExhausted = !!finalBatch && Number.isFinite(knownTotal) && venues && venues.length === knownTotal;
-            const searchDisabled = loading || (poolExhausted && !dirty && !selectedCityLocation);
-            return (
+        {/* v0.62.280 — operator: the opaque band now wraps ONLY the control row +
+            footer tag. The free-text composer floats OUT of it (over the map) as a
+            glass 💬 FAB that expands to a full-width pill on tap; 🔍 stays right. */}
+        {(() => {
+          const poolExhausted = !!finalBatch && Number.isFinite(knownTotal) && venues && venues.length === knownTotal;
+          const searchDisabled = loading || (poolExhausted && !dirty && !selectedCityLocation);
+          const pulse = (searchHintActive || searchFabFlash) && !searchDisabled;
+          return composerOpen ? (
+            <div className="pointer-events-auto">
               <TellMePanel
                 value={nlText}
                 onChange={setNlText}
@@ -4592,26 +4598,46 @@ export default function App() {
                 onEmptySearch={triggerSearch}
                 searchDisabled={searchDisabled}
                 searchPulse={searchHintActive || searchFabFlash}
-              />
-            );
-          })()}
-          {/* v0.62.192 — operator: the active filters (Reset all + selected
-              cuisine/dish) as small text directly BELOW the free-text field. */}
-          {criteriaSummary.length > 0 && (
-            <div className="-mt-0.5 overflow-x-auto">
-              <ActiveFilters
-                cuisines={state.cuisines}
-                filters={state.filters}
-                onRemoveCuisine={removeCuisine}
-                onRemoveFilter={removeFilter}
-                onResetAll={clearAll}
-                nameForCuisine={(slug) => {
-                  if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
-                  return cuisineNameBySlug.get(slug) || null;
-                }}
+                autoFocus
+                onBlurClose={() => setComposerOpen(false)}
               />
             </div>
-          )}
+          ) : (
+            <div className="flex items-center justify-between gap-2 px-0.5">
+              <button
+                type="button"
+                onClick={() => setComposerOpen(true)}
+                aria-label={lang === 'fr' ? 'Saisir un plat' : 'Type what you are craving'}
+                className="pointer-events-auto w-10 h-10 rounded-full bg-tg-card/75 liquid-glass border-2 border-tg-hint/60 shadow-lg flex items-center justify-center text-lg active:scale-95"
+              >💬</button>
+              <button
+                type="button"
+                onClick={triggerSearch}
+                disabled={searchDisabled}
+                aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat'}
+                className={`pointer-events-auto w-10 h-10 rounded-full bg-tg-accent text-tg-accent-text border-2 border-white/40 shadow-lg flex items-center justify-center text-lg disabled:opacity-40 active:scale-95 ${pulse ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
+              >🔍</button>
+            </div>
+          );
+        })()}
+        {/* active filters — float ABOVE the band when present. */}
+        {criteriaSummary.length > 0 && (
+          <div className="pointer-events-auto -mt-0.5 overflow-x-auto px-1">
+            <ActiveFilters
+              cuisines={state.cuisines}
+              filters={state.filters}
+              onRemoveCuisine={removeCuisine}
+              onRemoveFilter={removeFilter}
+              onResetAll={clearAll}
+              nameForCuisine={(slug) => {
+                if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
+                return cuisineNameBySlug.get(slug) || null;
+              }}
+            />
+          </div>
+        )}
+        {/* THE BAND — bg-tg-bg/96 now wraps ONLY the control row + footer tag. */}
+        <div className="pointer-events-auto -mx-2 px-3 pt-1.5 pb-1 bg-tg-bg/96 liquid-glass border-t border-tg-border/50 shadow-[0_-6px_24px_rgba(0,0,0,0.22)] flex flex-col gap-1">
           {/* slim control row — results · layout · next  |  down · end. Inline icon
               chips (no bordered cards); aria-labels carry the full text. */}
           <div className="flex items-center justify-between gap-1 text-[11px] font-semibold text-tg-link">
