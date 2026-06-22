@@ -66,7 +66,10 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
        v0.62.190 — cards float ABOVE the unified glass dock (taller than the old
        separate control cards): clear it with 8rem, or 10rem when the filter band
        is also showing above the dock. */
-    <div className={`fixed inset-x-0 ${hasFilters ? 'bottom-[10rem]' : 'bottom-[8rem]'} z-30 px-1 pointer-events-none max-w-[1600px] mx-auto`}>
+    /* v0.62.277 — operator: the strip floated too high above the 💬 free-text
+       dock (it got shorter at v0.62.269). Drop it to hug the dock top so the
+       card sits JUST above the free-text strip, no gap. */
+    <div className={`fixed inset-x-0 ${hasFilters ? 'bottom-[7rem]' : 'bottom-[5.5rem]'} z-30 px-1 pointer-events-none max-w-[1600px] mx-auto`}>
       {/* v0.62.141 — operator: the list + vertical/horizontal controls moved to
           the FOOTER (out of the strip). Cards are BOTTOM-aligned (items-end),
           and each is a COMPACT ~5-row scroll panel (card-scroll = visible thin

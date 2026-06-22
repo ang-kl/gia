@@ -1336,6 +1336,20 @@ export function createOverlayController(map, googleMaps, opts) {
   // v0.61.22 — headerDisabled drops Google's own white header + ✕ so
   // the themed infoCard (with its own in-card ✕) is the whole popup.
   const info = new InfoWindow({ disableAutoPan: true, headerDisabled: true });
+  // v0.62.278 — window hook for the line-coloured station pills in the hawker
+  // card (and any card HTML): turn the train layer ON (line context), then
+  // focus the station + open its station card. `ensureLayer`/`applyVisibility`/
+  // `focusStation`/`destroyed` are controller-scope and defined below; the
+  // closure only runs on tap, by which point all are initialised.
+  window.__giaFocusStation = (code) => {
+    if (!code) return;
+    try {
+      Promise.resolve(ensureLayer('train')).then((entry) => {
+        if (entry && !destroyed) { entry.visible = true; applyVisibility('train'); }
+      }).catch(() => {});
+    } catch (e) { /* train layer optional */ }
+    focusStation(code);
+  };
   // v0.61.22 — tapping empty map dismisses the overlay popup.
   // v0.61.91 — if a station is in detail mode (its marker forced to the
   // full pill), a tap-out also reverts it to its zoom-tier marker.
@@ -1529,8 +1543,15 @@ export function createOverlayController(map, googleMaps, opts) {
     const stations = (transit && Array.isArray(transit.stations)) ? transit.stations : [];
     for (const st of stations.slice(0, 2)) {
       if (!st || !st.name) continue;
-      const codes = Array.isArray(st.codes) ? st.codes.join('/') : '';
-      h += '<div style="margin-top:2px;color:' + p.sub + ';">🚉 ' + escapeHtml(codes) + ' ' + escapeHtml(st.name) + '</div>';
+      // v0.62.278 — line-coloured station code pills (NO underline). Tapping the
+      // row turns the train layer on, focuses the station + opens its card.
+      const codeArr = Array.isArray(st.codes) ? st.codes : [];
+      const firstCode = codeArr[0] || '';
+      const pills = codeArr.map((cd) => codePill(cd, codeHex(cd), false)).join('');
+      h += '<div onclick="window.__giaFocusStation&&window.__giaFocusStation(\'' + escapeHtml(firstCode) + '\')"'
+        + ' style="margin-top:3px;cursor:pointer;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">'
+        + '<span aria-hidden>🚉</span>' + pills
+        + '<span style="color:' + p.sub + ';">' + escapeHtml(st.name) + '</span></div>';
     }
     return infoCard(h, f);
   }
