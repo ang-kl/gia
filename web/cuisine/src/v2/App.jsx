@@ -3364,7 +3364,15 @@ export default function App() {
           border + shadow for AA separation, and the liquid glass is preserved
           on scroll. On a mode-pill tap (modePeek) the bar goes fully OPAQUE
           (solid bg, no translucency) to stage the Location + food-picks edit. */}
-      <header ref={headerRef} className={`sticky top-0 z-30 -mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 py-2 flex flex-col gap-1.5 border-b transition-colors ${modePeek ? 'bg-tg-bg border-tg-border shadow-md' : 'bg-tg-bg/90 backdrop-blur border-tg-border/60 shadow-sm'}`}>
+      {/* v0.62.264 — operator: the folio tabs read DISJOINED from the drawer below.
+          Root cause: <header> (py-2 + border-b) and the drawer are siblings in a
+          `flex flex-col gap-2` root, so ~9px header pad/border + 8px flex gap sat
+          between the tab and the panel (the old -mt-[9px] only cancelled part, and
+          the sticky header painted over the overlap). When a folio drawer is open,
+          drop the header's bottom padding + border so the tabs end flush; the
+          drawer then cancels the parent gap (-mt-2) and butts directly under the
+          active tab → tabs + panel read as ONE folder. */}
+      <header ref={headerRef} className={`sticky top-0 z-30 -mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 pt-2 ${(cuisinePickOpen || classicOpen) ? 'pb-0' : 'pb-2 border-b'} flex flex-col gap-1.5 transition-colors ${modePeek ? 'bg-tg-bg border-tg-border shadow-md' : 'bg-tg-bg/90 backdrop-blur border-tg-border/60 shadow-sm'}`}>
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <img src="soleat-icon.png" alt="soleat" width="24" height="24" className="rounded-full flex-shrink-0" />
@@ -3829,8 +3837,9 @@ export default function App() {
         // IN-FLOW folder panel directly under the folio tabs — tabs + panel read
         // as ONE folder (the MVP layout), and the map below is un-filled while
         // open so the panel PUSHES it down (reverses the v0.62.195 fixed overlay).
-        // -mt-px butts it flush against the active tab; rounded bottom only.
-        <div className="folder-drawer -mt-[9px] overflow-y-auto no-scrollbar rounded-b-2xl border border-t-0 px-3 py-2.5 flex flex-col gap-2 max-h-[60vh]">
+        // v0.62.264 — -mt-2 cancels the root flex `gap-2`; with the header's
+        // bottom pad/border dropped while open, the panel butts flush under the tab.
+        <div className="folder-drawer -mt-2 overflow-y-auto no-scrollbar rounded-b-2xl border border-t-0 px-3 py-2.5 flex flex-col gap-2 max-h-[60vh]">
           {/* v0.62.246 — operator: the folio TAB already reads "Choose your
               cuisine"; drop the duplicate body title, keep only the × close. */}
           <div className="flex items-center justify-end">
@@ -3897,7 +3906,9 @@ export default function App() {
       {/* v0.62.254 — the LOCAL-CLASSIC picker is IN-FLOW under its tab too (option 2). */}
       {classicOpen && (cuisinePlate || arrivalPlate) && !loading && venues.length > 0 && (
         // tabs + panel = one folder (MVP layout); map un-fills below so it pushes down.
-        <div className="folder-drawer -mt-[9px] overflow-y-auto no-scrollbar rounded-b-2xl border border-t-0 px-2.5 py-2 max-h-[60vh]">
+        // v0.62.264 — -mt-2 cancels the root flex `gap-2` so the panel butts flush
+        // under the active tab (header bottom pad/border dropped while open).
+        <div className="folder-drawer -mt-2 overflow-y-auto no-scrollbar rounded-b-2xl border border-t-0 px-2.5 py-2 max-h-[60vh]">
           {/* v0.62.246 — operator: the folio TAB already reads "Pick local
               classic"; drop the duplicate body title, keep only the × close.
               (The plate below still shows the city name, e.g. "📍 Singapore".) */}
