@@ -232,8 +232,15 @@ html::-webkit-scrollbar-thumb:hover { background: var(--tg-hint); }
   border-bottom: none;
   border-radius: 10px 10px 0 0;
   padding: 7px 14px 8px;
-  color: #8e8e93;
-  background: #e3dfd9;                    /* demo inactive tab */
+  /* v0.62.263 — operator (IMG_2553): "the panel header should be the same as
+     background and bold text." The resting tabs were muted grey text (#8e8e93)
+     on a grey fill (#e3dfd9) — low-contrast and off from the white panel. Match
+     the panel/background white + bold dark ink so both folio headers read as one
+     cohesive surface (the tab SHAPE + the open tab's drawer connection still
+     carry which one is active). Was: color #8e8e93, background #e3dfd9. */
+  color: #1c1c1e;
+  font-weight: 700;
+  background: #ffffff;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow: none;

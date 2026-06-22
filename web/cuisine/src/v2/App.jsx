@@ -3770,20 +3770,26 @@ export default function App() {
                 <span className="flex-1 text-left truncate">{cuisineLabel}</span>
                 <span aria-hidden className="shrink-0 opacity-70">{cuisinePickOpen ? '▴' : '▾'}</span>
               </button>
-              {hasPlate && (
-                <button
-                  type="button"
-                  onClick={() => { setCuisinePickOpen(false); setClassicOpen((o) => !o); }}
-                  aria-expanded={classicOpen}
-                  className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] active:scale-95 ${classicOpen ? 'folio-tab--active' : ''}`}
-                >
-                  {/* v0.62.228 — operator: the Magnify (cooking-method) icon marks
-                      Local Food Pick + search. */}
-                  <img src="/app/cuisine/magnify-cooking.png" alt="" aria-hidden className="shrink-0 w-4 h-4 object-contain" />
-                  <span className="flex-1 text-left truncate">{lang === 'fr' ? 'Plats classiques locaux' : 'Pick local classic'}</span>
-                  <span aria-hidden className="shrink-0 opacity-70">{classicOpen ? '▴' : '▾'}</span>
-                </button>
-              )}
+              {/* v0.62.263 — operator: during loading only ONE header showed
+                  because this tab was gated on hasPlate (results + a plate). Now
+                  it ALWAYS renders so the two-header layout is stable (no jump);
+                  until a plate + results exist it's DISABLED (greyed, non-tappable,
+                  no chevron). hasPlate flips it live to the real dropdown. */}
+              <button
+                type="button"
+                disabled={!hasPlate}
+                onClick={() => { if (!hasPlate) return; setCuisinePickOpen(false); setClassicOpen((o) => !o); }}
+                aria-expanded={hasPlate ? classicOpen : undefined}
+                aria-disabled={!hasPlate || undefined}
+                title={!hasPlate ? (lang === 'fr' ? 'Disponible une fois les résultats chargés' : 'Available once results load') : undefined}
+                className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] ${hasPlate ? 'active:scale-95' : 'opacity-50 cursor-not-allowed'} ${hasPlate && classicOpen ? 'folio-tab--active' : ''}`}
+              >
+                {/* v0.62.228 — operator: the Magnify (cooking-method) icon marks
+                    Local Food Pick + search. */}
+                <img src="/app/cuisine/magnify-cooking.png" alt="" aria-hidden className="shrink-0 w-4 h-4 object-contain" />
+                <span className="flex-1 text-left truncate">{lang === 'fr' ? 'Plats classiques locaux' : 'Pick local classic'}</span>
+                <span aria-hidden className="shrink-0 opacity-70">{hasPlate ? (classicOpen ? '▴' : '▾') : ''}</span>
+              </button>
             </div>
           );
         })()}

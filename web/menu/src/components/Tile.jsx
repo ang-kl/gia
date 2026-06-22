@@ -54,8 +54,11 @@ export default function Tile({ icon, iconImage, label, subtitle = '', onClick, d
           v0.62.252 — operator (IMG_1086): the square food icons read much smaller
           than the landscape Train logo. Grew the box to w-16 h-12 (64×48) so the
           square food fills ~48×48 and the landscape Train ~64×40 — similar visual
-          area, so all three tiles carry a consistent icon size. */}
-      <span className="flex items-center justify-center shrink-0 w-16 h-12">
+          area, so all three tiles carry a consistent icon size.
+          v0.62.263 — operator (IMG_2552): the Cuisine + Hawker line-art drawings
+          were still too small to read. Box grown to h-14 (56) so the square food
+          icons (iconImgClass max-h-14) fill ~56×56; Train stays width-bound at 64. */}
+      <span className="flex items-center justify-center shrink-0 w-16 h-14">
         {showImage
           ? (
             <img

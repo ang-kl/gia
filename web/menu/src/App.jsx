@@ -57,7 +57,8 @@ const SECTIONS = [
     id: 'cuisine-app',
     titleKey: null,
     tiles: [
-      { id: 'cuisine', icon: '🍛', iconImage: '/app/menu/cuisine-icon-v3.png', labelKey: 'tile.cuisine.label', subKey: 'tile.cuisine.sub', kind: 'navigate', path: '/app/cuisine' }
+      // v0.62.263 — operator (IMG_2552): bigger line-art drawing (was max-h-9 ≈ 36px → unreadable).
+      { id: 'cuisine', icon: '🍛', iconImage: '/app/menu/cuisine-icon-v3.png', iconImgClass: 'max-h-14 max-w-full object-contain', labelKey: 'tile.cuisine.label', subKey: 'tile.cuisine.sub', kind: 'navigate', path: '/app/cuisine' }
     ]
   },
   {
@@ -66,7 +67,8 @@ const SECTIONS = [
     boxed: true,
     tiles: [
       { id: 'train',  icon: '🚆', iconImage: '/app/menu/train-logo.png',  labelKey: 'tile.train.label',  subKey: 'tile.train.sub',  kind: 'navigate', path: '/app/transport' },
-      { id: 'hawker', icon: '🥢', iconImage: '/app/menu/hawker-icon-v3.png', labelKey: 'tile.hawker.label', subKey: 'tile.hawker.sub', kind: 'navigate', path: '/app/hawker' }
+      // v0.62.263 — operator (IMG_2552): bigger line-art drawing (was max-h-9 ≈ 36px → unreadable).
+      { id: 'hawker', icon: '🥢', iconImage: '/app/menu/hawker-icon-v3.png', iconImgClass: 'max-h-14 max-w-full object-contain', labelKey: 'tile.hawker.label', subKey: 'tile.hawker.sub', kind: 'navigate', path: '/app/hawker' }
     ]
   },
   // v0.61.125 — Location is its own section so users see it as a first-class
@@ -751,7 +753,7 @@ export default function App() {
                 key={tile.id}
                 icon={tile.icon}
                 iconImage={tile.iconImage}
-                imgClass={tile.iconImgClass || 'max-h-9 max-w-full object-contain'}
+                imgClass={tile.iconImgClass || 'max-h-12 max-w-full object-contain'}
                 label={t(tile.labelKey, lang)}
                 subtitle={tile.subKey ? t(tile.subKey, lang) : ''}
                 onClick={() => handle(tile)}
