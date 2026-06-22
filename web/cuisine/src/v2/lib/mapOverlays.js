@@ -403,11 +403,35 @@ function fetchBusStops() {
 
 // v0.62.184 — hawker-centre overlay (Cuisine map): fetched once, then
 // radius-clipped to the anchor so only the centres SURROUNDING the results show.
+// v0.62.275 — source the RICH hawker dataset (/api/hawker/centres-by-region —
+// name, address, postal, isNew, stalls, status, lat/lng) so the Cuisine overlay
+// pins + cards match the Hawker TMA. Centres are flattened in canonical region
+// order and each gets a STABLE global number (`_num` → H01, H02 …) that never
+// changes with search or zoom (counts every centre so the numbering is fixed).
 let hawkerPromise = null;
 function fetchHawkerCentres() {
   if (!hawkerPromise) {
-    hawkerPromise = fetch('/api/geo/hawker-centres')
-      .then((r) => r.json())
+    hawkerPromise = fetch('/api/hawker/centres-by-region')
+      .then((r) => (r.ok ? r.json() : { regions: [] }))
+      .then((d) => {
+        const out = [];
+        let n = 0;
+        const regions = (d && Array.isArray(d.regions)) ? d.regions : [];
+        for (const reg of regions) {
+          const cs = (reg && Array.isArray(reg.centres)) ? reg.centres : [];
+          for (const c of cs) {
+            n += 1;
+            if (!Number.isFinite(c.lat) || !Number.isFinite(c.lng)) continue;
+            out.push({
+              name: c.name, lat: c.lat, lng: c.lng, isNew: !!c.isNew,
+              address: c.address || '', postal: c.postal || '',
+              stalls: Number.isFinite(c.stalls) ? c.stalls : null,
+              status: c.status || '', _num: n
+            });
+          }
+        }
+        return { centres: out };
+      })
       .catch(() => ({ centres: [] }));
   }
   return hawkerPromise;
@@ -579,57 +603,102 @@ function busTierNode(tier, code) {
 const HAWKER_CODE_BG = 'linear-gradient(135deg,#ec4899 0%,#3b82f6 100%)'; // "pink-blue"
 const HAWKER_LABEL_BG = '#FFEB3B';   // yellow text-background
 const HAWKER_LABEL_TEXT = '#111111'; // black text
+// v0.62.275 — monotonic ladder: H## (far) → H## short → H## full (2-line).
 function hawkerTier(zoom) {
-  if (zoom >= 17) return 'full';
-  if (zoom >= 16) return 'code';
-  if (zoom >= 15) return 'short';
-  if (zoom >= 13) return 'mini';
-  return 'dot';
+  if (zoom >= 17) return 'full';   // H## + full name; facility word on line 2
+  if (zoom >= 15) return 'short';  // H## + short area name ("H01 Adams Rd")
+  if (zoom >= 13) return 'code';   // H## only
+  return 'dot';                    // tiny droplet dot
+}
+// H## from the stable global number, zero-padded to 2 digits.
+function hawkerCode(num) { return 'H' + String(num == null ? 0 : num).padStart(2, '0'); }
+// Common road-type abbreviations for the compact short label.
+function hawkerAbbrev(s) {
+  return String(s || '')
+    .replace(/\bRoad\b/gi, 'Rd').replace(/\bAvenue\b/gi, 'Ave')
+    .replace(/\bStreet\b/gi, 'St').replace(/\bDrive\b/gi, 'Dr')
+    .replace(/\bClose\b/gi, 'Cl');
+}
+// The facility suffix ("Hawker Centre", "Food Centre", …) — line 2 of 'full'.
+function hawkerFacility(name) {
+  const m = String(name || '').match(/(Market\s*(&|and)?\s*Food\s*Centre|Food\s*Centre|Hawker\s*Centre|Food\s*Court|Market|Complex|Centre)\b.*$/i);
+  return m ? m[0].trim() : '';
+}
+// The name WITHOUT the facility suffix / block tail ("Adams Road Hawker
+// Centre" → "Adams Road"). Full head, not truncated.
+function hawkerHead(name) {
+  let s = String(name || '').trim().replace(/\s*[-–—]?\s*(Blk|Block)\b.*$/i, '');
+  s = s.replace(/\s*(Market\s*(&|and)?\s*Food\s*Centre|Food\s*Centre|Hawker\s*Centre|Food\s*Court|Market|Complex|Centre)\b.*$/i, '').trim();
+  return s || String(name || '');
 }
 // Derive the short area label from a hawker-centre name: drop the generic
 // facility words, keep up to the first two words ("Tanjong Pagar Plaza Market &
 // Food Centre" → "Tanjong Pagar"; "Chinatown Complex …" → "Chinatown").
 function hawkerShort(name) {
-  let s = String(name || '').trim();
-  s = s.replace(/\s*[-–—]?\s*(Blk|Block)\b.*$/i, '');
-  s = s.replace(/\s*(Market\s*(&|and)?\s*Food\s*Centre|Food\s*Centre|Hawker\s*Centre|Food\s*Court|Market|Complex|Centre)\b.*$/i, '').trim();
-  const words = s.split(/\s+/).filter(Boolean);
-  return words.slice(0, 2).join(' ') || String(name || '');
+  const words = hawkerHead(name).split(/\s+/).filter(Boolean).slice(0, 2).join(' ');
+  return hawkerAbbrev(words || String(name || ''));
 }
-function hawkerCodeChipEl(code, fontPx) {
-  const c = document.createElement('span');
-  c.textContent = code;
-  c.style.cssText = 'display:inline-block;background:' + HAWKER_CODE_BG + ';color:#fff;'
-    + 'border-radius:5px;padding:0 4px;margin-right:4px;font-weight:800;'
-    + 'font-size:' + fontPx + 'px;line-height:1.5;';
-  return c;
-}
-function hawkerTierNode(tier, code, name, short) {
+// v0.62.275 — a red (established) / navy (new) teardrop droplet, Hawker-TMA
+// style, with a NEW badge for new centres.
+function hawkerDroplet(isNew) {
+  const size = 22;
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:relative;width:' + size + 'px;height:' + size + 'px;flex:0 0 auto;';
   const el = document.createElement('div');
-  if (tier === 'code' || tier === 'mini') {
-    // pink→blue H chip, white text
-    const sz = tier === 'mini' ? 9 : 11;
-    el.textContent = code;
-    el.style.cssText = 'display:inline-block;background:' + HAWKER_CODE_BG + ';color:#fff;'
-      + 'border-radius:6px;padding:1px 5px;font-weight:800;font-size:' + sz + 'px;'
-      + 'line-height:1.5;border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:pointer;';
-  } else if (tier === 'short' || tier === 'full') {
-    // YELLOW label, BLACK text; the H chip stays pink→blue / white
-    const nameFont = 11;
-    el.style.cssText = (tier === 'full'
-        ? 'display:inline-block;max-width:120px;white-space:normal;word-break:break-word;line-height:1.3;padding:2px 6px;'
-        : 'display:inline-flex;align-items:center;white-space:nowrap;line-height:1.5;padding:1px 6px;')
-      + 'background:' + HAWKER_LABEL_BG + ';color:' + HAWKER_LABEL_TEXT + ';border-radius:8px;border:1.5px solid #fff;'
-      + 'box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:pointer;font-weight:700;font-size:' + nameFont + 'px;';
-    el.appendChild(hawkerCodeChipEl(code, nameFont - 1));
-    const t = document.createElement('span');
-    t.textContent = tier === 'full' ? (name || '') : (short || name || '');
-    el.appendChild(t);
-  } else { // 'dot' — small pink→blue dot
-    el.style.cssText = 'width:10px;height:10px;border-radius:50%;background:' + HAWKER_CODE_BG + ';'
-      + 'border:1.5px solid #fff;box-shadow:0 0 0 0.5px rgba(0,0,0,0.45);cursor:pointer;';
+  el.style.cssText = 'width:' + size + 'px;height:' + size + 'px;border-radius:50% 50% 50% 0;'
+    + 'transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,0.45);'
+    + 'background:' + (isNew ? '#1e3a8a' : '#e53935') + ';';
+  wrap.appendChild(el);
+  if (isNew) {
+    const badge = document.createElement('div');
+    badge.textContent = 'NEW';
+    badge.style.cssText = 'position:absolute;left:50%;bottom:calc(100% + 2px);transform:translateX(-50%);'
+      + 'background:#1e3a8a;color:#fff;font-size:8px;font-weight:700;line-height:1;letter-spacing:0.5px;'
+      + 'padding:2px 4px;border-radius:3px;white-space:nowrap;border:1px solid #fff;';
+    wrap.appendChild(badge);
   }
-  return el;
+  return wrap;
+}
+// Marker content per zoom tier: a droplet pin + a tiered H##/name label.
+// `info` = { num, name, head, facility, short, isNew }.
+function hawkerTierNode(tier, info) {
+  const isNew = !!(info && info.isNew);
+  const code = hawkerCode(info && info.num);
+  if (tier === 'dot') {
+    const d = document.createElement('div');
+    d.style.cssText = 'width:11px;height:11px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);'
+      + 'background:' + (isNew ? '#1e3a8a' : '#e53935') + ';border:1.5px solid #fff;'
+      + 'box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:pointer;';
+    return d;
+  }
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:inline-flex;align-items:center;gap:4px;cursor:pointer;';
+  wrap.appendChild(hawkerDroplet(isNew));
+  const lab = document.createElement('div');
+  lab.style.cssText = 'background:#fff;color:#111;border:1.5px solid ' + (isNew ? '#1e3a8a' : '#e53935') + ';'
+    + 'border-radius:8px;padding:1px 6px;font-weight:700;font-size:11px;line-height:1.25;'
+    + 'box-shadow:0 1px 3px rgba(0,0,0,0.3);';
+  if (tier === 'short') {
+    lab.style.whiteSpace = 'nowrap';
+    lab.textContent = code + ' ' + ((info && info.short) || (info && info.head) || '');
+  } else if (tier === 'full') {
+    lab.style.whiteSpace = 'normal';
+    lab.style.maxWidth = '130px';
+    const l1 = document.createElement('div');
+    l1.textContent = code + ' ' + ((info && info.head) || (info && info.name) || '');
+    lab.appendChild(l1);
+    if (info && info.facility) {
+      const l2 = document.createElement('div');
+      l2.textContent = info.facility;
+      l2.style.cssText = 'font-weight:600;font-size:10px;opacity:0.75;';
+      lab.appendChild(l2);
+    }
+  } else { // 'code'
+    lab.style.whiteSpace = 'nowrap';
+    lab.textContent = code;
+  }
+  wrap.appendChild(lab);
+  return wrap;
 }
 
 // v0.61.82 — CR-5: compact zoomed-out exit marker. A low-chrome text
@@ -1436,26 +1505,60 @@ export function createOverlayController(map, googleMaps, opts) {
   // marker.content per hawkerTier as the user zooms. radius-clipped (the
   // `_hawker` items go through the same inRadius gate, so only the surrounding
   // centres draw).
+  // v0.62.275 — the Hawker-TMA card (name · status · address · 🚌 bus · 🚉 MRT),
+  // enriched async via /api/hawker/centre-transit (same endpoint the Hawker TMA
+  // uses). MRT shown as text (no Train-app deep-link, to avoid a global handler).
+  function hawkerCardHtml(f, transit) {
+    const p = infoPalette();
+    let h = '<div style="font-weight:600;font-size:13px;">' + escapeHtml(f.name || '') + (f.isNew ? ' 🆕' : '') + '</div>';
+    if (f.status) {
+      h += '<div style="color:' + p.sub + ';margin-top:2px;">🕒 ' + escapeHtml(f.status) + '</div>';
+    } else if (Number.isFinite(f.stalls) && f.stalls > 0) {
+      h += '<div style="color:' + p.sub + ';margin-top:2px;">' + f.stalls + ' stalls</div>';
+    }
+    if (f.address) {
+      h += '<div style="color:' + p.sub + ';margin-top:3px;">📇 ' + escapeHtml(f.address) + '</div>';
+    }
+    const bus = (transit && Array.isArray(transit.busStops)) ? transit.busStops : [];
+    for (const b of bus.slice(0, 3)) {
+      if (!Number.isFinite(b.lat) || !Number.isFinite(b.lng)) continue;
+      h += '<div style="margin-top:2px;"><a href="https://maps.google.com/?q=' + b.lat + ',' + b.lng
+        + '" target="_blank" rel="noopener" style="color:' + p.link + ';">🚌 '
+        + escapeHtml(b.code || '') + ' ' + escapeHtml(b.description || '') + '</a></div>';
+    }
+    const stations = (transit && Array.isArray(transit.stations)) ? transit.stations : [];
+    for (const st of stations.slice(0, 2)) {
+      if (!st || !st.name) continue;
+      const codes = Array.isArray(st.codes) ? st.codes.join('/') : '';
+      h += '<div style="margin-top:2px;color:' + p.sub + ';">🚉 ' + escapeHtml(codes) + ' ' + escapeHtml(st.name) + '</div>';
+    }
+    return infoCard(h, f);
+  }
+  function openHawkerInfo(f, marker) {
+    info.setContent(hawkerCardHtml(f, null));
+    info.open(map, marker);
+    if (Number.isFinite(f.lat) && Number.isFinite(f.lng)) {
+      fetch('/api/hawker/centre-transit?lat=' + encodeURIComponent(f.lat) + '&lng=' + encodeURIComponent(f.lng))
+        .then((r) => (r.ok ? r.json() : null))
+        .then((t) => { if (t) info.setContent(hawkerCardHtml(f, t)); })
+        .catch(() => {});
+    }
+  }
   function buildHawkerMarkers(features) {
     const z0 = map.getZoom?.() || 0;
-    const hinfo = poiInfo('🍚');
-    let ordered = (features || []).slice();
-    if (anchor && Number.isFinite(anchor.lat) && Number.isFinite(anchor.lng)) {
-      ordered.sort((a, b) =>
-        metresBetween(anchor.lat, anchor.lng, a.lat, a.lng)
-        - metresBetween(anchor.lat, anchor.lng, b.lat, b.lng));
-    }
-    return ordered.map((f, i) => {
-      const code = 'H' + (i + 1);
-      const short = hawkerShort(f.name);
+    return (features || []).map((f) => {
+      const info0 = {
+        num: f._num, name: f.name || '', isNew: !!f.isNew,
+        head: hawkerHead(f.name), facility: hawkerFacility(f.name), short: hawkerShort(f.name)
+      };
       const marker = new AdvancedMarkerElement({
         position: { lat: f.lat, lng: f.lng },
-        content: hawkerTierNode(hawkerTier(z0), code, f.name, short),
+        content: hawkerTierNode(hawkerTier(z0), info0),
         title: f.name || '',
         gmpClickable: true
       });
-      marker.addListener('click', () => { info.setContent(hinfo(f)); info.open(map, marker); });
-      return { marker, lat: f.lat, lng: f.lng, _hawker: true, _code: code, _name: f.name || '', _short: short, _hawkerTier: null };
+      marker.addListener('click', () => openHawkerInfo(f, marker));
+      return { marker, lat: f.lat, lng: f.lng, _hawker: true, _info: info0, _name: f.name || '', _hawkerTier: null };
     });
   }
 
@@ -2468,10 +2571,10 @@ export function createOverlayController(map, googleMaps, opts) {
           it._busTier = bt;
         }
       } else if (it._hawker && e.visible && near) {
-        // v0.62.193 — H-coded hawker pins follow the hawkerTier ladder.
+        // v0.62.275 — droplet hawker pins follow the hawkerTier ladder.
         const ht = hawkerTier(zoom);
         if (it._hawkerTier !== ht) {
-          it.marker.content = hawkerTierNode(ht, it._code, it._name, it._short);
+          it.marker.content = hawkerTierNode(ht, it._info);
           it._hawkerTier = ht;
         }
       } else if (it._exit && e.visible && near) {
