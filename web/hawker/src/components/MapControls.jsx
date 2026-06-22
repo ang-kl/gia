@@ -25,7 +25,7 @@ import { giaToggleStyle } from '../lib/mapOverlays.js';
 // v0.61.70 — smaller text + tighter padding + shrink-0 so all pills fit
 // on one non-wrapping row.
 function pillClass() {
-  return 'flex items-center gap-0.5 px-1.5 py-1 rounded-full '
+  return 'flex items-center gap-0.5 px-1 py-1 rounded-full '
     + 'text-[9px] whitespace-nowrap leading-none shrink-0 active:scale-95';
 }
 
@@ -54,7 +54,11 @@ export default function MapControls({
   const fire = (it) => { if (!it.disabled && onToggleLayer) onToggleLayer(it.key); };
 
   return (
-    <div ref={wrapRef} className="absolute top-2 left-2 right-12 z-10">
+    {/* v0.62.273 — right-12 → right-3: the right margin was reserved for the
+        top-right 🔭 button, removed in v0.62.270. Reclaiming it gives the layer-
+        pill row ~40px more width so the 🍚 Hawker pill fits on one row without
+        being scrolled off. Paired with tighter pill padding (px-1.5 → px-1). */}
+    <div ref={wrapRef} className="absolute top-2 left-2 right-3 z-10">
       {/* v0.61.70 — single row; the font is small enough that the Colour
           pill + the ⋯ menu + 3 toggles all fit.
           v0.62.214 — operator (IMG_1069): the v0.62.211 WRAP pushed the 4th
