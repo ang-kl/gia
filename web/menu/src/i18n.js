@@ -40,13 +40,13 @@ const STRINGS = {
   // 2026-05-11 (the only multi-word exception to the v0.60.55 rule).
   // v0.62.226 — operator: each tile gets a clear title + a subtitle saying what
   // you can search. Train/Hawker grouped under a "🇸🇬 Singapore" boxed section.
-  'tile.cuisine.label':    { en: 'Cuisine',     fr: 'Cuisine' },
+  'tile.cuisine.label':    { en: 'Cuisine or Local Food Pick', fr: 'Cuisine ou plats locaux' },
   'tile.cuisine.sub':      { en: 'Find where to eat — search 50+ cuisines, a dish or a vibe',
                              fr: 'Où manger — 50+ cuisines, un plat ou une envie' },
   'tile.train.label':      { en: 'Train Lines', fr: 'Lignes de train' },
   'tile.train.sub':        { en: 'Live MRT & LRT status, stations and service alerts',
                              fr: 'État en direct du MRT & LRT, stations et alertes' },
-  'tile.hawker.label':     { en: 'Hawker Centres & Food Centres', fr: 'Hawker Centres & Food Centres' },
+  'tile.hawker.label':     { en: 'Hawker Centre', fr: 'Hawker Centre' },
   'tile.hawker.sub':       { en: 'Singapore’s UNESCO-recognised hawker culture, where everyday food and community meet',
                              fr: 'La culture des hawkers de Singapour, reconnue par l’UNESCO, où la cuisine du quotidien rassemble' },
   'section.sg':            { en: '🇸🇬 Singapore', fr: '🇸🇬 Singapour' },

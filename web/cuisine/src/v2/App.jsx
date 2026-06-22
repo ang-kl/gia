@@ -3376,7 +3376,7 @@ export default function App() {
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <img src="soleat-icon.png" alt="soleat" width="24" height="24" className="rounded-full flex-shrink-0" />
-            <h1 className="text-lg font-bold leading-tight truncate">Cuisine</h1>
+            <h1 className="text-base font-bold leading-tight truncate">Cuisine</h1>
           </div>
           {/* v0.58.55: discreet EN/FR locale toggle, top-right per
               Human Lead. Slim flag-pair to the left of the count badge. */}
