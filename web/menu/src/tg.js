@@ -89,6 +89,25 @@ export function applyTelegramTheme() {
   set('--tg-accent',      tp.button_color);
   set('--tg-accent-text', tp.button_text_color);
   set('--tg-card',        tp.secondary_bg_color);
+
+  // v0.62.276 — dark-mode flag for theme-dependent assets: the line-art tile
+  // icons must flip to WHITE line in dark (CSS `[data-tg-dark] .icon-navy`).
+  // Prefer Telegram's colorScheme; fall back to the bg_color luminance. The
+  // rest of the UI stays luminance-driven + theme-agnostic (v0.62.16).
+  safe('dark-flag', () => {
+    const dark = (w.colorScheme === 'dark') || _bgIsDark(tp.bg_color);
+    if (dark) root.setAttribute('data-tg-dark', '1');
+    else root.removeAttribute('data-tg-dark');
+  });
+}
+
+// Relative-luminance dark test for a #rrggbb theme colour (sRGB approx).
+function _bgIsDark(hex) {
+  const m = /^#?([0-9a-fA-F]{6})$/.exec(String(hex || ''));
+  if (!m) return false;
+  const n = parseInt(m[1], 16);
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) < 128;
 }
 
 export function sendData(payload) {
