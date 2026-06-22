@@ -246,7 +246,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           is flush-left (no indent — was a 2-col flex that offset the whole body).
           v0.62.176 — operator: REVERTED the v0.62.168 horizontal word-wrap (the
           name-one-row truncate); the name renders normally again. */}
-      <div className="font-semibold text-sm leading-tight">
+      <div className="font-semibold text-[12px] leading-tight">
         {Number.isFinite(number) && <span className="text-tg-hint font-semibold tabular-nums">{number} · </span>}{venue.name}
       </div>
           {/* v0.61.359 — native-script name in "( )" below the name (RULE A/B

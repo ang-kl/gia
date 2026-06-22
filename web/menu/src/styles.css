@@ -104,3 +104,14 @@ body { -webkit-font-smoothing: antialiased; }
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.32),
               inset 0 -1px 0 rgba(255, 255, 255, 0.05);
 }
+
+/* v0.62.267 — operator: the Cuisine + Hawker line-art icons read "faded"
+   (thin pale-grey strokes). `brightness(0)` collapses the anti-aliased grey
+   strokes to a solid silhouette (= brighter / higher-contrast), then the
+   invert→sepia→saturate→hue-rotate chain re-tints that black to a deep navy
+   (~#1e3a8a). Colour-blind-safe: navy reads as a single dark-blue tone, no
+   red/green. Applied only to the two food icons via their iconImgClass. */
+.icon-navy {
+  filter: brightness(0) saturate(100%) invert(16%) sepia(52%) saturate(2400%)
+          hue-rotate(216deg) brightness(95%) contrast(95%);
+}
