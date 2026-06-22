@@ -57,7 +57,7 @@ const SECTIONS = [
     id: 'cuisine-app',
     titleKey: null,
     tiles: [
-      { id: 'cuisine', icon: '🍛', iconImage: '/app/menu/cuisine-icon-v2.png', labelKey: 'tile.cuisine.label', subKey: 'tile.cuisine.sub', kind: 'navigate', path: '/app/cuisine' }
+      { id: 'cuisine', icon: '🍛', iconImage: '/app/menu/cuisine-icon-v3.png', labelKey: 'tile.cuisine.label', subKey: 'tile.cuisine.sub', kind: 'navigate', path: '/app/cuisine' }
     ]
   },
   {
@@ -66,7 +66,7 @@ const SECTIONS = [
     boxed: true,
     tiles: [
       { id: 'train',  icon: '🚆', iconImage: '/app/menu/train-logo.png',  labelKey: 'tile.train.label',  subKey: 'tile.train.sub',  kind: 'navigate', path: '/app/transport' },
-      { id: 'hawker', icon: '🥢', iconImage: '/app/menu/hawker-icon-v2.png', labelKey: 'tile.hawker.label', subKey: 'tile.hawker.sub', kind: 'navigate', path: '/app/hawker' }
+      { id: 'hawker', icon: '🥢', iconImage: '/app/menu/hawker-icon-v3.png', labelKey: 'tile.hawker.label', subKey: 'tile.hawker.sub', kind: 'navigate', path: '/app/hawker' }
     ]
   },
   // v0.61.125 — Location is its own section so users see it as a first-class
@@ -149,6 +149,18 @@ export default function App() {
   // anchor changes (the user re-picked).
   const [farFromPickHint, setFarFromPickHint] = useState(null);
   useEffect(() => { setFarFromPickHint(null); }, [anchor?.lat, anchor?.lng, anchor?.label]);
+  // v0.62.259 — operator (urgent): trace the Menu TMA loading state (anchor +
+  // region resolution) alongside the Cuisine TMA log, so the two surfaces'
+  // loading can be compared side by side in the console.
+  useEffect(() => {
+    console.log('[Menu-TMA] LOADING →', {
+      anchorLoading,
+      hasAnchor: !!anchor,
+      anchorLabel: anchor?.label || null,
+      region: anchor?.region || null,
+      lang,
+    });
+  }, [anchorLoading, anchor?.label, anchor?.region, lang]);
   // v0.61.356 — location-sync (shared): on load, poll device GPS + Telegram for
   // ~20 s and FOLLOW the device (flag/region + anchor + persist) on a >1.5 km
   // move, so the Menu flag stops going stale after you've moved. Mirrors cuisine.

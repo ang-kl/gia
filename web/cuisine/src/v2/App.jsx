@@ -370,10 +370,16 @@ export default function App() {
     setLoading(false);
     // v0.62.250 — a manual Stop must leave a CLEAN, current-code state: clear the
     // boot-load posture (else fun-facts stay suppressed + the follow-sync guard
-    // stays armed) and un-dismiss the horizontal glass drawer so whatever venues
-    // already streamed in show in the NEW card style — never a stale fallback.
+    // stays armed) and un-dismiss the horizontal drawer so whatever venues
+    // already streamed in show — never a stale fallback.
     if (firstLoadPendingRef.current) setFirstLoadPending(false);
     setDrawerDismissed(false);
+    // v0.62.256 — operator: hitting Stop was revealing the "Choose your cuisine"
+    // picker that had stayed OPEN under the loading overlay (a normal search
+    // auto-closes it on results; a Stop never did). Close BOTH folio pickers so
+    // Stop lands on the clean map, not a panel.
+    setCuisinePickOpen(false);
+    setClassicOpen(false);
   }, []);
   // v0.61.50 — cycle the 6 rotating loading titles every 1.5 s while a
   // user-triggered search with changed criteria is in flight.
@@ -590,6 +596,22 @@ export default function App() {
   // v0.62.x — mirror the active plate into activePlateRef so the loading
   // fun-fact picker can surface its 📜 dish explanations (declared above).
   useEffect(() => { activePlateRef.current = cuisinePlate || arrivalPlate; }, [cuisinePlate, arrivalPlate]);
+  // v0.62.259 — operator (urgent): trace the folio-tab loading state so a MISSING
+  // "Pick local classic ▾" tab is diagnosable. The tab only shows when a plate
+  // AND venues are both present (hasPlate). This logs which side is missing.
+  useEffect(() => {
+    const hasPlate = !!(cuisinePlate || arrivalPlate) && venues.length > 0;
+    console.log('[Cuisine-TMA-v2] LOADING folio tabs →', {
+      loading,
+      venues: venues.length,
+      cuisinePlate: !!cuisinePlate,
+      arrivalPlate: !!arrivalPlate,
+      hasPlate,
+      classicTabShown: hasPlate,
+      cuisinePickOpen,
+      classicOpen,
+    });
+  }, [loading, venues.length, cuisinePlate, arrivalPlate, cuisinePickOpen, classicOpen]);
   // v0.62.37 — the ⭐ Recommend 7-second explainer (operator: "when tap, it
   // will show in few 7 seconds what is this 'Recommend' means").
   const [recommendHint, setRecommendHint] = useState(false);
@@ -3732,7 +3754,11 @@ export default function App() {
                 aria-label={names.length
                   ? (lang === 'fr' ? `Cuisines : ${names.join(', ')}` : `Cuisines: ${names.join(', ')}`)
                   : (lang === 'fr' ? 'Choisir votre cuisine' : 'Choose your cuisine')}
-                className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] active:scale-95 ${cuisinePickOpen ? 'folio-tab--active' : ''} ${!names.length ? 'text-tg-accent font-semibold' : ''} ${!names.length && editSearchPulse ? 'animate-pulse' : ''}`}
+                // v0.62.259 — operator: the accent-blue CTA on an empty cuisine
+                // tab made it MISMATCH the grey "Pick local classic" tab once both
+                // showed. Apply the blue CTA only BEFORE results (no plate yet);
+                // once both tabs are loaded they share the standard manila colour.
+                className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] active:scale-95 ${cuisinePickOpen ? 'folio-tab--active' : ''} ${!names.length && !hasPlate ? 'text-tg-accent font-semibold' : ''} ${!names.length && !hasPlate && editSearchPulse ? 'animate-pulse' : ''}`}
               >
                 <span aria-hidden className="shrink-0">🍲</span>
                 <span className="flex-1 text-left truncate">{cuisineLabel}</span>
@@ -3787,12 +3813,12 @@ export default function App() {
           (Open-now / Halal / Price / …) + the cuisine grid + 🔍 Search. Hidden
           result cards while open (see the ResultDrawer gate). */}
       {cuisinePickOpen && catalogue && (
-        // v0.62.208 — operator (5-go): CONNECT the picker to its tab like the
-        // folder-tab reference. Full-bleed, FLUSH to the header bottom (top:
-        // headerBottom, flat top, rounded bottom) + frosted folio bg, so it reads
-        // as a drawer pulling down from the active .folio-tab--active tab.
-        <div className="folder-drawer fixed inset-x-0 z-40 overflow-y-auto no-scrollbar rounded-b-2xl border-b border-x px-3 py-2.5 flex flex-col gap-2"
-          style={{ top: headerBottom, maxHeight: `calc(100dvh - ${headerBottom}px - 9rem)` }}>
+        // v0.62.254 — operator (option 2, MVP-faithful): the picker is now an
+        // IN-FLOW folder panel directly under the folio tabs — tabs + panel read
+        // as ONE folder (the MVP layout), and the map below is un-filled while
+        // open so the panel PUSHES it down (reverses the v0.62.195 fixed overlay).
+        // -mt-px butts it flush against the active tab; rounded bottom only.
+        <div className="folder-drawer -mt-[9px] overflow-y-auto no-scrollbar rounded-b-2xl border border-t-0 px-3 py-2.5 flex flex-col gap-2 max-h-[60vh]">
           {/* v0.62.246 — operator: the folio TAB already reads "Choose your
               cuisine"; drop the duplicate body title, keep only the × close. */}
           <div className="flex items-center justify-end">
@@ -3856,11 +3882,10 @@ export default function App() {
           >{t('btn.search', lang)}</button>
         </div>
       )}
-      {/* v0.62.195 — the LOCAL-CLASSIC picker as a fixed overlay too (was inline). */}
+      {/* v0.62.254 — the LOCAL-CLASSIC picker is IN-FLOW under its tab too (option 2). */}
       {classicOpen && (cuisinePlate || arrivalPlate) && !loading && venues.length > 0 && (
-        // v0.62.208 — connected to its tab (flush, frosted folder-drawer), like cuisine.
-        <div className="folder-drawer fixed inset-x-0 z-40 overflow-y-auto no-scrollbar rounded-b-2xl border-b border-x px-2.5 py-2"
-          style={{ top: headerBottom, maxHeight: `calc(100dvh - ${headerBottom}px - 9rem)` }}>
+        // tabs + panel = one folder (MVP layout); map un-fills below so it pushes down.
+        <div className="folder-drawer -mt-[9px] overflow-y-auto no-scrollbar rounded-b-2xl border border-t-0 px-2.5 py-2 max-h-[60vh]">
           {/* v0.62.246 — operator: the folio TAB already reads "Pick local
               classic"; drop the duplicate body title, keep only the × close.
               (The plate below still shows the city name, e.g. "📍 Singapore".) */}
@@ -3896,8 +3921,11 @@ export default function App() {
         userLoc={userLoc}
         /* v0.62.190 — horizontal mode: full-bleed map that FILLS the viewport
            behind the floating dock (no white band). Vertical keeps the framed
-           fixed-height card above the scrolling list. */
-        fill={drawerMode === 'horizontal'}
+           fixed-height card above the scrolling list.
+           v0.62.254 — when a folio picker (cuisine / local-classic) is OPEN it
+           renders IN-FLOW above the map (option 2, MVP layout), so the map drops
+           its full-bleed fill and sits framed below — the picker pushes it down. */
+        fill={drawerMode === 'horizontal' && !cuisinePickOpen && !classicOpen}
         focusedPlaceId={focusedPlaceId}
         onPinTap={setFocusedPlaceId}
         searchCenter={searchCenter || userLoc}
