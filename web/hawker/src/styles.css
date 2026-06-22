@@ -120,3 +120,12 @@ body { -webkit-font-smoothing: antialiased; }
    layer-pill row (shared MapControls); mirrors web/cuisine/src/styles.css. */
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-scrollbar::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+/* v0.62.272 — operator: page scrollbar THIN + unobtrusive, visible only as the
+   pointer nears the edge (hover). Matches the other TMAs. */
+html { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+html:hover { scrollbar-color: var(--tg-border, rgba(140,140,140,0.55)) transparent; }
+html::-webkit-scrollbar { width: 7px; height: 7px; }
+html::-webkit-scrollbar-track { background: transparent; }
+html::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; transition: background 0.2s; }
+html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,140,0.55)); }
