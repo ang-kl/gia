@@ -58,7 +58,7 @@ export default function Tile({ icon, iconImage, label, subtitle = '', onClick, d
           v0.62.263 — operator (IMG_2552): the Cuisine + Hawker line-art drawings
           were still too small to read. Box grown to h-14 (56) so the square food
           icons (iconImgClass max-h-14) fill ~56×56; Train stays width-bound at 64. */}
-      <span className="flex items-center justify-center shrink-0 w-16 h-14">
+      <span className="flex items-center justify-center shrink-0 w-16 h-16">
         {showImage
           ? (
             <img
