@@ -4576,7 +4576,7 @@ export default function App() {
         {/* v0.62.206 — operator (dark mode): the dock read as a CURVED card with
             the map showing in the rounded corners. Make it a FLAT full-width band
             (no rounded-t) + more opaque (/92 → /96) so the map doesn't tint it. */}
-        <div className="pointer-events-auto -mx-2 px-3 pt-2 pb-1 bg-tg-bg/96 liquid-glass border-t border-tg-border/50 shadow-[0_-6px_24px_rgba(0,0,0,0.22)] flex flex-col gap-1.5">
+        <div className="pointer-events-auto -mx-2 px-3 pt-2 pb-1 bg-tg-bg/96 liquid-glass border-t border-tg-border/50 shadow-[0_-6px_24px_rgba(0,0,0,0.22)] flex flex-col gap-1">
           {(() => {
             const poolExhausted = !!finalBatch && Number.isFinite(knownTotal) && venues && venues.length === knownTotal;
             const searchDisabled = loading || (poolExhausted && !dirty && !selectedCityLocation);
@@ -4622,7 +4622,7 @@ export default function App() {
                 aria-label={drawerDismissed
                   ? (lang === 'fr' ? 'Afficher les résultats' : 'Show results')
                   : (lang === 'fr' ? 'Masquer les résultats' : 'Hide results')}
-                className="px-2 py-2 rounded-lg active:scale-95 whitespace-nowrap"
+                className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
               >{drawerDismissed
                 ? `📖 ${lang === 'fr' ? 'afficher résultats' : 'show results'}`
                 : `📘 ${lang === 'fr' ? 'masquer résultats' : 'hide results'}`}</button>
@@ -4643,7 +4643,7 @@ export default function App() {
                   aria-label={drawerMode === 'horizontal'
                     ? (lang === 'fr' ? 'Affichage vertical' : 'Vertical layout')
                     : (lang === 'fr' ? 'Affichage horizontal' : 'Horizontal layout')}
-                  className="px-2 py-2 rounded-lg active:scale-95 whitespace-nowrap"
+                  className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
                 >{drawerMode === 'horizontal'
                   ? `⊿ ${lang === 'fr' ? 'liste' : 'list'}`
                   : `◸ ${lang === 'fr' ? 'carte' : 'map'}`}</button>
@@ -4653,7 +4653,7 @@ export default function App() {
                   type="button"
                   onClick={() => setCursor((c) => Math.min(pages.length - 1, c + 1))}
                   aria-label={lang === 'fr' ? 'Liste suivante' : 'Next list'}
-                  className="px-2 py-2 rounded-lg active:scale-95 whitespace-nowrap"
+                  className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
                 >⇢ {lang === 'fr' ? 'suivant' : 'next'}</button>
               )}
             </div>
@@ -4665,7 +4665,7 @@ export default function App() {
                   behavior: 'smooth'
                 })}
                 aria-label={scrolledPastHero ? t('btn.backToTop', lang) : 'Scroll down'}
-                className="px-2 py-2 rounded-lg active:scale-95 whitespace-nowrap"
+                className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
               >{scrolledPastHero ? t('btn.topShort', lang) : t('btn.downShort', lang)}</button>
               <button
                 type="button"
@@ -4678,7 +4678,7 @@ export default function App() {
                   }
                 }}
                 aria-label={cursor > 0 ? t('btn.fabBackAria', lang) : t('btn.fabEndAria', lang)}
-                className="px-2 py-2 rounded-lg active:scale-95 whitespace-nowrap"
+                className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
               >{cursor > 0 ? `↩ ${t('btn.fabBack', lang)}` : `🔚 ${t('btn.fabEnd', lang)}`}</button>
             </div>
           </div>
