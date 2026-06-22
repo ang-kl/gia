@@ -147,7 +147,7 @@ export default function App() {
           the hue, so it never relies on green-vs-orange alone. */}
       <header className="skeuo-card rounded-2xl px-3 py-2.5 flex flex-col gap-1.5 relative z-10">
         <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5">
-          <h1 className="text-base sm:text-lg font-bold leading-tight">{t('header.title', lang)}</h1>
+          <h1 className="text-base font-bold leading-tight">{t('header.title', lang)}</h1>
           {/* v0.60.219 — live Singapore weather emoji. */}
           <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
           <span className="text-[11px] ml-auto">
