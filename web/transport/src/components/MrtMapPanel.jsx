@@ -837,10 +837,10 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
             mapRef.current?.setCenter(SG_CENTROID);
             mapRef.current?.setZoom(SG_DEFAULT_ZOOM);
           }}
-          className="w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
+          className="w-7 h-7 rounded-md bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-[11px] font-bold leading-none active:scale-95"
           aria-label={t('map.reset', lang)}
           title={t('map.reset', lang)}
-        ><span aria-hidden>⛶⟲</span></button>
+        ><span aria-hidden>{zoomLevel != null ? Math.round(zoomLevel) : '⟲'}</span></button>
         <button
           type="button"
           onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? SG_DEFAULT_ZOOM) + 1)}
@@ -899,21 +899,8 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           {tn('mrt.counts', lang, { ops: opsCount, future: futureCount })}
         </div>
       )}
-      {/* v0.61.92 — live zoom readout on the Transport map.
-          v0.61.93 — operator: white circle (matches the other maps);
-          stacked above the Overview button so they don't collide. The
-          MRT map has no user location, so this stays a readout.
-          v0.61.119 — operator: 10 % black-transparent circle background
-          behind the readout, applied to every map TMA. */}
-      {zoomLevel != null && (
-        <div
-          className="absolute bottom-14 right-3 z-10 text-[11px] font-bold leading-none text-gray-900 opacity-90 pointer-events-none select-none rounded-full px-2 py-1"
-          style={{ background: 'rgba(0,0,0,0.1)' }}
-          aria-hidden
-        >
-          🔭 {Math.round(Number(zoomLevel))}
-        </div>
-      )}
+      {/* v0.62.270 — 🔭 zoom readout removed; the live zoom now shows on the
+          Reset button in the top-left nav cluster. */}
     </div>
   );
 }
