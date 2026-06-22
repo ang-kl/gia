@@ -950,24 +950,26 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
             mapRef.current?.setCenter(searchCenter || userLoc || { lat: 1.3521, lng: 103.8198 });
             mapRef.current?.setZoom(14);
           }}
-          className="w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
+          className="w-7 h-7 rounded-md bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-[11px] font-bold leading-none active:scale-95"
           aria-label={tr('map.reset', lang)}
           title={tr('map.reset', lang)}
-        ><span aria-hidden>⛶⟲</span></button>
+        ><span aria-hidden>{zoomLevel != null ? Math.round(zoomLevel) : '⟲'}</span></button>
         <button
           type="button"
           onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 14) + 1)}
           className="w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
           aria-label={tr('map.zoomIn', lang)}
         ><span aria-hidden>＋</span></button>
-        {/* v0.62.133 — operator: a "centre map" (↹) button between + and −,
-            recenters on the search anchor without changing zoom. */}
+        {/* v0.62.133 — "centre map" (↹). v0.62.270 — operator: this now RECENTRES
+            on the user's GPS location (the old 🔭 button's job; 🔭 removed, its
+            zoom number moved onto the Reset button). Disabled when no GPS fix. */}
         <button
           type="button"
-          onClick={() => mapRef.current?.panTo(searchCenter || userLoc || { lat: 1.3521, lng: 103.8198 })}
-          className="w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
-          aria-label={lang === 'fr' ? 'Centrer la carte' : 'Centre map'}
-          title={lang === 'fr' ? 'Centrer la carte' : 'Centre map'}
+          onClick={handleRecenterClick}
+          disabled={!userLoc}
+          className="w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95 disabled:opacity-40"
+          aria-label={tr('btn.showLocation', lang)}
+          title={tr('btn.showLocation', lang)}
         ><span aria-hidden>↹</span></button>
         <button
           type="button"
@@ -1002,28 +1004,9 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           onToggle: () => onOverlayChange?.({ ...(overlayLayers || {}), colour: !(overlayLayers || {}).colour })
         }}
       />
-      {/* v0.61.93 — operator: the zoom readout doubles as the recenter
-          button. v0.61.102 — operator: a faint "🔭 <zoom>" readout
-          (30% opacity, 2 px smaller) — no longer a white circle.
-          v0.61.119 — operator: 10 % black-transparent circle background
-          behind the readout, applied to every map TMA. */}
-      {zoomLevel != null && (
-        <button
-          type="button"
-          onClick={handleRecenterClick}
-          disabled={!userLoc}
-          /* v0.62.216 — operator (IMG_2532): drop the zoom/recentre pill BELOW the
-             layer-pill row (was top-3, overlapping the Hawker pill at the row's
-             right end). top-12 clears the ~top-2 pill row; the nav cluster sits
-             top-12 on the LEFT, so the right side here stays clear. */
-          className="absolute top-12 right-3 z-[35] text-[11px] font-bold leading-none text-gray-900 select-none rounded-full px-2 py-1 border border-gray-300 shadow-md"
-          style={{ background: '#FFFFFF' }}
-          aria-label={tr('btn.showLocation', lang)}
-          title={tr('btn.showLocation', lang)}
-        >
-          🔭 {Math.round(Number(zoomLevel))}
-        </button>
-      )}
+      {/* v0.62.270 — operator: the 🔭 zoom-readout/recentre button was removed.
+          The live zoom number now shows on the Reset button (top-left cluster),
+          and GPS-recentre moved to the ↹ button. */}
       {children}
     </div>
   );
