@@ -471,6 +471,8 @@ export default function App() {
   const [drawerDismissed, setDrawerDismissed] = useState(false);
   // v0.62.280 — collapsed (💬 FAB) vs expanded (full-width pill) free-text composer.
   const [composerOpen, setComposerOpen] = useState(false);
+  // v0.62.281 — "Criteria" dropdown in the control row (collapses the active-filter chips).
+  const [criteriaOpen, setCriteriaOpen] = useState(false);
   // v0.62.138 — a fresh (or grown) result set re-shows the floating strip even
   // if the user had dismissed the previous one.
   useEffect(() => { if (venues.length) setDrawerDismissed(false); }, [venues]);
@@ -4620,22 +4622,8 @@ export default function App() {
             </div>
           );
         })()}
-        {/* active filters — float ABOVE the band when present. */}
-        {criteriaSummary.length > 0 && (
-          <div className="pointer-events-auto -mt-0.5 overflow-x-auto px-1">
-            <ActiveFilters
-              cuisines={state.cuisines}
-              filters={state.filters}
-              onRemoveCuisine={removeCuisine}
-              onRemoveFilter={removeFilter}
-              onResetAll={clearAll}
-              nameForCuisine={(slug) => {
-                if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
-                return cuisineNameBySlug.get(slug) || null;
-              }}
-            />
-          </div>
-        )}
+        {/* v0.62.281 — the active-filter chips moved INTO the "Criteria" dropdown
+            in the control row below (was a floating strip here). */}
         {/* THE BAND — bg-tg-bg/96 now wraps ONLY the control row + footer tag. */}
         <div className="pointer-events-auto -mx-2 px-3 pt-1.5 pb-1 bg-tg-bg/96 liquid-glass border-t border-tg-border/50 shadow-[0_-6px_24px_rgba(0,0,0,0.22)] flex flex-col gap-1">
           {/* slim control row — results · layout · next  |  down · end. Inline icon
@@ -4683,6 +4671,34 @@ export default function App() {
                 >⇢ {lang === 'fr' ? 'suivant' : 'next'}</button>
               )}
             </div>
+            {/* v0.62.281 — "Criteria" dropdown (middle): collapses the active-filter
+                chips; tap to open, tap a chip's × to drop a cuisine + re-search. */}
+            {criteriaSummary.length > 0 && (
+              <div className="relative shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setCriteriaOpen((o) => !o)}
+                  aria-haspopup="true"
+                  aria-expanded={criteriaOpen}
+                  className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap inline-flex items-center gap-0.5"
+                >{lang === 'fr' ? 'Critères' : 'Criteria'} ({criteriaSummary.length}) <span aria-hidden className="text-tg-hint">{criteriaOpen ? '▴' : '▾'}</span></button>
+                {criteriaOpen && (
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 z-40 rounded-xl border border-tg-border bg-tg-card shadow-lg max-h-[40vh] overflow-y-auto p-2 min-w-[220px] max-w-[80vw]">
+                    <ActiveFilters
+                      cuisines={state.cuisines}
+                      filters={state.filters}
+                      onRemoveCuisine={removeCuisine}
+                      onRemoveFilter={removeFilter}
+                      onResetAll={clearAll}
+                      nameForCuisine={(slug) => {
+                        if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
+                        return cuisineNameBySlug.get(slug) || null;
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
             <div className="flex items-center gap-0.5 shrink-0">
               <button
                 type="button"
