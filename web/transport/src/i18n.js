@@ -22,6 +22,7 @@ const STRINGS = {
   'layer.hospitals':           { en: 'Hospital', fr: 'Hôpital' },
   'layer.police':              { en: 'Police', fr: 'Police' },
   'layer.busstop':             { en: 'Bus Stop', fr: 'Arrêt de bus' },
+  'layer.hawker':              { en: 'Hawker', fr: 'Hawker' },
   'layer.colour':              { en: 'Colour', fr: 'Couleur' },
   'layer.colour.on':           { en: '☑️ Monochrome', fr: '☑️ Monochrome' },
   'layer.colour.off':          { en: '🎨 Color', fr: '🎨 Couleur' },
