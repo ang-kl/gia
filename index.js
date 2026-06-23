@@ -209,6 +209,31 @@ async function updateTransitStatus() {
 }
 
 // 3. Telegram Handlers
+// v0.62.295 — nearest PROMINENT landmark near a coord (Places New searchNearby,
+// ranked by popularity). Used to turn a bare city-centroid pick ("Kyoto") into
+// "Kyoto — near {landmark}", mirroring how an SG street pick shows a building.
+// Returns the landmark display name, or null. Callers cache the result.
+async function nearestLandmark(lat, lng) {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey || !Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const axios = require('axios');
+  const body = {
+    includedTypes: ['tourist_attraction', 'train_station', 'subway_station', 'shopping_mall',
+      'university', 'stadium', 'park', 'place_of_worship', 'airport', 'museum', 'city_hall'],
+    maxResultCount: 1,
+    rankPreference: 'POPULARITY',
+    locationRestriction: { circle: { center: { latitude: lat, longitude: lng }, radius: 1500 } }
+  };
+  try {
+    const { data } = await axios.post('https://places.googleapis.com/v1/places:searchNearby', body, {
+      timeout: 5000,
+      headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'places.displayName' }
+    });
+    const p = Array.isArray(data?.places) ? data.places[0] : null;
+    return (p && p.displayName && p.displayName.text) || null;
+  } catch { return null; }
+}
+
 // v0.52.0: shared reverse-geocode helper used by /transport (and any
 // future menu that wants to display a human-readable "current location"
 // header). Caches 24h in Redis on a coarse 4-decimal-place grid (~10 m).
@@ -18299,6 +18324,21 @@ async function cacheBotUsername() {
         const apiKey = process.env.GOOGLE_MAPS_API_KEY;
         if (!apiKey) {
           return res.status(503).json({ error: 'GOOGLE_MAPS_API_KEY unset' });
+        }
+        // v0.62.295 — `?near=1`: the client wants the nearest prominent landmark
+        // (for "{city} — near {landmark}" on a city-centroid pick). Resolved +
+        // cached separately so it never pollutes the street-name cache. The
+        // client already holds the city name, so `name` is intentionally null.
+        if (req.query.near === '1' || req.query.near === 'true') {
+          const landmarkKey = `revgeo:landmark:v1:${gLat}:${gLng}`;
+          try {
+            const lc = await redis.get(landmarkKey);
+            if (lc) return res.json({ ...JSON.parse(lc), cached: true });
+          } catch { /* cache miss is fine */ }
+          const near = await nearestLandmark(lat, lng).catch(() => null);
+          const payload = { name: null, near: near || null };
+          try { await redis.set(landmarkKey, JSON.stringify(payload), { EX: 60 * 60 * 24 }); } catch { /* non-fatal */ }
+          return res.json(payload);
         }
         try {
           const cached = await redis.get(cacheKey);

@@ -933,6 +933,17 @@ export default function App() {
     // fine-grained (v0.62.207) reverse-geocode so a real precinct shows.
     const _anchorNm = (locationAnchor && locationAnchor.name || '').trim();
     const _genericNm = new Set(['singapore','malaysia','indonesia','thailand','vietnam','japan','korea','south korea','china','taiwan','hong kong','macau','macao','australia','new zealand','brunei','philippines','johor bahru','johor','cities']);
+    // v0.62.295 — OTHER-region CITY pick (carries radiusCapM): the anchor name is
+    // the bare city ("Kyoto"). Resolve the nearest prominent landmark so the line
+    // reads "Kyoto — near {landmark}", mirroring how an SG street pick shows a
+    // building. Falls back to the bare city name when no landmark resolves.
+    if (anchorActive && _anchorNm && Number.isFinite(locationAnchor.radiusCapM)) {
+      let cancelledCity = false;
+      reverseGeocode({ lat: eff.lat, lng: eff.lng, near: true })
+        .then((r) => { if (!cancelledCity) setLocationName(r?.near ? `${_anchorNm} — near ${r.near}` : _anchorNm); })
+        .catch(() => { if (!cancelledCity) setLocationName(_anchorNm); });
+      return () => { cancelledCity = true; };
+    }
     if (anchorActive && _anchorNm && !_genericNm.has(_anchorNm.toLowerCase())) { setLocationName(_anchorNm); return; }
     let cancelled = false;
     reverseGeocode({ lat: eff.lat, lng: eff.lng })
