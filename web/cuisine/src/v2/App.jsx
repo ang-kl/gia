@@ -4605,6 +4605,7 @@ export default function App() {
                 searchPulse={searchHintActive || searchFabFlash}
                 autoFocus
                 onBlurClose={() => setComposerOpen(false)}
+                onCollapse={() => setComposerOpen(false)}
               />
             </div>
           ) : (
