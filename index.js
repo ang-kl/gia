@@ -1794,13 +1794,16 @@ bot.onText(/^\/ztest(?:@\w+)?(?:\s+(.+))?$/i, async (msg) => {
 
   const STATUS_ICON = { hit: '✅', 'no-website': '🌐', 'scrape-failed': '⚠️', 'no-match': '·' };
   const lines = [`🧪 <b>/ztest ${escapeHtmlForTelegram(rawType)}</b> — scanned ${report.scanned}, <b>${report.hitCount} hit(s)</b>`];
+  const { googleMapsUrl: ztestMapsUrl } = require('./maps-url');
   for (const r of report.results) {
     const icon = STATUS_ICON[r.status] || '·';
-    // v0.62.202 — per-spot Google Maps link (precise coords, else name); the
-    // venue NAME is the hyperlink.
-    const mapsLink = (Number.isFinite(r.lat) && Number.isFinite(r.lng))
-      ? `https://maps.google.com/?q=${r.lat},${r.lng}`
-      : `https://maps.google.com/?q=${encodeURIComponent(r.name + ' Singapore')}`;
+    // v0.62.202 — per-spot Google Maps link; the venue NAME is the hyperlink.
+    // v0.62.294 — operator: the raw `?q=lat,lng` link opened an EMPTY pin. Use
+    // the shared googleMapsUrl so a placeId (carried by the scout) resolves to
+    // the ACTUAL place page (?api=1&query=<name>&query_place_id=<id>); falls back
+    // to a name search, then coords.
+    const mapsLink = ztestMapsUrl({ placeId: r.placeId, name: r.name, lat: r.lat, lng: r.lng })
+      || `https://maps.google.com/?q=${encodeURIComponent((r.name || '') + ' Singapore')}`;
     const nameHtml = `<a href="${mapsLink}">${escapeHtmlForTelegram(r.name)}</a>`;
     // v0.62.202 — surface the set / signature COST when scraped.
     const priceTag = r.setPrice ? ` · 💲${escapeHtmlForTelegram(r.setPrice)}` : '';
