@@ -14,7 +14,7 @@ import Icon from './Icon.jsx';
 // `freeText` qualifier instead of silently dropping it. Also: Enter no
 // longer fires a search — only the → button here or the 🔍 Search
 // buttons / FAB do (operator 2026-05-11).
-export default function TellMePanel({ value = '', onChange, onSubmit, onReplace, lastPrompt, loading, searchIcon = false, onEmptySearch, searchDisabled = false, searchPulse = false, autoFocus = false, onBlurClose }) {
+export default function TellMePanel({ value = '', onChange, onSubmit, onReplace, lastPrompt, loading, searchIcon = false, onEmptySearch, searchDisabled = false, searchPulse = false, autoFocus = false, onBlurClose, onCollapse }) {
   const [lang] = useLocale();
   const [submitting, setSubmitting] = useState(false);
   const text = typeof value === 'string' ? value : '';
@@ -67,7 +67,18 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
           with "white spacing" in dark mode. Make it a square-edged BOX
           (rounded-md) with a solid card fill. */}
       <div className="flex items-center gap-2 px-3 py-1 rounded-md border-2 border-tg-hint/60 bg-tg-card">
-        <Icon name="message" className="w-4 h-4 text-tg-hint flex-shrink-0" />
+        {/* v0.62.287 — operator: tapping the 💬 icon on the EXPANDED composer
+            collapses it back to the 💬 button FAB. onMouseDown preventDefault
+            keeps the input from blur-racing the click. */}
+        <button
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => onCollapse?.()}
+          aria-label={lang === 'fr' ? 'Réduire' : 'Collapse'}
+          className="flex-shrink-0 active:scale-90 leading-none"
+        >
+          <Icon name="message" className="w-4 h-4 text-tg-hint" />
+        </button>
         <input
           type="text"
           value={text}
