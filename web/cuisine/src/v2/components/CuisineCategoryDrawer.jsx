@@ -104,8 +104,15 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
             );
             const disabled = (dim && !sel) || beltBlocked || michBlocked;
             return (
+              <React.Fragment key={cu.slug}>
+                {/* v0.62.284 — "hollow lite line": a full grid-width hairline
+                    that opens a new visual group (East-Asian regional China;
+                    the 5 European sub-regions). Light + borderless so it
+                    reads as a soft separator, not a heavy rule. */}
+                {cu.dividerBefore && (
+                  <div className="col-span-2 h-px bg-tg-border/40 my-1.5" aria-hidden />
+                )}
               <button
-                key={cu.slug}
                 type="button"
                 onClick={() => { if (!disabled) onToggle(cu.slug); }}
                 aria-pressed={sel}
@@ -148,6 +155,7 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
                 <span className="flex-1 break-words">{cu.name}</span>
                 {sel && <span aria-hidden className="text-tg-accent-text flex-shrink-0">✓</span>}
               </button>
+              </React.Fragment>
             );
           })}
         </div>
