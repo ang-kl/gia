@@ -121,7 +121,7 @@ const STRINGS = {
                                  fr: '✕ Annuler · réessayer' },
 
   // ----- Filters -----
-  'filter.openNow':            { en: 'Open now', fr: 'Ouvert maintenant' },
+  'filter.openNow':            { en: 'Open now', fr: 'Ouvert' },
   'filter.halal':              { en: 'Halal', fr: 'Halal' },
   'filter.vegetarian':         { en: 'Vegetarian', fr: 'Végétarien' },
   // v0.62.37 — ⭐ Recommend (capital R per operator): wires the search to the
@@ -227,8 +227,8 @@ const STRINGS = {
                                  fr: 'Note définie sur Bien+ ≥ 3.7⭐' },
   'rating.introBody':          { en: 'Change it anytime if you want more or fewer eateries.',
                                  fr: 'Modifiez-la à tout moment pour plus ou moins de restaurants.' },
-  'rating.save':               { en: 'Save', fr: 'Enregistrer' },
-  'rating.saved':              { en: 'Saved', fr: 'Enregistré' },
+  'rating.save':               { en: 'Save', fr: 'Valider' },
+  'rating.saved':              { en: 'Saved', fr: 'Validé' },
   'rating.pillNoRating':       { en: 'Unrated', fr: 'Non noté' },
 
   // ----- Zero-result reason notices (v0.62.13) — make an empty list EVIDENT -----
@@ -303,7 +303,7 @@ const STRINGS = {
   'btn.copySyntax':            { en: '🔗 Copy /cuisine command', fr: '🔗 Copier la commande /cuisine' },
   'btn.copyOne':               { en: '📋 Copy', fr: '📋 Copier' },
   'btn.collapse':              { en: 'Collapse ▴', fr: 'Réduire ▴' },
-  'btn.editSearch':            { en: 'Edit search ▾', fr: 'Modifier la recherche ▾' },
+  'btn.editSearch':            { en: 'Edit search ▾', fr: 'Modifier ▾' },
   'btn.backToTop':             { en: 'Back to top', fr: 'Retour en haut' },
   // v0.60.106 — FAB labels (back / end). Operator FR audit 2026-05-11.
   'btn.fabBack':               { en: 'back',  fr: 'retour' },

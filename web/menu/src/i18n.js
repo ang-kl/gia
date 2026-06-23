@@ -81,7 +81,7 @@ const STRINGS = {
   // ----- Footer chips (admin) -----
   'chip.language':         { en: 'Language',  fr: 'Langue' },
   'chip.privacy':          { en: 'Privacy',   fr: 'Confidentialité' },
-  'chip.forgetme':         { en: 'Forget me', fr: 'Oublier mes données' },
+  'chip.forgetme':         { en: 'Forget me', fr: 'Oublier' },
 
   // v0.62.31 — stale-travel hint: when device GPS sits far (>50 km) from a
   // LABELLED pick, the auto-detect no longer moves it (v0.62.30 explicit-pick
