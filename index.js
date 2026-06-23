@@ -12679,6 +12679,29 @@ async function cacheBotUsername() {
             description: `Singapore Michelin Guide: ${michelin.STARS_THREE.length} three-star, ${michelin.STARS_TWO.length} two-star, ${michelin.STARS_ONE.length} one-star, ${michelin.BIB_GOURMAND.length} Bib Gourmand.`
           }]
         });
+        // v0.62.299 — "Set Meal · Signature (Beta)" synthetic tile beside Michelin.
+        // /api/cuisine/search detects the 'set-meal-signature' slug and, AFTER the
+        // normal pipeline, annotates the top venues with a CONFIRMED set-lunch/
+        // dinner price or signature line scraped from their OWN website (bounded +
+        // cached + fail-soft; website-text only on the hot path).
+        categories.push({
+          id: 'set-meal-signature',
+          label: 'Set Meal · Signature (Beta)',
+          emoji: '🍱',
+          defaultOpen: false,
+          cuisines: [{
+            categoryId: 'set-meal-signature',
+            categoryLabel: 'Set Meal · Signature (Beta)',
+            categoryEmoji: '🍱',
+            defaultOpen: false,
+            name: 'Set Meal · Signature (Beta)',
+            slug: 'set-meal-signature',
+            flag: '🍱',
+            searchQuery: '',
+            keywords: ['set meal', 'set lunch', 'signature'],
+            description: 'Beta — annotates nearby eateries with a set-lunch/dinner price or signature dish confirmed from their own website.'
+          }]
+        });
         // v0.61.445 — per-country+city Michelin cuisine coverage, so the TMA
         // can GREY cuisine chips that have no star/bib venue under Michelin
         // (operator: "Michelin + Japanese in KL hangs"). Map: cc → { all:[…],
@@ -16920,6 +16943,32 @@ async function cacheBotUsername() {
               }
             }
           }
+        }
+        // v0.62.299 — "Set Meal · Signature (Beta)" annotate: when the chip is on,
+        // scrape the top venues' OWN websites (bounded to 6, in parallel, cached
+        // 24h per placeId, fail-soft) for a CONFIRMED set-lunch/dinner price or
+        // signature line. Website-text only (no Places/vision) to stay cheap on
+        // the hot path. Only attaches when confirmed → the card shows nothing for
+        // unconfirmed venues (annotate-all, never a fake claim).
+        const wantSetMeal = Array.isArray(cuisines) && cuisines.some((s) => String(s || '').toLowerCase() === 'set-meal-signature');
+        if (wantSetMeal && !specialMode) {
+          try {
+            const { scoutVenueMulti } = require('./ztest-scout');
+            await Promise.all(dedupedTop.slice(0, 6).map(async (v) => {
+              if (!v || !v.websiteUri) return;
+              const ck = v.placeId ? `setmeal:v1:${v.placeId}` : null;
+              try { if (ck) { const c = await redis.get(ck); if (c) { Object.assign(v, JSON.parse(c)); return; } } } catch { /* cache miss */ }
+              const r = await scoutVenueMulti({ websiteUri: v.websiteUri }).catch(() => null);
+              if (!r) return;
+              const attach = {};
+              if (r.setMeal && r.setMeal.price) attach.setMeal = r.setMeal;
+              if (r.signature && r.signature.line) attach.signatureLine = r.signature.line;
+              if (Object.keys(attach).length) {
+                Object.assign(v, attach);
+                try { if (ck) await redis.set(ck, JSON.stringify(attach), { EX: 60 * 60 * 24 }); } catch { /* non-fatal */ }
+              }
+            }));
+          } catch (err) { console.warn('[Cuisine-Search] set-meal beta annotate failed:', err.message); }
         }
         // v0.62.31 — adversarial-review fix: when the D706 deadline already
         // answered (degraded, possibly partial), do NOT mark this batch as

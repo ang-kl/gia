@@ -246,7 +246,33 @@ async function scoutSetMenu({ lat, lng, type, apiKey, max = 8, concurrency = 4 }
   return { type: t, scanned: results.length, hitCount, results };
 }
 
+// v0.62.299 — annotate ONE already-known venue (a cuisine-search result that
+// already carries its websiteUri) for set-meal + signature in a SINGLE website
+// fetch. Used by the "Set Meal · Signature (Beta)" card filter (annotate mode).
+// Website-text only (no Places call, no vision) so it's cheap enough for the
+// search hot path; fully fail-soft. Returns
+// { setMeal:{type,price,line}|null, signature:{line}|null }.
+async function scoutVenueMulti({ websiteUri }, getHtml = fetchHtml) {
+  const out = { setMeal: null, signature: null };
+  if (!websiteUri) return out;
+  let html;
+  try { html = await getHtml(websiteUri); } catch { return out; }
+  if (!html) return out;
+  for (const t of ['set-lunch', 'set-dinner']) {
+    const lines = scrapeForKeywords(html, KEYWORD_MATRIX[t].map((k) => k.toLowerCase()));
+    const m = lines.find((x) => x.hasPrice) || lines[0];
+    if (m) {
+      out.setMeal = { type: t, price: (m.text.match(PRICE_RE) || [])[0] || null, line: m.text.slice(0, 90) };
+      break;
+    }
+  }
+  const sig = scrapeForKeywords(html, KEYWORD_MATRIX.signature.map((k) => k.toLowerCase()))[0];
+  if (sig) out.signature = { line: sig.text.slice(0, 90) };
+  return out;
+}
+
 module.exports = {
+  scoutVenueMulti,
   KEYWORD_MATRIX,
   ELIGIBLE_TIERS,
   phraseToType,
