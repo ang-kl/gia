@@ -732,6 +732,38 @@ export default function App() {
     }
     return map;
   }, [catalogue]);
+  // v0.62.293 (restored + combos) — strip metadata for "exact vs nearby" cards.
+  //   SINGLE cuisine → { single: { label: "{cuisine} & Nearby Flavours", accent } }
+  //     (one CVD-safe region accent; alternate cards w/o matchedCuisine use it).
+  //   COMBO (2+)     → { strips: { "Korean": {label, accent}, "Japanese": {…} } }
+  //     (distinct accent per selected cuisine, by pick order; an alternate card
+  //      uses strips[venue.matchedCuisine]). Accents are blue/orange/amber/teal/
+  //      indigo/purple — never red/green (operator's red-green vision).
+  const nearbyFlavours = useMemo(() => {
+    const PALETTE = ['#4f46e5', '#ea580c', '#0d9488', '#9333ea', '#475569'];
+    const REGION_ACCENT = {
+      'middle-eastern': '#b45309', 'east-asian': '#4f46e5', 'southeast-asian': '#0d9488',
+      'south-asian': '#c2410c', 'european': '#2563eb', 'americas': '#475569', 'dessert': '#9333ea'
+    };
+    const sel = (state.cuisines || []).filter((s) => s !== 'michelin');
+    if (!sel.length) return null;
+    const nameOf = (slug) => cuisineNameBySlug.get(slug) || null;
+    const catOf = (slug) => {
+      if (Array.isArray(catalogue)) {
+        for (const c of catalogue) if ((c.cuisines || []).some((cu) => cu?.slug === slug)) return c.id;
+      }
+      return '';
+    };
+    if (sel.length === 1) {
+      const name = nameOf(sel[0]);
+      if (!name) return null;
+      const accent = REGION_ACCENT[catOf(sel[0])] || '#b45309';
+      return { single: { label: lang === 'fr' ? `${name} et saveurs voisines` : `${name} & Nearby Flavours`, accent }, strips: null };
+    }
+    const strips = {};
+    sel.forEach((slug, i) => { const n = nameOf(slug); if (n) strips[n] = { label: n, accent: PALETTE[i % PALETTE.length] }; });
+    return { single: null, strips };
+  }, [state.cuisines, cuisineNameBySlug, catalogue, lang]);
   // v0.62.6 — Michelin city-grouped display: initial map state per visible
   // batch. Case A (set city has ≥1 visible card) → fit the SET city's pins
   // (map stays centred there, never zooms out to country level). Case B
@@ -4001,6 +4033,9 @@ export default function App() {
           specialMode={state.specialMode || null}
           hasFilters={criteriaSummary.length > 0}
           composerOpen={composerOpen}
+          nearbyLabel={nearbyFlavours?.single?.label || null}
+          nearbyAccent={nearbyFlavours?.single?.accent || null}
+          nearbyStrips={nearbyFlavours?.strips || null}
         />
       )}
 
@@ -4301,6 +4336,9 @@ export default function App() {
         <ResultPanel
           venues={venues}
           loading={loading}
+          nearbyLabel={nearbyFlavours?.single?.label || null}
+          nearbyAccent={nearbyFlavours?.single?.accent || null}
+          nearbyStrips={nearbyFlavours?.strips || null}
           /* v0.61.255 — forward specialMode so ResultCard can render
              the "Inquire for seasonal durian pastry" hint when the
              active search is durian-pastry AND the venue name doesn't
