@@ -1458,7 +1458,9 @@ export function createOverlayController(map, googleMaps, opts) {
     const z0 = map.getZoom?.() || 0;
     return (features || []).map((f) => {
       const info0 = {
-        num: f._num, name: f.name || '', isNew: !!f.isNew,
+        // v0.62.296 — card title prefers the canonical NEA name (displayName);
+        // the H## short label below still derives from the raw name.
+        num: f._num, name: f.displayName || f.name || '', isNew: !!f.isNew,
         head: hawkerHead(f.name), facility: hawkerFacility(f.name), short: hawkerShort(f.name)
       };
       const marker = new AdvancedMarkerElement({
