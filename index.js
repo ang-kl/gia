@@ -1817,35 +1817,36 @@ bot.onText(/^\/ztest(?:@\w+)?(?:\s+(.+))?$/i, async (msg) => {
     return;
   }
 
-  const STATUS_ICON = { hit: '✅', 'no-website': '🌐', 'scrape-failed': '⚠️', 'no-match': '·' };
-  const lines = [`🧪 <b>/ztest ${escapeHtmlForTelegram(rawType)}</b> — scanned ${report.scanned}, <b>${report.hitCount} hit(s)</b>`];
+  // v0.62.297 — Track A: confidence ladder + HONEST copy. Operator: results kept
+  // showing raw machine codes ("no-match" / "scrape-failed") + ⚠️/🌐 alarm icons
+  // that read as "no specify / abnormal". Replace with a calm 3-rung ladder —
+  //   ✅ on their website (high) · 📷 seen in a listing photo (medium) ·
+  //   ◌ couldn't confirm (none — not an error). No raw status strings shown.
   const { googleMapsUrl: ztestMapsUrl } = require('./maps-url');
+  const confirmedCount = report.results.filter((r) => r.status === 'hit' || (r.visual && r.visual.found)).length;
+  const lines = [`🧪 <b>/ztest ${escapeHtmlForTelegram(rawType)}</b> — scanned ${report.scanned}, <b>${confirmedCount} confirmed</b>`];
   for (const r of report.results) {
-    const icon = STATUS_ICON[r.status] || '·';
-    // v0.62.202 — per-spot Google Maps link; the venue NAME is the hyperlink.
-    // v0.62.294 — operator: the raw `?q=lat,lng` link opened an EMPTY pin. Use
-    // the shared googleMapsUrl so a placeId (carried by the scout) resolves to
-    // the ACTUAL place page (?api=1&query=<name>&query_place_id=<id>); falls back
-    // to a name search, then coords.
+    // v0.62.294 — googleMapsUrl resolves a placeId to the ACTUAL place page.
     const mapsLink = ztestMapsUrl({ placeId: r.placeId, name: r.name, lat: r.lat, lng: r.lng })
       || `https://maps.google.com/?q=${encodeURIComponent((r.name || '') + ' Singapore')}`;
     const nameHtml = `<a href="${mapsLink}">${escapeHtmlForTelegram(r.name)}</a>`;
-    // v0.62.202 — surface the set / signature COST when scraped.
     const priceTag = r.setPrice ? ` · 💲${escapeHtmlForTelegram(r.setPrice)}` : '';
-    lines.push(`\n${icon} ${nameHtml} · ${escapeHtmlForTelegram(r.priceTier)}${priceTag}${r.photoEligible ? ' · 📷' : ''}`);
+    const tier = escapeHtmlForTelegram(r.priceTier);
     if (r.status === 'hit') {
+      lines.push(`\n✅ ${nameHtml} · ${tier}${priceTag} <i>(on their website)</i>`);
       for (const m of r.matches.slice(0, 3)) {
         lines.push(`   ${m.hasPrice ? '💲' : '–'} ${escapeHtmlForTelegram(m.text)}`);
       }
     } else if (r.visual && r.visual.found) {
-      // v0.62.202 — visual-recognition result (the menu didn't specify in text).
       const vis = (r.visual.items || []).map((it) => escapeHtmlForTelegram(it.name + (it.price ? ` — ${it.price}` : ''))).join('; ');
-      lines.push(`   📷 <i>visual:</i> ${vis || escapeHtmlForTelegram(r.visual.note || 'menu seen')}`);
+      lines.push(`\n📷 ${nameHtml} · ${tier}${priceTag} <i>(seen in a listing photo)</i>`);
+      lines.push(`   ${vis || escapeHtmlForTelegram(r.visual.note || 'menu visible in photo')}`);
     } else {
-      lines.push(`   <i>${escapeHtmlForTelegram(r.status)}${r.visual ? ' · 📷 no menu in photo' : ''}</i>`);
+      // No raw status / no alarm icon — a calm, honest "unconfirmed" line.
+      lines.push(`\n◌ ${nameHtml} · ${tier} <i>(couldn't confirm from their site or photos)</i>`);
     }
   }
-  lines.push('\n<i>Probe — scrape + Gemini-vision fallback. Cached 10 min.</i>');
+  lines.push('\n<i>Probe — website text + Gemini-vision. ✅ on-site · 📷 from photo · ◌ unconfirmed (not an error). Cached 10 min.</i>');
   await safeSend(chatId, lines.join('\n'), { parse_mode: 'HTML', disable_web_page_preview: true });
 });
 
