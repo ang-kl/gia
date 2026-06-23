@@ -142,7 +142,23 @@ const CUISINE_DISH_KEYWORDS = {
                    'hawawshi', 'feteer', 'mahshi'],
   israeli:        ['shakshuka', 'sabich', 'falafel', 'hummus', 'malabi', 'bourekas', 'schnitzel',
                    "za'atar", 'zaatar', 'amba', 'laffa'],
-  jordanian:      ['mansaf', 'maqluba', 'maqlooba', 'knafeh', 'kunafa', 'musakhan', 'freekeh', 'jameed']
+  jordanian:      ['mansaf', 'maqluba', 'maqlooba', 'knafeh', 'kunafa', 'musakhan', 'freekeh', 'jameed'],
+
+  // ─── East Asian (v0.62.293) ────────────────────────────────────
+  // Operator: a Korean+Japanese combo showed single-cuisine eateries with no
+  // indication. East Asian was never gated, so the exact/alternate tagging had
+  // no dish signal for venues whose Places primaryType isn't a specific
+  // *_restaurant. These let a review-only venue still classify (e.g. "kimchi
+  // jjigae" → Korean, "omakase / sashimi" → Japanese). The tagger queries ONE
+  // cuisine at a time, so shared izakaya/ramen terms don't cross-match.
+  korean:         ['kimchi', 'bibimbap', 'bulgogi', 'japchae', 'tteokbokki', 'samgyeopsal', 'jjigae',
+                   'gochujang', 'banchan', 'galbi', 'sundubu', 'kimbap', 'gimbap', 'soju', 'jjajangmyeon'],
+  japanese:       ['sushi', 'sashimi', 'omakase', 'ramen', 'udon', 'soba', 'tempura', 'izakaya',
+                   'donburi', 'yakitori', 'teriyaki', 'unagi', 'gyoza', 'okonomiyaki', 'chirashi', 'nigiri'],
+  chinese:        ['dim sum', 'xiao long bao', 'mapo tofu', 'kung pao', 'char siu', 'wonton', 'congee',
+                   'chow mein', 'sweet and sour', 'peking duck', 'hotpot', 'hot pot', 'zhajiangmian'],
+  taiwanese:      ['beef noodle', 'bubble tea', 'lu rou fan', 'braised pork rice', 'gua bao', 'oyster omelette',
+                   'popcorn chicken', 'scallion pancake', 'three cup chicken', 'pearl milk tea']
 };
 
 // Quick lookup: cuisine display-name → keyword list. Keys lowercased.
