@@ -26,7 +26,7 @@ function shortenCountry(area) {
   return parts.join(',');
 }
 
-export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null, number = null, defaultExpanded = false, horizontal = false, autoExpandFocus = true, nearbyLabel = null, nearbyAccent = null }) {
+export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null, number = null, defaultExpanded = false, horizontal = false, autoExpandFocus = true, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null }) {
   const [lang] = useLocale();
   if (!venue) return null;
   const rating = venue.rating ? `★${venue.rating.toFixed(1)}` : '';
@@ -249,17 +249,22 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
          list keeps the solid bg-tg-card surface (unchanged). */
       className={`w-full text-left rounded-lg border flex flex-col ${horizontal ? 'gap-0.5 px-2.5 py-1.5' : 'gap-1 p-2.5'} ${horizontal ? (focused ? 'bg-white' : 'bg-tg-card/70 liquid-glass') : 'bg-tg-card'} ${focused ? 'border-tg-accent' : 'border-tg-border'}`}
       style={horizontal && focused ? { '--tg-bg': '#ffffff', '--tg-card': '#ffffff', '--tg-text': '#1c1c1f', '--tg-hint': '#6b6b70', '--tg-border': '#e2e2e6' } : undefined}>
-      {/* v0.62.289 — "{cuisine} & Nearby Flavours" strip. Marks a venue the
-          server tagged as NOT an exact cuisine hit (e.g. Lebanese/Turkish on a
-          Moroccan search) with a thin coloured top ribbon. The colour is one
-          CVD-safe region accent (never red/green); the text carries the meaning.
-          Negative margins pull it to the card edges under the rounded top. */}
-      {venue.matchTier === 'alternate' && nearbyLabel && (
-        <div
-          className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -mx-2.5 mb-1 px-2.5 py-0.5 rounded-t-lg text-white text-[10px] font-semibold leading-tight truncate`}
-          style={{ backgroundColor: nearbyAccent || '#b45309' }}
-        >{nearbyLabel}</div>
-      )}
+      {/* v0.62.289 / v0.62.293 — top strip on a NOT-exact card. SINGLE cuisine:
+          "{cuisine} & Nearby Flavours" (nearbyLabel). COMBO (2+): the cuisine the
+          venue actually serves (venue.matchedCuisine → nearbyStrips[name]), so
+          Korean-only / Japanese-only cards are clearly not the both-cuisine combo.
+          Colour is CVD-safe (never red/green); the text carries the meaning. */}
+      {venue.matchTier === 'alternate' && (() => {
+        const s = (venue.matchedCuisine && nearbyStrips && nearbyStrips[venue.matchedCuisine])
+          || (nearbyLabel ? { label: nearbyLabel, accent: nearbyAccent } : null);
+        if (!s) return null;
+        return (
+          <div
+            className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -mx-2.5 mb-1 px-2.5 py-0.5 rounded-t-lg text-white text-[10px] font-semibold leading-tight truncate`}
+            style={{ backgroundColor: s.accent || '#b45309' }}
+          >{s.label}</div>
+        );
+      })()}
       {/* v0.62.108 — operator: rank reads "1 · <name>" inline; every row below
           is flush-left (no indent — was a 2-col flex that offset the whole body).
           v0.62.176 — operator: REVERTED the v0.62.168 horizontal word-wrap (the
