@@ -78,7 +78,7 @@ export default function ResultPanel({
   // (one cuisine selected), the list groups exact hits first, then a divider +
   // `nearbyLabel` ("{cuisine} & Nearby Flavours"), then the alternates; each
   // alternate card also carries the coloured `nearbyAccent` top strip.
-  nearbyLabel = null, nearbyAccent = null,
+  nearbyLabel = null, nearbyAccent = null, nearbyStrips = null,
   // v0.61.174 — cumulative cap (cuisine-session SEEN_CAP). When the
   // server signals knownTotal >= cap AND finalBatch, title swaps
   // to "Results: {cap}+ · Limit reached".
@@ -276,12 +276,21 @@ export default function ResultPanel({
     return () => clearTimeout(id);
   }, [firstBatch, loading, revealCount, pagedVenues.length]);
   const cardsToShowRaw = firstBatch ? pagedVenues.slice(0, revealCount) : pagedVenues;
-  // v0.62.289 — vertical grouping: when the server tagged exact/alternate
-  // (single-cuisine "nearby flavours"), float the exact hits to the top and the
-  // alternates below (stable sort preserves distance order within each tier).
-  // Off that path (no tags) the order is untouched.
-  const cardsToShow = (nearbyLabel && cardsToShowRaw.some((v) => v?.matchTier === 'alternate'))
-    ? [...cardsToShowRaw].sort((a, b) => (a?.matchTier === 'alternate' ? 1 : 0) - (b?.matchTier === 'alternate' ? 1 : 0))
+  // v0.62.289 / v0.62.293 — vertical grouping. When the server tagged
+  // exact/alternate, float exact hits to the top, then the alternates. For a
+  // COMBO (2+ cuisines) the alternates are further grouped by which single
+  // cuisine they serve, in the selected-cuisine order (nearbyStrips key order).
+  // Distance order is preserved within each group (stable sort).
+  const stripOrder = nearbyStrips ? Object.keys(nearbyStrips) : [];
+  const groupIdx = (n) => { const i = stripOrder.indexOf(n); return i < 0 ? 999 : i; };
+  const hasTagged = (nearbyLabel || nearbyStrips) && cardsToShowRaw.some((v) => v?.matchTier === 'alternate');
+  const cardsToShow = hasTagged
+    ? [...cardsToShowRaw].sort((a, b) => {
+        const ra = a?.matchTier === 'alternate' ? 1 : 0;
+        const rb = b?.matchTier === 'alternate' ? 1 : 0;
+        if (ra !== rb) return ra - rb;                      // exact (both) first
+        return groupIdx(a?.matchedCuisine) - groupIdx(b?.matchedCuisine); // then per-cuisine
+      })
     : cardsToShowRaw;
   const streamingMore =
     firstBatch && !loading && pagedVenues.length > 0 && revealCount < pagedVenues.length;
@@ -543,10 +552,15 @@ export default function ResultPanel({
               // search never stamps awardCity.)
               const showFillDivider = v.recencyBand === 'fill'
                 && (i === 0 || cardsToShow[i - 1]?.recencyBand !== 'fill');
-              // v0.62.289 — hollow divider + "{cuisine} & Nearby Flavours" label
-              // before the FIRST alternate (cardsToShow is grouped exact-first).
-              const showNearbyDivider = !!nearbyLabel && v.matchTier === 'alternate'
-                && (i === 0 || cardsToShow[i - 1]?.matchTier !== 'alternate');
+              // v0.62.289 / v0.62.293 — hollow divider before the first alternate
+              // (single: "{cuisine} & Nearby Flavours") AND before each new
+              // per-cuisine group in a combo (label = that cuisine name).
+              const showNearbyDivider = (!!nearbyLabel || !!nearbyStrips) && v.matchTier === 'alternate'
+                && (i === 0
+                  || cardsToShow[i - 1]?.matchTier !== 'alternate'
+                  || (cardsToShow[i - 1]?.matchedCuisine || '') !== (v.matchedCuisine || ''));
+              const nearbyDividerLabel = (v.matchedCuisine && nearbyStrips && nearbyStrips[v.matchedCuisine]?.label)
+                || nearbyLabel || '';
               // v0.62.32 — Arrival Plate E-split (operator UI pick E): on a
               // dish search the server stamps dishEvidence per venue
               // ('name' | 'reviews' | null) and sorts confirmed-first. Render
@@ -575,10 +589,10 @@ export default function ResultPanel({
                   )}
                   {showNearbyDivider && (
                     <div className="px-2 pt-2 pb-1 text-[11px] font-semibold text-tg-hint leading-snug border-t border-tg-border/40">
-                      {nearbyLabel}
+                      {nearbyDividerLabel}
                     </div>
                   )}
-                  <ResultCard venue={v} number={rankOf(v)} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} nearbyLabel={nearbyLabel} nearbyAccent={nearbyAccent} />
+                  <ResultCard venue={v} number={rankOf(v)} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} nearbyLabel={nearbyLabel} nearbyAccent={nearbyAccent} nearbyStrips={nearbyStrips} />
                 </React.Fragment>
               );
             });
