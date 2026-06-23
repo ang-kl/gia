@@ -372,18 +372,16 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               <div className="text-[10px] text-tg-hint leading-tight">≈ {conv}</div>
             ) : null;
           })()}
-          {/* v0.62.299 — "Set Meal · Signature (Beta)" annotations. The server
-              scraped the venue's OWN website and only attaches these when CONFIRMED
-              (no fakes); the ✅ marks the source. Absent on unconfirmed venues. */}
+          {/* v0.62.299 / v0.62.301 — "Set Meal (Beta)" annotation. The server
+              scraped the venue's OWN website and only attaches a set-meal PRICE
+              when CONFIRMED (no fakes); ✅ marks the source. Absent otherwise.
+              Signature/popular dishes were removed — they stay on the "Try" line. */}
           {venue.setMeal && venue.setMeal.price && (
             <div className="text-[12px] text-tg-hint mt-0.5">
               🍱 {(venue.setMeal.type === 'set-dinner'
                 ? (lang === 'fr' ? 'Dîner' : 'Set dinner')
                 : (lang === 'fr' ? 'Déjeuner' : 'Set lunch'))} {lang === 'fr' ? 'dès' : 'from'} {venue.setMeal.price} <span className="text-tg-accent">✅</span>
             </div>
-          )}
-          {venue.signatureLine && (
-            <div className="text-[12px] text-tg-hint mt-0.5 line-clamp-1">⭐ {venue.signatureLine}</div>
           )}
           {/* v0.59.23 / v0.62.x — primary "What to order" line. v0.62.124: this
               stays VISIBLE even when the card is collapsed (operator: strongest
