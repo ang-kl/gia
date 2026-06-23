@@ -220,8 +220,8 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       cameraControl: false,
       keyboardShortcuts: true,
       // v0.62.102 — operator: the embedded map hung when zoomed out far (world
-      // view). Gate the camera: minZoom 5 (no global zoom-out) … maxZoom 20.
-      minZoom: 5, maxZoom: 20,
+      // view). v0.62.294 — z5 still hung; raise the floor to minZoom 7 … maxZoom 20.
+      minZoom: 7, maxZoom: 20,
       gestureHandling: 'greedy'
     });
     setMapsKeyState('ready');
