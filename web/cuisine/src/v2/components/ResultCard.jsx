@@ -362,6 +362,16 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               ].filter(Boolean).join(' · ')}
             </div>
           )}
+          {/* v0.62.298 — operator: the horizontal strip dropped the home-currency
+              "(≈…)" conversion to stay compact, so ¥/₫/Rp/₩ venues showed only the
+              native price. Restore it on a small muted 2nd line (strip only). */}
+          {horizontal && venue.priceRangeDisplay && (() => {
+            const m = venue.priceRangeDisplay.match(/\(([^)]*)\)\s*$/);
+            const conv = m && m[1] ? m[1].replace(/^≈\s*/, '') : '';
+            return conv ? (
+              <div className="text-[10px] text-tg-hint leading-tight">≈ {conv}</div>
+            ) : null;
+          })()}
           {/* v0.59.23 / v0.62.x — primary "What to order" line. v0.62.124: this
               stays VISIBLE even when the card is collapsed (operator: strongest
               "should I tap" cue), so it sits ABOVE the collapse boundary. */}
