@@ -115,9 +115,15 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
           and each is a COMPACT ~5-row scroll panel (card-scroll = visible thin
           scrollbar) rendering its full content, so the detail is reachable two
           ways — scroll the card OR tap the in-card ⌄/⌃ to expand. */}
+      {/* v0.62.288 — operator (urgent): when the composer expands, the lifted
+          centre card's TOP was chopped off. The track is `overflow-x-auto`,
+          which forces overflow-y to `auto` (CSS), so it clips vertical overflow.
+          The card's translateY(-3.25rem) pushed its top above the track box →
+          clipped. Reserve matching top headroom while the composer is open so
+          the lifted card rises into it instead of being cut. */}
       <div
         ref={trackRef}
-        className="flex items-end gap-2 overflow-x-auto snap-x snap-mandatory px-[9%] pb-1 pointer-events-auto"
+        className={`flex items-end gap-2 overflow-x-auto snap-x snap-mandatory px-[9%] pb-1 pointer-events-auto ${composerOpen ? 'pt-[3.5rem]' : ''}`}
         style={{ scrollbarWidth: 'none' }}
       >
         {list.map((v, i) => (
