@@ -93,16 +93,12 @@ export function applyTelegramTheme() {
     }
   });
 
-  // v0.60.52 — auto-fullscreen ONLY on iPad. See web/menu/src/tg.js
-  // for the full rationale (notebook users on Telegram Desktop
-  // were getting an unwanted fullscreen takeover).
-  safe('fullscreen', () => {
-    const platform = String(w.platform || '').toLowerCase();
-    if (platform !== 'ipados') return;
-    if (typeof w.isVersionAtLeast !== 'function' || !w.isVersionAtLeast('8.0')) return;
-    if (typeof w.requestFullscreen !== 'function') return;
-    w.requestFullscreen();
-  });
+  // v0.60.52 — auto-fullscreen was narrowed to iPad only (notebook users on
+  // Telegram Desktop were getting an unwanted fullscreen takeover).
+  // v0.62.286 — operator: REMOVED auto-fullscreen entirely (incl iPad). The TMA
+  // now only `expand()`s to full height (above); fullscreen is never requested
+  // automatically on any platform. (The manual "open map fullscreen" button is
+  // a separate user action and is unaffected.)
 
   // v0.60.42 — sync Telegram header + chrome bg to secondary so the
   // iPad/desktop letterbox area blends with the centered column.
