@@ -118,7 +118,31 @@ const CUISINE_DISH_KEYWORDS = {
                    'pacific', 'antipodean', 'brunch', 'fish and chips'],
   australasia:    ['flat white', 'long black', 'antipodean', 'modern australian', 'pacific', 'brunch',
                    'smashed avocado', 'pavlova', 'wagyu', 'lamb', 'ocean beef', 'cafe melba',
-                   'kiwi', 'south island', 'manuka']
+                   'kiwi', 'south island', 'manuka'],
+
+  // ─── Middle Eastern (v0.62.289) ────────────────────────────────
+  // Operator: a Moroccan search surfaced Lebanese / Turkish venues.
+  // Middle Eastern was never gated (file scope was African/European/
+  // Americas), so the new single-cuisine exact/alternate tagging needs
+  // per-cuisine dish signals to tell a real Moroccan (tagine/couscous)
+  // apart from a regional neighbour. Shared staples (hummus/falafel/
+  // shawarma) appear in several lists on purpose — they are genuine
+  // Middle-Eastern signals; the tagger only ever queries ONE cuisine's
+  // list at a time, so a Lebanese venue (no tagine/couscous, name not
+  // "Moroccan") still reads as a nearby-flavour alternate.
+  moroccan:       ['tagine', 'tajine', 'couscous', 'harira', 'pastilla', 'bastilla', 'msemen',
+                   'harissa', 'ras el hanout', 'mechoui', 'chermoula', 'merguez'],
+  lebanese:       ['tabbouleh', 'tabouleh', 'fattoush', 'kibbeh', 'manakish', 'manousheh', 'shawarma',
+                   'falafel', 'hummus', 'baba ganoush', 'kafta', 'shish taouk', 'labneh', 'mezze'],
+  turkish:        ['kebab', 'doner', 'döner', 'lahmacun', 'pide', 'baklava', 'meze', 'kofte', 'köfte',
+                   'iskender', 'menemen', 'simit', 'borek', 'gozleme', 'kunefe', 'künefe'],
+  persian:        ['koobideh', 'kubideh', 'ghormeh sabzi', 'fesenjan', 'tahdig', 'chelo', 'joojeh',
+                   'zereshk polo', 'ash reshteh', 'saffron rice', 'kashk bademjan', 'dizi'],
+  egyptian:       ['koshari', 'kushari', 'ful medames', 'taameya', 'molokhia', 'mulukhiyah',
+                   'hawawshi', 'feteer', 'mahshi'],
+  israeli:        ['shakshuka', 'sabich', 'falafel', 'hummus', 'malabi', 'bourekas', 'schnitzel',
+                   "za'atar", 'zaatar', 'amba', 'laffa'],
+  jordanian:      ['mansaf', 'maqluba', 'maqlooba', 'knafeh', 'kunafa', 'musakhan', 'freekeh', 'jameed']
 };
 
 // Quick lookup: cuisine display-name → keyword list. Keys lowercased.
