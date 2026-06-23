@@ -241,7 +241,14 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
 
   return (
     <button type="button" onClick={() => onTap?.(venue.placeId)}
-      className={`w-full text-left rounded-lg border bg-tg-card flex flex-col ${horizontal ? 'gap-0.5 px-2.5 py-1.5' : 'gap-1 p-2.5'} ${focused ? 'border-tg-accent' : 'border-tg-border'}`}>
+      /* v0.62.285 — operator (BEFORE/AFTER mock): in the horizontal strip the
+         IN-VIEW (focused) card is OPAQUE white; the peeking left/right cards are
+         neo-liquid glass (translucent + frosted) so they read as "behind". The
+         focused card scopes a light palette via CSS vars so it stays literally
+         white AND readable in dark mode (text/hint/border go dark). The vertical
+         list keeps the solid bg-tg-card surface (unchanged). */
+      className={`w-full text-left rounded-lg border flex flex-col ${horizontal ? 'gap-0.5 px-2.5 py-1.5' : 'gap-1 p-2.5'} ${horizontal ? (focused ? 'bg-white' : 'bg-tg-card/70 liquid-glass') : 'bg-tg-card'} ${focused ? 'border-tg-accent' : 'border-tg-border'}`}
+      style={horizontal && focused ? { '--tg-bg': '#ffffff', '--tg-card': '#ffffff', '--tg-text': '#1c1c1f', '--tg-hint': '#6b6b70', '--tg-border': '#e2e2e6' } : undefined}>
       {/* v0.62.108 — operator: rank reads "1 · <name>" inline; every row below
           is flush-left (no indent — was a 2-col flex that offset the whole body).
           v0.62.176 — operator: REVERTED the v0.62.168 horizontal word-wrap (the
