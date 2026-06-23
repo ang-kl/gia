@@ -20,16 +20,22 @@
 
 const SGT_OFFSET_MIN = 8 * 60;
 
-// Returns { day: 0..6, minutes: 0..1439 } in SGT.
-function sgtNow(now) {
+// Returns { day: 0..6, minutes: 0..1439 } in the venue's LOCAL time.
+// v0.62.291 — offsetMin = the venue's UTC offset in minutes (Places New
+// `utcOffsetMinutes`). Defaults to SGT (UTC+8) so SG venues + legacy 2-arg
+// callers are unchanged. For OTHER-region venues (Tokyo, Bangkok, …) the
+// caller threads the place's own offset so the day/time math is local-correct.
+function localNow(now, offsetMin = SGT_OFFSET_MIN) {
   const utcMin = now.getUTCHours() * 60 + now.getUTCMinutes();
-  const total = utcMin + SGT_OFFSET_MIN;
+  const total = utcMin + offsetMin;
   const dayShift = Math.floor(total / 1440);
   const minutes = ((total % 1440) + 1440) % 1440;
   // JS getUTCDay: 0=Sun..6=Sat; same encoding as Places.
-  const day = (now.getUTCDay() + dayShift + 7) % 7;
+  const day = ((now.getUTCDay() + dayShift) % 7 + 7) % 7;
   return { day, minutes };
 }
+// Back-compat alias — SGT-fixed wrapper.
+function sgtNow(now) { return localNow(now, SGT_OFFSET_MIN); }
 
 function fmtTime(hour, minute) {
   const h12 = hour % 12 === 0 ? 12 : hour % 12;
@@ -40,10 +46,10 @@ function fmtTime(hour, minute) {
 
 const DAY_LABEL = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-function nextOpenString(periods, now = new Date()) {
+function nextOpenString(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN) {
   if (!Array.isArray(periods) || !periods.length) return null;
 
-  const cur = sgtNow(now);
+  const cur = localNow(now, offsetMin);
 
   // Build (dayDelta, openTime) candidates for the next 7 days.
   // dayDelta 0 = today; we only consider future opens (open in future today,
@@ -79,8 +85,8 @@ function nextOpenString(periods, now = new Date()) {
 // re-opens later the same day. Switch the prefix:
 //   next opens TODAY     → "Closed now · Opens today 11:30 AM"
 //   next opens tomorrow+ → "Closed today · Opens tomorrow 11:00 AM"
-function closedTodayString(periods, now = new Date()) {
-  const next = nextOpenString(periods, now);
+function closedTodayString(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN) {
+  const next = nextOpenString(periods, now, offsetMin);
   if (!next) return 'Closed';
   const prefix = next.startsWith('Opens today ') ? 'Closed now' : 'Closed today';
   return `${prefix} · ${next}`;
@@ -103,9 +109,9 @@ function closedTodayString(periods, now = new Date()) {
 //   2. Look for a same-day reopen — another period today whose open
 //      is strictly after the current period's close.
 //   3. Format the close time + (if reopen) the reopen time.
-function currentOpenString(periods, now = new Date()) {
+function currentOpenString(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN) {
   if (!Array.isArray(periods) || !periods.length) return null;
-  const cur = sgtNow(now);
+  const cur = localNow(now, offsetMin);
 
   // Find the current period in SGT.
   let active = null;
@@ -184,6 +190,7 @@ module.exports = {
   nextOpenString,
   closedTodayString,
   currentOpenString,
+  localNow,
   sgtNow,
   fmtTime,
   SGT_OFFSET_MIN
