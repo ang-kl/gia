@@ -97,10 +97,15 @@ async function enrichFast(top, ctx) {
   // runs at the END of enrichSlow; see the module header.)
   const { closedTodayString, currentOpenString } = require('./open-hours');
   for (const v of top) {
+    // v0.62.291 — prefer the holiday-aware currentOpeningHours.periods; fall back
+    // to the regular weekly schedule. Compute in the venue's own timezone via
+    // utcOffsetMinutes (SGT default when absent).
+    const periods = v.currentPeriods || v.regularPeriods;
+    const offset = Number.isFinite(v.utcOffsetMinutes) ? v.utcOffsetMinutes : undefined;
     if (v.openNow === false) {
-      v.closedTodayLabel = closedTodayString(v.regularPeriods);
+      v.closedTodayLabel = closedTodayString(periods, new Date(), offset);
     } else if (v.openNow === true) {
-      v.openClosingLabel = currentOpenString(v.regularPeriods);
+      v.openClosingLabel = currentOpenString(periods, new Date(), offset);
     }
     if (!v.restaurantType) {
       v.restaurantType = ctx.humaniseRestaurantType(v.primaryTypeDisplayName, v.primaryType) || '';
@@ -264,6 +269,8 @@ async function enrichSlow(top, ctx) {
     }
     delete v.primaryTypeDisplayName;
     delete v.regularPeriods;
+    delete v.currentPeriods;
+    delete v.utcOffsetMinutes;
     delete v.reviews;
   }
   _t.finalise = Date.now() - _last; _last = Date.now();

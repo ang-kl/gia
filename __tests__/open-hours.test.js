@@ -30,6 +30,29 @@ describe('sgtNow', () => {
   });
 });
 
+describe('localNow + timezone offset (v0.62.291)', () => {
+  it('computes day + minutes in the venue timezone, not SGT', () => {
+    // 2026-05-04 22:30 UTC. SGT(+8) = Tue 06:30; Tokyo(+9) = Tue 07:30.
+    const d = new Date(Date.UTC(2026, 4, 4, 22, 30));
+    expect(oh.localNow(d, 8 * 60).minutes).toBe(6 * 60 + 30);
+    const tokyo = oh.localNow(d, 9 * 60);
+    expect(tokyo.minutes).toBe(7 * 60 + 30);
+    expect(tokyo.day).toBe(2); // Tuesday
+  });
+
+  it('defaults to SGT when no offset passed (back-compat)', () => {
+    const d = new Date(Date.UTC(2026, 4, 4, 6, 30));
+    expect(oh.localNow(d)).toEqual(oh.sgtNow(d));
+  });
+
+  it('nextOpenString honours a non-SGT offset', () => {
+    // 2026-05-04 16:00 UTC; offset -300 → local Mon 11:00. Opens 18:00 Mon.
+    const now = new Date(Date.UTC(2026, 4, 4, 16, 0));
+    const periods = [{ open: { day: 1, hour: 18, minute: 0 }, close: { day: 1, hour: 23, minute: 0 } }];
+    expect(oh.nextOpenString(periods, now, -5 * 60)).toBe('Opens today 6:00 PM');
+  });
+});
+
 describe('fmtTime', () => {
   it('formats AM hours', () => {
     expect(oh.fmtTime(11, 0)).toBe('11:00 AM');
