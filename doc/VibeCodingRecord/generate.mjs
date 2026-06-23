@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-06-21';   // v0.62.153→v0.62.240 catch-up: PRs #1106-#1201 (multi-day arc — map/UI polish [glassmorphism, full-bleed map, dock reorg, hawker/menu zoom tiers], location editor + folio tabs + cuisine picker, large curation pass [L1/L2 dishes, note-truncation + FR-diacritic fixes, thin-slug curation, within-slug de-dup], classics 5-bucket split + spicy markers + More-classics auto-fire fix, CJK local-script wrap fix, MVP cuisine-picker preview [subtitle corrections from real catalogue, Fusion + Michelin/Bib categories], filter-panel × close + "Search criteria" header removal, icon transparency/flood-fill, BestTime budget-cap timeout fix)
+const GEN_DATE = '2026-06-24';   // v0.62.240->v0.62.301 catch-up: PRs #1202-#1272 (this session's Cuisine/Hawker/Train UI + search-confidence arc + prior #1202-#1240)
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
