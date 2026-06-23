@@ -28,7 +28,9 @@ describe('parseSource', () => {
     const r = vault.parseSource(text);
     expect(r.length).toBe(5);
     expect(r[0].name).toBe('Singaporean');
-    expect(r[0].categoryId).toBe('common-here');
+    // v0.62.284 — Singaporean folds into southeast-asian (the new lead,
+    // default-open bucket); the old 'common-here' bucket is retired.
+    expect(r[0].categoryId).toBe('southeast-asian');
     expect(r[0].defaultOpen).toBe(true);
     expect(r[3].name).toBe('Italian');
     expect(r[3].categoryId).toBe('european');
@@ -72,21 +74,23 @@ describe('integration — load real cuisines_js.MD file', () => {
     //   dessert. Cuisine slugs + the 69 total are unchanged; only grouping.
     const by = vault.getByCategory();
     const counts = Object.fromEntries(by.map((c) => [c.id, c.cuisines.length]));
-    expect(counts['common-here']).toBe(3);          // Singaporean, Peranakan, Eurasian
-    expect(counts['southeast-asian']).toBe(6);      // Malaysian, Indonesian, Thai, Filipino, Vietnamese, Burmese
+    // v0.62.284 — the SG-rooted trio (Singaporean, Peranakan, Eurasian)
+    // folds into southeast-asian, retiring the 'common-here' bucket.
+    expect(counts['common-here']).toBeUndefined();
+    expect(counts['southeast-asian']).toBe(9);      // 6 + Singaporean, Peranakan, Eurasian
     expect(counts['east-asian']).toBe(16);          // v0.62.265: 4 (JP/CN/KR/TW) + 12 china-regional
     expect(counts['south-asian']).toBe(7);          // 5 source + South Indian + North Indian
     expect(counts['middle-eastern']).toBe(9);       // v0.62.265: 7 + 2 African
     expect(counts['european']).toBe(17);            // v0.62.265: 15 + 2 Slavic/Eastern (Uzbek, Georgian)
     expect(counts['americas']).toBe(6);             // v0.62.265: 4 + 2 Australasia (Australian, New Zealand)
     expect(counts['dessert']).toBe(5);              // v0.62.265: 4 (Dessert+Fruits+Durian+Durian Pastry) + 1 Fusion
-    // The 5 merged-away buckets no longer appear as their own categories.
+    // The merged-away / retired buckets no longer appear as their own categories.
     expect(counts['china-regional']).toBeUndefined();
     expect(counts['slavic-eastern-european']).toBeUndefined();
     expect(counts['australasia']).toBeUndefined();
     expect(counts['african']).toBeUndefined();
     expect(counts['fusion']).toBeUndefined();
-    expect(by.length).toBe(8);
+    expect(by.length).toBe(7);   // v0.62.284: common-here retired (8 → 7)
     const total = Object.values(counts).reduce((a, b) => a + b, 0);
     expect(total).toBe(69);   // unchanged — cuisines regrouped, none added/removed
   });
@@ -115,11 +119,39 @@ describe('integration — load real cuisines_js.MD file', () => {
     expect(c.find((cat) => cat.id === '__synthetic_test_2__')).toBeUndefined();
   });
 
-  it('Common Here is the only defaultOpen', () => {
+  it('Southeast Asian is the only defaultOpen', () => {
+    // v0.62.284 — common-here retired; southeast-asian inherits the
+    // single default-open slot (it now leads with the SG-rooted cuisines).
     const by = vault.getByCategory();
     const open = by.filter((c) => c.defaultOpen);
     expect(open.length).toBe(1);
-    expect(open[0].id).toBe('common-here');
+    expect(open[0].id).toBe('southeast-asian');
+  });
+
+  // v0.62.284 — operator catalogue reorg: explicit within-bucket order +
+  // hollow-line dividers.
+  it('orders buckets per the v0.62.284 reorg + marks divider pills', () => {
+    const by = vault.getByCategory();
+    const slugs = (id) => by.find((c) => c.id === id).cuisines.map((c) => c.slug);
+
+    // Southeast Asian: Singaporean + Peranakan lead the first row.
+    expect(slugs('southeast-asian').slice(0, 3)).toEqual(['singaporean', 'peranakan', 'eurasian']);
+
+    // East Asian: Hong Kong + Macau on the third row (indices 4–5), then a
+    // hollow divider above the regional-China block (sichuan).
+    expect(slugs('east-asian').slice(0, 6)).toEqual(
+      ['japanese', 'chinese', 'korean', 'taiwanese', 'hong-kong', 'macau']
+    );
+    const ea = by.find((c) => c.id === 'east-asian').cuisines;
+    expect(ea.find((c) => c.slug === 'sichuan').dividerBefore).toBe(true);
+
+    // Americas & Oceania: Australian + New Zealand on the last row.
+    expect(slugs('americas').slice(-2)).toEqual(['australian', 'new-zealand']);
+
+    // European: 4 hollow dividers split the 5 sub-regions.
+    const eu = by.find((c) => c.id === 'european').cuisines;
+    const euDividers = eu.filter((c) => c.dividerBefore).map((c) => c.slug);
+    expect(euDividers).toEqual(['mediterranean', 'german', 'russian', 'european']);
   });
 
   it('every cuisine has slug + searchQuery + keywords', () => {

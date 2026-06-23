@@ -65,9 +65,13 @@ const CATEGORY_MERGE = {
 // question), Scandinavian → 🇸🇪 (Sweden as the most-used proxy).
 const FLAG_BY_SLUG = {
   // Common Here
-  'singaporean': '🇸🇬', 'peranakan': '🇸🇬',
+  // v0.62.284 — operator: Peranakan + Eurasian show a pan-regional mark,
+  // not a single nation. Eurasian → 🌏 (globe-Asia). Peranakan renders the
+  // phoenix-and-peony motif IMAGE (see IMG_FLAG_BY_SLUG); 🌏 is its on-error
+  // emoji fallback.
+  'singaporean': '🇸🇬', 'peranakan': '🌏',
   'south-indian': '🇮🇳', 'north-indian': '🇮🇳',
-  'malaysian': '🇲🇾', 'eurasian': '🇪🇺',
+  'malaysian': '🇲🇾', 'eurasian': '🌏',
   'indonesian': '🇮🇩', 'thai': '🇹🇭',
   'filipino': '🇵🇭', 'vietnamese': '🇻🇳',
   'japanese': '🇯🇵', 'chinese': '🇨🇳',
@@ -146,7 +150,12 @@ const IMG_FLAG_BY_SLUG = {
   // other" — pinning to the IMG_2180 upload (blob `8654d6f…`). The
   // 🥥 emoji in FLAG_BY_SLUG['durian'] (above) stays as the on-
   // error fallback — only renders when the static asset 404s.
-  'durian': 'durian.jpeg'
+  'durian': 'durian.jpeg',
+  // v0.62.284 — operator-supplied Peranakan phoenix-and-peony motif
+  // (source: data/icon/Peranakan_phoenix_and_peony_motif.png, downscaled
+  // for the chip). The 🌏 emoji in FLAG_BY_SLUG['peranakan'] is the
+  // on-error fallback if the static asset 404s.
+  'peranakan': 'peranakan-motif.png'
 };
 
 // v0.61.255 — operator: *"Change the cuisine selection for 'Durian'
@@ -185,10 +194,13 @@ const SLUG_TO_CATEGORY = {
   // v0.59.21 — new top-level categories.
   'dessert':     'dessert',
   'fusion':      'fusion',
-  // Common in Singapore
-  'singaporean': 'common-here',
-  'peranakan':   'common-here',
-  'eurasian':    'common-here',
+  // v0.62.284 — operator: SG-rooted cuisines fold INTO Southeast Asian
+  // (Singaporean + Peranakan lead the bucket; see CUISINE_ORDER below).
+  // The old 'Common in Singapore' bucket then empties out and drops from
+  // the picker entirely.
+  'singaporean': 'southeast-asian',
+  'peranakan':   'southeast-asian',
+  'eurasian':    'southeast-asian',
   // Southeast Asian
   'malaysian':   'southeast-asian',
   'indonesian':  'southeast-asian',
@@ -256,6 +268,53 @@ const CATEGORY_LABEL_OVERRIDE = {
   'fusion':                  'Fusion'
 };
 
+// v0.62.284 — explicit within-bucket display order (operator catalogue
+// reorg). Each value is the slug order for that bucket; the 2-column
+// drawer renders them row by row, so the order controls which pills land
+// on the first / third / last row. Slugs NOT listed keep their source-
+// markdown order, appended after the listed ones. Buckets with no entry
+// here are untouched.
+const CUISINE_ORDER = {
+  // Singaporean + Peranakan lead (first row); Eurasian next.
+  'southeast-asian': [
+    'singaporean', 'peranakan', 'eurasian',
+    'malaysian', 'indonesian', 'thai', 'filipino', 'vietnamese', 'burmese'
+  ],
+  // National / SAR cuisines first (Japanese, Chinese, Korean, Taiwanese,
+  // then Hong Kong + Macau on the third row), a hollow divider, then the
+  // regional-China cuisines below it.
+  'east-asian': [
+    'japanese', 'chinese', 'korean', 'taiwanese', 'hong-kong', 'macau',
+    'sichuan', 'shanghainese', 'cantonese', 'hunan', 'hokkien', 'teochew',
+    'hainanese', 'hakka', 'northeastern', 'northwestern'
+  ],
+  // Australian + New Zealand pushed to the last row.
+  'americas': [
+    'american', 'mexican', 'brazilian', 'argentinian',
+    'australian', 'new-zealand'
+  ],
+  // Europe split into geographic sub-regions, each separated by a hollow
+  // divider (no text labels): North · South · Central · East · West.
+  'european': [
+    /* North   */ 'scandinavian',
+    /* South   */ 'mediterranean', 'italian', 'spanish', 'greek', 'portuguese',
+    /* Central */ 'german', 'austrian', 'swiss', 'polish',
+    /* East    */ 'russian', 'ukrainian', 'georgian', 'uzbek',
+    /* West    */ 'european', 'french', 'british'
+  ]
+};
+
+// v0.62.284 — slugs that get a "hollow lite line" divider rendered
+// immediately ABOVE their pill in the drawer (full grid-width hairline).
+// Keyed by bucket id → Set of slugs that START a new visual group.
+const DIVIDER_BEFORE = {
+  // separates the national/SAR cuisines from the regional-China block.
+  'east-asian': new Set(['sichuan']),
+  // separates the 5 European sub-regions (South / Central / East / West;
+  // North is the first group, so no divider above it).
+  'european': new Set(['mediterranean', 'german', 'russian', 'european'])
+};
+
 function slugify(name) {
   return String(name).toLowerCase()
     .replace(/&/g, ' and ')
@@ -303,12 +362,15 @@ function parseSource(text) {
         categoryId: remappedId,
         categoryLabel: remappedLabel,
         categoryEmoji: remappedMeta.emoji,
-        // v0.59.2: defaultOpen is only true for the new common-here.
-        // Without this gate, cuisines that came FROM the source
-        // common-here (e.g. South Indian → remapped to south-asian)
-        // would carry their source defaultOpen=true into the new
-        // category, marking 6 of the 10 categories as defaultOpen.
-        defaultOpen: remappedId === 'common-here',
+        // v0.59.2: defaultOpen marks the single bucket the accordion opens
+        // first. Without this gate, cuisines that came FROM the source
+        // common-here (e.g. South Indian → remapped to south-asian) would
+        // carry their source defaultOpen=true into the new category,
+        // marking many categories as defaultOpen.
+        // v0.62.284 — 'common-here' was emptied (its SG cuisines folded
+        // into southeast-asian), so southeast-asian is now the default-open
+        // lead bucket.
+        defaultOpen: remappedId === 'southeast-asian',
         name: displayName,
         slug,
         flag: FLAG_BY_SLUG[slug] || '',
@@ -362,8 +424,26 @@ function getByCategory() {
   // European → Americas → Australasia → African.
   const ordered = [];
   for (const meta of CATEGORY_META) {
-    const cuisines = all.filter((x) => x.categoryId === meta.id);
+    let cuisines = all.filter((x) => x.categoryId === meta.id);
     if (!cuisines.length) continue;
+    // v0.62.284 — apply the explicit within-bucket order overlay. Listed
+    // slugs sort to the front in CUISINE_ORDER order; unlisted slugs keep
+    // their source order behind them (Array.sort is stable in Node ≥ 12).
+    const order = CUISINE_ORDER[meta.id];
+    if (order) {
+      const rank = new Map(order.map((s, i) => [s, i]));
+      cuisines = cuisines.slice().sort(
+        (a, b) => (rank.has(a.slug) ? rank.get(a.slug) : Infinity)
+                - (rank.has(b.slug) ? rank.get(b.slug) : Infinity)
+      );
+    }
+    // v0.62.284 — flag the pills that start a new visual group so the
+    // drawer can draw a hollow hairline above them. Clone the entry so the
+    // shared `all` cache is never mutated.
+    const divs = DIVIDER_BEFORE[meta.id];
+    if (divs) {
+      cuisines = cuisines.map((c) => (divs.has(c.slug) ? { ...c, dividerBefore: true } : c));
+    }
     const first = cuisines[0];
     ordered.push({
       id: meta.id,
