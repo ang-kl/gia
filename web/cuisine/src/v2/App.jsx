@@ -4000,6 +4000,7 @@ export default function App() {
           onSelect={setFocusedPlaceId}
           specialMode={state.specialMode || null}
           hasFilters={criteriaSummary.length > 0}
+          composerOpen={composerOpen}
         />
       )}
 
@@ -4588,7 +4589,9 @@ export default function App() {
           const searchDisabled = loading || (poolExhausted && !dirty && !selectedCityLocation);
           const pulse = (searchHintActive || searchFabFlash) && !searchDisabled;
           return composerOpen ? (
-            <div className="pointer-events-auto">
+            /* v0.62.285 — operator: the composer FAB / expanded pill must sit IN
+               FRONT of the z-30 result cards. relative z-40 lifts it above. */
+            <div className="pointer-events-auto relative z-40">
               <TellMePanel
                 value={nlText}
                 onChange={setNlText}
@@ -4605,7 +4608,9 @@ export default function App() {
               />
             </div>
           ) : (
-            <div className="flex items-center justify-between gap-2 px-0.5">
+            /* v0.62.285 — relative z-40: keep the 💬 collapse + 🔍 Search FABs
+               in front of the z-30 result cards (operator BEFORE/AFTER mock). */
+            <div className="flex items-center justify-between gap-2 px-0.5 relative z-40">
               <button
                 type="button"
                 onClick={() => setComposerOpen(true)}
