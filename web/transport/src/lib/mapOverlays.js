@@ -2306,7 +2306,12 @@ export function createOverlayController(map, googleMaps, opts) {
       return;
     }
     const stationScoped = detailStations.length && (name === 'exits' || name === 'taxis');
-    const r = currentRadius();
+    // v0.62.290 — operator: hawker pins were radius-clipped to 550 m like the
+    // dense amenity layers, so centres beyond 550 m of the map centre vanished
+    // on pan/zoom ("show and disappear"). Hawker centres are a sparse, nameable
+    // set — show ALL in the region (matching the Hawker TMA), unclipped; the
+    // hawkerTier ladder (dot→code→short→full) still declutters by zoom.
+    const r = name === 'hawker' ? Infinity : currentRadius();
     // v0.61.70 — bus-stop pins are zoom-aware: compact 🚏 when zoomed
     // out, full 🚏 Bus Stop № … at/above the detail zoom threshold.
     const zoomedIn = (map.getZoom?.() || 0) >= ZOOM_DETAIL_THRESHOLD;
