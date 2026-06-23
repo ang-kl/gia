@@ -74,6 +74,11 @@ export default function ResultPanel({
      "Japanese · Halal · $$". Computed in App.jsx so this component
      stays presentational. Empty string = don't render the line. */
   comboLine = '',
+  // v0.62.289 — single-cuisine "exact vs nearby flavours" tagging. When set
+  // (one cuisine selected), the list groups exact hits first, then a divider +
+  // `nearbyLabel` ("{cuisine} & Nearby Flavours"), then the alternates; each
+  // alternate card also carries the coloured `nearbyAccent` top strip.
+  nearbyLabel = null, nearbyAccent = null,
   // v0.61.174 — cumulative cap (cuisine-session SEEN_CAP). When the
   // server signals knownTotal >= cap AND finalBatch, title swaps
   // to "Results: {cap}+ · Limit reached".
@@ -270,7 +275,14 @@ export default function ResultPanel({
     );
     return () => clearTimeout(id);
   }, [firstBatch, loading, revealCount, pagedVenues.length]);
-  const cardsToShow = firstBatch ? pagedVenues.slice(0, revealCount) : pagedVenues;
+  const cardsToShowRaw = firstBatch ? pagedVenues.slice(0, revealCount) : pagedVenues;
+  // v0.62.289 — vertical grouping: when the server tagged exact/alternate
+  // (single-cuisine "nearby flavours"), float the exact hits to the top and the
+  // alternates below (stable sort preserves distance order within each tier).
+  // Off that path (no tags) the order is untouched.
+  const cardsToShow = (nearbyLabel && cardsToShowRaw.some((v) => v?.matchTier === 'alternate'))
+    ? [...cardsToShowRaw].sort((a, b) => (a?.matchTier === 'alternate' ? 1 : 0) - (b?.matchTier === 'alternate' ? 1 : 0))
+    : cardsToShowRaw;
   const streamingMore =
     firstBatch && !loading && pagedVenues.length > 0 && revealCount < pagedVenues.length;
 
@@ -531,6 +543,10 @@ export default function ResultPanel({
               // search never stamps awardCity.)
               const showFillDivider = v.recencyBand === 'fill'
                 && (i === 0 || cardsToShow[i - 1]?.recencyBand !== 'fill');
+              // v0.62.289 — hollow divider + "{cuisine} & Nearby Flavours" label
+              // before the FIRST alternate (cardsToShow is grouped exact-first).
+              const showNearbyDivider = !!nearbyLabel && v.matchTier === 'alternate'
+                && (i === 0 || cardsToShow[i - 1]?.matchTier !== 'alternate');
               // v0.62.32 — Arrival Plate E-split (operator UI pick E): on a
               // dish search the server stamps dishEvidence per venue
               // ('name' | 'reviews' | null) and sorts confirmed-first. Render
@@ -557,7 +573,12 @@ export default function ResultPanel({
                       {lang === 'fr' ? 'Ouvert il y a 3 à 6 mois' : 'Opened 3–6 months ago'}
                     </div>
                   )}
-                  <ResultCard venue={v} number={rankOf(v)} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} />
+                  {showNearbyDivider && (
+                    <div className="px-2 pt-2 pb-1 text-[11px] font-semibold text-tg-hint leading-snug border-t border-tg-border/40">
+                      {nearbyLabel}
+                    </div>
+                  )}
+                  <ResultCard venue={v} number={rankOf(v)} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} nearbyLabel={nearbyLabel} nearbyAccent={nearbyAccent} />
                 </React.Fragment>
               );
             });
