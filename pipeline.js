@@ -846,6 +846,12 @@ const DISCOVER_FIELD_MASK = [
   'places.googleMapsUri',
   'places.googleMapsLinks',
   'places.currentOpeningHours.openNow',
+  // v0.62.291: currentOpeningHours.periods reflects THIS week's actual hours
+  // (holiday / special-hours aware), unlike regularOpeningHours. Preferred
+  // source for the open/closed label so state + label agree. utcOffsetMinutes
+  // lets open-hours.js compute in the VENUE's timezone (OTHER-region venues).
+  'places.currentOpeningHours.periods',
+  'places.utcOffsetMinutes',
   // v0.57.20: regularOpeningHours.periods carries weekly schedule
   // (open.day/open.hour/open.minute + close.*). Used to derive
   // "Closed today · Opens tomorrow 11:00 AM" when openNow=false.
@@ -1199,6 +1205,11 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
           userRatingCount: p.userRatingCount ?? null,
           priceLevel: priceLevelToInt(p.priceLevel),
           openNow: p.currentOpeningHours?.openNow ?? null,
+          // v0.62.291 — prefer currentOpeningHours.periods (holiday-aware);
+          // regularPeriods stays as the fallback. utcOffsetMinutes drives the
+          // venue-local time math in open-hours.js.
+          currentPeriods: Array.isArray(p.currentOpeningHours?.periods) ? p.currentOpeningHours.periods : null,
+          utcOffsetMinutes: Number.isFinite(p.utcOffsetMinutes) ? p.utcOffsetMinutes : null,
           regularPeriods: Array.isArray(p.regularOpeningHours?.periods) ? p.regularOpeningHours.periods : null,
           // v0.58.50: full weekday schedule for the new venue templates.
           // Pre-formatted by Google ("Monday: 11:00 AM – 9:00 PM").
