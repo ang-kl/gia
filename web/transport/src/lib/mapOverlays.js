@@ -279,6 +279,121 @@ function codePill(text, bg, big) {
     + escapeHtml(text) + '</span>';
 }
 
+// v0.62.283 — 🍚 Hawker overlay ported VERBATIM from the Cuisine TMA so the
+// Train TMA's Hawker layer renders the SAME droplet / H## zoom-tier pins + card.
+let hawkerPromise = null;
+function fetchHawkerCentres() {
+  if (!hawkerPromise) {
+    hawkerPromise = fetch('/api/hawker/centres-by-region')
+      .then((r) => (r.ok ? r.json() : { regions: [] }))
+      .then((d) => {
+        const out = [];
+        let n = 0;
+        const regions = (d && Array.isArray(d.regions)) ? d.regions : [];
+        for (const reg of regions) {
+          const cs = (reg && Array.isArray(reg.centres)) ? reg.centres : [];
+          for (const c of cs) {
+            n += 1;
+            if (!Number.isFinite(c.lat) || !Number.isFinite(c.lng)) continue;
+            out.push({
+              name: c.name, lat: c.lat, lng: c.lng, isNew: !!c.isNew,
+              address: c.address || '', postal: c.postal || '',
+              stalls: Number.isFinite(c.stalls) ? c.stalls : null,
+              status: c.status || '', _num: n
+            });
+          }
+        }
+        return { centres: out };
+      })
+      .catch(() => ({ centres: [] }));
+  }
+  return hawkerPromise;
+}
+function hawkerTier(zoom) {
+  if (zoom >= 17) return 'full';
+  if (zoom >= 15) return 'short';
+  if (zoom >= 13) return 'code';
+  return 'dot';
+}
+function hawkerCode(num) { return 'H' + String(num == null ? 0 : num).padStart(2, '0'); }
+function hawkerAbbrev(s) {
+  return String(s || '')
+    .replace(/\bRoad\b/gi, 'Rd').replace(/\bAvenue\b/gi, 'Ave')
+    .replace(/\bStreet\b/gi, 'St').replace(/\bDrive\b/gi, 'Dr')
+    .replace(/\bClose\b/gi, 'Cl');
+}
+function hawkerFacility(name) {
+  const m = String(name || '').match(/(Market\s*(&|and)?\s*Food\s*Centre|Food\s*Centre|Hawker\s*Centre|Food\s*Court|Market|Complex|Centre)\b.*$/i);
+  return m ? m[0].trim() : '';
+}
+function hawkerHead(name) {
+  let s = String(name || '').trim().replace(/\s*[-–—]?\s*(Blk|Block)\b.*$/i, '');
+  s = s.replace(/\s*(Market\s*(&|and)?\s*Food\s*Centre|Food\s*Centre|Hawker\s*Centre|Food\s*Court|Market|Complex|Centre)\b.*$/i, '').trim();
+  return s || String(name || '');
+}
+function hawkerShort(name) {
+  const words = hawkerHead(name).split(/\s+/).filter(Boolean).slice(0, 2).join(' ');
+  return hawkerAbbrev(words || String(name || ''));
+}
+function hawkerDroplet(isNew) {
+  const size = 22;
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:relative;width:' + size + 'px;height:' + size + 'px;flex:0 0 auto;';
+  const el = document.createElement('div');
+  el.style.cssText = 'width:' + size + 'px;height:' + size + 'px;border-radius:50% 50% 50% 0;'
+    + 'transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,0.45);'
+    + 'background:' + (isNew ? '#1e3a8a' : '#e53935') + ';';
+  wrap.appendChild(el);
+  if (isNew) {
+    const badge = document.createElement('div');
+    badge.textContent = 'NEW';
+    badge.style.cssText = 'position:absolute;left:50%;bottom:calc(100% + 2px);transform:translateX(-50%);'
+      + 'background:#1e3a8a;color:#fff;font-size:8px;font-weight:700;line-height:1;letter-spacing:0.5px;'
+      + 'padding:2px 4px;border-radius:3px;white-space:nowrap;border:1px solid #fff;';
+    wrap.appendChild(badge);
+  }
+  return wrap;
+}
+function hawkerTierNode(tier, info) {
+  const isNew = !!(info && info.isNew);
+  const code = hawkerCode(info && info.num);
+  if (tier === 'dot') {
+    const d = document.createElement('div');
+    d.style.cssText = 'width:11px;height:11px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);'
+      + 'background:' + (isNew ? '#1e3a8a' : '#e53935') + ';border:1.5px solid #fff;'
+      + 'box-shadow:0 0 0 0.5px rgba(0,0,0,0.4);cursor:pointer;';
+    return d;
+  }
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:inline-flex;align-items:center;gap:4px;cursor:pointer;';
+  wrap.appendChild(hawkerDroplet(isNew));
+  const lab = document.createElement('div');
+  lab.style.cssText = 'background:#fff;color:#111;border:1.5px solid ' + (isNew ? '#1e3a8a' : '#e53935') + ';'
+    + 'border-radius:8px;padding:1px 6px;font-weight:700;font-size:11px;line-height:1.25;'
+    + 'box-shadow:0 1px 3px rgba(0,0,0,0.3);';
+  if (tier === 'short') {
+    lab.style.whiteSpace = 'nowrap';
+    lab.textContent = code + ' ' + ((info && info.short) || (info && info.head) || '');
+  } else if (tier === 'full') {
+    lab.style.whiteSpace = 'normal';
+    lab.style.maxWidth = '130px';
+    const l1 = document.createElement('div');
+    l1.textContent = code + ' ' + ((info && info.head) || (info && info.name) || '');
+    lab.appendChild(l1);
+    if (info && info.facility) {
+      const l2 = document.createElement('div');
+      l2.textContent = info.facility;
+      l2.style.cssText = 'font-weight:600;font-size:10px;opacity:0.75;';
+      lab.appendChild(l2);
+    }
+  } else { // 'code'
+    lab.style.whiteSpace = 'nowrap';
+    lab.textContent = code;
+  }
+  wrap.appendChild(lab);
+  return wrap;
+}
+
 // v0.61.24 — the Exit Template popup body: a line-coloured exit-code
 // header, the station name, and a row of colour-coded station codes.
 // The exit-code pill takes the station's primary line colour.
@@ -1295,6 +1410,67 @@ export function createOverlayController(map, googleMaps, opts) {
       return { marker, lat: f.lat, lng: f.lng, _bus: true, _code: f.code, _busTier: null };
     });
   }
+  // v0.62.283 — 🍚 hawker card + droplet markers (ported from Cuisine). The
+  // card's station pills are non-clickable here (this TMA has no focusStation —
+  // the window.__giaFocusStation hook is null-guarded → no-op).
+  function hawkerCardHtml(f, transit) {
+    const p = infoPalette();
+    let h = '<div style="font-weight:600;font-size:13px;">' + escapeHtml(f.name || '') + (f.isNew ? ' 🆕' : '') + '</div>';
+    if (f.status) {
+      h += '<div style="color:' + p.sub + ';margin-top:2px;">🕒 ' + escapeHtml(f.status) + '</div>';
+    } else if (Number.isFinite(f.stalls) && f.stalls > 0) {
+      h += '<div style="color:' + p.sub + ';margin-top:2px;">' + f.stalls + ' stalls</div>';
+    }
+    if (f.address) {
+      h += '<div style="color:' + p.sub + ';margin-top:3px;">📇 ' + escapeHtml(f.address) + '</div>';
+    }
+    const bus = (transit && Array.isArray(transit.busStops)) ? transit.busStops : [];
+    for (const b of bus.slice(0, 3)) {
+      if (!Number.isFinite(b.lat) || !Number.isFinite(b.lng)) continue;
+      h += '<div style="margin-top:2px;"><a href="https://maps.google.com/?q=' + b.lat + ',' + b.lng
+        + '" target="_blank" rel="noopener" style="color:' + p.link + ';">🚌 '
+        + escapeHtml(b.code || '') + ' ' + escapeHtml(b.description || '') + '</a></div>';
+    }
+    const stations = (transit && Array.isArray(transit.stations)) ? transit.stations : [];
+    for (const st of stations.slice(0, 2)) {
+      if (!st || !st.name) continue;
+      const codeArr = Array.isArray(st.codes) ? st.codes : [];
+      const firstCode = codeArr[0] || '';
+      const pills = codeArr.map((cd) => codePill(cd, codeHex(cd), false)).join('');
+      h += '<div onclick="window.__giaFocusStation&&window.__giaFocusStation(\'' + escapeHtml(firstCode) + '\')"'
+        + ' style="margin-top:3px;cursor:pointer;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">'
+        + '<span aria-hidden>🚉</span>' + pills
+        + '<span style="color:' + p.sub + ';">' + escapeHtml(st.name) + '</span></div>';
+    }
+    return infoCard(h, f);
+  }
+  function openHawkerInfo(f, marker) {
+    info.setContent(hawkerCardHtml(f, null));
+    info.open(map, marker);
+    if (Number.isFinite(f.lat) && Number.isFinite(f.lng)) {
+      fetch('/api/hawker/centre-transit?lat=' + encodeURIComponent(f.lat) + '&lng=' + encodeURIComponent(f.lng))
+        .then((r) => (r.ok ? r.json() : null))
+        .then((t) => { if (t) info.setContent(hawkerCardHtml(f, t)); })
+        .catch(() => {});
+    }
+  }
+  function buildHawkerMarkers(features) {
+    const z0 = map.getZoom?.() || 0;
+    return (features || []).map((f) => {
+      const info0 = {
+        num: f._num, name: f.name || '', isNew: !!f.isNew,
+        head: hawkerHead(f.name), facility: hawkerFacility(f.name), short: hawkerShort(f.name)
+      };
+      const marker = new AdvancedMarkerElement({
+        position: { lat: f.lat, lng: f.lng },
+        content: hawkerTierNode(hawkerTier(z0), info0),
+        title: f.name || '',
+        gmpClickable: true
+      });
+      marker.addListener('click', () => openHawkerInfo(f, marker));
+      return { marker, lat: f.lat, lng: f.lng, _hawker: true, _info: info0, _name: f.name || '', _hawkerTier: null };
+    });
+  }
 
   // v0.61.24 — MRT-exit overlay pins; a tap opens the Exit Template popup.
   // v0.61.82 — CR-5: dual-state like the bus-stop pins. Compact bare
@@ -1706,6 +1882,13 @@ export function createOverlayController(map, googleMaps, opts) {
       if (destroyed) return null;
       entry = { kind: 'marker', visible: false,
         items: buildBusMarkers(d.busstops) };
+    } else if (name === 'hawker') {
+      // v0.62.283 — 🍚 hawker centres, radius-clipped via applyVisibility (the
+      // same `near` gate as bus stops); the droplet/H## tiers follow hawkerTier.
+      const d = await fetchHawkerCentres();
+      if (destroyed) return null;
+      entry = { kind: 'marker', visible: false,
+        items: buildHawkerMarkers(d.centres) };
     } else if (name === 'train') {
       const [lp, st] = await Promise.all([fetchLinePaths(), fetchStations()]);
       if (destroyed) return null;
@@ -2149,6 +2332,13 @@ export function createOverlayController(map, googleMaps, opts) {
         if (it._busTier !== bt) {
           it.marker.content = busTierNode(bt, it._code);
           it._busTier = bt;
+        }
+      } else if (it._hawker && e.visible && near) {
+        // v0.62.283 — droplet hawker pins follow the hawkerTier ladder.
+        const ht = hawkerTier(zoom);
+        if (it._hawkerTier !== ht) {
+          it.marker.content = hawkerTierNode(ht, it._info);
+          it._hawkerTier = ht;
         }
       } else if (it._exit && e.visible && near) {
         const want = zoomedIn ? it.full : it.compact;
