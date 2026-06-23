@@ -34,19 +34,11 @@ export function applyTelegramTheme() {
     }));
   });
 
-  safe('fullscreen', () => {
-    const platform = String(w.platform || '').toLowerCase();
-    if (platform === 'weba' || platform === 'webk' || platform === 'web') return;
-    const isTabletPlatform = platform === 'ipados' || platform === 'tdesktop' || platform === 'macos';
-    const wideViewport = typeof window !== 'undefined'
-      && window.matchMedia?.('(min-width: 600px)').matches;
-    if ((wideViewport || isTabletPlatform)
-        && typeof w.isVersionAtLeast === 'function'
-        && w.isVersionAtLeast('8.0')
-        && typeof w.requestFullscreen === 'function') {
-      w.requestFullscreen();
-    }
-  });
+  // v0.62.286 — operator: REMOVED auto-fullscreen entirely (was triggered on
+  // iPad / Mac / Telegram Desktop / any window ≥600px wide). Desktop + notebook
+  // users got an unwanted full-screen takeover. The TMA now only `expand()`s to
+  // full height (above); fullscreen is never requested automatically on any
+  // platform. (A manual fullscreen map button, if any, is unaffected.)
 
   // v0.60.42 — sync Telegram header + chrome bg to secondary.
   safe('header-color', () => {
