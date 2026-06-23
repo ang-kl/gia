@@ -17,7 +17,7 @@ import React, { useEffect, useRef } from 'react';
 import ResultCard from './ResultCard.jsx';
 import { useLocale } from '../lib/i18n.js';
 
-export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null, hasFilters = false }) {
+export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null, hasFilters = false, composerOpen = false }) {
   const [lang] = useLocale();
   const trackRef = useRef(null);
   const list = Array.isArray(venues) ? venues : [];
@@ -69,7 +69,11 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
     /* v0.62.277 — operator: the strip floated too high above the 💬 free-text
        dock (it got shorter at v0.62.269). Drop it to hug the dock top so the
        card sits JUST above the free-text strip, no gap. */
-    <div className={`fixed inset-x-0 ${hasFilters ? 'bottom-[7rem]' : 'bottom-[5.5rem]'} z-30 px-1 pointer-events-none max-w-[1600px] mx-auto`}>
+    /* v0.62.285 — operator: drop the strip closer to the control border (it
+       hugged the dock but still left a gap that the 💬/🔍 FABs floated in).
+       The FABs are lifted to z-40 in App.jsx so they stay IN FRONT of these
+       z-30 cards even as the strip sits lower. */
+    <div className={`fixed inset-x-0 ${hasFilters ? 'bottom-[6rem]' : 'bottom-[4.5rem]'} z-30 px-1 pointer-events-none max-w-[1600px] mx-auto`}>
       {/* v0.62.141 — operator: the list + vertical/horizontal controls moved to
           the FOOTER (out of the strip). Cards are BOTTOM-aligned (items-end),
           and each is a COMPACT ~5-row scroll panel (card-scroll = visible thin
@@ -84,7 +88,11 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
           <div
             key={v.placeId || i}
             data-pid={v.placeId || ''}
-            className="card-scroll snap-center shrink-0 basis-[82%] max-w-[22rem] max-h-[60vh] overflow-y-auto rounded-lg shadow-xl"
+            /* v0.62.285 — operator: when the 💬 composer expands, lift ONLY the
+               in-view (focused) card up to clear the input pill; the peeking
+               left/right cards stay at the shared items-end baseline. */
+            className="card-scroll snap-center shrink-0 basis-[82%] max-w-[22rem] max-h-[60vh] overflow-y-auto rounded-lg shadow-xl transition-transform duration-200"
+            style={composerOpen && v.placeId === focusedPlaceId ? { transform: 'translateY(-3.25rem)' } : undefined}
           >
             {/* v0.62.168 — operator: horizontal cards are UNIFORM size (fixed
                 h-[10.5rem] + min-h-full fills it), COLLAPSED by default
