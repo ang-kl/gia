@@ -13,7 +13,7 @@
 //
 // Rendered at App top level as a fixed footer layer.
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ResultCard from './ResultCard.jsx';
 import { useLocale } from '../lib/i18n.js';
 
@@ -21,6 +21,13 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
   const [lang] = useLocale();
   const trackRef = useRef(null);
   const list = Array.isArray(venues) ? venues : [];
+
+  // v0.62.287 — operator (urgent): the OPAQUE-white surface + the
+  // lift-on-composer-expand must follow the card that is actually CENTRED in the
+  // strip, NOT the tap-selected `focusedPlaceId` (which is null until the user
+  // taps a pin/card — so on load nothing went white and nothing lifted). Track
+  // the centred card from scroll position instead.
+  const [centeredId, setCenteredId] = useState(null);
 
   // Centre the focused card horizontally whenever the selection changes
   // (smooth on update, instant on first open).
@@ -43,15 +50,44 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
   useEffect(() => {
     const el = trackRef.current;
     if (!el) return undefined;
+    // v0.62.287 — which real card is nearest the strip's horizontal centre?
+    // Uses viewport rects so it's robust regardless of offsetParent.
+    const detectCentre = () => {
+      const trackRect = el.getBoundingClientRect();
+      const mid = trackRect.left + trackRect.width / 2;
+      let best = null;
+      let bestDist = Infinity;
+      el.querySelectorAll('[data-pid]').forEach((node) => {
+        const pid = node.getAttribute('data-pid');
+        if (!pid) return;
+        const r = node.getBoundingClientRect();
+        const d = Math.abs(r.left + r.width / 2 - mid);
+        if (d < bestDist) { bestDist = d; best = pid; }
+      });
+      if (best) setCenteredId((prev) => (best !== prev ? best : prev));
+    };
     const onScroll = () => {
+      detectCentre();
       if (loopTimerRef.current) clearTimeout(loopTimerRef.current);
       if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 6) {
         loopTimerRef.current = setTimeout(() => { el.scrollTo({ left: 0, behavior: 'auto' }); }, 240);
       }
     };
     el.addEventListener('scroll', onScroll, { passive: true });
-    return () => { el.removeEventListener('scroll', onScroll); if (loopTimerRef.current) clearTimeout(loopTimerRef.current); };
+    // Seed once on mount/result change so the first centred card is opaque
+    // immediately (before any scroll gesture).
+    detectCentre();
+    const seed = setTimeout(detectCentre, 80);
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      clearTimeout(seed);
+      if (loopTimerRef.current) clearTimeout(loopTimerRef.current);
+    };
   }, [list.length]);
+
+  // v0.62.287 — the "active" card drives opaque-white + lift. Prefer the
+  // scroll-centred card; fall back to the tap-selected card, then the first.
+  const activeId = centeredId || focusedPlaceId || (list[0] && list[0].placeId) || null;
 
   if (!list.length) return null;
 
@@ -92,7 +128,7 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
                in-view (focused) card up to clear the input pill; the peeking
                left/right cards stay at the shared items-end baseline. */
             className="card-scroll snap-center shrink-0 basis-[82%] max-w-[22rem] max-h-[60vh] overflow-y-auto rounded-lg shadow-xl transition-transform duration-200"
-            style={composerOpen && v.placeId === focusedPlaceId ? { transform: 'translateY(-3.25rem)' } : undefined}
+            style={composerOpen && v.placeId === activeId ? { transform: 'translateY(-3.25rem)' } : undefined}
           >
             {/* v0.62.168 — operator: horizontal cards are UNIFORM size (fixed
                 h-[10.5rem] + min-h-full fills it), COLLAPSED by default
@@ -101,7 +137,7 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
             <ResultCard
               venue={v}
               number={i + 1}
-              focused={v.placeId === focusedPlaceId}
+              focused={v.placeId === activeId}
               onTap={() => onSelect && onSelect(v.placeId)}
               specialMode={specialMode}
               horizontal
