@@ -50,6 +50,29 @@ const COORDS_PATH = path.join(__dirname, 'data', 'hawker-coords.json');
 // Schema: { "Maxwell Food Centre": { stalls: 64, status: "Existing" }, ... }
 // Missing file → centres ship without stall metadata.
 const STALLS_PATH = path.join(__dirname, 'data', 'hawker-stalls.json');
+// v0.62.296 — official NEA "Hawker Centres (GEOJSON)" raw file. We join its
+// canonical `NAME` (e.g. "Adam Road Food Centre") to our centres BY POSTAL CODE
+// so the card title shows the proper NEA name instead of the block-style MD name
+// ("Adam Food Centre" / "Blk 1 Jalan Kukoh"). Memoised postal→NAME map; a missing
+// file or unmatched postal falls back to the MD name (no display change). 98% of
+// the 123 MD rows match by postal. We expose this as `displayName` and KEEP `name`
+// untouched so the coords / stalls name-joins stay intact.
+const GEOJSON_PATH = path.join(__dirname, 'geoloc', 'HawkerCentresGEOJSON.geojson');
+let _geoNameByPostal = null;
+function geoNameByPostal() {
+  if (_geoNameByPostal) return _geoNameByPostal;
+  _geoNameByPostal = new Map();
+  try {
+    const geo = JSON.parse(fs.readFileSync(GEOJSON_PATH, 'utf8'));
+    for (const f of (geo.features || [])) {
+      const p = f && f.properties;
+      if (p && p.ADDRESSPOSTALCODE && p.NAME) {
+        _geoNameByPostal.set(String(p.ADDRESSPOSTALCODE).trim(), String(p.NAME).trim());
+      }
+    }
+  } catch { /* missing/invalid → empty map → MD names used */ }
+  return _geoNameByPostal;
+}
 const REGIONS = ['Central', 'South', 'East', 'North', 'West'];
 
 // Geography-keyword → region. Strong-signal place names that override
@@ -132,6 +155,8 @@ function parseMd(md) {
       const m = address.match(/S\((\d{6})/);
       const postal = m ? m[1] : null;
       const centre = { sno, name, address, postal, mgmt, isNew: isNewSection };
+      // v0.62.296 — canonical NEA display name (by postal), MD name as fallback.
+      centre.displayName = (postal && geoNameByPostal().get(postal)) || name;
       centre.region = regionForCentre(centre);
       centre.mapsUrl = mapsUrlForCentre(centre);
       out.push(centre);

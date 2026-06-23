@@ -18446,6 +18446,8 @@ async function cacheBotUsername() {
         const regions = Object.entries(by).map(([region, centres]) => {
           const slim = centres.map((c) => ({
             name: c.name,
+            // v0.62.296 — canonical NEA name (by postal); cards prefer it.
+            displayName: c.displayName || c.name,
             address: c.address,
             postal: c.postal,
             mapsUrl: c.mapsUrl,

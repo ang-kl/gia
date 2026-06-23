@@ -287,7 +287,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     // v0.61.22 — themed rounded card (infoCard) with an in-card ✕;
     // secondary text uses the theme palette so nothing washes out.
     const p = infoPalette();
-    let h = `<div style="font-weight:600;font-size:13px;">${escapeHtml(c.name)}${c.isNew ? ' 🆕' : ''}</div>`;
+    let h = `<div style="font-weight:600;font-size:13px;">${escapeHtml(c.displayName || c.name)}${c.isNew ? ' 🆕' : ''}</div>`;
     if (c.status) {
       h += `<div style="color:${p.sub};margin-top:2px;">🕒 ${escapeHtml(c.status)}</div>`;
     } else if (Number.isFinite(c.stalls) && c.stalls > 0) {
