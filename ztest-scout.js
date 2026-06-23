@@ -247,13 +247,14 @@ async function scoutSetMenu({ lat, lng, type, apiKey, max = 8, concurrency = 4 }
 }
 
 // v0.62.299 — annotate ONE already-known venue (a cuisine-search result that
-// already carries its websiteUri) for set-meal + signature in a SINGLE website
-// fetch. Used by the "Set Meal · Signature (Beta)" card filter (annotate mode).
-// Website-text only (no Places call, no vision) so it's cheap enough for the
-// search hot path; fully fail-soft. Returns
-// { setMeal:{type,price,line}|null, signature:{line}|null }.
+// already carries its websiteUri) for a SET-MEAL price in a SINGLE website fetch.
+// Used by the "Set Meal (Beta)" card filter (annotate mode). Website-text only
+// (no Places call, no vision) so it's cheap enough for the search hot path; fully
+// fail-soft. v0.62.301 — signature/popular dishes REMOVED from this feature
+// (operator: Set Meal = price only; signature lives on the card "Try" line).
+// Returns { setMeal:{type,price,line}|null }.
 async function scoutVenueMulti({ websiteUri }, getHtml = fetchHtml) {
-  const out = { setMeal: null, signature: null };
+  const out = { setMeal: null };
   if (!websiteUri) return out;
   let html;
   try { html = await getHtml(websiteUri); } catch { return out; }
@@ -266,8 +267,6 @@ async function scoutVenueMulti({ websiteUri }, getHtml = fetchHtml) {
       break;
     }
   }
-  const sig = scrapeForKeywords(html, KEYWORD_MATRIX.signature.map((k) => k.toLowerCase()))[0];
-  if (sig) out.signature = { line: sig.text.slice(0, 90) };
   return out;
 }
 
