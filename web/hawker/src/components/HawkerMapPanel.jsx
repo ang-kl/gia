@@ -27,7 +27,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { openLink } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
-import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle } from '../lib/mapOverlays.js';
+import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
 import MapControls from './MapControls.jsx';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
@@ -308,10 +308,13 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       : (transit && transit.station ? [transit.station] : []);
     for (const st of stations.slice(0, 2)) {
       if (!st || !st.name) continue;
-      const codes = Array.isArray(st.codes) ? st.codes.join('/') : '';
-      const first = (Array.isArray(st.codes) && st.codes[0]) || '';
-      const lines = Array.isArray(st.lines) && st.lines.length ? ` · ${st.lines.join('/')}` : '';
-      h += `<div style="margin-top:2px;"><a href="#" onclick="window.__giaHawkerFocusStation&&window.__giaHawkerFocusStation('${escapeHtml(first)}');return false;" style="color:${p.link};text-decoration:underline;cursor:pointer;">🚉 ${escapeHtml(codes)} ${escapeHtml(st.name)}${escapeHtml(lines)}</a></div>`;
+      // v0.62.282 — operator: match the Cuisine card — line-coloured station code
+      // PILLS (no underline) and drop the "· <line>" operator suffix. Tapping the
+      // row still focuses the station on the map (__giaHawkerFocusStation).
+      const codeArr = Array.isArray(st.codes) ? st.codes : [];
+      const first = codeArr[0] || '';
+      const pills = codeArr.map((cd) => `<span style="display:inline-block;background:${codeHex(cd)};color:#fff;font-weight:700;white-space:nowrap;border-radius:5px;padding:1px 6px;font-size:11px;line-height:1.4;">${escapeHtml(cd)}</span>`).join('');
+      h += `<div onclick="window.__giaHawkerFocusStation&&window.__giaHawkerFocusStation('${escapeHtml(first)}');return false;" style="margin-top:3px;cursor:pointer;display:flex;align-items:center;gap:5px;flex-wrap:wrap;"><span aria-hidden>🚉</span>${pills}<span style="color:${p.sub};">${escapeHtml(st.name)}</span></div>`;
     }
     // v0.61.31 — standard trailing "Google Map ↗" hyperlink (every TMA).
     h += `<div style="margin-top:4px;"><a href="#" onclick="window.__giaHawkerOpenMap('${escapeHtml(key)}'); return false;" style="color:${p.link};text-decoration:underline;cursor:pointer;">Google Map ↗</a></div>`;

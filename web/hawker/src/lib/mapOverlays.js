@@ -265,7 +265,7 @@ function lineCodeOf(s) {
 }
 
 // v0.61.24 — line colour for a station code (EW16 → EWL green, …).
-function codeHex(code) {
+export function codeHex(code) {
   const pc = parseCode(code);
   return (pc && LINE_HEX[PREFIX_TO_LINE[pc.prefix]]) || '#888888';
 }
