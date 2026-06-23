@@ -17,7 +17,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import ResultCard from './ResultCard.jsx';
 import { useLocale } from '../lib/i18n.js';
 
-export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null, hasFilters = false, composerOpen = false, nearbyLabel = null, nearbyAccent = null }) {
+export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null, hasFilters = false, composerOpen = false }) {
   const [lang] = useLocale();
   const trackRef = useRef(null);
   const list = Array.isArray(venues) ? venues : [];
@@ -83,11 +83,21 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
       clearTimeout(seed);
       if (loopTimerRef.current) clearTimeout(loopTimerRef.current);
     };
-  }, [list.length]);
+    // v0.62.292 — re-seed on result-set identity change, not just length: a new
+    // search with the SAME count must still re-detect the centred card.
+  }, [list.length, list[0] && list[0].placeId]);
 
   // v0.62.287 — the "active" card drives opaque-white + lift. Prefer the
   // scroll-centred card; fall back to the tap-selected card, then the first.
-  const activeId = centeredId || focusedPlaceId || (list[0] && list[0].placeId) || null;
+  // v0.62.292 — operator: opaque sometimes didn't apply. centeredId /
+  // focusedPlaceId could be STALE (a pid from a previous result set), so
+  // activeId matched no visible card → no card went opaque. Validate each
+  // fallback against the CURRENT list so exactly one card is always active.
+  const inList = (id) => !!id && list.some((v) => v.placeId === id);
+  const activeId = (inList(centeredId) && centeredId)
+    || (inList(focusedPlaceId) && focusedPlaceId)
+    || (list[0] && list[0].placeId)
+    || null;
 
   if (!list.length) return null;
 
@@ -148,8 +158,6 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
               specialMode={specialMode}
               horizontal
               autoExpandFocus={false}
-              nearbyLabel={nearbyLabel}
-              nearbyAccent={nearbyAccent}
             />
           </div>
         ))}

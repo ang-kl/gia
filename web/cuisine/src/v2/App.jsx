@@ -732,37 +732,6 @@ export default function App() {
     }
     return map;
   }, [catalogue]);
-  // v0.62.289 — "{cuisine} & Nearby Flavours" strip label + one CVD-safe region
-  // accent, computed only when exactly ONE cuisine is selected (the server tags
-  // matchTier in that case). Drives the alternate-card top strip + the vertical
-  // "nearby flavours" section divider. Accent palette is blue/orange/amber/teal/
-  // indigo/purple — never red/green (operator's red-green vision).
-  const nearbyFlavours = useMemo(() => {
-    const REGION_ACCENT = {
-      'middle-eastern':  '#b45309', // sand / amber
-      'east-asian':      '#4f46e5', // indigo
-      'southeast-asian': '#0d9488', // teal
-      'south-asian':     '#c2410c', // burnt orange
-      'european':        '#2563eb', // blue
-      'americas':        '#475569', // slate
-      'dessert':         '#9333ea'  // purple
-    };
-    const sel = (state.cuisines || []).filter((s) => s !== 'michelin');
-    if (sel.length !== 1) return null;
-    const slug = sel[0];
-    const name = cuisineNameBySlug.get(slug);
-    if (!name) return null;
-    let categoryId = '';
-    if (Array.isArray(catalogue)) {
-      for (const c of catalogue) {
-        if ((c.cuisines || []).some((cu) => cu?.slug === slug)) { categoryId = c.id; break; }
-      }
-    }
-    return {
-      label: lang === 'fr' ? `${name} et saveurs voisines` : `${name} & Nearby Flavours`,
-      accent: REGION_ACCENT[categoryId] || '#b45309'
-    };
-  }, [state.cuisines, cuisineNameBySlug, catalogue, lang]);
   // v0.62.6 — Michelin city-grouped display: initial map state per visible
   // batch. Case A (set city has ≥1 visible card) → fit the SET city's pins
   // (map stays centred there, never zooms out to country level). Case B
@@ -4032,8 +4001,6 @@ export default function App() {
           specialMode={state.specialMode || null}
           hasFilters={criteriaSummary.length > 0}
           composerOpen={composerOpen}
-          nearbyLabel={nearbyFlavours?.label || null}
-          nearbyAccent={nearbyFlavours?.accent || null}
         />
       )}
 
@@ -4175,7 +4142,19 @@ export default function App() {
       {/* v0.62.13 — zero-result reason: an empty list now explains itself
           (stale-seen "tap 🔍 again" vs a genuinely too-narrow combo vs nothing
           rated nearby) instead of a silent blank. Hidden once results return. */}
-      {zeroReasonKey && !loading && venues.length === 0 && (
+      {/* v0.62.292 — operator: when a zero result is showing but the criteria
+          have CHANGED since that search (`dirty`), the correct CTA is "tap 🔍
+          again", NOT "reset filters" — the old empty list is stale, not a true
+          no-match. Show this first and suppress the genuine-zero notices while
+          dirty so the messaging never contradicts itself. */}
+      {dirty && !loading && venues.length === 0 && (
+        <div className="rounded-2xl border border-tg-accent/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+          {lang === 'fr'
+            ? 'Vos critères ont changé — touchez 🔍 pour relancer la recherche.'
+            : 'Your criteria changed — tap 🔍 to search again.'}
+        </div>
+      )}
+      {zeroReasonKey && !loading && venues.length === 0 && !dirty && (
         <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-hint">
           {t(zeroReasonKey, lang)}
         </div>
@@ -4322,8 +4301,6 @@ export default function App() {
         <ResultPanel
           venues={venues}
           loading={loading}
-          nearbyLabel={nearbyFlavours?.label || null}
-          nearbyAccent={nearbyFlavours?.accent || null}
           /* v0.61.255 — forward specialMode so ResultCard can render
              the "Inquire for seasonal durian pastry" hint when the
              active search is durian-pastry AND the venue name doesn't
@@ -4577,7 +4554,7 @@ export default function App() {
             re-fires resetSeen=true; if the response is still zero, the
             panel persists (no flicker). Cleared as soon as the next
             search returns ≥1 venue OR the user changes any criteria. */}
-        {zeroRetried && !loading && venues.length === 0 && (
+        {zeroRetried && !loading && venues.length === 0 && !dirty && (
           <div className="text-[12px] text-tg-hint text-center mt-2 px-2 py-3 rounded-lg bg-tg-card border border-tg-hint/20">
             <div className="leading-snug">{t('result.noMatchAfterRetry', lang)}</div>
             <button
