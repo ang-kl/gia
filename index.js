@@ -14588,6 +14588,36 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.62.289 / restored v0.62.293 — shared cuisine matcher. Does a venue
+    // genuinely serve one of `names`? Strong haystack (name + area + primaryType
+    // + editorial summary) for bare-name / multi-word checks (review text is too
+    // noisy); FULL haystack (incl. reviews) only for specific curated dish
+    // keywords. Used by the gated-category drop filter AND the single/combo
+    // exact-vs-alternate tagging so the logic is identical.
+    function venueMatchesAnyCuisine(v, names) {
+      const reviewText = Array.isArray(v.reviews)
+        ? v.reviews.map((r) => r?.text || '').join(' ')
+        : '';
+      const strongHaystack = [
+        v.name || '', v.area || '', v.primaryType || '',
+        v.googleSummary?.overview || ''
+      ].join(' ').toLowerCase();
+      const fullHaystack = (strongHaystack + ' ' + reviewText).toLowerCase();
+      for (const name of names) {
+        const lower = String(name).toLowerCase();
+        if (strongHaystack.includes(lower)) return true;
+        const slugForType = lower.replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+        if (v.primaryType === `${slugForType}_restaurant`) return true;
+        const words = lower.split(/\s+/).filter((w) => w.length >= 4);
+        if (words.length >= 2 && words.every((w) => strongHaystack.includes(w))) return true;
+        const dishKeywords = require('./cuisine-dish-keywords').getDishKeywords(name);
+        for (const kw of dishKeywords) {
+          if (fullHaystack.includes(kw)) return true;
+        }
+      }
+      return false;
+    }
+
     app.post('/api/cuisine/search',
       // v0.60.173 — DF-54 rate limit. v0.60.174 — operator raised
       // cap 60 → 500/hr/chat. Each /search internally fires ~1
@@ -16132,43 +16162,8 @@ async function cacheBotUsername() {
         // contain the cuisine word OR the curated dish keywords).
         const SMALL_POOL = 5;
         if (allSelectedAreGated && gatedNames.length && venues.length > SMALL_POOL) {
-          venues = venues.filter((v) => {
-            const reviewText = Array.isArray(v.reviews)
-              ? v.reviews.map((r) => r?.text || '').join(' ')
-              : '';
-            // v0.60.160 — split the haystack into a STRONG subset (name +
-            // primaryType + editorial summary + area) and a FULL haystack
-            // that also includes user review text. Bare cuisine-name and
-            // multi-word matches now run against STRONG only — review text
-            // is too noisy: for "Portuguese", reviews on Spanish, Eurasian,
-            // Macanese and even Wagyu venues mention "Portuguese" as a
-            // cultural-influence flavour reference, so the prior
-            // `haystack.includes('portuguese')` kept them all. Dish-keyword
-            // matches still use the FULL haystack — those are specific
-            // enough (`pastel de nata`, `bacalhau`, …) that a review
-            // mention is a real signal. Operator screenshot 2026-05-14:
-            // a Portuguese search returned Smolder Seafood, TINTO Spanish,
-            // Quentin's Eurasian, Restoran Macau Express alongside the
-            // two genuine Portuguese hits (Lusitano, Vera Portuguese).
-            const strongHaystack = [
-              v.name || '', v.area || '', v.primaryType || '',
-              v.googleSummary?.overview || ''
-            ].join(' ').toLowerCase();
-            const fullHaystack = (strongHaystack + ' ' + reviewText).toLowerCase();
-            for (const name of gatedNames) {
-              const lower = name.toLowerCase();
-              if (strongHaystack.includes(lower)) return true;
-              const slugForType = lower.replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
-              if (v.primaryType === `${slugForType}_restaurant`) return true;
-              const words = lower.split(/\s+/).filter((w) => w.length >= 4);
-              if (words.length >= 2 && words.every((w) => strongHaystack.includes(w))) return true;
-              const dishKeywords = require('./cuisine-dish-keywords').getDishKeywords(name);
-              for (const kw of dishKeywords) {
-                if (fullHaystack.includes(kw)) return true;
-              }
-            }
-            return false;
-          });
+          // v0.62.293 (restored) — uses the shared venueMatchesAnyCuisine matcher.
+          venues = venues.filter((v) => venueMatchesAnyCuisine(v, gatedNames));
         }
         // Compute walking distance/time on every venue (haversine).
         function haversine(a, b) {
@@ -16874,6 +16869,29 @@ async function cacheBotUsername() {
         // criteria change uses a different hash → empty seen-set →
         // fresh round immediately.
         const dedupedTop = top;
+        // v0.62.293 — exact-vs-alternate tagging (restored + extended to combos).
+        // SINGLE cuisine: a venue that doesn't match → 'alternate' (renders the
+        // "{cuisine} & Nearby Flavours" strip). COMBO (2+): a venue serving ALL
+        // selected → 'exact' (no strip); serving only some → 'alternate' +
+        // matchedCuisine (the strip names which one). Skips special/dish modes.
+        if (!specialMode && !dishQueryTerm && Array.isArray(cuisineMetas) && cuisineMetas.length >= 1) {
+          const names = cuisineMetas.map((c) => c.name);
+          if (names.length === 1) {
+            for (const v of dedupedTop) {
+              v.matchTier = venueMatchesAnyCuisine(v, names) ? 'exact' : 'alternate';
+            }
+          } else {
+            for (const v of dedupedTop) {
+              const matched = names.filter((n) => venueMatchesAnyCuisine(v, [n]));
+              if (matched.length >= names.length) {
+                v.matchTier = 'exact';            // serves every selected cuisine
+              } else {
+                v.matchTier = 'alternate';
+                if (matched.length >= 1) v.matchedCuisine = matched[0];  // the one it serves
+              }
+            }
+          }
+        }
         // v0.62.31 — adversarial-review fix: when the D706 deadline already
         // answered (degraded, possibly partial), do NOT mark this batch as
         // seen or record it as a session page — the user did not receive it
