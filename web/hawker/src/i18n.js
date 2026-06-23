@@ -69,7 +69,7 @@ const STRINGS = {
   'btn.openFullscreenMap':   { en: 'Full 📍 in a map ↗',
                                fr: 'Plein 📍 dans une carte ↗' },
   'btn.viewAllOnMap':        { en: '🗺 View {n} Hawker Centres on the map',
-                               fr: '🗺 Voir les {n} centres de hawker sur la carte' },
+                               fr: '🗺 Voir {n} centres sur la carte' },
   'btn.openAllOnGoogleMaps': { en: '🗺 Open all {n} on Google Maps',
                                fr: '🗺 Voir les {n} sur Google Maps' },
   // v0.60.56 — external "tour" URL pinning every centre with coords.
