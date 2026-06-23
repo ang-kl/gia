@@ -281,8 +281,9 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       keyboardShortcuts: true,
       // v0.62.102 — operator: zooming out far enough hung the embedded map
       // (world-view tile/marker blow-up). Gate the camera on all three TMA maps:
-      // minZoom 5 (no global zoom-out) … maxZoom 20 (no over-zoom past street).
-      minZoom: 5, maxZoom: 20,
+      // v0.62.294 — operator: zooming out to z5 HUNG the app (mass marker/line
+      // blow-up). Raised the floor to minZoom 7 … maxZoom 20 (no over-zoom past street).
+      minZoom: 7, maxZoom: 20,
       gestureHandling: 'greedy', mapId: mapIdRef.current
     });
     mapRef.current.addListener('idle', handleIdle);
