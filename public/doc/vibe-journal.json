@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-21",
-  "count": 1183,
+  "generated": "2026-06-24",
+  "count": 1249,
   "records": [
     {
       "pr": 1,
@@ -33678,6 +33678,1821 @@
       ],
       "impactTags": [],
       "title": "v0.62.240: remove Search criteria header; add × close to filter chips row",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1202,
+      "status": "merged",
+      "merged": "2026-06-21 04:35:44",
+      "day": "2026-06-21",
+      "version": "0.62.241",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: docs catch-up — Journal arc №784 + VibeCodingRecord regen (#1106–#1201)",
+      "approach": "Brings the docs current after a fast multi-day push — Journal + VibeCodingRecord were last current at **v0.62.153 (#1105, 17 Jun)**.",
+      "codeImpact": "11 files — doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 11,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.241: docs catch-up — Journal arc №784 + VibeCodingRecord regen (#1106–#1201)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1204,
+      "status": "merged",
+      "merged": "2026-06-21 05:15:16",
+      "day": "2026-06-21",
+      "version": "0.62.242",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: cuisine picker — category cards show cuisine-name subtitle (MVP parity)",
+      "approach": "Brings the live cuisine picker in line with the approved **cuisine-tma-mvp.html**.",
+      "codeImpact": "3 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "v0.62.242: cuisine picker — category cards show cuisine-name subtitle (MVP parity)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1205,
+      "status": "merged",
+      "merged": "2026-06-21 05:37:18",
+      "day": "2026-06-21",
+      "version": "0.62.243",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: cuisine card subtitle → 2 + \"etc.\"; geo-plate header = city; bigger Hawker tile icon",
+      "approach": "Three operator fixes from screenshots (IMG 1.24 / 1.25): 1.",
+      "codeImpact": "6 files — TMA:cuisine, TMA:menu, package",
+      "modules": [
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [],
+      "title": "v0.62.243: cuisine card subtitle → 2 + \"etc.\"; geo-plate header = city; bigger Hawker tile icon",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1206,
+      "status": "merged",
+      "merged": "2026-06-21 06:03:38",
+      "day": "2026-06-21",
+      "version": "0.62.244",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: port demo's WHITE folio panel (was cream manila); dial Hawker icon to 1.3×",
+      "approach": "Operator (IMG_1073/1074/1071, \"use the demo CSS and codes\"): 1.",
+      "codeImpact": "4 files — TMA:cuisine, TMA:menu, package",
+      "modules": [
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [],
+      "title": "v0.62.244: port demo's WHITE folio panel (was cream manila); dial Hawker icon to 1.3×",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1207,
+      "status": "merged",
+      "merged": "2026-06-21 06:22:36",
+      "day": "2026-06-21",
+      "version": "0.62.245",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Train logo icon — strip teal background to transparent (menu TMA)",
+      "approach": "Operator chose **option 1 — all Menu TMA tile icons transparent**.",
+      "codeImpact": "3 files — TMA:menu, package",
+      "modules": [
+        "package",
+        "TMA:menu"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [],
+      "title": "v0.62.245: Train logo icon — strip teal background to transparent (menu TMA)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1208,
+      "status": "merged",
+      "merged": "2026-06-21 06:33:59",
+      "day": "2026-06-21",
+      "version": "0.62.246",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: drop duplicate panel-body titles; cap horizontal card width on tablet; glass card bg",
+      "approach": "Operator (iPad mini — IMG_1075/1076/1078): 1.",
+      "codeImpact": "5 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "v0.62.246: drop duplicate panel-body titles; cap horizontal card width on tablet; glass card bg",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1210,
+      "status": "merged",
+      "merged": "2026-06-21 07:15:41",
+      "day": "2026-06-21",
+      "version": "0.62.248",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "restore the original SMRT train logo (teal background)",
+      "approach": "Operator: *\"Still use the original SMRT logo with dark dark background.\"* Reverses the v0.62.245 transparency (#1207) and the in-flight defringe/rename (#1209, **closed unmerged**).",
+      "codeImpact": "3 files — TMA:menu, package",
+      "modules": [
+        "package",
+        "TMA:menu"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [],
+      "title": "v0.62.248: restore the original SMRT train logo (teal background)",
+      "reworkCue": true,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1211,
+      "status": "merged",
+      "merged": "2026-06-21 07:29:06",
+      "day": "2026-06-21",
+      "version": "0.62.249",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: remove the legacy footer \"Search criteria\" sheet — single cuisine picker",
+      "approach": "Operator (\"why are there two codes\"): the Cuisine TMA carried **two copies** of the filter + cuisine picker.",
+      "codeImpact": "3 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "v0.62.249: remove the legacy footer \"Search criteria\" sheet — single cuisine picker",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1212,
+      "status": "merged",
+      "merged": "2026-06-21 07:47:34",
+      "day": "2026-06-21",
+      "version": "0.62.250",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: tighten horizontal card rows (~20% shorter); harden stopLoading state",
+      "approach": "Operator (IMG_1084 + \"stop loading reverts to old code\"): 1.",
+      "codeImpact": "4 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "v0.62.250: tighten horizontal card rows (~20% shorter); harden stopLoading state",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1213,
+      "status": "merged",
+      "merged": "2026-06-21 07:50:10",
+      "day": "2026-06-21",
+      "version": "0.62.251",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: strip the white background from Cuisine + Hawker tile icons",
+      "approach": "Operator: *\"still icons white background\"*.",
+      "codeImpact": "7 files — TMA:menu, package",
+      "modules": [
+        "package",
+        "TMA:menu"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [],
+      "title": "v0.62.251: strip the white background from Cuisine + Hawker tile icons",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1214,
+      "status": "merged",
+      "merged": "2026-06-21 08:03:35",
+      "day": "2026-06-21",
+      "version": "0.62.252",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: remove result-card liquid glass (solid card); consistent menu icon sizes",
+      "approach": "Operator (IMG_1085/1086, frustrated).",
+      "codeImpact": "6 files — TMA:cuisine, TMA:menu, package",
+      "modules": [
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [],
+      "title": "v0.62.252: remove result-card liquid glass (solid card); consistent menu icon sizes",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1215,
+      "status": "merged",
+      "merged": "2026-06-21 08:56:17",
+      "day": "2026-06-21",
+      "version": "0.62.253",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Maps / geo / location",
+      "intent": "Add: reverse-geocode — append street to a bare HDB block name",
+      "approach": "Operator (recurring *\"street name resolution\"*): the Search anchor showed just **\"Block 49\"**, dropping **\"Telok Blangah Drive\"**.",
+      "codeImpact": "3 files — index.js, package",
+      "modules": [
+        "index.js",
+        "package"
+      ],
+      "nFiles": 3,
+      "tmas": [],
+      "impactTags": [],
+      "title": "v0.62.253: reverse-geocode — append street to a bare HDB block name",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1216,
+      "status": "merged",
+      "merged": "2026-06-21 11:54:35",
+      "day": "2026-06-21",
+      "version": "0.62.254",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: cuisine + local-classic pickers are ONE in-flow folder with their tabs (MVP layout)",
+      "approach": "Operator (**option 2**): the folio **tab** (header) and the picker **panel** were split — the panel was a fixed overlay floating over the map (v0.62.195), so it never read as one folder like the approved `cuisine-tma-mvp.html`.",
+      "codeImpact": "3 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "v0.62.254: cuisine + local-classic pickers are ONE in-flow folder with their tabs (MVP layout)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1217,
+      "status": "merged",
+      "merged": "2026-06-21 10:35:20",
+      "day": "2026-06-21",
+      "version": "0.62.254",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Menu TMA location — follow Cuisine TMA codes (commit capital on country pick; tighten country/city gap)",
+      "approach": "## Why Operator report on the **Menu TMA** Search-anchor picker (screenshot: anchored at Jakarta · 🇮🇩 ID · JKT): > why the menu TMA doesn't follow the Cuisine TMA codes on the location, once I select the country (SG) it should saved…",
+      "codeImpact": "4 files — TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:menu"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.254: Menu TMA location — follow Cuisine TMA codes (commit capital on country pick; tighten country/city gap)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1218,
+      "status": "merged",
+      "merged": "2026-06-22 01:02:58",
+      "day": "2026-06-22",
+      "version": "0.62.255",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine TMA — bold the folio panel title; \"Click to change\" closes the cuisine/local-classic drawer first",
+      "approach": "## Why Two operator asks on the **Cuisine TMA** (from the IMG_2544 / IMG_2545 batch): > 1.",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.255: Cuisine TMA — bold the folio panel title; \"Click to change\" closes the cuisine/local-classic drawer first",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1219,
+      "status": "merged",
+      "merged": "2026-06-21 12:48:09",
+      "day": "2026-06-21",
+      "version": "0.62.256",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: Stop closes the cuisine/local-classic picker (no panel left on the map)",
+      "approach": "Operator: *\"stop loading didn't have two panels but one panel 'Choose your cuisine'.",
+      "codeImpact": "3 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "v0.62.256: Stop closes the cuisine/local-classic picker (no panel left on the map)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1220,
+      "status": "merged",
+      "merged": "2026-06-21 15:16:31",
+      "day": "2026-06-21",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add files via upload",
+      "approach": "Add files via upload",
+      "codeImpact": "2 files — data",
+      "modules": [
+        "data"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Add files via upload",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1221,
+      "status": "merged",
+      "merged": "2026-06-21 15:20:01",
+      "day": "2026-06-21",
+      "version": "",
+      "minor": "",
+      "category": "refactor",
+      "area": "Hawker NEA",
+      "intent": "Rename D7ADADE6-9C83-42D7-9096-D7DD5E80954F.png to Hawker_Centre_line…",
+      "approach": "…-icon.png",
+      "codeImpact": "1 file — data",
+      "modules": [
+        "data"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Rename D7ADADE6-9C83-42D7-9096-D7DD5E80954F.png to Hawker_Centre_line…",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1222,
+      "status": "merged",
+      "merged": "2026-06-21 15:22:39",
+      "day": "2026-06-21",
+      "version": "",
+      "minor": "",
+      "category": "refactor",
+      "area": "Core / misc",
+      "intent": "Rename 324609AC-5CB4-4B3C-8FF6-E91B4458FDB5.png to Cuisine_line-icon.png",
+      "approach": "Rename 324609AC-5CB4-4B3C-8FF6-E91B4458FDB5.png to Cuisine_line-icon.png",
+      "codeImpact": "1 file — data",
+      "modules": [
+        "data"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Rename 324609AC-5CB4-4B3C-8FF6-E91B4458FDB5.png to Cuisine_line-icon.png",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1223,
+      "status": "merged",
+      "merged": "2026-06-21 15:29:35",
+      "day": "2026-06-21",
+      "version": "0.62.257",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: replace Cuisine + Hawker tile icons with the new line-art icons",
+      "approach": "Operator: use `data/icon/Cuisine_line-icon.png` + `data/icon/Hawker_Centre_line-icon.png` for the Menu TMA **Cuisine** + **Hawker** tiles.",
+      "codeImpact": "7 files — TMA:menu, package",
+      "modules": [
+        "package",
+        "TMA:menu"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [],
+      "title": "v0.62.257: replace Cuisine + Hawker tile icons with the new line-art icons",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1224,
+      "status": "merged",
+      "merged": "2026-06-21 23:53:36",
+      "day": "2026-06-21",
+      "version": "0.62.258",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Search / free-text",
+      "intent": "Add: line-icon system + convert the free-text bar (Phase 1)",
+      "approach": "Operator: convert the TMA's emoji icons to **hyper-minimal line icons** (ultra-thin strokes, precise geometry, scannable).",
+      "codeImpact": "4 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "v0.62.258: line-icon system + convert the free-text bar (Phase 1)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1225,
+      "status": "merged",
+      "merged": "2026-06-21 23:58:59",
+      "day": "2026-06-21",
+      "version": "0.62.259",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "fix folio-tab colour mismatch + add loading debug logs (Cuisine + Menu)",
+      "approach": "Operator (urgent code review): *\"Pick local classic ▾\" goes missing and the tab colour isn't standard when both tabs load.* **1.",
+      "codeImpact": "4 files — TMA:cuisine, TMA:menu, package",
+      "modules": [
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [],
+      "title": "v0.62.259: fix folio-tab colour mismatch + add loading debug logs (Cuisine + Menu)",
+      "reworkCue": false,
+      "reworkOf": 1223,
+      "burst": true
+    },
+    {
+      "pr": 1227,
+      "status": "merged",
+      "merged": "2026-06-22 01:14:06",
+      "day": "2026-06-22",
+      "version": "0.62.261",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "fix Cuisine TMA crash — TDZ ReferenceError in the v0.62.259 folio-tab debug log",
+      "approach": "## 🔴 Fixes a production crash — Cuisine TMA white-screens on load **Symptom:** operator reported \"the cuisine TMA crash\".",
+      "codeImpact": "2 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 2,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.261: fix Cuisine TMA crash — TDZ ReferenceError in the v0.62.259 folio-tab debug log",
+      "reworkCue": false,
+      "reworkOf": 1225,
+      "burst": true
+    },
+    {
+      "pr": 1228,
+      "status": "merged",
+      "merged": "2026-06-22 01:30:28",
+      "day": "2026-06-22",
+      "version": "0.62.262",
+      "minor": "0.62",
+      "category": "infra",
+      "area": "Cuisine Picker",
+      "intent": "add a static TDZ guard test for TMA hook dependency arrays",
+      "approach": "## Why The Cuisine TMA white-screened at v0.62.259 (fixed in #1227) because a hook dependency array referenced a `const` declared later in the same scope: ```js useEffect(() => { … }, [loading, venues.length, classicOpen]); … const…",
+      "codeImpact": "2 files — tests, package",
+      "modules": [
+        "tests",
+        "package"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.262: add a static TDZ guard test for TMA hook dependency arrays",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1229,
+      "status": "merged",
+      "merged": "2026-06-22 02:19:27",
+      "day": "2026-06-22",
+      "version": "0.62.263",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Menu hub icon sizes; Cuisine folio header styling + stable two-header loading state",
+      "approach": "## Three operator asks (IMG_2552 / IMG_2553) ### 1.",
+      "codeImpact": "7 files — TMA:cuisine, TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.263: Menu hub icon sizes; Cuisine folio header styling + stable two-header loading state",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1230,
+      "status": "merged",
+      "merged": "2026-06-22 03:07:54",
+      "day": "2026-06-22",
+      "version": "0.62.264",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: Cuisine TMA — connect the folio tab to its drawer body (fix the disjoined panel header)",
+      "approach": "## Why You flagged that the \"Choose your cuisine\" / \"Pick local classic\" folio tabs read **disjoined** from the drawer panel below — and that past PRs have a \"mix\" of approaches for making the header one with the body.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.264: Cuisine TMA — connect the folio tab to its drawer body (fix the disjoined panel header)",
+      "reworkCue": false,
+      "reworkOf": 1229,
+      "burst": true
+    },
+    {
+      "pr": 1231,
+      "status": "merged",
+      "merged": "2026-06-22 04:47:27",
+      "day": "2026-06-22",
+      "version": "0.62.265",
+      "minor": "0.62",
+      "category": "refactor",
+      "area": "Cuisine Picker",
+      "intent": "Refactor: Cuisine picker — consolidate categories 14→9, drop subtitles, shorter tab title, clearer Recommend hint",
+      "approach": "## What & why (from your plan, all four) ### 1.",
+      "codeImpact": "8 files — cuisines-vault.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "cuisines-vault.js",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.265: Cuisine picker — consolidate categories 14→9, drop subtitles, shorter tab title, clearer Recommend hint",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1232,
+      "status": "merged",
+      "merged": "2026-06-22 06:58:35",
+      "day": "2026-06-22",
+      "version": "0.62.266",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Menu TMA — relabel Cuisine/Hawker tiles + match sub-TMA header sizes to hub title",
+      "approach": "## What & why ### 1.",
+      "codeImpact": "6 files — TMA:cuisine, TMA:menu, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu",
+        "TMA:transport"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.266: Menu TMA — relabel Cuisine/Hawker tiles + match sub-TMA header sizes to hub title",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1233,
+      "status": "merged",
+      "merged": "2026-06-22 11:59:15",
+      "day": "2026-06-22",
+      "version": "0.62.267",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Menu icons navy +15% · card title size · location 'tap to change' row",
+      "approach": "Draft — please eyeball on the deploy before merge.",
+      "codeImpact": "6 files — TMA:cuisine, TMA:menu, package",
+      "modules": [
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [],
+      "title": "v0.62.267: Menu icons navy +15% · card title size · location 'tap to change' row",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1234,
+      "status": "merged",
+      "merged": "2026-06-22 12:06:07",
+      "day": "2026-06-22",
+      "version": "0.62.267",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: v0.62.267 journal + serial-state: PR #1233 Menu/Cuisine UI (HDR 751)",
+      "approach": "Doc catch-up for the merged PR #1233 (Menu Cuisine/Hawker icons navy +15%, Cuisine card title size, location 'tap to change' row).",
+      "codeImpact": "2 files — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.267 journal + serial-state: PR #1233 Menu/Cuisine UI (HDR 751)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1235,
+      "status": "merged",
+      "merged": "2026-06-22 12:11:43",
+      "day": "2026-06-22",
+      "version": "0.62.268",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Menu Cuisine tile icon +15% (64→74px)",
+      "approach": "Operator: the Cuisine icon in the Menu hub can be ~15% bigger.",
+      "codeImpact": "3 files — TMA:menu, package",
+      "modules": [
+        "package",
+        "TMA:menu"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.268: Menu Cuisine tile icon +15% (64→74px)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1236,
+      "status": "merged",
+      "merged": "2026-06-22 12:19:39",
+      "day": "2026-06-22",
+      "version": "0.62.269",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Infra / setup",
+      "intent": "Add: Cuisine dock — control row closer to the footer",
+      "approach": "Operator (screenshot): the 'hide results · list · top · end' row sat too high above the 'Experimental · Singapore · v…' footer — pull it down closer, bringing the dock content lower.",
+      "codeImpact": "2 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 2,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "v0.62.269: Cuisine dock — control row closer to the footer",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1237,
+      "status": "merged",
+      "merged": "2026-06-22 12:47:34",
+      "day": "2026-06-22",
+      "version": "0.62.270",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Reset button = live zoom readout (square); 🔭 removed; Cuisine ↹ → GPS recentre",
+      "approach": "Operator: make the **Reset** button serve two purposes — tap = reset, and show the **live zoom number** (square corners), same 28px size as the other nav buttons.",
+      "codeImpact": "4 files — TMA:cuisine, TMA:hawker, TMA:transport, package",
+      "modules": [
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [],
+      "title": "v0.62.270: Reset button = live zoom readout (square); 🔭 removed; Cuisine ↹ → GPS recentre",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1238,
+      "status": "merged",
+      "merged": "2026-06-22 13:02:42",
+      "day": "2026-06-22",
+      "version": "0.62.271",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: map layers menu → vertical ⋮ (was platform-dependent ⋯)",
+      "approach": "Operator: change the horizontal 3-dots to a vertical ⋮, button shaped as a rectangle the same size as the nav buttons.",
+      "codeImpact": "4 files — TMA:cuisine, TMA:hawker, TMA:transport, package",
+      "modules": [
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [],
+      "title": "v0.62.271: map layers menu → vertical ⋮ (was platform-dependent ⋯)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1239,
+      "status": "merged",
+      "merged": "2026-06-22 13:13:21",
+      "day": "2026-06-22",
+      "version": "0.62.272",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: thin, unobtrusive page scrollbar across all 4 TMAs",
+      "approach": "Operator: the scrollbar in all TMAs should be **thin + unobtrusive**, appearing only as the pointer nears the edge.",
+      "codeImpact": "5 files — TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, package",
+      "modules": [
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:transport"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [],
+      "title": "v0.62.272: thin, unobtrusive page scrollbar across all 4 TMAs",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1241,
+      "status": "merged",
+      "merged": "2026-06-22 13:23:47",
+      "day": "2026-06-22",
+      "version": "0.62.273",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: v0.62.273 journal: #1235-#1240 Menu/Cuisine/map UI arc (HDR 752)",
+      "approach": "Doc catch-up (one ARC entry) for the six UI PRs #1235-#1240 (v0.62.268->v0.62.273): bigger Cuisine icon, tighter dock, Reset-as-zoom-readout + 🔭 removed + ↹ GPS-recentre, vertical ⋮, thin scrollbar, Hawker pill fit.",
+      "codeImpact": "2 files — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.273 journal: #1235-#1240 Menu/Cuisine/map UI arc (HDR 752)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1242,
+      "status": "merged",
+      "merged": "2026-06-22 13:30:55",
+      "day": "2026-06-22",
+      "version": "0.62.273",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Reset/zoom button round again + Hawker pill fits one row",
+      "approach": "Operator: (1) make the Reset/zoom-readout button ROUND again; (2) the 🍚 Hawker pill is still blocked/clipped at the right edge.",
+      "codeImpact": "7 files — TMA:cuisine, TMA:hawker, TMA:transport, package",
+      "modules": [
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [],
+      "title": "v0.62.273: Reset/zoom button round again + Hawker pill fits one row",
+      "reworkCue": true,
+      "reworkOf": 1239,
+      "burst": true
+    },
+    {
+      "pr": 1243,
+      "status": "merged",
+      "merged": "2026-06-22 13:43:25",
+      "day": "2026-06-22",
+      "version": "0.62.274",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: thinner ⋮ + wrap layer pills so 🍚 Hawker is always visible",
+      "approach": "Operator: still can't see the Hawker pill (clipped at the right edge), and make the vertical ⋮ thinner.",
+      "codeImpact": "4 files — TMA:cuisine, TMA:hawker, TMA:transport, package",
+      "modules": [
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [],
+      "title": "v0.62.274: thinner ⋮ + wrap layer pills so 🍚 Hawker is always visible",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1244,
+      "status": "merged",
+      "merged": "2026-06-22 14:25:49",
+      "day": "2026-06-22",
+      "version": "0.62.275",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine 🍚 hawker overlay matches the Hawker TMA (A+B1+C)",
+      "approach": "Tapping the 🍚 layer in the Cuisine TMA now renders hawker centres like the Hawker TMA.",
+      "codeImpact": "2 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 2,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.275: Cuisine 🍚 hawker overlay matches the Hawker TMA (A+B1+C)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1245,
+      "status": "merged",
+      "merged": "2026-06-22 19:46:55",
+      "day": "2026-06-22",
+      "version": "0.62.276",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Menu icons → white line in dark mode",
+      "approach": "Operator: in dark mode the Menu TMA line-art icons (Cuisine, Hawker) should be WHITE line — the navy reads too dark on the dark card.",
+      "codeImpact": "3 files — TMA:menu, package",
+      "modules": [
+        "package",
+        "TMA:menu"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [],
+      "title": "v0.62.276: Menu icons → white line in dark mode",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1247,
+      "status": "merged",
+      "merged": "2026-06-22 20:11:24",
+      "day": "2026-06-22",
+      "version": "0.62.277",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: hawker-card station pills (tap→focus+card) + horizontal strip hugs dock",
+      "approach": "Part 1 (station pills):** in the Cuisine hawker card the MRT stations are now **line-coloured code pills** (no underline) via codeHex/codePill. Tapping the row calls a new `window.__giaFocusStation` hook → **turns the train layer on,…",
+      "codeImpact": "3 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.277: hawker-card station pills (tap→focus+card) + horizontal strip hugs dock",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1248,
+      "status": "merged",
+      "merged": "2026-06-22 20:23:06",
+      "day": "2026-06-22",
+      "version": "0.62.278",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Train TMA 🍚 Hawker overlay pill (OFF by default)",
+      "approach": "Part 2 (Train half): the Train TMA gains the standardized 🍚 Hawker overlay pill, **OFF by default**, via the shared overlay (the v0.62.275 droplet/H##/card, radius mode around the map view).",
+      "codeImpact": "4 files — TMA:transport, package",
+      "modules": [
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [],
+      "title": "v0.62.278: Train TMA 🍚 Hawker overlay pill (OFF by default)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1249,
+      "status": "merged",
+      "merged": "2026-06-22 20:37:02",
+      "day": "2026-06-22",
+      "version": "0.62.279",
+      "minor": "0.62",
+      "category": "test",
+      "area": "Search / free-text",
+      "intent": "Add tests: /ztest accepts natural phrases (set lunch · signature dish · popular dish)",
+      "approach": "Phase A of the AlloyDB-AI plan — the contained syntax change (no infra).",
+      "codeImpact": "4 files — index.js, ztest-scout.js, tests, package",
+      "modules": [
+        "tests",
+        "index.js",
+        "package",
+        "ztest-scout.js"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.279: /ztest accepts natural phrases (set lunch · signature dish · popular dish)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1250,
+      "status": "merged",
+      "merged": "2026-06-22 23:25:09",
+      "day": "2026-06-22",
+      "version": "0.62.280",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Search / free-text",
+      "intent": "Add: opaque band → control+footer only; composer = floating 💬 FAB ⇄ full pill",
+      "approach": "Cuisine dock rework (operator-approved): **#1 — opaque band scoped down:** the bg-tg-bg/96 band now wraps ONLY the control row (hide/list/top/end) + the experimental footer tag.",
+      "codeImpact": "3 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "v0.62.280: opaque band → control+footer only; composer = floating 💬 FAB ⇄ full pill",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1251,
+      "status": "merged",
+      "merged": "2026-06-22 23:50:30",
+      "day": "2026-06-22",
+      "version": "0.62.281",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: 'Criteria ▾' dropdown collapses the active-filter chips",
+      "approach": "Operator: the cuisine criteria chips (North Indian × · South Indian × …) overflow/clutter.",
+      "codeImpact": "2 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 2,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "v0.62.281: 'Criteria ▾' dropdown collapses the active-filter chips",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1252,
+      "status": "merged",
+      "merged": "2026-06-23 00:02:48",
+      "day": "2026-06-23",
+      "version": "0.62.282",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Hawker card → line-coloured station pills (matches Cuisine)",
+      "approach": "Operator (Req 1): the Hawker TMA card showed underlined `TE15 Great World · TEL` links; make them line-coloured station PILLS like the Cuisine card, drop the `· TEL` operator suffix, keep the no-underline tap→focus.",
+      "codeImpact": "3 files — TMA:hawker, package",
+      "modules": [
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [],
+      "title": "v0.62.282: Hawker card → line-coloured station pills (matches Cuisine)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1253,
+      "status": "merged",
+      "merged": "2026-06-23 00:16:36",
+      "day": "2026-06-23",
+      "version": "0.62.283",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Train hawker pins = Cuisine effect (port the hawker overlay into Transport)",
+      "approach": "Req 2: the Train TMA's 🍚 Hawker pill toggled a layer that didn't exist (Transport's mapOverlays had no hawker overlay → 'doesn't show within view').",
+      "codeImpact": "2 files — TMA:transport, package",
+      "modules": [
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 2,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [],
+      "title": "v0.62.283: Train hawker pins = Cuisine effect (port the hawker overlay into Transport)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1254,
+      "status": "merged",
+      "merged": "2026-06-23 01:16:24",
+      "day": "2026-06-23",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add files via upload",
+      "approach": "Add files via upload",
+      "codeImpact": "2 files — data",
+      "modules": [
+        "data"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Add files via upload",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1255,
+      "status": "merged",
+      "merged": "2026-06-23 01:37:23",
+      "day": "2026-06-23",
+      "version": "0.62.284",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine catalogue reorg — SG→SE Asian, sub-region ordering + hollow dividers",
+      "approach": "## What & why Operator catalogue reorganization (7 changes) for the Cuisine TMA category picker.",
+      "codeImpact": "5 files — cuisines-vault.js, TMA:cuisine, tests, package",
+      "modules": [
+        "tests",
+        "cuisines-vault.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.284: Cuisine catalogue reorg — SG→SE Asian, sub-region ordering + hollow dividers",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1256,
+      "status": "merged",
+      "merged": "2026-06-23 01:59:38",
+      "day": "2026-06-23",
+      "version": "0.62.285",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Infra / setup",
+      "intent": "Add: Cuisine strip — closer + FABs in front, focused card opaque/glass, lift-on-expand",
+      "approach": "From operator BEFORE/AFTER mock of the horizontal result strip + 💬 TellMePanel.",
+      "codeImpact": "4 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "v0.62.285: Cuisine strip — closer + FABs in front, focused card opaque/glass, lift-on-expand",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1257,
+      "status": "merged",
+      "merged": "2026-06-23 02:11:53",
+      "day": "2026-06-23",
+      "version": "0.62.286",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Remove auto-fullscreen on Train + Hawker TMAs (all platforms)",
+      "approach": "Operator: Train + Hawker TMAs auto-expand into full-screen on desktop/notebook aspect — remove the auto change to full-screen.",
+      "codeImpact": "3 files — TMA:hawker, TMA:transport, package",
+      "modules": [
+        "package",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [],
+      "title": "v0.62.286: Remove auto-fullscreen on Train + Hawker TMAs (all platforms)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1258,
+      "status": "merged",
+      "merged": "2026-06-23 02:17:18",
+      "day": "2026-06-23",
+      "version": "0.62.287",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: Cuisine — center card opaque white + lift on expand (scroll-tracked) + tap-collapse composer",
+      "approach": "Urgent follow-up to #1256.",
+      "codeImpact": "4 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "v0.62.287: Cuisine — center card opaque white + lift on expand (scroll-tracked) + tap-collapse composer",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1259,
+      "status": "merged",
+      "merged": "2026-06-23 02:57:23",
+      "day": "2026-06-23",
+      "version": "0.62.288",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "Fix centre card top chopped when composer expands",
+      "approach": "Urgent fix.",
+      "codeImpact": "2 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 2,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "v0.62.288: Fix centre card top chopped when composer expands",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1260,
+      "status": "merged",
+      "merged": "2026-06-23 03:34:18",
+      "day": "2026-06-23",
+      "version": "0.62.289",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine — '{cuisine} & Nearby Flavours' exact/alternate tagging",
+      "approach": "Single-cuisine search now marks venues that aren't an exact cuisine hit (e.g.",
+      "codeImpact": "7 files — index.js, cuisine-dish-keywords.js, TMA:cuisine, package",
+      "modules": [
+        "cuisine-dish-keywords.js",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.289: Cuisine — '{cuisine} & Nearby Flavours' exact/alternate tagging",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1261,
+      "status": "merged",
+      "merged": "2026-06-23 03:44:52",
+      "day": "2026-06-23",
+      "version": "0.62.290",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix hawker pins show/disappear — unclip from the 550m radius (Cuisine + Train)",
+      "approach": "Operator (urgent):** in the Cuisine TMA, tapping the hawker pill shows some hawker pins and others disappear on pan/zoom. **Root cause (verified on origin/main):** the ported hawker layer reused the overlay controller's 550 m radius clip…",
+      "codeImpact": "3 files — TMA:cuisine, TMA:transport, package",
+      "modules": [
+        "package",
+        "TMA:cuisine",
+        "TMA:transport"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine",
+        "transport"
+      ],
+      "impactTags": [],
+      "title": "v0.62.290: Fix hawker pins show/disappear — unclip from the 550m radius (Cuisine + Train)",
+      "reworkCue": false,
+      "reworkOf": 1260,
+      "burst": true
+    },
+    {
+      "pr": 1262,
+      "status": "merged",
+      "merged": "2026-06-23 05:08:44",
+      "day": "2026-06-23",
+      "version": "0.62.291",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Pipeline / discovery",
+      "intent": "Add: Open/closed status — currentOpeningHours.periods + venue timezone",
+      "approach": "Operator: the open/closed status doubles up / is wrong on split shifts and near midnight.",
+      "codeImpact": "6 files — index.js, cuisine-enrich.js, open-hours.js, pipeline.js, tests, package",
+      "modules": [
+        "tests",
+        "cuisine-enrich.js",
+        "index.js",
+        "open-hours.js",
+        "package",
+        "pipeline.js"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.291: Open/closed status — currentOpeningHours.periods + venue timezone",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1263,
+      "status": "merged",
+      "merged": "2026-06-23 05:51:03",
+      "day": "2026-06-23",
+      "version": "0.62.292",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "Fix opaque card (stale activeId) + zero-result 'tap 🔍 again' when criteria changed",
+      "approach": "#1 — opaque card sometimes doesn't apply.** `ResultDrawer` derived `activeId = centeredId || focusedPlaceId || first`, but `centeredId`/`focusedPlaceId` could be **stale** (a pid from a previous result set) and the centre-detect effect…",
+      "codeImpact": "3 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 3,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "v0.62.292: Fix opaque card (stale activeId) + zero-result 'tap 🔍 again' when criteria changed",
+      "reworkCue": true,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1264,
+      "status": "merged",
+      "merged": "2026-06-23 06:26:32",
+      "day": "2026-06-23",
+      "version": "0.62.293",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Infra / setup",
+      "intent": "Restore exact/alternate tagging + Korean+Japanese combo indication",
+      "approach": "Operator: Korean+Japanese shows Japanese-only / Korean-only eateries with no indication they aren't a combo.",
+      "codeImpact": "7 files — index.js, cuisine-dish-keywords.js, TMA:cuisine, package",
+      "modules": [
+        "cuisine-dish-keywords.js",
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.293: Restore exact/alternate tagging + Korean+Japanese combo indication",
+      "reworkCue": true,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1265,
+      "status": "merged",
+      "merged": "2026-06-23 06:44:56",
+      "day": "2026-06-23",
+      "version": "0.62.294",
+      "minor": "0.62",
+      "category": "test",
+      "area": "Hawker NEA",
+      "intent": "Add tests: minZoom 5→7 (zoom-out hang) + /ztest links to actual place",
+      "approach": "#1 (urgent) — zoom-out hang.** All three TMA maps gated camera at `minZoom: 5`; the operator zoomed to z5 and the app HUNG (mass marker/line blow-up). Raised the floor to **minZoom 7** in Cuisine (`MapPanel.jsx`), Hawker…",
+      "codeImpact": "5 files — index.js, TMA:cuisine, TMA:hawker, TMA:transport, package",
+      "modules": [
+        "index.js",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [],
+      "title": "v0.62.294: minZoom 5→7 (zoom-out hang) + /ztest links to actual place",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1266,
+      "status": "merged",
+      "merged": "2026-06-23 07:07:43",
+      "day": "2026-06-23",
+      "version": "0.62.295",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Maps / geo / location",
+      "intent": "Add: City pick shows '{city} — near {landmark}' (reverse-geocode centroid to nearest POI)",
+      "approach": "Operator: selecting a city (e.g.",
+      "codeImpact": "4 files — index.js, TMA:cuisine, package",
+      "modules": [
+        "index.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "v0.62.295: City pick shows '{city} — near {landmark}' (reverse-geocode centroid to nearest POI)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1267,
+      "status": "merged",
+      "merged": "2026-06-23 07:14:38",
+      "day": "2026-06-23",
+      "version": "0.62.296",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Hawker cards use canonical NEA names (all TMAs)",
+      "approach": "Operator: the hawker card showed block-style \"Blk 1 Jalan Kukoh\"; should read the proper NEA centre name.",
+      "codeImpact": "6 files — index.js, hawker-vault.js, TMA:cuisine, TMA:hawker, TMA:transport, package",
+      "modules": [
+        "hawker-vault.js",
+        "index.js",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.296: Hawker cards use canonical NEA names (all TMAs)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1268,
+      "status": "merged",
+      "merged": "2026-06-23 09:23:34",
+      "day": "2026-06-23",
+      "version": "0.62.297",
+      "minor": "0.62",
+      "category": "copy",
+      "area": "Core / misc",
+      "intent": "Reword: /ztest confidence ladder + honest copy (kills 'no specify/abnormal')",
+      "approach": "#5 Track A (step 1 — messaging).",
+      "codeImpact": "2 files — index.js, package",
+      "modules": [
+        "index.js",
+        "package"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [],
+      "title": "v0.62.297: /ztest confidence ladder + honest copy (kills 'no specify/abnormal')",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1269,
+      "status": "merged",
+      "merged": "2026-06-23 10:15:31",
+      "day": "2026-06-23",
+      "version": "0.62.298",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: Forex conversion in the horizontal result strip",
+      "approach": "Operator: the horizontal strip showed only the native price (¥/₫/Rp/₩) — the \"(≈ S$…)\" home-currency conversion (already on the vertical list) was stripped to keep the strip compact.",
+      "codeImpact": "2 files — TMA:cuisine, package",
+      "modules": [
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 2,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [],
+      "title": "v0.62.298: Forex conversion in the horizontal result strip",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1270,
+      "status": "merged",
+      "merged": "2026-06-23 10:28:56",
+      "day": "2026-06-23",
+      "version": "0.62.299",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: 'Set Meal · Signature (Beta)' button — confirmed-from-website annotations",
+      "approach": "New opt-in chip beside Michelin/Bib.",
+      "codeImpact": "4 files — index.js, ztest-scout.js, TMA:cuisine, package",
+      "modules": [
+        "index.js",
+        "package",
+        "TMA:cuisine",
+        "ztest-scout.js"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.299: 'Set Meal · Signature (Beta)' button — confirmed-from-website annotations",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1271,
+      "status": "merged",
+      "merged": "2026-06-23 11:04:47",
+      "day": "2026-06-23",
+      "version": "0.62.300",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: French fit audit — shorten over-long control labels (no truncation / pill distortion)",
+      "approach": "French audit across all 4 TMAs.",
+      "codeImpact": "4 files — TMA:cuisine, TMA:menu, TMA:hawker, package",
+      "modules": [
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker"
+      ],
+      "impactTags": [],
+      "title": "v0.62.300: French fit audit — shorten over-long control labels (no truncation / pill distortion)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1272,
+      "status": "merged",
+      "merged": "2026-06-23 11:17:12",
+      "day": "2026-06-23",
+      "version": "0.62.301",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: Set Meal (Beta) — price only (remove signature/popular dishes)",
+      "approach": "Operator: remove signature / popular dishes from the Set Meal feature — keep it set-meal PRICE only (signature stays on the card \"Try\" line, separate).",
+      "codeImpact": "4 files — index.js, ztest-scout.js, TMA:cuisine, package",
+      "modules": [
+        "index.js",
+        "package",
+        "TMA:cuisine",
+        "ztest-scout.js"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "Redis/state"
+      ],
+      "title": "v0.62.301: Set Meal (Beta) — price only (remove signature/popular dishes)",
       "reworkCue": false,
       "reworkOf": null,
       "burst": false
