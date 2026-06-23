@@ -732,6 +732,37 @@ export default function App() {
     }
     return map;
   }, [catalogue]);
+  // v0.62.289 — "{cuisine} & Nearby Flavours" strip label + one CVD-safe region
+  // accent, computed only when exactly ONE cuisine is selected (the server tags
+  // matchTier in that case). Drives the alternate-card top strip + the vertical
+  // "nearby flavours" section divider. Accent palette is blue/orange/amber/teal/
+  // indigo/purple — never red/green (operator's red-green vision).
+  const nearbyFlavours = useMemo(() => {
+    const REGION_ACCENT = {
+      'middle-eastern':  '#b45309', // sand / amber
+      'east-asian':      '#4f46e5', // indigo
+      'southeast-asian': '#0d9488', // teal
+      'south-asian':     '#c2410c', // burnt orange
+      'european':        '#2563eb', // blue
+      'americas':        '#475569', // slate
+      'dessert':         '#9333ea'  // purple
+    };
+    const sel = (state.cuisines || []).filter((s) => s !== 'michelin');
+    if (sel.length !== 1) return null;
+    const slug = sel[0];
+    const name = cuisineNameBySlug.get(slug);
+    if (!name) return null;
+    let categoryId = '';
+    if (Array.isArray(catalogue)) {
+      for (const c of catalogue) {
+        if ((c.cuisines || []).some((cu) => cu?.slug === slug)) { categoryId = c.id; break; }
+      }
+    }
+    return {
+      label: lang === 'fr' ? `${name} et saveurs voisines` : `${name} & Nearby Flavours`,
+      accent: REGION_ACCENT[categoryId] || '#b45309'
+    };
+  }, [state.cuisines, cuisineNameBySlug, catalogue, lang]);
   // v0.62.6 — Michelin city-grouped display: initial map state per visible
   // batch. Case A (set city has ≥1 visible card) → fit the SET city's pins
   // (map stays centred there, never zooms out to country level). Case B
@@ -4001,6 +4032,8 @@ export default function App() {
           specialMode={state.specialMode || null}
           hasFilters={criteriaSummary.length > 0}
           composerOpen={composerOpen}
+          nearbyLabel={nearbyFlavours?.label || null}
+          nearbyAccent={nearbyFlavours?.accent || null}
         />
       )}
 
@@ -4289,6 +4322,8 @@ export default function App() {
         <ResultPanel
           venues={venues}
           loading={loading}
+          nearbyLabel={nearbyFlavours?.label || null}
+          nearbyAccent={nearbyFlavours?.accent || null}
           /* v0.61.255 — forward specialMode so ResultCard can render
              the "Inquire for seasonal durian pastry" hint when the
              active search is durian-pastry AND the venue name doesn't
