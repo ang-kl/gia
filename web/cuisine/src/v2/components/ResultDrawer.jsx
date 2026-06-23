@@ -17,7 +17,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import ResultCard from './ResultCard.jsx';
 import { useLocale } from '../lib/i18n.js';
 
-export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null, hasFilters = false, composerOpen = false }) {
+export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null, hasFilters = false, composerOpen = false, nearbyLabel = null, nearbyAccent = null }) {
   const [lang] = useLocale();
   const trackRef = useRef(null);
   const list = Array.isArray(venues) ? venues : [];
@@ -148,6 +148,8 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
               specialMode={specialMode}
               horizontal
               autoExpandFocus={false}
+              nearbyLabel={nearbyLabel}
+              nearbyAccent={nearbyAccent}
             />
           </div>
         ))}
