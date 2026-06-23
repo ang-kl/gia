@@ -415,8 +415,11 @@ export async function placeSearchByCountry({ input, countryCode }) {
 // LocationField placeholder. Reuses the existing /api/reverse-geocode
 // endpoint (which now receives initData via the X-Telegram-Init-Data
 // header thanks to the getJson helper update above).
-export async function reverseGeocode({ lat, lng }) {
-  return getJson(`/api/reverse-geocode?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}`);
+export async function reverseGeocode({ lat, lng, near = false }) {
+  // v0.62.295 — near=true asks for the nearest prominent landmark (city picks)
+  // → response carries { near }, used as "{city} — near {landmark}".
+  const nearQs = near ? '&near=1' : '';
+  return getJson(`/api/reverse-geocode?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}${nearQs}`);
 }
 
 // v0.59.0: language preference sync between TMA and chat. GET reads
