@@ -20,6 +20,8 @@ const LOCALES = [
   { code: 'en', flag: '🇬🇧', labelKey: 'locale.switchToEn' },
   { code: 'fr', flag: '🇫🇷', labelKey: 'locale.switchToFr' },
   { code: 'id', flag: '🇮🇩', labelKey: 'locale.switchToId' },
+  { code: 'ru', flag: '🇷🇺', labelKey: 'locale.switchToRu' },
+  { code: 'de', flag: '🇩🇪', labelKey: 'locale.switchToDe' },
 ];
 
 export default function LocaleToggle({ className = '' }) {
