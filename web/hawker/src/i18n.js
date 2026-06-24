@@ -419,6 +419,16 @@ export function setActiveLocale(lang) {
   if (typeof window === 'undefined') return;
   try { window.localStorage.setItem(LOCALE_KEY, lang); } catch { /* noop */ }
   window.dispatchEvent(new CustomEvent(LOCALE_EVENT, { detail: { lang } }));
+  // v0.62.315 — persist to the shared server pref so the choice syncs to the
+  // other TMAs + chat (mirrors cuisine/menu's POST). Best-effort, fire-and-forget.
+  try {
+    fetch('/api/cuisine/user-language', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lang, initData: initData() || '' }),
+      keepalive: true,
+    }).catch(() => {});
+  } catch { /* noop */ }
 }
 
 // On first mount, hydrates from the server so the TMA matches whatever
