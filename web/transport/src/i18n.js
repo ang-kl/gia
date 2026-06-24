@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 
 const LOCALE_KEY = 'gia.locale';
 const LOCALE_EVENT = 'gia:locale';
-const SUPPORTED_LOCALES = ['en', 'fr'];
+const SUPPORTED_LOCALES = ['en', 'fr', 'id'];
 
 const STRINGS = {
   // Map overlay layers (v0.63.0)
@@ -111,6 +111,87 @@ const STRINGS = {
   // v0.60.213 — standardised footer tag line (v0.60.217 — restored full form)
   'footer.tag':                { en: 'Experimental · Singapore', fr: 'Expérimental · Singapour' }
 };
+
+// ----- Indonesian (id) overlay — v0.62.306 -----
+// Machine-drafted Indonesian, operator-reviewed. Flat key→string overlay merged
+// into STRINGS below (existing en/fr untouched; unlisted keys degrade to English).
+const ID_STRINGS = {
+  'layer.parks': 'Taman',
+  'layer.attractions': 'Atraksi',
+  'layer.taxis': 'Pangkalan Taksi',
+  'layer.clinics': 'Klinik / Apotek',
+  'layer.hospitals': 'Rumah Sakit',
+  'layer.police': 'Polisi',
+  'layer.busstop': 'Halte Bus',
+  'layer.hawker': 'Hawker',
+  'layer.colour': 'Warna',
+  'layer.colour.on': '☑️ Monokrom',
+  'layer.colour.off': '🎨 Warna',
+  'layer.open24': '24 jam',
+  'layer.soon': 'segera hadir',
+  'map.reset': 'Atur ulang tampilan',
+  'map.more': 'Lapisan lainnya',
+  'layer.carpark': 'Parkir',
+  'layer.exits': 'Pintu Keluar Stasiun',
+  'layer.train': 'Kereta',
+  'layer.all': 'Semua',
+  'map.expand': 'Perbesar peta',
+  'map.collapse': 'Perkecil peta',
+  'map.zoomIn': 'Perbesar',
+  'map.zoomOut': 'Perkecil',
+  'header.title': '🇸🇬 Peta & Status Kereta',
+  'header.allNormal': '✓ Semua jalur normal',
+  'header.linesAffected': '⚠️ {n} jalur terdampak',
+  'header.linesAffectedPlural': '⚠️ {n} jalur terdampak',
+  'view.tipToGmap': 'Ketuk "Google Map" untuk menjelajahi setiap stasiun →',
+  'view.tipZoomIn': 'Tips: perbesar untuk membaca pin (pusat SG padat)',
+  'view.btnSchematic': '🗺 Skema',
+  'view.btnGoogleMap': '📍 Google Map',
+  'loading': 'Memuat status MRT…',
+  'error.unreachable': '⚠️ Tidak bisa memuat status MRT:',
+  'ticker.title': 'Gulir untuk melihat jalur kereta lain',
+  'ticker.allLines': '⇆ Semua jalur',
+  'ticker.allNormal': '✓ Semua jalur normal',
+  'fab.back': 'kembali',
+  'fab.end': 'tutup',
+  'fab.backAria': 'Kembali',
+  'fab.endAria': 'Tutup',
+  'fab.top': '⇡ atas',
+  'fab.down': '⇣ bawah',
+  'fab.topAria': 'Kembali ke atas',
+  'fab.downAria': 'Gulir ke bawah',
+  'mrt.opens': 'Buka {when}',
+  'mrt.openInMap': 'Buka 📍 di peta ↗',
+  'mrt.status.delay': 'Tertunda',
+  'mrt.status.disrupted': 'Layanan terganggu',
+  'mrt.status.closure': 'Penutupan',
+  'mrt.status.normal': 'Layanan normal',
+  'mrt.status.unknown': 'Tidak diketahui',
+  'mrt.showing': 'Menampilkan {code} · {n} stasiun',
+  'mrt.overview': 'Ikhtisar',
+  'mrt.backToView': 'Kembali ↩',
+  'mrt.carparks': 'Parkir',
+  'mrt.allNormal': 'Semua normal',
+  'mrt.stationsCount': '{n} stasiun',
+  'mrt.selected': 'Dipilih',
+  'mrt.future': 'akan datang',
+  'mrt.crowd.h': 'Padat',
+  'mrt.crowd.m': 'Sedang',
+  'mrt.crowd.l': 'Tidak padat',
+  'mrt.exits': 'Pintu Keluar',
+  'mrt.busStops': 'Halte bus',
+  'mrt.taxiStand': 'Pangkalan taksi',
+  'mrt.taxiPickup': 'Naik / turun taksi',
+  'mrt.counts': '🚇 {ops} beroperasi · ⬜ {future} akan datang (abu-abu)',
+  'mrt.err.stations': '⚠ Tidak bisa memuat stasiun:',
+  'mrt.err.nokey': 'Peta tidak tersedia (kunci belum dikonfigurasi).',
+  'mrt.err.mapfail': '⚠ Peta gagal dimuat.',
+  'mrt.aria.map': 'Peta stasiun MRT dan LRT di Singapura',
+  'footer.tag': 'Eksperimental · Singapura',
+};
+for (const k in ID_STRINGS) {
+  if (STRINGS[k] && STRINGS[k].id == null) STRINGS[k].id = ID_STRINGS[k];
+}
 
 export function t(key, lang) {
   const l = SUPPORTED_LOCALES.includes(lang) ? lang : 'en';
