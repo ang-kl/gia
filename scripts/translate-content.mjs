@@ -1,4 +1,4 @@
-// scripts/translate-content.mjs — v0.62.317
+// scripts/translate-content.mjs — v0.62.318
 //
 // Generates id / ru / de translations of curated PROSE via the Gemini
 // API, written to a GENERATED overlay file that nation-overlay.js merges
@@ -15,6 +15,12 @@
 //   refactored (prose nested under `text:{}`); cooking-methods.js is a
 //   search-routing token index, not display prose — out of scope by design.
 //
+// RATE LIMITS: explainers are sent in BATCHES (one Gemini call translates
+// several at once) to stay under the free-tier requests-per-minute cap —
+// 30/66 single-call requests hit HTTP 429 on the first run (v0.62.317).
+// Each call also retries with exponential back-off on 429/503, and the
+// overlay is written after every batch so partial progress is never lost.
+//
 // PROPER-NOUN POLICY (the quality lever): dish names, cuisine names, place
 // names, native-script terms and ingredient loanwords (buah keluak, gula
 // melaka, kaya, sambal, …) are IDENTITY, not copy — Gemini is instructed to
@@ -22,7 +28,7 @@
 // tune what is preserved.
 
 import { createRequire } from 'node:module';
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -38,7 +44,13 @@ const LANG_NAME = { id: 'Indonesian', ru: 'Russian', de: 'German' };
 // "grounded" (that risks the model rewriting the facts).
 const MODEL_CHAIN = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
 
+const BATCH_SIZE = 6;          // explainers per Gemini call
+const BATCH_PAUSE_MS = 4000;   // gap between batches (RPM headroom)
+const RETRY_WAITS_MS = [5000, 15000, 40000]; // back-off on 429/503
+
 const OVERLAY_PATH = join(ROOT, 'nation-overlay-i18n.generated.js');
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function loadExistingOverlay() {
   if (!existsSync(OVERLAY_PATH)) return {};
@@ -51,63 +63,76 @@ function loadExistingOverlay() {
   }
 }
 
-// One translation call. Returns { id, ru, de } or throws after the chain
-// is exhausted. Strict-JSON response; proper nouns preserved per the
-// system instruction.
-async function translateEntry(apiKey, slug, enText) {
-  const sys = [
-    'You are a professional culinary translator for a Singapore food-discovery app.',
-    `Translate the English text into these languages: ${TARGET_LANGS.map((l) => `${l} (${LANG_NAME[l]})`).join(', ')}.`,
-    'CRITICAL RULES:',
-    '- DO NOT translate proper nouns: dish names, cuisine names, place/country names,',
-    '  people\'s names, and native-script or loanword culinary terms',
-    '  (e.g. buah keluak, gula melaka, kaya, sambal, laksa, kopi-O, nasi lemak,',
-    '  hawker, mezze, phyllo, hangi). Keep them verbatim in every language.',
-    '- Preserve punctuation, em-dashes, parentheses and the overall sentence shape.',
-    '- Natural, fluent register a tourist would read — not literal word-for-word.',
-    '- Return ONLY a strict JSON object with exactly these keys and no commentary:',
-    `  {${TARGET_LANGS.map((l) => `"${l}": "…"`).join(', ')}}`,
-  ].join('\n');
+const SYS_INSTRUCTION = [
+  'You are a professional culinary translator for a Singapore food-discovery app.',
+  `Translate each English entry into these languages: ${TARGET_LANGS.map((l) => `${l} (${LANG_NAME[l]})`).join(', ')}.`,
+  'CRITICAL RULES:',
+  '- DO NOT translate proper nouns: dish names, cuisine names, place/country names,',
+  "  people's names, and native-script or loanword culinary terms",
+  '  (e.g. buah keluak, gula melaka, kaya, sambal, laksa, kopi-O, nasi lemak,',
+  '  hawker, mezze, phyllo, hangi). Keep them verbatim in every language.',
+  '- Preserve punctuation, em-dashes, parentheses and the overall sentence shape.',
+  '- Natural, fluent register a tourist would read — not literal word-for-word.',
+  '- Input is a JSON array of {slug, en}. Return ONLY a strict JSON object keyed',
+  `  by slug, each value {${TARGET_LANGS.map((l) => `"${l}": "…"`).join(', ')}}. No commentary.`,
+].join('\n');
 
+// Translate one batch of {slug, en}. Returns { slug: {id,ru,de} } for the
+// entries the model returned validly. Throws only if the whole chain fails.
+async function translateBatch(apiKey, batch) {
+  const userPayload = JSON.stringify(batch.map(({ slug, en }) => ({ slug, en })));
   const body = {
-    systemInstruction: { parts: [{ text: sys }] },
-    contents: [{ role: 'user', parts: [{ text: enText }] }],
+    systemInstruction: { parts: [{ text: SYS_INSTRUCTION }] },
+    contents: [{ role: 'user', parts: [{ text: userPayload }] }],
     generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },
   };
 
   let lastErr;
   for (const model of MODEL_CHAIN) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) {
-        const txt = await res.text();
-        lastErr = new Error(`${model} → HTTP ${res.status}: ${txt.slice(0, 200)}`);
-        // 404 (model gone) / 503 (overloaded) → try next model in chain.
-        if (res.status === 404 || res.status === 503 || res.status === 429) continue;
-        throw lastErr;
-      }
-      const json = await res.json();
-      const raw = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!raw) { lastErr = new Error(`${model} → empty response`); continue; }
-      const parsed = JSON.parse(raw);
-      const out = {};
-      for (const l of TARGET_LANGS) {
-        if (typeof parsed[l] !== 'string' || !parsed[l].trim()) {
-          throw new Error(`${model} → missing/empty "${l}" for ${slug}`);
+    for (let attempt = 0; attempt <= RETRY_WAITS_MS.length; attempt += 1) {
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) {
+          const txt = await res.text();
+          lastErr = new Error(`${model} → HTTP ${res.status}: ${txt.slice(0, 160)}`);
+          if ((res.status === 429 || res.status === 503) && attempt < RETRY_WAITS_MS.length) {
+            const wait = RETRY_WAITS_MS[attempt];
+            console.warn(`[translate]   ${model} ${res.status}; back-off ${wait / 1000}s (attempt ${attempt + 1})`);
+            await sleep(wait);
+            continue; // retry same model
+          }
+          if (res.status === 404) break; // model gone → next model
+          break; // other non-retryable → next model
         }
-        out[l] = parsed[l].trim();
+        const json = await res.json();
+        const raw = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!raw) { lastErr = new Error(`${model} → empty response`); break; }
+        const parsed = JSON.parse(raw);
+        const out = {};
+        for (const { slug } of batch) {
+          const e = parsed[slug];
+          if (!e) continue;
+          const rec = {};
+          for (const l of TARGET_LANGS) {
+            if (typeof e[l] === 'string' && e[l].trim()) rec[l] = e[l].trim();
+          }
+          if (Object.keys(rec).length) out[slug] = rec;
+        }
+        if (Object.keys(out).length) return out;
+        lastErr = new Error(`${model} → no valid slugs parsed`);
+        break;
+      } catch (e) {
+        lastErr = e;
+        break; // parse/network error → next model
       }
-      return out;
-    } catch (e) {
-      lastErr = e;
     }
   }
-  throw new Error(`all models failed for "${slug}": ${lastErr?.message}`);
+  throw new Error(`batch failed (${batch.map((b) => b.slug).join(',')}): ${lastErr?.message}`);
 }
 
 function serializeOverlay(overlay) {
@@ -155,30 +180,39 @@ async function main() {
     const en = entry?.touristExplainer?.en;
     if (!en) continue;
     const have = overlay[slug] || {};
-    const missing = TARGET_LANGS.filter((l) => !have[l]);
-    if (missing.length) todo.push({ slug, en });
+    if (TARGET_LANGS.some((l) => !have[l])) todo.push({ slug, en });
   }
 
-  console.log(`[translate] ${Object.keys(NATION_OVERLAY).length} cuisines · ${todo.length} need translation · langs ${TARGET_LANGS.join('/')}`);
+  console.log(`[translate] ${Object.keys(NATION_OVERLAY).length} cuisines · ${todo.length} need translation · langs ${TARGET_LANGS.join('/')} · batch ${BATCH_SIZE}`);
   if (!todo.length) { console.log('[translate] nothing to do — overlay already complete.'); return; }
 
+  const batches = [];
+  for (let i = 0; i < todo.length; i += BATCH_SIZE) batches.push(todo.slice(i, i + BATCH_SIZE));
+
   let done = 0;
-  const failures = [];
-  for (const { slug, en } of todo) {
+  const failedSlugs = [];
+  for (let b = 0; b < batches.length; b += 1) {
+    const batch = batches[b];
     try {
-      const out = await translateEntry(apiKey, slug, en);
-      overlay[slug] = { ...(overlay[slug] || {}), ...out };
-      done += 1;
-      console.log(`[translate] ✓ ${slug} (${done}/${todo.length})`);
+      const out = await translateBatch(apiKey, batch);
+      for (const [slug, rec] of Object.entries(out)) {
+        overlay[slug] = { ...(overlay[slug] || {}), ...rec };
+        done += 1;
+      }
+      // any slug in the batch the model skipped → record as failed
+      for (const { slug } of batch) if (!out[slug]) failedSlugs.push(slug);
+      writeFileSync(OVERLAY_PATH, serializeOverlay(overlay), 'utf8'); // incremental persist
+      console.log(`[translate] ✓ batch ${b + 1}/${batches.length} (${Object.keys(out).length}/${batch.length}) · total ${done}/${todo.length}`);
     } catch (e) {
-      failures.push(slug);
-      console.warn(`[translate] ✗ ${slug}: ${e.message}`);
+      for (const { slug } of batch) failedSlugs.push(slug);
+      console.warn(`[translate] ✗ batch ${b + 1}/${batches.length}: ${e.message}`);
     }
+    if (b < batches.length - 1) await sleep(BATCH_PAUSE_MS);
   }
 
   writeFileSync(OVERLAY_PATH, serializeOverlay(overlay), 'utf8');
-  console.log(`[translate] wrote ${OVERLAY_PATH} · ${done} translated · ${failures.length} failed`);
-  if (failures.length) console.log(`[translate] failed slugs (re-run to retry): ${failures.join(', ')}`);
+  console.log(`[translate] wrote ${OVERLAY_PATH} · ${done} translated · ${failedSlugs.length} still missing`);
+  if (failedSlugs.length) console.log(`[translate] missing slugs (re-run to retry): ${failedSlugs.join(', ')}`);
 }
 
 main().catch((e) => { console.error('[translate] fatal:', e); process.exit(1); });
