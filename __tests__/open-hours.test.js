@@ -292,3 +292,26 @@ describe('localised open-hours (id / fr)', () => {
     expect(oh.closedTodayString(periods, now)).toBe('Closed now · Opens today 11:30 AM');
   });
 });
+
+// v0.62.316 — ru + de open-hours (24-hour "11:30"; Cyrillic / German words).
+describe('localised open-hours (ru / de)', () => {
+  it('closedTodayString ru — opens later today', () => {
+    const now = sgtDate(2026, 5, 4, 9, 0);
+    const periods = [{ open: { day: 1, hour: 11, minute: 30 }, close: { day: 1, hour: 15, minute: 0 } }];
+    expect(oh.closedTodayString(periods, now, undefined, 'ru')).toBe('Сейчас закрыто · Сегодня открывается в 11:30');
+  });
+  it('closedTodayString de — opens later today', () => {
+    const now = sgtDate(2026, 5, 4, 9, 0);
+    const periods = [{ open: { day: 1, hour: 11, minute: 30 }, close: { day: 1, hour: 15, minute: 0 } }];
+    expect(oh.closedTodayString(periods, now, undefined, 'de')).toBe('Jetzt geschlossen · Öffnet heute um 11:30');
+  });
+  it('currentOpenString ru/de — split lunch/dinner', () => {
+    const now = sgtDate(2026, 5, 4, 13, 0);
+    const periods = [
+      { open: { day: 1, hour: 11, minute: 0 }, close: { day: 1, hour: 15, minute: 0 } },
+      { open: { day: 1, hour: 18, minute: 0 }, close: { day: 1, hour: 22, minute: 0 } }
+    ];
+    expect(oh.currentOpenString(periods, now, undefined, 'ru')).toBe('Открыто · закрывается в 15:00 · снова открывается в 18:00');
+    expect(oh.currentOpenString(periods, now, undefined, 'de')).toBe('Geöffnet · schließt um 15:00 · öffnet wieder um 18:00');
+  });
+});
