@@ -1,0 +1,281 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+body { -webkit-font-smoothing: antialiased; }
+
+/* v0.62.x — operator: blink the trailing "…" (U+2026) on the first-load
+   "Finding eateries…" overlay. A smooth opacity blink reads as a live
+   "thinking" pulse without the harsh on/off flicker. Applied via a plain
+   class (not a Tailwind utility) so JIT purging never strips it. */
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+.animate-blink { animation: blink 1.1s ease-in-out infinite; }
+
+/* v0.62.139 — operator: each horizontal result card is a short scroll panel
+   that reveals its expanded detail as you scroll. A visible (but thin) scrollbar
+   is the affordance that there's more below. Luminance-derived --tg-border thumb
+   reads in light + dark and carries no hue (colour-blind safe). */
+.card-scroll { scrollbar-width: thin; scrollbar-color: var(--tg-border) transparent; }
+.card-scroll::-webkit-scrollbar { width: 6px; }
+.card-scroll::-webkit-scrollbar-thumb { background: var(--tg-border); border-radius: 3px; }
+.card-scroll::-webkit-scrollbar-track { background: transparent; }
+
+/* v0.62.272 — operator REVERSES v0.62.158 ("always on, obvious, thick"):
+   the page scrollbar is now THIN + UNOBTRUSIVE, becoming visible only as the
+   pointer nears the edge (hover). Prior rule (preserved for trace, AU-7):
+   `html { overflow-y: scroll; scrollbar-width: auto } html::-webkit-scrollbar { width: 14px }`
+   + filled track. iOS / Telegram WebView already overlay-hide; this tunes desktop. */
+html { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+html:hover { scrollbar-color: var(--tg-border, rgba(140,140,140,0.55)) transparent; }
+html::-webkit-scrollbar { width: 7px; height: 7px; }
+html::-webkit-scrollbar-track { background: transparent; }
+html::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; transition: background 0.2s; }
+html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,140,0.55)); }
+
+/* v0.62.90 — operator: "liquid glass 3D curved rectangle button". Frosted,
+   translucent fill + backdrop blur + a soft top highlight and drop shadow, so
+   the wait-card Stop pill and the Widen switch read as glass. Standardised
+   across the pop-ups. */
+.glass-pill {
+  background-color: color-mix(in srgb, var(--tg-text, #f5f5f7) 10%, transparent);
+  backdrop-filter: blur(10px) saturate(1.4);
+  -webkit-backdrop-filter: blur(10px) saturate(1.4);
+  /* v0.62.171 — operator: liquid glass must CONTRAST in dark mode. Added a
+     luminance-derived inset ring (a crisp 1px edge that reads against a dark
+     map AND a light one, since it tracks --tg-text), keeping the 3D highlight
+     + drop shadow. Colour-blind safe (luminance, not hue). */
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tg-text, #f5f5f7) 24%, transparent),
+              inset 0 1px 0 rgba(255, 255, 255, 0.35),
+              inset 0 -1px 0 rgba(0, 0, 0, 0.06),
+              0 2px 8px rgba(0, 0, 0, 0.22);
+}
+/* v0.62.171 — dark mode (cuisine sets data-theme): the frosted fill goes a touch
+   more opaque + a brighter ring so the pill separates from the dark Google map. */
+[data-theme="dark"] .glass-pill {
+  background-color: color-mix(in srgb, var(--tg-text, #f5f5f7) 16%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tg-text, #f5f5f7) 34%, transparent),
+              inset 0 1px 0 rgba(255, 255, 255, 0.30),
+              0 3px 12px rgba(0, 0, 0, 0.40);
+}
+
+/* v0.62.171 — operator: shared "liquid glass" surface for the translucent
+   bg-tg-bg/80 strips (cuisine filter strip, hawker region chips + section
+   header, transport line ticker). Theme-AGNOSTIC — transport/hawker never set
+   data-theme — so a luminance-derived inset ring + top highlight + drop shadow
+   give the glass a crisp edge that contrasts in BOTH light and dark, especially
+   over the dark map. Compose with `bg-tg-bg/80` in markup. */
+.liquid-glass {
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tg-text, #f5f5f7) 28%, transparent),
+              inset 0 1px 0 rgba(255, 255, 255, 0.22),
+              0 2px 10px rgba(0, 0, 0, 0.26);
+}
+/* v0.62.209 — operator: liquid glass was WASHED-OUT + unreadable in dark mode
+   (the saturate amplified the map's colours through the translucent fill, and
+   the bright inset ring read as a glare). In dark mode sit it on a DARK, near-
+   opaque base, drop the colour boost, and use a subtle dark ring. */
+[data-theme="dark"] .liquid-glass {
+  background-color: color-mix(in srgb, var(--tg-bg, #0e0e10) 90%, #000 10%) !important;
+  backdrop-filter: blur(14px) saturate(1.0);
+  -webkit-backdrop-filter: blur(14px) saturate(1.0);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+              0 -1px 14px rgba(0, 0, 0, 0.5);
+}
+
+/* v0.62.126 — selected region pill. Operator: "when selected in dark mode,
+   should be UI Skeuomorphism styling." Light mode keeps a flat accent tint;
+   dark mode gets a tactile, pressed-in (debossed) treatment — an accent
+   gradient fill + inset shadow so the active region reads as physically
+   pressed. Accent-derived, so it follows the user's Telegram theme. */
+.glass-pill--selected {
+  background-color: color-mix(in srgb, var(--tg-accent, #3390ec) 16%, transparent);
+}
+[data-theme="dark"] .glass-pill--selected {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--tg-accent, #3390ec) 34%, transparent),
+    color-mix(in srgb, var(--tg-accent, #3390ec) 12%, transparent)
+  );
+  border-color: color-mix(in srgb, var(--tg-accent, #3390ec) 70%, var(--tg-text, #f5f5f7) 30%);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.55),
+              inset 0 -1px 0 rgba(255, 255, 255, 0.10),
+              0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* v0.57.14: stronger contrast for hint/secondary text. Telegram's
+   themeParams.hint_color is often a low-contrast gray (#98989f-ish)
+   that fails partial-color-blindness readability. Derive --tg-hint
+   from text + bg directly so it auto-adapts to light/dark themes
+   while staying ~70% of the way from bg to text (well above WCAG AA).
+   tg.js stops syncing --tg-hint from Telegram so this rule wins. */
+:root {
+  --tg-hint: color-mix(in srgb, var(--tg-text, #f5f5f7) 72%, var(--tg-bg, #0e0e10) 28%);
+  /* v0.62.16: see note above --tg-hint — visible-in-dark border. */
+  --tg-border: color-mix(in srgb, var(--tg-text, #f5f5f7) 42%, var(--tg-bg, #0e0e10) 58%);
+}
+
+/* v0.59.18: bump base font-size by 1pt on tablet+ viewports
+   (iPad mini portrait = 744px CSS, iPad landscape = 1133px,
+   Telegram Desktop typically > 800px). Phones stay at the
+   browser default (16px). Tailwind's rem-based scale cascades
+   the change to every sized element. */
+@media (min-width: 600px) {
+  html { font-size: 17px; }
+
+  /* v0.60.42 — tablet/desktop centered column. iPads + Telegram
+     Desktop letterbox the TMA at a wider aspect than mobile; left
+     unhandled, cards stretch edge-to-edge and look unreadable. The
+     body becomes a flex container painted in the secondary bg
+     (matches the Telegram letterbox), and #root caps centered with
+     the primary bg so the app feels raised.
+     v0.60.49 — Human Lead 2026-05-09 raised the cap from 800 →
+     1280 px after a desktop screenshot showed >50% letterbox on a
+     1920 px window. 1280 still preserves the centered-column
+     aesthetic on ultrawide monitors but gives Telegram Desktop +
+     iPad-landscape room to breathe. */
+  body {
+    display: flex;
+    justify-content: center;
+    background-color: var(--tg-card, #1c1c1f);
+  }
+  /* v0.61.231 — operator: TMAs should fill notebook aspect ratio.
+     Raised from 1280 → 1600 so a 1440 / 1366 px laptop fills the
+     viewport and a 1920 px desktop gets a 1600 px centered column. */
+  #root {
+    width: 100%;
+    max-width: 1600px;
+    min-height: var(--tg-viewport-stable-height, 100vh);
+    background-color: var(--tg-bg);
+  }
+}
+
+/* v0.62.24 — perimeter border framing the centred TMA column on tablet /
+   desktop / iPad-mini (operator: "border around the perimeter of TMA in dark
+   mode", chose desktop/tablet/iPad-mini). Uses the subtle ~3:1 --tg-border so
+   the app shell is delineated from the letterbox in BOTH light and dark
+   (luminance-derived → colour-blind safe). Mobile full-bleed is intentionally
+   left borderless (no awkward screen-edge line / Telegram-header clipping). */
+@media (min-width: 600px) {
+  #root { border: 1px solid var(--tg-border); }
+}
+
+/* v0.62.181 — operator: "folio folder-tabs". A row of frosted-glass tabs sits on
+   top of a glass content panel; the ACTIVE tab is physically connected to the
+   panel (shares its top edge, no divider, sits 1px over the panel border), while
+   inactive tabs read as translucent index markers. Theme-agnostic glassmorphism
+   (luminance-derived edges → colour-blind safe). */
+.folio-tabs { display: flex; gap: 4px; padding: 0 2px; position: relative; z-index: 1; }
+.folio-tab {
+  border: 1px solid color-mix(in srgb, var(--tg-text, #f5f5f7) 20%, transparent);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  padding: 4px 10px;
+  font-size: 11px;
+  line-height: 1.1;
+  white-space: nowrap;
+  color: var(--tg-hint, #98989f);
+  background: color-mix(in srgb, var(--tg-bg, #0e0e10) 55%, transparent);
+  backdrop-filter: blur(8px) saturate(1.3);
+  -webkit-backdrop-filter: blur(8px) saturate(1.3);
+  transition: background .15s, color .15s;
+}
+/* active tab: opaque like the panel + overlaps its top border by 1px → "connected" */
+.folio-tab--active {
+  color: var(--tg-text, #f5f5f7);
+  font-weight: 600;
+  background: color-mix(in srgb, var(--tg-bg, #0e0e10) 90%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  margin-bottom: -1px;
+  position: relative;
+  z-index: 2;
+}
+.folio-panel {
+  border: 1px solid color-mix(in srgb, var(--tg-text, #f5f5f7) 20%, transparent);
+  border-radius: 0 12px 12px 12px;
+  background: color-mix(in srgb, var(--tg-bg, #0e0e10) 90%, transparent);
+  backdrop-filter: blur(12px) saturate(1.3);
+  -webkit-backdrop-filter: blur(12px) saturate(1.3);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+}
+
+/* v0.62.225 — operator ("1" = light-only): SKEUOMORPHIC MANILA FOLDER skin for the
+   Cuisine + Local-Food-Pick folder-tabs (the `.folio--manila` set) and their
+   pull-down drawers (`.folder-drawer`). Soft cream #F4EEDD, dark ink, 3D drop
+   shadows; the active tab merges into the drawer; a blue neon backlight glows
+   behind it. LIGHT-ONLY: a warm "paper" palette is forced via --tg-* overrides so
+   the content inside stays dark-on-cream even in the app's dark mode. */
+/* v0.62.244 — operator: match the approved cuisine-tma-mvp.html EXACTLY
+   (".panel { background:#fff }" + ".cat-card { background:#faf9f7 }"). The
+   v0.62.225 cream "manila folder" skin is REVERSED to the demo's WHITE panel +
+   off-white cards + flat grey/white tabs, so BOTH folio tabs ("Choose your
+   cuisine" / "Pick local classic") read as one cohesive white panel instead of
+   two differently-toned drawers. AU-7: the prior manila palette stays in git
+   history; these `--tg-*` overrides still force a light, dark-on-white surface
+   even in the app's dark mode. */
+.folio--manila, .folder-drawer {
+  --tg-text: #1c1c1e;
+  --tg-hint: #8e8e93;
+  --tg-card: #faf9f7;
+  --tg-bg: #ffffff;
+  --tg-border: #e8e5e0;
+  color: #1c1c1e;
+}
+.folio--manila { gap: 6px; }
+.folio--manila .folio-tab {
+  border: 1px solid #d1cec9;
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  padding: 7px 14px 8px;
+  /* v0.62.263 — operator (IMG_2553): "the panel header should be the same as
+     background and bold text." The resting tabs were muted grey text (#8e8e93)
+     on a grey fill (#e3dfd9) — low-contrast and off from the white panel. Match
+     the panel/background white + bold dark ink so both folio headers read as one
+     cohesive surface (the tab SHAPE + the open tab's drawer connection still
+     carry which one is active). Was: color #8e8e93, background #e3dfd9. */
+  color: #1c1c1e;
+  font-weight: 700;
+  background: #ffffff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  transform: translateY(1px);            /* inactive tab sits a hair lower */
+}
+.folio--manila .folio-tab--active {
+  color: #1c1c1e;
+  /* v0.62.255 — operator: "the panel header title should be bold." The active
+     folio tab is the cuisine / local-classic drawer's header title; bump
+     semibold (600) → bold (700). Background stays the demo white (unchanged). */
+  font-weight: 700;
+  background: #ffffff;                    /* demo active tab merges into white panel */
+  transform: translateY(0);
+  z-index: 3;
+  box-shadow: none;
+  margin-bottom: -1px;                   /* merge into the drawer below */
+}
+.folder-drawer {
+  background: #ffffff !important;        /* demo .panel */
+  border-color: #d1cec9 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10) !important;   /* demo panel shadow */
+}
+
+/* v0.62.189 — operator (IMG_2515): the refine-location input is a WHITE field
+   (a clear "type here" affordance) with the blue accent border REMOVED. Light
+   mode = white; dark mode keeps contrast with the card surface + a subtle hint
+   border (the text stays --tg-text, readable on both). Width comes from the
+   Tailwind `border` utility; this class only sets fill + border colour. */
+/* v0.62.199 — operator: the scroll panels (local-classic / cuisine pickers)
+   showed a scrollbar that read oddly "beside the tabs". Hide it; wheel /
+   trackpad / touch scrolling still works. */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+.loc-field-surface {
+  background: #ffffff;
+  border-color: #cbd5e1; /* slate-300 — neutral, not blue */
+}
+[data-theme="dark"] .loc-field-surface {
+  background: var(--tg-card, #1c1c1f);
+  border-color: color-mix(in srgb, var(--tg-hint, #98989f) 55%, transparent);
+}
