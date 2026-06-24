@@ -44,6 +44,8 @@ function fmtTime(hour, minute, lang = 'en') {
   const mm = String(minute || 0).padStart(2, '0');
   if (lang === 'id') return `${String(hour).padStart(2, '0')}.${mm}`;
   if (lang === 'fr') return `${String(hour).padStart(2, '0')}h${mm}`;
+  // v0.62.316 — ru + de use the 24-hour clock with a colon (11:00).
+  if (lang === 'ru' || lang === 'de') return `${String(hour).padStart(2, '0')}:${mm}`;
   const h12 = hour % 12 === 0 ? 12 : hour % 12;
   const ampm = hour < 12 ? 'AM' : 'PM';
   return `${h12}:${mm} ${ampm}`;
@@ -56,6 +58,8 @@ const DAY_LABELS = {
   en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
   fr: ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'],
   id: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+  ru: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+  de: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
 };
 function dayLabel(day, lang) { return (DAY_LABELS[lang] || DAY_LABELS.en)[day]; }
 
@@ -83,6 +87,22 @@ const OH_PHRASES = {
     open24: 'Buka · 24 jam', openPrefix: 'Buka',
     closes: (t) => `Tutup ${t}`, closesDay: (d, t) => `Tutup ${d} ${t}`,
     reopens: (t) => `Buka lagi ${t}`,
+  },
+  ru: {
+    opensToday: (t) => `Сегодня открывается в ${t}`, opensTomorrow: (t) => `Завтра открывается в ${t}`,
+    opensDay: (d, t) => `Открывается ${d} в ${t}`,
+    closedNow: 'Сейчас закрыто', closedToday: 'Сегодня закрыто', closed: 'Закрыто',
+    open24: 'Открыто · круглосуточно', openPrefix: 'Открыто',
+    closes: (t) => `закрывается в ${t}`, closesDay: (d, t) => `закрывается ${d} в ${t}`,
+    reopens: (t) => `снова открывается в ${t}`,
+  },
+  de: {
+    opensToday: (t) => `Öffnet heute um ${t}`, opensTomorrow: (t) => `Öffnet morgen um ${t}`,
+    opensDay: (d, t) => `Öffnet ${d} um ${t}`,
+    closedNow: 'Jetzt geschlossen', closedToday: 'Heute geschlossen', closed: 'Geschlossen',
+    open24: 'Geöffnet · 24 Stunden', openPrefix: 'Geöffnet',
+    closes: (t) => `schließt um ${t}`, closesDay: (d, t) => `schließt ${d} um ${t}`,
+    reopens: (t) => `öffnet wieder um ${t}`,
   },
 };
 function phrases(lang) { return OH_PHRASES[lang] || OH_PHRASES.en; }
