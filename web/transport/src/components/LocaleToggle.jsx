@@ -1,35 +1,70 @@
-// LocaleToggle.jsx — transport TMA. v0.62.312.
+// LocaleToggle.jsx — transport TMA. v0.62.314.
 //
-// Compact 5-flag language switch (🇬🇧 🇫🇷 🇮🇩 🇷🇺 🇩🇪). The active flag is
-// full-opacity, the rest dimmed. One tap calls setActiveLocale, which writes
-// the shared 'gia.locale' key + fires 'gia:locale' so the UI re-renders here
-// (and stays in sync across the other TMAs).
-import React from 'react';
+// Compact language DROPDOWN (replaces the 5-flag row, which ate header
+// space). Collapsed: current flag + ▾. Open: a list of "Native name 🇫🇷"
+// rows. Picking one calls setLang (writes the shared 'gia.locale' key +
+// fires 'gia:locale' so the UI re-renders and stays in sync across TMAs).
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocale, setActiveLocale } from '../i18n.js';
 
 const LOCALES = [
-  { code: 'en', flag: '🇬🇧', label: 'English' },
-  { code: 'fr', flag: '🇫🇷', label: 'Français' },
-  { code: 'id', flag: '🇮🇩', label: 'Bahasa Indonesia' },
-  { code: 'ru', flag: '🇷🇺', label: 'Русский' },
-  { code: 'de', flag: '🇩🇪', label: 'Deutsch' },
+  { code: 'en', name: 'English',          flag: '🇬🇧' },
+  { code: 'fr', name: 'Français',         flag: '🇫🇷' },
+  { code: 'de', name: 'Deutsch',          flag: '🇩🇪' },
+  { code: 'ru', name: 'Русский',          flag: '🇷🇺' },
+  { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩' },
 ];
 
 export default function LocaleToggle({ className = '' }) {
   const lang = useLocale();
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const current = LOCALES.find((l) => l.code === lang) || LOCALES[0];
+
+  useEffect(() => {
+    if (!open) return undefined;
+    function onDoc(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('touchstart', onDoc);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('touchstart', onDoc);
+    };
+  }, [open]);
+
   return (
-    <div className={`flex items-center gap-0.5 text-sm select-none ${className}`}>
-      {LOCALES.map(({ code, flag, label }) => (
-        <button
-          key={code}
-          type="button"
-          onClick={() => setActiveLocale(code)}
-          aria-pressed={lang === code}
-          aria-label={label}
-          title={label}
-          className={`px-0.5 py-0.5 rounded transition-opacity ${lang === code ? 'opacity-100' : 'opacity-40 hover:opacity-70'}`}
-        >{flag}</button>
-      ))}
+    <div ref={ref} className={`relative select-none ${className}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label="Language"
+        className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-sm leading-none active:scale-95"
+      >
+        <span>{current.flag}</span>
+        <span aria-hidden="true" className="text-tg-hint text-[10px]">▾</span>
+      </button>
+      {open && (
+        <div
+          role="listbox"
+          className="absolute right-0 mt-1 z-50 min-w-[11rem] rounded-lg border border-tg-border bg-tg-card shadow-lg overflow-hidden"
+        >
+          {LOCALES.map((l) => (
+            <button
+              key={l.code}
+              type="button"
+              role="option"
+              aria-selected={l.code === lang}
+              onClick={() => { setActiveLocale(l.code); setOpen(false); }}
+              className={`w-full flex items-center justify-between gap-3 px-3 py-2 text-sm text-left ${l.code === lang ? 'font-semibold bg-tg-bg' : 'hover:bg-tg-bg'}`}
+            >
+              <span>{l.name}</span>
+              <span aria-hidden="true">{l.flag}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
