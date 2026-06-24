@@ -220,7 +220,7 @@ export function t(key, lang) {
   const l = pickLang(lang);
   const entry = STRINGS[key];
   if (!entry) return key;
-  return entry[l] || entry.en || key;
+  return entry[l] ?? entry.en ?? key;
 }
 
 export function tn(key, lang, vars = {}) {
