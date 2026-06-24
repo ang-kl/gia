@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 
 const LOCALE_KEY = 'gia.locale';
 const LOCALE_EVENT = 'gia:locale';
-const SUPPORTED_LOCALES = ['en', 'fr'];
+const SUPPORTED_LOCALES = ['en', 'fr', 'id'];
 
 const STRINGS = {
   // ----- Hero -----
@@ -164,6 +164,83 @@ const STRINGS = {
   'rating.resetBody':          { en: 'Showing eateries with generally good Google ratings.',
                                  fr: 'Affiche les restaurants généralement bien notés sur Google.' }
 };
+
+// ----- Indonesian (id) overlay — v0.62.306 -----
+// Machine-drafted Indonesian, operator-reviewed. Flat key→string overlay merged
+// into STRINGS below (existing en/fr untouched; unlisted keys degrade to English).
+// Brand words (Soleat) kept verbatim.
+const ID_STRINGS = {
+  'hero.tagline.line1': 'Makan sendiri',
+  'hero.tagline.line2': 'Ayo makan',
+  'hero.subtagline': 'Jelajahi 50+ masakan Singapura di luar favorit yang biasa',
+  'section.eat': 'Makan',
+  'section.discover': 'Jelajahi',
+  'section.plan': 'Rencanakan',
+  'section.location': 'Lokasi',
+  'tile.cuisine.label': 'Pilihan Masakan atau Makanan Lokal',
+  'tile.cuisine.sub': 'Cari tempat makan — 50+ masakan, hidangan, atau suasana',
+  'tile.train.label': 'Jalur Kereta',
+  'tile.train.sub': 'Status MRT & LRT langsung, stasiun, dan peringatan layanan',
+  'tile.hawker.label': 'Pusat Jajan',
+  'tile.hawker.sub': 'Budaya hawker Singapura yang diakui UNESCO, tempat makanan sehari-hari dan komunitas bertemu',
+  'section.sg': '🇸🇬 Singapura',
+  'tile.recognised.label': 'Diakui',
+  'tile.search.label': 'Cari',
+  'tile.weather.label': 'Cuaca',
+  'tile.location.label': 'Lokasi',
+  'tile.drive.label': 'Berkendara',
+  'tile.incidents.label': 'Insiden',
+  'tile.busNearest.label': 'Halte bus',
+  'tile.busRoute.label': 'Rencana rute',
+  'panel.train.title': 'Kereta',
+  'panel.train.map': 'Peta MRT',
+  'panel.train.more': 'Status lengkap',
+  'tile.train.live.healthy': '🟢 Semua jalur normal',
+  'tile.train.live.disruption': '🔴 Gangguan — ketuk untuk detail',
+  'tile.train.live.offline': '🟡 Sensor LTA offline',
+  'tile.train.live.warmup': 'Menyiapkan…',
+  'chip.language': 'Bahasa',
+  'chip.privacy': 'Privasi',
+  'chip.forgetme': 'Lupakan saya',
+  'loc.farFromPick': '📍 Anda tampak jauh dari {label} — ketuk kolom lokasi untuk memperbarui.',
+  'footer.tag': 'Eksperimental · Singapura',
+  'btn.fabBack': 'kembali',
+  'btn.fabEnd': 'tutup',
+  'btn.fabBackAria': 'Kembali',
+  'btn.fabEndAria': 'Tutup',
+  'btn.fabTop': '⇡ atas',
+  'btn.fabDown': '⇣ bawah',
+  'btn.fabTopAria': 'Kembali ke atas',
+  'btn.fabDownAria': 'Gulir ke bawah',
+  'hint.tap': 'Ketuk ubin untuk mulai · geser ke bawah untuk menutup',
+  'location.fieldLabel': '📍 Jangkar pencarian',
+  'location.currentNone': 'Belum ada jangkar — pencarian memakai pin GPS Anda atau default Singapura.',
+  'location.currentSet': 'Berjangkar di <b>{label}</b>{cap}.',
+  'location.capNote': ' · batas {km} km',
+  'location.dropdownLabel': 'Pilih kawasan…',
+  'location.dropdownGroupSg': 'Singapura — kawasan STB',
+  'location.dropdownGroupSgReg': 'Singapura — wilayah',
+  'location.dropdownGroupMy': 'Malaysia',
+  'location.searchPlaceholder': 'atau ketik nama tempat…',
+  'location.searchSubmit': 'Atur',
+  'location.setOk': '✅ Berjangkar di {label}.',
+  'location.setErr': '⚠️ Tidak bisa menetapkan lokasi itu. Coba nama yang lebih spesifik.',
+  'tile.disabledMy': 'Hanya Singapura — ganti jangkar untuk memakai ini.',
+  'location.disabledList': ' (Hawker, Kereta, Insiden, Halte bus, Cuaca dinonaktifkan)',
+  'loc.other.country': 'Negara',
+  'loc.other.city': 'Kota',
+  'loc.other.placeholder': 'Ketik tempat + Cari',
+  'loc.other.searchBtn': '🔍 Cari',
+  'loc.other.searching': 'Mencari {country}…',
+  'loc.other.noMatch': 'Tidak ada tempat ditemukan di {country}. Coba nama lain.',
+  'loc.other.confirmHeader': 'Ditemukan di {flag} {country}:',
+  'loc.other.cancel': '✕ Batal · ketik lagi',
+  'rating.resetTitle': 'Rating disetel ulang: Bagus+ ≥ 3,7⭐',
+  'rating.resetBody': 'Menampilkan tempat makan dengan rating Google yang umumnya bagus.',
+};
+for (const k in ID_STRINGS) {
+  if (STRINGS[k] && STRINGS[k].id == null) STRINGS[k].id = ID_STRINGS[k];
+}
 
 export function t(key, lang) {
   const l = SUPPORTED_LOCALES.includes(lang) ? lang : 'en';

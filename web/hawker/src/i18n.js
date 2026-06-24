@@ -14,7 +14,7 @@ import { initData } from './tg.js';
 
 const LOCALE_KEY = 'gia.locale';
 const LOCALE_EVENT = 'gia:locale';
-const SUPPORTED = ['en', 'fr'];
+const SUPPORTED = ['en', 'fr', 'id'];
 
 const STRINGS = {
   // Header
@@ -139,6 +139,80 @@ const STRINGS = {
   // v0.60.213 — standardised footer tag line (v0.60.217 — restored full form)
   'footer.tag':                          { en: 'Experimental · Singapore', fr: 'Expérimental · Singapour' }
 };
+
+// ----- Indonesian (id) overlay — v0.62.306 -----
+// Machine-drafted Indonesian, operator-reviewed. Flat key→string overlay merged
+// into STRINGS below (existing en/fr untouched; t()'s `entry[l] || entry.en`
+// degrades any unlisted key to English). Hawker "hawker centre" → "pusat jajan".
+const ID_STRINGS = {
+  'header.title': '🍚 Pusat Jajan (2025)',
+  'header.versionCount': 'v{v} · {n} pusat',
+  'header.versionOnly': 'v{v}',
+  'status.loading': 'Memuat…',
+  'layer.parks': 'Taman',
+  'layer.attractions': 'Atraksi',
+  'layer.taxis': 'Pangkalan Taksi',
+  'layer.clinics': 'Klinik / Apotek',
+  'layer.hospitals': 'Rumah Sakit',
+  'layer.police': 'Polisi',
+  'layer.busstop': 'Halte Bus',
+  'layer.colour': 'Warna',
+  'layer.colour.on': '☑️ Monokrom',
+  'layer.colour.off': '🎨 Warna',
+  'layer.open24': '24 jam',
+  'layer.soon': 'segera hadir',
+  'map.reset': 'Atur ulang tampilan',
+  'map.more': 'Lapisan lainnya',
+  'layer.carpark': 'Parkir',
+  'layer.exits': 'Pintu Keluar Stasiun',
+  'layer.train': 'Kereta',
+  'layer.all': 'Semua',
+  'region.Central': 'Tengah',
+  'region.South': 'Selatan',
+  'region.East': 'Timur',
+  'region.North': 'Utara',
+  'region.West': 'Barat',
+  'list.headingBody': ' — {n} pusat jajan (menurut abjad)',
+  'btn.openFullscreenMap': 'Penuh 📍 di peta ↗',
+  'btn.viewAllOnMap': '🗺 Lihat {n} Pusat Jajan di peta',
+  'btn.openAllOnGoogleMaps': '🗺 Buka semua {n} di Google Maps',
+  'btn.openTourGoogleMaps': '🌐 {n} pin di Google Maps',
+  'btn.openTourGoogleMapsRange': '{from}–{to} 📍 di peta ↗',
+  'map.mappedRatio': '📍 {mapped}/{total} pusat dipetakan',
+  'map.expand': 'Perbesar peta',
+  'map.collapse': 'Perkecil peta',
+  'map.zoomIn': 'Perbesar',
+  'map.zoomOut': 'Perkecil',
+  'map.loading': 'Memuat peta…',
+  'map.nokey': 'Peta tidak tersedia (kunci belum dikonfigurasi).',
+  'map.noCoords': 'Koordinat pusat jajan belum dimuat — gunakan daftar di bawah.',
+  'map.openInGoogleMaps': '📍 Buka di Google Maps',
+  'map.aria': 'Peta pusat jajan di wilayah aktif',
+  'btn.maps': '📍 Peta',
+  'btn.fabBack': 'kembali',
+  'btn.fabEnd': 'tutup',
+  'btn.fabBackAria': 'Kembali',
+  'btn.fabEndAria': 'Tutup',
+  'btn.fabTop': '⇡ atas',
+  'btn.fabDown': '⇣ bawah',
+  'btn.fabTopAria': 'Kembali ke atas',
+  'btn.fabDownAria': 'Gulir ke bawah',
+  'btn.saveToChat': '📤 Simpan ke chat',
+  'btn.saving': 'Mengirim…',
+  'msg.savedClose': 'Terkirim ke chat. Anda bisa menutup tampilan ini.',
+  'msg.saveFailed': 'Tidak bisa mengirim ke chat — silakan coba lagi.',
+  'stalls.count': '🍳 {n} kios',
+  'stalls.status.existing': 'Beroperasi',
+  'stalls.status.existing_new': 'Baru',
+  'stalls.status.existing_replacement': 'Dibangun ulang',
+  'stalls.status.interim_centre': 'Sementara',
+  'stalls.status.under_construction': 'Dalam pembangunan',
+  'stalls.status.proposed': 'Diusulkan',
+  'footer.tag': 'Eksperimental · Singapura',
+};
+for (const k in ID_STRINGS) {
+  if (STRINGS[k] && STRINGS[k].id == null) STRINGS[k].id = ID_STRINGS[k];
+}
 
 function pickLang(lang) { return SUPPORTED.includes(lang) ? lang : 'en'; }
 
