@@ -74,6 +74,23 @@ describe('resolveLang', () => {
     expect(await resolveLang(redis, 7, { from: { language_code: 'zh' } })).toBe('en');
   });
 
+  // v0.62.309 — locale boundary guard. The supported non-en/fr locales must
+  // resolve from the device language_code…
+  it('resolves the supported locales (id/ru/de) from the device language', async () => {
+    expect(await resolveLang(redis, 7, { from: { language_code: 'id' } })).toBe('id');
+    expect(await resolveLang(redis, 7, { from: { language_code: 'ru-RU' } })).toBe('ru');
+    expect(await resolveLang(redis, 7, { from: { language_code: 'de-AT' } })).toBe('de');
+  });
+
+  // …and ANY language outside the supported set must fall back to English,
+  // never leak through. (Operator: "default is EN if none of the other
+  // language is part of device language.")
+  it('defaults to en for every UNsupported device language', async () => {
+    for (const code of ['zh', 'zh-Hans', 'ja', 'es', 'pt-BR', 'ar', 'th', 'vi', 'ko', 'it', 'xx']) {
+      expect(await resolveLang(redis, 7, { from: { language_code: code } })).toBe('en');
+    }
+  });
+
   it('clears with del() reverts to fallback chain', async () => {
     await setUserLang(redis, 7, 'fr');
     expect(await resolveLang(redis, 7, 'en')).toBe('fr');
