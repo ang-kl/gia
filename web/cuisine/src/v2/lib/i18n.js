@@ -399,6 +399,9 @@ const STRINGS = {
   'locale.switchToFr':         { en: 'Switch to French', fr: 'Passer en français', id: 'Beralih ke bahasa Prancis' },
   // v0.62.303 — Indonesian (id) locale added (Phase 1).
   'locale.switchToId':         { en: 'Switch to Indonesian', fr: 'Passer en indonésien', id: 'Beralih ke bahasa Indonesia' },
+  // v0.62.309 — Russian (ru) + German (de) locales added.
+  'locale.switchToRu':         { en: 'Switch to Russian', fr: 'Passer en russe', id: 'Beralih ke bahasa Rusia', ru: 'Переключить на русский', de: 'Zu Russisch wechseln' },
+  'locale.switchToDe':         { en: 'Switch to German', fr: 'Passer en allemand', id: 'Beralih ke bahasa Jerman', ru: 'Переключить на немецкий', de: 'Auf Deutsch umschalten' },
 
   // ----- Location field (v0.59.12) -----
   'loc.enterHint':             { en: '↵ Press Enter to use the top result', fr: '↵ Appuyez sur Entrée pour le premier résultat' },
@@ -696,7 +699,7 @@ for (const [k, v] of Object.entries(ID_STRINGS)) {
   if (STRINGS[k] && STRINGS[k].id == null) STRINGS[k].id = v;
 }
 
-export const SUPPORTED_LOCALES = ['en', 'fr', 'id'];
+export const SUPPORTED_LOCALES = ['en', 'fr', 'id', 'ru', 'de'];
 
 export function t(key, lang) {
   const l = SUPPORTED_LOCALES.includes(lang) ? lang : 'en';

@@ -14,7 +14,7 @@
 // expires; a user who hasn't interacted in 12 months drops back to
 // Telegram-locale heuristic, which is the right behaviour.
 
-const SUPPORTED = ['en', 'fr'];
+const SUPPORTED = ['en', 'fr', 'id', 'ru', 'de'];
 const TTL_SECONDS = 365 * 24 * 60 * 60;
 
 function key(chatId) {

@@ -18,8 +18,10 @@ function makeRedis() {
 }
 
 describe('user-prefs.SUPPORTED', () => {
-  it('exposes en + fr only', () => {
-    expect(SUPPORTED).toEqual(['en', 'fr']);
+  it('exposes en, fr, id, ru, de', () => {
+    // v0.62.309 — extended from en/fr to add id (Indonesian), ru (Russian),
+    // de (German) as supported UI + translation-target locales.
+    expect(SUPPORTED).toEqual(['en', 'fr', 'id', 'ru', 'de']);
   });
 });
 

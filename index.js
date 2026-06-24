@@ -14826,7 +14826,7 @@ async function cacheBotUsername() {
         // (open-hours label) render in Indonesian. csLang threads on to many
         // `csLang === 'fr' ? fr : en` sites where 'id' degrades safely to en;
         // chat-side gates (deliverPicks) stay en/fr until the chat id pass.
-        const csBodyLang = (typeof langIn === 'string' && ['en','fr','id'].includes(langIn)) ? langIn : null;
+        const csBodyLang = (typeof langIn === 'string' && ['en','fr','id','ru','de'].includes(langIn)) ? langIn : null;
         const csLang = csBodyLang || (csChatId ? await resolveLangSearch(redis, csChatId, null) : 'en');
         // v0.60.161 — verbose-log instrumentation. Capture request start
         // time + incoming payload shape. The vlogIf gate is in-process-
@@ -17523,7 +17523,7 @@ async function cacheBotUsername() {
         const { resolveLang: resolveLangNL } = require('./user-prefs');
         // v0.62.305 — accept 'id' so the Tell-me path's open-hours label renders
         // in Indonesian (mirrors the cuisine-search csBodyLang gate).
-        const nlBodyLang = (typeof nlLangIn === 'string' && ['en','fr','id'].includes(nlLangIn)) ? nlLangIn : null;
+        const nlBodyLang = (typeof nlLangIn === 'string' && ['en','fr','id','ru','de'].includes(nlLangIn)) ? nlLangIn : null;
         const nlLang = nlBodyLang || await resolveLangNL(redis, chatId, null);
         // v0.62.94 — operator ("dai lok mee kl … results so narrowed vs Google
         // Maps"): the NL path under-fetched. Two fixes here + a wider slice

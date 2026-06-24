@@ -42,6 +42,22 @@ export default function LocaleToggle() {
         aria-label="Bahasa Indonesia"
         aria-pressed={lang === 'id'}
       >🇮🇩ID</button>
+      <span className="text-tg-hint">·</span>
+      <button
+        type="button"
+        className={cls(lang === 'ru')}
+        onClick={() => setActiveLocale('ru')}
+        aria-label="Русский"
+        aria-pressed={lang === 'ru'}
+      >🇷🇺RU</button>
+      <span className="text-tg-hint">·</span>
+      <button
+        type="button"
+        className={cls(lang === 'de')}
+        onClick={() => setActiveLocale('de')}
+        aria-label="Deutsch"
+        aria-pressed={lang === 'de'}
+      >🇩🇪DE</button>
     </div>
   );
 }
