@@ -3117,6 +3117,27 @@ function formatNationOverlay(slug, ctx = {}) {
   ].filter(Boolean).join('\n');
 }
 
+// v0.62.317 — Curated-prose i18n. Fold the GENERATED id/ru/de translations
+// of touristExplainer into each cuisine's overlay at load. The overlay file
+// is produced by scripts/translate-content.mjs (Gemini, reviewed-by-PR) and
+// may be absent on a fresh checkout — guard the require so the source still
+// loads. Only fills locales that are missing (en/fr hand-authored values win).
+try {
+  // eslint-disable-next-line global-require
+  const PROSE_I18N = require('./nation-overlay-i18n.generated.js');
+  for (const [slug, locales] of Object.entries(PROSE_I18N || {})) {
+    const te = NATION_OVERLAY[slug] && NATION_OVERLAY[slug].touristExplainer;
+    if (!te) continue;
+    for (const [lang, text] of Object.entries(locales)) {
+      if (te[lang] == null && typeof text === 'string' && text) te[lang] = text;
+    }
+  }
+} catch (e) {
+  if (e && e.code !== 'MODULE_NOT_FOUND') {
+    console.warn(`[nation-overlay] prose-i18n overlay load failed: ${e.message}`);
+  }
+}
+
 module.exports = {
   NATION_OVERLAY,
   getNationOverlay,
