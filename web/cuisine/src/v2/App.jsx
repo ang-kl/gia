@@ -758,7 +758,7 @@ export default function App() {
       const name = nameOf(sel[0]);
       if (!name) return null;
       const accent = REGION_ACCENT[catOf(sel[0])] || '#b45309';
-      return { single: { label: lang === 'fr' ? `${name} et saveurs voisines` : `${name} & Nearby Flavours`, accent }, strips: null };
+      return { single: { label: lang === 'fr' ? `${name} et saveurs voisines` : lang === 'id' ? `${name} & Cita Rasa Terdekat` : `${name} & Nearby Flavours`, accent }, strips: null };
     }
     const strips = {};
     sel.forEach((slug, i) => { const n = nameOf(slug); if (n) strips[n] = { label: n, accent: PALETTE[i % PALETTE.length] }; });
@@ -1756,7 +1756,7 @@ export default function App() {
             ? `Position déplacée vers ${anchorMismatch.deviceLabel}`
             : `Location moved to ${anchorMismatch.deviceLabel}`)
             + (anchorMismatch.anchorLabel
-              ? (lang === 'fr' ? ` · 📍 pour revenir à ${anchorMismatch.anchorLabel}` : ` · 📍 to return to ${anchorMismatch.anchorLabel}`)
+              ? (lang === 'fr' ? ` · 📍 pour revenir à ${anchorMismatch.anchorLabel}` : lang === 'id' ? ` · 📍 untuk kembali ke ${anchorMismatch.anchorLabel}` : ` · 📍 to return to ${anchorMismatch.anchorLabel}`)
               : ''),
         });
         // v0.61.404 — device == set here, so DO load — but pause ~1 s so the
@@ -3141,13 +3141,13 @@ export default function App() {
           className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/50"
           role="dialog"
           aria-modal="true"
-          aria-label={lang === 'fr' ? 'Conflit de localisation' : 'Location mismatch'}
+          aria-label={lang === 'fr' ? 'Conflit de localisation' : lang === 'id' ? 'Lokasi tidak cocok' : 'Location mismatch'}
         >
           <div className="w-full max-w-[420px] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
             <div className="px-4 py-3 border-b border-tg-border bg-tg-card flex items-center gap-2">
               <span aria-hidden>📍</span>
               <h2 className="text-sm font-semibold flex-1">
-                {lang === 'fr' ? 'Conflit de localisation' : 'Location mismatch'}
+                {lang === 'fr' ? 'Conflit de localisation' : lang === 'id' ? 'Lokasi tidak cocok' : 'Location mismatch'}
               </h2>
             </div>
             <div className="px-4 py-3 text-[13px] leading-snug text-tg-text">
@@ -3188,13 +3188,13 @@ export default function App() {
           className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/50"
           role="dialog"
           aria-modal="true"
-          aria-label={lang === 'fr' ? 'Conflit de région' : 'Region mismatch'}
+          aria-label={lang === 'fr' ? 'Conflit de région' : lang === 'id' ? 'Wilayah tidak cocok' : 'Region mismatch'}
         >
           <div className="w-full max-w-[420px] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
             <div className="px-4 py-3 border-b border-tg-border bg-tg-card flex items-center gap-2">
               <span aria-hidden>📍</span>
               <h2 className="text-sm font-semibold flex-1">
-                {lang === 'fr' ? 'Conflit de région' : 'Region mismatch'}
+                {lang === 'fr' ? 'Conflit de région' : lang === 'id' ? 'Wilayah tidak cocok' : 'Region mismatch'}
               </h2>
             </div>
             <div className="px-4 py-3 text-[13px] leading-snug text-tg-text">
@@ -3217,7 +3217,7 @@ export default function App() {
                 onClick={() => applyRegionCoherenceChoice(false)}
                 className="w-full px-3 py-2 rounded-xl bg-tg-card border border-tg-border text-tg-text text-sm"
               >
-                {lang === 'fr' ? 'Rester sur JB' : 'Stay on JB'}
+                {lang === 'fr' ? 'Rester sur JB' : lang === 'id' ? 'Tetap di JB' : 'Stay on JB'}
               </button>
             </div>
           </div>
@@ -3280,13 +3280,13 @@ export default function App() {
           className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/50"
           role="dialog"
           aria-modal="true"
-          aria-label={lang === 'fr' ? 'Conflit de localisation' : 'Location mismatch'}
+          aria-label={lang === 'fr' ? 'Conflit de localisation' : lang === 'id' ? 'Lokasi tidak cocok' : 'Location mismatch'}
         >
           <div className="w-full max-w-[420px] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
             <div className="px-4 py-3 border-b border-tg-border bg-tg-card flex items-center gap-2">
               <span aria-hidden>📍</span>
               <h2 className="text-sm font-semibold flex-1">
-                {lang === 'fr' ? 'Conflit de localisation' : 'Location mismatch'}
+                {lang === 'fr' ? 'Conflit de localisation' : lang === 'id' ? 'Lokasi tidak cocok' : 'Location mismatch'}
               </h2>
             </div>
             <div className="px-4 py-3 text-[13px] leading-snug text-tg-text break-words">
@@ -3300,14 +3300,14 @@ export default function App() {
                 onClick={() => applyAnchorCoherenceChoice(true)}
                 className="w-full px-3 py-2 rounded-xl bg-tg-accent text-tg-accent-text text-sm font-semibold break-words line-clamp-2"
               >
-                {lang === 'fr' ? `Utiliser ${anchorMismatch.deviceLabel}` : `Use ${anchorMismatch.deviceLabel}`}
+                {lang === 'fr' ? `Utiliser ${anchorMismatch.deviceLabel}` : lang === 'id' ? `Pakai ${anchorMismatch.deviceLabel}` : `Use ${anchorMismatch.deviceLabel}`}
               </button>
               <button
                 type="button"
                 onClick={() => applyAnchorCoherenceChoice(false)}
                 className="w-full px-3 py-2 rounded-xl bg-tg-card border border-tg-border text-tg-text text-sm break-words line-clamp-2"
               >
-                {lang === 'fr' ? `Garder ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}` : `Keep ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}`}
+                {lang === 'fr' ? `Garder ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}` : lang === 'id' ? `Simpan ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}` : `Keep ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}`}
               </button>
             </div>
           </div>
@@ -3335,7 +3335,7 @@ export default function App() {
         {locationModals}
         <div className="flex flex-col items-center justify-center gap-3 py-24 text-center" role="status" aria-live="polite">
           <div className="h-8 w-8 rounded-full border-2 border-tg-hint/30 border-t-tg-accent animate-spin" aria-hidden />
-          <div className="text-sm text-tg-hint">{lang === 'fr' ? 'Confirmation de votre position…' : 'Confirming your location…'}</div>
+          <div className="text-sm text-tg-hint">{lang === 'fr' ? 'Confirmation de votre position…' : lang === 'id' ? 'Mengonfirmasi lokasi Anda…' : 'Confirming your location…'}</div>
         </div>
       </div>
     );
@@ -3458,7 +3458,7 @@ export default function App() {
         {venues.length > 0 && !regionExpanded && (
           <div className="text-[11px] text-tg-hint text-left leading-tight px-0.5">
             {/* v0.62.176 — operator: "Click to change" on a SECOND line. */}
-            <div>📍 {lang === 'fr' ? 'Lieu défini : ' : 'Set location is: '}<span className="text-tg-text font-medium">{(() => {
+            <div>📍 {lang === 'fr' ? 'Lieu défini : ' : lang === 'id' ? 'Lokasi ditetapkan: ' : 'Set location is: '}<span className="text-tg-text font-medium">{(() => {
               // v0.62.180 — operator (RECURRING, do not regress): this must be a
               // specific street / building / precinct — NEVER a country or region
               // name. Reject the generic names + the old "Singapore" fallback;
@@ -3466,7 +3466,7 @@ export default function App() {
               // placeholder rather than the country.
               const generic = new Set(['singapore','malaysia','indonesia','thailand','vietnam','japan','korea','south korea','china','taiwan','hong kong','macau','macao','australia','new zealand','brunei','philippines','johor bahru','johor','cities']);
               const nm = (locationName || '').trim();
-              return (nm && !generic.has(nm.toLowerCase())) ? nm : (lang === 'fr' ? 'localisation…' : 'pinpointing…');
+              return (nm && !generic.has(nm.toLowerCase())) ? nm : (lang === 'fr' ? 'localisation…' : lang === 'id' ? 'menentukan titik…' : 'pinpointing…');
             })()}</span></div>
             {/* v0.62.194 — operator: "Click to change" + "↩ Back to last search area"
                 sit on ONE line, highlighted in BRIGHT RED. The ↩ glyph + underline are
@@ -3487,9 +3487,9 @@ export default function App() {
                   setCuisinePickOpen(false); setClassicOpen(false);
                   setRegionExpanded(true); setModePeek(true);
                 }}
-                aria-label={lang === 'fr' ? 'Changer le lieu' : 'Change location'}
+                aria-label={lang === 'fr' ? 'Changer le lieu' : lang === 'id' ? 'Ubah lokasi' : 'Change location'}
                 className="underline font-semibold text-[#ef4444] active:scale-95"
-              >{lang === 'fr' ? 'Changer' : 'Click to change'}</button>
+              >{lang === 'fr' ? 'Changer' : lang === 'id' ? 'Ketuk untuk mengubah' : 'Click to change'}</button>
               {(() => {
                 // v0.61.353 — "↩ Back to last search area": shows when the map view
                 // has drifted >600 m from the confirmed anchor; flies the map back
@@ -3508,8 +3508,8 @@ export default function App() {
                     type="button"
                     onClick={() => { setFlyTarget({ lat: anchor.lat, lng: anchor.lng, zoom: 14, _k: Date.now() }); setSelectedCityLocation(null); }}
                     className="underline font-semibold text-[#ef4444] leading-tight whitespace-nowrap active:scale-95"
-                    title={lang === 'fr' ? 'Recentrer la carte sur la dernière zone de recherche' : 'Recentre the map on your last search area'}
-                  >↩ {lang === 'fr' ? 'Retour à la dernière zone' : 'Back to last search area'}</button>
+                    title={lang === 'fr' ? 'Recentrer la carte sur la dernière zone de recherche' : lang === 'id' ? 'Pusatkan peta ke area pencarian terakhir' : 'Recentre the map on your last search area'}
+                  >↩ {lang === 'fr' ? 'Retour à la dernière zone' : lang === 'id' ? 'Kembali ke area terakhir' : 'Back to last search area'}</button>
                 );
               })()}
             </div>
@@ -3519,7 +3519,7 @@ export default function App() {
             nothing auto-fires — the user must tap 🔍 to search. */}
         {venues.length > 0 && regionExpanded && (
           <div className="text-[10px] text-tg-accent italic px-1 -mb-0.5">
-            {lang === 'fr' ? 'Choisissez un lieu, puis touchez 🔍 pour rechercher — rien ne se lance avant.' : 'Pick a spot, then tap 🔍 to search — nothing fires until you tap it.'}
+            {lang === 'fr' ? 'Choisissez un lieu, puis touchez 🔍 pour rechercher — rien ne se lance avant.' : lang === 'id' ? 'Pilih lokasi, lalu ketuk 🔍 untuk mencari — tidak ada yang berjalan sebelum Anda mengetuknya.' : 'Pick a spot, then tap 🔍 to search — nothing fires until you tap it.'}
           </div>
         )}
         {/* v0.62.176 — operator: when "Click to change" is tapped (regionExpanded),
@@ -3716,7 +3716,7 @@ export default function App() {
             <div className="folio-panel px-2.5 py-2">
             {!userLoc ? (
             <div className="text-[11px] text-tg-hint italic px-1 py-1">
-              📍 {lang === 'fr' ? 'Localisation en cours…' : 'Locating you…'}
+              📍 {lang === 'fr' ? 'Localisation en cours…' : lang === 'id' ? 'Mencari lokasi Anda…' : 'Locating you…'}
             </div>
           ) : (
             <LocationField
@@ -3801,7 +3801,7 @@ export default function App() {
           // v0.62.265 — operator: "Choose your cuisine" truncated in Telegram;
           // the tab holds the cuisine grid AND the filter chips, so the empty
           // state now reads "Cuisine & filters" (shorter + names the filters).
-          const cuisineLabel = names.length ? names.join(' · ') : (lang === 'fr' ? 'Cuisine & filtres' : 'Cuisine & filters');
+          const cuisineLabel = names.length ? names.join(' · ') : (lang === 'fr' ? 'Cuisine & filtres' : lang === 'id' ? 'Masakan & filter' : 'Cuisine & filters');
           const hasPlate = !!(cuisinePlate || arrivalPlate) && venues.length > 0;
           // v0.62.187 — operator (IMG_2509): Cuisine + Local-classic render as
           // FOLIO FOLDER-TABS. The open picker is .folio-tab--active; the
@@ -3816,8 +3816,8 @@ export default function App() {
                 onClick={() => { setClassicOpen(false); setCuisinePickOpen((o) => !o); }}
                 aria-expanded={cuisinePickOpen}
                 aria-label={names.length
-                  ? (lang === 'fr' ? `Cuisines : ${names.join(', ')}` : `Cuisines: ${names.join(', ')}`)
-                  : (lang === 'fr' ? 'Cuisine & filtres' : 'Cuisine & filters')}
+                  ? (lang === 'fr' ? `Cuisines : ${names.join(', ')}` : lang === 'id' ? `Masakan: ${names.join(', ')}` : `Cuisines: ${names.join(', ')}`)
+                  : (lang === 'fr' ? 'Cuisine & filtres' : lang === 'id' ? 'Masakan & filter' : 'Cuisine & filters')}
                 // v0.62.259 — operator: the accent-blue CTA on an empty cuisine
                 // tab made it MISMATCH the grey "Pick local classic" tab once both
                 // showed. Apply the blue CTA only BEFORE results (no plate yet);
@@ -3839,13 +3839,13 @@ export default function App() {
                 onClick={() => { if (!hasPlate) return; setCuisinePickOpen(false); setClassicOpen((o) => !o); }}
                 aria-expanded={hasPlate ? classicOpen : undefined}
                 aria-disabled={!hasPlate || undefined}
-                title={!hasPlate ? (lang === 'fr' ? 'Disponible une fois les résultats chargés' : 'Available once results load') : undefined}
+                title={!hasPlate ? (lang === 'fr' ? 'Disponible une fois les résultats chargés' : lang === 'id' ? 'Tersedia setelah hasil dimuat' : 'Available once results load') : undefined}
                 className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] ${hasPlate ? 'active:scale-95' : 'opacity-50 cursor-not-allowed'} ${hasPlate && classicOpen ? 'folio-tab--active' : ''}`}
               >
                 {/* v0.62.228 — operator: the Magnify (cooking-method) icon marks
                     Local Food Pick + search. */}
                 <img src="/app/cuisine/magnify-cooking.png" alt="" aria-hidden className="shrink-0 w-4 h-4 object-contain" />
-                <span className="flex-1 text-left truncate">{lang === 'fr' ? 'Plats classiques locaux' : 'Pick local classic'}</span>
+                <span className="flex-1 text-left truncate">{lang === 'fr' ? 'Plats classiques locaux' : lang === 'id' ? 'Pilih klasik lokal' : 'Pick local classic'}</span>
                 <span aria-hidden className="shrink-0 opacity-70">{hasPlate ? (classicOpen ? '▴' : '▾') : ''}</span>
               </button>
             </div>
@@ -3865,7 +3865,7 @@ export default function App() {
             ↩-free amber note is colour-blind safe (orange + ℹ️, never red/green). */}
         {noProvenNew && venues.length > 0 && (state.filters?.newlyOpened) && (
           <div className="text-[11px] text-[#b45309] bg-[#fef3c7] border border-[#f59e0b]/50 rounded-lg px-2.5 py-1 leading-snug">
-            ℹ️ {lang === 'fr' ? 'Aucune adresse récemment ouverte à proximité — voici les établies.' : 'No newly-opened spots nearby — showing established ones.'}
+            ℹ️ {lang === 'fr' ? 'Aucune adresse récemment ouverte à proximité — voici les établies.' : lang === 'id' ? 'Tidak ada tempat yang baru buka di sekitar — menampilkan yang sudah lama.' : 'No newly-opened spots nearby — showing established ones.'}
           </div>
         )}
       </header>
@@ -3893,7 +3893,7 @@ export default function App() {
           {/* v0.62.246 — operator: the folio TAB already reads "Choose your
               cuisine"; drop the duplicate body title, keep only the × close. */}
           <div className="flex items-center justify-end">
-            <button type="button" onClick={() => setCuisinePickOpen(false)} aria-label={lang === 'fr' ? 'Fermer' : 'Close'} className="text-tg-hint hover:text-tg-text text-sm leading-none px-1">✕</button>
+            <button type="button" onClick={() => setCuisinePickOpen(false)} aria-label={lang === 'fr' ? 'Fermer' : lang === 'id' ? 'Tutup' : 'Close'} className="text-tg-hint hover:text-tg-text text-sm leading-none px-1">✕</button>
           </div>
           {recommendHint && (
             <div className="rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2 text-[12px] leading-snug text-tg-text">
@@ -3963,7 +3963,7 @@ export default function App() {
               classic"; drop the duplicate body title, keep only the × close.
               (The plate below still shows the city name, e.g. "📍 Singapore".) */}
           <div className="flex items-center justify-end pb-1">
-            <button type="button" onClick={() => setClassicOpen(false)} aria-label={lang === 'fr' ? 'Fermer' : 'Close'} className="text-tg-hint hover:text-tg-text text-sm leading-none px-1">✕</button>
+            <button type="button" onClick={() => setClassicOpen(false)} aria-label={lang === 'fr' ? 'Fermer' : lang === 'id' ? 'Tutup' : 'Close'} className="text-tg-hint hover:text-tg-text text-sm leading-none px-1">✕</button>
           </div>
           <ArrivalPlate
             plate={(() => {
@@ -4228,10 +4228,10 @@ export default function App() {
               ? (lang === 'fr'
                   ? `Vous avez vu les ${allSeenInRange.count} adresses dans un rayon de ~${allSeenInRange.capKm} km.`
                   : `You've seen all ${allSeenInRange.count} within ~${allSeenInRange.capKm} km.`)
-              : (lang === 'fr' ? 'Recherche élargie (~40 km).' : 'Wider search on (~40 km).')}
+              : (lang === 'fr' ? 'Recherche élargie (~40 km).' : lang === 'id' ? 'Pencarian diperluas (~40 km).' : 'Wider search on (~40 km).')}
           </span>
           <span className="shrink-0 inline-flex items-center gap-1.5">
-            <span className="text-[10px] text-tg-hint">{lang === 'fr' ? 'Élargir' : 'Widen'}</span>
+            <span className="text-[10px] text-tg-hint">{lang === 'fr' ? 'Élargir' : lang === 'id' ? 'Perluas' : 'Widen'}</span>
             {/* glass switch (track + thumb) */}
             <button type="button" role="switch" aria-checked={widenActive}
               onClick={() => { const next = !widenActive; setWidenActive(next); runSearch(state, null, { widen: next }); }}
@@ -4373,12 +4373,12 @@ export default function App() {
             }
             const f = state.filters || {};
             if (f.halal) parts.push(lang === 'fr' ? 'Halal' : 'Halal');
-            if (f.vegetarian) parts.push(lang === 'fr' ? 'Végétarien' : 'Vegetarian');
-            if (f.recommend) parts.push(lang === 'fr' ? 'Recommander' : 'Recommend');  // v0.62.37
-            if (f.openNow) parts.push(lang === 'fr' ? 'Ouvert' : 'Open now');
-            if (f.homeBased) parts.push(lang === 'fr' ? 'À domicile' : 'Home-based');
-            if (f.petFriendly) parts.push(lang === 'fr' ? 'Animaux acceptés' : 'Pet-friendly');
-            if (f.newlyOpened) parts.push(lang === 'fr' ? 'Nouveau' : 'Newly opened');
+            if (f.vegetarian) parts.push(lang === 'fr' ? 'Végétarien' : lang === 'id' ? 'Vegetarian' : 'Vegetarian');
+            if (f.recommend) parts.push(lang === 'fr' ? 'Recommander' : lang === 'id' ? 'Rekomendasi' : 'Recommend');  // v0.62.37
+            if (f.openNow) parts.push(lang === 'fr' ? 'Ouvert' : lang === 'id' ? 'Buka sekarang' : 'Open now');
+            if (f.homeBased) parts.push(lang === 'fr' ? 'À domicile' : lang === 'id' ? 'Rumahan' : 'Home-based');
+            if (f.petFriendly) parts.push(lang === 'fr' ? 'Animaux acceptés' : lang === 'id' ? 'Ramah hewan' : 'Pet-friendly');
+            if (f.newlyOpened) parts.push(lang === 'fr' ? 'Nouveau' : lang === 'id' ? 'Baru buka' : 'Newly opened');
             if (Array.isArray(f.prices) && f.prices.length) {
               const min = Math.min(...f.prices);
               const max = Math.max(...f.prices);
@@ -4579,9 +4579,9 @@ export default function App() {
                   runSearch(state);
                 }}
                 className="ml-1 not-italic underline text-tg-link"
-                aria-label={lang === 'fr' ? 'Recycler cette session' : 'Recycle this session'}
+                aria-label={lang === 'fr' ? 'Recycler cette session' : lang === 'id' ? 'Daur ulang sesi ini' : 'Recycle this session'}
               >
-                {lang === 'fr' ? '↻ Recycler' : '↻ Recycle'}
+                {lang === 'fr' ? '↻ Recycler' : lang === 'id' ? '↻ Daur ulang' : '↻ Recycle'}
               </button>
             ) : (
               <button
@@ -4676,14 +4676,14 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setComposerOpen(true)}
-                aria-label={lang === 'fr' ? 'Saisir un plat' : 'Type what you are craving'}
+                aria-label={lang === 'fr' ? 'Saisir un plat' : lang === 'id' ? 'Ketik yang Anda inginkan' : 'Type what you are craving'}
                 className="pointer-events-auto w-10 h-10 rounded-full bg-tg-card/75 liquid-glass border-2 border-tg-hint/60 shadow-lg flex items-center justify-center text-lg active:scale-95"
               >💬</button>
               <button
                 type="button"
                 onClick={triggerSearch}
                 disabled={searchDisabled}
-                aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat'}
+                aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : lang === 'id' ? 'Cari · Tunjukkan tempat makan' : 'Search · Show me places to eat'}
                 className={`pointer-events-auto w-10 h-10 rounded-full bg-tg-accent text-tg-accent-text border-2 border-white/40 shadow-lg flex items-center justify-center text-lg disabled:opacity-40 active:scale-95 ${pulse ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
               >🔍</button>
             </div>
@@ -4701,12 +4701,12 @@ export default function App() {
                 type="button"
                 onClick={() => setDrawerDismissed((d) => !d)}
                 aria-label={drawerDismissed
-                  ? (lang === 'fr' ? 'Afficher les résultats' : 'Show results')
-                  : (lang === 'fr' ? 'Masquer les résultats' : 'Hide results')}
+                  ? (lang === 'fr' ? 'Afficher les résultats' : lang === 'id' ? 'Tampilkan hasil' : 'Show results')
+                  : (lang === 'fr' ? 'Masquer les résultats' : lang === 'id' ? 'Sembunyikan hasil' : 'Hide results')}
                 className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
               >{drawerDismissed
-                ? `📖 ${lang === 'fr' ? 'afficher résultats' : 'show results'}`
-                : `📘 ${lang === 'fr' ? 'masquer résultats' : 'hide results'}`}</button>
+                ? `📖 ${lang === 'fr' ? 'afficher résultats' : lang === 'id' ? 'tampilkan hasil' : 'show results'}`
+                : `📘 ${lang === 'fr' ? 'masquer résultats' : lang === 'id' ? 'sembunyikan hasil' : 'hide results'}`}</button>
               {!drawerDismissed && (
                 <button
                   type="button"
@@ -4722,20 +4722,20 @@ export default function App() {
                     }
                   }}
                   aria-label={drawerMode === 'horizontal'
-                    ? (lang === 'fr' ? 'Affichage vertical' : 'Vertical layout')
-                    : (lang === 'fr' ? 'Affichage horizontal' : 'Horizontal layout')}
+                    ? (lang === 'fr' ? 'Affichage vertical' : lang === 'id' ? 'Tampilan vertikal' : 'Vertical layout')
+                    : (lang === 'fr' ? 'Affichage horizontal' : lang === 'id' ? 'Tampilan horizontal' : 'Horizontal layout')}
                   className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
                 >{drawerMode === 'horizontal'
-                  ? `⊿ ${lang === 'fr' ? 'liste' : 'list'}`
-                  : `◸ ${lang === 'fr' ? 'carte' : 'map'}`}</button>
+                  ? `⊿ ${lang === 'fr' ? 'liste' : lang === 'id' ? 'daftar' : 'list'}`
+                  : `◸ ${lang === 'fr' ? 'carte' : lang === 'id' ? 'peta' : 'map'}`}</button>
               )}
               {cursor < pages.length - 1 && (
                 <button
                   type="button"
                   onClick={() => setCursor((c) => Math.min(pages.length - 1, c + 1))}
-                  aria-label={lang === 'fr' ? 'Liste suivante' : 'Next list'}
+                  aria-label={lang === 'fr' ? 'Liste suivante' : lang === 'id' ? 'Daftar berikutnya' : 'Next list'}
                   className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
-                >⇢ {lang === 'fr' ? 'suivant' : 'next'}</button>
+                >⇢ {lang === 'fr' ? 'suivant' : lang === 'id' ? 'berikutnya' : 'next'}</button>
               )}
             </div>
             {/* v0.62.281 — "Criteria" dropdown (middle): collapses the active-filter
@@ -4748,7 +4748,7 @@ export default function App() {
                   aria-haspopup="true"
                   aria-expanded={criteriaOpen}
                   className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap inline-flex items-center gap-0.5"
-                >{lang === 'fr' ? 'Critères' : 'Criteria'} ({criteriaSummary.length}) <span aria-hidden className="text-tg-hint">{criteriaOpen ? '▴' : '▾'}</span></button>
+                >{lang === 'fr' ? 'Critères' : lang === 'id' ? 'Kriteria' : 'Criteria'} ({criteriaSummary.length}) <span aria-hidden className="text-tg-hint">{criteriaOpen ? '▴' : '▾'}</span></button>
                 {criteriaOpen && (
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 z-40 rounded-xl border border-tg-border bg-tg-card shadow-lg max-h-[40vh] overflow-y-auto p-2 min-w-[220px] max-w-[80vw]">
                     <ActiveFilters
