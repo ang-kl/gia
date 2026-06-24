@@ -14174,8 +14174,11 @@ async function cacheBotUsername() {
         const userId = verified.user?.id;
         if (!userId) return res.status(400).json({ error: 'no user id' });
         const reqLang = String(req.body?.lang || '').slice(0, 2).toLowerCase();
-        if (!['en', 'fr'].includes(reqLang)) {
-          return res.status(400).json({ error: 'lang must be en or fr' });
+        // v0.62.315 — accept the full UI locale set so a TMA language pick
+        // PERSISTS server-side and syncs across TMAs + chat (was en/fr only,
+        // which silently dropped id/ru/de and let hydration revert the choice).
+        if (!['en', 'fr', 'id', 'ru', 'de'].includes(reqLang)) {
+          return res.status(400).json({ error: 'unsupported lang' });
         }
         const { setUserLang } = require('./user-prefs');
         const saved = await setUserLang(redis, String(userId), reqLang);
