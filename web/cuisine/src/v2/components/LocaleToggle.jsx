@@ -1,49 +1,70 @@
-// LocaleToggle.jsx — v0.58.55
+// LocaleToggle.jsx — cuisine TMA. v0.62.314.
 //
-// Discreet flag toggle for the cuisine TMA. Sits top-right in the App
-// header per Human Lead. One flag-emoji button per supported locale;
-// the active one is bolded, the rest are dimmed. One tap to switch.
-//
-// v0.62.303 — generalised from a fixed EN/FR binary to a per-locale
-// list so Indonesian (🇮🇩) can be added without re-deriving the active
-// state from a single boolean. Driven by a LOCALES table; add a row to
-// extend (the i18n layer already gates on SUPPORTED_LOCALES).
-//
-// State lives in localStorage via lib/i18n.useLocale — every component
-// using `useLocale()` (or reading the same `lang`) re-renders on
-// switch via the 'gia:locale' CustomEvent.
-
-import React from 'react';
-import { useLocale, t } from '../lib/i18n.js';
+// Compact language DROPDOWN (replaces the 5-flag row, which ate header
+// space). Collapsed: current flag + ▾. Open: a list of "Native name 🇫🇷"
+// rows. Picking one calls setLang (writes the shared 'gia.locale' key +
+// fires 'gia:locale' so the UI re-renders and stays in sync across TMAs).
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocale } from '../lib/i18n.js';
 
 const LOCALES = [
-  { code: 'en', flag: '🇬🇧', labelKey: 'locale.switchToEn' },
-  { code: 'fr', flag: '🇫🇷', labelKey: 'locale.switchToFr' },
-  { code: 'id', flag: '🇮🇩', labelKey: 'locale.switchToId' },
-  { code: 'ru', flag: '🇷🇺', labelKey: 'locale.switchToRu' },
-  { code: 'de', flag: '🇩🇪', labelKey: 'locale.switchToDe' },
+  { code: 'en', name: 'English',          flag: '🇬🇧' },
+  { code: 'fr', name: 'Français',         flag: '🇫🇷' },
+  { code: 'de', name: 'Deutsch',          flag: '🇩🇪' },
+  { code: 'ru', name: 'Русский',          flag: '🇷🇺' },
+  { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩' },
 ];
 
 export default function LocaleToggle({ className = '' }) {
   const [lang, setLang] = useLocale();
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const current = LOCALES.find((l) => l.code === lang) || LOCALES[0];
+
+  useEffect(() => {
+    if (!open) return undefined;
+    function onDoc(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('touchstart', onDoc);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('touchstart', onDoc);
+    };
+  }, [open]);
+
   return (
-    <div className={`flex items-center gap-1 text-sm select-none ${className}`}>
-      {LOCALES.map(({ code, flag, labelKey }, i) => {
-        const active = lang === code;
-        return (
-          <React.Fragment key={code}>
-            {i > 0 && <span className="opacity-30">·</span>}
+    <div ref={ref} className={`relative select-none ${className}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label="Language"
+        className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-sm leading-none active:scale-95"
+      >
+        <span>{current.flag}</span>
+        <span aria-hidden="true" className="text-tg-hint text-[10px]">▾</span>
+      </button>
+      {open && (
+        <div
+          role="listbox"
+          className="absolute right-0 mt-1 z-50 min-w-[11rem] rounded-lg border border-tg-border bg-tg-card shadow-lg overflow-hidden"
+        >
+          {LOCALES.map((l) => (
             <button
+              key={l.code}
               type="button"
-              onClick={() => setLang(code)}
-              aria-pressed={active}
-              aria-label={t(labelKey, lang)}
-              className={`px-1.5 py-0.5 rounded transition-opacity ${active ? 'opacity-100 font-semibold' : 'opacity-40 hover:opacity-70'}`}
-              title={t(labelKey, lang)}
-            >{flag}</button>
-          </React.Fragment>
-        );
-      })}
+              role="option"
+              aria-selected={l.code === lang}
+              onClick={() => { setLang(l.code); setOpen(false); }}
+              className={`w-full flex items-center justify-between gap-3 px-3 py-2 text-sm text-left ${l.code === lang ? 'font-semibold bg-tg-bg' : 'hover:bg-tg-bg'}`}
+            >
+              <span>{l.name}</span>
+              <span aria-hidden="true">{l.flag}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
