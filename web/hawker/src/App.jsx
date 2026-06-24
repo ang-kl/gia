@@ -4,6 +4,7 @@ import { t, tn, useLocale } from './i18n.js';
 import HawkerMapPanel from './components/HawkerMapPanel.jsx';
 import FooterNav from './components/FooterNav.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
+import LocaleToggle from './components/LocaleToggle.jsx';
 
 // v0.60.59 — render "🍳 38 stalls · Operating" / "🍳 38 stands ·
 // Opérationnel" when stall count and/or status are known. Replaces
@@ -188,6 +189,7 @@ export default function App() {
             <WeatherBadge />
           </p>
         </div>
+        <LocaleToggle className="flex-shrink-0" />
         <button onClick={() => openLink(NEA_HOME)} className="skeuo-pill text-xs px-3 py-1.5 rounded-full text-tg-text active:scale-95">
           NEA ↗
         </button>
