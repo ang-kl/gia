@@ -56,11 +56,11 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
   // v0.57.31: crowd chip from LTA-carpark availability around the venue.
   // Honest caveat — weak in CBD where lunch crowds are walk-in.
   // v0.58.55: localised crowd chip text.
-  const crowdMap = lang === 'fr'
-    ? { high: '🔴 chargé', medium: '🟡 modéré', low: '🟢 calme' }
-    : lang === 'id'
-    ? { high: '🔴 ramai', medium: '🟡 sedang', low: '🟢 sepi' }
-    : { high: '🔴 busy',  medium: '🟡 moderate', low: '🟢 quiet' };
+  const crowdMap = {
+    high:   tr('card.crowdHigh', lang),
+    medium: tr('card.crowdMedium', lang),
+    low:    tr('card.crowdLow', lang),
+  };
   const crowd = crowdMap[venue.crowdLevel] || '';
   // v0.59.0: real per-venue footfall chip (BestTime). Prefers live
   // busyness; falls back to forecast. Replaces the carpark crowd chip
@@ -72,11 +72,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
     const fc   = venue.footfall.forecastNext;
     const value = Number.isFinite(live) ? live : (Number.isFinite(fc) ? fc : null);
     if (value != null) {
-      const verb = lang === 'fr'
-        ? (Number.isFinite(live) ? 'occupé' : 'prévu')
-        : lang === 'id'
-        ? (Number.isFinite(live) ? 'ramai' : 'perkiraan')
-        : (Number.isFinite(live) ? 'busy' : 'forecast');
+      const verb = Number.isFinite(live) ? tr('card.footfallLive', lang) : tr('card.footfallForecast', lang);
       footfallChip = `🚦 ${value}% ${verb}`;
     }
   }
@@ -102,7 +98,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
   // breaking right after 📍, stranding the pin on the line above). Non-breaking
   // spaces inside the token; the surrounding " · " joins stay breakable.
   const distMeta = distLabel
-    ? `📍 ${distLabel}${lang === 'fr' ? '' : lang === 'id' ? ' dari sini' : ' away'}`.replace(/ /g, '\u00A0')
+    ? `📍 ${distLabel}${tr('card.distAway', lang)}`.replace(/ /g, '\u00A0')
     : '';
   // v0.62.189 — operator (IMG_2514): in the HORIZONTAL strip the ★rating + $price
   // ride the cuisine-type row ("Italian · ★4.5 · $$$"), so the meta line below
@@ -325,7 +321,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           {specialMode === 'durian-pastry'
             && !/durian/i.test(venue.name || '') && (
             <div className="text-[11px] italic text-tg-hint truncate">
-              {lang === 'fr' ? 'Renseignez-vous pour le pâtisserie durian saisonnier' : lang === 'id' ? 'Tanyakan kue durian musiman' : 'Inquire for seasonal durian pastry'}
+              {tr('card.durianPastryInquire', lang)}
             </div>
           )}
           {/* v0.62.176 — operator: REVERTED the v0.62.168 "wrap by field" meta;
@@ -361,7 +357,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
                   ? (horizontal ? `💵 ${venue.priceRangeDisplay.replace(/\s*\([^)]*\)\s*$/, '')}` : venue.priceRangeDisplay)
                   : '',
                 venue.wheelchairAccessible === true && '♿️',
-                venue.allowsDogs === true && (lang === 'fr' ? '🐾 Animaux autorisés' : lang === 'id' ? '🐾 Hewan diizinkan' : '🐾 Pet allowed'),
+                venue.allowsDogs === true && tr('card.petAllowed', lang),
                 livenessChip
               ].filter(Boolean).join(' · ')}
             </div>
@@ -383,8 +379,8 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           {venue.setMeal && venue.setMeal.price && (
             <div className="text-[12px] text-tg-hint mt-0.5">
               🍱 {(venue.setMeal.type === 'set-dinner'
-                ? (lang === 'fr' ? 'Dîner' : lang === 'id' ? 'Makan malam set' : 'Set dinner')
-                : (lang === 'fr' ? 'Déjeuner' : lang === 'id' ? 'Makan siang set' : 'Set lunch'))} {lang === 'fr' ? 'dès' : lang === 'id' ? 'mulai' : 'from'} {venue.setMeal.price} <span className="text-tg-accent">✅</span>
+                ? tr('card.setDinner', lang)
+                : tr('card.setLunch', lang))} {tr('card.setFrom', lang)} {venue.setMeal.price} <span className="text-tg-accent">✅</span>
             </div>
           )}
           {/* v0.59.23 / v0.62.x — primary "What to order" line. v0.62.124: this
@@ -439,8 +435,8 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             className="self-start mt-1.5 px-2.5 py-0.5 rounded-full border border-tg-accent/50 text-[11px] text-tg-accent font-medium active:scale-95 transition-transform"
           >
             {expanded
-              ? (lang === 'fr' ? '⌃ moins' : lang === 'id' ? '⌃ ringkas' : '⌃ less')
-              : (lang === 'fr' ? '⌄ détails, avis & liens' : lang === 'id' ? '⌄ detail, ulasan & tautan' : '⌄ details, review & links')}
+              ? tr('card.detailsLess', lang)
+              : tr('card.detailsMore', lang)}
           </button>
 
           {expanded && (<>
@@ -453,9 +449,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             <div className="text-[13px] text-tg-text mt-1 leading-snug">
               ⭐ <span className="font-medium">{(() => {
                 const t2 = venue.cityDish.tier;
-                if (lang === 'fr') return t2 === 'city-icon' ? 'Icône de la ville' : t2 === 'regional' ? 'Classique régional' : 'Classique national';
-                if (lang === 'id') return t2 === 'city-icon' ? 'Ikon kota' : t2 === 'regional' ? 'Klasik daerah' : 'Klasik nasional';
-                return t2 === 'city-icon' ? 'City icon' : t2 === 'regional' ? 'Regional classic' : 'National classic';
+                return t2 === 'city-icon' ? tr('card.tierCityIcon', lang) : t2 === 'regional' ? tr('card.tierRegional', lang) : tr('card.tierNational', lang);
               })()}</span> · {venue.cityDish.dish}
             </div>
           )}
@@ -480,7 +474,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
                   <span className="not-italic ml-2 text-tg-hint">{venue.recentReviewAgo}</span>
                 )}
                 {typeof venue.recentReviewTranslatedFlag === 'string' && venue.recentReviewTranslatedFlag && (
-                  <span className="not-italic"> ( {venue.recentReviewTranslatedFlag} {lang === 'fr' ? 'traduit' : lang === 'id' ? 'diterjemahkan' : 'translated'})</span>
+                  <span className="not-italic"> ( {venue.recentReviewTranslatedFlag} {tr('card.reviewTranslated', lang)})</span>
                 )}
               </span>
             </div>
@@ -493,7 +487,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               className="text-[12px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">📍 Maps</button>
             <button type="button" onClick={copy} disabled={copying}
               className="text-[12px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">
-              {copying ? '…' : copied ? (lang === 'fr' ? '✓ Envoyé' : lang === 'id' ? '✓ Terkirim' : '✓ Sent') : tr('btn.copyOne', lang)}
+              {copying ? '…' : copied ? tr('card.sent', lang) : tr('btn.copyOne', lang)}
             </button>
             <SocialButtons profiles={socialProfiles} bare />
           </div>
