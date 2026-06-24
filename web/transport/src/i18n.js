@@ -197,7 +197,7 @@ export function t(key, lang) {
   const l = SUPPORTED_LOCALES.includes(lang) ? lang : 'en';
   const entry = STRINGS[key];
   if (!entry) return key;
-  return entry[l] || entry.en || key;
+  return entry[l] ?? entry.en ?? key;
 }
 
 export function tn(key, lang, params = {}) {
