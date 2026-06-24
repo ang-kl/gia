@@ -14822,7 +14822,11 @@ async function cacheBotUsername() {
           console.log(`[Cuisine-TMA] D-A1 region resolved: client=${regionIn || '<unset>'} cached=${cachedRegion || '<unset>'} coords=(${lat.toFixed(2)},${lng.toFixed(2)}) → ${region}`);
         }
         const { resolveLang: resolveLangSearch } = require('./user-prefs');
-        const csBodyLang = (typeof langIn === 'string' && ['en','fr'].includes(langIn)) ? langIn : null;
+        // v0.62.305 — accept 'id' so the cuisine TMA result-card server strings
+        // (open-hours label) render in Indonesian. csLang threads on to many
+        // `csLang === 'fr' ? fr : en` sites where 'id' degrades safely to en;
+        // chat-side gates (deliverPicks) stay en/fr until the chat id pass.
+        const csBodyLang = (typeof langIn === 'string' && ['en','fr','id'].includes(langIn)) ? langIn : null;
         const csLang = csBodyLang || (csChatId ? await resolveLangSearch(redis, csChatId, null) : 'en');
         // v0.60.161 — verbose-log instrumentation. Capture request start
         // time + incoming payload shape. The vlogIf gate is in-process-
@@ -17517,7 +17521,9 @@ async function cacheBotUsername() {
         }
         // v0.59.0: resolve active lang for NL discovery.
         const { resolveLang: resolveLangNL } = require('./user-prefs');
-        const nlBodyLang = (typeof nlLangIn === 'string' && ['en','fr'].includes(nlLangIn)) ? nlLangIn : null;
+        // v0.62.305 — accept 'id' so the Tell-me path's open-hours label renders
+        // in Indonesian (mirrors the cuisine-search csBodyLang gate).
+        const nlBodyLang = (typeof nlLangIn === 'string' && ['en','fr','id'].includes(nlLangIn)) ? nlLangIn : null;
         const nlLang = nlBodyLang || await resolveLangNL(redis, chatId, null);
         // v0.62.94 — operator ("dai lok mee kl … results so narrowed vs Google
         // Maps"): the NL path under-fetched. Two fixes here + a wider slice
@@ -17628,9 +17634,9 @@ async function cacheBotUsername() {
           const periodsNL = v.currentPeriods || v.regularPeriods;
           const offsetNL = Number.isFinite(v.utcOffsetMinutes) ? v.utcOffsetMinutes : undefined;
           if (v.openNow === false) {
-            v.closedTodayLabel = closedTodayStringNL(periodsNL, new Date(), offsetNL);
+            v.closedTodayLabel = closedTodayStringNL(periodsNL, new Date(), offsetNL, nlLang);
           } else if (v.openNow === true) {
-            v.openClosingLabel = currentOpenStringNL(periodsNL, new Date(), offsetNL);
+            v.openClosingLabel = currentOpenStringNL(periodsNL, new Date(), offsetNL, nlLang);
           }
           delete v.regularPeriods;
           delete v.currentPeriods;

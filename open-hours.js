@@ -37,16 +37,60 @@ function localNow(now, offsetMin = SGT_OFFSET_MIN) {
 // Back-compat alias — SGT-fixed wrapper.
 function sgtNow(now) { return localNow(now, SGT_OFFSET_MIN); }
 
-function fmtTime(hour, minute) {
+// v0.62.305 — locale-aware time. EN keeps the 12-hour "11:00 AM" form
+// (tests + chat unchanged); FR + ID use the 24-hour clock per local
+// convention — FR "11h00", ID "11.00" (operator: Indonesian = 24-hour).
+function fmtTime(hour, minute, lang = 'en') {
+  const mm = String(minute || 0).padStart(2, '0');
+  if (lang === 'id') return `${String(hour).padStart(2, '0')}.${mm}`;
+  if (lang === 'fr') return `${String(hour).padStart(2, '0')}h${mm}`;
   const h12 = hour % 12 === 0 ? 12 : hour % 12;
   const ampm = hour < 12 ? 'AM' : 'PM';
-  const mm = String(minute || 0).padStart(2, '0');
   return `${h12}:${mm} ${ampm}`;
 }
 
-const DAY_LABEL = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+// v0.62.305 — per-locale day abbreviations + open-hours phrase tables.
+// EN entries reproduce the prior literals EXACTLY so existing output (and
+// the open-hours test suite) is byte-identical; FR + ID added.
+const DAY_LABELS = {
+  en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  fr: ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'],
+  id: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+};
+function dayLabel(day, lang) { return (DAY_LABELS[lang] || DAY_LABELS.en)[day]; }
 
-function nextOpenString(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN) {
+const OH_PHRASES = {
+  en: {
+    opensToday: (t) => `Opens today ${t}`, opensTomorrow: (t) => `Opens tomorrow ${t}`,
+    opensDay: (d, t) => `Opens ${d} ${t}`,
+    closedNow: 'Closed now', closedToday: 'Closed today', closed: 'Closed',
+    open24: 'Open · 24 hours', openPrefix: 'Open',
+    closes: (t) => `Closes ${t}`, closesDay: (d, t) => `Closes ${d} ${t}`,
+    reopens: (t) => `Reopens ${t}`,
+  },
+  fr: {
+    opensToday: (t) => `Ouvre aujourd'hui ${t}`, opensTomorrow: (t) => `Ouvre demain ${t}`,
+    opensDay: (d, t) => `Ouvre ${d} ${t}`,
+    closedNow: 'Fermé', closedToday: "Fermé aujourd'hui", closed: 'Fermé',
+    open24: 'Ouvert · 24 h', openPrefix: 'Ouvert',
+    closes: (t) => `Ferme ${t}`, closesDay: (d, t) => `Ferme ${d} ${t}`,
+    reopens: (t) => `Rouvre ${t}`,
+  },
+  id: {
+    opensToday: (t) => `Buka hari ini ${t}`, opensTomorrow: (t) => `Buka besok ${t}`,
+    opensDay: (d, t) => `Buka ${d} ${t}`,
+    closedNow: 'Tutup sekarang', closedToday: 'Tutup hari ini', closed: 'Tutup',
+    open24: 'Buka · 24 jam', openPrefix: 'Buka',
+    closes: (t) => `Tutup ${t}`, closesDay: (d, t) => `Tutup ${d} ${t}`,
+    reopens: (t) => `Buka lagi ${t}`,
+  },
+};
+function phrases(lang) { return OH_PHRASES[lang] || OH_PHRASES.en; }
+
+// v0.62.305 — internal: returns { delta, time, day, text } so callers can
+// branch on `delta` (e.g. "Closed now" vs "Closed today") WITHOUT re-parsing
+// a now-localised string. `nextOpenString` wraps this for back-compat.
+function nextOpenInfo(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN, lang = 'en') {
   if (!Array.isArray(periods) || !periods.length) return null;
 
   const cur = localNow(now, offsetMin);
@@ -71,10 +115,18 @@ function nextOpenString(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN) {
   }
 
   if (!best) return null;
-  const time = fmtTime(best.hour, best.minute);
-  if (best.delta === 0) return `Opens today ${time}`;
-  if (best.delta === 1) return `Opens tomorrow ${time}`;
-  return `Opens ${DAY_LABEL[best.day]} ${time}`;
+  const P = phrases(lang);
+  const time = fmtTime(best.hour, best.minute, lang);
+  let text;
+  if (best.delta === 0) text = P.opensToday(time);
+  else if (best.delta === 1) text = P.opensTomorrow(time);
+  else text = P.opensDay(dayLabel(best.day, lang), time);
+  return { delta: best.delta, time, day: best.day, text };
+}
+
+function nextOpenString(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN, lang = 'en') {
+  const info = nextOpenInfo(periods, now, offsetMin, lang);
+  return info ? info.text : null;
 }
 
 // closedTodayString — returns the user-facing closed-today line for
@@ -85,11 +137,12 @@ function nextOpenString(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN) {
 // re-opens later the same day. Switch the prefix:
 //   next opens TODAY     → "Closed now · Opens today 11:30 AM"
 //   next opens tomorrow+ → "Closed today · Opens tomorrow 11:00 AM"
-function closedTodayString(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN) {
-  const next = nextOpenString(periods, now, offsetMin);
-  if (!next) return 'Closed';
-  const prefix = next.startsWith('Opens today ') ? 'Closed now' : 'Closed today';
-  return `${prefix} · ${next}`;
+function closedTodayString(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN, lang = 'en') {
+  const P = phrases(lang);
+  const info = nextOpenInfo(periods, now, offsetMin, lang);
+  if (!info) return P.closed;
+  const prefix = info.delta === 0 ? P.closedNow : P.closedToday;
+  return `${prefix} · ${info.text}`;
 }
 
 // v0.61.246 — operator: "if currently is open, state the closing time
@@ -109,7 +162,7 @@ function closedTodayString(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN
 //   2. Look for a same-day reopen — another period today whose open
 //      is strictly after the current period's close.
 //   3. Format the close time + (if reopen) the reopen time.
-function currentOpenString(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN) {
+function currentOpenString(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN, lang = 'en') {
   if (!Array.isArray(periods) || !periods.length) return null;
   const cur = localNow(now, offsetMin);
 
@@ -123,7 +176,7 @@ function currentOpenString(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN
     // 24-hour venue: no close → permanently open
     if (!c) {
       if (o.day === cur.day || cur.day === (o.day + 1) % 7) {
-        return 'Open · 24 hours';
+        return phrases(lang).open24;
       }
       continue;
     }
@@ -175,15 +228,16 @@ function currentOpenString(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN
     }
   }
 
-  const closeFmt = fmtTime(active.closeHour, active.closeMinute);
+  const P = phrases(lang);
+  const closeFmt = fmtTime(active.closeHour, active.closeMinute, lang);
   // Midnight-crosser closing on the next day surfaces the day label so
   // the user isn't surprised by an early-morning AM time.
   const sameDay = active.sameDayClose || active.closeDay === cur.day;
-  const closePart = sameDay ? `Closes ${closeFmt}` : `Closes ${DAY_LABEL[active.closeDay]} ${closeFmt}`;
+  const closePart = sameDay ? P.closes(closeFmt) : P.closesDay(dayLabel(active.closeDay, lang), closeFmt);
   if (reopen) {
-    return `Open · ${closePart} · Reopens ${fmtTime(reopen.hour, reopen.minute)}`;
+    return `${P.openPrefix} · ${closePart} · ${P.reopens(fmtTime(reopen.hour, reopen.minute, lang))}`;
   }
-  return `Open · ${closePart}`;
+  return `${P.openPrefix} · ${closePart}`;
 }
 
 module.exports = {

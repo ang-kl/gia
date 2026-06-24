@@ -96,6 +96,8 @@ async function enrichFast(top, ctx) {
   // (The review-dependent finalise — recentReview fallback, "ago", deletes —
   // runs at the END of enrichSlow; see the module header.)
   const { closedTodayString, currentOpenString } = require('./open-hours');
+  // v0.62.305 — localise the open-hours label to the user's locale (id/fr/en).
+  const ohLang = ctx.csLang || 'en';
   for (const v of top) {
     // v0.62.291 — prefer the holiday-aware currentOpeningHours.periods; fall back
     // to the regular weekly schedule. Compute in the venue's own timezone via
@@ -103,9 +105,9 @@ async function enrichFast(top, ctx) {
     const periods = v.currentPeriods || v.regularPeriods;
     const offset = Number.isFinite(v.utcOffsetMinutes) ? v.utcOffsetMinutes : undefined;
     if (v.openNow === false) {
-      v.closedTodayLabel = closedTodayString(periods, new Date(), offset);
+      v.closedTodayLabel = closedTodayString(periods, new Date(), offset, ohLang);
     } else if (v.openNow === true) {
-      v.openClosingLabel = currentOpenString(periods, new Date(), offset);
+      v.openClosingLabel = currentOpenString(periods, new Date(), offset, ohLang);
     }
     if (!v.restaurantType) {
       v.restaurantType = ctx.humaniseRestaurantType(v.primaryTypeDisplayName, v.primaryType) || '';
