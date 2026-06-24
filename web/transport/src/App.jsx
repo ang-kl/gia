@@ -9,6 +9,7 @@ import AffectedTicker from './components/AffectedTicker.jsx';
 import EngineeringList from './components/EngineeringList.jsx';
 import LocationCard from './components/LocationCard.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
+import LocaleToggle from './components/LocaleToggle.jsx';
 
 // v0.60.213 — build version for the footer tag line.
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
@@ -150,10 +151,13 @@ export default function App() {
           <h1 className="text-base font-bold leading-tight">{t('header.title', lang)}</h1>
           {/* v0.60.219 — live Singapore weather emoji. */}
           <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
-          <span className="text-[11px] ml-auto">
-            {affectedCodes.length === 0
-              ? <span className="text-green-500">{t('header.allNormal', lang)}</span>
-              : <span className="text-orange-500">{tn(affectedCodes.length === 1 ? 'header.linesAffected' : 'header.linesAffectedPlural', lang, { n: affectedCodes.length })}</span>}
+          <span className="text-[11px] ml-auto flex items-center gap-2">
+            <span>
+              {affectedCodes.length === 0
+                ? <span className="text-green-500">{t('header.allNormal', lang)}</span>
+                : <span className="text-orange-500">{tn(affectedCodes.length === 1 ? 'header.linesAffected' : 'header.linesAffectedPlural', lang, { n: affectedCodes.length })}</span>}
+            </span>
+            <LocaleToggle className="flex-shrink-0" />
           </span>
         </div>
         <div className="text-[11px] text-tg-hint">{data.timestampSGT || ''}</div>

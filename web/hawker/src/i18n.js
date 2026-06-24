@@ -411,6 +411,16 @@ async function hydrateFromServerOnce() {
 
 // React hook: returns current lang, re-renders on cross-tab + same-tab
 // locale change (same 'gia:locale' CustomEvent pattern as cuisine TMA).
+// v0.62.312 — manual locale switch (for the in-app LocaleToggle). Writes the
+// shared localStorage key + fires the 'gia:locale' event so every useLocale()
+// here AND in the other TMAs (same key/event) re-renders.
+export function setActiveLocale(lang) {
+  if (!SUPPORTED.includes(lang)) return;
+  if (typeof window === 'undefined') return;
+  try { window.localStorage.setItem(LOCALE_KEY, lang); } catch { /* noop */ }
+  window.dispatchEvent(new CustomEvent(LOCALE_EVENT, { detail: { lang } }));
+}
+
 // On first mount, hydrates from the server so the TMA matches whatever
 // the user last set via /language in chat.
 export function useLocale() {
