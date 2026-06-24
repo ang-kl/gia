@@ -1,63 +1,70 @@
-import React from 'react';
+// LocaleToggle.jsx — menu TMA. v0.62.314.
+//
+// Compact language DROPDOWN (replaces the 5-flag row, which ate header
+// space). Collapsed: current flag + ▾. Open: a list of "Native name 🇫🇷"
+// rows. Picking one calls setLang (writes the shared 'gia.locale' key +
+// fires 'gia:locale' so the UI re-renders and stays in sync across TMAs).
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocale, setActiveLocale } from '../i18n.js';
 
-// v0.60.62 — inline EN · FR toggle that replaces the v0.60.55
-// "Language" footer chip (which was a no-op — the chip dispatched
-// a `language` cmd that routeMenuCommand had no case for). Tap the
-// inactive language to switch; the active one renders bold.
-//
-// Wires through i18n.setActiveLocale, which (a) writes localStorage,
-// (b) fires the gia:locale CustomEvent so every subscribed useLocale
-// re-renders, and (c) best-effort POSTs to /api/cuisine/user-language
-// so chat-side /language preference syncs across sessions.
-export default function LocaleToggle() {
+const LOCALES = [
+  { code: 'en', name: 'English',          flag: '🇬🇧' },
+  { code: 'fr', name: 'Français',         flag: '🇫🇷' },
+  { code: 'de', name: 'Deutsch',          flag: '🇩🇪' },
+  { code: 'ru', name: 'Русский',          flag: '🇷🇺' },
+  { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩' },
+];
+
+export default function LocaleToggle({ className = '' }) {
   const lang = useLocale();
-  const cls = (active) => `text-[11px] px-1.5 py-0.5 rounded ${
-    active
-      ? 'font-semibold text-tg-text'
-      : 'text-tg-hint cursor-pointer hover:text-tg-text'
-  }`;
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const current = LOCALES.find((l) => l.code === lang) || LOCALES[0];
+
+  useEffect(() => {
+    if (!open) return undefined;
+    function onDoc(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('touchstart', onDoc);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('touchstart', onDoc);
+    };
+  }, [open]);
+
   return (
-    <div className="text-[11px] inline-flex items-center gap-0">
+    <div ref={ref} className={`relative select-none ${className}`}>
       <button
         type="button"
-        className={cls(lang === 'en')}
-        onClick={() => setActiveLocale('en')}
-        aria-label="English"
-        aria-pressed={lang === 'en'}
-      >🇬🇧EN</button>
-      <span className="text-tg-hint">·</span>
-      <button
-        type="button"
-        className={cls(lang === 'fr')}
-        onClick={() => setActiveLocale('fr')}
-        aria-label="Français"
-        aria-pressed={lang === 'fr'}
-      >🇫🇷FR</button>
-      <span className="text-tg-hint">·</span>
-      <button
-        type="button"
-        className={cls(lang === 'id')}
-        onClick={() => setActiveLocale('id')}
-        aria-label="Bahasa Indonesia"
-        aria-pressed={lang === 'id'}
-      >🇮🇩ID</button>
-      <span className="text-tg-hint">·</span>
-      <button
-        type="button"
-        className={cls(lang === 'ru')}
-        onClick={() => setActiveLocale('ru')}
-        aria-label="Русский"
-        aria-pressed={lang === 'ru'}
-      >🇷🇺RU</button>
-      <span className="text-tg-hint">·</span>
-      <button
-        type="button"
-        className={cls(lang === 'de')}
-        onClick={() => setActiveLocale('de')}
-        aria-label="Deutsch"
-        aria-pressed={lang === 'de'}
-      >🇩🇪DE</button>
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label="Language"
+        className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-sm leading-none active:scale-95"
+      >
+        <span>{current.flag}</span>
+        <span aria-hidden="true" className="text-tg-hint text-[10px]">▾</span>
+      </button>
+      {open && (
+        <div
+          role="listbox"
+          className="absolute right-0 mt-1 z-50 min-w-[11rem] rounded-lg border border-tg-border bg-tg-card shadow-lg overflow-hidden"
+        >
+          {LOCALES.map((l) => (
+            <button
+              key={l.code}
+              type="button"
+              role="option"
+              aria-selected={l.code === lang}
+              onClick={() => { setActiveLocale(l.code); setOpen(false); }}
+              className={`w-full flex items-center justify-between gap-3 px-3 py-2 text-sm text-left ${l.code === lang ? 'font-semibold bg-tg-bg' : 'hover:bg-tg-bg'}`}
+            >
+              <span>{l.name}</span>
+              <span aria-hidden="true">{l.flag}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
