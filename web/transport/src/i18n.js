@@ -387,6 +387,16 @@ export function getActiveLocale() {
   return detectFromTelegram() || detectFromNavigator() || 'en';
 }
 
+// v0.62.312 — manual locale switch (for the in-app LocaleToggle). Writes the
+// shared localStorage key + fires the 'gia:locale' event so every useLocale()
+// here AND in the other TMAs (same key/event) re-renders.
+export function setActiveLocale(lang) {
+  if (!SUPPORTED_LOCALES.includes(lang)) return;
+  if (typeof window === 'undefined') return;
+  try { window.localStorage.setItem(LOCALE_KEY, lang); } catch { /* noop */ }
+  window.dispatchEvent(new CustomEvent(LOCALE_EVENT, { detail: { lang } }));
+}
+
 export function useLocale() {
   const [lang, setLang] = useState(() => getActiveLocale());
   useEffect(() => {
