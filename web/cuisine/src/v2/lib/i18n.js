@@ -454,7 +454,28 @@ const STRINGS = {
   // v0.62.x — operator: per-screen stop labels — the first-load overlay reads
   // "🛑 Stop search"; the (compact, 3-column) fact-card footer reads "🛑 Stop".
   'funfact.stop':              { en: '🛑 Stop', fr: '🛑 Arrêter' },
-  'loading.stop':              { en: '🛑 Stop search', fr: '🛑 Arrêter la recherche' }
+  'loading.stop':              { en: '🛑 Stop search', fr: '🛑 Arrêter la recherche' },
+
+  // ----- Result-card strings (v0.62.308 — migrated from inline ResultCard ternaries) -----
+  'card.crowdHigh':            { en: '🔴 busy', fr: '🔴 chargé' },
+  'card.crowdMedium':          { en: '🟡 moderate', fr: '🟡 modéré' },
+  'card.crowdLow':             { en: '🟢 quiet', fr: '🟢 calme' },
+  'card.footfallLive':         { en: 'busy', fr: 'occupé' },
+  'card.footfallForecast':     { en: 'forecast', fr: 'prévu' },
+  // distAway: fr intentionally empty (the suffix is dropped in French) — relies on t()'s ?? fallback.
+  'card.distAway':             { en: ' away', fr: '' },
+  'card.durianPastryInquire':  { en: 'Inquire for seasonal durian pastry', fr: 'Renseignez-vous pour le pâtisserie durian saisonnier' },
+  'card.petAllowed':           { en: '🐾 Pet allowed', fr: '🐾 Animaux autorisés' },
+  'card.setDinner':            { en: 'Set dinner', fr: 'Dîner' },
+  'card.setLunch':             { en: 'Set lunch', fr: 'Déjeuner' },
+  'card.setFrom':              { en: 'from', fr: 'dès' },
+  'card.detailsLess':          { en: '⌃ less', fr: '⌃ moins' },
+  'card.detailsMore':          { en: '⌄ details, review & links', fr: '⌄ détails, avis & liens' },
+  'card.tierCityIcon':         { en: 'City icon', fr: 'Icône de la ville' },
+  'card.tierRegional':         { en: 'Regional classic', fr: 'Classique régional' },
+  'card.tierNational':         { en: 'National classic', fr: 'Classique national' },
+  'card.reviewTranslated':     { en: 'translated', fr: 'traduit' },
+  'card.sent':                 { en: '✓ Sent', fr: '✓ Envoyé' }
 };
 
 // ----- Indonesian (id) overlay — v0.62.303, Phase 1 -----
@@ -651,7 +672,25 @@ const ID_STRINGS = {
   'funfact.curating': 'Mencari tempat makan…',
   'funfact.sourceLabel': 'Sumber',
   'funfact.stop': '🛑 Berhenti',
-  'loading.stop': '🛑 Hentikan pencarian'
+  'loading.stop': '🛑 Hentikan pencarian',
+  'card.crowdHigh': '🔴 ramai',
+  'card.crowdMedium': '🟡 sedang',
+  'card.crowdLow': '🟢 sepi',
+  'card.footfallLive': 'ramai',
+  'card.footfallForecast': 'perkiraan',
+  'card.distAway': ' dari sini',
+  'card.durianPastryInquire': 'Tanyakan kue durian musiman',
+  'card.petAllowed': '🐾 Hewan diizinkan',
+  'card.setDinner': 'Makan malam set',
+  'card.setLunch': 'Makan siang set',
+  'card.setFrom': 'mulai',
+  'card.detailsLess': '⌃ ringkas',
+  'card.detailsMore': '⌄ detail, ulasan & tautan',
+  'card.tierCityIcon': 'Ikon kota',
+  'card.tierRegional': 'Klasik daerah',
+  'card.tierNational': 'Klasik nasional',
+  'card.reviewTranslated': 'diterjemahkan',
+  'card.sent': '✓ Terkirim',
 };
 for (const [k, v] of Object.entries(ID_STRINGS)) {
   if (STRINGS[k] && STRINGS[k].id == null) STRINGS[k].id = v;
@@ -663,7 +702,7 @@ export function t(key, lang) {
   const l = SUPPORTED_LOCALES.includes(lang) ? lang : 'en';
   const entry = STRINGS[key];
   if (!entry) return key;
-  return entry[l] || entry.en || key;
+  return entry[l] ?? entry.en ?? key;
 }
 
 // Substitute {placeholder} tokens in a translated string.
