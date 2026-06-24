@@ -241,3 +241,54 @@ describe('currentOpenString', () => {
     expect(oh.currentOpenString(periods, now)).toBe('Open · Closes 10:00 AM · Reopens 11:30 AM');
   });
 });
+
+// v0.62.305 — locale-aware open-hours (id 24-hour "11.00", fr "11h30").
+describe('localised open-hours (id / fr)', () => {
+  it('nextOpenString id — 24-hour time + Indonesian words', () => {
+    const now = sgtDate(2026, 5, 4, 9, 0); // Mon 09:00
+    const periods = [{ open: { day: 1, hour: 11, minute: 0 }, close: { day: 1, hour: 15, minute: 0 } }];
+    expect(oh.nextOpenString(periods, now, undefined, 'id')).toBe('Buka hari ini 11.00');
+  });
+
+  it('closedTodayString id — opens later today', () => {
+    const now = sgtDate(2026, 5, 4, 9, 0);
+    const periods = [{ open: { day: 1, hour: 11, minute: 30 }, close: { day: 1, hour: 15, minute: 0 } }];
+    expect(oh.closedTodayString(periods, now, undefined, 'id')).toBe('Tutup sekarang · Buka hari ini 11.30');
+  });
+
+  it('closedTodayString id — opens tomorrow', () => {
+    const now = sgtDate(2026, 5, 4, 23, 0);
+    const periods = [
+      { open: { day: 1, hour: 11, minute: 0 }, close: { day: 1, hour: 15, minute: 0 } },
+      { open: { day: 2, hour: 11, minute: 0 }, close: { day: 2, hour: 15, minute: 0 } }
+    ];
+    expect(oh.closedTodayString(periods, now, undefined, 'id')).toBe('Tutup hari ini · Buka besok 11.00');
+  });
+
+  it('currentOpenString id — split lunch/dinner', () => {
+    const now = sgtDate(2026, 5, 4, 13, 0);
+    const periods = [
+      { open: { day: 1, hour: 11, minute: 0 }, close: { day: 1, hour: 15, minute: 0 } },
+      { open: { day: 1, hour: 18, minute: 0 }, close: { day: 1, hour: 22, minute: 0 } }
+    ];
+    expect(oh.currentOpenString(periods, now, undefined, 'id')).toBe('Buka · Tutup 15.00 · Buka lagi 18.00');
+  });
+
+  it('currentOpenString id — 24 hours', () => {
+    const now = sgtDate(2026, 5, 4, 13, 0);
+    const periods = [{ open: { day: 1, hour: 0, minute: 0 } }];
+    expect(oh.currentOpenString(periods, now, undefined, 'id')).toBe('Buka · 24 jam');
+  });
+
+  it('closedTodayString fr — 24-hour "11h30" + French words', () => {
+    const now = sgtDate(2026, 5, 4, 9, 0);
+    const periods = [{ open: { day: 1, hour: 11, minute: 30 }, close: { day: 1, hour: 15, minute: 0 } }];
+    expect(oh.closedTodayString(periods, now, undefined, 'fr')).toBe("Fermé · Ouvre aujourd'hui 11h30");
+  });
+
+  it('EN output unchanged (regression guard)', () => {
+    const now = sgtDate(2026, 5, 4, 9, 0);
+    const periods = [{ open: { day: 1, hour: 11, minute: 30 }, close: { day: 1, hour: 15, minute: 0 } }];
+    expect(oh.closedTodayString(periods, now)).toBe('Closed now · Opens today 11:30 AM');
+  });
+});
