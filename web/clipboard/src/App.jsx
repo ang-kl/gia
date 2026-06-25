@@ -88,6 +88,17 @@ export default function App() {
             } catch (err) { alert(err.message); }
             finally { setBusy(false); }
           }}
+          onMoveDrawer={async (from, to) => {
+            try {
+              setBusy(true);
+              // PR #2's PATCH /cabinet/:id/drawer/:n accepts `moveTo` for
+              // manual reorder. card_locs is re-keyed server-side so the
+              // inverse index stays consistent across the shift.
+              await api.updateDrawer(state.currentCabinetId, from, { moveTo: to });
+              await loadCabinet(state.currentCabinetId);
+            } catch (err) { alert(err.message); }
+            finally { setBusy(false); }
+          }}
           onDeleteCabinet={async () => {
             try {
               setBusy(true);

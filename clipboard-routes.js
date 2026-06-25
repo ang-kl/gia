@@ -1,4 +1,4 @@
-// clipboard-routes.js — v0.62.329
+// clipboard-routes.js — v0.62.331
 //
 // Express router that mounts the 16 /api/clipboard/* HTTP endpoints. The
 // storage primitives (cabinets, drawers, placements, cascade rules) live
@@ -6,6 +6,7 @@
 //   1. Pull chatId from req.tg.user.id (verified by twa-auth.js).
 //   2. Call into clipboard-store / clip-store helpers.
 //   3. Map structured errors to 4xx codes.
+//   4. Emit cb.* analytics events to verbose-log on success (PR #4).
 //
 // Auth model — single chokepoint with one carve-out:
 //   ─ GET  /api/clipboard/shared/:token         PUBLIC (the token IS the auth)
@@ -33,6 +34,16 @@ const {
 } = require('./clipboard-store');
 
 const { saveShare, loadShare } = require('./share');
+const { vlogIf } = require('./verbose-log');
+
+// v0.62.331 (PR #4) — emit a cb.<event> line to verbose-log on success.
+// Gated by the per-chat verbose flag (vlogIf is a no-op when off, so we
+// pay one Redis GET per request at most when verbose is engaged). Never
+// throws — analytics must not affect the user-facing response.
+function track(redis, chatId, event, fields = {}) {
+  if (!redis || !chatId || !event) return;
+  vlogIf(redis, chatId, { ns: 'cb', event, ...fields }).catch(() => { /* never throw */ });
+}
 const { requireInitDataFromBodyOrHeader } = require('./twa-auth');
 
 // Pull the Telegram user/chat id from the verified initData. In private
@@ -144,6 +155,7 @@ function mountClipboardRoutes(app, redis) {
       const m = mapError(r.error);
       return res.status(m.status).json(m.body);
     }
+    track(redis, chatId, 'add_cabinet', { cabId: r.cabinet.cabId, hasLocation: !!location, hasDates: !!(dateStart || dateEnd) });
     return res.status(201).json({ cabinet: r.cabinet });
   }));
 
@@ -168,6 +180,7 @@ function mountClipboardRoutes(app, redis) {
       const m = mapError(r.error);
       return res.status(m.status).json(m.body);
     }
+    track(redis, chatId, 'delete_cabinet', { cabId: req.params.id });
     return res.json({ ok: true });
   }));
 
@@ -181,6 +194,7 @@ function mountClipboardRoutes(app, redis) {
       const m = mapError(r.error);
       return res.status(m.status).json(m.body);
     }
+    track(redis, chatId, 'add_drawer', { cabId: req.params.id, segment, hasLocation: !!location });
     return res.status(201).json({ index: r.index, drawer: r.drawer });
   }));
 
@@ -287,6 +301,7 @@ function mountClipboardRoutes(app, redis) {
       const m = mapError(r.error);
       return res.status(m.status).json(m.body);
     }
+    track(redis, chatId, 'place_card', { cardId: req.params.id, cabId: cabinetId, drawerIdx: Number(drawerIdx), alreadyPresent: r.alreadyPresent === true });
     return res.json({ ok: true, alreadyPresent: r.alreadyPresent === true });
   }));
 
@@ -319,6 +334,7 @@ function mountClipboardRoutes(app, redis) {
       const r = await placeCard(redis, chatId, req.params.id, to.cabinetId, Number(to.drawerIdx));
       if (!r.ok) { const m = mapError(r.error); return res.status(m.status).json(m.body); }
     }
+    track(redis, chatId, 'move_card', { cardId: req.params.id, from: from || null, to: to || null });
     return res.json({ ok: true });
   }));
 
@@ -408,6 +424,7 @@ function mountClipboardRoutes(app, redis) {
     cur.shareToken = token;
     await redis.lSet(drMetaKey(chatId, cabId), n, JSON.stringify(cur));
     const botUsername = process.env.TELEGRAM_BOT_USERNAME || 'gia4lunch_bot';
+    track(redis, chatId, 'share_drawer', { cabId, drawerIdx: n, cardCount: snapshotCards.length });
     return res.json({
       token,
       url: `https://t.me/${botUsername}/clipboard?startapp=dr_${token}`
@@ -469,6 +486,7 @@ function mountClipboardRoutes(app, redis) {
         }
       }
     }
+    track(redis, chatId, 'fork_drawer', { token: req.params.token, forkedCount: newCardIds.length, intoCabinet: !!targetCabinetId });
     return res.json({
       ok: true,
       forkedCount: newCardIds.length,
