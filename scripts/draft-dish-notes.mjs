@@ -52,19 +52,30 @@ async function loadOverlay() {
 }
 
 const SYS = [
-  'You are a Singapore food-discovery editor writing one-line dish explanations.',
+  'You are a Singapore food-discovery editor writing tight, factual one-line dish explanations.',
   'You are grounded with Google Search — base every fact on what you find; do NOT invent.',
-  'For each dish in the input JSON array (each {key, dish, cuisine}), write a concise English',
-  'explanation (≈ 120–160 chars, ONE sentence): what the dish is + its origin/notable trait.',
-  'Rules:',
-  '- Keep the dish name and native/loanword culinary terms verbatim (do not translate them).',
-  '- Factual + honest. If you genuinely cannot verify a dish, set "en" to "" (empty) for it —',
-  '  an empty string means "skip, unverified". Never fabricate a history.',
-  '- No marketing fluff, no "delicious/popular/must-try". State what it is.',
-  '- Include a short "source" (publication/site name you grounded on), or "" if none.',
+  'For each dish in the input JSON array (each {key, dish, cuisine}), write ONE English sentence,',
+  'MAX 160 CHARACTERS, stating what the dish is + ONE concrete trait (key ingredient, method,',
+  'region, or origin). Plain and informative — like a museum label, not a menu.',
+  'HARD RULES:',
+  '- ≤ 160 characters. ONE sentence. No run-ons, no second clause piled on with commas.',
+  '- BANNED words (never use): iconic, popular, beloved, celebrated, famous, must-try, delicious,',
+  '  succulent, fragrant, mouthwatering, renowned, legendary. State facts, not hype.',
+  '- Keep dish names and native/loanword culinary terms verbatim (do not translate them).',
+  '- Origin/inventor/year: include a specific person or date ONLY if a REPUTABLE source clearly',
+  '  states it. If unsure, describe what the dish IS without inventing a creator or date.',
+  '- "source": cite ONE reputable source only — e.g. Wikipedia, NLB, MICHELIN Guide, TasteAtlas,',
+  '  a major newspaper, or an established food-media site. NEVER cite YouTube, Facebook, Quora,',
+  '  Reddit, Steemit, Pinterest, or personal blogs. If you have no reputable source, set "en" to',
+  '  "" (empty) — an empty string means "skip, unverified". Never fabricate.',
   'Return ONLY a JSON object keyed by the input "key": { "<key>": {"en":"…","source":"…"} }.',
   'No prose, no code fences — just the JSON object.',
 ].join('\n');
+
+// Junk source markers — if the model's reported source is one of these, blank
+// it (the prompt forbids them, but post-filter as a backstop).
+const JUNK_SOURCE_RE = /youtube|facebook|quora|reddit|steemit|pinterest|\bblog\b|tiktok|instagram/i;
+const MAX_NOTE_CHARS = 200; // hard backstop; prompt targets ≤160
 
 function extractJson(text) {
   if (!text) return null;
@@ -120,9 +131,13 @@ async function draftBatch(apiKey, batch) {
         const out = {};
         for (const { key } of batch) {
           const e = parsed[key];
-          if (e && typeof e.en === 'string' && e.en.trim()) {
-            out[key] = { en: e.en.trim(), source: (e.source && String(e.source).trim()) || gSource || '' };
-          }
+          if (!e || typeof e.en !== 'string') continue;
+          const en = e.en.trim();
+          if (!en) continue;                          // model skipped (unverified)
+          if (en.length > MAX_NOTE_CHARS) continue;   // ignored the length rule → leave for retry, don't ship a run-on
+          let source = (e.source && String(e.source).trim()) || gSource || '';
+          if (JUNK_SOURCE_RE.test(source)) source = ''; // backstop: drop forbidden source
+          out[key] = { en, source };
         }
         return out; // may be {} if model skipped all (unverified) — that's valid
       } catch (e) { lastErr = e; cascade = false; break; }
