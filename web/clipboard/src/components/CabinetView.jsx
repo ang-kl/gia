@@ -7,7 +7,7 @@ import { t } from '../lib/i18n.js';
 
 const DRAWER_CAP = 20;
 
-export default function CabinetView({ payload, lang, onBack, onAddDrawer, onTapCard, onDeleteDrawer, onDeleteCabinet }) {
+export default function CabinetView({ payload, lang, onBack, onAddDrawer, onTapCard, onDeleteDrawer, onDeleteCabinet, onMoveDrawer }) {
   const [menu, setMenu] = useState(false);
   if (!payload) {
     return <div className="p-4 text-sm text-tg-hint">{t('chrome.loading', lang)}</div>;
@@ -43,9 +43,11 @@ export default function CabinetView({ payload, lang, onBack, onAddDrawer, onTapC
             key={i}
             drawer={d}
             n={i}
+            totalDrawers={drawers.length}
             cabinetId={cabinet.cabId}
             lang={lang}
             onTapCard={onTapCard}
+            onMove={(from, to) => onMoveDrawer?.(from, to)}
             onDelete={() => {
               if (window.confirm(t('drawer.deleteConfirm', lang))) onDeleteDrawer?.(i);
             }}
