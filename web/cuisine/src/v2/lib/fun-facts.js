@@ -27,6 +27,18 @@
 // browser bundle. No import attributes, no createRequire, no
 // per-environment branching.
 import facts from '../data/fun-facts.js';
+// v0.62.x — id/ru/de fact bodies live in a GENERATED overlay keyed by the
+// fact's identifier (NOT in the data file): the locale code `id` (Indonesian)
+// would collide with each fact's `id` IDENTIFIER field if stored flat. We
+// fold the overlay onto a `_i18n` sub-object per fact at load, leaving the
+// hand-authored flat `id`/`en`/`fr`/zh… shape (and the dedup contract + tests)
+// untouched. Produced by scripts/translate-content.mjs via the Gemini Action;
+// seeds to `{}` so behaviour is unchanged until populated.
+import factI18n from '../data/fun-facts-i18n.generated.js';
+for (const f of Array.isArray(facts) ? facts : []) {
+  const loc = f && f.id && factI18n ? factI18n[f.id] : null;
+  if (loc) f._i18n = loc;
+}
 
 const LS_KEY = 'gia.funfact.lastSeen';
 const LS_MAX = 10;
@@ -36,6 +48,10 @@ const LS_MAX = 10;
 // only carry en/fr, so they degrade to en for other languages — fine,
 // they're SG-tagged and mostly shown to SG users).
 const SUPPORTED_LANGS = new Set(['en', 'fr', 'zh', 'ms', 'ta', 'ja', 'ko', 'th']);
+// v0.62.x — languages whose fact body comes from the generated `_i18n` overlay
+// (curated-5 additions: Indonesian/Russian/German). Kept separate from
+// SUPPORTED_LANGS because `id` can't be a flat key (identifier collision).
+const OVERLAY_LANGS = new Set(['id', 'ru', 'de']);
 
 // v0.61.383 — the DEVICE language for the fact body. The app UI locale
 // (useLocale) is only en|fr, but the operator wants the fact in the user's
@@ -47,7 +63,7 @@ export function deviceFactLang() {
     if (typeof navigator === 'undefined') return 'en';
     const raw = navigator.language || (Array.isArray(navigator.languages) ? navigator.languages[0] : '') || '';
     const two = String(raw).toLowerCase().split(/[-_]/)[0];
-    return SUPPORTED_LANGS.has(two) ? two : 'en';
+    return (SUPPORTED_LANGS.has(two) || OVERLAY_LANGS.has(two)) ? two : 'en';
   } catch { return 'en'; }
 }
 
@@ -137,12 +153,21 @@ export function dishFactsFromPlate(plate) {
     if (seen.has(key)) continue;
     seen.add(key);
     const name = (d.local && d.local !== d.dish) ? `${d.dish} · ${d.local}` : d.dish;
+    // id/ru/de dish-note bodies (when the plate carries them) go on `_i18n`,
+    // mirroring the fun-fact overlay shape so factBody resolves them the same
+    // way. Forward-compatible: absent → factBody falls back to en.
+    const note = d.note;
+    const loc = {};
+    for (const l of OVERLAY_LANGS) {
+      if (note[l]) loc[l] = `${name} — ${note[l]}`;
+    }
     out.push({
       id: `dish:${key}`,
       tags: [],
       source: 'Soleat',
-      en: `${name} — ${d.note.en || d.note.fr}`,
-      fr: `${name} — ${d.note.fr || d.note.en}`
+      en: `${name} — ${note.en || note.fr}`,
+      fr: `${name} — ${note.fr || note.en}`,
+      ...(Object.keys(loc).length ? { _i18n: loc } : {})
     });
   }
   return out;
@@ -175,9 +200,14 @@ export function pickFunFact(ctx, extraFacts = []) {
   return fact;
 }
 
-// Public: read the localised body of a fact. Falls back EN → key → ''.
+// Public: read the localised body of a fact. id/ru/de come from the generated
+// `_i18n` overlay (never read flat `fact.id` — that's the identifier); all
+// other languages read the flat hand-authored body. Falls back to EN.
 export function factBody(fact, lang) {
   if (!fact) return '';
+  if (OVERLAY_LANGS.has(lang)) {
+    return (fact._i18n && fact._i18n[lang]) || fact.en || '';
+  }
   const safeLang = SUPPORTED_LANGS.has(lang) ? lang : 'en';
   return fact[safeLang] || fact.en || '';
 }

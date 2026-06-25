@@ -84,12 +84,28 @@ function _escapeHtml(s) {
     .replace(/>/g, '&gt;');
 }
 
+// v0.62.x — id/ru/de fact bodies come from the generated `_i18n` overlay
+// (merged onto facts by lib/fun-facts.js); en/fr remain flat on the fact.
+const _OVERLAY_LANGS = new Set(['id', 'ru', 'de']);
+const _FF_HEADERS = {
+  fr: '💡 Le saviez-vous ?',
+  id: '💡 Tahukah Anda?',
+  ru: '💡 А вы знали?',
+  de: '💡 Wussten Sie schon?',
+  en: '💡 Did you know?',
+};
+
 // Build the HTML body for the bot reply. Telegram parse_mode='HTML'.
 function _formatHtml(fact, lang) {
   if (!fact) return '';
-  const safeLang = lang === 'fr' ? 'fr' : 'en';
-  const body = fact[safeLang] || fact.en || '';
-  const header = safeLang === 'fr' ? '💡 Le saviez-vous ?' : '💡 Did you know?';
+  let body;
+  if (_OVERLAY_LANGS.has(lang)) {
+    body = (fact._i18n && fact._i18n[lang]) || fact.en || '';
+  } else {
+    const safeLang = lang === 'fr' ? 'fr' : 'en';
+    body = fact[safeLang] || fact.en || '';
+  }
+  const header = _FF_HEADERS[lang] || _FF_HEADERS.en;
   const sourceLabel = 'Source';
   const sourceLine = (fact.source && fact.sourceUrl)
     ? `\n\n<a href="${_escapeHtml(fact.sourceUrl)}">${sourceLabel}: ${_escapeHtml(fact.source)}</a>`
