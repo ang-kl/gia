@@ -44,7 +44,7 @@ jobs:
           REASON: ${{ github.event.inputs.reason }}
         run: |
           set -e
-          PATHS="nation-overlay-i18n.generated.js web/cuisine/src/v2/data/fun-facts-i18n.generated.js"
+          PATHS="nation-overlay-i18n.generated.js web/cuisine/src/v2/data/fun-facts-i18n.generated.js nation-overlay-dishnotes-i18n.generated.js"
           if [ -z "$(git status --porcelain $PATHS)" ]; then
             echo "No change to generated overlays — nothing to push."
             exit 0
