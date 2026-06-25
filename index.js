@@ -413,6 +413,52 @@ async function buildAreaSetLine(lat, lng, fallbackLabel) {
   return html;
 }
 
+// v0.62.x — operator: a Cuisine/Menu TMA must ALWAYS surface a real
+// street / building / "near <landmark>" location — never empty, a bare
+// country ("Singapore"), a coord, or a Plus Code. `isWeakLabel` flags those;
+// `composePlaceLabel` is the plain-text sibling of buildAreaSetLine that
+// upgrades a weak label by reverse-geocoding (street/building) and, when the
+// street is ambiguous, appending the nearest prominent landmark. Used by the
+// /api/cuisine/user-location read path (both TMAs launch through it) so even
+// legacy cached anchors render a real place. Reverse-geocode is 24h-cached, so
+// only the first weak-label launch per ~10 m grid pays a lookup.
+const _WEAK_LABELS = new Set([
+  '', 'area', 'current', 'unnamed', 'unknown', 'location',
+  'singapore', 'malaysia', 'indonesia', 'thailand', 'vietnam', 'philippines',
+  'japan', 'south korea', 'korea', 'china', 'hong kong', 'macau', 'taiwan',
+]);
+function isWeakLabel(label) {
+  const s = String(label == null ? '' : label).trim().toLowerCase();
+  if (!s) return true;
+  if (_WEAK_LABELS.has(s)) return true;
+  if (/^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/.test(s)) return true;          // "1.23, 103.5"
+  if (/^[2-9cfghjmpqrvwx]{2,}\+[2-9cfghjmpqrvwx]+/i.test(s)) return true;  // Plus Code
+  return false;
+}
+
+async function composePlaceLabel(lat, lng, fallbackLabel) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return isWeakLabel(fallbackLabel) ? null : String(fallbackLabel).trim();
+  }
+  const geo = await reverseGeocodeAddress(lat, lng).catch(() => null);
+  let name = geo && geo.name ? String(geo.name).trim() : '';
+  const ambiguous = geo ? !geo.streetNumber : true; // no house number → ambiguous street
+  if (isWeakLabel(name) || ambiguous) {
+    const lm = await nearestLandmark(lat, lng).catch(() => null);
+    if (lm && String(lm).trim()) {
+      const lmName = String(lm).trim();
+      name = isWeakLabel(name) ? `near ${lmName}` : `${name} (near ${lmName})`;
+    }
+  }
+  if (isWeakLabel(name)) {
+    const seg = geo && geo.formatted ? geo.formatted.split(',')[0].trim() : '';
+    if (!isWeakLabel(seg)) name = seg;
+    else if (!isWeakLabel(fallbackLabel)) name = String(fallbackLabel).trim();
+    else name = '';
+  }
+  return name || null;
+}
+
 // v0.61.400 — tidyRecentLabel (full street+building+city display string
 // for the recents drawer) lives in ./recent-label so it's unit-testable.
 const { tidyRecentLabel } = require('./recent-label');
@@ -14258,7 +14304,19 @@ async function cacheBotUsername() {
           } catch { /* non-fatal */ }
         }
         if (Number.isFinite(cached.radiusCapM)) payload.radiusCapM = cached.radiusCapM;
-        if (cached.label) payload.label = cached.label;
+        // v0.62.x — operator: the launched TMA must show a real street/building/
+        // "near <landmark>", never empty/bare-country/coord. If the cached label
+        // is weak, upgrade it from the coords (reverse-geocode is 24h-cached, so
+        // only the first weak-label launch per area pays). Good labels pass
+        // through untouched (no added latency). Read-only — we don't rewrite the
+        // cache here, so the reconciliation/boot flow is unaffected.
+        if (isWeakLabel(cached.label)) {
+          const upgraded = await composePlaceLabel(cached.lat, cached.lng, cached.label).catch(() => null);
+          if (upgraded && !isWeakLabel(upgraded)) payload.label = upgraded;
+          else if (cached.label) payload.label = cached.label;
+        } else {
+          payload.label = cached.label;
+        }
         if (cached.precinctId) payload.precinctId = cached.precinctId;
         // v0.61.139 — surface the structured address parts so the
         // Menu TMA can render "Anchored at <street> + <building> +
