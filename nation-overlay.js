@@ -3138,6 +3138,33 @@ try {
   }
 }
 
+// v0.62.x — Per-dish 📜 note i18n. Fold GENERATED id/ru/de dish-note bodies
+// into each iconicDishes entry's `note` at load, keyed by `${slug}::${dish}`
+// (dish names repeat across cuisines, so the slug-qualified key is unique).
+// Guarded require — absent overlay = no-op (en/fr hand-authored values win).
+// The translated note flows to the loading-modal fun-fact rotation via
+// dishFactsFromPlate (web/cuisine/src/v2/lib/fun-facts.js), which reads
+// note.{id,ru,de} onto the fact `_i18n`.
+try {
+  // eslint-disable-next-line global-require
+  const DISHNOTE_I18N = require('./nation-overlay-dishnotes-i18n.generated.js');
+  for (const [slug, overlay] of Object.entries(NATION_OVERLAY)) {
+    const dishes = overlay && Array.isArray(overlay.iconicDishes) ? overlay.iconicDishes : [];
+    for (const dish of dishes) {
+      if (!dish || !dish.note || !dish.name) continue;
+      const loc = DISHNOTE_I18N[`${slug}::${String(dish.name).toLowerCase()}`];
+      if (!loc) continue;
+      for (const [lang, text] of Object.entries(loc)) {
+        if (dish.note[lang] == null && typeof text === 'string' && text) dish.note[lang] = text;
+      }
+    }
+  }
+} catch (e) {
+  if (e && e.code !== 'MODULE_NOT_FOUND') {
+    console.warn(`[nation-overlay] dishnote-i18n overlay load failed: ${e.message}`);
+  }
+}
+
 module.exports = {
   NATION_OVERLAY,
   getNationOverlay,
