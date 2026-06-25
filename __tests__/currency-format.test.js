@@ -11,7 +11,8 @@ import {
   currencyForCountry,
   usdRate,
   fetchFxRate,
-  formatPriceRangeForVenue
+  formatPriceRangeForVenue,
+  priceTierFromRange
 } from '../currency-format.js';
 
 // URL-aware fetch mock for the Frankfurter fallback leg. `usdRates` maps
@@ -368,5 +369,27 @@ describe('currency-format — formatPriceRangeForVenue', () => {
     );
     // AED resolves via CURRENCY_PREFIX ("AED "); marked up + "≈".
     expect(r).toMatch(/^S\$25–40 \(≈AED \d/);
+  });
+});
+
+describe('priceTierFromRange — money-range → $/$$/$$$ tier (v0.62.x)', () => {
+  it('buckets SGD per-pax bands ($ <15, $$ 15-40, $$$ 40-80, $$$$ >=80)', () => {
+    expect(priceTierFromRange({ currencyCode: 'SGD', start: 8, end: 12 })).toBe(1);
+    expect(priceTierFromRange({ currencyCode: 'SGD', start: 20, end: 40 })).toBe(2);
+    expect(priceTierFromRange({ currencyCode: 'SGD', start: 50, end: 70 })).toBe(3);
+    expect(priceTierFromRange({ currencyCode: 'SGD', start: 100, end: 100 })).toBe(4);
+    expect(priceTierFromRange({ currencyCode: 'SGD', start: 90, end: 200 })).toBe(4);
+  });
+  it('converts other currencies to SGD via the USD-pivot baseline', () => {
+    expect(priceTierFromRange({ currencyCode: 'MYR', start: 30, end: 50 })).toBe(1);   // ~S$12
+    expect(priceTierFromRange({ currencyCode: 'JPY', start: 3000, end: 5000 })).toBe(2); // ~S$32
+  });
+  it('returns null when there is no usable range (caller falls back to price_level)', () => {
+    expect(priceTierFromRange(null)).toBeNull();
+    expect(priceTierFromRange({})).toBeNull();
+    expect(priceTierFromRange({ currencyCode: 'SGD' })).toBeNull();
+  });
+  it('treats a currency-less range as SGD-scale', () => {
+    expect(priceTierFromRange({ start: 20, end: 40 })).toBe(2);
   });
 });

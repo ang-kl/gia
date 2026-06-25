@@ -358,6 +358,39 @@ async function formatPriceRangeForVenue(priceRange, venueCountry, userCountry, r
   return conv ? `${native} (≈${conv})` : native;
 }
 
+// v0.62.x — operator: the Cuisine $/$$/$$$ filter must match the MONEY shown
+// on the card (the venue's priceRange), not just Google's coarse price_level
+// (which is frequently null, so the old filter let unknown-tier venues through
+// and the displayed range — e.g. "S$100" under a "$" pick — looked unwired).
+// Bucket a normalised priceRange ({currencyCode, start, end}) into a 1-4 tier
+// by its per-pax midpoint converted to SGD via the USD-pivot baseline. Coarse
+// is fine for a 4-way bucket — no live FX call needed. SGD per-pax bands:
+//   $ < S$15 · $$ S$15–40 · $$$ S$40–80 · $$$$ ≥ S$80
+// Returns 1|2|3|4, or null when there's no usable range/currency (caller then
+// falls back to price_level, and drops the venue if that's null too).
+const _SGD_TIER_UPPER = [15, 40, 80]; // upper bounds for $, $$, $$$ ; ≥80 → $$$$
+function priceTierFromRange(priceRange) {
+  if (!priceRange || typeof priceRange !== 'object') return null;
+  const { currencyCode, start, end } = priceRange;
+  const lo = Number.isFinite(start) ? start : end;
+  const hi = Number.isFinite(end) ? end : start;
+  if (!Number.isFinite(lo) && !Number.isFinite(hi)) return null;
+  const mid = (Number.isFinite(lo) && Number.isFinite(hi)) ? (lo + hi) / 2
+            : (Number.isFinite(lo) ? lo : hi);
+  if (!Number.isFinite(mid) || mid <= 0) return null;
+  const cur = String(currencyCode || 'SGD').toUpperCase();
+  const usdPerUnit = USD_RATE_BASELINE[cur];
+  // Convert mid (in `cur`) → SGD. Unknown currency → assume already SGD-scale.
+  const sgd = Number.isFinite(usdPerUnit)
+    ? mid * usdPerUnit / USD_RATE_BASELINE.SGD
+    : mid;
+  if (!Number.isFinite(sgd) || sgd <= 0) return null;
+  if (sgd < _SGD_TIER_UPPER[0]) return 1;
+  if (sgd < _SGD_TIER_UPPER[1]) return 2;
+  if (sgd < _SGD_TIER_UPPER[2]) return 3;
+  return 4;
+}
+
 module.exports = {
   COUNTRY_PREFIX,
   CURRENCY_PREFIX,
@@ -371,5 +404,6 @@ module.exports = {
   NO_CENTS,
   FX_MARKUP,
   USD_RATE_BASELINE,
-  sanitizeUsdRate
+  sanitizeUsdRate,
+  priceTierFromRange
 };
