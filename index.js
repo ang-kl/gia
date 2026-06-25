@@ -1638,7 +1638,7 @@ async function tokenizeCuisineArgs(raw) {
       if (cuisines.length < 5) cuisines.push(t);
     } else if (FLAGS.has(t)) {
       params.set(t, '1');
-    } else if (/^\$+$/.test(t) && t.length <= 3) {
+    } else if (/^\$+$/.test(t) && t.length <= 4) {
       // $$ → emit "$,$$" so the server's price-tier filter (which
       // matches priceLevel against the SET) accepts both. Mirrors
       // the TMA's existing multi-select chip behaviour.
@@ -14702,7 +14702,7 @@ async function cacheBotUsername() {
         // server post-filter treats `$$` as "≤$$", so emitting the
         // max preserves the same semantics with one token.
         const priceList = Array.isArray(prices) ? prices : (Array.isArray(filters?.prices) ? filters.prices : []);
-        const cleanPrices = priceList.filter((p) => /^\$+$/.test(p) && p.length >= 1 && p.length <= 3);
+        const cleanPrices = priceList.filter((p) => /^\$+$/.test(p) && p.length >= 1 && p.length <= 4);
         if (cleanPrices.length) {
           cleanPrices.sort((a, b) => b.length - a.length);
           tokens.push(cleanPrices[0]);

@@ -19,7 +19,7 @@
 // the dish layer — cuisine special dishes (overlay) + the city's unique
 // dishes (city-plates) — and tags venues whose own evidence serves them.
 const QUICK_FILTERS = ['newlyOpened', 'openNow', 'halal', 'vegetarian', 'homeBased', 'petFriendly', 'recommend'];
-const PRICE_LEVELS = ['$', '$$', '$$$'];
+const PRICE_LEVELS = ['$', '$$', '$$$', '$$$$'];
 // v0.61.159 — rule §2.7 boundary work demoted MY-PUT to a sub-case of
 // OTHER (operator answer 3), BUT the operator still wants a third
 // pill in the Cuisine TMA region toggle (the UI surface on top of the
