@@ -25,10 +25,11 @@ function makeFakeRedis() {
   const hashes = new Map();         // key → Map<string,string>
   const sets = new Map();           // key → Set<string>
   const zsets = new Map();          // key → Map<value,score>
-  const ttls = new Map();           // key → seconds (number) OR null for PERSIST
+  const strings = new Map();        // key → string (for plain set/get; used by share.js)
+  const ttls = new Map();           // key → seconds OR null for PERSIST
 
   function exists(key) {
-    return lists.has(key) || hashes.has(key) || sets.has(key) || zsets.has(key);
+    return lists.has(key) || hashes.has(key) || sets.has(key) || zsets.has(key) || strings.has(key);
   }
 
   return {
@@ -163,6 +164,16 @@ function makeFakeRedis() {
       return z.delete(String(value)) ? 1 : 0;
     },
 
+    // ── STRING (plain key/value, used by share.js) ────────────────
+    async set(key, value, opts = {}) {
+      strings.set(key, String(value));
+      if (opts && Number.isFinite(opts.EX)) ttls.set(key, opts.EX);
+      return 'OK';
+    },
+    async get(key) {
+      return strings.has(key) ? strings.get(key) : null;
+    },
+
     // ── Key ops ───────────────────────────────────────────────────
     async exists(key) { return exists(key) ? 1 : 0; },
     async del(...keys) {
@@ -172,6 +183,7 @@ function makeFakeRedis() {
         if (hashes.delete(key)) removed++;
         if (sets.delete(key)) removed++;
         if (zsets.delete(key)) removed++;
+        if (strings.delete(key)) removed++;
         ttls.delete(key);
       }
       return removed;
