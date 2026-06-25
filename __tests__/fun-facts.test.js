@@ -269,9 +269,31 @@ describe('deviceFactLang — navigator.language → fact language (v0.61.383)', 
     setLang('ko-KR'); expect(deviceFactLang()).toBe('ko');
     setLang('th-TH'); expect(deviceFactLang()).toBe('th');
   });
-  it('falls back to en for an unsupported device language (de-DE)', () => {
-    setLang('de-DE');
+  it('maps the curated-5 overlay languages (de-DE → de, id-ID → id, ru-RU → ru)', () => {
+    setLang('de-DE'); expect(deviceFactLang()).toBe('de');
+    setLang('id-ID'); expect(deviceFactLang()).toBe('id');
+    setLang('ru-RU'); expect(deviceFactLang()).toBe('ru');
+  });
+  it('falls back to en for a genuinely unsupported device language (pt-BR)', () => {
+    setLang('pt-BR');
     expect(deviceFactLang()).toBe('en');
+  });
+});
+
+describe('factBody — id/ru/de from the _i18n overlay (v0.62.x)', () => {
+  it('reads id/ru/de from _i18n and never the `id` identifier field', () => {
+    const f = { id: 'x-slug', en: 'EN body', fr: 'FR body', _i18n: { id: 'Tubuh ID', ru: 'RU тело', de: 'DE Körper' } };
+    expect(factBody(f, 'id')).toBe('Tubuh ID'); // NOT 'x-slug'
+    expect(factBody(f, 'ru')).toBe('RU тело');
+    expect(factBody(f, 'de')).toBe('DE Körper');
+    expect(factBody(f, 'en')).toBe('EN body');
+    expect(factBody(f, 'fr')).toBe('FR body');
+  });
+  it('falls back to en (NOT the identifier) when _i18n is absent', () => {
+    const f = { id: 'y-slug', en: 'EN only' };
+    expect(factBody(f, 'id')).toBe('EN only');
+    expect(factBody(f, 'ru')).toBe('EN only');
+    expect(factBody(f, 'de')).toBe('EN only');
   });
 });
 
