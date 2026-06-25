@@ -42,15 +42,14 @@ const LANG_NAME = { id: 'Indonesian', ru: 'Russian', de: 'German' };
 // Gemini model-fallback chain — mirrors gemini-client.js so we inherit the
 // same 404/503 resilience. No googleSearch tool: translation must not be
 // "grounded" (that risks the model rewriting the facts).
-// Single primary model + one 404-only fallback. We deliberately do NOT
-// cascade through models on a 429: all models share the same project
-// quota, so falling through them just burns the bucket faster. flash-lite
-// only kicks in if flash-latest 404s (model gone).
-const MODEL_CHAIN = ['gemini-flash-latest', 'gemini-2.5-flash-lite'];
+// Model chain. We cascade across models on a 503 (overload is PER-model — a
+// sibling is likely free) or 404 (model gone), but NOT on a 429: all models
+// share the project quota bucket, so falling through them just burns it faster.
+const MODEL_CHAIN = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
 
-const BATCH_SIZE = 14;         // larger batches → far fewer calls (quota-frugal)
+const BATCH_SIZE = 14;         // larger batches → far fewer calls
 const BATCH_PAUSE_MS = 8000;   // gap between batches
-const RETRY_WAITS_MS = [30000]; // single long back-off on 429/503 (no amplification)
+const RETRY_WAITS_MS = [15000, 40000]; // back-off on 429/503 before moving on
 
 const OVERLAY_PATH = join(ROOT, 'nation-overlay-i18n.generated.js');
 
@@ -127,9 +126,10 @@ async function translateBatch(apiKey, batch) {
             await sleep(wait);
             continue; // retry same model
           }
-          // Quota/transient exhausted: do NOT cascade (models share the
-          // quota bucket). Only a 404 (model gone) warrants the next model.
-          if (res.status === 404) break;
+          // 503 (overload) or 404 (model gone) → fall through to the next
+          // model. 429 (shared quota) or anything else → stop; trying sibling
+          // models would only burn the same quota or repeat the same failure.
+          if (res.status === 404 || res.status === 503) break;
           cascade = false;
           break;
         }
