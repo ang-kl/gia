@@ -44,14 +44,15 @@ jobs:
           REASON: ${{ github.event.inputs.reason }}
         run: |
           set -e
-          if [ -z "$(git status --porcelain nation-overlay-i18n.generated.js)" ]; then
-            echo "No change to nation-overlay-i18n.generated.js — nothing to push."
+          PATHS="nation-overlay-i18n.generated.js web/cuisine/src/v2/data/fun-facts-i18n.generated.js"
+          if [ -z "$(git status --porcelain $PATHS)" ]; then
+            echo "No change to generated overlays — nothing to push."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -B bot/translate-content
-          git add nation-overlay-i18n.generated.js
+          git add $PATHS
           git commit -m "chore(i18n): regenerate curated-prose translations (id/ru/de)" \
                      -m "Reason: ${REASON}"
           git push --force origin bot/translate-content
