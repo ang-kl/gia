@@ -37,8 +37,15 @@ const require = createRequire(import.meta.url);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
-const TARGET_LANGS = ['id', 'ru', 'de']; // Indonesian, Russian, German
-const LANG_NAME = { id: 'Indonesian', ru: 'Russian', de: 'German' };
+const TARGET_LANGS = ['id', 'ru', 'de', 'zh', 'ja', 'es']; // Indonesian, Russian, German, Chinese, Japanese, Spanish
+const LANG_NAME = {
+  id: 'Indonesian',
+  ru: 'Russian',
+  de: 'German',
+  zh: 'Simplified Chinese',
+  ja: 'Japanese',
+  es: 'Spanish',
+};
 
 // Gemini model-fallback chain — mirrors gemini-client.js so we inherit the
 // same 404/503 resilience. No googleSearch tool: translation must not be
@@ -219,7 +226,9 @@ async function runTarget(apiKey, { label, overlayPath, serialize, entries }) {
     try {
       const out = await translateBatch(apiKey, batch);
       for (const [k, rec] of Object.entries(out)) {
-        overlay[k] = { ...(overlay[k] || {}), ...rec };
+        // Existing (reviewed) translations win — new langs fill gaps only, so
+        // adding zh/ja/es never overwrites curated id/ru/de.
+        overlay[k] = { ...rec, ...(overlay[k] || {}) };
         done += 1;
       }
       for (const { slug } of batch) if (!out[slug]) missing.push(slug);
