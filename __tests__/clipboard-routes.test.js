@@ -74,7 +74,13 @@ describe('GET /api/clipboard/state', () => {
   it('returns 200 with empty state for a fresh chatId', async () => {
     const r = await request(app, 'GET', '/api/clipboard/state', { query: Q });
     expect(r.status).toBe(200);
-    expect(r.body).toEqual({ cabinets: [], catchAllCount: 0 });
+    expect(r.body.cabinets).toEqual([]);
+    expect(r.body.catchAllCount).toBe(0);
+    // v0.62.330 (PR #3) — `/state` additionally returns the catch-all
+    // cards in full so the TMA's strip can render without a second
+    // roundtrip. PR #2's surface (cabinets + catchAllCount) stays —
+    // catchAllCards is additive.
+    expect(r.body.catchAllCards).toEqual([]);
   });
 
   it('counts catch-all cards and lists cabinets', async () => {

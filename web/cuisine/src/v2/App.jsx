@@ -3908,6 +3908,38 @@ export default function App() {
         )}
       </header>
 
+      {/* v0.62.330 — Clipboard TMA entry point. Per operator-locked spec
+          (doc/v0.70_.MD § "Locked UI decisions for the Clipboard cycle"):
+          a separate, clearly-bordered panel placed directly below the
+          Location field — its own border (NOT sharing the liquid-glass
+          wrapper of the criteria panel above) so it reads as "a different
+          thing, not part of the location editor". Section title shows
+          BOTH names ("Sketchbook / Clipboard") per operator decision —
+          the slash communicates "same thing under two names" so users
+          familiar with either word land on it. Single primary button
+          launches the separate Clipboard Mini App (own bundle, own
+          BotFather short-name `clipboard`) via openTelegramLink. */}
+      <div className="mx-3 mt-2 mb-3 bg-tg-card border border-tg-border rounded-xl px-3 py-2.5">
+        <div className="text-[10px] uppercase tracking-wide text-tg-hint mb-1.5">
+          Sketchbook / Clipboard
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            try {
+              const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
+              const botUsername = (typeof window !== 'undefined' && window.__BOT_USERNAME__) || 'gia4lunch_bot';
+              const url = `https://t.me/${botUsername}/clipboard?startapp=root`;
+              if (w && typeof w.openTelegramLink === 'function') w.openTelegramLink(url);
+              else if (typeof window !== 'undefined') window.open(url, '_blank');
+            } catch (err) { console.warn('[clipboard-launch] failed:', err?.message); }
+          }}
+          className="w-full bg-tg-accent text-tg-accent-text rounded-lg py-2 text-sm font-semibold active:scale-95"
+        >
+          📋 Open Clipboard
+        </button>
+      </div>
+
       {/* v0.62.186 — operator (IMG_2507 #5): the standalone "Location staging"
           card that used to sit here (a separate ringed panel below the header)
           was merged UP into the header's liquid-glass mode panel, so ONE glass

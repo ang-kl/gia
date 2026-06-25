@@ -17,3 +17,5 @@ public/transport/
 public/oversight/
 # Vite build output for the /about project showcase (v0.62.103). Source: web/about/.
 public/about/
+# Vite build output for the Clipboard TMA (v0.62.330). Source: web/clipboard/.
+public/clipboard/
