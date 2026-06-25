@@ -54,6 +54,7 @@ const RETRY_WAITS_MS = [15000, 40000]; // back-off on 429/503 before moving on
 
 const OVERLAY_PATH = join(ROOT, 'nation-overlay-i18n.generated.js');
 const FUNFACTS_OVERLAY_PATH = join(ROOT, 'web/cuisine/src/v2/data/fun-facts-i18n.generated.js');
+const DISHNOTES_OVERLAY_PATH = join(ROOT, 'nation-overlay-dishnotes-i18n.generated.js');
 const FUNFACTS_DATA_PATH = join(ROOT, 'web/cuisine/src/v2/data/fun-facts.js');
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -258,6 +259,19 @@ async function main() {
     .map((f) => ({ key: f && f.id, en: f && f.en }))
     .filter((e) => e.key && e.en);
 
+  // Target 3 — per-dish 📜 notes (CJS overlay, keyed by `${slug}::${dish}` —
+  // dish names repeat across cuisines, so slug-qualify for uniqueness).
+  const dishnoteEntries = [];
+  for (const [slug, entry] of Object.entries(NATION_OVERLAY)) {
+    const dishes = entry && Array.isArray(entry.iconicDishes) ? entry.iconicDishes : [];
+    for (const dish of dishes) {
+      const en = dish && dish.note && dish.note.en;
+      if (dish && dish.name && en) {
+        dishnoteEntries.push({ key: `${slug}::${String(dish.name).toLowerCase()}`, en });
+      }
+    }
+  }
+
   const TARGETS = [
     {
       label: 'nation-overlay',
@@ -285,6 +299,20 @@ async function main() {
           '// `id` locale/identifier collision). Produced by scripts/translate-content.mjs.',
         ],
         esm: true,
+      }),
+    },
+    {
+      label: 'dish-notes',
+      overlayPath: DISHNOTES_OVERLAY_PATH,
+      entries: dishnoteEntries,
+      serialize: (o) => serializeOverlay(o, {
+        fileLine: 'nation-overlay-dishnotes-i18n.generated.js',
+        desc: [
+          '// id/ru/de per-dish 📜 note bodies, keyed by `${slug}::${dish}`. Folded onto',
+          '// iconicDishes note.{id,ru,de} by nation-overlay.js at load; surfaced in the',
+          '// loading-modal fun-fact rotation via dishFactsFromPlate. Proper nouns preserved.',
+        ],
+        esm: false,
       }),
     },
   ];
