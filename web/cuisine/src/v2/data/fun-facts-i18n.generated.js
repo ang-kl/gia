@@ -162,14 +162,14 @@ export default {
     de: "Zwei kaya-Stile koexistieren: Hainanese (karamellbraun, langsam gekocht mit Kokosnuss + Eiern + Zucker) und Nonya (leuchtend grün durch Pandansaft). Die braune Version ist älter; die grüne verbreitete sich über Peranakan-Haushalte.",
   },
   "kl-char-kway-teow": {
-    id: "Kuala Lumpur char kway teow cenderung lebih gelap dan manis daripada Penang — lebih banyak kecap hitam, sedikit lebih sedikit kaldu udang. Penduduk setempat menyebutnya \"kway teow gaya KL\" untuk membedakannya.",
+    id: "Kuala Lumpur char kway teow cenderung lebih gelap dan manis daripada Penang — lebih banyak kecap hitam, kaldu udangnya sedikit lebih ringan. Penduduk setempat menyebutnya \"kway teow gaya KL\" untuk membedakannya.",
     ru: "Kuala Lumpur char kway teow более тёмный и сладкий, чем Penang-ский — больше тёмного соевого соуса, немного меньше насыщенности креветочного бульона. Местные жители называют его «kway teow в стиле Куала-Лумпура», чтобы отличить.",
     de: "Kuala Lumpur char kway teow ist dunkler und süßer als der aus Penang — mehr dunkle Sojasauce, etwas weniger Garnelenbrühen-Körper. Einheimische nennen es „kway teow KL-Stil“, um es zu unterscheiden.",
   },
   "kl-hokkien-mee": {
     id: "Kuala Lumpur hokkien mee adalah tumisan kental dan gelap — mi kuning, lemak babi renyah, dan kecap hitam. Berbeda dari versi kaldu udang yang lebih ringan di Singapura dengan nama yang sama.",
     ru: "Kuala Lumpur hokkien mee — это густое, темное жаркое — желтая лапша, хрустящий свиной жир и темный соевый соус. Отличается от сингапурской версии с более легким креветочным бульоном под тем же названием.",
-    de: "Kuala Lumpur hokkien mee ist ein dickes, dunkles Pfannengericht — gelbe Nudeln, knuspriger Schweineschmalz und dunkle Sojasauce. Unterscheidet sich von Singapurs leichterer Garnelenbrühe-Version desselben Namens.",
+    de: "Kuala Lumpur hokkien mee ist ein dickes, dunkles Pfannengericht — gelbe Nudeln, knuspriges Schweineschmalz und dunkle Sojasauce. Unterscheidet sich von der leichteren Garnelenbrühe-Version Singapurs gleichen Namens.",
   },
   "klang-bak-kut-teh-origin": {
     id: "Klang di Selangor secara luas disebut sebagai kota asal bak kut teh gaya Malaysia. Kaldu Hokkien yang gelap dan herbal itu adalah hidangan sarapan pekerja di pelabuhan Klang abad ke-19.",
@@ -237,7 +237,7 @@ export default {
     de: "Die Haupt-Durian-Saisons auf der malaysischen Halbinsel sind Juni–August und November–Januar. Die Musang King-Ernte in Pahang erreicht Ende Juni ihren Höhepunkt; kleinere Ernten gibt es das ganze Jahr über.",
   },
   "nasi-kandar-banjir": {
-    id: "Ciri khas nasi kandar adalah \"banjir\" (\"banjir\") — beberapa kari dituangkan di atas nasi sehingga bercampur di piring. Setiap pelanggan menentukan kombinasi kari di konter.",
+    id: "Ciri khas nasi kandar adalah \"banjir\" — beberapa kuah kari dituangkan di atas nasi sehingga bercampur di piring. Setiap pelanggan menentukan kombinasi kari di konter.",
     ru: "Фирменная черта nasi kandar — это «banjir» («затопленный») — несколько видов карри, налитых на рис так, чтобы они смешивались на тарелке. Каждый клиент диктует комбинацию карри у прилавка.",
     de: "Das Markenzeichen von nasi kandar ist „banjir“ („überflutet“) – mehrere Currys werden über den Reis gegossen, sodass sie sich auf dem Teller vermischen. Jeder Kunde bestimmt die Curry-Kombination am Tresen.",
   },
@@ -267,18 +267,18 @@ export default {
     de: "Peranakan-Chinesen kreierten nyonya dumplings, die chinesische und malaiische Traditionen vereinen — kandierte Wintermelone, Korianderpulver und Anis in der Füllung.",
   },
   "pasar-malam-tradition": {
-    id: "Pasar malam (\"pasar malam\") adalah tradisi mingguan di seluruh Malaysia dan Singapura. Mereka dimulai sebagai penjual makanan + barang ad-hoc di kampung-kampung abad ke-19; banyak kota sekarang menjalankan rotasi mingguan formal.",
+    id: "Pasar malam adalah tradisi mingguan di seluruh Malaysia dan Singapura. Mereka dimulai sebagai penjual makanan + barang ad-hoc di kampung-kampung abad ke-19; banyak kota sekarang menjalankan rotasi mingguan formal.",
     ru: "Pasar malam (\"ночные рынки\") — это еженедельная традиция по всей Малайзии и Сингапуру. Они начинались как временные продавцы еды и товаров в kampung-деревнях XIX века; многие города теперь проводят официальные еженедельные ротации.",
     de: "Pasar malam („Nachtmärkte“) sind eine wöchentliche Tradition in Malaysia und Singapur. Sie begannen als Ad-hoc-Verkäufer von Lebensmitteln + Waren in den kampungs des 19. Jahrhunderts; viele Städte führen heute formelle wöchentliche Rotationen durch.",
   },
   "penang-char-kway-teow": {
-    id: "Penang char kway teow dimasak dengan wok-charred dengan kucai Cina, kerang, dan udang. Hidangan ini menjaga saus tetap ringan sehingga wok hei mendominasi — berbeda dari gaya kecap hitam manis KL.",
+    id: "Penang char kway teow dibakar dalam wok dengan kucai Cina, kerang, dan udang. Hidangan ini menjaga saus tetap ringan sehingga wok hei mendominasi — berbeda dari gaya kecap hitam manis KL.",
     ru: "Penang char kway teow обжаривается в воке с китайским луком, моллюсками и креветками. Блюдо имеет лёгкий соус, чтобы доминировал wok hei — отличается от более сладкого стиля с тёмным соевым соусом из Куала-Лумпура.",
     de: "Penang char kway teow wird im Wok mit chinesischem Schnittlauch, Herzmuscheln und Garnelen gebraten. Das Gericht hält die Sauce leicht, damit der wok hei dominiert — unterscheidet sich vom süßeren Dunkelsoja-Stil aus Kuala Lumpur.",
   },
   "peoples-park-300-stalls": {
     id: "Pada tahun 1940, Pasar People's Park menampung lebih dari 300 kios — yang terbesar di Singapura saat itu. Kebakaran pada tahun 1966 menghancurkan 186 kios di sana.",
-    ru: "К 1940 году на рынке People's Park располагалось более 300 киосков — крупнейшем в Сингапуре на тот момент. Пожар 1966 года уничтожил там 186 киосков.",
+    ru: "К 1940 году на рынке People's Park располагалось более 300 киосков — это был крупнейший рынок в Сингапуре на тот момент. Пожар 1966 года уничтожил там 186 киосков.",
     de: "Bis 1940 beherbergte der People's Park Market über 300 Stände — der größte in Singapur zu dieser Zeit. Ein Brand im Jahr 1966 zerstörte dort 186 Stände.",
   },
   "popiah-bangkuang-substitute": {
