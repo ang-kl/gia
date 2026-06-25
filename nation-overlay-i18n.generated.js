@@ -30,9 +30,9 @@ module.exports = {
     de: "Die französische Küche ist die grundlegende Referenz der westlichen Haute Cuisine (UNESCO-Erbe 2010). Regional: Provenzalisch (Olivenöl + Kräuter), Burgundisch (Weineintöpfe), Gascognisch (Ente + Foie Gras), Normandisch (Sahne + Apfel), Elsässisch (Deutsch-Französisch). Bistros und Brasserien kümmern sich um das Alltägliche; Degustationsmenüs um das gehobene Segment.",
   },
   "hainanese": {
-    id: "Pulau Hainan terletak di selatan Guangdong; diaspora mereka menjalankan kopitiam (kedai kopi) era kolonial Singapura + Malaysia, menciptakan format sarapan roti kaya khas Hainan, ayam Hainan, dan babi goreng saus cokelat.",
+    id: "Pulau Hainan terletak di selatan Guangdong; diaspora mereka menjalankan kopitiam (kedai kopi) era kolonial Singapura + Malaysia, menciptakan nasi ayam Hainan, pork chop dengan saus cokelat (brown gravy), dan format sarapan roti kaya khas Singapura.",
     ru: "Остров Хайнань расположен к югу от Гуандуна; его диаспора управляла копитамами (кофейнями) колониальной эпохи Сингапура + Малайзии, изобретя куриный рис по-хайнаньски, свиные отбивные в коричневом соусе и формат сингапурского завтрака с тостом кая.",
-    de: "Die Insel Hainan liegt südlich von Guangdong; ihre Diaspora betrieb die Kopitiams (Kaffeehäuser) der Kolonialzeit in Singapur + Malaysia und erfand das Hainan-Hühnchenreis-, Schweinekotelett-mit-brauner-Sauce- und das SG-Kaya-Toast-Frühstücksformat.",
+    de: "Die Insel Hainan liegt südlich von Guangdong; ihre Diaspora betrieb die Kopitiams (Kaffeehäuser) der Kolonialzeit in Singapur + Malaysia und erfand das hainanesische Hühnerreis-Gericht, das Schweinekotelett mit brauner Sauce und das Kaya-Toast-Frühstück Singapurs.",
   },
   "hokkien": {
     id: "Masakan Hokkien (Fujian) melakukan perjalanan dari Tiongkok tenggara bersama diaspora Tionghoa terbesar ke Asia Tenggara. Di Singapura: mi kaldu udang, rebusan kecap hitam, pangsit nasi meriah. Banyak menggunakan udang kering, lemak babi, kecap manis.",
@@ -41,7 +41,7 @@ module.exports = {
   },
   "indonesian": {
     id: "Masakan Indonesia mencakup 17.000 pulau — 6 tradisi regional utama (Padang/Minang, Jawa, Bali, Sunda, Manado, Aceh). Padang adalah yang paling banyak diekspor (rendang, gulai); Bali adalah satu-satunya masakan Indonesia Hindu (babi guling, babi). Sambal adalah fondasi — setiap daerah memiliki sambalnya sendiri.",
-    ru: "Индонезийская кухня охватывает 17 000 островов — 6 основных региональных традиций (Паданг/Минанг, Ява, Бали, Сунда, Манадо, Ачех). Паданг — самая экспортируемая (ренданг, гулай); Бали — единственная индуистско-индонезийская кухня (бабигулинг, свинина). Самбал — основа основ — в каждом регионе свой.",
+    ru: "Индонезийская кухня охватывает 17 000 островов — 6 основных региональных традиций (Паданг/Минанг, Ява, Бали, Сунда, Манадо, Ачех). Паданг — самая экспортируемая (ренданг, гулай); Бали — единственная индуистско-индонезийская кухня (babi guling, свинина). Самбал — основа основ — в каждом регионе свой.",
     de: "Die indonesische Küche erstreckt sich über 17.000 Inseln – 6 große regionale Traditionen (Padang/Minang, Java, Bali, Sundanesisch, Manado, Aceh). Padang ist die am meisten exportierte (Rendang, Gulai); Bali ist die einzige hindu-indonesische Küche (Babi Guling, Schweinefleisch). Sambal ist grundlegend – jede Region hat ihre eigene.",
   },
   "italian": {
@@ -56,7 +56,7 @@ module.exports = {
   },
   "korean": {
     id: "Masakan Korea banyak menggunakan fermentasi (kimchi, gochujang, doenjang) dengan budaya banchan yang kuat: setiap hidangan disajikan dengan 4-12 hidangan kecil. BBQ adalah makanan sosial; rebusan jjigae dan ayam goreng Korea adalah kenyamanan larut malam.",
-    ru: "Корейская кухня основана на ферментации (кимчи, годжучжан, твенджан) с сильной культурой панчхан: каждое блюдо подается с 4-12 маленькими закусками. Барбекю — это социальная трапеза; тушеные блюда ччигэ и корейская жареная курица — это утешение поздно вечером.",
+    ru: "Корейская кухня основана на ферментации (kimchi, gochujang, doenjang) с сильной культурой banchan: каждое блюдо подается с 4-12 маленькими закусками. Барбекю — это социальная трапеза; тушеные блюда jjigae и корейская жареная курица — это утешение поздно вечером.",
     de: "Die koreanische Küche ist stark fermentationsbasiert (Kimchi, Gochujang, Doenjang) mit einer ausgeprägten Banchan-Kultur: Jede Mahlzeit wird mit 4-12 kleinen Beilagen serviert. BBQ ist die gesellige Mahlzeit; Jjigae-Eintöpfe und koreanisches frittiertes Hähnchen sind der Trost für die späte Nacht.",
   },
   "lebanese": {
@@ -66,23 +66,23 @@ module.exports = {
   },
   "malaysian": {
     id: "Masakan Malaysia adalah perpaduan 3 arah dari tradisi Melayu, Tionghoa (diaspora Hokkien/Teochew/Kanton) dan India (mamak). Penang adalah ibu kota makanan — char kway teow, asam laksa, nasi kandar semuanya mencapai puncaknya di sana. Tumpang tindih Singapura sangat besar tetapi versinya berbeda.",
-    ru: "Малайзийская кухня — это трехстороннее слияние малайских, китайских (диаспора хоккиен/чаочжоу/кантонская) и индийских (мамак) традиций. Пенанг — кулинарная столица — чар квай те, асам лакса, наси кандар достигают там своего пика. Пересечение с Сингапуром огромно, но версии различаются.",
+    ru: "Малайзийская кухня — это трехстороннее слияние малайских, китайских (диаспора хоккиен/чаочжоу/кантонская) и индийских (мамак) традиций. Пенанг — кулинарная столица — char kway teow, asam laksa, nasi kandar достигают там своего пика. Пересечение с Сингапуром огромно, но версии различаются.",
     de: "Die malaysische Küche ist eine 3-Wege-Fusion aus malaiischen, chinesischen (Hokkien/Teochew/Kantonesische Diaspora) und indischen (Mamak) Traditionen. Penang ist die kulinarische Hauptstadt – Char Kway Teow, Asam Laksa, Nasi Kandar erreichen dort ihren Höhepunkt. Die Überschneidung mit Singapur ist riesig, aber die Versionen unterscheiden sich.",
   },
   "mexican": {
     id: "Masakan Meksiko adalah warisan UNESCO (2010), dibangun di atas tiga serangkai jagung-kacang-cabai \"milpa\" selama 9000 tahun + lapisan kolonial Spanyol. Regional: mole Oaxacan, pibil Yucatán Maya, chiles en nogada Pueblan, birria + tequila Jalisco, makanan laut Baja. Tex-Mex adalah hibrida terpisah — masakan yang berbeda.",
-    ru: "Мексиканская кухня — наследие ЮНЕСКО (2010), построенная на триаде кукуруза-бобы-чили «мильпа» на протяжении 9000 лет + испанское колониальное наслоение. Региональная: моле Оахаки, пибиль Юкатана (майя), чилес эн ногада Пуэблы, биррия + текила Халиско, морепродукты Нижней Калифорнии. Tex-Mex — отдельный гибрид, другая кухня.",
+    ru: "Мексиканская кухня — наследие ЮНЕСКО (2010), построенная на триаде кукуруза-бобы-чили «мильпа» на протяжении 9000 лет + испанское колониальное наслоение. Региональная: mole Оахаки, pibil Юкатана (майя), chiles en nogada Пуэблы, birria + текила Халиско, морепродукты Нижней Калифорнии. Tex-Mex — отдельный гибрид, другая кухня.",
     de: "Die mexikanische Küche ist UNESCO-Weltkulturerbe (2010), aufgebaut auf dem „Milpa“-Dreiklang aus Mais-Bohnen-Chili seit 9000 Jahren + spanischer Kolonialüberlagerung. Regional: Oaxacan Moles, Yucatán Pibil, Pueblan Chiles en Nogada, Jalisco Birria + Tequila, Baja Meeresfrüchte. Tex-Mex ist eine separate Hybridform – eine andere Küche.",
   },
   "north-indian": {
     id: "Masakan India Utara (Punjabi + Mughlai + Awadhi) berbasis gandum: roti tandoor (naan, roti), kari susu krimi (butter chicken, dal makhani), dan kebab kaya (Lucknowi galouti). Apa yang kebanyakan orang non-India maksud dengan \"makanan India\" secara global.",
-    ru: "Северо-индийская (Пенджаби + Моголы + Авадхи) кухня основана на пшенице: хлеб из тандыра (наан, роти), сливочные молочные карри (баттер чикен, дал махани) и насыщенные кебабы (Лакхнауи галути). То, что большинство не-индийцев подразумевают под \"индийской едой\" во всем мире.",
+    ru: "Северо-индийская (Пенджаби + Моголы + Авадхи) кухня основана на пшенице: хлеб из тандыра (наан, роти), сливочные молочные карри (butter chicken, dal makhani) и насыщенные кебабы (Lucknowi galouti). То, что большинство не-индийцев подразумевают под \"индийской едой\" во всем мире.",
     de: "Die nordindische (Punjabi + Mughlai + Awadhi) Küche ist weizenbasiert: Tandoor-Brote (Naan, Roti), cremige Milcheintöpfe (Butter Chicken, Dal Makhani) und reichhaltige Kebabs (Lucknowi Galouti). Was die meisten Nicht-Inder weltweit unter \"indischem Essen\" verstehen.",
   },
   "pakistani": {
     id: "Masakan Pakistan berorientasi daging (daging kambing + sapi + ayam; babi haram), berbasis gandum + nasi, dengan akar Mughal + Persia + Punjabi yang kuat. Berbeda dari India: lebih banyak pulao daripada biryani, lebih gaya karahi daripada tandoori, lebih sedikit kari susu, lebih banyak kaldu tulang dan betis yang direbus perlahan.",
     ru: "Пакистанская кухня ориентирована на мясо (баранина + говядина + курица; свинина харам), основана на пшенице + рисе, с сильными корнями Моголов + Персии + Пенджаба. Отличается от индийской: больше пулао, чем бирьяни; стиль карахи, чем тандури; меньше молочных карри, больше костного бульона и медленно тушеной голяшки.",
-    de: "Die pakistanische Küche ist fleischorientiert (Lamm + Rind + Huhn; Schweinefleisch ist haram), weizen- und reisbasiert, mit starken Wurzeln der Moguln, Persiens und des Punjab. Unterscheidet sich von Indien: mehr Pulao als Biryani, mehr Karahi-Stil als Tandoori, weniger Milcheintöpfe, mehr Knochenbrühe und langsam geschmorte Schienenschnitzel.",
+    de: "Die pakistanische Küche ist fleischorientiert (Lamm + Rind + Huhn; Schweinefleisch ist haram), weizen- und reisbasiert, mit starken Wurzeln der Moguln, Persiens und des Punjab. Unterscheidet sich von Indien: mehr Pulao als Biryani, mehr Karahi-Stil als Tandoori, weniger Milcheintöpfe, mehr Knochenbrühe und langsam geschmorte Beinscheibe.",
   },
   "peranakan": {
     id: "Masakan Peranakan / Nyonya adalah perpaduan 600 tahun pemukim Tionghoa Hokkien + rempah-rempah Melayu di Melaka, Penang, dan Singapura — kacang buah keluak, gula melaka, sambal, nasi bunga telang biru. Memasak di rumah yang memakan waktu; langka dan patut dicari.",
@@ -107,7 +107,7 @@ module.exports = {
   "spanish": {
     id: "Masakan Spanyol bersifat regional dan berbagi piring. 17 komunitas otonom masing-masing dengan ciri khasnya sendiri — Andalusia (gazpacho + jamón), Catalonia (leluhur paella + cava), Basque (pintxos + bacalao), Galicia (gurita), Madrid (cocido). Budaya tapas adalah makanan sosial; makan siang adalah makanan besar.",
     ru: "Испанская кухня носит региональный характер и предполагает употребление блюд в формате «общих тарелок». 17 автономных сообществ, каждое со своими особенностями — Андалусия (гаспачо + хамон), Каталония (предки паэльи + кава), Страна Басков (пинчос + бакалао), Галисия (осьминог), Мадрид (косидо). Культура тапас — это социальная трапеза; обед — главный прием пищи.",
-    de: "Die spanische Küche ist regional und teilt sich Teller. 17 autonome Gemeinschaften, jede mit ihren eigenen Spezialitäten — Andalusien (Gazpacho + Jamón), Katalonien (Paella-Vorfahren + Cava), Baskenland (Pintxos + Bacalao), Galicien (Oktopus), Madrid (Cocido). Tapas-Kultur ist die soziale Mahlzeit; das Mittagessen ist die Hauptmahlzeit.",
+    de: "Die spanische Küche ist regional und auf geteilte Gerichte ausgelegt. 17 autonome Gemeinschaften, jede mit ihren eigenen Spezialitäten — Andalusien (Gazpacho + Jamón), Katalonien (Paella-Vorfahren + Cava), Baskenland (Pintxos + Bacalao), Galicien (Oktopus), Madrid (Cocido). Tapas-Kultur ist die soziale Mahlzeit; das Mittagessen ist die Hauptmahlzeit.",
   },
   "taiwanese": {
     id: "Masakan Taiwan adalah Hokkien + Hakka + lapisan pendudukan Jepang + lapisan migrasi daratan 1949. Makanan jalanan pasar malam adalah ikonnya (lu rou fan, oyster omelette, gua bao, stinky tofu); Din Tai Fung membuat xiao long bao terkenal secara global. Bubble tea adalah penemuan Taiwan.",
@@ -116,16 +116,16 @@ module.exports = {
   },
   "teochew": {
     id: "Masakan Teochew (Chaoshan) dari pesisir Guangdong terkenal ringan: kaldu bening, bawal kukus, bubur dengan lauk pendamping. Bak kut teh yang pedas (bukan herbal); char kway teow asli; orh nee untuk hidangan penutup.",
-    ru: "Кухня Чаочжоу (Chaoshan) из прибрежной провинции Гуандун славится своей легкостью: прозрачные бульоны, паровой помфрет, каша с гарнирами. Пряный (не травяной) бак кут те; оригинальный чар квай те; ор ни на десерт.",
+    ru: "Кухня Чаочжоу (Chaoshan) из прибрежной провинции Гуандун славится своей легкостью: прозрачные бульоны, паровой помфрет, каша с гарнирами. Пряный (не травяной) bak kut teh; оригинальный char kway teow; orh nee на десерт.",
     de: "Die Teochew (Chaoshan)-Küche aus dem Küstenland Guangdong ist berühmt für ihre Leichtigkeit: klare Brühen, gedämpfter Pomfret, Congee mit Beilagen. Der pfeffrige (nicht kräuterige) bak kut teh; der ursprüngliche char kway teow; orh nee zum Dessert.",
   },
   "thai": {
-    id: "Masakan Thailand menyeimbangkan 4 rasa — manis, asam, asin, pedas — dalam setiap hidangan. Kari dibuat dari pasta buatan sendiri (bukan bubuk kari botolan), kemangi aromatik, jeruk nipis, serai, kecap ikan. Perpecahan Bangkok-Isaan-Utara-Selatan itu nyata: 4 tradisi regional yang berbeda.",
+    id: "Masakan Thailand menyeimbangkan 4 rasa — manis, asam, asin, pedas — dalam setiap hidangan. Kari dibuat dari pasta buatan sendiri (bukan bubuk kari botolan), kemangi aromatik, jeruk nipis, serai, kecap ikan. Pembagian Bangkok-Isaan-Utara-Selatan itu nyata: 4 tradisi regional yang berbeda.",
     ru: "Тайская кухня балансирует 4 вкуса — сладкий, кислый, соленый, острый — в каждом блюде. Карри на основе домашних паст (без покупных порошков карри), ароматного базилика, лайма, лемонграсса, рыбного соуса. Разделение Бангкок-Исан-Север-Юг реально: 4 различных региональных традиции.",
     de: "Die thailändische Küche balanciert 4 Geschmacksrichtungen – süß, sauer, salzig, scharf – in jedem Gericht. Currys auf Basis hausgemachter Pasten (keine Currypulver aus dem Glas), aromatischem Basilikum, Limette, Zitronengras, Fischsauce. Die Trennung Bangkok-Isaan-Nord-Süd ist real: 4 verschiedene regionale Traditionen.",
   },
   "vietnamese": {
-    id: "Masakan Vietnam terkenal ringan, kaya rempah dan seimbang. Pho adalah simbolnya tetapi bun cha, banh mi dan com tam sama ikoniknya. Hanoi (utara) halus + jernih; Saigon (selatan) lebih manis + berani; tengah (Hue, Hoi An) lebih pedas + lebih istana kerajaan.",
+    id: "Masakan Vietnam terkenal ringan, kaya rempah dan seimbang. Pho adalah simbolnya tetapi bun cha, banh mi dan com tam sama ikoniknya. Hanoi (utara) halus + jernih; Saigon (selatan) lebih manis + berani; tengah (Hue, Hoi An) lebih pedas + lebih bergaya istana kerajaan.",
     ru: "Вьетнамская кухня знаменита своей легкостью, обилием трав и балансом. Фо — символ, но бун ча, бань ми и ком там не менее культовы. Ханой (север) — тонкий + чистый; Сайгон (юг) — слаще + смелее; центр (Хюэ, Хойан) — острее + более королевский.",
     de: "Die vietnamesische Küche ist berühmt für ihre Leichtigkeit, Kräuterbetonung und Ausgewogenheit. Pho ist das Symbol, aber Bun Cha, Banh Mi und Com Tam sind ebenso ikonisch. Hanoi (Norden) ist subtil + klar; Saigon (Süden) ist süßer + kräftiger; Zentral (Hue, Hoi An) ist schärfer + königlicher.",
   },
