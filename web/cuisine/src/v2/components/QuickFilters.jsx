@@ -30,7 +30,7 @@ const OVERFLOW = [
   { key: 'recommend',   i18n: 'filter.recommend',   icon: '' },
   { key: 'homeBased',   i18n: 'filter.homeBased',   icon: '🏠' }
 ];
-const PRICES = ['$', '$$', '$$$'];
+const PRICES = ['$', '$$', '$$$', '$$$$'];
 
 // v0.61.426 — rating pill. The standard preset floor (matches
 // venue-filters.RATING_FLOOR + rating-pref.DEFAULT_RATING). The pill is
