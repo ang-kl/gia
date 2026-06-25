@@ -96,7 +96,7 @@ function wrap(handler) {
 // Mount
 // ──────────────────────────────────────────────────────────────────────
 
-function mountClipboardRoutes(app, redis) {
+function mountClipboardRoutes(app, redis, getBotUsername) {
   if (!app || !redis) {
     throw new Error('[clipboard-routes] mountClipboardRoutes requires (app, redis)');
   }
@@ -423,7 +423,15 @@ function mountClipboardRoutes(app, redis) {
     const cur = drawers[n];
     cur.shareToken = token;
     await redis.lSet(drMetaKey(chatId, cabId), n, JSON.stringify(cur));
-    const botUsername = process.env.TELEGRAM_BOT_USERNAME || 'gia4lunch_bot';
+    // v0.62.332 — resolved at call time so the share URL uses the real
+    // bot username (cached at boot via getMe()), not a stale env var.
+    // Fallback chain: getter → BOT_USERNAME env → 'gia_bot' (matches
+    // the index.js default; the previous 'gia4lunch_bot' fallback was
+    // wrong + minted broken share URLs when neither env nor getter
+    // resolved).
+    const botUsername = (typeof getBotUsername === 'function' && getBotUsername())
+      || process.env.BOT_USERNAME
+      || 'gia_bot';
     track(redis, chatId, 'share_drawer', { cabId, drawerIdx: n, cardCount: snapshotCards.length });
     return res.json({
       token,

@@ -3928,7 +3928,12 @@ export default function App() {
           onClick={() => {
             try {
               const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
-              const botUsername = (typeof window !== 'undefined' && window.__BOT_USERNAME__) || 'gia4lunch_bot';
+              // v0.62.332 — window.__BOT_USERNAME__ is now injected by
+              // index.js's serveTmaHtmlWithBotIdentity() at /app/cuisine
+              // HTML-serve time. Default fallback matches index.js's
+              // own default ('gia_bot' — the previous 'gia4lunch_bot'
+              // was a wrong guess from PR #3 that broke the deep link).
+              const botUsername = (typeof window !== 'undefined' && window.__BOT_USERNAME__) || 'gia_bot';
               const url = `https://t.me/${botUsername}/clipboard?startapp=root`;
               if (w && typeof w.openTelegramLink === 'function') w.openTelegramLink(url);
               else if (typeof window !== 'undefined') window.open(url, '_blank');

@@ -12661,10 +12661,32 @@ async function cacheBotUsername() {
       res.sendFile(path.join(__dirname, 'public', 'index.html'));
     });
     // Cuisine Picker TMA (v0.22.0). Vite-built React+Tailwind app.
+    // v0.62.332 — small helper that reads a TMA's index.html, injects
+    // `window.__BOT_USERNAME__` so the bundle can build `t.me/<bot>/<short-name>`
+    // deep links with the REAL resolved username (instead of a hard-coded
+    // fallback), and sends the result. Falls back to a plain sendFile on
+    // any FS failure so a broken inject can't take the TMA offline.
+    function serveTmaHtmlWithBotIdentity(res, tmaDir) {
+      try {
+        const fs = require('fs');
+        const file = path.join(__dirname, 'public', tmaDir, 'index.html');
+        const html = fs.readFileSync(file, 'utf8');
+        const tag = `<script>window.__BOT_USERNAME__=${JSON.stringify(botUsername || '')};</script>`;
+        const injected = html.includes('</head>')
+          ? html.replace('</head>', `${tag}</head>`)
+          : `${tag}${html}`;
+        noCacheHtml(res);
+        res.type('html').send(injected);
+      } catch (err) {
+        console.warn(`[/app/${tmaDir}] inject failed, falling back to sendFile:`, err.message);
+        noCacheHtml(res);
+        res.sendFile(path.join(__dirname, 'public', tmaDir, 'index.html'));
+      }
+    }
+
     app.use('/app/cuisine', express.static(path.join(__dirname, 'public', 'cuisine'), STATIC_OPTS));
     app.get('/app/cuisine', (_req, res) => {
-      noCacheHtml(res);
-      res.sendFile(path.join(__dirname, 'public', 'cuisine', 'index.html'));
+      serveTmaHtmlWithBotIdentity(res, 'cuisine');
     });
 
     // v0.62.330 — Clipboard TMA (PR #3 of the v0.7 Clipboard cycle).
@@ -12676,8 +12698,7 @@ async function cacheBotUsername() {
     // ~lines 7811 + 12069 menu-button wiring below).
     app.use('/app/clipboard', express.static(path.join(__dirname, 'public', 'clipboard'), STATIC_OPTS));
     app.get('/app/clipboard', (_req, res) => {
-      noCacheHtml(res);
-      res.sendFile(path.join(__dirname, 'public', 'clipboard', 'index.html'));
+      serveTmaHtmlWithBotIdentity(res, 'clipboard');
     });
 
     // v0.53.0: cuisine catalogue + map-first search endpoints for the
@@ -12707,7 +12728,13 @@ async function cacheBotUsername() {
     // gate, so Express matches the public read without triggering auth.
     try {
       const { mountClipboardRoutes } = require('./clipboard-routes');
-      mountClipboardRoutes(app, redis);
+      // v0.62.332 — pass a lazy getter so the share-URL mint uses the
+      // username resolved by cacheBotUsername() at boot, not whatever
+      // the env was at mount time. clipboard-routes used to hard-code
+      // 'gia4lunch_bot' as fallback (wrong default; real default is
+      // 'gia_bot' per index.js line 12122) so share URLs minted by the
+      // drawer-share endpoint would not resolve.
+      mountClipboardRoutes(app, redis, () => botUsername);
     } catch (err) {
       console.warn('[clipboard-routes] mount failed (non-fatal):', err.message);
     }
