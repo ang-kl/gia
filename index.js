@@ -7884,6 +7884,16 @@ async function runClipCommand(chatId, arg, lang = 'en') {
     text: lang === 'fr' ? '🗑 Effacer tout' : '🗑 Clear all',
     callback_data: 'clip:clear:ask'
   }]);
+  // v0.62.330 — Clipboard TMA entry point. The legacy text listing above
+  // stays for users who never open the TMA; this single button is the
+  // door into the rich view (catch-all + cabinets + drawers + drag).
+  // Uses web_app so Telegram opens the Mini App inline (no browser jump).
+  if (useWebhook && webhookDomain) {
+    keyboardRows.push([{
+      text: lang === 'fr' ? '📋 Ouvrir Clipboard' : '📋 Open Clipboard',
+      web_app: { url: `https://${webhookDomain}/app/clipboard` }
+    }]);
+  }
   await bot.sendMessage(chatId, lines.join('\n'), {
     parse_mode: 'HTML',
     disable_web_page_preview: true,
@@ -12655,6 +12665,19 @@ async function cacheBotUsername() {
     app.get('/app/cuisine', (_req, res) => {
       noCacheHtml(res);
       res.sendFile(path.join(__dirname, 'public', 'cuisine', 'index.html'));
+    });
+
+    // v0.62.330 — Clipboard TMA (PR #3 of the v0.7 Clipboard cycle).
+    // Second Mini App under the bot; own bundle at web/clipboard/ built
+    // to public/clipboard/. Served at /app/clipboard so the BotFather
+    // short-name `clipboard` resolves to t.me/<bot>/clipboard?startapp=…
+    // (also reached from the cuisine TMA's "📋 Open Clipboard" panel
+    // and from the /clipboard chat command's inline button — see
+    // ~lines 7811 + 12069 menu-button wiring below).
+    app.use('/app/clipboard', express.static(path.join(__dirname, 'public', 'clipboard'), STATIC_OPTS));
+    app.get('/app/clipboard', (_req, res) => {
+      noCacheHtml(res);
+      res.sendFile(path.join(__dirname, 'public', 'clipboard', 'index.html'));
     });
 
     // v0.53.0: cuisine catalogue + map-first search endpoints for the

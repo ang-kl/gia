@@ -110,14 +110,13 @@ function mountClipboardRoutes(app, redis) {
     const chatId = chatIdFrom(req);
     if (!chatId) return res.status(400).json({ error: 'missing-chatId' });
     const cabinets = await listCabinets(redis, chatId);
-    // catch-all count = entries in clip:<chatId> whose underlying HASH
-    // still exists AND has no placements. Cheap heuristic: list count
-    // from the LIST minus the number of placements seen. For accuracy
-    // we use clip-store's listClips() which already filters dead and
-    // applies catch-all semantics in PR #1.
+    // v0.62.330 (PR #3) — return the catch-all CARDS in full (up to 50)
+    // alongside the count so the TMA's CatchAllStrip renders without a
+    // second roundtrip. Backwards-compatible with PR #2 callers that
+    // only read `catchAllCount` (the new `catchAllCards` is additive).
     const { listClips } = require('./clip-store');
-    const { total } = await listClips(redis, chatId, { limit: 0 });
-    return res.json({ cabinets, catchAllCount: total });
+    const { items, total } = await listClips(redis, chatId, { limit: 50, offset: 0 });
+    return res.json({ cabinets, catchAllCount: total, catchAllCards: items });
   }));
 
   // ── 4. GET cabinet (full) ─────────────────────────────────────────
