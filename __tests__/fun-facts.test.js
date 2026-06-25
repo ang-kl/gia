@@ -160,8 +160,9 @@ describe('factBody — localised body', () => {
     expect(factBody(sample, 'fr')).toBe(sample.fr);
   });
 
-  it('falls back to EN for unknown lang', () => {
-    expect(factBody(sample, 'de')).toBe(sample.en);
+  it('falls back to EN for a genuinely unsupported lang', () => {
+    // 'de' is now supported via the _i18n overlay; use an unsupported tag.
+    expect(factBody(sample, 'xx')).toBe(sample.en);
   });
 
   it('returns empty string for null fact', () => {
