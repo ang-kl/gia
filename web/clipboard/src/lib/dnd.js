@@ -18,64 +18,37 @@ export function useDrag({ onDrop }) {
   const [dragging, setDragging] = useState(null);   // { cardId, label, x, y }
   const stateRef = useRef({ active: false, timer: null, ghost: null });
 
+  // On-unmount cleanup only — the per-drag move/up listeners are
+  // registered inside the setTimeout closure in dragHandle and
+  // removed there too. We only need to make sure a stale ghost
+  // doesn't outlive the component if it unmounts mid-drag.
   useEffect(() => {
-    function onMove(e) {
-      const s = stateRef.current;
-      if (!s.active) return;
-      e.preventDefault();
-      const x = e.clientX, y = e.clientY;
-      if (s.ghost) {
-        s.ghost.style.left = `${x + 12}px`;
-        s.ghost.style.top  = `${y - 28}px`;
-      }
-      // Highlight drop-target underneath.
-      const el = document.elementFromPoint(x, y);
-      const tgt = el && el.closest('[data-clipboard-drop]');
-      document.querySelectorAll('.dropzone').forEach((n) => n.classList.remove('dropzone'));
-      if (tgt) tgt.classList.add('dropzone');
-    }
-
-    function onUp(e) {
-      const s = stateRef.current;
-      if (!s.active) return;
-      s.active = false;
-      const x = e.clientX, y = e.clientY;
-      const el = document.elementFromPoint(x, y);
-      const tgt = el && el.closest('[data-clipboard-drop]');
-      document.querySelectorAll('.dropzone').forEach((n) => n.classList.remove('dropzone'));
-      if (s.ghost && s.ghost.parentNode) s.ghost.parentNode.removeChild(s.ghost);
-      s.ghost = null;
-      setDragging(null);
-      if (tgt && onDrop) {
-        const spec = parseTarget(tgt.dataset.clipboardDrop);
-        if (spec) {
-          haptic('success');
-          onDrop({ ...spec, cardId: tgt.__dragCardId });
-        }
-      }
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-      window.removeEventListener('pointercancel', onUp);
-    }
-
     return () => {
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-      window.removeEventListener('pointercancel', onUp);
-      if (stateRef.current.ghost && stateRef.current.ghost.parentNode) {
-        stateRef.current.ghost.parentNode.removeChild(stateRef.current.ghost);
+      const s = stateRef.current;
+      if (s.timer) { clearTimeout(s.timer); s.timer = null; }
+      if (s.ghost && s.ghost.parentNode) {
+        s.ghost.parentNode.removeChild(s.ghost);
+        s.ghost = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Props to spread onto a draggable card element.
+  //
+  // v0.62.330 — Codex P1 fix: the pointermove / pointerup handlers MUST
+  // be defined in the same closure that registers them on window.
+  // Previously they were declared inside the on-mount useEffect (so out
+  // of scope here) and the first real drag threw a ReferenceError. Now
+  // both _onMove and _onUp live inside the setTimeout closure where
+  // they're created + registered + removed, and reference the drag
+  // state via stateRef + the captured cardId/label/onDrop closure.
   function dragHandle({ cardId, label }) {
     return {
       onPointerDown(e) {
         if (e.button && e.button !== 0) return;
         const s = stateRef.current;
         clearTimeout(s.timer);
+        const startX = e.clientX, startY = e.clientY;
         s.timer = setTimeout(() => {
           s.active = true;
           haptic('light');
@@ -84,20 +57,54 @@ export function useDrag({ onDrop }) {
           ghost.className = 'drag-ghost';
           ghost.textContent = label || '📋';
           document.body.appendChild(ghost);
-          ghost.style.left = `${e.clientX + 12}px`;
-          ghost.style.top  = `${e.clientY - 28}px`;
+          ghost.style.left = `${startX + 12}px`;
+          ghost.style.top  = `${startY - 28}px`;
           s.ghost = ghost;
-          // Carry cardId on the document so onMove/onUp can find it.
-          // (We thread it via __dragCardId on the drop target during
-          // dispatch — see onUp's `tgt.__dragCardId` resolution.)
+          // Carry cardId on every drop target so onPointerUp's
+          // elementFromPoint resolution can find it.
           document.querySelectorAll('[data-clipboard-drop]').forEach((n) => { n.__dragCardId = cardId; });
-          setDragging({ cardId, label, x: e.clientX, y: e.clientY });
+          setDragging({ cardId, label, x: startX, y: startY });
+
+          function _onMove(ev) {
+            if (!s.active) return;
+            ev.preventDefault();
+            const x = ev.clientX, y = ev.clientY;
+            if (s.ghost) {
+              s.ghost.style.left = `${x + 12}px`;
+              s.ghost.style.top  = `${y - 28}px`;
+            }
+            const el = document.elementFromPoint(x, y);
+            const tgt = el && el.closest('[data-clipboard-drop]');
+            document.querySelectorAll('.dropzone').forEach((n) => n.classList.remove('dropzone'));
+            if (tgt) tgt.classList.add('dropzone');
+          }
+
+          function _onUp(ev) {
+            if (!s.active) return;
+            s.active = false;
+            const x = ev.clientX, y = ev.clientY;
+            const el = document.elementFromPoint(x, y);
+            const tgt = el && el.closest('[data-clipboard-drop]');
+            document.querySelectorAll('.dropzone').forEach((n) => n.classList.remove('dropzone'));
+            if (s.ghost && s.ghost.parentNode) s.ghost.parentNode.removeChild(s.ghost);
+            s.ghost = null;
+            setDragging(null);
+            if (tgt && onDrop) {
+              const spec = parseTarget(tgt.dataset.clipboardDrop);
+              if (spec) {
+                haptic('success');
+                onDrop({ ...spec, cardId: tgt.__dragCardId });
+              }
+            }
+            window.removeEventListener('pointermove', _onMove);
+            window.removeEventListener('pointerup', _onUp);
+            window.removeEventListener('pointercancel', _onUp);
+          }
+
           window.addEventListener('pointermove', _onMove, { passive: false });
           window.addEventListener('pointerup', _onUp);
           window.addEventListener('pointercancel', _onUp);
         }, LONG_PRESS_MS);
-        function _onMove(ev) { onMove(ev); }
-        function _onUp(ev) { onUp(ev); }
       },
       onPointerUp() {
         const s = stateRef.current;

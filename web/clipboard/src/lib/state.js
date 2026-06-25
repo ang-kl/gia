@@ -19,14 +19,36 @@ const initial = {
   route: parseRoute()
 };
 
+// v0.62.330 — Codex P1 fix: Telegram Mini App share URLs of the form
+// t.me/<bot>/clipboard?startapp=dr_<token> open the TMA with the value
+// surfaced as `WebApp.initDataUnsafe.start_param`, NOT in the URL hash.
+// Previously we only looked at window.location.hash, so a tapped share
+// link landed on the root view instead of the read-only shared-drawer.
+// Consume the start_param EXACTLY ONCE on first parse — afterwards
+// hashchange takes over so navigating away from the shared view doesn't
+// keep snapping back via the stale start_param.
+let startParamConsumed = false;
+
 function parseRoute() {
   if (typeof window === 'undefined') return { kind: 'root' };
   const hash = window.location.hash || '#/';
-  // #/cabinet/<id> | #/shared/<token> | else root
+  // Explicit hash always wins over start_param.
   const m = hash.match(/^#\/cabinet\/([^/]+)$/);
   if (m) return { kind: 'cabinet', cabId: m[1] };
   const s = hash.match(/^#\/shared\/(.+)$/);
   if (s) return { kind: 'shared', token: s[1] };
+  // Default hash → honour start_param exactly once on first parse.
+  if (!startParamConsumed) {
+    startParamConsumed = true;
+    try {
+      const w = window.Telegram?.WebApp;
+      const startParam = w?.initDataUnsafe?.start_param;
+      if (startParam && typeof startParam === 'string' && startParam.startsWith('dr_')) {
+        const token = startParam.slice(3);
+        if (token) return { kind: 'shared', token };
+      }
+    } catch { /* WebApp / start_param unavailable */ }
+  }
   return { kind: 'root' };
 }
 
