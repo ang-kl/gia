@@ -10,10 +10,11 @@
 // In CI:         .github/workflows/translate-content.yml injects the key
 //                from secrets.GEMINI_API_KEY (never committed, never logged).
 //
-// SCOPE (this pass): nation-overlay.js `touristExplainer.{en}` → id/ru/de.
-//   fun-facts.js is excluded until its `id`-field/`id`-locale collision is
-//   refactored (prose nested under `text:{}`); cooking-methods.js is a
-//   search-routing token index, not display prose — out of scope by design.
+// SCOPE: (1) nation-overlay.js `touristExplainer.en` → id/ru/de (CJS overlay,
+//   keyed by slug); (2) fun-facts.js bodies → id/ru/de (ESM overlay, keyed by
+//   the fact identifier — the `id` locale can't be a flat key as it collides
+//   with the `id` identifier field). cooking-methods.js stays out of scope —
+//   it is a search-routing token index, not display prose.
 //
 // RATE LIMITS: explainers are sent in BATCHES (one Gemini call translates
 // several at once) to stay under the free-tier requests-per-minute cap —
@@ -29,7 +30,7 @@
 
 import { createRequire } from 'node:module';
 import { writeFileSync, existsSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const require = createRequire(import.meta.url);
@@ -52,16 +53,21 @@ const BATCH_PAUSE_MS = 8000;   // gap between batches
 const RETRY_WAITS_MS = [15000, 40000]; // back-off on 429/503 before moving on
 
 const OVERLAY_PATH = join(ROOT, 'nation-overlay-i18n.generated.js');
+const FUNFACTS_OVERLAY_PATH = join(ROOT, 'web/cuisine/src/v2/data/fun-facts-i18n.generated.js');
+const FUNFACTS_DATA_PATH = join(ROOT, 'web/cuisine/src/v2/data/fun-facts.js');
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-function loadExistingOverlay() {
-  if (!existsSync(OVERLAY_PATH)) return {};
+// Read an existing generated overlay (CJS `module.exports` OR ESM
+// `export default`). Dynamic import handles both — a CJS file's exports
+// arrive under `.default`. Returns {} when the file is absent or empty.
+async function loadExistingOverlay(path) {
+  if (!existsSync(path)) return {};
   try {
-    delete require.cache[require.resolve(OVERLAY_PATH)];
-    return require(OVERLAY_PATH) || {};
+    const mod = await import(pathToFileURL(path).href);
+    return (mod && mod.default) || mod || {};
   } catch (e) {
-    console.warn(`[translate] could not read existing overlay (${e.message}); starting fresh`);
+    console.warn(`[translate] could not read existing overlay ${path} (${e.message}); starting fresh`);
     return {};
   }
 }
@@ -160,24 +166,23 @@ async function translateBatch(apiKey, batch) {
   throw new Error(`batch failed (${batch.map((b) => b.slug).join(',')}): ${lastErr?.message}`);
 }
 
-function serializeOverlay(overlay) {
-  const slugs = Object.keys(overlay).sort();
+function serializeOverlay(overlay, { fileLine, desc, esm }) {
+  const keys = Object.keys(overlay).sort();
   const lines = [
-    '// nation-overlay-i18n.generated.js — GENERATED, do not hand-edit.',
+    `// ${fileLine} — GENERATED, do not hand-edit.`,
     '//',
-    '// id/ru/de translations of NATION_OVERLAY touristExplainer.en, produced by',
-    '// scripts/translate-content.mjs via the Gemini API. Merged into',
-    '// nation-overlay.js at load. Regenerate with the translate-content workflow;',
-    '// proper nouns are preserved by the translator (see the script header).',
+    ...desc,
     '//',
-    `// Slugs: ${slugs.length} · langs: ${TARGET_LANGS.join('/')}`,
-    "'use strict';",
-    '',
-    'module.exports = {',
+    `// Keys: ${keys.length} · langs: ${TARGET_LANGS.join('/')}`,
   ];
-  for (const slug of slugs) {
-    const e = overlay[slug];
-    lines.push(`  ${JSON.stringify(slug)}: {`);
+  if (esm) {
+    lines.push('export default {');
+  } else {
+    lines.push("'use strict';", '', 'module.exports = {');
+  }
+  for (const k of keys) {
+    const e = overlay[k];
+    lines.push(`  ${JSON.stringify(k)}: {`);
     for (const l of TARGET_LANGS) {
       if (e[l] != null) lines.push(`    ${l}: ${JSON.stringify(e[l])},`);
     }
@@ -188,6 +193,49 @@ function serializeOverlay(overlay) {
   return lines.join('\n');
 }
 
+// Translate one target's missing entries and write its overlay. `entries`
+// is [{ key, en }]; idempotent (only entries missing a target locale go to
+// Gemini); overlay persisted after every batch so partial progress survives.
+async function runTarget(apiKey, { label, overlayPath, serialize, entries }) {
+  const overlay = await loadExistingOverlay(overlayPath);
+  const todo = entries.filter(({ key }) => {
+    const have = overlay[key] || {};
+    return TARGET_LANGS.some((l) => !have[l]);
+  });
+  console.log(`[translate] [${label}] ${entries.length} entries · ${todo.length} need translation · batch ${BATCH_SIZE}`);
+  if (!todo.length) {
+    console.log(`[translate] [${label}] nothing to do — overlay complete.`);
+    return { done: 0, missing: [] };
+  }
+
+  const batches = [];
+  for (let i = 0; i < todo.length; i += BATCH_SIZE) batches.push(todo.slice(i, i + BATCH_SIZE));
+
+  let done = 0;
+  const missing = [];
+  for (let b = 0; b < batches.length; b += 1) {
+    const batch = batches[b].map(({ key, en }) => ({ slug: key, en }));
+    try {
+      const out = await translateBatch(apiKey, batch);
+      for (const [k, rec] of Object.entries(out)) {
+        overlay[k] = { ...(overlay[k] || {}), ...rec };
+        done += 1;
+      }
+      for (const { slug } of batch) if (!out[slug]) missing.push(slug);
+      writeFileSync(overlayPath, serialize(overlay), 'utf8'); // incremental persist
+      console.log(`[translate] [${label}] ✓ batch ${b + 1}/${batches.length} (${Object.keys(out).length}/${batch.length}) · total ${done}/${todo.length}`);
+    } catch (e) {
+      for (const { slug } of batch) missing.push(slug);
+      console.warn(`[translate] [${label}] ✗ batch ${b + 1}/${batches.length}: ${e.message}`);
+    }
+    if (b < batches.length - 1) await sleep(BATCH_PAUSE_MS);
+  }
+  writeFileSync(overlayPath, serialize(overlay), 'utf8');
+  console.log(`[translate] [${label}] wrote ${overlayPath} · ${done} translated · ${missing.length} still missing`);
+  if (missing.length) console.log(`[translate] [${label}] missing (re-run to retry): ${missing.join(', ')}`);
+  return { done, missing };
+}
+
 async function main() {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -195,49 +243,58 @@ async function main() {
     process.exit(1);
   }
 
+  // Target 1 — nation-overlay touristExplainer (CJS overlay, keyed by slug).
   const { NATION_OVERLAY } = require(join(ROOT, 'nation-overlay.js'));
-  const overlay = loadExistingOverlay();
+  const nationEntries = Object.entries(NATION_OVERLAY)
+    .map(([slug, entry]) => ({ key: slug, en: entry?.touristExplainer?.en }))
+    .filter((e) => e.en);
 
-  // Build the work-list: every slug whose touristExplainer.en exists but
-  // which is missing one or more target locales in the overlay.
-  const todo = [];
-  for (const [slug, entry] of Object.entries(NATION_OVERLAY)) {
-    const en = entry?.touristExplainer?.en;
-    if (!en) continue;
-    const have = overlay[slug] || {};
-    if (TARGET_LANGS.some((l) => !have[l])) todo.push({ slug, en });
+  // Target 2 — fun-facts (ESM overlay, keyed by the fact identifier). The
+  // locale `id` can't be a flat key (collides with the `id` identifier), so
+  // id/ru/de live in this overlay, folded onto fact._i18n at load.
+  const funfactsMod = await import(pathToFileURL(FUNFACTS_DATA_PATH).href);
+  const funfacts = Array.isArray(funfactsMod.default) ? funfactsMod.default : [];
+  const funfactEntries = funfacts
+    .map((f) => ({ key: f && f.id, en: f && f.en }))
+    .filter((e) => e.key && e.en);
+
+  const TARGETS = [
+    {
+      label: 'nation-overlay',
+      overlayPath: OVERLAY_PATH,
+      entries: nationEntries,
+      serialize: (o) => serializeOverlay(o, {
+        fileLine: 'nation-overlay-i18n.generated.js',
+        desc: [
+          '// id/ru/de translations of NATION_OVERLAY touristExplainer.en, produced by',
+          '// scripts/translate-content.mjs via the Gemini API. Merged into nation-overlay.js',
+          '// at load. Proper nouns preserved (see the script header).',
+        ],
+        esm: false,
+      }),
+    },
+    {
+      label: 'fun-facts',
+      overlayPath: FUNFACTS_OVERLAY_PATH,
+      entries: funfactEntries,
+      serialize: (o) => serializeOverlay(o, {
+        fileLine: 'fun-facts-i18n.generated.js',
+        desc: [
+          '// id/ru/de fun-fact bodies, keyed by the fact identifier (data/fun-facts.js `id`).',
+          '// Folded onto fact._i18n by lib/fun-facts.js (kept out of the data file to avoid the',
+          '// `id` locale/identifier collision). Produced by scripts/translate-content.mjs.',
+        ],
+        esm: true,
+      }),
+    },
+  ];
+
+  let grandDone = 0;
+  for (const t of TARGETS) {
+    const { done } = await runTarget(apiKey, t);
+    grandDone += done;
   }
-
-  console.log(`[translate] ${Object.keys(NATION_OVERLAY).length} cuisines · ${todo.length} need translation · langs ${TARGET_LANGS.join('/')} · batch ${BATCH_SIZE}`);
-  if (!todo.length) { console.log('[translate] nothing to do — overlay already complete.'); return; }
-
-  const batches = [];
-  for (let i = 0; i < todo.length; i += BATCH_SIZE) batches.push(todo.slice(i, i + BATCH_SIZE));
-
-  let done = 0;
-  const failedSlugs = [];
-  for (let b = 0; b < batches.length; b += 1) {
-    const batch = batches[b];
-    try {
-      const out = await translateBatch(apiKey, batch);
-      for (const [slug, rec] of Object.entries(out)) {
-        overlay[slug] = { ...(overlay[slug] || {}), ...rec };
-        done += 1;
-      }
-      // any slug in the batch the model skipped → record as failed
-      for (const { slug } of batch) if (!out[slug]) failedSlugs.push(slug);
-      writeFileSync(OVERLAY_PATH, serializeOverlay(overlay), 'utf8'); // incremental persist
-      console.log(`[translate] ✓ batch ${b + 1}/${batches.length} (${Object.keys(out).length}/${batch.length}) · total ${done}/${todo.length}`);
-    } catch (e) {
-      for (const { slug } of batch) failedSlugs.push(slug);
-      console.warn(`[translate] ✗ batch ${b + 1}/${batches.length}: ${e.message}`);
-    }
-    if (b < batches.length - 1) await sleep(BATCH_PAUSE_MS);
-  }
-
-  writeFileSync(OVERLAY_PATH, serializeOverlay(overlay), 'utf8');
-  console.log(`[translate] wrote ${OVERLAY_PATH} · ${done} translated · ${failedSlugs.length} still missing`);
-  if (failedSlugs.length) console.log(`[translate] missing slugs (re-run to retry): ${failedSlugs.join(', ')}`);
+  console.log(`[translate] all targets done · ${grandDone} entries translated this run.`);
 }
 
 main().catch((e) => { console.error('[translate] fatal:', e); process.exit(1); });
