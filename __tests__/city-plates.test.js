@@ -171,8 +171,10 @@ describe('v0.62.37 — overlay classics + D792 city tie-in', () => {
     expect(sukiyaki).toBeTruthy();
     expect(sukiyaki.local).toBe('すき焼き');
     expect(sukiyaki.note.en).toMatch(/beef/i);
-    // names without a curated note are unaffected — still a bare { dish } object.
+    // v0.62.x — the Phase-1 backfill gives most dishes a note, so a plate may
+    // have NO bare dish left. If one remains, it must still be a well-formed
+    // { dish } object (existence no longer required).
     const bare = all.find((d) => !d.note);
-    expect(bare && typeof bare.dish === 'string').toBe(true);
+    if (bare) expect(typeof bare.dish === 'string').toBe(true);
   });
 });
