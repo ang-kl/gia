@@ -42,11 +42,15 @@ const LANG_NAME = { id: 'Indonesian', ru: 'Russian', de: 'German' };
 // Gemini model-fallback chain — mirrors gemini-client.js so we inherit the
 // same 404/503 resilience. No googleSearch tool: translation must not be
 // "grounded" (that risks the model rewriting the facts).
-const MODEL_CHAIN = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
+// Single primary model + one 404-only fallback. We deliberately do NOT
+// cascade through models on a 429: all models share the same project
+// quota, so falling through them just burns the bucket faster. flash-lite
+// only kicks in if flash-latest 404s (model gone).
+const MODEL_CHAIN = ['gemini-flash-latest', 'gemini-2.5-flash-lite'];
 
-const BATCH_SIZE = 6;          // explainers per Gemini call
-const BATCH_PAUSE_MS = 4000;   // gap between batches (RPM headroom)
-const RETRY_WAITS_MS = [5000, 15000, 40000]; // back-off on 429/503
+const BATCH_SIZE = 14;         // larger batches → far fewer calls (quota-frugal)
+const BATCH_PAUSE_MS = 8000;   // gap between batches
+const RETRY_WAITS_MS = [30000]; // single long back-off on 429/503 (no amplification)
 
 const OVERLAY_PATH = join(ROOT, 'nation-overlay-i18n.generated.js');
 
@@ -106,6 +110,7 @@ async function translateBatch(apiKey, batch) {
   let lastErr;
   for (const model of MODEL_CHAIN) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    let cascade = true; // only fall through to the next model on a 404
     for (let attempt = 0; attempt <= RETRY_WAITS_MS.length; attempt += 1) {
       try {
         const res = await fetch(url, {
@@ -122,8 +127,11 @@ async function translateBatch(apiKey, batch) {
             await sleep(wait);
             continue; // retry same model
           }
-          if (res.status === 404) break; // model gone → next model
-          break; // other non-retryable → next model
+          // Quota/transient exhausted: do NOT cascade (models share the
+          // quota bucket). Only a 404 (model gone) warrants the next model.
+          if (res.status === 404) break;
+          cascade = false;
+          break;
         }
         const json = await res.json();
         const raw = json?.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -147,6 +155,7 @@ async function translateBatch(apiKey, batch) {
         break; // parse/network error → next model
       }
     }
+    if (!cascade) break; // quota/transient exhausted — don't try sibling models
   }
   throw new Error(`batch failed (${batch.map((b) => b.slug).join(',')}): ${lastErr?.message}`);
 }
