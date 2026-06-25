@@ -13458,7 +13458,14 @@ async function cacheBotUsername() {
         }
         if (seed.filters.prices?.length) {
           const allowed = new Set(seed.filters.prices.map((p) => p.length));
-          venues = venues.filter((v) => v.priceLevel == null || allowed.has(v.priceLevel));
+          venues = venues.filter((v) => {
+            // v0.62.x — filter on the MONEY shown (priceRange → tier); fall back
+            // to Google price_level; drop venues with NO price signal when a
+            // price filter is active (was: null always passed → "$100 under $").
+            const tier = require('./currency-format').priceTierFromRange(v.priceRange)
+              ?? (Number.isFinite(v.priceLevel) ? v.priceLevel : null);
+            return tier != null && allowed.has(tier);
+          });
         }
 
         // v0.59.42: rating-rank then pick up to 12 random from the
@@ -16322,7 +16329,14 @@ async function cacheBotUsername() {
         if (filters.openNow) venues = venues.filter((v) => v.openNow !== false);
         if (filters.prices?.length) {
           const allowed = new Set(filters.prices.map((p) => p.length));
-          venues = venues.filter((v) => v.priceLevel == null || allowed.has(v.priceLevel));
+          venues = venues.filter((v) => {
+            // v0.62.x — filter on the MONEY shown (priceRange → tier); fall back
+            // to Google price_level; drop venues with NO price signal when a
+            // price filter is active (was: null always passed → "$100 under $").
+            const tier = require('./currency-format').priceTierFromRange(v.priceRange)
+              ?? (Number.isFinite(v.priceLevel) ? v.priceLevel : null);
+            return tier != null && allowed.has(tier);
+          });
         }
         // v0.57.16: "Home-based" filter — heuristic for HDB / condo
         // home-kitchens and takeaway-only operators that show up on
@@ -17659,7 +17673,14 @@ async function cacheBotUsername() {
         if (merged.openNow) venues = venues.filter((v) => v.openNow !== false);
         if (merged.prices?.length) {
           const allowed = new Set(merged.prices.map((p) => p.length));
-          venues = venues.filter((v) => v.priceLevel == null || allowed.has(v.priceLevel));
+          venues = venues.filter((v) => {
+            // v0.62.x — filter on the MONEY shown (priceRange → tier); fall back
+            // to Google price_level; drop venues with NO price signal when a
+            // price filter is active (was: null always passed → "$100 under $").
+            const tier = require('./currency-format').priceTierFromRange(v.priceRange)
+              ?? (Number.isFinite(v.priceLevel) ? v.priceLevel : null);
+            return tier != null && allowed.has(tier);
+          });
         }
         // v0.57.16: Home-based heuristic (mirrors /api/cuisine/search).
         if (merged.homeBased) {
