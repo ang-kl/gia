@@ -147,7 +147,7 @@ module.exports = {
   "hunan": {
     id: "Masakan Hunan (Xiang) adalah cabang masakan Tiongkok yang pedas tetapi TIDAK membuat mati rasa. Rasa asap + diasinkan + acar mendominasi; hidangan favorit Ketua Mao adalah hong shao rou. Panasnya lebih agresif daripada Sichuan meskipun tanpa lada Sichuan.",
     ru: "Хунаньская (Сянская) кухня — это острая, но НЕ онемевающая ветвь китайской кухни. Доминируют копченые + вяленые + маринованные вкусы; любимым блюдом председателя Мао был hong shao rou. Более агрессивная острота, чем в Сычуаньской, несмотря на отсутствие сычуаньского перца.",
-    de: "Die Hunan-Küche (Xiang) ist der chili-betonte, aber NICHT betäubende Zweig der chinesischen Küche. Geräucherte + gepökelte + eingelegte Aromen dominieren; Chairman Maos Lieblingsgericht war hong shao rou. Aggressivere Schärfe als in Sichuan, obwohl kein Szechuanpfeffer verwendet wird.",
+    de: "Die Hunan-Küche (Xiang) ist der chili-betonte, aber NICHT betäubende Zweig der chinesischen Küche. Geräucherte + gepökelte + eingelegte Aromen dominieren; Vorsitzender Maos Lieblingsgericht war hong shao rou. Aggressivere Schärfe als in Sichuan, obwohl kein Szechuanpfeffer verwendet wird.",
   },
   "indonesian": {
     id: "Masakan Indonesia mencakup 17.000 pulau — 6 tradisi regional utama (Padang/Minang, Jawa, Bali, Sunda, Manado, Aceh). Padang adalah yang paling banyak diekspor (rendang, gulai); Bali adalah satu-satunya masakan Indonesia Hindu (babi guling, babi). Sambal adalah fondasi — setiap daerah memiliki sambalnya sendiri.",
@@ -252,7 +252,7 @@ module.exports = {
   "portuguese": {
     id: "Masakan Portugis adalah makanan laut yang menghadap Atlantik + substrat Mediterania + jangkauan kolonial global. Bacalhau (ikan kod asin) begitu mendasar sehingga dilaporkan ada 365 resep — satu untuk setiap hari. Pastel de nata adalah duta global. Anggur Port dan Madeira adalah ikon anggur fortifikasi. Egg tart Makau berakar di sini.",
     ru: "Португальская кухня — это атлантические морепродукты + средиземноморская основа + глобальный колониальный охват. Bacalhau (соленая треска) настолько фундаментальна, что, по сообщениям, существует 365 рецептов — по одному на каждый день. Pastel de nata — это мировой посол. Портвейн и Мадейра — это иконы крепленых вин. Яичные тарталетки Макао ведут свое происхождение отсюда.",
-    de: "Die portugiesische Küche ist atlantisch ausgerichtete Meeresfrüchte + mediterranes Substrat + globale koloniale Reichweite. Bacalhau (Stockfisch) ist so grundlegend, dass es angeblich 365 Rezepte gibt — eines für jeden Tag. Pastel de nata ist der globale Botschafter. Portwein und Madeira sind die Ikonen der Likörweine. Macaos Eierkuchen haben hier ihren Ursprung.",
+    de: "Die portugiesische Küche ist atlantisch ausgerichtete Meeresfrüchte + mediterranes Substrat + globale koloniale Reichweite. Bacalhau (Klippfisch) ist so grundlegend, dass es angeblich 365 Rezepte gibt — eines für jeden Tag. Pastel de nata ist der globale Botschafter. Portwein und Madeira sind die Ikonen der Likörweine. Macaos Eiertörtchen haben hier ihren Ursprung.",
   },
   "russian": {
     id: "Masakan Rusia banyak menggunakan pangsit + sup kental + ikan asap, berkembang di berbagai zona iklim yang luas. Borscht (secara teknis Ukraina) adalah duta global; beef stroganoff (Saint Petersburg) dan pelmeni (pangsit Siberia) melengkapi trio. Ritual teh melalui samovar; paduan vodka universal.",
@@ -266,7 +266,7 @@ module.exports = {
   },
   "shanghainese": {
     id: "Masakan Shanghai (secara teknis Jiangsu / Huaiyang) lebih manis dan berminyak dibandingkan sub-masakan Tiongkok lainnya. Xiao long bao adalah duta globalnya. Hong shao rou (daging babi merah rebus) dan hairy crab (musim gugur) adalah hidangan klasik musiman.",
-    ru: "Шанхайская кухня (технически Цзянсу / Хуайян) слаще и жирнее, чем другие китайские суб-кухни. Xiao long bao — это мировой посол. Hong shao rou (тушеная свинина в красном соусе) и волосатый краб (осень) — это сезонная классика.",
+    ru: "Шанхайская кухня (технически Цзянсу / Хуайян) слаще и жирнее, чем другие китайские суб-кухни. Xiao long bao — это мировой посол. Hong shao rou (тушеная свинина в красном соусе) и hairy crab (осень) — это сезонная классика.",
     de: "Die Shanghaier Küche (technisch Jiangsu / Huaiyang) ist süßer und öliger als andere chinesische Unterküchen. Xiao long bao ist der globale Botschafter. Hong shao rou (rot geschmortes Schweinefleisch) und hairy crab (Herbst) sind die saisonalen Klassiker.",
   },
   "sichuan": {
@@ -326,7 +326,7 @@ module.exports = {
   },
   "ukrainian": {
     id: "Masakan Ukraina adalah negara borscht (UNESCO menetapkan borscht Ukraina pada tahun 2022). Salo (lemak babi yang diawetkan) adalah simbol nasional. Varenyky (pangsit isi, manis atau gurih) adalah kenyamanan sehari-hari. Chicken Kyiv adalah duta restoran internasional.",
-    ru: "Украинская кухня — страна borscht (ЮНЕСКО внесла украинский borscht в список в 2022 году). Salo (вяленое свиное сало) — национальный символ. Varenyky (фаршированные вареники, сладкие или соленые) — повседневный комфорт. Chicken Kyiv — международный ресторанный посол.",
+    ru: "Украинская кухня — страна borscht (ЮНЕСКО внесла украинский borscht в список в 2022 году). Salo (вяленое свиное сало) — национальный символ. Varenyky (фаршированные клёцки, сладкие или соленые) — повседневный комфорт. Chicken Kyiv — международный ресторанный посол.",
     de: "Die ukrainische Küche ist das Borschtsch-Land (UNESCO hat ukrainischen Borschtsch 2022 eingeschrieben). Salo (gepökelter Schweinespeck) ist das nationale Symbol. Varenyky (gefüllte Knödel, süß oder herzhaft) sind der alltägliche Komfort. Chicken Kyiv ist der internationale Restaurant-Botschafter.",
   },
   "uzbek": {
