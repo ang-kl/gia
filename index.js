@@ -12675,6 +12675,20 @@ async function cacheBotUsername() {
     // dev — never set in prod.
     app.use('/api/cuisine', requireInitDataFromBodyOrHeader);
 
+    // v0.62.329 — Clipboard TMA API surface (PR #2 of the v0.7 Clipboard
+    // cycle). 16 endpoints under /api/clipboard/*; auth model is the
+    // same chokepoint as /api/cuisine with a single carve-out for the
+    // public GET /api/clipboard/shared/:token read (the token IS the
+    // auth on that one). The mount helper registers the public route
+    // BEFORE mounting its own app.use(requireInitDataFromBodyOrHeader)
+    // gate, so Express matches the public read without triggering auth.
+    try {
+      const { mountClipboardRoutes } = require('./clipboard-routes');
+      mountClipboardRoutes(app, redis);
+    } catch (err) {
+      console.warn('[clipboard-routes] mount failed (non-fatal):', err.message);
+    }
+
     app.get('/api/cuisine/catalogue', (_req, res) => {
       try {
         const cv = require('./cuisines-vault');
