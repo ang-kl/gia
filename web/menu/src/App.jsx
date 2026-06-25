@@ -682,18 +682,22 @@ export default function App() {
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
           role="dialog"
           aria-modal="true"
-          aria-label={lang === 'fr' ? 'Conflit de localisation' : 'Location mismatch'}
+          aria-label={lang === 'fr' ? 'Conflit de localisation' : lang === 'ru' ? 'Несоответствие местоположения' : lang === 'de' ? 'Standortkonflikt' : 'Location mismatch'}
         >
           <div className="w-full max-w-[420px] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
             <div className="px-4 py-3 border-b border-tg-border bg-tg-card flex items-center gap-2">
               <span aria-hidden>📍</span>
               <h2 className="text-sm font-semibold flex-1">
-                {lang === 'fr' ? 'Conflit de localisation' : 'Location mismatch'}
+                {lang === 'fr' ? 'Conflit de localisation' : lang === 'ru' ? 'Несоответствие местоположения' : lang === 'de' ? 'Standortkonflikt' : 'Location mismatch'}
               </h2>
             </div>
             <div className="px-4 py-3 text-[13px] leading-snug text-tg-text">
               {lang === 'fr'
                 ? `Vous aviez choisi ${coherenceMismatch.saved} précédemment, mais votre appareil est actuellement en ${coherenceMismatch.coords === 'SG' ? 'Singapour' : 'Malaisie'}.`
+                : lang === 'ru'
+                ? `Ранее вы выбрали ${coherenceMismatch.saved}, но ваше устройство сейчас находится в ${coherenceMismatch.coords === 'SG' ? 'Сингапуре' : 'Малайзии'}.`
+                : lang === 'de'
+                ? `Sie hatten zuvor ${coherenceMismatch.saved} gewählt, aber Ihr Gerät befindet sich jetzt in ${coherenceMismatch.coords === 'SG' ? 'Singapur' : 'Malaysia'}.`
                 : `You set your location to ${coherenceMismatch.saved} previously, but your device is now in ${coherenceMismatch.coords === 'SG' ? 'Singapore' : 'Malaysia'}.`}
             </div>
             <div className="flex flex-col gap-2 px-4 pb-4">
@@ -704,6 +708,10 @@ export default function App() {
               >
                 {lang === 'fr'
                   ? `Utiliser ${coherenceMismatch.coords === 'SG' ? 'Singapour' : 'Malaisie'}`
+                  : lang === 'ru'
+                  ? `Использовать ${coherenceMismatch.coords === 'SG' ? 'Сингапур' : 'Малайзию'}`
+                  : lang === 'de'
+                  ? `${coherenceMismatch.coords === 'SG' ? 'Singapur' : 'Malaysia'} verwenden`
                   : `Use ${coherenceMismatch.coords === 'SG' ? 'Singapore' : 'Malaysia'}`}
               </button>
               <button
@@ -713,6 +721,10 @@ export default function App() {
               >
                 {lang === 'fr'
                   ? `Garder ${coherenceMismatch.saved}`
+                  : lang === 'ru'
+                  ? `Оставить ${coherenceMismatch.saved}`
+                  : lang === 'de'
+                  ? `${coherenceMismatch.saved} behalten`
                   : `Keep ${coherenceMismatch.saved}`}
               </button>
             </div>
