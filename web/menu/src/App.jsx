@@ -745,7 +745,18 @@ export default function App() {
             <p className="text-[11px] text-tg-hint truncate">
               {t('hero.tagline.line1', lang)} · {t('hero.tagline.line2', lang)}
             </p>
-            <LocaleToggle />
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {/* v0.62.x — operator: tiny ↻ refresh (Menu has no weather badge,
+                  so it sits beside the locale toggle). */}
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+                title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+                className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
+              >↻</button>
+              <LocaleToggle />
+            </div>
           </div>
           <p className="text-[11px] text-tg-hint leading-snug pt-0.5">
             {t('hero.subtagline', lang)}
