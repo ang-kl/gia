@@ -151,6 +151,14 @@ export default function App() {
           <h1 className="text-base font-bold leading-tight">{t('header.title', lang)}</h1>
           {/* v0.60.219 — live Singapore weather emoji. */}
           <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
+          {/* v0.62.x — operator: tiny ↻ refresh after the weather temp. */}
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+            title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+            className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
+          >↻</button>
           <span className="text-[11px] ml-auto flex items-center gap-2">
             <span>
               {affectedCodes.length === 0
