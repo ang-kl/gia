@@ -98,7 +98,7 @@ function haversineKm(lat1, lng1, lat2, lng2) {
 // ~150 km) while excluding any cross-country jump (SG→Japan ~3300 km).
 const NEAREST_CITY_MAX_KM = 500;
 
-export default function LocationField({ userLoc, region, onSelect, anchor = null, suffix = '', onSearch = null, countryPref = DEFAULT_OTHER_COUNTRY, onCountryChange = null, selectedCity = null, onActivity = null }) {
+export default function LocationField({ userLoc, region, onSelect, anchor = null, suffix = '', onSearch = null, countryPref = DEFAULT_OTHER_COUNTRY, onCountryChange = null, selectedCity = null, onActivity = null, searchPending = false }) {
   // v0.61.191 — branch on region AFTER all hooks below have been
   // declared (React Rules of Hooks: same order every render). The
   // OTHER picker is wholly its own sub-component; the SG/JB path
@@ -391,6 +391,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
         onSearch={onSearch}
         userLoc={userLoc}
         onActivity={onActivity}
+        searchPending={searchPending}
       />
     );
   }
@@ -555,7 +556,11 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
               }}
               aria-label={tr('loc.searchHere', lang)}
               title={tr('loc.searchHere', lang)}
-              className="text-tg-accent hover:text-tg-text text-sm leading-none flex-shrink-0 px-1"
+              /* v0.62.x — operator: selections only set criteria; nothing fires
+                 until 🔍. When the criteria are "dirty" (changed since the last
+                 search) pulse the 🔍 with an accent ring so the user knows to
+                 tap it. The cue clears once a search runs (searchPending←false). */
+              className={`text-tg-accent hover:text-tg-text text-sm leading-none flex-shrink-0 px-1 transition-shadow ${searchPending ? 'animate-pulse ring-2 ring-tg-accent rounded-full' : ''}`}
             >🔍</button>
           )}
         </div>
@@ -885,7 +890,7 @@ function CountryDropdown({ value, onChange, ariaLabel }) {
 //     operator's #6 ("country and city but no street → centre of
 //     the city to search") still works: pick city → anchor at city
 //     centroid with noAutoFire; tap 🔍 → search at city centroid.
-function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, selectedCity, suffix, onSearch, userLoc, onActivity = null }) {
+function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, selectedCity, suffix, onSearch, userLoc, onActivity = null, searchPending = false }) {
   const [lang] = useLocale();
   const [query, setQuery] = useState('');
   // v0.61.418 — set true by the country dropdown's onChange so the auto-pick
@@ -1231,7 +1236,11 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
               onClick={() => onSearch?.()}
               aria-label={tr('loc.searchHere', lang)}
               title={tr('loc.searchHere', lang)}
-              className="text-tg-accent hover:text-tg-text text-sm leading-none flex-shrink-0 px-1"
+              /* v0.62.x — operator: selections only set criteria; nothing fires
+                 until 🔍. When the criteria are "dirty" (changed since the last
+                 search) pulse the 🔍 with an accent ring so the user knows to
+                 tap it. The cue clears once a search runs (searchPending←false). */
+              className={`text-tg-accent hover:text-tg-text text-sm leading-none flex-shrink-0 px-1 transition-shadow ${searchPending ? 'animate-pulse ring-2 ring-tg-accent rounded-full' : ''}`}
             >🔍</button>
           </div>
           {suffix && suffixVisible && (
