@@ -258,7 +258,7 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
             </span>
           );
         })}
-        <Chip active={moreOpen} onClick={openFilters}
+        <Chip active={moreOpen || (overflowActiveCount + selectedPrices.length) > 0} onClick={openFilters}
           ariaLabel={moreOpen ? tr('filter.closeMore', lang) : tr('filter.openMore', lang)}>
           <span className="mr-0.5" aria-hidden>⚙</span>{lang === 'fr' ? 'Filtres' : 'Filters'}
           {(overflowActiveCount + selectedPrices.length) > 0 && (
