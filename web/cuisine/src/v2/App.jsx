@@ -3934,6 +3934,18 @@ export default function App() {
         )}
       </header>
 
+      {/* v0.62.x — Search Insights strip: a slim objective read of the current
+          results, directly under the header so it's visible in BOTH the default
+          map/horizontal-drawer view AND the vertical list (the old mount lived
+          inside the vertical panel, which is hidden by default). Behind an
+          ErrorBoundary so a render throw can't white-screen the TMA. Self-hides
+          while loading / 0 results; suppressed while a picker overlay is open. */}
+      {!regionExpanded && !cuisinePickOpen && !classicOpen && (
+        <ErrorBoundary label="InsightStrip">
+          <InsightStrip venues={venues} loading={loading} />
+        </ErrorBoundary>
+      )}
+
       {/* v0.62.186 — operator (IMG_2507 #5): the standalone "Location staging"
           card that used to sit here (a separate ringed panel below the header)
           was merged UP into the header's liquid-glass mode panel, so ONE glass
@@ -4432,12 +4444,9 @@ export default function App() {
         {/* v0.61.350 — the Michelin "N more to explore" hint moved INTO
             ResultPanel (rendered below the "· Michelin <country>" line) per
             operator: it belongs below the edition line, not above the card. */}
-        {/* v0.62.x — Search Insights strip, re-mounted behind an ErrorBoundary so
-            any render throw degrades to nothing (+ logs the error) rather than
-            white-screening the TMA (the v0.62.358 hotfix unmounted it bare). */}
-        <ErrorBoundary label="InsightStrip">
-          <InsightStrip venues={venues} loading={loading} />
-        </ErrorBoundary>
+        {/* v0.62.x — (Search Insights strip moved OUT of this hidden vertical
+            panel to just under the header, so it's visible in the default map
+            view too.) */}
         <ResultPanel
           venues={venues}
           loading={loading}
