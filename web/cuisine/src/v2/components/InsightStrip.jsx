@@ -22,14 +22,13 @@ function currencySymbol(venues) {
   return '';
 }
 
-export default function InsightStrip({ venues, loading }) {
-  const [lang] = useLocale();
-  if (loading || !Array.isArray(venues) || venues.length === 0) return null;
-
+// Shared builder — the insight segments for a result set, localised. Used by
+// the strip (below) AND the copy-to-chat line (PR3) so they never drift.
+export function insightParts(venues, lang) {
+  if (!Array.isArray(venues) || venues.length === 0) return [];
   const { count, medianPrice, bestValue, gemCount } = deriveInsights(venues);
   const sym = currencySymbol(venues);
   const money = (n) => `${sym}${Math.round(n)}`;
-
   const parts = [tn('insights.count', lang, { n: count })];
   if (medianPrice) parts.push(tn('insights.median', lang, { price: money(medianPrice.value) }));
   if (bestValue) {
@@ -40,6 +39,20 @@ export default function InsightStrip({ venues, loading }) {
     })}`);
   }
   if (gemCount > 0) parts.push(tn('insights.gems', lang, { n: gemCount }));
+  return parts;
+}
+
+// Plain one-line text for copy-to-chat (no leading 🔍 emoji).
+export function insightLineText(venues, lang) {
+  return insightParts(venues, lang).join(' · ');
+}
+
+export default function InsightStrip({ venues, loading }) {
+  const [lang] = useLocale();
+  if (loading || !Array.isArray(venues) || venues.length === 0) return null;
+
+  const parts = insightParts(venues, lang);
+  if (!parts.length) return null;
 
   return (
     <div

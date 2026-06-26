@@ -12903,7 +12903,13 @@ async function cacheBotUsername() {
         // v0.58.51: two blank lines between picks for breathing room;
         // collapse to one when only a single venue is in the clip.
         const blockSep = blocks.length > 1 ? '\n\n\n' : '\n\n';
-        let body = `${header}\n\n${blocks.join(blockSep)}`;
+        // v0.62.x — Search Insights PR3: the TMA passes a pre-localised one-line
+        // read of the search (count · median · best value · gems). Ride it just
+        // below the header so a copied/shared clip carries the objective insight.
+        // Pre-rendered client-side (any locale), so just escape + cap it here.
+        const insightLineRaw = (typeof req.body?.insightLine === 'string' ? req.body.insightLine : '').trim().slice(0, 200);
+        const insightHtml = insightLineRaw ? `<i>${escapeHtmlForTelegram(insightLineRaw)}</i>\n` : '';
+        let body = `${header}\n${insightHtml}\n${blocks.join(blockSep)}`;
         // v0.60.145 — multi-pin: if buildMapHashUrl returns null (every
         // venue lacked lat/lng so buildSlim returned []), drop the inline
         // map button and append a one-line "map unavailable" footer
