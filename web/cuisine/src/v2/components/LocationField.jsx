@@ -374,7 +374,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
   useEffect(() => {
     if (!hasLoc) { setEditBlink(false); return undefined; }
     setEditBlink(true);
-    const id = setTimeout(() => setEditBlink(false), 2000);
+    const id = setTimeout(() => setEditBlink(false), 10000);
     return () => clearTimeout(id);
   }, [resting, hasLoc]);
 
@@ -411,6 +411,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
         userLoc={userLoc}
         onActivity={onActivity}
         searchPending={searchPending}
+        nearbyVenues={nearbyVenues}
       />
     );
   }
@@ -582,7 +583,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
                  until 🔍. When the criteria are "dirty" (changed since the last
                  search) pulse the 🔍 with an accent ring so the user knows to
                  tap it. The cue clears once a search runs (searchPending←false). */
-              className={`text-tg-accent hover:text-tg-text text-sm leading-none flex-shrink-0 px-1 transition-shadow ${searchPending ? 'animate-pulse ring-2 ring-tg-accent rounded-full' : ''}`}
+              className={`text-tg-accent hover:text-tg-text text-sm leading-none flex-shrink-0 px-1 ${searchPending ? 'animate-pulse' : ''}`}
             >🔍</button>
           )}
         </div>
@@ -626,8 +627,8 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
                     }}
                     className="w-full text-left px-2.5 py-1.5 min-h-[40px] flex items-baseline gap-1.5 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none"
                   >
-                    <span className="text-[12px] text-tg-text truncate">{it.street || it.name}</span>
-                    {it.street && <span className="text-[11px] text-tg-hint truncate">· {it.name}</span>}
+                    <span className="text-[10px] text-tg-text truncate">{it.street || it.name}</span>
+                    {it.street && <span className="text-[10px] text-tg-hint truncate">· {it.name}</span>}
                     {Number.isFinite(it.distanceM) && (
                       <span className="ml-auto shrink-0 text-[10px] text-tg-hint tabular-nums">
                         {it.distanceM >= 1000 ? `${(it.distanceM / 1000).toFixed(1)}km` : `${Math.round(it.distanceM)}m`}
@@ -960,7 +961,7 @@ function CountryDropdown({ value, onChange, ariaLabel }) {
 //     operator's #6 ("country and city but no street → centre of
 //     the city to search") still works: pick city → anchor at city
 //     centroid with noAutoFire; tap 🔍 → search at city centroid.
-function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, selectedCity, suffix, onSearch, userLoc, onActivity = null, searchPending = false }) {
+function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, selectedCity, suffix, onSearch, userLoc, onActivity = null, searchPending = false, nearbyVenues = null }) {
   const [lang] = useLocale();
   const [query, setQuery] = useState('');
   // v0.61.418 — set true by the country dropdown's onChange so the auto-pick
@@ -1007,6 +1008,12 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
   // the SG/JB LocationField above. Resets visible when `suffix`
   // changes (new search / new location).
   const [suffixVisible, setSuffixVisible] = useState(true);
+  // v0.62.x — operator: OTHER cities also get the nearby browser. region
+  // 'OTHER' has no bundled transit graph yet, so groupByZone returns one flat
+  // street+venue group (SG-first zone headers; other-city stations are a
+  // follow-up). Tap a row → anchor + 🔍 pulse, same contract as SG.
+  const [zonesOpen, setZonesOpen] = useState(false);
+  const zones = groupByZone(nearbyVenues, 'OTHER');
   useEffect(() => {
     if (!suffix) return undefined;
     setSuffixVisible(true);
@@ -1310,12 +1317,56 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
                  until 🔍. When the criteria are "dirty" (changed since the last
                  search) pulse the 🔍 with an accent ring so the user knows to
                  tap it. The cue clears once a search runs (searchPending←false). */
-              className={`text-tg-accent hover:text-tg-text text-sm leading-none flex-shrink-0 px-1 transition-shadow ${searchPending ? 'animate-pulse ring-2 ring-tg-accent rounded-full' : ''}`}
+              className={`text-tg-accent hover:text-tg-text text-sm leading-none flex-shrink-0 px-1 ${searchPending ? 'animate-pulse' : ''}`}
             >🔍</button>
           </div>
           {suffix && suffixVisible && (
-            <div className="text-[10px] text-tg-hint italic text-right leading-tight mt-0.5">
-              {suffix} · {lang === 'fr' ? 'touchez pour changer' : 'tap to change'} 🔝
+            <div className="flex items-center justify-end gap-1 text-[10px] text-tg-hint italic leading-tight mt-0.5">
+              <span>{suffix} · {lang === 'fr' ? 'touchez pour changer' : 'tap to change'} 🔝</span>
+              {zones.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setZonesOpen((v) => !v)}
+                  aria-label={zonesOpen
+                    ? (lang === 'fr' ? 'Masquer les lieux proches' : 'Hide nearby places')
+                    : (lang === 'fr' ? 'Voir les lieux proches' : 'Browse nearby places')}
+                  aria-expanded={zonesOpen}
+                  className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-tg-border text-tg-accent not-italic leading-none"
+                >{zonesOpen ? '−' : '+'}</button>
+              )}
+            </div>
+          )}
+          {zonesOpen && zones.length > 0 && (
+            <div className="mt-1 max-h-60 overflow-y-auto rounded-lg border border-tg-border bg-tg-card/90 backdrop-blur-sm shadow-lg divide-y divide-tg-border/40">
+              {zones.map((g, gi) => (
+                <div key={gi} className="py-1">
+                  <div className="px-2.5 py-1 text-[10px] font-semibold text-tg-hint uppercase tracking-wide flex items-center justify-between">
+                    <span>{zoneHeader(g.zone, lang)}</span>
+                    <span className="font-normal normal-case">{g.items.length}</span>
+                  </div>
+                  {g.items.map((it, ii) => (
+                    <button
+                      key={ii}
+                      type="button"
+                      onClick={() => {
+                        if (Number.isFinite(it.lat) && Number.isFinite(it.lng)) {
+                          onSelect?.({ lat: it.lat, lng: it.lng, label: it.street || it.name });
+                        }
+                        setZonesOpen(false);
+                      }}
+                      className="w-full text-left px-2.5 py-1.5 min-h-[40px] flex items-baseline gap-1.5 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none"
+                    >
+                      <span className="text-[10px] text-tg-text truncate">{it.street || it.name}</span>
+                      {it.street && <span className="text-[10px] text-tg-hint truncate">· {it.name}</span>}
+                      {Number.isFinite(it.distanceM) && (
+                        <span className="ml-auto shrink-0 text-[10px] text-tg-hint tabular-nums">
+                          {it.distanceM >= 1000 ? `${(it.distanceM / 1000).toFixed(1)}km` : `${Math.round(it.distanceM)}m`}
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              ))}
             </div>
           )}
         </div>
