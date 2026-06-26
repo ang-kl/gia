@@ -47,21 +47,58 @@ export function insightLineText(venues, lang) {
   return insightParts(venues, lang).join(' · ');
 }
 
+// Small UI words, localised inline (matches App.jsx's inline-ternary pattern).
+const WORD = {
+  spots: { en: 'spots', fr: 'lieux', id: 'tempat', ru: 'мест', de: 'Orte' },
+  med: { en: 'med.', fr: 'méd.', id: 'med.', ru: 'медиана', de: 'Median' },
+  pp: { en: 'pp', fr: 'pp', id: 'pp', ru: '/чел', de: 'pP' },
+};
+const word = (k, lang) => (WORD[k][lang] || WORD[k].en);
+
+// v0.62.x — operator-designed "insight banner": full-bleed, squared, left accent
+// bar (deliberately not a pill — never reads as tappable). Light/dark via the
+// existing data-theme. Markup mirrors the operator's .insight-banner spec.
 export default function InsightStrip({ venues, loading }) {
   const [lang] = useLocale();
   if (loading || !Array.isArray(venues) || venues.length === 0) return null;
 
-  const parts = insightParts(venues, lang);
-  if (!parts.length) return null;
+  const { count, medianPrice, bestValue } = deriveInsights(venues);
+  const sym = currencySymbol(venues);
+  const money = (n) => `${sym}${Math.round(n)}`;
+
+  // Accessible summary built from whatever sub-insights are present.
+  const ariaBits = [`${count} ${word('spots', lang)}`];
+  if (medianPrice) ariaBits.push(`${word('med', lang)} ${money(medianPrice.value)}`);
+  if (bestValue) ariaBits.push(`${bestValue.name} ${bestValue.rating.toFixed(1)} ~${money(bestValue.price)} ${word('pp', lang)}`);
 
   return (
-    <div
-      className="px-2.5 py-1 mb-1 rounded-md bg-tg-card text-tg-text text-[11px] leading-snug border border-tg-border flex items-center gap-1 overflow-x-auto whitespace-nowrap"
-      role="status"
-      aria-label="search insights"
-    >
-      <span aria-hidden className="shrink-0">🔍</span>
-      <span className="truncate">{parts.join('  ·  ')}</span>
+    <div className="insight-banner -mx-3 md:-mx-6 lg:-mx-8" role="note" aria-label={ariaBits.join(', ')}>
+      {/* magnifier mark */}
+      <svg className="insight-banner__mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <span className="insight-banner__stats">
+        <span><b>{count}</b>&nbsp;{word('spots', lang)}</span>
+        {medianPrice && (
+          <>
+            <span className="insight-banner__dot" aria-hidden="true">·</span>
+            <span>{word('med', lang)}&nbsp;<b>{money(medianPrice.value)}</b></span>
+          </>
+        )}
+      </span>
+      {bestValue && (
+        <>
+          <span className="insight-banner__rule" aria-hidden="true" />
+          <span className="insight-banner__hero">
+            <svg className="insight-banner__star" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2l2.9 6.26 6.6.55-5 4.32 1.5 6.6L12 17.3 6 19.6l1.5-6.6-5-4.32 6.6-.55z" />
+            </svg>
+            <span className="insight-banner__name">{bestValue.name}</span>
+            <span className="insight-banner__meta">{bestValue.rating.toFixed(1)}&nbsp;·&nbsp;~{money(bestValue.price)}&nbsp;{word('pp', lang)}</span>
+          </span>
+        </>
+      )}
     </div>
   );
 }
