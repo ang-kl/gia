@@ -7512,6 +7512,32 @@ function escapeHtmlForTelegram(s) {
     .replace(/>/g, '&gt;');
 }
 
+// v0.62.x — Search Insights PR4: anonymous, aggregate-only demand counter.
+// Fire-and-forget. Stores NO chatID, NO query text, NO individual record — only
+// coarse tallies of "which cuisine, in which ~1km grid cell, at which meal
+// period" — the privacy-clean foundation for a future aggregate demand view.
+// Never blocks or fails a search; any Redis hiccup is swallowed.
+function recordSearchDemand(redis, { cuisines, lat, lng }) {
+  if (!redis || !redis.isOpen) return;
+  try {
+    const { mealPeriodSGT } = require('./vibe-suggest');
+    const period = (mealPeriodSGT() || {}).id || 'other';
+    // Coarse ~1.1km grid cell — deliberately NOT an exact pin (anonymity).
+    const cell = (Number.isFinite(lat) && Number.isFinite(lng))
+      ? `${lat.toFixed(2)},${lng.toFixed(2)}`
+      : 'na';
+    const list = (Array.isArray(cuisines) && cuisines.length) ? cuisines.slice(0, 5) : ['any'];
+    const TTL_S = 60 * 60 * 24 * 180; // 180 days
+    for (const c of list) {
+      const slug = String(c || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40) || 'any';
+      const key = `demand:v1:${slug}:${cell}:${period}`;
+      redis.incr(key)
+        .then((n) => (n === 1 ? redis.expire(key, TTL_S) : null))
+        .catch(() => {});
+    }
+  } catch { /* never block search */ }
+}
+
 // v0.60.61 — bucket an LTA-reported "minutes to arrival" into one
 // of five bands. Per Human Lead 2026-05-10: users want a quick read
 // "is this bus coming soon or not", not exact-minute precision.
@@ -14841,6 +14867,9 @@ async function cacheBotUsername() {
         // KL / Jakarta whose TMA had just opened.
         const { lat, lng, cuisines = [], filters = {}, radius: clientRadius, lang: langIn } = req.body || {};
         const regionIn = req.body?.region;
+        // v0.62.x — Search Insights PR4: anonymous aggregate demand tally
+        // (fire-and-forget; no identifier, coarse cell). Never blocks the search.
+        recordSearchDemand(redis, { cuisines, lat, lng });
         // `let` because the cache/coords resolution below may
         // mutate it. Validate against the closed set so a bad
         // client value can't poison the downstream branches.
