@@ -157,7 +157,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
   useEffect(() => {
     if (!suffix) return undefined;
     setSuffixVisible(true);
-    const id = setTimeout(() => setSuffixVisible(false), 8000);
+    const id = setTimeout(() => setSuffixVisible(false), 30000);
     return () => clearTimeout(id);
   }, [suffix]);
   // v0.61.284 — operator: *"i thought when i type in the location in
@@ -1020,7 +1020,7 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
   useEffect(() => {
     if (!suffix) return undefined;
     setSuffixVisible(true);
-    const id = setTimeout(() => setSuffixVisible(false), 8000);
+    const id = setTimeout(() => setSuffixVisible(false), 30000);
     return () => clearTimeout(id);
   }, [suffix]);
   const country = findCountry(countryPref) || findCountry(DEFAULT_OTHER_COUNTRY);

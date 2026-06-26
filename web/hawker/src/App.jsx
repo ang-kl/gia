@@ -181,7 +181,7 @@ export default function App() {
           colour-blind safe); floats with a margin instead of a full-bleed
           border so it reads as a physical card. */}
       <div className="skeuo-card mx-2 mt-2 rounded-2xl px-3 py-2.5 flex items-center gap-2 relative z-10">
-        <img src="/app/hawker/soleat-icon.png" alt="soleat" width="28" height="28" className="rounded-full flex-shrink-0" />
+        {/* v0.62.x — operator: hawker header without the soleat logo. */}
         <div className="min-w-0 flex-1">
           <h1 className="text-base font-semibold leading-tight">{t('header.title', lang)}</h1>
           {/* v0.60.219 — live Singapore weather emoji. */}

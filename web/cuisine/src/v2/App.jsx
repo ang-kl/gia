@@ -896,7 +896,7 @@ export default function App() {
     locIdleTimerRef.current = setTimeout(() => {
       setModePeek(false);
       setRegionExpanded(false);
-    }, 8000);
+    }, 30000); // v0.62.x — operator: standardise location idle-close to 30s (was 8s)
   };
   useEffect(() => {
     if (!modePeek) {
