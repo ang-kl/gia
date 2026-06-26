@@ -374,9 +374,9 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
   useEffect(() => {
     if (!hasLoc) { setEditBlink(false); return undefined; }
     setEditBlink(true);
-    // v0.62.x — operator: blink up to 1 min (was 10s), OR until a search fires
-    // (the 🔍 onClick clears editBlink) — whichever comes first.
-    const id = setTimeout(() => setEditBlink(false), 60000);
+    // v0.62.x — operator: highlight the location section for 30s (NO blink), OR
+    // until a search fires (the 🔍 onClick clears it) — whichever comes first.
+    const id = setTimeout(() => setEditBlink(false), 30000);
     return () => clearTimeout(id);
   }, [resting, hasLoc]);
 
@@ -516,7 +516,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
               /* v0.62.x — operator: prominent edit affordance. When a location is
                  set, wrap the row in a light-grey bordered box and blink it ~2 s
                  so it reads as "tap to change". Empty state keeps the bare ✏️ row. */
-              className={`flex-1 min-w-0 text-left text-sm inline-flex items-center gap-1.5 ${hasLoc ? 'text-tg-text border border-tg-border rounded-md px-2 py-1 bg-tg-bg/40' : 'text-tg-hint'} ${editBlink ? 'animate-pulse ring-1 ring-tg-accent' : ''}`}
+              className={`flex-1 min-w-0 text-left text-sm inline-flex items-center gap-1.5 ${hasLoc ? 'text-tg-text border border-tg-border rounded-md px-2 py-1 bg-tg-bg/40' : 'text-tg-hint'} ${editBlink ? 'ring-1 ring-tg-accent' : ''}`}
             >
               {hasLoc && region === 'SG' && (
                 <span aria-hidden className="flex-shrink-0">🇸🇬</span>
