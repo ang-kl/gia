@@ -30,17 +30,27 @@ function nearestStation(lat, lng) {
   return best;
 }
 
-// Extract a visitor-legible street from a Google formatted address: prefer the
-// first segment that is a street (has letters, not a unit "#01-01", not a pure
-// postal code, not the bare country). Falls back to the first non-unit segment.
+// Build a visitor-legible address from a Google formatted address: keep the
+// meaningful parts (street/building + floor + unit), street-first, and drop only
+// the postal code + country. The row truncates with CSS, so this shows as much
+// detail as the available width allows (operator: "show street+floor+unit if
+// there's space") and clips gracefully when long.
 export function streetLabel(area) {
   const segs = String(area || '').split(',').map((s) => s.trim()).filter(Boolean);
   if (!segs.length) return '';
   const isUnit = (s) => /^#/.test(s) || /^(level|floor|lobby|unit|storey|l\d|b\d)\b/i.test(s);
-  const isPostal = (s) => /^\d{5,6}$/.test(s) || /^[A-Z]{0,2}\s?\d{4,6}$/.test(s);
-  const isCountry = (s) => /^(singapore|malaysia|indonesia|thailand|vietnam|japan|korea|south korea|china|taiwan|hong kong|philippines)$/i.test(s);
-  const street = segs.find((s) => !isUnit(s) && !isPostal(s) && !isCountry(s) && /[a-z]/i.test(s));
-  return street || segs.find((s) => !isUnit(s)) || segs[0];
+  // Drop ONLY trailing country / postal segments (e.g. "Singapore 048616",
+  // "Singapore", "048616"). Matching anywhere would wrongly strip real roads
+  // like "China Street", so we only pop from the end and never the last segment.
+  const COUNTRY = '(singapore|malaysia|indonesia|thailand|vietnam|japan|korea|south korea|china|taiwan|hong kong|philippines)';
+  const isTrailDrop = (s) => /^\d{4,6}(\s+\S.*)?$/.test(s) || new RegExp(`^${COUNTRY}(\\s+\\S.*)?$`, 'i').test(s);
+  const keep = segs.slice();
+  while (keep.length > 1 && isTrailDrop(keep[keep.length - 1])) keep.pop();
+  // Move the street/building (first segment with letters that isn't a bare
+  // unit/floor) to the front; append the rest (unit, floor) in order.
+  const streetIdx = keep.findIndex((s) => !isUnit(s) && /[a-z]/i.test(s));
+  if (streetIdx > 0) keep.unshift(keep.splice(streetIdx, 1)[0]);
+  return keep.join(', ');
 }
 
 function toItem(v) {
