@@ -531,9 +531,9 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
                   "Enter a location" prompt so the edit affordance is obvious. */}
               {!hasLoc && <span aria-hidden className="flex-shrink-0">✏️</span>}
               <span className="truncate">{resting}</span>
-              {hasLoc && (
-                <span className="flex-shrink-0 text-[10px] text-tg-hint italic">({lang === 'fr' ? 'modifier' : 'tap to change'})</span>
-              )}
+              {/* v0.62.x — operator: the box border + blink already signal
+                  "editable"; the worded affordance lives on the collapsed
+                  "Click to change" line, so no duplicate label here. */}
             </button>
           )}
           {loading && <span className="text-tg-hint text-xs">…</span>}
