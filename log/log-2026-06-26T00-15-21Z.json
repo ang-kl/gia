@@ -1,0 +1,1717 @@
+{
+  "since": "2026-06-25T23:10:21Z",
+  "until": "2026-06-26T00:15:21Z",
+  "count": 190,
+  "logs": [
+    {
+      "timestamp": "2026-06-25T23:14:38.074319771Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:14:38.074324901Z",
+      "message": "[Pulse] Status updated at 7:14:31 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:19:38.367525452Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:19:38.367529292Z",
+      "message": "[Pulse] Status updated at 7:19:31 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:20:28.427885391Z",
+      "message": "[Cuisine-Search] sliceCap=6 firstBatch=true finalBatch=false range=1-6 seenBefore=0 hash=edd7849a",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:20:28.427905951Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[-27.4698,153.0251],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":35565,\"cap_src\":\"explicit\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:20:28.427919601Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=-27.4698,153.0251 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:20:28.427924811Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:20:28.427928881Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 56 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:20:28.427932671Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 56 → 56 (≤35565m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:20:31.814512342Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:20:37.903107627Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:20:39.846518646Z",
+      "message": "[Cuisine-Search] D704 returning 6 venues to client (poolCount=6 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:20:39.846616366Z",
+      "message": "[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:20:39.846619356Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (6v): crowd=2230ms translate=2ms reviewCache=2ms dishes=6705ms finalise=0ms travel=332ms sanctuary=1662ms footfall=0ms total=10933ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:29.879381250Z",
+      "message": "[country-pref] chat=313940231 → PH",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:29.879385740Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":[-27.4698,153.0251],\"to\":[14.5995,120.9842],\"moved_m\":5815365,\"label\":\"Manila\",\"region\":\"OTHER\",\"country\":\"PH\",\"cap_m\":8175,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:29.879389790Z",
+      "message": "[set-location] chat=313940231 → 14.5995,120.9842 label=\"Manila\" PH OTHER",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:32.348733141Z",
+      "message": "[Cuisine-TMA] D777 clamping radius 20000m → 8175m (per anchor cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:32.348736331Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[14.5995,120.9842],\"region\":\"OTHER\",\"radius_m\":8175,\"cap_m\":8175,\"cap_src\":\"explicit\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:32.348739001Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=14.5995,120.9842 radius=8175 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:32.348741851Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:33.583137965Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:33.583144655Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 60 → 52 (≤8175m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:33.583148785Z",
+      "message": "[Cuisine-Search] sliceCap=12 firstBatch=true finalBatch=false range=1-12 seenBefore=0 hash=6b3a4fdb",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:37.071702780Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:43.166627116Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:45.058565100Z",
+      "message": "[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:45.058568350Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (12v): crowd=2412ms translate=0ms reviewCache=4ms dishes=6899ms finalise=0ms travel=344ms sanctuary=1608ms footfall=0ms total=11267ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:45.058571850Z",
+      "message": "[Cuisine-Search] D704 returning 12 venues to client (poolCount=12 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:53.233724119Z",
+      "message": "[Cuisine-TMA] D777 clamping radius 20000m → 8175m (per anchor cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:53.233729839Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[14.5995,120.9842],\"region\":\"OTHER\",\"radius_m\":8175,\"cap_m\":8175,\"cap_src\":\"explicit\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:53.233733139Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[\"$\"]} region=OTHER center=14.5995,120.9842 radius=8175 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:53.233735648Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:54.432054279Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 56 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:54.433098403Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 56 → 40 (≤8175m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:54.437686457Z",
+      "message": "[Cuisine-Search] sliceCap=12 firstBatch=true finalBatch=true range=1-4 seenBefore=0 hash=ab71ef5c",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:21:57.466708398Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:22:03.495732935Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:22:04.930163270Z",
+      "message": "[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:22:04.930165580Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (4v): crowd=2303ms translate=0ms reviewCache=2ms dishes=6717ms finalise=0ms travel=198ms sanctuary=1258ms footfall=0ms total=10478ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:22:04.968136490Z",
+      "message": "[Cuisine-Search] D704 returning 4 venues to client (poolCount=4 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:22:35.089662785Z",
+      "message": "[Cuisine-TMA] D777 clamping radius 20000m → 8175m (per anchor cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:22:35.089666435Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[14.5995,120.9842],\"region\":\"OTHER\",\"radius_m\":8175,\"cap_m\":8175,\"cap_src\":\"explicit\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:22:35.089671265Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[\"$\"]} region=OTHER center=14.5995,120.9842 radius=8175 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:22:35.089674725Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:22:35.089678075Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 58 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:22:35.089682095Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 58 → 45 (≤8175m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:22:35.089685995Z",
+      "message": "[Cuisine-Search] sliceCap=12 firstBatch=false finalBatch=false range=5-16 seenBefore=4 hash=ab71ef5c",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:22:35.089689525Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:22:37.437418436Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:22:39.779965911Z",
+      "message": "[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:22:39.779975141Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (12v): crowd=2392ms translate=0ms reviewCache=2ms dishes=6865ms finalise=1ms travel=217ms sanctuary=2120ms footfall=0ms total=11597ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:22:39.779979291Z",
+      "message": "[Cuisine-Search] D704 returning 12 venues to client (poolCount=16 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:19.861267084Z",
+      "message": "[Cuisine-TMA] D777 clamping radius 20000m → 8175m (per anchor cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:19.861271984Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[14.5995,120.9842],\"region\":\"OTHER\",\"radius_m\":8175,\"cap_m\":8175,\"cap_src\":\"explicit\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:19.861275134Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":true,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=14.5995,120.9842 radius=8175 anchored=false skipShuffle=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:19.861277884Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[\"private dining\",\"home-cooked meals\",\"home-based meals\"] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:19.861281144Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/3 returned 58 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:19.861283843Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 58 → 53 (≤8175m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:19.861286243Z",
+      "message": "[Cuisine-Search] D793 all-seen recycle: re-serving 1 rotated by 0 (cursor 1; every match already seen this session; beats a dead zero)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:19.861288843Z",
+      "message": "[Cuisine-Search] D790 nearby-widen tier=0 radiusM=5000 satisfied=false from=1 to=0",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:19.861290993Z",
+      "message": "[Cuisine-Search] sliceCap=12 firstBatch=true finalBatch=false range=1-1 seenBefore=0 hash=5473ddc0",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:19.861293933Z",
+      "message": "[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:19.861296293Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (1v): crowd=2048ms translate=0ms reviewCache=2ms dishes=3ms finalise=0ms travel=129ms sanctuary=2ms footfall=0ms total=2184ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:19.861298723Z",
+      "message": "[Cuisine-Search] D704 returning 1 venues to client (poolCount=1 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:21.757985034Z",
+      "message": "[Cuisine-TMA] D777 clamping radius 20000m → 8175m (per anchor cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:21.757988874Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[14.5995,120.9842],\"region\":\"OTHER\",\"radius_m\":8175,\"cap_m\":8175,\"cap_src\":\"explicit\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:21.757992024Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":true,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=14.5995,120.9842 radius=8175 anchored=false skipShuffle=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:21.757995294Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[\"private dining\",\"home-cooked meals\",\"home-based meals\"] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:21.767285881Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/3 returned 58 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:21.767291081Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 58 → 53 (≤8175m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:21.776696438Z",
+      "message": "[Cuisine-Search] D793 all-seen recycle: re-serving 1 rotated by 0 (cursor 2; every match already seen this session; beats a dead zero)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:21.776701048Z",
+      "message": "[Cuisine-Search] sliceCap=12 firstBatch=false finalBatch=false range=2-2 seenBefore=1 hash=5473ddc0",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:24.273531678Z",
+      "message": "[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:24.273537148Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (1v): crowd=2241ms translate=0ms reviewCache=3ms dishes=1ms finalise=1ms travel=216ms sanctuary=2ms footfall=0ms total=2464ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:24.273541588Z",
+      "message": "[Cuisine-Search] D704 returning 1 venues to client (poolCount=1 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:30.134465404Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":[14.5995,120.9842],\"to\":[1.28979,103.85582],\"moved_m\":2393948,\"label\":\"Esplanade - Theatres on the Bay, Singapore\",\"region\":\"SG\",\"country\":\"PH\",\"cap_m\":null,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:30.134470774Z",
+      "message": "[set-location] chat=313940231 → 1.2898,103.8558 label=\"Esplanade - Theatres on the Bay, Singapo\" PH SG",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:30.763739350Z",
+      "message": "[set-location] search-area notify chat=313940231 area=\"8 Raffles Avenue · 8 Raffles Avenue, Singapore, SG\"",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:32.956128523Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:33.042998386Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:33.093225455Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:33.153671967Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:33.377698852Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:38.547032661Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":[1.28979,103.85582],\"to\":[1.28442,103.85182],\"moved_m\":745,\"label\":\"Change Alley\",\"region\":\"SG\",\"country\":null,\"cap_m\":null,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:38.547038961Z",
+      "message": "[set-location] chat=313940231 → 1.2844,103.8518 label=\"Change Alley\"  SG",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:38.904984314Z",
+      "message": "[set-location] search-area notify chat=313940231 area=\"Singapore Land Tower · No. 50 Raffles Place, Singapore, SG\"",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:47.177727743Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:47.177731823Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.28442,103.85182],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:47.177734203Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":true,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.2844,103.8518 radius=20000 anchored=false skipShuffle=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:47.177736773Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[\"private dining\",\"home-cooked meals\",\"home-based meals\"] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:48.346140481Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/3 returned 58 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:48.346145261Z",
+      "message": "[Cuisine-Search] D703s SG-scope 58 → 58 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:48.346148641Z",
+      "message": "[Cuisine-Search] D790 nearby-widen tier=0 radiusM=5000 satisfied=true from=26 to=24",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:48.346151811Z",
+      "message": "[Cuisine-Search] sliceCap=12 firstBatch=true finalBatch=false range=1-12 seenBefore=0 hash=05284637",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:52.140698382Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:23:58.137666070Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:00.632071743Z",
+      "message": "[footfall] besttime resolved=0/12",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:00.632076043Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (12v): crowd=2404ms translate=0ms reviewCache=2ms dishes=6879ms finalise=0ms travel=282ms sanctuary=1440ms footfall=757ms total=11764ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:00.652726466Z",
+      "message": "[Cuisine-Search] D704 returning 12 venues to client (poolCount=12 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668406750Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668414430Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.28442,103.85182],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668418420Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[\"$\"]} region=SG center=1.2844,103.8518 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668422450Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668426270Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668430150Z",
+      "message": "[Cuisine-Search] D703s SG-scope 60 → 60 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668433390Z",
+      "message": "[Cuisine-Search] sliceCap=12 firstBatch=true finalBatch=false range=1-0 seenBefore=0 hash=1ab536a9",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668437450Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (0v): crowd=0ms translate=0ms reviewCache=0ms dishes=0ms finalise=0ms travel=0ms sanctuary=0ms footfall=0ms total=1ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668440810Z",
+      "message": "[Cuisine-Search] ZERO reason=no-match-criteria pool=0 unseenCrit=0 trulyUnseen=0 seen=0 sessionSeen=46 hasCriteria=true cuisines=0 filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[\"$\"]}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668444540Z",
+      "message": "[Cuisine-Search] D704 returning 0 venues to client (poolCount=0 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668447890Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668451190Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.28442,103.85182],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668848607Z",
+      "message": "[Cuisine-Search] resetSeen for chat 313940231",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668854947Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[\"$\"]} region=SG center=1.2844,103.8518 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668858967Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668862167Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668865207Z",
+      "message": "[Cuisine-Search] D703s SG-scope 60 → 60 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668868777Z",
+      "message": "[Cuisine-Search] sliceCap=12 firstBatch=true finalBatch=false range=1-0 seenBefore=0 hash=1ab536a9",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668871427Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (0v): crowd=0ms translate=0ms reviewCache=0ms dishes=0ms finalise=0ms travel=0ms sanctuary=0ms footfall=0ms total=0ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668874237Z",
+      "message": "[Cuisine-Search] ZERO reason=no-match-criteria pool=0 unseenCrit=0 trulyUnseen=0 seen=0 sessionSeen=46 hasCriteria=true cuisines=0 filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[\"$\"]}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668876917Z",
+      "message": "[Cuisine-Search] D704 returning 0 venues to client (poolCount=0 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668879597Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668882617Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.28442,103.85182],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.668885417Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[\"$\"]} region=SG center=1.2844,103.8518 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.669194625Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.669197365Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.669200095Z",
+      "message": "[Cuisine-Search] D703s SG-scope 60 → 60 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.669203225Z",
+      "message": "[Cuisine-Search] sliceCap=12 firstBatch=true finalBatch=false range=1-0 seenBefore=0 hash=1ab536a9",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.669206295Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (0v): crowd=0ms translate=0ms reviewCache=0ms dishes=0ms finalise=0ms travel=0ms sanctuary=0ms footfall=0ms total=0ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.669208835Z",
+      "message": "[Cuisine-Search] ZERO reason=no-match-criteria pool=0 unseenCrit=0 trulyUnseen=0 seen=0 sessionSeen=46 hasCriteria=true cuisines=0 filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[\"$\"]}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:20.669210995Z",
+      "message": "[Cuisine-Search] D704 returning 0 venues to client (poolCount=0 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:27.181191591Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:27.181196591Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.28442,103.85182],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:27.181199931Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[\"$\",\"$$\"]} region=SG center=1.2844,103.8518 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:27.181203021Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:28.391106671Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:28.391109131Z",
+      "message": "[Cuisine-Search] D703s SG-scope 60 → 60 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:28.391111611Z",
+      "message": "[Cuisine-Search] sliceCap=12 firstBatch=true finalBatch=true range=1-11 seenBefore=0 hash=a442c343",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:30.788607643Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:30.945947942Z",
+      "message": "[Pulse] Status updated at 7:24:30 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:31.652596814Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:37.654670003Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:43.738836115Z",
+      "message": "[footfall] besttime resolved=0/11 (budget 4500ms hit — returned without full footfall)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:43.738841315Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (11v): crowd=2354ms translate=0ms reviewCache=2ms dishes=6902ms finalise=0ms travel=290ms sanctuary=1293ms footfall=4500ms total=15341ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:24:43.762710200Z",
+      "message": "[Cuisine-Search] D704 returning 11 venues to client (poolCount=11 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:29:34.539456515Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:29:34.539461245Z",
+      "message": "[Pulse] Status updated at 7:29:31 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:34:35.266859745Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:34:35.266864475Z",
+      "message": "[Pulse] Status updated at 7:34:31 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:39:36.105841458Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:39:36.105844948Z",
+      "message": "[Pulse] Status updated at 7:39:31 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:44:36.342601874Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:44:36.342605024Z",
+      "message": "[Pulse] Status updated at 7:44:31 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:49:37.721312515Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:49:37.721315815Z",
+      "message": "[Pulse] Status updated at 7:49:31 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:54:38.264129524Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:54:38.264133694Z",
+      "message": "[Pulse] Status updated at 7:54:31 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:31.862417182Z",
+      "message": "npm warn config production Use `--omit=dev` instead.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:31.862424485Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:31.862430488Z",
+      "message": "> soleat@0.62.345 start",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:31.862435616Z",
+      "message": "> node index.js",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:31.862442070Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:32.191442347Z",
+      "message": "[webhook-domain] fallback not configured — skipping health check",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:32.283251807Z",
+      "message": "Starting Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:33.017953966Z",
+      "message": "[Updates] Webhook registered: https://soleat.net/webhook",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:33.017964539Z",
+      "message": "[Bot] Identity confirmed: @soleat_bot",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:34.249807878Z",
+      "message": "[setMyDescription] failed (non-fatal): ETELEGRAM: 400 Bad Request: BOT_DESC_INVALID",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:35.192740628Z",
+      "message": "[Boot] MAP_ID configured: db1201f307409c29…",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:35.235732103Z",
+      "message": "[Holidays] 11 SG PH loaded from cache",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:35.263427669Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:35.868851424Z",
+      "message": "[Pulse] Status updated at 7:59:35 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:36.058931701Z",
+      "message": "[Vibe] Cached 5 live places (Google Maps).",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:36.066846899Z",
+      "message": "🚀 soleat is live and sniffing...",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:36.066852770Z",
+      "message": "[HTTP] Listening on :8080",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:36.066856534Z",
+      "message": "[Transport] Bus stops cache: imported=0, skipped=fresh",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:38.024091442Z",
+      "message": "Stopping Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:38.728848171Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:38.728851991Z",
+      "message": "[Pulse] Status updated at 7:59:31 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:38.728855451Z",
+      "message": "npm error path /app",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:38.728859241Z",
+      "message": "npm error command failed",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:38.728863231Z",
+      "message": "npm error signal SIGTERM",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:38.728866671Z",
+      "message": "npm error command sh -c node index.js",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-25T23:59:38.728870231Z",
+      "message": "npm error A complete log of this run can be found in: /root/.npm/_logs/2026-06-25T20_14_26_443Z-debug-0.log",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7efedc92-c6fe-48f9-990d-ea8509122d31",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-26T00:04:40.555024396Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-26T00:04:40.555030881Z",
+      "message": "[Pulse] Status updated at 8:04:36 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-26T00:09:44.206215924Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-26T00:09:44.206223301Z",
+      "message": "[Pulse] Status updated at 8:09:36 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-26T00:14:38.128893732Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-06-26T00:14:38.128898640Z",
+      "message": "[Pulse] Status updated at 8:14:36 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c73d4992-b927-4873-b8b9-23a9ab6a1302",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
