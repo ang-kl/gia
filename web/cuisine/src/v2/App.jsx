@@ -3777,6 +3777,11 @@ export default function App() {
               /* v0.62.x — pulse the 🔍 when criteria changed since the last
                  search (no auto-fire); the cue clears once a search runs. */
               searchPending={dirty}
+              /* v0.62.x — feed result venues to the location field's nearby
+                 browser (grouped by precinct/MRT zone; tap a row → anchor + 🔍). */
+              nearbyVenues={!loading && venues.length
+                ? venues.map((v) => ({ name: v.name, area: v.area, lat: v.lat, lng: v.lng, distanceM: v.distanceM }))
+                : null}
               /* v0.62.189 — typing in the field re-arms the 8 s idle-close timer
                  so the editor never closes mid-entry. */
               onActivity={armLocIdleClose}
