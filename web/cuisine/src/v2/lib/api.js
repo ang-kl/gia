@@ -308,7 +308,9 @@ export async function copyAllToChat(venues, lang, context = {}) {
     lang,
     cuisines: Array.isArray(context.cuisines) ? context.cuisines : [],
     filters: context.filters || {},
-    region: context.region || 'SG'
+    region: context.region || 'SG',
+    // v0.62.x — Search Insights PR3: pre-localised one-line read of the search.
+    insightLine: typeof context.insightLine === 'string' ? context.insightLine : ''
   });
 }
 
