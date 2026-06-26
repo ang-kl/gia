@@ -75,11 +75,13 @@ describe('validateInferredOutput — guardrail tests', () => {
     expect(r.filters.halal).toBe(false);
   });
 
-  it('only accepts $/$$/$$$ in prices', () => {
+  it('only accepts $/$$/$$$/$$$$ in prices', () => {
     const r = tg.validateInferredOutput({
       cuisines: [], filters: { prices: ['$', '$$$$', 'free', '$$', '$'] }
     }, slugs);
-    expect(r.filters.prices).toEqual(['$', '$$']);
+    // v0.62.x — 4th tier ($$$$) now valid (matches the UI's 4-tier filter);
+    // 'free' rejected, duplicate '$' deduped, input order preserved.
+    expect(r.filters.prices).toEqual(['$', '$$$$', '$$']);
   });
 
   it('returns safe default for null/undefined input', () => {
@@ -151,7 +153,7 @@ describe('module exports', () => {
     expect(tg.CACHE_TTL_S).toBe(60);
     expect(tg.FILTER_KEYS).toEqual(['newlyOpened', 'openNow', 'halal', 'vegetarian', 'homeBased']);
     expect(tg.VALID_PRICES.has('$')).toBe(true);
-    expect(tg.VALID_PRICES.has('$$$$')).toBe(false);
+    expect(tg.VALID_PRICES.has('$$$$')).toBe(true);
   });
 });
 
