@@ -6,6 +6,7 @@ import { citiesForCountry, cityRadiusCapM } from '../lib/cities.js';
 // v0.61.277 — shared with App.jsx for the JB region-pill auto-anchor.
 import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT, JB_FOCUS_KEYS, JB_FOCUS_CHIP_LABELS } from '../lib/jb-focus-points.js';
 import { isJbCoords } from '../lib/coords-to-country.js';
+import { groupByZone, zoneHeader } from '../lib/nearby-zones.js';
 
 // v0.58.7: location anchor field. Shows the user's current
 // neighbourhood as a placeholder, and lets them search for a
@@ -98,7 +99,7 @@ function haversineKm(lat1, lng1, lat2, lng2) {
 // ~150 km) while excluding any cross-country jump (SG→Japan ~3300 km).
 const NEAREST_CITY_MAX_KM = 500;
 
-export default function LocationField({ userLoc, region, onSelect, anchor = null, suffix = '', onSearch = null, countryPref = DEFAULT_OTHER_COUNTRY, onCountryChange = null, selectedCity = null, onActivity = null, searchPending = false }) {
+export default function LocationField({ userLoc, region, onSelect, anchor = null, suffix = '', onSearch = null, countryPref = DEFAULT_OTHER_COUNTRY, onCountryChange = null, selectedCity = null, onActivity = null, searchPending = false, nearbyVenues = null }) {
   // v0.61.191 — branch on region AFTER all hooks below have been
   // declared (React Rules of Hooks: same order every render). The
   // OTHER picker is wholly its own sub-component; the SG/JB path
@@ -364,6 +365,12 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
   // the user notices it's editable; the box stays (light-grey bordered) but the
   // pulse stops after the timer so it isn't a permanent distraction.
   const [editBlink, setEditBlink] = useState(false);
+  // v0.62.x — operator (IMG_2578): "N places nearby" expands (tiny +) into a
+  // glass dropdown of the result places, grouped by precinct zone (SG → nearest
+  // MRT). Tapping a row sets that spot as the anchor (no auto-fire) and the 🔍
+  // pulses to invite the search — mirrors the location-field "tap to change".
+  const [zonesOpen, setZonesOpen] = useState(false);
+  const zones = groupByZone(nearbyVenues, region);
   useEffect(() => {
     if (!hasLoc) { setEditBlink(false); return undefined; }
     setEditBlink(true);
@@ -580,8 +587,56 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
           )}
         </div>
         {!open && suffix && suffixVisible && (
-          <div className="text-[10px] text-tg-hint italic text-right leading-tight mt-0.5">
-            {suffix}
+          <div className="flex items-center justify-end gap-1 text-[10px] text-tg-hint italic leading-tight mt-0.5">
+            <span>{suffix}</span>
+            {zones.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setZonesOpen((v) => !v)}
+                aria-label={zonesOpen
+                  ? (lang === 'fr' ? 'Masquer les lieux proches' : 'Hide nearby places')
+                  : (lang === 'fr' ? 'Voir les lieux proches' : 'Browse nearby places')}
+                aria-expanded={zonesOpen}
+                className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-tg-border text-tg-accent not-italic leading-none"
+              >{zonesOpen ? '−' : '+'}</button>
+            )}
+          </div>
+        )}
+        {!open && zonesOpen && zones.length > 0 && (
+          /* v0.62.x — glass nearby browser, styled like the Local-food-pick
+             dropdown. Scrollable; each row sets the anchor + pulses 🔍. */
+          <div className="mt-1 max-h-60 overflow-y-auto rounded-lg border border-tg-border bg-tg-card/90 backdrop-blur-sm shadow-lg divide-y divide-tg-border/40">
+            {zones.map((g, gi) => (
+              <div key={gi} className="py-1">
+                <div className="px-2.5 py-1 text-[10px] font-semibold text-tg-hint uppercase tracking-wide flex items-center justify-between">
+                  <span>{zoneHeader(g.zone, lang)}</span>
+                  <span className="font-normal normal-case">{g.items.length}</span>
+                </div>
+                {g.items.map((it, ii) => (
+                  <button
+                    key={ii}
+                    type="button"
+                    onClick={() => {
+                      if (Number.isFinite(it.lat) && Number.isFinite(it.lng)) {
+                        // Set anchor only — no auto-fire; 🔍 pulses (dirty) so the
+                        // user taps to search, per the location-field contract.
+                        onSelect?.({ lat: it.lat, lng: it.lng, label: it.street || it.name });
+                      }
+                      setZonesOpen(false);
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 min-h-[40px] flex items-baseline gap-1.5 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none"
+                  >
+                    <span className="text-[12px] text-tg-text truncate">{it.street || it.name}</span>
+                    {it.street && <span className="text-[11px] text-tg-hint truncate">· {it.name}</span>}
+                    {Number.isFinite(it.distanceM) && (
+                      <span className="ml-auto shrink-0 text-[10px] text-tg-hint tabular-nums">
+                        {it.distanceM >= 1000 ? `${(it.distanceM / 1000).toFixed(1)}km` : `${Math.round(it.distanceM)}m`}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            ))}
           </div>
         )}
         {/* v0.61.268 — operator #4: focus-point chip.
