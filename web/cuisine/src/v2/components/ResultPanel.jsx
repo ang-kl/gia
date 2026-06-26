@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ResultCard from './ResultCard.jsx';
 import { tg } from '../../api/tg.js';
 import { copyAllToChat as copyAllApi, copyCommandToChat } from '../lib/api.js';
+import { insightLineText } from './InsightStrip.jsx';
 import { useLocale, t as tr, tn } from '../lib/i18n.js';
 import { groupByAwardCity, groupNeedsJumpRow } from '../lib/michelin-city-groups.js';
 
@@ -173,7 +174,10 @@ export default function ResultPanel({
       await copyAllApi(enriched, lang, {
         cuisines: copyState?.cuisines || [],
         filters: copyState?.filters || {},
-        region: copyState?.region || 'SG'
+        region: copyState?.region || 'SG',
+        // v0.62.x — Search Insights PR3: ride the copied clip with the same
+        // objective line shown in the strip, so a shared search carries it.
+        insightLine: insightLineText(venues, lang),
       });
       setCopied(true);
       setTimeout(() => setCopied(false), 3000);
