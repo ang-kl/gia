@@ -98,7 +98,25 @@ function haversineKm(lat1, lng1, lat2, lng2) {
 // ~150 km) while excluding any cross-country jump (SG→Japan ~3300 km).
 const NEAREST_CITY_MAX_KM = 500;
 
-export default function LocationField({ userLoc, region, onSelect, anchor = null, suffix = '', onSearch = null, countryPref = DEFAULT_OTHER_COUNTRY, onCountryChange = null, selectedCity = null, onActivity = null, searchPending = false }) {
+// v0.62.x — operator: the "N places nearby" count should expand (tiny +) into a
+// compact list of where each result is, formatted "Located-at (Venue)" — e.g.
+// "Esplanade Mall (Restaurant Labyrinth)". The venue carries `name` + `at` (its
+// Google formatted address); there is no dedicated building field, so we derive
+// the "located-at" best-effort: prefer the first NAMED address segment (malls /
+// buildings are named) over a street-number segment, skipping the country/postal
+// tail. Long labels are truncated with an ellipsis (locale-aware abbreviation is
+// a follow-up). Pure best-effort — precision depends on what Google returns.
+function compactNearby(entry, max = 30) {
+  const name = String(entry?.name || '').trim();
+  const segs = String(entry?.at || '').split(',').map((s) => s.trim()).filter(Boolean);
+  const named = segs.find((s) => !/^\d/.test(s) && !/^\d{4,}/.test(s) && !/singapore|malaysia/i.test(s));
+  const at = named || segs[0] || '';
+  let label = at && at !== name ? `${at} (${name})` : name;
+  if (label.length > max) label = `${label.slice(0, max - 1).trimEnd()}…`;
+  return label || '—';
+}
+
+export default function LocationField({ userLoc, region, onSelect, anchor = null, suffix = '', onSearch = null, countryPref = DEFAULT_OTHER_COUNTRY, onCountryChange = null, selectedCity = null, onActivity = null, searchPending = false, nearbyList = null }) {
   // v0.61.191 — branch on region AFTER all hooks below have been
   // declared (React Rules of Hooks: same order every render). The
   // OTHER picker is wholly its own sub-component; the SG/JB path
@@ -359,6 +377,20 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
   // with a ✏️ pencil so it's obviously editable (vs a committed street/building).
   const hasLoc = !!(pickedSafe || anchorSafe || currentSafe);
 
+  // v0.62.x — operator: make the "tap to change" edit affordance prominent.
+  // When a location is set (or changes), blink the boxed edit row for ~2 s so
+  // the user notices it's editable; the box stays (light-grey bordered) but the
+  // pulse stops after the timer so it isn't a permanent distraction.
+  const [editBlink, setEditBlink] = useState(false);
+  // v0.62.x — operator: tiny + next to "N places nearby" expands a compact list.
+  const [nearbyOpen, setNearbyOpen] = useState(false);
+  useEffect(() => {
+    if (!hasLoc) { setEditBlink(false); return undefined; }
+    setEditBlink(true);
+    const id = setTimeout(() => setEditBlink(false), 2000);
+    return () => clearTimeout(id);
+  }, [resting, hasLoc]);
+
   // v0.61.265 — operator: "i select johor bahru, the street name
   // should be erased in the box." Region switching invalidates any
   // typed-but-not-yet-picked input from the previous region (a
@@ -491,7 +523,10 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className={`flex-1 min-w-0 text-left text-sm inline-flex items-center gap-1.5 ${hasLoc ? 'text-tg-text' : 'text-tg-hint'}`}
+              /* v0.62.x — operator: prominent edit affordance. When a location is
+                 set, wrap the row in a light-grey bordered box and blink it ~2 s
+                 so it reads as "tap to change". Empty state keeps the bare ✏️ row. */
+              className={`flex-1 min-w-0 text-left text-sm inline-flex items-center gap-1.5 ${hasLoc ? 'text-tg-text border border-tg-border rounded-md px-2 py-1 bg-tg-bg/40' : 'text-tg-hint'} ${editBlink ? 'animate-pulse ring-1 ring-tg-accent' : ''}`}
             >
               {hasLoc && region === 'SG' && (
                 <span aria-hidden className="flex-shrink-0">🇸🇬</span>
@@ -510,7 +545,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
               {!hasLoc && <span aria-hidden className="flex-shrink-0">✏️</span>}
               <span className="truncate">{resting}</span>
               {hasLoc && (
-                <span className="flex-shrink-0 text-[10px] text-tg-hint italic">· {lang === 'fr' ? 'modifier' : 'tap to change'}</span>
+                <span className="flex-shrink-0 text-[10px] text-tg-hint italic">({lang === 'fr' ? 'modifier' : 'tap to change'})</span>
               )}
             </button>
           )}
@@ -567,7 +602,25 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
         {!open && suffix && suffixVisible && (
           <div className="text-[10px] text-tg-hint italic text-right leading-tight mt-0.5">
             {suffix}
+            {Array.isArray(nearbyList) && nearbyList.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setNearbyOpen((v) => !v)}
+                aria-label={nearbyOpen
+                  ? (lang === 'fr' ? 'Masquer la liste' : 'Hide list')
+                  : (lang === 'fr' ? 'Lister les lieux proches' : 'List nearby places')}
+                aria-expanded={nearbyOpen}
+                className="ml-1 inline-flex items-center justify-center w-3.5 h-3.5 rounded-full border border-tg-border text-tg-accent not-italic leading-none align-middle"
+              >{nearbyOpen ? '−' : '+'}</button>
+            )}
           </div>
+        )}
+        {!open && nearbyOpen && Array.isArray(nearbyList) && nearbyList.length > 0 && (
+          <ul className="mt-1 text-[10px] text-tg-text not-italic text-right leading-snug space-y-0.5 max-h-32 overflow-y-auto">
+            {nearbyList.map((entry, i) => (
+              <li key={i} className="truncate">{compactNearby(entry)}</li>
+            ))}
+          </ul>
         )}
         {/* v0.61.268 — operator #4: focus-point chip.
             v0.61.277 — chip tap COMMITS the anchor via onSelect (not
