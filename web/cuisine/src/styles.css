@@ -277,5 +277,11 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
 }
 [data-theme="dark"] .loc-field-surface {
   background: var(--tg-card, #1c1c1f);
-  border-color: color-mix(in srgb, var(--tg-hint, #98989f) 55%, transparent);
+  /* v0.62.x — operator: overall location field border is yellow in dark mode. */
+  border-color: #facc15; /* yellow-400 */
 }
+
+/* v0.62.x — operator: in the "nearby places" list the venue name reads black in
+   light mode and yellow in dark mode (the street/address stays the theme text). */
+.nearby-venue { color: #111827; } /* near-black for light mode */
+[data-theme="dark"] .nearby-venue { color: #facc15; } /* yellow-400 */
