@@ -2854,13 +2854,19 @@ export default function App() {
     setLoadingReason(lastRunSnap !== null && !dirty ? 'refresh' : 'rotating');
     // v0.61.354 — if a city is previewed, 🔍 COMMITS it as the active search
     // location (and searches there). Reuse onLocationSelect WITHOUT cityPreview
-    // so the full commit runs (anchor + searchCenter + region + server persist
-    // + auto-fire). Otherwise search at the existing confirmed anchor.
+    // so the full commit runs (anchor + searchCenter + region + server persist).
+    // v0.62.x — operator bug: changing the city then tapping 🔍 still searched
+    // the PREVIOUS location. Root cause: v0.62.183 made onLocationSelect
+    // no-auto-fire, so this branch committed the new anchor then `return`ed
+    // WITHOUT searching. 🔍 is an explicit fire, so run the search here at the
+    // just-committed city — passing the anchor EXPLICITLY to dodge the stale-
+    // state race (v0.61.237 lesson; onLocationSelect's setState hasn't flushed).
     if (selectedCityLocation && Number.isFinite(selectedCityLocation.lat) && Number.isFinite(selectedCityLocation.lng)) {
       const sc = selectedCityLocation;
       setSelectedCityLocation(null);
-      onLocationSelect({ lat: sc.lat, lng: sc.lng, label: sc.name || '',
-        ...(Number.isFinite(sc.radiusCapM) && sc.radiusCapM > 0 ? { radiusCapM: sc.radiusCapM } : {}) });
+      const capM = (Number.isFinite(sc.radiusCapM) && sc.radiusCapM > 0) ? { radiusCapM: sc.radiusCapM } : {};
+      onLocationSelect({ lat: sc.lat, lng: sc.lng, label: sc.name || '', ...capM });
+      runSearch(state, { lat: sc.lat, lng: sc.lng, ...capM });
       return;
     }
     runSearch(state);
