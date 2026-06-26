@@ -28,6 +28,7 @@ import LocationField from './components/LocationField.jsx';
 import MapPanel from './components/MapPanel.jsx';
 import TellMePanel from './components/TellMePanel.jsx';
 import ResultPanel from './components/ResultPanel.jsx';
+import InsightStrip from './components/InsightStrip.jsx';
 // v0.62.136 — operator: the horizontal result CAROUSEL is replaced by the
 // Google-Maps-style ResultDrawer (vertical by default; flips to horizontal
 // via the ↰/↴ toggle FAB). ResultCarousel.jsx is retired from the render.
@@ -4420,6 +4421,9 @@ export default function App() {
         {/* v0.61.350 — the Michelin "N more to explore" hint moved INTO
             ResultPanel (rendered below the "· Michelin <country>" line) per
             operator: it belongs below the edition line, not above the card. */}
+        {/* v0.62.x — Search Insights strip (PR2): objective read of this search,
+            above the results. Solid (no glass); hidden while loading / 0 results. */}
+        <InsightStrip venues={venues} loading={loading} />
         <ResultPanel
           venues={venues}
           loading={loading}
