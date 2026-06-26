@@ -3777,12 +3777,6 @@ export default function App() {
               /* v0.62.x — pulse the 🔍 when criteria changed since the last
                  search (no auto-fire); the cue clears once a search runs. */
               searchPending={dirty}
-              /* v0.62.x — the "N places nearby" count expands (tiny +) into a
-                 compact "Located-at (Venue)" list, derived from each result's
-                 name + formatted address. */
-              nearbyList={!loading && venues.length
-                ? venues.slice(0, 8).map((v) => ({ name: v.name || '', at: v.area || '' }))
-                : null}
               /* v0.62.189 — typing in the field re-arms the 8 s idle-close timer
                  so the editor never closes mid-entry. */
               onActivity={armLocIdleClose}
