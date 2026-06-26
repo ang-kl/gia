@@ -374,7 +374,9 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
   useEffect(() => {
     if (!hasLoc) { setEditBlink(false); return undefined; }
     setEditBlink(true);
-    const id = setTimeout(() => setEditBlink(false), 10000);
+    // v0.62.x — operator: blink up to 1 min (was 10s), OR until a search fires
+    // (the 🔍 onClick clears editBlink) — whichever comes first.
+    const id = setTimeout(() => setEditBlink(false), 60000);
     return () => clearTimeout(id);
   }, [resting, hasLoc]);
 
@@ -575,6 +577,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
                   onSelect?.({ lat: fp.lat, lng: fp.lng, label: fp.name });
                   return;
                 }
+                setEditBlink(false); // v0.62.x — stop the edit-box blink once a search fires
                 onSearch?.();
               }}
               aria-label={tr('loc.searchHere', lang)}
@@ -628,7 +631,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
                     className="w-full text-left px-2.5 py-1.5 min-h-[40px] flex items-baseline gap-1.5 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none"
                   >
                     <span className="text-[10px] text-tg-text truncate">{it.street || it.name}</span>
-                    {it.street && <span className="text-[10px] text-tg-hint truncate">· {it.name}</span>}
+                    {it.street && <span className="text-[10px] truncate nearby-venue">· {it.name}</span>}
                     {Number.isFinite(it.distanceM) && (
                       <span className="ml-auto shrink-0 text-[10px] text-tg-hint tabular-nums">
                         {it.distanceM >= 1000 ? `${(it.distanceM / 1000).toFixed(1)}km` : `${Math.round(it.distanceM)}m`}
@@ -1357,7 +1360,7 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
                       className="w-full text-left px-2.5 py-1.5 min-h-[40px] flex items-baseline gap-1.5 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none"
                     >
                       <span className="text-[10px] text-tg-text truncate">{it.street || it.name}</span>
-                      {it.street && <span className="text-[10px] text-tg-hint truncate">· {it.name}</span>}
+                      {it.street && <span className="text-[10px] truncate nearby-venue">· {it.name}</span>}
                       {Number.isFinite(it.distanceM) && (
                         <span className="ml-auto shrink-0 text-[10px] text-tg-hint tabular-nums">
                           {it.distanceM >= 1000 ? `${(it.distanceM / 1000).toFixed(1)}km` : `${Math.round(it.distanceM)}m`}
