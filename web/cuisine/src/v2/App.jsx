@@ -3482,6 +3482,16 @@ export default function App() {
               lat={(locationAnchor?.lat ?? searchCenter?.lat ?? userLoc?.lat) ?? null}
               lng={(locationAnchor?.lng ?? searchCenter?.lng ?? userLoc?.lng) ?? null}
             />
+            {/* v0.62.x — operator: tiny ↻ refresh after the weather temp (same
+                size), so a stale webview can be force-reloaded without closing
+                the Mini App. */}
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+              title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+              className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
+            >↻</button>
           </div>
         </div>
         {/* v0.57.9: region toggle on its own row so it's always visible.
