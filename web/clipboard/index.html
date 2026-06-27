@@ -8,6 +8,39 @@
     <style>
       html { font-size: 17px; }
     </style>
+    <!-- v0.62.388 — bulletproof diagnostic boot. Runs from the SERVED HTML,
+         before the module bundle, so it surfaces the cause even when the bundle
+         404s (stale cache), throws at eval, or React never mounts (the black
+         screen). It only paints if the app is NOT healthy after 6s. -->
+    <script>
+      (function () {
+        window.__CLIPBOARD_ERR__ = window.__CLIPBOARD_ERR__ || '';
+        function rec(m) { window.__CLIPBOARD_ERR__ += (window.__CLIPBOARD_ERR__ ? '\n' : '') + m; }
+        window.addEventListener('error', function (e) {
+          rec('JS: ' + (e.message || (e.error && e.error.message) || e.filename || 'error'));
+        });
+        window.addEventListener('unhandledrejection', function (e) {
+          rec('Promise: ' + ((e.reason && e.reason.message) || e.reason || 'rejection'));
+        });
+        function banner() {
+          var booted = window.__CLIPBOARD_BOOTED__;
+          var root = document.getElementById('root');
+          if (booted && root && root.childElementCount > 0) return; // healthy — stay quiet
+          var d = document.createElement('div');
+          d.style.cssText = 'position:fixed;inset:0;z-index:99999;padding:24px;box-sizing:border-box;font:14px -apple-system,system-ui,sans-serif;color:#fff;background:#13243B;overflow:auto';
+          d.innerHTML =
+            '<div style="font-size:20px;margin-bottom:8px">📋 Clipboard didn’t start</div>' +
+            '<div style="font-size:12px;opacity:.85;margin-bottom:6px">' +
+              (booted ? ('bundle ran (v' + booted + ') but the UI did not render') : 'the app bundle did not run — it may be a cached / old version') +
+            '</div>' +
+            (window.__CLIPBOARD_ERR__ ? '<pre style="font-size:11px;white-space:pre-wrap;background:rgba(255,255,255,.08);padding:8px;border-radius:8px;margin:8px 0">' + String(window.__CLIPBOARD_ERR__).replace(/[<>]/g, '') + '</pre>' : '') +
+            '<button onclick="location.reload(true)" style="padding:8px 16px;border-radius:10px;border:1px solid #378ADD;background:transparent;color:#fff;font-size:14px">↻ Reload</button>' +
+            '<div style="font-size:11px;opacity:.7;margin-top:10px">If this keeps happening, fully CLOSE the Mini App (not minimize) and reopen — Telegram may be serving a cached version.</div>';
+          document.body.appendChild(d);
+        }
+        setTimeout(banner, 6000);
+      })();
+    </script>
   </head>
   <body class="bg-tg-bg text-tg-text">
     <div id="root"></div>
