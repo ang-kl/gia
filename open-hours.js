@@ -45,7 +45,7 @@ function fmtTime(hour, minute, lang = 'en') {
   if (lang === 'id') return `${String(hour).padStart(2, '0')}.${mm}`;
   if (lang === 'fr') return `${String(hour).padStart(2, '0')}h${mm}`;
   // v0.62.316 — ru + de use the 24-hour clock with a colon (11:00).
-  if (lang === 'ru' || lang === 'de') return `${String(hour).padStart(2, '0')}:${mm}`;
+  if (lang === 'ru' || lang === 'de' || lang === 'zh') return `${String(hour).padStart(2, '0')}:${mm}`;
   const h12 = hour % 12 === 0 ? 12 : hour % 12;
   const ampm = hour < 12 ? 'AM' : 'PM';
   return `${h12}:${mm} ${ampm}`;
@@ -60,6 +60,7 @@ const DAY_LABELS = {
   id: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
   ru: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
   de: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+  zh: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
 };
 function dayLabel(day, lang) { return (DAY_LABELS[lang] || DAY_LABELS.en)[day]; }
 
@@ -103,6 +104,14 @@ const OH_PHRASES = {
     open24: 'Geöffnet · 24 Stunden', openPrefix: 'Geöffnet',
     closes: (t) => `schließt um ${t}`, closesDay: (d, t) => `schließt ${d} um ${t}`,
     reopens: (t) => `öffnet wieder um ${t}`,
+  },
+  zh: {
+    opensToday: (t) => `今天 ${t} 开门`, opensTomorrow: (t) => `明天 ${t} 开门`,
+    opensDay: (d, t) => `${d} ${t} 开门`,
+    closedNow: '现已打烊', closedToday: '今天休息', closed: '休息',
+    open24: '营业 · 24 小时', openPrefix: '营业中',
+    closes: (t) => `${t} 打烊`, closesDay: (d, t) => `${d} ${t} 打烊`,
+    reopens: (t) => `${t} 重新开门`,
   },
 };
 function phrases(lang) { return OH_PHRASES[lang] || OH_PHRASES.en; }
