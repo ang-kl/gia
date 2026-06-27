@@ -3,7 +3,7 @@ import Tile from './components/Tile.jsx';
 import FooterNav from './components/FooterNav.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import LocationFieldMenu from './components/LocationFieldMenu.jsx';
-import { tg } from './tg.js';
+import { tg, getTelegramLocation } from './tg.js';
 import { t, useLocale } from './i18n.js';
 import { IATA_CITIES, nearestIataCity } from './iata-cities.js';
 import { OTHER_COUNTRIES } from './countries.js';
@@ -350,8 +350,10 @@ export default function App() {
     async function runAutoDetect() {
       const w = tg();
       if (!w) return;
-      // Fresh GPS reading.
-      const fresh = await new Promise((resolve) => {
+      // Fresh GPS reading. v0.62.x — prefer Telegram's native LocationManager
+      // (Bot API 8.0); the webview's navigator.geolocation often drops a
+      // first-launch "Allow Once".
+      const fresh = (await getTelegramLocation()) || await new Promise((resolve) => {
         if (typeof navigator === 'undefined' || !navigator.geolocation) {
           resolve(null); return;
         }
