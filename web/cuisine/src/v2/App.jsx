@@ -4769,7 +4769,7 @@ export default function App() {
           floating free-text bar (second-last row, above Edit-search), then the
           2-line footer. */}
       <div
-        className="fixed inset-x-0 bottom-0 z-30 pointer-events-none px-2 flex flex-col gap-1.5"
+        className="fixed inset-x-0 bottom-0 z-30 pointer-events-none px-2 flex flex-col gap-[0.1px]"
         style={{ paddingBottom: 'calc(0.15rem + env(safe-area-inset-bottom, 0px) * 0.5)' }}
       >
         {/* v0.62.192 — operator: the "Reset all" + cuisine/dish chips no longer
@@ -4818,6 +4818,20 @@ export default function App() {
                 aria-label={lang === 'fr' ? 'Saisir un plat' : lang === 'id' ? 'Ketik yang Anda inginkan' : lang === 'ru' ? 'Введите, что хотите' : lang === 'de' ? 'Gericht eingeben' : 'Type what you are craving'}
                 className="pointer-events-auto w-10 h-10 rounded-full bg-tg-card/75 liquid-glass border-2 border-tg-hint/60 shadow-lg flex items-center justify-center text-lg active:scale-95"
               >💬</button>
+              {/* v0.62.x — operator: the insight strip (centre text) sits BETWEEN
+                  the 💬 and 🔍 FABs, styled as a neo-glassmorphism pill (75% opaque).
+                  pointer-events-none wrapper, only the hero pick is tappable, so it
+                  never blocks the result cards floating above. */}
+              {!regionExpanded && !cuisinePickOpen && !classicOpen && (
+                <ErrorBoundary label="InsightStrip">
+                  <InsightStrip
+                    inline
+                    venues={venues}
+                    loading={loading}
+                    onSelectVenue={(id) => { setFocusedPlaceId(id); setDrawerDismissed(false); }}
+                  />
+                </ErrorBoundary>
+              )}
               <button
                 type="button"
                 onClick={triggerSearch}
@@ -4830,24 +4844,6 @@ export default function App() {
         })()}
         {/* v0.62.281 — the active-filter chips moved INTO the "Criteria" dropdown
             in the control row below (was a floating strip here). */}
-        {/* v0.62.x — operator (CuisineTMA_UI_Result.png): the Search-Insights
-            strip lives HERE now — a full-width tinted band (same #EAF1FB look as
-            the old header strip) sitting directly ABOVE the blue control band, the
-            💬/🔍 FABs above it. -mx-2 bleeds it to the dock edges; !mb-0 butts it
-            flush to the control band (no gap). pointer-events-auto so the hero
-            pick stays tappable; the result cards float above and aren't blocked. */}
-        {!regionExpanded && !cuisinePickOpen && !classicOpen && (
-          <div className="pointer-events-auto -mx-2">
-            <ErrorBoundary label="InsightStrip">
-              <InsightStrip
-                className="!mb-0"
-                venues={venues}
-                loading={loading}
-                onSelectVenue={(id) => { setFocusedPlaceId(id); setDrawerDismissed(false); }}
-              />
-            </ErrorBoundary>
-          </div>
-        )}
         {/* THE BAND — bg-tg-bg/96 now wraps ONLY the control row + footer tag. */}
         <div className="pointer-events-auto -mx-2 px-3 pt-1.5 pb-1 bg-tg-bg/96 liquid-glass border-t border-tg-border/50 shadow-[0_-6px_24px_rgba(0,0,0,0.22)] flex flex-col gap-1">
           {/* slim control row — results · layout · next  |  down · end. Inline icon
