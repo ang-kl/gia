@@ -93,7 +93,7 @@ export default function InsightStrip({ venues, loading, onSelectVenue, className
       // that scrolls left/right when the content (full venue name) is wider; no
       // truncation. pointer-events-auto so it can be scrolled / the hero tapped.
       <div
-        className="insight-glass pointer-events-auto self-end -mb-2 flex-1 min-w-0 mx-0.5 overflow-x-auto no-scrollbar rounded-sm bg-tg-card/75 liquid-glass shadow-md px-2.5 py-1 text-[11px] leading-none text-tg-hint"
+        className="insight-glass pointer-events-auto self-end -mb-2 flex-1 min-w-0 mx-0.5 overflow-x-auto no-scrollbar rounded-sm bg-tg-card/75 backdrop-blur-md shadow-md px-2.5 py-1 text-[11px] leading-none text-tg-hint"
         role="note"
         aria-label={ariaBits.join(', ')}
       >
