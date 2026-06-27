@@ -12935,7 +12935,16 @@ async function cacheBotUsername() {
         // Pre-rendered client-side (any locale), so just escape + cap it here.
         const insightLineRaw = (typeof req.body?.insightLine === 'string' ? req.body.insightLine : '').trim().slice(0, 200);
         const insightHtml = insightLineRaw ? `<i>${escapeHtmlForTelegram(insightLineRaw)}</i>\n` : '';
-        let body = `${header}\n${insightHtml}\n${blocks.join(blockSep)}`;
+        // v0.62.x — Part B: "Likely serves {term} {category}" line. mode 'dish' →
+        // atop each venue block; otherwise (free text) → one note row at the end.
+        const dishHintRaw = (typeof req.body?.dishHint === 'string' ? req.body.dishHint : '').trim().slice(0, 120);
+        const dishHintMode = req.body?.dishHintMode === 'dish' ? 'dish' : 'note';
+        const dishHintHtml = dishHintRaw ? `<i>${escapeHtmlForTelegram(dishHintRaw)}</i>` : '';
+        const renderedBlocks = (dishHintHtml && dishHintMode === 'dish')
+          ? blocks.map((b) => `${dishHintHtml}\n${b}`)
+          : blocks;
+        let body = `${header}\n${insightHtml}\n${renderedBlocks.join(blockSep)}`;
+        if (dishHintHtml && dishHintMode === 'note') body += `\n\n${dishHintHtml}`;
         // v0.60.145 — multi-pin: if buildMapHashUrl returns null (every
         // venue lacked lat/lng so buildSlim returned []), drop the inline
         // map button and append a one-line "map unavailable" footer

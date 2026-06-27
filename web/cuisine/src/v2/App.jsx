@@ -919,6 +919,7 @@ export default function App() {
   // v0.62.x — the dish / free-text term the CURRENT results are for (drives the
   // "Likely serves {term} {category}" card strip). Set in runSearch.
   const [searchedTerm, setSearchedTerm] = useState(null);
+  const [searchedTermMode, setSearchedTermMode] = useState(null); // 'dish' | 'freetext'
   useEffect(() => {
     // v0.60.120 — the banner label tracks the *active search location*:
     // the place the user locked in via the Search-criteria builder /
@@ -2295,6 +2296,10 @@ export default function App() {
         ? opts.freeTextOverride.trim()
         : ((typeof nlText === 'string' && nlText.trim()) ? nlText.trim() : '');
       setSearchedTerm(_ft || null);
+      // 'dish' = a classic-picker dish tap (freeTextOverride) → copy puts the
+      // line atop each card; 'freetext' = the Tell-me box → copy adds one note
+      // row at the end. (Part B copy behaviour.)
+      setSearchedTermMode(_ft ? (opts?.freeTextOverride ? 'dish' : 'freetext') : null);
     }
     // v0.61.320 — SINGLE SOURCE OF TRUTH for the search location, and
     // never a silent no-op. Previously this opened with `if (!userLoc)
@@ -4473,6 +4478,7 @@ export default function App() {
           venues={venues}
           loading={loading}
           dishHints={searchedTerm ? [searchedTerm] : null}
+          dishHintMode={searchedTermMode}
           nearbyLabel={nearbyFlavours?.single?.label || null}
           nearbyAccent={nearbyFlavours?.single?.accent || null}
           nearbyStrips={nearbyFlavours?.strips || null}
