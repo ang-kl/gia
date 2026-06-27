@@ -4826,7 +4826,7 @@ export default function App() {
                 <ErrorBoundary label="InsightStrip">
                   <InsightStrip
                     inline
-                    venues={venues}
+                    venues={visibleVenues.length ? visibleVenues : venues}
                     loading={loading}
                     onSelectVenue={(id) => { setFocusedPlaceId(id); setDrawerDismissed(false); }}
                   />
@@ -4845,7 +4845,7 @@ export default function App() {
         {/* v0.62.281 — the active-filter chips moved INTO the "Criteria" dropdown
             in the control row below (was a floating strip here). */}
         {/* THE BAND — bg-tg-bg/96 now wraps ONLY the control row + footer tag. */}
-        <div className="pointer-events-auto -mx-2 px-3 pt-1.5 pb-1 bg-tg-bg/96 liquid-glass shadow-[0_-6px_24px_rgba(0,0,0,0.22)] flex flex-col gap-1">
+        <div className="pointer-events-auto -mx-2 px-3 pt-1.5 pb-1 bg-tg-bg/96 backdrop-blur-md shadow-[0_-6px_24px_rgba(0,0,0,0.22)] flex flex-col gap-1">
           {/* slim control row — results · layout · next  |  down · end. Inline icon
               chips (no bordered cards); aria-labels carry the full text. */}
           <div className="flex items-center justify-between gap-1 text-[11px] font-semibold text-tg-link">
