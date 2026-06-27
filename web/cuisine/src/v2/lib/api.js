@@ -310,7 +310,11 @@ export async function copyAllToChat(venues, lang, context = {}) {
     filters: context.filters || {},
     region: context.region || 'SG',
     // v0.62.x — Search Insights PR3: pre-localised one-line read of the search.
-    insightLine: typeof context.insightLine === 'string' ? context.insightLine : ''
+    insightLine: typeof context.insightLine === 'string' ? context.insightLine : '',
+    // v0.62.x — Part B: "Likely serves {term} {category}" line + placement mode
+    // ('dish' = atop each venue block; else a single note row at the end).
+    dishHint: typeof context.dishHint === 'string' ? context.dishHint : '',
+    dishHintMode: context.dishHintMode === 'dish' ? 'dish' : 'note'
   });
 }
 
