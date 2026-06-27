@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-06-24';   // v0.62.240->v0.62.301 catch-up: PRs #1202-#1272 (this session's Cuisine/Hawker/Train UI + search-confidence arc + prior #1202-#1240)
+const GEN_DATE = '2026-06-27';   // v0.62.302->v0.62.387 catch-up: PRs #1273-#1363
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 

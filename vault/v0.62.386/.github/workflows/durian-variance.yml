@@ -1,0 +1,86 @@
+name: Durian Variance
+
+# Runs the Places-API variance probe for DURIAN + DURIAN_PASTRY
+# whenever the relevance logic or the variance script itself
+# changes on `main`. Stores the JSON output + a Markdown summary
+# table back into the repo so we always have a reproducible
+# precision baseline next to the code that produced it.
+#
+# v0.61.259 — operator (29-05 '26): "just PR and store in a table.
+# you then run it. don't keep asking me to check this and that,
+# when I do the merge, it should automatic do the check."
+#
+# One-time setup (operator action):
+#   1. GitHub → Settings → Secrets and variables → Actions
+#      → New repository secret
+#         Name:  GOOGLE_MAPS_API_KEY
+#         Value: <your Railway-stored key>
+#   2. Done. Every subsequent merge that touches the inputs below
+#      runs this workflow + commits the refreshed JSON + table
+#      back to main automatically.
+
+on:
+  # v0.61.260 — operator switched to running variance from the chat
+  # /ver inline button (uses the server's Railway-stored
+  # GOOGLE_MAPS_API_KEY directly). The auto-trigger on relevant
+  # merges is disabled to stop the no-secret failure log noise; the
+  # workflow remains available for manual dispatch from the Actions
+  # tab if anyone adds a GOOGLE_MAPS_API_KEY repo secret later.
+  workflow_dispatch:
+
+# Prevent the auto-commit at the end from re-triggering this same
+# workflow forever.
+concurrency:
+  group: durian-variance-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  variance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    # Don't loop on the workflow's own commit.
+    if: github.event.head_commit.message == null || !contains(github.event.head_commit.message, '[durian-variance auto-commit]')
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # Need write token so the auto-commit step can push back.
+          token: ${{ github.token }}
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps (root)
+        run: npm install --no-audit --no-fund --ignore-scripts
+
+      - name: Run durian variance
+        env:
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+        run: |
+          if [ -z "$GOOGLE_MAPS_API_KEY" ]; then
+            echo "::error::GOOGLE_MAPS_API_KEY repo secret is missing. Add it under Settings → Secrets → Actions."
+            exit 1
+          fi
+          mkdir -p data/durian-variance
+          echo "::group::durian (fruit)"
+          node scripts/durian-variance.js \
+            --json-out=data/durian-variance/durian-latest.json
+          echo "::endgroup::"
+          echo "::group::durian-pastry"
+          node scripts/durian-variance.js --mode=durian-pastry \
+            --json-out=data/durian-variance/durian-pastry-latest.json
+          echo "::endgroup::"
+
+      - name: Build Markdown summary
+        run: node scripts/durian-variance-summary.js
+
+      - name: Commit + push refreshed JSON + table
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: '[durian-variance auto-commit] refresh JSON + table (${{ github.sha }})'
+          file_pattern: 'data/durian-variance/*.json doc/durian-variance-summary.md'
+          commit_user_name: 'github-actions[bot]'
+          commit_user_email: 'github-actions[bot]@users.noreply.github.com'
