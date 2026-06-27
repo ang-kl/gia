@@ -181,12 +181,21 @@ export default function App() {
           colour-blind safe); floats with a margin instead of a full-bleed
           border so it reads as a physical card. */}
       <div className="skeuo-card mx-2 mt-2 rounded-2xl px-3 py-2.5 flex items-center gap-2 relative z-10">
-        <img src="/app/hawker/soleat-icon.png" alt="soleat" width="28" height="28" className="rounded-full flex-shrink-0" />
+        {/* v0.62.x — operator: hawker header without the soleat logo. */}
         <div className="min-w-0 flex-1">
           <h1 className="text-base font-semibold leading-tight">{t('header.title', lang)}</h1>
           {/* v0.60.219 — live Singapore weather emoji. */}
-          <p className="text-[10px] text-tg-hint leading-tight">
+          <p className="text-[10px] text-tg-hint leading-tight flex items-center gap-1">
             <WeatherBadge />
+            {/* v0.62.x — operator: tiny ↻ refresh after the weather temp (same
+                size) so a stale webview can be force-reloaded without closing. */}
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+              title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+              className="text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
+            >↻</button>
           </p>
         </div>
         <LocaleToggle className="flex-shrink-0" />

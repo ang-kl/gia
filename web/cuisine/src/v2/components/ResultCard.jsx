@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { tg } from '../../api/tg.js';
 import { copyOneToChat, fetchSocialProfiles } from '../lib/api.js';
 import { useLocale, t as tr } from '../lib/i18n.js';
+import { likelyServesText } from '../lib/dish-category.js';
 import SocialButtons from './SocialButtons.jsx';
 import { OTHER_COUNTRIES } from '../lib/countries.js';
 
@@ -26,7 +27,7 @@ function shortenCountry(area) {
   return parts.join(',');
 }
 
-export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null, number = null, defaultExpanded = false, horizontal = false, autoExpandFocus = true, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null }) {
+export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null, number = null, defaultExpanded = false, horizontal = false, autoExpandFocus = true, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null }) {
   const [lang] = useLocale();
   if (!venue) return null;
   const rating = venue.rating ? `★${venue.rating.toFixed(1)}` : '';
@@ -265,6 +266,23 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           >{s.label}</div>
         );
       })()}
+      {/* v0.62.x — operator: when the search was by a dish / free-text term, a
+          strip "Likely serves {term} {dish|dessert|drink}". If a strip is already
+          drawn above (the cuisine "Nearby Flavours" one) these stack below it,
+          each ~0.5px smaller. */}
+      {Array.isArray(dishHints) && dishHints.filter(Boolean).map((term, i) => {
+        const txt = likelyServesText(term, lang);
+        if (!txt) return null;
+        const firstFlush = i === 0 && venue.matchTier !== 'alternate';
+        const size = Math.max((venue.matchTier === 'alternate' ? 9.5 : 10) - 0.5 * i, 8);
+        return (
+          <div
+            key={`dh-${i}`}
+            className={`-mx-2.5 mb-1 px-2.5 py-0.5 leading-tight truncate font-medium bg-tg-bg text-tg-accent border-b border-tg-border ${firstFlush ? `${horizontal ? '-mt-1.5' : '-mt-2.5'} rounded-t-lg` : ''}`}
+            style={{ fontSize: `${size}px` }}
+          >{txt}</div>
+        );
+      })}
       {/* v0.62.108 — operator: rank reads "1 · <name>" inline; every row below
           is flush-left (no indent — was a 2-col flex that offset the whole body).
           v0.62.176 — operator: REVERTED the v0.62.168 horizontal word-wrap (the

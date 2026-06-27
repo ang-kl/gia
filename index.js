@@ -1638,7 +1638,7 @@ async function tokenizeCuisineArgs(raw) {
       if (cuisines.length < 5) cuisines.push(t);
     } else if (FLAGS.has(t)) {
       params.set(t, '1');
-    } else if (/^\$+$/.test(t) && t.length <= 3) {
+    } else if (/^\$+$/.test(t) && t.length <= 4) {
       // $$ → emit "$,$$" so the server's price-tier filter (which
       // matches priceLevel against the SET) accepts both. Mirrors
       // the TMA's existing multi-select chip behaviour.
@@ -7512,6 +7512,50 @@ function escapeHtmlForTelegram(s) {
     .replace(/>/g, '&gt;');
 }
 
+// v0.62.x — operator option 1: a friendly, THROTTLED "AI is busy" notice, shown
+// only when an AI step actually degraded (the search-intent classifier failed
+// open during a Gemini outage). Results still came through; this just reassures
+// + invites a retry for the smarter pass. Throttled to once / 3 min per chat
+// (Redis NX+EX) so it never spams; never throws / never blocks the search.
+async function sendDegradedNotice(redis, chatId, lang) {
+  try {
+    if (redis && redis.isOpen) {
+      const set = await redis.set(`degraded:notice:${chatId}`, '1', { NX: true, EX: 180 });
+      if (set === null) return; // already shown within the last 3 min — stay quiet
+    }
+    const msg = lang === 'fr'
+      ? '⚡ Les suggestions intelligentes de Soleat sont très sollicitées — voici les correspondances directes. Réessayez dans un instant pour plus.'
+      : "⚡ Soleat's smart suggestions are busy right now — showing direct matches. Try again in a moment for more.";
+    await safeSend(chatId, msg);
+  } catch { /* never block the user-facing flow */ }
+}
+
+// v0.62.x — Search Insights PR4: anonymous, aggregate-only demand counter.
+// Fire-and-forget. Stores NO chatID, NO query text, NO individual record — only
+// coarse tallies of "which cuisine, in which ~1km grid cell, at which meal
+// period" — the privacy-clean foundation for a future aggregate demand view.
+// Never blocks or fails a search; any Redis hiccup is swallowed.
+function recordSearchDemand(redis, { cuisines, lat, lng }) {
+  if (!redis || !redis.isOpen) return;
+  try {
+    const { mealPeriodSGT } = require('./vibe-suggest');
+    const period = (mealPeriodSGT() || {}).id || 'other';
+    // Coarse ~1.1km grid cell — deliberately NOT an exact pin (anonymity).
+    const cell = (Number.isFinite(lat) && Number.isFinite(lng))
+      ? `${lat.toFixed(2)},${lng.toFixed(2)}`
+      : 'na';
+    const list = (Array.isArray(cuisines) && cuisines.length) ? cuisines.slice(0, 5) : ['any'];
+    const TTL_S = 60 * 60 * 24 * 180; // 180 days
+    for (const c of list) {
+      const slug = String(c || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40) || 'any';
+      const key = `demand:v1:${slug}:${cell}:${period}`;
+      redis.incr(key)
+        .then((n) => (n === 1 ? redis.expire(key, TTL_S) : null))
+        .catch(() => {});
+    }
+  } catch { /* never block search */ }
+}
+
 // v0.60.61 — bucket an LTA-reported "minutes to arrival" into one
 // of five bands. Per Human Lead 2026-05-10: users want a quick read
 // "is this bus coming soon or not", not exact-minute precision.
@@ -7884,6 +7928,16 @@ async function runClipCommand(chatId, arg, lang = 'en') {
     text: lang === 'fr' ? '🗑 Effacer tout' : '🗑 Clear all',
     callback_data: 'clip:clear:ask'
   }]);
+  // v0.62.330 — Clipboard TMA entry point. The legacy text listing above
+  // stays for users who never open the TMA; this single button is the
+  // door into the rich view (catch-all + cabinets + drawers + drag).
+  // Uses web_app so Telegram opens the Mini App inline (no browser jump).
+  if (useWebhook && webhookDomain) {
+    keyboardRows.push([{
+      text: lang === 'fr' ? '📋 Ouvrir Clipboard' : '📋 Open Clipboard',
+      web_app: { url: `https://${webhookDomain}/app/clipboard` }
+    }]);
+  }
   await bot.sendMessage(chatId, lines.join('\n'), {
     parse_mode: 'HTML',
     disable_web_page_preview: true,
@@ -11212,6 +11266,9 @@ bot.on('message', async (msg) => {
     // ingredient / tool / venue, so "<cuisine-family> + <food noun>"
     // patterns landed in 'ambiguous' and got declined. The whitelist
     // recognises them deterministically and skips the LLM call.
+    // v0.62.x — set when the intent classifier failed open (Gemini outage). We
+    // still run the search below; afterwards we send a throttled "busy" notice.
+    let classifierDegraded = false;
     if (!disambigDisclosureFT) {
       let bypassFoodGate = false;
       try {
@@ -11226,6 +11283,7 @@ bot.on('message', async (msg) => {
       if (!bypassFoodGate) {
         try {
           const cls = await require('./gemini-client').classifySearchIntent({ text, lang: userLang });
+          if (cls && cls.degraded) classifierDegraded = true;
           if (cls && cls.intent === 'ambiguous') {
             try { require('./freetext-log').logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: 'non-food-declined', resultCount: 0 }); } catch { /* best-effort */ }
             const { t: tGate } = require('./i18n');
@@ -11261,6 +11319,10 @@ bot.on('message', async (msg) => {
     // v0.60.142 — usage tracking (Oversight): a chat free-text dish search.
     try { usageLog.recordSearch(redis, msg.chat.id, { freeText: text, src: 'chat-freetext' }).catch(() => {}); } catch { /* noop */ }
     await runFreeTextSearch(msg.chat.id, resolvedText, { lang: userLang, cuisine: ftCuisineOut, dishLabel: ftDishLabelOut });
+    // v0.62.x — if the AI classifier degraded (fail-open during an outage), the
+    // search above used the raw text instead of the smarter intent. Reassure the
+    // user with a throttled, non-blocking "busy, try again" line.
+    if (classifierDegraded) { try { await sendDegradedNotice(redis, msg.chat.id, userLang); } catch { /* never block */ } }
   } catch (err) {
     console.error('[Error] free-text handler failed:', err.message);
     // v0.60.228 — never end the free-text path in silence. If we had
@@ -12657,6 +12719,19 @@ async function cacheBotUsername() {
       res.sendFile(path.join(__dirname, 'public', 'cuisine', 'index.html'));
     });
 
+    // v0.62.330 — Clipboard TMA (PR #3 of the v0.7 Clipboard cycle).
+    // Second Mini App under the bot; own bundle at web/clipboard/ built
+    // to public/clipboard/. Served at /app/clipboard so the BotFather
+    // short-name `clipboard` resolves to t.me/<bot>/clipboard?startapp=…
+    // (also reached from the cuisine TMA's "📋 Open Clipboard" panel
+    // and from the /clipboard chat command's inline button — see
+    // ~lines 7811 + 12069 menu-button wiring below).
+    app.use('/app/clipboard', express.static(path.join(__dirname, 'public', 'clipboard'), STATIC_OPTS));
+    app.get('/app/clipboard', (_req, res) => {
+      noCacheHtml(res);
+      res.sendFile(path.join(__dirname, 'public', 'clipboard', 'index.html'));
+    });
+
     // v0.53.0: cuisine catalogue + map-first search endpoints for the
     // new v2 TMA. Catalogue is read-once from the in-repo MD file.
     //
@@ -12674,6 +12749,20 @@ async function cacheBotUsername() {
     // `SKIP_INIT_DATA_AUTH=true` for Railway preview deploys + local
     // dev — never set in prod.
     app.use('/api/cuisine', requireInitDataFromBodyOrHeader);
+
+    // v0.62.329 — Clipboard TMA API surface (PR #2 of the v0.7 Clipboard
+    // cycle). 16 endpoints under /api/clipboard/*; auth model is the
+    // same chokepoint as /api/cuisine with a single carve-out for the
+    // public GET /api/clipboard/shared/:token read (the token IS the
+    // auth on that one). The mount helper registers the public route
+    // BEFORE mounting its own app.use(requireInitDataFromBodyOrHeader)
+    // gate, so Express matches the public read without triggering auth.
+    try {
+      const { mountClipboardRoutes } = require('./clipboard-routes');
+      mountClipboardRoutes(app, redis);
+    } catch (err) {
+      console.warn('[clipboard-routes] mount failed (non-fatal):', err.message);
+    }
 
     app.get('/api/cuisine/catalogue', (_req, res) => {
       try {
@@ -12866,7 +12955,22 @@ async function cacheBotUsername() {
         // v0.58.51: two blank lines between picks for breathing room;
         // collapse to one when only a single venue is in the clip.
         const blockSep = blocks.length > 1 ? '\n\n\n' : '\n\n';
-        let body = `${header}\n\n${blocks.join(blockSep)}`;
+        // v0.62.x — Search Insights PR3: the TMA passes a pre-localised one-line
+        // read of the search (count · median · best value · gems). Ride it just
+        // below the header so a copied/shared clip carries the objective insight.
+        // Pre-rendered client-side (any locale), so just escape + cap it here.
+        const insightLineRaw = (typeof req.body?.insightLine === 'string' ? req.body.insightLine : '').trim().slice(0, 200);
+        const insightHtml = insightLineRaw ? `<i>${escapeHtmlForTelegram(insightLineRaw)}</i>\n` : '';
+        // v0.62.x — Part B: "Likely serves {term} {category}" line. mode 'dish' →
+        // atop each venue block; otherwise (free text) → one note row at the end.
+        const dishHintRaw = (typeof req.body?.dishHint === 'string' ? req.body.dishHint : '').trim().slice(0, 120);
+        const dishHintMode = req.body?.dishHintMode === 'dish' ? 'dish' : 'note';
+        const dishHintHtml = dishHintRaw ? `<i>${escapeHtmlForTelegram(dishHintRaw)}</i>` : '';
+        const renderedBlocks = (dishHintHtml && dishHintMode === 'dish')
+          ? blocks.map((b) => `${dishHintHtml}\n${b}`)
+          : blocks;
+        let body = `${header}\n${insightHtml}\n${renderedBlocks.join(blockSep)}`;
+        if (dishHintHtml && dishHintMode === 'note') body += `\n\n${dishHintHtml}`;
         // v0.60.145 — multi-pin: if buildMapHashUrl returns null (every
         // venue lacked lat/lng so buildSlim returned []), drop the inline
         // map button and append a one-line "map unavailable" footer
@@ -14665,7 +14769,7 @@ async function cacheBotUsername() {
         // server post-filter treats `$$` as "≤$$", so emitting the
         // max preserves the same semantics with one token.
         const priceList = Array.isArray(prices) ? prices : (Array.isArray(filters?.prices) ? filters.prices : []);
-        const cleanPrices = priceList.filter((p) => /^\$+$/.test(p) && p.length >= 1 && p.length <= 3);
+        const cleanPrices = priceList.filter((p) => /^\$+$/.test(p) && p.length >= 1 && p.length <= 4);
         if (cleanPrices.length) {
           cleanPrices.sort((a, b) => b.length - a.length);
           tokens.push(cleanPrices[0]);
@@ -14798,6 +14902,9 @@ async function cacheBotUsername() {
         // KL / Jakarta whose TMA had just opened.
         const { lat, lng, cuisines = [], filters = {}, radius: clientRadius, lang: langIn } = req.body || {};
         const regionIn = req.body?.region;
+        // v0.62.x — Search Insights PR4: anonymous aggregate demand tally
+        // (fire-and-forget; no identifier, coarse cell). Never blocks the search.
+        recordSearchDemand(redis, { cuisines, lat, lng });
         // `let` because the cache/coords resolution below may
         // mutate it. Validate against the closed set so a bad
         // client value can't poison the downstream branches.

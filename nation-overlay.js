@@ -3138,6 +3138,31 @@ try {
   }
 }
 
+// v0.62.x — Per-dish 📜 ENGLISH explanations (Phase 1 backfill). Fold GENERATED
+// English notes onto iconicDishes that have NO hand-authored note, keyed
+// `${slug}::${dish}`. Grounded-drafted (+ verified) via scripts/draft-dish-notes.mjs.
+// Hand-authored notes ALWAYS win — we only set note.en when it is absent/empty.
+// Creates the `note` object for previously bare dishes so the i18n merge below
+// can layer id/ru/de/zh/ja/es translations on top.
+try {
+  // eslint-disable-next-line global-require
+  const DISHNOTE_EN = require('./nation-overlay-dishnotes.generated.js');
+  for (const [slug, overlay] of Object.entries(NATION_OVERLAY)) {
+    const dishes = overlay && Array.isArray(overlay.iconicDishes) ? overlay.iconicDishes : [];
+    for (const dish of dishes) {
+      if (!dish || !dish.name) continue;
+      const gen = DISHNOTE_EN[`${slug}::${String(dish.name).toLowerCase()}`];
+      if (!gen || !gen.en) continue;
+      if (!dish.note) dish.note = {};
+      if (dish.note.en == null || dish.note.en === '') dish.note.en = gen.en;
+    }
+  }
+} catch (e) {
+  if (e && e.code !== 'MODULE_NOT_FOUND') {
+    console.warn(`[nation-overlay] dishnote-en overlay load failed: ${e.message}`);
+  }
+}
+
 // v0.62.x — Per-dish 📜 note i18n. Fold GENERATED id/ru/de dish-note bodies
 // into each iconicDishes entry's `note` at load, keyed by `${slug}::${dish}`
 // (dish names repeat across cuisines, so the slug-qualified key is unique).

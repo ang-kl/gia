@@ -100,6 +100,14 @@ const STRINGS = {
   'panel.bubble.moreEats':     { en: 'More eats? Tap 🔍',
                                  fr: 'Plus à manger ? Touchez 🔍' },
 
+  // v0.62.x — Search Insights strip (PR2). Short, objective read-out above the
+  // results. {n}/{name}/{rating}/{price} are interpolated via tn(). All 5
+  // locales inline (the id/ru/de merge only fills nulls, so these stand).
+  'insights.count':            { en: '{n} spots', fr: '{n} lieux', id: '{n} tempat', ru: '{n} мест', de: '{n} Orte' },
+  'insights.median':           { en: 'med {price}', fr: 'méd. {price}', id: 'med {price}', ru: 'медиана {price}', de: 'Median {price}' },
+  'insights.best':             { en: 'best {name} {rating} ({price})', fr: 'top {name} {rating} ({price})', id: 'terbaik {name} {rating} ({price})', ru: 'лучшее {name} {rating} ({price})', de: 'Top {name} {rating} ({price})' },
+  'insights.gems':             { en: '{n} gems', fr: '{n} pépites', id: '{n} permata', ru: '{n} находок', de: '{n} Geheimtipps' },
+
   // v0.61.191 — OTHER-region country picker + place-search-by-country
   // confirmation modal. Operator: "Times Square Kuala Lumpur" was
   // resolving to a SG shop because OTHER autocomplete defaulted to

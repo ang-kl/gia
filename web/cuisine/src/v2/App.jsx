@@ -28,6 +28,8 @@ import LocationField from './components/LocationField.jsx';
 import MapPanel from './components/MapPanel.jsx';
 import TellMePanel from './components/TellMePanel.jsx';
 import ResultPanel from './components/ResultPanel.jsx';
+import InsightStrip from './components/InsightStrip.jsx';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
 // v0.62.136 — operator: the horizontal result CAROUSEL is replaced by the
 // Google-Maps-style ResultDrawer (vertical by default; flips to horizontal
 // via the ↰/↴ toggle FAB). ResultCarousel.jsx is retired from the render.
@@ -896,7 +898,7 @@ export default function App() {
     locIdleTimerRef.current = setTimeout(() => {
       setModePeek(false);
       setRegionExpanded(false);
-    }, 8000);
+    }, 30000); // v0.62.x — operator: standardise location idle-close to 30s (was 8s)
   };
   useEffect(() => {
     if (!modePeek) {
@@ -914,6 +916,10 @@ export default function App() {
   // v0.62.173 — operator: a dish searched from Local Food Classic is pinned to the
   // FRONT of the plate's picks (1st), so the just-searched dish leads.
   const [pinnedDish, setPinnedDish] = useState(null);
+  // v0.62.x — the dish / free-text term the CURRENT results are for (drives the
+  // "Likely serves {term} {category}" card strip). Set in runSearch.
+  const [searchedTerm, setSearchedTerm] = useState(null);
+  const [searchedTermMode, setSearchedTermMode] = useState(null); // 'dish' | 'freetext'
   useEffect(() => {
     // v0.60.120 — the banner label tracks the *active search location*:
     // the place the user locked in via the Search-criteria builder /
@@ -2282,6 +2288,19 @@ export default function App() {
   }
 
   async function runSearch(snap = state, anchor = null, opts = {}) {
+    // v0.62.x — remember the dish / free-text term this search is FOR, so the
+    // result cards + copy can show "Likely serves {term} {dish|dessert|drink}".
+    // Cleared for a plain cuisine-chip search (no free text).
+    {
+      const _ft = (typeof opts?.freeTextOverride === 'string' && opts.freeTextOverride.trim())
+        ? opts.freeTextOverride.trim()
+        : ((typeof nlText === 'string' && nlText.trim()) ? nlText.trim() : '');
+      setSearchedTerm(_ft || null);
+      // 'dish' = a classic-picker dish tap (freeTextOverride) → copy puts the
+      // line atop each card; 'freetext' = the Tell-me box → copy adds one note
+      // row at the end. (Part B copy behaviour.)
+      setSearchedTermMode(_ft ? (opts?.freeTextOverride ? 'dish' : 'freetext') : null);
+    }
     // v0.61.320 — SINGLE SOURCE OF TRUTH for the search location, and
     // never a silent no-op. Previously this opened with `if (!userLoc)
     // return` — device GPS was the gate. In OTHER mode (foreign city
@@ -2854,13 +2873,19 @@ export default function App() {
     setLoadingReason(lastRunSnap !== null && !dirty ? 'refresh' : 'rotating');
     // v0.61.354 — if a city is previewed, 🔍 COMMITS it as the active search
     // location (and searches there). Reuse onLocationSelect WITHOUT cityPreview
-    // so the full commit runs (anchor + searchCenter + region + server persist
-    // + auto-fire). Otherwise search at the existing confirmed anchor.
+    // so the full commit runs (anchor + searchCenter + region + server persist).
+    // v0.62.x — operator bug: changing the city then tapping 🔍 still searched
+    // the PREVIOUS location. Root cause: v0.62.183 made onLocationSelect
+    // no-auto-fire, so this branch committed the new anchor then `return`ed
+    // WITHOUT searching. 🔍 is an explicit fire, so run the search here at the
+    // just-committed city — passing the anchor EXPLICITLY to dodge the stale-
+    // state race (v0.61.237 lesson; onLocationSelect's setState hasn't flushed).
     if (selectedCityLocation && Number.isFinite(selectedCityLocation.lat) && Number.isFinite(selectedCityLocation.lng)) {
       const sc = selectedCityLocation;
       setSelectedCityLocation(null);
-      onLocationSelect({ lat: sc.lat, lng: sc.lng, label: sc.name || '',
-        ...(Number.isFinite(sc.radiusCapM) && sc.radiusCapM > 0 ? { radiusCapM: sc.radiusCapM } : {}) });
+      const capM = (Number.isFinite(sc.radiusCapM) && sc.radiusCapM > 0) ? { radiusCapM: sc.radiusCapM } : {};
+      onLocationSelect({ lat: sc.lat, lng: sc.lng, label: sc.name || '', ...capM });
+      runSearch(state, { lat: sc.lat, lng: sc.lng, ...capM });
       return;
     }
     runSearch(state);
@@ -3476,6 +3501,16 @@ export default function App() {
               lat={(locationAnchor?.lat ?? searchCenter?.lat ?? userLoc?.lat) ?? null}
               lng={(locationAnchor?.lng ?? searchCenter?.lng ?? userLoc?.lng) ?? null}
             />
+            {/* v0.62.x — operator: tiny ↻ refresh after the weather temp (same
+                size), so a stale webview can be force-reloaded without closing
+                the Mini App. */}
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+              title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+              className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
+            >↻</button>
           </div>
         </div>
         {/* v0.57.9: region toggle on its own row so it's always visible.
@@ -3774,6 +3809,14 @@ export default function App() {
                     : tn('banner.places.many', lang, { n: venues.length })))}
               onSelect={onLocationSelect}
               onSearch={triggerSearch}
+              /* v0.62.x — pulse the 🔍 when criteria changed since the last
+                 search (no auto-fire); the cue clears once a search runs. */
+              searchPending={dirty}
+              /* v0.62.x — feed result venues to the location field's nearby
+                 browser (grouped by precinct/MRT zone; tap a row → anchor + 🔍). */
+              nearbyVenues={!loading && venues.length
+                ? venues.map((v) => ({ name: v.name, area: v.area, lat: v.lat, lng: v.lng, distanceM: v.distanceM }))
+                : null}
               /* v0.62.189 — typing in the field re-arms the 8 s idle-close timer
                  so the editor never closes mid-entry. */
               onActivity={armLocIdleClose}
@@ -3908,6 +3951,24 @@ export default function App() {
         )}
       </header>
 
+      {/* v0.62.x — Search Insights strip: a slim objective read of the current
+          results, directly under the header so it's visible in BOTH the default
+          map/horizontal-drawer view AND the vertical list (the old mount lived
+          inside the vertical panel, which is hidden by default). Behind an
+          ErrorBoundary so a render throw can't white-screen the TMA. Self-hides
+          while loading / 0 results; suppressed while a picker overlay is open. */}
+      {!regionExpanded && !cuisinePickOpen && !classicOpen && (
+        <ErrorBoundary label="InsightStrip">
+          <InsightStrip
+            venues={venues}
+            loading={loading}
+            /* v0.62.x — tapping the hero pick focuses that venue's result card
+               (and surfaces the drawer if it was dismissed). */
+            onSelectVenue={(id) => { setFocusedPlaceId(id); setDrawerDismissed(false); }}
+          />
+        </ErrorBoundary>
+      )}
+
       {/* v0.62.186 — operator (IMG_2507 #5): the standalone "Location staging"
           card that used to sit here (a separate ringed panel below the header)
           was merged UP into the header's liquid-glass mode panel, so ONE glass
@@ -4015,6 +4076,9 @@ export default function App() {
               return { ...p, dishes: [pin, ...dishes] };
             })()}
             lang={lang}
+            /* v0.62.x — operator: show the dish list immediately when the
+               "Pick local classic" dropdown opens (no extra taps). */
+            expanded
             onTryDish={(dish) => {
               setNlText(dish);
               setLastPrompt(dish);
@@ -4085,6 +4149,7 @@ export default function App() {
           nearbyLabel={nearbyFlavours?.single?.label || null}
           nearbyAccent={nearbyFlavours?.single?.accent || null}
           nearbyStrips={nearbyFlavours?.strips || null}
+          dishHints={searchedTerm ? [searchedTerm] : null}
         />
       )}
 
@@ -4406,9 +4471,14 @@ export default function App() {
         {/* v0.61.350 — the Michelin "N more to explore" hint moved INTO
             ResultPanel (rendered below the "· Michelin <country>" line) per
             operator: it belongs below the edition line, not above the card. */}
+        {/* v0.62.x — (Search Insights strip moved OUT of this hidden vertical
+            panel to just under the header, so it's visible in the default map
+            view too.) */}
         <ResultPanel
           venues={venues}
           loading={loading}
+          dishHints={searchedTerm ? [searchedTerm] : null}
+          dishHintMode={searchedTermMode}
           nearbyLabel={nearbyFlavours?.single?.label || null}
           nearbyAccent={nearbyFlavours?.single?.accent || null}
           nearbyStrips={nearbyFlavours?.strips || null}

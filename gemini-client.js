@@ -1866,7 +1866,10 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
         clarify: ''
       };
     }
-    return { intent: 'ambiguous', cuisine: null, searchTerm: '', why: '', clarify: lang === 'fr' ? 'Pouvez-vous préciser ?' : 'Could you tell me more about what you\'re looking for?' };
+    // v0.62.x — no key + no dictionary hit: FAIL OPEN to a dish search on the
+    // raw text (was 'ambiguous' → declined). Discover uses Places, not Gemini,
+    // so the search still works without the classifier.
+    return { intent: 'dish', cuisine: null, searchTerm: String(text || '').trim(), why: '', clarify: '', degraded: true };
   }
   const histLines = (Array.isArray(history) ? history : [])
     .slice(-12)
@@ -1992,15 +1995,21 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
         clarify: ''
       };
     }
-    console.warn(`[Search-Intent] all models + dictionary failed for "${String(text).slice(0, 60)}" — returning ambiguous. lastErr=${lastErr?.message}`);
+    // v0.62.x — FAIL OPEN on a total classifier outage. Previously this
+    // returned 'ambiguous', which the chat handler treats as "decline" — so a
+    // transient Gemini 503 (high demand) silently refused EVERY non-dictionary
+    // food search. Treat an outage as a dish search on the raw text instead:
+    // the worst case is a non-food query slips through during an outage, far
+    // better than blocking all real searches. (A genuine LLM-returned
+    // 'ambiguous' from a SUCCESSFUL classify still declines, as intended.)
+    console.warn(`[Search-Intent] all models + dictionary failed for "${String(text).slice(0, 60)}" — FAILING OPEN to dish search. lastErr=${lastErr?.message}`);
     parsed = {
-      intent: 'ambiguous',
+      intent: 'dish',
       cuisine: null,
-      searchTerm: '',
+      searchTerm: String(text || '').trim(),
       why: '',
-      clarify: lang === 'fr'
-        ? 'Désolé, je n\'ai pas bien compris. Pouvez-vous me donner un nom de plat précis (par exemple : « pad thaï », « goulash ») ou un ingrédient ?'
-        : 'Sorry, I didn\'t catch that. Could you give me a specific dish name (e.g. "pad thai", "goulash") or an ingredient?'
+      clarify: '',
+      degraded: true // classifier outage — caller may show a throttled "busy" notice
     };
   }
   return {

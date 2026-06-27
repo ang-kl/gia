@@ -277,5 +277,92 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
 }
 [data-theme="dark"] .loc-field-surface {
   background: var(--tg-card, #1c1c1f);
-  border-color: color-mix(in srgb, var(--tg-hint, #98989f) 55%, transparent);
+  /* v0.62.x — operator: overall location field border is yellow in dark mode. */
+  border-color: #facc15; /* yellow-400 */
+}
+
+/* v0.62.x — operator: in the "nearby places" list the venue name reads black in
+   light mode and yellow in dark mode (the street/address stays the theme text). */
+.nearby-venue { color: #111827; } /* near-black for light mode */
+[data-theme="dark"] .nearby-venue { color: #facc15; } /* yellow-400 */
+
+/* ==========================================================================
+   Search Insights banner (operator-designed). Full-bleed, squared, left accent
+   bar — deliberately NOT a pill so it never reads as a tappable control. The
+   React mount adds -mx-3/md/lg to bleed to the screen edges past the page pad.
+   ========================================================================== */
+.insight-banner {
+  --ib-tint:   #EAF1FB;
+  --ib-accent: #185FA5;
+  --ib-ink:    var(--tg-theme-text-color, #0A1F38);
+  --ib-muted:  var(--tg-theme-hint-color, #5B6B80);
+  --ib-rule:   rgba(12, 68, 124, 0.20);
+  --ib-dot:    rgba(12, 68, 124, 0.35);
+  --ib-star:   #F59300;
+  --ib-pad-y:  9px;
+  --ib-pad-x:  14px;
+
+  box-sizing: border-box;
+  width: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding: var(--ib-pad-y) var(--ib-pad-x);
+  background: var(--ib-tint);
+  border: 0;
+  border-left: 3px solid var(--ib-accent);
+  border-radius: 0;
+  font-size: 12px;
+  line-height: 1.2;
+  -webkit-font-smoothing: antialiased;
+}
+.insight-banner__mark { width: 15px; height: 15px; flex: 0 0 auto; color: var(--ib-accent); }
+.insight-banner__stats {
+  display: flex; align-items: center; gap: 7px;
+  flex-shrink: 0; white-space: nowrap; color: var(--ib-muted);
+}
+.insight-banner__stats b { color: var(--ib-ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.insight-banner__dot { color: var(--ib-dot); }
+/* v0.62.x — operator: price RANGE replaces the count, in a smaller font. */
+.insight-banner__range { font-size: 0.82em; color: var(--ib-ink); font-variant-numeric: tabular-nums; }
+.insight-banner__rule { width: 1px; height: 14px; flex: 0 0 auto; background: var(--ib-rule); }
+/* hero is a <button> (tappable → focuses the venue's card): reset chrome so it
+   reads like inline text, with a faint press feedback. */
+.insight-banner__hero {
+  display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1 1 auto;
+  background: none; border: 0; padding: 0; margin: 0; font: inherit;
+  text-align: left; cursor: pointer; color: inherit;
+}
+.insight-banner__hero:active { opacity: 0.6; }
+.insight-banner__star { width: 12px; height: 12px; flex: 0 0 auto; color: var(--ib-star); }
+.insight-banner__name {
+  /* v0.62.x — operator: show at least ~30 chars of the venue name before the
+     ellipsis (was truncating early, e.g. "Callie's…"). The meta shrinks first. */
+  flex: 1 1 auto; min-width: 30ch;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-weight: 600; letter-spacing: -0.1px; color: var(--ib-ink);
+}
+.insight-banner__meta {
+  flex: 0 1 auto; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--ib-muted); font-variant-numeric: tabular-nums;
+}
+[data-theme="dark"] .insight-banner {
+  --ib-tint:   #13243B;
+  --ib-accent: #378ADD;
+  --ib-ink:    var(--tg-theme-text-color, #FFFFFF);
+  --ib-muted:  var(--tg-theme-hint-color, #90A4BE);
+  --ib-rule:   rgba(140, 180, 230, 0.26);
+  --ib-dot:    rgba(140, 180, 230, 0.40);
+  --ib-star:   #FF9F0A;
+}
+[data-theme="light"] .insight-banner {
+  --ib-tint:   #EAF1FB;
+  --ib-accent: #185FA5;
+  --ib-ink:    var(--tg-theme-text-color, #0A1F38);
+  --ib-muted:  var(--tg-theme-hint-color, #5B6B80);
+  --ib-rule:   rgba(12, 68, 124, 0.20);
+  --ib-dot:    rgba(12, 68, 124, 0.35);
+  --ib-star:   #F59300;
 }

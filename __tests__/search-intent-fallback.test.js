@@ -126,26 +126,28 @@ describe('classifySearchIntent — robust to model failure', () => {
     expect(out.cuisine).toBe('European');
   });
 
-  it('returns ambiguous (never throws) when models fail AND dictionary misses', async () => {
+  // v0.62.x — FAIL OPEN (was 'ambiguous'/decline): a total classifier outage
+  // must not block real searches, so it returns a dish search on the raw text.
+  it('fails open to a dish search when models fail AND dictionary misses', async () => {
     const factory = () => ({
       getGenerativeModel: () => ({
         generateContent: async () => { throw new Error('total failure'); }
       })
     });
     const out = await gc.classifySearchIntent({ text: 'asdfgh qwerty', _genAIFactory: factory });
-    expect(out.intent).toBe('ambiguous');
-    expect(out.clarify).toBeTruthy();
+    expect(out.intent).toBe('dish');
+    expect(out.searchTerm).toContain('asdfgh qwerty');
   });
 
-  it('returns ambiguous in French when lang=fr and dictionary misses', async () => {
+  it('fails open (dish on raw text) regardless of lang when dictionary misses', async () => {
     const factory = () => ({
       getGenerativeModel: () => ({
         generateContent: async () => { throw new Error('fail'); }
       })
     });
     const out = await gc.classifySearchIntent({ text: 'qwertyuiop', lang: 'fr', _genAIFactory: factory });
-    expect(out.intent).toBe('ambiguous');
-    expect(out.clarify).toMatch(/Désolé|précis/i);
+    expect(out.intent).toBe('dish');
+    expect(out.searchTerm).toContain('qwertyuiop');
   });
 
   it('handles empty-text response by trying next model', async () => {

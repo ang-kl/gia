@@ -30,7 +30,7 @@ const OVERFLOW = [
   { key: 'recommend',   i18n: 'filter.recommend',   icon: '' },
   { key: 'homeBased',   i18n: 'filter.homeBased',   icon: '🏠' }
 ];
-const PRICES = ['$', '$$', '$$$'];
+const PRICES = ['$', '$$', '$$$', '$$$$'];
 
 // v0.61.426 — rating pill. The standard preset floor (matches
 // venue-filters.RATING_FLOOR + rating-pref.DEFAULT_RATING). The pill is
@@ -258,7 +258,7 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
             </span>
           );
         })}
-        <Chip active={moreOpen} onClick={openFilters}
+        <Chip active={moreOpen || (overflowActiveCount + selectedPrices.length) > 0} onClick={openFilters}
           ariaLabel={moreOpen ? tr('filter.closeMore', lang) : tr('filter.openMore', lang)}>
           <span className="mr-0.5" aria-hidden>⚙</span>{lang === 'fr' ? 'Filtres' : 'Filters'}
           {(overflowActiveCount + selectedPrices.length) > 0 && (

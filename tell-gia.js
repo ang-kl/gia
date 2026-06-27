@@ -35,7 +35,19 @@ const CACHE_TTL_S = 60;
 const CACHE_PREFIX = 'tell-gia:v2:';
 
 const FILTER_KEYS = ['newlyOpened', 'openNow', 'halal', 'vegetarian', 'homeBased'];
-const VALID_PRICES = new Set(['$', '$$', '$$$']);
+const VALID_PRICES = new Set(['$', '$$', '$$$', '$$$$']);
+
+// Deterministic price-tier extraction from raw text. The "$" symbol is
+// unambiguous, but the LLM frequently drops a bare "$" (e.g. "french crepe with
+// $"), so we parse it ourselves and override. "$" → ["$"] (tier 1 only), "$$" →
+// ["$","$$"] (tier ≤2), up to "$$$$". Returns null when the text has no "$" run
+// (so it never clobbers prices the LLM inferred from words like "cheap").
+function pricesFromText(text) {
+  const m = String(text || '').match(/\$+/);
+  if (!m) return null;
+  const n = Math.min(m[0].length, 4);
+  return ['$', '$$', '$$$', '$$$$'].slice(0, n);
+}
 
 function buildSystemPrompt(cuisineSlugList) {
   return `You are Gia, a Singapore solo-diner concierge inside a Telegram bot. The user has typed a free-text prompt asking for a meal/restaurant search.
@@ -49,7 +61,7 @@ YOUR JOB: extract structured search parameters from the user's text. Return STRI
     "halal":      <boolean>,           // true if user mentions halal, muslim-friendly
     "vegetarian": <boolean>,           // true if user mentions vegetarian, vegan, veggie
     "homeBased":  <boolean>,           // true if user mentions "home-based", "private dining", "home cooked", "tingkat"
-    "prices":     [<"$" | "$$" | "$$$">, ...]  // price tier subset; "$$ or under" → ["$","$$"]
+    "prices":     [<"$" | "$$" | "$$$" | "$$$$">, ...]  // price tier subset; "$$ or under" → ["$","$$"]; "$$$$" = very expensive / fine dining
   },
   "location_override": "<string>"      // SG location anchor — neighbourhood, road, MRT
                                        // station, mall, or expressway. Empty string if
@@ -166,11 +178,8 @@ function keywordFallback(text, vault) {
   if (/\b(halal)\b/i.test(text)) filters.halal = true;
   if (/\b(vegetarian|vegan|veggie)\b/i.test(text)) filters.vegetarian = true;
   if (/\b(home[-\s]?based|private dining|home[-\s]?cook(ed|ing)?|tingkat|home[-\s]?meal(s)?)\b/i.test(text)) filters.homeBased = true;
-  const priceMatch = text.match(/\$+/);
-  if (priceMatch) {
-    const n = priceMatch[0].length;
-    filters.prices = ['$', '$$', '$$$'].slice(0, n);
-  }
+  const detPrices = pricesFromText(text);
+  if (detPrices) filters.prices = detPrices;
   // No location_override in keyword fallback — would need a curated SG
   // place dictionary. The Claude path covers this; fallback only fires
   // when ANTHROPIC_API_KEY is unset (very rare in prod).
@@ -222,6 +231,11 @@ async function inferTellGia({ text, chatId, redis, vault }) {
     console.warn('[TellGia] Claude call failed; falling back to keywords:', err.message);
     inferred = keywordFallback(cleanText, vault);
   }
+  // v0.62.x — operator: typing a "$" price tier (e.g. "french crepe with $")
+  // returned $$$$ venues because the LLM dropped the bare symbol. The "$" run is
+  // unambiguous, so derive it deterministically and override the LLM's prices.
+  const detPrices = pricesFromText(cleanText);
+  if (detPrices && inferred.filters) inferred.filters.prices = detPrices;
   if (redis && cacheKey) {
     try {
       await redis.setEx(cacheKey, CACHE_TTL_S, JSON.stringify({

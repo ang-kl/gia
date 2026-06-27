@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ResultCard from './ResultCard.jsx';
 import { tg } from '../../api/tg.js';
 import { copyAllToChat as copyAllApi, copyCommandToChat } from '../lib/api.js';
+import { insightLineText } from './InsightStrip.jsx';
+import { likelyServesText } from '../lib/dish-category.js';
 import { useLocale, t as tr, tn } from '../lib/i18n.js';
 import { groupByAwardCity, groupNeedsJumpRow } from '../lib/michelin-city-groups.js';
 
@@ -32,6 +34,8 @@ const PAGE_SIZE = 12;
 
 export default function ResultPanel({
   venues, loading, focusedPlaceId, onCardTap, warmStartSeed, copyState,
+  dishHints = null,
+  dishHintMode = null,
   onPageChange,
   // v0.60.43 — music-player-skip pagination continuity. When the user
   // taps ▶ on the last page of the loaded venues, the panel calls
@@ -173,7 +177,15 @@ export default function ResultPanel({
       await copyAllApi(enriched, lang, {
         cuisines: copyState?.cuisines || [],
         filters: copyState?.filters || {},
-        region: copyState?.region || 'SG'
+        region: copyState?.region || 'SG',
+        // v0.62.x — Search Insights PR3: ride the copied clip with the same
+        // objective line shown in the strip, so a shared search carries it.
+        insightLine: insightLineText(venues, lang),
+        // v0.62.x — Part B: carry the "Likely serves {term} {category}" line into
+        // the copy. 'dish' → server puts it atop each venue block; 'freetext' →
+        // a single note row at the end.
+        dishHint: (Array.isArray(dishHints) && dishHints[0]) ? likelyServesText(dishHints[0], lang) : '',
+        dishHintMode: dishHintMode || 'note',
       });
       setCopied(true);
       setTimeout(() => setCopied(false), 3000);
@@ -535,7 +547,7 @@ export default function ResultPanel({
                     </div>
                   )}
                   {g.venues.map((v, i) => (
-                    <ResultCard key={v.placeId || `${g.city || ''}-${i}`} venue={v} number={rankOf(v)} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} />
+                    <ResultCard key={v.placeId || `${g.city || ''}-${i}`} venue={v} number={rankOf(v)} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} dishHints={dishHints} />
                   ))}
                 </React.Fragment>
               ));
@@ -592,7 +604,7 @@ export default function ResultPanel({
                       {nearbyDividerLabel}
                     </div>
                   )}
-                  <ResultCard venue={v} number={rankOf(v)} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} nearbyLabel={nearbyLabel} nearbyAccent={nearbyAccent} nearbyStrips={nearbyStrips} />
+                  <ResultCard venue={v} number={rankOf(v)} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} nearbyLabel={nearbyLabel} nearbyAccent={nearbyAccent} nearbyStrips={nearbyStrips} dishHints={dishHints} />
                 </React.Fragment>
               );
             });
