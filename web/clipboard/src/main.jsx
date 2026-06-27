@@ -5,6 +5,12 @@ import { applyTelegramTheme, hasInitData } from './lib/tg.js';
 import App from './App.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 
+// v0.62.388 — tell the index.html diagnostic watchdog the bundle actually ran
+// (and which build), so a black screen can be told apart: flag SET = bundle ran
+// but UI failed to mount; flag UNSET after 6s = bundle never executed (stale
+// cache / 404). Must be the first executable line of the module body.
+try { window.__CLIPBOARD_BOOTED__ = __BUILD_VERSION__; } catch { /* noop */ }
+
 applyTelegramTheme();
 
 function Boot() {
