@@ -57,9 +57,31 @@ const DESCRIPTOR_RE = /\b(?:heritage|nostalgic|seasonal|artisanal|regional|degus
 // capture leaked "<venue name> and what" onto a Try line.
 const TRAILING_STOPWORD_RE = /\b(which|that|what|whats|why|how|who|whom|whose|was|were|is|are|had|has|have|from|for|with|of|in|on|at|by|to|but|and|or|than|then|so|too|very|really|just|also|still|even|though|when|while|where|here|there|the|a|an)$/i;
 
+// v0.62.x — operator (screenshot: "Try: Rich"): the review-regex scrape grabbed
+// a sentiment ADJECTIVE off a review ("The ramen was the BEST… Rich, creamy
+// broth") and surfaced it as a dish. A candidate made up ENTIRELY of quality /
+// sentiment words is not a dish name. Whole-candidate test only, so a real dish
+// that merely STARTS with one survives ("Rich Laksa", "Creamy Pasta", "Crispy
+// Duck" all keep their noun).
+const QUALITY_WORDS = new Set([
+  'rich','creamy','nice','good','great','best','amazing','delicious','tasty','yummy',
+  'fresh','authentic','generous','friendly','cozy','cosy','lovely','perfect','excellent',
+  'wonderful','fantastic','huge','big','small','large','hot','cold','warm','sweet','spicy',
+  'savoury','savory','hearty','crispy','crunchy','juicy','tender','flavourful','flavorful',
+  'aromatic','smooth','light','heavy','affordable','cheap','expensive','clean','quiet','busy',
+  'quick','fast','slow','beautiful','pricey','value','quality','popular','famous','iconic',
+  'signature','recommended','must','top','solid','decent','okay','average','classic',
+  'traditional','modern','local','homemade','stunning','incredible','superb','outstanding'
+]);
+function isAllQualityWords(t) {
+  const toks = t.toLowerCase().replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(Boolean);
+  return toks.length > 0 && toks.every((w) => QUALITY_WORDS.has(w));
+}
+
 // True when `s` is a plausible dish / dessert NAME fit for a "Try"
 // line. Length-bounded (3–40 chars), not a bare category word, not a
-// vague marketing-descriptor phrase, not a trailing-stop-word fragment.
+// vague marketing-descriptor phrase, not a trailing-stop-word fragment,
+// not a pure quality-adjective fragment.
 function isDishName(s) {
   if (typeof s !== 'string') return false;
   const t = s.trim();
@@ -67,6 +89,7 @@ function isDishName(s) {
   if (CATEGORY_RE.test(t)) return false;
   if (DESCRIPTOR_RE.test(t)) return false;
   if (TRAILING_STOPWORD_RE.test(t)) return false;
+  if (isAllQualityWords(t)) return false;
   return true;
 }
 
