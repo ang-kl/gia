@@ -98,11 +98,18 @@ function transitBlockHtml(transit) {
   return rows.join('');
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, onMapMove, flyTo, fitPins, onDeselect, blinkOnly = false, fill = false, children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, onMapMove, flyTo, fitPins, onDeselect, onLongPress, blinkOnly = false, fill = false, children }) {
   // v0.62.125 — onDeselect (tap empty map → exit the result carousel) kept in a
   // ref so the long-lived map-click handler always calls the current prop.
   const onDeselectRef = useRef(null);
   useEffect(() => { onDeselectRef.current = onDeselect; }, [onDeselect]);
+  // v0.62.x — operator: LONG-PRESS the map to drop a pin → set location. A held
+  // tap (≥550ms, no drag) routes the click's latLng to onLongPress; a short tap
+  // still deselects. Press timing tracked on the container via DOM events.
+  const onLongPressRef = useRef(null);
+  useEffect(() => { onLongPressRef.current = onLongPress; }, [onLongPress]);
+  const pressStartRef = useRef(0);
+  const pressMovedRef = useRef(false);
   const [lang] = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -337,7 +344,38 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     // v0.62.125 — a tap on the empty map closes the popup AND deselects (exits
     // the result carousel → back to the list). onDeselect is map-click-only, so
     // the in-card ✕ (which also calls closeInfo) doesn't force-exit the carousel.
-    mapRef.current.addListener('click', () => { closeInfo(); onDeselectRef.current?.(); });
+    // v0.62.x — LONG-PRESS to set location: track the press on the container, then
+    // in the click handler route a held (≥550ms, no-drag) click's latLng to
+    // onLongPress instead of deselecting.
+    const el = containerRef.current;
+    if (el) {
+      const MOVE_TOL = 12;
+      const onDown = (e) => {
+        const t = (e.touches && e.touches[0]) || e;
+        pressStartRef.current = Date.now();
+        pressMovedRef.current = false;
+        el._lpX = t.clientX; el._lpY = t.clientY;
+      };
+      const onMove = (e) => {
+        const t = (e.touches && e.touches[0]) || e;
+        if (Math.abs(t.clientX - (el._lpX || 0)) > MOVE_TOL || Math.abs(t.clientY - (el._lpY || 0)) > MOVE_TOL) pressMovedRef.current = true;
+      };
+      el.addEventListener('touchstart', onDown, { passive: true });
+      el.addEventListener('touchmove', onMove, { passive: true });
+      el.addEventListener('mousedown', onDown);
+      el.addEventListener('mousemove', onMove);
+    }
+    mapRef.current.addListener('click', (e) => {
+      closeInfo();
+      const held = Date.now() - (pressStartRef.current || 0);
+      const ll = e && e.latLng;
+      if (held >= 550 && !pressMovedRef.current && ll && onLongPressRef.current) {
+        try { if (navigator.vibrate) navigator.vibrate(15); } catch { /* noop */ }
+        onLongPressRef.current({ lat: ll.lat(), lng: ll.lng() });
+        return;
+      }
+      onDeselectRef.current?.();
+    });
     syncMarkers();
   }
 

@@ -3027,6 +3027,19 @@ export default function App() {
     );
   }, [lang]);
 
+  // v0.62.x — operator: LONG-PRESS the map to drop a pin → set location. Resolve
+  // the pressed point to a real place name (reverse-geocode), commit it as the
+  // anchor + fly there, but DON'T auto-search (parity with the pills — user taps
+  // 🔍). Mirrors pickCurrentLocation, anchored at the pressed coords.
+  const handleMapLongPress = React.useCallback(({ lat, lng }) => {
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    explicitPickRef.current = true;
+    const commit = (label) => onLocationSelect({ lat, lng, label, fly: true, noAutoFire: true });
+    reverseGeocode({ lat, lng })
+      .then((r) => commit((r?.name || '').trim() || t('region.current', lang)))
+      .catch(() => commit(t('region.current', lang)));
+  }, [lang]);
+
   function onLocationSelect(p) {
     if (Number.isFinite(p?.lat) && Number.isFinite(p?.lng)) {
       // v0.62.33 — operator: "i switch from putrajaya to Hanoi, the what to
@@ -4190,6 +4203,8 @@ export default function App() {
           // pickers. The anchor is already committed; nothing fires.
           if (modePeek || regionExpanded) { setModePeek(false); setRegionExpanded(false); }
         }}
+        /* v0.62.x — long-press the map → drop a pin → set location (no auto-search). */
+        onLongPress={handleMapLongPress}
         /* v0.62.138 — horizontal mode: a card tap blinks the pin only (no zoom,
            no info pop-up). Vertical mode keeps the full pop/zoom behaviour. */
         blinkOnly={drawerMode === 'horizontal'}
