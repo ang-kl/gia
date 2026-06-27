@@ -435,6 +435,7 @@ export const IATA_CITIES = Object.freeze([
   { iata: 'PER', name: 'Perth',         country: 'Australia', countryCode: 'AU', lat: -31.9505, lng: 115.8605 },
   { iata: 'ADL', name: 'Adelaide',      country: 'Australia', countryCode: 'AU', lat: -34.9285, lng: 138.6007 },
   { iata: 'OOL', name: 'Gold Coast',    country: 'Australia', countryCode: 'AU', lat: -28.0167, lng: 153.4000 },
+  { iata: 'MCY', name: 'Sunshine Coast', country: 'Australia', countryCode: 'AU', lat: -26.6528, lng: 153.0905 },
   { iata: 'CBR', name: 'Canberra',      country: 'Australia', countryCode: 'AU', lat: -35.2809, lng: 149.1300 },
   { iata: 'CNS', name: 'Cairns',        country: 'Australia', countryCode: 'AU', lat: -16.9186, lng: 145.7781 },
   { iata: 'DRW', name: 'Darwin',        country: 'Australia', countryCode: 'AU', lat: -12.4634, lng: 130.8456 },

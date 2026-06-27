@@ -105,6 +105,7 @@ const _RAW_CENTROIDS = Object.freeze({
   "Perth": {"country":"AU","lat":-31.951109,"lng":115.859961,"zoom":14,"label":"Perth Station","labelLocal":null,"radiusM":40000,"source":"geocode:places-api","fallback":"AU"},
   "Adelaide": {"country":"AU","lat":-34.9209,"lng":138.59679,"zoom":14,"label":"Adelaide Railway Station","labelLocal":null,"radiusM":40000,"source":"geocode:places-api","fallback":"AU"},
   "Gold Coast": {"country":"AU","lat":-28.000163,"lng":153.426734,"zoom":14,"label":"Surfers Paradise Transit Centre Gold Coast","labelLocal":null,"radiusM":40000,"source":"geocode:places-api","fallback":"AU"},
+  "Sunshine Coast": {"country":"AU","lat":-26.6528,"lng":153.0905,"zoom":14,"label":"Maroochydore Sunshine Coast","labelLocal":null,"radiusM":40000,"source":"manual","fallback":"AU"},
   "Cairns": {"country":"AU","lat":-16.925773,"lng":145.77113,"zoom":14,"label":"Cairns Railway Station","labelLocal":null,"radiusM":40000,"source":"geocode:places-api","fallback":"AU"},
   "Hobart": {"country":"AU","lat":-42.885239,"lng":147.32302,"zoom":14,"label":"Hobart Transit Centre","labelLocal":null,"radiusM":40000,"source":"geocode:places-api","fallback":"AU"},
   "Darwin": {"country":"AU","lat":-12.464773,"lng":130.844393,"zoom":14,"label":"Darwin Bus Interchange","labelLocal":null,"radiusM":40000,"source":"geocode:places-api","fallback":"AU"},
@@ -212,7 +213,7 @@ const SPARSE_60KM = new Set([
   // Philippines (resort / spread-out)
   'Tagaytay', 'Davao',
   // Australia (regional)
-  'Cairns', 'Hobart', 'Darwin', 'Gold Coast',
+  'Cairns', 'Hobart', 'Darwin', 'Gold Coast', 'Sunshine Coast',
   // New Zealand (regional / resort)
   'Queenstown', 'Rotorua', 'Taupo', 'Napier', 'Dunedin', 'Tauranga',
   // Korea (island)
