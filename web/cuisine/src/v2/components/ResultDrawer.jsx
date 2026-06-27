@@ -119,7 +119,12 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
        hugged the dock but still left a gap that the 💬/🔍 FABs floated in).
        The FABs are lifted to z-40 in App.jsx so they stay IN FRONT of these
        z-30 cards even as the strip sits lower. */
-    <div className={`fixed inset-x-0 ${hasFilters ? 'bottom-[6rem]' : 'bottom-[4.5rem]'} z-30 px-1 pointer-events-none max-w-[1600px] mx-auto`}>
+    /* v0.62.x — operator (CuisineTMA_UI_Result.png): the Search-Insights strip
+       now sits as a full-width tinted band at the TOP of the dock. The cards
+       float ~2.25rem higher so they rest directly ON the strip (no gap) instead
+       of being covered by it — the card size/content is unchanged, only its
+       bottom anchor lifts to clear the new strip. */
+    <div className={`fixed inset-x-0 ${hasFilters ? 'bottom-[8.25rem]' : 'bottom-[6.75rem]'} z-30 px-1 pointer-events-none max-w-[1600px] mx-auto`}>
       {/* v0.62.141 — operator: the list + vertical/horizontal controls moved to
           the FOOTER (out of the strip). Cards are BOTTOM-aligned (items-end),
           and each is a COMPACT ~5-row scroll panel (card-scroll = visible thin

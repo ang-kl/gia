@@ -60,7 +60,7 @@ const word = (k, lang) => (WORD[k][lang] || WORD[k].en);
 // bar. Compact (panel-header size). Stats are non-interactive; the hero pick IS
 // tappable (onSelectVenue focuses that venue's result card). Light/dark via the
 // existing data-theme.
-export default function InsightStrip({ venues, loading, onSelectVenue, inline = false }) {
+export default function InsightStrip({ venues, loading, onSelectVenue, className }) {
   const [lang] = useLocale();
   if (loading || !Array.isArray(venues) || venues.length === 0) return null;
 
@@ -80,40 +80,8 @@ export default function InsightStrip({ venues, loading, onSelectVenue, inline = 
   if (bestValue) ariaBits.push(`${bestValue.name} ${bestValue.rating.toFixed(1)} ~${money(bestValue.price)} ${word('pp', lang)}`);
   if (!rangeText && !gemCount && !bestValue) return null;
 
-  // v0.62.x — INLINE variant: one slim, centred line that lives BETWEEN the 💬
-  // and 🔍 FABs in the bottom dock. flex-1 + min-w-0 so it claims the gap and
-  // truncates the venue name; pointer-events-none on the wrapper (only the hero
-  // pick re-enables clicks) so it never blocks the result cards above it.
-  if (inline) {
-    return (
-      <div className="pointer-events-none flex-1 min-w-0 flex items-center justify-center gap-1 text-[11px] leading-none text-tg-hint" role="note" aria-label={ariaBits.join(', ')}>
-        {rangeText && <span className="font-semibold text-tg-text whitespace-nowrap">{rangeText}</span>}
-        {gemCount > 0 && (
-          <>
-            {rangeText && <span aria-hidden="true">·</span>}
-            <span className="whitespace-nowrap"><b className="text-tg-text">{gemCount}</b>&nbsp;{word('gems', lang)}</span>
-          </>
-        )}
-        {bestValue && (
-          <>
-            <span aria-hidden="true" className="opacity-40 px-0.5">|</span>
-            <button
-              type="button"
-              className="pointer-events-auto min-w-0 flex items-center gap-0.5 active:scale-95"
-              onClick={() => { if (bestValue.id) onSelectVenue?.(bestValue.id); }}
-              aria-label={`${bestValue.name} — ${bestValue.rating.toFixed(1)}, ~${money(bestValue.price)} ${word('pp', lang)}`}
-            >
-              <span aria-hidden="true" className="text-tg-link">★</span>
-              <span className="truncate font-semibold text-tg-text">{bestValue.name}</span>
-            </button>
-          </>
-        )}
-      </div>
-    );
-  }
-
   return (
-    <div className="insight-banner -mx-3 md:-mx-6 lg:-mx-8" role="note" aria-label={ariaBits.join(', ')}>
+    <div className={`insight-banner ${className ?? '-mx-3 md:-mx-6 lg:-mx-8'}`} role="note" aria-label={ariaBits.join(', ')}>
       {/* magnifier mark */}
       <svg className="insight-banner__mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
         <circle cx="11" cy="11" r="7" />
