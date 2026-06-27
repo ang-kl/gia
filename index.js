@@ -17107,7 +17107,26 @@ async function cacheBotUsername() {
         // advancing and a >15-min idle gap resets the round. A
         // criteria change uses a different hash → empty seen-set →
         // fresh round immediately.
-        const dedupedTop = top;
+        let dedupedTop = top;
+        // v0.62.x — operator: SG local-classic dish tap → HAWKER-FIRST. When the
+        // TMA flags `hawkerFirst` (a "Pick local classic" dish tap in the SG
+        // region), stable-partition this page so hawker-centre / food-court
+        // venues lead, with regular eateries kept as the fallback tail (nothing
+        // is dropped — "try hawker first, then fall back").
+        if (req.body?.hawkerFirst === true && region === 'SG' && Array.isArray(dedupedTop) && dedupedTop.length > 1) {
+          const isHawkerVenue = (v) => {
+            const types = Array.isArray(v?.types) ? v.types : [];
+            if (types.includes('food_court')) return true;
+            const txt = `${v?.name || ''} ${v?.area || ''} ${v?.address || v?.vicinity || ''}`.toLowerCase();
+            return /hawker|food centre|food court|kopitiam|market & food|食阁|熟食中心/.test(txt);
+          };
+          const hawk = [], rest = [];
+          for (const v of dedupedTop) (isHawkerVenue(v) ? hawk : rest).push(v);
+          if (hawk.length && hawk.length < dedupedTop.length) {
+            console.log(`[Cuisine-Search] hawker-first: ${hawk.length} hawker venue(s) ranked ahead of ${rest.length} (SG local-classic dish tap)`);
+            dedupedTop = [...hawk, ...rest];
+          }
+        }
         // v0.62.293 — exact-vs-alternate tagging (restored + extended to combos).
         // SINGLE cuisine: a venue that doesn't match → 'alternate' (renders the
         // "{cuisine} & Nearby Flavours" strip). COMBO (2+): a venue serving ALL
