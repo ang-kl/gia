@@ -7512,6 +7512,24 @@ function escapeHtmlForTelegram(s) {
     .replace(/>/g, '&gt;');
 }
 
+// v0.62.x — operator option 1: a friendly, THROTTLED "AI is busy" notice, shown
+// only when an AI step actually degraded (the search-intent classifier failed
+// open during a Gemini outage). Results still came through; this just reassures
+// + invites a retry for the smarter pass. Throttled to once / 3 min per chat
+// (Redis NX+EX) so it never spams; never throws / never blocks the search.
+async function sendDegradedNotice(redis, chatId, lang) {
+  try {
+    if (redis && redis.isOpen) {
+      const set = await redis.set(`degraded:notice:${chatId}`, '1', { NX: true, EX: 180 });
+      if (set === null) return; // already shown within the last 3 min — stay quiet
+    }
+    const msg = lang === 'fr'
+      ? '⚡ Les suggestions intelligentes de Soleat sont très sollicitées — voici les correspondances directes. Réessayez dans un instant pour plus.'
+      : "⚡ Soleat's smart suggestions are busy right now — showing direct matches. Try again in a moment for more.";
+    await safeSend(chatId, msg);
+  } catch { /* never block the user-facing flow */ }
+}
+
 // v0.62.x — Search Insights PR4: anonymous, aggregate-only demand counter.
 // Fire-and-forget. Stores NO chatID, NO query text, NO individual record — only
 // coarse tallies of "which cuisine, in which ~1km grid cell, at which meal
@@ -11248,6 +11266,9 @@ bot.on('message', async (msg) => {
     // ingredient / tool / venue, so "<cuisine-family> + <food noun>"
     // patterns landed in 'ambiguous' and got declined. The whitelist
     // recognises them deterministically and skips the LLM call.
+    // v0.62.x — set when the intent classifier failed open (Gemini outage). We
+    // still run the search below; afterwards we send a throttled "busy" notice.
+    let classifierDegraded = false;
     if (!disambigDisclosureFT) {
       let bypassFoodGate = false;
       try {
@@ -11262,6 +11283,7 @@ bot.on('message', async (msg) => {
       if (!bypassFoodGate) {
         try {
           const cls = await require('./gemini-client').classifySearchIntent({ text, lang: userLang });
+          if (cls && cls.degraded) classifierDegraded = true;
           if (cls && cls.intent === 'ambiguous') {
             try { require('./freetext-log').logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: 'non-food-declined', resultCount: 0 }); } catch { /* best-effort */ }
             const { t: tGate } = require('./i18n');
@@ -11297,6 +11319,10 @@ bot.on('message', async (msg) => {
     // v0.60.142 — usage tracking (Oversight): a chat free-text dish search.
     try { usageLog.recordSearch(redis, msg.chat.id, { freeText: text, src: 'chat-freetext' }).catch(() => {}); } catch { /* noop */ }
     await runFreeTextSearch(msg.chat.id, resolvedText, { lang: userLang, cuisine: ftCuisineOut, dishLabel: ftDishLabelOut });
+    // v0.62.x — if the AI classifier degraded (fail-open during an outage), the
+    // search above used the raw text instead of the smarter intent. Reassure the
+    // user with a throttled, non-blocking "busy, try again" line.
+    if (classifierDegraded) { try { await sendDegradedNotice(redis, msg.chat.id, userLang); } catch { /* never block */ } }
   } catch (err) {
     console.error('[Error] free-text handler failed:', err.message);
     // v0.60.228 — never end the free-text path in silence. If we had
