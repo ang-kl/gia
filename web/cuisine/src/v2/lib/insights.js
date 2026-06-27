@@ -47,6 +47,15 @@ export function deriveInsights(venues) {
   const medianPrice = priced.length >= MIN_PRICED
     ? { value: median(priced.map((x) => x.mid)), currency: priced[0].cur || null }
     : null;
+  // Price RANGE (min ~ max of midpoints) — shown in the banner instead of count.
+  // Needs ≥2 priced venues; when min===max the caller renders a single figure.
+  const priceRange = priced.length >= 2
+    ? {
+      min: Math.min(...priced.map((x) => x.mid)),
+      max: Math.max(...priced.map((x) => x.mid)),
+      currency: priced[0].cur || null,
+    }
+    : null;
 
   // Best value — highest rating-per-price among venues that have BOTH a rating
   // and a price. Omitted when no venue qualifies.
@@ -73,5 +82,5 @@ export function deriveInsights(venues) {
   const gemCount = list.filter((v) => Number.isFinite(v.rating) && v.rating >= GEM_RATING
     && Number.isFinite(v.userRatingCount) && v.userRatingCount < GEM_REVIEW_CAP).length;
 
-  return { count, medianPrice, bestValue, gemCount };
+  return { count, medianPrice, priceRange, bestValue, gemCount };
 }

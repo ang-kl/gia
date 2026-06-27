@@ -64,15 +64,21 @@ export default function InsightStrip({ venues, loading, onSelectVenue }) {
   const [lang] = useLocale();
   if (loading || !Array.isArray(venues) || venues.length === 0) return null;
 
-  const { count, medianPrice, bestValue, gemCount } = deriveInsights(venues);
+  const { priceRange, bestValue, gemCount } = deriveInsights(venues);
   const sym = currencySymbol(venues);
   const money = (n) => `${sym}${Math.round(n)}`;
+  const rangeText = priceRange
+    ? (Math.round(priceRange.min) === Math.round(priceRange.max)
+      ? money(priceRange.min)
+      : `${money(priceRange.min)} ~ ${Math.round(priceRange.max)}`)
+    : null;
 
   // Accessible summary built from whatever sub-insights are present.
-  const ariaBits = [`${count} ${word('spots', lang)}`];
-  if (medianPrice) ariaBits.push(`${word('med', lang)} ${money(medianPrice.value)}`);
+  const ariaBits = [];
+  if (rangeText) ariaBits.push(rangeText.replace('~', 'to'));
   if (gemCount > 0) ariaBits.push(`${gemCount} ${word('gems', lang)}`);
   if (bestValue) ariaBits.push(`${bestValue.name} ${bestValue.rating.toFixed(1)} ~${money(bestValue.price)} ${word('pp', lang)}`);
+  if (!rangeText && !gemCount && !bestValue) return null;
 
   return (
     <div className="insight-banner -mx-3 md:-mx-6 lg:-mx-8" role="note" aria-label={ariaBits.join(', ')}>
@@ -82,16 +88,10 @@ export default function InsightStrip({ venues, loading, onSelectVenue }) {
         <line x1="21" y1="21" x2="16.65" y2="16.65" />
       </svg>
       <span className="insight-banner__stats">
-        <span><b>{count}</b>&nbsp;{word('spots', lang)}</span>
-        {medianPrice && (
-          <>
-            <span className="insight-banner__dot" aria-hidden="true">·</span>
-            <span>{word('med', lang)}&nbsp;<b>{money(medianPrice.value)}</b></span>
-          </>
-        )}
+        {rangeText && <span className="insight-banner__range">{rangeText}</span>}
         {gemCount > 0 && (
           <>
-            <span className="insight-banner__dot" aria-hidden="true">·</span>
+            {rangeText && <span className="insight-banner__dot" aria-hidden="true">·</span>}
             <span><b>{gemCount}</b>&nbsp;{word('gems', lang)}</span>
           </>
         )}
