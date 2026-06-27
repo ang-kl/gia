@@ -2400,6 +2400,9 @@ export default function App() {
         // Plate dish tap passes freeTextOverride so the dish search fires
         // on the SAME render (state.nlText hasn't committed yet).
         freeText: (typeof opts?.freeTextOverride === 'string' && opts.freeTextOverride.trim()) ? opts.freeTextOverride.trim() : ((typeof nlText === 'string' && nlText.trim()) ? nlText.trim() : undefined),
+        // v0.62.x — operator: a SG "Pick local classic" dish tap asks the server
+        // to rank hawker-centre venues first (then fall back to regular eateries).
+        hawkerFirst: opts?.hawkerFirst === true,
         specialMode: snap.specialMode || null,           // v0.61.126 — Fruits / Durian exclusive mode override
         // v0.61.271 — Phase 3 SSOT: forward state.countryPref so the
         // server uses the user's explicit country pick instead of
@@ -4072,7 +4075,9 @@ export default function App() {
               setPinnedDish(dish);
               setClassicOpen(false);
               setLoadingReason('rotating');
-              runSearch(state, null, { freeTextOverride: dish });
+              // v0.62.x — operator: in SG, a local-classic dish tap should look in
+              // hawker centres first (then fall back to regular eateries).
+              runSearch(state, null, { freeTextOverride: dish, hawkerFirst: state.region === 'SG' });
             }}
           />
         </div>
