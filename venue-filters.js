@@ -109,11 +109,19 @@ function isBuildingItself(rawName) {
   return BUILDING_NAME_PATTERNS.some((re) => re.test(cleaned));
 }
 
+// v0.62.x — generic Google types attached to virtually EVERY place. They must
+// NOT trigger the types[]-array rejection below: Google tags ~all venues
+// (restaurants included) with establishment + point_of_interest, and many real
+// eateries also carry the bare "store". Before v0.62.117 the FanOut venues had
+// no types[] so this never bit; once types[] was surfaced, the array check
+// dropped every result. Keep them droppable only as a venue's PRIMARY type.
+const GENERIC_TYPES = new Set(['point_of_interest', 'establishment', 'store']);
+
 function passesVenueFilter(v) {
   if (!v) return false;
   if (v.businessStatus && v.businessStatus !== 'OPERATIONAL') return false;
   if (v.primaryType && NON_FOOD_TYPES.has(v.primaryType)) return false;
-  if (Array.isArray(v.types) && v.types.some((t) => NON_FOOD_TYPES.has(t))) return false;
+  if (Array.isArray(v.types) && v.types.some((t) => NON_FOOD_TYPES.has(t) && !GENERIC_TYPES.has(t))) return false;
   if (isBuildingItself(v.name)) return false;
   return true;
 }
