@@ -3482,7 +3482,7 @@ export default function App() {
           drop the header's bottom padding + border so the tabs end flush; the
           drawer then cancels the parent gap (-mt-2) and butts directly under the
           active tab → tabs + panel read as ONE folder. */}
-      <header ref={headerRef} className={`sticky top-0 z-30 -mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 pt-2 ${(cuisinePickOpen || classicOpen) ? 'pb-0' : 'pb-2'} flex flex-col gap-1.5 transition-colors ${modePeek ? 'bg-tg-bg shadow-md' : 'bg-tg-bg/90 backdrop-blur shadow-sm'}`}>
+      <header ref={headerRef} className={`sticky top-0 z-30 -mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 pt-2 ${(cuisinePickOpen || classicOpen) ? 'pb-0' : 'pb-2 border-b'} flex flex-col gap-1.5 transition-colors ${modePeek ? 'bg-tg-bg border-tg-border shadow-md' : 'bg-tg-bg/90 backdrop-blur border-tg-border/60 shadow-sm'}`}>
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <img src="soleat-icon.png" alt="soleat" width="24" height="24" className="rounded-full flex-shrink-0" />
