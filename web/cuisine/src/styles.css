@@ -324,6 +324,8 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
 }
 .insight-banner__stats b { color: var(--ib-ink); font-weight: 600; font-variant-numeric: tabular-nums; }
 .insight-banner__dot { color: var(--ib-dot); }
+/* v0.62.x — operator: price RANGE replaces the count, in a smaller font. */
+.insight-banner__range { font-size: 0.82em; color: var(--ib-ink); font-variant-numeric: tabular-nums; }
 .insight-banner__rule { width: 1px; height: 14px; flex: 0 0 auto; background: var(--ib-rule); }
 /* hero is a <button> (tappable → focuses the venue's card): reset chrome so it
    reads like inline text, with a faint press feedback. */
@@ -335,12 +337,15 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
 .insight-banner__hero:active { opacity: 0.6; }
 .insight-banner__star { width: 12px; height: 12px; flex: 0 0 auto; color: var(--ib-star); }
 .insight-banner__name {
-  flex: 0 1 auto; min-width: 0;
+  /* v0.62.x — operator: show at least ~30 chars of the venue name before the
+     ellipsis (was truncating early, e.g. "Callie's…"). The meta shrinks first. */
+  flex: 1 1 auto; min-width: 30ch;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   font-weight: 600; letter-spacing: -0.1px; color: var(--ib-ink);
 }
 .insight-banner__meta {
-  flex: 0 0 auto; white-space: nowrap;
+  flex: 0 1 auto; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   color: var(--ib-muted); font-variant-numeric: tabular-nums;
 }
 [data-theme="dark"] .insight-banner {
