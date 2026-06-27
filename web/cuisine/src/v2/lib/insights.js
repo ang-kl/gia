@@ -60,6 +60,7 @@ export function deriveInsights(venues) {
     if (score > bestScore) {
       bestScore = score;
       bestValue = {
+        id: v.placeId || null, // so the strip can focus this venue's card on tap
         name: v.name || '',
         rating,
         price: mid,
