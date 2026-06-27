@@ -1869,7 +1869,7 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
     // v0.62.x — no key + no dictionary hit: FAIL OPEN to a dish search on the
     // raw text (was 'ambiguous' → declined). Discover uses Places, not Gemini,
     // so the search still works without the classifier.
-    return { intent: 'dish', cuisine: null, searchTerm: String(text || '').trim(), why: '', clarify: '' };
+    return { intent: 'dish', cuisine: null, searchTerm: String(text || '').trim(), why: '', clarify: '', degraded: true };
   }
   const histLines = (Array.isArray(history) ? history : [])
     .slice(-12)
@@ -2008,7 +2008,8 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
       cuisine: null,
       searchTerm: String(text || '').trim(),
       why: '',
-      clarify: ''
+      clarify: '',
+      degraded: true // classifier outage — caller may show a throttled "busy" notice
     };
   }
   return {
