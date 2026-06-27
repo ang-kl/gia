@@ -7,6 +7,13 @@
 import { useEffect, useReducer, useCallback } from 'react';
 import * as api from './api.js';
 
+// v0.62.x — MUST be declared before `initial` (which calls parseRoute() at module
+// load). parseRoute() reads startParamConsumed; with the `let` placed BELOW
+// `initial` it sat in its temporal dead zone, so the very first parseRoute() call
+// threw "Cannot access 'startParamConsumed' before initialization" at eval — the
+// Clipboard black screen (regression since v0.62.330). Hoisted here to fix boot.
+let startParamConsumed = false;
+
 const initial = {
   ready: false,
   error: null,
@@ -27,7 +34,7 @@ const initial = {
 // Consume the start_param EXACTLY ONCE on first parse — afterwards
 // hashchange takes over so navigating away from the shared view doesn't
 // keep snapping back via the stale start_param.
-let startParamConsumed = false;
+// (startParamConsumed is declared above `initial` — see the TDZ note there.)
 
 function parseRoute() {
   if (typeof window === 'undefined') return { kind: 'root' };
