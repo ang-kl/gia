@@ -52,23 +52,26 @@ const WORD = {
   spots: { en: 'spots', fr: 'lieux', id: 'tempat', ru: 'мест', de: 'Orte' },
   med: { en: 'med.', fr: 'méd.', id: 'med.', ru: 'медиана', de: 'Median' },
   pp: { en: 'pp', fr: 'pp', id: 'pp', ru: '/чел', de: 'pP' },
+  gems: { en: 'gems', fr: 'pépites', id: 'permata', ru: 'находок', de: 'Geheimtipps' },
 };
 const word = (k, lang) => (WORD[k][lang] || WORD[k].en);
 
 // v0.62.x — operator-designed "insight banner": full-bleed, squared, left accent
-// bar (deliberately not a pill — never reads as tappable). Light/dark via the
-// existing data-theme. Markup mirrors the operator's .insight-banner spec.
-export default function InsightStrip({ venues, loading }) {
+// bar. Compact (panel-header size). Stats are non-interactive; the hero pick IS
+// tappable (onSelectVenue focuses that venue's result card). Light/dark via the
+// existing data-theme.
+export default function InsightStrip({ venues, loading, onSelectVenue }) {
   const [lang] = useLocale();
   if (loading || !Array.isArray(venues) || venues.length === 0) return null;
 
-  const { count, medianPrice, bestValue } = deriveInsights(venues);
+  const { count, medianPrice, bestValue, gemCount } = deriveInsights(venues);
   const sym = currencySymbol(venues);
   const money = (n) => `${sym}${Math.round(n)}`;
 
   // Accessible summary built from whatever sub-insights are present.
   const ariaBits = [`${count} ${word('spots', lang)}`];
   if (medianPrice) ariaBits.push(`${word('med', lang)} ${money(medianPrice.value)}`);
+  if (gemCount > 0) ariaBits.push(`${gemCount} ${word('gems', lang)}`);
   if (bestValue) ariaBits.push(`${bestValue.name} ${bestValue.rating.toFixed(1)} ~${money(bestValue.price)} ${word('pp', lang)}`);
 
   return (
@@ -86,17 +89,28 @@ export default function InsightStrip({ venues, loading }) {
             <span>{word('med', lang)}&nbsp;<b>{money(medianPrice.value)}</b></span>
           </>
         )}
+        {gemCount > 0 && (
+          <>
+            <span className="insight-banner__dot" aria-hidden="true">·</span>
+            <span><b>{gemCount}</b>&nbsp;{word('gems', lang)}</span>
+          </>
+        )}
       </span>
       {bestValue && (
         <>
           <span className="insight-banner__rule" aria-hidden="true" />
-          <span className="insight-banner__hero">
+          <button
+            type="button"
+            className="insight-banner__hero"
+            onClick={() => { if (bestValue.id) onSelectVenue?.(bestValue.id); }}
+            aria-label={`${bestValue.name} — ${bestValue.rating.toFixed(1)}, ~${money(bestValue.price)} ${word('pp', lang)}`}
+          >
             <svg className="insight-banner__star" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M12 2l2.9 6.26 6.6.55-5 4.32 1.5 6.6L12 17.3 6 19.6l1.5-6.6-5-4.32 6.6-.55z" />
             </svg>
             <span className="insight-banner__name">{bestValue.name}</span>
             <span className="insight-banner__meta">{bestValue.rating.toFixed(1)}&nbsp;·&nbsp;~{money(bestValue.price)}&nbsp;{word('pp', lang)}</span>
-          </span>
+          </button>
         </>
       )}
     </div>
