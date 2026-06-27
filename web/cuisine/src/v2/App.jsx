@@ -2285,11 +2285,21 @@ export default function App() {
   // pick; on mismatch RE-PUSH the pick. Silent (no chat notify, no map
   // move); fire-and-forget; D791 in the console. Only acts while the
   // explicit-pick latch is held, so plain GPS sessions are untouched.
-  async function reassertPickAfterSearch(snap) {
+  async function reassertPickAfterSearch(snap, searched = null) {
     try {
       if (!explicitPickRef.current) return;
       const a = locationAnchorRef.current;
       if (!a || !(a.name || '').trim() || !Number.isFinite(a.lat) || !Number.isFinite(a.lng)) return;
+      // v0.62.x — operator (AU › Canberra reset): only re-push when the live
+      // anchor matches the coords THIS search actually used. If they diverge
+      // (the anchor drifted back to a country capital while the search ran at the
+      // picked city), re-pushing would clobber the server cache with the wrong
+      // city — the Canberra reset. Skip in that case; the searched city stays.
+      if (searched && Number.isFinite(searched.lat) && Number.isFinite(searched.lng)
+          && (Math.abs(searched.lat - a.lat) > 0.01 || Math.abs(searched.lng - a.lng) > 0.01)) {
+        console.log(`[Cuisine-TMA-v2] D791 skip re-push: anchor "${a.name}" (${a.lat.toFixed(3)},${a.lng.toFixed(3)}) ≠ searched (${searched.lat.toFixed(3)},${searched.lng.toFixed(3)}) — avoiding stale-capital clobber`);
+        return;
+      }
       const r = await fetchUserLocation();
       const serverLabel = (r?.label || '').trim();
       if (serverLabel === a.name.trim()) return;   // server agrees — nothing to do
@@ -2755,7 +2765,9 @@ export default function App() {
         });
       }
       // v0.62.34 — D791 post-search location consistency check (see helper).
-      reassertPickAfterSearch(snap);
+      // v0.62.x — pass the SEARCHED center so the helper can skip re-pushing a
+      // drifted anchor (the AU›Canberra reset).
+      reassertPickAfterSearch(snap, center);
     } catch (err) {
       // v0.62.x — 🛑 Stop loading: a user-aborted stream is not an error.
       // Keep whatever base/patched venues already streamed in; just stop.
