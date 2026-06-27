@@ -60,7 +60,7 @@ const word = (k, lang) => (WORD[k][lang] || WORD[k].en);
 // bar. Compact (panel-header size). Stats are non-interactive; the hero pick IS
 // tappable (onSelectVenue focuses that venue's result card). Light/dark via the
 // existing data-theme.
-export default function InsightStrip({ venues, loading, onSelectVenue, className }) {
+export default function InsightStrip({ venues, loading, onSelectVenue, className, inline = false }) {
   const [lang] = useLocale();
   if (loading || !Array.isArray(venues) || venues.length === 0) return null;
 
@@ -79,6 +79,43 @@ export default function InsightStrip({ venues, loading, onSelectVenue, className
   if (gemCount > 0) ariaBits.push(`${gemCount} ${word('gems', lang)}`);
   if (bestValue) ariaBits.push(`${bestValue.name} ${bestValue.rating.toFixed(1)} ~${money(bestValue.price)} ${word('pp', lang)}`);
   if (!rangeText && !gemCount && !bestValue) return null;
+
+  // v0.62.x — INLINE variant: a slim CENTRE pill that lives BETWEEN the 💬 and 🔍
+  // FABs in the bottom dock. Neo-glassmorphism, 75% opaque (bg-tg-card/75 +
+  // liquid-glass), so the map reads faintly through it. flex-1 + min-w-0 to claim
+  // the gap and truncate the venue name; pointer-events-none wrapper (only the
+  // hero pick re-enables clicks) so it never blocks the result cards above.
+  if (inline) {
+    return (
+      <div
+        className="insight-glass pointer-events-none flex-1 min-w-0 mx-1 flex items-center justify-center gap-1.5 rounded-full bg-tg-card/75 liquid-glass border border-tg-border/50 shadow-lg px-3 py-1.5 text-[11px] leading-none text-tg-hint"
+        role="note"
+        aria-label={ariaBits.join(', ')}
+      >
+        {rangeText && <span className="font-semibold text-tg-text whitespace-nowrap">{rangeText}</span>}
+        {gemCount > 0 && (
+          <>
+            {rangeText && <span aria-hidden="true">·</span>}
+            <span className="whitespace-nowrap"><b className="text-tg-text">{gemCount}</b>&nbsp;{word('gems', lang)}</span>
+          </>
+        )}
+        {bestValue && (
+          <>
+            <span aria-hidden="true" className="opacity-40 px-0.5">|</span>
+            <button
+              type="button"
+              className="pointer-events-auto min-w-0 flex items-center gap-0.5 active:scale-95"
+              onClick={() => { if (bestValue.id) onSelectVenue?.(bestValue.id); }}
+              aria-label={`${bestValue.name} — ${bestValue.rating.toFixed(1)}, ~${money(bestValue.price)} ${word('pp', lang)}`}
+            >
+              <span aria-hidden="true" className="text-tg-link">★</span>
+              <span className="truncate font-semibold text-tg-text">{bestValue.name}</span>
+            </button>
+          </>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className={`insight-banner ${className ?? '-mx-3 md:-mx-6 lg:-mx-8'}`} role="note" aria-label={ariaBits.join(', ')}>
