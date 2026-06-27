@@ -3942,7 +3942,13 @@ export default function App() {
           while loading / 0 results; suppressed while a picker overlay is open. */}
       {!regionExpanded && !cuisinePickOpen && !classicOpen && (
         <ErrorBoundary label="InsightStrip">
-          <InsightStrip venues={venues} loading={loading} />
+          <InsightStrip
+            venues={venues}
+            loading={loading}
+            /* v0.62.x — tapping the hero pick focuses that venue's result card
+               (and surfaces the drawer if it was dismissed). */
+            onSelectVenue={(id) => { setFocusedPlaceId(id); setDrawerDismissed(false); }}
+          />
         </ErrorBoundary>
       )}
 
