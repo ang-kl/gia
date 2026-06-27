@@ -858,6 +858,12 @@ export default function App() {
   // change (server caches 24h per grid cell so repeat calls are
   // free).
   const [locationName, setLocationName] = useState('');
+  // v0.62.x — operator (location-display thrash on an Other-city pick): the
+  // header label must FOLLOW THE SEARCH ANCHOR, not the live locationAnchor
+  // (which a focus-refresh / mount cache-sync can overwrite back to a stale
+  // server anchor, e.g. a prior JB "Mid Valley Southkey"). Pinned at search
+  // commit (runSearch) to the anchor's name; immune to the background refresh.
+  const [searchLocName, setSearchLocName] = useState('');
   // v0.62.173 — PR B2. When results are showing, the region pills collapse to a
   // one-line "Set location is: <X>. Click to change" to give the map more room;
   // tapping the line (or this flag) re-expands the pills.
@@ -2288,6 +2294,12 @@ export default function App() {
   }
 
   async function runSearch(snap = state, anchor = null, opts = {}) {
+    // v0.62.x — pin the displayed location name to THIS search's anchor (an
+    // Other-city pick passes anchor.name, e.g. "Sunshine Coast"); cleared for
+    // coordless / current-location searches so the label falls back to the
+    // reverse-geocoded locationName. Makes the header immune to the background
+    // refresh that re-applies a stale server anchor (the location-display thrash).
+    setSearchLocName((anchor && typeof anchor.name === 'string' && anchor.name.trim()) || '');
     // v0.62.x — remember the dish / free-text term this search is FOR, so the
     // result cards + copy can show "Likely serves {term} {dish|dessert|drink}".
     // Cleared for a plain cuisine-chip search (no free text).
@@ -2888,7 +2900,7 @@ export default function App() {
       setSelectedCityLocation(null);
       const capM = (Number.isFinite(sc.radiusCapM) && sc.radiusCapM > 0) ? { radiusCapM: sc.radiusCapM } : {};
       onLocationSelect({ lat: sc.lat, lng: sc.lng, label: sc.name || '', ...capM });
-      runSearch(state, { lat: sc.lat, lng: sc.lng, ...capM });
+      runSearch(state, { lat: sc.lat, lng: sc.lng, name: sc.name || '', ...capM });
       return;
     }
     runSearch(state);
@@ -3541,7 +3553,14 @@ export default function App() {
               // while the precinct is still resolving, show a "pinpointing…"
               // placeholder rather than the country.
               const generic = new Set(['singapore','malaysia','indonesia','thailand','vietnam','japan','korea','south korea','china','taiwan','hong kong','macau','macao','australia','new zealand','brunei','philippines','johor bahru','johor','cities']);
-              const nm = (locationName || '').trim();
+              // v0.62.x — display FOLLOWS THE SEARCH ANCHOR: if the search pinned a
+              // city name (searchLocName) and the live locationName has drifted off it
+              // (a background refresh re-applied a stale server anchor), show the
+              // pinned name. Keep the live one when it's the enriched same-city
+              // ("Sunshine Coast — near …") so we don't lose the landmark detail.
+              const _sln = (searchLocName || '').trim();
+              const _ln = (locationName || '').trim();
+              const nm = (_sln && (!_ln || !_ln.toLowerCase().includes(_sln.toLowerCase()))) ? _sln : _ln;
               return (nm && !generic.has(nm.toLowerCase())) ? nm : (lang === 'fr' ? 'localisation…' : lang === 'id' ? 'menentukan titik…' : lang === 'ru' ? 'определяем точку…' : lang === 'de' ? 'wird lokalisiert…' : 'pinpointing…');
             })()}</span></div>
             {/* v0.62.194 — operator: "Click to change" + "↩ Back to last search area"
