@@ -4769,7 +4769,7 @@ export default function App() {
           floating free-text bar (second-last row, above Edit-search), then the
           2-line footer. */}
       <div
-        className="fixed inset-x-0 bottom-0 z-30 pointer-events-none px-2 flex flex-col gap-[0.1px]"
+        className="fixed inset-x-0 bottom-0 z-30 pointer-events-none px-2 flex flex-col gap-1.5"
         style={{ paddingBottom: 'calc(0.15rem + env(safe-area-inset-bottom, 0px) * 0.5)' }}
       >
         {/* v0.62.192 — operator: the "Reset all" + cuisine/dish chips no longer
