@@ -130,6 +130,7 @@ export const CITIES_BY_COUNTRY = Object.freeze({
     { name: 'Perth',            code: 'PER', lat: -31.9505, lng: 115.8605 },
     { name: 'Adelaide',         code: 'ADL', lat: -34.9285, lng: 138.6007 },
     { name: 'Gold Coast',       code: 'OOL', lat: -28.0167, lng: 153.4000 },
+    { name: 'Sunshine Coast',   code: 'MCY', lat: -26.6528, lng: 153.0905 },
     { name: 'Cairns',           code: 'CNS', lat: -16.9186, lng: 145.7781 }
   ],
   // New Zealand.
