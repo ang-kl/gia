@@ -225,7 +225,10 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
 .folio--manila { gap: 6px; }
 .folio--manila .folio-tab {
   border: 1px solid #d1cec9;
-  border-bottom: none;
+  /* v0.62.x — operator: the INACTIVE tab needs a bottom line so it reads as a
+     closed folder tab resting on the panel (the active tab overrides to none
+     below, so it merges into the open drawer). */
+  border-bottom: 1px solid #d1cec9;
   border-radius: 10px 10px 0 0;
   padding: 7px 14px 8px;
   /* v0.62.263 — operator (IMG_2553): "the panel header should be the same as
@@ -249,6 +252,7 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
      semibold (600) → bold (700). Background stays the demo white (unchanged). */
   font-weight: 700;
   background: #ffffff;                    /* demo active tab merges into white panel */
+  border-bottom: none;                   /* active tab opens INTO the drawer (no seam) */
   transform: translateY(0);
   z-index: 3;
   box-shadow: none;
