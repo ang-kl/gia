@@ -231,6 +231,53 @@ export function showAlert(text) {
   else alert(text);
 }
 
+// v0.62.x — operator (urgent): first-launch location often didn't register
+// ("Allow Once" via the iOS prompt that navigator.geolocation triggers inside
+// the Telegram webview frequently fails to propagate). Telegram's NATIVE
+// LocationManager (Bot API 8.0) is the reliable path — it shows Telegram's own
+// permission flow and returns coords directly. Returns {lat,lng} or null so
+// callers can fall back to navigator.geolocation on older clients / web.
+export function getTelegramLocation() {
+  return new Promise((resolve) => {
+    try {
+      const w = tg();
+      if (!w || typeof w.isVersionAtLeast !== 'function' || !w.isVersionAtLeast('8.0')) { resolve(null); return; }
+      const lm = w.LocationManager;
+      if (!lm || typeof lm.getLocation !== 'function') { resolve(null); return; }
+      let settled = false;
+      const done = (v) => { if (!settled) { settled = true; resolve(v); } };
+      const to = setTimeout(() => done(null), 8000); // never hang the boot
+      const read = () => {
+        try {
+          lm.getLocation((loc) => {
+            clearTimeout(to);
+            const lat = loc && Number(loc.latitude);
+            const lng = loc && Number(loc.longitude);
+            if (Number.isFinite(lat) && Number.isFinite(lng) && !(Math.abs(lat) < 0.001 && Math.abs(lng) < 0.001)) {
+              done({ lat, lng });
+            } else {
+              done(null); // access denied / unavailable → caller falls back
+            }
+          });
+        } catch { clearTimeout(to); done(null); }
+      };
+      if (lm.isInited) read();
+      else lm.init(() => read());
+    } catch { resolve(null); }
+  });
+}
+
+// Open Telegram's native location-access settings (Bot API 8.0). MUST be called
+// from a user gesture. No-op (returns false) on older clients.
+export function openTelegramLocationSettings() {
+  try {
+    const w = tg();
+    const lm = w && typeof w.isVersionAtLeast === 'function' && w.isVersionAtLeast('8.0') ? w.LocationManager : null;
+    if (lm && typeof lm.openSettings === 'function') { lm.openSettings(); return true; }
+  } catch { /* noop */ }
+  return false;
+}
+
 export function requestLocation() {
   // Telegram's WebApp doesn't expose a direct location request as of API
   // v7. Fall back to navigator.geolocation; user gets the OS prompt.

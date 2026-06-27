@@ -38,7 +38,7 @@ import ArrivalPlate from './components/ArrivalPlate.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
 import { useLocale, t, tn } from './lib/i18n.js';
-import { tg, hasInitData } from '../api/tg.js';
+import { tg, hasInitData, getTelegramLocation, openTelegramLocationSettings } from '../api/tg.js';
 import { giaToggleStyle } from './lib/mapOverlays.js';
 
 // v0.61.362 — countries the Cuisine OTHER picker can represent. The
@@ -1184,7 +1184,19 @@ export default function App() {
       return false;
     }
 
-    function tryGps() {
+    async function tryGps() {
+      // v0.62.x — prefer Telegram's native LocationManager (Bot API 8.0); the
+      // webview's navigator.geolocation often drops a first-launch "Allow Once".
+      try {
+        const tgLoc = await getTelegramLocation();
+        if (tgLoc && isValidCoord(tgLoc.lat, tgLoc.lng)) {
+          if (!cancelled) {
+            setUserLoc({ lat: tgLoc.lat, lng: tgLoc.lng });
+            console.log('[Cuisine-TMA-v2] tryGps: SUCCESS via Telegram LocationManager', tgLoc);
+          }
+          return true;
+        }
+      } catch { /* fall through to navigator.geolocation */ }
       return new Promise((resolve) => {
         if (!navigator.geolocation) {
           console.log('[Cuisine-TMA-v2] tryGps: navigator.geolocation unavailable');
@@ -2954,12 +2966,33 @@ export default function App() {
   // serves both. maximumAge:0 forces a fresh fix (never the cached position).
   // Per operator: set + fly only — the user taps 🔍 to search (parity with the
   // SG/JB/Cities pills).
-  const pickCurrentLocation = React.useCallback(() => {
+  const pickCurrentLocation = React.useCallback(async () => {
+    explicitPickRef.current = true;
+    // v0.62.145 — 📍 Current must RESOLVE to a real place name (reverse-geocode),
+    // not anchor under the literal word "Current".
+    const commit = (latitude, longitude) => {
+      const c = (label) => onLocationSelect({ lat: latitude, lng: longitude, label, fly: true, noAutoFire: true });
+      reverseGeocode({ lat: latitude, lng: longitude })
+        .then((r) => c((r?.name || '').trim() || t('region.current', lang)))
+        .catch(() => c(t('region.current', lang)));
+    };
+    // v0.62.x — operator (urgent): prefer Telegram's native LocationManager
+    // (Bot API 8.0). This is a user gesture, so it's the ideal place to trigger
+    // Telegram's own permission flow — far more reliable than the webview's
+    // navigator.geolocation, which often drops a first-launch "Allow Once".
+    try {
+      const tgLoc = await getTelegramLocation();
+      if (tgLoc && Number.isFinite(tgLoc.lat) && Number.isFinite(tgLoc.lng)) {
+        commit(tgLoc.lat, tgLoc.lng);
+        return;
+      }
+    } catch { /* fall through */ }
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      setLocMoveNote({ text: t('region.current.error', lang) });
+      // No native + no browser geolocation: on a Telegram 8.0 client, point the
+      // user at the native settings (gesture-allowed); else show the error.
+      if (!openTelegramLocationSettings()) setLocMoveNote({ text: t('region.current.error', lang) });
       return;
     }
-    explicitPickRef.current = true;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords || {};
@@ -2967,17 +3000,13 @@ export default function App() {
           setLocMoveNote({ text: t('region.current.error', lang) });
           return;
         }
-        // v0.62.145 — operator (recurring): 📍 Current must RESOLVE to a real
-        // place, not anchor under the literal word "Current". Reverse-geocode
-        // the live coords to a building/street/area name and commit THAT as the
-        // anchor label (so the banner + "Anchored at …" + name-resolver all show
-        // the real spot). Fall back to "Current" only if the lookup fails.
-        const commit = (label) => onLocationSelect({ lat: latitude, lng: longitude, label, fly: true, noAutoFire: true });
-        reverseGeocode({ lat: latitude, lng: longitude })
-          .then((r) => commit((r?.name || '').trim() || t('region.current', lang)))
-          .catch(() => commit(t('region.current', lang)));
+        commit(latitude, longitude);
       },
-      () => { setLocMoveNote({ text: t('region.current.error', lang) }); },
+      () => {
+        // Browser denied: on Telegram 8.0 offer the native settings (this is a
+        // gesture), else surface the error.
+        if (!openTelegramLocationSettings()) setLocMoveNote({ text: t('region.current.error', lang) });
+      },
       { enableHighAccuracy: true, maximumAge: 0, timeout: 12000 }
     );
   }, [lang]);
