@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import './styles.css';
 import { applyTelegramTheme, hasInitData } from './lib/tg.js';
 import App from './App.jsx';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
 
 applyTelegramTheme();
 
@@ -26,6 +27,10 @@ function Boot() {
   return <App />;
 }
 
-createRoot(document.getElementById('root')).render(<Boot />);
+createRoot(document.getElementById('root')).render(
+  <ErrorBoundary>
+    <Boot />
+  </ErrorBoundary>
+);
 
 console.log(`[Clipboard-TMA] bundle loaded v${__BUILD_VERSION__} built=${__BUILD_TIME__}`);
