@@ -87,32 +87,39 @@ export default function InsightStrip({ venues, loading, onSelectVenue, className
   // hero pick re-enables clicks) so it never blocks the result cards above.
   if (inline) {
     return (
+      // self-end + -mb-1.5 pulls the pill down to sit FLUSH on the footer (cancels
+      // the dock's gap-1.5), while the 💬/🔍 FABs keep their original centred place.
+      // max-w + overflow-x-auto (no-scrollbar) → a short, tiny-rounded glass pill
+      // that scrolls left/right when the content (full venue name) is wider; no
+      // truncation. pointer-events-auto so it can be scrolled / the hero tapped.
       <div
-        className="insight-glass pointer-events-none flex-1 min-w-0 mx-1 flex items-center justify-center gap-1.5 rounded-full bg-tg-card/75 liquid-glass border border-tg-border/50 shadow-lg px-3 py-1.5 text-[11px] leading-none text-tg-hint"
+        className="insight-glass pointer-events-auto self-end -mb-1.5 max-w-[58%] overflow-x-auto no-scrollbar rounded-md bg-tg-card/75 liquid-glass border border-tg-border/50 shadow-md px-2.5 py-1 text-[11px] leading-none text-tg-hint"
         role="note"
         aria-label={ariaBits.join(', ')}
       >
-        {rangeText && <span className="font-semibold text-tg-text whitespace-nowrap">{rangeText}</span>}
-        {gemCount > 0 && (
-          <>
-            {rangeText && <span aria-hidden="true">·</span>}
-            <span className="whitespace-nowrap"><b className="text-tg-text">{gemCount}</b>&nbsp;{word('gems', lang)}</span>
-          </>
-        )}
-        {bestValue && (
-          <>
-            <span aria-hidden="true" className="opacity-40 px-0.5">|</span>
-            <button
-              type="button"
-              className="pointer-events-auto min-w-0 flex items-center gap-0.5 active:scale-95"
-              onClick={() => { if (bestValue.id) onSelectVenue?.(bestValue.id); }}
-              aria-label={`${bestValue.name} — ${bestValue.rating.toFixed(1)}, ~${money(bestValue.price)} ${word('pp', lang)}`}
-            >
-              <span aria-hidden="true" className="text-tg-link">★</span>
-              <span className="truncate font-semibold text-tg-text">{bestValue.name}</span>
-            </button>
-          </>
-        )}
+        <div className="flex items-center gap-1.5 w-max">
+          {rangeText && <span className="font-semibold text-tg-text whitespace-nowrap">{rangeText}</span>}
+          {gemCount > 0 && (
+            <>
+              {rangeText && <span aria-hidden="true">·</span>}
+              <span className="whitespace-nowrap"><b className="text-tg-text">{gemCount}</b>&nbsp;{word('gems', lang)}</span>
+            </>
+          )}
+          {bestValue && (
+            <>
+              <span aria-hidden="true" className="opacity-40 px-0.5">|</span>
+              <button
+                type="button"
+                className="flex items-center gap-0.5 active:scale-95 whitespace-nowrap"
+                onClick={() => { if (bestValue.id) onSelectVenue?.(bestValue.id); }}
+                aria-label={`${bestValue.name} — ${bestValue.rating.toFixed(1)}, ~${money(bestValue.price)} ${word('pp', lang)}`}
+              >
+                <span aria-hidden="true" className="text-tg-link">★</span>
+                <span className="font-semibold text-tg-text whitespace-nowrap">{bestValue.name}</span>
+              </button>
+            </>
+          )}
+        </div>
       </div>
     );
   }
