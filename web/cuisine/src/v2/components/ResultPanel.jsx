@@ -33,6 +33,7 @@ const PAGE_SIZE = 12;
 
 export default function ResultPanel({
   venues, loading, focusedPlaceId, onCardTap, warmStartSeed, copyState,
+  dishHints = null,
   onPageChange,
   // v0.60.43 — music-player-skip pagination continuity. When the user
   // taps ▶ on the last page of the loaded venues, the panel calls
@@ -539,7 +540,7 @@ export default function ResultPanel({
                     </div>
                   )}
                   {g.venues.map((v, i) => (
-                    <ResultCard key={v.placeId || `${g.city || ''}-${i}`} venue={v} number={rankOf(v)} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} />
+                    <ResultCard key={v.placeId || `${g.city || ''}-${i}`} venue={v} number={rankOf(v)} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} dishHints={dishHints} />
                   ))}
                 </React.Fragment>
               ));
@@ -596,7 +597,7 @@ export default function ResultPanel({
                       {nearbyDividerLabel}
                     </div>
                   )}
-                  <ResultCard venue={v} number={rankOf(v)} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} nearbyLabel={nearbyLabel} nearbyAccent={nearbyAccent} nearbyStrips={nearbyStrips} />
+                  <ResultCard venue={v} number={rankOf(v)} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} nearbyLabel={nearbyLabel} nearbyAccent={nearbyAccent} nearbyStrips={nearbyStrips} dishHints={dishHints} />
                 </React.Fragment>
               );
             });

@@ -916,6 +916,9 @@ export default function App() {
   // v0.62.173 — operator: a dish searched from Local Food Classic is pinned to the
   // FRONT of the plate's picks (1st), so the just-searched dish leads.
   const [pinnedDish, setPinnedDish] = useState(null);
+  // v0.62.x — the dish / free-text term the CURRENT results are for (drives the
+  // "Likely serves {term} {category}" card strip). Set in runSearch.
+  const [searchedTerm, setSearchedTerm] = useState(null);
   useEffect(() => {
     // v0.60.120 — the banner label tracks the *active search location*:
     // the place the user locked in via the Search-criteria builder /
@@ -2284,6 +2287,15 @@ export default function App() {
   }
 
   async function runSearch(snap = state, anchor = null, opts = {}) {
+    // v0.62.x — remember the dish / free-text term this search is FOR, so the
+    // result cards + copy can show "Likely serves {term} {dish|dessert|drink}".
+    // Cleared for a plain cuisine-chip search (no free text).
+    {
+      const _ft = (typeof opts?.freeTextOverride === 'string' && opts.freeTextOverride.trim())
+        ? opts.freeTextOverride.trim()
+        : ((typeof nlText === 'string' && nlText.trim()) ? nlText.trim() : '');
+      setSearchedTerm(_ft || null);
+    }
     // v0.61.320 — SINGLE SOURCE OF TRUTH for the search location, and
     // never a silent no-op. Previously this opened with `if (!userLoc)
     // return` — device GPS was the gate. In OTHER mode (foreign city
@@ -4132,6 +4144,7 @@ export default function App() {
           nearbyLabel={nearbyFlavours?.single?.label || null}
           nearbyAccent={nearbyFlavours?.single?.accent || null}
           nearbyStrips={nearbyFlavours?.strips || null}
+          dishHints={searchedTerm ? [searchedTerm] : null}
         />
       )}
 
@@ -4459,6 +4472,7 @@ export default function App() {
         <ResultPanel
           venues={venues}
           loading={loading}
+          dishHints={searchedTerm ? [searchedTerm] : null}
           nearbyLabel={nearbyFlavours?.single?.label || null}
           nearbyAccent={nearbyFlavours?.single?.accent || null}
           nearbyStrips={nearbyFlavours?.strips || null}
