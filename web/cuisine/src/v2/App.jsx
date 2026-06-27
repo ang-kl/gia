@@ -3951,23 +3951,10 @@ export default function App() {
         )}
       </header>
 
-      {/* v0.62.x — Search Insights strip: a slim objective read of the current
-          results, directly under the header so it's visible in BOTH the default
-          map/horizontal-drawer view AND the vertical list (the old mount lived
-          inside the vertical panel, which is hidden by default). Behind an
-          ErrorBoundary so a render throw can't white-screen the TMA. Self-hides
-          while loading / 0 results; suppressed while a picker overlay is open. */}
-      {!regionExpanded && !cuisinePickOpen && !classicOpen && (
-        <ErrorBoundary label="InsightStrip">
-          <InsightStrip
-            venues={venues}
-            loading={loading}
-            /* v0.62.x — tapping the hero pick focuses that venue's result card
-               (and surfaces the drawer if it was dismissed). */
-            onSelectVenue={(id) => { setFocusedPlaceId(id); setDrawerDismissed(false); }}
-          />
-        </ErrorBoundary>
-      )}
+      {/* v0.62.x — the Search Insights strip moved OUT of here (was a full-bleed
+          white band under the header that ate a row). It now renders as a slim,
+          centred line INSIDE the bottom dock's FAB row, between 💬 and 🔍 (see
+          the composer/FAB block below). */}
 
       {/* v0.62.186 — operator (IMG_2507 #5): the standalone "Location staging"
           card that used to sit here (a separate ringed panel below the header)
@@ -4831,6 +4818,19 @@ export default function App() {
                 aria-label={lang === 'fr' ? 'Saisir un plat' : lang === 'id' ? 'Ketik yang Anda inginkan' : lang === 'ru' ? 'Введите, что хотите' : lang === 'de' ? 'Gericht eingeben' : 'Type what you are craving'}
                 className="pointer-events-auto w-10 h-10 rounded-full bg-tg-card/75 liquid-glass border-2 border-tg-hint/60 shadow-lg flex items-center justify-center text-lg active:scale-95"
               >💬</button>
+              {/* v0.62.x — insight strip relocated here: a slim centred line BETWEEN
+                  the 💬 and 🔍 FABs. pointer-events-none wrapper (only the hero pick
+                  is tappable) so it never blocks the result cards floating above. */}
+              {!regionExpanded && !cuisinePickOpen && !classicOpen && (
+                <ErrorBoundary label="InsightStrip">
+                  <InsightStrip
+                    inline
+                    venues={venues}
+                    loading={loading}
+                    onSelectVenue={(id) => { setFocusedPlaceId(id); setDrawerDismissed(false); }}
+                  />
+                </ErrorBoundary>
+              )}
               <button
                 type="button"
                 onClick={triggerSearch}
