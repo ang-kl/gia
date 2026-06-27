@@ -4059,6 +4059,9 @@ export default function App() {
               return { ...p, dishes: [pin, ...dishes] };
             })()}
             lang={lang}
+            /* v0.62.x — operator: show the dish list immediately when the
+               "Pick local classic" dropdown opens (no extra taps). */
+            expanded
             onTryDish={(dish) => {
               setNlText(dish);
               setLastPrompt(dish);

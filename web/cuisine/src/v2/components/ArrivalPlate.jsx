@@ -97,7 +97,7 @@ function categoriseClassics(flat) {
   return MEAL_BUCKETS.map((b) => ({ ...b, dishes: by[b.key] })).filter((b) => b.dishes.length);
 }
 
-export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
+export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded = false }) {
   const [open, setOpen] = useState(false);
   const [factIdx, setFactIdx] = useState(null);   // index of the open 📜 bubble
   // v0.62.37 — the "More local classics" sub-section (overlay-fed, names only).
@@ -109,7 +109,11 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
   //   2 full      — label + the tap-to-search dish rows + "More classics".
   // So two taps fully expand, and one more tap closes. Separate from `open`,
   // which still drives the cuisine-mode "What to order" banner above.
-  const [geoStage, setGeoStage] = useState(0);
+  // v0.62.x — operator: when shown in the "Pick local classic" dropdown
+  // (expanded), start at FULL (stage 2) so the dish rows appear immediately —
+  // no extra taps. As the passive arrival banner (expanded=false) it stays
+  // collapsed.
+  const [geoStage, setGeoStage] = useState(expanded ? 2 : 0);
   // v0.62.123 — operator: the cuisine-mode "Cuisine:" plate gets the SAME
   // 3-stage toggle the geo plate has (it was still a 2-state `open` — that's
   // why the two-tier collapse "wasn't wired"). 0 collapsed → 1 one-line peek →
@@ -119,7 +123,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish }) {
   // is the active tab (the group whose dishes show in the connected content panel).
   const [activeGroup, setActiveGroup] = useState(0);
   // New city / cuisine → collapse + close any bubble.
-  useEffect(() => { setOpen(false); setGeoStage(0); setCuisineStage(0); setFactIdx(null); setClassicsOpen(false); setActiveGroup(0); }, [plate?.city, plate?.cuisineSlug]);
+  useEffect(() => { setOpen(false); setGeoStage(expanded ? 2 : 0); setCuisineStage(expanded ? 2 : 0); setFactIdx(null); setClassicsOpen(false); setActiveGroup(0); }, [plate?.city, plate?.cuisineSlug, expanded]);
 
   const fr = lang === 'fr';
 
