@@ -299,8 +299,8 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
   --ib-rule:   rgba(12, 68, 124, 0.20);
   --ib-dot:    rgba(12, 68, 124, 0.35);
   --ib-star:   #F59300;
-  --ib-pad-y:  13px;
-  --ib-pad-x:  16px;
+  --ib-pad-y:  9px;
+  --ib-pad-x:  14px;
 
   box-sizing: border-box;
   width: auto;
@@ -313,20 +313,27 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
   border: 0;
   border-left: 3px solid var(--ib-accent);
   border-radius: 0;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.2;
   -webkit-font-smoothing: antialiased;
 }
-.insight-banner__mark { width: 18px; height: 18px; flex: 0 0 auto; color: var(--ib-accent); }
+.insight-banner__mark { width: 15px; height: 15px; flex: 0 0 auto; color: var(--ib-accent); }
 .insight-banner__stats {
   display: flex; align-items: center; gap: 7px;
   flex-shrink: 0; white-space: nowrap; color: var(--ib-muted);
 }
 .insight-banner__stats b { color: var(--ib-ink); font-weight: 600; font-variant-numeric: tabular-nums; }
 .insight-banner__dot { color: var(--ib-dot); }
-.insight-banner__rule { width: 1px; height: 17px; flex: 0 0 auto; background: var(--ib-rule); }
-.insight-banner__hero { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1 1 auto; }
-.insight-banner__star { width: 14px; height: 14px; flex: 0 0 auto; color: var(--ib-star); }
+.insight-banner__rule { width: 1px; height: 14px; flex: 0 0 auto; background: var(--ib-rule); }
+/* hero is a <button> (tappable → focuses the venue's card): reset chrome so it
+   reads like inline text, with a faint press feedback. */
+.insight-banner__hero {
+  display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1 1 auto;
+  background: none; border: 0; padding: 0; margin: 0; font: inherit;
+  text-align: left; cursor: pointer; color: inherit;
+}
+.insight-banner__hero:active { opacity: 0.6; }
+.insight-banner__star { width: 12px; height: 12px; flex: 0 0 auto; color: var(--ib-star); }
 .insight-banner__name {
   flex: 0 1 auto; min-width: 0;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
