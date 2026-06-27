@@ -119,3 +119,33 @@ export function sendData(payload) {
   w.sendData(JSON.stringify(payload));
   return true;
 }
+
+// v0.62.x — Telegram-native location (Bot API 8.0 LocationManager). Reliable
+// where the webview's navigator.geolocation drops a first-launch "Allow Once".
+// Returns {lat,lng} or null so callers fall back. Mirrors the cuisine TMA.
+export function getTelegramLocation() {
+  return new Promise((resolve) => {
+    try {
+      const w = tg();
+      if (!w || typeof w.isVersionAtLeast !== 'function' || !w.isVersionAtLeast('8.0')) { resolve(null); return; }
+      const lm = w.LocationManager;
+      if (!lm || typeof lm.getLocation !== 'function') { resolve(null); return; }
+      let settled = false;
+      const done = (v) => { if (!settled) { settled = true; resolve(v); } };
+      const to = setTimeout(() => done(null), 8000);
+      const read = () => {
+        try {
+          lm.getLocation((loc) => {
+            clearTimeout(to);
+            const lat = loc && Number(loc.latitude);
+            const lng = loc && Number(loc.longitude);
+            if (Number.isFinite(lat) && Number.isFinite(lng) && !(Math.abs(lat) < 0.001 && Math.abs(lng) < 0.001)) done({ lat, lng });
+            else done(null);
+          });
+        } catch { clearTimeout(to); done(null); }
+      };
+      if (lm.isInited) read();
+      else lm.init(() => read());
+    } catch { resolve(null); }
+  });
+}
