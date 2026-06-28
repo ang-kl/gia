@@ -13,6 +13,7 @@ import { useDrag } from './lib/dnd.js';
 import { t } from './lib/i18n.js';
 
 import Shell         from './components/Shell.jsx';
+import FilterSheet   from './components/FilterSheet.jsx';
 import CatchAllStrip from './components/CatchAllStrip.jsx';
 import CabinetGrid   from './components/CabinetGrid.jsx';
 import CabinetView   from './components/CabinetView.jsx';
@@ -28,6 +29,10 @@ export default function App() {
   const [sheet, setSheet] = useState(null);   // 'createCab' | 'addDrawer' | { kind:'amend', card } | { kind:'share', url }
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState('clipboard'); // root-level tab when not inside a cabinet
+  // v0.62.418 — header chips filter the user's OWN saved cards (not new search).
+  const [cuisineFilter, setCuisineFilter] = useState(null); // cuisine string | null
+  const [dishFilter, setDishFilter] = useState(null);       // keyword string | null
+  const [filterSheet, setFilterSheet] = useState(null);     // 'cuisine' | 'dish' | null
   const catchAllCards = state.catchAllCards || [];
 
   // Drag drop handler — fires when a long-press drag lands on a target.
@@ -92,6 +97,41 @@ export default function App() {
   const refresh = () => { reloadState(); if (state.currentCabinetId) loadCabinet(state.currentCabinetId); };
   const backToCabinets = () => { setRoute({ kind: 'root' }); setTab('cabinets'); };
 
+  // ── Card filtering (header chips) ──
+  const cabinetCards = inCabinet
+    ? (state.currentCabinet?.drawers || []).flatMap((d) => d.cards || [])
+    : [];
+  const baseCards = inCabinet ? cabinetCards : catchAllCards;
+  // Cuisine options: distinct cuisines across the visible base set, with counts.
+  const cuisineOptions = (() => {
+    const counts = new Map();
+    for (const c of baseCards) {
+      for (const cu of (c.cuisines || [])) {
+        const v = String(cu || '').trim();
+        if (v) counts.set(v.toLowerCase(), (counts.get(v.toLowerCase()) || 0) + 1);
+      }
+    }
+    return [...counts.entries()].sort((a, b) => b[1] - a[1])
+      .map(([value, count]) => ({ value, label: value, count }));
+  })();
+  const cardMatches = (c) => {
+    if (!c) return false;
+    if (cuisineFilter) {
+      const cs = (c.cuisines || []).map((x) => String(x).toLowerCase());
+      if (!cs.includes(cuisineFilter.toLowerCase())) return false;
+    }
+    if (dishFilter) {
+      const hay = `${c.name || ''} ${c.preview || ''} ${c.body || ''} ${c.note || ''}`.toLowerCase();
+      if (!hay.includes(dishFilter.toLowerCase())) return false;
+    }
+    return true;
+  };
+  const filterActive = !!(cuisineFilter || dishFilter);
+  const filteredCatchAll = filterActive ? catchAllCards.filter(cardMatches) : catchAllCards;
+  const filteredPayload = (inCabinet && filterActive && state.currentCabinet)
+    ? { ...state.currentCabinet, drawers: (state.currentCabinet.drawers || []).map((d) => ({ ...d, cards: (d.cards || []).filter(cardMatches) })) }
+    : state.currentCabinet;
+
   const sheets = renderSheets({ sheet, setSheet, busy, setBusy, lang, state, reloadState, loadCabinet, setRoute });
 
   return (
@@ -102,10 +142,16 @@ export default function App() {
       footerCabinetLabel={footerCabinetLabel}
       onNav={onNav}
       onRefresh={refresh}
+      cuisineFilter={cuisineFilter}
+      dishFilter={dishFilter}
+      onOpenCuisineFilter={() => setFilterSheet('cuisine')}
+      onOpenDishFilter={() => setFilterSheet('dish')}
+      onClearCuisine={() => setCuisineFilter(null)}
+      onClearDish={() => setDishFilter(null)}
     >
       {inCabinet ? (
         <CabinetView
-          payload={state.currentCabinet}
+          payload={filteredPayload}
           lang={lang}
           onBack={backToCabinets}
           onAddDrawer={() => setSheet('addDrawer')}
@@ -139,7 +185,7 @@ export default function App() {
         />
       ) : tab === 'clipboard' ? (
         <CatchAllStrip
-          cards={catchAllCards}
+          cards={filteredCatchAll}
           lang={lang}
           onTapCard={(c) => setSheet({ kind: 'amend', card: c })}
           dragHandle={dragHandle}
@@ -163,6 +209,23 @@ export default function App() {
       )}
       {busy && <div className="fixed bottom-20 right-2 text-[10px] text-tg-hint">…</div>}
       {sheets}
+
+      {filterSheet === 'cuisine' && (
+        <FilterSheet
+          lang={lang} mode="list" title={t('filter.cuisineTitle', lang)}
+          options={cuisineOptions} active={cuisineFilter}
+          onPick={(v) => { setCuisineFilter(v); setFilterSheet(null); }}
+          onClose={() => setFilterSheet(null)}
+        />
+      )}
+      {filterSheet === 'dish' && (
+        <FilterSheet
+          lang={lang} mode="text" title={t('filter.dishTitle', lang)}
+          active={dishFilter}
+          onPick={(v) => { setDishFilter(v); setFilterSheet(null); }}
+          onClose={() => setFilterSheet(null)}
+        />
+      )}
     </Shell>
   );
 }

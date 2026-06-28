@@ -37,6 +37,11 @@ const STRINGS = {
   'menu.transport':         { en: 'Transport',          fr: 'Transport',        id: 'Transportasi',   ru: 'Транспорт',      de: 'Transport' },
   'menu.transportSub':      { en: 'Bus · MRT · walk · drive', fr: 'Bus · MRT · marche', id: 'Bus · MRT · jalan', ru: 'Автобус · метро · пешком', de: 'Bus · MRT · zu Fuß' },
   'settings.soon':          { en: 'Settings — coming soon.', fr: 'Réglages — bientôt.', id: 'Pengaturan — segera.', ru: 'Настройки — скоро.', de: 'Einstellungen — bald.' },
+  'filter.all':             { en: 'All',                fr: 'Tout',             id: 'Semua',          ru: 'Все',            de: 'Alle' },
+  'filter.none':            { en: 'No saved cards to filter yet.', fr: 'Aucune carte à filtrer.', id: 'Belum ada kartu.', ru: 'Нет карточек.', de: 'Noch keine Karten.' },
+  'filter.cuisineTitle':    { en: 'Filter by cuisine',  fr: 'Filtrer par cuisine', id: 'Saring per masakan', ru: 'Фильтр по кухне', de: 'Nach Küche filtern' },
+  'filter.dishTitle':       { en: 'Filter by dish',     fr: 'Filtrer par plat', id: 'Saring per hidangan', ru: 'Фильтр по блюду', de: 'Nach Gericht filtern' },
+  'filter.dishPlaceholder': { en: 'Dish or food, e.g. laksa', fr: 'Plat, ex. laksa', id: 'Hidangan, mis. laksa', ru: 'Блюдо, напр. laksa', de: 'Gericht, z.B. Laksa' },
 
   // ── root ──────────────────────────────────────────────────────────
   'root.catchAll':          { en: 'Catch-all',          fr: 'Tiroir d’accueil', id: 'Tampung',   ru: 'Общая',          de: 'Sammelfach' },
