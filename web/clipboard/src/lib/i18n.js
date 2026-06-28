@@ -82,6 +82,7 @@ const STRINGS = {
 
   // ── cabinet create / edit ─────────────────────────────────────────
   'cabinet.create.title':   { en: 'New cabinet',        fr: 'Nouveau classeur', id: 'Kabinet baru',   ru: 'Новая папка',     de: 'Neues Cabinet' },
+  'cabinet.firstName':      { en: 'My 1st Cabinet',     fr: 'Mon 1er classeur', id: 'Kabinet ke-1 saya', ru: 'Моя 1-я папка', de: 'Mein 1. Cabinet' },
   'cabinet.field.name':     { en: 'Name (e.g. Trip to Tokyo)', fr: 'Nom (ex. Tokyo)', id: 'Nama (mis. Tokyo)', ru: 'Название', de: 'Name' },
   'cabinet.field.emoji':    { en: 'Emoji (optional)',   fr: 'Emoji (option)',   id: 'Emoji',          ru: 'Эмодзи',         de: 'Emoji' },
   'cabinet.field.location': { en: 'Location (optional)', fr: 'Lieu (option)',  id: 'Lokasi',         ru: 'Место',          de: 'Ort' },

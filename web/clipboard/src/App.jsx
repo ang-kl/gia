@@ -297,6 +297,7 @@ function renderSheets({ sheet, setSheet, busy, setBusy, lang, state, reloadState
     return (
       <CreateCabinetSheet
         lang={lang}
+        defaultName={(state.cabinets || []).length === 0 ? t('cabinet.firstName', lang) : ''}
         onCancel={() => setSheet(null)}
         onSave={async (patch) => {
           try {
