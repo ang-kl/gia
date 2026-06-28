@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation, fetchCountryPref, saveCountryPref, fetchRatingPref, saveRatingPref, startSession, backOnePage, recycleSession, iataSnap } from './lib/api.js';
 import { IATA_CITIES, nearestIataCity } from './lib/iata-cities.js';
 import { OTHER_COUNTRIES } from './lib/countries.js';
+import { cuisineName } from './lib/cuisine-i18n.js';
 import { CITIES_BY_COUNTRY, findCity, cityRadiusCapM } from './lib/cities.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
 import { coordsToCountry, isJbCoords } from './lib/coords-to-country.js';
@@ -4007,7 +4008,8 @@ export default function App() {
           const picked = state.cuisines || [];
           const names = picked.map((slug) => {
             if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
-            return cuisineNameBySlug.get(slug) || slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+            const en = cuisineNameBySlug.get(slug) || slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+            return cuisineName(slug, en, lang);   // v0.62.x — localise folio-tab cuisine names
           });
           // v0.62.265 — operator: "Choose your cuisine" truncated in Telegram;
           // the tab holds the cuisine grid AND the filter chips, so the empty
