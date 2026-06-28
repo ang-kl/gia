@@ -71,6 +71,15 @@ const STRINGS = {
   'set.privacy':            { en: 'Privacy',            fr: 'Confidentialité',  id: 'Privasi',        ru: 'Конфиденциальность', de: 'Datenschutz' },
   'set.privacyNote':        { en: 'Your cabinets and cards are stored against your Telegram account only, and expire per the limits above.', fr: 'Vos classeurs et cartes sont liés à votre compte Telegram et expirent selon les limites ci-dessus.', id: 'Kabinet & kartu Anda tersimpan untuk akun Telegram Anda saja, dan kedaluwarsa sesuai batas di atas.', ru: 'Ваши папки и карточки хранятся только для вашего аккаунта Telegram и истекают по лимитам выше.', de: 'Cabinets und Karten sind nur mit deinem Telegram-Konto gespeichert und verfallen gemäß den Limits oben.' },
   'set.about':              { en: 'About',              fr: 'À propos',         id: 'Tentang',        ru: 'О приложении',   de: 'Über' },
+  'set.savedLocation':      { en: 'Saved location',     fr: 'Lieu enregistré',  id: 'Lokasi tersimpan', ru: 'Сохранённое место', de: 'Gespeicherter Ort' },
+  'set.display':            { en: 'Display',            fr: 'Affichage',        id: 'Tampilan',       ru: 'Отображение',    de: 'Anzeige' },
+  'set.secondaryCurrency':  { en: 'Show secondary currency', fr: 'Devise secondaire', id: 'Mata uang sekunder', ru: 'Вторая валюта', de: 'Zweitwährung anzeigen' },
+  'set.quietSort':          { en: 'Quiet-spot first sort', fr: 'Trier les endroits calmes', id: 'Urut tempat sepi dulu', ru: 'Сначала тихие места', de: 'Ruhige zuerst sortieren' },
+  'set.whatsStored':        { en: "What's stored",      fr: 'Données stockées',  id: 'Yang disimpan',  ru: 'Что хранится',   de: 'Was gespeichert wird' },
+  'set.forgetMe':           { en: 'Forget me',          fr: 'M’oublier',        id: 'Lupakan saya',   ru: 'Забыть меня',    de: 'Mich vergessen' },
+  'set.forgetMeValue':      { en: 'wipe all data',      fr: 'tout effacer',     id: 'hapus semua',    ru: 'удалить всё',    de: 'alles löschen' },
+  'set.forgetMeConfirm':    { en: 'Wipe ALL your cabinets and clipboard cards? This cannot be undone.', fr: 'Effacer TOUS vos classeurs et cartes ? Irréversible.', id: 'Hapus SEMUA kabinet & kartu? Tak bisa dibatalkan.', ru: 'Удалить ВСЕ папки и карточки? Необратимо.', de: 'ALLE Cabinets & Karten löschen? Unwiderruflich.' },
+  'drawer.pickSegment':     { en: 'Pick a time-segment', fr: 'Choisir un créneau', id: 'Pilih waktu',   ru: 'Выберите время', de: 'Zeitfenster wählen' },
 
   // ── root ──────────────────────────────────────────────────────────
   'root.catchAll':          { en: 'Catch-all',          fr: 'Tiroir d’accueil', id: 'Tampung',   ru: 'Общая',          de: 'Sammelfach' },

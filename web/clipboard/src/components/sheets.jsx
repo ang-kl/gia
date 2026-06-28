@@ -175,36 +175,32 @@ export function CreateCabinetSheet({ lang, onCancel, onSave, defaultName = '' })
 
 // ── AddDrawerSheet ───────────────────────────────────────────────────
 
-export function AddDrawerSheet({ lang, onCancel, onSave }) {
-  const [segment, setSegment] = useState('lunch');
-  const [dayTag, setDayTag] = useState('');
+export function AddDrawerSheet({ lang, onCancel, onSave, cabinetName = '' }) {
+  // v0.62.427 — sample parity: ‹ back · "Add a drawer · {cabinet}" title ·
+  // "PICK A TIME-SEGMENT" · 2-col grid of circular emoji icons · tap to add · Close ×.
   return (
-    <Sheet onClose={onCancel} title={t('drawer.add.title', lang)}>
-      <div className="mb-2 text-[10px] uppercase tracking-wide text-tg-hint">{t('drawer.field.segment', lang)}</div>
-      <div className="grid grid-cols-3 gap-1.5 mb-3">
+    <Sheet onClose={onCancel}>
+      <div className="flex items-center gap-2 mb-1">
+        <button onClick={onCancel} className="text-tg-accent text-lg leading-none" aria-label={t('chrome.back', lang)}>‹</button>
+        <div className="min-w-0">
+          <div className="text-base font-bold text-tg-text">{t('drawer.add.title', lang)}</div>
+          {cabinetName && <div className="text-[11px] text-tg-hint truncate">🗄️ {cabinetName}</div>}
+        </div>
+      </div>
+      <div className="mb-2 text-[10px] uppercase tracking-wide text-tg-hint">{t('drawer.pickSegment', lang)}</div>
+      <div className="grid grid-cols-2 gap-2">
         {SEGMENTS.map((s) => (
           <button
             key={s.key}
-            onClick={() => setSegment(s.key)}
-            className={`flex flex-col items-center justify-center px-2 py-2 rounded-lg border text-[10px] leading-tight ${segment === s.key ? 'bg-tg-accent/20 border-tg-accent text-tg-accent' : 'border-tg-border text-tg-text'} ${GROUP_CLASS[s.group]}`}
+            onClick={() => onSave({ segment: s.key, dayTag: '' })}
+            className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-tg-border text-[12px] text-tg-text text-left active:scale-[0.99] ${GROUP_CLASS[s.group]}`}
           >
-            <span className="text-base">{s.emoji}</span>
-            <span className="mt-0.5">{t(`seg.${s.key}`, lang)}</span>
+            <span className="flex-shrink-0 w-8 h-8 rounded-full bg-sk-head flex items-center justify-center text-base" aria-hidden>{s.emoji}</span>
+            <span className="font-medium">{t(`seg.${s.key}`, lang)}</span>
           </button>
         ))}
       </div>
-      {field(t('drawer.field.dayTag', lang), (
-        <input className={inputCls} value={dayTag} onChange={(e) => setDayTag(e.target.value.slice(0, 24))} maxLength={24} />
-      ))}
-      <div className="flex gap-2 mt-3">
-        <button onClick={onCancel} className="flex-1 py-2 rounded-lg border border-tg-border text-sm">{t('chrome.cancel', lang)}</button>
-        <button
-          onClick={() => onSave({ segment, dayTag: dayTag.trim() })}
-          className="flex-1 py-2 rounded-lg bg-tg-accent text-tg-accent-text text-sm font-semibold"
-        >
-          {t('chrome.save', lang)}
-        </button>
-      </div>
+      <button onClick={onCancel} className="w-full mt-3 py-2 rounded-lg border border-tg-border text-sm">{t('chrome.close', lang)} ✕</button>
     </Sheet>
   );
 }
