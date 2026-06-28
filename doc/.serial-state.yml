@@ -1,8 +1,8 @@
 counters:
-  commit: 896
-  build: 536
+  commit: 897
+  build: 537
   documents:
-    journal: 778
+    journal: 779
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 28-06 '26 21:10 SGT
-last_anchor_source: sketchbook_first_cabinet_name_2026-06-28_2110 (v0.62.424 — operator: the default first cabinet is named 'My 1st Cabinet'. CreateCabinetSheet gains defaultName prop; App passes cabinet.firstName when cabinets.length===0; FileSheet inline-create prefills the same when no cabinets. i18n cabinet.firstName [en/fr/id/ru/de]. Real vite build OK [50 modules]. journal 777->778, commit 895->896, build 535->536. CONTEXT: mid Sketchbook Cuisine-parity. Pending fix batch C-G [Settings Display+Privacy, DrawerRow restyle, Cabinets badges/counts/touched, footer line-icons, add-drawer sheet polish] + big A [header reuse WeatherBadge/LocaleToggle/LocationField] + B [structured-venue->ResultCard]. PRIOR ANCHOR sketchbook_chrome_parity_2026-06-28_2045)
+last_anchor_time: 28-06 '26 21:35 SGT
+last_anchor_source: sketchbook_card_html_strip_2026-06-28_2135 (v0.62.425 — operator: copy card shows raw HTML; should be like search ResultCard. ROOT CAUSE: clip stores only the copied Telegram message body [HTML markup], no structured venue; VenueCard printed body verbatim. IMMEDIATE FIX: plainText() strips tags + decodes entities for body/preview/label/copy display. NEXT [the real ask, B]: store structured venue on copy-one [index.js ~13326 has the venue obj] + clip-store schema + port Cuisine ResultCard [deps: tg/api/i18n/dish-category/SocialButtons/countries] to render card.venue. esbuild/vite build OK [50 modules]. journal 778->779, commit 896->897, build 536->537. PRIOR ANCHOR sketchbook_first_cabinet_name_2026-06-28_2110)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
