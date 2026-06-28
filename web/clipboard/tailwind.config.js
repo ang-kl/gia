@@ -4,15 +4,22 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Telegram theme params, exposed via CSS vars on <html> at runtime
-        // by tg.js (same scheme as the cuisine TMA).
-        'tg-bg':      'var(--tg-bg, #0e0e10)',
-        'tg-text':    'var(--tg-text, #f5f5f7)',
-        'tg-hint':    'var(--tg-hint, #98989f)',
-        'tg-accent':  'var(--tg-accent, #3390ec)',
-        'tg-accent-text': 'var(--tg-accent-text, #fff)',
-        'tg-card':    'var(--tg-card, #1c1c1f)',
-        'tg-border':  'var(--tg-border, #2a2a2e)',
+        // v0.62.426 — operator: follow the Sketchbook SAMPLE palette exactly
+        // (cobalt + ice-blue), NOT the Telegram theme. The tg-* names are kept
+        // so existing classes don't churn, but now map to the FIXED sample hex
+        // (HANDOFF §2) instead of runtime Telegram vars.
+        'tg-bg':      '#eef2fb',
+        'tg-text':    '#141a36',
+        'tg-hint':    '#7e88a8',
+        'tg-accent':  '#2b59c9',
+        'tg-accent-text': '#ffffff',
+        'tg-card':    '#ffffff',
+        'tg-border':  '#e4e8f2',
+        'sk-soft':    '#eaf0fd',
+        'sk-head':    '#f5f8fd',
+        'sk-pin':     '#d1495b',
+        'sk-star':    '#e0a500',
+        'sk-open':    '#1f8a5b',
         // Slot super-group accents (same palette as the v2 mockup).
         'g-morning':  '#ff9a45',
         'g-midday':   '#3ecf8e',

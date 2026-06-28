@@ -59,7 +59,7 @@ export default function DrawerRow({ drawer, n, totalDrawers, cabinetId, lang, on
           {drawer.location?.label && (
             <span className="text-[10px] text-tg-hint truncate">· 📍 {drawer.location.label}</span>
           )}
-          <span className="ml-auto text-[10px] font-bold bg-white/5 border border-tg-border rounded-full px-2 py-0.5">
+          <span className="ml-auto text-[10px] font-bold bg-sk-soft text-tg-accent rounded-full px-2 py-0.5">
             {(drawer.cards || []).length}
           </span>
           <span className="text-tg-hint text-xs">{open ? '⌄' : '›'}</span>
