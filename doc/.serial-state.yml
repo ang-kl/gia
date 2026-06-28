@@ -1,8 +1,8 @@
 counters:
-  commit: 890
-  build: 530
+  commit: 891
+  build: 531
   documents:
-    journal: 772
+    journal: 773
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 28-06 '26 17:40 SGT
-last_anchor_source: sketchbook_chip_filters_2026-06-28_1740 (v0.62.418 — operator correction: the header chips FILTER the user's saved eatery cards [by cuisine or food dish], NOT deep-link to search new eateries [reverses the P2/v0.62.417 chip behavior + the earlier AskUserQuestion 'deep-link' choice]. Real card shape: cuisines[] tag + text blob, NO structured dishes -> cuisine chip = pick-list from cards' cuisines[]; dish chip = keyword search over card name/preview/body/note. NEW components/FilterSheet.jsx [list + text modes]. Shell chips now driven by props [active styling + ✕ clear]. App.jsx: cuisineFilter/dishFilter state, cuisineOptions from baseCards, cardMatches, filteredCatchAll + filteredPayload [cabinet drawers]. i18n filter.* keys. Real vite build OK [50 modules]. journal 771->772, commit 889->890, build 529->530. NEXT P3 VenueCard, P4 sheets+edit+recents, P5 settings. PRIOR ANCHOR sketchbook_p2_chrome_2026-06-28_1710)
+last_anchor_time: 28-06 '26 18:05 SGT
+last_anchor_source: sketchbook_p3_venuecard_2026-06-28_1805 (v0.62.419 — Sketchbook P3 VenueCard. Real card = copied text + cuisines[] [no structured rating/dishes], so VenueCard is a COLLAPSIBLE card: collapsed [⭐ name · cuisines · 1-line preview · ▸], expanded [full body whitespace-pre-wrap + note + actions Copy/Edit, +File in clipboard ctx / ✕Remove in drawer ctx via optional props]. tap toggles expand, long-press still drags [dragProps on root, stopPropagation on actions]. Copy via navigator.clipboard+haptic. CatchAllStrip switched from horizontal w-200 strip to VERTICAL list [needed for expand + matches prototype]. i18n card.* keys. Real vite build OK [50 modules]. journal 772->773, commit 890->891, build 530->531. NEXT P4 File sheet 2-step + edit pills [Cancel/Save/Delete/Duplicate] + 📍 location & 🧭 Recents, P5 Settings. PRIOR ANCHOR sketchbook_chip_filters_2026-06-28_1740)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00

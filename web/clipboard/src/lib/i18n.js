@@ -42,6 +42,11 @@ const STRINGS = {
   'filter.cuisineTitle':    { en: 'Filter by cuisine',  fr: 'Filtrer par cuisine', id: 'Saring per masakan', ru: 'Фильтр по кухне', de: 'Nach Küche filtern' },
   'filter.dishTitle':       { en: 'Filter by dish',     fr: 'Filtrer par plat', id: 'Saring per hidangan', ru: 'Фильтр по блюду', de: 'Nach Gericht filtern' },
   'filter.dishPlaceholder': { en: 'Dish or food, e.g. laksa', fr: 'Plat, ex. laksa', id: 'Hidangan, mis. laksa', ru: 'Блюдо, напр. laksa', de: 'Gericht, z.B. Laksa' },
+  'card.copy':              { en: '📋 Copy',             fr: '📋 Copier',        id: '📋 Salin',       ru: '📋 Копировать',  de: '📋 Kopieren' },
+  'card.copied':           { en: '✓ Copied',           fr: '✓ Copié',          id: '✓ Tersalin',     ru: '✓ Скопировано',  de: '✓ Kopiert' },
+  'card.edit':              { en: '✎ Edit',             fr: '✎ Modifier',       id: '✎ Ubah',         ru: '✎ Изменить',     de: '✎ Bearbeiten' },
+  'card.file':              { en: '＋ File',            fr: '＋ Classer',       id: '＋ Arsip',       ru: '＋ В папку',      de: '＋ Ablegen' },
+  'card.remove':            { en: '✕ Remove',           fr: '✕ Retirer',        id: '✕ Hapus',        ru: '✕ Убрать',       de: '✕ Entfernen' },
 
   // ── root ──────────────────────────────────────────────────────────
   'root.catchAll':          { en: 'Catch-all',          fr: 'Tiroir d’accueil', id: 'Tampung',   ru: 'Общая',          de: 'Sammelfach' },
