@@ -1,8 +1,8 @@
 counters:
-  commit: 889
-  build: 529
+  commit: 890
+  build: 530
   documents:
-    journal: 771
+    journal: 772
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 28-06 '26 17:10 SGT
-last_anchor_source: sketchbook_p2_chrome_2026-06-28_1710 (v0.62.417 — Sketchbook P2 chrome. NEW components/Shell.jsx [sticky header: hamburger+☼logo+Sketchbook·{cabinet}+refresh+filter chips; fixed 4-tab footer Clipboard/{default cabinet}/Cabinets/Settings; hamburger Switch-App drawer Cuisine/Hawker/Transport] using tg-* theme tokens [HANDOFF §2-3], filter chips + switch-app deep-link via new tg.openMiniApp [same-origin /app/*]. App.jsx rewritten: 4-tab routing [tab state + route], footer tab2 opens defaultCabinetId, shared-link still full-screen no-chrome. state.js tracks defaultCabinetId. NEW SettingsView stub [P5]. i18n +chrome/nav/menu keys en/fr/id/ru/de. Prototype weather+device-location readouts OMITTED [no real source, avoid fabrication]. esbuild OK x6. journal 770->771, commit 888->889, build 528->529. NEXT P3 VenueCard classic, P4 sheets+edit+recents, P5 settings. PRIOR ANCHOR sketchbook_p1_backend_2026-06-28_1630)
+last_anchor_time: 28-06 '26 17:40 SGT
+last_anchor_source: sketchbook_chip_filters_2026-06-28_1740 (v0.62.418 — operator correction: the header chips FILTER the user's saved eatery cards [by cuisine or food dish], NOT deep-link to search new eateries [reverses the P2/v0.62.417 chip behavior + the earlier AskUserQuestion 'deep-link' choice]. Real card shape: cuisines[] tag + text blob, NO structured dishes -> cuisine chip = pick-list from cards' cuisines[]; dish chip = keyword search over card name/preview/body/note. NEW components/FilterSheet.jsx [list + text modes]. Shell chips now driven by props [active styling + ✕ clear]. App.jsx: cuisineFilter/dishFilter state, cuisineOptions from baseCards, cardMatches, filteredCatchAll + filteredPayload [cabinet drawers]. i18n filter.* keys. Real vite build OK [50 modules]. journal 771->772, commit 889->890, build 529->530. NEXT P3 VenueCard, P4 sheets+edit+recents, P5 settings. PRIOR ANCHOR sketchbook_p2_chrome_2026-06-28_1710)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
