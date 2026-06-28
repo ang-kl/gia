@@ -20,7 +20,7 @@ import CabinetView   from './components/CabinetView.jsx';
 import SettingsView  from './components/SettingsView.jsx';
 import SharedView    from './components/SharedView.jsx';
 import {
-  CreateCabinetSheet, AddDrawerSheet, AmendCardSheet, ShareDrawerSheet
+  CreateCabinetSheet, AddDrawerSheet, AmendCardSheet, ShareDrawerSheet, FileSheet
 } from './components/sheets.jsx';
 
 export default function App() {
@@ -33,6 +33,7 @@ export default function App() {
   const [cuisineFilter, setCuisineFilter] = useState(null); // cuisine string | null
   const [dishFilter, setDishFilter] = useState(null);       // keyword string | null
   const [filterSheet, setFilterSheet] = useState(null);     // 'cuisine' | 'dish' | null
+  const [fileCard, setFileCard] = useState(null);           // v0.62.420 — card being filed
   const catchAllCards = state.catchAllCards || [];
 
   // Drag drop handler — fires when a long-press drag lands on a target.
@@ -188,6 +189,7 @@ export default function App() {
           cards={filteredCatchAll}
           lang={lang}
           onTapCard={(c) => setSheet({ kind: 'amend', card: c })}
+          onFileCard={(c) => setFileCard(c)}
           dragHandle={dragHandle}
           draggingCardId={dragging?.cardId}
         />
@@ -224,6 +226,43 @@ export default function App() {
           active={dishFilter}
           onPick={(v) => { setDishFilter(v); setFilterSheet(null); }}
           onClose={() => setFilterSheet(null)}
+        />
+      )}
+
+      {fileCard && (
+        <FileSheet
+          card={fileCard}
+          cabinets={state.cabinets}
+          lang={lang}
+          getCabinet={(cabId) => api.getCabinet(cabId)}
+          onCreateCabinet={async (name) => {
+            const r = await api.createCabinet({ name });
+            await reloadState();
+            return r?.cabinet || null;
+          }}
+          onPlaceExisting={async (cabId, idx) => {
+            try {
+              setBusy(true);
+              await api.placeCard(fileCard.cardId, cabId, idx);
+              setFileCard(null);
+              await reloadState();
+              if (state.currentCabinetId) await loadCabinet(state.currentCabinetId);
+            } catch (err) { alert(err.message); }
+            finally { setBusy(false); }
+          }}
+          onPlaceNewDrawer={async (cabId, segment) => {
+            try {
+              setBusy(true);
+              const r = await api.addDrawer(cabId, { segment });
+              const idx = Number.isInteger(r?.index) ? r.index : 0;
+              await api.placeCard(fileCard.cardId, cabId, idx);
+              setFileCard(null);
+              await reloadState();
+              if (state.currentCabinetId) await loadCabinet(state.currentCabinetId);
+            } catch (err) { alert(err.message); }
+            finally { setBusy(false); }
+          }}
+          onClose={() => setFileCard(null)}
         />
       )}
     </Shell>

@@ -47,6 +47,13 @@ const STRINGS = {
   'card.edit':              { en: '✎ Edit',             fr: '✎ Modifier',       id: '✎ Ubah',         ru: '✎ Изменить',     de: '✎ Bearbeiten' },
   'card.file':              { en: '＋ File',            fr: '＋ Classer',       id: '＋ Arsip',       ru: '＋ В папку',      de: '＋ Ablegen' },
   'card.remove':            { en: '✕ Remove',           fr: '✕ Retirer',        id: '✕ Hapus',        ru: '✕ Убрать',       de: '✕ Entfernen' },
+  'file.title':             { en: 'File card',          fr: 'Classer la carte', id: 'Arsipkan kartu', ru: 'В папку',         de: 'Karte ablegen' },
+  'file.pickCabinet':       { en: 'Pick a cabinet',     fr: 'Choisir un classeur', id: 'Pilih kabinet', ru: 'Выберите папку', de: 'Cabinet wählen' },
+  'file.newCabinet':        { en: '＋ New cabinet',     fr: '＋ Nouveau classeur', id: '＋ Kabinet baru', ru: '＋ Новая папка', de: '＋ Neues Cabinet' },
+  'file.pickDrawer':        { en: 'Pick a drawer, or add one',  fr: 'Choisir un tiroir, ou en ajouter', id: 'Pilih laci, atau tambah', ru: 'Выберите ящик или добавьте', de: 'Fach wählen oder hinzufügen' },
+  'file.newDrawer':         { en: 'New drawer',         fr: 'Nouveau tiroir',   id: 'Laci baru',      ru: 'Новый ящик',      de: 'Neues Fach' },
+  'file.back':              { en: '‹ Back',             fr: '‹ Retour',         id: '‹ Kembali',      ru: '‹ Назад',        de: '‹ Zurück' },
+  'file.filed':             { en: '✓ Filed',            fr: '✓ Classé',         id: '✓ Diarsipkan',   ru: '✓ Готово',       de: '✓ Abgelegt' },
 
   // ── root ──────────────────────────────────────────────────────────
   'root.catchAll':          { en: 'Catch-all',          fr: 'Tiroir d’accueil', id: 'Tampung',   ru: 'Общая',          de: 'Sammelfach' },

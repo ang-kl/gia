@@ -4,7 +4,7 @@ import React from 'react';
 import VenueCard from './VenueCard.jsx';
 import { t } from '../lib/i18n.js';
 
-export default function CatchAllStrip({ cards, lang, onTapCard, dragHandle, draggingCardId }) {
+export default function CatchAllStrip({ cards, lang, onTapCard, onFileCard, dragHandle, draggingCardId }) {
   return (
     <section>
       <div className="flex items-end gap-2 mb-1.5 px-1">
@@ -26,6 +26,7 @@ export default function CatchAllStrip({ cards, lang, onTapCard, dragHandle, drag
               card={c}
               context="clipboard"
               onTap={() => onTapCard?.(c)}
+              onFile={() => onFileCard?.(c)}
               dragProps={dragHandle({ cardId: c.cardId, label: c.name || c.preview || '📋' })}
               dimmed={draggingCardId === c.cardId}
             />
