@@ -28,14 +28,17 @@
 //   card_locs:<chatId>:<cardId>      SET   "{cabId}:{n}" — inverse index
 //                                          maintained alongside placements
 //
-// ── Cascade-delete rules (operator-locked) ───────────────────────────
-// When a cabinet OR a drawer is deleted, walk its cardIds. For each:
+// ── Cascade-delete rules ─────────────────────────────────────────────
+// v0.62.416 AU-7 amendment — operator reversed the orphan rule (HANDOFF §5:
+// "delete drawer/cabinet → its venueIds return to the Clipboard"). PRIOR rule
+// (superseded, kept verbatim): "4. Else → softDeleteCard (drop the HASH)."
+// CURRENT rule, when a cabinet OR drawer is deleted, walk its cardIds; for each:
 //   1. Remove the "{cabId}:{n}" entry from card_locs.
 //   2. If card_locs still has any entry → card stays (other placement
 //      survives + recompute TTL).
-//   3. Else if card.favourite === '1' → card stays in catch-all
-//      (recompute TTL → PERSIST).
-//   4. Else → softDeleteCard (drop the HASH).
+//   3. Else → returnToClipboard(card): re-add to the catch-all clip list
+//      (dedupe, cap 50) + recompute TTL (favourite → PERSIST, else 30-day).
+//      Nothing is hard-deleted by a cascade any more.
 //
 // All multi-step mutations use MULTI/EXEC so a partial failure can't
 // leave card_locs pointing at a drawer that no longer exists.
@@ -46,6 +49,7 @@ const {
   getCardById,
   recomputeCardTtl,
   softDeleteCard,
+  returnToClipboard,
   TTL_PLACED_S
 } = require('./clip-store.js');
 const crypto = require('crypto');
@@ -81,6 +85,7 @@ function cabHashKey(chatId, cabId)        { return `${CAB_HASH_PREFIX}${chatId}:
 function drMetaKey(chatId, cabId)         { return `${cabHashKey(chatId, cabId)}${DR_META_SUFFIX}`; }
 function drListKey(chatId, cabId, n)      { return `${cabHashKey(chatId, cabId)}${DR_LIST_SUFFIX}${n}`; }
 function locsTag(cabId, n)                { return `${cabId}:${n}`; }
+function cabDefaultKey(chatId)            { return `${CAB_INDEX_PREFIX}${chatId}:default`; }   // v0.62.416 STRING
 
 function clampString(s, max) {
   return typeof s === 'string'
@@ -197,14 +202,32 @@ async function deleteCabinet(redis, chatId, cabId) {
     if (!exists) return { ok: false, error: 'not-found' };
     // Walk every drawer, cascade-handle each card.
     const drawers = await readDrawers(redis, chatId, cabId);
+    let returned = 0;
     for (let i = 0; i < drawers.length; i++) {
-      await cascadeRemoveDrawerCards(redis, chatId, cabId, i);
+      returned += await cascadeRemoveDrawerCards(redis, chatId, cabId, i);
       await redis.del(drListKey(chatId, cabId, i)).catch(() => {});
     }
     await redis.del(drMetaKey(chatId, cabId)).catch(() => {});
     await redis.del(cabHashKey(chatId, cabId)).catch(() => {});
     await redis.zRem(cabIndexKey(chatId), cabId).catch(() => {});
-    return { ok: true };
+    // v0.62.416 — if the deleted cabinet was the default, reassign to the first
+    // remaining cabinet (spec: "deleting the default reassigns to the first
+    // remaining"); clear the key when none remain.
+    let reassignedDefault = null;
+    try {
+      const def = await redis.get(cabDefaultKey(chatId));
+      if (def === cabId) {
+        const remaining = await redis.zRange(cabIndexKey(chatId), 0, -1, { REV: true });
+        if (remaining.length) {
+          await redis.set(cabDefaultKey(chatId), remaining[0]);
+          await redis.expire(cabDefaultKey(chatId), TTL_PLACED_S);
+          reassignedDefault = remaining[0];
+        } else {
+          await redis.del(cabDefaultKey(chatId)).catch(() => {});
+        }
+      }
+    } catch { /* default reassignment is non-fatal */ }
+    return { ok: true, returned, reassignedDefault };
   } catch (err) {
     console.warn('[Clipboard-Store] deleteCabinet failed:', err.message);
     return { ok: false, error: 'redis-failure' };
@@ -288,7 +311,7 @@ async function deleteDrawer(redis, chatId, cabId, drawerIdx) {
     const mk = drMetaKey(chatId, cabId);
     const raw = await redis.lIndex(mk, drawerIdx);
     if (!raw) return { ok: false, error: 'not-found' };
-    await cascadeRemoveDrawerCards(redis, chatId, cabId, drawerIdx);
+    const returned = await cascadeRemoveDrawerCards(redis, chatId, cabId, drawerIdx);
     await redis.del(drListKey(chatId, cabId, drawerIdx)).catch(() => {});
     // Remove the metadata entry by sentinel + LREM.
     const SENTINEL = `__drawer_deleted__:${cabId}:${drawerIdx}`;
@@ -298,7 +321,7 @@ async function deleteDrawer(redis, chatId, cabId, drawerIdx) {
     // for any drawer that moved down by 1.
     await reindexDrawersAfterDelete(redis, chatId, cabId, drawerIdx);
     await touchCabinet(redis, chatId, cabId);
-    return { ok: true };
+    return { ok: true, returned };
   } catch (err) {
     console.warn('[Clipboard-Store] deleteDrawer failed:', err.message);
     return { ok: false, error: 'redis-failure' };
@@ -379,14 +402,16 @@ async function unplaceCard(redis, chatId, cardId, cabId, drawerIdx) {
 async function cascadeRemoveDrawerCards(redis, chatId, cabId, drawerIdx) {
   const dk = drListKey(chatId, cabId, drawerIdx);
   const cardIds = await redis.lRange(dk, 0, -1).catch(() => []);
+  let returned = 0;   // v0.62.416 — cards sent back to the catch-all clipboard
   for (const cardId of cardIds) {
     try {
       await redis.sRem(locsKey(chatId, cardId), locsTag(cabId, drawerIdx));
       const remaining = await redis.sCard(locsKey(chatId, cardId));
-      const fav = await redis.hGet(cardKey(chatId, cardId), 'favourite');
-      if (remaining === 0 && fav !== '1') {
-        // Cascade-delete the card record itself.
-        await softDeleteCard(redis, chatId, cardId);
+      if (remaining === 0) {
+        // v0.62.416 — orphaned card RETURNS to the clipboard (was: soft-delete
+        // for non-favourites). returnToClipboard recomputes the TTL, so a
+        // favourite still PERSISTs and a plain card gets the 30-day catch-all TTL.
+        if (await returnToClipboard(redis, chatId, cardId)) returned++;
       } else {
         await recomputeCardTtl(redis, chatId, cardId);
       }
@@ -394,6 +419,7 @@ async function cascadeRemoveDrawerCards(redis, chatId, cabId, drawerIdx) {
       console.warn('[Clipboard-Store] cascade card failed:', err.message);
     }
   }
+  return returned;
 }
 
 // After a drawer is deleted, every higher-indexed drawer in the same
@@ -448,6 +474,82 @@ async function getDrawerCards(redis, chatId, cabId, drawerIdx) {
   }
 }
 
+// ── Default cabinet (v0.62.416) ──────────────────────────────────────
+// One cabinet per user can be the "default" — it drives footer tab 2 in the
+// TMA. Stored as a STRING key (cabId). getDefaultCabinetId validates the cabinet
+// still exists (lazy-clears a stale pointer).
+
+async function getDefaultCabinetId(redis, chatId) {
+  if (!redis || !chatId) return null;
+  try {
+    if (!redis.isOpen) await redis.connect();
+    const id = await redis.get(cabDefaultKey(chatId));
+    if (!id) return null;
+    if (await redis.exists(cabHashKey(chatId, id))) return id;
+    await redis.del(cabDefaultKey(chatId)).catch(() => {});   // stale → clear
+    return null;
+  } catch (err) {
+    console.warn('[Clipboard-Store] getDefaultCabinetId failed:', err.message);
+    return null;
+  }
+}
+
+async function setDefaultCabinet(redis, chatId, cabId) {
+  if (!redis || !chatId || !cabId) return { ok: false, error: 'missing-args' };
+  try {
+    if (!redis.isOpen) await redis.connect();
+    if (!(await redis.exists(cabHashKey(chatId, cabId)))) return { ok: false, error: 'not-found' };
+    await redis.set(cabDefaultKey(chatId), cabId);
+    await redis.expire(cabDefaultKey(chatId), TTL_PLACED_S);
+    return { ok: true, defaultCabinetId: cabId };
+  } catch (err) {
+    console.warn('[Clipboard-Store] setDefaultCabinet failed:', err.message);
+    return { ok: false, error: 'redis-failure' };
+  }
+}
+
+// ── Duplicate (v0.62.416) ────────────────────────────────────────────
+// Copy a cabinet (name + " copy", emoji, location, dates) with all its drawers
+// and their card placements; or copy a single drawer within a cabinet. Cards
+// are shared by id (a card may live in many drawers), so placeCard just adds the
+// new placement tag. Respects the per-user cabinet cap and per-cabinet drawer cap.
+
+async function duplicateCabinet(redis, chatId, cabId) {
+  if (!redis || !chatId || !cabId) return { ok: false, error: 'missing-args' };
+  const src = await getCabinet(redis, chatId, cabId);
+  if (!src) return { ok: false, error: 'not-found' };
+  const created = await createCabinet(redis, chatId, {
+    name: clampString(`${src.name} copy`, MAX_NAME_CHARS),
+    emoji: src.emoji, location: src.location,
+    dateStart: src.dateStart, dateEnd: src.dateEnd
+  });
+  if (!created.ok) return created;            // e.g. cap-cabinets
+  const newCabId = created.cabinet.cabId;
+  const drawers = await readDrawers(redis, chatId, cabId);
+  for (let i = 0; i < drawers.length; i++) {
+    const d = drawers[i];
+    const add = await addDrawer(redis, chatId, newCabId, { segment: d.segment, dayTag: d.dayTag, location: d.location });
+    if (!add.ok) continue;
+    const cardIds = await redis.lRange(drListKey(chatId, cabId, i), 0, -1).catch(() => []);
+    for (const cardId of cardIds) await placeCard(redis, chatId, cardId, newCabId, add.index);
+  }
+  return { ok: true, cabinet: created.cabinet };
+}
+
+async function duplicateDrawer(redis, chatId, cabId, drawerIdx) {
+  if (!redis || !chatId || !cabId || !Number.isInteger(drawerIdx) || drawerIdx < 0) {
+    return { ok: false, error: 'missing-args' };
+  }
+  const drawers = await readDrawers(redis, chatId, cabId);
+  if (drawerIdx >= drawers.length) return { ok: false, error: 'not-found' };
+  const d = drawers[drawerIdx];
+  const add = await addDrawer(redis, chatId, cabId, { segment: d.segment, dayTag: d.dayTag, location: d.location });
+  if (!add.ok) return add;                    // e.g. cap-drawers
+  const cardIds = await redis.lRange(drListKey(chatId, cabId, drawerIdx), 0, -1).catch(() => []);
+  for (const cardId of cardIds) await placeCard(redis, chatId, cardId, cabId, add.index);
+  return { ok: true, index: add.index, drawer: d };
+}
+
 module.exports = {
   // Cabinets
   listCabinets,
@@ -455,6 +557,10 @@ module.exports = {
   createCabinet,
   updateCabinet,
   deleteCabinet,
+  getDefaultCabinetId,
+  setDefaultCabinet,
+  duplicateCabinet,
+  duplicateDrawer,
   // Drawers
   readDrawers,
   addDrawer,

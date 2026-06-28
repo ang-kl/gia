@@ -1,7 +1,8 @@
 // __tests__/clipboard-store.test.js — v0.62.328
 //
-// Cabinets, drawers, placements, and cascade-delete with the operator-locked
-// rules (favourite preserved, multi-placed preserved, otherwise dropped).
+// Cabinets, drawers, placements, and cascade-delete. v0.62.416: the orphan rule
+// was reversed (favourite preserved, multi-placed preserved, otherwise RETURNED
+// to the catch-all clipboard — was: dropped). Plus default-cabinet + duplicate.
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createRequire } from 'module';
@@ -10,6 +11,7 @@ import { makeFakeRedis } from './clip-store.test.js';
 const require = createRequire(import.meta.url);
 const {
   listCabinets, getCabinet, createCabinet, updateCabinet, deleteCabinet,
+  getDefaultCabinetId, setDefaultCabinet, duplicateCabinet, duplicateDrawer,
   readDrawers, addDrawer, deleteDrawer, getDrawerCards,
   placeCard, unplaceCard,
   MAX_CABINETS_PER_USER, MAX_DRAWERS_PER_CAB, MAX_CARDS_PER_DRAWER,
@@ -291,17 +293,18 @@ describe('cascade-delete (operator-locked rules)', () => {
     expect(await redis.ttl(cardKey('c', cardId))).toBe(TTL_PLACED_S);
   });
 
-  it('rule (c) SINGLE-PLACED NON-FAVOURITE — drawer delete drops the card record', async () => {
-    const cardId = await plantCard(redis, 'c', 'doomed');
-    // Mimic the scenario where the user moved it OUT of catch-all into the
-    // drawer (so catch-all no longer owns the cardId). We simulate that by
-    // removing the catch-all list entry — the card lives only via placement.
+  it('rule (c) SINGLE-PLACED NON-FAVOURITE — drawer delete RETURNS card to the clipboard (v0.62.416)', async () => {
+    const cardId = await plantCard(redis, 'c', 'returned');
+    // Simulate the card filed OUT of catch-all (catch-all no longer owns it).
     await redis.lRem('clip:c', 1, cardId);
     await placeCard(redis, 'c', cardId, cabId, drIdx);
     expect(redis._hashes.has(cardKey('c', cardId))).toBe(true);
-    await deleteDrawer(redis, 'c', cabId, drIdx);
-    expect(redis._hashes.has(cardKey('c', cardId))).toBe(false);
-    expect(redis._sets.has(locsKey('c', cardId))).toBe(false);
+    const r = await deleteDrawer(redis, 'c', cabId, drIdx);
+    // Card survives, is back in the catch-all clip list, with no placements.
+    expect(redis._hashes.has(cardKey('c', cardId))).toBe(true);
+    expect(await redis.sCard(locsKey('c', cardId))).toBe(0);
+    expect(await redis.lRange('clip:c', 0, -1)).toContain(cardId);
+    expect(r.returned).toBe(1);
   });
 
   it('rule (d) card_locs index stays consistent through cascade', async () => {
@@ -313,8 +316,9 @@ describe('cascade-delete (operator-locked rules)', () => {
     await placeCard(redis, 'c', cardA, cabId, drIdx);
     await placeCard(redis, 'c', cardB, cabId, dr2);
     await deleteDrawer(redis, 'c', cabId, drIdx);
-    // cardA gone entirely; cardB's locs tag re-keyed (dr2 was idx 1, now idx 0).
-    expect(redis._sets.has(locsKey('c', cardA))).toBe(false);
+    // cardA returns to the clipboard (no placements left); cardB's locs tag re-keyed.
+    expect(await redis.sCard(locsKey('c', cardA))).toBe(0);
+    expect(redis._hashes.has(cardKey('c', cardA))).toBe(true);
     const bLocs = await redis.sMembers(locsKey('c', cardB));
     expect(bLocs).toEqual([`${cabId}:0`]);
   });
@@ -328,15 +332,67 @@ describe('cascade-delete (operator-locked rules)', () => {
     await redis.lRem('clip:c', 1, cardA);   // make cardA single-placed
     expect(redis._hashes.has(cardKey('c', cardA))).toBe(true);
     expect(redis._hashes.has(cardKey('c', cardFav))).toBe(true);
-    await deleteCabinet(redis, 'c', cabId);
+    const r = await deleteCabinet(redis, 'c', cabId);
     // Cabinet gone, drawer LIST gone.
     expect(redis._hashes.has(cabHashKey('c', cabId))).toBe(false);
     expect(redis._lists.has(drListKey('c', cabId, drIdx))).toBe(false);
-    // cardA was single-placed non-favourite → cascade-deleted.
-    expect(redis._hashes.has(cardKey('c', cardA))).toBe(false);
-    // cardFav favourite → survives.
+    // cardA single-placed non-favourite → RETURNED to the clipboard (v0.62.416).
+    expect(redis._hashes.has(cardKey('c', cardA))).toBe(true);
+    expect(await redis.lRange('clip:c', 0, -1)).toContain(cardA);
+    // cardFav favourite → survives + PERSIST.
     expect(redis._hashes.has(cardKey('c', cardFav))).toBe(true);
     expect(await redis.ttl(cardKey('c', cardFav))).toBe(NO_TTL);
+    expect(r.returned).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe('default cabinet (v0.62.416)', () => {
+  let redis;
+  beforeEach(() => { redis = makeFakeRedis(); });
+
+  it('set + get default; getDefault validates existence', async () => {
+    const a = (await createCabinet(redis, 'c', { name: 'A' })).cabinet.cabId;
+    expect(await getDefaultCabinetId(redis, 'c')).toBe(null);
+    expect((await setDefaultCabinet(redis, 'c', a)).ok).toBe(true);
+    expect(await getDefaultCabinetId(redis, 'c')).toBe(a);
+    expect((await setDefaultCabinet(redis, 'c', 'nope')).error).toBe('not-found');
+  });
+
+  it('deleting the default reassigns to the first remaining cabinet', async () => {
+    const a = (await createCabinet(redis, 'c', { name: 'A' })).cabinet.cabId;
+    const b = (await createCabinet(redis, 'c', { name: 'B' })).cabinet.cabId;
+    await setDefaultCabinet(redis, 'c', a);
+    const r = await deleteCabinet(redis, 'c', a);
+    expect(r.reassignedDefault).toBe(b);
+    expect(await getDefaultCabinetId(redis, 'c')).toBe(b);
+  });
+});
+
+describe('duplicate (v0.62.416)', () => {
+  let redis, cabId, drIdx;
+  beforeEach(async () => {
+    redis = makeFakeRedis();
+    cabId = (await createCabinet(redis, 'c', { name: 'Trip' })).cabinet.cabId;
+    drIdx = (await addDrawer(redis, 'c', cabId, { segment: 'lunch' })).index;
+  });
+
+  it('duplicateDrawer copies the drawer + its cards', async () => {
+    const card = await plantCard(redis, 'c', 'x');
+    await placeCard(redis, 'c', card, cabId, drIdx);
+    const r = await duplicateDrawer(redis, 'c', cabId, drIdx);
+    expect(r.ok).toBe(true);
+    const cards = await getDrawerCards(redis, 'c', cabId, r.index);
+    expect(cards.map((c) => c.cardId || c)).toContain(card);
+  });
+
+  it('duplicateCabinet copies name+" copy", drawers, and placements', async () => {
+    const card = await plantCard(redis, 'c', 'y');
+    await placeCard(redis, 'c', card, cabId, drIdx);
+    const r = await duplicateCabinet(redis, 'c', cabId);
+    expect(r.ok).toBe(true);
+    expect(r.cabinet.name).toBe('Trip copy');
+    const newDrawers = await readDrawers(redis, 'c', r.cabinet.cabId);
+    expect(newDrawers).toHaveLength(1);
   });
 });
 

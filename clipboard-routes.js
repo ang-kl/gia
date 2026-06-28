@@ -27,6 +27,7 @@ const {
 
 const {
   listCabinets, getCabinet, createCabinet, updateCabinet, deleteCabinet,
+  getDefaultCabinetId, setDefaultCabinet, duplicateCabinet, duplicateDrawer,
   readDrawers, addDrawer, deleteDrawer, getDrawerCards,
   placeCard, unplaceCard,
   MAX_CARDS_PER_DRAWER, MAX_NOTE_CHARS,
@@ -127,7 +128,9 @@ function mountClipboardRoutes(app, redis) {
     // only read `catchAllCount` (the new `catchAllCards` is additive).
     const { listClips } = require('./clip-store');
     const { items, total } = await listClips(redis, chatId, { limit: 50, offset: 0 });
-    return res.json({ cabinets, catchAllCount: total, catchAllCards: items });
+    // v0.62.416 — defaultCabinetId drives the TMA footer tab 2.
+    const defaultCabinetId = await getDefaultCabinetId(redis, chatId);
+    return res.json({ cabinets, catchAllCount: total, catchAllCards: items, defaultCabinetId });
   }));
 
   // ── 4. GET cabinet (full) ─────────────────────────────────────────
@@ -180,8 +183,9 @@ function mountClipboardRoutes(app, redis) {
       const m = mapError(r.error);
       return res.status(m.status).json(m.body);
     }
-    track(redis, chatId, 'delete_cabinet', { cabId: req.params.id });
-    return res.json({ ok: true });
+    track(redis, chatId, 'delete_cabinet', { cabId: req.params.id, returned: r.returned || 0 });
+    // v0.62.416 — echo cards returned to the clipboard + any default reassignment.
+    return res.json({ ok: true, returned: r.returned || 0, reassignedDefault: r.reassignedDefault || null });
   }));
 
   // ── 8. POST drawer (add) — caps at 20 per cabinet ─────────────────
@@ -208,7 +212,39 @@ function mountClipboardRoutes(app, redis) {
       const m = mapError(r.error);
       return res.status(m.status).json(m.body);
     }
-    return res.json({ ok: true });
+    // v0.62.416 — echo cards returned to the clipboard (toast "N back to Clipboard").
+    return res.json({ ok: true, returned: r.returned || 0 });
+  }));
+
+  // ── 9b. POST set default cabinet (v0.62.416) ──────────────────────
+  app.post('/api/clipboard/cabinet/:id/default', wrap(async (req, res) => {
+    const chatId = chatIdFrom(req);
+    if (!chatId) return res.status(400).json({ error: 'missing-chatId' });
+    const r = await setDefaultCabinet(redis, chatId, req.params.id);
+    if (!r.ok) { const m = mapError(r.error); return res.status(m.status).json(m.body); }
+    track(redis, chatId, 'set_default_cabinet', { cabId: req.params.id });
+    return res.json({ ok: true, defaultCabinetId: r.defaultCabinetId });
+  }));
+
+  // ── 9c. POST duplicate cabinet (v0.62.416) ────────────────────────
+  app.post('/api/clipboard/cabinet/:id/duplicate', wrap(async (req, res) => {
+    const chatId = chatIdFrom(req);
+    if (!chatId) return res.status(400).json({ error: 'missing-chatId' });
+    const r = await duplicateCabinet(redis, chatId, req.params.id);
+    if (!r.ok) { const m = mapError(r.error); return res.status(m.status).json(m.body); }
+    track(redis, chatId, 'duplicate_cabinet', { from: req.params.id, to: r.cabinet.cabId });
+    return res.json({ ok: true, cabinet: r.cabinet });
+  }));
+
+  // ── 9d. POST duplicate drawer (v0.62.416) ─────────────────────────
+  app.post('/api/clipboard/cabinet/:id/drawer/:n/duplicate', wrap(async (req, res) => {
+    const chatId = chatIdFrom(req);
+    if (!chatId) return res.status(400).json({ error: 'missing-chatId' });
+    const n = Number(req.params.n);
+    const r = await duplicateDrawer(redis, chatId, req.params.id, n);
+    if (!r.ok) { const m = mapError(r.error); return res.status(m.status).json(m.body); }
+    track(redis, chatId, 'duplicate_drawer', { cabId: req.params.id, from: n, to: r.index });
+    return res.json({ ok: true, index: r.index });
   }));
 
   // ── 10. PATCH drawer (update location / dayTag / reorder) ─────────
