@@ -12,6 +12,20 @@ import React, { useState } from 'react';
 import { t } from '../lib/i18n.js';
 import { haptic } from '../lib/tg.js';
 
+// v0.62.425 — the saved clip `body` is the copied Telegram message (HTML markup).
+// Until the structured-venue → ResultCard render lands, strip tags + decode the
+// common entities so the card shows clean text instead of raw <b>…</b>.
+function plainText(s) {
+  return String(s || '')
+    .replace(/<br\s*\/?>(?=.)/gi, '\n')
+    .replace(/<\/(p|div|li)>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&nbsp;/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 export default function VenueCard({
   card, onTap, dragProps, dimmed = false,
   context = 'clipboard',      // 'clipboard' | 'drawer'
@@ -21,15 +35,16 @@ export default function VenueCard({
   const [copied, setCopied] = useState(false);
   if (!card) return null;
 
-  const previewLines = (card.body || '').split('\n').filter(Boolean);
-  const label = (card.name && card.name.trim()) || (card.preview && card.preview.slice(0, 40)) || previewLines[0] || 'Untitled';
+  const bodyText = plainText(card.body);
+  const previewLines = bodyText.split('\n').filter(Boolean);
+  const label = (card.name && card.name.trim()) || plainText(card.preview).slice(0, 40) || previewLines[0] || 'Untitled';
   const cuisines = Array.isArray(card.cuisines) ? card.cuisines : [];
 
   const stop = (e) => e.stopPropagation();
   const copy = async (e) => {
     stop(e);
     try {
-      await navigator.clipboard.writeText(card.body || card.preview || label);
+      await navigator.clipboard.writeText(bodyText || plainText(card.preview) || label);
       haptic('light');
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
@@ -51,7 +66,7 @@ export default function VenueCard({
             <div className="text-[9.5px] text-tg-hint mt-0.5 capitalize truncate">{cuisines.join(' · ')}</div>
           )}
           {!open && (card.note || card.preview) && (
-            <div className="text-[10px] text-tg-hint mt-0.5 line-clamp-2">{card.note || card.preview}</div>
+            <div className="text-[10px] text-tg-hint mt-0.5 line-clamp-2">{card.note || plainText(card.preview)}</div>
           )}
         </div>
         <span className="flex-shrink-0 text-tg-hint text-[11px] mt-0.5" aria-hidden>{open ? '▾' : '▸'}</span>
@@ -59,8 +74,8 @@ export default function VenueCard({
 
       {open && (
         <div className="mt-2 border-t border-tg-border pt-2" onClick={stop}>
-          {card.body && (
-            <div className="text-[11px] text-tg-text whitespace-pre-wrap leading-relaxed max-h-60 overflow-y-auto">{card.body}</div>
+          {bodyText && (
+            <div className="text-[11px] text-tg-text whitespace-pre-wrap leading-relaxed max-h-60 overflow-y-auto">{bodyText}</div>
           )}
           {card.note && (
             <div className="text-[10.5px] text-tg-hint italic mt-1.5">📝 {card.note}</div>
