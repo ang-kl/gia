@@ -1,19 +1,19 @@
 counters:
   commit: 886
-  build: 525
+  build: 526
   documents:
     journal: 768
     builder: 3
     persona: 4
-    feature: 57
+    feature: 56
     technical: 55
     legal: 9
     register: 129
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 28-06 '26 16:10 SGT
-last_anchor_source: clipboard_feature_doc_2026-06-28_1610 (v0.62.413 — DOC-ONLY pass: distilled the v0.7 Clipboard cycle's session-local plan-file [/root/.claude/plans/consider-point-3-planner-logical-hamming.md, 371 lines, ephemeral container-only] into a permanent Feature-folder entry doc/Feature/feature-0_62_332-clipboard.md [No 57]. Operator-requested filename. Single canonical spec for the v0.7 cycle: catch-all + cabinets + 11 time-segment drawers + cards + favourite-PERSIST TTL rule + cascade-delete + share/fork + analytics + operator-locked decisions table + Redis schema + 16 endpoints + TMA architecture + cycle history table referencing PRs #1301/#1302/#1303/#1305/#1308 + Known Gaps carry-forward + Removed/Deprecated table per AU-7 [the cuisine-TMA bordered launcher panel reversed in #1308]. NO code change. Rebased onto v0.62.413 head after #1392 [community sub-grouping] landed during PR review window. journal 767->768, commit 885->886, feature 56->57. NEXT: BotFather /newapp short-name 'clipboard' against @soleat is still the one operator-only step that unblocks t.me/soleat/clipboard?startapp=... deep links. PRIOR ANCHOR community_subgroup_sg_2026-06-28_1510 (v0.62.413 — operator: within each meal section of 'Pick local classic', sub-group dishes by COMMUNITY [Chinese/Straits Chinese/Malay/Indian/Indonesian/Eurasian/Shared]. NEW dish-community.js: communityFor(cc,name,sharedWith) - data-grounded [curated SG map read from nation-overlay section structure + sharedWith rollup]; ambiguous->'shared' [operator-approved], non-SG->null [flat back-compat]. city-plates.js _overlayDishMeta attaches meta.community to every classic [merge-preserve vs classics-notes]. ArrivalPlate.jsx groupByCommunity + community sub-headers per meal section [flat fallback when untagged]; extracted dishLink. esbuild+node --check OK; communityFor spot-tests pass [thosai->indian, kueh salat->straits-chinese, coconut shake->shared]. journal 766->767, commit 884->885, build 524->525. KNOWN GAP: MY/TH/PH/ID community maps [SG only this PR]; community labels en/fr only. PRIOR ANCHOR dish_explanation_modal_2026-06-28_1445)
+last_anchor_time: 28-06 '26 15:25 SGT
+last_anchor_source: dish_card_labels_2026-06-28_1525 (v0.62.414 — operator label tweak on all 4 ArrivalPlate dish cards: '[ picture ]'->'🧆 picture' [fr '🧆 photo'], '[ close ]'->'close' [fr 'fermer'] (brackets dropped). Confirmed [picture] IS wired: openDishPicture x4 -> Commons File page via tg.openLink. esbuild OK. journal 767->768, commit 885->886, build 525->526. PRIOR ANCHOR community_subgroup_sg_2026-06-28_1510)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
