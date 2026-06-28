@@ -14,16 +14,17 @@ import React, { useState } from 'react';
 import { t } from '../lib/i18n.js';
 import { openMiniApp, haptic } from '../lib/tg.js';
 
-const BRAND_GRADIENT = { background: 'linear-gradient(135deg,#3a8dff,#34d3a6)' };
+// v0.62.423 — version for the footer strip (mirrors Cuisine's __BUILD_VERSION__).
+const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
 
-function SwitchAppRow({ icon, title, sub, onClick }) {
+function SwitchAppRow({ iconSrc, title, sub, onClick }) {
   return (
     <button
       type="button"
       onClick={onClick}
       className="flex items-center gap-3 w-full text-left bg-tg-card border border-tg-border rounded-2xl p-3 active:scale-[0.99]"
     >
-      <span className="flex-shrink-0 w-10 h-10 rounded-xl bg-tg-bg flex items-center justify-center text-xl" aria-hidden>{icon}</span>
+      <img src={iconSrc} alt="" width="40" height="40" className="flex-shrink-0 w-10 h-10 rounded-xl object-contain" aria-hidden />
       <span className="flex-1 min-w-0">
         <span className="block text-sm font-bold text-tg-text">{title}</span>
         <span className="block text-[11.5px] text-tg-hint truncate">{sub}</span>
@@ -73,7 +74,7 @@ export default function Shell({
             <span className="h-0.5 bg-tg-text rounded" />
             <span className="h-0.5 bg-tg-text rounded" />
           </button>
-          <span className="flex-shrink-0 w-[30px] h-[30px] rounded-xl flex items-center justify-center text-white text-lg shadow" style={BRAND_GRADIENT} aria-hidden>☼</span>
+          <img src="soleat-icon.png" alt="soleat" width="30" height="30" className="flex-shrink-0 w-[30px] h-[30px] rounded-full object-contain" />
           <div className="flex-1 min-w-0 leading-tight">
             <div className="text-[15px] font-extrabold truncate">
               {t('chrome.brand', lang)}
@@ -119,11 +120,15 @@ export default function Shell({
       <main className="flex-1 overflow-y-auto px-3 py-3 pb-24">{children}</main>
 
       {/* ── FOOTER (4 tabs) ── */}
-      <nav className="flex-shrink-0 fixed bottom-0 inset-x-0 z-20 bg-tg-card/95 backdrop-blur border-t border-tg-border flex px-1 pt-2 pb-6">
-        <FooterTab icon="📋" label={t('nav.clipboard', lang)} active={screen === 'clipboard'} onClick={() => go('clipboard')} />
-        <FooterTab icon="🗄️" label={cabLabel} active={screen === 'cabinet'} onClick={() => go('cabinet')} />
-        <FooterTab icon="🗂️" label={t('nav.cabinets', lang)} active={screen === 'cabinets'} onClick={() => go('cabinets')} />
-        <FooterTab icon="⚙️" label={t('nav.settings', lang)} active={screen === 'settings'} onClick={() => go('settings')} />
+      <nav className="flex-shrink-0 fixed bottom-0 inset-x-0 z-20 bg-tg-card/95 backdrop-blur border-t border-tg-border flex flex-col px-1 pt-1 pb-5">
+        <div className="flex">
+          <FooterTab icon="📋" label={t('nav.clipboard', lang)} active={screen === 'clipboard'} onClick={() => go('clipboard')} />
+          <FooterTab icon="🗄️" label={cabLabel} active={screen === 'cabinet'} onClick={() => go('cabinet')} />
+          <FooterTab icon="🗂️" label={t('nav.cabinets', lang)} active={screen === 'cabinets'} onClick={() => go('cabinets')} />
+          <FooterTab icon="⚙️" label={t('nav.settings', lang)} active={screen === 'settings'} onClick={() => go('settings')} />
+        </div>
+        {/* v0.62.423 — Cuisine-style version strip. */}
+        <div className="text-center text-[9px] text-tg-hint pt-1">{t('chrome.experimental', lang)} · v{BUILD_VERSION}</div>
       </nav>
 
       {/* ── HAMBURGER ── */}
@@ -133,7 +138,7 @@ export default function Shell({
           <div className="absolute top-0 bottom-0 left-0 w-[84%] max-w-[330px] bg-tg-card shadow-2xl flex flex-col">
             <div className="px-4 pt-12 pb-4 text-white" style={{ background: 'linear-gradient(135deg,#2b59c9,#1d3aa0)' }}>
               <div className="flex items-center gap-3">
-                <span className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-2xl text-white" style={BRAND_GRADIENT} aria-hidden>☼</span>
+                <img src="soleat-icon.png" alt="soleat" width="40" height="40" className="flex-shrink-0 w-10 h-10 rounded-xl object-contain" />
                 <div className="min-w-0">
                   <div className="text-[10px] opacity-80 tracking-wider font-semibold">SOLEAT · TELEGRAM MINI APPS</div>
                   <div className="text-xl font-extrabold mt-0.5">{t('chrome.brand', lang)}</div>
@@ -143,9 +148,9 @@ export default function Shell({
             </div>
             <div className="p-3 flex flex-col gap-2">
               <div className="text-[11px] font-bold text-tg-hint tracking-wide px-1.5 py-0.5">{t('menu.switchApp', lang)}</div>
-              <SwitchAppRow icon="🍜" title={t('menu.cuisine', lang)} sub={t('menu.cuisineSub', lang)} onClick={() => switchApp('/app/cuisine')} />
-              <SwitchAppRow icon="🍢" title={t('menu.hawker', lang)} sub={t('menu.hawkerSub', lang)} onClick={() => switchApp('/app/hawker')} />
-              <SwitchAppRow icon="🚆" title={t('menu.transport', lang)} sub={t('menu.transportSub', lang)} onClick={() => switchApp('/app/transport')} />
+              <SwitchAppRow iconSrc="cuisine-icon-v3.png" title={t('menu.cuisine', lang)} sub={t('menu.cuisineSub', lang)} onClick={() => switchApp('/app/cuisine')} />
+              <SwitchAppRow iconSrc="hawker-icon-v3.png" title={t('menu.hawker', lang)} sub={t('menu.hawkerSub', lang)} onClick={() => switchApp('/app/hawker')} />
+              <SwitchAppRow iconSrc="train-logo.png" title={t('menu.transport', lang)} sub={t('menu.transportSub', lang)} onClick={() => switchApp('/app/transport')} />
             </div>
             <div className="mt-auto px-4 py-4 border-t border-tg-border text-tg-hint text-[11px]">
               {t('chrome.brand', lang)} · @soleat_bot
