@@ -21,6 +21,7 @@ const STRINGS = {
 
   // ── chrome: header + footer + hamburger (v0.62.417) ────────────────
   'chrome.brand':           { en: 'Sketchbook',         fr: 'Sketchbook',       id: 'Sketchbook',     ru: 'Sketchbook',     de: 'Sketchbook' },
+  'chrome.experimental':    { en: 'Experimental · Singapore', fr: 'Expérimental · Singapour', id: 'Eksperimental · Singapura', ru: 'Экспериментально · Сингапур', de: 'Experimentell · Singapur' },
   'chrome.setLocation':     { en: 'Set location is:',   fr: 'Lieu défini :',    id: 'Lokasi:',        ru: 'Местоположение:', de: 'Ort:' },
   'chrome.clickToChange':   { en: 'Click to change',    fr: 'Modifier',         id: 'Ubah',           ru: 'Изменить',       de: 'Ändern' },
   'chrome.cuisineFilters':  { en: '🍜 Cuisine & filters', fr: '🍜 Cuisine & filtres', id: '🍜 Masakan & filter', ru: '🍜 Кухня и фильтры', de: '🍜 Küche & Filter' },
