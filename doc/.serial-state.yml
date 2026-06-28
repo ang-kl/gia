@@ -1,8 +1,8 @@
 counters:
-  commit: 886
-  build: 526
+  commit: 887
+  build: 527
   documents:
-    journal: 768
+    journal: 769
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 28-06 '26 15:25 SGT
-last_anchor_source: dish_card_labels_2026-06-28_1525 (v0.62.414 — operator label tweak on all 4 ArrivalPlate dish cards: '[ picture ]'->'🧆 picture' [fr '🧆 photo'], '[ close ]'->'close' [fr 'fermer'] (brackets dropped). Confirmed [picture] IS wired: openDishPicture x4 -> Commons File page via tg.openLink. esbuild OK. journal 767->768, commit 885->886, build 525->526. PRIOR ANCHOR community_subgroup_sg_2026-06-28_1510)
+last_anchor_time: 28-06 '26 15:40 SGT
+last_anchor_source: dish_picture_region_2026-06-28_1540 (v0.62.415 — operator: 🧆 picture for 'Wanton Mee (SG style)' opened the HK-style photo. Root cause: cleanTitle strips the qualifier -> generic en.wikipedia 'Wonton noodles' lead image = HK variant. Fix in dish-picture.js: splitQualifier() detects a regional qualifier [SG/MY/HK/TW/PH/ID/TH/JP/KR/VN expanded; dialect/place e.g. Teochew/Katong passthrough; 'style' dropped]; for a qualified dish, open a Commons MediaSearch for base+region ['Wanton Mee Singapore'] instead of the single generic Wikipedia lead image. Plain dishes unchanged. esbuild OK; splitQualifier spot-tests pass. journal 768->769, commit 886->887, build 526->527. PRIOR ANCHOR dish_card_labels_2026-06-28_1525)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
