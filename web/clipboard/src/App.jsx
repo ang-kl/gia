@@ -1,6 +1,9 @@
-// Clipboard TMA root component. Renders one of three top-level routes
-// (Root / CabinetView / SharedView) and threads the drag+drop wiring
-// through. Sheets float above the active route.
+// Clipboard / Sketchbook TMA root component.
+//
+// v0.62.417 (P2) — the app is now framed by Shell (sticky header + fixed 4-tab
+// footer + hamburger). Four screens: Clipboard (catch-all), {default cabinet}
+// (footer tab 2), Cabinets (grid), Settings. A shared-drawer deep link renders
+// SharedView full-screen WITHOUT the chrome. Sheets float above the active screen.
 
 import React, { useState, useCallback } from 'react';
 import { useClipboardStore } from './lib/state.js';
@@ -9,9 +12,11 @@ import * as api from './lib/api.js';
 import { useDrag } from './lib/dnd.js';
 import { t } from './lib/i18n.js';
 
+import Shell         from './components/Shell.jsx';
 import CatchAllStrip from './components/CatchAllStrip.jsx';
 import CabinetGrid   from './components/CabinetGrid.jsx';
 import CabinetView   from './components/CabinetView.jsx';
+import SettingsView  from './components/SettingsView.jsx';
 import SharedView    from './components/SharedView.jsx';
 import {
   CreateCabinetSheet, AddDrawerSheet, AmendCardSheet, ShareDrawerSheet
@@ -22,8 +27,7 @@ export default function App() {
   const { state, reloadState, loadCabinet, setRoute } = useClipboardStore();
   const [sheet, setSheet] = useState(null);   // 'createCab' | 'addDrawer' | { kind:'amend', card } | { kind:'share', url }
   const [busy, setBusy] = useState(false);
-  // v0.62.330 — `/state` now returns catchAllCards in full (PR #3 surgical
-  // extension of the PR #2 endpoint). Strip renders from state directly.
+  const [tab, setTab] = useState('clipboard'); // root-level tab when not inside a cabinet
   const catchAllCards = state.catchAllCards || [];
 
   // Drag drop handler — fires when a long-press drag lands on a target.
@@ -32,13 +36,9 @@ export default function App() {
     try {
       setBusy(true);
       if (kind === 'cabinet') {
-        // Dropping on a cabinet tile lands the card in the FIRST drawer.
         const r = await api.getCabinet(cabinetId);
         const firstIdx = (r?.drawers || []).length > 0 ? 0 : null;
-        if (firstIdx == null) {
-          alert(t('cabinet.empty', lang));
-          return;
-        }
+        if (firstIdx == null) { alert(t('cabinet.empty', lang)); return; }
         await api.placeCard(cardId, cabinetId, firstIdx);
       } else if (kind === 'drawer') {
         await api.placeCard(cardId, cabinetId, drawerIdx);
@@ -53,7 +53,7 @@ export default function App() {
   }, [reloadState, loadCabinet, state.currentCabinetId, lang]);
   const { dragging, dragHandle } = useDrag({ onDrop });
 
-  // Route renderers.
+  // ── Shared-drawer deep link: full-screen, no chrome ──
   if (state.route.kind === 'shared') {
     return (
       <SharedView
@@ -70,13 +70,44 @@ export default function App() {
     );
   }
 
-  if (state.route.kind === 'cabinet') {
-    return (
-      <>
+  // ── Tab + footer wiring ──
+  const inCabinet = state.route.kind === 'cabinet';
+  const screen = inCabinet ? 'cabinet' : tab;
+  const defaultCab = state.cabinets.find((c) => c.cabId === state.defaultCabinetId) || null;
+  const footerCabinetLabel = defaultCab
+    ? `${defaultCab.emoji ? defaultCab.emoji + ' ' : ''}${defaultCab.name}`
+    : null;
+  const activeCabinetName = inCabinet ? (state.currentCabinet?.cabinet?.name || '') : '';
+
+  const onNav = (s) => {
+    if (s === 'cabinet') {
+      // Footer tab 2 opens the DEFAULT cabinet; with none set, fall to Cabinets.
+      if (state.defaultCabinetId) { setRoute({ kind: 'cabinet', cabId: state.defaultCabinetId }); }
+      else { setRoute({ kind: 'root' }); setTab('cabinets'); }
+      return;
+    }
+    if (inCabinet) setRoute({ kind: 'root' });
+    setTab(s);
+  };
+  const refresh = () => { reloadState(); if (state.currentCabinetId) loadCabinet(state.currentCabinetId); };
+  const backToCabinets = () => { setRoute({ kind: 'root' }); setTab('cabinets'); };
+
+  const sheets = renderSheets({ sheet, setSheet, busy, setBusy, lang, state, reloadState, loadCabinet, setRoute });
+
+  return (
+    <Shell
+      lang={lang}
+      screen={screen}
+      activeCabinetName={activeCabinetName}
+      footerCabinetLabel={footerCabinetLabel}
+      onNav={onNav}
+      onRefresh={refresh}
+    >
+      {inCabinet ? (
         <CabinetView
           payload={state.currentCabinet}
           lang={lang}
-          onBack={() => setRoute({ kind: 'root' })}
+          onBack={backToCabinets}
           onAddDrawer={() => setSheet('addDrawer')}
           onTapCard={(c) => setSheet({ kind: 'amend', card: c })}
           onDeleteDrawer={async (n) => {
@@ -91,9 +122,6 @@ export default function App() {
           onMoveDrawer={async (from, to) => {
             try {
               setBusy(true);
-              // PR #2's PATCH /cabinet/:id/drawer/:n accepts `moveTo` for
-              // manual reorder. card_locs is re-keyed server-side so the
-              // inverse index stays consistent across the shift.
               await api.updateDrawer(state.currentCabinetId, from, { moveTo: to });
               await loadCabinet(state.currentCabinetId);
             } catch (err) { alert(err.message); }
@@ -104,44 +132,38 @@ export default function App() {
               setBusy(true);
               await api.deleteCabinet(state.currentCabinetId);
               await reloadState();
-              setRoute({ kind: 'root' });
+              backToCabinets();
             } catch (err) { alert(err.message); }
             finally { setBusy(false); }
           }}
         />
-        {renderSheets({ sheet, setSheet, busy, setBusy, lang, state, reloadState, loadCabinet })}
-        {dragging && <div />}
-      </>
-    );
-  }
+      ) : tab === 'clipboard' ? (
+        <CatchAllStrip
+          cards={catchAllCards}
+          lang={lang}
+          onTapCard={(c) => setSheet({ kind: 'amend', card: c })}
+          dragHandle={dragHandle}
+          draggingCardId={dragging?.cardId}
+        />
+      ) : tab === 'cabinets' ? (
+        <CabinetGrid
+          cabinets={state.cabinets}
+          lang={lang}
+          onOpen={(cabId) => setRoute({ kind: 'cabinet', cabId })}
+          onNew={() => setSheet('createCab')}
+        />
+      ) : (
+        <SettingsView lang={lang} />
+      )}
 
-  // Root view.
-  return (
-    <div className="px-3 py-3">
-      <header className="flex items-center mb-3">
-        <h1 className="text-lg font-semibold">📋 {t('chrome.title', lang)}</h1>
-      </header>
-      <CatchAllStrip
-        cards={catchAllCards}
-        lang={lang}
-        onTapCard={(c) => setSheet({ kind: 'amend', card: c })}
-        dragHandle={dragHandle}
-        draggingCardId={dragging?.cardId}
-      />
-      <CabinetGrid
-        cabinets={state.cabinets}
-        lang={lang}
-        onOpen={(cabId) => setRoute({ kind: 'cabinet', cabId })}
-        onNew={() => setSheet('createCab')}
-      />
       {state.error && (
         <div className="mt-4 text-xs text-red-400 bg-red-400/10 border border-red-400/30 rounded p-2">
           ⚠ {state.error}
         </div>
       )}
-      {busy && <div className="fixed bottom-2 right-2 text-[10px] text-tg-hint">…</div>}
-      {renderSheets({ sheet, setSheet, busy, setBusy, lang, state, reloadState, loadCabinet, setRoute })}
-    </div>
+      {busy && <div className="fixed bottom-20 right-2 text-[10px] text-tg-hint">…</div>}
+      {sheets}
+    </Shell>
   );
 }
 

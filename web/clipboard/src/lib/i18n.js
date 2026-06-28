@@ -19,6 +19,25 @@ const STRINGS = {
   'chrome.delete':          { en: 'Delete',             fr: 'Supprimer',        id: 'Hapus',          ru: 'Удалить',        de: 'Löschen' },
   'chrome.loading':         { en: 'Loading…',           fr: 'Chargement…',      id: 'Memuat…',        ru: 'Загрузка…',      de: 'Lädt…' },
 
+  // ── chrome: header + footer + hamburger (v0.62.417) ────────────────
+  'chrome.brand':           { en: 'Sketchbook',         fr: 'Sketchbook',       id: 'Sketchbook',     ru: 'Sketchbook',     de: 'Sketchbook' },
+  'chrome.setLocation':     { en: 'Set location is:',   fr: 'Lieu défini :',    id: 'Lokasi:',        ru: 'Местоположение:', de: 'Ort:' },
+  'chrome.clickToChange':   { en: 'Click to change',    fr: 'Modifier',         id: 'Ubah',           ru: 'Изменить',       de: 'Ändern' },
+  'chrome.cuisineFilters':  { en: '🍜 Cuisine & filters', fr: '🍜 Cuisine & filtres', id: '🍜 Masakan & filter', ru: '🍜 Кухня и фильтры', de: '🍜 Küche & Filter' },
+  'chrome.pickLocal':       { en: '📍 Pick local classic', fr: '📍 Classique local', id: '📍 Pilih klasik lokal', ru: '📍 Местная классика', de: '📍 Lokaler Klassiker' },
+  'nav.clipboard':          { en: 'Clipboard',          fr: 'Presse-papiers',   id: 'Papan klip',     ru: 'Буфер',          de: 'Ablage' },
+  'nav.cabinets':           { en: 'Cabinets',           fr: 'Classeurs',        id: 'Kabinet',        ru: 'Папки',          de: 'Cabinets' },
+  'nav.settings':           { en: 'Settings',           fr: 'Réglages',         id: 'Pengaturan',     ru: 'Настройки',      de: 'Einstellungen' },
+  'menu.subtitle':          { en: 'Save & organise your eateries', fr: 'Enregistrez vos adresses', id: 'Simpan & atur tempat makan', ru: 'Сохраняйте свои места', de: 'Lokale speichern & ordnen' },
+  'menu.switchApp':         { en: 'SWITCH APP',         fr: 'CHANGER D’APP',    id: 'GANTI APLIKASI', ru: 'СМЕНИТЬ ПРИЛОЖЕНИЕ', de: 'APP WECHSELN' },
+  'menu.cuisine':           { en: 'Cuisine',            fr: 'Cuisine',          id: 'Masakan',        ru: 'Кухня',          de: 'Cuisine' },
+  'menu.cuisineSub':        { en: 'Find a quiet, good meal', fr: 'Un bon repas au calme', id: 'Cari makan enak & tenang', ru: 'Найти спокойное место', de: 'Ruhig & gut essen' },
+  'menu.hawker':            { en: 'Hawker',             fr: 'Hawker',           id: 'Hawker',         ru: 'Hawker',         de: 'Hawker' },
+  'menu.hawkerSub':         { en: 'Hawker centres near you', fr: 'Hawker centres à proximité', id: 'Pusat jajan terdekat', ru: 'Фуд-центры рядом', de: 'Hawker-Zentren in der Nähe' },
+  'menu.transport':         { en: 'Transport',          fr: 'Transport',        id: 'Transportasi',   ru: 'Транспорт',      de: 'Transport' },
+  'menu.transportSub':      { en: 'Bus · MRT · walk · drive', fr: 'Bus · MRT · marche', id: 'Bus · MRT · jalan', ru: 'Автобус · метро · пешком', de: 'Bus · MRT · zu Fuß' },
+  'settings.soon':          { en: 'Settings — coming soon.', fr: 'Réglages — bientôt.', id: 'Pengaturan — segera.', ru: 'Настройки — скоро.', de: 'Einstellungen — bald.' },
+
   // ── root ──────────────────────────────────────────────────────────
   'root.catchAll':          { en: 'Catch-all',          fr: 'Tiroir d’accueil', id: 'Tampung',   ru: 'Общая',          de: 'Sammelfach' },
   'root.catchAllHint':      { en: 'Long-press a card to drag into a cabinet.', fr: 'Appuyez longuement pour glisser vers un classeur.', id: 'Tahan kartu untuk seret ke kabinet.', ru: 'Удерживайте карточку, чтобы перетащить.', de: 'Karte halten, um sie in ein Cabinet zu ziehen.' },
