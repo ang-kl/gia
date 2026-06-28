@@ -278,6 +278,19 @@ export function openTelegramLocationSettings() {
   return false;
 }
 
+// v0.62.407 — open an external URL from inside the Mini App. Telegram's
+// WebApp.openLink hands the URL to the device / in-app browser (and, being a
+// host-API call rather than window.open, it is NOT subject to popup-blocking
+// after an await). Outside Telegram (desktop / gia-web) fall back to window.open.
+export function openExternal(url) {
+  if (!url) return;
+  try {
+    const w = tg();
+    if (w && typeof w.openLink === 'function') { w.openLink(url); return; }
+  } catch { /* fall through */ }
+  try { window.open(url, '_blank', 'noopener'); } catch { /* noop */ }
+}
+
 export function requestLocation() {
   // Telegram's WebApp doesn't expose a direct location request as of API
   // v7. Fall back to navigator.geolocation; user gets the OS prompt.

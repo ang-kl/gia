@@ -10,6 +10,9 @@
 // only (colour-blind safe); rows are ≥44px touch targets; aria labels set.
 
 import React, { useState, useEffect } from 'react';
+// v0.62.407 — [ picture ] affordance: open the dish's authentic photo SOURCE
+// (Wikimedia Commons File: page) via a runtime Wikipedia lookup.
+import { openDishPicture } from '../lib/dish-picture.js';
 
 const TIER_LABEL = {
   'city-icon':        { en: 'city icon',        fr: 'icône de la ville' },
@@ -204,17 +207,29 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                       ? <div className="mt-1">{(fr ? d.note.fr : d.note.en) || d.note.en || ''}</div>
                       : <div className="mt-1 text-tg-hint italic">{fr ? 'Description bientôt — touchez « Trouver des adresses ».' : 'Write-up coming soon — tap “Find eateries”.'}</div>}
                     <div className="mt-2 flex items-center justify-between gap-2">
+                      {/* v0.62.407 — pill font -1 (10→9); the glass background +
+                          border now wrap ONLY the 🔍 icon (a circular chip), the
+                          word sits bare — but the whole icon+word stays one tap target. */}
                       <button
                         type="button"
-                        className="glass-pill shrink-0 px-2.5 py-0.5 rounded-full border-[0.5px] border-tg-accent/70 text-[10px] font-semibold text-tg-text"
+                        className="shrink-0 flex items-center gap-1 text-[9px] font-semibold text-tg-text active:scale-95"
                         onClick={() => { setFactIdx(null); if (onTryDish) onTryDish(d.dish); }}
-                      >🔍 {fr ? 'Trouver des adresses' : 'Find eateries'}</button>
-                      <button
-                        type="button"
-                        className="text-tg-hint text-[12px]"
-                        aria-label={fr ? 'Fermer' : 'Close'}
-                        onClick={() => setFactIdx(null)}
-                      >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                      ><span aria-hidden className="glass-pill inline-flex items-center justify-center w-[18px] h-[18px] rounded-full border-[0.5px] border-tg-accent/70">🔍</span>{fr ? 'Trouver des adresses' : 'Find eateries'}</button>
+                      <div className="flex items-center gap-3">
+                        {/* v0.62.407 — open the dish's authentic photo source (Commons File: page). */}
+                        <button
+                          type="button"
+                          className="text-tg-link text-[12px]"
+                          aria-label={fr ? 'Voir la photo' : 'View picture'}
+                          onClick={() => openDishPicture(d.dish)}
+                        >{fr ? '[ photo ]' : '[ picture ]'}</button>
+                        <button
+                          type="button"
+                          className="text-tg-hint text-[12px]"
+                          aria-label={fr ? 'Fermer' : 'Close'}
+                          onClick={() => setFactIdx(null)}
+                        >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -273,17 +288,28 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                               </div>
                             )}
                             <div className="mt-2 flex items-center justify-between gap-2">
+                              {/* v0.62.407 — pill font -1; glass bg + border on the 🔍 chip only,
+                                  word bare, whole icon+word one tap target. */}
                               <button
                                 type="button"
-                                className="glass-pill shrink-0 px-2.5 py-0.5 rounded-full border-[0.5px] border-tg-accent/70 text-[10px] font-semibold text-tg-text"
+                                className="shrink-0 flex items-center gap-1 text-[9px] font-semibold text-tg-text active:scale-95"
                                 onClick={() => { const dish = d.dish; setFactIdx(null); if (onTryDish) onTryDish(dish); }}
-                              >🔍 {fr ? 'Trouver des adresses' : 'Find eateries'}</button>
-                              <button
-                                type="button"
-                                className="text-tg-hint text-[12px]"
-                                aria-label={fr ? 'Fermer' : 'Close'}
-                                onClick={() => setFactIdx(null)}
-                              >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                              ><span aria-hidden className="glass-pill inline-flex items-center justify-center w-[18px] h-[18px] rounded-full border-[0.5px] border-tg-accent/70">🔍</span>{fr ? 'Trouver des adresses' : 'Find eateries'}</button>
+                              <div className="flex items-center gap-3">
+                                {/* v0.62.407 — open the dish's authentic photo source (Commons File: page). */}
+                                <button
+                                  type="button"
+                                  className="text-tg-link text-[12px]"
+                                  aria-label={fr ? 'Voir la photo' : 'View picture'}
+                                  onClick={() => openDishPicture(d.dish)}
+                                >{fr ? '[ photo ]' : '[ picture ]'}</button>
+                                <button
+                                  type="button"
+                                  className="text-tg-hint text-[12px]"
+                                  aria-label={fr ? 'Fermer' : 'Close'}
+                                  onClick={() => setFactIdx(null)}
+                                >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                              </div>
                             </div>
                           </div>
                         )}
