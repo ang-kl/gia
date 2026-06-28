@@ -100,6 +100,31 @@ function categoriseClassics(flat) {
   return MEAL_BUCKETS.map((b) => ({ ...b, dishes: by[b.key] })).filter((b) => b.dishes.length);
 }
 
+// v0.62.413 — operator: within each meal section, sub-group the classics by the
+// COMMUNITY most associated with each dish (server attaches `d.community`; see
+// dish-community.js). Labels are localised; the 'shared' bucket holds genuinely
+// pan-ethnic dishes (operator-approved — never force-assigned).
+const COMMUNITY_LABEL = {
+  chinese:           { en: 'Chinese',         fr: 'Chinoise' },
+  'straits-chinese': { en: 'Straits Chinese', fr: 'Peranakan' },
+  malay:             { en: 'Malay',           fr: 'Malaise' },
+  indian:            { en: 'Indian',          fr: 'Indienne' },
+  indonesian:        { en: 'Indonesian',      fr: 'Indonésienne' },
+  eurasian:          { en: 'Eurasian',        fr: 'Eurasienne' },
+  shared:            { en: 'Shared',          fr: 'Partagé' },
+};
+const COMMUNITY_ORDER = ['chinese', 'straits-chinese', 'malay', 'indian', 'indonesian', 'eurasian', 'shared'];
+function groupByCommunity(dishes) {
+  const by = {};
+  for (const d of (dishes || [])) {
+    const c = d.community || 'shared';
+    (by[c] = by[c] || []).push(d);
+  }
+  return COMMUNITY_ORDER
+    .filter((c) => by[c] && by[c].length)
+    .map((c) => ({ key: c, label: COMMUNITY_LABEL[c] || { en: c, fr: c }, dishes: by[c] }));
+}
+
 // v0.62.412 — operator: the dish explanation is now a POP-UP (was an inline card
 // that pushed the list). Same dimensions/style as before — the card markup is
 // unchanged; this just floats it over a scrim. Tapping the scrim (outside the
@@ -550,33 +575,45 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                     </div>
                     </DishModal>
                   );
+                  // v0.62.413 — one dish as a tappable middle-dot link (extracted so
+                  // both the flat list and the community sub-groups reuse it).
+                  const dishLink = (d, idx) => {
+                    const isOpen = factIdx === 'cl:' + d.dish;
+                    return (
+                      <React.Fragment key={d.dish}>
+                        {idx > 0 && <span className="text-tg-hint"> · </span>}
+                        <button
+                          type="button"
+                          className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
+                          aria-label={(fr ? 'Expliquer ' : 'Explain ') + d.dish}
+                          onClick={() => setFactIdx(factIdx === 'cl:' + d.dish ? null : 'cl:' + d.dish)}
+                        >{SPICY_RE.test(d.dish) && <span aria-label="spicy">🌶 </span>}{titleCaseDish(d.dish)}</button>
+                        {isOpen && clCard(d)}
+                      </React.Fragment>
+                    );
+                  };
                   return (
                     <div className="max-h-72 overflow-y-auto pb-2 px-1 text-[12px] leading-relaxed">
-                      {sections.map((sec) => (
-                        <div key={sec.key} className="pt-1.5 first:pt-0">
-                          <div className="text-[11px] font-semibold text-tg-text/70 pb-0.5">
-                            {sec.icon} {fr ? sec.fr : sec.en}<span className="text-tg-hint font-normal"> ({sec.dishes.length})</span>
+                      {sections.map((sec) => {
+                        // Sub-group by community when the server tagged the dishes
+                        // (SG); else fall back to the flat middle-dot list.
+                        const subs = sec.dishes.some((d) => d.community) ? groupByCommunity(sec.dishes) : null;
+                        return (
+                          <div key={sec.key} className="pt-1.5 first:pt-0">
+                            <div className="text-[11px] font-semibold text-tg-text/70 pb-0.5">
+                              {sec.icon} {fr ? sec.fr : sec.en}<span className="text-tg-hint font-normal"> ({sec.dishes.length})</span>
+                            </div>
+                            {subs
+                              ? subs.map((sub) => (
+                                  <div key={sub.key} className="pt-1 pl-1">
+                                    <div className="text-[10px] text-tg-hint pb-0.5">— {fr ? sub.label.fr : sub.label.en} —</div>
+                                    <div>{sub.dishes.map((d, idx) => dishLink(d, idx))}</div>
+                                  </div>
+                                ))
+                              : <div>{sec.dishes.map((d, idx) => dishLink(d, idx))}</div>}
                           </div>
-                          <div>
-                            {sec.dishes.map((d, idx) => {
-                              const hasNote = d.note && (d.note.en || d.note.fr);
-                              const isOpen = factIdx === 'cl:' + d.dish;
-                              return (
-                                <React.Fragment key={d.dish}>
-                                  {idx > 0 && <span className="text-tg-hint"> · </span>}
-                                  <button
-                                    type="button"
-                                    className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
-                                    aria-label={(fr ? 'Expliquer ' : 'Explain ') + d.dish}
-                                    onClick={() => setFactIdx(factIdx === 'cl:' + d.dish ? null : 'cl:' + d.dish)}
-                                  >{SPICY_RE.test(d.dish) && <span aria-label="spicy">🌶 </span>}{titleCaseDish(d.dish)}</button>
-                                  {isOpen && clCard(d)}
-                                </React.Fragment>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   );
                 })()}
