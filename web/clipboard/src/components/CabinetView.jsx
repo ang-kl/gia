@@ -1,5 +1,6 @@
-// CabinetView — full-detail view of one cabinet. Header (name + meta +
-// "+ Add drawer" + ⋯ menu), then the drawer list.
+// CabinetView — full-detail view of one cabinet. v0.62.421 (P4b): header gains a
+// ★ default toggle + ✎ edit mode (name + 📍 location inputs + pills
+// ⧉ Duplicate · 🗑 Delete · Cancel · ✓ Save). Drawers gain Duplicate + card ✕ Remove.
 
 import React, { useState } from 'react';
 import DrawerRow from './DrawerRow.jsx';
@@ -7,28 +8,56 @@ import { t } from '../lib/i18n.js';
 
 const DRAWER_CAP = 20;
 
-export default function CabinetView({ payload, lang, onBack, onAddDrawer, onTapCard, onDeleteDrawer, onDeleteCabinet, onMoveDrawer }) {
-  const [menu, setMenu] = useState(false);
+export default function CabinetView({
+  payload, lang, onBack, onAddDrawer, onTapCard, onDeleteDrawer, onDeleteCabinet, onMoveDrawer,
+  isDefault = false, onSetDefault, onSaveCabinet, onDuplicateCabinet, onDuplicateDrawer, onUnplace,
+}) {
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState('');
+  const [location, setLocation] = useState('');
   if (!payload) {
     return <div className="p-4 text-sm text-tg-hint">{t('chrome.loading', lang)}</div>;
   }
   const { cabinet, drawers } = payload;
+  const startEdit = () => { setName(cabinet.name || ''); setLocation(cabinet.location || ''); setEditing(true); };
+  const save = () => { if (!name.trim()) return; onSaveCabinet?.({ name: name.trim(), location: location.trim() }); setEditing(false); };
+  const inputCls = 'w-full px-2.5 py-2 text-sm bg-tg-bg text-tg-text border border-tg-border rounded-lg outline-none focus:border-tg-accent';
+
   return (
-    <div className="px-3 py-2">
+    <div className="px-1 py-1">
       <div className="flex items-center gap-2 mb-3">
         <button onClick={onBack} className="text-tg-hint text-sm">← {t('chrome.back', lang)}</button>
-        <div className="flex-1 truncate text-base font-semibold">
-          {cabinet.emoji} {cabinet.name}
-        </div>
-        <button onClick={() => setMenu((v) => !v)} className="text-tg-hint">⋯</button>
+        <div className="flex-1 truncate text-base font-semibold">{cabinet.emoji} {cabinet.name}</div>
+        <button
+          onClick={onSetDefault}
+          aria-label={t('cabinet.setDefault', lang)}
+          title={isDefault ? t('cabinet.isDefault', lang) : t('cabinet.setDefault', lang)}
+          className={isDefault ? 'text-yellow-500' : 'text-tg-hint'}
+        >{isDefault ? '★' : '☆'}</button>
+        {!editing && <button onClick={startEdit} className="text-tg-accent text-sm">{t('chrome.edit', lang)}</button>}
       </div>
-      {(cabinet.location || cabinet.dateStart) && (
-        <div className="text-[11px] text-tg-hint mb-2">
-          {cabinet.location && <>📍 {cabinet.location}</>}
-          {cabinet.location && cabinet.dateStart && ' · '}
-          {cabinet.dateStart && <>{cabinet.dateStart}{cabinet.dateEnd ? ` → ${cabinet.dateEnd}` : ''}</>}
+
+      {editing ? (
+        <div className="bg-tg-card border border-tg-border rounded-xl p-3 mb-3">
+          <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={t('cabinet.field.name', lang)} className={inputCls + ' mb-2'} />
+          <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder={'📍 ' + t('cabinet.field.location', lang)} className={inputCls} />
+          <div className="flex flex-wrap items-center gap-2 mt-3 text-xs">
+            <button onClick={() => { onDuplicateCabinet?.(); setEditing(false); }} className="px-2.5 py-1 rounded-full border border-tg-border text-tg-text">{t('chrome.duplicate', lang)}</button>
+            <button onClick={() => { setEditing(false); if (window.confirm(t('cabinet.deleteConfirm', lang))) onDeleteCabinet?.(); }} className="px-2.5 py-1 rounded-full border border-red-400/40 text-red-400">🗑 {t('chrome.delete', lang)}</button>
+            <button onClick={() => setEditing(false)} className="ml-auto px-2.5 py-1 rounded-full border border-tg-border text-tg-text">{t('chrome.cancel', lang)}</button>
+            <button onClick={save} className="px-3 py-1 rounded-full bg-tg-accent text-tg-accent-text font-semibold">✓ {t('chrome.save', lang)}</button>
+          </div>
         </div>
+      ) : (
+        (cabinet.location || cabinet.dateStart) && (
+          <div className="text-[11px] text-tg-hint mb-2">
+            {cabinet.location && <>📍 {cabinet.location}</>}
+            {cabinet.location && cabinet.dateStart && ' · '}
+            {cabinet.dateStart && <>{cabinet.dateStart}{cabinet.dateEnd ? ` → ${cabinet.dateEnd}` : ''}</>}
+          </div>
+        )
       )}
+
       <div className="text-[11px] text-tg-hint mb-2">
         {t('cabinet.drawers', lang, { n: drawers.length, cap: DRAWER_CAP })}
       </div>
@@ -48,34 +77,17 @@ export default function CabinetView({ payload, lang, onBack, onAddDrawer, onTapC
             lang={lang}
             onTapCard={onTapCard}
             onMove={(from, to) => onMoveDrawer?.(from, to)}
-            onDelete={() => {
-              if (window.confirm(t('drawer.deleteConfirm', lang))) onDeleteDrawer?.(i);
-            }}
+            onDuplicate={(n) => onDuplicateDrawer?.(n)}
+            onUnplace={(cardId, n) => onUnplace?.(cardId, n)}
+            onDelete={() => { if (window.confirm(t('drawer.deleteConfirm', lang))) onDeleteDrawer?.(i); }}
           />
         ))
       )}
 
       {drawers.length < DRAWER_CAP && (
-        <button
-          onClick={onAddDrawer}
-          className="w-full bg-tg-accent text-tg-accent-text rounded-xl py-2 text-sm font-semibold mt-2"
-        >
+        <button onClick={onAddDrawer} className="w-full bg-tg-accent text-tg-accent-text rounded-xl py-2 text-sm font-semibold mt-2">
           {t('cabinet.addDrawer', lang)}
         </button>
-      )}
-
-      {menu && (
-        <div className="absolute right-3 top-12 bg-tg-card border border-tg-border rounded-lg shadow-xl py-1 z-30">
-          <button
-            onClick={() => {
-              setMenu(false);
-              if (window.confirm(t('cabinet.deleteConfirm', lang))) onDeleteCabinet?.();
-            }}
-            className="block px-3 py-2 text-sm text-red-400 w-full text-left"
-          >
-            🗑 {t('chrome.delete', lang)}
-          </button>
-        </div>
       )}
     </div>
   );

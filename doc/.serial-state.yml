@@ -1,8 +1,8 @@
 counters:
-  commit: 892
-  build: 532
+  commit: 893
+  build: 533
   documents:
-    journal: 774
+    journal: 775
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 28-06 '26 18:30 SGT
-last_anchor_source: sketchbook_p4a_filesheet_2026-06-28_1830 (v0.62.420 — Sketchbook P4a: 2-step File sheet [HANDOFF §5]. NEW FileSheet in sheets.jsx: step1 pick cabinet [rows] or create one inline; step2 pick existing drawer OR 2-col segment grid to spin a new drawer; both file the card; back chevron. VenueCard ＋File [clipboard ctx] -> App setFileCard -> FileSheet with api handlers [getCabinet/onCreateCabinet/onPlaceExisting/onPlaceNewDrawer]. CatchAllStrip threads onFileCard. i18n file.* keys. Real vite build OK [50 modules]. journal 773->774, commit 891->892, build 531->532. NEXT P4b cabinet/drawer edit pills [Cancel/Save/Delete/Duplicate] + default ★ + 📍 location & 🧭 Recents, P5 Settings. PRIOR ANCHOR sketchbook_p3_venuecard_2026-06-28_1805)
+last_anchor_time: 28-06 '26 19:00 SGT
+last_anchor_source: sketchbook_p4b_edit_2026-06-28_1900 (v0.62.421 — Sketchbook P4b: cabinet/drawer edit pills + default star + duplicate + card remove. CabinetView: ★/☆ default toggle [gold when default], ✎ edit mode [name + 📍 location inputs + pills ⧉Duplicate/🗑Delete/Cancel/✓Save]. DrawerRow: ⧉Duplicate + 🗑Delete footer pills; drawer cards now context=drawer with ✕Remove -> unplace. App wired: onSetDefault[api.setDefaultCabinet], onSaveCabinet[updateCabinet name+location], onDuplicateCabinet[->route new], onDuplicateDrawer, onUnplace. i18n chrome.edit/duplicate + cabinet.setDefault/isDefault. Real vite build OK [50 modules]. journal 774->775, commit 892->893, build 532->533. REMAINING: 🧭 Recent[N/20] location LRU [reuse /api/cuisine/recent-locations] + drawer location edit; P5 Settings. PRIOR ANCHOR sketchbook_p4a_filesheet_2026-06-28_1830)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00

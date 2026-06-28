@@ -11,7 +11,7 @@ import VenueCard from './VenueCard.jsx';
 import { SEGMENT_BY_KEY, GROUP_CLASS } from '../lib/segments.js';
 import { t } from '../lib/i18n.js';
 
-export default function DrawerRow({ drawer, n, totalDrawers, cabinetId, lang, onTapCard, onDelete, onMove }) {
+export default function DrawerRow({ drawer, n, totalDrawers, cabinetId, lang, onTapCard, onDelete, onMove, onDuplicate, onUnplace }) {
   const seg = SEGMENT_BY_KEY[drawer.segment] || SEGMENT_BY_KEY.wholeDay;
   const [open, setOpen] = useState(true);
   const cls = GROUP_CLASS[seg.group] || '';
@@ -73,15 +73,22 @@ export default function DrawerRow({ drawer, n, totalDrawers, cabinetId, lang, on
             </div>
           ) : (
             (drawer.cards || []).map((c) => (
-              <VenueCard key={c.cardId} card={c} onTap={() => onTapCard?.(c)} />
+              <VenueCard
+                key={c.cardId}
+                card={c}
+                context="drawer"
+                onTap={() => onTapCard?.(c)}
+                onRemove={() => onUnplace?.(c.cardId, n)}
+              />
             ))
           )}
-          <button
-            onClick={onDelete}
-            className="w-full text-[10px] text-tg-hint hover:text-tg-text py-1"
-          >
-            🗑 {t('chrome.delete', lang)} drawer
-          </button>
+          {/* v0.62.421 — drawer edit pills: Duplicate · Delete */}
+          <div className="flex items-center justify-end gap-3 pt-1">
+            {onDuplicate && (
+              <button onClick={() => onDuplicate(n)} className="text-[10px] text-tg-hint hover:text-tg-text py-1">{t('chrome.duplicate', lang)}</button>
+            )}
+            <button onClick={onDelete} className="text-[10px] text-tg-hint hover:text-tg-text py-1">🗑 {t('chrome.delete', lang)}</button>
+          </div>
         </div>
       )}
     </div>
