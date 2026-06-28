@@ -272,13 +272,13 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                           className="text-tg-link text-[12px]"
                           aria-label={fr ? 'Voir la photo' : 'View picture'}
                           onClick={() => openDishPicture(d.dish)}
-                        >{fr ? '[ photo ]' : '[ picture ]'}</button>
+                        >{fr ? '🧆 photo' : '🧆 picture'}</button>
                         <button
                           type="button"
                           className="text-tg-hint text-[12px]"
                           aria-label={fr ? 'Fermer' : 'Close'}
                           onClick={() => setFactIdx(null)}
-                        >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                        >{fr ? 'fermer' : 'close'}</button>
                       </div>
                     </div>
                   </div>
@@ -354,13 +354,13 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                                   className="text-tg-link text-[12px]"
                                   aria-label={fr ? 'Voir la photo' : 'View picture'}
                                   onClick={() => openDishPicture(d.dish)}
-                                >{fr ? '[ photo ]' : '[ picture ]'}</button>
+                                >{fr ? '🧆 photo' : '🧆 picture'}</button>
                                 <button
                                   type="button"
                                   className="text-tg-hint text-[12px]"
                                   aria-label={fr ? 'Fermer' : 'Close'}
                                   onClick={() => setFactIdx(null)}
-                                >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                                >{fr ? 'fermer' : 'close'}</button>
                               </div>
                             </div>
                           </div>
@@ -485,13 +485,13 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                       className="text-tg-link text-[12px]"
                       aria-label={fr ? 'Voir la photo' : 'View picture'}
                       onClick={() => openDishPicture(d.dish)}
-                    >{fr ? '[ photo ]' : '[ picture ]'}</button>
+                    >{fr ? '🧆 photo' : '🧆 picture'}</button>
                     <button
                       type="button"
                       className="text-tg-hint text-[12px]"
                       aria-label={fr ? 'Fermer' : 'Close'}
                       onClick={() => setFactIdx(null)}
-                    >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                    >{fr ? 'fermer' : 'close'}</button>
                   </div>
                 </div>
               </div>
@@ -563,13 +563,13 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                             className="text-tg-link text-[12px]"
                             aria-label={fr ? 'Voir la photo' : 'View picture'}
                             onClick={() => openDishPicture(d.dish)}
-                          >{fr ? '[ photo ]' : '[ picture ]'}</button>
+                          >{fr ? '🧆 photo' : '🧆 picture'}</button>
                           <button
                             type="button"
                             className="text-tg-hint text-[12px]"
                             aria-label={fr ? 'Fermer' : 'Close'}
                             onClick={() => setFactIdx(null)}
-                          >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                          >{fr ? 'fermer' : 'close'}</button>
                         </div>
                       </div>
                     </div>
