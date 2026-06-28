@@ -183,6 +183,27 @@ export default function App() {
             } catch (err) { alert(err.message); }
             finally { setBusy(false); }
           }}
+          isDefault={state.defaultCabinetId === state.currentCabinetId}
+          onSetDefault={async () => {
+            try { setBusy(true); await api.setDefaultCabinet(state.currentCabinetId); await reloadState(); }
+            catch (err) { alert(err.message); } finally { setBusy(false); }
+          }}
+          onSaveCabinet={async (patch) => {
+            try { setBusy(true); await api.updateCabinet(state.currentCabinetId, patch); await loadCabinet(state.currentCabinetId); await reloadState(); }
+            catch (err) { alert(err.message); } finally { setBusy(false); }
+          }}
+          onDuplicateCabinet={async () => {
+            try { setBusy(true); const r = await api.duplicateCabinet(state.currentCabinetId); await reloadState(); if (r?.cabinet?.cabId) setRoute({ kind: 'cabinet', cabId: r.cabinet.cabId }); }
+            catch (err) { alert(err.message); } finally { setBusy(false); }
+          }}
+          onDuplicateDrawer={async (n) => {
+            try { setBusy(true); await api.duplicateDrawer(state.currentCabinetId, n); await loadCabinet(state.currentCabinetId); }
+            catch (err) { alert(err.message); } finally { setBusy(false); }
+          }}
+          onUnplace={async (cardId, n) => {
+            try { setBusy(true); await api.unplaceCard(cardId, state.currentCabinetId, n); await loadCabinet(state.currentCabinetId); await reloadState(); }
+            catch (err) { alert(err.message); } finally { setBusy(false); }
+          }}
         />
       ) : tab === 'clipboard' ? (
         <CatchAllStrip

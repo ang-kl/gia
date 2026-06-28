@@ -54,6 +54,10 @@ const STRINGS = {
   'file.newDrawer':         { en: 'New drawer',         fr: 'Nouveau tiroir',   id: 'Laci baru',      ru: 'Новый ящик',      de: 'Neues Fach' },
   'file.back':              { en: '‹ Back',             fr: '‹ Retour',         id: '‹ Kembali',      ru: '‹ Назад',        de: '‹ Zurück' },
   'file.filed':             { en: '✓ Filed',            fr: '✓ Classé',         id: '✓ Diarsipkan',   ru: '✓ Готово',       de: '✓ Abgelegt' },
+  'chrome.edit':            { en: '✎ Edit',             fr: '✎ Modifier',       id: '✎ Ubah',         ru: '✎ Изм.',         de: '✎ Bearb.' },
+  'chrome.duplicate':       { en: '⧉ Duplicate',        fr: '⧉ Dupliquer',      id: '⧉ Duplikat',     ru: '⧉ Дубликат',     de: '⧉ Duplizieren' },
+  'cabinet.setDefault':     { en: 'Set as default',     fr: 'Par défaut',       id: 'Jadikan default', ru: 'По умолчанию',  de: 'Als Standard' },
+  'cabinet.isDefault':      { en: 'Default cabinet',    fr: 'Classeur par défaut', id: 'Kabinet default', ru: 'Папка по умолчанию', de: 'Standard-Cabinet' },
 
   // ── root ──────────────────────────────────────────────────────────
   'root.catchAll':          { en: 'Catch-all',          fr: 'Tiroir d’accueil', id: 'Tampung',   ru: 'Общая',          de: 'Sammelfach' },
