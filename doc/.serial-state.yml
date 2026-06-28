@@ -1,8 +1,8 @@
 counters:
-  commit: 883
-  build: 523
+  commit: 884
+  build: 524
   documents:
-    journal: 765
+    journal: 766
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 28-06 '26 14:25 SGT
-last_anchor_source: dish_picture_geo_plate_2026-06-28_1425 (v0.62.411 — operator [IMG_2623]: [ picture ] + restyled pill were missing from the 'Pick local classic' / geo Local-Food-Classic view. Root cause: ArrivalPlate has FOUR dish-card render sites across TWO return blocks; v0.62.407 only patched the two in the cuisine-mode block. Added the chip-pill restyle [font 9, glass bg+border on 🔍 only, whole icon+word one tap] + [ picture ]/[ photo ] -> openDishPicture to the two geo-plate sites [the main 📜 card ~L420 + the More-classics clCard ~L487]. esbuild OK, 4 openDishPicture sites. journal 764->765, commit 882->883, build 522->523. PRIOR ANCHOR journal_backlog_388_406_2026-06-28_1405)
+last_anchor_time: 28-06 '26 14:45 SGT
+last_anchor_source: dish_explanation_modal_2026-06-28_1445 (v0.62.412 — operator: dish explanation is now a POP-UP not an inline card. Added DishModal scrim wrapper [fixed inset-0 z-40 bg-black/50, centered max-w-420 card, click-outside closes, inner stopPropagation]; wrapped all 4 ArrivalPlate dish-card render sites [headliner, folio-panel, geo main, More-classics clCard]. Card markup unchanged = same dimensions/style. Auto-close: tap scrim or another dish [factIdx swap] dismisses. esbuild OK, 4 DishModal open/close balanced. journal 765->766, commit 883->884, build 523->524. NEXT: community sub-grouping within meal sections [derive from origin/sharedWith tags, no invention]. PRIOR ANCHOR dish_picture_geo_plate_2026-06-28_1425)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
