@@ -510,4 +510,12 @@ module.exports = {
   'singaporean::chendol': '煎蕊',
   'singaporean::satay': '沙爹',
   'singaporean::curry puff': '咖喱角',
+  // ── Peranakan (mostly Malay/Nyonya-rooted → Latin/Jawi; only the few
+  //    Hokkien-derived dishes carry an authentic Chinese name)
+  'peranakan::cap chai': '杂菜',
+  'peranakan::nyonya bak chang': '娘惹肉粽',
+  'peranakan::hee pio soup': '鱼鳔汤',
+  'peranakan::katong laksa': '叻沙',
+  'peranakan::popiah nyonya': '薄饼',
+  'peranakan::chendol': '煎蕊',
 };
