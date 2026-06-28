@@ -435,6 +435,8 @@ const STRINGS = {
   'cat.african':               { en: 'African', fr: 'Africaine' },
   // v0.62.265 — Dessert + Fusion merged into one card.
   'cat.sweetsFusion':          { en: 'Sweets & Fusion', fr: 'Desserts & Fusion' },
+  'cat.michelinBib':           { en: 'Michelin · Bib Gourmand', fr: 'Michelin · Bib Gourmand' },
+  'cat.setMeal':               { en: 'Set Meal (Beta)', fr: 'Menu fixe (bêta)' },
 
   // v0.61.278 — O-25: surfaced when the server's JB-hybrid filter
   // wipes the pool (JB pill picked at non-JB coords) and falls back
@@ -498,6 +500,9 @@ const STRINGS = {
 // inline `id:` (the locale.switch* keys) — the merge only fills gaps, so those
 // are left as-is.
 const ID_STRINGS = {
+  'cat.sweetsFusion': 'Manis & Fusion',
+  'cat.michelinBib': 'Michelin · Bib Gourmand',
+  'cat.setMeal': 'Set Meal (Beta)',
   'header.tagline': '💬 Beri tahu atau 🔍 Cari',
   'region.singapore': 'Singapura',
   'region.johor': 'Johor Bahru',
@@ -709,6 +714,9 @@ for (const [k, v] of Object.entries(ID_STRINGS)) {
 
 // ----- Russian (ru) overlay — v0.62.313. Controls kept tight to fit EN; agent-verified. -----
 const RU_STRINGS = {
+  'cat.sweetsFusion': 'Десерты и фьюжн',
+  'cat.michelinBib': 'Мишлен · Биб Гурман',
+  'cat.setMeal': 'Комплексное меню (бета)',
 "header.tagline": "💬 Расскажите или 🔍 Поиск",
 "region.singapore": "Сингапур",
 "region.johor": "Джохор-Бару",
@@ -919,6 +927,9 @@ const RU_STRINGS = {
 };
 // ----- German (de) overlay — v0.62.313. Compounds abbreviated where tight; agent-verified. -----
 const DE_STRINGS = {
+  'cat.sweetsFusion': 'Süßes & Fusion',
+  'cat.michelinBib': 'Michelin · Bib Gourmand',
+  'cat.setMeal': 'Set-Menü (Beta)',
 "header.tagline": "💬 Sag es mir oder 🔍 Suche",
 "region.singapore": "Singapur",
 "region.johor": "Johor Bahru",
@@ -1130,6 +1141,9 @@ const DE_STRINGS = {
 // ----- Chinese (zh, Simplified) overlay — v0.62.x, Phase 3. Curated; controls
 // kept compact (Chinese is dense) so pills don't overflow. -----
 const ZH_STRINGS = {
+  'cat.sweetsFusion': '甜点与融合菜',
+  'cat.michelinBib': '米其林 · 必比登',
+  'cat.setMeal': '套餐 (测试版)',
   'header.tagline': '💬 告诉我 或 🔍 搜索',
   'region.singapore': '新加坡',
   'region.johor': '新山',
@@ -1282,6 +1296,9 @@ for (const [k, v] of Object.entries(DE_STRINGS)) { if (STRINGS[k] && STRINGS[k].
 for (const [k, v] of Object.entries(ZH_STRINGS)) { if (STRINGS[k] && STRINGS[k].zh == null) STRINGS[k].zh = v; }
 // ----- Japanese (ja) overlay — v0.62.x, Phase 3. -----
 const JA_STRINGS = {
+  'cat.sweetsFusion': 'スイーツ & フュージョン',
+  'cat.michelinBib': 'ミシュラン · ビブグルマン',
+  'cat.setMeal': 'セットメニュー (ベータ)',
   'header.tagline': '💬 教えて または 🔍 検索',
   'region.singapore': 'シンガポール',
   'region.johor': 'ジョホールバル',
@@ -1431,6 +1448,9 @@ const JA_STRINGS = {
 };
 // ----- Spanish (es) overlay — v0.62.x, Phase 3. -----
 const ES_STRINGS = {
+  'cat.sweetsFusion': 'Dulces y Fusión',
+  'cat.michelinBib': 'Michelin · Bib Gourmand',
+  'cat.setMeal': 'Menú fijo (Beta)',
   'header.tagline': '💬 Dime o 🔍 Buscar',
   'region.singapore': 'Singapur',
   'region.johor': 'Johor Bahru',
