@@ -1,8 +1,8 @@
 counters:
-  commit: 899
-  build: 539
+  commit: 900
+  build: 540
   documents:
-    journal: 781
+    journal: 782
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 28-06 '26 23:10 SGT
-last_anchor_source: sketchbook_cdfg_2026-06-28_2310 (v0.62.427 — Sketchbook sample-parity batch C/D/F/G [re-shipped after classifier outage interrupted first attempt]. F footer: emoji->line-SVG icons [clipboard/cabinet/grid/sliders, cobalt active]. D DrawerRow: collapsed = emoji-circle · label · '{dayTag} · 📍{loc}' subline · cobalt count pill · Edit · chevron [dropped time-range; reorder ↑↓ moved into expanded edit footer]. G AddDrawerSheet: ‹back · title+cabinet · 2-col circular-icon grid · tap-to-add · Close✕. C SettingsView: + Display toggles [secondary currency on, quiet sort off; localStorage] + Privacy [What's stored + Forget me wipes all] + Saved location. i18n set.*/drawer.pickSegment. Real vite build OK [50 modules]. journal 780->781, commit 898->899, build 538->539. NEXT E [Cabinets badges/counts/touched, needs backend], then B [ResultCard]. PRIOR ANCHOR sketchbook_sample_palette_2026-06-28_2215)
+last_anchor_time: 28-06 '26 23:40 SGT
+last_anchor_source: sketchbook_e_cabinets_2026-06-28_2340 (v0.62.428 — Sketchbook E: Cabinets list sample parity. Backend: clipboard-store listCabinets now returns drawerCount + eateryCount per cabinet [drawerCount=lLen drMeta; eateryCount=sum lLen drList; guarded]. Frontend: CabinetCard redesigned to full-width list ROW [🗄️ tile · name · ★DEFAULT/OPEN badges · 'N drawers · M eateries' · 'touched … · 1-year TTL' · chevron]; CabinetGrid 2-col grid -> vertical LIST + 'Cabinets' heading + 'Trips & events…' subtitle, passes defaultCabinetId+activeCabinetId. i18n root.cabinetsSub/cab.* [default/open/counts/ttl/touched]. clipboard-store 74✓; real vite build OK [50 modules]. journal 781->782, commit 899->900, build 539->540. REMAINING: B [Clipboard cards -> Cuisine ResultCard via store-venue-on-Copy] — the last big piece. PRIOR ANCHOR sketchbook_cdfg_2026-06-28_2310)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00

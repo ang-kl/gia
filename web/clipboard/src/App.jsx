@@ -218,6 +218,8 @@ export default function App() {
         <CabinetGrid
           cabinets={state.cabinets}
           lang={lang}
+          defaultCabinetId={state.defaultCabinetId}
+          activeCabinetId={state.currentCabinetId}
           onOpen={(cabId) => setRoute({ kind: 'cabinet', cabId })}
           onNew={() => setSheet('createCab')}
         />

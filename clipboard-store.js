@@ -104,7 +104,17 @@ async function listCabinets(redis, chatId) {
     for (const cabId of ids) {
       const h = await redis.hGetAll(cabHashKey(chatId, cabId));
       if (!h || Object.keys(h).length === 0) continue;   // lazy-purge stale id
-      out.push(denormaliseCabinet(cabId, h));
+      const cab = denormaliseCabinet(cabId, h);
+      // v0.62.428 — per-cabinet counts for the Cabinets list (sample parity:
+      // "N drawers · M eateries"). drawerCount = drawer-meta length; eateryCount
+      // = sum of placements across drawers (a card in 2 drawers counts twice,
+      // matching the "eateries filed" intent). Bounded by caps (12×20×10).
+      const drawerCount = await redis.lLen(drMetaKey(chatId, cabId)).catch(() => 0);
+      let eateryCount = 0;
+      for (let n = 0; n < drawerCount; n++) {
+        eateryCount += await redis.lLen(drListKey(chatId, cabId, n)).catch(() => 0);
+      }
+      out.push({ ...cab, drawerCount, eateryCount });
     }
     return out;
   } catch (err) {
