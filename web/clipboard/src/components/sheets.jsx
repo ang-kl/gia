@@ -6,10 +6,103 @@
 //   ShareDrawerSheet    – mint + show drawer share link
 //   ForkSheet           – shared-view fork into a target cabinet
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { t } from '../lib/i18n.js';
 import { SEGMENTS, SEGMENT_BY_KEY, GROUP_CLASS } from '../lib/segments.js';
 import { openTelegramLink } from '../lib/tg.js';
+
+// ── FileSheet (v0.62.420) ────────────────────────────────────────────
+// 2-step "＋ File" flow: (1) pick a cabinet (or create one inline), (2) pick an
+// existing drawer in it OR spin up a new drawer from the time-segment grid; both
+// file the card. Back chevron returns to step 1. Operator spec HANDOFF §5.
+export function FileSheet({
+  card, cabinets = [], lang, getCabinet, onPlaceExisting, onPlaceNewDrawer, onCreateCabinet, onClose,
+}) {
+  const [step, setStep] = useState('cabinet');
+  const [cabId, setCabId] = useState(null);
+  const [drawers, setDrawers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const pickCab = async (id) => {
+    setCabId(id); setStep('drawer'); setLoading(true);
+    try { const r = await getCabinet(id); setDrawers(r?.drawers || []); }
+    finally { setLoading(false); }
+  };
+  const createCab = async () => {
+    const name = newName.trim(); if (!name || busy) return;
+    setBusy(true);
+    try { const r = await onCreateCabinet(name); if (r?.cabId) { setNewName(''); await pickCab(r.cabId); } }
+    finally { setBusy(false); }
+  };
+  const fileInto = async (idx) => { if (busy) return; setBusy(true); try { await onPlaceExisting(cabId, idx); } finally { setBusy(false); } };
+  const fileNew = async (segment) => { if (busy) return; setBusy(true); try { await onPlaceNewDrawer(cabId, segment); } finally { setBusy(false); } };
+
+  return (
+    <Sheet onClose={onClose} title={t('file.title', lang)}>
+      {step === 'cabinet' ? (
+        <>
+          <div className="mb-2 text-[10px] uppercase tracking-wide text-tg-hint">{t('file.pickCabinet', lang)}</div>
+          <div className="flex flex-col gap-1.5 max-h-[40vh] overflow-y-auto">
+            {cabinets.map((c) => (
+              <button key={c.cabId} type="button" onClick={() => pickCab(c.cabId)}
+                className="flex items-center gap-2 w-full text-left bg-tg-bg border border-tg-border rounded-lg px-3 py-2 text-sm">
+                <span aria-hidden>{c.emoji || '🗄️'}</span>
+                <span className="flex-1 truncate">{c.name}</span>
+                <span className="text-tg-hint">›</span>
+              </button>
+            ))}
+            {cabinets.length === 0 && <div className="text-[11px] text-tg-hint italic px-1 py-2">{t('cabinet.empty', lang)}</div>}
+          </div>
+          <div className="flex gap-2 mt-3">
+            <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder={t('cabinet.field.name', lang)} className={inputCls} />
+            <button type="button" onClick={createCab} disabled={!newName.trim() || busy} className="px-3 py-2 rounded-lg text-sm font-semibold bg-tg-accent text-tg-accent-text disabled:opacity-40">{t('file.newCabinet', lang)}</button>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex items-center justify-between mb-2">
+            <button type="button" onClick={() => setStep('cabinet')} className="text-[12px] text-tg-accent">{t('file.back', lang)}</button>
+            <span className="text-[10px] uppercase tracking-wide text-tg-hint">{t('file.pickDrawer', lang)}</span>
+          </div>
+          {loading ? (
+            <div className="text-center text-xs text-tg-hint py-4">{t('chrome.loading', lang)}</div>
+          ) : (
+            <>
+              {drawers.length > 0 && (
+                <div className="flex flex-col gap-1.5 mb-3 max-h-[28vh] overflow-y-auto">
+                  {drawers.map((d, i) => {
+                    const seg = SEGMENT_BY_KEY[d.segment] || {};
+                    return (
+                      <button key={i} type="button" onClick={() => fileInto(i)}
+                        className="flex items-center gap-2 w-full text-left bg-tg-bg border border-tg-border rounded-lg px-3 py-2 text-sm">
+                        <span aria-hidden>{seg.emoji || '🗂️'}</span>
+                        <span className="flex-1 truncate">{t('seg.' + d.segment, lang)}{d.dayTag ? ` · ${d.dayTag}` : ''}</span>
+                        <span className="text-tg-hint text-xs">{(d.cards || []).length}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              <div className="mb-1.5 text-[10px] uppercase tracking-wide text-tg-hint">{t('file.newDrawer', lang)}</div>
+              <div className="grid grid-cols-2 gap-1.5">
+                {SEGMENTS.map((s) => (
+                  <button key={s.key} type="button" onClick={() => fileNew(s.key)}
+                    className={`flex flex-col items-center justify-center px-2 py-2 rounded-lg border text-[10px] leading-tight border-tg-border text-tg-text ${GROUP_CLASS[s.group]}`}>
+                    <span className="text-base" aria-hidden>{s.emoji}</span>
+                    <span>{t('seg.' + s.key, lang)}</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </>
+      )}
+      <button type="button" onClick={onClose} className="w-full mt-3 py-2 rounded-lg border border-tg-border text-sm">{t('chrome.close', lang)}</button>
+    </Sheet>
+  );
+}
 
 function Sheet({ children, onClose, title }) {
   return (
