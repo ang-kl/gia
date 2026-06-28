@@ -69,7 +69,11 @@ export default function FunFactModal({ fact, visible, minDisplayMs = DEFAULT_MIN
   // v0.61.383 — the fact BODY localises to the device-region language
   // (e.g. a JP device shows the Japanese text), independent of the app's
   // en/fr UI chrome (header / "curating" / source labels stay on `lang`).
-  const body = factBody(fact, deviceFactLang());
+  // v0.62.x — operator: an EXPLICIT UI locale pick (中文/日本語/… via the toggle)
+  // must drive the fact too. Prefer the selected `lang` when it isn't the
+  // default 'en'; fall back to the device-region language otherwise (so a JP
+  // device on the default UI still gets Japanese facts).
+  const body = factBody(fact, (lang && lang !== 'en') ? lang : deviceFactLang());
   const sourceLabel = fact.source || 'NLB';
 
   return (
