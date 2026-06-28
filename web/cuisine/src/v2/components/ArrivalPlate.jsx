@@ -100,6 +100,30 @@ function categoriseClassics(flat) {
   return MEAL_BUCKETS.map((b) => ({ ...b, dishes: by[b.key] })).filter((b) => b.dishes.length);
 }
 
+// v0.62.412 — operator: the dish explanation is now a POP-UP (was an inline card
+// that pushed the list). Same dimensions/style as before — the card markup is
+// unchanged; this just floats it over a scrim. Tapping the scrim (outside the
+// card) OR tapping another dish closes it (the dish buttons set factIdx, which
+// swaps the open card). `max-w` matches the readable card width; the inner
+// wrapper stops click-through so taps inside the card don't dismiss it.
+function DishModal({ onClose, children }) {
+  return (
+    <div
+      className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/50"
+      role="dialog"
+      aria-modal="true"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        className="w-full max-w-[420px] max-h-[80vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded = false }) {
   const [open, setOpen] = useState(false);
   const [factIdx, setFactIdx] = useState(null);   // index of the open 📜 bubble
@@ -201,6 +225,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                   )}
                 </div>
                 {factIdx === 'h' + i && (
+                  <DishModal onClose={() => setFactIdx(null)}>
                   <div className="mb-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
                     <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                     {d.note
@@ -232,6 +257,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                       </div>
                     </div>
                   </div>
+                  </DishModal>
                 )}
               </React.Fragment>
             ))}
@@ -276,6 +302,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                           onClick={() => setFactIdx(factIdx === g.group + ':' + d.dish ? null : g.group + ':' + d.dish)}
                         >{titleCaseDish(d.dish)}{d.local && d.local !== d.dish && <span className="text-tg-hint whitespace-nowrap"> {d.local}</span>}</button>
                         {isOpen && (
+                          <DishModal onClose={() => setFactIdx(null)}>
                           <div className="my-2 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2 whitespace-normal">
                             <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                             {d.note
@@ -312,6 +339,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                               </div>
                             </div>
                           </div>
+                          </DishModal>
                         )}
                       </React.Fragment>
                       );
@@ -404,6 +432,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
           {factIdx != null && plate.dishes[factIdx] && (() => {
             const d = plate.dishes[factIdx];
             return (
+              <DishModal onClose={() => setFactIdx(null)}>
               <div className="mt-1.5 mb-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
                 <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                 <div className="mt-1">{(d.history && (fr ? d.history.fr : d.history.en)) || ''}</div>
@@ -441,6 +470,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                   </div>
                 </div>
               </div>
+              </DishModal>
             );
           })()}
 
@@ -482,6 +512,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                     : (plate.classics || []).map((n) => ({ dish: n }));
                   const sections = categoriseClassics(flat);
                   const clCard = (d) => (
+                    <DishModal onClose={() => setFactIdx(null)}>
                     <div className="my-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2 whitespace-normal">
                       <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                       {d.note && (d.note.en || d.note.fr)
@@ -517,6 +548,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                         </div>
                       </div>
                     </div>
+                    </DishModal>
                   );
                   return (
                     <div className="max-h-72 overflow-y-auto pb-2 px-1 text-[12px] leading-relaxed">
