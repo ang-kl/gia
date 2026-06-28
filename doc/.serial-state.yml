@@ -1,8 +1,8 @@
 counters:
-  commit: 881
+  commit: 882
   build: 522
   documents:
-    journal: 763
+    journal: 764
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 28-06 '26 13:55 SGT
-last_anchor_source: a1_native_peranakan_2026-06-28_1355 (v0.62.409 — A1 native-script overlay: +6 Peranakan CJK-origin dish names [cap chai 杂菜, nyonya bak chang 娘惹肉粽, hee pio soup 鱼鳔汤, katong laksa 叻沙, popiah nyonya 薄饼, chendol 煎蕊]. Peranakan is overwhelmingly Malay/Nyonya-rooted so only the Hokkien-derived dishes carry an authentic Chinese name; the rest [kueh, sambal, ayam buah keluak, rendang ...] DELIBERATELY skipped -> grounded pipeline [Latin/Jawi]. node --check OK, 473 total entries, 0 dups. journal 762->763, commit 880->881. KNOWN GAP: non-CJK scripts [Indian/Tamil, Arabic, Cyrillic, Greek, Georgian ~240]; journal backlog v0.62.388->406. PRIOR ANCHOR a1_native_singaporean_2026-06-28_1345)
+last_anchor_time: 28-06 '26 14:05 SGT
+last_anchor_source: journal_backlog_388_406_2026-06-28_1405 (doc-only — back-fill journal #764 covering the gap arc v0.62.388->406 [PRs #1365-#1383]: Clipboard TDZ diagnose+fix [#1365/#1367], SG hawker-first [#1366], location display/anchor thrash + Telegram LocationManager 8.0 + long-press pin [#1368-1370/#1373/#1374], adjective-only dish-name reject [#1372], Phase-3 zh/ja/es locale [#1371/#1375/#1376], cuisine-card/fun-fact/cuisine-name translation gaps [#1377/#1378], dish audit -> B1 specific drinks + A1 native-script batches 1-5 [#1379-#1383]. No code change. journal 763->764. Journal now CURRENT through v0.62.409. PRIOR ANCHOR a1_native_peranakan_2026-06-28_1355)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
