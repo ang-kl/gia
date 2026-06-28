@@ -19,16 +19,16 @@ export default function CatchAllStrip({ cards, lang, onTapCard, dragHandle, drag
           {t('root.catchAllEmpty', lang)}
         </div>
       ) : (
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+        <div className="flex flex-col gap-2">
           {cards.map((c) => (
-            <div key={c.cardId} className="w-[200px] shrink-0">
-              <VenueCard
-                card={c}
-                onTap={() => onTapCard?.(c)}
-                dragProps={dragHandle({ cardId: c.cardId, label: c.name || c.preview || '📋' })}
-                dimmed={draggingCardId === c.cardId}
-              />
-            </div>
+            <VenueCard
+              key={c.cardId}
+              card={c}
+              context="clipboard"
+              onTap={() => onTapCard?.(c)}
+              dragProps={dragHandle({ cardId: c.cardId, label: c.name || c.preview || '📋' })}
+              dimmed={draggingCardId === c.cardId}
+            />
           ))}
         </div>
       )}
