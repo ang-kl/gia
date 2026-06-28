@@ -417,18 +417,28 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                   </div>
                 )}
                 {/* v0.62.162 — explain-first: search runs only on "Find eateries". */}
+                {/* v0.62.411 — match the cuisine-mode card: pill font -1, glass bg+border
+                    on the 🔍 chip only (word bare, whole icon+word one tap target), + [ picture ]. */}
                 <div className="mt-2 flex items-center justify-between gap-2">
                   <button
                     type="button"
-                    className="text-[13px] font-semibold px-3 py-1.5 rounded-full bg-tg-accent text-tg-accent-text"
+                    className="shrink-0 flex items-center gap-1 text-[9px] font-semibold text-tg-text active:scale-95"
                     onClick={() => { setFactIdx(null); if (onTryDish) onTryDish(d.dish); }}
-                  >🔍 {fr ? 'Trouver des adresses' : 'Find eateries'}</button>
-                  <button
-                    type="button"
-                    className="text-tg-hint text-[12px]"
-                    aria-label={fr ? 'Fermer' : 'Close'}
-                    onClick={() => setFactIdx(null)}
-                  >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                  ><span aria-hidden className="glass-pill inline-flex items-center justify-center w-[18px] h-[18px] rounded-full border-[0.5px] border-tg-accent/70">🔍</span>{fr ? 'Trouver des adresses' : 'Find eateries'}</button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      className="text-tg-link text-[12px]"
+                      aria-label={fr ? 'Voir la photo' : 'View picture'}
+                      onClick={() => openDishPicture(d.dish)}
+                    >{fr ? '[ photo ]' : '[ picture ]'}</button>
+                    <button
+                      type="button"
+                      className="text-tg-hint text-[12px]"
+                      aria-label={fr ? 'Fermer' : 'Close'}
+                      onClick={() => setFactIdx(null)}
+                    >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                  </div>
                 </div>
               </div>
             );
@@ -484,18 +494,27 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                           {(fr ? 'source : ' : 'source: ') + d.sources.map((s) => s.name).join(' · ')}
                         </div>
                       )}
+                      {/* v0.62.411 — pill font -1; glass bg+border on 🔍 chip only; + [ picture ]. */}
                       <div className="mt-2 flex items-center justify-between gap-2">
                         <button
                           type="button"
-                          className="glass-pill shrink-0 px-2.5 py-0.5 rounded-full border-[0.5px] border-tg-accent/70 text-[10px] font-semibold text-tg-text"
+                          className="shrink-0 flex items-center gap-1 text-[9px] font-semibold text-tg-text active:scale-95"
                           onClick={() => { const dish = d.dish; setFactIdx(null); if (onTryDish) onTryDish(dish); }}
-                        >🔍 {fr ? 'Trouver des adresses' : 'Find eateries'}</button>
-                        <button
-                          type="button"
-                          className="text-tg-hint text-[12px]"
-                          aria-label={fr ? 'Fermer' : 'Close'}
-                          onClick={() => setFactIdx(null)}
-                        >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                        ><span aria-hidden className="glass-pill inline-flex items-center justify-center w-[18px] h-[18px] rounded-full border-[0.5px] border-tg-accent/70">🔍</span>{fr ? 'Trouver des adresses' : 'Find eateries'}</button>
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            className="text-tg-link text-[12px]"
+                            aria-label={fr ? 'Voir la photo' : 'View picture'}
+                            onClick={() => openDishPicture(d.dish)}
+                          >{fr ? '[ photo ]' : '[ picture ]'}</button>
+                          <button
+                            type="button"
+                            className="text-tg-hint text-[12px]"
+                            aria-label={fr ? 'Fermer' : 'Close'}
+                            onClick={() => setFactIdx(null)}
+                          >{fr ? '[ fermer ]' : '[ close ]'}</button>
+                        </div>
                       </div>
                     </div>
                   );
