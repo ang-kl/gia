@@ -1,8 +1,8 @@
 counters:
-  commit: 895
-  build: 535
+  commit: 896
+  build: 536
   documents:
-    journal: 777
+    journal: 778
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 28-06 '26 20:45 SGT
-last_anchor_source: sketchbook_chrome_parity_2026-06-28_2045 (v0.62.423 — operator: Sketchbook chrome must mirror Cuisine TMA. THIS PR [chrome assets, contained]: header logo + hamburger brand now use the real soleat-icon.png [was ☼ glyph]; hamburger Switch-App icons now match Menu TMA assets [cuisine-icon-v3.png, hawker-icon-v3.png, train-logo.png] reused via existing menu blob SHAs into web/clipboard/public/; footer gains Cuisine-style 'Experimental · Singapore · v{__BUILD_VERSION__}' strip below the 4 tabs. i18n chrome.experimental. Real vite build OK [50 modules]. journal 776->777, commit 894->895, build 534->535. STILL PENDING [bigger Cuisine-parity, operator-confirmed]: header component reuse [WeatherBadge/LocaleToggle/LocationField=🧭Recents]; cards -> store STRUCTURED VENUE on Cuisine Copy + render with Cuisine ResultCard [chosen option]. PRIOR ANCHOR sketchbook_p5_settings_2026-06-28_1925)
+last_anchor_time: 28-06 '26 21:10 SGT
+last_anchor_source: sketchbook_first_cabinet_name_2026-06-28_2110 (v0.62.424 — operator: the default first cabinet is named 'My 1st Cabinet'. CreateCabinetSheet gains defaultName prop; App passes cabinet.firstName when cabinets.length===0; FileSheet inline-create prefills the same when no cabinets. i18n cabinet.firstName [en/fr/id/ru/de]. Real vite build OK [50 modules]. journal 777->778, commit 895->896, build 535->536. CONTEXT: mid Sketchbook Cuisine-parity. Pending fix batch C-G [Settings Display+Privacy, DrawerRow restyle, Cabinets badges/counts/touched, footer line-icons, add-drawer sheet polish] + big A [header reuse WeatherBadge/LocaleToggle/LocationField] + B [structured-venue->ResultCard]. PRIOR ANCHOR sketchbook_chrome_parity_2026-06-28_2045)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00

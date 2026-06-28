@@ -22,7 +22,8 @@ export function FileSheet({
   const [cabId, setCabId] = useState(null);
   const [drawers, setDrawers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [newName, setNewName] = useState('');
+  // v0.62.424 — prefill the first cabinet's name (operator: default = "My 1st Cabinet").
+  const [newName, setNewName] = useState(cabinets.length === 0 ? t('cabinet.firstName', lang) : '');
   const [busy, setBusy] = useState(false);
 
   const pickCab = async (id) => {
@@ -131,8 +132,8 @@ const textareaCls = inputCls + ' min-h-[80px] resize-y font-sans';
 
 // ── CreateCabinetSheet ───────────────────────────────────────────────
 
-export function CreateCabinetSheet({ lang, onCancel, onSave }) {
-  const [name, setName] = useState('');
+export function CreateCabinetSheet({ lang, onCancel, onSave, defaultName = '' }) {
+  const [name, setName] = useState(defaultName);
   const [emoji, setEmoji] = useState('');
   const [location, setLocation] = useState('');
   const [dateStart, setDateStart] = useState('');
