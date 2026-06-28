@@ -56,16 +56,16 @@ function sortedBy(cabinets, key) {
   return arr;
 }
 
-export default function CabinetGrid({ cabinets, lang, onOpen, onNew }) {
+export default function CabinetGrid({ cabinets, lang, onOpen, onNew, defaultCabinetId = null, activeCabinetId = null }) {
+  // v0.62.428 — sample parity: a vertical LIST (was a 2-col grid) with a
+  // subtitle, ★DEFAULT/OPEN badges + counts + touched per row. Sort retained.
   const [sortKey, setSortKey] = useState('created');
   const sorted = useMemo(() => sortedBy(cabinets, sortKey), [cabinets, sortKey]);
 
   return (
-    <section className="mt-4">
-      <div className="flex items-end gap-2 mb-1.5 px-1">
-        <h2 className="text-[12px] font-semibold">🍴 {t('root.cabinets', lang)}</h2>
-        <span className="text-[10px] text-tg-hint">{cabinets.length} / {CAP}</span>
-      </div>
+    <section className="mt-1">
+      <h2 className="text-lg font-extrabold px-1">{t('root.cabinets', lang)}</h2>
+      <div className="text-[11px] text-tg-hint px-1 mb-2">{t('root.cabinetsSub', lang)}</div>
       {cabinets.length > 1 && (
         <div className="flex gap-1 mb-2 px-1 overflow-x-auto no-scrollbar">
           {SORTS.map((s) => (
@@ -74,7 +74,7 @@ export default function CabinetGrid({ cabinets, lang, onOpen, onNew }) {
               onClick={() => setSortKey(s.key)}
               className={`shrink-0 text-[10px] px-2 py-1 rounded-full border ${
                 sortKey === s.key
-                  ? 'bg-tg-accent/20 border-tg-accent text-tg-accent'
+                  ? 'bg-tg-accent/15 border-tg-accent text-tg-accent'
                   : 'border-tg-border text-tg-hint'
               }`}
             >
@@ -83,19 +83,25 @@ export default function CabinetGrid({ cabinets, lang, onOpen, onNew }) {
           ))}
         </div>
       )}
-      <div className="grid grid-cols-2 gap-2">
+      <div>
         {sorted.map((c) => (
-          <CabinetCard key={c.cabId} cabinet={c} onOpen={() => onOpen?.(c.cabId)} />
+          <CabinetCard
+            key={c.cabId}
+            cabinet={c}
+            lang={lang}
+            isDefault={c.cabId === defaultCabinetId}
+            isOpen={c.cabId === activeCabinetId}
+            onOpen={() => onOpen?.(c.cabId)}
+          />
         ))}
-        {cabinets.length < CAP && (
+        {cabinets.length < CAP ? (
           <button
             onClick={onNew}
-            className="bg-tg-card border border-dashed border-tg-border text-tg-hint rounded-xl p-3 text-sm"
+            className="w-full bg-transparent border border-dashed border-tg-accent/50 text-tg-accent rounded-xl py-3 text-sm font-semibold"
           >
             {t('root.newCabinet', lang)}
           </button>
-        )}
-        {cabinets.length >= CAP && (
+        ) : (
           <div className="bg-tg-card border border-tg-border text-tg-hint rounded-xl p-3 text-[11px]">
             {t('root.capCabinets', lang, { cap: CAP })}
           </div>
