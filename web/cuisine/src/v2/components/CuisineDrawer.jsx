@@ -25,7 +25,10 @@ const CATEGORY_LABEL_KEY = {
   'middle-eastern':  'cat.middleEastern',   // now "Middle East & Africa"
   'european':        'cat.european',
   'americas':        'cat.americas',         // now "Americas & Oceania"
-  'dessert':         'cat.sweetsFusion'      // Dessert + Fusion
+  'dessert':         'cat.sweetsFusion',     // Dessert + Fusion
+  // v0.62.x — operator: these synthetic catalogue cards were English-only.
+  'michelin':        'cat.michelinBib',      // Michelin · Bib Gourmand
+  'set-meal':        'cat.setMeal'           // Set Meal (Beta)
 };
 
 // v0.59.0: cuisine drawer rebuilt as a 2-column grid of category
