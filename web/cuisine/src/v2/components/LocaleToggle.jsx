@@ -14,6 +14,8 @@ const LOCALES = [
   { code: 'ru', name: 'Русский',          flag: '🇷🇺' },
   { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩' },
   { code: 'zh', name: '中文',             flag: '🇨🇳' },
+  { code: 'ja', name: '日本語',           flag: '🇯🇵' },
+  { code: 'es', name: 'Español',          flag: '🇪🇸' },
 ];
 
 export default function LocaleToggle({ className = '' }) {
