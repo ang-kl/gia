@@ -81,3 +81,13 @@ export function openTelegramLink(url) {
   } catch { /* noop */ }
   return false;
 }
+
+// v0.62.417 — switch to a sibling Mini App served on the same origin
+// (/app/cuisine, /app/hawker, /app/transport). Same-origin navigation keeps
+// the Telegram webview + initData session, so no re-auth. Used by the hamburger
+// "Switch app" rows and the header filter chips (deep-link to Cuisine).
+export function openMiniApp(path) {
+  try {
+    if (typeof window !== 'undefined') window.location.assign(path);
+  } catch { /* noop */ }
+}

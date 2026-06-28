@@ -20,6 +20,7 @@ const initial = {
   catchAllCount: 0,
   catchAllCards: [],
   cabinets: [],
+  defaultCabinetId: null,      // v0.62.417 — drives footer tab 2
   currentCabinet: null,        // { cabinet, drawers: [...] }
   currentCabinetId: null,
   // route: { kind: 'root' } | { kind: 'cabinet', cabId } | { kind: 'shared', token }
@@ -62,7 +63,7 @@ function parseRoute() {
 function reducer(state, action) {
   switch (action.type) {
     case 'state.load':
-      return { ...state, ready: true, error: null, catchAllCount: action.catchAllCount, catchAllCards: action.catchAllCards || [], cabinets: action.cabinets };
+      return { ...state, ready: true, error: null, catchAllCount: action.catchAllCount, catchAllCards: action.catchAllCards || [], cabinets: action.cabinets, defaultCabinetId: action.defaultCabinetId || null };
     case 'cabinet.load':
       return { ...state, currentCabinet: action.payload, currentCabinetId: action.payload?.cabinet?.cabId || null };
     case 'route':
@@ -80,7 +81,7 @@ export function useClipboardStore() {
   const reloadState = useCallback(async () => {
     try {
       const r = await api.getState();
-      dispatch({ type: 'state.load', catchAllCount: r.catchAllCount || 0, catchAllCards: r.catchAllCards || [], cabinets: r.cabinets || [] });
+      dispatch({ type: 'state.load', catchAllCount: r.catchAllCount || 0, catchAllCards: r.catchAllCards || [], cabinets: r.cabinets || [], defaultCabinetId: r.defaultCabinetId || null });
     } catch (err) {
       dispatch({ type: 'error', error: err.message });
     }
