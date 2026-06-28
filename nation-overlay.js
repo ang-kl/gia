@@ -2006,7 +2006,7 @@ const NATION_OVERLAY = {
       F('stollen'),                                               // Christmas fruit bread
       F('pretzels'),                                              // brezel
       F('rye bread'),                                             // roggenbrot
-      D('german beer'),
+      D('hefeweizen', [], { local: 'Hefeweizen' }),
       D('riesling wine'),
       D('apfelschorle')                                           // apple-juice spritzer
     ],
@@ -2054,7 +2054,7 @@ const NATION_OVERLAY = {
       D('english breakfast tea'),
       D('earl grey tea'),
       D('pimm\'s'),                                               // gin-based summer drink
-      D('british ale')
+      D('cask ale')
     ],
     sharedWithNeighbors: [],
     neighboringCuisines: [
@@ -2146,7 +2146,7 @@ const NATION_OVERLAY = {
       F('chocolate chip cookie'),
       F('cheesecake new york'),
       D('coca-cola'),
-      D('american craft beer'),
+      D('ipa'),
       D('bourbon')
     ],
     sharedWithNeighbors: [],
@@ -2190,7 +2190,7 @@ const NATION_OVERLAY = {
       F('bush tucker'),                                           // umbrella — wattle, bunya, finger lime
       D('flat white australian'),
       D('long black'),                                            // Australian espresso style
-      D('australian wine')                                        // Barossa, Hunter, Margaret River
+      D('shiraz')                                        // Barossa, Hunter, Margaret River
     ],
     sharedWithNeighbors: [],
     neighboringCuisines: [
@@ -3160,6 +3160,28 @@ try {
 } catch (e) {
   if (e && e.code !== 'MODULE_NOT_FOUND') {
     console.warn(`[nation-overlay] dishnote-en overlay load failed: ${e.message}`);
+  }
+}
+
+// v0.62.x — operator A1: per-dish NATIVE-SCRIPT names. Fold GENERATED native
+// script onto iconicDishes[].local when absent, keyed `${slug}::${dish}`. Keeps
+// the original expression (e.g. "Peking Duck 北京烤鸭"); ArrivalPlate renders
+// d.local beside the romanized name. Batched by cuisine (Latin-script cuisines
+// omitted; Japanese already carries inline local).
+try {
+  // eslint-disable-next-line global-require
+  const DISH_LOCAL = require('./nation-overlay-local.generated.js');
+  for (const [slug, overlay] of Object.entries(NATION_OVERLAY)) {
+    const dishes = overlay && Array.isArray(overlay.iconicDishes) ? overlay.iconicDishes : [];
+    for (const dish of dishes) {
+      if (!dish || !dish.name || dish.local) continue;
+      const sc = DISH_LOCAL[`${slug}::${String(dish.name).toLowerCase()}`];
+      if (sc) dish.local = sc;
+    }
+  }
+} catch (e) {
+  if (e && e.code !== 'MODULE_NOT_FOUND') {
+    console.warn(`[nation-overlay] dish-local overlay load failed: ${e.message}`);
   }
 }
 
