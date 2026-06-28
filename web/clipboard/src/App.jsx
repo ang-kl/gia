@@ -222,7 +222,19 @@ export default function App() {
           onNew={() => setSheet('createCab')}
         />
       ) : (
-        <SettingsView lang={lang} />
+        <SettingsView
+          lang={lang}
+          onForgetMe={async () => {
+            try {
+              setBusy(true);
+              for (const c of (state.cabinets || [])) { try { await api.deleteCabinet(c.cabId); } catch { /* continue */ } }
+              for (const card of (state.catchAllCards || [])) { try { await api.deleteCard(card.cardId); } catch { /* continue */ } }
+              await reloadState();
+              setRoute({ kind: 'root' }); setTab('clipboard');
+            } catch (err) { alert(err.message); }
+            finally { setBusy(false); }
+          }}
+        />
       )}
 
       {state.error && (
@@ -317,6 +329,7 @@ function renderSheets({ sheet, setSheet, busy, setBusy, lang, state, reloadState
     return (
       <AddDrawerSheet
         lang={lang}
+        cabinetName={state.currentCabinet?.cabinet?.name || ''}
         onCancel={() => setSheet(null)}
         onSave={async (patch) => {
           try {

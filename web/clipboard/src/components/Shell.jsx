@@ -34,7 +34,16 @@ function SwitchAppRow({ iconSrc, title, sub, onClick }) {
   );
 }
 
-function FooterTab({ icon, label, active, onClick }) {
+// v0.62.427 — line-icons to match the sample footer (stroke = currentColor so
+// the active tab goes cobalt, inactive grey).
+const SW = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' };
+const TAB_ICON = {
+  clipboard: <svg width="20" height="20" viewBox="0 0 24 24" {...SW}><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 9h6M9 13h6M9 17h4"/></svg>,
+  cabinet:   <svg width="20" height="20" viewBox="0 0 24 24" {...SW}><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 12h16M10 8h4M10 16h4"/></svg>,
+  grid:      <svg width="20" height="20" viewBox="0 0 24 24" {...SW}><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>,
+  settings:  <svg width="20" height="20" viewBox="0 0 24 24" {...SW}><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>,
+};
+function FooterTab({ iconKey, label, active, onClick }) {
   return (
     <button
       type="button"
@@ -42,7 +51,7 @@ function FooterTab({ icon, label, active, onClick }) {
       className={`flex-1 flex flex-col items-center gap-0.5 py-1 bg-transparent ${active ? 'text-tg-accent' : 'text-tg-hint'}`}
       aria-current={active ? 'page' : undefined}
     >
-      <span className="text-base leading-none" aria-hidden>{icon}</span>
+      <span aria-hidden>{TAB_ICON[iconKey]}</span>
       <span className="text-[10px] font-semibold max-w-[92px] truncate">{label}</span>
     </button>
   );
@@ -122,10 +131,10 @@ export default function Shell({
       {/* ── FOOTER (4 tabs) ── */}
       <nav className="flex-shrink-0 fixed bottom-0 inset-x-0 z-20 bg-tg-card/95 backdrop-blur border-t border-tg-border flex flex-col px-1 pt-1 pb-5">
         <div className="flex">
-          <FooterTab icon="📋" label={t('nav.clipboard', lang)} active={screen === 'clipboard'} onClick={() => go('clipboard')} />
-          <FooterTab icon="🗄️" label={cabLabel} active={screen === 'cabinet'} onClick={() => go('cabinet')} />
-          <FooterTab icon="🗂️" label={t('nav.cabinets', lang)} active={screen === 'cabinets'} onClick={() => go('cabinets')} />
-          <FooterTab icon="⚙️" label={t('nav.settings', lang)} active={screen === 'settings'} onClick={() => go('settings')} />
+          <FooterTab iconKey="clipboard" label={t('nav.clipboard', lang)} active={screen === 'clipboard'} onClick={() => go('clipboard')} />
+          <FooterTab iconKey="cabinet" label={cabLabel} active={screen === 'cabinet'} onClick={() => go('cabinet')} />
+          <FooterTab iconKey="grid" label={t('nav.cabinets', lang)} active={screen === 'cabinets'} onClick={() => go('cabinets')} />
+          <FooterTab iconKey="settings" label={t('nav.settings', lang)} active={screen === 'settings'} onClick={() => go('settings')} />
         </div>
         {/* v0.62.423 — Cuisine-style version strip. */}
         <div className="text-center text-[9px] text-tg-hint pt-1">{t('chrome.experimental', lang)} · v{BUILD_VERSION}</div>

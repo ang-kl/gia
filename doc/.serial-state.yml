@@ -1,8 +1,8 @@
 counters:
-  commit: 898
-  build: 538
+  commit: 899
+  build: 539
   documents:
-    journal: 780
+    journal: 781
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 28-06 '26 22:15 SGT
-last_anchor_source: sketchbook_sample_palette_2026-06-28_2215 (v0.62.426 — operator: didn't follow the sample colour codes / look-feel [6 sample PNGs in UI/sketchbook]. ROOT CAUSE: clipboard used tg-* tokens bound to runtime Telegram theme vars [dark/Telegram-blue], not the sample's fixed cobalt+ice palette. FIX: tailwind.config tg-* remapped to FIXED sample hex [bg #eef2fb, card/header #fff, text #141a36, hint #7e88a8, accent cobalt #2b59c9, border #e4e8f2] + sk-soft/head/pin/star/open extras [HANDOFF §2]; styles.css sheet/drag-ghost forced light; DrawerRow count pill -> cobalt sk-soft [was invisible white-on-white]. Whole app now renders the sample palette. Real vite build OK [50 modules, css 14.9kB]. journal 779->780, commit 897->898, build 537->538. OPEN CONFLICT [asked]: logo — sample shows teal-blue gradient ☼ tile, but soleat-icon.png [other TMAs] is a RED food circle; need operator pick. STILL: card->ResultCard [B], drawer subline/Edit [D], cabinets badges [E]. PRIOR ANCHOR sketchbook_card_html_strip_2026-06-28_2135)
+last_anchor_time: 28-06 '26 23:10 SGT
+last_anchor_source: sketchbook_cdfg_2026-06-28_2310 (v0.62.427 — Sketchbook sample-parity batch C/D/F/G [re-shipped after classifier outage interrupted first attempt]. F footer: emoji->line-SVG icons [clipboard/cabinet/grid/sliders, cobalt active]. D DrawerRow: collapsed = emoji-circle · label · '{dayTag} · 📍{loc}' subline · cobalt count pill · Edit · chevron [dropped time-range; reorder ↑↓ moved into expanded edit footer]. G AddDrawerSheet: ‹back · title+cabinet · 2-col circular-icon grid · tap-to-add · Close✕. C SettingsView: + Display toggles [secondary currency on, quiet sort off; localStorage] + Privacy [What's stored + Forget me wipes all] + Saved location. i18n set.*/drawer.pickSegment. Real vite build OK [50 modules]. journal 780->781, commit 898->899, build 538->539. NEXT E [Cabinets badges/counts/touched, needs backend], then B [ResultCard]. PRIOR ANCHOR sketchbook_sample_palette_2026-06-28_2215)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
