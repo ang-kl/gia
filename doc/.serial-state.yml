@@ -1,8 +1,8 @@
 counters:
-  commit: 879
+  commit: 880
   build: 522
   documents:
-    journal: 761
+    journal: 762
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 28-06 '26 13:20 SGT
-last_anchor_source: dish_modal_picture_2026-06-28_1320 (v0.62.407 — dish-explanation modal: search pill font 10->9, glass bg+border moved to a circular 18px 🔍 chip only [word bare, whole icon+word one tap target], added [ picture ]/[ photo ] -> openDishPicture() opens the Wikimedia Commons File: page [photo+author+licence] via a runtime en.wikipedia REST summary lookup [thumb-aware filename derive], Commons MediaSearch fallback when no lead image; new web/cuisine/src/v2/lib/dish-picture.js + openExternal() in web/cuisine/src/api/tg.js [Telegram WebApp.openLink]; both ArrivalPlate render sites. PR #1384, squash-merged. journal 760->761, commit 878->879, build 521->522. KNOWN GAP: journal backlog v0.62.388->406 still unjournaled; live TMA eyeball pending. PRIOR ANCHOR docs_catchup_vault_2026-06-27_1604)
+last_anchor_time: 28-06 '26 13:45 SGT
+last_anchor_source: a1_native_singaporean_2026-06-28_1345 (v0.62.408 — A1 native-script overlay: +103 Singaporean CJK-origin hawker dish names [chilli crab 辣椒螃蟹, chicken rice 海南鸡饭, bak kut teh 肉骨茶, char kway teow 炒粿条, kopi 咖啡 ...] appended to nation-overlay-local.generated.js, keyed singaporean::<dish> -> dish.local merged at load when absent [merge already wired @ nation-overlay.js:3173]. Confined to Chinese-origin Hokkien/Teochew/Cantonese/Hainanese dishes; Malay/Tamil/English-origin names DELIBERATELY skipped [native script is Latin/Jawi/Tamil -> grounded pipeline]. node --check OK, 467 total entries, 0 dups. journal 761->762, commit 879->880. KNOWN GAP: Peranakan + non-CJK scripts [Indian/Malay/Arabic/Cyrillic/Greek/Georgian] still pending; journal backlog v0.62.388->406. PRIOR ANCHOR dish_modal_picture_2026-06-28_1320)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
