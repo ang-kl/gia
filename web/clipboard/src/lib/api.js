@@ -61,12 +61,17 @@ export const getCabinet            = (cabId) => getJson(`/cabinet/${cabId}`);
 export const createCabinet         = (patch) => postJson('/cabinet', patch);
 export const updateCabinet         = (cabId, patch) => patchJson(`/cabinet/${cabId}`, patch);
 export const deleteCabinet         = (cabId) => delJson(`/cabinet/${cabId}`);
+// v0.62.416 — default cabinet (footer tab 2) + duplicate cabinet.
+export const setDefaultCabinet     = (cabId) => postJson(`/cabinet/${cabId}/default`, {});
+export const duplicateCabinet      = (cabId) => postJson(`/cabinet/${cabId}/duplicate`, {});
 
 // ── Drawers ──────────────────────────────────────────────────────────
 
 export const addDrawer             = (cabId, patch) => postJson(`/cabinet/${cabId}/drawer`, patch);
 export const deleteDrawer          = (cabId, n) => delJson(`/cabinet/${cabId}/drawer/${n}`);
 export const updateDrawer          = (cabId, n, patch) => patchJson(`/cabinet/${cabId}/drawer/${n}`, patch);
+// v0.62.416 — duplicate a drawer (copies its cards).
+export const duplicateDrawer       = (cabId, n) => postJson(`/cabinet/${cabId}/drawer/${n}/duplicate`, {});
 
 // ── Cards ────────────────────────────────────────────────────────────
 

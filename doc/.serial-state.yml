@@ -1,8 +1,8 @@
 counters:
-  commit: 887
-  build: 527
+  commit: 888
+  build: 528
   documents:
-    journal: 769
+    journal: 770
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 28-06 '26 15:40 SGT
-last_anchor_source: dish_picture_region_2026-06-28_1540 (v0.62.415 — operator: 🧆 picture for 'Wanton Mee (SG style)' opened the HK-style photo. Root cause: cleanTitle strips the qualifier -> generic en.wikipedia 'Wonton noodles' lead image = HK variant. Fix in dish-picture.js: splitQualifier() detects a regional qualifier [SG/MY/HK/TW/PH/ID/TH/JP/KR/VN expanded; dialect/place e.g. Teochew/Katong passthrough; 'style' dropped]; for a qualified dish, open a Commons MediaSearch for base+region ['Wanton Mee Singapore'] instead of the single generic Wikipedia lead image. Plain dishes unchanged. esbuild OK; splitQualifier spot-tests pass. journal 768->769, commit 886->887, build 526->527. PRIOR ANCHOR dish_card_labels_2026-06-28_1525)
+last_anchor_time: 28-06 '26 16:30 SGT
+last_anchor_source: sketchbook_p1_backend_2026-06-28_1630 (v0.62.416 — Sketchbook TMA reconcile P1 backend top-ups per UI/sketchbook/HANDOFF.md. Finding: web/clipboard already API-wired [not in-memory]; Task 2 mostly done. Changes: [1] cascade-delete REVERSED [AU-7] — orphaned card RETURNS to catch-all clipboard via new clip-store.returnToClipboard [dedupe/cap50/recompute-TTL] instead of softDelete; deleteDrawer/deleteCabinet return {returned}; [2] default cabinet — cabDefaultKey + getDefaultCabinetId/setDefaultCabinet, deleteCabinet reassigns default to first remaining, /state returns defaultCabinetId, POST /cabinet/:id/default; [3] duplicate — duplicateCabinet/duplicateDrawer + POST routes; [4] api.js client wrappers setDefaultCabinet/duplicateCabinet/duplicateDrawer. Tests: rewrote cascade rule(c)/(d)/deleteCabinet to return-to-clipboard, added default+duplicate describes; clip-store 42 + clipboard-store 74 + clipboard-routes 69 = 185 green. node --check OK. journal 769->770, commit 887->888, build 527->528. NEXT P2 chrome [header+4-tab footer+hamburger], P3 VenueCard, P4 sheets+edit+recents, P5 settings. PRIOR ANCHOR dish_picture_region_2026-06-28_1540)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00

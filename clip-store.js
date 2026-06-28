@@ -387,6 +387,29 @@ async function softDeleteCard(redis, chatId, cardId) {
   }
 }
 
+// v0.62.416 — return an orphaned card to the catch-all clipboard. Operator
+// reversal of the old cascade rule ("delete drawer/cabinet → cards return to
+// Clipboard", HANDOFF §5). Dedupes to the front of the list, caps at MAX_CLIPS,
+// recomputes the per-card TTL (→ 30-day catch-all, or PERSIST if favourite).
+// No-op (returns false) if the card record is already gone.
+async function returnToClipboard(redis, chatId, cardId) {
+  if (!redis || !chatId || !cardId) return false;
+  try {
+    if (!redis.isOpen) await redis.connect();
+    if (!(await redis.exists(cardKey(chatId, cardId)))) return false;
+    const lk = clipKey(chatId);
+    await redis.lRem(lk, 0, cardId);          // dedupe any stale entry
+    await redis.lPush(lk, cardId);            // front of the catch-all
+    await redis.lTrim(lk, 0, MAX_CLIPS - 1);  // cap 50
+    await redis.persist(lk);
+    await recomputeCardTtl(redis, chatId, cardId);
+    return true;
+  } catch (err) {
+    console.warn('[Clip-Store] returnToClipboard failed:', err.message);
+    return false;
+  }
+}
+
 // v0.60.151 / v0.62.328 — stamp a user-supplied display name onto the
 // clip's record. Trimmed, newline-collapsed, capped at 60 chars,
 // non-empty required. Returns the saved name or null.
@@ -420,6 +443,7 @@ module.exports = {
   getCardById,
   recomputeCardTtl,
   softDeleteCard,
+  returnToClipboard,
   newCardId,
   cardKey,
   locsKey,
