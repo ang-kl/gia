@@ -5341,6 +5341,7 @@ const COUNTRY_OVERLAY_SLUG = Object.freeze({
 // registry until the overlay is actually needed.
 let _nationOverlay = null;
 let _classicNotes = null;   // v0.62.175 — curated classics-notes.js (lazy)
+let _dishCommunity = null;  // v0.62.413 — dish→community map (lazy)
 
 // Diacritic/case fold for the classics-vs-plate dedupe (plate dish names in
 // the comparison are romanised — no CJK handling needed here).
@@ -5398,6 +5399,7 @@ function _overlayDishMeta(countryCode) {
     if (!_nationOverlay) _nationOverlay = require('./nation-overlay');
     const o = _nationOverlay.NATION_OVERLAY[slug];
     if (!o || !Array.isArray(o.iconicDishes)) return null;
+    if (!_dishCommunity) _dishCommunity = require('./dish-community');
     const m = new Map();
     for (const d of o.iconicDishes) {
       if (!d || !d.name) continue;
@@ -5405,6 +5407,10 @@ function _overlayDishMeta(countryCode) {
       if (d.local) meta.local = d.local;
       if (d.note && (d.note.en || d.note.fr)) meta.note = d.note;
       if (Array.isArray(d.sources) && d.sources.length) meta.sources = d.sources;
+      // v0.62.413 — community sub-grouping: attach the dish's community (SG always
+      // resolves, incl. a 'shared' fallback; other countries stay flat → null).
+      const comm = _dishCommunity.communityFor(countryCode, d.name, d.sharedWith);
+      if (comm) meta.community = comm;
       if (Object.keys(meta).length) m.set(_fold(d.name), meta);
     }
     // v0.62.175 — merge the curated classics-notes.js batch (web-sourced +
@@ -5414,7 +5420,11 @@ function _overlayDishMeta(countryCode) {
       const extra = _classicNotes.CLASSIC_NOTES[String(countryCode || '').toUpperCase()];
       if (extra) {
         for (const [name, meta] of Object.entries(extra)) {
-          if (meta && (meta.local || meta.note)) m.set(_fold(name), meta);
+          if (meta && (meta.local || meta.note)) {
+            // v0.62.413 — merge (don't replace) so the community set above survives.
+            const f = _fold(name);
+            m.set(f, { ...(m.get(f) || {}), ...meta });
+          }
         }
       }
     } catch { /* classics-notes.js is optional */ }
