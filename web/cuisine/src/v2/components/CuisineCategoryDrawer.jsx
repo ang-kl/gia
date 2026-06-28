@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 // v0.61.411 — durian-belt gate for the special slugs (durian / durian-pastry).
 import { isSlugCountryAllowed, SPECIAL_SLUGS } from '../lib/cuisine-selection.js';
+import { cuisineName } from '../lib/cuisine-i18n.js';
 // v0.61.272 — Phase 4 cleanup: the v0.61.193 SG-only chip lock is
 // removed. Durian / Durian Pastry / Fruits chips are now selectable
 // in every region. The lib/sg-only-slugs.js module is deleted in
@@ -152,7 +153,7 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
                 ) : (
                   <span aria-hidden className="flex-shrink-0 text-base leading-none">{cu.flag || '🍽️'}</span>
                 )}
-                <span className="flex-1 break-words">{cu.name}</span>
+                <span className="flex-1 break-words">{cuisineName(cu.slug, cu.name, lang)}</span>
                 {sel && <span aria-hidden className="text-tg-accent-text flex-shrink-0">✓</span>}
               </button>
               </React.Fragment>
