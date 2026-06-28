@@ -58,6 +58,18 @@ const STRINGS = {
   'chrome.duplicate':       { en: '⧉ Duplicate',        fr: '⧉ Dupliquer',      id: '⧉ Duplikat',     ru: '⧉ Дубликат',     de: '⧉ Duplizieren' },
   'cabinet.setDefault':     { en: 'Set as default',     fr: 'Par défaut',       id: 'Jadikan default', ru: 'По умолчанию',  de: 'Als Standard' },
   'cabinet.isDefault':      { en: 'Default cabinet',    fr: 'Classeur par défaut', id: 'Kabinet default', ru: 'Папка по умолчанию', de: 'Standard-Cabinet' },
+  'set.sketchbook':         { en: 'Sketchbook',         fr: 'Sketchbook',       id: 'Sketchbook',     ru: 'Sketchbook',     de: 'Sketchbook' },
+  'set.clipLimit':          { en: 'Clipboard',          fr: 'Presse-papiers',   id: 'Papan klip',     ru: 'Буфер',          de: 'Ablage' },
+  'set.clipLimitVal':       { en: '50 cards · 30-day keep', fr: '50 cartes · 30 jours', id: '50 kartu · 30 hari', ru: '50 карт · 30 дней', de: '50 Karten · 30 Tage' },
+  'set.cabLimit':           { en: 'Cabinets',           fr: 'Classeurs',        id: 'Kabinet',        ru: 'Папки',          de: 'Cabinets' },
+  'set.cabLimitVal':        { en: '12 max · 1-year keep', fr: '12 max · 1 an',   id: 'maks 12 · 1 tahun', ru: 'до 12 · 1 год',  de: 'max 12 · 1 Jahr' },
+  'set.drawerLimit':        { en: 'Drawers',            fr: 'Tiroirs',          id: 'Laci',           ru: 'Ящики',          de: 'Fächer' },
+  'set.drawerLimitVal':     { en: '20 per cabinet',     fr: '20 par classeur',  id: '20 per kabinet', ru: '20 на папку',    de: '20 pro Cabinet' },
+  'set.region':             { en: 'Region & language',  fr: 'Région & langue',  id: 'Wilayah & bahasa', ru: 'Регион и язык', de: 'Region & Sprache' },
+  'set.language':           { en: 'Language',           fr: 'Langue',           id: 'Bahasa',         ru: 'Язык',           de: 'Sprache' },
+  'set.privacy':            { en: 'Privacy',            fr: 'Confidentialité',  id: 'Privasi',        ru: 'Конфиденциальность', de: 'Datenschutz' },
+  'set.privacyNote':        { en: 'Your cabinets and cards are stored against your Telegram account only, and expire per the limits above.', fr: 'Vos classeurs et cartes sont liés à votre compte Telegram et expirent selon les limites ci-dessus.', id: 'Kabinet & kartu Anda tersimpan untuk akun Telegram Anda saja, dan kedaluwarsa sesuai batas di atas.', ru: 'Ваши папки и карточки хранятся только для вашего аккаунта Telegram и истекают по лимитам выше.', de: 'Cabinets und Karten sind nur mit deinem Telegram-Konto gespeichert und verfallen gemäß den Limits oben.' },
+  'set.about':              { en: 'About',              fr: 'À propos',         id: 'Tentang',        ru: 'О приложении',   de: 'Über' },
 
   // ── root ──────────────────────────────────────────────────────────
   'root.catchAll':          { en: 'Catch-all',          fr: 'Tiroir d’accueil', id: 'Tampung',   ru: 'Общая',          de: 'Sammelfach' },
