@@ -7881,14 +7881,24 @@ async function runClipCommand(chatId, arg, lang = 'en') {
   const cuisineFilter = arg || null;
   const PAGE = 5;
   const { items, total } = await listClips(redis, chatId, { cuisine: cuisineFilter, limit: PAGE, offset: 0 });
+  // v0.62.439 — single "Open Sketchbook" button, built ONCE and shown on BOTH the
+  // empty and the listing paths (operator: show the button even with no clips).
+  // Guarded: only attach reply_markup when the button exists — an empty
+  // inline_keyboard makes Telegram reject the whole message (the "/clipboard shows
+  // nothing" bug).
+  const sketchbookRows = (useWebhook && webhookDomain)
+    ? [[{ text: lang === 'fr' ? '📋 Ouvrir Sketchbook' : '📋 Open Sketchbook', web_app: { url: `https://${webhookDomain}/app/clipboard` } }]]
+    : [];
+  const replyMarkupOpt = sketchbookRows.length ? { reply_markup: { inline_keyboard: sketchbookRows } } : {};
   if (!total) {
-    await safeSend(chatId, cuisineFilter
+    await bot.sendMessage(chatId, cuisineFilter
       ? (lang === 'fr'
         ? `📋 Aucun clip pour « ${cuisineFilter} ».`
         : `📋 No clips matching "${cuisineFilter}".`)
       : (lang === 'fr'
-        ? '📋 Vous n\'avez pas encore de clips. Tapez "Copier" dans le sélecteur de cuisine, puis revenez ici.'
-        : '📋 No clips yet. Tap Copy in the cuisine picker, then come back here.'));
+        ? '📋 Vous n\'avez pas encore de clips. Touchez « Copier » dans le sélecteur, ou ouvrez Sketchbook.'
+        : '📋 No clips yet. Tap Copy in the cuisine picker, or open Sketchbook.'),
+      replyMarkupOpt);
     return;
   }
   const header = cuisineFilter
@@ -7914,21 +7924,12 @@ async function runClipCommand(chatId, arg, lang = 'en') {
       ? `Voir plus : ${total} clips au total.`
       : `${total} total · showing first ${items.length}.`);
   }
-  // v0.62.438 — operator: /clipboard now shows just the last-5 list + a single
-  // "Open Sketchbook" button. The per-clip action rows (resend/copy/rename/remove)
-  // and the "Clear all" button were removed from this free-text command — those
-  // actions now live inside the Sketchbook TMA (file / amend / archive / restore).
-  const keyboardRows = [];
-  if (useWebhook && webhookDomain) {
-    keyboardRows.push([{
-      text: lang === 'fr' ? '📋 Ouvrir Sketchbook' : '📋 Open Sketchbook',
-      web_app: { url: `https://${webhookDomain}/app/clipboard` }
-    }]);
-  }
+  // v0.62.438/439 — just the last-5 list + a single "Open Sketchbook" button
+  // (built above as sketchbookRows; per-clip rows + Clear-all moved to the TMA).
   await bot.sendMessage(chatId, lines.join('\n'), {
     parse_mode: 'HTML',
     disable_web_page_preview: true,
-    reply_markup: { inline_keyboard: keyboardRows }
+    ...replyMarkupOpt
   });
 }
 
