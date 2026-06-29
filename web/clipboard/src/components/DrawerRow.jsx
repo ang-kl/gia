@@ -15,13 +15,14 @@ export default function DrawerRow({ drawer, n, totalDrawers, cabinetId, lang, on
   const [open, setOpen] = useState(cards.length > 0);  // 9c — show filed cards
   const [editing, setEditing] = useState(false);
   const [dayTag, setDayTag] = useState(drawer.dayTag || '');
+  const [description, setDescription] = useState(drawer.description || '');  // item 12b
   const cls = GROUP_CLASS[seg.group] || '';
   const canMoveUp = n > 0;
   const canMoveDown = totalDrawers != null && n < totalDrawers - 1;
   const loc = drawer.location?.label;
   const sub = [seg.timeEN, drawer.dayTag, loc ? `📍 ${loc}` : ''].filter(Boolean).join(' · ');
   const move = (delta) => { if (onMove && ((delta < 0 && canMoveUp) || (delta > 0 && canMoveDown))) onMove(n, n + delta); };
-  const save = () => { onUpdate?.(n, { dayTag: dayTag.trim() }); setEditing(false); };
+  const save = () => { onUpdate?.(n, { dayTag: dayTag.trim(), description: description.trim() }); setEditing(false); };
 
   return (
     <div className={`bg-tg-card border border-tg-border rounded-xl mb-1.5 ${cls}`} data-clipboard-drop={`drawer:${cabinetId}:${n}`}>
@@ -30,13 +31,24 @@ export default function DrawerRow({ drawer, n, totalDrawers, cabinetId, lang, on
         <div className="flex-1 min-w-0">
           <div className="text-[12.5px] font-semibold text-tg-text truncate">{t(`seg.${seg.key}`, lang)}</div>
           {editing ? (
-            <input
-              autoFocus value={dayTag} onChange={(e) => setDayTag(e.target.value.slice(0, 24))} maxLength={24}
-              placeholder={t('drawer.field.dayTag', lang)}
-              className="mt-0.5 w-full text-[10px] bg-tg-bg border border-tg-border rounded px-1.5 py-0.5 text-tg-text"
-            />
+            <>
+              <input
+                autoFocus value={dayTag} onChange={(e) => setDayTag(e.target.value.slice(0, 24))} maxLength={24}
+                placeholder={t('drawer.field.dayTag', lang)}
+                className="mt-0.5 w-full text-[10px] bg-tg-bg border border-tg-border rounded px-1.5 py-0.5 text-tg-text"
+              />
+              {/* item 12b — drawer description (120) */}
+              <input
+                value={description} onChange={(e) => setDescription(e.target.value.slice(0, 120))} maxLength={120}
+                placeholder={t('drawer.field.description', lang)}
+                className="mt-1 w-full text-[10px] bg-tg-bg border border-tg-border rounded px-1.5 py-0.5 text-tg-text"
+              />
+            </>
           ) : (
-            sub ? <button onClick={() => setOpen((v) => !v)} className="block text-[10px] text-tg-hint truncate text-left">{sub}</button> : null
+            <>
+              {sub ? <button onClick={() => setOpen((v) => !v)} className="block text-[10px] text-tg-hint truncate text-left">{sub}</button> : null}
+              {drawer.description ? <div className="text-[9.5px] text-tg-hint/90 italic truncate">{drawer.description}</div> : null}
+            </>
           )}
         </div>
         <span className="flex-shrink-0 text-[10px] font-bold bg-sk-soft text-tg-accent rounded-full px-2 py-0.5">{cards.length}</span>

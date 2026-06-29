@@ -271,6 +271,7 @@ async function readDrawers(redis, chatId, cabId) {
         return {
           segment: VALID_SEGMENTS.includes(d.segment) ? d.segment : 'wholeDay',
           dayTag: typeof d.dayTag === 'string' ? d.dayTag.slice(0, 24) : '',
+          description: typeof d.description === 'string' ? d.description.slice(0, 120) : '',  // v0.62.435 item 12b
           location: d.location && typeof d.location === 'object' ? d.location : null,
           createdAt: Number(d.createdAt) || 0,
           shareToken: typeof d.shareToken === 'string' ? d.shareToken : ''
@@ -283,7 +284,7 @@ async function readDrawers(redis, chatId, cabId) {
   }
 }
 
-async function addDrawer(redis, chatId, cabId, { segment, dayTag = '', location = null } = {}) {
+async function addDrawer(redis, chatId, cabId, { segment, dayTag = '', location = null, description = '' } = {}) {
   if (!redis || !chatId || !cabId) return { ok: false, error: 'missing-args' };
   if (!VALID_SEGMENTS.includes(segment)) return { ok: false, error: 'invalid-segment' };
   try {
@@ -298,6 +299,7 @@ async function addDrawer(redis, chatId, cabId, { segment, dayTag = '', location 
     const drawer = {
       segment,
       dayTag: clampString(dayTag, 24),
+      description: clampString(description, 120),  // v0.62.435 item 12b
       location: validateLocation(location),
       createdAt: Date.now(),
       shareToken: ''
@@ -553,7 +555,7 @@ async function duplicateDrawer(redis, chatId, cabId, drawerIdx) {
   const drawers = await readDrawers(redis, chatId, cabId);
   if (drawerIdx >= drawers.length) return { ok: false, error: 'not-found' };
   const d = drawers[drawerIdx];
-  const add = await addDrawer(redis, chatId, cabId, { segment: d.segment, dayTag: d.dayTag, location: d.location });
+  const add = await addDrawer(redis, chatId, cabId, { segment: d.segment, dayTag: d.dayTag, location: d.location, description: d.description });
   if (!add.ok) return add;                    // e.g. cap-drawers
   const cardIds = await redis.lRange(drListKey(chatId, cabId, drawerIdx), 0, -1).catch(() => []);
   for (const cardId of cardIds) await placeCard(redis, chatId, cardId, cabId, add.index);
