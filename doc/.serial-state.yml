@@ -1,8 +1,8 @@
 counters:
-  commit: 907
-  build: 547
+  commit: 908
+  build: 548
   documents:
-    journal: 789
+    journal: 790
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 29-06 '26 10:25 SGT
-last_anchor_source: sketchbook_drawer_desc_2026-06-29_1025 (v0.62.435 — Sketchbook item 12b [drawer description, free 120 chars] + item 13 [card note] CONFIRMED already present [AmendCardSheet note field + VenueCard 📝 note]. 12b backend: clipboard-store addDrawer accepts description[120], readDrawers returns it, duplicateDrawer copies it; clipboard-routes addDrawer + PATCH drawer accept description. Frontend: DrawerRow Edit mode adds a description input [120]; description shown under the subline when set. i18n drawer.field.description. clipboard-store 74 + clipboard-routes 69 = 143✓; vite build OK [50 modules]; node --check cs+cr OK. journal 788->789, commit 906->907, build 546->547. REMAINING: 4 cuisine-filter=Criteria-Search layout, 8 location list, 14 bot /clipboard. PRIOR ANCHOR sketchbook_drawer_edit_2026-06-29_0945)
+last_anchor_time: 29-06 '26 10:55 SGT
+last_anchor_source: sketchbook_locations_2026-06-29_1055 (v0.62.436 — Sketchbook item 8: 📍 All locations. NEW LocationSheet.jsx — bottom sheet grouping saved-card eatery locations by COUNTRY[region SG/JB] › CITY[parsed from venue.area], 12-nearby style: city row + count + '+' expand to eatery names; auto-close after 60s. CatchAllStrip: '📍 {city|All locations}' line at top [tap -> sheet, ✕ clears]; tapping a city filters the catch-all to that city. Frontend-only [derives from existing card venue data]. i18n loc.all/title/none. vite build OK [51 modules]. journal 789->790, commit 907->908, build 547->548. REMAINING: 4 [cuisine filter = Criteria-Search layout], 14 [bot /clipboard]. PRIOR ANCHOR sketchbook_drawer_desc_2026-06-29_1025)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
