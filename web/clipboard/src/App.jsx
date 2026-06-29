@@ -83,7 +83,10 @@ export default function App() {
   const footerCabinetLabel = defaultCab
     ? `${defaultCab.emoji ? defaultCab.emoji + ' ' : ''}${defaultCab.name}`
     : null;
-  const activeCabinetName = inCabinet ? (state.currentCabinet?.cabinet?.name || '') : '';
+  // v0.62.430 — header title follows the DEFAULT cabinet (items 1+2), not the
+  // currently-open one; falls back to the open cabinet, then nothing.
+  const activeCabinetName = (defaultCab && defaultCab.name)
+    || (inCabinet ? (state.currentCabinet?.cabinet?.name || '') : '');
 
   const onNav = (s) => {
     if (s === 'cabinet') {
