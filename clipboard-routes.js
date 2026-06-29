@@ -22,7 +22,10 @@ const {
   softDeleteCard,
   recomputeCardTtl,
   cardKey,
-  locsKey
+  locsKey,
+  archiveAllClips,
+  restoreArchive,
+  archivedCount,
 } = require('./clip-store');
 
 const {
@@ -157,7 +160,27 @@ function mountClipboardRoutes(app, redis) {
         if (placements.length) it.placements = placements;
       }
     } catch (err) { console.warn('[clipboard-routes] placement enrich failed:', err.message); }
-    return res.json({ cabinets, catchAllCount: total, catchAllCards: items, defaultCabinetId });
+    // v0.62.433 — archivedCount drives the Catch-all "Restore (N)" affordance.
+    const archived = await archivedCount(redis, chatId);
+    return res.json({ cabinets, catchAllCount: total, catchAllCards: items, defaultCabinetId, archivedCount: archived });
+  }));
+
+  // ── 3b. POST archive-all / restore the catch-all (v0.62.433) ──────
+  app.post('/api/clipboard/archive-all', wrap(async (req, res) => {
+    const chatId = chatIdFrom(req);
+    if (!chatId) return res.status(400).json({ error: 'missing-chatId' });
+    const r = await archiveAllClips(redis, chatId);
+    if (!r.ok) { const m = mapError(r.error); return res.status(m.status).json(m.body); }
+    track(redis, chatId, 'archive_all', { archived: r.archived });
+    return res.json({ ok: true, archived: r.archived });
+  }));
+  app.post('/api/clipboard/restore-archive', wrap(async (req, res) => {
+    const chatId = chatIdFrom(req);
+    if (!chatId) return res.status(400).json({ error: 'missing-chatId' });
+    const r = await restoreArchive(redis, chatId);
+    if (!r.ok) { const m = mapError(r.error); return res.status(m.status).json(m.body); }
+    track(redis, chatId, 'restore_archive', { restored: r.restored });
+    return res.json({ ok: true, restored: r.restored });
   }));
 
   // ── 4. GET cabinet (full) ─────────────────────────────────────────

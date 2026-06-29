@@ -441,10 +441,64 @@ async function renameClip(redis, chatId, index, rawName) {
   }
 }
 
+// ── Archive (v0.62.433) ──────────────────────────────────────────────
+// Operator: a "Clear all" in the Catch-all that ARCHIVES the cards for 30 days
+// (restorable), not a hard delete. The archive is a separate list with a 30-day
+// TTL; cards keep their hashes (also 30-day) so Restore brings them back intact.
+const ARCHIVE_PREFIX = 'clip_archive:';
+function archiveKey(chatId) { return `${ARCHIVE_PREFIX}${chatId}`; }
+
+async function archiveAllClips(redis, chatId) {
+  if (!redis || !chatId) return { ok: false, error: 'missing-args' };
+  try {
+    if (!redis.isOpen) await redis.connect();
+    const lk = clipKey(chatId), ak = archiveKey(chatId);
+    const ids = await redis.lRange(lk, 0, MAX_CLIPS - 1).catch(() => []);
+    if (!ids.length) return { ok: true, archived: 0 };
+    for (const id of [...ids].reverse()) { await redis.lRem(ak, 0, id); await redis.lPush(ak, id); }
+    await redis.lTrim(ak, 0, (MAX_CLIPS * 4) - 1);
+    await redis.expire(ak, TTL_CATCHALL_S);
+    await redis.del(lk).catch(() => {});
+    for (const id of ids) { await redis.expire(cardKey(chatId, id), TTL_CATCHALL_S).catch(() => {}); }
+    return { ok: true, archived: ids.length };
+  } catch (err) {
+    console.warn('[Clip-Store] archiveAllClips failed:', err.message);
+    return { ok: false, error: 'redis-failure' };
+  }
+}
+
+async function restoreArchive(redis, chatId) {
+  if (!redis || !chatId) return { ok: false, error: 'missing-args' };
+  try {
+    if (!redis.isOpen) await redis.connect();
+    const lk = clipKey(chatId), ak = archiveKey(chatId);
+    const ids = await redis.lRange(ak, 0, -1).catch(() => []);
+    if (!ids.length) return { ok: true, restored: 0 };
+    for (const id of [...ids].reverse()) { await redis.lRem(lk, 0, id); await redis.lPush(lk, id); }
+    await redis.lTrim(lk, 0, MAX_CLIPS - 1);
+    await redis.persist(lk);
+    await redis.del(ak).catch(() => {});
+    for (const id of ids) { await recomputeCardTtl(redis, chatId, id); }
+    return { ok: true, restored: ids.length };
+  } catch (err) {
+    console.warn('[Clip-Store] restoreArchive failed:', err.message);
+    return { ok: false, error: 'redis-failure' };
+  }
+}
+
+async function archivedCount(redis, chatId) {
+  if (!redis || !chatId) return 0;
+  try { if (!redis.isOpen) await redis.connect(); return await redis.lLen(archiveKey(chatId)); }
+  catch { return 0; }
+}
+
 module.exports = {
   // Public API (back-compat from v0.59.44):
   pushClip,
   listClips,
+  archiveAllClips,
+  restoreArchive,
+  archivedCount,
   getClip,
   clearClips,
   removeClip,

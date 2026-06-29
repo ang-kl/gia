@@ -57,6 +57,9 @@ async function delJson(path) {
 // ── State + cabinets ─────────────────────────────────────────────────
 
 export const getState              = () => getJson('/state');
+// v0.62.433 — archive (clear-all, 30-day) + restore the catch-all.
+export const archiveAll            = () => postJson('/archive-all', {});
+export const restoreArchive        = () => postJson('/restore-archive', {});
 export const getCabinet            = (cabId) => getJson(`/cabinet/${cabId}`);
 export const createCabinet         = (patch) => postJson('/cabinet', patch);
 export const updateCabinet         = (cabId, patch) => patchJson(`/cabinet/${cabId}`, patch);
