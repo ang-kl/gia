@@ -193,10 +193,14 @@ export function AddDrawerSheet({ lang, onCancel, onSave, cabinetName = '' }) {
           <button
             key={s.key}
             onClick={() => onSave({ segment: s.key, dayTag: '' })}
-            className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-tg-border text-[12px] text-tg-text text-left active:scale-[0.99] ${GROUP_CLASS[s.group]}`}
+            className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-tg-border text-tg-text text-left active:scale-[0.99] ${GROUP_CLASS[s.group]}`}
           >
             <span className="flex-shrink-0 w-8 h-8 rounded-full bg-sk-head flex items-center justify-center text-base" aria-hidden>{s.emoji}</span>
-            <span className="font-medium">{t(`seg.${s.key}`, lang)}</span>
+            <span className="min-w-0">
+              <span className="block text-[12px] font-medium truncate">{t(`seg.${s.key}`, lang)}</span>
+              {/* v0.62.431 — operator: show the segment timing under the label. */}
+              <span className="block text-[9px] text-tg-hint truncate">{s.timeEN}</span>
+            </span>
           </button>
         ))}
       </div>
