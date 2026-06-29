@@ -76,7 +76,7 @@ function normaliseRecord(record) {
   const region = record.region === 'JB' ? 'JB' : 'SG';
   const venueCount = Number.isFinite(record.venueCount) ? record.venueCount : 1;
   const preview = typeof record.preview === 'string' ? record.preview.slice(0, 200) : '';
-  const body = String(record.body).slice(0, 4096);
+  const body = String(record.body || '').slice(0, 4096);
   const lang = record.lang === 'fr' ? 'fr' :
                record.lang === 'id' ? 'id' :
                record.lang === 'ru' ? 'ru' :
@@ -196,7 +196,9 @@ async function migrateOldShapeEntry(redis, chatId, index, raw) {
 }
 
 async function pushClip(redis, chatId, record) {
-  if (!redis || !chatId || !record || !record.body) return;
+  // v0.62.444 — allow a BLANK card (empty body) when record.blank is set
+  // (operator: the Clipboard can create blank "sketchbook" cards).
+  if (!redis || !chatId || !record || (!record.body && !record.blank)) return;
   try {
     if (!redis.isOpen) await redis.connect();
     const cardId = newCardId();
@@ -208,8 +210,10 @@ async function pushClip(redis, chatId, record) {
     await redis.lTrim(lk, 0, MAX_CLIPS - 1);
     await redis.persist(lk);   // list itself never expires; per-card TTL governs lifetime
     await recomputeCardTtl(redis, chatId, cardId);
+    return cardId;   // v0.62.444 — callers (blank-card create) need the new id
   } catch (err) {
     console.warn('[Clip-Store] pushClip failed:', err.message);
+    return null;
   }
 }
 

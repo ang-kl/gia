@@ -21,7 +21,7 @@ function cuisineOf(c) { return (Array.isArray(c.cuisines) && c.cuisines[0]) || '
 
 export default function CatchAllStrip({
   cards, lang, onTapCard, onFileCard, dragHandle, draggingCardId,
-  archivedCount = 0, onArchiveAll, onRestore,
+  archivedCount = 0, onArchiveAll, onRestore, onNewCard,
 }) {
   const [sortKey, setSortKey] = useState('date');
   const [asc, setAsc] = useState(false);
@@ -77,6 +77,7 @@ export default function CatchAllStrip({
       <div className="flex items-center gap-2 mb-2 px-1 flex-wrap">
         <h2 className="text-[13px] font-extrabold">{t('root.catchAll', lang)}</h2>
         <span className="text-[10px] font-bold bg-sk-soft text-tg-accent rounded-full px-2 py-0.5">{cards.length}</span>
+        {onNewCard && <button onClick={onNewCard} className="text-[10px] font-semibold text-tg-accent-text bg-tg-accent rounded-full px-2 py-0.5">{t('catchAll.newCard', lang)}</button>}
         <div className="ml-auto flex items-center gap-1">
           <span className="text-[9px] text-tg-hint">{t('sort.by', lang)}</span>
           <button onClick={() => setAsc((v) => !v)} className="text-[11px] text-tg-accent" aria-label="direction">{asc ? '⇧' : '⇩'}</button>
@@ -108,8 +109,9 @@ export default function CatchAllStrip({
       )}
 
       {cards.length === 0 ? (
-        <div className="text-[11px] text-tg-hint italic bg-tg-card border border-tg-border rounded-xl p-3 text-center">
-          {archivedCount > 0 ? t('catchAll.restore', lang, { n: archivedCount }) : t('root.catchAllEmpty', lang)}
+        <div className="bg-tg-card border border-tg-border rounded-xl p-4 text-center">
+          <div className="text-[11px] text-tg-hint italic mb-2">{archivedCount > 0 ? t('catchAll.restore', lang, { n: archivedCount }) : t('root.catchAllEmpty', lang)}</div>
+          {onNewCard && <button onClick={onNewCard} className="text-[12px] font-semibold text-tg-accent-text bg-tg-accent rounded-full px-3 py-1.5">{t('catchAll.newCard', lang)}</button>}
         </div>
       ) : (
         <div className="flex flex-col gap-2">
