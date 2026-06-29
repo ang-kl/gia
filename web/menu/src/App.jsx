@@ -78,6 +78,15 @@ const SECTIONS = [
     id: 'location',
     titleKey: 'section.location',
     tiles: []
+  },
+  // v0.62.437 — operator: launch Sketchbook (Clipboard TMA) from the hub, below
+  // the Location section. (No dedicated PNG asset yet → emoji icon for now.)
+  {
+    id: 'sketchbook-app',
+    titleKey: null,
+    tiles: [
+      { id: 'sketchbook', icon: '📋', labelKey: 'tile.sketchbook.label', subKey: 'tile.sketchbook.sub', kind: 'navigate', path: '/app/clipboard' }
+    ]
   }
 ];
 

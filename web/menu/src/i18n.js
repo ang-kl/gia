@@ -49,6 +49,9 @@ const STRINGS = {
   'tile.hawker.label':     { en: 'Hawker Centre', fr: 'Hawker Centre' },
   'tile.hawker.sub':       { en: 'Singapore’s UNESCO-recognised hawker culture, where everyday food and community meet',
                              fr: 'La culture des hawkers de Singapour, reconnue par l’UNESCO, où la cuisine du quotidien rassemble' },
+  'tile.sketchbook.label': { en: 'Sketchbook', fr: 'Sketchbook' },
+  'tile.sketchbook.sub':   { en: 'Save & organise your eateries into cabinets',
+                             fr: 'Enregistrez et classez vos adresses en classeurs' },
   'section.sg':            { en: '🇸🇬 Singapore', fr: '🇸🇬 Singapour' },
   'tile.recognised.label': { en: 'Recognised',  fr: 'Reconnus' },
 
