@@ -72,6 +72,7 @@ const STRINGS = {
   'facet.michelin':         { en: '✳️ Michelin',        fr: '✳️ Michelin',      id: '✳️ Michelin',    ru: '✳️ Michelin',    de: '✳️ Michelin' },
   'facet.any':              { en: 'Any',                fr: 'Tous',             id: 'Semua',          ru: 'Любой',          de: 'Alle' },
   'facet.clear':            { en: 'Clear filters',      fr: 'Effacer',          id: 'Hapus filter',   ru: 'Сбросить',       de: 'Filter löschen' },
+  'catchAll.newCard':       { en: '＋ New card',        fr: '＋ Nouvelle carte', id: '＋ Kartu baru',  ru: '＋ Карточка',     de: '＋ Neue Karte' },
   'catchAll.clearAll':      { en: '🗑 Clear all',       fr: '🗑 Tout vider',    id: '🗑 Hapus semua', ru: '🗑 Очистить',    de: '🗑 Alle leeren' },
   'catchAll.restore':       { en: '↩ Restore ({n})',   fr: '↩ Restaurer ({n})', id: '↩ Pulihkan ({n})', ru: '↩ Вернуть ({n})', de: '↩ Wiederherstellen ({n})' },
   'catchAll.archiveConfirm':{ en: 'Archive all {n} cards? They’re restorable for 30 days.', fr: 'Archiver les {n} cartes ? Restaurables 30 jours.', id: 'Arsipkan {n} kartu? Bisa dipulihkan 30 hari.', ru: 'Архивировать {n} карт? Можно вернуть 30 дней.', de: 'Alle {n} Karten archivieren? 30 Tage wiederherstellbar.' },

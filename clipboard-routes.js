@@ -168,6 +168,19 @@ function mountClipboardRoutes(app, redis) {
     return res.json({ cabinets, catchAllCount: total, catchAllCards: items, defaultCabinetId, archivedCount: archived });
   }));
 
+  // ── 3a2. POST create a BLANK card (v0.62.444) ─────────────────────
+  // Operator: the Clipboard can create blank "sketchbook" cards (then
+  // add/edit/delete/move them like any clip).
+  app.post('/api/clipboard/blank-card', wrap(async (req, res) => {
+    const chatId = chatIdFrom(req);
+    if (!chatId) return res.status(400).json({ error: 'missing-chatId' });
+    const name = typeof req.body?.name === 'string' ? req.body.name.slice(0, 60) : '';
+    const cardId = await pushClip(redis, chatId, { blank: true, type: 'one', body: '', name, note: '' });
+    if (!cardId) return res.status(500).json({ error: 'create-failed' });
+    track(redis, chatId, 'blank_card', {});
+    return res.json({ ok: true, cardId });
+  }));
+
   // ── 3b. POST archive-all / restore the catch-all (v0.62.433) ──────
   app.post('/api/clipboard/archive-all', wrap(async (req, res) => {
     const chatId = chatIdFrom(req);

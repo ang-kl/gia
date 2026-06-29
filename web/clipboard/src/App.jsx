@@ -237,6 +237,14 @@ export default function App() {
             try { setBusy(true); await api.restoreArchive(); await reloadState(); }
             catch (err) { alert(err.message); } finally { setBusy(false); }
           }}
+          onNewCard={async () => {
+            try {
+              setBusy(true);
+              const r = await api.createBlankCard();
+              await reloadState();
+              if (r?.cardId) setSheet({ kind: 'amend', card: { cardId: r.cardId, name: '', note: '' } });
+            } catch (err) { alert(err.message); } finally { setBusy(false); }
+          }}
           dragHandle={dragHandle}
           draggingCardId={dragging?.cardId}
         />
