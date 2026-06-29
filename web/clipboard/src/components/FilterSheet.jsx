@@ -31,9 +31,10 @@ export default function FilterSheet({
               placeholder={t('filter.dishPlaceholder', lang)}
               className="w-full bg-tg-bg border border-tg-border rounded-xl px-3 py-2 text-sm text-tg-text"
             />
-            <div className="flex gap-2 mt-2">
-              <button type="button" onClick={() => onPick(null)} className="flex-1 px-3 py-2 rounded-xl text-sm text-tg-text border border-tg-border">{t('filter.all', lang)}</button>
-              <button type="submit" className="flex-1 px-3 py-2 rounded-xl text-sm font-semibold bg-tg-accent text-tg-accent-text">{t('chrome.save', lang)}</button>
+            {/* v0.62.430 — item 6: Save is a small pill; item 6a: "All" removed
+                (clearing the box + Save already drops the filter). */}
+            <div className="flex justify-end mt-2">
+              <button type="submit" className="text-[11px] font-semibold bg-tg-accent text-tg-accent-text rounded-full px-3 py-1">{t('chrome.save', lang)}</button>
             </div>
           </form>
         ) : (
