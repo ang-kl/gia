@@ -1,8 +1,8 @@
 counters:
-  commit: 902
-  build: 542
+  commit: 903
+  build: 543
   documents:
-    journal: 784
+    journal: 785
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 29-06 '26 08:30 SGT
-last_anchor_source: sketchbook_batch1_2_5_6_2026-06-29_0830 (v0.62.430 — Sketchbook operator batch [items 1,2,5,6]. 1: footer tab2 already=default cabinet [confirmed]. 2: header title now follows DEFAULT cabinet [App activeCabinetName=defaultCab.name fallback]. 5a: chip 'Cuisine & Filter'. 5b/5c: 'Pick Local Dish' chip + filter.dishTitle 'Filter Local Dish'. 6: FilterSheet text-mode Save = small pill. 6a: removed 'All' button [clear box + Save clears]. vite build OK [50 modules]. journal 783->784, commit 901->902, build 541->542. REMAINING operator items: 3 dup-indicator, 4 cuisine-filter layout=criteria-search + smaller margins, 7+11 catch-all row under tabs + sort, 8 location list grouped country/city, 9 drawer 3-buttons top-right + wiring, 10 filed-card label+strip, 12a date-of-copy, 12b drawer desc, 13 note, 14 bot /clipboard. PRIOR ANCHOR sketchbook_B_resultcard_2026-06-29_0815)
+last_anchor_time: 29-06 '26 09:05 SGT
+last_anchor_source: sketchbook_drawer_timings_2026-06-29_0905 (v0.62.431 — operator: drawer descriptions carry the segment TIMING. segments.js timeEN updated to match the operator's itinerary spec verbatim [AM/PM both ends; wholeDay='Anytime']. AddDrawerSheet shows the time range under each segment label; DrawerRow subline now leads with seg.timeEN [seg timing · dayTag · 📍loc]. vite build OK [50 modules]. journal 784->785, commit 902->903, build 542->543. NOTE: /tmp scratch+harness were wiped on session resume; rebuilt harness from main [v0.62.430]. REMAINING operator items: 3,4,7,8,9,10,11,12a,12b,13,14. PRIOR ANCHOR sketchbook_batch1_2_5_6_2026-06-29_0830)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00

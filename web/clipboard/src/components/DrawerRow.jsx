@@ -15,7 +15,8 @@ export default function DrawerRow({ drawer, n, totalDrawers, cabinetId, lang, on
   const canMoveUp = n > 0;
   const canMoveDown = totalDrawers != null && n < totalDrawers - 1;
   const loc = drawer.location?.label;
-  const sub = [drawer.dayTag, loc ? `📍 ${loc}` : ''].filter(Boolean).join(' · ');
+  // v0.62.431 — operator: the drawer description carries its segment TIMING.
+  const sub = [seg.timeEN, drawer.dayTag, loc ? `📍 ${loc}` : ''].filter(Boolean).join(' · ');
   const move = (delta) => { if (onMove && ((delta < 0 && canMoveUp) || (delta > 0 && canMoveDown))) onMove(n, n + delta); };
 
   return (
