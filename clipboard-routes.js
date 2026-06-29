@@ -130,6 +130,33 @@ function mountClipboardRoutes(app, redis) {
     const { items, total } = await listClips(redis, chatId, { limit: 50, offset: 0 });
     // v0.62.416 — defaultCabinetId drives the TMA footer tab 2.
     const defaultCabinetId = await getDefaultCabinetId(redis, chatId);
+    // v0.62.432 — attach each catch-all card's PLACEMENTS (cabinet + drawer
+    // segment) so the card can show "{cabinet} · {drawer}" + a drawer-coloured
+    // strip (operator item 10). Bounded: ≤50 cards × placements; drawers cached.
+    try {
+      const cabById = new Map(cabinets.map((c) => [c.cabId, c]));
+      const drCache = new Map();
+      const drawersFor = async (cabId) => {
+        if (!drCache.has(cabId)) drCache.set(cabId, await readDrawers(redis, chatId, cabId));
+        return drCache.get(cabId);
+      };
+      for (const it of items) {
+        const tags = await redis.sMembers(locsKey(chatId, it.cardId)).catch(() => []);
+        if (!tags || !tags.length) continue;
+        const placements = [];
+        for (const tag of tags) {
+          const sep = tag.lastIndexOf(':');
+          if (sep < 0) continue;
+          const cabId = tag.slice(0, sep);
+          const n = Number(tag.slice(sep + 1));
+          const cab = cabById.get(cabId);
+          const drs = await drawersFor(cabId);
+          const d = drs && drs[n];
+          if (cab && d) placements.push({ cabId, cabName: cab.name, drawerIdx: n, segment: d.segment });
+        }
+        if (placements.length) it.placements = placements;
+      }
+    } catch (err) { console.warn('[clipboard-routes] placement enrich failed:', err.message); }
     return res.json({ cabinets, catchAllCount: total, catchAllCards: items, defaultCabinetId });
   }));
 

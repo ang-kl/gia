@@ -5,6 +5,11 @@ import VenueCard from './VenueCard.jsx';
 import { t } from '../lib/i18n.js';
 
 export default function CatchAllStrip({ cards, lang, onTapCard, onFileCard, dragHandle, draggingCardId }) {
+  // v0.62.432 — item 3: flag cards whose venue appears more than once in the
+  // Clipboard (same placeId, else same name).
+  const dupKey = (c) => (c.venue && c.venue.placeId) || (c.venue && c.venue.name) || c.name || c.preview || '';
+  const dupCounts = {};
+  for (const c of cards) { const k = dupKey(c); if (k) dupCounts[k] = (dupCounts[k] || 0) + 1; }
   return (
     <section>
       <div className="flex items-end gap-2 mb-1.5 px-1">
@@ -26,6 +31,7 @@ export default function CatchAllStrip({ cards, lang, onTapCard, onFileCard, drag
               card={c}
               number={i + 1}
               lang={lang}
+              isDuplicate={(dupCounts[dupKey(c)] || 0) > 1}
               context="clipboard"
               onTap={() => onTapCard?.(c)}
               onFile={() => onFileCard?.(c)}
