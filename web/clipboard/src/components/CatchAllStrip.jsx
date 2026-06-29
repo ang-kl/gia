@@ -4,6 +4,7 @@
 
 import React, { useState, useMemo } from 'react';
 import VenueCard from './VenueCard.jsx';
+import LocationSheet from './LocationSheet.jsx';
 import { t } from '../lib/i18n.js';
 
 const SORTS = ['title', 'country', 'city', 'cuisine', 'date'];
@@ -25,6 +26,23 @@ export default function CatchAllStrip({
   const [sortKey, setSortKey] = useState('date');
   const [asc, setAsc] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [locFilter, setLocFilter] = useState(null);   // item 8 — city filter
+  const [locOpen, setLocOpen] = useState(false);
+
+  // item 8 — group saved-card locations by country › city.
+  const locGroups = useMemo(() => {
+    const map = {};
+    for (const c of cards) {
+      const country = countryOf(c); const city = cityOf(c) || '—';
+      (map[country] = map[country] || {});
+      (map[country][city] = map[country][city] || []).push(c.name || (c.venue && c.venue.name) || c.preview || 'Untitled');
+    }
+    return Object.entries(map).map(([country, cities]) => ({
+      country,
+      cities: Object.entries(cities).map(([city, items]) => ({ city, items })).sort((a, b) => a.city.localeCompare(b.city)),
+    }));
+  }, [cards]);
+  const locFiltered = locFilter ? cards.filter((c) => (cityOf(c) || '—') === locFilter) : cards;
 
   // item 3 — duplicate flagging
   const dupKey = (c) => (c.venue && c.venue.placeId) || (c.venue && c.venue.name) || c.name || c.preview || '';
@@ -32,7 +50,7 @@ export default function CatchAllStrip({
   for (const c of cards) { const k = dupKey(c); if (k) dupCounts[k] = (dupCounts[k] || 0) + 1; }
 
   const sorted = useMemo(() => {
-    const arr = [...cards];
+    const arr = [...locFiltered];
     const cmp = {
       title:   (a, b) => titleOf(a).localeCompare(titleOf(b)),
       country: (a, b) => countryOf(a).localeCompare(countryOf(b)),
@@ -43,10 +61,18 @@ export default function CatchAllStrip({
     arr.sort(cmp);
     if (!asc) arr.reverse();
     return arr;
-  }, [cards, sortKey, asc]);
+  }, [locFiltered, sortKey, asc]);
 
   return (
     <section>
+      {/* item 8 — location line: 📍 {city | All locations}; tap 📍 → list */}
+      <div className="flex items-center gap-1 mb-1.5 px-1 text-[12px]">
+        <button onClick={() => setLocOpen(true)} className="flex items-center gap-1 text-tg-text">
+          <span className="text-sk-pin">📍</span>
+          <span className="font-semibold">{locFilter || t('loc.all', lang)}</span>
+        </button>
+        {locFilter && <button onClick={() => setLocFilter(null)} className="text-tg-hint text-[11px]">✕</button>}
+      </div>
       {/* header row — count · sort · ✍️ Edit (under the chips) */}
       <div className="flex items-center gap-2 mb-2 px-1 flex-wrap">
         <h2 className="text-[13px] font-extrabold">{t('root.catchAll', lang)}</h2>
@@ -102,6 +128,16 @@ export default function CatchAllStrip({
             />
           ))}
         </div>
+      )}
+
+      {locOpen && (
+        <LocationSheet
+          lang={lang}
+          groups={locGroups}
+          active={locFilter}
+          onPick={(city) => { setLocFilter(city); setLocOpen(false); }}
+          onClose={() => setLocOpen(false)}
+        />
       )}
     </section>
   );
