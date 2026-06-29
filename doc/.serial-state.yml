@@ -1,8 +1,8 @@
 counters:
-  commit: 908
-  build: 548
+  commit: 909
+  build: 549
   documents:
-    journal: 790
+    journal: 791
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 29-06 '26 10:55 SGT
-last_anchor_source: sketchbook_locations_2026-06-29_1055 (v0.62.436 — Sketchbook item 8: 📍 All locations. NEW LocationSheet.jsx — bottom sheet grouping saved-card eatery locations by COUNTRY[region SG/JB] › CITY[parsed from venue.area], 12-nearby style: city row + count + '+' expand to eatery names; auto-close after 60s. CatchAllStrip: '📍 {city|All locations}' line at top [tap -> sheet, ✕ clears]; tapping a city filters the catch-all to that city. Frontend-only [derives from existing card venue data]. i18n loc.all/title/none. vite build OK [51 modules]. journal 789->790, commit 907->908, build 547->548. REMAINING: 4 [cuisine filter = Criteria-Search layout], 14 [bot /clipboard]. PRIOR ANCHOR sketchbook_drawer_desc_2026-06-29_1025)
+last_anchor_time: 29-06 '26 11:20 SGT
+last_anchor_source: menu_sketchbook_tile_2026-06-29_1120 (v0.62.437 — operator: launch Sketchbook from the Menu TMA, below the Location section. web/menu App.jsx: new 'sketchbook-app' section after 'location' with a navigate tile -> /app/clipboard [emoji 📋 icon; no dedicated PNG yet]. web/menu i18n: tile.sketchbook.label 'Sketchbook' + .sub. ICON SIZES [answer]: Tile default box 64×64 [w-16 h-16], img max-h-48; Cuisine override 74×74 box / max-h-74; Hawker 64 box / max-h-64; Train 64 box width-bound. esbuild parse OK on both menu files; CI builds menu TMA. journal 790->791, commit 908->909, build 548->549. REMAINING Sketchbook items: 4 [cuisine filter layout], 14 [bot /clipboard]. PRIOR ANCHOR sketchbook_locations_2026-06-29_1055)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
