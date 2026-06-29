@@ -207,6 +207,10 @@ export default function App() {
             try { setBusy(true); await api.unplaceCard(cardId, state.currentCabinetId, n); await loadCabinet(state.currentCabinetId); await reloadState(); }
             catch (err) { alert(err.message); } finally { setBusy(false); }
           }}
+          onUpdateDrawer={async (n, patch) => {
+            try { setBusy(true); await api.updateDrawer(state.currentCabinetId, n, patch); await loadCabinet(state.currentCabinetId); }
+            catch (err) { alert(err.message); } finally { setBusy(false); }
+          }}
         />
       ) : tab === 'clipboard' ? (
         <CatchAllStrip

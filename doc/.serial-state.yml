@@ -1,8 +1,8 @@
 counters:
-  commit: 905
-  build: 545
+  commit: 906
+  build: 546
   documents:
-    journal: 787
+    journal: 788
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 29-06 '26 09:25 SGT
-last_anchor_source: sketchbook_catchall_header_archive_2026-06-29_0925 (v0.62.433 — Sketchbook items 7+11 + archive. 7+11: CatchAllStrip header row [count · sort pills title/country/city/cuisine/date + ⇧⇩ dir · ✍️Edit] under the chips; cards sorted client-side. ARCHIVE [operator add]: ✍️Edit reveals 'Clear all' [archive all catch-all cards 30 days, confirm] + 'Restore (N)'. Backend: clip-store archiveAllClips/restoreArchive/archivedCount [separate clip_archive: list, 30d TTL, cards keep hashes]; clipboard-routes POST /archive-all + /restore-archive, /state returns archivedCount; api.js archiveAll/restoreArchive; state.js tracks archivedCount. clip-store 42 + clipboard-routes 69 = 111✓; vite build OK [50 modules]; node --check clipst+cr OK. journal 786->787, commit 904->905, build 544->545. REMAINING: 4 cuisine-filter layout, 8 location list, 9 drawer 3-buttons+wiring, 12b drawer desc, 13 note, 14 bot /clipboard. PRIOR ANCHOR sketchbook_card_batch_2026-06-29_0910)
+last_anchor_time: 29-06 '26 09:45 SGT
+last_anchor_source: sketchbook_drawer_edit_2026-06-29_0945 (v0.62.434 — Sketchbook item 9. DrawerRow: top-right ✏️ Edit [only button when collapsed]; tap -> dayTag/title input autofocus [cursor on title] + ⧉Duplicate/🗑Delete/✓Save/✕Cancel top-right [9a/9b]; Duplicate/Delete moved out of the expanded footer [reorder ↑↓ stays]. 9c FIX: drawers now default OPEN when they hold cards [was always-collapsed since v0.62.427, hiding filed cards] — backend wiring [getDrawerCards] was already correct. chrome.edit + card.edit standardized to '✏️ Edit'. New onUpdate -> CabinetView -> App api.updateDrawer[dayTag]. vite build OK [50 modules]. journal 787->788, commit 905->906, build 545->546. REMAINING: 4 cuisine-filter layout, 8 location list, 12b drawer description[free 120], 13 note, 14 bot /clipboard. PRIOR ANCHOR sketchbook_catchall_header_archive_2026-06-29_0925)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00

@@ -10,7 +10,7 @@ const DRAWER_CAP = 20;
 
 export default function CabinetView({
   payload, lang, onBack, onAddDrawer, onTapCard, onDeleteDrawer, onDeleteCabinet, onMoveDrawer,
-  isDefault = false, onSetDefault, onSaveCabinet, onDuplicateCabinet, onDuplicateDrawer, onUnplace,
+  isDefault = false, onSetDefault, onSaveCabinet, onDuplicateCabinet, onDuplicateDrawer, onUnplace, onUpdateDrawer,
 }) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState('');
@@ -79,6 +79,7 @@ export default function CabinetView({
             onMove={(from, to) => onMoveDrawer?.(from, to)}
             onDuplicate={(n) => onDuplicateDrawer?.(n)}
             onUnplace={(cardId, n) => onUnplace?.(cardId, n)}
+            onUpdate={(n, patch) => onUpdateDrawer?.(n, patch)}
             onDelete={() => { if (window.confirm(t('drawer.deleteConfirm', lang))) onDeleteDrawer?.(i); }}
           />
         ))
