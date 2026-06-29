@@ -87,6 +87,13 @@ function normaliseRecord(record) {
     ? record.note.slice(0, 990) : '';   // operator-locked: 990 chars
   const favourite = record.favourite === true || record.favourite === '1' || record.favourite === 1
     ? '1' : '0';
+  // v0.62.429 — store the STRUCTURED venue (single-copy only) so Sketchbook can
+  // render the real Cuisine ResultCard instead of the copied HTML text. Capped
+  // JSON; absent on copy-all and on pre-v0.62.429 clips (→ text-only card).
+  let venue = '';
+  if (record.venue && typeof record.venue === 'object') {
+    try { venue = JSON.stringify(record.venue).slice(0, 6000); } catch { venue = ''; }
+  }
   return {
     ts: String(ts),
     type,
@@ -99,7 +106,8 @@ function normaliseRecord(record) {
     lang,
     name,
     note,
-    favourite
+    favourite,
+    venue
   };
 }
 
@@ -121,7 +129,9 @@ function denormaliseRecord(fields) {
     lang: fields.lang || 'en',
     name: fields.name || undefined,            // omit when empty for parity with the old shape
     note: fields.note || undefined,
-    favourite: fields.favourite === '1'
+    favourite: fields.favourite === '1',
+    // v0.62.429 — parsed structured venue (undefined when absent → text-only card).
+    venue: (() => { try { return fields.venue ? JSON.parse(fields.venue) : undefined; } catch { return undefined; } })()
   };
 }
 

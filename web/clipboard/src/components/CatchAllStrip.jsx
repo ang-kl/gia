@@ -20,10 +20,12 @@ export default function CatchAllStrip({ cards, lang, onTapCard, onFileCard, drag
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {cards.map((c) => (
+          {cards.map((c, i) => (
             <VenueCard
               key={c.cardId}
               card={c}
+              number={i + 1}
+              lang={lang}
               context="clipboard"
               onTap={() => onTapCard?.(c)}
               onFile={() => onFileCard?.(c)}

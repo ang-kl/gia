@@ -13332,7 +13332,10 @@ async function cacheBotUsername() {
             venueCount: 1,
             preview: venue.name || '',
             body,
-            lang: oneLang
+            lang: oneLang,
+            // v0.62.429 — persist the structured venue so the Sketchbook TMA can
+            // render the real ResultCard (not the copied HTML text).
+            venue
           });
         } catch (err) { console.warn('[Cuisine] pushClip (copy-one) failed:', err.message); }
         // v0.60.161 — verbose-log exit.
