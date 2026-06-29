@@ -76,7 +76,7 @@ export default function Shell({
   return (
     <div className="flex flex-col h-screen bg-tg-bg text-tg-text">
       {/* ── HEADER ── */}
-      <header className={`flex-shrink-0 bg-tg-card px-3 pt-3 z-10 ${drop ? 'pb-0' : 'pb-2 border-b border-tg-border'}`}>
+      <header className="flex-shrink-0 bg-tg-card px-3 pt-3 pb-2 border-b border-tg-border z-10">
         <div className="flex items-center gap-2">
           <button
             type="button" aria-label="menu"
@@ -107,8 +107,8 @@ export default function Shell({
         <div className="flex gap-2 mt-2">
           <button
             type="button"
-            onClick={() => setDrop((d) => (d === 'cuisine' ? null : 'cuisine'))}
-            className={`flex-1 flex items-center justify-between gap-1 px-2.5 py-1.5 text-[12px] font-medium border ${drop === 'cuisine' ? 'rounded-t-xl rounded-b-none border-b-0' : 'rounded-xl'} ${cuisineFilter || drop === 'cuisine' ? 'bg-tg-accent/10 border-tg-accent/50 text-tg-text' : 'bg-tg-bg border-tg-border text-tg-text'}`}
+            onClick={() => { setMenuOpen(false); setDrop((d) => (d === 'cuisine' ? null : 'cuisine')); }}
+            className={`flex-1 flex items-center justify-between gap-1 px-2.5 py-1.5 text-[12px] font-medium border rounded-xl ${cuisineFilter || drop === 'cuisine' ? 'bg-tg-accent/10 border-tg-accent/50 text-tg-text' : 'bg-tg-bg border-tg-border text-tg-text'}`}
           >
             <span className="truncate">{cuisineFilter ? `🍜 ${cuisineFilter}` : t('chrome.cuisineFilters', lang)}</span>
             {cuisineFilter
@@ -117,8 +117,8 @@ export default function Shell({
           </button>
           <button
             type="button"
-            onClick={() => { setDishDraft(dishFilter || ''); setDrop((d) => (d === 'dish' ? null : 'dish')); }}
-            className={`flex-1 flex items-center justify-between gap-1 px-2.5 py-1.5 text-[12px] font-medium border ${drop === 'dish' ? 'rounded-t-xl rounded-b-none border-b-0' : 'rounded-xl'} ${dishFilter || drop === 'dish' ? 'bg-tg-accent/10 border-tg-accent/50 text-tg-text' : 'bg-tg-bg border-tg-border text-tg-text'}`}
+            onClick={() => { setMenuOpen(false); setDishDraft(dishFilter || ''); setDrop((d) => (d === 'dish' ? null : 'dish')); }}
+            className={`flex-1 flex items-center justify-between gap-1 px-2.5 py-1.5 text-[12px] font-medium border rounded-xl ${dishFilter || drop === 'dish' ? 'bg-tg-accent/10 border-tg-accent/50 text-tg-text' : 'bg-tg-bg border-tg-border text-tg-text'}`}
           >
             <span className="truncate">{dishFilter ? `📍 ${dishFilter}` : t('chrome.pickLocal', lang)}</span>
             {dishFilter
@@ -130,7 +130,11 @@ export default function Shell({
         {/* Folio dropdown panel — opens DOWN, attached to the chips (Cuisine-TMA
             slide effect via .sk-drop). box-border + contained so it never bleeds. */}
         {drop === 'cuisine' && (
-          <div className="sk-drop box-border w-full border border-tg-border border-t-0 rounded-b-xl bg-tg-card shadow-lg max-h-[44vh] overflow-y-auto overflow-x-hidden p-2">
+          <div className="sk-drop box-border w-full mt-2 border border-tg-border rounded-xl bg-tg-card shadow-lg max-h-[44vh] overflow-y-auto overflow-x-hidden p-2">
+            {cuisineOptions.length === 0 ? (
+              <div className="px-3 py-4 text-center text-xs text-tg-hint">{t('filter.none', lang)}</div>
+            ) : (
+            <>
             {/* cuisine chips — 2-col grid like the Cuisine TMA category picker;
                 the options ARE the cuisines present in the clips. */}
             <div className="grid grid-cols-2 gap-1.5">
@@ -145,7 +149,6 @@ export default function Shell({
                 </button>
               ))}
             </div>
-            {cuisineOptions.length === 0 && <div className="px-3 py-3 text-center text-xs text-tg-hint">{t('filter.none', lang)}</div>}
 
             {/* v0.62.441 — richer facets (over the stored venue data). */}
             <div className="border-t border-tg-border mt-1.5 pt-2 px-1.5 space-y-2">
@@ -184,10 +187,12 @@ export default function Shell({
               </div>
               <button onClick={() => { onClearFacets?.(); setDrop(null); }} className="w-full text-[11px] text-tg-hint py-1">{t('facet.clear', lang)}</button>
             </div>
+            </>
+            )}
           </div>
         )}
         {drop === 'dish' && (
-          <div className="sk-drop box-border w-full border border-tg-border border-t-0 rounded-b-xl bg-tg-card shadow-lg p-2">
+          <div className="sk-drop box-border w-full mt-2 border border-tg-border rounded-xl bg-tg-card shadow-lg p-2">
             <form onSubmit={(e) => { e.preventDefault(); onSetDish?.(dishDraft.trim() || null); setDrop(null); }}>
               <input type="text" autoFocus value={dishDraft} onChange={(e) => setDishDraft(e.target.value)}
                 placeholder={t('filter.dishPlaceholder', lang)}
