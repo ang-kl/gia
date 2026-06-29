@@ -60,11 +60,14 @@ function FooterTab({ iconKey, label, active, onClick }) {
 export default function Shell({
   lang = 'en', screen, activeCabinetName = '', footerCabinetLabel,
   onNav, onRefresh, children,
-  // v0.62.418 — header chips FILTER the user's saved cards (cuisine / dish).
-  cuisineFilter = null, dishFilter = null,
-  onOpenCuisineFilter, onOpenDishFilter, onClearCuisine, onClearDish,
+  // v0.62.440 — header chips FILTER the user's saved cards via a FOLIO DROPDOWN
+  // (drops down under the chips, like the Cuisine TMA tabs — not a bottom sheet).
+  cuisineFilter = null, dishFilter = null, cuisineOptions = [],
+  onSetCuisine, onSetDish,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [drop, setDrop] = useState(null);   // 'cuisine' | 'dish' | null
+  const [dishDraft, setDishDraft] = useState(dishFilter || '');
   const cabLabel = footerCabinetLabel || t('nav.cabinets', lang);
   const go = (s) => { haptic('light'); setMenuOpen(false); onNav?.(s); };
   const switchApp = (path) => { setMenuOpen(false); openMiniApp(path); };
@@ -98,31 +101,59 @@ export default function Shell({
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 4v5h-5"/></svg>
           </button>
         </div>
-        {/* v0.62.418 — chips FILTER the user's saved eatery cards (operator:
-            "search for the eatery cards with the cuisine or food dish, not new
-            eateries"). Active chip is accented + shows a ✕ to clear. */}
+        {/* v0.62.440 — chips are FOLIO TABS: tapping drops a panel down right
+            below them (not a bottom sheet). Active chip accented; ▾/▴ indicator. */}
         <div className="flex gap-2 mt-2">
           <button
             type="button"
-            onClick={onOpenCuisineFilter}
-            className={`flex-1 flex items-center justify-between gap-1 rounded-xl px-2.5 py-1.5 text-[12px] font-medium border ${cuisineFilter ? 'bg-tg-accent/10 border-tg-accent/50 text-tg-text' : 'bg-tg-bg border-tg-border text-tg-text'}`}
+            onClick={() => setDrop((d) => (d === 'cuisine' ? null : 'cuisine'))}
+            className={`flex-1 flex items-center justify-between gap-1 px-2.5 py-1.5 text-[12px] font-medium border ${drop === 'cuisine' ? 'rounded-t-xl rounded-b-none border-b-0' : 'rounded-xl'} ${cuisineFilter || drop === 'cuisine' ? 'bg-tg-accent/10 border-tg-accent/50 text-tg-text' : 'bg-tg-bg border-tg-border text-tg-text'}`}
           >
             <span className="truncate">{cuisineFilter ? `🍜 ${cuisineFilter}` : t('chrome.cuisineFilters', lang)}</span>
             {cuisineFilter
-              ? <span role="button" aria-label="clear" onClick={(e) => { e.stopPropagation(); onClearCuisine?.(); }} className="text-tg-hint">✕</span>
-              : <span className="text-tg-hint">▾</span>}
+              ? <span role="button" aria-label="clear" onClick={(e) => { e.stopPropagation(); onSetCuisine?.(null); }} className="text-tg-hint">✕</span>
+              : <span className="text-tg-hint">{drop === 'cuisine' ? '▴' : '▾'}</span>}
           </button>
           <button
             type="button"
-            onClick={onOpenDishFilter}
-            className={`flex-1 flex items-center justify-between gap-1 rounded-xl px-2.5 py-1.5 text-[12px] font-medium border ${dishFilter ? 'bg-tg-accent/10 border-tg-accent/50 text-tg-text' : 'bg-tg-bg border-tg-border text-tg-text'}`}
+            onClick={() => { setDishDraft(dishFilter || ''); setDrop((d) => (d === 'dish' ? null : 'dish')); }}
+            className={`flex-1 flex items-center justify-between gap-1 px-2.5 py-1.5 text-[12px] font-medium border ${drop === 'dish' ? 'rounded-t-xl rounded-b-none border-b-0' : 'rounded-xl'} ${dishFilter || drop === 'dish' ? 'bg-tg-accent/10 border-tg-accent/50 text-tg-text' : 'bg-tg-bg border-tg-border text-tg-text'}`}
           >
             <span className="truncate">{dishFilter ? `📍 ${dishFilter}` : t('chrome.pickLocal', lang)}</span>
             {dishFilter
-              ? <span role="button" aria-label="clear" onClick={(e) => { e.stopPropagation(); onClearDish?.(); }} className="text-tg-hint">✕</span>
-              : <span className="text-tg-hint">▾</span>}
+              ? <span role="button" aria-label="clear" onClick={(e) => { e.stopPropagation(); onSetDish?.(null); }} className="text-tg-hint">✕</span>
+              : <span className="text-tg-hint">{drop === 'dish' ? '▴' : '▾'}</span>}
           </button>
         </div>
+
+        {/* Folio dropdown panel — opens DOWN, attached to the chips. */}
+        {drop === 'cuisine' && (
+          <div className="border border-tg-border border-t-0 rounded-b-xl bg-tg-card shadow-lg max-h-[40vh] overflow-y-auto p-1.5">
+            <button type="button" onClick={() => { onSetCuisine?.(null); setDrop(null); }}
+              className={`flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm ${cuisineFilter == null ? 'bg-tg-accent text-tg-accent-text' : 'text-tg-text'}`}>
+              <span>{t('filter.all', lang)}</span>{cuisineFilter == null && <span aria-hidden>✓</span>}
+            </button>
+            {cuisineOptions.map((o) => (
+              <button key={o.value} type="button" onClick={() => { onSetCuisine?.(o.value); setDrop(null); }}
+                className={`flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm ${cuisineFilter === o.value ? 'bg-tg-accent text-tg-accent-text' : 'text-tg-text'}`}>
+                <span className="truncate capitalize">{o.label}</span><span className="ml-2 text-tg-hint text-xs">{o.count}</span>
+              </button>
+            ))}
+            {cuisineOptions.length === 0 && <div className="px-3 py-3 text-center text-xs text-tg-hint">{t('filter.none', lang)}</div>}
+          </div>
+        )}
+        {drop === 'dish' && (
+          <div className="border border-tg-border border-t-0 rounded-b-xl bg-tg-card shadow-lg p-2">
+            <form onSubmit={(e) => { e.preventDefault(); onSetDish?.(dishDraft.trim() || null); setDrop(null); }}>
+              <input type="text" autoFocus value={dishDraft} onChange={(e) => setDishDraft(e.target.value)}
+                placeholder={t('filter.dishPlaceholder', lang)}
+                className="w-full bg-tg-bg border border-tg-border rounded-lg px-3 py-2 text-sm text-tg-text" />
+              <div className="flex justify-end mt-2">
+                <button type="submit" className="text-[11px] font-semibold bg-tg-accent text-tg-accent-text rounded-full px-3 py-1">{t('chrome.save', lang)}</button>
+              </div>
+            </form>
+          </div>
+        )}
       </header>
 
       {/* ── MAIN (scroll) ── */}

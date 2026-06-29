@@ -13,7 +13,6 @@ import { useDrag } from './lib/dnd.js';
 import { t } from './lib/i18n.js';
 
 import Shell         from './components/Shell.jsx';
-import FilterSheet   from './components/FilterSheet.jsx';
 import CatchAllStrip from './components/CatchAllStrip.jsx';
 import CabinetGrid   from './components/CabinetGrid.jsx';
 import CabinetView   from './components/CabinetView.jsx';
@@ -32,7 +31,6 @@ export default function App() {
   // v0.62.418 — header chips filter the user's OWN saved cards (not new search).
   const [cuisineFilter, setCuisineFilter] = useState(null); // cuisine string | null
   const [dishFilter, setDishFilter] = useState(null);       // keyword string | null
-  const [filterSheet, setFilterSheet] = useState(null);     // 'cuisine' | 'dish' | null
   const [fileCard, setFileCard] = useState(null);           // v0.62.420 — card being filed
   const catchAllCards = state.catchAllCards || [];
 
@@ -148,10 +146,9 @@ export default function App() {
       onRefresh={refresh}
       cuisineFilter={cuisineFilter}
       dishFilter={dishFilter}
-      onOpenCuisineFilter={() => setFilterSheet('cuisine')}
-      onOpenDishFilter={() => setFilterSheet('dish')}
-      onClearCuisine={() => setCuisineFilter(null)}
-      onClearDish={() => setDishFilter(null)}
+      cuisineOptions={cuisineOptions}
+      onSetCuisine={(v) => setCuisineFilter(v)}
+      onSetDish={(v) => setDishFilter(v)}
     >
       {inCabinet ? (
         <CabinetView
@@ -262,23 +259,6 @@ export default function App() {
       )}
       {busy && <div className="fixed bottom-20 right-2 text-[10px] text-tg-hint">…</div>}
       {sheets}
-
-      {filterSheet === 'cuisine' && (
-        <FilterSheet
-          lang={lang} mode="list" title={t('filter.cuisineTitle', lang)}
-          options={cuisineOptions} active={cuisineFilter}
-          onPick={(v) => { setCuisineFilter(v); setFilterSheet(null); }}
-          onClose={() => setFilterSheet(null)}
-        />
-      )}
-      {filterSheet === 'dish' && (
-        <FilterSheet
-          lang={lang} mode="text" title={t('filter.dishTitle', lang)}
-          active={dishFilter}
-          onPick={(v) => { setDishFilter(v); setFilterSheet(null); }}
-          onClose={() => setFilterSheet(null)}
-        />
-      )}
 
       {fileCard && (
         <FileSheet
