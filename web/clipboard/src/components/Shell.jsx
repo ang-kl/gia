@@ -70,17 +70,17 @@ export default function Shell({
   const [drop, setDrop] = useState(null);   // 'cuisine' | 'dish' | null
   const [dishDraft, setDishDraft] = useState(dishFilter || '');
   const cabLabel = footerCabinetLabel || t('nav.cabinets', lang);
-  const go = (s) => { haptic('light'); setMenuOpen(false); onNav?.(s); };
+  const go = (s) => { haptic('light'); setMenuOpen(false); setDrop(null); onNav?.(s); };
   const switchApp = (path) => { setMenuOpen(false); openMiniApp(path); };
 
   return (
     <div className="flex flex-col h-screen bg-tg-bg text-tg-text">
       {/* ── HEADER ── */}
-      <header className="flex-shrink-0 bg-tg-card border-b border-tg-border px-3 pt-3 pb-2 z-10">
+      <header className={`flex-shrink-0 bg-tg-card px-3 pt-3 z-10 ${drop ? 'pb-0' : 'pb-2 border-b border-tg-border'}`}>
         <div className="flex items-center gap-2">
           <button
             type="button" aria-label="menu"
-            onClick={() => setMenuOpen(true)}
+            onClick={() => { setDrop(null); setMenuOpen(true); }}
             className="flex-shrink-0 w-9 h-9 flex flex-col justify-center gap-1 p-2 bg-transparent"
           >
             <span className="h-0.5 bg-tg-text rounded" />
@@ -127,19 +127,24 @@ export default function Shell({
           </button>
         </div>
 
-        {/* Folio dropdown panel — opens DOWN, attached to the chips. */}
+        {/* Folio dropdown panel — opens DOWN, attached to the chips (Cuisine-TMA
+            slide effect via .sk-drop). box-border + contained so it never bleeds. */}
         {drop === 'cuisine' && (
-          <div className="border border-tg-border border-t-0 rounded-b-xl bg-tg-card shadow-lg max-h-[40vh] overflow-y-auto p-1.5">
-            <button type="button" onClick={() => { onSetCuisine?.(null); setDrop(null); }}
-              className={`flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm ${cuisineFilter == null ? 'bg-tg-accent text-tg-accent-text' : 'text-tg-text'}`}>
-              <span>{t('filter.all', lang)}</span>{cuisineFilter == null && <span aria-hidden>✓</span>}
-            </button>
-            {cuisineOptions.map((o) => (
-              <button key={o.value} type="button" onClick={() => { onSetCuisine?.(o.value); setDrop(null); }}
-                className={`flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm ${cuisineFilter === o.value ? 'bg-tg-accent text-tg-accent-text' : 'text-tg-text'}`}>
-                <span className="truncate capitalize">{o.label}</span><span className="ml-2 text-tg-hint text-xs">{o.count}</span>
+          <div className="sk-drop box-border w-full border border-tg-border border-t-0 rounded-b-xl bg-tg-card shadow-lg max-h-[44vh] overflow-y-auto overflow-x-hidden p-2">
+            {/* cuisine chips — 2-col grid like the Cuisine TMA category picker;
+                the options ARE the cuisines present in the clips. */}
+            <div className="grid grid-cols-2 gap-1.5">
+              <button type="button" onClick={() => { onSetCuisine?.(null); setDrop(null); }}
+                className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg text-[12px] border ${cuisineFilter == null ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>
+                {t('filter.all', lang)}
               </button>
-            ))}
+              {cuisineOptions.map((o) => (
+                <button key={o.value} type="button" onClick={() => { onSetCuisine?.(o.value); setDrop(null); }}
+                  className={`flex items-center justify-between gap-1 px-2 py-2 rounded-lg text-[12px] border min-w-0 ${cuisineFilter === o.value ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>
+                  <span className="truncate capitalize">{o.label}</span><span className="text-tg-hint text-[10px] shrink-0">{o.count}</span>
+                </button>
+              ))}
+            </div>
             {cuisineOptions.length === 0 && <div className="px-3 py-3 text-center text-xs text-tg-hint">{t('filter.none', lang)}</div>}
 
             {/* v0.62.441 — richer facets (over the stored venue data). */}
@@ -182,11 +187,11 @@ export default function Shell({
           </div>
         )}
         {drop === 'dish' && (
-          <div className="border border-tg-border border-t-0 rounded-b-xl bg-tg-card shadow-lg p-2">
+          <div className="sk-drop box-border w-full border border-tg-border border-t-0 rounded-b-xl bg-tg-card shadow-lg p-2">
             <form onSubmit={(e) => { e.preventDefault(); onSetDish?.(dishDraft.trim() || null); setDrop(null); }}>
               <input type="text" autoFocus value={dishDraft} onChange={(e) => setDishDraft(e.target.value)}
                 placeholder={t('filter.dishPlaceholder', lang)}
-                className="w-full bg-tg-bg border border-tg-border rounded-lg px-3 py-2 text-sm text-tg-text" />
+                className="w-full bg-tg-bg border border-tg-border rounded-lg px-3 py-2 text-tg-text" />
               <div className="flex justify-end mt-2">
                 <button type="submit" className="text-[11px] font-semibold bg-tg-accent text-tg-accent-text rounded-full px-3 py-1">{t('chrome.save', lang)}</button>
               </div>
