@@ -212,8 +212,17 @@ export default function App() {
         <CatchAllStrip
           cards={filteredCatchAll}
           lang={lang}
+          archivedCount={state.archivedCount}
           onTapCard={(c) => setSheet({ kind: 'amend', card: c })}
           onFileCard={(c) => setFileCard(c)}
+          onArchiveAll={async () => {
+            try { setBusy(true); await api.archiveAll(); await reloadState(); }
+            catch (err) { alert(err.message); } finally { setBusy(false); }
+          }}
+          onRestore={async () => {
+            try { setBusy(true); await api.restoreArchive(); await reloadState(); }
+            catch (err) { alert(err.message); } finally { setBusy(false); }
+          }}
           dragHandle={dragHandle}
           draggingCardId={dragging?.cardId}
         />
