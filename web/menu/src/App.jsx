@@ -85,7 +85,7 @@ const SECTIONS = [
     id: 'sketchbook-app',
     titleKey: null,
     tiles: [
-      { id: 'sketchbook', icon: '📋', labelKey: 'tile.sketchbook.label', subKey: 'tile.sketchbook.sub', kind: 'navigate', path: '/app/clipboard' }
+      { id: 'sketchbook', icon: '📋', iconImage: '/app/menu/sketchboard_clip_icon.png', iconImgClass: 'max-h-16 max-w-full object-contain icon-navy', labelKey: 'tile.sketchbook.label', subKey: 'tile.sketchbook.sub', kind: 'navigate', path: '/app/clipboard' }
     ]
   }
 ];

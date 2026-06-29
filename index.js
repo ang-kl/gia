@@ -7914,27 +7914,14 @@ async function runClipCommand(chatId, arg, lang = 'en') {
       ? `Voir plus : ${total} clips au total.`
       : `${total} total · showing first ${items.length}.`);
   }
-  // v0.60.151 — per-clip action row: Resend (rich) · Copy (plain text) ·
-  // Rename (force-reply prompt) · Remove (one-tap delete with confirm).
-  // One row per clip prefixed by the index → tap-targets stay legible
-  // even on narrow Telegram clients.
-  const keyboardRows = items.map((c, i) => [
-    { text: `${i + 1}: 📤`, callback_data: `clip:resend:${c.index}` },
-    { text: '📋', callback_data: `clip:copy:${c.index}` },
-    { text: '✏️', callback_data: `clip:rename:${c.index}` },
-    { text: '🗑', callback_data: `clip:remove:${c.index}:ask` }
-  ]);
-  keyboardRows.push([{
-    text: lang === 'fr' ? '🗑 Effacer tout' : '🗑 Clear all',
-    callback_data: 'clip:clear:ask'
-  }]);
-  // v0.62.330 — Clipboard TMA entry point. The legacy text listing above
-  // stays for users who never open the TMA; this single button is the
-  // door into the rich view (catch-all + cabinets + drawers + drag).
-  // Uses web_app so Telegram opens the Mini App inline (no browser jump).
+  // v0.62.438 — operator: /clipboard now shows just the last-5 list + a single
+  // "Open Sketchbook" button. The per-clip action rows (resend/copy/rename/remove)
+  // and the "Clear all" button were removed from this free-text command — those
+  // actions now live inside the Sketchbook TMA (file / amend / archive / restore).
+  const keyboardRows = [];
   if (useWebhook && webhookDomain) {
     keyboardRows.push([{
-      text: lang === 'fr' ? '📋 Ouvrir Clipboard' : '📋 Open Clipboard',
+      text: lang === 'fr' ? '📋 Ouvrir Sketchbook' : '📋 Open Sketchbook',
       web_app: { url: `https://${webhookDomain}/app/clipboard` }
     }]);
   }
