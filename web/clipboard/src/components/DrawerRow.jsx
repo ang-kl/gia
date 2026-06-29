@@ -36,7 +36,7 @@ export default function DrawerRow({ drawer, n, totalDrawers, cabinetId, lang, on
             <div className="text-[10px] text-tg-hint italic text-center py-2">{t('drawer.empty', lang)}</div>
           ) : (
             (drawer.cards || []).map((c) => (
-              <VenueCard key={c.cardId} card={c} context="drawer" onTap={() => onTapCard?.(c)} onRemove={() => onUnplace?.(c.cardId, n)} />
+              <VenueCard key={c.cardId} card={c} lang={lang} context="drawer" onTap={() => onTapCard?.(c)} onRemove={() => onUnplace?.(c.cardId, n)} />
             ))
           )}
           {/* edit footer: reorder · Duplicate · Delete */}
