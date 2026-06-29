@@ -64,6 +64,7 @@ export default function Shell({
   // (drops down under the chips, like the Cuisine TMA tabs — not a bottom sheet).
   cuisineFilter = null, dishFilter = null, cuisineOptions = [],
   onSetCuisine, onSetDish,
+  facets = {}, onSetFacet, onClearFacets,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [drop, setDrop] = useState(null);   // 'cuisine' | 'dish' | null
@@ -140,6 +141,44 @@ export default function Shell({
               </button>
             ))}
             {cuisineOptions.length === 0 && <div className="px-3 py-3 text-center text-xs text-tg-hint">{t('filter.none', lang)}</div>}
+
+            {/* v0.62.441 — richer facets (over the stored venue data). */}
+            <div className="border-t border-tg-border mt-1.5 pt-2 px-1.5 space-y-2">
+              <div>
+                <div className="text-[10px] uppercase tracking-wide text-tg-hint mb-1">{t('facet.rating', lang)}</div>
+                <div className="flex gap-1.5">
+                  {[{ v: null, l: t('facet.any', lang) }, { v: 4.0, l: '★4.0+' }, { v: 4.5, l: '★4.5+' }].map((o) => (
+                    <button key={String(o.v)} onClick={() => onSetFacet?.('minRating', o.v)}
+                      className={`text-[11px] px-2 py-1 rounded-full border ${facets.minRating === o.v ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>{o.l}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase tracking-wide text-tg-hint mb-1">{t('facet.price', lang)}</div>
+                <div className="flex gap-1.5">
+                  {[1, 2, 3, 4].map((p) => (
+                    <button key={p} onClick={() => onSetFacet?.('price', facets.price === p ? null : p)}
+                      className={`text-[11px] px-2.5 py-1 rounded-full border ${facets.price === p ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>{'$'.repeat(p)}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase tracking-wide text-tg-hint mb-1">{t('facet.crowd', lang)}</div>
+                <div className="flex gap-1.5">
+                  {[{ k: 'low', d: '🟢', i: 'card.crowdLow' }, { k: 'medium', d: '🟡', i: 'card.crowdMedium' }, { k: 'high', d: '🔴', i: 'card.crowdHigh' }].map((o) => (
+                    <button key={o.k} onClick={() => onSetFacet?.('crowd', facets.crowd === o.k ? null : o.k)}
+                      className={`text-[11px] px-2 py-1 rounded-full border ${facets.crowd === o.k ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>{o.d} {t(o.i, lang)}</button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => onSetFacet?.('openNow', !facets.openNow)}
+                  className={`flex-1 text-[11px] px-2 py-1.5 rounded-lg border ${facets.openNow ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>{t('facet.open', lang)}</button>
+                <button onClick={() => onSetFacet?.('michelin', !facets.michelin)}
+                  className={`flex-1 text-[11px] px-2 py-1.5 rounded-lg border ${facets.michelin ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>{t('facet.michelin', lang)}</button>
+              </div>
+              <button onClick={() => { onClearFacets?.(); setDrop(null); }} className="w-full text-[11px] text-tg-hint py-1">{t('facet.clear', lang)}</button>
+            </div>
           </div>
         )}
         {drop === 'dish' && (
