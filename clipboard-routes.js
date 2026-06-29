@@ -242,8 +242,8 @@ function mountClipboardRoutes(app, redis) {
   app.post('/api/clipboard/cabinet/:id/drawer', wrap(async (req, res) => {
     const chatId = chatIdFrom(req);
     if (!chatId) return res.status(400).json({ error: 'missing-chatId' });
-    const { segment, dayTag, location } = req.body || {};
-    const r = await addDrawer(redis, chatId, req.params.id, { segment, dayTag, location });
+    const { segment, dayTag, location, description } = req.body || {};
+    const r = await addDrawer(redis, chatId, req.params.id, { segment, dayTag, location, description });
     if (!r.ok) {
       const m = mapError(r.error);
       return res.status(m.status).json(m.body);
@@ -316,6 +316,8 @@ function mountClipboardRoutes(app, redis) {
     const cur = drawers[n];
     const patch = req.body || {};
     if (typeof patch.dayTag === 'string')   cur.dayTag = String(patch.dayTag).slice(0, 24);
+    // v0.62.435 — item 12b: optional drawer description (free text, 120 chars).
+    if (typeof patch.description === 'string') cur.description = String(patch.description).replace(/[\r\n]+/g, ' ').slice(0, 120);
     if (patch.location === null)            cur.location = null;
     if (patch.location && typeof patch.location === 'object') {
       const lat = Number(patch.location.lat), lng = Number(patch.location.lng);

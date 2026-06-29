@@ -131,6 +131,7 @@ const STRINGS = {
   'drawer.add.title':       { en: 'Add drawer',         fr: 'Ajouter un tiroir', id: 'Tambah laci',   ru: 'Добавить ящик',   de: 'Fach hinzufügen' },
   'drawer.field.segment':   { en: 'Time slot',          fr: 'Créneau horaire',  id: 'Waktu',          ru: 'Время',          de: 'Zeitfenster' },
   'drawer.field.dayTag':    { en: 'Day tag (optional, e.g. Day 1)', fr: 'Étiquette jour (ex. Jour 1)', id: 'Hari (mis. Hari 1)', ru: 'Метка дня', de: 'Tag (z.B. Tag 1)' },
+  'drawer.field.description': { en: 'Description (optional)', fr: 'Description (option)', id: 'Deskripsi (opsional)', ru: 'Описание (необяз.)', de: 'Beschreibung (optional)' },
   'drawer.field.location':  { en: 'Location (optional)', fr: 'Lieu (option)',  id: 'Lokasi',         ru: 'Место',          de: 'Ort' },
   'drawer.capReached':      { en: 'Drawer cap reached ({cap}).', fr: 'Limite atteinte ({cap}).', id: 'Batas laci ({cap}).', ru: 'Лимит ящиков ({cap}).', de: 'Limit erreicht ({cap}).' },
   'drawer.empty':           { en: 'Empty — drag a card here.', fr: 'Vide — glissez une carte.', id: 'Kosong — seret kartu.', ru: 'Пусто — перетащите карточку.', de: 'Leer — Karte hierher ziehen.' },
