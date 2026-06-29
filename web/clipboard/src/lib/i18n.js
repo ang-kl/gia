@@ -55,6 +55,8 @@ const STRINGS = {
   'card.crowdLow':          { en: 'quiet',              fr: 'calme',            id: 'sepi',           ru: 'тихо',           de: 'ruhig' },
   'card.crowdMedium':       { en: 'moderate',           fr: 'modéré',           id: 'sedang',         ru: 'умеренно',       de: 'mäßig' },
   'card.crowdHigh':         { en: 'busy',               fr: 'animé',            id: 'ramai',          ru: 'занято',         de: 'voll' },
+  'card.duplicate':         { en: 'duplicate',          fr: 'doublon',          id: 'duplikat',       ru: 'дубликат',       de: 'Duplikat' },
+  'card.copiedOn':          { en: 'Copied',             fr: 'Copié',            id: 'Disalin',        ru: 'Скопировано',    de: 'Kopiert' },
   'file.title':             { en: 'File card',          fr: 'Classer la carte', id: 'Arsipkan kartu', ru: 'В папку',         de: 'Karte ablegen' },
   'file.pickCabinet':       { en: 'Pick a cabinet',     fr: 'Choisir un classeur', id: 'Pilih kabinet', ru: 'Выберите папку', de: 'Cabinet wählen' },
   'file.newCabinet':        { en: '＋ New cabinet',     fr: '＋ Nouveau classeur', id: '＋ Kabinet baru', ru: '＋ Новая папка', de: '＋ Neues Cabinet' },

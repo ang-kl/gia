@@ -9,6 +9,14 @@
 import React, { useState } from 'react';
 import { t } from '../lib/i18n.js';
 import { haptic } from '../lib/tg.js';
+import { SEGMENT_BY_KEY } from '../lib/segments.js';
+
+// v0.62.432 — drawer-group accent for the filed-card side strip (item 10).
+const GROUP_HEX = { morning: '#ff9a45', midday: '#3ecf8e', evening: '#ff6b6b', night: '#9d7bff' };
+function fmtDate(ts) {
+  if (!ts) return '';
+  try { return new Date(ts).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }); } catch { return ''; }
+}
 
 const PRICE_LABEL = { 1: '$', 2: '$$', 3: '$$$', 4: '$$$$' };
 const CROWD = {
@@ -38,7 +46,7 @@ function distLabel(m) {
 
 export default function VenueCard({
   card, onTap, dragProps, dimmed = false, number = null, lang = 'en',
-  context = 'clipboard', onFile, onRemove,
+  context = 'clipboard', onFile, onRemove, isDuplicate = false,
 }) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -79,12 +87,23 @@ export default function VenueCard({
     michelin = v.michelinCategory ? `${MICHELIN[v.michelinCategory] || '✳️ Michelin'} · ${v.michelinYear || 2025}` : '';
   }
 
+  // ── Filed placements (item 10) + side-strip colour + date (item 12a) ──
+  const placements = Array.isArray(card.placements) ? card.placements : [];
+  const filedByCab = {};
+  for (const p of placements) {
+    (filedByCab[p.cabName] = filedByCab[p.cabName] || []).push(t(`seg.${p.segment}`, lang));
+  }
+  const filedLabel = Object.entries(filedByCab)
+    .map(([cab, segs]) => `${cab} · ${segs.join(', ')}`).join('  ·  ');
+  const stripHex = placements[0] ? GROUP_HEX[(SEGMENT_BY_KEY[placements[0].segment] || {}).group] : null;
+  const copiedDate = fmtDate(card.ts);
+
   return (
     <div
       onClick={() => setOpen((x) => !x)}
       className={`bg-tg-card border border-tg-border rounded-xl p-2.5 select-none ${dimmed ? 'opacity-30' : ''}`}
       {...(dragProps || {})}
-      style={{ touchAction: 'manipulation' }}
+      style={{ touchAction: 'manipulation', ...(stripHex ? { borderLeft: `4px solid ${stripHex}` } : {}) }}
     >
       {v ? (
         <>
@@ -113,6 +132,16 @@ export default function VenueCard({
           {fileBtn}
         </div>
       )}
+
+      {/* v0.62.432 — item 3 (duplicate) + item 10 (filed cabinet · drawer, right). */}
+      {(isDuplicate || filedLabel) && (
+        <div className="flex items-center gap-2 mt-1 text-[9px]">
+          {isDuplicate && <span className="text-sk-pin font-semibold">⧉ {t('card.duplicate', lang)}</span>}
+          {filedLabel && <span className="ml-auto text-tg-hint truncate text-right">{filedLabel}</span>}
+        </div>
+      )}
+      {/* v0.62.432 — item 12a: date of copy at the end of the card. */}
+      {copiedDate && <div className="text-[9px] text-tg-hint mt-0.5 text-right">{t('card.copiedOn', lang)} {copiedDate}</div>}
 
       {open && (
         <div onClick={stop}>

@@ -1,8 +1,8 @@
 counters:
-  commit: 903
-  build: 543
+  commit: 904
+  build: 544
   documents:
-    journal: 785
+    journal: 786
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 29-06 '26 09:05 SGT
-last_anchor_source: sketchbook_drawer_timings_2026-06-29_0905 (v0.62.431 — operator: drawer descriptions carry the segment TIMING. segments.js timeEN updated to match the operator's itinerary spec verbatim [AM/PM both ends; wholeDay='Anytime']. AddDrawerSheet shows the time range under each segment label; DrawerRow subline now leads with seg.timeEN [seg timing · dayTag · 📍loc]. vite build OK [50 modules]. journal 784->785, commit 902->903, build 542->543. NOTE: /tmp scratch+harness were wiped on session resume; rebuilt harness from main [v0.62.430]. REMAINING operator items: 3,4,7,8,9,10,11,12a,12b,13,14. PRIOR ANCHOR sketchbook_batch1_2_5_6_2026-06-29_0830)
+last_anchor_time: 29-06 '26 09:10 SGT
+last_anchor_source: sketchbook_card_batch_2026-06-29_0910 (v0.62.432 — Sketchbook operator card batch items 3/10/12a. 10 [backend]: clipboard-routes /state attaches per-card placements [cabId,cabName,drawerIdx,segment] from card_locs [drawers cached, guarded]. 10 [frontend]: VenueCard shows filed label 'Cabinet · Seg1, Seg2' tiny on the right + a left COLOUR STRIP = drawer group colour [morning/midday/evening/night hex]. 3: CatchAllStrip flags duplicate venues [by placeId/name]; VenueCard shows '⧉ duplicate'. 12a: date-of-copy [card.ts] tiny at card end. i18n card.duplicate/copiedOn. clipboard-routes 69✓; vite build OK [50 modules]; node --check cr OK. journal 785->786, commit ->904, build ->544. REMAINING: 4 cuisine-filter layout, 7+11 catch-all-row-under-tabs+sort, 8 location list, 9 drawer 3-buttons+wiring, 12b drawer desc, 13 note, 14 bot /clipboard. PRIOR ANCHOR sketchbook_drawer_timings_2026-06-29_0905)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
