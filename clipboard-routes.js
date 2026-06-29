@@ -132,7 +132,10 @@ function mountClipboardRoutes(app, redis) {
     const { listClips } = require('./clip-store');
     const { items, total } = await listClips(redis, chatId, { limit: 50, offset: 0 });
     // v0.62.416 — defaultCabinetId drives the TMA footer tab 2.
-    const defaultCabinetId = await getDefaultCabinetId(redis, chatId);
+    // v0.62.442 — footer tab 2 shows the {default cabinet} name. If the user
+    // hasn't explicitly set a default, fall back to their most-recent cabinet so
+    // tab 2 always carries a real cabinet name (operator: it "didn't follow spec").
+    const defaultCabinetId = (await getDefaultCabinetId(redis, chatId)) || (cabinets[0] && cabinets[0].cabId) || null;
     // v0.62.432 — attach each catch-all card's PLACEMENTS (cabinet + drawer
     // segment) so the card can show "{cabinet} · {drawer}" + a drawer-coloured
     // strip (operator item 10). Bounded: ≤50 cards × placements; drawers cached.
