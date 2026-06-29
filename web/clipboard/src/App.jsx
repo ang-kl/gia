@@ -31,6 +31,7 @@ export default function App() {
   // v0.62.418 — header chips filter the user's OWN saved cards (not new search).
   const [cuisineFilter, setCuisineFilter] = useState(null); // cuisine string | null
   const [dishFilter, setDishFilter] = useState(null);       // keyword string | null
+  const [facets, setFacets] = useState({ minRating: null, price: null, openNow: false, crowd: null, michelin: false }); // v0.62.441
   const [fileCard, setFileCard] = useState(null);           // v0.62.420 — card being filed
   const catchAllCards = state.catchAllCards || [];
 
@@ -126,9 +127,18 @@ export default function App() {
       const hay = `${c.name || ''} ${c.preview || ''} ${c.body || ''} ${c.note || ''}`.toLowerCase();
       if (!hay.includes(dishFilter.toLowerCase())) return false;
     }
+    // v0.62.441 — richer facets (over the stored venue): rating / price / open /
+    // crowd / michelin. Cards with no structured venue fail an active facet.
+    const v = c.venue;
+    if (facets.minRating && !(v && v.rating >= facets.minRating)) return false;
+    if (facets.price && !(v && v.priceLevel === facets.price)) return false;
+    if (facets.openNow && !(v && v.openNow === true)) return false;
+    if (facets.crowd && !(v && v.crowdLevel === facets.crowd)) return false;
+    if (facets.michelin && !(v && v.michelinCategory)) return false;
     return true;
   };
-  const filterActive = !!(cuisineFilter || dishFilter);
+  const facetsActive = !!(facets.minRating || facets.price || facets.openNow || facets.crowd || facets.michelin);
+  const filterActive = !!(cuisineFilter || dishFilter || facetsActive);
   const filteredCatchAll = filterActive ? catchAllCards.filter(cardMatches) : catchAllCards;
   const filteredPayload = (inCabinet && filterActive && state.currentCabinet)
     ? { ...state.currentCabinet, drawers: (state.currentCabinet.drawers || []).map((d) => ({ ...d, cards: (d.cards || []).filter(cardMatches) })) }
@@ -149,6 +159,9 @@ export default function App() {
       cuisineOptions={cuisineOptions}
       onSetCuisine={(v) => setCuisineFilter(v)}
       onSetDish={(v) => setDishFilter(v)}
+      facets={facets}
+      onSetFacet={(k, v) => setFacets((f) => ({ ...f, [k]: v }))}
+      onClearFacets={() => { setCuisineFilter(null); setFacets({ minRating: null, price: null, openNow: false, crowd: null, michelin: false }); }}
     >
       {inCabinet ? (
         <CabinetView
