@@ -1,8 +1,8 @@
 counters:
-  commit: 914
-  build: 553
+  commit: 915
+  build: 554
   documents:
-    journal: 796
+    journal: 797
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 29-06 '26 13:45 SGT
-last_anchor_source: sketchbook_cuisine_doctrine_2026-06-29_1345 (v0.62.442 — Sketchbook: adopt Cuisine-TMA folio doctrine for the filter chips + fixes. (a) header drops its bottom border/pad when a chip-drawer is open -> no bleed [matches Cuisine]. (b) cuisine dropdown = contained 2-col chip grid [box-border w-full overflow-x-hidden], facets below; dish input contained. (c) Cuisine-style slide-down: .sk-drop keyframe in styles.css. (d) NO-ZOOM: global input/textarea/select font-size:16px [kills iOS focus-zoom on drawer-title/dish edits]. (e) overlay exclusion: opening hamburger closes drop; footer nav closes drop; drop is single-valued. (f) footer tab2: /state defaultCabinetId falls back to cabinets[0] so it always shows a cabinet name [item 1 spec]. vite build OK [50 modules]; node --check cr OK. journal 795->796, commit 913->914, build 552->553. PRIOR ANCHOR sketchbook_richer_facets_2026-06-29_1305)
+last_anchor_time: 29-06 '26 14:15 SGT
+last_anchor_source: sketchbook_dropdown_pro_2026-06-29_1415 (v0.62.443 — operator [2 imgs]: filter dropdowns look unprofessional + bleed. ROOT: full-width panel flush-attached to a half-width chip + no inset -> bled to screen edge; facets shown with 0 cards = clutter. FIX: chips always rounded-xl [no corner-squaring]; header border restored; dropdown is now a DETACHED inset card [mt-2 rounded-xl border shadow, box-border w-full overflow-x-hidden]; when 0 cuisineOptions [no cards] the cuisine panel shows ONLY 'No saved cards' [grid+facets hidden]. dish panel same detached card. vite build OK [50 modules]. journal 796->797, commit 914->915, build 553->554. NEXT: blank-card create [operator rule: Clipboard can add/edit/delete/move a blank sketchbook card]. PRIOR ANCHOR sketchbook_cuisine_doctrine_2026-06-29_1345)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
