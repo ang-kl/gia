@@ -1,8 +1,8 @@
 counters:
-  commit: 918
-  build: 557
+  commit: 919
+  build: 558
   documents:
-    journal: 800
+    journal: 801
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 30-06 '26 19:40 SGT
-last_anchor_source: cuisine_group_close_x_2026-06-30_1940 (v0.62.446 — operator: want a SUBTLE top-right close × in the overlays, like the one already on the 'Cuisine & filters' QuickFilters dropdown [literal × U+00D7, text-tg-hint text-xl, pushed right]; e.g. when tapping a cuisine group like 'Sweets & Fusion'. CuisineCategoryDrawer [the group drill-in modal] previously closed via a ← back arrow + a full-width 'Done' PILL; selection applies live so Done was a redundant pill-dismiss. Replaced both with one subtle top-right × in the header [reused the exact QuickFilters class string + onClose]. esbuild JSX parse OK; cuisine TMA full build is gated by CI on the PR. journal 799->800, commit 917->918, build 556->557. KNOWN GAPS: other sub-overlays [FunFactModal has 🛑Stop+auto-dismiss; ResultPanel/MapPanel/TellMePanel are inline regions w/ own toggles] left as-is pending operator confirm which else need the ×. PRIOR ANCHOR sketchbook_file_twocol_2026-06-30_0945)
+last_anchor_time: 30-06 '26 19:55 SGT
+last_anchor_source: cuisine_close_x_smaller_2026-06-30_1955 (v0.62.447 — operator: the close × on the group drill-in [v0.62.446] rendered BIGGER than the ✕ used elsewhere. CuisineCategoryDrawer header close: glyph × U+00D7 text-xl -> ✕ U+2715 text-sm [~14px, matching MapPanel's in-card ✕ font-size:14px]. esbuild parse OK; cuisine build gated by CI. journal 800->801, commit 918->919, build 557->558. PRIOR ANCHOR cuisine_group_close_x_2026-06-30_1940)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
