@@ -1,0 +1,99 @@
+name: Curate dish sources (Gemini grounded, tourism-board first)
+
+# Manual-only. Re-curates the `source` field for entries in
+# nation-overlay-dishnotes.generated.js whose current source is broken
+# (expiring vertexaisearch grounding-redirect), weak (bare label, no URL),
+# banned (Grokipedia, social, blog), or on an unknown host. New source URLs
+# are sought via Gemini grounded with Google Search, prompted to prefer
+# official tourism boards first, then authorised food-media, then Wikipedia
+# only if a concrete article URL is found. The dish EXPLANATION (note.en)
+# is preserved verbatim — only `source` is rewritten — so it is safe to run
+# after the English copy has been reviewed. Result is pushed to
+# `bot/curate-dish-sources` for the operator to open a PR from. Batched +
+# idempotent + bounded (CURATE_MAX_BATCHES) so each run stays reviewable.
+# GEMINI_API_KEY is injected into the runner env only — never logged.
+
+on:
+  workflow_dispatch:
+    inputs:
+      sample:
+        description: 'Dry-run sample size (0 = real run; >0 = print first N candidates, no API call, no write)'
+        required: false
+        default: '0'
+      region:
+        description: 'Restrict to one cuisine slug prefix (e.g. singaporean, japanese). Empty = all regions.'
+        required: false
+        default: ''
+      batch_size:
+        description: 'Dishes per Gemini call'
+        required: false
+        default: '6'
+      max_batches:
+        description: 'Max batches this run (keeps the review PR small)'
+        required: false
+        default: '8'
+
+permissions:
+  contents: write
+
+jobs:
+  curate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: Curate dish sources
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SAMPLE: ${{ github.event.inputs.sample }}
+          REGION: ${{ github.event.inputs.region }}
+          CURATE_BATCH_SIZE: ${{ github.event.inputs.batch_size }}
+          CURATE_MAX_BATCHES: ${{ github.event.inputs.max_batches }}
+        run: node scripts/curate-dish-sources.mjs
+      - name: Push re-curated overlay to branch
+        if: ${{ github.event.inputs.sample == '0' || github.event.inputs.sample == '' }}
+        run: |
+          set -e
+          PATHS="nation-overlay-dishnotes.generated.js"
+          if [ -z "$(git status --porcelain $PATHS)" ]; then
+            echo "No change to the dish-notes overlay — nothing to push."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # If a previous dispatch's PR is still open on bot/curate-dish-sources,
+          # APPEND this batch as a new commit on top of it instead of force-pushing
+          # the branch back to main and wiping the prior batch. Iterating
+          # region-by-region only works when each dispatch stacks.
+          OVERLAY_CONTENT=$(cat "$PATHS")
+          if git ls-remote --exit-code --heads origin bot/curate-dish-sources >/dev/null 2>&1; then
+            echo "bot/curate-dish-sources already exists on origin — appending to it."
+            git fetch origin bot/curate-dish-sources
+            git checkout -B bot/curate-dish-sources origin/bot/curate-dish-sources
+            # Replay this run's overlay onto the existing branch (we ran the
+            # script against main's overlay; restore our re-curated version).
+            printf '%s' "$OVERLAY_CONTENT" > "$PATHS"
+            if [ -z "$(git status --porcelain $PATHS)" ]; then
+              echo "Branch already contains this overlay — nothing new to push."
+              exit 0
+            fi
+            git add $PATHS
+            git commit -m "chore(content): re-curate dish sources (additional batch, region=${REGION:-all})"
+            git push origin bot/curate-dish-sources
+            echo "Appended new batch to existing bot/curate-dish-sources."
+          else
+            echo "bot/curate-dish-sources does not exist on origin — creating it."
+            git checkout -B bot/curate-dish-sources
+            git add $PATHS
+            git commit -m "chore(content): re-curate dish sources (tourism-board first, grounded batch)"
+            git push origin bot/curate-dish-sources
+            echo "Pushed bot/curate-dish-sources — open a PR from this branch to review the new sources."
+          fi
+        env:
+          REGION: ${{ github.event.inputs.region }}

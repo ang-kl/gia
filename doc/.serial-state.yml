@@ -1,8 +1,8 @@
 counters:
-  commit: 920
-  build: 559
+  commit: 921
+  build: 560
   documents:
-    journal: 802
+    journal: 803
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,9 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 30-06 '26 20:20 SGT
-last_anchor_source: transport_close_x_normalize_2026-06-30_2020 (v0.62.448 — operator: proceed with Train + Hawker TMAs on the subtle-close-✕ pass. Audited both [2 explore agents]. TRANSPORT: LineStatusPanel selected-station detail close used × U+00D7 text-sm w/o flex-shrink-0 -> normalized to ✕ U+2715 + flex-shrink-0 + proper Close aria-label. HAWKER: no pill/back/modal close exists [centre detail is inline; map InfoWindows already use ✕ U+2715 ~13px]; only self-dismissing dropdowns [LocaleToggle outside-tap/select, MapControls outside-tap/Esc] which were left alone — same call as Cuisine's LocaleToggle. MapControls is byte-identical across cuisine/transport/hawker so NOT forked. esbuild parse OK; cuisine/transport/hawker builds gated by CI. journal 801->802, commit 919->920, build 558->559. OPEN Q to operator: add ✕ to the self-dismissing LocaleToggle+MapControls dropdowns across all 3 TMAs? PRIOR ANCHOR cuisine_close_x_smaller_2026-06-30_1955)
+last_anchor_time: 30-06 '26 20:30 SGT
+last_anchor_source: curate_dish_sources_2026-06-30_2030 (v0.62.449 — operator: "use the secret key in Github Repo which is Google Gemini API to curate the local dishes as some curated wiki URL returns errors. start with Authorised Tourism board and authorised food articles". REBASED TWICE onto main after PRs #1430/#1431/#1432 landed concurrently and took the 0.62.446/.447/.448 + journal #800/#801/#802 slots; final bump to 0.62.449 / journal #803. Codex P2 findings folded in pre-merge: (a) curator post-filter now gates on classifySource ∈ {ok-tier1, ok-tier2, ok-wiki} not just 'not banned' — otherwise an off-tier URL like diversivore.com would be classified 'unknown' and re-curated forever; (b) workflow push step now appends to existing bot/curate-dish-sources branch instead of force-pushing main back over it, so 'iterate region-by-region' actually stacks batches. scripts/curate-dish-sources.mjs walks nation-overlay-dishnotes.generated.js, classifies sources as broken (23 vertexaisearch grounding-redirects) / weak (627 bare 'Wikipedia' + 7 empty) / banned (10 Grokipedia) / unknown, re-asks Gemini grounded with Google Search to prefer authorised tourism boards then authorised food articles then Wikipedia only with concrete article URL. Idempotent. 23 unit tests; full suite 3,697 green. journal 802->803, commit 920->921, build 559->560. PRIOR ANCHOR transport_close_x_normalize_2026-06-30_2020)
+last_anchor_source_prior: transport_close_x_normalize_2026-06-30_2020
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
