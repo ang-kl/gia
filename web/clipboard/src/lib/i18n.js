@@ -81,6 +81,7 @@ const STRINGS = {
   'file.pickCabinet':       { en: 'Pick a cabinet',     fr: 'Choisir un classeur', id: 'Pilih kabinet', ru: 'Выберите папку', de: 'Cabinet wählen' },
   'file.newCabinet':        { en: '＋ New cabinet',     fr: '＋ Nouveau classeur', id: '＋ Kabinet baru', ru: '＋ Новая папка', de: '＋ Neues Cabinet' },
   'file.pickDrawer':        { en: 'Pick a drawer, or add one',  fr: 'Choisir un tiroir, ou en ajouter', id: 'Pilih laci, atau tambah', ru: 'Выберите ящик или добавьте', de: 'Fach wählen oder hinzufügen' },
+  'file.pickCabinetFirst':  { en: 'Pick a cabinet on the left', fr: 'Choisir un classeur à gauche', id: 'Pilih kabinet di kiri', ru: 'Выберите папку слева', de: 'Cabinet links wählen' },
   'file.newDrawer':         { en: 'New drawer',         fr: 'Nouveau tiroir',   id: 'Laci baru',      ru: 'Новый ящик',      de: 'Neues Fach' },
   'file.back':              { en: '‹ Back',             fr: '‹ Retour',         id: '‹ Kembali',      ru: '‹ Назад',        de: '‹ Zurück' },
   'file.filed':             { en: '✓ Filed',            fr: '✓ Classé',         id: '✓ Diarsipkan',   ru: '✓ Готово',       de: '✓ Abgelegt' },
