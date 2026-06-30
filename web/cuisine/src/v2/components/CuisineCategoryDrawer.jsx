@@ -73,17 +73,19 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
         className="flex flex-col w-full max-w-[480px] max-h-[80vh] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden"
       >
       <div className="flex items-center gap-2 px-3 py-3 border-b border-tg-border bg-tg-card">
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={tr('cuisine.back', lang)}
-          className="text-tg-accent text-base leading-none px-1 py-0.5"
-        >←</button>
         <span aria-hidden>{category.emoji}</span>
         <h2 className="text-sm font-semibold flex-1 truncate">{localisedLabel}</h2>
         {selectedInCat > 0 && (
           <span className="text-tg-accent text-xs font-semibold">[{selectedInCat}]</span>
         )}
+        {/* v0.62.446 — subtle top-right × (matches the QuickFilters dropdown
+            reference); replaces the ← back arrow + full-width "Done" pill. */}
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
+          className="text-tg-hint text-xl leading-none px-1 flex-shrink-0"
+        >×</button>
       </div>
       <div className="flex-1 overflow-y-auto px-3 py-3">
         <div className="grid grid-cols-2 gap-1.5">
@@ -165,13 +167,6 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
             Max {maxSelected} cuisines selected. Untoggle one to add another.
           </div>
         )}
-      </div>
-      <div className="px-3 py-3 border-t border-tg-border bg-tg-card">
-        <button
-          type="button"
-          onClick={onClose}
-          className="w-full text-xs font-semibold px-3 py-2 rounded-2xl bg-tg-accent text-tg-accent-text"
-        >{tr('cuisine.done', lang)}</button>
       </div>
       </div>
     </div>
