@@ -1,8 +1,8 @@
 counters:
-  commit: 917
-  build: 556
+  commit: 918
+  build: 557
   documents:
-    journal: 799
+    journal: 800
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 30-06 '26 09:45 SGT
-last_anchor_source: sketchbook_file_twocol_2026-06-30_0945 (v0.62.445 — operator: filing a card -> tap existing cabinet shows a TWO-COLUMN picker. LEFT = cabinet list, each row shows its drawer-name chips tucked inside the border, tap highlights/'pulls out' the cabinet [cobalt border + sk-soft bg]; RIGHT = that cabinet's drawers as label + #N + card-count badge [tap to file] plus the time-segment grid for a NEW drawer. clipboard-store listCabinets now returns a per-drawer summary [{n,segment,dayTag,count}] built in the existing eateryCount loop -> no extra fetch. Cut the 33-icon file/folder line-art sprite into individual transparent PNGs recoloured to cobalt #2b59c9 [Pillow projection-segmentation], stored web/clipboard/public/icons/; wired cabinet.png + folder.png into the picker. i18n file.pickCabinetFirst. clipboard-store 74 + routes 69 = 143 tests green; vite build OK [50 modules]. journal 798->799, commit 916->917, build 555->556. PRIOR ANCHOR sketchbook_blank_card_2026-06-29_1445)
+last_anchor_time: 30-06 '26 19:40 SGT
+last_anchor_source: cuisine_group_close_x_2026-06-30_1940 (v0.62.446 — operator: want a SUBTLE top-right close × in the overlays, like the one already on the 'Cuisine & filters' QuickFilters dropdown [literal × U+00D7, text-tg-hint text-xl, pushed right]; e.g. when tapping a cuisine group like 'Sweets & Fusion'. CuisineCategoryDrawer [the group drill-in modal] previously closed via a ← back arrow + a full-width 'Done' PILL; selection applies live so Done was a redundant pill-dismiss. Replaced both with one subtle top-right × in the header [reused the exact QuickFilters class string + onClose]. esbuild JSX parse OK; cuisine TMA full build is gated by CI on the PR. journal 799->800, commit 917->918, build 556->557. KNOWN GAPS: other sub-overlays [FunFactModal has 🛑Stop+auto-dismiss; ResultPanel/MapPanel/TellMePanel are inline regions w/ own toggles] left as-is pending operator confirm which else need the ×. PRIOR ANCHOR sketchbook_file_twocol_2026-06-30_0945)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
