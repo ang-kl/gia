@@ -84,8 +84,8 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
           type="button"
           onClick={onClose}
           aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
-          className="text-tg-hint text-xl leading-none px-1 flex-shrink-0"
-        >×</button>
+          className="text-tg-hint text-sm leading-none px-1 flex-shrink-0"
+        >✕</button>
       </div>
       <div className="flex-1 overflow-y-auto px-3 py-3">
         <div className="grid grid-cols-2 gap-1.5">
