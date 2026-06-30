@@ -125,9 +125,9 @@ export default function LineStatusPanel({ line, status, statusByLine = null, sel
               <button
                 type="button"
                 onClick={() => onSelectStation?.(null)}
-                aria-label="×"
-                className="ml-auto text-tg-hint text-sm leading-none px-1"
-              >×</button>
+                aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
+                className="ml-auto text-tg-hint text-sm leading-none px-1 flex-shrink-0"
+              >✕</button>
             </div>
             {(selectedStation.lines || []).map((ln) => {
               const ls = statusByLine?.[ln]?.status || 'normal';
