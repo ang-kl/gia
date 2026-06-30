@@ -1,8 +1,8 @@
 counters:
-  commit: 916
-  build: 555
+  commit: 917
+  build: 556
   documents:
-    journal: 798
+    journal: 799
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 29-06 '26 14:45 SGT
-last_anchor_source: sketchbook_blank_card_2026-06-29_1445 (v0.62.444 — operator rule: Clipboard can create a BLANK 'sketchbook' card with add/edit/delete/move. clip-store: pushClip now returns the new cardId + allows empty body when record.blank set [normaliseRecord body String(||'')]; no-op still returns undefined [tests kept green]. clipboard-routes: POST /api/clipboard/blank-card -> pushClip{blank,name} -> {cardId}. api.createBlankCard. App onNewCard: create -> reload -> open AmendCardSheet on the new card [name/note edit]; delete/move reuse existing card flows. CatchAllStrip: '＋ New card' button in header row + empty state. i18n catchAll.newCard. clip-store 42 + clipboard-routes 69 = 111✓; vite build OK [50 modules]; node --check OK. journal 797->798, commit 915->916, build 554->555. PRIOR ANCHOR sketchbook_dropdown_pro_2026-06-29_1415)
+last_anchor_time: 30-06 '26 09:45 SGT
+last_anchor_source: sketchbook_file_twocol_2026-06-30_0945 (v0.62.445 — operator: filing a card -> tap existing cabinet shows a TWO-COLUMN picker. LEFT = cabinet list, each row shows its drawer-name chips tucked inside the border, tap highlights/'pulls out' the cabinet [cobalt border + sk-soft bg]; RIGHT = that cabinet's drawers as label + #N + card-count badge [tap to file] plus the time-segment grid for a NEW drawer. clipboard-store listCabinets now returns a per-drawer summary [{n,segment,dayTag,count}] built in the existing eateryCount loop -> no extra fetch. Cut the 33-icon file/folder line-art sprite into individual transparent PNGs recoloured to cobalt #2b59c9 [Pillow projection-segmentation], stored web/clipboard/public/icons/; wired cabinet.png + folder.png into the picker. i18n file.pickCabinetFirst. clipboard-store 74 + routes 69 = 143 tests green; vite build OK [50 modules]. journal 798->799, commit 916->917, build 555->556. PRIOR ANCHOR sketchbook_blank_card_2026-06-29_1445)
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00

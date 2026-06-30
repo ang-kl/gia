@@ -109,12 +109,18 @@ async function listCabinets(redis, chatId) {
       // "N drawers · M eateries"). drawerCount = drawer-meta length; eateryCount
       // = sum of placements across drawers (a card in 2 drawers counts twice,
       // matching the "eateries filed" intent). Bounded by caps (12×20×10).
-      const drawerCount = await redis.lLen(drMetaKey(chatId, cabId)).catch(() => 0);
+      // v0.62.445 — also surface a per-drawer summary (segment · dayTag · card
+      // count) so the "＋ File" two-column picker can show drawer names tucked in
+      // the left cabinet rows + the right detail column without an extra fetch.
+      const drawerMeta = await readDrawers(redis, chatId, cabId);
       let eateryCount = 0;
-      for (let n = 0; n < drawerCount; n++) {
-        eateryCount += await redis.lLen(drListKey(chatId, cabId, n)).catch(() => 0);
+      const drawers = [];
+      for (let n = 0; n < drawerMeta.length; n++) {
+        const count = await redis.lLen(drListKey(chatId, cabId, n)).catch(() => 0);
+        eateryCount += count;
+        drawers.push({ n, segment: drawerMeta[n].segment, dayTag: drawerMeta[n].dayTag, count });
       }
-      out.push({ ...cab, drawerCount, eateryCount });
+      out.push({ ...cab, drawerCount: drawerMeta.length, eateryCount, drawers });
     }
     return out;
   } catch (err) {
