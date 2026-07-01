@@ -287,10 +287,43 @@ function currentOpenString(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN
   return `${P.openPrefix} · ${closePart}`;
 }
 
+// v0.62.466 — operator: flag venues closing within the hour on the result
+// card ("Closing in ## minutes"), and sort closed venues to the end of the
+// list. Mirrors currentOpenString's active-period lookup but returns the
+// raw minute count instead of a formatted string.
+function minutesUntilClose(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN) {
+  if (!Array.isArray(periods) || !periods.length) return null;
+  const cur = localNow(now, offsetMin);
+  for (const pd of periods) {
+    const o = pd?.open;
+    const c = pd?.close;
+    if (!o || typeof o.day !== 'number' || !c) continue; // 24h venues (no close) never "close soon"
+    const openMin = (o.hour ?? 0) * 60 + (o.minute ?? 0);
+    const closeMin = (c.hour ?? 0) * 60 + (c.minute ?? 0);
+    // Same-day period.
+    if (o.day === cur.day && c.day === cur.day) {
+      if (openMin <= cur.minutes && cur.minutes < closeMin) return closeMin - cur.minutes;
+      continue;
+    }
+    // Midnight-crosser starting today.
+    if (o.day === cur.day && c.day === (o.day + 1) % 7) {
+      if (cur.minutes >= openMin) return (closeMin + 1440) - cur.minutes;
+      continue;
+    }
+    // Midnight-crosser opened yesterday, still closing today.
+    if (o.day === (cur.day + 6) % 7 && c.day === cur.day) {
+      if (cur.minutes < closeMin) return closeMin - cur.minutes;
+      continue;
+    }
+  }
+  return null;
+}
+
 module.exports = {
   nextOpenString,
   closedTodayString,
   currentOpenString,
+  minutesUntilClose,
   localNow,
   sgtNow,
   fmtTime,

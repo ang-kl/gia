@@ -328,6 +328,7 @@ const STRINGS = {
   // ----- Result card -----
   'card.open':                 { en: 'Open', fr: 'Ouvert' },
   'card.closed':               { en: 'Closed', fr: 'Fermé' },
+  'card.closingSoon':          { en: 'Closing in {n} min', fr: 'Ferme dans {n} min' },
   // v0.59.23 / v0.59.24 — "Try ·" line on cuisine ResultCards
   // (mirrors /hidden's signature_dish surface). Per Human Lead
   // 2026-05-07: label trimmed to a tight "Try ·" form, same emoji
@@ -637,6 +638,7 @@ const ID_STRINGS = {
   'btn.showLocation': 'Tampilkan lokasi Anda',
   'card.open': 'Buka',
   'card.closed': 'Tutup',
+  'card.closingSoon': 'Tutup dalam {n} menit',
   'card.whatToOrder': 'Coba',
   'card.healthierChoice': 'Pilihan Lebih Sehat',
   'card.insideBuilding': 'Di dalam kompleks bangunan',
@@ -1245,6 +1247,7 @@ const ZH_STRINGS = {
   'btn.showLocation': '显示你的位置',
   'card.open': '营业中',
   'card.closed': '已打烊',
+  'card.closingSoon': '{n} 分钟后打烊',
   'card.whatToOrder': '推荐',
   'card.healthierChoice': '健康选择',
   'card.insideBuilding': '位于大楼内',
@@ -1402,6 +1405,7 @@ const JA_STRINGS = {
   'btn.showLocation': '現在地を表示',
   'card.open': '営業中',
   'card.closed': '閉店',
+  'card.closingSoon': '{n}分後に閉店',
   'card.whatToOrder': 'おすすめ',
   'card.healthierChoice': 'ヘルシー選択',
   'card.insideBuilding': '建物内施設',
@@ -1556,6 +1560,7 @@ const ES_STRINGS = {
   'btn.showLocation': 'Mostrar tu ubicación',
   'card.open': 'Abierto',
   'card.closed': 'Cerrado',
+  'card.closingSoon': 'Cierra en {n} min',
   'card.whatToOrder': 'Prueba',
   'card.healthierChoice': 'Opción saludable',
   'card.insideBuilding': 'Dentro de un edificio',

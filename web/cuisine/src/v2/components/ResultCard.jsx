@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { tg } from '../../api/tg.js';
 import { copyOneToChat, fetchSocialProfiles } from '../lib/api.js';
-import { useLocale, t as tr } from '../lib/i18n.js';
+import { useLocale, t as tr, tn } from '../lib/i18n.js';
 import { likelyServesText } from '../lib/dish-category.js';
 import SocialButtons from './SocialButtons.jsx';
 import { OTHER_COUNTRIES } from '../lib/countries.js';
@@ -255,6 +255,21 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           venue actually serves (venue.matchedCuisine → nearbyStrips[name]), so
           Korean-only / Japanese-only cards are clearly not the both-cuisine combo.
           Colour is CVD-safe (never red/green); the text carries the meaning. */}
+      {/* v0.62.466 — operator: closed/closing-soon status strip. Light/white
+          background per spec; text carries the state (not colour alone) —
+          "Closed" (red) vs "Closing in N min" (pink) are different WORDS, so
+          this stays accessible even though the codebase otherwise avoids red
+          for colour-blind safety (see the matchTier strip below). Standard
+          card meta font size (12px, matches the rest of the card's text). */}
+      {venue.openNow === false ? (
+        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -mx-2.5 mb-1 px-2.5 py-0.5 rounded-t-lg bg-white text-red-600 text-[12px] font-semibold leading-tight truncate`}>
+          {tr('card.closed', lang)}
+        </div>
+      ) : (typeof venue.closingSoonMinutes === 'number' && venue.closingSoonMinutes >= 0) ? (
+        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -mx-2.5 mb-1 px-2.5 py-0.5 rounded-t-lg bg-white text-pink-600 text-[12px] font-semibold leading-tight truncate`}>
+          {tn('card.closingSoon', lang, { n: venue.closingSoonMinutes })}
+        </div>
+      ) : null}
       {venue.matchTier === 'alternate' && (() => {
         const s = (venue.matchedCuisine && nearbyStrips && nearbyStrips[venue.matchedCuisine])
           || (nearbyLabel ? { label: nearbyLabel, accent: nearbyAccent } : null);

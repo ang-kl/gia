@@ -1,8 +1,8 @@
 counters:
-  commit: 937
-  build: 576
+  commit: 938
+  build: 577
   documents:
-    journal: 819
+    journal: 820
     builder: 3
     persona: 4
     feature: 58
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 01-07 '26 18:10 SGT
-last_anchor_source: michelin_freetext_filter_fix_2026-07-01_1810 (v0.62.465 — BUG: operator typed 'Mee Soto' free-text + selected Michelin in Cuisine TMA; the Bib Gourmand stall serving it [Selamat Datang Warong Pak Sapari, cited operator MICHELIN Guide URL] never appeared. ROOT CAUSE traced in handleMichelinSearch [index.js ~9605]: freeText param was ONLY used for [a] logging its length, [b] the walk-state pagination cache key — NEVER to filter/prioritise which curated entries get shown. Pool selection was purely tier-order [3star->2star->1star->bib-gourmand, bib shuffled] + slice-to-12; the dish query did nothing. Confirmed the entry DOES exist in SG-michelin.js:167 [not a missing-data case] but its curated name 'Selamat Datang Warong Pak Sapari' doesn't literally say 'mee soto' [unlike most Bib entries which DO spell the dish in name, e.g. 'Hokkien Fried Mee'] so a plain substring match on freeText vs e.name alone wouldn't have caught it either. FIX: (1) index.js — before slicing, promote entries whose e.name OR e.keywords[] contains freeText to the front of `ordered`, same precedent as the existing otherCuisineSlugs cuisine pre-filter; (2) SG-michelin.js — added sourced keywords:['mee soto','soto'] to the Pak Sapari entry ONLY [cited to the operator's MICHELIN Guide URL as provenance; did NOT fabricate/guess keywords for other proper-name stalls — that would need a real sourced audit, noted as a natural future extension of the dish-taxonomy program]. node --check OK both files. journal 818->819, commit 936->937, build 575->576. PRIOR ANCHOR dish_taxonomy_pipeline_step1_2026-07-01_1710)
+last_anchor_time: 01-07 '26 18:50 SGT
+last_anchor_source: cuisine_closed_strip_sort_2026-07-01_1850 (v0.62.466 — operator: Cuisine TMA result cards -> light/white strip, RED text 'Closed' when closed, PINK text 'Closing in N minutes' when closing within the hour, and sort all closed cards to the end. NEW open-hours.js minutesUntilClose(periods,now,offset) [mirrors currentOpenString's active-period lookup, returns raw minutes not a formatted string]. cuisine-enrich.js [canonical enrichment, main /api/cuisine/search path] + the mirrored NL-query block in index.js both now set v.closingSoonMinutes when openNow===true and mins<=60. Closed-LAST stable partition added at BOTH response-assembly points: dedupedTop [main search, right after the existing hawkerFirst stable-partition precedent] and topNL [NL/free-text path — had to change `const topNL` -> `let topNL` since it's reassigned, verified no async closure captured the pre-reassignment reference]. ResultCard.jsx: new topmost strip [bg-white, text-red-600 'Closed' OR text-pink-600 tn('card.closingSoon',{n}) 'Closing in N min'; text-[12px] font-semibold = matches the card's standard meta font size, per operator's 'font size follow standard']. Flagged to operator: uses literal red/pink per their explicit spec, which is NOT the red-vs-green CVD pairing this codebase otherwise avoids elsewhere -- distinct text per state keeps it accessible. i18n card.closingSoon added [base en/fr + id/zh/ja/es, mirroring existing card.closed coverage; ru/de fall back to EN like card.closed already does]. node --check on oh.js/ce.js/index.js/i18n; esbuild parse ResultCard.jsx; cuisine build/vitest via CI. journal 819->820, commit 937->938, build 576->577. PRIOR ANCHOR michelin_freetext_filter_fix_2026-07-01_1810)
 last_anchor_source_prior: cuisine_dishes_tethered_tab_2026-07-01_1255
 # codex-review PR#1438: `last_anchor_iso8601` below is duplicated many times over past
 # sessions (append-only history, never pruned) -- a last-key-wins YAML reader would pick

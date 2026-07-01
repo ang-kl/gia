@@ -17195,6 +17195,15 @@ async function cacheBotUsername() {
             dedupedTop = [...hawk, ...rest];
           }
         }
+        // v0.62.466 — operator: closed venues sort to the LAST cards. Stable
+        // partition — open/unknown-status venues keep their existing relative
+        // order at the front; closed venues keep their relative order at the
+        // back. Nothing is dropped, matching the hawkerFirst precedent above.
+        if (Array.isArray(dedupedTop) && dedupedTop.length > 1) {
+          const openOrUnknown = [], closedVenues = [];
+          for (const v of dedupedTop) (v.openNow === false ? closedVenues : openOrUnknown).push(v);
+          if (closedVenues.length && openOrUnknown.length) dedupedTop = [...openOrUnknown, ...closedVenues];
+        }
         // v0.62.293 — exact-vs-alternate tagging (restored + extended to combos).
         // SINGLE cuisine: a venue that doesn't match → 'alternate' (renders the
         // "{cuisine} & Nearby Flavours" strip). COMBO (2+): a venue serving ALL
@@ -17893,7 +17902,7 @@ async function cacheBotUsername() {
         }
         // v0.57.20: closed-today label (mirrors /api/cuisine/search).
         // v0.61.246: open-now label too (mirrors /api/cuisine/search).
-        const { closedTodayString: closedTodayStringNL, currentOpenString: currentOpenStringNL } = require('./open-hours');
+        const { closedTodayString: closedTodayStringNL, currentOpenString: currentOpenStringNL, minutesUntilClose: minutesUntilCloseNL } = require('./open-hours');
         // v0.60.35 — match /api/cuisine/search reverted cap of 12.
         // v0.61.436 — per-chat guarded rating floor (code review: the
         // Tell-me NL path ignored the rating pill).
@@ -17903,7 +17912,7 @@ async function cacheBotUsername() {
         // the user ever sees — 12 read as a fraction of Google's list. With the
         // deeper ~60-candidate pool above, surface 24. Enrichment below
         // (travel-times batched, crowd, footfall) runs on this slice.
-        const topNL = venues.slice(0, 24);
+        let topNL = venues.slice(0, 24);
         for (const v of topNL) {
           // v0.62.291 — prefer holiday-aware currentOpeningHours.periods +
           // venue-local timezone (mirrors cuisine-enrich.js).
@@ -17913,6 +17922,9 @@ async function cacheBotUsername() {
             v.closedTodayLabel = closedTodayStringNL(periodsNL, new Date(), offsetNL, nlLang);
           } else if (v.openNow === true) {
             v.openClosingLabel = currentOpenStringNL(periodsNL, new Date(), offsetNL, nlLang);
+            // v0.62.466 — mirrors cuisine-enrich.js's closingSoonMinutes.
+            const minsNL = minutesUntilCloseNL(periodsNL, new Date(), offsetNL);
+            if (Number.isFinite(minsNL) && minsNL >= 0 && minsNL <= 60) v.closingSoonMinutes = minsNL;
           }
           delete v.regularPeriods;
           delete v.currentPeriods;
@@ -17936,6 +17948,12 @@ async function cacheBotUsername() {
           const { attachFootfallSignals } = require('./footfall-signal');
           await attachFootfallSignals(redis, topNL);
         } catch (err) { console.warn('[NL-Query] footfall failed:', err.message); }
+        // v0.62.466 — closed-last sort (mirrors the main /api/cuisine/search path).
+        if (Array.isArray(topNL) && topNL.length > 1) {
+          const openOrUnknownNL = [], closedNL = [];
+          for (const v of topNL) (v.openNow === false ? closedNL : openOrUnknownNL).push(v);
+          if (closedNL.length && openOrUnknownNL.length) topNL = [...openOrUnknownNL, ...closedNL];
+        }
         res.json({
           venues: topNL,
           inferredCuisines, inferredFilters,
