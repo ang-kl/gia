@@ -1,8 +1,8 @@
 counters:
-  commit: 926
-  build: 565
+  commit: 927
+  build: 566
   documents:
-    journal: 808
+    journal: 809
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 01-07 '26 12:10 SGT
-last_anchor_source: cuisine_dishes_popup_polish_2026-07-01_1210 (v0.62.454 — operator screenshots on v0.62.453: (1) pop-up title should read 'Dishes · <flag> <Cuisine>' not just the cuisine name -> title now tr(cat.dishes)+' · '+cu.flag+' '+name [flag threaded via openDishes/dishModal]. (2) the per-cuisine 'Dishes' link too big/bold -> text-[11px] font-semibold -> text-[10px] font-normal + no-underline [smaller, not bold, not underlined per 'like Click-to-change'; kept text-tg-link theme colour, NOT literal red, per operator colour-blind rule]. (3) 'No dishes' was DEPLOY TIMING not a bug: verified getNationOverlay('singaporean')=164 dishes and catalogue slug='singaporean' match; /api/cuisine/dishes just hadn't redeployed when screenshot taken. Only CuisineCategoryDrawer.jsx changed. esbuild OK; cuisine build/vitest via CI. journal 807->808, commit 925->926, build 564->565. PRIOR ANCHOR cuisine_by_cuisine_dishes_popup_2026-07-01_1140)
+last_anchor_time: 01-07 '26 12:35 SGT
+last_anchor_source: menu_sketchbook_icon_cabinet_2026-07-01_1235 (v0.62.455 — operator: Menu Sketchbook tile icon 'muddled again'. NOT an opacity bug — the v0.62.449 transparent PNG IS transparent [opaque frac 0.22] but it's a DETAILED 782x1166 clipboard-with-full-card illustration; crushed to ~64px + icon-navy tint the dense strokes merge into a navy blob. Fix: replaced with a SIMPLE clean filing-cabinet line-icon [from the 33-icon cut set, named/cabinet.png], recoloured to near-black #14141e transparent line-art so icon-navy tints it like Cuisine/Hawker; trimmed 102x174. Previewed at real 64px tile size [black + navy-tint] — crisp + legible. web/menu/public/sketchboard_clip_icon.png replaced. journal 808->809, commit 926->927, build 565->566. PRIOR ANCHOR cuisine_dishes_popup_polish_2026-07-01_1210)
 last_anchor_source_prior: transport_close_x_normalize_2026-06-30_2020
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
