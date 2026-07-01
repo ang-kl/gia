@@ -39,11 +39,11 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
   const [lang] = useLocale();
   // v0.62.453 — "Dishes" reveal: a pop-up (like Pick local classic) listing this
   // cuisine's curated iconicDishes (name + native `local`); tap a dish → search.
-  const [dishModal, setDishModal] = React.useState(null); // { slug, name } | null
+  const [dishModal, setDishModal] = React.useState(null); // { slug, name, flag } | null
   const [dishList, setDishList] = React.useState([]);
   const [dishLoading, setDishLoading] = React.useState(false);
-  const openDishes = (slug, name) => {
-    setDishModal({ slug, name }); setDishList([]); setDishLoading(true);
+  const openDishes = (slug, name, flag) => {
+    setDishModal({ slug, name, flag }); setDishList([]); setDishLoading(true);
     fetch(`/api/cuisine/dishes?slug=${encodeURIComponent(slug)}`).then((r) => (r.ok ? r.json() : null))
       .then((d) => setDishList(d && Array.isArray(d.dishes) ? d.dishes : []))
       .catch(() => {}).finally(() => setDishLoading(false));
@@ -172,8 +172,8 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
               </button>
               {/* v0.62.453 — tappable "Dishes" (footer hide/list style: text-[11px]
                   font-semibold text-tg-link) opens the curated dish pop-up. */}
-              <button type="button" onClick={() => openDishes(cu.slug, cuisineName(cu.slug, cu.name, lang))}
-                className="text-[11px] font-semibold text-tg-link text-left px-1 self-start">{tr('cat.dishes', lang)}</button>
+              <button type="button" onClick={() => openDishes(cu.slug, cuisineName(cu.slug, cu.name, lang), cu.flag)}
+                className="text-[10px] font-normal text-tg-link text-left px-1 self-start no-underline">{tr('cat.dishes', lang)}</button>
               </div>
               </React.Fragment>
             );
@@ -191,7 +191,7 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
           role="dialog" onClick={(e) => { if (e.target === e.currentTarget) setDishModal(null); }}>
           <div className="flex flex-col w-full max-w-[420px] max-h-[80vh] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
             <div className="flex items-center gap-2 px-3 py-3 border-b border-tg-border bg-tg-card">
-              <h3 className="text-sm font-semibold flex-1 truncate">{dishModal.name}</h3>
+              <h3 className="text-sm font-semibold flex-1 truncate">{tr('cat.dishes', lang)} · {dishModal.flag ? dishModal.flag + ' ' : ''}{dishModal.name}</h3>
               <button type="button" onClick={() => setDishModal(null)} aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
                 className="text-tg-hint text-sm leading-none px-1 flex-shrink-0">✕</button>
             </div>
