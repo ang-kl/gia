@@ -12881,6 +12881,24 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.62.453 — per-cuisine curated dishes for the "Cuisine & Filters › by
+    // Cuisine" drill-in "Dishes" reveal. Returns nation-overlay iconicDishes
+    // (name + native `local` script) for one cuisine slug. Read-only, no auth.
+    app.get('/api/cuisine/dishes', (req, res) => {
+      try {
+        const slug = String(req.query.slug || '').trim().toLowerCase();
+        if (!slug) { res.json({ dishes: [] }); return; }
+        const ov = require('./nation-overlay').getNationOverlay(slug);
+        const dishes = (ov && Array.isArray(ov.iconicDishes) ? ov.iconicDishes : [])
+          .map((d) => ({ name: d.name, local: d.local || '', kind: d.kind || 'food' }))
+          .filter((d) => d.name);
+        res.json({ dishes });
+      } catch (err) {
+        console.error('[Error] /api/cuisine/dishes failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
     // v0.57.32: "Copy all to chat" — TMA POSTs the current result list,
     // server authenticates via initData (HMAC-signed by the bot token),
     // builds a single map URL for all pins, and sends it to the user's

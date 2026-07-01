@@ -30,13 +30,24 @@ const CATEGORY_LABEL_KEY = {
 // fixed full-screen overlay with a back-arrow header and a 2-column
 // grid of flag-prefixed pills. Tapping a pill toggles selection;
 // tapping back-arrow / scrim closes.
-export default function CuisineCategoryDrawer({ category, selected, onToggle, onClose, maxSelected, region = 'SG', beltCountry = '', michelinCuisines = null }) {
+export default function CuisineCategoryDrawer({ category, selected, onToggle, onClose, maxSelected, region = 'SG', beltCountry = '', michelinCuisines = null, onPickDish = null }) {
   // v0.61.272 — `region` is still threaded through for future
   // per-country UX hooks (e.g. flag preview, regional sort) but no
   // longer gates chip selectability.
   // v0.61.411 — `beltCountry` DOES gate the durian / durian-pastry chips: they
   // disable (grey + non-tappable) outside the SE-Asian durian belt.
   const [lang] = useLocale();
+  // v0.62.453 — "Dishes" reveal: a pop-up (like Pick local classic) listing this
+  // cuisine's curated iconicDishes (name + native `local`); tap a dish → search.
+  const [dishModal, setDishModal] = React.useState(null); // { slug, name } | null
+  const [dishList, setDishList] = React.useState([]);
+  const [dishLoading, setDishLoading] = React.useState(false);
+  const openDishes = (slug, name) => {
+    setDishModal({ slug, name }); setDishList([]); setDishLoading(true);
+    fetch(`/api/cuisine/dishes?slug=${encodeURIComponent(slug)}`).then((r) => (r.ok ? r.json() : null))
+      .then((d) => setDishList(d && Array.isArray(d.dishes) ? d.dishes : []))
+      .catch(() => {}).finally(() => setDishLoading(false));
+  };
   // ESC closes the overlay (desktop / Telegram-Web users).
   useEffect(() => {
     function onKey(e) { if (e.key === 'Escape') onClose?.(); }
@@ -115,6 +126,7 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
                 {cu.dividerBefore && (
                   <div className="col-span-2 h-px bg-tg-border/40 my-1.5" aria-hidden />
                 )}
+              <div className="flex flex-col gap-0.5">
               <button
                 type="button"
                 onClick={() => { if (!disabled) onToggle(cu.slug); }}
@@ -158,6 +170,11 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
                 <span className="flex-1 break-words">{cuisineName(cu.slug, cu.name, lang)}</span>
                 {sel && <span aria-hidden className="text-tg-accent-text flex-shrink-0">✓</span>}
               </button>
+              {/* v0.62.453 — tappable "Dishes" (footer hide/list style: text-[11px]
+                  font-semibold text-tg-link) opens the curated dish pop-up. */}
+              <button type="button" onClick={() => openDishes(cu.slug, cuisineName(cu.slug, cu.name, lang))}
+                className="text-[11px] font-semibold text-tg-link text-left px-1 self-start">{tr('cat.dishes', lang)}</button>
+              </div>
               </React.Fragment>
             );
           })}
@@ -169,6 +186,36 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
         )}
       </div>
       </div>
+      {dishModal && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/50"
+          role="dialog" onClick={(e) => { if (e.target === e.currentTarget) setDishModal(null); }}>
+          <div className="flex flex-col w-full max-w-[420px] max-h-[80vh] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
+            <div className="flex items-center gap-2 px-3 py-3 border-b border-tg-border bg-tg-card">
+              <h3 className="text-sm font-semibold flex-1 truncate">{dishModal.name}</h3>
+              <button type="button" onClick={() => setDishModal(null)} aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
+                className="text-tg-hint text-sm leading-none px-1 flex-shrink-0">✕</button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-3 py-3">
+              {dishLoading ? (
+                <div className="text-center text-xs text-tg-hint py-6">…</div>
+              ) : dishList.length === 0 ? (
+                <div className="text-center text-xs text-tg-hint py-6">{lang === 'fr' ? 'Aucun plat' : 'No dishes'}</div>
+              ) : (
+                <div className="grid grid-cols-2 gap-x-3">
+                  {dishList.map((d, i) => (
+                    <button key={`${d.name}-${i}`} type="button"
+                      onClick={() => { setDishModal(null); onPickDish?.(d.name); }}
+                      className="flex flex-col items-start text-left py-2 px-1 min-h-[44px] border-b border-tg-border/30">
+                      <span className="text-[12px] font-medium leading-tight capitalize">{d.name}</span>
+                      {d.local && d.local !== d.name && <span className="text-[11px] text-tg-hint leading-tight">{d.local}</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

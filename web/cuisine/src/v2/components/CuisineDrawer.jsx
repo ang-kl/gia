@@ -52,7 +52,7 @@ const CATEGORY_LABEL_KEY = {
 // derived from `selected` at the App.jsx request-build site. The
 // applyChipToggle helper enforces the mutex (special ↔ everything else
 // including Dessert).
-export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region, countryPref, michelinCuisines = null }) {
+export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region, countryPref, michelinCuisines = null, onPickDish = null }) {
   const [openCategoryId, setOpenCategoryId] = useState(null);
   // v0.61.346 — current country for per-country chip gating (e.g. the
   // Michelin chip enables wherever its `michelinCountries` list covers).
@@ -204,6 +204,7 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
              country+city (null = unknown → fail open); greys uncovered chips
              when Michelin is in the selection. */
           michelinCuisines={michelinCuisines}
+          onPickDish={onPickDish}
         />
       )}
     </div>
