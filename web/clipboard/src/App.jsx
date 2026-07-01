@@ -31,6 +31,7 @@ export default function App() {
   // v0.62.418 — header chips filter the user's OWN saved cards (not new search).
   const [cuisineSel, setCuisineSel] = useState([]);          // v0.62.451 — selected cuisine slugs (multi, ≤5)
   const [catalogue, setCatalogue] = useState([]);           // v0.62.451 — cuisine groups from /api/cuisine/catalogue (mirror Cuisine TMA)
+  const [plate, setPlate] = useState(null);                 // v0.62.452 — local-classics plate for the derived city
   useEffect(() => {
     let live = true;
     fetch('/api/cuisine/catalogue').then((r) => r.ok ? r.json() : null)
@@ -164,6 +165,30 @@ export default function App() {
     if (baseCards.some((c) => c.venue && c.venue.michelinCategory)) set.add('michelin');
     return set;
   })();
+  // v0.62.452 — derive the city from the saved cards (most-common trailing
+  // segment of venue.area, e.g. "Katong, Singapore" → Singapore) and fetch that
+  // city's classics plate so "Pick local classic" mirrors the Cuisine TMA.
+  const cityGuess = (() => {
+    const counts = new Map();
+    for (const c of baseCards) {
+      const area = c.venue && c.venue.area ? String(c.venue.area) : '';
+      if (!area) continue;
+      const seg = area.split(',').map((x) => x.trim()).filter(Boolean).pop();
+      if (seg) counts.set(seg, (counts.get(seg) || 0) + 1);
+    }
+    let best = null, bc = 0;
+    for (const [k, v] of counts) if (v > bc) { bc = v; best = k; }
+    return best;
+  })();
+  const savedDishSet = new Set(dishOptions.map((o) => o.value));
+  useEffect(() => {
+    if (!cityGuess) { setPlate(null); return undefined; }
+    let live = true;
+    fetch(`/api/cuisine/plate?city=${encodeURIComponent(cityGuess)}`).then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (live) setPlate(d && d.plate ? d.plate : null); })
+      .catch(() => {});
+    return () => { live = false; };
+  }, [cityGuess]);
   const cardMatches = (c) => {
     if (!c) return false;
     if (cuisineSel.length) {
@@ -213,6 +238,8 @@ export default function App() {
       catalogue={catalogue}
       availableSlugs={availableSlugs}
       dishOptions={dishOptions}
+      plate={plate}
+      savedDishSet={savedDishSet}
       onSetCuisine={(arr) => setCuisineSel(arr)}
       onSetDish={(v) => setDishFilter(v)}
       facets={facets}

@@ -12855,6 +12855,32 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.62.452 — plate-by-city for the Sketchbook "Pick local classic" panel.
+    // The Sketchbook derives a city from the user's saved cards and fetches that
+    // city's curated dishes + classics (same shape as platesNear) so its dish
+    // picker mirrors the Cuisine TMA. Read-only, no user text echoed → no auth.
+    // Forgiving match: exact CITY_PLATES key, else case-insensitive, else the
+    // query CONTAINS a key (so "Katong, Singapore" → Singapore).
+    app.get('/api/cuisine/plate', (req, res) => {
+      try {
+        const city = String(req.query.city || '').trim();
+        if (!city) { res.json({ plate: null }); return; }
+        const cp = require('./city-plates');
+        let plate = cp.platesForCity(city);
+        if (!plate && cp.CITY_PLATES) {
+          const q = city.toLowerCase();
+          const keys = Object.keys(cp.CITY_PLATES);
+          const key = keys.find((k) => k.toLowerCase() === q)
+            || keys.find((k) => q.includes(k.toLowerCase()));
+          if (key) plate = cp.platesForCity(key);
+        }
+        res.json({ plate: plate || null });
+      } catch (err) {
+        console.error('[Error] /api/cuisine/plate failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
     // v0.57.32: "Copy all to chat" — TMA POSTs the current result list,
     // server authenticates via initData (HMAC-signed by the bot token),
     // builds a single map URL for all pins, and sends it to the user's
