@@ -1,0 +1,62 @@
+{
+  "status": "seed",
+  "description": "Initial contextual help mapping for the Soleat User Manual. Stable help IDs should be reviewed before TMA integration.",
+  "items": [
+    {
+      "helpId": "help.soleat.overview.welcome",
+      "title": "Welcome to Soleat",
+      "manualPath": "docs/UserManual/en/00-sections-1-to-6.md#1-welcome-to-soleat",
+      "surface": "general",
+      "contentType": "overview"
+    },
+    {
+      "helpId": "help.soleat.overview.who-for",
+      "title": "Who Soleat Is For",
+      "manualPath": "docs/UserManual/en/00-sections-1-to-6.md#2-who-soleat-is-for",
+      "surface": "general",
+      "contentType": "overview"
+    },
+    {
+      "helpId": "help.soleat.overview.why-different",
+      "title": "Why Soleat Is Different",
+      "manualPath": "docs/UserManual/en/00-sections-1-to-6.md#3-why-soleat-is-different",
+      "surface": "general",
+      "contentType": "overview"
+    },
+    {
+      "helpId": "help.soleat.getting-started",
+      "title": "Getting Started",
+      "manualPath": "docs/UserManual/en/00-sections-1-to-6.md#6-getting-started",
+      "surface": "general",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.menu.overview",
+      "title": "Soleat Menu Overview",
+      "manualPath": "docs/UserManual/en/01-sections-7-to-10.md#8-soleat-menu-overview",
+      "surface": "menu",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.commands.overview",
+      "title": "Command Overview",
+      "manualPath": "docs/UserManual/en/01-sections-7-to-10.md#9-command-overview",
+      "surface": "telegram-chat",
+      "contentType": "reference"
+    },
+    {
+      "helpId": "help.soleat.location.overview",
+      "title": "Location, Countries, Cities, and Saved Locations",
+      "manualPath": "docs/UserManual/en/01-sections-7-to-10.md#10-location-countries-cities-and-saved-locations",
+      "surface": "location",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.location.country-city-saved",
+      "title": "Country, City, and Saved Location Flow",
+      "manualPath": "docs/UserManual/en/01-sections-7-to-10.md#106-country--city--saved-location-flow",
+      "surface": "location",
+      "contentType": "workflow-help"
+    }
+  ]
+}
