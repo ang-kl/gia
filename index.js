@@ -12892,8 +12892,15 @@ async function cacheBotUsername() {
         // v0.62.462 — pass through the localised note (English + any generated
         // id/ru/de/zh/ja/es translation) so the client can show a one-line
         // description under the dish name, matching the device language.
+        // v0.62.463 — tag each dish with its existing food-group classifier
+        // (noodles/rice/soup/grilled/stew-curry/seafood/veg/snack/sweet/drink/
+        // other) so the pop-up can show a dish-type badge without new data.
+        const { foodGroupFor, GROUP_LABEL } = require('./dish-food-group');
         const dishes = (ov && Array.isArray(ov.iconicDishes) ? ov.iconicDishes : [])
-          .map((d) => ({ name: d.name, local: d.local || '', kind: d.kind || 'food', note: d.note || null }))
+          .map((d) => {
+            const group = foodGroupFor(d.name, d.kind);
+            return { name: d.name, local: d.local || '', kind: d.kind || 'food', note: d.note || null, group, groupLabel: GROUP_LABEL[group] || GROUP_LABEL.other };
+          })
           .filter((d) => d.name);
         res.json({ dishes });
       } catch (err) {

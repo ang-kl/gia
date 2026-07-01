@@ -11,6 +11,17 @@ import { initData } from '../../api/tg.js';
 // plumbing + v0.61.267 OTHER autocomplete; if a region truly has
 // no results, the existing "no match" path surfaces that.
 
+// v0.62.463 — dish-type badge colours (12 groups from dish-food-group.js).
+// Colour is decorative only; the label text always carries the meaning.
+const GROUP_BADGE_CLASS = {
+  noodles: 'bg-amber-100 text-amber-800', rice: 'bg-yellow-100 text-yellow-800',
+  'bread-dumpling': 'bg-orange-100 text-orange-800', soup: 'bg-sky-100 text-sky-800',
+  grilled: 'bg-red-100 text-red-800', 'stew-curry': 'bg-rose-100 text-rose-800',
+  seafood: 'bg-cyan-100 text-cyan-800', veg: 'bg-green-100 text-green-800',
+  snack: 'bg-lime-100 text-lime-800', sweet: 'bg-pink-100 text-pink-800',
+  drink: 'bg-blue-100 text-blue-800', other: 'bg-gray-100 text-gray-700',
+};
+
 // v0.59.6: keep in sync with CuisineDrawer's CATEGORY_LABEL_KEY map.
 const CATEGORY_LABEL_KEY = {
   'common-here':     'cat.commonHere',
@@ -43,6 +54,7 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
   const [dishModal, setDishModal] = React.useState(null); // { slug, name, flag } | null
   const [dishList, setDishList] = React.useState([]);
   const [dishLoading, setDishLoading] = React.useState(false);
+  const [dishDetail, setDishDetail] = React.useState(null); // one dish's full-explanation view | null
   const openDishes = (slug, name, flag) => {
     setDishModal({ slug, name, flag }); setDishList([]); setDishLoading(true);
     fetch(`/api/cuisine/dishes?slug=${encodeURIComponent(slug)}`, { headers: { Accept: 'application/json', 'X-Telegram-Init-Data': initData() || '' } }).then((r) => (r.ok ? r.json() : null))
@@ -205,13 +217,20 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
                 <div className="grid grid-cols-2 gap-x-3">
                   {dishList.map((d, i) => (
                     <button key={`${d.name}-${i}`} type="button"
-                      onClick={() => { setDishModal(null); onPickDish?.(d.name); }}
+                      onClick={() => setDishDetail(d)}
                       className="flex flex-col items-start text-left py-2 px-1 min-h-[44px] border-b border-tg-border/30">
+                      {/* v0.62.463 — dish-type badge (noodles/soup/dessert/drink/…), from the
+                          existing dish-food-group classifier — no new data needed. */}
+                      {d.groupLabel && (
+                        <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full mb-0.5 ${GROUP_BADGE_CLASS[d.group] || GROUP_BADGE_CLASS.other}`}>
+                          {d.groupLabel[lang] || d.groupLabel.en}
+                        </span>
+                      )}
                       <span className="text-[12px] font-medium leading-tight capitalize">{d.name}</span>
                       {d.local && d.local !== d.name && <span className="text-[11px] text-tg-hint leading-tight">{d.local}</span>}
-                      {/* v0.62.462 — one-line curated description, device-language when
-                          translated (Gemini corpus); EN fallback; hidden if neither exists.
-                          Dish NAME itself always stays verbatim (identity, not translated). */}
+                      {/* v0.62.462/463 — one-line curated description preview, device-language
+                          when translated; EN fallback; hidden if neither exists. Tap the dish for
+                          the full, un-truncated explanation. Dish NAME stays verbatim (identity). */}
                       {(d.note && (d.note[lang] || d.note.en)) && (
                         <span className="text-[10px] text-tg-hint leading-snug mt-0.5 line-clamp-2">{d.note[lang] || d.note.en}</span>
                       )}
@@ -219,6 +238,42 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+      {/* v0.62.463 — full-explanation sub-view (like Pick local classic): the
+          list preview is truncated; tapping a dish opens the complete,
+          un-truncated note text + a "Find eateries" search action. Sits above
+          the dishes pop-up (z-50 > z-40). */}
+      {dishDetail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
+          role="dialog" onClick={(e) => { if (e.target === e.currentTarget) setDishDetail(null); }}>
+          <div className="flex flex-col w-full max-w-[380px] max-h-[70vh] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
+            <div className="flex items-center gap-2 px-3 py-3 border-b border-tg-border bg-tg-card">
+              <h3 className="text-sm font-semibold flex-1 truncate capitalize">{dishDetail.name}</h3>
+              <button type="button" onClick={() => setDishDetail(null)} aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
+                className="text-tg-hint text-sm leading-none px-1 flex-shrink-0">✕</button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-3 py-3">
+              {dishDetail.groupLabel && (
+                <span className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full mb-2 ${GROUP_BADGE_CLASS[dishDetail.group] || GROUP_BADGE_CLASS.other}`}>
+                  {dishDetail.groupLabel[lang] || dishDetail.groupLabel.en}
+                </span>
+              )}
+              {dishDetail.local && dishDetail.local !== dishDetail.name && (
+                <div className="text-sm text-tg-hint mb-2">{dishDetail.local}</div>
+              )}
+              <p className="text-[13px] leading-relaxed text-tg-text">
+                {(dishDetail.note && (dishDetail.note[lang] || dishDetail.note.en)) || (lang === 'fr' ? 'Description bientôt.' : 'Description coming soon.')}
+              </p>
+            </div>
+            <div className="px-3 py-3 border-t border-tg-border bg-tg-card">
+              <button type="button"
+                onClick={() => { setDishDetail(null); setDishModal(null); onPickDish?.(dishDetail.name); }}
+                className="w-full flex items-center justify-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-xl bg-tg-accent text-tg-accent-text active:scale-[0.99]">
+                <span aria-hidden>🔍</span>{lang === 'fr' ? 'Trouver des adresses' : 'Find eateries'}
+              </button>
             </div>
           </div>
         </div>
