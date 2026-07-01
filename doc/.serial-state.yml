@@ -1,8 +1,8 @@
 counters:
-  commit: 925
-  build: 564
+  commit: 926
+  build: 565
   documents:
-    journal: 807
+    journal: 808
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 01-07 '26 11:40 SGT
-last_anchor_source: cuisine_by_cuisine_dishes_popup_2026-07-01_1140 (v0.62.453 — operator: in Cuisine TMA 'Cuisine & Filters > by Cuisine' add a tappable 'Dishes' [plural, styled EXACTLY like footer hide/list = text-[11px] font-semibold text-tg-link, theme-aware]; clicking opens a POP-UP window like 'Pick local classic' listing that cuisine's curated dishes; tap a dish -> search. Cuisine TMA ONLY. NEW endpoint GET /api/cuisine/dishes?slug= -> nation-overlay getNationOverlay(slug).iconicDishes -> [{name,local,kind}], read-only no auth. CuisineCategoryDrawer: per-cuisine 'Dishes' link + z-40 pop-up modal [name + native local, subtle ✕], tap dish -> onPickDish. onPickDish threaded App->CuisineDrawer->CuisineCategoryDrawer; App handler mirrors classic onTryDish [freeTextOverride + hawkerFirst SG] but closes cuisinePickOpen. i18n cat.dishes [en Dishes / fr Plats; others EN-fallback per tiered control-label strategy]. esbuild parse all; node --check index+i18n; cuisine build+vitest via CI. journal 806->807, commit 924->925, build 563->564. PRIOR ANCHOR sketchbook_pick_local_classic_2026-07-01_1100)
+last_anchor_time: 01-07 '26 12:10 SGT
+last_anchor_source: cuisine_dishes_popup_polish_2026-07-01_1210 (v0.62.454 — operator screenshots on v0.62.453: (1) pop-up title should read 'Dishes · <flag> <Cuisine>' not just the cuisine name -> title now tr(cat.dishes)+' · '+cu.flag+' '+name [flag threaded via openDishes/dishModal]. (2) the per-cuisine 'Dishes' link too big/bold -> text-[11px] font-semibold -> text-[10px] font-normal + no-underline [smaller, not bold, not underlined per 'like Click-to-change'; kept text-tg-link theme colour, NOT literal red, per operator colour-blind rule]. (3) 'No dishes' was DEPLOY TIMING not a bug: verified getNationOverlay('singaporean')=164 dishes and catalogue slug='singaporean' match; /api/cuisine/dishes just hadn't redeployed when screenshot taken. Only CuisineCategoryDrawer.jsx changed. esbuild OK; cuisine build/vitest via CI. journal 807->808, commit 925->926, build 564->565. PRIOR ANCHOR cuisine_by_cuisine_dishes_popup_2026-07-01_1140)
 last_anchor_source_prior: transport_close_x_normalize_2026-06-30_2020
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
