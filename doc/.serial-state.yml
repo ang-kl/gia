@@ -1,8 +1,8 @@
 counters:
-  commit: 934
-  build: 573
+  commit: 935
+  build: 574
   documents:
-    journal: 816
+    journal: 817
     builder: 3
     persona: 4
     feature: 58
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 01-07 '26 15:45 SGT
-last_anchor_source: cuisine_dishes_note_i18n_surfaced_2026-07-01_1545 (v0.62.462 — operator: 'fold dish-name translation into corpus'. Investigated FIRST [proper-noun policy in translate-content.mjs: dish NAMES stay verbatim/identity, never translated — matches how Cuisine TMA already renders names elsewhere; operator agreed]. Found translated DESCRIPTIONS already exist and are unused: nation-overlay-dishnotes-i18n.generated.js has 1647 dishes x 6 langs [id/ru/de/zh/ja/es], merged onto iconicDishes[].note.{lang} at nation-overlay.js load [verified via raw.githubusercontent, contents API 'none' encoding for the >1MB file]. Root cause: /api/cuisine/dishes route [v453] stripped d.note entirely in its .map(). Fixed: (1) index.js route now passes through note:d.note||null; (2) CuisineCategoryDrawer dish pop-up renders a one-line description [{d.note[lang]||d.note.en}, text-[10px] text-tg-hint line-clamp-2] under name+local, hidden if neither exists. No new Gemini batch needed — the corpus was already translated, only the plumbing was missing. esbuild+node--check OK; cuisine build/vitest via CI. journal 815->816, commit 933->934, build 572->573. PRIOR ANCHOR cross_tma_dropdown_close_x_2026-07-01_1500)
+last_anchor_time: 01-07 '26 16:20 SGT
+last_anchor_source: cuisine_dishes_grouptag_fullpopup_2026-07-01_1620 (v0.62.463 — operator: categorise dish/dessert/drink type + lengthen the tap explanation into a pop-up. Investigated data availability FIRST: meal-time [breakfast/lunch/dinner] + dietary [veg/meat/seafood] + course [starter/main/soup/bites] do NOT exist anywhere as curated data -> flagged as a separate grounded-Gemini curation pass [operator agreed, scoped as follow-up, NOT invented]. What DOES exist: dish-food-group.js foodGroupFor(name,kind) already classifies into noodles/rice/bread-dumpling/soup/grilled/stew-curry/seafood/veg/snack/sweet[dessert]/drink/other with GROUP_LABEL en/fr — covers 'type of dish/dessert/drink' with zero new data. Shipped: (1) index.js /api/cuisine/dishes now tags each dish {group, groupLabel} via foodGroupFor+GROUP_LABEL; (2) CuisineCategoryDrawer dish list shows a small coloured group badge above the name+local+note preview; (3) tapping a dish no longer fires search immediately — it opens a NESTED z-50 full-explanation sub-view [un-truncated note[lang]||note.en, badge, local script] with a '🔍 Find eateries' button that triggers the actual search [mirrors Pick-local-classic's tap-to-learn-more-then-search pattern]. esbuild parse + node --check OK; cuisine build/vitest via CI. journal 816->817, commit 934->935, build 573->574. FOLLOW-UP SCOPED: grounded Gemini pass for meal-time/dietary/course across ~1900 dishes [same process as the earlier dish-explanation backfill]. PRIOR ANCHOR cuisine_dishes_note_i18n_surfaced_2026-07-01_1545)
 last_anchor_source_prior: cuisine_dishes_tethered_tab_2026-07-01_1255
 # codex-review PR#1438: `last_anchor_iso8601` below is duplicated many times over past
 # sessions (append-only history, never pruned) -- a last-key-wins YAML reader would pick
