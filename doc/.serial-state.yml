@@ -1,20 +1,28 @@
 counters:
-  commit: 928
+  commit: 929
   build: 567
   documents:
-    journal: 810
+    journal: 811
     builder: 3
     persona: 4
-    feature: 56
+    feature: 58
     technical: 55
     legal: 9
     register: 129
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 01-07 '26 12:55 SGT
-last_anchor_source: cuisine_dishes_tethered_tab_2026-07-01_1255 (v0.62.456 — operator: the 'Dishes' link looked disjoined/floating under each cuisine pill. Chose option B [tethered sub-tab]. Restyled: cell flex-col gap-0.5 -> gap-0; 'Dishes ›' now self-start ml-3 -mt-px px-2 py-0.5 bg-tg-card border border-tg-border border-t-0 rounded-b-lg text-[10px] font-normal text-tg-link no-underline — a small tab that overlaps the pill's bottom border [shared left edge, no gap] so it reads as a drawer pulled from the pill. Only CuisineCategoryDrawer.jsx. esbuild OK; cuisine build/vitest via CI. journal 809->810, commit 927->928, build 566->567. PRIOR ANCHOR menu_sketchbook_icon_cabinet_2026-07-01_1235)
-last_anchor_source_prior: transport_close_x_normalize_2026-06-30_2020
+last_anchor_time: 01-07 '26 14:11 SGT
+last_anchor_source: pr1438_conflict_resolve2_2026-07-01_1411 (docs-only PR #1438 -- main advanced again with v0.62.456 [PR #1445: Cuisine 'Dishes' tethered as a sub-tab] while this PR was being marked ready for review, adding its own journal #810 off the same base this branch had already reconciled to. Re-merged origin/main and reconciled a second time: journal 810 [main, from PR #1445] + 1 [this session's own entry] = 811 -- renumbered doc/Journal/journal-0_62_449-30_06_26-2321.md from No810 to No811 as a further AU-7 amendment [original No807 and No810 text both preserved verbatim in-file]. commit 928 [main] + 1 = 929. build taken from main's real advance [567, PR #1445's own bump], not this docs-only session's stale 566. feature stays 58 [untouched by main]. This is the SECOND reconciliation of this counter file for PR #1438 -- the repo is merging new PRs every ~10-20 min, so a third may be needed before merge; re-check doc/.serial-state.yml against origin/main immediately before any future push to this branch. PRIOR ANCHOR cuisine_dishes_tethered_tab_2026-07-01_1255)
+last_anchor_source_prior: cuisine_dishes_tethered_tab_2026-07-01_1255
+# codex-review PR#1438: `last_anchor_iso8601` below is duplicated many times over past
+# sessions (append-only history, never pruned) -- a last-key-wins YAML reader would pick
+# up a stale June value instead of the current anchor. Not deleting the historical log
+# (AU-1 append-only spirit; pruning is a destructive action needing G2 confirmation), but
+# disambiguating going forward: `last_anchor_iso8601_current` is the single authoritative
+# field alongside `last_anchor_time`/`last_anchor_source` above. The plain
+# `last_anchor_iso8601:` lines below this point are historical log only, not current.
+last_anchor_iso8601_current: 2026-07-01T14:11:00+08:00
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
