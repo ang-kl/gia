@@ -13,6 +13,7 @@
 import React, { useState } from 'react';
 import { t } from '../lib/i18n.js';
 import { openMiniApp, haptic } from '../lib/tg.js';
+import CuisineGroupPicker from './CuisineGroupPicker.jsx';
 
 // v0.62.423 — version for the footer strip (mirrors Cuisine's __BUILD_VERSION__).
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
@@ -62,7 +63,7 @@ export default function Shell({
   onNav, onRefresh, children,
   // v0.62.440 — header chips FILTER the user's saved cards via a FOLIO DROPDOWN
   // (drops down under the chips, like the Cuisine TMA tabs — not a bottom sheet).
-  cuisineFilter = null, dishFilter = null, cuisineOptions = [], dishOptions = [],
+  cuisineSel = [], dishFilter = null, catalogue = [], availableSlugs = null, dishOptions = [],
   onSetCuisine, onSetDish,
   facets = {}, onSetFacet, onClearFacets,
 }) {
@@ -108,11 +109,11 @@ export default function Shell({
           <button
             type="button"
             onClick={() => { setMenuOpen(false); setDrop((d) => (d === 'cuisine' ? null : 'cuisine')); }}
-            className={`flex-1 flex items-center justify-between gap-1 px-2.5 py-1.5 text-[12px] font-medium border rounded-xl ${cuisineFilter || drop === 'cuisine' ? 'bg-tg-accent/10 border-tg-accent/50 text-tg-text' : 'bg-tg-bg border-tg-border text-tg-text'}`}
+            className={`flex-1 flex items-center justify-between gap-1 px-2.5 py-1.5 text-[12px] font-medium border rounded-xl ${cuisineSel.length || drop === 'cuisine' ? 'bg-tg-accent/10 border-tg-accent/50 text-tg-text' : 'bg-tg-bg border-tg-border text-tg-text'}`}
           >
-            <span className="truncate">{cuisineFilter ? `🍜 ${cuisineFilter}` : t('chrome.cuisineFilters', lang)}</span>
-            {cuisineFilter
-              ? <span role="button" aria-label="clear" onClick={(e) => { e.stopPropagation(); onSetCuisine?.(null); }} className="text-tg-hint">✕</span>
+            <span className="truncate">{cuisineSel.length ? `🍜 ${cuisineSel.length}` : t('chrome.cuisineFilters', lang)}</span>
+            {cuisineSel.length
+              ? <span role="button" aria-label="clear" onClick={(e) => { e.stopPropagation(); onSetCuisine?.([]); }} className="text-tg-hint">✕</span>
               : <span className="text-tg-hint">{drop === 'cuisine' ? '▴' : '▾'}</span>}
           </button>
           <button
@@ -131,24 +132,9 @@ export default function Shell({
             slide effect via .sk-drop). box-border + contained so it never bleeds. */}
         {drop === 'cuisine' && (
           <div className="sk-drop box-border w-full mt-2 border border-tg-border rounded-xl bg-tg-card shadow-lg max-h-[44vh] overflow-y-auto overflow-x-hidden p-2">
-            {cuisineOptions.length === 0 ? (
-              <div className="px-3 py-4 text-center text-xs text-tg-hint">{t('filter.none', lang)}</div>
-            ) : (
-            <>
-            {/* cuisine chips — 2-col grid like the Cuisine TMA category picker;
-                the options ARE the cuisines present in the clips. */}
-            <div className="grid grid-cols-2 gap-1.5">
-              <button type="button" onClick={() => { onSetCuisine?.(null); setDrop(null); }}
-                className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg text-[12px] border ${cuisineFilter == null ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>
-                {t('filter.all', lang)}
-              </button>
-              {cuisineOptions.map((o) => (
-                <button key={o.value} type="button" onClick={() => { onSetCuisine?.(o.value); setDrop(null); }}
-                  className={`flex items-center justify-between gap-1 px-2 py-2 rounded-lg text-[12px] border min-w-0 ${cuisineFilter === o.value ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>
-                  <span className="truncate capitalize">{o.label}</span><span className="text-tg-hint text-[10px] shrink-0">{o.count}</span>
-                </button>
-              ))}
-            </div>
+            {/* v0.62.451 — grouped cuisine picker ported from the Cuisine TMA;
+                groups/cuisines not present in the saved cards are greyed out. */}
+            <CuisineGroupPicker catalogue={catalogue} selected={cuisineSel} onChange={onSetCuisine} lang={lang} availableSlugs={availableSlugs} />
 
             {/* v0.62.441 — richer facets (over the stored venue data). */}
             <div className="border-t border-tg-border mt-1.5 pt-2 px-1.5 space-y-2">
@@ -187,8 +173,6 @@ export default function Shell({
               </div>
               <button onClick={() => { onClearFacets?.(); setDrop(null); }} className="w-full text-[11px] text-tg-hint py-1">{t('facet.clear', lang)}</button>
             </div>
-            </>
-            )}
           </div>
         )}
         {drop === 'dish' && (
