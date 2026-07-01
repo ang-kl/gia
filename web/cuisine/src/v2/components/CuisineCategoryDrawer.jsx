@@ -3,6 +3,7 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 // v0.61.411 — durian-belt gate for the special slugs (durian / durian-pastry).
 import { isSlugCountryAllowed, SPECIAL_SLUGS } from '../lib/cuisine-selection.js';
 import { cuisineName } from '../lib/cuisine-i18n.js';
+import { initData } from '../../api/tg.js';
 // v0.61.272 — Phase 4 cleanup: the v0.61.193 SG-only chip lock is
 // removed. Durian / Durian Pastry / Fruits chips are now selectable
 // in every region. The lib/sg-only-slugs.js module is deleted in
@@ -44,7 +45,7 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
   const [dishLoading, setDishLoading] = React.useState(false);
   const openDishes = (slug, name, flag) => {
     setDishModal({ slug, name, flag }); setDishList([]); setDishLoading(true);
-    fetch(`/api/cuisine/dishes?slug=${encodeURIComponent(slug)}`).then((r) => (r.ok ? r.json() : null))
+    fetch(`/api/cuisine/dishes?slug=${encodeURIComponent(slug)}`, { headers: { Accept: 'application/json', 'X-Telegram-Init-Data': initData() || '' } }).then((r) => (r.ok ? r.json() : null))
       .then((d) => setDishList(d && Array.isArray(d.dishes) ? d.dishes : []))
       .catch(() => {}).finally(() => setDishLoading(false));
   };

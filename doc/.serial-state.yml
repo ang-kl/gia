@@ -1,8 +1,8 @@
 counters:
-  commit: 929
-  build: 568
+  commit: 930
+  build: 569
   documents:
-    journal: 811
+    journal: 812
     builder: 3
     persona: 4
     feature: 58
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 01-07 '26 13:15 SGT
-last_anchor_source: cuisine_dishes_label_i18n_2026-07-01_1315 (v0.62.457 — operator 'Translated?': the cat.dishes label shipped v0.62.453 only en/fr [others EN-fallback]. Now fully localised across all 8 supported locales: base en 'Dishes' / fr 'Plats'; + per-map id 'Hidangan', ru 'Блюда', de 'Gerichte', zh '菜品', ja '料理', es 'Platos' [cat.* uses per-locale override maps ID/RU/DE/ZH/JA/ES_STRINGS, not inline base]. NOTE: the dish NAMES in the pop-up remain English + native `local` script [same as Cuisine TMA's existing dish rendering] — device-language dish-name translation is the separate long-tail program, not this PR. Only web/cuisine/src/v2/lib/i18n.js. node --check OK; cuisine build/vitest via CI. journal 810->811, commit 928->929, build 567->568. PRIOR ANCHOR cuisine_dishes_tethered_tab_2026-07-01_1255)
+last_anchor_time: 01-07 '26 13:45 SGT
+last_anchor_source: cuisine_api_initdata_fix_2026-07-01_1345 (v0.62.458 — BUG: operator 'each of the Dishes is nothing'. Root cause: /api/cuisine/* is auth-gated [requires X-Telegram-Init-Data]; the TMA api helper [getJson] sends it, but THREE raw fetch() calls I added did NOT -> 401 'invalid initData' -> r.ok false -> empty list [confirmed via curl soleat.net returning {error:invalid initData}]. Fixed all three by adding headers {Accept, X-Telegram-Init-Data: initData()||''}: (1) cuisine CuisineCategoryDrawer openDishes /api/cuisine/dishes [v453 — the reported one]; (2) clipboard App /api/cuisine/catalogue [v451 — Sketchbook cuisine picker was silently empty]; (3) clipboard App /api/cuisine/plate [v452 — Sketchbook Pick-local-classic silently fell back]. initData imported from cuisine ../../api/tg.js and clipboard ./lib/tg.js. clipboard vite build OK [52]; esbuild parse both; cuisine build/vitest via CI. journal 811->812, commit 929->930, build 568->569. FOLLOW-UP owed: fold dish-NAME translation into long-tail program [operator req #1] — separate PR. PRIOR ANCHOR cuisine_dishes_label_i18n_2026-07-01_1315)
 last_anchor_source_prior: cuisine_dishes_tethered_tab_2026-07-01_1255
 # codex-review PR#1438: `last_anchor_iso8601` below is duplicated many times over past
 # sessions (append-only history, never pruned) -- a last-key-wins YAML reader would pick

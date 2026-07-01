@@ -7,7 +7,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { useClipboardStore } from './lib/state.js';
-import { getLanguage } from './lib/tg.js';
+import { getLanguage, initData } from './lib/tg.js';
 import * as api from './lib/api.js';
 import { useDrag } from './lib/dnd.js';
 import { t } from './lib/i18n.js';
@@ -34,7 +34,7 @@ export default function App() {
   const [plate, setPlate] = useState(null);                 // v0.62.452 — local-classics plate for the derived city
   useEffect(() => {
     let live = true;
-    fetch('/api/cuisine/catalogue').then((r) => r.ok ? r.json() : null)
+    fetch('/api/cuisine/catalogue', { headers: { Accept: 'application/json', 'X-Telegram-Init-Data': initData() || '' } }).then((r) => r.ok ? r.json() : null)
       .then((d) => { if (live && d && Array.isArray(d.categories)) setCatalogue(d.categories); })
       .catch(() => {});
     return () => { live = false; };
@@ -184,7 +184,7 @@ export default function App() {
   useEffect(() => {
     if (!cityGuess) { setPlate(null); return undefined; }
     let live = true;
-    fetch(`/api/cuisine/plate?city=${encodeURIComponent(cityGuess)}`).then((r) => r.ok ? r.json() : null)
+    fetch(`/api/cuisine/plate?city=${encodeURIComponent(cityGuess)}`, { headers: { Accept: 'application/json', 'X-Telegram-Init-Data': initData() || '' } }).then((r) => r.ok ? r.json() : null)
       .then((d) => { if (live) setPlate(d && d.plate ? d.plate : null); })
       .catch(() => {});
     return () => { live = false; };
