@@ -58,7 +58,7 @@ const SECTIONS = [
     titleKey: null,
     tiles: [
       // v0.62.263 — operator (IMG_2552): bigger line-art drawing (was max-h-9 ≈ 36px → unreadable).
-      { id: 'cuisine', icon: '🍛', iconImage: '/app/menu/cuisine-icon-v3.png', iconImgClass: 'max-h-[74px] max-w-full object-contain icon-navy', iconBoxClass: 'w-[74px] h-[74px]', labelKey: 'tile.cuisine.label', subKey: 'tile.cuisine.sub', kind: 'navigate', path: '/app/cuisine' }
+      { id: 'cuisine', icon: '🍛', iconImage: `/app/menu/cuisine-icon-v3.png?v=${BUILD_VERSION}`, iconImgClass: 'max-h-[74px] max-w-full object-contain icon-navy', iconBoxClass: 'w-[74px] h-[74px]', labelKey: 'tile.cuisine.label', subKey: 'tile.cuisine.sub', kind: 'navigate', path: '/app/cuisine' }
     ]
   },
   {
@@ -66,9 +66,9 @@ const SECTIONS = [
     titleKey: 'section.sg',   // "🇸🇬 Singapore"
     boxed: true,
     tiles: [
-      { id: 'train',  icon: '🚆', iconImage: '/app/menu/train-logo.png',  labelKey: 'tile.train.label',  subKey: 'tile.train.sub',  kind: 'navigate', path: '/app/transport' },
+      { id: 'train',  icon: '🚆', iconImage: `/app/menu/train-logo.png?v=${BUILD_VERSION}`,  labelKey: 'tile.train.label',  subKey: 'tile.train.sub',  kind: 'navigate', path: '/app/transport' },
       // v0.62.263 — operator (IMG_2552): bigger line-art drawing (was max-h-9 ≈ 36px → unreadable).
-      { id: 'hawker', icon: '🥢', iconImage: '/app/menu/hawker-icon-v3.png', iconImgClass: 'max-h-16 max-w-full object-contain icon-navy', labelKey: 'tile.hawker.label', subKey: 'tile.hawker.sub', kind: 'navigate', path: '/app/hawker' }
+      { id: 'hawker', icon: '🥢', iconImage: `/app/menu/hawker-icon-v3.png?v=${BUILD_VERSION}`, iconImgClass: 'max-h-16 max-w-full object-contain icon-navy', labelKey: 'tile.hawker.label', subKey: 'tile.hawker.sub', kind: 'navigate', path: '/app/hawker' }
     ]
   },
   // v0.61.125 — Location is its own section so users see it as a first-class
@@ -85,7 +85,7 @@ const SECTIONS = [
     id: 'sketchbook-app',
     titleKey: null,
     tiles: [
-      { id: 'sketchbook', icon: '📋', iconImage: '/app/menu/sketchboard_clip_icon.png', iconImgClass: 'max-h-16 max-w-full object-contain icon-navy', labelKey: 'tile.sketchbook.label', subKey: 'tile.sketchbook.sub', kind: 'navigate', path: '/app/clipboard' }
+      { id: 'sketchbook', icon: '📋', iconImage: `/app/menu/sketchboard_clip_icon.png?v=${BUILD_VERSION}`, iconImgClass: 'max-h-16 max-w-full object-contain icon-navy', labelKey: 'tile.sketchbook.label', subKey: 'tile.sketchbook.sub', kind: 'navigate', path: '/app/clipboard' }
     ]
   }
 ];
