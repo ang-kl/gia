@@ -42,6 +42,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Seed overlay from prior batches (if any)
+        run: |
+          set -e
+          PATHS="nation-overlay-dishnotes.generated.js"
+          # main never merges bot/curate-dish-sources between dispatches, so
+          # if we curated against main's checkout as-is, buildWorkList would
+          # reselect the SAME already-fixed candidates every single dispatch
+          # (its todo list is derived fresh from whatever's on disk, and
+          # main's copy never changes) — the batch loop would never advance.
+          # Seed the file with the bot branch's ACCUMULATED state first, so
+          # the classifier sees prior fixes as ok-tier1/2/wiki and picks
+          # genuinely new candidates this run.
+          if git ls-remote --exit-code --heads origin bot/curate-dish-sources >/dev/null 2>&1; then
+            echo "bot/curate-dish-sources exists — seeding overlay from its accumulated state."
+            git fetch origin bot/curate-dish-sources
+            git show origin/bot/curate-dish-sources:"$PATHS" > "$PATHS"
+          else
+            echo "bot/curate-dish-sources does not exist yet — starting from main's overlay."
+          fi
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -67,33 +86,17 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # If a previous dispatch's PR is still open on bot/curate-dish-sources,
-          # APPEND this batch as a new commit on top of it instead of force-pushing
-          # the branch back to main and wiping the prior batch. Iterating
-          # region-by-region only works when each dispatch stacks.
-          OVERLAY_CONTENT=$(cat "$PATHS")
-          if git ls-remote --exit-code --heads origin bot/curate-dish-sources >/dev/null 2>&1; then
-            echo "bot/curate-dish-sources already exists on origin — appending to it."
-            git fetch origin bot/curate-dish-sources
-            git checkout -B bot/curate-dish-sources origin/bot/curate-dish-sources
-            # Replay this run's overlay onto the existing branch (we ran the
-            # script against main's overlay; restore our re-curated version).
-            printf '%s' "$OVERLAY_CONTENT" > "$PATHS"
-            if [ -z "$(git status --porcelain $PATHS)" ]; then
-              echo "Branch already contains this overlay — nothing new to push."
-              exit 0
-            fi
-            git add $PATHS
-            git commit -m "chore(content): re-curate dish sources (additional batch, region=${REGION:-all})"
-            git push origin bot/curate-dish-sources
-            echo "Appended new batch to existing bot/curate-dish-sources."
-          else
-            echo "bot/curate-dish-sources does not exist on origin — creating it."
-            git checkout -B bot/curate-dish-sources
-            git add $PATHS
-            git commit -m "chore(content): re-curate dish sources (tourism-board first, grounded batch)"
-            git push origin bot/curate-dish-sources
-            echo "Pushed bot/curate-dish-sources — open a PR from this branch to review the new sources."
-          fi
+          # We never switch branches here — the overlay was already seeded
+          # from the bot branch's accumulated state (or main's, on the first
+          # run) before curation ran, so the working tree already reflects
+          # "everything fixed so far, plus this batch's new fixes." Commit it
+          # on top of the current (main) checkout and push that single
+          # commit's tip onto bot/curate-dish-sources with force-with-lease —
+          # every other tracked file is untouched, so the tree only differs
+          # from main in this one file, same as a plain content-only commit.
+          git add $PATHS
+          git commit -m "chore(content): re-curate dish sources (grounded batch, region=${REGION:-all})"
+          git push --force-with-lease origin HEAD:refs/heads/bot/curate-dish-sources
+          echo "Updated bot/curate-dish-sources with this batch's accumulated fixes."
         env:
           REGION: ${{ github.event.inputs.region }}
