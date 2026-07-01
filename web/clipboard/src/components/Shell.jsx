@@ -62,7 +62,7 @@ export default function Shell({
   onNav, onRefresh, children,
   // v0.62.440 — header chips FILTER the user's saved cards via a FOLIO DROPDOWN
   // (drops down under the chips, like the Cuisine TMA tabs — not a bottom sheet).
-  cuisineFilter = null, dishFilter = null, cuisineOptions = [],
+  cuisineFilter = null, dishFilter = null, cuisineOptions = [], dishOptions = [],
   onSetCuisine, onSetDish,
   facets = {}, onSetFacet, onClearFacets,
 }) {
@@ -120,7 +120,7 @@ export default function Shell({
             onClick={() => { setMenuOpen(false); setDishDraft(dishFilter || ''); setDrop((d) => (d === 'dish' ? null : 'dish')); }}
             className={`flex-1 flex items-center justify-between gap-1 px-2.5 py-1.5 text-[12px] font-medium border rounded-xl ${dishFilter || drop === 'dish' ? 'bg-tg-accent/10 border-tg-accent/50 text-tg-text' : 'bg-tg-bg border-tg-border text-tg-text'}`}
           >
-            <span className="truncate">{dishFilter ? `📍 ${dishFilter}` : t('chrome.pickLocal', lang)}</span>
+            <span className="truncate">{dishFilter ? `🍲 ${dishFilter}` : t('chrome.pickLocal', lang)}</span>
             {dishFilter
               ? <span role="button" aria-label="clear" onClick={(e) => { e.stopPropagation(); onSetDish?.(null); }} className="text-tg-hint">✕</span>
               : <span className="text-tg-hint">{drop === 'dish' ? '▴' : '▾'}</span>}
@@ -192,15 +192,24 @@ export default function Shell({
           </div>
         )}
         {drop === 'dish' && (
-          <div className="sk-drop box-border w-full mt-2 border border-tg-border rounded-xl bg-tg-card shadow-lg p-2">
-            <form onSubmit={(e) => { e.preventDefault(); onSetDish?.(dishDraft.trim() || null); setDrop(null); }}>
-              <input type="text" autoFocus value={dishDraft} onChange={(e) => setDishDraft(e.target.value)}
-                placeholder={t('filter.dishPlaceholder', lang)}
-                className="w-full bg-tg-bg border border-tg-border rounded-lg px-3 py-2 text-tg-text" />
-              <div className="flex justify-end mt-2">
-                <button type="submit" className="text-[11px] font-semibold bg-tg-accent text-tg-accent-text rounded-full px-3 py-1">{t('chrome.save', lang)}</button>
+          <div className="sk-drop box-border w-full mt-2 border border-tg-border rounded-xl bg-tg-card shadow-lg max-h-[44vh] overflow-y-auto overflow-x-hidden p-2">
+            {dishOptions.length === 0 ? (
+              <div className="px-3 py-4 text-center text-xs text-tg-hint">{t('filter.noDishes', lang)}</div>
+            ) : (
+              /* dish chips derived from the saved cards' "🍲 Try" dishes */
+              <div className="grid grid-cols-2 gap-1.5">
+                <button type="button" onClick={() => { onSetDish?.(null); setDrop(null); }}
+                  className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg text-[12px] border ${dishFilter == null ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>
+                  {t('filter.all', lang)}
+                </button>
+                {dishOptions.map((o) => (
+                  <button key={o.value} type="button" onClick={() => { onSetDish?.(o.value); setDrop(null); }}
+                    className={`flex items-center justify-between gap-1 px-2 py-2 rounded-lg text-[12px] border min-w-0 ${dishFilter === o.value ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>
+                    <span className="truncate">🍲 {o.label}</span><span className="text-tg-hint text-[10px] shrink-0">{o.count}</span>
+                  </button>
+                ))}
               </div>
-            </form>
+            )}
           </div>
         )}
       </header>
