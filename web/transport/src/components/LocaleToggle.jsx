@@ -50,6 +50,11 @@ export default function LocaleToggle({ className = '' }) {
           role="listbox"
           className="absolute right-0 mt-1 z-50 min-w-[11rem] rounded-lg border border-tg-border bg-tg-card shadow-lg overflow-hidden"
         >
+          <div className="flex items-center justify-end px-2 py-1 border-b border-tg-border">
+            <button type="button" onClick={() => setOpen(false)}
+              aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
+              className="text-tg-hint text-sm leading-none px-1 flex-shrink-0">✕</button>
+          </div>
           {LOCALES.map((l) => (
             <button
               key={l.code}
