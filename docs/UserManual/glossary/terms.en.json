@@ -1,0 +1,90 @@
+{
+  "status": "draft",
+  "language": "en",
+  "terms": [
+    {
+      "term": "Soleat",
+      "type": "product_name",
+      "definition": "Telegram-based food discovery and eating-planning assistant.",
+      "translate": false
+    },
+    {
+      "term": "Soleat Menu",
+      "type": "surface",
+      "definition": "Main launcher for Soleat features inside Telegram.",
+      "translate": true
+    },
+    {
+      "term": "Cuisine Search",
+      "type": "feature",
+      "definition": "Search experience for cuisines, dishes, cooking methods, filters, and related food discovery.",
+      "translate": true
+    },
+    {
+      "term": "Eatery Card",
+      "type": "content_object",
+      "definition": "A result card representing an eatery or food-place option.",
+      "translate": true
+    },
+    {
+      "term": "Sketchbook / Clipboard",
+      "type": "feature",
+      "definition": "Planning and saved-card space where copied eatery cards can be organised into catch-all, cabinets, drawers, and cards.",
+      "translate": true
+    },
+    {
+      "term": "Catch-all",
+      "type": "sketchbook_object",
+      "definition": "Temporary holding area where copied eatery cards land first.",
+      "translate": true
+    },
+    {
+      "term": "Cabinet",
+      "type": "sketchbook_object",
+      "definition": "A larger Sketchbook plan, such as a trip, event, outing, or food trail.",
+      "translate": true
+    },
+    {
+      "term": "Drawer",
+      "type": "sketchbook_object",
+      "definition": "A section inside a cabinet, often representing a time slot, day, route segment, or event segment.",
+      "translate": true
+    },
+    {
+      "term": "Singapore Train Station Exits",
+      "type": "feature",
+      "definition": "Singapore station-exit information used for practical walking and location planning.",
+      "translate": true
+    },
+    {
+      "term": "Singapore Bus Information",
+      "type": "feature",
+      "definition": "Nearby bus stop and bus arrival context where available.",
+      "translate": true
+    },
+    {
+      "term": "Singapore Car Parks",
+      "type": "feature",
+      "definition": "Singapore car park context and availability where available.",
+      "translate": true
+    },
+    {
+      "term": "Recognised Venues",
+      "type": "feature",
+      "definition": "Food places surfaced from recognised or curated sources.",
+      "translate": true
+    },
+    {
+      "term": "Hidden Gems",
+      "type": "feature",
+      "definition": "Lesser-known food-place suggestions that may be useful for discovery.",
+      "translate": true
+    },
+    {
+      "term": "What to try",
+      "type": "food_guidance",
+      "definition": "Dish or cuisine suggestion intended to help a user choose something meaningful, not a generic category.",
+      "translate": true
+    }
+  ]
+}
