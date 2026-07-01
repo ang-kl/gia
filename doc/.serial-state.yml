@@ -1,8 +1,8 @@
 counters:
-  commit: 932
-  build: 571
+  commit: 933
+  build: 572
   documents:
-    journal: 814
+    journal: 815
     builder: 3
     persona: 4
     feature: 58
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 01-07 '26 14:20 SGT
-last_anchor_source: menu_tile_icon_cachebust_2026-07-01_1420 (v0.62.460 — operator: 'why builds/merges keep affecting the sketchbook icon, did you remove the old usage?' Investigated: web/menu/public/sketchboard_clip_icon.png ON MAIN IS CORRECT [the v0.62.455 cabinet icon, 102x174, transparent, 32% opaque, verified via raw.githubusercontent fetch] — the server serves the right file. Root cause is CACHE, not code: the tile <img> references a LITERAL static path with no cache-busting [Menu App.jsx tile config], so Telegram WebView/browser keep serving a stale cached copy of the same URL across deploys, even though vite hashes JS/CSS on every build. Fixed: appended `?v=${BUILD_VERSION}` [already in scope, used for the footer strip] to ALL FOUR tile iconImage paths [cuisine-icon-v3, train-logo, hawker-icon-v3, sketchboard_clip_icon] so every version bump forces a fresh fetch — pre-empts this recurring complaint for the other three tiles too. esbuild parse OK; no local menu harness — CI builds+tests menu. journal 813->814, commit 931->932, build 570->571. PRIOR ANCHOR cuisine_plate_taphint_2026-07-01_1405)
+last_anchor_time: 01-07 '26 15:00 SGT
+last_anchor_source: cross_tma_dropdown_close_x_2026-07-01_1500 (v0.62.461 — operator 'proceed with 3' [the parked dropdown-close-X pass]. Re-verified nothing was applied yet [none of the 3 LocaleToggles had close-x; MapControls still byte-identical sha 2dcbb899... across cuisine/transport/hawker]. Added a subtle ✕ header row [flex justify-end border-b, text-tg-hint text-sm, onClick setOpen(false)] as the first child of the listbox in LocaleToggle.jsx x3 [cuisine v2, transport, hawker]. Added the SAME ✕ header row to the shared MapControls.jsx layer menu [onClick setMenuOpen(false)] and copied the IDENTICAL edited file to all 3 paths to preserve the byte-identical invariant. esbuild parse OK all 4; builds/vitest via CI. journal 814->815, commit 932->933, build 571->572. PRIOR ANCHOR menu_tile_icon_cachebust_2026-07-01_1420)
 last_anchor_source_prior: cuisine_dishes_tethered_tab_2026-07-01_1255
 # codex-review PR#1438: `last_anchor_iso8601` below is duplicated many times over past
 # sessions (append-only history, never pruned) -- a last-key-wins YAML reader would pick

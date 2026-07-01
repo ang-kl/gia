@@ -91,6 +91,11 @@ export default function MapControls({
               <div className="absolute top-full left-0 mt-1 flex flex-col gap-0.5 p-1
                 rounded-xl bg-white border border-gray-300 shadow-lg
                 max-h-72 overflow-y-auto min-w-[170px]">
+                <div className="flex items-center justify-end px-1 pb-0.5 mb-0.5 border-b border-gray-200">
+                  <button type="button" onClick={() => setMenuOpen(false)}
+                    aria-label="Close"
+                    className="text-tg-hint text-sm leading-none px-1 flex-shrink-0">✕</button>
+                </div>
                 {menuToggles.map((it) => {
                   const on = !it.disabled && !!layers[it.key];
                   return (
