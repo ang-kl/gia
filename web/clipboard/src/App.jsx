@@ -5,7 +5,7 @@
 // (footer tab 2), Cabinets (grid), Settings. A shared-drawer deep link renders
 // SharedView full-screen WITHOUT the chrome. Sheets float above the active screen.
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useClipboardStore } from './lib/state.js';
 import { getLanguage } from './lib/tg.js';
 import * as api from './lib/api.js';
@@ -29,7 +29,15 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState('clipboard'); // root-level tab when not inside a cabinet
   // v0.62.418 — header chips filter the user's OWN saved cards (not new search).
-  const [cuisineFilter, setCuisineFilter] = useState(null); // cuisine string | null
+  const [cuisineSel, setCuisineSel] = useState([]);          // v0.62.451 — selected cuisine slugs (multi, ≤5)
+  const [catalogue, setCatalogue] = useState([]);           // v0.62.451 — cuisine groups from /api/cuisine/catalogue (mirror Cuisine TMA)
+  useEffect(() => {
+    let live = true;
+    fetch('/api/cuisine/catalogue').then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (live && d && Array.isArray(d.categories)) setCatalogue(d.categories); })
+      .catch(() => {});
+    return () => { live = false; };
+  }, []);
   const [dishFilter, setDishFilter] = useState(null);       // keyword string | null
   const [facets, setFacets] = useState({ minRating: null, price: null, openNow: false, crowd: null, michelin: false }); // v0.62.441
   const [fileCard, setFileCard] = useState(null);           // v0.62.420 — card being filed
@@ -137,11 +145,34 @@ export default function App() {
     return [...counts.entries()].sort((a, b) => b[1].count - a[1].count)
       .map(([value, m]) => ({ value, label: m.label, count: m.count }));
   })();
+  // v0.62.451 — grey-out map: which catalogue cuisine slugs actually appear in
+  // the saved cards (match saved cuisine strings against catalogue slug/name).
+  const savedCuisineSet = (() => {
+    const set = new Set();
+    for (const c of baseCards) for (const cu of (c.cuisines || [])) {
+      const v = String(cu || '').trim().toLowerCase(); if (v) set.add(v);
+    }
+    return set;
+  })();
+  const slugName = new Map();
+  for (const cat of catalogue) for (const cu of (cat.cuisines || [])) slugName.set(cu.slug, cu.name);
+  const availableSlugs = (() => {
+    const set = new Set();
+    for (const cat of catalogue) for (const cu of (cat.cuisines || [])) {
+      if (savedCuisineSet.has(String(cu.name || '').toLowerCase()) || savedCuisineSet.has(String(cu.slug || '').toLowerCase())) set.add(cu.slug);
+    }
+    if (baseCards.some((c) => c.venue && c.venue.michelinCategory)) set.add('michelin');
+    return set;
+  })();
   const cardMatches = (c) => {
     if (!c) return false;
-    if (cuisineFilter) {
+    if (cuisineSel.length) {
+      const wanted = new Set();
+      for (const sl of cuisineSel) { wanted.add(String(sl).toLowerCase()); const nm = slugName.get(sl); if (nm) wanted.add(String(nm).toLowerCase()); }
       const cs = (c.cuisines || []).map((x) => String(x).toLowerCase());
-      if (!cs.includes(cuisineFilter.toLowerCase())) return false;
+      const cuisineHit = cs.some((x) => wanted.has(x));
+      const michHit = cuisineSel.includes('michelin') && c.venue && c.venue.michelinCategory;
+      if (!cuisineHit && !michHit) return false;
     }
     if (dishFilter) {
       const df = dishFilter.toLowerCase();
@@ -161,7 +192,7 @@ export default function App() {
     return true;
   };
   const facetsActive = !!(facets.minRating || facets.price || facets.openNow || facets.crowd || facets.michelin);
-  const filterActive = !!(cuisineFilter || dishFilter || facetsActive);
+  const filterActive = !!(cuisineSel.length || dishFilter || facetsActive);
   const filteredCatchAll = filterActive ? catchAllCards.filter(cardMatches) : catchAllCards;
   const filteredPayload = (inCabinet && filterActive && state.currentCabinet)
     ? { ...state.currentCabinet, drawers: (state.currentCabinet.drawers || []).map((d) => ({ ...d, cards: (d.cards || []).filter(cardMatches) })) }
@@ -177,15 +208,16 @@ export default function App() {
       footerCabinetLabel={footerCabinetLabel}
       onNav={onNav}
       onRefresh={refresh}
-      cuisineFilter={cuisineFilter}
+      cuisineSel={cuisineSel}
       dishFilter={dishFilter}
-      cuisineOptions={cuisineOptions}
+      catalogue={catalogue}
+      availableSlugs={availableSlugs}
       dishOptions={dishOptions}
-      onSetCuisine={(v) => setCuisineFilter(v)}
+      onSetCuisine={(arr) => setCuisineSel(arr)}
       onSetDish={(v) => setDishFilter(v)}
       facets={facets}
       onSetFacet={(k, v) => setFacets((f) => ({ ...f, [k]: v }))}
-      onClearFacets={() => { setCuisineFilter(null); setFacets({ minRating: null, price: null, openNow: false, crowd: null, michelin: false }); }}
+      onClearFacets={() => { setCuisineSel([]); setFacets({ minRating: null, price: null, openNow: false, crowd: null, michelin: false }); }}
     >
       {inCabinet ? (
         <CabinetView
