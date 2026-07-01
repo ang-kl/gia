@@ -4162,6 +4162,16 @@ export default function App() {
                 setSearchHintActive(true);
                 setTimeout(() => setSearchHintActive(false), 5000);
               }
+            }}
+            onPickDish={(dish) => {
+              // v0.62.453 — "Dishes" pop-up dish tap: same as a classic-picker
+              // dish tap, but closes the cuisine picker instead of the classic one.
+              setNlText(dish);
+              setLastPrompt(dish);
+              setPinnedDish(dish);
+              setCuisinePickOpen(false);
+              setLoadingReason('rotating');
+              runSearch(state, null, { freeTextOverride: dish, hawkerFirst: state.region === 'SG' });
             }} />
           <button
             type="button"
