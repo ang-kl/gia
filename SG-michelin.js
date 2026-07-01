@@ -164,7 +164,13 @@ const BIB_GOURMAND = [
   { name: 'No.18 Zion Road Fried Kway Teow', address: 'Zion Riverside Food Centre', category: 'bib-gourmand' },
   { name: 'Outram Park Fried Kway Teow Mee', address: 'Hong Lim Market and Food Centre', category: 'bib-gourmand' },
   { name: 'Ru Ji Kitchen', address: 'Holland Drive Market & Food Centre', category: 'bib-gourmand' },
-  { name: 'Selamat Datang Warong Pak Sapari', address: 'Adam Food Centre', category: 'bib-gourmand' },
+  // v0.62.465 — keywords sourced from the operator-cited MICHELIN Guide page
+  // (guide.michelin.com/sg/.../selamat-datang-warong-pak-sapari): known for Mee Soto.
+  // Bib Gourmand stalls whose curated name doesn't describe the dish (proper names
+  // like this one) need an explicit `keywords` tag for free-text search to find them
+  // — most other entries already spell the dish out in `name` (e.g. "Hokkien Fried
+  // Mee") and don't need this.
+  { name: 'Selamat Datang Warong Pak Sapari', address: 'Adam Food Centre', category: 'bib-gourmand', keywords: ['mee soto', 'soto'] },
   { name: 'Sik Bao Sin', address: '', category: 'bib-gourmand' },
   { name: 'Sin Heng Claypot Bak Koot Teh', address: '', category: 'bib-gourmand' },
   { name: 'Sin Huat Seafood Restaurant', address: '', category: 'bib-gourmand' },

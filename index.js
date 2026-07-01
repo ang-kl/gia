@@ -9785,6 +9785,29 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // inactivity. Places-cache stays dropped (v0.60.195a) — only the
   // pagination half is restored. See michelin-walk.js for the helper.
   let ordered = [...stars, ...bib];
+  // v0.62.465 — operator bug: typing a dish name (e.g. "Mee Soto") while
+  // Michelin is selected never surfaced a matching curated entry (e.g.
+  // "Selamat Datang Warong Pak Sapari", a real Bib Gourmand stall) even
+  // though it IS in SG-michelin.js — freeText was only used for logging +
+  // the walk-state cache key, never to filter/prioritise the pool. Now:
+  // promote entries whose curated `name` contains the free-text query to
+  // the front (tier order preserved within each half), same precedent as
+  // the existing otherCuisineSlugs cuisine pre-filter above.
+  const freeTextNorm = String(freeText || '').trim().toLowerCase();
+  if (freeTextNorm) {
+    // v0.62.465 — match against curated `name` (most Bib Gourmand entries spell
+    // the dish out, e.g. "Hokkien Fried Mee") OR the optional `keywords[]` tag
+    // (for proper-name stalls whose dish isn't in the name — sourced per-entry
+    // from the MICHELIN Guide page, see SG-michelin.js).
+    const matches = ordered.filter((e) => {
+      if (String(e.name || '').toLowerCase().includes(freeTextNorm)) return true;
+      return Array.isArray(e.keywords) && e.keywords.some((k) => String(k).toLowerCase().includes(freeTextNorm));
+    });
+    if (matches.length) {
+      const rest = ordered.filter((e) => !matches.includes(e));
+      ordered = [...matches, ...rest];
+    }
+  }
   // v0.61.351 — city-aware Michelin (operator: "Explore 81 more in Seoul ·
   // 117 across 🇰🇷 South Korea"). For a non-SG country, resolve the picked
   // city from the search anchor (nearestCityForAnchor, distance-guarded to

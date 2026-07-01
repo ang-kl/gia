@@ -1,8 +1,8 @@
 counters:
-  commit: 936
-  build: 575
+  commit: 937
+  build: 576
   documents:
-    journal: 818
+    journal: 819
     builder: 3
     persona: 4
     feature: 58
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 01-07 '26 17:10 SGT
-last_anchor_source: dish_taxonomy_pipeline_step1_2026-07-01_1710 (v0.62.464 — STEP 1 of the dish-taxonomy plan [operator: 'why is Filipino More? -> audit found 52/~70 cuisines >50% other, many 100%: French/Korean/Spanish/Mexican/Lebanese/Portuguese/Brazilian/Argentinian etc, because dish-food-group.js foodGroupFor regex only covers SG/Malaysian hawker vocabulary. Operator chose: fold dish TYPE reclassification into the already-planned Gemini taxonomy pass rather than hand-expand the brittle regex]. NEW scripts/draft-dish-taxonomy.mjs [mirrors draft-dish-notes.mjs's grounded-batch-idempotent pattern]: classifies EVERY iconicDish into 4 CLOSED-ENUM fields via Gemini+Google Search grounding -> type[12 values incl 'other' fallback]/mealTime[]/dietary/course[omitted for kind:drink per operator's answer]; strict enum validation rejects invalid/partial model output [retried next run, never ships a bad enum]. NEW .github/workflows/draft-dish-taxonomy.yml [workflow_dispatch, GEMINI_API_KEY from secrets, pushes bot/draft-dish-taxonomy branch — Actions can't self-open PRs per repo policy]. nation-overlay.js: new merge block folds nation-overlay-taxonomy.generated.js onto dish.{type,mealTime,dietary,course} at load; dish-food-group.js's regex classifier remains the FALLBACK only for dishes not yet in the generated overlay [same 'generated fills gaps' precedent as dishnotes/dishnotes-i18n/dish-local]. node --check OK on all 3 new/edited files. journal 817->818, commit 935->936, build 574->575. NEXT: dispatch the workflow in batches [~1689 dishes, batch_size 10 default -> ~169 batches; each dispatch caps at max_batches=10 -> ~100 dishes/dispatch, review English/enum output per batch before continuing], then translate-content.mjs enum-label target, then client wiring. PRIOR ANCHOR cuisine_dishes_grouptag_fullpopup_2026-07-01_1620)
+last_anchor_time: 01-07 '26 18:10 SGT
+last_anchor_source: michelin_freetext_filter_fix_2026-07-01_1810 (v0.62.465 — BUG: operator typed 'Mee Soto' free-text + selected Michelin in Cuisine TMA; the Bib Gourmand stall serving it [Selamat Datang Warong Pak Sapari, cited operator MICHELIN Guide URL] never appeared. ROOT CAUSE traced in handleMichelinSearch [index.js ~9605]: freeText param was ONLY used for [a] logging its length, [b] the walk-state pagination cache key — NEVER to filter/prioritise which curated entries get shown. Pool selection was purely tier-order [3star->2star->1star->bib-gourmand, bib shuffled] + slice-to-12; the dish query did nothing. Confirmed the entry DOES exist in SG-michelin.js:167 [not a missing-data case] but its curated name 'Selamat Datang Warong Pak Sapari' doesn't literally say 'mee soto' [unlike most Bib entries which DO spell the dish in name, e.g. 'Hokkien Fried Mee'] so a plain substring match on freeText vs e.name alone wouldn't have caught it either. FIX: (1) index.js — before slicing, promote entries whose e.name OR e.keywords[] contains freeText to the front of `ordered`, same precedent as the existing otherCuisineSlugs cuisine pre-filter; (2) SG-michelin.js — added sourced keywords:['mee soto','soto'] to the Pak Sapari entry ONLY [cited to the operator's MICHELIN Guide URL as provenance; did NOT fabricate/guess keywords for other proper-name stalls — that would need a real sourced audit, noted as a natural future extension of the dish-taxonomy program]. node --check OK both files. journal 818->819, commit 936->937, build 575->576. PRIOR ANCHOR dish_taxonomy_pipeline_step1_2026-07-01_1710)
 last_anchor_source_prior: cuisine_dishes_tethered_tab_2026-07-01_1255
 # codex-review PR#1438: `last_anchor_iso8601` below is duplicated many times over past
 # sessions (append-only history, never pruned) -- a last-key-wins YAML reader would pick
