@@ -57,6 +57,48 @@
       "manualPath": "docs/UserManual/en/01-sections-7-to-10.md#106-country--city--saved-location-flow",
       "surface": "location",
       "contentType": "workflow-help"
+    },
+    {
+      "helpId": "help.soleat.language.food-meaning",
+      "title": "Languages, Local Food Names, and Search Meaning",
+      "manualPath": "docs/UserManual/en/02-sections-11-to-14.md#11-languages-local-food-names-and-search-meaning",
+      "surface": "search",
+      "contentType": "concept-help"
+    },
+    {
+      "helpId": "help.soleat.search.overview",
+      "title": "Food Search Overview",
+      "manualPath": "docs/UserManual/en/02-sections-11-to-14.md#12-food-search-overview",
+      "surface": "search",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.cuisine.overview",
+      "title": "Cuisine Search",
+      "manualPath": "docs/UserManual/en/02-sections-11-to-14.md#13-cuisine-search",
+      "surface": "cuisine",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.cuisine.what-to-try",
+      "title": "Use what-to-try guidance",
+      "manualPath": "docs/UserManual/en/02-sections-11-to-14.md#134-use-what-to-try-guidance",
+      "surface": "cuisine",
+      "contentType": "concept-help"
+    },
+    {
+      "helpId": "help.soleat.results.eatery-card",
+      "title": "Eatery Cards",
+      "manualPath": "docs/UserManual/en/02-sections-11-to-14.md#14-eatery-cards",
+      "surface": "results",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.results.hide-card",
+      "title": "Hide weak cards",
+      "manualPath": "docs/UserManual/en/02-sections-11-to-14.md#144-hide-weak-cards",
+      "surface": "results",
+      "contentType": "task-help"
     }
   ]
 }
