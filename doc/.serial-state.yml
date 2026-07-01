@@ -1,8 +1,8 @@
 counters:
-  commit: 923
-  build: 562
+  commit: 924
+  build: 563
   documents:
-    journal: 805
+    journal: 806
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 01-07 '26 10:20 SGT
-last_anchor_source: sketchbook_cuisine_picker_port_2026-07-01_1020 (v0.62.451 — operator: Sketchbook 'Cuisine & Filter' should be IDENTICAL to Cuisine TMA but grey out cuisines/filters not in the saved eatery cards. Ported CuisineDrawer+CuisineCategoryDrawer into ONE self-contained web/clipboard/src/components/CuisineGroupPicker.jsx [lang prop, server cat.label/cu.name labels, multi-select ≤5, subtle ✕ drill-in]. App.jsx: fetch /api/cuisine/catalogue [GET, cross-app same-origin], compute availableSlugs [catalogue slug/name matched vs saved-card cuisine strings; +michelin if any saved venue.michelinCategory]; cuisineFilter string -> cuisineSel array; cardMatches intersects selected slug names [OR michelin via venue.michelinCategory]. Shell: cuisine dropdown now renders CuisineGroupPicker + existing rating/price/crowd/open/michelin facets; header chip shows 🍜 N. Groups/cuisines absent from saved cards render opacity-50 non-tappable. vite build OK [51 modules]. DELIVERY per operator: cuisine panel THIS PR; Pick-local-classic dish grid [derive city from saved cards] = NEXT PR. journal 804->805, commit 922->923, build 561->562. PRIOR ANCHOR sketchbook_smart_dish_filter_2026-07-01_0930)
+last_anchor_time: 01-07 '26 11:00 SGT
+last_anchor_source: sketchbook_pick_local_classic_2026-07-01_1100 (v0.62.452 — operator: Pick Local Dish should mirror Cuisine TMA 'Pick local classic', city derived from saved cards, grey dishes not saved. NEW endpoint GET /api/cuisine/plate?city= -> platesForCity [forgiving: exact CITY_PLATES key, else case-insensitive, else query-contains-key so 'Katong, Singapore'->Singapore]; read-only, no user echo, no auth. App.jsx derives cityGuess [most-common trailing comma-segment of venue.area], fetches plate, savedDishSet from dishOptions. NEW LocalClassicPicker.jsx mirrors ArrivalPlate geo-mode: 📍{city} header + 2-col dish grid [EN name + native local] + 'More {city} classics ({n})' expander; dishes NOT in saved cards greyed+non-tappable; tap saved dish -> dishFilter. Shell dish dropdown renders LocalClassicPicker when plate present, else falls back to v450 saved-dish chips. i18n classic.tapHint/classic.more. vite build OK [52 modules]; node --check index.js. journal 805->806, commit 923->924, build 562->563. Completes the operator's identical-to-Cuisine Sketchbook filter pair [cuisine=v451, dish=v452]. PRIOR ANCHOR sketchbook_cuisine_picker_port_2026-07-01_1020)
 last_anchor_source_prior: transport_close_x_normalize_2026-06-30_2020
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00

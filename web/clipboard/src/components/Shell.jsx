@@ -14,6 +14,7 @@ import React, { useState } from 'react';
 import { t } from '../lib/i18n.js';
 import { openMiniApp, haptic } from '../lib/tg.js';
 import CuisineGroupPicker from './CuisineGroupPicker.jsx';
+import LocalClassicPicker from './LocalClassicPicker.jsx';
 
 // v0.62.423 — version for the footer strip (mirrors Cuisine's __BUILD_VERSION__).
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
@@ -63,7 +64,7 @@ export default function Shell({
   onNav, onRefresh, children,
   // v0.62.440 — header chips FILTER the user's saved cards via a FOLIO DROPDOWN
   // (drops down under the chips, like the Cuisine TMA tabs — not a bottom sheet).
-  cuisineSel = [], dishFilter = null, catalogue = [], availableSlugs = null, dishOptions = [],
+  cuisineSel = [], dishFilter = null, catalogue = [], availableSlugs = null, dishOptions = [], plate = null, savedDishSet = null,
   onSetCuisine, onSetDish,
   facets = {}, onSetFacet, onClearFacets,
 }) {
@@ -177,10 +178,22 @@ export default function Shell({
         )}
         {drop === 'dish' && (
           <div className="sk-drop box-border w-full mt-2 border border-tg-border rounded-xl bg-tg-card shadow-lg max-h-[44vh] overflow-y-auto overflow-x-hidden p-2">
-            {dishOptions.length === 0 ? (
+            {/* v0.62.452 — mirror the Cuisine TMA "Pick local classic": the
+                derived city's dishes + classics, greying ones not in saved cards.
+                Falls back to the saved-dish chips when the city is unknown. */}
+            {plate && Array.isArray(plate.dishes) && plate.dishes.length ? (
+              <>
+                <LocalClassicPicker plate={plate} savedDishSet={savedDishSet} lang={lang}
+                  dishSel={dishFilter} onPick={(d) => { onSetDish?.(d); setDrop(null); }} />
+                {dishFilter && (
+                  <button type="button" onClick={() => { onSetDish?.(null); setDrop(null); }}
+                    className="w-full mt-2 text-[11px] text-tg-hint py-1">{t('filter.all', lang)}</button>
+                )}
+              </>
+            ) : dishOptions.length === 0 ? (
               <div className="px-3 py-4 text-center text-xs text-tg-hint">{t('filter.noDishes', lang)}</div>
             ) : (
-              /* dish chips derived from the saved cards' "🍲 Try" dishes */
+              /* fallback: dish chips derived from the saved cards' "🍲 Try" dishes */
               <div className="grid grid-cols-2 gap-1.5">
                 <button type="button" onClick={() => { onSetDish?.(null); setDrop(null); }}
                   className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg text-[12px] border ${dishFilter == null ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>
