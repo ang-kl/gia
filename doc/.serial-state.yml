@@ -1,8 +1,8 @@
 counters:
-  commit: 930
-  build: 569
+  commit: 931
+  build: 570
   documents:
-    journal: 812
+    journal: 813
     builder: 3
     persona: 4
     feature: 58
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 01-07 '26 13:45 SGT
-last_anchor_source: cuisine_api_initdata_fix_2026-07-01_1345 (v0.62.458 — BUG: operator 'each of the Dishes is nothing'. Root cause: /api/cuisine/* is auth-gated [requires X-Telegram-Init-Data]; the TMA api helper [getJson] sends it, but THREE raw fetch() calls I added did NOT -> 401 'invalid initData' -> r.ok false -> empty list [confirmed via curl soleat.net returning {error:invalid initData}]. Fixed all three by adding headers {Accept, X-Telegram-Init-Data: initData()||''}: (1) cuisine CuisineCategoryDrawer openDishes /api/cuisine/dishes [v453 — the reported one]; (2) clipboard App /api/cuisine/catalogue [v451 — Sketchbook cuisine picker was silently empty]; (3) clipboard App /api/cuisine/plate [v452 — Sketchbook Pick-local-classic silently fell back]. initData imported from cuisine ../../api/tg.js and clipboard ./lib/tg.js. clipboard vite build OK [52]; esbuild parse both; cuisine build/vitest via CI. journal 811->812, commit 929->930, build 568->569. FOLLOW-UP owed: fold dish-NAME translation into long-tail program [operator req #1] — separate PR. PRIOR ANCHOR cuisine_dishes_label_i18n_2026-07-01_1315)
+last_anchor_time: 01-07 '26 14:05 SGT
+last_anchor_source: cuisine_plate_taphint_2026-07-01_1405 (v0.62.459 — operator: in Pick local classic put 'Tap a dish to learn more, then 🔍 Find eateries.' on its OWN line + translate it. ArrivalPlate.jsx was fr/en-only inline. Added import {t}; geo-mode [geoStage===2] hint now a block on its own line [<span className='block mt-0.5 text-tg-hint'>{t('plate.tapHint',lang)}</span>]; cuisine-mode [cuisineStage===2] hint also switched to t() [same key, kept inline]. NEW i18n plate.tapHint across all 8 locales [base en/fr + id/ru/de/zh/ja/es maps]. esbuild + node --check OK; cuisine build/vitest via CI. journal 812->813, commit 930->931, build 569->570. STILL OWED: operator req — fold dish-NAME translation into long-tail program [separate larger PR]. PRIOR ANCHOR cuisine_api_initdata_fix_2026-07-01_1345)
 last_anchor_source_prior: cuisine_dishes_tethered_tab_2026-07-01_1255
 # codex-review PR#1438: `last_anchor_iso8601` below is duplicated many times over past
 # sessions (append-only history, never pruned) -- a last-key-wins YAML reader would pick

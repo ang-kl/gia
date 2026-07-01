@@ -13,6 +13,7 @@ import React, { useState, useEffect } from 'react';
 // v0.62.407 — [ picture ] affordance: open the dish's authentic photo SOURCE
 // (Wikimedia Commons File: page) via a runtime Wikipedia lookup.
 import { openDishPicture } from '../lib/dish-picture.js';
+import { t } from '../lib/i18n.js';
 
 const TIER_LABEL = {
   'city-icon':        { en: 'city icon',        fr: 'icône de la ville' },
@@ -209,7 +210,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
               <>{' '}{headliners.map((h) => titleCaseDish(h.dish)).join(', ') + (groups.length ? '…' : '')}</>
             )}
             {cuisineStage === 2 && (
-              <>{' '}{fr ? 'Touchez un plat pour en savoir plus, puis « Trouver des adresses ».' : 'Tap a dish to learn more, then 🔍 Find eateries.'}</>
+              <>{' '}{t('plate.tapHint', lang)}</>
             )}
           </span>
           <span aria-hidden className="text-tg-hint">{cuisineStage === 2 ? '▴' : '▾'}</span>
@@ -411,7 +412,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
             return <>{' '}{shown.join(' • ')}{rest > 0 ? ` +${rest}` : ''}</>;
           })()}
           {geoStage === 2 && (
-            <>{' '}{fr ? 'Touchez un plat pour en savoir plus, puis « Trouver des adresses ».' : 'Tap a dish to learn more, then 🔍 Find eateries.'}</>
+            <span className="block mt-0.5 text-tg-hint">{t('plate.tapHint', lang)}</span>
           )}
         </span>
         <span aria-hidden className="text-tg-hint">{geoStage === 2 ? '▴' : '▾'}</span>
