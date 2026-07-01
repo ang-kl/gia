@@ -3212,6 +3212,33 @@ try {
   }
 }
 
+// v0.62.464 — fold the grounded dish TAXONOMY (type / mealTime / dietary /
+// course) onto each iconicDish, keyed `${slug}::${dish}`. `type` overrides
+// dish-food-group.js's regex classifier (SG/Malaysian-hawker-only vocabulary
+// left 52 of ~70 cuisines mostly "other" — see scripts/draft-dish-taxonomy.mjs
+// header); the regex remains the fallback for dishes not yet classified.
+// mealTime/dietary/course had no prior source at all.
+try {
+  // eslint-disable-next-line global-require
+  const DISH_TAXONOMY = require('./nation-overlay-taxonomy.generated.js');
+  for (const [slug, overlay] of Object.entries(NATION_OVERLAY)) {
+    const dishes = overlay && Array.isArray(overlay.iconicDishes) ? overlay.iconicDishes : [];
+    for (const dish of dishes) {
+      if (!dish || !dish.name) continue;
+      const tx = DISH_TAXONOMY[`${slug}::${String(dish.name).toLowerCase()}`];
+      if (!tx) continue;
+      dish.type = tx.type;
+      dish.mealTime = tx.mealTime;
+      dish.dietary = tx.dietary;
+      if (tx.course) dish.course = tx.course;
+    }
+  }
+} catch (e) {
+  if (e && e.code !== 'MODULE_NOT_FOUND') {
+    console.warn(`[nation-overlay] taxonomy overlay load failed: ${e.message}`);
+  }
+}
+
 module.exports = {
   NATION_OVERLAY,
   getNationOverlay,
