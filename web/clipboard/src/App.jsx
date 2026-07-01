@@ -117,6 +117,26 @@ export default function App() {
     return [...counts.entries()].sort((a, b) => b[1] - a[1])
       .map(([value, count]) => ({ value, label: value, count }));
   })();
+  // v0.62.450 — derive REAL dish choices from the saved cards' venue data
+  // (the same "🍲 Try" source: signatureDish / cityDish / dishes[]). Only cards
+  // that carry a notable dish contribute, ranked by frequency — so "Pick Local
+  // Dish" offers places with significant dishes, not a blind keyword box.
+  const dishOptions = (() => {
+    const counts = new Map();
+    for (const c of baseCards) {
+      const v = c.venue; if (!v) continue;
+      const cand = [v.signatureDish, v.cityDish, ...(Array.isArray(v.dishes) ? v.dishes : [])];
+      for (const d of cand) {
+        const val = String(d || '').trim();
+        if (!val) continue;
+        const key = val.toLowerCase();
+        const prev = counts.get(key);
+        counts.set(key, { label: prev?.label || val, count: (prev?.count || 0) + 1 });
+      }
+    }
+    return [...counts.entries()].sort((a, b) => b[1].count - a[1].count)
+      .map(([value, m]) => ({ value, label: m.label, count: m.count }));
+  })();
   const cardMatches = (c) => {
     if (!c) return false;
     if (cuisineFilter) {
@@ -124,8 +144,11 @@ export default function App() {
       if (!cs.includes(cuisineFilter.toLowerCase())) return false;
     }
     if (dishFilter) {
-      const hay = `${c.name || ''} ${c.preview || ''} ${c.body || ''} ${c.note || ''}`.toLowerCase();
-      if (!hay.includes(dishFilter.toLowerCase())) return false;
+      const df = dishFilter.toLowerCase();
+      const vv = c.venue;
+      const dishHay = vv ? [vv.signatureDish, vv.cityDish, ...(Array.isArray(vv.dishes) ? vv.dishes : [])].filter(Boolean).join(' ').toLowerCase() : '';
+      const textHay = `${c.name || ''} ${c.preview || ''} ${c.body || ''} ${c.note || ''}`.toLowerCase();
+      if (!dishHay.includes(df) && !textHay.includes(df)) return false;
     }
     // v0.62.441 — richer facets (over the stored venue): rating / price / open /
     // crowd / michelin. Cards with no structured venue fail an active facet.
@@ -157,6 +180,7 @@ export default function App() {
       cuisineFilter={cuisineFilter}
       dishFilter={dishFilter}
       cuisineOptions={cuisineOptions}
+      dishOptions={dishOptions}
       onSetCuisine={(v) => setCuisineFilter(v)}
       onSetDish={(v) => setDishFilter(v)}
       facets={facets}

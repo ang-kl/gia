@@ -40,6 +40,7 @@ const STRINGS = {
   'settings.soon':          { en: 'Settings — coming soon.', fr: 'Réglages — bientôt.', id: 'Pengaturan — segera.', ru: 'Настройки — скоро.', de: 'Einstellungen — bald.' },
   'filter.all':             { en: 'All',                fr: 'Tout',             id: 'Semua',          ru: 'Все',            de: 'Alle' },
   'filter.none':            { en: 'No saved cards to filter yet.', fr: 'Aucune carte à filtrer.', id: 'Belum ada kartu.', ru: 'Нет карточек.', de: 'Noch keine Karten.' },
+  'filter.noDishes':        { en: 'No notable dishes in your saved cards yet.', fr: 'Aucun plat notable dans vos cartes.', id: 'Belum ada hidangan menonjol.', ru: 'Пока нет заметных блюд.', de: 'Noch keine besonderen Gerichte.' },
   'filter.cuisineTitle':    { en: 'Filter by cuisine',  fr: 'Filtrer par cuisine', id: 'Saring per masakan', ru: 'Фильтр по кухне', de: 'Nach Küche filtern' },
   'filter.dishTitle':       { en: 'Filter Local Dish',  fr: 'Filtrer plat local', id: 'Saring hidangan lokal', ru: 'Фильтр: местное блюдо', de: 'Lokales Gericht filtern' },
   'filter.dishPlaceholder': { en: 'Dish or food, e.g. laksa', fr: 'Plat, ex. laksa', id: 'Hidangan, mis. laksa', ru: 'Блюдо, напр. laksa', de: 'Gericht, z.B. Laksa' },

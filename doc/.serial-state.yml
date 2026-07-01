@@ -1,8 +1,8 @@
 counters:
-  commit: 921
-  build: 560
+  commit: 922
+  build: 561
   documents:
-    journal: 803
+    journal: 804
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 01-07 '26 08:50 SGT
-last_anchor_source: menu_sketchbook_icon_transparent_2026-07-01_0850 (v0.62.449 — operator: Menu-TMA Sketchbook tile rendered as a SOLID NAVY BLOCK. Root cause: web/menu/public/sketchboard_clip_icon.png was RGB with an OPAQUE near-white background [corners 253,254,254; opaque frac 1.0], and the tile's icon-navy CSS filter tints every opaque pixel navy -> whole square goes navy [cuisine/hawker icons are transparent line-art so only strokes tint]. Fix: regenerated the PNG as transparent line-art [near-white->alpha 0, ink->near-black #14141e] via Pillow, trimmed to 782x1166; icon-navy now tints just the clipboard drawing like the other tiles. journal 802->803, commit 920->921, build 559->560. PRIOR ANCHOR transport_close_x_normalize_2026-06-30_2020. NOTE: unshipped dropdown-✕ work [LocaleToggle x3 + MapControls] still staged in /tmp, not in this PR)
+last_anchor_time: 01-07 '26 09:30 SGT
+last_anchor_source: sketchbook_smart_dish_filter_2026-07-01_0930 (v0.62.450 — operator: make Pick Local Dish INTELLIGENT [derive from places with significant dishes / the eatery card 'Try'] and Cuisine & Filter give cuisines actually saved + facets. Cuisine chip was already card-derived [cuisineOptions from c.cuisines] + facets. NEW: dishOptions derived from each card venue's signatureDish/cityDish/dishes[] [same source as the 🍲 Try line], ranked by frequency; only cards with a notable dish contribute. Pick-Local-Dish dropdown now shows those dish chips [2-col grid like cuisines] instead of a free-text box; empty-state filter.noDishes. cardMatches dish branch now matches venue dish fields first, text fallback. clipboard build OK [50 modules]. journal 803->804, commit 921->922, build 560->561. PRIOR ANCHOR menu_sketchbook_icon_transparent_2026-07-01_0850)
 last_anchor_source_prior: transport_close_x_normalize_2026-06-30_2020
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
