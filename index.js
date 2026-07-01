@@ -12889,8 +12889,11 @@ async function cacheBotUsername() {
         const slug = String(req.query.slug || '').trim().toLowerCase();
         if (!slug) { res.json({ dishes: [] }); return; }
         const ov = require('./nation-overlay').getNationOverlay(slug);
+        // v0.62.462 — pass through the localised note (English + any generated
+        // id/ru/de/zh/ja/es translation) so the client can show a one-line
+        // description under the dish name, matching the device language.
         const dishes = (ov && Array.isArray(ov.iconicDishes) ? ov.iconicDishes : [])
-          .map((d) => ({ name: d.name, local: d.local || '', kind: d.kind || 'food' }))
+          .map((d) => ({ name: d.name, local: d.local || '', kind: d.kind || 'food', note: d.note || null }))
           .filter((d) => d.name);
         res.json({ dishes });
       } catch (err) {

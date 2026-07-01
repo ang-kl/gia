@@ -1,8 +1,8 @@
 counters:
-  commit: 933
-  build: 572
+  commit: 934
+  build: 573
   documents:
-    journal: 815
+    journal: 816
     builder: 3
     persona: 4
     feature: 58
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 01-07 '26 15:00 SGT
-last_anchor_source: cross_tma_dropdown_close_x_2026-07-01_1500 (v0.62.461 — operator 'proceed with 3' [the parked dropdown-close-X pass]. Re-verified nothing was applied yet [none of the 3 LocaleToggles had close-x; MapControls still byte-identical sha 2dcbb899... across cuisine/transport/hawker]. Added a subtle ✕ header row [flex justify-end border-b, text-tg-hint text-sm, onClick setOpen(false)] as the first child of the listbox in LocaleToggle.jsx x3 [cuisine v2, transport, hawker]. Added the SAME ✕ header row to the shared MapControls.jsx layer menu [onClick setMenuOpen(false)] and copied the IDENTICAL edited file to all 3 paths to preserve the byte-identical invariant. esbuild parse OK all 4; builds/vitest via CI. journal 814->815, commit 932->933, build 571->572. PRIOR ANCHOR menu_tile_icon_cachebust_2026-07-01_1420)
+last_anchor_time: 01-07 '26 15:45 SGT
+last_anchor_source: cuisine_dishes_note_i18n_surfaced_2026-07-01_1545 (v0.62.462 — operator: 'fold dish-name translation into corpus'. Investigated FIRST [proper-noun policy in translate-content.mjs: dish NAMES stay verbatim/identity, never translated — matches how Cuisine TMA already renders names elsewhere; operator agreed]. Found translated DESCRIPTIONS already exist and are unused: nation-overlay-dishnotes-i18n.generated.js has 1647 dishes x 6 langs [id/ru/de/zh/ja/es], merged onto iconicDishes[].note.{lang} at nation-overlay.js load [verified via raw.githubusercontent, contents API 'none' encoding for the >1MB file]. Root cause: /api/cuisine/dishes route [v453] stripped d.note entirely in its .map(). Fixed: (1) index.js route now passes through note:d.note||null; (2) CuisineCategoryDrawer dish pop-up renders a one-line description [{d.note[lang]||d.note.en}, text-[10px] text-tg-hint line-clamp-2] under name+local, hidden if neither exists. No new Gemini batch needed — the corpus was already translated, only the plumbing was missing. esbuild+node--check OK; cuisine build/vitest via CI. journal 815->816, commit 933->934, build 572->573. PRIOR ANCHOR cross_tma_dropdown_close_x_2026-07-01_1500)
 last_anchor_source_prior: cuisine_dishes_tethered_tab_2026-07-01_1255
 # codex-review PR#1438: `last_anchor_iso8601` below is duplicated many times over past
 # sessions (append-only history, never pruned) -- a last-key-wins YAML reader would pick

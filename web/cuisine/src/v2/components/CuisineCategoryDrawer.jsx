@@ -209,6 +209,12 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
                       className="flex flex-col items-start text-left py-2 px-1 min-h-[44px] border-b border-tg-border/30">
                       <span className="text-[12px] font-medium leading-tight capitalize">{d.name}</span>
                       {d.local && d.local !== d.name && <span className="text-[11px] text-tg-hint leading-tight">{d.local}</span>}
+                      {/* v0.62.462 — one-line curated description, device-language when
+                          translated (Gemini corpus); EN fallback; hidden if neither exists.
+                          Dish NAME itself always stays verbatim (identity, not translated). */}
+                      {(d.note && (d.note[lang] || d.note.en)) && (
+                        <span className="text-[10px] text-tg-hint leading-snug mt-0.5 line-clamp-2">{d.note[lang] || d.note.en}</span>
+                      )}
                     </button>
                   ))}
                 </div>
