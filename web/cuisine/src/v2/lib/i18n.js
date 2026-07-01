@@ -437,6 +437,7 @@ const STRINGS = {
   'cat.sweetsFusion':          { en: 'Sweets & Fusion', fr: 'Desserts & Fusion' },
   'cat.michelinBib':           { en: 'Michelin · Bib Gourmand', fr: 'Michelin · Bib Gourmand' },
   'cat.setMeal':               { en: 'Set Meal (Beta)', fr: 'Menu fixe (bêta)' },
+  'cat.dishes':                { en: 'Dishes', fr: 'Plats' },
 
   // v0.61.278 — O-25: surfaced when the server's JB-hybrid filter
   // wipes the pool (JB pill picked at non-JB coords) and falls back

@@ -1,8 +1,8 @@
 counters:
-  commit: 924
-  build: 563
+  commit: 925
+  build: 564
   documents:
-    journal: 806
+    journal: 807
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 01-07 '26 11:00 SGT
-last_anchor_source: sketchbook_pick_local_classic_2026-07-01_1100 (v0.62.452 — operator: Pick Local Dish should mirror Cuisine TMA 'Pick local classic', city derived from saved cards, grey dishes not saved. NEW endpoint GET /api/cuisine/plate?city= -> platesForCity [forgiving: exact CITY_PLATES key, else case-insensitive, else query-contains-key so 'Katong, Singapore'->Singapore]; read-only, no user echo, no auth. App.jsx derives cityGuess [most-common trailing comma-segment of venue.area], fetches plate, savedDishSet from dishOptions. NEW LocalClassicPicker.jsx mirrors ArrivalPlate geo-mode: 📍{city} header + 2-col dish grid [EN name + native local] + 'More {city} classics ({n})' expander; dishes NOT in saved cards greyed+non-tappable; tap saved dish -> dishFilter. Shell dish dropdown renders LocalClassicPicker when plate present, else falls back to v450 saved-dish chips. i18n classic.tapHint/classic.more. vite build OK [52 modules]; node --check index.js. journal 805->806, commit 923->924, build 562->563. Completes the operator's identical-to-Cuisine Sketchbook filter pair [cuisine=v451, dish=v452]. PRIOR ANCHOR sketchbook_cuisine_picker_port_2026-07-01_1020)
+last_anchor_time: 01-07 '26 11:40 SGT
+last_anchor_source: cuisine_by_cuisine_dishes_popup_2026-07-01_1140 (v0.62.453 — operator: in Cuisine TMA 'Cuisine & Filters > by Cuisine' add a tappable 'Dishes' [plural, styled EXACTLY like footer hide/list = text-[11px] font-semibold text-tg-link, theme-aware]; clicking opens a POP-UP window like 'Pick local classic' listing that cuisine's curated dishes; tap a dish -> search. Cuisine TMA ONLY. NEW endpoint GET /api/cuisine/dishes?slug= -> nation-overlay getNationOverlay(slug).iconicDishes -> [{name,local,kind}], read-only no auth. CuisineCategoryDrawer: per-cuisine 'Dishes' link + z-40 pop-up modal [name + native local, subtle ✕], tap dish -> onPickDish. onPickDish threaded App->CuisineDrawer->CuisineCategoryDrawer; App handler mirrors classic onTryDish [freeTextOverride + hawkerFirst SG] but closes cuisinePickOpen. i18n cat.dishes [en Dishes / fr Plats; others EN-fallback per tiered control-label strategy]. esbuild parse all; node --check index+i18n; cuisine build+vitest via CI. journal 806->807, commit 924->925, build 563->564. PRIOR ANCHOR sketchbook_pick_local_classic_2026-07-01_1100)
 last_anchor_source_prior: transport_close_x_normalize_2026-06-30_2020
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
