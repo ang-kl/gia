@@ -39,7 +39,7 @@ export const CITIES_BY_COUNTRY = Object.freeze({
     { name: 'Kuala Lumpur',     code: 'KUL', lat: 3.1390,  lng: 101.6869 },
     { name: 'Putrajaya',        code: 'KUL', lat: 2.9264,  lng: 101.6964 },
     { name: 'Shah Alam',        code: 'KUL', lat: 3.0738,  lng: 101.5183 },
-    { name: 'Johor Bahru',      code: 'JHB', lat: 1.4927,  lng: 103.7414 },
+    { name: 'Johor',            code: 'JHB', lat: 1.4927,  lng: 103.7414 },
     { name: 'Alor Setar',       code: 'AOR', lat: 6.1248,  lng: 100.3678 },
     { name: 'Kota Kinabalu',    code: 'BKI', lat: 5.9788,  lng: 116.0753 },
     { name: 'Kuching',          code: 'KCH', lat: 1.5535,  lng: 110.3593 },
@@ -72,7 +72,20 @@ export const CITIES_BY_COUNTRY = Object.freeze({
     { name: 'Hua Hin',          code: 'HHQ', lat: 12.5684, lng:  99.9577 },
     { name: 'Krabi',            code: 'KBV', lat:  8.0863, lng:  98.9063 },
     { name: 'Ayutthaya',        code: 'BKK', lat: 14.3692, lng: 100.5877 },
-    { name: 'Koh Samui',        code: 'USM', lat:  9.5120, lng: 100.0136 }
+    { name: 'Koh Samui',        code: 'USM', lat:  9.5120, lng: 100.0136 },
+    { name: 'Nonthaburi',       code: 'DMK', lat: 13.8622, lng: 100.5144 },
+    { name: 'Phang-Nga',        code: 'HKT', lat:  8.4510, lng:  98.5298 },
+    { name: 'Chon Buri',        code: 'UTP', lat: 13.3611, lng: 100.9847 },
+    { name: 'Khon Kaen',        code: 'KKC', lat: 16.4419, lng: 102.8360 },
+    { name: 'Ko Samui',         code: 'USM', lat:  9.5120, lng: 100.0136 },
+    { name: 'Nakhon Pathom',    code: 'DMK', lat: 13.8196, lng: 100.0644 },
+    { name: 'Nakhon Ratchasima', code: 'NAK', lat: 14.9799, lng: 102.0978 },
+    { name: 'Pathum Thani',     code: 'DMK', lat: 14.0208, lng: 100.5251 },
+    { name: 'Phra Nakhon Si Ayutthaya', code: 'DMK', lat: 14.3692, lng: 100.5877 },
+    { name: 'Samut Sakhon',     code: 'BKK', lat: 13.5475, lng: 100.2745 },
+    { name: 'Surat Thani',      code: 'URT', lat:  9.1382, lng:  99.3215 },
+    { name: 'Ubon Ratchathani', code: 'UBP', lat: 15.2448, lng: 104.8473 },
+    { name: 'Udon Thani',       code: 'UTH', lat: 17.4138, lng: 102.7870 }
   ],
   // Vietnam.
   VN: [
@@ -202,7 +215,11 @@ export const CITIES_BY_COUNTRY = Object.freeze({
     { name: 'Wan Chai',         code: 'HKG', lat: 22.2779, lng: 114.1731 },
     { name: 'Sha Tin',          code: 'HKG', lat: 22.3868, lng: 114.1947 },
     { name: 'Aberdeen',         code: 'HKG', lat: 22.2486, lng: 114.1551 },
-    { name: 'Tung Chung',       code: 'HKG', lat: 22.2914, lng: 113.9434 }
+    { name: 'Tung Chung',       code: 'HKG', lat: 22.2914, lng: 113.9434 },
+    { name: 'Tuen Mun',         code: 'HKG', lat: 22.3908, lng: 113.9725 },
+    { name: 'Yuen Long',        code: 'HKG', lat: 22.4445, lng: 114.0225 },
+    { name: 'Tai Po',           code: 'HKG', lat: 22.4501, lng: 114.1644 },
+    { name: 'Tseung Kwan O',    code: 'HKG', lat: 22.3076, lng: 114.2590 }
   ],
   // Taiwan.
   TW: [
@@ -216,6 +233,18 @@ export const CITIES_BY_COUNTRY = Object.freeze({
     { name: 'Sun Moon Lake',    code: 'TXG', lat: 23.8569, lng: 120.9152 }
   ]
 });
+
+// v0.61.328 — OTHER-mode geofence Step 1: per-city search-radius cap.
+// The OTHER cascade (16-country curated cities) must not roam the whole
+// country, so each pick carries a `radiusCapM` the server clamps the
+// search radius to (see index.js `/api/cuisine/search` + set-location).
+// 40 km for every curated city; 120 km for the Johor entry (its single
+// row covers all of Johor state). SG / JB region pills are unaffected —
+// only `region === 'OTHER'` picks read this. Kept as a helper rather
+// than a field on all ~110 rows to avoid touching every line.
+export function cityRadiusCapM(name) {
+  return String(name || '').trim().toLowerCase() === 'johor' ? 120000 : 40000;
+}
 
 // Get the cities array for a country (returns [] for unknown codes).
 export function citiesForCountry(code) {

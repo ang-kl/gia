@@ -49,6 +49,11 @@ const {
   getUserCountryPref,
   setUserCountryPref
 } = require('./country-pref');
+// v0.61.426 — per-chat minimum-rating preference, shared by the Cuisine
+// TMA's "≥3.7" rating pill and the `/rating` (alias `/ra`) command. One
+// Redis key (`rating-pref:<chatId>`) drives the guarded rating floor on
+// every eatery surface (replaces the hardcoded 3.7 in venue-filters calls).
+const ratingPrefLib = require('./rating-pref');
 // v0.61.197 — recent-locations LRU (20 entries/user as of v0.61.305,
 // Redis-backed). Hooked into the chat /location <text> success paths
 // + the TMA's /api/cuisine/set-location endpoint; surfaced via
@@ -74,7 +79,7 @@ const { runHealthCheck } = require('./ver');
 // v0.60.209 — shared dish-name guard. Single source of truth for the
 // "is this a real dish/dessert name?" criteria behind every "Try"
 // line (Cuisine TMA, Copy, Copy to, /s, free-text).
-const { isDishName, filterDishNames, CATEGORY_RE: DISH_CATEGORY_RE } = require('./dish-name');
+const { isDishName, filterDishNames, CATEGORY_RE: DISH_CATEGORY_RE, DESCRIPTOR_RE: DISH_DESCRIPTOR_RE } = require('./dish-name');
 const weather = require('./weather');
 const carpark = require('./carpark');
 const transport = require('./transport');
@@ -118,6 +123,15 @@ const useWebhook = Boolean(webhookDomain);
 const webhookSecret = process.env.TELEGRAM_WEBHOOK_SECRET || crypto.randomBytes(16).toString('hex');
 
 // 1. Setup Clients
+// v0.62.x — operator outage ("bot down for everyone"): a missing/blank
+// TELEGRAM_BOT_TOKEN makes the bot fail to connect AND every TMA initData
+// verification 401 (twa-auth needs the same token to recompute the HMAC). Log
+// it LOUDLY at boot so the root cause is one glance at the Railway logs, not an
+// investigation. (A WRONG token still surfaces as node-telegram-bot-api
+// polling_error / webhook 401 via the handlers below.)
+if (!process.env.TELEGRAM_BOT_TOKEN) {
+  console.error('[BOOT] FATAL: TELEGRAM_BOT_TOKEN is not set — the bot cannot connect to Telegram and EVERY Mini App call will return 401 (twa-auth). Set TELEGRAM_BOT_TOKEN in the environment and redeploy.');
+}
 const bot = new TelegramBot(
   process.env.TELEGRAM_BOT_TOKEN,
   useWebhook ? {} : { polling: true }
@@ -195,6 +209,31 @@ async function updateTransitStatus() {
 }
 
 // 3. Telegram Handlers
+// v0.62.295 — nearest PROMINENT landmark near a coord (Places New searchNearby,
+// ranked by popularity). Used to turn a bare city-centroid pick ("Kyoto") into
+// "Kyoto — near {landmark}", mirroring how an SG street pick shows a building.
+// Returns the landmark display name, or null. Callers cache the result.
+async function nearestLandmark(lat, lng) {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey || !Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const axios = require('axios');
+  const body = {
+    includedTypes: ['tourist_attraction', 'train_station', 'subway_station', 'shopping_mall',
+      'university', 'stadium', 'park', 'place_of_worship', 'airport', 'museum', 'city_hall'],
+    maxResultCount: 1,
+    rankPreference: 'POPULARITY',
+    locationRestriction: { circle: { center: { latitude: lat, longitude: lng }, radius: 1500 } }
+  };
+  try {
+    const { data } = await axios.post('https://places.googleapis.com/v1/places:searchNearby', body, {
+      timeout: 5000,
+      headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'places.displayName' }
+    });
+    const p = Array.isArray(data?.places) ? data.places[0] : null;
+    return (p && p.displayName && p.displayName.text) || null;
+  } catch { return null; }
+}
+
 // v0.52.0: shared reverse-geocode helper used by /transport (and any
 // future menu that wants to display a human-readable "current location"
 // header). Caches 24h in Redis on a coarse 4-decimal-place grid (~10 m).
@@ -204,7 +243,10 @@ async function reverseGeocodeAddress(lat, lng) {
   if (!apiKey) return null;
   const gLat = lat.toFixed(4);
   const gLng = lng.toFixed(4);
-  const cacheKey = `revgeo:addr:v2:${gLat}:${gLng}`;
+  // v0.62.99 — cache key bumped v3→v4: payload now also carries the parsed
+  // streetNumber / route / locality so the "Area set" notify can compose a
+  // proper street address (street no. + road, city, ISO-2 country).
+  const cacheKey = `revgeo:addr:v4:${gLat}:${gLng}`;
   try {
     if (redis.isOpen) {
       const cached = await redis.get(cacheKey);
@@ -244,23 +286,57 @@ async function reverseGeocodeAddress(lat, lng) {
     // POI / premise first — "Raffles City", "ION Orchard", "Marina
     // Bay Sands" beat the planning subzone. Then route (street name)
     // before falling through to the broader area names.
-    const name = findComp('point_of_interest')
+    // v0.62.118 — operator: a GPS share must resolve to the BUILDING / STREET,
+    // not the broad planning area. Google Maps shows "115 Bukit Merah View"; we
+    // showed "Bukit Merah" (the sublocality / planning subzone) because the
+    // street tier sat BELOW neighborhood/sublocality here — contradicting the
+    // comment above, which already intended street before the area names. A
+    // named building (POI / premise / establishment, e.g. "ION Orchard",
+    // "Marina Bay Sands") still wins first; then the street ("<no.> <route>");
+    // the neighborhood / sublocality / locality area names are now the FALLBACK,
+    // used only when no building or street resolves.
+    const _streetNumber = findComp('street_number');
+    const _route = findComp('route');
+    const _street = _route ? (_streetNumber ? `${_streetNumber} ${_route}` : _route) : '';
+    let name = findComp('point_of_interest')
       || findComp('premise')
       || findComp('establishment')
+      || _street
       || findComp('neighborhood')
       || findComp('sublocality_level_1')
       || findComp('sublocality')
-      || findComp('route')
       || findComp('locality')
       || r.formatted_address?.split(',')[0]
       || 'Singapore';
+    // v0.62.253 — operator (recurring "street name resolution"): a bare HDB block
+    // number ("Block 49" / "Blk 49A") is the premise that wins the cascade above,
+    // but on its own it's ambiguous SG-wide. When the picked name is just a block
+    // number AND a route was resolved, append the street so the anchor reads
+    // "Block 49, Telok Blangah Drive". Non-inventive — `_route` is the geocoded
+    // route; only appended when not already present in the name.
+    if (name && _route && /^(blk|block|blok)\s*\d+[a-z]?$/i.test(name.trim())
+        && !name.toLowerCase().includes(_route.toLowerCase())) {
+      name = `${name}, ${_route}`;
+    }
     const formatted = r.formatted_address || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
     // v0.61.156 — surface country + admin_area_level_1 so the
     // location-mode classifier (rule §2.3) can map the fix into
     // SG / JB / OTHER without a second geocode call.
-    const country = findComp('country') || null;
+    // v0.61.400 — also surface the country's ISO-3166 short_name (the
+    // address component's `short_name` IS the 2-letter code) so the
+    // recents drawer can show the right flag for EVERY country, not just
+    // the SG/MY long-name mapping the recents writer hard-coded before.
+    const countryComp = components.find((c) => c.types?.includes('country'));
+    const country = countryComp?.long_name || findComp('country') || null;
+    const countryCode = countryComp?.short_name || null;
     const adminAreaLevel1 = findComp('administrative_area_level_1') || null;
-    const payload = { name, formatted, country, adminAreaLevel1 };
+    // v0.62.99 — parsed street parts for the "Area set" notify line. A missing
+    // street_number is the "street name is ambiguous" signal (per operator)
+    // that triggers the nearest-landmark lookup.
+    const streetNumber = findComp('street_number') || null;
+    const route = findComp('route') || null;
+    const locality = findComp('locality') || findComp('postal_town') || null;
+    const payload = { name, formatted, country, countryCode, adminAreaLevel1, streetNumber, route, locality };
     try {
       if (redis.isOpen) await redis.set(cacheKey, JSON.stringify(payload), { EX: 24 * 60 * 60 });
     } catch { /* cache-write fail is non-fatal */ }
@@ -270,6 +346,122 @@ async function reverseGeocodeAddress(lat, lng) {
     return null;
   }
 }
+
+// v0.62.99 — operator: when the reverse-geocoded street name is ambiguous (no
+// house number), the "Area set" notify should append "(near <landmark>)".
+// Find the most prominent nearby place within 400 m. Cached 24 h; '∅' marks a
+// confirmed no-result so we don't re-call. Only invoked on the ambiguous path,
+// so it adds at most one Places call per new ambiguous pick.
+async function nearestLandmark(lat, lng) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) return null;
+  const cacheKey = `revgeo:landmark:v1:${lat.toFixed(4)}:${lng.toFixed(4)}`;
+  try {
+    if (redis.isOpen) {
+      const cached = await redis.get(cacheKey);
+      if (cached) return cached === '∅' ? null : cached;
+    }
+  } catch { /* cache miss is fine */ }
+  try {
+    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=400&key=${apiKey}`;
+    const { data } = await axios.get(url, { timeout: 5000 });
+    // Prominence-ranked; skip administrative/road rows — we want a building or
+    // POI a human would recognise ("Fullerton Hotel", not "Esplanade Dr").
+    const SKIP = new Set(['locality', 'political', 'route', 'neighborhood',
+      'sublocality', 'postal_code', 'plus_code']);
+    const hit = (data?.results || []).find((x) => x?.name
+      && Array.isArray(x.types) && !x.types.some((t) => SKIP.has(t)));
+    const name = hit?.name || null;
+    try {
+      if (redis.isOpen) await redis.set(cacheKey, name || '∅', { EX: 24 * 60 * 60 });
+    } catch { /* non-fatal */ }
+    return name;
+  } catch (err) {
+    console.warn('[nearestLandmark] failed:', err.message);
+    return null;
+  }
+}
+
+// v0.62.99 — operator: the "Area set" chat line must be a geo-coordinate-
+// resolved address, never a bare label ("Current" / "George Town" / "Merlion").
+// Compose: <b>name</b> · street no.+road, city, ISO-2 country (near landmark?).
+// Always rebuilt from the coords; the client label is only a last-ditch
+// fallback when the reverse-geocode itself fails.
+async function buildAreaSetLine(lat, lng, fallbackLabel) {
+  const esc = (s) => escapeHtmlForTelegram(String(s == null ? '' : s));
+  const geo = await reverseGeocodeAddress(lat, lng).catch(() => null);
+  if (!geo) {
+    const nm = (fallbackLabel || '').trim() || `${lat.toFixed(3)}, ${lng.toFixed(3)}`;
+    return `<b>${esc(nm)}</b>`;
+  }
+  const name = (geo.name || (fallbackLabel || '').trim() || 'Area');
+  const street = [geo.streetNumber, geo.route].filter(Boolean).join(' ').trim();
+  const ambiguous = !geo.streetNumber;   // no house number → ambiguous street
+  const parts = [];
+  if (street) parts.push(street);
+  if (geo.locality && geo.locality !== name) parts.push(geo.locality);
+  if (geo.countryCode) parts.push(geo.countryCode);   // ISO-2 per operator
+  let landmark = '';
+  if (ambiguous) {
+    const lm = await nearestLandmark(lat, lng).catch(() => null);
+    if (lm && lm !== name) landmark = lm;
+  }
+  let html = `<b>${esc(name)}</b>`;
+  if (parts.length) html += ` · ${esc(parts.join(', '))}`;
+  if (landmark) html += ` ${esc(`(near ${landmark})`)}`;
+  return html;
+}
+
+// v0.62.x — operator: a Cuisine/Menu TMA must ALWAYS surface a real
+// street / building / "near <landmark>" location — never empty, a bare
+// country ("Singapore"), a coord, or a Plus Code. `isWeakLabel` flags those;
+// `composePlaceLabel` is the plain-text sibling of buildAreaSetLine that
+// upgrades a weak label by reverse-geocoding (street/building) and, when the
+// street is ambiguous, appending the nearest prominent landmark. Used by the
+// /api/cuisine/user-location read path (both TMAs launch through it) so even
+// legacy cached anchors render a real place. Reverse-geocode is 24h-cached, so
+// only the first weak-label launch per ~10 m grid pays a lookup.
+const _WEAK_LABELS = new Set([
+  '', 'area', 'current', 'unnamed', 'unknown', 'location',
+  'singapore', 'malaysia', 'indonesia', 'thailand', 'vietnam', 'philippines',
+  'japan', 'south korea', 'korea', 'china', 'hong kong', 'macau', 'taiwan',
+]);
+function isWeakLabel(label) {
+  const s = String(label == null ? '' : label).trim().toLowerCase();
+  if (!s) return true;
+  if (_WEAK_LABELS.has(s)) return true;
+  if (/^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/.test(s)) return true;          // "1.23, 103.5"
+  if (/^[2-9cfghjmpqrvwx]{2,}\+[2-9cfghjmpqrvwx]+/i.test(s)) return true;  // Plus Code
+  return false;
+}
+
+async function composePlaceLabel(lat, lng, fallbackLabel) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return isWeakLabel(fallbackLabel) ? null : String(fallbackLabel).trim();
+  }
+  const geo = await reverseGeocodeAddress(lat, lng).catch(() => null);
+  let name = geo && geo.name ? String(geo.name).trim() : '';
+  const ambiguous = geo ? !geo.streetNumber : true; // no house number → ambiguous street
+  if (isWeakLabel(name) || ambiguous) {
+    const lm = await nearestLandmark(lat, lng).catch(() => null);
+    if (lm && String(lm).trim()) {
+      const lmName = String(lm).trim();
+      name = isWeakLabel(name) ? `near ${lmName}` : `${name} (near ${lmName})`;
+    }
+  }
+  if (isWeakLabel(name)) {
+    const seg = geo && geo.formatted ? geo.formatted.split(',')[0].trim() : '';
+    if (!isWeakLabel(seg)) name = seg;
+    else if (!isWeakLabel(fallbackLabel)) name = String(fallbackLabel).trim();
+    else name = '';
+  }
+  return name || null;
+}
+
+// v0.61.400 — tidyRecentLabel (full street+building+city display string
+// for the recents drawer) lives in ./recent-label so it's unit-testable.
+const { tidyRecentLabel } = require('./recent-label');
 
 // v0.60.183 — resolve the user's ISO-3166 country code, cached for 30
 // days at `user:<chatId>:country`. Drives the venue-card price-range
@@ -314,10 +506,34 @@ async function resolveUserCountry(chatId) {
 // per the operator spec. Called at every search-path enrichment site
 // (alongside enrichTravelTimes) so formatVenueBlock + formatTechniqueVenueBlock
 // stay synchronous downstream.
-async function enrichPriceRangeDisplay(chatId, venues) {
+// v0.61.363 — per-device cache token. One Telegram account (chatId) can
+// run the TMA on several devices at once, each in a different place; the
+// TMA sends a stable localStorage token so location + country-pref keys
+// don't clobber across devices. Sent in the JSON body (postJson) or the
+// X-Device-Id header (getJson). Returns a sanitized token or null (bot-
+// chat has no device → chatId-level keys, the prior behaviour).
+function readDeviceId(req) {
+  const raw = (req && (
+    (req.body && req.body.deviceId) ||
+    (req.headers && (req.headers['x-device-id'] || req.headers['X-Device-Id'])) ||
+    (req.query && req.query.deviceId)
+  )) || null;
+  try { return require('./location-cache').sanitizeDeviceId(raw); }
+  catch { return null; }
+}
+
+// v0.61.361 — Option B (operator: convert to the user's *device* home
+// currency, not the location-based country). `deviceCountry` is the
+// ISO-3166 alpha-2 the Cuisine TMA derives from the phone's locale
+// (Intl region) and forwards on every request. When present + valid it
+// wins; otherwise we fall back to the location-based resolveUserCountry
+// (bot-chat flows, or an older TMA build that doesn't send it).
+async function enrichPriceRangeDisplay(chatId, venues, deviceCountry) {
   if (!Array.isArray(venues) || !venues.length) return;
   const cf = require('./currency-format');
-  const userCountry = await resolveUserCountry(chatId);
+  const userCountry = (typeof deviceCountry === 'string' && /^[A-Z]{2}$/.test(deviceCountry))
+    ? deviceCountry
+    : await resolveUserCountry(chatId);
   await Promise.all(venues.map(async (v) => {
     try {
       const display = await cf.formatPriceRangeForVenue(v.priceRange, v.country, userCountry, redis);
@@ -812,10 +1028,42 @@ async function handleBuddyCallback(data, chatId, q) {
   }
 }
 
+// v0.61.436 — ONE seam for the per-chat guarded rating floor (code review:
+// the read-pref/apply-floor/log block was duplicated between deliverPicks
+// and the cuisine-search route, and several surfaces missed it entirely).
+// Reads the chat's /rating-or-pill pref (default guarded ≥3.7), applies
+// venue-filters.applyRatingFloor (never empties), logs only when it drops.
+// Redis errors fall back to the default — delivery must never block on the
+// pref read.
+async function applyChatRatingFloor(chatId, venues, label = 'rating-floor') {
+  if (!Array.isArray(venues) || venues.length === 0) return Array.isArray(venues) ? venues : [];
+  let pref = null;
+  if (chatId) {
+    try { pref = await ratingPrefLib.getUserRatingPref(redis, String(chatId)); }
+    catch { pref = null; }
+  }
+  const before = venues.length;
+  const out = require('./venue-filters').applyRatingFloor(venues, ratingPrefLib.ratingPrefToFloorOpts(pref));
+  if (out.length !== before) {
+    console.log(`[${label}] rating-floor ${ratingPrefLib.describeRatingPref(pref)}: ${before} → ${out.length}`);
+  }
+  return out;
+}
+
+// v0.61.436 — deliverPicks now RETURNS the picks it actually delivered
+// (post-floor), so callers that maintain seen-sets / "more results"
+// pagination (the free-text path) can mark only what the user saw. All
+// other callers ignore the return value — behaviour unchanged.
 async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
+  // v0.61.425 — operator: uniform minimum Google rating of 3.7 across EVERY
+  // eatery surface. deliverPicks is the shared bot renderer (/s, free-text,
+  // sanctuary, cuisine flow), so the guarded floor applies here once.
+  // v0.61.426 — the floor is per-chat (rating-pref.js): /rating or the TMA
+  // pill selects the mode (≥floor / any / unrated-only); default ≥3.7.
+  picks = await applyChatRatingFloor(chatId, picks, 'deliverPicks');
   if (!picks.length) {
     await handleNoResults(chatId, mealLabel);
-    return;
+    return [];
   }
   // v0.27.1: track for /share. Fire-and-forget; never blocks delivery.
   try {
@@ -1060,6 +1308,9 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
   // v0.60.113 — the "👥 Buddy: …" state footer (v0.34.1) is retired
   // per operator 2026-05-11. formatBuddyFooter() kept defined below
   // (dead) for re-enable.
+  // v0.61.436 — return what was actually delivered (post-floor) for
+  // seen-set-maintaining callers.
+  return picks;
 }
 
 // v0.34.1: render a single-line buddy state footer. Reads opt-in flag
@@ -1143,7 +1394,10 @@ const LOCATION_REQUEST_KEYBOARD = {
   reply_markup: {
     keyboard: [
       [{ text: '📍 Share my location', request_location: true }],
-      [{ text: '⛔ Use Raffles Place default' }]
+      // v0.61.408 — was '⛔ Use Raffles Place default'. The button now reuses the
+      // user's LAST SET LOCATION (recents drawer top); Raffles Place is only the
+      // silent floor for a true first-timer with no recents. Relabelled to match.
+      [{ text: '🕘 Use my last location' }]
     ],
     resize_keyboard: true,
     one_time_keyboard: true
@@ -1152,18 +1406,79 @@ const LOCATION_REQUEST_KEYBOARD = {
 
 const KEYBOARD_TEXTS = new Set([
   '📍 Share my location',
-  '⛔ Use Raffles Place default'
+  '🕘 Use my last location'
 ]);
 
 const ACK_SENSING_VIBE = '🌿 Sensing the vibe…';
 const MANUAL_FALLBACK_PROMPT =
   "I'm having a bit of trouble pinning your exact location. Could you type the name of the building or area you are at?";
 
-async function startSanctuaryFlow(chatId, category, prompt) {
+// v0.61.408 — operator: *"in the codebase that suggest 'Raffles Place' as
+// default, change to last set location drawer as default."* The hardcoded
+// Raffles Place coords (1.2839, 103.8517) were the universal floor whenever a
+// user had no fresh shared pin. We now prefer, in order:
+//   (1) the live set-location cache  — getUserLocation (~24 h TTL, the active pin),
+//   (2) the top of the recents drawer — listRecentLocations()[0] (the LAST SET
+//       LOCATION; a 180-day LRU that OUTLIVES the cache), then only
+//   (3) Raffles Place as the true first-timer floor (no cache AND no recents).
+// Returns { lat, lng, label, source: 'set-location' | 'recents' | 'raffles' }.
+const RAFFLES_PLACE_FALLBACK = { lat: 1.2839, lng: 103.8517, label: 'Raffles Place' };
+
+async function resolveDefaultCenter(chatId) {
   const cached = await getUserLocation(redis, chatId);
-  if (cached) {
+  if (cached && Number.isFinite(cached.lat) && Number.isFinite(cached.lng)) {
+    return { lat: cached.lat, lng: cached.lng, label: cached.label || null, source: 'set-location' };
+  }
+  try {
+    const recents = await listRecentLocations(redis, chatId);
+    const last = Array.isArray(recents) ? recents[0] : null;
+    if (last && Number.isFinite(last.lat) && Number.isFinite(last.lng)) {
+      return { lat: last.lat, lng: last.lng, label: last.label || null, source: 'recents' };
+    }
+  } catch (err) {
+    console.warn('[default-center] recents lookup failed:', err && err.message);
+  }
+  return { ...RAFFLES_PLACE_FALLBACK, source: 'raffles' };
+}
+
+// v0.61.412 — operator: when the user PICKS a new search area in a TMA (typed
+// place / country+city / map tap) and returns to chat, fire ONE message naming
+// the area. Trigger = a DELIBERATE pick (the client sends `notify:true`; boot /
+// GPS auto-detect writes do NOT) AND the area ACTUALLY changed vs the previous
+// set-location (so re-picking the same spot stays quiet). Never fires on app
+// open. `prev` is the set-location read BEFORE the new one was persisted.
+async function notifySearchAreaSet({ chatId, prev, lat, lng, label }) {
+  try {
+    const { haversineMeters } = require('./location-mode');
+    const movedFar = !prev || !Number.isFinite(prev.lat) || !Number.isFinite(prev.lng)
+      || haversineMeters({ lat: prev.lat, lng: prev.lng }, { lat, lng }) > 1000;
+    const labelChanged = !!label && !!prev && prev.label && prev.label !== label;
+    if (!movedFar && !labelChanged) return;   // same area → stay quiet
+    // v0.62.99 — always resolve a real address from the coords (the client
+    // label "Current"/"Merlion Park"/"George Town" is no longer shown verbatim).
+    const areaHtml = await buildAreaSetLine(lat, lng, label);
+    const { resolveLang } = require('./user-prefs');
+    const { tn } = require('./i18n');
+    const lang = await resolveLang(redis, chatId);
+    await bot.sendMessage(
+      chatId,
+      tn('loc.searchArea.set', lang, { area: areaHtml }),
+      { parse_mode: 'HTML', disable_web_page_preview: true }
+    );
+    console.log(`[set-location] search-area notify chat=${chatId} area="${areaHtml.replace(/<[^>]+>/g, '').slice(0, 60)}"`);
+  } catch (err) {
+    console.warn('[set-location] search-area notify failed:', err && err.message);
+  }
+}
+
+async function startSanctuaryFlow(chatId, category, prompt) {
+  // v0.61.408 — default to the last set location (drawer top) before asking.
+  // Only a true first-timer (no cache AND no recents) still sees the share prompt.
+  const def = await resolveDefaultCenter(chatId);
+  if (def.source !== 'raffles') {
+    console.log(`[default-center] chat=${chatId} sanctuary default via ${def.source}${def.label ? ` (${def.label})` : ''}`);
     await safeSend(chatId, ACK_SENSING_VIBE);
-    await runFlow(chatId, cached.lat, cached.lng, category);
+    await runFlow(chatId, def.lat, def.lng, category);
     return;
   }
   await setPendingMeal(redis, chatId, category);
@@ -1323,7 +1638,7 @@ async function tokenizeCuisineArgs(raw) {
       if (cuisines.length < 5) cuisines.push(t);
     } else if (FLAGS.has(t)) {
       params.set(t, '1');
-    } else if (/^\$+$/.test(t) && t.length <= 3) {
+    } else if (/^\$+$/.test(t) && t.length <= 4) {
       // $$ → emit "$,$$" so the server's price-tier filter (which
       // matches priceLevel against the SET) accepts both. Mirrors
       // the TMA's existing multi-select chip behaviour.
@@ -1479,6 +1794,106 @@ bot.onText(/^\/hidden(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   } else {
     await runSurpriseCommand(msg.chat.id, lang);
   }
+});
+
+// v0.62.165 — /ztest <type> — deterministic "set-menu" scout PROBE. Hidden dev
+// command (not in setMyCommands). Uses the caller's STORED location to pull
+// nearby candidates from Places (New) searchText, then scrapes each venue's OWN
+// website for the localized keyword (set-lunch / set-dinner / signature / chef).
+// No LLM, no API key in any URL. The reply is a per-venue diagnostic so we can
+// measure the real scrape hit-rate before building the user-facing feature.
+bot.onText(/^\/ztest(?:@\w+)?(?:\s+(.+))?$/i, async (msg) => {
+  const chatId = msg.chat.id;
+  const { scoutSetMenu, phraseToType } = require('./ztest-scout');
+  // v0.62.279 — accept natural phrases ("set lunch", "set dinner", "signature
+  // dish", "popular dish") and resolve them to a scout type, instead of the
+  // single hyphenated token (e.g. "set-lunch").
+  const rawPhrase = (msg.text.match(/^\/ztest(?:@\w+)?(?:\s+(.+))?$/i)?.[1] || '').trim();
+  const rawType = phraseToType(rawPhrase);
+
+  if (!rawType) {
+    await safeSend(chatId,
+      `🧪 <b>/ztest</b> — set-menu scout (probe)\nUsage: <code>/ztest set lunch</code>\nTry: <code>set lunch</code> · <code>set dinner</code> · <code>signature dish</code> · <code>popular dish</code>`,
+      { parse_mode: 'HTML', disable_web_page_preview: true });
+    return;
+  }
+
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) { await safeSend(chatId, '🧪 /ztest offline — GOOGLE_MAPS_API_KEY missing.'); return; }
+
+  const loc = await getUserLocation(redis, chatId, null).catch(() => null);
+  if (!loc || !Number.isFinite(loc.lat) || !Number.isFinite(loc.lng)) {
+    await safeSend(chatId, '📍 I need your location first. Share it via /location, then run <code>/ztest set lunch</code> again.',
+      { parse_mode: 'HTML' });
+    return;
+  }
+
+  // redis cache (10 min) keyed by rounded location + type — bounds repeat cost.
+  const cacheKey = `ztest:${rawType}:${loc.lat.toFixed(3)}:${loc.lng.toFixed(3)}`;
+  let report = null;
+  try { const c = await redis.get(cacheKey); if (c) report = JSON.parse(c); } catch { /* ignore cache read */ }
+
+  if (!report) {
+    await safeSend(chatId,
+      `🔍 Scouting <b>${escapeHtmlForTelegram(rawType)}</b> near ${loc.label ? escapeHtmlForTelegram(String(loc.label)) : 'you'}… (up to 8 spots)`,
+      { parse_mode: 'HTML' });
+    report = await scoutSetMenu({ lat: loc.lat, lng: loc.lng, type: rawType, apiKey, max: 8, concurrency: 4 });
+    // v0.62.202 — operator: VISUAL-RECOGNITION fallback. For venues where the
+    // deterministic scrape did NOT find the menu text ("the menu doesn't
+    // specify"), run Gemini vision over the venue's first Places photo to detect
+    // the set / signature + price. Bounded to the first 4 to cap cost; fail-soft.
+    if (report && !report.error && process.env.GEMINI_API_KEY) {
+      try {
+        const { visualScout } = require('./ztest-vision');
+        const fb = report.results.filter((r) => r.status !== 'hit' && r.photoName).slice(0, 4);
+        await Promise.all(fb.map(async (r) => {
+          try { r.visual = await visualScout({ photoName: r.photoName, type: rawType, apiKey, geminiKey: process.env.GEMINI_API_KEY }); }
+          catch { r.visual = null; }
+        }));
+      } catch (e) { console.warn('[ztest] visual fallback failed:', e.message); }
+    }
+    if (report && !report.error) {
+      try { await redis.setEx(cacheKey, 600, JSON.stringify(report)); } catch { /* ignore cache write */ }
+    }
+  }
+
+  if (!report || report.error) {
+    await safeSend(chatId, `🧪 /ztest error: <code>${escapeHtmlForTelegram(String(report?.error || 'unknown'))}</code>`,
+      { parse_mode: 'HTML' });
+    return;
+  }
+
+  // v0.62.297 — Track A: confidence ladder + HONEST copy. Operator: results kept
+  // showing raw machine codes ("no-match" / "scrape-failed") + ⚠️/🌐 alarm icons
+  // that read as "no specify / abnormal". Replace with a calm 3-rung ladder —
+  //   ✅ on their website (high) · 📷 seen in a listing photo (medium) ·
+  //   ◌ couldn't confirm (none — not an error). No raw status strings shown.
+  const { googleMapsUrl: ztestMapsUrl } = require('./maps-url');
+  const confirmedCount = report.results.filter((r) => r.status === 'hit' || (r.visual && r.visual.found)).length;
+  const lines = [`🧪 <b>/ztest ${escapeHtmlForTelegram(rawType)}</b> — scanned ${report.scanned}, <b>${confirmedCount} confirmed</b>`];
+  for (const r of report.results) {
+    // v0.62.294 — googleMapsUrl resolves a placeId to the ACTUAL place page.
+    const mapsLink = ztestMapsUrl({ placeId: r.placeId, name: r.name, lat: r.lat, lng: r.lng })
+      || `https://maps.google.com/?q=${encodeURIComponent((r.name || '') + ' Singapore')}`;
+    const nameHtml = `<a href="${mapsLink}">${escapeHtmlForTelegram(r.name)}</a>`;
+    const priceTag = r.setPrice ? ` · 💲${escapeHtmlForTelegram(r.setPrice)}` : '';
+    const tier = escapeHtmlForTelegram(r.priceTier);
+    if (r.status === 'hit') {
+      lines.push(`\n✅ ${nameHtml} · ${tier}${priceTag} <i>(on their website)</i>`);
+      for (const m of r.matches.slice(0, 3)) {
+        lines.push(`   ${m.hasPrice ? '💲' : '–'} ${escapeHtmlForTelegram(m.text)}`);
+      }
+    } else if (r.visual && r.visual.found) {
+      const vis = (r.visual.items || []).map((it) => escapeHtmlForTelegram(it.name + (it.price ? ` — ${it.price}` : ''))).join('; ');
+      lines.push(`\n📷 ${nameHtml} · ${tier}${priceTag} <i>(seen in a listing photo)</i>`);
+      lines.push(`   ${vis || escapeHtmlForTelegram(r.visual.note || 'menu visible in photo')}`);
+    } else {
+      // No raw status / no alarm icon — a calm, honest "unconfirmed" line.
+      lines.push(`\n◌ ${nameHtml} · ${tier} <i>(couldn't confirm from their site or photos)</i>`);
+    }
+  }
+  lines.push('\n<i>Probe — website text + Gemini-vision. ✅ on-site · 📷 from photo · ◌ unconfirmed (not an error). Cached 10 min.</i>');
+  await safeSend(chatId, lines.join('\n'), { parse_mode: 'HTML', disable_web_page_preview: true });
 });
 
 // v0.57.21: /privacy — what data the bot collects, how long it's
@@ -1676,6 +2091,10 @@ async function runLocationCommand(chatId) {
       // nothing usable comes back.
       const PLUS_CODE_RE = /^[2-9CFGHJMPQRVWX]{2,}\+[2-9CFGHJMPQRVWX]+\b/;
       let placeLine = `${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}`;
+      // v0.62.85 — operator: stale-pin card shows a clean two-line location —
+      // the place NAME, then "<locality>, <state>, <country>".
+      let locName = '';
+      let locArea = '';
       try {
         const apiKey = process.env.GOOGLE_MAPS_API_KEY;
         if (apiKey) {
@@ -1700,6 +2119,13 @@ async function runLocationCommand(chatId) {
               || findComp('sublocality')
               || findComp('route')
               || findComp('locality');
+            // v0.62.85 — name + "locality, state, country" for the card.
+            locName = friendly || '';
+            locArea = [
+              findComp('locality') || findComp('postal_town') || findComp('administrative_area_level_2'),
+              findComp('administrative_area_level_1'),
+              findComp('country')
+            ].filter(Boolean).join(', ');
             const isPlus = PLUS_CODE_RE.test(r.formatted_address);
             if (isPlus) {
               placeLine = friendly || `near ${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}`;
@@ -1714,9 +2140,13 @@ async function runLocationCommand(chatId) {
         console.warn('[/location] reverse-geocode failed:', err.message);
       }
       const isStale = ageM != null && ageM > 30;
-      const staleNote = isStale
-        ? '\n\n⚠️ This is more than 30 minutes old, so the cuisine picker will *ignore it* and ask for a fresh GPS reading. Tap the button below to share a fresh pin, or run `/location <place>`.'
-        : '\n\n_Bots can\'t read your device GPS automatically. Tap the button below to share a fresh pin, or run `/location <place>` to anchor manually._';
+      // v0.62.85 — operator: restructured card. Clean two-line location, a
+      // divider, the staleness note, then the three ways to set a place
+      // (pick / type / current GPS). The commands are monospace.
+      const locBlock = locArea ? `${locName || placeLine}\n${locArea}` : (locName || placeLine);
+      const howToSet =
+        '⌨️ Type a place\n`/location <place>`\n`/l <place>`\n\n' +
+        '📍 Use current GPS\n`/location current`\n`/l current`';
       const opts = {
         parse_mode: 'Markdown',
         disable_web_page_preview: true,
@@ -1726,11 +2156,14 @@ async function runLocationCommand(chatId) {
           resize_keyboard: true
         }
       };
-      await safeSend(chatId,
-        `📍 ${placeLine}${ageStr}\n${mapsUrl}${staleNote}\n\n` +
-        'To change: `/location <place>` (e.g. `/location Tanjong Pagar MRT`) or tap 📍 below.',
-        opts
-      );
+      const cardBody = isStale
+        ? `📍 *Current Location*\n\n${locBlock}\n\n────────────────\n\n` +
+          '⚠️ Shared over 30 minutes ago.\nPlease choose a new location.\n\n' +
+          '📌 Pick a city below\n\n' + howToSet
+        : `📍 *Current Location*\n\n${locBlock}${ageStr}\n${mapsUrl}\n\n────────────────\n\n` +
+          "_Bots can't read your device GPS automatically — pick a city below, or:_\n\n" +
+          howToSet;
+      await safeSend(chatId, cardBody, opts);
       // v0.61.122 — follow-up message with quick-pick inline buttons
       // (10 STB precincts + JB + IOI Resort City Putrajaya). Sent
       // separately because Telegram's reply_markup is either a custom
@@ -1769,14 +2202,28 @@ async function runLocationCommand(chatId) {
 // (Tourist Areas / Regions / JB / IOI City Mall / Others / Saved
 // Location). Tourist Areas and Regions are submenus that edit the
 // current message in-place (no new message stacking).
-function _buildTopLevelKeyboard() {
+function _buildTopLevelKeyboard(curLoc = null) {
+  // v0.62.85 — operator: the second MY slot is a DYNAMIC "current location"
+  // quick-pick — the last-set location's flag + label + " · current". Tapping it
+  // re-anchors there (reuses the lr:0 most-recent-recent handler). Falls back to
+  // the IOI City Mall precinct when there's no saved location yet.
+  // NB: Telegram inline buttons are plain single-line text — no italic / 2nd row
+  // / flush-right / font sizes — so "current" rides inline in the label.
+  let curBtn = { text: '🇲🇾 IOI City Mall', callback_data: 'locpick:ioi-resort-putrajaya' };
+  if (curLoc && String(curLoc.label || '').trim()) {
+    const flag = curLoc.country ? (findCountryPref(curLoc.country)?.flag || '🌍') : '📍';
+    curBtn = { text: `${flag} ${String(curLoc.label).trim().slice(0, 22)} · current`, callback_data: 'lr:0' };
+  }
   return {
     inline_keyboard: [
-      [{ text: '🇸🇬 Tourist Areas →', callback_data: 'locpick:menu_tourist' }],
-      [{ text: '🇸🇬 Regions →',       callback_data: 'locpick:menu_regions' }],
+      // v0.62.85 — operator: Tourist Areas + Regions share one row.
+      [
+        { text: '🇸🇬 Tourist Areas →', callback_data: 'locpick:menu_tourist' },
+        { text: '🇸🇬 Regions →',       callback_data: 'locpick:menu_regions' }
+      ],
       [
         { text: '🇲🇾 Johor Bahru',    callback_data: 'locpick:jb' },
-        { text: '🇲🇾 IOI City Mall',  callback_data: 'locpick:ioi-resort-putrajaya' }
+        curBtn
       ],
       [
         { text: '🌏 Others',          callback_data: 'locpick:others' },
@@ -1784,6 +2231,15 @@ function _buildTopLevelKeyboard() {
       ]
     ]
   };
+}
+
+// v0.62.85 — fetch the most-recent saved location (= the current anchor) for the
+// dynamic quick-pick button label. Best-effort; null falls back to IOI City Mall.
+async function _currentLocForQuickPick(chatId) {
+  try {
+    const r = await listRecentLocations(redis, chatId);
+    return (Array.isArray(r) && r.length) ? r[0] : null;
+  } catch { return null; }
 }
 
 function _buildTouristAreasKeyboard() {
@@ -1821,10 +2277,11 @@ async function sendLocationQuickPicks(chatId) {
     const { resolveLang } = require('./user-prefs');
     const lang = await resolveLang(redis, chatId, null).catch(() => 'en');
     const { t: tQP } = require('./i18n');
+    const curLoc = await _currentLocForQuickPick(chatId);
     await bot.sendMessage(chatId, tQP('loc.precinct.prompt', lang), {
       parse_mode: 'HTML',
       disable_web_page_preview: true,
-      reply_markup: _buildTopLevelKeyboard()
+      reply_markup: _buildTopLevelKeyboard(curLoc)
     });
   } catch (err) {
     console.warn('[/location] sendLocationQuickPicks failed:', err.message);
@@ -2082,6 +2539,29 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
     await runLocationCommand(chatId);
     return;
   }
+  // v0.62.197 — operator bug: `/location <place>` persisted only the `loc:`
+  // coords, NOT the `userlocale:` mode that the SG-only gate (isSgOnlyCommandAllowed
+  // → /hawker, /weather, …) reads — so /hawker kept insisting the user change
+  // location even after `/location Singapore`. After an EXPLICIT set, classify the
+  // coords and FORCE-adopt the locale (no drift prompt — the user chose it
+  // deliberately, so 'outside'/'suppressed' drift must still adopt, not nag).
+  const persistExplicitLocale = async (la, lo) => {
+    try {
+      const { classifyAndPersist } = require('./location-classify');
+      const { setUserLocale, clearDriftSuppress } = require('./location-locale');
+      const reverseGeocodeFn = async ({ lat: a, lng: b }) => {
+        const rg = await reverseGeocodeAddress(a, b);
+        return rg ? { country: rg.country || null, adminAreaLevel1: rg.adminAreaLevel1 || null, placeName: rg.name || null, formatted: rg.formatted || null } : null;
+      };
+      const res = await classifyAndPersist({ chatId, lat: la, lng: lo, redis, reverseGeocodeFn });
+      // 'none' → already persisted (first registration); 'inside' → already the
+      // right locale. Only 'outside'/'suppressed' need a force-adopt.
+      if (res && res.candidate && (res.drift === 'outside' || res.drift === 'suppressed')) {
+        await setUserLocale(redis, chatId, res.candidate);
+        if (typeof clearDriftSuppress === 'function') await clearDriftSuppress(redis, chatId).catch(() => {});
+      }
+    } catch (e) { console.warn('[/l] persistExplicitLocale failed:', e.message); }
+  };
   // v0.61.93 — try a station code / bus-stop number / station exit
   // before falling back to Google geocoding. A failure here is
   // non-fatal — fall through to the geocoder.
@@ -2089,6 +2569,7 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
     const coded = resolveCodedLocation(text);
     if (coded) {
       await setUserLocation(redis, chatId, coded.lat, coded.lng);
+      await persistExplicitLocale(coded.lat, coded.lng);   // v0.62.197 — also set userlocale: mode
       // v0.61.197 — recent-locations LRU push.
       addRecentLocation(redis, chatId, { lat: coded.lat, lng: coded.lng, label: coded.label }).catch(() => {});
       console.log(`[/l] resolved coded input "${text}" -> ${coded.label}`);
@@ -2141,6 +2622,7 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
         return;
       }
       await setUserLocation(redis, chatId, lat, lng);
+      await persistExplicitLocale(lat, lng);   // v0.62.197 — also set userlocale: mode (SG gate)
       // v0.61.197 — recent-locations LRU push.
       addRecentLocation(redis, chatId, {
         lat, lng,
@@ -2189,6 +2671,7 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
       region: 'OTHER',
       label
     });
+    await persistExplicitLocale(lat, lng);   // v0.62.197 — also set userlocale: mode
     // v0.61.197 — recent-locations LRU push.
     addRecentLocation(redis, chatId, {
       lat, lng,
@@ -2309,6 +2792,41 @@ bot.onText(/^\/(?:recognised|r)(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
   // Michelin SG list; gate it when the registered locale is non-SG.
   if (!(await isSgOnlyCommandAllowed(msg.chat.id, 'recognised', lang))) return;
   await runRecognisedCommand(msg.chat.id, lang);
+});
+
+// v0.61.426 — /rating (alias /ra): per-chat minimum Google-rating floor,
+// shared with the Cuisine TMA's "≥3.7" rating pill via one Redis key
+// (`rating-pref:<chatId>`). Operator spec:
+//   /rating          → show the current setting + how to change it
+//   /rating 0        → any rating (no minimum / floor off)
+//   /rating 1.0–5.0  → that minimum floor
+//   /rating <other>  → invalid; suggest 3.7
+// NOTE: /r stays bound to /recognised; /ra is the rating alias (operator pick).
+// Applies to every eatery surface (the floor is read per-chat in deliverPicks
+// + /api/cuisine/search). Not country-gated — rating is universal.
+bot.onText(/^\/(?:rating|ra)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
+  const chatId = msg.chat.id;
+  const { resolveLang } = require('./user-prefs');
+  const lang = await resolveLang(redis, chatId, msg).catch(() => 'en');
+  const arg = match && match[1] ? String(match[1]).trim() : '';
+  // No argument → status + usage.
+  if (!arg) {
+    const current = await ratingPrefLib.getUserRatingPref(redis, String(chatId)).catch(() => ratingPrefLib.DEFAULT_RATING);
+    await safeSend(chatId, ratingPrefLib.ratingStatusMessage(current, lang), { parse_mode: 'Markdown' });
+    return;
+  }
+  const parsed = ratingPrefLib.parseRatingCommand(arg);
+  if (!parsed) {
+    await safeSend(chatId, ratingPrefLib.ratingInvalidMessage(lang), { parse_mode: 'Markdown' });
+    return;
+  }
+  const ok = await ratingPrefLib.setUserRatingPref(redis, String(chatId), parsed).catch(() => false);
+  if (!ok) {
+    await safeSend(chatId, ratingPrefLib.ratingInvalidMessage(lang), { parse_mode: 'Markdown' });
+    return;
+  }
+  console.log(`[rating-pref] chat=${chatId} → ${parsed} (command)`);
+  await safeSend(chatId, ratingPrefLib.ratingSavedMessage(parsed, lang), { parse_mode: 'Markdown' });
 });
 
 // v0.52.0: /heritage_food removed. The data source overlapped /recognised
@@ -2542,17 +3060,21 @@ bot.onText(/^\/(?:search|s)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   await runSearchCommand(msg.chat.id, arg, lang);
 });
 
-bot.onText(/^⛔ Use Raffles Place default$/, async (msg) => {
+bot.onText(/^🕘 Use my last location$/, async (msg) => {
   try {
     const pending = await consumePendingMeal(redis, msg.chat.id);
     const resolved = resolvePending(pending) || { kind: 'sanctuary', category: 'food' };
+    // v0.61.408 — use the LAST SET LOCATION (set-location cache → recents drawer
+    // top → Raffles Place floor) instead of the old hardcoded Raffles coords.
+    const def = await resolveDefaultCenter(msg.chat.id);
+    console.log(`[default-center] chat=${msg.chat.id} last-location button via ${def.source}${def.label ? ` (${def.label})` : ''}`);
     await safeSend(msg.chat.id, ACK_SENSING_VIBE);
     if (resolved.kind === 'cuisine') {
-      await runCuisineFlow(msg.chat.id, 1.2839, 103.8517, resolved.cuisineType);
+      await runCuisineFlow(msg.chat.id, def.lat, def.lng, resolved.cuisineType);
     } else if (resolved.kind === 'nl') {
-      await runNLFlow(msg.chat.id, 1.2839, 103.8517, resolved);
+      await runNLFlow(msg.chat.id, def.lat, def.lng, resolved);
     } else {
-      await runFlow(msg.chat.id, 1.2839, 103.8517, resolved.category);
+      await runFlow(msg.chat.id, def.lat, def.lng, resolved.category);
     }
   } catch (err) {
     console.error('[Error] default fallback failed:', err.message);
@@ -2621,6 +3143,29 @@ bot.on('callback_query', async (q) => {
       return;
     }
 
+    // v0.62.3 — first-share location confirmation. `locconf:ok` confirms the
+    // auto-saved location; `locconf:fix` tells the user to type their area
+    // (the reliable path on Telegram Desktop, which has no device GPS).
+    if (data === 'locconf:ok' || data === 'locconf:fix') {
+      try {
+        const place = await redis.get(`locconf:${chatId}`).catch(() => null);
+        await redis.del(`locconf:${chatId}`).catch(() => {});
+        if (q.message?.message_id) {
+          try { await bot.editMessageReplyMarkup({ inline_keyboard: [] }, { chat_id: chatId, message_id: q.message.message_id }); } catch { /* non-fatal */ }
+        }
+        if (data === 'locconf:ok') {
+          await safeSend(chatId, t('loc.confirm.okAck', cbLang).replace('{place}', place || '—'), { parse_mode: 'Markdown' });
+          console.log(`[locconf] confirmed chat=${chatId}`);
+        } else {
+          await safeSend(chatId, t('loc.confirm.fixPrompt', cbLang), { parse_mode: 'Markdown' });
+          console.log(`[locconf] manual-fix requested chat=${chatId}`);
+        }
+      } catch (err) {
+        console.warn('[locconf] callback failed:', err.message);
+      }
+      return;
+    }
+
     // v0.61.195 — `cp:<CODE>` / `cp:cancel` callbacks from the
     // /lcountry picker. Persists the chosen country in Redis so
     // /location <place> can geocode through the right country.
@@ -2676,15 +3221,19 @@ bot.on('callback_query', async (q) => {
           return;
         }
         if (arg === 'clear') {
-          const { clearRecentLocations } = require('./recent-locations');
-          await clearRecentLocations(redis, chatId);
+          // v0.61.415 — operator: don't clear the CURRENT location. Keep the
+          // active set-location row, drop the rest.
+          const { clearRecentLocationsExcept } = require('./recent-locations');
+          const cur = await getUserLocation(redis, chatId).catch(() => null);
+          await clearRecentLocationsExcept(redis, chatId, cur?.lat, cur?.lng);
+          const clearedMsg = '🕓 _Recent locations cleared — kept your current spot._';
           if (q.message?.message_id) {
             try {
-              await bot.editMessageText('🕓 _Recent locations cleared._',
+              await bot.editMessageText(clearedMsg,
                 { chat_id: chatId, message_id: q.message.message_id, parse_mode: 'Markdown' });
-            } catch { await safeSend(chatId, '🕓 Recent locations cleared.'); }
+            } catch { await safeSend(chatId, '🕓 Recent locations cleared — kept your current spot.'); }
           } else {
-            await safeSend(chatId, '🕓 Recent locations cleared.');
+            await safeSend(chatId, '🕓 Recent locations cleared — kept your current spot.');
           }
           return;
         }
@@ -3083,9 +3632,7 @@ bot.on('callback_query', async (q) => {
         const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
         const center = (loc?.lat && loc?.lng) ? { lat: loc.lat, lng: loc.lng } : SG_CENTROID;
         // v0.61.230 — derive regionCode from anchor, parallel to /s.
-        let cbRegionCode = 'SG';
-        if (loc?.country && /^[A-Z]{2}$/.test(loc.country)) cbRegionCode = loc.country;
-        else if (loc?.region === 'JB' || loc?.region === 'MY-PUT') cbRegionCode = 'MY';
+        const cbRegionCode = resolveRegionCode(loc);
         const sc = require('./search-conversation');
         try { await sc.setLastCuisine(redis, chatId, 'cooking-method', hit.slug, hit.term); }
         catch (err) { console.warn('[cookm] setLastCuisine failed:', err.message); }
@@ -3115,7 +3662,8 @@ bot.on('callback_query', async (q) => {
         if (id === 'menu_root') {
           if (messageId) {
             try {
-              await bot.editMessageReplyMarkup(_buildTopLevelKeyboard(),
+              const curLoc = await _currentLocForQuickPick(chatId);
+              await bot.editMessageReplyMarkup(_buildTopLevelKeyboard(curLoc),
                 { chat_id: chatId, message_id: messageId });
             } catch { /* non-fatal */ }
           }
@@ -3218,7 +3766,12 @@ bot.on('callback_query', async (q) => {
           await bot.sendMessage(chatId,
             tnLP('loc.searchPick.prompt', cbLang, { place: p.label }),
             {
-              parse_mode: 'Markdown',
+              // v0.62.83 — HTML (was Markdown) so the <b> place name renders
+              // bold instead of showing literal tags. p.label is a curated
+              // precinct/city label (no HTML-special chars), matching the
+              // loc.set.success HTML message above.
+              parse_mode: 'HTML',
+              disable_web_page_preview: true,
               reply_markup: { inline_keyboard: [[{ text: t('loc.searchPick.btn', cbLang), callback_data: `locsearch:${p.id}` }]] }
             });
         } catch (err) { console.warn('[locpick] search-here button send failed:', err.message); }
@@ -3410,13 +3963,18 @@ bot.on('callback_query', async (q) => {
           await safeSend(chatId, t('wake2.offerExpired', cbLang));
           return;
         }
-        // Overwrite the cached anchor with the device GPS. This is the
-        // standard setUserLocation path — no precinct, no addressComponents
-        // (would need a separate Places reverse-geocode to populate those;
-        // the deviceStreet we surfaced is a reverse-geocode but not a
-        // structured-parts breakdown). The user can re-set via the Menu
-        // TMA for the richer pill if they want it back.
-        await setUserLocation(redis, chatId, offer.lat, offer.lng);
+        // Overwrite the cached anchor with the device GPS. v0.62.101 — operator:
+        // after "📍 Use current location" the Cuisine TMA still showed the OLD
+        // anchor's name ("Gelang Patah") in the location field even though the
+        // map + flag had moved to the device spot (Telok Blangah). Root cause:
+        // this write updated the coords but passed NO label, so the stale label
+        // survived in the cache (a fresh payload otherwise drops the old name).
+        // Pass `offer.street` — the device name we already reverse-geocoded and
+        // showed the user in the prompt — so the field now reads where they
+        // accepted. (Still no structured addressComponents; the Menu TMA can
+        // re-set for the richer pill.)
+        await setUserLocation(redis, chatId, offer.lat, offer.lng,
+          (offer.street && String(offer.street).trim()) ? { label: String(offer.street).trim() } : {});
         await redis.del(`wake2:offer:${chatId}`).catch(() => {});
         await safeSend(chatId,
           tn('wake2.currentApplied', cbLang, { street: escapeHtmlForTelegram(offer.street || '') }),
@@ -3634,7 +4192,15 @@ bot.on('location', async (msg) => {
         return;
       }
     }
+    // v0.62.3 — was a location registered BEFORE this share? If not, this is a
+    // first-ever share (no drift prompt can fire), so the bare-share path below
+    // confirms it back — Telegram Desktop has no GPS; its share is a map-pick.
+    let hadPriorLocation = false;
     if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      try {
+        const prior = await getUserLocation(redis, msg.chat.id);
+        hadPriorLocation = !!(prior && Number.isFinite(prior.lat) && Number.isFinite(prior.lng));
+      } catch { /* non-fatal — treat as first share */ }
       try {
         await setUserLocation(redis, msg.chat.id, lat, lng);
         console.log(`[location] setUserLocation OK chatId=${msg.chat.id} lat=${lat.toFixed(4)} lng=${lng.toFixed(4)} elapsed=${Date.now() - locStartMs}ms`);
@@ -3700,8 +4266,9 @@ bot.on('location', async (msg) => {
     } else {
       console.warn(`[location] coords missing/malformed chatId=${msg.chat.id} location=${JSON.stringify(msg.location)}`);
     }
-    // v0.56.1: dismiss the persistent "Share my location / Use Raffles
-    // Place default" reply keyboard once we've received a location.
+    // v0.56.1: dismiss the persistent "Share my location / Use my last
+    // location" reply keyboard once we've received a location.
+    // (v0.61.408 — the second button was "Use Raffles Place default".)
     // Per Human Lead — the buttons "keep on at iOS" until removed.
     const { resolveLang } = require('./user-prefs');
     const { t } = require('./i18n');
@@ -3728,9 +4295,30 @@ bot.on('location', async (msg) => {
           }
         }
       } catch { /* non-fatal — keep coord placeLine */ }
-      const body = locLang === 'fr'
+      // v0.62.3 — first-ever share: confirm the resolved place (Telegram
+      // Desktop sends a map-pick, not GPS, so it can land wrong) and offer a
+      // manual-set path. The share keyboard auto-collapses (one_time_keyboard).
+      if (!hadPriorLocation) {
+        try { await redis.setEx(`locconf:${msg.chat.id}`, 600, placeLine || '—').catch(() => {}); } catch { /* non-fatal */ }
+        try {
+          await bot.sendMessage(msg.chat.id, t('loc.confirm.firstShare', locLang).replace('{place}', placeLine || '—'), {
+            parse_mode: 'Markdown',
+            reply_markup: {
+              inline_keyboard: [[
+                { text: t('loc.confirm.yes', locLang), callback_data: 'locconf:ok' },
+                { text: t('loc.confirm.no', locLang),  callback_data: 'locconf:fix' }
+              ]]
+            }
+          });
+        } catch (err) { /* non-fatal */ }
+        return; // first-share confirmation sent
+      }
+      // Subsequent bare share — keep the saved-confirmation + a desktop nudge so
+      // a wrong map-pick stays correctable.
+      const body = (locLang === 'fr'
         ? `📍 *Position enregistrée*\n${placeLine}\n\n_Prête pour /cuisine, /search, /carpark, /transport._`
-        : `📍 *Location saved*\n${placeLine}\n\n_Ready for /cuisine, /search, /carpark, /transport._`;
+        : `📍 *Location saved*\n${placeLine}\n\n_Ready for /cuisine, /search, /carpark, /transport._`)
+        + `\n\n${t('loc.desktopNudge', locLang)}`;
       try {
         await bot.sendMessage(msg.chat.id, body, {
           parse_mode: 'Markdown',
@@ -5115,9 +5703,11 @@ async function runWeatherCommand(chatId, lang = 'en', areaArg = null) {
       if (!resolved) { await safeSend(chatId, t('weather.areaUnknown', lang)); return; }
       lat = resolved.lat; lng = resolved.lng; areaLabel = resolved.name;
     } else {
-      const cached = await getUserLocation(redis, chatId);
-      lat = cached?.lat ?? 1.2839;
-      lng = cached?.lng ?? 103.8517;
+      // v0.61.408 — default to the last set location (cache → recents drawer →
+      // Raffles Place floor) rather than hardcoding Raffles Place.
+      const def = await resolveDefaultCenter(chatId);
+      lat = def.lat;
+      lng = def.lng;
     }
     const [w, rainfall, fc24] = await Promise.all([
       weather.summary(lat, lng),
@@ -6084,6 +6674,137 @@ const HIDDEN_NATURAL_NAME_RX = /\b(catchment|reservoir|forest|nature reserve|par
 // that text to a lat/lng anchor, search 200m-3km around THAT anchor
 // (replacing the user's GPS), and pass the same constraint to Gemini.
 // Validation rejects garbage like `/hidden ramen` with a bilingual hint.
+// v0.61.319 — render /hidden picks as the SAME rich venue card as /search
+// free-text (formatTechniqueVenueBlock) PLUS a "📝 Latest review ·" line,
+// and WITHOUT Gemini's "💎 Why a gem" prose (the one fabricable field —
+// dropped per operator). The card fields ride the existing Places verifier
+// call (hidden-verify.lookupVenue); enrichTravelTimes + social profiles are
+// best-effort (already used on the /search path). No new paid API calls.
+//
+// `verifiedVenues` each carry, from hidden-verify.lookupVenue:
+//   id, name, displayHeading, address, lat, lng, rating, userRatingCount,
+//   googleMapsUri, primaryType, primaryTypeDisplayName, weekdayDescriptions,
+//   websiteUri, nationalPhoneNumber, priceLevel, editorialSummary,
+//   newestReviewIso, distanceM.
+async function renderHiddenVenueCards(chatId, lang, verifiedVenues, anchorLat, anchorLng, verifiedText) {
+  const { t } = require('./i18n');
+  const { googleMapsUrl } = require('./maps-url');
+  const list = Array.isArray(verifiedVenues) ? verifiedVenues.filter(Boolean) : [];
+  if (!list.length) return;
+
+  // Parse the Gemini-surfaced "🍲 Try ·" / "Order this" dishes per venue so
+  // we can carry the (non-fabricable) dish onto the card. Match block.name
+  // to the venue's displayHeading case-insensitively.
+  let dishByName = new Map();
+  try {
+    const { parseBlocks } = require('./hidden-verify');
+    const { blocks } = parseBlocks(verifiedText || '');
+    for (const b of blocks) {
+      let dish = '';
+      for (const line of b.lines) {
+        // "🍲 Try · X" / "🍴 Order this: X" / FR "Essayez · X"
+        const m = /^[🍲🍴]\s*(?:Try|Essayez|Order this)\s*[·:]\s*(.+)$/u.exec(String(line).trim());
+        if (m) { dish = m[1].split(/\s*[—–]\s*/)[0].split(/\s*,\s*/)[0].replace(/\.\s*$/, '').trim(); break; }
+      }
+      if (b.name) dishByName.set(String(b.name).toLowerCase(), dish);
+    }
+  } catch (err) {
+    console.warn('[/hidden] dish-parse for cards failed (continuing):', err.message);
+  }
+
+  // Map each verified venue → a venue object shaped for the shared formatter.
+  // Mirror the /search Places→venue key names (index.js searchVenuesByDish).
+  const PRICE_NUM = { PRICE_LEVEL_INEXPENSIVE: 1, PRICE_LEVEL_MODERATE: 2, PRICE_LEVEL_EXPENSIVE: 3, PRICE_LEVEL_VERY_EXPENSIVE: 4 };
+  const venues = list.map((v) => {
+    const heading = v.displayHeading || v.name || '';
+    return {
+      name: heading,
+      placeId: v.id || '',
+      area: v.address || '',
+      restaurantType: humaniseRestaurantType(v.primaryTypeDisplayName, v.primaryType, v.types),
+      rating: typeof v.rating === 'number' ? v.rating : null,
+      userRatingCount: typeof v.userRatingCount === 'number' ? v.userRatingCount : null,
+      lat: Number.isFinite(v.lat) ? v.lat : null,
+      lng: Number.isFinite(v.lng) ? v.lng : null,
+      weekdayDescriptions: Array.isArray(v.weekdayDescriptions) && v.weekdayDescriptions.length
+        ? v.weekdayDescriptions : null,
+      websiteUri: v.websiteUri || '',
+      phone: v.nationalPhoneNumber || '',
+      priceLevel: PRICE_NUM[v.priceLevel] || null,
+      url: v.googleMapsUri || '',
+      // carry-throughs used below (not consumed by formatTechniqueVenueBlock)
+      _dishPhrase: dishByName.get(heading.toLowerCase()) || '',
+      _newestReviewIso: v.newestReviewIso || null
+    };
+  });
+
+  // Enrichers — best-effort, same surfaces as the /search path.
+  try {
+    const { enrichTravelTimes } = require('./travel-times');
+    await enrichTravelTimes(anchorLat, anchorLng, venues);
+  } catch (err) {
+    console.warn('[/hidden] enrichTravelTimes failed (continuing):', err.message);
+  }
+  try {
+    const { attachSocialsToVenues } = require('./social-profiles');
+    await attachSocialsToVenues(redis, venues, { concurrency: 4 });
+  } catch (err) {
+    console.warn('[/hidden] attachSocialsToVenues failed (continuing):', err.message);
+  }
+
+  const reviewLabel = t('hidden.latestReviewLabel', lang);
+  const cards = venues.map((venue, i) => {
+    try {
+      let card = formatTechniqueVenueBlock(venue, {
+        number: i + 1,
+        lang,
+        googleMapsUrlFn: googleMapsUrl,
+        dishPhrase: venue._dishPhrase
+      });
+      // Insert "📝 Latest review · DD MMM YYYY" right after the 🌟 rating line
+      // (parity with the old /hidden card position). Skip when no review date.
+      if (venue._newestReviewIso) {
+        const d = new Date(venue._newestReviewIso);
+        if (!Number.isNaN(d.getTime())) {
+          const dateStr = d.toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-GB', {
+            day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Singapore'
+          });
+          const reviewLine = `${reviewLabel} ${dateStr}`;
+          const cardLines = card.split('\n');
+          const ratingIdx = cardLines.findIndex((l) => /^🌟/.test(l));
+          if (ratingIdx >= 0) cardLines.splice(ratingIdx + 1, 0, reviewLine);
+          else cardLines.push(reviewLine); // no rating line → append
+          card = cardLines.join('\n');
+        }
+      }
+      return card;
+    } catch (err) {
+      // One bad card must not blank the whole reply (preflight §3).
+      console.warn('[/hidden] card render failed for', venue && venue.name, '→', err.message);
+      const vt = require('./venue-templates');
+      return `${i + 1}. <b>${vt.escapeHtmlForTelegram((venue && venue.name) || '')}</b>`;
+    }
+  });
+
+  // Chunk on per-card boundaries to stay under Telegram's 4096-char cap.
+  // NOTE: do NOT route through chunkHiddenGemsOutput here — that helper
+  // escapes/strips/re-bolds raw Gemini text, which would DOUBLE-escape the
+  // already-HTML cards (formatTechniqueVenueBlock emits <b>/<i> + entities).
+  // These cards are final HTML; we only need to pack them into ≤3800-char
+  // messages on card boundaries (one card never spans two messages).
+  const MAX = 3800;
+  const chunks = [];
+  let buf = '';
+  for (const card of cards) {
+    if (buf && (buf.length + 2 + card.length) > MAX) { chunks.push(buf); buf = ''; }
+    buf = buf ? `${buf}\n\n${card}` : card;
+  }
+  if (buf) chunks.push(buf);
+  for (const c of chunks) {
+    await safeSend(chatId, c, { parse_mode: 'HTML', disable_web_page_preview: true });
+  }
+}
+
 async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
   // v0.61.312 — operator restricted /hidden to themselves only.
   // Silent no-op for non-owners; same gating pattern as /ver / /cost /
@@ -6246,10 +6967,10 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
       await safeSend(chatId, t('hidden.allClosed', lang));
       return;
     }
-    const chunks = chunkHiddenGemsOutput(verifiedText, 3800);
-    for (const c of chunks) {
-      await safeSend(chatId, c, { parse_mode: 'HTML', disable_web_page_preview: true });
-    }
+    // v0.61.319 — render the SAME rich venue card as /search free-text
+    // (+ "📝 Latest review", − "💎 Why a gem"). Anchor = the geocoded
+    // free-text lat/lng.
+    await renderHiddenVenueCards(chatId, lang, verifiedVenues, geo.lat, geo.lng, verifiedText);
     // One-map button (mirrors the GPS-anchored path).
     try {
       const plottable = verifiedVenues.filter((v) => v && Number.isFinite(v.lat) && Number.isFinite(v.lng));
@@ -6677,16 +7398,11 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     } catch (err) {
       console.warn('[/hidden] distance-rewrite failed (keeping original):', err.message);
     }
-    // Telegram message limit is 4096 chars. Chunk on per-result
-    // boundaries (lines starting "/^\d+\. /") so a single venue
-    // never spans messages.
-    const chunks = chunkHiddenGemsOutput(verifiedText, 3800);
-    for (const c of chunks) {
-      await safeSend(chatId, c, {
-        parse_mode: 'HTML',
-        disable_web_page_preview: true
-      });
-    }
+    // v0.61.319 — render the SAME rich venue card as /search free-text
+    // (+ "📝 Latest review", − "💎 Why a gem"). Anchor = the cached GPS
+    // lat/lng. The distance-rewrite above keeps verifiedText's prose in
+    // sync for dish-parsing; the card itself shows travel time, not prose.
+    await renderHiddenVenueCards(chatId, lang, verifiedVenues, cached.lat, cached.lng, verifiedText);
     // v0.59.6: one-map button for all 5 picks (post-list). Reuses the
     // Places-API lat/lng captured during verification — only renders
     // when at least 2 picks resolved (single venue is already its own
@@ -6794,6 +7510,50 @@ function escapeHtmlForTelegram(s) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+}
+
+// v0.62.x — operator option 1: a friendly, THROTTLED "AI is busy" notice, shown
+// only when an AI step actually degraded (the search-intent classifier failed
+// open during a Gemini outage). Results still came through; this just reassures
+// + invites a retry for the smarter pass. Throttled to once / 3 min per chat
+// (Redis NX+EX) so it never spams; never throws / never blocks the search.
+async function sendDegradedNotice(redis, chatId, lang) {
+  try {
+    if (redis && redis.isOpen) {
+      const set = await redis.set(`degraded:notice:${chatId}`, '1', { NX: true, EX: 180 });
+      if (set === null) return; // already shown within the last 3 min — stay quiet
+    }
+    const msg = lang === 'fr'
+      ? '⚡ Les suggestions intelligentes de Soleat sont très sollicitées — voici les correspondances directes. Réessayez dans un instant pour plus.'
+      : "⚡ Soleat's smart suggestions are busy right now — showing direct matches. Try again in a moment for more.";
+    await safeSend(chatId, msg);
+  } catch { /* never block the user-facing flow */ }
+}
+
+// v0.62.x — Search Insights PR4: anonymous, aggregate-only demand counter.
+// Fire-and-forget. Stores NO chatID, NO query text, NO individual record — only
+// coarse tallies of "which cuisine, in which ~1km grid cell, at which meal
+// period" — the privacy-clean foundation for a future aggregate demand view.
+// Never blocks or fails a search; any Redis hiccup is swallowed.
+function recordSearchDemand(redis, { cuisines, lat, lng }) {
+  if (!redis || !redis.isOpen) return;
+  try {
+    const { mealPeriodSGT } = require('./vibe-suggest');
+    const period = (mealPeriodSGT() || {}).id || 'other';
+    // Coarse ~1.1km grid cell — deliberately NOT an exact pin (anonymity).
+    const cell = (Number.isFinite(lat) && Number.isFinite(lng))
+      ? `${lat.toFixed(2)},${lng.toFixed(2)}`
+      : 'na';
+    const list = (Array.isArray(cuisines) && cuisines.length) ? cuisines.slice(0, 5) : ['any'];
+    const TTL_S = 60 * 60 * 24 * 180; // 180 days
+    for (const c of list) {
+      const slug = String(c || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40) || 'any';
+      const key = `demand:v1:${slug}:${cell}:${period}`;
+      redis.incr(key)
+        .then((n) => (n === 1 ? redis.expire(key, TTL_S) : null))
+        .catch(() => {});
+    }
+  } catch { /* never block search */ }
 }
 
 // v0.60.61 — bucket an LTA-reported "minutes to arrival" into one
@@ -7121,14 +7881,24 @@ async function runClipCommand(chatId, arg, lang = 'en') {
   const cuisineFilter = arg || null;
   const PAGE = 5;
   const { items, total } = await listClips(redis, chatId, { cuisine: cuisineFilter, limit: PAGE, offset: 0 });
+  // v0.62.439 — single "Open Sketchbook" button, built ONCE and shown on BOTH the
+  // empty and the listing paths (operator: show the button even with no clips).
+  // Guarded: only attach reply_markup when the button exists — an empty
+  // inline_keyboard makes Telegram reject the whole message (the "/clipboard shows
+  // nothing" bug).
+  const sketchbookRows = (useWebhook && webhookDomain)
+    ? [[{ text: lang === 'fr' ? '📋 Ouvrir Sketchbook' : '📋 Open Sketchbook', web_app: { url: `https://${webhookDomain}/app/clipboard` } }]]
+    : [];
+  const replyMarkupOpt = sketchbookRows.length ? { reply_markup: { inline_keyboard: sketchbookRows } } : {};
   if (!total) {
-    await safeSend(chatId, cuisineFilter
+    await bot.sendMessage(chatId, cuisineFilter
       ? (lang === 'fr'
         ? `📋 Aucun clip pour « ${cuisineFilter} ».`
         : `📋 No clips matching "${cuisineFilter}".`)
       : (lang === 'fr'
-        ? '📋 Vous n\'avez pas encore de clips. Tapez "Copier" dans le sélecteur de cuisine, puis revenez ici.'
-        : '📋 No clips yet. Tap Copy in the cuisine picker, then come back here.'));
+        ? '📋 Vous n\'avez pas encore de clips. Touchez « Copier » dans le sélecteur, ou ouvrez Sketchbook.'
+        : '📋 No clips yet. Tap Copy in the cuisine picker, or open Sketchbook.'),
+      replyMarkupOpt);
     return;
   }
   const header = cuisineFilter
@@ -7154,24 +7924,12 @@ async function runClipCommand(chatId, arg, lang = 'en') {
       ? `Voir plus : ${total} clips au total.`
       : `${total} total · showing first ${items.length}.`);
   }
-  // v0.60.151 — per-clip action row: Resend (rich) · Copy (plain text) ·
-  // Rename (force-reply prompt) · Remove (one-tap delete with confirm).
-  // One row per clip prefixed by the index → tap-targets stay legible
-  // even on narrow Telegram clients.
-  const keyboardRows = items.map((c, i) => [
-    { text: `${i + 1}: 📤`, callback_data: `clip:resend:${c.index}` },
-    { text: '📋', callback_data: `clip:copy:${c.index}` },
-    { text: '✏️', callback_data: `clip:rename:${c.index}` },
-    { text: '🗑', callback_data: `clip:remove:${c.index}:ask` }
-  ]);
-  keyboardRows.push([{
-    text: lang === 'fr' ? '🗑 Effacer tout' : '🗑 Clear all',
-    callback_data: 'clip:clear:ask'
-  }]);
+  // v0.62.438/439 — just the last-5 list + a single "Open Sketchbook" button
+  // (built above as sketchbookRows; per-clip rows + Clear-all moved to the TMA).
   await bot.sendMessage(chatId, lines.join('\n'), {
     parse_mode: 'HTML',
     disable_web_page_preview: true,
-    reply_markup: { inline_keyboard: keyboardRows }
+    ...replyMarkupOpt
   });
 }
 
@@ -7472,6 +8230,13 @@ async function runSearchCommand(chatId, arg, lang = 'en') {
   }
 }
 
+// v0.61.231 — single source of truth for the Places regionCode derived
+// from a cached user location (region-code.js). loc.country (ISO alpha-2)
+// wins; legacy JB / MY-PUT regions map to 'MY'; default 'SG'. Replaces the
+// inline derivation that handleSearchTurn / the cooking-method callback grew
+// independently, so every fan-out biases Places to the same country.
+const { resolveRegionCode } = require('./region-code');
+
 // One round-trip: take user text, ask Gemini to classify intent, then
 // either reply with a clarifying question OR dispatch a Places search
 // and stream back top venues.
@@ -7508,12 +8273,7 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   //   loc.region === 'JB'        → 'MY'
   //   loc.region === 'MY-PUT'    → 'MY'
   //   default                    → 'SG'
-  let regionCode = 'SG';
-  if (loc?.country && /^[A-Z]{2}$/.test(loc.country)) {
-    regionCode = loc.country;
-  } else if (loc?.region === 'JB' || loc?.region === 'MY-PUT') {
-    regionCode = 'MY';
-  }
+  const regionCode = resolveRegionCode(loc);
 
   // ── v0.60.134 — R.E.D disambiguation runs FIRST ─────────────────────
   // Deterministic, no LLM. When the term is in AMBIGUOUS_DISHES
@@ -7618,7 +8378,7 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   if (niHit) {
     try { await sc.setLastCuisine(redis, chatId, 'nation', niHit.slug, niHit.dish); }
     catch (err) { console.warn('[Search] setLastCuisine failed:', err.message); }
-    return await runNationIconicFanOut({ chatId, userText, hit: niHit, lang, center, sc });
+    return await runNationIconicFanOut({ chatId, userText, hit: niHit, lang, center, sc, regionCode });
   }
   // v0.60.12 — Cooking-method detection. 70 cuisines × 30 methods
   // (~2,100 entries) curated by Human Lead. Catches /s queries that
@@ -7676,7 +8436,7 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   } else {
     try {
       venues = await searchVenuesByDish(intent.searchTerm, intent.cuisine || null, {
-        lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey, regionCode
+        lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey, regionCode, chatId
       });
     } catch (err) {
       console.warn('[Search] searchVenuesByDish failed:', err.message);
@@ -7898,14 +8658,51 @@ function flagFor(cuisine) {
 //   "Cantonese restaurant"  → "Cantonese"
 //   "Restaurant japonais"   → "japonais"
 //   "sushi_restaurant"      → "Sushi" (raw enum fallback)
-function humaniseRestaurantType(displayText, primaryTypeEnum) {
+//
+// v0.62.117 — operator: Google Maps shows "The Butcher's Wife" as a
+// "Gluten-free restaurant", but the API's primaryType / primaryTypeDisplayName
+// is the GENERIC "restaurant". The specific cuisine subtype
+// ("gluten_free_restaurant") lives in `places.types[]`. So the resolution order
+// is now: (1) the localized primaryTypeDisplayName when it's already specific;
+// (2) the most specific cuisine subtype mined from types[]; (3) the raw
+// primaryType enum when it's itself specific (cafe / bakery / bar); (4) nothing
+// — when ALL we have is a bare "Restaurant" / "Food" the line is HIDDEN rather
+// than showing a useless generic label.
+const GENERIC_VENUE_TYPE = new Set([
+  'restaurant', 'food', 'store', 'meal takeaway', 'meal delivery',
+  'point of interest', 'establishment', 'food store', 'grocery store',
+  'grocery or supermarket'
+]);
+function _humaniseTypeEnum(enumStr) {
+  return String(enumStr || '')
+    .replace(/_/g, ' ')
+    .replace(/[\p{L}][\p{L}'’-]*/gu, (w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .replace(/\s+restaurant$/i, '')
+    .replace(/^restaurant\s+/i, '')
+    .trim();
+}
+function _isGenericType(s) {
+  return GENERIC_VENUE_TYPE.has(String(s || '').trim().toLowerCase());
+}
+function humaniseRestaurantType(displayText, primaryTypeEnum, typesArr) {
+  // (1) localized display name, when it's already specific.
   let s = (displayText && String(displayText).trim()) || '';
-  if (!s && primaryTypeEnum) {
-    s = String(primaryTypeEnum).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-  }
-  if (!s) return '';
   s = s.replace(/\s+restaurant$/i, '').replace(/^restaurant\s+/i, '').trim();
-  return s;
+  if (s && !_isGenericType(s)) return s;
+  // (2) mine types[] for a specific cuisine subtype (e.g. gluten_free_restaurant
+  //     → "Gluten-free"). These all end in "_restaurant" in the Places (New) API.
+  const types = Array.isArray(typesArr) ? typesArr.map(String) : [];
+  for (const t of types) {
+    if (/_restaurant$/i.test(t)) {
+      const h = _humaniseTypeEnum(t);
+      if (h && !_isGenericType(h)) return h;
+    }
+  }
+  // (3) raw primaryType enum when it is itself specific (cafe / bakery / bar …).
+  const pe = _humaniseTypeEnum(primaryTypeEnum);
+  if (pe && !_isGenericType(pe)) return pe;
+  // (4) only a generic "Restaurant" / "Food" anywhere — hide the line.
+  return '';
 }
 
 // v0.61.230 — `regionCode` is now an option (default 'SG' kept for
@@ -7913,7 +8710,7 @@ function humaniseRestaurantType(displayText, primaryTypeEnum) {
 // method fan-outs that haven't been threaded yet). When the user's
 // anchor is non-SG, callers pass the resolved alpha-2 (e.g. 'MY',
 // 'JP', 'KR') so Places biases its search to that country.
-async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5, mapsApiKey, regionCode = 'SG' }) {
+async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5, mapsApiKey, regionCode = 'SG', chatId = null }) {
   if (!mapsApiKey) return [];
   const PLACES_TEXT_URL = 'https://places.googleapis.com/v1/places:searchText';
   // v0.60.2: expanded field mask so the rich card template can
@@ -7927,6 +8724,7 @@ async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5,
     'places.id', 'places.displayName', 'places.formattedAddress', 'places.location',
     'places.rating', 'places.userRatingCount', 'places.businessStatus',
     'places.googleMapsUri', 'places.primaryType', 'places.primaryTypeDisplayName',
+    'places.types',
     'places.regularOpeningHours.weekdayDescriptions',
     'places.websiteUri', 'places.nationalPhoneNumber', 'places.priceLevel'
   ].join(',');
@@ -7972,9 +8770,13 @@ async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5,
         phone: p?.nationalPhoneNumber || '',
         priceLevel: PRICE_NUM[p?.priceLevel] || null,
         primaryType: p?.primaryType || '',
+        // v0.62.117 — carry Places types[] so downstream paths (e.g. the
+        // hidden-verify cards' humaniseRestaurantType) can mine the specific
+        // cuisine subtype, not just the generic primaryType.
+        types: Array.isArray(p?.types) ? p.types : [],
         // v0.60.45 — surface a localized cuisine label below the venue
         // name on every result card (Sushi / Japanese / Cantonese, etc.).
-        restaurantType: humaniseRestaurantType(p?.primaryTypeDisplayName?.text, p?.primaryType),
+        restaurantType: humaniseRestaurantType(p?.primaryTypeDisplayName?.text, p?.primaryType, p?.types),
         url: p?.googleMapsUri || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p?.displayName?.text || '')}`
       }));
     // v0.60.229 — close the /s filter gap: the technique/dish fan-out
@@ -7986,7 +8788,13 @@ async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5,
     if (kept.length !== mapped.length) {
       console.log(`[Search-FanOut] venue-filter dropped ${mapped.length - kept.length} directory/non-food result(s) for "${String(textQuery).slice(0, 40)}"`);
     }
-    return kept;
+    // v0.61.436 — apply the per-chat guarded rating floor here, the ONE
+    // seam every /s render path shares (handleSearchTurn + the technique /
+    // nation-iconic / cooking-method fan-outs render these venues via
+    // formatTechniqueVenueBlock, NOT deliverPicks — code review: they
+    // skipped the floor entirely, contradicting /rating's "applies to
+    // every eatery search"). Guarded: never empties.
+    return applyChatRatingFloor(chatId, kept, 'Search-FanOut');
   } catch (err) {
     console.warn(`[Search-FanOut] Places searchText "${String(textQuery).slice(0, 60)}" failed:`, err.message);
     return [];
@@ -8039,7 +8847,10 @@ function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishP
   // that don't trigger the nationality preference render unchanged.
   if (typeof venue.recentReview === 'string' && venue.recentReview.trim()
       && typeof venue.recentReviewTranslatedFlag === 'string' && venue.recentReviewTranslatedFlag) {
-    lines.push(`💬 <i>"${vt.escapeHtmlForTelegram(venue.recentReview.trim())}"</i> ( ${venue.recentReviewTranslatedFlag} translated)`);
+    // v0.61.417 — review "X ago" date a few spaces after the closing quote.
+    const ago = (typeof venue.recentReviewAgo === 'string' && venue.recentReviewAgo.trim())
+      ? `  ${vt.escapeHtmlForTelegram(venue.recentReviewAgo.trim())}` : '';
+    lines.push(`💬 <i>"${vt.escapeHtmlForTelegram(venue.recentReview.trim())}"</i>${ago} ( ${venue.recentReviewTranslatedFlag} translated)`);
   }
   // 📍 maps URL.
   const maps = vt.formatMapsLine(venue, googleMapsUrlFn);
@@ -8056,7 +8867,7 @@ function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishP
   // the maps URL. v0.60.193 — DF-91: cross-ref logic factored into
   // michelin-2025's appendMichelinAnnotation helper. Shared with
   // formatVenueBlock + /api/cuisine/search post-loop annotation.
-  require('./michelin-2025').appendMichelinAnnotation(lines, venue, 'formatTechniqueVenueBlock');
+  require('./SG-michelin').appendMichelinAnnotation(lines, venue, 'formatTechniqueVenueBlock');
   // v0.62.0 — HPB Healthier Choice + "inside a building complex" rows.
   require('./healthier-eateries').appendHealthierChoiceLine(lines, venue, 'formatTechniqueVenueBlock');
   require('./buildings').appendBuildingLine(lines, venue, 'formatTechniqueVenueBlock');
@@ -8183,7 +8994,7 @@ async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, s
     // locationBias.circle constrain Places to the right country.
     // Drop the hardcoded "Singapore" suffix so the textQuery doesn't
     // pull SG-only matches.
-    const ctx = { lat: center.lat, lng: center.lng, lang, mapsApiKey, regionCode };
+    const ctx = { lat: center.lat, lng: center.lng, lang, mapsApiKey, regionCode, chatId };
     const placeSuffix = regionCode === 'SG' ? ' restaurant Singapore' : ' restaurant';
     const variantSearches = variants.map((v) => {
       const dishPhrase = gc.canonicalDishPhrase(v.dishKey);
@@ -8366,18 +9177,25 @@ async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, s
 // template as runTechniqueFanOut so users get full venue details
 // (address, hours, website, phone, rating, transit, "Try X" line, maps)
 // instead of the thin deliverPicks / runFreeTextSearch fallback.
-async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc }) {
+async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc, regionCode = 'SG' }) {
   const overlay = require('./nation-overlay');
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   const esc = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-  // Refined query — anchor by SG context + venue type so Places ranks
-  // hawker/kopitiam stalls above unrelated literals (e.g. "dinosaur Milo"
-  // matching theme parks).
+  // Refined query — anchor by venue type so Places ranks hawker/kopitiam
+  // stalls above unrelated literals (e.g. "dinosaur Milo" matching theme
+  // parks).
+  // v0.61.231 — region-aware: only append the "Singapore" literal when the
+  // user's anchor is SG. Abroad (e.g. country=MY/ID/TH, or a Bangkok/Tokyo
+  // anchor) the "Singapore" word + the SG-default regionCode together
+  // forced Places to search Singapore, returning zero results even though
+  // the dish's restaurants exist locally. Now regionCode + locationBias do
+  // the geographic work, mirroring runTechniqueFanOut / runCookingMethodFanOut.
   const venueType = hit.kind === 'drink'
     ? 'kopitiam OR hawker OR coffee shop'
     : 'hawker OR restaurant';
-  const textQuery = `"${hit.dish}" Singapore ${venueType}`;
+  const placeSuffix = regionCode === 'SG' ? ' Singapore' : '';
+  const textQuery = `"${hit.dish}"${placeSuffix} ${venueType}`;
 
   // v0.60.112 — kind progressive "please wait" status (15 s reassurance
   // rotation + 60 s "did you mean something else?" nudge).
@@ -8386,13 +9204,15 @@ async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc }
 
   try {
     const venues = await searchVenuesByDish(textQuery, cuisineLabel, {
-      lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey
+      lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey, regionCode, chatId
     });
     if (!venues.length) {
       await wait.finish();
+      // v0.61.231 — region-neutral copy: locationBias already scopes the
+      // search to the user's anchor, so don't hardcode "Singapore".
       await safeSend(chatId, lang === 'fr'
-        ? `Désolé, aucun lieu trouvé pour <b>${esc(hit.dish)}</b> à Singapour. Vouliez-vous dire autre chose ? Essayez par ex. <code>/s ${esc(hit.dish)}</code> avec d\'autres mots.`
-        : `Sorry, no Singapore venues found for <b>${esc(hit.dish)}</b>. Did you mean something else? Try e.g. <code>/s ${esc(hit.dish)}</code> with different words.`,
+        ? `Désolé, aucun lieu trouvé pour <b>${esc(hit.dish)}</b>. Vouliez-vous dire autre chose ? Essayez par ex. <code>/s ${esc(hit.dish)}</code> avec d\'autres mots.`
+        : `Sorry, no venues found for <b>${esc(hit.dish)}</b>. Did you mean something else? Try e.g. <code>/s ${esc(hit.dish)}</code> with different words.`,
         { parse_mode: 'HTML' });
       return;
     }
@@ -8529,16 +9349,18 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc,
     const gcDescribe = require('./gemini-client');
     const [venues, methodDesc] = await Promise.all([
       searchVenuesByDish(textQuery, hit.cuisineLabel, {
-        lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey
+        lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey, regionCode, chatId
       }),
       gcDescribe.describeCookingMethod({ term: hit.term, cuisineLabel: hit.cuisineLabel, lang })
         .catch(() => ({ explainer: '', exampleDish: '' }))
     ]);
     if (!venues.length) {
       await wait.finish();
+      // v0.61.231 — region-neutral copy: regionCode + locationBias scope
+      // the search to the user's anchor, so don't hardcode "Singapore".
       await safeSend(chatId, lang === 'fr'
-        ? `Désolé, aucun restaurant <b>${esc(hit.cuisineLabel)}</b> trouvé à Singapour pour <b>${esc(hit.term)}</b>. Vouliez-vous dire autre chose ? Essayez par ex. <code>/s ${esc(hit.term)}</code> avec d\'autres mots.`
-        : `Sorry, no Singapore <b>${esc(hit.cuisineLabel)}</b> venues found for <b>${esc(hit.term)}</b>. Did you mean something else? Try e.g. <code>/s ${esc(hit.term)}</code> with different words.`,
+        ? `Désolé, aucun restaurant <b>${esc(hit.cuisineLabel)}</b> trouvé pour <b>${esc(hit.term)}</b>. Vouliez-vous dire autre chose ? Essayez par ex. <code>/s ${esc(hit.term)}</code> avec d\'autres mots.`
+        : `Sorry, no <b>${esc(hit.cuisineLabel)}</b> venues found for <b>${esc(hit.term)}</b>. Did you mean something else? Try e.g. <code>/s ${esc(hit.term)}</code> with different words.`,
         { parse_mode: 'HTML' });
       return;
     }
@@ -8628,6 +9450,22 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc,
   }
 }
 
+// v0.61.440 — a coarse per-LOCATION token for the seen-set / walk hash.
+// Operator bug: in Others mode every city (KL, Penang, Bangkok…) shared the
+// SAME seen-set because `region` ('OTHER') was the only location signal in
+// the hash — so a fresh KL search inherited a prior Others city's exhausted
+// dedup pool (→ 1 result; Michelin → 0; the 1-result finalBatch then stuck
+// the FAB disabled). Fold in the country + a ~11 km coord bucket so each
+// city gets its OWN bucket. Rounded to 1 dp so a stable city anchor stays
+// in one bucket (re-tap "more" still works) while distinct cities separate.
+function searchLocToken(lat, lng, countryCode) {
+  const cc = (typeof countryCode === 'string' && /^[A-Z]{2}$/i.test(countryCode))
+    ? countryCode.toUpperCase() : '';
+  const ll = (Number.isFinite(lat) && Number.isFinite(lng))
+    ? `${lat.toFixed(1)},${lng.toFixed(1)}` : '';
+  return `${cc}|${ll}`;
+}
+
 // v0.60.14 — Compute a stable hash of the search criteria for the
 // per-chatId seen-set Redis key. Same criteria → same hash → same
 // dedup bucket. Adding a new cuisine / filter / free-text resets
@@ -8640,7 +9478,15 @@ function computeCriteriaHash(parts) {
     prices: Array.isArray(parts.prices) ? [...parts.prices].sort() : [],
     radius: parts.radius || null,
     region: parts.region || 'SG',
-    freeText: String(parts.freeText || '').trim().toLowerCase()
+    freeText: String(parts.freeText || '').trim().toLowerCase(),
+    // v0.61.436 — the rating mode is a search criterion: a different
+    // floor/mode gets its own seen-set bucket (code review: a shared
+    // bucket let 'No rating' searches burn established venues into the
+    // seen-set that a later ≥3.7 search then skipped).
+    ratingPref: parts.ratingPref || null,
+    // v0.61.440 — per-location bucket (see searchLocToken). Without it
+    // every Others city collapsed into one seen-set.
+    loc: parts.loc || null
   });
   return crypto.createHash('sha256').update(json).digest('hex').slice(0, 16);
 }
@@ -8756,19 +9602,19 @@ async function setVariantIdx(chatId, criteriaHash, idx) {
 // to get live coords + ratings + hours, applies per-chatId dedup so
 // consecutive clicks return different slices, and falls back to
 // reset+full-list when every venue has been seen.
-async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, searchRadius, isJB, freeText, filters, otherCuisineSlugs = [], detectedPlaceAnchor = null }) {
+async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, searchRadius, isJB, freeText, filters, otherCuisineSlugs = [], detectedPlaceAnchor = null, michelinCountry = 'SG' }) {
   if (isJB) {
     // v0.60.161 — tag _vlog so the TMA can opportunistically learn the
     // toggle state even on this early-exit path.
     try {
       const vlogEarly = require('./verbose-log');
       const _on = await vlogEarly.isOn(redis, csChatId);
-      return res.json({ venues: [], cached: false, reason: 'Michelin SG-only', _vlog: _on || undefined });
+      return res.json({ venues: [], cached: false, reason: 'Michelin SG-only', reasonCode: 'michelin_no_list', _vlog: _on || undefined });
     } catch {
-      return res.json({ venues: [], cached: false, reason: 'Michelin SG-only' });
+      return res.json({ venues: [], cached: false, reason: 'Michelin SG-only', reasonCode: 'michelin_no_list' });
     }
   }
-  const michelin = require('./michelin-2025');
+  const michelin = require('./SG-michelin');
   const michelinWalk = require('./michelin-walk');
   // v0.60.198 — surface req.body.prices early so the walk-hash can
   // include it (otherwise toggling a price tier wouldn't reset the walk).
@@ -8776,6 +9622,36 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
     return res.status(503).json({ error: 'GOOGLE_MAPS_API_KEY unset' });
+  }
+  // v0.61.346 — per-country Michelin. SG uses the standalone SG-michelin.js
+  // (unchanged); every other country pulls from the venue-award loader
+  // (michelin-data.js). `michelinCountry` is the ISO-2 the route resolved
+  // (SG pill → 'SG'; OTHER picker → its country; JB → null, already bailed).
+  const michCC = String(michelinCountry || '').toUpperCase();
+  // v0.61.431 — an EMPTY/unresolved country must NOT fall back to the SG list
+  // (operator: MY/VN Michelin returned 0 because the SG names were queried near
+  // a foreign anchor). Only an EXPLICIT 'SG' uses the SG curated list; an
+  // unresolved country returns "unresolved" instead of leaking SG abroad.
+  if (!michCC) {
+    return res.json({ venues: [], cached: false, reason: 'Michelin: country unresolved', reasonCode: 'michelin_unresolved' });
+  }
+  const isSGMich = michCC === 'SG';
+  // v0.61.350 — country-aware result label (operator bug: a Seoul search
+  // still read "Michelin Singapore 2025"). The label shows the NATIONAL list
+  // name — the search is country-wide (the picked city is only the map anchor),
+  // so the count is the whole country, not the city.
+  // v0.61.375 — operator (fix B): drop the hard-coded "2025" from the SG
+  // label. It went stale at the year roll-over, and a dynamic current-year
+  // would be WRONG (the curated data is the 2025 edition, not the live year);
+  // the honest fix is to omit the year entirely, matching every other
+  // country ("Michelin Japan", "Michelin South Korea", …).
+  const MICH_CC_NAME = { MY: 'Malaysia', TH: 'Thailand', JP: 'Japan', KR: 'South Korea', CN: 'China', HK: 'Hong Kong', TW: 'Taiwan', VN: 'Vietnam', MO: 'Macau', PH: 'Philippines' };
+  const michelinEditionLabel = isSGMich ? 'Michelin Singapore' : `Michelin ${MICH_CC_NAME[michCC] || michCC}`;
+  if (!isSGMich) {
+    const mdChk = require('./michelin-data');
+    if (!mdChk.hasMichelinData(michCC)) {
+      return res.json({ venues: [], cached: false, reason: `Michelin: no curated list for ${michCC}`, reasonCode: 'michelin_no_list', reasonCountry: michCC });
+    }
   }
 
   // v0.60.195 — operator: drop the seen-set pagination. Michelin always
@@ -8811,7 +9687,28 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // cuisine tag) fall through to the v0.60.17 primaryType post-
   // filter so the cuisine constraint still applies.
   const TIER_ORDER = { 'three-star': 0, 'two-star': 1, 'one-star': 2, 'bib-gourmand': 3 };
-  const allEntries = michelin.getAll();
+  // v0.61.346 — build the tier pool from the right source. SG: the
+  // standalone list (entries already carry a single `category`). Other
+  // countries: the loader's visitable venues for that country, mapped to
+  // the same flat shape the rest of this handler expects, with the
+  // edition merged across years (operator: "both years merged") — each
+  // venue is shown once at its LATEST award standing.
+  const mdMich = isSGMich ? null : require('./michelin-data');
+  const latestMichCat = (v) => { let best = null; for (const a of v.awards) { if (!best || a.year > best.year) best = a; } return best ? best.category : null; };
+  const allEntries = isSGMich
+    ? michelin.getAll()
+    : mdMich.visitableVenues().filter((v) => v.country === michCC).map((v) => ({
+        name: v.name, address: v.address, postal: v.postal || '',
+        category: latestMichCat(v), cuisine: v.cuisine || '',
+        vegetarian: v.vegetarian === true, halal: v.halal === true,
+        city: v.city, country: v.country
+      }));
+  // Places query + regionCode adapt to the country (SG keeps the curated
+  // name+postal disambiguation; others use name + city).
+  const buildMichQuery = isSGMich
+    ? (e) => michelin.buildPlacesQuery(e)
+    : (e) => `${e.name} ${e.city || ''}`.trim();
+  const placesRegionCode = isSGMich ? 'SG' : michCC;
 
   // v0.60.20 — parent-cuisine expansion. When the user picks an
   // umbrella cuisine like "Chinese", the curated Michelin entries
@@ -8847,9 +9744,15 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     return cuisineSlugSet.has(String(e.cuisine).toLowerCase());
   };
   // v0.60.195 — no seen-set: every Michelin tap rebuilds the same
-  // tier-ordered top-12 pool. Cuisine filter still applies for combo
-  // chip searches (e.g. Michelin + Japanese).
-  const pool = allEntries.filter(cuisineTagMatches);
+  // tier-ordered top-12 pool.
+  // v0.61.431 — operator: "Michelin is the FIRST criterion, then the other
+  // cuisine." The curated MY/VN entries are ALL tagged, so a Michelin +
+  // <cuisine> combo would hard-intersect the tag-filter to 0.
+  // v0.61.432 — operator: PIN the matched cuisine to the TOP (not filter-only).
+  // Keep the FULL country Michelin pool (Michelin PRIMARY, never zero); the
+  // selected cuisine is applied as a RANKING signal below (matched entries
+  // pinned ahead of the rest, surviving the top-N slice).
+  const pool = allEntries;
 
   // Sort star tiers explicitly; shuffle bib gourmand so each click
   // surfaces a different slice without re-paying the full Places bill.
@@ -8881,14 +9784,82 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // isJB / freeText), and the seen set auto-resets after 1h of
   // inactivity. Places-cache stays dropped (v0.60.195a) — only the
   // pagination half is restored. See michelin-walk.js for the helper.
-  const ordered = [...stars, ...bib];
+  let ordered = [...stars, ...bib];
+  // v0.61.351 — city-aware Michelin (operator: "Explore 81 more in Seoul ·
+  // 117 across 🇰🇷 South Korea"). For a non-SG country, resolve the picked
+  // city from the search anchor (nearestCityForAnchor, distance-guarded to
+  // ≤25 km so only a confident same-city match counts) and, when it matches a
+  // curated city in this country's pool, surface that city's venues FIRST
+  // (tier order preserved within the city + the rest). Falls back to plain
+  // national ordering/hint when there's no confident city match.
+  let michSelectedCity = null;
+  if (!isSGMich && searchCenter && Number.isFinite(searchCenter.lat) && Number.isFinite(searchCenter.lng)) {
+    try {
+      const near = require('./place-search-variance').nearestCityForAnchor(searchCenter.lat, searchCenter.lng);
+      if (near && near.distanceKm <= 25
+          && ordered.some((e) => String(e.city || '').toLowerCase() === near.city.toLowerCase())) {
+        michSelectedCity = near.city;
+      }
+    } catch { /* national fallback */ }
+  }
+  // v0.61.445 — scope the paginated walk to the SELECTED CITY only. Before,
+  // `ordered = [...inCity, ...everyOtherCity]` appended the rest of the
+  // country, so once the in-city venues were drained (taps 1–2) the walk
+  // paged into another city — e.g. Kuala Lumpur → George Town (Penang) — and
+  // the map could not frame two cities at once. Now the walk stays in-city;
+  // the other-city count rides the summary as a hint ("N more across 🇲🇾"),
+  // reachable by picking that city, not by paging the current one.
+  let michOtherCityRemaining = 0;
+  // v0.62.x — operator: after finishing the in-city walk (e.g. Kuala Lumpur)
+  // the OTHER curated city in this country (e.g. George Town, 37 entries) was
+  // unreachable — v0.61.445 scoped the walk to one city but the compensating
+  // "pick that city" path was never wired (the client received `nationRemaining`
+  // as dead state). Capture the per-city breakdown of the OTHER cities here,
+  // BEFORE `ordered` is narrowed to the selected city, so the TMA can render a
+  // tappable "📍 N more in <City>" jump that re-anchors there.
+  let michOtherCities = [];
+  if (michSelectedCity) {
+    const _inCity = (e) => String(e.city || '').toLowerCase() === michSelectedCity.toLowerCase();
+    const inCity = ordered.filter(_inCity);
+    michOtherCityRemaining = Math.max(0, ordered.length - inCity.length);
+    const byCity = new Map();
+    for (const e of ordered) {
+      const c = e.city ? String(e.city) : '';
+      if (!c || c.toLowerCase() === michSelectedCity.toLowerCase()) continue;
+      byCity.set(c, (byCity.get(c) || 0) + 1);
+    }
+    michOtherCities = [...byCity.entries()]
+      .map(([city, count]) => ({ city, count }))
+      .sort((a, b) => b.count - a.count);
+    ordered = inCity;
+  }
+  // (No extra sort needed for the no-city national fallback: `ordered` is
+  // already 3★ → 2★ → 1★ → Bib by construction — TIER_ORDER sort at the
+  // `stars` build above, bib appended after. A v0.62.19 re-sort here was
+  // withdrawn as a no-op per Codex P2 review on PR #975.)
+  // v0.61.432 — operator: pin the layered cuisine to the TOP. When a cuisine
+  // is combined with Michelin, surface the curated-tag matches FIRST (stable,
+  // preserving the tier / city order within each group), then the rest of the
+  // country's Michelin list. This keeps Michelin PRIMARY (never zero) while
+  // the cuisine ranks its matches to the front so they survive the top-N slice.
+  if (cuisineSlugSet.size > 0) {
+    const _tagMatch = (e) => e.cuisine && cuisineSlugSet.has(String(e.cuisine).toLowerCase());
+    const _matched = ordered.filter(_tagMatch);
+    if (_matched.length) {
+      ordered = [..._matched, ...ordered.filter((e) => !_tagMatch(e))];
+      console.log(`[Michelin] pinned ${_matched.length} ${[...cuisineSlugSet].join('/')} entries to the top of the ${michCC} Michelin list`);
+    }
+  }
   const walkHash = michelinWalk.computeCriteriaHash({
     otherCuisineSlugs,
     filters,
     prices: requestedPricesForWalk,
     radius: searchRadius,
     isJB,
-    freeText
+    freeText,
+    // v0.61.440 — country (+ coarse city) so the per-chat Michelin walk
+    // doesn't carry a prior country's "seen" set into a new country.
+    loc: `${michCC}|${michSelectedCity ? String(michSelectedCity).toLowerCase() : ''}`
   });
   const walkState = await michelinWalk.readWalkState(redis, csChatId, walkHash);
   const unseen = walkState.seen.size
@@ -8910,6 +9881,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     'places.id', 'places.displayName', 'places.formattedAddress', 'places.location',
     'places.rating', 'places.userRatingCount', 'places.businessStatus',
     'places.googleMapsUri', 'places.primaryType', 'places.primaryTypeDisplayName',
+    'places.types',
     'places.regularOpeningHours.weekdayDescriptions',
     'places.websiteUri', 'places.nationalPhoneNumber', 'places.priceLevel',
     'places.reviews', 'places.editorialSummary',
@@ -8953,30 +9925,93 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // Slug shape unchanged: lowercase, non-alnum → '-', trimmed, ≤80 ch.
   let cacheHits = 0, cacheMisses = 0;
   const slugify = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
+  // v0.61.445 — curated metadata snapshot (michelin-meta.json), populated by
+  // `npm run michelin:refresh` (scripts/build-michelin-meta.mjs). Keyed by
+  // curated entry `id` → { placeId, lat, lng, … }. When a record carries a
+  // placeId we resolve by ID (reliable — no name+city text-search ambiguity,
+  // which was also mis-matching venues). Ships EMPTY ({}); until populated the
+  // text-search path below is used unchanged, so this is a no-op by default.
+  const michelinMeta = (() => { try { return require('./michelin-meta.json') || {}; } catch { return {}; } })();
+  // v0.61.445 — restore the per-entry Places cache (was v0.60.150; dropped in
+  // v0.60.195, which is why every tap re-hit Places ×12 and felt slow). 24h
+  // TTL keyed by the stable curated id. Operator wants faster loads; the
+  // ≤24h staleness is the accepted trade (the refresh job keeps meta current).
+  // v0.62.x — cost reduction (operator: "reduce Google Places (New) cost").
+  // Two changes to the cache that was otherwise re-billing the Atmosphere SKU:
+  //   (1) SUCCESS TTL 24h → 7d. The curated Michelin list is static and an
+  //       established awardee's core Place data rarely moves; openNow is
+  //       recomputed from regularOpeningHours client-side, so the staleness
+  //       that matters is negligible. ~7× fewer cold re-fetches.
+  //   (2) NEGATIVE cache: previously only SUCCESS was cached (`if (placesData)`),
+  //       so any entry Places can't resolve (poorly-indexed Bib Gourmand, name
+  //       mismatches, closures) re-fired a billed text-search on EVERY tap,
+  //       forever. Cache the miss under a sentinel for a shorter 12h TTL so a
+  //       known-unresolvable entry isn't re-queried each tap (a fresh entry
+  //       that later gets indexed recovers within 12h).
+  const MICH_PLACE_TTL_S = 7 * 24 * 60 * 60;
+  const MICH_PLACE_MISS_TTL_S = 12 * 60 * 60;
+  const FIELD_MASK_BY_ID = FIELD_MASK.replace(/places\./g, '');   // details GET drops the `places.` prefix
   async function resolveEntryPlace(entry) {
+    const cacheKey = `michelin:place:${entry.id || slugify(`${entry.name}-${entry.city || ''}`)}`;
+    if (redis && redis.isOpen) {
+      try {
+        const cached = await redis.get(cacheKey);
+        if (cached) {
+          cacheHits++;
+          const parsed = JSON.parse(cached);
+          // Negative-cache sentinel → a previously-unresolvable entry. Return
+          // null without re-billing Places.
+          return (parsed && parsed.__michMiss) ? null : parsed;
+        }
+      } catch { /* fall through to live resolve */ }
+    }
     cacheMisses++;
     let placesData = null;
+    const curatedPlaceId = michelinMeta[entry.id] && michelinMeta[entry.id].placeId;
     try {
-      const { data } = await axios.post(
-        PLACES_URL,
-        {
-          textQuery: michelin.buildPlacesQuery(entry),
-          regionCode: 'SG',
-          languageCode: csLang === 'fr' ? 'fr' : 'en',
-          maxResultCount: 1
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Goog-Api-Key': apiKey,
-            'X-Goog-FieldMask': FIELD_MASK
+      if (curatedPlaceId) {
+        const { data } = await axios.get(
+          `https://places.googleapis.com/v1/places/${encodeURIComponent(curatedPlaceId)}`,
+          {
+            headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': FIELD_MASK_BY_ID },
+            params: { languageCode: csLang === 'fr' ? 'fr' : 'en' },
+            timeout: 4000
+          }
+        );
+        placesData = (data && data.id) ? data : null;
+      } else {
+        const { data } = await axios.post(
+          PLACES_URL,
+          {
+            textQuery: buildMichQuery(entry),
+            regionCode: placesRegionCode,
+            languageCode: csLang === 'fr' ? 'fr' : 'en',
+            maxResultCount: 1
           },
-          timeout: 4000
-        }
-      );
-      placesData = (Array.isArray(data?.places) ? data.places : [])[0] || null;
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Goog-Api-Key': apiKey,
+              'X-Goog-FieldMask': FIELD_MASK
+            },
+            timeout: 4000
+          }
+        );
+        placesData = (Array.isArray(data?.places) ? data.places : [])[0] || null;
+      }
     } catch (err) {
       console.warn(`[Michelin] Places lookup failed for "${entry.name}":`, err.message);
+    }
+    if (redis && redis.isOpen) {
+      try {
+        // v0.62.x — cache the MISS too (sentinel, shorter TTL) so an
+        // unresolvable entry stops re-billing a text-search every tap.
+        await redis.setEx(
+          cacheKey,
+          placesData ? MICH_PLACE_TTL_S : MICH_PLACE_MISS_TTL_S,
+          JSON.stringify(placesData || { __michMiss: 1 })
+        );
+      } catch { /* best-effort */ }
     }
     return placesData;
   }
@@ -9020,6 +10055,12 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       michelinName: entry.name,
       michelinPostal: entry.postal || '',
       michelinCuisine: entry.cuisine || '',
+      // v0.62.6 — awardCity: the curated city this Michelin awardee belongs
+      // to (operator: display-layer city grouping — the TMA groups the
+      // visible batch into city sections with tappable city-jump rows).
+      // Pure annotation post-curation; SG entries carry no city → null and
+      // the grouping no-ops.
+      awardCity: entry.city || null,
       // v0.60.43 — Michelin Guide's own descriptive cuisine label
       // (distinct from the routing slug). Surfaced via the unified
       // restaurantType line below.
@@ -9028,7 +10069,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       // Guide label; fall back to Places' localized primaryTypeDisplayName.
       restaurantType: entry.michelinCuisineLabel
         ? humaniseRestaurantType(entry.michelinCuisineLabel, '')
-        : humaniseRestaurantType(placesData?.primaryTypeDisplayName?.text, placesData?.primaryType),
+        : humaniseRestaurantType(placesData?.primaryTypeDisplayName?.text, placesData?.primaryType, placesData?.types),
       michelinVegetarian: entry.vegetarian === true,
       michelinHalal: entry.halal === true,
       // v0.60.192 — pass-through the three new Places fields the v0.60.183
@@ -9057,6 +10098,8 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       michelinName: entry.name,
       michelinPostal: entry.postal || '',
       michelinCuisine: entry.cuisine || '',
+      // v0.62.6 — awardCity parity with the success path (city grouping).
+      awardCity: entry.city || null,
       // v0.60.43 — Michelin Guide's own descriptive cuisine label
       // (distinct from the routing slug). Surfaced via the unified
       // restaurantType line below.
@@ -9066,7 +10109,11 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       // has no curated label.
       restaurantType: entry.michelinCuisineLabel ? humaniseRestaurantType(entry.michelinCuisineLabel, '') : '',
       michelinVegetarian: entry.vegetarian === true,
-      michelinHalal: entry.halal === true
+      michelinHalal: entry.halal === true,
+      // v0.61.445 — structural parity with the success path (which sets
+      // `reviews`): the dish/review-extract loop guards on Array.isArray,
+      // so an absent `reviews` is harmless, but keep the shape consistent.
+      reviews: null
     };
     if (venue.businessStatus !== 'CLOSED_PERMANENTLY') {
       venues.push(venue);
@@ -9081,6 +10128,11 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // (user's screenshot showed Hong Kong Yummy Soup / Sin Heng
   // Claypot Bak Koot Teh appearing under Japanese+Michelin).
   let filteredVenues = venues;
+  // v0.61.437 — set inside the cuisine-layer block below; lets the summary
+  // count how many of the FINAL page actually match the layered cuisine
+  // (code review F7/F12: the pin never empties, so the TMA needs a signal
+  // when zero matches survive the dietary/price filters).
+  let comboIsMatch = null;
   if (otherCuisineSlugs.length > 0) {
     // Map cuisine slugs to Places primaryType strings. The list is
     // intentionally narrow — only the primary types Google issues
@@ -9140,19 +10192,21 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       if (types) types.forEach((t) => allowed.add(t));
     }
     if (allowed.size > 0) {
-      const matched = venues.filter((v) => {
+      const isMatch = (v) => {
         // v0.60.18 — accept either curated cuisine-tag match (set in
         // the slice loop) OR Places primaryType match. Bib Gourmand
         // entries have no curated tag so still rely on primaryType.
         if (v.michelinCuisine && cuisineSlugSet.has(String(v.michelinCuisine).toLowerCase())) return true;
         return v.primaryType && allowed.has(v.primaryType);
-      });
-      if (matched.length > 0) {
-        filteredVenues = matched;
-      } else {
-        console.log(`[Michelin] no Michelin venues matched cuisines=${otherCuisineSlugs.join(',')} (expanded=${[...expandedSlugs].join(',')}); returning empty rather than wrong cuisine`);
-        filteredVenues = [];
-      }
+      };
+      // v0.61.431 → v0.61.432 — operator: Michelin PRIMARY, the layered cuisine
+      // PINNED to the top (not a hard filter). Surface the cuisine matches
+      // first, keep the rest of the Michelin list below — never zero.
+      const matched = venues.filter(isMatch);
+      const rest = venues.filter((v) => !isMatch(v));
+      filteredVenues = [...matched, ...rest];
+      comboIsMatch = isMatch;   // v0.61.437 — re-counted on the FINAL page for michelinSummary.cuisineMatched
+      console.log(`[Michelin] cuisine layer: pinned ${matched.length} match(es) to top, ${rest.length} other Michelin below (cuisines=${otherCuisineSlugs.join(',')})`);
     }
   }
 
@@ -9214,7 +10268,14 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // search-result enrichment site (line ~10467). Best-effort — a
   // failure here strips the price line silently but doesn't break
   // the rest of the response.
-  try { await enrichPriceRangeDisplay(csChatId, filteredVenues); } catch (err) {
+  // v0.61.361 — Option B: same device-currency override as the general
+  // search path. `req` is in scope here; read the TMA-forwarded region.
+  const michDeviceRegionRaw = typeof req.body?.deviceRegion === 'string' ? req.body.deviceRegion.toUpperCase() : '';
+  const michDeviceRegion = /^[A-Z]{2}$/.test(michDeviceRegionRaw) ? michDeviceRegionRaw : null;
+  // v0.61.385 — device LANGUAGE for the foreign-name gloss bracket.
+  const michDeviceLangRaw = typeof req.body?.deviceLang === 'string' ? req.body.deviceLang.toLowerCase() : '';
+  const michDeviceLang = /^[a-z]{2,3}$/.test(michDeviceLangRaw) ? michDeviceLangRaw : null;
+  try { await enrichPriceRangeDisplay(csChatId, filteredVenues, michDeviceRegion); } catch (err) {
     console.warn('[Michelin] enrichPriceRangeDisplay failed:', err.message);
   }
   try { await enrichSanctuaryRead(filteredVenues, csLang); } catch (err) {
@@ -9247,26 +10308,30 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     ];
     for (const v of filteredVenues) {
       if (!Array.isArray(v.reviews) || !v.reviews.length) continue;
-      const recent = v.reviews
-        .filter((r) => r?.text)
-        .filter((r) => {
-          if (!r.publishTime) return true;
-          const t = new Date(r.publishTime).getTime();
-          return Number.isFinite(t) ? (michNow - t) <= MICH_FOUR_MONTHS_MS : true;
-        })
-        .slice(0, 3);
-      if (!recent.length) continue;
       // v0.60.156 — Places v1 returns each review's `text` as a nested
       // object `{ text: '...', languageCode: 'en' }`, NOT a bare string.
-      // The previous reads (`r.text`, `recent[0].text`) String-coerced
-      // that object to the literal "[object Object]" — which then passed
-      // every typeof guard added in v0.60.154/.155 because "[object
-      // Object]" IS a string. Unwrap nested .text.text first; fall back
-      // to the bare value for any legacy/edge response shape.
+      // Unwrap nested .text.text first; fall back to the bare value for any
+      // legacy/edge response shape.
       const reviewText = (r) => (r && typeof r.text === 'object' && r.text)
         ? (typeof r.text.text === 'string' ? r.text.text : '')
         : (typeof r?.text === 'string' ? r.text : '');
-      const allText = recent.map((r) => reviewText(r)).join(' . ');
+      const withText = v.reviews.filter((r) => reviewText(r));
+      const recent = withText.filter((r) => {
+        if (!r.publishTime) return true;
+        const t = new Date(r.publishTime).getTime();
+        return Number.isFinite(t) ? (michNow - t) <= MICH_FOUR_MONTHS_MS : true;
+      });
+      // v0.61.445 — mirror the cuisine path's v0.61.390 fix: when a venue's
+      // Google reviews are ALL older than 4 months (Places returns its "most
+      // relevant" reviews, often not recent), fall back to the best available
+      // review so the 💬 quote shows whenever Google has ANY review — instead
+      // of the "Bib Gourmand Guide … curated recommendation" placeholder.
+      // Recent is still preferred when present. (Established bib gourmands
+      // like Hor Poh have hundreds of reviews but few within the 4-month
+      // window, so the old `if (!recent.length) continue` left them blank.)
+      const pool = (recent.length ? recent : withText).slice(0, 3);
+      if (!pool.length) continue;
+      const allText = pool.map((r) => reviewText(r)).join(' . ');
       const dishes = new Set();
       for (const re of MICH_DISH_RES) {
         let m;
@@ -9283,7 +10348,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       }
       const dishList = [...dishes].slice(0, 3);
       if (dishList.length) v.dishes = dishList;
-      if (!v.recentReview) v.recentReview = reviewText(recent[0]).slice(0, 200).trim();
+      if (!v.recentReview) v.recentReview = reviewText(pool[0]).slice(0, 200).trim();
     }
   } catch (err) {
     console.warn('[Michelin] dish-extract failed:', err.message);
@@ -9352,7 +10417,10 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
           if (typeof s !== 'string') return false;
           const t = s.trim();
           if (t.length < 3 || t.length > 40) return false;
-          return !MICH_CATEGORY_BLOCK.test(t);
+          // v0.62.x — also reject vague marketing-descriptor phrases
+          // ("Northern Vietnamese heritage set menu", "Seasonal … course")
+          // the LLM narration sometimes returns instead of a real dish name.
+          return !MICH_CATEGORY_BLOCK.test(t) && !DISH_DESCRIPTOR_RE.test(t);
         };
         for (const v of needsNarrate) {
           const n = narrated[v.placeId];
@@ -9450,7 +10518,28 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   }
 
   // Strip the heavy review payload before responding.
-  for (const v of filteredVenues) { delete v.reviews; }
+  // v0.61.417 — first capture the review's "X ago" (Google relative time) onto
+  // recentReviewAgo so the card / copy can show it after the quote.
+  // v0.61.441 — FIX: this loop called `reviewText(r)`, but the only
+  // `reviewText` definition lived inside the dish-extract for-loop above
+  // (block-scoped), so here it was out of scope → ReferenceError
+  // "reviewText is not defined" → HTTP 500 on EVERY Michelin search since
+  // v0.61.417 shipped. Define the same Places-v1 nested-{text} unwrap helper
+  // at this scope.
+  const reviewText = (r) => (r && typeof r.text === 'object' && r.text)
+    ? (typeof r.text.text === 'string' ? r.text.text : '')
+    : (typeof r?.text === 'string' ? r.text : '');
+  for (const v of filteredVenues) {
+    if (!v.recentReviewAgo && v.recentReview && Array.isArray(v.reviews)) {
+      const rr = String(v.recentReview);
+      const m = v.reviews.find((r) => {
+        const t = reviewText(r);
+        return t && rr.includes(t.replace(/\s+/g, ' ').trim().slice(0, 40));
+      }) || v.reviews[0];
+      if (m && m.relative) v.recentReviewAgo = m.relative;
+    }
+    delete v.reviews;
+  }
 
   // v0.60.146 — Michelin path joins the per-session clipboard so the
   // ⇠ Prev FAB navigation works across Michelin taps. skipCap=true
@@ -9498,9 +10587,46 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // operator-reported "Michelin List stuck at one when tap search":
   // v0.60.198's seen-set walk-through was reading undefined every
   // tap, so the set never grew and every tap returned the same 12.
+  // v0.62.x — operator: "After 3 taps of Michelin Singapore it shows zero,
+  // there are 130." Root cause: when the route's 20s deadline (index.js
+  // ~14168) fires mid-resolution it answers with a DEGRADED empty payload
+  // (`{ venues: [], degraded: true }`) — but this handler kept running and
+  // STILL advanced the walk seen-set below, silently burning the 12 unseen
+  // entries the user never received. A few slow taps in a row therefore read
+  // as "zero" while the walk paged deep into the 130. Guard it: if the
+  // response is already out, do NOT record (preserve the batch for the next
+  // tap) and do NOT double-send.
+  if (res.headersSent) {
+    console.warn(`[Michelin] deadline already responded — preserving walk (NOT recording ${slice.length} unseen entries so the next tap re-serves them)`);
+    return res;
+  }
   const newKeys = slice.map((e) => michelinWalk.entryKey(e)).filter(Boolean);
   await michelinWalk.recordWalk(redis, csChatId, walkHash, newKeys);
   const totalServedThisWalk = walkState.seen.size + newKeys.length;
+  // v0.61.351 — city vs country counts for the city-aware hint.
+  // v0.61.374 — operator (fix A): the new "📚 Explore N … across <flag>
+  // <Country>" hint now applies to EVERY Michelin search, including
+  // Singapore (a city-state) which previously fell back to the legacy
+  // "Curated Michelin list …" string. Country fields are computed
+  // unconditionally; the CITY block stays only for multi-city countries
+  // (so SG, where city == country, doesn't read "Singapore" twice).
+  let michCityRemaining = null, michCityName = null;
+  const michCountryCC = isSGMich ? 'SG' : michCC;
+  const michCountryName = isSGMich ? 'Singapore' : (MICH_CC_NAME[michCC] || michCC);
+  const michCountryFlag = (michCountryCC && michCountryCC.length === 2)
+    ? String.fromCodePoint(...[...michCountryCC].map((c) => 0x1F1E6 + c.charCodeAt(0) - 65))
+    : '';
+  if (michSelectedCity) {
+    const _cityKeys = new Set(
+      ordered.filter((e) => String(e.city || '').toLowerCase() === michSelectedCity.toLowerCase())
+        .map((e) => michelinWalk.entryKey(e)).filter(Boolean)
+    );
+    let cityShown = 0;
+    for (const k of walkState.seen) if (_cityKeys.has(k)) cityShown++;
+    for (const k of newKeys) if (_cityKeys.has(k)) cityShown++;
+    michCityRemaining = Math.max(0, _cityKeys.size - cityShown);
+    michCityName = michSelectedCity;
+  }
   const walkExhausted = totalServedThisWalk >= ordered.length;
   const exhausted = filteredVenues.length < 3 || walkExhausted;
   const handlerMs = Date.now() - handlerStart;
@@ -9522,6 +10648,24 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       walkHash
     });
   }
+  // v0.61.359 — attach native-script names to Michelin results too.
+  try {
+    await require('./local-name').attachLocalNames(filteredVenues, michCC, csLang, apiKey);
+  } catch (e) { /* non-fatal */ }
+  // v0.61.382 — and the readable foreign-name line (Gemini); v0.61.385
+  // two-part: place language + device-language gloss in brackets.
+  try {
+    await require('./translate-name').attachNameReadings(filteredVenues, michCC, michDeviceLang, redis);
+  } catch (e) { /* non-fatal */ }
+  // v0.62.x — the name-enrichment above is network-bound and can push a slow
+  // tap past the 20s deadline. If it fired in that window the degraded empty
+  // payload is already out, so skip the double-send (the walk was recorded
+  // above — acceptable; the dominant slow path is Places resolution, guarded
+  // before recordWalk).
+  if (res.headersSent) {
+    console.warn('[Michelin] deadline responded during name-enrichment — skipping double-send');
+    return res;
+  }
   return res.json({
     venues: filteredVenues,
     cached: false,
@@ -9529,7 +10673,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     exhausted,
     sessionFull: false,
     _vlog: vlogMichelinOn || undefined,
-    // v0.60.195 — michelinSummary shipped with remaining=0 so:
+    // v0.60.195 — michelinSummary always ships (object, never null) so:
     //   1. TMA's `michelinRemaining` state goes truthy (non-null) →
     //      v0.60.194's `&& !michelinRemaining` gate continues to
     //      suppress the <12 autoReset + visible hint for combo
@@ -9537,14 +10681,43 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     //      (Michelin + Korean might yield 4 starred entries; without
     //      this gate the TMA would loop the hint forever).
     //   2. The "📚 N more to explore — Tap 🔍 for next batch of 12"
-    //      indicator auto-hides because `remaining > 0` is false.
+    //      indicator shows iff `remaining > 0`.
+    // v0.61.335 — BUGFIX: `remaining` was hardcoded `0` in v0.60.195 when
+    // the seen-set walk was OFF, but v0.60.198 RESTORED the walk and never
+    // updated this line. The walk advanced server-side (recordWalk above)
+    // while the TMA hint stayed hidden, so a re-tap silently paged past the
+    // already-served 3-star slice — reading to the operator as "the list
+    // stopped starting from 3 stars / where are the paging controls". Now
+    // surface the TRUE remaining over the tier-ordered `ordered` pool the
+    // walk paginates, zeroed when `exhausted` so the <3-result / walk-end
+    // recycle UX is unchanged.
     michelinSummary: {
+      label: michelinEditionLabel,
       total: allEntries.length,
-      remaining: 0,                  // walk-through disabled in v0.60.195
-      threeStar: michelin.STARS_THREE.length,
-      twoStar: michelin.STARS_TWO.length,
-      oneStar: michelin.STARS_ONE.length,
-      bibGourmand: michelin.BIB_GOURMAND.length
+      // v0.61.437 — combo honesty (code review F7/F12): how many venues on
+      // THIS page match the layered cuisine. 0 → the TMA shows a "no
+      // <cuisine> match — showing the full Michelin list" notice instead of
+      // silently serving wrong-cuisine venues. Omitted for pure-Michelin.
+      ...(otherCuisineSlugs.length ? {
+        cuisineMatched: comboIsMatch ? filteredVenues.filter(comboIsMatch).length : 0
+      } : {}),
+      remaining: exhausted ? 0 : Math.max(0, ordered.length - totalServedThisWalk),
+      ...(michCityName ? { city: michCityName, cityRemaining: michCityRemaining } : {}),
+      // v0.61.445 — other-city Michelin count for the "N more across <country>"
+      // hint. The walk is city-scoped (no cross-city bleed); this is shown so
+      // the user knows more exist elsewhere in the country (pick that city).
+      ...(michSelectedCity && michOtherCityRemaining > 0 ? { nationRemaining: michOtherCityRemaining } : {}),
+      // v0.62.x — per-city breakdown of the OTHER curated cities + the ISO
+      // country code, so the TMA can render a TAPPABLE "📍 N more in <City>"
+      // jump (resolved to coords client-side via cities.js findCity) instead
+      // of the dead-state count. Shown even when the in-city walk is exhausted.
+      ...(michSelectedCity && michOtherCities.length ? { otherCities: michOtherCities } : {}),
+      ...(michCountryCC ? { countryCode: michCountryCC } : {}),
+      ...(michCountryName ? { countryName: michCountryName, countryFlag: michCountryFlag } : {}),
+      threeStar: allEntries.filter((e) => e.category === 'three-star').length,
+      twoStar: allEntries.filter((e) => e.category === 'two-star').length,
+      oneStar: allEntries.filter((e) => e.category === 'one-star').length,
+      bibGourmand: allEntries.filter((e) => e.category === 'bib-gourmand').length
     },
     // v0.61.134 — surface the v0.61.129 place anchor on Michelin responses
     // too (the non-Michelin path's payload.placeAnchor write at the bottom
@@ -9952,11 +11125,13 @@ bot.on('message', async (msg) => {
         const loc = await getUserLocation(redis, msg.chat.id).catch(() => null);
         const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
         const center = (loc?.lat && loc?.lng) ? { lat: loc.lat, lng: loc.lng } : SG_CENTROID;
+        // v0.61.231 — bias the iconic fan-out to the user's anchor country.
+        const regionCode = resolveRegionCode(loc);
         try { await sc.setLastCuisine(redis, msg.chat.id, 'nation', niHit.slug, niHit.dish); }
         catch (err) { console.warn('[free-text] setLastCuisine failed:', err.message); }
         await runNationIconicFanOut({
           chatId: msg.chat.id, userText: text, hit: niHit,
-          lang: userLang, center, sc
+          lang: userLang, center, sc, regionCode
         });
         return;
       }
@@ -10079,6 +11254,9 @@ bot.on('message', async (msg) => {
     // ingredient / tool / venue, so "<cuisine-family> + <food noun>"
     // patterns landed in 'ambiguous' and got declined. The whitelist
     // recognises them deterministically and skips the LLM call.
+    // v0.62.x — set when the intent classifier failed open (Gemini outage). We
+    // still run the search below; afterwards we send a throttled "busy" notice.
+    let classifierDegraded = false;
     if (!disambigDisclosureFT) {
       let bypassFoodGate = false;
       try {
@@ -10093,6 +11271,7 @@ bot.on('message', async (msg) => {
       if (!bypassFoodGate) {
         try {
           const cls = await require('./gemini-client').classifySearchIntent({ text, lang: userLang });
+          if (cls && cls.degraded) classifierDegraded = true;
           if (cls && cls.intent === 'ambiguous') {
             try { require('./freetext-log').logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: 'non-food-declined', resultCount: 0 }); } catch { /* best-effort */ }
             const { t: tGate } = require('./i18n');
@@ -10128,6 +11307,10 @@ bot.on('message', async (msg) => {
     // v0.60.142 — usage tracking (Oversight): a chat free-text dish search.
     try { usageLog.recordSearch(redis, msg.chat.id, { freeText: text, src: 'chat-freetext' }).catch(() => {}); } catch { /* noop */ }
     await runFreeTextSearch(msg.chat.id, resolvedText, { lang: userLang, cuisine: ftCuisineOut, dishLabel: ftDishLabelOut });
+    // v0.62.x — if the AI classifier degraded (fail-open during an outage), the
+    // search above used the raw text instead of the smarter intent. Reassure the
+    // user with a throttled, non-blocking "busy, try again" line.
+    if (classifierDegraded) { try { await sendDegradedNotice(redis, msg.chat.id, userLang); } catch { /* never block */ } }
   } catch (err) {
     console.error('[Error] free-text handler failed:', err.message);
     // v0.60.228 — never end the free-text path in silence. If we had
@@ -10413,7 +11596,12 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         ? `🔎 Résultats pour "${headerDishEsc}"`
         : `🔎 Results for "${headerDishEsc}"`;
       if (wait) { await wait.finish().catch(() => {}); wait = null; }
-      await deliverPicks(chatId, headerLabel, venues, { lang: ftLang, dividerAfter, dividerText });
+      // v0.61.436 — capture what deliverPicks ACTUALLY delivered (it floors
+      // internally per the chat's rating pref). Code review: marking the
+      // pre-floor list as seen permanently hid venues the user never saw
+      // from "🔍 Search for more".
+      const delivered = await deliverPicks(chatId, headerLabel, venues, { lang: ftLang, dividerAfter, dividerText });
+      const deliveredList = Array.isArray(delivered) ? delivered : venues;
       // v0.61.171 — chat free-text seen-set: record the placeIds we
       // just showed for this (chatId, criteria) pair, then send the
       // follow-up inline keyboard. "🔍 Search for more" while
@@ -10423,11 +11611,14 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
       try {
         const ftSeenMod = require('./chat-freetext-seen');
         const ftHash = ftSeenMod.hashCriteria(chatId, text);
-        const shownIds = venues.map((v) => v && v.placeId).filter(Boolean);
+        const shownIds = deliveredList.map((v) => v && v.placeId).filter(Boolean);
         await ftSeenMod.setQuery(redis, ftHash, text);
         await ftSeenMod.addSeen(redis, chatId, ftHash, shownIds);
         const seenSizeAfter = ftSeenSize + shownIds.length;
-        const exhausted = shownIds.length < 8 || seenSizeAfter >= ftSeenMod.SEEN_CAP;
+        // v0.61.436 — exhausted = the FETCH came back short (venues is the
+        // pre-floor batch), not the post-floor shown count: the floor
+        // dropping venues doesn't mean the upstream pool is dry.
+        const exhausted = venues.length < 8 || seenSizeAfter >= ftSeenMod.SEEN_CAP;
         const { t: trBotKB } = require('./i18n');
         if (exhausted) {
           await bot.sendMessage(chatId, trBotKB('freetext.noMore', ftLang), {
@@ -10666,7 +11857,7 @@ async function runNearbyAlternatives(chatId, anchor, lang = 'en') {
       }
       // Composite score: rating + Michelin + rarity + (1 - crowdCost)
       const rs = require('./rarity-score');
-      const { findMichelinMatch } = require('./michelin-2025');
+      const { findMichelinMatch } = require('./SG-michelin');
       const { crowdCost } = require('./crowd-signal');
       const sortedRatings = venues.map((c) => Number(c.rating)).filter((n) => Number.isFinite(n)).sort((a, b) => a - b);
       const sortedReviews = venues.map((c) => Number(c.userRatingCount)).filter((n) => Number.isFinite(n)).sort((a, b) => a - b);
@@ -10818,6 +12009,7 @@ async function registerCommandsMenu() {
       // ingredient / kitchen-tool finder. v0.60.72 keeps the (/s)
       // alias mention per Human Lead clarification 2026-05-10.
       { command: 'search',     description: 'Dish / ingredient / technique search · e.g. /search goulash dumpling (or /s)' },
+      { command: 'rating',     description: 'Min rating filter · /rating 0–5 (0 = any), shared with Cuisine (or /ra)' },
       { command: 'clipboard',  description: '📋 Saved cuisine clips · latest from /cuisine Copy-all / per-card Copy (or /clip)' },
       { command: 'language',   description: 'Switch chat language (English / Français)' },
       { command: 'privacy',    description: 'Data, retention & sources' },
@@ -10834,6 +12026,7 @@ async function registerCommandsMenu() {
       { command: 'carpark',    description: 'Les 5 parkings les plus proches' },
       // v0.60.113 — /buddy retiré du menu (fonctionnalité supprimée).
       { command: 'search',     description: 'Recherche plat / ingrédient / technique · ex. /search goulash quenelles (ou /s)' },
+      { command: 'rating',     description: 'Filtre de note min. · /rating 0–5 (0 = toutes), partagé avec Cuisine (ou /ra)' },
       { command: 'clipboard',  description: '📋 Clips de cuisine enregistrés · les plus récents depuis /cuisine (ou /clip)' },
       { command: 'language',   description: 'Changer de langue (English / Français)' },
       { command: 'privacy',    description: 'Données, conservation et sources' },
@@ -10862,7 +12055,7 @@ async function registerCommandsMenu() {
     // setMyShortDescription (120-char "About" pane); the body here is
     // the menu list + a tap-to-open hint.
     const enDescription =
-      `/cuisine (or /c) · ${_periodicalCountsStr.cuisines} cuisines, SG + Johor Bahru, quick filters\n` +
+      `/cuisine (or /c) · ${_periodicalCountsStr.cuisines} cuisines, SG, Johor Bahru + other cities, quick filters\n` +
       "/location (or /l) · change location [street]\n" +
       `/hawker · >${_periodicalCountsStr.hawker} hawker centres (2025)\n` +
       "/recognised · Michelin, Bib Gourmand, Asia 50/100\n" +
@@ -10876,7 +12069,7 @@ async function registerCommandsMenu() {
       "/forgetme · erase stored data\n\n" +
       "Tap 🍴 Cuisine Picker to jump in.";
     const frDescription =
-      `/cuisine (ou /c) · ${_periodicalCountsStr.cuisines} cuisines, SG + Johor Bahru, filtres\n` +
+      `/cuisine (ou /c) · ${_periodicalCountsStr.cuisines} cuisines, SG, Johor Bahru + autres villes, filtres\n` +
       "/location (ou /l) · changer de lieu [rue]\n" +
       `/hawker · plus de ${_periodicalCountsStr.hawker} hawker centres (2025)\n` +
       "/recognised · Michelin, Bib Gourmand, Asia 50/100\n" +
@@ -11142,6 +12335,16 @@ async function cacheBotUsername() {
 
     app.get('/health', (_req, res) => res.send('ok'));
 
+    // v0.61.386 — the bare apex `/` had no handler, so soleat.net/ returned
+    // 404 (a monitor/script — clientUa axios — was hitting it). Now: a real
+    // browser is sent into the Cuisine TMA; a script / health probe (no
+    // text/html in Accept) gets a plain 200 so the apex stops 404-ing.
+    app.get('/', (req, res) => {
+      const accept = String(req.headers.accept || '');
+      if (accept.includes('text/html')) return res.redirect(302, '/app/cuisine');
+      return res.status(200).type('text/plain').send('ok');
+    });
+
     // v0.59.10: hosted privacy policy page. Same content as the
     // chat-side /privacy command — both render from i18n.privacy.body.
     // Single source of truth, locale-aware via ?lang=fr (default 'en').
@@ -11361,14 +12564,19 @@ async function cacheBotUsername() {
 
     app.use('/static', express.static(path.join(__dirname, 'public')));
 
-    // v0.61.313 — public /about page. Self-contained HTML/CSS3/vanilla JS
-    // at public/about.html; explains the two Soleat search surfaces
-    // (Cuisine 🔍 + chat /cuisine) and the design choices behind them
-    // vs Google Maps. WCAG 2.1 AA: semantic landmarks, skip-link, focus-
-    // visible, contrast ≥ 4.5:1, touch targets ≥ 44 px, prefers-reduced-
-    // motion + prefers-color-scheme honoured. No external CDN deps.
-    app.get('/about', (req, res) => {
-      res.set('Cache-Control', 'public, max-age=600'); // 10-min CDN/browser cache
+    // v0.62.103 — /about is now the built React project-showcase (web/about →
+    // public/about, Vite base '/about/'): a recruiter-facing page on the cross-
+    // border concept, the word-interpretation + location-bound design, and the
+    // Hawker / Train map nuances. Serve its hashed assets (index:false so the
+    // explicit route owns the HTML + a short cache so a redeploy isn't masked),
+    // and keep the previous self-contained page reachable at /about-classic.
+    app.use('/about', express.static(path.join(__dirname, 'public', 'about'), { index: false, maxAge: '1h' }));
+    app.get(['/about', '/about/'], (req, res) => {
+      res.set('Cache-Control', 'public, max-age=300');
+      res.sendFile(path.join(__dirname, 'public', 'about', 'index.html'));
+    });
+    app.get('/about-classic', (req, res) => {
+      res.set('Cache-Control', 'public, max-age=600');
       res.sendFile(path.join(__dirname, 'public', 'about.html'));
     });
 
@@ -11387,7 +12595,9 @@ async function cacheBotUsername() {
     // set the variable to lock it.
     const VIBE_DOC_FILES = {
       'vibe-journal.html': 'text/html; charset=utf-8',
-      'vibe-journal.json': 'application/json; charset=utf-8'
+      'vibe-journal.json': 'application/json; charset=utf-8',
+      // v0.62.15 — the Search Decision Tree mind-map (doc/SearchStrategy).
+      'search-strategy.html': 'text/html; charset=utf-8'
     };
     function vibeJournalKeyFromReq(req) {
       const fromQuery = req.query && typeof req.query.key === 'string' ? req.query.key : '';
@@ -11497,6 +12707,19 @@ async function cacheBotUsername() {
       res.sendFile(path.join(__dirname, 'public', 'cuisine', 'index.html'));
     });
 
+    // v0.62.330 — Clipboard TMA (PR #3 of the v0.7 Clipboard cycle).
+    // Second Mini App under the bot; own bundle at web/clipboard/ built
+    // to public/clipboard/. Served at /app/clipboard so the BotFather
+    // short-name `clipboard` resolves to t.me/<bot>/clipboard?startapp=…
+    // (also reached from the cuisine TMA's "📋 Open Clipboard" panel
+    // and from the /clipboard chat command's inline button — see
+    // ~lines 7811 + 12069 menu-button wiring below).
+    app.use('/app/clipboard', express.static(path.join(__dirname, 'public', 'clipboard'), STATIC_OPTS));
+    app.get('/app/clipboard', (_req, res) => {
+      noCacheHtml(res);
+      res.sendFile(path.join(__dirname, 'public', 'clipboard', 'index.html'));
+    });
+
     // v0.53.0: cuisine catalogue + map-first search endpoints for the
     // new v2 TMA. Catalogue is read-once from the in-repo MD file.
     //
@@ -11515,6 +12738,20 @@ async function cacheBotUsername() {
     // dev — never set in prod.
     app.use('/api/cuisine', requireInitDataFromBodyOrHeader);
 
+    // v0.62.329 — Clipboard TMA API surface (PR #2 of the v0.7 Clipboard
+    // cycle). 16 endpoints under /api/clipboard/*; auth model is the
+    // same chokepoint as /api/cuisine with a single carve-out for the
+    // public GET /api/clipboard/shared/:token read (the token IS the
+    // auth on that one). The mount helper registers the public route
+    // BEFORE mounting its own app.use(requireInitDataFromBodyOrHeader)
+    // gate, so Express matches the public read without triggering auth.
+    try {
+      const { mountClipboardRoutes } = require('./clipboard-routes');
+      mountClipboardRoutes(app, redis);
+    } catch (err) {
+      console.warn('[clipboard-routes] mount failed (non-fatal):', err.message);
+    }
+
     app.get('/api/cuisine/catalogue', (_req, res) => {
       try {
         const cv = require('./cuisines-vault');
@@ -11530,32 +12767,116 @@ async function cacheBotUsername() {
         // sub-drawer. Server-side, /api/cuisine/search detects the
         // 'michelin' slug and branches to handleMichelinSearch which
         // serves the curated Singapore Michelin Guide 2025 list.
-        const michelin = require('./michelin-2025');
+        const michelin = require('./SG-michelin');
+        // v0.61.346 — countries whose Michelin list is searchable: SG
+        // (standalone) + every country in the venue-award loader. The TMA
+        // enables the chip when the current country is in this set.
+        const michelinCountries = ['SG', ...(() => {
+          try { return [...new Set(require('./michelin-data').getAllVenues().map((v) => v.country))]; }
+          catch { return []; }
+        })()];
         categories.push({
           id: 'michelin',
-          label: '🇸🇬 Michelin, Bib Gourmand',
+          label: 'Michelin, Bib Gourmand',
           emoji: '✳️',
           defaultOpen: false,
           // v0.60.199 — SG-only marker: the curated dataset is the
           // Singapore Michelin Guide 2025. The TMA disables this chip
           // when region=JB (no equivalent JB list ships today).
           regionScope: 'SG',
+          michelinCountries,
           cuisines: [{
             categoryId: 'michelin',
-            categoryLabel: '🇸🇬 Michelin, Bib Gourmand',
+            categoryLabel: 'Michelin, Bib Gourmand',
             categoryEmoji: '✳️',
             defaultOpen: false,
-            name: 'Michelin Singapore 2025',
+            // v0.61.375 — operator (fix B): drop the hard-coded "2025"
+            // here too. This `name` leaks into the result criteria line
+            // before the server's michelinSummary.label loads, so the
+            // year-stamp showed there. Year-less, matching the label.
+            name: 'Michelin, Bib Gourmand',
             slug: 'michelin',
             flag: '✳️',
             searchQuery: 'Michelin Singapore restaurant',
             keywords: ['michelin', 'star', 'bib gourmand'],
-            description: `Singapore Michelin Guide 2025: ${michelin.STARS_THREE.length} three-star, ${michelin.STARS_TWO.length} two-star, ${michelin.STARS_ONE.length} one-star, ${michelin.BIB_GOURMAND.length} Bib Gourmand.`
+            description: `Singapore Michelin Guide: ${michelin.STARS_THREE.length} three-star, ${michelin.STARS_TWO.length} two-star, ${michelin.STARS_ONE.length} one-star, ${michelin.BIB_GOURMAND.length} Bib Gourmand.`
           }]
         });
-        res.json({ categories });
+        // v0.62.299 / v0.62.301 — "Set Meal (Beta)" synthetic tile beside Michelin.
+        // /api/cuisine/search detects the 'set-meal' slug and, AFTER the normal
+        // pipeline, annotates the top venues with a CONFIRMED set-lunch/dinner
+        // PRICE scraped from their OWN website (bounded + cached + fail-soft;
+        // website-text only). v0.62.301 — signature/popular dishes removed from
+        // this feature (price only; signature stays on the card "Try" line).
+        categories.push({
+          id: 'set-meal',
+          label: 'Set Meal (Beta)',
+          emoji: '🍱',
+          defaultOpen: false,
+          cuisines: [{
+            categoryId: 'set-meal',
+            categoryLabel: 'Set Meal (Beta)',
+            categoryEmoji: '🍱',
+            defaultOpen: false,
+            name: 'Set Meal (Beta)',
+            slug: 'set-meal',
+            flag: '🍱',
+            searchQuery: '',
+            keywords: ['set meal', 'set lunch', 'set dinner'],
+            description: 'Beta — annotates nearby eateries with a set-lunch/dinner price confirmed from their own website.'
+          }]
+        });
+        // v0.61.445 — per-country+city Michelin cuisine coverage, so the TMA
+        // can GREY cuisine chips that have no star/bib venue under Michelin
+        // (operator: "Michelin + Japanese in KL hangs"). Map: cc → { all:[…],
+        // byCity:{ "<City>":[…] } } of cuisine slugs. ONLY the venue-award
+        // loader countries appear (MY/TH/VN/JP/KR/CN/HK/MO/PH/TW); SG Michelin
+        // lives in SG-michelin.js without routing-slug cuisine tags, so SG is
+        // intentionally ABSENT → the TMA fails OPEN (greys nothing) for SG.
+        // The special modes (durian/fruit/durian-pastry) are never Michelin →
+        // the TMA always greys them under Michelin, independent of this map.
+        let michelinCuisinesByCC = {};
+        try {
+          const md = require('./michelin-data');
+          for (const cc of michelinCountries) {
+            const all = md.availableCuisines(cc);
+            if (!all.length) continue;   // unknown coverage (e.g. SG) → omit → TMA fails open
+            const byCity = {};
+            for (const city of [...new Set(md.visitableVenues(md.venuesForCountry(cc)).map((v) => v.city))]) {
+              byCity[city] = md.availableCuisines(cc, city);
+            }
+            michelinCuisinesByCC[cc] = { all, byCity };
+          }
+        } catch (err) { console.warn('[catalogue] michelinCuisinesByCC build failed:', err.message); }
+        res.json({ categories, michelinCuisinesByCC });
       } catch (err) {
         console.error('[Error] /api/cuisine/catalogue failed:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    // v0.62.452 — plate-by-city for the Sketchbook "Pick local classic" panel.
+    // The Sketchbook derives a city from the user's saved cards and fetches that
+    // city's curated dishes + classics (same shape as platesNear) so its dish
+    // picker mirrors the Cuisine TMA. Read-only, no user text echoed → no auth.
+    // Forgiving match: exact CITY_PLATES key, else case-insensitive, else the
+    // query CONTAINS a key (so "Katong, Singapore" → Singapore).
+    app.get('/api/cuisine/plate', (req, res) => {
+      try {
+        const city = String(req.query.city || '').trim();
+        if (!city) { res.json({ plate: null }); return; }
+        const cp = require('./city-plates');
+        let plate = cp.platesForCity(city);
+        if (!plate && cp.CITY_PLATES) {
+          const q = city.toLowerCase();
+          const keys = Object.keys(cp.CITY_PLATES);
+          const key = keys.find((k) => k.toLowerCase() === q)
+            || keys.find((k) => q.includes(k.toLowerCase()));
+          if (key) plate = cp.platesForCity(key);
+        }
+        res.json({ plate: plate || null });
+      } catch (err) {
+        console.error('[Error] /api/cuisine/plate failed:', err.message);
         res.status(500).json({ error: err.message });
       }
     });
@@ -11648,7 +12969,22 @@ async function cacheBotUsername() {
         // v0.58.51: two blank lines between picks for breathing room;
         // collapse to one when only a single venue is in the clip.
         const blockSep = blocks.length > 1 ? '\n\n\n' : '\n\n';
-        let body = `${header}\n\n${blocks.join(blockSep)}`;
+        // v0.62.x — Search Insights PR3: the TMA passes a pre-localised one-line
+        // read of the search (count · median · best value · gems). Ride it just
+        // below the header so a copied/shared clip carries the objective insight.
+        // Pre-rendered client-side (any locale), so just escape + cap it here.
+        const insightLineRaw = (typeof req.body?.insightLine === 'string' ? req.body.insightLine : '').trim().slice(0, 200);
+        const insightHtml = insightLineRaw ? `<i>${escapeHtmlForTelegram(insightLineRaw)}</i>\n` : '';
+        // v0.62.x — Part B: "Likely serves {term} {category}" line. mode 'dish' →
+        // atop each venue block; otherwise (free text) → one note row at the end.
+        const dishHintRaw = (typeof req.body?.dishHint === 'string' ? req.body.dishHint : '').trim().slice(0, 120);
+        const dishHintMode = req.body?.dishHintMode === 'dish' ? 'dish' : 'note';
+        const dishHintHtml = dishHintRaw ? `<i>${escapeHtmlForTelegram(dishHintRaw)}</i>` : '';
+        const renderedBlocks = (dishHintHtml && dishHintMode === 'dish')
+          ? blocks.map((b) => `${dishHintHtml}\n${b}`)
+          : blocks;
+        let body = `${header}\n${insightHtml}\n${renderedBlocks.join(blockSep)}`;
+        if (dishHintHtml && dishHintMode === 'note') body += `\n\n${dishHintHtml}`;
         // v0.60.145 — multi-pin: if buildMapHashUrl returns null (every
         // venue lacked lat/lng so buildSlim returned []), drop the inline
         // map button and append a one-line "map unavailable" footer
@@ -12010,7 +13346,10 @@ async function cacheBotUsername() {
             venueCount: 1,
             preview: venue.name || '',
             body,
-            lang: oneLang
+            lang: oneLang,
+            // v0.62.429 — persist the structured venue so the Sketchbook TMA can
+            // render the real ResultCard (not the copied HTML text).
+            venue
           });
         } catch (err) { console.warn('[Cuisine] pushClip (copy-one) failed:', err.message); }
         // v0.60.161 — verbose-log exit.
@@ -12145,11 +13484,10 @@ async function cacheBotUsername() {
         // discovery centred there. Operator 2026-05-14: "Can I set the
         // location at Pontian or Desaru? Apparently, jump to the
         // central area in Johor as set location."
-        const SG_LAT_MIN = 1.15, SG_LAT_MAX = 1.50;
-        const SG_LNG_MIN = 103.6, SG_LNG_MAX = 104.1;
-        const insideSG = Number.isFinite(lat) && Number.isFinite(lng)
-          && lat >= SG_LAT_MIN && lat <= SG_LAT_MAX
-          && lng >= SG_LNG_MIN && lng <= SG_LNG_MAX;
+        // v0.62.17 — split SG bbox (see the cuisine-search copy below):
+        // honours JB sub-location picks (Legoland / Bukit Indah / Southkey)
+        // instead of snapping them to JB_CBD.
+        const insideSG = require('./location-mode').insideSgBbox({ lat, lng });
         const searchCenter = isJB ? (insideSG ? JB_CBD : { lat, lng }) : { lat, lng };
         // v0.60.165 — JB default radius widened 18 km → 30 km per
         // operator request. Tight 18 km only covered JB city proper;
@@ -12241,7 +13579,14 @@ async function cacheBotUsername() {
         }
         if (seed.filters.prices?.length) {
           const allowed = new Set(seed.filters.prices.map((p) => p.length));
-          venues = venues.filter((v) => v.priceLevel == null || allowed.has(v.priceLevel));
+          venues = venues.filter((v) => {
+            // v0.62.x — filter on the MONEY shown (priceRange → tier); fall back
+            // to Google price_level; drop venues with NO price signal when a
+            // price filter is active (was: null always passed → "$100 under $").
+            const tier = require('./currency-format').priceTierFromRange(v.priceRange)
+              ?? (Number.isFinite(v.priceLevel) ? v.priceLevel : null);
+            return tier != null && allowed.has(tier);
+          });
         }
 
         // v0.59.42: rating-rank then pick up to 12 random from the
@@ -12267,6 +13612,10 @@ async function cacheBotUsername() {
         // v0.60.47 (Human Lead 2026-05-09): 8 → 5. The first-load wait
         // was still ~4s; capping at 5 brings it under 3s and aligns
         // with the new "✨ 5 suggestions" caption in the TMA.
+        // v0.61.436 — apply the per-chat guarded rating floor (code
+        // review: warm-start ignored the /rating pill entirely and even
+        // rating-rank-sorted in the opposite direction of 'No rating').
+        venues = await applyChatRatingFloor(wsChatId, venues, 'Warm-Start');
         let top = pickTopN(venues, 5);
         let resolvedSeed = seed.id;
 
@@ -12354,10 +13703,17 @@ async function cacheBotUsername() {
         // (not just the JB→MY / default→SG switch), accept an
         // optional `countryCode` (ISO 3166-1 alpha-2). When valid,
         // it overrides the legacy region→country mapping below.
-        const { input, lat, lng, region = 'SG', countryCode } = req.body || {};
+        const { input, lat, lng, region = 'SG', countryCode, radiusM } = req.body || {};
         if (!input || typeof input !== 'string' || input.trim().length < 2) {
           return res.json({ suggestions: [] });
         }
+        // v0.62.x — operator: entering "IOI City Mall" with Putrajaya selected
+        // drifted to KL. The bias was a flat 50 km, but Putrajaya is ~12 km from
+        // the more-prominent "IOI Mall Puchong" near KL, so the wrong mall won.
+        // When the client passes the picked city's radius cap, tighten the bias
+        // to it (clamped 3–50 km) so same-city places outrank a famous neighbour.
+        const biasRadius = (Number.isFinite(radiusM) && radiusM >= 3000 && radiusM <= 50000)
+          ? radiusM : 50000;
         const cleanInput = input.trim().slice(0, 80).toLowerCase();
         const apiKey = process.env.GOOGLE_MAPS_API_KEY;
         if (!apiKey) return res.status(503).json({ error: 'GOOGLE_MAPS_API_KEY unset' });
@@ -12374,7 +13730,7 @@ async function cacheBotUsername() {
         // v0.61.267 — cache key now keyed on effectiveCountry instead
         // of region so a "MY autocomplete biased near KL" doesn't
         // share a slot with a "MY autocomplete biased near JB".
-        const cacheKey = `placeauto:v2:${effectiveCountry}:${gLat}:${gLng}:${cleanInput}`;
+        const cacheKey = `placeauto:v2:${effectiveCountry}:${gLat}:${gLng}:r${Math.round(biasRadius / 1000)}:${cleanInput}`;
         try {
           if (redis.isOpen) {
             const cached = await redis.get(cacheKey);
@@ -12392,7 +13748,7 @@ async function cacheBotUsername() {
           body.locationBias = {
             circle: {
               center: { latitude: lat, longitude: lng },
-              radius: 50000
+              radius: biasRadius
             }
           };
         }
@@ -12795,6 +14151,7 @@ async function cacheBotUsername() {
         const userId = verified.user?.id;
         if (!userId) return res.status(400).json({ ok: false, error: 'no user id' });
         const chatId = String(userId);
+        const deviceId = readDeviceId(req); // v0.61.363 per-device key
         const { precinctId, text, lat, lng, label, country } = req.body || {};
         const precincts = require('./precincts');
         // v0.61.192 — direct lat/lng/label path for the Menu TMA's
@@ -12813,6 +14170,7 @@ async function cacheBotUsername() {
             region: 'OTHER',
             radiusCapM: 20000,
             label: label.trim(),
+            deviceId,
             ...(cc ? { country: cc } : {})
           });
           console.log(`[menu/set-location] D776 chat=${chatId} OTHER lat=${lat.toFixed(4)} lng=${lng.toFixed(4)} country=${cc || '?'} label="${label.slice(0, 60)}"`);
@@ -12833,7 +14191,8 @@ async function cacheBotUsername() {
             region: p.region,
             radiusCapM: p.radiusCapM || null,
             label: p.label,
-            precinctId: p.id
+            precinctId: p.id,
+            deviceId
           });
           console.log(`[menu/set-location] D776 chat=${chatId} precinctId=${p.id} region=${p.region}${p.radiusCapM ? ' cap=' + p.radiusCapM + 'm' : ''}`);
           return res.json({
@@ -12862,7 +14221,7 @@ async function cacheBotUsername() {
           // to override (e.g. when the user just toggled the region
           // toggle but hasn't picked a precinct yet).
           const { geocodeQueryRegion } = require('./vibe-suggest');
-          const cached = await getUserLocation(redis, chatId).catch(() => null);
+          const cached = await getUserLocation(redis, chatId, deviceId).catch(() => null);
           const requestedRegion = (typeof req.body?.region === 'string' && req.body.region) ? req.body.region : null;
           const effectiveRegion = requestedRegion || cached?.region || 'SG';
           const biasCenter = (cached && Number.isFinite(cached.lat) && Number.isFinite(cached.lng))
@@ -12876,18 +14235,25 @@ async function cacheBotUsername() {
                 : 'could not resolve text to a Malaysia location'
             });
           }
-          // Preserve the prior region + radiusCapM when the new
-          // resolved point stays in the same region (so a JB anchor
-          // picking another JB hotel keeps the 30 km cap; switching
-          // explicitly to SG clears it).
-          // v0.61.185 — accept legacy 'MY-PUT' alongside 'OTHER' when
-          // checking whether to preserve the cached region's cap.
-          const preserveRegion = (cached?.region === 'JB' || cached?.region === 'MY-PUT' || cached?.region === 'OTHER')
-            && effectiveRegion === cached.region;
-          const setOpts = { label: r.name || text.trim() };
-          if (preserveRegion) {
-            setOpts.region = cached.region;
-            if (Number.isFinite(cached.radiusCapM)) setOpts.radiusCapM = cached.radiusCapM;
+          // v0.61.329 — re-derive region + country from the RESOLVED coords,
+          // not the request/cached region. Operator bug: typing "legoland"
+          // with an SG anchor resolved to LEGOLAND Malaysia (Johor) but was
+          // stored region=SG, so the Menu pill showed 🇸🇬 over a Malaysian
+          // address. The resolved point is the source of truth: SG bbox → SG,
+          // Johor extent → JB, else → OTHER (with country MY for the
+          // SG/MY-biased text geocode).
+          const { coarseGate, isJbCoords } = require('./location-mode');
+          let resolvedRegion;
+          if (coarseGate({ lat: r.lat, lng: r.lng })) resolvedRegion = 'SG';
+          else if (isJbCoords({ lat: r.lat, lng: r.lng })) resolvedRegion = 'JB';
+          else resolvedRegion = 'OTHER';
+          const setOpts = { label: r.name || text.trim(), region: resolvedRegion };
+          if (resolvedRegion !== 'SG') {
+            setOpts.country = (typeof r.country === 'string' && r.country) ? r.country.toUpperCase() : 'MY';
+          }
+          // Preserve the cached radius cap only when the region is unchanged.
+          if (cached?.region === resolvedRegion && Number.isFinite(cached?.radiusCapM)) {
+            setOpts.radiusCapM = cached.radiusCapM;
           }
           // v0.61.139 — pass through the structured address parts from
           // geocodeQueryRegion (Places addressComponents parser) so the
@@ -12899,8 +14265,9 @@ async function cacheBotUsername() {
           if (typeof r.street === 'string' && r.street) setOpts.street = r.street;
           if (typeof r.building === 'string' && r.building) setOpts.building = r.building;
           if (typeof r.postal === 'string' && r.postal) setOpts.postal = r.postal;
+          setOpts.deviceId = deviceId;
           await setUserLocation(redis, chatId, r.lat, r.lng, setOpts);
-          console.log(`[menu/set-location] D776 chat=${chatId} text="${text.slice(0, 60)}" region=${effectiveRegion}${preserveRegion ? '(preserved)' : ''} → ${r.name || text} (${r.lat.toFixed(4)},${r.lng.toFixed(4)}) parts=${JSON.stringify({ street: r.street || null, building: r.building || null, postal: r.postal || null })}`);
+          console.log(`[menu/set-location] D776 chat=${chatId} text="${text.slice(0, 60)}" bias=${effectiveRegion} stored=${resolvedRegion} → ${r.name || text} (${r.lat.toFixed(4)},${r.lng.toFixed(4)}) parts=${JSON.stringify({ street: r.street || null, building: r.building || null, postal: r.postal || null })}`);
           return res.json({
             ok: true,
             label: r.name || text.trim(),
@@ -12981,8 +14348,11 @@ async function cacheBotUsername() {
         const userId = verified.user?.id;
         if (!userId) return res.status(400).json({ error: 'no user id' });
         const reqLang = String(req.body?.lang || '').slice(0, 2).toLowerCase();
-        if (!['en', 'fr'].includes(reqLang)) {
-          return res.status(400).json({ error: 'lang must be en or fr' });
+        // v0.62.315 — accept the full UI locale set so a TMA language pick
+        // PERSISTS server-side and syncs across TMAs + chat (was en/fr only,
+        // which silently dropped id/ru/de and let hydration revert the choice).
+        if (!['en', 'fr', 'id', 'ru', 'de'].includes(reqLang)) {
+          return res.status(400).json({ error: 'unsupported lang' });
         }
         const { setUserLang } = require('./user-prefs');
         const saved = await setUserLang(redis, String(userId), reqLang);
@@ -13024,7 +14394,7 @@ async function cacheBotUsername() {
           console.warn('[user-location] 400 no user id in verified initData');
           return res.status(400).json({ error: 'no user id' });
         }
-        const cached = await getUserLocation(redis, String(userId));
+        const cached = await getUserLocation(redis, String(userId), readDeviceId(req));
         if (!cached?.lat || !cached?.lng) {
           return res.status(404).json({ error: 'no cached location' });
         }
@@ -13062,7 +14432,19 @@ async function cacheBotUsername() {
           } catch { /* non-fatal */ }
         }
         if (Number.isFinite(cached.radiusCapM)) payload.radiusCapM = cached.radiusCapM;
-        if (cached.label) payload.label = cached.label;
+        // v0.62.x — operator: the launched TMA must show a real street/building/
+        // "near <landmark>", never empty/bare-country/coord. If the cached label
+        // is weak, upgrade it from the coords (reverse-geocode is 24h-cached, so
+        // only the first weak-label launch per area pays). Good labels pass
+        // through untouched (no added latency). Read-only — we don't rewrite the
+        // cache here, so the reconciliation/boot flow is unaffected.
+        if (isWeakLabel(cached.label)) {
+          const upgraded = await composePlaceLabel(cached.lat, cached.lng, cached.label).catch(() => null);
+          if (upgraded && !isWeakLabel(upgraded)) payload.label = upgraded;
+          else if (cached.label) payload.label = cached.label;
+        } else {
+          payload.label = cached.label;
+        }
         if (cached.precinctId) payload.precinctId = cached.precinctId;
         // v0.61.139 — surface the structured address parts so the
         // Menu TMA can render "Anchored at <street> + <building> +
@@ -13077,6 +14459,13 @@ async function cacheBotUsername() {
         // OTHER picker writes it; pre-v0.61.270 this was silently
         // dropped at the setUserLocation seam).
         if (cached.country) payload.country = cached.country;
+        // v0.62.32 — Arrival Plate: when the anchor sits within ~25 km of a
+        // curated city (city-plates.js, operator-reviewed sourced content),
+        // attach its what-to-try plate. Pure in-memory lookup; fail-open.
+        try {
+          const plate = require('./city-plates').platesNear(cached.lat, cached.lng);
+          if (plate) payload.plate = plate;
+        } catch { /* non-fatal — no plate */ }
         res.json(payload);
       } catch (err) {
         console.error(`[user-location] 500 chatId=${verified?.user?.id || '?'} elapsed=${Date.now() - ulStart}ms err=${err.message}`);
@@ -13111,8 +14500,17 @@ async function cacheBotUsername() {
         if (!verified) return res.status(401).json({ error: 'invalid initData' });
         const userId = verified.user?.id;
         if (!userId) return res.status(400).json({ error: 'no user id' });
-        const { clearRecentLocations } = require('./recent-locations');
-        await clearRecentLocations(redis, String(userId));
+        // v0.61.415 — operator: "Clear all except current". When the drawer
+        // passes the current spot's coords, keep that one row and drop the rest;
+        // with no coords, fall back to the legacy full wipe.
+        const { clearRecentLocations, clearRecentLocationsExcept } = require('./recent-locations');
+        const keepLat = Number(req.body?.keepLat);
+        const keepLng = Number(req.body?.keepLng);
+        if (Number.isFinite(keepLat) && Number.isFinite(keepLng)) {
+          await clearRecentLocationsExcept(redis, String(userId), keepLat, keepLng);
+        } else {
+          await clearRecentLocations(redis, String(userId));
+        }
         res.json({ ok: true });
       } catch (err) {
         console.warn('[recent-locations clear API] failed:', err && err.message);
@@ -13175,16 +14573,91 @@ async function cacheBotUsername() {
         if (typeof building === 'string' && building.trim()) opts.building = building.trim();
         if (typeof postal === 'string' && postal.trim()) opts.postal = postal.trim();
         if (Number.isFinite(radiusCapM) && radiusCapM > 0) opts.radiusCapM = radiusCapM;
-        await setUserLocation(redis, String(userId), lat, lng, opts);
+        opts.deviceId = readDeviceId(req); // v0.61.363 per-device key
+        // v0.62.31 — ambient flag (sent ONLY by the TMA's automatic movers,
+        // e.g. the 20-s follow-device sync — never by a user gesture).
+        // location-cache's D787 label-guard refuses an ambient write over a
+        // fresh LABELLED pick; deliberate flows keep full overwrite semantics.
+        if (req.body?.ambient === true) opts.ambient = true;
+        // v0.61.412 — read the PREVIOUS set-location before overwriting, so the
+        // "Search area set to …" notify can fire only on an actual area change.
+        const prevLoc = await getUserLocation(redis, String(userId), opts.deviceId).catch(() => null);
+        const setOut = await setUserLocation(redis, String(userId), lat, lng, opts);
+        // v0.62.x — location-drift telemetry (operator: solve drift across every
+        // ChatID; default ON, LOC_DRIFT_LOG=0 to silence). One line per write.
+        try {
+          const { logLocDrift, r5 } = require('./loc-drift-log');
+          let movedM = null;
+          if (prevLoc && Number.isFinite(prevLoc.lat) && Number.isFinite(prevLoc.lng)) {
+            const { haversineMeters } = require('./location-mode');
+            movedM = Math.round(haversineMeters({ lat: prevLoc.lat, lng: prevLoc.lng }, { lat, lng }));
+          }
+          logLocDrift('set-location', {
+            chat: String(userId), dev: opts.deviceId || null,
+            from: prevLoc ? [r5(prevLoc.lat), r5(prevLoc.lng)] : null,
+            to: [r5(lat), r5(lng)], moved_m: movedM,
+            label: opts.label || null, region: opts.region || null,
+            country: opts.country || null, cap_m: opts.radiusCapM || null,
+            ambient: !!opts.ambient, kept: !!(setOut && setOut.kept)
+          });
+        } catch { /* telemetry is best-effort */ }
+        if (setOut && setOut.kept) {
+          // The guard held — report the kept pick so the client knows nothing moved.
+          return res.json({ ok: true, kept: true, label: setOut.label });
+        }
+        // v0.61.412 — operator: confirm a DELIBERATE pick in chat (client sends
+        // notify:true; boot / auto-detect writes don't). Fire-and-forget so the
+        // HTTP 200 isn't delayed by the geocode / sendMessage round-trip.
+        if (req.body?.notify === true) {
+          notifySearchAreaSet({ chatId: String(userId), prev: prevLoc, lat, lng, label: opts.label || '' });
+        }
         // v0.61.197 — recent-locations LRU. The TMA POSTs only lat/lng
         // (no label); we record an empty label which the chat /lrecent
         // surface renders as "<lat>, <lng>" so the row is still tappable.
         // v0.61.270 — if a label was passed, persist it in the LRU too.
-        addRecentLocation(redis, String(userId), {
-          lat, lng, label: opts.label || ''
-        }).catch(() => {});
+        // v0.61.317 — operator screenshot (04-06 '26): coords-only saves
+        // (GPS auto-detect, map tap, "search this area") rendered as a
+        // bare "1.2722, 103.8113" row in the recents drawer — meaningless
+        // to the user. When no label was supplied, reverse-geocode the
+        // coords into a human-readable name (reverseGeocodeAddress is 24h-
+        // cached on a ~10m grid, so the cost is bounded) before storing.
+        // Also forward country/region so the drawer row shows the correct
+        // flag instead of the generic 🌍 globe. Fire-and-forget in an IIFE
+        // so the HTTP 200 isn't delayed by the geocode round-trip.
+        (async () => {
+          // v0.61.400 — operator: every recents row must read as a FULL
+          // address (street number + street/building name, city, state)
+          // with the right country flag — not a bare city, coords, or the
+          // SG/MY-only flag mapping this used before. Always reverse-geocode
+          // (24h-cached on a ~10m grid, fire-and-forget) and PREFER the
+          // tidied formatted_address over the client's short label / city
+          // pick; fall back to the client label, then the short geo name.
+          let lruLabel = opts.label || '';
+          let lruCountry = opts.country || '';
+          try {
+            const geo = await reverseGeocodeAddress(lat, lng);
+            if (geo) {
+              const full = tidyRecentLabel(geo);
+              if (full) lruLabel = full;
+              else if (!lruLabel && (geo.name || '').trim()) lruLabel = geo.name.trim();
+              // Country flag for EVERY country (ISO-2 short_name from the
+              // geocode), not just the old SG/MY long-name special case.
+              if (!lruCountry && geo.countryCode) lruCountry = geo.countryCode;
+            }
+          } catch { /* keep the client label → drawer still has a row */ }
+          addRecentLocation(redis, String(userId), {
+            lat, lng,
+            label: lruLabel,
+            country: lruCountry || undefined,
+            region: opts.region || undefined
+          }).catch(() => {});
+        })();
         console.log(`[set-location] chat=${userId} → ${lat.toFixed(4)},${lng.toFixed(4)} ${opts.label ? `label="${opts.label.slice(0, 40)}"` : ''} ${opts.country || ''} ${opts.region || ''}`);
-        res.json({ ok: true, persisted: opts });
+        // v0.62.32 — Arrival Plate: a fresh pick near a curated city returns
+        // its what-to-try plate immediately (in-memory, fail-open).
+        let plate = null;
+        try { plate = require('./city-plates').platesNear(lat, lng); } catch { /* non-fatal */ }
+        res.json({ ok: true, persisted: opts, ...(plate ? { plate } : {}) });
       } catch (err) {
         console.error('[set-location] 500', err.message);
         res.status(500).json({ error: err.message });
@@ -13205,7 +14678,7 @@ async function cacheBotUsername() {
           if (!verified) return res.status(401).json({ error: 'invalid initData' });
           const userId = verified.user?.id;
           if (!userId) return res.status(400).json({ error: 'no user id' });
-          const code = await getUserCountryPref(redis, String(userId));
+          const code = await getUserCountryPref(redis, String(userId), readDeviceId(req));
           res.json({ countryCode: code });
         } catch (err) {
           console.error('[country-pref GET] 500', err.message);
@@ -13223,12 +14696,54 @@ async function cacheBotUsername() {
           if (!userId) return res.status(400).json({ error: 'no user id' });
           const code = String(req.body?.countryCode || '').toUpperCase();
           if (!isValidCountryPref(code)) return res.status(400).json({ error: 'invalid countryCode' });
-          const ok = await setUserCountryPref(redis, String(userId), code);
+          const ok = await setUserCountryPref(redis, String(userId), code, readDeviceId(req));
           if (!ok) return res.status(503).json({ error: 'set failed' });
           console.log(`[country-pref] chat=${userId} → ${code}`);
           res.json({ ok: true, countryCode: code });
         } catch (err) {
           console.error('[country-pref POST] 500', err.message);
+          res.status(500).json({ error: err.message });
+        }
+      });
+
+    // v0.61.426 — TMA <-> chat rating-pref sync. The Cuisine TMA's
+    // "≥3.7" rating pill reads this on mount to seed its label, and
+    // writes it on Save; the chat-side /rating (/ra) command writes the
+    // same Redis key (`rating-pref:<chatId>`). Either surface changes the
+    // value and the other picks it up — one floor drives every search.
+    app.get('/api/cuisine/rating-pref',
+      makeRateLimiter(redis, { endpoint: 'rating-pref-read', cap: 300 }),
+      async (req, res) => {
+        try {
+          const initStr = req.headers['x-telegram-init-data'] || '';
+          const verified = verifyInitData(initStr, process.env.TELEGRAM_BOT_TOKEN);
+          if (!verified) return res.status(401).json({ error: 'invalid initData' });
+          const userId = verified.user?.id;
+          if (!userId) return res.status(400).json({ error: 'no user id' });
+          const value = await ratingPrefLib.getUserRatingPref(redis, String(userId));
+          res.json({ ratingPref: value });
+        } catch (err) {
+          console.error('[rating-pref GET] 500', err.message);
+          res.status(500).json({ error: err.message });
+        }
+      });
+
+    app.post('/api/cuisine/rating-pref',
+      makeRateLimiter(redis, { endpoint: 'rating-pref-write', cap: 100 }),
+      async (req, res) => {
+        try {
+          const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+          if (!verified) return res.status(401).json({ error: 'invalid initData' });
+          const userId = verified.user?.id;
+          if (!userId) return res.status(400).json({ error: 'no user id' });
+          const value = ratingPrefLib.normalizeRatingPref(req.body?.ratingPref);
+          if (!value) return res.status(400).json({ error: 'invalid ratingPref' });
+          const ok = await ratingPrefLib.setUserRatingPref(redis, String(userId), value);
+          if (!ok) return res.status(503).json({ error: 'set failed' });
+          console.log(`[rating-pref] chat=${userId} → ${value} (tma)`);
+          res.json({ ok: true, ratingPref: value });
+        } catch (err) {
+          console.error('[rating-pref POST] 500', err.message);
           res.status(500).json({ error: err.message });
         }
       });
@@ -13271,7 +14786,7 @@ async function cacheBotUsername() {
         // server post-filter treats `$$` as "≤$$", so emitting the
         // max preserves the same semantics with one token.
         const priceList = Array.isArray(prices) ? prices : (Array.isArray(filters?.prices) ? filters.prices : []);
-        const cleanPrices = priceList.filter((p) => /^\$+$/.test(p) && p.length >= 1 && p.length <= 3);
+        const cleanPrices = priceList.filter((p) => /^\$+$/.test(p) && p.length >= 1 && p.length <= 4);
         if (cleanPrices.length) {
           cleanPrices.sort((a, b) => b.length - a.length);
           tokens.push(cleanPrices[0]);
@@ -13315,6 +14830,36 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.62.289 / restored v0.62.293 — shared cuisine matcher. Does a venue
+    // genuinely serve one of `names`? Strong haystack (name + area + primaryType
+    // + editorial summary) for bare-name / multi-word checks (review text is too
+    // noisy); FULL haystack (incl. reviews) only for specific curated dish
+    // keywords. Used by the gated-category drop filter AND the single/combo
+    // exact-vs-alternate tagging so the logic is identical.
+    function venueMatchesAnyCuisine(v, names) {
+      const reviewText = Array.isArray(v.reviews)
+        ? v.reviews.map((r) => r?.text || '').join(' ')
+        : '';
+      const strongHaystack = [
+        v.name || '', v.area || '', v.primaryType || '',
+        v.googleSummary?.overview || ''
+      ].join(' ').toLowerCase();
+      const fullHaystack = (strongHaystack + ' ' + reviewText).toLowerCase();
+      for (const name of names) {
+        const lower = String(name).toLowerCase();
+        if (strongHaystack.includes(lower)) return true;
+        const slugForType = lower.replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+        if (v.primaryType === `${slugForType}_restaurant`) return true;
+        const words = lower.split(/\s+/).filter((w) => w.length >= 4);
+        if (words.length >= 2 && words.every((w) => strongHaystack.includes(w))) return true;
+        const dishKeywords = require('./cuisine-dish-keywords').getDishKeywords(name);
+        for (const kw of dishKeywords) {
+          if (fullHaystack.includes(kw)) return true;
+        }
+      }
+      return false;
+    }
+
     app.post('/api/cuisine/search',
       // v0.60.173 — DF-54 rate limit. v0.60.174 — operator raised
       // cap 60 → 500/hr/chat. Each /search internally fires ~1
@@ -13326,6 +14871,39 @@ async function cacheBotUsername() {
       // catch-all; this layer kills machine-speed amplification.
       makeRateLimiter(redis, { endpoint: 'cuisine-search', cap: 500 }),
       async (req, res) => {
+      // v0.62.15 — OVERALL request deadline (operator: JB+durian "https 502").
+      // A 502 is a GATEWAY error: the route never returned before the proxy
+      // gave up (a hang past ~30-60s), not a thrown error — the catch below
+      // can't help it. JB+durian stacks sequential Places latency (3-page
+      // discover + special-mode widen + the zero-result generic fallback +
+      // the post-search local-name / name-reading enrichments). Self-cap at
+      // 20s: if the body is still running, answer with a degraded-200 (same
+      // shape as the D705 path) so the gateway always gets a response first →
+      // it can NEVER 502. The timer is unref'd (never holds the process) and
+      // every real exit is guarded by res.headersSent so we never double-send.
+      const _searchStart = Date.now();
+      const _elapsed = () => Date.now() - _searchStart;
+      const _SEARCH_DEADLINE_MS = 20000;
+      // v0.62.31 — adversarial-review fixes on the v0.62.15 deadline:
+      //   (1) `_deadlineFired` lets the still-running body SKIP the seen-set
+      //       + session-page writes — the user got the degraded response, so
+      //       marking the never-shown venues as "seen" silently swallowed
+      //       them on the NEXT tap (the worst kind of zero). The 30s payload
+      //       cache write stays ON: with the seen-set unburned, an immediate
+      //       re-tap serves those venues fast — the correct recovery.
+      //   (2) `_gatheredRef` — the body parks `dedupedTop` here the moment it
+      //       exists, so a deadline that fires AFTER the pool was built
+      //       returns the real venues (degraded:true still set), not [].
+      let _deadlineFired = false;
+      const _gatheredRef = { venues: null };
+      const _searchDeadline = setTimeout(() => {
+        if (res.headersSent) return;
+        _deadlineFired = true;
+        const gathered = Array.isArray(_gatheredRef.venues) ? _gatheredRef.venues : [];
+        console.warn(`[Cuisine-Search] D706 deadline-degraded (>${_SEARCH_DEADLINE_MS}ms — returning early with ${gathered.length} gathered venues to avoid a gateway 502)`);
+        try { res.status(200).json({ venues: gathered, degraded: true, exhausted: false }); } catch { /* response already in flight */ }
+      }, _SEARCH_DEADLINE_MS);
+      if (typeof _searchDeadline.unref === 'function') _searchDeadline.unref();
       try {
         // v0.57.8: region toggle — "SG" (default) or "JB" (Johor Bahru
         // city only, not the whole state of Johor or Malaysia). For JB
@@ -13341,6 +14919,9 @@ async function cacheBotUsername() {
         // KL / Jakarta whose TMA had just opened.
         const { lat, lng, cuisines = [], filters = {}, radius: clientRadius, lang: langIn } = req.body || {};
         const regionIn = req.body?.region;
+        // v0.62.x — Search Insights PR4: anonymous aggregate demand tally
+        // (fire-and-forget; no identifier, coarse cell). Never blocks the search.
+        recordSearchDemand(redis, { cuisines, lat, lng });
         // `let` because the cache/coords resolution below may
         // mutate it. Validate against the closed set so a bad
         // client value can't poison the downstream branches.
@@ -13358,6 +14939,22 @@ async function cacheBotUsername() {
         // the existing seam ~line 14289). ISO 3166-1 alpha-2 only.
         const requestCountryRaw = typeof req.body?.countryCode === 'string' ? req.body.countryCode.toUpperCase() : '';
         const requestCountry = /^[A-Z]{2}$/.test(requestCountryRaw) ? requestCountryRaw : null;
+        // v0.61.426 — optional client override of the per-chat rating pref
+        // (TMA may forward its pill value for immediacy). Validated; falls
+        // back to the Redis value (getUserRatingPref) at the floor seam.
+        const requestRatingPref = ratingPrefLib.normalizeRatingPref(req.body?.ratingPref);
+        // v0.61.361 — Option B device currency. The TMA forwards the
+        // phone's locale region (Intl) as `deviceRegion`; it drives the
+        // venue-card price conversion (→ the user's HOME currency),
+        // independent of where they're searching.
+        const deviceRegionRaw = typeof req.body?.deviceRegion === 'string' ? req.body.deviceRegion.toUpperCase() : '';
+        const deviceRegion = /^[A-Z]{2}$/.test(deviceRegionRaw) ? deviceRegionRaw : null;
+        // v0.61.385 — the device's LANGUAGE (en/fr/…), separate from its
+        // region. Used to gloss a foreign venue name into the user's own
+        // language: "<place language> (<device language>)".
+        const deviceLangRaw = typeof req.body?.deviceLang === 'string' ? req.body.deviceLang.toLowerCase() : '';
+        const deviceLang = /^[a-z]{2,3}$/.test(deviceLangRaw) ? deviceLangRaw : null;
+        const searchDeviceId = readDeviceId(req); // v0.61.363 per-device cache
         // v0.61.126 — Fruits / Durian exclusive special mode. When
         // set, the request body's `cuisines` / `filters.michelin` /
         // `filters.dessert` / Tell-me text are all IGNORED in favour
@@ -13377,6 +14974,18 @@ async function cacheBotUsername() {
         // first, then Redis /language pref, then 'en'.
         const verifiedSearch = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
         const csChatId = verifiedSearch?.user?.id ? String(verifiedSearch.user.id) : null;
+        // v0.61.436 — resolve the chat's EFFECTIVE rating pref ONCE, up
+        // front (request override → Redis → guarded default), so that (a)
+        // it can be part of the criteria hash — the rating mode is a search
+        // criterion, and sharing a seen-set across modes let one mode's
+        // served venues poison another's pagination (code review) — and
+        // (b) the floor seam below reuses it without a second Redis read.
+        let effRatingPref = requestRatingPref;
+        if (!effRatingPref && csChatId) {
+          try { effRatingPref = await ratingPrefLib.getUserRatingPref(redis, csChatId); }
+          catch { effRatingPref = null; }
+        }
+        effRatingPref = effRatingPref || ratingPrefLib.DEFAULT_RATING;
         // v0.61.273 — resolve `region` when the client omitted it
         // (first-paint '__NONE__' sentinel) or sent an invalid value.
         // Priority: (a) Redis-cached region from /api/cuisine/set-location
@@ -13388,7 +14997,7 @@ async function cacheBotUsername() {
           let cachedRegion = null;
           if (csChatId) {
             try {
-              const cached = await getUserLocation(redis, csChatId).catch(() => null);
+              const cached = await getUserLocation(redis, csChatId, searchDeviceId).catch(() => null);
               cachedRegion = (cached && typeof cached.region === 'string') ? cached.region : null;
             } catch { /* non-fatal */ }
           }
@@ -13405,7 +15014,11 @@ async function cacheBotUsername() {
           console.log(`[Cuisine-TMA] D-A1 region resolved: client=${regionIn || '<unset>'} cached=${cachedRegion || '<unset>'} coords=(${lat.toFixed(2)},${lng.toFixed(2)}) → ${region}`);
         }
         const { resolveLang: resolveLangSearch } = require('./user-prefs');
-        const csBodyLang = (typeof langIn === 'string' && ['en','fr'].includes(langIn)) ? langIn : null;
+        // v0.62.305 — accept 'id' so the cuisine TMA result-card server strings
+        // (open-hours label) render in Indonesian. csLang threads on to many
+        // `csLang === 'fr' ? fr : en` sites where 'id' degrades safely to en;
+        // chat-side gates (deliverPicks) stay en/fr until the chat id pass.
+        const csBodyLang = (typeof langIn === 'string' && ['en','fr','id','ru','de'].includes(langIn)) ? langIn : null;
         const csLang = csBodyLang || (csChatId ? await resolveLangSearch(redis, csChatId, null) : 'en');
         // v0.60.161 — verbose-log instrumentation. Capture request start
         // time + incoming payload shape. The vlogIf gate is in-process-
@@ -13440,6 +15053,15 @@ async function cacheBotUsername() {
         // is `let`, not `const`. The raw entry is captured separately
         // for the freetext-log call at the end of the handler.
         let ftRawIn = String(req.body?.freeText || '').trim();
+        // v0.62.32 — Arrival Plate E-split: when the typed free text IS a
+        // curated dish (a plate tap or a hand-typed dish name), remember it
+        // so the post-enrich pass can tag per-venue evidence
+        // (dishEvidence: 'name' | 'reviews' | null) for the Confirmed/Ask-
+        // first split. Captured BEFORE the anchor-detection strip.
+        let dishQueryTerm = null;
+        try {
+          if (ftRawIn && require('./discovery-dish').isKnownDishName(ftRawIn)) dishQueryTerm = ftRawIn;
+        } catch { /* fail-open */ }
         const ftRawOriginal = ftRawIn;
         const hadCuisineChip = Array.isArray(cuisines) && cuisines.length > 0;
         if (ftRawIn) {
@@ -13515,11 +15137,14 @@ async function cacheBotUsername() {
         // the anchor do the geo work. Legacy 'MY-PUT' aliased to
         // 'OTHER' for back-compat with anchors written before v0.61.185.
         const isOther = region === 'OTHER' || region === 'MY-PUT';
-        const SG_LAT_MIN = 1.15, SG_LAT_MAX = 1.50;
-        const SG_LNG_MIN = 103.6, SG_LNG_MAX = 104.1;
-        const insideSG = Number.isFinite(lat) && Number.isFinite(lng)
-          && lat >= SG_LAT_MIN && lat <= SG_LAT_MAX
-          && lng >= SG_LNG_MIN && lng <= SG_LNG_MAX;
+        // v0.62.17 — use the SPLIT SG bbox (location-mode.insideSgBbox,
+        // mirroring the client's v0.61.281 carve-out) instead of the old
+        // inline flat box (lat 1.15–1.50 / lng 103.6–104.1). The flat box
+        // over-claimed JB sub-locations (Legoland / Bukit Indah / Southkey)
+        // as "inside SG", so picking those chips snapped the search to
+        // JB_CBD and the results landed far from the pin. The split box
+        // classifies them as JB → the picked coords are honoured.
+        const insideSG = require('./location-mode').insideSgBbox({ lat, lng });
         // v0.61.129 — O-20: the Tell-me box place-anchor detection
         // below may override searchCenter, so this is `let`.
         let searchCenter = isJB ? (insideSG ? JB_CBD : { lat, lng }) : { lat, lng };
@@ -13544,12 +15169,14 @@ async function cacheBotUsername() {
         // O-23 progressive radius widening pass below doesn't have
         // to re-read user-location.
         let anchorCap = null;
+        let capSource = 'none'; // v0.62.x — drift telemetry: where anchorCap came from
         try {
           if (csChatId) {
             const ulPayload = await getUserLocation(redis, csChatId).catch(() => null);
             const cap = ulPayload?.radiusCapM;
             if (Number.isFinite(cap) && cap > 0) {
               anchorCap = cap;
+              capSource = 'explicit';
               if (searchRadius > cap) {
                 console.log(`[Cuisine-TMA] D777 clamping radius ${searchRadius}m → ${cap}m (per anchor cap)`);
                 searchRadius = cap;
@@ -13557,6 +15184,120 @@ async function cacheBotUsername() {
             }
           }
         } catch (err) { console.warn('[Cuisine-TMA] anchor-cap read failed:', err.message); }
+        // v0.61.441 — per-city default cap (concentric-ring fetch ceiling).
+        // When no explicit per-anchor radiusCapM was persisted (the common
+        // case for a plain current-location search), fall back to the
+        // nearest curated city's density-tuned radiusM (city-centroids.js:
+        // Dense 30 km / Major metro 45 km / Sparse 60 km) instead of leaving
+        // anchorCap unset. This is the single thread-point feeding the ladder
+        // widenCap + the thin-pool outer-ring re-fetch. A deliberately picked
+        // radiusCapM still wins (read above; this only fills the gap). Does
+        // NOT mutate searchRadius — it only raises the ceiling the ladder /
+        // re-fetch may reach on a thin pool.
+        if (!Number.isFinite(anchorCap) || anchorCap <= 0) {
+          try {
+            const { nearestCityRadiusM } = require('./place-search-variance');
+            const cityCap = nearestCityRadiusM(searchCenter.lat, searchCenter.lng);
+            if (Number.isFinite(cityCap) && cityCap > 0) {
+              anchorCap = cityCap;
+              capSource = 'city-default';
+              console.log(`[Cuisine-TMA] D777b anchorCap city-default ${cityCap}m (nearest-city radiusM, no explicit cap)`);
+            }
+          } catch (err) { console.warn('[Cuisine-TMA] city-default cap failed:', err.message); }
+        }
+        // v0.62.88 — operator "widen" override. When the user taps "Widen" on an
+        // all-seen tiny-pool result (e.g. only 4 durian within Putrajaya's 15 km
+        // cap), lift the tight per-city cap to the OTHER default (40 km) so sparse
+        // destination specialties reach the wider pool. Default OFF — the tight
+        // cap stays the norm; this only fires on the explicit widen tap.
+        const wantWiden = !!(req.body && req.body.widen === true);
+        if (wantWiden && isOther) {
+          const WIDEN_CAP_M = 40000;
+          if (!Number.isFinite(anchorCap) || anchorCap < WIDEN_CAP_M) {
+            anchorCap = WIDEN_CAP_M;
+            capSource = 'widen';
+          }
+          // v0.62.91 — operator: "widen isn't lock in … same list of durian, why".
+          // Root cause: the widen tap only lifted the post-fetch DISTANCE CAP
+          // (anchorCap). The primary pipeline.discover() (and the response cache
+          // key) still ran at the tight city radius, so Places never FETCHED
+          // anything beyond ~15 km — only the special-mode helper widened, and
+          // only to ≤3× the tight start radius. Net effect: a widen re-tap re-ran
+          // the same tight query, found the same handful of durians, and the
+          // all-seen recycle (D793) re-showed them nearest-first → "same list".
+          // Fix: on an explicit widen tap, lift the DISCOVERY radius to the widen
+          // cap too so the wider ring is actually queried. Gated on isOther +
+          // anchorCap=40 km ceiling, so it can't roam past the OTHER geofence.
+          if (searchRadius < WIDEN_CAP_M) {
+            console.log(`[Cuisine-TMA] D777c widen → searchRadius ${searchRadius}m → ${WIDEN_CAP_M}m + anchorCap ${anchorCap}m (operator widen tap)`);
+            searchRadius = WIDEN_CAP_M;
+          } else {
+            console.log(`[Cuisine-TMA] D777c widen → anchorCap ${anchorCap}m (searchRadius already ${searchRadius}m)`);
+          }
+        }
+        // v0.61.328 — OTHER-mode geofence Step 1: hard radius ceiling for
+        // the OTHER cascade so a curated-city search can't roam the whole
+        // country. City picks persist a per-city `radiusCapM` (40 km
+        // cities / 120 km Johor) which the anchor-cap block above already
+        // honours; but the OTHER autocomplete / free-text pick path stores
+        // NO cap, so without this guard those OTHER searches fell back to
+        // the 20 km DEFAULT_RADIUS yet could be widened by the slider up to
+        // 100 km. Apply a default 40 km ceiling whenever region is OTHER and
+        // no stricter per-anchor cap was found. SG / JB are excluded — this
+        // branch is gated on `isOther`, so their radius logic is untouched.
+        if (isOther) {
+          const OTHER_DEFAULT_CAP_M = 40000;
+          const effectiveOtherCap = (Number.isFinite(anchorCap) && anchorCap > 0)
+            ? anchorCap
+            : OTHER_DEFAULT_CAP_M;
+          if (searchRadius > effectiveOtherCap) {
+            console.log(`[Cuisine-TMA] D781 OTHER radius ceiling ${searchRadius}m → ${effectiveOtherCap}m (region=OTHER, anchorCap=${anchorCap || 'none'})`);
+            searchRadius = effectiveOtherCap;
+          }
+          if (capSource === 'none') capSource = 'other-default';
+          if (!Number.isFinite(anchorCap) || anchorCap <= 0) anchorCap = effectiveOtherCap;
+        }
+        // v0.62.x — location-drift telemetry: the anchor actually searched, the
+        // radius/cap, and WHERE the cap came from. A free-text OTHER pick stores
+        // no cap → capSource='city-default' with a wide radius is the signature
+        // of "Putrajaya pick, results spilled toward KL". Default ON.
+        try {
+          const { logLocDrift, r5 } = require('./loc-drift-log');
+          logLocDrift('search-anchor', {
+            chat: csChatId || null,
+            center: [r5(searchCenter?.lat), r5(searchCenter?.lng)],
+            region: isOther ? 'OTHER' : (isJB ? 'JB' : 'SG'),
+            radius_m: searchRadius, cap_m: Number.isFinite(anchorCap) ? anchorCap : null,
+            cap_src: capSource
+          });
+        } catch { /* telemetry is best-effort */ }
+        // v0.62.18 — JB FOCUS-POINT tight radius (operator: "Legoland still
+        // spilt out as far away eateries"). When a JB search is anchored ON a
+        // registered sub-location focus point (Legoland / Bukit Indah / CBD /
+        // Southkey / Mt Austin — detected by COORDS, never the name), the 30 km
+        // JB-metro radius floods the dense CBD into a Legoland search. Bound a
+        // focus pick to a tight ring (6 km start, ≤12 km widen ceiling) so the
+        // results are genuinely NEAR the picked spot. Non-focus JB searches
+        // (plain pill / device GPS elsewhere in JB) keep the 30 km behaviour.
+        if (isJB) {
+          const lmFocus = require('./location-mode');
+          const focusKey = lmFocus.jbFocusNear(searchCenter);
+          if (focusKey) {
+            const FOCUS_RADIUS_M = 6000;
+            const FOCUS_CAP_M = 12000;
+            const prevRadius = searchRadius;
+            searchRadius = Math.min(searchRadius, FOCUS_RADIUS_M);
+            anchorCap = FOCUS_CAP_M;   // ladder/outer-ring may widen to here only
+            console.log(`[Cuisine-TMA] D784 JB focus='${focusKey}' tight radius ${prevRadius}m → ${searchRadius}m (cap ${anchorCap}m) — near-pick, not the 30km metro`);
+          }
+          // v0.62.18 — C: Johor-extent guard. A region='JB' anchor that falls
+          // OUTSIDE the Johor state extent is incoherent (a same-named place
+          // resolved elsewhere). The MY-restricted autocomplete + the 150 km
+          // JB_FALLBACK normally prevent this; log it so a leak is visible.
+          if (!lmFocus.insideJohorExtent(searchCenter)) {
+            console.warn(`[Cuisine-TMA] D785 JB-guard: searchCenter ${searchCenter.lat?.toFixed?.(4)},${searchCenter.lng?.toFixed?.(4)} is OUTSIDE the Johor extent for a region=JB search (possible name/phrase mis-resolution)`);
+          }
+        }
         // v0.61.129 — O-20: Tell-me box place-anchor detection. When
         // the typed text names a Singapore place (MRT, hawker centre,
         // STB precinct, or a geocodable landmark) — either standalone
@@ -13575,16 +15316,44 @@ async function cacheBotUsername() {
         try {
           const { detectPlaceName, NEARBY_RADIUS_M } = require('./place-detector');
           const { detectAnchorFromFreeText } = require('./cuisine-tellme-anchor');
+          // v0.62.32 — DISH-NAME GUARD (operator log: "Ikan patin tempoyak"
+          // typed in Putrajaya was geocoded into a Yishun-SG place anchor;
+          // "Obanzai" in Kyoto pivoted to a SG izakaya). A typed CURATED DISH
+          // must never become a place pivot — it stays a food query at the
+          // set location. Guard wraps the place-detector with the dish check
+          // (the "<dish> in <place>" splitter still anchors the PLACE part —
+          // "ramen in tiong bahru" is unaffected). Fail-open; saves a paid
+          // geocode on every dish-text search.
+          const { isKnownDishName } = require('./discovery-dish');
+          const guardedDetect = async (candidate) => {
+            if (isKnownDishName(candidate)) {
+              console.log(`[Cuisine-TMA] D788 dish-name guard: "${String(candidate).slice(0, 50)}" is a curated dish — no place anchor`);
+              return null;
+            }
+            return detectPlaceName(candidate);
+          };
           const anchorResult = await detectAnchorFromFreeText({
-            text: ftRawIn, isJB, detectPlaceName,
+            text: ftRawIn, isJB, detectPlaceName: guardedDetect,
             nearbyRadiusM: NEARBY_RADIUS_M, anchorCap
           });
           if (anchorResult) {
-            detectedPlaceAnchor = anchorResult.anchor;
-            searchCenter = anchorResult.searchCenter;
-            searchRadius = anchorResult.searchRadius;
-            ftRawIn = anchorResult.queryRemainder;
-            console.log(`[Cuisine-TMA] D780 place anchor "${detectedPlaceAnchor.name}" (${detectedPlaceAnchor.kind}, source=${detectedPlaceAnchor.source}) — center=${detectedPlaceAnchor.lat.toFixed(4)},${detectedPlaceAnchor.lng.toFixed(4)} radius=${searchRadius}m freeText→"${ftRawIn}"`);
+            // v0.62.32 — CROSS-COUNTRY backstop: an anchor pivot that lands
+            // far from the set location is a mis-resolution (the MOMOYA-in-
+            // SG-while-in-Kyoto case) — reject it, keep the set location.
+            const lmCC = require('./location-mode');
+            const anchorFar = lmCC.haversineMeters(
+              { lat: anchorResult.anchor.lat, lng: anchorResult.anchor.lng },
+              { lat, lng }
+            );
+            if (Number.isFinite(anchorFar) && anchorFar > 300000) {
+              console.warn(`[Cuisine-TMA] D789 anchor-pivot rejected: "${anchorResult.anchor.name}" is ${(anchorFar / 1000).toFixed(0)}km from the set location — keeping the set location`);
+            } else {
+              detectedPlaceAnchor = anchorResult.anchor;
+              searchCenter = anchorResult.searchCenter;
+              searchRadius = anchorResult.searchRadius;
+              ftRawIn = anchorResult.queryRemainder;
+              console.log(`[Cuisine-TMA] D780 place anchor "${detectedPlaceAnchor.name}" (${detectedPlaceAnchor.kind}, source=${detectedPlaceAnchor.source}) — center=${detectedPlaceAnchor.lat.toFixed(4)},${detectedPlaceAnchor.lng.toFixed(4)} radius=${searchRadius}m freeText→"${ftRawIn}"`);
+            }
           }
         } catch (err) {
           console.warn('[Cuisine-TMA] place-anchor detection failed (non-fatal):', err.message);
@@ -13613,7 +15382,9 @@ async function cacheBotUsername() {
           try {
             await resetSeenSet(csChatId, computeCriteriaHash({
               cuisines, filters, prices: req.body?.prices || [],
-              radius: searchRadius, region, freeText: req.body?.freeText || ''
+              radius: searchRadius, region, freeText: req.body?.freeText || '',
+              ratingPref: effRatingPref,
+              loc: searchLocToken(lat, lng, requestCountry)
             }));
             console.log(`[Cuisine-Search] resetSeen for chat ${csChatId}`);
           } catch (err) { console.warn('[Cuisine-Search] resetSeen failed:', err.message); }
@@ -13643,9 +15414,79 @@ async function cacheBotUsername() {
           const otherCuisineSlugs = (cuisines || [])
             .map((s) => String(s || '').toLowerCase())
             .filter((s) => s && s !== 'michelin');
+          // v0.61.346 — resolve the Michelin country for the loader.
+          // SG pill → 'SG'; OTHER picker → its ISO-2 (requestCountry);
+          // JB → null (operator: keep the chip disabled under JB).
+          // v0.61.431 — operator: "select Malaysia, Michelin, why return zero".
+          // Root cause: for an OTHER search WITHOUT an explicit body countryCode
+          // (cold launch / region resolved server-side), requestCountry was null
+          // → michelinCountry null → the handler leaked to the SG list and
+          // queried Singapore names near a KL/Hanoi anchor → 0. Fall back to the
+          // CACHED location country (the persisted KL→MY / Hanoi→VN pick). We do
+          // NOT use getUserCountryPref here — it defaults to 'SG' when unset,
+          // which would re-introduce the leak.
+          let michelinCountry;
+          const explicitForeign = !!(requestCountry && String(requestCountry).toUpperCase() !== 'SG');
+          if (isJB) {
+            michelinCountry = null;
+          } else if (insideSG && !explicitForeign) {
+            // v0.61.433 — the search anchor is physically inside the Singapore
+            // bbox (the SG region pill resolves to an SG coordinate). Michelin
+            // MUST be the Singapore list, regardless of a drifted `OTHER`
+            // region or a stale cached `location.country` left over from a
+            // prior MY/VN pick. Since #949 (v0.61.432) the OTHER branch below
+            // falls back to that cached country (or to 'unresolved' → empty),
+            // so an SG-pill search could surface a foreign country's Michelin
+            // (operator: "I selected Singapore … Michelin get corrupted").
+            // The SG anchor wins — picking a foreign guide-city sets foreign
+            // coords (insideSG=false), so this never blocks browsing abroad.
+            // v0.61.435 — `!explicitForeign` guard (Codex P1): the SG bbox
+            // (lat ≤ 1.50) overlaps Johor (JB CBD 1.4927). A real MY/JB pick
+            // that fires as region=OTHER + countryCode=MY with JB coords (the
+            // App.jsx stale-closure on a Johor autocomplete pick) must NOT be
+            // forced to SG — an EXPLICIT non-SG `requestCountry` is honoured
+            // by the OTHER branch below. The override only fires when there is
+            // no explicit foreign country (the actual drift/stale-cache case).
+            michelinCountry = 'SG';
+          } else if (typeof isOther !== 'undefined' && isOther) {
+            michelinCountry = requestCountry ? String(requestCountry).toUpperCase() : null;
+            // v0.61.437 — code review F13/F6: derive the country from the
+            // request's OWN anchor coords BEFORE consulting the persisted
+            // location cache. The cache is a PREVIOUS pick (≤24 h old) and
+            // can disagree with a fresh foreign anchor (stale 'MY' + a
+            // Hanoi anchor queried the Malaysia list), and a cached 'SG' /
+            // missing country left michelinCountry null → a silent
+            // 'unresolved' empty for a user standing in KL. The nearest
+            // curated city centroid (≤300 km, same table the city-pin
+            // uses) resolves the anchor's real country; 'SG' is skipped
+            // here too (the insideSG branch above already owns SG anchors).
+            if (!michelinCountry) {
+              try {
+                const { nearestCityForAnchor } = require('./place-search-variance');
+                const { CITY_CENTROIDS } = require('./city-centroids');
+                const near = nearestCityForAnchor(lat, lng);
+                const cc = (near && near.distanceKm <= 300)
+                  ? String(CITY_CENTROIDS[near.city]?.country || '').toUpperCase() : '';
+                if (/^[A-Z]{2}$/.test(cc) && cc !== 'SG') {
+                  michelinCountry = cc;
+                  console.log(`[Michelin] country from anchor coords: ${cc} (${near.city}, ${near.distanceKm.toFixed(0)} km)`);
+                }
+              } catch { /* fall through to the cached-location fallback */ }
+            }
+            if (!michelinCountry && csChatId) {
+              try {
+                const cachedLoc = await getUserLocation(redis, csChatId, searchDeviceId);
+                const lc = cachedLoc && cachedLoc.country ? String(cachedLoc.country).toUpperCase() : '';
+                if (/^[A-Z]{2}$/.test(lc) && lc !== 'SG') michelinCountry = lc;
+              } catch { /* non-fatal — leave null → handler reports 'unresolved' */ }
+            }
+          } else {
+            michelinCountry = 'SG';
+          }
           return await handleMichelinSearch({
             req, res, csChatId, csLang,
             searchCenter, searchRadius,
+            michelinCountry,
             // v0.61.134 — pass the v0.61.129 post-strip `ftRawIn` (not
             // the raw body) so Michelin + place-anchor combinations
             // ("ramen in Tiong Bahru" with the Michelin chip on) get
@@ -13834,6 +15675,16 @@ async function cacheBotUsername() {
         } else {
           cuisineQueries = cuisineNames;
         }
+        // v0.61.395 — Track B: for the New pill in a foreign-script country
+        // the English "newly opened" modifier under-recalls (Tokyo venues are
+        // described in Japanese). OR in a local-language "newly opened" query
+        // as a SEPARATE recall seed (not mixed into the English one, which
+        // would over-constrain). The review-time refute below still decides
+        // newness language-agnostically.
+        if (filters.newlyOpened) {
+          const nlo = require('./special-mode').localNewlyOpened(requestCountry);
+          if (nlo && !cuisineQueries.includes(nlo)) cuisineQueries = [...cuisineQueries, nlo];
+        }
         // v0.61.126 — special-mode override. When Fruits or Durian
         // is on, replace cuisineQueries entirely with the per-mode
         // seeds (`special-mode.buildSeeds`) suffixed for the right
@@ -13844,6 +15695,19 @@ async function cacheBotUsername() {
         // carry a mode keyword.
         if (specialMode) {
           const sm = require('./special-mode');
+          // v0.61.397 — operator: BLOCK the durian / fruits / durian-pastry
+          // modes outside the SE-Asian durian belt (SG/MY/ID/TH/PH/BN/VN) — they
+          // returned wrong answers elsewhere (e.g. HK generic desserts). The
+          // effective country: SG pill → SG, JB / MY-PUT → MY, OTHER → the
+          // picked requestCountry. Return an empty result + a flag the TMA
+          // surfaces as "not available here".
+          const smCountry = region === 'SG' ? 'SG'
+            : (region === 'JB' || region === 'MY-PUT') ? 'MY'
+            : (requestCountry || null);
+          if (!sm.specialModeAllowed(smCountry, specialMode)) {
+            console.log(`[Cuisine-TMA] D778-BLOCK specialMode=${specialMode} region=${region} country=${smCountry || '?'} → blocked (outside the durian belt)`);
+            return res.json({ venues: [], specialModeBlocked: { mode: specialMode, country: smCountry || null }, cached: false });
+          }
           // v0.61.271 — Phase 3 fix (audit ledger C3). The pre-v0.61.271
           // binary "JB suffix or default SG suffix" silently bound
           // every non-JB special-mode search to Singapore. Now the
@@ -13856,8 +15720,18 @@ async function cacheBotUsername() {
           else if (region === 'SG') regionSuffix = 'Singapore';
           // OTHER / MY-PUT → empty suffix (country comes from
           // requestCountry / cache.country / Places regionCode below).
-          cuisineQueries = sm.buildSeeds(specialMode, { regionSuffix });
-          console.log(`[Cuisine-TMA] D778 specialMode=${specialMode} region=${region} country=${requestCountry || '?'} suffix="${regionSuffix}" seeds=${JSON.stringify(cuisineQueries.slice(0, 3))}…`);
+          // v0.61.395 — Track A: pass the venue country so buildSeeds appends
+          // the local-language durian seeds for foreign-script countries
+          // (ドリアンパフ etc. in Tokyo) that the English-only seeds under-recall.
+          // v0.62.15 — use the RESOLVED special-mode country (smCountry), NOT
+          // the raw requestCountry. For a JB search requestCountry is often
+          // 'SG'/null (the device anchor), so the v0.62.14 Malay seeds
+          // (kedai/gerai/pasar durian) were never appended → JB durian
+          // under-recalled. smCountry is 'MY' for JB / MY-PUT, so JB + MY-PUT
+          // now correctly get the Malay local seeds.
+          const seedCountry = smCountry || requestCountry;
+          cuisineQueries = sm.buildSeeds(specialMode, { regionSuffix, country: seedCountry });
+          console.log(`[Cuisine-TMA] D778 specialMode=${specialMode} region=${region} country=${seedCountry || '?'} suffix="${regionSuffix}" seeds=${JSON.stringify(cuisineQueries.slice(0, 3))}… total=${cuisineQueries.length}`);
         }
         // v0.57.24: when Home-based is on, change the actual SEARCH
         // query, not just the post-filter. Google ranks home-kitchens
@@ -14036,7 +15910,19 @@ async function cacheBotUsername() {
         let cuisineSearchHash = '';
         let cuisineVariantIdx = 0;
         let cuisineVariantCount = 1;
-        const isMultiCuisine = cuisineQueries.length >= 2;
+        // v0.61.398 — the AND-combo phase is for 2+ REAL cuisines (find a
+        // venue serving both). Gate it on `cuisineNames` (actual picks), NOT
+        // `cuisineQueries` — the latter is inflated by modifier prefixes and,
+        // since v0.61.395 Track B, by the local-language "newly opened" seed.
+        // A bare New search in a foreign-script country produced
+        // cuisineQueries=["newly opened","새로 오픈"] (length 2) and was wrongly
+        // AND-combined into "newly opened 새로 오픈" — Google then required BOTH
+        // phrases in one venue, collapsing recall to a handful (which the
+        // 3-month review-refute trimmed to ~0 → "no results" in Tokyo/Kyoto/
+        // Seoul). Routing it through the single path lets pipeline.discover
+        // join the seeds with " OR " (pipeline.js:1018) — the broad recall
+        // Track B intended; the review-refute still decides newness soundly.
+        const isMultiCuisine = cuisineNames.length >= 2;
 
         if (isMultiCuisine) {
           comboInfo.attempted = true;
@@ -14083,8 +15969,10 @@ async function cacheBotUsername() {
             const perCuisine = await Promise.all(cuisinesForDiscover.map((q) =>
               pipeline.discover({
                 lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
-                cuisines: [q], maxResults: 15, regionCode: searchRegionCode,
-                lang: csLang, expandSingaporean: !skipExpand
+                // v0.62.92 — deeper per-cuisine recall on a widen tap (B), same
+                // rationale as the single-cuisine path: 15 → 30 + a 2nd page.
+                cuisines: [q], maxResults: wantWiden ? 30 : 15, regionCode: searchRegionCode,
+                lang: csLang, expandSingaporean: !skipExpand, maxPages: wantWiden ? 2 : 1
               }).catch((err) => {
                 console.warn(`[Cuisine-Search] per-cuisine discover "${q}" failed: ${err.message}`);
                 return [];
@@ -14134,7 +16022,9 @@ async function cacheBotUsername() {
             if (escalationOn) {
               cuisineSearchHash = computeCriteriaHash({
                 cuisines, filters, prices: req.body?.prices || [],
-                radius: searchRadius, region, freeText: req.body?.freeText || ''
+                radius: searchRadius, region, freeText: req.body?.freeText || '',
+                ratingPref: effRatingPref,
+                loc: searchLocToken(lat, lng, requestCountry)
               });
               cuisineVariantIdx = await readVariantIdx(csChatId, cuisineSearchHash);
             }
@@ -14160,11 +16050,22 @@ async function cacheBotUsername() {
               if (!pool) {
                 const cand = await pipeline.discover({
                   lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
-                  cuisines: cuisinesForDiscover, maxResults: 30, regionCode: searchRegionCode,
+                  // v0.62.92 — deeper recall on an explicit widen tap (B): bump
+                  // the per-query fetch from 30 (→2 Places pages, ~40 raw) to 60
+                  // (→3 pages, ~60 raw) so a dense OTHER-region pool (e.g. KL
+                  // durians at the 40 km widen radius) surfaces more genuinely-
+                  // unique venues before the all-seen recycle ever kicks in.
+                  // Widen-only, so normal searches pay nothing extra.
+                  cuisines: cuisinesForDiscover, maxResults: wantWiden ? 60 : 30, regionCode: searchRegionCode,
                   lang: csLang,                                    // v0.59.0
                   expandSingaporean: !skipExpand,                  // v0.59.26
                   maxPages: 3,                                     // v0.60.116
-                  queryOverride: vOverride                         // v0.60.117
+                  queryOverride: vOverride,                        // v0.60.117
+                  // v0.62.93 — special modes (durian/fruits) use synonym seeds;
+                  // fan each out as its own Text Search + dedup instead of the
+                  // OR-join, so the near pool isn't lost to prominence ranking
+                  // (durian: 4 → ~39 within 15 km, incl. 97 Durian).
+                  fanOutSeeds: !!specialMode
                 });
                 pool = Array.isArray(cand) ? cand : (cand?.venues || []);
                 if (poolKey && redis.isOpen && pool.length >= 3) {
@@ -14239,13 +16140,18 @@ async function cacheBotUsername() {
         // Sri Lankan/Pakistani (South Asian), Italian/Spanish/Greek/
         // French/British/German/Austrian/Swiss/Portuguese/Scandinavian/
         // European/Mediterranean (European, incl. broad catch-alls).
+        // v0.62.x — Australasian (australian / new-zealand): an "Australian"
+        // search in Putrajaya surfaced a Spanish/Iberico "Southern European
+        // Deli" (no gate → Places loose-matched it to a Western venue). The
+        // gate now drops the generic-Western false positive.
         const GEMINI_CACHE_KEYS = new Set([
           'durian', 'durian-pastry', 'fruits',
           'russian', 'polish', 'ukrainian', 'czech', 'hungarian', 'bulgarian', 'romanian',
           'japanese', 'korean',
           'north-indian', 'south-indian', 'bengali', 'gujarati', 'nepalese', 'sri-lankan', 'pakistani',
           'italian', 'spanish', 'greek', 'french', 'british', 'german', 'austrian', 'swiss',
-          'portuguese', 'scandinavian', 'european', 'mediterranean'
+          'portuguese', 'scandinavian', 'european', 'mediterranean',
+          'australian', 'new-zealand'
         ]);
         let geminiCacheKey = null;
         if (specialMode && GEMINI_CACHE_KEYS.has(specialMode)) {
@@ -14257,11 +16163,12 @@ async function cacheBotUsername() {
         if (geminiCacheKey) {
           try {
             const before = venues.length;
+            const prefilter = venues;
             const labelsKey = `dgv:labels:${geminiCacheKey}`;
             const labelsMap = (redis && redis.isOpen) ? await redis.hGetAll(labelsKey).catch(() => null) : {};
             let dropped = 0, unlabeled = 0;
             const unlabeledVenues = [];
-            venues = venues.filter((v) => {
+            const kept = prefilter.filter((v) => {
               const raw = labelsMap && labelsMap[v.placeId];
               if (!raw) {
                 unlabeled++;
@@ -14274,7 +16181,14 @@ async function cacheBotUsername() {
               } catch { /* malformed entry: keep venue */ }
               return true;
             });
-            console.log(`[Cuisine-Search] D703e Gemini-label post-filter (${geminiCacheKey}): ${before} → ${venues.length}  (dropped=${dropped} unrelated, unlabeled=${unlabeled} passed through)`);
+            // v0.61.441 — routed through the shared never-empty floor. The
+            // Gemini gate had NO floor: when every candidate was labelled
+            // `unrelated` it zeroed the page (a thin-cuisine "1 result" /
+            // empty cause). Demote-don't-empty: if the gate would clear the
+            // pool, keep the pre-filter set.
+            venues = require('./pool-floor').demoteNeverEmpty(kept, prefilter);
+            const gFloored = venues.length !== kept.length;
+            console.log(`[Cuisine-Search] D703e Gemini-label post-filter (${geminiCacheKey}): ${before} → ${venues.length}  (dropped=${dropped} unrelated, unlabeled=${unlabeled} passed through${gFloored ? '; floor — all unrelated, kept pre-filter pool' : ''})`);
 
             // v0.61.282 — online verify-then-cache. When the cache
             // didn't cover all venues AND GEMINI_API_KEY is set, run
@@ -14359,7 +16273,16 @@ async function cacheBotUsername() {
         let specialModeWidened = false;
         let specialModeWidenedFromM = null;
         let specialModeFinalRadiusM = searchRadius;
+        let specialModeRelaxed = false;   // v0.61.416 — generic-term fallback fired
         if (specialMode) {
+          // v0.62.15 — budget guard (A2): the widen fires EXTRA sequential
+          // Places passes. Skip it once we're past ~14s so the optional recall
+          // boost never pushes the request into the gateway-502 zone (the
+          // 20s deadline above is the hard backstop; this avoids ever hitting
+          // it). The base pool + name-dedup below still run.
+          if (_elapsed() > 14000) {
+            console.warn(`[Cuisine-Search] specialMode widen skipped (budget: ${_elapsed()}ms elapsed)`);
+          } else {
           try {
             const { widenSpecialMode } = require('./cuisine-special-mode-widen');
             const sm = require('./special-mode');
@@ -14387,6 +16310,7 @@ async function cacheBotUsername() {
           } catch (err) {
             console.warn(`[Cuisine-Search] specialMode widening failed (non-fatal): ${err.message}`);
           }
+          }   // v0.62.15 — end widen budget-guard else
           // v0.61.145 — operator-flagged regression: durian search
           // result list was showing the same chain (e.g. "Golden
           // Moments") multiple times. Root cause: Places returns
@@ -14412,6 +16336,58 @@ async function cacheBotUsername() {
           if (venues.length !== beforeNameDedup) {
             console.log(`[Cuisine-Search] D782 specialMode=${specialMode} name-dedup ${beforeNameDedup} → ${venues.length}`);
           }
+          // v0.61.416 — operator: "if our FIXED DURIAN TERMS cannot [be]
+          // satisfied, use generic terms to search." For ALL seven belt
+          // countries (Brunei etc. returned 0 on recall / over-strict filtering,
+          // not just the belt gate). When the strict durian / durian-pastry
+          // search + widen yield ZERO, retry ONCE with a bare generic query
+          // ("durian") and a RELAXED filterByMode (skips the accept-type +
+          // strict-name gates; matches a durian word anywhere in the full
+          // haystack). Still durian-only — a durian word must appear. Fruits is
+          // excluded (global + already broad). Fires only on 0, so working
+          // searches are untouched.
+          if ((specialMode === 'durian' || specialMode === 'durian-pastry') && venues.length === 0 && _elapsed() < 15000) {
+            try {
+              const smFb = require('./special-mode');
+              const vfFb = require('./venue-filters');
+              const fbSeeds = specialMode === 'durian-pastry'
+                ? ['durian dessert', 'durian pastry']
+                : ['durian'];
+              const fbRadius = Math.min(
+                searchRadius * 2,
+                (Number.isFinite(anchorCap) && anchorCap > 0) ? anchorCap : 30000
+              );
+              const perSeed = await Promise.all(fbSeeds.map((q) =>
+                pipeline.discover({
+                  lat: searchCenter.lat, lng: searchCenter.lng,
+                  radius: fbRadius, cuisines: [q], maxResults: 15,
+                  regionCode: searchRegionCode, lang: csLang, expandSingaporean: false
+                }).catch(() => [])
+              ));
+              let pool = perSeed.map((r) => Array.isArray(r) ? r : (r && r.venues) || []).flat();
+              const fbSeen = new Set();
+              pool = pool.filter((v) => v && v.placeId && !fbSeen.has(v.placeId) && fbSeen.add(v.placeId));
+              pool = pool.filter(vfFb.passesVenueFilter);
+              let relaxed = smFb.filterByMode(pool, specialMode, { relax: true });
+              const fbNameSeen = new Set();   // chain name-dedup, parity with D782
+              relaxed = relaxed.filter((v) => {
+                const k = String(v?.name || '').toLowerCase().trim();
+                if (!k) return true;
+                if (fbNameSeen.has(k)) return false;
+                fbNameSeen.add(k);
+                return true;
+              });
+              if (relaxed.length > 0) {
+                venues = relaxed;
+                specialModeRelaxed = true;
+                console.log(`[Cuisine-Search] D783 specialMode=${specialMode} GENERIC fallback (strict=0) → ${venues.length} at ${fbRadius}m`);
+              } else {
+                console.log(`[Cuisine-Search] D783 specialMode=${specialMode} generic fallback also 0`);
+              }
+            } catch (err) {
+              console.warn(`[Cuisine-Search] specialMode generic fallback failed (non-fatal): ${err.message}`);
+            }
+          }
         }
         // v0.57.12: cuisine-name validation. Bug per Human Lead — when
         // a cuisine like "Ethiopian" was selected, Google Places
@@ -14435,43 +16411,8 @@ async function cacheBotUsername() {
         // contain the cuisine word OR the curated dish keywords).
         const SMALL_POOL = 5;
         if (allSelectedAreGated && gatedNames.length && venues.length > SMALL_POOL) {
-          venues = venues.filter((v) => {
-            const reviewText = Array.isArray(v.reviews)
-              ? v.reviews.map((r) => r?.text || '').join(' ')
-              : '';
-            // v0.60.160 — split the haystack into a STRONG subset (name +
-            // primaryType + editorial summary + area) and a FULL haystack
-            // that also includes user review text. Bare cuisine-name and
-            // multi-word matches now run against STRONG only — review text
-            // is too noisy: for "Portuguese", reviews on Spanish, Eurasian,
-            // Macanese and even Wagyu venues mention "Portuguese" as a
-            // cultural-influence flavour reference, so the prior
-            // `haystack.includes('portuguese')` kept them all. Dish-keyword
-            // matches still use the FULL haystack — those are specific
-            // enough (`pastel de nata`, `bacalhau`, …) that a review
-            // mention is a real signal. Operator screenshot 2026-05-14:
-            // a Portuguese search returned Smolder Seafood, TINTO Spanish,
-            // Quentin's Eurasian, Restoran Macau Express alongside the
-            // two genuine Portuguese hits (Lusitano, Vera Portuguese).
-            const strongHaystack = [
-              v.name || '', v.area || '', v.primaryType || '',
-              v.googleSummary?.overview || ''
-            ].join(' ').toLowerCase();
-            const fullHaystack = (strongHaystack + ' ' + reviewText).toLowerCase();
-            for (const name of gatedNames) {
-              const lower = name.toLowerCase();
-              if (strongHaystack.includes(lower)) return true;
-              const slugForType = lower.replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
-              if (v.primaryType === `${slugForType}_restaurant`) return true;
-              const words = lower.split(/\s+/).filter((w) => w.length >= 4);
-              if (words.length >= 2 && words.every((w) => strongHaystack.includes(w))) return true;
-              const dishKeywords = require('./cuisine-dish-keywords').getDishKeywords(name);
-              for (const kw of dishKeywords) {
-                if (fullHaystack.includes(kw)) return true;
-              }
-            }
-            return false;
-          });
+          // v0.62.293 (restored) — uses the shared venueMatchesAnyCuisine matcher.
+          venues = venues.filter((v) => venueMatchesAnyCuisine(v, gatedNames));
         }
         // Compute walking distance/time on every venue (haversine).
         function haversine(a, b) {
@@ -14487,130 +16428,39 @@ async function cacheBotUsername() {
           }
           return v;
         });
-        // v0.57.8 (PR #125): 80 km hard gate from user location.
-        // v0.60.152 (Human Lead 2026-05-14): bumped 80 km → 120 km.
-        // Original 80 km covered SG + adjacent JB even from south SG;
-        // 120 km gives more headroom for JB-side venues + a sliver of
-        // Iskandar / Kulai when the user has explicitly opted into
-        // region:'JB' (the formattedAddress filter below still pins
-        // JB-mode results to "Johor Bahru" so we don't bleed into KL).
-        venues = venues.filter((v) => v.distanceM == null || v.distanceM <= 120000);
-        // v0.61.276 — Expert A from the 30-05 morning investigation
-        // board: when region=JB AND coords are far from Johor, the
-        // JB-hybrid-filter silently wipes every result. Operator hit
-        // this at Putrajaya (lat 2.93) and Ipoh (4.60) with JB pill
-        // stuck on from a prior session. Track this so we can fall
-        // through to OTHER treatment when the filter zeros everything
-        // out at non-JB coords.
+        // v0.61.444 — ONE geographic-scoping pass (cuisine-geo-scope.js).
+        // Redesign: scope by a CONCENTRIC DISTANCE from the set location,
+        // bounded by the per-city `anchorCap` (density-tiered radiusM), for
+        // every region — replacing the 120 km global gate, the SG fixed-
+        // centroid filter, and the OTHER country-keyword text filter with one
+        // distance cap. JB keeps its own 60 km near-cap + "Johor"-text rescue
+        // (≤120 km) + the JB→OTHER fallback; SG/JB keep a light cross-border
+        // text exclusion. distanceM was attached just above (from {lat,lng}).
+        // `jbFilterFellBackToOther` still rides the payload (TMA amber banner).
         let jbFilterFellBackToOther = false;
-        if (isJB) {
-          // v0.60.164 — loosen from /johor bahru/i to /\bjohor\b/i so the
-          // JB region toggle covers ALL of Johor state (Pontian, Desaru,
-          // Kulai, Mersing, Muar, Batu Pahat, Kota Tinggi, Iskandar
-          // Puteri, …), not only the city named "Johor Bahru". KL +
-          // Selangor + Pahang addresses don't mention "Johor" so the
-          // word-boundary filter still keeps non-Johor MY venues out.
-          // v0.61.198 — operator's log (South Key + Cantonese): the strict
-          // word-boundary filter still drops ~74% of JB candidates because
-          // Places sometimes formats addresses as "Skudai, 81300, Malaysia"
-          // or "Iskandar Puteri, 79100" with no "Johor" word. Hybrid
-          // matches the SG branch below: accept "Johor" text OR within
-          // 60 km of a JB centroid AND NOT explicitly Singapore-tagged.
-          // 60 km covers Pontian / Kulai / Desaru without leaking into KL.
-          const JB_CENTROID = { lat: 1.4927, lng: 103.7414 };
-          const beforeJb = venues.length;
-          const preJbVenues = venues.slice();
-          venues = venues.filter((v) => {
-            const text = `${v.area || ''} ${v.name || ''}`;
-            if (/\bjohor\b/i.test(text)) return true;
-            if (/singapore/i.test(text)) return false;
-            const distFromJB = haversine(JB_CENTROID, v);
-            return Number.isFinite(distFromJB) && distFromJB <= 60000;
+        try {
+          const scoped = await require('./cuisine-geo-scope').scopeVenuesByRegion({
+            venues, isJB, isOther, lat, lng,
+            anchorCap, searchRadius,
+            locationMode: require('./location-mode'),
+            demoteNeverEmpty: require('./pool-floor').demoteNeverEmpty
           });
-          if (venues.length !== beforeJb) {
-            console.log(`[Cuisine-Search] D703b JB-hybrid-filter ${beforeJb} → ${venues.length}`);
-          }
-          // v0.61.276 — graceful exit when the filter zeroed everything
-          // AND the request's coords are far from the JB extent. This
-          // catches the operator's exact bug class: JB pill sticky
-          // at Putrajaya / KL / Ipoh / Singapore-far-north. Restore
-          // the pre-filter pool and let the OTHER branch's country-
-          // text-filter handle it instead. v0.61.278 surfaces this
-          // via payload.jbFallbackToOther (the TMA renders an amber
-          // banner). v0.61.279 (Register O-26): the JB-distance check
-          // is now `isFarFromJB` in location-mode.js (shared with the
-          // /api/cuisine/set-location sanity guard).
-          if (venues.length === 0 && beforeJb >= 5) {
-            const { isFarFromJB, haversineMeters: hm, JB_CBD: jbCbd } = require('./location-mode');
-            if (isFarFromJB(lat, lng)) {
-              const distRequestToJB = hm(jbCbd, { lat, lng });
-              console.warn(`[Cuisine-Search] D703b JB-fallback: filter wiped ${beforeJb}→0 at coords ${distRequestToJB.toFixed(0)}m from JB CBD. Treating request as OTHER.`);
-              venues = preJbVenues;
-              jbFilterFellBackToOther = true;
-              // Fall through to the OTHER country-text-filter logic
-              // below by flipping the effective branch via the
-              // `effectiveIsOther` guard added on the else-if line.
-            }
-          }
-        }
-        if (jbFilterFellBackToOther || isOther) {
-          // v0.61.207 — operator: "first load is zero for location set
-          // to others". The SG area-text filter was firing for OTHER
-          // and collapsing the pool to 0. v0.61.207 fixed by skipping
-          // the SG/JB area-text filter entirely.
-          // v0.61.210 — defence layer: read the user's country-pref
-          // (the OTHER-picker ISO 3166-1 alpha-2 code) and apply a
-          // soft per-country keyword filter (country name + state +
-          // major cities). Catches cross-border bleed when Places
-          // returns venues outside the user's chosen country.
-          // Fail-open: unknown country → no filter (same behaviour
-          // as v0.61.207).
-          let ctxCountry = null;
-          try {
-            ctxCountry = await getUserCountryPref(redis, csChatId);
-          } catch (err) {
-            console.warn('[Cuisine-Search] country-pref read failed (no defence filter):', err.message);
-          }
-          // v0.61.276 — when we arrived here via the JB-fallback path,
-          // default the country to MY so we still scope to Malaysia
-          // (the JB pill was the user's expressed-but-coords-mismatched
-          // intent; MY is the most charitable interpretation).
-          if (jbFilterFellBackToOther && !ctxCountry) {
-            ctxCountry = 'MY';
-            console.log('[Cuisine-Search] D703b JB-fallback default ctxCountry=MY');
-          }
-          if (ctxCountry && ctxCountry !== 'SG') {
-            try {
-              const { filterVenuesByCountry, hasKeywordsFor } = require('./country-text-match');
-              if (hasKeywordsFor(ctxCountry)) {
-                const beforeOther = venues.length;
-                venues = filterVenuesByCountry(venues, ctxCountry);
-                console.log(`[Cuisine-Search] D703d OTHER country-text-filter cc=${ctxCountry} ${beforeOther} → ${venues.length}`);
-              } else {
-                console.log(`[Cuisine-Search] D703c OTHER-region: no keywords for cc=${ctxCountry}; pool=${venues.length}`);
-              }
-            } catch (err) {
-              console.warn('[Cuisine-Search] country-text-match failed (skip filter):', err.message);
-            }
-          } else {
-            console.log(`[Cuisine-Search] D703c OTHER-region: no country-pref; skipping country-text-filter (pool=${venues.length})`);
-          }
-        } else {
-          // SG only: post-filter by Singapore mention OR proximity
-          // (some hawker centres' formattedAddress lacks "Singapore").
-          venues = venues.filter((v) => {
-            if (/singapore/i.test(`${v.area || ''} ${v.name || ''}`)) return true;
-            // Within 30km of SG centroid still counts as SG even if
-            // the address text is missing the country word.
-            const SG = { lat: 1.3521, lng: 103.8198 };
-            const distFromSG = haversine(SG, v);
-            return distFromSG <= 30000;
-          });
+          venues = scoped.venues;
+          jbFilterFellBackToOther = scoped.jbFallbackToOther;
+        } catch (err) {
+          console.warn('[Cuisine-Search] geo-scope pass failed (keeping unscoped pool):', err.message);
         }
         if (filters.openNow) venues = venues.filter((v) => v.openNow !== false);
         if (filters.prices?.length) {
           const allowed = new Set(filters.prices.map((p) => p.length));
-          venues = venues.filter((v) => v.priceLevel == null || allowed.has(v.priceLevel));
+          venues = venues.filter((v) => {
+            // v0.62.x — filter on the MONEY shown (priceRange → tier); fall back
+            // to Google price_level; drop venues with NO price signal when a
+            // price filter is active (was: null always passed → "$100 under $").
+            const tier = require('./currency-format').priceTierFromRange(v.priceRange)
+              ?? (Number.isFinite(v.priceLevel) ? v.priceLevel : null);
+            return tier != null && allowed.has(tier);
+          });
         }
         // v0.57.16: "Home-based" filter — heuristic for HDB / condo
         // home-kitchens and takeaway-only operators that show up on
@@ -14637,12 +16487,85 @@ async function cacheBotUsername() {
             return false;
           });
         }
-        // v0.57.6: "newly opened" is a soft filter: prefer venues with
-        // ≤150 reviews (proxy for "opened recently in Singapore"). The
-        // searchText query already biases toward Google's own
-        // recency signal via the "newly opened" modifier.
+        // v0.61.349 — the "New" pill now uses /hidden's review-time
+        // refute instead of the v0.57.6 ≤150-review proxy (operator:
+        // "delete logic of New pill, use the /hidden logic"). A Google
+        // review can only be posted AFTER a venue opens, so a review
+        // older than the window proves the venue is NOT newly opened.
+        // Fetch each candidate's reviews (Places Details, reviews-only
+        // mask — gated on the pill so the extra cost applies only here)
+        // and drop the proven-old ones. Review-time can only REFUTE, not
+        // confirm, newness (Places returns ≤5 reviews), so venues with no
+        // review older than the window — or no reviews at all — are kept.
+        // The "newly opened" query modifier still biases Google's recall.
+        // v0.62.x — unified newness rule (newness-criteria.js): the SAME bar
+        // the /hidden refute + the curated new-openings list use. Recency is
+        // the mandatory first filter — oldest review ≤109 d is strict "new",
+        // 110..183 d is a fill band (rendered separated, only to top a short
+        // page up toward 12), >183 d is proven too old. Unrated venues pass
+        // (Places returns ≤5 reviews → absence can't refute). Rated venues must
+        // beat 3.0 — this OVERRIDES the global 3.7 floor on this surface (see
+        // the newlyOpened-aware floor passed to applyRatingFloor below). Review
+        // count is never a factor. (Was: ≤121 d only, no in-block rating bar.)
+        // v0.62.205 — set true when the New filter found nothing provably new and
+        // fell back to the established/biased pool (operator: "say no new nearby").
+        let noProvenNew = false;
         if (filters.newlyOpened) {
-          venues = venues.filter((v) => v.userRatingCount == null || v.userRatingCount <= 150);
+          const { oldestReviewDays } = require('./hidden-verify');
+          const newness = require('./newness-criteria');
+          const newApiKey = process.env.GOOGLE_MAPS_API_KEY;
+          if (newApiKey) {
+            const axiosNew = require('axios');
+            await Promise.all(venues.map(async (v) => {
+              if (!v.placeId) { v._oldestReviewDays = null; return; }
+              try {
+                const { data } = await axiosNew.get(
+                  `https://places.googleapis.com/v1/places/${v.placeId}`,
+                  { headers: { 'X-Goog-Api-Key': newApiKey, 'X-Goog-FieldMask': 'reviews' }, timeout: 4000 }
+                );
+                v._oldestReviewDays = oldestReviewDays(data?.reviews);
+              } catch { v._oldestReviewDays = null; }
+            }));
+          }
+          const beforeNew = venues.length;
+          const preRefute = venues;
+          // Recency ≤183 d ceiling + rated>3.0 (count ignored); stamp the band
+          // ('strict' ≤109 d | 'fill' 110..183 d) so the card list can render
+          // strict and fill as separate, visually-divided groups.
+          const refuted = venues.filter((v) => {
+            v._recencyBand = newness.recencyBand(v._oldestReviewDays);
+            // v0.62.160 — pass userRatingCount so a high review count refutes
+            // newness even when the ≤5-review date heuristic mis-reads an
+            // established venue as recent (BOMUL Samgyetang 3,759 reviews leak).
+            return newness.passesNewness({ oldestReviewDays: v._oldestReviewDays, rating: v.rating, reviewCount: v.userRatingCount });
+          });
+          // v0.61.399 — operator (URGENT): review-time can only REFUTE, never
+          // CONFIRM newness, so it must DEMOTE, not EMPTY the list. In an
+          // established market (Osaka fruit shops — and EVERY cuisine: the
+          // operator's log shows `american` going 2→0 too) all candidates have
+          // reviews older than the window, so the v0.61.349 hard cut zeroed the
+          // page. Pre-v0.61.349 the ≤150-review proxy didn't ("last time I didn't
+          // have this issue"). Floor: when refuting would drop everything, keep
+          // the "newly opened"-biased recall pool so New still returns its
+          // best-effort newest set.
+          const flooredToBias = refuted.length === 0 && preRefute.length > 0;
+          // v0.62.205 — operator: when NOTHING is provably new nearby, say so
+          // ("no new <cuisine> nearby") rather than silently passing established
+          // spots off as new. This flag rides the response → the TMA banner.
+          noProvenNew = flooredToBias;
+          // v0.61.441 — routed through the shared never-empty floor (pool-
+          // floor.js) so this and the other anti-collapse guards speak one
+          // rule. Behaviour identical: refuted unless it would empty, then
+          // the biased recall pool.
+          venues = require('./pool-floor').demoteNeverEmpty(refuted, preRefute);
+          // Keep _recencyBand for the card list's strict/fill grouping; drop
+          // the raw age. Floor survivors (none proven-new) get a 'strict' band
+          // so the best-effort biased pool still renders.
+          for (const v of venues) {
+            delete v._oldestReviewDays;
+            if (!v._recencyBand) v._recencyBand = 'strict';
+          }
+          console.log(`[Cuisine-New] newness refute: ${beforeNew} → ${venues.length} kept (≤${newness.NEW_FILL_DAYS}d, rated>${newness.NEW_RATING_FLOOR}, reviews≤${newness.NEW_REVIEW_COUNT_CEIL}${flooredToBias ? '; floor — kept biased pool, none proven-new' : ''})`);
         }
         // v0.60.165 — petFriendly strict post-filter with text-query
         // fallback. Places' `allowsDogs` attribute is well-populated in
@@ -14726,7 +16649,9 @@ async function cacheBotUsername() {
           if (!dedupHash) {
             dedupHash = computeCriteriaHash({
               cuisines, filters, prices: req.body?.prices || [],
-              radius: searchRadius, region, freeText: req.body?.freeText || ''
+              radius: searchRadius, region, freeText: req.body?.freeText || '',
+              ratingPref: effRatingPref,
+              loc: searchLocToken(lat, lng, requestCountry)
             });
           }
           seen = await readSeenSet(csChatId, dedupHash);
@@ -14734,21 +16659,13 @@ async function cacheBotUsername() {
           console.warn('[Cuisine-Search] seen-set read failed (no dedup):', err.message);
         }
         const isFirstBatchForWiden = (seen.size === 0);
-        try {
-          if (!skipCacheForShuffle && !specialMode && isFirstBatchForWiden) {
-            const { widenAndPick } = require('./cuisine-nearby-widen');
-            const widenCap = (Number.isFinite(anchorCap) && anchorCap > 0)
-              ? Math.min(anchorCap, searchRadius)
-              : searchRadius;
-            const widened = widenAndPick({ venues, cap: widenCap });
-            console.log(`[Cuisine-Search] D790 nearby-widen tier=${widened.tier} radiusM=${widened.radiusM} satisfied=${widened.satisfied} from=${venues.length} to=${widened.venues.length}`);
-            venues = widened.venues;
-          } else if (!skipCacheForShuffle && !specialMode) {
-            console.log(`[Cuisine-Search] D790 nearby-widen skipped (followUp tap, seen=${seen.size}); serving full anchor-capped pool=${venues.length}`);
-          }
-        } catch (err) {
-          console.warn('[Cuisine-Search] widenAndPick failed:', err.message);
-        }
+        // v0.61.441 — the concentric-ring `widenAndPick` pass MOVED below
+        // the rating-floor + seen/session dedup (see D790 further down).
+        // Running it here (pre-floor) was the root of the "compressed to 1
+        // result" bug: a tier that "satisfied" with ≥3 rated>4 venues was
+        // then gutted by applyRatingFloor + the two dedup passes. It now
+        // runs on the already-floored, already-deduped set, and only when
+        // a tight tier can fill a whole page.
         // v0.60.27 — server cap raised 12 → 24 for in-response pagination.
         // v0.60.35 (Human Lead 2026-05-08) — reverted to 12. Each 🔍
         // Search tap now returns 12 venues, and consecutive taps with
@@ -14778,41 +16695,243 @@ async function cacheBotUsername() {
         // (cuisine:seen:<chatId>:<hash>) which is the INNER dedup.
         const sessionSeen = await cuisineSession.getSeen(redis, csChatId);
         const sessionFull = csChatId ? (sessionSeen.size >= cuisineSession._SEEN_CAP) : false;
+        // v0.61.425 — operator: uniform minimum Google rating of 3.7. Floor the
+        // pool BEFORE pagination so < 3.7 venues never enter any page (and the
+        // top-N backfills from the qualifying pool). Guarded: exempts unrated /
+        // very-few-review venues (so the New pill survives) and never empties
+        // the list (see venue-filters.applyRatingFloor).
+        // v0.61.426 — the floor is per-chat (rating-pref.js); v0.61.436 —
+        // the pref was resolved ONCE up front (effRatingPref: request
+        // override → Redis → guarded default) so it matches the criteria
+        // hash exactly and costs no second Redis read here.
+        // v0.62.14 — DURIAN soft-rating (operator: "unhinge the 3.7"). A durian
+        // stall is a durian stall regardless of stars — Google shows 2.5★ ones.
+        // For durian / durian-pastry, DON'T hard-floor: keep ALL (incl. <3.7 +
+        // unrated); the >=3.7/unrated picks are ordered FIRST below and a notice
+        // explains "we look for 3.7★+ but also show lower-rated / unrated stalls".
+        // v0.62.79 — also relax the ≥3.7 floor when "durian" is picked as a
+        // PLAIN cuisine (operator: 97 Durian & other genuine stalls rate <3.7
+        // yet are "worth it"; a durian stall is a durian stall). Previously the
+        // soft-rating only applied to the durian SPECIAL mode, so the cuisine
+        // path floored real stalls out. Same soft order (≥3.7 first).
+        const durianSoftRating = (specialMode === 'durian' || specialMode === 'durian-pastry'
+          || (Array.isArray(cuisines) && cuisines.some((c) => String(c || '').toLowerCase() === 'durian')));
+        if (!durianSoftRating) {
+          const beforeFloor = venues.length;
+          // v0.62.x — the unified newness rule floors rated venues at >3.0 (see
+          // newness-criteria.js). On the New pill that >3.0 bar was already
+          // applied in-block, so cap the global floor at 3.0 here too — never
+          // let the stricter 3.7 default re-drop the 3.0..3.7 "new" venues the
+          // pill deliberately kept. Non-New searches keep the operator's floor.
+          let floorOpts = ratingPrefLib.ratingPrefToFloorOpts(effRatingPref);
+          if (filters.newlyOpened && floorOpts.mode === 'floor' && floorOpts.floor > require('./newness-criteria').NEW_RATING_FLOOR) {
+            floorOpts = { ...floorOpts, floor: require('./newness-criteria').NEW_RATING_FLOOR };
+          }
+          venues = require('./venue-filters').applyRatingFloor(venues, floorOpts);
+          if (venues.length !== beforeFloor) {
+            console.log(`[Cuisine-Search] rating-floor ${ratingPrefLib.describeRatingPref(effRatingPref)}: ${beforeFloor} → ${venues.length}`);
+          }
+        } else {
+          console.log(`[Cuisine-Search] durian soft-rating: floor skipped, kept all ${venues.length} (>=3.7/unrated ordered first)`);
+        }
         const unseenInCriteria = venues.filter((v) => v.placeId && !seen.has(v.placeId));
-        const trulyUnseen = unseenInCriteria.filter((v) => !sessionSeen.has(v.placeId));
-        const atLastVariant = !cuisineSearchHash || cuisineVariantIdx >= (cuisineVariantCount - 1);
-        const dedupExhausted = (venues.length > 0 && trulyUnseen.length === 0 && atLastVariant) || sessionFull;
-        // v0.60.146 — never silently return already-seen venues (the
-        // "stuck on the same list" bug). If there's nothing fresh, the
-        // response is `{ venues: [], exhausted: true }` and the client
-        // surfaces the terminal "↺ Start over" / "you've seen the 80
-        // maximum" copy.
-        // v0.60.191 — operator: first 🔍 tap loaded 6 venues to halve
-        // travel-times + footfall enrichment latency; subsequent taps
-        // returned 12. v0.61.163 (operator's pagination ask) unifies
-        // both to 19 — the TMA's PAGE_SIZE=12 then paginates 12 + 7
-        // with the `Results (12/19) → (19/19)` indicator. Operator
-        // explicitly accepted the latency trade-off in the
-        // ~$0.04/search Routes Distance Matrix delta. Warm-start
-        // (`pickTopN(venues, 5)`) is a separate path and stays at 5.
-        //
-        // `firstBatch` is preserved in the response payload so the TMA
-        // can still distinguish the empty-seen-set initial tap (for
-        // the auto-reset suppression v0.60.191 added). The slice
-        // size is now the same on both branches.
-        // v0.61.239 — operator (Issue 4): "The first load of opening
-        // Cuisine TMA is always 5, right now is 48, 84 for Others."
-        // Tightened FIRST_TAP_SLICE 24 → 5 so the initial render is
-        // a curated taste of the best matches, not a multi-page wall.
-        // Subsequent taps still return 12 each (PAGE_SIZE-aligned).
-        // The TMA's "🔍 to load more" / autoReset logic keys on
-        // `firstBatch` + `finalBatch` + `cumulativeStart/End` which
-        // continue to work with the new ceiling.
-        const FIRST_TAP_SLICE = 5;
+        let trulyUnseen = unseenInCriteria.filter((v) => !sessionSeen.has(v.placeId));
+        let allSeenRecycled = false;   // v0.62.88 — set when D793 re-serves an exhausted pool
+        let allSeenRecycledCount = 0;  // v0.62.92 — full recycled-pool size (for the honest "seen all N" signal)
+        // v0.61.441 — nearest-first ordering (concentric rings). The pool was
+        // distance-sorted upstream, but the outer-ring re-fetch below appends
+        // out-of-order venues, so (re)sort here defensively. Skip for shuffle
+        // paths (Dessert / no-cuisine warm-start) so the v0.59.46 lightShuffle
+        // rotation survives — same gate as the upstream sort above.
+        // v0.62.x — on the New pill, recency band is the PRIMARY key: strict
+        // (≤109 d) venues page ahead of fill (110..183 d) ones, so the 3–6 mo
+        // fill band only surfaces once the strict band can't fill the page.
+        // Distance stays the within-band tiebreak. `_recencyBand` is undefined
+        // off the New pill → comparator collapses to pure distance (unchanged).
+        // v0.62.14 — durian soft-rating order: >=3.7 / unrated stalls page
+        // first, <3.7 stalls fill after (operator: prefer 3.7★+ but still show
+        // the rest). Pref 0 = keep-first, 1 = below-bar.
+        const _durianPref = (v) => {
+          const r = Number(v.rating);
+          return (!Number.isFinite(r) || r === 0 || r >= 3.7) ? 0 : 1;
+        };
+        // v0.62.19 — "Durian Fruits" type priority (DURIAN mode only — NOT
+        // durian-pastry). Fruit sellers (stalls / wholesalers / fruit-veg) page
+        // first, durian-themed eateries (restaurant/cafe-typed) last. Primary
+        // key, ABOVE the rating order, per the operator's "the priority is
+        // fruit stalls". Ranking, not filtering — mis-typed real stalls stay.
+        const durianFruitFirst = (specialMode === 'durian');
+        const _durianTypeTier = durianFruitFirst ? require('./special-mode').durianTypeTier : null;
+        if (!skipCacheForShuffle) {
+          trulyUnseen.sort((a, b) => {
+            if (durianFruitFirst) {
+              const ta = _durianTypeTier(a), tb = _durianTypeTier(b);
+              if (ta !== tb) return ta - tb;
+            }
+            if (durianSoftRating) {
+              const pa = _durianPref(a), pb = _durianPref(b);
+              if (pa !== pb) return pa - pb;
+            }
+            const ba = a._recencyBand === 'fill' ? 1 : 0;
+            const bb = b._recencyBand === 'fill' ? 1 : 0;
+            if (ba !== bb) return ba - bb;
+            return (a.distanceM || 0) - (b.distanceM || 0);
+          });
+        }
+        // v0.61.239 — first-tap page = 5 (a curated taste); follow-up taps
+        // 12 (PAGE_SIZE-aligned). Hoisted above the re-fetch so its thinness
+        // check can read FIRST_TAP_SLICE. `firstBatch` rides in the payload
+        // so the TMA's "🔍 to load more" / autoReset logic still keys on it.
+        // v0.61.239 first-tap "taste" was 5; v0.62.x — bumped to 6 so a healthy
+        // search never reads as "less than six" on the first tap (operator).
+        const FIRST_TAP_SLICE = 6;
         const FOLLOW_UP_SLICE = 12;
         const isFirstBatch = (seen.size === 0);
-        const sliceCap = isFirstBatch ? FIRST_TAP_SLICE : FOLLOW_UP_SLICE;
-        const top = trulyUnseen.slice(0, sliceCap);
+        // v0.62.x — Stage 3: when the client streams (progressive results), the
+        // first tap fetches a FULL page of 12 and reveals it in two waves (6
+        // base + 6 append) within the one response, so it auto-grows to 12
+        // without a second 🔍. The 6-card first paint is preserved by the
+        // wave split, not by a smaller fetch. Non-streaming first taps keep the
+        // cheaper 6-slice (the v0.61.239 "taste"); follow-up taps are 12 either
+        // way.
+        const wantsStream = req.body?.stream === true;
+        const sliceCap = (isFirstBatch && !wantsStream) ? FIRST_TAP_SLICE : FOLLOW_UP_SLICE;
+        const FIRST_REVEAL = 6;   // base-wave size when streaming a >6 batch
+        // v0.61.441 — thin-pool OUTER-RING re-fetch. The base fetch only
+        // reached `searchRadius`; when the post-floor / post-dedup unseen
+        // count is below a full first page, fetch the next ladder tiers up to
+        // `anchorCap` (the per-city max — NOT searchRadius, which a tight
+        // slider may have clamped) to fuel the 25/45/60 km rings. Demand-
+        // driven: fires ONLY on the first tap of a thin, non-special, non-
+        // shuffle search, so healthy dense queries pay nothing. Bounded to
+        // ≤2 extra Places passes. I4 guard: the wider pool merges into THIS
+        // request's unseen list only — never written back to the per-variant
+        // `cuisine:pool:` cache (keyed on the base searchRadius).
+        if (!skipCacheForShuffle && !specialMode && isFirstBatch && trulyUnseen.length < FIRST_TAP_SLICE) {
+          try {
+            const { refetchOuterRings } = require('./cuisine-nearby-refetch');
+            const vf = require('./venue-filters');
+            const existingIds = [
+              ...venues.map((v) => v.placeId).filter(Boolean),
+              ...seen, ...sessionSeen
+            ];
+            const rf = await refetchOuterRings({
+              seeds: cuisinesForDiscover,
+              searchCenter,
+              searchRegionCode,
+              lang: csLang,
+              startRadius: searchRadius,
+              anchorCap,
+              existingPlaceIds: existingIds,
+              // v0.62.x — fetch toward the effective page size (12 when
+              // streaming a first batch) so the two-wave reveal can fill to 12;
+              // the threshold above still keeps the re-fetch demand-driven.
+              target: sliceCap,
+              expandSingaporean: !skipExpand,
+              discoverFn: pipeline.discover,
+              passesVenueFilter: vf.passesVenueFilter
+            });
+            if (rf.venues.length) {
+              // Fresh venues get the SAME rating-floor the base pool got,
+              // then dedup vs seen / sessionSeen / what we already hold.
+              let fresh = vf.applyRatingFloor(rf.venues, ratingPrefLib.ratingPrefToFloorOpts(effRatingPref));
+              const have = new Set(trulyUnseen.map((v) => v.placeId).filter(Boolean));
+              fresh = fresh.filter((v) => v.placeId
+                && !seen.has(v.placeId) && !sessionSeen.has(v.placeId) && !have.has(v.placeId));
+              for (const v of fresh) { unseenInCriteria.push(v); trulyUnseen.push(v); }
+              trulyUnseen.sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
+              console.log(`[Cuisine-Search] D791 outer-ring re-fetch +${fresh.length} fresh (fetches=${rf.fetches}, to ${rf.finalRadiusM}m); unseen now ${trulyUnseen.length}`);
+            }
+          } catch (err) {
+            console.warn('[Cuisine-Search] outer-ring re-fetch failed (non-fatal):', err.message);
+          }
+        }
+        // v0.62.79 — ALL-SEEN RECYCLE (operator: durian "keeps getting 1 or
+        // zero"). A curated pool gets exhausted by the per-SESSION seen-set after
+        // a few taps → the page becomes a dead `all-seen-session` zero, and the
+        // client's resetSeen retry only clears the per-CRITERIA seen, never the
+        // session-seen — so it stays zero forever. When every match has been seen
+        // this session, re-serve the pool (nearest-first) instead of an empty list.
+        // v0.62.80 — drop the ≤FOLLOW_UP_SLICE gate: an 18-venue durian pool (KL,
+        // 45 km cap) was >12 so it kept dead-zeroing. Recycle ANY non-empty
+        // all-seen pool — a re-show always beats a zero.
+        if (trulyUnseen.length === 0 && !skipCacheForShuffle && venues.length > 0) {
+          const recyclePool = venues
+            .filter((v) => v && v.placeId)
+            .slice()
+            .sort((a, b) => (a.distanceM || 0) - (b.distanceM || 0));
+          if (recyclePool.length) {
+            // v0.62.92 — ROTATE the recycle (operator: "keeps repeating same
+            // eateries"). The old code re-served the pool nearest-first and the
+            // slice took the same top 12 on EVERY tap, so the farther venues
+            // never surfaced. Advance a per-session, per-criteria cursor so each
+            // recycle serves the NEXT window and cycles the whole pool. The
+            // cursor is a 30-min Redis counter; absent Redis it stays at 1
+            // (offset 0 — the prior nearest-first behaviour, no regression).
+            let rot = 1;
+            try {
+              if (redis.isOpen && csChatId && dedupHash) {
+                const rk = `cuisine:recycle:${csChatId}:${dedupHash}`;
+                rot = await redis.incr(rk);
+                await redis.expire(rk, 30 * 60).catch(() => {});
+              }
+            } catch (err) { console.warn('[Cuisine-Search] recycle cursor read failed:', err.message); }
+            const len = recyclePool.length;
+            const step = (sliceCap > 0 ? sliceCap : 12);
+            const offset = ((((rot - 1) * step) % len) + len) % len;
+            const rotated = offset
+              ? recyclePool.slice(offset).concat(recyclePool.slice(0, offset))
+              : recyclePool;
+            trulyUnseen = rotated;
+            allSeenRecycled = true;
+            allSeenRecycledCount = len;
+            console.log(`[Cuisine-Search] D793 all-seen recycle: re-serving ${len} rotated by ${offset} (cursor ${rot}; every match already seen this session; beats a dead zero)`);
+          }
+        }
+        const atLastVariant = !cuisineSearchHash || cuisineVariantIdx >= (cuisineVariantCount - 1);
+        // v0.60.146 — never silently return already-seen venues (the "stuck
+        // on the same list" bug). When nothing is fresh the response is
+        // `{ venues: [], exhausted: true }` and the client shows the terminal
+        // "↺ Start over" / "you've seen the 80 maximum" copy. Computed AFTER
+        // the re-fetch so a thin-pool top-up clears the exhausted flag.
+        const dedupExhausted = (venues.length > 0 && trulyUnseen.length === 0 && atLastVariant) || sessionFull;
+        // v0.61.441 — concentric ring preference. When a tight ladder tier
+        // already holds a full page of good venues, serve from it (don't show
+        // a 45 km venue when 5 km has five 4★ options); otherwise keep the
+        // full nearest-first pool so the slice naturally widens. Runs on the
+        // already-floored, already-deduped set — the v0.61.161 bug was running
+        // this BEFORE the floor + dedup, so a "satisfied" tier got gutted to 1.
+        let ringPool = trulyUnseen;
+        if (!skipCacheForShuffle && !specialMode && isFirstBatch) {
+          try {
+            const { widenAndPick } = require('./cuisine-nearby-widen');
+            const widenCap = (Number.isFinite(anchorCap) && anchorCap > 0)
+              ? Math.min(anchorCap, searchRadius)
+              : searchRadius;
+            const widened = widenAndPick({ venues: trulyUnseen, cap: widenCap });
+            console.log(`[Cuisine-Search] D790 nearby-widen tier=${widened.tier} radiusM=${widened.radiusM} satisfied=${widened.satisfied} from=${trulyUnseen.length} to=${widened.venues.length}`);
+            // Only honour the tighter tier when it can fill the page; else
+            // keep the full pool so we never thin ourselves below a page.
+            if (widened.venues.length >= sliceCap) ringPool = widened.venues;
+          } catch (err) {
+            console.warn('[Cuisine-Search] widenAndPick failed:', err.message);
+          }
+        }
+        let top = ringPool.slice(0, sliceCap);
+        // v0.61.441 — never-≤1 floor (operator: "especially common to get 1
+        // result"). A lone survivor reads as a broken search; when the broader
+        // unseen pool has more, backfill the next nearest (even if lower-rated)
+        // up to two. `floored` is surfaced so the TMA can note it honestly.
+        let floored = false;
+        if (top.length <= 1 && trulyUnseen.length > top.length) {
+          try {
+            const { demoteNeverEmpty } = require('./pool-floor');
+            const backfilled = demoteNeverEmpty(top, trulyUnseen, { min: 2, byDistance: true });
+            if (backfilled.length > top.length) { top = backfilled; floored = true; }
+          } catch (err) {
+            console.warn('[Cuisine-Search] never-≤1 floor failed:', err.message);
+          }
+        }
         // v0.61.170 — cumulative range surfaced to the TMA counter.
         // start = seen.size + 1 (1-based for display).
         // end   = seen.size + top.length.
@@ -14823,289 +16942,179 @@ async function cacheBotUsername() {
         const finalBatch = (top.length > 0 && trulyUnseen.length <= sliceCap && atLastVariant);
         console.log(`[Cuisine-Search] sliceCap=${sliceCap} firstBatch=${isFirstBatch} finalBatch=${finalBatch} range=${cumulativeStart}-${cumulativeEnd} seenBefore=${seen.size} hash=${String(dedupHash || '').slice(0, 8)}`);
         const poolCount = new Set([...seen, ...top.map((v) => v.placeId).filter(Boolean)]).size;
-        // v0.57.31: attach LTA-carpark crowd signal to the top venues (one
-        // carpark fetch per 500 m grid cell, not per venue). Surfaces
-        // as 🟢/🟡/🔴 chip on each card. Honest caveat: weak in CBD
-        // where lunch crowds are walk-in; useful at suburban / HDB.
-        try {
-          const { attachCrowdSignals } = require('./crowd-signal');
-          await attachCrowdSignals(top);
-        } catch (err) {
-          console.warn('[Cuisine-Search] crowd-signal attach failed:', err.message);
-        }
-        // v0.57.10: extract reviewer-recommended dishes from each
-        // venue's reviews (now included inline by Places via
-        // DISCOVER_FIELD_MASK). Up to 3 dishes per card. Uses regex
-        // — free, no LLM call. Falls back to the place-reviews:*
-        // Redis cache when Places didn't return reviews for that
-        // venue (e.g. Atmosphere SKU disabled).
-        const FOUR_MONTHS_MS = 120 * 24 * 60 * 60 * 1000;
-        const now = Date.now();
-        // v0.60.156 — Places v1 wraps each review's text in a nested
-        // object `{ text, languageCode }`. Bare-string access here
-        // String-coerced the object to "[object Object]" which then
-        // surfaced on the TMA card as the visible review. Same fix as
-        // the Michelin path in Step 1.
-        const reviewText = (r) => (r && typeof r.text === 'object' && r.text)
-          ? (typeof r.text.text === 'string' ? r.text.text : '')
-          : (typeof r?.text === 'string' ? r.text : '');
-        function extractDishes(reviews, venueName) {
-          const recent = (reviews || [])
-            .filter((r) => reviewText(r))
-            .filter((r) => {
-              if (!r.publishTime) return true; // keep undated
-              const t = new Date(r.publishTime).getTime();
-              return Number.isFinite(t) ? (now - t) <= FOUR_MONTHS_MS : true;
-            })
-            .slice(0, 3);
-          if (!recent.length) return { dishes: [], snippet: null };
-          const allText = recent.map((r) => reviewText(r)).join(' . ');
-          const patterns = [
-            /(?:ordered|tried|had|got|loved?|recommend)\s+(?:the\s+)?([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})/g,
-            /(?:their|the)\s+([A-Z][\w'-]+(?:\s+[\w'-]+){0,3})\s+(?:is|was|were)\s+(?:amazing|delicious|great|excellent|fantastic|good|tasty)/gi
-          ];
-          // v0.60.225 — the dish-quality gate is now the shared
-          // dish-name.js isDishName(): it bounds the length (3–40),
-          // rejects bare category words ("desserts", "mains") and
-          // rejects trailing-stop-word / interrogative fragments
-          // ("…the desserts which", "…Restaurant Fiz and what"). The
-          // old local TRAILING_STOPWORDS list predated the v0.60.222
-          // interrogative additions and so let "…and what" through.
-          const venueLc = String(venueName || '').trim().toLowerCase();
-          const dishes = new Set();
-          for (const re of patterns) {
-            let m;
-            while ((m = re.exec(allText)) !== null && dishes.size < 5) {
-              const candidate = (m[1] || '').trim();
-              if (!isDishName(candidate)) continue;
-              // v0.60.225 — venue-name guard. A capture that contains
-              // the venue's own name (or vice-versa) is a leaked
-              // sentence fragment, not a dish — operator screenshot:
-              // "🍲 Try · Restaurant Fiz and what". Mirrors the
-              // formatOrderLine guard added in v0.60.223.
-              if (venueLc) {
-                const dn = candidate.toLowerCase();
-                if (dn.includes(venueLc) || venueLc.includes(dn)) continue;
+        // v0.62.x — progressive-results Stage 1: the enrichment chain is now
+        // cuisine-enrich.js, split into FAST (pure/local — regex dishes +
+        // review snippet, open-hours labels, restaurantType, price-range
+        // display) and SLOW (network/LLM — crowd, translated review, Redis
+        // review fallback, Gemini dish fallback, the review finalise +
+        // deletes, travel times, sanctuary, footfall). Pure refactor: called
+        // back-to-back here, the payload is byte-identical to the old inline
+        // block; Stage 2 streams the base page between the two calls.
+        const cuisineEnrich = require('./cuisine-enrich');
+        const enrichCtx = {
+          redis, csLang, cuisines, cuisineQueries, searchCenter,
+          csChatId, deviceRegion,
+          // v0.62.77 — O-46: footfall (BestTime) only resolves for SG venues;
+          // skip it for non-SG searches (0/N + wasted latency on MY/etc.).
+          isSG: !isOther && !isJB,
+          humaniseRestaurantType, enrichPriceRangeDisplay, enrichSanctuaryRead
+        };
+        await cuisineEnrich.enrichFast(top, enrichCtx);
+        // v0.62.31 — park the fast-enriched page for the D706 deadline: if
+        // the 20s cap fires during the slow phase below, the degraded-200
+        // returns THESE venues (renderable per the Stage-2 streaming design,
+        // which flushes exactly this snapshot) instead of an empty list.
+        _gatheredRef.venues = top;
+        // v0.62.29 — foodie discovery: curated national-dish "Try" fill,
+        // EVIDENCE-VERIFIED (operator: "how would you know that eatery has
+        // the national dish?"). Reviews-first: only venues whose review-mined
+        // dishes came back EMPTY are considered; the curated dish is claimed
+        // ONLY when the venue's own reviews / editorial summary mention it
+        // (discovery-dish.findVerifiedDish — same pattern as the durian
+        // review-mention counter). Single-cuisine searches only (the slug is
+        // unambiguous); special modes excluded (durian/fruits have their own
+        // flows); Michelin never reaches here (early-return). The discovery
+        // emphasis (unfamiliar cuisine family for the search country, e.g. a
+        // European cuisine searched from SG) and high ratings are logged.
+        if (!specialMode && Array.isArray(cuisines) && cuisines.length === 1) {
+          try {
+            const dd = require('./discovery-dish');
+            const cfDisc = require('./cuisine-family');
+            const discSlug = String(cuisines[0] || '').toLowerCase();
+            const discUnfamiliar = cfDisc.isUnfamiliar(discSlug, searchRegionCode);
+            let discFilled = 0;
+            let discHadDishes = 0;   // v0.62.30 — reviews-first skips (visibility)
+            let discNoMatch = 0;     // v0.62.30 — eligible but nothing verified
+            for (const v of top) {
+              if (!v) continue;
+              if ((Array.isArray(v.dishes) && v.dishes.length) || v.signatureDish) { discHadDishes++; continue; } // reviews win
+              const hit = dd.findVerifiedDish(v, discSlug);
+              if (hit) {
+                v.signatureDish = hit.dish;
+                v.dishSource = hit.source;
+                discFilled++;
+              } else {
+                discNoMatch++;
               }
-              // Require at least one capitalised internal token (proper-noun-ish)
-              // OR the whole candidate to be a single recognisable word ≥4 chars.
-              const tokens = candidate.split(/\s+/);
-              const hasCapitalised = tokens.some((t) => /^[A-Z][a-z]+/.test(t));
-              if (!hasCapitalised && tokens.length > 1) continue;
-              dishes.add(candidate);
             }
-          }
-          return { dishes: [...dishes].slice(0, 3), snippet: reviewText(recent[0]).slice(0, 200).trim() };
+            // v0.62.30 — operator: "the Try line didn't surface" was
+            // undiagnosable because filled=0 logged NOTHING. Always log the
+            // breakdown so a silent zero is evident (had-review-dishes vs
+            // eligible-but-no-verified-mention).
+            console.log(`[Cuisine-Search] D786 curated-try slug=${discSlug} country=${searchRegionCode || '?'} unfamiliar=${discUnfamiliar} filled=${discFilled}/${top.length} (reviewDishes=${discHadDishes} noVerifiedMention=${discNoMatch})`);
+          } catch (err) { console.warn('[Cuisine-Search] curated-try fill failed (non-fatal):', err.message); }
         }
-        // v0.59.24: drinks filter for "🍴 Try ·" — per Human Lead
-        // 2026-05-07. Skip for Dessert/Fusion cuisines (drinks are
-        // legitimate headline items there).
-        const pipelineMod = require('./pipeline');
-        const dropDrinks = pipelineMod.shouldFilterDrinks(cuisineQueries);
-        // v0.61.151 — cuisine-nationality review-language priority.
-        // When the selected cuisines include a nationality (italian /
-        // japanese / chinese / etc.), prefer a high-rated (>3.8)
-        // review written in that nationality's language for the
-        // `recentReview` quote. Surface the matching flag so the
-        // TMA + chat layer can render "(  🇮🇹 translated)" suffix.
-        // Falls back to extractDishes' English snippet when no
-        // preferred review exists.
-        for (const v of top) {
-          if (Array.isArray(v.reviews) && v.reviews.length) {
-            const { dishes, snippet } = extractDishes(v.reviews, v.name);
-            const filtered = dropDrinks ? pipelineMod.filterOutDrinks(dishes) : dishes;
-            if (filtered.length) v.dishes = filtered;
-            if (snippet) v.recentReview = snippet;
-          }
+        // v0.62.37 — D792 city-classic tie-in (operator: "after the search
+        // result then check if there are special dishes ties to these cuisine
+        // or city's unique dishes"). The cuisine half is D786 above; THIS is
+        // the city half: when the anchor sits in a curated Arrival-Plate city,
+        // tag venues whose own evidence (name first, then reviews/editorial —
+        // the D790b honest ladder, CJK/diacritics folded) mentions one of the
+        // city's unique dishes. Pure in-memory; fail-open; no API spend.
+        // Gated on the ⭐ Recommend quick-filter (operator: "checkbox
+        // 'Recommend' … uncheck default. if check, wired to the dishes,
+        // overlay, cities unique dishes") — OFF means the search behaves
+        // exactly as before v0.62.37.
+        if (!specialMode && filters && filters.recommend === true) {
+          try {
+            const cpD792 = require('./city-plates');
+            const plateD792 = cpD792.platesNear(lat, lng);
+            if (plateD792 && Array.isArray(plateD792.dishes) && plateD792.dishes.length) {
+              const ddCity = require('./discovery-dish');
+              let cityTagged = 0;
+              for (const v of top) {
+                if (!v) continue;
+                const hit = ddCity.findCityPlateDish(v, plateD792.dishes);
+                if (hit) { v.cityDish = { dish: hit.dish, tier: hit.tier }; cityTagged++; }
+              }
+              if (cityTagged) console.log(`[Cuisine-Search] D792 city-classic city=${plateD792.city} tagged=${cityTagged}/${top.length}`);
+            }
+          } catch (err) { console.warn('[Cuisine-Search] D792 city-classic tag failed (non-fatal):', err.message); }
         }
-        // v0.61.152 / v0.61.154 — translate the nationality-preferred
-        // review into the user's device language so the surfaced quote
-        // is literally a translation (not raw native text). The 30-line
-        // inline block from v0.61.152 is now the
-        // enrichVenuesWithTranslatedReview helper (shared with
-        // runFreeTextSearch, handleMichelinSearch, and runCuisineFlow).
-        try {
-          const { enrichVenuesWithTranslatedReview } = require('./cuisine-review-language');
-          await enrichVenuesWithTranslatedReview({
-            venues: top,
-            cuisineSlugs: cuisines || [],
-            targetLang: csLang,
-            redis
-          });
-        } catch (err) {
-          console.warn('[Cuisine-Search] translate-enrich failed:', err.message);
+        // v0.62.32 — Arrival Plate E-split: tag per-venue dish evidence for a
+        // curated-dish search. Honest ladder: 'name' (the venue is named
+        // after the dish) > 'reviews' (its own reviews/summary mention it,
+        // incl. native script via the same norm) > null ("ask first"). Pure
+        // in-memory text checks against already-fetched data — no API spend.
+        let dishSearchEmpty = false;
+        if (dishQueryTerm) {
+          try {
+            const ddEv = require('./discovery-dish');
+            const needle = ddEv._norm(dishQueryTerm);
+            let evName = 0, evReviews = 0;
+            for (const v of top) {
+              if (!v) continue;
+              if (ddEv._norm(v.name || '').includes(needle)) { v.dishEvidence = 'name'; evName++; continue; }
+              if (ddEv.venueEvidenceText(v).includes(needle)) { v.dishEvidence = 'reviews'; evReviews++; continue; }
+              v.dishEvidence = null;
+            }
+            // Confirmed venues (name/review evidence) page first; "ask first"
+            // fill after — the E-split order the TMA renders.
+            const evRank = (v) => (v.dishEvidence === 'name' ? 0 : v.dishEvidence === 'reviews' ? 1 : 2);
+            top.sort((a, b) => evRank(a) - evRank(b));
+            console.log(`[Cuisine-Search] D790b dish-evidence "${dishQueryTerm.slice(0, 40)}": name=${evName} reviews=${evReviews} askFirst=${top.length - evName - evReviews}`);
+            // v0.62.x item 10 — RELEVANCE GATE. The tag above only RANKED;
+            // it never dropped, so a tapped dish bled far-away (Bangkok 986 km)
+            // + off-cuisine (Chinese noodle shop) venues. Now: drop FAR (beyond
+            // ~5× the radius / 50 km) + OFF-CUISINE (no dish evidence and the
+            // venue's primaryType is a different specific cuisine, or — when the
+            // searched cuisine has no Google type — a generic spot = pure noise).
+            // Conservative: only drops what's provably wrong; honest-empty when
+            // nothing real remains (better than padding with noise).
+            try {
+              const { gateDishVenues } = require('./dish-search-gate');
+              const maxKm = Math.max((searchRadius / 1000) * 5, 50);
+              for (const v of top) {
+                if (v && Number.isFinite(v.lat) && Number.isFinite(v.lng)) {
+                  v._distKm = transport.haversineM(searchCenter.lat, searchCenter.lng, v.lat, v.lng) / 1000;
+                }
+              }
+              const _gateSlugs = (cuisines || []).map((s) => String(s || '').toLowerCase()).filter((s) => s && s !== 'michelin');
+              const gated = gateDishVenues(top, { cuisineSlugs: _gateSlugs, maxKm });
+              console.log(`[Cuisine-Search] D793 dish-gate "${dishQueryTerm.slice(0, 40)}": kept=${gated.kept.length} far=${gated.droppedFar} offCuisine=${gated.droppedCuisine} maxKm=${maxKm.toFixed(0)}`);
+              top.length = 0;
+              top.push(...gated.kept);
+              if (gated.empty) dishSearchEmpty = true;
+            } catch (err) { console.warn('[Cuisine-Search] dish-gate failed (non-fatal):', err.message); }
+          } catch (err) { console.warn('[Cuisine-Search] dish-evidence tag failed (non-fatal):', err.message); }
         }
-        // Fall back to the Redis place-reviews cache for any venue
-        // that didn't get reviews inline.
-        try {
-          if (redis.isOpen) {
-            await Promise.all(top.map(async (v) => {
-              if (!v.placeId || (Array.isArray(v.dishes) && v.dishes.length)) return;
-              try {
-                const raw = await redis.get(`place-reviews:${v.placeId}`);
-                if (!raw) return;
-                const reviews = JSON.parse(raw);
-                const { dishes, snippet } = extractDishes(reviews, v.name);
-                // v0.59.24 (Codex #229 P2): same drinks filter as the
-                // inline-review path above. Without this, cached reviews
-                // mentioning "kopi"/"teh tarik"/cocktails could still
-                // become the 🍴 Try · item despite dropDrinks being true.
-                const filtered = dropDrinks ? pipelineMod.filterOutDrinks(dishes) : dishes;
-                if (filtered.length) v.dishes = filtered;
-                if (snippet && !v.recentReview) v.recentReview = snippet;
-              } catch { /* per-venue best-effort */ }
-            }));
-          }
-        } catch (err) {
-          console.warn('[Cuisine-Search] cache-fallback failed:', err.message);
-        }
-        // v0.60.226 — regex-first dish sourcing for the TMA
-        // `🍲 Try ·` line, with a cached Gemini fallback. v0.60.225
-        // ran a blocking Gemini call on every search, which made the
-        // Cuisine TMA slow. Now the review-text regex (passes 1–2
-        // above) is PRIMARY; Gemini runs ONLY for the venues regex
-        // left empty, and each Gemini result is cached per-venue in
-        // Redis (`cuisine-dishes:v1:<placeId>`) so repeat searches
-        // make zero Gemini calls. A negative result (Gemini found no
-        // dish) is cached too, so a dishless venue isn't re-queried
-        // every search. A venue with neither a regex dish nor a
-        // Gemini dish keeps `v.dishes` unset → the card row hides.
-        try {
-          const DISH_CACHE_PREFIX = 'cuisine-dishes:v1:';
-          const DISH_CACHE_TTL_HIT_S = 7 * 24 * 60 * 60;
-          const DISH_CACHE_TTL_MISS_S = 24 * 60 * 60;
-          // The cache stores RAW Gemini output; the per-request
-          // cleaning (category gate + venue-name guard + drinks
-          // filter) is re-applied on read, so a drink cached on a
-          // Fusion search is still dropped when read on an Italian
-          // search.
-          const cleanDishes = (raw, venueName) => {
-            const venueLc = String(venueName || '').trim().toLowerCase();
-            const cleaned = filterDishNames(Array.isArray(raw) ? raw : []).filter((d) => {
-              if (!venueLc) return true;
-              const dn = d.toLowerCase();
-              return !(dn.includes(venueLc) || venueLc.includes(dn));
-            });
-            return dropDrinks ? pipelineMod.filterOutDrinks(cleaned) : cleaned;
-          };
-          // Gap venues: regex (passes 1–2) found nothing AND the
-          // venue still has inline 4–5★ reviews Gemini could use.
-          const gapVenues = top.filter((v) =>
-            v.placeId &&
-            !(Array.isArray(v.dishes) && v.dishes.length) &&
-            Array.isArray(v.reviews) && v.reviews.length
+        // v0.62.x — progressive-results Stage 2: when the client opts in
+        // (`body.stream === true`) flush a BASE event with the fast-only
+        // venue cards NOW, before the slow (network/LLM) phase runs, so the
+        // TMA paints verified cards immediately and merges per-card patches
+        // as the slow fields land. Flushing the base bytes also defuses the
+        // 20s→502 gateway risk: once headers are sent the deadline's
+        // degraded-200 path is skipped (it guards on res.headersSent) and a
+        // slow enrichSlow just finishes the stream a little late. The
+        // non-streamed path (no flag) is byte-identical to Stage 1.
+        const cuisineStream = wantsStream ? require('./cuisine-stream') : null;
+        let streamFastSnapshots = null;
+        if (wantsStream) {
+          streamFastSnapshots = new Map(
+            top.filter((v) => v && v.placeId).map((v) => [v.placeId, cuisineStream.snapshotVenue(v)])
           );
-          const needGemini = [];
-          if (gapVenues.length) {
-            // Cache read — a hit (positive OR a negative empty
-            // array) removes the venue from the Gemini batch.
-            await Promise.all(gapVenues.map(async (v) => {
-              let cached = null;
-              if (redis.isOpen) {
-                try {
-                  const raw = await redis.get(DISH_CACHE_PREFIX + v.placeId);
-                  if (raw) cached = JSON.parse(raw);
-                } catch { /* treat as uncached */ }
-              }
-              if (cached && Array.isArray(cached.dishes)) {
-                const filtered = cleanDishes(cached.dishes, v.name);
-                if (filtered.length) v.dishes = filtered;
-                return; // cache hit — skip Gemini for this venue
-              }
-              needGemini.push(v);
-            }));
+          res.setHeader('Content-Type', 'application/x-ndjson; charset=utf-8');
+          res.setHeader('Cache-Control', 'no-cache, no-transform');
+          res.setHeader('X-Accel-Buffering', 'no');   // disable nginx/proxy buffering
+          // v0.62.x — Stage 3: reveal the page in two waves. The base event
+          // carries the first 6 cards (the instant "taste"); the append event
+          // carries the rest (up to 12) so the list auto-grows within the same
+          // response. Both are fast-only (slow fields arrive as patches). A
+          // page of ≤6 sends no append.
+          const baseWave = top.slice(0, FIRST_REVEAL);
+          const appendWave = top.slice(FIRST_REVEAL);
+          res.write(cuisineStream.encodeEvent(cuisineStream.baseEvent({
+            venues: baseWave.map((v) => ({ ...v })),
+            firstBatch: isFirstBatch,
+            cumulativeStart, cumulativeEnd, finalBatch,
+            poolCount,
+          })));
+          if (appendWave.length) {
+            res.write(cuisineStream.encodeEvent(cuisineStream.appendEvent(appendWave.map((v) => ({ ...v })))));
           }
-          if (needGemini.length) {
-            const geminiMod = require('./gemini-client');
-            const venuesForLlm = needGemini.map((v) => ({
-              id: v.placeId,
-              name: v.name,
-              reviews: v.reviews
-                .filter((r) => (Number(r && r.rating) || 0) >= 4)
-                .map((r) => ({ rating: Number(r.rating) || 0, text: reviewText(r) }))
-                .filter((r) => r.text)
-            })).filter((v) => v.reviews.length);
-            if (venuesForLlm.length) {
-              const llmDishes = await geminiMod.extractDishesFromReviews({ venues: venuesForLlm });
-              const batchIds = new Set(venuesForLlm.map((v) => v.id));
-              for (const v of needGemini) {
-                if (!batchIds.has(v.placeId)) continue;
-                const picked = llmDishes.get(v.placeId);
-                const rawDishes = Array.isArray(picked) ? picked : [];
-                if (rawDishes.length) {
-                  const filtered = cleanDishes(rawDishes, v.name);
-                  if (filtered.length) v.dishes = filtered;
-                }
-                // Cache the raw Gemini result. An empty array is the
-                // negative cache — held for a shorter TTL so a venue
-                // that later accrues review content isn't suppressed
-                // for a full week.
-                if (redis.isOpen) {
-                  const ttl = rawDishes.length ? DISH_CACHE_TTL_HIT_S : DISH_CACHE_TTL_MISS_S;
-                  redis.setEx(
-                    DISH_CACHE_PREFIX + v.placeId,
-                    ttl,
-                    JSON.stringify({ dishes: rawDishes, at: Date.now() })
-                  ).catch(() => { /* best-effort */ });
-                }
-              }
-            }
-          }
-        } catch (err) {
-          console.warn('[Cuisine-Search] Gemini dish extraction failed:', err.message);
+          if (typeof res.flush === 'function') res.flush();
         }
-        // v0.57.20: attach "Closed today · Opens tomorrow 11:00 AM" label
-        // for venues that are currently closed. Uses regularPeriods from
-        // the Places field mask. nextOpenString returns null when periods
-        // are missing, in which case the card falls back to plain "Closed".
-        // v0.61.246 — also compute `openClosingLabel` for currently-open
-        // venues: "Open · Closes 3:00 PM · Reopens 6:00 PM" (split
-        // lunch+dinner) or "Open · Closes 10:00 PM" (single session).
-        const { closedTodayString, currentOpenString } = require('./open-hours');
-        for (const v of top) {
-          if (v.openNow === false) {
-            v.closedTodayLabel = closedTodayString(v.regularPeriods);
-          } else if (v.openNow === true) {
-            v.openClosingLabel = currentOpenString(v.regularPeriods);
-          }
-          // v0.60.140 — restore the TMA result-card detail lines the
-          // LLM-free /api/cuisine/search path was dropping: the cuisine
-          // descriptor ("Thai" / "Sushi" / …, from Places'
-          // primaryTypeDisplayName — humaniseRestaurantType falls back to
-          // the primaryType enum when the display label is absent) and a
-          // recent-review snippet (from the reviews we already fetch and
-          // then discard below). Michelin-derived restaurantType (if the
-          // Michelin cross-ref set it) wins.
-          if (!v.restaurantType) {
-            v.restaurantType = humaniseRestaurantType(v.primaryTypeDisplayName, v.primaryType) || '';
-          }
-          if (!v.recentReview && Array.isArray(v.reviews) && v.reviews[0]) {
-            // v0.60.156 — same Places v1 .text.text unwrap as extractDishes above.
-            const txt = reviewText(v.reviews[0]);
-            if (txt) v.recentReview = txt.replace(/\s+/g, ' ').trim().slice(0, 160);
-          }
-          delete v.primaryTypeDisplayName;
-          delete v.regularPeriods;
-          delete v.reviews;
-        }
-        // v0.58.52: enrich top with TRANSIT + DRIVE minutes for the
-        // cuisine TMA's InfoWindow + venue templates. Best-effort.
-        try {
-          const { enrichTravelTimes } = require('./travel-times');
-          await enrichTravelTimes(searchCenter.lat, searchCenter.lng, top);
-        } catch (err) { console.warn('[Cuisine-Search] travel-times failed:', err.message); }
-        // v0.60.183 — venue-card price-range pre-resolution.
-        try { await enrichPriceRangeDisplay(csChatId, top); } catch (err) {
-          console.warn('[Cuisine-Search] enrichPriceRangeDisplay failed:', err.message);
-        }
-        try { await enrichSanctuaryRead(top, csLang); } catch (err) {
-          console.warn('[Cuisine-Search] enrichSanctuaryRead failed:', err.message);
-        }
-        // v0.59.0: footfall enrichment (BestTime). Dormant without key.
-        try {
-          const { attachFootfallSignals } = require('./footfall-signal');
-          await attachFootfallSignals(redis, top);
-        } catch (err) { console.warn('[Cuisine-Search] footfall failed:', err.message); }
+        await cuisineEnrich.enrichSlow(top, enrichCtx);
         // v0.60.116 — `top` was already chosen above as the next 12
         // *unseen* venues from the ~3-page-deep pool (see the
         // "exclude what you've seen" block before the enrichments).
@@ -15115,10 +17124,87 @@ async function cacheBotUsername() {
         // advancing and a >15-min idle gap resets the round. A
         // criteria change uses a different hash → empty seen-set →
         // fresh round immediately.
-        const dedupedTop = top;
+        let dedupedTop = top;
+        // v0.62.x — operator: SG local-classic dish tap → HAWKER-FIRST. When the
+        // TMA flags `hawkerFirst` (a "Pick local classic" dish tap in the SG
+        // region), stable-partition this page so hawker-centre / food-court
+        // venues lead, with regular eateries kept as the fallback tail (nothing
+        // is dropped — "try hawker first, then fall back").
+        if (req.body?.hawkerFirst === true && region === 'SG' && Array.isArray(dedupedTop) && dedupedTop.length > 1) {
+          const isHawkerVenue = (v) => {
+            const types = Array.isArray(v?.types) ? v.types : [];
+            if (types.includes('food_court')) return true;
+            const txt = `${v?.name || ''} ${v?.area || ''} ${v?.address || v?.vicinity || ''}`.toLowerCase();
+            return /hawker|food centre|food court|kopitiam|market & food|食阁|熟食中心/.test(txt);
+          };
+          const hawk = [], rest = [];
+          for (const v of dedupedTop) (isHawkerVenue(v) ? hawk : rest).push(v);
+          if (hawk.length && hawk.length < dedupedTop.length) {
+            console.log(`[Cuisine-Search] hawker-first: ${hawk.length} hawker venue(s) ranked ahead of ${rest.length} (SG local-classic dish tap)`);
+            dedupedTop = [...hawk, ...rest];
+          }
+        }
+        // v0.62.293 — exact-vs-alternate tagging (restored + extended to combos).
+        // SINGLE cuisine: a venue that doesn't match → 'alternate' (renders the
+        // "{cuisine} & Nearby Flavours" strip). COMBO (2+): a venue serving ALL
+        // selected → 'exact' (no strip); serving only some → 'alternate' +
+        // matchedCuisine (the strip names which one). Skips special/dish modes.
+        if (!specialMode && !dishQueryTerm && Array.isArray(cuisineMetas) && cuisineMetas.length >= 1) {
+          const names = cuisineMetas.map((c) => c.name);
+          if (names.length === 1) {
+            for (const v of dedupedTop) {
+              v.matchTier = venueMatchesAnyCuisine(v, names) ? 'exact' : 'alternate';
+            }
+          } else {
+            for (const v of dedupedTop) {
+              const matched = names.filter((n) => venueMatchesAnyCuisine(v, [n]));
+              if (matched.length >= names.length) {
+                v.matchTier = 'exact';            // serves every selected cuisine
+              } else {
+                v.matchTier = 'alternate';
+                if (matched.length >= 1) v.matchedCuisine = matched[0];  // the one it serves
+              }
+            }
+          }
+        }
+        // v0.62.299 / v0.62.301 — "Set Meal (Beta)" annotate: when the chip is on,
+        // scrape the top venues' OWN websites (bounded to 6, in parallel, cached
+        // 24h per placeId, fail-soft) for a CONFIRMED set-lunch/dinner PRICE.
+        // Website-text only (no Places/vision) to stay cheap on the hot path. Only
+        // attaches when confirmed → the card shows nothing for unconfirmed venues
+        // (annotate-all, never a fake claim). v0.62.301 — signature/popular dishes
+        // removed (price only).
+        const wantSetMeal = Array.isArray(cuisines) && cuisines.some((s) => String(s || '').toLowerCase() === 'set-meal');
+        if (wantSetMeal && !specialMode) {
+          try {
+            const { scoutVenueMulti } = require('./ztest-scout');
+            await Promise.all(dedupedTop.slice(0, 6).map(async (v) => {
+              if (!v || !v.websiteUri) return;
+              const ck = v.placeId ? `setmeal:v2:${v.placeId}` : null;
+              try { if (ck) { const c = await redis.get(ck); if (c) { Object.assign(v, JSON.parse(c)); return; } } } catch { /* cache miss */ }
+              const r = await scoutVenueMulti({ websiteUri: v.websiteUri }).catch(() => null);
+              if (!r) return;
+              const attach = {};
+              if (r.setMeal && r.setMeal.price) attach.setMeal = r.setMeal;
+              if (Object.keys(attach).length) {
+                Object.assign(v, attach);
+                try { if (ck) await redis.set(ck, JSON.stringify(attach), { EX: 60 * 60 * 24 }); } catch { /* non-fatal */ }
+              }
+            }));
+          } catch (err) { console.warn('[Cuisine-Search] set-meal beta annotate failed:', err.message); }
+        }
+        // v0.62.31 — adversarial-review fix: when the D706 deadline already
+        // answered (degraded, possibly partial), do NOT mark this batch as
+        // seen or record it as a session page — the user did not receive it
+        // as a normal page, and burning the seen-set made the NEXT tap skip
+        // venues the user never saw. Streaming is unaffected (_deadlineFired
+        // stays false there: headers are sent with the venues, so the user
+        // DID get them and the writes below are correct).
         try {
-          if (dedupHash) {
+          if (dedupHash && !_deadlineFired) {
             await appendSeenSet(csChatId, dedupHash, top.map((v) => v.placeId).filter(Boolean));
+          } else if (dedupHash && _deadlineFired) {
+            console.log('[Cuisine-Search] seen-set append skipped (deadline fired — venues not delivered as a page)');
           }
         } catch (err) {
           console.warn('[Cuisine-Search] seen-set append failed:', err.message);
@@ -15127,7 +17213,7 @@ async function cacheBotUsername() {
         // (80-cap) + the page-history list (cap 10) for the back-FAB.
         // Fire-and-forget; never blocks the response.
         let sessionPageDepth = 0;
-        if (csChatId && dedupedTop.length) {
+        if (csChatId && dedupedTop.length && !_deadlineFired) {   // v0.62.31 — see seen-set guard above
           try {
             const sessOut = await cuisineSession.recordPage(redis, csChatId, {
               ts: Date.now(),
@@ -15149,7 +17235,7 @@ async function cacheBotUsername() {
         // annotateVenueObject helper (sibling to appendMichelinAnnotation
         // which pushes a chat-message line; this site mutates the venue
         // object instead so the React TMA card consumer can render it).
-        const michelinObjAnnotator = require('./michelin-2025').annotateVenueObject;
+        const michelinObjAnnotator = require('./SG-michelin').annotateVenueObject;
         // v0.62.0 — also annotate HPB Healthier Choice + inside-building
         // so the React TMA card can render the rows from the venue object.
         const healthierObjAnnotator = require('./healthier-eateries').annotateVenueObject;
@@ -15158,12 +17244,115 @@ async function cacheBotUsername() {
           michelinObjAnnotator(v, 'Cuisine-Search');
           healthierObjAnnotator(v);
           buildingObjAnnotator(v);
+          // v0.62.x — expose the unified-newness recency band ('strict' ≤109 d
+          // | 'fill' 110..183 d) as a clean client field so the New-pill card
+          // list can render the two groups under separate dividers. Only set
+          // on the New pill (filters.newlyOpened); absent on other searches.
+          if (v._recencyBand) v.recencyBand = v._recencyBand;
         }
+        // v0.62.13 — operator: a zero result must be EVIDENT (justified by the
+        // criteria, not a silent empty). Classify WHY the page is empty so the
+        // TMA can explain it AND so a SPURIOUS zero (the per-criteria seen-set
+        // filtering the whole pool on the first tap) is distinguishable from a
+        // genuine "no match for this cuisine+filter combo".
+        let zeroReason = null;
+        if (dedupedTop.length === 0) {
+          const hasCriteria = (Array.isArray(cuisines) && cuisines.length > 0)
+            || (filters && Object.values(filters).some(Boolean))
+            || (typeof req.body?.freeText === 'string' && req.body.freeText.trim().length > 0);
+          if (venues.length === 0) {
+            // The post-floor pool itself is empty: genuinely nothing matched.
+            zeroReason = hasCriteria ? 'no-match-criteria' : 'no-venues-nearby';
+          } else if (unseenInCriteria.length === 0) {
+            // Pool HAD venues, but the per-criteria seen-set removed them all —
+            // the stale-seen first-tap bug (no criteria set, yet zero).
+            zeroReason = 'all-seen-criteria';
+          } else if (trulyUnseen.length === 0) {
+            zeroReason = 'all-seen-session';
+          } else {
+            zeroReason = 'filtered';
+          }
+          console.log(`[Cuisine-Search] ZERO reason=${zeroReason} pool=${venues.length} unseenCrit=${unseenInCriteria.length} trulyUnseen=${trulyUnseen.length} seen=${seen.size} sessionSeen=${sessionSeen.size} hasCriteria=${hasCriteria} cuisines=${(cuisines||[]).length} filters=${JSON.stringify(filters||{})}`);
+        }
+        // v0.62.x — cuisine "What to order" plate (operator: "select Georgian
+        // in SG → show unique Georgian dishes before I pick an eatery"). When
+        // exactly ONE non-Michelin/non-special cuisine is selected, build the
+        // grouped order-plate from that cuisine's curated NATION_OVERLAY dishes
+        // (names) + touristExplainer, organised by food group (first 3
+        // headliners, then ascending-size sections — see dish-food-group.js).
+        // Cuisine-keyed, replacing the geo city plate client-side. Pure
+        // in-memory; no Places spend; fail-open.
+        let cuisineOrderPlate = null;
+        try {
+          // v0.62.123 — operator: these are NOT cuisines, so they must never
+          // produce a "Cuisine:" order-plate. durian / durian-pastry / fruits /
+          // dessert already ride specialMode; michelin / bib-gourmand / fusion
+          // are category chips, not cuisines — exclude them explicitly so a
+          // mixed or category-only selection never builds a bogus plate.
+          const NON_CUISINE_PLATE = new Set(['michelin', 'bib-gourmand', 'bib', 'fusion', 'dessert', 'desserts']);
+          const _cuiSlugs = (cuisines || []).map((s) => String(s || '').toLowerCase()).filter((s) => s && !NON_CUISINE_PLATE.has(s));
+          if (!specialMode && _cuiSlugs.length === 1) {
+            const slug = _cuiSlugs[0];
+            const ov = require('./nation-overlay').getNationOverlay(slug);
+            if (ov && Array.isArray(ov.iconicDishes) && ov.iconicDishes.length) {
+              const { groupCuisineDishes } = require('./dish-food-group');
+              // v0.62.182 — enrich the cuisine's iconic dishes with curated
+              // { local, note, sources } from classics-notes.js CUISINE_NOTES[slug]
+              // so the "Pick local classic" cuisine plate explains each dish (the
+              // geo classics already do via city-plates.js). Additive, fail-open.
+              let _iconic = ov.iconicDishes;
+              try {
+                const { CUISINE_NOTES } = require('./classics-notes');
+                const cnotes = CUISINE_NOTES && CUISINE_NOTES[slug];
+                if (cnotes) _iconic = ov.iconicDishes.map((d) => {
+                  const m = d && cnotes[d.name];
+                  return m ? { ...d, ...m } : d;
+                });
+              } catch { /* classics-notes optional */ }
+              const grouped = groupCuisineDishes(_iconic);
+              const label = slug.split('-').map((w) => w ? w[0].toUpperCase() + w.slice(1) : w).join(' ');
+              cuisineOrderPlate = {
+                mode: 'cuisine',
+                cuisineSlug: slug,
+                cuisineLabel: label,
+                flag: ov.flag || '',
+                explainer: ov.touristExplainer || null,
+                populationLow: ov.populationInSG === 'low',
+                headliners: grouped.headliners,
+                groups: grouped.groups,
+              };
+            }
+          }
+        } catch (err) { console.warn('[Cuisine-Search] cuisine order-plate build failed (non-fatal):', err.message); }
         const payload = {
-          venues: dedupedTop, exhausted: dedupExhausted, sessionFull,
+          venues: dedupedTop, exhausted: dedupExhausted, sessionFull, zeroReason, noProvenNew,
+          // v0.62.88 — operator: instead of silently re-serving the same tiny
+          // in-range pool on every tap, tell the user "all N within X km" and
+          // offer a one-tap Widen.
+          // v0.62.92 — honest recycle signal (operator: "keeps repeating same
+          // eateries"). Now ALSO sent after a widen (capKm = the widened 40 km),
+          // so once the wider pool is exhausted the TMA says "you've seen all N
+          // within ~40 km" instead of silently repeating. `count` is the FULL
+          // recycled-pool size (not the page) so the number is truthful, and the
+          // rotation above means each tap still shows a different window of it.
+          ...(allSeenRecycled
+            ? { allSeenInRange: { count: allSeenRecycledCount || dedupedTop.length, capKm: Math.round((Number(anchorCap) || 0) / 1000), widened: !!wantWiden } }
+            : {}),
+          // v0.62.x item 10 — the tapped dish had no verified spot (after the
+          // distance + off-cuisine gate); the TMA shows an honest empty state.
+          ...(dishSearchEmpty ? { dishSearchEmpty: dishQueryTerm } : {}),
+          ...(cuisineOrderPlate ? { cuisinePlate: cuisineOrderPlate } : {}),
+          // v0.62.32 — set when the free text was a curated dish: tells the
+          // TMA to render the Confirmed/Ask-first (E) split using each
+          // venue's dishEvidence tag.
+          ...(dishQueryTerm ? { dishQuery: dishQueryTerm } : {}),
           pageStackDepth: sessionPageDepth, poolCount, disambig: chipDisambig,
           misrepresentation: misrepNote, cookingMethod: cookMethodMatches,
           dessert: dessertTmaHit, comboInfo, firstBatch: isFirstBatch,
+          // v0.61.441 — `floored` true when the never-≤1 backfill kicked in
+          // (a lone survivor was topped up with the next-nearest, possibly
+          // lower-rated, venues). Lets the TMA note the relaxation honestly.
+          floored,
           // v0.61.170 — counter-copy fields. TMA renders range labels
           // ("Showing first 24", "Result 25-36") from these instead of
           // the prior "Results (12/19)" slash format.
@@ -15187,6 +17376,18 @@ async function cacheBotUsername() {
             payload.specialModeWidened = true;
             payload.specialModeWidenedFromM = specialModeWidenedFromM;
             payload.specialModeFinalRadiusM = specialModeFinalRadiusM;
+          }
+          // v0.61.416 — surface the generic-term fallback so the TMA / logs can
+          // note results came from a broadened "durian" search (strict was 0).
+          if (specialModeRelaxed) payload.specialModeRelaxed = true;
+          // v0.62.14 — durian soft-rating notice: tell the user we preferred
+          // 3.7★+ but also surfaced lower-rated / unrated stalls (a durian stall
+          // is a durian stall). Only when the page actually holds a below-bar one.
+          if (durianSoftRating && dedupedTop.some((v) => {
+            const r = Number(v.rating);
+            return Number.isFinite(r) && r > 0 && r < 3.7;
+          })) {
+            payload.durianRatingNotice = true;
           }
         }
         // v0.61.129 — O-20: surface the Tell-me-detected place anchor
@@ -15255,20 +17456,81 @@ async function cacheBotUsername() {
             cached: false
           });
         }
+        // v0.61.359 — RULE A/B native-script names: for a foreign-script
+        // country, fetch each venue's local-language name (Places Details) and
+        // attach `nameLocal` (skipped when it matches the user's display lang).
+        try {
+          await require('./local-name').attachLocalNames(payload?.venues, searchRegionCode, csLang, process.env.GOOGLE_MAPS_API_KEY);
+        } catch (e) { /* non-fatal — names just stay English */ }
+        // v0.61.382 — readable foreign-name line: when the name is in a
+        // script foreign to where the venue IS, attach `nameReading` via
+        // Gemini, kept ALONGSIDE the native name (never replacing it).
+        // v0.61.385 — two-part "<place language> (<device language>)": the
+        // first part is the venue COUNTRY's language (searchRegionCode), the
+        // bracket the user's DEVICE language (deviceLang, ← en/fr/…).
+        try {
+          await require('./translate-name').attachNameReadings(payload?.venues, searchRegionCode, deviceLang, redis);
+        } catch (e) { /* non-fatal — names just stay in native script */ }
+        // v0.62.x item 7 — device-language MEANING gloss for a foreign-LANGUAGE
+        // Latin-script name (e.g. Vietnamese "Tầm vị" → "(seeking flavour)").
+        // Gemini, cached; attaches `nameGloss`, fail-open. Operator-authorised
+        // paid call (G4) for this feature.
+        try {
+          await require('./name-gloss').attachNameGloss(payload?.venues, searchRegionCode, deviceLang, redis);
+        } catch (e) { /* non-fatal — names just stay un-glossed */ }
+        clearTimeout(_searchDeadline);
+        // v0.62.x — Stage 2: finish the NDJSON stream. The base event already
+        // went out (fast cards); now emit one patch per venue carrying ONLY
+        // the fields the slow phase + the name-enrichers added/changed/deleted
+        // (diffed against the fast snapshot taken before enrichSlow), then a
+        // done event with every non-venue payload field. base ⊕ patches is
+        // byte-identical to the non-streamed payload.venues.
+        if (wantsStream) {
+          if (res.writableEnded) return;
+          for (const v of (payload.venues || [])) {
+            if (!v || !v.placeId) continue;
+            const snap = streamFastSnapshots.get(v.placeId);
+            const fields = cuisineStream.diffVenue(snap || {}, v);
+            if (Object.keys(fields).length) {
+              res.write(cuisineStream.encodeEvent(cuisineStream.patchEvent(v.placeId, fields)));
+            }
+          }
+          const { venues: _omitVenues, ...meta } = payload;
+          res.write(cuisineStream.encodeEvent(cuisineStream.doneEvent({ ...meta, cached: false, _vlog: vlogOn || undefined })));
+          if (typeof res.flush === 'function') res.flush();
+          res.end();
+          return;
+        }
+        if (res.headersSent) return;   // v0.62.15 — the 20s deadline already answered
         res.json({ ...payload, cached: false, _vlog: vlogOn || undefined });
       } catch (err) {
+        clearTimeout(_searchDeadline);
+        if (res.headersSent) return;   // v0.62.15 — deadline-degraded already sent
         console.error('[Error] /api/cuisine/search failed:', err.message);
         try {
           const vlog = require('./verbose-log');
           await vlog.vlogIf(redis, csChatId, { kind: 'cuisine-search-error', error: err.message, stack: err.stack && err.stack.split('\n').slice(0, 6).join(' | ') });
         } catch { /* best-effort */ }
+        // v0.61.441 — classify before blanket-500. Every external await in
+        // the body is already individually guarded, so a throw reaching here
+        // is almost always a TRANSIENT blip (network reset, upstream 5xx,
+        // redis hiccup) — degrade it to an empty-but-OK response (the TMA
+        // already renders the zero-result UX) instead of the HTTPS 500 the
+        // operator was hitting. Genuine programmer bugs (Type/Reference/
+        // Syntax errors) — and anything we can't explain — stay a loud 500.
+        let _class = 'unknown';
+        try { _class = require('./error-classify').classifyError(err); } catch { /* fall back to 500 */ }
+        if (_class === 'transient') {
+          console.warn(`[Cuisine-Search] D705 degraded-200 (transient: ${err.code || err.name || 'n/a'})`);
+          return res.status(200).json({ venues: [], degraded: true, exhausted: false });
+        }
         res.status(500).json({ error: err.message });
       }
     });
 
     app.post('/api/cuisine/nl-query', async (req, res) => {
       try {
-        const { text, lat, lng, filters = {}, lang: nlLangIn } = req.body || {};
+        const { text, lat, lng, filters = {}, lang: nlLangIn, region: nlRegion, countryCode: nlCountry } = req.body || {};
         if (!text || !text.trim()) return res.status(400).json({ error: 'missing text' });
 
         // v0.58.19: harden the LLM endpoint —
@@ -15453,13 +17715,49 @@ async function cacheBotUsername() {
             console.log(`[NL-Query] D772 brand-name prepended — "${trimmed}" + ${JSON.stringify(cuisineNames)}`);
           }
         }
+        // v0.62.94 — colloquial dish-alias expansion (operator: "how about:
+        // Dai Lok"). "dai lok" alone is ambiguous to Places (matches lok-lok
+        // 淥淥 / Tai Ka Lok 大家乐, not the 大碌麵 Hokkien-Mee dish — only the
+        // "mee" token disambiguated). Prepend the canonical dish term(s) so the
+        // nickname resolves to the right places. See dish-aliases.js.
+        try {
+          const { expandDishAliases } = require('./dish-aliases');
+          const alias = expandDishAliases(text);
+          if (alias) {
+            // Drop the ambiguous verbatim query the brand-passthrough prepended
+            // (bare "dai lok" pulls lok-lok 淥淥 noise) — we now know the dish.
+            const trimmedLC = typeof text === 'string' ? text.trim().toLowerCase() : '';
+            cuisineQueries = cuisineQueries.filter((q) => q && q.toLowerCase() !== trimmedLC);
+            const fresh = alias.terms.filter(
+              (t) => !cuisineQueries.some((q) => q && q.toLowerCase() === t.toLowerCase())
+            );
+            cuisineQueries = [...fresh, ...cuisineQueries];
+            console.log(`[NL-Query] D774 dish-alias ${alias.label} → queries ${JSON.stringify(cuisineQueries.slice(0, 4))}…`);
+          }
+        } catch (err) {
+          console.warn(`[NL-Query] dish-alias skipped: ${err.message}`);
+        }
         // v0.59.0: resolve active lang for NL discovery.
         const { resolveLang: resolveLangNL } = require('./user-prefs');
-        const nlBodyLang = (typeof nlLangIn === 'string' && ['en','fr'].includes(nlLangIn)) ? nlLangIn : null;
+        // v0.62.305 — accept 'id' so the Tell-me path's open-hours label renders
+        // in Indonesian (mirrors the cuisine-search csBodyLang gate).
+        const nlBodyLang = (typeof nlLangIn === 'string' && ['en','fr','id','ru','de'].includes(nlLangIn)) ? nlLangIn : null;
         const nlLang = nlBodyLang || await resolveLangNL(redis, chatId, null);
+        // v0.62.94 — operator ("dai lok mee kl … results so narrowed vs Google
+        // Maps"): the NL path under-fetched. Two fixes here + a wider slice
+        // below. (1) regionCode was never passed → discover defaulted to 'SG'
+        // even for a Malaysia user; derive it from the forwarded region/country
+        // (mirrors the main-search searchRegionCode rule). (2) paginate to 3
+        // pages so the candidate pool is ~60 (Google-Maps-elastic) not ~20.
+        let nlRegionCode;
+        if (nlRegion === 'JB' || nlRegion === 'MY-PUT') nlRegionCode = 'MY';
+        else if (nlRegion === 'OTHER') nlRegionCode = (typeof nlCountry === 'string' && /^[A-Z]{2}$/i.test(nlCountry)) ? nlCountry.toUpperCase() : undefined;
+        else if (nlRegion === 'SG') nlRegionCode = 'SG';
+        else nlRegionCode = (typeof nlCountry === 'string' && /^[A-Z]{2}$/i.test(nlCountry)) ? nlCountry.toUpperCase() : undefined;
+        console.log(`[NL-Query] D773 discover region=${nlRegion || '?'} → regionCode=${nlRegionCode || 'none'} (deep: maxPages=3)`);
         const candidates = await pipeline.discover({
-          lat: searchLat, lng: searchLng, radius: 50000, cuisines: cuisineQueries, maxResults: 30,
-          lang: nlLang                                     // v0.59.0
+          lat: searchLat, lng: searchLng, radius: 50000, cuisines: cuisineQueries,
+          maxResults: 60, regionCode: nlRegionCode, lang: nlLang, maxPages: 3
         });
         let venues = Array.isArray(candidates) ? candidates : (candidates?.venues || []);
         // v0.57.5 / v0.58.31: shared deny-list module — type gate +
@@ -15518,7 +17816,14 @@ async function cacheBotUsername() {
         if (merged.openNow) venues = venues.filter((v) => v.openNow !== false);
         if (merged.prices?.length) {
           const allowed = new Set(merged.prices.map((p) => p.length));
-          venues = venues.filter((v) => v.priceLevel == null || allowed.has(v.priceLevel));
+          venues = venues.filter((v) => {
+            // v0.62.x — filter on the MONEY shown (priceRange → tier); fall back
+            // to Google price_level; drop venues with NO price signal when a
+            // price filter is active (was: null always passed → "$100 under $").
+            const tier = require('./currency-format').priceTierFromRange(v.priceRange)
+              ?? (Number.isFinite(v.priceLevel) ? v.priceLevel : null);
+            return tier != null && allowed.has(tier);
+          });
         }
         // v0.57.16: Home-based heuristic (mirrors /api/cuisine/search).
         if (merged.homeBased) {
@@ -15539,14 +17844,28 @@ async function cacheBotUsername() {
         // v0.61.246: open-now label too (mirrors /api/cuisine/search).
         const { closedTodayString: closedTodayStringNL, currentOpenString: currentOpenStringNL } = require('./open-hours');
         // v0.60.35 — match /api/cuisine/search reverted cap of 12.
-        const topNL = venues.slice(0, 12);
+        // v0.61.436 — per-chat guarded rating floor (code review: the
+        // Tell-me NL path ignored the rating pill).
+        venues = await applyChatRatingFloor(chatId, venues, 'NL-Query');
+        // v0.62.94 — show more (operator: "so narrowed vs Google Maps"). The NL
+        // path is one-shot (no across-tap pagination), so the single slice is all
+        // the user ever sees — 12 read as a fraction of Google's list. With the
+        // deeper ~60-candidate pool above, surface 24. Enrichment below
+        // (travel-times batched, crowd, footfall) runs on this slice.
+        const topNL = venues.slice(0, 24);
         for (const v of topNL) {
+          // v0.62.291 — prefer holiday-aware currentOpeningHours.periods +
+          // venue-local timezone (mirrors cuisine-enrich.js).
+          const periodsNL = v.currentPeriods || v.regularPeriods;
+          const offsetNL = Number.isFinite(v.utcOffsetMinutes) ? v.utcOffsetMinutes : undefined;
           if (v.openNow === false) {
-            v.closedTodayLabel = closedTodayStringNL(v.regularPeriods);
+            v.closedTodayLabel = closedTodayStringNL(periodsNL, new Date(), offsetNL, nlLang);
           } else if (v.openNow === true) {
-            v.openClosingLabel = currentOpenStringNL(v.regularPeriods);
+            v.openClosingLabel = currentOpenStringNL(periodsNL, new Date(), offsetNL, nlLang);
           }
           delete v.regularPeriods;
+          delete v.currentPeriods;
+          delete v.utcOffsetMinutes;
         }
         // v0.57.31: crowd signal (mirrors /api/cuisine/search).
         try {
@@ -15759,7 +18078,7 @@ async function cacheBotUsername() {
       }
       return mrtLinePathsCache;
     }
-    // v0.64.0 — when data/mrt-line-paths.json is absent, derive the
+    // v0.62.6 — when data/mrt-line-paths.json is absent, derive the
     // station-code geometry server-side (via the transport app's
     // buildLinePaths, dynamic-imported as an ESM module) so EVERY caller
     // — the Transport map AND the Cuisine/Hawker "Train" overlay — gets
@@ -15999,6 +18318,24 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.62.184 — operator: a "🍚 Hawker" overlay on the Cuisine map. Serves the
+    // 122-centre vault coords (data/hawker-coords.json) as a flat { centres:
+    // [{name,lat,lng}] } list; the client radius-clips them to the map anchor, so
+    // only hawker centres SURROUNDING the results show (not every centre). Static
+    // data → no cache needed.
+    app.get('/api/geo/hawker-centres', (_req, res) => {
+      try {
+        const coords = require('./data/hawker-coords.json') || {};
+        const centres = Object.entries(coords)
+          .filter(([, v]) => v && Number.isFinite(v.lat) && Number.isFinite(v.lng))
+          .map(([name, v]) => ({ name, lat: v.lat, lng: v.lng }));
+        res.json({ centres });
+      } catch (err) {
+        console.error('[geo-hawker-centres]', err.message);
+        res.json({ centres: [] });
+      }
+    });
+
     // v0.61.10 — realtime platform-crowd levels for the transport map.
     // Returns { crowd: { "<stationCode>": "l" | "m" | "h" } } from LTA's
     // PCDRealTime feed (transport.fetchPlatformCrowdAll), Redis-cached
@@ -16179,25 +18516,53 @@ async function cacheBotUsername() {
     // posture as /maps-key) so any Mini App can show a live Singapore
     // weather emoji. SG centroid (TMAs want an island-wide read, not
     // per-user precision); Redis-cached 5 min to spare the NEA feeds.
-    app.get('/api/weather/summary', async (_req, res) => {
-      const CACHE_KEY = 'weather:tma-summary';
+    app.get('/api/weather/summary', async (req, res) => {
+      // v0.61.380 — operator: weather must follow the country expansion.
+      // The TMA now sends the user's lat/lng; coords inside Singapore use
+      // NEA (authoritative local), everywhere else uses Open-Meteo (free,
+      // global). No coords → SG centroid (legacy behaviour). Cache is keyed
+      // per ~11 km grid cell so Tokyo and Singapore don't share one entry.
+      const qLat = Number(req.query.lat);
+      const qLng = Number(req.query.lng);
+      const hasCoords = Number.isFinite(qLat) && Number.isFinite(qLng)
+        && !(Math.abs(qLat) < 0.001 && Math.abs(qLng) < 0.001);
+      const useSG = !hasCoords || weather.inSgBounds(qLat, qLng);
+      const lat = hasCoords ? qLat : 1.3521;
+      const lng = hasCoords ? qLng : 103.8198;
+      const CACHE_KEY = `weather:tma-summary:${lat.toFixed(1)}:${lng.toFixed(1)}`;
       try {
         if (redis.isOpen) {
           const cached = await redis.get(CACHE_KEY).catch(() => null);
           if (cached) { res.json(JSON.parse(cached)); return; }
         }
         const { forecastEmoji, toFahrenheit } = require('./weather-emoji');
-        const w = await weather.summary(1.3521, 103.8198);
-        const tempC = Number.isFinite(w?.tempC) ? Math.round(w.tempC * 10) / 10 : null;
-        const payload = {
-          ok: true,
-          tempC,
-          tempF: tempC != null ? Math.round(toFahrenheit(tempC) * 10) / 10 : null,
-          humidityPct: Number.isFinite(w?.humidityPct) ? Math.round(w.humidityPct) : null,
-          condition: w?.forecast || null,
-          emoji: forecastEmoji(w?.forecast)
-        };
-        if (redis.isOpen) redis.setEx(CACHE_KEY, 300, JSON.stringify(payload)).catch(() => {});
+        let payload;
+        if (useSG) {
+          const w = await weather.summary(lat, lng);
+          const tempC = Number.isFinite(w?.tempC) ? Math.round(w.tempC * 10) / 10 : null;
+          payload = {
+            ok: tempC != null,
+            tempC,
+            tempF: tempC != null ? Math.round(toFahrenheit(tempC) * 10) / 10 : null,
+            humidityPct: Number.isFinite(w?.humidityPct) ? Math.round(w.humidityPct) : null,
+            condition: w?.forecast || null,
+            emoji: forecastEmoji(w?.forecast),
+            source: 'nea'
+          };
+        } else {
+          const w = await weather.summaryGlobal(lat, lng);
+          const tempC = Number.isFinite(w?.tempC) ? Math.round(w.tempC * 10) / 10 : null;
+          payload = tempC == null ? { ok: false } : {
+            ok: true,
+            tempC,
+            tempF: Math.round(toFahrenheit(tempC) * 10) / 10,
+            humidityPct: Number.isFinite(w?.humidityPct) ? Math.round(w.humidityPct) : null,
+            condition: w?.condition || null,
+            emoji: w?.emoji || '🌡️',
+            source: 'open-meteo'
+          };
+        }
+        if (redis.isOpen && payload.ok) redis.setEx(CACHE_KEY, 300, JSON.stringify(payload)).catch(() => {});
         res.json(payload);
       } catch (err) {
         console.error('[Error] /api/weather/summary failed:', err.message);
@@ -16234,10 +18599,28 @@ async function cacheBotUsername() {
         // Grid lat/lng to ~50 m so nearby pings hit the same cache key.
         const gLat = lat.toFixed(4);
         const gLng = lng.toFixed(4);
-        const cacheKey = `revgeo:${gLat}:${gLng}`;
+        // v0.62.211 — cache key bumped v1→v2: the "name" now carries the street
+        // ("Block 49, Sims Place" not bare "Block 49"), so stale block-only
+        // entries must not be served.
+        const cacheKey = `revgeo:v2:${gLat}:${gLng}`;
         const apiKey = process.env.GOOGLE_MAPS_API_KEY;
         if (!apiKey) {
           return res.status(503).json({ error: 'GOOGLE_MAPS_API_KEY unset' });
+        }
+        // v0.62.295 — `?near=1`: the client wants the nearest prominent landmark
+        // (for "{city} — near {landmark}" on a city-centroid pick). Resolved +
+        // cached separately so it never pollutes the street-name cache. The
+        // client already holds the city name, so `name` is intentionally null.
+        if (req.query.near === '1' || req.query.near === 'true') {
+          const landmarkKey = `revgeo:landmark:v1:${gLat}:${gLng}`;
+          try {
+            const lc = await redis.get(landmarkKey);
+            if (lc) return res.json({ ...JSON.parse(lc), cached: true });
+          } catch { /* cache miss is fine */ }
+          const near = await nearestLandmark(lat, lng).catch(() => null);
+          const payload = { name: null, near: near || null };
+          try { await redis.set(landmarkKey, JSON.stringify(payload), { EX: 60 * 60 * 24 }); } catch { /* non-fatal */ }
+          return res.json(payload);
         }
         try {
           const cached = await redis.get(cacheKey);
@@ -16245,6 +18628,30 @@ async function cacheBotUsername() {
             return res.json({ ...JSON.parse(cached), cached: true });
           }
         } catch { /* cache miss is fine */ }
+        // v0.62.207 — operator (4a): prefer a SPECIFIC place (POI / building /
+        // street) via the shared fine-grained resolver, so the "Set location is"
+        // line shows a real spot instead of "pinpointing…". reverseGeocodeAddress
+        // already walks POI → premise → street → neighbourhood. Falls through to
+        // the coarse neighbourhood logic below only when it yields nothing usable.
+        try {
+          const fine = await reverseGeocodeAddress(lat, lng);
+          const NAT_RX = /\b(catchment|reservoir|forest|nature reserve|park|wetland|river|canal)\b/i;
+          if (fine && fine.name && fine.name !== 'Singapore' && !NAT_RX.test(fine.name)) {
+            // v0.62.211 — operator (IMG_1069): the "Set location is" line showed a
+            // bare building/block name ("Block 49") because reverseGeocodeAddress
+            // ranks POI/premise above the street. Append the resolved road
+            // (fine.route) so it reads "Block 49, Sims Place" — unless the road is
+            // already part of the name (e.g. the name IS the street address).
+            const _road = (fine.route || '').trim();
+            const _base = fine.name.trim();
+            const _name = (_road && !_base.toLowerCase().includes(_road.toLowerCase()))
+              ? `${_base}, ${_road}`
+              : _base;
+            const payload = { name: _name, formatted: fine.formatted || `${lat.toFixed(4)}, ${lng.toFixed(4)}` };
+            try { await redis.set(cacheKey, JSON.stringify(payload), { EX: 60 * 60 }); } catch { /* non-fatal */ }
+            return res.json(payload);
+          }
+        } catch { /* fall through to the coarse resolver below */ }
         const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&result_type=neighborhood|sublocality|locality&key=${apiKey}`;
         const axios = require('axios');
         const { data } = await axios.get(url, { timeout: 5000 });
@@ -16321,6 +18728,8 @@ async function cacheBotUsername() {
         const regions = Object.entries(by).map(([region, centres]) => {
           const slim = centres.map((c) => ({
             name: c.name,
+            // v0.62.296 — canonical NEA name (by postal); cards prefer it.
+            displayName: c.displayName || c.name,
             address: c.address,
             postal: c.postal,
             mapsUrl: c.mapsUrl,
@@ -16391,6 +18800,20 @@ async function cacheBotUsername() {
       if (!best) return null;
       return { name: best.name, codes: best.codes, lines: best.lines, lat: best.lat, lng: best.lng };
     }
+    // v0.62.107 — operator #4: the hawker card lists the 2 NEAREST stations
+    // (was 1). Sorted-by-distance variant.
+    function nearestStationsTo(lat, lng, n = 2) {
+      const cosLat = Math.cos(lat * Math.PI / 180);
+      const scored = [];
+      for (const s of loadMrtCoords()) {
+        if (s.status !== 'operational') continue;
+        const dx = (s.lng - lng) * cosLat;
+        const dy = s.lat - lat;
+        scored.push({ s, d: dx * dx + dy * dy });
+      }
+      scored.sort((a, b) => a.d - b.d);
+      return scored.slice(0, n).map(({ s }) => ({ name: s.name, codes: s.codes, lines: s.lines, lat: s.lat, lng: s.lng }));
+    }
     app.get('/api/hawker/centre-transit', async (req, res) => {
       try {
         const lat = Number(req.query.lat);
@@ -16399,27 +18822,29 @@ async function cacheBotUsername() {
           res.status(400).json({ error: 'lat/lng required' });
           return;
         }
-        const CACHE_KEY = `hawker:transit:${lat.toFixed(4)},${lng.toFixed(4)}`;
+        // v0.62.107 — cache key bumped v2: payload now carries 2 stations + 3
+        // bus stops (was 1 station + 2 bus stops).
+        const CACHE_KEY = `hawker:transit:v2:${lat.toFixed(4)},${lng.toFixed(4)}`;
         if (redis.isOpen) {
           const cached = await redis.get(CACHE_KEY).catch(() => null);
           if (cached) { res.json(JSON.parse(cached)); return; }
         }
-        const station = nearestStationTo(lat, lng);
-        // v0.61.10 — attach the nearest station's exits (verbatim
-        // EXIT_CODE values) for the hawker map-pin transit template.
-        if (station && station.name) {
-          const ex = exitsForStation(station.name);
-          if (ex && ex.length) {
-            station.exits = ex.map((e) => e && e.exit).filter(Boolean);
+        // v0.62.107 — operator #4: 2 nearest stations (each with exits), 3 bus stops.
+        const stations = nearestStationsTo(lat, lng, 2);
+        for (const st of stations) {
+          if (st && st.name) {
+            const ex = exitsForStation(st.name);
+            if (ex && ex.length) st.exits = ex.map((e) => e && e.exit).filter(Boolean);
           }
         }
+        const station = stations[0] || null;   // back-compat for any old reader
         let busStops = [];
         try {
-          if (redis.isOpen) busStops = await transport.nearestStops(redis, lat, lng, 800, 2);
+          if (redis.isOpen) busStops = await transport.nearestStops(redis, lat, lng, 800, 3);
         } catch (err) {
           console.warn('[hawker-transit] bus stops:', err.message);
         }
-        const payload = { station, busStops };
+        const payload = { station, stations, busStops };
         if (redis.isOpen) {
           redis.set(CACHE_KEY, JSON.stringify(payload), { EX: 1800 }).catch(() => {});
         }

@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-06-03';   // v0.61.316 catch-up: PRs #748-#823 (76 PR backfill since the prior regen on 29-05; 3 closed-without-merge: #759, #762, #767)
+const GEN_DATE = '2026-06-24';   // v0.62.240->v0.62.301 catch-up: PRs #1202-#1272 (this session's Cuisine/Hawker/Train UI + search-confidence arc + prior #1202-#1240)
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 

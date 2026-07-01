@@ -449,3 +449,149 @@ describe('dropBlocksByName (v0.60.33)', () => {
     expect(out).not.toContain("J'ai trouvé 3 trésors cachés");
   });
 });
+
+// v0.61.318 — newness-refute. The /hidden prompt lets a 300+-review venue
+// through ONLY via the C1 "newly opened (≤3 months)" exception. That open
+// date is Gemini's web guess, not an API fact. A Google review can only be
+// posted after a venue opens, so the OLDEST review Places returns refutes a
+// false "new" claim. We use it one-directionally: drop a 300+-review venue
+// whose oldest review predates the 3-month window, and strip the false
+// "opened …" wording from any kept venue.
+describe('newness-refute (v0.61.318)', () => {
+  const { oldestReviewMonths, stripOpeningClaim, verifyHiddenGemsOutput: verify } = require('../hidden-verify.js');
+  const isoMonthsAgo = (m) => new Date(Date.now() - m * 30.44 * 24 * 60 * 60 * 1000).toISOString();
+
+  describe('oldestReviewMonths', () => {
+    it('returns null for no reviews / no timestamps', () => {
+      expect(oldestReviewMonths([])).toBe(null);
+      expect(oldestReviewMonths(undefined)).toBe(null);
+      expect(oldestReviewMonths([{ text: 'great' }])).toBe(null);
+    });
+
+    it('returns ~24 for a two-year-old review', () => {
+      const m = oldestReviewMonths([{ publishTime: isoMonthsAgo(24) }]);
+      expect(m).toBeGreaterThan(23);
+      expect(m).toBeLessThan(25);
+    });
+
+    it('returns the OLDEST review when reviews are mixed', () => {
+      const m = oldestReviewMonths([
+        { publishTime: isoMonthsAgo(1) },
+        { publishTime: isoMonthsAgo(18) },
+        { publishTime: isoMonthsAgo(6) }
+      ]);
+      expect(m).toBeGreaterThan(17);
+      expect(m).toBeLessThan(19);
+    });
+  });
+
+  describe('stripOpeningClaim', () => {
+    it('strips "opened in Month Year" and keeps the rest', () => {
+      const out = stripOpeningClaim('rated 4.6 over 87 reviews, opened in March 2026, Eatbook coverage.');
+      expect(out).not.toMatch(/opened in March 2026/i);
+      expect(out).toContain('rated 4.6 over 87 reviews');
+      expect(out).toContain('Eatbook coverage');
+    });
+
+    it('strips bare "newly opened"', () => {
+      expect(stripOpeningClaim('a newly opened cafe with pastries')).not.toMatch(/newly opened/i);
+    });
+
+    it('no-ops on a line with no opening claim', () => {
+      const line = 'serves laksa and char kway teow';
+      expect(stripOpeningClaim(line)).toBe(line);
+    });
+  });
+
+  // A 300+-review venue with an old review = not new AND not under-reviewed
+  // → drop. A < 120-review venue with recent reviews = a real hidden gem
+  // → keep. A kept venue whose oldest review refutes "new" loses the claim.
+  const SAMPLE = [
+    '1. AURORA TOAST - cafe',
+    '12 Some Road, #01-01 - approx 0.5km north from anchor.',
+    '🌟 Google rating · 4.6',
+    '💎 Why a gem · rated 4.6, newly opened in March 2026, with Eatbook coverage.',
+    '🍲 Try · Kaya Toast, Soft Eggs',
+    '📍 https://www.google.com/maps/search/?api=1&query=Aurora+Toast+Singapore',
+    '',
+    '2. GRANDE BISTRO - restaurant',
+    '40 Other Road, #01-04 - approx 0.8km east from anchor.',
+    '🌟 Google rating · 4.4',
+    '💎 Why a gem · a neighbourhood staple, opened in January 2026, strong reviews.',
+    '🍲 Try · Pasta, Tiramisu',
+    '📍 https://www.google.com/maps/search/?api=1&query=Grande+Bistro+Singapore'
+  ].join('\n');
+
+  it('drops a 300+-review venue whose oldest review refutes "new"', async () => {
+    const result = await verify(SAMPLE, {
+      _lookup: async (name) => ({
+        'AURORA TOAST':  { rating: 4.6, userRatingCount: 90,  lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewMonths: 1.2 },
+        'GRANDE BISTRO': { rating: 4.4, userRatingCount: 850, lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewMonths: 26 }
+      }[name] || null)
+    });
+    expect(result.text).not.toContain('GRANDE BISTRO');
+    expect(result.text).toContain('AURORA TOAST');
+    expect(result.venues.length).toBe(1);
+  });
+
+  it('keeps a genuinely new (recent-reviews) venue even at 300+ reviews', async () => {
+    const result = await verify(SAMPLE, {
+      _lookup: async (name) => ({
+        'AURORA TOAST':  { rating: 4.6, userRatingCount: 90,  lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewMonths: 1.2 },
+        'GRANDE BISTRO': { rating: 4.4, userRatingCount: 420, lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewMonths: 2 }
+      }[name] || null)
+    });
+    expect(result.text).toContain('GRANDE BISTRO');
+    expect(result.venues.length).toBe(2);
+  });
+
+  it('keeps a < 120-review venue but strips a refuted "newly opened" claim', async () => {
+    const result = await verify(SAMPLE, {
+      _lookup: async (name) => ({
+        // Aurora is under-reviewed (C3) so it stays, but its oldest review
+        // is 14 months old → the "newly opened in March 2026" line is false.
+        'AURORA TOAST':  { rating: 4.6, userRatingCount: 90, lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewMonths: 14 },
+        'GRANDE BISTRO': { rating: 4.4, userRatingCount: 80, lat: 1, lng: 1, businessStatus: 'OPERATIONAL', oldestReviewMonths: 1 }
+      }[name] || null)
+    });
+    expect(result.text).toContain('AURORA TOAST');
+    expect(result.text).not.toMatch(/newly opened in March 2026/i);
+    // Grande's oldest review is recent (1mo) → its claim is NOT stripped.
+    expect(result.text).toMatch(/opened in January 2026/i);
+  });
+});
+
+// v0.61.319 — /hidden now renders the SAME rich venue card as /search, with
+// a "📝 Latest review ·" line derived from the NEWEST review publishTime, and
+// the fabricable "💎 Why a gem" prose DROPPED (we no longer send Gemini text).
+describe('newestReviewIso (v0.61.319)', () => {
+  const { newestReviewIso } = require('../hidden-verify.js');
+
+  it('returns the MAX (newest) publishTime across mixed reviews', () => {
+    const reviews = [
+      { publishTime: '2026-01-10T00:00:00Z' },
+      { publishTime: '2026-05-20T00:00:00Z' }, // newest
+      { publishTime: '2026-03-01T00:00:00Z' }
+    ];
+    expect(newestReviewIso(reviews)).toBe(new Date('2026-05-20T00:00:00Z').toISOString());
+  });
+
+  it('returns null when there are no reviews', () => {
+    expect(newestReviewIso([])).toBeNull();
+    expect(newestReviewIso(null)).toBeNull();
+    expect(newestReviewIso(undefined)).toBeNull();
+  });
+
+  it('ignores unparseable timestamps and uses the newest valid one', () => {
+    const reviews = [
+      { publishTime: 'not-a-date' },
+      { publishTime: '2026-02-14T00:00:00Z' },
+      {}
+    ];
+    expect(newestReviewIso(reviews)).toBe(new Date('2026-02-14T00:00:00Z').toISOString());
+  });
+
+  it('returns null when no timestamp is parseable', () => {
+    expect(newestReviewIso([{ publishTime: 'x' }, {}])).toBeNull();
+  });
+});
