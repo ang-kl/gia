@@ -1,6 +1,6 @@
-# soleat 🌿  (formerly Gia4lunch)
+# Soleat 🌿 
 
-**soleat** is a Singapore dining concierge inside Telegram — voiced by **Gia**, a wise mid-50s sanctuary guide. It blends real-time public data (Google Places, LTA DataMall, NEA, data.gov.sg) with two LLMs (**Anthropic Claude** for free-text + cuisine NL, **Google Gemini with Search grounding** for `/hidden`) and four Telegram Mini Apps to help users find a quiet, high-quality meal — or the next bus home — without scrolling Google for half an hour.
+**soleat** is a Singapore dining concierge inside Telegram, a wise mid-50s sanctuary guide. It blends real-time public data (Google Places, LTA DataMall, NEA, data.gov.sg) with two LLMs (**Anthropic Claude** for free-text + cuisine NL, **Google Gemini with Search grounding** for `/hidden`) and four Telegram Mini Apps to help users find a quiet, high-quality meal — or the next bus home — without scrolling Google for half an hour.
 
 Live at **[@soleat_bot](https://t.me/soleat_bot)**.
 
@@ -10,7 +10,7 @@ Live at **[@soleat_bot](https://t.me/soleat_bot)**.
 
 | Surface | Behaviour |
 | :--- | :--- |
-| **`/cuisine`** | Mini App cuisine picker — 70+ cuisines (SG + Johor Bahru), filter chips (`🆕 New`, `🟢 Open now`, `🕌 Halal`, `🥗 Vegetarian`, `🏠 Home-based`, price tiers), location pin field, "Tell Gia" natural-language search, copy-syntax sharing. Auto re-search on filter toggle. Region toggle: 🇸🇬 / JB. First-time load returns 8; subsequent `🔍 Search` taps return 12 each (dedup-shuffled). |
+| **`/cuisine`** | Mini App cuisine picker — 50+ cuisines (SG + Johor Bahru + 100 cities), filter chips (`🆕 New`, `🟢 Open now`, `🕌 Halal`, `🥗 Vegetarian`, `🏠 Home-based`, price tiers), location pin field, "Tell Gia" natural-language search, copy-syntax sharing. Auto re-search on filter toggle. Region toggle: 🇸🇬 / JB. First-time load returns 8; subsequent `🔍 Search` taps return 12 each (dedup-shuffled). |
 | **`/hawker`** | Mini App listing >100 SG hawker centres, region-grouped. |
 | **`/recognised`** | Michelin · Bib Gourmand · Asia's 50/100 Best · World Culinary Awards. LLM-fetched, year-scoped, island-wide. |
 | **`/weather`** | Now + 2-hour NEA forecast. |
