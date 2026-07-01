@@ -1,20 +1,21 @@
 counters:
-  commit: 924
+  commit: 925
   build: 563
   documents:
-    journal: 806
+    journal: 807
     builder: 3
     persona: 4
-    feature: 56
+    feature: 58
     technical: 55
     legal: 9
     register: 129
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 01-07 '26 11:00 SGT
-last_anchor_source: sketchbook_pick_local_classic_2026-07-01_1100 (v0.62.452 — operator: Pick Local Dish should mirror Cuisine TMA 'Pick local classic', city derived from saved cards, grey dishes not saved. NEW endpoint GET /api/cuisine/plate?city= -> platesForCity [forgiving: exact CITY_PLATES key, else case-insensitive, else query-contains-key so 'Katong, Singapore'->Singapore]; read-only, no user echo, no auth. App.jsx derives cityGuess [most-common trailing comma-segment of venue.area], fetches plate, savedDishSet from dishOptions. NEW LocalClassicPicker.jsx mirrors ArrivalPlate geo-mode: 📍{city} header + 2-col dish grid [EN name + native local] + 'More {city} classics ({n})' expander; dishes NOT in saved cards greyed+non-tappable; tap saved dish -> dishFilter. Shell dish dropdown renders LocalClassicPicker when plate present, else falls back to v450 saved-dish chips. i18n classic.tapHint/classic.more. vite build OK [52 modules]; node --check index.js. journal 805->806, commit 923->924, build 562->563. Completes the operator's identical-to-Cuisine Sketchbook filter pair [cuisine=v451, dish=v452]. PRIOR ANCHOR sketchbook_cuisine_picker_port_2026-07-01_1020)
-last_anchor_source_prior: transport_close_x_normalize_2026-06-30_2020
+last_anchor_time: 01-07 '26 10:50 SGT
+last_anchor_source: feature_stocktake_june_2026_2026-07-01_1050 (docs-only PR, session branch claude/feature-stocktake-june-2026-nw6ooz — operator: "stocktake all the features in this project as of 30 June 2026". Live network time-service fetch (api.data.gov.sg, worldtimeapi.org) returned proxy 403 in this sandboxed session; fell back to system clock per TF-9. NEW doc/Feature/feature-0_62_449-30_06_26-2321.md (№58) — reproduce-by-reference (CLAUDE-FULL §17.1) from feature-0_62_153-17_06_26-1730.md + feature-0_62_332-clipboard.md; §1 Active-Surfaces table grounded in index.js registerCommandsMenu() + web/* listing; §2 appends arcs G-A..G-M synthesising the 316-commit gap PR #1107-#1429 (cutoff commit 9fa372e0, v0.62.449, last commit on/before 30-06-2026); RF-30..RF-33. NEW doc/Journal/journal-0_62_449-30_06_26-2321.md (№807) records the stocktake session itself. documents.feature 56->58 (accounts for the un-bumped №57 clipboard doc plus this session's №58), journal 806->807, commit 924->925, build unchanged (no code build ran; docs-only, gia-preflight not triggered). Repo was a 50-commit shallow clone at session start; ran git fetch --unshallow (read-only) to recover full history for accurate PR-range citations. Technical/Register catch-up still due (logged as Known Gaps in the new Feature doc). PRIOR ANCHOR sketchbook_pick_local_classic_2026-07-01_1100)
+last_anchor_source_prior: sketchbook_pick_local_classic_2026-07-01_1100
+last_anchor_iso8601: 2026-07-01T10:50:00+08:00
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
