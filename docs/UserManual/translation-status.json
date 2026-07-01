@@ -1,0 +1,61 @@
+{
+  "status": "draft",
+  "sourceLanguage": "en",
+  "principle": "Translate after English master, terminology, food-name rules, and help IDs are stable.",
+  "languages": [
+    {
+      "code": "en",
+      "name": "English",
+      "status": "drafting",
+      "notes": "Master language for Sections 1–6."
+    },
+    {
+      "code": "fr",
+      "name": "French",
+      "status": "not_started",
+      "notes": "Translate after English master is locked."
+    },
+    {
+      "code": "id",
+      "name": "Indonesian",
+      "status": "not_started",
+      "notes": "Translate after food-term review."
+    },
+    {
+      "code": "ru",
+      "name": "Russian",
+      "status": "not_started",
+      "notes": "Translate after food-term review."
+    },
+    {
+      "code": "de",
+      "name": "German",
+      "status": "not_started",
+      "notes": "Translate after food-term review."
+    },
+    {
+      "code": "zh",
+      "name": "Chinese",
+      "status": "not_started",
+      "notes": "Requires extra care for cuisine names, native-script dish names, and local food usage."
+    },
+    {
+      "code": "ja",
+      "name": "Japanese",
+      "status": "not_started",
+      "notes": "Requires extra care for cuisine names, native-script dish names, and local food usage."
+    },
+    {
+      "code": "es",
+      "name": "Spanish",
+      "status": "not_started",
+      "notes": "Translate after food-term review."
+    }
+  ],
+  "reviewRules": [
+    "Do not flatten food terms into generic translations.",
+    "Preserve cuisine context and local food meaning.",
+    "Treat dish names, cooking methods, and local food names as terminology, not ordinary prose.",
+    "Do not translate product names marked translate=false in the glossary."
+  ]
+}
