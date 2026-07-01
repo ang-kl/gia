@@ -126,7 +126,7 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
                 {cu.dividerBefore && (
                   <div className="col-span-2 h-px bg-tg-border/40 my-1.5" aria-hidden />
                 )}
-              <div className="flex flex-col gap-0.5">
+              <div className="flex flex-col">
               <button
                 type="button"
                 onClick={() => { if (!disabled) onToggle(cu.slug); }}
@@ -173,7 +173,7 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
               {/* v0.62.453 — tappable "Dishes" (footer hide/list style: text-[11px]
                   font-semibold text-tg-link) opens the curated dish pop-up. */}
               <button type="button" onClick={() => openDishes(cu.slug, cuisineName(cu.slug, cu.name, lang), cu.flag)}
-                className="text-[10px] font-normal text-tg-link text-left px-1 self-start no-underline">{tr('cat.dishes', lang)}</button>
+                className="self-start ml-3 -mt-px px-2 py-0.5 text-[10px] font-normal text-tg-link no-underline bg-tg-card border border-tg-border border-t-0 rounded-b-lg">{tr('cat.dishes', lang)} ›</button>
               </div>
               </React.Fragment>
             );

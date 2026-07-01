@@ -1,8 +1,8 @@
 counters:
-  commit: 927
-  build: 566
+  commit: 928
+  build: 567
   documents:
-    journal: 809
+    journal: 810
     builder: 3
     persona: 4
     feature: 56
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 01-07 '26 12:35 SGT
-last_anchor_source: menu_sketchbook_icon_cabinet_2026-07-01_1235 (v0.62.455 — operator: Menu Sketchbook tile icon 'muddled again'. NOT an opacity bug — the v0.62.449 transparent PNG IS transparent [opaque frac 0.22] but it's a DETAILED 782x1166 clipboard-with-full-card illustration; crushed to ~64px + icon-navy tint the dense strokes merge into a navy blob. Fix: replaced with a SIMPLE clean filing-cabinet line-icon [from the 33-icon cut set, named/cabinet.png], recoloured to near-black #14141e transparent line-art so icon-navy tints it like Cuisine/Hawker; trimmed 102x174. Previewed at real 64px tile size [black + navy-tint] — crisp + legible. web/menu/public/sketchboard_clip_icon.png replaced. journal 808->809, commit 926->927, build 565->566. PRIOR ANCHOR cuisine_dishes_popup_polish_2026-07-01_1210)
+last_anchor_time: 01-07 '26 12:55 SGT
+last_anchor_source: cuisine_dishes_tethered_tab_2026-07-01_1255 (v0.62.456 — operator: the 'Dishes' link looked disjoined/floating under each cuisine pill. Chose option B [tethered sub-tab]. Restyled: cell flex-col gap-0.5 -> gap-0; 'Dishes ›' now self-start ml-3 -mt-px px-2 py-0.5 bg-tg-card border border-tg-border border-t-0 rounded-b-lg text-[10px] font-normal text-tg-link no-underline — a small tab that overlaps the pill's bottom border [shared left edge, no gap] so it reads as a drawer pulled from the pill. Only CuisineCategoryDrawer.jsx. esbuild OK; cuisine build/vitest via CI. journal 809->810, commit 927->928, build 566->567. PRIOR ANCHOR menu_sketchbook_icon_cabinet_2026-07-01_1235)
 last_anchor_source_prior: transport_close_x_normalize_2026-06-30_2020
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
