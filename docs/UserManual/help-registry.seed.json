@@ -183,6 +183,48 @@
       "manualPath": "docs/UserManual/en/04-sections-19-to-24.md#24-weather",
       "surface": "weather",
       "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.sketchbook.overview",
+      "title": "Sketchbook / Clipboard",
+      "manualPath": "docs/UserManual/en/05-sections-25-to-29.md#25-sketchbook--clipboard",
+      "surface": "clipboard",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.sketchbook.structure",
+      "title": "Catch-all, Cabinet, Drawer, and Card",
+      "manualPath": "docs/UserManual/en/05-sections-25-to-29.md#253-catch-all-cabinet-drawer-and-card",
+      "surface": "clipboard",
+      "contentType": "concept-help"
+    },
+    {
+      "helpId": "help.soleat.search.tips",
+      "title": "Search Tips",
+      "manualPath": "docs/UserManual/en/05-sections-25-to-29.md#26-search-tips",
+      "surface": "search",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.troubleshooting.common-problems",
+      "title": "Common Problems",
+      "manualPath": "docs/UserManual/en/05-sections-25-to-29.md#27-common-problems",
+      "surface": "general",
+      "contentType": "troubleshooting"
+    },
+    {
+      "helpId": "help.soleat.privacy.overview",
+      "title": "Privacy, Data, and User Control",
+      "manualPath": "docs/UserManual/en/05-sections-25-to-29.md#28-privacy-data-and-user-control",
+      "surface": "general",
+      "contentType": "reference"
+    },
+    {
+      "helpId": "help.soleat.support.limitations",
+      "title": "Support and Limitations",
+      "manualPath": "docs/UserManual/en/05-sections-25-to-29.md#29-support-and-limitations",
+      "surface": "general",
+      "contentType": "reference"
     }
   ]
 }
