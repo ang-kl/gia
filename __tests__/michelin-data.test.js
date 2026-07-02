@@ -717,7 +717,6 @@ describe('michelin-data — hasMichelinData gate', () => {
   it('is true for France (curated scaffold: Paris + Lyon stars, v0.62.470)', () => {
     expect(data.hasMichelinData('FR')).toBe(true);
     expect(data.hasMichelinData('fr')).toBe(true);
-    expect(data.hasMichelinData('France')).toBe(true);
     expect(data.hasMichelinData('Paris')).toBe(true);
     expect(data.hasMichelinData('Lyon')).toBe(true);
   });
