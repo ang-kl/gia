@@ -40,6 +40,7 @@
 
 import { createRequire } from 'node:module';
 import { writeFileSync, existsSync } from 'node:fs';
+import { execSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -52,6 +53,14 @@ const MODEL_CHAIN = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.5-flas
 
 const BATCH_SIZE = Number(process.env.DRAFT_BATCH_SIZE || 10);   // closed-enum output is cheap per dish
 const MAX_BATCHES = Number(process.env.DRAFT_MAX_BATCHES || 10); // cap per dispatch (reviewable)
+// v0.62.471 — incremental checkpoint. The workflow's git push runs only AFTER
+// this script exits, so a 6h-wall cancel used to discard the whole in-memory
+// batch. We now commit+push every PUSH_EVERY batches from inside the loop
+// (CI-only; local runs and vitest just write the file, unchanged). Idempotent
+// re-dispatch resumes from the last pushed checkpoint.
+const PUSH_EVERY = Number(process.env.DRAFT_PUSH_EVERY || 5);
+const CHECKPOINT = process.env.GITHUB_ACTIONS === 'true' && process.env.TAXONOMY_INCREMENTAL !== '0';
+const CHECKPOINT_BRANCH = 'bot/draft-dish-taxonomy';
 const BATCH_PAUSE_MS = 6000;
 const RETRY_WAITS_MS = [15000, 40000];
 
@@ -195,6 +204,29 @@ function serialize(overlay) {
   return lines.join('\n');
 }
 
+let _branchReady = false, _checkpoints = 0;
+function gitCheckpoint(label) {
+  if (!CHECKPOINT) return;
+  try {
+    if (!_branchReady) {
+      execSync('git config user.name "github-actions[bot]"');
+      execSync('git config user.email "github-actions[bot]@users.noreply.github.com"');
+      execSync(`git checkout -B ${CHECKPOINT_BRANCH}`);
+      _branchReady = true;
+    }
+    execSync(`git add ${JSON.stringify(OVERLAY_PATH)}`);
+    if (!execSync('git diff --cached --name-only').toString().trim()) return;
+    const msg = `chore(content): drafted dish taxonomy (grounded, ${label})`;
+    execSync(_checkpoints === 0 ? `git commit -m ${JSON.stringify(msg)}`
+                                : `git commit --amend -m ${JSON.stringify(msg)}`);
+    execSync(`git push --force origin ${CHECKPOINT_BRANCH}`);
+    _checkpoints += 1;
+    console.log(`[taxonomy] \u21ea checkpoint pushed (${label})`);
+  } catch (e) {
+    console.warn(`[taxonomy] checkpoint push failed (${label}): ${e.message}`);
+  }
+}
+
 async function main() {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) { console.error('[taxonomy] GEMINI_API_KEY unset — aborting.'); process.exit(1); }
@@ -229,9 +261,11 @@ async function main() {
     } catch (e) {
       console.warn(`[taxonomy] ✗ batch ${b + 1}: ${e.message}`);
     }
+    if (CHECKPOINT && (b + 1) % PUSH_EVERY === 0) gitCheckpoint(`batch ${b + 1}`);
     if (i + BATCH_SIZE < todo.length && b + 1 < MAX_BATCHES) await sleep(BATCH_PAUSE_MS);
   }
   writeFileSync(OVERLAY_PATH, serialize(overlay), 'utf8');
+  gitCheckpoint('final');
   const remaining = todo.length - done - skipped;
   console.log(`[taxonomy] wrote ${OVERLAY_PATH} · ${done} classified this run · ${skipped} failed validation (retried next run) · ~${remaining} not yet attempted`);
 }
