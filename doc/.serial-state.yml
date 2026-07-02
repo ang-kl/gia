@@ -1,8 +1,8 @@
 counters:
-  commit: 938
-  build: 577
+  commit: 939
+  build: 578
   documents:
-    journal: 820
+    journal: 821
     builder: 3
     persona: 4
     feature: 58
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 01-07 '26 18:50 SGT
-last_anchor_source: cuisine_closed_strip_sort_2026-07-01_1850 (v0.62.466 — operator: Cuisine TMA result cards -> light/white strip, RED text 'Closed' when closed, PINK text 'Closing in N minutes' when closing within the hour, and sort all closed cards to the end. NEW open-hours.js minutesUntilClose(periods,now,offset) [mirrors currentOpenString's active-period lookup, returns raw minutes not a formatted string]. cuisine-enrich.js [canonical enrichment, main /api/cuisine/search path] + the mirrored NL-query block in index.js both now set v.closingSoonMinutes when openNow===true and mins<=60. Closed-LAST stable partition added at BOTH response-assembly points: dedupedTop [main search, right after the existing hawkerFirst stable-partition precedent] and topNL [NL/free-text path — had to change `const topNL` -> `let topNL` since it's reassigned, verified no async closure captured the pre-reassignment reference]. ResultCard.jsx: new topmost strip [bg-white, text-red-600 'Closed' OR text-pink-600 tn('card.closingSoon',{n}) 'Closing in N min'; text-[12px] font-semibold = matches the card's standard meta font size, per operator's 'font size follow standard']. Flagged to operator: uses literal red/pink per their explicit spec, which is NOT the red-vs-green CVD pairing this codebase otherwise avoids elsewhere -- distinct text per state keeps it accessible. i18n card.closingSoon added [base en/fr + id/zh/ja/es, mirroring existing card.closed coverage; ru/de fall back to EN like card.closed already does]. node --check on oh.js/ce.js/index.js/i18n; esbuild parse ResultCard.jsx; cuisine build/vitest via CI. journal 819->820, commit 937->938, build 576->577. PRIOR ANCHOR michelin_freetext_filter_fix_2026-07-01_1810)
+last_anchor_time: 02-07 '26 09:30 SGT
+last_anchor_source: cuisine_reopen_today_strip_2026-07-02_0930 (v0.62.467 — operator: closed-now-but-reopens-TODAY strip. <=99 min: 'Closed Now'[red] + black middle-dot + 'Open in N min'[blue]. later today: 'Closed Now'[red] + dot + 'Opens hh:mm ~ hh:mm'[blue, the open period start~close]. NEW open-hours.js reopenTodayInfo(periods,now,offset,lang)->{minutesUntilOpen, openStart, openEnd} [today-only, future opens]. cuisine-enrich.js + index.js NL mirror set v.reopenMinutes/reopenStart/reopenEnd on openNow===false venues. ResultCard closed branch: if reopenMinutes present -> two/three coloured spans [text-red-600 closedNow, text-black ' · ', text-blue-600 openInMin<=99 else opensRange else opensAt-fallback-when-no-close]; else plain red 'Closed'. i18n card.closedNow/openInMin/opensRange/opensAt [base en/fr + id/zh/ja/es, ru/de EN-fallback]. Standard 12px font retained. node --check oh/ce/index/i18n; esbuild ResultCard; CI cuisine build+vitest. journal 820->821, commit 938->939, build 577->578. NOTE taxonomy batch 2 hit Gemini 429 daily-quota [0 classified] — paused pending quota reset. PRIOR ANCHOR cuisine_closed_strip_sort_2026-07-01_1850)
 last_anchor_source_prior: cuisine_dishes_tethered_tab_2026-07-01_1255
 # codex-review PR#1438: `last_anchor_iso8601` below is duplicated many times over past
 # sessions (append-only history, never pruned) -- a last-key-wins YAML reader would pick

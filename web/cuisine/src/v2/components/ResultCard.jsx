@@ -262,8 +262,25 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           for colour-blind safety (see the matchTier strip below). Standard
           card meta font size (12px, matches the rest of the card's text). */}
       {venue.openNow === false ? (
-        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -mx-2.5 mb-1 px-2.5 py-0.5 rounded-t-lg bg-white text-red-600 text-[12px] font-semibold leading-tight truncate`}>
-          {tr('card.closed', lang)}
+        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -mx-2.5 mb-1 px-2.5 py-0.5 rounded-t-lg bg-white text-[12px] font-semibold leading-tight truncate`}>
+          {/* v0.62.467 — closed now but reopens TODAY: "Closed Now" (red) · (black)
+              then "Open in N min" (blue, ≤99 min) or "Opens hh:mm ~ hh:mm" (blue).
+              Plain "Closed" (red) when it doesn't reopen again today. */}
+          {(typeof venue.reopenMinutes === 'number' && venue.reopenMinutes >= 0) ? (
+            <>
+              <span className="text-red-600">{tr('card.closedNow', lang)}</span>
+              <span className="text-black"> · </span>
+              <span className="text-blue-600">
+                {venue.reopenMinutes <= 99
+                  ? tn('card.openInMin', lang, { n: venue.reopenMinutes })
+                  : (venue.reopenEnd
+                      ? tn('card.opensRange', lang, { start: venue.reopenStart, end: venue.reopenEnd })
+                      : tn('card.opensAt', lang, { start: venue.reopenStart }))}
+              </span>
+            </>
+          ) : (
+            <span className="text-red-600">{tr('card.closed', lang)}</span>
+          )}
         </div>
       ) : (typeof venue.closingSoonMinutes === 'number' && venue.closingSoonMinutes >= 0) ? (
         <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -mx-2.5 mb-1 px-2.5 py-0.5 rounded-t-lg bg-white text-pink-600 text-[12px] font-semibold leading-tight truncate`}>
