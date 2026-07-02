@@ -49,11 +49,22 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
   // bare "Open now" string — the operator wants to see the closing
   // time AND the next reopen at a glance, especially for lunch/
   // dinner-split restaurants.
-  const open = venue.openNow === true
+  let open = venue.openNow === true
     ? (venue.openClosingLabel || tr('card.open', lang))
     : venue.openNow === false
       ? (venue.closedTodayLabel || tr('card.closed', lang))
       : '';
+  // v0.62.472 — the top status strip already states "Closed", so drop the
+  // redundant leading "Closed now · " prefix from the clock-row label, keeping
+  // just the reopen info ("Opens today 11:30 AM"). Locale-safe: split on the
+  // " · " separator (server-built as `<prefix> · <reopen>`) rather than matching
+  // the English words. Guarded to the exact case the strip shows the prefix
+  // (closed AND reopens today); the bot/copy surfaces keep the full label.
+  if (venue.openNow === false
+      && typeof venue.reopenMinutes === 'number' && venue.reopenMinutes >= 0
+      && open.includes(' · ')) {
+    open = open.slice(open.indexOf(' · ') + 3);
+  }
   // v0.57.31: crowd chip from LTA-carpark availability around the venue.
   // Honest caveat — weak in CBD where lunch crowds are walk-in.
   // v0.58.55: localised crowd chip text.
@@ -262,25 +273,15 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           for colour-blind safety (see the matchTier strip below). Standard
           card meta font size (12px, matches the rest of the card's text). */}
       {venue.openNow === false ? (
-        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -mx-2.5 mb-1 px-2.5 py-0.5 rounded-t-lg bg-white text-[12px] font-semibold leading-tight truncate`}>
-          {/* v0.62.467 — closed now but reopens TODAY: "Closed Now" (red) · (black)
-              then "Open in N min" (blue, ≤99 min) or "Opens hh:mm ~ hh:mm" (blue).
-              Plain "Closed" (red) when it doesn't reopen again today. */}
-          {(typeof venue.reopenMinutes === 'number' && venue.reopenMinutes >= 0) ? (
-            <>
-              <span className="text-red-600">{tr('card.closedNow', lang)}</span>
-              <span className="text-black"> · </span>
-              <span className="text-blue-600">
-                {venue.reopenMinutes <= 99
-                  ? tn('card.openInMin', lang, { n: venue.reopenMinutes })
-                  : (venue.reopenEnd
-                      ? tn('card.opensRange', lang, { start: venue.reopenStart, end: venue.reopenEnd })
-                      : tn('card.opensAt', lang, { start: venue.reopenStart }))}
-              </span>
-            </>
-          ) : (
-            <span className="text-red-600">{tr('card.closed', lang)}</span>
-          )}
+        /* v0.62.472 — operator: the strip now states ONLY "Closed" (the reopen
+           timing moved to the 🕙 clock row). Shrunk to a small corner tab that
+           hugs the word — font-size (10px) and curve (rounded lg) match the
+           "… & Nearby Flavours" banner below. self-start + auto width hugs the
+           text; -mt/-ml bleed to the card's top-left corner; rounded-br-lg
+           rounds the one exposed corner. Red word carries the meaning (CVD-safe:
+           the WORD, not colour alone). */
+        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -ml-2.5 self-start mb-1 pl-2.5 pr-2 py-0.5 rounded-br-lg bg-white text-red-600 text-[10px] font-semibold leading-tight`}>
+          {tr('card.closed', lang)}
         </div>
       ) : (typeof venue.closingSoonMinutes === 'number' && venue.closingSoonMinutes >= 0) ? (
         <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -mx-2.5 mb-1 px-2.5 py-0.5 rounded-t-lg bg-white text-pink-600 text-[12px] font-semibold leading-tight truncate`}>
