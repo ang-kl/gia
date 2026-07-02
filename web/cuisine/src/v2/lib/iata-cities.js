@@ -500,6 +500,20 @@ export const IATA_CITIES = Object.freeze([
 
   // Tuvalu
   { iata: 'FUN', name: 'Funafuti',      country: 'Tuvalu', countryCode: 'TV', lat:  -8.5243, lng: 179.1942 },
+  // France — top 12 cities (real IATA metro/airport codes; v0.62.470 Michelin scaffold)
+  { iata: 'PAR', name: 'Paris',       country: 'France', countryCode: 'FR', lat: 48.8566, lng:  2.3522 },
+  { iata: 'LYS', name: 'Lyon',        country: 'France', countryCode: 'FR', lat: 45.7640, lng:  4.8357 },
+  { iata: 'MRS', name: 'Marseille',   country: 'France', countryCode: 'FR', lat: 43.2965, lng:  5.3698 },
+  { iata: 'NCE', name: 'Nice',        country: 'France', countryCode: 'FR', lat: 43.7102, lng:  7.2620 },
+  { iata: 'BOD', name: 'Bordeaux',    country: 'France', countryCode: 'FR', lat: 44.8378, lng: -0.5792 },
+  { iata: 'TLS', name: 'Toulouse',    country: 'France', countryCode: 'FR', lat: 43.6047, lng:  1.4442 },
+  { iata: 'SXB', name: 'Strasbourg',  country: 'France', countryCode: 'FR', lat: 48.5734, lng:  7.7521 },
+  { iata: 'NTE', name: 'Nantes',      country: 'France', countryCode: 'FR', lat: 47.2184, lng: -1.5536 },
+  { iata: 'MPL', name: 'Montpellier', country: 'France', countryCode: 'FR', lat: 43.6108, lng:  3.8767 },
+  { iata: 'LIL', name: 'Lille',       country: 'France', countryCode: 'FR', lat: 50.6292, lng:  3.0573 },
+  { iata: 'RNS', name: 'Rennes',      country: 'France', countryCode: 'FR', lat: 48.1173, lng: -1.6778 },
+  { iata: 'RHE', name: 'Reims',       country: 'France', countryCode: 'FR', lat: 49.2583, lng:  4.0317 },
+
 ]);
 
 /**
