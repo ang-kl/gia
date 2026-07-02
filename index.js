@@ -17902,7 +17902,7 @@ async function cacheBotUsername() {
         }
         // v0.57.20: closed-today label (mirrors /api/cuisine/search).
         // v0.61.246: open-now label too (mirrors /api/cuisine/search).
-        const { closedTodayString: closedTodayStringNL, currentOpenString: currentOpenStringNL, minutesUntilClose: minutesUntilCloseNL } = require('./open-hours');
+        const { closedTodayString: closedTodayStringNL, currentOpenString: currentOpenStringNL, minutesUntilClose: minutesUntilCloseNL, reopenTodayInfo: reopenTodayInfoNL } = require('./open-hours');
         // v0.60.35 — match /api/cuisine/search reverted cap of 12.
         // v0.61.436 — per-chat guarded rating floor (code review: the
         // Tell-me NL path ignored the rating pill).
@@ -17920,6 +17920,8 @@ async function cacheBotUsername() {
           const offsetNL = Number.isFinite(v.utcOffsetMinutes) ? v.utcOffsetMinutes : undefined;
           if (v.openNow === false) {
             v.closedTodayLabel = closedTodayStringNL(periodsNL, new Date(), offsetNL, nlLang);
+            const riNL = reopenTodayInfoNL(periodsNL, new Date(), offsetNL, nlLang);
+            if (riNL) { v.reopenMinutes = riNL.minutesUntilOpen; v.reopenStart = riNL.openStart; v.reopenEnd = riNL.openEnd; }
           } else if (v.openNow === true) {
             v.openClosingLabel = currentOpenStringNL(periodsNL, new Date(), offsetNL, nlLang);
             // v0.62.466 — mirrors cuisine-enrich.js's closingSoonMinutes.

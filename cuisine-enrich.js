@@ -95,7 +95,7 @@ async function enrichFast(top, ctx) {
   // v0.57.20 / v0.61.246 — open-hours labels; v0.60.140 — restaurantType.
   // (The review-dependent finalise — recentReview fallback, "ago", deletes —
   // runs at the END of enrichSlow; see the module header.)
-  const { closedTodayString, currentOpenString, minutesUntilClose } = require('./open-hours');
+  const { closedTodayString, currentOpenString, minutesUntilClose, reopenTodayInfo } = require('./open-hours');
   // v0.62.305 — localise the open-hours label to the user's locale (id/fr/en).
   const ohLang = ctx.csLang || 'en';
   for (const v of top) {
@@ -106,6 +106,9 @@ async function enrichFast(top, ctx) {
     const offset = Number.isFinite(v.utcOffsetMinutes) ? v.utcOffsetMinutes : undefined;
     if (v.openNow === false) {
       v.closedTodayLabel = closedTodayString(periods, new Date(), offset, ohLang);
+      // v0.62.467 — closed-now-but-reopens-today: minutes-until-open + open~close range.
+      const ri = reopenTodayInfo(periods, new Date(), offset, ohLang);
+      if (ri) { v.reopenMinutes = ri.minutesUntilOpen; v.reopenStart = ri.openStart; v.reopenEnd = ri.openEnd; }
     } else if (v.openNow === true) {
       v.openClosingLabel = currentOpenString(periods, new Date(), offset, ohLang);
       // v0.62.466 — operator: flag "Closing in ## minutes" on the result card

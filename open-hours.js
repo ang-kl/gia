@@ -171,6 +171,34 @@ function nextOpenInfo(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN, lan
   return { delta: best.delta, time, day: best.day, text };
 }
 
+// v0.62.467 — operator: for a venue CLOSED NOW but reopening later TODAY, the
+// result strip shows "Closed Now · Open in N min" (≤99 min) or
+// "Closed Now · Opens hh:mm ~ hh:mm" (later today). Returns the minutes until
+// the next same-day open + that open period's start~end times. null when the
+// venue does not reopen again today (→ caller falls back to plain "Closed").
+function reopenTodayInfo(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN, lang = 'en') {
+  if (!Array.isArray(periods) || !periods.length) return null;
+  const cur = localNow(now, offsetMin);
+  let best = null;
+  for (const pd of periods) {
+    const o = pd?.open;
+    const c = pd?.close;
+    if (!o || typeof o.day !== 'number') continue;
+    if (o.day !== cur.day) continue;                 // today only
+    const openMin = (o.hour ?? 0) * 60 + (o.minute ?? 0);
+    if (openMin <= cur.minutes) continue;            // future opens only
+    if (!best || openMin < best.openMin) {
+      best = { openMin, oHour: o.hour ?? 0, oMin: o.minute ?? 0, cHour: c?.hour, cMin: c?.minute, hasClose: !!c && typeof c.hour === 'number' };
+    }
+  }
+  if (!best) return null;
+  return {
+    minutesUntilOpen: best.openMin - cur.minutes,
+    openStart: fmtTime(best.oHour, best.oMin, lang),
+    openEnd: best.hasClose ? fmtTime(best.cHour, best.cMin, lang) : null,
+  };
+}
+
 function nextOpenString(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN, lang = 'en') {
   const info = nextOpenInfo(periods, now, offsetMin, lang);
   return info ? info.text : null;
@@ -324,6 +352,7 @@ module.exports = {
   closedTodayString,
   currentOpenString,
   minutesUntilClose,
+  reopenTodayInfo,
   localNow,
   sgtNow,
   fmtTime,
