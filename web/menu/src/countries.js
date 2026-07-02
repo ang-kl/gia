@@ -36,6 +36,8 @@ export const OTHER_COUNTRIES = Object.freeze([
   { code: 'HK', flag: '🇭🇰', name: 'Hong Kong' },
   { code: 'MO', flag: '🇲🇴', name: 'Macau' },
   { code: 'TW', flag: '🇹🇼', name: 'Taiwan' },
+  // Europe-1 — France (v0.62.470). Michelin 2025/26 star venues.
+  { code: 'FR', flag: '🇫🇷', name: 'France' },
   // v0.61.221 — Singapore at the bottom, Menu TMA only.
   { code: 'SG', flag: '🇸🇬', name: 'Singapore' }
 ]);

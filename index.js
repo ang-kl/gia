@@ -9645,7 +9645,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // would be WRONG (the curated data is the 2025 edition, not the live year);
   // the honest fix is to omit the year entirely, matching every other
   // country ("Michelin Japan", "Michelin South Korea", …).
-  const MICH_CC_NAME = { MY: 'Malaysia', TH: 'Thailand', JP: 'Japan', KR: 'South Korea', CN: 'China', HK: 'Hong Kong', TW: 'Taiwan', VN: 'Vietnam', MO: 'Macau', PH: 'Philippines' };
+  const MICH_CC_NAME = { MY: 'Malaysia', TH: 'Thailand', JP: 'Japan', KR: 'South Korea', CN: 'China', HK: 'Hong Kong', TW: 'Taiwan', VN: 'Vietnam', MO: 'Macau', PH: 'Philippines', FR: 'France' };
   const michelinEditionLabel = isSGMich ? 'Michelin Singapore' : `Michelin ${MICH_CC_NAME[michCC] || michCC}`;
   if (!isSGMich) {
     const mdChk = require('./michelin-data');
