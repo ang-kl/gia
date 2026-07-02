@@ -141,6 +141,48 @@
       "manualPath": "docs/UserManual/en/03-sections-15-to-18.md#183-check-opening-hours",
       "surface": "search",
       "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.hawker.overview",
+      "title": "Singapore Hawker Centres & Food Centres",
+      "manualPath": "docs/UserManual/en/04-sections-19-to-24.md#19-singapore-hawker-centres--food-centres",
+      "surface": "hawker",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.transport.overview",
+      "title": "Singapore Train Network / Transport",
+      "manualPath": "docs/UserManual/en/04-sections-19-to-24.md#20-singapore-train-network--transport",
+      "surface": "transport",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.transport.station-exits",
+      "title": "Singapore Train Station Exits",
+      "manualPath": "docs/UserManual/en/04-sections-19-to-24.md#21-singapore-train-station-exits",
+      "surface": "transport",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.transport.bus-information",
+      "title": "Singapore Bus Information",
+      "manualPath": "docs/UserManual/en/04-sections-19-to-24.md#22-singapore-bus-information",
+      "surface": "transport",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.carpark.overview",
+      "title": "Singapore Car Parks",
+      "manualPath": "docs/UserManual/en/04-sections-19-to-24.md#23-singapore-car-parks",
+      "surface": "carpark",
+      "contentType": "task-help"
+    },
+    {
+      "helpId": "help.soleat.weather.overview",
+      "title": "Weather",
+      "manualPath": "docs/UserManual/en/04-sections-19-to-24.md#24-weather",
+      "surface": "weather",
+      "contentType": "task-help"
     }
   ]
 }
