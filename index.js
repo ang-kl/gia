@@ -12921,8 +12921,17 @@ async function cacheBotUsername() {
         const { foodGroupFor, GROUP_LABEL } = require('./dish-food-group');
         const dishes = (ov && Array.isArray(ov.iconicDishes) ? ov.iconicDishes : [])
           .map((d) => {
-            const group = foodGroupFor(d.name, d.kind);
-            return { name: d.name, local: d.local || '', kind: d.kind || 'food', note: d.note || null, group, groupLabel: GROUP_LABEL[group] || GROUP_LABEL.other };
+            // v0.62.469 — prefer the grounded Gemini `type` (covers every cuisine)
+            // over the SG/Malay-only regex fallback; also surface the new
+            // mealTime / dietary / course taxonomy when present.
+            const group = d.type || foodGroupFor(d.name, d.kind);
+            return {
+              name: d.name, local: d.local || '', kind: d.kind || 'food', note: d.note || null,
+              group, groupLabel: GROUP_LABEL[group] || GROUP_LABEL.other,
+              mealTime: Array.isArray(d.mealTime) ? d.mealTime : null,
+              dietary: d.dietary || null,
+              course: d.course || null,
+            };
           })
           .filter((d) => d.name);
         res.json({ dishes });
