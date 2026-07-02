@@ -1,8 +1,8 @@
 counters:
-  commit: 939
-  build: 578
+  commit: 940
+  build: 579
   documents:
-    journal: 821
+    journal: 822
     builder: 3
     persona: 4
     feature: 58
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 02-07 '26 09:30 SGT
-last_anchor_source: cuisine_reopen_today_strip_2026-07-02_0930 (v0.62.467 — operator: closed-now-but-reopens-TODAY strip. <=99 min: 'Closed Now'[red] + black middle-dot + 'Open in N min'[blue]. later today: 'Closed Now'[red] + dot + 'Opens hh:mm ~ hh:mm'[blue, the open period start~close]. NEW open-hours.js reopenTodayInfo(periods,now,offset,lang)->{minutesUntilOpen, openStart, openEnd} [today-only, future opens]. cuisine-enrich.js + index.js NL mirror set v.reopenMinutes/reopenStart/reopenEnd on openNow===false venues. ResultCard closed branch: if reopenMinutes present -> two/three coloured spans [text-red-600 closedNow, text-black ' · ', text-blue-600 openInMin<=99 else opensRange else opensAt-fallback-when-no-close]; else plain red 'Closed'. i18n card.closedNow/openInMin/opensRange/opensAt [base en/fr + id/zh/ja/es, ru/de EN-fallback]. Standard 12px font retained. node --check oh/ce/index/i18n; esbuild ResultCard; CI cuisine build+vitest. journal 820->821, commit 938->939, build 577->578. NOTE taxonomy batch 2 hit Gemini 429 daily-quota [0 classified] — paused pending quota reset. PRIOR ANCHOR cuisine_closed_strip_sort_2026-07-01_1850)
+last_anchor_time: 02-07 '26 13:30 SGT
+last_anchor_source: taxonomy_cascade_on_429_2026-07-02_1330 (v0.62.468 — dish-taxonomy batches 2+ classified 0: EVERY batch 429'd on gemini-flash-latest from the first call [not a per-minute burst, not a daily reset — verified 2 runs a day apart both 429 batch1-10]. ROOT CAUSE was the retry logic in scripts/draft-dish-taxonomy.mjs: on a persistent 429 [after RETRY_WAITS exhausted] it did `cascade=false; break` — only 404/503 cascaded to the next MODEL_CHAIN entry, so gemini-flash-latest being over-quota NEVER fell through to gemini-2.5-flash / gemini-2.5-flash-lite which have SEPARATE free-tier quota buckets. FIX: 429 now also cascades [if status 404||429||503 break->try next model]. node --check OK. Re-dispatched after ship. journal 821->822, commit 939->940, build 578->579. Batch 1's 99 dishes remain live [not affected]. PRIOR ANCHOR cuisine_reopen_today_strip_2026-07-02_0930)
 last_anchor_source_prior: cuisine_dishes_tethered_tab_2026-07-01_1255
 # codex-review PR#1438: `last_anchor_iso8601` below is duplicated many times over past
 # sessions (append-only history, never pruned) -- a last-key-wins YAML reader would pick

@@ -143,7 +143,13 @@ async function draftBatch(apiKey, batch) {
             console.warn(`[taxonomy]   ${model} ${res.status}; back-off ${RETRY_WAITS_MS[attempt] / 1000}s`);
             await sleep(RETRY_WAITS_MS[attempt]); continue;
           }
-          if (res.status === 404 || res.status === 503) break; // try next model
+          // v0.62.468 — a PERSISTENT 429 on this model must cascade to the next
+          // model in the chain: gemini-flash-latest / gemini-2.5-flash /
+          // gemini-2.5-flash-lite are DIFFERENT models with SEPARATE free-tier
+          // quota buckets, so a quota-exhausted primary shouldn't block the run
+          // (batches 1-10 all 429'd on gemini-flash-latest with the fallbacks
+          // never tried). 404/429/503 → try next model; only a hard 4xx bails.
+          if (res.status === 404 || res.status === 429 || res.status === 503) break; // try next model
           cascade = false; break;
         }
         const json = await res.json();
