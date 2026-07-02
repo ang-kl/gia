@@ -31,7 +31,10 @@ export const OTHER_COUNTRIES = Object.freeze([
   { code: 'CN', flag: '🇨🇳', name: 'China' },
   { code: 'HK', flag: '🇭🇰', name: 'Hong Kong' },
   { code: 'MO', flag: '🇲🇴', name: 'Macau' },
-  { code: 'TW', flag: '🇹🇼', name: 'Taiwan' }
+  { code: 'TW', flag: '🇹🇼', name: 'Taiwan' },
+  // Europe-1 — France (v0.62.470). Michelin 2025/26 star venues; Paris + Lyon
+  // sourced first, remaining cities and Bib Gourmand land in follow-up PRs.
+  { code: 'FR', flag: '🇫🇷', name: 'France' }
 ]);
 
 // Default when no preference is saved (operator's primary use case

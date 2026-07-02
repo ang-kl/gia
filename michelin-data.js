@@ -54,6 +54,7 @@
 // All empty today EXCEPT MY (70 venues); the curator adds the rest by hand.
 const COUNTRY_TABLES = [
   require('./MY-michelin'),
+  require('./FR-michelin'),
   require('./TH-michelin'),
   require('./VN-michelin'),
   require('./JP-michelin'),
@@ -116,6 +117,10 @@ const CITY_IATA = Object.freeze({
   'tsim sha tsui': 'HKG', 'central': 'HKG', 'causeway bay': 'HKG', 'mong kok': 'HKG',
   'wan chai': 'HKG', 'sha tin': 'HKG', 'aberdeen': 'HKG', 'tung chung': 'HKG',
   'tuen mun': 'HKG', 'yuen long': 'HKG', 'tai po': 'HKG', 'tseung kwan o': 'HKG',
+  // France
+  'paris': 'PAR', 'lyon': 'LYS', 'marseille': 'MRS', 'nice': 'NCE',
+  'bordeaux': 'BOD', 'toulouse': 'TLS', 'strasbourg': 'SXB', 'nantes': 'NTE',
+  'montpellier': 'MPL', 'lille': 'LIL', 'rennes': 'RNS', 'reims': 'RHE',
   // Taiwan
   'taipei': 'TPE', 'kaohsiung': 'KHH', 'taichung': 'TXG', 'tainan': 'TNN',
   'hsinchu': 'HSZ', 'hsinchu city': 'HSZ', 'hsinchu county': 'HSZ', 'new taipei': 'TPE', 'keelung': 'TPE', 'jiufen': 'TPE', 'sun moon lake': 'TXG',

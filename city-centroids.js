@@ -165,6 +165,18 @@ const _RAW_CENTROIDS = Object.freeze({
   "Hsinchu": {"country":"TW","lat":24.801588,"lng":120.971588,"zoom":14,"label":"Hsinchu Railway Station","labelLocal":"新竹車站","radiusM":40000,"source":"geocode:places-api","fallback":"TW"},
   "Keelung": {"country":"TW","lat":25.13306,"lng":121.739254,"zoom":14,"label":"Keelung Railway Station","labelLocal":"基隆車站","radiusM":40000,"source":"geocode:places-api","fallback":"TW"},
   "Macau": {"country":"MO","lat":22.197097,"lng":113.55905,"zoom":14,"label":"Outer Harbour Ferry Terminal Macau","labelLocal":"外港客運碼頭","radiusM":40000,"source":"geocode:places-api","fallback":"MO"},
+  "Paris": {"country":"FR","lat":48.8566,"lng":2.3522,"zoom":14,"label":"Paris centre","labelLocal":null,"radiusM":40000,"source":"manual:city-centre","fallback":"FR"},
+  "Lyon": {"country":"FR","lat":45.7640,"lng":4.8357,"zoom":14,"label":"Lyon centre","labelLocal":null,"radiusM":40000,"source":"manual:city-centre","fallback":"FR"},
+  "Marseille": {"country":"FR","lat":43.2965,"lng":5.3698,"zoom":14,"label":"Marseille centre","labelLocal":null,"radiusM":40000,"source":"manual:city-centre","fallback":"FR"},
+  "Nice": {"country":"FR","lat":43.7102,"lng":7.2620,"zoom":14,"label":"Nice centre","labelLocal":null,"radiusM":40000,"source":"manual:city-centre","fallback":"FR"},
+  "Bordeaux": {"country":"FR","lat":44.8378,"lng":-0.5792,"zoom":14,"label":"Bordeaux centre","labelLocal":null,"radiusM":40000,"source":"manual:city-centre","fallback":"FR"},
+  "Toulouse": {"country":"FR","lat":43.6047,"lng":1.4442,"zoom":14,"label":"Toulouse centre","labelLocal":null,"radiusM":40000,"source":"manual:city-centre","fallback":"FR"},
+  "Strasbourg": {"country":"FR","lat":48.5734,"lng":7.7521,"zoom":14,"label":"Strasbourg centre","labelLocal":null,"radiusM":40000,"source":"manual:city-centre","fallback":"FR"},
+  "Nantes": {"country":"FR","lat":47.2184,"lng":-1.5536,"zoom":14,"label":"Nantes centre","labelLocal":null,"radiusM":40000,"source":"manual:city-centre","fallback":"FR"},
+  "Montpellier": {"country":"FR","lat":43.6108,"lng":3.8767,"zoom":14,"label":"Montpellier centre","labelLocal":null,"radiusM":40000,"source":"manual:city-centre","fallback":"FR"},
+  "Lille": {"country":"FR","lat":50.6292,"lng":3.0573,"zoom":14,"label":"Lille centre","labelLocal":null,"radiusM":40000,"source":"manual:city-centre","fallback":"FR"},
+  "Rennes": {"country":"FR","lat":48.1173,"lng":-1.6778,"zoom":14,"label":"Rennes centre","labelLocal":null,"radiusM":40000,"source":"manual:city-centre","fallback":"FR"},
+  "Reims": {"country":"FR","lat":49.2583,"lng":4.0317,"zoom":14,"label":"Reims centre","labelLocal":null,"radiusM":40000,"source":"manual:city-centre","fallback":"FR"},
 });
 
 // v0.61.441 — density-tuned per-city search-radius ceiling (replaces the

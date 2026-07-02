@@ -3,8 +3,8 @@ import psv from '../place-search-variance.js';
 const { CITY_CENTROIDS } = require('../city-centroids.js');
 
 describe('city-centroids table', () => {
-  it('holds the full geocoded centroid set (140 cities)', () => {
-    expect(Object.keys(CITY_CENTROIDS).length).toBe(140);
+  it('holds the full geocoded centroid set (152 cities)', () => {
+    expect(Object.keys(CITY_CENTROIDS).length).toBe(152);
   });
   it('every centroid has finite lat/lng + the rich schema', () => {
     for (const [city, c] of Object.entries(CITY_CENTROIDS)) {
@@ -15,7 +15,7 @@ describe('city-centroids table', () => {
       expect(Number.isFinite(c.radiusM)).toBe(true);
       // v0.62.x — allow hand-curated grounded centroids ('manual') alongside the
       // geocoded set (e.g. Sunshine Coast added from known Maroochydore coords).
-      expect(['geocode:places-api', 'manual']).toContain(c.source);
+      expect(['geocode:places-api', 'manual', 'manual:city-centre']).toContain(c.source);
     }
   });
   it('includes LA/KH/MM in the table (centroid layer, not the picker)', () => {

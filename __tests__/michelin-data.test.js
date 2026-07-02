@@ -714,11 +714,16 @@ describe('michelin-data — hasMichelinData gate', () => {
     expect(data.hasMichelinData('SG')).toBe(false);
   });
 
+  it('is true for France (curated scaffold: Paris + Lyon stars, v0.62.470)', () => {
+    expect(data.hasMichelinData('FR')).toBe(true);
+    expect(data.hasMichelinData('fr')).toBe(true);
+    expect(data.hasMichelinData('Paris')).toBe(true);
+    expect(data.hasMichelinData('Lyon')).toBe(true);
+  });
+
   it('is false for countries with no Michelin table (not curated)', () => {
     expect(data.hasMichelinData('India')).toBe(false);
     expect(data.hasMichelinData('IN')).toBe(false);
-    expect(data.hasMichelinData('France')).toBe(false);
-    expect(data.hasMichelinData('FR')).toBe(false);
   });
 
   it('is false for empty / nullish input', () => {

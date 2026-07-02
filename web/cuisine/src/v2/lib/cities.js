@@ -218,6 +218,21 @@ export const CITIES_BY_COUNTRY = Object.freeze({
     { name: 'Keelung',          code: 'TPE', lat: 25.1276, lng: 121.7392 },
     { name: 'Jiufen',           code: 'TPE', lat: 25.1097, lng: 121.8439 },
     { name: 'Sun Moon Lake',    code: 'TXG', lat: 23.8569, lng: 120.9152 }
+  ],
+  // France — top 12 cities (v0.62.470). IATA metro codes.
+  FR: [
+    { name: 'Paris',            code: 'PAR', lat: 48.8566, lng: 2.3522 },
+    { name: 'Lyon',             code: 'LYS', lat: 45.7640, lng: 4.8357 },
+    { name: 'Marseille',        code: 'MRS', lat: 43.2965, lng: 5.3698 },
+    { name: 'Nice',             code: 'NCE', lat: 43.7102, lng: 7.2620 },
+    { name: 'Bordeaux',         code: 'BOD', lat: 44.8378, lng: -0.5792 },
+    { name: 'Toulouse',         code: 'TLS', lat: 43.6047, lng: 1.4442 },
+    { name: 'Strasbourg',       code: 'SXB', lat: 48.5734, lng: 7.7521 },
+    { name: 'Nantes',           code: 'NTE', lat: 47.2184, lng: -1.5536 },
+    { name: 'Montpellier',      code: 'MPL', lat: 43.6108, lng: 3.8767 },
+    { name: 'Lille',            code: 'LIL', lat: 50.6292, lng: 3.0573 },
+    { name: 'Rennes',           code: 'RNS', lat: 48.1173, lng: -1.6778 },
+    { name: 'Reims',            code: 'RHE', lat: 49.2583, lng: 4.0317 }
   ]
 });
 

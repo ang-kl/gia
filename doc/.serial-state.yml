@@ -1,8 +1,8 @@
 counters:
-  commit: 941
-  build: 580
+  commit: 942
+  build: 581
   documents:
-    journal: 823
+    journal: 824
     builder: 3
     persona: 4
     feature: 58
@@ -12,9 +12,9 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 02-07 '26 15:10 SGT
-last_anchor_source: cuisine_dishes_taxonomy_badges_2026-07-02_1510 (v0.62.469 — wire the grounded taxonomy [batch 1, 99 dishes live] into the Dishes UI while the rest stays quota-blocked. /api/cuisine/dishes: group now prefers d.type [Gemini, covers all cuisines] over the SG/Malay-only foodGroupFor regex fallback; also passes through mealTime[]/dietary/course. CuisineCategoryDrawer detail pop-up: new badge row — mealTime [icon+label, MEALTIME_ICON 🌅☀️🌙🍡🕒], dietary [🥬🍖🦐🍽️], course [🍽 text]; all hidden when a dish is unclassified [only ~99 have data]. Enum text stays ENGLISH for now — localising the ~15 controlled-vocab labels is the planned enum-label translation step [deferred]. node --check index; esbuild ResultCard-sibling CuisineCategoryDrawer; CI cuisine build+vitest. journal 822->823, commit 940->941, build 579->580. TAXONOMY still quota-blocked: new key didn't help [429 persists — Gemini free-tier quota is per PROJECT not per key; needs a different-project key or paid billing]. PRIOR ANCHOR taxonomy_cascade_on_429_2026-07-02_1330)
-last_anchor_source_prior: cuisine_dishes_tethered_tab_2026-07-01_1255
+last_anchor_time: 02-07 '26 19:45 SGT
+last_anchor_source: fr_michelin_scaffold_2026-07-02_1945 (v0.62.470 — new country France: registered FR in both countries.js [cuisine+menu] and cities.js [12 top cities: Paris/Lyon/Marseille/Nice/Bordeaux/Toulouse/Strasbourg/Nantes/Montpellier/Lille/Rennes/Reims, real IATA metro codes], 12 FR city-centroids [manual:city-centre, 40km cap, fallback FR], michelin-data.js CITY_IATA+COUNTRY_TABLES wired to new FR-michelin.js, index.js MICH_CC_NAME +FR. FR-michelin.js: 29 VERIFIED Michelin 2025/26 star venues [Paris 3-star x9 both years + L'Ambroisie 3->2 demotion; Paris 2-star x16 (2026); Lyon 2-star x3 both years]. Stars-only v1: Paris 1-star + Bib Gourmand DEFERRED to a browser-sourced follow-up PR [guide.michelin.com 403s WebFetch]. No COUNTRY_MANIFEST for FR yet [un-asserted subset, avoids load-throw]. Nothing invented. node --check all 8 changed .js; michelin-data load-test 1954 venues/29 FR/no throw. journal 823->824, commit 941->942, build 580->581. PRIOR ANCHOR cuisine_dishes_taxonomy_badges_2026-07-02_1510)
+last_anchor_source_prior: cuisine_dishes_taxonomy_badges_2026-07-02_1510
 # codex-review PR#1438: `last_anchor_iso8601` below is duplicated many times over past
 # sessions (append-only history, never pruned) -- a last-key-wins YAML reader would pick
 # up a stale June value instead of the current anchor. Not deleting the historical log
@@ -22,7 +22,7 @@ last_anchor_source_prior: cuisine_dishes_tethered_tab_2026-07-01_1255
 # disambiguating going forward: `last_anchor_iso8601_current` is the single authoritative
 # field alongside `last_anchor_time`/`last_anchor_source` above. The plain
 # `last_anchor_iso8601:` lines below this point are historical log only, not current.
-last_anchor_iso8601_current: 2026-07-01T14:11:00+08:00
+last_anchor_iso8601_current: 2026-07-02T19:45:00+08:00
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
