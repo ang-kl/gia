@@ -9908,7 +9908,15 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   const unseen = walkState.seen.size
     ? ordered.filter((e) => !walkState.seen.has(michelinWalk.entryKey(e)))
     : ordered;
-  const sliceCap = Math.min(unseen.length, 12);
+  // v0.62.482 — operator: Michelin SG (130 curated entries) froze at 24. The
+  // per-tap slice was 12; page 3's server-side enrichment (crowd/sanctuary/
+  // footfall/dishes) + Gemini Extract-Dishes 429-retry latency tipped the route
+  // past its 20s deadline (D706), which returns an empty degraded payload and
+  // the walk (correctly) declines to advance — so the list read as capped at 24.
+  // Trim the slice 12 → 10 to buy enrichment headroom under the 20s ceiling so
+  // taps keep paging through all 130. (Deeper fix, if this still stalls: skip
+  // enrichment entirely for the pure-Michelin curated walk.)
+  const sliceCap = Math.min(unseen.length, 10);
   const slice = unseen.slice(0, sliceCap);
 
   // Look each up via Places searchText. Best-effort — keep the
