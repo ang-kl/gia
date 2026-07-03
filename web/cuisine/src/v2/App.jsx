@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation, fetchCountryPref, saveCountryPref, fetchRatingPref, saveRatingPref, startSession, backOnePage, recycleSession, iataSnap } from './lib/api.js';
 import { IATA_CITIES, nearestIataCity } from './lib/iata-cities.js';
 import { OTHER_COUNTRIES } from './lib/countries.js';
@@ -489,6 +489,17 @@ export default function App() {
   // through the single header FOLIO drawer (`cuisinePickOpen`) below, which
   // already carries the filters, the cuisine grid, and its own 🔍 Search button.
   const [cuisinePickOpen, setCuisinePickOpen] = useState(false);
+  // v0.62.479 — cuisine-picker drill depth (1 = sub-cuisine drawer, 2 = dish
+  // list, 3 = dish detail), bubbled up from CuisineCategoryDrawer so the 🔙
+  // back FAB can render in THIS component's bottom FAB cluster (correct stacking
+  // context + placement one row above the 🔍 Search FAB). drillBackRef holds the
+  // topmost layer's back handler; the FAB calls whatever is current.
+  const [drillDepth, setDrillDepth] = useState(0);
+  const drillBackRef = useRef(null);
+  const onDrillChange = useCallback((depth, back) => {
+    setDrillDepth(depth);
+    drillBackRef.current = back;
+  }, []);
   // v0.62.204 — operator: the cuisine / local-classic picker overlays must drop
   // down JUST BELOW the header tabs (in front of the map) — NOT at the footer.
   // Measure the (sticky) header's bottom edge so the overlays anchor there.
@@ -4169,6 +4180,7 @@ export default function App() {
                 setTimeout(() => setSearchHintActive(false), 5000);
               }
             }}
+            onDrillChange={onDrillChange}
             onPickDish={(dish) => {
               // v0.62.453 — "Dishes" pop-up dish tap: same as a classic-picker
               // dish tap, but closes the cuisine picker instead of the classic one.
@@ -5002,6 +5014,30 @@ export default function App() {
         {/* v0.62.280 — operator: the opaque band now wraps ONLY the control row +
             footer tag. The free-text composer floats OUT of it (over the map) as a
             glass 💬 FAB that expands to a full-width pill on tap; 🔍 stays right. */}
+        {/* v0.62.479 — 🔙 back FAB: renders as the TOP row of this bottom FAB
+            flex-col (so it sits one row ABOVE the 🔍 Search FAB by construction —
+            same stacking context, no fixed-offset math). Shown only while the
+            user has drilled into the cuisine picker (layer >= 1: sub-cuisine
+            drawer / dish pop-ups). Per operator: English is emoji-only (the 🔙
+            glyph already reads "BACK"); every other locale appends the localised
+            word in a small hint font. aria-label always carries the localised word. */}
+        {drillDepth >= 1 && (() => {
+          const BACK_WORD = { fr: 'Retour', id: 'Kembali', ru: 'Назад', de: 'Zurück', zh: '返回', ja: '戻る', es: 'Atrás' };
+          const word = BACK_WORD[lang] || 'Back';
+          return (
+            <div className="relative z-40 flex justify-end px-0.5">
+              <button
+                type="button"
+                onClick={() => drillBackRef.current?.()}
+                aria-label={word}
+                className={`pointer-events-auto h-10 rounded-full bg-tg-card/95 border-2 border-tg-hint/60 shadow-lg flex items-center active:scale-95 ${lang === 'en' ? 'w-10 justify-center' : 'px-3 gap-1'}`}
+              >
+                <span aria-hidden className="text-lg leading-none">🔙</span>
+                {lang !== 'en' && <span className="text-[10px] font-semibold leading-none">{word}</span>}
+              </button>
+            </div>
+          );
+        })()}
         {(() => {
           const poolExhausted = !!finalBatch && Number.isFinite(knownTotal) && venues && venues.length === knownTotal;
           const searchDisabled = loading || (poolExhausted && !dirty && !selectedCityLocation);

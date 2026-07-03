@@ -52,7 +52,7 @@ const CATEGORY_LABEL_KEY = {
 // derived from `selected` at the App.jsx request-build site. The
 // applyChipToggle helper enforces the mutex (special ↔ everything else
 // including Dessert).
-export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region, countryPref, michelinCuisines = null, onPickDish = null }) {
+export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region, countryPref, michelinCuisines = null, onPickDish = null, onDrillChange = null }) {
   const [openCategoryId, setOpenCategoryId] = useState(null);
   // v0.61.346 — current country for per-country chip gating (e.g. the
   // Michelin chip enables wherever its `michelinCountries` list covers).
@@ -205,6 +205,10 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
              when Michelin is in the selection. */
           michelinCuisines={michelinCuisines}
           onPickDish={onPickDish}
+          /* v0.62.479 — bubble drill depth + topmost back handler to App so the
+             🔙 back FAB can live in the App bottom FAB cluster (correct stacking
+             + placement above the Search FAB). */
+          onDrillChange={onDrillChange}
         />
       )}
     </div>
