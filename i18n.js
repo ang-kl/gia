@@ -182,6 +182,16 @@ const STRINGS = {
                                  fr: '📍 Touchez pour partager votre position, ou tapez un nom de lieu. Je chercherai ensuite.' },
   'bot.lang.set.en':           { en: '✅ Language set to English.', fr: '✅ Language set to English.' },
   'bot.lang.set.fr':           { en: '✅ Langue réglée sur français.', fr: '✅ Langue réglée sur français.' },
+  // v0.62.480 — acks for the extended /language set. Each shows in the
+  // chosen tongue (en+fr keys carry the same native string) so the user
+  // gets confirmation in the language they just picked. The line notes
+  // that the confirmation applies to the Mini-App surfaces.
+  'bot.lang.set.id':           { en: '✅ Bahasa disetel ke Indonesia (untuk Mini App).', fr: '✅ Bahasa disetel ke Indonesia (untuk Mini App).' },
+  'bot.lang.set.ru':           { en: '✅ Язык переключён на русский (для мини-приложений).', fr: '✅ Язык переключён на русский (для мини-приложений).' },
+  'bot.lang.set.de':           { en: '✅ Sprache auf Deutsch eingestellt (für die Mini-Apps).', fr: '✅ Sprache auf Deutsch eingestellt (für die Mini-Apps).' },
+  'bot.lang.set.zh':           { en: '✅ 语言已设置为中文（用于小程序）。', fr: '✅ 语言已设置为中文（用于小程序）。' },
+  'bot.lang.set.ja':           { en: '✅ 言語を日本語に設定しました（ミニアプリ用）。', fr: '✅ 言語を日本語に設定しました（ミニアプリ用）。' },
+  'bot.lang.set.es':           { en: '✅ Idioma configurado en español (para las Mini Apps).', fr: '✅ Idioma configurado en español (para las Mini Apps).' },
 
   // v0.59.1 — chat chrome localisation. Covers /weather, /transport (+ all
   // sub-views), /hawker, /carpark, /forgetme, /language, /start intro.
@@ -344,6 +354,14 @@ const STRINGS = {
   'language.fromTg':           { en: ' (from your Telegram)', fr: ' (depuis votre Telegram)' },
   'language.btn.en':           { en: '🇬🇧 English', fr: '🇬🇧 English' },
   'language.btn.fr':           { en: '🇫🇷 Français', fr: '🇫🇷 Français' },
+  // v0.62.480 — flag + endonym (native name) so a speaker recognises their
+  // own language whatever the prompt locale. Same string in both en/fr keys.
+  'language.btn.id':           { en: '🇮🇩 Indonesia', fr: '🇮🇩 Indonesia' },
+  'language.btn.ru':           { en: '🇷🇺 Русский', fr: '🇷🇺 Русский' },
+  'language.btn.de':           { en: '🇩🇪 Deutsch', fr: '🇩🇪 Deutsch' },
+  'language.btn.zh':           { en: '🇨🇳 中文', fr: '🇨🇳 中文' },
+  'language.btn.ja':           { en: '🇯🇵 日本語', fr: '🇯🇵 日本語' },
+  'language.btn.es':           { en: '🇪🇸 Español', fr: '🇪🇸 Español' },
 
   // /start intro body — v0.60.67: leading paragraph replaced per
   // Human Lead 2026-05-10. Drops the legacy "I'm Gia" framing in
@@ -363,8 +381,8 @@ const STRINGS = {
   // subset (e.g. "over 600+ curated venues"). Replaced by
   // count-display.substituteCounts at /start render time. Falls
   // back to 600+ when the Redis key is empty.
-  'start.intro':               { en: "Hungry for something beyond the usual? Soleat — “Solo eats” / “So let’s eat” — helps you explore Singapore’s {cuisines} cuisine melting pot — and other cities — with {cuisine-venues} curated venues, hawkers, Michelin Star picks, Bib Gourmand favourites under S$45, weather, and transport in one Telegram guide. Start with /c /cuisine or /m /menu\n\n/cuisine   — full Cuisine Picker (over {cuisines} cuisines, {cuisine-venues} curated venues, SG, Johor Bahru + other cities, 6 quick filters)\n/hawker    — >{hawker} hawker centres (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table\n/l /location — share or set your current location\n/weather   — now + 2-hour NEA forecast\n/transport — bus, MRT, walk, drive\n/carpark   — nearest 5 with available lots\n/language  — switch chat language (English / Français)\n/privacy   — data, retention & sources\n/legal     — disclaimer & jurisdiction notes\n/forgetme  — erase your stored data\n\nOr tap the menu button (🍴 Cuisine Picker) to jump straight in.",
-                                 fr: "Envie de sortir des plats habituels ? Soleat — « Solo eats » / « So let’s eat » — vous aide à explorer plus de {cuisines} cuisines à Singapour — et d’autres villes — avec {cuisine-venues} adresses sélectionnées, hawkers, adresses Michelin, Bib Gourmand à moins de 45 S$, météo et transport dans Telegram. Commencez avec /c /cuisine ou /m /menu\n\n/cuisine   — Sélecteur Cuisine complet (plus de {cuisines} cuisines, {cuisine-venues} adresses sélectionnées, SG, Johor Bahru + autres villes, 6 filtres rapides)\n/hawker    — plus de {hawker} centres hawkers (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Producteurs locaux\n/l /location — partager ou définir votre position actuelle\n/weather   — maintenant + prévisions 2 h NEA\n/transport — bus, MRT, marche, voiture\n/carpark   — 5 parkings proches avec places\n/language  — changer la langue (Français / English)\n/privacy   — données, conservation et sources\n/legal     — clauses et juridiction\n/forgetme  — effacer vos données enregistrées\n\nOu touchez le bouton menu (🍴 Sélecteur Cuisine) pour démarrer directement." },
+  'start.intro':               { en: "Hungry for something beyond the usual? Soleat — “Solo eats” / “So let’s eat” — helps you explore Singapore’s {cuisines} cuisine melting pot — and other cities — with {cuisine-venues} curated venues, hawkers, Michelin Star picks, Bib Gourmand favourites under S$45, weather, and transport in one Telegram guide. Start with /c /cuisine or /m /menu\n\n/cuisine   — full Cuisine Picker (over {cuisines} cuisines, {cuisine-venues} curated venues, SG, Johor Bahru + other cities, 6 quick filters)\n/hawker    — >{hawker} hawker centres (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table\n/l /location — share or set your current location\n/weather   — now + 2-hour NEA forecast\n/transport — bus, MRT, walk, drive\n/carpark   — nearest 5 with available lots\n/language  — app language · 8 options (chat stays EN/FR)\n/privacy   — data, retention & sources\n/legal     — disclaimer & jurisdiction notes\n/forgetme  — erase your stored data\n\nOr tap the menu button (🍴 Cuisine Picker) to jump straight in.",
+                                 fr: "Envie de sortir des plats habituels ? Soleat — « Solo eats » / « So let’s eat » — vous aide à explorer plus de {cuisines} cuisines à Singapour — et d’autres villes — avec {cuisine-venues} adresses sélectionnées, hawkers, adresses Michelin, Bib Gourmand à moins de 45 S$, météo et transport dans Telegram. Commencez avec /c /cuisine ou /m /menu\n\n/cuisine   — Sélecteur Cuisine complet (plus de {cuisines} cuisines, {cuisine-venues} adresses sélectionnées, SG, Johor Bahru + autres villes, 6 filtres rapides)\n/hawker    — plus de {hawker} centres hawkers (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Producteurs locaux\n/l /location — partager ou définir votre position actuelle\n/weather   — maintenant + prévisions 2 h NEA\n/transport — bus, MRT, marche, voiture\n/carpark   — 5 parkings proches avec places\n/language  — langue de l’app · 8 options (chat en FR/EN)\n/privacy   — données, conservation et sources\n/legal     — clauses et juridiction\n/forgetme  — effacer vos données enregistrées\n\nOu touchez le bouton menu (🍴 Sélecteur Cuisine) pour démarrer directement." },
 
   // location flow
   'location.shareTap':         { en: '📍 Tap to share your current location.', fr: '📍 Touchez pour partager votre position actuelle.' },

@@ -14,7 +14,12 @@
 // expires; a user who hasn't interacted in 12 months drops back to
 // Telegram-locale heuristic, which is the right behaviour.
 
-const SUPPORTED = ['en', 'fr', 'id', 'ru', 'de'];
+// v0.62.480 — operator: "/language only has 2 language, please include the
+// rest". Extended to the Cuisine TMA's full locale set so a chat-side
+// /language pick localises every Mini-App surface. NB: the bot's own chat
+// replies still resolve to en/fr (i18n.js carries en/fr strings only) — the
+// extra locales drive the TMA UI, not the chat text.
+const SUPPORTED = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
 const TTL_SECONDS = 365 * 24 * 60 * 60;
 
 function key(chatId) {
