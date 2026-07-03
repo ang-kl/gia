@@ -102,7 +102,12 @@ async function enrichFast(top, ctx) {
     // v0.62.291 — prefer the holiday-aware currentOpeningHours.periods; fall back
     // to the regular weekly schedule. Compute in the venue's own timezone via
     // utcOffsetMinutes (SGT default when absent).
-    const periods = v.currentPeriods || v.regularPeriods;
+    // v0.62.486 — [] is truthy, so `current || regular` wrongly kept an EMPTY
+    // currentOpeningHours.periods and starved the helpers (bare "Open"/"Closed").
+    // Fall back to the weekly schedule when the current list is empty.
+    const periods = (Array.isArray(v.currentPeriods) && v.currentPeriods.length)
+      ? v.currentPeriods
+      : v.regularPeriods;
     const offset = Number.isFinite(v.utcOffsetMinutes) ? v.utcOffsetMinutes : undefined;
     if (v.openNow === false) {
       v.closedTodayLabel = closedTodayString(periods, new Date(), offset, ohLang);
