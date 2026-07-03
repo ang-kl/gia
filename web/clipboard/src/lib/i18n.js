@@ -219,3 +219,47 @@ export function t(key, lang = 'en', vars = null) {
 }
 
 export const SUPPORTED_LOCALES = ['en', 'fr', 'id', 'ru', 'de'];
+
+// v0.62.481 — operator bug: "i change the language in MENU TMA to french, but
+// sketchbook UI didn't change". ROOT CAUSE: this TMA read its locale from
+// getLanguage() (Telegram device language_code only), ignoring the shared app
+// locale that the Cuisine + Menu TMAs write to localStorage['gia.locale'] (same
+// origin → shared) and to Redis via /api/cuisine/user-language. Mirror the Menu
+// TMA's getActiveLocale()/useLocale() verbatim so all TMAs honour one pref.
+// getLanguage() stays the last-resort device fallback.
+import { useEffect, useState } from 'react';
+import { getLanguage } from './tg.js';
+
+const LOCALE_KEY = 'gia.locale';
+const LOCALE_EVENT = 'gia:locale';
+
+// Precedence: explicit shared pref (localStorage, written by any TMA's toggle)
+// → Telegram device language → 'en'. Only accepts a locale this TMA can render.
+export function getActiveLocale() {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = window.localStorage.getItem(LOCALE_KEY);
+      if (SUPPORTED.has(stored)) return stored;
+    } catch { /* private mode / quota — fall through */ }
+  }
+  const dev = getLanguage();
+  return SUPPORTED.has(dev) ? dev : 'en';
+}
+
+// Reactive locale hook. Re-renders on the in-page gia:locale CustomEvent (a
+// toggle in THIS tab) and on the cross-tab 'storage' event (a toggle in another
+// TMA sharing the origin). Mirrors web/menu/src/i18n.js useLocale.
+export function useLocale() {
+  const [lang, setLang] = useState(() => getActiveLocale());
+  useEffect(() => {
+    function onLocale(e) { setLang(e?.detail?.lang || getActiveLocale()); }
+    function onStorage(e) { if (e.key === LOCALE_KEY) setLang(getActiveLocale()); }
+    window.addEventListener(LOCALE_EVENT, onLocale);
+    window.addEventListener('storage', onStorage);
+    return () => {
+      window.removeEventListener(LOCALE_EVENT, onLocale);
+      window.removeEventListener('storage', onStorage);
+    };
+  }, []);
+  return lang;
+}

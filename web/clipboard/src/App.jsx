@@ -7,10 +7,10 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { useClipboardStore } from './lib/state.js';
-import { getLanguage, initData } from './lib/tg.js';
+import { initData } from './lib/tg.js';
 import * as api from './lib/api.js';
 import { useDrag } from './lib/dnd.js';
-import { t } from './lib/i18n.js';
+import { t, useLocale } from './lib/i18n.js';
 
 import Shell         from './components/Shell.jsx';
 import CatchAllStrip from './components/CatchAllStrip.jsx';
@@ -23,7 +23,10 @@ import {
 } from './components/sheets.jsx';
 
 export default function App() {
-  const lang = getLanguage();
+  // v0.62.481 — was getLanguage() (Telegram device lang only), which ignored a
+  // /language or Menu/Cuisine-toggle pick. useLocale() reads the shared
+  // localStorage['gia.locale'] and re-renders when any TMA flips the locale.
+  const lang = useLocale();
   const { state, reloadState, loadCabinet, setRoute } = useClipboardStore();
   const [sheet, setSheet] = useState(null);   // 'createCab' | 'addDrawer' | { kind:'amend', card } | { kind:'share', url }
   const [busy, setBusy] = useState(false);
