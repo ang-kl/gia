@@ -1,0 +1,241 @@
+{
+  "since": "2026-07-03T16:34:01Z",
+  "until": "2026-07-03T17:39:01Z",
+  "count": 26,
+  "logs": [
+    {
+      "timestamp": "2026-07-03T16:34:52.025685696Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T16:34:52.025688806Z",
+      "message": "[Error] LTA Sniffer failed: Request failed with status code 502",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T16:39:45.664542631Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T16:39:45.664557651Z",
+      "message": "[Error] LTA Sniffer failed: Request failed with status code 502",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T16:44:48.543238678Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T16:44:48.543244418Z",
+      "message": "[Error] LTA Sniffer failed: Request failed with status code 502",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T16:49:51.509304004Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T16:49:51.509325104Z",
+      "message": "[Error] LTA Sniffer failed: Request failed with status code 502",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T16:54:43.993745832Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T16:54:43.993748802Z",
+      "message": "[Error] LTA Sniffer failed: Request failed with status code 502",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T16:59:47.546268943Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T16:59:47.546274963Z",
+      "message": "[Pulse] Status updated at 12:59:43 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T17:04:50.447115939Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T17:04:50.447120579Z",
+      "message": "[Pulse] Status updated at 1:04:43 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T17:09:52.925949620Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T17:09:52.925954890Z",
+      "message": "[Pulse] Status updated at 1:09:43 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T17:14:45.375732817Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T17:14:45.375737507Z",
+      "message": "[Pulse] Status updated at 1:14:43 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T17:19:47.915617979Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T17:19:47.915625469Z",
+      "message": "[Pulse] Status updated at 1:19:43 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T17:24:50.029022137Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T17:24:50.029030597Z",
+      "message": "[Pulse] Status updated at 1:24:43 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T17:29:43.225909344Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T17:29:43.748151306Z",
+      "message": "[Pulse] Status updated at 1:29:43 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T17:34:46.185041882Z",
+      "message": "[Vault-Index] Refreshed: 0 review caches, 0 summaries",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-03T17:34:46.185050281Z",
+      "message": "[Pulse] Status updated at 1:34:43 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "64fb7152-dedf-472e-94ca-b5edbfa04dab",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
