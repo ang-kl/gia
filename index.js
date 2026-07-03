@@ -9934,6 +9934,14 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     'places.googleMapsUri', 'places.primaryType', 'places.primaryTypeDisplayName',
     'places.types',
     'places.regularOpeningHours.weekdayDescriptions',
+    // v0.62.483 — operator: Michelin cards were missing the Closed corner-tab
+    // and the 🕛 timing row. The shared ResultCard gates both on venue.openNow
+    // (strict boolean) + openClosingLabel/closedTodayLabel — fields the cuisine
+    // path sets in enrichSlow but the Michelin path never requested or derived.
+    // Request the same open-hours fields the discover FIELD_MASK (pipeline.js)
+    // does so the labels can be computed in the open-hours pass below.
+    'places.currentOpeningHours.openNow', 'places.currentOpeningHours.periods',
+    'places.utcOffsetMinutes', 'places.regularOpeningHours.periods',
     'places.websiteUri', 'places.nationalPhoneNumber', 'places.priceLevel',
     'places.reviews', 'places.editorialSummary',
     // v0.60.192 — operator: Michelin Copy-All cards were missing the
@@ -10089,6 +10097,12 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       weekdayDescriptions: Array.isArray(placesData?.regularOpeningHours?.weekdayDescriptions)
         ? placesData.regularOpeningHours.weekdayDescriptions
         : null,
+      // v0.62.483 — open/closed state + periods so the open-hours pass below
+      // can set the Closed tab + 🕛 timing labels (mirror of pipeline.js:1207).
+      openNow: placesData?.currentOpeningHours?.openNow ?? null,
+      currentPeriods: Array.isArray(placesData?.currentOpeningHours?.periods) ? placesData.currentOpeningHours.periods : null,
+      regularPeriods: Array.isArray(placesData?.regularOpeningHours?.periods) ? placesData.regularOpeningHours.periods : null,
+      utcOffsetMinutes: Number.isFinite(placesData?.utcOffsetMinutes) ? placesData.utcOffsetMinutes : null,
       websiteUri: placesData?.websiteUri || '',
       phone: placesData?.nationalPhoneNumber || '',
       priceLevel: PRICE_NUM[placesData?.priceLevel] || null,
@@ -10143,6 +10157,9 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       area: entry.address || '',
       lat: null, lng: null,
       weekdayDescriptions: null,
+      // v0.62.483 — hours-field parity with the success branch (no Places data
+      // → openNow stays null, so the card simply shows no Closed tab / timing).
+      openNow: null, currentPeriods: null, regularPeriods: null, utcOffsetMinutes: null,
       websiteUri: '', phone: '', priceLevel: null, primaryType: '',
       url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(entry.name)}`,
       michelinCategory: entry.category,
@@ -10168,6 +10185,29 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     };
     if (venue.businessStatus !== 'CLOSED_PERMANENTLY') {
       venues.push(venue);
+    }
+  }
+
+  // v0.62.483 — Michelin open-hours labels. The Michelin path skips enrichSlow,
+  // so the shared ResultCard's Closed corner-tab (openNow === false) and 🕛
+  // timing row (openClosingLabel / closedTodayLabel) never rendered. Derive
+  // them here from the periods just fetched — a verbatim mirror of the
+  // cuisine-enrich open-hours block (cuisine-enrich.js ~100) — then drop the
+  // transient period fields from the payload (as enrichSlow does).
+  {
+    const { closedTodayString, currentOpenString, minutesUntilClose } = require('./open-hours');
+    const ohLang = csLang === 'fr' ? 'fr' : 'en';
+    for (const v of venues) {
+      const periods = v.currentPeriods || v.regularPeriods;
+      const offset = Number.isFinite(v.utcOffsetMinutes) ? v.utcOffsetMinutes : undefined;
+      if (v.openNow === false) {
+        v.closedTodayLabel = closedTodayString(periods, new Date(), offset, ohLang);
+      } else if (v.openNow === true) {
+        v.openClosingLabel = currentOpenString(periods, new Date(), offset, ohLang);
+        const mins = minutesUntilClose(periods, new Date(), offset);
+        if (Number.isFinite(mins) && mins >= 0 && mins <= 60) v.closingSoonMinutes = mins;
+      }
+      delete v.currentPeriods; delete v.regularPeriods; delete v.utcOffsetMinutes;
     }
   }
 
@@ -16873,7 +16913,13 @@ async function cacheBotUsername() {
         // v0.61.239 first-tap "taste" was 5; v0.62.x — bumped to 6 so a healthy
         // search never reads as "less than six" on the first tap (operator).
         const FIRST_TAP_SLICE = 6;
-        const FOLLOW_UP_SLICE = 12;
+        // v0.62.483 — operator ("suggest cap at 10 eatery"). Follow-up taps
+        // enriched 12 venues/page; enrichSlow was landing at 12–16s (crowd +
+        // dishes + footfall + sanctuary), right against the 20s route deadline
+        // (D706) that returns an empty degraded payload. Trim 12 → 10 for the
+        // same headroom the Michelin walk got in v0.62.482. No venue dropped —
+        // the pool just pages in slightly smaller, faster batches.
+        const FOLLOW_UP_SLICE = 10;
         const isFirstBatch = (seen.size === 0);
         // v0.62.x — Stage 3: when the client streams (progressive results), the
         // first tap fetches a FULL page of 12 and reveals it in two waves (6
