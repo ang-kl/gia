@@ -48,7 +48,7 @@ const CATEGORY_LABEL_KEY = {
 // fixed full-screen overlay with a back-arrow header and a 2-column
 // grid of flag-prefixed pills. Tapping a pill toggles selection;
 // tapping back-arrow / scrim closes.
-export default function CuisineCategoryDrawer({ category, selected, onToggle, onClose, maxSelected, region = 'SG', beltCountry = '', michelinCuisines = null, onPickDish = null }) {
+export default function CuisineCategoryDrawer({ category, selected, onToggle, onClose, maxSelected, region = 'SG', beltCountry = '', michelinCuisines = null, onPickDish = null, onDrillChange = null }) {
   // v0.61.272 — `region` is still threaded through for future
   // per-country UX hooks (e.g. flag preview, regional sort) but no
   // longer gates chip selectability.
@@ -74,6 +74,24 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose]);
 
+  // v0.62.479 — report the drill DEPTH + the topmost "back" handler UP to App,
+  // so the 🔙 back FAB can render inside the App bottom FAB cluster. (v0.62.478
+  // rendered the FAB inside this modal, but a child's z-index can't escape this
+  // root's `fixed … z-30` stacking context, so it painted BEHIND the later App
+  // FAB cluster and mis-aligned over the Search FAB.) depth: 1 = this sub-cuisine
+  // drawer, 2 = the dish list pop-up, 3 = the dish detail. goBack pops the
+  // TOPMOST layer only; a ref keeps App calling the latest handler.
+  const drillDepth = dishDetail ? 3 : dishModal ? 2 : 1;
+  const goBack = dishDetail ? () => setDishDetail(null)
+    : dishModal ? () => setDishModal(null)
+    : (onClose || (() => {}));
+  const goBackRef = React.useRef(goBack);
+  goBackRef.current = goBack;
+  useEffect(() => {
+    onDrillChange?.(drillDepth, () => goBackRef.current?.());
+    return () => onDrillChange?.(0, null);
+  }, [drillDepth, onDrillChange]);
+
   if (!category) return null;
 
   const labelKey = CATEGORY_LABEL_KEY[category.id];
@@ -86,18 +104,6 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
   // coverage is unknown (e.g. SG, whose Michelin data carries no routing-slug
   // cuisines) → fail OPEN (grey nothing but the special modes).
   const michelinActive = Array.isArray(selected) && selected.includes('michelin');
-
-  // v0.62.478 — 🔙 back FAB (operator 2a/2b). It sits one row ABOVE the App's
-  // 🔍 Search FAB whenever the user has drilled into the sub-cuisine drawer
-  // (layer 2 = this component) or a dish pop-up (layer 3 = dishModal/dishDetail),
-  // and pops just the topmost layer. Per operator 2b the visible word "Back"
-  // shows ONLY in English; every other locale is emoji-only (🔙). The aria-label
-  // always carries the localised word so screen readers announce it everywhere.
-  const goBack = dishDetail ? () => setDishDetail(null)
-    : dishModal ? () => setDishModal(null)
-    : (onClose || (() => {}));
-  const BACK_ARIA = { en: 'Back', fr: 'Retour', id: 'Kembali', ru: 'Назад', de: 'Zurück', zh: '返回', ja: '戻る', es: 'Atrás' };
-  const backAria = BACK_ARIA[lang] || BACK_ARIA.en;
 
   return (
     // v0.58.29: was a full-screen `fixed inset-0` overlay which made
@@ -315,22 +321,6 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
           </div>
         </div>
       )}
-      {/* v0.62.478 — back FAB, aligned one row above the App's 🔍 Search FAB.
-          Same geometry as App.jsx's bottom cluster: right offset 0.625rem
-          (container px-2 + row px-0.5), and bottom = base padding (0.15rem +
-          safe-area*0.5) + one FAB height (2.5rem) + the gap (0.375rem). z-[60]
-          floats it above the category scrim (z-30) and the dish pop-ups
-          (z-40 / z-50). English shows the word "Back"; other locales emoji-only. */}
-      <button
-        type="button"
-        onClick={goBack}
-        aria-label={backAria}
-        style={{ right: '0.625rem', bottom: 'calc(0.15rem + env(safe-area-inset-bottom, 0px) * 0.5 + 2.5rem + 0.375rem)' }}
-        className={`fixed z-[60] h-10 ${lang === 'en' ? 'px-3.5 gap-1.5 rounded-full' : 'w-10 justify-center rounded-full'} bg-tg-card border-2 border-tg-hint/60 shadow-lg flex items-center text-lg active:scale-95`}
-      >
-        <span aria-hidden>🔙</span>
-        {lang === 'en' && <span className="text-sm font-semibold">Back</span>}
-      </button>
     </div>
   );
 }
