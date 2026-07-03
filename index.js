@@ -10501,48 +10501,73 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     }
   }
 
-  // Step 3: LLM narrate (vibe + signatureDish + LLM-curated dishes).
-  // v0.60.153 — only narrate venues still missing vibe OR with < 2
-  // dishes after the review-extract + cache-read steps. Saves Gemini
-  // cost on warmed entries; still fires on cold entries every search.
+  // Step 3 (v0.62.485 — DECOUPLED): the LLM narrate (Gemini, ~6–18s cold) no
+  // longer blocks the response. The open-hours labels (🕛 timing row + Closed
+  // corner-tab) and the cached / boilerplate dishes ship immediately; narrate
+  // runs AFTER res.json as a fire-and-forget cache-warm, so the NEXT tap for
+  // this city serves the real dish/vibe narration from the enrich cache. This
+  // removes the sole >20s blocker that tripped the route deadline (D706) and
+  // dropped the clock on the first Michelin search in a cold city (e.g. Seoul).
+  // v0.60.153 — only narrate venues still missing vibe OR with < 2 dishes after
+  // the review-extract + cache-read steps (cost-guard on warmed entries; a warm
+  // tap has an empty needsNarrate so this fires no Gemini call at all).
   const needsNarrate = filteredVenues.filter((v) => !v.vibe || (Array.isArray(v.dishes) ? v.dishes.length < 2 : true));
-  if (needsNarrate.length) {
-    try {
-      const pipeline = require('./pipeline');
-      const narrated = await pipeline.narrateMichelinVenues({ candidates: needsNarrate, lang: csLang });
-      if (narrated && typeof narrated === 'object') {
-        // v0.60.196 — apply the same MICH_CATEGORY_BLOCK denylist to
-        // LLM-narrated outputs. Gemini occasionally returns generic
-        // ingredient nouns ("meat", "gravy", "chocolates") as
-        // signature_dish — especially when the thin review snippet
-        // it was given lists multiple proper dishes (Beef Rendang,
-        // Ayam Sate, Sayur Lodeh) and the model picks the lowest-
-        // common-denominator noun. Without this guard those words
-        // hit the TMA's "🍴 Try · meat" line on the ResultCard.
-        const isUsableDish = (s) => {
-          if (typeof s !== 'string') return false;
-          const t = s.trim();
-          if (t.length < 3 || t.length > 40) return false;
-          // v0.62.x — also reject vague marketing-descriptor phrases
-          // ("Northern Vietnamese heritage set menu", "Seasonal … course")
-          // the LLM narration sometimes returns instead of a real dish name.
-          return !MICH_CATEGORY_BLOCK.test(t) && !DISH_DESCRIPTOR_RE.test(t);
-        };
-        for (const v of needsNarrate) {
-          const n = narrated[v.placeId];
-          if (!n) continue;
-          if (n.vibe) v.vibe = n.vibe;
-          if (isUsableDish(n.signatureDish)) v.signatureDish = n.signatureDish;
-          if (Array.isArray(n.dishes) && n.dishes.length) {
-            const cleaned = n.dishes.filter(isUsableDish).slice(0, 3);
-            if (cleaned.length) v.dishes = cleaned;
+  const warmMichelinEnrich = async (sourceReview) => {
+    if (needsNarrate.length) {
+      try {
+        const pipeline = require('./pipeline');
+        const narrated = await pipeline.narrateMichelinVenues({ candidates: needsNarrate, lang: csLang });
+        if (narrated && typeof narrated === 'object') {
+          // v0.60.196 — apply the same MICH_CATEGORY_BLOCK denylist to
+          // LLM-narrated outputs. Gemini occasionally returns generic
+          // ingredient nouns ("meat", "gravy", "chocolates") as
+          // signature_dish; v0.62.x also rejects vague marketing-descriptor
+          // phrases ("Seasonal … course") that aren't real dish names.
+          const isUsableDish = (s) => {
+            if (typeof s !== 'string') return false;
+            const t = s.trim();
+            if (t.length < 3 || t.length > 40) return false;
+            return !MICH_CATEGORY_BLOCK.test(t) && !DISH_DESCRIPTOR_RE.test(t);
+          };
+          for (const v of needsNarrate) {
+            const n = narrated[v.placeId];
+            if (!n) continue;
+            if (n.vibe) v.vibe = n.vibe;
+            if (isUsableDish(n.signatureDish)) v.signatureDish = n.signatureDish;
+            if (Array.isArray(n.dishes) && n.dishes.length) {
+              const cleaned = n.dishes.filter(isUsableDish).slice(0, 3);
+              if (cleaned.length) v.dishes = cleaned;
+            }
           }
         }
+      } catch (err) {
+        console.warn('[Michelin] narrate failed:', err.message);
       }
-    } catch (err) {
-      console.warn('[Michelin] narrate failed:', err.message);
     }
-  }
+    // Step 5 (moved into the deferred warm in v0.62.485): enrichment-cache
+    // WRITE now runs post-narrate in the background, so the cache stores the
+    // REAL narrated dishes/vibe (not the fast-path boilerplate) and warms the
+    // next tap. `sourceReview[i]` is the pre-translate English review snapshot
+    // taken in the fast path (below) — this preserves the v0.61.154 "cache the
+    // source language, not the translated text" invariant even though the
+    // translate-enrich step now runs before this write. 7-day TTL.
+    if (redis && redis.isOpen) {
+      await Promise.all(filteredVenues.map(async (v, i) => {
+        const k = enrichSlugs[i];
+        if (!k || !v) return;
+        try {
+          await redis.setEx(k, MICHELIN_ENRICH_TTL_S, JSON.stringify({
+            dishes: Array.isArray(v.dishes) ? v.dishes.filter((d) => typeof d === 'string').slice(0, 3) : [],
+            recentReview: typeof sourceReview[i] === 'string' && sourceReview[i]
+              ? sourceReview[i]
+              : (typeof v.recentReview === 'string' ? v.recentReview : ''),
+            vibe: typeof v.vibe === 'string' ? v.vibe : '',
+            signatureDish: typeof v.signatureDish === 'string' ? v.signatureDish : ''
+          }));
+        } catch { /* best-effort */ }
+      }));
+    }
+  };
 
   // v0.60.153 — Step 4: force-fill. Operator's "guarantee 2+ dishes
   // and a review" — any venue still short gets a Michelin-tier-aware
@@ -10575,30 +10600,15 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     }
   }
 
-  // v0.60.153 — Step 5: enrichment-cache WRITE. Refresh every search so
-  // the cached fields stay aligned with the latest LLM output / curated
-  // labels. 7-day TTL; corrupt or missing entries refill on next session.
-  if (redis && redis.isOpen) {
-    await Promise.all(filteredVenues.map(async (v, i) => {
-      const k = enrichSlugs[i];
-      if (!k || !v) return;
-      try {
-        // v0.60.155 — sanitize at WRITE: every text field must be a
-        // string before going into Redis. Without this, a non-string
-        // `v.recentReview` (object/array) gets JSON-stringified
-        // verbatim and poisons the 7-day cache for every subsequent
-        // tap. The v0.60.154 READ guard already drops corrupt entries,
-        // but stopping the WRITE prevents the corruption from being
-        // recorded in the first place.
-        await redis.setEx(k, MICHELIN_ENRICH_TTL_S, JSON.stringify({
-          dishes: Array.isArray(v.dishes) ? v.dishes.filter((d) => typeof d === 'string').slice(0, 3) : [],
-          recentReview: typeof v.recentReview === 'string' ? v.recentReview : '',
-          vibe: typeof v.vibe === 'string' ? v.vibe : '',
-          signatureDish: typeof v.signatureDish === 'string' ? v.signatureDish : ''
-        }));
-      } catch { /* best-effort */ }
-    }));
-  }
+  // v0.62.485 — Step 5 (enrichment-cache WRITE) is now DEFERRED into
+  // warmMichelinEnrich() above and fired fire-and-forget after res.json, so it
+  // no longer blocks the response on the ~18s Gemini narrate. Here we only
+  // snapshot the pre-translate English review: the deferred write runs AFTER
+  // the translate-enrich step below mutates v.recentReview into the device
+  // language, so capturing the source-English text now keeps the cache
+  // language-clean (the v0.61.154 "cache the source, not the translation"
+  // invariant). Non-string values collapse to '' (the v0.60.155 sanitize).
+  const michSourceReview = filteredVenues.map((v) => (typeof v.recentReview === 'string' ? v.recentReview : ''));
 
   // v0.61.154 — when the Michelin search is narrowed by a nationality
   // cuisine (e.g. Michelin + Italian), translate-enrich the surfaced
@@ -10622,6 +10632,15 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   } catch (err) {
     console.warn('[Michelin] translate-enrich failed:', err.message);
   }
+
+  // v0.62.485 — kick the deferred narrate + enrich-cache warm WITHOUT blocking
+  // the response. Not awaited: the card (clock + open-hours labels + cached /
+  // boilerplate dishes) is already fully computed, so this only populates the
+  // enrich cache for the NEXT tap. Placed BEFORE the walk / headersSent guards
+  // so it still warms the cache on a deadline-degraded (slow, cold) tap — the
+  // case that needs warming most. Errors are swallowed inside the fn; the
+  // dangling promise is intentional (a background best-effort side-effect).
+  warmMichelinEnrich(michSourceReview);
 
   // Strip the heavy review payload before responding.
   // v0.61.417 — first capture the review's "X ago" (Google relative time) onto
