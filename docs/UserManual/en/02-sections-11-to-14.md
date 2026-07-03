@@ -6,7 +6,7 @@ Soleat supports multiple interface languages, but food search is not only a tran
 
 Food names can change meaning across cuisines, countries, dialects, and local usage. A word such as “dumpling” may point to different foods depending on whether the user means Chinese dumplings, Japanese gyoza, Korean mandu, Polish pierogi, or Singapore-style dumpling soup.
 
-Soleat’s food search should therefore use language as one clue, not the whole answer. A good search may also depend on cuisine, dish type, country, city, cooking method, ingredient, local name, native-script name, and the user’s location.
+Soleat uses language as one clue, not the whole answer. A good search may also depend on cuisine, dish type, country, city, cooking method, ingredient, local name, native-script name, and the user’s location.
 
 ### 11.1 Interface language
 

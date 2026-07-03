@@ -298,7 +298,7 @@ To read privacy information, type:
 
 ### 28.5 Use `/forgetme`
 
-To erase stored user data where supported, type:
+To request removal of stored user data where supported, type:
 
 ```text
 /forgetme

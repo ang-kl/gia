@@ -122,7 +122,7 @@ This helps you avoid rechecking the same route later.
 
 ### 21.4 Station timing information
 
-Where available, Soleat may provide station-related timing information such as train service timing or opening/closing context.
+Where available, Soleat may provide station-related timing information such as first-train, last-train, or service-timing context.
 
 Use this as travel planning support and verify critical timing before making time-sensitive decisions.
 

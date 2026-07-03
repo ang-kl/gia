@@ -160,7 +160,7 @@ Sometimes the user is not searching for a cuisine. The user is searching for a p
 
 For example, you may want a set meal, quick lunch, solo dinner, late supper, affordable option, or something suitable before a meeting, movie, service, commute, or trip.
 
-Soleat should support this kind of practical search where available, but results may depend on available data, venue descriptions, dish notes, opening hours, and search context.
+Soleat can help with this kind of practical search where available, but results may depend on available data, venue descriptions, dish notes, opening hours, and search context.
 
 ### 18.1 When to search for practical meal options
 
