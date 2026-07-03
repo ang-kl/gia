@@ -284,7 +284,13 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           {tr('card.closed', lang)}
         </div>
       ) : (typeof venue.closingSoonMinutes === 'number' && venue.closingSoonMinutes >= 0) ? (
-        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -mx-2.5 mb-1 px-2.5 py-0.5 rounded-t-lg bg-white text-pink-600 text-[12px] font-semibold leading-tight truncate`}>
+        /* v0.62.474 — operator (IMG_2664): the "Closing in N min" strip now
+           matches the "Closed" tab — a SOLID PINK corner tab (bg-pink-600 +
+           white text, 10px, rounded-br-lg) that bleeds flush into the card's
+           top-left corner and wraps down like a folder tab, instead of the old
+           full-width pink-text-on-white strip. CVD-safe: pink ≠ red at a glance
+           AND the WORD "Closing in …" carries the state (not colour alone). */
+        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -ml-2.5 self-start mb-1 pl-2.5 pr-2 py-0.5 rounded-br-lg bg-pink-600 text-white text-[10px] font-semibold leading-tight`}>
           {tn('card.closingSoon', lang, { n: venue.closingSoonMinutes })}
         </div>
       ) : null}
