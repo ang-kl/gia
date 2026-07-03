@@ -46,6 +46,23 @@ const STRINGS = {
   'filter.cuisineTitle':    { en: 'Filter by cuisine',  fr: 'Filtrer par cuisine', id: 'Saring per masakan', ru: 'Фильтр по кухне', de: 'Nach Küche filtern' },
   'filter.dishTitle':       { en: 'Filter Local Dish',  fr: 'Filtrer plat local', id: 'Saring hidangan lokal', ru: 'Фильтр: местное блюдо', de: 'Lokales Gericht filtern' },
   'filter.dishPlaceholder': { en: 'Dish or food, e.g. laksa', fr: 'Plat, ex. laksa', id: 'Hidangan, mis. laksa', ru: 'Блюдо, напр. laksa', de: 'Gericht, z.B. Laksa' },
+  // ── cuisine category cards (v0.62.x) ──────────────────────────────
+  // Ported from the Cuisine TMA i18n so the Sketchbook picker localises its
+  // category tiles + drill-down header instead of showing the raw English
+  // server-catalogue label while the rest of the shell is translated. Region
+  // keys carry en/fr/id (ru/de fall back to en, matching the Cuisine TMA);
+  // the generic tiles carry all five.
+  'cat.commonHere':         { en: 'Common in Singapore', fr: 'Courant à Singapour', id: 'Umum di Singapura' },
+  'cat.southeastAsian':     { en: 'Southeast Asian', fr: 'Asie du Sud-Est', id: 'Asia Tenggara' },
+  'cat.eastAsian':          { en: 'East Asian', fr: 'Asie de l’Est', id: 'Asia Timur' },
+  'cat.southAsian':         { en: 'South Asian', fr: 'Asie du Sud', id: 'Asia Selatan' },
+  'cat.middleEastern':      { en: 'Middle East & Africa', fr: 'Moyen-Orient & Afrique', id: 'Timur Tengah & Afrika' },
+  'cat.european':           { en: 'European', fr: 'Européenne', id: 'Eropa' },
+  'cat.americas':           { en: 'Americas & Oceania', fr: 'Amériques & Océanie', id: 'Amerika & Oseania' },
+  'cat.sweetsFusion':       { en: 'Sweets & Fusion', fr: 'Desserts & Fusion', id: 'Manis & Fusion', ru: 'Десерты и фьюжн', de: 'Süßes & Fusion' },
+  'cat.michelinBib':        { en: 'Michelin · Bib Gourmand', fr: 'Michelin · Bib Gourmand', id: 'Michelin · Bib Gourmand', ru: 'Мишлен · Биб Гурман', de: 'Michelin · Bib Gourmand' },
+  'cat.setMeal':            { en: 'Set Meal (Beta)', fr: 'Menu fixe (bêta)', id: 'Set Meal (Beta)', ru: 'Комплексное меню (бета)', de: 'Set-Menü (Beta)' },
+  'cat.dishes':             { en: 'Dishes', fr: 'Plats', id: 'Hidangan', ru: 'Блюда', de: 'Gerichte' },
   'card.copy':              { en: '📋 Copy',             fr: '📋 Copier',        id: '📋 Salin',       ru: '📋 Копировать',  de: '📋 Kopieren' },
   'card.copied':           { en: '✓ Copied',           fr: '✓ Copié',          id: '✓ Tersalin',     ru: '✓ Скопировано',  de: '✓ Kopiert' },
   'card.edit':              { en: '✏️ Edit',             fr: '✎ Modifier',       id: '✎ Ubah',         ru: '✎ Изменить',     de: '✎ Bearbeiten' },
