@@ -10207,7 +10207,11 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     const { closedTodayString, currentOpenString, minutesUntilClose } = require('./open-hours');
     const ohLang = csLang === 'fr' ? 'fr' : 'en';
     for (const v of venues) {
-      const periods = v.currentPeriods || v.regularPeriods;
+      // v0.62.486 — [] is truthy, so `current || regular` wrongly kept an EMPTY
+      // currentOpeningHours.periods and starved the helpers (bare "Open"/"Closed").
+      const periods = (Array.isArray(v.currentPeriods) && v.currentPeriods.length)
+        ? v.currentPeriods
+        : v.regularPeriods;
       const offset = Number.isFinite(v.utcOffsetMinutes) ? v.utcOffsetMinutes : undefined;
       if (v.openNow === false) {
         v.closedTodayLabel = closedTodayString(periods, new Date(), offset, ohLang);
@@ -18033,7 +18037,10 @@ async function cacheBotUsername() {
         for (const v of topNL) {
           // v0.62.291 — prefer holiday-aware currentOpeningHours.periods +
           // venue-local timezone (mirrors cuisine-enrich.js).
-          const periodsNL = v.currentPeriods || v.regularPeriods;
+          // v0.62.486 — empty [] shadowed the weekly schedule; see above.
+          const periodsNL = (Array.isArray(v.currentPeriods) && v.currentPeriods.length)
+            ? v.currentPeriods
+            : v.regularPeriods;
           const offsetNL = Number.isFinite(v.utcOffsetMinutes) ? v.utcOffsetMinutes : undefined;
           if (v.openNow === false) {
             v.closedTodayLabel = closedTodayStringNL(periodsNL, new Date(), offsetNL, nlLang);
