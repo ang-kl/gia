@@ -10011,7 +10011,16 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   const MICH_PLACE_MISS_TTL_S = 12 * 60 * 60;
   const FIELD_MASK_BY_ID = FIELD_MASK.replace(/places\./g, '');   // details GET drops the `places.` prefix
   async function resolveEntryPlace(entry) {
-    const cacheKey = `michelin:place:${entry.id || slugify(`${entry.name}-${entry.city || ''}`)}`;
+    // v0.62.484 — cache key gains a schema version (`v2`) AND the response
+    // language. WHY: the old `michelin:place:<slug>` key (7-day TTL) carried
+    // neither, so (1) blobs cached before v0.62.483's FIELD_MASK gained
+    // `currentOpeningHours` had no `openNow` → the Closed tab + 🕛 row stayed
+    // blank for up to a week, and (2) a blob resolved in French kept being
+    // served after the user switched to English (displayName/editorialSummary
+    // are language-specific). `v2` busts every stale blob at once; the lang
+    // segment scopes fr vs en so a language switch re-fetches live.
+    const cacheLang = csLang === 'fr' ? 'fr' : 'en';
+    const cacheKey = `michelin:place:v2:${cacheLang}:${entry.id || slugify(`${entry.name}-${entry.city || ''}`)}`;
     if (redis && redis.isOpen) {
       try {
         const cached = await redis.get(cacheKey);
@@ -10454,7 +10463,13 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // in the server. Refresh each time the same ChatID search Michelin
   // or Combo Search Michelin."
   const MICHELIN_ENRICH_TTL_S = 7 * 24 * 60 * 60;
-  const enrichSlugs = filteredVenues.map((v) => `michelin:enrich:${slugify(v.michelinName || v.name || '')}`);
+  // v0.62.484 — language-scope + version the enrich key too. The dish/vibe
+  // narration is language-specific (e.g. "Dîner dégustation en 13 services"),
+  // but the old `michelin:enrich:<slug>` key had no lang, so French dishes
+  // persisted after a switch to English. `v2:<lang>` fixes it (mirrors the
+  // place-cache key above).
+  const enrichLang = csLang === 'fr' ? 'fr' : 'en';
+  const enrichSlugs = filteredVenues.map((v) => `michelin:enrich:v2:${enrichLang}:${slugify(v.michelinName || v.name || '')}`);
   if (redis && redis.isOpen) {
     const cached = await Promise.all(
       enrichSlugs.map((k) => redis.get(k).catch(() => null))
