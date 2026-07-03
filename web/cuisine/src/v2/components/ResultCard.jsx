@@ -65,6 +65,14 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
       && open.includes(' · ')) {
     open = open.slice(open.indexOf(' · ') + 3);
   }
+  // v0.62.475 — operator (IMG_2664, chose "B"): when a status corner tab
+  // (Closed / Closing) is drawn, the strips BELOW it must NOT pull up flush to
+  // the card top (that -mt bleed is what made the green cuisine banner overlap
+  // the red tab). `hasStatusTab` lets the cuisine banner + first dish-hint drop
+  // their top-flush bleed so the tab floats alone in the top-left corner and the
+  // banner sits cleanly beneath it — no overlap, and red no longer touches green.
+  const hasStatusTab = venue.openNow === false
+    || (typeof venue.closingSoonMinutes === 'number' && venue.closingSoonMinutes >= 0);
   // v0.57.31: crowd chip from LTA-carpark availability around the venue.
   // Honest caveat — weak in CBD where lunch crowds are walk-in.
   // v0.58.55: localised crowd chip text.
@@ -300,7 +308,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
         if (!s) return null;
         return (
           <div
-            className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -mx-2.5 mb-1 px-2.5 py-0.5 rounded-t-lg text-white text-[10px] font-semibold leading-tight truncate`}
+            className={`${hasStatusTab ? 'rounded-lg' : `${horizontal ? '-mt-1.5' : '-mt-2.5'} rounded-t-lg`} -mx-2.5 mb-1 px-2.5 py-0.5 text-white text-[10px] font-semibold leading-tight truncate`}
             style={{ backgroundColor: s.accent || '#b45309' }}
           >{s.label}</div>
         );
@@ -312,7 +320,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
       {Array.isArray(dishHints) && dishHints.filter(Boolean).map((term, i) => {
         const txt = likelyServesText(term, lang);
         if (!txt) return null;
-        const firstFlush = i === 0 && venue.matchTier !== 'alternate';
+        const firstFlush = i === 0 && venue.matchTier !== 'alternate' && !hasStatusTab;
         const size = Math.max((venue.matchTier === 'alternate' ? 9.5 : 10) - 0.5 * i, 8);
         return (
           <div
