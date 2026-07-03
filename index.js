@@ -1929,11 +1929,14 @@ bot.onText(/^\/forgetme(?:@\w+)?$/, async (msg) => {
 // in Redis (1-year TTL) so it survives across devices and across TMA /
 // chat. Takes precedence over Telegram's user.language_code in every
 // chat reply path. With no argument, opens an inline keyboard.
-//   /language          → inline keyboard with 🇬🇧 / 🇫🇷 buttons
-//   /language fr       → set to French + ack
-//   /language en       → set to English + ack
+// v0.62.480 — operator: "/language only has 2 language, please include the
+// rest". Now spans the Cuisine TMA's full set (en/fr/id/ru/de/zh/ja/es); the
+// picked locale drives every Mini-App surface. Bot chat replies still resolve
+// to en/fr (i18n.js is en/fr only) — the extra locales localise the TMA UI.
+//   /language          → inline keyboard, 8 flag+native buttons (2 per row)
+//   /language <code>   → set to that locale + ack (code ∈ user-prefs SUPPORTED)
 //   /language auto     → clear preference; revert to Telegram locale
-bot.onText(/^\/(?:language|la)(?:@\w+)?(?:\s+(en|fr|auto))?$/i, async (msg, match) => {
+bot.onText(/^\/(?:language|la)(?:@\w+)?(?:\s+(en|fr|id|ru|de|zh|ja|es|auto))?$/i, async (msg, match) => {
   await runLanguageCommand(msg, match?.[1] ? match[1].toLowerCase() : null);
 });
 
@@ -3589,11 +3592,16 @@ bot.on('callback_query', async (q) => {
     }
 
     // v0.59.0: language toggle from /language inline keyboard.
-    if (data === 'language:set:en' || data === 'language:set:fr') {
-      const target = data.endsWith(':fr') ? 'fr' : 'en';
+    // v0.62.480 — any supported locale (en/fr/id/ru/de/zh/ja/es), not just
+    // en/fr. setUserLang→normaliseLang rejects anything outside SUPPORTED,
+    // so a spoofed callback simply no-ops.
+    if (data.startsWith('language:set:')) {
+      const target = data.slice('language:set:'.length);
       const { setUserLang } = require('./user-prefs');
-      await setUserLang(redis, chatId, target);
-      await safeSend(chatId, t(target === 'fr' ? 'bot.lang.set.fr' : 'bot.lang.set.en', target));
+      const written = await setUserLang(redis, chatId, target);
+      if (written) {
+        await safeSend(chatId, t(`bot.lang.set.${written}`, written));
+      }
       return;
     }
 
@@ -7826,10 +7834,17 @@ async function runLanguageCommand(msg, arg) {
     await safeSend(chatId, t('language.cleared', ackLang));
     return;
   }
-  if (arg === 'fr' || arg === 'en') {
-    await setUserLang(redis, chatId, arg);
-    await safeSend(chatId, t(arg === 'fr' ? 'bot.lang.set.fr' : 'bot.lang.set.en', arg));
-    return;
+  // v0.62.480 — accept any locale the preference layer supports (en/fr/id/
+  // ru/de/zh/ja/es), not just en/fr. The regex already gates the arg; the
+  // setUserLang→normaliseLang call is the final guard (a rejected locale
+  // returns null and we fall through to the picker).
+  const { SUPPORTED } = require('./user-prefs');
+  if (arg && arg !== 'auto' && SUPPORTED.includes(arg)) {
+    const written = await setUserLang(redis, chatId, arg);
+    if (written) {
+      await safeSend(chatId, t(`bot.lang.set.${written}`, written));
+      return;
+    }
   }
   // No arg → inline keyboard. Show current pref alongside.
   const current = await getUserLang(redis, chatId);
@@ -7837,13 +7852,18 @@ async function runLanguageCommand(msg, arg) {
   const display = current || (['en','fr'].includes(tgLang) ? tgLang : 'en');
   const fromTg = current ? '' : t('language.fromTg', display);
   const promptText = tn('language.current', display, { fromTg });
+  // v0.62.480 — all 8 locales, two buttons per row so the keyboard stays
+  // thumb-friendly on a phone (4 rows). Labels are flag + native name so a
+  // speaker recognises their own language regardless of the prompt locale.
+  const langButtons = SUPPORTED.map((code) => (
+    { text: t(`language.btn.${code}`, display), callback_data: `language:set:${code}` }
+  ));
+  const keyboardRows = [];
+  for (let i = 0; i < langButtons.length; i += 2) {
+    keyboardRows.push(langButtons.slice(i, i + 2));
+  }
   await bot.sendMessage(chatId, promptText, {
-    reply_markup: {
-      inline_keyboard: [[
-        { text: t('language.btn.en', display), callback_data: 'language:set:en' },
-        { text: t('language.btn.fr', display), callback_data: 'language:set:fr' }
-      ]]
-    }
+    reply_markup: { inline_keyboard: keyboardRows }
   });
 }
 
