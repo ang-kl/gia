@@ -273,14 +273,14 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           for colour-blind safety (see the matchTier strip below). Standard
           card meta font size (12px, matches the rest of the card's text). */}
       {venue.openNow === false ? (
-        /* v0.62.472 — operator: the strip now states ONLY "Closed" (the reopen
-           timing moved to the 🕙 clock row). Shrunk to a small corner tab that
-           hugs the word — font-size (10px) and curve (rounded lg) match the
-           "… & Nearby Flavours" banner below. self-start + auto width hugs the
-           text; -mt/-ml bleed to the card's top-left corner; rounded-br-lg
-           rounds the one exposed corner. Red word carries the meaning (CVD-safe:
-           the WORD, not colour alone). */
-        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -ml-2.5 self-start mb-1 pl-2.5 pr-2 py-0.5 rounded-br-lg bg-white text-red-600 text-[10px] font-semibold leading-tight`}>
+        /* v0.62.473 — operator (IMG_1102): the v0.62.472 tab was bg-white on a
+           white card, so only the red word showed — no visible tab. Now a SOLID
+           tab that matches the "… & Nearby Flavours" banner: filled background +
+           white text, 10px, rounded corner. -mt/-ml bleed it flush into the
+           card's top-left corner and rounded-br-lg wraps the exposed corner DOWN
+           like a folder tab. CVD-safe: the WORD "Closed" carries the state (not
+           colour alone) and there is no green counterpart to confuse it with. */
+        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -ml-2.5 self-start mb-1 pl-2.5 pr-2 py-0.5 rounded-br-lg bg-red-600 text-white text-[10px] font-semibold leading-tight`}>
           {tr('card.closed', lang)}
         </div>
       ) : (typeof venue.closingSoonMinutes === 'number' && venue.closingSoonMinutes >= 0) ? (

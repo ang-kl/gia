@@ -1,8 +1,8 @@
 counters:
-  commit: 944
-  build: 583
+  commit: 945
+  build: 584
   documents:
-    journal: 826
+    journal: 827
     builder: 3
     persona: 4
     feature: 58
@@ -12,8 +12,8 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 03-07 '26 07:34 SGT
-last_anchor_source: closed_strip_pill_2026-07-03_0734 (v0.62.472 — web/cuisine ResultCard.jsx: top closed-status strip reduced to a small corner tab stating ONLY "Closed" [card.closed], font-size 10px + rounded-br-lg curve matching the "& Nearby Flavours" banner, self-start + -mt/-ml bleed to the card top-left corner; reopen timing removed from the strip. Clock-row label drops the redundant leading "Closed now · " prefix in-card only [split on " · ", guarded to openNow===false && reopenMinutes>=0], keeping "Opens today 11:30 AM"; open-hours.js untouched so bot/copy surfaces keep the full label. esbuild jsx parse clean. commit 943->944, build 582->583, journal 825->826. PRIOR ANCHOR taxonomy_incremental_checkpoint_2026-07-03_0714)
+last_anchor_time: 03-07 '26 09:31 SGT
+last_anchor_source: closed_tab_fill_and_fr_gate_2026-07-03_0931 (v0.62.473 — [1] web/cuisine ResultCard.jsx: the v0.62.472 "Closed" tab was bg-white on a white card so only the red word showed [operator IMG_1102]; now a SOLID tab bg-red-600 text-white 10px rounded-br-lg, -mt/-ml flush into the card top-left corner, wrapping down like the "& Nearby Flavours" banner. [2] web/cuisine/src/v2/lib/countries.js + web/menu/src/countries.js: France picker entry COMMENTED OUT [operator: disable France search until the catalogue is settled — Paris 1star + Bib + other 11 cities still due]; FR-michelin.js/cities/centroids scaffold all retained, only the picker gated. node --check + esbuild jsx clean. commit 944->945, build 583->584, journal 826->827. PRIOR ANCHOR closed_strip_pill_2026-07-03_0734)
 last_anchor_source_prior: fr_michelin_scaffold_2026-07-02_1945
 # codex-review PR#1438: `last_anchor_iso8601` below is duplicated many times over past
 # sessions (append-only history, never pruned) -- a last-key-wins YAML reader would pick
@@ -22,7 +22,7 @@ last_anchor_source_prior: fr_michelin_scaffold_2026-07-02_1945
 # disambiguating going forward: `last_anchor_iso8601_current` is the single authoritative
 # field alongside `last_anchor_time`/`last_anchor_source` above. The plain
 # `last_anchor_iso8601:` lines below this point are historical log only, not current.
-last_anchor_iso8601_current: 2026-07-03T07:34:00+08:00
+last_anchor_iso8601_current: 2026-07-03T09:31:00+08:00
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
