@@ -1,8 +1,8 @@
 counters:
-  commit: 946
-  build: 585
+  commit: 947
+  build: 586
   documents:
-    journal: 828
+    journal: 829
     builder: 3
     persona: 4
     feature: 58
@@ -12,9 +12,9 @@ counters:
 sessions:
   current_chat_id: 2026-06-04
   current_chat_counter: 1
-last_anchor_time: 03-07 '26 10:26 SGT
-last_anchor_source: closing_soon_pink_tab_and_ru_de_i18n_2026-07-03_1026 (v0.62.474 — [1] web/cuisine/src/v2/components/ResultCard.jsx: the "Closing in N min" strip restyled from a full-width bg-white text-pink-600 12px strip to a SOLID PINK corner tab [bg-pink-600 text-white 10px rounded-br-lg, -mt/-ml flush into the card top-left corner, wrapping down like the "Closed" red tab] per operator IMG_2664. [2] web/cuisine/src/v2/lib/i18n.js: card.closingSoon translation ADDED for ru [Закрывается через {n} мин] and de [Schließt in {n} Min] — previously only en/fr/id/zh/ja/es had it, ru/de fell back to English. esbuild parse clean both. commit 945->946, build 584->585, journal 827->828. PRIOR ANCHOR closed_tab_fill_and_fr_gate_2026-07-03_0931)
-last_anchor_source_prior: closed_tab_fill_and_fr_gate_2026-07-03_0931
+last_anchor_time: 03-07 '26 12:17 SGT
+last_anchor_source: strips_no_overlap_optionB_2026-07-03_1217 (v0.62.475 — web/cuisine/src/v2/components/ResultCard.jsx: operator [IMG_2664, chose option B] the red Closed/pink Closing CORNER TAB overlapped the green cuisine "& Nearby Flavours" banner [both had -mt-2.5 so the banner pulled up into the tab; also red touched green = worst CVD pairing]. FIX: new hasStatusTab flag — when a status tab is drawn, the cuisine banner drops its top-flush -mt-2.5 bleed [gets rounded-lg instead of rounded-t-lg] and the first dish-hint drops firstFlush, so the tab floats alone in the top-left corner and the banner sits cleanly beneath it — no overlap, red no longer touches green. esbuild jsx parse clean. commit 946->947, build 585->586, journal 828->829. PRIOR ANCHOR closing_soon_pink_tab_and_ru_de_i18n_2026-07-03_1026)
+last_anchor_source_prior: closing_soon_pink_tab_and_ru_de_i18n_2026-07-03_1026
 # codex-review PR#1438: `last_anchor_iso8601` below is duplicated many times over past
 # sessions (append-only history, never pruned) -- a last-key-wins YAML reader would pick
 # up a stale June value instead of the current anchor. Not deleting the historical log
@@ -22,7 +22,7 @@ last_anchor_source_prior: closed_tab_fill_and_fr_gate_2026-07-03_0931
 # disambiguating going forward: `last_anchor_iso8601_current` is the single authoritative
 # field alongside `last_anchor_time`/`last_anchor_source` above. The plain
 # `last_anchor_iso8601:` lines below this point are historical log only, not current.
-last_anchor_iso8601_current: 2026-07-03T10:26:00+08:00
+last_anchor_iso8601_current: 2026-07-03T12:17:00+08:00
 last_anchor_iso8601: 2026-06-17T17:25:00+08:00
 last_anchor_iso8601: 2026-06-17T13:20:00+08:00
 last_anchor_iso8601: 2026-06-17T12:00:00+08:00
