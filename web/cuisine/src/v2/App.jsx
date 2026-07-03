@@ -750,7 +750,13 @@ export default function App() {
     };
     const sel = (state.cuisines || []).filter((s) => s !== 'michelin');
     if (!sel.length) return null;
-    const nameOf = (slug) => cuisineNameBySlug.get(slug) || null;
+    const nameOf = (slug) => cuisineNameBySlug.get(slug) || null;   // English catalogue name (stable key)
+    // v0.62.476 — operator (IMG): the "& Nearby Flavours" banner showed the raw
+    // English cuisine word ("Eurasian et saveurs voisines") because this path
+    // never ran the name through cuisineName() the way the folio tab does. Localise
+    // the LABEL; keep the combo-strip KEY English so ResultCard's lookup by
+    // venue.matchedCuisine (server-set English) still matches.
+    const labelOf = (slug) => { const en = nameOf(slug); return en ? cuisineName(slug, en, lang) : null; };
     const catOf = (slug) => {
       if (Array.isArray(catalogue)) {
         for (const c of catalogue) if ((c.cuisines || []).some((cu) => cu?.slug === slug)) return c.id;
@@ -758,13 +764,13 @@ export default function App() {
       return '';
     };
     if (sel.length === 1) {
-      const name = nameOf(sel[0]);
+      const name = labelOf(sel[0]);
       if (!name) return null;
       const accent = REGION_ACCENT[catOf(sel[0])] || '#b45309';
       return { single: { label: lang === 'fr' ? `${name} et saveurs voisines` : lang === 'id' ? `${name} & Cita Rasa Terdekat` : lang === 'ru' ? `${name} и близкие вкусы` : lang === 'de' ? `${name} & ähnliche Küchen` : lang === 'zh' ? `${name} 及邻近风味` : lang === 'ja' ? `${name} と近隣の味` : lang === 'es' ? `${name} y sabores cercanos` : `${name} & Nearby Flavours`, accent }, strips: null };
     }
     const strips = {};
-    sel.forEach((slug, i) => { const n = nameOf(slug); if (n) strips[n] = { label: n, accent: PALETTE[i % PALETTE.length] }; });
+    sel.forEach((slug, i) => { const n = nameOf(slug); if (n) strips[n] = { label: labelOf(slug), accent: PALETTE[i % PALETTE.length] }; });
     return { single: null, strips };
   }, [state.cuisines, cuisineNameBySlug, catalogue, lang]);
   // v0.62.6 — Michelin city-grouped display: initial map state per visible

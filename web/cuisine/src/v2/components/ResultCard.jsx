@@ -65,6 +65,17 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
       && open.includes(' · ')) {
     open = open.slice(open.indexOf(' · ') + 3);
   }
+  // v0.62.476 — operator (IMG): the pink "Closing in N min" tab already states
+  // the close, so the clock row's "· Closes {t}" segment is redundant. Server
+  // builds openClosingLabel as "Open · Closes {t}[ · Reopens {t}]", so the closes
+  // part is the segment at index 1 — splice it out by position (locale-agnostic),
+  // leaving "Open[ · Reopens {t}]". Only when currently open AND closing soon.
+  if (venue.openNow === true
+      && typeof venue.closingSoonMinutes === 'number' && venue.closingSoonMinutes >= 0
+      && open.includes(' · ')) {
+    const parts = open.split(' · ');
+    if (parts.length >= 2) { parts.splice(1, 1); open = parts.join(' · '); }
+  }
   // v0.62.475 — operator (IMG_2664, chose "B"): when a status corner tab
   // (Closed / Closing) is drawn, the strips BELOW it must NOT pull up flush to
   // the card top (that -mt bleed is what made the green cuisine banner overlap
@@ -288,7 +299,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
            card's top-left corner and rounded-br-lg wraps the exposed corner DOWN
            like a folder tab. CVD-safe: the WORD "Closed" carries the state (not
            colour alone) and there is no green counterpart to confuse it with. */
-        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -ml-2.5 self-start mb-1 pl-2.5 pr-2 py-0.5 rounded-br-lg bg-red-600 text-white text-[10px] font-semibold leading-tight`}>
+        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -ml-2.5 self-start mb-0.5 pl-2.5 pr-2 py-0 rounded-br-lg bg-red-600 text-white text-[9px] font-semibold leading-snug`}>
           {tr('card.closed', lang)}
         </div>
       ) : (typeof venue.closingSoonMinutes === 'number' && venue.closingSoonMinutes >= 0) ? (
@@ -298,7 +309,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
            top-left corner and wraps down like a folder tab, instead of the old
            full-width pink-text-on-white strip. CVD-safe: pink ≠ red at a glance
            AND the WORD "Closing in …" carries the state (not colour alone). */
-        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -ml-2.5 self-start mb-1 pl-2.5 pr-2 py-0.5 rounded-br-lg bg-pink-600 text-white text-[10px] font-semibold leading-tight`}>
+        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -ml-2.5 self-start mb-0.5 pl-2.5 pr-2 py-0 rounded-br-lg bg-pink-600 text-white text-[9px] font-semibold leading-snug`}>
           {tn('card.closingSoon', lang, { n: venue.closingSoonMinutes })}
         </div>
       ) : null}
@@ -308,7 +319,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
         if (!s) return null;
         return (
           <div
-            className={`${hasStatusTab ? 'rounded-lg' : `${horizontal ? '-mt-1.5' : '-mt-2.5'} rounded-t-lg`} -mx-2.5 mb-1 px-2.5 py-0.5 text-white text-[10px] font-semibold leading-tight truncate`}
+            className={`${hasStatusTab ? 'rounded-lg' : `${horizontal ? '-mt-1.5' : '-mt-2.5'} rounded-t-lg`} -mx-2.5 mb-0.5 px-2.5 py-0 text-white text-[9px] font-semibold leading-snug truncate`}
             style={{ backgroundColor: s.accent || '#b45309' }}
           >{s.label}</div>
         );
