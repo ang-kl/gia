@@ -295,36 +295,32 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           this stays accessible even though the codebase otherwise avoids red
           for colour-blind safety (see the matchTier strip below). Standard
           card meta font size (12px, matches the rest of the card's text). */}
+      {/* v0.62.488 — operator (folder_tab_restaurant_cards mockup, chose "1"):
+          the status label is a FOLDER TAB that protrudes above the card top and
+          overlaps the flat cuisine band below (offset from the left, rounded top
+          only, solid fill + white text), instead of a corner-bled rectangle.
+          CVD-safe: the WORD carries the state; there is no green counterpart. */}
       {venue.openNow === false ? (
-        /* v0.62.473 — operator (IMG_1102): the v0.62.472 tab was bg-white on a
-           white card, so only the red word showed — no visible tab. Now a SOLID
-           tab that matches the "… & Nearby Flavours" banner: filled background +
-           white text, 10px, rounded corner. -mt/-ml bleed it flush into the
-           card's top-left corner and rounded-br-lg wraps the exposed corner DOWN
-           like a folder tab. CVD-safe: the WORD "Closed" carries the state (not
-           colour alone) and there is no green counterpart to confuse it with. */
-        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -ml-2.5 self-start mb-0.5 pl-2.5 pr-2 py-0 rounded-br-lg bg-red-600 text-white text-[9px] font-semibold leading-snug`}>
+        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} ml-3 -mb-0.5 self-start relative z-10 px-3 py-0.5 rounded-t-lg bg-red-600 text-white text-[10px] font-bold leading-snug`}>
           {tr('card.closed', lang)}
         </div>
       ) : (typeof venue.closingSoonMinutes === 'number' && venue.closingSoonMinutes >= 0) ? (
-        /* v0.62.474 — operator (IMG_2664): the "Closing in N min" strip now
-           matches the "Closed" tab — a SOLID PINK corner tab (bg-pink-600 +
-           white text, 10px, rounded-br-lg) that bleeds flush into the card's
-           top-left corner and wraps down like a folder tab, instead of the old
-           full-width pink-text-on-white strip. CVD-safe: pink ≠ red at a glance
-           AND the WORD "Closing in …" carries the state (not colour alone). */
-        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -ml-2.5 self-start mb-0.5 pl-2.5 pr-2 py-0 rounded-br-lg bg-pink-600 text-white text-[9px] font-semibold leading-snug`}>
+        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} ml-3 -mb-0.5 self-start relative z-10 px-3 py-0.5 rounded-t-lg bg-pink-600 text-white text-[10px] font-bold leading-snug`}>
           {tn('card.closingSoon', lang, { n: venue.closingSoonMinutes })}
         </div>
       ) : null}
+      {/* v0.62.488 — operator: the "{cuisine} & nearby flavours" strip is a FLAT
+          full-width band, flush to the card edges (margin-to-margin) — never a
+          rounded pill. It sits at the very top of the card under the status
+          folder-tab; default warm-brown fill, per-cuisine accent when supplied. */}
       {venue.matchTier === 'alternate' && (() => {
         const s = (venue.matchedCuisine && nearbyStrips && nearbyStrips[venue.matchedCuisine])
           || (nearbyLabel ? { label: nearbyLabel, accent: nearbyAccent } : null);
         if (!s) return null;
         return (
           <div
-            className={`${hasStatusTab ? 'rounded-lg' : `${horizontal ? '-mt-1.5' : '-mt-2.5'} rounded-t-lg`} -mx-2.5 mb-0.5 px-2.5 py-0 text-white text-[9px] font-semibold leading-snug truncate`}
-            style={{ backgroundColor: s.accent || '#b45309' }}
+            className={`${hasStatusTab ? '' : `${horizontal ? '-mt-1.5' : '-mt-2.5'} `}-mx-2.5 mb-1 px-4 py-1 rounded-t-lg text-white text-[11px] font-medium leading-snug truncate`}
+            style={{ backgroundColor: s.accent || '#854F0B' }}
           >{s.label}</div>
         );
       })()}
