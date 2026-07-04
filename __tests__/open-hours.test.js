@@ -49,7 +49,7 @@ describe('localNow + timezone offset (v0.62.291)', () => {
     // 2026-05-04 16:00 UTC; offset -300 → local Mon 11:00. Opens 18:00 Mon.
     const now = new Date(Date.UTC(2026, 4, 4, 16, 0));
     const periods = [{ open: { day: 1, hour: 18, minute: 0 }, close: { day: 1, hour: 23, minute: 0 } }];
-    expect(oh.nextOpenString(periods, now, -5 * 60)).toBe('Opens today 6:00 PM');
+    expect(oh.nextOpenString(periods, now, -5 * 60)).toBe('Opens Mon 6:00 PM');
   });
 });
 
@@ -71,23 +71,23 @@ describe('nextOpenString', () => {
     expect(oh.nextOpenString([])).toBe(null);
   });
 
-  it('returns "Opens today" when later today', () => {
+  it('returns weekday label when later today', () => {
     // Monday 09:00 SGT — Mon period opens at 11:00
     const now = sgtDate(2026, 5, 4, 9, 0);
     const periods = [
       { open: { day: 1, hour: 11, minute: 0 }, close: { day: 1, hour: 22, minute: 0 } }
     ];
-    expect(oh.nextOpenString(periods, now)).toBe('Opens today 11:00 AM');
+    expect(oh.nextOpenString(periods, now)).toBe('Opens Mon 11:00 AM');
   });
 
-  it('returns "Opens tomorrow" when no further open today', () => {
+  it('returns weekday label when no further open today', () => {
     // Monday 23:00 SGT — Mon already closed (22:00); Tue opens 11:00
     const now = sgtDate(2026, 5, 4, 23, 0);
     const periods = [
       { open: { day: 1, hour: 11, minute: 0 }, close: { day: 1, hour: 22, minute: 0 } },
       { open: { day: 2, hour: 11, minute: 0 }, close: { day: 2, hour: 22, minute: 0 } }
     ];
-    expect(oh.nextOpenString(periods, now)).toBe('Opens tomorrow 11:00 AM');
+    expect(oh.nextOpenString(periods, now)).toBe('Opens Tue 11:00 AM');
   });
 
   it('returns weekday label for opens >1 day out', () => {
@@ -115,7 +115,7 @@ describe('nextOpenString', () => {
     const periods = [
       { open: { day: 1, hour: 11, minute: 30 }, close: { day: 1, hour: 22, minute: 0 } }
     ];
-    expect(oh.nextOpenString(periods, now)).toBe('Opens today 11:30 AM');
+    expect(oh.nextOpenString(periods, now)).toBe('Opens Mon 11:30 AM');
   });
 });
 
@@ -130,7 +130,7 @@ describe('closedTodayString', () => {
     const periods = [
       { open: { day: 2, hour: 11, minute: 0 }, close: { day: 2, hour: 22, minute: 0 } }
     ];
-    expect(oh.closedTodayString(periods, now)).toBe('Closed today · Opens tomorrow 11:00 AM');
+    expect(oh.closedTodayString(periods, now)).toBe('Closed today · Opens Tue 11:00 AM');
   });
 
   // v0.61.219 — "Closed today" was misleading when the venue re-opens
@@ -142,7 +142,7 @@ describe('closedTodayString', () => {
     const periods = [
       { open: { day: 1, hour: 11, minute: 30 }, close: { day: 1, hour: 22, minute: 0 } }
     ];
-    expect(oh.closedTodayString(periods, now)).toBe('Closed now · Opens today 11:30 AM');
+    expect(oh.closedTodayString(periods, now)).toBe('Closed now · Opens Mon 11:30 AM');
   });
 
   it('handles a Kafe-Utu-shaped venue (closed Mon-Wed, opens Thu)', () => {
@@ -247,13 +247,13 @@ describe('localised open-hours (id / fr)', () => {
   it('nextOpenString id — 24-hour time + Indonesian words', () => {
     const now = sgtDate(2026, 5, 4, 9, 0); // Mon 09:00
     const periods = [{ open: { day: 1, hour: 11, minute: 0 }, close: { day: 1, hour: 15, minute: 0 } }];
-    expect(oh.nextOpenString(periods, now, undefined, 'id')).toBe('Buka hari ini 11.00');
+    expect(oh.nextOpenString(periods, now, undefined, 'id')).toBe('Buka Sen 11.00');
   });
 
   it('closedTodayString id — opens later today', () => {
     const now = sgtDate(2026, 5, 4, 9, 0);
     const periods = [{ open: { day: 1, hour: 11, minute: 30 }, close: { day: 1, hour: 15, minute: 0 } }];
-    expect(oh.closedTodayString(periods, now, undefined, 'id')).toBe('Tutup sekarang · Buka hari ini 11.30');
+    expect(oh.closedTodayString(periods, now, undefined, 'id')).toBe('Tutup sekarang · Buka Sen 11.30');
   });
 
   it('closedTodayString id — opens tomorrow', () => {
@@ -262,7 +262,7 @@ describe('localised open-hours (id / fr)', () => {
       { open: { day: 1, hour: 11, minute: 0 }, close: { day: 1, hour: 15, minute: 0 } },
       { open: { day: 2, hour: 11, minute: 0 }, close: { day: 2, hour: 15, minute: 0 } }
     ];
-    expect(oh.closedTodayString(periods, now, undefined, 'id')).toBe('Tutup hari ini · Buka besok 11.00');
+    expect(oh.closedTodayString(periods, now, undefined, 'id')).toBe('Tutup hari ini · Buka Sel 11.00');
   });
 
   it('currentOpenString id — split lunch/dinner', () => {
@@ -283,13 +283,13 @@ describe('localised open-hours (id / fr)', () => {
   it('closedTodayString fr — 24-hour "11h30" + French words', () => {
     const now = sgtDate(2026, 5, 4, 9, 0);
     const periods = [{ open: { day: 1, hour: 11, minute: 30 }, close: { day: 1, hour: 15, minute: 0 } }];
-    expect(oh.closedTodayString(periods, now, undefined, 'fr')).toBe("Fermé · Ouvre aujourd'hui 11h30");
+    expect(oh.closedTodayString(periods, now, undefined, 'fr')).toBe('Fermé · Ouvre lun. 11h30');
   });
 
-  it('EN output unchanged (regression guard)', () => {
+  it('EN output — weekday form (regression guard)', () => {
     const now = sgtDate(2026, 5, 4, 9, 0);
     const periods = [{ open: { day: 1, hour: 11, minute: 30 }, close: { day: 1, hour: 15, minute: 0 } }];
-    expect(oh.closedTodayString(periods, now)).toBe('Closed now · Opens today 11:30 AM');
+    expect(oh.closedTodayString(periods, now)).toBe('Closed now · Opens Mon 11:30 AM');
   });
 });
 
@@ -298,12 +298,12 @@ describe('localised open-hours (ru / de)', () => {
   it('closedTodayString ru — opens later today', () => {
     const now = sgtDate(2026, 5, 4, 9, 0);
     const periods = [{ open: { day: 1, hour: 11, minute: 30 }, close: { day: 1, hour: 15, minute: 0 } }];
-    expect(oh.closedTodayString(periods, now, undefined, 'ru')).toBe('Сейчас закрыто · Сегодня открывается в 11:30');
+    expect(oh.closedTodayString(periods, now, undefined, 'ru')).toBe('Сейчас закрыто · Открывается Пн в 11:30');
   });
   it('closedTodayString de — opens later today', () => {
     const now = sgtDate(2026, 5, 4, 9, 0);
     const periods = [{ open: { day: 1, hour: 11, minute: 30 }, close: { day: 1, hour: 15, minute: 0 } }];
-    expect(oh.closedTodayString(periods, now, undefined, 'de')).toBe('Jetzt geschlossen · Öffnet heute um 11:30');
+    expect(oh.closedTodayString(periods, now, undefined, 'de')).toBe('Jetzt geschlossen · Öffnet Mo um 11:30');
   });
   it('currentOpenString ru/de — split lunch/dinner', () => {
     const now = sgtDate(2026, 5, 4, 13, 0);

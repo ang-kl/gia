@@ -164,10 +164,12 @@ function nextOpenInfo(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN, lan
   if (!best) return null;
   const P = phrases(lang);
   const time = fmtTime(best.hour, best.minute, lang);
-  let text;
-  if (best.delta === 0) text = P.opensToday(time);
-  else if (best.delta === 1) text = P.opensTomorrow(time);
-  else text = P.opensDay(dayLabel(best.day, lang), time);
+  // v0.62.489 — operator: "today"/"tomorrow" is ambiguous across time zones
+  // (a venue's local "today" can be the user's yesterday/tomorrow — the
+  // Wellington report). Always name the weekday instead ("Opens Sat 11:30 AM"),
+  // which is unambiguous whoever's reading and in whichever zone. The delta is
+  // still returned so closedTodayString can pick "Closed now" vs "Closed today".
+  const text = P.opensDay(dayLabel(best.day, lang), time);
   return { delta: best.delta, time, day: best.day, text };
 }
 
