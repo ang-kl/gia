@@ -142,10 +142,17 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
   // the open-hours with a 🕙 clock so the line scans at a glance (distMeta already
   // carries 📍); the rendered line is allowed to WRAP to 2 lines (line-clamp-2)
   // instead of hard-truncating to a single "…".
-  const meta = (horizontal
-    ? [open ? `🕙 ${open}` : '', distMeta]
-    : [rating, price, open, distMeta])
-    .filter(Boolean).join(' · ');
+  // v0.62.495 — operator (IMG_2685): on the horizontal card the meta line
+  // wraps (line-clamp-2), and the join's " · " between the reopen text and the
+  // non-breaking "📍 …away" distance unit stranded a lone "·" at the end of
+  // line 1 when the pin wrapped to line 2. Glue the separator to the distance
+  // (`· 📍…`) so the whole "· 📍 …away" chunk travels together; the only
+  // breakable space is BEFORE the "·", so nothing can end a line on a bare
+  // separator. Vertical stays a single truncated line, so it keeps the plain join.
+  const clockSeg = open ? `🕙 ${open}` : '';
+  const meta = horizontal
+    ? (clockSeg && distMeta ? `${clockSeg} ·\u00A0${distMeta}` : (clockSeg || distMeta))
+    : [rating, price, open, distMeta].filter(Boolean).join(' · ');
 
   // v0.57.13: open Google Maps via Telegram.WebApp.openLink. Inside
   // the TMA WebView, plain <a target="_blank"> often does nothing —
