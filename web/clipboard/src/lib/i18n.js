@@ -52,13 +52,13 @@ const STRINGS = {
   // server-catalogue label while the rest of the shell is translated. Region
   // keys carry en/fr/id (ru/de fall back to en, matching the Cuisine TMA);
   // the generic tiles carry all five.
-  'cat.commonHere':         { en: 'Common in Singapore', fr: 'Courant à Singapour', id: 'Umum di Singapura' , zh: '新加坡常见', ja: 'シンガポールで定番', es: 'Comun en Singapur' },
-  'cat.southeastAsian':     { en: 'Southeast Asian', fr: 'Asie du Sud-Est', id: 'Asia Tenggara' , zh: '东南亚', ja: '東南アジア', es: 'Sudeste asiatico' },
-  'cat.eastAsian':          { en: 'East Asian', fr: 'Asie de l’Est', id: 'Asia Timur' , zh: '东亚', ja: '東アジア', es: 'Este asiatico' },
-  'cat.southAsian':         { en: 'South Asian', fr: 'Asie du Sud', id: 'Asia Selatan' , zh: '南亚', ja: '南アジア', es: 'Sur de Asia' },
-  'cat.middleEastern':      { en: 'Middle East & Africa', fr: 'Moyen-Orient & Afrique', id: 'Timur Tengah & Afrika' , zh: '中东与非洲', ja: '中東＆アフリカ', es: 'Oriente Medio y Africa' },
-  'cat.european':           { en: 'European', fr: 'Européenne', id: 'Eropa' , zh: '欧洲', ja: 'ヨーロッパ', es: 'Europea' },
-  'cat.americas':           { en: 'Americas & Oceania', fr: 'Amériques & Océanie', id: 'Amerika & Oseania' , zh: '美洲与大洋洲', ja: '南北アメリカ＆オセアニア', es: 'America y Oceania' },
+  'cat.commonHere':         { en: 'Common in Singapore', fr: 'Courant à Singapour', id: 'Umum di Singapura', ru: 'Популярно в Сингапуре', de: 'In Singapur verbreitet' , zh: '新加坡常见', ja: 'シンガポールで定番', es: 'Comun en Singapur' },
+  'cat.southeastAsian':     { en: 'Southeast Asian', fr: 'Asie du Sud-Est', id: 'Asia Tenggara', ru: 'Юго-Восточная Азия', de: 'Südostasiatisch' , zh: '东南亚', ja: '東南アジア', es: 'Sudeste asiatico' },
+  'cat.eastAsian':          { en: 'East Asian', fr: 'Asie de l’Est', id: 'Asia Timur', ru: 'Восточная Азия', de: 'Ostasiatisch' , zh: '东亚', ja: '東アジア', es: 'Este asiatico' },
+  'cat.southAsian':         { en: 'South Asian', fr: 'Asie du Sud', id: 'Asia Selatan', ru: 'Южная Азия', de: 'Südasiatisch' , zh: '南亚', ja: '南アジア', es: 'Sur de Asia' },
+  'cat.middleEastern':      { en: 'Middle East & Africa', fr: 'Moyen-Orient & Afrique', id: 'Timur Tengah & Afrika', ru: 'Ближний Восток и Африка', de: 'Naher Osten & Afrika' , zh: '中东与非洲', ja: '中東＆アフリカ', es: 'Oriente Medio y Africa' },
+  'cat.european':           { en: 'European', fr: 'Européenne', id: 'Eropa', ru: 'Европейская', de: 'Europäisch' , zh: '欧洲', ja: 'ヨーロッパ', es: 'Europea' },
+  'cat.americas':           { en: 'Americas & Oceania', fr: 'Amériques & Océanie', id: 'Amerika & Oseania', ru: 'Америка и Океания', de: 'Amerika & Ozeanien' , zh: '美洲与大洋洲', ja: '南北アメリカ＆オセアニア', es: 'America y Oceania' },
   'cat.sweetsFusion':       { en: 'Sweets & Fusion', fr: 'Desserts & Fusion', id: 'Manis & Fusion', ru: 'Десерты и фьюжн', de: 'Süßes & Fusion' , zh: '甜点与融合', ja: 'スイーツ＆フュージョン', es: 'Dulces y fusion' },
   'cat.michelinBib':        { en: 'Michelin · Bib Gourmand', fr: 'Michelin · Bib Gourmand', id: 'Michelin · Bib Gourmand', ru: 'Мишлен · Биб Гурман', de: 'Michelin · Bib Gourmand' , zh: '米其林 · 必比登', ja: 'Michelin · Bib Gourmand', es: 'Michelin · Bib Gourmand' },
   'cat.setMeal':            { en: 'Set Meal (Beta)', fr: 'Menu fixe (bêta)', id: 'Set Meal (Beta)', ru: 'Комплексное меню (бета)', de: 'Set-Menü (Beta)' , zh: '套餐 (Beta)', ja: 'セットメニュー（Beta）', es: 'Menu fijo (Beta)' },
