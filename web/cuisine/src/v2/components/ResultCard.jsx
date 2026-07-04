@@ -80,14 +80,11 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
     const parts = open.split(' · ');
     if (parts.length >= 2) { parts.splice(1, 1); open = parts.join(' · '); }
   }
-  // v0.62.475 — operator (IMG_2664, chose "B"): when a status corner tab
-  // (Closed / Closing) is drawn, the strips BELOW it must NOT pull up flush to
-  // the card top (that -mt bleed is what made the green cuisine banner overlap
-  // the red tab). `hasStatusTab` lets the cuisine banner + first dish-hint drop
-  // their top-flush bleed so the tab floats alone in the top-left corner and the
-  // banner sits cleanly beneath it — no overlap, and red no longer touches green.
-  const hasStatusTab = venue.openNow === false
-    || (typeof venue.closingSoonMinutes === 'number' && venue.closingSoonMinutes >= 0);
+  // v0.62.496 — the status tab now renders OUTSIDE the card <button> (folder tab
+  // above the top edge), so the in-card top strips (cuisine band + first dish-hint)
+  // once again pull flush to the card top unconditionally — the tab no longer sits
+  // inside the card, so there is nothing for them to clear. (Supersedes the
+  // v0.62.475 `hasStatusTab` top-flush suppression, now removed.)
   // v0.57.31: crowd chip from LTA-carpark availability around the venue.
   // Honest caveat — weak in CBD where lunch crowds are walk-in.
   // v0.58.55: localised crowd chip text.
@@ -282,6 +279,24 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
   }
 
   return (
+    <div className="w-full flex flex-col">
+      {/* v0.62.496 — operator (reference mock IMG): the status label is a FOLDER TAB
+          that sits ABOVE the card and tucks into its top edge. It is rendered OUTSIDE
+          the bordered card <button> so the card's rounded border can NEVER slice
+          through the tab — the collision seen on exact-match cards that have no top
+          band (Odette / Kuan Zhai). `-mb-1` tucks the tab's flat bottom a few px under
+          the card top (folder-tab overlap); `z-10` keeps it painted in front; `ml-3`
+          offsets it from the left corner. CVD-safe: the WORD carries the state, no
+          green counterpart. (Supersedes the v0.62.488 in-card protruding tab.) */}
+      {venue.openNow === false ? (
+        <div className="ml-3 -mb-1 self-start relative z-10 px-3 py-0.5 rounded-t-lg bg-red-600 text-white text-[10px] font-bold leading-snug">
+          {tr('card.closed', lang)}
+        </div>
+      ) : (typeof venue.closingSoonMinutes === 'number' && venue.closingSoonMinutes >= 0) ? (
+        <div className="ml-3 -mb-1 self-start relative z-10 px-3 py-0.5 rounded-t-lg bg-pink-600 text-white text-[10px] font-bold leading-snug">
+          {tn('card.closingSoon', lang, { n: venue.closingSoonMinutes })}
+        </div>
+      ) : null}
     <button type="button" onClick={() => onTap?.(venue.placeId)}
       /* v0.62.285 — operator (BEFORE/AFTER mock): in the horizontal strip the
          IN-VIEW (focused) card is OPAQUE white; the peeking left/right cards are
@@ -296,26 +311,6 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           venue actually serves (venue.matchedCuisine → nearbyStrips[name]), so
           Korean-only / Japanese-only cards are clearly not the both-cuisine combo.
           Colour is CVD-safe (never red/green); the text carries the meaning. */}
-      {/* v0.62.466 — operator: closed/closing-soon status strip. Light/white
-          background per spec; text carries the state (not colour alone) —
-          "Closed" (red) vs "Closing in N min" (pink) are different WORDS, so
-          this stays accessible even though the codebase otherwise avoids red
-          for colour-blind safety (see the matchTier strip below). Standard
-          card meta font size (12px, matches the rest of the card's text). */}
-      {/* v0.62.488 — operator (folder_tab_restaurant_cards mockup, chose "1"):
-          the status label is a FOLDER TAB that protrudes above the card top and
-          overlaps the flat cuisine band below (offset from the left, rounded top
-          only, solid fill + white text), instead of a corner-bled rectangle.
-          CVD-safe: the WORD carries the state; there is no green counterpart. */}
-      {venue.openNow === false ? (
-        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} ml-3 -mb-0.5 self-start relative z-10 px-3 py-0.5 rounded-t-lg bg-red-600 text-white text-[10px] font-bold leading-snug`}>
-          {tr('card.closed', lang)}
-        </div>
-      ) : (typeof venue.closingSoonMinutes === 'number' && venue.closingSoonMinutes >= 0) ? (
-        <div className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} ml-3 -mb-0.5 self-start relative z-10 px-3 py-0.5 rounded-t-lg bg-pink-600 text-white text-[10px] font-bold leading-snug`}>
-          {tn('card.closingSoon', lang, { n: venue.closingSoonMinutes })}
-        </div>
-      ) : null}
       {/* v0.62.488 — operator: the "{cuisine} & nearby flavours" strip is a FLAT
           full-width band, flush to the card edges (margin-to-margin) — never a
           rounded pill. It sits at the very top of the card under the status
@@ -326,7 +321,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
         if (!s) return null;
         return (
           <div
-            className={`${hasStatusTab ? '' : `${horizontal ? '-mt-1.5' : '-mt-2.5'} `}-mx-2.5 mb-1 px-4 py-1 rounded-t-lg text-white text-[11px] font-medium leading-snug truncate`}
+            className={`${horizontal ? '-mt-1.5' : '-mt-2.5'} -mx-2.5 mb-1 px-4 py-1 rounded-t-lg text-white text-[11px] font-medium leading-snug truncate`}
             style={{ backgroundColor: s.accent || '#854F0B' }}
           >{s.label}</div>
         );
@@ -338,7 +333,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
       {Array.isArray(dishHints) && dishHints.filter(Boolean).map((term, i) => {
         const txt = likelyServesText(term, lang);
         if (!txt) return null;
-        const firstFlush = i === 0 && venue.matchTier !== 'alternate' && !hasStatusTab;
+        const firstFlush = i === 0 && venue.matchTier !== 'alternate';
         const size = Math.max((venue.matchTier === 'alternate' ? 9.5 : 10) - 0.5 * i, 8);
         return (
           <div
@@ -576,6 +571,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           </div>
           </>)}
     </button>
+    </div>
   );
 }
 
