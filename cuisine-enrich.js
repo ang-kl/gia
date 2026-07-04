@@ -120,6 +120,19 @@ async function enrichFast(top, ctx) {
       // when a currently-open venue closes within the hour.
       const mins = minutesUntilClose(periods, new Date(), offset);
       if (Number.isFinite(mins) && mins >= 0 && mins <= 60) v.closingSoonMinutes = mins;
+    } else {
+      // v0.62.x — openNow UNKNOWN (Google omitted currentOpeningHours.openNow):
+      // both branches above are skipped, so the 🕛 row renders blank (operator:
+      // "the clock is not there"). We still have the weekly schedule in `periods`,
+      // so derive the label from it — WITHOUT setting v.openNow (the Closed
+      // corner-tab + open-now filters gate on openNow === false, so leaving it
+      // null keeps them untouched; this only fills the informational label).
+      const openLbl = currentOpenString(periods, new Date(), offset, ohLang);
+      if (openLbl) v.openClosingLabel = openLbl;
+      else {
+        const closedLbl = closedTodayString(periods, new Date(), offset, ohLang);
+        if (closedLbl) v.closedTodayLabel = closedLbl;
+      }
     }
     if (!v.restaurantType) {
       v.restaurantType = ctx.humaniseRestaurantType(v.primaryTypeDisplayName, v.primaryType) || '';

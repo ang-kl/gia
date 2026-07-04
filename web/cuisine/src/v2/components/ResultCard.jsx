@@ -53,7 +53,11 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
     ? (venue.openClosingLabel || tr('card.open', lang))
     : venue.openNow === false
       ? (venue.closedTodayLabel || tr('card.closed', lang))
-      : '';
+      // v0.62.x — openNow UNKNOWN (Google omitted currentOpeningHours.openNow):
+      // the 🕛 row rendered blank. Show the schedule-derived label the server now
+      // attaches; still no bare "Open"/"Closed" word when there's genuinely no
+      // data, and no status corner-tab (that gates on openNow === false).
+      : (venue.openClosingLabel || venue.closedTodayLabel || '');
   // v0.62.472 — the top status strip already states "Closed", so drop the
   // redundant leading "Closed now · " prefix from the clock-row label, keeping
   // just the reopen info ("Opens today 11:30 AM"). Locale-safe: split on the
