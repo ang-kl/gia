@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-06-27';   // v0.62.302->v0.62.387 catch-up: PRs #1273-#1363
+const GEN_DATE = '2026-07-04';   // v0.62.387->v0.62.496 catch-up: PRs #1364-#1499
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
