@@ -345,16 +345,19 @@ export default function App() {
   const autoDetectedRef = useRef(false);
   useEffect(() => {
     if (autoDetectedRef.current) return;
-    // Don't fire until the initial /api/cuisine/user-location fetch
-    // resolves (anchor === null could mean "still loading" or "no
-    // cached anchor"). 800 ms tolerance: by the time the user notices
-    // the hub, the anchor fetch has either returned or is going to fail.
-    const wakeup = setTimeout(() => {
-      if (autoDetectedRef.current) return;
-      autoDetectedRef.current = true;
-      runAutoDetect();
-    }, 800);
-    return () => clearTimeout(wakeup);
+    // v0.62.498 — wait for the initial /api/cuisine/user-location fetch
+    // to SETTLE before deciding whether to auto-detect. `anchor === null`
+    // is ambiguous ("still loading" vs "no cached anchor"), so we gate on
+    // `anchorLoading`, which flips false in every terminal branch of that
+    // fetch (.then / .catch / no-Telegram). This replaces the prior fixed
+    // 800 ms `setTimeout` guess: we now fire the instant the cache fetch
+    // resolves (never later, never before the anchor commits — `setAnchor`
+    // batches with `setAnchorLoading(false)`, so runAutoDetect always sees
+    // the fetched anchor). NOT a boot gate — Menu has none; this only
+    // sequences auto-detect, it never gates render.
+    if (anchorLoading) return;
+    autoDetectedRef.current = true;
+    runAutoDetect();
 
     async function runAutoDetect() {
       const w = tg();
@@ -556,7 +559,7 @@ export default function App() {
       const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
-  }, [anchor?.lat, anchor?.lng]);
+  }, [anchorLoading, anchor?.lat, anchor?.lng]);
 
   // v0.61.370 — operator: when the anchor coords are clearly in Singapore,
   // re-enable the SG-only tiles even if the STORED region is a stale 'OTHER'
