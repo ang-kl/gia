@@ -71,7 +71,9 @@ async function refreshIndex(redis) {
     memoryReviews = reviews;
     memorySummaries = summaries;
     lastRefreshMs = Date.now();
-    console.log(`[Vault-Index] Refreshed: ${reviews.size} review caches, ${summaries.size} summaries`);
+    if (reviews.size || summaries.size) {
+      console.log(`[Vault-Index] Refreshed: ${reviews.size} review caches, ${summaries.size} summaries`);
+    }
   } catch (err) {
     console.error('[Vault-Index] refreshIndex failed:', err.message);
   }

@@ -172,6 +172,7 @@ async function writeStatus(statusData) {
 }
 
 // 2. The Sniffer Function
+let lastPulseStatus = null;  // only log [Pulse] when the health label changes, not every tick
 async function updateTransitStatus() {
   if (!ltaEnabled) {
     await writeStatus({
@@ -187,13 +188,17 @@ async function updateTransitStatus() {
     const v = data?.value ?? {};
     const isHealthy = v.Status === 1 || !v.Message?.length;
     const firstMessage = v.Message?.[0]?.Content ?? '';
+    const statusLabel = isHealthy ? '🟢 Healthy' : '🔴 Disruption';
 
     await writeStatus({
-      status: isHealthy ? '🟢 Healthy' : '🔴 Disruption',
+      status: statusLabel,
       message: isHealthy ? 'All CBD lines normal.' : firstMessage,
       updatedAt: nowSGT()
     });
-    console.log(`[Pulse] Status updated at ${nowSGT()}`);
+    if (statusLabel !== lastPulseStatus) {
+      console.log(`[Pulse] Status → ${statusLabel} at ${nowSGT()}`);
+      lastPulseStatus = statusLabel;
+    }
   } catch (err) {
     console.error('[Error] LTA Sniffer failed:', err.message);
     try {
