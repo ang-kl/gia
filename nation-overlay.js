@@ -2722,10 +2722,9 @@ const NATION_OVERLAY = {
       F('palusami'), F('lovo'), F('kokoda'), F('umu'), F('luau pig'),
       F('chop suey samoan'), F('sapasui'), F('oka i\'a'), F('coconut bread'),
       F('breadfruit roasted'), F('taro leaves coconut'), F('island lobster'),
-      F('hangi style cooking'), F('faiakai chop'), F('kaipake plate'),
-      F('cassava cake pacific'), F('coconut crab samoan'), F('fish suckling pacific'),
-      F('antipodean cafe brunch'), F('pasifika fusion plate')
-    ],
+      F('hangi style cooking'), F('faiakai chop'),
+      F('cassava cake pacific'), F('coconut crab samoan'),
+          ],
     sharedWithNeighbors: [],
     neighboringCuisines: [
       { slug: 'australian',  reason: 'Modern Australian "Mod-Oz" includes Pasifika influences from Melanesian / Polynesian diasporas' },
@@ -2747,7 +2746,7 @@ const NATION_OVERLAY = {
       F('porco bafassá'), F('caldo verde macau'), F('serradura'),
       F('pork chop bun'), F('almond cookies'), F('bacalhau macau'), F('arroz de pato macau'),
       F('feijoada macau'), F('chilli crab macanese'), F('capela'), F('tacho'),
-      F('linguica macau'), F('caca-mato'), F('pastel de nata macau'),
+      F('linguica macau'), F('pastel de nata macau'),
       F('coconut sweet macau'), F('serradura sago')
     ],
     sharedWithNeighbors: [],
@@ -2769,9 +2768,9 @@ const NATION_OVERLAY = {
     iconicDishes: [
       F('guo bao rou'), F('dongbei suancai stew'), F('di san xian'), F('dongbei pork dumplings'),
       F('xiao ji dun mogu'), F('cong you bing dongbei'), F('jianbing northeastern'),
-      F('huo guo dongbei'), F('da pai dang chinese bbq'), F('changchun braised duck'),
+      F('huo guo dongbei'), F('da pai dang chinese bbq'),
       F('zha jiang mian'), F('dongbei xiang chang'), F('shao mai dongbei'),
-      F('three rice porridge'), F('cold dongbei dishes'), F('fermented soybean dongbei'),
+      F('cold dongbei dishes'), F('fermented soybean dongbei'),
       F('lamb dumpling soup'), F('fried glutinous rice cakes'),
       F('elm seed dumpling'), F('northeastern chao fan')
     ],
