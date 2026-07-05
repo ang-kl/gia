@@ -1,61 +1,97 @@
 {
-  "status": "draft",
+  "status": "translation_prep",
   "sourceLanguage": "en",
-  "principle": "Translate after English master, terminology, food-name rules, and help IDs are stable.",
+  "sourceStatus": "first_full_draft_qa_patched",
+  "principle": "Translate after English master, terminology, food-name rules, command aliases, screenshots, and help IDs are stable.",
+  "globalGates": {
+    "englishMasterLocked": false,
+    "glossaryReviewed": false,
+    "foodTermReviewComplete": false,
+    "commandAliasValidationComplete": false,
+    "helpIdContractReviewed": false,
+    "imageRegistryReviewed": false
+  },
   "languages": [
     {
       "code": "en",
       "name": "English",
-      "status": "drafting",
-      "notes": "Master language for Sections 1–6."
-    },
-    {
-      "code": "fr",
-      "name": "French",
-      "status": "not_started",
-      "notes": "Translate after English master is locked."
-    },
-    {
-      "code": "id",
-      "name": "Indonesian",
-      "status": "not_started",
-      "notes": "Translate after food-term review."
-    },
-    {
-      "code": "ru",
-      "name": "Russian",
-      "status": "not_started",
-      "notes": "Translate after food-term review."
-    },
-    {
-      "code": "de",
-      "name": "German",
-      "status": "not_started",
-      "notes": "Translate after food-term review."
+      "role": "source",
+      "status": "first_full_draft",
+      "manualSections": "1-29",
+      "notes": "Master language. Not fully locked for translation until gates are complete."
     },
     {
       "code": "zh",
       "name": "Chinese",
+      "role": "target",
       "status": "not_started",
-      "notes": "Requires extra care for cuisine names, native-script dish names, and local food usage."
+      "recommendedOrder": 1,
+      "readiness": "blocked_by_gates",
+      "notes": "Prioritise early because Chinese requires native-script dish-name and local food-term pressure testing."
     },
     {
       "code": "ja",
       "name": "Japanese",
+      "role": "target",
       "status": "not_started",
-      "notes": "Requires extra care for cuisine names, native-script dish names, and local food usage."
+      "recommendedOrder": 2,
+      "readiness": "blocked_by_gates",
+      "notes": "Prioritise early because Japanese requires native-script dish-name and gyoza/ramen/food-term disambiguation review."
+    },
+    {
+      "code": "id",
+      "name": "Indonesian",
+      "role": "target",
+      "status": "not_started",
+      "recommendedOrder": 3,
+      "readiness": "blocked_by_gates",
+      "notes": "Prioritise after Chinese/Japanese because Indonesian helps review Southeast Asian cuisine and local-food context."
+    },
+    {
+      "code": "fr",
+      "name": "French",
+      "role": "target",
+      "status": "not_started",
+      "recommendedOrder": 4,
+      "readiness": "blocked_by_gates",
+      "notes": "Translate after terminology and food examples are reviewed."
+    },
+    {
+      "code": "de",
+      "name": "German",
+      "role": "target",
+      "status": "not_started",
+      "recommendedOrder": 5,
+      "readiness": "blocked_by_gates",
+      "notes": "Translate after terminology and food examples are reviewed."
     },
     {
       "code": "es",
       "name": "Spanish",
+      "role": "target",
       "status": "not_started",
-      "notes": "Translate after food-term review."
+      "recommendedOrder": 6,
+      "readiness": "blocked_by_gates",
+      "notes": "Translate after terminology and food examples are reviewed."
+    },
+    {
+      "code": "ru",
+      "name": "Russian",
+      "role": "target",
+      "status": "not_started",
+      "recommendedOrder": 7,
+      "readiness": "blocked_by_gates",
+      "notes": "Translate after terminology and food examples are reviewed."
     }
   ],
   "reviewRules": [
     "Do not flatten food terms into generic translations.",
     "Preserve cuisine context and local food meaning.",
     "Treat dish names, cooking methods, and local food names as terminology, not ordinary prose.",
-    "Do not translate product names marked translate=false in the glossary."
+    "Do not translate product names marked translate=false in the glossary.",
+    "Do not translate Telegram commands.",
+    "Do not translate help IDs.",
+    "Translate search examples by intent, not only by surface wording.",
+    "Keep Singapore-specific feature names explicit unless a language-specific style guide says otherwise."
   ]
 }
