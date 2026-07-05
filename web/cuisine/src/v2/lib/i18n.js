@@ -1682,7 +1682,13 @@ export function getActiveLocale() {
       if (SUPPORTED_LOCALES.includes(stored)) return stored;
     } catch { /* private mode / quota — fall through */ }
   }
-  return detectFromTelegram() || detectFromNavigator() || 'en';
+  // v0.62.501 — prefer the DEVICE locale (navigator.language) over the
+  // Telegram APP locale (language_code). language_code reflects the Telegram
+  // client UI language, a weak signal for the user's real language; a French
+  // phone running an English Telegram was resolving to 'en'. detectFromNavigator
+  // returns null when the device locale is unsupported, so we still fall back to
+  // the Telegram hint, then 'en'.
+  return detectFromNavigator() || detectFromTelegram() || 'en';
 }
 
 export function setActiveLocale(lang) {

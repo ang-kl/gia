@@ -242,6 +242,16 @@ export function getActiveLocale() {
       if (SUPPORTED.has(stored)) return stored;
     } catch { /* private mode / quota — fall through */ }
   }
+  // v0.62.501 — prefer the DEVICE locale (navigator.language) over the
+  // Telegram APP locale: a French phone running an English Telegram was
+  // resolving to 'en'. getLanguage() is Telegram-first, so read navigator
+  // directly here; fall through to getLanguage() (Telegram hint) then 'en'
+  // when the device locale is unsupported.
+  try {
+    const nav = (typeof navigator !== 'undefined' && navigator.language)
+      ? navigator.language.slice(0, 2).toLowerCase() : '';
+    if (SUPPORTED.has(nav)) return nav;
+  } catch { /* no navigator */ }
   const dev = getLanguage();
   return SUPPORTED.has(dev) ? dev : 'en';
 }
