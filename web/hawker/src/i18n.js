@@ -580,15 +580,19 @@ export function getActiveLocale() {
     const stored = window.localStorage?.getItem(LOCALE_KEY);
     if (SUPPORTED.includes(stored)) return stored;
   } catch { /* SSR / private browsing */ }
+  // v0.62.501 — DEVICE locale (navigator) BEFORE the Telegram APP locale
+  // (language_code): a French phone running an English Telegram was resolving
+  // to 'en'. Fall through to the Telegram hint only when the device locale is
+  // unsupported, then 'en'.
+  try {
+    const nav = (navigator?.language || '').slice(0, 2).toLowerCase();
+    if (SUPPORTED.includes(nav)) return nav;
+  } catch { /* no navigator */ }
   try {
     const tgLang = window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code;
     const two = String(tgLang || '').slice(0, 2).toLowerCase();
     if (SUPPORTED.includes(two)) return two;
   } catch { /* not in Telegram WebApp */ }
-  try {
-    const nav = (navigator?.language || '').slice(0, 2).toLowerCase();
-    if (SUPPORTED.includes(nav)) return nav;
-  } catch { /* no navigator */ }
   return 'en';
 }
 
