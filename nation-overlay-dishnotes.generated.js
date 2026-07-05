@@ -7,7 +7,7 @@
 // Each value carries the grounding `source` for audit.
 // Translations (id/ru/de/zh/ja/es) are produced separately by translate-content.mjs.
 //
-// Entries: 1643
+// Entries: 1653
 'use strict';
 
 module.exports = {
@@ -1654,4 +1654,14 @@ module.exports = {
   "vietnamese::vietnamese coffee (ca phe sua da)": { en: "Ca phe sua da is Vietnamese iced coffee, made by slow-dripping strong coffee through a phin filter over sweetened condensed milk and ice.", source: "MICHELIN Guide" },
   "vietnamese::vietnamese egg coffee (ca phe trung)": { en: "Ca phe trung is a Hanoi specialty: strong Vietnamese coffee topped with a creamy foam made from whipped egg yolks and sweetened condensed milk.", source: "Silk Path Travel Guide" },
   "vietnamese::xoi": { en: "Xoi is a Vietnamese sticky rice dish, prepared by steaming glutinous rice, and can be served in both savory and sweet variations.", source: "Viet Nam National Authority of Tourism" },
+  "german::hefeweizen": { en: "A Bavarian unfiltered wheat beer, cloudy from suspended yeast, with signature banana-and-clove aromas and at least 50% malted wheat.", source: "https://en.wikipedia.org/wiki/Wheat_beer" },
+  "british::cask ale": { en: "British unfiltered, unpasteurised beer that ferments and matures in the cask it's served from, dispensed without added CO2.", source: "https://en.wikipedia.org/wiki/Cask_ale" },
+  "american::ipa": { en: "India Pale Ale, a hoppy pale ale style; American IPAs show bold citrus-and-pine hop character and higher bitterness.", source: "https://en.wikipedia.org/wiki/India_pale_ale" },
+  "australian::shiraz": { en: "Australian name for the Syrah grape and its full-bodied red wine, a flagship variety of regions like the Barossa Valley.", source: "https://en.wikipedia.org/wiki/Syrah" },
+  "egyptian::lamb sayadia rice": { en: "Sayadieh is a spiced caramelised-onion rice from Egypt and the Levant, classically made with fish; a lamb version is a regional variation.", source: "https://amediterraneangourmet.com/sayadieh-middle-eastern-fish-with-rice/" },
+  "australasia::faiakai chop": { en: "From Tongan faikakai: boiled dough dumplings, often with banana or breadfruit, served in a sweet caramelised-coconut syrup.", source: "https://www.196flavors.com/tonga-faikakai-malimali/" },
+  "macau::serradura sago": { en: "Macanese-Portuguese serradura, or 'sawdust pudding': layered whipped cream and finely crushed Marie biscuits (it contains no sago).", source: "https://en.wikipedia.org/wiki/Serradura" },
+  "macau::chilli crab macanese": { en: "Macau's crab dish is curry crab: mud crab simmered in curry paste with garlic, ginger and coconut milk (not Singaporean chilli crab).", source: "https://chinawondersguide.com/macau-seafood-curry-crab/" },
+  "northwestern::xibei dumpling soup": { en: "Northwestern-style dumplings in broth, associated with the Xibei (Xibei) chain known for lamb shaomai from China's northwest.", source: "https://www.xibeidumplings.com/" },
+  "goan::coconut-vinegar curry": { en: "A Goan ambot tik style: a hot-and-sour seafood curry built on a paste of fresh coconut, garlic and vinegar, as in vindaloo.", source: "https://maunikagowardhan.co.uk/cook-in-a-curry/goan-prawn-ambotik/" },
 };
