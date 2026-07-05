@@ -5030,7 +5030,7 @@ export default function App() {
                 type="button"
                 onClick={() => drillBackRef.current?.()}
                 aria-label={word}
-                className={`pointer-events-auto h-10 rounded-full bg-tg-card/95 border-2 border-tg-hint/60 shadow-lg flex items-center active:scale-95 ${lang === 'en' ? 'w-10 justify-center' : 'px-3 gap-1'}`}
+                className={`pointer-events-auto h-10 rounded-full bg-tg-card/85 liquid-glass border-2 border-tg-hint/60 shadow-lg flex items-center active:scale-95 ${lang === 'en' ? 'w-10 justify-center' : 'px-3 gap-1'}`}
               >
                 <span aria-hidden className="text-lg leading-none">🔙</span>
                 {lang !== 'en' && <span className="text-[10px] font-semibold leading-none">{word}</span>}
