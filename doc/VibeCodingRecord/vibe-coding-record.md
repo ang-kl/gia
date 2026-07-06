@@ -1,24 +1,24 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-07-04 from a snapshot of all 1472 pull requests (#1–#1472).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-07-06 from a snapshot of all 1483 pull requests (#1–#1483).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 1472 total — 1462 merged, 10 closed without merge.
+- **PRs:** 1483 total — 1473 merged, 10 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #1499 · 2026-07-04 07:32:08 · _v0.62.496: move status folder-tab outside the card (IMG_2685/2686 + reference mock)_
+- **Latest:** #1511 · 2026-07-06 14:00:57 · _v0.62.505: vault/v0.62.504 snapshot (27th) — pre-cleanup archive_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 990 |
-| fix | 202 |
-| docs | 92 |
-| copy | 61 |
+| feature | 994 |
+| fix | 203 |
+| docs | 96 |
+| copy | 62 |
 | prompt-tune | 45 |
-| refactor | 41 |
+| refactor | 42 |
 | test | 21 |
 | infra | 20 |
 
@@ -26,17 +26,17 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 449 |
+| Cuisine Picker | 452 |
 | Core / misc | 294 |
 | Hawker NEA | 110 |
-| Docs / vault | 99 |
+| Docs / vault | 100 |
 | Search / free-text | 82 |
-| Recognised lists | 73 |
-| Transport / carpark | 71 |
-| Infra / setup | 59 |
+| Transport / carpark | 74 |
+| Recognised lists | 74 |
+| Infra / setup | 60 |
 | /hidden surprise | 45 |
-| Pipeline / discovery | 32 |
-| Language / i18n | 31 |
+| Pipeline / discovery | 33 |
+| Language / i18n | 32 |
 | Weather | 24 |
 | /eat /drink flow | 22 |
 | Maps / geo / location | 20 |
@@ -1524,6 +1524,17 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 1497 | merged | 2026-07-04 03:46:43 | 0.62.494 | feature | Language / i18n | Add: Clipboard cat.* keys backfill ru/de (closes journal #847 gap) | ## v0.62.494 — Clipboard TMA: backfill **ru + de** on the 7 `cat.*` category keys Closes the **known gap** logged in journal #847 (the Clipboard 5→8 locale PR, #1496). | 4 files — doc, package | — | doc/vault |
 | 1498 | merged | 2026-07-04 07:15:29 | 0.62.495 | fix | Cuisine Picker | Fix: cuisine card meta separator glued to distance unit (IMG_2685 fix 1) | ## What & why Operator screenshot **IMG_2685** (horizontal cuisine card) — chose **fix 1: glue the separator to the distance unit**. | 4 files — TMA:cuisine, doc, package | cuisine | doc/vault |
 | 1499 | merged | 2026-07-04 07:32:08 | 0.62.496 | feature | Core / misc | Add: move status folder-tab outside the card (IMG_2685/2686 + reference mock) | ## What & why Operator screenshots **IMG_2685** (pink "Closing in 16 min") + **IMG_2686** (red "Closed"), plus a reference mock — chose **"move the tab fully above the card"**. | 4 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 1500 | merged | 2026-07-04 08:36:15 | 0.62.497 | feature | Transport / carpark | Add: VibeCodingRecord catch-up regen (PRs #1364-#1499) | ## What Catch-up regen of the generated **Vibe-Coding Record** ledger + hosted Vibe Journal. | 10 files — doc, package, public/ | — | doc/vault |
+| 1501 | merged | 2026-07-04 13:23:52 | 0.62.498 | feature | Cuisine Picker | Add: Menu TMA auto-detect gates on anchorLoading (tighten 800ms first-launch race) | ## What Tightens the Menu TMA **first-launch location race** surfaced in the location-cache trace. | 4 files — TMA:menu, doc, package | menu | Redis/state; tests; doc/vault |
+| 1502 | merged | 2026-07-05 00:49:29 | 0.62.499 | feature | Cuisine Picker | Add: Cuisine 🔙 back FAB gets liquid-glass @ 85% opacity (match 💬 FAB) | Operator:** the 🔙 Back FAB should be ~85% opaque, like the 💬 compose FAB when on. **Trace.** The back FAB (`web/cuisine/src/v2/App.jsx` ~5033) used `bg-tg-card/95` with **no** `liquid-glass`, while the 💬 FAB uses `bg-tg-card/75… | 4 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 1503 | merged | 2026-07-05 05:00:08 | 0.62.501 | fix | Cuisine Picker | Fix: TMAs prefer device locale (navigator) over Telegram-app locale — fixes French UI on French phone w/ English Telegram | Report:** a French native user on a Samsung S22 saw English pills/wording across multiple TMAs. **Root cause (traced, shared by all 5 TMAs).** `getActiveLocale` precedence was `localStorage 'gia.locale'` → **Telegram app `language_code`**… | 8 files — TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, doc, package | cuisine+menu+hawker+transport | doc/vault |
+| 1504 | merged | 2026-07-05 06:19:03 | 0.62.502 | copy | Language / i18n | Reword: dish-note backfill tail — 10 grounded notes + 6-lang translations, 7 fabricated entries pruned (100% coverage) | Closes the last gap from the v0.62.501 coverage audit: **17 `iconicDishes` still had no explanation**. | 6 files — nation-overlay-dishnotes-i18n.generated.js, nation-overlay-dishnotes.generated.js, nation-overlay.js, doc, package | — | doc/vault |
+| 1505 | merged | 2026-07-05 10:21:43 | 0.62.503 | docs | Transport / carpark | Update docs: Register catch-up rollup (v0.62.76 → v0.62.502) | Doc housekeeping** — closes the "Register still due" gap the journals kept flagging. `doc/Register/` was last updated at `register-0_62_76` (14-06); current is v0.62.502 — a **113-journal / ~470-PR** arc (v0.62.77 → v0.62.502) with no… | 4 files — doc, package | — | doc/vault |
+| 1506 | merged | 2026-07-05 10:49:13 |  | docs | Infra / setup | Update docs: prepare Soleat manual localisation workflow | Adds localisation preparation scaffolding for the Soleat User Manual without creating translated manuals yet. | 10 files — docs/ | — | — |
+| 1507 | merged | 2026-07-06 09:23:06 |  | docs | Recognised lists | Update docs: record PR #1506, #1509 merges | Records the merges of PR #1506 ("docs: prepare Soleat manual localisation workflow") and PR #1509 ("docs: add Soleat manual maturity and release lock checklist") in `doc/Journal/journal-0_62_503-05_07_26-1500.md`, extending the current… | 2 files — doc | — | doc/vault |
+| 1508 | merged | 2026-07-05 23:45:30 | 0.62.504 | feature | Transport / carpark | Add: quiet the Vault-Index + Pulse 5-min heartbeat logs | ## What Two every-5-min heartbeats spammed the Railway **runtime** (Deploy) log with no state change. | 5 files — index.js, vault-index.js, doc, package | — | Redis/state; doc/vault |
+| 1509 | merged | 2026-07-06 06:13:32 |  | docs | Pipeline / discovery | Update docs: add Soleat manual maturity and release lock checklist | Adds maturity/status tracking for the Soleat User Manual so the team can see what is complete and what remains before translation or TMA help wiring. | 3 files — docs/ | — | — |
+| 1511 | merged | 2026-07-06 14:00:57 | 0.62.505 | refactor | Docs / vault | Refactor: vault/v0.62.504 snapshot (27th) — pre-cleanup archive | Operator-ordered: snapshot FIRST, before any audit-driven vault/ cleanup. | 1927 files — doc, vault, package, root-docs, -, Add, Bus.png, Cabinet.png, Cabinet_view.png, Cabinets_view.png, Centre, Centre.png, Choice.png, Clupboard_view.png, Cooking, Dessert, Direction, Dish, Drink.MD, Eat, Flag.png, Hawker, Humidity, Icon.png, Logo.png, Moderation.png, My, New, Places.json, Settings.png, Singapore.json, Speed, Temperature, a, across, by, drawer.png, first, food, icon.PNG, icon.png, in, method, method.png, n, reference, stop | — | Redis/state; legal; doc/vault |
 
 ---
 
