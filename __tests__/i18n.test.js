@@ -7,12 +7,14 @@ import { describe, it, expect } from 'vitest';
 import { t, tn, pickLang } from '../i18n.js';
 
 describe('pickLang', () => {
-  it('accepts en and fr', () => {
-    expect(pickLang('en')).toBe('en');
-    expect(pickLang('fr')).toBe('fr');
+  it('accepts all 8 supported locales', () => {
+    for (const code of ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es']) {
+      expect(pickLang(code)).toBe(code);
+    }
   });
   it('falls back to en for unknown / missing', () => {
-    expect(pickLang('zh')).toBe('en');
+    // v0.62.511: SUPPORTED expanded to 8 langs; use a genuinely unsupported code
+    expect(pickLang('ko')).toBe('en');
     expect(pickLang('')).toBe('en');
     expect(pickLang(undefined)).toBe('en');
     expect(pickLang(null)).toBe('en');
