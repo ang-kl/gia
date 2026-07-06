@@ -5098,8 +5098,12 @@ export default function App() {
         })()}
         {/* v0.62.281 — the active-filter chips moved INTO the "Criteria" dropdown
             in the control row below (was a floating strip here). */}
-        {/* THE BAND — bg-tg-bg/96 now wraps ONLY the control row + footer tag. */}
-        <div className="pointer-events-auto -mx-2 px-3 pt-1.5 pb-1 bg-tg-bg/96 backdrop-blur-md shadow-[0_-6px_24px_rgba(0,0,0,0.22)] flex flex-col gap-1">
+        {/* THE BAND — v0.62.510: house liquid-glass on the footer (operator).
+            Was flat `bg-tg-bg/96 backdrop-blur-md`; now the `.liquid-glass-dock`
+            surface (frosted blur + saturate + glass edge, up-cast lift shadow)
+            over `bg-tg-bg/80`. Dark mode still drops onto a near-opaque base so
+            the map can't tint it (the v0.62.206/209 fix, carried into the class). */}
+        <div className="pointer-events-auto -mx-2 px-3 pt-1.5 pb-1 liquid-glass-dock bg-tg-bg/80 flex flex-col gap-1">
           {/* slim control row — results · layout · next  |  down · end. Inline icon
               chips (no bordered cards); aria-labels carry the full text. */}
           <div className="flex items-center justify-between gap-1 text-[11px] font-semibold text-tg-link">
