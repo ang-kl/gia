@@ -1,0 +1,36 @@
+# vibe-journal config — see https://github.com/<your-org>/vibe-journal#config
+project:
+  name: My Project
+  repo: org/repo
+  doc_root: doc/
+  vault_root: vault/
+
+output: dist/vibe-journal/
+
+sources:
+  pr:
+    enabled: true
+    github_repo: org/repo            # uses gh CLI or GITHUB_TOKEN if available
+    # If neither is available, the parser falls back to parsing git log
+    # and any doc/VibeCodingRecord/data/prs.ndjson the project already has.
+  register:
+    glob: doc/Register/register-*.md
+  third_party:
+    sources:
+      - { type: yaml, path: doc/third-party.yaml }      # see examples/ for schema
+      - { type: github-issues, repo: org/repo, state: all }
+  technical:
+    glob: doc/Technical/technical-*.md
+  feature:
+    glob: doc/Feature/feature-*.md
+  legal:
+    glob: doc/Legal/legal-*.md
+  vault:
+    glob: vault/*/VAULT_README.md
+  journal:
+    glob: doc/Journal/journal-*.md
+    hdr_format: "[HDR]"              # the marker that opens a journal block
+  builder:
+    glob: doc/Builder/builder-*.md
+  persona:
+    glob: doc/Persona/persona-*.md

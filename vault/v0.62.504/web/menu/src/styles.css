@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+body { -webkit-font-smoothing: antialiased; }
+
+/* v0.62.16: derive --tg-border from text+bg so it stays VISIBLE in dark
+   mode. Telegram never sends a border colour, so the Tailwind fallback
+   (#2a2a2e) sat ~1.2:1 on the dark card/bg = invisible. 38% text / 62% bg
+   lands a quiet grey — 3.39:1 vs the card / 3.85:1 vs the bg (v0.62.31: was
+   38%, which computed to 2.97:1 vs the card, a hair UNDER the AA 3:1 it
+   claimed; 42% is honestly >=3:1 where it matters) — in BOTH light and
+   dark — luminance-derived, so colour-blind safe (no hue). tg.js never
+   syncs --tg-border, so this wins. */
+:root {
+  --tg-border: color-mix(in srgb, var(--tg-text, #f5f5f7) 42%, var(--tg-bg, #0e0e10) 58%);
+}
+
+/* v0.59.18: bump base font-size by 1pt on tablet+ viewports
+   (iPad mini portrait = 744px CSS, iPad landscape = 1133px,
+   Telegram Desktop typically > 800px). Phones stay at the
+   browser default (16px). Tailwind's rem-based scale cascades
+   the change to every sized element. */
+@media (min-width: 600px) {
+  html { font-size: 17px; }
+
+  /* v0.60.42 — tablet/desktop centered column.
+     v0.60.49 — cap raised 800 → 1280 to match cuisine TMA after
+     wide-window letterbox feedback. */
+  body {
+    display: flex;
+    justify-content: center;
+    background-color: var(--tg-card, #1c1c1f);
+  }
+  /* v0.61.231 — cap raised 1280 → 1600 to match Cuisine + Transport
+     so notebook viewports fill the width. */
+  #root {
+    width: 100%;
+    max-width: 1600px;
+    min-height: var(--tg-viewport-stable-height, 100vh);
+    background-color: var(--tg-bg);
+  }
+}
+
+/* v0.62.24 — perimeter border framing the centred TMA column on tablet /
+   desktop / iPad-mini (operator: "border around the perimeter of TMA in dark
+   mode", chose desktop/tablet/iPad-mini). Uses the subtle ~3:1 --tg-border so
+   the app shell is delineated from the letterbox in BOTH light and dark
+   (luminance-derived → colour-blind safe). Mobile full-bleed is intentionally
+   left borderless (no awkward screen-edge line / Telegram-header clipping). */
+@media (min-width: 600px) {
+  #root { border: 1px solid var(--tg-border); }
+}
+
+/* v0.62.137 — operator: "change the layout of MENU TMA, it isn't
+   neo-skeuomorphism. the train area looks awful." Bring the hub tiles +
+   the train panel into the same neo-skeuomorphic language the Cuisine TMA
+   uses (frosted raised surfaces, inset top highlight, debossed press).
+   Theme-AGNOSTIC on purpose: Menu's tg.js never sets data-theme, so these
+   rely on color-mix over the Telegram theme vars + neutral rgba shadows,
+   which read correctly in BOTH light and dark and use luminance only
+   (no hue) — colour-blind safe per the operator's deuteranopia rule. */
+
+/* Raised, frosted glass surface — the train card + section panels. */
+.skeuo-card {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--tg-text, #f5f5f7) 7%, var(--tg-card, #1c1c1f)),
+    var(--tg-card, #1c1c1f)
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22),
+              inset 0 -1px 0 rgba(0, 0, 0, 0.10),
+              0 3px 10px rgba(0, 0, 0, 0.20);
+}
+
+/* Raised, tappable glass pill — hub tiles + the train Map/More buttons. */
+.skeuo-pill {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--tg-text, #f5f5f7) 9%, var(--tg-card, #1c1c1f)),
+    color-mix(in srgb, var(--tg-text, #f5f5f7) 2%, var(--tg-card, #1c1c1f))
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28),
+              inset 0 -1px 0 rgba(0, 0, 0, 0.10),
+              0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+/* Pressed-in (debossed) feedback on tap. */
+.skeuo-pill:active {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--tg-text, #f5f5f7) 3%, var(--tg-card, #1c1c1f)),
+    color-mix(in srgb, var(--tg-text, #f5f5f7) 8%, var(--tg-card, #1c1c1f))
+  );
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.45),
+              inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+  transform: translateY(0.5px);
+}
+
+/* Debossed inset strip — the live train-status readout sits recessed. */
+.skeuo-inset {
+  background-color: color-mix(in srgb, var(--tg-bg, #0e0e10) 60%, var(--tg-card, #1c1c1f) 40%);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.32),
+              inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* v0.62.267 — operator: the Cuisine + Hawker line-art icons read "faded"
+   (thin pale-grey strokes). `brightness(0)` collapses the anti-aliased grey
+   strokes to a solid silhouette (= brighter / higher-contrast), then the
+   invert→sepia→saturate→hue-rotate chain re-tints that black to a deep navy
+   (~#1e3a8a). Colour-blind-safe: navy reads as a single dark-blue tone, no
+   red/green. Applied only to the two food icons via their iconImgClass. */
+.icon-navy {
+  filter: brightness(0) saturate(100%) invert(16%) sepia(52%) saturate(2400%)
+          hue-rotate(216deg) brightness(95%) contrast(95%);
+}
+
+/* v0.62.276 — dark mode: the navy line-art reads too dark on the dark card,
+   so flip the line-art icons to WHITE line. `brightness(0)` solidifies the
+   grey strokes to black; `invert(1)` turns that white. `data-tg-dark` is set
+   by tg.js from Telegram's colorScheme / bg luminance (the rest of the UI
+   stays luminance-driven + theme-agnostic per v0.62.16). */
+[data-tg-dark] .icon-navy { filter: brightness(0) invert(1); }
+
+/* v0.62.272 — operator: page scrollbar THIN + unobtrusive, visible only as the
+   pointer nears the edge (hover). Matches the other TMAs. */
+html { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+html:hover { scrollbar-color: var(--tg-border, rgba(140,140,140,0.55)) transparent; }
+html::-webkit-scrollbar { width: 7px; height: 7px; }
+html::-webkit-scrollbar-track { background: transparent; }
+html::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; transition: background 0.2s; }
+html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,140,0.55)); }
