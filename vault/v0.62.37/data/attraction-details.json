@@ -1,1 +1,0 @@
-{"_meta":{"comment":"Built by scripts/fetch-attraction-details.js — Google Places + website Instagram scrape. Joined into geo-attractions.json by build-geo-overlays.js. Scaffold committed empty; the operator runs the fetcher with GOOGLE_MAPS_API_KEY.","source":"Google Places API + attraction websites","lastUpdated":"2026-05-22","detailCount":0},"details":{}}

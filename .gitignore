@@ -19,3 +19,8 @@ public/oversight/
 public/about/
 # Vite build output for the Clipboard TMA (v0.62.330). Source: web/clipboard/.
 public/clipboard/
+# Repo snapshots — redundant with git history (each snapshot == a full source tree
+# already reachable by commit sha). Removed from tracking v0.62.508; recover any past
+# snapshot via `git show <sha>:vault/<version>/<path>`. Kept ignored so ad-hoc local
+# snapshots are never re-committed.
+vault/
