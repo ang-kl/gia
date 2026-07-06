@@ -5,11 +5,9 @@ import { applyTelegramTheme } from './api/tg.js';
 
 applyTelegramTheme();
 
-// v0.53.0: dual-render — `?v=2` (default) loads the new map-first
-// flip-card TMA; `?v=1` falls back to the legacy chip-grid TMA. Once
-// v2 is validated in production, drop v1 and the query-param gate.
-const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
-const requestedVersion = params.get('v') || '2';
+// v0.53.0: dual-render `?v=1|2` shipped the map-first v2 alongside the legacy
+// chip-grid v1 behind a query-param gate. v2 has been the validated default
+// since; v0.62.509 drops v1 and the gate (the legacy app is git-recoverable).
 
 // v0.62.x — stale-deploy self-heal. After a redeploy the code-split chunk
 // hashes change; a webview holding the old page then 404s the app chunk and
@@ -26,14 +24,8 @@ window.addEventListener('vite:preloadError', () => reloadOnceForStaleChunk('vite
 
 async function boot() {
   try {
-    let App;
-    if (requestedVersion === '1') {
-      App = (await import('./App.jsx')).default;
-      console.log('[Cuisine-TMA] D040 bundle loaded version=v1 (legacy)');
-    } else {
-      App = (await import('./v2/App.jsx')).default;
-      console.log('[Cuisine-TMA] D040 bundle loaded version=v2');
-    }
+    const App = (await import('./v2/App.jsx')).default;
+    console.log('[Cuisine-TMA] D040 bundle loaded version=v2');
     createRoot(document.getElementById('root')).render(<App />);
   } catch (err) {
     reloadOnceForStaleChunk(err && err.message);
