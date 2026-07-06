@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-04",
-  "count": 1472,
+  "generated": "2026-07-06",
+  "count": 1483,
   "records": [
     {
       "pr": 1,
@@ -41499,6 +41499,356 @@
         "doc/vault"
       ],
       "title": "v0.62.496: move status folder-tab outside the card (IMG_2685/2686 + reference mock)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1500,
+      "status": "merged",
+      "merged": "2026-07-04 08:36:15",
+      "day": "2026-07-04",
+      "version": "0.62.497",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: VibeCodingRecord catch-up regen (PRs #1364-#1499)",
+      "approach": "## What Catch-up regen of the generated **Vibe-Coding Record** ledger + hosted Vibe Journal.",
+      "codeImpact": "10 files — doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.497: VibeCodingRecord catch-up regen (PRs #1364-#1499)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1501,
+      "status": "merged",
+      "merged": "2026-07-04 13:23:52",
+      "day": "2026-07-04",
+      "version": "0.62.498",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Menu TMA auto-detect gates on anchorLoading (tighten 800ms first-launch race)",
+      "approach": "## What Tightens the Menu TMA **first-launch location race** surfaced in the location-cache trace.",
+      "codeImpact": "4 files — TMA:menu, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:menu"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "menu"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.498: Menu TMA auto-detect gates on anchorLoading (tighten 800ms first-launch race)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1502,
+      "status": "merged",
+      "merged": "2026-07-05 00:49:29",
+      "day": "2026-07-05",
+      "version": "0.62.499",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine 🔙 back FAB gets liquid-glass @ 85% opacity (match 💬 FAB)",
+      "approach": "Operator:** the 🔙 Back FAB should be ~85% opaque, like the 💬 compose FAB when on. **Trace.** The back FAB (`web/cuisine/src/v2/App.jsx` ~5033) used `bg-tg-card/95` with **no** `liquid-glass`, while the 💬 FAB uses `bg-tg-card/75…",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.499: Cuisine 🔙 back FAB gets liquid-glass @ 85% opacity (match 💬 FAB)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1503,
+      "status": "merged",
+      "merged": "2026-07-05 05:00:08",
+      "day": "2026-07-05",
+      "version": "0.62.501",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: TMAs prefer device locale (navigator) over Telegram-app locale — fixes French UI on French phone w/ English Telegram",
+      "approach": "Report:** a French native user on a Samsung S22 saw English pills/wording across multiple TMAs. **Root cause (traced, shared by all 5 TMAs).** `getActiveLocale` precedence was `localStorage 'gia.locale'` → **Telegram app `language_code`**…",
+      "codeImpact": "8 files — TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:transport"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.501: TMAs prefer device locale (navigator) over Telegram-app locale — fixes French UI on French phone w/ English Telegram",
+      "reworkCue": false,
+      "reworkOf": 1502,
+      "burst": true
+    },
+    {
+      "pr": 1504,
+      "status": "merged",
+      "merged": "2026-07-05 06:19:03",
+      "day": "2026-07-05",
+      "version": "0.62.502",
+      "minor": "0.62",
+      "category": "copy",
+      "area": "Language / i18n",
+      "intent": "Reword: dish-note backfill tail — 10 grounded notes + 6-lang translations, 7 fabricated entries pruned (100% coverage)",
+      "approach": "Closes the last gap from the v0.62.501 coverage audit: **17 `iconicDishes` still had no explanation**.",
+      "codeImpact": "6 files — nation-overlay-dishnotes-i18n.generated.js, nation-overlay-dishnotes.generated.js, nation-overlay.js, doc, package",
+      "modules": [
+        "doc",
+        "nation-overlay-dishnotes-i18n.generated.js",
+        "nation-overlay-dishnotes.generated.js",
+        "nation-overlay.js",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.502: dish-note backfill tail — 10 grounded notes + 6-lang translations, 7 fabricated entries pruned (100% coverage)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1505,
+      "status": "merged",
+      "merged": "2026-07-05 10:21:43",
+      "day": "2026-07-05",
+      "version": "0.62.503",
+      "minor": "0.62",
+      "category": "docs",
+      "area": "Transport / carpark",
+      "intent": "Update docs: Register catch-up rollup (v0.62.76 → v0.62.502)",
+      "approach": "Doc housekeeping** — closes the \"Register still due\" gap the journals kept flagging. `doc/Register/` was last updated at `register-0_62_76` (14-06); current is v0.62.502 — a **113-journal / ~470-PR** arc (v0.62.77 → v0.62.502) with no…",
+      "codeImpact": "4 files — doc, package",
+      "modules": [
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.503: Register catch-up rollup (v0.62.76 → v0.62.502)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1506,
+      "status": "merged",
+      "merged": "2026-07-05 10:49:13",
+      "day": "2026-07-05",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Infra / setup",
+      "intent": "Update docs: prepare Soleat manual localisation workflow",
+      "approach": "Adds localisation preparation scaffolding for the Soleat User Manual without creating translated manuals yet.",
+      "codeImpact": "10 files — docs/",
+      "modules": [
+        "docs/"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [],
+      "title": "docs: prepare Soleat manual localisation workflow",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1507,
+      "status": "merged",
+      "merged": "2026-07-06 09:23:06",
+      "day": "2026-07-06",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Recognised lists",
+      "intent": "Update docs: record PR #1506, #1509 merges",
+      "approach": "Records the merges of PR #1506 (\"docs: prepare Soleat manual localisation workflow\") and PR #1509 (\"docs: add Soleat manual maturity and release lock checklist\") in `doc/Journal/journal-0_62_503-05_07_26-1500.md`, extending the current…",
+      "codeImpact": "2 files — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs(journal): record PR #1506, #1509 merges",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1508,
+      "status": "merged",
+      "merged": "2026-07-05 23:45:30",
+      "day": "2026-07-05",
+      "version": "0.62.504",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: quiet the Vault-Index + Pulse 5-min heartbeat logs",
+      "approach": "## What Two every-5-min heartbeats spammed the Railway **runtime** (Deploy) log with no state change.",
+      "codeImpact": "5 files — index.js, vault-index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package",
+        "vault-index.js"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "v0.62.504: quiet the Vault-Index + Pulse 5-min heartbeat logs",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1509,
+      "status": "merged",
+      "merged": "2026-07-06 06:13:32",
+      "day": "2026-07-06",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Pipeline / discovery",
+      "intent": "Update docs: add Soleat manual maturity and release lock checklist",
+      "approach": "Adds maturity/status tracking for the Soleat User Manual so the team can see what is complete and what remains before translation or TMA help wiring.",
+      "codeImpact": "3 files — docs/",
+      "modules": [
+        "docs/"
+      ],
+      "nFiles": 3,
+      "tmas": [],
+      "impactTags": [],
+      "title": "docs: add Soleat manual maturity and release lock checklist",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1511,
+      "status": "merged",
+      "merged": "2026-07-06 14:00:57",
+      "day": "2026-07-06",
+      "version": "0.62.505",
+      "minor": "0.62",
+      "category": "refactor",
+      "area": "Docs / vault",
+      "intent": "Refactor: vault/v0.62.504 snapshot (27th) — pre-cleanup archive",
+      "approach": "Operator-ordered: snapshot FIRST, before any audit-driven vault/ cleanup.",
+      "codeImpact": "1927 files — doc, vault, package, root-docs, -, Add, Bus.png, Cabinet.png, Cabinet_view.png, Cabinets_view.png, Centre, Centre.png, Choice.png, Clupboard_view.png, Cooking, Dessert, Direction, Dish, Drink.MD, Eat, Flag.png, Hawker, Humidity, Icon.png, Logo.png, Moderation.png, My, New, Places.json, Settings.png, Singapore.json, Speed, Temperature, a, across, by, drawer.png, first, food, icon.PNG, icon.png, in, method, method.png, n, reference, stop",
+      "modules": [
+        "-",
+        "Add",
+        "Bus.png",
+        "Cabinet.png",
+        "Cabinet_view.png",
+        "Cabinets_view.png",
+        "Centre",
+        "Centre.png",
+        "Choice.png",
+        "Clupboard_view.png",
+        "Cooking",
+        "Dessert",
+        "Direction",
+        "Dish",
+        "Drink.MD",
+        "Eat",
+        "Flag.png",
+        "Hawker",
+        "Humidity",
+        "Icon.png",
+        "Logo.png",
+        "Moderation.png",
+        "My",
+        "New",
+        "Places.json",
+        "Settings.png",
+        "Singapore.json",
+        "Speed",
+        "Temperature",
+        "a",
+        "across",
+        "by",
+        "root-docs",
+        "doc",
+        "drawer.png",
+        "first",
+        "food",
+        "icon.PNG",
+        "icon.png",
+        "in",
+        "method",
+        "method.png",
+        "n",
+        "package",
+        "reference",
+        "stop",
+        "vault"
+      ],
+      "nFiles": 1927,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "legal",
+        "doc/vault"
+      ],
+      "title": "v0.62.505: vault/v0.62.504 snapshot (27th) — pre-cleanup archive",
       "reworkCue": false,
       "reworkOf": null,
       "burst": false
