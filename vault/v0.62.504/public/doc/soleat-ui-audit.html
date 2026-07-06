@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soleat — UI Consistency Audit &amp; Skeuomorphism Verdict</title>
+<style>
+  :root{
+    --ink:#1c1c1f; --soft:#55555c; --hint:#86868f; --line:#e3e3e8;
+    --bg:#ffffff; --paper:#fbfbfc; --accent:#1565C0;
+    --good:#0a7d4d; --warn:#b8860b; --bad:#c0392b; --chip:#f1f1f4;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#d8d8dc;color:var(--ink);
+    font:13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .page{background:var(--bg);width:210mm;margin:14px auto;padding:15mm 16mm;
+    box-shadow:0 2px 14px rgba(0,0,0,.18);position:relative;}
+  h1{font-size:24px;margin:0 0 2px;letter-spacing:-.4px;}
+  .sub{color:var(--soft);font-size:13px;margin:0 0 2px;}
+  .meta{color:var(--hint);font-size:10.5px;margin:0 0 14px;border-bottom:1px solid var(--line);padding-bottom:9px;}
+  h2{font-size:15px;margin:18px 0 7px;padding-bottom:3px;border-bottom:2px solid var(--ink);
+     display:flex;align-items:center;gap:7px;}
+  h2 .n{font-size:11px;color:#fff;background:var(--ink);border-radius:4px;padding:1px 6px;font-weight:700;}
+  p{margin:6px 0;}
+  .lead{font-size:14px;}
+  code{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;
+    background:var(--chip);border-radius:4px;padding:.5px 5px;color:#222;}
+  .verdict{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;
+    background:var(--paper);padding:11px 14px;margin:10px 0;}
+  .verdict b{color:var(--ink);}
+  .pill{display:inline-block;font-size:10.5px;font-weight:700;border-radius:20px;padding:2px 9px;margin-right:6px;}
+  .pill.no{background:#fdecea;color:var(--bad);border:1px solid #f5c6cd;}
+  .pill.yes{background:#e7f4ec;color:var(--good);border:1px solid #c4e3d1;}
+  table{border-collapse:collapse;width:100%;font-size:12px;margin:8px 0;}
+  th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top;}
+  th{background:var(--paper);font-size:11px;text-transform:uppercase;letter-spacing:.3px;color:var(--soft);}
+  td .sev{font-weight:700;font-size:11px;}
+  .sev.h{color:var(--bad);} .sev.m{color:var(--warn);} .sev.l{color:var(--soft);}
+  ul{margin:6px 0;padding-left:18px;} li{margin:3px 0;}
+  .good li{color:#234} .ref{color:var(--hint);font-size:11px;font-family:"SF Mono",ui-monospace,monospace;}
+  .foot{border-top:1px solid var(--line);padding-top:6px;margin-top:16px;color:var(--hint);font-size:10px;
+    display:flex;justify-content:space-between;}
+  .rec{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:9px 13px;}
+  .rec li{margin:5px 0;}
+  @media print{
+    html,body{background:#fff;}
+    .page{box-shadow:none;margin:0;width:auto;padding:0;}
+    @page{size:A4;margin:13mm 14mm;}
+    h2{page-break-after:avoid;} table{page-break-inside:auto;} tr{page-break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+<section class="page">
+  <h1>Soleat — UI Consistency Audit</h1>
+  <p class="sub">Cross-app inspection of the six front-ends + chat templates, with a verdict on whether the UI should be skeuomorphic.</p>
+  <p class="meta">Generated 16 Jun 2026 · code line v0.62.114 · scope: <code>web/cuisine</code>, <code>web/menu</code>, <code>web/hawker</code>, <code>web/transport</code>, <code>web/oversight</code>, <code>web/about</code> + server-side <code>venue-templates.js</code> / <code>index.js</code> HTML · inspection only, no code changed</p>
+
+  <h2><span class="n">1</span> Verdict</h2>
+  <div class="verdict">
+    <p style="margin-top:0"><b>Consistency:</b> the <b>foundation is consistent, the surface is fragmented.</b> All five Mini-Apps share the same Telegram theme tokens (<code>tg-bg / tg-text / tg-accent / tg-card / tg-border / tg-hint</code>); <code>about</code> is intentionally its own showcase design system. On top of that shared base there is real drift — and a mixed flat-vs-skeuomorphic language within single screens.</p>
+    <p style="margin-bottom:0"><span class="pill no">SKEUOMORPHIC? NO</span> These are <b>Telegram Mini Apps</b>: the platform convention — and your own <code>tg-*</code> system — is <b>flat and theme-adaptive</b> (the UI must recolour to each user's Telegram light/dark theme). Full skeuomorphism fights that — textures, gradients and realistic shadows don't recolour with the theme, cost performance, and hurt accessibility. The right rule is <b>flat-first, with a small, deliberate skeuomorphic <em>accent</em> vocabulary</b>. Today's real problem isn't the style — it's that the choice is made ad-hoc per component.</p>
+  </div>
+
+  <h2><span class="n">2</span> What's already consistent ✅</h2>
+  <ul class="good">
+    <li>Shared 7-token Telegram theme across the 5 TMAs; <code>ResultCard</code>, <code>LocationCard</code> and most containers are clean (<code>rounded-lg border-tg-border bg-tg-card</code>).</li>
+    <li><code>BackFab</code> applies the same shape across Menu / Hawker / Transport.</li>
+    <li><code>about</code> correctly isolates its own palette (documented as deliberate — not a TMA).</li>
+    <li>Typography uses a pragmatic shared scale of Tailwind arbitrary sizes (<code>text-[11px]…[14px]</code>); standard border-radius tokens.</li>
+  </ul>
+
+  <h2><span class="n">3</span> Inconsistencies a user actually notices</h2>
+  <table>
+    <thead><tr><th style="width:13%">Severity</th><th style="width:30%">Issue</th><th>What &amp; where</th></tr></thead>
+    <tbody>
+      <tr><td><span class="sev h">HIGH</span></td><td>Map controls ignore the theme</td>
+        <td>Zoom / reset / expand are hardcoded <code>bg-white/70 text-black border-gray-300 shadow-md</code> in <em>all</em> map TMAs — white buttons floating on a dark-theme map. <span class="ref">HawkerMapPanel.jsx:455 · MrtMapPanel.jsx:457</span></td></tr>
+      <tr><td><span class="sev h">HIGH</span></td><td>Mixed design language on one screen</td>
+        <td>Flat themed cards/buttons beside skeuomorphic accents: depth-shadowed teardrop pins, white-ring "floating" markers, a blink animation, asymmetric "convex" pill buttons (<code>rounded-t-md rounded-b-[12px]</code>), and emoji-as-icons (🚏🚉🍲📜🔴🟡🟢). No rule for when each applies.</td></tr>
+      <tr><td><span class="sev h">HIGH</span></td><td>Map info-windows are a 2nd design system</td>
+        <td>Rendered as raw HTML strings with inline colours + underlined links — won't track the theme, unlike the React/Tailwind cards. <span class="ref">HawkerMapPanel.jsx:275 · mapOverlays.js infoCard</span></td></tr>
+      <tr><td><span class="sev m">MED</span></td><td>Button padding &amp; active-state drift</td>
+        <td>Padding ranges <code>py-0.5 → py-1 → py-1.5</code>; "active pill" is sometimes a border, sometimes a background fill. Dropdown items are <em>larger</em> than their closed toggle (text grows on open — janky). <span class="ref">LocationField.jsx</span></td></tr>
+      <tr><td><span class="sev m">MED</span></td><td>Theme/token bypasses</td>
+        <td>Menu syncs Telegram's low-contrast <code>hint_color</code> while every other app deliberately skips it; <code>#7FDBDB</code> FAB + MRT/map hexes hardcoded in ~15 spots. <span class="ref">menu/src/tg.js:88 vs cuisine/src/api/tg.js:151</span></td></tr>
+      <tr><td><span class="sev m">MED</span></td><td>Accessibility of icon system</td>
+        <td>Emoji used as primary icons with no text fallback; crowd state encoded by colour alone (🔴🟡🟢) — a colour-blind / WCAG gap.</td></tr>
+      <tr><td><span class="sev l">LOW</span></td><td>Duplicated theme bootstrap</td>
+        <td>~90% of <code>tg.js</code> is copy-pasted across the 4 smaller TMAs — which is exactly how the <code>hint_color</code> divergence crept in. <span class="ref">menu/hawker/transport/oversight src/tg.js</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2><span class="n">4</span> Skeuomorphism — the rule to adopt</h2>
+  <p><b>Flat-first, theme-adaptive base</b> (the existing <code>tg-*</code> system) as canonical. Reserve skeuomorphism for a <em>named, documented</em> accent set where the physical metaphor genuinely aids comprehension:</p>
+  <ul>
+    <li><b>Keep as skeuomorphic accents:</b> the teardrop <b>map pins</b>, the <b>📜 fact scroll</b>, and the map-control "chrome".</li>
+    <li><b>Everything else flat:</b> cards, buttons, chips, dropdowns, info-windows, toggles.</li>
+    <li><b>Why not full skeuomorphism:</b> Telegram theming requires recolouring to the user's light/dark theme — textures/gradients can't follow it; they also add weight and accessibility risk. Consistency matters more than the style label.</li>
+  </ul>
+
+  <h2><span class="n">5</span> Recommended fixes (when you're ready)</h2>
+  <div class="rec"><ul>
+    <li><b>Theme the map controls</b> — use <code>tg-card</code>/<code>tg-text</code> or a dedicated <code>--map-control-*</code> pair so they stop being white-on-dark. <span class="ref">(highest impact, low risk)</span></li>
+    <li><b>Standardize buttons</b> — one padding scale, one active-pill style; kill the dropdown text-grows-on-open jump.</li>
+    <li><b>Render info-windows in React/Tailwind</b> (or a shared themed template) instead of inline-styled HTML strings, so they track the theme.</li>
+    <li><b>Extract a shared <code>tg.js</code>/theme module</b> across the 4 smaller TMAs — fixes the <code>hint_color</code> divergence + hardcoded hexes at the root.</li>
+    <li><b>Define an emoji-icon contract</b> with text labels / <code>aria-label</code> for the colour-coded states (crowd, status).</li>
+    <li><b>Document the standard</b> (flat-first + named skeuomorphic accents) in <code>doc/Technical</code> + open items in <code>doc/Register</code> so drift can't recur.</li>
+  </ul></div>
+
+  <div class="foot"><span>Soleat · UI Consistency Audit — inspection &amp; recommendation, no code changed</span><span>v0.62.114 · 16 Jun 2026</span></div>
+</section>
+</body>
+</html>

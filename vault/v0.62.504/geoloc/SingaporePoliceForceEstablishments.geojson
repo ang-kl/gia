@@ -1,0 +1,2950 @@
+{
+	"type" : "FeatureCollection",
+	"name" : "SPF_ESTABLISHMENTS",
+	"features" : [
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.76013905137373, 1.321954452432762 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7361,
+				"DEPARTMENT" : "Clementi Police Divisional HQ",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Lempeng Drive ",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Clementi Police Divisional (DELTA)",
+				"TELEPHONE" : "1800 774 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6774 1705",
+				"HSE_BLK_NO" : "6",
+				"POSTAL_CODE" : "128496",
+				"INC_CRC" : "DEEEF11C443E0998",
+				"FMEL_UPD_D" : "20231117144847"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.76034984188605, 1.321428702196831 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7362,
+				"DEPARTMENT" : "Clementi Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Lempeng Drive",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Clementi Police Divisional (DELTA)",
+				"TELEPHONE" : "1800 774 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6774 1705",
+				"HSE_BLK_NO" : "6",
+				"POSTAL_CODE" : "128496",
+				"INC_CRC" : "E25D9092D743DEF2",
+				"FMEL_UPD_D" : "20231117144847"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.95919800386258, 1.3685870285379866 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7363,
+				"DEPARTMENT" : "Pasir Ris Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Pasir Ris Drive 4",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : "1800 585 2999",
+				"UNIT" : "#01-01",
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6585 5261",
+				"HSE_BLK_NO" : "1",
+				"POSTAL_CODE" : "519457",
+				"INC_CRC" : "706932547DDAC86C",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.98069576735139, 1.3432112129107483 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7364,
+				"DEPARTMENT" : "Airport Police Division",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Airport Boulevard Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Other Police Units",
+				"TELEPHONE" : "6546 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Not open to the public",
+				"FAX" : "6545 2213",
+				"HSE_BLK_NO" : "35",
+				"POSTAL_CODE" : "819645",
+				"INC_CRC" : "F065965138E61D9B",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85165352006435, 1.3699099992708954 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7365,
+				"DEPARTMENT" : "Ang Mo Kio South Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Ang Mo Kio Avenue 3",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Ang Mo Kio Police Division (FOXTROT)",
+				"TELEPHONE" : "1800 451 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6553 5679",
+				"HSE_BLK_NO" : "81",
+				"POSTAL_CODE" : "569929",
+				"INC_CRC" : "EA57B16562817DB0",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84506160226542, 1.384931714888236 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7366,
+				"DEPARTMENT" : "Ang Mo Kio Police Divisional Head Quarters",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Ang Mo Kio Avenue 9",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Ang Mo Kio Police Division (FOXTROT)",
+				"TELEPHONE" : "1800 484 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6218 1399",
+				"HSE_BLK_NO" : "51",
+				"POSTAL_CODE" : "569784",
+				"INC_CRC" : "C4C3D5B3250548E4",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8449754843272, 1.3242638315842092 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7367,
+				"DEPARTMENT" : "Administration & Finance Department",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Irrawaddy Road",
+				"BUILDING_NAME" : "New Phoenix Park",
+				"TYPE" : "Police Headquarters",
+				"TELEPHONE" : "6353 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Not open to the public",
+				"FAX" : "-",
+				"HSE_BLK_NO" : "28",
+				"POSTAL_CODE" : "329560",
+				"INC_CRC" : "80BD314597DDD674",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.88613694588014, 1.3109665000553323 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7368,
+				"DEPARTMENT" : "Geylang Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Cassia Link",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : "1800 848 6999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6848 6799",
+				"HSE_BLK_NO" : "1",
+				"POSTAL_CODE" : "397618",
+				"INC_CRC" : "EC5A0F915F8A6C9B",
+				"FMEL_UPD_D" : "20191022160416"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8449754843272, 1.3242638315842092 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7369,
+				"DEPARTMENT" : "Police Intelligence Department",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Irrawaddy Road",
+				"BUILDING_NAME" : "New Phoenix Park",
+				"TYPE" : "Police Headquarters",
+				"TELEPHONE" : "6353 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Not open to the public",
+				"FAX" : "-",
+				"HSE_BLK_NO" : "28",
+				"POSTAL_CODE" : "329560",
+				"INC_CRC" : "80BD314573D1552F",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.9070315158066, 1.303560915312944 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7370,
+				"DEPARTMENT" : "Marine Parade Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Marine Drive",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-35",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "74",
+				"POSTAL_CODE" : "440074",
+				"INC_CRC" : "D70BDDB3494E8D08",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.7021111255797, 1.3508868274259067 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7371,
+				"DEPARTMENT" : "Jurong Police Divisional HQ",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Jurong West Ave 5",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Jurong Police Divisional (JULIET)",
+				"TELEPHONE" : "1800 792 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6791 2972",
+				"HSE_BLK_NO" : "2",
+				"POSTAL_CODE" : "649482",
+				"INC_CRC" : "917E0965810991FD",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.87036787480181, 1.3516122464317093 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7372,
+				"DEPARTMENT" : "Serangoon Neighbourhood Police Centre (Temporarily Closed)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Serangoon Avenue 2",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Ang Mo Kio Police Division (FOXTROT)",
+				"TELEPHONE" : "1800 488 0999",
+				"UNIT" : "#01-02",
+				"OPERATING_HOURS" : "Temporarily Closed",
+				"FAX" : "6488 3561",
+				"HSE_BLK_NO" : "50",
+				"POSTAL_CODE" : "556129",
+				"INC_CRC" : "3A0B16358CB88ACC",
+				"FMEL_UPD_D" : "20230316173711"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8449754843272, 1.3242638315842092 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7373,
+				"DEPARTMENT" : "Planning & Organisation Department",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Irrawaddy Road",
+				"BUILDING_NAME" : "New Phoenix Park",
+				"TYPE" : "Police Headquarters",
+				"TELEPHONE" : "6353 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Not open to the public",
+				"FAX" : "-",
+				"HSE_BLK_NO" : "28",
+				"POSTAL_CODE" : "329560",
+				"INC_CRC" : "80BD314552DC2A96",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8449754843272, 1.3242638315842092 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7374,
+				"DEPARTMENT" : "Police Technology Department",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Irrawaddy Road",
+				"BUILDING_NAME" : "New Phoenix Park",
+				"TYPE" : "Police Headquarters",
+				"TELEPHONE" : "6353 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Not open to the public",
+				"FAX" : "-",
+				"HSE_BLK_NO" : "28",
+				"POSTAL_CODE" : "329560",
+				"INC_CRC" : "80BD314511740CAD",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.7372282167226, 1.3401264643919735 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7375,
+				"DEPARTMENT" : "Jurong East Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Boon Lay Way",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Clementi Police Divisional (DELTA)",
+				"TELEPHONE" : "1800 899 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6665 5791",
+				"HSE_BLK_NO" : "92",
+				"POSTAL_CODE" : "609962",
+				"INC_CRC" : "61965037F3A5FD7F",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8449754843272, 1.3242638315842092 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7376,
+				"DEPARTMENT" : "Inspectorate & Compliance Office",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Irrawaddy Road",
+				"BUILDING_NAME" : "New Phoenix Park",
+				"TYPE" : "Police Headquarters",
+				"TELEPHONE" : "6353 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Not open to the public",
+				"FAX" : "-",
+				"HSE_BLK_NO" : "28",
+				"POSTAL_CODE" : "329560",
+				"INC_CRC" : "80BD314569E76CD5",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.91140784501751, 1.3234890687963676 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7377,
+				"DEPARTMENT" : "Kampong Kembangan Neighbourhood Police Post (Temporarily Closed)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Lengkong Tiga #01-215",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Temporarily Closed",
+				"FAX" : null,
+				"HSE_BLK_NO" : "112",
+				"POSTAL_CODE" : "410112",
+				"INC_CRC" : "4E367FC0023B1CF3",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.88402908693419, 1.3203712700627053 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7378,
+				"DEPARTMENT" : "Geylang Serai Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Aljunied Crescent",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-102",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "111",
+				"POSTAL_CODE" : "380111",
+				"INC_CRC" : "52310B9378C31542",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82813657961526, 1.2888523213141736 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7379,
+				"DEPARTMENT" : "Kim Seng Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Beo Crescent",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Tanglin Police Divisional (ECHO)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "5",
+				"POSTAL_CODE" : "169981",
+				"INC_CRC" : "35B0B14E05F8D651",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.74167403332326, 1.3211025646074217 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7380,
+				"DEPARTMENT" : "Ayer Rajah Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Teban Gardens Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Clementi Police Divisional (DELTA)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-388",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "43",
+				"POSTAL_CODE" : "600043",
+				"INC_CRC" : "DB0BF9197820E08E",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.94226530877866, 1.323435861110226 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7381,
+				"DEPARTMENT" : "Tanah Merah Neighbourhood Police Post (Temporarily Closed)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "New Upper Changi Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-1514",
+				"OPERATING_HOURS" : "1200 to 2200 hrs",
+				"FAX" : null,
+				"HSE_BLK_NO" : "51",
+				"POSTAL_CODE" : "461051",
+				"INC_CRC" : "E87242A700AF63F8",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.92912981677043, 1.3342155058342127 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7382,
+				"DEPARTMENT" : "Kaki Bukit Neighbourhood Police Post (Temporarily Closed)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Bedok North Street 3",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-448",
+				"OPERATING_HOURS" : "1200 to 2200 hrs",
+				"FAX" : null,
+				"HSE_BLK_NO" : "526",
+				"POSTAL_CODE" : "460526",
+				"INC_CRC" : "DC04BE4FE10D5C06",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8483963361962, 1.3651176619721814 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7383,
+				"DEPARTMENT" : "Teck Ghee Neighbourhood Police Post (Temporarily Closed)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Ang Mo Kio Street 31",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Ang Mo Kio Police Division (FOXTROT)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "1200 to 2200 hrs",
+				"FAX" : null,
+				"HSE_BLK_NO" : "321",
+				"POSTAL_CODE" : "560321",
+				"INC_CRC" : "A012E9DFF4824966",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8712068396212, 1.3699014031886547 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7384,
+				"DEPARTMENT" : "Serangoon North Neighbourhood Police Post (Temporarily Closed)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Serangoon North Avenue 1",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Ang Mo Kio Police Division (FOXTROT)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-709",
+				"OPERATING_HOURS" : "1200 to 2200 hrs",
+				"FAX" : null,
+				"HSE_BLK_NO" : "108",
+				"POSTAL_CODE" : "550108",
+				"INC_CRC" : "25EC737EA9AF7DF7",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.74930734305576, 1.3599574097920455 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7385,
+				"DEPARTMENT" : "Hong Kah North Neighbourhood Police Post (Temporarily Closed)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Bukit Batok Street 31",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Jurong Police Divisional (JULIET)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-201",
+				"OPERATING_HOURS" : "1200 to 2200 hrs",
+				"FAX" : null,
+				"HSE_BLK_NO" : "370",
+				"POSTAL_CODE" : "650370",
+				"INC_CRC" : "EB423DC7086D4635",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.71293318460016, 1.3476459275021282 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7386,
+				"DEPARTMENT" : "Boon Lay Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Boon Lay Place",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Jurong Police Divisional (JULIET)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-00",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "210",
+				"POSTAL_CODE" : "640210",
+				"INC_CRC" : "24BDF587FFE55850",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82995744885325, 1.4311373719819585 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7387,
+				"DEPARTMENT" : "Chong Pang Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Yishun Ring Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Woodlands Police Divisional (LIMA)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "141",
+				"POSTAL_CODE" : "760141",
+				"INC_CRC" : "68AE760594ECF406",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84710875263065, 1.2865274628207128 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7388,
+				"DEPARTMENT" : "Kreta Ayer Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "North Canal Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Central Police Divisional (ALPHA)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "55",
+				"POSTAL_CODE" : "59282",
+				"INC_CRC" : "3A8152133E515C39",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.81240979755005, 1.3227233163165504 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7389,
+				"DEPARTMENT" : "Bukit Timah Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Duke Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Tanglin Police Divisional (ECHO)",
+				"TELEPHONE" : "1800 462 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6462 8933",
+				"HSE_BLK_NO" : "1",
+				"POSTAL_CODE" : "268914",
+				"INC_CRC" : "DFB3B590230EAE6D",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83983531025072, 1.2989784461990201 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7390,
+				"DEPARTMENT" : "Orchard Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Killiney Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Tanglin Police Divisional (ECHO)",
+				"TELEPHONE" : "1800 735 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6733 1934",
+				"HSE_BLK_NO" : "51",
+				"POSTAL_CODE" : "239572",
+				"INC_CRC" : "0A406399C31BA826",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84647310453936, 1.3119101912037974 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7391,
+				"DEPARTMENT" : "Tanglin Police Divisional HQ",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Kampong Java Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Tanglin Police Divisional (ECHO)",
+				"TELEPHONE" : "1800 295 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6391 3442",
+				"HSE_BLK_NO" : "21",
+				"POSTAL_CODE" : "228892",
+				"INC_CRC" : "975E64C7DF6201BF",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84647310453936, 1.3119101912037974 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7392,
+				"DEPARTMENT" : "Kampong Java Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Kampong Java Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Tanglin Police Divisional (ECHO)",
+				"TELEPHONE" : "1800 295 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6391 3442",
+				"HSE_BLK_NO" : "21",
+				"POSTAL_CODE" : "228892",
+				"INC_CRC" : "975E64C7095FA093",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.94881182902199, 1.3474078008360169 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7393,
+				"DEPARTMENT" : "Changkat Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Tampines Street 11",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-261",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "109",
+				"POSTAL_CODE" : "521109",
+				"INC_CRC" : "A3A8B282BF92308E",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.88876589131722, 1.3528737910523227 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7394,
+				"DEPARTMENT" : "Paya Lebar Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Hougang Avenue 1",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Ang Mo Kio Police Division (FOXTROT)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-1270",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "114",
+				"POSTAL_CODE" : "530114",
+				"INC_CRC" : "EEC2BCA190493B87",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.93554194768083, 1.3209096757452414 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7395,
+				"DEPARTMENT" : "Bedok Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Bedok South Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-117",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "15",
+				"POSTAL_CODE" : "460015",
+				"INC_CRC" : "ACC5C5946DE704BE",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.87930111923117, 1.3357724045279333 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7396,
+				"DEPARTMENT" : "Aljunied Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Joo Seng Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Tanglin Police Divisional (ECHO)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-69",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "13",
+				"POSTAL_CODE" : "360013",
+				"INC_CRC" : "E7E268549815ACDD",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.7021111255797, 1.3508868274259067 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7397,
+				"DEPARTMENT" : "Nanyang Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Jurong West Ave 5",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Jurong Police Divisional (JULIET)",
+				"TELEPHONE" : "1800 792 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6791 2972",
+				"HSE_BLK_NO" : "2",
+				"POSTAL_CODE" : "649482",
+				"INC_CRC" : "917E0965AE9AC145",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.91408899984509, 1.398110999655596 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7398,
+				"DEPARTMENT" : "Punggol Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Punggol Central",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Ang Mo Kio Police Division (FOXTROT)",
+				"TELEPHONE" : "1800 604 9999",
+				"UNIT" : "#03-01",
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6446 8015",
+				"HSE_BLK_NO" : "151",
+				"POSTAL_CODE" : "828727",
+				"INC_CRC" : "DC2D514F3547D079",
+				"FMEL_UPD_D" : "20220308175850"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83924965092491, 1.2785105497128124 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7399,
+				"DEPARTMENT" : "Warrant Enforcement Unit",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "New Bridge Road",
+				"BUILDING_NAME" : "Police Cantonment Complex Block A",
+				"TYPE" : "Police Cantonment Complex",
+				"TELEPHONE" : "6557 5017",
+				"UNIT" : "Level 1",
+				"OPERATING_HOURS" : "0900 to 1700 hrs",
+				"FAX" : "6220 5083",
+				"HSE_BLK_NO" : "391",
+				"POSTAL_CODE" : "88762",
+				"INC_CRC" : "CC86B3A785B2EE9C",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.7788630942206, 1.4334603452244374 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7400,
+				"DEPARTMENT" : "Woodlands West Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Woodlands Street 12",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Woodlands Police Divisional (LIMA)",
+				"TELEPHONE" : "1800 363 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "-",
+				"HSE_BLK_NO" : "1",
+				"POSTAL_CODE" : "738622",
+				"INC_CRC" : "18583C712698EBB2",
+				"FMEL_UPD_D" : "20181123000717"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8719730658379, 1.338876290839683 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7401,
+				"DEPARTMENT" : "Woodleigh Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Upper Aljunied Road",
+				"BUILDING_NAME" : "Woodleigh NPC",
+				"TYPE" : "Ang Mo Kio Police Division (FOXTROT)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : null,
+				"HSE_BLK_NO" : "501",
+				"POSTAL_CODE" : "367897",
+				"INC_CRC" : "529553FD7CC26A49",
+				"FMEL_UPD_D" : "20230804153016"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.77787852492413, 1.4422978178149894 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7402,
+				"DEPARTMENT" : "Marsiling Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Marsiling Lane",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Woodlands Police Divisional (LIMA)",
+				"TELEPHONE" : "-",
+				"UNIT" : "#01-183",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : "-",
+				"HSE_BLK_NO" : "16",
+				"POSTAL_CODE" : "730016",
+				"INC_CRC" : "555E84CD02A78400",
+				"FMEL_UPD_D" : "20230804153016"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83924965092491, 1.2785105497128124 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7403,
+				"DEPARTMENT" : "Criminal Investigation Department",
+				"ALT_TELEPHONE_LINE" : "6435 8275 / 8277 (Certificate of Clearance)",
+				"STREET_NAME" : "New Bridge Road",
+				"BUILDING_NAME" : "Police Cantonment Complex Block C",
+				"TYPE" : "Police Cantonment Complex",
+				"TELEPHONE" : "6435 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Not open to the public",
+				"FAX" : "6223 2123",
+				"HSE_BLK_NO" : "391",
+				"POSTAL_CODE" : "88762",
+				"INC_CRC" : "CC86B3A7C7E90D74",
+				"FMEL_UPD_D" : "20181122165116"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.7202084679002, 1.371849715468402 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7404,
+				"DEPARTMENT" : "Training Command",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Old Choa Chu Kang Road",
+				"BUILDING_NAME" : "Home Team Academy",
+				"TYPE" : "Other Police Units",
+				"TELEPHONE" : "6468 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "0900 to 1800 hrs",
+				"FAX" : "6464 7061",
+				"HSE_BLK_NO" : "501",
+				"POSTAL_CODE" : "698928",
+				"INC_CRC" : "23CE0B46FB850E32",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8348963878063, 1.4153201772975366 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7405,
+				"DEPARTMENT" : "Nee Soon South Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Yishun St 81",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Woodlands Police Divisional (LIMA)",
+				"TELEPHONE" : "1800 852 2999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Temporarily Closed",
+				"FAX" : "6852 2239",
+				"HSE_BLK_NO" : "32",
+				"POSTAL_CODE" : "768456",
+				"INC_CRC" : "5CA016B5F6C48604",
+				"FMEL_UPD_D" : "20241211145905"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8332911904097, 1.4188740151345092 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7406,
+				"DEPARTMENT" : "Khatib Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Yishun Ring Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Woodlands Police Divisional (LIMA)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-3352",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "798",
+				"POSTAL_CODE" : "760798",
+				"INC_CRC" : "7C4ECC62DC706333",
+				"FMEL_UPD_D" : "20241211145905"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84028178017542, 1.4293426629484303 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7407,
+				"DEPARTMENT" : "Yishun Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Yishun Central",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Woodlands Police Divisional (LIMA)",
+				"TELEPHONE" : "1800 852 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6852 2299",
+				"HSE_BLK_NO" : "31",
+				"POSTAL_CODE" : "768827",
+				"INC_CRC" : "27C2121E45B39E32",
+				"FMEL_UPD_D" : "20241211145905"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.80282953035554, 1.2884265831363906 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7408,
+				"DEPARTMENT" : "Queenstown Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Queensway",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Clementi Police Divisional (DELTA)",
+				"TELEPHONE" : "1800 471 9999",
+				"UNIT" : "#01-03",
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6471 5299",
+				"HSE_BLK_NO" : "3",
+				"POSTAL_CODE" : "149073",
+				"INC_CRC" : "26365A4DFEFC8A71",
+				"FMEL_UPD_D" : "20181122165116"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.91445137337456, 1.3062230769073824 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7409,
+				"DEPARTMENT" : "Marine Parade Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Marine Parade Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : "1800 442 8999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6244 7678",
+				"HSE_BLK_NO" : "300",
+				"POSTAL_CODE" : "449296",
+				"INC_CRC" : "59F0DBE80FA73269",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89096996865462, 1.3262819245533277 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7410,
+				"DEPARTMENT" : "Public Transport Security Command (TransCom)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Paya Lebar Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Other Police Units",
+				"TELEPHONE" : "1800 842 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Not open to the public",
+				"FAX" : "6848 5057",
+				"HSE_BLK_NO" : "132",
+				"POSTAL_CODE" : "409014",
+				"INC_CRC" : "D7862FA08E344784",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.77110888480118, 1.3768401872833869 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7411,
+				"DEPARTMENT" : "Bukit Panjang South Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Pending Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Jurong Police Divisional (JULIET)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-00",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "124",
+				"POSTAL_CODE" : "670124",
+				"INC_CRC" : "11D83B72C13F88E5",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85031217650621, 1.348167977480028 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7412,
+				"DEPARTMENT" : "Bishan Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Bishan Street 13",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Tanglin Police Divisional (ECHO)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-565",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "196",
+				"POSTAL_CODE" : "570196",
+				"INC_CRC" : "1D9DB9EC25D18577",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.74789678640147, 1.348070651675702 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7413,
+				"DEPARTMENT" : "Bukit Batok Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Bukit Batok Central",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Jurong Police Divisional (JULIET)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-00",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "103",
+				"POSTAL_CODE" : "650103",
+				"INC_CRC" : "364CC3538C11DB14",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85054532922365, 1.3287147910714656 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7414,
+				"DEPARTMENT" : "Moulmein Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Jalan Rajah",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Tanglin Police Divisional (ECHO)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-01",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "101",
+				"POSTAL_CODE" : "321101",
+				"INC_CRC" : "3286B7422B7AFCFE",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86691129914138, 1.3331201806066828 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7415,
+				"DEPARTMENT" : "Potong Pasir Neighbourhood Police Post (Temporarily Closed)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Potong Pasir Avenue 3",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Tanglin Police Divisional (ECHO)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-240",
+				"OPERATING_HOURS" : "1200 to 2200 hrs",
+				"FAX" : null,
+				"HSE_BLK_NO" : "142",
+				"POSTAL_CODE" : "350142",
+				"INC_CRC" : "EA58AA796E4EEB41",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.79829196030117, 1.3062677190099152 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7416,
+				"DEPARTMENT" : "Commonwealth Neighbourhood Police Post (Temporarily Closed)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Commonwealth Crescent (Annex)",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Clementi Police Divisional (DELTA)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-288A",
+				"OPERATING_HOURS" : "Temporarily Closed",
+				"FAX" : null,
+				"HSE_BLK_NO" : "111",
+				"POSTAL_CODE" : "140111",
+				"INC_CRC" : "94B40DE44891F4EA",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.7636026618558, 1.3056127318069248 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7417,
+				"DEPARTMENT" : "West Coast Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Clementi West Street 2",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Clementi Police Divisional (DELTA)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-418",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "728",
+				"POSTAL_CODE" : "120728",
+				"INC_CRC" : "3617EB35B823766E",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.7933723619494, 1.2754346284483253 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7418,
+				"DEPARTMENT" : "Pasir Panjang Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Pasir Panjang Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Clementi Police Divisional (DELTA)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "109A",
+				"POSTAL_CODE" : "118815",
+				"INC_CRC" : "D6845B675F4C7ED1",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.9260380223473, 1.3248541009826487 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7419,
+				"DEPARTMENT" : "Chai Chee Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Chai Chee Avenue",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-256/258",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "35",
+				"POSTAL_CODE" : "461035",
+				"INC_CRC" : "D811CEA37A2215DD",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86643084588968, 1.3634333361857385 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7420,
+				"DEPARTMENT" : "Serangoon Gardens Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Serangoon Garden Way",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Ang Mo Kio Police Division (FOXTROT)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Temporarily Closed",
+				"FAX" : null,
+				"HSE_BLK_NO" : "51",
+				"POSTAL_CODE" : "555947",
+				"INC_CRC" : "95BE7E37559398A3",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.90150142464448, 1.3099098555394417 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7421,
+				"DEPARTMENT" : "Joo Chiat Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Onan Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "267",
+				"POSTAL_CODE" : "424773",
+				"INC_CRC" : "C7369E66091A90CA",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.90277474415647, 1.3217987082375706 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7422,
+				"DEPARTMENT" : "Kampong Ubi Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Eunos Crescent",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-2687",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "9",
+				"POSTAL_CODE" : "400009",
+				"INC_CRC" : "7FDFAE1B17F1FAB2",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.87103167458137, 1.3219454503380381 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7423,
+				"DEPARTMENT" : "Kolam Ayer Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Geylang Bahru",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Central Police Divisional (ALPHA)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-3038",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "72",
+				"POSTAL_CODE" : "330072",
+				"INC_CRC" : "E9928AA3D8629B7A",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85856550302589, 1.3254075845975708 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7424,
+				"DEPARTMENT" : "Whampoa Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Jalan Bahagia",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Tanglin Police Divisional (ECHO)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-368",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "29",
+				"POSTAL_CODE" : "320029",
+				"INC_CRC" : "6C8DB0D97E2F3EAF",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83698397550576, 1.3708163448623074 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7425,
+				"DEPARTMENT" : "Kebun Baru Neighbourhood Police Post (Temporarily Closed)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Ang Mo Kio Avenue 4",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Ang Mo Kio Police Division (FOXTROT)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Temporarily Closed",
+				"FAX" : null,
+				"HSE_BLK_NO" : "111",
+				"POSTAL_CODE" : "560111",
+				"INC_CRC" : "0548D9677AFF1678",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89921134254129, 1.3729493949151435 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7426,
+				"DEPARTMENT" : "Hougang Neighbourhood Police Post (Temporarily Closed)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Hougang Avenue 7",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Ang Mo Kio Police Division (FOXTROT)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-805",
+				"OPERATING_HOURS" : "Temporarily Closed",
+				"FAX" : null,
+				"HSE_BLK_NO" : "357",
+				"POSTAL_CODE" : "530357",
+				"INC_CRC" : "858AE3D1702BC371",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.95435158668839, 1.3588395453130027 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7427,
+				"DEPARTMENT" : "Tampines North Neighbourhood Police Post (Temporarily Closed)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Tampines Street 44",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-56",
+				"OPERATING_HOURS" : "Temporarily Closed",
+				"FAX" : null,
+				"HSE_BLK_NO" : "461",
+				"POSTAL_CODE" : "520461",
+				"INC_CRC" : "D69C718EC749E1EA",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.95114433948632, 1.353306024857161 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7428,
+				"DEPARTMENT" : "Tampines East Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Tampines Street 21",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-138",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "263",
+				"POSTAL_CODE" : "520263",
+				"INC_CRC" : "981E182390923858",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82054110637029, 1.2769891430192952 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7429,
+				"DEPARTMENT" : "Radin Mas Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Telok Blangah Crescent",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Central Police Divisional (ALPHA)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-250",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "15",
+				"POSTAL_CODE" : "90015",
+				"INC_CRC" : "56CEC7AF3C916CE6",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.88871406042414, 1.3997000502707153 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7430,
+				"DEPARTMENT" : "Anchorvale Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Anchorvale Crescent",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Ang Mo Kio Police Division (FOXTROT)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "338D",
+				"POSTAL_CODE" : "544338",
+				"INC_CRC" : "49AC6DA6E00C5EAC",
+				"FMEL_UPD_D" : "20251015175424"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.703397460177, 1.3392064197283728 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7431,
+				"DEPARTMENT" : "Jurong West Central Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Jurong West Street 64",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Jurong Police Divisional (JULIET)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "664A",
+				"POSTAL_CODE" : "641664",
+				"INC_CRC" : "25EF32383131C3FE",
+				"FMEL_UPD_D" : "20251015175424"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.69572743314949, 1.3414734652620026 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7432,
+				"DEPARTMENT" : "Nanyang Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Jurong West Street 71",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Jurong Police Divisional (JULIET)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "703",
+				"POSTAL_CODE" : "640703",
+				"INC_CRC" : "FB83FF4B91DBB397",
+				"FMEL_UPD_D" : "20251015175424"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.79138542093433, 1.439271819003543 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7433,
+				"DEPARTMENT" : "Woodlands North Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Woodlands Street 83",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Woodlands Police Divisional (LIMA)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "831",
+				"POSTAL_CODE" : "730831",
+				"INC_CRC" : "2D8B866EA03A42B6",
+				"FMEL_UPD_D" : "20251015175424"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.79319976959594, 1.4279563219306723 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7434,
+				"DEPARTMENT" : "Woodlands South Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Woodlands Drive 16",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Woodlands Police Divisional (LIMA)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "541",
+				"POSTAL_CODE" : "730541",
+				"INC_CRC" : "6DCFC71345329503",
+				"FMEL_UPD_D" : "20251015175424"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.95480267899242, 1.3445266575502695 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7435,
+				"DEPARTMENT" : "Changi Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Simei Street 2",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : "1800 587 2999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6587 2900",
+				"HSE_BLK_NO" : "9",
+				"POSTAL_CODE" : "529914",
+				"INC_CRC" : "61F7F4F580ED3652",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82331231105996, 1.2860117274745295 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7436,
+				"DEPARTMENT" : "Bukit Merah West Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Bukit Merah View",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Clementi Police Divisional (DELTA)",
+				"TELEPHONE" : "1800 377 9999",
+				"UNIT" : "#01-01",
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6377 3923",
+				"HSE_BLK_NO" : "500",
+				"POSTAL_CODE" : "159682",
+				"INC_CRC" : "1C02B0C2798CDAF5",
+				"FMEL_UPD_D" : "20181122165116"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84770931743871, 1.3578059837598482 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7437,
+				"DEPARTMENT" : "Bishan Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Bishan Street 23",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Tanglin Police Divisional (ECHO)",
+				"TELEPHONE" : "1800 552 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6556 1905",
+				"HSE_BLK_NO" : "20",
+				"POSTAL_CODE" : "579757",
+				"INC_CRC" : "59F9B9A1E6567EB9",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86107454984409, 1.320485595242885 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7452,
+				"DEPARTMENT" : "Kallang Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Towner Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Central Police Divisional (ALPHA)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-400",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "105",
+				"POSTAL_CODE" : "321105",
+				"INC_CRC" : "806A87B9B45A483F",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85948972374285, 1.3369601122248667 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7453,
+				"DEPARTMENT" : "Kim Keat Neighbourhood Police Post (Temporarily Closed)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Lorong 8 Toa Payoh",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Tanglin Police Divisional (ECHO)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-186",
+				"OPERATING_HOURS" : "Temporarily Closed",
+				"FAX" : null,
+				"HSE_BLK_NO" : "231",
+				"POSTAL_CODE" : "310231",
+				"INC_CRC" : "AC4068F4752C15C2",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.80077172793625, 1.2957122145905853 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7454,
+				"DEPARTMENT" : "Special Operations Command",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Queensway Base",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Other Police Units",
+				"TELEPHONE" : "6479 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Not open to the public",
+				"FAX" : "6474 4129",
+				"HSE_BLK_NO" : null,
+				"POSTAL_CODE" : "149051",
+				"INC_CRC" : "3030ECB7B3732258",
+				"FMEL_UPD_D" : "20181122165116"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83924965092491, 1.2785105497128124 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7455,
+				"DEPARTMENT" : "Volunteer Special Constabulary Department",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "New Bridge Road",
+				"BUILDING_NAME" : "Police Cantonment Complex Block C",
+				"TYPE" : "Police Cantonment Complex",
+				"TELEPHONE" : "6221 0000",
+				"UNIT" : "Level 8",
+				"OPERATING_HOURS" : "0830 to 1800 hrs",
+				"FAX" : "6223 3511",
+				"HSE_BLK_NO" : "391",
+				"POSTAL_CODE" : "88762",
+				"INC_CRC" : "CC86B3A710347686",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.74472784528017, 1.3949175772353017 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7456,
+				"DEPARTMENT" : "Choa Chu Kang Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Choa Chu Kang Street 52",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Jurong Police Divisional (JULIET)",
+				"TELEPHONE" : "1800 765 9999",
+				"UNIT" : "#01-02",
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6764 4104",
+				"HSE_BLK_NO" : "20",
+				"POSTAL_CODE" : "689286",
+				"INC_CRC" : "2B6D933B62EEA2E7",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.77152084188928, 1.3868068310057027 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7457,
+				"DEPARTMENT" : "Bukit Panjang Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Segar Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Jurong Police Divisional (JULIET)",
+				"TELEPHONE" : "1800 892 9999",
+				"UNIT" : "#01-05",
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6767 3650",
+				"HSE_BLK_NO" : "1",
+				"POSTAL_CODE" : "677738",
+				"INC_CRC" : "F9EE785A09D6CFE3",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8449754843272, 1.3242638315842092 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7458,
+				"DEPARTMENT" : "Manpower Department",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Irrawaddy Road",
+				"BUILDING_NAME" : "New Phoenix Park",
+				"TYPE" : "Police Headquarters",
+				"TELEPHONE" : "6353 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Not open to the public",
+				"FAX" : "-",
+				"HSE_BLK_NO" : "28",
+				"POSTAL_CODE" : "329560",
+				"INC_CRC" : "80BD31459B0DD15E",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.93706157620187, 1.3327094050135644 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7438,
+				"DEPARTMENT" : "Bedok Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Bedok North Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : "1800 244 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6244 7258",
+				"HSE_BLK_NO" : "30",
+				"POSTAL_CODE" : "469676",
+				"INC_CRC" : "D99A8A3B9971DDEB",
+				"FMEL_UPD_D" : "20220325011747"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8449754843272, 1.3242638315842092 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7439,
+				"DEPARTMENT" : "Public Affairs Department",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Irrawaddy Road",
+				"BUILDING_NAME" : "New Phoenix Park",
+				"TYPE" : "Police Headquarters",
+				"TELEPHONE" : "6353 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Not open to the public",
+				"FAX" : "-",
+				"HSE_BLK_NO" : "28",
+				"POSTAL_CODE" : "329560",
+				"INC_CRC" : "80BD31451E768E59",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85020529980734, 1.3349338089719507 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7440,
+				"DEPARTMENT" : "Toa Payoh Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Toa Payoh Central",
+				"BUILDING_NAME" : "Toa Payoh Community Building",
+				"TYPE" : "Tanglin Police Divisional (ECHO)",
+				"TELEPHONE" : "1800 251 9999",
+				"UNIT" : "#01-02",
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6354 8749",
+				"HSE_BLK_NO" : "93",
+				"POSTAL_CODE" : "319194",
+				"INC_CRC" : "43CB92C194529FCB",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.905689914333, 1.3167398188133395 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7441,
+				"DEPARTMENT" : "Police National Service Department",
+				"ALT_TELEPHONE_LINE" : "6346 9086 (Enlistment Unit)\n6346 9057 (Exit Permit Office)\n1800 3676 767 (Overseas Notification)",
+				"STREET_NAME" : "Still Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Other Police Units",
+				"TELEPHONE" : "6346 9097",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Not open to the public",
+				"FAX" : "6346 9096",
+				"HSE_BLK_NO" : "170",
+				"POSTAL_CODE" : "424008",
+				"INC_CRC" : "F458CC957EA0A7C6",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89148191289142, 1.3118180415034684 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7442,
+				"DEPARTMENT" : "Found and Unclaimed Property Office (FUPO)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Hemmant Road",
+				"BUILDING_NAME" : "Police Logistics Base",
+				"TYPE" : "Other Police Units",
+				"TELEPHONE" : "6842 9645 / 8235 / 8236",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "0900 - 1730 (Mondays to Fridays only; not available on weekends and PHs)",
+				"FAX" : "-",
+				"HSE_BLK_NO" : "1",
+				"POSTAL_CODE" : "438675",
+				"INC_CRC" : "08BE99B338106A4B",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89135466499258, 1.3301833387530018 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7443,
+				"DEPARTMENT" : "Traffic Police Department",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Ubi Avenue 3",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Other Police Units",
+				"TELEPHONE" : "6547 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs (Police Report Room Services) \n0830 - 1730 (Front Lobby Counter Services - Weekdays)",
+				"FAX" : "6547 4900",
+				"HSE_BLK_NO" : "10",
+				"POSTAL_CODE" : "408865",
+				"INC_CRC" : "0F61F457A9DB541E",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83747345657042, 1.3549930484260033 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7444,
+				"DEPARTMENT" : "Thomson Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Sin Ming Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Tanglin Police Divisional (ECHO)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-180",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "25",
+				"POSTAL_CODE" : "570025",
+				"INC_CRC" : "CC38C3023C17BE98",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.78232029792018, 1.303802450307516 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7445,
+				"DEPARTMENT" : "Dover Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Dover Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Clementi Police Divisional (DELTA)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-368",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "3",
+				"POSTAL_CODE" : "130003",
+				"INC_CRC" : "98D858FC1A439FE2",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.76380300096952, 1.3119706465084848 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7446,
+				"DEPARTMENT" : "Clementi Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Clementi Avenue 3",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Clementi Police Divisional (DELTA)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-456",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "427",
+				"POSTAL_CODE" : "120427",
+				"INC_CRC" : "21B12AD787ECAD5A",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.72227955557027, 1.3289608341232402 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7447,
+				"DEPARTMENT" : "Jurong Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Corporation Drive",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Jurong Police Divisional (JULIET)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-08",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "140",
+				"POSTAL_CODE" : "610140",
+				"INC_CRC" : "D4F9259A1D3888B5",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.77458632728143, 1.339581558811876 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7448,
+				"DEPARTMENT" : "Bukit Timah Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Toh Yi Drive",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Clementi Police Divisional (DELTA)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-139",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "1",
+				"POSTAL_CODE" : "591501",
+				"INC_CRC" : "4FB51D64A9AF2D56",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.91450116540275, 1.3343990639843775 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7449,
+				"DEPARTMENT" : "Eunos Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Bedok Reservoir Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-1620",
+				"OPERATING_HOURS" : "1200 to 2200 hrs",
+				"FAX" : null,
+				"HSE_BLK_NO" : "629",
+				"POSTAL_CODE" : "470629",
+				"INC_CRC" : "34B418C6B6AD8950",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.82995555371414, 1.2773054355758993 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7450,
+				"DEPARTMENT" : "Tanjong Pagar Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Jalan Bukit Merah",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Central Police Divisional (ALPHA)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-1114",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "144",
+				"POSTAL_CODE" : "160144",
+				"INC_CRC" : "395A93A12473FEAF",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.75177949367803, 1.378981915362794 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7451,
+				"DEPARTMENT" : "Choa Chu Kang Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Teck Whye Lane",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Jurong Police Divisional (JULIET)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-740",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "116",
+				"POSTAL_CODE" : "680116",
+				"INC_CRC" : "EDCBEC9A44B7B08A",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.80974464582276, 1.2734930446457329 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7478,
+				"DEPARTMENT" : "Telok Blangah Neighbourhood Police Post",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Telok Blangah Drive",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Clementi Police Divisional (DELTA)",
+				"TELEPHONE" : "1800 272 9999",
+				"UNIT" : "#01-116/118",
+				"OPERATING_HOURS" : "1200 to 2200 hrs",
+				"FAX" : "6377 6526",
+				"HSE_BLK_NO" : "51",
+				"POSTAL_CODE" : "100051",
+				"INC_CRC" : "F0280198953D91FF",
+				"FMEL_UPD_D" : "20181122165116"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83169596124856, 1.2578285634813358 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7479,
+				"DEPARTMENT" : "Police Coast Guard",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Brani Way",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Other Police Units",
+				"TELEPHONE" : "1800 375 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Not open to the public",
+				"FAX" : "6376 7331",
+				"HSE_BLK_NO" : "11",
+				"POSTAL_CODE" : "98658",
+				"INC_CRC" : "682297631A9C4192",
+				"FMEL_UPD_D" : "20181122165116"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83924965092491, 1.2785105497128124 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7480,
+				"DEPARTMENT" : "Central Police Divisional HQ",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "New Bridge Road",
+				"BUILDING_NAME" : "Police Cantonment Complex Block A",
+				"TYPE" : "Central Police Divisional (ALPHA)",
+				"TELEPHONE" : "1800 236 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6220 4360",
+				"HSE_BLK_NO" : "391",
+				"POSTAL_CODE" : "88762",
+				"INC_CRC" : "CC86B3A7F84E2080",
+				"FMEL_UPD_D" : "20181122165116"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83924965092491, 1.2785105497128124 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7481,
+				"DEPARTMENT" : "Bukit Merah East Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "New Bridge Road",
+				"BUILDING_NAME" : "Police Cantonment Complex Block A",
+				"TYPE" : "Central Police Divisional (ALPHA)",
+				"TELEPHONE" : "1800 236 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6220 4360",
+				"HSE_BLK_NO" : "391",
+				"POSTAL_CODE" : "88762",
+				"INC_CRC" : "CC86B3A7C5D36F1A",
+				"FMEL_UPD_D" : "20181122165116"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84506160226542, 1.384931714888236 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7482,
+				"DEPARTMENT" : "Ang Mo Kio North Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Ang Mo Kio Avenue 9",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Ang Mo Kio Police Division (FOXTROT)",
+				"TELEPHONE" : "1800 484 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6218 1399",
+				"HSE_BLK_NO" : "51",
+				"POSTAL_CODE" : "569784",
+				"INC_CRC" : "C4C3D5B340084A21",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8449754843272, 1.3242638315842092 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7483,
+				"DEPARTMENT" : "Logistics Department",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Irrawaddy Road",
+				"BUILDING_NAME" : "New Phoenix Park",
+				"TYPE" : "Police Headquarters",
+				"TELEPHONE" : "6353 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Not open to the public",
+				"FAX" : "-",
+				"HSE_BLK_NO" : "28",
+				"POSTAL_CODE" : "329560",
+				"INC_CRC" : "80BD314512687ED8",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.8449754843272, 1.3242638315842092 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7459,
+				"DEPARTMENT" : "Operation Department",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Irrawaddy Road",
+				"BUILDING_NAME" : "New Phoenix Park",
+				"TYPE" : "Police Headquarters",
+				"TELEPHONE" : "6353 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Not open to the public",
+				"FAX" : "-",
+				"HSE_BLK_NO" : "28",
+				"POSTAL_CODE" : "329560",
+				"INC_CRC" : "80BD3145049927F9",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83924965092491, 1.2785105497128124 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7460,
+				"DEPARTMENT" : "Police Regulatory Department",
+				"ALT_TELEPHONE_LINE" : "6226 2254 (General Licensing Unit)\n6223 4704 (Arms & Explosives Unit)\n6223 8425 (Liquor Licensing Unit)",
+				"STREET_NAME" : "New Bridge Road",
+				"BUILDING_NAME" : "Police Cantonment Complex Block D",
+				"TYPE" : "Police Cantonment Complex",
+				"TELEPHONE" : "6835 0000",
+				"UNIT" : "#02-701",
+				"OPERATING_HOURS" : "0900 to 1730 hrs",
+				"FAX" : "6226 1089 (PELU)",
+				"HSE_BLK_NO" : "391",
+				"POSTAL_CODE" : "88762",
+				"INC_CRC" : "CC86B3A74FA9F9C0",
+				"FMEL_UPD_D" : "20260401114926"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.80236476999511, 1.4388861380189606 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7461,
+				"DEPARTMENT" : "Woodlands East Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Woodlands Drive 63",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Woodlands Police Divisional (LIMA)",
+				"TELEPHONE" : "1800 767 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6767 3652",
+				"HSE_BLK_NO" : "3",
+				"POSTAL_CODE" : "737890",
+				"INC_CRC" : "B28A4FB32F12BB81",
+				"FMEL_UPD_D" : "20181123000717"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.81964654105617, 1.445277759387672 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7462,
+				"DEPARTMENT" : "Sembawang Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Sembawang Crescent",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Woodlands Police Divisional (LIMA)",
+				"TELEPHONE" : "1800 554 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6852 2499",
+				"HSE_BLK_NO" : "4",
+				"POSTAL_CODE" : "757633",
+				"INC_CRC" : "70367CA62B0E635D",
+				"FMEL_UPD_D" : "20181123000717"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.7788630942206, 1.4334603452244374 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7463,
+				"DEPARTMENT" : "Woodlands Police Divisional HQ",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Woodlands Street 12",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Woodlands Police Divisional (LIMA)",
+				"TELEPHONE" : "1800 646 6000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6364 7800",
+				"HSE_BLK_NO" : "1",
+				"POSTAL_CODE" : "738622",
+				"INC_CRC" : "18583C71903244E6",
+				"FMEL_UPD_D" : "20181123000717"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.85421891357913, 1.307619418907401 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7464,
+				"DEPARTMENT" : "Rochor Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Kampong Kapor Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Central Police Divisional (ALPHA)",
+				"TELEPHONE" : "1800 294 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6391 8583",
+				"HSE_BLK_NO" : "11",
+				"POSTAL_CODE" : "208678",
+				"INC_CRC" : "A1EA2345D9B72AAF",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83924965092491, 1.2785105497128124 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7465,
+				"DEPARTMENT" : "Commercial Affairs Department",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "New Bridge Road",
+				"BUILDING_NAME" : "Police Cantonment Complex Block D",
+				"TYPE" : "Police Cantonment Complex",
+				"TELEPHONE" : "6325 0000",
+				"UNIT" : "#06-701",
+				"OPERATING_HOURS" : "Not open to the public",
+				"FAX" : "6223 3171",
+				"HSE_BLK_NO" : "391",
+				"POSTAL_CODE" : "88762",
+				"INC_CRC" : "CC86B3A7284800CF",
+				"FMEL_UPD_D" : "20181122165116"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.93948718979009, 1.366771407104141 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7466,
+				"DEPARTMENT" : "Tampines Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Tampines North Drive 2",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "635B",
+				"POSTAL_CODE" : "522635",
+				"INC_CRC" : "A32B2B06F44C6849",
+				"FMEL_UPD_D" : "20260108163614"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.83924965092491, 1.2785105497128124 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7467,
+				"DEPARTMENT" : "Welfare Division",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "New Bridge Road",
+				"BUILDING_NAME" : "Police Cantonment Complex Block A",
+				"TYPE" : "Police Cantonment Complex",
+				"TELEPHONE" : "6733 1000",
+				"UNIT" : "#02-106",
+				"OPERATING_HOURS" : "0830 to 1800 hrs",
+				"FAX" : "6223 2400",
+				"HSE_BLK_NO" : "391",
+				"POSTAL_CODE" : "88762",
+				"INC_CRC" : "CC86B3A784FA5134",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.92973104888299, 1.3139364320474543 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7468,
+				"DEPARTMENT" : "Siglap Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Upper East Coast Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "125",
+				"POSTAL_CODE" : "455246",
+				"INC_CRC" : "4C39F0D173D4799D",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.93569163465898, 1.3783817528789462 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7469,
+				"DEPARTMENT" : "Pasir Ris West Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Pasir Ris Street 71",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "745",
+				"POSTAL_CODE" : "510745",
+				"INC_CRC" : "1D16505FA48AB93E",
+				"FMEL_UPD_D" : "20251222105643"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89605690031355, 1.4019872111441487 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7470,
+				"DEPARTMENT" : "Punggol West Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Sumang Walk",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Ang Mo Kio Police Division (FOXTROT)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "217D",
+				"POSTAL_CODE" : "824217",
+				"INC_CRC" : "96BD531AB906995B",
+				"FMEL_UPD_D" : "20251222105643"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84899426417074, 1.2747355002541956 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7471,
+				"DEPARTMENT" : "Marina Bay Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Marina View",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Central Police Divisional (ALPHA)",
+				"TELEPHONE" : "1800 222 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6372 4242",
+				"HSE_BLK_NO" : "70",
+				"POSTAL_CODE" : "18962",
+				"INC_CRC" : "B61B4E1F7F486646",
+				"FMEL_UPD_D" : "20181122165116"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.89390610816598, 1.392785593105016 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7472,
+				"DEPARTMENT" : "Sengkang Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Sengkang Square",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Ang Mo Kio Police Division (FOXTROT)",
+				"TELEPHONE" : "1800 343 8999",
+				"UNIT" : "#01-02",
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6343 8939",
+				"HSE_BLK_NO" : "2",
+				"POSTAL_CODE" : "545025",
+				"INC_CRC" : "53F8631B579E38E8",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.88498399685375, 1.3742555541986248 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7473,
+				"DEPARTMENT" : "Hougang Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Hougang Avenue 9",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Ang Mo Kio Police Division (FOXTROT)",
+				"TELEPHONE" : "1800 489 0999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6312 8989",
+				"HSE_BLK_NO" : "60",
+				"POSTAL_CODE" : "538775",
+				"INC_CRC" : "DB60D23CA6C6BBD2",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.91981572212597, 1.323709252970991 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7474,
+				"DEPARTMENT" : "Bedok South Neighbourhood Police Post",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Chai Chee Drive",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : "1800 244 8999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6244 6558",
+				"HSE_BLK_NO" : "20",
+				"POSTAL_CODE" : "469045",
+				"INC_CRC" : "56A4B58863C5DD35",
+				"FMEL_UPD_D" : "20220325011747"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.71445623239663, 1.3493325158315772 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7475,
+				"DEPARTMENT" : "Jurong West Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Corporation Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Jurong Police Divisional (JULIET)",
+				"TELEPHONE" : "1800 268 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6267 2438",
+				"HSE_BLK_NO" : "700",
+				"POSTAL_CODE" : "649818",
+				"INC_CRC" : "A20111C70B169173",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.93870181466299, 1.3462475971651893 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7476,
+				"DEPARTMENT" : "Tampines Neighbourhood Police Centre",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Tampines Avenue 4",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : "1800 587 1999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6587 1699",
+				"HSE_BLK_NO" : "6",
+				"POSTAL_CODE" : "529682",
+				"INC_CRC" : "D1665780EC9641F4",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.93706157620187, 1.3327094050135644 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7477,
+				"DEPARTMENT" : "Bedok Police Divisional Head Quarters",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Bedok North Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Bedok Police Division (GOLF)",
+				"TELEPHONE" : "1800 244 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs",
+				"FAX" : "6244 7258",
+				"HSE_BLK_NO" : "30",
+				"POSTAL_CODE" : "469676",
+				"INC_CRC" : "D99A8A3BC742192F",
+				"FMEL_UPD_D" : "20181122165117"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86021155834457, 1.3380669831354837 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7484,
+				"DEPARTMENT" : "Security Command",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Lorong 8 Toa Payoh",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Other Police Units",
+				"TELEPHONE" : "6251 0000",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Not open to the public",
+				"FAX" : "6253 6487",
+				"HSE_BLK_NO" : "31",
+				"POSTAL_CODE" : "319265",
+				"INC_CRC" : "9B6BB5D15313911E",
+				"FMEL_UPD_D" : "20231117144847"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.84522651674074, 1.3424019618541023 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7485,
+				"DEPARTMENT" : "Boon Teck Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Toa Payoh North",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Tanglin Police Divisional (ECHO)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-1231",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "207",
+				"POSTAL_CODE" : "310207",
+				"INC_CRC" : "4C612EDE149D7996",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.79320507285436, 1.3093603981923585 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7486,
+				"DEPARTMENT" : "Buona Vista Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Holland Drive",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Clementi Police Divisional (DELTA)",
+				"TELEPHONE" : null,
+				"UNIT" : "#01-38/40",
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "13",
+				"POSTAL_CODE" : "271013",
+				"INC_CRC" : "D47A818260A1EB54",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.86342489209807, 1.3039574583813054 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7487,
+				"DEPARTMENT" : "Kampong Glam Neighbourhood Police Post (Self-Help Kiosks Only)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Beach Road",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Central Police Divisional (ALPHA)",
+				"TELEPHONE" : null,
+				"UNIT" : null,
+				"OPERATING_HOURS" : "24 Hrs (Automated)",
+				"FAX" : null,
+				"HSE_BLK_NO" : "17A",
+				"POSTAL_CODE" : "199596",
+				"INC_CRC" : "DB6B3AC491EB6E12",
+				"FMEL_UPD_D" : "20231220121312"
+			}
+		},
+		{
+			"type" : "Feature",
+			"geometry" : {
+				"type" : "Point",
+				"coordinates" : [ 103.75852169016352, 1.3491092030351057 ]
+			},
+			"properties" : {
+				"OBJECTID_1" : 7488,
+				"DEPARTMENT" : "Bukit Batok Neighbourhood Police Centre (Temporarily Closed)",
+				"ALT_TELEPHONE_LINE" : null,
+				"STREET_NAME" : "Bukit Batok East Ave 4",
+				"BUILDING_NAME" : null,
+				"TYPE" : "Jurong Police Divisional (JULIET)",
+				"TELEPHONE" : "1800 665 9999",
+				"UNIT" : null,
+				"OPERATING_HOURS" : "Temporarily Closed",
+				"FAX" : "6425 2661",
+				"HSE_BLK_NO" : "21",
+				"POSTAL_CODE" : "659840",
+				"INC_CRC" : "A6C4EE53326992E0",
+				"FMEL_UPD_D" : "20230804153016"
+			}
+		}
+	]
+}
