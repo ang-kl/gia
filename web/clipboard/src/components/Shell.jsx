@@ -13,6 +13,7 @@
 import React, { useState } from 'react';
 import { t } from '../lib/i18n.js';
 import { openMiniApp, haptic } from '../lib/tg.js';
+import LocaleToggle from './LocaleToggle.jsx';
 import CuisineGroupPicker from './CuisineGroupPicker.jsx';
 import LocalClassicPicker from './LocalClassicPicker.jsx';
 
@@ -96,6 +97,8 @@ export default function Shell({
               {activeCabinetName ? <span className="text-[12px] font-medium text-tg-hint"> · {activeCabinetName}</span> : null}
             </div>
           </div>
+          {/* v0.62.511 — locale toggle; was read-only (no setActiveLocale). */}
+          <LocaleToggle className="flex-shrink-0" />
           <button
             type="button" aria-label="refresh"
             onClick={() => { haptic('light'); onRefresh?.(); }}

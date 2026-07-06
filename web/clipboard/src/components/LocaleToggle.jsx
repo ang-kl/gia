@@ -1,0 +1,72 @@
+// LocaleToggle.jsx — clipboard TMA. v0.62.511.
+//
+// Compact language DROPDOWN. Collapsed: current flag + ▾. Open: a list of
+// "Native name 🇫🇷" rows. Mirrors web/menu/src/components/LocaleToggle.jsx
+// verbatim; import path adjusted for clipboard's lib/ structure.
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocale, setActiveLocale } from '../lib/i18n.js';
+
+const LOCALES = [
+  { code: 'en', name: 'English',          flag: '🇬🇧' },
+  { code: 'fr', name: 'Français',         flag: '🇫🇷' },
+  { code: 'de', name: 'Deutsch',          flag: '🇩🇪' },
+  { code: 'ru', name: 'Русский',          flag: '🇷🇺' },
+  { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩' },
+  { code: 'zh', name: '中文',             flag: '🇨🇳' },
+  { code: 'ja', name: '日本語',           flag: '🇯🇵' },
+  { code: 'es', name: 'Español',          flag: '🇪🇸' },
+];
+
+export default function LocaleToggle({ className = '' }) {
+  const lang = useLocale();
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const current = LOCALES.find((l) => l.code === lang) || LOCALES[0];
+
+  useEffect(() => {
+    if (!open) return undefined;
+    function onDoc(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('touchstart', onDoc);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('touchstart', onDoc);
+    };
+  }, [open]);
+
+  return (
+    <div ref={ref} className={`relative select-none ${className}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label="Language"
+        className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-sm leading-none active:scale-95"
+      >
+        <span>{current.flag}</span>
+        <span aria-hidden="true" className="text-tg-hint text-[10px]">▾</span>
+      </button>
+      {open && (
+        <div
+          role="listbox"
+          className="absolute right-0 mt-1 z-50 min-w-[11rem] rounded-lg border border-tg-border bg-tg-card shadow-lg overflow-hidden"
+        >
+          {LOCALES.map((l) => (
+            <button
+              key={l.code}
+              type="button"
+              role="option"
+              aria-selected={l.code === lang}
+              onClick={() => { setActiveLocale(l.code); setOpen(false); }}
+              className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 active:bg-tg-bg ${l.code === lang ? 'bg-tg-accent/10 font-medium' : 'hover:bg-tg-bg'}`}
+            >
+              <span>{l.flag}</span>
+              <span>{l.name}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

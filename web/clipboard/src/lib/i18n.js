@@ -256,6 +256,24 @@ export function getActiveLocale() {
   return SUPPORTED.has(dev) ? dev : 'en';
 }
 
+// v0.62.511 — write the shared locale pref, mirrors web/menu/src/i18n.js
+// setActiveLocale verbatim. Was missing; Clipboard could read but not set.
+export function setActiveLocale(lang) {
+  if (!SUPPORTED_LOCALES.includes(lang)) return;
+  try { window.localStorage.setItem(LOCALE_KEY, lang); } catch { /* noop */ }
+  window.dispatchEvent(new CustomEvent(LOCALE_EVENT, { detail: { lang } }));
+  try {
+    const initData = window.Telegram?.WebApp?.initData || '';
+    if (initData) {
+      fetch('/api/cuisine/user-language', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ initData, lang })
+      }).catch(() => { /* silent — local toggle still works */ });
+    }
+  } catch { /* noop */ }
+}
+
 // Reactive locale hook. Re-renders on the in-page gia:locale CustomEvent (a
 // toggle in THIS tab) and on the cross-tab 'storage' event (a toggle in another
 // TMA sharing the origin). Mirrors web/menu/src/i18n.js useLocale.

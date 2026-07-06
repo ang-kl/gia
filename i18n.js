@@ -10,8 +10,13 @@
 // Language is plumbed through requests as a `lang` field (TMA POST body
 // or per-chat preference cached in Redis). Falls back to 'en' when
 // missing or unsupported.
+//
+// v0.62.511 — expanded SUPPORTED to all 8 TMA locales (en/fr/id/ru/de/zh/ja/es)
+// so users who set /language to a non-EN/FR code see native text for the
+// /language UI strings (language.current, language.cleared, language.fromTg).
+// All other strings fall back to 'en' via t()'s entry[l]||entry.en guard.
 
-const SUPPORTED = ['en', 'fr'];
+const SUPPORTED = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
 
 const STRINGS = {
   // Pick-list headers
@@ -349,9 +354,32 @@ const STRINGS = {
   'forgetme.error':            { en: 'Sorry, /forgetme hit an error. Try again in a moment, or DM the operator.', fr: 'Désolé, /forgetme a rencontré une erreur. Réessayez dans un instant, ou contactez l’opérateur.' },
 
   // /language internal text (cleanup of v0.59.0 hardcoded pairs)
-  'language.cleared':          { en: '✅ Preference cleared. Soleat will follow your Telegram language.', fr: '✅ Préférence effacée. Soleat suit désormais la langue de votre Telegram.' },
-  'language.current':          { en: '🌐 Current language: English{fromTg}.\nChoose a language:', fr: '🌐 Langue actuelle : Français{fromTg}.\nChoisissez une langue :' },
-  'language.fromTg':           { en: ' (from your Telegram)', fr: ' (depuis votre Telegram)' },
+  // v0.62.511 — added native strings for id/ru/de/zh/ja/es so the /language
+  // menu renders in the user's own language when they've set a non-EN/FR pref.
+  'language.cleared':          { en: '✅ Preference cleared. Soleat will follow your Telegram language.',
+                                  fr: '✅ Préférence effacée. Soleat suit désormais la langue de votre Telegram.',
+                                  id: '✅ Preferensi dihapus. Soleat akan mengikuti bahasa Telegram Anda.',
+                                  ru: '✅ Настройка сброшена. Soleat будет следовать языку вашего Telegram.',
+                                  de: '✅ Einstellung zurückgesetzt. Soleat folgt der Telegram-Sprache.',
+                                  zh: '✅ 偏好已清除。Soleat 将跟随您的 Telegram 语言。',
+                                  ja: '✅ 設定がクリアされました。Soleat はTelegramの言語に従います。',
+                                  es: '✅ Preferencia borrada. Soleat seguirá el idioma de tu Telegram.' },
+  'language.current':          { en: '🌐 Current language: English{fromTg}.\nChoose a language:',
+                                  fr: '🌐 Langue actuelle : Français{fromTg}.\nChoisissez une langue :',
+                                  id: '🌐 Bahasa saat ini: Bahasa Indonesia{fromTg}.\nPilih bahasa:',
+                                  ru: '🌐 Текущий язык: Русский{fromTg}.\nВыберите язык:',
+                                  de: '🌐 Aktuelle Sprache: Deutsch{fromTg}.\nSprache wählen:',
+                                  zh: '🌐 当前语言：中文{fromTg}。\n选择语言：',
+                                  ja: '🌐 現在の言語：日本語{fromTg}。\n言語を選択：',
+                                  es: '🌐 Idioma actual: Español{fromTg}.\nElige un idioma:' },
+  'language.fromTg':           { en: ' (from your Telegram)',
+                                  fr: ' (depuis votre Telegram)',
+                                  id: ' (dari Telegram Anda)',
+                                  ru: ' (из вашего Telegram)',
+                                  de: ' (von Ihrem Telegram)',
+                                  zh: '（来自您的 Telegram）',
+                                  ja: '（Telegramより）',
+                                  es: ' (de tu Telegram)' },
   'language.btn.en':           { en: '🇬🇧 English', fr: '🇬🇧 English' },
   'language.btn.fr':           { en: '🇫🇷 Français', fr: '🇫🇷 Français' },
   // v0.62.480 — flag + endonym (native name) so a speaker recognises their
