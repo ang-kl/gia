@@ -125,12 +125,11 @@ export default function Shell({
             slide effect via .sk-drop). box-border + contained so it never bleeds. */}
         {drop === 'cuisine' && (
           <div className="sk-drop box-border w-full mt-2 border border-tg-border rounded-xl bg-tg-card shadow-lg max-h-[44vh] overflow-y-auto overflow-x-hidden p-2">
-            {/* v0.62.451 — grouped cuisine picker ported from the Cuisine TMA;
-                groups/cuisines not present in the saved cards are greyed out. */}
-            <CuisineGroupPicker catalogue={catalogue} selected={cuisineSel} onChange={onSetCuisine} lang={lang} availableSlugs={availableSlugs} />
-
-            {/* v0.62.441 — richer facets (over the stored venue data). */}
-            <div className="border-t border-tg-border mt-1.5 pt-2 px-1.5 space-y-2">
+            {/* v0.62.515 — FILTERS ON TOP, cuisine grid below — mirror the Cuisine
+                TMA "Cuisine & filters" folio order (QuickFilters → CuisineDrawer,
+                App.jsx:4138→4161). Operator: "why is your sketchbook filter at the
+                bottom?" — it was reversed. */}
+            <div className="px-1.5 pt-1 space-y-2">
               <div>
                 <div className="text-[10px] uppercase tracking-wide text-tg-hint mb-1">{t('facet.rating', lang)}</div>
                 <div className="flex gap-1.5">
@@ -165,6 +164,13 @@ export default function Shell({
                   className={`flex-1 text-[11px] px-2 py-1.5 rounded-lg border ${facets.michelin ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>{t('facet.michelin', lang)}</button>
               </div>
               <button onClick={() => { onClearFacets?.(); setDrop(null); }} className="w-full text-[11px] text-tg-hint py-1">{t('facet.clear', lang)}</button>
+            </div>
+
+            {/* v0.62.515 — grouped cuisine picker BELOW the filters (Cuisine-TMA
+                order: filters → cuisine grid). Groups/cuisines absent from the
+                saved cards are greyed, never hidden. */}
+            <div className="border-t border-tg-border mt-2 pt-2">
+              <CuisineGroupPicker catalogue={catalogue} selected={cuisineSel} onChange={onSetCuisine} lang={lang} availableSlugs={availableSlugs} />
             </div>
           </div>
         )}
