@@ -15,7 +15,6 @@ import { t } from '../lib/i18n.js';
 import { openMiniApp, haptic } from '../lib/tg.js';
 import LocaleToggle from './LocaleToggle.jsx';
 import CuisineGroupPicker from './CuisineGroupPicker.jsx';
-import LocalClassicPicker from './LocalClassicPicker.jsx';
 
 // v0.62.423 — version for the footer strip (mirrors Cuisine's __BUILD_VERSION__).
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
@@ -63,15 +62,15 @@ function FooterTab({ iconKey, label, active, onClick }) {
 export default function Shell({
   lang = 'en', screen, activeCabinetName = '', footerCabinetLabel,
   onNav, onRefresh, children,
-  // v0.62.440 — header chips FILTER the user's saved cards via a FOLIO DROPDOWN
-  // (drops down under the chips, like the Cuisine TMA tabs — not a bottom sheet).
-  cuisineSel = [], dishFilter = null, catalogue = [], availableSlugs = null, dishOptions = [], plate = null, savedDishSet = null,
-  onSetCuisine, onSetDish,
+  // v0.62.440 — the header chip FILTERS the user's saved cards via a FOLIO
+  // DROPDOWN (drops down under the chip, like the Cuisine TMA tabs — not a
+  // bottom sheet).
+  cuisineSel = [], catalogue = [], availableSlugs = null,
+  onSetCuisine,
   facets = {}, onSetFacet, onClearFacets,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [drop, setDrop] = useState(null);   // 'cuisine' | 'dish' | null
-  const [dishDraft, setDishDraft] = useState(dishFilter || '');
+  const [drop, setDrop] = useState(null);   // 'cuisine' | null
   const cabLabel = footerCabinetLabel || t('nav.cabinets', lang);
   const go = (s) => { haptic('light'); setMenuOpen(false); setDrop(null); onNav?.(s); };
   const switchApp = (path) => { setMenuOpen(false); openMiniApp(path); };
@@ -120,16 +119,6 @@ export default function Shell({
               ? <span role="button" aria-label="clear" onClick={(e) => { e.stopPropagation(); onSetCuisine?.([]); }} className="text-tg-hint">✕</span>
               : <span className="text-tg-hint">{drop === 'cuisine' ? '▴' : '▾'}</span>}
           </button>
-          <button
-            type="button"
-            onClick={() => { setMenuOpen(false); setDishDraft(dishFilter || ''); setDrop((d) => (d === 'dish' ? null : 'dish')); }}
-            className={`flex-1 flex items-center justify-between gap-1 px-2.5 py-1.5 text-[12px] font-medium border rounded-xl ${dishFilter || drop === 'dish' ? 'bg-tg-accent/10 border-tg-accent/50 text-tg-text' : 'bg-tg-bg border-tg-border text-tg-text'}`}
-          >
-            <span className="truncate">{dishFilter ? `🍲 ${dishFilter}` : t('chrome.pickLocal', lang)}</span>
-            {dishFilter
-              ? <span role="button" aria-label="clear" onClick={(e) => { e.stopPropagation(); onSetDish?.(null); }} className="text-tg-hint">✕</span>
-              : <span className="text-tg-hint">{drop === 'dish' ? '▴' : '▾'}</span>}
-          </button>
         </div>
 
         {/* Folio dropdown panel — opens DOWN, attached to the chips (Cuisine-TMA
@@ -177,39 +166,6 @@ export default function Shell({
               </div>
               <button onClick={() => { onClearFacets?.(); setDrop(null); }} className="w-full text-[11px] text-tg-hint py-1">{t('facet.clear', lang)}</button>
             </div>
-          </div>
-        )}
-        {drop === 'dish' && (
-          <div className="sk-drop box-border w-full mt-2 border border-tg-border rounded-xl bg-tg-card shadow-lg max-h-[44vh] overflow-y-auto overflow-x-hidden p-2">
-            {/* v0.62.452 — mirror the Cuisine TMA "Pick local classic": the
-                derived city's dishes + classics, greying ones not in saved cards.
-                Falls back to the saved-dish chips when the city is unknown. */}
-            {plate && Array.isArray(plate.dishes) && plate.dishes.length ? (
-              <>
-                <LocalClassicPicker plate={plate} savedDishSet={savedDishSet} lang={lang}
-                  dishSel={dishFilter} onPick={(d) => { onSetDish?.(d); setDrop(null); }} />
-                {dishFilter && (
-                  <button type="button" onClick={() => { onSetDish?.(null); setDrop(null); }}
-                    className="w-full mt-2 text-[11px] text-tg-hint py-1">{t('filter.all', lang)}</button>
-                )}
-              </>
-            ) : dishOptions.length === 0 ? (
-              <div className="px-3 py-4 text-center text-xs text-tg-hint">{t('filter.noDishes', lang)}</div>
-            ) : (
-              /* fallback: dish chips derived from the saved cards' "🍲 Try" dishes */
-              <div className="grid grid-cols-2 gap-1.5">
-                <button type="button" onClick={() => { onSetDish?.(null); setDrop(null); }}
-                  className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg text-[12px] border ${dishFilter == null ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>
-                  {t('filter.all', lang)}
-                </button>
-                {dishOptions.map((o) => (
-                  <button key={o.value} type="button" onClick={() => { onSetDish?.(o.value); setDrop(null); }}
-                    className={`flex items-center justify-between gap-1 px-2 py-2 rounded-lg text-[12px] border min-w-0 ${dishFilter === o.value ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>
-                    <span className="truncate">🍲 {o.label}</span><span className="text-tg-hint text-[10px] shrink-0">{o.count}</span>
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         )}
       </header>
