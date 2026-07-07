@@ -34,7 +34,6 @@ export default function App() {
   // v0.62.418 — header chips filter the user's OWN saved cards (not new search).
   const [cuisineSel, setCuisineSel] = useState([]);          // v0.62.451 — selected cuisine slugs (multi, ≤5)
   const [catalogue, setCatalogue] = useState([]);           // v0.62.451 — cuisine groups from /api/cuisine/catalogue (mirror Cuisine TMA)
-  const [plate, setPlate] = useState(null);                 // v0.62.452 — local-classics plate for the derived city
   useEffect(() => {
     let live = true;
     fetch('/api/cuisine/catalogue', { headers: { Accept: 'application/json', 'X-Telegram-Init-Data': initData() || '' } }).then((r) => r.ok ? r.json() : null)
@@ -42,7 +41,6 @@ export default function App() {
       .catch(() => {});
     return () => { live = false; };
   }, []);
-  const [dishFilter, setDishFilter] = useState(null);       // keyword string | null
   const [facets, setFacets] = useState({ minRating: null, price: null, openNow: false, crowd: null, michelin: false }); // v0.62.441
   const [fileCard, setFileCard] = useState(null);           // v0.62.420 — card being filed
   const catchAllCards = state.catchAllCards || [];
@@ -129,26 +127,6 @@ export default function App() {
     return [...counts.entries()].sort((a, b) => b[1] - a[1])
       .map(([value, count]) => ({ value, label: value, count }));
   })();
-  // v0.62.450 — derive REAL dish choices from the saved cards' venue data
-  // (the same "🍲 Try" source: signatureDish / cityDish / dishes[]). Only cards
-  // that carry a notable dish contribute, ranked by frequency — so "Pick Local
-  // Dish" offers places with significant dishes, not a blind keyword box.
-  const dishOptions = (() => {
-    const counts = new Map();
-    for (const c of baseCards) {
-      const v = c.venue; if (!v) continue;
-      const cand = [v.signatureDish, v.cityDish, ...(Array.isArray(v.dishes) ? v.dishes : [])];
-      for (const d of cand) {
-        const val = String(d || '').trim();
-        if (!val) continue;
-        const key = val.toLowerCase();
-        const prev = counts.get(key);
-        counts.set(key, { label: prev?.label || val, count: (prev?.count || 0) + 1 });
-      }
-    }
-    return [...counts.entries()].sort((a, b) => b[1].count - a[1].count)
-      .map(([value, m]) => ({ value, label: m.label, count: m.count }));
-  })();
   // v0.62.451 — grey-out map: which catalogue cuisine slugs actually appear in
   // the saved cards (match saved cuisine strings against catalogue slug/name).
   const savedCuisineSet = (() => {
@@ -168,30 +146,6 @@ export default function App() {
     if (baseCards.some((c) => c.venue && c.venue.michelinCategory)) set.add('michelin');
     return set;
   })();
-  // v0.62.452 — derive the city from the saved cards (most-common trailing
-  // segment of venue.area, e.g. "Katong, Singapore" → Singapore) and fetch that
-  // city's classics plate so "Pick local classic" mirrors the Cuisine TMA.
-  const cityGuess = (() => {
-    const counts = new Map();
-    for (const c of baseCards) {
-      const area = c.venue && c.venue.area ? String(c.venue.area) : '';
-      if (!area) continue;
-      const seg = area.split(',').map((x) => x.trim()).filter(Boolean).pop();
-      if (seg) counts.set(seg, (counts.get(seg) || 0) + 1);
-    }
-    let best = null, bc = 0;
-    for (const [k, v] of counts) if (v > bc) { bc = v; best = k; }
-    return best;
-  })();
-  const savedDishSet = new Set(dishOptions.map((o) => o.value));
-  useEffect(() => {
-    if (!cityGuess) { setPlate(null); return undefined; }
-    let live = true;
-    fetch(`/api/cuisine/plate?city=${encodeURIComponent(cityGuess)}`, { headers: { Accept: 'application/json', 'X-Telegram-Init-Data': initData() || '' } }).then((r) => r.ok ? r.json() : null)
-      .then((d) => { if (live) setPlate(d && d.plate ? d.plate : null); })
-      .catch(() => {});
-    return () => { live = false; };
-  }, [cityGuess]);
   const cardMatches = (c) => {
     if (!c) return false;
     if (cuisineSel.length) {
@@ -201,13 +155,6 @@ export default function App() {
       const cuisineHit = cs.some((x) => wanted.has(x));
       const michHit = cuisineSel.includes('michelin') && c.venue && c.venue.michelinCategory;
       if (!cuisineHit && !michHit) return false;
-    }
-    if (dishFilter) {
-      const df = dishFilter.toLowerCase();
-      const vv = c.venue;
-      const dishHay = vv ? [vv.signatureDish, vv.cityDish, ...(Array.isArray(vv.dishes) ? vv.dishes : [])].filter(Boolean).join(' ').toLowerCase() : '';
-      const textHay = `${c.name || ''} ${c.preview || ''} ${c.body || ''} ${c.note || ''}`.toLowerCase();
-      if (!dishHay.includes(df) && !textHay.includes(df)) return false;
     }
     // v0.62.441 — richer facets (over the stored venue): rating / price / open /
     // crowd / michelin. Cards with no structured venue fail an active facet.
@@ -220,7 +167,7 @@ export default function App() {
     return true;
   };
   const facetsActive = !!(facets.minRating || facets.price || facets.openNow || facets.crowd || facets.michelin);
-  const filterActive = !!(cuisineSel.length || dishFilter || facetsActive);
+  const filterActive = !!(cuisineSel.length || facetsActive);
   const filteredCatchAll = filterActive ? catchAllCards.filter(cardMatches) : catchAllCards;
   const filteredPayload = (inCabinet && filterActive && state.currentCabinet)
     ? { ...state.currentCabinet, drawers: (state.currentCabinet.drawers || []).map((d) => ({ ...d, cards: (d.cards || []).filter(cardMatches) })) }
@@ -237,14 +184,9 @@ export default function App() {
       onNav={onNav}
       onRefresh={refresh}
       cuisineSel={cuisineSel}
-      dishFilter={dishFilter}
       catalogue={catalogue}
       availableSlugs={availableSlugs}
-      dishOptions={dishOptions}
-      plate={plate}
-      savedDishSet={savedDishSet}
       onSetCuisine={(arr) => setCuisineSel(arr)}
-      onSetDish={(v) => setDishFilter(v)}
       facets={facets}
       onSetFacet={(k, v) => setFacets((f) => ({ ...f, [k]: v }))}
       onClearFacets={() => { setCuisineSel([]); setFacets({ minRating: null, price: null, openNow: false, crowd: null, michelin: false }); }}
