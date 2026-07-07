@@ -53,6 +53,14 @@ export default function App() {
   // a 3.7 default would hide cards the user deliberately saved.
   const [ratingPref, setRatingPref] = useState('any');
   const emptyFilters = () => ({ newlyOpened: false, halal: false, petFriendly: false, openNow: false, vegetarian: false, recommend: false, homeBased: false, prices: [] });
+  // v0.62.517 — free-text search (TellMePanel port). `freeText` is the LIVE
+  // composer text; `appliedText` is the committed filter (only set on 🔍
+  // submit — mirrors the Cuisine TMA, where Enter never fires and the button
+  // commits). Sketchbook has no server search, so submit just narrows the
+  // SAVED cards client-side (see cardMatches below). Empty submit clears it.
+  const [freeText, setFreeText] = useState('');
+  const [appliedText, setAppliedText] = useState('');
+  const [composerOpen, setComposerOpen] = useState(false);
   const [fileCard, setFileCard] = useState(null);           // v0.62.420 — card being filed
   const catchAllCards = state.catchAllCards || [];
 
@@ -159,6 +167,17 @@ export default function App() {
   })();
   const cardMatches = (c) => {
     if (!c) return false;
+    // v0.62.517 — free-text (TellMePanel) narrows the SAVED cards: a
+    // case-insensitive substring over the card's own text (name / note /
+    // preview) and its stored venue (name / cuisines / area). Words are
+    // AND-matched so "spicy thai" needs both tokens somewhere on the card.
+    if (appliedText) {
+      const v = c.venue || {};
+      const hay = [c.name, c.note, c.preview, v.name, v.area, ...(c.cuisines || [])]
+        .filter(Boolean).join(' ').toLowerCase();
+      const tokens = appliedText.toLowerCase().split(/\s+/).filter(Boolean);
+      if (!tokens.every((tok) => hay.includes(tok))) return false;
+    }
     if (cuisineSel.length) {
       const wanted = new Set();
       for (const sl of cuisineSel) { wanted.add(String(sl).toLowerCase()); const nm = slugName.get(sl); if (nm) wanted.add(String(nm).toLowerCase()); }
@@ -190,7 +209,7 @@ export default function App() {
     return true;
   };
   const filtersActive = !!(filters.halal || filters.vegetarian || filters.petFriendly || filters.openNow || (filters.prices || []).length || ratingPref !== 'any');
-  const filterActive = !!(cuisineSel.length || filtersActive);
+  const filterActive = !!(cuisineSel.length || filtersActive || appliedText);
   const filteredCatchAll = filterActive ? catchAllCards.filter(cardMatches) : catchAllCards;
   const filteredPayload = (inCabinet && filterActive && state.currentCabinet)
     ? { ...state.currentCabinet, drawers: (state.currentCabinet.drawers || []).map((d) => ({ ...d, cards: (d.cards || []).filter(cardMatches) })) }
@@ -214,7 +233,17 @@ export default function App() {
       onChangeFilters={setFilters}
       ratingPref={ratingPref}
       onRatingSave={setRatingPref}
-      onClearFilters={() => { setCuisineSel([]); setFilters(emptyFilters()); setRatingPref('any'); }}
+      onClearFilters={() => { setCuisineSel([]); setFilters(emptyFilters()); setRatingPref('any'); setFreeText(''); setAppliedText(''); }}
+      showSearch={screen === 'clipboard' || screen === 'cabinet'}
+      freeText={freeText}
+      onChangeFreeText={setFreeText}
+      composerOpen={composerOpen}
+      onOpenComposer={() => setComposerOpen(true)}
+      onCloseComposer={() => setComposerOpen(false)}
+      appliedText={appliedText}
+      onSubmitFreeText={(term) => setAppliedText(term)}
+      onEmptySearch={() => setAppliedText('')}
+      onReplaceFreeText={() => setFreeText(appliedText)}
     >
       {inCabinet ? (
         <CabinetView
