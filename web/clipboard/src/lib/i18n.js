@@ -88,6 +88,38 @@ const STRINGS = {
   'facet.michelin':         { en: '✳️ Michelin',        fr: '✳️ Michelin',      id: '✳️ Michelin',    ru: '✳️ Michelin',    de: '✳️ Michelin' , zh: '✳️ 米其林', ja: '✳️ Michelin', es: '✳️ Michelin' },
   'facet.any':              { en: 'Any',                fr: 'Tous',             id: 'Semua',          ru: 'Любой',          de: 'Alle' , zh: '任意', ja: '指定なし', es: 'Cualquiera' },
   'facet.clear':            { en: 'Clear filters',      fr: 'Effacer',          id: 'Hapus filter',   ru: 'Сбросить',       de: 'Filter löschen' , zh: '清除筛选', ja: 'フィルターを解除', es: 'Borrar filtros' },
+
+  // ── QuickFilters chips + rating panel (v0.62.516) ─────────────────
+  // Ported VERBATIM from web/cuisine/src/v2/lib/i18n.js so the Sketchbook
+  // "Cuisine & Filter" folio (the QuickFilters port) localises identically
+  // to the Cuisine TMA. Missing langs fall back to en via t() — mirroring
+  // the Cuisine source, where zh/ja/es carry filter.* but fall back to en
+  // for rating.*, and recommend is en/fr/id only.
+  'filter.newlyOpened':     { en: 'Newly opened',       fr: 'Récemment ouvert', id: 'Baru buka',      zh: '新开张', ja: '新規開店', es: 'Nuevo' },
+  'filter.halal':           { en: 'Halal',              fr: 'Halal',            id: 'Halal',          zh: '清真', ja: 'ハラール', es: 'Halal' },
+  'filter.petFriendly':     { en: 'Pet',                fr: 'Animaux',          id: 'Hewan',          zh: '宠物', ja: 'ペット可', es: 'Mascotas' },
+  'filter.openNow':         { en: 'Open now',           fr: 'Ouvert',           id: 'Buka sekarang',  zh: '正在营业', ja: '営業中', es: 'Abierto' },
+  'filter.vegetarian':      { en: 'Vegetarian',         fr: 'Végétarien',       id: 'Vegetarian',     zh: '素食', ja: 'ベジタリアン', es: 'Vegetariano' },
+  'filter.recommend':       { en: 'Recommend',          fr: 'Recommander',      id: 'Rekomendasi' },
+  'filter.homeBased':       { en: 'Home-based',         fr: 'À domicile',       id: 'Rumahan',        zh: '家庭厨房', ja: '自宅営業', es: 'Casero' },
+  'filter.price':           { en: 'Price',              fr: 'Prix',             id: 'Harga',          zh: '价格', ja: '価格', es: 'Precio' },
+  'filter.openMore':        { en: 'Open more filters',  fr: 'Ouvrir plus de filtres', id: 'Buka filter lainnya', zh: '打开更多筛选', ja: 'フィルターを増やす', es: 'Abrir más filtros' },
+  'filter.closeMore':       { en: 'Close more filters', fr: 'Fermer plus de filtres', id: 'Tutup filter lainnya', zh: '关闭更多筛选', ja: 'フィルターを閉じる', es: 'Cerrar más filtros' },
+  'rating.title':           { en: 'Minimum rating',     fr: 'Note minimale',    id: 'Rating minimum' },
+  'rating.refineHeader':    { en: 'Refine Google Rating', fr: 'Affiner la note Google', id: 'Saring Rating Google' },
+  'rating.openPanel':       { en: 'Open rating options', fr: 'Ouvrir les options de note', id: 'Buka opsi rating' },
+  'rating.closePanel':      { en: 'Close rating options', fr: 'Fermer les options de note', id: 'Tutup opsi rating' },
+  'rating.noRating':        { en: 'Unrated',            fr: 'Non noté',         id: 'Tanpa rating' },
+  'rating.noRatingHint':    { en: 'New or no reviews yet', fr: 'Nouveau ou sans avis', id: 'Baru atau belum ada ulasan' },
+  'rating.anyRating':       { en: 'Any rating',         fr: 'Toutes les notes', id: 'Semua rating' },
+  'rating.anyRatingHint':   { en: 'No minimum',         fr: 'Aucun minimum',    id: 'Tanpa minimum' },
+  'rating.goodPlus':        { en: 'Good+',              fr: 'Bien+',            id: 'Bagus+' },
+  'rating.setRating':       { en: 'Set as',             fr: 'Définir',          id: 'Tetapkan' },
+  'rating.customHint':      { en: '1.0 to 5.0',         fr: '1.0 à 5.0',        id: '1,0 hingga 5,0' },
+  'rating.save':            { en: 'Save',               fr: 'Valider',          id: 'Simpan' },
+  'rating.saved':           { en: 'Saved',              fr: 'Validé',           id: 'Tersimpan' },
+  'rating.pillNoRating':    { en: 'Unrated',            fr: 'Non noté',         id: 'Tanpa rating' },
+  'rating.pillAny':         { en: 'Any',                fr: 'Toutes',           id: 'Semua' },
   'catchAll.newCard':       { en: '＋ New card',        fr: '＋ Nouvelle carte', id: '＋ Kartu baru',  ru: '＋ Карточка',     de: '＋ Neue Karte' , zh: '＋ 新卡片', ja: '＋ 新規カード', es: '＋ Nueva tarjeta' },
   'catchAll.clearAll':      { en: '🗑 Clear all',       fr: '🗑 Tout vider',    id: '🗑 Hapus semua', ru: '🗑 Очистить',    de: '🗑 Alle leeren' , zh: '🗑 清空', ja: '🗑 すべて消去', es: '🗑 Borrar todo' },
   'catchAll.restore':       { en: '↩ Restore ({n})',   fr: '↩ Restaurer ({n})', id: '↩ Pulihkan ({n})', ru: '↩ Вернуть ({n})', de: '↩ Wiederherstellen ({n})' , zh: '↩ 恢复 ({n})', ja: '↩ 復元（{n}）', es: '↩ Restaurar ({n})' },
