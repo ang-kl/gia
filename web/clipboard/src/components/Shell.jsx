@@ -15,6 +15,7 @@ import { t } from '../lib/i18n.js';
 import { openMiniApp, haptic } from '../lib/tg.js';
 import LocaleToggle from './LocaleToggle.jsx';
 import CuisineGroupPicker from './CuisineGroupPicker.jsx';
+import QuickFilters from './QuickFilters.jsx';
 
 // v0.62.423 — version for the footer strip (mirrors Cuisine's __BUILD_VERSION__).
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
@@ -67,7 +68,8 @@ export default function Shell({
   // bottom sheet).
   cuisineSel = [], catalogue = [], availableSlugs = null,
   onSetCuisine,
-  facets = {}, onSetFacet, onClearFacets,
+  // v0.62.516 — QuickFilters port props (mirror the Cuisine TMA verbatim).
+  filters = {}, onChangeFilters, ratingPref = 'any', onRatingSave, onClearFilters,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [drop, setDrop] = useState(null);   // 'cuisine' | null
@@ -125,52 +127,29 @@ export default function Shell({
             slide effect via .sk-drop). box-border + contained so it never bleeds. */}
         {drop === 'cuisine' && (
           <div className="sk-drop box-border w-full mt-2 border border-tg-border rounded-xl bg-tg-card shadow-lg max-h-[44vh] overflow-y-auto overflow-x-hidden p-2">
-            {/* v0.62.515 — FILTERS ON TOP, cuisine grid below — mirror the Cuisine
-                TMA "Cuisine & filters" folio order (QuickFilters → CuisineDrawer,
-                App.jsx:4138→4161). Operator: "why is your sketchbook filter at the
-                bottom?" — it was reversed. */}
-            <div className="px-1.5 pt-1 space-y-2">
-              <div>
-                <div className="text-[10px] uppercase tracking-wide text-tg-hint mb-1">{t('facet.rating', lang)}</div>
-                <div className="flex gap-1.5">
-                  {[{ v: null, l: t('facet.any', lang) }, { v: 4.0, l: '★4.0+' }, { v: 4.5, l: '★4.5+' }].map((o) => (
-                    <button key={String(o.v)} onClick={() => onSetFacet?.('minRating', o.v)}
-                      className={`text-[11px] px-2 py-1 rounded-full border ${facets.minRating === o.v ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>{o.l}</button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div className="text-[10px] uppercase tracking-wide text-tg-hint mb-1">{t('facet.price', lang)}</div>
-                <div className="flex gap-1.5">
-                  {[1, 2, 3, 4].map((p) => (
-                    <button key={p} onClick={() => onSetFacet?.('price', facets.price === p ? null : p)}
-                      className={`text-[11px] px-2.5 py-1 rounded-full border ${facets.price === p ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>{'$'.repeat(p)}</button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div className="text-[10px] uppercase tracking-wide text-tg-hint mb-1">{t('facet.crowd', lang)}</div>
-                <div className="flex gap-1.5">
-                  {[{ k: 'low', d: '🟢', i: 'card.crowdLow' }, { k: 'medium', d: '🟡', i: 'card.crowdMedium' }, { k: 'high', d: '🔴', i: 'card.crowdHigh' }].map((o) => (
-                    <button key={o.k} onClick={() => onSetFacet?.('crowd', facets.crowd === o.k ? null : o.k)}
-                      className={`text-[11px] px-2 py-1 rounded-full border ${facets.crowd === o.k ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>{o.d} {t(o.i, lang)}</button>
-                  ))}
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button onClick={() => onSetFacet?.('openNow', !facets.openNow)}
-                  className={`flex-1 text-[11px] px-2 py-1.5 rounded-lg border ${facets.openNow ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>{t('facet.open', lang)}</button>
-                <button onClick={() => onSetFacet?.('michelin', !facets.michelin)}
-                  className={`flex-1 text-[11px] px-2 py-1.5 rounded-lg border ${facets.michelin ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'border-tg-border text-tg-text'}`}>{t('facet.michelin', lang)}</button>
-              </div>
-              <button onClick={() => { onClearFacets?.(); setDrop(null); }} className="w-full text-[11px] text-tg-hint py-1">{t('facet.clear', lang)}</button>
+            {/* v0.62.516 — QuickFilters (Cuisine TMA VERBATIM port) ON TOP,
+                cuisine grid below — mirror the Cuisine TMA "Cuisine & filters"
+                folio order (QuickFilters → CuisineDrawer, App.jsx:4138→4161).
+                The chips filter the SAVED cards. New / Home-based / Recommend
+                have no per-saved-card data source → greyed via disabledKeys
+                (shown, but not togglable) so the layout matches Cuisine exactly. */}
+            <div className="px-1.5 pt-1">
+              <QuickFilters
+                filters={filters}
+                onChange={onChangeFilters}
+                ratingPref={ratingPref}
+                onRatingSave={onRatingSave}
+                disabledKeys={['newlyOpened', 'recommend', 'homeBased']}
+              />
             </div>
 
             {/* v0.62.515 — grouped cuisine picker BELOW the filters (Cuisine-TMA
                 order: filters → cuisine grid). Groups/cuisines absent from the
-                saved cards are greyed, never hidden. */}
+                saved cards are greyed, never hidden. Michelin lives here as a
+                cuisine category (matching the Cuisine TMA), not as a filter chip. */}
             <div className="border-t border-tg-border mt-2 pt-2">
               <CuisineGroupPicker catalogue={catalogue} selected={cuisineSel} onChange={onSetCuisine} lang={lang} availableSlugs={availableSlugs} />
+              <button onClick={() => { onClearFilters?.(); setDrop(null); }} className="w-full text-[11px] text-tg-hint py-1 mt-1">{t('facet.clear', lang)}</button>
             </div>
           </div>
         )}

@@ -41,7 +41,18 @@ export default function App() {
       .catch(() => {});
     return () => { live = false; };
   }, []);
-  const [facets, setFacets] = useState({ minRating: null, price: null, openNow: false, crowd: null, michelin: false }); // v0.62.441
+  // v0.62.516 — QuickFilters-shaped filter state (mirrors the Cuisine TMA's
+  // `filters` object exactly — the QuickFilters port reads/writes this shape).
+  // These chips filter the SAVED cards (not a live search). Michelin is NOT a
+  // chip here — it's a cuisine-grid category (like the Cuisine TMA), handled
+  // via cuisineSel below. New / Home-based / Recommend have no per-saved-card
+  // flag, so QuickFilters greys them (disabledKeys) and they never turn on.
+  const [filters, setFilters] = useState({ newlyOpened: false, halal: false, petFriendly: false, openNow: false, vegetarian: false, recommend: false, homeBased: false, prices: [] });
+  // Rating pill. Sketchbook defaults to 'any' (show every saved card); the
+  // Cuisine TMA defaults to '3.7' because it filters a live world-search — here
+  // a 3.7 default would hide cards the user deliberately saved.
+  const [ratingPref, setRatingPref] = useState('any');
+  const emptyFilters = () => ({ newlyOpened: false, halal: false, petFriendly: false, openNow: false, vegetarian: false, recommend: false, homeBased: false, prices: [] });
   const [fileCard, setFileCard] = useState(null);           // v0.62.420 — card being filed
   const catchAllCards = state.catchAllCards || [];
 
@@ -156,18 +167,30 @@ export default function App() {
       const michHit = cuisineSel.includes('michelin') && c.venue && c.venue.michelinCategory;
       if (!cuisineHit && !michHit) return false;
     }
-    // v0.62.441 — richer facets (over the stored venue): rating / price / open /
-    // crowd / michelin. Cards with no structured venue fail an active facet.
+    // v0.62.516 — QuickFilters chips over the stored venue (mirror the Cuisine
+    // TMA's filter flags). A card with no structured venue fails any active
+    // data-backed chip. Halal/Vegetarian read the booleans forwarded on the
+    // copy payload (ResultCard); Pet reads allowsDogs; price maps the numeric
+    // priceLevel (1–4) to the '$'..'$$$$' string the chips use.
     const v = c.venue;
-    if (facets.minRating && !(v && v.rating >= facets.minRating)) return false;
-    if (facets.price && !(v && v.priceLevel === facets.price)) return false;
-    if (facets.openNow && !(v && v.openNow === true)) return false;
-    if (facets.crowd && !(v && v.crowdLevel === facets.crowd)) return false;
-    if (facets.michelin && !(v && v.michelinCategory)) return false;
+    if (filters.halal && !(v && v.halal === true)) return false;
+    if (filters.vegetarian && !(v && v.vegetarian === true)) return false;
+    if (filters.petFriendly && !(v && v.allowsDogs === true)) return false;
+    if (filters.openNow && !(v && v.openNow === true)) return false;
+    if ((filters.prices || []).length) {
+      const pl = v && v.priceLevel;
+      const sym = (pl >= 1 && pl <= 4) ? '$'.repeat(pl) : null;
+      if (!sym || !filters.prices.includes(sym)) return false;
+    }
+    // Rating pill: 'any' → no filter; 'unrated' → only cards with no rating;
+    // a numeric string → floor. New / Home-based / Recommend have no per-card
+    // flag, so they're greyed in QuickFilters and never active here.
+    if (ratingPref === 'unrated') { if (v && v.rating) return false; }
+    else if (ratingPref !== 'any') { const min = Number(ratingPref); if (!(v && v.rating >= min)) return false; }
     return true;
   };
-  const facetsActive = !!(facets.minRating || facets.price || facets.openNow || facets.crowd || facets.michelin);
-  const filterActive = !!(cuisineSel.length || facetsActive);
+  const filtersActive = !!(filters.halal || filters.vegetarian || filters.petFriendly || filters.openNow || (filters.prices || []).length || ratingPref !== 'any');
+  const filterActive = !!(cuisineSel.length || filtersActive);
   const filteredCatchAll = filterActive ? catchAllCards.filter(cardMatches) : catchAllCards;
   const filteredPayload = (inCabinet && filterActive && state.currentCabinet)
     ? { ...state.currentCabinet, drawers: (state.currentCabinet.drawers || []).map((d) => ({ ...d, cards: (d.cards || []).filter(cardMatches) })) }
@@ -187,9 +210,11 @@ export default function App() {
       catalogue={catalogue}
       availableSlugs={availableSlugs}
       onSetCuisine={(arr) => setCuisineSel(arr)}
-      facets={facets}
-      onSetFacet={(k, v) => setFacets((f) => ({ ...f, [k]: v }))}
-      onClearFacets={() => { setCuisineSel([]); setFacets({ minRating: null, price: null, openNow: false, crowd: null, michelin: false }); }}
+      filters={filters}
+      onChangeFilters={setFilters}
+      ratingPref={ratingPref}
+      onRatingSave={setRatingPref}
+      onClearFilters={() => { setCuisineSel([]); setFilters(emptyFilters()); setRatingPref('any'); }}
     >
       {inCabinet ? (
         <CabinetView

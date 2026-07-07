@@ -246,6 +246,12 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
         restaurantType: venue.restaurantType,
         priceRangeDisplay: venue.priceRangeDisplay,
         allowsDogs: venue.allowsDogs,
+        // v0.62.516 — forward halal / vegetarian so newly-saved Sketchbook
+        // cards carry the flags the ported QuickFilters halal / vegetarian
+        // chips filter on (older clips lack them → those chips simply won't
+        // match them, which is honest — no fabricated data).
+        halal: venue.halal,
+        vegetarian: venue.vegetarian,
         wheelchairAccessible: venue.wheelchairAccessible,
         signatureDish: venue.signatureDish,
         vibe: venue.vibe,
