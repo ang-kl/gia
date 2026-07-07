@@ -16,6 +16,7 @@ import { openMiniApp, haptic } from '../lib/tg.js';
 import LocaleToggle from './LocaleToggle.jsx';
 import CuisineGroupPicker from './CuisineGroupPicker.jsx';
 import QuickFilters from './QuickFilters.jsx';
+import TellMePanel from './TellMePanel.jsx';
 
 // v0.62.423 — version for the footer strip (mirrors Cuisine's __BUILD_VERSION__).
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
@@ -70,6 +71,10 @@ export default function Shell({
   onSetCuisine,
   // v0.62.516 — QuickFilters port props (mirror the Cuisine TMA verbatim).
   filters = {}, onChangeFilters, ratingPref = 'any', onRatingSave, onClearFilters,
+  // v0.62.517 — free-text search FAB (TellMePanel port). Card screens only.
+  showSearch = false, freeText = '', onChangeFreeText, composerOpen = false,
+  onOpenComposer, onCloseComposer, appliedText = '', onSubmitFreeText,
+  onEmptySearch, onReplaceFreeText,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [drop, setDrop] = useState(null);   // 'cuisine' | null
@@ -157,6 +162,49 @@ export default function Shell({
 
       {/* ── MAIN (scroll) ── */}
       <main className="flex-1 overflow-y-auto px-3 py-3 pb-24">{children}</main>
+
+      {/* ── FREE-TEXT SEARCH FAB / COMPOSER (v0.62.517, TellMePanel port) ──
+          Floats above the footer on the card screens. Collapsed = a 🔍 FAB
+          bottom-right; tapping expands the verbatim Cuisine composer pill
+          full-width. The composer commits its text as a CLIENT-SIDE filter
+          over the saved cards (App.jsx cardMatches) — Sketchbook has no server
+          search. z-30 keeps it above the cards but below the z-40 hamburger.
+          The bottom offset clears the fixed footer + the device safe area. */}
+      {showSearch && (
+        <div
+          className="fixed inset-x-0 z-30 px-3 pointer-events-none"
+          style={{ bottom: 'calc(84px + env(safe-area-inset-bottom, 0px))' }}
+        >
+          {composerOpen ? (
+            <div className="pointer-events-auto">
+              <TellMePanel
+                value={freeText}
+                onChange={onChangeFreeText}
+                onSubmit={onSubmitFreeText}
+                onReplace={appliedText ? onReplaceFreeText : undefined}
+                lastPrompt={appliedText || null}
+                loading={false}
+                searchIcon
+                onEmptySearch={onEmptySearch}
+                searchDisabled={false}
+                searchPulse={false}
+                autoFocus
+                onBlurClose={onCloseComposer}
+                onCollapse={onCloseComposer}
+              />
+            </div>
+          ) : (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={onOpenComposer}
+                aria-label={appliedText ? `${t('tellme.open', lang)} · "${appliedText}"` : t('tellme.open', lang)}
+                className="pointer-events-auto relative w-12 h-12 rounded-full bg-tg-accent text-tg-accent-text border-2 border-white/40 shadow-lg flex items-center justify-center text-lg active:scale-95"
+              >🔍{appliedText ? <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-tg-accent-text border-2 border-tg-accent" aria-hidden /> : null}</button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── FOOTER (4 tabs) ── */}
       <nav className="flex-shrink-0 fixed bottom-0 inset-x-0 z-20 bg-tg-card/95 backdrop-blur border-t border-tg-border flex flex-col px-1 pt-1 pb-5">

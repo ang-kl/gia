@@ -120,6 +120,18 @@ const STRINGS = {
   'rating.saved':           { en: 'Saved',              fr: 'Validé',           id: 'Tersimpan' },
   'rating.pillNoRating':    { en: 'Unrated',            fr: 'Non noté',         id: 'Tanpa rating' },
   'rating.pillAny':         { en: 'Any',                fr: 'Toutes',           id: 'Semua' },
+
+  // ── Free-text search composer (TellMePanel port, v0.62.517) ───────
+  // The component is a VERBATIM port of the Cuisine TMA's TellMePanel, but the
+  // COPY is honest to what it does here: it filters the user's SAVED cards
+  // client-side, it does NOT discover new places. So the placeholder is
+  // "Search saved cards…", not Cuisine's "What are you craving?" (which would
+  // promise a live world-search). tellme.aria/submit mirror that intent.
+  'tellme.placeholder':     { en: 'Search saved cards… e.g. satay', fr: 'Rechercher vos cartes… ex. satay', id: 'Cari kartu tersimpan… mis. satay', ru: 'Поиск по сохранённым… напр. сатай', de: 'Gespeicherte Karten suchen… z. B. Satay', zh: '搜索已存卡片…例如 沙嗲', ja: '保存カードを検索… 例: サテ', es: 'Buscar tarjetas guardadas… ej. satay' },
+  'tellme.aria':            { en: 'Search your saved cards', fr: 'Rechercher vos cartes enregistrées', id: 'Cari kartu tersimpan Anda', ru: 'Поиск по вашим сохранённым карточкам', de: 'Ihre gespeicherten Karten durchsuchen', zh: '搜索您已保存的卡片', ja: '保存したカードを検索', es: 'Busca en tus tarjetas guardadas' },
+  'tellme.submit':          { en: 'Search', fr: 'Rechercher', id: 'Cari', ru: 'Поиск', de: 'Suchen', zh: '搜索', ja: '検索', es: 'Buscar' },
+  'tellme.open':            { en: 'Search saved cards', fr: 'Rechercher les cartes', id: 'Cari kartu tersimpan', ru: 'Поиск по сохранённым', de: 'Gespeicherte Karten suchen', zh: '搜索已存卡片', ja: '保存カードを検索', es: 'Buscar tarjetas guardadas' },
+
   'catchAll.newCard':       { en: '＋ New card',        fr: '＋ Nouvelle carte', id: '＋ Kartu baru',  ru: '＋ Карточка',     de: '＋ Neue Karte' , zh: '＋ 新卡片', ja: '＋ 新規カード', es: '＋ Nueva tarjeta' },
   'catchAll.clearAll':      { en: '🗑 Clear all',       fr: '🗑 Tout vider',    id: '🗑 Hapus semua', ru: '🗑 Очистить',    de: '🗑 Alle leeren' , zh: '🗑 清空', ja: '🗑 すべて消去', es: '🗑 Borrar todo' },
   'catchAll.restore':       { en: '↩ Restore ({n})',   fr: '↩ Restaurer ({n})', id: '↩ Pulihkan ({n})', ru: '↩ Вернуть ({n})', de: '↩ Wiederherstellen ({n})' , zh: '↩ 恢复 ({n})', ja: '↩ 復元（{n}）', es: '↩ Restaurar ({n})' },
