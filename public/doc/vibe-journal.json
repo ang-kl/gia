@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-06",
-  "count": 1483,
+  "generated": "2026-07-08",
+  "count": 1498,
   "records": [
     {
       "pr": 1,
@@ -41849,6 +41849,426 @@
         "doc/vault"
       ],
       "title": "v0.62.505: vault/v0.62.504 snapshot (27th) — pre-cleanup archive",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1512,
+      "status": "merged",
+      "merged": "2026-07-06 14:10:38",
+      "day": "2026-07-06",
+      "version": "0.62.506",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: VibeCodingRecord catch-up regen (PRs #1500–#1509, #1511)",
+      "approach": "Step 2 of the doc-first sequence (vault snapshot → journal → **VCR** → documents → changes).",
+      "codeImpact": "10 files — doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.506: VibeCodingRecord catch-up regen (PRs #1500–#1509, #1511)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1513,
+      "status": "merged",
+      "merged": "2026-07-06 14:15:38",
+      "day": "2026-07-06",
+      "version": "0.62.507",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: Technical № 56 catch-up rollup (v0.62.154 → v0.62.506)",
+      "approach": "Step 3 (final) of the doc-first sequence — docs now current.",
+      "codeImpact": "4 files — doc, package",
+      "modules": [
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.507: Technical № 56 catch-up rollup (v0.62.154 → v0.62.506)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1514,
+      "status": "merged",
+      "merged": "2026-07-06 14:26:28",
+      "day": "2026-07-06",
+      "version": "0.62.508",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: remove vault/ (27 snapshots) from tracking",
+      "approach": "First operator-approved audit change — delete the git-redundant `vault/` directory.",
+      "codeImpact": "4 files — doc, package, config",
+      "modules": [
+        "config",
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "v0.62.508: remove vault/ (27 snapshots) from tracking",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1515,
+      "status": "merged",
+      "merged": "2026-07-06 14:38:50",
+      "day": "2026-07-06",
+      "version": "0.62.509",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: delete dead legacy v1 Cuisine TMA (audit change #2, workspace step 1)",
+      "approach": "## What & why The 06-07 4-auditor audit flagged the legacy **v1 Cuisine TMA** (`web/cuisine/src/App.jsx`, chip-grid) as dead code.",
+      "codeImpact": "21 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 21,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.509: delete dead legacy v1 Cuisine TMA (audit change #2, workspace step 1)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1516,
+      "status": "merged",
+      "merged": "2026-07-06 21:42:20",
+      "day": "2026-07-06",
+      "version": "0.62.510",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: liquid-glass footer dock (Cuisine TMA)",
+      "approach": "## What & why Operator asked to apply **liquid glass** to the Cuisine TMA (linked [liquidGL](https://github.com/naughtyduk/liquidGL)); this PR does the **footer dock** (\"1.",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.510: liquid-glass footer dock (Cuisine TMA)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1517,
+      "status": "merged",
+      "merged": "2026-07-06 22:04:00",
+      "day": "2026-07-06",
+      "version": "0.62.511",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: bot i18n 8-lang + Clipboard locale toggle",
+      "approach": "## What & why Two locale gaps from the i18n audit, operator-approved (\"1, 2\"): ### 1 — Bot i18n: expand to 8 langs `i18n.js` `SUPPORTED` was `['en', 'fr']`; now `['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es']`.",
+      "codeImpact": "8 files — i18n.js, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "i18n.js",
+        "package"
+      ],
+      "nFiles": 8,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.511: bot i18n 8-lang + Clipboard locale toggle",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1518,
+      "status": "merged",
+      "merged": "2026-07-07 00:06:11",
+      "day": "2026-07-07",
+      "version": "0.62.512",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Oversight / usage stats",
+      "intent": "Add: Oversight TMA safe-area bottom padding",
+      "approach": "## What Fix flag #1 from the 7-TMA responsive render audit: the **Oversight** dashboard had no `env(safe-area-inset-bottom)` padding, so on a notched phone its last row / `🔚 close` button could sit under the home indicator.",
+      "codeImpact": "4 files — TMA:oversight, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:oversight"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "oversight"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.512: Oversight TMA safe-area bottom padding",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1519,
+      "status": "merged",
+      "merged": "2026-07-07 01:06:41",
+      "day": "2026-07-07",
+      "version": "0.62.513",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Sketchbook — drop \"Local food pick\" chip",
+      "approach": "## What Operator picked **C, D, E** for the Sketchbook (clipboard) TMA.",
+      "codeImpact": "7 files — doc, package",
+      "modules": [
+        "doc",
+        "package"
+      ],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.513: Sketchbook — drop \"Local food pick\" chip",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1520,
+      "status": "merged",
+      "merged": "2026-07-07 01:56:28",
+      "day": "2026-07-07",
+      "version": "0.62.514",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Sketchbook cuisine-picker cache-bust",
+      "approach": "## What Operator reported the Sketchbook (clipboard) **Cuisine & Filter** tab shows only **3** category cards — *Sweets & Fusion*, *Michelin · Bib Gourmand*, *Set Meal (Beta)* — instead of the full **9-category** grid the Cuisine TMA…",
+      "codeImpact": "4 files — doc, package",
+      "modules": [
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "privacy",
+        "doc/vault"
+      ],
+      "title": "v0.62.514: Sketchbook cuisine-picker cache-bust",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1521,
+      "status": "merged",
+      "merged": "2026-07-07 02:30:11",
+      "day": "2026-07-07",
+      "version": "0.62.515",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Sketchbook filters-on-top layout parity",
+      "approach": "## What Operator, after the v0.62.514 cache-bust deployed: *\"still ...",
+      "codeImpact": "5 files — doc, package",
+      "modules": [
+        "doc",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "privacy",
+        "doc/vault"
+      ],
+      "title": "v0.62.515: Sketchbook filters-on-top layout parity",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1522,
+      "status": "merged",
+      "merged": "2026-07-07 10:50:41",
+      "day": "2026-07-07",
+      "version": "0.62.516",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Sketchbook QuickFilters verbatim port",
+      "approach": "## What Operator, after v0.62.515 reordered the Sketchbook filters: *\"you dont understand the word 'follow' ...",
+      "codeImpact": "9 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "privacy",
+        "doc/vault"
+      ],
+      "title": "v0.62.516: Sketchbook QuickFilters verbatim port",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1523,
+      "status": "merged",
+      "merged": "2026-07-07 12:25:32",
+      "day": "2026-07-07",
+      "version": "0.62.517",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Sketchbook free-text search FAB (TellMePanel verbatim port)",
+      "approach": "## What Operator task **E**: *\"Sketchbook free-text search FAB (port TellMePanel).\"* Ports the Cuisine TMA's free-text composer (the 💬 → pill + 🔍 search bar) into the Sketchbook (clipboard) TMA as a floating FAB.",
+      "codeImpact": "9 files — doc, package",
+      "modules": [
+        "doc",
+        "package"
+      ],
+      "nFiles": 9,
+      "tmas": [],
+      "impactTags": [
+        "privacy",
+        "doc/vault"
+      ],
+      "title": "v0.62.517: Sketchbook free-text search FAB (TellMePanel verbatim port)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1524,
+      "status": "merged",
+      "merged": "2026-07-08 00:43:20",
+      "day": "2026-07-08",
+      "version": "0.62.518",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: CCL6 station coordinate accuracy (Keppel / Cantonment / Prince Edward Road)",
+      "approach": "## What Operator task **#17** *(curate the 3 new MRT stations for the 12 Jul 2026 launch)*, reply **1**.",
+      "codeImpact": "5 files — tests, doc, data, package",
+      "modules": [
+        "tests",
+        "data",
+        "doc",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.518: CCL6 station coordinate accuracy (Keppel / Cantonment / Prince Edward Road)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1526,
+      "status": "merged",
+      "merged": "2026-07-08 01:50:44",
+      "day": "2026-07-08",
+      "version": "0.62.519",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: CCL6 pins re-sourced to OneMap government geocoder",
+      "approach": "## What Operator: *\"check the LTA data … operator website … check the openmap … compare with google map … get ready to flip on 12 JUL.\"* Verified the 3 **CCL6** stations against authoritative sources and re-curated the pins.",
+      "codeImpact": "5 files — tests, doc, data, package",
+      "modules": [
+        "tests",
+        "data",
+        "doc",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.519: CCL6 pins re-sourced to OneMap government geocoder",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1527,
+      "status": "merged",
+      "merged": "2026-07-08 02:11:37",
+      "day": "2026-07-08",
+      "version": "0.62.520",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: CCL6 station-card data readied pre-launch (link + badge; exits tracked as gap)",
+      "approach": "## What Operator: *\"station exit, bus stop near by ensure the card details are ready\"* → reply **\"1\"** (prep the safe half now).",
+      "codeImpact": "4 files — doc, data, package",
+      "modules": [
+        "data",
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "v0.62.520: CCL6 station-card data readied pre-launch (link + badge; exits tracked as gap)",
       "reworkCue": false,
       "reworkOf": null,
       "burst": false

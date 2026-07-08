@@ -1,19 +1,19 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-07-06 from a snapshot of all 1483 pull requests (#1–#1483).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-07-08 from a snapshot of all 1498 pull requests (#1–#1498).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 1483 total — 1473 merged, 10 closed without merge.
+- **PRs:** 1498 total — 1488 merged, 10 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #1511 · 2026-07-06 14:00:57 · _v0.62.505: vault/v0.62.504 snapshot (27th) — pre-cleanup archive_
+- **Latest:** #1527 · 2026-07-08 02:11:37 · _v0.62.520: CCL6 station-card data readied pre-launch (link + badge; exits tracked as gap)_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 994 |
+| feature | 1009 |
 | fix | 203 |
 | docs | 96 |
 | copy | 62 |
@@ -26,24 +26,24 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 452 |
+| Cuisine Picker | 460 |
 | Core / misc | 294 |
 | Hawker NEA | 110 |
-| Docs / vault | 100 |
+| Docs / vault | 103 |
 | Search / free-text | 82 |
-| Transport / carpark | 74 |
+| Transport / carpark | 76 |
 | Recognised lists | 74 |
 | Infra / setup | 60 |
 | /hidden surprise | 45 |
 | Pipeline / discovery | 33 |
-| Language / i18n | 32 |
+| Language / i18n | 33 |
 | Weather | 24 |
 | /eat /drink flow | 22 |
 | Maps / geo / location | 20 |
 | Commands / chat UX | 18 |
 | Menu hub | 17 |
 | Privacy / legal | 12 |
-| Oversight / usage stats | 8 |
+| Oversight / usage stats | 9 |
 | Buddy / sharing | 6 |
 
 ## The ledger
@@ -1535,6 +1535,21 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 1508 | merged | 2026-07-05 23:45:30 | 0.62.504 | feature | Transport / carpark | Add: quiet the Vault-Index + Pulse 5-min heartbeat logs | ## What Two every-5-min heartbeats spammed the Railway **runtime** (Deploy) log with no state change. | 5 files — index.js, vault-index.js, doc, package | — | Redis/state; doc/vault |
 | 1509 | merged | 2026-07-06 06:13:32 |  | docs | Pipeline / discovery | Update docs: add Soleat manual maturity and release lock checklist | Adds maturity/status tracking for the Soleat User Manual so the team can see what is complete and what remains before translation or TMA help wiring. | 3 files — docs/ | — | — |
 | 1511 | merged | 2026-07-06 14:00:57 | 0.62.505 | refactor | Docs / vault | Refactor: vault/v0.62.504 snapshot (27th) — pre-cleanup archive | Operator-ordered: snapshot FIRST, before any audit-driven vault/ cleanup. | 1927 files — doc, vault, package, root-docs, -, Add, Bus.png, Cabinet.png, Cabinet_view.png, Cabinets_view.png, Centre, Centre.png, Choice.png, Clupboard_view.png, Cooking, Dessert, Direction, Dish, Drink.MD, Eat, Flag.png, Hawker, Humidity, Icon.png, Logo.png, Moderation.png, My, New, Places.json, Settings.png, Singapore.json, Speed, Temperature, a, across, by, drawer.png, first, food, icon.PNG, icon.png, in, method, method.png, n, reference, stop | — | Redis/state; legal; doc/vault |
+| 1512 | merged | 2026-07-06 14:10:38 | 0.62.506 | feature | Docs / vault | Add: VibeCodingRecord catch-up regen (PRs #1500–#1509, #1511) | Step 2 of the doc-first sequence (vault snapshot → journal → **VCR** → documents → changes). | 10 files — doc, package, public/ | — | doc/vault |
+| 1513 | merged | 2026-07-06 14:15:38 | 0.62.507 | feature | Docs / vault | Add: Technical № 56 catch-up rollup (v0.62.154 → v0.62.506) | Step 3 (final) of the doc-first sequence — docs now current. | 4 files — doc, package | — | doc/vault |
+| 1514 | merged | 2026-07-06 14:26:28 | 0.62.508 | feature | Docs / vault | Add: remove vault/ (27 snapshots) from tracking | First operator-approved audit change — delete the git-redundant `vault/` directory. | 4 files — doc, package, config | — | Redis/state; doc/vault |
+| 1515 | merged | 2026-07-06 14:38:50 | 0.62.509 | feature | Cuisine Picker | Add: delete dead legacy v1 Cuisine TMA (audit change #2, workspace step 1) | ## What & why The 06-07 4-auditor audit flagged the legacy **v1 Cuisine TMA** (`web/cuisine/src/App.jsx`, chip-grid) as dead code. | 21 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 1516 | merged | 2026-07-06 21:42:20 | 0.62.510 | feature | Cuisine Picker | Add: liquid-glass footer dock (Cuisine TMA) | ## What & why Operator asked to apply **liquid glass** to the Cuisine TMA (linked [liquidGL](https://github.com/naughtyduk/liquidGL)); this PR does the **footer dock** ("1. | 5 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 1517 | merged | 2026-07-06 22:04:00 | 0.62.511 | feature | Language / i18n | Add: bot i18n 8-lang + Clipboard locale toggle | ## What & why Two locale gaps from the i18n audit, operator-approved ("1, 2"): ### 1 — Bot i18n: expand to 8 langs `i18n.js` `SUPPORTED` was `['en', 'fr']`; now `['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es']`. | 8 files — i18n.js, tests, doc, package | — | tests; doc/vault |
+| 1518 | merged | 2026-07-07 00:06:11 | 0.62.512 | feature | Oversight / usage stats | Add: Oversight TMA safe-area bottom padding | ## What Fix flag #1 from the 7-TMA responsive render audit: the **Oversight** dashboard had no `env(safe-area-inset-bottom)` padding, so on a notched phone its last row / `🔚 close` button could sit under the home indicator. | 4 files — TMA:oversight, doc, package | oversight | doc/vault |
+| 1519 | merged | 2026-07-07 01:06:41 | 0.62.513 | feature | Cuisine Picker | Add: Sketchbook — drop "Local food pick" chip | ## What Operator picked **C, D, E** for the Sketchbook (clipboard) TMA. | 7 files — doc, package | — | doc/vault |
+| 1520 | merged | 2026-07-07 01:56:28 | 0.62.514 | feature | Cuisine Picker | Add: Sketchbook cuisine-picker cache-bust | ## What Operator reported the Sketchbook (clipboard) **Cuisine & Filter** tab shows only **3** category cards — *Sweets & Fusion*, *Michelin · Bib Gourmand*, *Set Meal (Beta)* — instead of the full **9-category** grid the Cuisine TMA… | 4 files — doc, package | — | privacy; doc/vault |
+| 1521 | merged | 2026-07-07 02:30:11 | 0.62.515 | feature | Cuisine Picker | Add: Sketchbook filters-on-top layout parity | ## What Operator, after the v0.62.514 cache-bust deployed: *"still ... | 5 files — doc, package | — | privacy; doc/vault |
+| 1522 | merged | 2026-07-07 10:50:41 | 0.62.516 | feature | Cuisine Picker | Add: Sketchbook QuickFilters verbatim port | ## What Operator, after v0.62.515 reordered the Sketchbook filters: *"you dont understand the word 'follow' ... | 9 files — TMA:cuisine, doc, package | cuisine | privacy; doc/vault |
+| 1523 | merged | 2026-07-07 12:25:32 | 0.62.517 | feature | Cuisine Picker | Add: Sketchbook free-text search FAB (TellMePanel verbatim port) | ## What Operator task **E**: *"Sketchbook free-text search FAB (port TellMePanel)."* Ports the Cuisine TMA's free-text composer (the 💬 → pill + 🔍 search bar) into the Sketchbook (clipboard) TMA as a floating FAB. | 9 files — doc, package | — | privacy; doc/vault |
+| 1524 | merged | 2026-07-08 00:43:20 | 0.62.518 | feature | Cuisine Picker | Add: CCL6 station coordinate accuracy (Keppel / Cantonment / Prince Edward Road) | ## What Operator task **#17** *(curate the 3 new MRT stations for the 12 Jul 2026 launch)*, reply **1**. | 5 files — tests, doc, data, package | — | tests; doc/vault |
+| 1526 | merged | 2026-07-08 01:50:44 | 0.62.519 | feature | Transport / carpark | Add: CCL6 pins re-sourced to OneMap government geocoder | ## What Operator: *"check the LTA data … operator website … check the openmap … compare with google map … get ready to flip on 12 JUL."* Verified the 3 **CCL6** stations against authoritative sources and re-curated the pins. | 5 files — tests, doc, data, package | — | tests; doc/vault |
+| 1527 | merged | 2026-07-08 02:11:37 | 0.62.520 | feature | Transport / carpark | Add: CCL6 station-card data readied pre-launch (link + badge; exits tracked as gap) | ## What Operator: *"station exit, bus stop near by ensure the card details are ready"* → reply **"1"** (prep the safe half now). | 4 files — doc, data, package | — | Redis/state; doc/vault |
 
 ---
 
