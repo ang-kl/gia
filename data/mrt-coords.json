@@ -2062,8 +2062,8 @@
     "status": "operational"
   },
   "Keppel": {
-    "lat": 1.2705,
-    "lng": 103.8266,
+    "lat": 1.27,
+    "lng": 103.83111,
     "codes": [
       "CC30"
     ],
@@ -2076,8 +2076,8 @@
     "opensDateFr": "12 juillet 2026"
   },
   "Cantonment": {
-    "lat": 1.2741,
-    "lng": 103.8359,
+    "lat": 1.27278,
+    "lng": 103.83667,
     "codes": [
       "CC31"
     ],
@@ -2090,8 +2090,8 @@
     "opensDateFr": "12 juillet 2026"
   },
   "Prince Edward Road": {
-    "lat": 1.2767,
-    "lng": 103.845,
+    "lat": 1.27333,
+    "lng": 103.84722,
     "codes": [
       "CC32"
     ],
