@@ -2070,10 +2070,7 @@
     "lines": [
       "CCL"
     ],
-    "status": "future",
-    "opensYear": 2026,
-    "opensDate": "12 July 2026",
-    "opensDateFr": "12 juillet 2026"
+    "status": "operational"
   },
   "Cantonment": {
     "lat": 1.27287,
@@ -2084,10 +2081,7 @@
     "lines": [
       "CCL"
     ],
-    "status": "future",
-    "opensYear": 2026,
-    "opensDate": "12 July 2026",
-    "opensDateFr": "12 juillet 2026"
+    "status": "operational"
   },
   "Prince Edward Road": {
     "lat": 1.27316,
@@ -2098,10 +2092,7 @@
     "lines": [
       "CCL"
     ],
-    "status": "future",
-    "opensYear": 2026,
-    "opensDate": "12 July 2026",
-    "opensDateFr": "12 juillet 2026"
+    "status": "operational"
   },
   "Bedok South": {
     "lat": 1.3167,
