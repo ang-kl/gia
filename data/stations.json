@@ -7,8 +7,8 @@
       "data/sg_train_timings.json (first/last-train timings, operator-supplied)"
     ],
     "lastUpdated": "2026-05-21",
-    "stationCount": 180,
-    "futureStationsSkipped": 29,
+    "stationCount": 183,
+    "futureStationsSkipped": 26,
     "busServicesJoined": true,
     "trainTimingsJoined": true,
     "stationsWithTrainTimings": 152,
@@ -43,7 +43,8 @@
       "exit_centroid: mean of exits[].lat/lng (LTA MRT Station Exit GeoJSON). The accurate map-render position; lat/lng (mrt-coords.json) is kept for provenance but is coarser. null when no exits.",
       "first_last_train: one entry per (line, direction) a station appears in within data/sg_train_timings.json — { line_code, station_code, direction, timings, note, service_adjustment? }. timings strings are verbatim from source; null + note for terminal/no-data. Empty [] when the source has no per-station data (Sengkang/Punggol LRT loops give town-centre departures only) or the station is not listed.",
       "SMRT more_info_url uses lowercase-hyphen slug; reasonable convention but unverified per-station.",
-      "SBS Transit more_info_url is ?TrainLine=<line>&Station=<code>, using SBS station codes scraped from the SBS TrainInformation page (2026-05-21). LRT interchange centrals (Sengkang/Punggol) use the East-loop entry (STCE/PTCE)."
+      "SBS Transit more_info_url is ?TrainLine=<line>&Station=<code>, using SBS station codes scraped from the SBS TrainInformation page (2026-05-21). LRT interchange centrals (Sengkang/Punggol) use the East-loop entry (STCE/PTCE).",
+      "v0.62.520 — 3 CCL6 stations (Keppel CC30, Cantonment CC31, Prince Edward Road CC32) added manually pre-launch (the generator skips future stations). Coords from OneMap; SMRT more_info_url + CCL badge ready; exits[] and first_last_train[] left empty until LTA publishes exit GeoJSON + timings at the 12 Jul 2026 opening. Card render is future-gated."
     ]
   },
   "stations": {
@@ -13138,6 +13139,81 @@
       "last_updated_at": "2026-05-21T02:36:13.499Z",
       "data_quality_notes": [
         "no first/last-train timings from source (e.g. LRT loop, or station not listed)"
+      ]
+    },
+    "Keppel": {
+      "station_name": "Keppel",
+      "lat": 1.26977,
+      "lng": 103.83003,
+      "exit_centroid": null,
+      "lines": [
+        {
+          "operator": "SMRT",
+          "line_code": "CCL",
+          "line_name": "Circle Line",
+          "station_code": "CC30",
+          "station_slug": "keppel",
+          "more_info_url": "https://journey.smrt.com.sg/journey/station_info/keppel/"
+        }
+      ],
+      "exits": [],
+      "first_last_train": [],
+      "last_updated_at": "2026-07-08",
+      "data_quality_notes": [
+        "manual pre-launch entry — CCL6 (Circle Line Stage 6), opens 12 Jul 2026",
+        "lat/lng from OneMap government geocoder (building address); exit_centroid null",
+        "exits[] + first_last_train[] pending LTA publication at opening",
+        "SMRT more_info_url uses the standard lowercase-hyphen slug convention (unverified per-station)"
+      ]
+    },
+    "Cantonment": {
+      "station_name": "Cantonment",
+      "lat": 1.27287,
+      "lng": 103.83706,
+      "exit_centroid": null,
+      "lines": [
+        {
+          "operator": "SMRT",
+          "line_code": "CCL",
+          "line_name": "Circle Line",
+          "station_code": "CC31",
+          "station_slug": "cantonment",
+          "more_info_url": "https://journey.smrt.com.sg/journey/station_info/cantonment/"
+        }
+      ],
+      "exits": [],
+      "first_last_train": [],
+      "last_updated_at": "2026-07-08",
+      "data_quality_notes": [
+        "manual pre-launch entry — CCL6 (Circle Line Stage 6), opens 12 Jul 2026",
+        "lat/lng from OneMap government geocoder (building address); exit_centroid null",
+        "exits[] + first_last_train[] pending LTA publication at opening",
+        "SMRT more_info_url uses the standard lowercase-hyphen slug convention (unverified per-station)"
+      ]
+    },
+    "Prince Edward Road": {
+      "station_name": "Prince Edward Road",
+      "lat": 1.27316,
+      "lng": 103.8471,
+      "exit_centroid": null,
+      "lines": [
+        {
+          "operator": "SMRT",
+          "line_code": "CCL",
+          "line_name": "Circle Line",
+          "station_code": "CC32",
+          "station_slug": "prince-edward-road",
+          "more_info_url": "https://journey.smrt.com.sg/journey/station_info/prince-edward-road/"
+        }
+      ],
+      "exits": [],
+      "first_last_train": [],
+      "last_updated_at": "2026-07-08",
+      "data_quality_notes": [
+        "manual pre-launch entry — CCL6 (Circle Line Stage 6), opens 12 Jul 2026",
+        "lat/lng from OneMap government geocoder (building address); exit_centroid null",
+        "exits[] + first_last_train[] pending LTA publication at opening",
+        "SMRT more_info_url uses the standard lowercase-hyphen slug convention (unverified per-station)"
       ]
     }
   }
