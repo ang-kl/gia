@@ -6,10 +6,11 @@
 // load, overriding dish-food-group.js's regex fallback (which only covers SG/
 // Malaysian hawker vocabulary — this overlay covers every cuisine directly).
 //
-// Entries: 99
+// Entries: 103
 'use strict';
 
 module.exports = {
+  "singaporean::ang ku kueh": { type: "snack", mealTime: ["snack"], dietary: "vegetarian", course: "bites" },
   "singaporean::assam pedas": { type: "stew-curry", mealTime: ["lunch","dinner"], dietary: "seafood", course: "main" },
   "singaporean::ayam buah keluak": { type: "stew-curry", mealTime: ["lunch","dinner"], dietary: "meat", course: "main" },
   "singaporean::ayam penyet": { type: "other", mealTime: ["lunch","dinner"], dietary: "meat", course: "main" },
@@ -55,7 +56,9 @@ module.exports = {
   "singaporean::itek tim": { type: "soup", mealTime: ["lunch","dinner"], dietary: "meat", course: "soup" },
   "singaporean::kaya puff": { type: "sweet", mealTime: ["anytime"], dietary: "vegetarian", course: "bites" },
   "singaporean::kong bak pau": { type: "bread-dumpling", mealTime: ["lunch","dinner","snack"], dietary: "meat", course: "bites" },
+  "singaporean::kueh dadar": { type: "sweet", mealTime: ["snack","anytime"], dietary: "vegetarian", course: "dessert" },
   "singaporean::kueh pie tee": { type: "snack", mealTime: ["lunch","dinner","snack"], dietary: "mixed", course: "appetiser" },
+  "singaporean::kueh salat": { type: "sweet", mealTime: ["breakfast","snack"], dietary: "vegetarian", course: "dessert" },
   "singaporean::kway chap": { type: "noodles", mealTime: ["breakfast","lunch","dinner"], dietary: "meat", course: "main" },
   "singaporean::lo mai gai": { type: "rice", mealTime: ["breakfast","lunch","snack"], dietary: "meat", course: "bites" },
   "singaporean::lontong sayur lodeh": { type: "stew-curry", mealTime: ["breakfast","lunch","dinner"], dietary: "mixed", course: "main" },
@@ -75,6 +78,7 @@ module.exports = {
   "singaporean::nyonya curry chicken": { type: "stew-curry", mealTime: ["lunch","dinner"], dietary: "meat", course: "main" },
   "singaporean::orh nee (yam paste dessert)": { type: "sweet", mealTime: ["lunch","dinner"], dietary: "mixed", course: "dessert" },
   "singaporean::pineapple tart": { type: "sweet", mealTime: ["anytime"], dietary: "vegetarian", course: "bites" },
+  "singaporean::png kueh": { type: "bread-dumpling", mealTime: ["breakfast","snack","anytime"], dietary: "mixed", course: "bites" },
   "singaporean::putu mayam": { type: "noodles", mealTime: ["breakfast","snack"], dietary: "vegetarian", course: "dessert" },
   "singaporean::roast duck": { type: "grilled", mealTime: ["lunch","dinner"], dietary: "meat", course: "main" },
   "singaporean::roast goose": { type: "grilled", mealTime: ["lunch","dinner"], dietary: "meat", course: "main" },
