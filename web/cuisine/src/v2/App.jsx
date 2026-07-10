@@ -2439,6 +2439,7 @@ export default function App() {
     // is rolled into this complete disable.
     const autoResetOnLowCount = false;
     setLoading(true); setError(null);
+    setDegradedNotice(false);   // v0.62.x — reset the stalled-stream notice per search attempt
     setStreamFirstName(null);   // v0.62.78 — reset the progressive name per search
     setAllSeenInRange(null);    // v0.62.88 — reset the "all-seen, widen?" note per search
     // v0.62.x — fresh AbortController so the loading pop-up's 🛑 Stop button can
@@ -2505,6 +2506,16 @@ export default function App() {
           }
         }
       });
+      // v0.62.x — operator: "slower phones are not populating the details
+      // and caused a letdown." A stalled NDJSON stream (api.js
+      // STREAM_STALL_TIMEOUT_MS) now resolves with a best-effort partial
+      // result instead of hanging forever; surface the existing (previously
+      // unwired) degraded-connection notice so the user knows to retry
+      // instead of assuming the app is broken.
+      if (r && r.streamStalled) {
+        console.log('[Cuisine-TMA-v2] stream stalled — showing degraded notice');
+        setDegradedNotice(true);
+      }
       // v0.61.409 — boot-load race guard. If a coherence check flagged
       // saved≠device AFTER this boot search fired (countryPref/anchor landed
       // late), DROP the results — on a mismatch the TMA must stay empty

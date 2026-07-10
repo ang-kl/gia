@@ -170,8 +170,39 @@ async function postJsonStream(url, body, { onBase, onPatch, signal } = {}) {
       doneEv = ev;
     }
   };
+  // v0.62.x — operator: "slower phones are not populating the details and
+  // caused a letdown." Root cause: this read loop had NO deadline. A
+  // connection that stalls (no more chunks, but never errors or closes —
+  // common on flaky mobile networks) left `reader.read()` awaiting forever,
+  // so the searchCuisine() promise never settled: the loading spinner never
+  // cleared and cards stayed on base-only data with no way out. Race each
+  // read against a per-CHUNK stall timeout (reset on every chunk, not an
+  // overall deadline) so a stall degrades to a best-effort partial result
+  // instead of hanging indefinitely. Set well above the documented <12s p95
+  // end-to-end so a merely-slow (not stalled) connection is never cut off.
+  const STREAM_STALL_TIMEOUT_MS = 15000;
+  let stalled = false;
   for (;;) {
-    const { value, done } = await reader.read();
+    let timeoutId;
+    let step;
+    try {
+      step = await Promise.race([
+        reader.read(),
+        new Promise((_, reject) => {
+          timeoutId = setTimeout(() => reject(new Error('stream-stall-timeout')), STREAM_STALL_TIMEOUT_MS);
+        })
+      ]);
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err && err.message === 'stream-stall-timeout') {
+        stalled = true;
+        try { await reader.cancel('stall-timeout'); } catch { /* best-effort */ }
+        break;
+      }
+      throw err; // real network/abort error — propagate as before
+    }
+    clearTimeout(timeoutId);
+    const { value, done } = step;
     if (done) break;
     for (const ev of dec.push(td.decode(value, { stream: true }))) handle(ev);
   }
@@ -179,6 +210,7 @@ async function postJsonStream(url, body, { onBase, onPatch, signal } = {}) {
 
   // base ⊕ appends ⊕ patches ⊕ done-metadata == the non-streamed payload.
   const final = assembleFinal(baseEv, patchEvs, doneEv || {}, appendEvs);
+  if (stalled) final.streamStalled = true; // v0.62.x — lets the caller show a "tap 🔍 to retry" notice
   vlog.noteServerHint(final);
   reportOk();
   return final;
