@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-08",
-  "count": 1498,
+  "generated": "2026-07-10",
+  "count": 1501,
   "records": [
     {
       "pr": 1,
@@ -42272,6 +42272,87 @@
       "reworkCue": false,
       "reworkOf": null,
       "burst": false
+    },
+    {
+      "pr": 1529,
+      "status": "merged",
+      "merged": "2026-07-09 01:20:23",
+      "day": "2026-07-09",
+      "version": "0.62.522",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Language & Locale Specification (the missing doc)",
+      "approach": "## What Operator: *\"i thought there is a spec on language\"*.",
+      "codeImpact": "4 files — doc, package",
+      "modules": [
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.522: Language & Locale Specification (the missing doc)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1530,
+      "status": "merged",
+      "merged": "2026-07-09 03:42:31",
+      "day": "2026-07-09",
+      "version": "0.62.523",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Oversight / usage stats",
+      "intent": "Add: language selection criterion — L-12 / L-13 (closes the [UNVERIFIED])",
+      "approach": "## What v0.62.522 §1.2 left exactly one thing open — **`[UNVERIFIED]`: why *these* eight languages?** No rationale existed anywhere in the repo.",
+      "codeImpact": "4 files — doc, package",
+      "modules": [
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.523: language selection criterion — L-12 / L-13 (closes the [UNVERIFIED])",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1531,
+      "status": "merged",
+      "merged": "2026-07-10 04:06:50",
+      "day": "2026-07-10",
+      "version": "0.62.524",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: Cuisine TMA fix — stalled result stream hung forever on slow phones",
+      "approach": "## What Operator: *\"the UI results experience, sometimes slower phones are not populating the details and caused a letdown.\"* ## Root cause (traced, not guessed) My own first hypothesis — a documented **6s client fetch timeout** racing…",
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.524: Cuisine TMA fix — stalled result stream hung forever on slow phones",
+      "reworkCue": false,
+      "reworkOf": 1529,
+      "burst": true
     }
   ]
 }

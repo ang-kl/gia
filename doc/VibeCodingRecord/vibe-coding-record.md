@@ -1,20 +1,20 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-07-08 from a snapshot of all 1498 pull requests (#1–#1498).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-07-10 from a snapshot of all 1501 pull requests (#1–#1501).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 1498 total — 1488 merged, 10 closed without merge.
+- **PRs:** 1501 total — 1491 merged, 10 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #1527 · 2026-07-08 02:11:37 · _v0.62.520: CCL6 station-card data readied pre-launch (link + badge; exits tracked as gap)_
+- **Latest:** #1531 · 2026-07-10 04:06:50 · _v0.62.524: Cuisine TMA fix — stalled result stream hung forever on slow phones_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 1009 |
-| fix | 203 |
+| feature | 1011 |
+| fix | 204 |
 | docs | 96 |
 | copy | 62 |
 | prompt-tune | 45 |
@@ -26,7 +26,7 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 460 |
+| Cuisine Picker | 462 |
 | Core / misc | 294 |
 | Hawker NEA | 110 |
 | Docs / vault | 103 |
@@ -43,7 +43,7 @@
 | Commands / chat UX | 18 |
 | Menu hub | 17 |
 | Privacy / legal | 12 |
-| Oversight / usage stats | 9 |
+| Oversight / usage stats | 10 |
 | Buddy / sharing | 6 |
 
 ## The ledger
@@ -1550,6 +1550,9 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 1524 | merged | 2026-07-08 00:43:20 | 0.62.518 | feature | Cuisine Picker | Add: CCL6 station coordinate accuracy (Keppel / Cantonment / Prince Edward Road) | ## What Operator task **#17** *(curate the 3 new MRT stations for the 12 Jul 2026 launch)*, reply **1**. | 5 files — tests, doc, data, package | — | tests; doc/vault |
 | 1526 | merged | 2026-07-08 01:50:44 | 0.62.519 | feature | Transport / carpark | Add: CCL6 pins re-sourced to OneMap government geocoder | ## What Operator: *"check the LTA data … operator website … check the openmap … compare with google map … get ready to flip on 12 JUL."* Verified the 3 **CCL6** stations against authoritative sources and re-curated the pins. | 5 files — tests, doc, data, package | — | tests; doc/vault |
 | 1527 | merged | 2026-07-08 02:11:37 | 0.62.520 | feature | Transport / carpark | Add: CCL6 station-card data readied pre-launch (link + badge; exits tracked as gap) | ## What Operator: *"station exit, bus stop near by ensure the card details are ready"* → reply **"1"** (prep the safe half now). | 4 files — doc, data, package | — | Redis/state; doc/vault |
+| 1529 | merged | 2026-07-09 01:20:23 | 0.62.522 | feature | Cuisine Picker | Add: Language & Locale Specification (the missing doc) | ## What Operator: *"i thought there is a spec on language"*. | 4 files — doc, package | — | doc/vault |
+| 1530 | merged | 2026-07-09 03:42:31 | 0.62.523 | feature | Oversight / usage stats | Add: language selection criterion — L-12 / L-13 (closes the [UNVERIFIED]) | ## What v0.62.522 §1.2 left exactly one thing open — **`[UNVERIFIED]`: why *these* eight languages?** No rationale existed anywhere in the repo. | 4 files — doc, package | — | doc/vault |
+| 1531 | merged | 2026-07-10 04:06:50 | 0.62.524 | fix | Cuisine Picker | Fix: Cuisine TMA fix — stalled result stream hung forever on slow phones | ## What Operator: *"the UI results experience, sometimes slower phones are not populating the details and caused a letdown."* ## Root cause (traced, not guessed) My own first hypothesis — a documented **6s client fetch timeout** racing… | 5 files — TMA:cuisine, doc, package | cuisine | doc/vault |
 
 ---
 

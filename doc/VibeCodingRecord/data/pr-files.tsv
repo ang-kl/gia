@@ -1286,3 +1286,6 @@
 1524	__tests__/transport-line-paths.test.js,data/mrt-coords.json,doc/.serial-state.yml,doc/Journal/journal-0_62_518-08_07_26-0835.md,package.json
 1526	__tests__/transport-line-paths.test.js,data/mrt-coords.json,doc/.serial-state.yml,doc/Journal/journal-0_62_519-08_07_26-0950.md,package.json
 1527	data/stations.json,doc/.serial-state.yml,doc/Journal/journal-0_62_520-08_07_26-1015.md,package.json
+1529	doc/.serial-state.yml,doc/Journal/journal-0_62_522-09_07_26-0914.md,doc/Technical/technical-0_62_522-09_07_26-0914.md,package.json
+1530	doc/.serial-state.yml,doc/Journal/journal-0_62_523-09_07_26-1137.md,doc/Technical/technical-0_62_522-09_07_26-0914.md,package.json
+1531	doc/.serial-state.yml,doc/Journal/journal-0_62_524-10_07_26-1203.md,package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/lib/api.js
