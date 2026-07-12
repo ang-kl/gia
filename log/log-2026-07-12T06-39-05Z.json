@@ -1,0 +1,133 @@
+{
+  "since": "2026-07-12T05:34:05Z",
+  "until": "2026-07-12T06:39:05Z",
+  "count": 14,
+  "logs": [
+    {
+      "timestamp": "2026-07-12T05:36:37.224627169Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":[-27.57267,153.06621],\"to\":[-27.57066,153.06243],\"moved_m\":435,\"label\":\"Sunnybank Plaza\",\"region\":\"OTHER\",\"country\":\"AU\",\"cap_m\":null,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3ec2b4d4-d767-444f-b29b-e5cb37ec56fa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-12T05:36:37.224629739Z",
+      "message": "[set-location] chat=313940231 → -27.5707,153.0624 label=\"Sunnybank Plaza\" AU OTHER",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3ec2b4d4-d767-444f-b29b-e5cb37ec56fa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-12T05:36:37.669973544Z",
+      "message": "[set-location] search-area notify chat=313940231 area=\"358 Mains Road · 358 Mains Road, Sunnybank, AU\"",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3ec2b4d4-d767-444f-b29b-e5cb37ec56fa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-12T05:36:40.290398906Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 45000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3ec2b4d4-d767-444f-b29b-e5cb37ec56fa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-12T05:36:40.290403436Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[-27.57066,153.06243],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":45000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3ec2b4d4-d767-444f-b29b-e5cb37ec56fa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-12T05:36:40.290406316Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=-27.5707,153.0624 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3ec2b4d4-d767-444f-b29b-e5cb37ec56fa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-12T05:36:40.290408606Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3ec2b4d4-d767-444f-b29b-e5cb37ec56fa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-12T05:36:40.845105009Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 20 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3ec2b4d4-d767-444f-b29b-e5cb37ec56fa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-12T05:36:40.845125298Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 20 → 20 (≤45000m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3ec2b4d4-d767-444f-b29b-e5cb37ec56fa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-12T05:36:40.845141528Z",
+      "message": "[Cuisine-Search] sliceCap=10 firstBatch=true finalBatch=false range=1-10 seenBefore=0 hash=55084d4c",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3ec2b4d4-d767-444f-b29b-e5cb37ec56fa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-12T05:36:49.090505019Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "3ec2b4d4-d767-444f-b29b-e5cb37ec56fa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-12T05:36:49.614831900Z",
+      "message": "[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3ec2b4d4-d767-444f-b29b-e5cb37ec56fa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-12T05:36:49.614838010Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (10v): crowd=2221ms translate=1ms reviewCache=8ms dishes=6003ms finalise=0ms travel=387ms sanctuary=133ms footfall=0ms total=8753ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3ec2b4d4-d767-444f-b29b-e5cb37ec56fa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-12T05:36:49.855202071Z",
+      "message": "[Cuisine-Search] D704 returning 10 venues to client (poolCount=10 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "3ec2b4d4-d767-444f-b29b-e5cb37ec56fa",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
