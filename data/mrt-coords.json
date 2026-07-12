@@ -1,9 +1,9 @@
 {
   "_meta": {
-    "comment": "v0.60.85 — SG MRT + LRT station coordinates. Operational network as of 2026 (NSL, EWL/CGL, NEL, CCL, DTL, TEL, BPL/SLRT/PLRT) + announced future stations (CCL6, TEL5, DTL3e, JRL, CRL). Lat/lng sourced from public LTA + OneMap.sg references; precision ~5 decimal places (≈1m accuracy is overkill, ~10m typical). Future stations use precinct centroids where exact coords aren't published yet. status=operational|future; opensYear set for future entries. v0.61.184: operationalCount + futureCount re-synced against the body (the original v0.60.85 counts had rotted as later edits added stations without bumping the header).",
-    "lastUpdated": "2026-05-27",
-    "operationalCount": 180,
-    "futureCount": 29,
+    "comment": "v0.60.85 — SG MRT + LRT station coordinates. Operational network as of 2026 (NSL, EWL/CGL, NEL, CCL, DTL, TEL, BPL/SLRT/PLRT) + announced future stations (TEL5, DTL3e, JRL, CRL). Lat/lng sourced from public LTA + OneMap.sg references; precision ~5 decimal places (≈1m accuracy is overkill, ~10m typical). Future stations use precinct centroids where exact coords aren't published yet. status=operational|future; opensYear set for future entries. v0.61.184: operationalCount + futureCount re-synced against the body (the original v0.60.85 counts had rotted as later edits added stations without bumping the header). v0.62.528 (12 Jul 2026): CCL6 launch flip — Keppel (CC30) / Cantonment (CC31) / Prince Edward Road (CC32) flipped future→operational on the LTA passenger-service open date; their future-only opensYear/opensDate/opensDateFr fields dropped. operationalCount 180→183, futureCount 29→26.",
+    "lastUpdated": "2026-07-12",
+    "operationalCount": 183,
+    "futureCount": 26,
     "linesOperational": 10,
     "linesTotal": 12,
     "schema": {
@@ -2070,10 +2070,7 @@
     "lines": [
       "CCL"
     ],
-    "status": "future",
-    "opensYear": 2026,
-    "opensDate": "12 July 2026",
-    "opensDateFr": "12 juillet 2026"
+    "status": "operational"
   },
   "Cantonment": {
     "lat": 1.27287,
@@ -2084,10 +2081,7 @@
     "lines": [
       "CCL"
     ],
-    "status": "future",
-    "opensYear": 2026,
-    "opensDate": "12 July 2026",
-    "opensDateFr": "12 juillet 2026"
+    "status": "operational"
   },
   "Prince Edward Road": {
     "lat": 1.27316,
@@ -2098,10 +2092,7 @@
     "lines": [
       "CCL"
     ],
-    "status": "future",
-    "opensYear": 2026,
-    "opensDate": "12 July 2026",
-    "opensDateFr": "12 juillet 2026"
+    "status": "operational"
   },
   "Bedok South": {
     "lat": 1.3167,
