@@ -87,9 +87,9 @@ const LRT_CCL_STATIONS = [
   { name: 'Labrador Park',     lat: 1.2722, lng: 103.8027, codes: ['CC27'], lines: ['CCL'], status: 'operational' },
   { name: 'Telok Blangah',     lat: 1.2706, lng: 103.8094, codes: ['CC28'], lines: ['CCL'], status: 'operational' },
   { name: 'HarbourFront',      lat: 1.2655, lng: 103.8221, codes: ['CC29'], lines: ['CCL'], status: 'operational' },
-  { name: 'Keppel',            lat: 1.26977, lng: 103.83003, codes: ['CC30'], lines: ['CCL'], status: 'future' },
-  { name: 'Cantonment',        lat: 1.27287, lng: 103.83706, codes: ['CC31'], lines: ['CCL'], status: 'future' },
-  { name: 'Prince Edward Road',lat: 1.27316, lng: 103.8471, codes: ['CC32'], lines: ['CCL'], status: 'future' },
+  { name: 'Keppel',            lat: 1.26977, lng: 103.83003, codes: ['CC30'], lines: ['CCL'], status: 'operational' },
+  { name: 'Cantonment',        lat: 1.27287, lng: 103.83706, codes: ['CC31'], lines: ['CCL'], status: 'operational' },
+  { name: 'Prince Edward Road',lat: 1.27316, lng: 103.8471, codes: ['CC32'], lines: ['CCL'], status: 'operational' },
   { name: 'Bayfront',          lat: 1.2823, lng: 103.8590, codes: ['CE1'],  lines: ['CCL'], status: 'operational' },
   { name: 'Marina Bay',        lat: 1.2761, lng: 103.8546, codes: ['CE2'],  lines: ['CCL'], status: 'operational' }
 ];
