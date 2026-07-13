@@ -36,6 +36,11 @@ const {
   clearProcessing,
   touchLastSeen
 } = require('./location-cache');
+// v0.62.530 — resolveLang hoisted to a single top-level import (was re-required
+// inline in ~37 handlers). One shared binding; require() is module-cached so this
+// is behaviour-identical. Aliased (resolveLang: rl…) and other user-prefs exports
+// (setUserLang / getUserLang / SUPPORTED) keep their own local requires.
+const { resolveLang } = require('./user-prefs');
 // v0.61.195 — chat-side /location country picker. Mirrors the TMA's
 // frozen 16-country OTHER list and adds SG as the 17th option. Used by
 // the `/lcountry` command + the new `cp:<CODE>` callback to set
@@ -1462,7 +1467,6 @@ async function notifySearchAreaSet({ chatId, prev, lat, lng, label }) {
     // v0.62.99 — always resolve a real address from the coords (the client
     // label "Current"/"Merlion Park"/"George Town" is no longer shown verbatim).
     const areaHtml = await buildAreaSetLine(lat, lng, label);
-    const { resolveLang } = require('./user-prefs');
     const { tn } = require('./i18n');
     const lang = await resolveLang(redis, chatId);
     await bot.sendMessage(
@@ -1525,7 +1529,6 @@ const PENDING_CUISINE_PREFIX = 'cuisine:';
 const CUISINE_FRESH_LOC_MS = 24 * 60 * 60 * 1000;
 bot.onText(/^\/(?:cuisine|c)(?:@\w+)?(?:\s+(.*))?$/, async (msg, match) => {
   // v0.59.17: thread lang into the chat reply so it flips with /language.
-  const { resolveLang } = require('./user-prefs');
   const { t } = require('./i18n');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   try {
@@ -1692,7 +1695,6 @@ async function runCuisineFlow(chatId, lat, lng, cuisineType) {
       // Resolves lang from the per-chat Redis user-prefs (same source
       // /api/cuisine/search uses), falling back to 'en'.
       try {
-        const { resolveLang } = require('./user-prefs');
         const tgtLang = await resolveLang(redis, chatId, null).catch(() => 'en') || 'en';
         const { enrichVenuesWithTranslatedReview } = require('./cuisine-review-language');
         await enrichVenuesWithTranslatedReview({
@@ -1711,7 +1713,6 @@ async function runCuisineFlow(chatId, lat, lng, cuisineType) {
       // the Cuisine TMA modal (v0.61.285 + v0.61.295). Best-effort;
       // a failure here MUST NOT block the cuisine result.
       try {
-        const { resolveLang } = require('./user-prefs');
         const ffLang = await resolveLang(redis, chatId, null).catch(() => 'en') || 'en';
         const { sendFunFactReply } = require('./bot-fun-facts');
         await sendFunFactReply({
@@ -1753,7 +1754,6 @@ async function runCuisineFlow(chatId, lat, lng, cuisineType) {
 // `/weather east` resolves to that area's lat/lng so a user can ask
 // "good window to head out over there?" before leaving.
 bot.onText(/^\/(?:weather|w)(?:@\w+)?(?:\s+(.+))?$/, async (msg, match) => {
-  const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   // v0.61.156 — rule §2.5 feature gate. Weather pulls from NEA SG
   // feeds; gate it when the registered locale is non-SG.
@@ -1764,13 +1764,11 @@ bot.onText(/^\/(?:weather|w)(?:@\w+)?(?:\s+(.+))?$/, async (msg, match) => {
 // v0.61.18 — /train added as an alias for /transport (operator
 // request), so the train status & map TMA has a memorable command.
 bot.onText(/^\/(?:transport|train|t)(?:@\w+)?$/, async (msg) => {
-  const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await sendTransportMenu(msg.chat.id, lang);
 });
 
 bot.onText(/^\/(?:carpark|p)(?:@\w+)?$/, async (msg) => {
-  const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await runCarparkCommand(msg.chat.id, lang);
 });
@@ -1791,7 +1789,6 @@ bot.onText(/^\/(?:carpark|p)(?:@\w+)?$/, async (msg) => {
 // setMyCommands anyway. Removes accidental triggers from chat /h
 // typos.
 bot.onText(/^\/hidden(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
-  const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   const freeText = (match && match[1] ? String(match[1]).trim() : '');
   if (freeText) {
@@ -1905,7 +1902,6 @@ bot.onText(/^\/ztest(?:@\w+)?(?:\s+(.+))?$/i, async (msg) => {
 // retained, and which third parties it queries. OPERATOR_LINKEDIN
 // env var (optional) appends an authorship credit line.
 bot.onText(/^\/privacy(?:@\w+)?$/, async (msg) => {
-  const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await runPrivacyCommand(msg.chat.id, lang);
 });
@@ -1914,7 +1910,6 @@ bot.onText(/^\/privacy(?:@\w+)?$/, async (msg) => {
 // /ver). Surfaces disclaimer + IMDA Model AI Governance alignment +
 // builder credit. Discoverable via /help text.
 bot.onText(/^\/legal(?:@\w+)?$/, async (msg) => {
-  const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await runLegalCommand(msg.chat.id, lang);
 });
@@ -1925,7 +1920,6 @@ bot.onText(/^\/legal(?:@\w+)?$/, async (msg) => {
 // the chatId. /privacy advertises both this command and the 90-day
 // inactivity auto-purge.
 bot.onText(/^\/forgetme(?:@\w+)?$/, async (msg) => {
-  const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await runForgetMeCommand(msg.chat.id, lang);
 });
@@ -1965,7 +1959,6 @@ async function promptLocationOnWake(chatId, msg) {
   try {
     const loc = await getUserLocation(redis, chatId);
     if (!loc || !Number.isFinite(loc.lat) || !Number.isFinite(loc.lng)) return;
-    const { resolveLang } = require('./user-prefs');
     const { t } = require('./i18n');
     const lang = await resolveLang(redis, chatId, msg);
     // v0.61.140 — stamp the wake:pending flag so the next bot.on('location')
@@ -1991,7 +1984,6 @@ async function promptLocationOnWake(chatId, msg) {
 // from msg.location (which the user no longer sees by then).
 async function handleWakeLocationResponse(chatId, lat, lng, msg) {
   try {
-    const { resolveLang } = require('./user-prefs');
     const { t, tn } = require('./i18n');
     const lang = await resolveLang(redis, chatId, msg);
 
@@ -2282,7 +2274,6 @@ function _buildRegionsKeyboard() {
 
 async function sendLocationQuickPicks(chatId) {
   try {
-    const { resolveLang } = require('./user-prefs');
     const lang = await resolveLang(redis, chatId, null).catch(() => 'en');
     const { t: tQP } = require('./i18n');
     const curLoc = await _currentLocForQuickPick(chatId);
@@ -2724,7 +2715,6 @@ async function refreshChatMenuButton(chatId) {
 
 // v0.33.0: /hawker — sub-menu (Nearest 3 / By zone / Cleaning info / Crowd).
 bot.onText(/^\/(?:hawker|hk)(?:@\w+)?$/, async (msg) => {
-  const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   // v0.61.156 — rule §2.5 feature gate. Hawker centres are SG-only.
   if (!(await isSgOnlyCommandAllowed(msg.chat.id, 'hawker', lang))) return;
@@ -2740,7 +2730,6 @@ bot.onText(/^\/(?:hawker|hk)(?:@\w+)?$/, async (msg) => {
 // avoid confusion with /checkpoint (both used to dispatch the same
 // handler). Only /checkpoint accepted now.
 bot.onText(/^\/checkpoint(?:@\w+)?$/, async (msg) => {
-  const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await runTransportCauseway(msg.chat.id, lang);
 });
@@ -2750,7 +2739,6 @@ bot.onText(/^\/checkpoint(?:@\w+)?$/, async (msg) => {
 // the public slash menu lean), but the handler is live for power
 // users who type the command directly.
 bot.onText(/^\/(?:bus|b)(?:@\w+)?$/, async (msg) => {
-  const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   await runTransportBus(msg.chat.id, 'nearest', lang);
 });
@@ -2760,7 +2748,6 @@ bot.onText(/^\/(?:bus|b)(?:@\w+)?$/, async (msg) => {
 // a one-tap button (`web_app`) that opens https://<host>/app/menu in
 // the same WebApp container the chat-menu button uses.
 bot.onText(/^\/(?:menu|m)(?:@\w+)?$/, async (msg) => {
-  const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   // v0.60.65 — refresh the per-chat menu-button binding so the
   // bottom-left Menu button opens the TMA on next tap (clears any
@@ -2794,7 +2781,6 @@ bot.onText(/^\/(?:menu|m)(?:@\w+)?$/, async (msg) => {
 // v0.37.0: optional category filter — /recognised michelin, /recognised bib,
 // /recognised michelin-star, etc. Falls through to all-categories when no arg.
 bot.onText(/^\/(?:recognised|r)(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
-  const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   // v0.61.156 — rule §2.5 feature gate. /recognised reads the
   // Michelin SG list; gate it when the registered locale is non-SG.
@@ -2814,7 +2800,6 @@ bot.onText(/^\/(?:recognised|r)(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
 // + /api/cuisine/search). Not country-gated — rating is universal.
 bot.onText(/^\/(?:rating|ra)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
   const chatId = msg.chat.id;
-  const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, chatId, msg).catch(() => 'en');
   const arg = match && match[1] ? String(match[1]).trim() : '';
   // No argument → status + usage.
@@ -2876,7 +2861,6 @@ bot.onText(/^\/log(?:@\w+)?(?:\s+(on|off|status))?$/i, async (msg, match) => {
 // the message-handler's `text.startsWith('/')` early-return → no-op.
 /*
 bot.onText(/^\/buddy(?:@\w+)?(?:\s+(on|off|status|block|report)(?:\s+(.+))?)?$/i, async (msg, match) => {
-  const { resolveLang } = require('./user-prefs');
   const { t, tn } = require('./i18n');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   try {
@@ -2971,7 +2955,6 @@ bot.onText(/^\/picks(?:@\w+)?$/i, async (msg) => {
 // setMyCommands EN+FR but keep the handler so old in-chat share-link
 // buttons keep resolving.
 bot.onText(/^\/toshare(?:@\w+)?$/, async (msg) => {
-  const { resolveLang } = require('./user-prefs');
   const { t, tn } = require('./i18n');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   try {
@@ -3048,7 +3031,6 @@ function resolvePending(pending) {
 // v0.60.148 — added `clipboard` as a third alias; some users typed
 // `/clipboard` expecting it to work (it's the natural spelling).
 bot.onText(/^\/(?:clip|cl|clipboard)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
-  const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   const arg = (match?.[1] || '').trim();
   await runClipCommand(msg.chat.id, arg, lang);
@@ -3062,7 +3044,6 @@ bot.onText(/^\/(?:clip|cl|clipboard)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match)
 // Any other / command also ends the conversation (handled in
 // preEmptSearchOnSlash, called at the top of bot.on('text')).
 bot.onText(/^\/(?:search|s)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
-  const { resolveLang } = require('./user-prefs');
   const lang = await resolveLang(redis, msg.chat.id, msg);
   const arg = (match?.[1] || '').trim();
   await runSearchCommand(msg.chat.id, arg, lang);
@@ -3103,7 +3084,6 @@ bot.on('callback_query', async (q) => {
     // v0.59.1: resolve user lang once for all chrome dispatch below.
     // v0.61.140 — `tn` added to the destructure for the wake2:current
     // confirmation which interpolates {street}.
-    const { resolveLang } = require('./user-prefs');
     const { t, tn } = require('./i18n');
     const cbLang = await resolveLang(redis, chatId, q);
 
@@ -3640,7 +3620,6 @@ bot.on('callback_query', async (q) => {
           await runFreeTextSearch(chatId, cookText, { lang: cbLang });
           return;
         }
-        const { getUserLocation } = require('./location-cache');
         const loc = await getUserLocation(redis, chatId).catch(() => null);
         const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
         const center = (loc?.lat && loc?.lng) ? { lat: loc.lat, lng: loc.lng } : SG_CENTROID;
@@ -4283,7 +4262,6 @@ bot.on('location', async (msg) => {
     // location" reply keyboard once we've received a location.
     // (v0.61.408 — the second button was "Use Raffles Place default".)
     // Per Human Lead — the buttons "keep on at iOS" until removed.
-    const { resolveLang } = require('./user-prefs');
     const { t } = require('./i18n');
     const locLang = await resolveLang(redis, msg.chat.id, msg);
     pending = await consumePendingMeal(redis, msg.chat.id);
@@ -4357,7 +4335,6 @@ bot.on('location', async (msg) => {
     if (typeof pending === 'string' && pending.startsWith('freetext:')) {
       const text = pending.slice('freetext:'.length);
       // v0.59.0: explicit /language pref outranks Telegram locale.
-      const { resolveLang } = require('./user-prefs');
       const userLang = await resolveLang(redis, msg.chat.id, msg);
       await runFreeTextSearch(msg.chat.id, text, { lang: userLang });
       return;
@@ -5511,7 +5488,6 @@ bot.onText(/^\/start(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
     }
     return;
   }
-  const { resolveLang } = require('./user-prefs');
   const { t } = require('./i18n');
   const startLang = await resolveLang(redis, msg.chat.id, msg);
   // v0.60.65 — refresh the per-chat menu-button binding on every
@@ -8285,7 +8261,6 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
 
   // HTML escape — only `& < >` are special in Telegram HTML mode.
   const esc = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const { getUserLocation } = require('./location-cache');
   const loc = await getUserLocation(redis, chatId).catch(() => null);
   const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
   const center = (loc?.lat && loc?.lng) ? { lat: loc.lat, lng: loc.lng } : SG_CENTROID;
@@ -11044,7 +11019,6 @@ bot.on('message', async (msg) => {
         const pendingIdx = pendingIdxStr != null ? Number(pendingIdxStr) : NaN;
         if (Number.isFinite(pendingIdx)) {
           const { renameClip } = require('./clip-store');
-          const { resolveLang } = require('./user-prefs');
           const rnLang = await resolveLang(redis, msg.chat.id, msg);
           const saved = await renameClip(redis, msg.chat.id, pendingIdx, msg.text);
           try { if (redis.isOpen) await redis.del(pendingKey); } catch { /* best-effort */ }
@@ -11071,7 +11045,6 @@ bot.on('message', async (msg) => {
       try {
         const payload = JSON.parse(msg.web_app_data.data);
         console.log(`[Cuisine-Diag] D731 web_app_data parsed cmd=${payload?.cmd}`);
-        const { resolveLang } = require('./user-prefs');
         const wadLang = await resolveLang(redis, msg.chat.id, msg);
         const handled = await routeMenuCommand(msg.chat.id, payload?.cmd, payload, wadLang);
         if (!handled) {
@@ -11121,7 +11094,6 @@ bot.on('message', async (msg) => {
       const sc = require('./search-conversation');
       const activeConv = await sc.getConversation(redis, msg.chat.id);
       if (activeConv) {
-        const { resolveLang } = require('./user-prefs');
         const scLang = await resolveLang(redis, msg.chat.id, msg);
         // v0.60.206 — same immediate acknowledgment as the /s-command
         // path: a free-text reply inside an active /s conversation is
@@ -11240,7 +11212,6 @@ bot.on('message', async (msg) => {
     // free-text message; deterministic results.
     // v0.58.55 / v0.59.0: resolveLang prefers the explicit /language
     // pref in Redis, falls back to Telegram's user.language_code.
-    const { resolveLang } = require('./user-prefs');
     const userLang = await resolveLang(redis, msg.chat.id, msg);
     // v0.60.6 — Nation-iconic detection BEFORE raw Places. If the text
     // matches a known SG iconic dish or drink (e.g. "milo dinosaur"
@@ -11255,7 +11226,6 @@ bot.on('message', async (msg) => {
       const stickyCuisineSlug = conv?.lastCuisine?.slug || null;
       const niHit = overlay.findNationIconic(text, { stickyCuisine: stickyCuisineSlug });
       if (niHit) {
-        const { getUserLocation } = require('./location-cache');
         const loc = await getUserLocation(redis, msg.chat.id).catch(() => null);
         const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
         const center = (loc?.lat && loc?.lng) ? { lat: loc.lat, lng: loc.lng } : SG_CENTROID;
@@ -13093,7 +13063,6 @@ async function cacheBotUsername() {
         });
         // v0.58.55 / v0.59.0: prefer the body's lang (TMA toggle is
         // freshest), fall back to the Redis /language pref, then 'en'.
-        const { resolveLang } = require('./user-prefs');
         const bodyLang = (typeof req.body?.lang === 'string' && ['en','fr'].includes(req.body.lang)) ? req.body.lang : null;
         const reqLang = bodyLang || await resolveLang(redis, chatId, null);
         const slim = incoming
@@ -13451,7 +13420,6 @@ async function cacheBotUsername() {
         });
         // v0.58.55 / v0.59.0: prefer the body's venue.lang (TMA toggle),
         // fall back to the Redis /language pref, then 'en'.
-        const { resolveLang } = require('./user-prefs');
         const venueLang = (typeof venue.lang === 'string' && ['en','fr'].includes(venue.lang)) ? venue.lang : null;
         const oneLang = venueLang || await resolveLang(redis, chatId, null);
         const { formatVenueBlock } = require('./venue-templates');
@@ -13637,7 +13605,6 @@ async function cacheBotUsername() {
           }
           console.log(`[WarmStart] A1 region resolved: client=${wsRegionIn || '<unset>'} cached=${cachedRegion || '<unset>'} coords=(${lat.toFixed(2)},${lng.toFixed(2)}) → ${region}`);
         }
-        const { resolveLang } = require('./user-prefs');
         const wsBodyLang = (typeof langIn === 'string' && ['en','fr'].includes(langIn)) ? langIn : null;
         const wsLang = wsBodyLang || (wsChatId ? await resolveLang(redis, wsChatId, null) : 'en');
         const isJB = region === 'JB';
@@ -14227,7 +14194,6 @@ async function cacheBotUsername() {
 
       setImmediate(async () => {
         try {
-          const { resolveLang } = require('./user-prefs');
           const lang = await resolveLang(redis, String(userId), {
             from: { language_code: verified.user?.language_code }
           });
@@ -14937,7 +14903,6 @@ async function cacheBotUsername() {
         const { cuisines = [], filters = {}, prices = [], radius, region = 'SG', location, lang: langIn } = req.body || {};
         // v0.58.55 / v0.59.0: prefer the body's lang (TMA toggle),
         // fall back to the Redis /language pref, then 'en'.
-        const { resolveLang } = require('./user-prefs');
         const synBodyLang = (typeof langIn === 'string' && ['en','fr'].includes(langIn)) ? langIn : null;
         const synLang = synBodyLang || await resolveLang(redis, chatId, null);
 
