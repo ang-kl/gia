@@ -1,24 +1,24 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-07-10 from a snapshot of all 1501 pull requests (#1–#1501).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-07-13 from a snapshot of all 1506 pull requests (#1–#1506).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 1501 total — 1491 merged, 10 closed without merge.
+- **PRs:** 1506 total — 1496 merged, 10 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #1531 · 2026-07-10 04:06:50 · _v0.62.524: Cuisine TMA fix — stalled result stream hung forever on slow phones_
+- **Latest:** #1535 · 2026-07-12 18:35:02 · _v0.62.528: CCL6 launch flip (#1525) + consolidation scope from the 11-Jul audit §5_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 1011 |
+| feature | 1015 |
 | fix | 204 |
 | docs | 96 |
 | copy | 62 |
 | prompt-tune | 45 |
-| refactor | 42 |
+| refactor | 43 |
 | test | 21 |
 | infra | 20 |
 
@@ -28,15 +28,15 @@
 |---|--:|
 | Cuisine Picker | 462 |
 | Core / misc | 294 |
-| Hawker NEA | 110 |
-| Docs / vault | 103 |
+| Hawker NEA | 111 |
+| Docs / vault | 104 |
 | Search / free-text | 82 |
-| Transport / carpark | 76 |
+| Transport / carpark | 77 |
 | Recognised lists | 74 |
 | Infra / setup | 60 |
 | /hidden surprise | 45 |
+| Language / i18n | 35 |
 | Pipeline / discovery | 33 |
-| Language / i18n | 33 |
 | Weather | 24 |
 | /eat /drink flow | 22 |
 | Maps / geo / location | 20 |
@@ -1550,9 +1550,14 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 1524 | merged | 2026-07-08 00:43:20 | 0.62.518 | feature | Cuisine Picker | Add: CCL6 station coordinate accuracy (Keppel / Cantonment / Prince Edward Road) | ## What Operator task **#17** *(curate the 3 new MRT stations for the 12 Jul 2026 launch)*, reply **1**. | 5 files — tests, doc, data, package | — | tests; doc/vault |
 | 1526 | merged | 2026-07-08 01:50:44 | 0.62.519 | feature | Transport / carpark | Add: CCL6 pins re-sourced to OneMap government geocoder | ## What Operator: *"check the LTA data … operator website … check the openmap … compare with google map … get ready to flip on 12 JUL."* Verified the 3 **CCL6** stations against authoritative sources and re-curated the pins. | 5 files — tests, doc, data, package | — | tests; doc/vault |
 | 1527 | merged | 2026-07-08 02:11:37 | 0.62.520 | feature | Transport / carpark | Add: CCL6 station-card data readied pre-launch (link + badge; exits tracked as gap) | ## What Operator: *"station exit, bus stop near by ensure the card details are ready"* → reply **"1"** (prep the safe half now). | 4 files — doc, data, package | — | Redis/state; doc/vault |
+| 1528 | merged | 2026-07-08 10:21:41 | 0.62.521 | feature | Docs / vault | Add: VibeCodingRecord catch-up regen (PRs #1512-#1527) | ## What Operator: *"Update Vibe code, vault"* → this PR is the **Vibe-code half**. | 10 files — doc, package, public/ | — | doc/vault |
 | 1529 | merged | 2026-07-09 01:20:23 | 0.62.522 | feature | Cuisine Picker | Add: Language & Locale Specification (the missing doc) | ## What Operator: *"i thought there is a spec on language"*. | 4 files — doc, package | — | doc/vault |
 | 1530 | merged | 2026-07-09 03:42:31 | 0.62.523 | feature | Oversight / usage stats | Add: language selection criterion — L-12 / L-13 (closes the [UNVERIFIED]) | ## What v0.62.522 §1.2 left exactly one thing open — **`[UNVERIFIED]`: why *these* eight languages?** No rationale existed anywhere in the repo. | 4 files — doc, package | — | doc/vault |
 | 1531 | merged | 2026-07-10 04:06:50 | 0.62.524 | fix | Cuisine Picker | Fix: Cuisine TMA fix — stalled result stream hung forever on slow phones | ## What Operator: *"the UI results experience, sometimes slower phones are not populating the details and caused a letdown."* ## Root cause (traced, not guessed) My own first hypothesis — a documented **6s client fetch timeout** racing… | 5 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 1532 | merged | 2026-07-10 05:39:24 | 0.62.525 | feature | Language / i18n | Add: VibeCodingRecord catch-up regen (PRs #1529-#1531) | ## What Operator: *"documentation updates?"* after PR #1531 (Cuisine stream-stall fix) merged. | 10 files — doc, package, public/ | — | doc/vault |
+| 1533 | merged | 2026-07-10 08:34:28 | 0.62.526 | feature | Language / i18n | Add: Register — file the ms/vi deferred-locale entries | ## What Closes a [KNOWN GAP] carried across three consecutive journals (#879, #880, #881): the ms/vi deferred-locale candidates from the Language & Locale Specification work were repeatedly flagged "still due" for doc/Register/ but never… | 4 files — doc, package | — | doc/vault |
+| 1534 | merged | 2026-07-10 21:56:30 | 0.62.527 | feature | Hawker NEA | Add: code-reuse audit report (TMAs + bot commands + server modules) | ## What Operator: *"audit the code to see how many can be consolidate into reusable code templates to use across tma and '/' commands. | 4 files — doc, package, audit/ | — | Redis/state; doc/vault |
+| 1535 | merged | 2026-07-12 18:35:02 | 0.62.528 | refactor | Transport / carpark | Refactor: CCL6 launch flip (#1525) + consolidation scope from the 11-Jul audit §5 | ## 1. | 6 files — tests, doc, data, package, audit/ | — | Redis/state; tests; doc/vault |
 
 ---
 

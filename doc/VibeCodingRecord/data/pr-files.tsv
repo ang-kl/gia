@@ -1289,3 +1289,8 @@
 1529	doc/.serial-state.yml,doc/Journal/journal-0_62_522-09_07_26-0914.md,doc/Technical/technical-0_62_522-09_07_26-0914.md,package.json
 1530	doc/.serial-state.yml,doc/Journal/journal-0_62_523-09_07_26-1137.md,doc/Technical/technical-0_62_522-09_07_26-0914.md,package.json
 1531	doc/.serial-state.yml,doc/Journal/journal-0_62_524-10_07_26-1203.md,package.json,web/cuisine/src/v2/App.jsx,web/cuisine/src/v2/lib/api.js
+1528	doc/.serial-state.yml,doc/Journal/journal-0_62_521-08_07_26-1040.md,doc/VibeCodingRecord/data/pr-files.tsv,doc/VibeCodingRecord/data/prs.ndjson,doc/VibeCodingRecord/generate.mjs,doc/VibeCodingRecord/records.tsv,doc/VibeCodingRecord/vibe-coding-record.md,package.json,public/doc/vibe-journal.html,public/doc/vibe-journal.json
+1532	doc/.serial-state.yml,doc/Journal/journal-0_62_525-10_07_26-1336.md,doc/VibeCodingRecord/data/pr-files.tsv,doc/VibeCodingRecord/data/prs.ndjson,doc/VibeCodingRecord/generate.mjs,doc/VibeCodingRecord/records.tsv,doc/VibeCodingRecord/vibe-coding-record.md,package.json,public/doc/vibe-journal.html,public/doc/vibe-journal.json
+1533	doc/.serial-state.yml,doc/Journal/journal-0_62_526-10_07_26-1345.md,doc/Register/register-0_62_526-10_07_26-1345.md,package.json
+1534	audit/tma-code-reuse-audit-2026-07-11.md,doc/.serial-state.yml,doc/Journal/journal-0_62_527-11_07_26-0552.md,package.json
+1535	__tests__/transport-line-paths.test.js,audit/consolidation-scope-2026-07-12.md,data/mrt-coords.json,doc/.serial-state.yml,doc/Journal/journal-0_62_528-12_07_26-1011.md,package.json

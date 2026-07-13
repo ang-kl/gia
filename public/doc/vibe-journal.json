@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-10",
-  "count": 1501,
+  "generated": "2026-07-13",
+  "count": 1506,
   "records": [
     {
       "pr": 1,
@@ -42274,6 +42274,33 @@
       "burst": false
     },
     {
+      "pr": 1528,
+      "status": "merged",
+      "merged": "2026-07-08 10:21:41",
+      "day": "2026-07-08",
+      "version": "0.62.521",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: VibeCodingRecord catch-up regen (PRs #1512-#1527)",
+      "approach": "## What Operator: *\"Update Vibe code, vault\"* → this PR is the **Vibe-code half**.",
+      "codeImpact": "10 files — doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.521: VibeCodingRecord catch-up regen (PRs #1512-#1527)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
       "pr": 1529,
       "status": "merged",
       "merged": "2026-07-09 01:20:23",
@@ -42353,6 +42380,118 @@
       "reworkCue": false,
       "reworkOf": 1529,
       "burst": true
+    },
+    {
+      "pr": 1532,
+      "status": "merged",
+      "merged": "2026-07-10 05:39:24",
+      "day": "2026-07-10",
+      "version": "0.62.525",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: VibeCodingRecord catch-up regen (PRs #1529-#1531)",
+      "approach": "## What Operator: *\"documentation updates?\"* after PR #1531 (Cuisine stream-stall fix) merged.",
+      "codeImpact": "10 files — doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.525: VibeCodingRecord catch-up regen (PRs #1529-#1531)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1533,
+      "status": "merged",
+      "merged": "2026-07-10 08:34:28",
+      "day": "2026-07-10",
+      "version": "0.62.526",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Language / i18n",
+      "intent": "Add: Register — file the ms/vi deferred-locale entries",
+      "approach": "## What Closes a [KNOWN GAP] carried across three consecutive journals (#879, #880, #881): the ms/vi deferred-locale candidates from the Language & Locale Specification work were repeatedly flagged \"still due\" for doc/Register/ but never…",
+      "codeImpact": "4 files — doc, package",
+      "modules": [
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.526: Register — file the ms/vi deferred-locale entries",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1534,
+      "status": "merged",
+      "merged": "2026-07-10 21:56:30",
+      "day": "2026-07-10",
+      "version": "0.62.527",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: code-reuse audit report (TMAs + bot commands + server modules)",
+      "approach": "## What Operator: *\"audit the code to see how many can be consolidate into reusable code templates to use across tma and '/' commands.",
+      "codeImpact": "4 files — doc, package, audit/",
+      "modules": [
+        "audit/",
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "v0.62.527: code-reuse audit report (TMAs + bot commands + server modules)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1535,
+      "status": "merged",
+      "merged": "2026-07-12 18:35:02",
+      "day": "2026-07-12",
+      "version": "0.62.528",
+      "minor": "0.62",
+      "category": "refactor",
+      "area": "Transport / carpark",
+      "intent": "Refactor: CCL6 launch flip (#1525) + consolidation scope from the 11-Jul audit §5",
+      "approach": "## 1.",
+      "codeImpact": "6 files — tests, doc, data, package, audit/",
+      "modules": [
+        "tests",
+        "audit/",
+        "data",
+        "doc",
+        "package"
+      ],
+      "nFiles": 6,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.528: CCL6 launch flip (#1525) + consolidation scope from the 11-Jul audit §5",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
     }
   ]
 }
