@@ -2,7 +2,7 @@
 //
 // Operational SG MRT/LRT stations (name, lat, lng, line codes) for the Cuisine
 // TMA's nearby-zone grouping. Regenerate: node scripts/gen-cuisine-stations.mjs
-// Keys: n=name, c=codes[]. 180 stations.
+// Keys: n=name, c=codes[]. 183 stations.
 
 export const SG_STATIONS = [
   { n: "Admiralty", lat: 1.4407, lng: 103.8009, c: ["NS10"] },
@@ -34,6 +34,7 @@ export const SG_STATIONS = [
   { n: "Buona Vista", lat: 1.3071, lng: 103.7902, c: ["EW21","CC22"] },
   { n: "Caldecott", lat: 1.3375, lng: 103.8395, c: ["CC17","TE9"] },
   { n: "Canberra", lat: 1.443, lng: 103.8295, c: ["NS12"] },
+  { n: "Cantonment", lat: 1.27287, lng: 103.83706, c: ["CC31"] },
   { n: "Cashew", lat: 1.3691, lng: 103.7644, c: ["DT2"] },
   { n: "Changi Airport", lat: 1.3573, lng: 103.9885, c: ["CG2"] },
   { n: "Cheng Lim", lat: 1.3962, lng: 103.894, c: ["SW1"] },
@@ -83,6 +84,7 @@ export const SG_STATIONS = [
   { n: "Keat Hong", lat: 1.3786, lng: 103.749, c: ["BP3"] },
   { n: "Kembangan", lat: 1.321, lng: 103.9128, c: ["EW6"] },
   { n: "Kent Ridge", lat: 1.2935, lng: 103.7843, c: ["CC24"] },
+  { n: "Keppel", lat: 1.26977, lng: 103.83003, c: ["CC30"] },
   { n: "Khatib", lat: 1.4172, lng: 103.8329, c: ["NS14"] },
   { n: "King Albert Park", lat: 1.3357, lng: 103.7836, c: ["DT6"] },
   { n: "Kovan", lat: 1.3601, lng: 103.8851, c: ["NE13"] },
@@ -125,6 +127,7 @@ export const SG_STATIONS = [
   { n: "Phoenix", lat: 1.3786, lng: 103.758, c: ["BP5"] },
   { n: "Pioneer", lat: 1.3375, lng: 103.6973, c: ["EW28"] },
   { n: "Potong Pasir", lat: 1.3312, lng: 103.8689, c: ["NE10"] },
+  { n: "Prince Edward Road", lat: 1.27316, lng: 103.8471, c: ["CC32"] },
   { n: "Promenade", lat: 1.2935, lng: 103.8612, c: ["CC4","DT15"] },
   { n: "Punggol", lat: 1.4053, lng: 103.9023, c: ["NE17","PTC"] },
   { n: "Punggol Coast", lat: 1.4159, lng: 103.9067, c: ["NE18"] },
