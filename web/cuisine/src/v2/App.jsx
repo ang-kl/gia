@@ -6,7 +6,7 @@ import { cuisineName } from './lib/cuisine-i18n.js';
 import { CITIES_BY_COUNTRY, findCity, cityRadiusCapM } from './lib/cities.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
 import { coordsToCountry, isJbCoords } from './lib/coords-to-country.js';
-import { startLocationSync } from './lib/location-sync.js';
+import { startLocationSync } from '../../../_shared/lib/location-sync.js';
 import { shouldFollowDevice } from './lib/location-follow.js';
 import { resolveSearchCenter } from './lib/search-location.js';
 // v0.61.277 — for the JB region-pill auto-anchor on tap.

@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { openLink, initData, tg } from './tg.js';
 import { t, tn, useLocale } from './i18n.js';
 import HawkerMapPanel from './components/HawkerMapPanel.jsx';
-import FooterNav from './components/FooterNav.jsx';
-import WeatherBadge from './components/WeatherBadge.jsx';
+import FooterNav from '../../_shared/components/FooterNav.jsx';
+import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 
 // v0.60.59 — render "🍳 38 stalls · Operating" / "🍳 38 stands ·
