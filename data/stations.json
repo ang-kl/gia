@@ -6,12 +6,12 @@
       "data/station-exits.json (LTA MRT Station Exit GEOJSON)",
       "data/sg_train_timings.json (first/last-train timings, operator-supplied)"
     ],
-    "lastUpdated": "2026-05-21",
+    "lastUpdated": "2026-07-14",
     "stationCount": 183,
     "futureStationsSkipped": 26,
     "busServicesJoined": true,
     "trainTimingsJoined": true,
-    "stationsWithTrainTimings": 152,
+    "stationsWithTrainTimings": 155,
     "trainTimingsMeta": {
       "scraped_on": "2026-05-20",
       "active_service_adjustments": [
@@ -13157,12 +13157,38 @@
         }
       ],
       "exits": [],
-      "first_last_train": [],
-      "last_updated_at": "2026-07-08",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC30",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "5:49am",
+            "first_weekend": "6:14am",
+            "last_weekday": "11:53pm",
+            "last_weekend": "11:53pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "CCL",
+          "station_code": "CC30",
+          "direction": "anticlockwise",
+          "timings": {
+            "first_weekday": "6:05am",
+            "first_weekend": "6:30am",
+            "last_weekday": "11:59pm",
+            "last_weekend": "11:59pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-07-14",
       "data_quality_notes": [
-        "manual pre-launch entry — CCL6 (Circle Line Stage 6), opens 12 Jul 2026",
+        "manual pre-launch entry — CCL6 (Circle Line Stage 6), opened 12 Jul 2026",
         "lat/lng from OneMap government geocoder (building address); exit_centroid null",
-        "exits[] + first_last_train[] pending LTA publication at opening",
+        "first/last-train timings (both directions) from SMRT journey.smrt.com.sg station pages (data/trains/, 14 Jul 2026)",
+        "exits[] still empty — no authoritative exit coordinates yet (SMRT lists exit numbers + landmarks but not lat/lng; OneMap exit POIs unavailable). Not fabricated.",
         "SMRT more_info_url uses the standard lowercase-hyphen slug convention (unverified per-station)"
       ]
     },
@@ -13182,12 +13208,38 @@
         }
       ],
       "exits": [],
-      "first_last_train": [],
-      "last_updated_at": "2026-07-08",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC31",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "5:59am",
+            "first_weekend": "6:23am",
+            "last_weekday": "12:37am",
+            "last_weekend": "12:37am"
+          },
+          "note": null
+        },
+        {
+          "line_code": "CCL",
+          "station_code": "CC31",
+          "direction": "anticlockwise",
+          "timings": {
+            "first_weekday": "5:30am",
+            "first_weekend": "5:51am",
+            "last_weekday": "12:40am",
+            "last_weekend": "12:40am"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-07-14",
       "data_quality_notes": [
-        "manual pre-launch entry — CCL6 (Circle Line Stage 6), opens 12 Jul 2026",
+        "manual pre-launch entry — CCL6 (Circle Line Stage 6), opened 12 Jul 2026",
         "lat/lng from OneMap government geocoder (building address); exit_centroid null",
-        "exits[] + first_last_train[] pending LTA publication at opening",
+        "first/last-train timings (both directions) from SMRT journey.smrt.com.sg station pages (data/trains/, 14 Jul 2026)",
+        "exits[] still empty — no authoritative exit coordinates yet (SMRT lists exit numbers + landmarks but not lat/lng; OneMap exit POIs unavailable). Not fabricated.",
         "SMRT more_info_url uses the standard lowercase-hyphen slug convention (unverified per-station)"
       ]
     },
@@ -13207,12 +13259,38 @@
         }
       ],
       "exits": [],
-      "first_last_train": [],
-      "last_updated_at": "2026-07-08",
+      "first_last_train": [
+        {
+          "line_code": "CCL",
+          "station_code": "CC32",
+          "direction": "clockwise",
+          "timings": {
+            "first_weekday": "5:54am",
+            "first_weekend": "6:19am",
+            "last_weekday": "11:58pm",
+            "last_weekend": "11:58pm"
+          },
+          "note": null
+        },
+        {
+          "line_code": "CCL",
+          "station_code": "CC32",
+          "direction": "anticlockwise",
+          "timings": {
+            "first_weekday": "6:01am",
+            "first_weekend": "6:25am",
+            "last_weekday": "11:55pm",
+            "last_weekend": "11:55pm"
+          },
+          "note": null
+        }
+      ],
+      "last_updated_at": "2026-07-14",
       "data_quality_notes": [
-        "manual pre-launch entry — CCL6 (Circle Line Stage 6), opens 12 Jul 2026",
+        "manual pre-launch entry — CCL6 (Circle Line Stage 6), opened 12 Jul 2026",
         "lat/lng from OneMap government geocoder (building address); exit_centroid null",
-        "exits[] + first_last_train[] pending LTA publication at opening",
+        "first/last-train timings (both directions) from SMRT journey.smrt.com.sg station pages (data/trains/, 14 Jul 2026)",
+        "exits[] still empty — no authoritative exit coordinates yet (SMRT lists exit numbers + landmarks but not lat/lng; OneMap exit POIs unavailable). Not fabricated.",
         "SMRT more_info_url uses the standard lowercase-hyphen slug convention (unverified per-station)"
       ]
     }
