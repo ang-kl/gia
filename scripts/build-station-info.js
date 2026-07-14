@@ -257,6 +257,13 @@ function build() {
   const coords = JSON.parse(fs.readFileSync(SRC_COORDS, 'utf8'));
   const exitsDoc = JSON.parse(fs.readFileSync(SRC_EXITS, 'utf8'));
   const exitsByStation = exitsDoc.stations || {};
+  // v0.62.533 — case-insensitive station-name join. The exit source keys some
+  // stations with different capitalisation than the canonical mrt-coords names
+  // (e.g. "Harbourfront" vs "HarbourFront", "Macpherson" vs "MacPherson",
+  // "One-North" vs "one-north", "Gardens By The Bay" vs "Gardens by the Bay").
+  // The old exact-match `exitsByStation[name]` silently dropped those exits.
+  const exitsByStationLC = {};
+  for (const [k, v] of Object.entries(exitsByStation)) exitsByStationLC[k.toLowerCase()] = v;
   const busStops = loadBusStops(); // null when data/bus-services-by-stop.json absent
   const trainTimings = loadTrainTimings(); // null when data/sg_train_timings.json absent
 
@@ -290,7 +297,7 @@ function build() {
       };
     });
 
-    const rawExits = Array.isArray(exitsByStation[name]) ? exitsByStation[name] : [];
+    const rawExits = Array.isArray(exitsByStationLC[name.toLowerCase()]) ? exitsByStationLC[name.toLowerCase()] : [];
     const exits = rawExits.map((e) => {
       const nearest = busStops ? findNearestBusStop(e, busStops, BUS_NEAR_M) : null;
       if (nearest) exitsWithBus += 1;
