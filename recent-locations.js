@@ -17,6 +17,8 @@
 
 'use strict';
 
+const kv = require('./lib/redis-kv');
+
 const MAX_ENTRIES = 20;
 const TTL_S = 180 * 24 * 60 * 60;
 
@@ -32,28 +34,14 @@ function _sameCoord(a, b) {
   return _round5(a.lat) === _round5(b.lat) && _round5(a.lng) === _round5(b.lng);
 }
 
-async function _connect(redis) {
-  if (!redis) return false;
-  if (!redis.isOpen) {
-    try { await redis.connect(); } catch { return false; }
-  }
-  return true;
-}
-
 async function listRecentLocations(redis, chatId) {
-  if (!(await _connect(redis))) return [];
-  try {
-    const raw = await redis.get(_key(chatId)).catch(() => null);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  if (!(await kv.ensure(redis))) return [];
+  const parsed = await kv.getJSON(redis, _key(chatId));
+  return Array.isArray(parsed) ? parsed : [];
 }
 
 async function addRecentLocation(redis, chatId, entry) {
-  if (!(await _connect(redis))) return false;
+  if (!(await kv.ensure(redis))) return false;
   if (!entry || !Number.isFinite(entry.lat) || !Number.isFinite(entry.lng)) return false;
   const normalised = {
     lat: _round5(entry.lat),
@@ -77,7 +65,7 @@ async function addRecentLocation(redis, chatId, entry) {
 }
 
 async function removeRecentLocationAt(redis, chatId, index) {
-  if (!(await _connect(redis))) return false;
+  if (!(await kv.ensure(redis))) return false;
   const i = Number(index);
   if (!Number.isInteger(i) || i < 0) return false;
   try {
@@ -97,7 +85,7 @@ async function removeRecentLocationAt(redis, chatId, index) {
 }
 
 async function clearRecentLocations(redis, chatId) {
-  if (!(await _connect(redis))) return false;
+  if (!(await kv.ensure(redis))) return false;
   try {
     await redis.del(_key(chatId));
     return true;
@@ -114,7 +102,7 @@ async function clearRecentLocations(redis, chatId) {
 // supplied or none matches, it falls back to the most-recent row [0] (which is
 // the current set-location). Returns the kept entry (or null when none).
 async function clearRecentLocationsExcept(redis, chatId, lat, lng) {
-  if (!(await _connect(redis))) return null;
+  if (!(await kv.ensure(redis))) return null;
   try {
     const existing = await listRecentLocations(redis, chatId);
     if (existing.length === 0) return null;
