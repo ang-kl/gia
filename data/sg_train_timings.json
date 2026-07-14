@@ -31,7 +31,7 @@
     "data_completeness_notes": [
       "NSL: sgtrainstatus.com provides northbound direction for all stations; southbound provided for NS1 Jurong East, NS24 Dhoby Ghaut, NS25 City Hall, NS26 Raffles Place only.",
       "EWL: sgtrainstatus.com provides westbound direction for most stations; eastbound provided for EW12 Bugis, EW13 City Hall, EW14 Raffles Place, EW24 Jurong East only. Airport branch (CG1 Expo, CG2 Changi Airport) timing data not available from this source.",
-      "CCL: clockwise direction only (Dhoby Ghaut to HarbourFront). Counter-clockwise direction not listed. CCL Stage 6 (CC30 Keppel, CC31 Cantonment, CC32 Prince Edward Road) not yet open as of scrape date - opens 12 July 2026.",
+      "CCL: clockwise direction only (Dhoby Ghaut to HarbourFront). Counter-clockwise direction not listed. CCL Stage 6 (CC30 Keppel, CC31 Cantonment, CC32 Prince Edward Road) opened 12 July 2026; both-direction first/last-train timings added from SMRT (data/trains/, 14 Jul 2026).",
       "TEL: eastbound direction only. Several stations have no timing data: TE10 Mount Pleasant (not yet open), TE12 Napier (not yet open), TE13 Orchard Boulevard (not yet open), TE21 Marina South (not yet open), TE23 Tanjong Rhu through TE29 Bayshore (open since Jun 2024 but no data from this source). TEL Stage 5 (Xilin, Bedok South, Sungei Bedok) not yet open as of scrape date.",
       "BP_LRT: loop service - single direction (loop) for all 13 stations.",
       "SK_LRT and PG_LRT: loop services - timings show departures from town centre only.",
@@ -40,7 +40,7 @@
     "direction_label_conventions": {
       "NSL": "northbound = from NS1 Jurong East towards NS9 Woodlands and continuing to NS28 Marina South Pier; southbound = reverse",
       "EWL": "westbound = from EW1 Pasir Ris towards EW33 Tuas Link; eastbound = reverse",
-      "CCL": "clockwise = from CC1 Dhoby Ghaut towards CC29 HarbourFront (incomplete loop - CCL6 not yet open)",
+      "CCL": "clockwise = from CC1 Dhoby Ghaut around the loop; since CCL6 opened 12 Jul 2026 the loop is complete and clockwise continues past CC29 HarbourFront via CC30/CC31/CC32 towards Marina Bay; anticlockwise = reverse (CC1-29 clockwise timings predate CCL6)",
       "TEL": "eastbound = from TE1 Woodlands North towards TE29 Bayshore; westbound = reverse",
       "BP_LRT": "loop = circular service (no fixed directional distinction)",
       "SK_LRT": "departures from SW3 Sengkang; East Loop and West Loop",
@@ -355,7 +355,7 @@
       "line_code": "CCL",
       "operator": "SMRT",
       "source_id": "SRC_SGT",
-      "data_note": "Clockwise direction only (Dhoby Ghaut to HarbourFront). Counter-clockwise direction not available from this source. CCL Stage 6 (CC30 Keppel, CC31 Cantonment, CC32 Prince Edward Road) is not yet open - expected 12 July 2026. CC18 (Buona Vista? - actually CC18 is the old Botanic Gardens renaming - recheck) - note CC18 is Museum which is not open yet. Timings are approximate.",
+      "data_note": "Clockwise direction only (Dhoby Ghaut to HarbourFront). Counter-clockwise direction not available from this source. CCL Stage 6 (CC30 Keppel, CC31 Cantonment, CC32 Prince Edward Road) opened 12 July 2026; their clockwise (towards Marina Bay) and anticlockwise (towards HarbourFront) timings are transcribed from SMRT journey.smrt.com.sg (operator screenshots in data/trains/, 14 Jul 2026). CC18 (Buona Vista? - actually CC18 is the old Botanic Gardens renaming - recheck) - note CC18 is Museum which is not open yet. Timings are approximate.",
       "note_on_cc18": "CC18 (Museum, formerly labelled as Botanic Gardens on old maps) is listed as not yet open. The station sequence skips from CC17 Caldecott to CC19 Botanic Gardens in the scraped data.",
       "directions": {
         "clockwise": {
@@ -390,9 +390,17 @@
             {"code": "CC27", "name": "Labrador Park",  "first_weekday": "6:22am", "first_weekend": "6:37am", "last_weekday": "11:28pm", "last_weekend": "11:28pm"},
             {"code": "CC28", "name": "Telok Blangah",  "first_weekday": "6:24am", "first_weekend": "6:39am", "last_weekday": "11:26pm", "last_weekend": "11:26pm"},
             {"code": "CC29", "name": "HarbourFront",   "first_weekday": "6:26am", "first_weekend": "6:41am", "last_weekday": "11:24pm", "last_weekend": "11:24pm"},
-            {"code": "CC30", "name": "Keppel",         "first_weekday": null,      "first_weekend": null,      "last_weekday": null,      "last_weekend": null,      "note": "Not yet open - opens 12 July 2026"},
-            {"code": "CC31", "name": "Cantonment",     "first_weekday": null,      "first_weekend": null,      "last_weekday": null,      "last_weekend": null,      "note": "Not yet open - opens 12 July 2026"},
-            {"code": "CC32", "name": "Prince Edward Road", "first_weekday": null,  "first_weekend": null,      "last_weekday": null,      "last_weekend": null,      "note": "Not yet open - opens 12 July 2026"}
+            {"code": "CC30", "name": "Keppel",         "first_weekday": "5:49am", "first_weekend": "6:14am", "last_weekday": "11:53pm", "last_weekend": "11:53pm"},
+            {"code": "CC31", "name": "Cantonment",     "first_weekday": "5:59am", "first_weekend": "6:23am", "last_weekday": "12:37am", "last_weekend": "12:37am"},
+            {"code": "CC32", "name": "Prince Edward Road", "first_weekday": "5:54am", "first_weekend": "6:19am", "last_weekday": "11:58pm", "last_weekend": "11:58pm"}
+          ]
+        },
+        "anticlockwise": {
+          "description": "Towards NE1/CC29 HarbourFront (CCL6 stations only; the rest of the loop’s counter-clockwise timings are not in this source).",
+          "stations": [
+            {"code": "CC30", "name": "Keppel",             "first_weekday": "6:05am", "first_weekend": "6:30am", "last_weekday": "11:59pm", "last_weekend": "11:59pm"},
+            {"code": "CC31", "name": "Cantonment",         "first_weekday": "5:30am", "first_weekend": "5:51am", "last_weekday": "12:40am", "last_weekend": "12:40am"},
+            {"code": "CC32", "name": "Prince Edward Road", "first_weekday": "6:01am", "first_weekend": "6:25am", "last_weekday": "11:55pm", "last_weekend": "11:55pm"}
           ]
         }
       }
