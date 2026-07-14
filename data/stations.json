@@ -10668,8 +10668,8 @@
     },
     "Great World": {
       "station_name": "Great World",
-      "lat": 1.2939,
-      "lng": 103.8316,
+      "lat": 1.295,
+      "lng": 103.8333,
       "exit_centroid": {
         "lat": 1.294296,
         "lng": 103.833092,
@@ -10758,13 +10758,13 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "last_updated_at": "2026-07-14T20:33:51.949Z",
       "data_quality_notes": []
     },
     "Havelock": {
       "station_name": "Havelock",
-      "lat": 1.2884,
-      "lng": 103.8347,
+      "lat": 1.2878,
+      "lng": 103.8336,
       "exit_centroid": {
         "lat": 1.288439,
         "lng": 103.833734,
@@ -10852,7 +10852,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "last_updated_at": "2026-07-14T20:33:51.949Z",
       "data_quality_notes": []
     },
     "Maxwell": {
@@ -11068,8 +11068,8 @@
     },
     "Tanjong Rhu": {
       "station_name": "Tanjong Rhu",
-      "lat": 1.2911,
-      "lng": 103.8746,
+      "lat": 1.2972,
+      "lng": 103.8733,
       "exit_centroid": {
         "lat": 1.29733,
         "lng": 103.873541,
@@ -11114,13 +11114,13 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "last_updated_at": "2026-07-14T20:33:51.949Z",
       "data_quality_notes": []
     },
     "Katong Park": {
       "station_name": "Katong Park",
-      "lat": 1.2987,
-      "lng": 103.8843,
+      "lat": 1.2978,
+      "lng": 103.8853,
       "exit_centroid": {
         "lat": 1.29796,
         "lng": 103.88608,
@@ -11165,13 +11165,13 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "last_updated_at": "2026-07-14T20:33:51.949Z",
       "data_quality_notes": []
     },
     "Tanjong Katong": {
       "station_name": "Tanjong Katong",
-      "lat": 1.3036,
-      "lng": 103.8951,
+      "lat": 1.2992,
+      "lng": 103.8975,
       "exit_centroid": {
         "lat": 1.299428,
         "lng": 103.897484,
@@ -11232,13 +11232,13 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "last_updated_at": "2026-07-14T20:33:51.949Z",
       "data_quality_notes": []
     },
     "Marine Parade": {
       "station_name": "Marine Parade",
-      "lat": 1.3023,
-      "lng": 103.9056,
+      "lat": 1.3025,
+      "lng": 103.905,
       "exit_centroid": {
         "lat": 1.303777,
         "lng": 103.906844,
@@ -11332,13 +11332,13 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "last_updated_at": "2026-07-14T20:33:51.949Z",
       "data_quality_notes": []
     },
     "Marine Terrace": {
       "station_name": "Marine Terrace",
-      "lat": 1.3057,
-      "lng": 103.9156,
+      "lat": 1.3067,
+      "lng": 103.915,
       "exit_centroid": {
         "lat": 1.306694,
         "lng": 103.915074,
@@ -11427,13 +11427,13 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "last_updated_at": "2026-07-14T20:33:51.949Z",
       "data_quality_notes": []
     },
     "Siglap": {
       "station_name": "Siglap",
-      "lat": 1.3144,
-      "lng": 103.9281,
+      "lat": 1.3097,
+      "lng": 103.9289,
       "exit_centroid": {
         "lat": 1.309855,
         "lng": 103.929979,
@@ -11490,13 +11490,13 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "last_updated_at": "2026-07-14T20:33:51.949Z",
       "data_quality_notes": []
     },
     "Bayshore": {
       "station_name": "Bayshore",
-      "lat": 1.3175,
-      "lng": 103.9377,
+      "lat": 1.3147,
+      "lng": 103.9436,
       "exit_centroid": {
         "lat": 1.312815,
         "lng": 103.941583,
@@ -11559,7 +11559,7 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-21T02:36:13.499Z",
+      "last_updated_at": "2026-07-14T20:33:51.949Z",
       "data_quality_notes": []
     },
     "South View": {
