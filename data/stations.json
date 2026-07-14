@@ -43,8 +43,7 @@
       "exit_centroid: mean of exits[].lat/lng (LTA MRT Station Exit GeoJSON). The accurate map-render position; lat/lng (mrt-coords.json) is kept for provenance but is coarser. null when no exits.",
       "first_last_train: one entry per (line, direction) a station appears in within data/sg_train_timings.json — { line_code, station_code, direction, timings, note, service_adjustment? }. timings strings are verbatim from source; null + note for terminal/no-data. Empty [] when the source has no per-station data (Sengkang/Punggol LRT loops give town-centre departures only) or the station is not listed.",
       "SMRT more_info_url uses lowercase-hyphen slug; reasonable convention but unverified per-station.",
-      "SBS Transit more_info_url is ?TrainLine=<line>&Station=<code>, using SBS station codes scraped from the SBS TrainInformation page (2026-05-21). LRT interchange centrals (Sengkang/Punggol) use the East-loop entry (STCE/PTCE).",
-      "v0.62.520 — 3 CCL6 stations (Keppel CC30, Cantonment CC31, Prince Edward Road CC32) added manually pre-launch (the generator skips future stations). Coords from OneMap; SMRT more_info_url + CCL badge ready; exits[] and first_last_train[] left empty until LTA publishes exit GeoJSON + timings at the 12 Jul 2026 opening. Card render is future-gated."
+      "SBS Transit more_info_url is ?TrainLine=<line>&Station=<code>, using SBS station codes scraped from the SBS TrainInformation page (2026-05-21). LRT interchange centrals (Sengkang/Punggol) use the East-loop entry (STCE/PTCE)."
     ]
   },
   "stations": {
@@ -4958,7 +4957,11 @@
       "station_name": "HarbourFront",
       "lat": 1.2655,
       "lng": 103.8221,
-      "exit_centroid": null,
+      "exit_centroid": {
+        "lat": 1.265411,
+        "lng": 103.8215,
+        "exit_count": 6
+      },
       "lines": [
         {
           "operator": "SBS Transit",
@@ -4977,7 +4980,72 @@
           "more_info_url": "https://journey.smrt.com.sg/journey/station_info/harbourfront/"
         }
       ],
-      "exits": [],
+      "exits": [
+        {
+          "label": "C",
+          "lat": 1.26526,
+          "lng": 103.822532,
+          "nearest_bus_stop": {
+            "code": "14141",
+            "lat": 1.2655,
+            "lng": 103.822047,
+            "services": [
+              "10"
+            ]
+          }
+        },
+        {
+          "label": "B",
+          "lat": 1.265155,
+          "lng": 103.820509,
+          "nearest_bus_stop": null
+        },
+        {
+          "label": "A",
+          "lat": 1.265085,
+          "lng": 103.82251,
+          "nearest_bus_stop": {
+            "code": "14141",
+            "lat": 1.2655,
+            "lng": 103.822047,
+            "services": [
+              "10"
+            ]
+          }
+        },
+        {
+          "label": "E",
+          "lat": 1.264972,
+          "lng": 103.82158,
+          "nearest_bus_stop": {
+            "code": "14141",
+            "lat": 1.2655,
+            "lng": 103.822047,
+            "services": [
+              "10"
+            ]
+          }
+        },
+        {
+          "label": "D",
+          "lat": 1.265979,
+          "lng": 103.821399,
+          "nearest_bus_stop": null
+        },
+        {
+          "label": "A",
+          "lat": 1.266013,
+          "lng": 103.820468,
+          "nearest_bus_stop": {
+            "code": "14129",
+            "lat": 1.265958,
+            "lng": 103.820091,
+            "services": [
+              "10"
+            ]
+          }
+        }
+      ],
       "first_last_train": [
         {
           "line_code": "NEL",
@@ -5018,10 +5086,8 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-21T02:36:13.499Z",
-      "data_quality_notes": [
-        "no exits in source"
-      ]
+      "last_updated_at": "2026-07-14T20:26:13.806Z",
+      "data_quality_notes": []
     },
     "Chinatown": {
       "station_name": "Chinatown",
@@ -6877,7 +6943,11 @@
       "station_name": "MacPherson",
       "lat": 1.3266,
       "lng": 103.8898,
-      "exit_centroid": null,
+      "exit_centroid": {
+        "lat": 1.325871,
+        "lng": 103.889558,
+        "exit_count": 5
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -6896,7 +6966,58 @@
           "more_info_url": "https://www.sbstransit.com.sg/Service/TrainInformation?TrainLine=DTL&Station=MPS"
         }
       ],
-      "exits": [],
+      "exits": [
+        {
+          "label": "E",
+          "lat": 1.326193,
+          "lng": 103.888615,
+          "nearest_bus_stop": {
+            "code": "70371",
+            "lat": 1.32598,
+            "lng": 103.889276,
+            "services": []
+          }
+        },
+        {
+          "label": "D",
+          "lat": 1.325145,
+          "lng": 103.888455,
+          "nearest_bus_stop": {
+            "code": "70201",
+            "lat": 1.324716,
+            "lng": 103.888837,
+            "services": []
+          }
+        },
+        {
+          "label": "A",
+          "lat": 1.326679,
+          "lng": 103.889793,
+          "nearest_bus_stop": {
+            "code": "70379",
+            "lat": 1.326305,
+            "lng": 103.889441,
+            "services": []
+          }
+        },
+        {
+          "label": "B",
+          "lat": 1.325855,
+          "lng": 103.890666,
+          "nearest_bus_stop": null
+        },
+        {
+          "label": "C",
+          "lat": 1.325482,
+          "lng": 103.890263,
+          "nearest_bus_stop": {
+            "code": "70251",
+            "lat": 1.325196,
+            "lng": 103.890355,
+            "services": []
+          }
+        }
+      ],
       "first_last_train": [
         {
           "line_code": "CCL",
@@ -6935,10 +7056,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. (2026-07-10 to 2026-09-05)"
         }
       ],
-      "last_updated_at": "2026-05-21T02:36:13.499Z",
-      "data_quality_notes": [
-        "no exits in source"
-      ]
+      "last_updated_at": "2026-07-14T20:26:13.806Z",
+      "data_quality_notes": []
     },
     "Tai Seng": {
       "station_name": "Tai Seng",
@@ -7485,7 +7604,11 @@
       "station_name": "one-north",
       "lat": 1.2992,
       "lng": 103.7873,
-      "exit_centroid": null,
+      "exit_centroid": {
+        "lat": 1.299794,
+        "lng": 103.787546,
+        "exit_count": 4
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -7496,7 +7619,42 @@
           "more_info_url": "https://journey.smrt.com.sg/journey/station_info/one-north/"
         }
       ],
-      "exits": [],
+      "exits": [
+        {
+          "label": "D",
+          "lat": 1.300075,
+          "lng": 103.787785,
+          "nearest_bus_stop": null
+        },
+        {
+          "label": "C",
+          "lat": 1.299715,
+          "lng": 103.787565,
+          "nearest_bus_stop": null
+        },
+        {
+          "label": "B",
+          "lat": 1.300359,
+          "lng": 103.787928,
+          "nearest_bus_stop": {
+            "code": "18159",
+            "lat": 1.300366,
+            "lng": 103.788511,
+            "services": []
+          }
+        },
+        {
+          "label": "A",
+          "lat": 1.299027,
+          "lng": 103.786907,
+          "nearest_bus_stop": {
+            "code": "18051",
+            "lat": 1.298907,
+            "lng": 103.7868,
+            "services": []
+          }
+        }
+      ],
       "first_last_train": [
         {
           "line_code": "CCL",
@@ -7511,10 +7669,8 @@
           "note": null
         }
       ],
-      "last_updated_at": "2026-05-21T02:36:13.499Z",
-      "data_quality_notes": [
-        "no exits in source"
-      ]
+      "last_updated_at": "2026-07-14T20:26:13.806Z",
+      "data_quality_notes": []
     },
     "Kent Ridge": {
       "station_name": "Kent Ridge",
@@ -10855,9 +11011,13 @@
     },
     "Gardens by the Bay": {
       "station_name": "Gardens by the Bay",
-      "lat": 1.2785,
-      "lng": 103.8693,
-      "exit_centroid": null,
+      "lat": 1.2783,
+      "lng": 103.868,
+      "exit_centroid": {
+        "lat": 1.279167,
+        "lng": 103.867903,
+        "exit_count": 3
+      },
       "lines": [
         {
           "operator": "SMRT",
@@ -10868,7 +11028,26 @@
           "more_info_url": "https://journey.smrt.com.sg/journey/station_info/gardens-by-the-bay/"
         }
       ],
-      "exits": [],
+      "exits": [
+        {
+          "label": "3",
+          "lat": 1.278303,
+          "lng": 103.867154,
+          "nearest_bus_stop": null
+        },
+        {
+          "label": "2",
+          "lat": 1.278826,
+          "lng": 103.867969,
+          "nearest_bus_stop": null
+        },
+        {
+          "label": "1",
+          "lat": 1.280371,
+          "lng": 103.868587,
+          "nearest_bus_stop": null
+        }
+      ],
       "first_last_train": [
         {
           "line_code": "TEL",
@@ -10884,10 +11063,8 @@
           "service_adjustment": "Services end at 11:30pm on Friday nights and commence at 8:30am on Saturday mornings. Shuttle buses S51, S52, S53 operate for TEL commuters from 5:00am to 8:30am on Saturday mornings. (2026-05-22 to 2026-07-04)"
         }
       ],
-      "last_updated_at": "2026-05-21T02:36:13.499Z",
-      "data_quality_notes": [
-        "no exits in source"
-      ]
+      "last_updated_at": "2026-07-14T20:26:13.806Z",
+      "data_quality_notes": []
     },
     "Tanjong Rhu": {
       "station_name": "Tanjong Rhu",
