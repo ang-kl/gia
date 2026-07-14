@@ -8,7 +8,7 @@ import MrtMapPanel from './components/MrtMapPanel.jsx';
 import AffectedTicker from './components/AffectedTicker.jsx';
 import EngineeringList from './components/EngineeringList.jsx';
 import LocationCard from './components/LocationCard.jsx';
-import WeatherBadge from './components/WeatherBadge.jsx';
+import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 
 // v0.60.213 — build version for the footer tag line.

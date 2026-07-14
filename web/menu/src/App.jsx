@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Tile from './components/Tile.jsx';
-import FooterNav from './components/FooterNav.jsx';
+import FooterNav from '../../_shared/components/FooterNav.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import LocationFieldMenu from './components/LocationFieldMenu.jsx';
 import { tg, getTelegramLocation } from './tg.js';
@@ -11,7 +11,7 @@ import { CITIES_BY_COUNTRY } from './cities.js';
 // v0.61.274 — coords-based country detector for the mount-time
 // coherence check. Mirrors web/cuisine/src/v2/lib/coords-to-country.js.
 import { coordsToCountry } from './coords-to-country.js';
-import { startLocationSync } from './location-sync.js';
+import { startLocationSync } from '../../_shared/lib/location-sync.js';
 import { deviceId } from './device-id.js';
 // v0.62.x — idle-return rating reset (operator): shared floor → Good+ 3.7.
 import { saveRatingPref } from './api.js';
