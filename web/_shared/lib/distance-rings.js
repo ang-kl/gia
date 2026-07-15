@@ -30,6 +30,8 @@ const WALK_RADIUS_M = 750;        // operator: 750 m walkable ring
 const MRT_STOPS = 2;              // "2 MRT stops away"
 const MRT_GATE_M = 2000;          // draw the MRT ring only when centre is this near a station
 const MIN_MRT_OVER_WALK = 1.08;   // and only when it's meaningfully bigger than the walk ring
+const REACH_CAP_STOPS = 6;        // cap the outer "reach" ring at ~6 stops so one far result can't balloon it
+const REACH_MIN_OVER_2STOP = 1.15;// and only draw it when clearly bigger than the 2-stop ring
 
 // Shared line style for both rings (neutral grey — reads on colour + greyscale maps).
 const RING_COLOR = '#5f6368';
@@ -148,6 +150,30 @@ export function formatDist(m) {
   return `${(m / 1000).toFixed(1)}km`;
 }
 
+// Outer "reach" ring: sized to enclose the farthest RESULT pin, but capped at
+// ~REACH_CAP_STOPS stops so one far-flung result can't balloon it. Only returned
+// when at least one result sits beyond the 2-stop ring (and the reach ring is
+// clearly bigger than it). `twoStopRadiusM` is the ring-2 radius, which also
+// gives the per-stop distance (radius / 2 stops) used to estimate "~N stops".
+// Returns null when there's nothing to enclose (all results within 2 stops).
+export function mrtReachRadius(lat, lng, results, twoStopRadiusM) {
+  if (!Number.isFinite(twoStopRadiusM) || twoStopRadiusM <= 0) return null;
+  const pts = (Array.isArray(results) ? results : [])
+    .filter((p) => p && Number.isFinite(p.lat) && Number.isFinite(p.lng));
+  if (!pts.length) return null;
+  let far = 0;
+  for (const p of pts) {
+    const d = metresBetween(lat, lng, p.lat, p.lng);
+    if (d > far) far = d;
+  }
+  if (far <= twoStopRadiusM) return null;              // nothing outside the 2-stop ring
+  const perStop = twoStopRadiusM / MRT_STOPS;
+  const radiusM = Math.min(far, perStop * REACH_CAP_STOPS);
+  if (radiusM <= twoStopRadiusM * REACH_MIN_OVER_2STOP) return null;   // too close to ring 2
+  const stops = Math.max(MRT_STOPS + 1, Math.round(radiusM / perStop));
+  return { radiusM, stops, label: `${formatDist(radiusM)} (~${stops} stops)` };
+}
+
 // The dashed-stroke symbol shared by both ring polylines. Google's Circle only
 // draws a SOLID stroke, so the rings are polyline circles with a repeating dash
 // icon (the standard dashed-line recipe) to honour the reference's line style.
@@ -222,13 +248,19 @@ export function createRingLayer(map, googleMaps) {
     }
   }
 
-  function draw(centre) {
+  // draw(centre, results?) — the walk + 2-stop rings centre on `centre`; when a
+  // `results` array of {lat,lng} is supplied (Cuisine passes its venue pins), a
+  // third capped "reach" train ring is added iff a result falls beyond the
+  // 2-stop ring. Hawker passes no results → two rings only.
+  function draw(centre, results) {
     clear();
     if (!centre || !Number.isFinite(centre.lat) || !Number.isFinite(centre.lng)) return;
     drawRing(centre, WALK_RADIUS_M, '🚶', formatDist(WALK_RADIUS_M));
     const mrt = mrtTwoStopRadius(centre.lat, centre.lng);
     if (mrt && mrt.radiusM > WALK_RADIUS_M * MIN_MRT_OVER_WALK) {
-      drawRing(centre, mrt.radiusM, '🚆', mrt.label);
+      drawRing(centre, mrt.radiusM, '🚆', `${formatDist(mrt.radiusM)} (${MRT_STOPS} stops)`);
+      const reach = mrtReachRadius(centre.lat, centre.lng, results, mrt.radiusM);
+      if (reach) drawRing(centre, reach.radiusM, '🚆', reach.label);
     }
   }
 
