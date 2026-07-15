@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
 import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
+import { createRingLayer } from '../../../../_shared/lib/distance-rings.js';
 import MapControls from './MapControls.jsx';
 
 // v0.61.70 — venue pin carrying the venue's 1-based result number (its
@@ -117,6 +118,9 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // controller is created once the Google Map exists; the chip strip
   // below the map drives layer visibility via overlayLayers.
   const overlayControllerRef = useRef(null);
+  // v0.62.537 — distance-ring overlay (🚶 750 m walkable + 🚆 2-MRT-stops rings),
+  // centred on the search anchor while results are on the map.
+  const ringLayerRef = useRef(null);
   const overlayLayersRef = useRef(overlayLayers);
   useEffect(() => { overlayLayersRef.current = overlayLayers; }, [overlayLayers]);
   const markersRef = useRef([]);
@@ -325,6 +329,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     // so the carpark layer can pick LTA (SG) vs Places (JB/MY-PUT).
     // MapPanel keeps the controller in sync via setRegionMode below.
     overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, { tma: 'cuisine', regionMode: region || 'SG' });
+    // v0.62.537 — ring layer bound to this map; syncMarkers drives draw/clear.
+    ringLayerRef.current = createRingLayer(mapRef.current, window.google.maps);
     applyOverlayLayers(overlayLayersRef.current);
     // v0.61.22 — close any open popup on a tap of the empty map, and
     // expose a global the in-card ✕ button calls.
@@ -459,7 +465,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       ctrl.setRegionMode(region || 'SG');
     }
   }, [region]);
-  useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
+  useEffect(() => () => { overlayControllerRef.current?.destroy?.(); ringLayerRef.current?.destroy?.(); }, []);
 
   function handleIdle() {
     // v0.62.6 — feed the map-centre anchor to the overlay controller so
@@ -890,6 +896,21 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       }
       if (Number.isFinite(scLat) && Number.isFinite(scLng)) {
         lastSearchCenterRef.current = { lat: scLat, lng: scLng };
+      }
+    }
+
+    // v0.62.537 — distance rings centred on the search anchor, shown WHENEVER
+    // results are on the map. The 750 m walkable ring always draws (near the
+    // anchor); the 🚆 2-MRT-stops ring self-suppresses off the MRT network (the
+    // helper gates on nearest-station distance), so non-SG regions show only the
+    // walk ring. Cleared when there are no results.
+    const ringCentre = searchCenter || userLoc;
+    if (ringLayerRef.current) {
+      if (venues?.length && ringCentre
+        && Number.isFinite(ringCentre.lat) && Number.isFinite(ringCentre.lng)) {
+        ringLayerRef.current.draw({ lat: ringCentre.lat, lng: ringCentre.lng });
+      } else {
+        ringLayerRef.current.clear();
       }
     }
   }

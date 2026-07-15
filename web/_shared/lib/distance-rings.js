@@ -1,0 +1,242 @@
+// distance-rings.js — v0.62.537
+//
+// Concentric distance-ring overlay shared by the Cuisine + Hawker Mini Apps.
+// Draws, on the Google map, two dashed rings centred on a point:
+//
+//   1. a fixed 750 m "walkable" ring        → 🚶 750m
+//   2. a "2 MRT stops away" ring, sized from real station data → 🚆 #.#km
+//
+// Reference: operator's IMG_3014.jpeg (concentric dashed rings, walk + MRT).
+// Both rings share ONE line style (colour / weight / dash) so they read as a
+// set. Each ring carries a small pill label on its north edge: a mode icon
+// (🚶 / 🚆) + the ring distance (###m under 1 km, else #.#km).
+//
+// The "2 MRT stops away" radius is COMPUTED (operator choice, 15-07-26): find
+// the operational station nearest the centre, walk ±2 stops along each of its
+// lines (line code = prefix + sequence number, so ±2 in the per-line
+// operational order is exactly two stops), and take the mean straight-line
+// distance from the centre to those 2-stops-away stations. The MRT ring is
+// suppressed when the centre isn't genuinely near the MRT network (nearest
+// station > MRT_GATE_M) — e.g. Cuisine's non-SG regions — so only the walk ring
+// shows there.
+//
+// Self-contained: no per-TMA imports (so it lives in web/_shared/ and both TMAs
+// import the ONE copy). It reads the shared operational-station list, which the
+// generator (scripts/gen-cuisine-stations.mjs) emits alongside the Cuisine one.
+
+import { SG_STATIONS } from './mrt-stations.generated.js';
+
+const WALK_RADIUS_M = 750;        // operator: 750 m walkable ring
+const MRT_STOPS = 2;              // "2 MRT stops away"
+const MRT_GATE_M = 2000;          // draw the MRT ring only when centre is this near a station
+const MIN_MRT_OVER_WALK = 1.08;   // and only when it's meaningfully bigger than the walk ring
+
+// Shared line style for both rings (neutral grey — reads on colour + greyscale maps).
+const RING_COLOR = '#5f6368';
+const RING_WEIGHT = 2;
+const RING_OPACITY = 0.95;
+const CIRCLE_POINTS = 72;         // polyline segments approximating the circle
+const EARTH_R = 6371000;
+
+function toRad(d) { return (d * Math.PI) / 180; }
+function toDeg(r) { return (r * 180) / Math.PI; }
+
+// Great-circle distance in metres.
+function metresBetween(aLat, aLng, bLat, bLng) {
+  const dLat = toRad(bLat - aLat);
+  const dLng = toRad(bLng - aLng);
+  const s = Math.sin(dLat / 2) ** 2
+    + Math.cos(toRad(aLat)) * Math.cos(toRad(bLat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * EARTH_R * Math.asin(Math.min(1, Math.sqrt(s)));
+}
+
+// Destination point `distM` metres from (lat,lng) along `bearingRad`.
+function destPoint(lat, lng, distM, bearingRad) {
+  const latR = toRad(lat);
+  const lngR = toRad(lng);
+  const dR = distM / EARTH_R;
+  const lat2 = Math.asin(
+    Math.sin(latR) * Math.cos(dR) + Math.cos(latR) * Math.sin(dR) * Math.cos(bearingRad)
+  );
+  const lng2 = lngR + Math.atan2(
+    Math.sin(bearingRad) * Math.sin(dR) * Math.cos(latR),
+    Math.cos(dR) - Math.sin(latR) * Math.sin(lat2)
+  );
+  return { lat: toDeg(lat2), lng: toDeg(lng2) };
+}
+
+// Points around a circle of `radiusM`, first point repeated to close the ring.
+function circlePath(lat, lng, radiusM) {
+  const pts = [];
+  for (let i = 0; i <= CIRCLE_POINTS; i++) {
+    pts.push(destPoint(lat, lng, radiusM, (2 * Math.PI * i) / CIRCLE_POINTS));
+  }
+  return pts;
+}
+
+// "NS10" → { line:"NS", num:10 }; null for anything that isn't prefix + digits.
+function parseCode(code) {
+  const m = /^([A-Za-z]+)(\d+)$/.exec(String(code || '').trim());
+  return m ? { line: m[1].toUpperCase(), num: Number(m[2]) } : null;
+}
+
+// Per-line operational-station order, built once. Map line → array of
+// { st, num } sorted ascending by sequence number.
+let _lineOrder = null;
+function lineOrder() {
+  if (_lineOrder) return _lineOrder;
+  const byLine = new Map();
+  for (const st of SG_STATIONS) {
+    for (const code of (Array.isArray(st.c) ? st.c : [])) {
+      const p = parseCode(code);
+      if (!p) continue;
+      if (!byLine.has(p.line)) byLine.set(p.line, []);
+      byLine.get(p.line).push({ st, num: p.num });
+    }
+  }
+  for (const arr of byLine.values()) arr.sort((a, b) => a.num - b.num);
+  _lineOrder = byLine;
+  return _lineOrder;
+}
+
+// Operational station nearest to (lat,lng), with its distance.
+function nearestStation(lat, lng) {
+  let best = null;
+  let bestD = Infinity;
+  for (const st of SG_STATIONS) {
+    const d = metresBetween(lat, lng, st.lat, st.lng);
+    if (d < bestD) { bestD = d; best = st; }
+  }
+  return best ? { st: best, distM: bestD } : null;
+}
+
+// Compute the "2 MRT stops away" ring radius (metres) for a centre point, plus
+// the label text. Returns null when the centre isn't near the MRT network.
+//
+// For each line the nearest station sits on, we step ±MRT_STOPS positions in
+// that line's operational order (index-based, so non-operational gaps are
+// already skipped) and measure the straight-line distance from the CENTRE to
+// each 2-stops-away station. The radius is the mean of those distances — a
+// balanced single-radius stand-in for a 2-stop reach in either direction.
+export function mrtTwoStopRadius(lat, lng) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const near = nearestStation(lat, lng);
+  if (!near || near.distM > MRT_GATE_M) return null;
+  const order = lineOrder();
+  const dists = [];
+  for (const code of (Array.isArray(near.st.c) ? near.st.c : [])) {
+    const p = parseCode(code);
+    if (!p) continue;
+    const arr = order.get(p.line);
+    if (!arr) continue;
+    const idx = arr.findIndex((e) => e.st === near.st);
+    if (idx < 0) continue;
+    for (const j of [idx - MRT_STOPS, idx + MRT_STOPS]) {
+      if (j < 0 || j >= arr.length) continue;
+      dists.push(metresBetween(lat, lng, arr[j].st.lat, arr[j].st.lng));
+    }
+  }
+  if (!dists.length) return null;
+  const radiusM = dists.reduce((a, b) => a + b, 0) / dists.length;
+  return { radiusM, label: formatDist(radiusM) };
+}
+
+// ###m below 1 km (rounded to 10 m so 750 stays 750), else #.#km.
+export function formatDist(m) {
+  if (!Number.isFinite(m)) return '';
+  if (m < 1000) return `${Math.round(m / 10) * 10}m`;
+  return `${(m / 1000).toFixed(1)}km`;
+}
+
+// The dashed-stroke symbol shared by both ring polylines. Google's Circle only
+// draws a SOLID stroke, so the rings are polyline circles with a repeating dash
+// icon (the standard dashed-line recipe) to honour the reference's line style.
+function dashSymbol(googleMaps) {
+  return {
+    icon: {
+      path: 'M 0,-1 0,1',
+      strokeColor: RING_COLOR,
+      strokeOpacity: RING_OPACITY,
+      strokeWeight: RING_WEIGHT,
+      scale: 3
+    },
+    offset: '0',
+    repeat: '12px'
+  };
+}
+
+// Small pill label pinned on a ring's edge: mode icon + distance.
+function ringLabelNode(icon, text) {
+  const el = document.createElement('div');
+  el.style.cssText =
+    'display:inline-flex;align-items:center;gap:3px;'
+    + 'background:rgba(255,255,255,0.92);color:#374151;'
+    + 'font-size:11px;font-weight:700;line-height:1.4;'
+    + 'border-radius:10px;padding:1px 7px;white-space:nowrap;'
+    + 'box-shadow:0 1px 2px rgba(0,0,0,0.3);transform:translateY(-50%);';
+  el.textContent = `${icon} ${text}`;
+  return el;
+}
+
+// Factory: a ring layer bound to one Google map. `draw(centre)` (re)draws the
+// walk + MRT rings centred on {lat,lng}; `clear()` removes them. The caller owns
+// the lifecycle — draw when results/selection appear, clear on tap-out / no
+// results. Returns null-safe no-ops when the maps SDK isn't ready.
+export function createRingLayer(map, googleMaps) {
+  if (!map || !googleMaps || !googleMaps.Polyline) {
+    return { draw() {}, clear() {}, destroy() {} };
+  }
+  const { Polyline } = googleMaps;
+  const AdvancedMarkerElement = googleMaps.marker && googleMaps.marker.AdvancedMarkerElement;
+  let items = [];
+
+  function clear() {
+    for (const it of items) {
+      try {
+        if (typeof it.setMap === 'function') it.setMap(null);
+        else it.map = null;
+      } catch { /* already detached */ }
+    }
+    items = [];
+  }
+
+  function drawRing(centre, radiusM, icon, text) {
+    const line = new Polyline({
+      path: circlePath(centre.lat, centre.lng, radiusM),
+      strokeOpacity: 0,           // stroke drawn entirely by the dash icons
+      icons: [dashSymbol(googleMaps)],
+      clickable: false,
+      zIndex: 5
+    });
+    line.setMap(map);
+    items.push(line);
+    if (AdvancedMarkerElement) {
+      const edge = destPoint(centre.lat, centre.lng, radiusM, 0); // due north
+      const marker = new AdvancedMarkerElement({
+        position: edge,
+        content: ringLabelNode(icon, text),
+        zIndex: 6
+      });
+      marker.map = map;
+      items.push(marker);
+    }
+  }
+
+  function draw(centre) {
+    clear();
+    if (!centre || !Number.isFinite(centre.lat) || !Number.isFinite(centre.lng)) return;
+    drawRing(centre, WALK_RADIUS_M, '🚶', formatDist(WALK_RADIUS_M));
+    const mrt = mrtTwoStopRadius(centre.lat, centre.lng);
+    if (mrt && mrt.radiusM > WALK_RADIUS_M * MIN_MRT_OVER_WALK) {
+      drawRing(centre, mrt.radiusM, '🚆', mrt.label);
+    }
+  }
+
+  return { draw, clear, destroy: clear };
+}
+
+// Exported for unit tests.
+export const _internal = {
+  WALK_RADIUS_M, MRT_STOPS, MRT_GATE_M,
+  metresBetween, destPoint, circlePath, parseCode, nearestStation, lineOrder
+};

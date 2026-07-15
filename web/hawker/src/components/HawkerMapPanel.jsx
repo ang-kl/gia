@@ -28,6 +28,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { openLink } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
 import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
+import { createRingLayer } from '../../../_shared/lib/distance-rings.js';
 import MapControls from './MapControls.jsx';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
@@ -94,6 +95,9 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   const infoWindowRef = useRef(null);
   // v0.61.0 — parks / attractions / taxi-stop overlay layers.
   const overlayControllerRef = useRef(null);
+  // v0.62.537 — distance-ring overlay (🚶 750 m walkable + 🚆 2-MRT-stops rings),
+  // centred on the CHOSEN (tapped) hawker centre; cleared on tap-out.
+  const ringLayerRef = useRef(null);
   const overlayLayersRef = useRef(overlayLayers);
   useEffect(() => { overlayLayersRef.current = overlayLayers; }, [overlayLayers]);
   const [isTablet, setIsTablet] = useState(false);
@@ -226,6 +230,8 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     });
     setMapsKeyState('ready');
     overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, { tma: 'hawker' });
+    // v0.62.537 — ring layer bound to this map; a hawker pin tap draws, tap-out clears.
+    ringLayerRef.current = createRingLayer(mapRef.current, window.google.maps);
     applyOverlayLayers(overlayLayersRef.current);
     // v0.64.0 — feed the map-centre anchor so radius-clipped overlay
     // layers re-filter on every pan/zoom.
@@ -238,6 +244,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     const closeInfo = () => {
       infoWindowRef.current?.close();
       overlayControllerRef.current?.closeInfo?.();
+      ringLayerRef.current?.clear();   // v0.62.537 — drop the distance rings on tap-out
       // v0.62.115 — restore the pre-focus zoom captured on a pin tap.
       if (prevFocusZoomRef.current != null && mapRef.current) {
         mapRef.current.setZoom(prevFocusZoomRef.current);
@@ -273,7 +280,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   }
 
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
-  useEffect(() => () => { overlayControllerRef.current?.destroy?.(); }, []);
+  useEffect(() => () => { overlayControllerRef.current?.destroy?.(); ringLayerRef.current?.destroy?.(); }, []);
 
   // Re-sync markers whenever the centres array or region changes.
   useEffect(() => { syncMarkers(); }, [centres, region]); // eslint-disable-line
@@ -376,6 +383,8 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
         // cleared on card close (controller.closeInfo). Mirrors the Cuisine TMA.
         if (Number.isFinite(c.lat) && Number.isFinite(c.lng)) {
           overlayControllerRef.current?.showVenueTransit?.(c.lat, c.lng);
+          // v0.62.537 — draw the walk + 2-MRT-stops rings around the chosen hawker.
+          ringLayerRef.current?.draw({ lat: c.lat, lng: c.lng });
         }
         // v0.61.10 — lazy-fetch nearest station + bus stops, then
         // refresh the open bubble with the transit template.
