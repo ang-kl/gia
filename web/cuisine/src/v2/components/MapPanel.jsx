@@ -908,7 +908,13 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     if (ringLayerRef.current) {
       if (venues?.length && ringCentre
         && Number.isFinite(ringCentre.lat) && Number.isFinite(ringCentre.lng)) {
-        ringLayerRef.current.draw({ lat: ringCentre.lat, lng: ringCentre.lng });
+        // v0.62.538 — pass the result pins so the ring layer can add a capped
+        // "reach" train ring (#.#km · ~N stops) when a result falls beyond the
+        // 2-stop ring.
+        const resultPts = venues
+          .filter((v) => Number.isFinite(v.lat) && Number.isFinite(v.lng))
+          .map((v) => ({ lat: v.lat, lng: v.lng }));
+        ringLayerRef.current.draw({ lat: ringCentre.lat, lng: ringCentre.lng }, resultPts);
       } else {
         ringLayerRef.current.clear();
       }

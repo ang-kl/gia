@@ -6,7 +6,7 @@
 // runtime in the TMAs, not here (node env, no JSDOM).
 
 import { describe, it, expect } from 'vitest';
-import { mrtTwoStopRadius, formatDist, _internal } from '../web/_shared/lib/distance-rings.js';
+import { mrtTwoStopRadius, mrtReachRadius, formatDist, _internal } from '../web/_shared/lib/distance-rings.js';
 
 const { metresBetween, destPoint, circlePath, parseCode, nearestStation } = _internal;
 
@@ -97,5 +97,41 @@ describe('mrtTwoStopRadius', () => {
   });
   it('is safe on non-finite input', () => {
     expect(mrtTwoStopRadius(NaN, 103.8)).toBeNull();
+  });
+});
+
+describe('mrtReachRadius', () => {
+  const C = { lat: 1.2993, lng: 103.8455 };   // Dhoby Ghaut
+  const twoStop = 2200;                        // pretend the 2-stop ring is 2.2 km
+
+  it('returns null when every result is within the 2-stop ring', () => {
+    // A result ~1 km north — well inside 2.2 km.
+    const near = _internal.destPoint(C.lat, C.lng, 1000, 0);
+    expect(mrtReachRadius(C.lat, C.lng, [near], twoStop)).toBeNull();
+  });
+
+  it('sizes the reach ring to the farthest result and labels ~N stops', () => {
+    // A result ~3.8 km north — beyond the 2-stop ring, under the ~6-stop cap.
+    const far = _internal.destPoint(C.lat, C.lng, 3800, 0);
+    const r = mrtReachRadius(C.lat, C.lng, [far], twoStop);
+    expect(r).toBeTruthy();
+    expect(r.radiusM).toBeCloseTo(3800, -2);          // ~= farthest result
+    expect(r.stops).toBe(3);                           // 3800 / (2200/2) ≈ 3.45 → 3
+    expect(r.label).toBe('3.8km (~3 stops)');
+  });
+
+  it('caps the reach ring at ~6 stops when a result is very far', () => {
+    const veryFar = _internal.destPoint(C.lat, C.lng, 20000, 0);   // 20 km outlier
+    const r = mrtReachRadius(C.lat, C.lng, [veryFar], twoStop);
+    expect(r).toBeTruthy();
+    expect(r.stops).toBe(6);                           // capped
+    expect(r.radiusM).toBeCloseTo(2200 / 2 * 6, -1);   // perStop * 6
+  });
+
+  it('is null-safe on empty results / bad 2-stop radius', () => {
+    expect(mrtReachRadius(C.lat, C.lng, [], twoStop)).toBeNull();
+    const far = _internal.destPoint(C.lat, C.lng, 3800, 0);
+    expect(mrtReachRadius(C.lat, C.lng, [far], 0)).toBeNull();
+    expect(mrtReachRadius(C.lat, C.lng, [far], NaN)).toBeNull();
   });
 });
