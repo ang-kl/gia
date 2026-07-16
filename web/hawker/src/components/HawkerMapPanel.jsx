@@ -87,7 +87,7 @@ function hawkerPinNode(isNew, number) {
   return wrap;
 }
 
-export default function HawkerMapPanel({ centres, region, overlayLayers, onOverlayChange = null, fill = false }) {
+export default function HawkerMapPanel({ centres, region, overlayLayers, onOverlayChange = null, fill = false, expanded: controlledExpanded = null, onToggleExpand = null }) {
   const lang = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -103,7 +103,13 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   const [isTablet, setIsTablet] = useState(false);
   const [mapsKeyState, setMapsKeyState] = useState('loading');   // loading | ready | error | nokey
   // v0.63.0 — expand toggle: grows the map to ~90vh in place.
-  const [expanded, setExpanded] = useState(false);
+  // v0.62.550 — operator (point 4a): the portrait-tablet layout OWNS the expand
+  // state in App (tapping expand switches the whole layout to the carousel), so
+  // the button is CONTROLLED when onToggleExpand is passed; elsewhere (phone) it
+  // stays local and grows the map in place.
+  const [localExpanded, setLocalExpanded] = useState(false);
+  const expanded = controlledExpanded != null ? controlledExpanded : localExpanded;
+  const toggleExpand = () => (onToggleExpand ? onToggleExpand() : setLocalExpanded((e) => !e));
   // v0.61.89 — troubleshooting: live Google Maps zoom level, surfaced in a tiny
   // bottom-right readout. Updated on every `zoom_changed`.
   const [zoomLevel, setZoomLevel] = useState(null);
@@ -490,7 +496,13 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
           row has clean horizontal space. v0.61.59 — the Colour-mode
           pill moved out of this cluster into the quick-toggle row
           (after Bus Stop); the cluster is now Reset / + / − / expand. */}
-      <div className="absolute top-12 left-2 flex flex-col gap-1 z-10">
+      {/* v0.62.550 — operator (point 4b): the standardised LEFT nav cluster
+          (zoom readout/reset · ＋ · ↹ · － · ⇲) — same as the phone map. In the
+          full-bleed (fill) carousel layout it drops below the top bar so all five
+          buttons stay visible (they were clipped behind it). */}
+      <div
+        className={`absolute left-2 flex flex-col gap-1 z-10 ${fill ? '' : 'top-12'}`}
+        style={fill ? { top: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 6rem)' } : undefined}>
         {/* v0.61.37 — Reset: recenter to the Singapore default view. */}
         <button
           type="button"
@@ -524,7 +536,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
         ><span aria-hidden>－</span></button>
         <button
           type="button"
-          onClick={() => setExpanded((e) => !e)}
+          onClick={toggleExpand}
           className="w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
           aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
           title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
