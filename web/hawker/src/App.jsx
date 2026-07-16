@@ -200,9 +200,13 @@ export default function App() {
       {/* On mobile this wrapper is display:contents (transparent to layout, so the
           stacked scroll layout is unchanged); on tablet/desktop it becomes the
           scrolling left glass panel over the full-bleed map. */}
-      <div className={isWide
-        ? `absolute left-0 top-0 bottom-0 ${vp.orientation === 'landscape' ? 'w-[64%] max-w-[920px]' : 'w-[88%]'} overflow-y-auto bg-tg-bg/75 backdrop-blur-md border-r border-tg-border flex flex-col z-10`
-        : 'contents'}>
+      <div
+        className={isWide
+          ? `absolute left-0 top-0 bottom-0 ${vp.orientation === 'landscape' ? 'w-[64%] max-w-[920px]' : 'w-[88%]'} overflow-y-auto bg-tg-bg/75 backdrop-blur-md border-r border-tg-border flex flex-col z-10`
+          : 'contents'}
+        /* v0.62.545 — in Telegram fullscreen the close/menu controls overlay the
+           top; clear them with Telegram's content-safe-area inset (env fallback). */
+        style={isWide ? { paddingTop: 'var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px))' } : undefined}>
       {/* v0.62.164 — operator: neo-skeuomorphic header card — 🍚 title + live
           weather + a tactile NEA pill. Raised frosted surface (theme-agnostic,
           colour-blind safe); floats with a margin instead of a full-bleed
