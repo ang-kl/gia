@@ -251,6 +251,48 @@ function loadStalls() {
   }
 }
 
+// v0.62.553 — operator: tag centres that contain Michelin Bib Gourmand stalls.
+// The mapping already exists in SG-michelin.js: each BIB_GOURMAND entry is
+// { name (stall), address (hawker-centre name), category:'bib-gourmand' } — so
+// `address` IS the centre name. Build a normalised-token index (drops
+// Centre/Market/Food/Road/… so "Adam Food Centre" ~ "Adam Road Food Centre"),
+// keyed the same way as the coords/stalls joins. Entries with an empty/street
+// `address` (standalone restaurants) are skipped — they aren't in a centre.
+// v0.62.553 — the Bib `address` fields drop the block number the vault names
+// carry (Bib "Old Airport Road Food Centre" vs vault "Blk 51 Old Airport Road"),
+// so the bib key is _normaliseHawkerName PLUS standalone-number stripping. This
+// stays a deterministic TOKEN match (no fuzzy edit-distance) — findByName's
+// edit-distance produced false positives (Jurong West 505 → Jurong West Hawker
+// Centre; both Redhill entries → one Blk 79 centre), which we deliberately avoid.
+function _bibKey(s) {
+  return _normaliseHawkerName(s).replace(/\b\d+\b/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function _bibDigits(s) {
+  return String(s || '').match(/\d+/g) || [];
+}
+// Map<bibKey, Array<{ stall, digits }>>. The digits list guards block-number
+// collisions in the join (e.g. "Clementi 448" must not tag Blk 353 Clementi).
+let _bibIndex;
+function loadBibIndex() {
+  if (_bibIndex) return _bibIndex;
+  _bibIndex = new Map();
+  try {
+    const { getBibGourmand } = require('./SG-michelin');
+    for (const e of (getBibGourmand() || [])) {
+      const addr = e && typeof e.address === 'string' ? e.address.trim() : '';
+      const stall = e && typeof e.name === 'string' ? e.name.trim() : '';
+      if (!addr || !stall) continue;
+      const norm = _bibKey(addr);
+      if (!norm) continue;
+      if (!_bibIndex.has(norm)) _bibIndex.set(norm, []);
+      _bibIndex.get(norm).push({ stall, digits: _bibDigits(addr) });
+    }
+  } catch (err) {
+    console.warn('[HawkerVault] SG-michelin bib load failed:', err.message);
+  }
+  return _bibIndex;
+}
+
 function loadAll() {
   if (_allCentres) return _allCentres;
   try {
@@ -297,6 +339,26 @@ function loadAll() {
         }
       }
       console.log(`[HawkerVault] stalls: ${shits}/${_allCentres.length} centres with stall metadata`);
+    }
+    // v0.62.553 — attach Bib Gourmand stall names (number-stripped token match
+    // + digit-consistency guard: a bib address carrying a block number only tags
+    // a centre whose name contains that number).
+    const bib = loadBibIndex();
+    if (bib.size) {
+      let bhits = 0;
+      for (const c of _allCentres) {
+        const norm = _bibKey(c.name || '');
+        const entries = norm ? bib.get(norm) : null;
+        if (!entries || !entries.length) continue;
+        const cd = new Set(_bibDigits(c.name || ''));
+        const names = [];
+        for (const e of entries) {
+          if (e.digits.length && !e.digits.every((d) => cd.has(d))) continue;
+          if (!names.includes(e.stall)) names.push(e.stall);
+        }
+        if (names.length) { c.bibStalls = names; bhits++; }
+      }
+      console.log(`[HawkerVault] bib-gourmand: ${bhits}/${_allCentres.length} centres tagged`);
     }
   } catch (err) {
     console.warn('[HawkerVault] MD load failed:', err.message);

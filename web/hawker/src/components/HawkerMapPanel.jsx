@@ -55,7 +55,13 @@ function escapeHtml(s) {
 // and the centre's 1-based list rank in a counter-rotated inner span.
 // The established-red / new-navy colour split + the "NEW" badge are
 // kept; the badge rides on a non-rotated wrapper so it stays upright.
-function hawkerPinNode(isNew, number) {
+// v0.62.553 — operator: a centre with Michelin Bib Gourmand stall(s) takes the
+// Cuisine TMA's macaron-red pin (#C6282D). Because the operator is red/green
+// colour-blind (the established red / navy-new split exists for that reason), the
+// Bib pin ALSO carries a small ✳️ marker so it's distinguishable without relying
+// on hue — matching the app's CVD-safe convention.
+const PIN_BIB_RED = '#C6282D';
+function hawkerPinNode(isNew, number, hasBib) {
   const size = 26;
   const wrap = document.createElement('div');
   wrap.style.cssText =
@@ -66,7 +72,7 @@ function hawkerPinNode(isNew, number) {
     `width:${size}px;height:${size}px;` +
     'border-radius:50% 50% 50% 0;transform:rotate(-45deg);' +
     'border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,0.45);' +
-    `background:${isNew ? '#1e3a8a' : '#e53935'};`;
+    `background:${hasBib ? PIN_BIB_RED : (isNew ? '#1e3a8a' : '#e53935')};`;
   const inner = document.createElement('span');
   inner.style.cssText =
     'transform:rotate(45deg);color:#fff;font-weight:700;' +
@@ -74,6 +80,15 @@ function hawkerPinNode(isNew, number) {
   if (number != null) inner.textContent = String(number);
   el.appendChild(inner);
   wrap.appendChild(el);
+  if (hasBib) {
+    // ✳️ marker at the top-right so the Bib pin is not colour-only (CVD-safe).
+    const star = document.createElement('div');
+    star.textContent = '✳️';
+    star.style.cssText =
+      'position:absolute;top:-7px;right:-7px;font-size:12px;line-height:1;'
+      + 'filter:drop-shadow(0 1px 1px rgba(0,0,0,0.55));';
+    wrap.appendChild(star);
+  }
   if (isNew) {
     const badge = document.createElement('div');
     badge.textContent = 'NEW';
@@ -332,6 +347,11 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     if (c.address) {
       h += `<div style="color:${p.sub};margin-top:3px;">📇 ${escapeHtml(c.address)}</div>`;
     }
+    // v0.62.553 — Michelin Bib Gourmand stalls in this centre (house style
+    // "✳️ Bib Gourmand · <stall>"). Bold so it reads as the notable signal.
+    if (Array.isArray(c.bibStalls) && c.bibStalls.length) {
+      h += `<div style="color:${p.sub};margin-top:3px;">✳️ <b>Bib Gourmand</b> · ${escapeHtml(c.bibStalls.join(', '))}</div>`;
+    }
     // v0.62.107 — operator #4: nearest 3 bus stops + 2 stations; the station
     // codes deep-link the Train Mini App (not Google Maps).
     const bus = transit && Array.isArray(transit.busStops) ? transit.busStops : [];
@@ -384,7 +404,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
         map: mapRef.current,
         position: { lat: c.lat, lng: c.lng },
         title: c.name,
-        content: hawkerPinNode(c.isNew, centreNo),
+        content: hawkerPinNode(c.isNew, centreNo, Array.isArray(c.bibStalls) && c.bibStalls.length > 0),
         // v0.61.91 — centre droplets sit above every overlay layer
         // (train stations / pins) so they are never occluded.
         zIndex: 1000,
