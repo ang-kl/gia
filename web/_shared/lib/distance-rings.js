@@ -37,7 +37,6 @@ const REACH_MIN_OVER_2STOP = 1.15;// and only draw it when clearly bigger than t
 // ring 2 fixed at 2 km, ring 3 at the farthest result.
 const NON_SG_RING2_M = 2000;      // fixed middle ring outside SG
 const NON_SG_RING2_LABEL = '2km';
-const NON_SG_RING_MIN_GAP_M = 150;// don't draw ring 3 if it's ~= ring 2
 
 // Shared line style for both rings (neutral grey — reads on colour + greyscale maps).
 const RING_COLOR = '#5f6368';
@@ -287,8 +286,11 @@ export function createRingLayer(map, googleMaps) {
     }
     // Outside Singapore — distance-only rings, no glyph.
     drawRing(centre, NON_SG_RING2_M, '', NON_SG_RING2_LABEL);
+    // Ring 3 — at the farthest result, but ONLY when result(s) fall OUTSIDE ring 2
+    // (the 2 km ring); the results themselves bound it. Nothing beyond 2 km → no
+    // ring 3 (it is never drawn inside ring 2).
     const far = farthestResultDist(centre.lat, centre.lng, results);
-    if (far > WALK_RADIUS_M * 1.05 && Math.abs(far - NON_SG_RING2_M) > NON_SG_RING_MIN_GAP_M) {
+    if (far > NON_SG_RING2_M) {
       drawRing(centre, far, '', formatDist(far));
     }
   }
