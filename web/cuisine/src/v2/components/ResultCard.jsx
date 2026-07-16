@@ -353,7 +353,13 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           is flush-left (no indent — was a 2-col flex that offset the whole body).
           v0.62.176 — operator: REVERTED the v0.62.168 horizontal word-wrap (the
           name-one-row truncate); the name renders normally again. */}
-      <div className="font-semibold text-[12px] leading-tight">
+      {/* v0.62.539 — the name row must carry text-tg-text explicitly: in the
+          horizontal strip the FOCUSED card is forced bg-white with a LOCAL
+          --tg-text override (v0.62.285), but a row with no colour class inherits
+          the app-root's already-computed light colour → white-on-white (the name
+          vanished on every centred card). text-tg-text re-resolves the var at the
+          element so it flips dark on the white card; identical everywhere else. */}
+      <div className="font-semibold text-[12px] leading-tight text-tg-text">
         {Number.isFinite(number) && <span className="text-tg-hint font-semibold tabular-nums">{number} · </span>}{venue.name}
       </div>
           {/* v0.61.359 — native-script name in "( )" below the name (RULE A/B
@@ -568,9 +574,9 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           {/* v0.62.124 — Maps + Copy + socials are now the LAST row (operator). */}
           <div className="flex flex-wrap gap-1.5 mt-1">
             <button type="button" onClick={openMaps}
-              className="text-[12px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">📍 Maps</button>
+              className="text-[12px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg text-tg-text">📍 Maps</button>
             <button type="button" onClick={copy} disabled={copying}
-              className="text-[12px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">
+              className="text-[12px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg text-tg-text">
               {copying ? '…' : copied ? tr('card.sent', lang) : tr('btn.copyOne', lang)}
             </button>
             <SocialButtons profiles={socialProfiles} bare />

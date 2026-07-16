@@ -911,10 +911,15 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         // v0.62.538 — pass the result pins so the ring layer can add a capped
         // "reach" train ring (#.#km · ~N stops) when a result falls beyond the
         // 2-stop ring.
+        // v0.62.540 — pass the region flag: inside SG rings 2/3 are the computed
+        // MRT-stop rings; outside SG they become plain distance rings (2 km +
+        // farthest result, no glyph) since there's no MRT network there.
         const resultPts = venues
           .filter((v) => Number.isFinite(v.lat) && Number.isFinite(v.lng))
           .map((v) => ({ lat: v.lat, lng: v.lng }));
-        ringLayerRef.current.draw({ lat: ringCentre.lat, lng: ringCentre.lng }, resultPts);
+        ringLayerRef.current.draw(
+          { lat: ringCentre.lat, lng: ringCentre.lng }, resultPts, (region || 'SG') === 'SG'
+        );
       } else {
         ringLayerRef.current.clear();
       }
