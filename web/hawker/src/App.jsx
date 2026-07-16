@@ -170,6 +170,9 @@ export default function App() {
       () => { if (typeof window !== 'undefined') window.__giaHawkerFocusCentre?.(c.name); },
       c.mapsUrl || null);
   };
+  // v0.62.557 — operator "vice versa": tapping a centre PIN on the map highlights
+  // the matching card in the list (the accent ring), mirroring card-tap → pin.
+  const onCentreTap = (name) => setActivePill(`${name}|card`);
   // v0.61.0 — map overlay layer toggles (parks / attractions / taxis).
   const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, colour: true, train: true, exits: false, taxis: false, parks: false, police: false, clinics: false, hospitals: false });
   // v0.65.0 — per-centre transit (nearest MRT station + 2 bus stops),
@@ -350,7 +353,22 @@ export default function App() {
         {Array.isArray(c.bibStalls) && c.bibStalls.length > 0 && (
           <div className="text-[11px] leading-snug text-tg-text">
             <span aria-hidden="true">✳️</span> <span className="font-semibold">Bib Gourmand</span>
-            <span className="text-tg-hint"> · {c.bibStalls.join(', ')}</span>
+            <span className="text-tg-hint"> · </span>
+            {/* v0.62.557 — operator: each Bib stall name is a HIDDEN hyperlink
+                (styled like the hint text, no underline) to that stall's Google
+                Maps location within the hawker centre. stopPropagation so it
+                doesn't fire the whole-card tap. */}
+            {c.bibStalls.map((s, k) => (
+              <React.Fragment key={k}>
+                {k > 0 && <span className="text-tg-hint">, </span>}
+                <a
+                  href={`https://maps.google.com/?q=${encodeURIComponent(`${s} ${c.displayName || c.name} Singapore`)}`}
+                  target="_blank" rel="noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-tg-hint no-underline"
+                >{s}</a>
+              </React.Fragment>
+            ))}
           </div>
         )}
         {/* v0.65.0/0.62.549 — nearest MRT (codeHex chips + station name) + bus
@@ -426,6 +444,7 @@ export default function App() {
       <div className="fixed inset-0 overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
         {active && (
           <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} fill
+            onCentreTap={onCentreTap}
             expanded={collapsible ? mapExpanded : null}
             onToggleExpand={collapsible ? () => setMapExpanded(false) : null} />
         )}
@@ -523,6 +542,7 @@ export default function App() {
       {active && (
         <div className="px-2 shrink-0">
           <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers}
+            onCentreTap={onCentreTap}
             expanded={mapExpanded} onToggleExpand={() => setMapExpanded(true)} />
         </div>
       )}
@@ -636,7 +656,7 @@ export default function App() {
                     when data/hawker-coords.json hasn't been bootstrapped yet. */}
                 {/* v0.62.544/548 — inline map for mobile + PORTRAIT tablet (map on
                     top, list below); LANDSCAPE uses the full-bleed carousel above. */}
-                <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} />
+                <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} onCentreTap={onCentreTap} />
                 {/* v0.60.56 — explicit mapped-vs-total status so the
                     user knows when the data file is incomplete (i.e.
                     fewer pins than centres in the region). */}

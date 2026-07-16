@@ -102,7 +102,7 @@ function hawkerPinNode(isNew, number, hasBib) {
   return wrap;
 }
 
-export default function HawkerMapPanel({ centres, region, overlayLayers, onOverlayChange = null, fill = false, expanded: controlledExpanded = null, onToggleExpand = null }) {
+export default function HawkerMapPanel({ centres, region, overlayLayers, onOverlayChange = null, fill = false, expanded: controlledExpanded = null, onToggleExpand = null, onCentreTap = null }) {
   const lang = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -111,6 +111,10 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   // can trigger the same behaviour as tapping the pin (__giaHawkerFocusCentre).
   const markersByNameRef = useRef({});
   const infoWindowRef = useRef(null);
+  // v0.62.557 — latest onCentreTap prop (pin tap → highlight the matching card),
+  // read from a ref so the marker-bound activateCentre never captures a stale one.
+  const onCentreTapRef = useRef(onCentreTap);
+  useEffect(() => { onCentreTapRef.current = onCentreTap; }, [onCentreTap]);
   // v0.61.0 — parks / attractions / taxi-stop overlay layers.
   const overlayControllerRef = useRef(null);
   // v0.62.537 — distance-ring overlay (🚶 750 m walkable + 🚆 2-MRT-stops rings),
@@ -418,7 +422,14 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     if (Number.isFinite(c.lat) && Number.isFinite(c.lng)) {
       overlayControllerRef.current?.showVenueTransit?.(c.lat, c.lng);
       ringLayerRef.current?.draw({ lat: c.lat, lng: c.lng });
+      // v0.62.557 — operator: pulse the pin for 3 s so a card/pin tap visibly
+      // HIGHLIGHTS it (the map is already at this point + zoom, so this only adds
+      // the halo).
+      overlayControllerRef.current?.highlightLoc?.(c.lat, c.lng, 3000);
     }
+    // v0.62.557 — operator "vice versa": tapping the pin highlights the matching
+    // card in the list (App sets the card's active ring).
+    onCentreTapRef.current?.(c.name);
     // v0.61.10 — lazy-fetch nearest station + bus stops, then refresh the bubble.
     if (!cached && Number.isFinite(c.lat) && Number.isFinite(c.lng)) {
       fetch(`/api/hawker/centre-transit?lat=${c.lat}&lng=${c.lng}`)
