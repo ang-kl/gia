@@ -372,8 +372,14 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     }
     // v0.62.553 — Michelin Bib Gourmand stalls in this centre (house style
     // "✳️ Bib Gourmand · <stall>"). Bold so it reads as the notable signal.
+    // v0.62.558 — operator: each stall is a Google-Maps hyperlink (parity with
+    // the list card + the bus-stop links below).
     if (Array.isArray(c.bibStalls) && c.bibStalls.length) {
-      h += `<div style="color:${p.sub};margin-top:3px;">✳️ <b>Bib Gourmand</b> · ${escapeHtml(c.bibStalls.join(', '))}</div>`;
+      const links = c.bibStalls.map((s) => {
+        const q = encodeURIComponent(`${s} ${c.displayName || c.name} Singapore`);
+        return `<a href="https://maps.google.com/?q=${q}" target="_blank" rel="noopener" style="color:${p.link};">${escapeHtml(s)}</a>`;
+      }).join(', ');
+      h += `<div style="color:${p.sub};margin-top:3px;">✳️ <b>Bib Gourmand</b> · ${links}</div>`;
     }
     // v0.62.107 — operator #4: nearest 3 bus stops + 2 stations; the station
     // codes deep-link the Train Mini App (not Google Maps).

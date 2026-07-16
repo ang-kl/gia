@@ -172,7 +172,18 @@ export default function App() {
   };
   // v0.62.557 — operator "vice versa": tapping a centre PIN on the map highlights
   // the matching card in the list (the accent ring), mirroring card-tap → pin.
-  const onCentreTap = (name) => setActivePill(`${name}|card`);
+  // v0.62.558 — operator: the matching card should also come INTO FOCUS — scroll
+  // it into view (centres it in the carousel, or into the list panel), both
+  // orientations. Deferred a frame so the ring re-render + DOM settle first.
+  const onCentreTap = (name) => {
+    setActivePill(`${name}|card`);
+    if (typeof document === 'undefined') return;
+    setTimeout(() => {
+      const sel = (window.CSS && CSS.escape) ? CSS.escape(name) : name.replace(/"/g, '\\"');
+      const el = document.querySelector(`[data-centre-card="${sel}"]`);
+      el?.scrollIntoView?.({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }, 80);
+  };
   // v0.61.0 — map overlay layer toggles (parks / attractions / taxis).
   const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, colour: true, train: true, exits: false, taxis: false, parks: false, police: false, clinics: false, hospitals: false });
   // v0.65.0 — per-centre transit (nearest MRT station + 2 bus stops),
@@ -329,6 +340,7 @@ export default function App() {
       <div
         role="button"
         tabIndex={0}
+        data-centre-card={c.name}
         onClick={() => handleCardTap(c)}
         className={`rounded-lg border text-xs flex flex-col cursor-pointer ${compact ? 'p-1.5 gap-0.5' : 'p-2.5 gap-1'} ${cardOn ? 'border-tg-accent ring-1 ring-tg-accent' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}>
         <div className="font-semibold text-[13px] leading-tight text-tg-text">
@@ -337,8 +349,11 @@ export default function App() {
         {c.address && <div className="text-[11px] text-tg-hint leading-snug">📇 {c.address}</div>}
         {(Number.isFinite(c.stalls) || c.status) && (
           <div className="flex flex-wrap items-center gap-1.5">
+            {/* v0.62.558 — `stalls.count` already carries the 🍳 emoji; the
+                extra hard-coded 🍳 here rendered a DOUBLE frying pan (operator:
+                "two search icons"). Drop the prefix. */}
             {Number.isFinite(c.stalls) && c.stalls > 0 && (
-              <span className="text-[10px] text-tg-text/80">🍳 {tn('stalls.count', lang, { n: c.stalls })}</span>
+              <span className="text-[10px] text-tg-text/80">{tn('stalls.count', lang, { n: c.stalls })}</span>
             )}
             {c.status && (
               <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${statusIsOpen(c) ? 'bg-green-600/20 text-green-500' : 'bg-amber-500/20 text-amber-600'}`}>
@@ -354,10 +369,11 @@ export default function App() {
           <div className="text-[11px] leading-snug text-tg-text">
             <span aria-hidden="true">✳️</span> <span className="font-semibold">Bib Gourmand</span>
             <span className="text-tg-hint"> · </span>
-            {/* v0.62.557 — operator: each Bib stall name is a HIDDEN hyperlink
-                (styled like the hint text, no underline) to that stall's Google
-                Maps location within the hawker centre. stopPropagation so it
-                doesn't fire the whole-card tap. */}
+            {/* v0.62.557/558 — each Bib stall name is a hyperlink to that stall's
+                Google Maps location within the centre. v0.62.558 (operator: "why
+                isn't there hyperlinks?") — the v0.62.557 hint-coloured/no-underline
+                style was indistinguishable from plain text; make it read as a link
+                (accent + underline). stopPropagation so it never fires the card tap. */}
             {c.bibStalls.map((s, k) => (
               <React.Fragment key={k}>
                 {k > 0 && <span className="text-tg-hint">, </span>}
@@ -365,7 +381,7 @@ export default function App() {
                   href={`https://maps.google.com/?q=${encodeURIComponent(`${s} ${c.displayName || c.name} Singapore`)}`}
                   target="_blank" rel="noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="text-tg-hint no-underline"
+                  className="text-tg-accent underline"
                 >{s}</a>
               </React.Fragment>
             ))}

@@ -706,7 +706,16 @@ export function ensureGreyscaleStyle() {
     // visible — `.gm-style-cc` (the © / Terms text) is what's hidden.
     + '.gm-style-cc{display:none!important}'
     + '.gm-style button[aria-label*="eyboard" i]{display:none!important}'
-    + '.gm-style img[alt="Google"]{transform:scale(0.4);transform-origin:0 100%}';
+    + '.gm-style img[alt="Google"]{transform:scale(0.4);transform-origin:0 100%}'
+    // v0.62.558 — operator: the map pop-ups had a "weird" DOUBLE border — our
+    // rounded infoCard sat inside Google's default InfoWindow chrome (white box +
+    // padding + shadow + tail). Strip that chrome so only our card shows; hide the
+    // tail + any default close button (our card has its own ✕).
+    + '.gm-style .gm-style-iw-c{padding:0!important;background:transparent!important;'
+    + 'box-shadow:none!important;border-radius:0!important;overflow:visible!important}'
+    + '.gm-style .gm-style-iw-d{overflow:auto!important;padding:0!important;background:transparent!important}'
+    + '.gm-style .gm-style-iw-tc,.gm-style .gm-style-iw-t::after{display:none!important}'
+    + '.gm-style .gm-style-iw-c>button.gm-ui-hover-effect{display:none!important}';
   document.head.appendChild(st);
 }
 
