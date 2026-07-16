@@ -87,7 +87,7 @@ function hawkerPinNode(isNew, number) {
   return wrap;
 }
 
-export default function HawkerMapPanel({ centres, region, overlayLayers, onOverlayChange = null }) {
+export default function HawkerMapPanel({ centres, region, overlayLayers, onOverlayChange = null, fill = false }) {
   const lang = useLocale();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -458,15 +458,22 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   ];
 
   return (
-    <div className="rounded-lg border border-tg-border bg-tg-card overflow-hidden relative">
+    /* v0.62.544 — `fill`: full-bleed background mode for the tablet/desktop
+       layout (absolute inset-0 fills its relative parent); otherwise the framed,
+       fixed-height inline card. */
+    <div className={fill
+      ? 'absolute inset-0 overflow-hidden bg-tg-card'
+      : 'rounded-lg border border-tg-border bg-tg-card overflow-hidden relative'}>
       <div
         ref={containerRef}
         className={overlayLayers && overlayLayers.colour === false ? 'gia-greyscale-map' : undefined}
-        style={{
-          width: '100%',
-          height: expanded ? '90vh' : (isTablet ? 'min(560px, 55vh)' : 'min(420px, 50vh)'),
-          minHeight: 240
-        }}
+        style={fill
+          ? { width: '100%', height: '100%' }
+          : {
+              width: '100%',
+              height: expanded ? '90vh' : (isTablet ? 'min(560px, 55vh)' : 'min(420px, 50vh)'),
+              minHeight: 240
+            }}
         aria-label={t('map.aria', lang)}
       />
       {/* v0.63.1 — custom map-control row, top-right: zoom +/- and the

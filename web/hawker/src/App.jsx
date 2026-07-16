@@ -4,6 +4,7 @@ import { t, tn, useLocale } from './i18n.js';
 import HawkerMapPanel from './components/HawkerMapPanel.jsx';
 import FooterNav from '../../_shared/components/FooterNav.jsx';
 import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
+import { useViewport, viewportTag } from '../../_shared/lib/use-viewport.js';
 import LocaleToggle from './components/LocaleToggle.jsx';
 
 // v0.60.59 — render "🍳 38 stalls · Operating" / "🍳 38 stands ·
@@ -167,15 +168,41 @@ export default function App() {
   // chip + heading time via `region.<EN>` keys.
   const regionLabel = (en) => t(`region.${en}`, lang);
 
+  // v0.62.544 — tablet/desktop (iPad Pro) layout: full-bleed map behind a left
+  // glass panel, with the centre list as a 2-col (portrait) / auto-fit 3–4-col
+  // (landscape) grid. Phones keep the stacked scroll layout. `isWide` gates it.
+  const vp = useViewport();
+  const isWide = vp.isWide;
+  const footerTag = viewportTag(vp);
+  const listClass = isWide
+    ? (vp.orientation === 'landscape' ? 'grid gap-1.5 mt-1' : 'grid grid-cols-2 gap-1.5 mt-1')
+    : 'flex flex-col gap-1.5 mt-1';
+  const listStyle = (isWide && vp.orientation === 'landscape')
+    ? { gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))' }
+    : undefined;
+
   return (
     <div
-      className="flex flex-col"
-      style={{
-        // v0.59.20: Telegram-stable viewport height (avoids iPad gap).
-        minHeight: 'var(--tg-viewport-stable-height, 100vh)',
-        paddingBottom: 'env(safe-area-inset-bottom, 0)'
-      }}
+      className={isWide ? 'fixed inset-0 overflow-hidden' : 'flex flex-col'}
+      style={isWide
+        ? { paddingBottom: 'env(safe-area-inset-bottom, 0)' }
+        : {
+            // v0.59.20: Telegram-stable viewport height (avoids iPad gap).
+            minHeight: 'var(--tg-viewport-stable-height, 100vh)',
+            paddingBottom: 'env(safe-area-inset-bottom, 0)'
+          }}
     >
+      {/* v0.62.544 — tablet/desktop: the Google map fills the viewport as the
+          background; the controls + list ride a translucent left glass panel. */}
+      {isWide && active && (
+        <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} fill />
+      )}
+      {/* On mobile this wrapper is display:contents (transparent to layout, so the
+          stacked scroll layout is unchanged); on tablet/desktop it becomes the
+          scrolling left glass panel over the full-bleed map. */}
+      <div className={isWide
+        ? `absolute left-0 top-0 bottom-0 ${vp.orientation === 'landscape' ? 'w-[64%] max-w-[920px]' : 'w-[88%]'} overflow-y-auto bg-tg-bg/75 backdrop-blur-md border-r border-tg-border flex flex-col z-10`
+        : 'contents'}>
       {/* v0.62.164 — operator: neo-skeuomorphic header card — 🍚 title + live
           weather + a tactile NEA pill. Raised frosted surface (theme-agnostic,
           colour-blind safe); floats with a margin instead of a full-bleed
@@ -204,7 +231,7 @@ export default function App() {
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-2 py-3 flex flex-col gap-2">
+      <div className={isWide ? 'px-2 py-3 pb-20 flex flex-col gap-2' : 'flex-1 overflow-y-auto px-2 py-3 flex flex-col gap-2'}>
         {busy && <p className="text-xs text-tg-hint p-3">{t('status.loading', lang)}</p>}
         {err && <p className="text-xs text-red-500 p-3">⚠ {err}</p>}
         {!busy && !err && (
@@ -235,7 +262,11 @@ export default function App() {
                 {/* v0.60.41 — embedded multi-pin map for the active region.
                     Falls back to a "coordinates not yet loaded" placeholder
                     when data/hawker-coords.json hasn't been bootstrapped yet. */}
-                <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} />
+                {/* v0.62.544 — inline map on mobile only; tablet/desktop use the
+                    full-bleed background map above. */}
+                {!isWide && (
+                  <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} />
+                )}
                 {/* v0.60.56 — explicit mapped-vs-total status so the
                     user knows when the data file is incomplete (i.e.
                     fewer pins than centres in the region). */}
@@ -280,7 +311,7 @@ export default function App() {
                     </a>
                   ))}
                 </div>
-                <div className="flex flex-col gap-1.5 mt-1">
+                <div className={listClass} style={listStyle}>
                   {active.centres.map((c, i) => (
                     <div key={i} className="rounded-md border border-tg-border bg-tg-card p-2 text-xs">
                       <div className="font-semibold leading-tight">
@@ -347,9 +378,13 @@ export default function App() {
         )}
         {/* v0.60.213 — standardised footer tag line.
             v0.60.217 — no border; font +1pt. */}
+        {/* v0.62.544 — footer carries the device/orientation cue beside the
+            version: "(tablet · landscape)" / "(tablet)" / "(desktop · landscape)";
+            empty on phones. */}
         <footer className="mx-2 mb-2 mt-2 px-3 py-2 text-[9px] text-tg-hint text-center">
-          {t('footer.tag', lang)} · v{BUILD_VERSION}
+          {t('footer.tag', lang)} · v{BUILD_VERSION}{footerTag ? ` · ${footerTag}` : ''}
         </footer>
+      </div>
       </div>
 
       {/* v0.62.213 — operator (IMG_1069 item 6): the separate bottom-left BackFab
