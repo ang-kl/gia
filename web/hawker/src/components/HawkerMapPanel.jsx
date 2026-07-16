@@ -125,6 +125,12 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   const [localExpanded, setLocalExpanded] = useState(false);
   const expanded = controlledExpanded != null ? controlledExpanded : localExpanded;
   const toggleExpand = () => (onToggleExpand ? onToggleExpand() : setLocalExpanded((e) => !e));
+  // v0.62.554 — operator: in the LANDSCAPE full-bleed carousel the map is already
+  // full and there is no in-place expand, so the ⇲ button does nothing there
+  // (fill + no onToggleExpand). Grey it out + disable it so it doesn't imply an
+  // action. Everywhere else it IS wired (phone grows the map in place; the
+  // portrait-tablet panel + portrait-expanded carousel drive App's mapExpanded).
+  const expandWired = !fill || !!onToggleExpand;
   // v0.61.89 — troubleshooting: live Google Maps zoom level, surfaced in a tiny
   // bottom-right readout. Updated on every `zoom_changed`.
   const [zoomLevel, setZoomLevel] = useState(null);
@@ -572,8 +578,9 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
         ><span aria-hidden>－</span></button>
         <button
           type="button"
-          onClick={toggleExpand}
-          className="w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
+          onClick={expandWired ? toggleExpand : undefined}
+          disabled={!expandWired}
+          className={`w-7 h-7 rounded-full border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none ${expandWired ? 'bg-white text-black active:scale-95' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
           aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
           title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
         ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>

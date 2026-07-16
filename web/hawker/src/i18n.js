@@ -114,11 +114,13 @@ const STRINGS = {
   'btn.fabDown':             { en: '⇣ down', fr: '⇣ bas' },
   'btn.fabTopAria':          { en: 'Back to top',  fr: 'Retour en haut' },
   'btn.fabDownAria':         { en: 'Scroll down',  fr: 'Défiler vers le bas' },
-  // v0.62.547 — tablet "list" toggle (operator): hide the list panel to reveal
-  // the full-bleed map, tap again to bring the list back. "Map" reveals the map
-  // (list currently shown); "List" brings the list back (map currently full).
-  'btn.showMap':             { en: 'Map',  fr: 'Carte' },
-  'btn.showList':            { en: 'List', fr: 'Liste' },
+  // v0.62.547 — tablet map/cards toggle (operator): hide the card carousel to
+  // reveal the full-bleed map, tap again to bring the cards back. "Map" reveals
+  // the map (cards currently shown); "Cards" brings the card carousel back (map
+  // currently full). v0.62.554 — operator: the collapsed content is the CARD
+  // carousel, so the label is "Cards", not "List".
+  'btn.showMap':             { en: 'Map',   fr: 'Carte' },
+  'btn.showList':            { en: 'Cards', fr: 'Cartes' },
   // v0.60.53 — copy-to-chat companion button per centre.
   'btn.saveToChat':          { en: '📤 Save to chat', fr: '📤 Envoyer au chat' },
   'btn.saving':              { en: 'Sending…', fr: 'Envoi…' },

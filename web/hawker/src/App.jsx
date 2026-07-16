@@ -92,13 +92,19 @@ function CentreCarousel({ items, renderCard, basisClass }) {
     return () => io.disconnect();
   }, [items]);
   return (
+    // v0.62.554 — operator: the cards showed a horizontal "boundary line across
+    // the screen". Cause: the flex track defaulted to align-items:stretch, so
+    // every card grew to the tallest card's height and their aligned bottom edges
+    // + the heavy shadow-xl merged into one line spanning the width. `items-end`
+    // sits the cards on a common baseline (natural heights, ragged tops) and the
+    // lighter shadow-lg stops the drop shadows from bridging the gaps into a line.
     <div
       ref={trackRef}
-      className="flex gap-2 overflow-x-auto snap-x snap-mandatory px-[6%] pb-1 pointer-events-auto"
+      className="flex items-end gap-2 overflow-x-auto snap-x snap-mandatory px-[6%] pb-1 pointer-events-auto"
       style={{ scrollbarWidth: 'none' }}
     >
       {items.map((c, i) => (
-        <div key={i} data-idx={i} className={`snap-center shrink-0 ${basisClass} max-h-[46vh] overflow-y-auto rounded-lg shadow-xl`}>
+        <div key={i} data-idx={i} className={`snap-center shrink-0 ${basisClass} max-h-[46vh] overflow-y-auto rounded-lg shadow-lg`}>
           {renderCard(c, i, !focused.has(i))}
         </div>
       ))}
