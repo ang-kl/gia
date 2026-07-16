@@ -1,0 +1,133 @@
+{
+  "since": "2026-07-16T13:00:52Z",
+  "until": "2026-07-16T14:05:52Z",
+  "count": 14,
+  "logs": [
+    {
+      "timestamp": "2026-07-16T13:07:04.079619738Z",
+      "message": "[twa-auth] 401 POST /user-location ip=103.196.9.27, 152.233.47.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_3 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8766326d-9026-4ac5-8ca4-bc5f8bb8a8a1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T13:07:04.079625338Z",
+      "message": "[twa-auth] 401 GET /country-pref ip=103.196.9.27, 152.233.47.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_3 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8766326d-9026-4ac5-8ca4-bc5f8bb8a8a1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T13:07:04.079628528Z",
+      "message": "[twa-auth] 401 GET /rating-pref ip=103.196.9.27, 152.233.47.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_3 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8766326d-9026-4ac5-8ca4-bc5f8bb8a8a1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T13:07:04.079631038Z",
+      "message": "[twa-auth] 401 GET /user-language ip=103.196.9.27, 152.233.47.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_3 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8766326d-9026-4ac5-8ca4-bc5f8bb8a8a1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T13:07:04.079633598Z",
+      "message": "[twa-auth] 401 POST /search ip=103.196.9.27, 152.233.47.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_3 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8766326d-9026-4ac5-8ca4-bc5f8bb8a8a1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T13:07:04.079636778Z",
+      "message": "[twa-auth] 401 POST /set-location ip=103.196.9.27, 152.233.47.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_3 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8766326d-9026-4ac5-8ca4-bc5f8bb8a8a1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T13:07:04.079640588Z",
+      "message": "[twa-auth] 401 POST /user-location ip=103.196.9.27, 152.233.47.66 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_3 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8766326d-9026-4ac5-8ca4-bc5f8bb8a8a1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T13:07:33.967925346Z",
+      "message": "[twa-auth] 401 GET /country-pref ip=185.10.7.20, 152.233.13.166 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_3 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8766326d-9026-4ac5-8ca4-bc5f8bb8a8a1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T13:07:33.967930386Z",
+      "message": "[twa-auth] 401 GET /user-language ip=185.10.7.20, 152.233.13.166 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_3 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8766326d-9026-4ac5-8ca4-bc5f8bb8a8a1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T13:07:33.967933866Z",
+      "message": "[twa-auth] 401 POST /user-location ip=185.10.7.20, 152.233.13.166 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_3 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8766326d-9026-4ac5-8ca4-bc5f8bb8a8a1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T13:07:33.967937286Z",
+      "message": "[twa-auth] 401 GET /rating-pref ip=185.10.7.20, 152.233.13.166 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_3 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8766326d-9026-4ac5-8ca4-bc5f8bb8a8a1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T13:07:33.967941086Z",
+      "message": "[twa-auth] 401 POST /search ip=185.10.7.20, 152.233.13.166 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_3 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8766326d-9026-4ac5-8ca4-bc5f8bb8a8a1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T13:07:33.967944476Z",
+      "message": "[twa-auth] 401 POST /user-location ip=185.10.7.20, 152.233.13.166 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_3 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8766326d-9026-4ac5-8ca4-bc5f8bb8a8a1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T13:07:33.967948216Z",
+      "message": "[twa-auth] 401 POST /set-location ip=185.10.7.20, 152.233.13.166 ua=\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_3 like Mac OS X) AppleWebKit/605.1.15 (KHT\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8766326d-9026-4ac5-8ca4-bc5f8bb8a8a1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
