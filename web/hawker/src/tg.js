@@ -96,9 +96,32 @@ export function applyTelegramTheme() {
   // v0.60.52 — auto-fullscreen was narrowed to iPad only (notebook users on
   // Telegram Desktop were getting an unwanted fullscreen takeover).
   // v0.62.286 — operator: REMOVED auto-fullscreen entirely (incl iPad). The TMA
-  // now only `expand()`s to full height (above); fullscreen is never requested
-  // automatically on any platform. (The manual "open map fullscreen" button is
-  // a separate user action and is unaffected.)
+  // then only `expand()`s to full height; fullscreen was never requested.
+  // v0.62.545 — operator (iPad Pro, responsive tablet layout): on iPad the Mini
+  // App opens as a CENTERED MODAL, so the new full-bleed map layout can't fill
+  // the screen (and the small webview never even triggers the tablet layout).
+  // RE-INTRODUCE auto-fullscreen, but ONLY for touch TABLETS — Telegram Desktop
+  // / notebook (the v0.62.286 concern) is excluded (platform is 'tdesktop', and
+  // the pointer is fine). Gated on the physical SCREEN size (window.screen), not
+  // the modal webview size, to avoid a chicken-and-egg (the modal reports a small
+  // innerWidth pre-fullscreen). Requires Bot API 8.0's requestFullscreen.
+  safe('tablet-fullscreen', () => {
+    if (typeof w.requestFullscreen !== 'function') return;
+    if (typeof w.isVersionAtLeast === 'function' && !w.isVersionAtLeast('8.0')) return;
+    if (w.isFullscreen) return;
+    // NB: Telegram reports iPad as 'ipados' (NOT 'ios') — the existing iPad
+    // gates in web/menu/src/tg.js + web/cuisine/src/api/tg.js key on 'ipados'.
+    // Missing it here would skip fullscreen on the very device this fixes.
+    const plat = String(w.platform || '').toLowerCase();
+    const touchClient = plat === 'ipados' || plat === 'ios' || plat === 'android'; // not 'tdesktop'/'macos'/web
+    const coarse = typeof window !== 'undefined' && window.matchMedia
+      && window.matchMedia('(pointer: coarse)').matches;
+    const scr = typeof window !== 'undefined' ? window.screen : null;
+    const minScreen = scr ? Math.min(scr.width || 0, scr.height || 0) : 0;
+    if (touchClient && coarse && minScreen >= 768) {   // iPad-class device
+      try { w.requestFullscreen(); } catch { /* best-effort */ }
+    }
+  });
 
   // v0.60.42 — sync Telegram header + chrome bg to secondary so the
   // iPad/desktop letterbox area blends with the centered column.
