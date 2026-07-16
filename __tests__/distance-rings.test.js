@@ -6,7 +6,7 @@
 // runtime in the TMAs, not here (node env, no JSDOM).
 
 import { describe, it, expect } from 'vitest';
-import { mrtTwoStopRadius, mrtReachRadius, formatDist, _internal } from '../web/_shared/lib/distance-rings.js';
+import { mrtTwoStopRadius, mrtReachRadius, farthestResultDist, formatDist, _internal } from '../web/_shared/lib/distance-rings.js';
 
 const { metresBetween, destPoint, circlePath, parseCode, nearestStation } = _internal;
 
@@ -133,5 +133,19 @@ describe('mrtReachRadius', () => {
     const far = _internal.destPoint(C.lat, C.lng, 3800, 0);
     expect(mrtReachRadius(C.lat, C.lng, [far], 0)).toBeNull();
     expect(mrtReachRadius(C.lat, C.lng, [far], NaN)).toBeNull();
+  });
+});
+
+describe('farthestResultDist', () => {
+  const C = { lat: 1.3521, lng: 103.8198 };
+  it('returns the max straight-line distance to any result', () => {
+    const near = _internal.destPoint(C.lat, C.lng, 800, 0);
+    const far = _internal.destPoint(C.lat, C.lng, 5200, 90);
+    expect(farthestResultDist(C.lat, C.lng, [near, far])).toBeCloseTo(5200, -2);
+  });
+  it('is 0 for no valid results and NaN-safe on the centre', () => {
+    expect(farthestResultDist(C.lat, C.lng, [])).toBe(0);
+    expect(farthestResultDist(C.lat, C.lng, [{ lat: NaN, lng: 1 }])).toBe(0);
+    expect(farthestResultDist(NaN, C.lng, [{ lat: 1.30, lng: 103.8 }])).toBe(0);
   });
 });

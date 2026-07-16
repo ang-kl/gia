@@ -32,6 +32,12 @@ const MRT_GATE_M = 2000;          // draw the MRT ring only when centre is this 
 const MIN_MRT_OVER_WALK = 1.08;   // and only when it's meaningfully bigger than the walk ring
 const REACH_CAP_STOPS = 6;        // cap the outer "reach" ring at ~6 stops so one far result can't balloon it
 const REACH_MIN_OVER_2STOP = 1.15;// and only draw it when clearly bigger than the 2-stop ring
+// v0.62.540 — OUTSIDE Singapore there's no MRT network (and the station list is
+// SG-only), so rings 2 + 3 become plain distance rings, no train/walk icon:
+// ring 2 fixed at 2 km, ring 3 at the farthest result.
+const NON_SG_RING2_M = 2000;      // fixed middle ring outside SG
+const NON_SG_RING2_LABEL = '2km';
+const NON_SG_RING_MIN_GAP_M = 150;// don't draw ring 3 if it's ~= ring 2
 
 // Shared line style for both rings (neutral grey — reads on colour + greyscale maps).
 const RING_COLOR = '#5f6368';
@@ -150,6 +156,20 @@ export function formatDist(m) {
   return `${(m / 1000).toFixed(1)}km`;
 }
 
+// Straight-line distance (m) from the centre to the FARTHEST result pin; 0 when
+// there are no valid results. Shared by the SG reach ring + the non-SG ring 3.
+export function farthestResultDist(lat, lng, results) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return 0;
+  const pts = (Array.isArray(results) ? results : [])
+    .filter((p) => p && Number.isFinite(p.lat) && Number.isFinite(p.lng));
+  let far = 0;
+  for (const p of pts) {
+    const d = metresBetween(lat, lng, p.lat, p.lng);
+    if (d > far) far = d;
+  }
+  return far;
+}
+
 // Outer "reach" ring: sized to enclose the farthest RESULT pin, but capped at
 // ~REACH_CAP_STOPS stops so one far-flung result can't balloon it. Only returned
 // when at least one result sits beyond the 2-stop ring (and the reach ring is
@@ -158,14 +178,8 @@ export function formatDist(m) {
 // Returns null when there's nothing to enclose (all results within 2 stops).
 export function mrtReachRadius(lat, lng, results, twoStopRadiusM) {
   if (!Number.isFinite(twoStopRadiusM) || twoStopRadiusM <= 0) return null;
-  const pts = (Array.isArray(results) ? results : [])
-    .filter((p) => p && Number.isFinite(p.lat) && Number.isFinite(p.lng));
-  if (!pts.length) return null;
-  let far = 0;
-  for (const p of pts) {
-    const d = metresBetween(lat, lng, p.lat, p.lng);
-    if (d > far) far = d;
-  }
+  const far = farthestResultDist(lat, lng, results);
+  if (!far) return null;
   if (far <= twoStopRadiusM) return null;              // nothing outside the 2-stop ring
   const perStop = twoStopRadiusM / MRT_STOPS;
   const radiusM = Math.min(far, perStop * REACH_CAP_STOPS);
@@ -200,7 +214,9 @@ function ringLabelNode(icon, text) {
     + 'font-size:11px;font-weight:700;line-height:1.4;'
     + 'border-radius:10px;padding:1px 7px;white-space:nowrap;'
     + 'box-shadow:0 1px 2px rgba(0,0,0,0.3);transform:translateY(-50%);';
-  el.textContent = `${icon} ${text}`;
+  // v0.62.540 — icon is optional: outside SG rings 2 + 3 carry the distance only
+  // (no walk/train glyph), so an empty icon renders the bare distance.
+  el.textContent = icon ? `${icon} ${text}` : text;
   return el;
 }
 
@@ -248,19 +264,32 @@ export function createRingLayer(map, googleMaps) {
     }
   }
 
-  // draw(centre, results?) — the walk + 2-stop rings centre on `centre`; when a
-  // `results` array of {lat,lng} is supplied (Cuisine passes its venue pins), a
-  // third capped "reach" train ring is added iff a result falls beyond the
-  // 2-stop ring. Hawker passes no results → two rings only.
-  function draw(centre, results) {
+  // draw(centre, results?, isSG?) — ring 1 (🚶 750 m walk) always draws. Rings 2
+  // and 3 depend on region (operator, v0.62.540):
+  //   • isSG=true  → ring 2 = 🚆 computed 2-MRT-stops; ring 3 = 🚆 capped "reach"
+  //                  ring, drawn iff a result falls beyond ring 2 (as prescribed).
+  //   • isSG=false → no MRT network: ring 2 = a plain 2 km ring, ring 3 = a plain
+  //                  ring at the farthest result — both distance-only, NO icon.
+  // `results` is the {lat,lng} pin array (Cuisine passes its venues; Hawker, SG-
+  // only and centred on one hawker, passes none → two rings, no reach).
+  function draw(centre, results, isSG = true) {
     clear();
     if (!centre || !Number.isFinite(centre.lat) || !Number.isFinite(centre.lng)) return;
     drawRing(centre, WALK_RADIUS_M, '🚶', formatDist(WALK_RADIUS_M));
-    const mrt = mrtTwoStopRadius(centre.lat, centre.lng);
-    if (mrt && mrt.radiusM > WALK_RADIUS_M * MIN_MRT_OVER_WALK) {
-      drawRing(centre, mrt.radiusM, '🚆', `${formatDist(mrt.radiusM)} (${MRT_STOPS} stops)`);
-      const reach = mrtReachRadius(centre.lat, centre.lng, results, mrt.radiusM);
-      if (reach) drawRing(centre, reach.radiusM, '🚆', reach.label);
+    if (isSG) {
+      const mrt = mrtTwoStopRadius(centre.lat, centre.lng);
+      if (mrt && mrt.radiusM > WALK_RADIUS_M * MIN_MRT_OVER_WALK) {
+        drawRing(centre, mrt.radiusM, '🚆', `${formatDist(mrt.radiusM)} (${MRT_STOPS} stops)`);
+        const reach = mrtReachRadius(centre.lat, centre.lng, results, mrt.radiusM);
+        if (reach) drawRing(centre, reach.radiusM, '🚆', reach.label);
+      }
+      return;
+    }
+    // Outside Singapore — distance-only rings, no glyph.
+    drawRing(centre, NON_SG_RING2_M, '', NON_SG_RING2_LABEL);
+    const far = farthestResultDist(centre.lat, centre.lng, results);
+    if (far > WALK_RADIUS_M * 1.05 && Math.abs(far - NON_SG_RING2_M) > NON_SG_RING_MIN_GAP_M) {
+      drawRing(centre, far, '', formatDist(far));
     }
   }
 
