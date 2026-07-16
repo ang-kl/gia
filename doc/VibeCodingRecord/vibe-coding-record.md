@@ -1,24 +1,24 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-07-13 from a snapshot of all 1506 pull requests (#1–#1506).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-07-17 from a snapshot of all 1522 pull requests (#1–#1522).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 1506 total — 1496 merged, 10 closed without merge.
+- **PRs:** 1522 total — 1512 merged, 10 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #1535 · 2026-07-12 18:35:02 · _v0.62.528: CCL6 launch flip (#1525) + consolidation scope from the 11-Jul audit §5_
+- **Latest:** #1551 · 2026-07-16 14:40:18+10:00 · _v0.62.543 — cuisine map: pin colours, ring-3 auto-frame, 4-side big-ring labels, km/miles_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 1015 |
-| fix | 204 |
+| feature | 1026 |
+| fix | 206 |
 | docs | 96 |
 | copy | 62 |
+| refactor | 46 |
 | prompt-tune | 45 |
-| refactor | 43 |
 | test | 21 |
 | infra | 20 |
 
@@ -26,18 +26,18 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 462 |
-| Core / misc | 294 |
+| Cuisine Picker | 464 |
+| Core / misc | 302 |
 | Hawker NEA | 111 |
-| Docs / vault | 104 |
+| Docs / vault | 105 |
 | Search / free-text | 82 |
-| Transport / carpark | 77 |
+| Transport / carpark | 81 |
 | Recognised lists | 74 |
 | Infra / setup | 60 |
 | /hidden surprise | 45 |
 | Language / i18n | 35 |
 | Pipeline / discovery | 33 |
-| Weather | 24 |
+| Weather | 25 |
 | /eat /drink flow | 22 |
 | Maps / geo / location | 20 |
 | Commands / chat UX | 18 |
@@ -1558,6 +1558,22 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 1533 | merged | 2026-07-10 08:34:28 | 0.62.526 | feature | Language / i18n | Add: Register — file the ms/vi deferred-locale entries | ## What Closes a [KNOWN GAP] carried across three consecutive journals (#879, #880, #881): the ms/vi deferred-locale candidates from the Language & Locale Specification work were repeatedly flagged "still due" for doc/Register/ but never… | 4 files — doc, package | — | doc/vault |
 | 1534 | merged | 2026-07-10 21:56:30 | 0.62.527 | feature | Hawker NEA | Add: code-reuse audit report (TMAs + bot commands + server modules) | ## What Operator: *"audit the code to see how many can be consolidate into reusable code templates to use across tma and '/' commands. | 4 files — doc, package, audit/ | — | Redis/state; doc/vault |
 | 1535 | merged | 2026-07-12 18:35:02 | 0.62.528 | refactor | Transport / carpark | Refactor: CCL6 launch flip (#1525) + consolidation scope from the 11-Jul audit §5 | ## 1. | 6 files — tests, doc, data, package, audit/ | — | Redis/state; tests; doc/vault |
+| 1536 | merged | 2026-07-13 13:29:45+08:00 | 0.62.529 | feature | Docs / vault | Add: VibeCodingRecord catch-up regen (PRs #1528, #1532-#1535) | Bring the generated VibeCodingRecord ledger + hosted Vibe Journal back in sync with main. | 10 files — doc, package, public/ | — | doc/vault |
+| 1537 | merged | 2026-07-13 19:15:09+08:00 | 0.62.530 | refactor | Core / misc | Refactor: PR-1 — index.js resolveLang require-hoist (consolidation queue) | First extraction from audit/consolidation-scope-2026-07-12.md §2 (the zero-risk warm-up), and the second of the "both in sequence" follow-ups after the VCR catch-up (#1536). | 4 files — index.js, doc, package | — | doc/vault |
+| 1538 | merged | 2026-07-14 05:05:41+08:00 | 0.62.531 | feature | Cuisine Picker | Add: Parity A — cuisine TMA MRT overlay regen (CCL6 stations) | Follows the cross-TMA station-card parity check. | 4 files — TMA:cuisine, doc, package | cuisine | doc/vault |
+| 1539 | merged | 2026-07-14 12:27:14+00:00 |  | feature | Core / misc | Create train_station | Create train_station | 1 file — data | — | — |
+| 1540 | merged | 2026-07-14 12:29:34+00:00 |  | feature | Core / misc | Add: Delete data/train_station | Delete data/train_station | 1 file — data | — | — |
+| 1541 | merged | 2026-07-14 12:31:18+00:00 |  | feature | Core / misc | Create Readme.md | Create Readme.md | 1 file — data | — | — |
+| 1542 | merged | 2026-07-14 12:33:31+00:00 |  | feature | Core / misc | Add files via upload | Add files via upload | 9 files — data | — | — |
+| 1543 | merged | 2026-07-15 05:58:41+10:00 | 0.62.532 | feature | Transport / carpark | Add: Parity B — CCL6 first/last-train timings (from SMRT screenshots) | Operator unblocked Parity B by uploading SMRT journey.smrt.com.sg screenshots to data/trains/ (#1542), after I confirmed every external source (OneMap/OpenStreetMap/Overpass/SMRT/LTA) is denied by the sandbox network policy (403). | 5 files — doc, data, package | — | doc/vault |
+| 1544 | merged | 2026-07-15 06:31:49+10:00 | 0.62.533 | fix | Transport / carpark | fix case-insensitive exit-name join (restores 18 dropped exits) | Surfaced by the operator's question about exit-coordinate coverage. | 5 files — doc, data, package, scripts/ | — | doc/vault |
+| 1545 | merged | 2026-07-15 06:44:50+10:00 | 0.62.534 | feature | Transport / carpark | Add: regenerate station-info — realign 9 TEL stations' stale coordinates | Follows #1544's flagged TEL drift. | 4 files — doc, data, package | — | doc/vault |
+| 1546 | merged | 2026-07-15 07:04:26+10:00 | 0.62.535 | refactor | Weather | consolidation PR-2 — web/_shared byte-identical components | First extraction from audit/consolidation-scope-2026-07-12.md §5. | 14 files — TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, doc, package | cuisine+menu+hawker+transport | doc/vault |
+| 1547 | merged | 2026-07-15 09:10:24+10:00 | 0.62.536 | refactor | Core / misc | consolidation Minimal PR-4 — lib/redis-kv safe slice | Operator chose "PR5 + Minimal PR-4" after I reported PR-3 (gemini) and PR-4 (redis) are both messier than the 11-Jul audit claimed: get/set entangled in per-function try/catch with module-specific warns, and country-pref stores raw… | 5 files — recent-locations.js, doc, package, lib/ | — | Redis/state; doc/vault |
+| 1548 | merged | 2026-07-15 12:17:27+10:00 | 0.62.537 | feature | Cuisine Picker | Add: distance-ring overlay (walk + 2-MRT-stops) on Hawker & Cuisine TMAs | New feature per operator + IMG_3014.jpeg: whenever results are shown on the Hawker or Cuisine TMA, draw two dashed concentric distance rings centred on the reference point — a 750 m walkable ring and a computed 2-MRT-stops ring — each… | 9 files — TMA:cuisine, TMA:hawker, tests, doc, package, scripts/ | cuisine+hawker | tests; doc/vault |
+| 1549 | merged | 2026-07-15 13:06:32+10:00 | 0.62.538 | feature | Transport / carpark | Add: distance rings: 3rd "reach" train ring (#.#km · ~N stops) | Follow-up to #1548. | 6 files — TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 1550 | merged | 2026-07-16 12:28:01+10:00 | 0.62.541 | fix | Core / misc | Fix: cuisine: focused-card name fix + region-gated distance rings | (№ 1,013 | 9 files — TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 1551 | merged | 2026-07-16 14:40:18+10:00 | 0.62.543 | feature | Core / misc | Add: cuisine map: pin colours, ring-3 auto-frame, 4-side big-ring labels, km/miles | (№ 1,016 | 8 files — TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
 
 ---
 
