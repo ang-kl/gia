@@ -544,7 +544,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
           buttons stay visible (they were clipped behind it). */}
       <div
         className={`absolute left-2 flex flex-col gap-1 z-10 ${fill ? '' : 'top-12'}`}
-        style={fill ? { top: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 6rem)' } : undefined}>
+        style={fill ? { top: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 7.5rem)' } : undefined}>
         {/* v0.61.37 — Reset: recenter to the Singapore default view. */}
         <button
           type="button"
@@ -587,6 +587,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       </div>
       {/* v0.61.33 — Phase G floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls
+        fill={fill}
         layers={overlayLayers || {}}
         onToggleLayer={(key) => onOverlayChange?.({
           ...(overlayLayers || {}), [key]: !(overlayLayers || {})[key]

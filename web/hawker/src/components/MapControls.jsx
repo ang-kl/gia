@@ -31,7 +31,7 @@ function pillClass() {
 
 export default function MapControls({
   layers = {}, onToggleLayer, rowToggles = [], menuToggles = [],
-  menuLabel = 'Layers', colourToggle = null
+  menuLabel = 'Layers', colourToggle = null, fill = false
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const wrapRef = useRef(null);
@@ -56,8 +56,14 @@ export default function MapControls({
   // v0.62.273 — right-12 → right-3: the right margin was reserved for the
   // top-right 🔭 button, removed in v0.62.270. Reclaiming it (+ px-1 pills)
   // fits the 🍚 Hawker pill on one row without it being clipped at the edge.
+  // v0.62.555 — operator: the quick-toggle row was LOST in the tablet/desktop
+  // full-bleed map — it sat at top-2, behind the carousel top bar. In `fill` mode
+  // drop it below that bar (same content-safe-area inset the nav cluster uses).
   return (
-    <div ref={wrapRef} className="absolute top-2 left-2 right-3 z-10">
+    <div
+      ref={wrapRef}
+      className={`absolute left-2 right-3 z-10 ${fill ? '' : 'top-2'}`}
+      style={fill ? { top: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 4.25rem)' } : undefined}>
       {/* v0.61.70 — single row; the font is small enough that the Colour
           pill + the ⋯ menu + 3 toggles all fit.
           v0.62.214 — operator (IMG_1069): the v0.62.211 WRAP pushed the 4th
