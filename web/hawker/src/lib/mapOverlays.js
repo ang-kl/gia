@@ -807,12 +807,16 @@ export function infoCard(inner, gmaps) {
   const tail = gmaps ? gmapsLinkRow(gmaps.lat, gmaps.lng) : '';
   // v0.62.129 — operator: the map pop-up card is SKEUOMORPHIC (not liquid glass)
   // — a raised, beveled card (gradient + drop shadow + inset highlight + border).
+  // v0.62.555 — operator: tiny white spacing between the card border and its
+  // content (was 9px 30px 9px 12px — "fat"); and a wider card (248 → 340) so the
+  // tall station card wraps into fewer lines and is less likely to clip over the
+  // top edge in the full-bleed landscape map.
   return '<div style="position:relative;'
     + 'background:linear-gradient(180deg,' + c.bg + ',color-mix(in srgb,' + c.bg + ' 86%,#000 14%));'
-    + 'border-radius:14px;padding:9px 30px 9px 12px;color:' + c.fg + ';'
+    + 'border-radius:14px;padding:5px 22px 5px 8px;color:' + c.fg + ';'
     + 'border:1px solid color-mix(in srgb,' + c.fg + ' 20%,transparent);'
     + 'box-shadow:0 6px 16px rgba(0,0,0,0.30),0 1px 0 rgba(0,0,0,0.10),inset 0 1px 0 rgba(255,255,255,0.85);'
-    + 'font-size:13px;font-weight:500;line-height:1.5;max-width:248px;">'
+    + 'font-size:13px;font-weight:500;line-height:1.45;max-width:340px;">'
     + '<span onclick="window.__giaMapInfoClose&&window.__giaMapInfoClose()" '
     + 'style="position:absolute;top:4px;right:6px;width:20px;height:20px;'
     + 'display:flex;align-items:center;justify-content:center;cursor:pointer;'
@@ -1067,12 +1071,37 @@ function busInfoHtml(b, services) {
   return infoCard(h);
 }
 
+// v0.62.555 — operator: an InfoWindow card opens ABOVE its marker, so a marker
+// near the TOP edge (e.g. an MRT station at the top of the full-bleed landscape
+// map) makes the card clip over the top / behind the top bar. When the marker
+// sits in the upper part of the viewport, pan the map DOWN so the marker (and its
+// card) drop into view. Approximate — uses the marker's fractional height in the
+// current bounds, not the card's measured height.
+function ensureInfoVisible(map, marker) {
+  try {
+    const b = map.getBounds && map.getBounds();
+    const pos = marker && marker.position;
+    if (!b || !pos) return;
+    const lat = typeof pos.lat === 'function' ? pos.lat() : pos.lat;
+    const north = b.getNorthEast().lat();
+    const south = b.getSouthWest().lat();
+    if (!(north > south) || !Number.isFinite(lat)) return;
+    const frac = (north - lat) / (north - south); // 0 = top edge, 1 = bottom
+    if (frac < 0.5) {
+      const h = (map.getDiv && map.getDiv().offsetHeight) || 400;
+      // move the marker down to ~0.6 of the viewport so the card clears the top.
+      map.panBy(0, -Math.round(h * (0.6 - frac)));
+    }
+  } catch { /* projection not ready — skip */ }
+}
+
 // v0.61.19 — open the bus-stop popup, then fetch live arrivals from
 // /api/transport/bus-arrival and refresh the open bubble. v0.61.20 —
 // module-level; map + infoWindow are passed in (was a closure).
 function openBusInfo(map, infoWindow, b, marker) {
   infoWindow.setContent(busInfoHtml(b, null));
   infoWindow.open(map, marker);
+  ensureInfoVisible(map, marker);
   fetch('/api/transport/bus-arrival?code=' + encodeURIComponent(b.code))
     .then((r) => (r.ok ? r.json() : null))
     .then((d) => {
@@ -1642,6 +1671,7 @@ export function createOverlayController(map, googleMaps, opts) {
       };
       info.setContent(stationInfoCardHtml(rec));
       info.open(map, item.marker);
+      ensureInfoVisible(map, item.marker);   // v0.62.555 — pan down if clipping the top
       showStationBusStops(rec);
       showStationExits(rec);     // v0.61.82 — CR-6
     });

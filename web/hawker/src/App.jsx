@@ -105,7 +105,7 @@ function CentreCarousel({ items, renderCard, basisClass }) {
     >
       {items.map((c, i) => (
         <div key={i} data-idx={i} className={`snap-center shrink-0 ${basisClass} max-h-[46vh] overflow-y-auto rounded-lg shadow-lg`}>
-          {renderCard(c, i, !focused.has(i))}
+          {renderCard(c, i, !focused.has(i), true)}
         </div>
       ))}
     </div>
@@ -302,14 +302,16 @@ export default function App() {
   // that now carry the stop DESCRIPTION (operator: "Bus Stop 41129 · Opposite
   // S'pore Bible College") — mirroring the map InfoWindow's `🚌 code desc`
   // standard. Rounded-full pill actions (📍 Maps / Save to chat).
-  const renderCentreCard = (c, i, glass = false) => {
+  const renderCentreCard = (c, i, glass = false, compact = false) => {
     const tr = transitByName[c.name];
     return (
       // v0.62.549 — opaque card surface (operator: carousel cards in focus with
       // an opaque background = the card background colour, not translucent).
       // v0.62.552 — operator: the two "half-seen" cards peeking at the carousel
       // ends read as GLASS (translucent + frosted); the in-focus cards stay opaque.
-      <div className={`rounded-lg border border-tg-border p-2.5 text-xs flex flex-col gap-1 ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}>
+      // v0.62.555 — operator: carousel (landscape) cards have very tiny white
+      // spacing between the border and the content (compact padding + gap).
+      <div className={`rounded-lg border border-tg-border text-xs flex flex-col ${compact ? 'p-1.5 gap-0.5' : 'p-2.5 gap-1'} ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}>
         <div className="font-semibold text-[13px] leading-tight text-tg-text">
           <span className="text-tg-hint font-semibold tabular-nums">{i + 1} · </span>{c.name}{c.isNew ? ' 🆕' : ''}
         </div>
