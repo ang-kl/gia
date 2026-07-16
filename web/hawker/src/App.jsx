@@ -46,6 +46,24 @@ function statusIsOpen(centre) {
   return /^(oper|exist)/i.test(String(centre.status || ''));
 }
 
+// v0.62.548 — tablet/desktop list⇄map toggle, docked at the BOTTOM-RIGHT just
+// above the FooterNav (operator: "next to the bottom right (end, down, etc)").
+// 🗺 Map = hide the list/carousel to reveal the full map; 📋 List = bring it
+// back. The old top-right placement collided with Telegram's fullscreen controls.
+function MapToggle({ isHidden, onToggle, lang }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-pressed={isHidden}
+      className="fixed right-3 z-50 skeuo-pill text-[11px] font-semibold px-3 py-1.5 rounded-full text-tg-text active:scale-95 shadow-lg"
+      style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px))' }}
+    >
+      {isHidden ? `📋 ${t('btn.showList', lang)}` : `🗺 ${t('btn.showMap', lang)}`}
+    </button>
+  );
+}
+
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
 const NEA_HOME = 'https://www.nea.gov.sg/our-services/hawker-management';
 const REGION_EMOJI = {
@@ -188,47 +206,175 @@ export default function App() {
   // chip + heading time via `region.<EN>` keys.
   const regionLabel = (en) => t(`region.${en}`, lang);
 
-  // v0.62.544 — tablet/desktop (iPad Pro) layout: full-bleed map behind a left
-  // glass panel, with the centre list as a 2-col (portrait) / auto-fit 3–4-col
-  // (landscape) grid. Phones keep the stacked scroll layout. `isWide` gates it.
+  // v0.62.544 — tablet/desktop (iPad Pro) layout. `isWide` gates it.
   const vp = useViewport();
   const isWide = vp.isWide;
-  // v0.62.546 — only LANDSCAPE tablet/desktop uses the map-fills + left-panel
-  // layout (4-col list). PORTRAIT tablet stacks (map on top, list BELOW in 2
-  // cols) per operator; phones stay single-column.
+  // v0.62.548 — LANDSCAPE tablet/desktop = the Cuisine-style layout: the map
+  // fills the whole screen and the cards ride a bottom-docked horizontal
+  // CAROUSEL (operator: "In landscape it should be like Cuisine TMA Carousel
+  // Result cards"), with a slim header + region chips on a top bar over the map.
+  // PORTRAIT tablet stacks (inline map on top, 2-col card grid below); phones
+  // stay single-column.
   const landscapeTablet = isWide && vp.orientation === 'landscape';
   const footerTag = viewportTag(vp);
-  const listClass = landscapeTablet
-    ? 'grid grid-cols-4 gap-1.5 mt-1'
-    : (isWide ? 'grid grid-cols-2 gap-1.5 mt-1' : 'flex flex-col gap-1.5 mt-1');
+  // Stacked-layout list grid (portrait tablet = 2 cols, phones = single column).
+  const listClass = isWide ? 'grid grid-cols-2 gap-1.5 mt-1' : 'flex flex-col gap-1.5 mt-1';
 
+  // v0.62.548 — one centre card, shared by the portrait/mobile grid AND the
+  // landscape carousel. Cuisine-style: numbered name header, 📇 address, stall +
+  // status chip, codeHex MRT line-code chips + station name, and bus-stop pills
+  // that now carry the stop DESCRIPTION (operator: "Bus Stop 41129 · Opposite
+  // S'pore Bible College") — mirroring the map InfoWindow's `🚌 code desc`
+  // standard. Rounded-full pill actions (📍 Maps / Save to chat).
+  const renderCentreCard = (c, i) => {
+    const tr = transitByName[c.name];
+    return (
+      <div className="rounded-lg border border-tg-border bg-tg-card/95 p-2.5 text-xs flex flex-col gap-1">
+        <div className="font-semibold text-[13px] leading-tight text-tg-text">
+          <span className="text-tg-hint font-semibold tabular-nums">{i + 1} · </span>{c.name}{c.isNew ? ' 🆕' : ''}
+        </div>
+        {c.address && <div className="text-[11px] text-tg-hint leading-snug">📇 {c.address}</div>}
+        {(Number.isFinite(c.stalls) || c.status) && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            {Number.isFinite(c.stalls) && c.stalls > 0 && (
+              <span className="text-[10px] text-tg-text/80">🍳 {tn('stalls.count', lang, { n: c.stalls })}</span>
+            )}
+            {c.status && (
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${statusIsOpen(c) ? 'bg-green-600/20 text-green-500' : 'bg-amber-500/20 text-amber-600'}`}>
+                {statusLabel(c, lang)}
+              </span>
+            )}
+          </div>
+        )}
+        {/* v0.65.0/0.62.548 — nearest MRT (codeHex line-code chips + station name)
+            + bus stops (pills WITH description), each linking to Google Maps. */}
+        {tr && (tr.station || (tr.busStops || []).length) && (
+          <div className="flex flex-col gap-1">
+            {tr.station && (
+              <a
+                href={`https://maps.google.com/?q=${encodeURIComponent(`${tr.station.name || ''} MRT Station Singapore`)}`}
+                target="_blank" rel="noreferrer"
+                className="flex items-center flex-wrap gap-1 text-[11px] text-tg-hint no-underline"
+              >
+                {(tr.station.codes || []).map((cd, k) => (
+                  <span key={k} style={{ background: codeHex(cd) }}
+                    className="text-white font-bold rounded px-1 text-[10px] leading-[1.5]">{cd}</span>
+                ))}
+                <span className="text-tg-text/80">{tr.station.name}</span>
+              </a>
+            )}
+            {(tr.busStops || []).length > 0 && (
+              <div className="flex flex-col gap-1 items-start">
+                {(tr.busStops || []).map((b, j) => {
+                  const desc = b.description || b.roadName || '';
+                  return (
+                    <a key={j}
+                      href={`https://maps.google.com/?q=${encodeURIComponent(['Bus Stop', b.code, desc, 'Singapore'].filter(Boolean).join(' '))}`}
+                      target="_blank" rel="noreferrer"
+                      className="rounded bg-tg-bg border border-tg-border px-1.5 py-0.5 text-[10px] text-tg-text no-underline leading-snug">
+                      🚌 {b.code}{desc ? ` · ${desc}` : ''}
+                    </a>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+        <div className="flex flex-wrap gap-1.5 mt-0.5">
+          {c.mapsUrl && (
+            <a href={c.mapsUrl} target="_blank" rel="noreferrer"
+              className="text-[11px] px-2.5 py-0.5 rounded-full border border-tg-border bg-tg-bg text-tg-text">
+              📍 {t('btn.maps', lang)}
+            </a>
+          )}
+          <button type="button" onClick={() => saveToChat(c.name)}
+            disabled={savingName === c.name}
+            className="text-[11px] px-2.5 py-0.5 rounded-full border border-tg-border bg-tg-bg text-tg-text disabled:opacity-60">
+            {savingName === c.name ? t('btn.saving', lang) : t('btn.saveToChat', lang)}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // v0.62.548 — LANDSCAPE (Cuisine-style full carousel): full-bleed map + a slim
+  // translucent top bar (header + region chips) + a bottom-docked horizontal
+  // swipe carousel of the centre cards. The left glass panel (v0.62.546) is gone.
+  if (landscapeTablet) {
+    return (
+      <div className="fixed inset-0 overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
+        {active && (
+          <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} fill />
+        )}
+        {/* Top bar over the map: slim header + region chips. Cleared below
+            Telegram's fullscreen top controls with the content-safe-area inset. */}
+        <div
+          className="absolute top-0 inset-x-0 z-20 bg-tg-bg/80 backdrop-blur-md border-b border-tg-border px-2 py-1.5 flex flex-col gap-1.5"
+          style={{ paddingTop: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.375rem)' }}
+        >
+          <div className="flex items-center gap-2">
+            <h1 className="text-sm font-semibold leading-tight flex-1 min-w-0 truncate">{t('header.title', lang)}</h1>
+            <span className="text-[10px] text-tg-hint flex items-center gap-1"><WeatherBadge /></span>
+            <LocaleToggle className="flex-shrink-0" />
+            <button onClick={() => openLink(NEA_HOME)} className="skeuo-pill text-[11px] px-2.5 py-1 rounded-full text-tg-text active:scale-95">NEA ↗</button>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {regionList.map((r) => {
+              const sel = r.region === activeRegion;
+              return (
+                <button key={r.region} onClick={() => setActiveRegion(r.region)} aria-pressed={sel}
+                  className={`px-2.5 py-1 rounded-full text-xs whitespace-nowrap active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/90 liquid-glass text-tg-text'}`}>
+                  <span className="mr-1">{REGION_EMOJI[r.region] || '·'}</span>{regionLabel(r.region)} ({r.count})
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        {busy && <p className="absolute top-24 left-1/2 -translate-x-1/2 text-xs text-tg-hint bg-tg-bg/90 rounded-full px-3 py-1 z-20">{t('status.loading', lang)}</p>}
+        {err && <p className="absolute top-24 left-1/2 -translate-x-1/2 text-xs text-red-500 bg-tg-bg/90 rounded-full px-3 py-1 z-20">⚠ {err}</p>}
+        {/* Bottom-docked horizontal carousel (mirrors ResultCarousel.jsx): snap
+            strip, cards shrink-0 with a peek of the neighbours. Hidden by the
+            🗺 toggle so the map can fill completely. */}
+        {active && !listHidden && (
+          <div className="fixed inset-x-0 bottom-16 z-30 px-1 pb-1 pointer-events-none">
+            <div
+              className="flex gap-2 overflow-x-auto snap-x snap-mandatory px-[6%] pb-1 pointer-events-auto"
+              style={{ scrollbarWidth: 'none' }}
+            >
+              {active.centres.map((c, i) => (
+                <div key={i} className="snap-center shrink-0 basis-[68%] sm:basis-[44%] lg:basis-[30%] max-h-[46vh] overflow-y-auto rounded-lg shadow-xl">
+                  {renderCentreCard(c, i)}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {active && <MapToggle isHidden={listHidden} onToggle={() => setListHidden((v) => !v)} lang={lang} />}
+        <FooterNav
+          atBottom={atBottom}
+          labels={{
+            top: t('btn.fabTop', lang), down: t('btn.fabDown', lang),
+            topAria: t('btn.fabTopAria', lang), downAria: t('btn.fabDownAria', lang),
+            back: t('btn.fabBack', lang), end: t('btn.fabEnd', lang),
+            backAria: t('btn.fabBackAria', lang), endAria: t('btn.fabEndAria', lang)
+          }}
+        />
+      </div>
+    );
+  }
+
+  // v0.62.548 — PORTRAIT tablet + phones: the stacked scroll layout (inline map
+  // on top, card list below). (Landscape returned the full carousel above.)
   return (
     <div
-      className={landscapeTablet ? 'fixed inset-0 overflow-hidden' : 'flex flex-col'}
-      style={landscapeTablet
-        ? { paddingBottom: 'env(safe-area-inset-bottom, 0)' }
-        : {
-            // v0.59.20: Telegram-stable viewport height (avoids iPad gap).
-            minHeight: 'var(--tg-viewport-stable-height, 100vh)',
-            paddingBottom: 'env(safe-area-inset-bottom, 0)'
-          }}
+      className="flex flex-col"
+      style={{
+        // v0.59.20: Telegram-stable viewport height (avoids iPad gap).
+        minHeight: 'var(--tg-viewport-stable-height, 100vh)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0)'
+      }}
     >
-      {/* v0.62.544/546 — LANDSCAPE tablet: the Google map fills the viewport as
-          the background; the controls + 4-col list ride a translucent left glass
-          panel. (Portrait stacks below — see the inline map.) */}
-      {landscapeTablet && active && (
-        <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} fill />
-      )}
-      {/* Off the landscape-tablet layout this wrapper is display:contents
-          (transparent to layout, so the stacked scroll layout — mobile + portrait
-          tablet — is unchanged); in landscape tablet it's the left glass panel. */}
-      <div
-        className={landscapeTablet
-          ? `absolute left-0 top-0 bottom-0 w-[64%] max-w-[920px] overflow-y-auto bg-tg-bg/75 backdrop-blur-md border-r border-tg-border flex flex-col z-10${listHidden ? ' hidden' : ''}`
-          : 'contents'}
-        /* v0.62.545 — in Telegram fullscreen the close/menu controls overlay the
-           top; clear them with Telegram's content-safe-area inset (env fallback). */
-        style={landscapeTablet ? { paddingTop: 'var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px))' } : undefined}>
+      <div className="contents">
       {/* v0.62.164 — operator: neo-skeuomorphic header card — 🍚 title + live
           weather + a tactile NEA pill. Raised frosted surface (theme-agnostic,
           colour-blind safe); floats with a margin instead of a full-bleed
@@ -257,7 +403,7 @@ export default function App() {
         </button>
       </div>
 
-      <div className={landscapeTablet ? 'px-2 py-3 pb-20 flex flex-col gap-2' : 'flex-1 overflow-y-auto px-2 py-3 flex flex-col gap-2'}>
+      <div className="flex-1 overflow-y-auto px-2 py-3 flex flex-col gap-2">
         {busy && <p className="text-xs text-tg-hint p-3">{t('status.loading', lang)}</p>}
         {err && <p className="text-xs text-red-500 p-3">⚠ {err}</p>}
         {!busy && !err && (
@@ -288,12 +434,9 @@ export default function App() {
                 {/* v0.60.41 — embedded multi-pin map for the active region.
                     Falls back to a "coordinates not yet loaded" placeholder
                     when data/hawker-coords.json hasn't been bootstrapped yet. */}
-                {/* v0.62.544/546 — inline map for mobile + PORTRAIT tablet (map on
-                    top, list below); only LANDSCAPE tablet uses the full-bleed
-                    background map above. */}
-                {!landscapeTablet && (
-                  <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} />
-                )}
+                {/* v0.62.544/548 — inline map for mobile + PORTRAIT tablet (map on
+                    top, list below); LANDSCAPE uses the full-bleed carousel above. */}
+                <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} />
                 {/* v0.60.56 — explicit mapped-vs-total status so the
                     user knows when the data file is incomplete (i.e.
                     fewer pins than centres in the region). */}
@@ -338,76 +481,15 @@ export default function App() {
                     </a>
                   ))}
                 </div>
-                {/* v0.62.547 — operator: Cuisine-style cards (name header, stall/
-                    status chip, coloured MRT-line pills via codeHex, pill actions).
-                    Hidden when the tablet "list" toggle collapses to full map. */}
+                {/* v0.62.548 — operator: Cuisine-style cards (shared renderer:
+                    name header, stall/status chip, codeHex MRT chips + station
+                    name, bus-stop pills WITH description, pill actions). Hidden
+                    when the "list" toggle collapses to the full map (tablet). */}
                 {!(isWide && listHidden) && (
                 <div className={listClass}>
-                  {active.centres.map((c, i) => {
-                    const tr = transitByName[c.name];
-                    return (
-                    <div key={i} className="rounded-lg border border-tg-border bg-tg-card/95 p-2.5 text-xs flex flex-col gap-1">
-                      <div className="font-semibold text-[13px] leading-tight text-tg-text">
-                        <span className="text-tg-hint font-semibold tabular-nums">{i + 1} · </span>{c.name}{c.isNew ? ' 🆕' : ''}
-                      </div>
-                      {c.address && <div className="text-[11px] text-tg-hint leading-snug">📇 {c.address}</div>}
-                      {(Number.isFinite(c.stalls) || c.status) && (
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          {Number.isFinite(c.stalls) && c.stalls > 0 && (
-                            <span className="text-[10px] text-tg-text/80">🍳 {tn('stalls.count', lang, { n: c.stalls })}</span>
-                          )}
-                          {c.status && (
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${statusIsOpen(c) ? 'bg-green-600/20 text-green-500' : 'bg-amber-500/20 text-amber-600'}`}>
-                              {statusLabel(c, lang)}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                      {/* v0.65.0/0.62.547 — nearest MRT (coloured line-code chips) +
-                          bus stops (pills), each linking to Google Maps. */}
-                      {tr && (tr.station || (tr.busStops || []).length) && (
-                        <div className="flex flex-col gap-1">
-                          {tr.station && (
-                            <a
-                              href={`https://maps.google.com/?q=${encodeURIComponent(`${tr.station.name || ''} MRT Station Singapore`)}`}
-                              target="_blank" rel="noreferrer"
-                              className="flex items-center flex-wrap gap-1 text-[11px] text-tg-hint no-underline"
-                            >
-                              {(tr.station.codes || []).map((cd, k) => (
-                                <span key={k} style={{ background: codeHex(cd) }}
-                                  className="text-white font-bold rounded px-1 text-[10px] leading-[1.5]">{cd}</span>
-                              ))}
-                              <span className="text-tg-text/80">{tr.station.name}</span>
-                            </a>
-                          )}
-                          {(tr.busStops || []).length > 0 && (
-                            <div className="flex items-center flex-wrap gap-1 text-[11px]">
-                              {(tr.busStops || []).map((b, j) => (
-                                <a key={j}
-                                  href={`https://maps.google.com/?q=${encodeURIComponent(['Bus Stop', b.code, b.description, 'Singapore'].filter(Boolean).join(' '))}`}
-                                  target="_blank" rel="noreferrer"
-                                  className="rounded bg-tg-bg border border-tg-border px-1.5 py-0.5 text-[10px] text-tg-text no-underline">🚌 {b.code}</a>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      <div className="flex flex-wrap gap-1.5 mt-0.5">
-                        {c.mapsUrl && (
-                          <a href={c.mapsUrl} target="_blank" rel="noreferrer"
-                            className="text-[11px] px-2.5 py-0.5 rounded-full border border-tg-border bg-tg-bg text-tg-text">
-                            📍 {t('btn.maps', lang)}
-                          </a>
-                        )}
-                        <button type="button" onClick={() => saveToChat(c.name)}
-                          disabled={savingName === c.name}
-                          className="text-[11px] px-2.5 py-0.5 rounded-full border border-tg-border bg-tg-bg text-tg-text disabled:opacity-60">
-                          {savingName === c.name ? t('btn.saving', lang) : t('btn.saveToChat', lang)}
-                        </button>
-                      </div>
-                    </div>
-                    );
-                  })}
+                  {active.centres.map((c, i) => (
+                    <React.Fragment key={i}>{renderCentreCard(c, i)}</React.Fragment>
+                  ))}
                 </div>
                 )}
               </>
@@ -425,21 +507,10 @@ export default function App() {
       </div>
       </div>
 
-      {/* v0.62.547 — operator: "option like Cuisine TMA to list in the footer".
-          A fixed pill (tablet/desktop only) that toggles the list panel — hide it
-          to reveal the full-bleed map, tap again to bring the list back. Fixed so
-          it stays reachable even when the landscape glass panel is hidden. */}
-      {isWide && active && (
-        <button
-          type="button"
-          onClick={() => setListHidden((v) => !v)}
-          aria-pressed={listHidden}
-          className="fixed top-2 right-2 z-30 skeuo-pill text-xs px-3 py-1.5 rounded-full text-tg-text active:scale-95"
-          style={{ top: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' }}
-        >
-          {listHidden ? `📋 ${t('btn.showList', lang)}` : `🗺 ${t('btn.showMap', lang)}`}
-        </button>
-      )}
+      {/* v0.62.548 — operator: the list/map toggle moved to the BOTTOM-RIGHT,
+          beside the FooterNav (down / end) — the old top-right spot collided with
+          Telegram's fullscreen ⌄ ··· controls (IMG_0677). */}
+      {isWide && active && <MapToggle isHidden={listHidden} onToggle={() => setListHidden((v) => !v)} lang={lang} />}
 
       {/* v0.62.213 — operator (IMG_1069 item 6): the separate bottom-left BackFab
           + bottom-right scroll FAB are replaced by ONE standardised FooterNav row
