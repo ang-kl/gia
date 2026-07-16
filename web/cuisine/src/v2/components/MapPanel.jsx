@@ -117,7 +117,17 @@ function transitBlockHtml(transit) {
   return rows.join('');
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, onMapMove, flyTo, fitPins, onDeselect, onLongPress, blinkOnly = false, fill = false, children }) {
+// v0.62.543 — operator: "some countries use miles". Road-distance imperial
+// countries (miles) — US, UK, Myanmar, Liberia; everywhere else (incl. SG, AU)
+// uses km. The ring labels follow the SEARCHED country (state.countryPref),
+// not the device locale.
+const MILES_COUNTRIES = new Set(['US', 'GB', 'MM', 'LR']);
+function distanceUnit(region, countryPref) {
+  if ((region || 'SG') === 'SG') return 'km';
+  return MILES_COUNTRIES.has(String(countryPref || '').toUpperCase()) ? 'mi' : 'km';
+}
+
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, flyTo, fitPins, onDeselect, onLongPress, blinkOnly = false, fill = false, children }) {
   // v0.62.125 — onDeselect (tap empty map → exit the result carousel) kept in a
   // ref so the long-lived map-click handler always calls the current prop.
   const onDeselectRef = useRef(null);
@@ -963,8 +973,10 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         const resultPts = venues
           .filter((v) => Number.isFinite(v.lat) && Number.isFinite(v.lng))
           .map((v) => ({ lat: v.lat, lng: v.lng }));
+        // v0.62.543 — label unit follows the searched country (km vs miles).
         ringLayerRef.current.draw(
-          { lat: ringCentre.lat, lng: ringCentre.lng }, resultPts, (region || 'SG') === 'SG'
+          { lat: ringCentre.lat, lng: ringCentre.lng }, resultPts,
+          (region || 'SG') === 'SG', distanceUnit(region, countryPref)
         );
       } else {
         ringLayerRef.current.clear();

@@ -36,7 +36,11 @@ const REACH_MIN_OVER_2STOP = 1.15;// and only draw it when clearly bigger than t
 // SG-only), so rings 2 + 3 become plain distance rings, no train/walk icon:
 // ring 2 fixed at 2 km, ring 3 at the farthest result.
 const NON_SG_RING2_M = 2000;      // fixed middle ring outside SG
-const NON_SG_RING2_LABEL = '2km';
+// v0.62.543 — a big ring's single north label can sit far off the visible arc,
+// so rings wider than this get a distance label on all four sides (N/E/S/W).
+const LARGE_RING_M = 8000;        // operator: "above 8 km → indicate on four sides"
+const M_PER_MILE = 1609.344;
+const M_PER_FOOT = 0.3048;
 
 // Shared line style for both rings (neutral grey — reads on colour + greyscale maps).
 const RING_COLOR = '#5f6368';
@@ -148,9 +152,17 @@ export function mrtTwoStopRadius(lat, lng) {
   return { radiusM, label: formatDist(radiusM) };
 }
 
-// ###m below 1 km (rounded to 10 m so 750 stays 750), else #.#km.
-export function formatDist(m) {
+// Distance label, unit-aware (operator: "some countries use miles").
+//   unit 'km' (default): ###m below 1 km (rounded to 10 m so 750 stays 750), else #.#km.
+//   unit 'mi': ###ft below 0.1 mi (rounded to 10 ft), else #.#mi.
+// The caller (MapPanel) picks the unit from the searched country.
+export function formatDist(m, unit = 'km') {
   if (!Number.isFinite(m)) return '';
+  if (unit === 'mi') {
+    const miles = m / M_PER_MILE;
+    if (miles < 0.1) return `${Math.round((m / M_PER_FOOT) / 10) * 10}ft`;
+    return `${miles.toFixed(1)}mi`;
+  }
   if (m < 1000) return `${Math.round(m / 10) * 10}m`;
   return `${(m / 1000).toFixed(1)}km`;
 }
@@ -252,18 +264,26 @@ export function createRingLayer(map, googleMaps) {
     line.setMap(map);
     items.push(line);
     if (AdvancedMarkerElement) {
-      const edge = destPoint(centre.lat, centre.lng, radiusM, 0); // due north
-      const marker = new AdvancedMarkerElement({
-        position: edge,
-        content: ringLabelNode(icon, text),
-        zIndex: 6
-      });
-      marker.map = map;
-      items.push(marker);
+      // v0.62.543 — one north label normally; a large ring (whose north edge can
+      // be far off the visible arc) gets a label on all four sides (N/E/S/W).
+      const bearings = radiusM > LARGE_RING_M
+        ? [0, Math.PI / 2, Math.PI, 3 * Math.PI / 2]
+        : [0];
+      for (const brg of bearings) {
+        const edge = destPoint(centre.lat, centre.lng, radiusM, brg);
+        const marker = new AdvancedMarkerElement({
+          position: edge,
+          content: ringLabelNode(icon, text),
+          zIndex: 6
+        });
+        marker.map = map;
+        items.push(marker);
+      }
     }
   }
 
-  // draw(centre, results?, isSG?) — ring 1 (🚶 750 m walk) always draws. Rings 2
+  // draw(centre, results?, isSG?, unit?) — ring 1 (🚶 750 m walk) always draws.
+  // `unit` ('km' | 'mi') sets the label unit (from the searched country). Rings 2
   // and 3 depend on region (operator, v0.62.540):
   //   • isSG=true  → ring 2 = 🚆 computed 2-MRT-stops; ring 3 = 🚆 capped "reach"
   //                  ring, drawn iff a result falls beyond ring 2 (as prescribed).
@@ -271,27 +291,28 @@ export function createRingLayer(map, googleMaps) {
   //                  ring at the farthest result — both distance-only, NO icon.
   // `results` is the {lat,lng} pin array (Cuisine passes its venues; Hawker, SG-
   // only and centred on one hawker, passes none → two rings, no reach).
-  function draw(centre, results, isSG = true) {
+  function draw(centre, results, isSG = true, unit = 'km') {
     clear();
     if (!centre || !Number.isFinite(centre.lat) || !Number.isFinite(centre.lng)) return;
-    drawRing(centre, WALK_RADIUS_M, '🚶', formatDist(WALK_RADIUS_M));
+    drawRing(centre, WALK_RADIUS_M, '🚶', formatDist(WALK_RADIUS_M, unit));
     if (isSG) {
       const mrt = mrtTwoStopRadius(centre.lat, centre.lng);
       if (mrt && mrt.radiusM > WALK_RADIUS_M * MIN_MRT_OVER_WALK) {
-        drawRing(centre, mrt.radiusM, '🚆', `${formatDist(mrt.radiusM)} (${MRT_STOPS} stops)`);
+        drawRing(centre, mrt.radiusM, '🚆', `${formatDist(mrt.radiusM, unit)} (${MRT_STOPS} stops)`);
         const reach = mrtReachRadius(centre.lat, centre.lng, results, mrt.radiusM);
-        if (reach) drawRing(centre, reach.radiusM, '🚆', reach.label);
+        if (reach) drawRing(centre, reach.radiusM, '🚆', `${formatDist(reach.radiusM, unit)} (~${reach.stops} stops)`);
       }
       return;
     }
-    // Outside Singapore — distance-only rings, no glyph.
-    drawRing(centre, NON_SG_RING2_M, '', NON_SG_RING2_LABEL);
-    // Ring 3 — at the farthest result, but ONLY when result(s) fall OUTSIDE ring 2
-    // (the 2 km ring); the results themselves bound it. Nothing beyond 2 km → no
-    // ring 3 (it is never drawn inside ring 2).
+    // Outside Singapore — distance-only rings, no glyph. Ring 2 stays a fixed
+    // 2 km (labelled in the local unit); ring 3 sits at the farthest result, but
+    // ONLY when result(s) fall OUTSIDE ring 2 (the results bound it — never drawn
+    // inside ring 2).
+    const ring2Label = unit === 'mi' ? formatDist(NON_SG_RING2_M, 'mi') : '2km';
+    drawRing(centre, NON_SG_RING2_M, '', ring2Label);
     const far = farthestResultDist(centre.lat, centre.lng, results);
     if (far > NON_SG_RING2_M) {
-      drawRing(centre, far, '', formatDist(far));
+      drawRing(centre, far, '', formatDist(far, unit));
     }
   }
 
