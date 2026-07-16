@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-13",
-  "count": 1506,
+  "generated": "2026-07-17",
+  "count": 1522,
   "records": [
     {
       "pr": 1,
@@ -42489,6 +42489,454 @@
         "doc/vault"
       ],
       "title": "v0.62.528: CCL6 launch flip (#1525) + consolidation scope from the 11-Jul audit §5",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1536,
+      "status": "merged",
+      "merged": "2026-07-13 13:29:45+08:00",
+      "day": "2026-07-13",
+      "version": "0.62.529",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: VibeCodingRecord catch-up regen (PRs #1528, #1532-#1535)",
+      "approach": "Bring the generated VibeCodingRecord ledger + hosted Vibe Journal back in sync with main.",
+      "codeImpact": "10 files — doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 10,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.529: VibeCodingRecord catch-up regen (PRs #1528, #1532-#1535)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1537,
+      "status": "merged",
+      "merged": "2026-07-13 19:15:09+08:00",
+      "day": "2026-07-13",
+      "version": "0.62.530",
+      "minor": "0.62",
+      "category": "refactor",
+      "area": "Core / misc",
+      "intent": "Refactor: PR-1 — index.js resolveLang require-hoist (consolidation queue)",
+      "approach": "First extraction from audit/consolidation-scope-2026-07-12.md §2 (the zero-risk warm-up), and the second of the \"both in sequence\" follow-ups after the VCR catch-up (#1536).",
+      "codeImpact": "4 files — index.js, doc, package",
+      "modules": [
+        "doc",
+        "index.js",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.530: PR-1 — index.js resolveLang require-hoist (consolidation queue)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1538,
+      "status": "merged",
+      "merged": "2026-07-14 05:05:41+08:00",
+      "day": "2026-07-14",
+      "version": "0.62.531",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Parity A — cuisine TMA MRT overlay regen (CCL6 stations)",
+      "approach": "Follows the cross-TMA station-card parity check.",
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.531: Parity A — cuisine TMA MRT overlay regen (CCL6 stations)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1539,
+      "status": "merged",
+      "merged": "2026-07-14 12:27:14+00:00",
+      "day": "2026-07-14",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Create train_station",
+      "approach": "Create train_station",
+      "codeImpact": "1 file — data",
+      "modules": [
+        "data"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Create train_station",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1540,
+      "status": "merged",
+      "merged": "2026-07-14 12:29:34+00:00",
+      "day": "2026-07-14",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: Delete data/train_station",
+      "approach": "Delete data/train_station",
+      "codeImpact": "1 file — data",
+      "modules": [
+        "data"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Delete data/train_station",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1541,
+      "status": "merged",
+      "merged": "2026-07-14 12:31:18+00:00",
+      "day": "2026-07-14",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Create Readme.md",
+      "approach": "Create Readme.md",
+      "codeImpact": "1 file — data",
+      "modules": [
+        "data"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Create Readme.md",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1542,
+      "status": "merged",
+      "merged": "2026-07-14 12:33:31+00:00",
+      "day": "2026-07-14",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add files via upload",
+      "approach": "Add files via upload",
+      "codeImpact": "9 files — data",
+      "modules": [
+        "data"
+      ],
+      "nFiles": 9,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Add files via upload",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1543,
+      "status": "merged",
+      "merged": "2026-07-15 05:58:41+10:00",
+      "day": "2026-07-15",
+      "version": "0.62.532",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: Parity B — CCL6 first/last-train timings (from SMRT screenshots)",
+      "approach": "Operator unblocked Parity B by uploading SMRT journey.smrt.com.sg screenshots to data/trains/ (#1542), after I confirmed every external source (OneMap/OpenStreetMap/Overpass/SMRT/LTA) is denied by the sandbox network policy (403).",
+      "codeImpact": "5 files — doc, data, package",
+      "modules": [
+        "data",
+        "doc",
+        "package"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.532: Parity B — CCL6 first/last-train timings (from SMRT screenshots)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1544,
+      "status": "merged",
+      "merged": "2026-07-15 06:31:49+10:00",
+      "day": "2026-07-15",
+      "version": "0.62.533",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Transport / carpark",
+      "intent": "fix case-insensitive exit-name join (restores 18 dropped exits)",
+      "approach": "Surfaced by the operator's question about exit-coordinate coverage.",
+      "codeImpact": "5 files — doc, data, package, scripts/",
+      "modules": [
+        "data",
+        "doc",
+        "package",
+        "scripts/"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.533: fix case-insensitive exit-name join (restores 18 dropped exits)",
+      "reworkCue": true,
+      "reworkOf": 1543,
+      "burst": false
+    },
+    {
+      "pr": 1545,
+      "status": "merged",
+      "merged": "2026-07-15 06:44:50+10:00",
+      "day": "2026-07-15",
+      "version": "0.62.534",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: regenerate station-info — realign 9 TEL stations' stale coordinates",
+      "approach": "Follows #1544's flagged TEL drift.",
+      "codeImpact": "4 files — doc, data, package",
+      "modules": [
+        "data",
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.534: regenerate station-info — realign 9 TEL stations' stale coordinates",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1546,
+      "status": "merged",
+      "merged": "2026-07-15 07:04:26+10:00",
+      "day": "2026-07-15",
+      "version": "0.62.535",
+      "minor": "0.62",
+      "category": "refactor",
+      "area": "Weather",
+      "intent": "consolidation PR-2 — web/_shared byte-identical components",
+      "approach": "First extraction from audit/consolidation-scope-2026-07-12.md §5.",
+      "codeImpact": "14 files — TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:transport"
+      ],
+      "nFiles": 14,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.535: consolidation PR-2 — web/_shared byte-identical components",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1547,
+      "status": "merged",
+      "merged": "2026-07-15 09:10:24+10:00",
+      "day": "2026-07-15",
+      "version": "0.62.536",
+      "minor": "0.62",
+      "category": "refactor",
+      "area": "Core / misc",
+      "intent": "consolidation Minimal PR-4 — lib/redis-kv safe slice",
+      "approach": "Operator chose \"PR5 + Minimal PR-4\" after I reported PR-3 (gemini) and PR-4 (redis) are both messier than the 11-Jul audit claimed: get/set entangled in per-function try/catch with module-specific warns, and country-pref stores raw…",
+      "codeImpact": "5 files — recent-locations.js, doc, package, lib/",
+      "modules": [
+        "doc",
+        "lib/",
+        "package",
+        "recent-locations.js"
+      ],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "v0.62.536: consolidation Minimal PR-4 — lib/redis-kv safe slice",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1548,
+      "status": "merged",
+      "merged": "2026-07-15 12:17:27+10:00",
+      "day": "2026-07-15",
+      "version": "0.62.537",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: distance-ring overlay (walk + 2-MRT-stops) on Hawker & Cuisine TMAs",
+      "approach": "New feature per operator + IMG_3014.jpeg: whenever results are shown on the Hawker or Cuisine TMA, draw two dashed concentric distance rings centred on the reference point — a 750 m walkable ring and a computed 2-MRT-stops ring — each…",
+      "codeImpact": "9 files — TMA:cuisine, TMA:hawker, tests, doc, package, scripts/",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "scripts/",
+        "TMA:cuisine",
+        "TMA:hawker"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "cuisine",
+        "hawker"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.537 — distance-ring overlay (walk + 2-MRT-stops) on Hawker & Cuisine TMAs",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1549,
+      "status": "merged",
+      "merged": "2026-07-15 13:06:32+10:00",
+      "day": "2026-07-15",
+      "version": "0.62.538",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: distance rings: 3rd \"reach\" train ring (#.#km · ~N stops)",
+      "approach": "Follow-up to #1548.",
+      "codeImpact": "6 files — TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.538 — distance rings: 3rd \"reach\" train ring (#.#km · ~N stops)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1550,
+      "status": "merged",
+      "merged": "2026-07-16 12:28:01+10:00",
+      "day": "2026-07-16",
+      "version": "0.62.541",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Core / misc",
+      "intent": "Fix: cuisine: focused-card name fix + region-gated distance rings",
+      "approach": "(№ 1,013",
+      "codeImpact": "9 files — TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.541 — cuisine: focused-card name fix + region-gated distance rings",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1551,
+      "status": "merged",
+      "merged": "2026-07-16 14:40:18+10:00",
+      "day": "2026-07-16",
+      "version": "0.62.543",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add: cuisine map: pin colours, ring-3 auto-frame, 4-side big-ring labels, km/miles",
+      "approach": "(№ 1,016",
+      "codeImpact": "8 files — TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.543 — cuisine map: pin colours, ring-3 auto-frame, 4-side big-ring labels, km/miles",
       "reworkCue": false,
       "reworkOf": null,
       "burst": false
