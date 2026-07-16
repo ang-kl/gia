@@ -88,6 +88,11 @@ export default function App() {
   // v0.62.547 — tablet "list" toggle (operator, mirrors Cuisine's hide-results):
   // hide the list/panel to reveal the full-bleed map, and bring it back.
   const [listHidden, setListHidden] = useState(false);
+  // v0.62.550 — operator (point 4a): in the PORTRAIT tablet/desktop layout the map
+  // is anchored at the top with a separate scrollable list panel below; tapping
+  // the map's ⇲ expand flips `mapExpanded` so the layout switches to the full-map
+  // + bottom-carousel (the point-2 landscape carousel), and ⇱ collapses back.
+  const [mapExpanded, setMapExpanded] = useState(false);
   // v0.62.549 — operator: a station / bus-stop pill in a card is a two-tap
   // control. 1st tap → highlight the point on the embedded map (3 s pulse) and
   // mark THIS pill toggled (only one at a time); 2nd tap on the same pill →
@@ -233,6 +238,9 @@ export default function App() {
   // PORTRAIT tablet stacks (inline map on top, 2-col card grid below); phones
   // stay single-column.
   const landscapeTablet = isWide && vp.orientation === 'landscape';
+  // v0.62.550 — PORTRAIT tablet/desktop = anchored-map + separate scrollable list
+  // panel; the map's ⇲ expand switches it to the full-map carousel (point 4a).
+  const portraitTablet = isWide && vp.orientation === 'portrait';
   const footerTag = viewportTag(vp);
   // Stacked-layout list grid (portrait tablet = 2 cols, phones = single column).
   const listClass = isWide ? 'grid grid-cols-2 gap-1.5 mt-1' : 'flex flex-col gap-1.5 mt-1';
@@ -326,14 +334,18 @@ export default function App() {
     );
   };
 
-  // v0.62.548 — LANDSCAPE (Cuisine-style full carousel): full-bleed map + a slim
+  // v0.62.548/550 — the Cuisine-style FULL CAROUSEL: full-bleed map + a slim
   // translucent top bar (header + region chips) + a bottom-docked horizontal
-  // swipe carousel of the centre cards. The left glass panel (v0.62.546) is gone.
-  if (landscapeTablet) {
-    return (
+  // swipe carousel of the centre cards. Used by LANDSCAPE tablet/desktop AND by
+  // PORTRAIT tablet/desktop once the map is expanded (point 4a). `collapsible`
+  // wires the map's ⇲/⇱ to App's `mapExpanded` so portrait can collapse back to
+  // the anchored-map + list-panel view; landscape has no collapse (always full).
+  const carouselLayout = (collapsible) => (
       <div className="fixed inset-0 overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
         {active && (
-          <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} fill />
+          <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} fill
+            expanded={collapsible ? mapExpanded : null}
+            onToggleExpand={collapsible ? () => setMapExpanded(false) : null} />
         )}
         {/* Top bar over the map: slim header + region chips. Cleared below
             Telegram's fullscreen top controls with the content-safe-area inset.
@@ -399,11 +411,83 @@ export default function App() {
           }}
         />
       </div>
-    );
-  }
+  );
 
-  // v0.62.548 — PORTRAIT tablet + phones: the stacked scroll layout (inline map
-  // on top, card list below). (Landscape returned the full carousel above.)
+  // v0.62.550 — PORTRAIT tablet/desktop panel (point 4a): header + region chips +
+  // the map ANCHORED at the top + a SEPARATE scrollable list panel below (the map
+  // does not scroll away with the list). The map's ⇲ expand switches to the
+  // full-map carousel above; ⇱ collapses back here.
+  const portraitTabletPanel = () => (
+    <div className="fixed inset-0 flex flex-col overflow-hidden"
+      style={{
+        paddingTop: 'var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px))',
+        paddingBottom: 'env(safe-area-inset-bottom, 0)'
+      }}>
+      <div className="skeuo-card mx-2 mt-2 rounded-2xl px-3 py-2 flex items-center gap-2 relative z-10 shrink-0">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-base font-semibold leading-tight">{t('header.title', lang)}</h1>
+          <p className="text-[10px] text-tg-hint leading-tight flex items-center gap-1"><WeatherBadge /></p>
+        </div>
+        <LocaleToggle className="flex-shrink-0" />
+        <button onClick={() => openLink(NEA_HOME)} className="skeuo-pill text-xs px-3 py-1.5 rounded-full text-tg-text active:scale-95">NEA ↗</button>
+      </div>
+      <div className="flex flex-wrap gap-1.5 px-3 py-1.5 shrink-0">
+        {regionList.map((r) => {
+          const sel = r.region === activeRegion;
+          return (
+            <button key={r.region} onClick={() => setActiveRegion(r.region)} aria-pressed={sel}
+              className={`px-2.5 py-1 rounded-full text-xs whitespace-nowrap active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/90 liquid-glass text-tg-text'}`}>
+              <span className="mr-1">{REGION_EMOJI[r.region] || '·'}</span>{regionLabel(r.region)} ({r.count})
+            </button>
+          );
+        })}
+      </div>
+      {/* Map anchored at the top (does not scroll with the list); ⇲ → carousel. */}
+      {active && (
+        <div className="px-2 shrink-0">
+          <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers}
+            expanded={mapExpanded} onToggleExpand={() => setMapExpanded(true)} />
+        </div>
+      )}
+      {/* Separate scrollable list panel (the operator's "scroll up/down" panel). */}
+      <div className="flex-1 overflow-y-auto px-2 py-2 flex flex-col gap-2">
+        {busy && <p className="text-xs text-tg-hint p-3">{t('status.loading', lang)}</p>}
+        {err && <p className="text-xs text-red-500 p-3">⚠ {err}</p>}
+        {!busy && !err && active && (
+          <>
+            <div className="mx-1 px-2.5 py-1 rounded-lg bg-tg-bg/90 liquid-glass text-[11px] text-tg-hint">
+              <strong className="text-tg-text">{regionLabel(active.region)}</strong>
+              {tn('list.headingBody', lang, { n: active.count })}
+            </div>
+            <div className={listClass}>
+              {active.centres.map((c, i) => (
+                <React.Fragment key={i}>{renderCentreCard(c, i)}</React.Fragment>
+              ))}
+            </div>
+          </>
+        )}
+        <footer className="mx-2 mb-2 mt-2 px-3 py-2 text-[9px] text-tg-hint text-center">
+          {t('footer.tag', lang)} · v{BUILD_VERSION}{footerTag ? ` · ${footerTag}` : ''}
+        </footer>
+      </div>
+      <FooterNav
+        atBottom={atBottom}
+        labels={{
+          top: t('btn.fabTop', lang), down: t('btn.fabDown', lang),
+          topAria: t('btn.fabTopAria', lang), downAria: t('btn.fabDownAria', lang),
+          back: t('btn.fabBack', lang), end: t('btn.fabEnd', lang),
+          backAria: t('btn.fabBackAria', lang), endAria: t('btn.fabEndAria', lang)
+        }}
+      />
+    </div>
+  );
+
+  if (landscapeTablet) return carouselLayout(false);
+  if (portraitTablet && mapExpanded) return carouselLayout(true);
+  if (portraitTablet) return portraitTabletPanel();
+
+  // v0.62.548/550 — PHONES: the stacked scroll layout (inline map on top, card
+  // list below). (Tablet/desktop returned a dedicated layout above.)
   return (
     <div
       className="flex flex-col"
