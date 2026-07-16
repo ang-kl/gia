@@ -161,6 +161,15 @@ export default function App() {
       setActivePill(id);
     }
   };
+  // v0.62.556 — operator: tapping anywhere in a centre card (except the pills)
+  // is wired like the station/bus-stop pills — 1st tap highlights the centre PIN
+  // on the map (same flow as tapping the pin) + toggles the card active; 2nd tap
+  // opens the centre's Google Maps + clears the toggle.
+  const handleCardTap = (c) => {
+    handlePillTap(`${c.name}|card`,
+      () => { if (typeof window !== 'undefined') window.__giaHawkerFocusCentre?.(c.name); },
+      c.mapsUrl || null);
+  };
   // v0.61.0 — map overlay layer toggles (parks / attractions / taxis).
   const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, colour: true, train: true, exits: false, taxis: false, parks: false, police: false, clinics: false, hospitals: false });
   // v0.65.0 — per-centre transit (nearest MRT station + 2 bus stops),
@@ -304,6 +313,7 @@ export default function App() {
   // standard. Rounded-full pill actions (📍 Maps / Save to chat).
   const renderCentreCard = (c, i, glass = false, compact = false) => {
     const tr = transitByName[c.name];
+    const cardOn = activePill === `${c.name}|card`;
     return (
       // v0.62.549 — opaque card surface (operator: carousel cards in focus with
       // an opaque background = the card background colour, not translucent).
@@ -311,7 +321,13 @@ export default function App() {
       // ends read as GLASS (translucent + frosted); the in-focus cards stay opaque.
       // v0.62.555 — operator: carousel (landscape) cards have very tiny white
       // spacing between the border and the content (compact padding + gap).
-      <div className={`rounded-lg border border-tg-border text-xs flex flex-col ${compact ? 'p-1.5 gap-0.5' : 'p-2.5 gap-1'} ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}>
+      // v0.62.556 — operator: the whole card is tappable (except the pills) — it
+      // highlights the centre pin + toggles the card's active state (accent ring).
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => handleCardTap(c)}
+        className={`rounded-lg border text-xs flex flex-col cursor-pointer ${compact ? 'p-1.5 gap-0.5' : 'p-2.5 gap-1'} ${cardOn ? 'border-tg-accent ring-1 ring-tg-accent' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}>
         <div className="font-semibold text-[13px] leading-tight text-tg-text">
           <span className="text-tg-hint font-semibold tabular-nums">{i + 1} · </span>{c.name}{c.isNew ? ' 🆕' : ''}
         </div>
@@ -349,9 +365,9 @@ export default function App() {
               return (
                 <button type="button"
                   aria-pressed={on}
-                  onClick={() => handlePillTap(id,
+                  onClick={(e) => { e.stopPropagation(); handlePillTap(id,
                     () => { const cd = (tr.station.codes || [])[0]; if (cd) window.__giaHawkerFocusStation?.(cd); },
-                    `https://maps.google.com/?q=${encodeURIComponent(`${tr.station.name || ''} MRT Station Singapore`)}`)}
+                    `https://maps.google.com/?q=${encodeURIComponent(`${tr.station.name || ''} MRT Station Singapore`)}`); }}
                   className={`self-start flex items-center flex-wrap gap-1 text-[11px] rounded px-1 py-0.5 border ${on ? 'bg-tg-accent/20 border-tg-accent' : 'border-transparent'}`}
                 >
                   {(tr.station.codes || []).map((cd, k) => (
@@ -371,9 +387,9 @@ export default function App() {
                   return (
                     <button key={j} type="button"
                       aria-pressed={on}
-                      onClick={() => handlePillTap(id,
+                      onClick={(e) => { e.stopPropagation(); handlePillTap(id,
                         () => window.__giaHawkerShowBusStop?.(b.code, b.lat, b.lng, desc),
-                        `https://maps.google.com/?q=${encodeURIComponent(['Bus Stop', b.code, desc, 'Singapore'].filter(Boolean).join(' '))}`)}
+                        `https://maps.google.com/?q=${encodeURIComponent(['Bus Stop', b.code, desc, 'Singapore'].filter(Boolean).join(' '))}`); }}
                       className={`rounded border px-1.5 py-0.5 text-[10px] text-tg-text leading-snug ${on ? 'bg-tg-accent/20 border-tg-accent' : 'bg-tg-bg border-tg-border'}`}>
                       🚌 {b.code}{desc ? ` · ${desc}` : ''}
                     </button>
@@ -385,12 +401,12 @@ export default function App() {
         )}
         <div className="flex flex-wrap gap-1.5 mt-0.5">
           {c.mapsUrl && (
-            <a href={c.mapsUrl} target="_blank" rel="noreferrer"
+            <a href={c.mapsUrl} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}
               className="text-[11px] px-2.5 py-0.5 rounded-full border border-tg-border bg-tg-bg text-tg-text">
               📍 {t('btn.maps', lang)}
             </a>
           )}
-          <button type="button" onClick={() => saveToChat(c.name)}
+          <button type="button" onClick={(e) => { e.stopPropagation(); saveToChat(c.name); }}
             disabled={savingName === c.name}
             className="text-[11px] px-2.5 py-0.5 rounded-full border border-tg-border bg-tg-bg text-tg-text disabled:opacity-60">
             {savingName === c.name ? t('btn.saving', lang) : t('btn.saveToChat', lang)}

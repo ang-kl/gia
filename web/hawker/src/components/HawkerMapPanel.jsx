@@ -107,6 +107,9 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
+  // v0.62.556 — centre markers keyed by name so a card tap (in the list/carousel)
+  // can trigger the same behaviour as tapping the pin (__giaHawkerFocusCentre).
+  const markersByNameRef = useRef({});
   const infoWindowRef = useRef(null);
   // v0.61.0 — parks / attractions / taxi-stop overlay layers.
   const overlayControllerRef = useRef(null);
@@ -237,11 +240,21 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       revealMap();
       overlayControllerRef.current?.highlightLoc?.(Number(lat), Number(lng), 3000);
     };
+    // v0.62.556 — operator: tapping a centre CARD highlights the centre pin — fire
+    // the marker's own click listener (bound fresh in syncMarkers) so it runs the
+    // identical flow as tapping the pin (open InfoWindow, zoom, transit, rings).
+    window.__giaHawkerFocusCentre = (name) => {
+      const entry = markersByNameRef.current[name];
+      if (!entry || !entry.marker) return;
+      revealMap();
+      window.google?.maps?.event?.trigger(entry.marker, 'click');
+    };
     return () => {
       try { delete window.__giaHawkerOpenMap; } catch { window.__giaHawkerOpenMap = undefined; }
       try { delete window.__giaHawkerFocusStation; } catch { window.__giaHawkerFocusStation = undefined; }
       try { delete window.__giaHawkerShowBusStop; } catch { window.__giaHawkerShowBusStop = undefined; }
       try { delete window.__giaHawkerHighlight; } catch { window.__giaHawkerHighlight = undefined; }
+      try { delete window.__giaHawkerFocusCentre; } catch { window.__giaHawkerFocusCentre = undefined; }
     };
   }, []);
 
@@ -383,6 +396,42 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     return infoCard(h);
   }
 
+  // v0.62.556 — the on-tap behaviour for a centre (open the InfoWindow, zoom to
+  // 17, draw the transit + rings, lazy-fetch transit). Extracted from the marker
+  // click listener so a CARD tap (__giaHawkerFocusCentre) triggers the identical
+  // flow — "tapping the card highlights the centre pin", operator.
+  function activateCentre(c, marker, key) {
+    if (!infoWindowRef.current) return;
+    const cached = transitCacheRef.current[c.name];
+    infoWindowRef.current.setContent(buildInfoHtml(c, key, cached || null));
+    infoWindowRef.current.open(mapRef.current, marker);
+    // v0.62.115 — operator: a pin tap zooms IN to 17. Capture the live zoom ONCE
+    // per focus burst (don't overwrite for a later pin) so closeInfo can return.
+    if (Number.isFinite(c.lat) && Number.isFinite(c.lng)) {
+      if (prevFocusZoomRef.current == null) {
+        prevFocusZoomRef.current = mapRef.current?.getZoom?.() ?? null;
+      }
+      mapRef.current?.panTo({ lat: c.lat, lng: c.lng });
+      mapRef.current?.setZoom(17);
+    }
+    // v0.62.109 — draw the nearest 3 bus stops + 2 stations + the walk/2-stop rings.
+    if (Number.isFinite(c.lat) && Number.isFinite(c.lng)) {
+      overlayControllerRef.current?.showVenueTransit?.(c.lat, c.lng);
+      ringLayerRef.current?.draw({ lat: c.lat, lng: c.lng });
+    }
+    // v0.61.10 — lazy-fetch nearest station + bus stops, then refresh the bubble.
+    if (!cached && Number.isFinite(c.lat) && Number.isFinite(c.lng)) {
+      fetch(`/api/hawker/centre-transit?lat=${c.lat}&lng=${c.lng}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          if (!d) return;
+          transitCacheRef.current[c.name] = d;
+          infoWindowRef.current?.setContent(buildInfoHtml(c, key, d));
+        })
+        .catch(() => { /* base content stays */ });
+    }
+  }
+
   // v0.61.93 — auto-fit only frames on the first data load; later loads
   // keep the user's zoom (operator: don't auto-zoom-out).
   const firstFitRef = useRef(true);
@@ -392,6 +441,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     // Tear down old markers + InfoWindow content.
     for (const m of markersRef.current) m.map = null;
     markersRef.current = [];
+    markersByNameRef.current = {};
     if (!infoWindowRef.current && window.google?.maps?.InfoWindow) {
       infoWindowRef.current = new window.google.maps.InfoWindow({
         disableAutoPan: false,
@@ -417,43 +467,8 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
         gmpClickable: true
       });
       const key = `${c.name}|${c.postal || ''}`;
-      marker.addListener('click', () => {
-        if (!infoWindowRef.current) return;
-        const cached = transitCacheRef.current[c.name];
-        infoWindowRef.current.setContent(buildInfoHtml(c, key, cached || null));
-        infoWindowRef.current.open(mapRef.current, marker);
-        // v0.62.115 — operator: a pin tap zooms IN to 17. Capture the live zoom
-        // ONCE per focus burst (don't overwrite for a later pin) so closeInfo
-        // can return to it. panTo keeps the tapped pin centred at the new zoom.
-        if (Number.isFinite(c.lat) && Number.isFinite(c.lng)) {
-          if (prevFocusZoomRef.current == null) {
-            prevFocusZoomRef.current = mapRef.current?.getZoom?.() ?? null;
-          }
-          mapRef.current?.panTo({ lat: c.lat, lng: c.lng });
-          mapRef.current?.setZoom(17);
-        }
-        // v0.62.109 — operator: on a centre tap, draw the nearest 3 bus stops +
-        // 2 stations on the MAP (toggle-independent), rendered at the live
-        // busTier/trainTier zoom band. Transient — replaced on the next tap and
-        // cleared on card close (controller.closeInfo). Mirrors the Cuisine TMA.
-        if (Number.isFinite(c.lat) && Number.isFinite(c.lng)) {
-          overlayControllerRef.current?.showVenueTransit?.(c.lat, c.lng);
-          // v0.62.537 — draw the walk + 2-MRT-stops rings around the chosen hawker.
-          ringLayerRef.current?.draw({ lat: c.lat, lng: c.lng });
-        }
-        // v0.61.10 — lazy-fetch nearest station + bus stops, then
-        // refresh the open bubble with the transit template.
-        if (!cached && Number.isFinite(c.lat) && Number.isFinite(c.lng)) {
-          fetch(`/api/hawker/centre-transit?lat=${c.lat}&lng=${c.lng}`)
-            .then((r) => (r.ok ? r.json() : null))
-            .then((d) => {
-              if (!d) return;
-              transitCacheRef.current[c.name] = d;
-              infoWindowRef.current?.setContent(buildInfoHtml(c, key, d));
-            })
-            .catch(() => { /* base content stays */ });
-        }
-      });
+      marker.addListener('click', () => activateCentre(c, marker, key));
+      markersByNameRef.current[c.name] = { c, marker, key };
       markersRef.current.push(marker);
       bounds.extend({ lat: c.lat, lng: c.lng });
       plotted++;
