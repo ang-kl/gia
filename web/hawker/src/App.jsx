@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { openLink, initData, tg } from './tg.js';
 import { t, tn, useLocale } from './i18n.js';
 import HawkerMapPanel from './components/HawkerMapPanel.jsx';
@@ -46,21 +46,63 @@ function statusIsOpen(centre) {
   return /^(oper|exist)/i.test(String(centre.status || ''));
 }
 
-// v0.62.548 — tablet/desktop list⇄map toggle, docked at the BOTTOM-RIGHT just
-// above the FooterNav (operator: "next to the bottom right (end, down, etc)").
-// 🗺 Map = hide the list/carousel to reveal the full map; 📋 List = bring it
-// back. The old top-right placement collided with Telegram's fullscreen controls.
-function MapToggle({ isHidden, onToggle, lang }) {
+// v0.62.548/552 — tablet/desktop list⇄map toggle. 🗺 Map hides the carousel to
+// reveal the full map; 📋 List brings it back. v0.62.552 (operator): it is no
+// longer a separate floating pill — it renders as the FIRST item INSIDE the
+// FooterNav cluster (before ⇣ down / 🔚 end), so it reads as part of that row.
+function MapToggleButton({ isHidden, onToggle, lang }) {
   return (
     <button
       type="button"
       onClick={onToggle}
       aria-pressed={isHidden}
-      className="fixed right-3 z-50 skeuo-pill text-[11px] font-semibold px-3 py-1.5 rounded-full text-tg-text active:scale-95 shadow-lg"
-      style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px))' }}
+      className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
     >
       {isHidden ? `📋 ${t('btn.showList', lang)}` : `🗺 ${t('btn.showMap', lang)}`}
     </button>
+  );
+}
+
+// v0.62.552 — operator: the carousel shows the middle cards IN FOCUS (opaque) and
+// the two "half-seen" cards peeking at each end as GLASS (translucent + frosted).
+// An IntersectionObserver (root = the scroll track) marks a card focused once it
+// is ≥ 92 % visible; anything less peeks and renders glass. `basisClass` sets how
+// many are in focus (3 on wide tablets/desktop, 2 on an iPad-mini-width screen).
+function CentreCarousel({ items, renderCard, basisClass }) {
+  const trackRef = useRef(null);
+  const [focused, setFocused] = useState(() => new Set());
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track || typeof IntersectionObserver === 'undefined') {
+      // No IO (very old webview): treat all as focused/opaque.
+      setFocused(new Set(items.map((_, i) => i)));
+      return undefined;
+    }
+    const io = new IntersectionObserver((entries) => {
+      setFocused((prev) => {
+        const next = new Set(prev);
+        for (const e of entries) {
+          const idx = Number(e.target.getAttribute('data-idx'));
+          if (e.intersectionRatio >= 0.92) next.add(idx); else next.delete(idx);
+        }
+        return next;
+      });
+    }, { root: track, threshold: [0, 0.5, 0.92, 1] });
+    track.querySelectorAll('[data-idx]').forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [items]);
+  return (
+    <div
+      ref={trackRef}
+      className="flex gap-2 overflow-x-auto snap-x snap-mandatory px-[6%] pb-1 pointer-events-auto"
+      style={{ scrollbarWidth: 'none' }}
+    >
+      {items.map((c, i) => (
+        <div key={i} data-idx={i} className={`snap-center shrink-0 ${basisClass} max-h-[46vh] overflow-y-auto rounded-lg shadow-xl`}>
+          {renderCard(c, i, !focused.has(i))}
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -254,12 +296,14 @@ export default function App() {
   // that now carry the stop DESCRIPTION (operator: "Bus Stop 41129 · Opposite
   // S'pore Bible College") — mirroring the map InfoWindow's `🚌 code desc`
   // standard. Rounded-full pill actions (📍 Maps / Save to chat).
-  const renderCentreCard = (c, i) => {
+  const renderCentreCard = (c, i, glass = false) => {
     const tr = transitByName[c.name];
     return (
       // v0.62.549 — opaque card surface (operator: carousel cards in focus with
       // an opaque background = the card background colour, not translucent).
-      <div className="rounded-lg border border-tg-border bg-tg-card p-2.5 text-xs flex flex-col gap-1">
+      // v0.62.552 — operator: the two "half-seen" cards peeking at the carousel
+      // ends read as GLASS (translucent + frosted); the in-focus cards stay opaque.
+      <div className={`rounded-lg border border-tg-border p-2.5 text-xs flex flex-col gap-1 ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}>
         <div className="font-semibold text-[13px] leading-tight text-tg-text">
           <span className="text-tg-hint font-semibold tabular-nums">{i + 1} · </span>{c.name}{c.isNew ? ' 🆕' : ''}
         </div>
@@ -386,28 +430,23 @@ export default function App() {
         </div>
         {busy && <p className="absolute top-24 left-1/2 -translate-x-1/2 text-xs text-tg-hint bg-tg-bg/90 rounded-full px-3 py-1 z-20">{t('status.loading', lang)}</p>}
         {err && <p className="absolute top-24 left-1/2 -translate-x-1/2 text-xs text-red-500 bg-tg-bg/90 rounded-full px-3 py-1 z-20">⚠ {err}</p>}
-        {/* Bottom-docked horizontal carousel (mirrors ResultCarousel.jsx): snap
-            strip, cards shrink-0 with a peek of the neighbours. Hidden by the
-            🗺 toggle so the map can fill completely. */}
+        {/* Bottom-docked horizontal carousel (mirrors ResultCarousel.jsx): the
+            middle cards ride IN FOCUS (opaque), the two peeking at each end read
+            GLASS (CentreCarousel + IntersectionObserver). v0.62.552 — operator:
+            THREE in focus on wide tablets/desktop, TWO on an iPad-mini width
+            (basis 44%); the map 🗺 toggle collapses it entirely. */}
         {active && !listHidden && (
           <div className="fixed inset-x-0 bottom-16 z-30 px-1 pb-1 pointer-events-none">
-            <div
-              className="flex gap-2 overflow-x-auto snap-x snap-mandatory px-[6%] pb-1 pointer-events-auto"
-              style={{ scrollbarWidth: 'none' }}
-            >
-              {/* v0.62.549 — operator: THREE cards in focus on tablet/desktop
-                  (basis ≈ 1/3), ONE card for a phone aspect ratio (basis 82%). */}
-              {active.centres.map((c, i) => (
-                <div key={i} className="snap-center shrink-0 basis-[82%] md:basis-[30%] max-h-[46vh] overflow-y-auto rounded-lg shadow-xl">
-                  {renderCentreCard(c, i)}
-                </div>
-              ))}
-            </div>
+            <CentreCarousel
+              items={active.centres}
+              renderCard={renderCentreCard}
+              basisClass="basis-[82%] md:basis-[44%] min-[1180px]:basis-[30%]"
+            />
           </div>
         )}
-        {active && <MapToggle isHidden={listHidden} onToggle={() => setListHidden((v) => !v)} lang={lang} />}
         <FooterNav
           atBottom={atBottom}
+          leading={active ? <MapToggleButton isHidden={listHidden} onToggle={() => setListHidden((v) => !v)} lang={lang} /> : null}
           labels={{
             top: t('btn.fabTop', lang), down: t('btn.fabDown', lang),
             topAria: t('btn.fabTopAria', lang), downAria: t('btn.fabDownAria', lang),
@@ -634,11 +673,6 @@ export default function App() {
         </footer>
       </div>
       </div>
-
-      {/* v0.62.548 — operator: the list/map toggle moved to the BOTTOM-RIGHT,
-          beside the FooterNav (down / end) — the old top-right spot collided with
-          Telegram's fullscreen ⌄ ··· controls (IMG_0677). */}
-      {isWide && active && <MapToggle isHidden={listHidden} onToggle={() => setListHidden((v) => !v)} lang={lang} />}
 
       {/* v0.62.213 — operator (IMG_1069 item 6): the separate bottom-left BackFab
           + bottom-right scroll FAB are replaced by ONE standardised FooterNav row

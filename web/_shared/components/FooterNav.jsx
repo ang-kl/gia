@@ -17,7 +17,11 @@ import React from 'react';
 // v0.62.220 — operator: `showScroll` (default true). The Menu hub is a short,
 // compact screen with nothing to scroll, so it passes showScroll={false} to drop
 // the ⇡ top / ⇣ down button (and its divider), leaving just back/end.
-export default function FooterNav({ atBottom, labels, showScroll = true }) {
+// v0.62.552 — operator: `leading` (default null) renders an app-supplied control
+// (e.g. the Hawker 🗺/📋 map toggle) as the FIRST item in the same rounded
+// cluster, with a divider — so it reads as part of the down/end row rather than a
+// separate floating pill. Other TMAs omit it and are unaffected.
+export default function FooterNav({ atBottom, labels, showScroll = true, leading = null }) {
   const hasHistory = typeof window !== 'undefined' && window.history.length > 1;
   const onBackEnd = () => {
     const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
@@ -32,6 +36,12 @@ export default function FooterNav({ atBottom, labels, showScroll = true }) {
       className="fixed right-3 z-50 pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg px-1 py-0.5 flex items-center gap-0.5 text-[11px] font-semibold text-tg-link"
       style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
     >
+      {leading && (
+        <>
+          {leading}
+          <div className="w-px self-stretch bg-tg-border/50" aria-hidden="true" />
+        </>
+      )}
       {showScroll && (
         <>
           <button
