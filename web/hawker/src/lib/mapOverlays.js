@@ -1546,20 +1546,24 @@ export function createOverlayController(map, googleMaps, opts) {
   // station-card "Bus Stop №" tap visibly draws the eye to the stop after
   // the map pans there. v0.61.68 — a hollow ring (was a solid 🚏 pin) so
   // it reads as a highlight over the real bus-stop pin, not a duplicate.
-  function flashPin(lat, lng) {
+  // v0.62.549 — `ms` (default 2000) sets how long the halo pulses; the card
+  // pill-tap highlight passes 3000 (operator: "highlight 3 seconds"). Iteration
+  // count follows the duration (0.5 s per pulse) so it fades exactly on time.
+  function flashPin(lat, lng, ms = 2000) {
     if (typeof document === 'undefined'
       || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
     ensureGreyscaleStyle();
+    const iters = Math.max(2, Math.round(ms / 500));
     const el = document.createElement('div');
     el.style.cssText = 'width:32px;height:32px;border-radius:50%;'
       + 'border:3px solid ' + AMENITY_BUS_BG + ';background:rgba(21,101,192,0.18);'
       + 'box-shadow:0 0 6px ' + AMENITY_BUS_BG + ';'
-      + 'animation:gia-pin-flash 0.5s ease-in-out 4;';
+      + `animation:gia-pin-flash 0.5s ease-in-out ${iters};`;
     const m = new AdvancedMarkerElement({
       position: { lat, lng }, content: el, zIndex: 9999
     });
     m.map = map;
-    setTimeout(() => { m.map = null; }, 2000);
+    setTimeout(() => { m.map = null; }, ms);
   }
 
   // v0.61.68 — the open station card's bus stops. Draws the station's
@@ -2326,6 +2330,15 @@ export function createOverlayController(map, googleMaps, opts) {
     focusStation,
     showVenueTransit,
     clearVenueTransit,
+    // v0.62.549 — pan + pulse a 3 s halo at a point, for the card's station /
+    // bus-stop pill-tap highlight (operator).
+    highlightLoc(lat, lng, ms = 3000) {
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+      map.panTo({ lat, lng });
+      const z = map.getZoom ? map.getZoom() : 0;
+      if (z < 16) map.setZoom(16);
+      flashPin(lat, lng, ms);
+    },
     async setLayer(name, visible) {
       if (destroyed) return;
       if (!visible && !layers[name]) return;
