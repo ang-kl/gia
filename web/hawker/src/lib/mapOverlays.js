@@ -2339,6 +2339,27 @@ export function createOverlayController(map, googleMaps, opts) {
       if (z < 16) map.setZoom(16);
       flashPin(lat, lng, ms);
     },
+    // v0.62.551 — operator (urgent): tapping a bus-stop pill in a card must make
+    // the bus stop APPEAR on the map — a faint halo alone (highlightLoc) wasn't
+    // enough, and the Bus Stop overlay is off by default so no marker existed
+    // there. Drop a labelled bus-stop pin (with its live-arrivals bubble), pan +
+    // zoom, and flash. The pin rides the venue-transit bucket so a tap on the
+    // empty map (closeInfo → clearVenueTransit) removes it.
+    showBusStop(code, lat, lng, description) {
+      if (!code || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
+      const b = { code, lat, lng, description: description || '' };
+      const marker = new AdvancedMarkerElement({
+        position: { lat, lng }, content: busPinNode(code, true), gmpClickable: true
+      });
+      marker.addListener('click', () => openBusInfo(map, info, b, marker));
+      marker.map = map;
+      venueTransitPins.push(marker);
+      map.panTo({ lat, lng });
+      const z = map.getZoom ? map.getZoom() : 0;
+      if (z < 16) map.setZoom(16);
+      flashPin(lat, lng, 3000);
+      openBusInfo(map, info, b, marker);
+    },
     async setLayer(name, visible) {
       if (destroyed) return;
       if (!visible && !layers[name]) return;
