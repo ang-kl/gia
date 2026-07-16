@@ -41,9 +41,19 @@ export function useViewport() {
     };
     window.addEventListener('resize', update);
     window.addEventListener('orientationchange', update);
+    // v0.62.546 — Telegram's requestFullscreen resizes the webview shortly after
+    // mount but may NOT fire a window 'resize' (so the initial mount read — the
+    // small centered modal — would stick as 'mobile'). Also listen on the visual
+    // viewport, and re-read a few times after mount to catch the post-fullscreen
+    // size on the FIRST open (before any rotate).
+    const vv = typeof window !== 'undefined' ? window.visualViewport : null;
+    if (vv) vv.addEventListener('resize', update);
+    const timers = [setTimeout(update, 250), setTimeout(update, 700), setTimeout(update, 1500)];
     return () => {
       window.removeEventListener('resize', update);
       window.removeEventListener('orientationchange', update);
+      if (vv) vv.removeEventListener('resize', update);
+      timers.forEach(clearTimeout);
       if (raf) cancelAnimationFrame(raf);
     };
   }, []);

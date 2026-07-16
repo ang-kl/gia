@@ -173,18 +173,19 @@ export default function App() {
   // (landscape) grid. Phones keep the stacked scroll layout. `isWide` gates it.
   const vp = useViewport();
   const isWide = vp.isWide;
+  // v0.62.546 — only LANDSCAPE tablet/desktop uses the map-fills + left-panel
+  // layout (4-col list). PORTRAIT tablet stacks (map on top, list BELOW in 2
+  // cols) per operator; phones stay single-column.
+  const landscapeTablet = isWide && vp.orientation === 'landscape';
   const footerTag = viewportTag(vp);
-  const listClass = isWide
-    ? (vp.orientation === 'landscape' ? 'grid gap-1.5 mt-1' : 'grid grid-cols-2 gap-1.5 mt-1')
-    : 'flex flex-col gap-1.5 mt-1';
-  const listStyle = (isWide && vp.orientation === 'landscape')
-    ? { gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))' }
-    : undefined;
+  const listClass = landscapeTablet
+    ? 'grid grid-cols-4 gap-1.5 mt-1'
+    : (isWide ? 'grid grid-cols-2 gap-1.5 mt-1' : 'flex flex-col gap-1.5 mt-1');
 
   return (
     <div
-      className={isWide ? 'fixed inset-0 overflow-hidden' : 'flex flex-col'}
-      style={isWide
+      className={landscapeTablet ? 'fixed inset-0 overflow-hidden' : 'flex flex-col'}
+      style={landscapeTablet
         ? { paddingBottom: 'env(safe-area-inset-bottom, 0)' }
         : {
             // v0.59.20: Telegram-stable viewport height (avoids iPad gap).
@@ -192,21 +193,22 @@ export default function App() {
             paddingBottom: 'env(safe-area-inset-bottom, 0)'
           }}
     >
-      {/* v0.62.544 — tablet/desktop: the Google map fills the viewport as the
-          background; the controls + list ride a translucent left glass panel. */}
-      {isWide && active && (
+      {/* v0.62.544/546 — LANDSCAPE tablet: the Google map fills the viewport as
+          the background; the controls + 4-col list ride a translucent left glass
+          panel. (Portrait stacks below — see the inline map.) */}
+      {landscapeTablet && active && (
         <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} fill />
       )}
-      {/* On mobile this wrapper is display:contents (transparent to layout, so the
-          stacked scroll layout is unchanged); on tablet/desktop it becomes the
-          scrolling left glass panel over the full-bleed map. */}
+      {/* Off the landscape-tablet layout this wrapper is display:contents
+          (transparent to layout, so the stacked scroll layout — mobile + portrait
+          tablet — is unchanged); in landscape tablet it's the left glass panel. */}
       <div
-        className={isWide
-          ? `absolute left-0 top-0 bottom-0 ${vp.orientation === 'landscape' ? 'w-[64%] max-w-[920px]' : 'w-[88%]'} overflow-y-auto bg-tg-bg/75 backdrop-blur-md border-r border-tg-border flex flex-col z-10`
+        className={landscapeTablet
+          ? 'absolute left-0 top-0 bottom-0 w-[64%] max-w-[920px] overflow-y-auto bg-tg-bg/75 backdrop-blur-md border-r border-tg-border flex flex-col z-10'
           : 'contents'}
         /* v0.62.545 — in Telegram fullscreen the close/menu controls overlay the
            top; clear them with Telegram's content-safe-area inset (env fallback). */
-        style={isWide ? { paddingTop: 'var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px))' } : undefined}>
+        style={landscapeTablet ? { paddingTop: 'var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px))' } : undefined}>
       {/* v0.62.164 — operator: neo-skeuomorphic header card — 🍚 title + live
           weather + a tactile NEA pill. Raised frosted surface (theme-agnostic,
           colour-blind safe); floats with a margin instead of a full-bleed
@@ -235,7 +237,7 @@ export default function App() {
         </button>
       </div>
 
-      <div className={isWide ? 'px-2 py-3 pb-20 flex flex-col gap-2' : 'flex-1 overflow-y-auto px-2 py-3 flex flex-col gap-2'}>
+      <div className={landscapeTablet ? 'px-2 py-3 pb-20 flex flex-col gap-2' : 'flex-1 overflow-y-auto px-2 py-3 flex flex-col gap-2'}>
         {busy && <p className="text-xs text-tg-hint p-3">{t('status.loading', lang)}</p>}
         {err && <p className="text-xs text-red-500 p-3">⚠ {err}</p>}
         {!busy && !err && (
@@ -266,9 +268,10 @@ export default function App() {
                 {/* v0.60.41 — embedded multi-pin map for the active region.
                     Falls back to a "coordinates not yet loaded" placeholder
                     when data/hawker-coords.json hasn't been bootstrapped yet. */}
-                {/* v0.62.544 — inline map on mobile only; tablet/desktop use the
-                    full-bleed background map above. */}
-                {!isWide && (
+                {/* v0.62.544/546 — inline map for mobile + PORTRAIT tablet (map on
+                    top, list below); only LANDSCAPE tablet uses the full-bleed
+                    background map above. */}
+                {!landscapeTablet && (
                   <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} />
                 )}
                 {/* v0.60.56 — explicit mapped-vs-total status so the
@@ -315,7 +318,7 @@ export default function App() {
                     </a>
                   ))}
                 </div>
-                <div className={listClass} style={listStyle}>
+                <div className={listClass}>
                   {active.centres.map((c, i) => (
                     <div key={i} className="rounded-md border border-tg-border bg-tg-card p-2 text-xs">
                       <div className="font-semibold leading-tight">
