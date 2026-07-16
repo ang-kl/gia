@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
 import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
-import { createRingLayer } from '../../../../_shared/lib/distance-rings.js';
+import { createRingLayer, farthestResultDist } from '../../../../_shared/lib/distance-rings.js';
 import MapControls from './MapControls.jsx';
 
 // v0.61.70 — venue pin carrying the venue's 1-based result number (its
@@ -13,8 +13,26 @@ import MapControls from './MapControls.jsx';
 // corner, rotated 45° so the sharp corner points straight down at the
 // venue coordinate. The rank number rides in a counter-rotated inner
 // span so it stays upright. White border + drop shadow retained.
+// v0.62.542 — operator: the result droplet is colour-coded by status/attribute.
+// Precedence (most availability-critical first, then prestige): closed → grey,
+// else closing within the hour → pink, else Michelin star/Bib → red, else the
+// default open → green. The card still carries the word ("Closed" / "Closing in
+// N min") + ✳️ Michelin row, so colour is a scan aid, never the sole signal.
+const PIN_GREEN = '#34C759';       // open (default)
+const PIN_GREY = '#8E8E93';        // closed
+const PIN_PINK = '#DB2777';        // closing within the next hour (matches the card's pink tab)
+const PIN_MICHELIN_RED = '#C6282D';// Michelin star / Bib Gourmand (Michelin macaron red)
+function pinColor(v) {
+  if (!v) return PIN_GREEN;
+  if (v.openNow === false) return PIN_GREY;
+  if (typeof v.closingSoonMinutes === 'number' && v.closingSoonMinutes >= 0 && v.closingSoonMinutes <= 60) return PIN_PINK;
+  if (v.michelinCategory) return PIN_MICHELIN_RED;
+  return PIN_GREEN;
+}
+
 // v0.61.91 — droplet bumped one size up (24 → 30 px; operator request).
-function cuisinePinNode(number) {
+// v0.62.542 — `background` is now status-driven (see pinColor); default green.
+function cuisinePinNode(number, background = PIN_GREEN) {
   const size = 30;
   const el = document.createElement('div');
   el.style.cssText =
@@ -22,7 +40,7 @@ function cuisinePinNode(number) {
     + `width:${size}px;height:${size}px;cursor:pointer;`
     + 'border-radius:50% 50% 50% 0;transform:rotate(-45deg);'
     + 'border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,0.5);'
-    + 'background:#34C759;';
+    + `background:${background};`;
   const inner = document.createElement('span');
   inner.style.cssText =
     'transform:rotate(45deg);color:#fff;font-weight:700;'
@@ -726,7 +744,9 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       if (!Number.isFinite(v.lat) || !Number.isFinite(v.lng)) continue;
       // v0.61.70 — the pin is a numbered circle: the venue's 1-based
       // rank in the current search results / first load.
-      const pinNode = cuisinePinNode(resultNo);
+      // v0.62.542 — colour-coded by status/attribute (closed grey · closing-soon
+      // pink · Michelin red · open green).
+      const pinNode = cuisinePinNode(resultNo, pinColor(v));
       const marker = new AdvancedMarkerElement({
         map: mapRef.current,
         position: { lat: v.lat, lng: v.lng },
@@ -880,8 +900,34 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         if (lastFitVenuesRef.current !== venues) {
           // New result set → frame its centroid at z11 (existing behaviour).
           lastFitVenuesRef.current = venues;
-          mapRef.current.setCenter(center);
-          mapRef.current.setZoom(12);   // v0.62.132 — default result zoom 11→12
+          // v0.62.542 — operator: OUTSIDE Singapore the 3rd ring sits at the
+          // farthest result, which a centroid/z12 frame can leave off-screen. On
+          // a NEW search, fit the map to that ring's extent (anchor ± farthest)
+          // so all three rings are visible. SG keeps the centroid/z12 framing
+          // (its reach ring is capped ~6 stops, already near). A manual zoom-in
+          // can still crop it — expected.
+          const ringAnchor = searchCenter || userLoc;
+          let framedByRing = false;
+          if ((region || 'SG') !== 'SG' && ringAnchor
+            && Number.isFinite(ringAnchor.lat) && Number.isFinite(ringAnchor.lng)
+            && window.google?.maps) {
+            const far = farthestResultDist(ringAnchor.lat, ringAnchor.lng, venues);
+            if (far > 2000) {   // there IS a 3rd ring (NON_SG_RING2_M = 2000 m)
+              const dLat = far / 111320;
+              const dLng = far / (111320 * Math.cos(ringAnchor.lat * Math.PI / 180));
+              const b = new window.google.maps.LatLngBounds();
+              b.extend({ lat: ringAnchor.lat + dLat, lng: ringAnchor.lng });
+              b.extend({ lat: ringAnchor.lat - dLat, lng: ringAnchor.lng });
+              b.extend({ lat: ringAnchor.lat, lng: ringAnchor.lng + dLng });
+              b.extend({ lat: ringAnchor.lat, lng: ringAnchor.lng - dLng });
+              mapRef.current.fitBounds(b, 40);
+              framedByRing = true;
+            }
+          }
+          if (!framedByRing) {
+            mapRef.current.setCenter(center);
+            mapRef.current.setZoom(12);   // v0.62.132 — default result zoom 11→12
+          }
         } else if (searchCenterChanged) {
           // v0.61.320 — anchor picked but no fresh search yet: follow the
           // pick to the city centre instead of sitting on the stale venue
