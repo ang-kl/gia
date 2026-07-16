@@ -189,21 +189,37 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       const c = (centresRef.current || []).find((x) => `${x.name}|${x.postal || ''}` === key);
       if (c?.mapsUrl) openLink(c.mapsUrl);
     };
+    // v0.62.551 — operator (urgent): a pill tap must SCROLL the map into view
+    // first — in the phone/stacked layout the map sits ABOVE the card list, so a
+    // pan/highlight was happening off-screen ("the bus stop didn't appear"). No-op
+    // when the map is already on-screen (the fixed tablet layouts).
+    const revealMap = () => {
+      try { containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch { /* older webview */ }
+    };
     // v0.62.108 — operator: the hawker card's 🚉 station link jumps to that
     // station ON THIS map + opens its info (stay in the Hawker TMA — was an
     // out-of-TMA Train-app deep link).
     window.__giaHawkerFocusStation = (code) => {
+      revealMap();
       overlayControllerRef.current?.focusStation?.(code);
     };
-    // v0.62.549 — operator: tapping a station / bus-stop pill INSIDE a centre
-    // card pans this embedded map to the point and pulses a 3 s highlight halo
-    // (mirrors the Cuisine TMA's on-tap map highlight).
+    // v0.62.551 — operator (urgent): tapping a BUS-STOP pill in a card must make
+    // the bus stop APPEAR — drop a labelled bus-stop pin (+ live-arrivals bubble),
+    // pan, and flash. (The v0.62.549 halo-only highlight left nothing visible when
+    // the Bus Stop overlay was off, which is the default.)
+    window.__giaHawkerShowBusStop = (code, lat, lng, description) => {
+      revealMap();
+      overlayControllerRef.current?.showBusStop?.(String(code), Number(lat), Number(lng), description);
+    };
+    // v0.62.549 — retained for back-compat: pan + pulse a 3 s halo at a point.
     window.__giaHawkerHighlight = (lat, lng) => {
+      revealMap();
       overlayControllerRef.current?.highlightLoc?.(Number(lat), Number(lng), 3000);
     };
     return () => {
       try { delete window.__giaHawkerOpenMap; } catch { window.__giaHawkerOpenMap = undefined; }
       try { delete window.__giaHawkerFocusStation; } catch { window.__giaHawkerFocusStation = undefined; }
+      try { delete window.__giaHawkerShowBusStop; } catch { window.__giaHawkerShowBusStop = undefined; }
       try { delete window.__giaHawkerHighlight; } catch { window.__giaHawkerHighlight = undefined; }
     };
   }, []);

@@ -99,14 +99,17 @@ export default function App() {
   // open external Google Maps and clear the toggle. `activePill` is the toggled
   // pill's id, or null.
   const [activePill, setActivePill] = useState(null);
-  const handlePillTap = (id, lat, lng, url) => {
+  // v0.62.551 — 1st tap runs `show` (reveal the station/bus stop ON the map) and
+  // toggles the pill; 2nd tap on the same pill opens external Google Maps and
+  // clears the toggle. `show` is a callback so each kind reveals itself properly
+  // (station → focusStation; bus → a labelled bus-stop pin) — the old highlight
+  // drew only a faint halo, so "the bus stop didn't appear".
+  const handlePillTap = (id, show, url) => {
     if (activePill === id) {
       if (url) openLink(url);
       setActivePill(null);
     } else {
-      if (Number.isFinite(lat) && Number.isFinite(lng) && typeof window !== 'undefined') {
-        window.__giaHawkerHighlight?.(lat, lng);
-      }
+      if (typeof show === 'function') show();
       setActivePill(id);
     }
   };
@@ -285,7 +288,8 @@ export default function App() {
               return (
                 <button type="button"
                   aria-pressed={on}
-                  onClick={() => handlePillTap(id, tr.station.lat, tr.station.lng,
+                  onClick={() => handlePillTap(id,
+                    () => { const cd = (tr.station.codes || [])[0]; if (cd) window.__giaHawkerFocusStation?.(cd); },
                     `https://maps.google.com/?q=${encodeURIComponent(`${tr.station.name || ''} MRT Station Singapore`)}`)}
                   className={`self-start flex items-center flex-wrap gap-1 text-[11px] rounded px-1 py-0.5 border ${on ? 'bg-tg-accent/20 border-tg-accent' : 'border-transparent'}`}
                 >
@@ -306,7 +310,8 @@ export default function App() {
                   return (
                     <button key={j} type="button"
                       aria-pressed={on}
-                      onClick={() => handlePillTap(id, b.lat, b.lng,
+                      onClick={() => handlePillTap(id,
+                        () => window.__giaHawkerShowBusStop?.(b.code, b.lat, b.lng, desc),
                         `https://maps.google.com/?q=${encodeURIComponent(['Bus Stop', b.code, desc, 'Singapore'].filter(Boolean).join(' '))}`)}
                       className={`rounded border px-1.5 py-0.5 text-[10px] text-tg-text leading-snug ${on ? 'bg-tg-accent/20 border-tg-accent' : 'bg-tg-bg border-tg-border'}`}>
                       🚌 {b.code}{desc ? ` · ${desc}` : ''}
