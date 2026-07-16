@@ -39,6 +39,15 @@ function escapeHtml(s) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
+// v0.62.559 — safe for a single-quoted JS string embedded in a double-quoted
+// inline onclick attribute (JS-escape the quote/backslash, then HTML-escape so
+// the browser decodes back to valid JS before running it).
+function jsStr(s) {
+  return String(s == null ? '' : s)
+    .replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/\r?\n/g, ' ');
+}
 
 // v0.60.227 — operator: the v0.60.224 13px dots were too tiny and
 // their colour didn't read against the map. New centres carry a "NEW"
@@ -357,7 +366,6 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   // + line), and that station's exits. The transit half is null until
   // /api/hawker/centre-transit resolves, then the bubble refreshes.
   function buildInfoHtml(c, key, transit) {
-    const gmaps = (lat, lng) => `https://maps.google.com/?q=${lat},${lng}`;
     // v0.61.22 — themed rounded card (infoCard) with an in-card ✕;
     // secondary text uses the theme palette so nothing washes out.
     const p = infoPalette();
@@ -383,10 +391,14 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     }
     // v0.62.107 — operator #4: nearest 3 bus stops + 2 stations; the station
     // codes deep-link the Train Mini App (not Google Maps).
+    // v0.62.559 — operator: tapping a bus stop here should SHOW it on THIS embedded
+    // map (drop the labelled bus pin + pan + flash), not open external Google Maps —
+    // same as the card's bus-stop pill (__giaHawkerShowBusStop). (Was an external
+    // maps.google.com link.)
     const bus = transit && Array.isArray(transit.busStops) ? transit.busStops : [];
     for (const b of bus.slice(0, 3)) {
       if (!Number.isFinite(b.lat) || !Number.isFinite(b.lng)) continue;
-      h += `<div style="margin-top:2px;"><a href="${escapeHtml(gmaps(b.lat, b.lng))}" target="_blank" rel="noopener" style="color:${p.link};">🚌 ${escapeHtml(b.code || '')} ${escapeHtml(b.description || '')}</a></div>`;
+      h += `<div onclick="window.__giaHawkerShowBusStop&&window.__giaHawkerShowBusStop('${jsStr(b.code || '')}',${b.lat},${b.lng},'${jsStr(b.description || '')}');return false;" style="margin-top:2px;cursor:pointer;color:${p.link};">🚌 ${escapeHtml(b.code || '')} ${escapeHtml(b.description || '')}</div>`;
     }
     const stations = (transit && Array.isArray(transit.stations) && transit.stations.length)
       ? transit.stations
