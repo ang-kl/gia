@@ -320,6 +320,15 @@ export default function App() {
             )}
           </div>
         )}
+        {/* v0.62.553 — operator: Michelin Bib Gourmand stall(s) in this centre,
+            house style "✳️ Bib Gourmand · <stall>". The ✳️ + word carry the
+            meaning (CVD-safe), mirroring the map pin's macaron-red + ✳️ marker. */}
+        {Array.isArray(c.bibStalls) && c.bibStalls.length > 0 && (
+          <div className="text-[11px] leading-snug text-tg-text">
+            <span aria-hidden="true">✳️</span> <span className="font-semibold">Bib Gourmand</span>
+            <span className="text-tg-hint"> · {c.bibStalls.join(', ')}</span>
+          </div>
+        )}
         {/* v0.65.0/0.62.549 — nearest MRT (codeHex chips + station name) + bus
             stops (pills WITH description). Two-tap (operator): 1st tap highlights
             the point on the embedded map (3 s pulse) + toggles the pill to a pale

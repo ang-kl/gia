@@ -14465,6 +14465,11 @@ async function cacheBotUsername() {
           stallStatusBits.push(escapeHtmlForTelegram(match.status));
         }
         if (stallStatusBits.length) lines.push(stallStatusBits.join(' · '));
+        // v0.62.553 — Michelin Bib Gourmand stalls in this centre (house style:
+        // "✳️ Bib Gourmand · <stall>", matching SG-michelin formatMichelinLine).
+        if (Array.isArray(match.bibStalls) && match.bibStalls.length) {
+          lines.push(`✳️ Bib Gourmand · ${escapeHtmlForTelegram(match.bibStalls.join(', '))}`);
+        }
         if (match.mapsUrl) lines.push(`📍 <a href="${escapeHtmlForTelegram(match.mapsUrl)}">Open in Google Maps</a>`);
 
         await safeSend(String(userId), lines.join('\n'), {
@@ -18905,7 +18910,11 @@ async function cacheBotUsername() {
             // data.gov.sg "Hawker Centres (GEOJSON)". Replaces the
             // v0.60.53 closure path (NEA retired the closures dataset).
             stalls: Number.isFinite(c.stalls) ? c.stalls : null,
-            status: c.status || null
+            status: c.status || null,
+            // v0.62.553 — Michelin Bib Gourmand stall names in this centre
+            // (from SG-michelin.js BIB_GOURMAND, joined in hawker-vault). Drives
+            // the macaron-red pin + the "✳️ Bib Gourmand · <stall>" card row.
+            bibStalls: Array.isArray(c.bibStalls) && c.bibStalls.length ? c.bibStalls : null
           }));
           // v0.60.56 — external multi-pin Google Maps URL: a
           // walking-tour directions URL that pins every centre with
