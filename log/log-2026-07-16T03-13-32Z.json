@@ -1,0 +1,484 @@
+{
+  "since": "2026-07-16T02:08:32Z",
+  "until": "2026-07-16T03:13:32Z",
+  "count": 53,
+  "logs": [
+    {
+      "timestamp": "2026-07-16T02:30:00.294338999Z",
+      "message": "Starting Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:01.056411699Z",
+      "message": "npm warn config production Use `--omit=dev` instead.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:01.056415339Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:01.056418669Z",
+      "message": "> soleat@0.62.541 start",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:01.056421899Z",
+      "message": "> node index.js",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:01.056426169Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:01.056429429Z",
+      "message": "[webhook-domain] fallback not configured — skipping health check",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:01.097790746Z",
+      "message": "[Updates] Webhook registered: https://soleat.net/webhook",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:01.245560646Z",
+      "message": "[Bot] Identity confirmed: @soleat_bot",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:02.517423196Z",
+      "message": "[setMyDescription] failed (non-fatal): ETELEGRAM: 400 Bad Request: BOT_DESC_INVALID",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:03.483971712Z",
+      "message": "[Boot] MAP_ID configured: db1201f307409c29…",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:03.530532948Z",
+      "message": "[Holidays] 11 SG PH loaded from cache",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:04.198463992Z",
+      "message": "[Pulse] Status → 🟢 Healthy at 10:30:04 am",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:04.410739665Z",
+      "message": "[Vibe] Cached 5 live places (Google Maps).",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:04.417369165Z",
+      "message": "🚀 soleat is live and sniffing...",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:04.417375665Z",
+      "message": "[HTTP] Listening on :8080",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:07.029429189Z",
+      "message": "Stopping Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "78a06d84-eca7-4a5a-a099-774d4f0b36a7",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:13.082277227Z",
+      "message": "npm error path /app",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "78a06d84-eca7-4a5a-a099-774d4f0b36a7",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:13.082280597Z",
+      "message": "npm error command failed",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "78a06d84-eca7-4a5a-a099-774d4f0b36a7",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:13.082283237Z",
+      "message": "npm error signal SIGTERM",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "78a06d84-eca7-4a5a-a099-774d4f0b36a7",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:13.082285637Z",
+      "message": "npm error command sh -c node index.js",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "78a06d84-eca7-4a5a-a099-774d4f0b36a7",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:13.082288207Z",
+      "message": "npm error A complete log of this run can be found in: /root/.npm/_logs/2026-07-15T03_08_31_790Z-debug-0.log",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "78a06d84-eca7-4a5a-a099-774d4f0b36a7",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T02:30:34.396325529Z",
+      "message": "[Transport] Bus stops cache: imported=5207, skipped=-",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:02.966721565Z",
+      "message": "[country-pref] chat=313940231 → AU",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:02.966732335Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 57 → 56 (≤45000m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:02.966735115Z",
+      "message": "[location-cache] D787 label-guard: kept \"44 Parkside Circuit, 44 Parkside Cct, Ha\" over an ambient label-less write",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:02.966740155Z",
+      "message": "[Cuisine-Search] sliceCap=6 firstBatch=true finalBatch=false range=1-6 seenBefore=0 hash=4858d13a",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:02.966743025Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":[-27.44494,153.09003],\"to\":[-27.50729,152.96535],\"moved_m\":14120,\"label\":\"Brisbane\",\"region\":\"OTHER\",\"country\":\"AU\",\"cap_m\":null,\"ambient\":true,\"kept\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:02.966799565Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 45000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:02.966804455Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[-27.44494,153.09003],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":45000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:02.966810944Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=-27.4449,153.0900 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:02.966815774Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:02.966820254Z",
+      "message": "[country-pref] chat=313940231 → AU",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:02.966829734Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 57 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:04.374631158Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:04.790439997Z",
+      "message": "[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:04.790443227Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (6v): crowd=2338ms translate=1ms reviewCache=2ms dishes=6006ms finalise=0ms travel=253ms sanctuary=142ms footfall=0ms total=8742ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:04.832408128Z",
+      "message": "[Cuisine-Search] D704 returning 6 venues to client (poolCount=6 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:10.225376236Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":[-27.44494,153.09003],\"to\":[-27.50741,152.96524],\"moved_m\":14136,\"label\":\"78A Witton Road\",\"region\":\"OTHER\",\"country\":null,\"cap_m\":null,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:10.225381106Z",
+      "message": "[set-location] chat=313940231 → -27.5074,152.9652 label=\"78A Witton Road\"  OTHER",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:11.061307408Z",
+      "message": "[set-location] search-area notify chat=313940231 area=\"78A Witton Road · 78A Witton Road, Indooroopilly, AU\"",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:15.287095161Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 45000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:15.287097551Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[-27.50741,152.96524],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":45000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:15.287100081Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=-27.5074,152.9652 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:15.287102571Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:16.490590460Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 57 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:16.491960946Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 57 → 57 (≤45000m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:16.495458657Z",
+      "message": "[Cuisine-Search] rating-floor ≥3.7: 57 → 55",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:16.495461737Z",
+      "message": "[Cuisine-Search] sliceCap=10 firstBatch=true finalBatch=false range=1-10 seenBefore=0 hash=edd7849a",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:24.828833745Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:25.330296194Z",
+      "message": "[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:25.330304794Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (10v): crowd=2316ms translate=0ms reviewCache=3ms dishes=6003ms finalise=0ms travel=349ms sanctuary=147ms footfall=1ms total=8819ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-16T03:04:25.351105006Z",
+      "message": "[Cuisine-Search] D704 returning 10 venues to client (poolCount=10 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "804fb4a8-e100-4fe5-ab6a-02cecc6a3ddd",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
