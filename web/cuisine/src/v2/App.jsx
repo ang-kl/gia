@@ -4268,6 +4268,7 @@ export default function App() {
         overlayLayers={overlayLayers}
         onOverlayChange={setOverlayLayers}
         region={state.region}
+        countryPref={state.countryPref}
         onMapMove={setMapViewLocation}
         flyTo={flyTarget}
         /* v0.62.125 — tap on the empty map exits the result carousel

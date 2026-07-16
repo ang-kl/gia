@@ -26,6 +26,13 @@ describe('formatDist', () => {
     expect(formatDist(NaN)).toBe('');
     expect(formatDist(undefined)).toBe('');
   });
+  it('formats miles when unit=mi (some countries use miles)', () => {
+    expect(formatDist(750, 'mi')).toBe('0.5mi');    // 750 m ≈ 0.47 mi
+    expect(formatDist(2000, 'mi')).toBe('1.2mi');   // the fixed non-SG ring 2
+    expect(formatDist(18600, 'mi')).toBe('11.6mi'); // a large ring 3
+    expect(formatDist(120, 'mi')).toMatch(/^\d+ft$/); // very short → feet
+    expect(formatDist(NaN, 'mi')).toBe('');
+  });
 });
 
 describe('parseCode', () => {
