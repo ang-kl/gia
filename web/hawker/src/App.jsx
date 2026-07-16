@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { openLink, initData, tg } from './tg.js';
 import { t, tn, useLocale } from './i18n.js';
 import HawkerMapPanel from './components/HawkerMapPanel.jsx';
+import { codeHex } from './lib/mapOverlays.js';
 import FooterNav from '../../_shared/components/FooterNav.jsx';
 import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
 import { useViewport, viewportTag } from '../../_shared/lib/use-viewport.js';
@@ -29,6 +30,22 @@ function formatStalls(centre, lang) {
   return bits.join(' · ');
 }
 
+// v0.62.547 — the localised NEA status ("Operating"/"Under Construction") on its
+// own, for the Cuisine-style status chip (formatStalls joins it with the stall
+// count; here we want it separately). Mirrors formatStalls' status lookup.
+function statusLabel(centre, lang) {
+  if (!centre.status) return '';
+  const slug = centre.status.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  const key = `stalls.status.${slug}`;
+  const localised = t(key, lang);
+  return localised === key ? centre.status : localised;
+}
+// "Operating"/"Existing" → the good (green) state; anything else (Under
+// Construction, …) → the amber caution state.
+function statusIsOpen(centre) {
+  return /^(oper|exist)/i.test(String(centre.status || ''));
+}
+
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
 const NEA_HOME = 'https://www.nea.gov.sg/our-services/hawker-management';
 const REGION_EMOJI = {
@@ -50,6 +67,9 @@ export default function App() {
   const [err, setErr] = useState(null);
   const [activeRegion, setActiveRegion] = useState('Central');
   const [savingName, setSavingName] = useState(null);
+  // v0.62.547 — tablet "list" toggle (operator, mirrors Cuisine's hide-results):
+  // hide the list/panel to reveal the full-bleed map, and bring it back.
+  const [listHidden, setListHidden] = useState(false);
   // v0.61.0 — map overlay layer toggles (parks / attractions / taxis).
   const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, colour: true, train: true, exits: false, taxis: false, parks: false, police: false, clinics: false, hospitals: false });
   // v0.65.0 — per-centre transit (nearest MRT station + 2 bus stops),
@@ -204,7 +224,7 @@ export default function App() {
           tablet — is unchanged); in landscape tablet it's the left glass panel. */}
       <div
         className={landscapeTablet
-          ? 'absolute left-0 top-0 bottom-0 w-[64%] max-w-[920px] overflow-y-auto bg-tg-bg/75 backdrop-blur-md border-r border-tg-border flex flex-col z-10'
+          ? `absolute left-0 top-0 bottom-0 w-[64%] max-w-[920px] overflow-y-auto bg-tg-bg/75 backdrop-blur-md border-r border-tg-border flex flex-col z-10${listHidden ? ' hidden' : ''}`
           : 'contents'}
         /* v0.62.545 — in Telegram fullscreen the close/menu controls overlay the
            top; clear them with Telegram's content-safe-area inset (env fallback). */
@@ -318,67 +338,78 @@ export default function App() {
                     </a>
                   ))}
                 </div>
+                {/* v0.62.547 — operator: Cuisine-style cards (name header, stall/
+                    status chip, coloured MRT-line pills via codeHex, pill actions).
+                    Hidden when the tablet "list" toggle collapses to full map. */}
+                {!(isWide && listHidden) && (
                 <div className={listClass}>
-                  {active.centres.map((c, i) => (
-                    <div key={i} className="rounded-md border border-tg-border bg-tg-card p-2 text-xs">
-                      <div className="font-semibold leading-tight">
-                        {i + 1}. {c.name}{c.isNew ? ' 🆕' : ''}
+                  {active.centres.map((c, i) => {
+                    const tr = transitByName[c.name];
+                    return (
+                    <div key={i} className="rounded-lg border border-tg-border bg-tg-card/95 p-2.5 text-xs flex flex-col gap-1">
+                      <div className="font-semibold text-[13px] leading-tight text-tg-text">
+                        <span className="text-tg-hint font-semibold tabular-nums">{i + 1} · </span>{c.name}{c.isNew ? ' 🆕' : ''}
                       </div>
-                      {c.address && <div className="text-tg-hint mt-0.5">{c.address}</div>}
+                      {c.address && <div className="text-[11px] text-tg-hint leading-snug">📇 {c.address}</div>}
                       {(Number.isFinite(c.stalls) || c.status) && (
-                        <div className="mt-0.5 text-[10px] text-tg-hint">
-                          {formatStalls(c, lang)}
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {Number.isFinite(c.stalls) && c.stalls > 0 && (
+                            <span className="text-[10px] text-tg-text/80">🍳 {tn('stalls.count', lang, { n: c.stalls })}</span>
+                          )}
+                          {c.status && (
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${statusIsOpen(c) ? 'bg-green-600/20 text-green-500' : 'bg-amber-500/20 text-amber-600'}`}>
+                              {statusLabel(c, lang)}
+                            </span>
+                          )}
                         </div>
                       )}
-                      {/* v0.65.0 — nearest MRT station + 2 bus stops,
-                          each linking to its location in Google Maps. */}
-                      {(() => {
-                        const tr = transitByName[c.name];
-                        if (!tr || (!tr.station && !(tr.busStops || []).length)) return null;
-                        return (
-                          <div className="mt-1 flex flex-col gap-0.5 text-[10px]">
-                            {tr.station && (
-                              <a
-                                /* v0.62.177 — operator: link to the REAL named place, not a
-                                   bare coordinate pin. Query by station name (+ "MRT Station")
-                                   so Google Maps resolves the actual station card. */
-                                href={`https://maps.google.com/?q=${encodeURIComponent(`${tr.station.name || ''} MRT Station Singapore`)}`}
-                                target="_blank" rel="noreferrer"
-                                className="text-[#1a73e8] underline"
-                              >
-                                🚉 {(tr.station.codes || []).join('/')} {tr.station.name}
-                                {(tr.station.lines || []).length ? ` · ${tr.station.lines.join('/')}` : ''}
-                              </a>
-                            )}
-                            {(tr.busStops || []).map((b, j) => (
-                              <a key={j}
-                                /* v0.62.177 — query by the bus-stop code + description so it
-                                   resolves to the actual stop (Google indexes SG stop codes),
-                                   not a nameless coordinate. */
-                                href={`https://maps.google.com/?q=${encodeURIComponent(['Bus Stop', b.code, b.description, 'Singapore'].filter(Boolean).join(' '))}`}
-                                target="_blank" rel="noreferrer"
-                                className="text-[#1a73e8] underline"
-                              >🚌 {b.code} {b.description}</a>
-                            ))}
-                          </div>
-                        );
-                      })()}
-                      <div className="flex flex-wrap gap-1 mt-1.5">
+                      {/* v0.65.0/0.62.547 — nearest MRT (coloured line-code chips) +
+                          bus stops (pills), each linking to Google Maps. */}
+                      {tr && (tr.station || (tr.busStops || []).length) && (
+                        <div className="flex flex-col gap-1">
+                          {tr.station && (
+                            <a
+                              href={`https://maps.google.com/?q=${encodeURIComponent(`${tr.station.name || ''} MRT Station Singapore`)}`}
+                              target="_blank" rel="noreferrer"
+                              className="flex items-center flex-wrap gap-1 text-[11px] text-tg-hint no-underline"
+                            >
+                              {(tr.station.codes || []).map((cd, k) => (
+                                <span key={k} style={{ background: codeHex(cd) }}
+                                  className="text-white font-bold rounded px-1 text-[10px] leading-[1.5]">{cd}</span>
+                              ))}
+                              <span className="text-tg-text/80">{tr.station.name}</span>
+                            </a>
+                          )}
+                          {(tr.busStops || []).length > 0 && (
+                            <div className="flex items-center flex-wrap gap-1 text-[11px]">
+                              {(tr.busStops || []).map((b, j) => (
+                                <a key={j}
+                                  href={`https://maps.google.com/?q=${encodeURIComponent(['Bus Stop', b.code, b.description, 'Singapore'].filter(Boolean).join(' '))}`}
+                                  target="_blank" rel="noreferrer"
+                                  className="rounded bg-tg-bg border border-tg-border px-1.5 py-0.5 text-[10px] text-tg-text no-underline">🚌 {b.code}</a>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      <div className="flex flex-wrap gap-1.5 mt-0.5">
                         {c.mapsUrl && (
                           <a href={c.mapsUrl} target="_blank" rel="noreferrer"
-                            className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg">
-                            {t('btn.maps', lang)}
+                            className="text-[11px] px-2.5 py-0.5 rounded-full border border-tg-border bg-tg-bg text-tg-text">
+                            📍 {t('btn.maps', lang)}
                           </a>
                         )}
                         <button type="button" onClick={() => saveToChat(c.name)}
                           disabled={savingName === c.name}
-                          className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg disabled:opacity-60">
+                          className="text-[11px] px-2.5 py-0.5 rounded-full border border-tg-border bg-tg-bg text-tg-text disabled:opacity-60">
                           {savingName === c.name ? t('btn.saving', lang) : t('btn.saveToChat', lang)}
                         </button>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
+                )}
               </>
             )}
           </>
@@ -393,6 +424,22 @@ export default function App() {
         </footer>
       </div>
       </div>
+
+      {/* v0.62.547 — operator: "option like Cuisine TMA to list in the footer".
+          A fixed pill (tablet/desktop only) that toggles the list panel — hide it
+          to reveal the full-bleed map, tap again to bring the list back. Fixed so
+          it stays reachable even when the landscape glass panel is hidden. */}
+      {isWide && active && (
+        <button
+          type="button"
+          onClick={() => setListHidden((v) => !v)}
+          aria-pressed={listHidden}
+          className="fixed top-2 right-2 z-30 skeuo-pill text-xs px-3 py-1.5 rounded-full text-tg-text active:scale-95"
+          style={{ top: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' }}
+        >
+          {listHidden ? `📋 ${t('btn.showList', lang)}` : `🗺 ${t('btn.showMap', lang)}`}
+        </button>
+      )}
 
       {/* v0.62.213 — operator (IMG_1069 item 6): the separate bottom-left BackFab
           + bottom-right scroll FAB are replaced by ONE standardised FooterNav row
