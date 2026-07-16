@@ -189,9 +189,16 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     window.__giaHawkerFocusStation = (code) => {
       overlayControllerRef.current?.focusStation?.(code);
     };
+    // v0.62.549 — operator: tapping a station / bus-stop pill INSIDE a centre
+    // card pans this embedded map to the point and pulses a 3 s highlight halo
+    // (mirrors the Cuisine TMA's on-tap map highlight).
+    window.__giaHawkerHighlight = (lat, lng) => {
+      overlayControllerRef.current?.highlightLoc?.(Number(lat), Number(lng), 3000);
+    };
     return () => {
       try { delete window.__giaHawkerOpenMap; } catch { window.__giaHawkerOpenMap = undefined; }
       try { delete window.__giaHawkerFocusStation; } catch { window.__giaHawkerFocusStation = undefined; }
+      try { delete window.__giaHawkerHighlight; } catch { window.__giaHawkerHighlight = undefined; }
     };
   }, []);
 

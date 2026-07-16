@@ -88,6 +88,23 @@ export default function App() {
   // v0.62.547 — tablet "list" toggle (operator, mirrors Cuisine's hide-results):
   // hide the list/panel to reveal the full-bleed map, and bring it back.
   const [listHidden, setListHidden] = useState(false);
+  // v0.62.549 — operator: a station / bus-stop pill in a card is a two-tap
+  // control. 1st tap → highlight the point on the embedded map (3 s pulse) and
+  // mark THIS pill toggled (only one at a time); 2nd tap on the same pill →
+  // open external Google Maps and clear the toggle. `activePill` is the toggled
+  // pill's id, or null.
+  const [activePill, setActivePill] = useState(null);
+  const handlePillTap = (id, lat, lng, url) => {
+    if (activePill === id) {
+      if (url) openLink(url);
+      setActivePill(null);
+    } else {
+      if (Number.isFinite(lat) && Number.isFinite(lng) && typeof window !== 'undefined') {
+        window.__giaHawkerHighlight?.(lat, lng);
+      }
+      setActivePill(id);
+    }
+  };
   // v0.61.0 — map overlay layer toggles (parks / attractions / taxis).
   const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, colour: true, train: true, exits: false, taxis: false, parks: false, police: false, clinics: false, hospitals: false });
   // v0.65.0 — per-centre transit (nearest MRT station + 2 bus stops),
@@ -229,7 +246,9 @@ export default function App() {
   const renderCentreCard = (c, i) => {
     const tr = transitByName[c.name];
     return (
-      <div className="rounded-lg border border-tg-border bg-tg-card/95 p-2.5 text-xs flex flex-col gap-1">
+      // v0.62.549 — opaque card surface (operator: carousel cards in focus with
+      // an opaque background = the card background colour, not translucent).
+      <div className="rounded-lg border border-tg-border bg-tg-card p-2.5 text-xs flex flex-col gap-1">
         <div className="font-semibold text-[13px] leading-tight text-tg-text">
           <span className="text-tg-hint font-semibold tabular-nums">{i + 1} · </span>{c.name}{c.isNew ? ' 🆕' : ''}
         </div>
@@ -246,34 +265,44 @@ export default function App() {
             )}
           </div>
         )}
-        {/* v0.65.0/0.62.548 — nearest MRT (codeHex line-code chips + station name)
-            + bus stops (pills WITH description), each linking to Google Maps. */}
+        {/* v0.65.0/0.62.549 — nearest MRT (codeHex chips + station name) + bus
+            stops (pills WITH description). Two-tap (operator): 1st tap highlights
+            the point on the embedded map (3 s pulse) + toggles the pill to a pale
+            accent; 2nd tap opens external Google Maps + clears the toggle. */}
         {tr && (tr.station || (tr.busStops || []).length) && (
           <div className="flex flex-col gap-1">
-            {tr.station && (
-              <a
-                href={`https://maps.google.com/?q=${encodeURIComponent(`${tr.station.name || ''} MRT Station Singapore`)}`}
-                target="_blank" rel="noreferrer"
-                className="flex items-center flex-wrap gap-1 text-[11px] text-tg-hint no-underline"
-              >
-                {(tr.station.codes || []).map((cd, k) => (
-                  <span key={k} style={{ background: codeHex(cd) }}
-                    className="text-white font-bold rounded px-1 text-[10px] leading-[1.5]">{cd}</span>
-                ))}
-                <span className="text-tg-text/80">{tr.station.name}</span>
-              </a>
-            )}
+            {tr.station && (() => {
+              const id = `${c.name}|stn`;
+              const on = activePill === id;
+              return (
+                <button type="button"
+                  aria-pressed={on}
+                  onClick={() => handlePillTap(id, tr.station.lat, tr.station.lng,
+                    `https://maps.google.com/?q=${encodeURIComponent(`${tr.station.name || ''} MRT Station Singapore`)}`)}
+                  className={`self-start flex items-center flex-wrap gap-1 text-[11px] rounded px-1 py-0.5 border ${on ? 'bg-tg-accent/20 border-tg-accent' : 'border-transparent'}`}
+                >
+                  {(tr.station.codes || []).map((cd, k) => (
+                    <span key={k} style={{ background: codeHex(cd) }}
+                      className="text-white font-bold rounded px-1 text-[10px] leading-[1.5]">{cd}</span>
+                  ))}
+                  <span className="text-tg-text/80">{tr.station.name}</span>
+                </button>
+              );
+            })()}
             {(tr.busStops || []).length > 0 && (
               <div className="flex flex-col gap-1 items-start">
                 {(tr.busStops || []).map((b, j) => {
                   const desc = b.description || b.roadName || '';
+                  const id = `${c.name}|bus|${b.code}`;
+                  const on = activePill === id;
                   return (
-                    <a key={j}
-                      href={`https://maps.google.com/?q=${encodeURIComponent(['Bus Stop', b.code, desc, 'Singapore'].filter(Boolean).join(' '))}`}
-                      target="_blank" rel="noreferrer"
-                      className="rounded bg-tg-bg border border-tg-border px-1.5 py-0.5 text-[10px] text-tg-text no-underline leading-snug">
+                    <button key={j} type="button"
+                      aria-pressed={on}
+                      onClick={() => handlePillTap(id, b.lat, b.lng,
+                        `https://maps.google.com/?q=${encodeURIComponent(['Bus Stop', b.code, desc, 'Singapore'].filter(Boolean).join(' '))}`)}
+                      className={`rounded border px-1.5 py-0.5 text-[10px] text-tg-text leading-snug ${on ? 'bg-tg-accent/20 border-tg-accent' : 'bg-tg-bg border-tg-border'}`}>
                       🚌 {b.code}{desc ? ` · ${desc}` : ''}
-                    </a>
+                    </button>
                   );
                 })}
               </div>
@@ -307,27 +336,35 @@ export default function App() {
           <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} fill />
         )}
         {/* Top bar over the map: slim header + region chips. Cleared below
-            Telegram's fullscreen top controls with the content-safe-area inset. */}
+            Telegram's fullscreen top controls with the content-safe-area inset.
+            v0.62.549 — operator: the temperature + NEA link move DOWN onto the
+            chips row (row 2) so they no longer sit level with Telegram's top-right
+            ⌄ ··· system buttons; row 1 is the title alone, padded right to clear
+            those buttons. */}
         <div
           className="absolute top-0 inset-x-0 z-20 bg-tg-bg/80 backdrop-blur-md border-b border-tg-border px-2 py-1.5 flex flex-col gap-1.5"
           style={{ paddingTop: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.375rem)' }}
         >
-          <div className="flex items-center gap-2">
-            <h1 className="text-sm font-semibold leading-tight flex-1 min-w-0 truncate">{t('header.title', lang)}</h1>
-            <span className="text-[10px] text-tg-hint flex items-center gap-1"><WeatherBadge /></span>
-            <LocaleToggle className="flex-shrink-0" />
-            <button onClick={() => openLink(NEA_HOME)} className="skeuo-pill text-[11px] px-2.5 py-1 rounded-full text-tg-text active:scale-95">NEA ↗</button>
+          <div className="flex items-center pr-24">
+            <h1 className="text-sm font-semibold leading-tight truncate">{t('header.title', lang)}</h1>
           </div>
-          <div className="flex flex-wrap gap-1.5">
-            {regionList.map((r) => {
-              const sel = r.region === activeRegion;
-              return (
-                <button key={r.region} onClick={() => setActiveRegion(r.region)} aria-pressed={sel}
-                  className={`px-2.5 py-1 rounded-full text-xs whitespace-nowrap active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/90 liquid-glass text-tg-text'}`}>
-                  <span className="mr-1">{REGION_EMOJI[r.region] || '·'}</span>{regionLabel(r.region)} ({r.count})
-                </button>
-              );
-            })}
+          <div className="flex items-start gap-2">
+            <div className="flex flex-wrap gap-1.5 flex-1 min-w-0">
+              {regionList.map((r) => {
+                const sel = r.region === activeRegion;
+                return (
+                  <button key={r.region} onClick={() => setActiveRegion(r.region)} aria-pressed={sel}
+                    className={`px-2.5 py-1 rounded-full text-xs whitespace-nowrap active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/90 liquid-glass text-tg-text'}`}>
+                    <span className="mr-1">{REGION_EMOJI[r.region] || '·'}</span>{regionLabel(r.region)} ({r.count})
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="text-[10px] text-tg-hint flex items-center gap-1"><WeatherBadge /></span>
+              <LocaleToggle className="flex-shrink-0" />
+              <button onClick={() => openLink(NEA_HOME)} className="skeuo-pill text-[11px] px-2.5 py-1 rounded-full text-tg-text active:scale-95">NEA ↗</button>
+            </div>
           </div>
         </div>
         {busy && <p className="absolute top-24 left-1/2 -translate-x-1/2 text-xs text-tg-hint bg-tg-bg/90 rounded-full px-3 py-1 z-20">{t('status.loading', lang)}</p>}
@@ -341,8 +378,10 @@ export default function App() {
               className="flex gap-2 overflow-x-auto snap-x snap-mandatory px-[6%] pb-1 pointer-events-auto"
               style={{ scrollbarWidth: 'none' }}
             >
+              {/* v0.62.549 — operator: THREE cards in focus on tablet/desktop
+                  (basis ≈ 1/3), ONE card for a phone aspect ratio (basis 82%). */}
               {active.centres.map((c, i) => (
-                <div key={i} className="snap-center shrink-0 basis-[68%] sm:basis-[44%] lg:basis-[30%] max-h-[46vh] overflow-y-auto rounded-lg shadow-xl">
+                <div key={i} className="snap-center shrink-0 basis-[82%] md:basis-[30%] max-h-[46vh] overflow-y-auto rounded-lg shadow-xl">
                   {renderCentreCard(c, i)}
                 </div>
               ))}
