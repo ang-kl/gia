@@ -804,12 +804,16 @@ function CityDropdown({ countryCode, value, onChange, ariaLabel, hideClearOption
         >
           {/* v0.61.268 — "— Clear —" row emits '' so the OtherLocationPicker
               can mark userClearedCity=true and revert the anchor to GPS. */}
+          {/* v0.62.574 — operator (IMG_0735-0739): "so much row spacing to show
+              countries and cities in Other." Tighten each option row from py-1.5
+              (6px) to py-1 (4px) + leading-tight so the list is denser without
+              losing tap-target usability. */}
           {!hideClearOption && (
             <li role="option" aria-selected={!current}>
               <button
                 type="button"
                 onClick={() => pick('')}
-                className={`w-full text-left px-3 py-1.5 text-[13px] italic whitespace-nowrap text-tg-hint hover:bg-tg-bg focus:bg-tg-bg focus:outline-none border-b border-tg-border/40`}
+                className={`w-full text-left px-3 py-1 text-[13px] italic whitespace-nowrap text-tg-hint hover:bg-tg-bg focus:bg-tg-bg focus:outline-none border-b border-tg-border/40`}
               >— Clear —</button>
             </li>
           )}
@@ -820,7 +824,7 @@ function CityDropdown({ countryCode, value, onChange, ariaLabel, hideClearOption
                 <button
                   type="button"
                   onClick={() => pick(c.name)}
-                  className={`w-full text-left px-3 py-1.5 text-[13px] whitespace-nowrap inline-flex items-center justify-between gap-2 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none ${sel ? 'bg-tg-bg/60 font-semibold' : ''}`}
+                  className={`w-full text-left px-3 py-1 text-[13px] leading-tight whitespace-nowrap inline-flex items-center justify-between gap-2 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none ${sel ? 'bg-tg-bg/60 font-semibold' : ''}`}
                 >
                   {/* v0.61.420 — operator: the Johor whole-STATE row shows
                       "Johor state" in italics to distinguish it from a city. */}
@@ -929,7 +933,9 @@ function CountryDropdown({ value, onChange, ariaLabel }) {
                   type="button"
                   ref={(el) => { itemRefs.current[i] = el; }}
                   onClick={() => pick(c.code)}
-                  className={`w-full text-left px-3 py-1.5 text-sm whitespace-nowrap inline-flex items-center gap-1.5 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none ${sel ? 'bg-tg-bg/60 font-semibold' : ''}`}
+                  /* v0.62.574 — operator: tighter country rows (py-1.5 → py-1 +
+                     leading-tight), matching the CityDropdown density fix. */
+                  className={`w-full text-left px-3 py-1 text-sm leading-tight whitespace-nowrap inline-flex items-center gap-1.5 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none ${sel ? 'bg-tg-bg/60 font-semibold' : ''}`}
                 >
                   <span aria-hidden>{c.flag}</span>
                   <span>{c.name}</span>

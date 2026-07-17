@@ -4304,6 +4304,22 @@ export default function App() {
           ? { top: headerBottom } : undefined}
       >
       <MapPanel
+        /* v0.62.574 — O-54 (operator: "the map blacks out on the fullscreen
+           tablet … Look into your codes and think why are cuisine TMA behaving
+           this way"). ROOT CAUSE: the `fill` prop toggles ONE live map container
+           between framed (height:68vh) and full-bleed (absolute inset-0) — an
+           IN-PLACE Google Maps canvas resize, which is what paints the map black
+           on the iPad Telegram-fullscreen WebKit view. Hawker never hits this
+           because it mounts a SEPARATE HawkerMapPanel for framed vs full-bleed, so
+           the map REMOUNTS rather than resizing. Follow the hawker codes: key the
+           panel on the framed↔full-bleed transition so the tablet REMOUNTS a fresh
+           map (no in-place resize → no blackout) exactly like Hawker's ⇲ expand.
+           Phones (not fullscreen, never black out) keep a CONSTANT key so their
+           picker-open fill flip stays a cheap in-place resize with no remount flash.
+           On a tablet `fill` reduces to `drawerMode === 'horizontal'` (isWide
+           short-circuits the || in the fill expression below), so drawerMode IS
+           the framed↔full-bleed axis to key on. */
+        key={isWide ? `cuisine-map-${drawerMode}` : 'cuisine-map-phone'}
         venues={visibleVenues.length ? visibleVenues : venues}
         userLoc={userLoc}
         /* v0.62.567 — portrait two-panel: a compact ~40vh framed map (the list
