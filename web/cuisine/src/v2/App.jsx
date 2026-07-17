@@ -4242,7 +4242,13 @@ export default function App() {
           style={{ top: headerBottom }}
           className="fixed left-0 right-0 z-30 max-w-[1600px] mx-auto px-3 md:px-6 lg:px-8 pointer-events-none">
         <div
-          className={`folder-drawer pointer-events-auto overflow-y-auto no-scrollbar rounded-b-2xl border px-3 py-2.5 flex flex-col gap-2 max-h-[60vh] ${pickerWidthCls}`}>
+          /* v0.62.583 — operator (IMG_3512/3513): "the horizontal bottom header
+             line that appears when I tap should disappear." The floating panel's
+             full `border` drew a TOP border = a horizontal line right under the
+             header (before the overlay change the panel connected seamlessly to the
+             tab). Drop the top border (`border-x border-b`, no `border-t`) so no
+             line reads under the header; the solid panel meets the header cleanly. */
+          className={`folder-drawer pointer-events-auto overflow-y-auto no-scrollbar rounded-b-2xl border-x border-b px-3 py-2.5 flex flex-col gap-2 max-h-[60vh] ${pickerWidthCls}`}>
           {/* v0.62.246 — operator: the folio TAB already reads "Choose your
               cuisine"; drop the duplicate body title, keep only the × close. */}
           <div className="flex items-center justify-end">
@@ -4328,7 +4334,9 @@ export default function App() {
           style={{ top: headerBottom }}
           className="fixed left-0 right-0 z-30 max-w-[1600px] mx-auto px-3 md:px-6 lg:px-8 pointer-events-none">
         <div
-          className={`folder-drawer pointer-events-auto overflow-y-auto no-scrollbar rounded-b-2xl border px-2.5 py-2 max-h-[60vh] ${pickerWidthCls}`}>
+          /* v0.62.583 — no top border (see the cuisine picker above): the panel's
+             top line under the header should not show. */
+          className={`folder-drawer pointer-events-auto overflow-y-auto no-scrollbar rounded-b-2xl border-x border-b px-2.5 py-2 max-h-[60vh] ${pickerWidthCls}`}>
           {/* v0.62.246 — operator: the folio TAB already reads "Pick local
               classic"; drop the duplicate body title, keep only the × close.
               (The plate below still shows the city name, e.g. "📍 Singapore".) */}
