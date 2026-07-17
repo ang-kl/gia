@@ -120,12 +120,27 @@ export function applyTelegramTheme() {
   // is the one platform where Telegram puts the WebApp in a
   // narrow letterboxed column that genuinely benefits from
   // requesting fullscreen.
+  // v0.62.561 — O-54 responsive port: widen the gate to ALL touch tablets
+  // (the Hawker Rule N-2 gate) so the responsive tablet layout can fill the
+  // screen — Android tablets get parity, and the gate now keys on physical
+  // signals (coarse pointer + short screen edge ≥ 768) rather than the
+  // platform string alone. Telegram Desktop / macOS notebooks (fine pointer,
+  // 'tdesktop'/'macos') are still excluded, preserving the v0.60.52 fix; a
+  // phone (ios/android with a short edge < 768) also stays windowed.
   safe('fullscreen', () => {
-    const platform = String(w.platform || '').toLowerCase();
-    if (platform !== 'ipados') return;
-    if (typeof w.isVersionAtLeast !== 'function' || !w.isVersionAtLeast('8.0')) return;
     if (typeof w.requestFullscreen !== 'function') return;
-    w.requestFullscreen();
+    if (typeof w.isVersionAtLeast === 'function' && !w.isVersionAtLeast('8.0')) return;
+    if (w.isFullscreen) return;
+    // NB: Telegram reports iPad as 'ipados' (NOT 'ios').
+    const plat = String(w.platform || '').toLowerCase();
+    const touchClient = plat === 'ipados' || plat === 'ios' || plat === 'android'; // not 'tdesktop'/'macos'/web
+    const coarse = typeof window !== 'undefined' && window.matchMedia
+      && window.matchMedia('(pointer: coarse)').matches;
+    const scr = typeof window !== 'undefined' ? window.screen : null;
+    const minScreen = scr ? Math.min(scr.width || 0, scr.height || 0) : 0;
+    if (touchClient && coarse && minScreen >= 768) {   // iPad-class device
+      try { w.requestFullscreen(); } catch { /* best-effort */ }
+    }
   });
 
   // v0.60.42 — sync Telegram's header + chrome background colours to

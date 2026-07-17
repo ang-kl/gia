@@ -7,6 +7,9 @@ import { CITIES_BY_COUNTRY, findCity, cityRadiusCapM } from './lib/cities.js';
 import { defaultState, clearedFilters, readFromHash, readOverridesFromHash, writeToHash } from './lib/state.js';
 import { coordsToCountry, isJbCoords } from './lib/coords-to-country.js';
 import { startLocationSync } from '../../../_shared/lib/location-sync.js';
+// v0.62.561 — O-54 responsive port: shared device/orientation hook (drives the
+// tablet/desktop card-count in the result strip + the footer device cue).
+import { useViewport, viewportTag } from '../../../_shared/lib/use-viewport.js';
 import { shouldFollowDevice } from './lib/location-follow.js';
 import { resolveSearchCenter } from './lib/search-location.js';
 // v0.61.277 — for the JB region-pill auto-anchor on tap.
@@ -139,6 +142,17 @@ export default function App() {
   // localStorage and re-renders on the 'gia:locale' CustomEvent
   // dispatched by LocaleToggle.
   const [lang] = useLocale();
+  // v0.62.561 — O-54 responsive port: device/orientation (drives the result
+  // strip's card-count on tablet/desktop + the footer cue). `isWide` = tablet
+  // or desktop; phones stay `false` so their layout is provably unchanged.
+  const vp = useViewport();
+  const isWide = vp.isWide;
+  const footerTag = viewportTag(vp);
+  // Tablet/desktop show 2–3 result cards in focus (the Hawker carousel basis);
+  // phones keep the single-card strip.
+  const drawerBasisClass = isWide
+    ? 'basis-[82%] md:basis-[44%] min-[1180px]:basis-[30%]'
+    : 'basis-[82%]';
   const [catalogue, setCatalogue] = useState(null);
   // v0.62.x — auth guard. True when the Mini App was opened WITHOUT a valid
   // Telegram initData (outside Telegram, or a stale >24h launch) → every API
@@ -4313,6 +4327,7 @@ export default function App() {
           nearbyAccent={nearbyFlavours?.single?.accent || null}
           nearbyStrips={nearbyFlavours?.strips || null}
           dishHints={searchedTerm ? [searchedTerm] : null}
+          basisClass={drawerBasisClass}
         />
       )}
 
@@ -5220,7 +5235,7 @@ export default function App() {
               state.region === 'JB' ? t('region.johor', lang)
               : state.region === 'OTHER' ? t('region.others', lang)
               : t('region.singapore', lang)
-            } · v{BUILD_VERSION}
+            } · v{BUILD_VERSION}{footerTag ? ` · ${footerTag}` : ''}
           </div>
         </div>
       </div>

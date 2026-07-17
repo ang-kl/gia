@@ -17,7 +17,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import ResultCard from './ResultCard.jsx';
 import { useLocale } from '../lib/i18n.js';
 
-export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null, hasFilters = false, composerOpen = false, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null }) {
+// v0.62.561 — O-54 responsive port: `basisClass` controls how many cards sit in
+// focus. Phones keep the single-card `basis-[82%]` (unchanged); tablet/desktop
+// pass the Hawker carousel basis (`… md:basis-[44%] min-[1180px]:basis-[30%]`)
+// so an iPad-mini shows 2 and an iPad-Pro / desktop shows 3 cards in focus. The
+// `max-w-[22rem]` per-card cap still applies, so cards never balloon.
+export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null, hasFilters = false, composerOpen = false, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null, basisClass = 'basis-[82%]' }) {
   const [lang] = useLocale();
   const trackRef = useRef(null);
   const list = Array.isArray(venues) ? venues : [];
@@ -143,7 +148,7 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
             /* v0.62.285 — operator: when the 💬 composer expands, lift ONLY the
                in-view (focused) card up to clear the input pill; the peeking
                left/right cards stay at the shared items-end baseline. */
-            className="card-scroll snap-center shrink-0 basis-[82%] max-w-[22rem] max-h-[60vh] overflow-y-auto rounded-lg shadow-xl transition-transform duration-200"
+            className={`card-scroll snap-center shrink-0 ${basisClass} max-w-[22rem] max-h-[60vh] overflow-y-auto rounded-lg shadow-xl transition-transform duration-200`}
             style={composerOpen && v.placeId === activeId ? { transform: 'translateY(-3.25rem)' } : undefined}
           >
             {/* v0.62.168 — operator: horizontal cards are UNIFORM size (fixed
@@ -167,14 +172,14 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
         ))}
         {/* v0.62.151 — operator: a terminal card after the last result. Scroll to
             the right end → "Last card" + how to refine. */}
-        <div className="snap-center shrink-0 basis-[82%] max-w-[22rem] max-h-[60vh] rounded-lg shadow-xl bg-tg-card border border-tg-border flex flex-col items-center justify-center text-center gap-1 px-3 py-4">
+        <div className={`snap-center shrink-0 ${basisClass} max-w-[22rem] max-h-[60vh] rounded-lg shadow-xl bg-tg-card border border-tg-border flex flex-col items-center justify-center text-center gap-1 px-3 py-4`}>
           <div className="text-[13px] font-semibold text-tg-text">{lang === 'fr' ? 'Dernière carte' : 'Last card'}</div>
           <div className="text-[12px] text-tg-hint leading-snug">📍 {lang === 'fr' ? 'saisir un lieu' : 'enter location'} · 💬 {lang === 'fr' ? 'tapez un plat' : 'Type dish'}</div>
           <div className="text-[12px] text-tg-hint leading-snug">{lang === 'fr' ? 'Touchez 🔍 pour rechercher' : 'Tap 🔍 to search'}</div>
         </div>
         {/* v0.62.155 — loop clone of the FIRST card (jumps back to the real one
             on reach, see the scroll effect above). */}
-        <div className="card-scroll snap-center shrink-0 basis-[82%] max-w-[22rem] max-h-[60vh] overflow-y-auto rounded-lg shadow-xl" aria-hidden="true">
+        <div className={`card-scroll snap-center shrink-0 ${basisClass} max-w-[22rem] max-h-[60vh] overflow-y-auto rounded-lg shadow-xl`} aria-hidden="true">
           <ResultCard
             venue={list[0]}
             number={1}
