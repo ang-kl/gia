@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { fetchCatalogue, searchCuisine, nlQuery, warmStart, fetchUserLocation, reverseGeocode, saveUserLocation, fetchCountryPref, saveCountryPref, fetchRatingPref, saveRatingPref, startSession, backOnePage, recycleSession, iataSnap } from './lib/api.js';
 import { IATA_CITIES, nearestIataCity } from './lib/iata-cities.js';
 import { OTHER_COUNTRIES } from './lib/countries.js';
@@ -924,6 +924,19 @@ export default function App() {
   // classic" pill (a glassmorphism dropdown), so the header stays compact + the map
   // gets more room. classicOpen drives that dropdown.
   const [classicOpen, setClassicOpen] = useState(false);
+  // v0.62.582 — operator (IMG_0748/0749, landscape): the folio picker dropdown opened
+  // OVER the header — its top covered the "Click to change" line + the folio tabs
+  // instead of sitting flush BELOW them. Root cause: `headerBottom` (the fixed
+  // dropdown's `top`) was measured STALE — the ResizeObserver seeded it before the
+  // "Set location is …" line + the tabs grew the header (venues arrive AFTER first
+  // paint), and RO didn't re-fire, so the dropdown anchored ~30px too high. Re-measure
+  // headerBottom in a LAYOUT effect (before paint → no flash) exactly when a picker
+  // opens or results/rows that change the header height appear, so the dropdown always
+  // drops flush under the tabs. Deps live here because classicOpen/regionExpanded are
+  // declared above; venues/cuisinePickOpen/modePeek are already in scope.
+  useLayoutEffect(() => {
+    if (headerRef.current) setHeaderBottom(Math.round(headerRef.current.getBoundingClientRect().bottom));
+  }, [cuisinePickOpen, classicOpen, regionExpanded, modePeek, venues.length]);
   // v0.62.259 — operator (urgent): trace the folio-tab loading state so a MISSING
   // "Pick local classic ▾" tab is diagnosable. The tab only shows when a plate
   // AND venues are both present (hasPlate). This logs which side is missing.
