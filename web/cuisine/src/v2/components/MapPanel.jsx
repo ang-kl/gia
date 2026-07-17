@@ -194,11 +194,10 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // contrast, still pans the map to bring the venue into view).
   const pinFocusRef = useRef(null);
   // v0.62.115 — operator: a result-card tap zooms the map IN to 17 (so the
-  // blinking pin lands you on the street), and a tap on the empty map (or the
-  // card's ✕, via closeInfo) returns to the zoom you were at before. This holds
-  // that pre-focus zoom; it's captured only once per focus burst (so tapping
-  // card after card keeps the original level) and cleared on restore.
-  const prevFocusZoomRef = useRef(null);
+  // blinking pin lands you on the street).
+  // v0.62.560 — operator: closing the card must NOT adjust the zoom — the
+  // return-to-prior-zoom on close is removed (was prevFocusZoomRef), across all
+  // embedded-map TMAs.
   // v0.62.138 — operator: in HORIZONTAL result mode, tapping a card should ONLY
   // blink the map pin — no zoom-to-17, no info pop-up card. (The pop-up + zoom
   // stay for VERTICAL mode, where the result is a full list.) Held in a ref so
@@ -366,13 +365,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       infoWindowRef.current?.close();
       overlayControllerRef.current?.closeInfo?.();   // also clears venue transit pins
       openInfoIdRef.current = null;
-      // v0.62.115 — restore the pre-focus zoom captured when a result card was
-      // tapped (see the focusedPlaceId effect). Tap on the empty map / ✕ → back
-      // to the zoom you were browsing at.
-      if (prevFocusZoomRef.current != null && mapRef.current) {
-        mapRef.current.setZoom(prevFocusZoomRef.current);
-        prevFocusZoomRef.current = null;
-      }
+      // v0.62.560 — operator: do NOT adjust the zoom on close (the pre-focus zoom
+      // restore is removed) — leave the map wherever the user left it.
     };
     window.__giaMapInfoClose = closeInfo;
     // v0.62.125 — a tap on the empty map closes the popup AND deselects (exits
@@ -552,9 +546,6 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // the pre-tap zoom once so a tap on the empty map / ✕ (closeInfo) zooms
       // back out. (Vertical mode keeps the 17 + pop-up path below.)
       if (blinkOnlyRef.current) {
-        if (prevFocusZoomRef.current == null) {
-          prevFocusZoomRef.current = mapRef.current.getZoom?.() ?? null;
-        }
         // v0.62.153 — learned preference wins; else 15 when >4 pins cluster
         // within ~150 m of the tapped venue ("many pins in one location"), else 14.
         let targetZoom = prefZoomRef.current;
@@ -570,12 +561,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         return;
       }
       // v0.62.115 — operator: a result-card tap zooms IN to 17 so the blinking
-      // pin drops you onto the street. Capture the current zoom ONCE per focus
-      // burst (don't overwrite if we already zoomed in for a prior card) so a
-      // later tap on the empty map / ✕ (closeInfo) can return to it.
-      if (prevFocusZoomRef.current == null) {
-        prevFocusZoomRef.current = mapRef.current.getZoom?.() ?? null;
-      }
+      // pin drops you onto the street. v0.62.560 — the prior-zoom capture/restore
+      // is removed (closing no longer changes the zoom).
       mapRef.current.setZoom(17);
       // v0.62.112 — operator: a result-card tap should BLINK the eatery's map
       // pin for ~2-3 s so the eye lands on it. flashPin pulses a hollow ring
