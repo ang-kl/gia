@@ -247,10 +247,11 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
 .folio--manila { gap: 6px; }
 .folio--manila .folio-tab {
   border: 1px solid #d1cec9;
-  /* v0.62.x — operator: the INACTIVE tab needs a bottom line so it reads as a
-     closed folder tab resting on the panel (the active tab overrides to none
-     below, so it merges into the open drawer). */
-  border-bottom: 1px solid #d1cec9;
+  /* v0.62.584 — operator (IMG_3518/3519): "line drawn between tab header and tab
+     detail are to remove." Now the picker panel is a detached fixed overlay, the
+     inactive tab's bottom border read as a stray horizontal line between the tab
+     and the panel below. Drop it so no line sits between the tab and its detail. */
+  border-bottom: none;
   border-radius: 10px 10px 0 0;
   padding: 7px 14px 8px;
   /* v0.62.263 — operator (IMG_2553): "the panel header should be the same as
@@ -265,7 +266,12 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow: none;
-  transform: translateY(1px);            /* inactive tab sits a hair lower */
+  /* v0.62.584 — operator (IMG_3518/3519): "vertical alignment issues." The
+     inactive tab used translateY(1px) (a folder-pop offset that made it sit a
+     hair lower than the active tab) — with the panel now a detached overlay that
+     pop serves no purpose and reads as the two tab headers not aligning. Flatten
+     both so the tab row is vertically level. */
+  transform: translateY(0);
 }
 .folio--manila .folio-tab--active {
   color: #1c1c1e;
@@ -284,6 +290,23 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
   background: #ffffff !important;        /* demo .panel */
   border-color: #d1cec9 !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10) !important;   /* demo panel shadow */
+}
+
+/* v0.62.584 — operator (IMG_3520): "the eatery card margins in between white
+   spacing and card details border is too big, make it much thin white spacing."
+   The thick white ring around our skeuomorphic `infoCard` is Google's default
+   InfoWindow chrome (.gm-style-iw-c padding ~12px + the .gm-style-iw-d scroll
+   wrapper). Tighten it so our card nearly fills the bubble (thin 2px ring), and
+   round the bubble to match the card's 14px radius. `headerDisabled` already
+   removes Google's own top bar, so no chrome depends on this padding. */
+.gm-style .gm-style-iw-c {
+  padding: 2px !important;
+  border-radius: 15px !important;
+}
+.gm-style .gm-style-iw-d {
+  overflow: visible !important;
+  padding: 0 !important;
+  max-width: none !important;
 }
 
 /* v0.62.189 — operator (IMG_2515): the refine-location input is a WHITE field
