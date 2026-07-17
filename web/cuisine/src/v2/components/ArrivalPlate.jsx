@@ -51,9 +51,17 @@ const COUNTRY_LABEL = {
 // word and leaves the rest untouched, so acronyms ("SG"), parenthetical
 // qualifiers ("(Teochew)") and diacritics ("Phở") all survive (/u → \p{L}
 // matches accented letters).
+// v0.62.586 — operator (Brisbane, IMG_0751): plain per-word capitalisation turned
+// the food acronym "bbq" into "Bbq" ("australian bbq" → "Australian Bbq"). A small
+// allowlist of all-caps abbreviations stays FULLY upper ("Australian BBQ", "Curry
+// Laksa KL", "HK-Style Milk Tea"). Match is case-folded, so source tokens already
+// upper ("SG") pass through unchanged.
+const DISH_ACRONYMS = new Set(['bbq', 'hk', 'kl', 'xo', 'sg', 'nz', 'usa', 'uk', 'ny', 'nyc', 'kfc']);
 function titleCaseDish(s) {
-  return String(s || '').replace(/[\p{L}][\p{L}'’]*/gu,
-    (w) => w.charAt(0).toUpperCase() + w.slice(1));
+  return String(s || '').replace(/[\p{L}][\p{L}'’]*/gu, (w) =>
+    DISH_ACRONYMS.has(w.toLowerCase())
+      ? w.toUpperCase()
+      : w.charAt(0).toUpperCase() + w.slice(1));
 }
 
 // v0.62.116 — operator: the one-line "peek" of the local-food-picks plate
@@ -81,10 +89,15 @@ const MEAL_BUCKETS = [
   { key: 'dessert',   icon: '🧁', en: 'Desserts',          fr: 'Desserts' },
   { key: 'drink',     icon: '🥤', en: 'Drinks',            fr: 'Boissons' },
 ];
-const DRINK_RE = /\b(kopi|teh|milo|horlicks|bandung|yuan\s*yang|juice|sugarcane|winter\s*melon|chrysanthemum|barley\s*water|lime\s*juice|calamansi|sour\s*plum\s*drink|grass\s*jelly\s*drink|soda|isotonic|100\s*plus|lemon\s*tea|milk\s*tea|bubble\s*tea|boba\b|shake\b|lassi|soya?\s*bean\s*drink|cordial|sirap|kosong|coconut\s*water|cha\s*yen|nam\s*manao|sinh\s*to|ca\s*phe|tra\s*da|sikhye|smoothie|horchata|ayran|doogh|thai\s*tea|rose\s*milk|nimbu\s*pani|lemonade|teh\s*tarik|taro\s*milk)\b/i;
-const DESSERT_RE = /\b(tau\s*huay|douhua|chendol|cendol|ice\s*ka[cz]ang|pengat|pudding|red\s*bean\s*soup|gula\s*melaka|tang\s*yuan|pulut\s*hitam|cheng\s*tng|tau\s*suan|orh\s*nee|sago\b|pomelo\b|grass\s*jelly|bubur\s*cha\s*cha|ondeh|ang\s*ku|goreng\s*pisang|pisang\s*goreng|ice\s*cream|ko\s*swee|cheng\s*teng|\bkaya\b|bingsu|mochi|daifuku|dorayaki|halo.?halo|taho\b|halva|baklava|knafeh|gulab\s*jamun|jalebi|rasgulla|kheer|payasam|mango\s*sticky\s*rice|sticky\s*rice.*mango|woon\b|che\b|banh\s*flan|tong\s*sui|sweet\s*soup|kanom\b|khanom\b)\b/i;
+// v0.62.586 — the meal-bucket keyword sets were Asian-tuned, so Western/Australian
+// classics (tim tam, lamington, pavlova, flat white, …) all fell through to 'main'
+// and piled into ONE "Lunch & Dinner" section (operator, Brisbane: "Is Tim Tam …
+// shouldn't it be snack? Where are the lunch, dinner and snack?"). Added the AU/
+// Western terms so they split across Snacks / Desserts / Drinks correctly.
+const DRINK_RE = /\b(kopi|teh|milo|horlicks|bandung|yuan\s*yang|juice|sugarcane|winter\s*melon|chrysanthemum|barley\s*water|lime\s*juice|calamansi|sour\s*plum\s*drink|grass\s*jelly\s*drink|soda|isotonic|100\s*plus|lemon\s*tea|milk\s*tea|bubble\s*tea|boba\b|shake\b|lassi|soya?\s*bean\s*drink|cordial|sirap|kosong|coconut\s*water|cha\s*yen|nam\s*manao|sinh\s*to|ca\s*phe|tra\s*da|sikhye|smoothie|horchata|ayran|doogh|thai\s*tea|rose\s*milk|nimbu\s*pani|lemonade|teh\s*tarik|taro\s*milk|flat\s*white|long\s*black|latte|cappuccino|shiraz|pinot|chardonnay|\bwine\b)\b/i;
+const DESSERT_RE = /\b(tau\s*huay|douhua|chendol|cendol|ice\s*ka[cz]ang|pengat|pudding|red\s*bean\s*soup|gula\s*melaka|tang\s*yuan|pulut\s*hitam|cheng\s*tng|tau\s*suan|orh\s*nee|sago\b|pomelo\b|grass\s*jelly|bubur\s*cha\s*cha|ondeh|ang\s*ku|goreng\s*pisang|pisang\s*goreng|ice\s*cream|ko\s*swee|cheng\s*teng|\bkaya\b|bingsu|mochi|daifuku|dorayaki|halo.?halo|taho\b|halva|baklava|knafeh|gulab\s*jamun|jalebi|rasgulla|kheer|payasam|mango\s*sticky\s*rice|sticky\s*rice.*mango|woon\b|che\b|banh\s*flan|tong\s*sui|sweet\s*soup|kanom\b|khanom\b|lamington|pavlova|anzac)\b/i;
 const BREAKFAST_RE = /\b(kaya\s*toast|\btoast\b|you\s*tiao|dough\s*fritter|soft.?boiled|half.?boiled|prata\b|roti\s*canai|roti\s*john|congee|porridge|dim\s*sum|brunch|chwee\s*kueh|min\s*jiang|idli\b|dosa\b|uttapam|upma\b|appam\b|puttu\b|pongal\b|medu\s*vada|string\s*hoppers|hoppers\b|bubur\s*ayam|juk\b|zhou\b|fried\s*dough)\b/i;
-const SNACK_RE = /\b(satay|sate\b|otah\b|otak-otak|rojak\b|popiah\b|ngoh\s*hiang|curry\s*puff|currypuff|vadai\b|samosa|begedil|kueh\s*pie\s*tee|epok-epok|fried\s*wonton|spring\s*roll|lumpia\b|empanada|gyoza\b|takoyaki|tteok\b|chapati\b|paratha\b|naan\b|tosai\b|murukku|keropok|kerupuk|prawn\s*crackers|fish\s*ball|meatball\b|skewer\b|kebab\b|kimbap|gimbap|onigiri|tempura\b)\b/i;
+const SNACK_RE = /\b(satay|sate\b|otah\b|otak-otak|rojak\b|popiah\b|ngoh\s*hiang|curry\s*puff|currypuff|vadai\b|samosa|begedil|kueh\s*pie\s*tee|epok-epok|fried\s*wonton|spring\s*roll|lumpia\b|empanada|gyoza\b|takoyaki|tteok\b|chapati\b|paratha\b|naan\b|tosai\b|murukku|keropok|kerupuk|prawn\s*crackers|fish\s*ball|meatball\b|skewer\b|kebab\b|kimbap|gimbap|onigiri|tempura\b|tim\s*tam|chiko\s*roll|sausage\s*roll|\bsnags?\b|fairy\s*bread|dagwood)\b/i;
 // Spicy marker — used for inline 🌶 display only (does not affect bucketing).
 const SPICY_RE = /\b(laksa|rendang|sambal|curry|chilli|chili|tom\s*yum|tom\s*kha|larb\b|som\s*tam|vindaloo|rogan\s*josh|tteokbokki|buldak|mala\b|mapo|asam\s*pedas|gulai\b|masak\s*lemak|bun\s*bo\s*hue|otak-otak|ayam\s*berempah|soto\s*betawi|pad\s*krapao|pad\s*prik|kaeng|gaeng\b|tom\s*saap)\b/i;
 function mealCategory(name) {
