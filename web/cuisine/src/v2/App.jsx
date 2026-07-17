@@ -4357,10 +4357,16 @@ export default function App() {
           `display:contents` off-portrait so phones + landscape are untouched.
           v0.62.575 — the map STAYS sticky while a folio picker is open now: the
           picker floats over it as a fixed overlay (below) instead of pushing it
-          down, so the map must hold its place. */}
+          down, so the map must hold its place.
+          v0.62.580 — operator (IMG_0744: the pink "Closing in N min" / red "Closed"
+          card strips BLEED onto the map in portrait). Those strips are `relative
+          z-10` (ResultCard.jsx) — the SAME level as this sticky map, so a card
+          scrolling up behind the map painted its z-10 strip OVER the map (later in
+          DOM wins at equal z). Raise the opaque sticky map to `z-20` so it covers
+          the z-10 strips (still below the z-30 header + folio pickers). */}
       <div
         className={portraitWide && drawerMode === 'vertical'
-          ? 'sticky z-10 bg-tg-bg' : 'contents'}
+          ? 'sticky z-20 bg-tg-bg' : 'contents'}
         style={portraitWide && drawerMode === 'vertical'
           ? { top: headerBottom } : undefined}
       >
