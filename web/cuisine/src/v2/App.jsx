@@ -1939,12 +1939,36 @@ export default function App() {
         // visibility-refresh path. Without this, a user who switches
         // from Menu TMA to chat to Cuisine TMA (visibility flip)
         // would see the right coords but lose the Menu-set label.
+        // v0.62.579 — operator (Brisbane clobbered "16 Thompson Street"): this
+        // refetch must NOT downgrade a committed EXPLICIT pick to a COARSER
+        // server/GPS label (a bare city like "Brisbane"). Same family as the
+        // SG/Putrajaya set-location bugs; this is the coarse-city-over-street
+        // case the D787 / _isCountryOnly guards never covered. When an explicit
+        // pick is latched (explicitPickRef) with a name and the refetched label
+        // is a COARSE one that DIFFERS from it, the PICK WINS (mirrors the boot
+        // auto-detect guard at ~L2063). A coarse label = no digit, no comma, ≤ 2
+        // words ("Brisbane", "Singapore", "Kuala Lumpur") — a street pick
+        // ("16 Thompson Street", "…, Bowen Hills") has a digit/comma so it still
+        // applies, keeping the v0.61.266 Menu-label restore intact. Holding the
+        // committed pick here also stops reassertPickAfterSearch from re-pushing
+        // the city, so the server self-heals to the street label on the next
+        // search. Client-only display fix — the server cache logic is untouched.
         if (r.label && typeof r.label === 'string' && r.label.trim()) {
-          setLocationAnchor({
-            lat: r.lat,
-            lng: r.lng,
-            name: r.label.trim()
-          });
+          const incoming = r.label.trim();
+          const committed = (locationAnchorRef.current?.name || '').trim();
+          const incomingCoarse = !/\d/.test(incoming) && !incoming.includes(',')
+            && incoming.split(/\s+/).length <= 2;
+          if (explicitPickRef.current && committed && committed !== incoming && incomingCoarse) {
+            console.log('[Cuisine-TMA-v2] D792 visibility-refetch: committed pick "'
+              + committed + '" holds over coarse refetched "' + incoming + '" (explicit pick wins)');
+            // keep the committed anchor; coords already refreshed via setUserLoc above.
+          } else {
+            setLocationAnchor({
+              lat: r.lat,
+              lng: r.lng,
+              name: incoming
+            });
+          }
         }
         if (r.region === 'JB') {
           setState((s) => (s.region === 'JB' ? s : { ...s, region: 'JB' }));
