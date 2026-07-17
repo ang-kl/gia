@@ -113,9 +113,18 @@ export default function ResultPanel({
   // + a tap handler that re-anchors to that city and searches. Rendered as
   // tappable nudges so George Town (etc.) is reachable after the in-city walk.
   michelinOtherCities = null,
-  onMichelinCityJump = null
+  onMichelinCityJump = null,
+  // v0.62.565 — O-54 Hawker parity: the portrait tablet/desktop list renders in
+  // TWO COLUMNS (operator: "where are the two columns in portrait mode"). App
+  // passes columns={2} on a wide device; the card list becomes a 2-col grid and
+  // the section headers / dividers span both columns. Default 1 → phones + the
+  // single-column list are unchanged.
+  columns = 1
 }) {
   const [lang] = useLocale();
+  // v0.62.565 — 2-col grid container + full-width (col-span-2) section headers.
+  const listContainerCls = columns === 2 ? 'grid grid-cols-2 gap-1.5 items-start' : 'flex flex-col gap-1.5';
+  const spanCls = columns === 2 ? 'col-span-2' : '';
   const [copying, setCopying] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -480,7 +489,7 @@ export default function ResultPanel({
           </div>
         )
       ) : (
-        <div className="flex flex-col gap-1.5">
+        <div className={listContainerCls}>
           {/* v0.60.82 — combo fallback banner. When the user picked 2+
               cuisines and the server's AND-combo phase returned 0
               results, the OR-interleaved fallback ran. Surface that
@@ -489,7 +498,7 @@ export default function ResultPanel({
               cards. text-tg-text is theme-respecting (operator's "Black"
               renders black on iOS light, white on dark). */}
           {comboInfo?.attempted && !comboInfo?.matched && (
-            <div className="text-[12px] font-medium text-tg-text px-2 pt-1 pb-1 leading-snug">
+            <div className={`text-[12px] font-medium text-tg-text px-2 pt-1 pb-1 leading-snug ${spanCls}`}>
               {lang === 'fr'
                 ? "Aucune combinaison exacte de cuisines trouvée. Affichage d'établissements distincts pour chaque cuisine sélectionnée."
                 : 'No exact cuisine combination found. Showing separate eateries for each selected cuisine.'}
@@ -512,7 +521,7 @@ export default function ResultPanel({
               ? dishes.join(lang === 'fr' ? ' et ' : ' & ')
               : `${dishes.slice(0, 2).join(', ')} +${dishes.length - 2}`;
             return (
-              <div className="px-2 pt-1 pb-1 text-[12px] font-semibold text-tg-text leading-snug">
+              <div className={`px-2 pt-1 pb-1 text-[12px] font-semibold text-tg-text leading-snug ${spanCls}`}>
                 {lang === 'fr'
                   ? `⭐ ${tagged} lieu${tagged > 1 ? 'x' : ''} sur ${cardsToShow.length} ${tagged > 1 ? 'servent' : 'sert'} ${dishLabel}`
                   : `⭐ ${tagged} of ${cardsToShow.length} places here serve ${dishLabel}`}
@@ -537,7 +546,7 @@ export default function ResultPanel({
               return grouped.groups.map((g) => (
                 <React.Fragment key={'cityGrp:' + (g.city || '_none')}>
                   {groupNeedsJumpRow(g, grouped.caseA) && (
-                    <div className="px-2 pt-2 pb-1 text-[12px] font-medium text-tg-text leading-snug border-t border-tg-hint/20">
+                    <div className={`px-2 pt-2 pb-1 text-[12px] font-medium text-tg-text leading-snug border-t border-tg-hint/20 ${spanCls}`}>
                       {tn('michelin.cityJump.before', lang, { count: g.venues.length, total: cardsToShow.length })}
                       <span
                         role="button"
@@ -585,22 +594,22 @@ export default function ResultPanel({
               return (
                 <React.Fragment key={v.placeId || i}>
                   {showConfirmedHeader && (
-                    <div className="px-2 pt-2 pb-1 text-[12px] font-semibold text-tg-text leading-snug">
+                    <div className={`px-2 pt-2 pb-1 text-[12px] font-semibold text-tg-text leading-snug ${spanCls}`}>
                       {lang === 'fr' ? '✔ Confirmé — les avis le mentionnent' : '✔ Confirmed — reviews mention it'}
                     </div>
                   )}
                   {showAskFirstHeader && (
-                    <div className="px-2 pt-2 pb-1 text-[12px] font-semibold text-tg-hint leading-snug border-t border-tg-hint/20">
+                    <div className={`px-2 pt-2 pb-1 text-[12px] font-semibold text-tg-hint leading-snug border-t border-tg-hint/20 ${spanCls}`}>
                       {lang === 'fr' ? "? À vérifier — demandez s'ils le servent" : '? Ask first — check if they serve it'}
                     </div>
                   )}
                   {showFillDivider && (
-                    <div className="px-2 pt-2 pb-1 text-[11px] font-medium text-tg-hint leading-snug border-t border-tg-hint/20">
+                    <div className={`px-2 pt-2 pb-1 text-[11px] font-medium text-tg-hint leading-snug border-t border-tg-hint/20 ${spanCls}`}>
                       {lang === 'fr' ? 'Ouvert il y a 3 à 6 mois' : 'Opened 3–6 months ago'}
                     </div>
                   )}
                   {showNearbyDivider && (
-                    <div className="px-2 pt-2 pb-1 text-[11px] font-semibold text-tg-hint leading-snug border-t border-tg-border/40">
+                    <div className={`px-2 pt-2 pb-1 text-[11px] font-semibold text-tg-hint leading-snug border-t border-tg-border/40 ${spanCls}`}>
                       {nearbyDividerLabel}
                     </div>
                   )}
@@ -612,7 +621,7 @@ export default function ResultPanel({
           {/* v0.61.403 — subtle "more coming" cue while the first batch streams
               in one card at a time (parity with gia-web v0.1.151). */}
           {streamingMore && (
-            <div className="px-2 py-1 text-center text-[11px] leading-snug text-tg-hint animate-pulse">
+            <div className={`px-2 py-1 text-center text-[11px] leading-snug text-tg-hint animate-pulse ${spanCls}`}>
               {lang === 'fr' ? 'chargement…' : 'loading more…'}
             </div>
           )}
@@ -623,7 +632,7 @@ export default function ResultPanel({
               which are now small enough (w-8 h-8) to share the visual
               language. */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-1.5 pt-1.5">
+            <div className={`flex items-center justify-center gap-1.5 pt-1.5 ${spanCls}`}>
               {/* v0.60.146/.148 — the ⇠ Prev (per-session page history)
                   used to live here but the surrounding strip only renders
                   when totalPages > 1 (the in-response page nav for the
