@@ -4171,13 +4171,18 @@ export default function App() {
           (Open-now / Halal / Price / …) + the cuisine grid + 🔍 Search. Hidden
           result cards while open (see the ResultDrawer gate). */}
       {cuisinePickOpen && catalogue && (
-        // v0.62.254 — operator (option 2, MVP-faithful): the picker is now an
-        // IN-FLOW folder panel directly under the folio tabs — tabs + panel read
-        // as ONE folder (the MVP layout), and the map below is un-filled while
-        // open so the panel PUSHES it down (reverses the v0.62.195 fixed overlay).
-        // v0.62.264 — -mt-2 cancels the root flex `gap-2`; with the header's
-        // bottom pad/border dropped while open, the panel butts flush under the tab.
-        <div className={`folder-drawer -mt-2 overflow-y-auto no-scrollbar rounded-b-2xl border px-3 py-2.5 flex flex-col gap-2 max-h-[60vh] ${pickerWidthCls}`}>
+        // v0.62.575 — operator (IMG_0740: "you push down the map, why?"): the
+        // picker is a FIXED overlay that FLOATS over the map at `top: headerBottom`
+        // (right under the folio tabs) instead of an in-flow panel that shoves the
+        // map down + leaves a black band beside it. The `.folder-drawer` surface is
+        // a SOLID white panel (no backdrop-filter → no WebKit compositing blackout
+        // on the iPad fullscreen webview). The element is sized to its own box, so
+        // the map stays tappable everywhere outside it. Left-aligned via
+        // pickerWidthCls (max-w-md, no mx-auto). Replaces the v0.62.254 in-flow
+        // push-down (which reversed the earlier v0.62.195 overlay).
+        <div
+          style={{ top: headerBottom }}
+          className={`folder-drawer fixed z-30 left-3 right-3 md:left-6 md:right-6 lg:left-8 lg:right-8 overflow-y-auto no-scrollbar rounded-b-2xl border px-3 py-2.5 flex flex-col gap-2 max-h-[60vh] ${pickerWidthCls}`}>
           {/* v0.62.246 — operator: the folio TAB already reads "Choose your
               cuisine"; drop the duplicate body title, keep only the × close. */}
           <div className="flex items-center justify-end">
@@ -4254,10 +4259,12 @@ export default function App() {
       )}
       {/* v0.62.254 — the LOCAL-CLASSIC picker is IN-FLOW under its tab too (option 2). */}
       {classicOpen && (cuisinePlate || arrivalPlate) && !loading && venues.length > 0 && (
-        // tabs + panel = one folder (MVP layout); map un-fills below so it pushes down.
-        // v0.62.264 — -mt-2 cancels the root flex `gap-2` so the panel butts flush
-        // under the active tab (header bottom pad/border dropped while open).
-        <div className={`folder-drawer -mt-2 overflow-y-auto no-scrollbar rounded-b-2xl border px-2.5 py-2 max-h-[60vh] ${pickerWidthCls}`}>
+        // v0.62.575 — same as the cuisine picker above: a FIXED overlay floating
+        // over the map at `top: headerBottom` (solid `.folder-drawer` white panel,
+        // no backdrop-filter), not an in-flow push-down. Map stays put.
+        <div
+          style={{ top: headerBottom }}
+          className={`folder-drawer fixed z-30 left-3 right-3 md:left-6 md:right-6 lg:left-8 lg:right-8 overflow-y-auto no-scrollbar rounded-b-2xl border px-2.5 py-2 max-h-[60vh] ${pickerWidthCls}`}>
           {/* v0.62.246 — operator: the folio TAB already reads "Pick local
               classic"; drop the duplicate body title, keep only the × close.
               (The plate below still shows the city name, e.g. "📍 Singapore".) */}
@@ -4295,12 +4302,14 @@ export default function App() {
 
       {/* v0.62.567 — portrait two-panel: pin the framed map at the top (sticky
           below the header) so ONLY the two-column list scrolls beneath it. Uses
-          `display:contents` off-portrait so phones + landscape are untouched. Not
-          sticky while a folio picker is open (the picker pushes the map down). */}
+          `display:contents` off-portrait so phones + landscape are untouched.
+          v0.62.575 — the map STAYS sticky while a folio picker is open now: the
+          picker floats over it as a fixed overlay (below) instead of pushing it
+          down, so the map must hold its place. */}
       <div
-        className={portraitWide && drawerMode === 'vertical' && !cuisinePickOpen && !classicOpen
+        className={portraitWide && drawerMode === 'vertical'
           ? 'sticky z-10 bg-tg-bg' : 'contents'}
-        style={portraitWide && drawerMode === 'vertical' && !cuisinePickOpen && !classicOpen
+        style={portraitWide && drawerMode === 'vertical'
           ? { top: headerBottom } : undefined}
       >
       <MapPanel
@@ -4334,12 +4343,15 @@ export default function App() {
            v0.62.254 — when a folio picker (cuisine / local-classic) is OPEN it
            renders IN-FLOW above the map (option 2, MVP layout), so the map drops
            its full-bleed fill and sits framed below — the picker pushes it down. */
-        /* v0.62.564 — O-54 (operator: the tabs + location should be IN FRONT OF
-           the map, not in a white gap above it). On a tablet/desktop the map
-           stays full-bleed even while a folio picker is open, so the picker /
-           tabs float over the map instead of shoving it into a strip. Phones
-           keep the v0.62.254 behaviour (picker pushes the framed map down). */
-        fill={drawerMode === 'horizontal' && (isWide || (!cuisinePickOpen && !classicOpen))}
+        /* v0.62.575 — O-54 (operator IMG_0740: "you push down the map, why?").
+           The folio pickers now FLOAT over the map as fixed overlays (below), so
+           the map must NOT un-fill when a picker opens — on EVERY device. `fill`
+           depends ONLY on drawerMode now (the picker-open term is gone), which
+           also matches the remount-key `cuisine-map-${drawerMode}` exactly (no
+           picker-triggered fill toggle → no in-place resize → no remount flash /
+           blackout). This makes phone + tablet behave identically (operator: "why
+           phone can be done?" — now they share one code path). */
+        fill={drawerMode === 'horizontal'}
         focusedPlaceId={focusedPlaceId}
         onPinTap={setFocusedPlaceId}
         searchCenter={searchCenter || userLoc}
