@@ -20,8 +20,12 @@ import { useLocale } from '../lib/i18n.js';
 // v0.62.561 — O-54 responsive port: `basisClass` controls how many cards sit in
 // focus. Phones keep the single-card `basis-[82%]` (unchanged); tablet/desktop
 // pass the Hawker carousel basis (`… md:basis-[44%] min-[1180px]:basis-[30%]`)
-// so an iPad-mini shows 2 and an iPad-Pro / desktop shows 3 cards in focus. The
-// `max-w-[22rem]` per-card cap still applies, so cards never balloon.
+// so an iPad-mini shows 2 and an iPad-Pro / desktop shows 3 cards in focus.
+// v0.62.577 — the `max-w-[22rem]` per-card cap was REMOVED (operator: the 3-in-
+// focus that works on Hawker wasn't working here): the cap made the wide cards
+// narrower than their 30%/44% basis, so more, flatter cards showed instead of a
+// prominent centre + two glass half-peeks. The outer `max-w-[1600px]` still
+// bounds the track, so cards can't balloon. Matches the Hawker CentreCarousel.
 export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null, hasFilters = false, composerOpen = false, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null, basisClass = 'basis-[82%]', glassPeek = false }) {
   const [lang] = useLocale();
   const trackRef = useRef(null);
@@ -166,9 +170,14 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
           The card's translateY(-3.25rem) pushed its top above the track box →
           clipped. Reserve matching top headroom while the composer is open so
           the lifted card rises into it instead of being cut. */}
+      {/* v0.62.577 — O-54 (operator: "the 3 cards in focus which works on Hawker
+          in landscape are not working"). Match the Hawker CentreCarousel EXACTLY:
+          `px-[6%]` track padding (was px-[9%] — the extra padding squeezed the two
+          peeking end cards) so the centre card reads prominent with two glass
+          half-peeks, not 3+ flat cards. */}
       <div
         ref={trackRef}
-        className={`flex items-end gap-2 overflow-x-auto snap-x snap-mandatory px-[9%] pb-1 pointer-events-auto ${composerOpen ? 'pt-[3.5rem]' : ''}`}
+        className={`flex items-end gap-2 overflow-x-auto snap-x snap-mandatory px-[6%] pb-1 pointer-events-auto ${composerOpen ? 'pt-[3.5rem]' : ''}`}
         style={{ scrollbarWidth: 'none' }}
       >
         {list.map((v, i) => (
@@ -178,7 +187,7 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
             /* v0.62.285 — operator: when the 💬 composer expands, lift ONLY the
                in-view (focused) card up to clear the input pill; the peeking
                left/right cards stay at the shared items-end baseline. */
-            className={`card-scroll snap-center shrink-0 ${basisClass} max-w-[22rem] max-h-[60vh] overflow-y-auto rounded-lg shadow-xl transition-transform duration-200`}
+            className={`card-scroll snap-center shrink-0 ${basisClass} max-h-[60vh] overflow-y-auto rounded-lg shadow-xl transition-transform duration-200`}
             style={composerOpen && v.placeId === activeId ? { transform: 'translateY(-3.25rem)' } : undefined}
           >
             {/* v0.62.168 — operator: horizontal cards are UNIFORM size (fixed
@@ -207,14 +216,14 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
         ))}
         {/* v0.62.151 — operator: a terminal card after the last result. Scroll to
             the right end → "Last card" + how to refine. */}
-        <div className={`snap-center shrink-0 ${basisClass} max-w-[22rem] max-h-[60vh] rounded-lg shadow-xl bg-tg-card border border-tg-border flex flex-col items-center justify-center text-center gap-1 px-3 py-4`}>
+        <div className={`snap-center shrink-0 ${basisClass} max-h-[60vh] rounded-lg shadow-xl bg-tg-card border border-tg-border flex flex-col items-center justify-center text-center gap-1 px-3 py-4`}>
           <div className="text-[13px] font-semibold text-tg-text">{lang === 'fr' ? 'Dernière carte' : 'Last card'}</div>
           <div className="text-[12px] text-tg-hint leading-snug">📍 {lang === 'fr' ? 'saisir un lieu' : 'enter location'} · 💬 {lang === 'fr' ? 'tapez un plat' : 'Type dish'}</div>
           <div className="text-[12px] text-tg-hint leading-snug">{lang === 'fr' ? 'Touchez 🔍 pour rechercher' : 'Tap 🔍 to search'}</div>
         </div>
         {/* v0.62.155 — loop clone of the FIRST card (jumps back to the real one
             on reach, see the scroll effect above). */}
-        <div className={`card-scroll snap-center shrink-0 ${basisClass} max-w-[22rem] max-h-[60vh] overflow-y-auto rounded-lg shadow-xl`} aria-hidden="true">
+        <div className={`card-scroll snap-center shrink-0 ${basisClass} max-h-[60vh] overflow-y-auto rounded-lg shadow-xl`} aria-hidden="true">
           <ResultCard
             venue={list[0]}
             number={1}
