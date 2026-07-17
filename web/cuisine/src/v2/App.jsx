@@ -160,9 +160,11 @@ export default function App() {
     : 'basis-[82%]';
   // v0.62.562 — O-54 (operator: "keep to the iPhone size"): on a tablet/desktop
   // the "Cuisine & filters" / "Pick local classic" folio tabs + their panels
-  // stretched the full iPad width. Cap them to a centred phone-width column so
-  // the picker reads like the phone. No-op on phones (already this width).
-  const pickerWidthCls = isWide ? 'max-w-md mx-auto w-full' : '';
+  // stretched the full iPad width. Cap them to a phone-width column so the picker
+  // reads like the phone. No-op on phones (already this width).
+  // v0.62.571 — operator: NOT centred — the tabs + picker + location editor drop
+  // at the TOP-LEFT (consistent with the phone), so `max-w-md` without `mx-auto`.
+  const pickerWidthCls = isWide ? 'max-w-md w-full' : '';
   const [catalogue, setCatalogue] = useState(null);
   // v0.62.x — auth guard. True when the Mini App was opened WITHOUT a valid
   // Telegram initData (outside Telegram, or a stale >24h launch) → every API

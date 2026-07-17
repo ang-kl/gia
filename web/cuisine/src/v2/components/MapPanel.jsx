@@ -508,6 +508,24 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // panning now lives in its own effect below.
   useEffect(() => { syncMarkers(); }, [venues, userLoc, searchCenter?.lat, searchCenter?.lng]); // eslint-disable-line
 
+  // v0.62.571 — operator: when a picker / location editor opens, the map goes
+  // FULL-BLEED (`fill` flips) — its container changes size dramatically. Google
+  // Maps must be nudged to re-read the container, else it paints unloaded (black,
+  // esp. in monochrome) tiles until the next interaction ("tapping blacked out the
+  // map"). Capture the centre, fire a resize, and restore it once layout settles.
+  useEffect(() => {
+    if (!mapRef.current || !window.google?.maps?.event) return undefined;
+    const map = mapRef.current;
+    const c = map.getCenter && map.getCenter();
+    const t = setTimeout(() => {
+      try {
+        window.google.maps.event.trigger(map, 'resize');
+        if (c) map.setCenter(c);
+      } catch { /* best-effort */ }
+    }, 80);
+    return () => clearTimeout(t);
+  }, [fill, topInset]);
+
   // v0.62.106 — operator (#3/#4, SG only): on a venue tap, surface the nearest
   // 3 bus stops + 2 stations on the MAP (toggle-independent) and append them to
   // the open card. Reuses the controller's showVenueTransit.
