@@ -4180,9 +4180,18 @@ export default function App() {
         // the map stays tappable everywhere outside it. Left-aligned via
         // pickerWidthCls (max-w-md, no mx-auto). Replaces the v0.62.254 in-flow
         // push-down (which reversed the earlier v0.62.195 overlay).
+        // v0.62.576 — Codex P2: the fixed drawer must anchor to the APP CONTAINER,
+        // not the viewport. The root is `max-w-[1600px] mx-auto px-3 md:px-6 lg:px-8`,
+        // so on a viewport WIDER than 1600px the old viewport gutters (left-8) opened
+        // the picker far left of its (centred) tab. The wrapper now mirrors the root
+        // container exactly, so the inner panel's left edge == the tab's left edge on
+        // every width. pointer-events-none on the wrapper (map tappable in the gaps);
+        // pointer-events-auto on the solid panel.
         <div
           style={{ top: headerBottom }}
-          className={`folder-drawer fixed z-30 left-3 right-3 md:left-6 md:right-6 lg:left-8 lg:right-8 overflow-y-auto no-scrollbar rounded-b-2xl border px-3 py-2.5 flex flex-col gap-2 max-h-[60vh] ${pickerWidthCls}`}>
+          className="fixed left-0 right-0 z-30 max-w-[1600px] mx-auto px-3 md:px-6 lg:px-8 pointer-events-none">
+        <div
+          className={`folder-drawer pointer-events-auto overflow-y-auto no-scrollbar rounded-b-2xl border px-3 py-2.5 flex flex-col gap-2 max-h-[60vh] ${pickerWidthCls}`}>
           {/* v0.62.246 — operator: the folio TAB already reads "Choose your
               cuisine"; drop the duplicate body title, keep only the × close. */}
           <div className="flex items-center justify-end">
@@ -4256,15 +4265,19 @@ export default function App() {
             className="w-full text-sm font-semibold px-3 py-2 rounded-xl bg-tg-accent text-tg-accent-text active:scale-[0.99] disabled:opacity-50"
           >{t('btn.search', lang)}</button>
         </div>
+        </div>
       )}
       {/* v0.62.254 — the LOCAL-CLASSIC picker is IN-FLOW under its tab too (option 2). */}
       {classicOpen && (cuisinePlate || arrivalPlate) && !loading && venues.length > 0 && (
         // v0.62.575 — same as the cuisine picker above: a FIXED overlay floating
         // over the map at `top: headerBottom` (solid `.folder-drawer` white panel,
         // no backdrop-filter), not an in-flow push-down. Map stays put.
+        // v0.62.576 — Codex P2: anchor to the app container (see the cuisine picker).
         <div
           style={{ top: headerBottom }}
-          className={`folder-drawer fixed z-30 left-3 right-3 md:left-6 md:right-6 lg:left-8 lg:right-8 overflow-y-auto no-scrollbar rounded-b-2xl border px-2.5 py-2 max-h-[60vh] ${pickerWidthCls}`}>
+          className="fixed left-0 right-0 z-30 max-w-[1600px] mx-auto px-3 md:px-6 lg:px-8 pointer-events-none">
+        <div
+          className={`folder-drawer pointer-events-auto overflow-y-auto no-scrollbar rounded-b-2xl border px-2.5 py-2 max-h-[60vh] ${pickerWidthCls}`}>
           {/* v0.62.246 — operator: the folio TAB already reads "Pick local
               classic"; drop the duplicate body title, keep only the × close.
               (The plate below still shows the city name, e.g. "📍 Singapore".) */}
@@ -4297,6 +4310,7 @@ export default function App() {
               runSearch(state, null, { freeTextOverride: dish, hawkerFirst: state.region === 'SG' });
             }}
           />
+        </div>
         </div>
       )}
 
