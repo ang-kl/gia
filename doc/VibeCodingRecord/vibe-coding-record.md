@@ -1,23 +1,23 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-07-17 from a snapshot of all 1522 pull requests (#1–#1522).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-07-17 from a snapshot of all 1548 pull requests (#1–#1548).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 1522 total — 1512 merged, 10 closed without merge.
+- **PRs:** 1548 total — 1538 merged, 10 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #1551 · 2026-07-16 14:40:18+10:00 · _v0.62.543 — cuisine map: pin colours, ring-3 auto-frame, 4-side big-ring labels, km/miles_
+- **Latest:** #1577 · 2026-07-17 08:08:13+00:00 · _v0.62.567 — Cuisine tablet (O-54): portrait two-panel — static map + scrolling columns, ⇲ expands to carousel_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 1026 |
-| fix | 206 |
-| docs | 96 |
+| feature | 1049 |
+| fix | 207 |
+| docs | 97 |
 | copy | 62 |
-| refactor | 46 |
+| refactor | 47 |
 | prompt-tune | 45 |
 | test | 21 |
 | infra | 20 |
@@ -26,10 +26,10 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 464 |
+| Cuisine Picker | 475 |
 | Core / misc | 302 |
-| Hawker NEA | 111 |
-| Docs / vault | 105 |
+| Hawker NEA | 125 |
+| Docs / vault | 106 |
 | Search / free-text | 82 |
 | Transport / carpark | 81 |
 | Recognised lists | 74 |
@@ -1574,6 +1574,32 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 1549 | merged | 2026-07-15 13:06:32+10:00 | 0.62.538 | feature | Transport / carpark | Add: distance rings: 3rd "reach" train ring (#.#km · ~N stops) | Follow-up to #1548. | 6 files — TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
 | 1550 | merged | 2026-07-16 12:28:01+10:00 | 0.62.541 | fix | Core / misc | Fix: cuisine: focused-card name fix + region-gated distance rings | (№ 1,013 | 9 files — TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
 | 1551 | merged | 2026-07-16 14:40:18+10:00 | 0.62.543 | feature | Core / misc | Add: cuisine map: pin colours, ring-3 auto-frame, 4-side big-ring labels, km/miles | (№ 1,016 | 8 files — TMA:cuisine, tests, doc, package | cuisine | tests; doc/vault |
+| 1552 | merged | 2026-07-17 04:41:49+10:00 | 0.62.543 | docs | Docs / vault | Update docs: v0.62.543 doc-update pass — VCR catch-up (#1536–#1551) + Register/Feature/Technical | Operator: "Vault, document update." VAULT: re-affirmed retired (vault/ .gitignored since v0.62.508 #1514 — each commit sha is a full source tree; git show 55f0606:<path>). | doc (inferred — pre-squash) | — | doc/vault |
+| 1553 | merged | 2026-07-17 05:29:35+10:00 | 0.62.544 | feature | Cuisine Picker | Add: responsive tablet layout: Hawker pilot (full-bleed map + left panel + grid) | Operator (iPad Pro, rotates): UI "feels stretched"; wants the Google map to fill the screen with controls/list on the left, results in 3-4 columns (2 portrait), same approach across Hawker/Transport/Cuisine + a footer device/orientation… | TMA:hawker, doc (inferred — pre-squash) | hawker | doc/vault |
+| 1554 | merged | 2026-07-16 19:47:13+00:00 | 0.62.545 | feature | Cuisine Picker | Add: Hawker tablet: request fullscreen so it fills the iPad screen | Operator (IMG_0669/IMG_0670, iPad Pro, v0.62.544): both modes don't fill the screen. | TMA:cuisine, TMA:menu, TMA:hawker, doc (inferred — pre-squash) | cuisine+menu+hawker | doc/vault |
+| 1555 | merged | 2026-07-16 20:02:58+00:00 | 0.62.546 | feature | Hawker NEA | Add: Hawker tablet: fullscreen re-read + landscape 4-col / portrait stacked | Operator (IMG_0672/IMG_0673, iPad Pro, v0.62.545): landscape missing the four columns; portrait should list BELOW the map. | TMA:hawker, doc (inferred — pre-squash) | hawker | doc/vault |
+| 1556 | merged | 2026-07-16 20:19:37+00:00 | 0.62.547 | feature | Hawker NEA | Add: Hawker: Cuisine-style centre cards + tablet list toggle | Restyle the Hawker centre list to the Cuisine result-card look in every layout (name header, 📇 address, stall/status chip, codeHex-coloured MRT line-code chips + 🚌 bus pills, rounded-full pill actions), and add a Cuisine-style list/map… | TMA:hawker, i18n.js, doc (inferred — pre-squash) | hawker | doc/vault |
+| 1557 | merged | 2026-07-16 20:57:18+00:00 | 0.62.548 | feature | Cuisine Picker | Add: Hawker: landscape Cuisine carousel + bus-stop descriptions + toggle to bottom-right | Three operator asks (IMG_0674/0675/0677, iPad Pro): 1. | TMA:cuisine, TMA:hawker, doc (inferred — pre-squash) | cuisine+hawker | doc/vault |
+| 1558 | merged | 2026-07-16 21:33:00+00:00 | 0.62.549 | feature | Hawker NEA | Add: Hawker: pill-tap map highlight + toggle · 3-card opaque carousel · landscape header re-flow | Three operator asks (IMG_0683/0684/0685, iPad Pro): 1. | TMA:hawker, doc (inferred — pre-squash) | hawker | doc/vault |
+| 1559 | merged | 2026-07-16 21:41:56+00:00 | 0.62.550 | feature | Hawker NEA | Add: Hawker portrait-tablet: anchored map + scrollable list panel, expand→carousel · standardised left nav cluster | Point 4 (queued after the first three, #1558): 4a. | TMA:hawker, doc (inferred — pre-squash) | hawker | doc/vault |
+| 1560 | merged | 2026-07-16 21:58:44+00:00 | 0.62.551 | feature | Hawker NEA | Add: urgent: tapping a bus-stop pill now shows the bus stop on the map | Operator (urgent, v0.62.550): tapping a bus-stop pill in a card did nothing visible. | TMA:hawker, doc (inferred — pre-squash) | hawker | doc/vault |
+| 1561 | merged | 2026-07-16 22:05:44+00:00 | 0.62.552 | feature | Hawker NEA | Add: Hawker carousel: glass peeking cards + iPad-mini 2-in-focus · map toggle folded into FooterNav | Operator (IMG_0686, iPad Pro landscape): 1. | TMA:hawker, doc (inferred — pre-squash) | hawker | doc/vault |
+| 1562 | merged | 2026-07-16 22:17:44+00:00 | 0.62.553 | feature | Hawker NEA | Add: Hawker: Michelin Bib Gourmand pin + stall names on card/InfoWindow/chat | Operator: build the Bib Gourmand half in house style (cleaning-closure half put on K.I.V.). | index.js, TMA:hawker, doc (inferred — pre-squash) | hawker | doc/vault |
+| 1563 | merged | 2026-07-16 22:47:06+00:00 | 0.62.554 | feature | Hawker NEA | Add: Hawker carousel: kill horizontal band · grey the unwired expand · toggle label "Cards" | Operator (IMG_0687/0688, iPad Pro landscape): 1. | TMA:hawker, i18n.js, doc (inferred — pre-squash) | hawker | doc/vault |
+| 1564 | merged | 2026-07-16 22:58:37+00:00 | 0.62.555 | feature | Hawker NEA | Add: Hawker tablet map: restore quick-toggle row · station card wider + pan-to-clear-top · tiny card padding | Operator (IMG_0692/0693/0694, iPad Pro landscape): 1. | TMA:hawker, doc (inferred — pre-squash) | hawker | doc/vault |
+| 1565 | merged | 2026-07-16 23:06:34+00:00 | 0.62.556 | feature | Hawker NEA | Add: Hawker: tap the whole centre card to highlight its pin + toggle active | Operator: tapping anywhere in a hawker centre card (except the pills) should be wired like the station/bus-stop pills — highlight the centre pin and change the card's status. | TMA:hawker, doc (inferred — pre-squash) | hawker | doc/vault |
+| 1566 | merged | 2026-07-16 23:13:14+00:00 | 0.62.557 | feature | Hawker NEA | Add: Hawker: card↔pin 3s highlight both ways · Bib stall names are hidden Google-Maps links | Operator: 1. | TMA:hawker, doc (inferred — pre-squash) | hawker | doc/vault |
+| 1567 | merged | 2026-07-16 23:28:19+00:00 | 0.62.558 | feature | Hawker NEA | Add: Hawker: pin→card scroll-into-focus · strip InfoWindow chrome · visible Bib links · drop double 🍳 | Operator (IMG_0695/0696): 1. | TMA:hawker, doc (inferred — pre-squash) | hawker | doc/vault |
+| 1568 | merged | 2026-07-16 23:33:00+00:00 | 0.62.559 | feature | Hawker NEA | Add: Hawker: InfoWindow bus stop shows on the embedded map, not external Google Maps | Operator (IMG_0699): tapping a bus stop in the centre-pin InfoWindow opened external Google Maps instead of showing the stop on the embedded map. | TMA:hawker, doc (inferred — pre-squash) | hawker | doc/vault |
+| 1569 | merged | 2026-07-17 01:16:32+00:00 | 0.62.560 | fix | Cuisine Picker | Fix: Bib links un-underlined · closing a map card no longer adjusts the zoom (all embedded-map TMAs) | Operator (IMG_0700): 1. | TMA:cuisine, TMA:hawker, doc (inferred — pre-squash) | cuisine+hawker | doc/vault |
+| 1570 | merged | 2026-07-17 01:44:00+00:00 | 0.62.560 | refactor | Hawker NEA | consolidate the Hawker responsive tablet/desktop arc into Feature/Technical/Register | Operator asked to draft the learnings + code changes for the now-working Hawker TMA across tablet/desktop/phone, and chose the Feature + Technical + Register consolidation (next-TMA port stays a plan). | TMA:hawker, doc (inferred — pre-squash) | hawker | doc/vault |
+| 1571 | merged | 2026-07-17 03:48:50+00:00 | 0.62.561 | feature | Cuisine Picker | Add: Cuisine responsive port (O-54): tablet fullscreen + multi-card result strip | O-54 auto-build, first half (Cuisine). | TMA:cuisine, doc (inferred — pre-squash) | cuisine | tests; doc/vault |
+| 1572 | merged | 2026-07-17 04:12:17+00:00 | 0.62.562 | feature | Cuisine Picker | Add: Cuisine tablet (O-54): carousel pops pin + 3-in-focus glass + phone-width picker | Second pass on the Cuisine responsive port, from on-device iPad feedback (operator: "follow hawker codes"). | TMA:cuisine (inferred — pre-squash) | cuisine | tests |
+| 1573 | merged | 2026-07-17 04:17:03+00:00 | 0.62.563 | feature | Cuisine Picker | Add: Cuisine tablet (O-54): header clears Telegram's system buttons in fullscreen | Operator (iPad): the "Cuisine" title + the location row sat UNDER Telegram's floating system buttons (⌄ / ···) in fullscreen. | TMA:cuisine (inferred — pre-squash) | cuisine | tests |
+| 1574 | merged | 2026-07-17 07:08:59+00:00 | 0.62.564 | feature | Cuisine Picker | Add: Cuisine tablet (O-54): list only in portrait; map stays full-bleed under an open picker | From iPad feedback (IMG_0715, landscape). | TMA:cuisine (inferred — pre-squash) | cuisine | tests |
+| 1575 | merged | 2026-07-17 07:16:27+00:00 | 0.62.565 | feature | Cuisine Picker | Add: Cuisine tablet (O-54): two-column result list in portrait | Operator: "where are the two columns in portrait mode". | TMA:cuisine (inferred — pre-squash) | cuisine | tests |
+| 1576 | merged | 2026-07-17 07:43:47+00:00 | 0.62.566 | feature | Cuisine Picker | Add: Cuisine tablet (O-54): independent two columns in portrait | Operator: "we need independent columns that doesn't affect the other column in portrait mode." The CSS grid aligned rows, so when a card in one column expanded, its short row-mate's column was left with a gap. | TMA:cuisine (inferred — pre-squash) | cuisine | tests |
+| 1577 | merged | 2026-07-17 08:08:13+00:00 | 0.62.567 | feature | Cuisine Picker | Add: Cuisine tablet (O-54): portrait two-panel — static map + scrolling columns, ⇲ expands to carousel | Completes the Hawker two-panel port for Cuisine. | TMA:cuisine (inferred — pre-squash) | cuisine | tests |
 
 ---
 
