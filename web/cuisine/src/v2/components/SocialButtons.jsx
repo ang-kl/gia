@@ -89,7 +89,13 @@ export default function SocialButtons({ profiles, bare = false }) {
       onClick={(e) => open(e, url)}
       aria-label={LABELS[network]}
       title={LABELS[network]}
-      className="text-[11px] px-2 py-0.5 rounded border border-tg-border bg-tg-bg flex items-center justify-center"
+      /* v0.62.585 — operator (IMG_3522, "severe missing information"): the brand
+         glyphs render `fill="currentColor"` but the button set no text colour, so
+         on the focused white card it inherited the app's raw `color` (light in dark
+         mode) → white icon on white = an EMPTY box. `text-tg-text` binds the glyph
+         to the card's resolved ink (the focused card's --tg-text override = dark),
+         so the icons show in both themes. */
+      className="text-[11px] text-tg-text px-2 py-0.5 rounded border border-tg-border bg-tg-bg flex items-center justify-center"
     >
       {ICONS[network]}
     </button>
