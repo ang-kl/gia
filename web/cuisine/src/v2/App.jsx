@@ -3653,7 +3653,15 @@ export default function App() {
           drop the header's bottom padding + border so the tabs end flush; the
           drawer then cancels the parent gap (-mt-2) and butts directly under the
           active tab → tabs + panel read as ONE folder. */}
-      <header ref={headerRef} className={`sticky top-0 z-30 -mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 pt-2 ${(cuisinePickOpen || classicOpen) ? 'pb-0' : 'pb-2'} flex flex-col gap-1.5 transition-colors ${modePeek ? 'bg-tg-bg' : 'bg-tg-bg/90 backdrop-blur'}`}>
+      {/* v0.62.563 — O-54 (operator: the "Cuisine" title + location row sat UNDER
+          Telegram's floating system buttons in fullscreen). On a tablet/desktop
+          (fullscreen) pad the sticky header's top by Telegram's content-safe-area
+          inset so the title + location row clear the ⌄/··· system chrome — the
+          same fix as the Hawker top bar. Phones (not fullscreen) keep the plain
+          pt-2 and are unchanged. */}
+      <header ref={headerRef}
+        style={{ paddingTop: isWide ? 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' : '0.5rem' }}
+        className={`sticky top-0 z-30 -mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 ${(cuisinePickOpen || classicOpen) ? 'pb-0' : 'pb-2'} flex flex-col gap-1.5 transition-colors ${modePeek ? 'bg-tg-bg' : 'bg-tg-bg/90 backdrop-blur'}`}>
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <img src="soleat-icon.png" alt="soleat" width="24" height="24" className="rounded-full flex-shrink-0" />
