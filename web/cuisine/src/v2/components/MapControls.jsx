@@ -31,7 +31,10 @@ function pillClass() {
 
 export default function MapControls({
   layers = {}, onToggleLayer, rowToggles = [], menuToggles = [],
-  menuLabel = 'Layers', colourToggle = null
+  menuLabel = 'Layers', colourToggle = null,
+  // v0.62.570 (cuisine only) — push the toggle row below a floating header when
+  // the map is full-bleed behind it. Default 0 → the other TMA copies unchanged.
+  topInset = 0
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const wrapRef = useRef(null);
@@ -57,7 +60,8 @@ export default function MapControls({
   // top-right 🔭 button, removed in v0.62.270. Reclaiming it (+ px-1 pills)
   // fits the 🍚 Hawker pill on one row without it being clipped at the edge.
   return (
-    <div ref={wrapRef} className="absolute top-2 left-2 right-3 z-10">
+    <div ref={wrapRef} className="absolute top-2 left-2 right-3 z-10"
+      style={topInset ? { top: `${topInset + 8}px` } : undefined}>
       {/* v0.61.70 — single row; the font is small enough that the Colour
           pill + the ⋯ menu + 3 toggles all fit.
           v0.62.214 — operator (IMG_1069): the v0.62.211 WRAP pushed the 4th

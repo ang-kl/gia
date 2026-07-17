@@ -3618,6 +3618,13 @@ export default function App() {
     );
   }
 
+  // v0.62.570 — the map is FULL-BLEED behind the fixed header (carousel /
+  // picker / location-editor / landscape). In those modes nothing needs to sit
+  // below the header (the map fills behind it, controls dropped via topInset);
+  // otherwise (the two-panel list / phone) a spacer the height of the header
+  // keeps the scrolling content clear of the floating bar.
+  const mapFullBleed = drawerMode === 'horizontal' || cuisinePickOpen || classicOpen || (regionExpanded && venues.length > 0);
+
   return (
     <div
       className="bg-tg-bg text-tg-text pt-3 flex flex-col gap-2 max-w-[1600px] mx-auto px-3 md:px-6 lg:px-8"
@@ -3673,9 +3680,16 @@ export default function App() {
           inset so the title + location row clear the ⌄/··· system chrome — the
           same fix as the Hawker top bar. Phones (not fullscreen) keep the plain
           pt-2 and are unchanged. */}
+      {/* v0.62.570 — O-54 (operator: float the header strip itself over the map's
+          top). The header is now a FIXED, translucent bar centred to the max-w
+          column; the map (the first in-flow element below) reaches top-0 behind
+          it, so the title + location line + folio tabs read as a layer IN FRONT
+          of the map on every device. `bg-tg-bg/85 backdrop-blur` keeps it legible
+          while the map shows through. The map's own controls drop below this bar
+          (MapPanel `topInset`). */}
       <header ref={headerRef}
         style={{ paddingTop: isWide ? 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' : '0.5rem' }}
-        className={`sticky top-0 z-30 -mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 ${(cuisinePickOpen || classicOpen) ? 'pb-0' : 'pb-2'} flex flex-col gap-1.5 transition-colors ${modePeek ? 'bg-tg-bg' : 'bg-tg-bg/90 backdrop-blur'}`}>
+        className={`fixed top-0 inset-x-0 z-30 mx-auto w-full max-w-[1600px] px-3 md:px-6 lg:px-8 ${(cuisinePickOpen || classicOpen) ? 'pb-0' : 'pb-2'} flex flex-col gap-1.5 transition-colors bg-tg-bg/85 backdrop-blur`}>
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <img src="soleat-icon.png" alt="soleat" width="24" height="24" className="rounded-full flex-shrink-0" />
@@ -4161,6 +4175,10 @@ export default function App() {
           </div>
         )}
       </header>
+      {/* v0.62.570 — spacer the height of the fixed header, so the two-panel /
+          phone scrolling content starts below the floating bar. Omitted when the
+          map is full-bleed (it fills BEHIND the header on purpose). */}
+      {!mapFullBleed && <div aria-hidden className="shrink-0" style={{ height: headerBottom }} />}
 
       {/* v0.62.x — the Search Insights strip moved OUT of here (was a full-bleed
           white band under the header that ate a row). It now renders as a slim,
@@ -4336,7 +4354,10 @@ export default function App() {
            pushes the map down). The map goes full-bleed whenever a folio picker is
            open (every device), and the picker panels float OVER it (see below), so
            the map shows behind/around the picker instead of a black band. */
-        fill={drawerMode === 'horizontal' || cuisinePickOpen || classicOpen || (regionExpanded && venues.length > 0)}
+        fill={mapFullBleed}
+        /* v0.62.570 — when the map is full-bleed behind the fixed header, drop the
+           in-map control clusters below the header so they stay tappable. */
+        topInset={mapFullBleed ? headerBottom : 0}
         focusedPlaceId={focusedPlaceId}
         onPinTap={setFocusedPlaceId}
         searchCenter={searchCenter || userLoc}

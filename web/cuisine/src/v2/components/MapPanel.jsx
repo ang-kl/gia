@@ -127,7 +127,7 @@ function distanceUnit(region, countryPref) {
   return MILES_COUNTRIES.has(String(countryPref || '').toUpperCase()) ? 'mi' : 'km';
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, flyTo, fitPins, onDeselect, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, flyTo, fitPins, onDeselect, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, topInset = 0, children }) {
   // v0.62.125 — onDeselect (tap empty map → exit the result carousel) kept in a
   // ref so the long-lived map-click handler always calls the current prop.
   const onDeselectRef = useRef(null);
@@ -1060,7 +1060,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           v0.62.163 — operator: moved to the LEFT edge (left-2) so the 5-button
           column starts nearer the top-left corner; still top-12, which clears
           the MapControls toggle row (top-2). */}
-      <div className="absolute top-12 left-2 flex flex-col gap-1 z-10">
+      <div className="absolute top-12 left-2 flex flex-col gap-1 z-10"
+        style={topInset ? { top: `${topInset + 44}px` } : undefined}>
         {/* v0.61.37 — Reset: recenter to the search anchor / default view. */}
         <button
           type="button"
@@ -1118,6 +1119,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       </div>
       {/* v0.61.36 — Phase G/C floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls
+        topInset={topInset}
         layers={effectiveLayers || {}}
         onToggleLayer={(key) => onOverlayChange?.({
           ...(overlayLayers || {}), [key]: !(overlayLayers || {})[key]
