@@ -166,12 +166,9 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   // the 'GIA_SANCTUARY' placeholder — required because
   // AdvancedMarkerElement refuses to render without a registered mapId.
   const mapIdRef = useRef('DEMO_MAP_ID');
-  // v0.62.115 — operator: a hawker PIN tap zooms the map IN to 17 (Hawker is
-  // map-only — no result-card list — so the pin is the analogue of Cuisine's
-  // card tap); a tap on the empty map / ✕ (closeInfo) returns to the prior
-  // zoom. Captured once per focus burst so tapping pin after pin keeps the
-  // original level.
-  const prevFocusZoomRef = useRef(null);
+  // v0.62.115 — operator: a hawker PIN tap zooms the map IN to 17.
+  // v0.62.560 — operator: closing the card must NOT adjust the zoom — the
+  // return-to-prior-zoom on close is removed (was prevFocusZoomRef).
 
   // One-time tablet media-query — same threshold as cuisine MapPanel.
   useEffect(() => {
@@ -321,11 +318,8 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       infoWindowRef.current?.close();
       overlayControllerRef.current?.closeInfo?.();
       ringLayerRef.current?.clear();   // v0.62.537 — drop the distance rings on tap-out
-      // v0.62.115 — restore the pre-focus zoom captured on a pin tap.
-      if (prevFocusZoomRef.current != null && mapRef.current) {
-        mapRef.current.setZoom(prevFocusZoomRef.current);
-        prevFocusZoomRef.current = null;
-      }
+      // v0.62.560 — operator: do NOT adjust the zoom on close (the pre-focus zoom
+      // restore is removed) — leave the map wherever the user left it.
     };
     window.__giaMapInfoClose = closeInfo;
     mapRef.current.addListener('click', closeInfo);
@@ -427,12 +421,9 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     const cached = transitCacheRef.current[c.name];
     infoWindowRef.current.setContent(buildInfoHtml(c, key, cached || null));
     infoWindowRef.current.open(mapRef.current, marker);
-    // v0.62.115 — operator: a pin tap zooms IN to 17. Capture the live zoom ONCE
-    // per focus burst (don't overwrite for a later pin) so closeInfo can return.
+    // v0.62.115 — operator: a pin tap zooms IN to 17. v0.62.560 — the prior-zoom
+    // capture/restore is removed (closing no longer changes the zoom).
     if (Number.isFinite(c.lat) && Number.isFinite(c.lng)) {
-      if (prevFocusZoomRef.current == null) {
-        prevFocusZoomRef.current = mapRef.current?.getZoom?.() ?? null;
-      }
       mapRef.current?.panTo({ lat: c.lat, lng: c.lng });
       mapRef.current?.setZoom(17);
     }

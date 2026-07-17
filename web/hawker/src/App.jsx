@@ -381,7 +381,7 @@ export default function App() {
                   href={`https://maps.google.com/?q=${encodeURIComponent(`${s} ${c.displayName || c.name} Singapore`)}`}
                   target="_blank" rel="noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="text-tg-accent underline"
+                  className="text-tg-accent"
                 >{s}</a>
               </React.Fragment>
             ))}
