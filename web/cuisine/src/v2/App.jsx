@@ -4929,6 +4929,11 @@ export default function App() {
               setSessionFull(false);
             }
           }}
+          /* v0.62.565 — O-54 (operator: "where are the two columns in portrait
+             mode"). On a tablet/desktop the list renders in TWO columns. The
+             list only shows on wide in PORTRAIT (landscape is the carousel), so
+             isWide → 2 columns is the portrait two-panel grid. Phones → 1. */
+          columns={isWide ? 2 : 1}
         />
         {/* v0.60.115/117 — terminal note when the server returns
             exhausted=true: the user has now seen everything across all
