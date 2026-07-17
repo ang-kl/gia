@@ -51,9 +51,17 @@ const COUNTRY_LABEL = {
 // word and leaves the rest untouched, so acronyms ("SG"), parenthetical
 // qualifiers ("(Teochew)") and diacritics ("Phở") all survive (/u → \p{L}
 // matches accented letters).
+// v0.62.586 — operator (Brisbane, IMG_0751): plain per-word capitalisation turned
+// the food acronym "bbq" into "Bbq" ("australian bbq" → "Australian Bbq"). A small
+// allowlist of all-caps abbreviations stays FULLY upper ("Australian BBQ", "Curry
+// Laksa KL", "HK-Style Milk Tea"). Match is case-folded, so source tokens already
+// upper ("SG") pass through unchanged.
+const DISH_ACRONYMS = new Set(['bbq', 'hk', 'kl', 'xo', 'sg', 'nz', 'usa', 'uk', 'ny', 'nyc', 'kfc']);
 function titleCaseDish(s) {
-  return String(s || '').replace(/[\p{L}][\p{L}'’]*/gu,
-    (w) => w.charAt(0).toUpperCase() + w.slice(1));
+  return String(s || '').replace(/[\p{L}][\p{L}'’]*/gu, (w) =>
+    DISH_ACRONYMS.has(w.toLowerCase())
+      ? w.toUpperCase()
+      : w.charAt(0).toUpperCase() + w.slice(1));
 }
 
 // v0.62.116 — operator: the one-line "peek" of the local-food-picks plate

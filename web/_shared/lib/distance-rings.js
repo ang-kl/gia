@@ -253,7 +253,7 @@ export function createRingLayer(map, googleMaps) {
     items = [];
   }
 
-  function drawRing(centre, radiusM, icon, text) {
+  function drawRing(centre, radiusM, icon, text, fourSide = false) {
     const line = new Polyline({
       path: circlePath(centre.lat, centre.lng, radiusM),
       strokeOpacity: 0,           // stroke drawn entirely by the dash icons
@@ -266,7 +266,11 @@ export function createRingLayer(map, googleMaps) {
     if (AdvancedMarkerElement) {
       // v0.62.543 — one north label normally; a large ring (whose north edge can
       // be far off the visible arc) gets a label on all four sides (N/E/S/W).
-      const bearings = radiusM > LARGE_RING_M
+      // v0.62.586 — the OUTER ring (`fourSide`, the farthest-result / reach ring)
+      // ALWAYS gets four labels regardless of size: operator (Brisbane, IMG_0751)
+      // "where is the four corners (N/S/E/W) labels of the outer ring" — that ring
+      // was 2.9 km (< LARGE_RING_M), so it had shown only the single north label.
+      const bearings = (fourSide || radiusM > LARGE_RING_M)
         ? [0, Math.PI / 2, Math.PI, 3 * Math.PI / 2]
         : [0];
       for (const brg of bearings) {
@@ -300,7 +304,7 @@ export function createRingLayer(map, googleMaps) {
       if (mrt && mrt.radiusM > WALK_RADIUS_M * MIN_MRT_OVER_WALK) {
         drawRing(centre, mrt.radiusM, '🚆', `${formatDist(mrt.radiusM, unit)} (${MRT_STOPS} stops)`);
         const reach = mrtReachRadius(centre.lat, centre.lng, results, mrt.radiusM);
-        if (reach) drawRing(centre, reach.radiusM, '🚆', `${formatDist(reach.radiusM, unit)} (~${reach.stops} stops)`);
+        if (reach) drawRing(centre, reach.radiusM, '🚆', `${formatDist(reach.radiusM, unit)} (~${reach.stops} stops)`, true);
       }
       return;
     }
@@ -312,7 +316,7 @@ export function createRingLayer(map, googleMaps) {
     drawRing(centre, NON_SG_RING2_M, '', ring2Label);
     const far = farthestResultDist(centre.lat, centre.lng, results);
     if (far > NON_SG_RING2_M) {
-      drawRing(centre, far, '', formatDist(far, unit));
+      drawRing(centre, far, '', formatDist(far, unit), true);
     }
   }
 
