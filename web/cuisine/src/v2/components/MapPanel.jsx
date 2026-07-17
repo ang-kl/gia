@@ -127,7 +127,7 @@ function distanceUnit(region, countryPref) {
   return MILES_COUNTRIES.has(String(countryPref || '').toUpperCase()) ? 'mi' : 'km';
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, flyTo, fitPins, onDeselect, onLongPress, blinkOnly = false, fill = false, children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, flyTo, fitPins, onDeselect, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, children }) {
   // v0.62.125 — onDeselect (tap empty map → exit the result carousel) kept in a
   // ref so the long-lived map-click handler always calls the current prop.
   const onDeselectRef = useRef(null);
@@ -1043,7 +1043,9 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
               width: '100%',
               // v0.62.155 — operator: fill the white space below the map. Grow the
               // map so it reaches down toward the footer FABs (mobile 50→66vh).
-              height: expanded ? '90vh' : (isTablet ? 'min(720px, 68vh)' : 'min(620px, 66vh)'),
+              // v0.62.567 — `frameHeight` overrides it (the portrait two-panel pins
+              // a compact ~40vh map so the two-column list gets the rest).
+              height: expanded ? '90vh' : (frameHeight || (isTablet ? 'min(720px, 68vh)' : 'min(620px, 66vh)')),
               minHeight: 240
             }}
       />
@@ -1094,15 +1096,24 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           aria-label={tr('map.zoomOut', lang)}
         ><span aria-hidden>－</span></button>
         {/* v0.62.190 — the expand/collapse toggle is hidden in fill mode (the map
-            already fills the viewport, so it would be a no-op button). */}
-        {!fill && (
+            already fills the viewport, so it would be a no-op button).
+            v0.62.567 — portrait two-panel: when `onExpandFull` is wired the ⇲ jumps
+            straight to the full carousel (App flips drawerMode) instead of the
+            internal grow; and in fill/carousel mode the button REAPPEARS as ⇱ when
+            `onCollapse` is wired, to collapse back to the two-panel (landscape,
+            which passes neither, still hides it in fill). */}
+        {(!fill || onCollapse) && (
         <button
           type="button"
-          onClick={() => setExpanded((e) => !e)}
+          onClick={() => {
+            if (fill) { onCollapse && onCollapse(); }
+            else if (onExpandFull) { onExpandFull(); }
+            else { setExpanded((e) => !e); }
+          }}
           className="w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
-          aria-label={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
-          title={tr(expanded ? 'map.collapse' : 'map.expand', lang)}
-        ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>
+          aria-label={tr((fill || (expanded && !onExpandFull)) ? 'map.collapse' : 'map.expand', lang)}
+          title={tr((fill || (expanded && !onExpandFull)) ? 'map.collapse' : 'map.expand', lang)}
+        ><span aria-hidden>{(fill || (expanded && !onExpandFull)) ? '⇱' : '⇲'}</span></button>
         )}
       </div>
       {/* v0.61.36 — Phase G/C floating toggle row + "⋯/⋮" overflow dropdown. */}

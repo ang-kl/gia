@@ -147,6 +147,11 @@ export default function App() {
   // or desktop; phones stay `false` so their layout is provably unchanged.
   const vp = useViewport();
   const isWide = vp.isWide;
+  // v0.62.567 — O-54 portrait two-panel: a wide device held in PORTRAIT gets the
+  // Hawker two-panel (a static ~40vh map pinned at the top + the two-column list
+  // scrolling below it); the map's ⇲ expands to the full carousel and ⇱ collapses
+  // back. Landscape stays the full carousel.
+  const portraitWide = isWide && vp.orientation === 'portrait';
   const footerTag = viewportTag(vp);
   // Tablet/desktop show 2–3 result cards in focus (the Hawker carousel basis);
   // phones keep the single-card strip.
@@ -4287,9 +4292,25 @@ export default function App() {
         </div>
       )}
 
+      {/* v0.62.567 — portrait two-panel: pin the framed map at the top (sticky
+          below the header) so ONLY the two-column list scrolls beneath it. Uses
+          `display:contents` off-portrait so phones + landscape are untouched. Not
+          sticky while a folio picker is open (the picker pushes the map down). */}
+      <div
+        className={portraitWide && drawerMode === 'vertical' && !cuisinePickOpen && !classicOpen
+          ? 'sticky z-10 bg-tg-bg' : 'contents'}
+        style={portraitWide && drawerMode === 'vertical' && !cuisinePickOpen && !classicOpen
+          ? { top: headerBottom } : undefined}
+      >
       <MapPanel
         venues={visibleVenues.length ? visibleVenues : venues}
         userLoc={userLoc}
+        /* v0.62.567 — portrait two-panel: a compact ~40vh framed map (the list
+           gets the rest); the ⇲ button EXPANDS to the full carousel (drawerMode
+           → horizontal) and, in that carousel, ⇱ collapses back to the two-panel. */
+        frameHeight={portraitWide && drawerMode === 'vertical' ? '40vh' : undefined}
+        onExpandFull={portraitWide ? () => setDrawerMode('horizontal') : undefined}
+        onCollapse={portraitWide ? () => setDrawerMode('vertical') : undefined}
         /* v0.62.190 — horizontal mode: full-bleed map that FILLS the viewport
            behind the floating dock (no white band). Vertical keeps the framed
            fixed-height card above the scrolling list.
@@ -4337,6 +4358,7 @@ export default function App() {
            city group's pins on jump-row tap). Null on non-Michelin pages. */
         fitPins={fitPins}
       />
+      </div>
 
       {/* v0.62.141 — results DEFAULT to the horizontal floating strip (auto-shown
           when a result set exists). The list on/off + vertical/horizontal
@@ -5183,11 +5205,12 @@ export default function App() {
               >{drawerDismissed
                 ? `📖 ${lang === 'fr' ? 'afficher résultats' : lang === 'id' ? 'tampilkan hasil' : lang === 'ru' ? 'показать' : lang === 'de' ? 'anzeigen' : lang === 'zh' ? '显示结果' : lang === 'ja' ? '結果を表示' : lang === 'es' ? 'mostrar resultados' : 'show results'}`
                 : `📘 ${lang === 'fr' ? 'masquer résultats' : lang === 'id' ? 'sembunyikan hasil' : lang === 'ru' ? 'скрыть' : lang === 'de' ? 'ausblenden' : lang === 'zh' ? '隐藏结果' : lang === 'ja' ? '結果を隠す' : lang === 'es' ? 'ocultar resultados' : 'hide results'}`}</button>
-              {/* v0.62.564 — the manual list/map toggle is hidden on tablet/desktop:
-                  the orientation drives the mode there (landscape = map+carousel,
-                  portrait = list), so a manual switch to "list" in landscape is not
-                  offered. Phones keep it. */}
-              {!drawerDismissed && !isWide && (
+              {/* v0.62.564 — the manual list/map toggle is hidden only in wide
+                  LANDSCAPE (carousel-only there). v0.62.567 (operator): show it in
+                  PORTRAIT tablet too so the user can switch the two-panel list ⇄ the
+                  full carousel from the footer (in addition to the map's ⇲/⇱).
+                  Phones keep it always. */}
+              {!drawerDismissed && !(isWide && vp.orientation === 'landscape') && (
                 <button
                   type="button"
                   onClick={() => {
