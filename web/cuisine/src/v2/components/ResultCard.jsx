@@ -528,6 +528,17 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             </div>
           )}
 
+          {/* v0.62.588 — operator (Brisbane): the street address is now VISIBLE on
+              the collapsed card (was revealed only on expand since v0.62.124). Sits
+              just above the collapse boundary with the 🍲 Try / Michelin rows.
+              Country name already dropped by dropCountry; truncates on the compact
+              horizontal strip, wraps in the vertical list. */}
+          {venue.area && (
+            <div className={`text-[12px] text-tg-hint mt-1 leading-snug ${horizontal ? 'truncate' : 'break-words'}`}>
+              📍 {dropCountry(venue.area)}
+            </div>
+          )}
+
           {/* v0.62.124 — collapse toggle. Collapsed = identity + meta + price +
               🍲 Try (above); everything below is revealed on expand. A focused/
               selected card auto-expands. The toggle stops propagation so it
@@ -544,9 +555,9 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           </button>
 
           {expanded && (<>
-          {/* v0.62.124 — address moved BELOW the price/pet row, into the
-              collapsible section (operator row re-order). */}
-          {venue.area && <div className="text-[12px] text-tg-hint break-words leading-snug">{dropCountry(venue.area)}</div>}
+          {/* v0.62.588 — the address row moved OUT of the collapsible section to be
+              always visible above the boundary (operator: address on the collapsed
+              card). It no longer renders here. */}
           {/* v0.62.37 — ⭐ Recommend tie-in (D792): the venue's own evidence
               mentions one of the anchored city's unique dishes. Tier in WORDS. */}
           {venue.cityDish && venue.cityDish.dish && (

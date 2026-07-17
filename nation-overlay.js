@@ -2186,7 +2186,8 @@ const NATION_OVERLAY = {
       F('parmigiana'),                                            // chicken parm pub classic
       F('kangaroo steak'),
       F('crocodile fillet'),                                      // NT specialty
-      F('barramundi pie'),
+      // v0.62.588 — 'barramundi pie' removed (operator: obscure, redundant next to
+      // 'barramundi'). NATION_OVERLAY read-only rule waived by explicit operator call.
       F('bush tucker'),                                           // umbrella — wattle, bunya, finger lime
       D('flat white australian'),
       D('long black'),                                            // Australian espresso style
