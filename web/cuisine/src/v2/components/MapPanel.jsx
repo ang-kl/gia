@@ -508,23 +508,35 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // panning now lives in its own effect below.
   useEffect(() => { syncMarkers(); }, [venues, userLoc, searchCenter?.lat, searchCenter?.lng]); // eslint-disable-line
 
-  // v0.62.571 — operator: when a picker / location editor opens, the map goes
-  // FULL-BLEED (`fill` flips) — its container changes size dramatically. Google
-  // Maps must be nudged to re-read the container, else it paints unloaded (black,
-  // esp. in monochrome) tiles until the next interaction ("tapping blacked out the
-  // map"). Capture the centre, fire a resize, and restore it once layout settles.
+  // v0.62.572 — operator: the map painted BLACK whenever its container changed
+  // size (full-bleed on a picker/editor open, the fixed-header layout, an iPad
+  // rotate). Google Maps caches the viewport dimensions at init and, when the
+  // element resizes underneath it, keeps painting the old (often 0-height →
+  // unloaded/black) tiles until an interaction. A ResizeObserver on the map
+  // container catches EVERY size change and re-syncs the map (fire `resize` +
+  // keep the centre). The v0.62.571 `[fill, topInset]` effect was too narrow —
+  // it missed the real resize timing. Also nudges once on mount so the very
+  // first paint reads the settled size.
   useEffect(() => {
-    if (!mapRef.current || !window.google?.maps?.event) return undefined;
-    const map = mapRef.current;
-    const c = map.getCenter && map.getCenter();
-    const t = setTimeout(() => {
-      try {
-        window.google.maps.event.trigger(map, 'resize');
-        if (c) map.setCenter(c);
-      } catch { /* best-effort */ }
-    }, 80);
-    return () => clearTimeout(t);
-  }, [fill, topInset]);
+    const el = containerRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return undefined;
+    let raf = 0;
+    const resync = () => {
+      const map = mapRef.current;
+      if (!map || !window.google?.maps?.event) return;
+      if (el.clientWidth === 0 || el.clientHeight === 0) return; // not laid out yet
+      const c = map.getCenter && map.getCenter();
+      window.google.maps.event.trigger(map, 'resize');
+      if (c) map.setCenter(c);
+    };
+    const ro = new ResizeObserver(() => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(resync);
+    });
+    ro.observe(el);
+    const t = setTimeout(resync, 120); // first-paint safety net
+    return () => { ro.disconnect(); if (raf) cancelAnimationFrame(raf); clearTimeout(t); };
+  }, []);
 
   // v0.62.106 — operator (#3/#4, SG only): on a venue tap, surface the nearest
   // 3 bus stops + 2 stations on the MAP (toggle-independent) and append them to
