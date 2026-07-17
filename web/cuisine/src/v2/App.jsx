@@ -3805,9 +3805,19 @@ export default function App() {
             separate card below the header before). Collapsed (results showing,
             editor closed) the whole block hides behind the "Set location is …"
             line above. */}
-        <div className={
+        {/* v0.62.569 — O-54 (operator: "location = overlay, never push the tabs
+            down"). Once results exist, tapping "Click to change" (regionExpanded)
+            floats the location editor as a panel OVER the full-bleed map (same
+            fixed-overlay contract as the folio pickers) instead of expanding
+            in-flow and shoving the folio tabs down. First-load (no results yet)
+            keeps the inline mode-pill row. */}
+        <div
+          style={venues.length > 0 && regionExpanded ? { top: headerBottom } : undefined}
+          className={
           venues.length > 0 && !regionExpanded ? 'hidden'
-            : (modePeek ? '' : 'flex flex-col gap-1.5')
+            : venues.length > 0 && regionExpanded
+              ? `fixed left-2 right-2 z-20 bg-tg-bg/95 backdrop-blur rounded-b-2xl border border-tg-border p-2 overflow-y-auto no-scrollbar max-h-[70vh] ${modePeek ? '' : 'flex flex-col gap-1.5'} ${pickerWidthCls}`
+              : (modePeek ? '' : 'flex flex-col gap-1.5')
         }>
           {/* v0.62.187 — operator (IMG_2509): when the editor is open the 4 location
               modes are FOLIO FOLDER-TABS — the selected region tab is physically
@@ -4326,7 +4336,7 @@ export default function App() {
            pushes the map down). The map goes full-bleed whenever a folio picker is
            open (every device), and the picker panels float OVER it (see below), so
            the map shows behind/around the picker instead of a black band. */
-        fill={drawerMode === 'horizontal' || cuisinePickOpen || classicOpen}
+        fill={drawerMode === 'horizontal' || cuisinePickOpen || classicOpen || (regionExpanded && venues.length > 0)}
         focusedPlaceId={focusedPlaceId}
         onPinTap={setFocusedPlaceId}
         searchCenter={searchCenter || userLoc}
