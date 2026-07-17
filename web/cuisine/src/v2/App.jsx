@@ -484,6 +484,15 @@ export default function App() {
   // (ResultDrawer) over the map; the vertical list (page ResultPanel) is hidden
   // until the user toggles to 'vertical'. 'horizontal' | 'vertical'.
   const [drawerMode, setDrawerMode] = useState('horizontal');
+  // v0.62.564 — O-54 (operator: "not allow list in landscape, only when user
+  // rotate to portrait"). On a tablet/desktop the results surface follows the
+  // ORIENTATION — LANDSCAPE = the map + carousel (horizontal), PORTRAIT = the
+  // list (vertical) — and the manual list/map toggle is hidden (below). Phones
+  // keep the manual toggle and are unaffected (the effect no-ops when !isWide).
+  useEffect(() => {
+    if (!isWide) return;
+    setDrawerMode(vp.orientation === 'landscape' ? 'horizontal' : 'vertical');
+  }, [isWide, vp.orientation]);
   // v0.62.177 — operator: switching to the vertical list scrolls to + briefly
   // highlights where it starts ("Results #") so the user sees where it went.
   const [resultsFlash, setResultsFlash] = useState(false);
@@ -4287,7 +4296,12 @@ export default function App() {
            v0.62.254 — when a folio picker (cuisine / local-classic) is OPEN it
            renders IN-FLOW above the map (option 2, MVP layout), so the map drops
            its full-bleed fill and sits framed below — the picker pushes it down. */
-        fill={drawerMode === 'horizontal' && !cuisinePickOpen && !classicOpen}
+        /* v0.62.564 — O-54 (operator: the tabs + location should be IN FRONT OF
+           the map, not in a white gap above it). On a tablet/desktop the map
+           stays full-bleed even while a folio picker is open, so the picker /
+           tabs float over the map instead of shoving it into a strip. Phones
+           keep the v0.62.254 behaviour (picker pushes the framed map down). */
+        fill={drawerMode === 'horizontal' && (isWide || (!cuisinePickOpen && !classicOpen))}
         focusedPlaceId={focusedPlaceId}
         onPinTap={setFocusedPlaceId}
         searchCenter={searchCenter || userLoc}
@@ -5164,7 +5178,11 @@ export default function App() {
               >{drawerDismissed
                 ? `📖 ${lang === 'fr' ? 'afficher résultats' : lang === 'id' ? 'tampilkan hasil' : lang === 'ru' ? 'показать' : lang === 'de' ? 'anzeigen' : lang === 'zh' ? '显示结果' : lang === 'ja' ? '結果を表示' : lang === 'es' ? 'mostrar resultados' : 'show results'}`
                 : `📘 ${lang === 'fr' ? 'masquer résultats' : lang === 'id' ? 'sembunyikan hasil' : lang === 'ru' ? 'скрыть' : lang === 'de' ? 'ausblenden' : lang === 'zh' ? '隐藏结果' : lang === 'ja' ? '結果を隠す' : lang === 'es' ? 'ocultar resultados' : 'hide results'}`}</button>
-              {!drawerDismissed && (
+              {/* v0.62.564 — the manual list/map toggle is hidden on tablet/desktop:
+                  the orientation drives the mode there (landscape = map+carousel,
+                  portrait = list), so a manual switch to "list" in landscape is not
+                  offered. Phones keep it. */}
+              {!drawerDismissed && !isWide && (
                 <button
                   type="button"
                   onClick={() => {
