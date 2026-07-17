@@ -3676,7 +3676,14 @@ export default function App() {
           pt-2 and are unchanged. */}
       <header ref={headerRef}
         style={{ paddingTop: isWide ? 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' : '0.5rem' }}
-        className={`sticky top-0 z-30 -mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 ${(cuisinePickOpen || classicOpen) ? 'pb-0' : 'pb-2'} flex flex-col gap-1.5 transition-colors ${modePeek ? 'bg-tg-bg' : 'bg-tg-bg/90 backdrop-blur'}`}>
+        /* v0.62.578 — operator (IMG_0743: opening the location editor "push down"
+           the map + a solid black band). The modePeek state used to flip the whole
+           header to a SOLID bg-tg-bg — over the full-bleed map that reads as a big
+           black band pushing everything down. Keep the header the SAME translucent
+           bar whether editing or not (bg-tg-bg/90 backdrop-blur — the resting
+           treatment that already ships); the editor's own compact panel below
+           carries the staging surface. */
+        className={`sticky top-0 z-30 -mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 ${(cuisinePickOpen || classicOpen) ? 'pb-0' : 'pb-2'} flex flex-col gap-1.5 transition-colors bg-tg-bg/90 backdrop-blur`}>
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <img src="soleat-icon.png" alt="soleat" width="24" height="24" className="rounded-full flex-shrink-0" />
@@ -3806,9 +3813,16 @@ export default function App() {
             separate card below the header before). Collapsed (results showing,
             editor closed) the whole block hides behind the "Set location is …"
             line above. */}
+        {/* v0.62.578 — operator (IMG_0743): the editor was a FULL-WIDTH block that,
+            with the solid header, read as a map-covering band. Constrain it to the
+            phone-width column (pickerWidthCls, left-aligned) and, while staging
+            (modePeek), give it its OWN compact solid card surface (the header is now
+            translucent) so it floats as a panel over the map instead of a band. */}
         <div className={
           venues.length > 0 && !regionExpanded ? 'hidden'
-            : (modePeek ? '' : 'flex flex-col gap-1.5')
+            : (modePeek
+                ? `${pickerWidthCls} bg-tg-bg rounded-2xl border border-tg-border px-2.5 py-2 flex flex-col gap-1.5`
+                : `${pickerWidthCls} flex flex-col gap-1.5`)
         }>
           {/* v0.62.187 — operator (IMG_2509): when the editor is open the 4 location
               modes are FOLIO FOLDER-TABS — the selected region tab is physically
@@ -4412,7 +4426,13 @@ export default function App() {
       {/* v0.62.195 — operator: hide the horizontal result cards while ANY picker
           overlay is open (location editor, cuisine, or local-classic) so the
           overlay reads in front of the map without the cards behind it. */}
-      {drawerMode === 'horizontal' && !drawerDismissed && !regionExpanded && !cuisinePickOpen && !classicOpen && (visibleVenues.length || venues.length) > 0 && (
+      {/* v0.62.578 — operator (IMG_0743: "all the carousel cards disappeared" when
+          the location editor opens). The `!regionExpanded` gate hid the carousel
+          while re-anchoring; the operator wants the cards to STAY (the editor now
+          floats as a compact panel at the top, the cards sit at the bottom — they
+          don't overlap). Dropped `!regionExpanded`; still hidden behind a folio
+          picker (which floats over the map centre). */}
+      {drawerMode === 'horizontal' && !drawerDismissed && !cuisinePickOpen && !classicOpen && (visibleVenues.length || venues.length) > 0 && (
         <ResultDrawer
           venues={visibleVenues.length ? visibleVenues : venues}
           focusedPlaceId={focusedPlaceId}
