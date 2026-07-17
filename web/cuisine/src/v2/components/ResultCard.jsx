@@ -11,20 +11,27 @@ const PRICE_LABEL = { 1: '$', 2: '$$', 3: '$$$', 4: '$$$$' };
 // v0.62.151 — operator: long foreign addresses should swap the spelled-out
 // country name for its short 2-letter code (e.g. "…, Johor, Malaysia" → "…,
 // Johor, MY"). Map built from OTHER_COUNTRIES (+ Singapore).
+// v0.62.587 — operator (Brisbane, IMG_0752, "addresses without country name"):
+// DROP the trailing country segment entirely rather than shortening it to the
+// 2-letter code — the search is already scoped to one country, so the country
+// name is redundant on the address ("…, Maroochydore QLD, Australia" → "…,
+// Maroochydore QLD"). The address stays in the expanded "details" section
+// (v0.62.124 placement is unchanged — operator picked "keep in details, drop
+// country"). Only a RECOGNISED trailing country is removed; anything else passes
+// through untouched so a genuine last address line is never eaten.
 const COUNTRY_CODE = (() => {
   const m = new Map([['singapore', 'SG']]);
   for (const c of OTHER_COUNTRIES || []) if (c?.name && c?.code) m.set(String(c.name).toLowerCase(), c.code);
   return m;
 })();
-function shortenCountry(area) {
+function dropCountry(area) {
   if (!area) return area;
   const parts = String(area).split(',');
   if (parts.length < 2) return area;
   const last = parts[parts.length - 1].trim().replace(/\.+$/, '');
-  const code = COUNTRY_CODE.get(last.toLowerCase());
-  if (!code) return area;
-  parts[parts.length - 1] = ` ${code}`;
-  return parts.join(',');
+  if (!COUNTRY_CODE.has(last.toLowerCase())) return area;   // not a country → leave as-is
+  parts.pop();                                              // drop the country segment
+  return parts.join(',').replace(/[\s,]+$/, '');            // + tidy any trailing comma/space
 }
 
 export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null, number = null, defaultExpanded = false, horizontal = false, autoExpandFocus = true, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null, glass = null }) {
@@ -539,7 +546,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           {expanded && (<>
           {/* v0.62.124 — address moved BELOW the price/pet row, into the
               collapsible section (operator row re-order). */}
-          {venue.area && <div className="text-[12px] text-tg-hint break-words leading-snug">{shortenCountry(venue.area)}</div>}
+          {venue.area && <div className="text-[12px] text-tg-hint break-words leading-snug">{dropCountry(venue.area)}</div>}
           {/* v0.62.37 — ⭐ Recommend tie-in (D792): the venue's own evidence
               mentions one of the anchored city's unique dishes. Tier in WORDS. */}
           {venue.cityDish && venue.cityDish.dish && (
