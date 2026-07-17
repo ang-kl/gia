@@ -1,6 +1,6 @@
 {
   "generated": "2026-07-17",
-  "count": 1522,
+  "count": 1548,
   "records": [
     {
       "pr": 1,
@@ -42940,6 +42940,659 @@
       "reworkCue": false,
       "reworkOf": null,
       "burst": false
+    },
+    {
+      "pr": "1552",
+      "status": "merged",
+      "merged": "2026-07-17 04:41:49+10:00",
+      "day": "2026-07-17",
+      "version": "0.62.543",
+      "minor": "0.62",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: v0.62.543 doc-update pass — VCR catch-up (#1536–#1551) + Register/Feature/Technical",
+      "approach": "Operator: \"Vault, document update.\" VAULT: re-affirmed retired (vault/ .gitignored since v0.62.508 #1514 — each commit sha is a full source tree; git show 55f0606:<path>).",
+      "codeImpact": "doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: v0.62.543 doc-update pass — VCR catch-up (#1536–#1551) + Register/Feature/Technical",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": "1553",
+      "status": "merged",
+      "merged": "2026-07-17 05:29:35+10:00",
+      "day": "2026-07-17",
+      "version": "0.62.544",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: responsive tablet layout: Hawker pilot (full-bleed map + left panel + grid)",
+      "approach": "Operator (iPad Pro, rotates): UI \"feels stretched\"; wants the Google map to fill the screen with controls/list on the left, results in 3-4 columns (2 portrait), same approach across Hawker/Transport/Cuisine + a footer device/orientation…",
+      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.544 — responsive tablet layout: Hawker pilot (full-bleed map + left panel + grid)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": "1554",
+      "status": "merged",
+      "merged": "2026-07-16 19:47:13+00:00",
+      "day": "2026-07-16",
+      "version": "0.62.545",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Hawker tablet: request fullscreen so it fills the iPad screen",
+      "approach": "Operator (IMG_0669/IMG_0670, iPad Pro, v0.62.544): both modes don't fill the screen.",
+      "codeImpact": "TMA:cuisine, TMA:menu, TMA:hawker, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.545 — Hawker tablet: request fullscreen so it fills the iPad screen",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1555",
+      "status": "merged",
+      "merged": "2026-07-16 20:02:58+00:00",
+      "day": "2026-07-16",
+      "version": "0.62.546",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Hawker tablet: fullscreen re-read + landscape 4-col / portrait stacked",
+      "approach": "Operator (IMG_0672/IMG_0673, iPad Pro, v0.62.545): landscape missing the four columns; portrait should list BELOW the map.",
+      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.546 — Hawker tablet: fullscreen re-read + landscape 4-col / portrait stacked",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": "1556",
+      "status": "merged",
+      "merged": "2026-07-16 20:19:37+00:00",
+      "day": "2026-07-16",
+      "version": "0.62.547",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Hawker: Cuisine-style centre cards + tablet list toggle",
+      "approach": "Restyle the Hawker centre list to the Cuisine result-card look in every layout (name header, 📇 address, stall/status chip, codeHex-coloured MRT line-code chips + 🚌 bus pills, rounded-full pill actions), and add a Cuisine-style list/map…",
+      "codeImpact": "TMA:hawker, i18n.js, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.547 — Hawker: Cuisine-style centre cards + tablet list toggle",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": "1557",
+      "status": "merged",
+      "merged": "2026-07-16 20:57:18+00:00",
+      "day": "2026-07-16",
+      "version": "0.62.548",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Hawker: landscape Cuisine carousel + bus-stop descriptions + toggle to bottom-right",
+      "approach": "Three operator asks (IMG_0674/0675/0677, iPad Pro): 1.",
+      "codeImpact": "TMA:cuisine, TMA:hawker, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "cuisine",
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.548 — Hawker: landscape Cuisine carousel + bus-stop descriptions + toggle to bottom-right",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1558",
+      "status": "merged",
+      "merged": "2026-07-16 21:33:00+00:00",
+      "day": "2026-07-16",
+      "version": "0.62.549",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Hawker: pill-tap map highlight + toggle · 3-card opaque carousel · landscape header re-flow",
+      "approach": "Three operator asks (IMG_0683/0684/0685, iPad Pro): 1.",
+      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.549 — Hawker: pill-tap map highlight + toggle · 3-card opaque carousel · landscape header re-flow",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1559",
+      "status": "merged",
+      "merged": "2026-07-16 21:41:56+00:00",
+      "day": "2026-07-16",
+      "version": "0.62.550",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Hawker portrait-tablet: anchored map + scrollable list panel, expand→carousel · standardised left nav cluster",
+      "approach": "Point 4 (queued after the first three, #1558): 4a.",
+      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.550 — Hawker portrait-tablet: anchored map + scrollable list panel, expand→carousel · standardised left nav cluster",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1560",
+      "status": "merged",
+      "merged": "2026-07-16 21:58:44+00:00",
+      "day": "2026-07-16",
+      "version": "0.62.551",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: urgent: tapping a bus-stop pill now shows the bus stop on the map",
+      "approach": "Operator (urgent, v0.62.550): tapping a bus-stop pill in a card did nothing visible.",
+      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.551 — urgent: tapping a bus-stop pill now shows the bus stop on the map",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1561",
+      "status": "merged",
+      "merged": "2026-07-16 22:05:44+00:00",
+      "day": "2026-07-16",
+      "version": "0.62.552",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Hawker carousel: glass peeking cards + iPad-mini 2-in-focus · map toggle folded into FooterNav",
+      "approach": "Operator (IMG_0686, iPad Pro landscape): 1.",
+      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.552 — Hawker carousel: glass peeking cards + iPad-mini 2-in-focus · map toggle folded into FooterNav",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1562",
+      "status": "merged",
+      "merged": "2026-07-16 22:17:44+00:00",
+      "day": "2026-07-16",
+      "version": "0.62.553",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Hawker: Michelin Bib Gourmand pin + stall names on card/InfoWindow/chat",
+      "approach": "Operator: build the Bib Gourmand half in house style (cleaning-closure half put on K.I.V.).",
+      "codeImpact": "index.js, TMA:hawker, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.553 — Hawker: Michelin Bib Gourmand pin + stall names on card/InfoWindow/chat",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1563",
+      "status": "merged",
+      "merged": "2026-07-16 22:47:06+00:00",
+      "day": "2026-07-16",
+      "version": "0.62.554",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Hawker carousel: kill horizontal band · grey the unwired expand · toggle label \"Cards\"",
+      "approach": "Operator (IMG_0687/0688, iPad Pro landscape): 1.",
+      "codeImpact": "TMA:hawker, i18n.js, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.554 — Hawker carousel: kill horizontal band · grey the unwired expand · toggle label \"Cards\"",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1564",
+      "status": "merged",
+      "merged": "2026-07-16 22:58:37+00:00",
+      "day": "2026-07-16",
+      "version": "0.62.555",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Hawker tablet map: restore quick-toggle row · station card wider + pan-to-clear-top · tiny card padding",
+      "approach": "Operator (IMG_0692/0693/0694, iPad Pro landscape): 1.",
+      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.555 — Hawker tablet map: restore quick-toggle row · station card wider + pan-to-clear-top · tiny card padding",
+      "reworkCue": true,
+      "reworkOf": "1563",
+      "burst": true
+    },
+    {
+      "pr": "1565",
+      "status": "merged",
+      "merged": "2026-07-16 23:06:34+00:00",
+      "day": "2026-07-16",
+      "version": "0.62.556",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Hawker: tap the whole centre card to highlight its pin + toggle active",
+      "approach": "Operator: tapping anywhere in a hawker centre card (except the pills) should be wired like the station/bus-stop pills — highlight the centre pin and change the card's status.",
+      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.556 — Hawker: tap the whole centre card to highlight its pin + toggle active",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1566",
+      "status": "merged",
+      "merged": "2026-07-16 23:13:14+00:00",
+      "day": "2026-07-16",
+      "version": "0.62.557",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Hawker: card↔pin 3s highlight both ways · Bib stall names are hidden Google-Maps links",
+      "approach": "Operator: 1.",
+      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.557 — Hawker: card↔pin 3s highlight both ways · Bib stall names are hidden Google-Maps links",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1567",
+      "status": "merged",
+      "merged": "2026-07-16 23:28:19+00:00",
+      "day": "2026-07-16",
+      "version": "0.62.558",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Hawker: pin→card scroll-into-focus · strip InfoWindow chrome · visible Bib links · drop double 🍳",
+      "approach": "Operator (IMG_0695/0696): 1.",
+      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.558 — Hawker: pin→card scroll-into-focus · strip InfoWindow chrome · visible Bib links · drop double 🍳",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1568",
+      "status": "merged",
+      "merged": "2026-07-16 23:33:00+00:00",
+      "day": "2026-07-16",
+      "version": "0.62.559",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Hawker: InfoWindow bus stop shows on the embedded map, not external Google Maps",
+      "approach": "Operator (IMG_0699): tapping a bus stop in the centre-pin InfoWindow opened external Google Maps instead of showing the stop on the embedded map.",
+      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.559 — Hawker: InfoWindow bus stop shows on the embedded map, not external Google Maps",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1569",
+      "status": "merged",
+      "merged": "2026-07-17 01:16:32+00:00",
+      "day": "2026-07-17",
+      "version": "0.62.560",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: Bib links un-underlined · closing a map card no longer adjusts the zoom (all embedded-map TMAs)",
+      "approach": "Operator (IMG_0700): 1.",
+      "codeImpact": "TMA:cuisine, TMA:hawker, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "cuisine",
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.560 — Bib links un-underlined · closing a map card no longer adjusts the zoom (all embedded-map TMAs)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": "1570",
+      "status": "merged",
+      "merged": "2026-07-17 01:44:00+00:00",
+      "day": "2026-07-17",
+      "version": "0.62.560",
+      "minor": "0.62",
+      "category": "refactor",
+      "area": "Hawker NEA",
+      "intent": "consolidate the Hawker responsive tablet/desktop arc into Feature/Technical/Register",
+      "approach": "Operator asked to draft the learnings + code changes for the now-working Hawker TMA across tablet/desktop/phone, and chose the Feature + Technical + Register consolidation (next-TMA port stays a plan).",
+      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.560 — doc: consolidate the Hawker responsive tablet/desktop arc into Feature/Technical/Register",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1571",
+      "status": "merged",
+      "merged": "2026-07-17 03:48:50+00:00",
+      "day": "2026-07-17",
+      "version": "0.62.561",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine responsive port (O-54): tablet fullscreen + multi-card result strip",
+      "approach": "O-54 auto-build, first half (Cuisine).",
+      "codeImpact": "TMA:cuisine, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.561 — Cuisine responsive port (O-54): tablet fullscreen + multi-card result strip",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": "1572",
+      "status": "merged",
+      "merged": "2026-07-17 04:12:17+00:00",
+      "day": "2026-07-17",
+      "version": "0.62.562",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine tablet (O-54): carousel pops pin + 3-in-focus glass + phone-width picker",
+      "approach": "Second pass on the Cuisine responsive port, from on-device iPad feedback (operator: \"follow hawker codes\").",
+      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.562 — Cuisine tablet (O-54): carousel pops pin + 3-in-focus glass + phone-width picker",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1573",
+      "status": "merged",
+      "merged": "2026-07-17 04:17:03+00:00",
+      "day": "2026-07-17",
+      "version": "0.62.563",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine tablet (O-54): header clears Telegram's system buttons in fullscreen",
+      "approach": "Operator (iPad): the \"Cuisine\" title + the location row sat UNDER Telegram's floating system buttons (⌄ / ···) in fullscreen.",
+      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.563 — Cuisine tablet (O-54): header clears Telegram's system buttons in fullscreen",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1574",
+      "status": "merged",
+      "merged": "2026-07-17 07:08:59+00:00",
+      "day": "2026-07-17",
+      "version": "0.62.564",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine tablet (O-54): list only in portrait; map stays full-bleed under an open picker",
+      "approach": "From iPad feedback (IMG_0715, landscape).",
+      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.564 — Cuisine tablet (O-54): list only in portrait; map stays full-bleed under an open picker",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1575",
+      "status": "merged",
+      "merged": "2026-07-17 07:16:27+00:00",
+      "day": "2026-07-17",
+      "version": "0.62.565",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine tablet (O-54): two-column result list in portrait",
+      "approach": "Operator: \"where are the two columns in portrait mode\".",
+      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.565 — Cuisine tablet (O-54): two-column result list in portrait",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1576",
+      "status": "merged",
+      "merged": "2026-07-17 07:43:47+00:00",
+      "day": "2026-07-17",
+      "version": "0.62.566",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine tablet (O-54): independent two columns in portrait",
+      "approach": "Operator: \"we need independent columns that doesn't affect the other column in portrait mode.\" The CSS grid aligned rows, so when a card in one column expanded, its short row-mate's column was left with a gap.",
+      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.566 — Cuisine tablet (O-54): independent two columns in portrait",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1577",
+      "status": "merged",
+      "merged": "2026-07-17 08:08:13+00:00",
+      "day": "2026-07-17",
+      "version": "0.62.567",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Cuisine tablet (O-54): portrait two-panel — static map + scrolling columns, ⇲ expands to carousel",
+      "approach": "Completes the Hawker two-panel port for Cuisine.",
+      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests"
+      ],
+      "title": "v0.62.567 — Cuisine tablet (O-54): portrait two-panel — static map + scrolling columns, ⇲ expands to carousel",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
     }
   ]
 }
