@@ -22,7 +22,7 @@ import { useLocale } from '../lib/i18n.js';
 // pass the Hawker carousel basis (`… md:basis-[44%] min-[1180px]:basis-[30%]`)
 // so an iPad-mini shows 2 and an iPad-Pro / desktop shows 3 cards in focus. The
 // `max-w-[22rem]` per-card cap still applies, so cards never balloon.
-export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null, hasFilters = false, composerOpen = false, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null, basisClass = 'basis-[82%]' }) {
+export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null, hasFilters = false, composerOpen = false, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null, basisClass = 'basis-[82%]', glassPeek = false }) {
   const [lang] = useLocale();
   const trackRef = useRef(null);
   const list = Array.isArray(venues) ? venues : [];
@@ -33,6 +33,13 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
   // taps a pin/card — so on load nothing went white and nothing lifted). Track
   // the centred card from scroll position instead.
   const [centeredId, setCenteredId] = useState(null);
+
+  // v0.62.562 — O-54 Hawker parity: on tablet/desktop (`glassPeek`) the cards
+  // fully inside the focus band render OPAQUE and the two half-peeking end cards
+  // render GLASS, exactly like the Hawker carousel — an IntersectionObserver
+  // (root = the scroll track, ≥ 92 % visible = in focus) drives it. `visibleSet`
+  // holds the placeIds currently in focus. Off on phones (single-card strip).
+  const [visibleSet, setVisibleSet] = useState(() => new Set());
 
   // Centre the focused card horizontally whenever the selection changes
   // (smooth on update, instant on first open).
@@ -91,6 +98,29 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
     // v0.62.292 — re-seed on result-set identity change, not just length: a new
     // search with the SAME count must still re-detect the centred card.
   }, [list.length, list[0] && list[0].placeId]);
+
+  // v0.62.562 — the glass/opaque IntersectionObserver (tablet/desktop only).
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!glassPeek || !track || typeof IntersectionObserver === 'undefined') {
+      setVisibleSet(new Set());
+      return undefined;
+    }
+    const io = new IntersectionObserver((entries) => {
+      setVisibleSet((prev) => {
+        const next = new Set(prev);
+        for (const e of entries) {
+          const pid = e.target.getAttribute('data-pid');
+          if (!pid) continue;
+          if (e.intersectionRatio >= 0.92) next.add(pid); else next.delete(pid);
+        }
+        return next;
+      });
+    }, { root: track, threshold: [0, 0.5, 0.92, 1] });
+    track.querySelectorAll('[data-pid]').forEach((el) => io.observe(el));
+    return () => io.disconnect();
+    // Re-observe when the glassPeek mode flips or the result set identity changes.
+  }, [glassPeek, list.length, list[0] && list[0].placeId]);
 
   // v0.62.287 — the "active" card drives opaque-white + lift. Prefer the
   // scroll-centred card; fall back to the tap-selected card, then the first.
@@ -167,6 +197,11 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
               nearbyAccent={nearbyAccent}
               nearbyStrips={nearbyStrips}
               dishHints={dishHints}
+              /* v0.62.562 — tablet/desktop: opaque when this card is in the focus
+                 band (IntersectionObserver), glass when it half-peeks at the ends.
+                 Before the observer settles, treat as opaque (visibleSet empty).
+                 On phones (glassPeek off) pass null → the legacy focused-only rule. */
+              glass={glassPeek ? (visibleSet.size > 0 ? !visibleSet.has(v.placeId) : false) : null}
             />
           </div>
         ))}

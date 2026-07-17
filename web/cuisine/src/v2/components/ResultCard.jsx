@@ -27,7 +27,14 @@ function shortenCountry(area) {
   return parts.join(',');
 }
 
-export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null, number = null, defaultExpanded = false, horizontal = false, autoExpandFocus = true, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null }) {
+export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null, number = null, defaultExpanded = false, horizontal = false, autoExpandFocus = true, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null, glass = null }) {
+  // v0.62.562 — O-54 Hawker parity: the OPAQUE-vs-glass surface can be driven by
+  // card VISIBILITY (Hawker's carousel: the cards fully in the focus band are
+  // opaque, the two half-peeking end cards are glass), independent of which card
+  // is the tapped/active one (`focused`, which still owns the accent ring). When
+  // `glass` is left null the legacy rule holds — the single focused card is
+  // opaque, every other card is glass — so phones are unchanged.
+  const glassEff = glass == null ? !focused : glass;
   const [lang] = useLocale();
   if (!venue) return null;
   const rating = venue.rating ? `★${venue.rating.toFixed(1)}` : '';
@@ -310,8 +317,8 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
          focused card scopes a light palette via CSS vars so it stays literally
          white AND readable in dark mode (text/hint/border go dark). The vertical
          list keeps the solid bg-tg-card surface (unchanged). */
-      className={`w-full text-left rounded-lg border flex flex-col ${horizontal ? 'gap-0.5 px-2.5 py-1.5' : 'gap-1 p-2.5'} ${horizontal ? (focused ? 'bg-white' : 'bg-tg-card/70 liquid-glass') : 'bg-tg-card'} ${focused ? 'border-tg-accent' : 'border-tg-border'}`}
-      style={horizontal && focused ? { '--tg-bg': '#ffffff', '--tg-card': '#ffffff', '--tg-text': '#1c1c1f', '--tg-hint': '#6b6b70', '--tg-border': '#e2e2e6' } : undefined}>
+      className={`w-full text-left rounded-lg border flex flex-col ${horizontal ? 'gap-0.5 px-2.5 py-1.5' : 'gap-1 p-2.5'} ${horizontal ? (glassEff ? 'bg-tg-card/70 liquid-glass' : 'bg-white') : 'bg-tg-card'} ${focused ? 'border-tg-accent' : 'border-tg-border'}`}
+      style={horizontal && !glassEff ? { '--tg-bg': '#ffffff', '--tg-card': '#ffffff', '--tg-text': '#1c1c1f', '--tg-hint': '#6b6b70', '--tg-border': '#e2e2e6' } : undefined}>
       {/* v0.62.289 / v0.62.293 — top strip on a NOT-exact card. SINGLE cuisine:
           "{cuisine} & Nearby Flavours" (nearbyLabel). COMBO (2+): the cuisine the
           venue actually serves (venue.matchedCuisine → nearbyStrips[name]), so

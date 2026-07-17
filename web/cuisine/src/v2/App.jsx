@@ -153,6 +153,11 @@ export default function App() {
   const drawerBasisClass = isWide
     ? 'basis-[82%] md:basis-[44%] min-[1180px]:basis-[30%]'
     : 'basis-[82%]';
+  // v0.62.562 — O-54 (operator: "keep to the iPhone size"): on a tablet/desktop
+  // the "Cuisine & filters" / "Pick local classic" folio tabs + their panels
+  // stretched the full iPad width. Cap them to a centred phone-width column so
+  // the picker reads like the phone. No-op on phones (already this width).
+  const pickerWidthCls = isWide ? 'max-w-md mx-auto w-full' : '';
   const [catalogue, setCatalogue] = useState(null);
   // v0.62.x — auth guard. True when the Mini App was opened WITHOUT a valid
   // Telegram initData (outside Telegram, or a stale >24h launch) → every API
@@ -4065,7 +4070,7 @@ export default function App() {
           return (
             // v0.62.225 — operator: the Cuisine + Local-Food-Pick tabs are
             // skeuomorphic MANILA FOLDERS (light-only); `folio--manila` skins them.
-            <div className="folio-tabs folio--manila">
+            <div className={`folio-tabs folio--manila ${pickerWidthCls}`}>
               <button
                 type="button"
                 onClick={() => { setClassicOpen(false); setCuisinePickOpen((o) => !o); }}
@@ -4149,7 +4154,7 @@ export default function App() {
         // open so the panel PUSHES it down (reverses the v0.62.195 fixed overlay).
         // v0.62.264 — -mt-2 cancels the root flex `gap-2`; with the header's
         // bottom pad/border dropped while open, the panel butts flush under the tab.
-        <div className="folder-drawer -mt-2 overflow-y-auto no-scrollbar rounded-b-2xl border px-3 py-2.5 flex flex-col gap-2 max-h-[60vh]">
+        <div className={`folder-drawer -mt-2 overflow-y-auto no-scrollbar rounded-b-2xl border px-3 py-2.5 flex flex-col gap-2 max-h-[60vh] ${pickerWidthCls}`}>
           {/* v0.62.246 — operator: the folio TAB already reads "Choose your
               cuisine"; drop the duplicate body title, keep only the × close. */}
           <div className="flex items-center justify-end">
@@ -4229,7 +4234,7 @@ export default function App() {
         // tabs + panel = one folder (MVP layout); map un-fills below so it pushes down.
         // v0.62.264 — -mt-2 cancels the root flex `gap-2` so the panel butts flush
         // under the active tab (header bottom pad/border dropped while open).
-        <div className="folder-drawer -mt-2 overflow-y-auto no-scrollbar rounded-b-2xl border px-2.5 py-2 max-h-[60vh]">
+        <div className={`folder-drawer -mt-2 overflow-y-auto no-scrollbar rounded-b-2xl border px-2.5 py-2 max-h-[60vh] ${pickerWidthCls}`}>
           {/* v0.62.246 — operator: the folio TAB already reads "Pick local
               classic"; drop the duplicate body title, keep only the × close.
               (The plate below still shows the city name, e.g. "📍 Singapore".) */}
@@ -4298,8 +4303,13 @@ export default function App() {
         /* v0.62.x — long-press the map → drop a pin → set location (no auto-search). */
         onLongPress={handleMapLongPress}
         /* v0.62.138 — horizontal mode: a card tap blinks the pin only (no zoom,
-           no info pop-up). Vertical mode keeps the full pop/zoom behaviour. */
-        blinkOnly={drawerMode === 'horizontal'}
+           no info pop-up). Vertical mode keeps the full pop/zoom behaviour.
+           v0.62.562 — O-54 Hawker parity (operator: "follow hawker codes"): on a
+           TABLET/desktop (isWide) the landscape carousel behaves like Hawker — a
+           card tap zooms to 17 and POPS the pin's info window (drops blinkOnly),
+           so the centred card's pin actually opens on the full-bleed map. Phones
+           keep the blink-only strip behaviour unchanged. */
+        blinkOnly={drawerMode === 'horizontal' && !isWide}
         /* v0.62.6 — Michelin city-grouping: fit-bounds over the given pins
            (set-city pins in Case A, all visible pins in Case B, a tapped
            city group's pins on jump-row tap). Null on non-Michelin pages. */
@@ -4328,6 +4338,7 @@ export default function App() {
           nearbyStrips={nearbyFlavours?.strips || null}
           dishHints={searchedTerm ? [searchedTerm] : null}
           basisClass={drawerBasisClass}
+          glassPeek={isWide}
         />
       )}
 
