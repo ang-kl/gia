@@ -127,7 +127,7 @@ function distanceUnit(region, countryPref) {
   return MILES_COUNTRIES.has(String(countryPref || '').toUpperCase()) ? 'mi' : 'km';
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, flyTo, fitPins, onDeselect, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, topInset = 0, children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, flyTo, fitPins, onDeselect, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, children }) {
   // v0.62.125 — onDeselect (tap empty map → exit the result carousel) kept in a
   // ref so the long-lived map-click handler always calls the current prop.
   const onDeselectRef = useRef(null);
@@ -507,36 +507,6 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // its popup could open (the "tap twice to open a pin" bug). Focus
   // panning now lives in its own effect below.
   useEffect(() => { syncMarkers(); }, [venues, userLoc, searchCenter?.lat, searchCenter?.lng]); // eslint-disable-line
-
-  // v0.62.572 — operator: the map painted BLACK whenever its container changed
-  // size (full-bleed on a picker/editor open, the fixed-header layout, an iPad
-  // rotate). Google Maps caches the viewport dimensions at init and, when the
-  // element resizes underneath it, keeps painting the old (often 0-height →
-  // unloaded/black) tiles until an interaction. A ResizeObserver on the map
-  // container catches EVERY size change and re-syncs the map (fire `resize` +
-  // keep the centre). The v0.62.571 `[fill, topInset]` effect was too narrow —
-  // it missed the real resize timing. Also nudges once on mount so the very
-  // first paint reads the settled size.
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el || typeof ResizeObserver === 'undefined') return undefined;
-    let raf = 0;
-    const resync = () => {
-      const map = mapRef.current;
-      if (!map || !window.google?.maps?.event) return;
-      if (el.clientWidth === 0 || el.clientHeight === 0) return; // not laid out yet
-      const c = map.getCenter && map.getCenter();
-      window.google.maps.event.trigger(map, 'resize');
-      if (c) map.setCenter(c);
-    };
-    const ro = new ResizeObserver(() => {
-      if (raf) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(resync);
-    });
-    ro.observe(el);
-    const t = setTimeout(resync, 120); // first-paint safety net
-    return () => { ro.disconnect(); if (raf) cancelAnimationFrame(raf); clearTimeout(t); };
-  }, []);
 
   // v0.62.106 — operator (#3/#4, SG only): on a venue tap, surface the nearest
   // 3 bus stops + 2 stations on the MAP (toggle-independent) and append them to
@@ -1090,8 +1060,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           v0.62.163 — operator: moved to the LEFT edge (left-2) so the 5-button
           column starts nearer the top-left corner; still top-12, which clears
           the MapControls toggle row (top-2). */}
-      <div className="absolute top-12 left-2 flex flex-col gap-1 z-10"
-        style={topInset ? { top: `${topInset + 44}px` } : undefined}>
+      <div className="absolute top-12 left-2 flex flex-col gap-1 z-10">
         {/* v0.61.37 — Reset: recenter to the search anchor / default view. */}
         <button
           type="button"
@@ -1149,7 +1118,6 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       </div>
       {/* v0.61.36 — Phase G/C floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls
-        topInset={topInset}
         layers={effectiveLayers || {}}
         onToggleLayer={(key) => onOverlayChange?.({
           ...(overlayLayers || {}), [key]: !(overlayLayers || {})[key]

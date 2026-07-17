@@ -160,10 +160,9 @@ export default function App() {
     : 'basis-[82%]';
   // v0.62.562 — O-54 (operator: "keep to the iPhone size"): on a tablet/desktop
   // the "Cuisine & filters" / "Pick local classic" folio tabs + their panels
-  // stretched the full iPad width. Cap them to a phone-width column so the picker
-  // reads like the phone. No-op on phones (already this width).
-  // v0.62.571 — operator: NOT centred — the tabs + picker + location editor drop
-  // at the TOP-LEFT (consistent with the phone), so `max-w-md` without `mx-auto`.
+  // stretched the full iPad width. Cap them to a centred phone-width column so
+  // the picker reads like the phone. No-op on phones (already this width).
+  // v0.62.573 — operator: left-aligned (top-left), not centred (no mx-auto).
   const pickerWidthCls = isWide ? 'max-w-md w-full' : '';
   const [catalogue, setCatalogue] = useState(null);
   // v0.62.x — auth guard. True when the Mini App was opened WITHOUT a valid
@@ -3620,13 +3619,6 @@ export default function App() {
     );
   }
 
-  // v0.62.570 — the map is FULL-BLEED behind the fixed header (carousel /
-  // picker / location-editor / landscape). In those modes nothing needs to sit
-  // below the header (the map fills behind it, controls dropped via topInset);
-  // otherwise (the two-panel list / phone) a spacer the height of the header
-  // keeps the scrolling content clear of the floating bar.
-  const mapFullBleed = drawerMode === 'horizontal' || cuisinePickOpen || classicOpen || (regionExpanded && venues.length > 0);
-
   return (
     <div
       className="bg-tg-bg text-tg-text pt-3 flex flex-col gap-2 max-w-[1600px] mx-auto px-3 md:px-6 lg:px-8"
@@ -3682,16 +3674,9 @@ export default function App() {
           inset so the title + location row clear the ⌄/··· system chrome — the
           same fix as the Hawker top bar. Phones (not fullscreen) keep the plain
           pt-2 and are unchanged. */}
-      {/* v0.62.570 — O-54 (operator: float the header strip itself over the map's
-          top). The header is now a FIXED, translucent bar centred to the max-w
-          column; the map (the first in-flow element below) reaches top-0 behind
-          it, so the title + location line + folio tabs read as a layer IN FRONT
-          of the map on every device. `bg-tg-bg/85 backdrop-blur` keeps it legible
-          while the map shows through. The map's own controls drop below this bar
-          (MapPanel `topInset`). */}
       <header ref={headerRef}
         style={{ paddingTop: isWide ? 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' : '0.5rem' }}
-        className={`fixed top-0 inset-x-0 z-30 mx-auto w-full max-w-[1600px] px-3 md:px-6 lg:px-8 ${(cuisinePickOpen || classicOpen) ? 'pb-0' : 'pb-2'} flex flex-col gap-1.5 transition-colors bg-tg-bg/85 backdrop-blur`}>
+        className={`sticky top-0 z-30 -mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 ${(cuisinePickOpen || classicOpen) ? 'pb-0' : 'pb-2'} flex flex-col gap-1.5 transition-colors ${modePeek ? 'bg-tg-bg' : 'bg-tg-bg/90 backdrop-blur'}`}>
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <img src="soleat-icon.png" alt="soleat" width="24" height="24" className="rounded-full flex-shrink-0" />
@@ -3821,19 +3806,9 @@ export default function App() {
             separate card below the header before). Collapsed (results showing,
             editor closed) the whole block hides behind the "Set location is …"
             line above. */}
-        {/* v0.62.569 — O-54 (operator: "location = overlay, never push the tabs
-            down"). Once results exist, tapping "Click to change" (regionExpanded)
-            floats the location editor as a panel OVER the full-bleed map (same
-            fixed-overlay contract as the folio pickers) instead of expanding
-            in-flow and shoving the folio tabs down. First-load (no results yet)
-            keeps the inline mode-pill row. */}
-        <div
-          style={venues.length > 0 && regionExpanded ? { top: headerBottom } : undefined}
-          className={
+        <div className={
           venues.length > 0 && !regionExpanded ? 'hidden'
-            : venues.length > 0 && regionExpanded
-              ? `fixed left-2 right-2 z-20 bg-tg-bg/95 backdrop-blur rounded-b-2xl border border-tg-border p-2 overflow-y-auto no-scrollbar max-h-[70vh] ${modePeek ? '' : 'flex flex-col gap-1.5'} ${pickerWidthCls}`
-              : (modePeek ? '' : 'flex flex-col gap-1.5')
+            : (modePeek ? '' : 'flex flex-col gap-1.5')
         }>
           {/* v0.62.187 — operator (IMG_2509): when the editor is open the 4 location
               modes are FOLIO FOLDER-TABS — the selected region tab is physically
@@ -4177,10 +4152,6 @@ export default function App() {
           </div>
         )}
       </header>
-      {/* v0.62.570 — spacer the height of the fixed header, so the two-panel /
-          phone scrolling content starts below the floating bar. Omitted when the
-          map is full-bleed (it fills BEHIND the header on purpose). */}
-      {!mapFullBleed && <div aria-hidden className="shrink-0" style={{ height: headerBottom }} />}
 
       {/* v0.62.x — the Search Insights strip moved OUT of here (was a full-bleed
           white band under the header that ate a row). It now renders as a slim,
@@ -4206,9 +4177,7 @@ export default function App() {
         // open so the panel PUSHES it down (reverses the v0.62.195 fixed overlay).
         // v0.62.264 — -mt-2 cancels the root flex `gap-2`; with the header's
         // bottom pad/border dropped while open, the panel butts flush under the tab.
-        <div
-          style={{ top: headerBottom }}
-          className={`folder-drawer fixed left-2 right-2 z-20 overflow-y-auto no-scrollbar rounded-b-2xl border px-3 py-2.5 flex flex-col gap-2 max-h-[70vh] ${pickerWidthCls}`}>
+        <div className={`folder-drawer -mt-2 overflow-y-auto no-scrollbar rounded-b-2xl border px-3 py-2.5 flex flex-col gap-2 max-h-[60vh] ${pickerWidthCls}`}>
           {/* v0.62.246 — operator: the folio TAB already reads "Choose your
               cuisine"; drop the duplicate body title, keep only the × close. */}
           <div className="flex items-center justify-end">
@@ -4288,9 +4257,7 @@ export default function App() {
         // tabs + panel = one folder (MVP layout); map un-fills below so it pushes down.
         // v0.62.264 — -mt-2 cancels the root flex `gap-2` so the panel butts flush
         // under the active tab (header bottom pad/border dropped while open).
-        <div
-          style={{ top: headerBottom }}
-          className={`folder-drawer fixed left-2 right-2 z-20 overflow-y-auto no-scrollbar rounded-b-2xl border px-2.5 py-2 max-h-[70vh] ${pickerWidthCls}`}>
+        <div className={`folder-drawer -mt-2 overflow-y-auto no-scrollbar rounded-b-2xl border px-2.5 py-2 max-h-[60vh] ${pickerWidthCls}`}>
           {/* v0.62.246 — operator: the folio TAB already reads "Pick local
               classic"; drop the duplicate body title, keep only the × close.
               (The plate below still shows the city name, e.g. "📍 Singapore".) */}
@@ -4351,15 +4318,12 @@ export default function App() {
            v0.62.254 — when a folio picker (cuisine / local-classic) is OPEN it
            renders IN-FLOW above the map (option 2, MVP layout), so the map drops
            its full-bleed fill and sits framed below — the picker pushes it down. */
-        /* v0.62.568 — O-54 (operator: the tabs + location + picker should be a
-           layer IN FRONT OF the map, all devices, always — not a black gap that
-           pushes the map down). The map goes full-bleed whenever a folio picker is
-           open (every device), and the picker panels float OVER it (see below), so
-           the map shows behind/around the picker instead of a black band. */
-        fill={mapFullBleed}
-        /* v0.62.570 — when the map is full-bleed behind the fixed header, drop the
-           in-map control clusters below the header so they stay tappable. */
-        topInset={mapFullBleed ? headerBottom : 0}
+        /* v0.62.564 — O-54 (operator: the tabs + location should be IN FRONT OF
+           the map, not in a white gap above it). On a tablet/desktop the map
+           stays full-bleed even while a folio picker is open, so the picker /
+           tabs float over the map instead of shoving it into a strip. Phones
+           keep the v0.62.254 behaviour (picker pushes the framed map down). */
+        fill={drawerMode === 'horizontal' && (isWide || (!cuisinePickOpen && !classicOpen))}
         focusedPlaceId={focusedPlaceId}
         onPinTap={setFocusedPlaceId}
         searchCenter={searchCenter || userLoc}
