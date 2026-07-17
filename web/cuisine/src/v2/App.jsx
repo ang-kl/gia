@@ -4176,7 +4176,9 @@ export default function App() {
         // open so the panel PUSHES it down (reverses the v0.62.195 fixed overlay).
         // v0.62.264 — -mt-2 cancels the root flex `gap-2`; with the header's
         // bottom pad/border dropped while open, the panel butts flush under the tab.
-        <div className={`folder-drawer -mt-2 overflow-y-auto no-scrollbar rounded-b-2xl border px-3 py-2.5 flex flex-col gap-2 max-h-[60vh] ${pickerWidthCls}`}>
+        <div
+          style={{ top: headerBottom }}
+          className={`folder-drawer fixed left-2 right-2 z-20 overflow-y-auto no-scrollbar rounded-b-2xl border px-3 py-2.5 flex flex-col gap-2 max-h-[70vh] ${pickerWidthCls}`}>
           {/* v0.62.246 — operator: the folio TAB already reads "Choose your
               cuisine"; drop the duplicate body title, keep only the × close. */}
           <div className="flex items-center justify-end">
@@ -4256,7 +4258,9 @@ export default function App() {
         // tabs + panel = one folder (MVP layout); map un-fills below so it pushes down.
         // v0.62.264 — -mt-2 cancels the root flex `gap-2` so the panel butts flush
         // under the active tab (header bottom pad/border dropped while open).
-        <div className={`folder-drawer -mt-2 overflow-y-auto no-scrollbar rounded-b-2xl border px-2.5 py-2 max-h-[60vh] ${pickerWidthCls}`}>
+        <div
+          style={{ top: headerBottom }}
+          className={`folder-drawer fixed left-2 right-2 z-20 overflow-y-auto no-scrollbar rounded-b-2xl border px-2.5 py-2 max-h-[70vh] ${pickerWidthCls}`}>
           {/* v0.62.246 — operator: the folio TAB already reads "Pick local
               classic"; drop the duplicate body title, keep only the × close.
               (The plate below still shows the city name, e.g. "📍 Singapore".) */}
@@ -4317,12 +4321,12 @@ export default function App() {
            v0.62.254 — when a folio picker (cuisine / local-classic) is OPEN it
            renders IN-FLOW above the map (option 2, MVP layout), so the map drops
            its full-bleed fill and sits framed below — the picker pushes it down. */
-        /* v0.62.564 — O-54 (operator: the tabs + location should be IN FRONT OF
-           the map, not in a white gap above it). On a tablet/desktop the map
-           stays full-bleed even while a folio picker is open, so the picker /
-           tabs float over the map instead of shoving it into a strip. Phones
-           keep the v0.62.254 behaviour (picker pushes the framed map down). */
-        fill={drawerMode === 'horizontal' && (isWide || (!cuisinePickOpen && !classicOpen))}
+        /* v0.62.568 — O-54 (operator: the tabs + location + picker should be a
+           layer IN FRONT OF the map, all devices, always — not a black gap that
+           pushes the map down). The map goes full-bleed whenever a folio picker is
+           open (every device), and the picker panels float OVER it (see below), so
+           the map shows behind/around the picker instead of a black band. */
+        fill={drawerMode === 'horizontal' || cuisinePickOpen || classicOpen}
         focusedPlaceId={focusedPlaceId}
         onPinTap={setFocusedPlaceId}
         searchCenter={searchCenter || userLoc}
