@@ -39,6 +39,14 @@ const NON_SG_RING2_M = 2000;      // fixed middle ring outside SG
 // v0.62.543 — a big ring's single north label can sit far off the visible arc,
 // so rings wider than this get a distance label on all four sides (N/E/S/W).
 const LARGE_RING_M = 8000;        // operator: "above 8 km → indicate on four sides"
+// v0.62.586 — non-SG tiered outer rings (operator, Brisbane): when the results
+// spread wide (farthest pin > TIER_TRIGGER_M) replace the single farthest ring
+// with up to THREE band rings — ring 3 on the farthest pin in (2 km, 10 km],
+// ring 4 in (10 km, 20 km], ring 5 in (20 km, ∞) — so the pin distribution reads
+// at a glance. Below the trigger the single farthest ring (ring 3) stays.
+const TIER_TRIGGER_M = 20000;     // only tier when the farthest pin exceeds 20 km
+const TIER_BAND_1_M = 10000;      // ring 3 upper edge: farthest pin within 10 km
+const TIER_BAND_2_M = 20000;      // ring 4 upper edge: farthest pin within 20 km
 const M_PER_MILE = 1609.344;
 const M_PER_FOOT = 0.3048;
 
@@ -181,6 +189,22 @@ export function farthestResultDist(lat, lng, results) {
   return far;
 }
 
+// v0.62.586 — distance (m) to the farthest result pin whose distance falls in the
+// half-open band (minM, maxM]; 0 when the band holds no pin. Powers the non-SG
+// tiered outer rings (operator spec, Brisbane): once the spread is wide (farthest
+// > 20 km) draw one ring PER band, each sitting on the farthest pin within it.
+export function farthestResultDistInBand(lat, lng, results, minM, maxM) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return 0;
+  const pts = (Array.isArray(results) ? results : [])
+    .filter((p) => p && Number.isFinite(p.lat) && Number.isFinite(p.lng));
+  let far = 0;
+  for (const p of pts) {
+    const d = metresBetween(lat, lng, p.lat, p.lng);
+    if (d > minM && d <= maxM && d > far) far = d;
+  }
+  return far;
+}
+
 // Outer "reach" ring: sized to enclose the farthest RESULT pin, but capped at
 // ~REACH_CAP_STOPS stops so one far-flung result can't balloon it. Only returned
 // when at least one result sits beyond the 2-stop ring (and the reach ring is
@@ -309,13 +333,24 @@ export function createRingLayer(map, googleMaps) {
       return;
     }
     // Outside Singapore — distance-only rings, no glyph. Ring 2 stays a fixed
-    // 2 km (labelled in the local unit); ring 3 sits at the farthest result, but
-    // ONLY when result(s) fall OUTSIDE ring 2 (the results bound it — never drawn
-    // inside ring 2).
+    // 2 km (labelled in the local unit); the outer ring(s) sit on the result pins,
+    // but ONLY when result(s) fall OUTSIDE ring 2 (the results bound them — never
+    // drawn inside ring 2).
     const ring2Label = unit === 'mi' ? formatDist(NON_SG_RING2_M, 'mi') : '2km';
     drawRing(centre, NON_SG_RING2_M, '', ring2Label);
     const far = farthestResultDist(centre.lat, centre.lng, results);
-    if (far > NON_SG_RING2_M) {
+    if (far > TIER_TRIGGER_M) {
+      // v0.62.586 — wide spread: one ring PER band, each on the farthest pin in it.
+      // Ring 3 → (2 km, 10 km], ring 4 → (10 km, 20 km], ring 5 → (20 km, farthest].
+      const bands = [
+        farthestResultDistInBand(centre.lat, centre.lng, results, NON_SG_RING2_M, TIER_BAND_1_M),
+        farthestResultDistInBand(centre.lat, centre.lng, results, TIER_BAND_1_M, TIER_BAND_2_M),
+        farthestResultDistInBand(centre.lat, centre.lng, results, TIER_BAND_2_M, Infinity),
+      ];
+      for (const r of bands) {
+        if (r > 0) drawRing(centre, r, '', formatDist(r, unit), true);
+      }
+    } else if (far > NON_SG_RING2_M) {
       drawRing(centre, far, '', formatDist(far, unit), true);
     }
   }
