@@ -541,9 +541,16 @@ export default function ResultPanel({
             // slice only). Tapping the city name pans/fits the map via
             // onCityJump — no reload, no new search, no setLocation change.
             const hasAwardCities = cardsToShow.some((v) => v && typeof v.awardCity === 'string' && v.awardCity);
+            // v0.62.566 — build the card nodes once, then (on a tablet/desktop
+            // 2-col list) split them into TWO INDEPENDENT flex columns so a card
+            // expanding in one column never shifts the other (operator: "we need
+            // independent columns that doesn't affect the other column"). The CSS
+            // grid aligned rows, which forced a gap under a short card when its
+            // row-mate expanded; two separate flex columns each flow on their own.
+            let cardNodes;
             if (hasAwardCities) {
               const grouped = groupByAwardCity(cardsToShow, michelinCity);
-              return grouped.groups.map((g) => (
+              cardNodes = grouped.groups.map((g) => (
                 <React.Fragment key={'cityGrp:' + (g.city || '_none')}>
                   {groupNeedsJumpRow(g, grouped.caseA) && (
                     <div className={`px-2 pt-2 pb-1 text-[12px] font-medium text-tg-text leading-snug border-t border-tg-hint/20 ${spanCls}`}>
@@ -560,8 +567,8 @@ export default function ResultPanel({
                   ))}
                 </React.Fragment>
               ));
-            }
-            return cardsToShow.map((v, i) => {
+            } else {
+              cardNodes = cardsToShow.map((v, i) => {
               // v0.62.x — unified-newness band separation. The server (New pill)
               // sorts strict-band (opened ≤3 mo) ahead of fill-band (3–6 mo) and
               // stamps each venue's recencyBand. Render a divider before the
@@ -616,7 +623,21 @@ export default function ResultPanel({
                   <ResultCard venue={v} number={rankOf(v)} focused={v.placeId === focusedPlaceId} onTap={onCardTap} copyContext={copyState} specialMode={specialMode} nearbyLabel={nearbyLabel} nearbyAccent={nearbyAccent} nearbyStrips={nearbyStrips} dishHints={dishHints} />
                 </React.Fragment>
               );
-            });
+              });
+            }
+            // Two independent columns for the flat list on a wide device: rank 1,3,5…
+            // fill the left column and 2,4,6… the right, each flowing on its own so
+            // an expanded card only pushes its OWN column. (Michelin grouped keeps
+            // its single flow — one Fragment per city group renders in the grid.)
+            if (columns === 2 && !hasAwardCities) {
+              return (
+                <>
+                  <div className="flex flex-col gap-1.5">{cardNodes.filter((_, i) => i % 2 === 0)}</div>
+                  <div className="flex flex-col gap-1.5">{cardNodes.filter((_, i) => i % 2 === 1)}</div>
+                </>
+              );
+            }
+            return cardNodes;
           })()}
           {/* v0.61.403 — subtle "more coming" cue while the first batch streams
               in one card at a time (parity with gia-web v0.1.151). */}
