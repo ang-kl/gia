@@ -197,7 +197,16 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
             <ResultCard
               venue={v}
               number={i + 1}
-              focused={v.placeId === activeId}
+              /* v0.62.581 — operator (IMG_0747): "why do you select a card not in
+                 focus when loading the first time." On the tablet carousel the
+                 accent RING (focused=border-tg-accent) was pinned to whatever card
+                 auto-CENTRED on load (activeId), so a card the user never tapped
+                 read as "selected". Split the two states: the centred card stays
+                 visually in focus via the OPAQUE/glass treatment (visibleSet, below),
+                 but the accent ring now appears ONLY on an actual tap
+                 (focusedPlaceId). No tap yet → no ring on first load. Phones keep the
+                 legacy activeId ring (their single-card strip has no glass focus). */
+              focused={glassPeek ? (!!focusedPlaceId && v.placeId === focusedPlaceId) : (v.placeId === activeId)}
               onTap={() => onSelect && onSelect(v.placeId)}
               specialMode={specialMode}
               horizontal
