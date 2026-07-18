@@ -15,6 +15,38 @@ import LocaleToggle from './components/LocaleToggle.jsx';
 // v0.60.213 — build version for the footer tag line.
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
 
+// v0.62.600 — operator: a LIVE Singapore-time clock on the status row. Format
+// "DD MMM HH:MM" (24-hour); the ":" blinks each second so it's visibly running
+// on SGT, replacing the static server timestamp row.
+function LiveClock() {
+  const [now, setNow] = useState(() => new Date());
+  const [colonOn, setColonOn] = useState(true);
+  useEffect(() => {
+    // 500 ms tick → the ":" blinks on/off once a second (classic running clock);
+    // re-reading the time each tick keeps the minute current.
+    const id = setInterval(() => {
+      setNow(new Date());
+      setColonOn((c) => !c);
+    }, 500);
+    return () => clearInterval(id);
+  }, []);
+  let day = '', month = '', hour = '', minute = '';
+  try {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Singapore', day: '2-digit', month: 'short',
+      hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+    }).formatToParts(now);
+    const get = (type) => (parts.find((p) => p.type === type) || {}).value || '';
+    day = get('day'); month = get('month'); hour = get('hour'); minute = get('minute');
+  } catch { /* Intl timezone unsupported — the clock just hides */ }
+  if (!day) return null;
+  return (
+    <span className="tabular-nums whitespace-nowrap" aria-label={`${day} ${month} ${hour}:${minute} SGT`}>
+      {day} {month} {hour}<span style={{ visibility: colonOn ? 'visible' : 'hidden' }}>:</span>{minute}
+    </span>
+  );
+}
+
 // Hitachi-style transport TMA — main composition.
 // Layout (mobile-first):
 //   1. Header: title + timestamp
@@ -198,10 +230,11 @@ export default function App() {
         paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))'
       }}
     >
-      {/* v0.62.164 — operator: ONE neo-skeuomorphic header card. Row 1 = title +
-          live weather + line-status; row 2 = timestamp; row 3 = the zoom/explore
-          tip; row 4 = the 🗺/📍 view toggle as tactile skeuo pills. The map tucks
-          UP under this card (negative mt below) so it "goes below it".
+      {/* v0.62.164 — operator: ONE neo-skeuomorphic header card.
+          v0.62.600 — operator: row 1 = title + live weather + refresh, then the
+          line-status AND the live SGT clock together on the right; the old
+          separate timestamp row + the zoom tip row + the header view-toggle pills
+          are gone (the view toggle moved to the footer bar). Row 2 = the line pills.
           NOTE colour-blind safe: line status pairs the ✓ glyph / a count with
           the hue, so it never relies on green-vs-orange alone. */}
       <header className="skeuo-card rounded-2xl px-3 py-2.5 flex flex-col gap-1.5 relative z-10">
@@ -217,34 +250,17 @@ export default function App() {
             title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
             className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
           >↻</button>
+          {/* v0.62.600 — status + live SGT clock share the right of row 1. */}
           <span className="text-[11px] ml-auto flex items-center gap-2">
             <span>
               {affectedCodes.length === 0
                 ? <span className="text-green-500">{t('header.allNormal', lang)}</span>
                 : <span className="text-orange-500">{tn(affectedCodes.length === 1 ? 'header.linesAffected' : 'header.linesAffectedPlural', lang, { n: affectedCodes.length })}</span>}
             </span>
+            <span className="text-tg-hint" aria-hidden>·</span>
+            <span className="text-tg-hint"><LiveClock /></span>
             <LocaleToggle className="flex-shrink-0" />
           </span>
-        </div>
-        <div className="text-[11px] text-tg-hint">{data.timestampSGT || ''}</div>
-        {/* v0.60.85 — the zoom/explore tip nudges first-time users toward the
-            interactive Google Map when they want to look up a station. */}
-        <div className="text-[11px] text-tg-hint italic">
-          {mapView === 'png' ? t('view.tipToGmap', lang) : t('view.tipZoomIn', lang)}
-        </div>
-        <div className="inline-flex self-start gap-1.5 text-[11px] font-medium">
-          <button
-            type="button"
-            onClick={() => setMapView('png')}
-            aria-pressed={mapView === 'png'}
-            className={`skeuo-pill px-3 py-1 rounded-lg active:scale-95 ${mapView === 'png' ? 'skeuo-pill--selected font-semibold' : 'text-tg-text'}`}
-          >{t('view.btnSchematic', lang)}</button>
-          <button
-            type="button"
-            onClick={() => setMapView('gmap')}
-            aria-pressed={mapView === 'gmap'}
-            className={`skeuo-pill px-3 py-1 rounded-lg active:scale-95 ${mapView === 'gmap' ? 'skeuo-pill--selected font-semibold' : 'text-tg-text'}`}
-          >{t('view.btnGoogleMap', lang)}</button>
         </div>
         {/* v0.62.597 — operator: the "overview (All Lines) + operating-line" pills
             move UP into the header (like the Hawker TMA zone pills), out of the
@@ -331,18 +347,29 @@ export default function App() {
         <div>Source: LTA TrainServiceAlerts (live) + curated engineering schedule</div>
       </footer>
 
-      {/* v0.62.217 — structured Train-TMA bottom bar: version (left) + top/down and
-          back/end buttons (right), pinned to the bottom.
-          v0.62.597 — the line ticker moved UP into the header (operator), so the
-          bottom bar is now just the version + nav controls. */}
+      {/* v0.62.217 — structured Train-TMA bottom bar, pinned to the bottom.
+          v0.62.597 — the line ticker moved UP into the header (operator).
+          v0.62.600 — operator: the view toggle (Schematic ↔ Google Map) moved
+          DOWN here from the header, as a single pill showing the OTHER view;
+          left = version + that toggle, right = top/down & back/end nav. */}
       <div
         className="fixed bottom-0 inset-x-0 z-40 bg-tg-bg/95 backdrop-blur border-t border-tg-border"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
         <div className="flex items-center justify-between gap-2 px-3 py-1.5">
-          <span className="text-[9px] text-tg-hint leading-tight min-w-0 truncate">
-            {t('footer.tag', lang)} · v{BUILD_VERSION}
-          </span>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-[9px] text-tg-hint leading-tight truncate">
+              {t('footer.tag', lang)} · v{BUILD_VERSION}
+            </span>
+            {/* Single toggle pill: tapping flips schematic ↔ Google Map; the label
+                names the view you'll switch TO. */}
+            <button
+              type="button"
+              onClick={() => setMapView((v) => (v === 'png' ? 'gmap' : 'png'))}
+              aria-label={mapView === 'png' ? t('view.btnGoogleMap', lang) : t('view.btnSchematic', lang)}
+              className="skeuo-pill px-2.5 py-1 rounded-lg text-[11px] font-medium text-tg-text active:scale-95 whitespace-nowrap shrink-0"
+            >{mapView === 'png' ? t('view.btnGoogleMap', lang) : t('view.btnSchematic', lang)}</button>
+          </div>
           <div className="flex items-center gap-1 text-[11px] font-semibold text-tg-link shrink-0">
             <button
               type="button"
