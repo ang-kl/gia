@@ -4,7 +4,9 @@
 // without rendering React. No DOM, no side-effects.
 import { LINES_BY_CODE } from '../data/lines.js';
 import { lineStationsFull } from '../data/line-paths.js';
-import { t } from '../i18n.js';
+// NOTE: this module must stay React-free (no i18n import) so it can be unit
+// tested from the repo-root vitest context — i18n.js imports `react`, which is
+// only resolvable inside web/transport. The translator is injected instead.
 
 export const CROWD_DOT = { l: '🟢', m: '🟡', h: '🔴' };
 export const CROWD_RANK = { l: 1, m: 2, h: 3 };
@@ -60,11 +62,12 @@ export function trainTimes(timings) {
   };
 }
 
-// Human label for a first_last_train `direction` (compass / loop bounds).
-export function directionLabel(direction, lang) {
+// Human label for a first_last_train `direction` (compass / loop bounds). The
+// translator `translate(key, lang)` is injected so this module stays React-free.
+export function directionLabel(direction, translate, lang) {
   const d = String(direction || '').toLowerCase();
   if (['northbound', 'southbound', 'eastbound', 'westbound', 'clockwise', 'anticlockwise', 'loop'].includes(d)) {
-    return t(`mrt.dir.${d}`, lang);
+    return translate(`mrt.dir.${d}`, lang);
   }
   return d.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }

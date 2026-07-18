@@ -44,7 +44,7 @@ function DirectionRow({ entry, lineCode, coarseStations, lang, onFocusStationCod
             <span className="text-tg-link font-medium">{term.name}</span>
           </button>
         ) : (
-          <span className="text-tg-text/80 font-medium">{directionLabel(entry.direction, lang)}</span>
+          <span className="text-tg-text/80 font-medium">{directionLabel(entry.direction, t, lang)}</span>
         )}
       </div>
       {terminal ? (

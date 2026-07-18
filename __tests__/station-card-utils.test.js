@@ -80,13 +80,21 @@ describe('trainTimes', () => {
 });
 
 describe('directionLabel', () => {
-  it('localises compass / loop bounds', () => {
-    expect(directionLabel('northbound', 'en')).toBe('Northbound');
-    expect(directionLabel('clockwise', 'en')).toBe('Clockwise');
-    expect(directionLabel('loop', 'fr')).toBe('Boucle');
+  // Injected stub translator (the real i18n.t pulls in `react`, unresolvable
+  // from the repo-root test context — that's exactly why translate is injected).
+  const tr = (key) => ({
+    'mrt.dir.northbound': 'Northbound',
+    'mrt.dir.clockwise': 'Clockwise',
+    'mrt.dir.loop': 'Boucle'
+  })[key] || key;
+
+  it('localises compass / loop bounds via the injected translator', () => {
+    expect(directionLabel('northbound', tr, 'en')).toBe('Northbound');
+    expect(directionLabel('clockwise', tr, 'en')).toBe('Clockwise');
+    expect(directionLabel('loop', tr, 'fr')).toBe('Boucle');
   });
-  it('prettifies an unknown direction', () => {
-    expect(directionLabel('towards_expo', 'en')).toBe('Towards Expo');
+  it('prettifies an unknown direction without the translator', () => {
+    expect(directionLabel('towards_expo', tr, 'en')).toBe('Towards Expo');
   });
 });
 
