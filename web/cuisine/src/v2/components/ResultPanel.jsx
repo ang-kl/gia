@@ -278,6 +278,21 @@ export default function ResultPanel({
   // presentation-only — the boot load + location gate in App.jsx (the
   // hang-prone area) are untouched.
   const [revealCount, setRevealCount] = useState(0);
+  // v0.62.591 — operator (iPad portrait): tapping a map pin sets focusedPlaceId but
+  // the vertical list only RINGED the card — it didn't bring it into view. Scroll the
+  // matching card to centre (like the ResultDrawer carousel does), scoped to this
+  // panel so it never grabs a ResultDrawer card. Skips the very first render so a
+  // fresh result set doesn't yank the page.
+  const panelRef = useRef(null);
+  const firstFocusRef = useRef(true);
+  useEffect(() => {
+    if (firstFocusRef.current) { firstFocusRef.current = false; return; }
+    if (!focusedPlaceId || !panelRef.current) return;
+    const sel = (window.CSS && CSS.escape) ? CSS.escape(focusedPlaceId) : focusedPlaceId;
+    const el = panelRef.current.querySelector(`[data-pid="${sel}"]`);
+    el?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+  }, [focusedPlaceId]);
+
   const revealKeyRef = useRef('');
   useEffect(() => {
     if (!firstBatch) return;
@@ -317,7 +332,7 @@ export default function ResultPanel({
     firstBatch && !loading && pagedVenues.length > 0 && revealCount < pagedVenues.length;
 
   return (
-    <div className="rounded-2xl border border-tg-border bg-tg-bg p-2">
+    <div ref={panelRef} className="rounded-2xl border border-tg-border bg-tg-bg p-2">
       <div className="flex items-center justify-between px-1 pb-1.5 gap-1.5">
         {/* v0.61.174 — counter copy follows the operator's spec table:
               • known total + multi-page → "Results: {known} · Showing {a}-{b}"
