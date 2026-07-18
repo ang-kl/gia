@@ -3,6 +3,7 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
 import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
 import { createRingLayer, farthestResultDist } from '../../../../_shared/lib/distance-rings.js';
+import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS } from '../../../../_shared/lib/map-interaction.js';
 import MapControls from './MapControls.jsx';
 
 // v0.61.70 — venue pin carrying the venue's 1-based result number (its
@@ -188,11 +189,8 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // venue object without going through React state.
   const venuesRef = useRef([]);
   useEffect(() => { venuesRef.current = venues || []; }, [venues]);
-  // v0.61.86 — placeId of the venue whose own map pin was just tapped.
-  // The focus-pan effect skips panning for these, so a pin tap opens
-  // the popup in place without the map jumping (a result-card tap, by
-  // contrast, still pans the map to bring the venue into view).
-  const pinFocusRef = useRef(null);
+  // v0.62.589 — pinFocusRef removed: a pin tap and a card tap now run the same
+  // unified focus flow, so there's no longer a "pin tap = don't move the map" case.
   // v0.62.115 — operator: a result-card tap zooms the map IN to 17 (so the
   // blinking pin lands you on the street).
   // v0.62.560 — operator: closing the card must NOT adjust the zoom — the
@@ -532,44 +530,41 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     }).catch(() => {});
   }
 
-  // v0.61.86 — pan the map to a focused venue, but only when the focus
-  // came from a result-card tap. A pin tap (pinFocusRef holds that
-  // placeId) opens the popup in place and must not move the map.
+  // v0.62.589 — UNIFIED tap flow (operator: "make Cuisine follow Hawker codes",
+  // then a shared spec for both TMAs). A card tap AND a pin tap now run the SAME
+  // sequence, in both orientations: panTo → zoom (phone TAP_ZOOM_PHONE, tablet/list
+  // TAP_ZOOM_WIDE) → PAUSE TAP_PAUSE_MS (camera settles) → open the InfoWindow
+  // anchored to the pin (card-from-pin) + blink the pin (BLINK_MS). This reverses
+  // the two prior special-cases the operator signed off on: v0.61.86 (a pin tap no
+  // longer stays put — it now pans/zooms like a card tap) and v0.62.141 (the phone
+  // carousel no longer suppresses the InfoWindow — "blinkOnly" now only selects the
+  // phone zoom). The pin's own click handler just sets focusedPlaceId; everything
+  // visual happens here so the two paths can never drift.
   useEffect(() => {
     if (!focusedPlaceId || !mapRef.current) return;
-    if (pinFocusRef.current === focusedPlaceId) { pinFocusRef.current = null; return; }
     const v = (venuesRef.current || []).find((x) => x.placeId === focusedPlaceId);
-    if (v && Number.isFinite(v.lat) && Number.isFinite(v.lng)) {
-      mapRef.current.panTo({ lat: v.lat, lng: v.lng });
-      // v0.62.141 — horizontal mode: a card tap zooms the map to 14 + blinks the
-      // pin, but opens NO info pop-up (the card is in the strip below). Capture
-      // the pre-tap zoom once so a tap on the empty map / ✕ (closeInfo) zooms
-      // back out. (Vertical mode keeps the 17 + pop-up path below.)
-      if (blinkOnlyRef.current) {
-        // v0.62.153 — learned preference wins; else 15 when >4 pins cluster
-        // within ~150 m of the tapped venue ("many pins in one location"), else 14.
-        let targetZoom = prefZoomRef.current;
-        if (targetZoom == null) {
-          const near = (venuesRef.current || []).filter((x) =>
-            Number.isFinite(x?.lat) && Number.isFinite(x?.lng)
-            && Math.abs(x.lat - v.lat) < 0.0014 && Math.abs(x.lng - v.lng) < 0.0014).length;
-          targetZoom = near > 4 ? 15 : 14;
-        }
-        progZoomRef.current = true;
-        mapRef.current.setZoom(targetZoom);
-        overlayControllerRef.current?.flashPin?.(v.lat, v.lng, 44);
-        return;
+    if (!v || !Number.isFinite(v.lat) || !Number.isFinite(v.lng)) return;
+    mapRef.current.panTo({ lat: v.lat, lng: v.lng });
+    // Zoom: phone TAP_ZOOM_PHONE (learned pref wins; else 15 when >4 pins cluster
+    // within ~150 m of the tapped venue, else 14); tablet/vertical list TAP_ZOOM_WIDE.
+    let targetZoom;
+    if (blinkOnlyRef.current) {
+      targetZoom = prefZoomRef.current;
+      if (targetZoom == null) {
+        const near = (venuesRef.current || []).filter((x) =>
+          Number.isFinite(x?.lat) && Number.isFinite(x?.lng)
+          && Math.abs(x.lat - v.lat) < 0.0014 && Math.abs(x.lng - v.lng) < 0.0014).length;
+        targetZoom = near > 4 ? TAP_ZOOM_PHONE : (TAP_ZOOM_PHONE - 1);
       }
-      // v0.62.115 — operator: a result-card tap zooms IN to 17 so the blinking
-      // pin drops you onto the street. v0.62.560 — the prior-zoom capture/restore
-      // is removed (closing no longer changes the zoom).
-      mapRef.current.setZoom(17);
-      // v0.62.112 — operator: a result-card tap should BLINK the eatery's map
-      // pin for ~2-3 s so the eye lands on it. flashPin pulses a hollow ring
-      // (44px, wider than the default to clear the venue droplet) for ~2.5 s.
-      overlayControllerRef.current?.flashPin?.(v.lat, v.lng, 44);
-      // v0.62.105 — operator: tapping a result card should HIGHLIGHT the spot,
-      // not just pan. Open that pin's info popup (same content as a pin tap).
+      progZoomRef.current = true;
+    } else {
+      targetZoom = TAP_ZOOM_WIDE;
+    }
+    mapRef.current.setZoom(targetZoom);
+    // 0.5 s pause → open the pin's InfoWindow + blink. flashPin pulses a 44px hollow
+    // ring (wider than the venue droplet) for ~2.5 s; the pause lets the camera land
+    // first so the eye catches the blink (operator: "pause for a second, then blink").
+    const timer = setTimeout(() => {
       const entry = markerByIdRef.current.get(focusedPlaceId);
       if (entry && infoWindowRef.current) {
         infoWindowRef.current.setContent(entry.infoHtml);
@@ -577,7 +572,9 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         openInfoIdRef.current = focusedPlaceId;
         maybeShowTransit(focusedPlaceId);   // v0.62.106
       }
-    }
+      overlayControllerRef.current?.flashPin?.(v.lat, v.lng, 44);
+    }, TAP_PAUSE_MS);
+    return () => clearTimeout(timer);
   }, [focusedPlaceId]);
 
   // v0.61.353 — imperative fly-to: App sets `flyTo` ({lat,lng,zoom?,_k})
@@ -836,15 +833,11 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // platform. Always open the InfoWindow preview; it already carries the
       // explicit "Google Map ↗" CTA (window.__giaOpenMap) for users who do want
       // to leave. Mirrors the result-card tap path and the Hawker TMA.
+      // v0.62.589 — a pin tap now just sets focusedPlaceId; the unified focus
+      // effect above runs the whole flow (pan → zoom → pause → InfoWindow + blink),
+      // exactly like a card tap. (Was: opened the popup in place with no pan/zoom.)
       marker.addListener('click', () => {
-        pinFocusRef.current = v.placeId;
         onPinTap?.(v.placeId);
-        if (infoWindowRef.current) {
-          infoWindowRef.current.setContent(infoHtml);
-          infoWindowRef.current.open(mapRef.current, marker);
-          openInfoIdRef.current = v.placeId;
-          maybeShowTransit(v.placeId);   // v0.62.106 — transit context on tap
-        }
       });
       markersRef.current.push(marker);
       if (v.placeId) markerByIdRef.current.set(v.placeId, { marker, infoHtml, innerHtml, lat: v.lat, lng: v.lng });

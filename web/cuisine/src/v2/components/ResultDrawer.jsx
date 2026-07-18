@@ -206,7 +206,14 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
                  but the accent ring now appears ONLY on an actual tap
                  (focusedPlaceId). No tap yet → no ring on first load. Phones keep the
                  legacy activeId ring (their single-card strip has no glass focus). */
-              focused={glassPeek ? (!!focusedPlaceId && v.placeId === focusedPlaceId) : (v.placeId === activeId)}
+              /* v0.62.589 — operator (unified spec): the accent RING keys off the
+                 tapped id (focusedPlaceId) in BOTH orientations now — so a card tap
+                 OR a pin tap lights the same card's ring, and no card rings on first
+                 load. (Was: phones ringed the scroll-centred card via activeId.) The
+                 opaque-white "centred" treatment still follows activeId via the glass
+                 prop below, so the phone centred card stays opaque independent of the
+                 ring. */
+              focused={!!focusedPlaceId && v.placeId === focusedPlaceId}
               onTap={() => onSelect && onSelect(v.placeId)}
               specialMode={specialMode}
               horizontal
@@ -219,7 +226,10 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
                  band (IntersectionObserver), glass when it half-peeks at the ends.
                  Before the observer settles, treat as opaque (visibleSet empty).
                  On phones (glassPeek off) pass null → the legacy focused-only rule. */
-              glass={glassPeek ? (visibleSet.size > 0 ? !visibleSet.has(v.placeId) : false) : null}
+              /* v0.62.589 — phones now pass an EXPLICIT glass value (opaque for the
+                 scroll-centred card via activeId, glass otherwise) so the centred-card
+                 opaque look survives the ring being decoupled from activeId above. */
+              glass={glassPeek ? (visibleSet.size > 0 ? !visibleSet.has(v.placeId) : false) : (v.placeId !== activeId)}
             />
           </div>
         ))}
