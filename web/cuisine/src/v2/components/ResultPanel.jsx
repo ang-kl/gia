@@ -119,12 +119,29 @@ export default function ResultPanel({
   // passes columns={2} on a wide device; the card list becomes a 2-col grid and
   // the section headers / dividers span both columns. Default 1 → phones + the
   // single-column list are unchanged.
-  columns = 1
+  columns = 1,
+  // v0.62.594 — operator ("map stays"): the portrait-tablet vertical listing bounds
+  // this panel to the viewport, freezes the "Showing N" header, and scrolls the two
+  // columns INDEPENDENTLY. When set, the panel becomes a flex column: shrink-0 header,
+  // a flex-1 grid whose two columns each overflow-y-auto, and the pagination/loading
+  // strips drop into an auto row below. Off → the legacy page-scroll grid.
+  boundedColumns = false
 }) {
   const [lang] = useLocale();
+  const bounded = boundedColumns && columns === 2;
   // v0.62.565 — 2-col grid container + full-width (col-span-2) section headers.
-  const listContainerCls = columns === 2 ? 'grid grid-cols-2 gap-1.5 items-start' : 'flex flex-col gap-1.5';
+  // v0.62.594 — bounded: grid rows [1fr auto] so the columns fill (and scroll) while
+  // the loading/pagination strips sit in the auto row beneath them; drop items-start
+  // so each column stretches to the 1fr row (giving overflow-y-auto a bounded height).
+  const listContainerCls = columns === 2
+    ? (bounded
+        ? 'grid grid-cols-2 grid-rows-[1fr_auto] gap-1.5 flex-1 min-h-0'
+        : 'grid grid-cols-2 gap-1.5 items-start')
+    : 'flex flex-col gap-1.5';
   const spanCls = columns === 2 ? 'col-span-2' : '';
+  // Per-column scroll + a sticky dish-evidence title, only in the bounded layout.
+  const colScrollCls = bounded ? 'flex flex-col gap-1.5 overflow-y-auto min-h-0 no-scrollbar' : 'flex flex-col gap-1.5';
+  const stickyHeadCls = bounded ? 'sticky top-0 z-10 bg-tg-bg' : '';
   const [copying, setCopying] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -332,8 +349,8 @@ export default function ResultPanel({
     firstBatch && !loading && pagedVenues.length > 0 && revealCount < pagedVenues.length;
 
   return (
-    <div ref={panelRef} className="rounded-2xl border border-tg-border bg-tg-bg p-2">
-      <div className="flex items-center justify-between px-1 pb-1.5 gap-1.5">
+    <div ref={panelRef} className={`rounded-2xl border border-tg-border bg-tg-bg p-2 ${bounded ? 'flex flex-col flex-1 min-h-0 overflow-hidden' : ''}`}>
+      <div className={`flex items-center justify-between px-1 pb-1.5 gap-1.5 ${bounded ? 'shrink-0' : ''}`}>
         {/* v0.61.174 — counter copy follows the operator's spec table:
               • known total + multi-page → "Results: {known} · Showing {a}-{b}"
               • known total + all shown on a single page → "Results: {known} · Showing all"
@@ -616,12 +633,12 @@ export default function ResultPanel({
               return (
                 <React.Fragment key={v.placeId || i}>
                   {showConfirmedHeader && (
-                    <div className={`px-2 pt-2 pb-1 text-[12px] font-semibold text-tg-text leading-snug ${spanCls}`}>
+                    <div className={`px-2 pt-2 pb-1 text-[12px] font-semibold text-tg-text leading-snug ${spanCls} ${stickyHeadCls}`}>
                       {lang === 'fr' ? '✔ Confirmé — les avis le mentionnent' : '✔ Confirmed — reviews mention it'}
                     </div>
                   )}
                   {showAskFirstHeader && (
-                    <div className={`px-2 pt-2 pb-1 text-[12px] font-semibold text-tg-hint leading-snug border-t border-tg-hint/20 ${spanCls}`}>
+                    <div className={`px-2 pt-2 pb-1 text-[12px] font-semibold text-tg-hint leading-snug border-t border-tg-hint/20 ${spanCls} ${stickyHeadCls}`}>
                       {lang === 'fr' ? "? À vérifier — demandez s'ils le servent" : '? Ask first — check if they serve it'}
                     </div>
                   )}
@@ -647,8 +664,8 @@ export default function ResultPanel({
             if (columns === 2 && !hasAwardCities) {
               return (
                 <>
-                  <div className="flex flex-col gap-1.5">{cardNodes.filter((_, i) => i % 2 === 0)}</div>
-                  <div className="flex flex-col gap-1.5">{cardNodes.filter((_, i) => i % 2 === 1)}</div>
+                  <div className={colScrollCls}>{cardNodes.filter((_, i) => i % 2 === 0)}</div>
+                  <div className={colScrollCls}>{cardNodes.filter((_, i) => i % 2 === 1)}</div>
                 </>
               );
             }
