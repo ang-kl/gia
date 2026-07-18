@@ -18,7 +18,7 @@ const SUPPORTED = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
 
 const STRINGS = {
   // Header
-  'header.title':            { en: '🍚 Hawker Centre (2025)', fr: '🍚 Centre de hawker (2025)' },
+  'header.title':            { en: '🍚 Hawker Centre (2026)', fr: '🍚 Centre de hawker (2026)' },
   'header.versionCount':     { en: 'v{v} · {n} centres', fr: 'v{v} · {n} centres' },
   'header.versionOnly':      { en: 'v{v}', fr: 'v{v}' },
 
@@ -152,7 +152,7 @@ const STRINGS = {
 // into STRINGS below (existing en/fr untouched; t()'s `entry[l] || entry.en`
 // degrades any unlisted key to English). Hawker "hawker centre" → "pusat jajan".
 const ID_STRINGS = {
-  'header.title': '🍚 Pusat Jajan (2025)',
+  'header.title': '🍚 Pusat Jajan (2026)',
   'header.versionCount': 'v{v} · {n} pusat',
   'header.versionOnly': 'v{v}',
   'status.loading': 'Memuat…',
@@ -223,7 +223,7 @@ for (const k in ID_STRINGS) {
 
 // ----- Russian (ru) overlay — v0.62.310. Control labels kept tight to fit EN pills. -----
 const RU_STRINGS = {
-  'header.title': '🍚 Хокер-центр (2025)',
+  'header.title': '🍚 Хокер-центр (2026)',
   'header.versionCount': 'v{v} · {n} центров',
   'header.versionOnly': 'v{v}',
   'status.loading': 'Загрузка…',
@@ -291,7 +291,7 @@ const RU_STRINGS = {
 
 // ----- German (de) overlay — v0.62.310. Compounds abbreviated where chips are tight. -----
 const DE_STRINGS = {
-  'header.title': '🍚 Hawker-Zentrum (2025)',
+  'header.title': '🍚 Hawker-Zentrum (2026)',
   'header.versionCount': 'v{v} · {n} Zentren',
   'header.versionOnly': 'v{v}',
   'status.loading': 'Lädt…',
@@ -361,7 +361,7 @@ for (const k in DE_STRINGS) { if (STRINGS[k] && STRINGS[k].de == null) STRINGS[k
 
 // ----- Chinese (zh) overlay — v0.62.491. Agent-drafted; SG terms (小贩中心/德士站). Control labels tight. -----
 const ZH_STRINGS = {
-  'header.title': '🍚 小贩中心 (2025)',
+  'header.title': '🍚 小贩中心 (2026)',
   'header.versionCount': 'v{v} · {n} 家中心',
   'header.versionOnly': 'v{v}',
   'status.loading': '加载中…',
@@ -430,7 +430,7 @@ for (const k in ZH_STRINGS) { if (STRINGS[k] && STRINGS[k].zh == null) STRINGS[k
 
 // ----- Japanese (ja) overlay — v0.62.491. Agent-drafted; verified Japanese (no Korean). Control labels tight. -----
 const JA_STRINGS = {
-  'header.title': '🍚 ホーカーセンター (2025)',
+  'header.title': '🍚 ホーカーセンター (2026)',
   'header.versionCount': 'v{v} · {n} 施設',
   'header.versionOnly': 'v{v}',
   'status.loading': '読み込み中…',
@@ -499,7 +499,7 @@ for (const k in JA_STRINGS) { if (STRINGS[k] && STRINGS[k].ja == null) STRINGS[k
 
 // ----- Spanish (es) overlay — v0.62.491. Agent-drafted; no apostrophes. Control labels tight. -----
 const ES_STRINGS = {
-  'header.title': '🍚 Centro de hawkers (2025)',
+  'header.title': '🍚 Centro de hawkers (2026)',
   'header.versionCount': 'v{v} · {n} centros',
   'header.versionOnly': 'v{v}',
   'status.loading': 'Cargando…',

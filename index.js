@@ -12103,7 +12103,7 @@ async function registerCommandsMenu() {
       { command: 'menu',       description: 'Soleat menu hub · one-tap reach to every feature (or /m)' },
       { command: 'cuisine',    description: `Cuisine Picker · ${_periodicalCountsStr.cuisines} cuisines, SG + Johor Bahru, quick filters (or /c)` },
       { command: 'location',   description: 'Change location · /location [street] (or /l)' },
-      { command: 'hawker',     description: `>${_periodicalCountsStr.hawker} hawker centres (2025)` },
+      { command: 'hawker',     description: `>${_periodicalCountsStr.hawker} hawker centres (2026)` },
       { command: 'recognised', description: 'Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table' },
       { command: 'weather',    description: 'Now + 2-hour NEA forecast' },
       { command: 'transport',  description: 'Bus, MRT, walk, drive' },
@@ -12123,7 +12123,7 @@ async function registerCommandsMenu() {
       { command: 'menu',       description: 'Hub Soleat · accès rapide à toutes les fonctionnalités (ou /m)' },
       { command: 'cuisine',    description: `Sélecteur de cuisine · ${_periodicalCountsStr.cuisines} cuisines, SG + Johor Bahru, filtres rapides (ou /c)` },
       { command: 'location',   description: 'Changer de lieu · /location [rue] (ou /l)' },
-      { command: 'hawker',     description: `Plus de ${_periodicalCountsStr.hawker} hawker centres (2025)` },
+      { command: 'hawker',     description: `Plus de ${_periodicalCountsStr.hawker} hawker centres (2026)` },
       { command: 'recognised', description: 'Michelin, Bib Gourmand, Asia 50/100, produits locaux' },
       { command: 'weather',    description: 'Météo NEA — actuelle + prévision 2 h' },
       { command: 'transport',  description: 'Bus, MRT, marche, voiture' },
@@ -12161,7 +12161,7 @@ async function registerCommandsMenu() {
     const enDescription =
       `/cuisine (or /c) · ${_periodicalCountsStr.cuisines} cuisines, SG, Johor Bahru + other cities, quick filters\n` +
       "/location (or /l) · change location [street]\n" +
-      `/hawker · >${_periodicalCountsStr.hawker} hawker centres (2025)\n` +
+      `/hawker · >${_periodicalCountsStr.hawker} hawker centres (2026)\n` +
       "/recognised · Michelin, Bib Gourmand, Asia 50/100\n" +
       "/weather · now + 2-hour NEA forecast\n" +
       "/transport · bus, MRT, walk, drive\n" +
@@ -12175,7 +12175,7 @@ async function registerCommandsMenu() {
     const frDescription =
       `/cuisine (ou /c) · ${_periodicalCountsStr.cuisines} cuisines, SG, Johor Bahru + autres villes, filtres\n` +
       "/location (ou /l) · changer de lieu [rue]\n" +
-      `/hawker · plus de ${_periodicalCountsStr.hawker} hawker centres (2025)\n` +
+      `/hawker · plus de ${_periodicalCountsStr.hawker} hawker centres (2026)\n` +
       "/recognised · Michelin, Bib Gourmand, Asia 50/100\n" +
       "/weather · actuel + prévision NEA 2 h\n" +
       "/transport · bus, MRT, marche, voiture\n" +
@@ -18914,7 +18914,12 @@ async function cacheBotUsername() {
             // v0.62.553 — Michelin Bib Gourmand stall names in this centre
             // (from SG-michelin.js BIB_GOURMAND, joined in hawker-vault). Drives
             // the macaron-red pin + the "✳️ Bib Gourmand · <stall>" card row.
-            bibStalls: Array.isArray(c.bibStalls) && c.bibStalls.length ? c.bibStalls : null
+            bibStalls: Array.isArray(c.bibStalls) && c.bibStalls.length ? c.bibStalls : null,
+            // v0.62.595 — NEA quarterly cleaning + renovation closure windows
+            // (ISO date ranges). The card renders a protruding tab when TODAY is
+            // inside one: red "Closed for cleaning till …" / grey "Under Renovation…".
+            closures: (c.closures && ((c.closures.cleaning || []).length || (c.closures.renovation || []).length))
+              ? c.closures : null
           }));
           // v0.60.56 — external multi-pin Google Maps URL: a
           // walking-tour directions URL that pins every centre with
