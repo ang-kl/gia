@@ -46,6 +46,12 @@ const STRINGS = {
   'header.linesAffected':      { en: '⚠️ {n} line affected',   fr: '⚠️ {n} ligne touchée' },
   'header.linesAffectedPlural':{ en: '⚠️ {n} lines affected',  fr: '⚠️ {n} lignes touchées' },
 
+  // v0.62.602 — header popups (status + data source).
+  'status.popupTitle':         { en: 'Service status', fr: 'État du service' },
+  'src.title':                 { en: 'About the data', fr: 'À propos des données' },
+  'src.body':                  { en: 'Source: LTA TrainServiceAlerts (live) + curated engineering schedule',
+                                 fr: 'Source : LTA TrainServiceAlerts (en direct) + calendrier d’ingénierie sélectionné' },
+
   // View toggle (PNG schematic vs Google Map)
   'view.tipToGmap':            { en: 'Tap "Google Map" to explore each station →',
                                  fr: 'Touchez "Carte Google" pour explorer chaque station →' },
