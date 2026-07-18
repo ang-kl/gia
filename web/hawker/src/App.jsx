@@ -7,6 +7,7 @@ import FooterNav from '../../_shared/components/FooterNav.jsx';
 import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
 import { useViewport, viewportTag } from '../../_shared/lib/use-viewport.js';
 import LocaleToggle from './components/LocaleToggle.jsx';
+import { activeClosure, closureTill, CLOSURE_TAB_BG } from './closure.js';
 
 // v0.60.59 — render "🍳 38 stalls · Operating" / "🍳 38 stands ·
 // Opérationnel" when stall count and/or status are known. Replaces
@@ -118,43 +119,9 @@ const REGION_EMOJI = {
   Central: '🏙️', South: '🛳️', East: '🌅', North: '🌳', West: '🌇'
 };
 
-// v0.62.595 — cleaning / renovation closure tab (operator). c.closures =
-// { cleaning:[{start,end}], renovation:[{start,end}] } (ISO dates from the NEA
-// closure CSV). Show a tab ONLY when TODAY falls inside a window; renovation
-// (the longer, more significant works closure) takes precedence over a cleaning day.
-const MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'];
-function _ordinalDay(d) {
-  const n = Number(d);
-  const v = n % 100;
-  const suf = (v >= 11 && v <= 13) ? 'th' : (['th', 'st', 'nd', 'rd'][n % 10] || 'th');
-  return `${n}${suf}`;
-}
-// "till DDth" when the closure ends THIS month; "till DD MMMM" when it runs into a
-// later month (+ year when it's a later year, e.g. a multi-year redevelopment).
-function _closureTill(endISO) {
-  const [y, m, dd] = String(endISO).split('-').map(Number);
-  if (!y || !m || !dd) return '';
-  const now = new Date();
-  if (y === now.getFullYear() && m - 1 === now.getMonth()) return _ordinalDay(dd);
-  const base = `${dd} ${MONTHS_EN[m - 1]}`;
-  return y === now.getFullYear() ? base : `${base} ${y}`;
-}
-function _activeClosure(closures) {
-  if (!closures) return null;
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const inWin = (w) => {
-    if (!w || !w.start || !w.end) return false;
-    const s = new Date(`${w.start}T00:00:00`);
-    const e = new Date(`${w.end}T23:59:59`);
-    return today >= s && today <= e;
-  };
-  const reno = (closures.renovation || []).find(inWin);
-  if (reno) return { kind: 'renovation', end: reno.end };
-  const clean = (closures.cleaning || []).find(inWin);
-  if (clean) return { kind: 'cleaning', end: clean.end };
-  return null;
-}
+// v0.62.595/596 — cleaning / renovation / redevelopment closure tab + pin recolour.
+// The shared helpers (activeClosure / closureTill / CLOSURE_TAB_BG) live in
+// ./closure.js so the card tab here and the map pin in HawkerMapPanel never drift.
 
 // v0.56.0 — TMA simplified per Human Lead. Only the regional browser
 // remains. Closures, R&R, About tabs removed (the LLM scrape was
@@ -348,8 +315,8 @@ export default function App() {
   const renderCentreCard = (c, i, glass = false, compact = false) => {
     const tr = transitByName[c.name];
     const cardOn = activePill === `${c.name}|card`;
-    // v0.62.595 — cleaning/renovation closure tab: only when TODAY is in a window.
-    const closure = _activeClosure(c.closures);
+    // v0.62.595 — cleaning/renovation/redevelopment closure tab: only when TODAY is in a window.
+    const closure = activeClosure(c.closures);
     const card = (
       // v0.62.549 — opaque card surface (operator: carousel cards in focus with
       // an opaque background = the card background colour, not translucent).
@@ -475,13 +442,17 @@ export default function App() {
     // a cleaning day, grey for renovation works. Applies to every layout (carousel +
     // list) since they all render through renderCentreCard.
     if (!closure) return card;
-    const till = _closureTill(closure.end);
+    const till = closureTill(closure.end);
+    // v0.62.596 — three kinds: red "Closed for cleaning", grey "Under Renovation",
+    // near-black "Redevelopment" (operator: light text on black).
     const label = closure.kind === 'cleaning'
       ? (lang === 'fr' ? `Fermé pour nettoyage jusqu'au ${till}` : `Closed for cleaning till ${till}`)
-      : (lang === 'fr' ? `En rénovation jusqu'au ${till}` : `Under Renovation till ${till}`);
+      : closure.kind === 'redevelopment'
+        ? (lang === 'fr' ? `Réaménagement jusqu'au ${till}` : `Redevelopment till ${till}`)
+        : (lang === 'fr' ? `En rénovation jusqu'au ${till}` : `Under Renovation till ${till}`);
     return (
       <div className="flex flex-col">
-        <div className={`ml-3 -mb-1 self-start relative z-10 px-3 py-0.5 rounded-t-lg text-white text-[10px] font-bold leading-snug ${closure.kind === 'cleaning' ? 'bg-red-600' : 'bg-gray-500'}`}>
+        <div className={`ml-3 -mb-1 self-start relative z-10 px-3 py-0.5 rounded-t-lg text-white text-[10px] font-bold leading-snug ${CLOSURE_TAB_BG[closure.kind] || 'bg-gray-500'}`}>
           {label}
         </div>
         {card}

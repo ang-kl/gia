@@ -18918,7 +18918,7 @@ async function cacheBotUsername() {
             // v0.62.595 — NEA quarterly cleaning + renovation closure windows
             // (ISO date ranges). The card renders a protruding tab when TODAY is
             // inside one: red "Closed for cleaning till …" / grey "Under Renovation…".
-            closures: (c.closures && ((c.closures.cleaning || []).length || (c.closures.renovation || []).length))
+            closures: (c.closures && ((c.closures.cleaning || []).length || (c.closures.renovation || []).length || (c.closures.redevelopment || []).length))
               ? c.closures : null
           }));
           // v0.60.56 — external multi-pin Google Maps URL: a

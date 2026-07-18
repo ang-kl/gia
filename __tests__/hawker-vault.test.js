@@ -47,7 +47,9 @@ describe('parseMd', () => {
     expect(r[1].name).toBe('Ci Yuan Hawker Centre');
   });
 
-  it('skips Bukit Timah closed-for-redevelopment row', () => {
+  // v0.62.596 — operator: redevelopment centres are now SHOWN (with a black
+  // "Redevelopment till …" tab + pin), not skipped. Bukit Timah is kept.
+  it('keeps Bukit Timah closed-for-redevelopment row (shown with a redevelopment tab)', () => {
     const md = `## Markets / Hawker Centres
 
 | S/No | Name | Address | Mgmt |
@@ -56,8 +58,9 @@ describe('parseMd', () => {
 | 7 | Other Centre | 1 Test Rd, S(123456) | NEA |
 `;
     const r = vault.parseMd(md);
-    expect(r.length).toBe(1);
-    expect(r[0].name).toBe('Other Centre');
+    expect(r.length).toBe(2);
+    expect(r.map((c) => c.name)).toContain('Bukit Timah Market');
+    expect(r.map((c) => c.name)).toContain('Other Centre');
   });
 
   it('strips trailing # footnote marker from name', () => {
@@ -143,7 +146,7 @@ describe('regionFromPostalSector — fallback', () => {
 });
 
 describe('integration — load real MD file from data/', () => {
-  it('loads ≥120 centres (snapshot has 122 after excluding Bukit Timah)', () => {
+  it('loads ≥120 centres (snapshot has 123, incl. Bukit Timah shown under redevelopment)', () => {
     const all = vault.getAllCentres();
     expect(all.length).toBeGreaterThanOrEqual(120);
     expect(all.length).toBeLessThanOrEqual(125);
