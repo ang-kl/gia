@@ -270,53 +270,25 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeRegion, data]);
 
-  // v0.60.40 — when the active region's centres carry lat/lng (from
-  // data/hawker-coords.json populated by scripts/fetch-hawker-coords.js),
-  // build a soleat /app/map multi-pin URL so users see all N pins on
-  // one map. Falls back to the v0.50 Google Maps free-text query when
-  // coords aren't present (e.g. before the geocode JSON is committed).
-  const buildMultiPinUrl = (centres) => {
-    const slim = (centres || [])
-      .filter((c) => Number.isFinite(c.lat) && Number.isFinite(c.lng))
-      .map((c) => ({
-        placeId: '',
-        name: c.name,
-        area: c.address || '',
-        lat: c.lat,
-        lng: c.lng,
-        url: c.mapsUrl || ''
-      }));
-    if (!slim.length) return null;
-    const enc = btoa(unescape(encodeURIComponent(JSON.stringify(slim))))
-      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    return `/app/map#venues=${enc}`;
-  };
-  const multiPinUrl = active ? buildMultiPinUrl(active.centres) : null;
-  const fallbackGoogleUrl = active
-    ? `https://maps.google.com/?q=${encodeURIComponent('hawker centres ' + activeRegion + ' Singapore')}`
-    : '';
-  const allOnMapUrl = multiPinUrl || fallbackGoogleUrl;
+  // v0.62.590 — the multi-pin "open all on a map" URL + the per-region tour-range
+  // buttons were retired with the old phone stacked layout (the two-panel layout
+  // now owns the map surface; each card still carries its own 📍 Maps link). The
+  // /app/map full-screen route is still reachable from the map panel itself.
 
   // Localised region label — the API returns canonical EN names
   // (Central/South/East/North/West); we render the FR equivalent at
   // chip + heading time via `region.<EN>` keys.
   const regionLabel = (en) => t(`region.${en}`, lang);
 
-  // v0.62.544 — tablet/desktop (iPad Pro) layout. `isWide` gates it.
+  // v0.62.544/590 — responsive layout. The map + cards render one of two shapes,
+  // now for EVERY device (phone + tablet + desktop): a full-bleed map + bottom
+  // CAROUSEL in landscape (or when the map is expanded), else the two-panel
+  // (top-fixed map + scrolling list). Orientation — not width — picks the shape;
+  // `isWide` only widens the list grid to 2 columns on tablets/desktop.
   const vp = useViewport();
   const isWide = vp.isWide;
-  // v0.62.548 — LANDSCAPE tablet/desktop = the Cuisine-style layout: the map
-  // fills the whole screen and the cards ride a bottom-docked horizontal
-  // CAROUSEL (operator: "In landscape it should be like Cuisine TMA Carousel
-  // Result cards"), with a slim header + region chips on a top bar over the map.
-  // PORTRAIT tablet stacks (inline map on top, 2-col card grid below); phones
-  // stay single-column.
-  const landscapeTablet = isWide && vp.orientation === 'landscape';
-  // v0.62.550 — PORTRAIT tablet/desktop = anchored-map + separate scrollable list
-  // panel; the map's ⇲ expand switches it to the full-map carousel (point 4a).
-  const portraitTablet = isWide && vp.orientation === 'portrait';
   const footerTag = viewportTag(vp);
-  // Stacked-layout list grid (portrait tablet = 2 cols, phones = single column).
+  // List grid: 2 columns on tablet/desktop, single column on phones.
   const listClass = isWide ? 'grid grid-cols-2 gap-1.5 mt-1' : 'flex flex-col gap-1.5 mt-1';
 
   // v0.62.548 — one centre card, shared by the portrait/mobile grid AND the
@@ -538,17 +510,31 @@ export default function App() {
       <div className="skeuo-card mx-2 mt-2 rounded-2xl px-3 py-2 flex items-center gap-2 relative z-10 shrink-0">
         <div className="min-w-0 flex-1">
           <h1 className="text-base font-semibold leading-tight">{t('header.title', lang)}</h1>
-          <p className="text-[10px] text-tg-hint leading-tight flex items-center gap-1"><WeatherBadge /></p>
+          <p className="text-[10px] text-tg-hint leading-tight flex items-center gap-1">
+            <WeatherBadge />
+            {/* v0.62.590 — ↻ force-reload a stale webview (carried over from the old
+                phone header) now that phones use this two-panel layout too. */}
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+              title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+              className="text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
+            >↻</button>
+          </p>
         </div>
         <LocaleToggle className="flex-shrink-0" />
         <button onClick={() => openLink(NEA_HOME)} className="skeuo-pill text-xs px-3 py-1.5 rounded-full text-tg-text active:scale-95">NEA ↗</button>
       </div>
-      <div className="flex flex-wrap gap-1.5 px-3 py-1.5 shrink-0">
+      {/* v0.62.590 — operator (IMG_3554): the 5 zone pills wrapped raggedly. Lay
+          them out as a tidy 3+2 TWO-ROW grid (segmented-control feel) so the zone
+          selector reads as one meaningful control, not scattered pills. */}
+      <div className="grid grid-cols-3 gap-1.5 px-3 py-1.5 shrink-0">
         {regionList.map((r) => {
           const sel = r.region === activeRegion;
           return (
             <button key={r.region} onClick={() => setActiveRegion(r.region)} aria-pressed={sel}
-              className={`px-2.5 py-1 rounded-full text-xs whitespace-nowrap active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/90 liquid-glass text-tg-text'}`}>
+              className={`px-2.5 py-1 rounded-full text-xs text-center whitespace-nowrap active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/90 liquid-glass text-tg-text'}`}>
               <span className="mr-1">{REGION_EMOJI[r.region] || '·'}</span>{regionLabel(r.region)} ({r.count})
             </button>
           );
@@ -567,17 +553,14 @@ export default function App() {
         {busy && <p className="text-xs text-tg-hint p-3">{t('status.loading', lang)}</p>}
         {err && <p className="text-xs text-red-500 p-3">⚠ {err}</p>}
         {!busy && !err && active && (
-          <>
-            <div className="mx-1 px-2.5 py-1 rounded-lg bg-tg-bg/90 liquid-glass text-[11px] text-tg-hint">
-              <strong className="text-tg-text">{regionLabel(active.region)}</strong>
-              {tn('list.headingBody', lang, { n: active.count })}
-            </div>
-            <div className={listClass}>
-              {active.centres.map((c, i) => (
-                <React.Fragment key={i}>{renderCentreCard(c, i)}</React.Fragment>
-              ))}
-            </div>
-          </>
+          /* v0.62.590 — operator (IMG_3554): the "Central — 22 hawker centres
+             (alphabetical)" strip was redundant (the selected zone chip already
+             shows the count) — dropped. The list follows the map directly. */
+          <div className={listClass}>
+            {active.centres.map((c, i) => (
+              <React.Fragment key={i}>{renderCentreCard(c, i)}</React.Fragment>
+            ))}
+          </div>
         )}
         <footer className="mx-2 mb-2 mt-2 px-3 py-2 text-[9px] text-tg-hint text-center">
           {t('footer.tag', lang)} · v{BUILD_VERSION}{footerTag ? ` · ${footerTag}` : ''}
@@ -595,166 +578,14 @@ export default function App() {
     </div>
   );
 
-  if (landscapeTablet) return carouselLayout(false);
-  if (portraitTablet && mapExpanded) return carouselLayout(true);
-  if (portraitTablet) return portraitTabletPanel();
-
-  // v0.62.548/550 — PHONES: the stacked scroll layout (inline map on top, card
-  // list below). (Tablet/desktop returned a dedicated layout above.)
-  return (
-    <div
-      className="flex flex-col"
-      style={{
-        // v0.59.20: Telegram-stable viewport height (avoids iPad gap).
-        minHeight: 'var(--tg-viewport-stable-height, 100vh)',
-        paddingBottom: 'env(safe-area-inset-bottom, 0)'
-      }}
-    >
-      <div className="contents">
-      {/* v0.62.164 — operator: neo-skeuomorphic header card — 🍚 title + live
-          weather + a tactile NEA pill. Raised frosted surface (theme-agnostic,
-          colour-blind safe); floats with a margin instead of a full-bleed
-          border so it reads as a physical card. */}
-      <div className="skeuo-card mx-2 mt-2 rounded-2xl px-3 py-2.5 flex items-center gap-2 relative z-10">
-        {/* v0.62.x — operator: hawker header without the soleat logo. */}
-        <div className="min-w-0 flex-1">
-          <h1 className="text-base font-semibold leading-tight">{t('header.title', lang)}</h1>
-          {/* v0.60.219 — live Singapore weather emoji. */}
-          <p className="text-[10px] text-tg-hint leading-tight flex items-center gap-1">
-            <WeatherBadge />
-            {/* v0.62.x — operator: tiny ↻ refresh after the weather temp (same
-                size) so a stale webview can be force-reloaded without closing. */}
-            <button
-              type="button"
-              onClick={() => window.location.reload()}
-              aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
-              title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
-              className="text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
-            >↻</button>
-          </p>
-        </div>
-        <LocaleToggle className="flex-shrink-0" />
-        <button onClick={() => openLink(NEA_HOME)} className="skeuo-pill text-xs px-3 py-1.5 rounded-full text-tg-text active:scale-95">
-          NEA ↗
-        </button>
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-2 py-3 flex flex-col gap-2">
-        {busy && <p className="text-xs text-tg-hint p-3">{t('status.loading', lang)}</p>}
-        {err && <p className="text-xs text-red-500 p-3">⚠ {err}</p>}
-        {!busy && !err && (
-          <>
-            {/* v0.62.164 — operator: region chips as liquid-glass-80% pills
-                (bg-tg-bg/80 backdrop-blur); the active region reads as a
-                debossed accent (skeuo-pill--selected) — pressed-in, not just
-                a flat colour, so it's distinguishable without relying on hue. */}
-            <div className="flex flex-wrap gap-1.5 px-1">
-              {regionList.map((r) => {
-                const sel = r.region === activeRegion;
-                return (
-                  <button key={r.region} onClick={() => setActiveRegion(r.region)} aria-pressed={sel}
-                    className={`px-2.5 py-1 rounded-full text-xs whitespace-nowrap active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/90 liquid-glass text-tg-text'}`}>
-                    <span className="mr-1">{REGION_EMOJI[r.region] || '·'}</span>{regionLabel(r.region)} ({r.count})
-                  </button>
-                );
-              })}
-            </div>
-            {active && (
-              <>
-                {/* v0.62.164 — operator: the "Central — 22 …" section header as a
-                    liquid-glass-80% strip (bg-tg-bg/80 backdrop-blur). */}
-                <div className="mx-1 px-2.5 py-1 rounded-lg bg-tg-bg/90 liquid-glass text-[11px] text-tg-hint">
-                  <strong className="text-tg-text">{regionLabel(active.region)}</strong>
-                  {tn('list.headingBody', lang, { n: active.count })}
-                </div>
-                {/* v0.60.41 — embedded multi-pin map for the active region.
-                    Falls back to a "coordinates not yet loaded" placeholder
-                    when data/hawker-coords.json hasn't been bootstrapped yet. */}
-                {/* v0.62.544/548 — inline map for mobile + PORTRAIT tablet (map on
-                    top, list below); LANDSCAPE uses the full-bleed carousel above. */}
-                <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} onCentreTap={onCentreTap} />
-                {/* v0.60.56 — explicit mapped-vs-total status so the
-                    user knows when the data file is incomplete (i.e.
-                    fewer pins than centres in the region). */}
-                <div className="px-1 text-[10px] text-tg-hint">
-                  {tn('map.mappedRatio', lang, {
-                    mapped: Number.isFinite(active.mappedCount) ? active.mappedCount : 0,
-                    total: active.count
-                  })}
-                </div>
-                {/* v0.60.61 — three buttons squeezed into one row:
-                    1. Internal /app/map (Fullscreen) — handles all
-                       centres regardless of count.
-                    2. External Google Maps tour 1 (pins 1–11).
-                    3. External Google Maps tour 2 (pins 12–22).
-                    Google Maps URL API caps at 11 stops, so a 22-
-                    centre region needs two URLs. The 📍 icon stands
-                    in for "Google Maps" without claiming the brand. */}
-                {/* v0.60.66 — 4-button row switches to 2x2 (grid-cols-2)
-                    instead of 1x4 because the unified "## 📍 in a map ↗"
-                    label needs ~140 px and would overflow at grid-cols-4
-                    (~80 px per cell on a 375 px phone). */}
-                <div className={`mx-1 grid gap-1.5 ${
-                  (active.tours?.length || 0) >= 3 ? 'grid-cols-2'
-                  : (active.tours?.length === 2 ? 'grid-cols-3'
-                  : (active.tours?.length === 1 ? 'grid-cols-2'
-                  : 'grid-cols-1'))
-                }`}>
-                  <a href={allOnMapUrl} target={multiPinUrl ? '_self' : '_blank'} rel="noreferrer"
-                    className="text-[11px] text-center px-2 py-1.5 rounded-md border border-tg-border bg-tg-bg text-tg-text whitespace-nowrap">
-                    {multiPinUrl
-                      ? t('btn.openFullscreenMap', lang)
-                      : tn('btn.openAllOnGoogleMaps', lang, { n: active.count })}
-                  </a>
-                  {(active.tours || []).map((tour, idx) => (
-                    <a key={idx} href={tour.url} target="_blank" rel="noreferrer"
-                      className="text-[11px] text-center px-2 py-1.5 rounded-md border border-tg-border bg-tg-bg text-tg-text whitespace-nowrap">
-                      {tn('btn.openTourGoogleMapsRange', lang, {
-                        from: tour.start,
-                        to: tour.end,
-                        total: active.mappedCount
-                      })}
-                    </a>
-                  ))}
-                </div>
-                {/* v0.62.548 — operator: Cuisine-style cards (shared renderer:
-                    name header, stall/status chip, codeHex MRT chips + station
-                    name, bus-stop pills WITH description, pill actions). Hidden
-                    when the "list" toggle collapses to the full map (tablet). */}
-                {!(isWide && listHidden) && (
-                <div className={listClass}>
-                  {active.centres.map((c, i) => (
-                    <React.Fragment key={i}>{renderCentreCard(c, i)}</React.Fragment>
-                  ))}
-                </div>
-                )}
-              </>
-            )}
-          </>
-        )}
-        {/* v0.60.213 — standardised footer tag line.
-            v0.60.217 — no border; font +1pt. */}
-        {/* v0.62.544 — footer carries the device/orientation cue beside the
-            version: "(tablet · landscape)" / "(tablet)" / "(desktop · landscape)";
-            empty on phones. */}
-        <footer className="mx-2 mb-2 mt-2 px-3 py-2 text-[9px] text-tg-hint text-center">
-          {t('footer.tag', lang)} · v{BUILD_VERSION}{footerTag ? ` · ${footerTag}` : ''}
-        </footer>
-      </div>
-      </div>
-
-      {/* v0.62.213 — operator (IMG_1069 item 6): the separate bottom-left BackFab
-          + bottom-right scroll FAB are replaced by ONE standardised FooterNav row
-          (⇡ top / ⇣ down · ↩ back / 🔚 end), mirroring the Cuisine TMA footer. */}
-      <FooterNav
-        atBottom={atBottom}
-        labels={{
-          top: t('btn.fabTop', lang), down: t('btn.fabDown', lang),
-          topAria: t('btn.fabTopAria', lang), downAria: t('btn.fabDownAria', lang),
-          back: t('btn.fabBack', lang), end: t('btn.fabEnd', lang),
-          backAria: t('btn.fabBackAria', lang), endAria: t('btn.fabEndAria', lang)
-        }}
-      />
-    </div>
-  );
+  // v0.62.590 — operator: PHONES now use the SAME responsive layout as tablet/
+  // desktop (no more phone-only stacked scroll where the map scrolled away).
+  //   • landscape (any device) → full-bleed map + bottom carousel
+  //   • portrait + map expanded → that same carousel (collapsible via ⇱)
+  //   • portrait otherwise      → two-panel: top-fixed map + scrolling list
+  // The map's ⇲/⇱ toggles a phone between the listing and the carousel, exactly
+  // as it already did on portrait tablets.
+  if (vp.orientation === 'landscape') return carouselLayout(false);
+  if (mapExpanded) return carouselLayout(true);
+  return portraitTabletPanel();
 }
