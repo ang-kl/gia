@@ -48,18 +48,29 @@ export function pickTiming(timings, keys) {
   return null;
 }
 
-// Normalised first/last train times for one direction row, keyed by weekday /
-// weekend, with a `terminal` flag when the direction has no service (a terminus).
+// Normalised first/last train times for one direction row. The timings object's
+// keys are NOT uniform, and a row can carry THREE distinct day types (weekday,
+// Saturday, Sunday/PH) — so Sat (`satFirst`) and Sun/PH (`sunFirst`) are kept
+// SEPARATE rather than collapsed into one "weekend" value (a Sun/PH first train
+// often differs from Saturday's). `noTimes` = the row has no service times at
+// all (a terminus, or timings not yet published); the caller decides how to
+// label it from the row's `note`.
 export function trainTimes(timings) {
   const wdFirst = pickTiming(timings, ['first_weekday', 'first_mon_sat']);
   const wdLast = pickTiming(timings, ['last_weekday', 'last_daily']);
-  const weFirst = pickTiming(timings, ['first_weekend', 'first_sat', 'first_sun_ph']);
+  const satFirst = pickTiming(timings, ['first_sat', 'first_weekend']);
+  const sunFirst = pickTiming(timings, ['first_sun_ph']);
   const weLast = pickTiming(timings, ['last_weekend', 'last_weekend_ph']);
   return {
-    wdFirst, wdLast, weFirst, weLast,
-    terminal: !wdFirst && !wdLast && !weFirst && !weLast,
-    weekendDiffers: (!!weFirst && weFirst !== wdFirst) || (!!weLast && weLast !== wdLast)
+    wdFirst, wdLast, satFirst, sunFirst, weLast,
+    noTimes: !wdFirst && !wdLast && !satFirst && !sunFirst && !weLast
   };
+}
+
+// Whether a first_last_train `note` marks an actual terminus (vs. "timings
+// unavailable" / "not yet open" style notes, which must NOT read as a terminus).
+export function noteIsTerminal(note) {
+  return /termin/i.test(String(note || ''));
 }
 
 // Human label for a first_last_train `direction` (compass / loop bounds). The
