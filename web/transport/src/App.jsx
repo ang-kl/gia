@@ -91,6 +91,30 @@ function StationCarousel({ items, render }) {
   );
 }
 
+// v0.62.602 — a centred modal (click-outside / ✕ to dismiss), mirroring the
+// Cuisine TMA's first-load popup style. Sits above the fixed footer bar (z-40).
+function Modal({ title, onClose, children }) {
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50"
+      role="dialog" aria-modal="true"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        className="skeuo-card w-full max-w-[420px] max-h-[80vh] overflow-y-auto rounded-2xl p-4 flex flex-col gap-3"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-bold flex-1 leading-tight">{title}</h3>
+          <button type="button" onClick={onClose} aria-label="Close"
+            className="text-tg-hint text-lg leading-none px-1 active:scale-90">✕</button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 // Hitachi-style transport TMA — main composition.
 // Layout (mobile-first):
 //   1. Header: title + timestamp
@@ -101,6 +125,11 @@ function StationCarousel({ items, render }) {
 //   6. EngineeringList (next 7 days from data/mrt-engineering-closures.md)
 export default function App() {
   const lang = useLocale();
+  // v0.62.602 — which header popup is open: 'status' (service + engineering
+  // closures, opened from the status chip / auto-shown once on first load) or
+  // 'source' (data-source attribution, opened from the title). null = none.
+  const [popup, setPopup] = useState(null);
+  const firstPopupRef = useRef(false);
   // v0.62.601 — device/orientation for the responsive layout (phone stacked /
   // tablet-desktop two-panel / landscape carousel). Hook stays above the early
   // returns below (Rules of Hooks).
@@ -162,6 +191,9 @@ export default function App() {
         setData(d);
         // Auto-focus the first affected line, if any.
         if (d?.affectedCodes?.length && !focusedCode) setFocusedCode(d.affectedCodes[0]);
+        // v0.62.602 — surface the service-status popup once on first load
+        // (operator: "like first load in Cuisine TMA").
+        if (!firstPopupRef.current) { firstPopupRef.current = true; setPopup('status'); }
       })
       .catch((err) => setError(err.message));
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -280,7 +312,13 @@ export default function App() {
        the hue. */
     <header className="skeuo-card rounded-2xl px-3 py-2.5 flex flex-col gap-1.5 relative z-10">
       <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5">
-        <h1 className="text-base font-bold leading-tight">{t('header.title', lang)}</h1>
+        {/* v0.62.602 — the title opens the data-source popup. */}
+        <button
+          type="button"
+          onClick={() => setPopup('source')}
+          aria-label={t('src.title', lang)}
+          className="text-base font-bold leading-tight text-left active:scale-95"
+        >{t('header.title', lang)}</button>
         <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
         <button
           type="button"
@@ -290,11 +328,12 @@ export default function App() {
           className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
         >↻</button>
         <span className="text-[11px] ml-auto flex items-center gap-2">
-          <span>
+          {/* v0.62.602 — the status chip opens the service / engineering popup. */}
+          <button type="button" onClick={() => setPopup('status')} className="active:scale-95">
             {affectedCodes.length === 0
               ? <span className="text-green-500">{t('header.allNormal', lang)}</span>
               : <span className="text-orange-500">{tn(affectedCodes.length === 1 ? 'header.linesAffected' : 'header.linesAffectedPlural', lang, { n: affectedCodes.length })}</span>}
-          </span>
+          </button>
           <span className="text-tg-hint" aria-hidden>·</span>
           <span className="text-tg-hint"><LiveClock /></span>
           <LocaleToggle className="flex-shrink-0" />
@@ -394,14 +433,49 @@ export default function App() {
         />
       )}
       <LocationCard address={data.address} nearest={data.nearestMrt} />
-      <EngineeringList closures={data.engineering || []} />
     </>
   );
 
-  const sourceFooter = (
-    <footer className="mx-2 mb-2 mt-2 px-3 py-2 text-[9px] text-tg-hint text-center leading-tight">
-      <div>Source: LTA TrainServiceAlerts (live) + curated engineering schedule</div>
-    </footer>
+  // v0.62.602 — the two header popups. The status chip (and the first-load
+  // auto-open) surfaces the service status + engineering closures; the title
+  // surfaces the data-source attribution. Both are `fixed` so they overlay any
+  // layout; rendered once alongside the footer bar in each return below.
+  const popups = (
+    <>
+      {popup === 'status' && (
+        <Modal title={t('status.popupTitle', lang)} onClose={() => setPopup(null)}>
+          <div className="text-xs">
+            {affectedCodes.length === 0
+              ? <span className="text-green-500 font-semibold">{t('header.allNormal', lang)}</span>
+              : <span className="text-orange-500 font-semibold">{tn(affectedCodes.length === 1 ? 'header.linesAffected' : 'header.linesAffectedPlural', lang, { n: affectedCodes.length })}</span>}
+          </div>
+          {affectedCodes.length > 0 && (
+            <div className="flex flex-col gap-1">
+              {affectedCodes.map((code) => {
+                const ln = LINES_BY_CODE[code];
+                const st = statusByLine[code]?.status || 'delay';
+                return (
+                  <div key={code} className="flex items-center gap-2 text-xs">
+                    <span className="inline-block w-3 h-3 rounded" style={{ background: ln?.hex || '#888' }} />
+                    <span className="font-semibold">{code}</span>
+                    <span className="text-tg-hint">· {t(`mrt.status.${st}`, lang)}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          <div className="border-t border-tg-border pt-2">
+            <EngineeringList closures={data.engineering || []} />
+          </div>
+        </Modal>
+      )}
+      {popup === 'source' && (
+        <Modal title={t('src.title', lang)} onClose={() => setPopup(null)}>
+          <div className="text-xs text-tg-text leading-relaxed">{t('src.body', lang)}</div>
+          <div className="text-[10px] text-tg-hint">{t('footer.tag', lang)} · v{BUILD_VERSION}</div>
+        </Modal>
+      )}
+    </>
   );
 
   // v0.62.217/597/600 — the fixed bottom bar: version + view toggle (left) and
@@ -465,6 +539,7 @@ export default function App() {
             </div>
           )}
         </div>
+        {popups}
         {footerBar}
       </>
     );
@@ -488,9 +563,9 @@ export default function App() {
               )
               : singleFocusedCard}
             {secondaryPanels}
-            {sourceFooter}
           </div>
         </div>
+        {popups}
         {footerBar}
       </>
     );
@@ -509,7 +584,7 @@ export default function App() {
       {mapBlock(false)}
       {singleFocusedCard}
       {secondaryPanels}
-      {sourceFooter}
+      {popups}
       {footerBar}
     </div>
   );
