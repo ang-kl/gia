@@ -1,0 +1,232 @@
+{
+  "since": "2026-07-18T19:51:31Z",
+  "until": "2026-07-18T20:56:31Z",
+  "count": 25,
+  "logs": [
+    {
+      "timestamp": "2026-07-18T20:36:26.740560197Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.740563055Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.740566214Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.740569063Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.740572273Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.740575865Z",
+      "message": "[Weather] v2 rainfall failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.740579169Z",
+      "message": "[Weather] v2 wind-speed failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.740582117Z",
+      "message": "[Weather] v2 humidity failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.740585285Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.740589222Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.740592618Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.740596393Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.740602000Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.740604934Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.740608019Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.740611019Z",
+      "message": "[Weather] v2 rainfall failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.740614089Z",
+      "message": "[Weather] v2 air-temp failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.740616825Z",
+      "message": "[Weather] v2 humidity failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.740619858Z",
+      "message": "[Weather] v2 wind-dir failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:26.741185601Z",
+      "message": "[Weather] v2 wind-speed failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:33.526359573Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:33.527168900Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:33.838882545Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:33.838886701Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T20:36:33.838891121Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "601cbe3d-94ba-4e21-9f2b-7cd9c05bd127",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
