@@ -21,7 +21,24 @@ import React from 'react';
 // (e.g. the Hawker 🗺/📋 map toggle) as the FIRST item in the same rounded
 // cluster, with a divider — so it reads as part of the down/end row rather than a
 // separate floating pill. Other TMAs omit it and are unaffected.
-export default function FooterNav({ atBottom, labels, showScroll = true, leading = null }) {
+// v0.62.590 — `scrollEl` (default null → window). When a layout scrolls an INNER
+// container instead of the window (e.g. the Hawker two-panel: a `fixed inset-0`
+// shell with an `overflow-y-auto` list), the ⇣/⇡ button must scroll THAT element,
+// not the window (which can't move). Pass a ref or the element; omit it and the
+// button keeps the original window.scrollTo behaviour for every other TMA.
+export default function FooterNav({ atBottom, labels, showScroll = true, leading = null, scrollEl = null }) {
+  const resolveScroller = () => {
+    const el = scrollEl && (scrollEl.current !== undefined ? scrollEl.current : scrollEl);
+    return el || null;
+  };
+  const onScrollClick = () => {
+    const el = resolveScroller();
+    if (el) {
+      el.scrollTo({ top: atBottom ? 0 : el.scrollTop + el.clientHeight, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: atBottom ? 0 : window.scrollY + window.innerHeight, behavior: 'smooth' });
+    }
+  };
   const hasHistory = typeof window !== 'undefined' && window.history.length > 1;
   const onBackEnd = () => {
     const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
@@ -46,7 +63,7 @@ export default function FooterNav({ atBottom, labels, showScroll = true, leading
         <>
           <button
             type="button"
-            onClick={() => window.scrollTo({ top: atBottom ? 0 : window.scrollY + window.innerHeight, behavior: 'smooth' })}
+            onClick={onScrollClick}
             aria-label={atBottom ? labels.topAria : labels.downAria}
             className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
           >{atBottom ? labels.top : labels.down}</button>

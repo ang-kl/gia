@@ -4433,6 +4433,9 @@ export default function App() {
         fill={drawerMode === 'horizontal'}
         focusedPlaceId={focusedPlaceId}
         onPinTap={setFocusedPlaceId}
+        /* v0.62.590 — clear the selection when the popup closes (in-card ✕ or
+           empty-map tap), so re-tapping the same pin/card reopens it (Codex). */
+        onInfoClose={() => setFocusedPlaceId(null)}
         searchCenter={searchCenter || userLoc}
         anchorName={locationName}
         overlayLayers={overlayLayers}
