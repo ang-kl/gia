@@ -50,6 +50,11 @@ const COORDS_PATH = path.join(__dirname, 'data', 'hawker-coords.json');
 // Schema: { "Maxwell Food Centre": { stalls: 64, status: "Existing" }, ... }
 // Missing file → centres ship without stall metadata.
 const STALLS_PATH = path.join(__dirname, 'data', 'hawker-stalls.json');
+// v0.62.595 — NEA quarterly cleaning + renovation closures (built from
+// data/hawker-cleaning-closures-2026.csv by scripts/build-hawker-closures.js).
+// Also carries fresher 2026 stall counts + status, which override the older
+// hawker-stalls.json values when a centre matches (operator: refresh the vault).
+const CLOSURES_PATH = path.join(__dirname, 'data', 'hawker-closures.json');
 // v0.62.296 — official NEA "Hawker Centres (GEOJSON)" raw file. We join its
 // canonical `NAME` (e.g. "Adam Road Food Centre") to our centres BY POSTAL CODE
 // so the card title shows the proper NEA name instead of the block-style MD name
@@ -251,6 +256,33 @@ function loadStalls() {
   }
 }
 
+// v0.62.595 — cleaning + renovation closures (and fresh 2026 stall/status). Same
+// exact + normalised-token index pair as loadStalls, so the CSV's formal NEA names
+// reconcile with the vault's canonical names.
+function loadClosures() {
+  try {
+    const raw = fs.readFileSync(CLOSURES_PATH, 'utf8');
+    const parsed = JSON.parse(raw);
+    const exact = {};
+    const normalised = {};
+    const byPostal = {};   // the reliable join key (name-folding alone misses ~70%)
+    for (const [k, v] of Object.entries(parsed || {})) {
+      if (!v) continue;
+      const lc = String(k).toLowerCase().trim();
+      exact[lc] = v;
+      const norm = _normaliseHawkerName(k);
+      if (norm && !normalised[norm]) normalised[norm] = v;
+      if (v.postal && !byPostal[v.postal]) byPostal[v.postal] = v;
+    }
+    return { exact, normalised, byPostal };
+  } catch (err) {
+    if (err.code !== 'ENOENT') {
+      console.warn('[HawkerVault] closures load failed:', err.message);
+    }
+    return { exact: {}, normalised: {}, byPostal: {} };
+  }
+}
+
 // v0.62.553 — operator: tag centres that contain Michelin Bib Gourmand stalls.
 // The mapping already exists in SG-michelin.js: each BIB_GOURMAND entry is
 // { name (stall), address (hawker-centre name), category:'bib-gourmand' } — so
@@ -339,6 +371,35 @@ function loadAll() {
         }
       }
       console.log(`[HawkerVault] stalls: ${shits}/${_allCentres.length} centres with stall metadata`);
+    }
+    // v0.62.595 — attach cleaning/renovation closure windows (client shows a tab
+    // when TODAY falls inside one) AND refresh stall count / status / (new) flag
+    // from the fresher 2026 CSV (operator: refresh the vault). The closure merge
+    // runs AFTER loadStalls so the 2026 values override the older hawker-stalls.json.
+    const closures = loadClosures();
+    if (Object.keys(closures.byPostal).length || Object.keys(closures.exact).length) {
+      let chits = 0;
+      for (const c of _allCentres) {
+        // Postal is the reliable key; fall back to exact then normalised name.
+        let z = c.postal ? closures.byPostal[String(c.postal).trim()] : null;
+        if (!z) {
+          const lc = String(c.name || '').toLowerCase().trim();
+          z = closures.exact[lc];
+        }
+        if (!z) {
+          const norm = _normaliseHawkerName(c.name || '');
+          if (norm) z = closures.normalised[norm];
+        }
+        if (!z) continue;
+        chits++;
+        const cleaning = Array.isArray(z.cleaning) ? z.cleaning : [];
+        const renovation = Array.isArray(z.renovation) ? z.renovation : [];
+        if (cleaning.length || renovation.length) c.closures = { cleaning, renovation };
+        if (Number.isFinite(z.foodStalls) && z.foodStalls > 0) c.stalls = z.foodStalls;   // 2026 refresh
+        if (z.status) c.status = z.status;
+        if (z.isNew) c.isNew = true;
+      }
+      console.log(`[HawkerVault] closures: ${chits}/${_allCentres.length} centres with closure/2026 metadata`);
     }
     // v0.62.553 — attach Bib Gourmand stall names (number-stripped token match
     // + digit-consistency guard: a bib address carrying a block number only tags
