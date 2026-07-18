@@ -1,0 +1,979 @@
+{
+  "since": "2026-07-18T14:59:47Z",
+  "until": "2026-07-18T16:04:47Z",
+  "count": 108,
+  "logs": [
+    {
+      "timestamp": "2026-07-18T15:23:16.321632435Z",
+      "message": "Starting Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:16.987471330Z",
+      "message": "npm warn config production Use `--omit=dev` instead.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:16.987479241Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:16.987486803Z",
+      "message": "> soleat@0.62.596 start",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:16.987493852Z",
+      "message": "> node index.js",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:16.987501163Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:16.987507724Z",
+      "message": "[webhook-domain] fallback not configured — skipping health check",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:18.006143573Z",
+      "message": "[Bot] Identity confirmed: @soleat_bot",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:18.006378268Z",
+      "message": "[Updates] Webhook registered: https://soleat.net/webhook",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:19.068812472Z",
+      "message": "[setMyDescription] failed (non-fatal): ETELEGRAM: 400 Bad Request: BOT_DESC_INVALID",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:20.073501713Z",
+      "message": "[Boot] MAP_ID configured: db1201f307409c29…",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:20.073509062Z",
+      "message": "[Holidays] 11 SG PH loaded from cache",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:21.129899067Z",
+      "message": "[Pulse] Status → 🟢 Healthy at 11:23:20 pm",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:21.129904788Z",
+      "message": "[Vibe] Cached 10 live places (Google Maps).",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:21.129911896Z",
+      "message": "🚀 soleat is live and sniffing...",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:21.129919245Z",
+      "message": "[HTTP] Listening on :8080",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:21.129925002Z",
+      "message": "[Transport] Bus stops cache: imported=0, skipped=fresh",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:22.788478967Z",
+      "message": "Stopping Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "284a62a1-e9d9-46c9-b5c0-7d8db607e53b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:29.723576493Z",
+      "message": "npm error path /app",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "284a62a1-e9d9-46c9-b5c0-7d8db607e53b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:29.723580237Z",
+      "message": "npm error command failed",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "284a62a1-e9d9-46c9-b5c0-7d8db607e53b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:29.723583859Z",
+      "message": "npm error signal SIGTERM",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "284a62a1-e9d9-46c9-b5c0-7d8db607e53b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:29.723587542Z",
+      "message": "npm error command sh -c node index.js",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "284a62a1-e9d9-46c9-b5c0-7d8db607e53b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:23:29.723591302Z",
+      "message": "npm error A complete log of this run can be found in: /root/.npm/_logs/2026-07-18T14_53_44_085Z-debug-0.log",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "284a62a1-e9d9-46c9-b5c0-7d8db607e53b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240632539Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240644889Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240652238Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240664629Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240671463Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240679151Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240685989Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240692255Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240734347Z",
+      "message": "[HawkerVault] coords: 122/123 centres geocoded",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240739791Z",
+      "message": "[HawkerVault] stalls: 38/123 centres with stall metadata",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240744369Z",
+      "message": "[HawkerVault] closures: 114/123 centres with closure/2026 metadata",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240748968Z",
+      "message": "[HawkerVault] bib-gourmand: 19/123 centres tagged",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240753614Z",
+      "message": "[Weather] v2 wind-dir failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240758183Z",
+      "message": "[Weather] v2 rainfall failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240762921Z",
+      "message": "[Weather] v2 rainfall failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240767532Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240771593Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240775718Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:28:54.240780295Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:29:54.323238810Z",
+      "message": "[location-cache] D787 label-guard: kept \"16 Thompson Street\" over an ambient label-less write",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:29:54.323244574Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"c5c833e38fb1419ebd37efdad09e487c\",\"from\":[-27.442,153.03952],\"to\":[-27.44152,153.0396],\"moved_m\":54,\"label\":\"Brisbane\",\"region\":\"OTHER\",\"country\":\"AU\",\"cap_m\":null,\"ambient\":true,\"kept\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:29:54.323248907Z",
+      "message": "[country-pref] chat=313940231 → AU",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:29:54.323253631Z",
+      "message": "[country-pref] chat=313940231 → AU",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:29:54.323257690Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 60000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:29:54.323261779Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[-26.47603,152.95222],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":60000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:29:54.323267640Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=-26.4760,152.9522 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:29:54.323271878Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:29:54.323276337Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 52 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:29:54.323281064Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 52 → 52 (≤60000m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:29:54.323285189Z",
+      "message": "[Cuisine-Search] sliceCap=6 firstBatch=true finalBatch=false range=1-6 seenBefore=0 hash=9e1fc29a",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:29:56.740862457Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (6v): crowd=1987ms translate=2ms reviewCache=2ms dishes=4275ms finalise=1ms travel=267ms sanctuary=155ms footfall=0ms total=6689ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:29:56.741069447Z",
+      "message": "[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:29:57.511434022Z",
+      "message": "[Cuisine-Search] D704 returning 6 venues to client (poolCount=6 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:30:57.947966058Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.2868,103.8545 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:30:57.947976513Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:30:57.947988373Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:30:57.947993994Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:30:57.947994909Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"c5c833e38fb1419ebd37efdad09e487c\",\"from\":[-27.442,153.03952],\"to\":[1.28679,103.8545],\"moved_m\":6146778,\"label\":\"Merlion Park\",\"region\":\"SG\",\"country\":\"AU\",\"cap_m\":null,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:30:57.948002892Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:30:57.948009087Z",
+      "message": "[set-location] chat=313940231 → 1.2868,103.8545 label=\"Merlion Park\" AU SG",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:30:57.948014510Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:30:57.948024923Z",
+      "message": "[set-location] search-area notify chat=313940231 area=\"1 Fullerton Road · 1 Fullerton Road, Singapore, SG\"",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:30:57.948026534Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:30:57.948036086Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:30:57.948048694Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.28679,103.8545],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:30:58.928513004Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:30:58.928520040Z",
+      "message": "[Cuisine-Search] D703s SG-scope 60 → 60 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:30:58.928527303Z",
+      "message": "[Cuisine-Search] sliceCap=10 firstBatch=true finalBatch=false range=1-10 seenBefore=0 hash=4a918455",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:31:07.158128815Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:31:12.253793934Z",
+      "message": "[footfall] besttime resolved=0/10 (budget 4500ms hit — returned without full footfall)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:31:12.253800691Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (10v): crowd=2411ms translate=0ms reviewCache=2ms dishes=6005ms finalise=0ms travel=378ms sanctuary=209ms footfall=4502ms total=13508ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:31:12.322039717Z",
+      "message": "[Cuisine-Search] D704 returning 10 venues to client (poolCount=10 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:56.602781841Z",
+      "message": "[twa-auth] 401 GET /user-language ip=111.65.72.206, 79.127.228.18 ua=\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, lik\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:56.602788764Z",
+      "message": "[twa-auth] 401 GET /country-pref ip=111.65.72.206, 79.127.228.18 ua=\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, lik\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:56.602835816Z",
+      "message": "[twa-auth] 401 POST /user-location ip=111.65.72.206, 79.127.228.18 ua=\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, lik\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:56.602843842Z",
+      "message": "[twa-auth] 401 GET /rating-pref ip=111.65.72.206, 79.127.228.18 ua=\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, lik\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:56.602853087Z",
+      "message": "[twa-auth] 401 POST /user-location ip=111.65.72.206, 79.127.228.18 ua=\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, lik\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:56.602861882Z",
+      "message": "[twa-auth] 401 POST /search ip=111.65.72.206, 79.127.228.18 ua=\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, lik\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:56.602869725Z",
+      "message": "[twa-auth] 401 POST /country-pref ip=111.65.72.206, 79.127.228.18 ua=\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, lik\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:56.602877904Z",
+      "message": "[twa-auth] 401 POST /set-location ip=111.65.72.206, 79.127.228.18 ua=\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, lik\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:56.602884282Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:56.602891049Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:56.602897605Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:56.602904665Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:56.602911021Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:59.583853391Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:59.583858872Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:59.590043917Z",
+      "message": "[Weather] v2 rainfall failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:59.604646780Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:59.610014243Z",
+      "message": "[Weather] v2 wind-dir failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:59.610029910Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:59.636031358Z",
+      "message": "[Weather] v2 wind-speed failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:37:59.718225910Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:38:01.721016233Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:38:01.721024010Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:38:02.650622612Z",
+      "message": "[Weather] v2 wind-dir failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:38:02.650638141Z",
+      "message": "[Weather] v2 wind-speed failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:38:02.650644590Z",
+      "message": "[Weather] v2 air-temp failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:38:02.650650705Z",
+      "message": "[Weather] v2 humidity failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:38:02.650742236Z",
+      "message": "[Weather] v2 rainfall failed: Request failed with status code 429; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:38:07.572631834Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:38:07.572636816Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:38:07.572643476Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:38:07.572658094Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T15:38:07.574710846Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "dcc55e3d-a4d6-4f71-97fc-32a30ac07741",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
