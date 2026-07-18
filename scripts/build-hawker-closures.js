@@ -50,13 +50,21 @@ function toISO(d) {
   return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
 }
 
-// other_works is a renovation CLOSURE (repairs / redecoration / redevelopment),
-// NOT a "commence operations" new-opening note.
+// v0.62.596 — other_works splits into REDEVELOPMENT (long-term rebuild) vs
+// RENOVATION (repairs / redecoration / works), each its own tab/pin colour
+// (operator). Neither counts a "commence operations" new-opening note.
+function isRedevelopment(remarks) {
+  const r = String(remarks || '').toLowerCase();
+  if (!r || /^(na|nil)$/.test(r)) return false;
+  if (/commence.*operation/.test(r)) return false;
+  return /redevelop/.test(r);
+}
 function isRenovation(remarks) {
   const r = String(remarks || '').toLowerCase();
   if (!r || /^(na|nil)$/.test(r)) return false;
   if (/commence.*operation/.test(r)) return false;
-  return /repair|redecorat|renovat|redevelop|\bworks\b|gas works/.test(r);
+  if (/redevelop/.test(r)) return false;   // → redevelopment, not renovation
+  return /repair|redecorat|renovat|\bworks\b|gas works/.test(r);
 }
 
 function main() {
@@ -74,11 +82,18 @@ function main() {
       if (start && end) cleaning.push({ start, end });
     }
     const renovation = [];
+    const redevelopment = [];
     const owStart = toISO(r[col('other_works_startdate')]);
     const owEnd = toISO(r[col('other_works_enddate')]);
-    if (owStart && owEnd && isRenovation(r[col('remarks_other_works')])) {
-      renovation.push({ start: owStart, end: owEnd });
+    const owRemarks = r[col('remarks_other_works')];
+    if (owStart && owEnd) {
+      if (isRedevelopment(owRemarks)) redevelopment.push({ start: owStart, end: owEnd });
+      else if (isRenovation(owRemarks)) renovation.push({ start: owStart, end: owEnd });
     }
+    // v0.62.596 — carry the NEA lat/lng so the vault can place coord-less centres
+    // (e.g. Bukit Timah, redevelopment, absent from hawker-coords.json) on the map.
+    const lat = parseFloat(r[col('latitude_hc')]);
+    const lng = parseFloat(r[col('longitude_hc')]);
     const status = (r[col('status')] || '').trim();
     const food = parseInt(r[col('no_of_food_stalls')], 10);
     const market = parseInt(r[col('no_of_market_stalls')], 10);
@@ -88,8 +103,11 @@ function main() {
     const pm = addr.match(/(\d{6})\s*$/) || addr.match(/singapore\s+(\d{6})/i);
     out[name] = {
       postal: pm ? pm[1] : null,
+      lat: Number.isFinite(lat) ? lat : null,
+      lng: Number.isFinite(lng) ? lng : null,
       cleaning,
       renovation,
+      redevelopment,
       foodStalls: Number.isFinite(food) ? food : null,
       marketStalls: Number.isFinite(market) ? market : null,
       status: status || null,
@@ -100,7 +118,8 @@ function main() {
   const n = Object.keys(out).length;
   const withClean = Object.values(out).filter((v) => v.cleaning.length).length;
   const withReno = Object.values(out).filter((v) => v.renovation.length).length;
-  console.log(`wrote ${OUT_PATH}: ${n} centres, ${withClean} with cleaning windows, ${withReno} with renovation windows`);
+  const withRedev = Object.values(out).filter((v) => v.redevelopment.length).length;
+  console.log(`wrote ${OUT_PATH}: ${n} centres, ${withClean} cleaning, ${withReno} renovation, ${withRedev} redevelopment`);
 }
 
 main();

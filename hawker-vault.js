@@ -152,8 +152,10 @@ function parseMd(md) {
       const rawName = String(trimmed[1] || '').trim();
       const address = String(trimmed[2] || '').trim();
       const mgmt = String(trimmed[3] || '').trim();
-      // Skip closed centres (Bukit Timah Market — address says "Closed for redevelopment").
-      if (/closed for redevelopment/i.test(address)) continue;
+      // v0.62.596 — operator: SHOW redevelopment centres (Bukit Timah Market) with a
+      // "Redevelopment till …" tab + black pin instead of hiding them. Coords come from
+      // the closure CSV (below), since hawker-coords.json has none for a closed centre.
+      // (was: `if (/closed for redevelopment/i.test(address)) continue;`)
       // Strip the "#" footnote marker from the name.
       const name = rawName.replace(/\s*#\s*$/, '').replace(/\s+/g, ' ').trim();
       // Postal: pull "S(NNNNNN)" or "S(NNNNNN/NNNNNN)" — keep the first 6-digit code.
@@ -394,10 +396,16 @@ function loadAll() {
         chits++;
         const cleaning = Array.isArray(z.cleaning) ? z.cleaning : [];
         const renovation = Array.isArray(z.renovation) ? z.renovation : [];
-        if (cleaning.length || renovation.length) c.closures = { cleaning, renovation };
+        const redevelopment = Array.isArray(z.redevelopment) ? z.redevelopment : [];   // v0.62.596
+        if (cleaning.length || renovation.length || redevelopment.length) c.closures = { cleaning, renovation, redevelopment };
         if (Number.isFinite(z.foodStalls) && z.foodStalls > 0) c.stalls = z.foodStalls;   // 2026 refresh
         if (z.status) c.status = z.status;
         if (z.isNew) c.isNew = true;
+        // v0.62.596 — coord fallback from the closure CSV for centres missing from
+        // hawker-coords.json (e.g. Bukit Timah, redevelopment) so they still get a pin.
+        if ((!Number.isFinite(c.lat) || !Number.isFinite(c.lng)) && Number.isFinite(z.lat) && Number.isFinite(z.lng)) {
+          c.lat = z.lat; c.lng = z.lng;
+        }
       }
       console.log(`[HawkerVault] closures: ${chits}/${_allCentres.length} centres with closure/2026 metadata`);
     }

@@ -28,6 +28,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { openLink } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
 import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
+import { activeClosure, CLOSURE_PIN_COLOR } from '../closure.js';
 import { createRingLayer } from '../../../_shared/lib/distance-rings.js';
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS, BLINK_MS } from '../../../_shared/lib/map-interaction.js';
 import MapControls from './MapControls.jsx';
@@ -71,8 +72,13 @@ function jsStr(s) {
 // Bib pin ALSO carries a small ✳️ marker so it's distinguishable without relying
 // on hue — matching the app's CVD-safe convention.
 const PIN_BIB_RED = '#C6282D';
-function hawkerPinNode(isNew, number, hasBib) {
+// v0.62.596 — operator: a centre currently CLOSED (cleaning / renovation /
+// redevelopment) recolours its pin to the tab's background colour and shows a
+// "CLOSE" badge above the pin (like the "NEW" badge). closureKind overrides the
+// established-red / new-navy / Bib-red colour while the closure is active.
+function hawkerPinNode(isNew, number, hasBib, closureKind) {
   const size = 26;
+  const closeColor = closureKind ? CLOSURE_PIN_COLOR[closureKind] : null;
   const wrap = document.createElement('div');
   wrap.style.cssText =
     `position:relative;width:${size}px;height:${size}px;cursor:pointer;`;
@@ -82,7 +88,7 @@ function hawkerPinNode(isNew, number, hasBib) {
     `width:${size}px;height:${size}px;` +
     'border-radius:50% 50% 50% 0;transform:rotate(-45deg);' +
     'border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,0.45);' +
-    `background:${hasBib ? PIN_BIB_RED : (isNew ? '#1e3a8a' : '#e53935')};`;
+    `background:${closeColor || (hasBib ? PIN_BIB_RED : (isNew ? '#1e3a8a' : '#e53935'))};`;
   const inner = document.createElement('span');
   inner.style.cssText =
     'transform:rotate(45deg);color:#fff;font-weight:700;' +
@@ -99,12 +105,14 @@ function hawkerPinNode(isNew, number, hasBib) {
       + 'filter:drop-shadow(0 1px 1px rgba(0,0,0,0.55));';
     wrap.appendChild(star);
   }
-  if (isNew) {
+  // v0.62.596 — a "CLOSE" badge (closure colour) wins over "NEW" when the centre is
+  // currently closed; otherwise the existing navy "NEW" badge for new centres.
+  if (closeColor || isNew) {
     const badge = document.createElement('div');
-    badge.textContent = 'NEW';
+    badge.textContent = closeColor ? 'CLOSE' : 'NEW';
     badge.style.cssText =
       'position:absolute;left:50%;bottom:calc(100% + 3px);transform:translateX(-50%);' +
-      'background:#1e3a8a;color:#fff;font-size:9px;font-weight:700;line-height:1;' +
+      `background:${closeColor || '#1e3a8a'};color:#fff;font-size:9px;font-weight:700;line-height:1;` +
       'letter-spacing:0.5px;padding:3px 5px;border-radius:4px;white-space:nowrap;' +
       'border:1px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,0.4);';
     wrap.appendChild(badge);
@@ -486,7 +494,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
         map: mapRef.current,
         position: { lat: c.lat, lng: c.lng },
         title: c.name,
-        content: hawkerPinNode(c.isNew, centreNo, Array.isArray(c.bibStalls) && c.bibStalls.length > 0),
+        content: hawkerPinNode(c.isNew, centreNo, Array.isArray(c.bibStalls) && c.bibStalls.length > 0, activeClosure(c.closures)?.kind || null),
         // v0.61.91 — centre droplets sit above every overlay layer
         // (train stations / pins) so they are never occluded.
         zIndex: 1000,
