@@ -123,7 +123,7 @@ function escapeHtml(s) {
 
 // v0.60.210 (DF-109) — `lang` threaded from App.jsx so the station
 // InfoWindow popup + the panel chrome localise (was English-only).
-export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null }) {
+export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null, fill = false }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -811,7 +811,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   ];
 
   return (
-    <div className="rounded-2xl overflow-hidden border border-tg-border relative">
+    <div className={`rounded-2xl overflow-hidden border border-tg-border relative${fill ? ' h-full' : ''}`}>
       <div
         ref={containerRef}
         className={overlayLayers && overlayLayers.colour === false ? 'gia-greyscale-map' : undefined}
@@ -822,7 +822,11 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         // v0.62.223 — operator (IMG_2537) REVERSED the "too long" cap:
         // "lengthen like cuisine TMA". Cuisine's full-bleed map is min-h-[60vh];
         // match that feel here at 70vh (the header takes the top), minHeight 420 px.
-        style={{ height: expanded ? '90vh' : '70vh', minHeight: '420px', width: '100%' }}
+        // v0.62.601 — `fill` mode: the map fills its parent (the two-panel /
+        // carousel layouts give it a bounded height), instead of the 70vh block.
+        style={fill
+          ? { height: '100%', minHeight: '240px', width: '100%' }
+          : { height: expanded ? '90vh' : '70vh', minHeight: '420px', width: '100%' }}
         aria-label={t('mrt.aria.map', lang)}
       />
       {/* v0.63.1 — custom map-control row, top-right: zoom +/- and the

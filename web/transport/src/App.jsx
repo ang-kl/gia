@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { LINES, LINES_BY_CODE } from './data/lines.js';
+import { lineStationsFull } from './data/line-paths.js';
+import { useViewport } from '../../_shared/lib/use-viewport.js';
 import { initData } from './tg.js';
 import { t, tn, useLocale } from './i18n.js';
 import LineStatusPanel from './components/LineStatusPanel.jsx';
@@ -47,6 +49,48 @@ function LiveClock() {
   );
 }
 
+// v0.62.601 — a horizontal snap-scroll carousel of station cards for the wide
+// landscape / full-map layout (mirrors the Hawker TMA's CentreCarousel). The
+// off-centre (peeking) cards get the frosted "glass" look; the centred one is
+// opaque. IntersectionObserver tracks which cards are in focus.
+function StationCarousel({ items, render }) {
+  const trackRef = useRef(null);
+  const [focused, setFocused] = useState(() => new Set());
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track || typeof IntersectionObserver === 'undefined') {
+      setFocused(new Set(items.map((_, i) => i)));
+      return undefined;
+    }
+    const io = new IntersectionObserver((entries) => {
+      setFocused((prev) => {
+        const next = new Set(prev);
+        for (const e of entries) {
+          const idx = Number(e.target.getAttribute('data-idx'));
+          if (e.intersectionRatio >= 0.9) next.add(idx); else next.delete(idx);
+        }
+        return next;
+      });
+    }, { root: track, threshold: [0, 0.5, 0.9, 1] });
+    track.querySelectorAll('[data-idx]').forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [items]);
+  return (
+    <div
+      ref={trackRef}
+      className="flex items-stretch gap-2 overflow-x-auto snap-x snap-mandatory px-[4%] pb-1"
+      style={{ scrollbarWidth: 'none' }}
+    >
+      {items.map((c, i) => (
+        <div key={i} data-idx={i}
+          className="snap-center shrink-0 basis-[86%] sm:basis-[48%] min-[1100px]:basis-[32%] max-h-[44vh] overflow-y-auto rounded-xl shadow-lg">
+          {render(c, i, !focused.has(i))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // Hitachi-style transport TMA — main composition.
 // Layout (mobile-first):
 //   1. Header: title + timestamp
@@ -57,6 +101,10 @@ function LiveClock() {
 //   6. EngineeringList (next 7 days from data/mrt-engineering-closures.md)
 export default function App() {
   const lang = useLocale();
+  // v0.62.601 — device/orientation for the responsive layout (phone stacked /
+  // tablet-desktop two-panel / landscape carousel). Hook stays above the early
+  // returns below (Rules of Hooks).
+  const vp = useViewport();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [focusedCode, setFocusedCode] = useState(null);
@@ -219,108 +267,121 @@ export default function App() {
     }
   }
 
-  return (
-    <div
-      className="bg-tg-bg text-tg-text px-3 py-3 flex flex-col gap-3 max-w-[1600px] mx-auto"
-      style={{
-        // v0.59.20: Telegram-stable viewport height (avoids iPad gap).
-        minHeight: 'var(--tg-viewport-stable-height, 100vh)',
-        // v0.62.217 — clear the fixed bottom bar (full-width ticker + version/
-        // controls row) so the last content never hides behind it.
-        paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))'
-      }}
-    >
-      {/* v0.62.164 — operator: ONE neo-skeuomorphic header card.
-          v0.62.600 — operator: row 1 = title + live weather + refresh, then the
-          line-status AND the live SGT clock together on the right; the old
-          separate timestamp row + the zoom tip row + the header view-toggle pills
-          are gone (the view toggle moved to the footer bar). Row 2 = the line pills.
-          NOTE colour-blind safe: line status pairs the ✓ glyph / a count with
-          the hue, so it never relies on green-vs-orange alone. */}
-      <header className="skeuo-card rounded-2xl px-3 py-2.5 flex flex-col gap-1.5 relative z-10">
-        <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5">
-          <h1 className="text-base font-bold leading-tight">{t('header.title', lang)}</h1>
-          {/* v0.60.219 — live Singapore weather emoji. */}
-          <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
-          {/* v0.62.x — operator: tiny ↻ refresh after the weather temp. */}
-          <button
-            type="button"
-            onClick={() => window.location.reload()}
-            aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
-            title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
-            className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
-          >↻</button>
-          {/* v0.62.600 — status + live SGT clock share the right of row 1. */}
-          <span className="text-[11px] ml-auto flex items-center gap-2">
-            <span>
-              {affectedCodes.length === 0
-                ? <span className="text-green-500">{t('header.allNormal', lang)}</span>
-                : <span className="text-orange-500">{tn(affectedCodes.length === 1 ? 'header.linesAffected' : 'header.linesAffectedPlural', lang, { n: affectedCodes.length })}</span>}
-            </span>
-            <span className="text-tg-hint" aria-hidden>·</span>
-            <span className="text-tg-hint"><LiveClock /></span>
-            <LocaleToggle className="flex-shrink-0" />
+  // v0.62.601 — the focused line's stations as StationCards (the wide-layout
+  // "listing" / carousel items). Empty when no line is focused.
+  const lineStations = (focusedCode && Array.isArray(coarseStations))
+    ? lineStationsFull(coarseStations, focusedCode) : [];
+
+  // ---- shared sub-elements (rendered into each layout below) ----
+  const headerEl = (
+    /* v0.62.164 — ONE neo-skeuomorphic header card. v0.62.600 — row 1 = title +
+       weather + refresh, then line-status AND the live SGT clock on the right.
+       Row 2 = the line pills. Colour-blind safe: status pairs a glyph/count with
+       the hue. */
+    <header className="skeuo-card rounded-2xl px-3 py-2.5 flex flex-col gap-1.5 relative z-10">
+      <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5">
+        <h1 className="text-base font-bold leading-tight">{t('header.title', lang)}</h1>
+        <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+          title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+          className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
+        >↻</button>
+        <span className="text-[11px] ml-auto flex items-center gap-2">
+          <span>
+            {affectedCodes.length === 0
+              ? <span className="text-green-500">{t('header.allNormal', lang)}</span>
+              : <span className="text-orange-500">{tn(affectedCodes.length === 1 ? 'header.linesAffected' : 'header.linesAffectedPlural', lang, { n: affectedCodes.length })}</span>}
           </span>
-        </div>
-        {/* v0.62.597 — operator: the "overview (All Lines) + operating-line" pills
-            move UP into the header (like the Hawker TMA zone pills), out of the
-            bottom bar. Full line list; the "All Lines" chip resets to the overview. */}
-        <AffectedTicker
-          compact
-          affectedCodes={affectedCodes.length ? affectedCodes : LINES.filter((l) => !l.future).map((l) => l.code)}
-          focusedCode={focusedCode}
-          onFocus={(code) => {
-            setFocusedCode(code);
-            // v0.60.99 — first line-chip tap on the Schematic view auto-switches to
-            // the Google Map (one-shot); the "All Lines" reset (null) is ignored.
-            if (code && !autoSwitchedRef.current) {
-              autoSwitchedRef.current = true;
-              setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
-            }
-          }}
-          statusByLine={statusByLine}
-        />
-      </header>
-
-      {/* v0.62.164 — the map tucks UP under the header card (negative mt cancels
-          the column gap-3; lower z so the header's frosted base + shadow sit over
-          the map's top edge).
-          v0.62.166 — operator: the line ticker is no longer inside/over the map —
-          it's a floating FAB bar at the bottom (see below, beside the corner FABs). */}
-      <div className="-mt-3 relative z-0">
-        {mapView === 'png'
-          ? <SystemMap focusedCode={focusedCode} affectedCodes={affectedCodes} />
-          : <MrtMapPanel
-              focusedCode={focusedCode}
-              focusedStation={focusedStation}
-              onStationSelect={handleSelectStation}
-              onLineSelect={(code) => setFocusedCode(code)}
-              statusByLine={statusByLine}
-              lang={lang}
-              overlayLayers={overlayLayers}
-              onOverlayChange={setOverlayLayers}
-            />}
+          <span className="text-tg-hint" aria-hidden>·</span>
+          <span className="text-tg-hint"><LiveClock /></span>
+          <LocaleToggle className="flex-shrink-0" />
+        </span>
       </div>
+      {/* v0.62.597 — the overview (All Lines) + operating-line pills. */}
+      <AffectedTicker
+        compact
+        affectedCodes={affectedCodes.length ? affectedCodes : LINES.filter((l) => !l.future).map((l) => l.code)}
+        focusedCode={focusedCode}
+        onFocus={(code) => {
+          setFocusedCode(code);
+          if (code && !autoSwitchedRef.current) {
+            autoSwitchedRef.current = true;
+            setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
+          }
+        }}
+        statusByLine={statusByLine}
+      />
+    </header>
+  );
 
-      {/* v0.62.598 — the rich Google-Maps-style station card for the tapped
-          station: name strip (line colour / white interchange), stacked
-          per-line-code sub-cards (first/last train + terminus hyperlink +
-          operating status), crowd, and the "around the station" amenity
-          hyperlinks. Replaces LineStatusPanel's basic selected-station detail. */}
-      {focusedStation && (
-        <StationCard
-          station={geoStations ? (geoStations[focusedStation.name] || null) : null}
-          coarse={focusedStation}
-          context={stationContext}
-          crowd={crowd}
-          statusByLine={statusByLine}
-          coarseStations={coarseStations}
-          lang={lang}
-          onClose={() => handleSelectStation(null)}
-          onFocusStationCode={handleFocusStationCode}
-        />
-      )}
+  // The map block. `fillMode` makes MrtMapPanel fill its (bounded) parent — used
+  // by the two-panel / carousel layouts; otherwise it self-sizes and tucks up
+  // under the header (negative mt).
+  const mapBlock = (fillMode) => (
+    mapView === 'png'
+      ? <div className={fillMode ? 'h-full overflow-auto rounded-2xl' : '-mt-3 relative z-0'}>
+          <SystemMap focusedCode={focusedCode} affectedCodes={affectedCodes} />
+        </div>
+      : <div className={fillMode ? 'h-full' : '-mt-3 relative z-0'}>
+          <MrtMapPanel
+            fill={fillMode}
+            focusedCode={focusedCode}
+            focusedStation={focusedStation}
+            onStationSelect={handleSelectStation}
+            onLineSelect={(code) => setFocusedCode(code)}
+            statusByLine={statusByLine}
+            lang={lang}
+            overlayLayers={overlayLayers}
+            onOverlayChange={setOverlayLayers}
+          />
+        </div>
+  );
 
+  // One station's rich StationCard (used in the wide list + carousel). Tapping
+  // it focuses that station (card ↔ pin: the map reframes on focusedStation).
+  const renderStationCard = (st, i, glass = false, compact = false) => {
+    const rich = geoStations ? (geoStations[st.name] || null) : null;
+    const active = !!focusedStation && focusedStation.name === st.name;
+    return (
+      <StationCard
+        key={st.focusCode || st.name || i}
+        station={rich}
+        coarse={{ ...st, tappedCode: active ? focusedStation.tappedCode : st.focusCode }}
+        context={active ? stationContext : null}
+        crowd={crowd}
+        statusByLine={statusByLine}
+        coarseStations={coarseStations}
+        lang={lang}
+        active={active}
+        glass={glass}
+        compact={compact}
+        onTap={() => handleSelectStation(st, st.focusCode)}
+        onFocusStationCode={handleFocusStationCode}
+      />
+    );
+  };
+
+  // The single tapped-station card (shown when no line is focused).
+  const singleFocusedCard = focusedStation ? (
+    <StationCard
+      station={geoStations ? (geoStations[focusedStation.name] || null) : null}
+      coarse={focusedStation}
+      context={stationContext}
+      crowd={crowd}
+      statusByLine={statusByLine}
+      coarseStations={coarseStations}
+      lang={lang}
+      onClose={() => handleSelectStation(null)}
+      onFocusStationCode={handleFocusStationCode}
+    />
+  ) : null;
+
+  // The line-status + you-are-here + engineering panels (secondary content).
+  const secondaryPanels = (
+    <>
       {focusedLine && (
         <LineStatusPanel
           line={focusedLine}
@@ -332,64 +393,124 @@ export default function App() {
           hideStationDetail={!!focusedStation}
         />
       )}
-
-      {/* v0.62.164 — the AffectedTicker moved UP to overlap the map's bottom edge
-          (see the map block above). LineStatusPanel now renders directly below
-          the map+ticker, so picking a line in the ticker reveals its status here. */}
       <LocationCard address={data.address} nearest={data.nearestMrt} />
-
       <EngineeringList closures={data.engineering || []} />
+    </>
+  );
 
-      {/* v0.60.217 — footer: no border; font +1pt. v0.62.217 — the version line
-          moved to the fixed bottom bar (with the back/top buttons), per operator;
-          the data-source attribution stays here in-flow. */}
-      <footer className="mx-2 mb-2 mt-2 px-3 py-2 text-[9px] text-tg-hint text-center leading-tight">
-        <div>Source: LTA TrainServiceAlerts (live) + curated engineering schedule</div>
-      </footer>
+  const sourceFooter = (
+    <footer className="mx-2 mb-2 mt-2 px-3 py-2 text-[9px] text-tg-hint text-center leading-tight">
+      <div>Source: LTA TrainServiceAlerts (live) + curated engineering schedule</div>
+    </footer>
+  );
 
-      {/* v0.62.217 — structured Train-TMA bottom bar, pinned to the bottom.
-          v0.62.597 — the line ticker moved UP into the header (operator).
-          v0.62.600 — operator: the view toggle (Schematic ↔ Google Map) moved
-          DOWN here from the header, as a single pill showing the OTHER view;
-          left = version + that toggle, right = top/down & back/end nav. */}
-      <div
-        className="fixed bottom-0 inset-x-0 z-40 bg-tg-bg/95 backdrop-blur border-t border-tg-border"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
-      >
-        <div className="flex items-center justify-between gap-2 px-3 py-1.5">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-[9px] text-tg-hint leading-tight truncate">
-              {t('footer.tag', lang)} · v{BUILD_VERSION}
-            </span>
-            {/* Single toggle pill: tapping flips schematic ↔ Google Map; the label
-                names the view you'll switch TO. */}
-            <button
-              type="button"
-              onClick={() => setMapView((v) => (v === 'png' ? 'gmap' : 'png'))}
-              aria-label={mapView === 'png' ? t('view.btnGoogleMap', lang) : t('view.btnSchematic', lang)}
-              className="skeuo-pill px-2.5 py-1 rounded-lg text-[11px] font-medium text-tg-text active:scale-95 whitespace-nowrap shrink-0"
-            >{mapView === 'png' ? t('view.btnGoogleMap', lang) : t('view.btnSchematic', lang)}</button>
-          </div>
-          <div className="flex items-center gap-1 text-[11px] font-semibold text-tg-link shrink-0">
-            <button
-              type="button"
-              onClick={() => window.scrollTo({ top: atBottom ? 0 : window.scrollY + window.innerHeight, behavior: 'smooth' })}
-              aria-label={atBottom ? t('fab.topAria', lang) : t('fab.downAria', lang)}
-              className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
-            >{atBottom ? t('fab.top', lang) : t('fab.down', lang)}</button>
-            <button
-              type="button"
-              onClick={() => {
-                const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
-                if (typeof window !== 'undefined' && window.history.length > 1) window.history.back();
-                else if (w && typeof w.close === 'function') w.close();
-              }}
-              aria-label={(typeof window !== 'undefined' && window.history.length > 1) ? t('fab.backAria', lang) : t('fab.endAria', lang)}
-              className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
-            >{(typeof window !== 'undefined' && window.history.length > 1) ? `⇠ ${t('fab.back', lang)}` : `🔚 ${t('fab.end', lang)}`}</button>
-          </div>
+  // v0.62.217/597/600 — the fixed bottom bar: version + view toggle (left) and
+  // top/down & back/end nav (right). Shared across every layout.
+  const footerBar = (
+    <div
+      className="fixed bottom-0 inset-x-0 z-40 bg-tg-bg/95 backdrop-blur border-t border-tg-border"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+    >
+      <div className="flex items-center justify-between gap-2 px-3 py-1.5">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-[9px] text-tg-hint leading-tight truncate">
+            {t('footer.tag', lang)} · v{BUILD_VERSION}
+          </span>
+          <button
+            type="button"
+            onClick={() => setMapView((v) => (v === 'png' ? 'gmap' : 'png'))}
+            aria-label={mapView === 'png' ? t('view.btnGoogleMap', lang) : t('view.btnSchematic', lang)}
+            className="skeuo-pill px-2.5 py-1 rounded-lg text-[11px] font-medium text-tg-text active:scale-95 whitespace-nowrap shrink-0"
+          >{mapView === 'png' ? t('view.btnGoogleMap', lang) : t('view.btnSchematic', lang)}</button>
+        </div>
+        <div className="flex items-center gap-1 text-[11px] font-semibold text-tg-link shrink-0">
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: atBottom ? 0 : window.scrollY + window.innerHeight, behavior: 'smooth' })}
+            aria-label={atBottom ? t('fab.topAria', lang) : t('fab.downAria', lang)}
+            className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
+          >{atBottom ? t('fab.top', lang) : t('fab.down', lang)}</button>
+          <button
+            type="button"
+            onClick={() => {
+              const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
+              if (typeof window !== 'undefined' && window.history.length > 1) window.history.back();
+              else if (w && typeof w.close === 'function') w.close();
+            }}
+            aria-label={(typeof window !== 'undefined' && window.history.length > 1) ? t('fab.backAria', lang) : t('fab.endAria', lang)}
+            className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
+          >{(typeof window !== 'undefined' && window.history.length > 1) ? `⇠ ${t('fab.back', lang)}` : `🔚 ${t('fab.end', lang)}`}</button>
         </div>
       </div>
+    </div>
+  );
+
+  const fixedShellStyle = {
+    paddingTop: 'var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px))',
+    paddingBottom: 'calc(3rem + env(safe-area-inset-bottom, 0px))'
+  };
+
+  // ---- WIDE + LANDSCAPE (tablet/desktop): full map + bottom station carousel ----
+  if (vp.isWide && vp.orientation === 'landscape') {
+    return (
+      <>
+        <div className="fixed inset-0 flex flex-col overflow-hidden bg-tg-bg text-tg-text" style={fixedShellStyle}>
+          <div className="px-3 pt-2 shrink-0">{headerEl}</div>
+          <div className="flex-1 min-h-0 px-3 pt-2 pb-1">{mapBlock(true)}</div>
+          {(lineStations.length > 0 || singleFocusedCard) && (
+            <div className="shrink-0 pb-1">
+              {lineStations.length > 0
+                ? <StationCarousel items={lineStations} render={(st, i, glass) => renderStationCard(st, i, glass, true)} />
+                : <div className="px-3 max-w-md mx-auto max-h-[44vh] overflow-y-auto">{singleFocusedCard}</div>}
+            </div>
+          )}
+        </div>
+        {footerBar}
+      </>
+    );
+  }
+
+  // ---- WIDE + PORTRAIT (tablet/desktop): two-panel — fixed map + scrolling list ----
+  if (vp.isWide) {
+    return (
+      <>
+        <div className="fixed inset-0 flex flex-col overflow-hidden bg-tg-bg text-tg-text" style={fixedShellStyle}>
+          <div className="px-3 pt-2 shrink-0">{headerEl}</div>
+          <div className="px-3 pt-2 shrink-0 h-[40vh]">{mapBlock(true)}</div>
+          <div className="flex-1 overflow-y-auto px-3 py-2 flex flex-col gap-2">
+            {lineStations.length > 0
+              ? (
+                <div className="grid grid-cols-1 min-[1100px]:grid-cols-2 gap-2">
+                  {lineStations.map((st, i) => (
+                    <React.Fragment key={st.focusCode || st.name || i}>{renderStationCard(st, i)}</React.Fragment>
+                  ))}
+                </div>
+              )
+              : singleFocusedCard}
+            {secondaryPanels}
+            {sourceFooter}
+          </div>
+        </div>
+        {footerBar}
+      </>
+    );
+  }
+
+  // ---- MOBILE (phone): the original stacked single-column layout ----
+  return (
+    <div
+      className="bg-tg-bg text-tg-text px-3 py-3 flex flex-col gap-3 max-w-[1600px] mx-auto"
+      style={{
+        minHeight: 'var(--tg-viewport-stable-height, 100vh)',
+        paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))'
+      }}
+    >
+      {headerEl}
+      {mapBlock(false)}
+      {singleFocusedCard}
+      {secondaryPanels}
+      {sourceFooter}
+      {footerBar}
     </div>
   );
 }
