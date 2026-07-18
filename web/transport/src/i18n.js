@@ -103,6 +103,8 @@ const STRINGS = {
   'mrt.lastTrain':             { en: 'Last',  fr: 'Dernier' },
   'mrt.weekday':               { en: 'Mon–Fri', fr: 'Lun–Ven' },
   'mrt.weekend':               { en: 'Sat–Sun / PH', fr: 'Sam–Dim / fériés' },
+  'mrt.sat':                   { en: 'Sat', fr: 'Sam' },
+  'mrt.sunPh':                 { en: 'Sun/PH', fr: 'Dim/fériés' },
   'mrt.terminalHere':          { en: 'Terminates here', fr: 'Terminus ici' },
   'mrt.towards':               { en: 'towards', fr: 'vers' },
   'mrt.around':                { en: 'Around the station', fr: 'Autour de la station' },

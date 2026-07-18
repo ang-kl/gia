@@ -6,7 +6,7 @@
 
 import { describe, it, expect } from 'vitest';
 import {
-  slugify, textOn, hexForLineCode, worstCrowd, trainTimes,
+  slugify, textOn, hexForLineCode, worstCrowd, trainTimes, noteIsTerminal,
   directionLabel, terminusForDirection
 } from '../web/transport/src/lib/station-card-utils.js';
 
@@ -58,24 +58,41 @@ describe('trainTimes', () => {
     const r = trainTimes({ first_weekday: '5:32am', first_weekend: '5:47am', last_weekday: '12:18am', last_weekend: '12:18am' });
     expect(r.wdFirst).toBe('5:32am');
     expect(r.wdLast).toBe('12:18am');
-    expect(r.weFirst).toBe('5:47am');
-    expect(r.terminal).toBe(false);
-    expect(r.weekendDiffers).toBe(true); // 5:47 !== 5:32
+    expect(r.satFirst).toBe('5:47am');  // first_weekend fills the Saturday slot
+    expect(r.sunFirst).toBe(null);       // no distinct Sun/PH value in this shape
+    expect(r.weLast).toBe('12:18am');
+    expect(r.noTimes).toBe(false);
   });
 
-  it('reads the alternate first_sat / first_sun_ph / last_weekend_ph shape', () => {
+  it('keeps Sat and Sun/PH first-train times SEPARATE (regression: Sun/PH was dropped)', () => {
+    // Real HarbourFront NEL row: Sat 5:47 == weekday, but Sun/PH 6:07 differs.
     const r = trainTimes({ first_sat: '5:47am', first_sun_ph: '6:07am', first_weekday: '5:47am', last_weekday: '11:55pm', last_weekend_ph: '11:55pm' });
     expect(r.wdFirst).toBe('5:47am');
     expect(r.wdLast).toBe('11:55pm');
-    expect(r.weFirst).toBe('5:47am');   // first_sat wins the weekend slot
+    expect(r.satFirst).toBe('5:47am');
+    expect(r.sunFirst).toBe('6:07am');   // preserved distinctly, not collapsed
     expect(r.weLast).toBe('11:55pm');
-    expect(r.terminal).toBe(false);
+    expect(r.noTimes).toBe(false);
   });
 
-  it('flags a terminal direction (all timings null)', () => {
+  it('flags a no-service direction (all timings null) via noTimes', () => {
     const r = trainTimes({ first_sat: null, first_sun_ph: null, first_weekday: null, last_weekday: null, last_weekend_ph: null });
-    expect(r.terminal).toBe(true);
+    expect(r.noTimes).toBe(true);
     expect(r.wdFirst).toBe(null);
+    expect(r.sunFirst).toBe(null);
+  });
+});
+
+describe('noteIsTerminal', () => {
+  it('recognises a terminus note', () => {
+    expect(noteIsTerminal('terminal station in this direction')).toBe(true);
+    expect(noteIsTerminal('Terminus')).toBe(true);
+  });
+  it('does NOT treat data-availability notes as terminal', () => {
+    expect(noteIsTerminal('timing data is currently unavailable')).toBe(false);
+    expect(noteIsTerminal('station not yet open')).toBe(false);
+    expect(noteIsTerminal('')).toBe(false);
+    expect(noteIsTerminal(null)).toBe(false);
   });
 });
 

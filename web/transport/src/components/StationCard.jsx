@@ -21,13 +21,19 @@ import React from 'react';
 import { t } from '../i18n.js';
 import {
   CROWD_DOT, STATUS_HEX, mapsQ, mapsLatLng, textOn, hexForLineCode,
-  worstCrowd, trainTimes, directionLabel, terminusForDirection
+  worstCrowd, trainTimes, noteIsTerminal, directionLabel, terminusForDirection
 } from '../lib/station-card-utils.js';
 
 // One first_last_train direction row.
 function DirectionRow({ entry, lineCode, coarseStations, lang, onFocusStationCode }) {
-  const { wdFirst, wdLast, weFirst, weLast, terminal, weekendDiffers } = trainTimes(entry.timings || {});
+  const { wdFirst, wdLast, satFirst, sunFirst, weLast, noTimes } = trainTimes(entry.timings || {});
   const term = terminusForDirection(coarseStations, lineCode, entry.direction);
+  // Weekend variations shown only when they differ from the weekday time — Sat
+  // and Sun/PH are kept separate (a Sun/PH first train often differs from Sat).
+  const weekendParts = [];
+  if (satFirst && satFirst !== wdFirst) weekendParts.push(`${t('mrt.sat', lang)} ${satFirst}`);
+  if (sunFirst && sunFirst !== wdFirst && sunFirst !== satFirst) weekendParts.push(`${t('mrt.sunPh', lang)} ${sunFirst}`);
+  if (weLast && weLast !== wdLast) weekendParts.push(`${t('mrt.weekend', lang)} ${t('mrt.lastTrain', lang)} ${weLast}`);
 
   return (
     <div className="flex flex-col gap-0.5">
@@ -47,13 +53,18 @@ function DirectionRow({ entry, lineCode, coarseStations, lang, onFocusStationCod
           <span className="text-tg-text/80 font-medium">{directionLabel(entry.direction, t, lang)}</span>
         )}
       </div>
-      {terminal ? (
-        <div className="text-[11px] text-tg-hint italic">{t('mrt.terminalHere', lang)}</div>
+      {noTimes ? (
+        // All-null timings: a true terminus (note says so, or none) → "Terminates
+        // here"; otherwise a data note ("timings unavailable", "not yet open") →
+        // show the note verbatim rather than mislabelling the stop as a terminus.
+        <div className="text-[11px] text-tg-hint italic">
+          {noteIsTerminal(entry.note) || !entry.note ? t('mrt.terminalHere', lang) : entry.note}
+        </div>
       ) : (
         <div className="text-[11px] text-tg-text/80 leading-snug">
           <span className="tabular-nums">🚋 {t('mrt.firstTrain', lang)} {wdFirst || '—'} · {t('mrt.lastTrain', lang)} {wdLast || '—'}</span>
-          {weekendDiffers && (
-            <span className="text-tg-hint tabular-nums"> · {t('mrt.weekend', lang)} {weFirst || '—'}–{weLast || '—'}</span>
+          {weekendParts.length > 0 && (
+            <span className="text-tg-hint tabular-nums"> · {weekendParts.join(' · ')}</span>
           )}
         </div>
       )}
