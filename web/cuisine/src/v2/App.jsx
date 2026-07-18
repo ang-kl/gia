@@ -937,6 +937,29 @@ export default function App() {
   useLayoutEffect(() => {
     if (headerRef.current) setHeaderBottom(Math.round(headerRef.current.getBoundingClientRect().bottom));
   }, [cuisinePickOpen, classicOpen, regionExpanded, modePeek, venues.length]);
+
+  // v0.62.594 — operator ("map stays"): in the portrait-tablet VERTICAL listing, bound
+  // the results panel to the remaining viewport height so its "Showing N" header freezes
+  // and the two dish-columns scroll INDEPENDENTLY while the ~40vh map above stays put.
+  // Measured off the panel's own top (which tracks the sticky map + pickers), leaving a
+  // small bottom reserve for the footer. Off (null) on phones / landscape / horizontal.
+  const boundList = portraitWide && drawerMode === 'vertical';
+  const [resultBoundH, setResultBoundH] = useState(null);
+  useLayoutEffect(() => {
+    if (!boundList) { setResultBoundH(null); return undefined; }
+    const measure = () => {
+      const el = resultPanelRef.current;
+      if (!el) return;
+      const top = el.getBoundingClientRect().top;
+      setResultBoundH(`calc(var(--tg-viewport-stable-height, 100dvh) - ${Math.max(0, Math.round(top))}px - 3rem)`);
+    };
+    measure();
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    if (ro && document.documentElement) ro.observe(document.documentElement);
+    window.addEventListener('resize', measure);
+    window.addEventListener('orientationchange', measure);
+    return () => { ro?.disconnect(); window.removeEventListener('resize', measure); window.removeEventListener('orientationchange', measure); };
+  }, [boundList, headerBottom, venues.length, vp.orientation, cuisinePickOpen, classicOpen]);
   // v0.62.259 — operator (urgent): trace the folio-tab loading state so a MISSING
   // "Pick local classic ▾" tab is diagnosable. The tab only shows when a plate
   // AND venues are both present (hasPlate). This logs which side is missing.
@@ -4846,7 +4869,11 @@ export default function App() {
           unmounted) so its pagination still feeds the map's visible-page
           markers (onPageChange → visibleVenues) and the ↴ toggle reveals it
           instantly. */}
-      <div ref={resultPanelRef} className={`${drawerMode === 'vertical' && !drawerDismissed ? '' : 'hidden'} ${resultsFlash ? 'rounded-xl ring-2 ring-tg-accent ring-offset-2 transition-shadow scroll-mt-20' : 'scroll-mt-20'}`}>
+      <div ref={resultPanelRef}
+        /* v0.62.594 — bound the panel to the remaining viewport in the portrait-tablet
+           listing so its header freezes + the columns scroll independently ("map stays"). */
+        style={boundList ? { height: resultBoundH || undefined, overflow: 'hidden' } : undefined}
+        className={`${drawerMode === 'vertical' && !drawerDismissed ? (boundList ? 'flex flex-col min-h-0' : '') : 'hidden'} ${resultsFlash ? 'rounded-xl ring-2 ring-tg-accent ring-offset-2 transition-shadow scroll-mt-20' : 'scroll-mt-20'}`}>
         {/* v0.60.149 — Michelin walk-through indicator. Reduces user
             surprise that each 🔍 tap loads 12 of ~130 curated venues
             rather than the whole curated list in one shot (which timed
@@ -5073,6 +5100,9 @@ export default function App() {
              list only shows on wide in PORTRAIT (landscape is the carousel), so
              isWide → 2 columns is the portrait two-panel grid. Phones → 1. */
           columns={isWide ? 2 : 1}
+          /* v0.62.594 — portrait-tablet vertical: freeze the header + scroll the two
+             columns independently within the bounded panel (operator "map stays"). */
+          boundedColumns={boundList}
         />
         {/* v0.60.115/117 — terminal note when the server returns
             exhausted=true: the user has now seen everything across all
