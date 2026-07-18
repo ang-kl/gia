@@ -1,0 +1,241 @@
+{
+  "since": "2026-07-18T10:51:31Z",
+  "until": "2026-07-18T11:56:31Z",
+  "count": 26,
+  "logs": [
+    {
+      "timestamp": "2026-07-18T10:54:32.429016709Z",
+      "message": "[Cuisine-Search] sliceCap=10 firstBatch=true finalBatch=false range=1-10 seenBefore=0 hash=cd7b81bc",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:54:32.429086962Z",
+      "message": "[Cuisine-Session] lazy start for chatId=313940231 (mount POST missed initData); wiping seen-set",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:54:32.429092687Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 60000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:54:32.429098534Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[-26.47603,152.95222],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":60000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:54:32.429103128Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[\"portuguese\"] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=-26.4760,152.9522 radius=20000 anchored=false skipShuffle=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:54:32.429108210Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[\"Portuguese\"] cuisineMetas.length=1 allSelectedAreGated=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:54:32.429112842Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/3 returned 17 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:54:32.429117948Z",
+      "message": "[Cuisine-Search] D703e Gemini-label post-filter (portuguese): 17 → 17  (dropped=0 unrelated, unlabeled=17 passed through)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:54:32.429122632Z",
+      "message": "[Cuisine-Search] D703f online verify-then-cache (portuguese): batched=17, labels written=17, dropped=10 unrelated (17 → 7)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:54:32.429127643Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 4 → 0 (≤60000m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:54:32.429132677Z",
+      "message": "[Cuisine-Search] D791 nearby-refetch 20000m → 25000m (have 0/10 fresh, cap=60000)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:54:32.429137569Z",
+      "message": "[Cuisine-Search] D791 outer-ring re-fetch +10 fresh (fetches=1, to 25000m); unseen now 10",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:54:32.429142314Z",
+      "message": "[Cuisine-Search] D790 nearby-widen tier=2 radiusM=15000 satisfied=false from=10 to=0",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:54:32.430238625Z",
+      "message": "[Cuisine-Search] D786 curated-try slug=portuguese country=AU unfamiliar=false filled=1/10 (reviewDishes=1 noVerifiedMention=8)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:54:34.312780197Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:54:34.727918132Z",
+      "message": "[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:54:34.727924274Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (10v): crowd=2058ms translate=3ms reviewCache=3ms dishes=6005ms finalise=1ms travel=422ms sanctuary=213ms footfall=0ms total=8705ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:54:34.814023846Z",
+      "message": "[Cuisine-Search] D704 returning 10 venues to client (poolCount=10 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:55:35.170645736Z",
+      "message": "[HawkerVault] coords: 122/122 centres geocoded",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:55:35.170655439Z",
+      "message": "[HawkerVault] stalls: 37/122 centres with stall metadata",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:55:35.170666602Z",
+      "message": "[HawkerVault] bib-gourmand: 19/122 centres tagged",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:55:35.170674675Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:55:35.170688331Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:55:35.170697142Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:55:35.170705779Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-18T10:55:35.170713062Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "b3ceaec6-143f-4da7-b01e-51d7c8a6a146",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
