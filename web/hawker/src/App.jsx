@@ -454,7 +454,10 @@ export default function App() {
             those buttons. */}
         <div
           className="absolute top-0 inset-x-0 z-20 bg-tg-bg/80 backdrop-blur-md border-b border-tg-border px-2 py-1.5 flex flex-col gap-1.5"
-          style={{ paddingTop: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.375rem)' }}
+          /* v0.62.593 — operator: a hair more headroom on the landscape title row so
+             the "🍚 Hawker Centre (2025)" title isn't clipped by the bar's top edge
+             (0.375rem → 0.625rem). */
+          style={{ paddingTop: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.625rem)' }}
         >
           <div className="flex items-center pr-24">
             <h1 className="text-sm font-semibold leading-tight truncate">{t('header.title', lang)}</h1>
