@@ -29,6 +29,7 @@ import { openLink } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
 import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
 import { createRingLayer } from '../../../_shared/lib/distance-rings.js';
+import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS, BLINK_MS } from '../../../_shared/lib/map-interaction.js';
 import MapControls from './MapControls.jsx';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
@@ -420,24 +421,29 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     if (!infoWindowRef.current) return;
     const cached = transitCacheRef.current[c.name];
     infoWindowRef.current.setContent(buildInfoHtml(c, key, cached || null));
-    infoWindowRef.current.open(mapRef.current, marker);
-    // v0.62.115 — operator: a pin tap zooms IN to 17. v0.62.560 — the prior-zoom
-    // capture/restore is removed (closing no longer changes the zoom).
+    // v0.62.589 — UNIFIED tap flow, shared verbatim with the Cuisine TMA (operator
+    // spec): pan → zoom (phone TAP_ZOOM_PHONE, tablet TAP_ZOOM_WIDE) → PAUSE
+    // TAP_PAUSE_MS (camera settles) → open the InfoWindow (card-from-pin) + blink
+    // the pin (BLINK_MS = 0.5s × 5). The card ring (onCentreTap), transit pins and
+    // distance rings fire immediately; only the popup + blink wait for the pause.
+    // (Was: opened the popup first, then hard-zoomed 17 everywhere + a 3 s halo.)
     if (Number.isFinite(c.lat) && Number.isFinite(c.lng)) {
+      const wide = typeof window !== 'undefined'
+        && window.matchMedia?.('(min-width: 700px)')?.matches;
       mapRef.current?.panTo({ lat: c.lat, lng: c.lng });
-      mapRef.current?.setZoom(17);
-    }
-    // v0.62.109 — draw the nearest 3 bus stops + 2 stations + the walk/2-stop rings.
-    if (Number.isFinite(c.lat) && Number.isFinite(c.lng)) {
+      mapRef.current?.setZoom(wide ? TAP_ZOOM_WIDE : TAP_ZOOM_PHONE);
+      // v0.62.109 — draw the nearest 3 bus stops + 2 stations + the walk/2-stop rings.
       overlayControllerRef.current?.showVenueTransit?.(c.lat, c.lng);
       ringLayerRef.current?.draw({ lat: c.lat, lng: c.lng });
-      // v0.62.557 — operator: pulse the pin for 3 s so a card/pin tap visibly
-      // HIGHLIGHTS it (the map is already at this point + zoom, so this only adds
-      // the halo).
-      overlayControllerRef.current?.highlightLoc?.(c.lat, c.lng, 3000);
+      setTimeout(() => {
+        infoWindowRef.current?.open(mapRef.current, marker);
+        overlayControllerRef.current?.flashPin?.(c.lat, c.lng, BLINK_MS);
+      }, TAP_PAUSE_MS);
+    } else {
+      infoWindowRef.current.open(mapRef.current, marker);   // no coords → open in place
     }
     // v0.62.557 — operator "vice versa": tapping the pin highlights the matching
-    // card in the list (App sets the card's active ring).
+    // card in the list (App sets the card's active ring). Fires immediately.
     onCentreTapRef.current?.(c.name);
     // v0.61.10 — lazy-fetch nearest station + bus stops, then refresh the bubble.
     if (!cached && Number.isFinite(c.lat) && Number.isFinite(c.lng)) {

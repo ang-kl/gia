@@ -2378,6 +2378,13 @@ export function createOverlayController(map, googleMaps, opts) {
       if (z < 16) map.setZoom(16);
       flashPin(lat, lng, ms);
     },
+    // v0.62.589 — raw pin blink with NO pan/zoom side-effects (unlike highlightLoc,
+    // which bumps a <16 zoom up to 16). The unified tap flow sets its own zoom
+    // (phone 15 / tablet 17) and must not have it overridden, so it blinks via this.
+    flashPin(lat, lng, ms = 2500) {
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+      flashPin(lat, lng, ms);
+    },
     // v0.62.551 — operator (urgent): tapping a bus-stop pill in a card must make
     // the bus stop APPEAR on the map — a faint halo alone (highlightLoc) wasn't
     // enough, and the Bus Stop overlay is off by default so no marker existed
