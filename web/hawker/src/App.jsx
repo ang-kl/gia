@@ -536,10 +536,11 @@ export default function App() {
         <LocaleToggle className="flex-shrink-0" />
         <button onClick={() => openLink(NEA_HOME)} className="skeuo-pill text-xs px-3 py-1.5 rounded-full text-tg-text active:scale-95">NEA ↗</button>
       </div>
-      {/* v0.62.590 — operator (IMG_3554): the 5 zone pills wrapped raggedly. Lay
-          them out as a tidy 3+2 TWO-ROW grid (segmented-control feel) so the zone
-          selector reads as one meaningful control, not scattered pills. */}
-      <div className="grid grid-cols-3 gap-1.5 px-3 py-1.5 shrink-0">
+      {/* v0.62.590 — operator (IMG_3554): the 5 zone pills wrapped raggedly. On a
+          PHONE lay them out as a tidy 3+2 TWO-ROW grid (segmented-control feel).
+          v0.62.591 — operator (iPad Pro portrait): on a WIDE tablet squeeze all 5
+          into ONE row like the landscape top bar (there's room), not the 2-row grid. */}
+      <div className={`${isWide ? 'flex flex-wrap' : 'grid grid-cols-3'} gap-1.5 px-3 py-1.5 shrink-0`}>
         {regionList.map((r) => {
           const sel = r.region === activeRegion;
           return (

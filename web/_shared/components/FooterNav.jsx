@@ -51,7 +51,10 @@ export default function FooterNav({ atBottom, labels, showScroll = true, leading
   return (
     <div
       className="fixed right-3 z-50 pointer-events-auto rounded-2xl bg-tg-bg/95 backdrop-blur border border-tg-border shadow-lg px-1 py-0.5 flex items-center gap-0.5 text-[11px] font-semibold text-tg-link"
-      style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
+      /* v0.62.591 — clear Telegram's fullscreen bottom chrome (iPad): prefer the
+         app-populated --tg-content-safe-area-inset-bottom, fall back to env() for
+         TMAs that don't set it. */
+      style={{ bottom: 'calc(0.75rem + max(env(safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px)))' }}
     >
       {leading && (
         <>
