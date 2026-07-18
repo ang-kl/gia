@@ -318,6 +318,9 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
         </div>
       ) : null}
     <button type="button" onClick={() => onTap?.(venue.placeId)}
+      /* v0.62.591 — data-pid lets the vertical list scroll a tapped-pin's card into
+         view (ResultPanel's focus effect), mirroring the ResultDrawer carousel. */
+      data-pid={venue.placeId || undefined}
       /* v0.62.285 — operator (BEFORE/AFTER mock): in the horizontal strip the
          IN-VIEW (focused) card is OPAQUE white; the peeking left/right cards are
          neo-liquid glass (translucent + frosted) so they read as "behind". The
