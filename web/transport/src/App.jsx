@@ -188,6 +188,24 @@ export default function App() {
             className={`skeuo-pill px-3 py-1 rounded-lg active:scale-95 ${mapView === 'gmap' ? 'skeuo-pill--selected font-semibold' : 'text-tg-text'}`}
           >{t('view.btnGoogleMap', lang)}</button>
         </div>
+        {/* v0.62.597 — operator: the "overview (All Lines) + operating-line" pills
+            move UP into the header (like the Hawker TMA zone pills), out of the
+            bottom bar. Full line list; the "All Lines" chip resets to the overview. */}
+        <AffectedTicker
+          compact
+          affectedCodes={affectedCodes.length ? affectedCodes : LINES.filter((l) => !l.future).map((l) => l.code)}
+          focusedCode={focusedCode}
+          onFocus={(code) => {
+            setFocusedCode(code);
+            // v0.60.99 — first line-chip tap on the Schematic view auto-switches to
+            // the Google Map (one-shot); the "All Lines" reset (null) is ignored.
+            if (code && !autoSwitchedRef.current) {
+              autoSwitchedRef.current = true;
+              setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
+            }
+          }}
+          statusByLine={statusByLine}
+        />
       </header>
 
       {/* v0.62.164 — the map tucks UP under the header card (negative mt cancels
@@ -235,33 +253,15 @@ export default function App() {
         <div>Source: LTA TrainServiceAlerts (live) + curated engineering schedule</div>
       </footer>
 
-      {/* v0.62.217 — operator: structured Train-TMA bottom. The line ticker now
-          spans the FULL width (margin to margin) directly ABOVE the controls; the
-          controls row carries the version (left) and the top/down + back/end
-          buttons (right), all pinned to the bottom. Replaces the floating centred
-          ticker FAB + the fixed FooterNav. z-40 sits over the page content. */}
+      {/* v0.62.217 — structured Train-TMA bottom bar: version (left) + top/down and
+          back/end buttons (right), pinned to the bottom.
+          v0.62.597 — the line ticker moved UP into the header (operator), so the
+          bottom bar is now just the version + nav controls. */}
       <div
         className="fixed bottom-0 inset-x-0 z-40 bg-tg-bg/95 backdrop-blur border-t border-tg-border"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
-        <div className="px-2 pt-1.5 pb-0.5">
-          <AffectedTicker
-            compact
-            affectedCodes={affectedCodes.length ? affectedCodes : LINES.filter((l) => !l.future).map((l) => l.code)}
-            focusedCode={focusedCode}
-            onFocus={(code) => {
-              setFocusedCode(code);
-              // v0.60.99 — first line-chip tap on the Schematic view auto-switches
-              // to Google Map (one-shot); the "All Lines" reset (null) is ignored.
-              if (code && !autoSwitchedRef.current) {
-                autoSwitchedRef.current = true;
-                setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
-              }
-            }}
-            statusByLine={statusByLine}
-          />
-        </div>
-        <div className="flex items-center justify-between gap-2 px-3 pb-1">
+        <div className="flex items-center justify-between gap-2 px-3 py-1.5">
           <span className="text-[9px] text-tg-hint leading-tight min-w-0 truncate">
             {t('footer.tag', lang)} · v{BUILD_VERSION}
           </span>
