@@ -206,6 +206,16 @@ export default function App() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // v0.62.590 — the two-panel layout (phone + portrait tablet) scrolls an INNER
+  // list container, not the window, so the footer ⇣/⇡ + its atBottom label must
+  // track THAT element (the window can't scroll under `fixed inset-0`).
+  const panelScrollRef = useRef(null);
+  const [panelAtBottom, setPanelAtBottom] = useState(false);
+  const onPanelScroll = () => {
+    const el = panelScrollRef.current;
+    if (el) setPanelAtBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 50);
+  };
+
   // v0.60.53 — POST /api/hawker/save-pick. Server validates initData,
   // looks up the centre in the vault, and sends a formatted chat card
   // back via the bot. On success, close the WebApp.
@@ -549,7 +559,7 @@ export default function App() {
         </div>
       )}
       {/* Separate scrollable list panel (the operator's "scroll up/down" panel). */}
-      <div className="flex-1 overflow-y-auto px-2 py-2 flex flex-col gap-2">
+      <div ref={panelScrollRef} onScroll={onPanelScroll} className="flex-1 overflow-y-auto px-2 py-2 flex flex-col gap-2">
         {busy && <p className="text-xs text-tg-hint p-3">{t('status.loading', lang)}</p>}
         {err && <p className="text-xs text-red-500 p-3">⚠ {err}</p>}
         {!busy && !err && active && (
@@ -567,7 +577,8 @@ export default function App() {
         </footer>
       </div>
       <FooterNav
-        atBottom={atBottom}
+        atBottom={panelAtBottom}
+        scrollEl={panelScrollRef}
         labels={{
           top: t('btn.fabTop', lang), down: t('btn.fabDown', lang),
           topAria: t('btn.fabTopAria', lang), downAria: t('btn.fabDownAria', lang),

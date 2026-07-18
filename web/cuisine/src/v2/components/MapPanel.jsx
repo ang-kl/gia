@@ -128,7 +128,7 @@ function distanceUnit(region, countryPref) {
   return MILES_COUNTRIES.has(String(countryPref || '').toUpperCase()) ? 'mi' : 'km';
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, flyTo, fitPins, onDeselect, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, children }) {
+export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, flyTo, fitPins, onDeselect, onInfoClose, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, children }) {
   // v0.62.125 — onDeselect (tap empty map → exit the result carousel) kept in a
   // ref so the long-lived map-click handler always calls the current prop.
   const onDeselectRef = useRef(null);
@@ -191,6 +191,10 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   useEffect(() => { venuesRef.current = venues || []; }, [venues]);
   // v0.62.589 — pinFocusRef removed: a pin tap and a card tap now run the same
   // unified focus flow, so there's no longer a "pin tap = don't move the map" case.
+  // v0.62.590 — ref mirror so the once-bound closeInfo can notify the parent to
+  // clear focusedPlaceId on popup close (Codex re-tap fix).
+  const onInfoCloseRef = useRef(null);
+  useEffect(() => { onInfoCloseRef.current = onInfoClose; }, [onInfoClose]);
   // v0.62.115 — operator: a result-card tap zooms the map IN to 17 (so the
   // blinking pin lands you on the street).
   // v0.62.560 — operator: closing the card must NOT adjust the zoom — the
@@ -365,6 +369,12 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       openInfoIdRef.current = null;
       // v0.62.560 — operator: do NOT adjust the zoom on close (the pre-focus zoom
       // restore is removed) — leave the map wherever the user left it.
+      // v0.62.590 — clear the parent's focusedPlaceId too (Codex: after the in-card
+      // ✕ closes the popup, `focusedPlaceId` was left set, so re-tapping the SAME
+      // pin/card set React state to the same value → the focus effect didn't re-run
+      // → the popup couldn't reopen). Clearing it makes every re-tap a fresh
+      // selection; the ring also lifts on close, which reads as a deselect.
+      onInfoCloseRef.current?.();
     };
     window.__giaMapInfoClose = closeInfo;
     // v0.62.125 — a tap on the empty map closes the popup AND deselects (exits
