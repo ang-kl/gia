@@ -3,6 +3,7 @@ import { LINES, LINES_BY_CODE } from './data/lines.js';
 import { initData } from './tg.js';
 import { t, tn, useLocale } from './i18n.js';
 import LineStatusPanel from './components/LineStatusPanel.jsx';
+import StationCard from './components/StationCard.jsx';
 import SystemMap from './components/SystemMap.jsx';
 import MrtMapPanel from './components/MrtMapPanel.jsx';
 import AffectedTicker from './components/AffectedTicker.jsx';
@@ -31,6 +32,14 @@ export default function App() {
   // station picker. Drives the map's 6 km station-focus mode and the
   // selected-station status detail.
   const [focusedStation, setFocusedStation] = useState(null);
+  // v0.62.598 — the rich station-info card's data sources: the per-station
+  // dataset (/api/geo/stations, keyed by name), the coarse station list
+  // (/api/transport/stations, for terminus resolution + code→station lookup),
+  // live platform crowd, and the tapped station's amenity context.
+  const [geoStations, setGeoStations] = useState(null);
+  const [coarseStations, setCoarseStations] = useState(null);
+  const [crowd, setCrowd] = useState(null);
+  const [stationContext, setStationContext] = useState(null);
   // v0.60.85 — view toggle between the static PNG schematic
   // (SystemMap) and the interactive Google Map (MrtMapPanel,
   // ~177 ops + ~29 future pins). Operator 2026-05-10: "if the SG
@@ -77,6 +86,42 @@ export default function App() {
       .catch((err) => setError(err.message));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // v0.62.598 — load the station card's shared datasets once: the rich
+  // per-station info (/api/geo/stations), the coarse station list (for
+  // terminus resolution + code lookups), and live platform crowd.
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/geo/stations')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (!cancelled && d) setGeoStations(d.stations || d || {}); })
+      .catch(() => { /* card degrades to coarse identity */ });
+    fetch('/api/transport/stations')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (!cancelled && d) setCoarseStations(Array.isArray(d.stations) ? d.stations : []); })
+      .catch(() => { /* terminus links simply omitted */ });
+    fetch('/api/transport/crowd')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (!cancelled && d) setCrowd(d.crowd || {}); })
+      .catch(() => { /* crowd line omitted */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  // v0.62.598 — fetch the tapped station's amenity context (bus stops, taxi
+  // stands, nearest hawker) whenever the focused station changes.
+  useEffect(() => {
+    if (!focusedStation || !Number.isFinite(focusedStation.lat) || !Number.isFinite(focusedStation.lng)) {
+      setStationContext(null);
+      return undefined;
+    }
+    let cancelled = false;
+    setStationContext(null);
+    fetch(`/api/transport/station-context?lat=${focusedStation.lat}&lng=${focusedStation.lng}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (!cancelled && d) setStationContext(d); })
+      .catch(() => { /* amenities section just omitted */ });
+    return () => { cancelled = true; };
+  }, [focusedStation]);
 
   // v0.62.106 — deep-link: /app/transport?station=<CODE> focuses that station
   // on the Google map (the Cuisine venue card's 🚆 links use this). Resolve the
@@ -126,6 +171,19 @@ export default function App() {
       setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
     } else {
       setFocusedStation(null);
+    }
+  }
+
+  // v0.62.598 — focus a station by one of its LTA codes (used by the station
+  // card's terminus hyperlink). Resolves the code → station in the coarse list.
+  function handleFocusStationCode(code) {
+    if (!code || !Array.isArray(coarseStations)) return;
+    const want = String(code).toUpperCase();
+    const st = coarseStations.find((s) => (s.codes || []).some((c) => String(c).toUpperCase() === want));
+    if (st) {
+      setFocusedStation({ ...st, tappedCode: want });
+      setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
+      if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
@@ -228,6 +286,25 @@ export default function App() {
             />}
       </div>
 
+      {/* v0.62.598 — the rich Google-Maps-style station card for the tapped
+          station: name strip (line colour / white interchange), stacked
+          per-line-code sub-cards (first/last train + terminus hyperlink +
+          operating status), crowd, and the "around the station" amenity
+          hyperlinks. Replaces LineStatusPanel's basic selected-station detail. */}
+      {focusedStation && (
+        <StationCard
+          station={geoStations ? (geoStations[focusedStation.name] || null) : null}
+          coarse={focusedStation}
+          context={stationContext}
+          crowd={crowd}
+          statusByLine={statusByLine}
+          coarseStations={coarseStations}
+          lang={lang}
+          onClose={() => handleSelectStation(null)}
+          onFocusStationCode={handleFocusStationCode}
+        />
+      )}
+
       {focusedLine && (
         <LineStatusPanel
           line={focusedLine}
@@ -236,6 +313,7 @@ export default function App() {
           selectedStation={focusedStation}
           onSelectStation={handleSelectStation}
           lang={lang}
+          hideStationDetail={!!focusedStation}
         />
       )}
 

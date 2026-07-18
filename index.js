@@ -18623,7 +18623,16 @@ async function cacheBotUsername() {
         } catch (err) {
           console.warn('[station-context] carparks:', err.message);
         }
-        const payload = { station, exits, busStops, taxis: taxis.slice(0, 8), carparks };
+        // v0.62.598 — nearest hawker centre (from the 122-centre vault coords)
+        // for the station card's "🍜 nearest hawker" hyperlink.
+        let nearestHawker = null;
+        try {
+          nearestHawker = transport.nearestHawkerCentre(
+            require('./data/hawker-coords.json'), lat, lng);
+        } catch (err) {
+          console.warn('[station-context] hawker:', err.message);
+        }
+        const payload = { station, exits, busStops, taxis: taxis.slice(0, 8), carparks, nearestHawker };
         if (redis.isOpen) {
           redis.set(CACHE_KEY, JSON.stringify(payload), { EX: 1800 }).catch(() => {});
         }

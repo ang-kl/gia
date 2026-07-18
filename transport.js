@@ -679,9 +679,28 @@ function nearestIncidents(incidents, lat, lng, radiusM = 5000, count = 3) {
   return ranked.slice(0, count);
 }
 
+// v0.62.598 — the single nearest hawker centre to a point, from the vault's
+// name→{lat,lng} coord map (data/hawker-coords.json). Powers the Transport
+// station card's "🍜 nearest hawker" hyperlink. Straight-line (haversine)
+// nearest; returns { name, lat, lng, distanceM } or null when no coords.
+function nearestHawkerCentre(coords, lat, lng) {
+  if (!coords || typeof coords !== 'object') return null;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  let best = null;
+  for (const [name, v] of Object.entries(coords)) {
+    if (!v || !Number.isFinite(v.lat) || !Number.isFinite(v.lng)) continue;
+    const d = haversineM(lat, lng, v.lat, v.lng);
+    if (!best || d < best.distanceM) {
+      best = { name, lat: v.lat, lng: v.lng, distanceM: Math.round(d) };
+    }
+  }
+  return best;
+}
+
 module.exports = {
   refreshStops,
   nearestStops,
+  nearestHawkerCentre,
   allStops,
   busArrivals,
   isCacheFresh,

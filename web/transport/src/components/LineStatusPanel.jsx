@@ -52,7 +52,7 @@ function codeHex(code) {
   return (ln && LINES_BY_CODE[ln]?.hex) || '#8E8E93';
 }
 
-export default function LineStatusPanel({ line, status, statusByLine = null, selectedStation = null, onSelectStation, lang = 'en' }) {
+export default function LineStatusPanel({ line, status, statusByLine = null, selectedStation = null, onSelectStation, lang = 'en', hideStationDetail = false }) {
   // v0.61.9 — station list for the focused line, fetched once.
   const [stations, setStations] = useState(null);
   // v0.61.14 — realtime crowd, for the selected-station detail line.
@@ -112,8 +112,10 @@ export default function LineStatusPanel({ line, status, statusByLine = null, sel
         </div>
 
         {/* v0.61.14 — selected-station detail: each line's service
-            status + the station's realtime platform crowd level. */}
-        {selectedStation && (
+            status + the station's realtime platform crowd level.
+            v0.62.598 — suppressed when the rich StationCard is shown
+            (App renders StationCard for the selected station instead). */}
+        {selectedStation && !hideStationDetail && (
           <div className="rounded-md bg-tg-bg border border-tg-border px-2 py-1.5 flex flex-col gap-1">
             <div className="flex items-center gap-1.5 text-sm font-semibold">
               <span aria-hidden>📍</span>
