@@ -59,6 +59,10 @@ const STRINGS = {
                                  fr: 'Astuce : zoomez pour lire les épingles (le centre de SG est dense)' },
   'view.btnSchematic':         { en: '🗺 Schematic',           fr: '🗺 Schéma' },
   'view.btnGoogleMap':         { en: '📍 Google Map',          fr: '📍 Carte Google' },
+  // v0.62.606 — layout toggle: carousel (map-first) ⇄ list (two-panel). Uses the
+  // Cuisine TMA's ⊿/◸ glyphs (avoids clashing with the 🗺 Schematic map toggle).
+  'layout.list':               { en: '⊿ List',                fr: '⊿ Liste' },
+  'layout.map':                { en: '◸ Map',                 fr: '◸ Carte' },
 
   // Loading / error states
   'loading':                   { en: 'Loading MRT status…',     fr: 'Chargement de l’état du métro…' },
