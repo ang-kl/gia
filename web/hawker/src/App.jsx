@@ -102,12 +102,22 @@ function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, sc
             aria-label={atBottom ? t('btn.fabTopAria', lang) : t('btn.fabDownAria', lang)}
             className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
           >{atBottom ? t('btn.fabTop', lang) : t('btn.fabDown', lang)}</button>
-          <button
-            type="button"
-            onClick={onBackEnd}
-            aria-label={hasHistory ? t('btn.fabBackAria', lang) : t('btn.fabEndAria', lang)}
-            className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
-          >{hasHistory ? `↩ ${t('btn.fabBack', lang)}` : `🔚 ${t('btn.fabEnd', lang)}`}</button>
+          {/* v0.62.611 — operator: NEA ↗ moves off the header to sit BELOW the
+              back/end control, as plain text (no pill), same font/size/style as
+              "↩ back" (inherits the row's text-[11px] font-semibold text-tg-link). */}
+          <div className="flex flex-col items-end gap-0.5">
+            <button
+              type="button"
+              onClick={onBackEnd}
+              aria-label={hasHistory ? t('btn.fabBackAria', lang) : t('btn.fabEndAria', lang)}
+              className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
+            >{hasHistory ? `↩ ${t('btn.fabBack', lang)}` : `🔚 ${t('btn.fabEnd', lang)}`}</button>
+            <button
+              type="button"
+              onClick={() => openLink(NEA_HOME)}
+              className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
+            >NEA ↗</button>
+          </div>
         </div>
       </div>
       <div className="text-[9px] text-tg-hint text-center leading-none pointer-events-none">
@@ -572,7 +582,6 @@ export default function App() {
                 title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
                 className="text-[10px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
               >↻</button>
-              <button onClick={() => openLink(NEA_HOME)} className="skeuo-pill text-[11px] px-2.5 py-1 rounded-full text-tg-text active:scale-95">NEA ↗</button>
             </div>
           </div>
         </div>
@@ -626,7 +635,6 @@ export default function App() {
             title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
             className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
           >↻</button>
-          <button onClick={() => openLink(NEA_HOME)} className="skeuo-pill text-xs px-3 py-1.5 rounded-full text-tg-text active:scale-95">NEA ↗</button>
         </div>
       </div>
       {/* v0.62.590 — operator (IMG_3554): the 5 zone pills wrapped raggedly. On a
@@ -714,8 +722,7 @@ export default function App() {
             <button type="button" onClick={() => window.location.reload()}
               aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'} title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
               className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90">↻</button>
-            <button onClick={() => openLink(NEA_HOME)} className="skeuo-pill text-xs px-3 py-1.5 rounded-full text-tg-text active:scale-95">NEA ↗</button>
-          </div>
+            </div>
         </div>
         {/* v0.62.609 — operator (IMG_3595): the zone pills sat translucent directly
             over the busy map ("horrible"). Seat them on a SOLID skeuo-card (same as
