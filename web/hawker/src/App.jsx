@@ -86,7 +86,10 @@ function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, sc
   };
   return (
     <div
-      className="fixed bottom-0 inset-x-0 z-40 px-3 pt-1 liquid-glass-dock bg-tg-bg/80 flex flex-col gap-0.5"
+      /* v0.62.607 — operator: frost the footer. `liquid-glass-dock` is a Cuisine-
+         only CSS class (undefined here), so it wasn't blurring; use a real
+         backdrop-blur + top border. */
+      className="fixed bottom-0 inset-x-0 z-40 px-3 pt-1 bg-tg-bg/80 backdrop-blur-md border-t border-tg-border flex flex-col gap-0.5"
       style={{ paddingBottom: 'calc(0.25rem + max(env(safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px)))' }}
     >
       <div className="flex items-center justify-between gap-1 text-[11px] font-semibold text-tg-link">
@@ -544,13 +547,14 @@ export default function App() {
             <h1 className="text-sm font-semibold leading-tight truncate">{t('header.title', lang)}</h1>
           </div>
           <div className="flex items-start gap-2">
-            <div className="flex flex-wrap gap-1.5 flex-1 min-w-0">
+            {/* v0.62.607 — one row, no "(##)" count. */}
+            <div className="flex gap-1 flex-1 min-w-0 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
               {regionList.map((r) => {
                 const sel = r.region === activeRegion;
                 return (
                   <button key={r.region} onClick={() => setActiveRegion(r.region)} aria-pressed={sel}
-                    className={`px-2.5 py-1 rounded-full text-xs whitespace-nowrap active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/90 liquid-glass text-tg-text'}`}>
-                    <span className="mr-1">{REGION_EMOJI[r.region] || '·'}</span>{regionLabel(r.region)} ({r.count})
+                    className={`px-2 py-1 rounded-full text-xs whitespace-nowrap shrink-0 active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/90 liquid-glass text-tg-text'}`}>
+                    <span className="mr-0.5">{REGION_EMOJI[r.region] || '·'}</span>{regionLabel(r.region)}
                   </button>
                 );
               })}
@@ -628,13 +632,16 @@ export default function App() {
           PHONE lay them out as a tidy 3+2 TWO-ROW grid (segmented-control feel).
           v0.62.591 — operator (iPad Pro portrait): on a WIDE tablet squeeze all 5
           into ONE row like the landscape top bar (there's room), not the 2-row grid. */}
-      <div className={`${isWide ? 'flex flex-wrap' : 'grid grid-cols-3'} gap-1.5 px-3 py-1.5 shrink-0`}>
+      {/* v0.62.607 — operator: drop the "(##)" count and squeeze all 5 zones onto
+          ONE row. Content-sized + centre-justified; scrolls only if a narrow
+          phone truly can't fit them. */}
+      <div className="flex justify-center gap-1 px-2 py-1.5 shrink-0 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
         {regionList.map((r) => {
           const sel = r.region === activeRegion;
           return (
             <button key={r.region} onClick={() => setActiveRegion(r.region)} aria-pressed={sel}
-              className={`px-2.5 py-1 rounded-full text-xs text-center whitespace-nowrap active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/90 liquid-glass text-tg-text'}`}>
-              <span className="mr-1">{REGION_EMOJI[r.region] || '·'}</span>{regionLabel(r.region)} ({r.count})
+              className={`px-2 py-1 rounded-full text-[11px] whitespace-nowrap shrink-0 active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/90 liquid-glass text-tg-text'}`}>
+              <span className="mr-0.5">{REGION_EMOJI[r.region] || '·'}</span>{regionLabel(r.region)}
             </button>
           );
         })}
