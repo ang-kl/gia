@@ -12,6 +12,7 @@ import AffectedTicker from './components/AffectedTicker.jsx';
 import EngineeringList from './components/EngineeringList.jsx';
 import LocationCard from './components/LocationCard.jsx';
 import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
+import BottomSheet from '../../_shared/components/BottomSheet.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 
 // v0.60.213 — build version for the footer tag line.
@@ -78,7 +79,7 @@ function StationCarousel({ items, render }) {
   return (
     <div
       ref={trackRef}
-      className="flex items-stretch gap-2 overflow-x-auto snap-x snap-mandatory px-[4%] pb-1"
+      className="flex items-start gap-2 overflow-x-auto snap-x snap-mandatory px-[4%] pb-1"
       style={{ scrollbarWidth: 'none' }}
     >
       {items.map((c, i) => (
@@ -575,6 +576,50 @@ export default function App() {
               : singleFocusedCard}
             {secondaryPanels}
           </div>
+        </div>
+        {popups}
+        {footerBar}
+      </>
+    );
+  }
+
+  // ---- DRAWER mode (phone portrait, carousel view): full-bleed map behind a
+  //      floating header + a Google-Maps-style DRAGGABLE bottom-sheet holding the
+  //      vertical station list (Hawker parity, v0.62.609). Operator (IMG_3595/6):
+  //      "merge when you set up the drawer". The two-panel LIST toggle still wins
+  //      when viewMode === 'list'; landscape/tablet keep the bottom carousel. ----
+  if (vp.deviceClass === 'mobile' && vp.orientation === 'portrait') {
+    const drawerItems = lineStations.length > 0
+      ? (
+        <div className="flex flex-col gap-2 px-2 pt-1">
+          {lineStations.map((st, i) => (
+            <React.Fragment key={st.focusCode || st.name || i}>{renderStationCard(st, i)}</React.Fragment>
+          ))}
+        </div>
+      )
+      : (singleFocusedCard ? <div className="px-2 pt-1">{singleFocusedCard}</div> : null);
+    return (
+      <>
+        <div className="fixed inset-0 overflow-hidden bg-tg-bg text-tg-text"
+          style={{
+            paddingTop: 'var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px))',
+            paddingBottom: 'env(safe-area-inset-bottom, 0px)'
+          }}>
+          {/* full-bleed map behind everything */}
+          <div className="absolute inset-0 z-0">{mapBlock(true)}</div>
+          {/* floating header over the map — only the card catches taps so the map
+              stays tappable around it. */}
+          <div className="absolute top-0 inset-x-0 z-20 px-2 pointer-events-none"
+            style={{ paddingTop: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' }}>
+            <div className="pointer-events-auto">{headerEl}</div>
+          </div>
+          {/* the draggable station-list drawer (only once a line/station is chosen;
+              first load is map-only, matching the empty carousel). */}
+          {drawerItems && (
+            <BottomSheet contentRef={listScrollRef} onContentScroll={onListScroll}>
+              {drawerItems}
+            </BottomSheet>
+          )}
         </div>
         {popups}
         {footerBar}
