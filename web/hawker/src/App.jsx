@@ -3,7 +3,6 @@ import { openLink, initData, tg } from './tg.js';
 import { t, tn, useLocale } from './i18n.js';
 import HawkerMapPanel from './components/HawkerMapPanel.jsx';
 import { codeHex } from './lib/mapOverlays.js';
-import FooterNav from '../../_shared/components/FooterNav.jsx';
 import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
 import { useViewport, viewportTag } from '../../_shared/lib/use-viewport.js';
 import LocaleToggle from './components/LocaleToggle.jsx';
@@ -61,6 +60,56 @@ function MapToggleButton({ isHidden, onToggle, lang }) {
     >
       {isHidden ? `📋 ${t('btn.showList', lang)}` : `🗺 ${t('btn.showMap', lang)}`}
     </button>
+  );
+}
+
+// v0.62.605 — operator: the footer matches the Cuisine TMA — a compact, full-width
+// liquid-glass DOCK (small height) with the toggle (left) + ⇡top/⇣down & ↩back/🔚end
+// (right, Cuisine glyphs) and a tiny integrated version line, instead of the old
+// floating FooterNav pill + a separate centred version <footer>. `scrollEl` scrolls
+// an inner container (the two-panel list); omit it → window.
+function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, scrollEl = null }) {
+  const resolveScroller = () => {
+    const el = scrollEl && (scrollEl.current !== undefined ? scrollEl.current : scrollEl);
+    return el || null;
+  };
+  const onScroll = () => {
+    const el = resolveScroller();
+    if (el) el.scrollTo({ top: atBottom ? 0 : el.scrollTop + el.clientHeight, behavior: 'smooth' });
+    else window.scrollTo({ top: atBottom ? 0 : window.scrollY + window.innerHeight, behavior: 'smooth' });
+  };
+  const hasHistory = typeof window !== 'undefined' && window.history.length > 1;
+  const onBackEnd = () => {
+    const w = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
+    if (hasHistory) window.history.back();
+    else if (w && typeof w.close === 'function') w.close();
+  };
+  return (
+    <div
+      className="fixed bottom-0 inset-x-0 z-40 px-3 pt-1 liquid-glass-dock bg-tg-bg/80 flex flex-col gap-0.5"
+      style={{ paddingBottom: 'calc(0.25rem + max(env(safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px)))' }}
+    >
+      <div className="flex items-center justify-between gap-1 text-[11px] font-semibold text-tg-link">
+        <div className="flex items-center gap-0.5 min-w-0">{leading}</div>
+        <div className="flex items-center gap-0.5 shrink-0">
+          <button
+            type="button"
+            onClick={onScroll}
+            aria-label={atBottom ? t('btn.fabTopAria', lang) : t('btn.fabDownAria', lang)}
+            className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
+          >{atBottom ? t('btn.fabTop', lang) : t('btn.fabDown', lang)}</button>
+          <button
+            type="button"
+            onClick={onBackEnd}
+            aria-label={hasHistory ? t('btn.fabBackAria', lang) : t('btn.fabEndAria', lang)}
+            className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
+          >{hasHistory ? `↩ ${t('btn.fabBack', lang)}` : `🔚 ${t('btn.fabEnd', lang)}`}</button>
+        </div>
+      </div>
+      <div className="text-[9px] text-tg-hint text-center leading-none pointer-events-none">
+        {t('footer.tag', lang)} · v{BUILD_VERSION}{footerTag ? ` · ${footerTag}` : ''}
+      </div>
+    </div>
   );
 }
 
@@ -429,7 +478,8 @@ export default function App() {
           {c.mapsUrl && (
             <a href={c.mapsUrl} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}
               className="text-[11px] px-2.5 py-0.5 rounded-full border border-tg-border bg-tg-bg text-tg-text">
-              📍 {t('btn.maps', lang)}
+              {/* v0.62.605 — btn.maps already carries the 📍; drop the duplicate glyph. */}
+              {t('btn.maps', lang)}
             </a>
           )}
           <button type="button" onClick={(e) => { e.stopPropagation(); saveToChat(c.name); }}
@@ -537,15 +587,11 @@ export default function App() {
             />
           </div>
         )}
-        <FooterNav
+        <FooterDock
+          lang={lang}
+          footerTag={footerTag}
           atBottom={atBottom}
           leading={active ? <MapToggleButton isHidden={listHidden} onToggle={() => setListHidden((v) => !v)} lang={lang} /> : null}
-          labels={{
-            top: t('btn.fabTop', lang), down: t('btn.fabDown', lang),
-            topAria: t('btn.fabTopAria', lang), downAria: t('btn.fabDownAria', lang),
-            back: t('btn.fabBack', lang), end: t('btn.fabEnd', lang),
-            backAria: t('btn.fabBackAria', lang), endAria: t('btn.fabEndAria', lang)
-          }}
         />
       </div>
   );
@@ -593,16 +639,20 @@ export default function App() {
           );
         })}
       </div>
-      {/* Map anchored at the top (does not scroll with the list); ⇲ → carousel. */}
+      {/* Map anchored at the top (does not scroll with the list); ⇲ → carousel.
+          v0.62.605 — operator: a tiny bottom margin below the fixed map so the
+          scrolling list beneath doesn't butt against it / read as an afterthought. */}
       {active && (
-        <div className="px-2 shrink-0">
+        <div className="px-2 pb-1.5 shrink-0">
           <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers}
             onCentreTap={onCentreTap}
             expanded={mapExpanded} onToggleExpand={() => setMapExpanded(true)} />
         </div>
       )}
-      {/* Separate scrollable list panel (the operator's "scroll up/down" panel). */}
-      <div ref={panelScrollRef} onScroll={onPanelScroll} className="flex-1 overflow-y-auto px-2 py-2 flex flex-col gap-2">
+      {/* Separate scrollable list panel (the operator's "scroll up/down" panel).
+          v0.62.605 — reserve space at the bottom for the fixed Cuisine-style dock. */}
+      <div ref={panelScrollRef} onScroll={onPanelScroll} className="flex-1 overflow-y-auto px-2 py-2 flex flex-col gap-2"
+        style={{ paddingBottom: 'calc(3.5rem + max(env(safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px)))' }}>
         {busy && <p className="text-xs text-tg-hint p-3">{t('status.loading', lang)}</p>}
         {err && <p className="text-xs text-red-500 p-3">⚠ {err}</p>}
         {!busy && !err && active && (
@@ -615,19 +665,14 @@ export default function App() {
             ))}
           </div>
         )}
-        <footer className="mx-2 mb-2 mt-2 px-3 py-2 text-[9px] text-tg-hint text-center">
-          {t('footer.tag', lang)} · v{BUILD_VERSION}{footerTag ? ` · ${footerTag}` : ''}
-        </footer>
       </div>
-      <FooterNav
+      {/* v0.62.605 — the Cuisine-style dock replaces the floating pill + the
+          separate centred version footer; the version line lives inside it. */}
+      <FooterDock
+        lang={lang}
+        footerTag={footerTag}
         atBottom={panelAtBottom}
         scrollEl={panelScrollRef}
-        labels={{
-          top: t('btn.fabTop', lang), down: t('btn.fabDown', lang),
-          topAria: t('btn.fabTopAria', lang), downAria: t('btn.fabDownAria', lang),
-          back: t('btn.fabBack', lang), end: t('btn.fabEnd', lang),
-          backAria: t('btn.fabBackAria', lang), endAria: t('btn.fabEndAria', lang)
-        }}
       />
     </div>
   );
