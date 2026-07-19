@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { openLink, initData, tg } from './tg.js';
 import { t, tn, useLocale } from './i18n.js';
 import HawkerMapPanel from './components/HawkerMapPanel.jsx';
-import BottomSheet from './components/BottomSheet.jsx';
+import BottomSheet from '../../_shared/components/BottomSheet.jsx';
 import { codeHex } from './lib/mapOverlays.js';
 import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
 import { useViewport, viewportTag } from '../../_shared/lib/use-viewport.js';
@@ -717,16 +717,21 @@ export default function App() {
             <button onClick={() => openLink(NEA_HOME)} className="skeuo-pill text-xs px-3 py-1.5 rounded-full text-tg-text active:scale-95">NEA ↗</button>
           </div>
         </div>
-        <div className="flex justify-center gap-1 pointer-events-auto overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-          {regionList.map((r) => {
-            const sel = r.region === activeRegion;
-            return (
-              <button key={r.region} onClick={() => setActiveRegion(r.region)} aria-pressed={sel}
-                className={`px-2 py-1 rounded-full text-[11px] whitespace-nowrap shrink-0 active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/90 backdrop-blur text-tg-text border border-tg-border'}`}>
-                <span className="mr-0.5">{REGION_EMOJI[r.region] || '·'}</span>{regionLabel(r.region)}
-              </button>
-            );
-          })}
+        {/* v0.62.609 — operator (IMG_3595): the zone pills sat translucent directly
+            over the busy map ("horrible"). Seat them on a SOLID skeuo-card (same as
+            the title card) so they read cleanly, matching the two-panel styling. */}
+        <div className="skeuo-card rounded-2xl px-2 py-1.5 pointer-events-auto">
+          <div className="flex justify-center gap-1 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+            {regionList.map((r) => {
+              const sel = r.region === activeRegion;
+              return (
+                <button key={r.region} onClick={() => setActiveRegion(r.region)} aria-pressed={sel}
+                  className={`px-2 py-1 rounded-full text-[11px] whitespace-nowrap shrink-0 active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/90 liquid-glass text-tg-text'}`}>
+                  <span className="mr-0.5">{REGION_EMOJI[r.region] || '·'}</span>{regionLabel(r.region)}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
       {/* the draggable list drawer */}
