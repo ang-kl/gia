@@ -402,7 +402,10 @@ export default function App() {
               );
             })()}
             {(tr.busStops || []).length > 0 && (
-              <div className="flex flex-col gap-1 items-start">
+              /* v0.62.604 — operator: pack the bus stops TWO to a row when size
+                 permits (each capped at ~half width, long labels truncate),
+                 instead of one per row. */
+              <div className="flex flex-wrap gap-1 items-start">
                 {(tr.busStops || []).map((b, j) => {
                   const desc = b.description || b.roadName || '';
                   const id = `${c.name}|bus|${b.code}`;
@@ -413,7 +416,7 @@ export default function App() {
                       onClick={(e) => { e.stopPropagation(); handlePillTap(id,
                         () => window.__giaHawkerShowBusStop?.(b.code, b.lat, b.lng, desc),
                         `https://maps.google.com/?q=${encodeURIComponent(['Bus Stop', b.code, desc, 'Singapore'].filter(Boolean).join(' '))}`); }}
-                      className={`rounded border px-1.5 py-0.5 text-[10px] text-tg-text leading-snug ${on ? 'bg-tg-accent/20 border-tg-accent' : 'bg-tg-bg border-tg-border'}`}>
+                      className={`rounded border px-1.5 py-0.5 text-[10px] text-tg-text leading-snug truncate max-w-[calc(50%-0.125rem)] ${on ? 'bg-tg-accent/20 border-tg-accent' : 'bg-tg-bg border-tg-border'}`}>
                       🚌 {b.code}{desc ? ` · ${desc}` : ''}
                     </button>
                   );

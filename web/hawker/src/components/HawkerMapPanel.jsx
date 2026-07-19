@@ -439,7 +439,10 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       const wide = typeof window !== 'undefined'
         && window.matchMedia?.('(min-width: 700px)')?.matches;
       mapRef.current?.panTo({ lat: c.lat, lng: c.lng });
-      mapRef.current?.setZoom(wide ? TAP_ZOOM_WIDE : TAP_ZOOM_PHONE);
+      // v0.62.604 — operator: on a phone, zoom one step closer than the shared
+      // TAP_ZOOM_PHONE (15 → 16) so the nearby bus stops are visible on tap. The
+      // shared constant is left as-is (Cuisine keeps 15); Hawker leans in one step.
+      mapRef.current?.setZoom(wide ? TAP_ZOOM_WIDE : Math.max(TAP_ZOOM_PHONE, 16));
       // v0.62.109 — draw the nearest 3 bus stops + 2 stations + the walk/2-stop rings.
       overlayControllerRef.current?.showVenueTransit?.(c.lat, c.lng);
       ringLayerRef.current?.draw({ lat: c.lat, lng: c.lng });
