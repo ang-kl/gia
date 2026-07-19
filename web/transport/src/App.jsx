@@ -160,6 +160,19 @@ export default function App() {
   // map mode". Default is now 'gmap'; the schematic PNG stays one tap away
   // via the view toggle (the prior 2026-05-10 rationale kept above).
   const [mapView, setMapView] = useState('gmap');
+  // v0.62.606 — operator: the Train TMA now DEFAULTS to the Cuisine/Hawker
+  // "full-map + bottom station carousel" across every device (was device-driven:
+  // phone stacked / tablet two-panel / landscape carousel). The carousel is
+  // EMPTY on first load (map only) until a line pill is tapped; the footer 🗺/⊞
+  // toggle switches to the two-panel LIST. 'carousel' | 'list'.
+  const [viewMode, setViewMode] = useState('carousel');
+  // v0.62.606 — the list-mode scroller (for the footer ⇡/⇣ button + atBottom).
+  const listScrollRef = useRef(null);
+  const [listAtBottom, setListAtBottom] = useState(false);
+  const onListScroll = () => {
+    const el = listScrollRef.current;
+    if (el) setListAtBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 50);
+  };
   // v0.63.0 — map overlay layer toggles (parks / attractions / taxis /
   // carpark), shown only on the interactive Google Map view.
   const [overlayLayers, setOverlayLayers] = useState({ attractions: false, carpark: false, busstop: false, hawker: false, colour: true, train: true, exits: false, taxis: false, parks: false, police: false, clinics: false, hospitals: false });
@@ -496,6 +509,14 @@ export default function App() {
           <span className="text-[9px] text-tg-hint leading-tight truncate">
             {t('footer.tag', lang)} · v{BUILD_VERSION}
           </span>
+          {/* v0.62.606 — layout toggle: carousel (map-first) ⇄ list (two-panel).
+              The label names the view you'll switch TO. */}
+          <button
+            type="button"
+            onClick={() => setViewMode((m) => (m === 'carousel' ? 'list' : 'carousel'))}
+            aria-label={viewMode === 'carousel' ? t('layout.list', lang) : t('layout.map', lang)}
+            className="skeuo-pill px-2.5 py-1 rounded-lg text-[11px] font-medium text-tg-text active:scale-95 whitespace-nowrap shrink-0"
+          >{viewMode === 'carousel' ? t('layout.list', lang) : t('layout.map', lang)}</button>
           <button
             type="button"
             onClick={() => setMapView((v) => (v === 'png' ? 'gmap' : 'png'))}
@@ -504,12 +525,16 @@ export default function App() {
           >{mapView === 'png' ? t('view.btnGoogleMap', lang) : t('view.btnSchematic', lang)}</button>
         </div>
         <div className="flex items-center gap-1 text-[11px] font-semibold text-tg-link shrink-0">
+          {/* v0.62.606 — ⇡/⇣ scrolls the LIST panel (list mode only; the carousel
+              has nothing to scroll vertically). */}
+          {viewMode === 'list' && (
           <button
             type="button"
-            onClick={() => window.scrollTo({ top: atBottom ? 0 : window.scrollY + window.innerHeight, behavior: 'smooth' })}
-            aria-label={atBottom ? t('fab.topAria', lang) : t('fab.downAria', lang)}
+            onClick={() => { const el = listScrollRef.current; if (el) el.scrollTo({ top: listAtBottom ? 0 : el.scrollTop + el.clientHeight, behavior: 'smooth' }); }}
+            aria-label={listAtBottom ? t('fab.topAria', lang) : t('fab.downAria', lang)}
             className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
-          >{atBottom ? t('fab.top', lang) : t('fab.down', lang)}</button>
+          >{listAtBottom ? t('fab.top', lang) : t('fab.down', lang)}</button>
+          )}
           <button
             type="button"
             onClick={() => {
@@ -530,35 +555,15 @@ export default function App() {
     paddingBottom: 'calc(3rem + env(safe-area-inset-bottom, 0px))'
   };
 
-  // ---- WIDE + LANDSCAPE (tablet/desktop): full map + bottom station carousel ----
-  if (vp.isWide && vp.orientation === 'landscape') {
-    return (
-      <>
-        <div className="fixed inset-0 flex flex-col overflow-hidden bg-tg-bg text-tg-text" style={fixedShellStyle}>
-          <div className="px-3 pt-2 shrink-0">{headerEl}</div>
-          <div className="flex-1 min-h-0 px-3 pt-2 pb-1">{mapBlock(true)}</div>
-          {(lineStations.length > 0 || singleFocusedCard) && (
-            <div className="shrink-0 pb-1">
-              {lineStations.length > 0
-                ? <StationCarousel items={lineStations} render={(st, i, glass) => renderStationCard(st, i, glass, true)} />
-                : <div className="px-3 max-w-md mx-auto max-h-[44vh] overflow-y-auto">{singleFocusedCard}</div>}
-            </div>
-          )}
-        </div>
-        {popups}
-        {footerBar}
-      </>
-    );
-  }
-
-  // ---- WIDE + PORTRAIT (tablet/desktop): two-panel — fixed map + scrolling list ----
-  if (vp.isWide) {
+  // ---- LIST mode (toggled): two-panel — fixed map + scrolling station list.
+  //      Works on every device. v0.62.606. ----
+  if (viewMode === 'list') {
     return (
       <>
         <div className="fixed inset-0 flex flex-col overflow-hidden bg-tg-bg text-tg-text" style={fixedShellStyle}>
           <div className="px-3 pt-2 shrink-0">{headerEl}</div>
           <div className="px-3 pt-2 shrink-0 h-[40vh]">{mapBlock(true)}</div>
-          <div className="flex-1 overflow-y-auto px-3 py-2 flex flex-col gap-2">
+          <div ref={listScrollRef} onScroll={onListScroll} className="flex-1 overflow-y-auto px-3 py-2 flex flex-col gap-2">
             {lineStations.length > 0
               ? (
                 <div className="grid grid-cols-1 min-[1100px]:grid-cols-2 gap-2">
@@ -577,21 +582,24 @@ export default function App() {
     );
   }
 
-  // ---- MOBILE (phone): the original stacked single-column layout ----
+  // ---- CAROUSEL mode (DEFAULT, every device): full-bleed map + a bottom station
+  //      carousel — Cuisine/Hawker style. The carousel is EMPTY on first load
+  //      (map only) until a line pill is tapped. v0.62.606. ----
   return (
-    <div
-      className="bg-tg-bg text-tg-text px-3 py-3 flex flex-col gap-3 max-w-[1600px] mx-auto"
-      style={{
-        minHeight: 'var(--tg-viewport-stable-height, 100vh)',
-        paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))'
-      }}
-    >
-      {headerEl}
-      {mapBlock(false)}
-      {singleFocusedCard}
-      {secondaryPanels}
+    <>
+      <div className="fixed inset-0 flex flex-col overflow-hidden bg-tg-bg text-tg-text" style={fixedShellStyle}>
+        <div className="px-3 pt-2 shrink-0">{headerEl}</div>
+        <div className="flex-1 min-h-0 px-3 pt-2 pb-1">{mapBlock(true)}</div>
+        {(lineStations.length > 0 || singleFocusedCard) && (
+          <div className="shrink-0 pb-1">
+            {lineStations.length > 0
+              ? <StationCarousel items={lineStations} render={(st, i, glass) => renderStationCard(st, i, glass, true)} />
+              : <div className="px-3 max-w-md mx-auto max-h-[44vh] overflow-y-auto">{singleFocusedCard}</div>}
+          </div>
+        )}
+      </div>
       {popups}
       {footerBar}
-    </div>
+    </>
   );
 }
