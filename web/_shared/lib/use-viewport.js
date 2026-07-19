@@ -23,8 +23,18 @@ export function readViewport() {
   const h = window.innerHeight || 0;
   const coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
   const minDim = Math.min(w, h);
+  // v0.62.612 — operator: on an iPad / Android tablet the Cuisine TMA kept
+  // "reverting" to the phone layout. Cause: Telegram opens (or a swipe collapses)
+  // the Mini App to a PARTIAL height, so the webview's min(innerW, innerH) drops
+  // below 768 and this classifier mis-read a real tablet as a phone. Fall back to
+  // the PHYSICAL screen's short edge (window.screen) — the same signal the
+  // fullscreen gate in each tg.js already trusts — so a coarse-pointer device
+  // whose hardware short edge is ≥ 768 stays a 'tablet' regardless of the
+  // transient webview size (and can never flip back to phone on a resize).
+  const scr = typeof window !== 'undefined' ? window.screen : null;
+  const screenMin = scr ? Math.min(scr.width || 0, scr.height || 0) : 0;
   let deviceClass;
-  if (coarse && minDim >= 768) deviceClass = 'tablet';      // iPad-class touch device
+  if (coarse && (minDim >= 768 || screenMin >= 768)) deviceClass = 'tablet'; // iPad-class touch device
   else if (!coarse && w >= 1024) deviceClass = 'desktop';   // pointer + wide screen
   else deviceClass = 'mobile';
   const orientation = w >= h ? 'landscape' : 'portrait';
