@@ -22,6 +22,15 @@ export function applyTelegramTheme() {
   safe('ready', () => w.ready());
   safe('expand', () => w.expand());
 
+  // v0.62.610 — operator: the phone DRAWER's downward drag was being grabbed by
+  // Telegram's vertical swipe-to-minimise / close gesture, dismissing the Mini
+  // App — reopening it started ANOTHER session. Disable Telegram's vertical
+  // swipes (Bot API 7.7+) so the drawer owns the drag; feature-detected so older
+  // clients are unaffected. The BackButton still closes the app deliberately.
+  safe('disable-vertical-swipes', () => {
+    if (typeof w.disableVerticalSwipes === 'function') w.disableVerticalSwipes();
+  });
+
   safe('diag-log', () => {
     console.log('[TMA-Diag-v0.59.28-hawker]', JSON.stringify({
       platform: w.platform || null,
