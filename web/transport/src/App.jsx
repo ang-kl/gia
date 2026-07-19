@@ -79,7 +79,7 @@ function StationCarousel({ items, render }) {
   return (
     <div
       ref={trackRef}
-      className="flex items-start gap-2 overflow-x-auto snap-x snap-mandatory px-[4%] pb-1"
+      className="flex items-stretch gap-2 overflow-x-auto snap-x snap-mandatory px-[4%] pb-1 max-w-6xl mx-auto"
       style={{ scrollbarWidth: 'none' }}
     >
       {items.map((c, i) => (
