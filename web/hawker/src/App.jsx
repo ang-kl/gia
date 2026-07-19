@@ -402,7 +402,10 @@ export default function App() {
               );
             })()}
             {(tr.busStops || []).length > 0 && (
-              <div className="flex flex-col gap-1 items-start">
+              /* v0.62.604 — operator: pack the bus stops TWO to a row when size
+                 permits (each capped at ~half width, long labels truncate),
+                 instead of one per row. */
+              <div className="flex flex-wrap gap-1 items-start">
                 {(tr.busStops || []).map((b, j) => {
                   const desc = b.description || b.roadName || '';
                   const id = `${c.name}|bus|${b.code}`;
@@ -413,7 +416,7 @@ export default function App() {
                       onClick={(e) => { e.stopPropagation(); handlePillTap(id,
                         () => window.__giaHawkerShowBusStop?.(b.code, b.lat, b.lng, desc),
                         `https://maps.google.com/?q=${encodeURIComponent(['Bus Stop', b.code, desc, 'Singapore'].filter(Boolean).join(' '))}`); }}
-                      className={`rounded border px-1.5 py-0.5 text-[10px] text-tg-text leading-snug ${on ? 'bg-tg-accent/20 border-tg-accent' : 'bg-tg-bg border-tg-border'}`}>
+                      className={`rounded border px-1.5 py-0.5 text-[10px] text-tg-text leading-snug truncate max-w-[calc(50%-0.125rem)] ${on ? 'bg-tg-accent/20 border-tg-accent' : 'bg-tg-bg border-tg-border'}`}>
                       🚌 {b.code}{desc ? ` · ${desc}` : ''}
                     </button>
                   );
@@ -502,9 +505,18 @@ export default function App() {
                 );
               })}
             </div>
-            <div className="flex items-center gap-1.5 shrink-0">
-              <span className="text-[10px] text-tg-hint flex items-center gap-1"><WeatherBadge /></span>
+            {/* v0.62.603 — Cuisine-standard flush-right cluster: language, temp,
+                refresh; NEA trails the trio. */}
+            <div className="flex items-center gap-2 shrink-0">
               <LocaleToggle className="flex-shrink-0" />
+              <span className="text-[10px] text-tg-hint flex items-center"><WeatherBadge /></span>
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+                title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+                className="text-[10px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
+              >↻</button>
               <button onClick={() => openLink(NEA_HOME)} className="skeuo-pill text-[11px] px-2.5 py-1 rounded-full text-tg-text active:scale-95">NEA ↗</button>
             </div>
           </div>
@@ -548,24 +560,23 @@ export default function App() {
         paddingTop: 'var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px))',
         paddingBottom: 'env(safe-area-inset-bottom, 0)'
       }}>
+      {/* v0.62.603 — operator: standardise on the Cuisine TMA header — the
+          language selector, temperature and refresh are grouped flush right
+          (in that order); NEA trails the trio. */}
       <div className="skeuo-card mx-2 mt-2 rounded-2xl px-3 py-2 flex items-center gap-2 relative z-10 shrink-0">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-base font-semibold leading-tight">{t('header.title', lang)}</h1>
-          <p className="text-[10px] text-tg-hint leading-tight flex items-center gap-1">
-            <WeatherBadge />
-            {/* v0.62.590 — ↻ force-reload a stale webview (carried over from the old
-                phone header) now that phones use this two-panel layout too. */}
-            <button
-              type="button"
-              onClick={() => window.location.reload()}
-              aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
-              title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
-              className="text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
-            >↻</button>
-          </p>
+        <h1 className="text-base font-semibold leading-tight min-w-0 flex-1 truncate">{t('header.title', lang)}</h1>
+        <div className="flex items-center gap-3 shrink-0">
+          <LocaleToggle className="flex-shrink-0" />
+          <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+            title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+            className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
+          >↻</button>
+          <button onClick={() => openLink(NEA_HOME)} className="skeuo-pill text-xs px-3 py-1.5 rounded-full text-tg-text active:scale-95">NEA ↗</button>
         </div>
-        <LocaleToggle className="flex-shrink-0" />
-        <button onClick={() => openLink(NEA_HOME)} className="skeuo-pill text-xs px-3 py-1.5 rounded-full text-tg-text active:scale-95">NEA ↗</button>
       </div>
       {/* v0.62.590 — operator (IMG_3554): the 5 zone pills wrapped raggedly. On a
           PHONE lay them out as a tidy 3+2 TWO-ROW grid (segmented-control feel).

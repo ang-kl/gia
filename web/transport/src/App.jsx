@@ -306,38 +306,44 @@ export default function App() {
 
   // ---- shared sub-elements (rendered into each layout below) ----
   const headerEl = (
-    /* v0.62.164 — ONE neo-skeuomorphic header card. v0.62.600 — row 1 = title +
-       weather + refresh, then line-status AND the live SGT clock on the right.
-       Row 2 = the line pills. Colour-blind safe: status pairs a glyph/count with
+    /* v0.62.164 — ONE neo-skeuomorphic header card.
+       v0.62.603 — operator: standardise the header on the Cuisine TMA. Row 1 =
+       title (left) + a flush-right cluster [language · temperature · refresh].
+       Row 2 = the live SGT clock (date & time) then the tappable service status.
+       Row 3 = the line pills. Colour-blind safe: status pairs a glyph/count with
        the hue. */
     <header className="skeuo-card rounded-2xl px-3 py-2.5 flex flex-col gap-1.5 relative z-10">
-      <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5">
+      <div className="flex items-center justify-between gap-2">
         {/* v0.62.602 — the title opens the data-source popup. */}
         <button
           type="button"
           onClick={() => setPopup('source')}
           aria-label={t('src.title', lang)}
-          className="text-base font-bold leading-tight text-left active:scale-95"
+          className="text-base font-bold leading-tight text-left truncate active:scale-95"
         >{t('header.title', lang)}</button>
-        <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
-        <button
-          type="button"
-          onClick={() => window.location.reload()}
-          aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
-          title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
-          className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
-        >↻</button>
-        <span className="text-[11px] ml-auto flex items-center gap-2">
-          {/* v0.62.602 — the status chip opens the service / engineering popup. */}
-          <button type="button" onClick={() => setPopup('status')} className="active:scale-95">
-            {affectedCodes.length === 0
-              ? <span className="text-green-500">{t('header.allNormal', lang)}</span>
-              : <span className="text-orange-500">{tn(affectedCodes.length === 1 ? 'header.linesAffected' : 'header.linesAffectedPlural', lang, { n: affectedCodes.length })}</span>}
-          </button>
-          <span className="text-tg-hint" aria-hidden>·</span>
-          <span className="text-tg-hint"><LiveClock /></span>
+        {/* v0.62.603 — Cuisine-standard flush-right cluster: language, temp, refresh. */}
+        <div className="flex items-center gap-3 shrink-0">
           <LocaleToggle className="flex-shrink-0" />
-        </span>
+          <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+            title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+            className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
+          >↻</button>
+        </div>
+      </div>
+      {/* v0.62.603 — row 2: date & time (live SGT clock), then the tappable
+          service status which opens the service / engineering popup. */}
+      <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5 text-[11px]">
+        <span className="text-tg-hint"><LiveClock /></span>
+        <span className="text-tg-hint" aria-hidden>·</span>
+        <button type="button" onClick={() => setPopup('status')} className="active:scale-95">
+          {affectedCodes.length === 0
+            ? <span className="text-green-500">{t('header.allNormal', lang)}</span>
+            : <span className="text-orange-500">{tn(affectedCodes.length === 1 ? 'header.linesAffected' : 'header.linesAffectedPlural', lang, { n: affectedCodes.length })}</span>}
+        </button>
       </div>
       {/* v0.62.597 — the overview (All Lines) + operating-line pills. */}
       <AffectedTicker
