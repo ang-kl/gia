@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { openLink, initData, tg } from './tg.js';
 import { t, tn, useLocale } from './i18n.js';
 import HawkerMapPanel from './components/HawkerMapPanel.jsx';
+import BottomSheet from './components/BottomSheet.jsx';
 import { codeHex } from './lib/mapOverlays.js';
 import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
 import { useViewport, viewportTag } from '../../_shared/lib/use-viewport.js';
@@ -684,6 +685,68 @@ export default function App() {
     </div>
   );
 
+  // v0.62.608 — operator (IMG_3594): on a PHONE in portrait, the listing is a
+  // Google-Maps-style DRAGGABLE bottom-sheet drawer over a full-bleed map — a
+  // floating header (title + zone pills), the map behind, and the list in a
+  // BottomSheet with a short centred handle (drag up for more, down to collapse).
+  const drawerLayout = () => (
+    <div className="fixed inset-0 overflow-hidden"
+      style={{
+        paddingTop: 'var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px))',
+        paddingBottom: 'env(safe-area-inset-bottom, 0)'
+      }}>
+      {/* full-bleed map behind everything */}
+      {active && (
+        <div className="absolute inset-0 z-0">
+          <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers}
+            fill onCentreTap={onCentreTap} />
+        </div>
+      )}
+      {/* floating header (title + zone pills) over the map — pointer-events only
+          on the controls so the map stays tappable around them. */}
+      <div className="absolute top-0 inset-x-0 z-20 px-2 flex flex-col gap-1.5 pointer-events-none"
+        style={{ paddingTop: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' }}>
+        <div className="skeuo-card rounded-2xl px-3 py-2 flex items-center gap-2 pointer-events-auto">
+          <h1 className="text-base font-semibold leading-tight min-w-0 flex-1 truncate">{t('header.title', lang)}</h1>
+          <div className="flex items-center gap-3 shrink-0">
+            <LocaleToggle className="flex-shrink-0" />
+            <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
+            <button type="button" onClick={() => window.location.reload()}
+              aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'} title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+              className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90">↻</button>
+            <button onClick={() => openLink(NEA_HOME)} className="skeuo-pill text-xs px-3 py-1.5 rounded-full text-tg-text active:scale-95">NEA ↗</button>
+          </div>
+        </div>
+        <div className="flex justify-center gap-1 pointer-events-auto overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+          {regionList.map((r) => {
+            const sel = r.region === activeRegion;
+            return (
+              <button key={r.region} onClick={() => setActiveRegion(r.region)} aria-pressed={sel}
+                className={`px-2 py-1 rounded-full text-[11px] whitespace-nowrap shrink-0 active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/90 backdrop-blur text-tg-text border border-tg-border'}`}>
+                <span className="mr-0.5">{REGION_EMOJI[r.region] || '·'}</span>{regionLabel(r.region)}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      {/* the draggable list drawer */}
+      {active && (
+        <BottomSheet contentRef={panelScrollRef} onContentScroll={onPanelScroll}>
+          {busy && <p className="text-xs text-tg-hint p-3">{t('status.loading', lang)}</p>}
+          {err && <p className="text-xs text-red-500 p-3">⚠ {err}</p>}
+          {!busy && !err && (
+            <div className="flex flex-col gap-2 px-2 pt-1">
+              {active.centres.map((c, i) => (
+                <React.Fragment key={i}>{renderCentreCard(c, i)}</React.Fragment>
+              ))}
+            </div>
+          )}
+        </BottomSheet>
+      )}
+      <FooterDock lang={lang} footerTag={footerTag} atBottom={panelAtBottom} scrollEl={panelScrollRef} />
+    </div>
+  );
+
   // v0.62.590 — operator: PHONES now use the SAME responsive layout as tablet/
   // desktop (no more phone-only stacked scroll where the map scrolled away).
   //   • landscape (any device) → full-bleed map + bottom carousel
@@ -691,7 +754,10 @@ export default function App() {
   //   • portrait otherwise      → two-panel: top-fixed map + scrolling list
   // The map's ⇲/⇱ toggles a phone between the listing and the carousel, exactly
   // as it already did on portrait tablets.
+  // v0.62.608 — operator: a PHONE in portrait uses the draggable drawer instead
+  // of the static two-panel (tablets keep the two-panel — more room).
   if (vp.orientation === 'landscape') return carouselLayout(false);
   if (mapExpanded) return carouselLayout(true);
+  if (vp.deviceClass === 'mobile') return drawerLayout();
   return portraitTabletPanel();
 }
