@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-07-17';   // v0.62.567 catch-up: PRs #1552-#1577 (Hawker responsive arc + doc consolidation + Cuisine responsive port)
+const GEN_DATE = '2026-07-20';   // v0.62.613 pre-recode checkpoint catch-up: PRs #1578-#1620 (Transport TMA port + Cuisine/Hawker tablet + iPad-mini responsive arc)
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
