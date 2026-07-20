@@ -127,7 +127,7 @@ export function applyTelegramTheme() {
       && window.matchMedia('(pointer: coarse)').matches;
     const scr = typeof window !== 'undefined' ? window.screen : null;
     const minScreen = scr ? Math.min(scr.width || 0, scr.height || 0) : 0;
-    if (touchClient && coarse && minScreen >= 768) {   // iPad-class device
+    if (touchClient && coarse && minScreen >= 700) {   // iPad-class device (700 covers the 744px iPad mini)
       try { w.requestFullscreen(); } catch { /* best-effort */ }
     }
   });
