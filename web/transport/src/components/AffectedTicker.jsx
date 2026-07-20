@@ -30,7 +30,10 @@ export default function AffectedTicker({ affectedCodes, focusedCode, onFocus, st
   }
   return (
     <div
-      className={`rounded-2xl bg-tg-bg/90 liquid-glass flex flex-col ${compact ? 'px-1.5 py-1 gap-0' : 'px-2 py-2 gap-1.5'}`}
+      /* v0.62.620 — operator: the compact (header) line-pills scroller drops its
+         own card/border — the pills sit directly on the header. Non-compact keeps
+         the rounded glass card. */
+      className={`flex flex-col ${compact ? 'gap-0' : 'rounded-2xl bg-tg-bg/90 liquid-glass px-2 py-2 gap-1.5'}`}
     >
       {/* v0.62.166 — compact (FAB) form drops the title row; the coloured line
           badges already read as a selector. Title moves to an aria-label. */}
