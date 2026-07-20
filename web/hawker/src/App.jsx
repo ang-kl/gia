@@ -559,7 +559,7 @@ export default function App() {
             ⌄ ··· system buttons; row 1 is the title alone, padded right to clear
             those buttons. */}
         <div
-          className="absolute top-0 inset-x-0 z-20 bg-tg-bg/80 backdrop-blur-md border-b border-tg-border px-2 py-1.5 flex flex-col gap-1.5"
+          className="font-inter absolute top-0 inset-x-0 z-20 bg-tg-bg/80 backdrop-blur-md border-b border-tg-border px-2 py-1.5 flex flex-col gap-1.5"
           /* v0.62.593 — operator: a hair more headroom on the landscape title row so
              the "🍚 Hawker Centre (2025)" title isn't clipped by the bar's top edge
              (0.375rem → 0.625rem). */
@@ -635,7 +635,7 @@ export default function App() {
       {/* v0.62.603 — operator: standardise on the Cuisine TMA header — the
           language selector, temperature and refresh are grouped flush right
           (in that order); NEA trails the trio. */}
-      <div className="skeuo-card mx-2 mt-2 rounded-2xl px-3 py-2 flex items-center gap-2 relative z-10 shrink-0">
+      <div className="font-inter skeuo-card mx-2 mt-2 rounded-2xl px-3 py-2 flex items-center gap-2 relative z-10 shrink-0">
         <h1 className="text-base font-semibold leading-tight min-w-0 flex-1 truncate">{t('header.title', lang)}</h1>
         <div className="flex items-center gap-3 shrink-0">
           <LocaleToggle className="flex-shrink-0" />
@@ -728,7 +728,7 @@ export default function App() {
           on the controls so the map stays tappable around them. */}
       <div className="absolute top-0 inset-x-0 z-20 px-2 flex flex-col gap-1.5 pointer-events-none"
         style={{ paddingTop: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' }}>
-        <div className="skeuo-card rounded-2xl px-3 py-2 flex items-center gap-2 pointer-events-auto">
+        <div className="font-inter skeuo-card rounded-2xl px-3 py-2 flex items-center gap-2 pointer-events-auto">
           <h1 className="text-base font-semibold leading-tight min-w-0 flex-1 truncate">{t('header.title', lang)}</h1>
           <div className="flex items-center gap-3 shrink-0">
             <LocaleToggle className="flex-shrink-0" />

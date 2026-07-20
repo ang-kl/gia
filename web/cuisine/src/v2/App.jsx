@@ -3743,7 +3743,7 @@ export default function App() {
            bar whether editing or not (bg-tg-bg/90 backdrop-blur — the resting
            treatment that already ships); the editor's own compact panel below
            carries the staging surface. */
-        className={`sticky top-0 z-30 -mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 ${(cuisinePickOpen || classicOpen) ? 'pb-0' : 'pb-2'} flex flex-col gap-1.5 transition-colors bg-tg-bg/90 backdrop-blur`}>
+        className={`font-inter sticky top-0 z-30 -mx-3 md:-mx-6 lg:-mx-8 px-3 md:px-6 lg:px-8 ${(cuisinePickOpen || classicOpen) ? 'pb-0' : 'pb-2'} flex flex-col gap-1.5 transition-colors bg-tg-bg/90 backdrop-blur`}>
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <img src="soleat-icon.png" alt="soleat" width="24" height="24" className="rounded-full flex-shrink-0" />
