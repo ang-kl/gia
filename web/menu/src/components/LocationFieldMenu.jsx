@@ -23,9 +23,9 @@ import { tg } from '../tg.js';
 import { t } from '../i18n.js';
 import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../countries.js';
 import { citiesForCountry } from '../cities.js';
-import { nearestIataCity } from '../iata-cities.js';
+import { nearestIataCity } from '../../../_shared/lib/iata-cities.js';
 import { coordsToCountry, isJbCoords } from '../coords-to-country.js';
-import { deviceId } from '../device-id.js';
+import { deviceId } from '../../../_shared/lib/device-id.js';
 // v0.61.269 — shared autocomplete helpers (mirrors Cuisine TMA).
 import { placeAutocomplete, placeResolve } from '../api.js';
 
