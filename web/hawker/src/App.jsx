@@ -69,7 +69,7 @@ function MapToggleButton({ isHidden, onToggle, lang }) {
 // (right, Cuisine glyphs) and a tiny integrated version line, instead of the old
 // floating FooterNav pill + a separate centred version <footer>. `scrollEl` scrolls
 // an inner container (the two-panel list); omit it → window.
-function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, scrollEl = null }) {
+function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, scrollEl = null, zoneInfo = null }) {
   const resolveScroller = () => {
     const el = scrollEl && (scrollEl.current !== undefined ? scrollEl.current : scrollEl);
     return el || null;
@@ -121,6 +121,11 @@ function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, sc
           className="px-2 py-1 rounded-lg active:scale-95 whitespace-nowrap"
         >NEA ↗</button>
       </div>
+      {/* v0.62.616 — operator: show the count of hawker centres in the selected
+          zone, on its own line just ABOVE the version number. */}
+      {zoneInfo && (
+        <div className="text-[10px] text-tg-text text-center leading-none pointer-events-none">{zoneInfo}</div>
+      )}
       <div className="text-[9px] text-tg-hint text-center leading-none pointer-events-none">
         {t('footer.tag', lang)} · v{BUILD_VERSION}{footerTag ? ` · ${footerTag}` : ''}
       </div>
@@ -358,6 +363,12 @@ export default function App() {
   // (Central/South/East/North/West); we render the FR equivalent at
   // chip + heading time via `region.<EN>` keys.
   const regionLabel = (en) => t(`region.${en}`, lang);
+  // v0.62.616 — operator: footer line (above the version) with the count of
+  // hawker centres in the currently-selected zone. "centres" reads the same in
+  // en/fr; the emoji + localised zone name front it.
+  const zoneInfo = active
+    ? `${REGION_EMOJI[activeRegion] || ''} ${regionLabel(activeRegion)} · ${active.centres.length} ${lang === 'fr' ? 'centres' : 'centres'}`.trim()
+    : null;
 
   // v0.62.544/590 — responsive layout. The map + cards render one of two shapes,
   // now for EVERY device (phone + tablet + desktop): a full-bleed map + bottom
@@ -606,6 +617,7 @@ export default function App() {
           lang={lang}
           footerTag={footerTag}
           atBottom={atBottom}
+          zoneInfo={zoneInfo}
           leading={active ? <MapToggleButton isHidden={listHidden} onToggle={() => setListHidden((v) => !v)} lang={lang} /> : null}
         />
       </div>
@@ -645,7 +657,8 @@ export default function App() {
       {/* v0.62.607 — operator: drop the "(##)" count and squeeze all 5 zones onto
           ONE row. Content-sized + centre-justified; scrolls only if a narrow
           phone truly can't fit them. */}
-      <div className="flex justify-center gap-1 px-2 py-1.5 shrink-0 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+      {/* v0.62.616 — operator: keep the zone pills LEFT-aligned (was justify-center). */}
+      <div className="flex justify-start gap-1 px-2 py-1.5 shrink-0 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
         {regionList.map((r) => {
           const sel = r.region === activeRegion;
           return (
@@ -690,6 +703,7 @@ export default function App() {
         footerTag={footerTag}
         atBottom={panelAtBottom}
         scrollEl={panelScrollRef}
+        zoneInfo={zoneInfo}
       />
     </div>
   );
@@ -729,7 +743,7 @@ export default function App() {
             over the busy map ("horrible"). Seat them on a SOLID skeuo-card (same as
             the title card) so they read cleanly, matching the two-panel styling. */}
         <div className="skeuo-card rounded-2xl px-2 py-1.5 pointer-events-auto">
-          <div className="flex justify-center gap-1 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+          <div className="flex justify-start gap-1 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
             {regionList.map((r) => {
               const sel = r.region === activeRegion;
               return (
@@ -756,7 +770,7 @@ export default function App() {
           )}
         </BottomSheet>
       )}
-      <FooterDock lang={lang} footerTag={footerTag} atBottom={panelAtBottom} scrollEl={panelScrollRef} />
+      <FooterDock lang={lang} footerTag={footerTag} atBottom={panelAtBottom} scrollEl={panelScrollRef} zoneInfo={zoneInfo} />
     </div>
   );
 
