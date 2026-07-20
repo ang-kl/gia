@@ -5,14 +5,14 @@ import LocaleToggle from './components/LocaleToggle.jsx';
 import LocationFieldMenu from './components/LocationFieldMenu.jsx';
 import { tg, getTelegramLocation } from './tg.js';
 import { t, useLocale } from './i18n.js';
-import { IATA_CITIES, nearestIataCity } from './iata-cities.js';
+import { IATA_CITIES, nearestIataCity } from '../../_shared/lib/iata-cities.js';
 import { OTHER_COUNTRIES } from './countries.js';
 import { CITIES_BY_COUNTRY } from './cities.js';
 // v0.61.274 — coords-based country detector for the mount-time
 // coherence check. Mirrors web/cuisine/src/v2/lib/coords-to-country.js.
 import { coordsToCountry } from './coords-to-country.js';
 import { startLocationSync } from '../../_shared/lib/location-sync.js';
-import { deviceId } from './device-id.js';
+import { deviceId } from '../../_shared/lib/device-id.js';
 // v0.62.x — idle-return rating reset (operator): shared floor → Good+ 3.7.
 import { saveRatingPref } from './api.js';
 

@@ -5,7 +5,7 @@ import { initData } from '../../api/tg.js';
 // shim flips on and starts reporting subsequent fetch timings + window
 // errors to /api/vlog (Railway logs as `[VLOG-CLIENT <chatId>] …`).
 import * as vlog from './vlog.js';
-import { deviceId } from './device-id.js';
+import { deviceId } from '../../../../_shared/lib/device-id.js';
 import { pickDeviceRegion } from './device-region.js';
 
 // v0.61.361 — Option B device currency. Derive the phone's HOME region

@@ -1,7 +1,9 @@
 'use strict';
 
 /**
- * IATA city reference table for the Cuisine Mini-App auto-location snap.
+ * IATA city reference table for the Cuisine + Menu Mini-Apps' auto-location snap.
+ * Moved to web/_shared/lib/ (v0.62.614) — one copy shared by both TMAs; was a
+ * byte-identical parallel copy in each (the "keep in sync" burden this removes).
  *
  * Each entry MUST use a real IATA city code (or, where a city has only one
  * commercial airport, the IATA airport code that doubles as the city code).

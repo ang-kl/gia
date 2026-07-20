@@ -1,12 +1,13 @@
-// device-id.js — v0.61.363
+// device-id.js — v0.61.363 (moved to web/_shared/lib/ v0.62.614 — one copy
+// shared by the Cuisine + Menu TMAs; was a byte-identical parallel copy in each).
 //
 // A stable per-DEVICE token. One Telegram account (chatId) can run the
 // TMA on several devices at once, each in a different place; without a
 // device key the server's location + country-pref cache (keyed by chatId)
 // clobbers across devices (last writer wins). This token — persisted in
 // localStorage, regenerated only if cleared — is sent with every request
-// (JSON body, or the X-Device-Id header) so each device gets its own
-// server-side slot. Mirrors web/cuisine/src/v2/lib/device-id.js verbatim.
+// (JSON body via postJson, or the X-Device-Id header via getJson) so each
+// device gets its own server-side slot.
 
 const STORAGE_KEY = 'gia_device_id';
 let _cached;

@@ -16,7 +16,7 @@
 //     that exist in iata-cities.js (the post-v0.61.242 invariant).
 
 import { describe, it, expect } from 'vitest';
-import { IATA_CITIES, nearestIataCity } from '../web/cuisine/src/v2/lib/iata-cities.js';
+import { IATA_CITIES, nearestIataCity } from '../web/_shared/lib/iata-cities.js';
 import { CITIES_BY_COUNTRY } from '../web/cuisine/src/v2/lib/cities.js';
 
 describe('IATA_CITIES — table shape', () => {
