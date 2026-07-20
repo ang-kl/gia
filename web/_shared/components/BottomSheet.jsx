@@ -58,13 +58,16 @@ export default function BottomSheet({
       className="fixed inset-x-0 bottom-0 z-30 bg-tg-bg rounded-t-2xl border-t border-tg-border shadow-[0_-6px_24px_rgba(0,0,0,0.28)] flex flex-col"
       style={{ top: curTop, transition: dragTop != null ? 'none' : 'top 0.28s cubic-bezier(0.25,0.8,0.3,1)' }}
     >
-      {/* drag handle — the short centred bar (Google-Maps style). */}
+      {/* drag handle — the short centred bar (Google-Maps style).
+          v0.62.620 — operator: "no drawer handle" — the bar was too faint/thin.
+          Make it a clearly visible, grabbable pill (wider, taller, more opaque)
+          with a larger tap zone. */}
       <div
-        className="shrink-0 pt-2.5 pb-1.5 flex justify-center touch-none select-none cursor-grab active:cursor-grabbing"
+        className="shrink-0 pt-3 pb-2 flex justify-center touch-none select-none cursor-grab active:cursor-grabbing"
         onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
         role="button" tabIndex={0} aria-label="Drag to resize the list"
       >
-        <div className="h-1.5 w-10 rounded-full bg-tg-hint/40" />
+        <div className="h-1.5 w-12 rounded-full bg-tg-hint/70" />
       </div>
       <div ref={contentRef} onScroll={onContentScroll} className="flex-1 overflow-y-auto" style={{ paddingBottom: footerPad }}>
         {children}

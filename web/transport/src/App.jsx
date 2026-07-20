@@ -203,8 +203,10 @@ export default function App() {
       .then((r) => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
       .then((d) => {
         setData(d);
-        // Auto-focus the first affected line, if any.
-        if (d?.affectedCodes?.length && !focusedCode) setFocusedCode(d.affectedCodes[0]);
+        // v0.62.620 — operator: on DEFAULT load, open with the East-West Line (so
+        // the drawer/carousel isn't empty). Still auto-focus the first AFFECTED
+        // line when there's a disruption; otherwise fall back to EWL.
+        if (!focusedCode) setFocusedCode(d?.affectedCodes?.[0] || 'EWL');
         // v0.62.602 — surface the service-status popup once on first load
         // (operator: "like first load in Cuisine TMA").
         if (!firstPopupRef.current) { firstPopupRef.current = true; setPopup('status'); }
@@ -379,7 +381,7 @@ export default function App() {
   // The map block. `fillMode` makes MrtMapPanel fill its (bounded) parent — used
   // by the two-panel / carousel layouts; otherwise it self-sizes and tucks up
   // under the header (negative mt).
-  const mapBlock = (fillMode) => (
+  const mapBlock = (fillMode, navInset = false) => (
     mapView === 'png'
       ? <div className={fillMode ? 'h-full overflow-auto rounded-2xl' : '-mt-3 relative z-0'}>
           <SystemMap focusedCode={focusedCode} affectedCodes={affectedCodes} />
@@ -387,6 +389,7 @@ export default function App() {
       : <div className={fillMode ? 'h-full' : '-mt-3 relative z-0'}>
           <MrtMapPanel
             fill={fillMode}
+            navInset={navInset}
             focusedCode={focusedCode}
             focusedStation={focusedStation}
             onStationSelect={handleSelectStation}
@@ -606,7 +609,7 @@ export default function App() {
             paddingBottom: 'env(safe-area-inset-bottom, 0px)'
           }}>
           {/* full-bleed map behind everything */}
-          <div className="absolute inset-0 z-0">{mapBlock(true)}</div>
+          <div className="absolute inset-0 z-0">{mapBlock(true, true)}</div>
           {/* floating header over the map — only the card catches taps so the map
               stays tappable around it. */}
           <div className="absolute top-0 inset-x-0 z-20 px-2 pointer-events-none"

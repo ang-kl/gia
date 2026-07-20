@@ -123,7 +123,7 @@ function escapeHtml(s) {
 
 // v0.60.210 (DF-109) — `lang` threaded from App.jsx so the station
 // InfoWindow popup + the panel chrome localise (was English-only).
-export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null, fill = false }) {
+export default function MrtMapPanel({ focusedCode = null, focusedStation = null, onStationSelect, onLineSelect, statusByLine = null, lang = 'en', overlayLayers = null, onOverlayChange = null, fill = false, navInset = false }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -837,7 +837,13 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           row has clean horizontal space. v0.61.59 — the Colour-mode
           pill moved out of this cluster into the quick-toggle row
           (after Bus Stop); the cluster is now Reset / + / − / expand. */}
-      <div className="absolute top-12 left-2 flex flex-col gap-1 z-10">
+      {/* v0.62.620 — operator: in the phone DRAWER layout the floating header sits
+          OVER the full-bleed map, hiding the top of this cluster (Reset/"default" +
+          zoom-in). `navInset` drops the cluster below that header so all buttons
+          are reachable. */}
+      <div
+        className={`absolute left-2 flex flex-col gap-1 z-10 ${navInset ? '' : 'top-12'}`}
+        style={navInset ? { top: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 7.5rem)' } : undefined}>
         {/* v0.61.37 — Reset: recenter to the Singapore default view. */}
         <button
           type="button"
