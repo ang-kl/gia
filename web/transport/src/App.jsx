@@ -326,7 +326,7 @@ export default function App() {
        Row 2 = the live SGT clock (date & time) then the tappable service status.
        Row 3 = the line pills. Colour-blind safe: status pairs a glyph/count with
        the hue. */
-    <header className="skeuo-card rounded-2xl px-3 py-2.5 flex flex-col gap-1.5 relative z-10">
+    <header className="font-inter skeuo-card rounded-2xl px-3 py-2.5 flex flex-col gap-1.5 relative z-10">
       <div className="flex items-center justify-between gap-2">
         {/* v0.62.602 — the title opens the data-source popup. */}
         <button
