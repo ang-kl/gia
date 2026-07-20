@@ -133,12 +133,18 @@ export function applyTelegramTheme() {
     if (w.isFullscreen) return;
     // NB: Telegram reports iPad as 'ipados' (NOT 'ios').
     const plat = String(w.platform || '').toLowerCase();
-    const touchClient = plat === 'ipados' || plat === 'ios' || plat === 'android'; // not 'tdesktop'/'macos'/web
+    const touchClient = plat === 'ipados' || plat === 'ios' || plat === 'android';
+    // v0.62.617 — operator: RE-ENABLE auto-fullscreen on Telegram Desktop / macOS
+    // so the Mini App opens WIDE enough for the responsive tablet/desktop layout
+    // (it otherwise opens in a narrow phone-width window and falls back to the
+    // phone layout). This reverses the v0.60.52 / v0.62.286 desktop exclusion,
+    // per the operator's explicit request.
+    const desktopClient = plat === 'tdesktop' || plat === 'macos';
     const coarse = typeof window !== 'undefined' && window.matchMedia
       && window.matchMedia('(pointer: coarse)').matches;
     const scr = typeof window !== 'undefined' ? window.screen : null;
     const minScreen = scr ? Math.min(scr.width || 0, scr.height || 0) : 0;
-    if (touchClient && coarse && minScreen >= 700) {   // iPad-class device (700 covers the 744px iPad mini)
+    if (desktopClient || (touchClient && coarse && minScreen >= 700)) {   // desktop (open wide) OR iPad-class (700 covers the 744px iPad mini)
       try { w.requestFullscreen(); } catch { /* best-effort */ }
     }
   });
