@@ -4,7 +4,7 @@ import { tg } from '../../api/tg.js';
 import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
 import { createRingLayer, farthestResultDist } from '../../../../_shared/lib/distance-rings.js';
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS } from '../../../../_shared/lib/map-interaction.js';
-import MapControls from './MapControls.jsx';
+import MapControls from '../../../../_shared/components/MapControls.jsx';
 
 // v0.61.70 — venue pin carrying the venue's 1-based result number (its
 // rank in the current search results / first load). Replaces the emoji-

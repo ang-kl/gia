@@ -31,7 +31,7 @@ import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, c
 import { activeClosure, CLOSURE_PIN_COLOR } from '../closure.js';
 import { createRingLayer } from '../../../_shared/lib/distance-rings.js';
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS, BLINK_MS } from '../../../_shared/lib/map-interaction.js';
-import MapControls from './MapControls.jsx';
+import MapControls from '../../../_shared/components/MapControls.jsx';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
 const SG_DEFAULT_ZOOM = 12;   // v0.62.132 — default 11->12

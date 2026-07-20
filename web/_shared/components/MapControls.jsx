@@ -1,4 +1,6 @@
-// MapControls.jsx — v0.61.78
+// MapControls.jsx — v0.61.78 (moved to web/_shared/components/ v0.62.615 — one
+// copy shared by cuisine / hawker / transport; hawker's `fill`-prop superset is
+// canonical, `fill` defaults false so cuisine/transport are behaviour-identical).
 //
 // Floating in-map control surface for all three TMA maps. A single
 // left-aligned row that never wraps: the "⋯/⋮" overflow menu button
@@ -16,7 +18,7 @@
 // edit one, copy to the others.
 
 import React, { useState, useRef, useEffect } from 'react';
-import { giaToggleStyle } from '../lib/mapOverlays.js';
+import { giaToggleStyle } from '../lib/gia-toggle-style.js';
 
 // v0.62.271 — operator: always the VERTICAL ellipsis (⋮), regardless of
 // platform (the prior code showed a horizontal ⋯ on iOS/macOS).

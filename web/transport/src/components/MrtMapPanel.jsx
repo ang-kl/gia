@@ -41,7 +41,7 @@ import { LINES_BY_CODE } from '../data/lines.js';
 import { resolveLinePaths, lineStationsFull } from '../data/line-paths.js';
 import { t, tn } from '../i18n.js';
 import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle, stationPillNode, stationCodeNode, trainTier, demoteByOverlap, makeTrainColourOverlay } from '../lib/mapOverlays.js';
-import MapControls from './MapControls.jsx';
+import MapControls from '../../../_shared/components/MapControls.jsx';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
 // through Telegram WebApp's openLink when available so Telegram opens
