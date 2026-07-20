@@ -649,19 +649,10 @@ function rectPinNode(bg, text) {
 // v0.61.70 — ON = Singapore blue; OFF = white, matching the white
 // navigation-button background. Theme-independent, like the nav
 // buttons themselves. (Was the CR7 amber-on / theme-aware palette.)
-export function giaToggleStyle(on, disabled) {
-  return {
-    background: on ? '#1565C0' : '#FFFFFF',
-    // v0.62.216 — operator (IMG_2532): every layer pill must share the Monochrome
-    // pill's SOLID white background. Disabled no longer fades the whole pill to 50%
-    // opacity (which read as translucent over the map) — it's signalled by a muted
-    // text colour instead, so the background stays opaque white in every state.
-    color: on ? '#FFFFFF' : (disabled ? '#9CA3AF' : '#374151'),
-    border: '1px solid ' + (on ? '#0D47A1' : '#D1D5DB'),
-    boxShadow: '0 1px 4px rgba(0,0,0,0.45)',
-    opacity: 1
-  };
-}
+// v0.62.615 — giaToggleStyle moved to web/_shared/lib/gia-toggle-style.js (was
+// byte-identical in cuisine/hawker/transport mapOverlays.js). Re-exported here so
+// existing importers (MapControls) keep the same import path.
+export { giaToggleStyle } from '../../../_shared/lib/gia-toggle-style.js';
 
 // v0.61.22 — popup colour palette.
 // v0.61.47 — fixed, theme-independent palette (operator request). The
