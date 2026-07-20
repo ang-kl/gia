@@ -44,11 +44,27 @@ export function applyTelegramTheme() {
     }));
   });
 
-  // v0.62.286 — operator: REMOVED auto-fullscreen entirely (was triggered on
-  // iPad / Mac / Telegram Desktop / any window ≥600px wide). Desktop + notebook
-  // users got an unwanted full-screen takeover. The TMA now only `expand()`s to
-  // full height (above); fullscreen is never requested automatically on any
-  // platform. (A manual fullscreen map button, if any, is unaffected.)
+  // v0.62.286 — auto-fullscreen was REMOVED (unwanted desktop takeover).
+  // v0.62.617 — operator: RE-ENABLE it — request fullscreen on Telegram Desktop /
+  // macOS so the Mini App opens WIDE enough for the responsive tablet/desktop
+  // layout (it otherwise opens in a narrow phone-width window → phone layout),
+  // AND on iPad-class touch tablets (coarse pointer + physical short edge ≥ 700,
+  // covering the 744px iPad mini). Feature-detected on Bot API 8.0.
+  safe('fullscreen', () => {
+    if (typeof w.requestFullscreen !== 'function') return;
+    if (typeof w.isVersionAtLeast === 'function' && !w.isVersionAtLeast('8.0')) return;
+    if (w.isFullscreen) return;
+    const plat = String(w.platform || '').toLowerCase();
+    const touchClient = plat === 'ipados' || plat === 'ios' || plat === 'android';
+    const desktopClient = plat === 'tdesktop' || plat === 'macos';
+    const coarse = typeof window !== 'undefined' && window.matchMedia
+      && window.matchMedia('(pointer: coarse)').matches;
+    const scr = typeof window !== 'undefined' ? window.screen : null;
+    const minScreen = scr ? Math.min(scr.width || 0, scr.height || 0) : 0;
+    if (desktopClient || (touchClient && coarse && minScreen >= 700)) {   // desktop (open wide) OR iPad-class
+      try { w.requestFullscreen(); } catch { /* best-effort */ }
+    }
+  });
 
   // v0.60.42 — sync Telegram header + chrome bg to secondary.
   safe('header-color', () => {
