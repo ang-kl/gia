@@ -102,23 +102,24 @@ function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, sc
             aria-label={atBottom ? t('btn.fabTopAria', lang) : t('btn.fabDownAria', lang)}
             className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
           >{atBottom ? t('btn.fabTop', lang) : t('btn.fabDown', lang)}</button>
-          {/* v0.62.611 — operator: NEA ↗ moves off the header to sit BELOW the
-              back/end control, as plain text (no pill), same font/size/style as
-              "↩ back" (inherits the row's text-[11px] font-semibold text-tg-link). */}
-          <div className="flex flex-col items-end gap-0.5">
-            <button
-              type="button"
-              onClick={onBackEnd}
-              aria-label={hasHistory ? t('btn.fabBackAria', lang) : t('btn.fabEndAria', lang)}
-              className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
-            >{hasHistory ? `↩ ${t('btn.fabBack', lang)}` : `🔚 ${t('btn.fabEnd', lang)}`}</button>
-            <button
-              type="button"
-              onClick={() => openLink(NEA_HOME)}
-              className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
-            >NEA ↗</button>
-          </div>
+          <button
+            type="button"
+            onClick={onBackEnd}
+            aria-label={hasHistory ? t('btn.fabBackAria', lang) : t('btn.fabEndAria', lang)}
+            className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
+          >{hasHistory ? `↩ ${t('btn.fabBack', lang)}` : `🔚 ${t('btn.fabEnd', lang)}`}</button>
         </div>
+      </div>
+      {/* v0.62.611/613 — operator: NEA ↗ sits BELOW "↩ back" as plain text (no
+          pill), same font/size/style as "↩ back". v0.62.613: give it its OWN
+          right-aligned line (was crammed into the back column so it collided with
+          the centred version line and read as "the same row as the footer"). */}
+      <div className="flex justify-end text-[11px] font-semibold text-tg-link">
+        <button
+          type="button"
+          onClick={() => openLink(NEA_HOME)}
+          className="px-2 py-1 rounded-lg active:scale-95 whitespace-nowrap"
+        >NEA ↗</button>
       </div>
       <div className="text-[9px] text-tg-hint text-center leading-none pointer-events-none">
         {t('footer.tag', lang)} · v{BUILD_VERSION}{footerTag ? ` · ${footerTag}` : ''}
