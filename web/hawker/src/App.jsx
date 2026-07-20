@@ -110,11 +110,10 @@ function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, sc
           >{hasHistory ? `↩ ${t('btn.fabBack', lang)}` : `🔚 ${t('btn.fabEnd', lang)}`}</button>
         </div>
       </div>
-      {/* v0.62.611/613 — operator: NEA ↗ sits BELOW "↩ back" as plain text (no
-          pill), same font/size/style as "↩ back". v0.62.613: give it its OWN
-          right-aligned line (was crammed into the back column so it collided with
-          the centred version line and read as "the same row as the footer"). */}
-      <div className="flex justify-end text-[11px] font-semibold text-tg-link">
+      {/* v0.62.611/613 — NEA ↗ on its own line, plain text (no pill), same
+          font/size/style as "↩ back". v0.62.618 — operator: move it to the
+          footer-LEFT (was right). */}
+      <div className="flex justify-start text-[11px] font-semibold text-tg-link">
         <button
           type="button"
           onClick={() => openLink(NEA_HOME)}
