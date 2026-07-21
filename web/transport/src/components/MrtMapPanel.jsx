@@ -140,7 +140,26 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   const overlayLayersRef = useRef(overlayLayers);
   useEffect(() => { overlayLayersRef.current = overlayLayers; }, [overlayLayers]);
   // v0.63.0 — expand toggle: grows the map to ~90vh in place.
+  // v0.62.626 — operator ("Expand/Collapse map buttons don't work"): in the
+  // carousel/desktop layout the map runs in `fill` mode (height:100%), so the
+  // 90vh/70vh toggle never applied and the button was a dead no-op. In fill mode
+  // "expand" now promotes the whole panel to a full-viewport overlay (see the
+  // wrapper's `expandedOverlay` below). When the container resizes, Google Maps
+  // must be told to reflow (else it renders at the stale size); trigger a resize
+  // and recenter so the view doesn't drift.
   const [expanded, setExpanded] = useState(false);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !window.google?.maps?.event) return undefined;
+    const c = map.getCenter?.();
+    const id = setTimeout(() => {
+      try {
+        window.google.maps.event.trigger(map, 'resize');
+        if (c) map.setCenter(c);
+      } catch { /* noop */ }
+    }, 60);
+    return () => clearTimeout(id);
+  }, [expanded]);
   // v0.61.16 — Overview toggle: when true the map ignores the focused
   // line / station and frames the whole network. `savedViewRef` keeps
   // the exact viewport from before Overview so "Back" restores it;
@@ -810,8 +829,13 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     { key: 'hospitals', icon: '🏥', label: t('layer.hospitals', lang) }
   ];
 
+  // v0.62.626 — in fill mode, "expand" promotes the panel to a full-viewport
+  // overlay (the 90vh/70vh height toggle only applies to the non-fill block).
+  const expandedOverlay = expanded && fill;
   return (
-    <div className={`rounded-2xl overflow-hidden border border-tg-border relative${fill ? ' h-full' : ''}`}>
+    <div className={expandedOverlay
+      ? 'fixed inset-0 z-30 overflow-hidden bg-tg-bg'
+      : `rounded-2xl overflow-hidden border border-tg-border relative${fill ? ' h-full' : ''}`}>
       <div
         ref={containerRef}
         className={overlayLayers && overlayLayers.colour === false ? 'gia-greyscale-map' : undefined}
