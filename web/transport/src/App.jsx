@@ -609,37 +609,14 @@ export default function App() {
     );
   }
 
-  // ---- SIDE-PANEL mode (desktop + landscape tablet, carousel/map view):
-  //      Google-Maps desktop layout — a fixed left column (header + scrolling
-  //      station list / focused details) with the interactive map filling the
-  //      right, both live. Operator (2026-07-21): "a side panel on desktop … a
-  //      list of locations … while keeping the map interactable on the right",
-  //      to be shown when the desktop client auto-expands to the HD aspect ratio.
-  //      Phone keeps the draggable bottom sheet; the LIST toggle still wins. ----
-  const wideLandscape = vp.deviceClass === 'desktop'
-    || (vp.deviceClass === 'tablet' && vp.orientation === 'landscape');
-  if (wideLandscape) {
-    return (
-      <>
-        <div className="fixed inset-0 flex overflow-hidden bg-tg-bg text-tg-text" style={fixedShellStyle}>
-          <aside className="h-full w-[360px] min-[1280px]:w-[420px] max-w-[42%] shrink-0 flex flex-col overflow-hidden border-r border-tg-border">
-            <div className="px-3 pt-2 shrink-0">{headerEl}</div>
-            <div ref={listScrollRef} onScroll={onListScroll} className="flex-1 overflow-y-auto px-3 py-2 flex flex-col gap-2">
-              {lineStations.length > 0
-                ? lineStations.map((st, i) => (
-                    <React.Fragment key={st.focusCode || st.name || i}>{renderStationCard(st, i)}</React.Fragment>
-                  ))
-                : singleFocusedCard}
-              {secondaryPanels}
-            </div>
-          </aside>
-          <main className="flex-1 min-w-0 h-full relative">{mapBlock(true)}</main>
-        </div>
-        {popups}
-        {footerBar}
-      </>
-    );
-  }
+  // ---- SIDE-PANEL mode (desktop + landscape tablet) — REMOVED v0.62.625.
+  //      v0.62.621 added a fixed left station-list column beside the map for the
+  //      wide/desktop layout; operator (2026-07-21, desktop screenshot): "revert
+  //      the side drawer it is aweful" — in the narrow left column the 35 station
+  //      cards stacked into an unreadable run of coloured name strips. Reverted:
+  //      wide / landscape / desktop now fall through to the CAROUSEL layout below
+  //      (full-bleed map + a bottom station carousel), same as before v0.62.621.
+  //      Phone portrait keeps the draggable bottom sheet; the LIST toggle wins. ----
 
   // ---- DRAWER mode (phone portrait, carousel view): full-bleed map behind a
   //      floating header + a Google-Maps-style DRAGGABLE bottom-sheet holding the
