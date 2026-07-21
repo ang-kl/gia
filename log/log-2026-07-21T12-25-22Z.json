@@ -1,0 +1,538 @@
+{
+  "since": "2026-07-21T11:20:22Z",
+  "until": "2026-07-21T12:25:22Z",
+  "count": 59,
+  "logs": [
+    {
+      "timestamp": "2026-07-21T12:07:59.286660454Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:07:59.286665763Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.28219,103.85269],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:07:59.286669483Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.2822,103.8527 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:07:59.286672653Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:07:59.286676163Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:07:59.286679423Z",
+      "message": "[Cuisine-Search] D703s SG-scope 60 → 60 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:07:59.286682613Z",
+      "message": "[Cuisine-Search] sliceCap=6 firstBatch=true finalBatch=false range=1-6 seenBefore=0 hash=4a918455",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:07:59.286685883Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:07:59.286689003Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:07:59.286692443Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:07:59.286695703Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:07:59.286698343Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:08:04.730396854Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:08:06.543347079Z",
+      "message": "[footfall] besttime resolved=0/6",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:08:06.543352379Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (6v): crowd=2378ms translate=2ms reviewCache=3ms dishes=6008ms finalise=0ms travel=434ms sanctuary=134ms footfall=1244ms total=10203ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:08:06.617360789Z",
+      "message": "[Cuisine-Search] D704 returning 6 venues to client (poolCount=6 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:08:26.747814370Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:08:26.747820250Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:08:26.747825350Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:08:26.747830980Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:08:26.747836220Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:09:36.756751306Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:09:36.756763916Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.28219,103.85269],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:09:36.756770486Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.2822,103.8527 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:09:36.756775066Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:09:36.756780597Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:09:36.756785876Z",
+      "message": "[Cuisine-Search] D703 venue-filter (type+name) 60 → 59",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:09:36.756791036Z",
+      "message": "[Cuisine-Search] D703s SG-scope 59 → 59 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:09:36.756795006Z",
+      "message": "[Cuisine-Search] sliceCap=6 firstBatch=true finalBatch=false range=1-6 seenBefore=0 hash=4a918455",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:09:46.032190975Z",
+      "message": "[footfall] besttime resolved=0/6",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:09:46.032196485Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (6v): crowd=3012ms translate=0ms reviewCache=3ms dishes=5662ms finalise=0ms travel=371ms sanctuary=129ms footfall=1045ms total=10222ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:09:46.065427665Z",
+      "message": "[Cuisine-Search] D704 returning 6 venues to client (poolCount=6 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:10:26.055790710Z",
+      "message": "[HawkerVault] coords: 122/123 centres geocoded",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:10:26.055795280Z",
+      "message": "[HawkerVault] stalls: 38/123 centres with stall metadata",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:10:26.055799320Z",
+      "message": "[HawkerVault] closures: 114/123 centres with closure/2026 metadata",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:10:26.055803270Z",
+      "message": "[HawkerVault] bib-gourmand: 19/123 centres tagged",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:33.501968843Z",
+      "message": "> node index.js",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "d1927110-002e-4315-89be-ab94f1ce562f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:33.501975884Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "d1927110-002e-4315-89be-ab94f1ce562f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:33.502001476Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "d1927110-002e-4315-89be-ab94f1ce562f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:33.502013262Z",
+      "message": "> soleat@0.62.628 start",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "d1927110-002e-4315-89be-ab94f1ce562f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:33.502037099Z",
+      "message": "npm warn config production Use `--omit=dev` instead.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "d1927110-002e-4315-89be-ab94f1ce562f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:33.717701443Z",
+      "message": "[webhook-domain] fallback not configured — skipping health check",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "d1927110-002e-4315-89be-ab94f1ce562f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:34.100251736Z",
+      "message": "Starting Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "d1927110-002e-4315-89be-ab94f1ce562f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:34.510860003Z",
+      "message": "[Updates] Webhook registered: https://soleat.net/webhook",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "d1927110-002e-4315-89be-ab94f1ce562f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:34.512564760Z",
+      "message": "[Bot] Identity confirmed: @soleat_bot",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "d1927110-002e-4315-89be-ab94f1ce562f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:36.518423242Z",
+      "message": "[setMyDescription] failed (non-fatal): ETELEGRAM: 400 Bad Request: BOT_DESC_INVALID",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "d1927110-002e-4315-89be-ab94f1ce562f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:37.522911187Z",
+      "message": "[Boot] MAP_ID configured: db1201f307409c29…",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "d1927110-002e-4315-89be-ab94f1ce562f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:37.522914708Z",
+      "message": "[Holidays] 11 SG PH loaded from cache",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "d1927110-002e-4315-89be-ab94f1ce562f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:39.518121865Z",
+      "message": "[Transport] Bus stops cache: imported=0, skipped=fresh",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "d1927110-002e-4315-89be-ab94f1ce562f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:39.518185569Z",
+      "message": "[Pulse] Status → 🟢 Healthy at 8:22:39 pm",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "d1927110-002e-4315-89be-ab94f1ce562f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:39.518188419Z",
+      "message": "[Vibe] Cached 18 live places (Google Maps).",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "d1927110-002e-4315-89be-ab94f1ce562f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:39.518191294Z",
+      "message": "🚀 soleat is live and sniffing...",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "d1927110-002e-4315-89be-ab94f1ce562f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:39.518194273Z",
+      "message": "[HTTP] Listening on :8080",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "d1927110-002e-4315-89be-ab94f1ce562f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:39.546458976Z",
+      "message": "Stopping Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:41.878102068Z",
+      "message": "npm error path /app",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:41.878106058Z",
+      "message": "npm error command failed",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:41.878109488Z",
+      "message": "npm error signal SIGTERM",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:41.878112948Z",
+      "message": "npm error command sh -c node index.js",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-21T12:22:41.878116118Z",
+      "message": "npm error A complete log of this run can be found in: /root/.npm/_logs/2026-07-21T08_45_53_008Z-debug-0.log",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "de90ff8e-7445-414d-ad22-61b29c4cbda1",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
