@@ -127,26 +127,28 @@ export function applyTelegramTheme() {
   // platform string alone. Telegram Desktop / macOS notebooks (fine pointer,
   // 'tdesktop'/'macos') are still excluded, preserving the v0.60.52 fix; a
   // phone (ios/android with a short edge < 768) also stays windowed.
+  // Auto-fullscreen saga: v0.62.617 RE-ENABLED on Telegram Desktop / macOS →
+  // v0.62.623 removed the desktop branch ("wrong system command") → v0.62.624
+  // RESTORES it ("why I cannot expand in telegram desktop"). `requestFullscreen()`
+  // (Bot API 8.0) is the ONLY programmatic way to enlarge a Mini App; `expand()`
+  // only controls HEIGHT and there is NO API to widen a desktop window. On clients
+  // that don't support it, it fires `fullscreenFailed`/UNSUPPORTED and no-ops; on
+  // Telegram Desktop clients that DO (the operator's does) it opens wide, and the
+  // v0.62.622 classifier fix means the wide layout now renders correctly.
   safe('fullscreen', () => {
     if (typeof w.requestFullscreen !== 'function') return;
     if (typeof w.isVersionAtLeast === 'function' && !w.isVersionAtLeast('8.0')) return;
     if (w.isFullscreen) return;
+    try { if (typeof w.onEvent === 'function') w.onEvent('fullscreenFailed', () => { /* UNSUPPORTED on this client — expand() height still applies */ }); } catch { /* noop */ }
     // NB: Telegram reports iPad as 'ipados' (NOT 'ios').
     const plat = String(w.platform || '').toLowerCase();
     const touchClient = plat === 'ipados' || plat === 'ios' || plat === 'android';
-    // v0.62.617 — operator RE-ENABLED auto-fullscreen on Telegram Desktop / macOS
-    // to open wide. v0.62.623 — operator REVERSED that ("using the wrong system
-    // command to expand to full screen"): requestFullscreen() forces a chromeless
-    // OS-fullscreen takeover on desktop, which the desktop does NOT want — Telegram
-    // Desktop already exposes a NATIVE corner button (⤢) to widen / maximise the
-    // Mini App window, and there is no WebApp API to invoke that. So do NOT
-    // auto-fullscreen on desktop; leave widening to the native control. This
-    // restores the v0.60.52 / v0.62.286 desktop exclusion.
+    const desktopClient = plat === 'tdesktop' || plat === 'macos';
     const coarse = typeof window !== 'undefined' && window.matchMedia
       && window.matchMedia('(pointer: coarse)').matches;
     const scr = typeof window !== 'undefined' ? window.screen : null;
     const minScreen = scr ? Math.min(scr.width || 0, scr.height || 0) : 0;
-    if (touchClient && coarse && minScreen >= 700) {   // iPad-class touch tablet only (700 covers the 744px iPad mini)
+    if (desktopClient || (touchClient && coarse && minScreen >= 700)) {   // desktop (open wide) OR iPad-class (700 covers the 744px iPad mini)
       try { w.requestFullscreen(); } catch { /* best-effort */ }
     }
   });
