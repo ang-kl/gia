@@ -7,7 +7,8 @@
 import { describe, it, expect } from 'vitest';
 import {
   slugify, textOn, hexForLineCode, worstCrowd, trainTimes, noteIsTerminal,
-  directionLabel, terminusForDirection
+  directionLabel, terminusForDirection,
+  directionsUrl, shareUrl, haversineM, walkMinutes, todaySummary
 } from '../web/transport/src/lib/station-card-utils.js';
 
 // Minimal coarse NEL fixture (running order NE1 … NE17), as /api/transport/stations shapes it.
@@ -133,5 +134,70 @@ describe('terminusForDirection', () => {
     expect(terminusForDirection(NEL, 'NEL', 'northbound')).toBe(null);
     expect(terminusForDirection(NEL, 'CCL', 'clockwise')).toBe(null);
     expect(terminusForDirection([], 'NEL', 'towards_punggol')).toBe(null);
+  });
+});
+
+// v0.62.621 — Google-Maps place-details helpers (action row + distance/walk +
+// collapsible hours summary).
+describe('directionsUrl', () => {
+  it('builds a Google Maps Directions deep link to the station coords', () => {
+    const u = directionsUrl(1.3, 103.8, 'Outram Park');
+    expect(u).toContain('https://www.google.com/maps/dir/?api=1');
+    expect(u).toContain(encodeURIComponent('1.3,103.8'));
+    expect(u).toContain('travelmode=transit');
+  });
+  it('falls back to a name search when coords are missing', () => {
+    const u = directionsUrl(NaN, undefined, 'Dhoby Ghaut');
+    expect(u).toContain('maps.google.com/?q=');
+    expect(u).toContain(encodeURIComponent('Dhoby Ghaut Singapore'));
+  });
+});
+
+describe('shareUrl', () => {
+  it('builds a Telegram share of the station map location', () => {
+    const u = shareUrl(1.3, 103.8, 'Serangoon');
+    expect(u).toContain('https://t.me/share/url?url=');
+    expect(u).toContain(encodeURIComponent('Serangoon'));
+  });
+});
+
+describe('haversineM', () => {
+  it('is ~0 for identical points', () => {
+    expect(haversineM({ lat: 1.3, lng: 103.8 }, { lat: 1.3, lng: 103.8 })).toBe(0);
+  });
+  it('approximates a known short distance (≈ 1.11 km per 0.01° of latitude)', () => {
+    const d = haversineM({ lat: 1.30, lng: 103.8 }, { lat: 1.31, lng: 103.8 });
+    expect(d).toBeGreaterThan(1050);
+    expect(d).toBeLessThan(1170);
+  });
+  it('returns null for missing / invalid points', () => {
+    expect(haversineM(null, { lat: 1, lng: 1 })).toBe(null);
+    expect(haversineM({ lat: 1 }, { lat: 1, lng: 1 })).toBe(null);
+  });
+});
+
+describe('walkMinutes', () => {
+  it('rounds distance to whole minutes at ~80 m/min, floored at 1', () => {
+    expect(walkMinutes(800)).toBe(10);
+    expect(walkMinutes(40)).toBe(1);   // floored
+    expect(walkMinutes(0)).toBe(1);
+  });
+  it('returns null for invalid input', () => {
+    expect(walkMinutes(NaN)).toBe(null);
+    expect(walkMinutes(-5)).toBe(null);
+  });
+});
+
+describe('todaySummary', () => {
+  it('picks the first timed direction as the collapsed hours summary', () => {
+    const dirs = [
+      { direction: 'towards_a', timings: {} },
+      { direction: 'towards_b', timings: { first_weekday: '05:31', last_weekday: '00:12' } }
+    ];
+    expect(todaySummary(dirs)).toEqual({ first: '05:31', last: '00:12' });
+  });
+  it('returns null when no direction carries times', () => {
+    expect(todaySummary([{ direction: 'towards_a', timings: {} }])).toBe(null);
+    expect(todaySummary([])).toBe(null);
   });
 });
