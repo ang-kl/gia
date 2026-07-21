@@ -669,40 +669,32 @@ export default function App() {
     );
   }
 
-  // ---- CAROUSEL mode (DEFAULT, every device): full-bleed map with the station
-  //      carousel FLOATING over its bottom edge — the Cuisine/Hawker desktop
-  //      standard. v0.62.628 — operator (desktop screenshots): "the carousel cards
-  //      in CUISINE TMA and the Google Map aspect size is the standard … the other
-  //      2 TMA (Hawker, Train) follow exactly". Was a STACKED flex-col (header,
-  //      map, then a solid card row below) that shrank the map and blocked it with
-  //      an opaque strip; now the map is full-bleed (absolute inset-0) and the
-  //      header + carousel float over it, so the map fills the viewport and shows
-  //      through the gaps between cards — matching Cuisine. The carousel is EMPTY
-  //      on first load (map only) until a line pill is tapped. ----
+  // ---- CAROUSEL mode (DEFAULT, every device): the Cuisine desktop standard —
+  //      header ON TOP, the map filling the rest, and the station carousel
+  //      FLOATING over the map's bottom edge (map shows through the gaps).
+  //      v0.62.628 — operator: "carousel cards … and the Google Map aspect size is
+  //      the standard [Cuisine] … the other 2 TMA (Hawker, Train) follow exactly."
+  //      v0.62.629 — operator: the v0.62.628 attempt floated the HEADER over the
+  //      map, which COVERED the map's quick-access toggle row (Monochrome / Train /
+  //      Carpark / Bus Stop / Hawker) + nav cluster ("missing buttons"). Cuisine
+  //      keeps its header ABOVE the map (sticky) and floats only the cards — mirror
+  //      that: header in flow (shrink-0), map fills flex-1, carousel absolute over
+  //      the map's bottom. `mapBlock(true)` (navInset off) since the header no
+  //      longer overlaps the map. Carousel is EMPTY on first load (map only). ----
   return (
     <>
-      <div className="fixed inset-0 overflow-hidden bg-tg-bg text-tg-text"
-        style={{
-          paddingTop: 'var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px))',
-          paddingBottom: 'env(safe-area-inset-bottom, 0px)'
-        }}>
-        {/* full-bleed map behind everything; navInset drops the map's nav cluster
-            below the floating header so its buttons stay reachable. */}
-        <div className="absolute inset-0 z-0">{mapBlock(true, true)}</div>
-        {/* floating header over the map — only the card catches taps so the map
-            stays draggable around it. */}
-        <div className="absolute top-0 inset-x-0 z-20 px-2 pointer-events-none"
-          style={{ paddingTop: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' }}>
-          <div className="pointer-events-auto">{headerEl}</div>
+      <div className="fixed inset-0 flex flex-col overflow-hidden bg-tg-bg text-tg-text" style={fixedShellStyle}>
+        <div className="px-3 pt-2 shrink-0 relative z-20">{headerEl}</div>
+        <div className="relative flex-1 min-h-0 px-3 pt-2 pb-1">
+          {mapBlock(true)}
+          {(lineStations.length > 0 || singleFocusedCard) && (
+            <div className="absolute inset-x-0 bottom-2 z-30 pointer-events-none">
+              {lineStations.length > 0
+                ? <StationCarousel items={lineStations} render={(st, i, glass) => renderStationCard(st, i, glass, true)} />
+                : <div className="px-3 max-w-md mx-auto max-h-[44vh] overflow-y-auto pointer-events-auto">{singleFocusedCard}</div>}
+            </div>
+          )}
         </div>
-        {/* floating compact carousel over the bottom of the map (Cuisine standard). */}
-        {(lineStations.length > 0 || singleFocusedCard) && (
-          <div className="absolute inset-x-0 bottom-14 z-30 pointer-events-none">
-            {lineStations.length > 0
-              ? <StationCarousel items={lineStations} render={(st, i, glass) => renderStationCard(st, i, glass, true)} />
-              : <div className="px-3 max-w-md mx-auto max-h-[44vh] overflow-y-auto pointer-events-auto">{singleFocusedCard}</div>}
-          </div>
-        )}
       </div>
       {popups}
       {footerBar}

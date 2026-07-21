@@ -928,12 +928,17 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       />
       {/* v0.61.16 — Overview toggle, bottom-right. Frames the whole
           network; "Back" restores the prior focused viewport. Greyed
-          when there is no focused line / station to toggle from. */}
+          when there is no focused line / station to toggle from.
+          v0.62.629 — z-[36]: the station carousel floats over the map's
+          bottom edge at z-30, which covered this control exactly when a
+          focused line enabled it (Codex P2). Lift it above the carousel
+          (z-30) so it stays clickable. When the map is EXPANDED the panel
+          becomes its own z-[35] overlay and this button rides inside it. */}
       <button
         type="button"
         onClick={toggleOverview}
         disabled={overviewDisabled}
-        className="absolute bottom-3 right-2 px-2.5 py-1 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md text-[11px] font-semibold active:scale-95 z-10 disabled:opacity-40 disabled:cursor-default"
+        className="absolute bottom-3 right-2 px-2.5 py-1 rounded-full bg-white text-gray-900 border border-gray-300 shadow-md text-[11px] font-semibold active:scale-95 z-[36] disabled:opacity-40 disabled:cursor-default"
         aria-label={t(overview ? 'mrt.backToView' : 'mrt.overview', lang)}
       >{t(overview ? 'mrt.backToView' : 'mrt.overview', lang)}</button>
       {stations && (
