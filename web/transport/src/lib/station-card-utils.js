@@ -16,6 +16,54 @@ export const STATUS_HEX = { normal: '#16a34a', delay: '#d97706', disrupted: '#dc
 export const mapsQ = (q) => `https://maps.google.com/?q=${encodeURIComponent(q)}`;
 export const mapsLatLng = (lat, lng) => `https://maps.google.com/?q=${lat},${lng}`;
 
+// v0.62.621 — Google-Maps "Directions" deep link to a station (the walking /
+// transit route is computed by Google from the user's own location on open).
+export function directionsUrl(lat, lng, name) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return mapsQ(`${name || ''} Singapore`);
+  const dest = `${lat},${lng}`;
+  const q = name ? `&destination_place_id=&travelmode=transit` : '&travelmode=transit';
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}${q}`;
+}
+
+// v0.62.621 — share link: a Telegram share of the station's map location.
+export function shareUrl(lat, lng, name) {
+  const url = Number.isFinite(lat) && Number.isFinite(lng) ? mapsLatLng(lat, lng) : mapsQ(`${name || ''} Singapore`);
+  return `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(name || '')}`;
+}
+
+// v0.62.621 — great-circle distance in metres between two {lat,lng} points
+// (haversine). Returns null when either point is missing/invalid.
+export function haversineM(a, b) {
+  if (!a || !b) return null;
+  const { lat: la1, lng: lo1 } = a, { lat: la2, lng: lo2 } = b;
+  if (![la1, lo1, la2, lo2].every(Number.isFinite)) return null;
+  const R = 6371000; // Earth radius, metres
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(la2 - la1), dLng = toRad(lo2 - lo1);
+  const s = Math.sin(dLat / 2) ** 2
+    + Math.cos(toRad(la1)) * Math.cos(toRad(la2)) * Math.sin(dLng / 2) ** 2;
+  return Math.round(2 * R * Math.asin(Math.min(1, Math.sqrt(s))));
+}
+
+// v0.62.621 — rough walking time from a distance in metres. ~80 m/min
+// (≈ 4.8 km/h) is the common pedestrian-routing assumption; floored at 1 min.
+export function walkMinutes(metres) {
+  if (!Number.isFinite(metres) || metres < 0) return null;
+  return Math.max(1, Math.round(metres / 80));
+}
+
+// v0.62.621 — a compact "today" first/last summary for one line's directions
+// (the collapsed state of the Maps-style hours dropdown). Picks the first
+// direction that actually carries times; returns null when none do (terminus /
+// unpublished), so the caller can fall back to the detail rows' own labels.
+export function todaySummary(dirs) {
+  for (const d of (dirs || [])) {
+    const { wdFirst, wdLast, noTimes } = trainTimes(d.timings || {});
+    if (!noTimes && (wdFirst || wdLast)) return { first: wdFirst || null, last: wdLast || null };
+  }
+  return null;
+}
+
 export function slugify(n) {
   return String(n || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
 }

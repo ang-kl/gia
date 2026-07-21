@@ -150,6 +150,12 @@ export default function App() {
   const [coarseStations, setCoarseStations] = useState(null);
   const [crowd, setCrowd] = useState(null);
   const [stationContext, setStationContext] = useState(null);
+  // v0.62.621 — the user's location, best-effort, for the station card's
+  // distance + walking-time (Google-Maps place-details style). The TMA-only
+  // /status fetch has no coords (they're chat-side only), so we ask the browser
+  // once; if denied / unavailable the card simply omits distance and the
+  // Directions button still routes from the user's device.
+  const [userLoc, setUserLoc] = useState(null);
   // v0.60.85 — view toggle between the static PNG schematic
   // (SystemMap) and the interactive Google Map (MrtMapPanel,
   // ~177 ops + ~29 future pins). Operator 2026-05-10: "if the SG
@@ -281,6 +287,21 @@ export default function App() {
   // it whenever the focused line changes so the map / detail don't
   // show a station from the previous line.
   useEffect(() => { setFocusedStation(null); }, [focusedCode]);
+
+  // v0.62.621 — best-effort one-shot geolocation for the card's distance / walk
+  // time. Silent on denial (distance is simply omitted). Cached up to 5 min.
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) return undefined;
+    let cancelled = false;
+    try {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => { if (!cancelled && pos?.coords) setUserLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude }); },
+        () => { /* denied / unavailable — distance omitted, Directions still works */ },
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
+      );
+    } catch { /* noop */ }
+    return () => { cancelled = true; };
+  }, []);
 
   if (error) return <div className="p-4 text-tg-text">{t('error.unreachable', lang)} {error}</div>;
   if (!data) return <div className="p-4 text-tg-hint">{t('loading', lang)}</div>;
@@ -420,6 +441,7 @@ export default function App() {
         active={active}
         glass={glass}
         compact={compact}
+        userLoc={userLoc}
         onTap={() => handleSelectStation(st, st.focusCode)}
         onFocusStationCode={handleFocusStationCode}
       />
@@ -436,6 +458,7 @@ export default function App() {
       statusByLine={statusByLine}
       coarseStations={coarseStations}
       lang={lang}
+      userLoc={userLoc}
       onClose={() => handleSelectStation(null)}
       onFocusStationCode={handleFocusStationCode}
     />
@@ -579,6 +602,38 @@ export default function App() {
               : singleFocusedCard}
             {secondaryPanels}
           </div>
+        </div>
+        {popups}
+        {footerBar}
+      </>
+    );
+  }
+
+  // ---- SIDE-PANEL mode (desktop + landscape tablet, carousel/map view):
+  //      Google-Maps desktop layout — a fixed left column (header + scrolling
+  //      station list / focused details) with the interactive map filling the
+  //      right, both live. Operator (2026-07-21): "a side panel on desktop … a
+  //      list of locations … while keeping the map interactable on the right",
+  //      to be shown when the desktop client auto-expands to the HD aspect ratio.
+  //      Phone keeps the draggable bottom sheet; the LIST toggle still wins. ----
+  const wideLandscape = vp.deviceClass === 'desktop'
+    || (vp.deviceClass === 'tablet' && vp.orientation === 'landscape');
+  if (wideLandscape) {
+    return (
+      <>
+        <div className="fixed inset-0 flex overflow-hidden bg-tg-bg text-tg-text" style={fixedShellStyle}>
+          <aside className="h-full w-[360px] min-[1280px]:w-[420px] max-w-[42%] shrink-0 flex flex-col overflow-hidden border-r border-tg-border">
+            <div className="px-3 pt-2 shrink-0">{headerEl}</div>
+            <div ref={listScrollRef} onScroll={onListScroll} className="flex-1 overflow-y-auto px-3 py-2 flex flex-col gap-2">
+              {lineStations.length > 0
+                ? lineStations.map((st, i) => (
+                    <React.Fragment key={st.focusCode || st.name || i}>{renderStationCard(st, i)}</React.Fragment>
+                  ))
+                : singleFocusedCard}
+              {secondaryPanels}
+            </div>
+          </aside>
+          <main className="flex-1 min-w-0 h-full relative">{mapBlock(true)}</main>
         </div>
         {popups}
         {footerBar}
