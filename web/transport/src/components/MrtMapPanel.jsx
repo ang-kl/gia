@@ -834,7 +834,11 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   const expandedOverlay = expanded && fill;
   return (
     <div className={expandedOverlay
-      ? 'fixed inset-0 z-30 overflow-hidden bg-tg-bg'
+      // v0.62.628 — z-[35]: the floating station carousel + the phone bottom-sheet
+      // both sit at z-30 and paint LATER in the DOM, so an equal-z overlay would
+      // hide BEHIND them (same class of bug Codex flagged on Hawker). Lift the
+      // expanded map above them (z-30) while staying below the footer dock (z-40).
+      ? 'fixed inset-0 z-[35] overflow-hidden bg-tg-bg'
       : `rounded-2xl overflow-hidden border border-tg-border relative${fill ? ' h-full' : ''}`}>
       <div
         ref={containerRef}

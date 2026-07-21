@@ -79,7 +79,14 @@ function StationCarousel({ items, render }) {
   return (
     <div
       ref={trackRef}
-      className="flex items-stretch gap-2 overflow-x-auto snap-x snap-mandatory px-[4%] pb-1 max-w-6xl mx-auto"
+      // v0.62.628 — operator: match the Cuisine desktop standard (compact cards
+      // floating over a full-bleed map). `items-end` (was items-stretch) sits the
+      // cards on a common baseline at their NATURAL heights — items-stretch grew
+      // every card to the tallest one's height, leaving a wall of empty white
+      // space below the shorter cards (the "cards too tall" look). pointer-events-
+      // auto because the floating carousel wrapper is pointer-events-none so the
+      // map stays draggable in the gaps between cards.
+      className="flex items-end gap-2 overflow-x-auto snap-x snap-mandatory px-[4%] pb-1 max-w-6xl mx-auto pointer-events-auto"
       style={{ scrollbarWidth: 'none' }}
     >
       {items.map((c, i) => (
@@ -662,19 +669,38 @@ export default function App() {
     );
   }
 
-  // ---- CAROUSEL mode (DEFAULT, every device): full-bleed map + a bottom station
-  //      carousel — Cuisine/Hawker style. The carousel is EMPTY on first load
-  //      (map only) until a line pill is tapped. v0.62.606. ----
+  // ---- CAROUSEL mode (DEFAULT, every device): full-bleed map with the station
+  //      carousel FLOATING over its bottom edge — the Cuisine/Hawker desktop
+  //      standard. v0.62.628 — operator (desktop screenshots): "the carousel cards
+  //      in CUISINE TMA and the Google Map aspect size is the standard … the other
+  //      2 TMA (Hawker, Train) follow exactly". Was a STACKED flex-col (header,
+  //      map, then a solid card row below) that shrank the map and blocked it with
+  //      an opaque strip; now the map is full-bleed (absolute inset-0) and the
+  //      header + carousel float over it, so the map fills the viewport and shows
+  //      through the gaps between cards — matching Cuisine. The carousel is EMPTY
+  //      on first load (map only) until a line pill is tapped. ----
   return (
     <>
-      <div className="fixed inset-0 flex flex-col overflow-hidden bg-tg-bg text-tg-text" style={fixedShellStyle}>
-        <div className="px-3 pt-2 shrink-0">{headerEl}</div>
-        <div className="flex-1 min-h-0 px-3 pt-2 pb-1">{mapBlock(true)}</div>
+      <div className="fixed inset-0 overflow-hidden bg-tg-bg text-tg-text"
+        style={{
+          paddingTop: 'var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px))',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)'
+        }}>
+        {/* full-bleed map behind everything; navInset drops the map's nav cluster
+            below the floating header so its buttons stay reachable. */}
+        <div className="absolute inset-0 z-0">{mapBlock(true, true)}</div>
+        {/* floating header over the map — only the card catches taps so the map
+            stays draggable around it. */}
+        <div className="absolute top-0 inset-x-0 z-20 px-2 pointer-events-none"
+          style={{ paddingTop: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' }}>
+          <div className="pointer-events-auto">{headerEl}</div>
+        </div>
+        {/* floating compact carousel over the bottom of the map (Cuisine standard). */}
         {(lineStations.length > 0 || singleFocusedCard) && (
-          <div className="shrink-0 pb-1">
+          <div className="absolute inset-x-0 bottom-14 z-30 pointer-events-none">
             {lineStations.length > 0
               ? <StationCarousel items={lineStations} render={(st, i, glass) => renderStationCard(st, i, glass, true)} />
-              : <div className="px-3 max-w-md mx-auto max-h-[44vh] overflow-y-auto">{singleFocusedCard}</div>}
+              : <div className="px-3 max-w-md mx-auto max-h-[44vh] overflow-y-auto pointer-events-auto">{singleFocusedCard}</div>}
           </div>
         )}
       </div>
