@@ -149,13 +149,29 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   // stays local and grows the map in place.
   const [localExpanded, setLocalExpanded] = useState(false);
   const expanded = controlledExpanded != null ? controlledExpanded : localExpanded;
-  const toggleExpand = () => (onToggleExpand ? onToggleExpand() : setLocalExpanded((e) => !e));
-  // v0.62.554 — operator: in the LANDSCAPE full-bleed carousel the map is already
-  // full and there is no in-place expand, so the ⇲ button does nothing there
-  // (fill + no onToggleExpand). Grey it out + disable it so it doesn't imply an
-  // action. Everywhere else it IS wired (phone grows the map in place; the
-  // portrait-tablet panel + portrait-expanded carousel drive App's mapExpanded).
-  const expandWired = !fill || !!onToggleExpand;
+  // v0.62.627 — operator ("where is the expand button"): in the LANDSCAPE
+  // full-bleed carousel the ⇲ button was greyed out and did nothing (fill + no
+  // onToggleExpand). Give it a real action there: a full-viewport OVERLAY (the
+  // same fix the Transport map got in v0.62.626), tracked in a separate local
+  // state so it doesn't disturb App's layout-switch `mapExpanded` machinery.
+  const [overlayFull, setOverlayFull] = useState(false);
+  const canOverlay = fill && !onToggleExpand;      // the previously-greyed case
+  const toggleExpand = () => {
+    if (onToggleExpand) return onToggleExpand();     // portrait-tablet: switch layout
+    if (canOverlay) return setOverlayFull((v) => !v); // landscape fill: fullscreen overlay
+    return setLocalExpanded((e) => !e);              // phone: grow in place
+  };
+  const expandActive = canOverlay ? overlayFull : expanded;
+  const expandedOverlay = canOverlay && overlayFull;
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !window.google?.maps?.event) return undefined;
+    const c = map.getCenter?.();
+    const id = setTimeout(() => {
+      try { window.google.maps.event.trigger(map, 'resize'); if (c) map.setCenter(c); } catch { /* noop */ }
+    }, 60);
+    return () => clearTimeout(id);
+  }, [overlayFull, expanded]);
   // v0.61.89 — troubleshooting: live Google Maps zoom level, surfaced in a tiny
   // bottom-right readout. Updated on every `zoom_changed`.
   const [zoomLevel, setZoomLevel] = useState(null);
@@ -568,9 +584,15 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     /* v0.62.544 — `fill`: full-bleed background mode for the tablet/desktop
        layout (absolute inset-0 fills its relative parent); otherwise the framed,
        fixed-height inline card. */
-    <div className={fill
-      ? 'absolute inset-0 overflow-hidden bg-tg-card'
-      : 'rounded-lg border border-tg-border bg-tg-card overflow-hidden relative'}>
+    <div className={expandedOverlay
+      // v0.62.627 — z-[35]: the bottom card carousel is `fixed … z-30` and paints
+      // LATER in the DOM, so an equal-z overlay would sit BEHIND the cards (Codex
+      // P2). Lift the expanded map above the carousel (z-30) while staying below
+      // the footer dock (z-40) so the footer + its Map toggle stay usable.
+      ? 'fixed inset-0 z-[35] overflow-hidden bg-tg-card'
+      : (fill
+        ? 'absolute inset-0 overflow-hidden bg-tg-card'
+        : 'rounded-lg border border-tg-border bg-tg-card overflow-hidden relative')}>
       <div
         ref={containerRef}
         className={overlayLayers && overlayLayers.colour === false ? 'gia-greyscale-map' : undefined}
@@ -630,12 +652,11 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
         ><span aria-hidden>－</span></button>
         <button
           type="button"
-          onClick={expandWired ? toggleExpand : undefined}
-          disabled={!expandWired}
-          className={`w-7 h-7 rounded-full border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none ${expandWired ? 'bg-white text-black active:scale-95' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
-          aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
-          title={t(expanded ? 'map.collapse' : 'map.expand', lang)}
-        ><span aria-hidden>{expanded ? '⇱' : '⇲'}</span></button>
+          onClick={toggleExpand}
+          className="w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
+          aria-label={t(expandActive ? 'map.collapse' : 'map.expand', lang)}
+          title={t(expandActive ? 'map.collapse' : 'map.expand', lang)}
+        ><span aria-hidden>{expandActive ? '⇱' : '⇲'}</span></button>
       </div>
       {/* v0.61.33 — Phase G floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls
