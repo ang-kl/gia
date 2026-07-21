@@ -94,7 +94,20 @@ function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, sc
       style={{ paddingBottom: 'calc(0.25rem + max(env(safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px)))' }}
     >
       <div className="flex items-center justify-between gap-1 text-[11px] font-semibold text-tg-link">
-        <div className="flex items-center gap-0.5 min-w-0">{leading}</div>
+        <div className="flex items-center gap-0.5 min-w-0">
+          {leading}
+          {/* v0.62.627 — operator: "the NEA should be beside the 'map'" + "reduce
+              the footer to the same as CUISINE TMA". NEA ↗ moves from its own line
+              INTO the control row, beside the Map toggle (the `leading` slot); the
+              zone count + version merge into ONE tiny line. The footer collapses
+              from four rows to two — matching the Cuisine footer height, and no
+              longer overlapping the bottom-docked card carousel (cards were cut). */}
+          <button
+            type="button"
+            onClick={() => openLink(NEA_HOME)}
+            className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
+          >NEA ↗</button>
+        </div>
         <div className="flex items-center gap-0.5 shrink-0">
           <button
             type="button"
@@ -110,23 +123,10 @@ function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, sc
           >{hasHistory ? `↩ ${t('btn.fabBack', lang)}` : `🔚 ${t('btn.fabEnd', lang)}`}</button>
         </div>
       </div>
-      {/* v0.62.611/613 — NEA ↗ on its own line, plain text (no pill), same
-          font/size/style as "↩ back". v0.62.618 — operator: move it to the
-          footer-LEFT (was right). */}
-      <div className="flex justify-start text-[11px] font-semibold text-tg-link">
-        <button
-          type="button"
-          onClick={() => openLink(NEA_HOME)}
-          className="px-2 py-1 rounded-lg active:scale-95 whitespace-nowrap"
-        >NEA ↗</button>
-      </div>
-      {/* v0.62.616 — operator: show the count of hawker centres in the selected
-          zone, on its own line just ABOVE the version number. */}
-      {zoneInfo && (
-        <div className="text-[10px] text-tg-text text-center leading-none pointer-events-none">{zoneInfo}</div>
-      )}
+      {/* v0.62.616 — zone centre-count + v0.62.627 — merged onto the single tiny
+          version line (was two separate lines) to keep the footer compact. */}
       <div className="text-[9px] text-tg-hint text-center leading-none pointer-events-none">
-        {t('footer.tag', lang)} · v{BUILD_VERSION}{footerTag ? ` · ${footerTag}` : ''}
+        {zoneInfo ? `${zoneInfo} · ` : ''}{t('footer.tag', lang)} · v{BUILD_VERSION}{footerTag ? ` · ${footerTag}` : ''}
       </div>
     </div>
   );
