@@ -1,23 +1,23 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-07-20 from a snapshot of all 1591 pull requests (#1–#1591).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-07-21 from a snapshot of all 1608 pull requests (#1–#1608).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 1591 total — 1581 merged, 10 closed without merge.
+- **PRs:** 1608 total — 1598 merged, 10 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #1620 · 2026-07-19 23:48:58+00:00 · _v0.62.612 — viewport: detect a touch tablet from the physical screen so Cuisine stops reverting to the phone layout_
+- **Latest:** #1637 · 2026-07-21 13:40:30+00:00 · _v0.62.629 — Train carousel: header ON TOP so the map's quick-access buttons stay visible; cards no longer cut_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 1085 |
-| fix | 214 |
+| feature | 1098 |
+| fix | 217 |
 | docs | 97 |
 | copy | 62 |
-| refactor | 47 |
+| refactor | 48 |
 | prompt-tune | 45 |
 | test | 21 |
 | infra | 20 |
@@ -26,25 +26,25 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 487 |
-| Core / misc | 304 |
-| Hawker NEA | 143 |
+| Cuisine Picker | 492 |
+| Core / misc | 308 |
+| Hawker NEA | 147 |
 | Docs / vault | 106 |
-| Transport / carpark | 83 |
+| Transport / carpark | 85 |
 | Search / free-text | 82 |
 | Recognised lists | 75 |
 | Infra / setup | 67 |
 | /hidden surprise | 45 |
 | Language / i18n | 35 |
 | Pipeline / discovery | 33 |
-| Weather | 26 |
+| Weather | 27 |
 | /eat /drink flow | 22 |
 | Maps / geo / location | 20 |
 | Commands / chat UX | 18 |
 | Menu hub | 17 |
 | Privacy / legal | 12 |
 | Oversight / usage stats | 10 |
-| Buddy / sharing | 6 |
+| Buddy / sharing | 7 |
 
 ## The ledger
 
@@ -1643,6 +1643,23 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 1618 | merged | 2026-07-19 14:59:32+00:00 | 0.62.610 | fix | Hawker NEA | Fix: Telegram: disable vertical swipes so the drawer drag doesn't dismiss the Mini App | Operator: "the drawer runs another session of telegram TMA for train." On a phone, the draggable station-list drawer's drag-down was being grabbed by Telegram's native vertical swipe-to-minimise/close gesture, dismissing the Mini App —… | TMA:hawker, TMA:transport (inferred — pre-squash) | hawker+transport | — |
 | 1619 | merged | 2026-07-19 15:42:46+00:00 | 0.62.611 | feature | Hawker NEA | Add: Train 2K carousel uniform + centered; Hawker NEA ↗ moves to the footer under ↩ back | Train (operator: carousel "not set for 2K aspect ratio"): on a large 2K screen the non-list carousel cards sprawled edge-to-edge as a ragged-height strip. Per the operator's choice ("uniform, centered row"): StationCarousel items-start ->… | (pre-squash convention — not tracked) | — | — |
 | 1620 | merged | 2026-07-19 23:48:58+00:00 | 0.62.612 | feature | Cuisine Picker | Add: viewport: detect a touch tablet from the physical screen so Cuisine stops reverting to the phone layout | Operator (confirmed on iPad/Android touch tablet): the Cuisine TMA keeps reverting to the phone layout. | TMA:cuisine (inferred — pre-squash) | cuisine | — |
+| 1621 | merged | 2026-07-20 02:17:01+00:00 | 0.62.613 | feature | Hawker NEA | Add: iPad-mini tablet gate 768→700 + Hawker footer NEA row; pre-recode vault checkpoint + vibe catch-up | (№ 1,093 | doc (inferred — pre-squash) | — | doc/vault |
+| 1622 | merged | 2026-07-20 03:37:57+00:00 | 0.62.614 | refactor | Core / misc | Refactor: recode slice A: dedup device-id + iata-cities into _shared/ (the rest diverge on purpose) | Operator: "go" (recode slice A — consolidate pure data/util duplicates). | (pre-squash convention — not tracked) | — | — |
+| 1623 | merged | 2026-07-20 05:10:15+00:00 | 0.62.615 | feature | Hawker NEA | Add: recode slice B: share MapControls + giaToggleStyle (the rest of the UI diverges on purpose) | Operator: "Continue to slice B" (small shared UI). | i18n.js (inferred — pre-squash) | — | — |
+| 1624 | merged | 2026-07-20 06:22:27+00:00 | 0.62.616 | feature | Hawker NEA | Add: Hawker: left-align zone pills + selected-zone centre count above the version (2 of 4 asks) | Operator, 4 Hawker requests on tablet (footer now shows "(tablet)" — the wide layout is finally rendering on Telegram Desktop Mac): - #4 DONE: zone pills justify-center -> justify-start (portrait + drawer; the landscape row was already… | (pre-squash convention — not tracked) | — | — |
+| 1625 | merged | 2026-07-20 06:32:36+00:00 | 0.62.617 | feature | Core / misc | Add: re-enable auto-fullscreen on Telegram Desktop/macOS so the Mini App opens wide | Operator: "I re-enable auto-fullscreen on Telegram Desktop so the app opens wide." On Telegram Desktop for Mac the Mini App opens in a narrow phone-width window, so useViewport sees w<1024 and shows the phone layout; the app had… | (pre-squash convention — not tracked) | — | — |
+| 1626 | merged | 2026-07-20 06:48:02+00:00 | 0.62.618 | fix | Core / misc | Fix: Tailwind scans _shared/ (fixes map toggle row at map bottom); NEA footer-left; nav-cluster audit | Operator: "NEA link: footer-left. | (pre-squash convention — not tracked) | — | — |
+| 1627 | merged | 2026-07-20 11:12:05+00:00 | 0.62.619 | feature | Hawker NEA | Add: prototype: Inter font on the Cuisine/Hawker/Train headers | Operator (admiring an in-flight moving-map font on a BNE->SIN flight): "prototype on the headers." Inter is the closest free match to that humanist sans (Frutiger/Segoe-UI lineage). | (pre-squash convention — not tracked) | — | — |
+| 1628 | merged | 2026-07-20 13:06:54+00:00 | 0.62.620 | feature | Weather | Add: IMG_3614 Train-TMA batch: Inter to body, EWL default drawer, drawer handle, borderless line-pills, nav-cluster inset | Operator sent IMG_3614 (Train TMA on phone) with four asks: - "Extend." — carry the Inter header prototype to the whole app body. | (pre-squash convention — not tracked) | — | — |
+| 1629 | merged | 2026-07-21 06:25:41+00:00 | 0.62.621 | feature | Buddy / sharing | Add: Google-Maps Drawer/slide: desktop + landscape-tablet side panel, Maps-style station-card place details | Operator (on Telegram Desktop) asked whether to auto-expand for the HD aspect ratio, and for a Google-Maps "Drawer/slide": a bottom sheet on mobile, a side panel on desktop, showing place details. | (pre-squash convention — not tracked) | — | — |
+| 1630 | merged | 2026-07-21 07:28:46+00:00 | 0.62.622 | feature | Cuisine Picker | Add: narrow Telegram-Desktop window mis-classified as a wide tablet (Cuisine "cards look weird") | Operator (Cuisine TMA on Telegram Desktop): "the cuisine TMA stuck at expand mode but size and card looks weird." The cards were the WIDE tablet layout (big centred card + peeking side card) crammed into a ~500px window. | TMA:cuisine (inferred — pre-squash) | cuisine | — |
+| 1631 | merged | 2026-07-21 07:44:15+00:00 | 0.62.623 | feature | Cuisine Picker | Add: desktop: stop forcing requestFullscreen; use Telegram Desktop's native widen control | Operator (Telegram Desktop, Cuisine TMA): "the telegram desktop CUISINE TMA are using the wrong system command to expand to full screen." Finding: the desktop path calls w.requestFullscreen() (Bot API 8.0), which forces a chromeless… | TMA:cuisine (inferred — pre-squash) | cuisine | — |
+| 1632 | merged | 2026-07-21 07:54:45+00:00 | 0.62.624 | feature | Core / misc | restore desktop auto-fullscreen ("why I cannot expand in telegram desktop") | Operator (after v0.62.623 removed the desktop branch): "why I cannot expand in telegram desktop, did you get the code correctly." Facts (WebSearch): requestFullscreen() (Bot API 8.0) is the ONLY programmatic way to enlarge a Mini App —… | (pre-squash convention — not tracked) | — | — |
+| 1633 | merged | 2026-07-21 08:06:45+00:00 | 0.62.625 | feature | Transport / carpark | Add: revert the Transport desktop side panel ("revert the side drawer it is aweful") | Operator (Transport TMA on desktop, now correctly fullscreen-wide via v0.62.624): "revert the side drawer it is aweful." With desktop fullscreen restored, the v0.62.621 side panel finally showed on a wide desktop — and the fixed left… | TMA:transport (inferred — pre-squash) | transport | — |
+| 1634 | merged | 2026-07-21 08:27:47+00:00 | 0.62.626 | feature | Transport / carpark | Add: Transport map Expand/Collapse button was a no-op in fill mode | Operator (Transport TMA, desktop): "the 'Expand map' and 'Collapse map' buttons doesn't work. | TMA:transport (inferred — pre-squash) | transport | — |
+| 1635 | merged | 2026-07-21 08:43:50+00:00 | 0.62.627 | fix | Cuisine Picker | Fix: Hawker: NEA beside Map, footer slimmed to match Cuisine, cards no longer cut, working Expand button | Operator (Hawker TMA, desktop): "the Hawker TMA cards are cut at the bottom. | TMA:cuisine, TMA:hawker (inferred — pre-squash) | cuisine+hawker | — |
+| 1636 | merged | 2026-07-21 12:20:29+00:00 | 0.62.628 | feature | Cuisine Picker | Add: Train carousel matches the Cuisine desktop standard: full-bleed map + floating compact cards | Operator (3 desktop screenshots — Train, Hawker, Cuisine v0.62.627): "The carousel cards in CUISINE TMA and the Google Map aspect size is the standard in DESKTOP TELEGRAM mode (picture) and the other 2 TMA (Hawker, Train) follow exactly."… | TMA:cuisine (inferred — pre-squash) | cuisine | — |
+| 1637 | merged | 2026-07-21 13:40:30+00:00 | 0.62.629 | fix | Cuisine Picker | Fix: Train carousel: header ON TOP so the map's quick-access buttons stay visible; cards no longer cut | Operator (Train TMA, desktop, v0.62.628 screenshot): "see the carousel cards being cut in this wide aspect ratio, and the missing buttons and quick access in the google map. | TMA:cuisine (inferred — pre-squash) | cuisine | — |
 
 ---
 
