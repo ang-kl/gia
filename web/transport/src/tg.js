@@ -44,28 +44,31 @@ export function applyTelegramTheme() {
     }));
   });
 
-  // v0.62.286 — auto-fullscreen was REMOVED (unwanted desktop takeover).
-  // v0.62.617 — operator: RE-ENABLE it on Telegram Desktop / macOS to open wide.
-  // v0.62.623 — operator REVERSED that ("using the wrong system command to expand
-  // to full screen"): requestFullscreen() forces a chromeless OS-fullscreen
-  // takeover on desktop, which is NOT what the desktop wants — Telegram Desktop
-  // already exposes a NATIVE corner button (⤢) to widen / maximise the Mini App
-  // window, and there is no WebApp API to invoke that. So DO NOT auto-fullscreen
-  // on desktop; leave widening to the native control. Auto-fullscreen stays ONLY
-  // on iPad-class touch tablets (coarse pointer + physical short edge ≥ 700,
-  // covering the 744px iPad mini), where Telegram letterboxes the WebApp into a
-  // narrow column that genuinely benefits. Feature-detected on Bot API 8.0.
+  // Auto-fullscreen saga:
+  //   v0.62.286 — REMOVED (unwanted desktop takeover).
+  //   v0.62.617 — operator RE-ENABLED on Telegram Desktop / macOS to open wide.
+  //   v0.62.623 — operator ("wrong system command") → removed the desktop branch.
+  //   v0.62.624 — operator ("why I cannot expand in telegram desktop") → RESTORE
+  //     it. `requestFullscreen()` (Bot API 8.0) is the ONLY programmatic way to
+  //     enlarge a Mini App; `expand()` only controls HEIGHT and there is NO API to
+  //     widen a desktop window. On clients that don't support fullscreen it fires
+  //     `fullscreenFailed`/UNSUPPORTED and no-ops; on Telegram Desktop clients that
+  //     DO (the operator's does — v0.62.617 went fullscreen there) it opens wide,
+  //     and the v0.62.622 classifier fix means the wide layout now renders
+  //     correctly. A `fullscreenFailed` listener keeps a failure from surfacing.
   safe('fullscreen', () => {
     if (typeof w.requestFullscreen !== 'function') return;
     if (typeof w.isVersionAtLeast === 'function' && !w.isVersionAtLeast('8.0')) return;
     if (w.isFullscreen) return;
+    try { if (typeof w.onEvent === 'function') w.onEvent('fullscreenFailed', () => { /* UNSUPPORTED on this client — expand() height still applies */ }); } catch { /* noop */ }
     const plat = String(w.platform || '').toLowerCase();
     const touchClient = plat === 'ipados' || plat === 'ios' || plat === 'android';
+    const desktopClient = plat === 'tdesktop' || plat === 'macos';
     const coarse = typeof window !== 'undefined' && window.matchMedia
       && window.matchMedia('(pointer: coarse)').matches;
     const scr = typeof window !== 'undefined' ? window.screen : null;
     const minScreen = scr ? Math.min(scr.width || 0, scr.height || 0) : 0;
-    if (touchClient && coarse && minScreen >= 700) {   // iPad-class touch tablet only
+    if (desktopClient || (touchClient && coarse && minScreen >= 700)) {   // desktop (open wide) OR iPad-class
       try { w.requestFullscreen(); } catch { /* best-effort */ }
     }
   });
