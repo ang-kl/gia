@@ -14,11 +14,15 @@
 // Self-contained (no per-TMA imports) so every Mini App imports the one copy.
 
 import { useEffect, useState } from 'react';
+// v0.62.622 — the pure classifier now lives in a React-free module so it can be
+// unit-tested from the repo-root (node) Vitest context. See classify-viewport.js
+// for the tablet/desktop/mobile rules (incl. the v0.62.612/613/622 history:
+// physical-screen fallback for partial-height iPad webviews, the 768→700 edge
+// for the iPad mini, and the live-width guard that stops a narrow Telegram
+// Desktop window on a touchscreen laptop from being mis-read as a tablet).
+import { TABLET_MIN_EDGE, classifyViewport } from './classify-viewport.js';
 
-// Physical short-edge (px) at/above which a coarse-pointer device is an
-// iPad-class tablet. 700 covers the 744 px iPad mini 6/7 while staying well above
-// the largest phones (~480 px short edge) so a phone is never mis-promoted.
-export const TABLET_MIN_EDGE = 700;
+export { TABLET_MIN_EDGE };
 
 export function readViewport() {
   if (typeof window === 'undefined') {
@@ -27,27 +31,9 @@ export function readViewport() {
   const w = window.innerWidth || 0;
   const h = window.innerHeight || 0;
   const coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
-  const minDim = Math.min(w, h);
-  // v0.62.612 — operator: on an iPad / Android tablet the Cuisine TMA kept
-  // "reverting" to the phone layout. Cause: Telegram opens (or a swipe collapses)
-  // the Mini App to a PARTIAL height, so the webview's min(innerW, innerH) drops
-  // below the tablet edge and this classifier mis-read a real tablet as a phone.
-  // Fall back to the PHYSICAL screen's short edge (window.screen) — the same
-  // signal the fullscreen gate in each tg.js trusts — so a coarse-pointer device
-  // whose hardware short edge is ≥ TABLET_MIN_EDGE stays a 'tablet' regardless of
-  // the transient webview size (and can never flip back to phone on a resize).
-  // v0.62.613 — operator (iPad mini): the edge was 768, but the 6th/7th-gen iPad
-  // mini is only 744 px wide, so it fell UNDER the gate and rendered the phone
-  // layout. Lowered to 700 — below the 744 mini, safely above the largest phones
-  // (~480 px short edge), so phones are never promoted and the mini is covered.
-  const scr = typeof window !== 'undefined' ? window.screen : null;
+  const scr = window.screen || null;
   const screenMin = scr ? Math.min(scr.width || 0, scr.height || 0) : 0;
-  let deviceClass;
-  if (coarse && (minDim >= TABLET_MIN_EDGE || screenMin >= TABLET_MIN_EDGE)) deviceClass = 'tablet'; // iPad-class touch device
-  else if (!coarse && w >= 1024) deviceClass = 'desktop';   // pointer + wide screen
-  else deviceClass = 'mobile';
-  const orientation = w >= h ? 'landscape' : 'portrait';
-  return { deviceClass, orientation, isWide: deviceClass !== 'mobile' };
+  return classifyViewport({ w, h, coarse, screenMin });
 }
 
 export function useViewport() {
