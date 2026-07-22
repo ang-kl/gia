@@ -32,8 +32,22 @@ import { t, tn } from '../i18n.js';
 import {
   CROWD_DOT, STATUS_HEX, mapsQ, mapsLatLng, textOn, hexForLineCode,
   worstCrowd, trainTimes, noteIsTerminal, directionLabel, terminusForDirection,
-  directionsUrl, shareUrl, haversineM, walkMinutes, todaySummary
+  directionsUrl, shareUrl, haversineM, walkMinutes, todaySummary,
+  stationHours, stationOpenNow
 } from '../lib/station-card-utils.js';
+
+// v0.62.634 — current minutes-since-midnight in Singapore time, for the
+// station's "Open now / Closed now" state. Best-effort (hides on Intl failure).
+function sgNowMinutes() {
+  try {
+    const p = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Singapore', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+    }).formatToParts(new Date());
+    const h = Number((p.find((x) => x.type === 'hour') || {}).value);
+    const m = Number((p.find((x) => x.type === 'minute') || {}).value);
+    return Number.isFinite(h) && Number.isFinite(m) ? h * 60 + m : null;
+  } catch { return null; }
+}
 
 // v0.62.621 — persist the user's saved (favourite) stations across sessions.
 // A plain localStorage set of station names; read/written here so the pure
@@ -257,7 +271,15 @@ export default function StationCard({
     .map((e) => e.nearest_bus_stop).filter(Boolean);
   const busStops = ctxBus.length ? ctxBus : derivedBus;
   const taxis = context?.taxis || [];
+  // v0.62.634 — operator: "Where are the … car park details" — the station-context
+  // feed already carries nearby carparks (≤400 m); render them in the amenities.
+  const carparks = context?.carparks || [];
   const nearestHawker = context?.nearestHawker || null;
+
+  // v0.62.634 — operator: the card should say "is it open" + the operating
+  // (first/last train) hours. Derived from the rich first_last_train data.
+  const hours = stationHours(lines, station);
+  const openNow = coarse?.future ? null : stationOpenNow(hours, sgNowMinutes());
 
   // v0.62.632 — the always-visible one-line summary under the name strip (so the
   // collapsed tile is uniform height AND informative): a live status dot per line
@@ -333,40 +355,37 @@ export default function StationCard({
 
       {(!collapsible || bodyOpen) && (
       <div className={`flex flex-col gap-2 ${compact ? 'p-2' : 'p-2.5'}`}>
-        {/* v0.62.621 — Google-Maps action row: Directions · Save · Share, with
-            the distance / walking-time (when the user's location is known) flush
-            right. Directions falls back to a name search when coords are absent. */}
-        <div className="flex items-center gap-1 flex-wrap">
-          <ActionButton icon="🧭" label={t('mrt.act.directions', lang)}
-            onClick={() => openExternal(directionsUrl(lat, lng, name))} />
-          <ActionButton icon={saved ? '★' : '☆'} active={saved}
-            label={saved ? t('mrt.act.saved', lang) : t('mrt.act.save', lang)} onClick={toggleSaved} />
-          <ActionButton icon="⤴" label={t('mrt.act.share', lang)}
-            onClick={() => openExternal(shareUrl(lat, lng, name), true)} />
-          {walkMin != null && !collapsible && (
-            <span className="ml-auto text-[11px] text-tg-hint whitespace-nowrap">🚶 {tn('mrt.walk', lang, { min: walkMin, m: distM })}</span>
+        {/* v0.62.634 — operator card order: (1) current status / is-it-open /
+            health, (2) operating hours, (3) exits · bus stops · carparks · hawker,
+            (4) per-line status sub-cards, (5) Directions/Save/Share LAST (operator:
+            "why the share … at the top" — moved off the top). */}
+
+        {/* (1)+(2) Health + Open-now + operating hours. Health (service status)
+            is CVD-safe: a dot paired with the word. */}
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-2 flex-wrap text-[11px]">
+            <span className="flex items-center gap-1">
+              <span className="inline-block w-2 h-2 rounded-full" style={{ background: STATUS_HEX[worstStatus] || STATUS_HEX.unknown }} />
+              <span className="text-tg-text/90 font-medium">{t(`mrt.status.${worstStatus}`, lang)}</span>
+            </span>
+            {openNow != null && (
+              <span className={`font-semibold ${openNow ? 'text-green-500' : 'text-orange-500'}`}>
+                · {openNow ? t('mrt.openNow', lang) : t('mrt.closedNow', lang)}
+              </span>
+            )}
+            {crowdLevel && <span className="text-tg-text/80">· {CROWD_DOT[crowdLevel]} {t(`mrt.crowd.${crowdLevel}`, lang)}</span>}
+            {walkMin != null && <span className="ml-auto text-tg-hint whitespace-nowrap">🚶 {tn('mrt.walk', lang, { min: walkMin, m: distM })}</span>}
+          </div>
+          {hours && (hours.first || hours.last) && (
+            <div className="text-[11px] text-tg-hint tabular-nums">
+              🕑 {t('mrt.hours', lang)}: {hours.first || '—'} – {hours.last || '—'}
+            </div>
           )}
         </div>
 
-        {/* Crowd status (non-tile only — the tile shows it in the summary row). */}
-        {crowdLevel && !collapsible && (
-          <div className="text-[11px] text-tg-text/90">{CROWD_DOT[crowdLevel]} {t(`mrt.crowd.${crowdLevel}`, lang)}</div>
-        )}
-
-        {/* Stacked per-line-code sub-cards. v0.62.632 — each line owns its OWN ▾
-            (fold its first/last-train detail); the active card opens them. */}
-        {lines.some((l) => l.line_code) && (
-          <div className="flex flex-col gap-1.5">
-            {lines.map((l, i) => (
-              <LineSubCard key={i} line={l} station={station || {}} coarseStations={coarseStations}
-                statusByLine={statusByLine} lang={lang} onFocusStationCode={onFocusStationCode}
-                initialOpen={active} />
-            ))}
-          </div>
-        )}
-
-        {/* Around the station — v0.62.632 folds behind its own ▾ triangle. */}
-        {(exits.length > 0 || busStops.length > 0 || taxis.length > 0 || nearestHawker) && (
+        {/* (3) Around the station — v0.62.632 folds behind its own ▾ triangle;
+            v0.62.634 adds carpark details. */}
+        {(exits.length > 0 || busStops.length > 0 || carparks.length > 0 || taxis.length > 0 || nearestHawker) && (
           <div className="flex flex-col gap-1.5">
             <button
               type="button"
@@ -399,6 +418,18 @@ export default function StationCard({
               </div>
             )}
 
+            {/* v0.62.634 — carpark details (from station-context, ≤400 m). */}
+            {carparks.length > 0 && (
+              <div className="flex flex-wrap gap-1 items-center">
+                <span className="text-[10px] text-tg-hint mr-0.5">{t('mrt.carparks', lang)}</span>
+                {carparks.slice(0, 6).map((cp, i) => (
+                  <AmenityLink key={i} href={mapsLatLng(cp.lat, cp.lng)}>
+                    🅿️ {cp.name}{Number.isFinite(cp.distanceM) ? ` · ${cp.distanceM} m` : ''}
+                  </AmenityLink>
+                ))}
+              </div>
+            )}
+
             {taxis.length > 0 && (
               <div className="flex flex-wrap gap-1 items-center">
                 <span className="text-[10px] text-tg-hint mr-0.5">{t('mrt.taxi', lang)}</span>
@@ -422,6 +453,29 @@ export default function StationCard({
             </>)}
           </div>
         )}
+
+        {/* (4) Per-line-code status sub-cards. v0.62.632 — each line owns its OWN
+            ▾ (fold its first/last-train detail); the active card opens them. */}
+        {lines.some((l) => l.line_code) && (
+          <div className="flex flex-col gap-1.5">
+            {lines.map((l, i) => (
+              <LineSubCard key={i} line={l} station={station || {}} coarseStations={coarseStations}
+                statusByLine={statusByLine} lang={lang} onFocusStationCode={onFocusStationCode}
+                initialOpen={active} />
+            ))}
+          </div>
+        )}
+
+        {/* (5) Google-Maps action row, LAST (operator: not at the top): Directions ·
+            Save · Share. Directions falls back to a name search when coords are absent. */}
+        <div className="flex items-center gap-1 flex-wrap border-t border-tg-border/60 pt-2 mt-0.5">
+          <ActionButton icon="🧭" label={t('mrt.act.directions', lang)}
+            onClick={() => openExternal(directionsUrl(lat, lng, name))} />
+          <ActionButton icon={saved ? '★' : '☆'} active={saved}
+            label={saved ? t('mrt.act.saved', lang) : t('mrt.act.save', lang)} onClick={toggleSaved} />
+          <ActionButton icon="⤴" label={t('mrt.act.share', lang)}
+            onClick={() => openExternal(shareUrl(lat, lng, name), true)} />
+        </div>
       </div>
       )}
     </div>
