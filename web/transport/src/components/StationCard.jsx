@@ -8,6 +8,16 @@
 // amenities — exits, bus stops, taxi stands and the nearest hawker centre — as
 // underline-free hyperlinks; plus the live platform crowd status.
 //
+// v0.62.632 — operator (iPad mini, IMG_1180/1181): the cards were uneven heights
+// (the action row "floated above" at different levels) and too sparse per row.
+// The card now supports a `collapsible` TILE mode: name strip + a one-line
+// status/crowd/distance summary are ALWAYS shown (so every collapsed tile is the
+// SAME height), and the heavy body (actions, per-line trains, amenities) folds
+// behind a card-level ▾ triangle. Inside, each LINE sub-card owns its OWN ▾ (fold
+// its first/last-train detail), and "Around the station" owns another — "multiple
+// triangle per card". A selected/active card pops (scale + ring), auto-expands and
+// (via the carousel) scrolls to centre, mirroring the Cuisine/iPhone effect.
+//
 // Data joins (all read-only):
 //   - `station`   rich record from /api/geo/stations (lines[], exits[],
 //                 first_last_train[]) — the substance of the card.
@@ -17,7 +27,7 @@
 //   - `crowd`     /api/transport/crowd  { CODE: 'l'|'m'|'h' }.
 //   - `statusByLine`  live per-line service status.
 //   - `coarseStations`  the full station list, for terminus resolution.
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { t, tn } from '../i18n.js';
 import {
   CROWD_DOT, STATUS_HEX, mapsQ, mapsLatLng, textOn, hexForLineCode,
@@ -46,6 +56,13 @@ function openExternal(url, telegram = false) {
     if (w && typeof w.openLink === 'function') { w.openLink(url); return; }
   } catch { /* fall through to window.open */ }
   if (typeof window !== 'undefined') window.open(url, '_blank', 'noopener');
+}
+
+// v0.62.632 — a tiny ▾/▲ disclosure triangle used for every collapse toggle in
+// the card (card body, per line, around-the-station). Pure glyph, no text — the
+// operator asked for "multiple triangle (collapse/expand) per card".
+function Triangle({ open }) {
+  return <span className="text-[9px] leading-none select-none" aria-hidden>{open ? '▲' : '▼'}</span>;
 }
 
 // v0.62.621 — one circular action button (Directions / Save / Share), mirroring
@@ -113,20 +130,29 @@ function DirectionRow({ entry, lineCode, coarseStations, lang, onFocusStationCod
   );
 }
 
-// One per-line-code sub-card. v0.62.621 — the first/last-train DETAIL is now
-// collapsible (Google-Maps hours-dropdown style): when `showTimes` is false the
-// card shows only a compact "today" first/last summary; the status + line header
-// stay visible always. `showTimes` is driven by the card-level Train-times toggle.
-function LineSubCard({ line, station, coarseStations, statusByLine, lang, onFocusStationCode, showTimes = true }) {
+// One per-line-code sub-card. v0.62.632 — each line now owns its OWN collapse
+// triangle (was a single card-level "Train times ▾" driving every line at once).
+// Collapsed → the line header + live status + a compact "today" first/last
+// summary; the ▾ expands the full per-direction detail. `initialOpen` seeds the
+// state (the active card opens its lines).
+function LineSubCard({ line, station, coarseStations, statusByLine, lang, onFocusStationCode, initialOpen = false }) {
+  const [open, setOpen] = useState(initialOpen);
+  useEffect(() => { if (initialOpen) setOpen(true); }, [initialOpen]);
   const hex = hexForLineCode(line.line_code);
   const st = (statusByLine && statusByLine[line.line_code] && statusByLine[line.line_code].status) || 'normal';
   const statusLabel = t(`mrt.status.${st}`, lang);
   const dirs = (station.first_last_train || []).filter((f) => f.station_code === line.station_code);
   const summary = todaySummary(dirs);
+  const hasDetail = dirs.length > 0;
 
   return (
     <div className="rounded-lg border border-tg-border bg-tg-bg/40 p-2 flex flex-col gap-1.5">
-      <div className="flex items-center gap-2">
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); if (hasDetail) setOpen((o) => !o); }}
+        aria-expanded={hasDetail ? open : undefined}
+        className="flex items-center gap-2 text-left"
+      >
         <span style={{ background: hex, color: '#fff' }}
           className="font-bold rounded px-1.5 py-0.5 text-[11px] leading-none">{line.station_code}</span>
         <span className="text-[12px] font-semibold text-tg-text leading-tight flex-1 min-w-0 truncate">{line.line_name}</span>
@@ -134,9 +160,10 @@ function LineSubCard({ line, station, coarseStations, statusByLine, lang, onFocu
           <span className="inline-block w-2 h-2 rounded-full" style={{ background: STATUS_HEX[st] || STATUS_HEX.unknown }} />
           <span className="text-tg-hint">{statusLabel}</span>
         </span>
-      </div>
-      {dirs.length > 0 && (
-        showTimes ? (
+        {hasDetail && <span className="shrink-0 text-tg-hint"><Triangle open={open} /></span>}
+      </button>
+      {hasDetail && (
+        open ? (
           <div className="flex flex-col gap-1.5">
             {dirs.map((d, i) => (
               <DirectionRow key={i} entry={d} lineCode={line.line_code}
@@ -149,7 +176,7 @@ function LineSubCard({ line, station, coarseStations, statusByLine, lang, onFocu
           </div>
         )
       )}
-      {line.more_info_url && (
+      {line.more_info_url && open && (
         <a href={line.more_info_url} target="_blank" rel="noreferrer"
           onClick={(e) => e.stopPropagation()}
           className="self-start text-[10px] text-tg-link no-underline">{t('mrt.stationInfo', lang)}</a>
@@ -171,14 +198,19 @@ function AmenityLink({ href, children }) {
 export default function StationCard({
   station = null, coarse = null, context = null, crowd = null, statusByLine = null,
   coarseStations = null, lang = 'en', onClose = null, onFocusStationCode = null,
-  onTap = null, active = false, glass = false, compact = false, userLoc = null
+  onTap = null, active = false, glass = false, compact = false, collapsible = false, userLoc = null
 }) {
   const name = station?.station_name || coarse?.name || '';
-  // v0.62.621 — hooks must precede the early return (Rules of Hooks).
-  // Train-times detail is collapsed by default (Maps-style hours dropdown); the
-  // saved/favourite toggle is seeded from localStorage keyed by station name.
-  const [hoursOpen, setHoursOpen] = useState(false);
+  // v0.62.621/632 — hooks must precede the early return (Rules of Hooks).
+  // `bodyOpen` drives the card-level collapse (TILE mode): a collapsible card
+  // starts closed (uniform tile height) unless it is the active/selected one; a
+  // non-collapsible card (phone drawer, single tapped card) is always open.
+  // `aroundOpen` folds the "Around the station" amenities.
+  const [bodyOpen, setBodyOpen] = useState(!collapsible || active);
+  const [aroundOpen, setAroundOpen] = useState(false);
   const [saved, setSaved] = useState(() => (name ? readSaved().includes(name) : false));
+  // The active card auto-expands (the carousel/grid "selected" pop effect).
+  useEffect(() => { if (active) setBodyOpen(true); }, [active]);
   if (!name) return null;
 
   // Station coordinates (for Directions / Share / distance): prefer the tapped
@@ -223,16 +255,30 @@ export default function StationCard({
   const taxis = context?.taxis || [];
   const nearestHawker = context?.nearestHawker || null;
 
+  // v0.62.632 — the always-visible one-line summary under the name strip (so the
+  // collapsed tile is uniform height AND informative): a live status dot per line
+  // + crowd dot + distance. Kept to a single truncating row.
+  const worstStatus = lines.reduce((acc, l) => {
+    const s = (statusByLine && statusByLine[l.line_code] && statusByLine[l.line_code].status) || 'normal';
+    return s !== 'normal' ? s : acc;
+  }, 'normal');
+
   return (
     <div
       role={onTap ? 'button' : undefined}
       tabIndex={onTap ? 0 : undefined}
       data-station-card={name}
       onClick={onTap ? () => onTap(coarse || station) : undefined}
-      className={`rounded-xl border overflow-hidden text-xs flex flex-col ${onTap ? 'cursor-pointer' : ''} ${active ? 'border-tg-accent ring-1 ring-tg-accent' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}
+      className={`rounded-xl border overflow-hidden text-xs flex flex-col transition-transform ${onTap ? 'cursor-pointer' : ''} ${active ? 'border-tg-accent ring-2 ring-tg-accent shadow-xl scale-[1.02] relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}
     >
-      {/* Name strip — line colour (single) / white (interchange). */}
-      <div className="px-3 py-2 flex items-center gap-2" style={{ background: stripHex, color: stripText }}>
+      {/* Name strip — line colour (single) / white (interchange). v0.62.632 — in
+          TILE mode the whole strip is the card-level collapse toggle (▾/▲). */}
+      <div
+        className="px-3 py-2 flex items-center gap-2"
+        style={{ background: stripHex, color: stripText }}
+        role={collapsible ? 'button' : undefined}
+        onClick={collapsible ? (e) => { e.stopPropagation(); setBodyOpen((o) => !o); } : undefined}
+      >
         <div className="flex flex-wrap items-center gap-1">
           {lines.map((l, i) => (
             <span key={i}
@@ -253,12 +299,35 @@ export default function StationCard({
           }}
         >{interchange ? t('mrt.cat.interchange', lang) : t('mrt.cat.station', lang)}</span>
         {coarse?.future && <span className="text-[10px] opacity-80">({t('mrt.future', lang)})</span>}
+        {/* v0.62.632 — the card-level disclosure triangle (TILE mode). */}
+        {collapsible && (
+          <button type="button"
+            onClick={(e) => { e.stopPropagation(); setBodyOpen((o) => !o); }}
+            aria-expanded={bodyOpen} aria-label={t('mrt.trainTimes', lang)}
+            className="shrink-0 leading-none opacity-80 active:scale-90" style={{ color: stripText }}>
+            <Triangle open={bodyOpen} />
+          </button>
+        )}
         {onClose && (
           <button type="button" onClick={(e) => { e.stopPropagation(); onClose(); }}
             aria-label="Close" className="text-[13px] leading-none opacity-80 active:scale-90" style={{ color: stripText }}>✕</button>
         )}
       </div>
 
+      {/* v0.62.632 — always-visible one-line summary (uniform tile): per-line
+          status dots + crowd + distance. */}
+      {collapsible && (
+        <div className="px-3 py-1 flex items-center gap-2 text-[11px] text-tg-text/80 border-b border-tg-border/60">
+          <span className="flex items-center gap-1 shrink-0">
+            <span className="inline-block w-2 h-2 rounded-full" style={{ background: STATUS_HEX[worstStatus] || STATUS_HEX.unknown }} />
+            <span className="text-tg-hint">{t(`mrt.status.${worstStatus}`, lang)}</span>
+          </span>
+          {crowdLevel && <span className="shrink-0">{CROWD_DOT[crowdLevel]} {t(`mrt.crowd.${crowdLevel}`, lang)}</span>}
+          {walkMin != null && <span className="ml-auto text-tg-hint whitespace-nowrap shrink-0">🚶 {tn('mrt.walk', lang, { min: walkMin, m: distM })}</span>}
+        </div>
+      )}
+
+      {(!collapsible || bodyOpen) && (
       <div className={`flex flex-col gap-2 ${compact ? 'p-2' : 'p-2.5'}`}>
         {/* v0.62.621 — Google-Maps action row: Directions · Save · Share, with
             the distance / walking-time (when the user's location is known) flush
@@ -270,40 +339,39 @@ export default function StationCard({
             label={saved ? t('mrt.act.saved', lang) : t('mrt.act.save', lang)} onClick={toggleSaved} />
           <ActionButton icon="⤴" label={t('mrt.act.share', lang)}
             onClick={() => openExternal(shareUrl(lat, lng, name), true)} />
-          {walkMin != null && (
+          {walkMin != null && !collapsible && (
             <span className="ml-auto text-[11px] text-tg-hint whitespace-nowrap">🚶 {tn('mrt.walk', lang, { min: walkMin, m: distM })}</span>
           )}
         </div>
 
-        {/* Crowd status. */}
-        {crowdLevel && (
+        {/* Crowd status (non-tile only — the tile shows it in the summary row). */}
+        {crowdLevel && !collapsible && (
           <div className="text-[11px] text-tg-text/90">{CROWD_DOT[crowdLevel]} {t(`mrt.crowd.${crowdLevel}`, lang)}</div>
         )}
 
-        {/* Stacked per-line-code sub-cards. v0.62.621 — the first/last-train
-            DETAIL folds behind a Maps-style "Train times ▾" toggle (collapsed by
-            default); the line + live status stay visible always. */}
+        {/* Stacked per-line-code sub-cards. v0.62.632 — each line owns its OWN ▾
+            (fold its first/last-train detail); the active card opens them. */}
         {lines.some((l) => l.line_code) && (
           <div className="flex flex-col gap-1.5">
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); setHoursOpen((o) => !o); }}
-              aria-expanded={hoursOpen}
-              className="self-start flex items-center gap-1 text-[11px] font-semibold text-tg-hint active:scale-95"
-            >🕑 {t('mrt.trainTimes', lang)} <span className="text-[9px] leading-none">{hoursOpen ? '▲' : '▼'}</span></button>
             {lines.map((l, i) => (
               <LineSubCard key={i} line={l} station={station || {}} coarseStations={coarseStations}
                 statusByLine={statusByLine} lang={lang} onFocusStationCode={onFocusStationCode}
-                showTimes={hoursOpen} />
+                initialOpen={active} />
             ))}
           </div>
         )}
 
-        {/* Around the station — underline-free amenity hyperlinks. */}
+        {/* Around the station — v0.62.632 folds behind its own ▾ triangle. */}
         {(exits.length > 0 || busStops.length > 0 || taxis.length > 0 || nearestHawker) && (
           <div className="flex flex-col gap-1.5">
-            <div className="text-[11px] font-semibold text-tg-hint">{t('mrt.around', lang)}</div>
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setAroundOpen((o) => !o); }}
+              aria-expanded={aroundOpen}
+              className="self-start flex items-center gap-1 text-[11px] font-semibold text-tg-hint active:scale-95"
+            >{t('mrt.around', lang)} <Triangle open={aroundOpen} /></button>
 
+            {aroundOpen && (<>
             {exits.length > 0 && (
               <div className="flex flex-wrap gap-1 items-center">
                 <span className="text-[10px] text-tg-hint mr-0.5">{t('mrt.exits', lang)}</span>
@@ -347,9 +415,11 @@ export default function StationCard({
                 </AmenityLink>
               </div>
             )}
+            </>)}
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }
