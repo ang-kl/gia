@@ -6,7 +6,7 @@
 // root (node-environment) Vitest can exercise it directly.
 
 import { describe, it, expect } from 'vitest';
-import { buildLinePaths, resolveLinePaths, smoothSegment, smoothLinePaths, catmullRomSegment } from '../web/transport/src/data/line-paths.js';
+import { buildLinePaths, resolveLinePaths, smoothSegment, smoothLinePaths, catmullRomSegment, lineStationsFull } from '../web/transport/src/data/line-paths.js';
 
 const STATIONS = [
   { name: 'Jurong East',    lat: 1.3329, lng: 103.7421, codes: ['NS1', 'EW24'], lines: ['NSL', 'EWL'], status: 'operational' },
@@ -351,5 +351,25 @@ describe('catmullRomSegment (v0.61.194)', () => {
   it('returns input unchanged for < 2 points', () => {
     const seg = [{ lat: 1.30, lng: 103.80 }];
     expect(catmullRomSegment(seg)).toBe(seg);
+  });
+});
+
+
+// v0.62.634 — a physical stop with a future interchange shadow (same on-line code)
+// must list ONCE (the operational record), not twice.
+describe('lineStationsFull — future-interchange de-dupe (v0.62.634)', () => {
+  const stations = [
+    { name: 'Pasir Ris', codes: ['EW1'], lines: ['EWL'], lat: 1.3729, lng: 103.9492, status: 'operational' },
+    { name: 'Pasir Ris CRL', codes: ['CR4', 'EW1'], lines: ['CRL', 'EWL'], lat: 1.3729, lng: 103.9492, status: 'future' },
+    { name: 'Tampines', codes: ['EW2', 'DT32'], lines: ['EWL', 'DTL'], lat: 1.3536, lng: 103.9451, status: 'operational' }
+  ];
+  it('lists EW1 exactly once, keeping the operational record', () => {
+    const rows = lineStationsFull(stations, 'EWL');
+    const ew1 = rows.filter((r) => r.focusCode === 'EW1');
+    expect(ew1).toHaveLength(1);
+    expect(ew1[0].name).toBe('Pasir Ris');
+    expect(ew1[0].future).toBe(false);
+    // the operational Pasir Ris + Tampines = 2 EWL rows here
+    expect(rows.map((r) => r.name)).toEqual(['Pasir Ris', 'Tampines']);
   });
 });

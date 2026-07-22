@@ -201,3 +201,55 @@ describe('todaySummary', () => {
     expect(todaySummary([])).toBe(null);
   });
 });
+
+// v0.62.634 — clock parsing + open-now + station-wide operating hours.
+import { parseClock, stationOpenNow, stationHours } from '../web/transport/src/lib/station-card-utils.js';
+
+describe('parseClock', () => {
+  it('parses am/pm clock strings to minutes-since-midnight', () => {
+    expect(parseClock('5:45am')).toBe(5 * 60 + 45);
+    expect(parseClock('12:25am')).toBe(25);        // 12am = 0h
+    expect(parseClock('12:00pm')).toBe(12 * 60);   // noon
+    expect(parseClock('11:30pm')).toBe(23 * 60 + 30);
+  });
+  it('returns null for unparseable input', () => {
+    expect(parseClock('')).toBe(null);
+    expect(parseClock('soon')).toBe(null);
+    expect(parseClock(null)).toBe(null);
+  });
+});
+
+describe('stationOpenNow', () => {
+  const win = { first: '5:45am', last: '12:25am' };   // crosses midnight
+  it('is open inside a same-day window', () => {
+    expect(stationOpenNow({ first: '6:00am', last: '11:00pm' }, 12 * 60)).toBe(true);
+    expect(stationOpenNow({ first: '6:00am', last: '11:00pm' }, 5 * 60)).toBe(false);
+  });
+  it('handles the after-midnight last train', () => {
+    expect(stationOpenNow(win, 8 * 60)).toBe(true);    // 8am — running
+    expect(stationOpenNow(win, 10)).toBe(true);        // 00:10 — before 12:25am last
+    expect(stationOpenNow(win, 3 * 60)).toBe(false);   // 3am — closed
+  });
+  it('returns null when times or now are missing', () => {
+    expect(stationOpenNow(null, 600)).toBe(null);
+    expect(stationOpenNow(win, null)).toBe(null);
+    expect(stationOpenNow({ first: 'x', last: 'y' }, 600)).toBe(null);
+  });
+});
+
+describe('stationHours', () => {
+  const station = {
+    first_last_train: [
+      { line_code: 'EWL', station_code: 'EW1', timings: { first_weekday: '5:45am', last_weekday: '12:25am' } },
+      { line_code: 'NSL', station_code: 'NS1', timings: { first_weekday: '5:31am', last_weekday: '11:52pm' } }
+    ]
+  };
+  it('takes the earliest first and latest last across lines', () => {
+    const lines = [{ station_code: 'EW1' }, { station_code: 'NS1' }];
+    expect(stationHours(lines, station)).toEqual({ first: '5:31am', last: '12:25am' });
+  });
+  it('returns null when no line publishes times', () => {
+    expect(stationHours([{ station_code: 'ZZ9' }], station)).toBe(null);
+    expect(stationHours([], station)).toBe(null);
+  });
+});

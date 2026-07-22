@@ -64,6 +64,55 @@ export function todaySummary(dirs) {
   return null;
 }
 
+// v0.62.634 — parse a "5:45am" / "12:25am" clock string to minutes-since-midnight
+// (0..1439). Returns null when unparseable.
+export function parseClock(str) {
+  const m = String(str || '').trim().match(/^(\d{1,2}):(\d{2})\s*([ap])\.?m\.?$/i);
+  if (!m) return null;
+  let h = parseInt(m[1], 10) % 12;
+  const min = parseInt(m[2], 10);
+  if (/p/i.test(m[3])) h += 12;
+  return h * 60 + min;
+}
+
+// v0.62.634 — is the station currently in service, given a { first, last } clock
+// pair (today's summary) and the current minutes-since-midnight (SGT)? Handles
+// the after-midnight last train (e.g. first 5:45am, last 12:25am) by treating a
+// `last` that is <= `first` as belonging to the next day. Returns true / false,
+// or null when the times are missing/unparseable.
+export function stationOpenNow(summary, nowMin) {
+  if (!summary || !Number.isFinite(nowMin)) return null;
+  const f = parseClock(summary.first);
+  const l = parseClock(summary.last);
+  if (f == null || l == null) return null;
+  if (l > f) return nowMin >= f && nowMin <= l;         // same-day service window
+  return nowMin >= f || nowMin <= l;                    // window crosses midnight
+}
+
+// v0.62.634 — the station-wide operating window: the earliest first-train and
+// latest last-train across every line the station serves (most stops share one
+// window; interchanges may differ slightly). `last` is compared on a clock that
+// counts after-midnight hours (0:00–4:59) as +24h so "12:25am" ranks after
+// "11:30pm". Returns { first, last } (either may be null) or null when no line
+// publishes times.
+export function stationHours(lines, station) {
+  let first = null, firstMin = Infinity;
+  let last = null, lastKey = -Infinity;
+  for (const l of (lines || [])) {
+    const dirs = ((station && station.first_last_train) || []).filter((f) => f.station_code === l.station_code);
+    const s = todaySummary(dirs);
+    if (!s) continue;
+    const fm = parseClock(s.first);
+    if (fm != null && fm < firstMin) { firstMin = fm; first = s.first; }
+    const lm = parseClock(s.last);
+    if (lm != null) {
+      const key = lm < 300 ? lm + 1440 : lm;            // after-midnight ranks late
+      if (key > lastKey) { lastKey = key; last = s.last; }
+    }
+  }
+  return (first || last) ? { first, last } : null;
+}
+
 export function slugify(n) {
   return String(n || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
 }

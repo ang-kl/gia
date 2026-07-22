@@ -352,7 +352,9 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       keyboardShortcuts: true,
       // v0.62.102 — operator: the embedded map hung when zoomed out far (world
       // view). v0.62.294 — z5 still hung; raise the floor to minZoom 7 … maxZoom 20.
-      minZoom: 7, maxZoom: 20,
+      // v0.62.634 — operator: "capped at 23" — raise the ceiling so a selected
+      // station can zoom right in to street/exit level.
+      minZoom: 7, maxZoom: 23,
       gestureHandling: 'greedy'
     });
     // v0.61.22 — headerDisabled drops Google's white header + ✕ so the
@@ -756,7 +758,18 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           mapRef.current.setZoom(sv.zoom);
         }
       } else if (detail) {
-        if (boundedCount) mapRef.current.fitBounds(bounds, 60);
+        // v0.62.634 — operator: "It should zoom in 18 and capped at 23." A tapped
+        // station centres and zooms to 18 (street/exit level) instead of
+        // fitBounds — which zoomed OUT to frame every amenity pin, landing around
+        // z15-16. The exits / bus stops / carparks stay on the map; the user can
+        // pan/zoom out to 7 or in to 23 from there.
+        const st = detail.station;
+        if (st && Number.isFinite(st.lat) && Number.isFinite(st.lng)) {
+          mapRef.current.setCenter({ lat: st.lat, lng: st.lng });
+          mapRef.current.setZoom(18);
+        } else if (boundedCount) {
+          mapRef.current.fitBounds(bounds, 60);
+        }
       } else if (boundedCount > 1 && (firstFitRef.current || focusChanged)) {
         firstFitRef.current = false;
         mapRef.current.fitBounds(bounds, 60);

@@ -135,7 +135,21 @@ export function lineStationsFull(stations, lineCode) {
     });
   }
   rows.sort((a, b) => (a.num - b.num) || ((a.future ? 1 : 0) - (b.future ? 1 : 0)));
-  return rows.map(({ num, ...rest }) => rest);
+  // v0.62.634 — operator ("Pasir Ris … why is it missing now"): a physical stop
+  // that will gain a future interchange has TWO mrt-coords records sharing the
+  // SAME code on this line — the operational one and a future "… CRL" shadow
+  // (Pasir Ris/EW1 + Pasir Ris CRL/EW1; also Boon Lay, Ang Mo Kio, Hougang,
+  // Bright Hill). Both landed as separate cards. De-dupe by the on-line code,
+  // keeping the FIRST (operational sorts before future via the tiebreaker above)
+  // so the line lists exactly one card per stop.
+  const seen = new Set();
+  const deduped = [];
+  for (const r of rows) {
+    if (seen.has(r.focusCode)) continue;
+    seen.add(r.focusCode);
+    deduped.push(r);
+  }
+  return deduped.map(({ num, ...rest }) => rest);
 }
 
 export function buildLinePaths(stations) {

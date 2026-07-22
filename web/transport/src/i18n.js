@@ -129,6 +129,11 @@ const STRINGS = {
   'mrt.trainTimes':            { en: 'Train times', fr: 'Horaires des trains' },
   'mrt.around':                { en: 'Around the station', fr: 'Autour de la station' },
   'mrt.nearestHawker':         { en: 'Nearest hawker', fr: 'Hawker le plus proche' },
+  // v0.62.634 — operator: the card should state whether the station is open now
+  // + its operating (first/last train) hours, above the amenities.
+  'mrt.openNow':               { en: 'Open now', fr: 'Ouvert' },
+  'mrt.closedNow':             { en: 'Closed now', fr: 'Fermé' },
+  'mrt.hours':                 { en: 'Operating hours', fr: "Heures d'ouverture" },
   'mrt.stationInfo':           { en: 'Station info ↗', fr: 'Infos station ↗' },
   'mrt.taxi':                  { en: 'Taxi', fr: 'Taxi' },
   'mrt.dir.northbound':        { en: 'Northbound', fr: 'Direction nord' },
