@@ -208,6 +208,33 @@ function normaliseStationName(raw) {
   return titleCase(String(raw || '').replace(/\s+(MRT|LRT)\s+STATION$/i, ''));
 }
 
+// v0.62.631 — the LTA exit dataset labels newly-opened stations by CODE
+// (e.g. STATION_NA = "NE18", "CC30") instead of by name, so the raw pin label
+// reads "Ne18 · 1" and the station-exits index key is a bare code. Resolve a
+// bare code to the proper station name via mrt-coords (code → name) so the
+// label + key read cleanly ("Punggol Coast", "Keppel", "Cantonment", "Prince
+// Edward Road"). A non-code STATION_NA is left untouched (resolveStationName
+// falls through to normaliseStationName), so every existing exit stays
+// byte-identical — only the code-labelled new stations change.
+let _codeToName = null;
+function codeToName(code) {
+  if (!_codeToName) {
+    _codeToName = {};
+    for (const st of loadStations()) {
+      for (const c of (st.codes || [])) _codeToName[String(c).toUpperCase()] = st.name;
+    }
+  }
+  return _codeToName[String(code || '').toUpperCase()] || null;
+}
+function resolveStationName(raw) {
+  const s = String(raw || '').trim();
+  if (/^[A-Z]{1,3}\d+[A-Z]?$/i.test(s)) {
+    const nm = codeToName(s);
+    if (nm) return nm;
+  }
+  return normaliseStationName(s);
+}
+
 let _stationExits = null;
 function loadStationExits() {
   if (_stationExits) return _stationExits;
@@ -220,7 +247,7 @@ function loadStationExits() {
       const [lng, lat] = g.coordinates || [];
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
       const props = feat.properties || {};
-      const station = normaliseStationName(props.STATION_NA);
+      const station = resolveStationName(props.STATION_NA);
       if (!station) continue;
       const exit = String(props.EXIT_CODE || '').trim();
       (_stationExits[station] || (_stationExits[station] = []))
@@ -413,6 +440,12 @@ function convertPoint(features, name) {
         rec.station = st.name;
         rec.codes = Array.isArray(st.codes) ? st.codes : [];
       }
+      // v0.62.631 — use the resolved station name for the pin label too, so a
+      // code-labelled new station reads "Punggol Coast · 1" not "Ne18 · 1".
+      // Mirrors pointName's format (raw EXIT_CODE) but with the resolved name,
+      // so non-code stations produce the exact same label as before.
+      const resolvedName = resolveStationName(props.STATION_NA);
+      rec.name = (resolvedName ? resolvedName + ' · ' : '') + String(props.EXIT_CODE || 'Exit').trim();
       // v0.61.28 — nearby named attractions (≤400 m), shown on the
       // Exit Template popup (exit feature Part B, buildings/attractions
       // half — building footprints carry no names so attractions are
