@@ -54,7 +54,7 @@ function LiveClock() {
 // landscape / full-map layout (mirrors the Hawker TMA's CentreCarousel). The
 // off-centre (peeking) cards get the frosted "glass" look; the centred one is
 // opaque. IntersectionObserver tracks which cards are in focus.
-function StationCarousel({ items, render }) {
+function StationCarousel({ items, render, activeIndex = -1 }) {
   const trackRef = useRef(null);
   const [focused, setFocused] = useState(() => new Set());
   useEffect(() => {
@@ -76,6 +76,17 @@ function StationCarousel({ items, render }) {
     track.querySelectorAll('[data-idx]').forEach((el) => io.observe(el));
     return () => io.disconnect();
   }, [items]);
+  // v0.62.632 — when a station is selected (card tap or map pin), scroll its card
+  // to the centre of the track — the Cuisine/iPhone "selected card centres + pops"
+  // effect. The active card also auto-expands + scales (StationCard `active`).
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track || activeIndex < 0) return;
+    const el = track.querySelector(`[data-idx="${activeIndex}"]`);
+    if (el && typeof el.scrollIntoView === 'function') {
+      el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  }, [activeIndex]);
   return (
     <div
       ref={trackRef}
@@ -348,6 +359,19 @@ export default function App() {
   const lineStations = (focusedCode && Array.isArray(coarseStations))
     ? lineStationsFull(coarseStations, focusedCode) : [];
 
+  // v0.62.632 — operator (iPad mini): the LIST-mode station grid runs 4 columns
+  // in portrait and 6 in landscape (1 on a phone). CSS multi-column so a tile
+  // that expands grows only its own column. Literal class strings so Tailwind's
+  // JIT keeps them.
+  const gridColsClass = vp.deviceClass === 'mobile'
+    ? 'columns-1'
+    : (vp.orientation === 'landscape' ? 'columns-6' : 'columns-4');
+
+  // v0.62.632 — the selected station's index within the focused line (drives the
+  // carousel's centre-on-select). -1 when nothing is selected.
+  const activeStationIndex = focusedStation
+    ? lineStations.findIndex((s) => s.name === focusedStation.name) : -1;
+
   // ---- shared sub-elements (rendered into each layout below) ----
   const headerEl = (
     /* v0.62.164 — ONE neo-skeuomorphic header card.
@@ -432,7 +456,7 @@ export default function App() {
 
   // One station's rich StationCard (used in the wide list + carousel). Tapping
   // it focuses that station (card ↔ pin: the map reframes on focusedStation).
-  const renderStationCard = (st, i, glass = false, compact = false) => {
+  const renderStationCard = (st, i, glass = false, compact = false, collapsible = false) => {
     const rich = geoStations ? (geoStations[st.name] || null) : null;
     const active = !!focusedStation && focusedStation.name === st.name;
     return (
@@ -448,6 +472,7 @@ export default function App() {
         active={active}
         glass={glass}
         compact={compact}
+        collapsible={collapsible}
         userLoc={userLoc}
         onTap={() => handleSelectStation(st, st.focusCode)}
         onFocusStationCode={handleFocusStationCode}
@@ -600,9 +625,15 @@ export default function App() {
           <div ref={listScrollRef} onScroll={onListScroll} className="flex-1 overflow-y-auto px-3 py-2 flex flex-col gap-2">
             {lineStations.length > 0
               ? (
-                <div className="grid grid-cols-1 min-[1100px]:grid-cols-2 gap-2">
+                // v0.62.632 — operator (iPad mini): a DENSE grid of collapsible
+                // station tiles — 4 columns portrait, 6 landscape (1 on a phone).
+                // CSS multi-column (not grid) so expanding a tile grows only its
+                // own column, never blowing out a whole row into empty space.
+                <div className={`${gridColsClass} gap-2 [column-gap:0.5rem]`}>
                   {lineStations.map((st, i) => (
-                    <React.Fragment key={st.focusCode || st.name || i}>{renderStationCard(st, i)}</React.Fragment>
+                    <div key={st.focusCode || st.name || i} className="break-inside-avoid mb-2">
+                      {renderStationCard(st, i, false, true, true)}
+                    </div>
                   ))}
                 </div>
               )
@@ -697,7 +728,8 @@ export default function App() {
       {(lineStations.length > 0 || singleFocusedCard) && (
         <div className="fixed inset-x-0 bottom-14 z-[38] pointer-events-none">
           {lineStations.length > 0
-            ? <StationCarousel items={lineStations} render={(st, i, glass) => renderStationCard(st, i, glass, true)} />
+            ? <StationCarousel items={lineStations} activeIndex={activeStationIndex}
+                render={(st, i, glass) => renderStationCard(st, i, glass, true, true)} />
             : <div className="px-3 max-w-md mx-auto max-h-[44vh] overflow-y-auto pointer-events-auto">{singleFocusedCard}</div>}
         </div>
       )}
