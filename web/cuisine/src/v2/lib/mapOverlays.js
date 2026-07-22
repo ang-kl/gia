@@ -2504,10 +2504,25 @@ export function createOverlayController(map, googleMaps, opts) {
       // any marker overlapping a nearer one; pass 3 rebuilds only the
       // markers whose mode actually changed.
       const items = [];
+      // v0.62.635 — operator (iPad mini): the Cuisine map FROZE when zoomed past
+      // z15. At z>=15 trainTier caps at 0, so every one of ~180 stations resolves
+      // to a heavy named 'pill' DOM marker and all attach to the map — most of
+      // them off-screen — and the (un-debounced) `idle` re-tier rebuilds the whole
+      // set on each zoom-settle: a main-thread hang on a memory-constrained tablet.
+      // Viewport-cull at z>=15: attach only the stations inside the current map
+      // bounds (the tapped/pinned station always shows). Off-screen pills aren't
+      // visible anyway, so nothing the user can see is lost; the visible set at a
+      // street-level zoom is only a handful of stops.
+      const cullBounds = (zoom >= 15 && vb) ? vb : null;
       for (const st of e.stations) {
-        st.marker.map = e.visible ? map : null;
-        if (!e.visible) continue;
+        if (!e.visible) { st.marker.map = null; continue; }
         const pinned = !!(detailStation && detailStation.name === st.station.name);
+        if (cullBounds && !pinned) {
+          let outside = false;
+          try { outside = !cullBounds.contains({ lat: st.lat, lng: st.lng }); } catch (_e) { outside = false; }
+          if (outside) { st.marker.map = null; continue; }
+        }
+        st.marker.map = map;
         let mode;
         if (pinned) {
           mode = 'pill';
