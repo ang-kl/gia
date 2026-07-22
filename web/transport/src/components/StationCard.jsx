@@ -176,7 +176,11 @@ function LineSubCard({ line, station, coarseStations, statusByLine, lang, onFocu
           </div>
         )
       )}
-      {line.more_info_url && open && (
+      {/* v0.62.633 — the Station info link renders INDEPENDENT of the timings
+          fold (Codex P2): a line with a more_info_url but NO first_last_train rows
+          (CGL / SLRT / PLRT) has hasDetail=false, so `open` never flips true — the
+          link must not be gated on `open` or it would be permanently hidden. */}
+      {line.more_info_url && (
         <a href={line.more_info_url} target="_blank" rel="noreferrer"
           onClick={(e) => e.stopPropagation()}
           className="self-start text-[10px] text-tg-link no-underline">{t('mrt.stationInfo', lang)}</a>
