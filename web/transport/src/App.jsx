@@ -685,17 +685,22 @@ export default function App() {
     <>
       <div className="fixed inset-0 flex flex-col overflow-hidden bg-tg-bg text-tg-text" style={fixedShellStyle}>
         <div className="px-3 pt-2 shrink-0 relative z-20">{headerEl}</div>
-        <div className="relative flex-1 min-h-0 px-3 pt-2 pb-1">
-          {mapBlock(true)}
-          {(lineStations.length > 0 || singleFocusedCard) && (
-            <div className="absolute inset-x-0 bottom-2 z-30 pointer-events-none">
-              {lineStations.length > 0
-                ? <StationCarousel items={lineStations} render={(st, i, glass) => renderStationCard(st, i, glass, true)} />
-                : <div className="px-3 max-w-md mx-auto max-h-[44vh] overflow-y-auto pointer-events-auto">{singleFocusedCard}</div>}
-            </div>
-          )}
-        </div>
+        <div className="relative flex-1 min-h-0 px-3 pt-2 pb-1">{mapBlock(true)}</div>
       </div>
+      {/* v0.62.630 — operator ("i expand the screen, the cards are gone"): the
+          carousel used to live INSIDE the map's flex container at z-30, so the
+          map's ⇲ Expand overlay (fixed inset-0 z-[35]) painted over it and the
+          cards vanished when expanded. Make the carousel a FIXED sibling at z-[38]
+          — above the expand overlay (z-[35]), below the footer (z-40) — so it
+          floats over the map's bottom edge in BOTH the normal and expanded states
+          and the cards stay visible. */}
+      {(lineStations.length > 0 || singleFocusedCard) && (
+        <div className="fixed inset-x-0 bottom-14 z-[38] pointer-events-none">
+          {lineStations.length > 0
+            ? <StationCarousel items={lineStations} render={(st, i, glass) => renderStationCard(st, i, glass, true)} />
+            : <div className="px-3 max-w-md mx-auto max-h-[44vh] overflow-y-auto pointer-events-auto">{singleFocusedCard}</div>}
+        </div>
+      )}
       {popups}
       {footerBar}
     </>
