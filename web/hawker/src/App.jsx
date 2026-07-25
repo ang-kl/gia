@@ -727,9 +727,13 @@ export default function App() {
         paddingTop: 'var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px))',
         paddingBottom: 'env(safe-area-inset-bottom, 0)'
       }}>
-      {/* full-bleed map behind everything */}
+      {/* full-bleed map behind everything.
+          v0.62.646 — NO z-0 on this wrapper: an explicit z-index on a positioned
+          element creates a STACKING CONTEXT, which trapped the map's fullscreen
+          `fixed inset-0 z-[35]` expand overlay inside it — so ⇲ Expand appeared to
+          do nothing (the map DID expand, behind the z-30 drawer). */}
       {active && (
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0">
           <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers}
             fill onCentreTap={onCentreTap} />
         </div>

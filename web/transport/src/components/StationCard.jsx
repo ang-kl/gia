@@ -308,6 +308,18 @@ export default function StationCard({
   }, 'normal');
 
   return (
+    <div className="w-full flex flex-col">
+    {/* v0.62.646 — operator: "station that is future have a tab like cuisine TMA
+        card with the word 'future'". Same folder-tab construction as Cuisine's
+        "Closed" tab (ResultCard.jsx): rendered OUTSIDE the bordered card so the
+        card's rounded corner can never slice through it, `-mb-1` tucking its flat
+        bottom under the card's top edge, `ml-3` offsetting it from the corner.
+        CVD-safe — the WORD carries the meaning, the colour only reinforces it. */}
+    {coarse?.future && (
+      <div className="ml-3 -mb-1 self-start relative z-10 px-3 py-0.5 rounded-t-lg bg-slate-600 text-white text-[10px] font-bold leading-snug uppercase tracking-wide">
+        {t('mrt.future', lang)}
+      </div>
+    )}
     <m.div
       role={onTap ? 'button' : undefined}
       tabIndex={onTap ? 0 : undefined}
@@ -315,14 +327,12 @@ export default function StationCard({
       onClick={onTap ? () => onTap(coarse || station) : undefined}
       animate={reduceMotion ? undefined : { scale: active ? 1.02 : 1 }}
       transition={{ type: 'spring', stiffness: 420, damping: 30, mass: 0.7 }}
-      /* v0.62.645 — operator: "expand IS to expand the card" + "the height of the
-         card in Portrait mode isn't the same as cuisine TMA". So the CARD owns its
-         height now, not the carousel box: COLLAPSED it is a fixed, uniform
-         `h-[14rem]` (a rem — so portrait and landscape are the SAME card, unlike
-         the v0.62.644 vh which grew with the taller portrait viewport); EXPANDED it
-         has no fixed height and simply GROWS, capped by the carousel box's
-         max-height, which scrolls if a station is unusually rich. */
-      className={`rounded-xl border overflow-hidden text-xs flex flex-col ${collapsible && !bodyOpen ? 'h-[14rem]' : ''} ${onTap ? 'cursor-pointer' : ''} ${active ? 'border-tg-accent ring-2 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}
+      /* v0.62.646 — operator's own A/B verdict (IMG_1216 Train vs IMG_1217 Cuisine):
+         the FIXED collapsed height was the mistake. Cuisine's cards are NOT uniform
+         — each is sized by its content, which is exactly why they read better and
+         carry no dead space. So the fixed height is GONE: the Train card is now
+         content-sized in both states, like Cuisine and Hawker. */
+      className={`rounded-xl border overflow-hidden text-xs flex flex-col ${onTap ? 'cursor-pointer' : ''} ${active ? 'border-tg-accent ring-2 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}
     >
       {/* Name strip — line colour (single) / white (interchange).
           v0.62.641 — operator ("train card when tap isn't zoom in"): the strip used
@@ -355,7 +365,8 @@ export default function StationCard({
             the Maps JS API already loads into the page — so the card's title reads
             as the same family as the map labels beside it. */}
         <span className="font-google text-[14px] font-bold leading-tight flex-1 min-w-0 truncate">{name}</span>
-        {coarse?.future && <span className="text-[10px] opacity-80 shrink-0">({t('mrt.future', lang)})</span>}
+        {/* v0.62.646 — the inline "(future)" marker is retired: the folder TAB
+            above the card now carries it (Cuisine parity). */}
         {/* v0.62.644 — the card-level disclosure moved OFF the name strip to a
             Cuisine-style pill at the CARD FOOT (operator: "the collapse and expand
             is same effect as cuisine TMA"), so the strip is name-only and the name
@@ -576,5 +587,6 @@ export default function StationCard({
         >{bodyOpen ? t('mrt.detailsLess', lang) : t('mrt.detailsMore', lang)}</button>
       )}
     </m.div>
+    </div>
   );
 }
