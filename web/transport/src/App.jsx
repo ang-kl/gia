@@ -107,9 +107,15 @@ function StationCarousel({ items, render, activeIndex = -1 }) {
           at each side, therefore squeeze the width". Narrower basis so ~4 cards
           are in view plus a half-peek at each edge on an iPad-mini width; phones
           keep a single wide card. Natural height (items-end), tight max-h. */}
+      {/* v0.62.644 — operator: "carousel cards collapsed should be within while the
+          card height is the SAME as cuisine TMA". A FIXED height (not max-h) makes
+          every card in the strip exactly the same box — the tidy Cuisine look — and
+          the content scrolls INSIDE it, so expanding via the ▾ pill never changes
+          the card's outer size (the Cuisine expand behaviour). Taller on a phone,
+          ~Cuisine's ~24vh once there is tablet width. */}
       {items.map((c, i) => (
         <div key={i} data-idx={i}
-          className="snap-center shrink-0 basis-[60%] sm:basis-[31%] md:basis-[22%] max-h-[42vh] overflow-y-auto rounded-lg shadow-lg">
+          className="snap-center shrink-0 basis-[60%] sm:basis-[31%] md:basis-[22%] h-[34vh] sm:h-[27vh] overflow-y-auto rounded-lg shadow-lg">
           {render(c, i, !focused.has(i))}
         </div>
       ))}

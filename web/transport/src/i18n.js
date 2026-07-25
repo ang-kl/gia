@@ -131,6 +131,11 @@ const STRINGS = {
   'mrt.nearestHawker':         { en: 'Nearest hawker', fr: 'Hawker le plus proche' },
   // v0.62.634 — operator: the card should state whether the station is open now
   // + its operating (first/last train) hours, above the amenities.
+  // v0.62.644 — Cuisine-style bottom collapse pill on the station card.
+  'mrt.detailsMore':           { en: '▾ details', fr: '▾ détails' },
+  'mrt.detailsLess':           { en: '▴ less', fr: '▴ moins' },
+  'mrt.exitsN':                { en: '{n} exits', fr: '{n} sorties' },
+  'mrt.stopsN':                { en: '{n} stops', fr: '{n} arrêts' },
   'mrt.openNow':               { en: 'Open now', fr: 'Ouvert' },
   'mrt.closedNow':             { en: 'Closed now', fr: 'Fermé' },
   'mrt.hours':                 { en: 'Operating hours', fr: "Heures d'ouverture" },
