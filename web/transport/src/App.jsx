@@ -180,7 +180,7 @@ export default function App() {
   // /status fetch has no coords (they're chat-side only), so we ask the browser
   // once; if denied / unavailable the card simply omits distance and the
   // Directions button still routes from the user's device.
-  const [userLoc, setUserLoc] = useState(null);
+  const [userLoc] = useState(null);   // v0.62.641 — always null (walk row removed)
   // v0.60.85 — view toggle between the static PNG schematic
   // (SystemMap) and the interactive Google Map (MrtMapPanel,
   // ~177 ops + ~29 future pins). Operator 2026-05-10: "if the SG
@@ -317,20 +317,11 @@ export default function App() {
   // show a station from the previous line.
   useEffect(() => { setFocusedStation(null); }, [focusedCode]);
 
-  // v0.62.621 — best-effort one-shot geolocation for the card's distance / walk
-  // time. Silent on denial (distance is simply omitted). Cached up to 5 min.
-  useEffect(() => {
-    if (typeof navigator === 'undefined' || !navigator.geolocation) return undefined;
-    let cancelled = false;
-    try {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => { if (!cancelled && pos?.coords) setUserLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude }); },
-        () => { /* denied / unavailable — distance omitted, Directions still works */ },
-        { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
-      );
-    } catch { /* noop */ }
-    return () => { cancelled = true; };
-  }, []);
+  // v0.62.641 — the one-shot geolocation that fed the card's distance / walk time
+  // is REMOVED with the walk row itself (operator: "remove distance walking in
+  // train"). Nothing in this TMA consumes a user fix any more, so the Mini App no
+  // longer raises a location permission prompt it cannot justify. `userLoc` stays
+  // wired (always null) so StationCard's prop contract is unchanged.
 
   if (error) return <div className="p-4 text-tg-text">{t('error.unreachable', lang)} {error}</div>;
   // v0.62.636 (C1) — skeleton screen instead of a bare "Loading…" line.
