@@ -161,7 +161,7 @@ function LineSubCard({ line, station, coarseStations, statusByLine, lang, onFocu
   const hasDetail = dirs.length > 0;
 
   return (
-    <div className="rounded-lg border border-tg-border bg-tg-bg/40 p-2 flex flex-col gap-1.5">
+    <div className="rounded-lg border border-tg-border bg-tg-bg/40 p-1.5 flex flex-col gap-1">
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); if (hasDetail) setOpen((o) => !o); }}
@@ -360,7 +360,9 @@ export default function StationCard({
       )}
 
       {(!collapsible || bodyOpen) && (
-      <div className={`flex flex-col gap-2 ${compact ? 'p-2' : 'p-2.5'}`}>
+      // v0.62.639 — operator: "reduce spacing above and below the body text". Tight
+      // gaps + padding in compact (carousel / grid) so a card reads at Hawker height.
+      <div className={`flex flex-col ${compact ? 'gap-1 p-1.5' : 'gap-2 p-2.5'}`}>
         {/* v0.62.634 — operator card order: (1) current status / is-it-open /
             health, (2) operating hours, (3) exits · bus stops · carparks · hawker,
             (4) per-line status sub-cards, (5) Directions/Save/Share LAST (operator:
