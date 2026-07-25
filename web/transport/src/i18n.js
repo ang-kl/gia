@@ -121,6 +121,10 @@ const STRINGS = {
   // distance/walk, collapsible train-times). EN/FR; other locales degrade to EN.
   'mrt.cat.station':           { en: 'MRT station', fr: 'Station MRT' },
   'mrt.cat.interchange':       { en: 'Interchange', fr: 'Correspondance' },
+  // v0.62.645 — operator: the Train card must not say "Directions" for the Google
+  // Maps external link; Cuisine AND Hawker both label it "📍 Maps" (btn.maps).
+  // The old key stays defined (unused) rather than deleting shipped translations.
+  'mrt.act.maps':              { en: 'Maps', fr: 'Carte' },
   'mrt.act.directions':        { en: 'Directions', fr: 'Itinéraire' },
   'mrt.act.save':              { en: 'Save', fr: 'Enregistrer' },
   'mrt.act.saved':             { en: 'Saved', fr: 'Enregistré' },

@@ -204,3 +204,12 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
+
+/* v0.62.645 — operator: "standardised to use Google interface font". Roboto is
+   Google's interface face (the Maps JS API injects its webfont into the page when
+   the map loads, so it is available without us adding a network request). Applied
+   to the station-card title so it reads as the same family as the map's own
+   labels; falls back to the platform UI font where Roboto isn't present. */
+.font-google {
+  font-family: Roboto, 'Google Sans', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+}
