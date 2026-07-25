@@ -1,5 +1,6 @@
 // Minimal Telegram WebApp shim, mirrors web/cuisine/src/api/tg.js so
 // theme params + sendData behave identically across all TMAs.
+import { wireSafeAreaInsets } from '../../_shared/lib/safe-area.js';
 
 export function tg() {
   return typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
@@ -18,6 +19,8 @@ export function applyTelegramTheme() {
   };
 
   safe('ready', () => w.ready());
+  // v0.62.638 — wire the Telegram safe-area vars (+ fullscreen min-top clearance).
+  safe('safe-area', () => wireSafeAreaInsets(w));
   // v0.60.78 — operator request 2026-05-10: don't auto-expand the
   // Menu TMA on iPhone. The hub fits in Telegram's compact half-
   // screen sheet now that v0.60.73 shrunk the tiles to 56 px.

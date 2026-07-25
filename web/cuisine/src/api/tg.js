@@ -2,6 +2,7 @@
 //
 // applyTelegramTheme() mirrors Telegram themeParams onto CSS variables so
 // Tailwind's tg-* color tokens follow the user's light/dark/named theme.
+import { wireSafeAreaInsets } from '../../../_shared/lib/safe-area.js';
 
 export function tg() {
   return typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
@@ -50,6 +51,9 @@ export function applyTelegramTheme() {
 
   safe('ready', () => w.ready());
   safe('expand', () => w.expand());
+  // v0.62.638 — wire the Telegram safe-area vars (+ fullscreen min-top clearance)
+  // so headers clear the floating buttons on iPad (shared helper).
+  safe('safe-area', () => wireSafeAreaInsets(w));
 
   safe('diag-log', () => {
     console.log('[TMA-Diag-v0.59.28]', JSON.stringify({

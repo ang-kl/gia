@@ -1,5 +1,6 @@
 // Mirrors web/menu/src/tg.js — applies Telegram theme params + provides
 // initData accessor for authed fetches to /api/hawker/closures.
+import { wireSafeAreaInsets } from '../../_shared/lib/safe-area.js';
 
 export function tg() {
   return typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
@@ -168,34 +169,12 @@ export function applyTelegramTheme() {
   });
 
   // v0.62.591 — operator (iPad Pro): in Telegram FULLSCREEN the frosted top bar +
-  // the bottom FAB were hidden behind Telegram's floating system buttons. The CSS
-  // already reads `--tg-content-safe-area-inset-top/bottom`, but nothing SET them —
-  // so they fell back to env(safe-area-inset-*), which is ~0 on an iPad (no notch)
-  // and does NOT reserve room for Telegram's fullscreen chrome. Populate the vars
-  // from the Bot API 8.0 insets: total clearance = device safeArea + Telegram
-  // contentSafeArea, refreshed whenever fullscreen / safe area / viewport changes.
-  safe('safe-area', () => {
-    const root = document?.documentElement;
-    if (!root) return;
-    const px = (v) => (typeof v === 'number' && v > 0 ? `${v}px` : '0px');
-    const writeSafeArea = () => {
-      try {
-        const sa = w.safeAreaInset || {};
-        const csa = w.contentSafeAreaInset || {};
-        root.style.setProperty('--tg-content-safe-area-inset-top', px((sa.top || 0) + (csa.top || 0)));
-        root.style.setProperty('--tg-content-safe-area-inset-bottom', px((sa.bottom || 0) + (csa.bottom || 0)));
-        root.style.setProperty('--tg-content-safe-area-inset-left', px((sa.left || 0) + (csa.left || 0)));
-        root.style.setProperty('--tg-content-safe-area-inset-right', px((sa.right || 0) + (csa.right || 0)));
-      } catch { /* noop */ }
-    };
-    writeSafeArea();
-    if (typeof w.onEvent === 'function') {
-      w.onEvent('safeAreaChanged', writeSafeArea);
-      w.onEvent('contentSafeAreaChanged', writeSafeArea);
-      w.onEvent('fullscreenChanged', writeSafeArea);
-      w.onEvent('viewportChanged', writeSafeArea);
-    }
-  });
+  // the bottom FAB were hidden behind Telegram's floating system buttons. Wire the
+  // Bot API 8.0 safe-area + content-safe-area insets into the CSS vars the layouts
+  // read. v0.62.638 — extracted to the shared helper (web/_shared/lib/safe-area.js)
+  // and given a fullscreen MINIMUM top clearance (the reported content-safe-area
+  // top was still too small to clear the floating buttons on the iPad Pro 11").
+  safe('safe-area', () => wireSafeAreaInsets(w));
   const tp = w.themeParams || {};
   const root = document.documentElement;
   const set = (k, v) => v && root.style.setProperty(k, v);
