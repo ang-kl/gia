@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
+import { m, useReducedMotion } from 'motion/react';
 import { openLink, initData, tg } from './tg.js';
+import { withViewTransition } from './lib/view-transition.js';
 import { t, tn, useLocale } from './i18n.js';
 import HawkerMapPanel from './components/HawkerMapPanel.jsx';
 import BottomSheet from '../../_shared/components/BottomSheet.jsx';
@@ -214,6 +217,11 @@ export default function App() {
   // the map's ⇲ expand flips `mapExpanded` so the layout switches to the full-map
   // + bottom-carousel (the point-2 landscape carousel), and ⇱ collapses back.
   const [mapExpanded, setMapExpanded] = useState(false);
+  // v0.62.637 (C2/C3) — AutoAnimate the centre list (cards fade/slide as the
+  // region changes; honours reduced-motion) + a reduced-motion flag for the
+  // Motion selected-card spring. Both hooks stay above any early return.
+  const [listParent] = useAutoAnimate();
+  const reduceMotion = useReducedMotion();
   // v0.62.549 — operator: a station / bus-stop pill in a card is a two-tap
   // control. 1st tap → highlight the point on the embedded map (3 s pulse) and
   // mark THIS pill toggled (only one at a time); 2nd tap on the same pill →
@@ -400,12 +408,14 @@ export default function App() {
       // spacing between the border and the content (compact padding + gap).
       // v0.62.556 — operator: the whole card is tappable (except the pills) — it
       // highlights the centre pin + toggles the card's active state (accent ring).
-      <div
+      <m.div
         role="button"
         tabIndex={0}
         data-centre-card={c.name}
         onClick={() => handleCardTap(c)}
-        className={`rounded-lg border text-xs flex flex-col cursor-pointer ${compact ? 'p-1.5 gap-0.5' : 'p-2.5 gap-1'} ${cardOn ? 'border-tg-accent ring-1 ring-tg-accent' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}>
+        animate={reduceMotion ? undefined : { scale: cardOn ? 1.02 : 1 }}
+        transition={{ type: 'spring', stiffness: 420, damping: 30, mass: 0.7 }}
+        className={`rounded-lg border text-xs flex flex-col cursor-pointer ${compact ? 'p-1.5 gap-0.5' : 'p-2.5 gap-1'} ${cardOn ? 'border-tg-accent ring-1 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}>
         <div className="font-semibold text-[13px] leading-tight text-tg-text">
           <span className="text-tg-hint font-semibold tabular-nums">{i + 1} · </span>{c.name}{c.isNew ? ' 🆕' : ''}
         </div>
@@ -513,7 +523,7 @@ export default function App() {
             {savingName === c.name ? t('btn.saving', lang) : t('btn.saveToChat', lang)}
           </button>
         </div>
-      </div>
+      </m.div>
     );
     // v0.62.595 — no active closure → the card unchanged (zero regression). Else a
     // protruding tab above the card (mirrors the Cuisine TMA "Closed" tab): red for
@@ -550,7 +560,7 @@ export default function App() {
           <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers} fill
             onCentreTap={onCentreTap}
             expanded={collapsible ? mapExpanded : null}
-            onToggleExpand={collapsible ? () => setMapExpanded(false) : null} />
+            onToggleExpand={collapsible ? () => withViewTransition(() => setMapExpanded(false)) : null} />
         )}
         {/* Top bar over the map: slim header + region chips. Cleared below
             Telegram's fullscreen top controls with the content-safe-area inset.
@@ -617,7 +627,7 @@ export default function App() {
           footerTag={footerTag}
           atBottom={atBottom}
           zoneInfo={zoneInfo}
-          leading={active ? <MapToggleButton isHidden={listHidden} onToggle={() => setListHidden((v) => !v)} lang={lang} /> : null}
+          leading={active ? <MapToggleButton isHidden={listHidden} onToggle={() => withViewTransition(() => setListHidden((v) => !v))} lang={lang} /> : null}
         />
       </div>
   );
@@ -675,7 +685,7 @@ export default function App() {
         <div className="px-2 pb-1.5 shrink-0">
           <HawkerMapPanel centres={active.centres} region={activeRegion} overlayLayers={overlayLayers} onOverlayChange={setOverlayLayers}
             onCentreTap={onCentreTap}
-            expanded={mapExpanded} onToggleExpand={() => setMapExpanded(true)} />
+            expanded={mapExpanded} onToggleExpand={() => withViewTransition(() => setMapExpanded(true))} />
         </div>
       )}
       {/* Separate scrollable list panel (the operator's "scroll up/down" panel).
@@ -688,7 +698,7 @@ export default function App() {
           /* v0.62.590 — operator (IMG_3554): the "Central — 22 hawker centres
              (alphabetical)" strip was redundant (the selected zone chip already
              shows the count) — dropped. The list follows the map directly. */
-          <div className={listClass}>
+          <div ref={listParent} className={listClass}>
             {active.centres.map((c, i) => (
               <React.Fragment key={i}>{renderCentreCard(c, i)}</React.Fragment>
             ))}
@@ -761,7 +771,7 @@ export default function App() {
           {busy && <p className="text-xs text-tg-hint p-3">{t('status.loading', lang)}</p>}
           {err && <p className="text-xs text-red-500 p-3">⚠ {err}</p>}
           {!busy && !err && (
-            <div className="flex flex-col gap-2 px-2 pt-1">
+            <div ref={listParent} className="flex flex-col gap-2 px-2 pt-1">
               {active.centres.map((c, i) => (
                 <React.Fragment key={i}>{renderCentreCard(c, i)}</React.Fragment>
               ))}
