@@ -97,7 +97,10 @@ export default function App() {
   if (err && (err.status === 401 || err.status === 403)) {
     return (
       <div className="min-h-full px-4 py-6 max-w-md mx-auto"
-        style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}>
+        style={{
+          paddingTop: 'calc(1.5rem + var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)))',
+          paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))'
+        }}>
         <div className="text-lg font-bold">🛡 Soleat — Oversight</div>
         <div className="mt-3 rounded-xl border border-tg-border bg-tg-card px-3 py-3 text-[13px]">{err.msg}</div>
         {closeBtn}
@@ -107,7 +110,11 @@ export default function App() {
 
   return (
     <div className="min-h-full px-3 py-3 max-w-md mx-auto"
-      style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}>
+      style={{
+        // v0.62.640 — clear Telegram's floating buttons (completes the all-TMA header pass).
+        paddingTop: 'calc(0.75rem + var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)))',
+        paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))'
+      }}>
       <div className="flex items-center justify-between">
         <div className="text-lg font-bold">🛡 Soleat · Oversight</div>
         <button type="button" onClick={() => (pickedDate ? load({ date: pickedDate }) : load({ days: offsetWeeks > 0 ? offsetWeeks * 7 + 7 : days }))}

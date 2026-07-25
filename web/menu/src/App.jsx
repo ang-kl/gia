@@ -674,6 +674,11 @@ export default function App() {
       className="flex flex-col"
       style={{
         minHeight: 'var(--tg-viewport-stable-height, 100vh)',
+        // v0.62.640 — operator (iPad mini, IMG_1203): the hub's content started at
+        // y=0, so the first tile sat UNDER Telegram's floating Back / ⌄ / ···
+        // buttons. v0.62.638 wired the safe-area var app-wide but this root never
+        // consumed it. (Completes the "audit all TMA" header pass.)
+        paddingTop: 'var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px))',
         paddingBottom: 'env(safe-area-inset-bottom, 0)'
       }}
     >
