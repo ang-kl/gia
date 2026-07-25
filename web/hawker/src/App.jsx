@@ -771,7 +771,10 @@ export default function App() {
           {busy && <p className="text-xs text-tg-hint p-3">{t('status.loading', lang)}</p>}
           {err && <p className="text-xs text-red-500 p-3">⚠ {err}</p>}
           {!busy && !err && (
-            <div ref={listParent} className="flex flex-col gap-2 px-2 pt-1">
+            // v0.62.642 — the drawer now serves TABLETS too (portrait), so lay the
+            // centres out in 2 columns on a wide screen (the two-panel's listClass)
+            // and a single column on a phone.
+            <div ref={listParent} className={`${isWide ? 'grid grid-cols-2 items-start' : 'flex flex-col'} gap-2 px-2 pt-1`}>
               {active.centres.map((c, i) => (
                 <React.Fragment key={i}>{renderCentreCard(c, i)}</React.Fragment>
               ))}
@@ -792,8 +795,13 @@ export default function App() {
   // as it already did on portrait tablets.
   // v0.62.608 — operator: a PHONE in portrait uses the draggable drawer instead
   // of the static two-panel (tablets keep the two-panel — more room).
+  // v0.62.642 — operator: "Where is the drawer overlay effect while Google map is
+  // behind in all three TMA." PORTRAIT on ANY device now uses the draggable
+  // BottomSheet drawer over a full-bleed map (was: phone → drawer, tablet →
+  // portraitTabletPanel's static two-panel split, where the map was a fixed block
+  // ABOVE the list rather than BEHIND it). portraitTabletPanel() is kept in the
+  // file (unreferenced) so the two-panel can be restored in one line if wanted.
   if (vp.orientation === 'landscape') return carouselLayout(false);
   if (mapExpanded) return carouselLayout(true);
-  if (vp.deviceClass === 'mobile') return drawerLayout();
-  return portraitTabletPanel();
+  return drawerLayout();
 }
