@@ -237,7 +237,9 @@ export default function StationCard({
   // starts closed (uniform tile height) unless it is the active/selected one; a
   // non-collapsible card (phone drawer, single tapped card) is always open.
   // `aroundOpen` folds the "Around the station" amenities.
-  const [bodyOpen, setBodyOpen] = useState(!collapsible || active);
+  // v0.62.645 — operator: "by default show the station details (not collapse)".
+  // The card now opens EXPANDED; the foot pill collapses it.
+  const [bodyOpen, setBodyOpen] = useState(true);
   const [aroundOpen, setAroundOpen] = useState(false);
   const [saved, setSaved] = useState(() => (name ? readSaved().includes(name) : false));
   // v0.62.636 (C3) — Motion spring drives the selected-card "pop"; disabled for
@@ -313,10 +315,14 @@ export default function StationCard({
       onClick={onTap ? () => onTap(coarse || station) : undefined}
       animate={reduceMotion ? undefined : { scale: active ? 1.02 : 1 }}
       transition={{ type: 'spring', stiffness: 420, damping: 30, mass: 0.7 }}
-      /* v0.62.644 — `min-h-full` lets the foot pill sit on the card's bottom edge
-         inside the carousel's FIXED-height box. Harmless elsewhere: against an
-         auto-height parent (the grid / drawer) `min-height:100%` resolves to nothing. */
-      className={`rounded-xl border overflow-hidden text-xs flex flex-col ${collapsible ? 'min-h-full' : ''} ${onTap ? 'cursor-pointer' : ''} ${active ? 'border-tg-accent ring-2 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}
+      /* v0.62.645 — operator: "expand IS to expand the card" + "the height of the
+         card in Portrait mode isn't the same as cuisine TMA". So the CARD owns its
+         height now, not the carousel box: COLLAPSED it is a fixed, uniform
+         `h-[14rem]` (a rem — so portrait and landscape are the SAME card, unlike
+         the v0.62.644 vh which grew with the taller portrait viewport); EXPANDED it
+         has no fixed height and simply GROWS, capped by the carousel box's
+         max-height, which scrolls if a station is unusually rich. */
+      className={`rounded-xl border overflow-hidden text-xs flex flex-col ${collapsible && !bodyOpen ? 'h-[14rem]' : ''} ${onTap ? 'cursor-pointer' : ''} ${active ? 'border-tg-accent ring-2 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}
     >
       {/* Name strip — line colour (single) / white (interchange).
           v0.62.641 — operator ("train card when tap isn't zoom in"): the strip used
@@ -343,7 +349,12 @@ export default function StationCard({
             line-code chips already say "interchange" — and the name is +2 px
             (14 → 16) with the full remaining width. `truncate` stays as a last
             resort for the longest names on the narrowest card. */}
-        <span className="text-[16px] font-bold leading-tight flex-1 min-w-0 truncate">{name}</span>
+        {/* v0.62.645 — operator: "reduce the station name font size by 2 px and
+            standardised to use Google interface font". 16 → 14 px, and `font-google`
+            (styles.css) puts it on Roboto — the Google Maps interface face, which
+            the Maps JS API already loads into the page — so the card's title reads
+            as the same family as the map labels beside it. */}
+        <span className="font-google text-[14px] font-bold leading-tight flex-1 min-w-0 truncate">{name}</span>
         {coarse?.future && <span className="text-[10px] opacity-80 shrink-0">({t('mrt.future', lang)})</span>}
         {/* v0.62.644 — the card-level disclosure moved OFF the name strip to a
             Cuisine-style pill at the CARD FOOT (operator: "the collapse and expand
@@ -539,8 +550,11 @@ export default function StationCard({
         {/* (5) Google-Maps action row, LAST (operator: not at the top): Directions ·
             Save · Share. Directions falls back to a name search when coords are absent. */}
         <div className="flex items-center gap-1 flex-wrap border-t border-tg-border/60 pt-1 mt-0.5">
-          <ActionButton icon="🧭" label={t('mrt.act.directions', lang)}
-            onClick={() => openExternal(directionsUrl(lat, lng, name))} />
+          {/* v0.62.645 — "📍 Maps" (Cuisine/Hawker wording + glyph), opening the
+              STATION on Google Maps like their cards do, instead of "🧭 Directions"
+              opening the routing UI. */}
+          <ActionButton icon="📍" label={t('mrt.act.maps', lang)}
+            onClick={() => openExternal(hasCoords ? mapsLatLng(lat, lng) : mapsQ(`${name} MRT Station Singapore`))} />
           <ActionButton icon={saved ? '★' : '☆'} active={saved}
             label={saved ? t('mrt.act.saved', lang) : t('mrt.act.save', lang)} onClick={toggleSaved} />
           <ActionButton icon="⤴" label={t('mrt.act.share', lang)}
