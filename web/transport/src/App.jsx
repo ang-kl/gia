@@ -103,14 +103,13 @@ function StationCarousel({ items, render, activeIndex = -1 }) {
       className="flex items-end gap-2 overflow-x-auto snap-x snap-mandatory px-[4%] pb-1 max-w-6xl mx-auto pointer-events-auto"
       style={{ scrollbarWidth: 'none' }}
     >
-      {/* v0.62.638 — operator (stressed repeatedly): the carousel cards must match
-          the HAWKER carousel cards' height + dimensions. Same basis widths
-          (82% / md 44% / ≥1180px 30%), same max-h-[46vh] + rounded-lg + shadow-lg,
-          and — critically — the cards render FULL (not the collapsed tile), so
-          they carry the same content weight as Hawker's centre cards. */}
+      {/* v0.62.639 — operator (iPad mini): "have at least four can be seen and half
+          at each side, therefore squeeze the width". Narrower basis so ~4 cards
+          are in view plus a half-peek at each edge on an iPad-mini width; phones
+          keep a single wide card. Natural height (items-end), tight max-h. */}
       {items.map((c, i) => (
         <div key={i} data-idx={i}
-          className="snap-center shrink-0 basis-[82%] md:basis-[44%] min-[1180px]:basis-[30%] max-h-[46vh] overflow-y-auto rounded-lg shadow-lg">
+          className="snap-center shrink-0 basis-[60%] sm:basis-[31%] md:basis-[22%] max-h-[46vh] overflow-y-auto rounded-lg shadow-lg">
           {render(c, i, !focused.has(i))}
         </div>
       ))}
@@ -372,13 +371,13 @@ export default function App() {
   const lineStations = (focusedCode && Array.isArray(coarseStations))
     ? lineStationsFull(coarseStations, focusedCode) : [];
 
-  // v0.62.632 — operator (iPad mini): the LIST-mode station grid runs 4 columns
-  // in portrait and 6 in landscape (1 on a phone). CSS multi-column so a tile
-  // that expands grows only its own column. Literal class strings so Tailwind's
-  // JIT keeps them.
+  // v0.62.639 — operator (iPad mini): at 4/6 CSS-columns the station NAME
+  // truncated to one letter ("EW1 P.."). Use a REAL grid with FEWER, wider
+  // columns (2 portrait / 3 landscape; 1 phone) so the full name shows and the
+  // tiles read as a uniform grid. Literal class strings so Tailwind's JIT keeps them.
   const gridColsClass = vp.deviceClass === 'mobile'
-    ? 'columns-1'
-    : (vp.orientation === 'landscape' ? 'columns-6' : 'columns-4');
+    ? 'grid grid-cols-1'
+    : (vp.orientation === 'landscape' ? 'grid grid-cols-3' : 'grid grid-cols-2');
 
   // v0.62.632 — the selected station's index within the focused line (drives the
   // carousel's centre-on-select). -1 when nothing is selected.
@@ -627,32 +626,46 @@ export default function App() {
     paddingBottom: 'calc(3rem + env(safe-area-inset-bottom, 0px))'
   };
 
-  // ---- LIST mode (toggled): two-panel — fixed map + scrolling station list.
-  //      Works on every device. v0.62.606. ----
+  // ---- LIST mode (toggled): a Google-Maps-style DRAGGABLE bottom-sheet DRAWER
+  //      of the station grid, floating OVER the full-bleed map (operator: "Drawer
+  //      effect for listing means is another layer on top of the map. I thought we
+  //      had that in other TMA" — Hawker/Cuisine parity). Was a two-panel split
+  //      (fixed map + scrolling grid). The grid is a real 2/3-col grid of
+  //      collapsible tiles so the station NAME shows; each tile's ▾ expands its
+  //      details in place. v0.62.639. ----
   if (viewMode === 'list') {
+    const listBody = lineStations.length > 0
+      ? (
+        <div className="px-2 pt-1 flex flex-col gap-2">
+          <div ref={gridParent} className={`${gridColsClass} gap-2 items-start`}>
+            {lineStations.map((st, i) => (
+              <React.Fragment key={st.focusCode || st.name || i}>
+                {renderStationCard(st, i, false, true, true)}
+              </React.Fragment>
+            ))}
+          </div>
+          {secondaryPanels}
+        </div>
+      )
+      : (singleFocusedCard ? <div className="px-2 pt-1 flex flex-col gap-2">{singleFocusedCard}{secondaryPanels}</div> : <div className="px-2 pt-1">{secondaryPanels}</div>);
     return (
       <>
-        <div className="fixed inset-0 flex flex-col overflow-hidden bg-tg-bg text-tg-text" style={fixedShellStyle}>
-          <div className="px-3 pt-2 shrink-0">{headerEl}</div>
-          <div className="px-3 pt-2 shrink-0 h-[40vh]">{mapBlock(true)}</div>
-          <div ref={listScrollRef} onScroll={onListScroll} className="flex-1 overflow-y-auto px-3 py-2 flex flex-col gap-2">
-            {lineStations.length > 0
-              ? (
-                // v0.62.632 — operator (iPad mini): a DENSE grid of collapsible
-                // station tiles — 4 columns portrait, 6 landscape (1 on a phone).
-                // CSS multi-column (not grid) so expanding a tile grows only its
-                // own column, never blowing out a whole row into empty space.
-                <div ref={gridParent} className={`${gridColsClass} gap-2 [column-gap:0.5rem]`}>
-                  {lineStations.map((st, i) => (
-                    <div key={st.focusCode || st.name || i} className="break-inside-avoid mb-2">
-                      {renderStationCard(st, i, false, true, true)}
-                    </div>
-                  ))}
-                </div>
-              )
-              : singleFocusedCard}
-            {secondaryPanels}
+        <div className="fixed inset-0 overflow-hidden bg-tg-bg text-tg-text"
+          style={{
+            paddingTop: 'var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px))',
+            paddingBottom: 'env(safe-area-inset-bottom, 0px)'
+          }}>
+          {/* full-bleed map behind everything */}
+          <div className="absolute inset-0 z-0">{mapBlock(true, true)}</div>
+          {/* floating header over the map (only the card catches taps) */}
+          <div className="absolute top-0 inset-x-0 z-20 px-3 pointer-events-none"
+            style={{ paddingTop: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' }}>
+            <div className="pointer-events-auto">{headerEl}</div>
           </div>
+          {/* the draggable station-list drawer over the map */}
+          <BottomSheet contentRef={listScrollRef} onContentScroll={onListScroll}>
+            {listBody}
+          </BottomSheet>
         </div>
         {popups}
         {footerBar}
