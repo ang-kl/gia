@@ -313,7 +313,10 @@ export default function StationCard({
       onClick={onTap ? () => onTap(coarse || station) : undefined}
       animate={reduceMotion ? undefined : { scale: active ? 1.02 : 1 }}
       transition={{ type: 'spring', stiffness: 420, damping: 30, mass: 0.7 }}
-      className={`rounded-xl border overflow-hidden text-xs flex flex-col ${onTap ? 'cursor-pointer' : ''} ${active ? 'border-tg-accent ring-2 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}
+      /* v0.62.644 — `min-h-full` lets the foot pill sit on the card's bottom edge
+         inside the carousel's FIXED-height box. Harmless elsewhere: against an
+         auto-height parent (the grid / drawer) `min-height:100%` resolves to nothing. */
+      className={`rounded-xl border overflow-hidden text-xs flex flex-col ${collapsible ? 'min-h-full' : ''} ${onTap ? 'cursor-pointer' : ''} ${active ? 'border-tg-accent ring-2 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}
     >
       {/* Name strip — line colour (single) / white (interchange).
           v0.62.641 — operator ("train card when tap isn't zoom in"): the strip used
@@ -342,15 +345,10 @@ export default function StationCard({
             resort for the longest names on the narrowest card. */}
         <span className="text-[16px] font-bold leading-tight flex-1 min-w-0 truncate">{name}</span>
         {coarse?.future && <span className="text-[10px] opacity-80 shrink-0">({t('mrt.future', lang)})</span>}
-        {/* v0.62.632 — the card-level disclosure triangle (TILE mode). */}
-        {collapsible && (
-          <button type="button"
-            onClick={(e) => { e.stopPropagation(); setBodyOpen((o) => !o); }}
-            aria-expanded={bodyOpen} aria-label={t('mrt.trainTimes', lang)}
-            className="shrink-0 leading-none opacity-80 active:scale-90" style={{ color: stripText }}>
-            <Triangle open={bodyOpen} />
-          </button>
-        )}
+        {/* v0.62.644 — the card-level disclosure moved OFF the name strip to a
+            Cuisine-style pill at the CARD FOOT (operator: "the collapse and expand
+            is same effect as cuisine TMA"), so the strip is name-only and the name
+            keeps every pixel of width. */}
         {onClose && (
           <button type="button" onClick={(e) => { e.stopPropagation(); onClose(); }}
             aria-label="Close" className="text-[13px] leading-none opacity-80 active:scale-90" style={{ color: stripText }}>✕</button>
@@ -380,6 +378,38 @@ export default function StationCard({
           {crowdLevel && <span className="shrink-0" title={t(`mrt.crowd.${crowdLevel}`, lang)}>{CROWD_DOT[crowdLevel]}</span>}
           {hours && (hours.first || hours.last) && (
             <span className="ml-auto shrink-0 text-tg-hint tabular-nums">🕑 {hours.first || '—'}–{hours.last || '—'}</span>
+          )}
+        </div>
+      )}
+
+      {/* v0.62.644 — operator: a COLLAPSED card must carry a Cuisine-like amount of
+          information, not two lines in an otherwise empty box. While collapsed the
+          card also shows one compact line PER LINE (code + first/last) and a single
+          amenity-counts row; the ▾ pill below then reveals the full detail. */}
+      {collapsible && !bodyOpen && (
+        <div className="px-2 py-1 flex flex-col gap-0.5 text-[10px] leading-tight">
+          {lines.filter((l) => l.line_code).map((l, i) => {
+            const dirs = ((station && station.first_last_train) || []).filter((f) => f.station_code === l.station_code);
+            const s = todaySummary(dirs);
+            return (
+              <div key={i} className="flex items-center gap-1 min-w-0">
+                <span style={{ background: hexForLineCode(l.line_code), color: '#fff' }}
+                  className="font-bold rounded px-1 text-[9px] leading-[1.5] shrink-0">{l.station_code}</span>
+                <span className="text-tg-text/80 tabular-nums truncate">
+                  {s ? `🚋 ${s.first || '—'} · ${s.last || '—'}` : (l.line_name || '')}
+                </span>
+              </div>
+            );
+          })}
+          {(exits.length > 0 || busStops.length > 0 || carparks.length > 0 || nearestHawker) && (
+            <div className="flex items-center gap-1.5 text-tg-hint truncate">
+              {exits.length > 0 && <span className="shrink-0">🚪 {exits.length}</span>}
+              {busStops.length > 0 && <span className="shrink-0">🚌 {busStops.length}</span>}
+              {carparks.length > 0 && <span className="shrink-0">🅿️ {carparks.length}</span>}
+              {nearestHawker && (
+                <span className="truncate">🍜 {Number.isFinite(nearestHawker.distanceM) ? `${nearestHawker.distanceM} m` : nearestHawker.name}</span>
+              )}
+            </div>
           )}
         </div>
       )}
@@ -517,6 +547,19 @@ export default function StationCard({
             onClick={() => openExternal(shareUrl(lat, lng, name), true)} />
         </div>
       </div>
+      )}
+
+      {/* v0.62.644 — the Cuisine-style collapse pill at the card FOOT ("▾ details" /
+          "▴ less"), replacing the triangle that used to sit on the name strip.
+          `mt-auto` pins it to the bottom so every card in the carousel shows its
+          toggle on the same line — the uniform look of the Cuisine strip. */}
+      {collapsible && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); setBodyOpen((o) => !o); }}
+          aria-expanded={bodyOpen}
+          className="mt-auto self-start m-1.5 px-2 py-0.5 rounded-full border border-tg-accent/50 text-[10px] text-tg-accent font-medium active:scale-95"
+        >{bodyOpen ? t('mrt.detailsLess', lang) : t('mrt.detailsMore', lang)}</button>
       )}
     </m.div>
   );
