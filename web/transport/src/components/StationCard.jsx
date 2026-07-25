@@ -28,6 +28,7 @@
 //   - `statusByLine`  live per-line service status.
 //   - `coarseStations`  the full station list, for terminus resolution.
 import React, { useEffect, useState } from 'react';
+import { m, useReducedMotion } from 'motion/react';
 import { t, tn } from '../i18n.js';
 import {
   CROWD_DOT, STATUS_HEX, mapsQ, mapsLatLng, textOn, hexForLineCode,
@@ -227,6 +228,9 @@ export default function StationCard({
   const [bodyOpen, setBodyOpen] = useState(!collapsible || active);
   const [aroundOpen, setAroundOpen] = useState(false);
   const [saved, setSaved] = useState(() => (name ? readSaved().includes(name) : false));
+  // v0.62.636 (C3) — Motion spring drives the selected-card "pop"; disabled for
+  // reduced-motion users (the ring/shadow still mark selection).
+  const reduceMotion = useReducedMotion();
   // The active card auto-expands (the carousel/grid "selected" pop effect).
   useEffect(() => { if (active) setBodyOpen(true); }, [active]);
   if (!name) return null;
@@ -290,12 +294,14 @@ export default function StationCard({
   }, 'normal');
 
   return (
-    <div
+    <m.div
       role={onTap ? 'button' : undefined}
       tabIndex={onTap ? 0 : undefined}
       data-station-card={name}
       onClick={onTap ? () => onTap(coarse || station) : undefined}
-      className={`rounded-xl border overflow-hidden text-xs flex flex-col transition-transform ${onTap ? 'cursor-pointer' : ''} ${active ? 'border-tg-accent ring-2 ring-tg-accent shadow-xl scale-[1.02] relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}
+      animate={reduceMotion ? undefined : { scale: active ? 1.02 : 1 }}
+      transition={{ type: 'spring', stiffness: 420, damping: 30, mass: 0.7 }}
+      className={`rounded-xl border overflow-hidden text-xs flex flex-col ${onTap ? 'cursor-pointer' : ''} ${active ? 'border-tg-accent ring-2 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}
     >
       {/* Name strip — line colour (single) / white (interchange). v0.62.632 — in
           TILE mode the whole strip is the card-level collapse toggle (▾/▲). */}
@@ -478,6 +484,6 @@ export default function StationCard({
         </div>
       </div>
       )}
-    </div>
+    </m.div>
   );
 }

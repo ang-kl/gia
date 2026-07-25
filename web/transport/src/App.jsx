@@ -1,7 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { LINES, LINES_BY_CODE } from './data/lines.js';
 import { lineStationsFull } from './data/line-paths.js';
 import { useViewport } from '../../_shared/lib/use-viewport.js';
+import { withViewTransition } from './lib/view-transition.js';
+import LoadingSkeleton from './components/LoadingSkeleton.jsx';
 import { initData } from './tg.js';
 import { t, tn, useLocale } from './i18n.js';
 import LineStatusPanel from './components/LineStatusPanel.jsx';
@@ -194,6 +197,10 @@ export default function App() {
   // v0.62.606 — the list-mode scroller (for the footer ⇡/⇣ button + atBottom).
   const listScrollRef = useRef(null);
   const [listAtBottom, setListAtBottom] = useState(false);
+  // v0.62.636 (C2) — AutoAnimate the LIST-mode station grid: cards fade / slide
+  // as the focused line (and so the station set) changes. Honours
+  // prefers-reduced-motion on its own. Hook stays above the early returns.
+  const [gridParent] = useAutoAnimate();
   const onListScroll = () => {
     const el = listScrollRef.current;
     if (el) setListAtBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 50);
@@ -322,7 +329,8 @@ export default function App() {
   }, []);
 
   if (error) return <div className="p-4 text-tg-text">{t('error.unreachable', lang)} {error}</div>;
-  if (!data) return <div className="p-4 text-tg-hint">{t('loading', lang)}</div>;
+  // v0.62.636 (C1) — skeleton screen instead of a bare "Loading…" line.
+  if (!data) return <LoadingSkeleton />;
 
   const affectedCodes = data.affectedCodes || [];
   const statusByLine = data.statusByLine || {};
@@ -572,13 +580,13 @@ export default function App() {
               The label names the view you'll switch TO. */}
           <button
             type="button"
-            onClick={() => setViewMode((m) => (m === 'carousel' ? 'list' : 'carousel'))}
+            onClick={() => withViewTransition(() => setViewMode((m) => (m === 'carousel' ? 'list' : 'carousel')))}
             aria-label={viewMode === 'carousel' ? t('layout.list', lang) : t('layout.map', lang)}
             className="skeuo-pill px-2.5 py-1 rounded-lg text-[11px] font-medium text-tg-text active:scale-95 whitespace-nowrap shrink-0"
           >{viewMode === 'carousel' ? t('layout.list', lang) : t('layout.map', lang)}</button>
           <button
             type="button"
-            onClick={() => setMapView((v) => (v === 'png' ? 'gmap' : 'png'))}
+            onClick={() => withViewTransition(() => setMapView((v) => (v === 'png' ? 'gmap' : 'png')))}
             aria-label={mapView === 'png' ? t('view.btnGoogleMap', lang) : t('view.btnSchematic', lang)}
             className="skeuo-pill px-2.5 py-1 rounded-lg text-[11px] font-medium text-tg-text active:scale-95 whitespace-nowrap shrink-0"
           >{mapView === 'png' ? t('view.btnGoogleMap', lang) : t('view.btnSchematic', lang)}</button>
@@ -629,7 +637,7 @@ export default function App() {
                 // station tiles — 4 columns portrait, 6 landscape (1 on a phone).
                 // CSS multi-column (not grid) so expanding a tile grows only its
                 // own column, never blowing out a whole row into empty space.
-                <div className={`${gridColsClass} gap-2 [column-gap:0.5rem]`}>
+                <div ref={gridParent} className={`${gridColsClass} gap-2 [column-gap:0.5rem]`}>
                   {lineStations.map((st, i) => (
                     <div key={st.focusCode || st.name || i} className="break-inside-avoid mb-2">
                       {renderStationCard(st, i, false, true, true)}
