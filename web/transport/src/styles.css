@@ -153,3 +153,54 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
   font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   letter-spacing: -0.01em;
 }
+
+/* ============================================================================
+   v0.62.636 — UI professionalisation, Phase C1 (foundation).
+   ========================================================================== */
+
+/* C1 — respect prefers-reduced-motion. The app has TWO infinite decorative
+   animations (the Hitachi line-flash + the affected-line marquee) plus many
+   transform transitions; for motion-sensitive users neutralise them all so the
+   UI is still and instant. Motion (motion.dev) + AutoAnimate honour this flag on
+   their own; this covers the hand-rolled CSS + is the shared safety net every
+   later phase rides on. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .line-flash, .marquee-track, .gia-skeleton { animation: none !important; }
+}
+
+/* C1 — skeleton shimmer for loading states (replaces the bare "Loading…" text).
+   A calm luminance-derived sheen over the neutral card surface; theme-agnostic
+   so it reads in light and dark. */
+@keyframes giaShimmer {
+  0%   { background-position: 160% 0; }
+  100% { background-position: -160% 0; }
+}
+.gia-skeleton {
+  background-color: color-mix(in srgb, var(--tg-text, #f5f5f7) 8%, var(--tg-card, #1c1c1f));
+  background-image: linear-gradient(
+    100deg,
+    transparent 30%,
+    color-mix(in srgb, var(--tg-text, #f5f5f7) 10%, transparent) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: giaShimmer 1.4s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+
+/* C3 — View Transitions API crossfade (progressive enhancement; guarded by
+   feature-detect + prefers-reduced-motion in view-transition.js). A soft
+   cross-dissolve on the map/list + schematic/map view swaps. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 260ms;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
