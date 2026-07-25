@@ -188,16 +188,26 @@ function LineSubCard({ line, station, coarseStations, statusByLine, lang, onFocu
             ))}
           </div>
         ) : summary && (
-          <div className="text-[11px] text-tg-text/80 tabular-nums leading-snug">
-            🚋 {t('mrt.firstTrain', lang)} {summary.first || '—'} · {t('mrt.lastTrain', lang)} {summary.last || '—'}
+          // v0.62.643 — the times row now carries the "Station info ↗" link on its
+          // RIGHT instead of giving it a whole row of its own (operator: "so much
+          // empty spacing across the card"). Saves one row per line.
+          <div className="flex items-center gap-1 text-[11px] text-tg-text/80 tabular-nums leading-snug">
+            <span className="truncate">🚋 {summary.first || '—'} · {summary.last || '—'}</span>
+            {line.more_info_url && (
+              <a href={line.more_info_url} target="_blank" rel="noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="ml-auto shrink-0 text-[10px] text-tg-link no-underline">{t('mrt.stationInfo', lang)}</a>
+            )}
           </div>
         )
       )}
       {/* v0.62.633 — the Station info link renders INDEPENDENT of the timings
           fold (Codex P2): a line with a more_info_url but NO first_last_train rows
           (CGL / SLRT / PLRT) has hasDetail=false, so `open` never flips true — the
-          link must not be gated on `open` or it would be permanently hidden. */}
-      {line.more_info_url && (
+          link must not be gated on `open` or it would be permanently hidden.
+          v0.62.643 — when the COLLAPSED summary row is showing, that row already
+          carries the link, so only render the standalone one otherwise. */}
+      {line.more_info_url && !(hasDetail && !open && summary) && (
         <a href={line.more_info_url} target="_blank" rel="noreferrer"
           onClick={(e) => e.stopPropagation()}
           className="self-start text-[10px] text-tg-link no-underline">{t('mrt.stationInfo', lang)}</a>
@@ -322,19 +332,16 @@ export default function StationCard({
               className="font-bold rounded px-1 text-[10px] leading-[1.6]">{l.station_code}</span>
           ))}
         </div>
-        <span className="text-[14px] font-bold leading-tight flex-1 min-w-0 truncate">{name}</span>
-        {/* v0.62.621 — Maps-style category chip (Interchange / MRT station). Uses
-            translucent fill + border so it reads on both the coloured (single-line)
-            and white (interchange) name strips. */}
-        <span
-          className="shrink-0 text-[9px] font-semibold px-1.5 py-0.5 rounded-full border leading-none"
-          style={{
-            color: stripText,
-            background: interchange ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.22)',
-            borderColor: interchange ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.4)'
-          }}
-        >{interchange ? t('mrt.cat.interchange', lang) : t('mrt.cat.station', lang)}</span>
-        {coarse?.future && <span className="text-[10px] opacity-80">({t('mrt.future', lang)})</span>}
+        {/* v0.62.643 — operator ("can you resolve the station name … by 2 px" +
+            "when all collapse what can I read"): the NAME is the one thing a
+            collapsed card must show, and it was truncating to "Ju…" / "Bukit Bat…"
+            because the category chip ("MRT station" / "Interchange") sat beside it
+            and ate the width. The chip is REMOVED — it was redundant, since two
+            line-code chips already say "interchange" — and the name is +2 px
+            (14 → 16) with the full remaining width. `truncate` stays as a last
+            resort for the longest names on the narrowest card. */}
+        <span className="text-[16px] font-bold leading-tight flex-1 min-w-0 truncate">{name}</span>
+        {coarse?.future && <span className="text-[10px] opacity-80 shrink-0">({t('mrt.future', lang)})</span>}
         {/* v0.62.632 — the card-level disclosure triangle (TILE mode). */}
         {collapsible && (
           <button type="button"
@@ -356,27 +363,24 @@ export default function StationCard({
           compact rows: (1) health + open-now + crowd, (2) operating hours + walk.
           Each row `truncate`s rather than wrapping, so a NARROW carousel card can
           never grow tall by re-flowing (the v0.62.639 height regression). */}
+      {/* v0.62.643 — operator ("so much empty spacing across the card, reduce to
+          show more information"): the summary was TWO rows, each half-empty — the
+          status line stopped mid-card and the hours sat alone on the next line.
+          Now ONE row that actually uses the width: health · Open-now · crowd ·
+          hours. (The 🚶 walk stays removed, v0.62.641.) */}
       {collapsible && (
-        <div className="px-2 py-1 flex flex-col gap-0.5 text-[10px] leading-tight text-tg-text/80 border-b border-tg-border/60">
-          <div className="flex items-center gap-1 min-w-0">
-            <span className="inline-block w-2 h-2 rounded-full shrink-0" style={{ background: STATUS_HEX[worstStatus] || STATUS_HEX.unknown }} />
-            <span className="text-tg-hint truncate">{t(`mrt.status.${worstStatus}`, lang)}</span>
-            {openNow != null && (
-              <span className={`shrink-0 font-semibold ${openNow ? 'text-green-500' : 'text-orange-500'}`}>
-                · {openNow ? t('mrt.openNow', lang) : t('mrt.closedNow', lang)}
-              </span>
-            )}
-            {crowdLevel && <span className="shrink-0" title={t(`mrt.crowd.${crowdLevel}`, lang)}>{CROWD_DOT[crowdLevel]}</span>}
-          </div>
-          {/* v0.62.641 — operator: "Remove distance walking in train." The 🚶 walk /
-              distance is gone from the Train card (it was a straight-line estimate
-              from the browser's coarse fix — often absurd, e.g. "155 min walk").
-              Directions still routes properly from the user's real location. */}
-          <div className="flex items-center gap-1 min-w-0 text-tg-hint tabular-nums">
-            {hours && (hours.first || hours.last) && (
-              <span className="truncate">🕑 {hours.first || '—'}–{hours.last || '—'}</span>
-            )}
-          </div>
+        <div className="px-2 py-1 flex items-center gap-1 text-[10px] leading-tight text-tg-text/80 border-b border-tg-border/60">
+          <span className="inline-block w-2 h-2 rounded-full shrink-0" style={{ background: STATUS_HEX[worstStatus] || STATUS_HEX.unknown }} />
+          <span className="text-tg-hint truncate">{t(`mrt.status.${worstStatus}`, lang)}</span>
+          {openNow != null && (
+            <span className={`shrink-0 font-semibold ${openNow ? 'text-green-500' : 'text-orange-500'}`}>
+              · {openNow ? t('mrt.openNow', lang) : t('mrt.closedNow', lang)}
+            </span>
+          )}
+          {crowdLevel && <span className="shrink-0" title={t(`mrt.crowd.${crowdLevel}`, lang)}>{CROWD_DOT[crowdLevel]}</span>}
+          {hours && (hours.first || hours.last) && (
+            <span className="ml-auto shrink-0 text-tg-hint tabular-nums">🕑 {hours.first || '—'}–{hours.last || '—'}</span>
+          )}
         </div>
       )}
 
