@@ -650,7 +650,13 @@ export default function App() {
             paddingBottom: 'env(safe-area-inset-bottom, 0px)'
           }}>
           {/* full-bleed map behind everything */}
-          <div className="absolute inset-0 z-0">{mapBlock(true, true)}</div>
+          {/* v0.62.646 — NO z-0 here. A positioned element with an explicit z-index
+              creates a STACKING CONTEXT, which trapped the map's fullscreen
+              `fixed inset-0 z-[35]` expand overlay inside this z-0 box — so ⇲
+              Expand "did nothing": the map DID go fullscreen but painted
+              behind the z-30 drawer. `absolute inset-0` (z-auto) keeps the
+              same paint order for the normal state and lets the overlay out. */}
+          <div className="absolute inset-0">{mapBlock(true, true)}</div>
           {/* floating header over the map (only the card catches taps) */}
           <div className="absolute top-0 inset-x-0 z-20 px-3 pointer-events-none"
             style={{ paddingTop: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' }}>
@@ -699,7 +705,13 @@ export default function App() {
             paddingBottom: 'env(safe-area-inset-bottom, 0px)'
           }}>
           {/* full-bleed map behind everything */}
-          <div className="absolute inset-0 z-0">{mapBlock(true, true)}</div>
+          {/* v0.62.646 — NO z-0 here. A positioned element with an explicit z-index
+              creates a STACKING CONTEXT, which trapped the map's fullscreen
+              `fixed inset-0 z-[35]` expand overlay inside this z-0 box — so ⇲
+              Expand "did nothing": the map DID go fullscreen but painted
+              behind the z-30 drawer. `absolute inset-0` (z-auto) keeps the
+              same paint order for the normal state and lets the overlay out. */}
+          <div className="absolute inset-0">{mapBlock(true, true)}</div>
           {/* floating header over the map — only the card catches taps so the map
               stays tappable around it. */}
           <div className="absolute top-0 inset-x-0 z-20 px-2 pointer-events-none"
