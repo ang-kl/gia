@@ -33,7 +33,7 @@ import { t, tn } from '../i18n.js';
 import {
   CROWD_DOT, STATUS_HEX, mapsQ, mapsLatLng, textOn, hexForLineCode,
   worstCrowd, trainTimes, noteIsTerminal, directionLabel, terminusForDirection,
-  directionsUrl, shareUrl, haversineM, walkMinutes, todaySummary,
+  directionsUrl, shareUrl, todaySummary,
   stationHours, stationOpenNow
 } from '../lib/station-card-utils.js';
 
@@ -80,8 +80,11 @@ function Triangle({ open }) {
   return <span className="text-[9px] leading-none select-none" aria-hidden>{open ? '▲' : '▼'}</span>;
 }
 
-// v0.62.621 — one circular action button (Directions / Save / Share), mirroring
-// the Google-Maps place-details action row.
+// v0.62.641 — operator ("what are the share, map, saved/starred buttons so big?"):
+// the v0.62.621 action row was a Google-Maps-style 36 px CIRCLE + a caption under
+// each — three of those plus labels ate a whole band of card height. The Cuisine
+// TMA (the operator's standard) uses flat text pills instead, so this is now the
+// same compact pill: one line, icon + word, no circle, no caption.
 function ActionButton({ icon, label, active = false, onClick }) {
   return (
     <button
@@ -89,10 +92,9 @@ function ActionButton({ icon, label, active = false, onClick }) {
       onClick={(e) => { e.stopPropagation(); onClick(); }}
       aria-label={label}
       title={label}
-      className="flex flex-col items-center gap-0.5 min-w-[3.25rem] active:scale-95"
+      className={`text-[11px] px-2 py-0.5 rounded-full border leading-snug active:scale-95 ${active ? 'bg-tg-accent/15 border-tg-accent text-tg-accent' : 'border-tg-border bg-tg-bg text-tg-text'}`}
     >
-      <span className={`w-9 h-9 rounded-full flex items-center justify-center text-[15px] border ${active ? 'bg-tg-accent/15 border-tg-accent text-tg-accent' : 'border-tg-border text-tg-link bg-tg-bg/60'}`}>{icon}</span>
-      <span className="text-[10px] leading-none text-tg-hint">{label}</span>
+      {icon} {label}
     </button>
   );
 }
@@ -240,9 +242,9 @@ export default function StationCard({
   const lat = Number(coarse?.lat ?? station?.lat);
   const lng = Number(coarse?.lng ?? station?.lng);
   const hasCoords = Number.isFinite(lat) && Number.isFinite(lng);
-  // Distance + walking time from the user's location, when both are known.
-  const distM = userLoc ? haversineM(userLoc, { lat, lng }) : null;
-  const walkMin = distM != null ? walkMinutes(distM) : null;
+  // v0.62.641 — the distance / walking-time derivation is GONE (operator: "remove
+  // distance walking in train"). haversineM / walkMinutes stay exported + unit
+  // tested in station-card-utils for other callers.
 
   const toggleSaved = () => {
     const list = readSaved();
@@ -303,13 +305,15 @@ export default function StationCard({
       transition={{ type: 'spring', stiffness: 420, damping: 30, mass: 0.7 }}
       className={`rounded-xl border overflow-hidden text-xs flex flex-col ${onTap ? 'cursor-pointer' : ''} ${active ? 'border-tg-accent ring-2 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}
     >
-      {/* Name strip — line colour (single) / white (interchange). v0.62.632 — in
-          TILE mode the whole strip is the card-level collapse toggle (▾/▲). */}
+      {/* Name strip — line colour (single) / white (interchange).
+          v0.62.641 — operator ("train card when tap isn't zoom in"): the strip used
+          to be the collapse toggle and swallowed the tap (stopPropagation), so
+          tapping a card never reached onTap → the map never focused/zoomed the
+          station. The strip no longer toggles; the tap bubbles to the card's onTap
+          (select → map setCenter+zoom 18). ONLY the ▾ button collapses. */}
       <div
-        className="px-3 py-2 flex items-center gap-2"
+        className="px-2 py-1.5 flex items-center gap-1.5"
         style={{ background: stripHex, color: stripText }}
-        role={collapsible ? 'button' : undefined}
-        onClick={collapsible ? (e) => { e.stopPropagation(); setBodyOpen((o) => !o); } : undefined}
       >
         <div className="flex flex-wrap items-center gap-1">
           {lines.map((l, i) => (
@@ -364,11 +368,14 @@ export default function StationCard({
             )}
             {crowdLevel && <span className="shrink-0" title={t(`mrt.crowd.${crowdLevel}`, lang)}>{CROWD_DOT[crowdLevel]}</span>}
           </div>
+          {/* v0.62.641 — operator: "Remove distance walking in train." The 🚶 walk /
+              distance is gone from the Train card (it was a straight-line estimate
+              from the browser's coarse fix — often absurd, e.g. "155 min walk").
+              Directions still routes properly from the user's real location. */}
           <div className="flex items-center gap-1 min-w-0 text-tg-hint tabular-nums">
             {hours && (hours.first || hours.last) && (
               <span className="truncate">🕑 {hours.first || '—'}–{hours.last || '—'}</span>
             )}
-            {walkMin != null && <span className="ml-auto whitespace-nowrap shrink-0">🚶 {walkMin} min</span>}
           </div>
         </div>
       )}
@@ -383,7 +390,14 @@ export default function StationCard({
             "why the share … at the top" — moved off the top). */}
 
         {/* (1)+(2) Health + Open-now + operating hours. Health (service status)
-            is CVD-safe: a dot paired with the word. */}
+            is CVD-safe: a dot paired with the word.
+            v0.62.641 — operator ("use cuisine TMA's card height as a standard"):
+            in COLLAPSIBLE mode the always-visible summary above ALREADY carries
+            status / open-now / crowd / hours, so repeating them here doubled the
+            card's height for zero information (visible in IMG_1206). Render this
+            block only for the non-collapsible card (phone drawer / single tapped
+            card), where there is no summary row above. */}
+        {!collapsible && (
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-2 flex-wrap text-[11px]">
             <span className="flex items-center gap-1">
@@ -396,7 +410,6 @@ export default function StationCard({
               </span>
             )}
             {crowdLevel && <span className="text-tg-text/80">· {CROWD_DOT[crowdLevel]} {t(`mrt.crowd.${crowdLevel}`, lang)}</span>}
-            {walkMin != null && <span className="ml-auto text-tg-hint whitespace-nowrap">🚶 {tn('mrt.walk', lang, { min: walkMin, m: distM })}</span>}
           </div>
           {hours && (hours.first || hours.last) && (
             <div className="text-[11px] text-tg-hint tabular-nums">
@@ -404,6 +417,7 @@ export default function StationCard({
             </div>
           )}
         </div>
+        )}
 
         {/* (3) Around the station — v0.62.632 folds behind its own ▾ triangle;
             v0.62.634 adds carpark details. */}
@@ -490,7 +504,7 @@ export default function StationCard({
 
         {/* (5) Google-Maps action row, LAST (operator: not at the top): Directions ·
             Save · Share. Directions falls back to a name search when coords are absent. */}
-        <div className="flex items-center gap-1 flex-wrap border-t border-tg-border/60 pt-2 mt-0.5">
+        <div className="flex items-center gap-1 flex-wrap border-t border-tg-border/60 pt-1 mt-0.5">
           <ActionButton icon="🧭" label={t('mrt.act.directions', lang)}
             onClick={() => openExternal(directionsUrl(lat, lng, name))} />
           <ActionButton icon={saved ? '★' : '☆'} active={saved}
