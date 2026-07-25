@@ -1,4 +1,5 @@
 // Mirrors web/hawker/src/tg.js — Telegram theme + initData accessor.
+import { wireSafeAreaInsets } from '../../_shared/lib/safe-area.js';
 
 export function tg() {
   return typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
@@ -18,6 +19,10 @@ export function applyTelegramTheme() {
 
   safe('ready', () => w.ready());
   safe('expand', () => w.expand());
+  // v0.62.638 — operator (iPad Pro): the header sat under Telegram's floating
+  // buttons because this TMA never SET --tg-content-safe-area-inset-top. Wire it
+  // (shared helper) with a fullscreen minimum-top clearance.
+  safe('safe-area', () => wireSafeAreaInsets(w));
 
   // v0.62.610 — operator: on a phone the draggable station-list DRAWER's
   // downward drag was being grabbed by Telegram's vertical swipe-to-minimise /

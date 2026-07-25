@@ -103,9 +103,14 @@ function StationCarousel({ items, render, activeIndex = -1 }) {
       className="flex items-end gap-2 overflow-x-auto snap-x snap-mandatory px-[4%] pb-1 max-w-6xl mx-auto pointer-events-auto"
       style={{ scrollbarWidth: 'none' }}
     >
+      {/* v0.62.638 — operator (stressed repeatedly): the carousel cards must match
+          the HAWKER carousel cards' height + dimensions. Same basis widths
+          (82% / md 44% / ≥1180px 30%), same max-h-[46vh] + rounded-lg + shadow-lg,
+          and — critically — the cards render FULL (not the collapsed tile), so
+          they carry the same content weight as Hawker's centre cards. */}
       {items.map((c, i) => (
         <div key={i} data-idx={i}
-          className="snap-center shrink-0 basis-[86%] sm:basis-[48%] min-[1100px]:basis-[32%] max-h-[44vh] overflow-y-auto rounded-xl shadow-lg">
+          className="snap-center shrink-0 basis-[82%] md:basis-[44%] min-[1180px]:basis-[30%] max-h-[46vh] overflow-y-auto rounded-lg shadow-lg">
           {render(c, i, !focused.has(i))}
         </div>
       ))}
@@ -737,7 +742,7 @@ export default function App() {
         <div className="fixed inset-x-0 bottom-14 z-[38] pointer-events-none">
           {lineStations.length > 0
             ? <StationCarousel items={lineStations} activeIndex={activeStationIndex}
-                render={(st, i, glass) => renderStationCard(st, i, glass, true, true)} />
+                render={(st, i, glass) => renderStationCard(st, i, glass, true, false)} />
             : <div className="px-3 max-w-md mx-auto max-h-[44vh] overflow-y-auto pointer-events-auto">{singleFocusedCard}</div>}
         </div>
       )}
