@@ -109,7 +109,7 @@ function StationCarousel({ items, render, activeIndex = -1 }) {
           keep a single wide card. Natural height (items-end), tight max-h. */}
       {items.map((c, i) => (
         <div key={i} data-idx={i}
-          className="snap-center shrink-0 basis-[60%] sm:basis-[31%] md:basis-[22%] max-h-[46vh] overflow-y-auto rounded-lg shadow-lg">
+          className="snap-center shrink-0 basis-[60%] sm:basis-[31%] md:basis-[22%] max-h-[42vh] overflow-y-auto rounded-lg shadow-lg">
           {render(c, i, !focused.has(i))}
         </div>
       ))}
@@ -751,11 +751,16 @@ export default function App() {
           — above the expand overlay (z-[35]), below the footer (z-40) — so it
           floats over the map's bottom edge in BOTH the normal and expanded states
           and the cards stay visible. */}
+      {/* v0.62.640 — operator ("see the footer that covers the text"): the carousel
+          sat at a fixed bottom-14, which on an iPad with a bottom safe-area inset
+          let the fixed footer dock overlap the cards' last row. Offset by the REAL
+          footer height + the safe-area inset so a card always clears the dock. */}
       {(lineStations.length > 0 || singleFocusedCard) && (
-        <div className="fixed inset-x-0 bottom-14 z-[38] pointer-events-none">
+        <div className="fixed inset-x-0 z-[38] pointer-events-none"
+          style={{ bottom: 'calc(3.25rem + env(safe-area-inset-bottom, 0px))' }}>
           {lineStations.length > 0
             ? <StationCarousel items={lineStations} activeIndex={activeStationIndex}
-                render={(st, i, glass) => renderStationCard(st, i, glass, true, false)} />
+                render={(st, i, glass) => renderStationCard(st, i, glass, true, true)} />
             : <div className="px-3 max-w-md mx-auto max-h-[44vh] overflow-y-auto pointer-events-auto">{singleFocusedCard}</div>}
         </div>
       )}

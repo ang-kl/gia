@@ -346,16 +346,30 @@ export default function StationCard({
         )}
       </div>
 
-      {/* v0.62.632 — always-visible one-line summary (uniform tile): per-line
-          status dots + crowd + distance. */}
+      {/* v0.62.640 — operator ("why you don't follow the height in hawker"): the
+          ALWAYS-VISIBLE summary is the collapsed card's whole body, so it must read
+          like a Hawker centre card — a couple of tight lines, not a wall. Two
+          compact rows: (1) health + open-now + crowd, (2) operating hours + walk.
+          Each row `truncate`s rather than wrapping, so a NARROW carousel card can
+          never grow tall by re-flowing (the v0.62.639 height regression). */}
       {collapsible && (
-        <div className="px-3 py-1 flex items-center gap-2 text-[11px] text-tg-text/80 border-b border-tg-border/60">
-          <span className="flex items-center gap-1 shrink-0">
-            <span className="inline-block w-2 h-2 rounded-full" style={{ background: STATUS_HEX[worstStatus] || STATUS_HEX.unknown }} />
-            <span className="text-tg-hint">{t(`mrt.status.${worstStatus}`, lang)}</span>
-          </span>
-          {crowdLevel && <span className="shrink-0">{CROWD_DOT[crowdLevel]} {t(`mrt.crowd.${crowdLevel}`, lang)}</span>}
-          {walkMin != null && <span className="ml-auto text-tg-hint whitespace-nowrap shrink-0">🚶 {tn('mrt.walk', lang, { min: walkMin, m: distM })}</span>}
+        <div className="px-2 py-1 flex flex-col gap-0.5 text-[10px] leading-tight text-tg-text/80 border-b border-tg-border/60">
+          <div className="flex items-center gap-1 min-w-0">
+            <span className="inline-block w-2 h-2 rounded-full shrink-0" style={{ background: STATUS_HEX[worstStatus] || STATUS_HEX.unknown }} />
+            <span className="text-tg-hint truncate">{t(`mrt.status.${worstStatus}`, lang)}</span>
+            {openNow != null && (
+              <span className={`shrink-0 font-semibold ${openNow ? 'text-green-500' : 'text-orange-500'}`}>
+                · {openNow ? t('mrt.openNow', lang) : t('mrt.closedNow', lang)}
+              </span>
+            )}
+            {crowdLevel && <span className="shrink-0" title={t(`mrt.crowd.${crowdLevel}`, lang)}>{CROWD_DOT[crowdLevel]}</span>}
+          </div>
+          <div className="flex items-center gap-1 min-w-0 text-tg-hint tabular-nums">
+            {hours && (hours.first || hours.last) && (
+              <span className="truncate">🕑 {hours.first || '—'}–{hours.last || '—'}</span>
+            )}
+            {walkMin != null && <span className="ml-auto whitespace-nowrap shrink-0">🚶 {walkMin} min</span>}
+          </div>
         </div>
       )}
 
