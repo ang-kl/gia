@@ -71,7 +71,10 @@ function ensureBlinkStyle() {
   if (typeof document === 'undefined' || document.getElementById('gia-mrt-blink')) return;
   const st = document.createElement('style');
   st.id = 'gia-mrt-blink';
-  st.textContent = '@keyframes giaMrtBlink{0%,100%{opacity:1}50%{opacity:0.2}}';
+  st.textContent = '@keyframes giaMrtBlink{0%,100%{opacity:1}50%{opacity:0.2}}'
+    // v0.62.651 — the card-tap focus flash (Cuisine parity, mapOverlays.flashPin).
+    + '@keyframes giaMrtFocusFlash{0%{transform:scale(0.6);opacity:0.9}'
+    + '70%{transform:scale(1.35);opacity:0.15}100%{transform:scale(1.5);opacity:0}}';
   document.head.appendChild(st);
 }
 
@@ -318,6 +321,37 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       .catch(() => { /* detail view simply shows no amenity pins */ });
     return () => { cancelled = true; };
   }, [focusedStation, overview]);
+
+  // v0.62.651 — operator: "each tap should jump to the station and blink like the
+  // cuisine tma." The jump already worked (setCenter + zoom 18, v0.62.634) but
+  // there was no blink, so on a busy map — and especially in LIST mode, where the
+  // drawer covers the lower half — you could not tell WHICH pin the tap had
+  // landed on. This is Cuisine's flashPin (mapOverlays.jsx) ported: a transient
+  // expanding ring at the focused station, ~1.6 s, then removed. It draws no
+  // permanent marker and never touches the pin layer, so it cannot interfere with
+  // renderPins' own lifecycle.
+  useEffect(() => {
+    const fs = focusedStation;
+    const map = mapRef.current;
+    if (!fs || !map || typeof document === 'undefined') return undefined;
+    if (!Number.isFinite(fs.lat) || !Number.isFinite(fs.lng)) return undefined;
+    const AME = window.google?.maps?.marker?.AdvancedMarkerElement;
+    if (!AME) return undefined;
+    ensureBlinkStyle();
+    const hex = LINES_BY_CODE[(fs.lines || [])[0]]?.hex || '#2f81f7';
+    const el = document.createElement('div');
+    el.style.cssText = 'width:46px;height:46px;border-radius:50%;pointer-events:none;'
+      + `border:3px solid ${hex};background:${hex}22;box-shadow:0 0 10px ${hex};`
+      + 'animation:giaMrtFocusFlash 0.8s ease-out 2;';
+    let marker = null;
+    try {
+      marker = new AME({ position: { lat: fs.lat, lng: fs.lng }, content: el, zIndex: 9999 });
+      marker.map = map;
+    } catch { return undefined; }
+    const timer = setTimeout(() => { try { marker.map = null; } catch { /* noop */ } }, 1700);
+    return () => { clearTimeout(timer); try { marker.map = null; } catch { /* noop */ } };
+    // Keyed on the station's identity, so re-tapping the SAME card re-flashes.
+  }, [focusedStation]);
 
   // Re-render pins whenever stations, map readiness, focused line /
   // station, Overview state, locale, crowd, or station context change.

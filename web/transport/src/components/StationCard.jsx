@@ -243,7 +243,8 @@ function AmenityLink({ href, children }) {
 export default function StationCard({
   station = null, coarse = null, context = null, crowd = null, statusByLine = null,
   coarseStations = null, lang = 'en', onClose = null, onFocusStationCode = null,
-  onTap = null, active = false, glass = false, compact = false, collapsible = false, userLoc = null
+  onTap = null, active = false, glass = false, compact = false, collapsible = false, userLoc = null,
+  seq = null, seqTotal = null
 }) {
   const name = station?.station_name || coarse?.name || '';
   // v0.62.621/632 — hooks must precede the early return (Rules of Hooks).
@@ -372,6 +373,18 @@ export default function StationCard({
         className="px-2 py-1.5 flex items-center gap-1.5"
         style={{ background: stripHex, color: stripText }}
       >
+        {/* v0.62.651 — operator: "as a foreigner to Singapore i wouldn't know how
+            to read the cards if presented in columns for listing." In one column,
+            reading down IS travelling along the line; in 2–4 columns that order
+            is invisible, and a visitor has no reason to know that EW1 → EW2 → EW3
+            counts along the track. The explicit ordinal makes the sequence
+            readable no matter how many columns the viewport gives, and pairs with
+            the line/terminus header above the grid. Only rendered where the
+            sequence exists (the list), so the carousel is unaffected. */}
+        {Number.isFinite(seq) && Number.isFinite(seqTotal) && (
+          <span className="shrink-0 text-[9px] font-semibold tabular-nums opacity-70"
+            aria-label={`Stop ${seq} of ${seqTotal}`}>{seq}/{seqTotal}</span>
+        )}
         <div className="flex flex-wrap items-center gap-1">
           {lines.map((l, i) => (
             <span key={i}

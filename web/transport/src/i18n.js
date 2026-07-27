@@ -132,6 +132,9 @@ const STRINGS = {
   'mrt.walk':                  { en: '≈ {min} min walk · {m} m', fr: '≈ {min} min à pied · {m} m' },
   'mrt.trainTimes':            { en: 'Train times', fr: 'Horaires des trains' },
   'mrt.around':                { en: 'Around the station', fr: 'Autour de la station' },
+  // v0.62.651 — the list-mode line header: how many stops the focused line has,
+  // so a visitor can see the grid is a whole line in travel order.
+  'mrt.stopsCount':            { en: '{n} stops', fr: '{n} arrêts' },
   'mrt.nearestHawker':         { en: 'Nearest hawker', fr: 'Hawker le plus proche' },
   // v0.62.634 — operator: the card should state whether the station is open now
   // + its operating (first/last train) hours, above the amenities.
