@@ -158,7 +158,15 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
        hugged the dock but still left a gap that the 💬/🔍 FABs floated in).
        The FABs are lifted to z-40 in App.jsx so they stay IN FRONT of these
        z-30 cards even as the strip sits lower. */
-    <div className={`fixed inset-x-0 ${hasFilters ? 'bottom-[6rem]' : 'bottom-[4.5rem]'} z-30 px-1 pointer-events-none max-w-[1600px] mx-auto`}>
+    /* v0.62.650 — operator: "Can i have 2 px gap between the carousel card and the
+       recommendation bar in Cuisine TMA". The v0.62.277/285 passes deliberately
+       dropped the strip to hug the dock ("no gap"), and the card's bottom pill
+       ended up flush against the "S$xx ~ xx · N gems | ★ …" bar. `calc(… + 2px)`
+       adds exactly the 2 px asked for without disturbing either tuned offset. */
+    <div
+      className="fixed inset-x-0 z-30 px-1 pointer-events-none max-w-[1600px] mx-auto"
+      style={{ bottom: `calc(${hasFilters ? '6rem' : '4.5rem'} + 2px)` }}
+    >
       {/* v0.62.141 — operator: the list + vertical/horizontal controls moved to
           the FOOTER (out of the strip). Cards are BOTTOM-aligned (items-end),
           and each is a COMPACT ~5-row scroll panel (card-scroll = visible thin

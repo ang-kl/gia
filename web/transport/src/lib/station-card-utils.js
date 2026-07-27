@@ -196,3 +196,50 @@ export function terminusForDirection(coarseStations, lineCode, direction) {
   }
   return hit || null;
 }
+
+// v0.62.650 — operator: "Missing bus stop description and exit description with
+// expanded card."
+//
+// EXITS. The rich station feed and data/station-exits.json disagree on the field
+// name (`label` vs `exit`) and on whether the value is already prefixed: Paya
+// Lebar carries "Exit A" … "Exit D" for four of its six exits and a bare "E",
+// "F" for the other two. The card was reading `.label` only, which is why the
+// screenshot showed a bare letter. Normalise both shapes to one prefixed label
+// so the list reads "Exit A / Exit B / …" with no gaps.
+export function exitLabel(exit, lang = 'en') {
+  const raw = String((exit && (exit.label ?? exit.exit ?? exit.exit_label)) || '').trim();
+  if (!raw) return '';
+  const word = lang === 'fr' ? 'Sortie' : 'Exit';
+  // Already prefixed in some other casing/language — leave the caller's text be.
+  if (/^(exit|sortie)\b/i.test(raw)) return raw.replace(/^(exit|sortie)\b/i, word);
+  return `${word} ${raw}`;
+}
+
+// BUS STOPS. /api/transport/station-context returns `description` + `roadName`
+// (both expanded from LTA's abbreviations server-side), but either can be empty
+// when the Redis stop-metadata hash has no row for that code — which is what the
+// operator saw: four codes and no names. Prefer the description, fall back to
+// the road, and return '' rather than 'undefined' so the caller can omit the
+// separator entirely.
+export function busStopDesc(stop) {
+  if (!stop) return '';
+  const desc = String(stop.description || '').trim();
+  const road = String(stop.roadName || '').trim();
+  if (desc && road && desc.toLowerCase() !== road.toLowerCase()) return `${desc}, ${road}`;
+  return desc || road || '';
+}
+
+// The context feed can repeat a code (GEOSEARCH hits per exit, then merged), and
+// a list that reads "81111 · 81111 · 81111" is worse than useless. First
+// occurrence wins — the feed is distance-sorted, so that is the nearest.
+export function dedupeBusStops(stops) {
+  const seen = new Set();
+  const out = [];
+  for (const s of (Array.isArray(stops) ? stops : [])) {
+    const key = String(s && s.code || '').trim();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(s);
+  }
+  return out;
+}
