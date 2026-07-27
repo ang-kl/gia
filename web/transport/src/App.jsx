@@ -566,7 +566,11 @@ export default function App() {
   // top/down & back/end nav (right). Shared across every layout.
   const footerBar = (
     <div
-      className="fixed bottom-0 inset-x-0 z-40 bg-tg-bg/95 backdrop-blur border-t border-tg-border"
+      /* v0.62.649 — operator: "the footer be 75% liquid glass effect which is the
+         standard". Was `bg-tg-bg/95 backdrop-blur` (near-opaque, and the /95 was
+         being dropped by the palette bug anyway). Now the shared
+         `.liquid-glass-dock` at the standard 75 %. */
+      className="fixed bottom-0 inset-x-0 z-40 bg-tg-bg/75 liquid-glass-dock border-t border-tg-border"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <div className="flex items-center justify-between gap-2 px-3 py-1.5">

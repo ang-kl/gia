@@ -41,6 +41,27 @@ describe('themeColor', () => {
     expect(c({ opacityValue: 0 })).toBe('color-mix(in srgb, var(--tg-hint, #98989f) 0%, transparent)');
   });
 
+  // v0.62.649 regression anchor. Tailwind calls the colour function for the
+  // BARE utility with the literal string 'var(--tw-bg-opacity)' so bg-opacity-*
+  // keeps working. v0.62.648 ran that through Number(), got NaN, and emitted
+  //   background-color: color-mix(in srgb, var(--tg-card) NaN%, transparent)
+  // — invalid CSS, dropped by the browser. Every bare bg-/text-/border-tg-*
+  // lost its colour: cards rendered with no fill, borders fell back to
+  // currentColor. Worse than the bug it was fixing.
+  it('falls back to the plain var() for Tailwind\'s bare-utility var string', () => {
+    const c = themeColor('--tg-card', '#1c1c1f');
+    expect(c({ opacityValue: 'var(--tw-bg-opacity)' })).toBe('var(--tg-card, #1c1c1f)');
+    expect(c({ opacityValue: 'var(--tw-text-opacity)' })).toBe('var(--tg-card, #1c1c1f)');
+  });
+
+  it('never emits NaN, for ANY opacity argument shape', () => {
+    const c = themeColor('--tg-bg', '#0e0e10');
+    const shapes = [undefined, null, '', 'var(--tw-bg-opacity)', 'inherit', {}, [], NaN, 0, 1, 0.5, '0.75'];
+    for (const opacityValue of shapes) {
+      expect(c({ opacityValue }), `opacityValue=${JSON.stringify(opacityValue)}`).not.toContain('NaN');
+    }
+  });
+
   it('never returns a bare var() when an alpha was asked for — that is the bug', () => {
     const out = themeColor('--tg-bg', '#0e0e10')({ opacityValue: 0.8 });
     expect(out).not.toBe('var(--tg-bg, #0e0e10)');

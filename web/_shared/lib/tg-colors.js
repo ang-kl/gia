@@ -27,14 +27,30 @@
 // defines --tg-hint itself with color-mix — so this adds no new baseline
 // (Safari/iOS 16.2+, Chrome 111+).
 
+// v0.62.649 — REGRESSION FIX. The v0.62.648 version of this function assumed
+// `opacityValue` was either absent or a number. It is neither for the BARE
+// utility: Tailwind calls the colour function with the literal string
+// `'var(--tw-bg-opacity)'` so that `bg-opacity-*` can still work. `Number()` on
+// that is NaN, which produced
+//
+//     .bg-tg-card{background-color:color-mix(in srgb,var(--tg-card) NaN%,transparent)}
+//
+// — invalid CSS, so the declaration was DROPPED. Net effect: v0.62.648 fixed
+// every `/NN` utility and broke every BARE one, which is far worse. Cards lost
+// their fill, borders fell back to currentColor, text lost its colour.
+//
+// Any non-finite opacity therefore falls back to the plain var(): that is the
+// correct rendering, because Tailwind sets --tw-bg-opacity to 1 for the bare
+// utility anyway.
 /** @param {string} varName @param {string} fallback */
 function themeColor(varName, fallback) {
   const base = `var(${varName}, ${fallback})`;
-  return ({ opacityValue } = {}) => (
-    opacityValue === undefined || opacityValue === null || opacityValue === ''
-      ? base
-      : `color-mix(in srgb, ${base} ${Number(opacityValue) * 100}%, transparent)`
-  );
+  return ({ opacityValue } = {}) => {
+    if (opacityValue === undefined || opacityValue === null || opacityValue === '') return base;
+    const alpha = Number(opacityValue);
+    if (!Number.isFinite(alpha)) return base;   // 'var(--tw-bg-opacity)' → no numeric alpha
+    return `color-mix(in srgb, ${base} ${alpha * 100}%, transparent)`;
+  };
 }
 
 export const tgColors = {
