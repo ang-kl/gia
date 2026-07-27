@@ -164,7 +164,7 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
        ended up flush against the "S$xx ~ xx · N gems | ★ …" bar. `calc(… + 2px)`
        adds exactly the 2 px asked for without disturbing either tuned offset. */
     <div
-      className="fixed inset-x-0 z-30 px-1 pointer-events-none max-w-[1600px] mx-auto"
+      className="fixed inset-x-0 z-30 px-1 pointer-events-none max-w-[1600px] min-[1800px]:max-w-none mx-auto"
       style={{ bottom: `calc(${hasFilters ? '6rem' : '4.5rem'} + 2px)` }}
     >
       {/* v0.62.141 — operator: the list + vertical/horizontal controls moved to
