@@ -1,0 +1,70 @@
+{
+  "since": "2026-07-27T22:04:00Z",
+  "until": "2026-07-27T23:09:00Z",
+  "count": 7,
+  "logs": [
+    {
+      "timestamp": "2026-07-27T22:26:25.961322987Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"649e385d727e411dba6722c325601b28\",\"from\":null,\"to\":[1.27159,103.81155],\"moved_m\":null,\"label\":\"Singapore\",\"region\":\"SG\",\"country\":null,\"cap_m\":null,\"ambient\":true,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "ed3e5583-4067-48ba-9ae6-e491009ede74",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-27T22:26:25.961332873Z",
+      "message": "[set-location] chat=313940231 → 1.2716,103.8116 label=\"Singapore\"  SG",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "ed3e5583-4067-48ba-9ae6-e491009ede74",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-27T22:26:25.961339572Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "ed3e5583-4067-48ba-9ae6-e491009ede74",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-27T22:26:25.961347049Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "ed3e5583-4067-48ba-9ae6-e491009ede74",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-27T22:26:25.961353312Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "ed3e5583-4067-48ba-9ae6-e491009ede74",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-27T22:26:25.961361148Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "ed3e5583-4067-48ba-9ae6-e491009ede74",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-07-27T22:26:25.961366995Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "ed3e5583-4067-48ba-9ae6-e491009ede74",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
