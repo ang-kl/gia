@@ -34,7 +34,8 @@ import {
   CROWD_DOT, STATUS_HEX, mapsQ, mapsLatLng, textOn, hexForLineCode,
   worstCrowd, trainTimes, noteIsTerminal, directionLabel, terminusForDirection,
   directionsUrl, shareUrl, todaySummary,
-  stationHours, stationOpenNow
+  stationHours, stationOpenNow,
+  exitLabel, busStopDesc, dedupeBusStops
 } from '../lib/station-card-utils.js';
 
 // v0.62.634 — current minutes-since-midnight in Singapore time, for the
@@ -152,7 +153,7 @@ function DirectionRow({ entry, lineCode, coarseStations, lang, onFocusStationCod
 // Collapsed → the line header + live status + a compact "today" first/last
 // summary; the ▾ expands the full per-direction detail. `initialOpen` seeds the
 // state (the active card opens its lines).
-function LineSubCard({ line, station, coarseStations, statusByLine, lang, onFocusStationCode, initialOpen = false }) {
+function LineSubCard({ line, station, coarseStations, statusByLine, lang, onFocusStationCode, initialOpen = false, lineCount = 1 }) {
   const [open, setOpen] = useState(initialOpen);
   useEffect(() => { if (initialOpen) setOpen(true); }, [initialOpen]);
   const hex = hexForLineCode(line.line_code);
@@ -172,10 +173,23 @@ function LineSubCard({ line, station, coarseStations, statusByLine, lang, onFocu
       >
         <span style={{ background: hex, color: '#fff' }}
           className="font-bold rounded px-1.5 py-0.5 text-[11px] leading-none">{line.station_code}</span>
-        <span className="text-[12px] font-semibold text-tg-text leading-tight flex-1 min-w-0 truncate">{line.line_name}</span>
+        {/* v0.62.650 — operator: "Line name like 'East-West' or 'Downtown' must be
+            shown. Reduce font size to make it fit with the width of the card."
+            It was truncating to "East-We…" because 12 px plus a "Normal service"
+            label ate the row. Two changes buy the width back: the font steps down
+            with the number of lines at this station (12 → 11 → 10 px for a
+            3-line interchange, the operator's pick), and the status WORD below is
+            gone in the normal case. `truncate` stays as the last resort. */}
+        <span className={`${lineCount >= 3 ? 'text-[10px]' : lineCount === 2 ? 'text-[11px]' : 'text-[12px]'} font-semibold text-tg-text leading-tight flex-1 min-w-0 truncate`}>{line.line_name}</span>
+        {/* v0.62.650 — operator: "Remove word 'normal' as the header already shows
+            all lines normal and we have the status colour." The DOT always shows
+            (it is the at-a-glance signal); the word appears only when the line is
+            NOT running normally, where it carries real information and keeps the
+            indicator CVD-safe exactly when that matters. */}
         <span className="flex items-center gap-1 text-[10px] shrink-0">
-          <span className="inline-block w-2 h-2 rounded-full" style={{ background: STATUS_HEX[st] || STATUS_HEX.unknown }} />
-          <span className="text-tg-hint">{statusLabel}</span>
+          <span className="inline-block w-2 h-2 rounded-full" title={statusLabel}
+            style={{ background: STATUS_HEX[st] || STATUS_HEX.unknown }} />
+          {st !== 'normal' && <span className="text-tg-hint">{statusLabel}</span>}
         </span>
         {hasDetail && <span className="shrink-0 text-tg-hint"><Triangle open={open} /></span>}
       </button>
@@ -287,7 +301,9 @@ export default function StationCard({
   const ctxBus = (context?.busStops || []);
   const derivedBus = exits
     .map((e) => e.nearest_bus_stop).filter(Boolean);
-  const busStops = ctxBus.length ? ctxBus : derivedBus;
+  // v0.62.650 — de-duplicate: the context feed can repeat a code (a GEOSEARCH per
+  // exit, merged), and the operator's screenshot showed "81111" three times.
+  const busStops = dedupeBusStops(ctxBus.length ? ctxBus : derivedBus);
   const taxis = context?.taxis || [];
   // v0.62.634 — operator: "Where are the … car park details" — the station-context
   // feed already carries nearby carparks (≤400 m); render them in the amenities.
@@ -318,6 +334,18 @@ export default function StationCard({
     {coarse?.future && (
       <div className="ml-3 -mb-1 self-start relative z-10 px-3 py-0.5 rounded-t-lg bg-slate-600 text-white text-[10px] font-bold leading-snug uppercase tracking-wide">
         {t('mrt.future', lang)}
+      </div>
+    )}
+    {/* v0.62.650 — operator: "If station is down or line is down have a sign above
+        the station card." Same folder-tab construction as the "future" tab, in the
+        status colour, carrying the status WORD — so removing "Normal service" from
+        every line row costs nothing when something IS wrong: the exception is now
+        the loudest thing on the card instead of the quietest. CVD-safe (the word
+        carries it). Suppressed on a future station, which already has its own tab. */}
+    {!coarse?.future && worstStatus !== 'normal' && (
+      <div className="ml-3 -mb-1 self-start relative z-10 px-3 py-0.5 rounded-t-lg text-white text-[10px] font-bold leading-snug uppercase tracking-wide"
+        style={{ background: STATUS_HEX[worstStatus] || STATUS_HEX.unknown }}>
+        ⚠ {t(`mrt.status.${worstStatus}`, lang)}
       </div>
     )}
     <m.div
@@ -371,6 +399,27 @@ export default function StationCard({
             Cuisine-style pill at the CARD FOOT (operator: "the collapse and expand
             is same effect as cuisine TMA"), so the strip is name-only and the name
             keeps every pixel of width. */}
+        {/* v0.62.650 — operator: "on the station name strip has a triangle to
+            expand/collapse right side 'details/less' thereby remove the 'less'
+            pill at the bottom left on the station card." The disclosure returns
+            to the strip (it lived here until v0.62.644) as a RIGHT-aligned
+            triangle + word, and the foot pill is gone — which also buys back a
+            whole row of height, the point of item 1. The strip itself still does
+            NOT toggle: only this button does, so a tap anywhere else on the card
+            still bubbles to onTap and focuses/zooms the map (the v0.62.641
+            regression must not come back). */}
+        {collapsible && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setBodyOpen((o) => !o); }}
+            aria-expanded={bodyOpen}
+            className="shrink-0 flex items-center gap-0.5 text-[10px] font-semibold leading-none opacity-90 active:scale-95"
+            style={{ color: stripText }}
+          >
+            {bodyOpen ? t('mrt.detailsLess', lang) : t('mrt.detailsMore', lang)}
+            <Triangle open={bodyOpen} />
+          </button>
+        )}
         {onClose && (
           <button type="button" onClick={(e) => { e.stopPropagation(); onClose(); }}
             aria-label="Close" className="text-[13px] leading-none opacity-80 active:scale-90" style={{ color: stripText }}>✕</button>
@@ -390,8 +439,12 @@ export default function StationCard({
           hours. (The 🚶 walk stays removed, v0.62.641.) */}
       {collapsible && (
         <div className="px-2 py-1 flex items-center gap-1 text-[10px] leading-tight text-tg-text/80 border-b border-tg-border/60">
-          <span className="inline-block w-2 h-2 rounded-full shrink-0" style={{ background: STATUS_HEX[worstStatus] || STATUS_HEX.unknown }} />
-          <span className="text-tg-hint truncate">{t(`mrt.status.${worstStatus}`, lang)}</span>
+          {/* v0.62.650 — dot always, word only when NOT normal (see LineSubCard). */}
+          <span className="inline-block w-2 h-2 rounded-full shrink-0" title={t(`mrt.status.${worstStatus}`, lang)}
+            style={{ background: STATUS_HEX[worstStatus] || STATUS_HEX.unknown }} />
+          {worstStatus !== 'normal' && (
+            <span className="text-tg-hint truncate">{t(`mrt.status.${worstStatus}`, lang)}</span>
+          )}
           {openNow != null && (
             <span className={`shrink-0 font-semibold ${openNow ? 'text-green-500' : 'text-orange-500'}`}>
               · {openNow ? t('mrt.openNow', lang) : t('mrt.closedNow', lang)}
@@ -487,24 +540,37 @@ export default function StationCard({
             >{t('mrt.around', lang)} <Triangle open={aroundOpen} /></button>
 
             {aroundOpen && (<>
+            {/* v0.62.650 — operator: "Bus stop and exit don't use pill; instead just
+                letters and user will know it can be hyperlink." Exits and bus stops
+                drop the bordered AmenityLink pill for plain link-coloured text on
+                its own row each, which is what lets the DESCRIPTION fit — a pill
+                row could only ever hold the bare code before wrapping. Everything
+                else (carparks, taxis, hawker) keeps the pill: those are single
+                items, not a list that needs to breathe. */}
             {exits.length > 0 && (
-              <div className="flex flex-wrap gap-1 items-center">
-                <span className="text-[10px] text-tg-hint mr-0.5">{t('mrt.exits', lang)}</span>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[10px] text-tg-hint">{t('mrt.exits', lang)}</span>
                 {exits.map((e, i) => (
-                  <AmenityLink key={i} href={mapsLatLng(e.lat, e.lng)}>🚪 {e.label}</AmenityLink>
+                  <a key={i} href={mapsLatLng(e.lat, e.lng)} target="_blank" rel="noreferrer"
+                    onClick={(ev) => ev.stopPropagation()}
+                    className="text-[11px] text-tg-link no-underline leading-snug truncate">
+                    🚪 {exitLabel(e, lang)}
+                  </a>
                 ))}
               </div>
             )}
 
             {busStops.length > 0 && (
-              <div className="flex flex-wrap gap-1 items-center">
-                <span className="text-[10px] text-tg-hint mr-0.5">{t('mrt.busStops', lang)}</span>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[10px] text-tg-hint">{t('mrt.busStops', lang)}</span>
                 {busStops.slice(0, 6).map((b, i) => {
-                  const desc = b.description || b.roadName || '';
+                  const desc = busStopDesc(b);
                   return (
-                    <AmenityLink key={i} href={mapsQ(['Bus Stop', b.code, desc, 'Singapore'].filter(Boolean).join(' '))}>
+                    <a key={i} href={mapsQ(['Bus Stop', b.code, desc, 'Singapore'].filter(Boolean).join(' '))}
+                      target="_blank" rel="noreferrer" onClick={(ev) => ev.stopPropagation()}
+                      className="text-[11px] text-tg-link no-underline leading-snug truncate">
                       🚌 {b.code}{desc ? ` · ${desc}` : ''}
-                    </AmenityLink>
+                    </a>
                   );
                 })}
               </div>
@@ -553,7 +619,7 @@ export default function StationCard({
             {lines.map((l, i) => (
               <LineSubCard key={i} line={l} station={station || {}} coarseStations={coarseStations}
                 statusByLine={statusByLine} lang={lang} onFocusStationCode={onFocusStationCode}
-                initialOpen={active} />
+                initialOpen={active} lineCount={lines.length} />
             ))}
           </div>
         )}
@@ -574,18 +640,11 @@ export default function StationCard({
       </div>
       )}
 
-      {/* v0.62.644 — the Cuisine-style collapse pill at the card FOOT ("▾ details" /
-          "▴ less"), replacing the triangle that used to sit on the name strip.
-          `mt-auto` pins it to the bottom so every card in the carousel shows its
-          toggle on the same line — the uniform look of the Cuisine strip. */}
-      {collapsible && (
-        <button
-          type="button"
-          onClick={(e) => { e.stopPropagation(); setBodyOpen((o) => !o); }}
-          aria-expanded={bodyOpen}
-          className="mt-auto self-start m-1.5 px-2 py-0.5 rounded-full border border-tg-accent/50 text-[10px] text-tg-accent font-medium active:scale-95"
-        >{bodyOpen ? t('mrt.detailsLess', lang) : t('mrt.detailsMore', lang)}</button>
-      )}
+      {/* v0.62.644 — the Cuisine-style collapse pill lived here at the card FOOT.
+          v0.62.650 — REMOVED (operator: "thereby remove the 'less' pill at the
+          bottom left on the station card"). Its job moved back onto the name
+          strip, and its whole row of height goes with it — which is most of what
+          makes a two-line card match a one-line card. */}
     </m.div>
     </div>
   );

@@ -228,3 +228,17 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
 .font-google {
   font-family: Roboto, 'Google Sans', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
 }
+
+/* v0.62.650 — operator: "still in drawer layout reduce font size by 1 px".
+   The station card sizes its type with absolute Tailwind steps (text-[10px] …
+   text-[14px]), so no rem/em scale on an ancestor can reach it. This maps each
+   step down exactly one pixel inside the list drawer, where two columns on a
+   phone (and three on a tablet) leave less width per card. Scoped to
+   `.gia-list-dense` so the carousel card — which has a full column to itself —
+   is untouched. */
+.gia-list-dense .text-\[9px\]  { font-size: 8px; }
+.gia-list-dense .text-\[10px\] { font-size: 9px; }
+.gia-list-dense .text-\[11px\] { font-size: 10px; }
+.gia-list-dense .text-\[12px\] { font-size: 11px; }
+.gia-list-dense .text-\[13px\] { font-size: 12px; }
+.gia-list-dense .text-\[14px\] { font-size: 13px; }

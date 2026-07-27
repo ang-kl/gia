@@ -369,9 +369,15 @@ export default function App() {
   // truncated to one letter ("EW1 P.."). Use a REAL grid with FEWER, wider
   // columns (2 portrait / 3 landscape; 1 phone) so the full name shows and the
   // tiles read as a uniform grid. Literal class strings so Tailwind's JIT keeps them.
+  // v0.62.650 — operator: "In list mode, can we have two independent columns for
+  // iPhone portrait mode, three independent columns in iPad / iPad mini". So the
+  // phone goes 1 → 2 columns and every tablet/desktop is 3, in BOTH orientations
+  // (portrait was 2). "Independent" is already true — each tile is its own
+  // collapsible card in a CSS grid with `items-start`, so one expanding never
+  // stretches its neighbours.
   const gridColsClass = vp.deviceClass === 'mobile'
-    ? 'grid grid-cols-1'
-    : (vp.orientation === 'landscape' ? 'grid grid-cols-3' : 'grid grid-cols-2');
+    ? 'grid grid-cols-2'
+    : 'grid grid-cols-3';
 
   // v0.62.632 — the selected station's index within the focused line (drives the
   // carousel's centre-on-select). -1 when nothing is selected.
@@ -632,9 +638,17 @@ export default function App() {
   //      collapsible tiles so the station NAME shows; each tile's ▾ expands its
   //      details in place. v0.62.639. ----
   if (viewMode === 'list') {
+    // v0.62.650 — operator: "still in drawer layout reduce font size by 1 px".
+    // The card's type is all `text-[Npx]`, i.e. ABSOLUTE — so a rem/em scale on an
+    // ancestor cannot reach it. `gia-list-dense` (styles.css) steps every absolute
+    // size inside the drawer's grid down by exactly 1 px, which is what makes two
+    // columns on a phone readable rather than merely narrower.
+    // (Comment lives HERE, not inside the ternary: a {/* … */} as the first token
+    // of a parenthesised JSX expression is a syntax error — this is the third time
+    // it has broken a build. See v0.62.640 and v0.62.646.)
     const listBody = lineStations.length > 0
       ? (
-        <div className="px-2 pt-1 flex flex-col gap-2">
+        <div className="px-2 pt-1 flex flex-col gap-2 gia-list-dense">
           <div ref={gridParent} className={`${gridColsClass} gap-2 items-start`}>
             {lineStations.map((st, i) => (
               <React.Fragment key={st.focusCode || st.name || i}>
