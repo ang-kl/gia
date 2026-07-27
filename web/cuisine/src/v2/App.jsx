@@ -9,6 +9,7 @@ import { coordsToCountry, isJbCoords } from './lib/coords-to-country.js';
 import { startLocationSync } from '../../../_shared/lib/location-sync.js';
 // v0.62.561 — O-54 responsive port: shared device/orientation hook (drives the
 // tablet/desktop card-count in the result strip + the footer device cue).
+import BottomSheet from '../../../_shared/components/BottomSheet.jsx';
 import { useViewport, viewportTag } from '../../../_shared/lib/use-viewport.js';
 import { shouldFollowDevice } from './lib/location-follow.js';
 import { resolveSearchCenter } from './lib/search-location.js';
@@ -115,6 +116,34 @@ function placeLabel({ lat, lng, name } = {}) {
     return `${lat.toFixed(2)}, ${lng.toFixed(2)}`;
   }
   return name0 || '';
+}
+
+// v0.62.655 — operator: "build in the overlay drawer like Hawker TMA in Cuisine
+// TMA in list mode ... it should show only 1.5 card height in list mode so user
+// knows how to scroll up and down in the drawer and use drawer handle to expand".
+//
+// Cuisine's vertical result list had never been a drawer: it sat in PAGE FLOW
+// below the map, which is why the audit found Cuisine to be the one map app
+// without the over-the-map layer that Hawker and Train have had since v0.62.648.
+//
+// Wrapping in place (rather than relocating the ~350-line panel) keeps the
+// existing refs, scroll handlers, pagination and flash-highlight wiring exactly
+// as they are — the panel does not know it is now inside a sheet. When inactive
+// this is a plain fragment, so horizontal mode is byte-for-byte unchanged.
+function ResultSheetShell({ active, peekPx, label, children }) {
+  if (!active) return <>{children}</>;
+  return (
+    <BottomSheet
+      /* The collapsed snap is the operator's 1.5 cards (peekPx, measured from a
+         real card below); the two taller snaps are the drag/tap targets. */
+      snaps={[0.10, 0.45, 0.80]}
+      initialSnap={2}
+      peekPx={peekPx}
+      ariaLabel={label}
+    >
+      {children}
+    </BottomSheet>
+  );
 }
 
 // v0.60.213 — build version for the footer (was a hardcoded "v0.60.4").
@@ -679,6 +708,34 @@ export default function App() {
   // list into view after a successful 🔍 Search press. Users were
   // missing the result list because it sits below the cuisine drawer.
   const resultPanelRef = useRef(null);
+
+  // v0.62.655 — the drawer's collapsed height, in REAL pixels: 1.5 result cards
+  // plus the sheet's own 44 px handle band. The operator asked for "only 1.5 card
+  // height ... so user knows how to scroll" — a half-card cut off at the fold is
+  // the affordance, so the number has to follow the CARD, not a guessed fraction
+  // of the viewport (which lands right on one device and wrong on every other).
+  // Measured from the first rendered card and re-measured on resize; null until
+  // a card exists, at which point BottomSheet falls back to its snap fraction.
+  const [listPeekPx, setListPeekPx] = useState(null);
+  useEffect(() => {
+    const measure = () => {
+      const panel = resultPanelRef.current;
+      if (!panel) return;
+      const card = panel.querySelector('[data-venue-card], article, .skeuo-card');
+      const h = card ? card.getBoundingClientRect().height : 0;
+      if (h > 40) setListPeekPx(Math.round(h * 1.5 + 44));
+    };
+    measure();
+    const t = setTimeout(measure, 400);
+    window.addEventListener('resize', measure);
+    return () => { clearTimeout(t); window.removeEventListener('resize', measure); };
+    // v0.62.655 — deliberately NOT keyed on `cursor`: it is declared LATER in this
+    // component, and a dep array is evaluated during render, so referencing it here
+    // throws "Cannot access 'cursor' before initialization" on every render.
+    // __tests__/tma-hook-deps-tdz.test.js caught exactly that. Page changes swap
+    // cards of the same height anyway, and the resize listener plus the 400 ms
+    // re-measure cover any late layout shift.
+  }, [drawerMode, venues.length]);
   // v0.59.1: floating Search + Top buttons. `↑ Top` only surfaces
   // once the user has scrolled past the hero (map + active chips).
   const [scrolledPastHero, setScrolledPastHero] = useState(false);
@@ -4438,7 +4495,7 @@ export default function App() {
            On a tablet `fill` reduces to `drawerMode === 'horizontal'` (isWide
            short-circuits the || in the fill expression below), so drawerMode IS
            the framed↔full-bleed axis to key on. */
-        key={isWide ? `cuisine-map-${drawerMode}` : 'cuisine-map-phone'}
+        key={isWide ? 'cuisine-map-fill' : 'cuisine-map-phone'}
         venues={visibleVenues.length ? visibleVenues : venues}
         userLoc={userLoc}
         /* v0.62.567 — portrait two-panel: a compact ~40vh framed map (the list
@@ -4461,7 +4518,16 @@ export default function App() {
            picker-triggered fill toggle → no in-place resize → no remount flash /
            blackout). This makes phone + tablet behave identically (operator: "why
            phone can be done?" — now they share one code path). */
-        fill={drawerMode === 'horizontal'}
+        /* v0.62.655 — operator: "build in the overlay drawer like Hawker TMA in
+           Cuisine TMA in list mode". The map is now full-bleed in BOTH modes; the
+           vertical list stopped being a page-flow panel BELOW the map and became a
+           BottomSheet floating OVER it (see the ResultPanel wrapper below), which
+           is the layer effect Hawker and Train have had since v0.62.648. `fill`
+           therefore no longer varies — and because it no longer varies, the
+           v0.62.574 framed-to-full-bleed REMOUNT (which existed only to dodge the
+           iPad blackout on an in-place canvas resize) has nothing left to guard
+           against: the canvas is never resized in place any more. */
+        fill
         focusedPlaceId={focusedPlaceId}
         onPinTap={setFocusedPlaceId}
         /* v0.62.590 — clear the selection when the popup closes (in-card ✕ or
@@ -4877,6 +4943,11 @@ export default function App() {
           unmounted) so its pagination still feeds the map's visible-page
           markers (onPageChange → visibleVenues) and the ↴ toggle reveals it
           instantly. */}
+      <ResultSheetShell
+        active={drawerMode === 'vertical' && !drawerDismissed}
+        peekPx={listPeekPx}
+        label={lang === 'fr' ? 'Glisser pour redimensionner la liste' : 'Drag to resize the list'}
+      >
       <div ref={resultPanelRef}
         /* v0.62.594 — bound the panel to the remaining viewport in the portrait-tablet
            listing so its header freezes + the columns scroll independently ("map stays"). */
@@ -5232,6 +5303,7 @@ export default function App() {
           </div>
         )}
       </div>
+      </ResultSheetShell>
 
       {error && <div className="text-xs text-red-500 px-1">⚠️ {error}</div>}
 
