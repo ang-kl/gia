@@ -100,7 +100,7 @@ function StationCarousel({ items, render, activeIndex = -1 }) {
       // space below the shorter cards (the "cards too tall" look). pointer-events-
       // auto because the floating carousel wrapper is pointer-events-none so the
       // map stays draggable in the gaps between cards.
-      className="flex items-end gap-2 overflow-x-auto snap-x snap-mandatory px-[4%] pb-1 max-w-6xl mx-auto pointer-events-auto"
+      className="flex items-end gap-2 overflow-x-auto snap-x snap-mandatory px-[4%] pb-1 max-w-6xl xl:max-w-none mx-auto pointer-events-auto"
       style={{ scrollbarWidth: 'none' }}
     >
       {/* v0.62.639 — operator (iPad mini): "have at least four can be seen and half
@@ -110,9 +110,18 @@ function StationCarousel({ items, render, activeIndex = -1 }) {
       {/* v0.62.645 — the CARD owns its height now (StationCard: fixed h-[14rem] when
           collapsed, auto when expanded, so "expand IS to expand the card"). The box
           only caps how far an expanded card may grow before it scrolls. */}
+      {/* v0.62.652 — operator (Telegram Desktop screenshot): "for the desktop are
+          you able to increase the number of cards to see from current to another
+          few more depending on aspect ratio of the desktop". The basis ladder used
+          to stop at md (768 px), so a 1920 px desktop showed the SAME ~4.5 cards as
+          a 768 px tablet — every extra pixel went into making each card WIDER
+          rather than showing more of the line. It now keeps stepping to 2000 px+.
+          `min-w-[9rem]` is the floor: at the top of the ladder a percentage basis
+          could squeeze a card below readable width, and the track should scroll
+          rather than render something illegible. */}
       {items.map((c, i) => (
         <div key={i} data-idx={i}
-          className="snap-center shrink-0 basis-[60%] sm:basis-[31%] md:basis-[22%] max-h-[52vh] overflow-y-auto rounded-lg shadow-lg">
+          className="snap-center shrink-0 basis-[60%] sm:basis-[31%] md:basis-[22%] xl:basis-[17%] min-[1600px]:basis-[13.5%] min-[2000px]:basis-[11%] min-w-[9rem] max-h-[52vh] overflow-y-auto rounded-lg shadow-lg">
           {render(c, i, !focused.has(i))}
         </div>
       ))}

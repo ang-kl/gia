@@ -156,7 +156,7 @@ export default function App() {
   // Tablet/desktop show 2–3 result cards in focus (the Hawker carousel basis);
   // phones keep the single-card strip.
   const drawerBasisClass = isWide
-    ? 'basis-[82%] md:basis-[44%] min-[1180px]:basis-[30%]'
+    ? 'basis-[82%] md:basis-[44%] min-[1180px]:basis-[30%] xl:basis-[24%] min-[1600px]:basis-[19%] min-[2000px]:basis-[16%]'
     : 'basis-[82%]';
   // v0.62.562 — O-54 (operator: "keep to the iPhone size"): on a tablet/desktop
   // the "Cuisine & filters" / "Pick local classic" folio tabs + their panels

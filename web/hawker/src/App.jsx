@@ -642,7 +642,7 @@ export default function App() {
             <CentreCarousel
               items={active.centres}
               renderCard={renderCentreCard}
-              basisClass="basis-[82%] md:basis-[44%] min-[1180px]:basis-[30%]"
+              basisClass="basis-[82%] md:basis-[44%] min-[1180px]:basis-[30%] xl:basis-[24%] min-[1600px]:basis-[19%] min-[2000px]:basis-[16%]"
             />
           </div>
         )}
