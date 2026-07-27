@@ -18,7 +18,7 @@
 
 import { describe, it, expect } from 'vitest';
 import {
-  exitLabel, busStopDesc, dedupeBusStops
+  exitLabel, busStopDesc, dedupeBusStops, splitLineName
 } from '../web/transport/src/lib/station-card-utils.js';
 
 describe('exitLabel', () => {
@@ -97,5 +97,40 @@ describe('dedupeBusStops', () => {
     expect(dedupeBusStops(null)).toEqual([]);
     expect(dedupeBusStops(undefined)).toEqual([]);
     expect(dedupeBusStops('nope')).toEqual([]);
+  });
+});
+
+// v0.62.653 — the qualified-line split.
+describe('splitLineName', () => {
+  it('splits the one qualified line in the LTA feed onto two rows', () => {
+    expect(splitLineName('East-West Line (Changi branch)'))
+      .toEqual({ main: 'East-West Line', qualifier: 'Changi branch' });
+  });
+
+  it('prefers the canonical name, so the row matches the line CHIP the user tapped', () => {
+    // data/stations.json says "Changi branch"; lines.js (and the picker) says
+    // "Changi Airport Branch". The user just tapped the latter — echo it back.
+    expect(splitLineName('East-West Line (Changi branch)', 'Changi Airport Branch'))
+      .toEqual({ main: 'East-West Line', qualifier: 'Changi Airport Branch' });
+  });
+
+  it('leaves an unqualified line completely alone', () => {
+    for (const n of ['Downtown Line', 'North East Line', 'Thomson-East Coast Line',
+      'Bukit Panjang LRT', 'Circle Line']) {
+      expect(splitLineName(n)).toEqual({ main: n, qualifier: '' });
+    }
+  });
+
+  it('never echoes the main name back as its own qualifier', () => {
+    // A canonical name identical to the base would render "X (X)".
+    expect(splitLineName('Circle Line (loop)', 'Circle Line').qualifier).toBe('loop');
+    expect(splitLineName('Circle Line (loop)', 'circle line').qualifier).toBe('loop');
+  });
+
+  it('is total', () => {
+    expect(splitLineName('')).toEqual({ main: '', qualifier: '' });
+    expect(splitLineName(null)).toEqual({ main: '', qualifier: '' });
+    expect(splitLineName('Weird (')).toEqual({ main: 'Weird (', qualifier: '' });
+    expect(splitLineName('Line ()')).toEqual({ main: 'Line', qualifier: '' });
   });
 });

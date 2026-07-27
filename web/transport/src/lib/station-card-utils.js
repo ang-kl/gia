@@ -243,3 +243,31 @@ export function dedupeBusStops(stops) {
   }
   return out;
 }
+
+// v0.62.653 — operator (Telegram Desktop, Tanah Merah / Expo / Changi Airport
+// cards): "for Train station card, CG Branch description should second line
+// stations: East-West Line / (Changi Airport Branch)".
+//
+// One line in the LTA feed carries a parenthetical qualifier —
+// "East-West Line (Changi branch)" — and on a carousel-width card it truncated
+// to "East-West Line (Changi br…", i.e. the qualifier was present but unreadable,
+// which is the worst of both. Splitting it onto a second row shows the whole
+// thing at the same width.
+//
+// The canonical name is preferred for the qualifier when the caller can supply
+// it: data/stations.json says "Changi branch", while lines.js — and the line
+// picker the user just tapped — says "Changi Airport Branch". Matching what the
+// chip above says beats echoing the feed's shorthand.
+export function splitLineName(name, canonical = '') {
+  const raw = String(name || '').trim();
+  if (!raw) return { main: '', qualifier: '' };
+  const m = raw.match(/^(.*?)\s*\(([^)]*)\)\s*$/);
+  if (!m) return { main: raw, qualifier: '' };
+  const main = m[1].trim();
+  const inner = m[2].trim();
+  const canon = String(canonical || '').trim();
+  // Use the canonical name only when it is a genuinely different, fuller label —
+  // never when it would just repeat the main name back.
+  const qualifier = (canon && canon.toLowerCase() !== main.toLowerCase()) ? canon : inner;
+  return { main: main || raw, qualifier };
+}
