@@ -54,10 +54,30 @@ export function useViewport() {
     const vv = typeof window !== 'undefined' ? window.visualViewport : null;
     if (vv) vv.addEventListener('resize', update);
     const timers = [setTimeout(update, 250), setTimeout(update, 700), setTimeout(update, 1500)];
+    // v0.62.654 — the three timers above are a GUESS at when Telegram finishes
+    // resizing the webview after requestFullscreen(). Telegram tells us exactly
+    // when, and we were not listening: `fullscreenChanged` fires on the
+    // enter/exit transition and `viewportChanged` on every height change. Without
+    // these, a fullscreen transition slower than 1500 ms leaves the layout stuck
+    // on the pre-expand classification for the rest of the session — nothing
+    // re-measures again until the user resizes or rotates. Shared hook, so all
+    // five TMAs gain this at once.
+    const tgw = (typeof window !== 'undefined' && window.Telegram) ? window.Telegram.WebApp : null;
+    const TG_EVENTS = ['fullscreenChanged', 'viewportChanged'];
+    if (tgw && typeof tgw.onEvent === 'function') {
+      for (const ev of TG_EVENTS) {
+        try { tgw.onEvent(ev, update); } catch { /* older client without this event */ }
+      }
+    }
     return () => {
       window.removeEventListener('resize', update);
       window.removeEventListener('orientationchange', update);
       if (vv) vv.removeEventListener('resize', update);
+      if (tgw && typeof tgw.offEvent === 'function') {
+        for (const ev of TG_EVENTS) {
+          try { tgw.offEvent(ev, update); } catch { /* noop */ }
+        }
+      }
       timers.forEach(clearTimeout);
       if (raf) cancelAnimationFrame(raf);
     };
