@@ -1,16 +1,16 @@
 /** @type {import('tailwindcss').Config} */
+import { tgColors } from '../_shared/lib/tg-colors.js';
+
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
       colors: {
-        'tg-bg':      'var(--tg-bg, #0e0e10)',
-        'tg-text':    'var(--tg-text, #f5f5f7)',
-        'tg-hint':    'var(--tg-hint, #98989f)',
-        'tg-accent':  'var(--tg-accent, #2bc26a)',
-        'tg-accent-text': 'var(--tg-accent-text, #fff)',
-        'tg-card':    'var(--tg-card, #1c1c1f)',
-        'tg-border':  'var(--tg-border, #2a2a2e)'
+        // Telegram theme params. Function-valued (see
+        // web/_shared/lib/tg-colors.js) so `/NN` opacity variants such as
+        // bg-tg-bg/80 actually EMIT — as plain var() strings Tailwind
+        // silently dropped every one of them.
+        ...tgColors,
       }
     }
   },

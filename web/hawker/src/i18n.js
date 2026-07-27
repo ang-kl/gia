@@ -121,6 +121,10 @@ const STRINGS = {
   // carousel, so the label is "Cards", not "List".
   'btn.showMap':             { en: 'Map',   fr: 'Carte' },
   'btn.showList':            { en: 'Cards', fr: 'Cartes' },
+  // v0.62.648 — the carousel ⇄ list-drawer toggle (Transport parity: the label
+  // names the view you'll switch TO).
+  'layout.list':             { en: '⊿ List', fr: '⊿ Liste' },
+  'layout.map':              { en: '◸ Map',  fr: '◸ Carte' },
   // v0.60.53 — copy-to-chat companion button per centre.
   'btn.saveToChat':          { en: '📤 Save to chat', fr: '📤 Envoyer au chat' },
   'btn.saving':              { en: 'Sending…', fr: 'Envoi…' },
