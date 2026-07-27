@@ -1,0 +1,66 @@
+<!-- bottom-sheet.html — v0.62.647
+     Canonical markup for the swipe-to-close Telegram Mini App bottom sheet.
+
+     Paste this fragment as a DIRECT CHILD OF <body>. Do NOT nest it inside a
+     positioned ancestor that carries an explicit z-index: such an ancestor
+     creates a stacking context and traps the sheet (and any fullscreen map
+     overlay) inside it. That trap has cost this repo three separate bugs
+     (v0.62.630, v0.62.639, v0.62.646).
+
+     bottom-sheet.js can also BUILD this markup for you — see createBottomSheet()
+     with no `element` option. The hand-authored form below exists so the sheet
+     renders (closed, correctly themed) before any JavaScript has run.
+
+     Structure, outside in:
+       .gia-sheet-root      inert fixed layer, owns the CSS custom properties
+       .gia-sheet-scrim     the dimming backdrop; tap to dismiss
+       .gia-sheet           the master sheet container (the thing that moves)
+       .gia-sheet-handle    the grab zone — a real <button>, min 44px tall
+       .gia-sheet-grabber   the 36x4 visual pill (decorative only)
+       .gia-sheet-title     optional; labels the dialog for screen readers
+       .gia-sheet-content   the scrolling content container
+-->
+
+<div
+  class="gia-sheet-root"
+  id="gia-sheet-root"
+  data-open="false"
+  hidden
+>
+  <!-- Dimming backdrop (scrim). aria-hidden: the dismiss affordance that
+       screen readers should use is the Escape key and the handle button, not
+       this decorative layer. -->
+  <div class="gia-sheet-scrim" data-gia-sheet-scrim aria-hidden="true"></div>
+
+  <!-- Master sheet container. tabindex="-1" so focus can be moved here on
+       open without adding it to the tab order. -->
+  <section
+    class="gia-sheet"
+    data-gia-sheet
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="gia-sheet-title"
+    tabindex="-1"
+  >
+    <!-- Handle zone. A <button> (not a <div role="button">) so Enter/Space,
+         focus ring and screen-reader semantics come for free on Telegram
+         Desktop. The 44px minimum hit area lives in the stylesheet. -->
+    <button
+      class="gia-sheet-handle"
+      data-gia-sheet-handle
+      type="button"
+      aria-label="Drag down to close, or press Escape"
+      aria-controls="gia-sheet-content"
+    >
+      <span class="gia-sheet-grabber" aria-hidden="true"></span>
+    </button>
+
+    <h2 class="gia-sheet-title" id="gia-sheet-title">Nearby</h2>
+
+    <!-- Content container. Owns its own scrolling; overscroll-behavior:contain
+         in the stylesheet stops a flick chaining into the map underneath. -->
+    <div class="gia-sheet-content" id="gia-sheet-content" data-gia-sheet-content>
+      <!-- consumer content -->
+    </div>
+  </section>
+</div>
