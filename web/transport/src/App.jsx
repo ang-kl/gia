@@ -680,57 +680,17 @@ export default function App() {
   //      cards stacked into an unreadable run of coloured name strips. Reverted:
   //      wide / landscape / desktop now fall through to the CAROUSEL layout below
   //      (full-bleed map + a bottom station carousel), same as before v0.62.621.
-  //      Phone portrait keeps the draggable bottom sheet; the LIST toggle wins. ----
+  //      Phone portrait falls through there too since v0.62.648. ----
 
-  // ---- DRAWER mode (phone portrait, carousel view): full-bleed map behind a
-  //      floating header + a Google-Maps-style DRAGGABLE bottom-sheet holding the
-  //      vertical station list (Hawker parity, v0.62.609). Operator (IMG_3595/6):
-  //      "merge when you set up the drawer". The two-panel LIST toggle still wins
-  //      when viewMode === 'list'; landscape/tablet keep the bottom carousel. ----
-  if (vp.deviceClass === 'mobile' && vp.orientation === 'portrait') {
-    const drawerItems = lineStations.length > 0
-      ? (
-        <div className="flex flex-col gap-2 px-2 pt-1">
-          {lineStations.map((st, i) => (
-            <React.Fragment key={st.focusCode || st.name || i}>{renderStationCard(st, i)}</React.Fragment>
-          ))}
-        </div>
-      )
-      : (singleFocusedCard ? <div className="px-2 pt-1">{singleFocusedCard}</div> : null);
-    return (
-      <>
-        <div className="fixed inset-0 overflow-hidden bg-tg-bg text-tg-text"
-          style={{
-            paddingTop: 'var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px))',
-            paddingBottom: 'env(safe-area-inset-bottom, 0px)'
-          }}>
-          {/* full-bleed map behind everything */}
-          {/* v0.62.646 — NO z-0 here. A positioned element with an explicit z-index
-              creates a STACKING CONTEXT, which trapped the map's fullscreen
-              `fixed inset-0 z-[35]` expand overlay inside this z-0 box — so ⇲
-              Expand "did nothing": the map DID go fullscreen but painted
-              behind the z-30 drawer. `absolute inset-0` (z-auto) keeps the
-              same paint order for the normal state and lets the overlay out. */}
-          <div className="absolute inset-0">{mapBlock(true, true)}</div>
-          {/* floating header over the map — only the card catches taps so the map
-              stays tappable around it. */}
-          <div className="absolute top-0 inset-x-0 z-20 px-2 pointer-events-none"
-            style={{ paddingTop: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' }}>
-            <div className="pointer-events-auto">{headerEl}</div>
-          </div>
-          {/* the draggable station-list drawer (only once a line/station is chosen;
-              first load is map-only, matching the empty carousel). */}
-          {drawerItems && (
-            <BottomSheet contentRef={listScrollRef} onContentScroll={onListScroll}>
-              {drawerItems}
-            </BottomSheet>
-          )}
-        </div>
-        {popups}
-        {footerBar}
-      </>
-    );
-  }
+  // ---- DRAWER mode (phone portrait, carousel view) — REMOVED v0.62.648.
+  //      v0.62.609 gave phone-portrait its own always-on bottom-sheet drawer in
+  //      CAROUSEL view, so the phone never saw the carousel this TMA defaults to
+  //      everywhere else. Operator (2026-07-27): "better experience to have both
+  //      Hawker TMA and Train TMA in Cuisine's carousel card mode … these 2 TMA
+  //      like Cuisine TMA can toggle to list which is how the drawer effect takes
+  //      place." So the drawer is now reached ONE way, on every device: the
+  //      footer's ⊿ List toggle (viewMode === 'list', handled above). Phone
+  //      portrait falls through to the carousel below with everything else. ----
 
   // ---- CAROUSEL mode (DEFAULT, every device): the Cuisine desktop standard —
   //      header ON TOP, the map filling the rest, and the station carousel

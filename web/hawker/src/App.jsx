@@ -54,6 +54,21 @@ function statusIsOpen(centre) {
 // reveal the full map; 📋 List brings it back. v0.62.552 (operator): it is no
 // longer a separate floating pill — it renders as the FIRST item INSIDE the
 // FooterNav cluster (before ⇣ down / 🔚 end), so it reads as part of that row.
+// v0.62.648 — the carousel ⇄ list-drawer toggle, mirroring Transport's footer
+// pill. The label names the view you'll switch TO, so tapping "⊿ List" opens the
+// drawer over the map and tapping "◸ Map" returns to the carousel cards.
+function ViewToggleButton({ viewMode, onToggle, lang }) {
+  const label = viewMode === 'carousel' ? t('layout.list', lang) : t('layout.map', lang);
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={label}
+      className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
+    >{label}</button>
+  );
+}
+
 function MapToggleButton({ isHidden, onToggle, lang }) {
   return (
     <button
@@ -217,6 +232,12 @@ export default function App() {
   // the map's ⇲ expand flips `mapExpanded` so the layout switches to the full-map
   // + bottom-carousel (the point-2 landscape carousel), and ⇱ collapses back.
   const [mapExpanded, setMapExpanded] = useState(false);
+  // v0.62.648 — operator: "better experience to have both Hawker TMA and Train TMA
+  // in Cuisine's carousel card mode … these 2 TMA like Cuisine TMA can toggle to
+  // list which is how the drawer effect takes place." Mirrors Transport's
+  // `viewMode`: 'carousel' is the default on every device/orientation, and the
+  // footer toggle is the ONE way into the drawer.
+  const [viewMode, setViewMode] = useState('carousel');
   // v0.62.637 (C2/C3) — AutoAnimate the centre list (cards fade/slide as the
   // region changes; honours reduced-motion) + a reduced-motion flag for the
   // Motion selected-card spring. Both hooks stay above any early return.
@@ -627,7 +648,13 @@ export default function App() {
           footerTag={footerTag}
           atBottom={atBottom}
           zoneInfo={zoneInfo}
-          leading={active ? <MapToggleButton isHidden={listHidden} onToggle={() => withViewTransition(() => setListHidden((v) => !v))} lang={lang} /> : null}
+          leading={(
+            <>
+              <ViewToggleButton viewMode={viewMode} lang={lang}
+                onToggle={() => withViewTransition(() => setViewMode('list'))} />
+              {active && <MapToggleButton isHidden={listHidden} onToggle={() => withViewTransition(() => setListHidden((v) => !v))} lang={lang} />}
+            </>
+          )}
         />
       </div>
   );
@@ -786,7 +813,9 @@ export default function App() {
           )}
         </BottomSheet>
       )}
-      <FooterDock lang={lang} footerTag={footerTag} atBottom={panelAtBottom} scrollEl={panelScrollRef} zoneInfo={zoneInfo} />
+      <FooterDock lang={lang} footerTag={footerTag} atBottom={panelAtBottom} scrollEl={panelScrollRef} zoneInfo={zoneInfo}
+        leading={<ViewToggleButton viewMode={viewMode} lang={lang}
+          onToggle={() => withViewTransition(() => setViewMode('carousel'))} />} />
     </div>
   );
 
@@ -805,7 +834,14 @@ export default function App() {
   // portraitTabletPanel's static two-panel split, where the map was a fixed block
   // ABOVE the list rather than BEHIND it). portraitTabletPanel() is kept in the
   // file (unreferenced) so the two-panel can be restored in one line if wanted.
-  if (vp.orientation === 'landscape') return carouselLayout(false);
-  if (mapExpanded) return carouselLayout(true);
-  return drawerLayout();
+  // v0.62.648 — operator: Cuisine's model, exactly. CAROUSEL is the default on
+  // every device and orientation; the footer's ⊿ List toggle is the ONE route
+  // into the drawer, which is where the over-the-map overlay effect lives. The
+  // portrait-only auto-drawer (v0.62.642) is gone — it meant a portrait iPad
+  // never saw the carousel cards at all.
+  // `false` (not `vp.orientation !== 'landscape'`): with the portrait two-panel
+  // gone there is nothing for the map's ⇱ to collapse BACK to, so the map keeps
+  // its own internal ⇲ fullscreen overlay rather than a dead layout toggle.
+  if (viewMode === 'list') return drawerLayout();
+  return carouselLayout(false);
 }
