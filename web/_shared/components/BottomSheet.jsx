@@ -41,13 +41,25 @@ export default function BottomSheet({
   onContentScroll = null,
   footerPad = '3.25rem',
   ariaLabel = 'Drag to resize the list',
+  peekPx = null,
   children
 }) {
   const [snapIdx, setSnapIdx] = useState(initialSnap);
   const [dragTop, setDragTop] = useState(null); // px while dragging
   const drag = useRef(null);
   const vh = () => (typeof window !== 'undefined' ? window.innerHeight : 800);
-  const topPx = (idx) => Math.round(snaps[idx] * vh());
+  // v0.62.655 — `peekPx` overrides the COLLAPSED (last) snap with a real pixel
+  // height instead of a viewport fraction. Operator: the drawer "should show only
+  // 1.5 card height in list mode so user knows how to scroll up and down". 1.5
+  // cards is a fact about the CARD, not about the screen — a fraction of vh gets
+  // it right on one device and wrong on every other. The caller measures its own
+  // first card and passes the number; the fraction stays as the fallback.
+  const topPx = (idx) => {
+    if (peekPx != null && idx === snaps.length - 1) {
+      return Math.max(0, Math.round(vh() - peekPx));
+    }
+    return Math.round(snaps[idx] * vh());
+  };
   const curTop = dragTop != null ? dragTop : topPx(snapIdx);
 
   const stamp = () => (typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now());
