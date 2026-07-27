@@ -1,0 +1,321 @@
+/* bottom-sheet.css — v0.62.647
+ *
+ * Framework-free, swipe-to-close bottom sheet for Telegram Mini Apps.
+ * Pairs with bottom-sheet.js and bottom-sheet.html (markup contract).
+ *
+ * THEMING CONTRACT
+ * ----------------
+ * Every colour resolves through Telegram's own CSS custom properties, which
+ * telegram-web-app.js writes onto <html> (Bot API 6.1+):
+ *
+ *     --tg-theme-bg-color            sheet surface
+ *     --tg-theme-secondary-bg-color  scrim tint / grabber track
+ *     --tg-theme-text-color          body copy
+ *     --tg-theme-hint-color          grabber + secondary copy
+ *     --tg-theme-section-separator-color  hairlines (newer clients only)
+ *
+ * Each falls back FIRST to this repo's own mapped vars (--tg-bg / --tg-text /
+ * --tg-hint / --tg-card, set in each app's tg.js) and only THEN to a hard
+ * literal, so the component is correct in three environments: a real Telegram
+ * client, a Gia TMA that has already mapped themeParams, and a bare browser.
+ *
+ * CONTRAST OVER MAPS
+ * ------------------
+ * The surface is fully OPAQUE — no translucency, no backdrop-filter. A Google
+ * Maps tile underneath can be any luminance (dark-mode tiles, satellite,
+ * a white sea) so a translucent sheet has no guaranteeable contrast ratio.
+ * Elevation is instead signalled per scheme:
+ *   light → a soft drop shadow (the sheet floats above the map)
+ *   dark  → a hairline top border (a shadow is invisible on a dark map)
+ * The scheme comes from data-scheme, written by JS from
+ * Telegram.WebApp.colorScheme (authoritative — a Telegram theme can be dark
+ * while the OS is light). prefers-color-scheme is the no-JS fallback only.
+ */
+
+/* ---------------------------------------------------------------- tokens */
+
+.gia-sheet-root {
+  /* Surfaces */
+  --gia-sheet-bg: var(--tg-theme-bg-color, var(--tg-bg, #ffffff));
+  --gia-sheet-fg: var(--tg-theme-text-color, var(--tg-text, #0f172a));
+  --gia-sheet-hint: var(--tg-theme-hint-color, var(--tg-hint, #8b95a1));
+  --gia-sheet-rail: var(--tg-theme-section-separator-color, rgba(128, 128, 128, 0.22));
+
+  /* Geometry */
+  --gia-sheet-radius: 16px;
+  --gia-sheet-max-w: 640px;
+  --gia-sheet-max-h: 88dvh;
+
+  /* Motion — one curve, used on release and on programmatic open/close.
+     Fast out of the gate, long soft tail: reads as momentum, not as a timer. */
+  --gia-sheet-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --gia-sheet-dur: 340ms;
+
+  /* Scrim */
+  --gia-sheet-scrim: rgba(0, 0, 0, 0.32);
+
+  /* Live geometry. --gia-sheet-y is the sheet's vertical offset: 100 % of its
+     own height when closed, 0 when open, and an inline px value written by JS
+     for the duration of a drag (inline always wins, and is removed on release
+     so the sheet falls back to whichever of the two states below applies).
+     --gia-kb-inset lifts the sheet clear of a software keyboard;
+     --gia-vvh is the Visual Viewport height (excludes the keyboard). */
+  --gia-sheet-y: 100%;
+  --gia-kb-inset: 0px;
+}
+
+.gia-sheet-root[data-open='true'] {
+  --gia-sheet-y: 0px;
+}
+
+/* ------------------------------------------------------------ container */
+
+/* The root is inert: it must NEVER create a stacking context of its own around
+   anything but its two children, and it must not intercept map gestures. */
+.gia-sheet-root {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  pointer-events: none;
+  /* Belt and braces: never let the sheet inherit a text colour from the map UI. */
+  color: var(--gia-sheet-fg);
+}
+
+.gia-sheet-root[hidden] {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- scrim */
+
+.gia-sheet-scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--gia-sheet-scrim);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--gia-sheet-dur) var(--gia-sheet-ease);
+  /* Kills iOS rubber-band chaining into the map behind. */
+  overscroll-behavior: none;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gia-sheet-root[data-open='true'] .gia-sheet-scrim {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* While dragging, the scrim tracks the sheet's travel (JS writes the opacity
+   inline) — the transition must be off or it lags a finger by a third of a
+   second. */
+.gia-sheet-root[data-dragging='true'] .gia-sheet-scrim {
+  transition: none;
+}
+
+/* ---------------------------------------------------------------- sheet */
+
+.gia-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--gia-kb-inset, 0px);
+
+  /* Device widths: never a 100 %-wide slab on an iPad or Telegram Desktop.
+     margin-inline:auto with a max-width centres it; on a phone the max-width
+     is never reached so it is edge-to-edge, as it should be. */
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--gia-sheet-max-w);
+
+  /* Height: dvh (not vh) so an iOS URL bar / Telegram chrome collapse does not
+     leave a dead strip. Clamped again by the Visual Viewport height so a
+     software keyboard cannot push the sheet's own header off-screen. */
+  max-height: min(var(--gia-sheet-max-h), calc(var(--gia-vvh, 100dvh) - 24px));
+
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+
+  background: var(--gia-sheet-bg);
+  border-radius: var(--gia-sheet-radius) var(--gia-sheet-radius) 0 0;
+
+  transform: translate3d(0, var(--gia-sheet-y), 0);
+  will-change: transform;
+  pointer-events: auto;
+  overscroll-behavior: contain;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+
+  transition: transform var(--gia-sheet-dur) var(--gia-sheet-ease);
+}
+
+/* JavaScript Execution rule: zero-latency finger mapping. Any transition here
+   turns a 1:1 drag into a smeared chase, so it is removed for the whole drag
+   and the custom cubic-bezier above is restored on release. */
+.gia-sheet-root[data-dragging='true'] .gia-sheet {
+  transition: none;
+  will-change: transform;
+}
+
+/* --------------------------------------------------------- handle zone */
+
+/* Minimum 44 px hit area (Apple HIG / WCAG 2.5.8 target size) — the visible
+   grabber is 4 px tall, the TARGET is the whole 44 px band plus the sheet's
+   full width. touch-action:none is what makes the browser hand us the
+   touchmove stream instead of scrolling/zooming the page under us. */
+.gia-sheet-handle {
+  flex: 0 0 auto;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+  background: none;
+  border: 0;
+  width: 100%;
+  padding: 0;
+  color: inherit;
+}
+
+.gia-sheet-handle:active {
+  cursor: grabbing;
+}
+
+.gia-sheet-handle:focus-visible {
+  outline: 2px solid var(--tg-theme-link-color, var(--tg-accent, #2f81f7));
+  outline-offset: -4px;
+  border-radius: var(--gia-sheet-radius) var(--gia-sheet-radius) 0 0;
+}
+
+.gia-sheet-grabber {
+  width: 36px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--gia-sheet-hint);
+  opacity: 0.45;
+  transition: opacity 160ms linear, width 160ms var(--gia-sheet-ease);
+}
+
+.gia-sheet-handle:hover .gia-sheet-grabber,
+.gia-sheet-root[data-dragging='true'] .gia-sheet-grabber {
+  opacity: 0.75;
+  width: 44px;
+}
+
+/* ------------------------------------------------------------ title row */
+
+.gia-sheet-title {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0 16px 10px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--gia-sheet-fg);
+}
+
+/* -------------------------------------------------------------- content */
+
+.gia-sheet-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Stops a flick that runs out of list from chaining into the map behind. */
+  overscroll-behavior: contain;
+  padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  color: var(--gia-sheet-fg);
+}
+
+/* ------------------------------------------------------- elevation/scheme */
+
+/* Light: a drop shadow lifts the sheet off a bright map. */
+.gia-sheet-root[data-scheme='light'] .gia-sheet {
+  box-shadow: 0 -10px 34px rgba(0, 0, 0, 0.18), 0 -1px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Dark: a shadow is invisible against a dark map, so definition comes from a
+   hairline top border instead. */
+.gia-sheet-root[data-scheme='dark'] {
+  --gia-sheet-scrim: rgba(0, 0, 0, 0.52);
+}
+
+.gia-sheet-root[data-scheme='dark'] .gia-sheet {
+  border-top: 1px solid var(--gia-sheet-rail);
+  box-shadow: 0 -10px 34px rgba(0, 0, 0, 0.45);
+}
+
+/* No-JS / pre-hydration fallback: honour the OS scheme until data-scheme is
+   written from Telegram.WebApp.colorScheme. */
+.gia-sheet-root:not([data-scheme]) .gia-sheet {
+  box-shadow: 0 -10px 34px rgba(0, 0, 0, 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+  .gia-sheet-root:not([data-scheme]) {
+    --gia-sheet-scrim: rgba(0, 0, 0, 0.52);
+  }
+  .gia-sheet-root:not([data-scheme]) .gia-sheet {
+    border-top: 1px solid var(--gia-sheet-rail);
+    box-shadow: 0 -10px 34px rgba(0, 0, 0, 0.45);
+  }
+}
+
+/* ------------------------------------------------------- responsiveness */
+
+/* Tablet / Telegram Desktop: narrower still, and lifted off the bottom edge so
+   it reads as a floating card rather than a docked drawer — the map stays
+   visible on all four sides. */
+@media (min-width: 700px) {
+  .gia-sheet-root {
+    --gia-sheet-max-w: 560px;
+  }
+}
+
+/* Landscape: the viewport is short, so a portrait-sized sheet would swallow
+   the whole screen and hide the very map the list refers to. */
+@media (orientation: landscape) {
+  .gia-sheet-root {
+    --gia-sheet-max-h: 78dvh;
+    --gia-sheet-max-w: 560px;
+  }
+}
+
+/* Phone in landscape (short AND coarse): tighten the chrome rather than the
+   height — there is little enough room as it is. */
+@media (orientation: landscape) and (max-height: 460px) {
+  .gia-sheet-root {
+    --gia-sheet-max-h: 86dvh;
+  }
+  .gia-sheet-handle {
+    min-height: 44px; /* never shrink the target — only the padding around it */
+  }
+  .gia-sheet-title {
+    padding-bottom: 6px;
+    font-size: 14px;
+  }
+}
+
+/* Legacy webviews without dvh: 100vh is wrong under a URL bar but is a strictly
+   better failure than `max-height:none`. */
+@supports not (height: 100dvh) {
+  .gia-sheet-root {
+    --gia-sheet-max-h: 88vh;
+  }
+  .gia-sheet {
+    max-height: var(--gia-sheet-max-h);
+  }
+}
+
+/* ------------------------------------------------------ reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .gia-sheet,
+  .gia-sheet-scrim,
+  .gia-sheet-grabber {
+    transition-duration: 0.01ms !important;
+  }
+}
