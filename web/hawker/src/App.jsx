@@ -808,7 +808,16 @@ export default function App() {
             // v0.62.642 — the drawer now serves TABLETS too (portrait), so lay the
             // centres out in 2 columns on a wide screen (the two-panel's listClass)
             // and a single column on a phone.
-            <div ref={listParent} className={`${isWide ? 'grid grid-cols-2 items-start' : 'flex flex-col'} gap-2 px-2 pt-1`}>
+            // v0.62.651 — operator: "Can you create dynamic awareness for desktop
+            // and ipad landscape version? … I haven't check the hawker tma in
+            // desktop mode." It had the same device-class problem Transport did:
+            // `isWide` collapsed an iPad-landscape (1133 px) and a desktop window
+            // (1440 px+) into one 2-column layout. Same viewport-width breakpoints
+            // as the Train list — 2 / 3 / 4 — so both apps re-flow identically and
+            // a resized Telegram Desktop window is handled, which no device guess
+            // can do. (A {/* … */} comment cannot open a parenthesised JSX
+            // expression — that mistake has now broken five builds.)
+            <div ref={listParent} className="grid grid-cols-2 min-[700px]:grid-cols-3 xl:grid-cols-4 items-start gap-2 px-2 pt-1">
               {active.centres.map((c, i) => (
                 <React.Fragment key={i}>{renderCentreCard(c, i)}</React.Fragment>
               ))}

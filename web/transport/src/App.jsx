@@ -369,15 +369,22 @@ export default function App() {
   // truncated to one letter ("EW1 P.."). Use a REAL grid with FEWER, wider
   // columns (2 portrait / 3 landscape; 1 phone) so the full name shows and the
   // tiles read as a uniform grid. Literal class strings so Tailwind's JIT keeps them.
-  // v0.62.650 — operator: "In list mode, can we have two independent columns for
-  // iPhone portrait mode, three independent columns in iPad / iPad mini". So the
-  // phone goes 1 → 2 columns and every tablet/desktop is 3, in BOTH orientations
-  // (portrait was 2). "Independent" is already true — each tile is its own
-  // collapsible card in a CSS grid with `items-start`, so one expanding never
-  // stretches its neighbours.
-  const gridColsClass = vp.deviceClass === 'mobile'
-    ? 'grid grid-cols-2'
-    : 'grid grid-cols-3';
+  // v0.62.650 — operator: "two independent columns for iPhone portrait mode,
+  // three independent columns in iPad / iPad mini".
+  // v0.62.651 — operator: "Can you create dynamic awareness for desktop and ipad
+  // landscape version? i think desktop version can have 4 columns". Device-class
+  // buckets can't answer that: an iPad in landscape (1133 px) and a desktop
+  // window (1440 px+) are both "wide", but only one of them has room for four
+  // readable cards. So the column count is driven by the ACTUAL viewport width
+  // via Tailwind breakpoints, which is what "dynamic awareness" needs to mean —
+  // it also re-flows correctly when a Telegram Desktop window is resized, which
+  // no device guess can do.
+  //   < 768 px   2  — phone portrait
+  //   ≥ 768 px   3  — iPad mini/iPad portrait, iPad landscape
+  //   ≥ 1280 px  4  — desktop, iPad Pro landscape
+  // "Independent" is already true: each tile is its own collapsible card in a
+  // grid with `items-start`, so one expanding never stretches its neighbours.
+  const gridColsClass = 'grid grid-cols-2 min-[700px]:grid-cols-3 xl:grid-cols-4';
 
   // v0.62.632 — the selected station's index within the focused line (drives the
   // carousel's centre-on-select). -1 when nothing is selected.
@@ -468,7 +475,36 @@ export default function App() {
 
   // One station's rich StationCard (used in the wide list + carousel). Tapping
   // it focuses that station (card ↔ pin: the map reframes on focusedStation).
-  const renderStationCard = (st, i, glass = false, compact = false, collapsible = false) => {
+  // v0.62.651 — operator: "as a foreigner to Singapore i wouldn't know how to read
+  // the cards if presented in columns for listing."
+  //
+  // The diagnosis: MRT stations are an ORDERED SEQUENCE, and a single column
+  // encoded that for free — reading down the list IS travelling along the line.
+  // Two, three or four columns destroy it: there is no way to tell whether to
+  // read across or down, and a visitor has no prior knowledge that "EW1, EW2,
+  // EW3…" counts along the track. The grid was silently throwing away the one
+  // piece of information a stranger needs most.
+  //
+  // Two additions restore it without giving up the columns:
+  //   • this header — the line, its two termini, and the direction of travel
+  //   • an explicit ordinal on every card ("3 / 35"), below
+  // Together they make the order readable in ANY column count, which is exactly
+  // what a device-independent grid needs.
+  const lineOrderHeader = (focusedLine && lineStations.length > 1) ? (
+    <div className="rounded-lg border border-tg-border bg-tg-card px-2 py-1.5 flex items-center gap-2 text-[10px] leading-tight">
+      <span style={{ background: focusedLine.hex, color: '#fff' }}
+        className="font-bold rounded px-1.5 py-0.5 text-[10px] leading-none shrink-0">{focusedCode}</span>
+      <span className="font-semibold text-tg-text shrink-0">{focusedLine.name}</span>
+      <span className="text-tg-hint min-w-0 truncate">
+        {lineStations[0].name} → {lineStations[lineStations.length - 1].name}
+      </span>
+      <span className="ml-auto shrink-0 text-tg-hint tabular-nums">
+        {tn('mrt.stopsCount', lang, { n: lineStations.length })}
+      </span>
+    </div>
+  ) : null;
+
+  const renderStationCard = (st, i, glass = false, compact = false, collapsible = false, seq = null, seqTotal = null) => {
     const rich = geoStations ? (geoStations[st.name] || null) : null;
     const active = !!focusedStation && focusedStation.name === st.name;
     return (
@@ -485,6 +521,8 @@ export default function App() {
         glass={glass}
         compact={compact}
         collapsible={collapsible}
+        seq={seq}
+        seqTotal={seqTotal}
         userLoc={userLoc}
         onTap={() => handleSelectStation(st, st.focusCode)}
         onFocusStationCode={handleFocusStationCode}
@@ -649,10 +687,11 @@ export default function App() {
     const listBody = lineStations.length > 0
       ? (
         <div className="px-2 pt-1 flex flex-col gap-2 gia-list-dense">
+          {lineOrderHeader}
           <div ref={gridParent} className={`${gridColsClass} gap-2 items-start`}>
             {lineStations.map((st, i) => (
               <React.Fragment key={st.focusCode || st.name || i}>
-                {renderStationCard(st, i, false, true, true)}
+                {renderStationCard(st, i, false, true, true, i + 1, lineStations.length)}
               </React.Fragment>
             ))}
           </div>
