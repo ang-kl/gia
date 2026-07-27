@@ -30,12 +30,16 @@
 import React, { useEffect, useState } from 'react';
 import { m, useReducedMotion } from 'motion/react';
 import { t, tn } from '../i18n.js';
+// v0.62.653 — the canonical line names, so a qualified line ("East-West Line
+// (Changi branch)") can show the label the line CHIP uses ("Changi Airport
+// Branch") rather than the feed's shorthand.
+import { LINES_BY_CODE } from '../data/lines.js';
 import {
   CROWD_DOT, STATUS_HEX, mapsQ, mapsLatLng, textOn, hexForLineCode,
   worstCrowd, trainTimes, noteIsTerminal, directionLabel, terminusForDirection,
   directionsUrl, shareUrl, todaySummary,
   stationHours, stationOpenNow,
-  exitLabel, busStopDesc, dedupeBusStops
+  exitLabel, busStopDesc, dedupeBusStops, splitLineName
 } from '../lib/station-card-utils.js';
 
 // v0.62.634 — current minutes-since-midnight in Singapore time, for the
@@ -162,6 +166,11 @@ function LineSubCard({ line, station, coarseStations, statusByLine, lang, onFocu
   const dirs = (station.first_last_train || []).filter((f) => f.station_code === line.station_code);
   const summary = todaySummary(dirs);
   const hasDetail = dirs.length > 0;
+  // v0.62.653 — split "East-West Line (Changi branch)" into two rows, and step the
+  // whole ladder down 1 px so both rows fit the card width.
+  const nameParts = splitLineName(line.line_name, LINES_BY_CODE[line.line_code]?.name);
+  const nameSize = lineCount >= 3 ? 'text-[9px]' : lineCount === 2 ? 'text-[10px]' : 'text-[11px]';
+  const qualSize = lineCount >= 3 ? 'text-[8px]' : 'text-[9px]';
 
   return (
     <div className="rounded-lg border border-tg-border bg-tg-bg/40 p-1.5 flex flex-col gap-1">
@@ -180,7 +189,22 @@ function LineSubCard({ line, station, coarseStations, statusByLine, lang, onFocu
             with the number of lines at this station (12 → 11 → 10 px for a
             3-line interchange, the operator's pick), and the status WORD below is
             gone in the normal case. `truncate` stays as the last resort. */}
-        <span className={`${lineCount >= 3 ? 'text-[10px]' : lineCount === 2 ? 'text-[11px]' : 'text-[12px]'} font-semibold text-tg-text leading-tight flex-1 min-w-0 truncate`}>{line.line_name}</span>
+        {/* v0.62.653 — operator: "CG Branch description should second line stations:
+            East-West Line / (Changi Airport Branch)". The one qualified line in the
+            LTA feed ("East-West Line (Changi branch)") truncated to
+            "East-West Line (Changi br…" on a carousel-width card — the qualifier was
+            there but unreadable, the worst of both. It now takes its OWN row, and
+            every step of the ladder drops 1 px ("reduce font size by 1 px if cannot
+            see the whole description for each line"), so both rows fit the same
+            width. The qualifier prefers the canonical name from lines.js, which is
+            what the line chip the user just tapped says ("Changi Airport Branch"),
+            rather than echoing the feed's shorthand. */}
+        <span className="flex flex-col min-w-0 flex-1 leading-tight">
+          <span className={`${nameSize} font-semibold text-tg-text truncate`}>{nameParts.main}</span>
+          {nameParts.qualifier && (
+            <span className={`${qualSize} text-tg-hint truncate`}>({nameParts.qualifier})</span>
+          )}
+        </span>
         {/* v0.62.650 — operator: "Remove word 'normal' as the header already shows
             all lines normal and we have the status colour." The DOT always shows
             (it is the at-a-glance signal); the word appears only when the line is
