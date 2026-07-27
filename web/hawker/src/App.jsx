@@ -105,10 +105,13 @@ function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, sc
   };
   return (
     <div
-      /* v0.62.607 — operator: frost the footer. `liquid-glass-dock` is a Cuisine-
-         only CSS class (undefined here), so it wasn't blurring; use a real
-         backdrop-blur + top border. */
-      className="fixed bottom-0 inset-x-0 z-40 px-3 pt-1 bg-tg-bg/80 backdrop-blur-md border-t border-tg-border flex flex-col gap-0.5"
+      /* v0.62.607 — operator: frost the footer. `liquid-glass-dock` was a
+         Cuisine-only CSS class (undefined here), so it wasn't blurring; a plain
+         backdrop-blur stood in.
+         v0.62.649 — operator: "the footer be 75% liquid glass effect which is
+         the standard". The real `.liquid-glass-dock` is now defined in this
+         app's styles.css too, so use it, at the standard 75 %. */
+      className="fixed bottom-0 inset-x-0 z-40 px-3 pt-1 bg-tg-bg/75 liquid-glass-dock border-t border-tg-border flex flex-col gap-0.5"
       style={{ paddingBottom: 'calc(0.25rem + max(env(safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px)))' }}
     >
       <div className="flex items-center justify-between gap-1 text-[11px] font-semibold text-tg-link">
@@ -436,7 +439,7 @@ export default function App() {
         onClick={() => handleCardTap(c)}
         animate={reduceMotion ? undefined : { scale: cardOn ? 1.02 : 1 }}
         transition={{ type: 'spring', stiffness: 420, damping: 30, mass: 0.7 }}
-        className={`rounded-lg border text-xs flex flex-col cursor-pointer ${compact ? 'p-1.5 gap-0.5' : 'p-2.5 gap-1'} ${cardOn ? 'border-tg-accent ring-1 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 backdrop-blur-md' : 'bg-tg-card'}`}>
+        className={`rounded-lg border text-xs flex flex-col cursor-pointer ${compact ? 'p-1.5 gap-0.5' : 'p-2.5 gap-1'} ${cardOn ? 'border-tg-accent ring-1 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 liquid-glass' : 'bg-tg-card'}`}>
         <div className="font-semibold text-[13px] leading-tight text-tg-text">
           <span className="text-tg-hint font-semibold tabular-nums">{i + 1} · </span>{c.name}{c.isNew ? ' 🆕' : ''}
         </div>

@@ -5337,7 +5337,10 @@ export default function App() {
             surface (frosted blur + saturate + glass edge, up-cast lift shadow)
             over `bg-tg-bg/80`. Dark mode still drops onto a near-opaque base so
             the map can't tint it (the v0.62.206/209 fix, carried into the class). */}
-        <div className="pointer-events-auto -mx-2 px-3 pt-1.5 pb-1 liquid-glass-dock bg-tg-bg/80 flex flex-col gap-1">
+        {/* v0.62.649 — operator: "the footer be 75% liquid glass effect which is
+            the standard" (was /80). Hawker + Transport now carry the same
+            `.liquid-glass-dock` at the same 75 %. */}
+        <div className="pointer-events-auto -mx-2 px-3 pt-1.5 pb-1 liquid-glass-dock bg-tg-bg/75 flex flex-col gap-1">
           {/* slim control row — results · layout · next  |  down · end. Inline icon
               chips (no bordered cards); aria-labels carry the full text. */}
           <div className="flex items-center justify-between gap-1 text-[11px] font-semibold text-tg-link">
