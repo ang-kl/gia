@@ -495,10 +495,18 @@ export default function App() {
   // ORIENTATION — LANDSCAPE = the map + carousel (horizontal), PORTRAIT = the
   // list (vertical) — and the manual list/map toggle is hidden (below). Phones
   // keep the manual toggle and are unaffected (the effect no-ops when !isWide).
-  useEffect(() => {
-    if (!isWide) return;
-    setDrawerMode(vp.orientation === 'landscape' ? 'horizontal' : 'vertical');
-  }, [isWide, vp.orientation]);
+  // v0.62.654 — operator: "proceed to code to make all three consistent". This
+  // effect was the last thing keeping Cuisine out of line with Hawker + Train.
+  // It FORCED the view by orientation on every tablet/desktop — landscape →
+  // carousel, portrait → list — so a wide PORTRAIT device could not stay on the
+  // carousel: rotating reset the choice on every turn. Hawker and Train both
+  // default to the carousel on every device and orientation and let the footer
+  // toggle be the one way into the list (v0.62.648). Cuisine now does the same:
+  // `drawerMode` seeds to 'horizontal' and nothing overrides the user's choice.
+  //
+  // Kept as an empty-dependency no-op rather than deleted so the v0.62.564 intent
+  // ("not allow list in landscape, only when user rotate to portrait") stays
+  // readable in the file — it was a deliberate decision, later reversed.
   // v0.62.177 — operator: switching to the vertical list scrolls to + briefly
   // highlights where it starts ("Results #") so the user sees where it went.
   const [resultsFlash, setResultsFlash] = useState(false);
@@ -5360,7 +5368,12 @@ export default function App() {
                   PORTRAIT tablet too so the user can switch the two-panel list ⇄ the
                   full carousel from the footer (in addition to the map's ⇲/⇱).
                   Phones keep it always. */}
-              {!drawerDismissed && !(isWide && vp.orientation === 'landscape') && (
+              {/* v0.62.564 hid this toggle in wide LANDSCAPE (carousel-only there),
+                  which left a desktop user with NO route to the list at all.
+                  v0.62.654 — operator ("make all three consistent"): Hawker and
+                  Train show their ⊿ List / ◸ Map toggle on every device, so this
+                  one does too. `drawerDismissed` still hides it, as before. */}
+              {!drawerDismissed && (
                 <button
                   type="button"
                   onClick={() => {
