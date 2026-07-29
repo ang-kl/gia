@@ -745,10 +745,17 @@ export default function App() {
     // v0.62.655 — deliberately NOT keyed on `cursor`: it is declared LATER in this
     // component, and a dep array is evaluated during render, so referencing it here
     // throws "Cannot access 'cursor' before initialization" on every render.
-    // __tests__/tma-hook-deps-tdz.test.js caught exactly that. Page changes swap
-    // cards of the same height anyway, and the resize listener plus the 400 ms
-    // re-measure cover any late layout shift.
-  }, [drawerMode, venues.length]);
+    // __tests__/tma-hook-deps-tdz.test.js caught exactly that.
+    //
+    // v0.62.658 — Codex review (P2, PR #1667): keyed on `venues.length` alone, a
+    // new search that returns a SAME-SIZE batch of different venues never
+    // re-ran this. ResultCard's height varies with its status/price/dish/
+    // metadata rows, so `listPeekPx` could keep the PREVIOUS batch's card
+    // height after the venues underneath it changed — real bug, not just a
+    // hypothetical: two searches landing on the same result count is common.
+    // Keyed on the first venue's own identity instead, so any change to WHICH
+    // card is first re-measures, regardless of whether the count moved.
+  }, [drawerMode, venues.length, venues[0] && venues[0].placeId]);
   // v0.59.1: floating Search + Top buttons. `↑ Top` only surfaces
   // once the user has scrolled past the hero (map + active chips).
   const [scrolledPastHero, setScrolledPastHero] = useState(false);
