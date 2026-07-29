@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-21",
-  "count": 1608,
+  "generated": "2026-07-29",
+  "count": 1638,
   "records": [
     {
       "pr": 1,
@@ -40347,6 +40347,29 @@
       "burst": false
     },
     {
+      "pr": "1456",
+      "status": "merged",
+      "merged": "2026-07-05 00:53:30+00:00",
+      "day": "2026-07-05",
+      "version": "0.62.500",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: rebase + land PR #1456 journal records onto current main",
+      "approach": "PR #1456 recorded merges of #1454/#1462-1464/#1466/#1468/#1469/#1488 into journal-0_62_464-01_07_26-1710.md but went CONFLICTING: its 4-day-stale serial-state.yml (counters 818-822) collided with main (971+).",
+      "codeImpact": "doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.500: rebase + land PR #1456 journal records onto current main",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
       "pr": 1457,
       "status": "merged",
       "merged": "2026-07-01 10:44:24",
@@ -41273,6 +41296,27 @@
         "doc/vault"
       ],
       "title": "v0.62.488: result card folder-tab status + full-bleed nearby band",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": "1491",
+      "status": "merged",
+      "merged": "2026-07-05 08:38:46+08:00",
+      "day": "2026-07-05",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Pipeline / discovery",
+      "intent": "Update docs: add Soleat command validation and image registry",
+      "approach": "docs: add Soleat command alias validation",
+      "codeImpact": "(pre-squash convention — not tracked)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [],
+      "title": "docs: add Soleat command validation and image registry",
       "reworkCue": false,
       "reworkOf": null,
       "burst": false
@@ -44979,6 +45023,676 @@
       "title": "v0.62.629 — Train carousel: header ON TOP so the map's quick-access buttons stay visible; cards no longer cut",
       "reworkCue": false,
       "reworkOf": "1636",
+      "burst": true
+    },
+    {
+      "pr": "1638",
+      "status": "merged",
+      "merged": "2026-07-21 19:30:07+00:00",
+      "day": "2026-07-21",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: VibeCodingRecord catch-up (PRs #1621-#1637)",
+      "approach": "Housekeeping, no app change: the generated doc/VibeCodingRecord/ ledger had stalled at PR #1620 (v0.62.612) through the desktop-responsive PR flurry.",
+      "codeImpact": "doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: VibeCodingRecord catch-up (PRs #1621-#1637)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": "1639",
+      "status": "merged",
+      "merged": "2026-07-22 03:06:23+00:00",
+      "day": "2026-07-22",
+      "version": "0.62.630",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: Train: cards survive the map's expand — carousel lifted above the fullscreen overlay",
+      "approach": "Operator (Train TMA, desktop; v0.62.629 confirmed the map toggle row + nav cluster are now visible): \"i expand the screen, the cards are gone (in train TMA).\" Root cause: the station carousel lived INSIDE the map's flex-1 container at z-30.",
+      "codeImpact": "TMA:transport, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.630 — Train: cards survive the map's expand — carousel lifted above the fullscreen overlay",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1640",
+      "status": "merged",
+      "merged": "2026-07-22 16:21:03+08:00",
+      "day": "2026-07-22",
+      "version": "",
+      "minor": "",
+      "category": "feature",
+      "area": "Core / misc",
+      "intent": "Add files via upload",
+      "approach": "Add files via upload",
+      "codeImpact": "(pre-squash convention — not tracked)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [],
+      "title": "Add files via upload",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": "1641",
+      "status": "merged",
+      "merged": "2026-07-22 08:43:33+00:00",
+      "day": "2026-07-22",
+      "version": "0.62.631",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: refresh LTA MRT Station Exit GEOJSON (19 Jul 2026) + code→name exit labels",
+      "approach": "Ingest the operator's refreshed LTA MRT Station Exit dataset (uploaded 19 Jul 2026) into the overlay pipeline.",
+      "codeImpact": "doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.631 — refresh LTA MRT Station Exit GEOJSON (19 Jul 2026) + code→name exit labels",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1642",
+      "status": "merged",
+      "merged": "2026-07-22 21:39:42+00:00",
+      "day": "2026-07-22",
+      "version": "0.62.632",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: Train iPad mini: uniform collapsible station tiles, 4/6-per-row grid, iPhone-style select pop",
+      "approach": "Operator (iPad mini, IMG_1180/1181): cards were uneven heights (the action row \"floated above\" at different levels), too sparse per row, and lacked the iPhone-style select effect.",
+      "codeImpact": "TMA:transport, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.632 — Train iPad mini: uniform collapsible station tiles, 4/6-per-row grid, iPhone-style select pop",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1643",
+      "status": "merged",
+      "merged": "2026-07-22 22:45:09+00:00",
+      "day": "2026-07-22",
+      "version": "0.62.633",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: Train: keep per-line \"Station info\" link visible without timings (Codex P2 #1642)",
+      "approach": "Codex P2 on #1642: the v0.62.632 LineSubCard rewrite gated the per-line more_info_url \"Station info\" link on `open`.",
+      "codeImpact": "TMA:transport, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.633 — Train: keep per-line \"Station info\" link visible without timings (Codex P2 #1642)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1644",
+      "status": "merged",
+      "merged": "2026-07-22 23:33:54+00:00",
+      "day": "2026-07-22",
+      "version": "0.62.634",
+      "minor": "0.62",
+      "category": "refactor",
+      "area": "Cuisine Picker",
+      "intent": "Refactor: Train iPad mini: Pasir Ris de-dupe, carpark + open-now + hours in card, action row to bottom, zoom-18/cap-23",
+      "approach": "Operator (iPad mini): Pasir Ris \"missing\", where are carpark/exit details, card should show open/health/hours + carparks, action row not at the top, zoom to 18 capped 23.",
+      "codeImpact": "TMA:cuisine, i18n.js, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.634 — Train iPad mini: Pasir Ris de-dupe, carpark + open-now + hours in card, action row to bottom, zoom-18/cap-23",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": "1645",
+      "status": "merged",
+      "merged": "2026-07-22 23:40:49+00:00",
+      "day": "2026-07-22",
+      "version": "0.62.635",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: Cuisine iPad mini: fix map freeze past zoom 15 (viewport-cull train pills)",
+      "approach": "Operator P.S.",
+      "codeImpact": "TMA:cuisine, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.635 — Cuisine iPad mini: fix map freeze past zoom 15 (viewport-cull train pills)",
+      "reworkCue": false,
+      "reworkOf": "1644",
+      "burst": false
+    },
+    {
+      "pr": "1646",
+      "status": "merged",
+      "merged": "2026-07-25 00:27:26+00:00",
+      "day": "2026-07-25",
+      "version": "0.62.636",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Transport UI professionalisation pilot: C1 reduced-motion+skeleton, C2 AutoAnimate, C3 Motion springs + View Transitions",
+      "approach": "Operator: \"apply to Transport TMA first.",
+      "codeImpact": "TMA:transport, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.636 — Transport UI professionalisation pilot: C1 reduced-motion+skeleton, C2 AutoAnimate, C3 Motion springs + View Transitions",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": "1647",
+      "status": "merged",
+      "merged": "2026-07-25 00:41:48+00:00",
+      "day": "2026-07-25",
+      "version": "0.62.637",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Hawker UI professionalisation: roll the Transport C1-C3 layer to Hawker",
+      "approach": "Operator: \"continue\" -> \"layer for Hawker\".",
+      "codeImpact": "doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.637 — Hawker UI professionalisation: roll the Transport C1-C3 layer to Hawker",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": "1648",
+      "status": "merged",
+      "merged": "2026-07-25 00:54:09+00:00",
+      "day": "2026-07-25",
+      "version": "0.62.638",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Oversight / usage stats",
+      "intent": "Add: URGENT iPad Pro: all-TMA header clears Telegram's floating buttons + Train carousel = Hawker card parity",
+      "approach": "Operator (iPad Pro 11\", IMG_0768/0769): headers of all TMAs must sit BELOW the Telegram floating Back/⌄/··· buttons; and the Train carousel cards must match the Hawker carousel cards' height + dimensions.",
+      "codeImpact": "TMA:transport, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.638 — URGENT iPad Pro: all-TMA header clears Telegram's floating buttons + Train carousel = Hawker card parity",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": "1649",
+      "status": "merged",
+      "merged": "2026-07-25 01:14:50+00:00",
+      "day": "2026-07-25",
+      "version": "0.62.639",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: Train iPad mini: squeeze/tighten carousel; LIST becomes a drawer over the map with named uniform-grid tiles",
+      "approach": "Operator (iPad mini, IMG_1195/1196/1197): 1.",
+      "codeImpact": "doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.639 — Train iPad mini: squeeze/tighten carousel; LIST becomes a drawer over the map with named uniform-grid tiles",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1650",
+      "status": "merged",
+      "merged": "2026-07-25 01:26:59+00:00",
+      "day": "2026-07-25",
+      "version": "0.62.640",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Oversight / usage stats",
+      "intent": "Fix: Train: restore the ▾ collapse + collapsed card at Hawker height; footer no longer clips; Menu/Oversight headers clear the Telegram buttons",
+      "approach": "Operator (iPad mini, IMG_1203 Menu + IMG_1204 Train): \"see the footer that covers the text.",
+      "codeImpact": "doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.640 — Train: restore the ▾ collapse + collapsed card at Hawker height; footer no longer clips; Menu/Oversight headers clear the Telegram buttons",
+      "reworkCue": true,
+      "reworkOf": "1648",
+      "burst": false
+    },
+    {
+      "pr": "1651",
+      "status": "merged",
+      "merged": "2026-07-25 01:43:06+00:00",
+      "day": "2026-07-25",
+      "version": "0.62.641",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: Train card to the Cuisine standard: small action pills, no duplicated meta, walk row removed, tap-to-zoom fixed",
+      "approach": "Operator (iPad mini, IMG_1205 Cuisine as the standard): \"What are the share, map, saved/starred buttons so big?",
+      "codeImpact": "TMA:cuisine, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.641 — Train card to the Cuisine standard: small action pills, no duplicated meta, walk row removed, tap-to-zoom fixed",
+      "reworkCue": false,
+      "reworkOf": "1649",
+      "burst": true
+    },
+    {
+      "pr": "1652",
+      "status": "merged",
+      "merged": "2026-07-25 01:57:43+00:00",
+      "day": "2026-07-25",
+      "version": "0.62.642",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Hawker: drawer over the map on tablet portrait too (+ the three-TMA drawer audit)",
+      "approach": "Operator: \"Where is the drawer overlay effect while Google map is behind in all three TMA.\" Audit (state before this PR): - Transport: YES — LIST mode is a BottomSheet over a full-bleed map (v0.62.639); phone-portrait carousel mode too.",
+      "codeImpact": "doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.642 — Hawker: drawer over the map on tablet portrait too (+ the three-TMA drawer audit)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1653",
+      "status": "merged",
+      "merged": "2026-07-25 02:02:35+00:00",
+      "day": "2026-07-25",
+      "version": "0.62.643",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: Train: station name readable again (category chip removed, name +2px, one-row summary, inline Station-info)",
+      "approach": "Operator (iPad mini portrait, IMG_1208/1209 v0.62.641): \"Can be resolve the station name, can you by 2 px.",
+      "codeImpact": "i18n.js, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.643 — Train: station name readable again (category chip removed, name +2px, one-row summary, inline Station-info)",
+      "reworkCue": true,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": "1654",
+      "status": "merged",
+      "merged": "2026-07-25 02:32:49+00:00",
+      "day": "2026-07-25",
+      "version": "0.62.644",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: Train carousel adopts the Cuisine card model: uniform fixed-height box, foot \"▾ details\" pill, informative collapsed state",
+      "approach": "Operator: \"Train TMA carousel cards collapsed should be within while the card height is the same as cuisine TMA, the collapse and expand is same effect as cuisine TMA.\" The Cuisine model: a collapsed ResultCard shows a LOT and hides only…",
+      "codeImpact": "TMA:cuisine, i18n.js, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.644 — Train carousel adopts the Cuisine card model: uniform fixed-height box, foot \"▾ details\" pill, informative collapsed state",
+      "reworkCue": false,
+      "reworkOf": "1651",
+      "burst": true
+    },
+    {
+      "pr": "1655",
+      "status": "merged",
+      "merged": "2026-07-25 03:00:59+00:00",
+      "day": "2026-07-25",
+      "version": "0.62.645",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Train card: \"📍 Maps\" not \"Directions\", opens expanded, expand grows the card, rem-based height, smaller Roboto name",
+      "approach": "Operator (iPad mini, IMG_1212/1213 v0.62.644).",
+      "codeImpact": "doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.645 — Train card: \"📍 Maps\" not \"Directions\", opens expanded, expand grows the card, rem-based height, smaller Roboto name",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": "1656",
+      "status": "merged",
+      "merged": "2026-07-25 03:14:44+00:00",
+      "day": "2026-07-25",
+      "version": "0.62.646",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Cuisine Picker",
+      "intent": "Fix: map ⇲ Expand fixed on Train + Hawker (z-0 stacking-context trap); content-sized station card; Cuisine-style \"future\" tab",
+      "approach": "Operator: \"the expand/collapse Google map layer in train TMA and hawker TMA again not working.",
+      "codeImpact": "TMA:cuisine, TMA:hawker, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [
+        "cuisine",
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.646 — map ⇲ Expand fixed on Train + Hawker (z-0 stacking-context trap); content-sized station card; Cuisine-style \"future\" tab",
+      "reworkCue": false,
+      "reworkOf": "1654",
+      "burst": true
+    },
+    {
+      "pr": "1657",
+      "status": "merged",
+      "merged": "2026-07-27 03:24:43+00:00",
+      "day": "2026-07-27",
+      "version": "0.62.647",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: vanilla swipe-to-close bottom sheet: assessment + component (44px handle, velocity+distance physics, dvh/VisualViewport, scroll lock), not yet wired",
+      "approach": "New self-contained component at web/_shared/components/bottom-sheet/ — CSS, canonical HTML and vanilla JS, no framework and no build step.",
+      "codeImpact": "doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.647 — vanilla swipe-to-close bottom sheet: assessment + component (44px handle, velocity+distance physics, dvh/VisualViewport, scroll lock), not yet wired",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1658",
+      "status": "merged",
+      "merged": "2026-07-27 04:38:32+00:00",
+      "day": "2026-07-27",
+      "version": "0.62.648",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Oversight / usage stats",
+      "intent": "Fix: Hawker + Train default to Cuisine's carousel with a list-toggle drawer; fix the Tailwind palette that was silently deleting the drawer handle",
+      "approach": "Two things, one message.",
+      "codeImpact": "i18n.js, doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "v0.62.648 — Hawker + Train default to Cuisine's carousel with a list-toggle drawer; fix the Tailwind palette that was silently deleting the drawer handle",
+      "reworkCue": false,
+      "reworkOf": "1650",
+      "burst": false
+    },
+    {
+      "pr": "1659",
+      "status": "merged",
+      "merged": "2026-07-27 05:01:34+00:00",
+      "day": "2026-07-27",
+      "version": "0.62.649",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Hawker NEA",
+      "intent": "fix the v0.62.648 regression that put NaN in every BARE colour utility; apply the 60% peek / 75% dock glass standard",
+      "approach": "1.",
+      "codeImpact": "doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.649 — fix the v0.62.648 regression that put NaN in every BARE colour utility; apply the 60% peek / 75% dock glass standard",
+      "reworkCue": false,
+      "reworkOf": "1657",
+      "burst": true
+    },
+    {
+      "pr": "1660",
+      "status": "merged",
+      "merged": "2026-07-27 07:40:50+00:00",
+      "day": "2026-07-27",
+      "version": "0.62.650",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Weather",
+      "intent": "Add: Train card density pass (disclosure back on the name strip, line names that fit, \"Normal\" gone, amenities as text, 2/3-column list) + Cuisine 2px gap",
+      "approach": "CUISINE.",
+      "codeImpact": "doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "privacy",
+        "doc/vault"
+      ],
+      "title": "v0.62.650 — Train card density pass (disclosure back on the name strip, line names that fit, \"Normal\" gone, amenities as text, 2/3-column list) + Cuisine 2px gap",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": "1661",
+      "status": "merged",
+      "merged": "2026-07-27 08:21:06+00:00",
+      "day": "2026-07-27",
+      "version": "0.62.651",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Hawker NEA",
+      "intent": "Fix: viewport-width columns (2/3/4), the line-order legibility fix for non-locals, and tap-to-blink",
+      "approach": "1.",
+      "codeImpact": "doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "Redis/state",
+        "doc/vault"
+      ],
+      "title": "v0.62.651 — viewport-width columns (2/3/4), the line-order legibility fix for non-locals, and tap-to-blink",
+      "reworkCue": false,
+      "reworkOf": "1659",
+      "burst": true
+    },
+    {
+      "pr": "1662",
+      "status": "merged",
+      "merged": "2026-07-27 09:13:26+00:00",
+      "day": "2026-07-27",
+      "version": "0.62.652",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: carousel card count scales to ultrawide: the basis ladder AND the track cap were both holding it down",
+      "approach": "Two separate ceilings; fixing only one would not have moved the number.",
+      "codeImpact": "doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.652 — carousel card count scales to ultrawide: the basis ladder AND the track cap were both holding it down",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": "1663",
+      "status": "merged",
+      "merged": "2026-07-27 09:31:19+00:00",
+      "day": "2026-07-27",
+      "version": "0.62.653",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Transport / carpark",
+      "intent": "Add: the one qualified line name gets its own row; every line-name step drops 1px",
+      "approach": "\"East-West Line (Changi br…\" was the worst of both: the qualifier was present and unreadable.",
+      "codeImpact": "doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.653 — the one qualified line name gets its own row; every line-name step drops 1px",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": "1664",
+      "status": "merged",
+      "merged": "2026-07-27 23:26:44+00:00",
+      "day": "2026-07-27",
+      "version": "0.62.654",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: three TMAs on one behaviour; a real auto-expand listener; one definition of \"wide\"",
+      "approach": "The fullscreen GATE was already byte-identical across the three apps (diffed in the prior audit).",
+      "codeImpact": "doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.654 — three TMAs on one behaviour; a real auto-expand listener; one definition of \"wide\"",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": "1665",
+      "status": "merged",
+      "merged": "2026-07-27 23:49:51+00:00",
+      "day": "2026-07-27",
+      "version": "0.62.655",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Cuisine's result list becomes an over-the-map drawer, opening at a measured 1.5 cards",
+      "approach": "Closes the last consistency delta from the audit: Cuisine's vertical result list had NEVER been a drawer.",
+      "codeImpact": "doc (inferred — pre-squash)",
+      "modules": [],
+      "nFiles": null,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.655 — Cuisine's result list becomes an over-the-map drawer, opening at a measured 1.5 cards",
+      "reworkCue": false,
+      "reworkOf": null,
       "burst": true
     }
   ]

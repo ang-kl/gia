@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-07-21';   // v0.62.629 desktop-responsive arc catch-up: PRs #1621-#1637 (Train/Hawker Cuisine-parity: Google-Maps drawer, classifier fix, desktop fullscreen, footer standardisation, map expand, carousel float)
+const GEN_DATE = '2026-07-29';   // v0.62.655 three-TMA convergence catch-up: PRs #1638-#1665 (one interaction model across Cuisine/Hawker/Train: carousel default, one list toggle, over-the-map drawer; three silent-drop Tailwind failures found and fixed; viewport-width columns to ultrawide) + backfill of #1456/#1487 missed earlier
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
