@@ -134,8 +134,9 @@ function ResultSheetShell({ active, peekPx, label, children }) {
   if (!active) return <>{children}</>;
   return (
     <BottomSheet
-      /* The collapsed snap is the operator's 1.5 cards (peekPx, measured from a
-         real card below); the two taller snaps are the drag/tap targets. */
+      /* v0.62.657 — the collapsed snap is the operator's 1-card peek (peekPx,
+         measured from a real card below via [data-pid]); the two taller snaps
+         are the drag/tap targets. */
       snaps={[0.10, 0.45, 0.80]}
       initialSnap={2}
       peekPx={peekPx}
@@ -709,21 +710,33 @@ export default function App() {
   // missing the result list because it sits below the cuisine drawer.
   const resultPanelRef = useRef(null);
 
-  // v0.62.655 — the drawer's collapsed height, in REAL pixels: 1.5 result cards
-  // plus the sheet's own 44 px handle band. The operator asked for "only 1.5 card
-  // height ... so user knows how to scroll" — a half-card cut off at the fold is
-  // the affordance, so the number has to follow the CARD, not a guessed fraction
-  // of the viewport (which lands right on one device and wrong on every other).
-  // Measured from the first rendered card and re-measured on resize; null until
-  // a card exists, at which point BottomSheet falls back to its snap fraction.
+  // v0.62.655 — the drawer's collapsed height, in REAL pixels: a result card
+  // plus the sheet's own 44 px handle band. The operator asked for the fold to
+  // follow the CARD, not a guessed fraction of the viewport (which lands right
+  // on one device and wrong on every other). Measured from the first rendered
+  // card and re-measured on resize; null until a card exists, at which point
+  // BottomSheet falls back to its snap fraction.
+  //
+  // v0.62.657 — operator device-check (v0.62.655 shipped BROKEN): the selector
+  // below matched NOTHING. ResultCard's root is a plain
+  // `<button data-pid={venue.placeId} className="w-full text-left rounded-lg
+  // border …">` — no `data-venue-card` attribute, no `<article>` tag, no
+  // `.skeuo-card` class (that class does not appear anywhere in this app).
+  // `listPeekPx` was therefore permanently null in production, and the sheet
+  // was always on its 0.80-fraction FALLBACK — nowhere near "1 card". Fixed to
+  // the selector ResultPanel.jsx already uses for its own scroll-into-view
+  // logic (`[data-pid="…"]`), which is the one place in the codebase that is
+  // guaranteed to keep matching a real card if this markup changes again.
+  // Multiplier also dropped 1.5 → 1 per the operator's revised ask ("i wanted
+  // only 1 card height instead of current 50% of the map").
   const [listPeekPx, setListPeekPx] = useState(null);
   useEffect(() => {
     const measure = () => {
       const panel = resultPanelRef.current;
       if (!panel) return;
-      const card = panel.querySelector('[data-venue-card], article, .skeuo-card');
+      const card = panel.querySelector('[data-pid]');
       const h = card ? card.getBoundingClientRect().height : 0;
-      if (h > 40) setListPeekPx(Math.round(h * 1.5 + 44));
+      if (h > 40) setListPeekPx(Math.round(h + 44));
     };
     measure();
     const t = setTimeout(measure, 400);
