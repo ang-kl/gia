@@ -51,6 +51,17 @@ export function applyTelegramTheme() {
 
   safe('ready', () => w.ready());
   safe('expand', () => w.expand());
+  // v0.62.657 — operator (v0.62.655 device check): "i pull down the drawer
+  // handle to make it smaller, instead the whole TMA pull down." Root cause:
+  // Hawker and Transport disable Telegram's own vertical swipe-to-minimise
+  // gesture (v0.62.610) because it competes with a draggable BottomSheet handle
+  // for the same downward-drag gesture and — being native — always wins. Cuisine
+  // never needed this before v0.62.655, because it never had a draggable
+  // drawer; now that it does, it inherits the exact bug Hawker/Transport already
+  // fixed. Feature-detected (Bot API 7.7+) so older clients are unaffected.
+  safe('disable-vertical-swipes', () => {
+    if (typeof w.disableVerticalSwipes === 'function') w.disableVerticalSwipes();
+  });
   // v0.62.638 — wire the Telegram safe-area vars (+ fullscreen min-top clearance)
   // so headers clear the floating buttons on iPad (shared helper).
   safe('safe-area', () => wireSafeAreaInsets(w));
