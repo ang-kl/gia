@@ -555,6 +555,27 @@ function awardsDiff(venue) {
   return out;
 }
 
+// v0.62.665 — compact, newest-first "'26"-style year strings for the years
+// a venue held its CURRENT (latest) category — not every year it has ever
+// appeared. Walks `awards` newest-to-oldest and stops at the first category
+// change, so a venue that was promoted or demoted between editions shows
+// only the years matching its LATEST tier (operator spec: never label a
+// changed category with a year it held a DIFFERENT category in). Mirrors
+// the compact array `SG-michelin.js` stores directly on each record; this
+// is the equivalent derivation for the venue-centric `awards:[{year,
+// category}]` schema the 11 non-SG country files already use.
+function retainedAwardYears(venue) {
+  if (!venue || !Array.isArray(venue.awards) || venue.awards.length === 0) return [];
+  const sorted = [...venue.awards].sort((a, b) => b.year - a.year); // newest first
+  const latestCategory = sorted[0].category;
+  const years = [];
+  for (const a of sorted) {
+    if (a.category !== latestCategory) break;
+    years.push(`'${String(a.year).slice(-2)}`);
+  }
+  return years;
+}
+
 module.exports = {
   // schema constants
   CATEGORIES,
@@ -589,4 +610,5 @@ module.exports = {
   visitableVenues,
   editionVenues,
   awardsDiff,
+  retainedAwardYears,
 };

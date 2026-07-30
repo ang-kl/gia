@@ -971,6 +971,40 @@ describe('venue-award-schema — awardsDiff', () => {
   });
 });
 
+// v0.62.665 — the Michelin 2026 update spec's compact-year display rule
+// ("a category change shows only the year(s) matching its CURRENT tier").
+describe('venue-award-schema — retainedAwardYears (compact display years)', () => {
+  const [promoted, debut, closed] = normFixtures([FX_PROMOTED, FX_DEBUT_2026, FX_CLOSED]);
+
+  it('a promotion shows ONLY the new-tier year, not the old tier\'s year too', () => {
+    // 2025 one-star → 2026 two-star: the venue never held two-star in 2025,
+    // so '25 must not appear beside the two-star label.
+    expect(data.retainedAwardYears(promoted)).toEqual(["'26"]);
+  });
+
+  it('a pure debut shows only its single year', () => {
+    expect(data.retainedAwardYears(debut)).toEqual(["'26"]);
+  });
+
+  it('a venue with one award ever shows that one year', () => {
+    expect(data.retainedAwardYears(closed)).toEqual(["'25"]);
+  });
+
+  it('retained across consecutive editions shows both years, newest first', () => {
+    const retained = { ...FX_DEBUT_2026, awards: [
+      { year: 2025, category: 'bib-gourmand' },
+      { year: 2026, category: 'bib-gourmand' },
+    ] };
+    expect(data.retainedAwardYears(retained)).toEqual(["'26", "'25"]);
+  });
+
+  it('empty/missing awards returns an empty array, not a throw', () => {
+    expect(data.retainedAwardYears({ awards: [] })).toEqual([]);
+    expect(data.retainedAwardYears({})).toEqual([]);
+    expect(data.retainedAwardYears(null)).toEqual([]);
+  });
+});
+
 describe('venue-award-schema — manifest gating (synthetic country)', () => {
   it('a fixture violating the manifest throws (when non-empty)', () => {
     // Synthetic manifest: this fake "country" must have 2 one-stars in 2025.

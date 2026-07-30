@@ -84,7 +84,13 @@ export default function VenueCard({
       (v.websiteUri || v.url) ? '🌐' : '',
       crowd ? `${crowd.dot} ${t(crowd.key, lang)}` : '',
     ].filter(Boolean).join(' · ');
-    michelin = v.michelinCategory ? `${MICHELIN[v.michelinCategory] || '✳️ Michelin'} · ${v.michelinYear || 2025}` : '';
+    // v0.62.665 — prefer the compact multi-year `michelinAwardYears` array
+    // (e.g. "'26, '25"); older, already-saved clips only ever carried a
+    // single `michelinYear` number, so that stays as a read-only fallback.
+    const michYears = Array.isArray(v.michelinAwardYears) && v.michelinAwardYears.length
+      ? v.michelinAwardYears.join(', ')
+      : (v.michelinYear ? String(v.michelinYear) : "'25");
+    michelin = v.michelinCategory ? `${MICHELIN[v.michelinCategory] || '✳️ Michelin'} · ${michYears}` : '';
   }
 
   // ── Filed placements (item 10) + side-strip colour + date (item 12a) ──

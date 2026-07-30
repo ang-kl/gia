@@ -9701,6 +9701,10 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
         name: v.name, address: v.address, postal: v.postal || '',
         category: latestMichCat(v), cuisine: v.cuisine || '',
         vegetarian: v.vegetarian === true, halal: v.halal === true,
+        // v0.62.665 — carry the compact "'26"-style retained-years array
+        // through so the TMA card shows the real edition(s), not a
+        // hardcoded fallback (see ResultCard.jsx michelinAnnotation).
+        awardYears: mdMich.retainedAwardYears(v),
         city: v.city, country: v.country
       }));
   // Places query + regionCode adapt to the country (SG keeps the curated
@@ -10107,6 +10111,11 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       // Michelin annotations attached for the TMA card render.
       michelinCategory: entry.category,
       michelinName: entry.name,
+      // v0.62.665 — compact "'26"-style retained-years array (SG entries
+      // carry it directly; non-SG entries had it derived by
+      // retainedAwardYears() above). Replaces the old single michelinYear
+      // number, which couldn't represent a multi-year retention.
+      michelinAwardYears: entry.awardYears || [],
       michelinPostal: entry.postal || '',
       michelinCuisine: entry.cuisine || '',
       // v0.62.6 — awardCity: the curated city this Michelin awardee belongs
@@ -10153,6 +10162,8 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(entry.name)}`,
       michelinCategory: entry.category,
       michelinName: entry.name,
+      // v0.62.665 — parity with the success branch above.
+      michelinAwardYears: entry.awardYears || [],
       michelinPostal: entry.postal || '',
       michelinCuisine: entry.cuisine || '',
       // v0.62.6 — awardCity parity with the success path (city grouping).

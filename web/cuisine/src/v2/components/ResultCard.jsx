@@ -272,7 +272,11 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
         recentReview: venue.recentReview,
         recentReviewAgo: venue.recentReviewAgo,   // v0.61.417 — review "X ago" date
         michelinCategory: venue.michelinCategory,
-        michelinYear: venue.michelinYear,
+        // v0.62.665 — michelinYear (a single number) replaced with the
+        // compact multi-year awardYears array; VenueCard.jsx (Clipboard)
+        // still falls back to reading michelinYear on already-saved clips
+        // from before this change.
+        michelinAwardYears: venue.michelinAwardYears,
         // v0.58.53: include the v0.58.52 travel-time fields so the
         // per-card 📋 Copy clip carries the 🚊/🚘 row.
         transitMinutes: venue.transitMinutes,
@@ -527,7 +531,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               in WORDS (✳️ / ⭐), never colour. */}
           {venue.michelinCategory && (
             <div className="text-[12px] text-tg-text mt-1 font-semibold">
-              {michelinAnnotation(venue.michelinCategory, venue.michelinYear || 2025)}
+              {michelinAnnotation(venue.michelinCategory, venue.michelinAwardYears)}
             </div>
           )}
 
@@ -615,9 +619,15 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
   );
 }
 
-// v0.60.16 — mirror the chat-card formatter (michelin-2025.js
+// v0.60.16 — mirror the chat-card formatter (SG-michelin.js
 // formatMichelinLine) so the TMA UI shows the same labels.
-function michelinAnnotation(category, year) {
+// v0.62.665 — `year` (a single number) replaced with `awardYears`, a
+// compact newest-first array of "'26"-style strings — a venue can now be
+// shown as retaining its award across multiple consecutive editions
+// ("⭐⭐ · '26, '25") without ever implying it held a DIFFERENT category in
+// an earlier year (a promoted/demoted venue only ever gets the years
+// matching its CURRENT category — see index.js's retainedAwardYears()).
+function michelinAnnotation(category, awardYears) {
   const labels = {
     'three-star':   '✳️ Michelin · ⭐⭐⭐',
     'two-star':     '✳️ Michelin · ⭐⭐',
@@ -625,5 +635,6 @@ function michelinAnnotation(category, year) {
     'bib-gourmand': '✳️ Bib Gourmand'
   };
   const prefix = labels[category] || '✳️ Michelin';
-  return `${prefix} · ${year}`;
+  const years = Array.isArray(awardYears) && awardYears.length ? awardYears : ["'25"];
+  return `${prefix} · ${years.join(', ')}`;
 }
