@@ -819,7 +819,8 @@ export default function App() {
               (0.75 = 1/4 of the viewport visible) instead of the 0.48 half-screen
               default, so the map stays visible; the handle still drags/steps it up. */}
           <BottomSheet contentRef={listScrollRef} onContentScroll={onListScroll}
-            snaps={[0.14, 0.48, 0.75]} initialSnap={2}>
+            snaps={[0.14, 0.48, 0.75]} initialSnap={2}
+            ariaLabel={t('sheet.dragHandle', lang)}>
             {listBody}
           </BottomSheet>
         </div>

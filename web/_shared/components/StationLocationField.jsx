@@ -106,6 +106,7 @@ export default function StationLocationField({ lang = 'en', onSelectStation = nu
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={tr('placeholder', lang)}
+              aria-label={tr('placeholder', lang)}
               className="flex-1 text-xs px-2 py-1 rounded border border-tg-border bg-tg-bg text-tg-text"
             />
             <button type="button" onClick={() => { setOpen(false); setQuery(''); }}

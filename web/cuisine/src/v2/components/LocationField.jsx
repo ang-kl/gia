@@ -467,6 +467,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
                       onClick={() => handleRecentPick(e)}
                       className="flex w-full items-center gap-2 py-1 px-0.5 text-left text-sm text-tg-text hover:bg-tg-bg/50"
                       title={label}
+                      aria-label={label}
                     >
                       <span aria-hidden className="flex-shrink-0">{flag}</span>
                       <span className="truncate flex-1">{label}</span>
@@ -507,6 +508,10 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
               onKeyDown={handleKeyDown}
               enterKeyHint="search"
               placeholder={resting}
+              /* P1-e — placeholder-only field name. The aria-label reuses the
+                 BASE placeholder key ("Search location…"), not `resting`'s
+                 current-value fallback, so the field is named by purpose. */
+              aria-label={tr('loc.searchLocation', lang)}
               className="flex-1 min-w-0 bg-transparent text-sm outline-none placeholder:text-tg-hint"
             />
           ) : (
@@ -1462,6 +1467,9 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
             onKeyDown={handleKey}
             enterKeyHint="search"
             placeholder={displayLocName || tr('loc.other.placeholder', lang)}
+            /* P1-e — placeholder-only field name; the BASE placeholder key
+               (not the displayLocName current-value fallback) names it. */
+            aria-label={tr('loc.other.placeholder', lang)}
             /* v0.61.372 — min-w-0 so the input can shrink below its
                placeholder's intrinsic width; without it a long city name
                ("Wellington") pushed the trailing ✏️ off-screen. Matches the

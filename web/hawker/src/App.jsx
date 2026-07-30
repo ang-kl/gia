@@ -127,6 +127,7 @@ function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, sc
           <button
             type="button"
             onClick={() => openLink(NEA_HOME)}
+            aria-label={t('link.neaAria', lang)}
             className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
           >NEA ↗</button>
         </div>
@@ -819,7 +820,8 @@ export default function App() {
       </div>
       {/* the draggable list drawer */}
       {active && (
-        <BottomSheet contentRef={panelScrollRef} onContentScroll={onPanelScroll}>
+        <BottomSheet contentRef={panelScrollRef} onContentScroll={onPanelScroll}
+          ariaLabel={t('sheet.dragHandle', lang)}>
           {busy && <p className="text-xs text-tg-hint p-3">{t('status.loading', lang)}</p>}
           {err && <p className="text-xs text-red-500 p-3">⚠ {err}</p>}
           {!busy && !err && (

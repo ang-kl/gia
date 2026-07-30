@@ -3957,6 +3957,7 @@ export default function App() {
                     onClick={() => { setFlyTarget({ lat: anchor.lat, lng: anchor.lng, zoom: 14, _k: Date.now() }); setSelectedCityLocation(null); }}
                     className="underline font-semibold text-[#ef4444] leading-tight whitespace-nowrap active:scale-95"
                     title={lang === 'fr' ? 'Recentrer la carte sur la dernière zone de recherche' : lang === 'id' ? 'Pusatkan peta ke area pencarian terakhir' : lang === 'ru' ? 'Вернуть карту к последней зоне поиска' : lang === 'de' ? 'Karte auf letzten Suchbereich zentrieren' : lang === 'zh' ? '将地图重新居中到上次搜索区域' : lang === 'ja' ? '地図を前回の検索エリアに戻す' : lang === 'es' ? 'Centrar el mapa en tu ultima zona de busqueda' : 'Recentre the map on your last search area'}
+                    aria-label={lang === 'fr' ? 'Recentrer la carte sur la dernière zone de recherche' : lang === 'id' ? 'Pusatkan peta ke area pencarian terakhir' : lang === 'ru' ? 'Вернуть карту к последней зоне поиска' : lang === 'de' ? 'Karte auf letzten Suchbereich zentrieren' : lang === 'zh' ? '将地图重新居中到上次搜索区域' : lang === 'ja' ? '地図を前回の検索エリアに戻す' : lang === 'es' ? 'Centrar el mapa en tu ultima zona de busqueda' : 'Recentre the map on your last search area'}
                   >↩ {lang === 'fr' ? 'Retour à la dernière zone' : lang === 'id' ? 'Kembali ke area terakhir' : lang === 'ru' ? 'К последней зоне' : lang === 'de' ? 'Zum letzten Bereich' : lang === 'zh' ? '返回上次搜索区域' : lang === 'ja' ? '前回の検索エリアへ' : lang === 'es' ? 'Volver a la ultima zona' : 'Back to last search area'}</button>
                 );
               })()}
@@ -4304,6 +4305,7 @@ export default function App() {
                 aria-expanded={hasPlate ? classicOpen : undefined}
                 aria-disabled={!hasPlate || undefined}
                 title={!hasPlate ? (lang === 'fr' ? 'Disponible une fois les résultats chargés' : lang === 'id' ? 'Tersedia setelah hasil dimuat' : lang === 'ru' ? 'Доступно после загрузки результатов' : lang === 'de' ? 'Verfügbar nach dem Laden der Ergebnisse' : lang === 'zh' ? '结果加载后可用' : lang === 'ja' ? '結果の読み込み後に利用可能' : lang === 'es' ? 'Disponible al cargar resultados' : 'Available once results load') : undefined}
+                aria-label={lang === 'fr' ? 'Plats classiques locaux' : lang === 'id' ? 'Pilih klasik lokal' : lang === 'ru' ? 'Местная классика' : lang === 'de' ? 'Lokale Klassiker' : lang === 'zh' ? '选择本地经典' : lang === 'ja' ? '地元の定番を選ぶ' : lang === 'es' ? 'Elegir clasico local' : 'Pick local classic'}
                 className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] ${hasPlate ? 'active:scale-95' : 'opacity-50 cursor-not-allowed'} ${hasPlate && classicOpen ? 'folio-tab--active' : ''}`}
               >
                 {/* v0.62.228 — operator: the Magnify (cooking-method) icon marks
@@ -4861,9 +4863,9 @@ export default function App() {
               : (lang === 'fr' ? 'Recherche élargie (~40 km).' : lang === 'id' ? 'Pencarian diperluas (~40 km).' : lang === 'ru' ? 'Расширенный поиск (~40 км).' : lang === 'de' ? 'Erweiterte Suche (~40 km).' : lang === 'zh' ? '已开启更大范围搜索（~40 公里）。' : lang === 'ja' ? '広域検索オン（~40 km）。' : lang === 'es' ? 'Busqueda ampliada activada (~40 km).' : 'Wider search on (~40 km).')}
           </span>
           <span className="shrink-0 inline-flex items-center gap-1.5">
-            <span className="text-[10px] text-tg-hint">{lang === 'fr' ? 'Élargir' : lang === 'id' ? 'Perluas' : lang === 'ru' ? 'Шире' : lang === 'de' ? 'Erweitern' : lang === 'zh' ? '扩大' : lang === 'ja' ? '拡大' : lang === 'es' ? 'Ampliar' : 'Widen'}</span>
+            <span id="gia-widen-label" className="text-[10px] text-tg-hint">{lang === 'fr' ? 'Élargir' : lang === 'id' ? 'Perluas' : lang === 'ru' ? 'Шире' : lang === 'de' ? 'Erweitern' : lang === 'zh' ? '扩大' : lang === 'ja' ? '拡大' : lang === 'es' ? 'Ampliar' : 'Widen'}</span>
             {/* glass switch (track + thumb) */}
-            <button type="button" role="switch" aria-checked={widenActive}
+            <button type="button" role="switch" aria-checked={widenActive} aria-labelledby="gia-widen-label"
               onClick={() => { const next = !widenActive; setWidenActive(next); runSearch(state, null, { widen: next }); }}
               className={`glass-pill relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-tg-border/40 transition-colors ${widenActive ? 'bg-tg-accent/60' : ''}`}>
               <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${widenActive ? 'translate-x-[1.15rem]' : 'translate-x-0.5'}`} />
@@ -5000,7 +5002,7 @@ export default function App() {
            is 'vertical'. Every other device/orientation is unchanged. */
         active={drawerMode === 'vertical' && !drawerDismissed && !staticSplitList}
         peekPx={listPeekPx}
-        label={lang === 'fr' ? 'Glisser pour redimensionner la liste' : 'Drag to resize the list'}
+        label={t('sheet.dragHandle', lang)}
       >
       <div ref={resultPanelRef}
         /* v0.62.594 — bound the panel to the remaining viewport in the portrait-tablet

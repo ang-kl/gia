@@ -187,6 +187,9 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
                 title={michBlocked
                   ? (lang === 'fr' ? 'Aucun Michelin pour cette cuisine ici' : 'No Michelin pick for this cuisine here')
                   : (beltBlocked ? tr('special.beltOnly', lang) : undefined)}
+                aria-label={michBlocked
+                  ? (lang === 'fr' ? 'Aucun Michelin pour cette cuisine ici' : 'No Michelin pick for this cuisine here')
+                  : (beltBlocked ? tr('special.beltOnly', lang) : undefined)}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-xs leading-tight whitespace-normal text-left transition-colors ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : `bg-tg-card text-tg-text border-tg-border ${(dim || beltBlocked || michBlocked) ? 'opacity-40 cursor-not-allowed' : 'hover:border-tg-accent'}`}`}
               >
                 {/* v0.61.142 — operator-supplied PNG icon for the

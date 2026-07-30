@@ -610,7 +610,13 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                           className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
                           aria-label={(fr ? 'Expliquer ' : 'Explain ') + d.dish}
                           onClick={() => setFactIdx(factIdx === 'cl:' + d.dish ? null : 'cl:' + d.dish)}
-                        >{SPICY_RE.test(d.dish) && <span aria-label="spicy">🌶 </span>}{titleCaseDish(d.dish)}</button>
+                        >{/* P1-e — the 🌶 marker is decorative for AT: a span with
+                            aria-label and no role is ignored/invalid, and the parent
+                            button's aria-label ("Explain <dish>") overrides content
+                            anyway. The emoji only renders when SPICY_RE matched the
+                            dish NAME itself, so the adjacent text already conveys
+                            the dish; hide the glyph instead of naming it. */}
+                        {SPICY_RE.test(d.dish) && <span aria-hidden="true">🌶 </span>}{titleCaseDish(d.dish)}</button>
                         {isOpen && clCard(d)}
                       </React.Fragment>
                     );

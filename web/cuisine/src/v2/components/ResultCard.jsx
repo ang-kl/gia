@@ -205,6 +205,13 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
   // the focus-auto-expand.
   const [expanded, setExpanded] = useState((autoExpandFocus && !!focused) || !!defaultExpanded);
   useEffect(() => { if (focused && autoExpandFocus) setExpanded(true); }, [focused, autoExpandFocus]);
+  // P1-e — document-unique id for the expandable details region so the ⌄/⌃
+  // toggle can point at it via aria-controls. Derived from placeId; the
+  // horizontal strip and the vertical list can both be MOUNTED with the same
+  // venue at once, so the variant letter keeps the id unique. Whitespace is
+  // stripped (an HTML id must not contain spaces; placeIds never do, the
+  // name-based fallback might).
+  const detailsId = `gia-card-details-${horizontal ? 'h' : 'v'}-${String(venue.placeId || venue.name || 'x').replace(/\s+/g, '-')}`;
   // v0.61.225 — lazy-load the venue's social-profile URLs once on
   // mount. Server caches results 30d under social:<placeId>, so most
   // browses resolve in milliseconds; cold cache calls Gemini (~1-2s)
@@ -554,6 +561,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             type="button"
             onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
             aria-expanded={expanded}
+            aria-controls={detailsId}
             className="self-start mt-1.5 px-2.5 py-0.5 rounded-full border border-tg-accent/50 text-[11px] text-tg-accent font-medium active:scale-95 transition-transform"
           >
             {expanded
@@ -561,7 +569,11 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               : tr('card.detailsMore', lang)}
           </button>
 
-          {expanded && (<>
+          {/* P1-e — the revealed region carries the aria-controls target id.
+              display:contents keeps the wrapper out of layout entirely (the
+              children stay direct flex items of the card, byte-for-byte the
+              same rendering as the old bare fragment). */}
+          {expanded && (<div id={detailsId} style={{ display: 'contents' }}>
           {/* v0.62.588 — the address row moved OUT of the collapsible section to be
               always visible above the boundary (operator: address on the collapsed
               card). It no longer renders here. */}
@@ -613,7 +625,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             </button>
             <SocialButtons profiles={socialProfiles} bare />
           </div>
-          </>)}
+          </div>)}
     </button>
     </div>
   );

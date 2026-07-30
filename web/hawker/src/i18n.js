@@ -148,7 +148,14 @@ const STRINGS = {
   'stalls.status.proposed':              { en: 'Proposed',           fr: 'Proposé' },
 
   // v0.60.213 — standardised footer tag line (v0.60.217 — restored full form)
-  'footer.tag':                          { en: 'Experimental · Singapore', fr: 'Expérimental · Singapour' }
+  'footer.tag':                          { en: 'Experimental · Singapore', fr: 'Expérimental · Singapour' },
+
+  // P1-e — accessible names: bottom-sheet drag handle, the footer NEA ↗ link,
+  // and the LocaleToggle menu. EN+FR here; id/ru/de/zh/ja/es in the overlays.
+  'sheet.dragHandle':                    { en: 'Drag to resize the list', fr: 'Faites glisser pour redimensionner la liste' },
+  'link.neaAria':                        { en: 'Open the NEA website', fr: 'Ouvrir le site de la NEA' },
+  'localeToggle.language':               { en: 'Language', fr: 'Langue' },
+  'localeToggle.close':                  { en: 'Close', fr: 'Fermer' }
 };
 
 // ----- Indonesian (id) overlay — v0.62.306 -----
@@ -225,6 +232,10 @@ const ID_STRINGS = {
   "btn.showList": "Kartu",
   "layout.list": "⊿ Daftar",
   "layout.map": "◸ Peta",
+  "sheet.dragHandle": "Seret untuk mengubah ukuran daftar",
+  "link.neaAria": "Buka situs NEA",
+  "localeToggle.language": "Bahasa",
+  "localeToggle.close": "Tutup",
 };
 for (const k in ID_STRINGS) {
   if (STRINGS[k] && STRINGS[k].id == null) STRINGS[k].id = ID_STRINGS[k];
@@ -301,6 +312,10 @@ const RU_STRINGS = {
   "btn.showList": "Карточки",
   "layout.list": "⊿ Список",
   "layout.map": "◸ Карта",
+  "sheet.dragHandle": "Перетащите, чтобы изменить размер списка",
+  "link.neaAria": "Открыть сайт NEA",
+  "localeToggle.language": "Язык",
+  "localeToggle.close": "Закрыть",
 };
 
 // ----- German (de) overlay — v0.62.310. Compounds abbreviated where chips are tight. -----
@@ -374,6 +389,10 @@ const DE_STRINGS = {
   "btn.showList": "Karten",
   "layout.list": "⊿ Liste",
   "layout.map": "◸ Karte",
+  "sheet.dragHandle": "Liste durch Ziehen vergrößern oder verkleinern",
+  "link.neaAria": "NEA-Website öffnen",
+  "localeToggle.language": "Sprache",
+  "localeToggle.close": "Schließen",
 };
 for (const k in RU_STRINGS) { if (STRINGS[k] && STRINGS[k].ru == null) STRINGS[k].ru = RU_STRINGS[k]; }
 for (const k in DE_STRINGS) { if (STRINGS[k] && STRINGS[k].de == null) STRINGS[k].de = DE_STRINGS[k]; }
@@ -449,6 +468,10 @@ const ZH_STRINGS = {
   "btn.showList": "卡片",
   "layout.list": "⊿ 列表",
   "layout.map": "◸ 地图",
+  "sheet.dragHandle": "拖动以调整列表大小",
+  "link.neaAria": "打开 NEA 网站",
+  "localeToggle.language": "语言",
+  "localeToggle.close": "关闭",
 };
 for (const k in ZH_STRINGS) { if (STRINGS[k] && STRINGS[k].zh == null) STRINGS[k].zh = ZH_STRINGS[k]; }
 
@@ -523,6 +546,10 @@ const JA_STRINGS = {
   "btn.showList": "カード",
   "layout.list": "⊿ リスト",
   "layout.map": "◸ 地図",
+  "sheet.dragHandle": "ドラッグしてリストのサイズを変更",
+  "link.neaAria": "NEAのサイトを開く",
+  "localeToggle.language": "言語",
+  "localeToggle.close": "閉じる",
 };
 for (const k in JA_STRINGS) { if (STRINGS[k] && STRINGS[k].ja == null) STRINGS[k].ja = JA_STRINGS[k]; }
 
@@ -597,6 +624,10 @@ const ES_STRINGS = {
   "btn.showList": "Tarjetas",
   "layout.list": "⊿ Lista",
   "layout.map": "◸ Mapa",
+  "sheet.dragHandle": "Arrastra para cambiar el tamaño de la lista",
+  "link.neaAria": "Abrir el sitio de la NEA",
+  "localeToggle.language": "Idioma",
+  "localeToggle.close": "Cerrar",
 };
 for (const k in ES_STRINGS) { if (STRINGS[k] && STRINGS[k].es == null) STRINGS[k].es = ES_STRINGS[k]; }
 
