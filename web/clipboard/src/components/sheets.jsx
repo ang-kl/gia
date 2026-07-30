@@ -7,6 +7,7 @@
 //   ForkSheet           – shared-view fork into a target cabinet
 
 import React, { useState, useEffect } from 'react';
+import { useDialog } from '../../../_shared/lib/use-dialog.js';
 import { t } from '../lib/i18n.js';
 import { SEGMENTS, SEGMENT_BY_KEY, GROUP_CLASS } from '../lib/segments.js';
 import { openTelegramLink } from '../lib/tg.js';
@@ -116,13 +117,21 @@ export function FileSheet({
   );
 }
 
-function Sheet({ children, onClose, title }) {
+function Sheet({ children, onClose, title, ariaLabel }) {
+  const panelRef = useDialog({ open: true, onClose });
   return (
     <>
       <div className="sheet-scrim" onClick={onClose} />
-      <div className="sheet">
+      <div
+        className="sheet"
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? 'gia-sheet-title' : undefined}
+        aria-label={title ? undefined : (ariaLabel || 'Sheet')}
+      >
         <div className="sheet-grab" />
-        {title && <h3 className="text-base font-semibold mb-2">{title}</h3>}
+        {title && <h3 id="gia-sheet-title" className="text-base font-semibold mb-2">{title}</h3>}
         {children}
       </div>
     </>
@@ -190,7 +199,7 @@ export function AddDrawerSheet({ lang, onCancel, onSave, cabinetName = '' }) {
   // v0.62.427 — sample parity: ‹ back · "Add a drawer · {cabinet}" title ·
   // "PICK A TIME-SEGMENT" · 2-col grid of circular emoji icons · tap to add · Close ×.
   return (
-    <Sheet onClose={onCancel}>
+    <Sheet onClose={onCancel} ariaLabel={t('drawer.add.title', lang)}>
       <div className="flex items-center gap-2 mb-1">
         <button onClick={onCancel} className="text-tg-accent text-lg leading-none" aria-label={t('chrome.back', lang)}>‹</button>
         <div className="min-w-0">

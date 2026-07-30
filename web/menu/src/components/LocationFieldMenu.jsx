@@ -104,6 +104,37 @@ function CityDropdownMenu({ countryCode, value, onChange, ariaLabel }) {
       document.removeEventListener('keydown', onKey);
     };
   }, [open]);
+  // P1-d — keyboard parity with CountryDropdownMenu below (whose onListKey /
+  // focus-on-open this mirrors): the itemRefs array was populated but never
+  // used, so this dropdown had Escape only.
+  useEffect(() => {
+    if (!open) return;
+    const idx = current ? list.findIndex((c) => c.name === current.name) : -1;
+    const target = itemRefs.current[idx >= 0 ? idx : 0];
+    if (target && typeof target.focus === 'function') {
+      const id = setTimeout(() => target.focus(), 0);
+      return () => clearTimeout(id);
+    }
+  }, [open]);
+  function onListKey(e) {
+    if (!open) return;
+    const len = list.length;
+    const active = document.activeElement;
+    const idx = itemRefs.current.findIndex((el) => el === active);
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      itemRefs.current[idx < 0 ? 0 : (idx + 1) % len]?.focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      itemRefs.current[idx < 0 ? len - 1 : (idx - 1 + len) % len]?.focus();
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      itemRefs.current[0]?.focus();
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      itemRefs.current[len - 1]?.focus();
+    }
+  }
   function pick(name) {
     setOpen(false);
     onChange?.(name);
@@ -131,6 +162,7 @@ function CityDropdownMenu({ countryCode, value, onChange, ariaLabel }) {
       {open && (
         <ul
           role="listbox"
+          onKeyDown={onListKey}
           className="absolute left-0 top-full mt-1 z-30 max-h-72 overflow-y-auto rounded-md border border-tg-border bg-tg-card shadow-lg min-w-[12rem] py-0.5"
         >
           {list.map((c, i) => {
@@ -300,6 +332,27 @@ function PrecinctDropdownMenu({ precincts, value, onChange, disabled, lang }) {
     setOpen(false);
     onChange?.(id);
   }
+  // P1-d — same keyboard model as the sibling dropdowns above; this one has
+  // grouped options so the roving focus walks the rendered buttons in order.
+  const listRef = useRef(null);
+  useEffect(() => {
+    if (!open || !listRef.current) return;
+    const sel = listRef.current.querySelector('li[aria-selected="true"] > button')
+      || listRef.current.querySelector('button');
+    if (sel) {
+      const id = setTimeout(() => sel.focus(), 0);
+      return () => clearTimeout(id);
+    }
+  }, [open]);
+  function onListKey(e) {
+    const items = Array.from(listRef.current?.querySelectorAll('button') || []);
+    if (!items.length) return;
+    const idx = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); items[idx < 0 ? 0 : (idx + 1) % items.length].focus(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); items[idx < 0 ? items.length - 1 : (idx - 1 + items.length) % items.length].focus(); }
+    else if (e.key === 'Home') { e.preventDefault(); items[0].focus(); }
+    else if (e.key === 'End') { e.preventDefault(); items[items.length - 1].focus(); }
+  }
   return (
     <div ref={wrapRef} className="relative">
       <button
@@ -315,7 +368,9 @@ function PrecinctDropdownMenu({ precincts, value, onChange, disabled, lang }) {
       </button>
       {open && (
         <ul
+          ref={listRef}
           role="listbox"
+          onKeyDown={onListKey}
           className="absolute left-0 right-0 top-full mt-1 z-30 max-h-72 overflow-y-auto rounded-md border border-tg-border bg-tg-card shadow-lg py-0.5"
         >
           {groups.filter((g) => g.items.length > 0).map((g) => (

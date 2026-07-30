@@ -134,6 +134,22 @@ export default function BottomSheet({
     drag.current = null;
   };
 
+  // P1-d — the handle advertised itself as a focusable button but had no
+  // keyboard operation at all (pointer-only). Enter/Space now mirror the tap
+  // (step taller, wrapping back to collapsed at the top); ArrowUp/ArrowDown
+  // move one snap taller/shorter; Home/End jump to fully open / collapsed.
+  const onHandleKey = (e) => {
+    const last = snaps.length - 1;
+    let handled = true;
+    if (e.key === 'Enter' || e.key === ' ') setSnapIdx((i) => (i <= 0 ? last : i - 1));
+    else if (e.key === 'ArrowUp') setSnapIdx((i) => Math.max(0, i - 1));
+    else if (e.key === 'ArrowDown') setSnapIdx((i) => Math.min(last, i + 1));
+    else if (e.key === 'Home') setSnapIdx(0);
+    else if (e.key === 'End') setSnapIdx(last);
+    else handled = false;
+    if (handled) e.preventDefault();
+  };
+
   return (
     <div
       className="fixed inset-x-0 bottom-0 z-30 bg-tg-bg rounded-t-2xl border-t border-tg-border shadow-[0_-6px_24px_rgba(0,0,0,0.28)] flex flex-col"
@@ -147,6 +163,7 @@ export default function BottomSheet({
       <div
         className="shrink-0 min-h-[44px] flex items-center justify-center touch-none select-none cursor-grab active:cursor-grabbing"
         onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
+        onKeyDown={onHandleKey}
         role="button" tabIndex={0} aria-label={ariaLabel}
       >
         <div

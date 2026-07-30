@@ -438,6 +438,9 @@ export default function App() {
         tabIndex={0}
         data-centre-card={c.name}
         onClick={() => handleCardTap(c)}
+        /* P1-d — the card announced itself as a button but ignored the
+           keyboard; Enter/Space now mirror the tap. */
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCardTap(c); } }}
         animate={reduceMotion ? undefined : { scale: cardOn ? 1.02 : 1 }}
         transition={{ type: 'spring', stiffness: 420, damping: 30, mass: 0.7 }}
         className={`rounded-lg border text-xs flex flex-col cursor-pointer ${compact ? 'p-1.5 gap-0.5' : 'p-2.5 gap-1'} ${cardOn ? 'border-tg-accent ring-1 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 liquid-glass' : 'bg-tg-card'}`}>

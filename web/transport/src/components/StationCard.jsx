@@ -380,6 +380,9 @@ export default function StationCard({
       tabIndex={onTap ? 0 : undefined}
       data-station-card={name}
       onClick={onTap ? () => onTap(coarse || station) : undefined}
+      /* P1-d — the card announced itself as a button but ignored the keyboard;
+         Enter/Space now mirror the tap. */
+      onKeyDown={onTap ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onTap(coarse || station); } } : undefined}
       animate={reduceMotion ? undefined : { scale: active ? 1.02 : 1 }}
       transition={{ type: 'spring', stiffness: 420, damping: 30, mass: 0.7 }}
       /* v0.62.646 — operator's own A/B verdict (IMG_1216 Train vs IMG_1217 Cuisine):
