@@ -1023,12 +1023,24 @@ export default function App() {
     if (headerRef.current) setHeaderBottom(Math.round(headerRef.current.getBoundingClientRect().bottom));
   }, [cuisinePickOpen, classicOpen, regionExpanded, modePeek, venues.length]);
 
+  // v0.62.661 — operator: an iPhone in LANDSCAPE + list mode has too little
+  // vertical room for the over-the-map BottomSheet drawer to show any real
+  // amount of list AND leave the map visible — even the 1-card peek obstructs
+  // a large share of an already-short (~375-430px) viewport. Carved back out to
+  // the static split (map anchored on top, list scrolling independently below,
+  // no drawer) that Cuisine's vertical list used everywhere before v0.62.655 —
+  // for THIS one case only; portrait phone, tablet, and desktop are unchanged.
+  const staticSplitList = vp.deviceClass === 'mobile' && vp.orientation === 'landscape' && drawerMode === 'vertical';
+
   // v0.62.594 — operator ("map stays"): in the portrait-tablet VERTICAL listing, bound
   // the results panel to the remaining viewport height so its "Showing N" header freezes
   // and the two dish-columns scroll INDEPENDENTLY while the ~40vh map above stays put.
   // Measured off the panel's own top (which tracks the sticky map + pickers), leaving a
   // small bottom reserve for the footer. Off (null) on phones / landscape / horizontal.
-  const boundList = portraitWide && drawerMode === 'vertical';
+  // v0.62.661 — extended to the new landscape-phone static split above: it wants
+  // exactly the same "freeze the header, scroll the columns independently"
+  // behaviour, just on a phone instead of a tablet.
+  const boundList = (portraitWide || staticSplitList) && drawerMode === 'vertical';
   const [resultBoundH, setResultBoundH] = useState(null);
   useLayoutEffect(() => {
     if (!boundList) { setResultBoundH(null); return undefined; }
@@ -4494,9 +4506,9 @@ export default function App() {
           DOM wins at equal z). Raise the opaque sticky map to `z-20` so it covers
           the z-10 strips (still below the z-30 header + folio pickers). */}
       <div
-        className={portraitWide && drawerMode === 'vertical'
+        className={(portraitWide || staticSplitList) && drawerMode === 'vertical'
           ? 'sticky z-20 bg-tg-bg' : 'contents'}
-        style={portraitWide && drawerMode === 'vertical'
+        style={(portraitWide || staticSplitList) && drawerMode === 'vertical'
           ? { top: headerBottom } : undefined}
       >
       <MapPanel
@@ -4520,10 +4532,13 @@ export default function App() {
         userLoc={userLoc}
         /* v0.62.567 — portrait two-panel: a compact ~40vh framed map (the list
            gets the rest); the ⇲ button EXPANDS to the full carousel (drawerMode
-           → horizontal) and, in that carousel, ⇱ collapses back to the two-panel. */
-        frameHeight={portraitWide && drawerMode === 'vertical' ? '40vh' : undefined}
-        onExpandFull={portraitWide ? () => setDrawerMode('horizontal') : undefined}
-        onCollapse={portraitWide ? () => setDrawerMode('vertical') : undefined}
+           → horizontal) and, in that carousel, ⇱ collapses back to the two-panel.
+           v0.62.661 — the landscape-phone static split wants exactly the same
+           compact-map + expand/collapse pair; `fill` below is what actually makes
+           `frameHeight` take effect for it (see the v0.62.661 note on `fill`). */
+        frameHeight={(portraitWide || staticSplitList) && drawerMode === 'vertical' ? '40vh' : undefined}
+        onExpandFull={(portraitWide || staticSplitList) ? () => setDrawerMode('horizontal') : undefined}
+        onCollapse={(portraitWide || staticSplitList) ? () => setDrawerMode('vertical') : undefined}
         /* v0.62.190 — horizontal mode: full-bleed map that FILLS the viewport
            behind the floating dock (no white band). Vertical keeps the framed
            fixed-height card above the scrolling list.
@@ -4539,15 +4554,20 @@ export default function App() {
            blackout). This makes phone + tablet behave identically (operator: "why
            phone can be done?" — now they share one code path). */
         /* v0.62.655 — operator: "build in the overlay drawer like Hawker TMA in
-           Cuisine TMA in list mode". The map is now full-bleed in BOTH modes; the
-           vertical list stopped being a page-flow panel BELOW the map and became a
-           BottomSheet floating OVER it (see the ResultPanel wrapper below), which
-           is the layer effect Hawker and Train have had since v0.62.648. `fill`
-           therefore no longer varies — and because it no longer varies, the
-           v0.62.574 framed-to-full-bleed REMOUNT (which existed only to dodge the
-           iPad blackout on an in-place canvas resize) has nothing left to guard
-           against: the canvas is never resized in place any more. */
-        fill
+           Cuisine TMA in list mode". The map is full-bleed in both modes for
+           every device EXCEPT the one carved out at v0.62.661 below; because it
+           doesn't vary for tablet/desktop/portrait-phone, the v0.62.574
+           framed-to-full-bleed REMOUNT (which existed only to dodge the iPad
+           blackout on an in-place canvas resize) has nothing left to guard
+           against there: the canvas is never resized in place on those devices.
+           v0.62.661 — operator: an iPhone in LANDSCAPE + list mode has too little
+           vertical room for the drawer to show list AND map at once. `fill` is
+           false for exactly that one case, which is what makes `frameHeight`
+           (above) actually take effect — a bounded top map instead of full-bleed
+           behind the drawer. Phones already use a CONSTANT remount key (see the
+           v0.62.574 note above), so this in-place fill flip is the cheap resize
+           that comment already anticipated, not a new remount risk. */
+        fill={!staticSplitList}
         focusedPlaceId={focusedPlaceId}
         onPinTap={setFocusedPlaceId}
         /* v0.62.590 — clear the selection when the popup closes (in-card ✕ or
@@ -4964,7 +4984,11 @@ export default function App() {
           markers (onPageChange → visibleVenues) and the ↴ toggle reveals it
           instantly. */}
       <ResultSheetShell
-        active={drawerMode === 'vertical' && !drawerDismissed}
+        /* v0.62.661 — the landscape-phone static split (staticSplitList) renders
+           the list in normal page flow below the bounded map, not inside a
+           BottomSheet — so it must NOT be "active" here even though drawerMode
+           is 'vertical'. Every other device/orientation is unchanged. */
+        active={drawerMode === 'vertical' && !drawerDismissed && !staticSplitList}
         peekPx={listPeekPx}
         label={lang === 'fr' ? 'Glisser pour redimensionner la liste' : 'Drag to resize the list'}
       >

@@ -760,6 +760,30 @@ export default function App() {
         </div>
       )
       : (singleFocusedCard ? <div className="px-2 pt-1 flex flex-col gap-2">{singleFocusedCard}{secondaryPanels}</div> : <div className="px-2 pt-1">{secondaryPanels}</div>);
+
+    // v0.62.661 — operator: an iPhone in LANDSCAPE + list mode has too little
+    // vertical room (~375-430px) for the drawer to show any real amount of list
+    // AND leave the map visible — even the 1/4 peek obstructs a large share of
+    // the screen. Carved out to a static two-panel split instead: the map
+    // anchored in a bounded top box (does not scroll away), the station grid in
+    // its own independently-scrollable panel below. Every other case (portrait
+    // phone, any tablet/desktop orientation) keeps the drawer, unchanged.
+    if (vp.deviceClass === 'mobile' && vp.orientation === 'landscape') {
+      return (
+        <>
+          <div className="fixed inset-0 flex flex-col overflow-hidden bg-tg-bg text-tg-text" style={fixedShellStyle}>
+            <div className="px-3 pt-2 shrink-0 relative z-20">{headerEl}</div>
+            <div className="relative shrink-0 h-[38vh] px-3 pt-2 pb-1">{mapBlock(true)}</div>
+            <div ref={listScrollRef} onScroll={onListScroll} className="flex-1 min-h-0 overflow-y-auto">
+              {listBody}
+            </div>
+          </div>
+          {popups}
+          {footerBar}
+        </>
+      );
+    }
+
     return (
       <>
         <div className="fixed inset-0 overflow-hidden bg-tg-bg text-tg-text"

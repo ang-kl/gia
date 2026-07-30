@@ -671,6 +671,12 @@ export default function App() {
   // the map ANCHORED at the top + a SEPARATE scrollable list panel below (the map
   // does not scroll away with the list). The map's ⇲ expand switches to the
   // full-map carousel above; ⇱ collapses back here.
+  // v0.62.642 — the dispatcher stopped calling this for portrait tablets (moved
+  // to the drawer instead); kept unreferenced on purpose.
+  // v0.62.661 — un-orphaned: now the landscape-PHONE + list-mode branch too, so
+  // the drawer doesn't obstruct the map on a short landscape-phone viewport. The
+  // function itself needed no changes — it was already device/orientation-
+  // agnostic (a static map-on-top / scroll-list-below split), just unused.
   const portraitTabletPanel = () => (
     <div className="fixed inset-0 flex flex-col overflow-hidden"
       style={{
@@ -863,6 +869,18 @@ export default function App() {
   // `false` (not `vp.orientation !== 'landscape'`): with the portrait two-panel
   // gone there is nothing for the map's ⇱ to collapse BACK to, so the map keeps
   // its own internal ⇲ fullscreen overlay rather than a dead layout toggle.
-  if (viewMode === 'list') return drawerLayout();
+  //
+  // v0.62.661 — operator: an iPhone in LANDSCAPE + list mode has too little
+  // vertical room for the over-the-map drawer to both show the list AND leave
+  // the map visible — even its tightest peek snap obstructs a large share of
+  // an already-short (~375-430px) viewport. Carved out to the below-map,
+  // independently-scrollable two-panel `portraitTabletPanel()` instead — the
+  // exact static split tablets used before v0.62.642, kept unreferenced for
+  // precisely this "restore it in one line" scenario. Every other case
+  // (portrait phone, any tablet/desktop orientation) is unchanged.
+  if (viewMode === 'list') {
+    if (vp.deviceClass === 'mobile' && vp.orientation === 'landscape') return portraitTabletPanel();
+    return drawerLayout();
+  }
   return carouselLayout(false);
 }
