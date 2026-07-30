@@ -2,8 +2,13 @@
 //
 // Slim copy of web/cuisine/src/api/tg.js — just the four functions the
 // Clipboard surface actually uses. Keeping it small (no v2-specific deps)
-// makes the per-call overhead obvious + avoids dragging the cuisine TMA's
-// theme-bootstrap edge cases into a brand-new bundle.
+// makes the per-call overhead obvious.
+//
+// P2 (v0.62.669) — NO theme plumbing here, deliberately: Sketchbook's palette
+// is FIXED-LIGHT by operator decision (D-37; tailwind.config.js hard-codes
+// every tg-* colour), so the old themeParams → --tg-* variable writes had
+// zero consumers and were removed as dead code. Don't re-add them — a future
+// Telegram-theming pass would go through tailwind.config.js, not here.
 
 export function tg() {
   return typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
@@ -27,7 +32,7 @@ export function getLanguage() {
   return 'en';
 }
 
-export function applyTelegramTheme() {
+export function initTelegramChrome() {
   const w = tg();
   if (!w) return;
   const safe = (label, fn) => {
@@ -81,18 +86,6 @@ export function applyTelegramTheme() {
     } else if (typeof w.BackButton.onClick === 'function') {
       w.BackButton.onClick(handler);
     }
-  });
-  safe('theme', () => {
-    const p = w.themeParams || {};
-    const root = document.documentElement;
-    if (p.bg_color)            root.style.setProperty('--tg-bg', p.bg_color);
-    if (p.text_color)          root.style.setProperty('--tg-text', p.text_color);
-    if (p.hint_color)          root.style.setProperty('--tg-hint', p.hint_color);
-    if (p.link_color)          root.style.setProperty('--tg-accent', p.link_color);
-    if (p.button_color)        root.style.setProperty('--tg-accent', p.button_color);
-    if (p.button_text_color)   root.style.setProperty('--tg-accent-text', p.button_text_color);
-    if (p.secondary_bg_color)  root.style.setProperty('--tg-card', p.secondary_bg_color);
-    root.dataset.theme = w.colorScheme || 'dark';
   });
 }
 

@@ -626,34 +626,34 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
             mapRef.current?.setCenter(SG_CENTROID);
             mapRef.current?.setZoom(SG_DEFAULT_ZOOM);
           }}
-          className="gia-hit-x w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-[11px] font-bold leading-none active:scale-95"
+          className="gia-hit-x gia-map-btn w-7 h-7 rounded-full border shadow-md flex items-center justify-center text-[11px] font-bold leading-none active:scale-95"
           aria-label={t('map.reset', lang)}
           title={t('map.reset', lang)}
         ><span aria-hidden>{zoomLevel != null ? Math.round(zoomLevel) : '⟲'}</span></button>
         <button
           type="button"
           onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 11) + 1)}
-          className="gia-hit-x w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
+          className="gia-hit-x gia-map-btn w-7 h-7 rounded-full border shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
           aria-label={t('map.zoomIn', lang)}
         ><span aria-hidden>＋</span></button>
         {/* v0.62.133 — operator: "centre map" (↹) button between + and −. */}
         <button
           type="button"
           onClick={() => mapRef.current?.panTo(SG_CENTROID)}
-          className="gia-hit-x w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
+          className="gia-hit-x gia-map-btn w-7 h-7 rounded-full border shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
           aria-label={lang === 'fr' ? 'Centrer la carte' : 'Centre map'}
           title={lang === 'fr' ? 'Centrer la carte' : 'Centre map'}
         ><span aria-hidden>↹</span></button>
         <button
           type="button"
           onClick={() => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 11) - 1)}
-          className="gia-hit-x w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
+          className="gia-hit-x gia-map-btn w-7 h-7 rounded-full border shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
           aria-label={t('map.zoomOut', lang)}
         ><span aria-hidden>－</span></button>
         <button
           type="button"
           onClick={toggleExpand}
-          className="gia-hit-x w-7 h-7 rounded-full bg-white text-black border border-gray-300 shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
+          className="gia-hit-x gia-map-btn w-7 h-7 rounded-full border shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
           aria-label={t(expandActive ? 'map.collapse' : 'map.expand', lang)}
           title={t(expandActive ? 'map.collapse' : 'map.expand', lang)}
         ><span aria-hidden>{expandActive ? '⇱' : '⇲'}</span></button>

@@ -3630,7 +3630,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setLocMoveNote(null)}
-            className="pointer-events-auto max-w-sm rounded-2xl border border-amber-500/40 bg-tg-card/95 px-3 py-2 text-left text-[12px] leading-snug text-tg-text shadow-lg backdrop-blur"
+            className="pointer-events-auto max-w-sm rounded-2xl border border-tg-warn/40 bg-tg-card/95 px-3 py-2 text-left text-[12px] leading-snug text-tg-text shadow-lg backdrop-blur"
           >
             {locMoveNote.text}
           </button>
@@ -4741,7 +4741,7 @@ export default function App() {
             <div className="mt-1 -mb-0.5 flex justify-end">
               {/* v0.62.90 — liquid-glass pill (frosted + soft 3D highlight). */}
               <button type="button" onClick={stopLoading}
-                className="gia-hit glass-pill shrink-0 px-2 py-0.5 rounded-full border-[0.5px] border-amber-500/70 text-[8px] text-tg-text whitespace-nowrap">
+                className="gia-hit glass-pill shrink-0 px-2 py-0.5 rounded-full border-[0.5px] border-tg-warn/70 text-[8px] text-tg-text whitespace-nowrap">
                 {t('loading.stop', lang)}
               </button>
             </div>
@@ -4830,7 +4830,7 @@ export default function App() {
       {/* v0.62.14 — durian soft-rating: explain we prefer 3.7★+ but also show
           lower-rated / unrated stalls (a durian stall is a durian stall). */}
       {durianRatingNote && !loading && venues.length > 0 && (
-        <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+        <div className="rounded-2xl border border-tg-warn/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
           {t('special.durian.softRating', lang)}
         </div>
       )}
@@ -4874,7 +4874,7 @@ export default function App() {
         </div>
       )}
       {specialModeNotice && !loading && (
-        <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+        <div className="rounded-2xl border border-tg-warn/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
           {t(`special.${specialModeNotice}.limited`, lang)}
           {/* v0.61.130 — append "· widened to N km" when the v0.61.129
               O-23 radius-escalation pass actually ran. The km is rounded
@@ -4892,7 +4892,7 @@ export default function App() {
           v0.61.276 server graceful exit triggered (JB pill at non-JB
           coords; JB-hybrid filter wiped pool; fell back to OTHER). */}
       {jbFallbackNotice && !loading && (
-        <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+        <div className="rounded-2xl border border-tg-warn/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
           {t('banner.jbFallbackToOther', lang)}
         </div>
       )}
@@ -4900,7 +4900,7 @@ export default function App() {
       {/* v0.61.441 — transient-blip note. The icon (↻) carries the meaning
           alongside the amber border so it doesn't rely on colour alone. */}
       {degradedNotice && !loading && (
-        <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+        <div className="rounded-2xl border border-tg-warn/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
           <span aria-hidden="true">↻ </span>
           {lang === 'fr'
             ? 'Petit hic réseau lors de la recherche — réappuyez sur 🔍 pour réessayer.'
@@ -4923,7 +4923,7 @@ export default function App() {
           listings. Sets expectation so the user doesn't perceive the
           short result list as a bug. */}
       {sparseNotice && !loading && (
-        <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+        <div className="rounded-2xl border border-tg-warn/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
           {lang === 'fr'
             ? `Cuisine peu représentée à Singapour — Google Maps répertorie peu d'établissements ${sparseNotice}. Affichage de toutes les correspondances.`
             : lang === 'ru'
@@ -4946,7 +4946,7 @@ export default function App() {
           matches, instead of an unexplained blank. Amber border per the
           operator's no-red rule; ✳️ marks the Michelin context. */}
       {michelinNotice && !loading && (
-        <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+        <div className="rounded-2xl border border-tg-warn/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
           <span aria-hidden className="mr-1">✳️</span>{t(michelinNotice, lang)}
         </div>
       )}
@@ -5461,7 +5461,7 @@ export default function App() {
                 onClick={triggerSearch}
                 disabled={searchDisabled}
                 aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : lang === 'id' ? 'Cari · Tunjukkan tempat makan' : lang === 'ru' ? 'Поиск · Где поесть' : lang === 'de' ? 'Suchen · Wo essen' : lang === 'zh' ? '搜索 · 显示用餐地点' : lang === 'ja' ? '検索 · 食べる場所を表示' : lang === 'es' ? 'Buscar · Muestra donde comer' : 'Search · Show me places to eat'}
-                className={`pointer-events-auto w-10 h-10 rounded-full bg-tg-accent text-tg-accent-text border-2 border-white/40 shadow-lg flex items-center justify-center text-lg disabled:opacity-40 active:scale-95 ${pulse ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
+                className={`pointer-events-auto w-10 h-10 rounded-full bg-tg-accent text-tg-accent-text border-2 border-tg-accent-text/40 shadow-lg flex items-center justify-center text-lg disabled:opacity-40 active:scale-95 ${pulse ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
               >🔍</button>
             </div>
           );
