@@ -40357,9 +40357,12 @@
       "area": "Docs / vault",
       "intent": "Add: rebase + land PR #1456 journal records onto current main",
       "approach": "PR #1456 recorded merges of #1454/#1462-1464/#1466/#1468/#1469/#1488 into journal-0_62_464-01_07_26-1710.md but went CONFLICTING: its 4-day-stale serial-state.yml (counters 818-822) collided with main (971+).",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "4 files — doc, package",
+      "modules": [
+        "doc",
+        "package"
+      ],
+      "nFiles": 4,
       "tmas": [],
       "impactTags": [
         "doc/vault"
@@ -41311,9 +41314,11 @@
       "area": "Pipeline / discovery",
       "intent": "Update docs: add Soleat command validation and image registry",
       "approach": "docs: add Soleat command alias validation",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "3 files — docs/",
+      "modules": [
+        "docs/"
+      ],
+      "nFiles": 3,
       "tmas": [],
       "impactTags": [],
       "title": "docs: add Soleat command validation and image registry",
@@ -42996,9 +43001,12 @@
       "area": "Docs / vault",
       "intent": "Update docs: v0.62.543 doc-update pass — VCR catch-up (#1536–#1551) + Register/Feature/Technical",
       "approach": "Operator: \"Vault, document update.\" VAULT: re-affirmed retired (vault/ .gitignored since v0.62.508 #1514 — each commit sha is a full source tree; git show 55f0606:<path>).",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "12 files — doc, public/",
+      "modules": [
+        "doc",
+        "public/"
+      ],
+      "nFiles": 12,
       "tmas": [],
       "impactTags": [
         "doc/vault"
@@ -43019,9 +43027,13 @@
       "area": "Cuisine Picker",
       "intent": "Add: responsive tablet layout: Hawker pilot (full-bleed map + left panel + grid)",
       "approach": "Operator (iPad Pro, rotates): UI \"feels stretched\"; wants the Google map to fill the screen with controls/list on the left, results in 3-4 columns (2 portrait), same approach across Hawker/Transport/Cuisine + a footer device/orientation…",
-      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 6,
       "tmas": [
         "hawker"
       ],
@@ -43044,12 +43056,14 @@
       "area": "Cuisine Picker",
       "intent": "Add: Hawker tablet: request fullscreen so it fills the iPad screen",
       "approach": "Operator (IMG_0669/IMG_0670, iPad Pro, v0.62.544): both modes don't fill the screen.",
-      "codeImpact": "TMA:cuisine, TMA:menu, TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "5 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 5,
       "tmas": [
-        "cuisine",
-        "menu",
         "hawker"
       ],
       "impactTags": [
@@ -43071,9 +43085,13 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker tablet: fullscreen re-read + landscape 4-col / portrait stacked",
       "approach": "Operator (IMG_0672/IMG_0673, iPad Pro, v0.62.545): landscape missing the four columns; portrait should list BELOW the map.",
-      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "5 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 5,
       "tmas": [
         "hawker"
       ],
@@ -43096,9 +43114,13 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker: Cuisine-style centre cards + tablet list toggle",
       "approach": "Restyle the Hawker centre list to the Cuisine result-card look in every layout (name header, 📇 address, stall/status chip, codeHex-coloured MRT line-code chips + 🚌 bus pills, rounded-full pill actions), and add a Cuisine-style list/map…",
-      "codeImpact": "TMA:hawker, i18n.js, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "5 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 5,
       "tmas": [
         "hawker"
       ],
@@ -43121,11 +43143,14 @@
       "area": "Cuisine Picker",
       "intent": "Add: Hawker: landscape Cuisine carousel + bus-stop descriptions + toggle to bottom-right",
       "approach": "Three operator asks (IMG_0674/0675/0677, iPad Pro): 1.",
-      "codeImpact": "TMA:cuisine, TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "4 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 4,
       "tmas": [
-        "cuisine",
         "hawker"
       ],
       "impactTags": [
@@ -43147,9 +43172,13 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker: pill-tap map highlight + toggle · 3-card opaque carousel · landscape header re-flow",
       "approach": "Three operator asks (IMG_0683/0684/0685, iPad Pro): 1.",
-      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 6,
       "tmas": [
         "hawker"
       ],
@@ -43172,9 +43201,13 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker portrait-tablet: anchored map + scrollable list panel, expand→carousel · standardised left nav cluster",
       "approach": "Point 4 (queued after the first three, #1558): 4a.",
-      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "5 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 5,
       "tmas": [
         "hawker"
       ],
@@ -43197,9 +43230,13 @@
       "area": "Hawker NEA",
       "intent": "Add: urgent: tapping a bus-stop pill now shows the bus stop on the map",
       "approach": "Operator (urgent, v0.62.550): tapping a bus-stop pill in a card did nothing visible.",
-      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 6,
       "tmas": [
         "hawker"
       ],
@@ -43222,9 +43259,13 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker carousel: glass peeking cards + iPad-mini 2-in-focus · map toggle folded into FooterNav",
       "approach": "Operator (IMG_0686, iPad Pro landscape): 1.",
-      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "5 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 5,
       "tmas": [
         "hawker"
       ],
@@ -43247,9 +43288,15 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker: Michelin Bib Gourmand pin + stall names on card/InfoWindow/chat",
       "approach": "Operator: build the Bib Gourmand half in house style (cleaning-closure half put on K.I.V.).",
-      "codeImpact": "index.js, TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "7 files — index.js, hawker-vault.js, TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "hawker-vault.js",
+        "index.js",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 7,
       "tmas": [
         "hawker"
       ],
@@ -43272,9 +43319,13 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker carousel: kill horizontal band · grey the unwired expand · toggle label \"Cards\"",
       "approach": "Operator (IMG_0687/0688, iPad Pro landscape): 1.",
-      "codeImpact": "TMA:hawker, i18n.js, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 6,
       "tmas": [
         "hawker"
       ],
@@ -43297,9 +43348,13 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker tablet map: restore quick-toggle row · station card wider + pan-to-clear-top · tiny card padding",
       "approach": "Operator (IMG_0692/0693/0694, iPad Pro landscape): 1.",
-      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "7 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 7,
       "tmas": [
         "hawker"
       ],
@@ -43322,9 +43377,13 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker: tap the whole centre card to highlight its pin + toggle active",
       "approach": "Operator: tapping anywhere in a hawker centre card (except the pills) should be wired like the station/bus-stop pills — highlight the centre pin and change the card's status.",
-      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "5 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 5,
       "tmas": [
         "hawker"
       ],
@@ -43347,9 +43406,13 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker: card↔pin 3s highlight both ways · Bib stall names are hidden Google-Maps links",
       "approach": "Operator: 1.",
-      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "5 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 5,
       "tmas": [
         "hawker"
       ],
@@ -43372,9 +43435,13 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker: pin→card scroll-into-focus · strip InfoWindow chrome · visible Bib links · drop double 🍳",
       "approach": "Operator (IMG_0695/0696): 1.",
-      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 6,
       "tmas": [
         "hawker"
       ],
@@ -43397,9 +43464,13 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker: InfoWindow bus stop shows on the embedded map, not external Google Maps",
       "approach": "Operator (IMG_0699): tapping a bus stop in the centre-pin InfoWindow opened external Google Maps instead of showing the stop on the embedded map.",
-      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "4 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 4,
       "tmas": [
         "hawker"
       ],
@@ -43422,9 +43493,14 @@
       "area": "Cuisine Picker",
       "intent": "Fix: Bib links un-underlined · closing a map card no longer adjusts the zoom (all embedded-map TMAs)",
       "approach": "Operator (IMG_0700): 1.",
-      "codeImpact": "TMA:cuisine, TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:cuisine, TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker"
+      ],
+      "nFiles": 6,
       "tmas": [
         "cuisine",
         "hawker"
@@ -43448,12 +43524,12 @@
       "area": "Hawker NEA",
       "intent": "consolidate the Hawker responsive tablet/desktop arc into Feature/Technical/Register",
       "approach": "Operator asked to draft the learnings + code changes for the now-working Hawker TMA across tablet/desktop/phone, and chose the Feature + Technical + Register consolidation (next-TMA port stays a plan).",
-      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [
-        "hawker"
+      "codeImpact": "5 files — doc",
+      "modules": [
+        "doc"
       ],
+      "nFiles": 5,
+      "tmas": [],
       "impactTags": [
         "doc/vault"
       ],
@@ -43473,9 +43549,13 @@
       "area": "Cuisine Picker",
       "intent": "Add: Cuisine responsive port (O-54): tablet fullscreen + multi-card result strip",
       "approach": "O-54 auto-build, first half (Cuisine).",
-      "codeImpact": "TMA:cuisine, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
       "tmas": [
         "cuisine"
       ],
@@ -43499,14 +43579,19 @@
       "area": "Cuisine Picker",
       "intent": "Add: Cuisine tablet (O-54): carousel pops pin + 3-in-focus glass + phone-width picker",
       "approach": "Second pass on the Cuisine responsive port, from on-device iPad feedback (operator: \"follow hawker codes\").",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
       "tmas": [
         "cuisine"
       ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.562 — Cuisine tablet (O-54): carousel pops pin + 3-in-focus glass + phone-width picker",
       "reworkCue": false,
@@ -43524,14 +43609,19 @@
       "area": "Cuisine Picker",
       "intent": "Add: Cuisine tablet (O-54): header clears Telegram's system buttons in fullscreen",
       "approach": "Operator (iPad): the \"Cuisine\" title + the location row sat UNDER Telegram's floating system buttons (⌄ / ···) in fullscreen.",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
       "tmas": [
         "cuisine"
       ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.563 — Cuisine tablet (O-54): header clears Telegram's system buttons in fullscreen",
       "reworkCue": false,
@@ -43549,14 +43639,19 @@
       "area": "Cuisine Picker",
       "intent": "Add: Cuisine tablet (O-54): list only in portrait; map stays full-bleed under an open picker",
       "approach": "From iPad feedback (IMG_0715, landscape).",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
       "tmas": [
         "cuisine"
       ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.564 — Cuisine tablet (O-54): list only in portrait; map stays full-bleed under an open picker",
       "reworkCue": false,
@@ -43574,14 +43669,19 @@
       "area": "Cuisine Picker",
       "intent": "Add: Cuisine tablet (O-54): two-column result list in portrait",
       "approach": "Operator: \"where are the two columns in portrait mode\".",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
       "tmas": [
         "cuisine"
       ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.565 — Cuisine tablet (O-54): two-column result list in portrait",
       "reworkCue": false,
@@ -43599,14 +43699,19 @@
       "area": "Cuisine Picker",
       "intent": "Add: Cuisine tablet (O-54): independent two columns in portrait",
       "approach": "Operator: \"we need independent columns that doesn't affect the other column in portrait mode.\" The CSS grid aligned rows, so when a card in one column expanded, its short row-mate's column was left with a gap.",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
       "tmas": [
         "cuisine"
       ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.566 — Cuisine tablet (O-54): independent two columns in portrait",
       "reworkCue": false,
@@ -43624,14 +43729,19 @@
       "area": "Cuisine Picker",
       "intent": "Add: Cuisine tablet (O-54): portrait two-panel — static map + scrolling columns, ⇲ expands to carousel",
       "approach": "Completes the Hawker two-panel port for Cuisine.",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
       "tmas": [
         "cuisine"
       ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.567 — Cuisine tablet (O-54): portrait two-panel — static map + scrolling columns, ⇲ expands to carousel",
       "reworkCue": false,
@@ -43649,9 +43759,12 @@
       "area": "Hawker NEA",
       "intent": "Add: Cuisine arc catch-up — VCR regen (#1552–#1577) + Journal #919 (+ vault re-affirm)",
       "approach": "Operator: \"Vault first, vibe code, journal.\" Doc/generated-only pass for the Cuisine responsive port arc (O-54 first half); package.json version UNCHANGED (0.62.567, doc-only).",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "9 files — doc, public/",
+      "modules": [
+        "doc",
+        "public/"
+      ],
+      "nFiles": 9,
       "tmas": [],
       "impactTags": [
         "doc/vault"
@@ -43672,14 +43785,19 @@
       "area": "Cuisine Picker",
       "intent": "Add: Cuisine: picker floats over a full-bleed (still-interactive) map — no more black gap",
       "approach": "Operator: the tabs + location + picker should be a layer IN FRONT OF the map (all devices, always), not a black gap that pushes the map down.",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
       "tmas": [
         "cuisine"
       ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.568 — Cuisine: picker floats over a full-bleed (still-interactive) map — no more black gap",
       "reworkCue": false,
@@ -43697,14 +43815,19 @@
       "area": "Cuisine Picker",
       "intent": "Add: Cuisine: location editor overlays the map (never pushes the tabs down)",
       "approach": "Operator: \"location = overlay, never push the tabs down.\" - web/cuisine/src/v2/App.jsx — once results exist, tapping \"Click to change\" (regionExpanded) now floats the location editor (the mode tabs + LocationField) as a `fixed left-2…",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
       "tmas": [
         "cuisine"
       ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.569 — Cuisine: location editor overlays the map (never pushes the tabs down)",
       "reworkCue": false,
@@ -43722,14 +43845,19 @@
       "area": "Cuisine Picker",
       "intent": "Add: Cuisine: the header itself floats over the map (final piece of the layer-in-front rework)",
       "approach": "Operator: \"Proceed with the final piece\" — float the header strip (title + location + tabs) over the map's top too.",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
       "tmas": [
         "cuisine"
       ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.570 — Cuisine: the header itself floats over the map (final piece of the layer-in-front rework)",
       "reworkCue": false,
@@ -43747,14 +43875,19 @@
       "area": "Cuisine Picker",
       "intent": "Fix: Cuisine: tabs/picker/location left-aligned (not centred) + fix map blackout on full-bleed",
       "approach": "Operator (IMG_0728/0729): (1) the location editor / picker should drop at the TOP-LEFT, not centred; (2) the header/tabs shouldn't be centred — be consistent with the phone; (3) opening a picker/editor blacked out the map.",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
       "tmas": [
         "cuisine"
       ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.571 — Cuisine: tabs/picker/location left-aligned (not centred) + fix map blackout on full-bleed",
       "reworkCue": false,
@@ -43772,14 +43905,19 @@
       "area": "Cuisine Picker",
       "intent": "Fix: Cuisine: fix map blackout with a ResizeObserver (map went black full-bleed / behind the fixed header)",
       "approach": "Operator (IMG_0730-0734): the map was BLACK across the landscape carousel and whenever a picker/editor opened.",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "4 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 4,
       "tmas": [
         "cuisine"
       ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.572 — Cuisine: fix map blackout with a ResizeObserver (map went black full-bleed / behind the fixed header)",
       "reworkCue": false,
@@ -43797,14 +43935,19 @@
       "area": "Cuisine Picker",
       "intent": "Add: Cuisine: revert the map-overlay experiments to restore the tablet map (blackout), keep left-align",
       "approach": "Operator: v0.62.572 still blacks out the map on the fullscreen tablet, and asked to revert the header.",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
       "tmas": [
         "cuisine"
       ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.573 — Cuisine: revert the map-overlay experiments to restore the tablet map (blackout), keep left-align",
       "reworkCue": true,
@@ -43822,10 +43965,16 @@
       "area": "Hawker NEA",
       "intent": "Fix: Cuisine: remount-key fixes the tablet map blackout (root cause) + tighter Other picker rows",
       "approach": "O-54 #1 + #2 (operator: \"Proceed 1 and 2\").",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "6 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
       "impactTags": [
         "tests",
         "doc/vault"
@@ -43846,10 +43995,16 @@
       "area": "Hawker NEA",
       "intent": "Add: Cuisine tablet: pickers float over map (no push-down) + container-anchored + Hawker 3-in-focus carousel",
       "approach": "(№ 1,052",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "6 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
       "impactTags": [
         "tests",
         "doc/vault"
@@ -43870,14 +44025,19 @@
       "area": "Cuisine Picker",
       "intent": "Add: Cuisine: location editor floats over the map (compact card), keeps the carousel",
       "approach": "Operator (IMG_0743, v0.62.577 landscape): \"When I click location, it push down and all the carousel cards disappeared.\" The location editor (region folio-tabs + LocationField) is embedded in the sticky header; opening it (modePeek)…",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
       "tmas": [
         "cuisine"
       ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.578 — Cuisine: location editor floats over the map (compact card), keeps the carousel",
       "reworkCue": false,
@@ -43895,14 +44055,19 @@
       "area": "Cuisine Picker",
       "intent": "Add: Cuisine: a coarse city label can't clobber a committed street pick",
       "approach": "Operator (IMG_0743, v0.62.577): \"why show the city name Brisbane when actually you have the address.",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
       "tmas": [
         "cuisine"
       ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.579 — Cuisine: a coarse city label can't clobber a committed street pick",
       "reworkCue": false,
@@ -43920,12 +44085,19 @@
       "area": "Infra / setup",
       "intent": "Fix: Cuisine: \"closing soon\"/\"Closed\" card strips no longer bleed onto the portrait map",
       "approach": "Operator (IMG_0744, portrait tablet): \"The strip closing soon bleeds in portrait mode.\" The pink \"Closing in N min\" / red \"Closed\" card status strips (ResultCard.jsx, `relative z-10`) bled over the sticky portrait two-panel map because…",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.580 — Cuisine: \"closing soon\"/\"Closed\" card strips no longer bleed onto the portrait map",
       "reworkCue": false,
@@ -43943,12 +44115,19 @@
       "area": "Infra / setup",
       "intent": "Add: Cuisine: no ring on first-load carousel + picker dropdown drops flush under the tabs",
       "approach": "(№ 1,058",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "7 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine"
+      ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.582 — Cuisine: no ring on first-load carousel + picker dropdown drops flush under the tabs",
       "reworkCue": false,
@@ -43966,12 +44145,19 @@
       "area": "Infra / setup",
       "intent": "Add: Cuisine: folio picker panel drops its top border (no header line)",
       "approach": "Operator (IMG_3512/3513, phone): \"the horizontal bottom header line that appears when I tap should disappear, as it did before this overlay changed.\" The floating folio picker panels carried a full `border`, so their top border drew a…",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.583 — Cuisine: folio picker panel drops its top border (no header line)",
       "reworkCue": false,
@@ -43989,14 +44175,19 @@
       "area": "Cuisine Picker",
       "intent": "Add: Cuisine: thin map InfoWindow ring + drop tab/detail line + level the tabs",
       "approach": "Operator (IMG_3518/3519/3520, phone) clarified 3 items: 1.",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
       "tmas": [
         "cuisine"
       ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.584 — Cuisine: thin map InfoWindow ring + drop tab/detail line + level the tabs",
       "reworkCue": false,
@@ -44014,12 +44205,19 @@
       "area": "Infra / setup",
       "intent": "Add: Cuisine: result-card social glyphs were invisible (currentColor on white)",
       "approach": "Operator (IMG_3522): \"Card information has severe missing information that was canonical\" -- the SocialButtons after Maps/Copy rendered as empty bordered boxes.",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
       "impactTags": [
-        "tests"
+        "tests",
+        "doc/vault"
       ],
       "title": "v0.62.585 — Cuisine: result-card social glyphs were invisible (currentColor on white)",
       "reworkCue": false,
@@ -44037,11 +44235,19 @@
       "area": "Core / misc",
       "intent": "Add: Cuisine: ring labels/bands + classics typography & meal-bucketing",
       "approach": "(№ 1,063",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
-      "impactTags": [],
+      "codeImpact": "6 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.586 — Cuisine: ring labels/bands + classics typography & meal-bucketing",
       "reworkCue": false,
       "reworkOf": null,
@@ -44058,11 +44264,19 @@
       "area": "Infra / setup",
       "intent": "Add: Cuisine: result-card address drops the trailing country name",
       "approach": "Operator (IMG_0752, Brisbane): \"Where are the addresses without country name?\" Confirmed via AskUserQuestion — they chose \"keep in details, drop country\".",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
-      "impactTags": [],
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.587 — Cuisine: result-card address drops the trailing country name",
       "reworkCue": false,
       "reworkOf": null,
@@ -44079,10 +44293,17 @@
       "area": "Recognised lists",
       "intent": "Add: Cuisine: address on the collapsed card; remove obscure \"barramundi pie\"",
       "approach": "Operator decisions on the flagged items + one placement: 1.",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "6 files — nation-overlay.js, TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "nation-overlay.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
       "impactTags": [
         "doc/vault"
       ],
@@ -44102,13 +44323,21 @@
       "area": "Cuisine Picker",
       "intent": "Add: unify carousel-card ↔ pin tap flow across Hawker + Cuisine TMAs",
       "approach": "Operator locked one shared tap-interaction spec for both TMAs, both triggers (card tap / pin tap), both orientations: pan → zoom (phone 15, tablet/list 17) → 0.5s pause → open InfoWindow from the pin + blink pin (gia-pin-flash 0.5s×5) →…",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [
-        "cuisine"
+      "codeImpact": "9 files — TMA:cuisine, TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker"
       ],
-      "impactTags": [],
+      "nFiles": 9,
+      "tmas": [
+        "cuisine",
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.589 — unify carousel-card ↔ pin tap flow across Hawker + Cuisine TMAs",
       "reworkCue": false,
       "reworkOf": null,
@@ -44125,11 +44354,21 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker phone: 2-row zone grid + phones adopt the tablet two-panel/carousel",
       "approach": "(№ 1,068",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
-      "impactTags": [],
+      "codeImpact": "8 files — TMA:cuisine, TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine",
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.590 — Hawker phone: 2-row zone grid + phones adopt the tablet two-panel/carousel",
       "reworkCue": false,
       "reworkOf": null,
@@ -44146,13 +44385,19 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker iPad Pro: fullscreen safe-area for header + FAB; portrait zones one row",
       "approach": "Operator (iPad Pro, Hawker): in Telegram fullscreen the frosted top bar and the bottom-right FAB were hidden behind Telegram's floating system buttons; and the portrait zone chips should squeeze into one row like landscape.",
-      "codeImpact": "TMA:hawker (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "7 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 7,
       "tmas": [
         "hawker"
       ],
-      "impactTags": [],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.591 — Hawker iPad Pro: fullscreen safe-area for header + FAB; portrait zones one row",
       "reworkCue": false,
       "reworkOf": null,
@@ -44169,11 +44414,19 @@
       "area": "Infra / setup",
       "intent": "Add: Cuisine: a map-pin tap scrolls its card into the vertical list",
       "approach": "Operator (iPad Pro portrait, Cuisine): \"when i tap on the pin, you didn't bring up the card in listing style.\" In the vertical list (ResultPanel) a pin tap sets focusedPlaceId, which only RINGED the matching card — it never scrolled it…",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
-      "impactTags": [],
+      "codeImpact": "6 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.592 — Cuisine: a map-pin tap scrolls its card into the vertical list",
       "reworkCue": false,
       "reworkOf": null,
@@ -44190,11 +44443,19 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker: a hair more headroom on the landscape title row",
       "approach": "Operator: \"give the landscape title row a hair more headroom.\" On the short landscape carousel top bar, the \"🍚 Hawker Centre (2025)\" title read slightly clipped by the bar's top edge.",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
-      "impactTags": [],
+      "codeImpact": "5 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.593 — Hawker: a hair more headroom on the landscape title row",
       "reworkCue": false,
       "reworkOf": null,
@@ -44213,7 +44474,7 @@
       "approach": "18 Jul 2026",
       "codeImpact": "(pre-squash convention — not tracked)",
       "modules": [],
-      "nFiles": null,
+      "nFiles": 0,
       "tmas": [],
       "impactTags": [],
       "title": "18 Jul 2026",
@@ -44232,11 +44493,19 @@
       "area": "Infra / setup",
       "intent": "Add: Cuisine portrait tablet: freeze the listing header + scroll the two columns independently",
       "approach": "Operator chose \"map stays\": keep the ~40vh map pinned; freeze the listing header and scroll the two dish-columns independently.",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
-      "impactTags": [],
+      "codeImpact": "6 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.594 — Cuisine portrait tablet: freeze the listing header + scroll the two columns independently",
       "reworkCue": false,
       "reworkOf": null,
@@ -44253,9 +44522,17 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker: cleaning/renovation closure tab + 2026 vault refresh + 2025→2026 text",
       "approach": "Operator uploaded NEA's \"Dates of Hawker Centres Closure\" CSV (18 Jul 2026); approved tasks 1+2+3.",
-      "codeImpact": "index.js, TMA:hawker, i18n.js, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "11 files — index.js, hawker-vault.js, TMA:hawker, doc, data, package, scripts/",
+      "modules": [
+        "data",
+        "doc",
+        "hawker-vault.js",
+        "index.js",
+        "package",
+        "scripts/",
+        "TMA:hawker"
+      ],
+      "nFiles": 11,
       "tmas": [
         "hawker"
       ],
@@ -44278,13 +44555,23 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker: redevelopment closure class + pin recolour & CLOSE badge",
       "approach": "Operator follow-up on the closure feature: 1.",
-      "codeImpact": "index.js, TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "12 files — index.js, hawker-vault.js, TMA:hawker, tests, doc, data, package, scripts/",
+      "modules": [
+        "tests",
+        "data",
+        "doc",
+        "hawker-vault.js",
+        "index.js",
+        "package",
+        "scripts/",
+        "TMA:hawker"
+      ],
+      "nFiles": 12,
       "tmas": [
         "hawker"
       ],
       "impactTags": [
+        "tests",
         "doc/vault"
       ],
       "title": "v0.62.596 — Hawker: redevelopment closure class + pin recolour & CLOSE badge",
@@ -44303,11 +44590,14 @@
       "area": "Hawker NEA",
       "intent": "Add: Transport TMA: overview + operating-line pills move into the header (Hawker parity)",
       "approach": "Slice 1 of the Transport-TMA responsive port.",
-      "codeImpact": "TMA:hawker, TMA:transport, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "5 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 5,
       "tmas": [
-        "hawker",
         "transport"
       ],
       "impactTags": [
@@ -44329,13 +44619,21 @@
       "area": "Hawker NEA",
       "intent": "Add: Transport TMA: rich Google-Maps-style station card (first/last train, terminus links, crowd, amenities)",
       "approach": "(№ 1,077",
-      "codeImpact": "index.js, TMA:transport, i18n.js, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "13 files — index.js, transport.js, TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "package",
+        "transport.js",
+        "TMA:transport"
+      ],
+      "nFiles": 13,
       "tmas": [
         "transport"
       ],
       "impactTags": [
+        "tests",
         "doc/vault"
       ],
       "title": "v0.62.598 — Transport TMA: rich Google-Maps-style station card (first/last train, terminus links, crowd, amenities)",
@@ -44354,11 +44652,19 @@
       "area": "Weather",
       "intent": "Add: Transport StationCard: preserve Sun/PH first trains + stop mislabelling no-timing rows as termini",
       "approach": "Two P2 findings from the Codex review of the v0.62.598 StationCard (merged #1607), fixed here as a fresh PR: 1.",
-      "codeImpact": "i18n.js, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "8 files — TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "transport"
+      ],
       "impactTags": [
+        "tests",
         "doc/vault"
       ],
       "title": "v0.62.599 — Transport StationCard: preserve Sun/PH first trains + stop mislabelling no-timing rows as termini",
@@ -44377,9 +44683,13 @@
       "area": "Transport / carpark",
       "intent": "Add: Transport TMA: title trim, live blinking SGT clock on the status row, tip removed, view toggle → footer",
       "approach": "Operator screenshot (IMG_0760) polish on the deployed v0.62.599 Train TMA: 1.",
-      "codeImpact": "TMA:transport, i18n.js, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 6,
       "tmas": [
         "transport"
       ],
@@ -44402,9 +44712,13 @@
       "area": "Hawker NEA",
       "intent": "Add: Transport TMA: device detection + two-panel / carousel responsive layout",
       "approach": "Operator: \"Proceed to build device detection + the two-panel/carousel layout.\" Slice 2 of the Transport-TMA port — the responsive scaffold that hosts the StationCard across device classes.",
-      "codeImpact": "TMA:transport, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 6,
       "tmas": [
         "transport"
       ],
@@ -44427,9 +44741,13 @@
       "area": "Transport / carpark",
       "intent": "Add: Transport TMA: header status & source pop-ups",
       "approach": "Operator on the deployed v0.62.601 Train TMA: 1.",
-      "codeImpact": "TMA:transport, i18n.js, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 6,
       "tmas": [
         "transport"
       ],
@@ -44452,11 +44770,17 @@
       "area": "Cuisine Picker",
       "intent": "Add: 604 — Hawker + Train header standardised on Cuisine; Hawker tap-zoom 16 + card bus stops two-per-row",
       "approach": "(№ 1,083",
-      "codeImpact": "TMA:cuisine, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "8 files — TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 8,
       "tmas": [
-        "cuisine"
+        "hawker",
+        "transport"
       ],
       "impactTags": [
         "doc/vault"
@@ -44477,10 +44801,16 @@
       "area": "Hawker NEA",
       "intent": "Fix: Hawker: single Maps pin, fixed-map bottom margin, Cuisine-style footer dock",
       "approach": "Operator (IMG_3588/3589/3590): 1.",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "5 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "hawker"
+      ],
       "impactTags": [
         "doc/vault"
       ],
@@ -44500,9 +44830,13 @@
       "area": "Hawker NEA",
       "intent": "Add: Transport TMA: carousel-first default across every device",
       "approach": "Operator: the Train TMA now defaults to the Cuisine/Hawker \"full-map + bottom station carousel\" on phone/tablet/desktop (was device-driven: phone stacked / tablet two-panel / landscape carousel).",
-      "codeImpact": "TMA:transport, i18n.js, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 6,
       "tmas": [
         "transport"
       ],
@@ -44525,10 +44859,16 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker: frost the footer + one-row zone pills without counts",
       "approach": "Operator (IMG_3593): 1.",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "5 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "hawker"
+      ],
       "impactTags": [
         "doc/vault"
       ],
@@ -44548,9 +44888,13 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker phone: Google-Maps-style draggable bottom-sheet drawer",
       "approach": "Operator (IMG_3594): on a phone (portrait), the Hawker listing becomes a Google-Maps-style draggable bottom-sheet drawer over a full-bleed map — a subtle centre short line is the drag handle; drag up to see more of the list, down to…",
-      "codeImpact": "TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 6,
       "tmas": [
         "hawker"
       ],
@@ -44573,11 +44917,21 @@
       "area": "Hawker NEA",
       "intent": "Fix: Hawker drawer pills on a solid card; Train phone drawer + fix tall carousel card (BottomSheet shared)",
       "approach": "Hawker (IMG_3595 \"looks horrible\"): the phone drawer's 5 zone pills floated translucent over the busy map. Seat the pill row on a solid skeuo-card and use the two-panel's clean bg-tg-bg/90 liquid-glass unselected style (no border).",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
-      "impactTags": [],
+      "codeImpact": "7 files — TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.609 — Hawker drawer pills on a solid card; Train phone drawer + fix tall carousel card (BottomSheet shared)",
       "reworkCue": false,
       "reworkOf": "1616",
@@ -44594,14 +44948,21 @@
       "area": "Hawker NEA",
       "intent": "Fix: Telegram: disable vertical swipes so the drawer drag doesn't dismiss the Mini App",
       "approach": "Operator: \"the drawer runs another session of telegram TMA for train.\" On a phone, the draggable station-list drawer's drag-down was being grabbed by Telegram's native vertical swipe-to-minimise/close gesture, dismissing the Mini App —…",
-      "codeImpact": "TMA:hawker, TMA:transport (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 6,
       "tmas": [
         "hawker",
         "transport"
       ],
-      "impactTags": [],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.610 — Telegram: disable vertical swipes so the drawer drag doesn't dismiss the Mini App",
       "reworkCue": false,
       "reworkOf": "1617",
@@ -44618,11 +44979,21 @@
       "area": "Hawker NEA",
       "intent": "Add: Train 2K carousel uniform + centered; Hawker NEA ↗ moves to the footer under ↩ back",
       "approach": "Train (operator: carousel \"not set for 2K aspect ratio\"): on a large 2K screen the non-list carousel cards sprawled edge-to-edge as a ragged-height strip. Per the operator's choice (\"uniform, centered row\"): StationCarousel items-start ->…",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
-      "impactTags": [],
+      "codeImpact": "6 files — TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.611 — Train 2K carousel uniform + centered; Hawker NEA ↗ moves to the footer under ↩ back",
       "reworkCue": false,
       "reworkOf": null,
@@ -44639,13 +45010,16 @@
       "area": "Cuisine Picker",
       "intent": "Add: viewport: detect a touch tablet from the physical screen so Cuisine stops reverting to the phone layout",
       "approach": "Operator (confirmed on iPad/Android touch tablet): the Cuisine TMA keeps reverting to the phone layout.",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [
-        "cuisine"
+      "codeImpact": "5 files — doc, package",
+      "modules": [
+        "doc",
+        "package"
       ],
-      "impactTags": [],
+      "nFiles": 5,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.612 — viewport: detect a touch tablet from the physical screen so Cuisine stops reverting to the phone layout",
       "reworkCue": true,
       "reworkOf": "1612",
@@ -44662,10 +45036,19 @@
       "area": "Hawker NEA",
       "intent": "Add: iPad-mini tablet gate 768→700 + Hawker footer NEA row; pre-recode vault checkpoint + vibe catch-up",
       "approach": "(№ 1,093",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "16 files — TMA:cuisine, TMA:hawker, doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/",
+        "TMA:cuisine",
+        "TMA:hawker"
+      ],
+      "nFiles": 16,
+      "tmas": [
+        "cuisine",
+        "hawker"
+      ],
       "impactTags": [
         "doc/vault"
       ],
@@ -44685,11 +45068,23 @@
       "area": "Core / misc",
       "intent": "Refactor: recode slice A: dedup device-id + iata-cities into _shared/ (the rest diverge on purpose)",
       "approach": "Operator: \"go\" (recode slice A — consolidate pure data/util duplicates).",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
-      "impactTags": [],
+      "codeImpact": "13 files — TMA:cuisine, TMA:menu, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:menu"
+      ],
+      "nFiles": 13,
+      "tmas": [
+        "cuisine",
+        "menu"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
       "title": "v0.62.614 — recode slice A: dedup device-id + iata-cities into _shared/ (the rest diverge on purpose)",
       "reworkCue": false,
       "reworkOf": null,
@@ -44706,11 +45101,23 @@
       "area": "Hawker NEA",
       "intent": "Add: recode slice B: share MapControls + giaToggleStyle (the rest of the UI diverges on purpose)",
       "approach": "Operator: \"Continue to slice B\" (small shared UI).",
-      "codeImpact": "i18n.js (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
-      "impactTags": [],
+      "codeImpact": "14 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 14,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.615 — recode slice B: share MapControls + giaToggleStyle (the rest of the UI diverges on purpose)",
       "reworkCue": false,
       "reworkOf": null,
@@ -44727,11 +45134,19 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker: left-align zone pills + selected-zone centre count above the version (2 of 4 asks)",
       "approach": "Operator, 4 Hawker requests on tablet (footer now shows \"(tablet)\" — the wide layout is finally rendering on Telegram Desktop Mac): - #4 DONE: zone pills justify-center -> justify-start (portrait + drawer; the landscape row was already…",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
-      "impactTags": [],
+      "codeImpact": "5 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "hawker"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.616 — Hawker: left-align zone pills + selected-zone centre count above the version (2 of 4 asks)",
       "reworkCue": false,
       "reworkOf": null,
@@ -44748,11 +45163,23 @@
       "area": "Core / misc",
       "intent": "Add: re-enable auto-fullscreen on Telegram Desktop/macOS so the Mini App opens wide",
       "approach": "Operator: \"I re-enable auto-fullscreen on Telegram Desktop so the app opens wide.\" On Telegram Desktop for Mac the Mini App opens in a narrow phone-width window, so useViewport sees w<1024 and shows the phone layout; the app had…",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
-      "impactTags": [],
+      "codeImpact": "7 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.617 — re-enable auto-fullscreen on Telegram Desktop/macOS so the Mini App opens wide",
       "reworkCue": true,
       "reworkOf": null,
@@ -44769,11 +45196,25 @@
       "area": "Core / misc",
       "intent": "Fix: Tailwind scans _shared/ (fixes map toggle row at map bottom); NEA footer-left; nav-cluster audit",
       "approach": "Operator: \"NEA link: footer-left.",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
-      "impactTags": [],
+      "codeImpact": "9 files — TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:transport"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.618 — Tailwind scans _shared/ (fixes map toggle row at map bottom); NEA footer-left; nav-cluster audit",
       "reworkCue": false,
       "reworkOf": null,
@@ -44790,11 +45231,23 @@
       "area": "Hawker NEA",
       "intent": "Add: prototype: Inter font on the Cuisine/Hawker/Train headers",
       "approach": "Operator (admiring an in-flight moving-map font on a BNE->SIN flight): \"prototype on the headers.\" Inter is the closest free match to that humanist sans (Frutiger/Segoe-UI lineage).",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
-      "impactTags": [],
+      "codeImpact": "13 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 13,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.619 — prototype: Inter font on the Cuisine/Hawker/Train headers",
       "reworkCue": false,
       "reworkOf": null,
@@ -44811,11 +45264,23 @@
       "area": "Weather",
       "intent": "Add: IMG_3614 Train-TMA batch: Inter to body, EWL default drawer, drawer handle, borderless line-pills, nav-cluster inset",
       "approach": "Operator sent IMG_3614 (Train TMA on phone) with four asks: - \"Extend.\" — carry the Inter header prototype to the whole app body.",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
-      "impactTags": [],
+      "codeImpact": "11 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 11,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.620 — IMG_3614 Train-TMA batch: Inter to body, EWL default drawer, drawer handle, borderless line-pills, nav-cluster inset",
       "reworkCue": false,
       "reworkOf": null,
@@ -44832,11 +45297,21 @@
       "area": "Buddy / sharing",
       "intent": "Add: Google-Maps Drawer/slide: desktop + landscape-tablet side panel, Maps-style station-card place details",
       "approach": "Operator (on Telegram Desktop) asked whether to auto-expand for the HD aspect ratio, and for a Google-Maps \"Drawer/slide\": a bottom sheet on mobile, a side panel on desktop, showing place details.",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
-      "impactTags": [],
+      "codeImpact": "9 files — TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
       "title": "v0.62.621 — Google-Maps Drawer/slide: desktop + landscape-tablet side panel, Maps-style station-card place details",
       "reworkCue": false,
       "reworkOf": null,
@@ -44853,13 +45328,18 @@
       "area": "Cuisine Picker",
       "intent": "Add: narrow Telegram-Desktop window mis-classified as a wide tablet (Cuisine \"cards look weird\")",
       "approach": "Operator (Cuisine TMA on Telegram Desktop): \"the cuisine TMA stuck at expand mode but size and card looks weird.\" The cards were the WIDE tablet layout (big centred card + peeking side card) crammed into a ~500px window.",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [
-        "cuisine"
+      "codeImpact": "7 files — tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package"
       ],
-      "impactTags": [],
+      "nFiles": 7,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
       "title": "v0.62.622 — fix: narrow Telegram-Desktop window mis-classified as a wide tablet (Cuisine \"cards look weird\")",
       "reworkCue": false,
       "reworkOf": null,
@@ -44876,13 +45356,23 @@
       "area": "Cuisine Picker",
       "intent": "Add: desktop: stop forcing requestFullscreen; use Telegram Desktop's native widen control",
       "approach": "Operator (Telegram Desktop, Cuisine TMA): \"the telegram desktop CUISINE TMA are using the wrong system command to expand to full screen.\" Finding: the desktop path calls w.requestFullscreen() (Bot API 8.0), which forces a chromeless…",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [
-        "cuisine"
+      "codeImpact": "7 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
       ],
-      "impactTags": [],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.623 — desktop: stop forcing requestFullscreen; use Telegram Desktop's native widen control",
       "reworkCue": false,
       "reworkOf": null,
@@ -44899,11 +45389,23 @@
       "area": "Core / misc",
       "intent": "restore desktop auto-fullscreen (\"why I cannot expand in telegram desktop\")",
       "approach": "Operator (after v0.62.623 removed the desktop branch): \"why I cannot expand in telegram desktop, did you get the code correctly.\" Facts (WebSearch): requestFullscreen() (Bot API 8.0) is the ONLY programmatic way to enlarge a Mini App —…",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
-      "impactTags": [],
+      "codeImpact": "7 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.624 — restore desktop auto-fullscreen (\"why I cannot expand in telegram desktop\")",
       "reworkCue": true,
       "reworkOf": null,
@@ -44920,13 +45422,19 @@
       "area": "Transport / carpark",
       "intent": "Add: revert the Transport desktop side panel (\"revert the side drawer it is aweful\")",
       "approach": "Operator (Transport TMA on desktop, now correctly fullscreen-wide via v0.62.624): \"revert the side drawer it is aweful.\" With desktop fullscreen restored, the v0.62.621 side panel finally showed on a wide desktop — and the fixed left…",
-      "codeImpact": "TMA:transport (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "5 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 5,
       "tmas": [
         "transport"
       ],
-      "impactTags": [],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.625 — revert the Transport desktop side panel (\"revert the side drawer it is aweful\")",
       "reworkCue": true,
       "reworkOf": null,
@@ -44943,13 +45451,19 @@
       "area": "Transport / carpark",
       "intent": "Add: Transport map Expand/Collapse button was a no-op in fill mode",
       "approach": "Operator (Transport TMA, desktop): \"the 'Expand map' and 'Collapse map' buttons doesn't work.",
-      "codeImpact": "TMA:transport (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "5 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 5,
       "tmas": [
         "transport"
       ],
-      "impactTags": [],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.626 — fix: Transport map Expand/Collapse button was a no-op in fill mode",
       "reworkCue": false,
       "reworkOf": null,
@@ -44966,14 +45480,19 @@
       "area": "Cuisine Picker",
       "intent": "Fix: Hawker: NEA beside Map, footer slimmed to match Cuisine, cards no longer cut, working Expand button",
       "approach": "Operator (Hawker TMA, desktop): \"the Hawker TMA cards are cut at the bottom.",
-      "codeImpact": "TMA:cuisine, TMA:hawker (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 6,
       "tmas": [
-        "cuisine",
         "hawker"
       ],
-      "impactTags": [],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.627 — Hawker: NEA beside Map, footer slimmed to match Cuisine, cards no longer cut, working Expand button",
       "reworkCue": false,
       "reworkOf": "1631",
@@ -44990,13 +45509,19 @@
       "area": "Cuisine Picker",
       "intent": "Add: Train carousel matches the Cuisine desktop standard: full-bleed map + floating compact cards",
       "approach": "Operator (3 desktop screenshots — Train, Hawker, Cuisine v0.62.627): \"The carousel cards in CUISINE TMA and the Google Map aspect size is the standard in DESKTOP TELEGRAM mode (picture) and the other 2 TMA (Hawker, Train) follow exactly.\"…",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [
-        "cuisine"
+      "codeImpact": "6 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
       ],
-      "impactTags": [],
+      "nFiles": 6,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.628 — Train carousel matches the Cuisine desktop standard: full-bleed map + floating compact cards",
       "reworkCue": false,
       "reworkOf": null,
@@ -45013,13 +45538,19 @@
       "area": "Cuisine Picker",
       "intent": "Fix: Train carousel: header ON TOP so the map's quick-access buttons stay visible; cards no longer cut",
       "approach": "Operator (Train TMA, desktop, v0.62.628 screenshot): \"see the carousel cards being cut in this wide aspect ratio, and the missing buttons and quick access in the google map.",
-      "codeImpact": "TMA:cuisine (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [
-        "cuisine"
+      "codeImpact": "6 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
       ],
-      "impactTags": [],
+      "nFiles": 6,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
       "title": "v0.62.629 — Train carousel: header ON TOP so the map's quick-access buttons stay visible; cards no longer cut",
       "reworkCue": false,
       "reworkOf": "1636",
@@ -45036,9 +45567,12 @@
       "area": "Docs / vault",
       "intent": "Update docs: VibeCodingRecord catch-up (PRs #1621-#1637)",
       "approach": "Housekeeping, no app change: the generated doc/VibeCodingRecord/ ledger had stalled at PR #1620 (v0.62.612) through the desktop-responsive PR flurry.",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "9 files — doc, public/",
+      "modules": [
+        "doc",
+        "public/"
+      ],
+      "nFiles": 9,
       "tmas": [],
       "impactTags": [
         "doc/vault"
@@ -45059,9 +45593,13 @@
       "area": "Transport / carpark",
       "intent": "Add: Train: cards survive the map's expand — carousel lifted above the fullscreen overlay",
       "approach": "Operator (Train TMA, desktop; v0.62.629 confirmed the map toggle row + nav cluster are now visible): \"i expand the screen, the cards are gone (in train TMA).\" Root cause: the station carousel lived INSIDE the map's flex-1 container at z-30.",
-      "codeImpact": "TMA:transport, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 6,
       "tmas": [
         "transport"
       ],
@@ -45084,9 +45622,11 @@
       "area": "Core / misc",
       "intent": "Add files via upload",
       "approach": "Add files via upload",
-      "codeImpact": "(pre-squash convention — not tracked)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "1 file — data",
+      "modules": [
+        "data"
+      ],
+      "nFiles": 1,
       "tmas": [],
       "impactTags": [],
       "title": "Add files via upload",
@@ -45105,9 +45645,15 @@
       "area": "Transport / carpark",
       "intent": "Add: refresh LTA MRT Station Exit GEOJSON (19 Jul 2026) + code→name exit labels",
       "approach": "Ingest the operator's refreshed LTA MRT Station Exit dataset (uploaded 19 Jul 2026) into the overlay pipeline.",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "8 files — doc, data, package, geoloc/, scripts/",
+      "modules": [
+        "data",
+        "doc",
+        "geoloc/",
+        "package",
+        "scripts/"
+      ],
+      "nFiles": 8,
       "tmas": [],
       "impactTags": [
         "doc/vault"
@@ -45128,9 +45674,13 @@
       "area": "Transport / carpark",
       "intent": "Add: Train iPad mini: uniform collapsible station tiles, 4/6-per-row grid, iPhone-style select pop",
       "approach": "Operator (iPad mini, IMG_1180/1181): cards were uneven heights (the action row \"floated above\" at different levels), too sparse per row, and lacked the iPhone-style select effect.",
-      "codeImpact": "TMA:transport, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 6,
       "tmas": [
         "transport"
       ],
@@ -45153,9 +45703,13 @@
       "area": "Transport / carpark",
       "intent": "Add: Train: keep per-line \"Station info\" link visible without timings (Codex P2 #1642)",
       "approach": "Codex P2 on #1642: the v0.62.632 LineSubCard rewrite gated the per-line more_info_url \"Station info\" link on `open`.",
-      "codeImpact": "TMA:transport, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "5 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 5,
       "tmas": [
         "transport"
       ],
@@ -45178,13 +45732,19 @@
       "area": "Cuisine Picker",
       "intent": "Refactor: Train iPad mini: Pasir Ris de-dupe, carpark + open-now + hours in card, action row to bottom, zoom-18/cap-23",
       "approach": "Operator (iPad mini): Pasir Ris \"missing\", where are carpark/exit details, card should show open/health/hours + carparks, action row not at the top, zoom to 18 capped 23.",
-      "codeImpact": "TMA:cuisine, i18n.js, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "11 files — TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 11,
       "tmas": [
-        "cuisine"
+        "transport"
       ],
       "impactTags": [
+        "tests",
         "doc/vault"
       ],
       "title": "v0.62.634 — Train iPad mini: Pasir Ris de-dupe, carpark + open-now + hours in card, action row to bottom, zoom-18/cap-23",
@@ -45203,9 +45763,13 @@
       "area": "Cuisine Picker",
       "intent": "Fix: Cuisine iPad mini: fix map freeze past zoom 15 (viewport-cull train pills)",
       "approach": "Operator P.S.",
-      "codeImpact": "TMA:cuisine, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "5 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 5,
       "tmas": [
         "cuisine"
       ],
@@ -45228,9 +45792,13 @@
       "area": "Hawker NEA",
       "intent": "Add: Transport UI professionalisation pilot: C1 reduced-motion+skeleton, C2 AutoAnimate, C3 Motion springs + View Transitions",
       "approach": "Operator: \"apply to Transport TMA first.",
-      "codeImpact": "TMA:transport, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "12 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 12,
       "tmas": [
         "transport"
       ],
@@ -45253,10 +45821,16 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker UI professionalisation: roll the Transport C1-C3 layer to Hawker",
       "approach": "Operator: \"continue\" -> \"layer for Hawker\".",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "10 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "hawker"
+      ],
       "impactTags": [
         "doc/vault"
       ],
@@ -45276,11 +45850,23 @@
       "area": "Oversight / usage stats",
       "intent": "Add: URGENT iPad Pro: all-TMA header clears Telegram's floating buttons + Train carousel = Hawker card parity",
       "approach": "Operator (iPad Pro 11\", IMG_0768/0769): headers of all TMAs must sit BELOW the Telegram floating Back/⌄/··· buttons; and the Train carousel cards must match the Hawker carousel cards' height + dimensions.",
-      "codeImpact": "TMA:transport, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "11 files — TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, TMA:oversight, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:oversight",
+        "TMA:transport"
+      ],
+      "nFiles": 11,
       "tmas": [
-        "transport"
+        "cuisine",
+        "menu",
+        "hawker",
+        "transport",
+        "oversight"
       ],
       "impactTags": [
         "doc/vault"
@@ -45301,10 +45887,16 @@
       "area": "Cuisine Picker",
       "intent": "Add: Train iPad mini: squeeze/tighten carousel; LIST becomes a drawer over the map with named uniform-grid tiles",
       "approach": "Operator (iPad mini, IMG_1195/1196/1197): 1.",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "6 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "transport"
+      ],
       "impactTags": [
         "doc/vault"
       ],
@@ -45324,10 +45916,20 @@
       "area": "Oversight / usage stats",
       "intent": "Fix: Train: restore the ▾ collapse + collapsed card at Hawker height; footer no longer clips; Menu/Oversight headers clear the Telegram buttons",
       "approach": "Operator (iPad mini, IMG_1203 Menu + IMG_1204 Train): \"see the footer that covers the text.",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "8 files — TMA:menu, TMA:transport, TMA:oversight, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:menu",
+        "TMA:oversight",
+        "TMA:transport"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "menu",
+        "transport",
+        "oversight"
+      ],
       "impactTags": [
         "doc/vault"
       ],
@@ -45347,11 +45949,15 @@
       "area": "Cuisine Picker",
       "intent": "Fix: Train card to the Cuisine standard: small action pills, no duplicated meta, walk row removed, tap-to-zoom fixed",
       "approach": "Operator (iPad mini, IMG_1205 Cuisine as the standard): \"What are the share, map, saved/starred buttons so big?",
-      "codeImpact": "TMA:cuisine, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "6 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 6,
       "tmas": [
-        "cuisine"
+        "transport"
       ],
       "impactTags": [
         "tests",
@@ -45373,10 +45979,16 @@
       "area": "Hawker NEA",
       "intent": "Add: Hawker: drawer over the map on tablet portrait too (+ the three-TMA drawer audit)",
       "approach": "Operator: \"Where is the drawer overlay effect while Google map is behind in all three TMA.\" Audit (state before this PR): - Transport: YES — LIST mode is a BottomSheet over a full-bleed map (v0.62.639); phone-portrait carousel mode too.",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "5 files — TMA:hawker, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "hawker"
+      ],
       "impactTags": [
         "doc/vault"
       ],
@@ -45396,10 +46008,16 @@
       "area": "Transport / carpark",
       "intent": "Add: Train: station name readable again (category chip removed, name +2px, one-row summary, inline Station-info)",
       "approach": "Operator (iPad mini portrait, IMG_1208/1209 v0.62.641): \"Can be resolve the station name, can you by 2 px.",
-      "codeImpact": "i18n.js, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "5 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 5,
+      "tmas": [
+        "transport"
+      ],
       "impactTags": [
         "doc/vault"
       ],
@@ -45419,11 +46037,15 @@
       "area": "Cuisine Picker",
       "intent": "Fix: Train carousel adopts the Cuisine card model: uniform fixed-height box, foot \"▾ details\" pill, informative collapsed state",
       "approach": "Operator: \"Train TMA carousel cards collapsed should be within while the card height is the same as cuisine TMA, the collapse and expand is same effect as cuisine TMA.\" The Cuisine model: a collapsed ResultCard shows a LOT and hides only…",
-      "codeImpact": "TMA:cuisine, i18n.js, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "7 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 7,
       "tmas": [
-        "cuisine"
+        "transport"
       ],
       "impactTags": [
         "doc/vault"
@@ -45444,10 +46066,16 @@
       "area": "Hawker NEA",
       "intent": "Add: Train card: \"📍 Maps\" not \"Directions\", opens expanded, expand grows the card, rem-based height, smaller Roboto name",
       "approach": "Operator (iPad mini, IMG_1212/1213 v0.62.644).",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "8 files — TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "transport"
+      ],
       "impactTags": [
         "doc/vault"
       ],
@@ -45467,12 +46095,17 @@
       "area": "Cuisine Picker",
       "intent": "Fix: map ⇲ Expand fixed on Train + Hawker (z-0 stacking-context trap); content-sized station card; Cuisine-style \"future\" tab",
       "approach": "Operator: \"the expand/collapse Google map layer in train TMA and hawker TMA again not working.",
-      "codeImpact": "TMA:cuisine, TMA:hawker, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "7 files — TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 7,
       "tmas": [
-        "cuisine",
-        "hawker"
+        "hawker",
+        "transport"
       ],
       "impactTags": [
         "doc/vault"
@@ -45493,11 +46126,16 @@
       "area": "Hawker NEA",
       "intent": "Add: vanilla swipe-to-close bottom sheet: assessment + component (44px handle, velocity+distance physics, dvh/VisualViewport, scroll lock), not yet wired",
       "approach": "New self-contained component at web/_shared/components/bottom-sheet/ — CSS, canonical HTML and vanilla JS, no framework and no build step.",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "9 files — tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package"
+      ],
+      "nFiles": 9,
       "tmas": [],
       "impactTags": [
+        "tests",
         "doc/vault"
       ],
       "title": "v0.62.647 — vanilla swipe-to-close bottom sheet: assessment + component (44px handle, velocity+distance physics, dvh/VisualViewport, scroll lock), not yet wired",
@@ -45516,12 +46154,28 @@
       "area": "Oversight / usage stats",
       "intent": "Fix: Hawker + Train default to Cuisine's carousel with a list-toggle drawer; fix the Tailwind palette that was silently deleting the drawer handle",
       "approach": "Two things, one message.",
-      "codeImpact": "i18n.js, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "15 files — TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, TMA:oversight, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:oversight",
+        "TMA:transport"
+      ],
+      "nFiles": 15,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker",
+        "transport",
+        "oversight"
+      ],
       "impactTags": [
         "Redis/state",
+        "tests",
         "doc/vault"
       ],
       "title": "v0.62.648 — Hawker + Train default to Cuisine's carousel with a list-toggle drawer; fix the Tailwind palette that was silently deleting the drawer handle",
@@ -45540,10 +46194,21 @@
       "area": "Hawker NEA",
       "intent": "fix the v0.62.648 regression that put NaN in every BARE colour utility; apply the 60% peek / 75% dock glass standard",
       "approach": "1.",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "13 files — TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 13,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
       "impactTags": [
         "tests",
         "doc/vault"
@@ -45564,13 +46229,23 @@
       "area": "Weather",
       "intent": "Add: Train card density pass (disclosure back on the name strip, line names that fit, \"Normal\" gone, amenities as text, 2/3-column list) + Cuisine 2px gap",
       "approach": "CUISINE.",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "10 files — TMA:cuisine, TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:transport"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "cuisine",
+        "transport"
+      ],
       "impactTags": [
         "Redis/state",
         "privacy",
+        "tests",
         "doc/vault"
       ],
       "title": "v0.62.650 — Train card density pass (disclosure back on the name strip, line names that fit, \"Normal\" gone, amenities as text, 2/3-column list) + Cuisine 2px gap",
@@ -45589,10 +46264,18 @@
       "area": "Hawker NEA",
       "intent": "Fix: viewport-width columns (2/3/4), the line-order legibility fix for non-locals, and tap-to-blink",
       "approach": "1.",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "9 files — TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "hawker",
+        "transport"
+      ],
       "impactTags": [
         "Redis/state",
         "doc/vault"
@@ -45613,10 +46296,20 @@
       "area": "Hawker NEA",
       "intent": "Add: carousel card count scales to ultrawide: the basis ladder AND the track cap were both holding it down",
       "approach": "Two separate ceilings; fixing only one would not have moved the number.",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "8 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
       "impactTags": [
         "doc/vault"
       ],
@@ -45636,11 +46329,19 @@
       "area": "Transport / carpark",
       "intent": "Add: the one qualified line name gets its own row; every line-name step drops 1px",
       "approach": "\"East-West Line (Changi br…\" was the worst of both: the qualifier was present and unreadable.",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "7 files — TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:transport"
+      ],
+      "nFiles": 7,
+      "tmas": [
+        "transport"
+      ],
       "impactTags": [
+        "tests",
         "doc/vault"
       ],
       "title": "v0.62.653 — the one qualified line name gets its own row; every line-name step drops 1px",
@@ -45659,10 +46360,17 @@
       "area": "Docs / vault",
       "intent": "Add: three TMAs on one behaviour; a real auto-expand listener; one definition of \"wide\"",
       "approach": "The fullscreen GATE was already byte-identical across the three apps (diffed in the prior audit).",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "8 files — TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 8,
+      "tmas": [
+        "cuisine"
+      ],
       "impactTags": [
         "tests",
         "doc/vault"
@@ -45683,10 +46391,16 @@
       "area": "Hawker NEA",
       "intent": "Add: Cuisine's result list becomes an over-the-map drawer, opening at a measured 1.5 cards",
       "approach": "Closes the last consistency delta from the audit: Cuisine's vertical result list had NEVER been a drawer.",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "6 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
       "impactTags": [
         "doc/vault"
       ],
@@ -45696,7 +46410,7 @@
       "burst": true
     },
     {
-      "pr": "1666",
+      "pr": 1666,
       "status": "merged",
       "merged": "2026-07-29 10:20:26+00:00",
       "day": "2026-07-29",
@@ -45706,9 +46420,13 @@
       "area": "Privacy / legal",
       "intent": "doc-system catch-up: the first vault, three documents, and a 30-PR Vibe Journal refresh",
       "approach": "Documentation and a snapshot only.",
-      "codeImpact": "doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "14 files — doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/"
+      ],
+      "nFiles": 14,
       "tmas": [],
       "impactTags": [
         "legal",
@@ -45721,7 +46439,7 @@
       "burst": false
     },
     {
-      "pr": "1667",
+      "pr": 1667,
       "status": "merged",
       "merged": "2026-07-29 13:12:53+00:00",
       "day": "2026-07-29",
@@ -45731,9 +46449,13 @@
       "area": "Cuisine Picker",
       "intent": "Fix: Cuisine drawer device check found two real bugs: native swipe conflict, and a peek selector matching nothing",
       "approach": "The device check you did (screenshot `IMG_3693`) is the O-56 check flagged as highest-priority since v0.62.655.",
-      "codeImpact": "TMA:cuisine, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "7 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 7,
       "tmas": [
         "cuisine"
       ],
@@ -45746,7 +46468,7 @@
       "burst": false
     },
     {
-      "pr": "1668",
+      "pr": 1668,
       "status": "merged",
       "merged": "2026-07-30 06:18:19+00:00",
       "day": "2026-07-30",
@@ -45756,12 +46478,23 @@
       "area": "Hawker NEA",
       "intent": "Add: Train onboarding (zoom + line picker), collapsed cards, 1/4 drawer peek, station-search location row",
       "approach": "Five requests from one operator message (three screenshots: the Train map at zoom 11 vs 12, and Cuisine's location row): - **Train's first load** now opens the map at zoom **10** (whole-network overview, matching what \"Overview\" already…",
-      "codeImpact": "TMA:hawker, TMA:transport, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "33 files — TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, TMA:oversight, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:oversight",
+        "TMA:transport"
+      ],
+      "nFiles": 33,
       "tmas": [
+        "cuisine",
+        "menu",
         "hawker",
-        "transport"
+        "transport",
+        "oversight"
       ],
       "impactTags": [
         "doc/vault"
@@ -45772,7 +46505,7 @@
       "burst": true
     },
     {
-      "pr": "1669",
+      "pr": 1669,
       "status": "merged",
       "merged": "2026-07-30 09:20:28+00:00",
       "day": "2026-07-30",
@@ -45782,9 +46515,14 @@
       "area": "Oversight / usage stats",
       "intent": "Fix: URGENT: fix Telegram Desktop TMA unable to close (Menu, Clipboard, Oversight)",
       "approach": "Root cause**: v0.62.663 (merged in #1668, ~45 min before this report) widened Menu's auto-fullscreen gate to Telegram Desktop and added a brand-new fullscreen step to Clipboard and Oversight — without checking that each already had a way…",
-      "codeImpact": "TMA:menu, TMA:oversight, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "8 files — TMA:menu, TMA:oversight, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:menu",
+        "TMA:oversight"
+      ],
+      "nFiles": 8,
       "tmas": [
         "menu",
         "oversight"
@@ -45798,7 +46536,7 @@
       "burst": false
     },
     {
-      "pr": "1670",
+      "pr": 1670,
       "status": "merged",
       "merged": "2026-07-30 14:03:29+00:00",
       "day": "2026-07-30",
@@ -45808,9 +46546,19 @@
       "area": "Cuisine Picker",
       "intent": "Add: 667 — MICHELIN Guide 2026 updates: Singapore Bib Gourmand + Taiwan (stars + Bib Gourmand)",
       "approach": "v0.62.665 — Singapore**",
-      "codeImpact": "index.js, TMA:cuisine, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
+      "codeImpact": "24 files — index.js, SG-michelin.js, TW-michelin.js, michelin-data.js, TMA:cuisine, tests, doc, package, instruction/",
+      "modules": [
+        "SG-michelin.js",
+        "TW-michelin.js",
+        "tests",
+        "doc",
+        "index.js",
+        "instruction/",
+        "michelin-data.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 24,
       "tmas": [
         "cuisine"
       ],
@@ -45824,7 +46572,7 @@
       "burst": false
     },
     {
-      "pr": "1671",
+      "pr": 1671,
       "status": "merged",
       "merged": "2026-07-30 15:44:41+00:00",
       "day": "2026-07-30",
@@ -45834,10 +46582,24 @@
       "area": "Oversight / usage stats",
       "intent": "Add: Material-alignment Phase 1: invisible accessibility repairs across all TMAs",
       "approach": "Phase 1 of the operator's \"GIA Telegram-TMA-First Material Alignment\" governance prompt: **behavioural accessibility only — zero visible change for a default touch user**, no layout/colour changes, no new dependencies.",
-      "codeImpact": "i18n.js, doc (inferred — pre-squash)",
-      "modules": [],
-      "nFiles": null,
-      "tmas": [],
+      "codeImpact": "58 files — TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, TMA:oversight, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:oversight",
+        "TMA:transport"
+      ],
+      "nFiles": 58,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker",
+        "transport",
+        "oversight"
+      ],
       "impactTags": [
         "doc/vault"
       ],

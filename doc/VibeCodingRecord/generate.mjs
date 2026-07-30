@@ -240,7 +240,7 @@ const records = prs.map((p) => {
   const bodyRaw = clean(p.body || '');
   const merged = p.merged ? p.merged.replace('T', ' ').replace('Z', '') : '';
   const status = p.merged ? 'merged' : (p.state === 'closed' ? 'closed (unmerged)' : p.state);
-  const files = fileMap.get(p.n) || null;
+  const files = fileMap.get(Number(p.n)) || null;
   const category = categoryOf(title, bodyRaw);
   const area = featureAreaOf(title, bodyRaw);
   const impactStr = dataPrivacyLegalTestOf(files, title, bodyRaw);
