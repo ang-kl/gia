@@ -56,6 +56,11 @@ export default function BackFab({ inline = false, closeOnly = false, mode = null
   // against white result cards), night: light FAB + dark icon
   // (visible against dark page). Bumped z-50 so the FAB sits above
   // any embedded map controls that previously caught the tap.
+  // v0.62.670 — SUPERSEDED (comment was stale, code was right): the fixed
+  // teal #7FDBDB FAB shipped byte-identical across all four TMAs, and the
+  // operator confirmed on the Phase 2b decision round (31-07 '26, Register
+  // O-85 item 1) that the TEAL STANDARD stands — the inverse-theme wording
+  // above is the superseded half, kept verbatim for trace (AU-7).
   return (
     // v0.60.95 — text label per operator: "Navigation 'down' 'top'
     // 'end' should be standard for all TMA". BackFab renders glyph

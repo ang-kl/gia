@@ -4734,9 +4734,11 @@ export default function App() {
                 )}
               </>
             )}
-            {/* v0.62.78 — first streamed result's name (bold navy), streaming waits only. */}
+            {/* v0.62.78 — first streamed result's name (bold), streaming waits only.
+                v0.62.670 — operator (O-85 item 2): was text-blue-900, illegible on a
+                dark Telegram theme; now the theme accent, readable in both. */}
             {streamFirstName && (
-              <div className="mt-1 font-bold text-blue-900">{streamFirstName}</div>
+              <div className="mt-1 font-bold text-tg-accent">{streamFirstName}</div>
             )}
             <div className="mt-1 -mb-0.5 flex justify-end">
               {/* v0.62.90 — liquid-glass pill (frosted + soft 3D highlight). */}
