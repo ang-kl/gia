@@ -72,6 +72,7 @@ export default function CabinetGrid({ cabinets, lang, onOpen, onNew, defaultCabi
             <button
               key={s.key}
               onClick={() => setSortKey(s.key)}
+              aria-pressed={sortKey === s.key}
               className={`shrink-0 text-[10px] px-2 py-1 rounded-full border ${
                 sortKey === s.key
                   ? 'bg-tg-accent/15 border-tg-accent text-tg-accent'

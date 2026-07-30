@@ -127,7 +127,7 @@ export default function LineStatusPanel({ line, status, statusByLine = null, sel
               <button
                 type="button"
                 onClick={() => onSelectStation?.(null)}
-                aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
+                aria-label={t('mrt.close', lang)}
                 className="ml-auto text-tg-hint text-sm leading-none px-1 flex-shrink-0"
               >✕</button>
             </div>

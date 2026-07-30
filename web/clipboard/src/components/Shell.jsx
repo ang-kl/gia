@@ -90,7 +90,7 @@ export default function Shell({
       <header className="flex-shrink-0 bg-tg-card px-3 pt-3 pb-2 border-b border-tg-border z-10">
         <div className="flex items-center gap-2">
           <button
-            type="button" aria-label="menu"
+            type="button" aria-label={t('chrome.menu', lang)}
             onClick={() => { setDrop(null); setMenuOpen(true); }}
             className="flex-shrink-0 w-9 h-9 flex flex-col justify-center gap-1 p-2 bg-transparent"
           >
@@ -108,7 +108,7 @@ export default function Shell({
           {/* v0.62.511 — locale toggle; was read-only (no setActiveLocale). */}
           <LocaleToggle className="flex-shrink-0" />
           <button
-            type="button" aria-label="refresh"
+            type="button" aria-label={t('chrome.refresh', lang)}
             onClick={() => { haptic('light'); onRefresh?.(); }}
             className="flex-shrink-0 p-1 text-tg-accent"
           >
@@ -222,7 +222,7 @@ export default function Shell({
 
       {/* ── HAMBURGER ── */}
       {menuOpen && (
-        <div className="fixed inset-0 z-40" role="dialog" aria-modal="true" aria-label="Menu">
+        <div className="fixed inset-0 z-40" role="dialog" aria-modal="true" aria-label={t('chrome.menu', lang)}>
           <div className="absolute inset-0 bg-black/50" onClick={() => setMenuOpen(false)} />
           <div ref={menuRef} className="absolute top-0 bottom-0 left-0 w-[84%] max-w-[330px] bg-tg-card shadow-2xl flex flex-col">
             <div className="px-4 pt-12 pb-4 text-white" style={{ background: 'linear-gradient(135deg,#2b59c9,#1d3aa0)' }}>

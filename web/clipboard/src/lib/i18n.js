@@ -78,6 +78,13 @@ const STRINGS = {
   'sort.city':              { en: 'City',               fr: 'Ville',            id: 'Kota',           ru: 'Город',          de: 'Stadt' , zh: '城市', ja: '都市', es: 'Ciudad' },
   'sort.cuisine':           { en: 'Cuisine',            fr: 'Cuisine',          id: 'Masakan',        ru: 'Кухня',          de: 'Küche' , zh: '菜系', ja: '料理', es: 'Cocina' },
   'sort.date':              { en: 'Date',               fr: 'Date',             id: 'Tanggal',        ru: 'Дата',           de: 'Datum' , zh: '日期', ja: '日付', es: 'Fecha' },
+  // ── a11y (P1-e) — screen-reader-only labels, no visible copy ──────
+  'sort.asc':               { en: 'Ascending',          fr: 'Croissant',        id: 'Menaik',         ru: 'По возрастанию', de: 'Aufsteigend' , zh: '升序', ja: '昇順', es: 'Ascendente' },
+  'sort.desc':              { en: 'Descending',         fr: 'Décroissant',      id: 'Menurun',        ru: 'По убыванию',    de: 'Absteigend' , zh: '降序', ja: '降順', es: 'Descendente' },
+  'a11y.expand':            { en: 'Expand',             fr: 'Développer',       id: 'Perluas',        ru: 'Развернуть',     de: 'Ausklappen' , zh: '展开', ja: '展開', es: 'Expandir' },
+  'chrome.menu':            { en: 'Menu',               fr: 'Menu',             id: 'Menu',           ru: 'Меню',           de: 'Menü' , zh: '菜单', ja: 'メニュー', es: 'Menú' },
+  'chrome.refresh':         { en: 'Refresh',            fr: 'Actualiser',       id: 'Muat ulang',     ru: 'Обновить',       de: 'Aktualisieren' , zh: '刷新', ja: '更新', es: 'Actualizar' },
+  'cabinet.field.dateEnd':  { en: 'End date',           fr: 'Date de fin',      id: 'Tanggal selesai', ru: 'Дата окончания', de: 'Enddatum' , zh: '结束日期', ja: '終了日', es: 'Fecha de fin' },
   'loc.all':                { en: 'All locations',      fr: 'Tous les lieux',   id: 'Semua lokasi',   ru: 'Все места',      de: 'Alle Orte' , zh: '所有地点', ja: 'すべての場所', es: 'Todas las ubicaciones' },
   'loc.title':              { en: 'Saved locations',    fr: 'Lieux enregistrés', id: 'Lokasi tersimpan', ru: 'Сохранённые места', de: 'Gespeicherte Orte' , zh: '已保存地点', ja: '保存した場所', es: 'Ubicaciones guardadas' },
   'loc.none':               { en: 'No saved-card locations yet.', fr: 'Aucun lieu enregistré.', id: 'Belum ada lokasi.', ru: 'Пока нет мест.', de: 'Noch keine Orte.' , zh: '还没有收藏卡片的地点。', ja: '保存カードの場所がまだありません。', es: 'Aun no hay ubicaciones de tarjetas guardadas.' },

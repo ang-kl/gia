@@ -31,6 +31,7 @@ export default function FilterSheet({
               type="text" autoFocus value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder={t('filter.dishPlaceholder', lang)}
+              aria-label={t('filter.dishPlaceholder', lang)}
               className="w-full bg-tg-bg border border-tg-border rounded-xl px-3 py-2 text-sm text-tg-text"
             />
             {/* v0.62.430 — item 6: Save is a small pill; item 6a: "All" removed

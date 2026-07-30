@@ -148,8 +148,9 @@ export default function App() {
               className={`px-2 py-1 rounded border border-tg-border ${pickedDate && pickedDate === (data.today?.date || '') ? 'bg-tg-accent text-tg-accent-text' : 'bg-tg-card'}`}>Today only</button>
             <input type="date" value={pickedDate} max={data.today?.date || undefined}
               onChange={(e) => { setPickedDate(e.target.value); }}
+              aria-label="Report date"
               className="px-2 py-1 rounded border border-tg-border bg-tg-card text-tg-text" />
-            {pickedDate && <button type="button" onClick={() => setPickedDate('')} className="px-1.5 py-1 rounded border border-tg-border bg-tg-card">×</button>}
+            {pickedDate && <button type="button" onClick={() => setPickedDate('')} aria-label="Clear date" className="px-1.5 py-1 rounded border border-tg-border bg-tg-card">×</button>}
           </div>
 
           {data.note && <div className="mt-2 text-[10px] text-tg-hint leading-snug">{data.note}</div>}

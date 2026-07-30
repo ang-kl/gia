@@ -5,7 +5,7 @@
 // rows. Picking one calls setLang (writes the shared 'gia.locale' key +
 // fires 'gia:locale' so the UI re-renders and stays in sync across TMAs).
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocale, setActiveLocale } from '../i18n.js';
+import { t, useLocale, setActiveLocale } from '../i18n.js';
 
 const LOCALES = [
   { code: 'en', name: 'English',          flag: '🇬🇧' },
@@ -67,7 +67,7 @@ export default function LocaleToggle({ className = '' }) {
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label="Language"
+        aria-label={t('chip.language', lang)}
         className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-sm leading-none active:scale-95"
       >
         <span>{current.flag}</span>
@@ -77,7 +77,7 @@ export default function LocaleToggle({ className = '' }) {
         <div
           ref={menuRef}
           role="menu"
-          aria-label="Language"
+          aria-label={t('chip.language', lang)}
           onKeyDown={onMenuKey}
           className="absolute right-0 mt-1 z-50 min-w-[11rem] rounded-lg border border-tg-border bg-tg-card shadow-lg overflow-hidden"
         >

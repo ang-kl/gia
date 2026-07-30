@@ -937,6 +937,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
             <button
               type="button"
               onClick={() => setExpanded(true)}
+              aria-label={`${_safeLabel(composedLabel, currentAnchor.label)} — ${tapStr}`}
               className="flex-1 min-w-0 text-left text-sm text-tg-text inline-flex items-center gap-1.5"
             >
               {flagEl}
@@ -1039,6 +1040,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
               onKeyDown={handleKeyOther}
               enterKeyHint="search"
               placeholder={t('loc.other.placeholder', lang)}
+              aria-label={t('loc.other.placeholder', lang)}
               disabled={busy}
               autoComplete="off"
               className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint min-w-0"
@@ -1104,6 +1106,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
               onFocus={() => suggestions.length > 0 && setAcOpen(true)}
               onBlur={() => { setTimeout(() => setAcOpen(false), 150); }}
               placeholder={t('location.searchPlaceholder', lang)}
+              aria-label={t('location.searchPlaceholder', lang)}
               disabled={busy}
               autoComplete="off"
               className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint min-w-0"

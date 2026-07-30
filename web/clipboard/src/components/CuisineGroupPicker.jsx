@@ -109,6 +109,8 @@ export default function CuisineGroupPicker({ catalogue, selected = [], onChange,
     const disabled = !catAvail;
     return (
       <button type="button" disabled={disabled} aria-disabled={disabled || undefined}
+        aria-haspopup={isSingle ? undefined : 'dialog'}
+        aria-expanded={isSingle ? undefined : openCategoryId === cat.id}
         onClick={() => {
           if (disabled) return;
           if (isSingle) toggle(onlySlug); else setOpenCategoryId(cat.id);

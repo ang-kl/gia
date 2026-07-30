@@ -464,7 +464,7 @@ export default function StationCard({
         )}
         {onClose && (
           <button type="button" onClick={(e) => { e.stopPropagation(); onClose(); }}
-            aria-label="Close" className="text-[13px] leading-none opacity-80 active:scale-90" style={{ color: stripText }}>✕</button>
+            aria-label={t('mrt.close', lang)} className="text-[13px] leading-none opacity-80 active:scale-90" style={{ color: stripText }}>✕</button>
         )}
       </div>
 

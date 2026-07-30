@@ -55,7 +55,7 @@ export default function LocationSheet({ groups, active = null, onPick, onClose, 
                       className={`flex-1 text-left text-sm ${active === c.city ? 'text-tg-accent font-semibold' : 'text-tg-text'}`}
                     >{c.city}</button>
                     <span className="text-[10px] text-tg-hint">{c.items.length}</span>
-                    <button type="button" onClick={() => setExpanded(isOpen ? null : key)} className="text-tg-accent text-sm w-5 text-center" aria-label="expand">{isOpen ? '–' : '+'}</button>
+                    <button type="button" onClick={() => setExpanded(isOpen ? null : key)} className="text-tg-accent text-sm w-5 text-center" aria-expanded={isOpen} aria-label={t('a11y.expand', lang)}>{isOpen ? '–' : '+'}</button>
                   </div>
                   {isOpen && (
                     <div className="px-4 pb-2 space-y-0.5">
