@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
-import { applyTelegramTheme, hasInitData } from './lib/tg.js';
+import { initTelegramChrome, hasInitData } from './lib/tg.js';
 import App from './App.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 
@@ -11,7 +11,7 @@ import ErrorBoundary from './components/ErrorBoundary.jsx';
 // cache / 404). Must be the first executable line of the module body.
 try { window.__CLIPBOARD_BOOTED__ = __BUILD_VERSION__; } catch { /* noop */ }
 
-applyTelegramTheme();
+initTelegramChrome();
 
 function Boot() {
   // If the user opens the Clipboard URL outside Telegram (deep link
