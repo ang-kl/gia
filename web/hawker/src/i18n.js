@@ -685,6 +685,21 @@ export function setActiveLocale(lang) {
 
 // On first mount, hydrates from the server so the TMA matches whatever
 // the user last set via /language in chat.
+// v0.62.668 — keep the document's language metadata in sync with the active
+// locale. index.html ships a static lang="en"; without this, screen readers
+// keep English phonetics (and the browser keeps English hyphenation/font
+// rules) after the user switches locale. A module-level listener covers every
+// path that changes the locale: setActiveLocale's CustomEvent and the
+// cross-tab storage event.
+function syncDocumentLang(lang) {
+  try { document.documentElement.lang = lang; } catch { /* non-DOM (tests) */ }
+}
+if (typeof window !== 'undefined') {
+  syncDocumentLang(getActiveLocale());
+  window.addEventListener(LOCALE_EVENT, (e) => syncDocumentLang(e?.detail?.lang || getActiveLocale()));
+  window.addEventListener('storage', (e) => { if (e.key === LOCALE_KEY) syncDocumentLang(getActiveLocale()); });
+}
+
 export function useLocale() {
   const [lang, setLang] = useState(() => getActiveLocale());
   useEffect(() => {

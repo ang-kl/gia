@@ -317,6 +317,21 @@ export function setActiveLocale(lang) {
 // Reactive locale hook. Re-renders on the in-page gia:locale CustomEvent (a
 // toggle in THIS tab) and on the cross-tab 'storage' event (a toggle in another
 // TMA sharing the origin). Mirrors web/menu/src/i18n.js useLocale.
+// v0.62.668 — keep the document's language metadata in sync with the active
+// locale. index.html ships a static lang="en"; without this, screen readers
+// keep English phonetics (and the browser keeps English hyphenation/font
+// rules) after the user switches locale. A module-level listener covers every
+// path that changes the locale: setActiveLocale's CustomEvent and the
+// cross-tab storage event.
+function syncDocumentLang(lang) {
+  try { document.documentElement.lang = lang; } catch { /* non-DOM (tests) */ }
+}
+if (typeof window !== 'undefined') {
+  syncDocumentLang(getActiveLocale());
+  window.addEventListener(LOCALE_EVENT, (e) => syncDocumentLang(e?.detail?.lang || getActiveLocale()));
+  window.addEventListener('storage', (e) => { if (e.key === LOCALE_KEY) syncDocumentLang(getActiveLocale()); });
+}
+
 export function useLocale() {
   const [lang, setLang] = useState(() => getActiveLocale());
   useEffect(() => {
