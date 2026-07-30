@@ -102,7 +102,7 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
             ? (lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat')
             : tr('tellme.submit', lang)}
           className={searchIcon
-            ? `w-8 h-8 rounded-full bg-tg-accent text-tg-accent-text border-2 border-white/40 shadow-lg flex items-center justify-center text-base disabled:opacity-40 flex-shrink-0 transition-all active:scale-95 ${
+            ? `w-8 h-8 rounded-full bg-tg-accent text-tg-accent-text border-2 border-tg-accent-text/40 shadow-lg flex items-center justify-center text-base disabled:opacity-40 flex-shrink-0 transition-all active:scale-95 ${
                 (searchPulse || (text.trim() && !submitting && !loading)) && !searchDisabled ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''
               }`
             : `text-xs px-2.5 py-1 rounded-full bg-tg-accent text-tg-accent-text disabled:opacity-40 flex-shrink-0 transition-all ${

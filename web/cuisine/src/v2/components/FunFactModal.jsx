@@ -159,7 +159,7 @@ export default function FunFactModal({ fact, visible, minDisplayMs = DEFAULT_MIN
           {/* Stop aborts the in-flight search; whatever already streamed stays. */}
           {onStop && (
             <button type="button" onClick={onStop}
-              className="shrink-0 px-2.5 py-1 rounded-full border-[0.5px] border-amber-500 text-[10px] text-tg-text hover:bg-tg-bg pointer-events-auto">
+              className="shrink-0 px-2.5 py-1 rounded-full border-[0.5px] border-tg-warn text-[10px] text-tg-text hover:bg-tg-bg pointer-events-auto">
               {tr('funfact.stop', lang)}
             </button>
           )}

@@ -272,3 +272,14 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
    without stealing taps from wrapped neighbours. */
 .gia-hit-s { position: relative; }
 .gia-hit-s::after { content: ''; position: absolute; inset: -4px; }
+
+/* P2 — the map-navigation chrome ROLE. These buttons are deliberately LIGHT
+   in both Telegram themes (Google-Maps-style white controls over the map —
+   the map tiles are the background, not the app theme), which is why they
+   are a named role class rather than theme tokens. Values are byte-identical
+   to the utilities they replace (bg-white / text-black / border-gray-300). */
+.gia-map-btn {
+  background-color: #ffffff;
+  color: #000000;
+  border-color: #d1d5db;
+}

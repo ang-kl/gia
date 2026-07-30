@@ -492,7 +492,7 @@ export default function ResultPanel({
            differs from where the device is (operator: don't auto-load on a
            mismatch). Don't show the "No results / change criteria" copy — the
            user never searched. Tell them to tap 🔍. Amber (no red/green-only). */
-        <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+        <div className="rounded-2xl border border-tg-warn/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
           {lang === 'fr'
             ? 'Votre lieu enregistré diffère de votre position actuelle. Touchez 🔍 Rechercher pour chercher ici.'
             : 'Your saved area differs from where you are now. Tap 🔍 Search to look here.'}
@@ -504,7 +504,7 @@ export default function ResultPanel({
              intentional, so show WHY ("only available in …") rather than the
              generic "change your criteria" copy — there's nothing to adjust.
              Amber border + icon + text (no red/green-only signalling). */
-          <div className="rounded-2xl border border-amber-500/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
+          <div className="rounded-2xl border border-tg-warn/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
             {tr(`special.${specialModeBlocked.mode}.blocked`, lang)}
           </div>
         ) : (
