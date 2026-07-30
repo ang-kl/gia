@@ -220,6 +220,11 @@ const ID_STRINGS = {
   'stalls.status.under_construction': 'Dalam pembangunan',
   'stalls.status.proposed': 'Diusulkan',
   'footer.tag': 'Eksperimental · Singapura',
+
+  "btn.showMap": "Peta",
+  "btn.showList": "Kartu",
+  "layout.list": "⊿ Daftar",
+  "layout.map": "◸ Peta",
 };
 for (const k in ID_STRINGS) {
   if (STRINGS[k] && STRINGS[k].id == null) STRINGS[k].id = ID_STRINGS[k];
@@ -291,6 +296,11 @@ const RU_STRINGS = {
   'stalls.status.under_construction': 'Строится',
   'stalls.status.proposed': 'Планируется',
   'footer.tag': 'Экспериментально · Сингапур',
+
+  "btn.showMap": "Карта",
+  "btn.showList": "Карточки",
+  "layout.list": "⊿ Список",
+  "layout.map": "◸ Карта",
 };
 
 // ----- German (de) overlay — v0.62.310. Compounds abbreviated where chips are tight. -----
@@ -359,6 +369,11 @@ const DE_STRINGS = {
   'stalls.status.under_construction': 'Im Bau',
   'stalls.status.proposed': 'Geplant',
   'footer.tag': 'Experimentell · Singapur',
+
+  "btn.showMap": "Karte",
+  "btn.showList": "Karten",
+  "layout.list": "⊿ Liste",
+  "layout.map": "◸ Karte",
 };
 for (const k in RU_STRINGS) { if (STRINGS[k] && STRINGS[k].ru == null) STRINGS[k].ru = RU_STRINGS[k]; }
 for (const k in DE_STRINGS) { if (STRINGS[k] && STRINGS[k].de == null) STRINGS[k].de = DE_STRINGS[k]; }
@@ -429,6 +444,11 @@ const ZH_STRINGS = {
   'stalls.status.under_construction': '建设中',
   'stalls.status.proposed': '拟建',
   'footer.tag': '试验版 · 新加坡',
+
+  "btn.showMap": "地图",
+  "btn.showList": "卡片",
+  "layout.list": "⊿ 列表",
+  "layout.map": "◸ 地图",
 };
 for (const k in ZH_STRINGS) { if (STRINGS[k] && STRINGS[k].zh == null) STRINGS[k].zh = ZH_STRINGS[k]; }
 
@@ -498,6 +518,11 @@ const JA_STRINGS = {
   'stalls.status.under_construction': '建設中',
   'stalls.status.proposed': '計画中',
   'footer.tag': '試験運用版 · シンガポール',
+
+  "btn.showMap": "地図",
+  "btn.showList": "カード",
+  "layout.list": "⊿ リスト",
+  "layout.map": "◸ 地図",
 };
 for (const k in JA_STRINGS) { if (STRINGS[k] && STRINGS[k].ja == null) STRINGS[k].ja = JA_STRINGS[k]; }
 
@@ -567,6 +592,11 @@ const ES_STRINGS = {
   'stalls.status.under_construction': 'En construcción',
   'stalls.status.proposed': 'Propuesto',
   'footer.tag': 'Experimental · Singapur',
+
+  "btn.showMap": "Mapa",
+  "btn.showList": "Tarjetas",
+  "layout.list": "⊿ Lista",
+  "layout.map": "◸ Mapa",
 };
 for (const k in ES_STRINGS) { if (STRINGS[k] && STRINGS[k].es == null) STRINGS[k].es = ES_STRINGS[k]; }
 

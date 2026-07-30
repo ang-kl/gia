@@ -19,13 +19,15 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { startLocationSync } from '../lib/location-sync.js';
 
+// v0.62.662 — full 8-locale coverage (was en/fr only), matching the 8 locales
+// every host app (Cuisine/Hawker/Transport) already supports.
 const STRINGS = {
-  near:        { en: 'You are near', fr: 'Vous êtes près de' },
-  locating:    { en: 'Locating…', fr: 'Localisation…' },
-  change:      { en: 'Search a station', fr: 'Rechercher une station' },
-  placeholder: { en: 'Station name or code (e.g. NS1, EW24)', fr: 'Nom ou code de station (ex. NS1, EW24)' },
-  opens:       { en: 'opens', fr: 'ouvre' },
-  noMatch:     { en: 'No station matches', fr: 'Aucune station ne correspond' },
+  near:        { en: 'You are near', fr: 'Vous êtes près de', id: 'Anda berada dekat', ru: 'Вы рядом с', de: 'Sie sind in der Nähe von', zh: '您在附近', ja: '最寄り駅', es: 'Estás cerca de' },
+  locating:    { en: 'Locating…', fr: 'Localisation…', id: 'Mencari lokasi…', ru: 'Определение местоположения…', de: 'Standort wird ermittelt…', zh: '定位中…', ja: '位置情報を取得中…', es: 'Localizando…' },
+  change:      { en: 'Search a station', fr: 'Rechercher une station', id: 'Cari stasiun', ru: 'Найти станцию', de: 'Station suchen', zh: '搜索车站', ja: '駅を検索', es: 'Buscar una estación' },
+  placeholder: { en: 'Station name or code (e.g. NS1, EW24)', fr: 'Nom ou code de station (ex. NS1, EW24)', id: 'Nama atau kode stasiun (mis. NS1, EW24)', ru: 'Название или код станции (напр. NS1, EW24)', de: 'Stationsname oder -code (z. B. NS1, EW24)', zh: '车站名称或代码（如 NS1、EW24）', ja: '駅名またはコード（例: NS1, EW24）', es: 'Nombre o código de estación (ej. NS1, EW24)' },
+  opens:       { en: 'opens', fr: 'ouvre', id: 'buka', ru: 'открывается', de: 'öffnet', zh: '开通', ja: '開業', es: 'abre' },
+  noMatch:     { en: 'No station matches', fr: 'Aucune station ne correspond', id: 'Tidak ada stasiun yang cocok', ru: 'Станции не найдены', de: 'Keine passende Station gefunden', zh: '没有匹配的车站', ja: '一致する駅がありません', es: 'Ninguna estación coincide' },
 };
 function tr(key, lang) { return (STRINGS[key] && (STRINGS[key][lang] || STRINGS[key].en)) || key; }
 
