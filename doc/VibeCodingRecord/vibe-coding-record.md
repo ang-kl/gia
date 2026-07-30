@@ -1,21 +1,21 @@
 # Vibe-Coding Record — `ang-kl/gia` (Soleat)
 
-> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-07-29 from a snapshot of all 1638 pull requests (#1–#1638).
+> **Auto-generated** by `doc/VibeCodingRecord/generate.mjs` on 2026-07-30 from a snapshot of all 1644 pull requests (#1–#1644).
 > Do not hand-edit this file — change `data/prs.ndjson` / `data/pr-files.tsv` and re-run the generator. See `VibeCodingRecord.md` for the schema, the column legend, the category taxonomy, and how to refresh it.
 
 ## At a glance
 
-- **PRs:** 1638 total — 1628 merged, 10 closed without merge.
+- **PRs:** 1644 total — 1634 merged, 10 closed without merge.
 - **First:** #1 · 2026-04-29 07:45:20 · _Phase 1 setup: spec doc, env template, gitignore_
-- **Latest:** #1665 · 2026-07-27 23:49:51+00:00 · _v0.62.655 — Cuisine's result list becomes an over-the-map drawer, opening at a measured 1.5 cards_
+- **Latest:** #1671 · 2026-07-30 15:44:41+00:00 · _v0.62.668 — Material-alignment Phase 1: invisible accessibility repairs across all TMAs_
 
 ### By category
 
 | Category | PRs |
 |---|--:|
-| feature | 1117 |
-| fix | 225 |
-| docs | 99 |
+| feature | 1120 |
+| fix | 227 |
+| docs | 100 |
 | copy | 62 |
 | refactor | 49 |
 | prompt-tune | 45 |
@@ -26,9 +26,9 @@
 
 | Area | PRs |
 |---|--:|
-| Cuisine Picker | 498 |
+| Cuisine Picker | 500 |
 | Core / misc | 309 |
-| Hawker NEA | 156 |
+| Hawker NEA | 157 |
 | Docs / vault | 109 |
 | Transport / carpark | 91 |
 | Search / free-text | 82 |
@@ -42,8 +42,8 @@
 | Maps / geo / location | 20 |
 | Commands / chat UX | 18 |
 | Menu hub | 17 |
-| Oversight / usage stats | 13 |
-| Privacy / legal | 12 |
+| Oversight / usage stats | 15 |
+| Privacy / legal | 13 |
 | Buddy / sharing | 7 |
 
 ## The ledger
@@ -1690,6 +1690,12 @@ Columns: **PR** · **Status** · **Merged (UTC)** · **Ver** = release version c
 | 1663 | merged | 2026-07-27 09:31:19+00:00 | 0.62.653 | feature | Transport / carpark | Add: the one qualified line name gets its own row; every line-name step drops 1px | "East-West Line (Changi br…" was the worst of both: the qualifier was present and unreadable. | doc (inferred — pre-squash) | — | doc/vault |
 | 1664 | merged | 2026-07-27 23:26:44+00:00 | 0.62.654 | feature | Docs / vault | Add: three TMAs on one behaviour; a real auto-expand listener; one definition of "wide" | The fullscreen GATE was already byte-identical across the three apps (diffed in the prior audit). | doc (inferred — pre-squash) | — | tests; doc/vault |
 | 1665 | merged | 2026-07-27 23:49:51+00:00 | 0.62.655 | feature | Hawker NEA | Add: Cuisine's result list becomes an over-the-map drawer, opening at a measured 1.5 cards | Closes the last consistency delta from the audit: Cuisine's vertical result list had NEVER been a drawer. | doc (inferred — pre-squash) | — | doc/vault |
+| 1666 | merged | 2026-07-29 10:20:26+00:00 | 0.62.656 | docs | Privacy / legal | doc-system catch-up: the first vault, three documents, and a 30-PR Vibe Journal refresh | Documentation and a snapshot only. | doc (inferred — pre-squash) | — | legal; tests; doc/vault |
+| 1667 | merged | 2026-07-29 13:12:53+00:00 | 0.62.657 | fix | Cuisine Picker | Fix: Cuisine drawer device check found two real bugs: native swipe conflict, and a peek selector matching nothing | The device check you did (screenshot `IMG_3693`) is the O-56 check flagged as highest-priority since v0.62.655. | TMA:cuisine, doc (inferred — pre-squash) | cuisine | doc/vault |
+| 1668 | merged | 2026-07-30 06:18:19+00:00 | 0.62.659 | feature | Hawker NEA | Add: Train onboarding (zoom + line picker), collapsed cards, 1/4 drawer peek, station-search location row | Five requests from one operator message (three screenshots: the Train map at zoom 11 vs 12, and Cuisine's location row): - **Train's first load** now opens the map at zoom **10** (whole-network overview, matching what "Overview" already… | TMA:hawker, TMA:transport, doc (inferred — pre-squash) | hawker+transport | doc/vault |
+| 1669 | merged | 2026-07-30 09:20:28+00:00 | 0.62.664 | fix | Oversight / usage stats | Fix: URGENT: fix Telegram Desktop TMA unable to close (Menu, Clipboard, Oversight) | Root cause**: v0.62.663 (merged in #1668, ~45 min before this report) widened Menu's auto-fullscreen gate to Telegram Desktop and added a brand-new fullscreen step to Clipboard and Oversight — without checking that each already had a way… | TMA:menu, TMA:oversight, doc (inferred — pre-squash) | menu+oversight | doc/vault |
+| 1670 | merged | 2026-07-30 14:03:29+00:00 | 0.62.665 | feature | Cuisine Picker | Add: 667 — MICHELIN Guide 2026 updates: Singapore Bib Gourmand + Taiwan (stars + Bib Gourmand) | v0.62.665 — Singapore** | index.js, TMA:cuisine, doc (inferred — pre-squash) | cuisine | tests; doc/vault |
+| 1671 | merged | 2026-07-30 15:44:41+00:00 | 0.62.668 | feature | Oversight / usage stats | Add: Material-alignment Phase 1: invisible accessibility repairs across all TMAs | Phase 1 of the operator's "GIA Telegram-TMA-First Material Alignment" governance prompt: **behavioural accessibility only — zero visible change for a default touch user**, no layout/colour changes, no new dependencies. | i18n.js, doc (inferred — pre-squash) | — | doc/vault |
 
 ---
 

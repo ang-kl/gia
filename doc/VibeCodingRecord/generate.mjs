@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-07-29';   // v0.62.655 three-TMA convergence catch-up: PRs #1638-#1665 (one interaction model across Cuisine/Hawker/Train: carousel default, one list toggle, over-the-map drawer; three silent-drop Tailwind failures found and fixed; viewport-width columns to ultrawide) + backfill of #1456/#1487 missed earlier
+const GEN_DATE = '2026-07-30';   // v0.62.655 three-TMA convergence catch-up: PRs #1638-#1665 (one interaction model across Cuisine/Hawker/Train: carousel default, one list toggle, over-the-map drawer; three silent-drop Tailwind failures found and fixed; viewport-width columns to ultrawide) + backfill of #1456/#1487 missed earlier; 2026-07-30 catch-up: PRs #1666-#1671 (first vault + doc catch-up, Cuisine drawer device-check fixes, Train onboarding + station-search row, urgent desktop TMA close fix, MICHELIN Guide 2026 SG Bib Gourmand + Taiwan updates, Material-alignment Phase 1 invisible a11y across all TMAs)
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
