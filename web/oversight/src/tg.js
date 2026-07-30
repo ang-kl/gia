@@ -40,6 +40,37 @@ export function applyTelegramTheme() {
     try { w.requestFullscreen(); } catch { /* best-effort */ }
   });
 
+  // v0.62.664 — URGENT operator report: "the Telegram TMA in Desktop version
+  // cannot close/end." Oversight only had an in-app ✕ button calling
+  // closeApp() (below) — no Telegram BackButton. The v0.62.663 desktop-
+  // fullscreen step above hides Telegram's own native window chrome (Menu's
+  // long-standing comment already warned this is exactly what "fullscreen
+  // takeover with no chrome and no easy exit" means), so the only way out
+  // depended on the in-app button staying reachable. Mirror the
+  // Cuisine/Hawker/Transport BackButton wiring — Telegram's own persistent
+  // in-app arrow keeps rendering even when the OS window chrome is gone —
+  // as a second, more robust way to close, reusing closeApp()'s
+  // flaky-on-desktop double-close retry.
+  safe('back-button', () => {
+    if (!w.BackButton || typeof w.BackButton.show !== 'function') return;
+    w.BackButton.show();
+    const handler = () => closeApp();
+    try {
+      if (typeof w.offEvent === 'function' && w.__giaBackHandler) {
+        w.offEvent('backButtonClicked', w.__giaBackHandler);
+      }
+      if (typeof w.BackButton.offClick === 'function' && w.__giaBackHandler) {
+        w.BackButton.offClick(w.__giaBackHandler);
+      }
+    } catch { /* noop */ }
+    w.__giaBackHandler = handler;
+    if (typeof w.onEvent === 'function') {
+      w.onEvent('backButtonClicked', handler);
+    } else if (typeof w.BackButton.onClick === 'function') {
+      w.BackButton.onClick(handler);
+    }
+  });
+
   // v0.60.42 — sync Telegram header + chrome bg to secondary.
   safe('header-color', () => {
     if (typeof w.setHeaderColor === 'function') w.setHeaderColor('secondary_bg_color');
