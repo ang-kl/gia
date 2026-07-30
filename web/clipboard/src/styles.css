@@ -80,3 +80,16 @@ input, textarea, select { font-size: 16px; }
   width: 38px; height: 4px; border-radius: 2px;
   background: #e4e8f2; margin: 0 auto 10px;
 }
+
+/* P1-b — respect prefers-reduced-motion: collapse animation/transition
+   durations so motion-sensitive users get a still, instant UI. Ported
+   verbatim from the Hawker/Transport safety net (v0.62.636/637); Motion +
+   AutoAnimate honour the flag on their own — this is the shared CSS net. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

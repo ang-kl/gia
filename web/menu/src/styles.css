@@ -131,3 +131,16 @@ html::-webkit-scrollbar { width: 7px; height: 7px; }
 html::-webkit-scrollbar-track { background: transparent; }
 html::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; transition: background 0.2s; }
 html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,140,0.55)); }
+
+/* P1-b — respect prefers-reduced-motion: collapse animation/transition
+   durations so motion-sensitive users get a still, instant UI. Ported
+   verbatim from the Hawker/Transport safety net (v0.62.636/637); Motion +
+   AutoAnimate honour the flag on their own — this is the shared CSS net. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

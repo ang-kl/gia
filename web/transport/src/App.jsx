@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useReducedMotion } from 'motion/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { LINES, LINES_BY_CODE } from './data/lines.js';
 import { lineStationsFull } from './data/line-paths.js';
@@ -28,6 +29,9 @@ const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION
 function LiveClock() {
   const [now, setNow] = useState(() => new Date());
   const [colonOn, setColonOn] = useState(true);
+  // P1-b — the colon blink is JS-driven (visibility toggle), so the CSS
+  // prefers-reduced-motion net can't reach it; gate it here instead.
+  const reduceMotion = useReducedMotion();
   useEffect(() => {
     // 500 ms tick → the ":" blinks on/off once a second (classic running clock);
     // re-reading the time each tick keeps the minute current.
@@ -49,7 +53,7 @@ function LiveClock() {
   if (!day) return null;
   return (
     <span className="tabular-nums whitespace-nowrap" aria-label={`${day} ${month} ${hour}:${minute} SGT`}>
-      {day} {month} {hour}<span style={{ visibility: colonOn ? 'visible' : 'hidden' }}>:</span>{minute}
+      {day} {month} {hour}<span style={{ visibility: (reduceMotion || colonOn) ? 'visible' : 'hidden' }}>:</span>{minute}
     </span>
   );
 }
