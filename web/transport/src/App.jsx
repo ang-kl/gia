@@ -17,6 +17,7 @@ import LocationCard from './components/LocationCard.jsx';
 import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
 import BottomSheet from '../../_shared/components/BottomSheet.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
+import StationLocationField from '../../_shared/components/StationLocationField.jsx';
 
 // v0.60.213 — build version for the footer tag line.
 const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'dev';
@@ -175,6 +176,11 @@ export default function App() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [focusedCode, setFocusedCode] = useState(null);
+  // v0.62.659 — which line chip blinks to draw the eye while the first-load
+  // "pick a line" popup is open (operator: "blink the top bar of East-West
+  // line"). Cleared the moment the user taps any line chip or dismisses
+  // the popup.
+  const [blinkCode, setBlinkCode] = useState(null);
   // v0.61.14 — a station selected from the focused-line panel's
   // station picker. Drives the map's 6 km station-focus mode and the
   // selected-station status detail.
@@ -254,9 +260,15 @@ export default function App() {
         // the drawer/carousel isn't empty). Still auto-focus the first AFFECTED
         // line when there's a disruption; otherwise fall back to EWL.
         if (!focusedCode) setFocusedCode(d?.affectedCodes?.[0] || 'EWL');
-        // v0.62.602 — surface the service-status popup once on first load
-        // (operator: "like first load in Cuisine TMA").
-        if (!firstPopupRef.current) { firstPopupRef.current = true; setPopup('status'); }
+        // v0.62.602 — surface a popup once on first load (operator: "like first
+        // load in Cuisine TMA"). v0.62.659 — operator superseded the auto-shown
+        // status popup with an explicit "select a line" prompt + a blinking EWL
+        // chip; the status info is still one tap away on the status chip.
+        if (!firstPopupRef.current) {
+          firstPopupRef.current = true;
+          setPopup('pickline');
+          setBlinkCode('EWL');
+        }
       })
       .catch((err) => setError(err.message));
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -430,6 +442,18 @@ export default function App() {
           >↻</button>
         </div>
       </div>
+      {/* v0.62.659 — operator: "have the same location (show current location and
+          nearest station) like cuisine TMA... allowing user to type on the train
+          station name or train station code with auto-fill" — sits directly below
+          the title, above the clock/status row. */}
+      <StationLocationField
+        lang={lang}
+        onSelectStation={(s) => {
+          setFocusedStation({ ...s, tappedCode: (s.codes && s.codes[0]) || null });
+          if (s.lines && s.lines[0]) { setFocusedCode(s.lines[0]); setBlinkCode(null); }
+          setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
+        }}
+      />
       {/* v0.62.603 — row 2: date & time (live SGT clock), then the tappable
           service status which opens the service / engineering popup. */}
       <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5 text-[11px]">
@@ -446,8 +470,10 @@ export default function App() {
         compact
         affectedCodes={affectedCodes.length ? affectedCodes : LINES.filter((l) => !l.future).map((l) => l.code)}
         focusedCode={focusedCode}
+        blinkCode={blinkCode}
         onFocus={(code) => {
           setFocusedCode(code);
+          setBlinkCode(null);
           if (code && !autoSwitchedRef.current) {
             autoSwitchedRef.current = true;
             setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
@@ -579,6 +605,32 @@ export default function App() {
   // layout; rendered once alongside the footer bar in each return below.
   const popups = (
     <>
+      {popup === 'pickline' && (
+        <Modal title={t('pickline.title', lang)} onClose={() => { setPopup(null); setBlinkCode(null); }}>
+          <div className="text-xs text-tg-hint">{t('pickline.body', lang)}</div>
+          <div className="grid grid-cols-2 gap-2">
+            {LINES.filter((l) => !l.future).map((line) => (
+              <button
+                key={line.code}
+                type="button"
+                onClick={() => {
+                  setFocusedCode(line.code);
+                  setBlinkCode(null);
+                  setPopup(null);
+                  if (!autoSwitchedRef.current) {
+                    autoSwitchedRef.current = true;
+                    setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
+                  }
+                }}
+                className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg border border-tg-border bg-tg-bg text-left active:scale-95"
+              >
+                <span className="inline-block w-3 h-3 rounded shrink-0" style={{ background: line.hex }} />
+                <span className="text-xs font-medium truncate">{line.name}</span>
+              </button>
+            ))}
+          </div>
+        </Modal>
+      )}
       {popup === 'status' && (
         <Modal title={t('status.popupTitle', lang)} onClose={() => setPopup(null)}>
           <div className="text-xs">
@@ -708,6 +760,30 @@ export default function App() {
         </div>
       )
       : (singleFocusedCard ? <div className="px-2 pt-1 flex flex-col gap-2">{singleFocusedCard}{secondaryPanels}</div> : <div className="px-2 pt-1">{secondaryPanels}</div>);
+
+    // v0.62.661 — operator: an iPhone in LANDSCAPE + list mode has too little
+    // vertical room (~375-430px) for the drawer to show any real amount of list
+    // AND leave the map visible — even the 1/4 peek obstructs a large share of
+    // the screen. Carved out to a static two-panel split instead: the map
+    // anchored in a bounded top box (does not scroll away), the station grid in
+    // its own independently-scrollable panel below. Every other case (portrait
+    // phone, any tablet/desktop orientation) keeps the drawer, unchanged.
+    if (vp.deviceClass === 'mobile' && vp.orientation === 'landscape') {
+      return (
+        <>
+          <div className="fixed inset-0 flex flex-col overflow-hidden bg-tg-bg text-tg-text" style={fixedShellStyle}>
+            <div className="px-3 pt-2 shrink-0 relative z-20">{headerEl}</div>
+            <div className="relative shrink-0 h-[38vh] px-3 pt-2 pb-1">{mapBlock(true)}</div>
+            <div ref={listScrollRef} onScroll={onListScroll} className="flex-1 min-h-0 overflow-y-auto">
+              {listBody}
+            </div>
+          </div>
+          {popups}
+          {footerBar}
+        </>
+      );
+    }
+
     return (
       <>
         <div className="fixed inset-0 overflow-hidden bg-tg-bg text-tg-text"
@@ -728,8 +804,12 @@ export default function App() {
             style={{ paddingTop: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' }}>
             <div className="pointer-events-auto">{headerEl}</div>
           </div>
-          {/* the draggable station-list drawer over the map */}
-          <BottomSheet contentRef={listScrollRef} onContentScroll={onListScroll}>
+          {/* the draggable station-list drawer over the map. v0.62.659 — operator:
+              "if in list mode, only show 1/4 drawer" — opens on the collapsed snap
+              (0.75 = 1/4 of the viewport visible) instead of the 0.48 half-screen
+              default, so the map stays visible; the handle still drags/steps it up. */}
+          <BottomSheet contentRef={listScrollRef} onContentScroll={onListScroll}
+            snaps={[0.14, 0.48, 0.75]} initialSnap={2}>
             {listBody}
           </BottomSheet>
         </div>

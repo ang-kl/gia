@@ -38,6 +38,22 @@ export function applyTelegramTheme() {
   };
   safe('ready', () => w.ready());
   safe('expand', () => w.expand());
+  // v0.62.663 — operator: auto-maximize on Telegram Desktop when the window
+  // isn't already. Mirrors Cuisine/Hawker/Transport's tg.js (see their
+  // "auto-fullscreen saga" comments) — `requestFullscreen()` (Bot API 8.0) is
+  // the only programmatic way to enlarge a Mini App; there's no API that
+  // reports the OS window's actual minimized/maximized state, so
+  // `w.isFullscreen` (Telegram's own flag) is the closest available proxy,
+  // and it's what stops this from re-firing on every reload.
+  safe('fullscreen', () => {
+    if (typeof w.requestFullscreen !== 'function') return;
+    if (typeof w.isVersionAtLeast === 'function' && !w.isVersionAtLeast('8.0')) return;
+    if (w.isFullscreen) return;
+    try { if (typeof w.onEvent === 'function') w.onEvent('fullscreenFailed', () => { /* UNSUPPORTED on this client */ }); } catch { /* noop */ }
+    const platform = String(w.platform || '').toLowerCase();
+    if (platform !== 'tdesktop' && platform !== 'macos') return;
+    try { w.requestFullscreen(); } catch { /* best-effort */ }
+  });
   safe('theme', () => {
     const p = w.themeParams || {};
     const root = document.documentElement;

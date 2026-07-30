@@ -277,8 +277,10 @@ export default function StationCard({
   // non-collapsible card (phone drawer, single tapped card) is always open.
   // `aroundOpen` folds the "Around the station" amenities.
   // v0.62.645 — operator: "by default show the station details (not collapse)".
-  // The card now opens EXPANDED; the foot pill collapses it.
-  const [bodyOpen, setBodyOpen] = useState(true);
+  // v0.62.659 — operator reversed that: "all cards must be in 'less' state...
+  // let user open the card." Cards now start COLLAPSED again; tapping the name
+  // strip (or making the card active) opens the body.
+  const [bodyOpen, setBodyOpen] = useState(false);
   const [aroundOpen, setAroundOpen] = useState(false);
   const [saved, setSaved] = useState(() => (name ? readSaved().includes(name) : false));
   // v0.62.636 (C3) — Motion spring drives the selected-card "pop"; disabled for

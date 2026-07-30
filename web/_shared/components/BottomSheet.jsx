@@ -29,10 +29,33 @@
 // from where the finger happened to stop. A flick now travels; before, a fast
 // short flick snapped straight back to where it started.
 import React, { useRef, useState } from 'react';
-import { sampleVelocity } from './bottom-sheet/bottom-sheet.js';
+import { sampleVelocity, rubberBand, DEFAULTS as SHEET_DEFAULTS } from './bottom-sheet/bottom-sheet.js';
+import { classifyViewport } from '../lib/classify-viewport.js';
 
 // How far ahead (ms) to project the sheet's momentum when picking a snap.
 const PROJECT_MS = 140;
+
+// v0.62.660 — operator: the drawer handle should feel lighter (less resistant
+// to overdrag past its open/collapsed ends) on a larger, more precise input
+// surface. `SHEET_DEFAULTS.rubberBandFactor` (0.35) — already the standalone
+// vanilla component's own "resistance applied to over-drag" constant — is the
+// phone baseline; tablet gets 20% less resistance, desktop 40% less. Only the
+// FACTOR scales — `rubberBandMax` (the absolute overdrag ceiling, 48px) stays
+// the same for every device, since nothing asked for a bigger travel range,
+// just a lighter feel getting there.
+const FRICTION_BY_CLASS = {
+  mobile: SHEET_DEFAULTS.rubberBandFactor,
+  tablet: SHEET_DEFAULTS.rubberBandFactor * 0.8,
+  desktop: SHEET_DEFAULTS.rubberBandFactor * 0.6
+};
+
+function currentDeviceClass() {
+  if (typeof window === 'undefined') return 'mobile';
+  let coarse = false;
+  try { coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches); } catch { /* noop */ }
+  const screenMin = Math.min(window.screen?.width || 0, window.screen?.height || 0);
+  return classifyViewport({ w: window.innerWidth, h: window.innerHeight, coarse, screenMin }).deviceClass;
+}
 
 export default function BottomSheet({
   snaps = [0.14, 0.48, 0.80],
@@ -65,7 +88,11 @@ export default function BottomSheet({
   const stamp = () => (typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now());
 
   const onDown = (e) => {
-    drag.current = { y: e.clientY, top: curTop, moved: false, samples: [{ y: e.clientY, t: stamp() }] };
+    // Device class (and so friction) is fixed for the duration of one drag —
+    // read once at the start rather than mid-gesture, so an orientation change
+    // never rewrites the feel of a drag already in flight.
+    const friction = FRICTION_BY_CLASS[currentDeviceClass()] ?? FRICTION_BY_CLASS.mobile;
+    drag.current = { y: e.clientY, top: curTop, moved: false, samples: [{ y: e.clientY, t: stamp() }], friction };
     try { e.currentTarget.setPointerCapture?.(e.pointerId); } catch { /* noop */ }
   };
   const onMove = (e) => {
@@ -75,8 +102,17 @@ export default function BottomSheet({
     drag.current.samples.push({ y: e.clientY, t: stamp() });
     if (drag.current.samples.length > 24) drag.current.samples.shift();
     const lo = topPx(0);
-    const hi = topPx(snaps.length - 1) + 0.06 * vh(); // a touch of over-drag past collapsed
-    setDragTop(Math.max(lo, Math.min(hi, drag.current.top + dy)));
+    const hi = topPx(snaps.length - 1);
+    const raw = drag.current.top + dy;
+    // Past either end the handle gets progressively harder to pull — a real
+    // rubber-band curve (diminishing returns, capped at rubberBandMax) rather
+    // than the old flat 0.06·vh allowance on the collapsed side only and a
+    // hard wall on the expanded side.
+    let next;
+    if (raw < lo) next = lo - rubberBand(lo - raw, drag.current.friction, SHEET_DEFAULTS.rubberBandMax);
+    else if (raw > hi) next = hi + rubberBand(raw - hi, drag.current.friction, SHEET_DEFAULTS.rubberBandMax);
+    else next = raw;
+    setDragTop(next);
   };
   const onUp = () => {
     if (!drag.current) return;

@@ -11,6 +11,7 @@ import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
 import { useViewport, viewportTag } from '../../_shared/lib/use-viewport.js';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import { activeClosure, closureTill, CLOSURE_TAB_BG } from './closure.js';
+import StationLocationField from '../../_shared/components/StationLocationField.jsx';
 
 // v0.60.59 — render "🍳 38 stalls · Operating" / "🍳 38 stands ·
 // Opérationnel" when stall count and/or status are known. Replaces
@@ -602,6 +603,10 @@ export default function App() {
           <div className="flex items-center pr-24">
             <h1 className="text-sm font-semibold leading-tight truncate">{t('header.title', lang)}</h1>
           </div>
+          {/* v0.62.659 — operator: "have the same location (show current location
+              and nearest station) like cuisine TMA... apply this to Hawker TMA as
+              well" — sits directly below the title. */}
+          <StationLocationField lang={lang} />
           <div className="flex items-start gap-2">
             {/* v0.62.607 — one row, no "(##)" count. */}
             <div className="flex gap-1 flex-1 min-w-0 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
@@ -666,6 +671,12 @@ export default function App() {
   // the map ANCHORED at the top + a SEPARATE scrollable list panel below (the map
   // does not scroll away with the list). The map's ⇲ expand switches to the
   // full-map carousel above; ⇱ collapses back here.
+  // v0.62.642 — the dispatcher stopped calling this for portrait tablets (moved
+  // to the drawer instead); kept unreferenced on purpose.
+  // v0.62.661 — un-orphaned: now the landscape-PHONE + list-mode branch too, so
+  // the drawer doesn't obstruct the map on a short landscape-phone viewport. The
+  // function itself needed no changes — it was already device/orientation-
+  // agnostic (a static map-on-top / scroll-list-below split), just unused.
   const portraitTabletPanel = () => (
     <div className="fixed inset-0 flex flex-col overflow-hidden"
       style={{
@@ -772,15 +783,19 @@ export default function App() {
           on the controls so the map stays tappable around them. */}
       <div className="absolute top-0 inset-x-0 z-20 px-2 flex flex-col gap-1.5 pointer-events-none"
         style={{ paddingTop: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' }}>
-        <div className="font-inter skeuo-card rounded-2xl px-3 py-2 flex items-center gap-2 pointer-events-auto">
-          <h1 className="text-base font-semibold leading-tight min-w-0 flex-1 truncate">{t('header.title', lang)}</h1>
-          <div className="flex items-center gap-3 shrink-0">
-            <LocaleToggle className="flex-shrink-0" />
-            <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
-            <button type="button" onClick={() => window.location.reload()}
-              aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'} title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
-              className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90">↻</button>
-            </div>
+        <div className="font-inter skeuo-card rounded-2xl px-3 py-2 flex flex-col gap-1 pointer-events-auto">
+          <div className="flex items-center gap-2">
+            <h1 className="text-base font-semibold leading-tight min-w-0 flex-1 truncate">{t('header.title', lang)}</h1>
+            <div className="flex items-center gap-3 shrink-0">
+              <LocaleToggle className="flex-shrink-0" />
+              <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
+              <button type="button" onClick={() => window.location.reload()}
+                aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'} title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+                className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90">↻</button>
+              </div>
+          </div>
+          {/* v0.62.659 — same location/station-search row as the carousel header. */}
+          <StationLocationField lang={lang} />
         </div>
         {/* v0.62.609 — operator (IMG_3595): the zone pills sat translucent directly
             over the busy map ("horrible"). Seat them on a SOLID skeuo-card (same as
@@ -854,6 +869,18 @@ export default function App() {
   // `false` (not `vp.orientation !== 'landscape'`): with the portrait two-panel
   // gone there is nothing for the map's ⇱ to collapse BACK to, so the map keeps
   // its own internal ⇲ fullscreen overlay rather than a dead layout toggle.
-  if (viewMode === 'list') return drawerLayout();
+  //
+  // v0.62.661 — operator: an iPhone in LANDSCAPE + list mode has too little
+  // vertical room for the over-the-map drawer to both show the list AND leave
+  // the map visible — even its tightest peek snap obstructs a large share of
+  // an already-short (~375-430px) viewport. Carved out to the below-map,
+  // independently-scrollable two-panel `portraitTabletPanel()` instead — the
+  // exact static split tablets used before v0.62.642, kept unreferenced for
+  // precisely this "restore it in one line" scenario. Every other case
+  // (portrait phone, any tablet/desktop orientation) is unchanged.
+  if (viewMode === 'list') {
+    if (vp.deviceClass === 'mobile' && vp.orientation === 'landscape') return portraitTabletPanel();
+    return drawerLayout();
+  }
   return carouselLayout(false);
 }
