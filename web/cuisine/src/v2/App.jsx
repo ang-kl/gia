@@ -4741,7 +4741,7 @@ export default function App() {
             <div className="mt-1 -mb-0.5 flex justify-end">
               {/* v0.62.90 — liquid-glass pill (frosted + soft 3D highlight). */}
               <button type="button" onClick={stopLoading}
-                className="glass-pill shrink-0 px-2 py-0.5 rounded-full border-[0.5px] border-amber-500/70 text-[8px] text-tg-text whitespace-nowrap">
+                className="gia-hit glass-pill shrink-0 px-2 py-0.5 rounded-full border-[0.5px] border-amber-500/70 text-[8px] text-tg-text whitespace-nowrap">
                 {t('loading.stop', lang)}
               </button>
             </div>

@@ -455,7 +455,7 @@ export default function StationCard({
             type="button"
             onClick={(e) => { e.stopPropagation(); setBodyOpen((o) => !o); }}
             aria-expanded={bodyOpen}
-            className="shrink-0 flex items-center gap-0.5 text-[10px] font-semibold leading-none opacity-90 active:scale-95"
+            className="gia-hit-y shrink-0 flex items-center gap-0.5 text-[10px] font-semibold leading-none opacity-90 active:scale-95"
             style={{ color: stripText }}
           >
             {bodyOpen ? t('mrt.detailsLess', lang) : t('mrt.detailsMore', lang)}
@@ -464,7 +464,7 @@ export default function StationCard({
         )}
         {onClose && (
           <button type="button" onClick={(e) => { e.stopPropagation(); onClose(); }}
-            aria-label={t('mrt.close', lang)} className="text-[13px] leading-none opacity-80 active:scale-90" style={{ color: stripText }}>✕</button>
+            aria-label={t('mrt.close', lang)} className="gia-hit-y text-[13px] leading-none opacity-80 active:scale-90" style={{ color: stripText }}>✕</button>
         )}
       </div>
 

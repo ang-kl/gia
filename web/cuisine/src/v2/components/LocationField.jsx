@@ -606,7 +606,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
                   ? (lang === 'fr' ? 'Masquer les lieux proches' : 'Hide nearby places')
                   : (lang === 'fr' ? 'Voir les lieux proches' : 'Browse nearby places')}
                 aria-expanded={zonesOpen}
-                className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-tg-border text-tg-accent not-italic leading-none"
+                className="gia-hit inline-flex items-center justify-center w-4 h-4 rounded-full border border-tg-border text-tg-accent not-italic leading-none"
               >{zonesOpen ? '−' : '+'}</button>
             )}
           </div>
@@ -1387,7 +1387,7 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
                     ? (lang === 'fr' ? 'Masquer les lieux proches' : 'Hide nearby places')
                     : (lang === 'fr' ? 'Voir les lieux proches' : 'Browse nearby places')}
                   aria-expanded={zonesOpen}
-                  className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-tg-border text-tg-accent not-italic leading-none"
+                  className="gia-hit inline-flex items-center justify-center w-4 h-4 rounded-full border border-tg-border text-tg-accent not-italic leading-none"
                 >{zonesOpen ? '−' : '+'}</button>
               )}
             </div>

@@ -448,7 +448,7 @@ export default function App() {
             onClick={() => window.location.reload()}
             aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
             title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
-            className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
+            className="gia-hit text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
           >↻</button>
         </div>
       </div>

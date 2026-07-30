@@ -71,7 +71,7 @@ export default function CatchAllStrip({
           <span className="text-sk-pin">📍</span>
           <span className="font-semibold">{locFilter || t('loc.all', lang)}</span>
         </button>
-        {locFilter && <button onClick={() => setLocFilter(null)} aria-label={t('facet.clear', lang)} className="text-tg-hint text-[11px]">✕</button>}
+        {locFilter && <button onClick={() => setLocFilter(null)} aria-label={t('facet.clear', lang)} className="gia-hit text-tg-hint text-[11px]">✕</button>}
       </div>
       {/* header row — count · sort · ✍️ Edit (under the chips) */}
       <div className="flex items-center gap-2 mb-2 px-1 flex-wrap">
@@ -80,14 +80,14 @@ export default function CatchAllStrip({
         {onNewCard && <button onClick={onNewCard} className="text-[10px] font-semibold text-tg-accent-text bg-tg-accent rounded-full px-2 py-0.5">{t('catchAll.newCard', lang)}</button>}
         <div className="ml-auto flex items-center gap-1">
           <span className="text-[9px] text-tg-hint">{t('sort.by', lang)}</span>
-          <button onClick={() => setAsc((v) => !v)} className="text-[11px] text-tg-accent" aria-label={asc ? t('sort.asc', lang) : t('sort.desc', lang)}>{asc ? '⇧' : '⇩'}</button>
+          <button onClick={() => setAsc((v) => !v)} className="gia-hit-y text-[11px] text-tg-accent" aria-label={asc ? t('sort.asc', lang) : t('sort.desc', lang)}>{asc ? '⇧' : '⇩'}</button>
           {SORTS.map((s) => (
             <button key={s} onClick={() => setSortKey(s)} aria-pressed={sortKey === s}
               className={`text-[9px] px-1.5 py-0.5 rounded-full border ${sortKey === s ? 'bg-tg-accent/15 border-tg-accent text-tg-accent' : 'border-tg-border text-tg-hint'}`}>
               {t('sort.' + s, lang)}
             </button>
           ))}
-          <button onClick={() => setEditing((v) => !v)} className="text-[12px] text-tg-accent ml-1" aria-pressed={editing} aria-label={t('chrome.edit', lang)}>✍️</button>
+          <button onClick={() => setEditing((v) => !v)} className="gia-hit-y text-[12px] text-tg-accent ml-1" aria-pressed={editing} aria-label={t('chrome.edit', lang)}>✍️</button>
         </div>
       </div>
 

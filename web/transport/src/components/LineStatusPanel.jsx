@@ -172,7 +172,7 @@ export default function LineStatusPanel({ line, status, statusByLine = null, sel
                         <button
                           type="button"
                           onClick={() => onSelectStation?.(st, c)}
-                          className={`text-[10px] font-semibold rounded px-1 leading-tight ${picked ? 'ring-2 ring-offset-1 ring-tg-accent' : ''}`}
+                          className={`gia-hit-s text-[10px] font-semibold rounded px-1 leading-tight ${picked ? 'ring-2 ring-offset-1 ring-tg-accent' : ''}`}
                           style={{ background: codeHex(c), color: '#fff' }}
                         >{c}</button>
                         {i === 0 && (

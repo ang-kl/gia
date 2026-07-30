@@ -57,10 +57,10 @@ export default function DrawerRow({ drawer, n, totalDrawers, cabinetId, lang, on
         {/* item 9/9b — top-right: ✏️ Edit, then ⧉ / 🗑 / ✓ when editing */}
         {editing ? (
           <div className="flex-shrink-0 flex items-center gap-2 text-[12px]">
-            {onDuplicate && <button onClick={() => { onDuplicate(n); setEditing(false); }} aria-label={t('chrome.duplicate', lang)}>⧉</button>}
-            <button onClick={() => { setEditing(false); onDelete?.(); }} className="text-sk-pin" aria-label={t('chrome.delete', lang)}>🗑</button>
-            <button onClick={save} className="text-tg-accent font-semibold" aria-label={t('chrome.save', lang)}>✓</button>
-            <button onClick={() => { setDayTag(drawer.dayTag || ''); setEditing(false); }} className="text-tg-hint" aria-label={t('chrome.cancel', lang)}>✕</button>
+            {onDuplicate && <button className="gia-hit-y" onClick={() => { onDuplicate(n); setEditing(false); }} aria-label={t('chrome.duplicate', lang)}>⧉</button>}
+            <button onClick={() => { setEditing(false); onDelete?.(); }} className="gia-hit-y text-sk-pin" aria-label={t('chrome.delete', lang)}>🗑</button>
+            <button onClick={save} className="gia-hit-y text-tg-accent font-semibold" aria-label={t('chrome.save', lang)}>✓</button>
+            <button onClick={() => { setDayTag(drawer.dayTag || ''); setEditing(false); }} className="gia-hit-y text-tg-hint" aria-label={t('chrome.cancel', lang)}>✕</button>
           </div>
         ) : (
           <button onClick={() => setEditing(true)} className="flex-shrink-0 text-[11px] font-semibold text-tg-accent">{t('chrome.edit', lang)}</button>

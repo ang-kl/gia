@@ -139,18 +139,18 @@ export default function App() {
           {/* controls */}
           <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[11px]">
             <button type="button" onClick={() => { setPickedDate(''); setOffsetWeeks(0); setDays(7); }}
-              className={`px-2 py-1 rounded border border-tg-border ${!pickedDate && offsetWeeks === 0 && days === 7 ? 'bg-tg-accent text-tg-accent-text' : 'bg-tg-card'}`}>This week (7d)</button>
+              className={`gia-hit-y px-2 py-1 rounded border border-tg-border ${!pickedDate && offsetWeeks === 0 && days === 7 ? 'bg-tg-accent text-tg-accent-text' : 'bg-tg-card'}`}>This week (7d)</button>
             <button type="button" onClick={() => { setPickedDate(''); setOffsetWeeks(1); }}
-              className={`px-2 py-1 rounded border border-tg-border ${!pickedDate && offsetWeeks === 1 ? 'bg-tg-accent text-tg-accent-text' : 'bg-tg-card'}`}>Last 14d</button>
+              className={`gia-hit-y px-2 py-1 rounded border border-tg-border ${!pickedDate && offsetWeeks === 1 ? 'bg-tg-accent text-tg-accent-text' : 'bg-tg-card'}`}>Last 14d</button>
             <button type="button" onClick={() => { setPickedDate(''); setOffsetWeeks(0); setDays(30); }}
-              className={`px-2 py-1 rounded border border-tg-border ${!pickedDate && offsetWeeks === 0 && days === 30 ? 'bg-tg-accent text-tg-accent-text' : 'bg-tg-card'}`}>30d</button>
+              className={`gia-hit-y px-2 py-1 rounded border border-tg-border ${!pickedDate && offsetWeeks === 0 && days === 30 ? 'bg-tg-accent text-tg-accent-text' : 'bg-tg-card'}`}>30d</button>
             <button type="button" onClick={() => { setPickedDate(data.today?.date || ''); }}
-              className={`px-2 py-1 rounded border border-tg-border ${pickedDate && pickedDate === (data.today?.date || '') ? 'bg-tg-accent text-tg-accent-text' : 'bg-tg-card'}`}>Today only</button>
+              className={`gia-hit-y px-2 py-1 rounded border border-tg-border ${pickedDate && pickedDate === (data.today?.date || '') ? 'bg-tg-accent text-tg-accent-text' : 'bg-tg-card'}`}>Today only</button>
             <input type="date" value={pickedDate} max={data.today?.date || undefined}
               onChange={(e) => { setPickedDate(e.target.value); }}
               aria-label="Report date"
               className="px-2 py-1 rounded border border-tg-border bg-tg-card text-tg-text" />
-            {pickedDate && <button type="button" onClick={() => setPickedDate('')} aria-label="Clear date" className="px-1.5 py-1 rounded border border-tg-border bg-tg-card">×</button>}
+            {pickedDate && <button type="button" onClick={() => setPickedDate('')} aria-label="Clear date" className="gia-hit px-1.5 py-1 rounded border border-tg-border bg-tg-card">×</button>}
           </div>
 
           {data.note && <div className="mt-2 text-[10px] text-tg-hint leading-snug">{data.note}</div>}
