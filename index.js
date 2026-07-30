@@ -12914,7 +12914,12 @@ async function cacheBotUsername() {
             flag: '✳️',
             searchQuery: 'Michelin Singapore restaurant',
             keywords: ['michelin', 'star', 'bib gourmand'],
-            description: `Singapore Michelin Guide: ${michelin.STARS_THREE.length} three-star, ${michelin.STARS_TWO.length} two-star, ${michelin.STARS_ONE.length} one-star, ${michelin.BIB_GOURMAND.length} Bib Gourmand.`
+            // v0.62.667 — BIB_GOURMAND.length now includes 2 entries held
+            // ONLY in 2025 (restored, not deleted, when their award lapsed —
+            // see SG-michelin.js's v0.62.667 header note), so this count
+            // must filter to the CURRENT (2026) edition rather than report
+            // the raw array length, which would overstate the live total.
+            description: `Singapore Michelin Guide: ${michelin.STARS_THREE.length} three-star, ${michelin.STARS_TWO.length} two-star, ${michelin.STARS_ONE.length} one-star, ${michelin.BIB_GOURMAND.filter((e) => (e.awardYears || []).includes("'26")).length} Bib Gourmand.`
           }]
         });
         // v0.62.299 / v0.62.301 — "Set Meal (Beta)" synthetic tile beside Michelin.

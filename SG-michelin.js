@@ -1,4 +1,4 @@
-// SG-michelin.js — v0.62.665
+// SG-michelin.js — v0.62.667
 //
 // Singapore Michelin Guide — official Stars + Bib Gourmand list, updated
 // in place edition by edition (not a versioned snapshot per year — see
@@ -29,6 +29,17 @@
 // 04 Aug 2026) — every STARS_* entry below intentionally still reads
 // awardYears: ["'25"] only; do not add '26 to any starred entry until
 // that ceremony has actually happened and is verified.
+//
+// v0.62.667 — CORRECTION (operator): the v0.62.665 removal of "Eminent Frog
+// Porridge & Seafood" and "Soon Huat" was never asked for — dropping an
+// award is not licence to delete the 2025 record of it. Both are RESTORED
+// below with awardYears: ["'25"] only (2025-held, not retained in 2026) —
+// this file DOES have a historical-listing mode after all: a category
+// entry with only past years and no current one. Register D-32/D-33 stand;
+// this corrects the v0.62.665 Journal's "no historical/dropped-listing
+// mode" premise above, which was wrong. Matches how the venue-centric
+// {CC}-michelin.js schema already handles a dropped venue (award history
+// stays, no row deleted) — see Taiwan (v0.62.666) for the same pattern.
 //
 // Some Bib Gourmand entries don't carry a precise street address — they
 // reference a hawker centre (e.g. "Amoy Street Food Centre"). For those
@@ -141,6 +152,7 @@ const BIB_GOURMAND = [
   { name: 'Da Shi Jia Big Prawn Mee', address: '', category: 'bib-gourmand', awardYears: ["'26", "'25"] },
   { name: 'Delhi Lahori', address: 'Tekka Centre', category: 'bib-gourmand', awardYears: ["'26", "'25"] },
   { name: 'Dudu Cooked Food', address: 'Jurong West 505 Market & Food Centre', category: 'bib-gourmand', awardYears: ["'26", "'25"] },
+  { name: 'Eminent Frog Porridge & Seafood', address: 'Lorong 19', category: 'bib-gourmand', awardYears: ["'25"] },
   { name: 'Fei Fei Roasted Noodle', address: 'Yuhua Village Market and Food Centre', category: 'bib-gourmand', awardYears: ["'26", "'25"] },
   { name: 'Fico', address: '', category: 'bib-gourmand', awardYears: ["'26", "'25"] },
   { name: 'Fu Ming Cooked Food', address: 'Redhill Market', category: 'bib-gourmand', awardYears: ["'26", "'25"] },
@@ -199,6 +211,7 @@ const BIB_GOURMAND = [
   { name: 'Song Fa Bak Kut Teh', address: 'New Bridge Road', category: 'bib-gourmand', awardYears: ["'26", "'25"] },
   { name: 'Song Fish Soup', address: 'Clementi 448 Food Centre', category: 'bib-gourmand', awardYears: ["'26", "'25"] },
   { name: 'Song Kee Teochew Fish Porridge', address: 'Newton Food Centre', category: 'bib-gourmand', awardYears: ["'26", "'25"] },
+  { name: 'Soon Huat', address: 'North Bridge Road Market & Food Centre', category: 'bib-gourmand', awardYears: ["'25"] },
   { name: 'Spinach Soup', address: 'Geylang Bahru Market & Food Centre', category: 'bib-gourmand', awardYears: ["'26", "'25"] },
   { name: 'Tai Seng Fish Soup', address: 'Taman Jurong Market & Food Centre', category: 'bib-gourmand', awardYears: ["'26", "'25"] },
   { name: 'Tai Wah Pork Noodle', address: 'Hong Lim Market and Food Centre', category: 'bib-gourmand', awardYears: ["'26", "'25"] },

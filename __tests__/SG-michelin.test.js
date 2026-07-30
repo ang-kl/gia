@@ -1,12 +1,18 @@
-// __tests__/SG-michelin.test.js — v0.62.665
+// __tests__/SG-michelin.test.js — v0.62.667
 //
 // Validates the Singapore Michelin Guide dataset shape + helper functions.
 // v0.62.665 — MICHELIN Guide Singapore 2026 Bib Gourmand update: 89 → 97
-// (10 new, 2 dropped — "Eminent Frog Porridge & Seafood", "Soon Huat", both
-// removed rather than kept stale). Every record now carries `awardYears`
-// (compact, newest-first "'26"-style strings); `formatMichelinLine` reads
-// it directly instead of taking a bare `year` parameter. Counts/strings
-// below are updated intentionally, not a stale-pin drift.
+// (10 new, 2 dropped — "Eminent Frog Porridge & Seafood", "Soon Huat").
+// Every record now carries `awardYears` (compact, newest-first "'26"-style
+// strings); `formatMichelinLine` reads it directly instead of taking a bare
+// `year` parameter.
+// v0.62.667 — CORRECTION (operator): the 2 dropped entries above were never
+// asked to be DELETED — restored with awardYears: ["'25"] only (held 2025,
+// not retained 2026), same historical-row pattern already used for Taiwan's
+// dropped venues (v0.62.666). 97 → 99 Bib Gourmand, 138 → 140 total. The
+// live/current 2026 Bib Gourmand count (surfaced to users) stays 97 — see
+// index.js's description-string filter, which excludes any entry whose
+// awardYears doesn't include "'26".
 
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
@@ -30,13 +36,18 @@ describe('Michelin Singapore 2025 — shape', () => {
     expect(m.STARS_ONE.every((e) => e.category === 'one-star')).toBe(true);
   });
 
-  it('has 97 Bib Gourmand entries (2026 edition: 89 - 2 dropped + 10 new)', () => {
-    expect(m.BIB_GOURMAND.length).toBe(97);
+  it('has 99 Bib Gourmand entries (89 - 2 lapsed + 10 new + 2 restored-as-historical)', () => {
+    expect(m.BIB_GOURMAND.length).toBe(99);
     expect(m.BIB_GOURMAND.every((e) => e.category === 'bib-gourmand')).toBe(true);
   });
 
-  it('total of 138 venues across all categories', () => {
-    expect(m.ALL.length).toBe(2 + 7 + 32 + 97);
+  it('97 of the 99 Bib Gourmand entries hold the CURRENT (2026) award', () => {
+    const current = m.BIB_GOURMAND.filter((e) => e.awardYears.includes("'26"));
+    expect(current.length).toBe(97);
+  });
+
+  it('total of 140 venues across all categories', () => {
+    expect(m.ALL.length).toBe(2 + 7 + 32 + 99);
   });
 
   it('every entry carries a non-empty, newest-first awardYears array', () => {
@@ -85,16 +96,16 @@ describe('Michelin helpers', () => {
     expect(m.getStars().length).toBe(41);
   });
 
-  it('getBibGourmand() returns 97 entries', () => {
-    expect(m.getBibGourmand().length).toBe(97);
+  it('getBibGourmand() returns 99 entries', () => {
+    expect(m.getBibGourmand().length).toBe(99);
   });
 
   it('getByCategory("three-star") returns 2', () => {
     expect(m.getByCategory('three-star').length).toBe(2);
   });
 
-  it('getByCategory("bib-gourmand") returns 97', () => {
-    expect(m.getByCategory('bib-gourmand').length).toBe(97);
+  it('getByCategory("bib-gourmand") returns 99', () => {
+    expect(m.getByCategory('bib-gourmand').length).toBe(99);
   });
 
   it('findByName("Les Amis") finds the three-star entry', () => {
@@ -249,12 +260,12 @@ describe('SG Michelin dataset — entry count + byte-stable content', () => {
   // compatible addition to this same flat schema, per the operator's Michelin
   // 2026 update spec) — this is deliberately NOT the per-entry city/country/
   // unified-loader coupling the v0.61.333 comment above was reverting.
-  it('the curated dataset has the expected count (138 = 2+7+32+97)', () => {
-    expect(m.ALL.length).toBe(138);
+  it('the curated dataset has the expected count (140 = 2+7+32+99)', () => {
+    expect(m.ALL.length).toBe(140);
     expect(m.STARS_THREE.length).toBe(2);
     expect(m.STARS_TWO.length).toBe(7);
     expect(m.STARS_ONE.length).toBe(32);
-    expect(m.BIB_GOURMAND.length).toBe(97);
+    expect(m.BIB_GOURMAND.length).toBe(99);
   });
 
   it('original name/address/category are still present (byte-stable)', () => {
@@ -284,9 +295,17 @@ describe('SG Michelin dataset — entry count + byte-stable content', () => {
     expect(m.findByName('Xiangyee').awardYears).toEqual(["'26"]);
   });
 
-  it('2026 Bib Gourmand update — dropped entries are gone entirely, not year-truncated', () => {
-    expect(m.findByName('Eminent Frog Porridge & Seafood')).toBeNull();
-    expect(m.findByName('Soon Huat')).toBeNull();
+  it('2026 Bib Gourmand update — lapsed entries are RESTORED as 2025-only historical rows, not deleted', () => {
+    const eminentFrog = m.findByName('Eminent Frog Porridge & Seafood');
+    const soonHuat = m.findByName('Soon Huat');
+    expect(eminentFrog).not.toBeNull();
+    expect(eminentFrog.category).toBe('bib-gourmand');
+    expect(eminentFrog.awardYears).toEqual(["'25"]);
+    expect(soonHuat).not.toBeNull();
+    expect(soonHuat.category).toBe('bib-gourmand');
+    expect(soonHuat.awardYears).toEqual(["'25"]);
+    // renders as a plain historical badge, no "'26" and no dangling comma.
+    expect(m.formatMichelinLine(eminentFrog)).toBe("✳️ Bib Gourmand · '25");
   });
 });
 
