@@ -58,8 +58,8 @@ Status: `not-locked`
 
 - [x] Food-term translation policy exists.
 - [x] Food-term review queue exists.
-- [ ] Chinese food-term notes added.
-- [ ] Japanese food-term notes added.
+- [x] Chinese food-term notes added.
+- [x] Japanese food-term notes added.
 - [ ] Indonesian food-term notes added.
 - [ ] Remaining target-language food-term risks reviewed.
 - [ ] Search examples approved for translation by intent.
@@ -91,5 +91,5 @@ The manual can be marked `ready-for-tma-help-wiring` only when Gates 1–8 are c
 1. Command alias runtime validation patch.
 2. Help ID final contract review patch.
 3. Image registry review patch.
-4. Chinese and Japanese food-term notes.
+4. Indonesian food-term notes and remaining target-language food-term risks.
 5. Final English editorial lock patch.
