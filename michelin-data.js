@@ -150,8 +150,13 @@ const COUNTRY_MANIFEST = Object.freeze({
     2026: { 'three-star': 1, 'two-star': 10, 'one-star': 35, 'bib-gourmand': 71, total: 117 },
   },
   TW: {
-    // 2025-ONLY — source carries the full 2025 edition; 2026 not yet curated.
+    // 2026 curated (verified 30 Jul 2026): 9 new one-star, 1 promoted (NOBUO
+    // one-star→two-star), 1 new two-star debut (Mizue), 2 one-star dropped
+    // (Fleur de Sel, Paris 1930 de Hideki Takayama), 13 new Bib Gourmand, 10
+    // Bib Gourmand dropped (an 11th, closed-down "木公麥面" in Taichung, was
+    // never captured in this file's 2025 snapshot — no row to drop).
     2025: { 'three-star': 3, 'two-star': 7, 'one-star': 43, 'bib-gourmand': 143, total: 196 },
+    2026: { 'three-star': 3, 'two-star': 9, 'one-star': 49, 'bib-gourmand': 146, total: 207 },
   },
   VN: {
     // 2025 PARTIAL — source captured one-stars only (no Bib Gourmand).
@@ -555,6 +560,27 @@ function awardsDiff(venue) {
   return out;
 }
 
+// v0.62.665 — compact, newest-first "'26"-style year strings for the years
+// a venue held its CURRENT (latest) category — not every year it has ever
+// appeared. Walks `awards` newest-to-oldest and stops at the first category
+// change, so a venue that was promoted or demoted between editions shows
+// only the years matching its LATEST tier (operator spec: never label a
+// changed category with a year it held a DIFFERENT category in). Mirrors
+// the compact array `SG-michelin.js` stores directly on each record; this
+// is the equivalent derivation for the venue-centric `awards:[{year,
+// category}]` schema the 11 non-SG country files already use.
+function retainedAwardYears(venue) {
+  if (!venue || !Array.isArray(venue.awards) || venue.awards.length === 0) return [];
+  const sorted = [...venue.awards].sort((a, b) => b.year - a.year); // newest first
+  const latestCategory = sorted[0].category;
+  const years = [];
+  for (const a of sorted) {
+    if (a.category !== latestCategory) break;
+    years.push(`'${String(a.year).slice(-2)}`);
+  }
+  return years;
+}
+
 module.exports = {
   // schema constants
   CATEGORIES,
@@ -589,4 +615,5 @@ module.exports = {
   visitableVenues,
   editionVenues,
   awardsDiff,
+  retainedAwardYears,
 };

@@ -9701,6 +9701,10 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
         name: v.name, address: v.address, postal: v.postal || '',
         category: latestMichCat(v), cuisine: v.cuisine || '',
         vegetarian: v.vegetarian === true, halal: v.halal === true,
+        // v0.62.665 — carry the compact "'26"-style retained-years array
+        // through so the TMA card shows the real edition(s), not a
+        // hardcoded fallback (see ResultCard.jsx michelinAnnotation).
+        awardYears: mdMich.retainedAwardYears(v),
         city: v.city, country: v.country
       }));
   // Places query + regionCode adapt to the country (SG keeps the curated
@@ -10107,6 +10111,11 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       // Michelin annotations attached for the TMA card render.
       michelinCategory: entry.category,
       michelinName: entry.name,
+      // v0.62.665 — compact "'26"-style retained-years array (SG entries
+      // carry it directly; non-SG entries had it derived by
+      // retainedAwardYears() above). Replaces the old single michelinYear
+      // number, which couldn't represent a multi-year retention.
+      michelinAwardYears: entry.awardYears || [],
       michelinPostal: entry.postal || '',
       michelinCuisine: entry.cuisine || '',
       // v0.62.6 — awardCity: the curated city this Michelin awardee belongs
@@ -10153,6 +10162,8 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(entry.name)}`,
       michelinCategory: entry.category,
       michelinName: entry.name,
+      // v0.62.665 — parity with the success branch above.
+      michelinAwardYears: entry.awardYears || [],
       michelinPostal: entry.postal || '',
       michelinCuisine: entry.cuisine || '',
       // v0.62.6 — awardCity parity with the success path (city grouping).
@@ -12903,7 +12914,12 @@ async function cacheBotUsername() {
             flag: '✳️',
             searchQuery: 'Michelin Singapore restaurant',
             keywords: ['michelin', 'star', 'bib gourmand'],
-            description: `Singapore Michelin Guide: ${michelin.STARS_THREE.length} three-star, ${michelin.STARS_TWO.length} two-star, ${michelin.STARS_ONE.length} one-star, ${michelin.BIB_GOURMAND.length} Bib Gourmand.`
+            // v0.62.667 — BIB_GOURMAND.length now includes 2 entries held
+            // ONLY in 2025 (restored, not deleted, when their award lapsed —
+            // see SG-michelin.js's v0.62.667 header note), so this count
+            // must filter to the CURRENT (2026) edition rather than report
+            // the raw array length, which would overstate the live total.
+            description: `Singapore Michelin Guide: ${michelin.STARS_THREE.length} three-star, ${michelin.STARS_TWO.length} two-star, ${michelin.STARS_ONE.length} one-star, ${michelin.BIB_GOURMAND.filter((e) => (e.awardYears || []).includes("'26")).length} Bib Gourmand.`
           }]
         });
         // v0.62.299 / v0.62.301 — "Set Meal (Beta)" synthetic tile beside Michelin.
