@@ -150,8 +150,13 @@ const COUNTRY_MANIFEST = Object.freeze({
     2026: { 'three-star': 1, 'two-star': 10, 'one-star': 35, 'bib-gourmand': 71, total: 117 },
   },
   TW: {
-    // 2025-ONLY — source carries the full 2025 edition; 2026 not yet curated.
+    // 2026 curated (verified 30 Jul 2026): 9 new one-star, 1 promoted (NOBUO
+    // one-star→two-star), 1 new two-star debut (Mizue), 2 one-star dropped
+    // (Fleur de Sel, Paris 1930 de Hideki Takayama), 13 new Bib Gourmand, 10
+    // Bib Gourmand dropped (an 11th, closed-down "木公麥面" in Taichung, was
+    // never captured in this file's 2025 snapshot — no row to drop).
     2025: { 'three-star': 3, 'two-star': 7, 'one-star': 43, 'bib-gourmand': 143, total: 196 },
+    2026: { 'three-star': 3, 'two-star': 9, 'one-star': 49, 'bib-gourmand': 146, total: 207 },
   },
   VN: {
     // 2025 PARTIAL — source captured one-stars only (no Bib Gourmand).

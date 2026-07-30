@@ -295,17 +295,17 @@ describe('michelin-data — South Korea (KR-michelin.js) load', () => {
 describe('michelin-data — Taiwan (TW-michelin.js) load', () => {
   const TW_CITIES = ['Taipei', 'New Taipei', 'Taichung', 'Tainan', 'Kaohsiung', 'Hsinchu City', 'Hsinchu County'];
 
-  it('loads 196 venues with sum(awards) === 196 (2025-only)', () => {
+  it('loads 219 venues with sum(awards) === 403 (196 in 2025 + 207 in 2026)', () => {
     const tw = data.venuesForCountry('TW');
-    expect(tw.length).toBe(196);
-    expect(tw.reduce((n, v) => n + v.awards.length, 0)).toBe(196);
+    expect(tw.length).toBe(219);
+    expect(tw.reduce((n, v) => n + v.awards.length, 0)).toBe(403);
   });
 
-  it('196 venues hold a 2025 award, 0 hold a 2026 award (2025-only edition)', () => {
+  it('196 venues hold a 2025 award, 207 hold a 2026 award', () => {
     const y25 = data.venuesForYear(2025).filter((v) => v.country === 'TW');
     const y26 = data.venuesForYear(2026).filter((v) => v.country === 'TW');
     expect(y25.length).toBe(196);
-    expect(y26.length).toBe(0);
+    expect(y26.length).toBe(207);
   });
 
   it('matches the per-tier 2025 manifest', () => {
@@ -316,6 +316,16 @@ describe('michelin-data — Taiwan (TW-michelin.js) load', () => {
       }
     }
     expect(t).toEqual({ 'three-star': 3, 'two-star': 7, 'one-star': 43, 'bib-gourmand': 143 });
+  });
+
+  it('matches the per-tier 2026 manifest', () => {
+    const t = {};
+    for (const v of data.venuesForCountry('TW')) {
+      for (const a of v.awards) {
+        if (a.year === 2026) t[a.category] = (t[a.category] || 0) + 1;
+      }
+    }
+    expect(t).toEqual({ 'three-star': 3, 'two-star': 9, 'one-star': 49, 'bib-gourmand': 146 });
   });
 
   it('every TW venue has a unique id, a curated city, and the full venue shape', () => {
@@ -337,14 +347,87 @@ describe('michelin-data — Taiwan (TW-michelin.js) load', () => {
     }
   });
 
-  it('carries JL STUDIO as a 2025 three-star and resolves the freshly-added cities', () => {
+  it('carries JL STUDIO as a three-star retained across 2025+2026 and resolves the freshly-added cities', () => {
     const jl = data.venueById('tw-txg-jl-studio');
     expect(jl).not.toBeNull();
     expect(jl.name).toBe('JL STUDIO');
     expect(data.categoryForYear(jl, 2025)).toBe('three-star');
+    expect(data.categoryForYear(jl, 2026)).toBe('three-star');
     // venues in the 3 newly-mapped cities load (would throw pre-fix).
     expect(data.venuesForCountry('TW').some((v) => v.city === 'New Taipei')).toBe(true);
     expect(data.venuesForCountry('TW').some((v) => v.city === 'Hsinchu County')).toBe(true);
+  });
+
+  it('NOBUO is promoted one-star (2025) → two-star (2026)', () => {
+    const nobuo = data.venueById('tw-tpe-nobuo');
+    expect(nobuo).not.toBeNull();
+    expect(data.categoryForYear(nobuo, 2025)).toBe('one-star');
+    expect(data.categoryForYear(nobuo, 2026)).toBe('two-star');
+    expect(data.retainedAwardYears(nobuo)).toEqual(["'26"]);
+  });
+
+  it('Fleur de Sel and Paris 1930 de Hideki Takayama are 2025-only (dropped in 2026)', () => {
+    const fleurDeSel = data.venueById('tw-txg-fleur-de-sel');
+    const paris1930 = data.venueById('tw-tpe-paris-1930-de-hideki-takayama');
+    for (const v of [fleurDeSel, paris1930]) {
+      expect(v).not.toBeNull();
+      expect(v.awards.map((a) => a.year)).toEqual([2025]);
+      expect(data.awardsDiff(v).droppedAfter).toBe(2025);
+    }
+  });
+
+  it('Mizue debuts directly at two-star; YuDao and Sushi An debut at one-star (2026-only)', () => {
+    const mizue = data.venueById('tw-tpe-mizue');
+    const yudao = data.venueById('tw-tnn-yudao');
+    const sushiAn = data.venueById('tw-hsinchu-county-sushi-an');
+    expect(mizue).not.toBeNull();
+    expect(mizue.awards).toEqual([{ year: 2026, category: 'two-star' }]);
+    expect(yudao).not.toBeNull();
+    expect(yudao.awards).toEqual([{ year: 2026, category: 'one-star' }]);
+    expect(sushiAn).not.toBeNull();
+    expect(sushiAn.awards).toEqual([{ year: 2026, category: 'one-star' }]);
+  });
+
+  it('10 identified Bib Gourmand venues are 2025-only (dropped in 2026)', () => {
+    const droppedIds = [
+      'tw-tpe-good-friend-cold-noodles', 'tw-tpe-mao-yuan',
+      'tw-tpe-shin-yeh-taiwanese-delight-nangang', 'tw-tpe-xiao-ping-kitchen',
+      'tw-tnn-bue-mi-lab', 'tw-tnn-dong-shang-taiwanese-seafood', 'tw-tnn-zhu-xin-ju',
+      'tw-khh-cheng-tsung-duck-rice', 'tw-khh-mai-yen-shun', 'tw-khh-pale-jade-pavilion',
+    ];
+    for (const id of droppedIds) {
+      const v = data.venueById(id);
+      expect(v).not.toBeNull();
+      expect(v.awards.map((a) => a.year)).toEqual([2025]);
+      expect(data.categoryForYear(v, 2025)).toBe('bib-gourmand');
+    }
+  });
+
+  it('13 new Bib Gourmand debuts are 2026-only, one per confirmed city', () => {
+    const newIds = [
+      'tw-tpe-ching-jiao', 'tw-tpe-open-smile', 'tw-tpe-toriaezu-curry', 'tw-tpe-yu-yu-1969',
+      'tw-txg-don-moo', 'tw-hsinchu-county-ji-feng', 'tw-hsinchu-county-yi-ge-chui-fen',
+      'tw-tnn-baa-wanli-goat', 'tw-tnn-chan-chi', 'tw-tnn-zhu-ji-dong-tsai-ya',
+      'tw-new-taipei-abba-hakka', 'tw-new-taipei-bei-ya-duck-thick-soup',
+      'tw-new-taipei-bitan-chiao-tou-goose',
+    ];
+    expect(newIds.length).toBe(13);
+    for (const id of newIds) {
+      const v = data.venueById(id);
+      expect(v).not.toBeNull();
+      expect(v.awards).toEqual([{ year: 2026, category: 'bib-gourmand' }]);
+    }
+  });
+
+  it('2026 Bib Gourmand per-city totals match the official announcement exactly', () => {
+    const byCity = {};
+    for (const v of data.venuesForCountry('TW')) {
+      if (data.categoryForYear(v, 2026) === 'bib-gourmand') byCity[v.city] = (byCity[v.city] || 0) + 1;
+    }
+    expect(byCity).toEqual({
+      Taipei: 37, Tainan: 30, Taichung: 23, Kaohsiung: 21,
+      'New Taipei': 18, 'Hsinchu County': 10, 'Hsinchu City': 7,
+    });
   });
 });
 
@@ -776,11 +859,11 @@ describe('michelin-data — country tables', () => {
     expect(vn.ENTRIES.length).toBe(83);
   });
 
-  it('TW-michelin.js is venue-centric with 196 curated rows', () => {
+  it('TW-michelin.js is venue-centric with 219 curated rows', () => {
     const tw = require('../TW-michelin.js');
     expect(tw.COUNTRY).toBe('TW');
     expect(Array.isArray(tw.ENTRIES)).toBe(true);
-    expect(tw.ENTRIES.length).toBe(196);
+    expect(tw.ENTRIES.length).toBe(219);
   });
 
   it('KR-michelin.js is venue-centric with 117 curated rows', () => {
