@@ -26,8 +26,11 @@ import { giaToggleStyle } from '../lib/gia-toggle-style.js';
 // Layout-only pill class; colours come from giaToggleStyle (inline).
 // v0.61.70 — smaller text + tighter padding + shrink-0 so all pills fit
 // on one non-wrapping row.
+// P1-f — gia-hit-y: the pills stay 9px/one-row by operator decision; the
+// INTERACTIVE box grows vertically (~+16px) via a transparent pseudo-element
+// so the tap target clears the WCAG floor without changing a pixel.
 function pillClass() {
-  return 'flex items-center gap-0.5 px-1 py-1 rounded-full '
+  return 'gia-hit-y flex items-center gap-0.5 px-1 py-1 rounded-full '
     + 'text-[9px] whitespace-nowrap leading-none shrink-0 active:scale-95';
 }
 
@@ -91,7 +94,7 @@ export default function MapControls({
               aria-expanded={menuOpen}
               aria-label={menuLabel}
               title={menuLabel}
-              className={'w-5 h-7 rounded-md bg-white text-black '
+              className={'gia-hit-y w-5 h-7 rounded-md bg-white text-black '
                 + 'border border-gray-300 shadow-md flex items-center '
                 + 'justify-center text-base font-bold leading-none active:scale-95'}
             ><span aria-hidden>⋮</span></button>
