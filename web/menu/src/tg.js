@@ -53,11 +53,23 @@ export function applyTelegramTheme() {
     // is the one platform where Telegram puts the WebApp in a
     // narrow letterboxed column that genuinely benefits from
     // requesting fullscreen.
-    const platform = String(w.platform || '').toLowerCase();
-    if (platform !== 'ipados') return;
-    if (typeof w.isVersionAtLeast !== 'function' || !w.isVersionAtLeast('8.0')) return;
+    // v0.62.663 — operator: auto-maximize the TMA window on Telegram Desktop
+    // when it isn't already. Cuisine/Hawker/Transport already gained this at
+    // v0.62.617/624 (see their tg.js "auto-fullscreen saga" comments) — Menu
+    // never did, so the hub opened windowed on desktop even though every app
+    // it links to opens maximized. `requestFullscreen()` (Bot API 8.0) is the
+    // ONLY programmatic way to enlarge a Mini App; there is no API that
+    // reports or controls the actual OS window's minimized/maximized state,
+    // so `w.isFullscreen` (Telegram's own flag) is the closest available
+    // proxy — and it's what gates against re-requesting on every reload.
     if (typeof w.requestFullscreen !== 'function') return;
-    w.requestFullscreen();
+    if (typeof w.isVersionAtLeast !== 'function' || !w.isVersionAtLeast('8.0')) return;
+    if (w.isFullscreen) return;
+    try { if (typeof w.onEvent === 'function') w.onEvent('fullscreenFailed', () => { /* UNSUPPORTED on this client — expand() height still applies */ }); } catch { /* noop */ }
+    const platform = String(w.platform || '').toLowerCase();
+    const desktopClient = platform === 'tdesktop' || platform === 'macos';
+    if (platform !== 'ipados' && !desktopClient) return;
+    try { w.requestFullscreen(); } catch { /* best-effort */ }
   });
 
   // v0.60.42 — sync Telegram header + chrome bg to secondary.
