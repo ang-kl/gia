@@ -144,3 +144,14 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
     scroll-behavior: auto !important;
   }
 }
+
+/* P1-c — visible keyboard focus. The repo removed the UA outline in many
+   places (`outline-none`) with no replacement; this restores one shared,
+   theme-aware indicator for KEYBOARD navigation only (:focus-visible — touch
+   and mouse users see nothing). !important so per-element focus:outline-none
+   utilities cannot silently re-remove it. Accent-coloured 2px ring with a
+   2px offset reads against cards, sheets, maps and both Telegram themes. */
+:where(a, button, input, select, textarea, summary, [tabindex], [role]):focus-visible {
+  outline: 2px solid var(--tg-accent, #2f81f7) !important;
+  outline-offset: 2px;
+}

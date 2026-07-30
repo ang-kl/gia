@@ -93,3 +93,11 @@ input, textarea, select { font-size: 16px; }
     scroll-behavior: auto !important;
   }
 }
+
+/* P1-c — visible keyboard focus (see the other TMAs' identical rule). The
+   Sketchbook palette is fixed-light by operator decision, so the ring uses
+   the palette's own accent hex rather than the Telegram accent variable. */
+:where(a, button, input, select, textarea, summary, [tabindex], [role]):focus-visible {
+  outline: 2px solid #2b59c9 !important;
+  outline-offset: 2px;
+}
