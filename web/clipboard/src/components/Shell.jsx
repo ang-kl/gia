@@ -11,6 +11,7 @@
 // Cuisine TMA (operator decision).
 
 import React, { useState } from 'react';
+import { useDialog } from '../../../_shared/lib/use-dialog.js';
 import { t } from '../lib/i18n.js';
 import { openMiniApp, haptic } from '../lib/tg.js';
 import LocaleToggle from './LocaleToggle.jsx';
@@ -77,6 +78,7 @@ export default function Shell({
   onEmptySearch, onReplaceFreeText,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useDialog({ open: menuOpen, onClose: () => setMenuOpen(false) });
   const [drop, setDrop] = useState(null);   // 'cuisine' | null
   const cabLabel = footerCabinetLabel || t('nav.cabinets', lang);
   const go = (s) => { haptic('light'); setMenuOpen(false); setDrop(null); onNav?.(s); };
@@ -88,7 +90,7 @@ export default function Shell({
       <header className="flex-shrink-0 bg-tg-card px-3 pt-3 pb-2 border-b border-tg-border z-10">
         <div className="flex items-center gap-2">
           <button
-            type="button" aria-label="menu"
+            type="button" aria-label={t('chrome.menu', lang)}
             onClick={() => { setDrop(null); setMenuOpen(true); }}
             className="flex-shrink-0 w-9 h-9 flex flex-col justify-center gap-1 p-2 bg-transparent"
           >
@@ -106,7 +108,7 @@ export default function Shell({
           {/* v0.62.511 — locale toggle; was read-only (no setActiveLocale). */}
           <LocaleToggle className="flex-shrink-0" />
           <button
-            type="button" aria-label="refresh"
+            type="button" aria-label={t('chrome.refresh', lang)}
             onClick={() => { haptic('light'); onRefresh?.(); }}
             className="flex-shrink-0 p-1 text-tg-accent"
           >
@@ -123,7 +125,7 @@ export default function Shell({
           >
             <span className="truncate">{cuisineSel.length ? `🍜 ${cuisineSel.length}` : t('chrome.cuisineFilters', lang)}</span>
             {cuisineSel.length
-              ? <span role="button" aria-label="clear" onClick={(e) => { e.stopPropagation(); onSetCuisine?.([]); }} className="text-tg-hint">✕</span>
+              ? <span role="button" aria-label="clear" tabIndex={0} onClick={(e) => { e.stopPropagation(); onSetCuisine?.([]); }} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onSetCuisine?.([]); } }} className="text-tg-hint">✕</span>
               : <span className="text-tg-hint">{drop === 'cuisine' ? '▴' : '▾'}</span>}
           </button>
         </div>
@@ -220,9 +222,9 @@ export default function Shell({
 
       {/* ── HAMBURGER ── */}
       {menuOpen && (
-        <div className="fixed inset-0 z-40" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-40" role="dialog" aria-modal="true" aria-label={t('chrome.menu', lang)}>
           <div className="absolute inset-0 bg-black/50" onClick={() => setMenuOpen(false)} />
-          <div className="absolute top-0 bottom-0 left-0 w-[84%] max-w-[330px] bg-tg-card shadow-2xl flex flex-col">
+          <div ref={menuRef} className="absolute top-0 bottom-0 left-0 w-[84%] max-w-[330px] bg-tg-card shadow-2xl flex flex-col">
             <div className="px-4 pt-12 pb-4 text-white" style={{ background: 'linear-gradient(135deg,#2b59c9,#1d3aa0)' }}>
               <div className="flex items-center gap-3">
                 <img src="soleat-icon.png" alt="soleat" width="40" height="40" className="flex-shrink-0 w-10 h-10 rounded-xl object-contain" />

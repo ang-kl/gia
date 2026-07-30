@@ -32,9 +32,9 @@ function Toggle({ label, storageKey, defaultOn }) {
   const flip = () => { const next = !on; setOn(next); try { localStorage.setItem(storageKey, next ? '1' : '0'); } catch { /* noop */ } };
   return (
     <div className="flex items-center justify-between gap-2 px-3 py-2.5 border-b border-tg-border last:border-0">
-      <span className="text-sm text-tg-text">{label}</span>
+      <span id={`${storageKey}-label`} className="text-sm text-tg-text">{label}</span>
       <button
-        type="button" role="switch" aria-checked={on} onClick={flip}
+        type="button" role="switch" aria-checked={on} aria-labelledby={`${storageKey}-label`} onClick={flip}
         className={`relative w-11 h-6 rounded-full transition-colors ${on ? 'bg-tg-accent' : 'bg-tg-border'}`}
       >
         <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${on ? 'translate-x-5' : ''}`} />

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDialog } from '../../../_shared/lib/use-dialog.js';
 import { t } from '../lib/i18n.js';
 import { cuisineName } from '../lib/cuisine-i18n.js';
 
@@ -44,13 +45,14 @@ function isAvail(slug, availableSlugs) {
 // Drill-in modal for one category (2-col grid of cuisines). Mirrors
 // CuisineCategoryDrawer incl. the subtle top-right ✕.
 function CategoryModal({ category, selected, onToggle, onClose, lang, availableSlugs }) {
+  const panelRef = useDialog({ open: true, onClose });
   if (!category) return null;
   const selectedInCat = category.cuisines.filter((c) => selected.includes(c.slug)).length;
   return (
-    <div className="fixed inset-0 z-30 flex items-center justify-center p-4 bg-black/50" role="dialog"
+    <div className="fixed inset-0 z-30 flex items-center justify-center p-4 bg-black/50" role="dialog" aria-modal="true"
       aria-label={`${catLabel(category, lang)} cuisines`}
       onClick={(e) => { if (e.target === e.currentTarget) onClose?.(); }}>
-      <div className="flex flex-col w-full max-w-[480px] max-h-[80vh] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
+      <div ref={panelRef} className="flex flex-col w-full max-w-[480px] max-h-[80vh] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
         <div className="flex items-center gap-2 px-3 py-3 border-b border-tg-border bg-tg-card">
           <span aria-hidden>{category.emoji}</span>
           <h2 className="text-sm font-semibold flex-1 truncate">{catLabel(category, lang)}</h2>
@@ -107,6 +109,8 @@ export default function CuisineGroupPicker({ catalogue, selected = [], onChange,
     const disabled = !catAvail;
     return (
       <button type="button" disabled={disabled} aria-disabled={disabled || undefined}
+        aria-haspopup={isSingle ? undefined : 'dialog'}
+        aria-expanded={isSingle ? undefined : openCategoryId === cat.id}
         onClick={() => {
           if (disabled) return;
           if (isSingle) toggle(onlySlug); else setOpenCategoryId(cat.id);

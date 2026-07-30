@@ -107,6 +107,10 @@ export default function VenueCard({
   return (
     <div
       onClick={() => setOpen((x) => !x)}
+      role="button"
+      tabIndex={0}
+      aria-expanded={open}
+      onKeyDown={(e) => { if (e.target !== e.currentTarget) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen((x) => !x); } }}
       className={`bg-tg-card border border-tg-border rounded-xl p-2.5 select-none ${dimmed ? 'opacity-30' : ''}`}
       {...(dragProps || {})}
       style={{ touchAction: 'manipulation', ...(stripHex ? { borderLeft: `4px solid ${stripHex}` } : {}) }}

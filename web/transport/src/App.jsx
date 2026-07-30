@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useReducedMotion } from 'motion/react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { LINES, LINES_BY_CODE } from './data/lines.js';
 import { lineStationsFull } from './data/line-paths.js';
 import { useViewport } from '../../_shared/lib/use-viewport.js';
+import { useDialog } from '../../_shared/lib/use-dialog.js';
 import { withViewTransition } from './lib/view-transition.js';
 import LoadingSkeleton from './components/LoadingSkeleton.jsx';
 import { initData } from './tg.js';
@@ -28,6 +30,9 @@ const BUILD_VERSION = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION
 function LiveClock() {
   const [now, setNow] = useState(() => new Date());
   const [colonOn, setColonOn] = useState(true);
+  // P1-b — the colon blink is JS-driven (visibility toggle), so the CSS
+  // prefers-reduced-motion net can't reach it; gate it here instead.
+  const reduceMotion = useReducedMotion();
   useEffect(() => {
     // 500 ms tick → the ":" blinks on/off once a second (classic running clock);
     // re-reading the time each tick keeps the minute current.
@@ -49,7 +54,7 @@ function LiveClock() {
   if (!day) return null;
   return (
     <span className="tabular-nums whitespace-nowrap" aria-label={`${day} ${month} ${hour}:${minute} SGT`}>
-      {day} {month} {hour}<span style={{ visibility: colonOn ? 'visible' : 'hidden' }}>:</span>{minute}
+      {day} {month} {hour}<span style={{ visibility: (reduceMotion || colonOn) ? 'visible' : 'hidden' }}>:</span>{minute}
     </span>
   );
 }
@@ -133,18 +138,23 @@ function StationCarousel({ items, render, activeIndex = -1 }) {
 // v0.62.602 — a centred modal (click-outside / ✕ to dismiss), mirroring the
 // Cuisine TMA's first-load popup style. Sits above the fixed footer bar (z-40).
 function Modal({ title, onClose, children }) {
+  // P1-d — full dialog contract via the shared hook: initial focus, Tab
+  // containment, Escape→onClose, focus restoration. The visible <h3> is the
+  // accessible name (aria-labelledby) instead of a duplicated string.
+  const panelRef = useDialog({ open: true, onClose });
   return (
     <div
       className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50"
-      role="dialog" aria-modal="true"
+      role="dialog" aria-modal="true" aria-labelledby="gia-modal-title"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
+        ref={panelRef}
         className="skeuo-card w-full max-w-[420px] max-h-[80vh] overflow-y-auto rounded-2xl p-4 flex flex-col gap-3"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-bold flex-1 leading-tight">{title}</h3>
+          <h3 id="gia-modal-title" className="text-sm font-bold flex-1 leading-tight">{title}</h3>
           <button type="button" onClick={onClose} aria-label="Close"
             className="text-tg-hint text-lg leading-none px-1 active:scale-90">✕</button>
         </div>
@@ -438,7 +448,7 @@ export default function App() {
             onClick={() => window.location.reload()}
             aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
             title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
-            className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
+            className="gia-hit text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
           >↻</button>
         </div>
       </div>
@@ -809,7 +819,8 @@ export default function App() {
               (0.75 = 1/4 of the viewport visible) instead of the 0.48 half-screen
               default, so the map stays visible; the handle still drags/steps it up. */}
           <BottomSheet contentRef={listScrollRef} onContentScroll={onListScroll}
-            snaps={[0.14, 0.48, 0.75]} initialSnap={2}>
+            snaps={[0.14, 0.48, 0.75]} initialSnap={2}
+            ariaLabel={t('sheet.dragHandle', lang)}>
             {listBody}
           </BottomSheet>
         </div>

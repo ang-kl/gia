@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 
 // v0.58.1: below-map filter strip. Primary row keeps the highest-
@@ -100,9 +100,12 @@ function RadioDot({ checked }) {
 // 2-up grid (v0.61.428), so a cell WITH a hint top-aligns its dot (the hint
 // wraps beneath the label); a hint-less cell (Good+) centres the dot + label
 // vertically (v0.62.x operator alignment fix).
-function RatingOption({ checked, onSelect, label, hint }) {
+// P1-e — `tabIndex` / `onKeyDown` / `radioRef` wire the roving-tabindex
+// keyboard model owned by the parent radiogroup (one tab stop; arrows move).
+function RatingOption({ checked, onSelect, label, hint, tabIndex, onKeyDown, radioRef }) {
   return (
     <button type="button" role="radio" aria-checked={checked} onClick={onSelect}
+      ref={radioRef} tabIndex={tabIndex} onKeyDown={onKeyDown}
       className={`flex ${hint ? 'items-start' : 'items-center'} gap-2 w-full min-h-[44px] px-2 py-1.5 rounded-md border text-left transition-colors ${checked ? 'border-tg-accent' : 'border-tg-border'} bg-tg-bg`}>
       <span className={hint ? 'mt-0.5' : ''}><RadioDot checked={checked} /></span>
       <span className="flex flex-col">
@@ -195,6 +198,27 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
     setRatingSaved(false);              // changing a choice re-arms the red "Save"
     // Picking a non-custom option clears any stale custom entry.
     if (sel !== 'custom') setRatingCustom('');
+  }
+
+  // P1-e — roving tabindex for the rating radiogroup: exactly one radio is a
+  // tab stop (the selected one, tabIndex 0; the rest -1) and ArrowUp/ArrowDown/
+  // ArrowLeft/ArrowRight move the SELECTION (wrapping) across all four choices
+  // — Unrated → Any → Good+ → Set rating — focusing the newly selected radio.
+  const ratingRadioRefs = useRef([]);
+  const RATING_ORDER = ['unrated', 'any', RATING_PRESET, 'custom'];
+  function ratingRadioKey(e) {
+    const k = e.key;
+    if (k !== 'ArrowUp' && k !== 'ArrowDown' && k !== 'ArrowLeft' && k !== 'ArrowRight') return;
+    // Arrows inside the custom NUMBER FIELD must keep stepping the value
+    // (native behaviour), not move the radio selection — the field's keydown
+    // bubbles up to the custom cell's role="radio" wrapper, so filter it here.
+    if (e.target && e.target.tagName === 'INPUT') return;
+    e.preventDefault();
+    const cur = RATING_ORDER.indexOf(ratingSel);
+    const delta = (k === 'ArrowDown' || k === 'ArrowRight') ? 1 : -1;
+    const next = ((cur < 0 ? 0 : cur) + delta + RATING_ORDER.length) % RATING_ORDER.length;
+    chooseRating(RATING_ORDER[next]);
+    ratingRadioRefs.current[next]?.focus();
   }
   function saveRating() {
     const value = ratingSel === 'custom'
@@ -320,22 +344,38 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
           <div className="text-xs font-semibold text-tg-text px-0.5">{tr('rating.refineHeader', lang)}</div>
           <div className="grid grid-cols-2 gap-1.5">
             <RatingOption checked={ratingSel === 'unrated'} onSelect={() => chooseRating('unrated')}
+              tabIndex={ratingSel === 'unrated' ? 0 : -1} onKeyDown={ratingRadioKey}
+              radioRef={(el) => { ratingRadioRefs.current[0] = el; }}
               label={tr('rating.noRating', lang)} hint={tr('rating.noRatingHint', lang)} />
             <RatingOption checked={ratingSel === 'any'} onSelect={() => chooseRating('any')}
+              tabIndex={ratingSel === 'any' ? 0 : -1} onKeyDown={ratingRadioKey}
+              radioRef={(el) => { ratingRadioRefs.current[1] = el; }}
               label={tr('rating.anyRating', lang)} hint={tr('rating.anyRatingHint', lang)} />
           </div>
           <div className="grid grid-cols-2 gap-1.5 items-stretch">
             <RatingOption checked={ratingSel === RATING_PRESET} onSelect={() => chooseRating(RATING_PRESET)}
+              tabIndex={ratingSel === RATING_PRESET ? 0 : -1} onKeyDown={ratingRadioKey}
+              radioRef={(el) => { ratingRadioRefs.current[2] = el; }}
               label={`${tr('rating.goodPlus', lang)}  ≥ ${RATING_PRESET}`} hint={null} />
             {/* Set as — ONE line: radio dot + "Set as" + the 1.0–5.0 field
                 (v0.62.x operator: shrink the box; both Good+ and Set as are
                 single-line). Tapping the cell OR focusing the field selects it. */}
-            <label className={`flex items-center gap-1.5 w-full min-h-[44px] px-2 py-1.5 rounded-md border ${ratingSel === 'custom' ? 'border-tg-accent' : 'border-tg-border'} bg-tg-bg`}>
+            {/* P1-e — the custom cell is the radiogroup's FOURTH radio: without a
+                role the group announced 3 of 4 choices. The wrapper label carries
+                role/aria-checked and joins the roving-tabindex model; the number
+                input keeps its own aria-label, and is a tab stop only while the
+                custom choice is selected (tabIndex -1 otherwise) so the group
+                stays a single tab stop. */}
+            <label role="radio" aria-checked={ratingSel === 'custom'}
+              ref={(el) => { ratingRadioRefs.current[3] = el; }}
+              tabIndex={ratingSel === 'custom' ? 0 : -1} onKeyDown={ratingRadioKey}
+              className={`flex items-center gap-1.5 w-full min-h-[44px] px-2 py-1.5 rounded-md border ${ratingSel === 'custom' ? 'border-tg-accent' : 'border-tg-border'} bg-tg-bg`}>
               <RadioDot checked={ratingSel === 'custom'} />
               <span className={`text-xs text-tg-text whitespace-nowrap ${ratingSel === 'custom' ? 'font-medium' : ''}`}>{tr('rating.setRating', lang)}</span>
               <input type="number" inputMode="decimal" min={RATING_MIN} max={RATING_MAX} step="0.1"
                 value={ratingCustom}
                 placeholder={tr('rating.customHint', lang)}
+                tabIndex={ratingSel === 'custom' ? 0 : -1}
                 onFocus={() => chooseRating('custom')}
                 onChange={(e) => { setRatingCustom(e.target.value); setRatingSel('custom'); setRatingSaved(false); }}
                 aria-label={`${tr('rating.setRating', lang)} — ${tr('rating.customHint', lang)}`}

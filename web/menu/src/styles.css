@@ -131,3 +131,37 @@ html::-webkit-scrollbar { width: 7px; height: 7px; }
 html::-webkit-scrollbar-track { background: transparent; }
 html::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; transition: background 0.2s; }
 html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,140,0.55)); }
+
+/* P1-b — respect prefers-reduced-motion: collapse animation/transition
+   durations so motion-sensitive users get a still, instant UI. Ported
+   verbatim from the Hawker/Transport safety net (v0.62.636/637); Motion +
+   AutoAnimate honour the flag on their own — this is the shared CSS net. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* P1-c — visible keyboard focus. The repo removed the UA outline in many
+   places (`outline-none`) with no replacement; this restores one shared,
+   theme-aware indicator for KEYBOARD navigation only (:focus-visible — touch
+   and mouse users see nothing). !important so per-element focus:outline-none
+   utilities cannot silently re-remove it. Accent-coloured 2px ring with a
+   2px offset reads against cards, sheets, maps and both Telegram themes. */
+:where(a, button, input, select, textarea, summary, [tabindex], [role]):focus-visible {
+  outline: 2px solid var(--tg-accent, #2f81f7) !important;
+  outline-offset: 2px;
+}
+
+/* P1-f — invisible touch-target extension (see cuisine/hawker/transport
+   styles.css for the rationale): visible size unchanged, transparent
+   ::after widens the interactive box; directional variants avoid overlap
+   in tight clusters. */
+.gia-hit, .gia-hit-x, .gia-hit-y { position: relative; }
+.gia-hit::after, .gia-hit-x::after, .gia-hit-y::after { content: ''; position: absolute; }
+.gia-hit::after   { inset: -8px; }
+.gia-hit-x::after { inset: -2px -8px; }
+.gia-hit-y::after { inset: -8px -2px; }

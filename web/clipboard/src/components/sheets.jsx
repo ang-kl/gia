@@ -7,6 +7,7 @@
 //   ForkSheet           – shared-view fork into a target cabinet
 
 import React, { useState, useEffect } from 'react';
+import { useDialog } from '../../../_shared/lib/use-dialog.js';
 import { t } from '../lib/i18n.js';
 import { SEGMENTS, SEGMENT_BY_KEY, GROUP_CLASS } from '../lib/segments.js';
 import { openTelegramLink } from '../lib/tg.js';
@@ -72,7 +73,7 @@ export function FileSheet({
           })}
           {cabinets.length === 0 && <div className="text-[11px] text-tg-hint italic px-1 py-2">{t('cabinet.empty', lang)}</div>}
           <div className="flex flex-col gap-1.5 mt-1 pt-2 border-t border-tg-border">
-            <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder={t('cabinet.field.name', lang)} className={inputCls} />
+            <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder={t('cabinet.field.name', lang)} aria-label={t('cabinet.field.name', lang)} className={inputCls} />
             <button type="button" onClick={createCab} disabled={!newName.trim() || busy} className="px-2 py-1.5 rounded-lg text-[12px] font-semibold bg-tg-accent text-tg-accent-text disabled:opacity-40">{t('file.newCabinet', lang)}</button>
           </div>
         </div>
@@ -116,13 +117,21 @@ export function FileSheet({
   );
 }
 
-function Sheet({ children, onClose, title }) {
+function Sheet({ children, onClose, title, ariaLabel }) {
+  const panelRef = useDialog({ open: true, onClose });
   return (
     <>
       <div className="sheet-scrim" onClick={onClose} />
-      <div className="sheet">
+      <div
+        className="sheet"
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? 'gia-sheet-title' : undefined}
+        aria-label={title ? undefined : (ariaLabel || 'Sheet')}
+      >
         <div className="sheet-grab" />
-        {title && <h3 className="text-base font-semibold mb-2">{title}</h3>}
+        {title && <h3 id="gia-sheet-title" className="text-base font-semibold mb-2">{title}</h3>}
         {children}
       </div>
     </>
@@ -130,10 +139,17 @@ function Sheet({ children, onClose, title }) {
 }
 
 function field(label, child) {
+  // P1-e — associate the visual label with its control. Deterministic id
+  // derived from the label text (HTML5 ids only forbid whitespace, so the
+  // localized text itself is a valid, stable id; one sheet mounts at a time
+  // and no two fields in a sheet share a label, so ids never collide). An
+  // explicit aria-label on the child (e.g. the end-date input) still wins
+  // over this association in the accessible-name computation.
+  const id = 'field-' + String(label).replace(/\s+/g, '_');
   return (
     <div className="mb-2.5">
-      <label className="block text-[10px] uppercase tracking-wide text-tg-hint mb-1">{label}</label>
-      {child}
+      <label htmlFor={id} className="block text-[10px] uppercase tracking-wide text-tg-hint mb-1">{label}</label>
+      {React.isValidElement(child) ? React.cloneElement(child, { id }) : child}
     </div>
   );
 }
@@ -167,7 +183,7 @@ export function CreateCabinetSheet({ lang, onCancel, onSave, defaultName = '' })
           <input className={inputCls} value={dateStart} onChange={(e) => setDateStart(e.target.value.slice(0, 16))} placeholder="2026-07-12" />
         ))}
         {field('→', (
-          <input className={inputCls} value={dateEnd} onChange={(e) => setDateEnd(e.target.value.slice(0, 16))} placeholder="2026-07-19" />
+          <input className={inputCls} value={dateEnd} onChange={(e) => setDateEnd(e.target.value.slice(0, 16))} placeholder="2026-07-19" aria-label={t('cabinet.field.dateEnd', lang)} />
         ))}
       </div>
       <div className="flex gap-2 mt-3">
@@ -190,7 +206,7 @@ export function AddDrawerSheet({ lang, onCancel, onSave, cabinetName = '' }) {
   // v0.62.427 — sample parity: ‹ back · "Add a drawer · {cabinet}" title ·
   // "PICK A TIME-SEGMENT" · 2-col grid of circular emoji icons · tap to add · Close ×.
   return (
-    <Sheet onClose={onCancel}>
+    <Sheet onClose={onCancel} ariaLabel={t('drawer.add.title', lang)}>
       <div className="flex items-center gap-2 mb-1">
         <button onClick={onCancel} className="text-tg-accent text-lg leading-none" aria-label={t('chrome.back', lang)}>‹</button>
         <div className="min-w-0">

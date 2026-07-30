@@ -7,10 +7,12 @@
 // Auto-closes after 1 minute of inactivity (operator spec).
 
 import React, { useState, useEffect } from 'react';
+import { useDialog } from '../../../_shared/lib/use-dialog.js';
 import { t } from '../lib/i18n.js';
 
 export default function LocationSheet({ groups, active = null, onPick, onClose, lang = 'en' }) {
   const [expanded, setExpanded] = useState(null); // `${country}::${city}`
+  const panelRef = useDialog({ open: true, onClose });
 
   // Auto-close after 60s.
   useEffect(() => {
@@ -19,11 +21,11 @@ export default function LocationSheet({ groups, active = null, onPick, onClose, 
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-50 flex items-end" role="dialog" aria-modal="true" aria-labelledby="location-sheet-title">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative w-full max-h-[70vh] overflow-y-auto bg-tg-card rounded-t-2xl border-t border-tg-border p-3">
+      <div ref={panelRef} className="relative w-full max-h-[70vh] overflow-y-auto bg-tg-card rounded-t-2xl border-t border-tg-border p-3">
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-bold text-tg-text">📍 {t('loc.title', lang)}</h2>
+          <h2 id="location-sheet-title" className="text-sm font-bold text-tg-text">📍 {t('loc.title', lang)}</h2>
           <button type="button" onClick={onClose} className="text-tg-hint text-xs">{t('chrome.close', lang)}</button>
         </div>
 
@@ -53,7 +55,7 @@ export default function LocationSheet({ groups, active = null, onPick, onClose, 
                       className={`flex-1 text-left text-sm ${active === c.city ? 'text-tg-accent font-semibold' : 'text-tg-text'}`}
                     >{c.city}</button>
                     <span className="text-[10px] text-tg-hint">{c.items.length}</span>
-                    <button type="button" onClick={() => setExpanded(isOpen ? null : key)} className="text-tg-accent text-sm w-5 text-center" aria-label="expand">{isOpen ? '–' : '+'}</button>
+                    <button type="button" onClick={() => setExpanded(isOpen ? null : key)} className="gia-hit text-tg-accent text-sm w-5 text-center" aria-expanded={isOpen} aria-label={t('a11y.expand', lang)}>{isOpen ? '–' : '+'}</button>
                   </div>
                   {isOpen && (
                     <div className="px-4 pb-2 space-y-0.5">

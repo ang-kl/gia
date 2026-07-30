@@ -30,6 +30,7 @@ export default function CabinetView({
         <div className="flex-1 truncate text-base font-semibold">{cabinet.emoji} {cabinet.name}</div>
         <button
           onClick={onSetDefault}
+          aria-pressed={isDefault}
           aria-label={t('cabinet.setDefault', lang)}
           title={isDefault ? t('cabinet.isDefault', lang) : t('cabinet.setDefault', lang)}
           className={isDefault ? 'text-yellow-500' : 'text-tg-hint'}
@@ -39,8 +40,8 @@ export default function CabinetView({
 
       {editing ? (
         <div className="bg-tg-card border border-tg-border rounded-xl p-3 mb-3">
-          <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={t('cabinet.field.name', lang)} className={inputCls + ' mb-2'} />
-          <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder={'📍 ' + t('cabinet.field.location', lang)} className={inputCls} />
+          <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder={t('cabinet.field.name', lang)} aria-label={t('cabinet.field.name', lang)} className={inputCls + ' mb-2'} />
+          <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder={'📍 ' + t('cabinet.field.location', lang)} aria-label={t('cabinet.field.location', lang)} className={inputCls} />
           <div className="flex flex-wrap items-center gap-2 mt-3 text-xs">
             <button onClick={() => { onDuplicateCabinet?.(); setEditing(false); }} className="px-2.5 py-1 rounded-full border border-tg-border text-tg-text">{t('chrome.duplicate', lang)}</button>
             <button onClick={() => { setEditing(false); if (window.confirm(t('cabinet.deleteConfirm', lang))) onDeleteCabinet?.(); }} className="px-2.5 py-1 rounded-full border border-red-400/40 text-red-400">🗑 {t('chrome.delete', lang)}</button>

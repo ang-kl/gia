@@ -80,3 +80,34 @@ input, textarea, select { font-size: 16px; }
   width: 38px; height: 4px; border-radius: 2px;
   background: #e4e8f2; margin: 0 auto 10px;
 }
+
+/* P1-b — respect prefers-reduced-motion: collapse animation/transition
+   durations so motion-sensitive users get a still, instant UI. Ported
+   verbatim from the Hawker/Transport safety net (v0.62.636/637); Motion +
+   AutoAnimate honour the flag on their own — this is the shared CSS net. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* P1-c — visible keyboard focus (see the other TMAs' identical rule). The
+   Sketchbook palette is fixed-light by operator decision, so the ring uses
+   the palette's own accent hex rather than the Telegram accent variable. */
+:where(a, button, input, select, textarea, summary, [tabindex], [role]):focus-visible {
+  outline: 2px solid #2b59c9 !important;
+  outline-offset: 2px;
+}
+
+/* P1-f — invisible touch-target extension (see cuisine/hawker/transport
+   styles.css for the rationale): visible size unchanged, transparent
+   ::after widens the interactive box; directional variants avoid overlap
+   in tight clusters. */
+.gia-hit, .gia-hit-x, .gia-hit-y { position: relative; }
+.gia-hit::after, .gia-hit-x::after, .gia-hit-y::after { content: ''; position: absolute; }
+.gia-hit::after   { inset: -8px; }
+.gia-hit-x::after { inset: -2px -8px; }
+.gia-hit-y::after { inset: -8px -2px; }

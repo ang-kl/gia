@@ -134,6 +134,9 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
         title={regionDisabled
           ? `${label} — ${lang === 'fr' ? 'pas de liste Michelin ici' : 'no Michelin list here'}`
           : undefined}
+        aria-label={regionDisabled
+          ? `${label} — ${lang === 'fr' ? 'pas de liste Michelin ici' : 'no Michelin list here'}`
+          : undefined}
         className={`flex items-center gap-2 px-3 py-2 rounded-2xl border text-left transition-colors ${regionDisabled ? 'opacity-50 cursor-not-allowed bg-tg-card border-tg-border' : (selectedInCat > 0 || (isSingle && isOnlySelected) ? 'bg-[#DCEBFF] border-tg-accent text-[#0c2540]' : 'bg-tg-card border-tg-border hover:border-tg-accent')}`}
       >
         <span aria-hidden className="flex-shrink-0">{cat.emoji}</span>

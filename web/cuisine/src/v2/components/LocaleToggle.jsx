@@ -5,7 +5,7 @@
 // rows. Picking one calls setLang (writes the shared 'gia.locale' key +
 // fires 'gia:locale' so the UI re-renders and stays in sync across TMAs).
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocale } from '../lib/i18n.js';
+import { useLocale, t } from '../lib/i18n.js';
 
 const LOCALES = [
   { code: 'en', name: 'English',          flag: '🇬🇧' },
@@ -22,6 +22,10 @@ export default function LocaleToggle({ className = '' }) {
   const [lang, setLang] = useLocale();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
+  // P1-d — menu-button pattern: keep a trigger ref so Escape can return
+  // focus to the flag button, and a menu ref for roving arrow-key focus.
+  const triggerRef = useRef(null);
+  const menuRef = useRef(null);
   const current = LOCALES.find((l) => l.code === lang) || LOCALES[0];
 
   useEffect(() => {
@@ -35,14 +39,55 @@ export default function LocaleToggle({ className = '' }) {
     };
   }, [open]);
 
+  // P1-d — when the menu opens, focus the checked language (else the first
+  // item). setTimeout 0 so the popover is in the DOM when focus runs.
+  useEffect(() => {
+    if (!open) return undefined;
+    const menu = menuRef.current;
+    if (!menu) return undefined;
+    const target = menu.querySelector('[role="menuitemradio"][aria-checked="true"]')
+      || menu.querySelector('[role="menuitemradio"]');
+    if (!target) return undefined;
+    const id = setTimeout(() => target.focus(), 0);
+    return () => clearTimeout(id);
+  }, [open]);
+
+  // P1-d — ArrowUp/ArrowDown roving focus (wraps), Home/End, Escape closes
+  // and returns focus to the trigger.
+  function onMenuKey(e) {
+    const menu = menuRef.current;
+    if (!menu) return;
+    const items = Array.from(menu.querySelectorAll('[role="menuitemradio"]'));
+    if (!items.length) return;
+    const idx = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      items[idx < 0 ? 0 : (idx + 1) % items.length].focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      items[idx < 0 ? items.length - 1 : (idx - 1 + items.length) % items.length].focus();
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      items[0].focus();
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      items[items.length - 1].focus();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setOpen(false);
+      triggerRef.current?.focus();
+    }
+  }
+
   return (
     <div ref={ref} className={`relative select-none ${className}`}>
       <button
         type="button"
+        ref={triggerRef}
         onClick={() => setOpen((o) => !o)}
-        aria-haspopup="listbox"
+        aria-haspopup="menu"
         aria-expanded={open}
-        aria-label="Language"
+        aria-label={t('localeToggle.language', lang)}
         className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-sm leading-none active:scale-95"
       >
         <span>{current.flag}</span>
@@ -50,20 +95,23 @@ export default function LocaleToggle({ className = '' }) {
       </button>
       {open && (
         <div
-          role="listbox"
+          ref={menuRef}
+          role="menu"
+          aria-label={t('localeToggle.language', lang)}
+          onKeyDown={onMenuKey}
           className="absolute right-0 mt-1 z-50 min-w-[11rem] rounded-lg border border-tg-border bg-tg-card shadow-lg overflow-hidden"
         >
           <div className="flex items-center justify-end px-2 py-1 border-b border-tg-border">
             <button type="button" onClick={() => setOpen(false)}
-              aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
+              aria-label={t('localeToggle.close', lang)}
               className="text-tg-hint text-sm leading-none px-1 flex-shrink-0">✕</button>
           </div>
           {LOCALES.map((l) => (
             <button
               key={l.code}
               type="button"
-              role="option"
-              aria-selected={l.code === lang}
+              role="menuitemradio"
+              aria-checked={l.code === lang}
               onClick={() => { setLang(l.code); setOpen(false); }}
               className={`w-full flex items-center justify-between gap-3 px-3 py-2 text-sm text-left ${l.code === lang ? 'font-semibold bg-tg-bg' : 'hover:bg-tg-bg'}`}
             >

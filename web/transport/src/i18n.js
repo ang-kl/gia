@@ -170,8 +170,17 @@ const STRINGS = {
   'mrt.aria.map':              { en: 'Map of MRT and LRT stations in Singapore',
                                  fr: 'Carte des stations MRT et LRT de Singapour' },
 
+  // P1-e — a11y labels (close ✕ buttons + LocaleToggle). EN/FR like the
+  // v0.62.621 additions; other locales degrade to EN.
+  'mrt.close':                 { en: 'Close', fr: 'Fermer' },
+  'locale.language':           { en: 'Language', fr: 'Langue' },
+
   // v0.60.213 — standardised footer tag line (v0.60.217 — restored full form)
-  'footer.tag':                { en: 'Experimental · Singapore', fr: 'Expérimental · Singapour' }
+  'footer.tag':                { en: 'Experimental · Singapore', fr: 'Expérimental · Singapour' },
+
+  // P1-e — accessible name for the station-list drawer's drag handle
+  // (shared BottomSheet has no i18n dep, so the caller localises it).
+  'sheet.dragHandle':          { en: 'Drag to resize the list', fr: 'Faites glisser pour redimensionner la liste' }
 };
 
 // ----- Indonesian (id) overlay — v0.62.306 -----
@@ -294,6 +303,7 @@ const ID_STRINGS = {
   "mrt.dir.clockwise": "Searah jarum jam",
   "mrt.dir.anticlockwise": "Berlawanan arah jarum jam",
   "mrt.dir.loop": "Melingkar",
+  "sheet.dragHandle": "Seret untuk mengubah ukuran daftar",
 };
 for (const k in ID_STRINGS) {
   if (STRINGS[k] && STRINGS[k].id == null) STRINGS[k].id = ID_STRINGS[k];
@@ -417,6 +427,7 @@ const RU_STRINGS = {
   "mrt.dir.clockwise": "По часовой стрелке",
   "mrt.dir.anticlockwise": "Против часовой стрелки",
   "mrt.dir.loop": "Кольцевая",
+  "sheet.dragHandle": "Перетащите, чтобы изменить размер списка",
 };
 
 // ----- German (de) overlay — v0.62.311. Compounds abbreviated where chips are tight. -----
@@ -537,6 +548,7 @@ const DE_STRINGS = {
   "mrt.dir.clockwise": "Im Uhrzeigersinn",
   "mrt.dir.anticlockwise": "Gegen den Uhrzeigersinn",
   "mrt.dir.loop": "Ringlinie",
+  "sheet.dragHandle": "Liste durch Ziehen vergrößern oder verkleinern",
 };
 for (const k in RU_STRINGS) { if (STRINGS[k] && STRINGS[k].ru == null) STRINGS[k].ru = RU_STRINGS[k]; }
 for (const k in DE_STRINGS) { if (STRINGS[k] && STRINGS[k].de == null) STRINGS[k].de = DE_STRINGS[k]; }
@@ -658,6 +670,7 @@ const ZH_STRINGS = {
   "mrt.dir.clockwise": "顺时针",
   "mrt.dir.anticlockwise": "逆时针",
   "mrt.dir.loop": "环线",
+  "sheet.dragHandle": "拖动以调整列表大小",
 };
 
 const JA_STRINGS = {
@@ -777,6 +790,7 @@ const JA_STRINGS = {
   "mrt.dir.clockwise": "時計回り",
   "mrt.dir.anticlockwise": "反時計回り",
   "mrt.dir.loop": "循環",
+  "sheet.dragHandle": "ドラッグしてリストのサイズを変更",
 };
 
 const ES_STRINGS = {
@@ -896,6 +910,7 @@ const ES_STRINGS = {
   "mrt.dir.clockwise": "Sentido horario",
   "mrt.dir.anticlockwise": "Sentido antihorario",
   "mrt.dir.loop": "Circular",
+  "sheet.dragHandle": "Arrastra para cambiar el tamaño de la lista",
 };
 
 for (const k in ZH_STRINGS) { if (STRINGS[k] && STRINGS[k].zh == null) STRINGS[k].zh = ZH_STRINGS[k]; }
@@ -967,6 +982,21 @@ export function setActiveLocale(lang) {
       keepalive: true,
     }).catch(() => {});
   } catch { /* noop */ }
+}
+
+// v0.62.668 — keep the document's language metadata in sync with the active
+// locale. index.html ships a static lang="en"; without this, screen readers
+// keep English phonetics (and the browser keeps English hyphenation/font
+// rules) after the user switches locale. A module-level listener covers every
+// path that changes the locale: setActiveLocale's CustomEvent and the
+// cross-tab storage event.
+function syncDocumentLang(lang) {
+  try { document.documentElement.lang = lang; } catch { /* non-DOM (tests) */ }
+}
+if (typeof window !== 'undefined') {
+  syncDocumentLang(getActiveLocale());
+  window.addEventListener(LOCALE_EVENT, (e) => syncDocumentLang(e?.detail?.lang || getActiveLocale()));
+  window.addEventListener('storage', (e) => { if (e.key === LOCALE_KEY) syncDocumentLang(getActiveLocale()); });
 }
 
 export function useLocale() {

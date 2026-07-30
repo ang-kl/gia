@@ -21,6 +21,8 @@ export default function LocaleToggle({ className = '' }) {
   const lang = useLocale();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
+  const triggerRef = useRef(null);
+  const popupRef = useRef(null);
   const current = LOCALES.find((l) => l.code === lang) || LOCALES[0];
 
   useEffect(() => {
@@ -34,12 +36,44 @@ export default function LocaleToggle({ className = '' }) {
     };
   }, [open]);
 
+  // On open, focus the currently-selected item (fall back to the first).
+  useEffect(() => {
+    if (!open || !popupRef.current) return;
+    const checked = popupRef.current.querySelector('[role="menuitemradio"][aria-checked="true"]');
+    const first = popupRef.current.querySelector('[role="menuitemradio"]');
+    (checked || first)?.focus();
+  }, [open]);
+
+  const onMenuKeyDown = (e) => {
+    const items = Array.from(popupRef.current?.querySelectorAll('[role="menuitemradio"]') || []);
+    if (!items.length) return;
+    const idx = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      items[(idx + 1) % items.length].focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      items[(idx - 1 + items.length) % items.length].focus();
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      items[0].focus();
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      items[items.length - 1].focus();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setOpen(false);
+      triggerRef.current?.focus();
+    }
+  };
+
   return (
     <div ref={ref} className={`relative select-none ${className}`}>
       <button
         type="button"
+        ref={triggerRef}
         onClick={() => setOpen((o) => !o)}
-        aria-haspopup="listbox"
+        aria-haspopup="menu"
         aria-expanded={open}
         aria-label="Language"
         className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-sm leading-none active:scale-95"
@@ -49,15 +83,18 @@ export default function LocaleToggle({ className = '' }) {
       </button>
       {open && (
         <div
-          role="listbox"
+          ref={popupRef}
+          role="menu"
+          aria-label="Language"
+          onKeyDown={onMenuKeyDown}
           className="absolute right-0 mt-1 z-50 min-w-[11rem] rounded-lg border border-tg-border bg-tg-card shadow-lg overflow-hidden"
         >
           {LOCALES.map((l) => (
             <button
               key={l.code}
               type="button"
-              role="option"
-              aria-selected={l.code === lang}
+              role="menuitemradio"
+              aria-checked={l.code === lang}
               onClick={() => { setActiveLocale(l.code); setOpen(false); }}
               className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 active:bg-tg-bg ${l.code === lang ? 'bg-tg-accent/10 font-medium' : 'hover:bg-tg-bg'}`}
             >

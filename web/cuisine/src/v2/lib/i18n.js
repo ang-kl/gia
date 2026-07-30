@@ -495,7 +495,13 @@ const STRINGS = {
   'card.tierRegional':         { en: 'Regional classic', fr: 'Classique régional' },
   'card.tierNational':         { en: 'National classic', fr: 'Classique national' },
   'card.reviewTranslated':     { en: 'translated', fr: 'traduit' },
-  'card.sent':                 { en: '✓ Sent', fr: '✓ Envoyé' }
+  'card.sent':                 { en: '✓ Sent', fr: '✓ Envoyé' },
+
+  // P1-e — accessible names: the bottom-sheet drag handle + the LocaleToggle
+  // menu (trigger/menu/close). EN+FR here; id/ru/de/zh/ja/es in the overlays.
+  'sheet.dragHandle':          { en: 'Drag to resize the list', fr: 'Faites glisser pour redimensionner la liste' },
+  'localeToggle.language':     { en: 'Language', fr: 'Langue' },
+  'localeToggle.close':        { en: 'Close', fr: 'Fermer' }
 };
 
 // ----- Indonesian (id) overlay — v0.62.303, Phase 1 -----
@@ -731,6 +737,9 @@ const ID_STRINGS = {
   "locale.switchToId": "Beralih ke bahasa Indonesia",
   "locale.switchToRu": "Beralih ke bahasa Rusia",
   "locale.switchToDe": "Beralih ke bahasa Jerman",
+  "sheet.dragHandle": "Seret untuk mengubah ukuran daftar",
+  "localeToggle.language": "Bahasa",
+  "localeToggle.close": "Tutup",
 };
 for (const [k, v] of Object.entries(ID_STRINGS)) {
   if (STRINGS[k] && STRINGS[k].id == null) STRINGS[k].id = v;
@@ -962,6 +971,9 @@ const RU_STRINGS = {
   "card.opensAt": "Открывается в {start}",
   "locale.switchToRu": "Переключить на русский",
   "locale.switchToDe": "Переключить на немецкий",
+  "sheet.dragHandle": "Перетащите, чтобы изменить размер списка",
+  "localeToggle.language": "Язык",
+  "localeToggle.close": "Закрыть",
 };
 // ----- German (de) overlay — v0.62.313. Compounds abbreviated where tight; agent-verified. -----
 const DE_STRINGS = {
@@ -1189,6 +1201,9 @@ const DE_STRINGS = {
   "card.opensAt": "Öffnet {start}",
   "locale.switchToRu": "Zu Russisch wechseln",
   "locale.switchToDe": "Zu Deutsch wechseln",
+  "sheet.dragHandle": "Liste durch Ziehen vergrößern oder verkleinern",
+  "localeToggle.language": "Sprache",
+  "localeToggle.close": "Schließen",
 };
 // ----- Chinese (zh, Simplified) overlay — v0.62.x, Phase 3. Curated; controls
 // kept compact (Chinese is dense) so pills don't overflow. -----
@@ -1415,6 +1430,9 @@ const ZH_STRINGS = {
   "card.tierNational": "国民经典",
   "card.reviewTranslated": "已翻译",
   "card.sent": "✓ 已发送",
+  "sheet.dragHandle": "拖动以调整列表大小",
+  "localeToggle.language": "语言",
+  "localeToggle.close": "关闭",
 };
 for (const [k, v] of Object.entries(RU_STRINGS)) { if (STRINGS[k] && STRINGS[k].ru == null) STRINGS[k].ru = v; }
 for (const [k, v] of Object.entries(DE_STRINGS)) { if (STRINGS[k] && STRINGS[k].de == null) STRINGS[k].de = v; }
@@ -1643,6 +1661,9 @@ const JA_STRINGS = {
   "card.tierNational": "国民的定番",
   "card.reviewTranslated": "翻訳済み",
   "card.sent": "✓ 送信済み",
+  "sheet.dragHandle": "ドラッグしてリストのサイズを変更",
+  "localeToggle.language": "言語",
+  "localeToggle.close": "閉じる",
 };
 // ----- Spanish (es) overlay — v0.62.x, Phase 3. -----
 const ES_STRINGS = {
@@ -1868,6 +1889,9 @@ const ES_STRINGS = {
   "card.tierNational": "Clásico nacional",
   "card.reviewTranslated": "traducido",
   "card.sent": "✓ Enviado",
+  "sheet.dragHandle": "Arrastra para cambiar el tamaño de la lista",
+  "localeToggle.language": "Idioma",
+  "localeToggle.close": "Cerrar",
 };
 for (const [k, v] of Object.entries(JA_STRINGS)) { if (STRINGS[k] && STRINGS[k].ja == null) STRINGS[k].ja = v; }
 for (const [k, v] of Object.entries(ES_STRINGS)) { if (STRINGS[k] && STRINGS[k].es == null) STRINGS[k].es = v; }
@@ -1957,6 +1981,21 @@ async function hydrateFromServerOnce() {
 // (own setActiveLocale call OR another tab — storage + custom event).
 // On first mount, hydrates from the server's stored preference so the
 // TMA matches whatever the user last set via /language in chat.
+// v0.62.668 — keep the document's language metadata in sync with the active
+// locale. index.html ships a static lang="en"; without this, screen readers
+// keep English phonetics (and the browser keeps English hyphenation/font
+// rules) after the user switches locale. A module-level listener covers every
+// path that changes the locale: setActiveLocale's CustomEvent, the server
+// -hydration event, and the cross-tab storage event.
+function syncDocumentLang(lang) {
+  try { document.documentElement.lang = lang; } catch { /* non-DOM (tests) */ }
+}
+if (typeof window !== 'undefined') {
+  syncDocumentLang(getActiveLocale());
+  window.addEventListener(LOCALE_EVENT, (e) => syncDocumentLang(e?.detail?.lang || getActiveLocale()));
+  window.addEventListener('storage', (e) => { if (e.key === LOCALE_KEY) syncDocumentLang(getActiveLocale()); });
+}
+
 export function useLocale() {
   const [lang, setLangState] = useState(() => getActiveLocale());
   useEffect(() => {

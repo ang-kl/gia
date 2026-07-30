@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Tile from './components/Tile.jsx';
+import { useDialog } from '../../_shared/lib/use-dialog.js';
 import FooterNav from '../../_shared/components/FooterNav.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import LocationFieldMenu from './components/LocationFieldMenu.jsx';
@@ -627,6 +628,8 @@ export default function App() {
   // saved country code. Same option B (Prompt) as the Cuisine TMA.
   const coherenceCheckedMenuRef = useRef(false);
   const [coherenceMismatch, setCoherenceMismatch] = useState(null);
+  // P1-d — dialog behaviour for the coherence modal (no onClose: forced choice).
+  const coherenceDialogRef = useDialog({ open: !!coherenceMismatch });
   useEffect(() => {
     if (coherenceCheckedMenuRef.current) return;
     if (!anchor || !Number.isFinite(anchor.lat) || !Number.isFinite(anchor.lng)) return;
@@ -695,18 +698,22 @@ export default function App() {
           </button>
         </div>
       )}
-      {/* v0.61.274 — same coherence modal as the Cuisine TMA. */}
+      {/* v0.61.274 — same coherence modal as the Cuisine TMA.
+          P1-d — dialog contract via useDialog (focus in, Tab containment,
+          focus restore; Escape is a deliberate no-op — this is a forced
+          choice between two location options with no dismiss affordance).
+          The visible <h2> is now the accessible name (aria-labelledby). */}
       {coherenceMismatch && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
           role="dialog"
           aria-modal="true"
-          aria-label={lang === 'fr' ? 'Conflit de localisation' : lang === 'ru' ? 'Несоответствие местоположения' : lang === 'de' ? 'Standortkonflikt' : 'Location mismatch'}
+          aria-labelledby="gia-coherence-title"
         >
-          <div className="w-full max-w-[420px] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
+          <div ref={coherenceDialogRef} className="w-full max-w-[420px] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
             <div className="px-4 py-3 border-b border-tg-border bg-tg-card flex items-center gap-2">
               <span aria-hidden>📍</span>
-              <h2 className="text-sm font-semibold flex-1">
+              <h2 id="gia-coherence-title" className="text-sm font-semibold flex-1">
                 {lang === 'fr' ? 'Conflit de localisation' : lang === 'ru' ? 'Несоответствие местоположения' : lang === 'de' ? 'Standortkonflikt' : 'Location mismatch'}
               </h2>
             </div>
@@ -772,7 +779,7 @@ export default function App() {
                 onClick={() => window.location.reload()}
                 aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
                 title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
-                className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
+                className="gia-hit text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
               >↻</button>
               <LocaleToggle />
             </div>

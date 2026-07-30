@@ -78,6 +78,13 @@ const STRINGS = {
   'sort.city':              { en: 'City',               fr: 'Ville',            id: 'Kota',           ru: 'Город',          de: 'Stadt' , zh: '城市', ja: '都市', es: 'Ciudad' },
   'sort.cuisine':           { en: 'Cuisine',            fr: 'Cuisine',          id: 'Masakan',        ru: 'Кухня',          de: 'Küche' , zh: '菜系', ja: '料理', es: 'Cocina' },
   'sort.date':              { en: 'Date',               fr: 'Date',             id: 'Tanggal',        ru: 'Дата',           de: 'Datum' , zh: '日期', ja: '日付', es: 'Fecha' },
+  // ── a11y (P1-e) — screen-reader-only labels, no visible copy ──────
+  'sort.asc':               { en: 'Ascending',          fr: 'Croissant',        id: 'Menaik',         ru: 'По возрастанию', de: 'Aufsteigend' , zh: '升序', ja: '昇順', es: 'Ascendente' },
+  'sort.desc':              { en: 'Descending',         fr: 'Décroissant',      id: 'Menurun',        ru: 'По убыванию',    de: 'Absteigend' , zh: '降序', ja: '降順', es: 'Descendente' },
+  'a11y.expand':            { en: 'Expand',             fr: 'Développer',       id: 'Perluas',        ru: 'Развернуть',     de: 'Ausklappen' , zh: '展开', ja: '展開', es: 'Expandir' },
+  'chrome.menu':            { en: 'Menu',               fr: 'Menu',             id: 'Menu',           ru: 'Меню',           de: 'Menü' , zh: '菜单', ja: 'メニュー', es: 'Menú' },
+  'chrome.refresh':         { en: 'Refresh',            fr: 'Actualiser',       id: 'Muat ulang',     ru: 'Обновить',       de: 'Aktualisieren' , zh: '刷新', ja: '更新', es: 'Actualizar' },
+  'cabinet.field.dateEnd':  { en: 'End date',           fr: 'Date de fin',      id: 'Tanggal selesai', ru: 'Дата окончания', de: 'Enddatum' , zh: '结束日期', ja: '終了日', es: 'Fecha de fin' },
   'loc.all':                { en: 'All locations',      fr: 'Tous les lieux',   id: 'Semua lokasi',   ru: 'Все места',      de: 'Alle Orte' , zh: '所有地点', ja: 'すべての場所', es: 'Todas las ubicaciones' },
   'loc.title':              { en: 'Saved locations',    fr: 'Lieux enregistrés', id: 'Lokasi tersimpan', ru: 'Сохранённые места', de: 'Gespeicherte Orte' , zh: '已保存地点', ja: '保存した場所', es: 'Ubicaciones guardadas' },
   'loc.none':               { en: 'No saved-card locations yet.', fr: 'Aucun lieu enregistré.', id: 'Belum ada lokasi.', ru: 'Пока нет мест.', de: 'Noch keine Orte.' , zh: '还没有收藏卡片的地点。', ja: '保存カードの場所がまだありません。', es: 'Aun no hay ubicaciones de tarjetas guardadas.' },
@@ -317,6 +324,21 @@ export function setActiveLocale(lang) {
 // Reactive locale hook. Re-renders on the in-page gia:locale CustomEvent (a
 // toggle in THIS tab) and on the cross-tab 'storage' event (a toggle in another
 // TMA sharing the origin). Mirrors web/menu/src/i18n.js useLocale.
+// v0.62.668 — keep the document's language metadata in sync with the active
+// locale. index.html ships a static lang="en"; without this, screen readers
+// keep English phonetics (and the browser keeps English hyphenation/font
+// rules) after the user switches locale. A module-level listener covers every
+// path that changes the locale: setActiveLocale's CustomEvent and the
+// cross-tab storage event.
+function syncDocumentLang(lang) {
+  try { document.documentElement.lang = lang; } catch { /* non-DOM (tests) */ }
+}
+if (typeof window !== 'undefined') {
+  syncDocumentLang(getActiveLocale());
+  window.addEventListener(LOCALE_EVENT, (e) => syncDocumentLang(e?.detail?.lang || getActiveLocale()));
+  window.addEventListener('storage', (e) => { if (e.key === LOCALE_KEY) syncDocumentLang(getActiveLocale()); });
+}
+
 export function useLocale() {
   const [lang, setLang] = useState(() => getActiveLocale());
   useEffect(() => {

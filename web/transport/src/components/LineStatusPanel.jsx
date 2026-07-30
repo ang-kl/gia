@@ -127,7 +127,7 @@ export default function LineStatusPanel({ line, status, statusByLine = null, sel
               <button
                 type="button"
                 onClick={() => onSelectStation?.(null)}
-                aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
+                aria-label={t('mrt.close', lang)}
                 className="ml-auto text-tg-hint text-sm leading-none px-1 flex-shrink-0"
               >✕</button>
             </div>
@@ -172,7 +172,7 @@ export default function LineStatusPanel({ line, status, statusByLine = null, sel
                         <button
                           type="button"
                           onClick={() => onSelectStation?.(st, c)}
-                          className={`text-[10px] font-semibold rounded px-1 leading-tight ${picked ? 'ring-2 ring-offset-1 ring-tg-accent' : ''}`}
+                          className={`gia-hit-s text-[10px] font-semibold rounded px-1 leading-tight ${picked ? 'ring-2 ring-offset-1 ring-tg-accent' : ''}`}
                           style={{ background: codeHex(c), color: '#fff' }}
                         >{c}</button>
                         {i === 0 && (
