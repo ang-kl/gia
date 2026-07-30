@@ -48,6 +48,10 @@ const STRINGS = {
 
   // v0.62.602 — header popups (status + data source).
   'status.popupTitle':         { en: 'Service status', fr: 'État du service' },
+  // v0.62.659 — first-load "pick a line" popup (operator: "use the common
+  // pop-up window to ask user to select a line").
+  'pickline.title':            { en: 'Select a line', fr: 'Choisissez une ligne' },
+  'pickline.body':             { en: 'Tap a line to see its stations.', fr: 'Touchez une ligne pour voir ses stations.' },
   'src.title':                 { en: 'About the data', fr: 'À propos des données' },
   'src.body':                  { en: 'Source: LTA TrainServiceAlerts (live) + curated engineering schedule',
                                  fr: 'Source : LTA TrainServiceAlerts (en direct) + calendrier d’ingénierie sélectionné' },

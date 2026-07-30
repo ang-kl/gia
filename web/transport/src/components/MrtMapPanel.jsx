@@ -53,7 +53,11 @@ function openExternal(url) {
 }
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
-const SG_DEFAULT_ZOOM = 12;   // v0.62.132 — default 11->12
+// v0.62.132 — default 11->12. v0.62.659 — operator, first-load screenshot: "set
+// to 10 like the screenshot and overview" — a first-time visitor should see the
+// whole network at once (the z<12 plain-dot tier, same look Overview computes
+// via fitBounds), not a partial zoomed-in slice of central Singapore.
+const SG_DEFAULT_ZOOM = 10;
 const FUTURE_BG = '#9CA3AF';
 const DEFAULT_BG = '#888888';
 

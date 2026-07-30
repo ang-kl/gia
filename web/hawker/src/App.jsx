@@ -11,6 +11,7 @@ import WeatherBadge from '../../_shared/components/WeatherBadge.jsx';
 import { useViewport, viewportTag } from '../../_shared/lib/use-viewport.js';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import { activeClosure, closureTill, CLOSURE_TAB_BG } from './closure.js';
+import StationLocationField from '../../_shared/components/StationLocationField.jsx';
 
 // v0.60.59 — render "🍳 38 stalls · Operating" / "🍳 38 stands ·
 // Opérationnel" when stall count and/or status are known. Replaces
@@ -602,6 +603,10 @@ export default function App() {
           <div className="flex items-center pr-24">
             <h1 className="text-sm font-semibold leading-tight truncate">{t('header.title', lang)}</h1>
           </div>
+          {/* v0.62.659 — operator: "have the same location (show current location
+              and nearest station) like cuisine TMA... apply this to Hawker TMA as
+              well" — sits directly below the title. */}
+          <StationLocationField lang={lang} />
           <div className="flex items-start gap-2">
             {/* v0.62.607 — one row, no "(##)" count. */}
             <div className="flex gap-1 flex-1 min-w-0 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
@@ -772,15 +777,19 @@ export default function App() {
           on the controls so the map stays tappable around them. */}
       <div className="absolute top-0 inset-x-0 z-20 px-2 flex flex-col gap-1.5 pointer-events-none"
         style={{ paddingTop: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.5rem)' }}>
-        <div className="font-inter skeuo-card rounded-2xl px-3 py-2 flex items-center gap-2 pointer-events-auto">
-          <h1 className="text-base font-semibold leading-tight min-w-0 flex-1 truncate">{t('header.title', lang)}</h1>
-          <div className="flex items-center gap-3 shrink-0">
-            <LocaleToggle className="flex-shrink-0" />
-            <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
-            <button type="button" onClick={() => window.location.reload()}
-              aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'} title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
-              className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90">↻</button>
-            </div>
+        <div className="font-inter skeuo-card rounded-2xl px-3 py-2 flex flex-col gap-1 pointer-events-auto">
+          <div className="flex items-center gap-2">
+            <h1 className="text-base font-semibold leading-tight min-w-0 flex-1 truncate">{t('header.title', lang)}</h1>
+            <div className="flex items-center gap-3 shrink-0">
+              <LocaleToggle className="flex-shrink-0" />
+              <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
+              <button type="button" onClick={() => window.location.reload()}
+                aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'} title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+                className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90">↻</button>
+              </div>
+          </div>
+          {/* v0.62.659 — same location/station-search row as the carousel header. */}
+          <StationLocationField lang={lang} />
         </div>
         {/* v0.62.609 — operator (IMG_3595): the zone pills sat translucent directly
             over the busy map ("horrible"). Seat them on a SOLID skeuo-card (same as

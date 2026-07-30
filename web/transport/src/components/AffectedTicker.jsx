@@ -19,7 +19,7 @@ const STATUS_ICON = {
   unknown:    ''
 };
 
-export default function AffectedTicker({ affectedCodes, focusedCode, onFocus, statusByLine, compact = false }) {
+export default function AffectedTicker({ affectedCodes, focusedCode, onFocus, statusByLine, compact = false, blinkCode = null }) {
   const lang = useLocale();
   if (!affectedCodes?.length) {
     return (
@@ -57,12 +57,16 @@ export default function AffectedTicker({ affectedCodes, focusedCode, onFocus, st
             const focused = code === focusedCode;
             const status = statusByLine?.[code]?.status || 'normal';
             const icon = STATUS_ICON[status] || '';
+            // v0.62.659 — first-load onboarding: blink the suggested line's
+            // chip (shares the schematic's `.line-flash` keyframe, styles.css)
+            // until the user taps any chip.
+            const blinking = code === blinkCode;
             return (
               <button
                 key={code}
                 onClick={() => onFocus?.(code)}
                 aria-pressed={focused}
-                className={`inline-flex items-center gap-1.5 px-2 py-1 rounded border whitespace-nowrap ${focused ? 'border-tg-text' : 'border-tg-border'} bg-tg-bg`}
+                className={`inline-flex items-center gap-1.5 px-2 py-1 rounded border whitespace-nowrap ${focused ? 'border-tg-text' : 'border-tg-border'} bg-tg-bg ${blinking ? 'line-flash' : ''}`}
               >
                 <LineBadge code={code} hex={line.hex} size="sm" />
                 <span className="text-xs">{line.name}</span>
