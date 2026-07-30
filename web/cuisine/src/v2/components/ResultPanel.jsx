@@ -589,8 +589,10 @@ export default function ResultPanel({
                       {tn('michelin.cityJump.before', lang, { count: g.venues.length, total: cardsToShow.length })}
                       <span
                         role="button"
+                        tabIndex={0}
                         className="text-blue-500 italic underline cursor-pointer"
                         onClick={() => { if (onCityJump) onCityJump(g); }}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (onCityJump) onCityJump(g); } }}
                       >{g.city}</span>
                     </div>
                   )}

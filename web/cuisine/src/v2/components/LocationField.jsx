@@ -764,8 +764,12 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
 function CityDropdown({ countryCode, value, onChange, ariaLabel, hideClearOption = false }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
+  const itemRefs = useRef([]);
   const list = citiesForCountry(countryCode);
   const current = value ? list.find((c) => c.name === value) : null;
+  // P1-d — keyboard rows = the optional "— Clear —" row + the city rows;
+  // itemRefs indices follow render order (clear row first when present).
+  const clearOffset = hideClearOption ? 0 : 1;
   useEffect(() => {
     if (!open) return;
     function onDocClick(e) {
@@ -779,7 +783,42 @@ function CityDropdown({ countryCode, value, onChange, ariaLabel, hideClearOption
       document.removeEventListener('keydown', onKey);
     };
   }, [open]);
+  // P1-d — mirror CountryDropdown's v0.61.211 focus-on-open: focus the
+  // currently-selected city option (or the first row) so ↑/↓/Enter work
+  // immediately. setTimeout 0 so the popover is in the DOM when focus runs.
+  useEffect(() => {
+    if (!open) return;
+    const idx = current ? list.findIndex((c) => c.name === current.name) : -1;
+    const target = itemRefs.current[idx >= 0 ? idx + clearOffset : 0];
+    if (target && typeof target.focus === 'function') {
+      const id = setTimeout(() => target.focus(), 0);
+      return () => clearTimeout(id);
+    }
+  }, [open, value]);
   function pick(name) { setOpen(false); onChange?.(name); }
+  // P1-d — same arrow-key roving-focus model as CountryDropdown's onListKey:
+  // ↑/↓ move (wrapping), Home/End jump; Enter picks via native button focus.
+  function onListKey(e) {
+    if (!open) return;
+    const len = list.length + clearOffset;
+    const active = document.activeElement;
+    const idx = itemRefs.current.findIndex((el) => el === active);
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const next = idx < 0 ? 0 : (idx + 1) % len;
+      itemRefs.current[next]?.focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const next = idx < 0 ? len - 1 : (idx - 1 + len) % len;
+      itemRefs.current[next]?.focus();
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      itemRefs.current[0]?.focus();
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      itemRefs.current[len - 1]?.focus();
+    }
+  }
   if (!list.length) return null;
   return (
     <div ref={wrapRef} className="relative flex-shrink-0">
@@ -800,6 +839,7 @@ function CityDropdown({ countryCode, value, onChange, ariaLabel, hideClearOption
       {open && (
         <ul
           role="listbox"
+          onKeyDown={onListKey}
           className="absolute left-0 top-full mt-1 z-30 max-h-72 overflow-y-auto rounded-md border border-tg-border bg-tg-card shadow-lg min-w-[12rem] py-0.5"
         >
           {/* v0.61.268 — "— Clear —" row emits '' so the OtherLocationPicker
@@ -812,17 +852,19 @@ function CityDropdown({ countryCode, value, onChange, ariaLabel, hideClearOption
             <li role="option" aria-selected={!current}>
               <button
                 type="button"
+                ref={(el) => { itemRefs.current[0] = el; }}
                 onClick={() => pick('')}
                 className={`w-full text-left px-3 py-1 text-[13px] italic whitespace-nowrap text-tg-hint hover:bg-tg-bg focus:bg-tg-bg focus:outline-none border-b border-tg-border/40`}
               >— Clear —</button>
             </li>
           )}
-          {list.map((c) => {
+          {list.map((c, i) => {
             const sel = current && c.name === current.name;
             return (
               <li key={c.name} role="option" aria-selected={sel}>
                 <button
                   type="button"
+                  ref={(el) => { itemRefs.current[i + clearOffset] = el; }}
                   onClick={() => pick(c.name)}
                   className={`w-full text-left px-3 py-1 text-[13px] leading-tight whitespace-nowrap inline-flex items-center justify-between gap-2 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none ${sel ? 'bg-tg-bg/60 font-semibold' : ''}`}
                 >

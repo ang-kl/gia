@@ -14,6 +14,8 @@ import React, { useState, useEffect } from 'react';
 // (Wikimedia Commons File: page) via a runtime Wikipedia lookup.
 import { openDishPicture } from '../lib/dish-picture.js';
 import { t } from '../lib/i18n.js';
+// P1-d — shared dialog behaviour (focus trap / initial focus / Escape / restore).
+import { useDialog } from '../../../../_shared/lib/use-dialog.js';
 
 const TIER_LABEL = {
   'city-icon':        { en: 'city icon',        fr: 'icône de la ville' },
@@ -146,14 +148,21 @@ function groupByCommunity(dishes) {
 // swaps the open card). `max-w` matches the readable card width; the inner
 // wrapper stops click-through so taps inside the card don't dismiss it.
 function DishModal({ onClose, children }) {
+  // P1-d — focus trap + Escape→onClose + focus restore. The modal only
+  // mounts while open, so `open: true`. Named by the children's visible
+  // "📜 {dish}" line (each call site stamps id="gia-dishmodal-title" on it;
+  // only one DishModal is ever open at a time, so the id stays unique).
+  const panelRef = useDialog({ open: true, onClose });
   return (
     <div
       className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/50"
       role="dialog"
       aria-modal="true"
+      aria-labelledby="gia-dishmodal-title"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
+        ref={panelRef}
         className="w-full max-w-[420px] max-h-[80vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
@@ -266,7 +275,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                 {factIdx === 'h' + i && (
                   <DishModal onClose={() => setFactIdx(null)}>
                   <div className="mb-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
-                    <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
+                    <div id="gia-dishmodal-title" className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                     {d.note
                       ? <div className="mt-1">{(fr ? d.note.fr : d.note.en) || d.note.en || ''}</div>
                       : <div className="mt-1 text-tg-hint italic">{fr ? 'Description bientôt — touchez « Trouver des adresses ».' : 'Write-up coming soon — tap “Find eateries”.'}</div>}
@@ -343,7 +352,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                         {isOpen && (
                           <DishModal onClose={() => setFactIdx(null)}>
                           <div className="my-2 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2 whitespace-normal">
-                            <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
+                            <div id="gia-dishmodal-title" className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                             {d.note
                               ? <div className="mt-1">{(fr ? d.note.fr : d.note.en) || d.note.en || ''}</div>
                               : <div className="mt-1 text-tg-hint italic">{fr ? 'Description bientôt — touchez « Trouver des adresses ».' : 'Write-up coming soon — tap “Find eateries”.'}</div>}
@@ -473,7 +482,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
             return (
               <DishModal onClose={() => setFactIdx(null)}>
               <div className="mt-1.5 mb-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
-                <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
+                <div id="gia-dishmodal-title" className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                 <div className="mt-1">{(d.history && (fr ? d.history.fr : d.history.en)) || ''}</div>
                 <div className="mt-1 text-tg-hint">
                   {(TIER_LABEL[d.tier] || {})[fr ? 'fr' : 'en'] || d.tier} · {d.claim}
@@ -553,7 +562,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                   const clCard = (d) => (
                     <DishModal onClose={() => setFactIdx(null)}>
                     <div className="my-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2 whitespace-normal">
-                      <div className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
+                      <div id="gia-dishmodal-title" className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                       {d.note && (d.note.en || d.note.fr)
                         ? <div className="mt-1">{(fr ? d.note.fr : d.note.en) || d.note.en || ''}</div>
                         : <div className="mt-1 text-tg-hint">{fr ? 'Fiche en cours de rédaction.' : 'Write-up coming soon.'}</div>

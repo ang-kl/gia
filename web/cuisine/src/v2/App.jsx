@@ -11,6 +11,9 @@ import { startLocationSync } from '../../../_shared/lib/location-sync.js';
 // tablet/desktop card-count in the result strip + the footer device cue).
 import BottomSheet from '../../../_shared/components/BottomSheet.jsx';
 import { useViewport, viewportTag } from '../../../_shared/lib/use-viewport.js';
+// P1-d — shared dialog behaviour (focus trap / initial focus / Escape /
+// focus restore) for the three coherence modals below.
+import { useDialog } from '../../../_shared/lib/use-dialog.js';
 import { shouldFollowDevice } from './lib/location-follow.js';
 import { resolveSearchCenter } from './lib/search-location.js';
 // v0.61.277 — for the JB region-pill auto-anchor on tap.
@@ -1666,6 +1669,9 @@ export default function App() {
 
   const coherenceCheckedRef = useRef(false);
   const [coherenceMismatch, setCoherenceMismatch] = useState(null);
+  // P1-d — focus trap for the coherence modal. Forced choice (no Cancel/✕/
+  // backdrop dismiss), so no onClose: Escape is a deliberate no-op.
+  const coherenceDialogRef = useDialog({ open: !!coherenceMismatch });
   useEffect(() => {
     if (coherenceCheckedRef.current) return;
     if (!userLoc?.lat || !userLoc?.lng) return;  // wait for resolution
@@ -1751,6 +1757,8 @@ export default function App() {
   // Prompt the user — same UX pattern as v0.61.274.
   const regionCoherenceCheckedRef = useRef(false);
   const [regionMismatch, setRegionMismatch] = useState(null);
+  // P1-d — focus trap for the region-coherence modal (forced choice, no onClose).
+  const regionDialogRef = useDialog({ open: !!regionMismatch });
   // v0.61.277 — operator (30-05 '26): the v0.61.276 one-shot ref guard
   // meant tapping JB pill mid-session never re-prompted (effect re-ran
   // after the region flip but the ref was already true from the cold
@@ -1817,6 +1825,8 @@ export default function App() {
   // mount so a deliberate mid-session overseas pick isn't nagged.
   const anchorCoherenceCheckedRef = useRef(false);
   const [anchorMismatch, setAnchorMismatch] = useState(null);
+  // P1-d — focus trap for the anchor-coherence modal (forced choice, no onClose).
+  const anchorDialogRef = useDialog({ open: !!anchorMismatch });
   useEffect(() => {
     if (anchorCoherenceCheckedRef.current) return;
     if (!userLoc?.lat || !userLoc?.lng) return;       // wait for device resolution
@@ -3475,12 +3485,12 @@ export default function App() {
           className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/50"
           role="dialog"
           aria-modal="true"
-          aria-label={lang === 'fr' ? 'Conflit de localisation' : lang === 'id' ? 'Lokasi tidak cocok' : lang === 'ru' ? 'Несовпадение местоположения' : lang === 'de' ? 'Standortkonflikt' : lang === 'zh' ? '位置不一致' : lang === 'ja' ? '位置の不一致' : lang === 'es' ? 'Ubicacion no coincide' : 'Location mismatch'}
+          aria-labelledby="gia-dlg-coherence-title"
         >
-          <div className="w-full max-w-[420px] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
+          <div ref={coherenceDialogRef} className="w-full max-w-[420px] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
             <div className="px-4 py-3 border-b border-tg-border bg-tg-card flex items-center gap-2">
               <span aria-hidden>📍</span>
-              <h2 className="text-sm font-semibold flex-1">
+              <h2 id="gia-dlg-coherence-title" className="text-sm font-semibold flex-1">
                 {lang === 'fr' ? 'Conflit de localisation' : lang === 'id' ? 'Lokasi tidak cocok' : lang === 'ru' ? 'Несовпадение местоположения' : lang === 'de' ? 'Standortkonflikt' : lang === 'zh' ? '位置不一致' : lang === 'ja' ? '位置の不一致' : lang === 'es' ? 'Ubicacion no coincide' : 'Location mismatch'}
               </h2>
             </div>
@@ -3552,12 +3562,12 @@ export default function App() {
           className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/50"
           role="dialog"
           aria-modal="true"
-          aria-label={lang === 'fr' ? 'Conflit de région' : lang === 'id' ? 'Wilayah tidak cocok' : lang === 'ru' ? 'Несовпадение региона' : lang === 'de' ? 'Regionskonflikt' : lang === 'zh' ? '区域不一致' : lang === 'ja' ? '地域の不一致' : lang === 'es' ? 'Region no coincide' : 'Region mismatch'}
+          aria-labelledby="gia-dlg-region-title"
         >
-          <div className="w-full max-w-[420px] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
+          <div ref={regionDialogRef} className="w-full max-w-[420px] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
             <div className="px-4 py-3 border-b border-tg-border bg-tg-card flex items-center gap-2">
               <span aria-hidden>📍</span>
-              <h2 className="text-sm font-semibold flex-1">
+              <h2 id="gia-dlg-region-title" className="text-sm font-semibold flex-1">
                 {lang === 'fr' ? 'Conflit de région' : lang === 'id' ? 'Wilayah tidak cocok' : lang === 'ru' ? 'Несовпадение региона' : lang === 'de' ? 'Regionskonflikt' : lang === 'zh' ? '区域不一致' : lang === 'ja' ? '地域の不一致' : lang === 'es' ? 'Region no coincide' : 'Region mismatch'}
               </h2>
             </div>
@@ -3664,12 +3674,12 @@ export default function App() {
           className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/50"
           role="dialog"
           aria-modal="true"
-          aria-label={lang === 'fr' ? 'Conflit de localisation' : lang === 'id' ? 'Lokasi tidak cocok' : lang === 'ru' ? 'Несовпадение местоположения' : lang === 'de' ? 'Standortkonflikt' : lang === 'zh' ? '位置不一致' : lang === 'ja' ? '位置の不一致' : lang === 'es' ? 'Ubicacion no coincide' : 'Location mismatch'}
+          aria-labelledby="gia-dlg-anchor-title"
         >
-          <div className="w-full max-w-[420px] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
+          <div ref={anchorDialogRef} className="w-full max-w-[420px] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
             <div className="px-4 py-3 border-b border-tg-border bg-tg-card flex items-center gap-2">
               <span aria-hidden>📍</span>
-              <h2 className="text-sm font-semibold flex-1">
+              <h2 id="gia-dlg-anchor-title" className="text-sm font-semibold flex-1">
                 {lang === 'fr' ? 'Conflit de localisation' : lang === 'id' ? 'Lokasi tidak cocok' : lang === 'ru' ? 'Несовпадение местоположения' : lang === 'de' ? 'Standortkonflikt' : lang === 'zh' ? '位置不一致' : lang === 'ja' ? '位置の不一致' : lang === 'es' ? 'Ubicacion no coincide' : 'Location mismatch'}
               </h2>
             </div>

@@ -4,6 +4,8 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 import { isSlugCountryAllowed, SPECIAL_SLUGS } from '../lib/cuisine-selection.js';
 import { cuisineName } from '../lib/cuisine-i18n.js';
 import { initData } from '../../api/tg.js';
+// P1-d — shared dialog behaviour (focus trap / initial focus / Escape / restore).
+import { useDialog } from '../../../../_shared/lib/use-dialog.js';
 // v0.61.272 — Phase 4 cleanup: the v0.61.193 SG-only chip lock is
 // removed. Durian / Durian Pastry / Fruits chips are now selectable
 // in every region. The lib/sg-only-slugs.js module is deleted in
@@ -67,12 +69,22 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
       .then((d) => setDishList(d && Array.isArray(d.dishes) ? d.dishes : []))
       .catch(() => {}).finally(() => setDishLoading(false));
   };
-  // ESC closes the overlay (desktop / Telegram-Web users).
-  useEffect(() => {
-    function onKey(e) { if (e.key === 'Escape') onClose?.(); }
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  // P1-d — one focus-trap per stacked layer, each active only while its layer
+  // is TOPMOST (so exactly one trap owns Tab/Escape at a time and Escape pops
+  // only that layer — the old always-on document Escape listener, which closed
+  // the ROOT drawer even under the dish pop-ups, is replaced by these).
+  const rootDialogRef = useDialog({
+    open: !!category && !dishModal && !dishDetail,
+    onClose,
+  });
+  const dishListDialogRef = useDialog({
+    open: !!dishModal && !dishDetail,
+    onClose: () => setDishModal(null),
+  });
+  const dishDetailDialogRef = useDialog({
+    open: !!dishDetail,
+    onClose: () => setDishDetail(null),
+  });
 
   // v0.62.479 — report the drill DEPTH + the topmost "back" handler UP to App,
   // so the 🔙 back FAB can render inside the App bottom FAB cluster. (v0.62.478
@@ -114,10 +126,12 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
     <div
       className="fixed inset-0 z-30 flex items-center justify-center p-4 bg-black/50"
       role="dialog"
+      aria-modal="true"
       aria-label={`${localisedLabel} cuisines`}
       onClick={(e) => { if (e.target === e.currentTarget) onClose?.(); }}
     >
       <div
+        ref={rootDialogRef}
         className="flex flex-col w-full max-w-[480px] max-h-[80vh] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden"
       >
       <div className="flex items-center gap-2 px-3 py-3 border-b border-tg-border bg-tg-card">
@@ -225,10 +239,11 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
       </div>
       {dishModal && (
         <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/50"
-          role="dialog" onClick={(e) => { if (e.target === e.currentTarget) setDishModal(null); }}>
-          <div className="flex flex-col w-full max-w-[420px] max-h-[80vh] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
+          role="dialog" aria-modal="true" aria-labelledby="gia-drawer-dishes-title"
+          onClick={(e) => { if (e.target === e.currentTarget) setDishModal(null); }}>
+          <div ref={dishListDialogRef} className="flex flex-col w-full max-w-[420px] max-h-[80vh] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
             <div className="flex items-center gap-2 px-3 py-3 border-b border-tg-border bg-tg-card">
-              <h3 className="text-sm font-semibold flex-1 truncate">{tr('cat.dishes', lang)} · {dishModal.flag ? dishModal.flag + ' ' : ''}{dishModal.name}</h3>
+              <h3 id="gia-drawer-dishes-title" className="text-sm font-semibold flex-1 truncate">{tr('cat.dishes', lang)} · {dishModal.flag ? dishModal.flag + ' ' : ''}{dishModal.name}</h3>
               <button type="button" onClick={() => setDishModal(null)} aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
                 className="text-tg-hint text-sm leading-none px-1 flex-shrink-0">✕</button>
             </div>
@@ -272,10 +287,11 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
           the dishes pop-up (z-50 > z-40). */}
       {dishDetail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
-          role="dialog" onClick={(e) => { if (e.target === e.currentTarget) setDishDetail(null); }}>
-          <div className="flex flex-col w-full max-w-[380px] max-h-[70vh] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
+          role="dialog" aria-modal="true" aria-labelledby="gia-drawer-dishdetail-title"
+          onClick={(e) => { if (e.target === e.currentTarget) setDishDetail(null); }}>
+          <div ref={dishDetailDialogRef} className="flex flex-col w-full max-w-[380px] max-h-[70vh] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
             <div className="flex items-center gap-2 px-3 py-3 border-b border-tg-border bg-tg-card">
-              <h3 className="text-sm font-semibold flex-1 truncate capitalize">{dishDetail.name}</h3>
+              <h3 id="gia-drawer-dishdetail-title" className="text-sm font-semibold flex-1 truncate capitalize">{dishDetail.name}</h3>
               <button type="button" onClick={() => setDishDetail(null)} aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
                 className="text-tg-hint text-sm leading-none px-1 flex-shrink-0">✕</button>
             </div>

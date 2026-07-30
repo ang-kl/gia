@@ -18,6 +18,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { factBody, deviceFactLang } from '../lib/fun-facts.js';
+// P1-d — shared dialog behaviour (focus trap / initial focus / Escape / restore).
+import { useDialog } from '../../../../_shared/lib/use-dialog.js';
 
 const DEFAULT_MIN_MS = 3000;
 
@@ -64,6 +66,12 @@ export default function FunFactModal({ fact, visible, minDisplayMs = DEFAULT_MIN
     };
   }, [visible, shown, minDisplayMs]);
 
+  // P1-d — modal dialog semantics: trap focus in the card while shown and
+  // wire Escape to the only dismiss affordance this surface has (🛑 Stop —
+  // the backdrop deliberately absorbs clicks without closing). When no
+  // onStop is passed, Escape is a no-op and the trap/restore still apply.
+  const panelRef = useDialog({ open: !!(shown && fact), onClose: onStop });
+
   if (!shown || !fact) return null;
 
   // v0.61.383 — the fact BODY localises to the device-region language
@@ -77,8 +85,13 @@ export default function FunFactModal({ fact, visible, minDisplayMs = DEFAULT_MIN
   const sourceLabel = fact.source || 'NLB';
 
   return (
+    // P1-d — was role="status": a backdrop-blocking, Stop-dismissible surface
+    // is a modal dialog. The inner text keeps announcing via the aria-live
+    // wrapper below; the container now carries the dialog contract.
     <div
-      role="status"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="gia-funfact-title"
       aria-live="polite"
       aria-busy="true"
       className="fixed inset-0 z-50 flex items-center justify-center px-4 cursor-wait"
@@ -101,11 +114,12 @@ export default function FunFactModal({ fact, visible, minDisplayMs = DEFAULT_MIN
           halo so the modal reads as "floating" per the operator's
           v0.61.285 brief. */}
       <div
+        ref={panelRef}
         className="relative max-w-[360px] w-full rounded-2xl border-2 border-tg-accent bg-tg-card shadow-2xl ring-1 ring-tg-accent/30 ring-offset-2 ring-offset-transparent px-4 py-3.5 pointer-events-auto"
       >
         <div className="flex items-center gap-1.5 mb-1.5">
           <span aria-hidden="true" className="text-base leading-none">💡</span>
-          <span className="text-xs font-semibold text-tg-text">
+          <span id="gia-funfact-title" className="text-xs font-semibold text-tg-text">
             {tr('funfact.header', lang)}
           </span>
         </div>
