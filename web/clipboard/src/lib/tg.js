@@ -54,6 +54,34 @@ export function applyTelegramTheme() {
     if (platform !== 'tdesktop' && platform !== 'macos') return;
     try { w.requestFullscreen(); } catch { /* best-effort */ }
   });
+  // v0.62.664 — URGENT operator report: "the Telegram TMA in Desktop version
+  // cannot close/end." Clipboard had NO close affordance at all — no
+  // BackButton, no in-app close button — it relied entirely on Telegram's own
+  // native window chrome. The v0.62.663 desktop-fullscreen step above hides
+  // that chrome (Menu's own long-standing comment already warned this is
+  // exactly what "fullscreen takeover with no chrome and no easy exit" means),
+  // so once fullscreen fired there was truly no way out. Mirror the
+  // Cuisine/Hawker/Transport BackButton wiring — Telegram's own persistent
+  // in-app arrow keeps rendering even when the OS window chrome is gone.
+  safe('back-button', () => {
+    if (!w.BackButton || typeof w.BackButton.show !== 'function') return;
+    w.BackButton.show();
+    const handler = () => { if (typeof w.close === 'function') w.close(); };
+    try {
+      if (typeof w.offEvent === 'function' && w.__giaBackHandler) {
+        w.offEvent('backButtonClicked', w.__giaBackHandler);
+      }
+      if (typeof w.BackButton.offClick === 'function' && w.__giaBackHandler) {
+        w.BackButton.offClick(w.__giaBackHandler);
+      }
+    } catch { /* noop */ }
+    w.__giaBackHandler = handler;
+    if (typeof w.onEvent === 'function') {
+      w.onEvent('backButtonClicked', handler);
+    } else if (typeof w.BackButton.onClick === 'function') {
+      w.BackButton.onClick(handler);
+    }
+  });
   safe('theme', () => {
     const p = w.themeParams || {};
     const root = document.documentElement;

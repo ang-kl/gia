@@ -72,6 +72,50 @@ export function applyTelegramTheme() {
     try { w.requestFullscreen(); } catch { /* best-effort */ }
   });
 
+  // v0.62.664 — URGENT operator report: "the Telegram TMA in Desktop version
+  // cannot close/end." Root cause of the v0.62.663 regression this fixes: Menu
+  // never wired Telegram's BackButton, and v0.62.663 widened its fullscreen
+  // gate to Telegram Desktop. Menu's OWN v0.60.52 comment already warned about
+  // exactly this — "fullscreen takeover with NO CHROME AND NO EASY EXIT" — which
+  // is why desktop was excluded back then. Cuisine/Hawker/Transport never hit
+  // this because they've always paired desktop fullscreen with a BackButton
+  // (Telegram's own persistent in-app arrow, which keeps rendering even when the
+  // OS-level window chrome is gone in fullscreen). Menu gained the fullscreen
+  // half of that pairing at v0.62.663 without the other half. Mirror the
+  // Cuisine/Hawker/Transport wiring verbatim.
+  safe('back-button', () => {
+    if (!w.BackButton || typeof w.BackButton.show !== 'function') return;
+    w.BackButton.show();
+    const handler = () => {
+      let fromHub = false;
+      try {
+        const ref = (typeof document !== 'undefined' && document.referrer)
+          ? new URL(document.referrer) : null;
+        fromHub = !!ref && ref.origin === window.location.origin
+          && ref.pathname.indexOf('/app/') === 0;
+      } catch { /* noop */ }
+      if (fromHub && typeof window !== 'undefined' && window.history.length > 1) {
+        window.history.back();
+      } else if (typeof w.close === 'function') {
+        w.close();
+      }
+    };
+    try {
+      if (typeof w.offEvent === 'function' && w.__giaBackHandler) {
+        w.offEvent('backButtonClicked', w.__giaBackHandler);
+      }
+      if (typeof w.BackButton.offClick === 'function' && w.__giaBackHandler) {
+        w.BackButton.offClick(w.__giaBackHandler);
+      }
+    } catch { /* noop */ }
+    w.__giaBackHandler = handler;
+    if (typeof w.onEvent === 'function') {
+      w.onEvent('backButtonClicked', handler);
+    } else if (typeof w.BackButton.onClick === 'function') {
+      w.BackButton.onClick(handler);
+    }
+  });
+
   // v0.60.42 — sync Telegram header + chrome bg to secondary.
   safe('header-color', () => {
     if (typeof w.setHeaderColor === 'function') w.setHeaderColor('secondary_bg_color');
