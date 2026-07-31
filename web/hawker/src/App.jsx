@@ -254,6 +254,18 @@ export default function App() {
   // open external Google Maps and clear the toggle. `activePill` is the toggled
   // pill's id, or null.
   const [activePill, setActivePill] = useState(null);
+  // v0.62.678 — operator: card collapse/expand parity with Cuisine's
+  // card.detailsMore/detailsLess and Train's mrt.detailsMore/detailsLess.
+  // A Set (not a single value like activePill above) since, unlike the pill
+  // toggle, multiple centre cards can be expanded at once — each card's own
+  // disclosure is independent. Keyed by centre name (unique within a region's
+  // result set, same key `renderCentreCard` already uses for `tr`/`activePill`).
+  const [expandedCards, setExpandedCards] = useState(() => new Set());
+  const toggleCardExpanded = (name) => setExpandedCards((prev) => {
+    const next = new Set(prev);
+    if (next.has(name)) next.delete(name); else next.add(name);
+    return next;
+  });
   // v0.62.551 — 1st tap runs `show` (reveal the station/bus stop ON the map) and
   // toggles the pill; 2nd tap on the same pill opens external Google Maps and
   // clears the toggle. `show` is a callback so each kind reveals itself properly
@@ -423,6 +435,12 @@ export default function App() {
   const renderCentreCard = (c, i, glass = false, compact = false) => {
     const tr = transitByName[c.name];
     const cardOn = activePill === `${c.name}|card`;
+    // v0.62.678 — details/less parity with Cuisine (card.detailsMore/detailsLess)
+    // and Train (mrt.detailsMore/detailsLess). Collapsed = the always-useful
+    // identity row (name/address/stall-count/status, already above this point);
+    // Bib Gourmand links, MRT/bus-stop chips, and the Maps/Copy pills move
+    // behind the toggle. Content-sized in both states (no fixed height).
+    const expanded = expandedCards.has(c.name);
     // v0.62.595 — cleaning/renovation/redevelopment closure tab: only when TODAY is in a window.
     const closure = activeClosure(c.closures);
     const card = (
@@ -464,6 +482,20 @@ export default function App() {
             )}
           </div>
         )}
+        {/* v0.62.678 — collapse toggle. Collapsed = identity + meta (above);
+            Bib Gourmand / MRT+bus / Maps+Copy all move below, revealed on
+            expand. stopPropagation so it doesn't fire the card's own tap
+            (map pin highlight). */}
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); toggleCardExpanded(c.name); }}
+          aria-expanded={expanded}
+          className="self-start px-2.5 py-0.5 rounded-full border border-tg-accent/50 text-[11px] text-tg-accent font-medium active:scale-95"
+        >
+          {expanded ? t('btn.detailsLess', lang) : t('btn.detailsMore', lang)}
+        </button>
+        {expanded && (
+        <>
         {/* v0.62.553 — operator: Michelin Bib Gourmand stall(s) in this centre,
             house style "✳️ Bib Gourmand · <stall>". The ✳️ + word carry the
             meaning (CVD-safe), mirroring the map pin's macaron-red + ✳️ marker. */}
@@ -552,6 +584,8 @@ export default function App() {
             {savingName === c.name ? t('btn.saving', lang) : t('btn.saveToChat', lang)}
           </button>
         </div>
+        </>
+        )}
       </m.div>
     );
     // v0.62.595 — no active closure → the card unchanged (zero regression). Else a

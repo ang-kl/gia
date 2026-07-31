@@ -4338,7 +4338,13 @@ export default function App() {
                 // tab made it MISMATCH the grey "Pick local classic" tab once both
                 // showed. Apply the blue CTA only BEFORE results (no plate yet);
                 // once both tabs are loaded they share the standard manila colour.
-                className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] active:scale-95 ${cuisinePickOpen ? 'folio-tab--active' : ''} ${!names.length && !hasPlate ? 'text-tg-accent font-semibold' : ''} ${!names.length && !hasPlate && editSearchPulse ? 'animate-pulse' : ''}`}
+                // v0.62.678 — operator: "I like Cuisine's tab labels at 11px." Dropped the
+                // text-[12px] utility here — it never actually rendered (styles.css's
+                // .folio-tab{font-size:11px} sits later in the compiled CSS and silently won
+                // the cascade tie, so this class was dead weight claiming a size that was
+                // never real). 11px stays exactly as it always has; only the source now
+                // agrees with it.
+                className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 active:scale-95 ${cuisinePickOpen ? 'folio-tab--active' : ''} ${!names.length && !hasPlate ? 'text-tg-accent font-semibold' : ''} ${!names.length && !hasPlate && editSearchPulse ? 'animate-pulse' : ''}`}
               >
                 <span aria-hidden className="shrink-0">🍲</span>
                 <span className="flex-1 text-left truncate">{cuisineLabel}</span>
@@ -4357,7 +4363,8 @@ export default function App() {
                 aria-disabled={!hasPlate || undefined}
                 title={!hasPlate ? (lang === 'fr' ? 'Disponible une fois les résultats chargés' : lang === 'id' ? 'Tersedia setelah hasil dimuat' : lang === 'ru' ? 'Доступно после загрузки результатов' : lang === 'de' ? 'Verfügbar nach dem Laden der Ergebnisse' : lang === 'zh' ? '结果加载后可用' : lang === 'ja' ? '結果の読み込み後に利用可能' : lang === 'es' ? 'Disponible al cargar resultados' : 'Available once results load') : undefined}
                 aria-label={lang === 'fr' ? 'Plats classiques locaux' : lang === 'id' ? 'Pilih klasik lokal' : lang === 'ru' ? 'Местная классика' : lang === 'de' ? 'Lokale Klassiker' : lang === 'zh' ? '选择本地经典' : lang === 'ja' ? '地元の定番を選ぶ' : lang === 'es' ? 'Elegir clasico local' : 'Pick local classic'}
-                className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] ${hasPlate ? 'active:scale-95' : 'opacity-50 cursor-not-allowed'} ${hasPlate && classicOpen ? 'folio-tab--active' : ''}`}
+                // v0.62.678 — same dead text-[12px] removal as the tab above (see its comment).
+                className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 ${hasPlate ? 'active:scale-95' : 'opacity-50 cursor-not-allowed'} ${hasPlate && classicOpen ? 'folio-tab--active' : ''}`}
               >
                 {/* v0.62.228 — operator: the Magnify (cooking-method) icon marks
                     Local Food Pick + search. */}
@@ -4483,6 +4490,7 @@ export default function App() {
             onChange={(c) => setState((s) => ({ ...s, cuisines: c }))}
             michelinFilter={state.michelinFilter}
             onMichelinFilterChange={(mf) => setState((s) => ({ ...s, michelinFilter: mf }))}
+            isCompact={vp.isCompact}
             onCategoryClose={() => {
               if (state.cuisines.length > 0) {
                 setSearchHintActive(true);

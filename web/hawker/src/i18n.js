@@ -131,6 +131,13 @@ const STRINGS = {
   // underlying save-pick mechanism are UNCHANGED — this is a label-only fix.
   'btn.saveToChat':          { en: '📋 Copy', fr: '📋 Copier' },
   'btn.saving':              { en: 'Sending…', fr: 'Envoi…' },
+  // v0.62.678 — collapse/expand toggle, parity with Cuisine's card.detailsMore/
+  // detailsLess and Train's mrt.detailsMore/detailsLess (operator's typography/
+  // card-height audit). Simpler wording than Cuisine's ("details, review &
+  // links") since a Hawker card has no review content behind the toggle —
+  // matches Train's plain "details"/"less".
+  'btn.detailsMore':         { en: '⌄ details', fr: '⌄ détails' },
+  'btn.detailsLess':         { en: '⌃ less', fr: '⌃ moins' },
   'msg.savedClose':          { en: 'Sent to chat. You can close this view.',
                                fr: 'Envoyé au chat. Vous pouvez fermer cette vue.' },
   'msg.saveFailed':          { en: 'Could not send to chat — please try again.',
@@ -220,6 +227,8 @@ const ID_STRINGS = {
   'btn.fabDownAria': 'Gulir ke bawah',
   'btn.saveToChat': '📋 Salin',
   'btn.saving': 'Mengirim…',
+  'btn.detailsMore': '⌄ detail',
+  'btn.detailsLess': '⌃ ringkas',
   'msg.savedClose': 'Terkirim ke chat. Anda bisa menutup tampilan ini.',
   'msg.saveFailed': 'Tidak bisa mengirim ke chat — silakan coba lagi.',
   'stalls.count': '🍳 {n} kios',
@@ -300,6 +309,8 @@ const RU_STRINGS = {
   'btn.fabDownAria': 'Вниз',
   'btn.saveToChat': '📋 Копировать',
   'btn.saving': 'Отправка…',
+  'btn.detailsMore': '⌄ детали',
+  'btn.detailsLess': '⌃ меньше',
   'msg.savedClose': 'Отправлено в чат. Можно закрыть это окно.',
   'msg.saveFailed': 'Не удалось отправить в чат — попробуйте ещё раз.',
   'stalls.count': '🍳 {n} прилавков',
@@ -377,6 +388,8 @@ const DE_STRINGS = {
   'btn.fabDownAria': 'Nach unten',
   'btn.saveToChat': '📋 Kopieren',
   'btn.saving': 'Senden…',
+  'btn.detailsMore': '⌄ Details',
+  'btn.detailsLess': '⌃ weniger',
   'msg.savedClose': 'An Chat gesendet. Sie können diese Ansicht schließen.',
   'msg.saveFailed': 'Senden an Chat fehlgeschlagen — bitte erneut versuchen.',
   'stalls.count': '🍳 {n} Stände',
@@ -456,6 +469,8 @@ const ZH_STRINGS = {
   'btn.fabDownAria': '向下滚动',
   'btn.saveToChat': '📋 复制',
   'btn.saving': '发送中…',
+  'btn.detailsMore': '⌄ 详情',
+  'btn.detailsLess': '⌃ 收起',
   'msg.savedClose': '已发送到聊天。您可以关闭此视图。',
   'msg.saveFailed': '无法发送到聊天 — 请重试。',
   'stalls.count': '🍳 {n} 个摊位',
@@ -534,6 +549,8 @@ const JA_STRINGS = {
   'btn.fabDownAria': '下にスクロール',
   'btn.saveToChat': '📋 コピー',
   'btn.saving': '送信中…',
+  'btn.detailsMore': '⌄ 詳細',
+  'btn.detailsLess': '⌃ 閉じる',
   'msg.savedClose': 'チャットに送信しました。この画面を閉じてかまいません。',
   'msg.saveFailed': 'チャットに送信できませんでした — もう一度お試しください。',
   'stalls.count': '🍳 {n} 店舗',
@@ -612,6 +629,8 @@ const ES_STRINGS = {
   'btn.fabDownAria': 'Bajar',
   'btn.saveToChat': '📋 Copiar',
   'btn.saving': 'Enviando…',
+  'btn.detailsMore': '⌄ detalles',
+  'btn.detailsLess': '⌃ menos',
   'msg.savedClose': 'Enviado al chat. Puedes cerrar esta vista.',
   'msg.saveFailed': 'No se pudo enviar al chat — inténtalo de nuevo.',
   'stalls.count': '🍳 {n} puestos',

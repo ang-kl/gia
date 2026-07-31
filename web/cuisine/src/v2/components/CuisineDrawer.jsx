@@ -52,7 +52,7 @@ const CATEGORY_LABEL_KEY = {
 // derived from `selected` at the App.jsx request-build site. The
 // applyChipToggle helper enforces the mutex (special ↔ everything else
 // including Dessert).
-export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region, countryPref, michelinCuisines = null, onPickDish = null, onDrillChange = null, michelinFilter = null, onMichelinFilterChange = null }) {
+export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region, countryPref, michelinCuisines = null, onPickDish = null, onDrillChange = null, michelinFilter = null, onMichelinFilterChange = null, isCompact = false }) {
   const [openCategoryId, setOpenCategoryId] = useState(null);
   // v0.61.346 — current country for per-country chip gating (e.g. the
   // Michelin chip enables wherever its `michelinCountries` list covers).
@@ -141,7 +141,13 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
       >
         <span aria-hidden className="flex-shrink-0">{cat.emoji}</span>
         <span className="flex-1 min-w-0">
-          <span className="block text-xs font-semibold whitespace-normal break-words leading-tight line-clamp-2">{label}</span>
+          {/* v0.62.678 — operator: "I feel the Cuisine groups should be 11px
+              especially for iPhone 11 Pro... For Tablet phone or iPad Mini or
+              bigger, 12px is minimum." isCompact is only ever true for a
+              'mobile'-classed device <=390px short edge (classify-viewport.js),
+              so tablet/desktop always fall through to the 12px 'type-body'
+              token — the "12px minimum" half of the ask holds by construction. */}
+          <span className={`block ${isCompact ? 'text-type-meta' : 'text-type-body'} font-semibold whitespace-normal break-words leading-tight line-clamp-2`}>{label}</span>
         </span>
         {!isSingle && selectedInCat > 0 && (
           <span className="text-tg-accent text-[10px] font-semibold flex-shrink-0">[{selectedInCat}]</span>

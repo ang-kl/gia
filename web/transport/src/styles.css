@@ -5,6 +5,13 @@
 html, body, #root { height: 100%; }
 body { -webkit-font-smoothing: antialiased; }
 
+/* v0.62.678 — iOS Safari/Telegram auto-zooms the viewport when a focused input's
+   font-size is below 16px. web/clipboard fixed this exact problem at v0.62.442;
+   this repo never propagated the fix here, leaving the shared station-search field
+   (StationLocationField.jsx, text-xs = 12px) unguarded. Force >=16px on all text
+   inputs. */
+input, textarea, select { font-size: 16px; }
+
 /* v0.57.14: stronger contrast for hint/secondary text. */
 :root {
   --tg-hint: color-mix(in srgb, var(--tg-text, #f5f5f7) 72%, var(--tg-bg, #0e0e10) 28%);
