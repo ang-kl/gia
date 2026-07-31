@@ -21,13 +21,18 @@ import { useDialog } from '../../../../_shared/lib/use-dialog.js';
 const MEALTIME_ICON = { breakfast: '🌅', lunch: '☀️', dinner: '🌙', snack: '🍡', anytime: '🕒' };
 const DIETARY_ICON = { vegetarian: '🥬', meat: '🍖', seafood: '🦐', mixed: '🍽️' };
 
+// v0.62.670 — operator (O-85 item 2): the solid -100 pastel fills + -800 ink
+// were light-mode-only (glaring/illegible on a dark Telegram theme). Same
+// decorative hue per group, but as a translucent -500/20 wash over the theme
+// surface with theme ink — near-identical tint in light mode, readable in
+// dark. The label text still carries the meaning (colour stays decorative).
 const GROUP_BADGE_CLASS = {
-  noodles: 'bg-amber-100 text-amber-800', rice: 'bg-yellow-100 text-yellow-800',
-  'bread-dumpling': 'bg-orange-100 text-orange-800', soup: 'bg-sky-100 text-sky-800',
-  grilled: 'bg-red-100 text-red-800', 'stew-curry': 'bg-rose-100 text-rose-800',
-  seafood: 'bg-cyan-100 text-cyan-800', veg: 'bg-green-100 text-green-800',
-  snack: 'bg-lime-100 text-lime-800', sweet: 'bg-pink-100 text-pink-800',
-  drink: 'bg-blue-100 text-blue-800', other: 'bg-gray-100 text-gray-700',
+  noodles: 'bg-amber-500/20 text-tg-text', rice: 'bg-yellow-500/20 text-tg-text',
+  'bread-dumpling': 'bg-orange-500/20 text-tg-text', soup: 'bg-sky-500/20 text-tg-text',
+  grilled: 'bg-red-500/20 text-tg-text', 'stew-curry': 'bg-rose-500/20 text-tg-text',
+  seafood: 'bg-cyan-500/20 text-tg-text', veg: 'bg-green-500/20 text-tg-text',
+  snack: 'bg-lime-500/20 text-tg-text', sweet: 'bg-pink-500/20 text-tg-text',
+  drink: 'bg-blue-500/20 text-tg-text', other: 'bg-gray-500/20 text-tg-text',
 };
 
 // v0.59.6: keep in sync with CuisineDrawer's CATEGORY_LABEL_KEY map.

@@ -471,8 +471,8 @@ export default function App() {
         <span className="text-tg-hint" aria-hidden>·</span>
         <button type="button" onClick={() => setPopup('status')} className="active:scale-95">
           {affectedCodes.length === 0
-            ? <span className="text-green-500">{t('header.allNormal', lang)}</span>
-            : <span className="text-orange-500">{tn(affectedCodes.length === 1 ? 'header.linesAffected' : 'header.linesAffectedPlural', lang, { n: affectedCodes.length })}</span>}
+            ? <span className="text-blue-500">{t('header.allNormal', lang)}</span>
+            : <span className="text-amber-500">{tn(affectedCodes.length === 1 ? 'header.linesAffected' : 'header.linesAffectedPlural', lang, { n: affectedCodes.length })}</span>}
         </button>
       </div>
       {/* v0.62.597 — the overview (All Lines) + operating-line pills. */}
@@ -645,8 +645,8 @@ export default function App() {
         <Modal title={t('status.popupTitle', lang)} onClose={() => setPopup(null)}>
           <div className="text-xs">
             {affectedCodes.length === 0
-              ? <span className="text-green-500 font-semibold">{t('header.allNormal', lang)}</span>
-              : <span className="text-orange-500 font-semibold">{tn(affectedCodes.length === 1 ? 'header.linesAffected' : 'header.linesAffectedPlural', lang, { n: affectedCodes.length })}</span>}
+              ? <span className="text-blue-500 font-semibold">{t('header.allNormal', lang)}</span>
+              : <span className="text-amber-500 font-semibold">{tn(affectedCodes.length === 1 ? 'header.linesAffected' : 'header.linesAffectedPlural', lang, { n: affectedCodes.length })}</span>}
           </div>
           {affectedCodes.length > 0 && (
             <div className="flex flex-col gap-1">

@@ -458,7 +458,7 @@ export default function App() {
               <span className="text-[10px] text-tg-text/80">{tn('stalls.count', lang, { n: c.stalls })}</span>
             )}
             {c.status && (
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${statusIsOpen(c) ? 'bg-green-600/20 text-green-500' : 'bg-amber-500/20 text-amber-600'}`}>
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${statusIsOpen(c) ? 'bg-blue-600/20 text-blue-500' : 'bg-amber-500/20 text-amber-600'}`}>
                 {statusLabel(c, lang)}
               </span>
             )}

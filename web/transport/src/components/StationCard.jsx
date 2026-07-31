@@ -488,7 +488,7 @@ export default function StationCard({
             <span className="text-tg-hint truncate">{t(`mrt.status.${worstStatus}`, lang)}</span>
           )}
           {openNow != null && (
-            <span className={`shrink-0 font-semibold ${openNow ? 'text-green-500' : 'text-orange-500'}`}>
+            <span className={`shrink-0 font-semibold ${openNow ? 'text-blue-500' : 'text-amber-500'}`}>
               · {openNow ? t('mrt.openNow', lang) : t('mrt.closedNow', lang)}
             </span>
           )}
@@ -556,7 +556,7 @@ export default function StationCard({
               <span className="text-tg-text/90 font-medium">{t(`mrt.status.${worstStatus}`, lang)}</span>
             </span>
             {openNow != null && (
-              <span className={`font-semibold ${openNow ? 'text-green-500' : 'text-orange-500'}`}>
+              <span className={`font-semibold ${openNow ? 'text-blue-500' : 'text-amber-500'}`}>
                 · {openNow ? t('mrt.openNow', lang) : t('mrt.closedNow', lang)}
               </span>
             )}
