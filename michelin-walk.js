@@ -41,7 +41,7 @@ function entryKey(entry) {
 // SHA256 over the normalised filter set. Stable across object-key order,
 // case folds free-text, drops falsy filter flags so `{ halal: false }`
 // hashes identically to `{}`.
-function computeCriteriaHash({ otherCuisineSlugs = [], filters = {}, prices = [], radius, isJB, freeText, loc } = {}) {
+function computeCriteriaHash({ otherCuisineSlugs = [], filters = {}, prices = [], radius, isJB, freeText, loc, michYears } = {}) {
   const norm = {
     cuisines: [...otherCuisineSlugs].filter(Boolean).sort(),
     filters: Object.keys(filters || {}).sort().reduce((acc, k) => {
@@ -57,7 +57,11 @@ function computeCriteriaHash({ otherCuisineSlugs = [], filters = {}, prices = []
     // SG to MY (or KL→Penang) starts a fresh walk instead of paginating
     // past entries "seen" under a different country. Caller passes the
     // resolved Michelin country (+ optional coarse city).
-    loc: loc || null
+    loc: loc || null,
+    // v0.62.676 — the year/Bib-Gourmand tick state (CuisineDrawer, shown
+    // under the Michelin chip). Changing which ticks are on/off changes the
+    // curated pool size, so it must reset the walk like any other criterion.
+    michYears: michYears || null
   };
   return crypto.createHash('sha256').update(JSON.stringify(norm)).digest('hex').slice(0, 16);
 }

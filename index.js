@@ -9695,7 +9695,29 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // venue is shown once at its LATEST award standing.
   const mdMich = isSGMich ? null : require('./michelin-data');
   const latestMichCat = (v) => { let best = null; for (const a of v.awards) { if (!best || a.year > best.year) best = a; } return best ? best.category : null; };
-  const allEntries = isSGMich
+  // v0.62.676 — operator: independent ticks under the Michelin chip
+  // (CuisineDrawer) for 2026 / 2025 / Bib Gourmand, all default ON (today's
+  // all-inclusive behaviour when every tick stays checked). A year tick
+  // gates STAR entries by `awardYears` membership; the Bib Gourmand tick is
+  // its OWN bucket (not cross-filtered by year) — "3 independent ticks,
+  // like the rest [of the cuisine tag chips]" per the operator's own
+  // framing, i.e. union semantics across three parallel categories, not a
+  // year × category matrix.
+  const michFilterIn = (req.body && typeof req.body.michelinFilter === 'object' && req.body.michelinFilter) || {};
+  const michYear2026 = michFilterIn.year2026 !== false;
+  const michYear2025 = michFilterIn.year2025 !== false;
+  const michIncludeBib = michFilterIn.bib !== false;
+  // All three off (stale hash / hand-crafted request) fails OPEN rather
+  // than silently returning zero — same fail-open convention already used
+  // for a null `michelinCuisines` allow-list.
+  const michAllTicksOff = !michYear2026 && !michYear2025 && !michIncludeBib;
+  const michYearMatches = (e) => {
+    if (michAllTicksOff) return true;
+    if (e.category === 'bib-gourmand') return michIncludeBib;
+    const years = Array.isArray(e.awardYears) ? e.awardYears : [];
+    return (michYear2026 && years.includes("'26")) || (michYear2025 && years.includes("'25"));
+  };
+  const allEntries = (isSGMich
     ? michelin.getAll()
     : mdMich.visitableVenues().filter((v) => v.country === michCC).map((v) => ({
         name: v.name, address: v.address, postal: v.postal || '',
@@ -9706,7 +9728,8 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
         // hardcoded fallback (see ResultCard.jsx michelinAnnotation).
         awardYears: mdMich.retainedAwardYears(v),
         city: v.city, country: v.country
-      }));
+      }))
+  ).filter(michYearMatches);
   // Places query + regionCode adapt to the country (SG keeps the curated
   // name+postal disambiguation; others use name + city).
   const buildMichQuery = isSGMich
@@ -9886,7 +9909,11 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     freeText,
     // v0.61.440 — country (+ coarse city) so the per-chat Michelin walk
     // doesn't carry a prior country's "seen" set into a new country.
-    loc: `${michCC}|${michSelectedCity ? String(michSelectedCity).toLowerCase() : ''}`
+    loc: `${michCC}|${michSelectedCity ? String(michSelectedCity).toLowerCase() : ''}`,
+    // v0.62.676 — year/Bib-Gourmand tick state. Operator: changing the
+    // ticks changes the pool, so it resets the walk like any other
+    // criterion (confirmed explicitly, not assumed).
+    michYears: `${michYear2026 ? 1 : 0}${michYear2025 ? 1 : 0}${michIncludeBib ? 1 : 0}`
   });
   const walkState = await michelinWalk.readWalkState(redis, csChatId, walkHash);
   const unseen = walkState.seen.size

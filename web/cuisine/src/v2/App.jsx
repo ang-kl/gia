@@ -712,6 +712,10 @@ export default function App() {
   // list into view after a successful 🔍 Search press. Users were
   // missing the result list because it sits below the cuisine drawer.
   const resultPanelRef = useRef(null);
+  // v0.62.674 — ref on the fixed-bottom footer stack (back FAB row + composer
+  // FAB row + the liquid-glass dock), so the drawer's collapsed peek height
+  // can measure and reserve its REAL rendered height (see listPeekPx below).
+  const footerRef = useRef(null);
 
   // v0.62.655 — the drawer's collapsed height, in REAL pixels: a result card
   // plus the sheet's own 44 px handle band. The operator asked for the fold to
@@ -739,12 +743,36 @@ export default function App() {
       if (!panel) return;
       const card = panel.querySelector('[data-pid]');
       const h = card ? card.getBoundingClientRect().height : 0;
-      if (h > 40) setListPeekPx(Math.round(h + 44));
+      // v0.62.674 — operator (device screenshot): the peeked card sat FLUSH
+      // against the footer on first load, with no gap, unlike a fully-scrolled
+      // card (which already clears the footer via BottomSheet's own footerPad
+      // reserve). Root cause: this measurement only ever accounted for the
+      // card + the sheet's own 44px handle band — it had NO idea a separate
+      // `fixed bottom-0` footer stack paints on top of whatever the sheet
+      // reveals at its bottom edge. Adding the footer's own real rendered
+      // height (measured the same way the card height already is, not a
+      // guessed constant) restores the same visual gap "normal" (scrolled)
+      // cards get.
+      const footerH = footerRef.current ? footerRef.current.getBoundingClientRect().height : 0;
+      if (h > 40) setListPeekPx(Math.round(h + 44 + footerH));
     };
     measure();
     const t = setTimeout(measure, 400);
     window.addEventListener('resize', measure);
-    return () => { clearTimeout(t); window.removeEventListener('resize', measure); };
+    // v0.62.674 — a ResizeObserver on the footer (rather than adding its
+    // content flags — criteriaSummary/isMichelinMode/pages — to this effect's
+    // deps) re-measures whenever the footer's REAL height changes for any
+    // reason (Criteria pill or Michelin pager appearing/disappearing,
+    // locale-driven text reflow, …), without risking the exact
+    // declared-later-in-this-component TDZ bug this file already caught once
+    // (tma-hook-deps-tdz.test.js) — all three of those are declared well
+    // after this effect.
+    let ro;
+    if (footerRef.current && typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(measure);
+      ro.observe(footerRef.current);
+    }
+    return () => { clearTimeout(t); window.removeEventListener('resize', measure); if (ro) ro.disconnect(); };
     // v0.62.655 — deliberately NOT keyed on `cursor`: it is declared LATER in this
     // component, and a dep array is evaluated during render, so referencing it here
     // throws "Cannot access 'cursor' before initialization" on every render.
@@ -2681,7 +2709,10 @@ export default function App() {
         // choice register on THIS search instead of only via the
         // fire-and-forget Save POST. Gated on ratingLoaded so the boot
         // load can't send the '3.7' default over a chat /rating value.
-        ratingPref: ratingLoaded ? ratingPref : undefined
+        ratingPref: ratingLoaded ? ratingPref : undefined,
+        // v0.62.676 — Michelin year / Bib Gourmand ticks (CuisineDrawer,
+        // shown only while 'michelin' is selected).
+        michelinFilter: snap.michelinFilter
       },
       // v0.62.x — progressive-results Stage 2: for a USER-initiated search,
       // opt into the NDJSON stream so verified base cards paint immediately
@@ -3216,6 +3247,19 @@ export default function App() {
   // it (e.g. :2948, :4409) — no new canonical flag, per the instruction's
   // "use the repository's existing Michelin-mode detection" rule.
   const isMichelinMode = (state.cuisines || []).some((c) => String(c).toLowerCase() === 'michelin');
+  // v0.62.674 — operator (device screenshot): the pager's denominator was
+  // `pages.length` (batches actually FETCHED), which by definition always
+  // equals the numerator at the cache tip ("1/1", "2/2", …) — never a real
+  // remaining count. `michelinRemaining.total` (already sent on every search
+  // response, see App.jsx ~:2967) is the server's own count of Michelin
+  // Star/Bib Gourmand venues matching the current criteria; dividing by the
+  // 12-per-batch size ResultPanel.jsx's PAGE_SIZE already uses for this exact
+  // batch concept gives the true total page count. `Math.max` with
+  // `pages.length` is just a defensive floor (never show fewer pages than
+  // already fetched, in case the estimate and the real cache ever disagree).
+  const michelinTotalPages = (isMichelinMode && michelinRemaining?.total)
+    ? Math.max(pages.length, Math.ceil(michelinRemaining.total / 9))
+    : pages.length;
 
   // v0.61.29 — LocationField pick handler, hoisted to a named callback
   // so the field can render in the banner slot above the map instead
@@ -4294,7 +4338,13 @@ export default function App() {
                 // tab made it MISMATCH the grey "Pick local classic" tab once both
                 // showed. Apply the blue CTA only BEFORE results (no plate yet);
                 // once both tabs are loaded they share the standard manila colour.
-                className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] active:scale-95 ${cuisinePickOpen ? 'folio-tab--active' : ''} ${!names.length && !hasPlate ? 'text-tg-accent font-semibold' : ''} ${!names.length && !hasPlate && editSearchPulse ? 'animate-pulse' : ''}`}
+                // v0.62.678 — operator: "I like Cuisine's tab labels at 11px." Dropped the
+                // text-[12px] utility here — it never actually rendered (styles.css's
+                // .folio-tab{font-size:11px} sits later in the compiled CSS and silently won
+                // the cascade tie, so this class was dead weight claiming a size that was
+                // never real). 11px stays exactly as it always has; only the source now
+                // agrees with it.
+                className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 active:scale-95 ${cuisinePickOpen ? 'folio-tab--active' : ''} ${!names.length && !hasPlate ? 'text-tg-accent font-semibold' : ''} ${!names.length && !hasPlate && editSearchPulse ? 'animate-pulse' : ''}`}
               >
                 <span aria-hidden className="shrink-0">🍲</span>
                 <span className="flex-1 text-left truncate">{cuisineLabel}</span>
@@ -4313,7 +4363,8 @@ export default function App() {
                 aria-disabled={!hasPlate || undefined}
                 title={!hasPlate ? (lang === 'fr' ? 'Disponible une fois les résultats chargés' : lang === 'id' ? 'Tersedia setelah hasil dimuat' : lang === 'ru' ? 'Доступно после загрузки результатов' : lang === 'de' ? 'Verfügbar nach dem Laden der Ergebnisse' : lang === 'zh' ? '结果加载后可用' : lang === 'ja' ? '結果の読み込み後に利用可能' : lang === 'es' ? 'Disponible al cargar resultados' : 'Available once results load') : undefined}
                 aria-label={lang === 'fr' ? 'Plats classiques locaux' : lang === 'id' ? 'Pilih klasik lokal' : lang === 'ru' ? 'Местная классика' : lang === 'de' ? 'Lokale Klassiker' : lang === 'zh' ? '选择本地经典' : lang === 'ja' ? '地元の定番を選ぶ' : lang === 'es' ? 'Elegir clasico local' : 'Pick local classic'}
-                className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 text-[12px] ${hasPlate ? 'active:scale-95' : 'opacity-50 cursor-not-allowed'} ${hasPlate && classicOpen ? 'folio-tab--active' : ''}`}
+                // v0.62.678 — same dead text-[12px] removal as the tab above (see its comment).
+                className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 ${hasPlate ? 'active:scale-95' : 'opacity-50 cursor-not-allowed'} ${hasPlate && classicOpen ? 'folio-tab--active' : ''}`}
               >
                 {/* v0.62.228 — operator: the Magnify (cooking-method) icon marks
                     Local Food Pick + search. */}
@@ -4437,6 +4488,9 @@ export default function App() {
             specialMode={state.specialMode || null}
             onSpecialModeChange={(mode) => setState((s) => ({ ...s, specialMode: mode || null }))}
             onChange={(c) => setState((s) => ({ ...s, cuisines: c }))}
+            michelinFilter={state.michelinFilter}
+            onMichelinFilterChange={(mf) => setState((s) => ({ ...s, michelinFilter: mf }))}
+            isCompact={vp.isCompact}
             onCategoryClose={() => {
               if (state.cuisines.length > 0) {
                 setSearchHintActive(true);
@@ -5382,6 +5436,7 @@ export default function App() {
           floating free-text bar (second-last row, above Edit-search), then the
           2-line footer. */}
       <div
+        ref={footerRef}
         className="fixed inset-x-0 bottom-0 z-30 pointer-events-none px-2 flex flex-col gap-1.5"
         style={{ paddingBottom: 'calc(0.15rem + env(safe-area-inset-bottom, 0px) * 0.5)' }}
       >
@@ -5542,11 +5597,12 @@ export default function App() {
                   : `◸ ${lang === 'fr' ? 'carte' : lang === 'id' ? 'peta' : lang === 'ru' ? 'карта' : lang === 'de' ? 'Karte' : lang === 'zh' ? '地图' : lang === 'ja' ? '地図' : lang === 'es' ? 'mapa' : 'map'}`}</button>
               )}
               {/* v0.62.673 — hidden specifically when the new Michelin footer-centre
-                  pager is also showing (isMichelinMode && pages.length > 1): that
-                  pager's '›' already covers this exact replay case PLUS fresh-fetch,
-                  so keeping both would duplicate forward navigation for Michelin
-                  results. Unrelated searches keep this button exactly as before. */}
-              {cursor < pages.length - 1 && !(isMichelinMode && pages.length > 1) && (
+                  pager is also showing (isMichelinMode && michelinTotalPages > 1):
+                  that pager's '›' already covers this exact replay case PLUS
+                  fresh-fetch, so keeping both would duplicate forward navigation
+                  for Michelin results. Unrelated searches keep this button
+                  exactly as before. */}
+              {cursor < pages.length - 1 && !(isMichelinMode && michelinTotalPages > 1) && (
                 <button
                   type="button"
                   onClick={() => setCursor((c) => Math.min(pages.length - 1, c + 1))}
@@ -5559,7 +5615,7 @@ export default function App() {
                 Criteria dropdown AND/OR the new Michelin pager (v0.62.673); either,
                 both, or neither can be present, and the cell collapses to its
                 content when both are absent (no visual change from before). */}
-            {(criteriaSummary.length > 0 || (isMichelinMode && pages.length > 1)) && (
+            {(criteriaSummary.length > 0 || (isMichelinMode && michelinTotalPages > 1)) && (
               <div className="flex items-center justify-center gap-1 shrink-0 justify-self-center">
                 {/* v0.62.281 — "Criteria" dropdown: collapses the active-filter
                     chips; tap to open, tap a chip's × to drop a cuisine + re-search. */}
@@ -5596,10 +5652,29 @@ export default function App() {
                     `cursor`; fresh-Next (at the cache tip) calls the same
                     `runSearch(state)` ResultPanel's own '▶ next batch' button
                     already uses (App.jsx :5210), so no new fetch mechanism was
-                    introduced. `pages.length` (not a server-side total) is the
-                    denominator, matching "page = already-FETCHED batch" literally —
-                    it grows as the user pages forward. */}
-                {isMichelinMode && pages.length > 1 && (
+                    introduced.
+                    v0.62.674 — operator (device screenshot): the total was
+                    `pages.length` (batches actually fetched), which is BY
+                    DEFINITION always equal to the numerator (`cursor+1`) at the
+                    cache tip — the display could never show anything but "N/N"
+                    ("1/1", then "2/2", …), never a real remaining count. Switched
+                    to `michelinTotalPages`, derived from the server's own
+                    `michelinRemaining.total` (the actual Michelin Star/Bib
+                    Gourmand count matching current criteria) ÷ a page size of
+                    9 — "2/6" now means what it says. The pager's VISIBILITY
+                    gate moves to this real total too, so it shows from the
+                    very FIRST batch (once the server has reported a total >
+                    one page) instead of only after the user has already
+                    stepped forward once.
+                    v0.62.675 — operator correction: divisor was 12 (matching
+                    ResultPanel.jsx's fetch-batch PAGE_SIZE); the operator's
+                    own worked example ("140 / 9 cards per page = 15 pages")
+                    specifies 9, a DISPLAY-ONLY denominator decoupled from the
+                    actual 12-per-tap server fetch batch — the numerator
+                    (`cursor+1`) still counts fetched batches of 12, so the
+                    two axes of this counter are deliberately not the same
+                    unit (disclosed, not silently reconciled). */}
+                {isMichelinMode && michelinTotalPages > 1 && (
                   <nav
                     aria-label={lang === 'fr' ? 'Pages de résultats Michelin' : lang === 'id' ? 'Halaman hasil Michelin' : lang === 'ru' ? 'Страницы результатов Michelin' : lang === 'de' ? 'Michelin-Ergebnisseiten' : lang === 'zh' ? '米其林结果页面' : lang === 'ja' ? 'ミシュラン結果ページ' : lang === 'es' ? 'Páginas de resultados Michelin' : 'Michelin result pages'}
                     className="flex items-center gap-0.5 shrink-0"
@@ -5611,7 +5686,7 @@ export default function App() {
                       aria-label={lang === 'fr' ? 'Page précédente des résultats Michelin' : lang === 'id' ? 'Halaman Michelin sebelumnya' : lang === 'ru' ? 'Предыдущая страница Michelin' : lang === 'de' ? 'Vorherige Michelin-Ergebnisseite' : lang === 'zh' ? '上一页米其林结果' : lang === 'ja' ? '前のミシュラン結果ページ' : lang === 'es' ? 'Página anterior de resultados Michelin' : 'Previous Michelin results page'}
                       className="gia-hit px-1 py-1.5 rounded-lg active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
                     >‹</button>
-                    <span className="tabular-nums px-0.5" aria-live="polite">{cursor + 1} / {pages.length}</span>
+                    <span className="tabular-nums px-0.5" aria-live="polite">{cursor + 1} / {michelinTotalPages}</span>
                     <button
                       type="button"
                       onClick={() => {

@@ -8,7 +8,7 @@
 // collapsed to partial height (wide width, short height) MUST stay 'tablet'.
 
 import { describe, it, expect } from 'vitest';
-import { classifyViewport, TABLET_MIN_EDGE } from '../web/_shared/lib/classify-viewport.js';
+import { classifyViewport, TABLET_MIN_EDGE, COMPACT_MAX_WIDTH } from '../web/_shared/lib/classify-viewport.js';
 
 describe('classifyViewport', () => {
   it('keeps a narrow Telegram-Desktop window on a touchscreen laptop as mobile', () => {
@@ -54,5 +54,37 @@ describe('classifyViewport', () => {
 
   it('exposes the tablet edge constant', () => {
     expect(TABLET_MIN_EDGE).toBe(700);
+  });
+
+  // v0.62.678 — compact-phone tier (operator's iPhone 11 Pro typography audit).
+  it('flags a compact phone (iPhone 11 Pro / SE / mini, <=390px short edge) as isCompact', () => {
+    expect(classifyViewport({ w: 375, h: 812, coarse: true, screenMin: 375 }).isCompact).toBe(true);
+    expect(classifyViewport({ w: 375, h: 667, coarse: true, screenMin: 375 }).isCompact).toBe(true);
+    // landscape: short edge is still 375, so still compact.
+    expect(classifyViewport({ w: 812, h: 375, coarse: true, screenMin: 375 }).isCompact).toBe(true);
+  });
+
+  it('does NOT flag a larger phone (iPhone 15/16 Pro / Pro Max) as isCompact', () => {
+    expect(classifyViewport({ w: 393, h: 852, coarse: true, screenMin: 393 }).isCompact).toBe(false);
+    expect(classifyViewport({ w: 430, h: 932, coarse: true, screenMin: 430 }).isCompact).toBe(false);
+  });
+
+  it('never flags tablet/desktop as isCompact, and a merely-narrow mobile window over 390px stays false too', () => {
+    // narrow Telegram-Desktop window on a touchscreen laptop — stays 'mobile' per
+    // the existing rule above (500px short edge is well over the 390px compact
+    // ceiling, so this is "a narrow window", not "a compact phone").
+    const desktopWindow = classifyViewport({ w: 500, h: 730, coarse: true, screenMin: 1080 });
+    expect(desktopWindow.deviceClass).toBe('mobile');
+    expect(desktopWindow.isCompact).toBe(false);
+    expect(classifyViewport({ w: 834, h: 1194, coarse: true, screenMin: 834 }).isCompact).toBe(false); // tablet
+    expect(classifyViewport({ w: 1280, h: 800, coarse: false, screenMin: 1080 }).isCompact).toBe(false); // desktop
+  });
+
+  it('exposes the compact-phone width constant', () => {
+    expect(COMPACT_MAX_WIDTH).toBe(390);
+  });
+
+  it('degrades safely on empty input (isCompact false, not true)', () => {
+    expect(classifyViewport().isCompact).toBe(false);
   });
 });

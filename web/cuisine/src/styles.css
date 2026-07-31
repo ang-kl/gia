@@ -5,6 +5,12 @@
 html, body, #root { height: 100%; }
 body { -webkit-font-smoothing: antialiased; }
 
+/* v0.62.678 — iOS Safari/Telegram auto-zooms the viewport when a focused input's
+   font-size is below 16px. web/clipboard fixed this exact problem at v0.62.442;
+   this repo never propagated the fix here, leaving the "Tell me" free-text input
+   (TellMePanel.jsx, text-sm = 14px) unguarded. Force >=16px on all text inputs. */
+input, textarea, select { font-size: 16px; }
+
 /* v0.62.x — operator: blink the trailing "…" (U+2026) on the first-load
    "Finding eateries…" overlay. A smooth opacity blink reads as a live
    "thinking" pulse without the harsh on/off flicker. Applied via a plain
@@ -194,6 +200,11 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
   border-bottom: none;
   border-radius: 10px 10px 0 0;
   padding: 4px 10px;
+  /* v0.62.678 — operator-confirmed intentional size ("I like Cuisine's tab labels at
+     11px. I thought is just nice"). This rule sits AFTER @tailwind utilities in the
+     compiled CSS, so it silently wins any future text-[Npx] utility placed on the same
+     element (equal specificity, source order decides) — do not "fix" that cascade
+     collision by deleting this line; 11px is the deliberately kept value. */
   font-size: 11px;
   line-height: 1.1;
   white-space: nowrap;

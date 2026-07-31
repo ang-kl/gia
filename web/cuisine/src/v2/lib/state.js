@@ -64,7 +64,11 @@ export function defaultState() {
     // (one of 'fruits' / 'durian'), it overrides cuisines + Michelin
     // + dessert filters server-side; the CuisineDrawer + QuickFilters
     // also grey out their toggles client-side. null = inactive.
-    specialMode: null
+    specialMode: null,
+    // v0.62.676 — Michelin year / Bib Gourmand ticks (CuisineDrawer, shown
+    // only while 'michelin' is selected). All default ON — matches the
+    // pre-v0.62.676 all-inclusive behaviour when every tick stays checked.
+    michelinFilter: { year2026: true, year2025: true, bib: true }
   };
 }
 
@@ -100,6 +104,11 @@ export function readFromHash() {
   if (prices) s.filters.prices = prices.split(',').filter((p) => PRICE_LEVELS.includes(p));
   const region = params.get('region');
   if (region && REGIONS.includes(region)) s.region = region;
+  // v0.62.676 — Michelin year/Bib ticks. Only OFF is ever written to the
+  // hash (all-ON is the default), so absence means "still all on".
+  if (params.get('michY26') === '0') s.michelinFilter.year2026 = false;
+  if (params.get('michY25') === '0') s.michelinFilter.year2025 = false;
+  if (params.get('michBib') === '0') s.michelinFilter.bib = false;
   return s;
 }
 
@@ -115,6 +124,12 @@ export function writeToHash(s) {
   // hash so a refresh preserves the user's pick. Skip the '__NONE__'
   // sentinel (first-paint, pre-resolution).
   if (s.region && s.region !== '__NONE__') params.set('region', s.region);
+  // v0.62.676 — only write the Michelin ticks that are OFF (all-ON is the
+  // default and stays implicit, same convention as QUICK_FILTERS above).
+  const mf = s.michelinFilter || {};
+  if (mf.year2026 === false) params.set('michY26', '0');
+  if (mf.year2025 === false) params.set('michY25', '0');
+  if (mf.bib === false) params.set('michBib', '0');
   history.replaceState(null, '', '#' + params.toString());
 }
 

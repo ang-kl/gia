@@ -459,6 +459,13 @@ const STRINGS = {
   'drawer.michelinSgOnly':     { en: '✳️ No curated Michelin list for this location yet.',
                                  fr: '✳️ Pas encore de liste Michelin pour ce lieu.' },
 
+  // v0.62.676 — Michelin year / Bib Gourmand ticks, shown under the
+  // Michelin chip once selected. "Bib Gourmand" stays untranslated (proper
+  // noun, matches cat.michelinBib's existing convention across all locales).
+  'michelin.filterHeader':     { en: 'Include:', fr: 'Inclure :' },
+  'michelin.bibLabel':         { en: 'Bib Gourmand', fr: 'Bib Gourmand' },
+  'michelin.yearAria':         { en: 'Award year {year}', fr: 'Année du prix {year}' },
+
   // v0.61.285 — FunFactModal strings. Replaces the static rotating
   // "still loading" titles during the cuisine-search wait window
   // with a floating NLB-sourced SG food-history fact (40 curated).
@@ -515,6 +522,9 @@ const STRINGS = {
 const ID_STRINGS = {
   'cat.sweetsFusion': 'Manis & Fusion',
   'cat.michelinBib': 'Michelin · Bib Gourmand',
+  'michelin.filterHeader': 'Termasuk:',
+  'michelin.bibLabel': 'Bib Gourmand',
+  'michelin.yearAria': 'Tahun penghargaan {year}',
   'cat.setMeal': 'Set Meal (Beta)',
   'cat.dishes': 'Hidangan',
   'plate.tapHint': 'Ketuk hidangan untuk info, lalu 🔍 Cari tempat makan.',
@@ -749,6 +759,9 @@ for (const [k, v] of Object.entries(ID_STRINGS)) {
 const RU_STRINGS = {
   'cat.sweetsFusion': 'Десерты и фьюжн',
   'cat.michelinBib': 'Мишлен · Биб Гурман',
+  'michelin.filterHeader': 'Включить:',
+  'michelin.bibLabel': 'Биб Гурман',
+  'michelin.yearAria': 'Год награды {year}',
   'cat.setMeal': 'Комплексное меню (бета)',
   'cat.dishes': 'Блюда',
   'plate.tapHint': 'Нажмите блюдо, чтобы узнать больше, затем 🔍 Найти места.',
@@ -979,6 +992,9 @@ const RU_STRINGS = {
 const DE_STRINGS = {
   'cat.sweetsFusion': 'Süßes & Fusion',
   'cat.michelinBib': 'Michelin · Bib Gourmand',
+  'michelin.filterHeader': 'Einschließen:',
+  'michelin.bibLabel': 'Bib Gourmand',
+  'michelin.yearAria': 'Auszeichnungsjahr {year}',
   'cat.setMeal': 'Set-Menü (Beta)',
   'cat.dishes': 'Gerichte',
   'plate.tapHint': 'Tippe ein Gericht für mehr Infos, dann 🔍 Lokale finden.',
@@ -1210,6 +1226,9 @@ const DE_STRINGS = {
 const ZH_STRINGS = {
   'cat.sweetsFusion': '甜点与融合菜',
   'cat.michelinBib': '米其林 · 必比登',
+  'michelin.filterHeader': '包含：',
+  'michelin.bibLabel': '必比登',
+  'michelin.yearAria': '获奖年份 {year}',
   'cat.setMeal': '套餐 (测试版)',
   'cat.dishes': '菜品',
   'plate.tapHint': '点按菜品了解更多，然后 🔍 查找餐厅。',
@@ -1441,6 +1460,9 @@ for (const [k, v] of Object.entries(ZH_STRINGS)) { if (STRINGS[k] && STRINGS[k].
 const JA_STRINGS = {
   'cat.sweetsFusion': 'スイーツ & フュージョン',
   'cat.michelinBib': 'ミシュラン · ビブグルマン',
+  'michelin.filterHeader': '含める：',
+  'michelin.bibLabel': 'ビブグルマン',
+  'michelin.yearAria': '受賞年 {year}',
   'cat.setMeal': 'セットメニュー (ベータ)',
   'cat.dishes': '料理',
   'plate.tapHint': '料理をタップして詳細、次に 🔍 お店を探す。',
@@ -1669,6 +1691,9 @@ const JA_STRINGS = {
 const ES_STRINGS = {
   'cat.sweetsFusion': 'Dulces y Fusión',
   'cat.michelinBib': 'Michelin · Bib Gourmand',
+  'michelin.filterHeader': 'Incluir:',
+  'michelin.bibLabel': 'Bib Gourmand',
+  'michelin.yearAria': 'Año del premio {year}',
   'cat.setMeal': 'Menú fijo (Beta)',
   'cat.dishes': 'Platos',
   'plate.tapHint': 'Toca un plato para saber más, luego 🔍 Buscar sitios.',

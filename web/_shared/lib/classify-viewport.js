@@ -11,6 +11,15 @@
 // the largest phones (~480 px short edge) so a phone is never mis-promoted.
 export const TABLET_MIN_EDGE = 700;
 
+// v0.62.678 — "compact phone" tier, added per the operator's typography/
+// screen-size audit (iPhone 11 Pro screenshot review). Sits WITHIN the
+// 'mobile' deviceClass — it does not change tablet/desktop classification —
+// and separates the SHORT-EDGE end of the phone range (iPhone 11/12/13 Pro,
+// 12/13 mini, SE: 375px) from the long end (iPhone 14/15/16 Pro, Pro Max:
+// 393-430px). 390 sits between them: every named compact device is <= 375,
+// every named large-or-newer phone is >= 393.
+export const COMPACT_MAX_WIDTH = 390;
+
 // v0.62.654 — ONE definition of "wide", quoted by both the JS classifier and the
 // CSS grids.
 //
@@ -86,5 +95,8 @@ export function classifyViewport({ w = 0, h = 0, coarse = false, screenMin = 0 }
     deviceClass = 'mobile';
   }
   const orientation = w >= h ? 'landscape' : 'portrait';
-  return { deviceClass, orientation, isWide: deviceClass !== 'mobile' };
+  // v0.62.678 — short-edge check (like the tablet test above), so a compact
+  // phone stays flagged whether it's held portrait or landscape.
+  const isCompact = deviceClass === 'mobile' && minDim > 0 && minDim <= COMPACT_MAX_WIDTH;
+  return { deviceClass, orientation, isWide: deviceClass !== 'mobile', isCompact };
 }
