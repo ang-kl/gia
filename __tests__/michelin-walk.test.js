@@ -93,6 +93,23 @@ describe('computeCriteriaHash', () => {
     const b = mw.computeCriteriaHash({ radius: 40000, loc: 'MY|kuala lumpur' });
     expect(a).toBe(b);
   });
+  // v0.62.676 — the Michelin year/Bib Gourmand tick state (CuisineDrawer)
+  // must reset the walk when it changes, same as any other criterion —
+  // otherwise a narrower/wider pool would paginate against a seen-set built
+  // under a different tick combination.
+  it('changes when michYears (the year/Bib tick state) differs', () => {
+    const allOn = mw.computeCriteriaHash({ michYears: '111' });
+    const noBib = mw.computeCriteriaHash({ michYears: '110' });
+    const only2026 = mw.computeCriteriaHash({ michYears: '100' });
+    expect(allOn).not.toBe(noBib);
+    expect(allOn).not.toBe(only2026);
+    expect(noBib).not.toBe(only2026);
+  });
+  it('is stable for the same michYears value', () => {
+    const a = mw.computeCriteriaHash({ michYears: '101', radius: 5000 });
+    const b = mw.computeCriteriaHash({ radius: 5000, michYears: '101' });
+    expect(a).toBe(b);
+  });
 });
 
 describe('readWalkState', () => {

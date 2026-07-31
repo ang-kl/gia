@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import CuisineCategoryDrawer from './CuisineCategoryDrawer.jsx';
-import { useLocale, t as tr } from '../lib/i18n.js';
+import { useLocale, t as tr, tn } from '../lib/i18n.js';
 // v0.61.141 — special-mode mutex logic extracted to a pure module so
 // it's unit-testable. Fruits / Durian / Durian Pastry are now
 // regular catalogue chips inside the "Dessert, Fruits" category;
@@ -52,7 +52,7 @@ const CATEGORY_LABEL_KEY = {
 // derived from `selected` at the App.jsx request-build site. The
 // applyChipToggle helper enforces the mutex (special ↔ everything else
 // including Dessert).
-export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region, countryPref, michelinCuisines = null, onPickDish = null, onDrillChange = null }) {
+export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region, countryPref, michelinCuisines = null, onPickDish = null, onDrillChange = null, michelinFilter = null, onMichelinFilterChange = null }) {
   const [openCategoryId, setOpenCategoryId] = useState(null);
   // v0.61.346 — current country for per-country chip gating (e.g. the
   // Michelin chip enables wherever its `michelinCountries` list covers).
@@ -183,6 +183,39 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
           </div>
         );
       })()}
+      {/* v0.62.676 — operator: Michelin stays ONE chip; ticking off years or
+          Bib Gourmand independently narrows the pool (3 parallel categories,
+          union semantics — not a year × category matrix). All default ON,
+          matching pre-v0.62.676 all-inclusive behaviour when untouched. */}
+      {selected.includes('michelin') && typeof onMichelinFilterChange === 'function' && (
+        <div className="flex flex-wrap items-center gap-1.5 px-1">
+          <span className="text-[11px] text-tg-hint">{tr('michelin.filterHeader', lang)}</span>
+          {[
+            { key: 'year2026', label: '2026', aria: tn('michelin.yearAria', lang, { year: 2026 }) },
+            { key: 'year2025', label: '2025', aria: tn('michelin.yearAria', lang, { year: 2025 }) },
+            { key: 'bib', label: tr('michelin.bibLabel', lang), aria: tr('michelin.bibLabel', lang) }
+          ].map(({ key, label, aria }) => {
+            const checked = (michelinFilter ? michelinFilter[key] : true) !== false;
+            return (
+              <button
+                key={key}
+                type="button"
+                role="checkbox"
+                aria-checked={checked}
+                aria-label={`${aria} ${checked ? '(on)' : '(off)'}`}
+                onClick={() => onMichelinFilterChange({
+                  year2026: true, year2025: true, bib: true,
+                  ...(michelinFilter || {}),
+                  [key]: !checked
+                })}
+                className={`gia-hit px-2 py-1 rounded-full border text-[11px] whitespace-nowrap transition-colors ${checked ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'bg-tg-card text-tg-text border-tg-border'}`}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      )}
       {selected.length > 0 && (
         <div className="flex justify-between items-center text-[11px] text-tg-hint px-1">
           <span>{selected.length} cuisine{selected.length === 1 ? '' : 's'} selected{selected.length === MAX_SELECTED ? ' (max)' : ''}</span>

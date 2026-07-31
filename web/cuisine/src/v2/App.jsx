@@ -2709,7 +2709,10 @@ export default function App() {
         // choice register on THIS search instead of only via the
         // fire-and-forget Save POST. Gated on ratingLoaded so the boot
         // load can't send the '3.7' default over a chat /rating value.
-        ratingPref: ratingLoaded ? ratingPref : undefined
+        ratingPref: ratingLoaded ? ratingPref : undefined,
+        // v0.62.676 — Michelin year / Bib Gourmand ticks (CuisineDrawer,
+        // shown only while 'michelin' is selected).
+        michelinFilter: snap.michelinFilter
       },
       // v0.62.x — progressive-results Stage 2: for a USER-initiated search,
       // opt into the NDJSON stream so verified base cards paint immediately
@@ -4478,6 +4481,8 @@ export default function App() {
             specialMode={state.specialMode || null}
             onSpecialModeChange={(mode) => setState((s) => ({ ...s, specialMode: mode || null }))}
             onChange={(c) => setState((s) => ({ ...s, cuisines: c }))}
+            michelinFilter={state.michelinFilter}
+            onMichelinFilterChange={(mf) => setState((s) => ({ ...s, michelinFilter: mf }))}
             onCategoryClose={() => {
               if (state.cuisines.length > 0) {
                 setSearchHintActive(true);
