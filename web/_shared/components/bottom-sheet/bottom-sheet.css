@@ -49,7 +49,11 @@
   /* Motion — one curve, used on release and on programmatic open/close.
      Fast out of the gate, long soft tail: reads as momentum, not as a timer. */
   --gia-sheet-ease: cubic-bezier(0.32, 0.72, 0, 1);
-  --gia-sheet-dur: 340ms;
+  /* M3 Tier 0 — was 340ms; the actual shipped React BottomSheet.jsx reuses only
+     this file's JS physics helpers and has always used 280ms for its own
+     transform transition. The two had drifted apart despite sharing the same
+     easing curve; reconciled to the value real users have always gotten. */
+  --gia-sheet-dur: 280ms;
 
   /* Scrim */
   --gia-sheet-scrim: rgba(0, 0, 0, 0.32);

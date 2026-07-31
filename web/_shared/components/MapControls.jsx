@@ -116,7 +116,9 @@ export default function MapControls({
                       disabled={it.disabled}
                       onClick={() => fire(it)}
                       aria-pressed={on}
-                      className={'flex items-center gap-1.5 px-2 py-1.5 rounded-lg '
+                      /* M3 Tier 0 — matches the dropdown wrapper's rounded-xl
+                         (line ~103); was rounded-lg, an internal contradiction. */
+                      className={'flex items-center gap-1.5 px-2 py-1.5 rounded-xl '
                         + 'text-[12px] text-left leading-none '
                         + (it.disabled
                           ? 'text-gray-400 cursor-default'

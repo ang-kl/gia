@@ -4870,7 +4870,11 @@ export default function App() {
             <button type="button" role="switch" aria-checked={widenActive} aria-labelledby="gia-widen-label"
               onClick={() => { const next = !widenActive; setWidenActive(next); runSearch(state, null, { widen: next }); }}
               className={`glass-pill relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-tg-border/40 transition-colors ${widenActive ? 'bg-tg-accent/60' : ''}`}>
-              <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${widenActive ? 'translate-x-[1.15rem]' : 'translate-x-0.5'}`} />
+              {/* M3 Tier 0 — track is w-9 (36px), thumb w-3.5 (14px), off-inset
+                  translate-x-0.5 (2px). On-position corrected to 1.25rem (20px)
+                  so the right-side inset also lands at exactly 2px, symmetric
+                  with the left; was 1.15rem (18.4px), a 1.6px arithmetic slip. */}
+              <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${widenActive ? 'translate-x-[1.25rem]' : 'translate-x-0.5'}`} />
             </button>
           </span>
         </div>
