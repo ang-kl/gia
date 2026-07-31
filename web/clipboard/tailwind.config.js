@@ -1,8 +1,14 @@
 /** @type {import('tailwindcss').Config} */
+import { m3Radius } from '../_shared/lib/m3-tokens.js';
+
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
+      // M3 Tier 1 (v0.62.672) — vocabulary only; see web/_shared/lib/m3-tokens.js.
+      // No file yet uses a rounded-m3-* class, so this emits zero CSS today.
+      // (Colours below stay Sketchbook's own fixed palette, D-37 — unaffected.)
+      borderRadius: { ...m3Radius },
       colors: {
         // v0.62.426 — operator: follow the Sketchbook SAMPLE palette exactly
         // (cobalt + ice-blue), NOT the Telegram theme. The tg-* names are kept
