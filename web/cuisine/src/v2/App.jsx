@@ -3210,6 +3210,13 @@ export default function App() {
     return items;
   })();
 
+  // v0.62.673 — footer-centre Michelin pagination (operator instruction:
+  // instr/GIA_Michelin_Footer_Pagination_AI_Prompt.md). "Michelin mode" is
+  // derived the same way ~10 other call sites in this file already check
+  // it (e.g. :2948, :4409) — no new canonical flag, per the instruction's
+  // "use the repository's existing Michelin-mode detection" rule.
+  const isMichelinMode = (state.cuisines || []).some((c) => String(c).toLowerCase() === 'michelin');
+
   // v0.61.29 — LocationField pick handler, hoisted to a named callback
   // so the field can render in the banner slot above the map instead
   // of inside the collapsed Search-criteria section.
@@ -5485,8 +5492,13 @@ export default function App() {
         <div className="pointer-events-auto -mx-2 px-3 pt-1.5 pb-1 liquid-glass-dock bg-tg-bg/75 flex flex-col gap-1">
           {/* slim control row — results · layout · next  |  down · end. Inline icon
               chips (no bordered cards); aria-labels carry the full text. */}
-          <div className="flex items-center justify-between gap-1 text-[11px] font-semibold text-tg-link">
-            <div className="flex items-center gap-0.5 min-w-0">
+          {/* v0.62.673 — row 1 converted from `flex justify-between` to an explicit
+              3-column grid (1fr auto 1fr) so a centre region can be TRUE-centred
+              regardless of how wide the left/right clusters are — `justify-between`
+              only guarantees equal SPACING, not a centred middle child. Per-region
+              contents are unchanged; only the layout technique changed. */}
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1 text-[11px] font-semibold text-tg-link">
+            <div className="flex items-center gap-0.5 min-w-0 justify-self-start">
               <button
                 type="button"
                 onClick={() => setDrawerDismissed((d) => !d)}
@@ -5529,7 +5541,12 @@ export default function App() {
                   ? `⊿ ${lang === 'fr' ? 'liste' : lang === 'id' ? 'daftar' : lang === 'ru' ? 'список' : lang === 'de' ? 'Liste' : lang === 'zh' ? '列表' : lang === 'ja' ? 'リスト' : lang === 'es' ? 'lista' : 'list'}`
                   : `◸ ${lang === 'fr' ? 'carte' : lang === 'id' ? 'peta' : lang === 'ru' ? 'карта' : lang === 'de' ? 'Karte' : lang === 'zh' ? '地图' : lang === 'ja' ? '地図' : lang === 'es' ? 'mapa' : 'map'}`}</button>
               )}
-              {cursor < pages.length - 1 && (
+              {/* v0.62.673 — hidden specifically when the new Michelin footer-centre
+                  pager is also showing (isMichelinMode && pages.length > 1): that
+                  pager's '›' already covers this exact replay case PLUS fresh-fetch,
+                  so keeping both would duplicate forward navigation for Michelin
+                  results. Unrelated searches keep this button exactly as before. */}
+              {cursor < pages.length - 1 && !(isMichelinMode && pages.length > 1) && (
                 <button
                   type="button"
                   onClick={() => setCursor((c) => Math.min(pages.length - 1, c + 1))}
@@ -5538,35 +5555,78 @@ export default function App() {
                 >⇢ {lang === 'fr' ? 'suivant' : lang === 'id' ? 'berikutnya' : lang === 'ru' ? 'далее' : lang === 'de' ? 'weiter' : lang === 'zh' ? '下一个' : lang === 'ja' ? '次へ' : lang === 'es' ? 'siguiente' : 'next'}</button>
               )}
             </div>
-            {/* v0.62.281 — "Criteria" dropdown (middle): collapses the active-filter
-                chips; tap to open, tap a chip's × to drop a cuisine + re-search. */}
-            {criteriaSummary.length > 0 && (
-              <div className="relative shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setCriteriaOpen((o) => !o)}
-                  aria-haspopup="true"
-                  aria-expanded={criteriaOpen}
-                  className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap inline-flex items-center gap-0.5"
-                >{lang === 'fr' ? 'Critères' : lang === 'id' ? 'Kriteria' : lang === 'ru' ? 'Критерии' : lang === 'de' ? 'Kriterien' : lang === 'zh' ? '条件' : lang === 'ja' ? '条件' : lang === 'es' ? 'Criterios' : 'Criteria'} ({criteriaSummary.length}) <span aria-hidden className="text-tg-hint">{criteriaOpen ? '▴' : '▾'}</span></button>
-                {criteriaOpen && (
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 z-40 rounded-xl border border-tg-border bg-tg-card shadow-lg max-h-[40vh] overflow-y-auto p-2 min-w-[220px] max-w-[80vw]">
-                    <ActiveFilters
-                      cuisines={state.cuisines}
-                      filters={state.filters}
-                      onRemoveCuisine={removeCuisine}
-                      onRemoveFilter={removeFilter}
-                      onResetAll={clearAll}
-                      nameForCuisine={(slug) => {
-                        if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
-                        return cuisineNameBySlug.get(slug) || null;
-                      }}
-                    />
+            {/* v0.62.673 — the footer's centre grid cell. Holds the pre-existing
+                Criteria dropdown AND/OR the new Michelin pager (v0.62.673); either,
+                both, or neither can be present, and the cell collapses to its
+                content when both are absent (no visual change from before). */}
+            {(criteriaSummary.length > 0 || (isMichelinMode && pages.length > 1)) && (
+              <div className="flex items-center justify-center gap-1 shrink-0 justify-self-center">
+                {/* v0.62.281 — "Criteria" dropdown: collapses the active-filter
+                    chips; tap to open, tap a chip's × to drop a cuisine + re-search. */}
+                {criteriaSummary.length > 0 && (
+                  <div className="relative shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setCriteriaOpen((o) => !o)}
+                      aria-haspopup="true"
+                      aria-expanded={criteriaOpen}
+                      className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap inline-flex items-center gap-0.5"
+                    >{lang === 'fr' ? 'Critères' : lang === 'id' ? 'Kriteria' : lang === 'ru' ? 'Критерии' : lang === 'de' ? 'Kriterien' : lang === 'zh' ? '条件' : lang === 'ja' ? '条件' : lang === 'es' ? 'Criterios' : 'Criteria'} ({criteriaSummary.length}) <span aria-hidden className="text-tg-hint">{criteriaOpen ? '▴' : '▾'}</span></button>
+                    {criteriaOpen && (
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 z-40 rounded-xl border border-tg-border bg-tg-card shadow-lg max-h-[40vh] overflow-y-auto p-2 min-w-[220px] max-w-[80vw]">
+                        <ActiveFilters
+                          cuisines={state.cuisines}
+                          filters={state.filters}
+                          onRemoveCuisine={removeCuisine}
+                          onRemoveFilter={removeFilter}
+                          onResetAll={clearAll}
+                          nameForCuisine={(slug) => {
+                            if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
+                            return cuisineNameBySlug.get(slug) || null;
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
+                )}
+                {/* v0.62.673 — Michelin footer-centre pagination. `page` = an
+                    already-fetched server batch (operator's explicit architecture
+                    call), reusing the pre-existing `pages`/`cursor` history and its
+                    `useEffect` restore (App.jsx ~:946) — Prev/replay-Next just move
+                    `cursor`; fresh-Next (at the cache tip) calls the same
+                    `runSearch(state)` ResultPanel's own '▶ next batch' button
+                    already uses (App.jsx :5210), so no new fetch mechanism was
+                    introduced. `pages.length` (not a server-side total) is the
+                    denominator, matching "page = already-FETCHED batch" literally —
+                    it grows as the user pages forward. */}
+                {isMichelinMode && pages.length > 1 && (
+                  <nav
+                    aria-label={lang === 'fr' ? 'Pages de résultats Michelin' : lang === 'id' ? 'Halaman hasil Michelin' : lang === 'ru' ? 'Страницы результатов Michelin' : lang === 'de' ? 'Michelin-Ergebnisseiten' : lang === 'zh' ? '米其林结果页面' : lang === 'ja' ? 'ミシュラン結果ページ' : lang === 'es' ? 'Páginas de resultados Michelin' : 'Michelin result pages'}
+                    className="flex items-center gap-0.5 shrink-0"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => { if (cursor > 0) setCursor((c) => Math.max(0, c - 1)); }}
+                      disabled={cursor === 0}
+                      aria-label={lang === 'fr' ? 'Page précédente des résultats Michelin' : lang === 'id' ? 'Halaman Michelin sebelumnya' : lang === 'ru' ? 'Предыдущая страница Michelin' : lang === 'de' ? 'Vorherige Michelin-Ergebnisseite' : lang === 'zh' ? '上一页米其林结果' : lang === 'ja' ? '前のミシュラン結果ページ' : lang === 'es' ? 'Página anterior de resultados Michelin' : 'Previous Michelin results page'}
+                      className="gia-hit px-1 py-1.5 rounded-lg active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
+                    >‹</button>
+                    <span className="tabular-nums px-0.5" aria-live="polite">{cursor + 1} / {pages.length}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (cursor < pages.length - 1) { setCursor((c) => Math.min(pages.length - 1, c + 1)); return; }
+                        if (!exhaustedNote) runSearch(state);
+                      }}
+                      disabled={exhaustedNote && cursor === pages.length - 1}
+                      aria-label={lang === 'fr' ? 'Page suivante des résultats Michelin' : lang === 'id' ? 'Halaman Michelin berikutnya' : lang === 'ru' ? 'Следующая страница Michelin' : lang === 'de' ? 'Nächste Michelin-Ergebnisseite' : lang === 'zh' ? '下一页米其林结果' : lang === 'ja' ? '次のミシュランページ' : lang === 'es' ? 'Página siguiente de resultados Michelin' : 'Next Michelin results page'}
+                      className="gia-hit px-1 py-1.5 rounded-lg active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
+                    >›</button>
+                  </nav>
                 )}
               </div>
             )}
-            <div className="flex items-center gap-0.5 shrink-0">
+            <div className="flex items-center gap-0.5 shrink-0 justify-self-end">
               <button
                 type="button"
                 onClick={() => window.scrollTo({
