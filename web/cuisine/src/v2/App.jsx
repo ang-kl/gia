@@ -3255,7 +3255,7 @@ export default function App() {
   // `pages.length` is just a defensive floor (never show fewer pages than
   // already fetched, in case the estimate and the real cache ever disagree).
   const michelinTotalPages = (isMichelinMode && michelinRemaining?.total)
-    ? Math.max(pages.length, Math.ceil(michelinRemaining.total / 12))
+    ? Math.max(pages.length, Math.ceil(michelinRemaining.total / 9))
     : pages.length;
 
   // v0.61.29 — LocationField pick handler, hoisted to a named callback
@@ -5647,13 +5647,20 @@ export default function App() {
                     ("1/1", then "2/2", …), never a real remaining count. Switched
                     to `michelinTotalPages`, derived from the server's own
                     `michelinRemaining.total` (the actual Michelin Star/Bib
-                    Gourmand count matching current criteria) ÷ the 12-per-batch
-                    size ResultPanel.jsx's own PAGE_SIZE already uses for this
-                    exact batch concept — "2/6" now means what it says. The
-                    pager's VISIBILITY gate moves to this real total too, so it
-                    shows from the very FIRST batch (once the server has reported
-                    a total > one page) instead of only after the user has
-                    already stepped forward once. */}
+                    Gourmand count matching current criteria) ÷ a page size of
+                    9 — "2/6" now means what it says. The pager's VISIBILITY
+                    gate moves to this real total too, so it shows from the
+                    very FIRST batch (once the server has reported a total >
+                    one page) instead of only after the user has already
+                    stepped forward once.
+                    v0.62.675 — operator correction: divisor was 12 (matching
+                    ResultPanel.jsx's fetch-batch PAGE_SIZE); the operator's
+                    own worked example ("140 / 9 cards per page = 15 pages")
+                    specifies 9, a DISPLAY-ONLY denominator decoupled from the
+                    actual 12-per-tap server fetch batch — the numerator
+                    (`cursor+1`) still counts fetched batches of 12, so the
+                    two axes of this counter are deliberately not the same
+                    unit (disclosed, not silently reconciled). */}
                 {isMichelinMode && michelinTotalPages > 1 && (
                   <nav
                     aria-label={lang === 'fr' ? 'Pages de résultats Michelin' : lang === 'id' ? 'Halaman hasil Michelin' : lang === 'ru' ? 'Страницы результатов Michelin' : lang === 'de' ? 'Michelin-Ergebnisseiten' : lang === 'zh' ? '米其林结果页面' : lang === 'ja' ? 'ミシュラン結果ページ' : lang === 'es' ? 'Páginas de resultados Michelin' : 'Michelin result pages'}
