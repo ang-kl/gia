@@ -160,10 +160,25 @@ function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, sc
 // An IntersectionObserver (root = the scroll track) marks a card focused once it
 // is ≥ 92 % visible; anything less peeks and renders glass. `basisClass` sets how
 // many are in focus (3 on wide tablets/desktop, 2 on an iPad-mini-width screen).
-function CentreCarousel({ items, renderCard, basisClass }) {
+// v0.62.679 — O-96 (operator, device check): on PHONE this IntersectionObserver
+// path could get "stuck" — a card that scrolled to a peeking edge sometimes kept
+// rendering opaque, because IO callback timing during a scroll-snap gesture is
+// implementation-defined and can coalesce/delay in Telegram's embedded WebView;
+// if a below-threshold crossing never fires, the index never leaves `focused`.
+// Cuisine's own carousel (ResultDrawer.jsx) never had this bug because it only
+// uses IntersectionObserver on tablet/desktop (`glassPeek = vp.isWide`, multiple
+// cards can be simultaneously "visible"); on phone it bypasses IO entirely and
+// tracks the single centred card via `detectCentre()` — a synchronous
+// getBoundingClientRect() geometry match re-run on every native `scroll` event,
+// which cannot get stuck. Ported that same dual-mode split here: IO stays for
+// `isWide` (unaffected, not what the operator reported), phone now uses the
+// scroll-driven geometry match instead.
+function CentreCarousel({ items, renderCard, basisClass, isWide = false }) {
   const trackRef = useRef(null);
   const [focused, setFocused] = useState(() => new Set());
+  const [centeredIdx, setCenteredIdx] = useState(0);
   useEffect(() => {
+    if (!isWide) { setFocused(new Set()); return undefined; }
     const track = trackRef.current;
     if (!track || typeof IntersectionObserver === 'undefined') {
       // No IO (very old webview): treat all as focused/opaque.
@@ -182,7 +197,33 @@ function CentreCarousel({ items, renderCard, basisClass }) {
     }, { root: track, threshold: [0, 0.5, 0.92, 1] });
     track.querySelectorAll('[data-idx]').forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [items]);
+  }, [items, isWide]);
+  // v0.62.679 — phone-only scroll-geometry fallback (mirrors Cuisine's
+  // ResultDrawer.jsx detectCentre()). Re-measures on every scroll tick, so it
+  // cannot desync from what's actually visible the way IO callback timing can.
+  useEffect(() => {
+    if (isWide) return undefined;
+    const track = trackRef.current;
+    if (!track) return undefined;
+    const detectCentre = () => {
+      const trackRect = track.getBoundingClientRect();
+      const mid = trackRect.left + trackRect.width / 2;
+      let best = null;
+      let bestDist = Infinity;
+      track.querySelectorAll('[data-idx]').forEach((node) => {
+        const idx = Number(node.getAttribute('data-idx'));
+        const r = node.getBoundingClientRect();
+        const d = Math.abs(r.left + r.width / 2 - mid);
+        if (d < bestDist) { bestDist = d; best = idx; }
+      });
+      if (best != null) setCenteredIdx((prev) => (best !== prev ? best : prev));
+    };
+    track.addEventListener('scroll', detectCentre, { passive: true });
+    detectCentre();
+    const seed = setTimeout(detectCentre, 80);
+    return () => { track.removeEventListener('scroll', detectCentre); clearTimeout(seed); };
+  }, [items, isWide]);
+  const glassFor = (i) => (isWide ? !focused.has(i) : i !== centeredIdx);
   return (
     // v0.62.554 — operator: the cards showed a horizontal "boundary line across
     // the screen". Cause: the flex track defaulted to align-items:stretch, so
@@ -197,7 +238,7 @@ function CentreCarousel({ items, renderCard, basisClass }) {
     >
       {items.map((c, i) => (
         <div key={i} data-idx={i} className={`snap-center shrink-0 ${basisClass} max-h-[46vh] overflow-y-auto rounded-lg shadow-lg`}>
-          {renderCard(c, i, !focused.has(i), true)}
+          {renderCard(c, i, glassFor(i), true)}
         </div>
       ))}
     </div>
@@ -266,6 +307,20 @@ export default function App() {
     if (next.has(name)) next.delete(name); else next.add(name);
     return next;
   });
+  // v0.62.679 — O-95 (operator): "Copy" should stay open like Cuisine's, so the
+  // user can copy several cards in one session, instead of closing the WebApp.
+  // A Set (not a single value) so more than one card can show "✓ Sent" if the
+  // user copies several in quick succession — mirrors Cuisine's `copied`/
+  // `card.sent` UX (ResultCard.jsx), 3s auto-revert.
+  const [sentNames, setSentNames] = useState(() => new Set());
+  const markSent = (name) => {
+    setSentNames((prev) => new Set(prev).add(name));
+    setTimeout(() => setSentNames((prev) => {
+      const next = new Set(prev);
+      next.delete(name);
+      return next;
+    }), 3000);
+  };
   // v0.62.551 — 1st tap runs `show` (reveal the station/bus stop ON the map) and
   // toggles the pill; 2nd tap on the same pill opens external Google Maps and
   // clears the toggle. `show` is a callback so each kind reveals itself properly
@@ -348,8 +403,10 @@ export default function App() {
         body: JSON.stringify({ initData: initData(), centreName })
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const w = tg();
-      if (w && typeof w.close === 'function') w.close();
+      // v0.62.679 — O-95 (operator): stay open like Cuisine's "Copy" (was
+      // tg().close() on success — closed the WebApp after every single copy,
+      // unlike Cuisine which lets the user copy several cards in one session).
+      markSent(centreName);
     } catch (e) {
       const w = tg();
       const msg = t('msg.saveFailed', lang);
@@ -463,7 +520,11 @@ export default function App() {
         animate={reduceMotion ? undefined : { scale: cardOn ? 1.02 : 1 }}
         transition={{ type: 'spring', stiffness: 420, damping: 30, mass: 0.7 }}
         className={`rounded-lg border text-xs flex flex-col cursor-pointer ${compact ? 'p-1.5 gap-0.5' : 'p-2.5 gap-1'} ${cardOn ? 'border-tg-accent ring-1 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 liquid-glass' : 'bg-tg-card'}`}>
-        <div className="font-semibold text-[13px] leading-tight text-tg-text">
+        {/* v0.62.679 — O-97 (operator): "Hawker's centre card follows Cuisine's
+            category card 12px" — was a flat text-[13px]; now the same
+            isCompact-responsive rule Phase C applied to Cuisine's category-grid
+            label (11px compact phone / 12px everywhere else). */}
+        <div className={`font-semibold ${vp.isCompact ? 'text-type-meta' : 'text-type-body'} leading-tight text-tg-text`}>
           <span className="text-tg-hint font-semibold tabular-nums">{i + 1} · </span>{c.name}{c.isNew ? ' 🆕' : ''}
         </div>
         {c.address && <div className="text-[11px] text-tg-hint leading-snug">📇 {c.address}</div>}
@@ -581,7 +642,7 @@ export default function App() {
           <button type="button" onClick={(e) => { e.stopPropagation(); saveToChat(c.name); }}
             disabled={savingName === c.name}
             className="text-[11px] px-2.5 py-0.5 rounded-full border border-tg-border bg-tg-bg text-tg-text disabled:opacity-60">
-            {savingName === c.name ? t('btn.saving', lang) : t('btn.saveToChat', lang)}
+            {savingName === c.name ? t('btn.saving', lang) : sentNames.has(c.name) ? t('card.sent', lang) : t('btn.saveToChat', lang)}
           </button>
         </div>
         </>
@@ -639,7 +700,10 @@ export default function App() {
           style={{ paddingTop: 'calc(var(--tg-content-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 0.625rem)' }}
         >
           <div className="flex items-center pr-24">
-            <h1 className="text-sm font-semibold leading-tight truncate">{t('header.title', lang)}</h1>
+            {/* v0.62.679 — O-97 (operator): unify with the other 2 layouts'
+                header title size (16px) and Cuisine's — was text-sm (14px),
+                the one layout that disagreed. */}
+            <h1 className="text-base font-semibold leading-tight truncate">{t('header.title', lang)}</h1>
           </div>
           {/* v0.62.659 — operator: "have the same location (show current location
               and nearest station) like cuisine TMA... apply this to Hawker TMA as
@@ -686,6 +750,7 @@ export default function App() {
               items={active.centres}
               renderCard={renderCentreCard}
               basisClass="basis-[82%] md:basis-[44%] min-[1180px]:basis-[30%] xl:basis-[24%] min-[1600px]:basis-[19%] min-[2000px]:basis-[16%]"
+              isWide={vp.isWide}
             />
           </div>
         )}

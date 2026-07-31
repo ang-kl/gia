@@ -63,10 +63,21 @@ function LiveClock() {
 // landscape / full-map layout (mirrors the Hawker TMA's CentreCarousel). The
 // off-centre (peeking) cards get the frosted "glass" look; the centred one is
 // opaque. IntersectionObserver tracks which cards are in focus.
-function StationCarousel({ items, render, activeIndex = -1 }) {
+// v0.62.679 — O-96 (operator, device check): on PHONE this IntersectionObserver
+// path could get "stuck" opaque on a card that had already scrolled to a
+// peeking edge — IO callback timing during a scroll-snap gesture is
+// implementation-defined and can coalesce/delay in Telegram's embedded WebView.
+// Cuisine's own carousel (ResultDrawer.jsx) avoids this by only using
+// IntersectionObserver on tablet/desktop (`glassPeek = vp.isWide`); on phone it
+// tracks the single centred card via a synchronous getBoundingClientRect()
+// geometry match re-run on every native `scroll` event, which cannot get
+// stuck. Ported that same dual-mode split here via the new `isWide` prop.
+function StationCarousel({ items, render, activeIndex = -1, isWide = false }) {
   const trackRef = useRef(null);
   const [focused, setFocused] = useState(() => new Set());
+  const [centeredIdx, setCenteredIdx] = useState(0);
   useEffect(() => {
+    if (!isWide) { setFocused(new Set()); return undefined; }
     const track = trackRef.current;
     if (!track || typeof IntersectionObserver === 'undefined') {
       setFocused(new Set(items.map((_, i) => i)));
@@ -84,7 +95,32 @@ function StationCarousel({ items, render, activeIndex = -1 }) {
     }, { root: track, threshold: [0, 0.5, 0.9, 1] });
     track.querySelectorAll('[data-idx]').forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [items]);
+  }, [items, isWide]);
+  // v0.62.679 — phone-only scroll-geometry fallback (mirrors Cuisine's
+  // ResultDrawer.jsx detectCentre()).
+  useEffect(() => {
+    if (isWide) return undefined;
+    const track = trackRef.current;
+    if (!track) return undefined;
+    const detectCentre = () => {
+      const trackRect = track.getBoundingClientRect();
+      const mid = trackRect.left + trackRect.width / 2;
+      let best = null;
+      let bestDist = Infinity;
+      track.querySelectorAll('[data-idx]').forEach((node) => {
+        const idx = Number(node.getAttribute('data-idx'));
+        const r = node.getBoundingClientRect();
+        const d = Math.abs(r.left + r.width / 2 - mid);
+        if (d < bestDist) { bestDist = d; best = idx; }
+      });
+      if (best != null) setCenteredIdx((prev) => (best !== prev ? best : prev));
+    };
+    track.addEventListener('scroll', detectCentre, { passive: true });
+    detectCentre();
+    const seed = setTimeout(detectCentre, 80);
+    return () => { track.removeEventListener('scroll', detectCentre); clearTimeout(seed); };
+  }, [items, isWide]);
+  const glassFor = (i) => (isWide ? !focused.has(i) : i !== centeredIdx);
   // v0.62.632 — when a station is selected (card tap or map pin), scroll its card
   // to the centre of the track — the Cuisine/iPhone "selected card centres + pops"
   // effect. The active card also auto-expands + scales (StationCard `active`).
@@ -128,7 +164,7 @@ function StationCarousel({ items, render, activeIndex = -1 }) {
       {items.map((c, i) => (
         <div key={i} data-idx={i}
           className="snap-center shrink-0 basis-[60%] sm:basis-[31%] md:basis-[22%] xl:basis-[17%] min-[1600px]:basis-[13.5%] min-[2000px]:basis-[11%] min-w-[9rem] max-h-[52vh] overflow-y-auto rounded-lg shadow-lg">
-          {render(c, i, !focused.has(i))}
+          {render(c, i, glassFor(i))}
         </div>
       ))}
     </div>
@@ -566,6 +602,7 @@ export default function App() {
         glass={glass}
         compact={compact}
         collapsible={collapsible}
+        isCompact={vp.isCompact}
         seq={seq}
         seqTotal={seqTotal}
         userLoc={userLoc}
@@ -586,6 +623,7 @@ export default function App() {
       coarseStations={coarseStations}
       lang={lang}
       userLoc={userLoc}
+      isCompact={vp.isCompact}
       onClose={() => handleSelectStation(null)}
       onFocusStationCode={handleFocusStationCode}
     />
@@ -882,7 +920,7 @@ export default function App() {
         <div className="fixed inset-x-0 z-[38] pointer-events-none"
           style={{ bottom: 'calc(3.25rem + env(safe-area-inset-bottom, 0px))' }}>
           {lineStations.length > 0
-            ? <StationCarousel items={lineStations} activeIndex={activeStationIndex}
+            ? <StationCarousel items={lineStations} activeIndex={activeStationIndex} isWide={vp.isWide}
                 render={(st, i, glass) => renderStationCard(st, i, glass, true, true)} />
             : <div className="px-3 max-w-md mx-auto max-h-[44vh] overflow-y-auto pointer-events-auto">{singleFocusedCard}</div>}
         </div>

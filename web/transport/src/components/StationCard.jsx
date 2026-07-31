@@ -268,7 +268,7 @@ export default function StationCard({
   station = null, coarse = null, context = null, crowd = null, statusByLine = null,
   coarseStations = null, lang = 'en', onClose = null, onFocusStationCode = null,
   onTap = null, active = false, glass = false, compact = false, collapsible = false, userLoc = null,
-  seq = null, seqTotal = null
+  seq = null, seqTotal = null, isCompact = false
 }) {
   const name = station?.station_name || coarse?.name || '';
   // v0.62.621/632 — hooks must precede the early return (Rules of Hooks).
@@ -434,7 +434,11 @@ export default function StationCard({
             (styles.css) puts it on Roboto — the Google Maps interface face, which
             the Maps JS API already loads into the page — so the card's title reads
             as the same family as the map labels beside it. */}
-        <span className="font-google text-[14px] font-bold leading-tight flex-1 min-w-0 truncate">{name}</span>
+        {/* v0.62.679 — O-97 (operator): "Transport's station card follows
+            Cuisine's category card 12px" — was a flat text-[14px]; now the
+            same isCompact-responsive rule Phase C applied to Cuisine's
+            category-grid label (11px compact phone / 12px everywhere else). */}
+        <span className={`font-google ${isCompact ? 'text-type-meta' : 'text-type-body'} font-bold leading-tight flex-1 min-w-0 truncate`}>{name}</span>
         {/* v0.62.646 — the inline "(future)" marker is retired: the folder TAB
             above the card now carries it (Cuisine parity). */}
         {/* v0.62.644 — the card-level disclosure moved OFF the name strip to a
