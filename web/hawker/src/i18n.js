@@ -131,6 +131,10 @@ const STRINGS = {
   // underlying save-pick mechanism are UNCHANGED — this is a label-only fix.
   'btn.saveToChat':          { en: '📋 Copy', fr: '📋 Copier' },
   'btn.saving':              { en: 'Sending…', fr: 'Envoi…' },
+  // v0.62.679 — O-95 (operator): "Copy" now stays open (no more tg().close()),
+  // matching Cuisine's copy() flow exactly, incl. its post-success confirmation
+  // wording (Cuisine's card.sent — same key name, same EN/FR text).
+  'card.sent':               { en: '✓ Sent', fr: '✓ Envoyé' },
   // v0.62.678 — collapse/expand toggle, parity with Cuisine's card.detailsMore/
   // detailsLess and Train's mrt.detailsMore/detailsLess (operator's typography/
   // card-height audit). Simpler wording than Cuisine's ("details, review &
@@ -229,6 +233,7 @@ const ID_STRINGS = {
   'btn.saving': 'Mengirim…',
   'btn.detailsMore': '⌄ detail',
   'btn.detailsLess': '⌃ ringkas',
+  'card.sent': '✓ Terkirim',
   'msg.savedClose': 'Terkirim ke chat. Anda bisa menutup tampilan ini.',
   'msg.saveFailed': 'Tidak bisa mengirim ke chat — silakan coba lagi.',
   'stalls.count': '🍳 {n} kios',
@@ -311,6 +316,7 @@ const RU_STRINGS = {
   'btn.saving': 'Отправка…',
   'btn.detailsMore': '⌄ детали',
   'btn.detailsLess': '⌃ меньше',
+  'card.sent': '✓ Отправлено',
   'msg.savedClose': 'Отправлено в чат. Можно закрыть это окно.',
   'msg.saveFailed': 'Не удалось отправить в чат — попробуйте ещё раз.',
   'stalls.count': '🍳 {n} прилавков',
@@ -390,6 +396,7 @@ const DE_STRINGS = {
   'btn.saving': 'Senden…',
   'btn.detailsMore': '⌄ Details',
   'btn.detailsLess': '⌃ weniger',
+  'card.sent': '✓ Gesendet',
   'msg.savedClose': 'An Chat gesendet. Sie können diese Ansicht schließen.',
   'msg.saveFailed': 'Senden an Chat fehlgeschlagen — bitte erneut versuchen.',
   'stalls.count': '🍳 {n} Stände',
@@ -471,6 +478,7 @@ const ZH_STRINGS = {
   'btn.saving': '发送中…',
   'btn.detailsMore': '⌄ 详情',
   'btn.detailsLess': '⌃ 收起',
+  'card.sent': '✓ 已发送',
   'msg.savedClose': '已发送到聊天。您可以关闭此视图。',
   'msg.saveFailed': '无法发送到聊天 — 请重试。',
   'stalls.count': '🍳 {n} 个摊位',
@@ -551,6 +559,7 @@ const JA_STRINGS = {
   'btn.saving': '送信中…',
   'btn.detailsMore': '⌄ 詳細',
   'btn.detailsLess': '⌃ 閉じる',
+  'card.sent': '✓ 送信済み',
   'msg.savedClose': 'チャットに送信しました。この画面を閉じてかまいません。',
   'msg.saveFailed': 'チャットに送信できませんでした — もう一度お試しください。',
   'stalls.count': '🍳 {n} 店舗',
@@ -631,6 +640,7 @@ const ES_STRINGS = {
   'btn.saving': 'Enviando…',
   'btn.detailsMore': '⌄ detalles',
   'btn.detailsLess': '⌃ menos',
+  'card.sent': '✓ Enviado',
   'msg.savedClose': 'Enviado al chat. Puedes cerrar esta vista.',
   'msg.saveFailed': 'No se pudo enviar al chat — inténtalo de nuevo.',
   'stalls.count': '🍳 {n} puestos',
