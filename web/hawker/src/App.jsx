@@ -517,6 +517,19 @@ export default function App() {
   // (top-fixed map + scrolling list). Orientation — not width — picks the shape;
   // `isWide` only widens the list grid to 2 columns on tablets/desktop.
   const vp = useViewport();
+  // v0.62.698 — operator: re-tapping the ALREADY-ACTIVE zone pill should re-frame
+  // that zone. Zoom is per device, per the operator's numbers: 12 on a phone,
+  // 13 on Desktop/iPad. (Higher = closer; the wider screen can hold more detail
+  // at the same apparent size, which is why it is the larger number.)
+  const ZONE_ZOOM_PHONE = 12;
+  const ZONE_ZOOM_WIDE = 13;
+  const pickRegion = (region) => {
+    if (region === activeRegion) {
+      window.__giaHawkerFitZone?.(vp.isWide ? ZONE_ZOOM_WIDE : ZONE_ZOOM_PHONE);
+      return;
+    }
+    setActiveRegion(region);
+  };
   const isWide = vp.isWide;
   const footerTag = viewportTag(vp);
   // List grid: 2 columns on tablet/desktop, single column on phones.
@@ -780,7 +793,7 @@ export default function App() {
               {regionList.map((r) => {
                 const sel = r.region === activeRegion;
                 return (
-                  <button key={r.region} onClick={() => setActiveRegion(r.region)} aria-pressed={sel}
+                  <button key={r.region} onClick={() => pickRegion(r.region)} aria-pressed={sel}
                     className={`px-2 py-1 rounded-full text-xs whitespace-nowrap shrink-0 active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/90 liquid-glass text-tg-text'}`}>
                     <span className="mr-0.5">{REGION_EMOJI[r.region] || '·'}</span>{regionLabel(r.region)}
                   </button>
@@ -881,7 +894,7 @@ export default function App() {
         {regionList.map((r) => {
           const sel = r.region === activeRegion;
           return (
-            <button key={r.region} onClick={() => setActiveRegion(r.region)} aria-pressed={sel}
+            <button key={r.region} onClick={() => pickRegion(r.region)} aria-pressed={sel}
               className={`px-2 py-1 rounded-full text-[11px] whitespace-nowrap shrink-0 active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/90 liquid-glass text-tg-text'}`}>
               <span className="mr-0.5">{REGION_EMOJI[r.region] || '·'}</span>{regionLabel(r.region)}
             </button>
@@ -974,7 +987,7 @@ export default function App() {
             {regionList.map((r) => {
               const sel = r.region === activeRegion;
               return (
-                <button key={r.region} onClick={() => setActiveRegion(r.region)} aria-pressed={sel}
+                <button key={r.region} onClick={() => pickRegion(r.region)} aria-pressed={sel}
                   className={`px-2 py-1 rounded-full text-[11px] whitespace-nowrap shrink-0 active:scale-95 ${sel ? 'skeuo-pill--selected border border-tg-accent/50 font-semibold' : 'bg-tg-bg/90 liquid-glass text-tg-text'}`}>
                   <span className="mr-0.5">{REGION_EMOJI[r.region] || '·'}</span>{regionLabel(r.region)}
                 </button>

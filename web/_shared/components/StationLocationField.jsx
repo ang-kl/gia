@@ -176,7 +176,18 @@ export default function StationLocationField({ lang = 'en', onSelectStation = nu
               onChange={(e) => setQuery(e.target.value)}
               placeholder={tr('placeholder', lang)}
               aria-label={tr('placeholder', lang)}
-              className="flex-1 text-xs px-2 py-1 rounded border border-tg-border bg-tg-bg text-tg-text"
+              /* v0.62.698 — operator: "when I tap 'Search a station or road' it
+                 should not zoom in and make the whole TMA looks zoom in". That
+                 is iOS auto-zoom-on-focus, which fires for any input whose
+                 font-size is under 16px. Each app's styles.css already carries
+                 the guard `input, textarea, select { font-size: 16px }` — but a
+                 bare element selector is specificity (0,0,1) and Tailwind's
+                 `text-xs` is a class at (0,1,0), so the class won and the input
+                 rendered at 12px. This is the standing O-104 finding, now
+                 reported from a device. Setting the size HERE (16px, the iOS
+                 threshold) is what actually reaches the element; the guard stays
+                 as the backstop for inputs that set no size at all. */
+              className="flex-1 text-[16px] px-2 py-1 rounded border border-tg-border bg-tg-bg text-tg-text"
             />
             <button type="button" onClick={() => { setOpen(false); setQuery(''); }}
               aria-label="Close" className="text-tg-hint text-xs px-1 active:scale-90">✕</button>
