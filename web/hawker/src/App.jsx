@@ -584,7 +584,7 @@ export default function App() {
            peeking ones — measured on device: all five cards identical borderColor.
            `centred` now carries the accent too; a TAP keeps the stronger
            ring + shadow + lift so the two states stay distinguishable. */
-        className={`rounded-lg border text-xs flex flex-col cursor-pointer ${compact ? 'p-1.5 gap-0.5' : 'p-2.5 gap-1'} ${compact && !expanded ? `${isShort ? 'h-[5.5rem]' : 'h-[8rem]'} overflow-hidden` : ''} ${cardOn ? 'border-tg-accent ring-1 ring-tg-accent shadow-xl relative z-10' : (centred ? 'border-tg-accent' : 'border-tg-border')} ${glass ? 'bg-tg-card/60 liquid-glass' : 'bg-tg-card'}`}>
+        className={`rounded-lg border text-xs flex flex-col cursor-pointer ${compact ? 'p-1.5 gap-0.5' : 'p-2.5 gap-1'} ${compact && !expanded ? `${isShort ? 'h-[5.5rem]' : 'h-[8rem]'} overflow-hidden` : ''} ${cardOn ? 'border-tg-accent ring-1 ring-tg-accent shadow-xl relative z-10' : (centred ? 'border-tg-accent' : 'border-tg-border')} ${glass ? 'bg-tg-card/40 liquid-glass' : 'bg-tg-card'}`}>
         {/* v0.62.679 — O-97 (operator): "Hawker's centre card follows Cuisine's
             category card 12px" — was a flat text-[13px]; now the same
             isCompact-responsive rule Phase C applied to Cuisine's category-grid

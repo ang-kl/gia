@@ -390,7 +390,7 @@ export default function StationCard({
          — each is sized by its content, which is exactly why they read better and
          carry no dead space. So the fixed height is GONE: the Train card is now
          content-sized in both states, like Cuisine and Hawker. */
-      className={`rounded-xl border overflow-hidden text-xs flex flex-col ${onTap ? 'cursor-pointer' : ''} ${active ? 'border-tg-accent ring-2 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 liquid-glass' : 'bg-tg-card'}`}
+      className={`rounded-xl border overflow-hidden text-xs flex flex-col ${onTap ? 'cursor-pointer' : ''} ${active ? 'border-tg-accent ring-2 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/40 liquid-glass' : 'bg-tg-card'}`}
     >
       {/* Name strip — line colour (single) / white (interchange).
           v0.62.641 — operator ("train card when tap isn't zoom in"): the strip used
