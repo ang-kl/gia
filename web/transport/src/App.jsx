@@ -495,6 +495,18 @@ export default function App() {
       <StationLocationField
         lang={lang}
         onSelectStation={(s) => {
+          // v0.62.690 — the field now also returns roads/addresses. An address has
+          // no codes and no lines, so it must NOT become `focusedStation`: that
+          // state drives StationCard, which would render a station detail panel
+          // for something that is not a station. It gets the map + the inspection
+          // overlay and nothing else.
+          if (s.kind === 'address') {
+            setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
+            if (Number.isFinite(s.lat) && Number.isFinite(s.lng)) {
+              setTimeout(() => window.__giaMrtInspect?.(s.lat, s.lng, s.name || ''), 0);
+            }
+            return;
+          }
           setFocusedStation({ ...s, tappedCode: (s.codes && s.codes[0]) || null });
           if (s.lines && s.lines[0]) { setFocusedCode(s.lines[0]); setBlinkCode(null); }
           setMapView((prev) => (prev === 'png' ? 'gmap' : prev));

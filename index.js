@@ -18944,6 +18944,58 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.62.690 — road / address search for the station-pick inspection overlay.
+    // Operator: "when type in the road or train … place a temporary location";
+    // v0.62.689 shipped the train half, this is the road half.
+    //
+    // Upstream is OneMap's `common/elastic/search` — the SLA/sovereign SG
+    // geocoder. Chosen over Google Places Autocomplete because it is FREE and
+    // keyless (so no gate-G4 spend decision), because it returns ROAD_NAME /
+    // BLK_NO / POSTAL as first-class fields where Places has no road-only type
+    // filter, and because this project already treats it as authoritative for SG
+    // (scripts/fetch-hawker-coords.js uses this same endpoint; doc/Legal already
+    // carries the "Source: OneMap / SLA" attribution).
+    //
+    // No auth gate — same reasoning as /api/hawker/centres-by-region and
+    // /api/transport/stations, which the very same field already calls
+    // unauthenticated: a public catalogue lookup with no per-user data. The
+    // rate limiter therefore keys on IP rather than chatId (see rate-limit.js).
+    // Nothing here is billable, so the limiter protects OneMap's service, not a
+    // budget.
+    app.get('/api/geo/road-search',
+      makeRateLimiter(redis, { endpoint: 'road-search', cap: 300, keyFn: (req) => req.ip }),
+      async (req, res) => {
+        try {
+          const q = String(req.query?.q || '').trim();
+          if (q.length < 3) return res.json({ results: [] });
+          // Road geometry does not move; a day is a conservative TTL and keeps
+          // repeat typing of the same prefix off the wire entirely.
+          const cacheKey = `onemap:search:v1:${q.toLowerCase()}`;
+          if (redis.isOpen) {
+            const hit = await redis.get(cacheKey);
+            if (hit) return res.json({ results: JSON.parse(hit), cached: true });
+          }
+          const url = 'https://www.onemap.gov.sg/api/common/elastic/search'
+            + `?searchVal=${encodeURIComponent(q)}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
+          const r = await axios.get(url, { timeout: 6000, validateStatus: () => true });
+          // NOTE: the keyless call returns a top-level `error` string ("Authentication
+          // token missing…") ALONGSIDE a fully populated `results` array. Keying off
+          // `error` would throw away good data — normalise `results` and let it be
+          // empty if there genuinely is nothing.
+          const { normaliseOneMapResults } = require('./onemap-search');
+          const results = normaliseOneMapResults(r.data, { limit: 6 });
+          if (redis.isOpen && results.length) {
+            await redis.set(cacheKey, JSON.stringify(results), { EX: 24 * 60 * 60 });
+          }
+          res.json({ results });
+        } catch (err) {
+          console.warn('[road-search] failed:', err.message);
+          // Degrade to "no address matches" — the station half of the field is
+          // local and must keep working when OneMap is unreachable.
+          res.json({ results: [], error: 'upstream_unavailable' });
+        }
+      });
+
     // v0.54.0: hawker centres grouped by region for the TMA's
     // "By region" tab. No auth gate — same pattern as /maps-key
     // (catalogue-only payload, no per-user data).

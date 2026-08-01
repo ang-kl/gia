@@ -16,6 +16,26 @@
 // <year>" rather than hidden, per the operator's explicit clarification that
 // "not operating" (a live disruption) and "future" (not yet built) are
 // different things and neither should block typing.
+//
+// v0.62.690 — ROADS AND ADDRESSES TOO. Operator: "when type in the road or
+// train … place a temporary location". v0.62.689 built the train half; this adds
+// the road half, as a SECOND section under the stations rather than a separate
+// field, so one box answers "where do I want to look?" however the user phrases
+// it. The two halves behave differently on purpose:
+//
+//   • Stations — local substring filter over an already-loaded array. Instant,
+//     offline, zero network per keystroke. Unchanged.
+//   • Roads / addresses — debounced 250 ms against /api/geo/road-search
+//     (OneMap, server-side, Redis-cached 24 h). Networked, so it can be slow or
+//     absent.
+//
+// Stations are listed FIRST and never wait on the network: if OneMap is down or
+// slow, typing "Bishan" still resolves the station immediately. The address
+// section simply doesn't appear. That ordering is the whole failure plan.
+//
+// Both selections call the SAME `onSelectStation` callback, carrying a `kind` of
+// 'station' or 'address'. Hosts that only need coordinates (Hawker) can ignore
+// `kind` entirely; hosts that render station-specific UI (Transport) branch on it.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { startLocationSync } from '../lib/location-sync.js';
 
@@ -24,10 +44,15 @@ import { startLocationSync } from '../lib/location-sync.js';
 const STRINGS = {
   near:        { en: 'You are near', fr: 'Vous êtes près de', id: 'Anda berada dekat', ru: 'Вы рядом с', de: 'Sie sind in der Nähe von', zh: '您在附近', ja: '最寄り駅', es: 'Estás cerca de' },
   locating:    { en: 'Locating…', fr: 'Localisation…', id: 'Mencari lokasi…', ru: 'Определение местоположения…', de: 'Standort wird ermittelt…', zh: '定位中…', ja: '位置情報を取得中…', es: 'Localizando…' },
-  change:      { en: 'Search a station', fr: 'Rechercher une station', id: 'Cari stasiun', ru: 'Найти станцию', de: 'Station suchen', zh: '搜索车站', ja: '駅を検索', es: 'Buscar una estación' },
-  placeholder: { en: 'Station name or code (e.g. NS1, EW24)', fr: 'Nom ou code de station (ex. NS1, EW24)', id: 'Nama atau kode stasiun (mis. NS1, EW24)', ru: 'Название или код станции (напр. NS1, EW24)', de: 'Stationsname oder -code (z. B. NS1, EW24)', zh: '车站名称或代码（如 NS1、EW24）', ja: '駅名またはコード（例: NS1, EW24）', es: 'Nombre o código de estación (ej. NS1, EW24)' },
+  // v0.62.690 — the copy widens from stations-only to "station or road", in all
+  // 8 locales, because the field now answers both.
+  change:      { en: 'Search a station or road', fr: 'Rechercher une station ou une rue', id: 'Cari stasiun atau jalan', ru: 'Найти станцию или улицу', de: 'Station oder Straße suchen', zh: '搜索车站或道路', ja: '駅または道路を検索', es: 'Buscar una estación o calle' },
+  placeholder: { en: 'Station, code or road (e.g. NS1, Orchard Rd)', fr: 'Station, code ou rue (ex. NS1, Orchard Rd)', id: 'Stasiun, kode, atau jalan (mis. NS1, Orchard Rd)', ru: 'Станция, код или улица (напр. NS1, Orchard Rd)', de: 'Station, Code oder Straße (z. B. NS1, Orchard Rd)', zh: '车站、代码或道路（如 NS1、Orchard Rd）', ja: '駅・コード・道路（例: NS1, Orchard Rd）', es: 'Estación, código o calle (ej. NS1, Orchard Rd)' },
   opens:       { en: 'opens', fr: 'ouvre', id: 'buka', ru: 'открывается', de: 'öffnet', zh: '开通', ja: '開業', es: 'abre' },
-  noMatch:     { en: 'No station matches', fr: 'Aucune station ne correspond', id: 'Tidak ada stasiun yang cocok', ru: 'Станции не найдены', de: 'Keine passende Station gefunden', zh: '没有匹配的车站', ja: '一致する駅がありません', es: 'Ninguna estación coincide' },
+  noMatch:     { en: 'No station or address matches', fr: 'Aucune station ni adresse ne correspond', id: 'Tidak ada stasiun atau alamat yang cocok', ru: 'Станции и адреса не найдены', de: 'Keine passende Station oder Adresse', zh: '没有匹配的车站或地址', ja: '一致する駅・住所がありません', es: 'Ninguna estación o dirección coincide' },
+  secStations: { en: 'Stations', fr: 'Stations', id: 'Stasiun', ru: 'Станции', de: 'Stationen', zh: '车站', ja: '駅', es: 'Estaciones' },
+  secPlaces:   { en: 'Roads & addresses', fr: 'Rues et adresses', id: 'Jalan & alamat', ru: 'Улицы и адреса', de: 'Straßen & Adressen', zh: '道路与地址', ja: '道路・住所', es: 'Calles y direcciones' },
+  searching:   { en: 'Searching addresses…', fr: 'Recherche d’adresses…', id: 'Mencari alamat…', ru: 'Поиск адресов…', de: 'Adressen werden gesucht…', zh: '正在搜索地址…', ja: '住所を検索中…', es: 'Buscando direcciones…' },
 };
 function tr(key, lang) { return (STRINGS[key] && (STRINGS[key][lang] || STRINGS[key].en)) || key; }
 
@@ -44,6 +69,14 @@ export default function StationLocationField({ lang = 'en', onSelectStation = nu
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const stopRef = useRef(null);
+  // v0.62.690 — the networked half. `addrQuery` records WHICH query produced the
+  // current batch: without it a slow response for "orc" can land after a fast one
+  // for "orchard" and repaint stale rows under the newer text. Same stale-guard
+  // Cuisine's LocationField carries (added there after Codex review #216).
+  const [addrResults, setAddrResults] = useState([]);
+  const [addrQuery, setAddrQuery] = useState('');
+  const [addrLoading, setAddrLoading] = useState(false);
+  const debounceRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -83,6 +116,42 @@ export default function StationLocationField({ lang = 'en', onSelectStation = nu
     }).slice(0, 8);
   }, [query, stations]);
 
+  // v0.62.690 — road/address lookup, debounced 250 ms (the interval Cuisine's
+  // LocationField settled on) and gated at 3 characters, which is also the
+  // server's floor. Deliberately fires INDEPENDENTLY of the station filter, so a
+  // query that matches a station still searches addresses too — "Bishan" is both
+  // a station and a road, and the operator should get both.
+  useEffect(() => {
+    const q = query.trim();
+    if (!open || q.length < 3) {
+      setAddrResults([]); setAddrQuery(''); setAddrLoading(false);
+      return undefined;
+    }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    let cancelled = false;
+    debounceRef.current = setTimeout(() => {
+      setAddrLoading(true);
+      fetch(`/api/geo/road-search?q=${encodeURIComponent(q)}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          if (cancelled) return;
+          setAddrResults(Array.isArray(d?.results) ? d.results : []);
+          setAddrQuery(q);
+        })
+        // OneMap unreachable, offline, 429 — the station half above is local and
+        // keeps working, so this degrades to "no address matches", never an error.
+        .catch(() => { if (!cancelled) { setAddrResults([]); setAddrQuery(q); } })
+        .finally(() => { if (!cancelled) setAddrLoading(false); });
+    }, 250);
+    return () => {
+      cancelled = true;
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [query, open]);
+
+  // Only paint rows that belong to the text currently in the box.
+  const addrFresh = addrQuery === query.trim() ? addrResults : [];
+
   return (
     <div className={`text-[11px] text-tg-hint text-left leading-tight ${className}`}>
       {!open && (
@@ -113,13 +182,25 @@ export default function StationLocationField({ lang = 'en', onSelectStation = nu
               aria-label="Close" className="text-tg-hint text-xs px-1 active:scale-90">✕</button>
           </div>
           {query.trim() && (
-            results.length ? (
+            (results.length || addrFresh.length || addrLoading) ? (
               <div className="flex flex-col rounded-lg border border-tg-border bg-tg-bg overflow-hidden max-h-48 overflow-y-auto">
+                {/* Stations first, and never gated on the network — if OneMap is
+                    slow or down, typing a station name still resolves instantly.
+                    The section headers only appear when BOTH kinds are present;
+                    a station-only result set reads exactly as it did before. */}
+                {!!results.length && !!(addrFresh.length || addrLoading) && (
+                  <div className="px-2 pt-1 pb-0.5 text-[10px] uppercase tracking-wide text-tg-hint/80">
+                    {tr('secStations', lang)}
+                  </div>
+                )}
                 {results.map((s) => (
                   <button
                     key={s.name}
                     type="button"
-                    onClick={() => { onSelectStation && onSelectStation(s); setOpen(false); setQuery(''); }}
+                    onClick={() => {
+                      onSelectStation && onSelectStation({ ...s, kind: 'station' });
+                      setOpen(false); setQuery('');
+                    }}
                     className="text-left px-2 py-1.5 text-xs border-b border-tg-border last:border-b-0 active:bg-tg-hint/10"
                   >
                     <span className="font-medium text-tg-text">{s.name}</span>{' '}
@@ -127,6 +208,32 @@ export default function StationLocationField({ lang = 'en', onSelectStation = nu
                     {s.status === 'future' && (
                       <span className="text-tg-hint"> · {tr('opens', lang)} {s.opensYear || ''}</span>
                     )}
+                  </button>
+                ))}
+                {!!(addrFresh.length || addrLoading) && (
+                  <div className="px-2 pt-1 pb-0.5 text-[10px] uppercase tracking-wide text-tg-hint/80 border-t border-tg-border">
+                    {tr('secPlaces', lang)}
+                  </div>
+                )}
+                {addrLoading && !addrFresh.length && (
+                  <div className="px-2 py-1.5 text-[11px] text-tg-hint">{tr('searching', lang)}</div>
+                )}
+                {addrFresh.map((a) => (
+                  <button
+                    key={`${a.name}|${a.lat}|${a.lng}`}
+                    type="button"
+                    onClick={() => {
+                      // Same callback, same coordinate contract as a station —
+                      // `kind` is what lets a host tell them apart.
+                      onSelectStation && onSelectStation({
+                        kind: 'address', name: a.name, sub: a.sub, lat: a.lat, lng: a.lng
+                      });
+                      setOpen(false); setQuery('');
+                    }}
+                    className="text-left px-2 py-1.5 text-xs border-b border-tg-border last:border-b-0 active:bg-tg-hint/10"
+                  >
+                    <span className="font-medium text-tg-text">{a.name}</span>
+                    {a.sub && <span className="block text-[10px] text-tg-hint">{a.sub}</span>}
                   </button>
                 ))}
               </div>
