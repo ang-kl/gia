@@ -499,7 +499,14 @@ export default function App() {
   // that now carry the stop DESCRIPTION (operator: "Bus Stop 41129 · Opposite
   // S'pore Bible College") — mirroring the map InfoWindow's `🚌 code desc`
   // standard. Rounded-full pill actions (📍 Maps / Save to chat).
-  const renderCentreCard = (c, i, glass = false, compact = false) => {
+  // v0.62.692 — URGENT FIX: `isShort` was added to this function's BODY in
+  // v0.62.686 (the D-51 height tiers) and is passed by CentreCarousel as the 5th
+  // argument, but it was never added to the SIGNATURE. Reading an undeclared
+  // identifier is a ReferenceError, so every centre card threw and the whole TMA
+  // white-screened as soon as centre data arrived. Line 550's `!isShort && …`
+  // evaluates unconditionally, which is why both the carousel and the list card
+  // died — not just the compact path.
+  const renderCentreCard = (c, i, glass = false, compact = false, isShort = false) => {
     const tr = transitByName[c.name];
     const cardOn = activePill === `${c.name}|card`;
     // v0.62.678 — details/less parity with Cuisine (card.detailsMore/detailsLess)
