@@ -243,11 +243,15 @@ function dashSymbol(googleMaps) {
 // Small pill label pinned on a ring's edge: mode icon + distance.
 function ringLabelNode(icon, text) {
   const el = document.createElement('div');
+  // v0.62.688 — operator: "can we have labels at four corners instead of top but
+  // smaller." Every ring now carries four labels (see the bearings below), so
+  // there are 4x as many pills on the map — they are shrunk to stay legible
+  // without crowding the pins: 11px -> 9px, tighter padding and radius.
   el.style.cssText =
-    'display:inline-flex;align-items:center;gap:3px;'
+    'display:inline-flex;align-items:center;gap:2px;'
     + 'background:rgba(255,255,255,0.92);color:#374151;'
-    + 'font-size:11px;font-weight:700;line-height:1.4;'
-    + 'border-radius:10px;padding:1px 7px;white-space:nowrap;'
+    + 'font-size:9px;font-weight:700;line-height:1.35;'
+    + 'border-radius:7px;padding:0 5px;white-space:nowrap;'
     + 'box-shadow:0 1px 2px rgba(0,0,0,0.3);transform:translateY(-50%);';
   // v0.62.540 — icon is optional: outside SG rings 2 + 3 carry the distance only
   // (no walk/train glyph), so an empty icon renders the bare distance.
@@ -294,9 +298,18 @@ export function createRingLayer(map, googleMaps) {
       // ALWAYS gets four labels regardless of size: operator (Brisbane, IMG_0751)
       // "where is the four corners (N/S/E/W) labels of the outer ring" — that ring
       // was 2.9 km (< LARGE_RING_M), so it had shown only the single north label.
-      const bearings = (fourSide || radiusM > LARGE_RING_M)
-        ? [0, Math.PI / 2, Math.PI, 3 * Math.PI / 2]
-        : [0];
+      // v0.62.688 — operator: "labels at four corners instead of top". ALL rings
+      // now get the four-point treatment, not just the outer/large ones. The
+      // previous rule (single north label, four only when `fourSide` or the ring
+      // exceeded LARGE_RING_M) is what produced the two prior operator reports
+      // this file already records — v0.62.543 ("a big ring's single north label
+      // can sit far off the visible arc") and v0.62.586 ("where is the four
+      // corners (N/S/E/W) labels of the outer ring"). Both were the same
+      // complaint about the same single-label default, patched one ring class at
+      // a time; making it universal removes the class of report rather than the
+      // next instance of it. `fourSide` and LARGE_RING_M are now unused for
+      // bearings and kept only for the historical record above.
+      const bearings = [0, Math.PI / 2, Math.PI, 3 * Math.PI / 2];
       for (const brg of bearings) {
         const edge = destPoint(centre.lat, centre.lng, radiusM, brg);
         const marker = new AdvancedMarkerElement({
