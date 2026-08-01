@@ -121,17 +121,64 @@ export const CITIES_BY_COUNTRY = Object.freeze({
     { name: 'Muara',               code: 'BWN', lat:  5.0387, lng: 115.0644 },
     { name: 'Bangar (Temburong)',  code: 'BWN', lat:  4.7000, lng: 115.0667 }
   ],
-  // Australia.
+  // Australia — v0.62.697. Operator: "expand the 'Others' for Australia with its
+  // 6 states, each state having up-to-5 cities to search. fill in those cities
+  // that are not in present list". Grouped by `state`; CityDropdown draws a
+  // hairline rule with the state name centred whenever `state` changes.
+  //
+  // The 6 STATES are NSW / VIC / QLD / SA / WA / TAS. Canberra — already in the
+  // list, and the national capital — is NOT in a state: it is the Australian
+  // Capital Territory. Darwin and Alice Springs are Northern Territory. Rather
+  // than mis-file them under a neighbouring state or drop Canberra, ACT and NT
+  // are their own groups; the operator's "6 states" is honoured for the six that
+  // are states.
+  //
+  // CODES: entries marked (v) already existed in web/_shared/lib/iata-cities.js
+  // (vetted). The rest are NEW here and follow the v0.61.242 rule — real IATA,
+  // nothing invented — but they have not been cross-checked against another
+  // in-repo source, so they are called out in the PR for spot-checking.
   AU: [
-    { name: 'Canberra',         code: 'CBR', lat: -35.2809, lng: 149.1300 },
-    { name: 'Sydney',           code: 'SYD', lat: -33.8688, lng: 151.2093 },
-    { name: 'Melbourne',        code: 'MEL', lat: -37.8136, lng: 144.9631 },
-    { name: 'Brisbane',         code: 'BNE', lat: -27.4698, lng: 153.0251 },
-    { name: 'Perth',            code: 'PER', lat: -31.9505, lng: 115.8605 },
-    { name: 'Adelaide',         code: 'ADL', lat: -34.9285, lng: 138.6007 },
-    { name: 'Gold Coast',       code: 'OOL', lat: -28.0167, lng: 153.4000 },
-    { name: 'Sunshine Coast',   code: 'MCY', lat: -26.6528, lng: 153.0905 },
-    { name: 'Cairns',           code: 'CNS', lat: -16.9186, lng: 145.7781 }
+    // Australian Capital Territory
+    { name: 'Canberra',        code: 'CBR', state: 'ACT', lat: -35.2809, lng: 149.1300 },   // (v)
+    // New South Wales
+    { name: 'Sydney',          code: 'SYD', state: 'NSW', lat: -33.8688, lng: 151.2093 },   // (v)
+    { name: 'Newcastle',       code: 'NTL', state: 'NSW', lat: -32.9283, lng: 151.7817 },   // (v)
+    { name: 'Wollongong',      code: 'WOL', state: 'NSW', lat: -34.4278, lng: 150.8931 },
+    { name: 'Coffs Harbour',   code: 'CFS', state: 'NSW', lat: -30.2963, lng: 153.1135 },   // (v)
+    { name: 'Ballina',         code: 'BNK', state: 'NSW', lat: -28.8667, lng: 153.5667 },
+    // Victoria
+    { name: 'Melbourne',       code: 'MEL', state: 'VIC', lat: -37.8136, lng: 144.9631 },   // (v)
+    { name: 'Geelong',         code: 'GEX', state: 'VIC', lat: -38.1499, lng: 144.3617 },
+    { name: 'Bendigo',         code: 'BXG', state: 'VIC', lat: -36.7570, lng: 144.2794 },
+    { name: 'Mildura',         code: 'MQL', state: 'VIC', lat: -34.1855, lng: 142.1625 },
+    { name: 'Warrnambool',     code: 'WMB', state: 'VIC', lat: -38.3818, lng: 142.4880 },
+    // Queensland
+    { name: 'Brisbane',        code: 'BNE', state: 'QLD', lat: -27.4698, lng: 153.0251 },   // (v)
+    { name: 'Gold Coast',      code: 'OOL', state: 'QLD', lat: -28.0167, lng: 153.4000 },   // (v)
+    { name: 'Sunshine Coast',  code: 'MCY', state: 'QLD', lat: -26.6528, lng: 153.0905 },   // (v)
+    { name: 'Cairns',          code: 'CNS', state: 'QLD', lat: -16.9186, lng: 145.7781 },   // (v)
+    { name: 'Townsville',      code: 'TSV', state: 'QLD', lat: -19.2589, lng: 146.8169 },   // (v)
+    // South Australia
+    { name: 'Adelaide',        code: 'ADL', state: 'SA',  lat: -34.9285, lng: 138.6007 },   // (v)
+    { name: 'Mount Gambier',   code: 'MGB', state: 'SA',  lat: -37.8318, lng: 140.7792 },
+    { name: 'Port Lincoln',    code: 'PLO', state: 'SA',  lat: -34.7261, lng: 135.8578 },
+    { name: 'Whyalla',         code: 'WYA', state: 'SA',  lat: -33.0333, lng: 137.5667 },
+    { name: 'Kingscote',       code: 'KGC', state: 'SA',  lat: -35.6558, lng: 137.6383 },
+    // Western Australia
+    { name: 'Perth',           code: 'PER', state: 'WA',  lat: -31.9505, lng: 115.8605 },   // (v)
+    { name: 'Broome',          code: 'BME', state: 'WA',  lat: -17.9614, lng: 122.2359 },   // (v)
+    { name: 'Kalgoorlie',      code: 'KGI', state: 'WA',  lat: -30.7489, lng: 121.4658 },   // (v)
+    { name: 'Geraldton',       code: 'GET', state: 'WA',  lat: -28.7774, lng: 114.6150 },
+    { name: 'Karratha',        code: 'KTA', state: 'WA',  lat: -20.7364, lng: 116.8460 },
+    // Tasmania
+    { name: 'Hobart',          code: 'HBA', state: 'TAS', lat: -42.8821, lng: 147.3272 },   // (v)
+    { name: 'Launceston',      code: 'LST', state: 'TAS', lat: -41.4332, lng: 147.1441 },   // (v)
+    { name: 'Devonport',       code: 'DPO', state: 'TAS', lat: -41.1789, lng: 146.3506 },
+    { name: 'Burnie',          code: 'BWT', state: 'TAS', lat: -41.0558, lng: 145.9036 },
+    // Northern Territory
+    { name: 'Darwin',          code: 'DRW', state: 'NT',  lat: -12.4634, lng: 130.8456 },   // (v)
+    { name: 'Alice Springs',   code: 'ASP', state: 'NT',  lat: -23.6980, lng: 133.8807 },   // (v)
+    { name: 'Uluru',           code: 'AYQ', state: 'NT',  lat: -25.2406, lng: 130.9889 }
   ],
   // New Zealand.
   NZ: [

@@ -226,6 +226,10 @@ export default function App() {
   // { cc: { all:[…], byCity:{ "<City>":[…] } } }. Greys uncovered cuisine
   // chips under Michelin. Absent cc (e.g. SG) → fail open.
   const [michelinCuisinesByCC, setMichelinCuisinesByCC] = useState({});
+  // v0.62.696 — which award years each country actually has (catalogue payload),
+  // so the Michelin popup can grey a year nobody holds instead of offering a
+  // tick that silently changes nothing.
+  const [michelinYearsByCC, setMichelinYearsByCC] = useState({});
   const [state, setState] = useState(() => readFromHash());
   const [userLoc, setUserLoc] = useState(null);
   // v0.61.353 — location-state model (subset): the live map centre + an
@@ -1349,6 +1353,7 @@ export default function App() {
       .then((d) => {
         setCatalogue(d.categories || []);
         setMichelinCuisinesByCC(d.michelinCuisinesByCC || {});
+        setMichelinYearsByCC(d.michelinYearsByCC || {});
       })
       .catch((err) => {
         // Expired/invalid initData (non-empty but rejected) → 401 here too.
@@ -4598,7 +4603,29 @@ export default function App() {
             onSpecialModeChange={(mode) => setState((s) => ({ ...s, specialMode: mode || null }))}
             onChange={(c) => setState((s) => ({ ...s, cuisines: c }))}
             michelinFilter={state.michelinFilter}
-            onMichelinFilterChange={(mf) => setState((s) => ({ ...s, michelinFilter: mf }))}
+            /* v0.62.696 — operator reported the ticks "don't work". The wiring was
+               sound end to end (verified in-browser: chips toggle, the callback
+               emits the right object, and the server filter narrows correctly for
+               all 11 countries). Two real causes:
+               (a) changing a tick only set state — nothing prompted a re-search,
+                   so nothing visibly happened. It now raises the SAME search hint
+                   a category-drawer close raises (operator: "follow the existing
+                   convention and just nudge you to search").
+               (b) in Singapore the 2026 tick could never matter: SG's 2026 STAR
+                   selection is unannounced, so all 41 SG stars carry only "'25".
+                   michelinYears greys it with a reason instead. */
+            onMichelinFilterChange={(mf) => {
+              setState((s) => ({ ...s, michelinFilter: mf }));
+              setSearchHintActive(true);
+              setTimeout(() => setSearchHintActive(false), 5000);
+            }}
+            michelinYears={(() => {
+              const cc = state.region === 'SG' ? 'SG'
+                : (state.region === 'MY-PUT' || state.region === 'JB') ? 'MY'
+                : String(state.countryPref || '').toUpperCase();
+              const ys = michelinYearsByCC && michelinYearsByCC[cc];
+              return Array.isArray(ys) ? ys : null;   // null → fail open
+            })()}
             isCompact={vp.isCompact}
             onCategoryClose={() => {
               if (state.cuisines.length > 0) {

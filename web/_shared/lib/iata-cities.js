@@ -452,6 +452,26 @@ export const IATA_CITIES = Object.freeze([
   { iata: 'LST', name: 'Launceston',    country: 'Australia', countryCode: 'AU', lat: -41.4332, lng: 147.1441 },
   { iata: 'BME', name: 'Broome',        country: 'Australia', countryCode: 'AU', lat: -17.9614, lng: 122.2359 },
   { iata: 'KGI', name: 'Kalgoorlie',    country: 'Australia', countryCode: 'AU', lat: -30.7489, lng: 121.4658 },
+  // v0.62.697 — added for the state-grouped Australia picker (cities.js AU).
+  // Real IATA codes per the v0.61.242 rule; city-centre coords, 4 dp. These 15
+  // are NEW to this table — the iata-cities test enforces that cities.js only
+  // references codes present HERE, which is a consistency check, not a
+  // real-world validation, so they are called out in the PR for spot-checking.
+  { iata: 'WOL', name: 'Wollongong',    country: 'Australia', countryCode: 'AU', lat: -34.4278, lng: 150.8931 },
+  { iata: 'BNK', name: 'Ballina',       country: 'Australia', countryCode: 'AU', lat: -28.8667, lng: 153.5667 },
+  { iata: 'GEX', name: 'Geelong',       country: 'Australia', countryCode: 'AU', lat: -38.1499, lng: 144.3617 },
+  { iata: 'BXG', name: 'Bendigo',       country: 'Australia', countryCode: 'AU', lat: -36.7570, lng: 144.2794 },
+  { iata: 'MQL', name: 'Mildura',       country: 'Australia', countryCode: 'AU', lat: -34.1855, lng: 142.1625 },
+  { iata: 'WMB', name: 'Warrnambool',   country: 'Australia', countryCode: 'AU', lat: -38.3818, lng: 142.4880 },
+  { iata: 'MGB', name: 'Mount Gambier', country: 'Australia', countryCode: 'AU', lat: -37.8318, lng: 140.7792 },
+  { iata: 'PLO', name: 'Port Lincoln',  country: 'Australia', countryCode: 'AU', lat: -34.7261, lng: 135.8578 },
+  { iata: 'WYA', name: 'Whyalla',       country: 'Australia', countryCode: 'AU', lat: -33.0333, lng: 137.5667 },
+  { iata: 'KGC', name: 'Kingscote',     country: 'Australia', countryCode: 'AU', lat: -35.6558, lng: 137.6383 },
+  { iata: 'GET', name: 'Geraldton',     country: 'Australia', countryCode: 'AU', lat: -28.7774, lng: 114.6150 },
+  { iata: 'KTA', name: 'Karratha',      country: 'Australia', countryCode: 'AU', lat: -20.7364, lng: 116.8460 },
+  { iata: 'DPO', name: 'Devonport',     country: 'Australia', countryCode: 'AU', lat: -41.1789, lng: 146.3506 },
+  { iata: 'BWT', name: 'Burnie',        country: 'Australia', countryCode: 'AU', lat: -41.0558, lng: 145.9036 },
+  { iata: 'AYQ', name: 'Uluru',         country: 'Australia', countryCode: 'AU', lat: -25.2406, lng: 130.9889 },
 
   // New Zealand
   { iata: 'AKL', name: 'Auckland',      country: 'New Zealand', countryCode: 'NZ', lat: -36.8485, lng: 174.7633 },

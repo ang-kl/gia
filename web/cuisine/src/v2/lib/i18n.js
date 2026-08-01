@@ -465,6 +465,12 @@ const STRINGS = {
   'michelin.filterHeader':     { en: 'Include:', fr: 'Inclure :' },
   'michelin.bibLabel':         { en: 'Bib Gourmand', fr: 'Bib Gourmand' },
   'michelin.yearAria':         { en: 'Award year {year}', fr: 'Année du prix {year}' },
+  // v0.62.696 — a year with no holders in the current country is greyed rather
+  // than offered (SG's 2026 star selection is unannounced, so a 2026 tick there
+  // could never change a result). The note says WHY, so it reads as "not
+  // published yet" rather than as a broken control.
+  'michelin.yearUnavailable':  { en: 'not published for this country yet', fr: 'pas encore publié pour ce pays' },
+  'michelin.yearUnavailableNote': { en: 'Greyed years have no entries for this country yet.', fr: 'Les années grisées n’ont pas encore d’entrées pour ce pays.' },
 
   // v0.61.285 — FunFactModal strings. Replaces the static rotating
   // "still loading" titles during the cuisine-search wait window
