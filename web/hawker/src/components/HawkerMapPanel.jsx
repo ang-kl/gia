@@ -308,6 +308,29 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
         inspectLayerRef.current?.show({ lat: la, lng: ln, label: label || '', centres, count: 3 });
       });
     };
+    // v0.62.698 — operator: "when I click the zone again, it should zoom out to
+    // 12 in iPhone and 13 in Desktop/iPad to show the zone selected." Re-tapping
+    // the ACTIVE zone pill was a no-op — the handler called setActiveRegion with
+    // the value it already had, so React bailed and nothing moved. This gives
+    // that tap a job: frame the whole zone again at a fixed zoom, which is the
+    // "I've wandered off, show me the zone" gesture. Uses the ACTIVE region's
+    // centres (centresRef follows the `centres` prop), so it frames the zone the
+    // user is actually looking at.
+    window.__giaHawkerFitZone = (zoom) => {
+      const map = mapRef.current;
+      if (!map || !window.google?.maps) return;
+      revealMap();
+      const pts = (centresRef.current || []).filter(
+        (c) => Number.isFinite(c.lat) && Number.isFinite(c.lng)
+      );
+      if (!pts.length) return;
+      const b = new window.google.maps.LatLngBounds();
+      for (const c of pts) b.extend({ lat: c.lat, lng: c.lng });
+      // panTo + setZoom rather than fitBounds: fitBounds would pick its own zoom
+      // from the bounds, and the operator asked for a SPECIFIC one per device.
+      map.panTo(b.getCenter());
+      map.setZoom(Number.isFinite(Number(zoom)) ? Number(zoom) : 12);
+    };
     window.__giaHawkerFocusCentre = (name) => {
       const entry = markersByNameRef.current[name];
       if (!entry || !entry.marker) return;
@@ -321,6 +344,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       try { delete window.__giaHawkerHighlight; } catch { window.__giaHawkerHighlight = undefined; }
       try { delete window.__giaHawkerFocusCentre; } catch { window.__giaHawkerFocusCentre = undefined; }
       try { delete window.__giaHawkerInspect; } catch { window.__giaHawkerInspect = undefined; }
+      try { delete window.__giaHawkerFitZone; } catch { window.__giaHawkerFitZone = undefined; }
     };
   }, []);
 
