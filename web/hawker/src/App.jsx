@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { m, useReducedMotion } from 'motion/react';
 import { openLink, initData, tg } from './tg.js';
@@ -224,6 +224,32 @@ function CentreCarousel({ items, renderCard, basisClass, isWide = false, isShort
     return () => { track.removeEventListener('scroll', detectCentre); clearTimeout(seed); };
   }, [items, isWide]);
   const glassFor = (i) => (isWide ? !focused.has(i) : i !== centeredIdx);
+  // v0.62.694 — operator: "the card can be shorter, can you shorten it down by
+  // 15% until the pill to 'details'". Measured rather than nudged, the same way
+  // Cuisine's ResultDrawer was fixed in v0.62.693 (D-63) — and the measurement
+  // says the real slack is ~30%, not 15%: an 8rem/128px box around 90px of
+  // content. A constant cannot be right for both a 2-row and a 4-row centre, so
+  // read every collapsed card's natural height and pin them all to the tallest:
+  // uniform (D-51 holds) and tight (lands exactly on the ▸ details pill).
+  // `height:auto` is applied momentarily because once a height is set the content
+  // no longer overflows and scrollHeight would just echo it back.
+  const [uniformH, setUniformH] = useState(null);
+  useLayoutEffect(() => {
+    const track = trackRef.current;
+    if (!track || !items.length) { setUniformH(null); return; }
+    const els = Array.from(track.querySelectorAll('[data-card-root]'));
+    if (!els.length) return;
+    let max = 0;
+    for (const el of els) {
+      const prev = el.style.height;
+      el.style.height = 'auto';
+      max = Math.max(max, el.scrollHeight);
+      el.style.height = prev;
+    }
+    const cap = typeof window !== 'undefined' ? Math.round(window.innerHeight * 0.46) : 240;
+    const next = Math.min(Math.max(max, 64), cap);
+    setUniformH((prev) => (prev != null && Math.abs(prev - next) < 2 ? prev : next));
+  }, [items, isShort, basisClass]);
   return (
     // v0.62.554 — operator: the cards showed a horizontal "boundary line across
     // the screen". Cause: the flex track defaulted to align-items:stretch, so
@@ -238,7 +264,10 @@ function CentreCarousel({ items, renderCard, basisClass, isWide = false, isShort
     >
       {items.map((c, i) => (
         <div key={i} data-idx={i} className={`snap-center shrink-0 ${basisClass} max-h-[46vh] overflow-y-auto rounded-lg shadow-lg`}>
-          {renderCard(c, i, glassFor(i), true, isShort)}
+          {/* v0.62.694 — `centred` is new: the accent border used to require a TAP
+              (activePill), so the card the user had scrolled to carried the same
+              grey tg-border as the peeking ones and nothing read as active. */}
+          {renderCard(c, i, glassFor(i), true, isShort, !isWide && i === centeredIdx, uniformH)}
         </div>
       ))}
     </div>
@@ -506,7 +535,7 @@ export default function App() {
   // white-screened as soon as centre data arrived. Line 550's `!isShort && …`
   // evaluates unconditionally, which is why both the carousel and the list card
   // died — not just the compact path.
-  const renderCentreCard = (c, i, glass = false, compact = false, isShort = false) => {
+  const renderCentreCard = (c, i, glass = false, compact = false, isShort = false, centred = false, collapsedHeightPx = null) => {
     const tr = transitByName[c.name];
     const cardOn = activePill === `${c.name}|card`;
     // v0.62.678 — details/less parity with Cuisine (card.detailsMore/detailsLess)
@@ -545,7 +574,17 @@ export default function App() {
            5.5rem short (phone landscape, where the stalls/status chip row
            moves behind the toggle). Only the carousel (`compact`) is pinned —
            the two-panel list card stays content-sized. */
-        className={`rounded-lg border text-xs flex flex-col cursor-pointer ${compact ? 'p-1.5 gap-0.5' : 'p-2.5 gap-1'} ${compact && !expanded ? `${isShort ? 'h-[5.5rem]' : 'h-[8rem]'} overflow-hidden` : ''} ${cardOn ? 'border-tg-accent ring-1 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 liquid-glass' : 'bg-tg-card'}`}>
+        /* v0.62.694 — measured by CentreCarousel; inline height beats the class,
+           which stays as the pre-measurement first-paint fallback. */
+        data-card-root={compact && !expanded ? '' : undefined}
+        style={compact && !expanded && Number.isFinite(collapsedHeightPx) ? { height: `${collapsedHeightPx}px` } : undefined}
+        /* v0.62.694 — operator: "where is the border for active card". The accent
+           border was gated on `cardOn`, i.e. an explicit card TAP (activePill), so
+           the card the user scrolled to carried the same grey tg-border as the
+           peeking ones — measured on device: all five cards identical borderColor.
+           `centred` now carries the accent too; a TAP keeps the stronger
+           ring + shadow + lift so the two states stay distinguishable. */
+        className={`rounded-lg border text-xs flex flex-col cursor-pointer ${compact ? 'p-1.5 gap-0.5' : 'p-2.5 gap-1'} ${compact && !expanded ? `${isShort ? 'h-[5.5rem]' : 'h-[8rem]'} overflow-hidden` : ''} ${cardOn ? 'border-tg-accent ring-1 ring-tg-accent shadow-xl relative z-10' : (centred ? 'border-tg-accent' : 'border-tg-border')} ${glass ? 'bg-tg-card/40 liquid-glass' : 'bg-tg-card'}`}>
         {/* v0.62.679 — O-97 (operator): "Hawker's centre card follows Cuisine's
             category card 12px" — was a flat text-[13px]; now the same
             isCompact-responsive rule Phase C applied to Cuisine's category-grid
