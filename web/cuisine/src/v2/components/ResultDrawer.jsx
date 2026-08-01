@@ -13,7 +13,7 @@
 //
 // Rendered at App top level as a fixed footer layer.
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import ResultCard from './ResultCard.jsx';
 import { useLocale } from '../lib/i18n.js';
 
@@ -36,6 +36,49 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
   const [lang] = useLocale();
   const trackRef = useRef(null);
   const list = Array.isArray(venues) ? venues : [];
+
+  // v0.62.693 — operator (two device screenshots, v0.62.691): "there is lots of
+  // white space below."
+  //
+  // D-51 asks for two things that a single CONSTANT cannot deliver together:
+  // every card in the strip the same height, AND no wasted space. The constant
+  // has to be sized for the tallest card the result set can produce (Michelin
+  // row + wrapped name/meta/address), so every card that lacks those rows pays
+  // for them in blank space. The operator's screenshots are exactly that case —
+  // "Dirty Supper" carries no cuisine type, no price row and no ≈ conversion, so
+  // ~5 rows sat in a box sized for ~10. Shrinking the constant (13rem → 12rem in
+  // v0.62.691) only moves which cards are wrong; D-61 already recorded that
+  // 12rem was the floor before the TALL cards start clipping.
+  //
+  // So stop guessing the number and MEASURE it: render, read every card's
+  // natural content height, and pin them all to the tallest. Uniform (D-51 holds)
+  // and tight (no card is taller than the set actually needs).
+  //
+  // `scrollHeight` alone is not enough — once a height is applied the content no
+  // longer overflows, so it would report the applied height and could never
+  // shrink again. Each element is therefore momentarily set to `height:auto`
+  // inside a LAYOUT effect, measured, and restored before the browser paints.
+  const [uniformH, setUniformH] = useState(null);
+  useLayoutEffect(() => {
+    const track = trackRef.current;
+    // isShort is deliberately excluded: the operator ruled "the short tier —
+    // phone landscape - dont change", so it keeps its 7.5rem constant untouched.
+    if (!track || isShort || !list.length) { setUniformH(null); return; }
+    const els = Array.from(track.querySelectorAll('[data-card-root]'));
+    if (!els.length) return;
+    let max = 0;
+    for (const el of els) {
+      const prev = el.style.height;
+      el.style.height = 'auto';
+      max = Math.max(max, el.scrollHeight);
+      el.style.height = prev;
+    }
+    // Floor keeps a one-line result from collapsing to a sliver; ceiling stops a
+    // pathological card from eating the map. Both are outside the normal range.
+    const cap = typeof window !== 'undefined' ? Math.round(window.innerHeight * 0.5) : 320;
+    const next = Math.min(Math.max(max, 96), cap);
+    setUniformH((prev) => (prev != null && Math.abs(prev - next) < 2 ? prev : next));
+  }, [list, isShort, basisClass, specialMode, dishHints]);
 
   // v0.62.287 — operator (urgent): the OPAQUE-white surface + the
   // lift-on-composer-expand must follow the card that is actually CENTRED in the
@@ -258,6 +301,7 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
               specialMode={specialMode}
               horizontal
               isShort={isShort}
+              collapsedHeightPx={uniformH}
               autoExpandFocus={false}
               nearbyLabel={nearbyLabel}
               nearbyAccent={nearbyAccent}
@@ -291,6 +335,13 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
             onTap={() => onSelect && onSelect(list[0].placeId)}
             specialMode={specialMode}
             horizontal
+            /* v0.62.693 — the loop clone must match the real cards' measured
+               height, or the strip visibly changes height as it wraps around.
+               It also carries `isShort` for the same reason (it was missing
+               that too, so on phone landscape the clone was the standard tier
+               while every real card was short). */
+            isShort={isShort}
+            collapsedHeightPx={uniformH}
             autoExpandFocus={false}
           />
         </div>

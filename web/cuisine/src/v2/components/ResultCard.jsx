@@ -35,7 +35,7 @@ function dropCountry(area) {
   return parts.join(',').replace(/[\s,]+$/, '');            // + tidy any trailing comma/space
 }
 
-export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null, number = null, defaultExpanded = false, horizontal = false, isShort = false, autoExpandFocus = true, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null, glass = null }) {
+export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null, number = null, defaultExpanded = false, horizontal = false, isShort = false, collapsedHeightPx = null, autoExpandFocus = true, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null, glass = null }) {
   // v0.62.562 — O-54 Hawker parity: the OPAQUE-vs-glass surface can be driven by
   // card VISIBILITY (Hawker's carousel: the cards fully in the focus band are
   // opaque, the two half-peeking end cards are glass), independent of which card
@@ -368,8 +368,21 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
          overran 208px by ~44px now overruns 192px by ~41px — still an
          improvement. Going below 12rem starts making that overrun worse than
          today, which is why the further cut needs the row-move instead. */
+      /* v0.62.693 — the drawer measures every collapsed card and pins them all to
+         the TALLEST (see ResultDrawer). `data-card-root` is what it measures, and
+         the inline height it hands back overrides the h-[12rem] class below —
+         which stays as the pre-measurement fallback for the first paint and for
+         any host that renders a card outside the drawer. */
+      data-card-root={horizontal && !expanded ? '' : undefined}
       className={`w-full text-left rounded-lg border flex flex-col ${horizontal ? 'leading-snug gap-0.5 px-2.5 py-1.5' : 'gap-1 p-2.5'} ${horizontal && !expanded ? `${isShort ? 'h-[7.5rem]' : 'h-[12rem]'} overflow-hidden` : ''} ${horizontal ? (glassEff ? 'bg-tg-card/60 liquid-glass' : 'liquid-glass-focus') : 'bg-tg-card'} ${focused ? 'border-tg-accent' : 'border-tg-border'}`}
-      style={horizontal && !glassEff ? { '--tg-bg': '#ffffff', '--tg-card': '#ffffff', '--tg-text': '#1c1c1f', '--tg-hint': '#6b6b70', '--tg-border': '#e2e2e6' } : undefined}>
+      style={{
+        ...(horizontal && !glassEff
+          ? { '--tg-bg': '#ffffff', '--tg-card': '#ffffff', '--tg-text': '#1c1c1f', '--tg-hint': '#6b6b70', '--tg-border': '#e2e2e6' }
+          : null),
+        ...(horizontal && !expanded && !isShort && Number.isFinite(collapsedHeightPx)
+          ? { height: `${collapsedHeightPx}px` }
+          : null)
+      }}>
       {/* v0.62.289 / v0.62.293 — top strip on a NOT-exact card. SINGLE cuisine:
           "{cuisine} & Nearby Flavours" (nearbyLabel). COMBO (2+): the cuisine the
           venue actually serves (venue.matchedCuisine → nearbyStrips[name]), so
