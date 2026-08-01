@@ -5816,7 +5816,23 @@ export default function App() {
                 )}
               </div>
             )}
-            <div className="flex items-center gap-0.5 shrink-0 justify-self-end">
+            {/* v0.62.686 — operator: "the 'top' and 'end' are meant to be on the
+                right side. let's audit them." They were not, and the cause is
+                CSS Grid auto-placement, not the alignment class.
+                The row is `grid-cols-[1fr_auto_1fr]` with THREE intended
+                children, but the MIDDLE one (Criteria pill / Michelin pager) is
+                gated on `criteriaSummary.length > 0 || michelinTotalPages > 1`.
+                With no criteria and no pager the middle child does not render,
+                so auto-placement drops this cluster into column 2 — the `auto`
+                column, sized to its own content — and `justify-self-end` then
+                aligns it to the end of THAT column, leaving the whole third
+                `1fr` column empty to its right. The result is a cluster that
+                floats mid-row, exactly as the operator's screenshots show (and
+                it looked correct in the older screenshots precisely because a
+                "Criteria (1)" pill was present there, filling column 2).
+                `col-start-3` pins this cluster to the last column whether or not
+                the middle cell renders. */}
+            <div className="col-start-3 flex items-center gap-0.5 shrink-0 justify-self-end">
               <button
                 type="button"
                 onClick={() => window.scrollTo({

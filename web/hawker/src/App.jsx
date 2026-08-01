@@ -173,7 +173,7 @@ function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, sc
 // which cannot get stuck. Ported that same dual-mode split here: IO stays for
 // `isWide` (unaffected, not what the operator reported), phone now uses the
 // scroll-driven geometry match instead.
-function CentreCarousel({ items, renderCard, basisClass, isWide = false }) {
+function CentreCarousel({ items, renderCard, basisClass, isWide = false, isShort = false }) {
   const trackRef = useRef(null);
   const [focused, setFocused] = useState(() => new Set());
   const [centeredIdx, setCenteredIdx] = useState(0);
@@ -238,7 +238,7 @@ function CentreCarousel({ items, renderCard, basisClass, isWide = false }) {
     >
       {items.map((c, i) => (
         <div key={i} data-idx={i} className={`snap-center shrink-0 ${basisClass} max-h-[46vh] overflow-y-auto rounded-lg shadow-lg`}>
-          {renderCard(c, i, glassFor(i), true)}
+          {renderCard(c, i, glassFor(i), true, isShort)}
         </div>
       ))}
     </div>
@@ -519,7 +519,16 @@ export default function App() {
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCardTap(c); } }}
         animate={reduceMotion ? undefined : { scale: cardOn ? 1.02 : 1 }}
         transition={{ type: 'spring', stiffness: 420, damping: 30, mass: 0.7 }}
-        className={`rounded-lg border text-xs flex flex-col cursor-pointer ${compact ? 'p-1.5 gap-0.5' : 'p-2.5 gap-1'} ${cardOn ? 'border-tg-accent ring-1 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 liquid-glass' : 'bg-tg-card'}`}>
+        /* v0.62.686 — D-51 applied to Hawker: the COLLAPSED carousel card is a
+           FIXED height so every card in the strip is identical, same rule as
+           Cuisine. The VALUES differ on purpose — Hawker's collapsed card
+           carries 4 rows (name / address / stalls+status / toggle) against
+           Cuisine's 10, so reusing Cuisine's 13rem would render a mostly-empty
+           208px card. Sized to Hawker's own rows instead: 8rem standard,
+           5.5rem short (phone landscape, where the stalls/status chip row
+           moves behind the toggle). Only the carousel (`compact`) is pinned —
+           the two-panel list card stays content-sized. */
+        className={`rounded-lg border text-xs flex flex-col cursor-pointer ${compact ? 'p-1.5 gap-0.5' : 'p-2.5 gap-1'} ${compact && !expanded ? `${isShort ? 'h-[5.5rem]' : 'h-[8rem]'} overflow-hidden` : ''} ${cardOn ? 'border-tg-accent ring-1 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 liquid-glass' : 'bg-tg-card'}`}>
         {/* v0.62.679 — O-97 (operator): "Hawker's centre card follows Cuisine's
             category card 12px" — was a flat text-[13px]; now the same
             isCompact-responsive rule Phase C applied to Cuisine's category-grid
@@ -528,7 +537,7 @@ export default function App() {
           <span className="text-tg-hint font-semibold tabular-nums">{i + 1} · </span>{c.name}{c.isNew ? ' 🆕' : ''}
         </div>
         {c.address && <div className="text-[11px] text-tg-hint leading-snug">📇 {c.address}</div>}
-        {(Number.isFinite(c.stalls) || c.status) && (
+        {!isShort && (Number.isFinite(c.stalls) || c.status) && (
           <div className="flex flex-wrap items-center gap-1.5">
             {/* v0.62.558 — `stalls.count` already carries the 🍳 emoji; the
                 extra hard-coded 🍳 here rendered a DOUBLE frying pan (operator:
@@ -751,6 +760,7 @@ export default function App() {
               renderCard={renderCentreCard}
               basisClass="basis-[min(82%,20rem)]"
               isWide={vp.isWide}
+              isShort={vp.isShort}
             />
           </div>
         )}

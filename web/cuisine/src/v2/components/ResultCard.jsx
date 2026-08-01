@@ -349,7 +349,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
          scroll) — pinning it would clip real content. `overflow-hidden` on the
          collapsed card is what makes the fixed height a hard guarantee rather
          than a suggestion the content can overrun. */
-      className={`w-full text-left rounded-lg border flex flex-col ${horizontal ? 'gap-0.5 px-2.5 py-1.5' : 'gap-1 p-2.5'} ${horizontal && !expanded ? `${isShort ? 'h-[7.5rem]' : 'h-[13rem]'} overflow-hidden` : ''} ${horizontal ? (glassEff ? 'bg-tg-card/60 liquid-glass' : 'bg-white') : 'bg-tg-card'} ${focused ? 'border-tg-accent' : 'border-tg-border'}`}
+      className={`w-full text-left rounded-lg border flex flex-col ${horizontal ? 'gap-0.5 px-2.5 py-1.5' : 'gap-1 p-2.5'} ${horizontal && !expanded ? `${isShort ? 'h-[7.5rem]' : 'h-[13rem]'} overflow-hidden` : ''} ${horizontal ? (glassEff ? 'bg-tg-card/60 liquid-glass' : 'liquid-glass-focus') : 'bg-tg-card'} ${focused ? 'border-tg-accent' : 'border-tg-border'}`}
       style={horizontal && !glassEff ? { '--tg-bg': '#ffffff', '--tg-card': '#ffffff', '--tg-text': '#1c1c1f', '--tg-hint': '#6b6b70', '--tg-border': '#e2e2e6' } : undefined}>
       {/* v0.62.289 / v0.62.293 — top strip on a NOT-exact card. SINGLE cuisine:
           "{cuisine} & Nearby Flavours" (nearbyLabel). COMBO (2+): the cuisine the
