@@ -8,7 +8,7 @@
 // collapsed to partial height (wide width, short height) MUST stay 'tablet'.
 
 import { describe, it, expect } from 'vitest';
-import { classifyViewport, TABLET_MIN_EDGE, COMPACT_MAX_WIDTH } from '../web/_shared/lib/classify-viewport.js';
+import { classifyViewport, TABLET_MIN_EDGE, COMPACT_MAX_WIDTH, SHORT_MAX_HEIGHT } from '../web/_shared/lib/classify-viewport.js';
 
 describe('classifyViewport', () => {
   it('keeps a narrow Telegram-Desktop window on a touchscreen laptop as mobile', () => {
@@ -86,5 +86,41 @@ describe('classifyViewport', () => {
 
   it('degrades safely on empty input (isCompact false, not true)', () => {
     expect(classifyViewport().isCompact).toBe(false);
+  });
+});
+
+// v0.62.684 — the `isShort` vertical-room flag behind the carousel card's
+// reduced row set. The point of the tier is that it is NOT "landscape": an iPad
+// mini in landscape is still 744px tall and must keep the full card.
+describe('isShort (vertical room)', () => {
+  const phone = (w, h) => classifyViewport({ w, h, coarse: true, screenMin: Math.min(w, h) });
+  const tablet = (w, h) => classifyViewport({ w, h, coarse: true, screenMin: 744 });
+
+  it('flags phone LANDSCAPE (short edge becomes the height)', () => {
+    expect(phone(812, 375).isShort).toBe(true);   // iPhone 11 Pro
+    expect(phone(852, 393).isShort).toBe(true);   // iPhone 15 Pro
+  });
+
+  it('does NOT flag phone portrait', () => {
+    expect(phone(375, 812).isShort).toBe(false);
+    expect(phone(393, 852).isShort).toBe(false);
+  });
+
+  it('does NOT flag tablet landscape — the case orientation alone would get wrong', () => {
+    expect(tablet(1133, 744).isShort).toBe(false);  // iPad mini landscape
+    expect(tablet(1366, 1024).isShort).toBe(false); // iPad Pro 12.9 landscape
+  });
+
+  it('does NOT flag desktop', () => {
+    expect(classifyViewport({ w: 1440, h: 900, coarse: false, screenMin: 900 }).isShort).toBe(false);
+  });
+
+  it('sits between the tallest phone landscape and the shortest tablet landscape', () => {
+    expect(SHORT_MAX_HEIGHT).toBeGreaterThan(430);  // iPhone Pro Max short edge
+    expect(SHORT_MAX_HEIGHT).toBeLessThan(744);     // iPad mini short edge
+  });
+
+  it('is false for a zero/unknown height rather than defaulting to short', () => {
+    expect(classifyViewport({ w: 0, h: 0 }).isShort).toBe(false);
   });
 });

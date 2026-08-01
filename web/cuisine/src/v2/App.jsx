@@ -188,9 +188,28 @@ export default function App() {
   const footerTag = viewportTag(vp);
   // Tablet/desktop show 2–3 result cards in focus (the Hawker carousel basis);
   // phones keep the single-card strip.
-  const drawerBasisClass = isWide
-    ? 'basis-[82%] md:basis-[44%] min-[1180px]:basis-[30%] xl:basis-[24%] min-[1600px]:basis-[19%] min-[2000px]:basis-[16%]'
-    : 'basis-[82%]';
+  // v0.62.684 — operator's carousel-card spec: ONE width rule for every device
+  // and orientation, replacing the six-rung responsive ladder that ran here
+  // since v0.62.652.
+  //
+  // The ladder keyed off VIEWPORT width, which produced widths ranging 265px →
+  // 609px and, worse, was non-monotonic: an iPad mini in PORTRAIT (744px, just
+  // under Tailwind's 768px `md`) fell through to the phone's 82% and rendered a
+  // 531px card, while the same device in LANDSCAPE took the 44% rung at 436px —
+  // the portrait-wider-than-landscape inversion the operator reported. A phone
+  // in landscape was worse still at 609px (82% of an 844px track).
+  //
+  // `min(82%, 20rem)` reproduces the operator's stated de facto exactly: the two
+  // phone portraits stay under the cap on their own (82% of a 375px viewport is
+  // 265px, of a 393px viewport 278px), and every wider surface pins to 320px.
+  //
+  // KNOWN TRADE, accepted by the operator after being shown the measured table:
+  // this re-introduces a width cap of the kind v0.62.577 REMOVED (`max-w-[22rem]`,
+  // dropped because it gave "more, flatter cards instead of a prominent centre +
+  // two glass half-peeks"). At 320px an iPad mini in landscape shows ~3.0 cards
+  // where the 44% rung showed ~2.3. That is the deliberate cost of one uniform
+  // width; see the v0.62.684 Journal entry.
+  const drawerBasisClass = 'basis-[min(82%,20rem)]';
   // v0.62.562 — O-54 (operator: "keep to the iPhone size"): on a tablet/desktop
   // the "Cuisine & filters" / "Pick local classic" folio tabs + their panels
   // stretched the full iPad width. Cap them to a centred phone-width column so
@@ -4801,6 +4820,7 @@ export default function App() {
           dishHints={searchedTerm ? [searchedTerm] : null}
           basisClass={drawerBasisClass}
           glassPeek={isWide}
+          isShort={vp.isShort}
         />
       )}
 

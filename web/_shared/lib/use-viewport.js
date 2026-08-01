@@ -8,6 +8,8 @@
 //   isCompact   : true for a 'mobile' device with a short edge <= 390px (iPhone
 //                 11/12/13 Pro, 12/13 mini, SE) — v0.62.678, see classify-
 //                 viewport.js's COMPACT_MAX_WIDTH for the exact rule
+//   isShort     : true when viewport HEIGHT <= 500px (phone landscape). Drives
+//                 the carousel card's reduced row set — see SHORT_MAX_HEIGHT.
 //
 // Detection: a coarse pointer (touch) with a short-edge ≥ 700 px is an iPad-class
 // tablet; a fine pointer on a ≥ 1024 px viewport is desktop; everything else
@@ -23,13 +25,13 @@ import { useEffect, useState } from 'react';
 // physical-screen fallback for partial-height iPad webviews, the 768→700 edge
 // for the iPad mini, and the live-width guard that stops a narrow Telegram
 // Desktop window on a touchscreen laptop from being mis-read as a tablet).
-import { TABLET_MIN_EDGE, COMPACT_MAX_WIDTH, classifyViewport } from './classify-viewport.js';
+import { TABLET_MIN_EDGE, COMPACT_MAX_WIDTH, SHORT_MAX_HEIGHT, classifyViewport } from './classify-viewport.js';
 
-export { TABLET_MIN_EDGE, COMPACT_MAX_WIDTH };
+export { TABLET_MIN_EDGE, COMPACT_MAX_WIDTH, SHORT_MAX_HEIGHT };
 
 export function readViewport() {
   if (typeof window === 'undefined') {
-    return { deviceClass: 'mobile', orientation: 'portrait', isWide: false, isCompact: false };
+    return { deviceClass: 'mobile', orientation: 'portrait', isWide: false, isCompact: false, isShort: false };
   }
   const w = window.innerWidth || 0;
   const h = window.innerHeight || 0;

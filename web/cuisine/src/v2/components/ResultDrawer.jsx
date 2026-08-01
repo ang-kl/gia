@@ -32,7 +32,7 @@ import { useLocale } from '../lib/i18n.js';
 // offset only; the first-paint calc() fallback keeps its own historic +2px.
 const STRIP_GAP_PX = 5;
 
-export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null, hasFilters = false, stripLiftPx = null, composerOpen = false, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null, basisClass = 'basis-[82%]', glassPeek = false }) {
+export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null, hasFilters = false, stripLiftPx = null, composerOpen = false, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null, basisClass = 'basis-[min(82%,20rem)]', glassPeek = false, isShort = false }) {
   const [lang] = useLocale();
   const trackRef = useRef(null);
   const list = Array.isArray(venues) ? venues : [];
@@ -257,6 +257,7 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
               onTap={() => onSelect && onSelect(v.placeId)}
               specialMode={specialMode}
               horizontal
+              isShort={isShort}
               autoExpandFocus={false}
               nearbyLabel={nearbyLabel}
               nearbyAccent={nearbyAccent}
