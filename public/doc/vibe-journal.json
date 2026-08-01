@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-30",
-  "count": 1644,
+  "generated": "2026-08-01",
+  "count": 1658,
   "records": [
     {
       "pr": 1,
@@ -46607,6 +46607,449 @@
       "reworkCue": false,
       "reworkOf": null,
       "burst": false
+    },
+    {
+      "pr": 1672,
+      "status": "merged",
+      "merged": "2026-07-30 22:20:05+00:00",
+      "day": "2026-07-30",
+      "version": "0.62.669",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Material-alignment Phase 2a: token bridge (invisible tier) + ledger catch-up",
+      "approach": "Phase 2a of the Material-alignment governance prompt, under the operator's standing \"auto continue, auto audit, auto merge\" authorization.",
+      "codeImpact": "27 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package, public/",
+      "modules": [
+        "doc",
+        "package",
+        "public/",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 27,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.669 — Material-alignment Phase 2a: token bridge (invisible tier) + ledger catch-up",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1673,
+      "status": "merged",
+      "merged": "2026-07-31 00:10:33+00:00",
+      "day": "2026-07-31",
+      "version": "0.62.670",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Hawker NEA",
+      "intent": "Add: Material-alignment Phase 2b: the five O-85 colour decisions, applied",
+      "approach": "The operator answered the Phase 2b decision round (Register O-85) this morning; this PR applies exactly that ruling — the Material-alignment programme's first visible changes, each individually approved: - **BackFab: teal stands**…",
+      "codeImpact": "12 files — TMA:cuisine, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 12,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.670 — Material-alignment Phase 2b: the five O-85 colour decisions, applied",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
+    },
+    {
+      "pr": 1674,
+      "status": "merged",
+      "merged": "2026-07-31 00:22:25+00:00",
+      "day": "2026-07-31",
+      "version": "0.62.671",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Hawker NEA",
+      "intent": "Fix: M3 audit Tier 0: dead BackFab removal + internal-consistency fixes",
+      "approach": "First slice of a Material Design 3 (M3) structural-conformance audit — the operator asked for a review against real M3 standards (grounded directly in the `material-components/material-web` source, not general impressions), then narrowed…",
+      "codeImpact": "12 files — TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:transport"
+      ],
+      "nFiles": 12,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.671 — M3 audit Tier 0: dead BackFab removal + internal-consistency fixes",
+      "reworkCue": false,
+      "reworkOf": 1673,
+      "burst": true
+    },
+    {
+      "pr": 1675,
+      "status": "merged",
+      "merged": "2026-07-31 00:54:14+00:00",
+      "day": "2026-07-31",
+      "version": "0.62.672",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Docs / vault",
+      "intent": "Add: M3 audit Tier 1: shared shape/motion/state-layer token vocabulary",
+      "approach": "Tier 1 of the M3 structural-conformance audit: build the shared vocabulary, apply it nowhere yet.",
+      "codeImpact": "12 files — TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, TMA:oversight, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:oversight",
+        "TMA:transport"
+      ],
+      "nFiles": 12,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker",
+        "transport",
+        "oversight"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.672 — M3 audit Tier 1: shared shape/motion/state-layer token vocabulary",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1676,
+      "status": "merged",
+      "merged": "2026-07-31 02:24:06+00:00",
+      "day": "2026-07-31",
+      "version": "",
+      "minor": "",
+      "category": "docs",
+      "area": "Recognised lists",
+      "intent": "Update docs: add Michelin footer pagination implementation prompt",
+      "approach": "Adds the AI implementation prompt for Michelin Guide year filtering, sorting, and footer-centred pagination.",
+      "codeImpact": "1 file — instr/",
+      "modules": [
+        "instr/"
+      ],
+      "nFiles": 1,
+      "tmas": [],
+      "impactTags": [],
+      "title": "docs: add Michelin footer pagination implementation prompt",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1677,
+      "status": "merged",
+      "merged": "2026-07-31 03:14:17+00:00",
+      "day": "2026-07-31",
+      "version": "0.62.673",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Recognised lists",
+      "intent": "Add: Michelin footer-centre pagination",
+      "approach": "Implements `instr/GIA_Michelin_Footer_Pagination_AI_Prompt.md` — a compact `‹ N / total ›` page indicator, centred in the Cuisine footer, visible only for Michelin Guide results once more than one server batch has been fetched.",
+      "codeImpact": "6 files — TMA:cuisine, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 6,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.673 — Michelin footer-centre pagination",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1678,
+      "status": "merged",
+      "merged": "2026-07-31 12:53:50+00:00",
+      "day": "2026-07-31",
+      "version": "0.62.674",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Hawker NEA",
+      "intent": "Fix: 678 — Cuisine/Michelin fixes, Hawker parity, typography audit",
+      "approach": "Five rounds of operator-driven fixes/follow-ups, all still pre-merge on this one branch: **v0.62.674** — two bugs found on a real-device check of Michelin footer-centre pagination: the first-load `BottomSheet` peek gap, and the Michelin…",
+      "codeImpact": "36 files — index.js, michelin-walk.js, TMA:cuisine, TMA:menu, TMA:hawker, TMA:transport, TMA:oversight, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "michelin-walk.js",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:menu",
+        "TMA:oversight",
+        "TMA:transport"
+      ],
+      "nFiles": 36,
+      "tmas": [
+        "cuisine",
+        "menu",
+        "hawker",
+        "transport",
+        "oversight"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.674–678 — Cuisine/Michelin fixes, Hawker parity, typography audit",
+      "reworkCue": false,
+      "reworkOf": 1674,
+      "burst": true
+    },
+    {
+      "pr": 1679,
+      "status": "merged",
+      "merged": "2026-07-31 14:15:35+00:00",
+      "day": "2026-07-31",
+      "version": "0.62.679",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Hawker NEA",
+      "intent": "Fix: O-95/O-96/O-97: Hawker Copy parity, glass-effect bug fix, size unification",
+      "approach": "Follow-up to the typography/screen-size audit (#1678, merged).",
+      "codeImpact": "9 files — TMA:hawker, TMA:transport, doc, package",
+      "modules": [
+        "doc",
+        "package",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 9,
+      "tmas": [
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "v0.62.679 — O-95/O-96/O-97: Hawker Copy parity, glass-effect bug fix, size unification",
+      "reworkCue": false,
+      "reworkOf": 1678,
+      "burst": true
+    },
+    {
+      "pr": 1680,
+      "status": "merged",
+      "merged": "2026-08-01 02:11:06+00:00",
+      "day": "2026-08-01",
+      "version": "0.62.680",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Hawker NEA",
+      "intent": "Fix: 681 — O-89/O-91/O-92 Register items, plus two device-reported Cuisine fixes",
+      "approach": "v0.62.680 — three Register follow-ups**",
+      "codeImpact": "17 files — index.js, michelin-sort.js, TMA:cuisine, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "michelin-sort.js",
+        "package",
+        "TMA:cuisine"
+      ],
+      "nFiles": 17,
+      "tmas": [
+        "cuisine"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.680–681 — O-89/O-91/O-92 Register items, plus two device-reported Cuisine fixes",
+      "reworkCue": false,
+      "reworkOf": 1679,
+      "burst": true
+    },
+    {
+      "pr": 1681,
+      "status": "merged",
+      "merged": "2026-08-01 03:03:59+00:00",
+      "day": "2026-08-01",
+      "version": "0.62.680",
+      "minor": "0.62",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: post-merge record for PR #1680 (v0.62.680–683 arc); opens O-105",
+      "approach": "Docs only — no code changes.",
+      "codeImpact": "3 files — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 3,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: post-merge record for PR #1680 (v0.62.680–683 arc); opens O-105",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1682,
+      "status": "merged",
+      "merged": "2026-08-01 06:46:39+00:00",
+      "day": "2026-08-01",
+      "version": "0.62.684",
+      "minor": "0.62",
+      "category": "fix",
+      "area": "Hawker NEA",
+      "intent": "Fix: 689 — carousel card spec (D-51), footer/glass fixes, four-corner ring labels, station-pick inspection overlay",
+      "approach": "Six patch versions in one arc.",
+      "codeImpact": "29 files — TMA:cuisine, TMA:hawker, TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "package",
+        "TMA:cuisine",
+        "TMA:hawker",
+        "TMA:transport"
+      ],
+      "nFiles": 29,
+      "tmas": [
+        "cuisine",
+        "hawker",
+        "transport"
+      ],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.684–689 — carousel card spec (D-51), footer/glass fixes, four-corner ring labels, station-pick inspection overlay",
+      "reworkCue": false,
+      "reworkOf": 1680,
+      "burst": true
+    },
+    {
+      "pr": 1683,
+      "status": "merged",
+      "merged": "2026-08-01 06:51:41+00:00",
+      "day": "2026-08-01",
+      "version": "0.62.684",
+      "minor": "0.62",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: post-merge record for PR #1682 (v0.62.684–689 arc)",
+      "approach": "Docs-only.",
+      "codeImpact": "2 files — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [
+        "tests",
+        "doc/vault"
+      ],
+      "title": "docs: post-merge record for PR #1682 (v0.62.684–689 arc)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1684,
+      "status": "merged",
+      "merged": "2026-08-01 07:36:54+00:00",
+      "day": "2026-08-01",
+      "version": "0.62.690",
+      "minor": "0.62",
+      "category": "feature",
+      "area": "Cuisine Picker",
+      "intent": "Add: road & address search via OneMap (closes O-110)",
+      "approach": "The other half of the operator's original inspection-overlay request.",
+      "codeImpact": "10 files — index.js, onemap-search.js, rate-limit.js, TMA:transport, tests, doc, package",
+      "modules": [
+        "tests",
+        "doc",
+        "index.js",
+        "onemap-search.js",
+        "package",
+        "rate-limit.js",
+        "TMA:transport"
+      ],
+      "nFiles": 10,
+      "tmas": [
+        "transport"
+      ],
+      "impactTags": [
+        "Redis/state",
+        "legal",
+        "tests",
+        "doc/vault"
+      ],
+      "title": "v0.62.690 — road & address search via OneMap (closes O-110)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": false
+    },
+    {
+      "pr": 1685,
+      "status": "merged",
+      "merged": "2026-08-01 07:42:50+00:00",
+      "day": "2026-08-01",
+      "version": "0.62.690",
+      "minor": "0.62",
+      "category": "docs",
+      "area": "Docs / vault",
+      "intent": "Update docs: post-merge record for PR #1684 (v0.62.690)",
+      "approach": "Docs-only.",
+      "codeImpact": "2 files — doc",
+      "modules": [
+        "doc"
+      ],
+      "nFiles": 2,
+      "tmas": [],
+      "impactTags": [
+        "doc/vault"
+      ],
+      "title": "docs: post-merge record for PR #1684 (v0.62.690)",
+      "reworkCue": false,
+      "reworkOf": null,
+      "burst": true
     }
   ]
 }
