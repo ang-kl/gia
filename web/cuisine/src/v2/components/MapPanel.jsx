@@ -180,6 +180,30 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   const [isTablet, setIsTablet] = useState(false);
   // v0.63.0 — expand toggle: grows the map to ~90vh in place.
   const [expanded, setExpanded] = useState(false);
+  // v0.62.691 — operator: "the ⇱ (U+21F1) and ⇲ (U+21F2) is missing in Cuisine
+  // TMA. it is to expand the embedded map like Train TMA and Hawker TMA."
+  // Correct: the button was GATED OUT on a phone (`fill` true, `onCollapse`
+  // undefined) on the reasoning that it "would be a no-op button" there. That is
+  // the identical state Transport was bug-reported for in v0.62.626 and Hawker in
+  // v0.62.627 — both fixed not by hiding the button but by giving it a real
+  // action. This is the third instance of the same pattern, so Hawker's fix is
+  // ported verbatim rather than re-invented: in the previously-hidden case the ⇲
+  // promotes the map to a full-viewport overlay, and ⇱ brings it back.
+  const [overlayFull, setOverlayFull] = useState(false);
+  const canOverlay = fill && !onCollapse;          // exactly the case that was hidden
+  const expandedOverlay = canOverlay && overlayFull;
+  // Promoting the wrapper to `fixed inset-0` changes the container size out from
+  // under the Maps SDK; without a resize trigger it keeps painting at the old size
+  // (and drifts off-centre). Same guard Hawker's panel carries for the same reason.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !window.google?.maps?.event) return undefined;
+    const c = map.getCenter?.();
+    const id = setTimeout(() => {
+      try { window.google.maps.event.trigger(map, 'resize'); if (c) map.setCenter(c); } catch { /* older webview */ }
+    }, 60);
+    return () => clearTimeout(id);
+  }, [overlayFull, expanded]);
   // v0.61.89 — troubleshooting: live Google Maps zoom level, surfaced in a tiny
   // bottom-right readout. Updated on every `zoom_changed`.
   const [zoomLevel, setZoomLevel] = useState(null);
@@ -1025,10 +1049,18 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
        FULL-BLEED and FILLS the viewport behind a floating glass dock (no white
        band). `fill` makes the wrapper a flex-1 child + edge-to-edge (drops the
        rounded card frame + gutters). Vertical mode keeps the framed fixed-height
-       card so the scrolling list reads below it. */
-    <div className={fill
-      ? 'flex-1 min-h-[60vh] -mx-3 md:-mx-6 lg:-mx-8 overflow-hidden relative bg-tg-card'
-      : 'rounded-lg border border-tg-border bg-tg-card overflow-hidden relative'}>
+       card so the scrolling list reads below it.
+       v0.62.691 — expandedOverlay: the ⇲ in the previously-hidden case promotes
+       the map to a full-viewport overlay. z-[35] is deliberate and copied from
+       Hawker's v0.62.627 fix (Codex P2 there): the result carousel is
+       `fixed … z-30` and paints LATER in the DOM, so an equal-z overlay would sit
+       BEHIND the cards. 35 clears the carousel while staying under the footer
+       dock (z-40), so the footer and its Map toggle stay reachable. */
+    <div className={expandedOverlay
+      ? 'fixed inset-0 z-[35] overflow-hidden bg-tg-card'
+      : (fill
+        ? 'flex-1 min-h-[60vh] -mx-3 md:-mx-6 lg:-mx-8 overflow-hidden relative bg-tg-card'
+        : 'rounded-lg border border-tg-border bg-tg-card overflow-hidden relative')}>
       {/* v0.58.17: map height scales with viewport (phone ~240 px floor; tablet/
           desktop taller).
           v0.62.191 — operator: the map looked SQUEEZED. Root cause: a percentage
@@ -1098,26 +1130,35 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
           className="gia-hit-x gia-map-btn w-7 h-7 rounded-full border shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
           aria-label={tr('map.zoomOut', lang)}
         ><span aria-hidden>－</span></button>
-        {/* v0.62.190 — the expand/collapse toggle is hidden in fill mode (the map
-            already fills the viewport, so it would be a no-op button).
+        {/* v0.62.190 — the expand/collapse toggle was hidden in fill mode (the map
+            already fills the viewport, so it "would be a no-op button").
             v0.62.567 — portrait two-panel: when `onExpandFull` is wired the ⇲ jumps
             straight to the full carousel (App flips drawerMode) instead of the
             internal grow; and in fill/carousel mode the button REAPPEARS as ⇱ when
-            `onCollapse` is wired, to collapse back to the two-panel (landscape,
-            which passes neither, still hides it in fill). */}
-        {(!fill || onCollapse) && (
-        <button
-          type="button"
-          onClick={() => {
-            if (fill) { onCollapse && onCollapse(); }
-            else if (onExpandFull) { onExpandFull(); }
-            else { setExpanded((e) => !e); }
-          }}
-          className="gia-hit-x gia-map-btn w-7 h-7 rounded-full border shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
-          aria-label={tr((fill || (expanded && !onExpandFull)) ? 'map.collapse' : 'map.expand', lang)}
-          title={tr((fill || (expanded && !onExpandFull)) ? 'map.collapse' : 'map.expand', lang)}
-        ><span aria-hidden>{(fill || (expanded && !onExpandFull)) ? '⇱' : '⇲'}</span></button>
-        )}
+            `onCollapse` is wired, to collapse back to the two-panel.
+            v0.62.691 — operator: the button is MISSING on the phone. It is: that
+            case (fill, no onCollapse) is the one v0.62.190 hid. Hiding it is the
+            same mistake Transport (v0.62.626) and Hawker (v0.62.627) were each
+            bug-reported for; both were fixed by giving the button a real action.
+            The gate is removed — the button now ALWAYS renders — and the formerly
+            no-op case toggles a full-viewport overlay (canOverlay/overlayFull). */}
+        {(() => {
+          const showCollapse = expandedOverlay || (!canOverlay && (fill || (expanded && !onExpandFull)));
+          return (
+            <button
+              type="button"
+              onClick={() => {
+                if (canOverlay) { setOverlayFull((v) => !v); }   // was hidden; now a real overlay
+                else if (fill) { onCollapse && onCollapse(); }
+                else if (onExpandFull) { onExpandFull(); }
+                else { setExpanded((e) => !e); }
+              }}
+              className="gia-hit-x gia-map-btn w-7 h-7 rounded-full border shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
+              aria-label={tr(showCollapse ? 'map.collapse' : 'map.expand', lang)}
+              title={tr(showCollapse ? 'map.collapse' : 'map.expand', lang)}
+            ><span aria-hidden>{showCollapse ? '⇱' : '⇲'}</span></button>
+          );
+        })()}
       </div>
       {/* v0.61.36 — Phase G/C floating toggle row + "⋯/⋮" overflow dropdown. */}
       <MapControls

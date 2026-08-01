@@ -343,13 +343,32 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
          is a FIXED height so every card in the strip is identical. Two tiers,
          because one global height is impossible: a phone in landscape has only
          375-393px of viewport to spend, an iPad mini portrait has 1133.
-           standard (13rem/208px) — phone portrait, all tablet, desktop
+           standard (12rem/192px) — phone portrait, all tablet, desktop
            short    (7.5rem/120px) — isShort, i.e. viewport height <= 500px
          EXPANDED stays auto-height (bounded by the wrapper's max-h-[60vh] +
          scroll) — pinning it would clip real content. `overflow-hidden` on the
          collapsed card is what makes the fixed height a hard guarantee rather
-         than a suggestion the content can overrun. */
-      className={`w-full text-left rounded-lg border flex flex-col ${horizontal ? 'gap-0.5 px-2.5 py-1.5' : 'gap-1 p-2.5'} ${horizontal && !expanded ? `${isShort ? 'h-[7.5rem]' : 'h-[13rem]'} overflow-hidden` : ''} ${horizontal ? (glassEff ? 'bg-tg-card/60 liquid-glass' : 'liquid-glass-focus') : 'bg-tg-card'} ${focused ? 'border-tg-accent' : 'border-tg-border'}`}
+         than a suggestion the content can overrun.
+
+         v0.62.691 — operator: "can we reduce line spacing height so we can
+         shorten the height of the card". `leading-snug` (1.375) on the
+         horizontal card ROOT, plus tightened per-row `mt-*` below. The audit
+         found the loose spacing was NOT a design decision: six collapsed rows
+         (type / meta / 💵 price / 🍱 set-meal / Michelin / toggle) carried NO
+         `leading-*` class at all and so inherited Tailwind preflight's
+         `html { line-height: 1.5 }`, while the rows someone had explicitly
+         styled ran at 1.25–1.375. One class on the parent fixes all six at once
+         and leaves every explicit per-row value winning by specificity.
+
+         Standard tier 13rem → 12rem. That number is not taste: it is the
+         LARGEST reduction that leaves every case no worse than before. A typical
+         card's content drops 178 → 165px (‑8%), so the visible slack the
+         operator reported shrinks from ~30px to ~27px in a 16px-shorter box;
+         and a worst-case card (Michelin + three wrapped rows) that ALREADY
+         overran 208px by ~44px now overruns 192px by ~41px — still an
+         improvement. Going below 12rem starts making that overrun worse than
+         today, which is why the further cut needs the row-move instead. */
+      className={`w-full text-left rounded-lg border flex flex-col ${horizontal ? 'leading-snug gap-0.5 px-2.5 py-1.5' : 'gap-1 p-2.5'} ${horizontal && !expanded ? `${isShort ? 'h-[7.5rem]' : 'h-[12rem]'} overflow-hidden` : ''} ${horizontal ? (glassEff ? 'bg-tg-card/60 liquid-glass' : 'liquid-glass-focus') : 'bg-tg-card'} ${focused ? 'border-tg-accent' : 'border-tg-border'}`}
       style={horizontal && !glassEff ? { '--tg-bg': '#ffffff', '--tg-card': '#ffffff', '--tg-text': '#1c1c1f', '--tg-hint': '#6b6b70', '--tg-border': '#e2e2e6' } : undefined}>
       {/* v0.62.289 / v0.62.293 — top strip on a NOT-exact card. SINGLE cuisine:
           "{cuisine} & Nearby Flavours" (nearbyLabel). COMBO (2+): the cuisine the
@@ -479,8 +498,11 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               from the top meta row). Operator request: "Include
               · ♿️ if eatery included in Google Search. Next to
               cost-range. Move Crowd to same row as cost-range." */}
+          {/* v0.62.691 — the flex parent already supplies gap-0.5 between every
+              row; on the horizontal card this mt-0.5 doubled it. Dropped there,
+              kept in the vertical list where there is no height budget. */}
           {!isShort && (venue.priceRangeDisplay || venue.wheelchairAccessible === true || venue.allowsDogs === true || livenessChip) && (
-            <div className={`text-[12px] text-tg-text/80 mt-0.5 ${horizontal ? 'line-clamp-2' : 'truncate'}`}>
+            <div className={`text-[12px] text-tg-text/80 ${horizontal ? 'line-clamp-2' : 'mt-0.5 truncate'}`}>
               {[
                 // v0.62.212 — card style A: the horizontal card drops the bulky
                 // secondary-currency "(≈M$…)" conversion (still on the expanded
@@ -539,7 +561,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
                 }).slice(0, 3)
               : [];
             return primaryDish ? (
-              <div className="text-[13px] text-tg-text mt-1 leading-snug">
+              <div className={`text-[13px] text-tg-text leading-snug ${horizontal ? 'mt-0.5' : 'mt-1'}`}>
                 🍲 <span className="font-medium">{tr('card.whatToOrder', lang)}:</span> {primaryDish}
                 {restDishes.length > 0 && (
                   <span className="text-tg-hint">{restDishes.map((d) => ` • ${d}`).join('')}</span>
@@ -552,7 +574,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               expanding (moved OUT of the collapsible section below). Tier + year
               in WORDS (✳️ / ⭐), never colour. */}
           {!isShort && venue.michelinCategory && (
-            <div className="text-[12px] text-tg-text mt-1 font-semibold">
+            <div className={`text-[12px] text-tg-text font-semibold ${horizontal ? 'mt-0.5' : 'mt-1'}`}>
               {michelinAnnotation(venue.michelinCategory, venue.michelinAwardYears)}
             </div>
           )}
@@ -571,7 +593,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               line-clamp-1 on the short tier where there is only room for one
               line (a space-forced exception, per the approved spec). */}
           {venue.area && (
-            <div className={`text-[12px] text-tg-hint mt-1 leading-snug ${horizontal ? (isShort ? 'line-clamp-1' : 'line-clamp-2') : 'break-words'}`}>
+            <div className={`text-[12px] text-tg-hint leading-snug ${horizontal ? `mt-0.5 ${isShort ? 'line-clamp-1' : 'line-clamp-2'}` : 'mt-1 break-words'}`}>
               📍 {horizontal ? abbrevAddress(dropCountry(venue.area)) : dropCountry(venue.area)}
             </div>
           )}
@@ -585,7 +607,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
             aria-expanded={expanded}
             aria-controls={detailsId}
-            className="self-start mt-1.5 px-1.5 py-0.5 rounded-full border border-tg-accent/30 text-[11px] text-tg-accent/70 font-medium active:scale-95 transition-transform"
+            className={`self-start px-1.5 py-0.5 rounded-full border border-tg-accent/30 text-[11px] text-tg-accent/70 font-medium active:scale-95 transition-transform ${horizontal ? 'mt-1' : 'mt-1.5'}`}
           >
             {/* v0.62.684 — operator: use the standard Unicode disclosure
                 triangles, ▸ (U+25B8) collapsed / ▾ (U+25BE) expanded, replacing
