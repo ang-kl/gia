@@ -1051,13 +1051,22 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
        rounded card frame + gutters). Vertical mode keeps the framed fixed-height
        card so the scrolling list reads below it.
        v0.62.691 — expandedOverlay: the ⇲ in the previously-hidden case promotes
-       the map to a full-viewport overlay. z-[35] is deliberate and copied from
-       Hawker's v0.62.627 fix (Codex P2 there): the result carousel is
-       `fixed … z-30` and paints LATER in the DOM, so an equal-z overlay would sit
-       BEHIND the cards. 35 clears the carousel while staying under the footer
-       dock (z-40), so the footer and its Map toggle stay reachable. */
+       the map to a full-viewport overlay.
+       v0.62.699 — CORRECTION, operator: "why the footer is gone and the card".
+       v0.62.691 set z-[35], copied from Hawker's v0.62.627 fix along with its
+       reasoning — "clears the carousel (z-30) while staying under the footer
+       dock (z-40)". That reasoning is true in HAWKER and false here: Cuisine's
+       footer dock is `fixed inset-x-0 bottom-0 z-30` (App.jsx:5582), NOT z-40.
+       So 35 cleared the carousel AND the footer, and both disappeared behind the
+       expanded map. The value was ported without re-checking the stack it was
+       being ported into.
+       z-20 instead: the map grows to the full viewport but paints BELOW the
+       carousel, the footer and the sticky header (all z-30), so — per the
+       operator — "the card and footer are important despite the google map being
+       expand". Their wrappers are pointer-events-none, so the map stays draggable
+       in the gaps between them. */
     <div className={expandedOverlay
-      ? 'fixed inset-0 z-[35] overflow-hidden bg-tg-card'
+      ? 'fixed inset-0 z-20 overflow-hidden bg-tg-card'
       : (fill
         ? 'flex-1 min-h-[60vh] -mx-3 md:-mx-6 lg:-mx-8 overflow-hidden relative bg-tg-card'
         : 'rounded-lg border border-tg-border bg-tg-card overflow-hidden relative')}>
