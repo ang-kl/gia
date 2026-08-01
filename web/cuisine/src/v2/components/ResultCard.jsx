@@ -585,7 +585,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
             aria-expanded={expanded}
             aria-controls={detailsId}
-            className="self-start mt-1.5 px-2.5 py-0.5 rounded-full border border-tg-accent/50 text-[11px] text-tg-accent font-medium active:scale-95 transition-transform"
+            className="self-start mt-1.5 px-1.5 py-0.5 rounded-full border border-tg-accent/30 text-[11px] text-tg-accent/70 font-medium active:scale-95 transition-transform"
           >
             {/* v0.62.684 — operator: use the standard Unicode disclosure
                 triangles, ▸ (U+25B8) collapsed / ▾ (U+25BE) expanded, replacing

@@ -560,7 +560,7 @@ export default function App() {
           type="button"
           onClick={(e) => { e.stopPropagation(); toggleCardExpanded(c.name); }}
           aria-expanded={expanded}
-          className="self-start px-2.5 py-0.5 rounded-full border border-tg-accent/50 text-[11px] text-tg-accent font-medium active:scale-95"
+          className="self-start px-1.5 py-0.5 rounded-full border border-tg-accent/30 text-[11px] text-tg-accent/70 font-medium active:scale-95"
         >
           <span aria-hidden className="mr-0.5">{expanded ? '▾' : '▸'}</span>{expanded ? t('btn.detailsLess', lang) : t('btn.detailsMore', lang)}
         </button>
