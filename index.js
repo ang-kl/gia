@@ -13000,7 +13000,31 @@ async function cacheBotUsername() {
             michelinCuisinesByCC[cc] = { all, byCity };
           }
         } catch (err) { console.warn('[catalogue] michelinCuisinesByCC build failed:', err.message); }
-        res.json({ categories, michelinCuisinesByCC });
+        // v0.62.696 — which award YEARS actually exist per country, so the TMA's
+        // Michelin year ticks can disable a year nobody holds instead of offering
+        // a control that silently does nothing. Singapore is the live case: its
+        // 2026 STAR selection is unannounced (ceremony 04-08 '26), so every SG
+        // star carries only "'25" and a 2026 tick can never change the result —
+        // which is exactly what the operator reported as "none of them works".
+        // SG comes from SG-michelin.js (flat awardYears); the other 11 from
+        // michelin-data.js via retainedAwardYears().
+        let michelinYearsByCC = {};
+        try {
+          const md = require('./michelin-data');
+          const sgYears = new Set();
+          for (const e of require('./SG-michelin').getAll()) {
+            for (const y of (Array.isArray(e.awardYears) ? e.awardYears : [])) sgYears.add(y);
+          }
+          if (sgYears.size) michelinYearsByCC.SG = [...sgYears].sort().reverse();
+          for (const cc of michelinCountries) {
+            const ys = new Set();
+            for (const v of md.visitableVenues().filter((v) => v.country === cc)) {
+              for (const y of (md.retainedAwardYears(v) || [])) ys.add(y);
+            }
+            if (ys.size) michelinYearsByCC[cc] = [...ys].sort().reverse();
+          }
+        } catch (err) { console.warn('[catalogue] michelinYearsByCC build failed:', err.message); }
+        res.json({ categories, michelinCuisinesByCC, michelinYearsByCC });
       } catch (err) {
         console.error('[Error] /api/cuisine/catalogue failed:', err.message);
         res.status(500).json({ error: err.message });

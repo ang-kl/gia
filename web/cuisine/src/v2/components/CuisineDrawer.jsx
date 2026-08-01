@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import CuisineCategoryDrawer from './CuisineCategoryDrawer.jsx';
+import MichelinFilterDrawer from './MichelinFilterDrawer.jsx';
 import { useLocale, t as tr, tn } from '../lib/i18n.js';
 // v0.61.141 — special-mode mutex logic extracted to a pure module so
 // it's unit-testable. Fruits / Durian / Durian Pastry are now
@@ -52,8 +53,11 @@ const CATEGORY_LABEL_KEY = {
 // derived from `selected` at the App.jsx request-build site. The
 // applyChipToggle helper enforces the mutex (special ↔ everything else
 // including Dessert).
-export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region, countryPref, michelinCuisines = null, onPickDish = null, onDrillChange = null, michelinFilter = null, onMichelinFilterChange = null, isCompact = false }) {
+export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region, countryPref, michelinCuisines = null, onPickDish = null, onDrillChange = null, michelinFilter = null, onMichelinFilterChange = null, michelinYears = null, isCompact = false }) {
   const [openCategoryId, setOpenCategoryId] = useState(null);
+  // v0.62.696 — the Michelin ticks as a popup. Opens when the chip is selected
+  // (below), and is re-openable from the chip afterwards.
+  const [michelinPanelOpen, setMichelinPanelOpen] = useState(false);
   // v0.61.346 — current country for per-country chip gating (e.g. the
   // Michelin chip enables wherever its `michelinCountries` list covers).
   // SG pill → SG; MY-PUT (Putrajaya) → MY; JB stays its own (Michelin
@@ -73,7 +77,15 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
   if (!catalogue) return null;
 
   function toggle(slug) {
-    onChange(applyChipToggle({ slug, selected, maxSelected: MAX_SELECTED }));
+    const next = applyChipToggle({ slug, selected, maxSelected: MAX_SELECTED });
+    onChange(next);
+    // v0.62.696 — selecting Michelin opens its tick popup, the same way picking
+    // a category with sub-cuisines opens that category's drawer. De-selecting
+    // closes it. Guarded on the callback so a host that doesn't own the filter
+    // state never gets a modal it cannot service.
+    if (slug === 'michelin' && typeof onMichelinFilterChange === 'function') {
+      setMichelinPanelOpen(next.includes('michelin'));
+    }
   }
 
   function labelFor(cat) {
@@ -189,39 +201,15 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
           </div>
         );
       })()}
-      {/* v0.62.676 — operator: Michelin stays ONE chip; ticking off years or
-          Bib Gourmand independently narrows the pool (3 parallel categories,
-          union semantics — not a year × category matrix). All default ON,
-          matching pre-v0.62.676 all-inclusive behaviour when untouched. */}
-      {selected.includes('michelin') && typeof onMichelinFilterChange === 'function' && (
-        <div className="flex flex-wrap items-center gap-1.5 px-1">
-          <span className="text-[11px] text-tg-hint">{tr('michelin.filterHeader', lang)}</span>
-          {[
-            { key: 'year2026', label: '2026', aria: tn('michelin.yearAria', lang, { year: 2026 }) },
-            { key: 'year2025', label: '2025', aria: tn('michelin.yearAria', lang, { year: 2025 }) },
-            { key: 'bib', label: tr('michelin.bibLabel', lang), aria: tr('michelin.bibLabel', lang) }
-          ].map(({ key, label, aria }) => {
-            const checked = (michelinFilter ? michelinFilter[key] : true) !== false;
-            return (
-              <button
-                key={key}
-                type="button"
-                role="checkbox"
-                aria-checked={checked}
-                aria-label={`${aria} ${checked ? '(on)' : '(off)'}`}
-                onClick={() => onMichelinFilterChange({
-                  year2026: true, year2025: true, bib: true,
-                  ...(michelinFilter || {}),
-                  [key]: !checked
-                })}
-                className={`gia-hit px-2 py-1 rounded-full border text-[11px] whitespace-nowrap transition-colors ${checked ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : 'bg-tg-card text-tg-text border-tg-border'}`}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-      )}
+      {/* v0.62.676 — Michelin stays ONE chip; ticking off years or Bib Gourmand
+          independently narrows the pool (3 parallel categories, union semantics
+          — not a year × category matrix). All default ON.
+          v0.62.696 — operator: "it should pop-up same window … like how 'Sweets
+          & Fusion' takes effect when selected. Remove current showing … on the
+          same screen". The inline row that lived here is GONE; the ticks now
+          open as a modal (MichelinFilterDrawer) when Michelin is selected, the
+          same shape every other category uses. Prior inline markup is preserved
+          in git history at v0.62.695 rather than kept dead here. */}
       {selected.length > 0 && (
         <div className="flex justify-between items-center text-[11px] text-tg-hint px-1">
           <span>{selected.length} cuisine{selected.length === 1 ? '' : 's'} selected{selected.length === MAX_SELECTED ? ' (max)' : ''}</span>
@@ -251,6 +239,19 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
              🔙 back FAB can live in the App bottom FAB cluster (correct stacking
              + placement above the Search FAB). */
           onDrillChange={onDrillChange}
+        />
+      )}
+
+      {/* v0.62.696 — the Michelin year / Bib ticks, as a popup (was an inline
+          row on this screen). Closing it nudges the user to search, matching
+          how a category drawer close behaves — the ticks do NOT auto-search,
+          per the operator: "follow the existing convention and just nudge". */}
+      {michelinPanelOpen && typeof onMichelinFilterChange === 'function' && (
+        <MichelinFilterDrawer
+          value={michelinFilter}
+          onChange={onMichelinFilterChange}
+          availableYears={michelinYears}
+          onClose={() => { setMichelinPanelOpen(false); onCategoryClose?.(); }}
         />
       )}
     </div>
