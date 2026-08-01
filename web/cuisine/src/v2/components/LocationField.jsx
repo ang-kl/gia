@@ -775,6 +775,18 @@ function CityDropdown({ countryCode, value, onChange, ariaLabel, hideClearOption
   // P1-d — keyboard rows = the optional "— Clear —" row + the city rows;
   // itemRefs indices follow render order (clear row first when present).
   const clearOffset = hideClearOption ? 0 : 1;
+  // v0.62.697 — operator: state groups use the standard disclosure triangles,
+  // "▸ for collapsed states and ▾ for expanded states". Default is EXPANDED for
+  // every group, so a list that previously showed its cities immediately still
+  // does; the triangles are there to fold a long list (AU is 33 cities across 8
+  // groups) down to its headings. The group holding the CURRENT pick is forced
+  // open regardless, so the selected city can never be hidden behind a fold.
+  const [collapsedStates, setCollapsedStates] = useState(() => new Set());
+  const toggleState = (st) => setCollapsedStates((prev) => {
+    const next = new Set(prev);
+    if (next.has(st)) next.delete(st); else next.add(st);
+    return next;
+  });
   useEffect(() => {
     if (!open) return;
     function onDocClick(e) {
@@ -808,20 +820,37 @@ function CityDropdown({ countryCode, value, onChange, ariaLabel, hideClearOption
     const len = list.length + clearOffset;
     const active = document.activeElement;
     const idx = itemRefs.current.findIndex((el) => el === active);
+    // v0.62.697 — a collapsed state group leaves NULL holes in itemRefs (its
+    // rows aren't rendered). Stepping by one and calling `?.focus()` would
+    // silently no-op and strand the focus, so walk to the next row that exists.
+    const step = (from, dir) => {
+      for (let n = 1; n <= len; n += 1) {
+        const i = ((from + dir * n) % len + len) % len;
+        if (itemRefs.current[i]) return i;
+      }
+      return -1;
+    };
+    const edge = (dir) => {
+      for (let n = 0; n < len; n += 1) {
+        const i = dir > 0 ? n : len - 1 - n;
+        if (itemRefs.current[i]) return i;
+      }
+      return -1;
+    };
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      const next = idx < 0 ? 0 : (idx + 1) % len;
-      itemRefs.current[next]?.focus();
+      const next = idx < 0 ? edge(1) : step(idx, 1);
+      if (next >= 0) itemRefs.current[next].focus();
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      const next = idx < 0 ? len - 1 : (idx - 1 + len) % len;
-      itemRefs.current[next]?.focus();
+      const next = idx < 0 ? edge(-1) : step(idx, -1);
+      if (next >= 0) itemRefs.current[next].focus();
     } else if (e.key === 'Home') {
       e.preventDefault();
-      itemRefs.current[0]?.focus();
+      const i = edge(1); if (i >= 0) itemRefs.current[i].focus();
     } else if (e.key === 'End') {
       e.preventDefault();
-      itemRefs.current[len - 1]?.focus();
+      const i = edge(-1); if (i >= 0) itemRefs.current[i].focus();
     }
   }
   if (!list.length) return null;
@@ -865,7 +894,23 @@ function CityDropdown({ countryCode, value, onChange, ariaLabel, hideClearOption
           )}
           {list.map((c, i) => {
             const sel = current && c.name === current.name;
-            return (
+            // v0.62.697 — operator: "lite-thin hollow line separation by state
+            // and the state now in 2 font size smaller in the middle of the
+            // hollow line (1 character spacing before and after the state
+            // name)". Drawn whenever `state` changes between consecutive rows,
+            // so it costs nothing for the countries whose lists carry no
+            // `state` field at all (every one except AU today).
+            // aria-hidden + role="presentation": it is a visual grouping cue,
+            // and a non-option <li> inside role="listbox" would otherwise be
+            // announced as an empty option. The keyboard index below is still
+            // `i + clearOffset` over `list`, so inserting these rows does not
+            // disturb arrow-key navigation.
+            const groupStart = c.state && (i === 0 || list[i - 1].state !== c.state);
+            // The group holding the current pick stays open no matter what, so
+            // the selected city is never folded out of sight.
+            const currentState = current ? (list.find((x) => x.name === current.name) || {}).state : null;
+            const folded = c.state && collapsedStates.has(c.state) && c.state !== currentState;
+            const row = folded ? null : (
               <li key={c.name} role="option" aria-selected={sel}>
                 <button
                   type="button"
@@ -879,6 +924,36 @@ function CityDropdown({ countryCode, value, onChange, ariaLabel, hideClearOption
                   <span className="font-mono text-[11px] text-tg-hint">{c.code}</span>
                 </button>
               </li>
+            );
+            if (!groupStart) return row;
+            const open_ = !collapsedStates.has(c.state) || c.state === currentState;
+            return (
+              <React.Fragment key={`g-${c.state}`}>
+                <li role="presentation" className="select-none">
+                  {/* v0.62.697 — the state divider is also the expand/collapse
+                      control: ▸ (U+25B8) collapsed / ▾ (U+25BE) expanded, the
+                      same pair v0.62.684 standardised on the carousel cards.
+                      The hairline runs either side of the label, and the label
+                      sits at text-[11px] against the rows' text-[13px] — two
+                      steps smaller — with a literal \u00A0 before and after, so
+                      the "1 character spacing" is one character rather than a
+                      padding value that merely looks like one. */}
+                  <button
+                    type="button"
+                    onClick={() => toggleState(c.state)}
+                    aria-expanded={open_}
+                    aria-label={`${c.state} ${open_ ? '(expanded)' : '(collapsed)'}`}
+                    className="w-full flex items-center px-3 py-1 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none"
+                  >
+                    <span className="flex-1 h-px bg-tg-border/60" />
+                    <span className="text-[11px] leading-none text-tg-hint whitespace-nowrap">
+                      {'\u00A0'}<span aria-hidden>{open_ ? '▾' : '▸'}</span>{' '}{c.state}{'\u00A0'}
+                    </span>
+                    <span className="flex-1 h-px bg-tg-border/60" />
+                  </button>
+                </li>
+                {row}
+              </React.Fragment>
             );
           })}
         </ul>
