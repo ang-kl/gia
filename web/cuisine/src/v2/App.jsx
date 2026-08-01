@@ -416,6 +416,38 @@ export default function App() {
   // (user search w/ unchanged criteria) → "refreshing same filters…".
   const [loadingReason, setLoadingReason] = useState('initial');
   const [rotatingIndex, setRotatingIndex] = useState(0);
+  // v0.62.681 — operator: "when I first time open the Cuisine TMA, it should
+  // fire 'first load…' like before … back to originally planned 'finding
+  // eateries…' and the results."
+  //
+  // The overlay itself was verified intact and untouched by the recent audits:
+  // it renders on `loading && !funFact`, `loadingReason` is still 'initial' on
+  // the boot path (nothing but a user-initiated search flips it to
+  // 'rotating'/'refresh'), and fun-facts are explicitly suppressed while
+  // firstLoadPending — so the message it would show IS t('loading.initial')
+  // ("Finding eateries" + the blinking …). What was never guaranteed is that
+  // the message is on screen long enough to READ: the splash gate opens and
+  // fires the boot search in a single commit, so a boot search that settles
+  // fast (warm response cache, small pool) flips `loading` back to false within
+  // a frame or two and the wait message flashes past — the TMA looks like it
+  // jumps straight from "Confirming your location…" to results.
+  //
+  // Hold the first-load overlay for a readable minimum from the moment the gate
+  // fires the boot load, independent of how fast the search settles, so a first
+  // open always reads "Finding eateries…" → results. Only the BOOT path arms
+  // this (the saved≠device mismatch path deliberately opens an EMPTY TMA with
+  // no hourglass — v0.61.409 — and must stay that way), it is bounded by a
+  // timer that always fires, and 🛑 Stop clears it, so it cannot wedge the
+  // overlay open.
+  const [bootOverlayHold, setBootOverlayHold] = useState(false);
+  useEffect(() => {
+    if (!bootOverlayHold) return undefined;
+    // Long enough to read three words + the blinking ellipsis; short enough
+    // that it never feels like an artificial stall on a fast connection.
+    const BOOT_WAIT_MIN_MS = 900;
+    const t = setTimeout(() => setBootOverlayHold(false), BOOT_WAIT_MIN_MS);
+    return () => clearTimeout(t);
+  }, [bootOverlayHold]);
   // v0.62.x — operator "🛑 Stop loading": holds the in-flight search's
   // AbortController so the loading pop-up's Stop button can cancel the stream.
   const searchAbortRef = useRef(null);
@@ -429,6 +461,9 @@ export default function App() {
     try { searchAbortRef.current?.abort(); } catch { /* already settled */ }
     searchAbortRef.current = null;
     setLoading(false);
+    // v0.62.681 — a manual Stop also drops the first-load minimum-dwell hold;
+    // otherwise Stop would appear not to work for the rest of the dwell.
+    setBootOverlayHold(false);
     // v0.62.250 — a manual Stop must leave a CLEAN, current-code state: clear the
     // boot-load posture (else fun-facts stay suppressed + the follow-sync guard
     // stays armed) and un-dismiss the horizontal drawer so whatever venues
@@ -2004,6 +2039,11 @@ export default function App() {
         setFirstLoadPending(false);
         setLoading(false);
       } else {
+        // v0.62.681 — arm the first-load overlay's minimum dwell alongside the
+        // one boot load, so "Finding eateries…" is readable even when the
+        // search settles in a frame or two. Deliberately NOT armed on the
+        // mismatch branch above, which opens an empty TMA with no hourglass.
+        setBootOverlayHold(true);
         runInitialLoad();
       }
     }
@@ -4798,7 +4838,11 @@ export default function App() {
           first ~1.5 s of a 'rotating' search (before the fact
           gets picked) and for 'initial' / 'refresh' (which never
           pick a fact), this overlay still renders normally. */}
-      {loading && !funFact && (
+      {/* v0.62.681 — `bootOverlayHold` keeps this on screen for a readable
+          minimum on a first open (see the state's declaration); `loading` alone
+          could flip false within a frame or two on a warm boot, flashing the
+          "Finding eateries…" message past before it could be read. */}
+      {(loading || bootOverlayHold) && !funFact && (
         <div
           aria-busy="true"
           className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center px-4 cursor-wait"
