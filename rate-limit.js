@@ -40,7 +40,14 @@
 // (set at the call sites in index.js) are unchanged, so the effective
 // hourly ceiling per chatId rises ~4× — money defence shifts further
 // onto DF-55 (cloud-console daily quotas + budget caps).
-function makeRateLimiter(redis, { endpoint, cap, windowSec = 900 }) {
+// v0.62.690 — optional `keyFn`. Every caller so far sits behind the
+// `/api/cuisine/*` auth chokepoint and can key on `req.tg.user.id`, which stays
+// the default. `/api/geo/road-search` cannot: it is an unauthenticated GET (like
+// `/api/transport/stations`, which the same field already calls), so there is no
+// chatId to key on and the limiter would fail open on every request. It passes
+// `keyFn: (req) => req.ip` instead. The default is unchanged, so the five
+// existing call sites behave exactly as before.
+function makeRateLimiter(redis, { endpoint, cap, windowSec = 900, keyFn = null }) {
   if (!endpoint) throw new Error('rate-limit: endpoint label is required');
   if (!Number.isFinite(cap) || cap <= 0) throw new Error('rate-limit: cap must be a positive integer');
 
@@ -48,7 +55,7 @@ function makeRateLimiter(redis, { endpoint, cap, windowSec = 900 }) {
     // Dev bypass — never in prod.
     if (process.env.SKIP_RATE_LIMIT === 'true') return next();
 
-    const chatId = req.tg?.user?.id;
+    const chatId = keyFn ? keyFn(req) : req.tg?.user?.id;
     // Auth dev-bypass (SKIP_INIT_DATA_AUTH=true) → no chatId to key on;
     // fail open. Same for any other path where the auth middleware
     // didn't populate req.tg (shouldn't happen on /api/cuisine/* given
