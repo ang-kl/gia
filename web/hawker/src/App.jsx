@@ -553,7 +553,7 @@ export default function App() {
           aria-expanded={expanded}
           className="self-start px-2.5 py-0.5 rounded-full border border-tg-accent/50 text-[11px] text-tg-accent font-medium active:scale-95"
         >
-          {expanded ? t('btn.detailsLess', lang) : t('btn.detailsMore', lang)}
+          <span aria-hidden className="mr-0.5">{expanded ? '▾' : '▸'}</span>{expanded ? t('btn.detailsLess', lang) : t('btn.detailsMore', lang)}
         </button>
         {expanded && (
         <>
@@ -749,7 +749,7 @@ export default function App() {
             <CentreCarousel
               items={active.centres}
               renderCard={renderCentreCard}
-              basisClass="basis-[82%] md:basis-[44%] min-[1180px]:basis-[30%] xl:basis-[24%] min-[1600px]:basis-[19%] min-[2000px]:basis-[16%]"
+              basisClass="basis-[min(82%,20rem)]"
               isWide={vp.isWide}
             />
           </div>
