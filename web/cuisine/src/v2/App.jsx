@@ -787,6 +787,53 @@ export default function App() {
     // Keyed on the first venue's own identity instead, so any change to WHICH
     // card is first re-measures, regardless of whether the count moved.
   }, [drawerMode, venues.length, venues[0] && venues[0].placeId]);
+
+  // v0.62.681 — operator (device screenshots): on the FIRST open the carousel
+  // card sat much closer to the "S$xx ~ xx · N gems | ★ …" recommendation strip
+  // than it did after a search ("I want it consistent to be just 2 tiny spacing
+  // above the strip"). Root cause: ResultDrawer's bottom offset was a hardcoded
+  // GUESS — `hasFilters ? '6rem' : '4.5rem'` — left over from v0.62.186, when
+  // the active-filter chips really did render as their OWN full-width row above
+  // the dock. Since v0.62.192/281 those chips live INSIDE the dock as the inline
+  // "Criteria (N) ▾" pill, so the footer's real height no longer changes when
+  // filters exist — yet the drawer still lifted an extra 1.5rem (24px) whenever
+  // any criteria did. First open (nothing picked yet → no criteria) took the
+  // 4.5rem branch and landed nearly flush with the strip; after picking a
+  // cuisine the 6rem branch gave the roomier gap. Same class of bug, and same
+  // fix, as v0.62.674's footer-height reserve: MEASURE the strip's real top edge
+  // instead of guessing at it, so the card sits exactly 2px above the strip in
+  // every state (criteria or not, back-FAB row or not, locale reflow, …).
+  //
+  // Queried off `.insight-glass` (InsightStrip's inline root, the single place
+  // that class is used) and scoped to the footer we already hold a ref to —
+  // the same "match a stable selector that is guaranteed to keep matching"
+  // precedent v0.62.657 set for `[data-pid]` after a hand-written selector
+  // silently matched nothing in production.
+  //
+  // Deliberately NO dep array: this runs after every render and bails out when
+  // the value is unchanged, so it can never go stale against a flag declared
+  // LATER in this component — the exact TDZ trap `tma-hook-deps-tdz.test.js`
+  // already caught once on the listPeekPx effect above.
+  const [stripLiftPx, setStripLiftPx] = useState(null);
+  useLayoutEffect(() => {
+    const strip = footerRef.current ? footerRef.current.querySelector('.insight-glass') : null;
+    // Both the strip and the drawer are `fixed`, so both resolve against the
+    // same containing block — clientHeight is the layout viewport a `fixed`
+    // element's `bottom` is measured from (unlike visualViewport, which shrinks
+    // under the on-screen keyboard while fixed positioning does not move).
+    const vh = (typeof document !== 'undefined' && document.documentElement.clientHeight)
+      || (typeof window !== 'undefined' ? window.innerHeight : 0);
+    // Keep the LAST good measurement when the strip is temporarily unmounted
+    // (expanding the 💬 composer swaps the whole FAB row out for TellMePanel,
+    // and the picker/region overlays hide the strip too). Falling back to the
+    // calc() guess in those moments would visibly JUMP the card mid-interaction
+    // — the composer already handles its own clearance via top headroom
+    // (v0.62.288), and the drawer's bottom never tracked it before either.
+    if (!strip) return;
+    const next = Math.round(vh - strip.getBoundingClientRect().top);
+    setStripLiftPx((prev) => (prev === next ? prev : next));
+  });
+
   // v0.59.1: floating Search + Top buttons. `↑ Top` only surfaces
   // once the user has scrolled past the hero (map + active chips).
   const [scrolledPastHero, setScrolledPastHero] = useState(false);
@@ -4703,6 +4750,7 @@ export default function App() {
           onSelect={setFocusedPlaceId}
           specialMode={state.specialMode || null}
           hasFilters={criteriaSummary.length > 0}
+          stripLiftPx={stripLiftPx}
           composerOpen={composerOpen}
           nearbyLabel={nearbyFlavours?.single?.label || null}
           nearbyAccent={nearbyFlavours?.single?.accent || null}
