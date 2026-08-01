@@ -20,6 +20,18 @@ export const TABLET_MIN_EDGE = 700;
 // every named large-or-newer phone is >= 393.
 export const COMPACT_MAX_WIDTH = 390;
 
+// v0.62.684 — "short viewport" tier, from the operator's carousel-card spec.
+// Keys off VIEWPORT HEIGHT, and is deliberately independent of `orientation`:
+// the thing that actually constrains how many rows a card can show is vertical
+// room, and orientation alone is a bad proxy for it. A phone in landscape has
+// 375-393 px of height; an iPad mini in landscape still has 744. Both are
+// "landscape", only one is short.
+//
+// 500 sits in the gap between the tallest phone-landscape height (430 px, the
+// Pro Max short edge) and the shortest tablet-landscape height (744 px, iPad
+// mini), so the flag catches exactly the phone-landscape case and nothing else.
+export const SHORT_MAX_HEIGHT = 500;
+
 // v0.62.654 — ONE definition of "wide", quoted by both the JS classifier and the
 // CSS grids.
 //
@@ -98,5 +110,9 @@ export function classifyViewport({ w = 0, h = 0, coarse = false, screenMin = 0 }
   // v0.62.678 — short-edge check (like the tablet test above), so a compact
   // phone stays flagged whether it's held portrait or landscape.
   const isCompact = deviceClass === 'mobile' && minDim > 0 && minDim <= COMPACT_MAX_WIDTH;
-  return { deviceClass, orientation, isWide: deviceClass !== 'mobile', isCompact };
+  // v0.62.684 — vertical-room flag (see SHORT_MAX_HEIGHT). Measured on `h`
+  // alone, NOT on orientation: what matters is how much height the card has,
+  // and a tablet in landscape has plenty while a phone in landscape has none.
+  const isShort = h > 0 && h <= SHORT_MAX_HEIGHT;
+  return { deviceClass, orientation, isWide: deviceClass !== 'mobile', isCompact, isShort };
 }

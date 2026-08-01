@@ -42,6 +42,13 @@ import { resolveLinePaths, lineStationsFull } from '../data/line-paths.js';
 import { t, tn } from '../i18n.js';
 import { createOverlayController, attachAmenityPins, infoCard, infoPalette, ensureGreyscaleStyle, stationPillNode, stationCodeNode, trainTier, demoteByOverlap, makeTrainColourOverlay } from '../lib/mapOverlays.js';
 import MapControls from '../../../_shared/components/MapControls.jsx';
+// v0.62.689 — station-pick inspection overlay. The ring layer was the ONE piece
+// Transport lacked (Cuisine + Hawker already draw rings); the hawker-centre fetch
+// it pairs with was already here as mapOverlays' private `fetchHawkerCentres`, so
+// the shared loader is used instead of exporting that.
+import { createRingLayer } from '../../../_shared/lib/distance-rings.js';
+import { createInspectLayer, loadAllHawkerCentres } from '../../../_shared/lib/temp-pin.js';
+import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE } from '../../../_shared/lib/map-interaction.js';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
 // through Telegram WebApp's openLink when available so Telegram opens
@@ -146,6 +153,23 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   const overlayControllerRef = useRef(null);
   const overlayLayersRef = useRef(overlayLayers);
   useEffect(() => { overlayLayersRef.current = overlayLayers; }, [overlayLayers]);
+  // v0.62.689 — station-pick inspection overlay: the distance rings (new to this
+  // TMA) plus the temporary amber pin + nearest-3 hawker centres.
+  const ringLayerRef = useRef(null);
+  const inspectLayerRef = useRef(null);
+  // Operator: "zoom in to the temporary location should be 15 (iphone and
+  // smaller) or 17 (ipad and desktop)". Same 700px split Hawker's panel already
+  // uses for its own tap zoom, held in a ref because the global that reads it is
+  // registered once.
+  const isTabletRef = useRef(false);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+    const mql = window.matchMedia('(min-width: 700px)');
+    isTabletRef.current = mql.matches;
+    const onChange = (e) => { isTabletRef.current = e.matches; };
+    mql.addEventListener?.('change', onChange);
+    return () => mql.removeEventListener?.('change', onChange);
+  }, []);
   // v0.63.0 — expand toggle: grows the map to ~90vh in place.
   // v0.62.626 — operator ("Expand/Collapse map buttons don't work"): in the
   // carousel/desktop layout the map runs in `fill` mode (height:100%), so the
@@ -301,8 +325,25 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + ' MRT Station Singapore')}`;
       openExternal(url);
     };
+    // v0.62.689 — operator: "Can this be done for Train as well?" Same inspection
+    // overlay as Hawker — one temporary amber pin, its rings, and the nearest 3
+    // hawker centres — minus showVenueTransit: on the Train map the picked point
+    // IS a station, so drawing "nearest stations" around it says nothing.
+    window.__giaMrtInspect = (lat, lng, label) => {
+      const la = Number(lat); const ln = Number(lng);
+      if (!Number.isFinite(la) || !Number.isFinite(ln)) return;
+      infoWindowRef.current?.close();
+      overlayControllerRef.current?.closeInfo?.();
+      mapRef.current?.panTo({ lat: la, lng: ln });
+      mapRef.current?.setZoom(isTabletRef.current ? TAP_ZOOM_WIDE : TAP_ZOOM_PHONE);
+      ringLayerRef.current?.draw({ lat: la, lng: ln });
+      loadAllHawkerCentres().then((centres) => {
+        inspectLayerRef.current?.show({ lat: la, lng: ln, label: label || '', centres, count: 3 });
+      });
+    };
     return () => {
       try { delete window.__giaMrtOpenMap; } catch { window.__giaMrtOpenMap = undefined; }
+      try { delete window.__giaMrtInspect; } catch { window.__giaMrtInspect = undefined; }
     };
   }, []);
 
@@ -402,6 +443,8 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     // v0.61.95 — operator part 5: the coloured SVG train-line overlay,
     // shown in monochrome mode so the lines don't grey out with the
     // WebGL base-map canvas.
+    ringLayerRef.current = createRingLayer(mapRef.current, window.google.maps);
+    inspectLayerRef.current = createInspectLayer(mapRef.current, window.google.maps);
     colourOverlayRef.current = makeTrainColourOverlay(window.google.maps);
     syncColourOverlay();
     applyOverlayLayers(overlayLayersRef.current);
@@ -441,6 +484,10 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     const closeInfo = () => {
       infoWindowRef.current?.close();
       overlayControllerRef.current?.closeInfo?.();
+      // v0.62.689 — a tap on the empty map ends the inspection: rings and the
+      // temporary pin go together, so no stale pin can outlive its rings.
+      ringLayerRef.current?.clear();
+      inspectLayerRef.current?.clear();
     };
     window.__giaMapInfoClose = closeInfo;
     mapRef.current.addListener('click', closeInfo);
@@ -467,6 +514,8 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
   useEffect(() => () => {
     overlayControllerRef.current?.destroy?.();
+    ringLayerRef.current?.destroy?.();
+    inspectLayerRef.current?.destroy?.();
     colourOverlayRef.current?.setMap(null);
     if (zoomRenderTimerRef.current) clearTimeout(zoomRenderTimerRef.current);
     if (anchorTimerRef.current) clearTimeout(anchorTimerRef.current);

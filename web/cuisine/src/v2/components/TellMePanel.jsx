@@ -84,7 +84,20 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
           `bg-tg-bg/40` sits on the page background and would read as
           translucent here) and `px-3` (the location field's `px-2` is tuned to
           its own flag+text row). Neither is in the operator's list. */}
-      <div className="flex items-center gap-2 px-3 py-1 rounded-md border border-tg-border bg-tg-card">
+      {/* v0.62.687 — operator, again on this field: "follow exactly the slightly
+          curved corner like the location search and the colour as well which i
+          raised this morning."
+          v0.62.683 matched the wrong element. It compared against
+          LocationField's INNER closed button (`border border-tg-border`), but
+          the box the operator is actually looking at is the field's OUTER
+          surface: `rounded-md border loc-field-surface` (LocationField.jsx:432,
+          :1356, :1431). That named class is a real colour decision, not a token
+          — #cbd5e1 slate-300 on white in light mode, yellow-400 on the card in
+          dark — so `border-tg-border` was never going to land on it.
+          Using the same class here means the two boxes cannot drift apart
+          again. Radius already matched (both rounded-md); `py-1` is kept
+          rather than the field's `py-1.5` so the dock height is unchanged. */}
+      <div className="flex items-center gap-2 px-3 py-1 rounded-md border loc-field-surface">
         {/* v0.62.287 — operator: tapping the 💬 icon on the EXPANDED composer
             collapses it back to the 💬 button FAB. onMouseDown preventDefault
             keeps the input from blur-racing the click. */}

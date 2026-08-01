@@ -5,6 +5,7 @@ import { useLocale, t as tr, tn } from '../lib/i18n.js';
 import { likelyServesText } from '../lib/dish-category.js';
 import SocialButtons from './SocialButtons.jsx';
 import { OTHER_COUNTRIES } from '../lib/countries.js';
+import { abbrevAddress } from '../../../../_shared/lib/abbrev-address.js';
 
 const PRICE_LABEL = { 1: '$', 2: '$$', 3: '$$$', 4: '$$$$' };
 
@@ -34,7 +35,7 @@ function dropCountry(area) {
   return parts.join(',').replace(/[\s,]+$/, '');            // + tidy any trailing comma/space
 }
 
-export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null, number = null, defaultExpanded = false, horizontal = false, autoExpandFocus = true, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null, glass = null }) {
+export default function ResultCard({ venue, focused, onTap, copyContext = {}, specialMode = null, number = null, defaultExpanded = false, horizontal = false, isShort = false, autoExpandFocus = true, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null, glass = null }) {
   // v0.62.562 — O-54 Hawker parity: the OPAQUE-vs-glass surface can be driven by
   // card VISIBILITY (Hawker's carousel: the cards fully in the focus band are
   // opaque, the two half-peeking end cards are glass), independent of which card
@@ -338,7 +339,17 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
          focused card scopes a light palette via CSS vars so it stays literally
          white AND readable in dark mode (text/hint/border go dark). The vertical
          list keeps the solid bg-tg-card surface (unchanged). */
-      className={`w-full text-left rounded-lg border flex flex-col ${horizontal ? 'gap-0.5 px-2.5 py-1.5' : 'gap-1 p-2.5'} ${horizontal ? (glassEff ? 'bg-tg-card/60 liquid-glass' : 'bg-white') : 'bg-tg-card'} ${focused ? 'border-tg-accent' : 'border-tg-border'}`}
+      /* v0.62.684 — operator's carousel-card spec: the COLLAPSED horizontal card
+         is a FIXED height so every card in the strip is identical. Two tiers,
+         because one global height is impossible: a phone in landscape has only
+         375-393px of viewport to spend, an iPad mini portrait has 1133.
+           standard (13rem/208px) — phone portrait, all tablet, desktop
+           short    (7.5rem/120px) — isShort, i.e. viewport height <= 500px
+         EXPANDED stays auto-height (bounded by the wrapper's max-h-[60vh] +
+         scroll) — pinning it would clip real content. `overflow-hidden` on the
+         collapsed card is what makes the fixed height a hard guarantee rather
+         than a suggestion the content can overrun. */
+      className={`w-full text-left rounded-lg border flex flex-col ${horizontal ? 'gap-0.5 px-2.5 py-1.5' : 'gap-1 p-2.5'} ${horizontal && !expanded ? `${isShort ? 'h-[7.5rem]' : 'h-[13rem]'} overflow-hidden` : ''} ${horizontal ? (glassEff ? 'bg-tg-card/60 liquid-glass' : 'liquid-glass-focus') : 'bg-tg-card'} ${focused ? 'border-tg-accent' : 'border-tg-border'}`}
       style={horizontal && !glassEff ? { '--tg-bg': '#ffffff', '--tg-card': '#ffffff', '--tg-text': '#1c1c1f', '--tg-hint': '#6b6b70', '--tg-border': '#e2e2e6' } : undefined}>
       {/* v0.62.289 / v0.62.293 — top strip on a NOT-exact card. SINGLE cuisine:
           "{cuisine} & Nearby Flavours" (nearbyLabel). COMBO (2+): the cuisine the
@@ -436,15 +447,19 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               specialMode is durian-pastry AND venue name does NOT
               contain "durian" (case-insensitive). Operator-confirmed
               trigger: name-substring check. */}
-          {specialMode === 'durian-pastry'
+          {/* v0.62.684 — operator: "I don't like truncate effect on Dish-hint
+              italic". truncate -> line-clamp-2 on the standard tier; hidden
+              entirely on the short tier (phone landscape), where it moves
+              behind the toggle to buy the vertical room back. */}
+          {specialMode === 'durian-pastry' && !isShort
             && !/durian/i.test(venue.name || '') && (
-            <div className="text-[11px] italic text-tg-hint truncate">
+            <div className="text-[11px] italic text-tg-hint line-clamp-2">
               {tr('card.durianPastryInquire', lang)}
             </div>
           )}
           {/* v0.62.176 — operator: REVERTED the v0.62.168 "wrap by field" meta;
               single-line meta (truncate) again, same as the vertical list. */}
-          <div className={`text-[12px] text-tg-hint ${horizontal ? 'line-clamp-2' : 'truncate'}`}>{meta}</div>
+          <div className={`text-[12px] text-tg-hint ${horizontal ? (isShort ? 'line-clamp-1' : 'line-clamp-2') : 'truncate'}`}>{meta}</div>
           {/* v0.62.122 — distance moved up into the meta row (distMeta).
               v0.62.124 — the address row moved DOWN into the collapsible
               section (below price/pet), per the operator re-order. */}
@@ -464,7 +479,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               from the top meta row). Operator request: "Include
               · ♿️ if eatery included in Google Search. Next to
               cost-range. Move Crowd to same row as cost-range." */}
-          {(venue.priceRangeDisplay || venue.wheelchairAccessible === true || venue.allowsDogs === true || livenessChip) && (
+          {!isShort && (venue.priceRangeDisplay || venue.wheelchairAccessible === true || venue.allowsDogs === true || livenessChip) && (
             <div className={`text-[12px] text-tg-text/80 mt-0.5 ${horizontal ? 'line-clamp-2' : 'truncate'}`}>
               {[
                 // v0.62.212 — card style A: the horizontal card drops the bulky
@@ -536,7 +551,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           {/* v0.62.168 — operator: Michelin / Bib row is ROW #5, VISIBLE before
               expanding (moved OUT of the collapsible section below). Tier + year
               in WORDS (✳️ / ⭐), never colour. */}
-          {venue.michelinCategory && (
+          {!isShort && venue.michelinCategory && (
             <div className="text-[12px] text-tg-text mt-1 font-semibold">
               {michelinAnnotation(venue.michelinCategory, venue.michelinAwardYears)}
             </div>
@@ -547,9 +562,17 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               just above the collapse boundary with the 🍲 Try / Michelin rows.
               Country name already dropped by dropCountry; truncates on the compact
               horizontal strip, wraps in the vertical list. */}
+          {/* v0.62.684 — operator: "I don't like truncate effect on ... Address /
+              area" + "can abbreviate the country and state to reduce text
+              character usage". Country was ALREADY dropped by dropCountry();
+              abbrevAddress() adds the two remaining reductions (drop the postal
+              code, abbreviate a spelled-out state). The de-truncation is what
+              actually fixes the row: line-clamp-2 on the standard tier, and
+              line-clamp-1 on the short tier where there is only room for one
+              line (a space-forced exception, per the approved spec). */}
           {venue.area && (
-            <div className={`text-[12px] text-tg-hint mt-1 leading-snug ${horizontal ? 'truncate' : 'break-words'}`}>
-              📍 {dropCountry(venue.area)}
+            <div className={`text-[12px] text-tg-hint mt-1 leading-snug ${horizontal ? (isShort ? 'line-clamp-1' : 'line-clamp-2') : 'break-words'}`}>
+              📍 {horizontal ? abbrevAddress(dropCountry(venue.area)) : dropCountry(venue.area)}
             </div>
           )}
 
@@ -562,8 +585,15 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
             onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
             aria-expanded={expanded}
             aria-controls={detailsId}
-            className="self-start mt-1.5 px-2.5 py-0.5 rounded-full border border-tg-accent/50 text-[11px] text-tg-accent font-medium active:scale-95 transition-transform"
+            className="self-start mt-1.5 px-1.5 py-0.5 rounded-full border border-tg-accent/30 text-[11px] text-tg-accent/70 font-medium active:scale-95 transition-transform"
           >
+            {/* v0.62.684 — operator: use the standard Unicode disclosure
+                triangles, ▸ (U+25B8) collapsed / ▾ (U+25BE) expanded, replacing
+                the old ⌄ / ⌃ chevrons. The glyph is rendered HERE rather than
+                baked into the i18n value (where it lived in all 8 locales, 16
+                strings, free to drift apart) — one source, aria-hidden so the
+                accessible name stays the words alone. */}
+            <span aria-hidden className="mr-0.5">{expanded ? '▾' : '▸'}</span>
             {expanded
               ? tr('card.detailsLess', lang)
               : tr('card.detailsMore', lang)}

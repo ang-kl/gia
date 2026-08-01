@@ -173,7 +173,7 @@ function FooterDock({ lang, footerTag = '', leading = null, atBottom = false, sc
 // which cannot get stuck. Ported that same dual-mode split here: IO stays for
 // `isWide` (unaffected, not what the operator reported), phone now uses the
 // scroll-driven geometry match instead.
-function CentreCarousel({ items, renderCard, basisClass, isWide = false }) {
+function CentreCarousel({ items, renderCard, basisClass, isWide = false, isShort = false }) {
   const trackRef = useRef(null);
   const [focused, setFocused] = useState(() => new Set());
   const [centeredIdx, setCenteredIdx] = useState(0);
@@ -238,7 +238,7 @@ function CentreCarousel({ items, renderCard, basisClass, isWide = false }) {
     >
       {items.map((c, i) => (
         <div key={i} data-idx={i} className={`snap-center shrink-0 ${basisClass} max-h-[46vh] overflow-y-auto rounded-lg shadow-lg`}>
-          {renderCard(c, i, glassFor(i), true)}
+          {renderCard(c, i, glassFor(i), true, isShort)}
         </div>
       ))}
     </div>
@@ -418,6 +418,16 @@ export default function App() {
     }
   };
 
+  // v0.62.689 — station-pick inspection overlay. The field was rendered without a
+  // handler since v0.62.659, so picking a station did nothing at all; it now drops
+  // ONE temporary amber pin on the map, rings it, and labels the nearest 3 hawker
+  // centres. Nothing else moves — the active region, the card list and the
+  // carousel are untouched, because this is an inspection, not a search anchor.
+  const inspectStation = (s) => {
+    if (!s || !Number.isFinite(s.lat) || !Number.isFinite(s.lng)) return;
+    window.__giaHawkerInspect?.(s.lat, s.lng, s.name || '');
+  };
+
   useEffect(() => {
     fetch('/api/hawker/centres-by-region')
       .then((r) => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
@@ -519,7 +529,16 @@ export default function App() {
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCardTap(c); } }}
         animate={reduceMotion ? undefined : { scale: cardOn ? 1.02 : 1 }}
         transition={{ type: 'spring', stiffness: 420, damping: 30, mass: 0.7 }}
-        className={`rounded-lg border text-xs flex flex-col cursor-pointer ${compact ? 'p-1.5 gap-0.5' : 'p-2.5 gap-1'} ${cardOn ? 'border-tg-accent ring-1 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 liquid-glass' : 'bg-tg-card'}`}>
+        /* v0.62.686 — D-51 applied to Hawker: the COLLAPSED carousel card is a
+           FIXED height so every card in the strip is identical, same rule as
+           Cuisine. The VALUES differ on purpose — Hawker's collapsed card
+           carries 4 rows (name / address / stalls+status / toggle) against
+           Cuisine's 10, so reusing Cuisine's 13rem would render a mostly-empty
+           208px card. Sized to Hawker's own rows instead: 8rem standard,
+           5.5rem short (phone landscape, where the stalls/status chip row
+           moves behind the toggle). Only the carousel (`compact`) is pinned —
+           the two-panel list card stays content-sized. */
+        className={`rounded-lg border text-xs flex flex-col cursor-pointer ${compact ? 'p-1.5 gap-0.5' : 'p-2.5 gap-1'} ${compact && !expanded ? `${isShort ? 'h-[5.5rem]' : 'h-[8rem]'} overflow-hidden` : ''} ${cardOn ? 'border-tg-accent ring-1 ring-tg-accent shadow-xl relative z-10' : 'border-tg-border'} ${glass ? 'bg-tg-card/60 liquid-glass' : 'bg-tg-card'}`}>
         {/* v0.62.679 — O-97 (operator): "Hawker's centre card follows Cuisine's
             category card 12px" — was a flat text-[13px]; now the same
             isCompact-responsive rule Phase C applied to Cuisine's category-grid
@@ -528,7 +547,7 @@ export default function App() {
           <span className="text-tg-hint font-semibold tabular-nums">{i + 1} · </span>{c.name}{c.isNew ? ' 🆕' : ''}
         </div>
         {c.address && <div className="text-[11px] text-tg-hint leading-snug">📇 {c.address}</div>}
-        {(Number.isFinite(c.stalls) || c.status) && (
+        {!isShort && (Number.isFinite(c.stalls) || c.status) && (
           <div className="flex flex-wrap items-center gap-1.5">
             {/* v0.62.558 — `stalls.count` already carries the 🍳 emoji; the
                 extra hard-coded 🍳 here rendered a DOUBLE frying pan (operator:
@@ -551,9 +570,9 @@ export default function App() {
           type="button"
           onClick={(e) => { e.stopPropagation(); toggleCardExpanded(c.name); }}
           aria-expanded={expanded}
-          className="self-start px-2.5 py-0.5 rounded-full border border-tg-accent/50 text-[11px] text-tg-accent font-medium active:scale-95"
+          className="self-start px-1.5 py-0.5 rounded-full border border-tg-accent/30 text-[11px] text-tg-accent/70 font-medium active:scale-95"
         >
-          {expanded ? t('btn.detailsLess', lang) : t('btn.detailsMore', lang)}
+          <span aria-hidden className="mr-0.5">{expanded ? '▾' : '▸'}</span>{expanded ? t('btn.detailsLess', lang) : t('btn.detailsMore', lang)}
         </button>
         {expanded && (
         <>
@@ -708,7 +727,7 @@ export default function App() {
           {/* v0.62.659 — operator: "have the same location (show current location
               and nearest station) like cuisine TMA... apply this to Hawker TMA as
               well" — sits directly below the title. */}
-          <StationLocationField lang={lang} />
+          <StationLocationField lang={lang} onSelectStation={inspectStation} />
           <div className="flex items-start gap-2">
             {/* v0.62.607 — one row, no "(##)" count. */}
             <div className="flex gap-1 flex-1 min-w-0 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
@@ -749,8 +768,9 @@ export default function App() {
             <CentreCarousel
               items={active.centres}
               renderCard={renderCentreCard}
-              basisClass="basis-[82%] md:basis-[44%] min-[1180px]:basis-[30%] xl:basis-[24%] min-[1600px]:basis-[19%] min-[2000px]:basis-[16%]"
+              basisClass="basis-[min(82%,20rem)]"
               isWide={vp.isWide}
+              isShort={vp.isShort}
             />
           </div>
         )}
@@ -898,7 +918,7 @@ export default function App() {
               </div>
           </div>
           {/* v0.62.659 — same location/station-search row as the carousel header. */}
-          <StationLocationField lang={lang} />
+          <StationLocationField lang={lang} onSelectStation={inspectStation} />
         </div>
         {/* v0.62.609 — operator (IMG_3595): the zone pills sat translucent directly
             over the busy map ("horrible"). Seat them on a SOLID skeuo-card (same as

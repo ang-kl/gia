@@ -462,7 +462,7 @@ export default function StationCard({
             className="gia-hit-y shrink-0 flex items-center gap-0.5 text-[10px] font-semibold leading-none opacity-90 active:scale-95"
             style={{ color: stripText }}
           >
-            {bodyOpen ? t('mrt.detailsLess', lang) : t('mrt.detailsMore', lang)}
+            <span aria-hidden className="mr-0.5">{bodyOpen ? '▾' : '▸'}</span>{bodyOpen ? t('mrt.detailsLess', lang) : t('mrt.detailsMore', lang)}
             <Triangle open={bodyOpen} />
           </button>
         )}

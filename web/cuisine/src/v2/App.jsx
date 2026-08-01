@@ -188,9 +188,28 @@ export default function App() {
   const footerTag = viewportTag(vp);
   // Tablet/desktop show 2–3 result cards in focus (the Hawker carousel basis);
   // phones keep the single-card strip.
-  const drawerBasisClass = isWide
-    ? 'basis-[82%] md:basis-[44%] min-[1180px]:basis-[30%] xl:basis-[24%] min-[1600px]:basis-[19%] min-[2000px]:basis-[16%]'
-    : 'basis-[82%]';
+  // v0.62.684 — operator's carousel-card spec: ONE width rule for every device
+  // and orientation, replacing the six-rung responsive ladder that ran here
+  // since v0.62.652.
+  //
+  // The ladder keyed off VIEWPORT width, which produced widths ranging 265px →
+  // 609px and, worse, was non-monotonic: an iPad mini in PORTRAIT (744px, just
+  // under Tailwind's 768px `md`) fell through to the phone's 82% and rendered a
+  // 531px card, while the same device in LANDSCAPE took the 44% rung at 436px —
+  // the portrait-wider-than-landscape inversion the operator reported. A phone
+  // in landscape was worse still at 609px (82% of an 844px track).
+  //
+  // `min(82%, 20rem)` reproduces the operator's stated de facto exactly: the two
+  // phone portraits stay under the cap on their own (82% of a 375px viewport is
+  // 265px, of a 393px viewport 278px), and every wider surface pins to 320px.
+  //
+  // KNOWN TRADE, accepted by the operator after being shown the measured table:
+  // this re-introduces a width cap of the kind v0.62.577 REMOVED (`max-w-[22rem]`,
+  // dropped because it gave "more, flatter cards instead of a prominent centre +
+  // two glass half-peeks"). At 320px an iPad mini in landscape shows ~3.0 cards
+  // where the 44% rung showed ~2.3. That is the deliberate cost of one uniform
+  // width; see the v0.62.684 Journal entry.
+  const drawerBasisClass = 'basis-[min(82%,20rem)]';
   // v0.62.562 — O-54 (operator: "keep to the iPhone size"): on a tablet/desktop
   // the "Cuisine & filters" / "Pick local classic" folio tabs + their panels
   // stretched the full iPad width. Cap them to a centred phone-width column so
@@ -4801,6 +4820,7 @@ export default function App() {
           dishHints={searchedTerm ? [searchedTerm] : null}
           basisClass={drawerBasisClass}
           glassPeek={isWide}
+          isShort={vp.isShort}
         />
       )}
 
@@ -5796,7 +5816,23 @@ export default function App() {
                 )}
               </div>
             )}
-            <div className="flex items-center gap-0.5 shrink-0 justify-self-end">
+            {/* v0.62.686 — operator: "the 'top' and 'end' are meant to be on the
+                right side. let's audit them." They were not, and the cause is
+                CSS Grid auto-placement, not the alignment class.
+                The row is `grid-cols-[1fr_auto_1fr]` with THREE intended
+                children, but the MIDDLE one (Criteria pill / Michelin pager) is
+                gated on `criteriaSummary.length > 0 || michelinTotalPages > 1`.
+                With no criteria and no pager the middle child does not render,
+                so auto-placement drops this cluster into column 2 — the `auto`
+                column, sized to its own content — and `justify-self-end` then
+                aligns it to the end of THAT column, leaving the whole third
+                `1fr` column empty to its right. The result is a cluster that
+                floats mid-row, exactly as the operator's screenshots show (and
+                it looked correct in the older screenshots precisely because a
+                "Criteria (1)" pill was present there, filling column 2).
+                `col-start-3` pins this cluster to the last column whether or not
+                the middle cell renders. */}
+            <div className="col-start-3 flex items-center gap-0.5 shrink-0 justify-self-end">
               <button
                 type="button"
                 onClick={() => window.scrollTo({
