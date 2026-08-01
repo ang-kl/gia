@@ -30,6 +30,7 @@ import { t, tn, useLocale } from '../i18n.js';
 import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
 import { activeClosure, CLOSURE_PIN_COLOR } from '../closure.js';
 import { createRingLayer } from '../../../_shared/lib/distance-rings.js';
+import { createInspectLayer, loadAllHawkerCentres } from '../../../_shared/lib/temp-pin.js';
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS, BLINK_MS } from '../../../_shared/lib/map-interaction.js';
 import MapControls from '../../../_shared/components/MapControls.jsx';
 
@@ -138,9 +139,17 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   // v0.62.537 — distance-ring overlay (🚶 750 m walkable + 🚆 2-MRT-stops rings),
   // centred on the CHOSEN (tapped) hawker centre; cleared on tap-out.
   const ringLayerRef = useRef(null);
+  // v0.62.689 — station-pick INSPECTION overlay: one temporary amber pin + the
+  // nearest 3 hawker centres. Deliberately separate from ringLayerRef's owner —
+  // it is never the search anchor and never changes which centres are listed.
+  const inspectLayerRef = useRef(null);
   const overlayLayersRef = useRef(overlayLayers);
   useEffect(() => { overlayLayersRef.current = overlayLayers; }, [overlayLayers]);
   const [isTablet, setIsTablet] = useState(false);
+  // v0.62.689 — the inspection globals are registered once (deps []), so they
+  // must read the live breakpoint from a ref, not the captured state value.
+  const isTabletRef = useRef(false);
+  useEffect(() => { isTabletRef.current = isTablet; }, [isTablet]);
   const [mapsKeyState, setMapsKeyState] = useState('loading');   // loading | ready | error | nokey
   // v0.63.0 — expand toggle: grows the map to ~90vh in place.
   // v0.62.550 — operator (point 4a): the portrait-tablet layout OWNS the expand
@@ -278,6 +287,27 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     // v0.62.556 — operator: tapping a centre CARD highlights the centre pin — fire
     // the marker's own click listener (bound fresh in syncMarkers) so it runs the
     // identical flow as tapping the pin (open InfoWindow, zoom, transit, rings).
+    // v0.62.689 — operator: "when type in the road or train. you should place a
+    // temporary location (only one per each time) and then ring it and show
+    // nearby train and hawker centre … instead a temporary pin". Station picks
+    // only (no geocoding), nearest 3 centres, INSPECTION ONLY — the region tabs,
+    // the carousel and the card list are all untouched by this.
+    window.__giaHawkerInspect = (lat, lng, label) => {
+      const la = Number(lat); const ln = Number(lng);
+      if (!Number.isFinite(la) || !Number.isFinite(ln)) return;
+      revealMap();
+      // Same camera choreography as a centre tap, minus the InfoWindow: the
+      // temp pin IS the card here.
+      infoWindowRef.current?.close();
+      overlayControllerRef.current?.closeInfo?.();
+      mapRef.current?.panTo({ lat: la, lng: ln });
+      mapRef.current?.setZoom(isTabletRef.current ? TAP_ZOOM_WIDE : TAP_ZOOM_PHONE);
+      ringLayerRef.current?.draw({ lat: la, lng: ln });
+      overlayControllerRef.current?.showVenueTransit?.(la, ln);
+      loadAllHawkerCentres().then((centres) => {
+        inspectLayerRef.current?.show({ lat: la, lng: ln, label: label || '', centres, count: 3 });
+      });
+    };
     window.__giaHawkerFocusCentre = (name) => {
       const entry = markersByNameRef.current[name];
       if (!entry || !entry.marker) return;
@@ -290,6 +320,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       try { delete window.__giaHawkerShowBusStop; } catch { window.__giaHawkerShowBusStop = undefined; }
       try { delete window.__giaHawkerHighlight; } catch { window.__giaHawkerHighlight = undefined; }
       try { delete window.__giaHawkerFocusCentre; } catch { window.__giaHawkerFocusCentre = undefined; }
+      try { delete window.__giaHawkerInspect; } catch { window.__giaHawkerInspect = undefined; }
     };
   }, []);
 
@@ -330,6 +361,8 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     overlayControllerRef.current = createOverlayController(mapRef.current, window.google.maps, { tma: 'hawker' });
     // v0.62.537 — ring layer bound to this map; a hawker pin tap draws, tap-out clears.
     ringLayerRef.current = createRingLayer(mapRef.current, window.google.maps);
+    // v0.62.689 — the temporary station pin + its nearest-3 centre pills.
+    inspectLayerRef.current = createInspectLayer(mapRef.current, window.google.maps);
     applyOverlayLayers(overlayLayersRef.current);
     // v0.64.0 — feed the map-centre anchor so radius-clipped overlay
     // layers re-filter on every pan/zoom.
@@ -343,6 +376,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       infoWindowRef.current?.close();
       overlayControllerRef.current?.closeInfo?.();
       ringLayerRef.current?.clear();   // v0.62.537 — drop the distance rings on tap-out
+      inspectLayerRef.current?.clear(); // v0.62.689 — and the temporary station pin with them
       // v0.62.560 — operator: do NOT adjust the zoom on close (the pre-focus zoom
       // restore is removed) — leave the map wherever the user left it.
     };
@@ -375,7 +409,11 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
   }
 
   useEffect(() => { applyOverlayLayers(overlayLayers); }, [overlayLayers]); // eslint-disable-line
-  useEffect(() => () => { overlayControllerRef.current?.destroy?.(); ringLayerRef.current?.destroy?.(); }, []);
+  useEffect(() => () => {
+    overlayControllerRef.current?.destroy?.();
+    ringLayerRef.current?.destroy?.();
+    inspectLayerRef.current?.destroy?.();
+  }, []);
 
   // Re-sync markers whenever the centres array or region changes.
   useEffect(() => { syncMarkers(); }, [centres, region]); // eslint-disable-line

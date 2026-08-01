@@ -498,6 +498,13 @@ export default function App() {
           setFocusedStation({ ...s, tappedCode: (s.codes && s.codes[0]) || null });
           if (s.lines && s.lines[0]) { setFocusedCode(s.lines[0]); setBlinkCode(null); }
           setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
+          // v0.62.689 — additionally drop the inspection overlay (temp pin +
+          // rings + nearest 3 hawker centres). Deferred a frame because the pick
+          // may be what switches the PNG view to the Google map, so the panel —
+          // and the global it registers — may not exist yet at this point.
+          if (Number.isFinite(s.lat) && Number.isFinite(s.lng)) {
+            setTimeout(() => window.__giaMrtInspect?.(s.lat, s.lng, s.name || ''), 0);
+          }
         }}
       />
       {/* v0.62.603 — row 2: date & time (live SGT clock), then the tappable

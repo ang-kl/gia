@@ -418,6 +418,16 @@ export default function App() {
     }
   };
 
+  // v0.62.689 — station-pick inspection overlay. The field was rendered without a
+  // handler since v0.62.659, so picking a station did nothing at all; it now drops
+  // ONE temporary amber pin on the map, rings it, and labels the nearest 3 hawker
+  // centres. Nothing else moves — the active region, the card list and the
+  // carousel are untouched, because this is an inspection, not a search anchor.
+  const inspectStation = (s) => {
+    if (!s || !Number.isFinite(s.lat) || !Number.isFinite(s.lng)) return;
+    window.__giaHawkerInspect?.(s.lat, s.lng, s.name || '');
+  };
+
   useEffect(() => {
     fetch('/api/hawker/centres-by-region')
       .then((r) => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
@@ -717,7 +727,7 @@ export default function App() {
           {/* v0.62.659 — operator: "have the same location (show current location
               and nearest station) like cuisine TMA... apply this to Hawker TMA as
               well" — sits directly below the title. */}
-          <StationLocationField lang={lang} />
+          <StationLocationField lang={lang} onSelectStation={inspectStation} />
           <div className="flex items-start gap-2">
             {/* v0.62.607 — one row, no "(##)" count. */}
             <div className="flex gap-1 flex-1 min-w-0 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
@@ -908,7 +918,7 @@ export default function App() {
               </div>
           </div>
           {/* v0.62.659 — same location/station-search row as the carousel header. */}
-          <StationLocationField lang={lang} />
+          <StationLocationField lang={lang} onSelectStation={inspectStation} />
         </div>
         {/* v0.62.609 — operator (IMG_3595): the zone pills sat translucent directly
             over the busy map ("horrible"). Seat them on a SOLID skeuo-card (same as
