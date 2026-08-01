@@ -416,6 +416,38 @@ export default function App() {
   // (user search w/ unchanged criteria) → "refreshing same filters…".
   const [loadingReason, setLoadingReason] = useState('initial');
   const [rotatingIndex, setRotatingIndex] = useState(0);
+  // v0.62.681 — operator: "when I first time open the Cuisine TMA, it should
+  // fire 'first load…' like before … back to originally planned 'finding
+  // eateries…' and the results."
+  //
+  // The overlay itself was verified intact and untouched by the recent audits:
+  // it renders on `loading && !funFact`, `loadingReason` is still 'initial' on
+  // the boot path (nothing but a user-initiated search flips it to
+  // 'rotating'/'refresh'), and fun-facts are explicitly suppressed while
+  // firstLoadPending — so the message it would show IS t('loading.initial')
+  // ("Finding eateries" + the blinking …). What was never guaranteed is that
+  // the message is on screen long enough to READ: the splash gate opens and
+  // fires the boot search in a single commit, so a boot search that settles
+  // fast (warm response cache, small pool) flips `loading` back to false within
+  // a frame or two and the wait message flashes past — the TMA looks like it
+  // jumps straight from "Confirming your location…" to results.
+  //
+  // Hold the first-load overlay for a readable minimum from the moment the gate
+  // fires the boot load, independent of how fast the search settles, so a first
+  // open always reads "Finding eateries…" → results. Only the BOOT path arms
+  // this (the saved≠device mismatch path deliberately opens an EMPTY TMA with
+  // no hourglass — v0.61.409 — and must stay that way), it is bounded by a
+  // timer that always fires, and 🛑 Stop clears it, so it cannot wedge the
+  // overlay open.
+  const [bootOverlayHold, setBootOverlayHold] = useState(false);
+  useEffect(() => {
+    if (!bootOverlayHold) return undefined;
+    // Long enough to read three words + the blinking ellipsis; short enough
+    // that it never feels like an artificial stall on a fast connection.
+    const BOOT_WAIT_MIN_MS = 900;
+    const t = setTimeout(() => setBootOverlayHold(false), BOOT_WAIT_MIN_MS);
+    return () => clearTimeout(t);
+  }, [bootOverlayHold]);
   // v0.62.x — operator "🛑 Stop loading": holds the in-flight search's
   // AbortController so the loading pop-up's Stop button can cancel the stream.
   const searchAbortRef = useRef(null);
@@ -429,6 +461,9 @@ export default function App() {
     try { searchAbortRef.current?.abort(); } catch { /* already settled */ }
     searchAbortRef.current = null;
     setLoading(false);
+    // v0.62.681 — a manual Stop also drops the first-load minimum-dwell hold;
+    // otherwise Stop would appear not to work for the rest of the dwell.
+    setBootOverlayHold(false);
     // v0.62.250 — a manual Stop must leave a CLEAN, current-code state: clear the
     // boot-load posture (else fun-facts stay suppressed + the follow-sync guard
     // stays armed) and un-dismiss the horizontal drawer so whatever venues
@@ -787,6 +822,56 @@ export default function App() {
     // Keyed on the first venue's own identity instead, so any change to WHICH
     // card is first re-measures, regardless of whether the count moved.
   }, [drawerMode, venues.length, venues[0] && venues[0].placeId]);
+
+  // v0.62.681 — operator (device screenshots): on the FIRST open the carousel
+  // card sat much closer to the "S$xx ~ xx · N gems | ★ …" recommendation strip
+  // than it did after a search ("I want it consistent to be just 2 tiny spacing
+  // above the strip"). Root cause: ResultDrawer's bottom offset was a hardcoded
+  // GUESS — `hasFilters ? '6rem' : '4.5rem'` — left over from v0.62.186, when
+  // the active-filter chips really did render as their OWN full-width row above
+  // the dock. Since v0.62.192/281 those chips live INSIDE the dock as the inline
+  // "Criteria (N) ▾" pill, so the footer's real height no longer changes when
+  // filters exist — yet the drawer still lifted an extra 1.5rem (24px) whenever
+  // any criteria did. First open (nothing picked yet → no criteria) took the
+  // 4.5rem branch and landed nearly flush with the strip; after picking a
+  // cuisine the 6rem branch gave the roomier gap. Same class of bug, and same
+  // fix, as v0.62.674's footer-height reserve: MEASURE the strip's real top edge
+  // instead of guessing at it, so the card sits a consistent, real gap above the
+  // strip in every state (criteria or not, back-FAB row or not, locale reflow,
+  // …). The gap itself is `STRIP_GAP_PX` in ResultDrawer.jsx — v0.62.682, set to
+  // 5px by the operator after being shown what the two old states measured out
+  // to (~-16px on first open, ~+8px after a search).
+  //
+  // Queried off `.insight-glass` (InsightStrip's inline root, the single place
+  // that class is used) and scoped to the footer we already hold a ref to —
+  // the same "match a stable selector that is guaranteed to keep matching"
+  // precedent v0.62.657 set for `[data-pid]` after a hand-written selector
+  // silently matched nothing in production.
+  //
+  // Deliberately NO dep array: this runs after every render and bails out when
+  // the value is unchanged, so it can never go stale against a flag declared
+  // LATER in this component — the exact TDZ trap `tma-hook-deps-tdz.test.js`
+  // already caught once on the listPeekPx effect above.
+  const [stripLiftPx, setStripLiftPx] = useState(null);
+  useLayoutEffect(() => {
+    const strip = footerRef.current ? footerRef.current.querySelector('.insight-glass') : null;
+    // Both the strip and the drawer are `fixed`, so both resolve against the
+    // same containing block — clientHeight is the layout viewport a `fixed`
+    // element's `bottom` is measured from (unlike visualViewport, which shrinks
+    // under the on-screen keyboard while fixed positioning does not move).
+    const vh = (typeof document !== 'undefined' && document.documentElement.clientHeight)
+      || (typeof window !== 'undefined' ? window.innerHeight : 0);
+    // Keep the LAST good measurement when the strip is temporarily unmounted
+    // (expanding the 💬 composer swaps the whole FAB row out for TellMePanel,
+    // and the picker/region overlays hide the strip too). Falling back to the
+    // calc() guess in those moments would visibly JUMP the card mid-interaction
+    // — the composer already handles its own clearance via top headroom
+    // (v0.62.288), and the drawer's bottom never tracked it before either.
+    if (!strip) return;
+    const next = Math.round(vh - strip.getBoundingClientRect().top);
+    setStripLiftPx((prev) => (prev === next ? prev : next));
+  });
+
   // v0.59.1: floating Search + Top buttons. `↑ Top` only surfaces
   // once the user has scrolled past the hero (map + active chips).
   const [scrolledPastHero, setScrolledPastHero] = useState(false);
@@ -1957,6 +2042,11 @@ export default function App() {
         setFirstLoadPending(false);
         setLoading(false);
       } else {
+        // v0.62.681 — arm the first-load overlay's minimum dwell alongside the
+        // one boot load, so "Finding eateries…" is readable even when the
+        // search settles in a frame or two. Deliberately NOT armed on the
+        // mismatch branch above, which opens an empty TMA with no hourglass.
+        setBootOverlayHold(true);
         runInitialLoad();
       }
     }
@@ -4703,6 +4793,7 @@ export default function App() {
           onSelect={setFocusedPlaceId}
           specialMode={state.specialMode || null}
           hasFilters={criteriaSummary.length > 0}
+          stripLiftPx={stripLiftPx}
           composerOpen={composerOpen}
           nearbyLabel={nearbyFlavours?.single?.label || null}
           nearbyAccent={nearbyFlavours?.single?.accent || null}
@@ -4750,7 +4841,11 @@ export default function App() {
           first ~1.5 s of a 'rotating' search (before the fact
           gets picked) and for 'initial' / 'refresh' (which never
           pick a fact), this overlay still renders normally. */}
-      {loading && !funFact && (
+      {/* v0.62.681 — `bootOverlayHold` keeps this on screen for a readable
+          minimum on a first open (see the state's declaration); `loading` alone
+          could flip false within a frame or two on a warm boot, flashing the
+          "Finding eateries…" message past before it could be read. */}
+      {(loading || bootOverlayHold) && !funFact && (
         <div
           aria-busy="true"
           className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center px-4 cursor-wait"
@@ -5684,7 +5779,7 @@ export default function App() {
                       onClick={() => { if (cursor > 0) setCursor((c) => Math.max(0, c - 1)); }}
                       disabled={cursor === 0}
                       aria-label={lang === 'fr' ? 'Page précédente des résultats Michelin' : lang === 'id' ? 'Halaman Michelin sebelumnya' : lang === 'ru' ? 'Предыдущая страница Michelin' : lang === 'de' ? 'Vorherige Michelin-Ergebnisseite' : lang === 'zh' ? '上一页米其林结果' : lang === 'ja' ? '前のミシュラン結果ページ' : lang === 'es' ? 'Página anterior de resultados Michelin' : 'Previous Michelin results page'}
-                      className="gia-hit px-1 py-1.5 rounded-lg active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
+                      className="gia-hit-y px-1 py-1.5 rounded-lg active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
                     >‹</button>
                     <span className="tabular-nums px-0.5" aria-live="polite">{cursor + 1} / {michelinTotalPages}</span>
                     <button
@@ -5695,7 +5790,7 @@ export default function App() {
                       }}
                       disabled={exhaustedNote && cursor === pages.length - 1}
                       aria-label={lang === 'fr' ? 'Page suivante des résultats Michelin' : lang === 'id' ? 'Halaman Michelin berikutnya' : lang === 'ru' ? 'Следующая страница Michelin' : lang === 'de' ? 'Nächste Michelin-Ergebnisseite' : lang === 'zh' ? '下一页米其林结果' : lang === 'ja' ? '次のミシュランページ' : lang === 'es' ? 'Página siguiente de resultados Michelin' : 'Next Michelin results page'}
-                      className="gia-hit px-1 py-1.5 rounded-lg active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
+                      className="gia-hit-y px-1 py-1.5 rounded-lg active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
                     >›</button>
                   </nav>
                 )}

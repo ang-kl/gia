@@ -66,7 +66,25 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
       {/* v0.62.206 — operator: the free-text field was a curved pill that read
           with "white spacing" in dark mode. Make it a square-edged BOX
           (rounded-md) with a solid card fill. */}
-      <div className="flex items-center gap-2 px-3 py-1 rounded-md border-2 border-tg-hint/60 bg-tg-card">
+      {/* v0.62.683 — operator (side-by-side screenshots of the two free-text
+          fields): "i want search's free-text-entry-field to follow exactly the
+          location's (font, font size, border shape, border colour, border
+          size) to be consistent." Compared against LocationField.jsx's resting
+          field (its `hasLoc` branch: `border border-tg-border rounded-md`,
+          `text-sm`): font family and font size ALREADY matched (both inherit
+          the app font; both inputs are `text-sm`/14px) and so did the border
+          shape (`rounded-md`). The two genuine differences were border WIDTH
+          (`border-2` = 2px here vs 1px there) and border COLOUR
+          (`border-tg-hint/60` vs `border-tg-border`), both now matched to the
+          location field. The v0.62.206 note below explains why this is a
+          square-edged box rather than the older pill — that decision is
+          unaffected; only the stroke changed.
+          Deliberately NOT changed: `bg-tg-card` (this composer floats OVER the
+          map, so it needs the opaque card fill; the location field's
+          `bg-tg-bg/40` sits on the page background and would read as
+          translucent here) and `px-3` (the location field's `px-2` is tuned to
+          its own flag+text row). Neither is in the operator's list. */}
+      <div className="flex items-center gap-2 px-3 py-1 rounded-md border border-tg-border bg-tg-card">
         {/* v0.62.287 — operator: tapping the 💬 icon on the EXPANDED composer
             collapses it back to the 💬 button FAB. onMouseDown preventDefault
             keeps the input from blur-racing the click. */}
