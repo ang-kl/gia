@@ -72,3 +72,21 @@ export const m3StateLayer = {
 // v0.62.668) used 44px (Apple HIG / WCAG 2.5.8); this is the M3 number for
 // a Tier 2 decision on whether to raise the floor to match.
 export const m3TouchTarget = '48px';
+
+// --- Permanent exclusions (Register O-89, confirmed 01-08 '26) ------------
+// Two M3 token categories are deliberately NOT in this vocabulary and will
+// not be added by any future M3 pass:
+//
+// - Literal M3 type scale (e.g. body-large 16px / label-medium 12px / etc.):
+//   M3's literal sizes run larger than this dense mobile chrome already
+//   uses. GIA's own de facto sizes are named instead in type-tokens.js,
+//   which is deliberately narrower in scope than "adopt M3's numbers."
+// - Literal M3 elevation shadow tiers (level 0-5 box-shadow values): these
+//   would overwrite two already-deliberate, documented design languages —
+//   Cuisine's glass/blur system and Hawker/Transport/Menu's skeuomorphic
+//   surface system — neither of which is M3-derived.
+//
+// This is a standing decision, not a gap: no `m3TypeScale` or `m3Elevation`
+// export should be added to this file on the strength of a future M3 audit
+// alone. Reopening either would need its own explicit operator sign-off,
+// same bar as any other Tier 2 item.

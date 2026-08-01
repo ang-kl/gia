@@ -9676,6 +9676,10 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // v0.60.17 — explicit star-tier sort (Human Lead 2026-05-08):
   // 3-star → 2-star → 1-star → Bib Gourmand. Within Bib Gourmand we
   // shuffle to give each click a different slice.
+  // v0.62.680 (O-91 SORT half) — superseded: the tier-sort-plus-shuffle
+  // pipeline (and its TIER_ORDER constant) is gone; see the deterministic
+  // year→category→alphabetical sort at the `ordered` build below, via
+  // michelin-sort.js.
   // v0.60.18 — pre-filter the pool by entry's `cuisine` tag when the
   // user combined Michelin with another cuisine. This avoids the
   // "Japanese + Michelin shows only 3 venues" bug from v0.60.17:
@@ -9686,7 +9690,6 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // are filtered before Places lookup. Bib Gourmand entries (no
   // cuisine tag) fall through to the v0.60.17 primaryType post-
   // filter so the cuisine constraint still applies.
-  const TIER_ORDER = { 'three-star': 0, 'two-star': 1, 'one-star': 2, 'bib-gourmand': 3 };
   // v0.61.346 — build the tier pool from the right source. SG: the
   // standalone list (entries already carry a single `category`). Other
   // countries: the loader's visitable venues for that country, mapped to
@@ -9781,15 +9784,17 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // pinned ahead of the rest, surviving the top-N slice).
   const pool = allEntries;
 
-  // Sort star tiers explicitly; shuffle bib gourmand so each click
-  // surfaces a different slice without re-paying the full Places bill.
-  const stars = pool.filter((e) => e.category !== 'bib-gourmand')
-    .sort((a, b) => (TIER_ORDER[a.category] ?? 99) - (TIER_ORDER[b.category] ?? 99));
-  const bib = pool.filter((e) => e.category === 'bib-gourmand');
-  for (let i = bib.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [bib[i], bib[j]] = [bib[j], bib[i]];
-  }
+  // v0.62.680 (O-91 SORT half) — deterministic ordering per
+  // instr/GIA_Michelin_Footer_Pagination_AI_Prompt.md §2: newest applicable
+  // SELECTED award year, then Michelin category rank (3★→2★→1★→Bib), then
+  // alphabetical fallback. Replaces the prior TIER_ORDER-sort-plus-shuffled-
+  // bib pipeline (the shuffle existed only to vary which bib entries
+  // surfaced on repeat taps — the spec's fully deterministic order
+  // supersedes that, see michelin-sort.js's own header comment).
+  const { sortMichelinPool } = require('./michelin-sort');
+  const michSelectedYears = [];
+  if (michYear2026) michSelectedYears.push("'26");
+  if (michYear2025) michSelectedYears.push("'25");
 
   // v0.60.17 — when user combines Michelin with other cuisines (e.g.
   // Japanese + Michelin), enlarge the slice so the post-Places primary-
@@ -9811,7 +9816,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // isJB / freeText), and the seen set auto-resets after 1h of
   // inactivity. Places-cache stays dropped (v0.60.195a) — only the
   // pagination half is restored. See michelin-walk.js for the helper.
-  let ordered = [...stars, ...bib];
+  let ordered = sortMichelinPool(pool, michSelectedYears);
   // v0.62.465 — operator bug: typing a dish name (e.g. "Mee Soto") while
   // Michelin is selected never surfaced a matching curated entry (e.g.
   // "Selamat Datang Warong Pak Sapari", a real Bib Gourmand stall) even
@@ -9884,9 +9889,9 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     ordered = inCity;
   }
   // (No extra sort needed for the no-city national fallback: `ordered` is
-  // already 3★ → 2★ → 1★ → Bib by construction — TIER_ORDER sort at the
-  // `stars` build above, bib appended after. A v0.62.19 re-sort here was
-  // withdrawn as a no-op per Codex P2 review on PR #975.)
+  // already in the deterministic year→category→alphabetical order from
+  // `sortMichelinPool` above. A v0.62.19 re-sort here was withdrawn as a
+  // no-op per Codex P2 review on PR #975 — still true post-O-91.)
   // v0.61.432 — operator: pin the layered cuisine to the TOP. When a cuisine
   // is combined with Michelin, surface the curated-tag matches FIRST (stable,
   // preserving the tier / city order within each group), then the rest of the

@@ -5684,7 +5684,7 @@ export default function App() {
                       onClick={() => { if (cursor > 0) setCursor((c) => Math.max(0, c - 1)); }}
                       disabled={cursor === 0}
                       aria-label={lang === 'fr' ? 'Page précédente des résultats Michelin' : lang === 'id' ? 'Halaman Michelin sebelumnya' : lang === 'ru' ? 'Предыдущая страница Michelin' : lang === 'de' ? 'Vorherige Michelin-Ergebnisseite' : lang === 'zh' ? '上一页米其林结果' : lang === 'ja' ? '前のミシュラン結果ページ' : lang === 'es' ? 'Página anterior de resultados Michelin' : 'Previous Michelin results page'}
-                      className="gia-hit px-1 py-1.5 rounded-lg active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
+                      className="gia-hit-y px-1 py-1.5 rounded-lg active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
                     >‹</button>
                     <span className="tabular-nums px-0.5" aria-live="polite">{cursor + 1} / {michelinTotalPages}</span>
                     <button
