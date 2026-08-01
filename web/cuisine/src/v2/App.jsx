@@ -836,8 +836,11 @@ export default function App() {
   // 4.5rem branch and landed nearly flush with the strip; after picking a
   // cuisine the 6rem branch gave the roomier gap. Same class of bug, and same
   // fix, as v0.62.674's footer-height reserve: MEASURE the strip's real top edge
-  // instead of guessing at it, so the card sits exactly 2px above the strip in
-  // every state (criteria or not, back-FAB row or not, locale reflow, …).
+  // instead of guessing at it, so the card sits a consistent, real gap above the
+  // strip in every state (criteria or not, back-FAB row or not, locale reflow,
+  // …). The gap itself is `STRIP_GAP_PX` in ResultDrawer.jsx — v0.62.682, set to
+  // 5px by the operator after being shown what the two old states measured out
+  // to (~-16px on first open, ~+8px after a search).
   //
   // Queried off `.insight-glass` (InsightStrip's inline root, the single place
   // that class is used) and scoped to the footer we already hold a ref to —
@@ -5787,7 +5790,7 @@ export default function App() {
                       }}
                       disabled={exhaustedNote && cursor === pages.length - 1}
                       aria-label={lang === 'fr' ? 'Page suivante des résultats Michelin' : lang === 'id' ? 'Halaman Michelin berikutnya' : lang === 'ru' ? 'Следующая страница Michelin' : lang === 'de' ? 'Nächste Michelin-Ergebnisseite' : lang === 'zh' ? '下一页米其林结果' : lang === 'ja' ? '次のミシュランページ' : lang === 'es' ? 'Página siguiente de resultados Michelin' : 'Next Michelin results page'}
-                      className="gia-hit px-1 py-1.5 rounded-lg active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
+                      className="gia-hit-y px-1 py-1.5 rounded-lg active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
                     >›</button>
                   </nav>
                 )}

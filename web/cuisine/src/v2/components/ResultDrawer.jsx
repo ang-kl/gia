@@ -26,6 +26,12 @@ import { useLocale } from '../lib/i18n.js';
 // narrower than their 30%/44% basis, so more, flatter cards showed instead of a
 // prominent centre + two glass half-peeks. The outer `max-w-[1600px]` still
 // bounds the track, so cards can't balloon. Matches the Hawker CentreCarousel.
+// v0.62.682 — the gap held between the carousel card's bottom and the
+// recommendation strip's top edge, in real px (see the offset comment in the
+// render below for how this number was chosen). Applied to the MEASURED
+// offset only; the first-paint calc() fallback keeps its own historic +2px.
+const STRIP_GAP_PX = 5;
+
 export default function ResultDrawer({ venues, focusedPlaceId, onSelect, specialMode = null, hasFilters = false, stripLiftPx = null, composerOpen = false, nearbyLabel = null, nearbyAccent = null, nearbyStrips = null, dishHints = null, basisClass = 'basis-[82%]', glassPeek = false }) {
   const [lang] = useLocale();
   const trackRef = useRef(null);
@@ -172,15 +178,24 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
        with filters — but this offset still lifted 6rem vs 4.5rem depending on
        them, which is exactly the first-open-vs-later inconsistency reported.
        `stripLiftPx` (measured in App.jsx off the strip's real top edge) now
-       drives the offset, keeping the card a consistent 2px above the strip in
+       drives the offset, keeping the card a consistent gap above the strip in
        every state. The calc() stays as the pre-measurement first-paint
        fallback ONLY — unchanged, so the un-measured path behaves exactly as
        before rather than trading one guess for another. */
+    /* v0.62.682 — operator, after being shown the measured before/after table:
+       the two old states worked out to roughly -16px (first open, card
+       overlapping the strip's top edge) and +8px (after a search). A literal
+       2px — the v0.62.650 ask — would have landed TIGHTER than the +8px state
+       the operator had just identified as the one that looked right, so the
+       constant was put to them explicitly rather than assumed. Answer: split
+       the difference. STRIP_GAP_PX = 5 is the exact midpoint of the old 2px
+       and ~8px, measured from the strip's real top edge so it is a true 5px on
+       every device. */
     <div
       className="fixed inset-x-0 z-30 px-1 pointer-events-none max-w-[1600px] min-[1800px]:max-w-none mx-auto"
       style={{
         bottom: stripLiftPx != null
-          ? `${stripLiftPx + 2}px`
+          ? `${stripLiftPx + STRIP_GAP_PX}px`
           : `calc(${hasFilters ? '6rem' : '4.5rem'} + 2px)`
       }}
     >
