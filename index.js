@@ -75,6 +75,7 @@ const {
 const { detectCountryHint } = require('./country-hints');
 const { requireInitData, verifyInitData, requireInitDataFromBodyOrHeader } = require('./twa-auth');
 const { makeRateLimiter } = require('./rate-limit');
+const { yearsOffFromFilter, yearUniverse, makeMichelinYearMatcher } = require('./michelin-year-filter');
 const usageLog = require('./usage-log');
 const cuisineSession = require('./cuisine-session');
 const { gatekeep } = require('./gatekeeper');
@@ -9706,21 +9707,14 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // like the rest [of the cuisine tag chips]" per the operator's own
   // framing, i.e. union semantics across three parallel categories, not a
   // year × category matrix.
+  // v0.62.700 (O-124) — the year ticks are DATA-DRIVEN. The pair
+  // `year2026`/`year2025` used to be written out here by hand, which meant a
+  // '27 edition would have matched neither arm and silently disappeared from
+  // results. The rule is now "every year is ON unless the client switched it
+  // off", so a new edition filters correctly the moment the datasets carry
+  // it — no server change, no new key. See michelin-year-filter.js.
   const michFilterIn = (req.body && typeof req.body.michelinFilter === 'object' && req.body.michelinFilter) || {};
-  const michYear2026 = michFilterIn.year2026 !== false;
-  const michYear2025 = michFilterIn.year2025 !== false;
-  const michIncludeBib = michFilterIn.bib !== false;
-  // All three off (stale hash / hand-crafted request) fails OPEN rather
-  // than silently returning zero — same fail-open convention already used
-  // for a null `michelinCuisines` allow-list.
-  const michAllTicksOff = !michYear2026 && !michYear2025 && !michIncludeBib;
-  const michYearMatches = (e) => {
-    if (michAllTicksOff) return true;
-    if (e.category === 'bib-gourmand') return michIncludeBib;
-    const years = Array.isArray(e.awardYears) ? e.awardYears : [];
-    return (michYear2026 && years.includes("'26")) || (michYear2025 && years.includes("'25"));
-  };
-  const allEntries = (isSGMich
+  const michRawEntries = isSGMich
     ? michelin.getAll()
     : mdMich.visitableVenues().filter((v) => v.country === michCC).map((v) => ({
         name: v.name, address: v.address, postal: v.postal || '',
@@ -9731,8 +9725,11 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
         // hardcoded fallback (see ResultCard.jsx michelinAnnotation).
         awardYears: mdMich.retainedAwardYears(v),
         city: v.city, country: v.country
-      }))
-  ).filter(michYearMatches);
+      }));
+  // The matcher derives its year universe from THESE entries, so the
+  // "all ticks off → fail open" guard is measured against the years this
+  // country actually has rather than against a fixed pair.
+  const allEntries = michRawEntries.filter(makeMichelinYearMatcher(michFilterIn, michRawEntries));
   // Places query + regionCode adapt to the country (SG keeps the curated
   // name+postal disambiguation; others use name + city).
   const buildMichQuery = isSGMich
@@ -9792,9 +9789,16 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // surfaced on repeat taps — the spec's fully deterministic order
   // supersedes that, see michelin-sort.js's own header comment).
   const { sortMichelinPool } = require('./michelin-sort');
-  const michSelectedYears = [];
-  if (michYear2026) michSelectedYears.push("'26");
-  if (michYear2025) michSelectedYears.push("'25");
+  // v0.62.700 (O-124) — the SELECTED years are whatever this country's data
+  // carries minus whatever the client switched off, so the sort's "newest
+  // applicable selected year" tracks a new edition automatically. Descending
+  // so the newest token leads, matching the previous hand-written order.
+  const michYearsOff = yearsOffFromFilter(michFilterIn);
+  const michIncludeBib = michFilterIn.bib !== false;
+  const michSelectedYears = [...yearUniverse(michRawEntries)]
+    .filter((y) => !michYearsOff.has(y))
+    .sort()
+    .reverse();
 
   // v0.60.17 — when user combines Michelin with other cuisines (e.g.
   // Japanese + Michelin), enlarge the slice so the post-Places primary-
@@ -9918,7 +9922,11 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     // v0.62.676 — year/Bib-Gourmand tick state. Operator: changing the
     // ticks changes the pool, so it resets the walk like any other
     // criterion (confirmed explicitly, not assumed).
-    michYears: `${michYear2026 ? 1 : 0}${michYear2025 ? 1 : 0}${michIncludeBib ? 1 : 0}`
+    // v0.62.700 (O-124) — was a fixed 3-bit string ("110"), which could not
+    // describe a third edition. Now the sorted list of years actually in play
+    // plus the Bib flag, so adding a year changes the hash (and resets the
+    // walk) exactly as toggling one of today's two does.
+    michYears: `${michSelectedYears.join(',')}|${michIncludeBib ? 1 : 0}`
   });
   const walkState = await michelinWalk.readWalkState(redis, csChatId, walkHash);
   const unseen = walkState.seen.size

@@ -14,7 +14,20 @@
 // three-key comparator, so the same criteria always produce the same order.
 
 const MICHELIN_RANK = { 'three-star': 4, 'two-star': 3, 'one-star': 2, 'bib-gourmand': 1 };
-const YEAR_RANK = { "'26": 2, "'25": 1 };
+// v0.62.700 (Register O-124) — was a literal `{ "'26": 2, "'25": 1 }`, so any
+// token outside that pair scored 0 and a '27 entry would have sorted BELOW a
+// '25 one. "Newest first" is a property of the year, not of a lookup table:
+// the rank IS the year, derived from the token. Older tokens still order
+// correctly among themselves, and a new edition leads without a code change.
+const yearRank = (token) => {
+  const digits = String(token == null ? '' : token).replace(/\D/g, '');
+  if (digits.length === 2) return 2000 + Number(digits);
+  if (digits.length === 4) return Number(digits);
+  return 0;
+};
+// Kept as a named export for the two editions that exist today, so anything
+// reading the old table still sees the same relative order it always did.
+const YEAR_RANK = { "'26": yearRank("'26"), "'25": yearRank("'25") };
 
 // The "newest applicable SELECTED award year" for one entry: the highest
 // YEAR_RANK among the entry's awardYears that also appears in
@@ -27,7 +40,7 @@ function effectiveYearRank(entry, selectedYears) {
   let best = 0;
   for (const y of years) {
     if (gate.length === 0 || gate.includes(y)) {
-      const rank = YEAR_RANK[y] || 0;
+      const rank = yearRank(y);
       if (rank > best) best = rank;
     }
   }
@@ -46,4 +59,4 @@ function sortMichelinPool(entries, selectedYears) {
   });
 }
 
-module.exports = { sortMichelinPool, effectiveYearRank, MICHELIN_RANK, YEAR_RANK };
+module.exports = { sortMichelinPool, effectiveYearRank, MICHELIN_RANK, YEAR_RANK, yearRank };

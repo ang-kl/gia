@@ -53,7 +53,7 @@ const CATEGORY_LABEL_KEY = {
 // derived from `selected` at the App.jsx request-build site. The
 // applyChipToggle helper enforces the mutex (special ↔ everything else
 // including Dessert).
-export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region, countryPref, michelinCuisines = null, onPickDish = null, onDrillChange = null, michelinFilter = null, onMichelinFilterChange = null, michelinYears = null, isCompact = false }) {
+export default function CuisineDrawer({ catalogue, selected, onChange, onCategoryClose, region, countryPref, michelinCuisines = null, onPickDish = null, onDrillChange = null, michelinFilter = null, onMichelinFilterChange = null, michelinYears = null, michelinAllYears = null, isCompact = false }) {
   const [openCategoryId, setOpenCategoryId] = useState(null);
   // v0.62.696 — the Michelin ticks as a popup. Opens when the chip is selected
   // (below), and is re-openable from the chip afterwards.
@@ -251,6 +251,9 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
           value={michelinFilter}
           onChange={onMichelinFilterChange}
           availableYears={michelinYears}
+          /* v0.62.700 (O-124) — which ticks EXIST (union of every country's
+             editions) is separate from which are LIVE here (michelinYears). */
+          allYears={michelinAllYears}
           onClose={() => { setMichelinPanelOpen(false); onCategoryClose?.(); }}
         />
       )}

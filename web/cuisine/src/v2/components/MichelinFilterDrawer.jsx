@@ -1,4 +1,4 @@
-// MichelinFilterDrawer.jsx — v0.62.696
+// MichelinFilterDrawer.jsx — v0.62.700
 //
 // The Michelin year / Bib Gourmand ticks, as a POPUP.
 //
@@ -13,11 +13,13 @@
 // shape CuisineCategoryDrawer uses (scrim + centred card + ✕), so selecting
 // Michelin behaves like selecting any other category.
 //
-// SEMANTICS (unchanged from v0.62.676, and matching the server at index.js
-// ~9709): three INDEPENDENT ticks, all default ON, union across three parallel
-// buckets — not a year × category matrix. A year tick gates STAR entries by
-// `awardYears` membership; Bib Gourmand is its own bucket and is never
-// cross-filtered by year.
+// SEMANTICS (unchanged from v0.62.676, and matching the server in
+// michelin-year-filter.js): INDEPENDENT ticks, all default ON, union across
+// parallel buckets — not a year × category matrix. A year tick gates STAR
+// entries by `awardYears` membership; Bib Gourmand is its own bucket and is
+// never cross-filtered by year. v0.62.700 makes the COUNT of year ticks a
+// property of the data rather than of this file, so "three" is now "however
+// many editions exist" — the semantics did not change, only the arity.
 //
 // v0.62.696 — a year with no holders in the current country is DISABLED rather
 // than offered. Singapore is the live case: its 2026 star selection is
@@ -28,24 +30,33 @@
 import React from 'react';
 import { useLocale, t as tr, tn } from '../lib/i18n.js';
 import { useDialog } from '../../../../_shared/lib/use-dialog.js';
+// v0.62.700 (O-124) — the year ticks are DATA-DRIVEN. This file used to hold a
+// literal [2026, 2025] pair, so a '27 edition needed a code change here (and in
+// four other places) before anyone could filter by it — while the ticks carried
+// on looking perfectly functional. The list now comes from the catalogue's
+// michelinYearsByCC; the pure part lives in lib/michelin-years.js so it can be
+// tested without a React harness (O-93).
+import { buildMichelinKeys, tickTokens } from '../lib/michelin-years.js';
 
-const KEYS = [
-  { key: 'year2026', year: 2026, token: "'26" },
-  { key: 'year2025', year: 2025, token: "'25" },
-  { key: 'bib', year: null, token: null }
-];
-
-export default function MichelinFilterDrawer({ value, onChange, onClose, availableYears = null }) {
+export default function MichelinFilterDrawer({ value, onChange, onClose, availableYears = null, allYears = null }) {
   const [lang] = useLocale();
   const dialogRef = useDialog({ onClose });
-  // `availableYears` is the per-country list from /api/cuisine/catalogue
+  // WHICH ticks exist: the union of every country's editions (`allYears`), so
+  // a year is offered — greyed, with a reason — even where it has no holders
+  // yet. That greying is D-65's "a control that cannot change the result must
+  // not be offered", and it only works if the year is in the list to begin
+  // with; driving the list from the per-country set alone would make Singapore's
+  // unannounced 2026 silently vanish instead of explaining itself.
+  const keys = buildMichelinKeys(tickTokens({ allYears, availableYears }));
+  // WHETHER a tick is live: the per-country list from /api/cuisine/catalogue
   // (michelinYearsByCC). Null/absent → fail OPEN and offer every tick, the same
   // convention the server uses for a null michelinCuisines allow-list.
   const has = (token) => !Array.isArray(availableYears) || availableYears.includes(token);
 
-  const set = (key, next) => onChange({
-    year2026: true, year2025: true, bib: true, ...(value || {}), [key]: next
-  });
+  // Absence means ON, on the wire and in the hash alike, so only an explicit
+  // OFF is ever written. That is what lets a new edition arrive without any
+  // key being added anywhere — "everything not switched off" already has it.
+  const set = (key, next) => onChange({ ...(value || {}), [key]: next });
 
   return (
     <div
@@ -72,7 +83,7 @@ export default function MichelinFilterDrawer({ value, onChange, onClose, availab
         <div className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-2">
           <div className="text-[11px] text-tg-hint">{tr('michelin.filterHeader', lang)}</div>
           <div className="flex flex-wrap items-center gap-1.5">
-            {KEYS.map(({ key, year, token }) => {
+            {keys.map(({ key, year, token }) => {
               const checked = (value ? value[key] : true) !== false;
               const available = token == null ? true : has(token);
               const label = year == null ? tr('michelin.bibLabel', lang) : String(year);
@@ -105,7 +116,7 @@ export default function MichelinFilterDrawer({ value, onChange, onClose, availab
           </div>
           {/* Says WHY a year is greyed, so it reads as "not published yet"
               rather than as a broken control. */}
-          {Array.isArray(availableYears) && KEYS.some(({ token }) => token && !has(token)) && (
+          {Array.isArray(availableYears) && keys.some(({ token }) => token && !has(token)) && (
             <div className="text-[11px] text-tg-hint leading-snug">
               {tr('michelin.yearUnavailableNote', lang)}
             </div>

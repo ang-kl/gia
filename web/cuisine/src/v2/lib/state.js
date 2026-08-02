@@ -65,10 +65,16 @@ export function defaultState() {
     // + dessert filters server-side; the CuisineDrawer + QuickFilters
     // also grey out their toggles client-side. null = inactive.
     specialMode: null,
-    // v0.62.676 — Michelin year / Bib Gourmand ticks (CuisineDrawer, shown
-    // only while 'michelin' is selected). All default ON — matches the
-    // pre-v0.62.676 all-inclusive behaviour when every tick stays checked.
-    michelinFilter: { year2026: true, year2025: true, bib: true }
+    // v0.62.676 — Michelin year / Bib Gourmand ticks (shown only while
+    // 'michelin' is selected). All default ON — matches the pre-v0.62.676
+    // all-inclusive behaviour when every tick stays checked.
+    // v0.62.700 (O-124) — the default is EMPTY rather than a hand-written
+    // `{ year2026: true, year2025: true, bib: true }`. Absence means ON
+    // everywhere that reads this (drawer, hash, server), so an empty object
+    // already says "every edition, including ones that don't exist yet".
+    // Listing the years here would have been a fourth place to update when
+    // a '27 lands, and the only one with no user-visible symptom if missed.
+    michelinFilter: {}
   };
 }
 
@@ -106,6 +112,18 @@ export function readFromHash() {
   if (region && REGIONS.includes(region)) s.region = region;
   // v0.62.676 — Michelin year/Bib ticks. Only OFF is ever written to the
   // hash (all-ON is the default), so absence means "still all on".
+  // v0.62.700 (O-124) — years now travel as one comma list of the editions
+  // switched OFF (`michYoff=2026,2025`) instead of one param per year, so a
+  // new edition needs no new param name.
+  const yearsOff = params.get('michYoff');
+  if (yearsOff) {
+    for (const y of yearsOff.split(',')) {
+      if (/^\d{4}$/.test(y)) s.michelinFilter[`year${y}`] = false;
+    }
+  }
+  // Links shared while v0.62.676–699 were live still carry the per-year
+  // params. Read them so an old link keeps meaning what it meant; nothing
+  // writes them any more.
   if (params.get('michY26') === '0') s.michelinFilter.year2026 = false;
   if (params.get('michY25') === '0') s.michelinFilter.year2025 = false;
   if (params.get('michBib') === '0') s.michelinFilter.bib = false;
@@ -126,9 +144,15 @@ export function writeToHash(s) {
   if (s.region && s.region !== '__NONE__') params.set('region', s.region);
   // v0.62.676 — only write the Michelin ticks that are OFF (all-ON is the
   // default and stays implicit, same convention as QUICK_FILTERS above).
+  // v0.62.700 (O-124) — one `michYoff` list for however many editions exist,
+  // newest first, replacing the fixed michY26/michY25 pair.
   const mf = s.michelinFilter || {};
-  if (mf.year2026 === false) params.set('michY26', '0');
-  if (mf.year2025 === false) params.set('michY25', '0');
+  const yearsOff = Object.keys(mf)
+    .filter((k) => mf[k] === false && /^year\d{4}$/.test(k))
+    .map((k) => k.slice(4))
+    .sort()
+    .reverse();
+  if (yearsOff.length) params.set('michYoff', yearsOff.join(','));
   if (mf.bib === false) params.set('michBib', '0');
   history.replaceState(null, '', '#' + params.toString());
 }
