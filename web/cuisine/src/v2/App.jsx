@@ -19,6 +19,9 @@ import { resolveSearchCenter } from './lib/search-location.js';
 // v0.61.277 — for the JB region-pill auto-anchor on tap.
 import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT } from './lib/jb-focus-points.js';
 import { groupByAwardCity, initialFitPins, pinsOf } from './lib/michelin-city-groups.js';
+// v0.62.700 (O-124) — the union of every country's Michelin editions, which
+// decides WHICH year ticks exist (michelinYearsByCC decides which are live).
+import { unionYears } from './lib/michelin-years.js';
 // v0.61.285 — fun-fact modal for the rotating-search wait window.
 import FunFactModal from './components/FunFactModal.jsx';
 import AnimatedStar from './components/AnimatedStar.jsx';
@@ -4626,6 +4629,12 @@ export default function App() {
               const ys = michelinYearsByCC && michelinYearsByCC[cc];
               return Array.isArray(ys) ? ys : null;   // null → fail open
             })()}
+            /* v0.62.700 (O-124) — the union across every country, which is what
+               decides WHICH ticks exist. Kept separate from michelinYears (which
+               decides which are live HERE) so an edition another country already
+               has is still offered — greyed with a reason — rather than silently
+               absent. That is what makes a '27 appear on its own. */
+            michelinAllYears={unionYears(michelinYearsByCC)}
             isCompact={vp.isCompact}
             onCategoryClose={() => {
               if (state.cuisines.length > 0) {

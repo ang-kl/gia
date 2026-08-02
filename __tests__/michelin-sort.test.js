@@ -8,7 +8,7 @@ import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
-const { sortMichelinPool, effectiveYearRank } = require('../michelin-sort.js');
+const { sortMichelinPool, effectiveYearRank, yearRank } = require('../michelin-sort.js');
 
 const threeStar26 = { name: 'Zenith', category: 'three-star', awardYears: ["'26"] };
 const threeStar25 = { name: 'Aria', category: 'three-star', awardYears: ["'25"] };
@@ -68,5 +68,40 @@ describe('effectiveYearRank', () => {
 
   it('returns 0 when the entry\'s years are all excluded by selectedYears', () => {
     expect(effectiveYearRank(bib25only, ["'26"])).toBe(0);
+  });
+});
+
+// v0.62.700 (Register O-124) — the year rank used to be a two-entry lookup
+// table, so any edition outside it scored 0 and sorted BELOW '25. Nothing
+// would have errored; the order would simply have been wrong, newest last.
+describe('yearRank — data-driven editions (O-124)', () => {
+  it('is the year itself, so newer always outranks older', () => {
+    expect(yearRank("'27")).toBeGreaterThan(yearRank("'26"));
+    expect(yearRank("'26")).toBeGreaterThan(yearRank("'25"));
+  });
+
+  it('accepts an edition no lookup table ever listed', () => {
+    expect(yearRank("'31")).toBe(2031);
+  });
+
+  it('scores an unparseable token 0 rather than NaN (which would break sorting)', () => {
+    for (const bad of ['', null, undefined, 'nope']) expect(yearRank(bad)).toBe(0);
+  });
+
+  it("sorts a '27 entry ahead of '26 and '25", () => {
+    const pool = [
+      { name: 'Old', category: 'one-star', awardYears: ["'25"] },
+      { name: 'New', category: 'one-star', awardYears: ["'27"] },
+      { name: 'Mid', category: 'one-star', awardYears: ["'26"] }
+    ];
+    expect(sortMichelinPool(pool, []).map((e) => e.name)).toEqual(['New', 'Mid', 'Old']);
+  });
+
+  it("keeps a three-star '25 below a one-star '27 — year outranks category, as before", () => {
+    const pool = [
+      { name: 'Three25', category: 'three-star', awardYears: ["'25"] },
+      { name: 'One27', category: 'one-star', awardYears: ["'27"] }
+    ];
+    expect(sortMichelinPool(pool, []).map((e) => e.name)).toEqual(['One27', 'Three25']);
   });
 });
