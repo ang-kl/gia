@@ -66,7 +66,20 @@ export default function MichelinFilterDrawer({ value, onChange, onClose, availab
 
   return (
     <div
-      className="fixed inset-0 z-30 flex items-center justify-center p-4 bg-black/50"
+      /* v0.62.702 (O-130) — z-30 → z-40. At z-30 this dialog sat on the SAME
+         tier as Cuisine's footer dock (App.jsx:5591), and the footer renders
+         LATER in the DOM (5591 > 4592), so at equal z the footer won: it stayed
+         visible and tappable over this dialog's scrim while `aria-modal="true"`
+         claimed the rest of the app was inert. Measured by hit-test against the
+         compiled stylesheet, not inferred — at z-30 a tap on the footer band
+         returned the footer; at z-40 it returns this scrim.
+         z-40 is Cuisine's OWN modal tier (App.jsx:3653/3730/3842, ArrivalPlate,
+         CuisineCategoryDrawer:249), and it is re-derived here rather than
+         copied (D-70): above the z-30 chrome tier, below the z-50 loading /
+         fun-fact overlays that must cover a dialog. The FAB clusters at
+         `relative z-40` live INSIDE the footer's own z-30 stacking context, so
+         they cannot escape it — this dialog covers them too. */
+      className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/50"
       role="dialog"
       aria-modal="true"
       aria-label={tr('michelin.filterHeader', lang)}
