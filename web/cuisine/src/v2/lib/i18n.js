@@ -471,6 +471,12 @@ const STRINGS = {
   // published yet" rather than as a broken control.
   'michelin.yearUnavailable':  { en: 'not published for this country yet', fr: 'pas encore publié pour ce pays' },
   'michelin.yearUnavailableNote': { en: 'Greyed years have no entries for this country yet.', fr: 'Les années grisées n’ont pas encore d’entrées pour ce pays.' },
+  // v0.62.701 (O-131) — the last remaining tick is locked ON. Unticking it
+  // would select nothing, which the server answers by returning everything, so
+  // the tap would appear to do nothing (D-69). The note says WHY it will not
+  // turn off, so it reads as a floor rather than an unresponsive control.
+  'michelin.lastTick':     { en: 'at least one must stay on', fr: 'au moins un doit rester activé' },
+  'michelin.lastTickNote': { en: 'At least one filter must stay on — turn another one back on first.', fr: 'Au moins un filtre doit rester activé — réactivez-en un autre d’abord.' },
 
   // v0.61.285 — FunFactModal strings. Replaces the static rotating
   // "still loading" titles during the cuisine-search wait window

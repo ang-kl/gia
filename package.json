@@ -1,10 +1,11 @@
 {
   "name": "soleat",
-  "version": "0.62.700",
+  "version": "0.62.703",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "test": "vitest run",
+    "test:render": "node scripts/render-smoke.mjs",
     "test:watch": "vitest",
     "build": "npm run build:cuisine && npm run build:menu && npm run build:hawker && npm run build:transport && npm run build:oversight && npm run build:about && npm run build:clipboard",
     "build:about": "cd web/about && npm install --no-audit --no-fund && npm run build",
@@ -39,6 +40,7 @@
   },
   "devDependencies": {
     "pino-pretty": "^11.0.0",
+    "playwright-core": "^1.62.1",
     "vitest": "^2.0.0"
   }
 }

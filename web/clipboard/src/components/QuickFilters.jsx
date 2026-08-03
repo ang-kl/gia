@@ -362,7 +362,7 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
                 onFocus={() => chooseRating('custom')}
                 onChange={(e) => { setRatingCustom(e.target.value); setRatingSel('custom'); setRatingSaved(false); }}
                 aria-label={`${tr('rating.setRating', lang)} — ${tr('rating.customHint', lang)}`}
-                className="flex-1 min-w-0 px-1.5 py-1 rounded-md border border-tg-border bg-tg-bg text-tg-text text-xs" />
+                className="flex-1 min-w-0 px-1.5 py-1 rounded-md border border-tg-border bg-tg-bg text-tg-text text-[16px]" />
             </label>
           </div>
           {/* Save — red "Save" until tapped, then bright green "✓ Saved".

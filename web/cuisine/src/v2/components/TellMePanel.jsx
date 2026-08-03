@@ -118,7 +118,7 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
           disabled={submitting || loading}
           autoFocus={autoFocus}
           placeholder={tr('tellme.placeholder', lang)}
-          className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint min-w-0"
+          className="flex-1 bg-transparent text-[16px] outline-none placeholder:text-tg-hint min-w-0"
           aria-label={tr('tellme.aria', lang)}
         />
         {/* v0.62.178 — operator: the → submit is MERGED with the 🔍 search FAB at

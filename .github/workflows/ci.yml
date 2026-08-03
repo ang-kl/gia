@@ -161,3 +161,18 @@ jobs:
         run: npm install --no-audit --no-fund --ignore-scripts
       - name: Build all TMAs + /about showcase
         run: npm run build
+      # v0.62.703 (Register O-120) — mount every built TMA in a real headless
+      # browser and assert it PAINTS. This runs here, in the build job, because
+      # it needs the build output that was just produced; splitting it into its
+      # own job would mean building everything twice.
+      #
+      # Why it exists: v0.62.692 white-screened Hawker in production with a
+      # ReferenceError at render time, after passing node --check, vite build,
+      # 3,901 unit tests and every other job in this file. All of those read
+      # source or output; none of them ever ran the component.
+      #
+      # playwright-core downloads no browsers — it drives the Chrome that
+      # ubuntu-latest already ships, so this adds a dependency but not a
+      # browser-download step.
+      - name: Render smoke — every TMA must paint (Register O-120)
+        run: npm run test:render

@@ -36,14 +36,14 @@ export default function DrawerRow({ drawer, n, totalDrawers, cabinetId, lang, on
                 autoFocus value={dayTag} onChange={(e) => setDayTag(e.target.value.slice(0, 24))} maxLength={24}
                 placeholder={t('drawer.field.dayTag', lang)}
                 aria-label={t('drawer.field.dayTag', lang)}
-                className="mt-0.5 w-full text-[10px] bg-tg-bg border border-tg-border rounded px-1.5 py-0.5 text-tg-text"
+                className="mt-0.5 w-full text-[16px] bg-tg-bg border border-tg-border rounded px-1.5 py-0.5 text-tg-text"
               />
               {/* item 12b — drawer description (120) */}
               <input
                 value={description} onChange={(e) => setDescription(e.target.value.slice(0, 120))} maxLength={120}
                 placeholder={t('drawer.field.description', lang)}
                 aria-label={t('drawer.field.description', lang)}
-                className="mt-1 w-full text-[10px] bg-tg-bg border border-tg-border rounded px-1.5 py-0.5 text-tg-text"
+                className="mt-1 w-full text-[16px] bg-tg-bg border border-tg-border rounded px-1.5 py-0.5 text-tg-text"
               />
             </>
           ) : (

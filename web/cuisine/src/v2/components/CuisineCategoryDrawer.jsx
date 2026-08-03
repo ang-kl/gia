@@ -129,7 +129,18 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
     // 90vh / 90vw) so the user perceives it as a popup and the Done
     // button is always visible without scrolling the body.
     <div
-      className="fixed inset-0 z-30 flex items-center justify-center p-4 bg-black/50"
+      /* v0.62.702 (O-130) — z-30 → z-40, same defect as MichelinFilterDrawer
+         and worse here. At z-30 this root sat on the SAME tier as Cuisine's
+         footer dock (App.jsx:5591), which renders LATER in the DOM, so the
+         footer painted over it and stayed tappable while `aria-modal="true"`
+         claimed the app was inert. And because this root is `fixed` WITH a
+         z-index it opens a stacking context — the exact fact recorded at line
+         ~97 below — so the nested dish pop-up (z-40) and dish detail (z-50)
+         were clamped to this root's z-30 too and lost to the footer as well.
+         Raising the ROOT lifts all three layers at once; their relative order
+         inside is unchanged. Re-derived, not copied (D-70): z-40 is Cuisine's
+         own modal tier, above the z-30 chrome, below the z-50 loading overlay. */
+      className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/50"
       role="dialog"
       aria-modal="true"
       aria-label={`${localisedLabel} cuisines`}
