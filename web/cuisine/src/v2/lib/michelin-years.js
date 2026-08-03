@@ -49,6 +49,32 @@ export function tickTokens({ allYears = null, availableYears = null } = {}) {
   return FALLBACK_YEAR_TOKENS;
 }
 
+// v0.62.701 (Register O-131) — WHICH tick is the last one standing.
+//
+// Unticking every live tick used to leave nothing selected, and the server's
+// fail-open guard then returned EVERYTHING. So the final untick appeared to do
+// nothing — the exact complaint D-69 was written about — and in the two
+// single-edition countries (SG, PH) the pre-v0.62.700 build returned a blank
+// screen instead. Two different wrong answers to the same question.
+//
+// Rather than pick between them, the state is made unreachable: the last
+// remaining checked tick is DISABLED, the same treatment D-65 already gives a
+// year with no holders. The server guard stays exactly as it is — it is the
+// backstop for a stale hash or a hand-crafted request, which is what its own
+// comment says it is for, and it is no longer the thing standing between a
+// user and an empty result.
+//
+// `keys` is buildMichelinKeys() output; `isLive` answers "is this tick
+// selectable in this country". Returns the key that must not be unticked, or
+// null when more than one is checked (the normal case — nothing is locked).
+export function soleCheckedKey(keys, value, isLive) {
+  const live = (Array.isArray(keys) ? keys : []).filter(
+    ({ token }) => (token == null ? true : (typeof isLive === 'function' ? isLive(token) : true))
+  );
+  const checked = live.filter(({ key }) => (value ? value[key] : true) !== false);
+  return checked.length === 1 ? checked[0].key : null;
+}
+
 // The union used for `allYears`, from the catalogue's michelinYearsByCC.
 // Null (not []) when there is nothing, so the drawer's fail-open branch reads
 // the same as the server's null-allow-list convention.

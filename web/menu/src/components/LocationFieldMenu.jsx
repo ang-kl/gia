@@ -1043,7 +1043,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
               aria-label={t('loc.other.placeholder', lang)}
               disabled={busy}
               autoComplete="off"
-              className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint min-w-0"
+              className="flex-1 bg-transparent text-[16px] outline-none placeholder:text-tg-hint min-w-0"
             />
             {otherLoading && <span className="text-tg-hint text-xs">…</span>}
             <span aria-hidden className="text-tg-hint text-xs flex-shrink-0">✏️</span>
@@ -1109,7 +1109,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
               aria-label={t('location.searchPlaceholder', lang)}
               disabled={busy}
               autoComplete="off"
-              className="flex-1 bg-transparent text-sm outline-none placeholder:text-tg-hint min-w-0"
+              className="flex-1 bg-transparent text-[16px] outline-none placeholder:text-tg-hint min-w-0"
             />
             <button
               type="submit"

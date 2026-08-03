@@ -512,7 +512,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
                  BASE placeholder key ("Search location…"), not `resting`'s
                  current-value fallback, so the field is named by purpose. */
               aria-label={tr('loc.searchLocation', lang)}
-              className="flex-1 min-w-0 bg-transparent text-sm outline-none placeholder:text-tg-hint"
+              className="flex-1 min-w-0 bg-transparent text-[16px] outline-none placeholder:text-tg-hint"
             />
           ) : (
             <button
@@ -1549,7 +1549,7 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
                placeholder's intrinsic width; without it a long city name
                ("Wellington") pushed the trailing ✏️ off-screen. Matches the
                SG/JB branch input (line ~464). */
-            className="flex-1 min-w-0 bg-transparent text-sm outline-none placeholder:text-tg-hint"
+            className="flex-1 min-w-0 bg-transparent text-[16px] outline-none placeholder:text-tg-hint"
           />
           {loading && <span className="text-tg-hint text-xs">…</span>}
           {/* v0.61.267 — drop the explicit 🔍 search button; OTHER

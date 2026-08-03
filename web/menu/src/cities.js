@@ -40,6 +40,13 @@ export const CITIES_BY_COUNTRY = Object.freeze({
     { name: 'George Town',      code: 'PEN', lat: 5.4145,  lng: 100.3293 },
     { name: 'Ipoh',             code: 'IPH', lat: 4.5975,  lng: 101.0901 },
     { name: 'Shah Alam',        code: 'KUL', lat: 3.0738,  lng: 101.5183 },
+    // v0.62.701 — operator (SG/JB, option 2): "Johor Bahru" as an ordinary
+    // Malaysia city, above the state row. The Cuisine TMA already has a dedicated
+    // JB region pill; this is for the OTHER path, so a device sitting in JB that
+    // resolves to country=MY lands on the city itself instead of the 120 km state
+    // centroid 50 km away. Code JHB is already in the vetted iata-cities table
+    // (no new code asserted — cf. O-126), and the state row is untouched.
+    { name: 'Johor Bahru',      code: 'JHB', lat: 1.4927, lng: 103.7414 },
     // v0.61.420 — Johor STATE row (mirror of web/cuisine): "Johor state" / JOHOR,
     // centred so the 120 km cap covers the entire state.
     { name: 'Johor state',      code: 'JOHOR', lat: 1.93, lng: 103.34 },

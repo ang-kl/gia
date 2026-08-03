@@ -12,7 +12,8 @@ import {
   yearOfToken,
   buildMichelinKeys,
   tickTokens,
-  unionYears
+  unionYears,
+  soleCheckedKey
 } from '../web/cuisine/src/v2/lib/michelin-years.js';
 
 describe('yearOfToken', () => {
@@ -105,5 +106,52 @@ describe('unionYears', () => {
     expect(unionYears({})).toBeNull();
     expect(unionYears(null)).toBeNull();
     expect(unionYears({ SG: null, JP: 'nope' })).toBeNull();
+  });
+});
+
+// v0.62.701 (Register O-131) — unticking the LAST live tick used to select
+// nothing, which the server answers with fail-open (everything), so the tap
+// appeared to do nothing (D-69). In the two single-edition countries the
+// pre-v0.62.700 build returned a blank screen instead. Both are wrong answers
+// to a question that should not be askable, so the state is made unreachable.
+describe('soleCheckedKey — the last tick is locked (O-131)', () => {
+  const KEYS = buildMichelinKeys(["'26", "'25"]);   // year2026, year2025, bib
+  const allLive = () => true;
+
+  it('locks nothing while more than one tick is checked', () => {
+    expect(soleCheckedKey(KEYS, {}, allLive)).toBeNull();
+    expect(soleCheckedKey(KEYS, { year2026: false }, allLive)).toBeNull();
+  });
+
+  it('locks the survivor when exactly one is left', () => {
+    expect(soleCheckedKey(KEYS, { year2026: false, year2025: false }, allLive)).toBe('bib');
+    expect(soleCheckedKey(KEYS, { year2026: false, bib: false }, allLive)).toBe('year2025');
+    expect(soleCheckedKey(KEYS, { year2025: false, bib: false }, allLive)).toBe('year2026');
+  });
+
+  it('counts only LIVE ticks — the Singapore case that produced the blank screen', () => {
+    // SG: 2026 has no holders, so it is greyed and cannot be the survivor.
+    // Unticking 2025 must therefore lock Bib, not leave 2026 as a phantom
+    // second option — which is exactly how the old code reached zero results.
+    const sgLive = (token) => token === "'25";
+    expect(soleCheckedKey(KEYS, { year2025: false }, sgLive)).toBe('bib');
+    expect(soleCheckedKey(KEYS, { bib: false }, sgLive)).toBe('year2025');
+    expect(soleCheckedKey(KEYS, {}, sgLive)).toBeNull();
+  });
+
+  it('locks nothing when everything is already off (a stale hash)', () => {
+    // Not the UI's job to repair a hand-crafted URL — the server's fail-open
+    // guard still covers that, which is what its own comment says it is for.
+    expect(soleCheckedKey(KEYS, { year2026: false, year2025: false, bib: false }, allLive)).toBeNull();
+  });
+
+  it('scales to an edition that does not exist yet', () => {
+    const keys = buildMichelinKeys(["'27", "'26", "'25"]);
+    expect(soleCheckedKey(keys, { year2026: false, year2025: false, bib: false }, allLive)).toBe('year2027');
+  });
+
+  it('handles junk input without throwing', () => {
+    expect(soleCheckedKey(null, null, null)).toBeNull();
+    expect(soleCheckedKey([], {}, allLive)).toBeNull();
   });
 });
