@@ -65,6 +65,17 @@ export default function BottomSheet({
   footerPad = '3.25rem',
   ariaLabel = 'Drag to resize the list',
   peekPx = null,
+  // v0.62.704 — the stacking tier is now a prop, defaulting to the value this
+  // component has always hardcoded, so Cuisine / Hawker / Transport are
+  // byte-identical in behaviour. Clipboard needs a different one: its footer
+  // nav is z-20, so a z-30 sheet would cover the app's primary navigation,
+  // whereas in Hawker and Transport this same component sits BELOW their z-40
+  // footers (which is what `footerPad` leaves room for). Porting a z-index
+  // between apps without re-deriving it against THAT app's chrome is a
+  // mistake this repo has already made and documented once — see the z-[35]
+  // note in cuisine/MapPanel.jsx.
+  zClass = 'z-30',
+  className = '',
   children
 }) {
   const [snapIdx, setSnapIdx] = useState(initialSnap);
@@ -152,7 +163,7 @@ export default function BottomSheet({
 
   return (
     <div
-      className="fixed inset-x-0 bottom-0 z-30 bg-tg-bg rounded-t-2xl border-t border-tg-border shadow-[0_-6px_24px_rgba(0,0,0,0.28)] flex flex-col"
+      className={`fixed inset-x-0 bottom-0 ${zClass} bg-tg-bg rounded-t-2xl border-t border-tg-border shadow-[0_-6px_24px_rgba(0,0,0,0.28)] flex flex-col ${className}`}
       style={{ top: curTop, transition: dragTop != null ? 'none' : 'top 0.28s cubic-bezier(0.32,0.72,0,1)' }}
       data-gia-drawer
     >
