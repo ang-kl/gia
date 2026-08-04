@@ -2,8 +2,10 @@
 // ★ default toggle + ✎ edit mode (name + 📍 location inputs + pills
 // ⧉ Duplicate · 🗑 Delete · Cancel · ✓ Save). Drawers gain Duplicate + card ✕ Remove.
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import DrawerRow from './DrawerRow.jsx';
+import ItineraryMapSheet from './ItineraryMapSheet.jsx';
+import { buildItinerary } from '../lib/itinerary.js';
 import { t } from '../lib/i18n.js';
 
 const DRAWER_CAP = 20;
@@ -15,6 +17,12 @@ export default function CabinetView({
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
+  const [mapOpen, setMapOpen] = useState(false);
+  // The badge counts MAPPABLE stops only. Coordinates reach a card solely via
+  // the structured `venue` object, and copy-all pushes, blank cards and
+  // anything filed before v0.62.429 have none — counting all stops would
+  // promise pins that cannot exist.
+  const mapped = useMemo(() => (payload ? buildItinerary(payload).mappedStops : 0), [payload]);
   if (!payload) {
     return <div className="p-4 text-sm text-tg-hint">{t('chrome.loading', lang)}</div>;
   }
@@ -28,6 +36,25 @@ export default function CabinetView({
       <div className="flex items-center gap-2 mb-3">
         <button onClick={onBack} className="text-tg-hint text-sm">← {t('chrome.back', lang)}</button>
         <div className="flex-1 truncate text-base font-semibold">{cabinet.emoji} {cabinet.name}</div>
+        {/* 📍 lives on whichever cabinet is OPEN, and is absent entirely when
+            nothing in it can be pinned — a badge reading 0 would be an
+            invitation to an empty map. */}
+        {mapped > 0 && (
+          <button
+            onClick={() => setMapOpen((v) => !v)}
+            aria-pressed={mapOpen}
+            aria-expanded={mapOpen}
+            aria-controls="itinerary-map-sheet"
+            aria-label={t('itin.open', lang)}
+            title={t('itin.open', lang)}
+            className="gia-hit relative text-tg-accent text-sm"
+          >
+            📍
+            <span className="absolute -top-1 -right-2 min-w-[15px] h-[15px] px-1 rounded-full bg-tg-accent text-tg-accent-text text-[9px] font-bold leading-[15px] text-center">
+              {mapped}
+            </span>
+          </button>
+        )}
         <button
           onClick={onSetDefault}
           aria-pressed={isDefault}
@@ -90,6 +117,12 @@ export default function CabinetView({
         <button onClick={onAddDrawer} className="w-full bg-tg-accent text-tg-accent-text rounded-xl py-2 text-sm font-semibold mt-2">
           {t('cabinet.addDrawer', lang)}
         </button>
+      )}
+
+      {mapOpen && (
+        <div id="itinerary-map-sheet">
+          <ItineraryMapSheet payload={payload} lang={lang} onClose={() => setMapOpen(false)} />
+        </div>
       )}
     </div>
   );

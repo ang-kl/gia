@@ -111,3 +111,68 @@ input, textarea, select { font-size: 16px; }
 .gia-hit::after   { inset: -8px; }
 .gia-hit-x::after { inset: -2px -8px; }
 .gia-hit-y::after { inset: -8px -2px; }
+
+/* ══ Material 3 checkbox (see components/M3Checkbox.jsx) ══════════════════
+   Written as plain CSS rather than utilities because it needs sibling
+   selectors on :checked / :indeterminate / :focus-visible and a drawn
+   checkmark — none of which Tailwind expresses without a plugin. */
+.gia-m3cb { position: relative; flex: none; width: 40px; height: 40px; display: grid; place-items: center; }
+.gia-m3cb input {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  opacity: 0; margin: 0; cursor: pointer; z-index: 1;
+}
+.gia-m3cb-box {
+  position: relative; width: 18px; height: 18px; border-radius: 2px;
+  border: 2px solid #7e88a8; color: #141a36;
+  display: grid; place-items: center;
+  transition: background-color .1s linear, border-color .1s linear;
+}
+/* the 40dp state layer */
+.gia-m3cb-box::before {
+  content: ''; position: absolute; left: 50%; top: 50%;
+  width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%;
+  background: currentColor; opacity: 0; transition: opacity .1s linear; pointer-events: none;
+}
+.gia-m3cb input:active + .gia-m3cb-box::before,
+.gia-m3cb input:focus-visible + .gia-m3cb-box::before { opacity: .12; }
+.gia-m3cb input:focus-visible + .gia-m3cb-box { outline: 2px solid #2b59c9; outline-offset: 3px; }
+.gia-m3cb input:checked + .gia-m3cb-box,
+.gia-m3cb input:indeterminate + .gia-m3cb-box {
+  background: #2b59c9; border-color: #2b59c9; color: #2b59c9;
+}
+.gia-m3cb-box svg { width: 18px; height: 18px; overflow: visible; }
+.gia-m3cb-box .tick, .gia-m3cb-box .dash {
+  fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.gia-m3cb-box .tick { stroke-dasharray: 18; stroke-dashoffset: 18; transition: stroke-dashoffset .15s cubic-bezier(.2,0,0,1); }
+.gia-m3cb-box .dash { stroke-dasharray: 9;  stroke-dashoffset: 9;  transition: stroke-dashoffset .15s cubic-bezier(.2,0,0,1); }
+.gia-m3cb input:checked + .gia-m3cb-box .tick { stroke-dashoffset: 0; }
+.gia-m3cb input:indeterminate + .gia-m3cb-box .dash { stroke-dashoffset: 0; }
+.gia-m3cb input:indeterminate + .gia-m3cb-box .tick { stroke-dashoffset: 18; }
+
+/* ══ itinerary layer panel ═══════════════════════════════════════════════ */
+/* The connector runs down from the PARENT checkbox's centreline (x = 20px),
+   which is what makes the nesting readable without guessing an indent. */
+.gia-itin-kids { margin-left: 20px; border-left: 1.5px solid #e4e8f2; }
+.gia-itin-kids .gia-itin-row { padding-left: 10px; }
+.gia-itin-row { display: flex; align-items: center; min-height: 48px; border-radius: .5rem; cursor: pointer; }
+.gia-itin-row.is-part { min-height: 40px; }
+
+/* ══ print / PDF ═════════════════════════════════════════════════════════
+   There was no print path anywhere in this repository before this feature.
+   The live Google map is a WebGL canvas of raster tiles — browsers routinely
+   print it blank or as grey boxes, and Google's terms restrict reuse of
+   captured tiles — so the printed page swaps in the SVG schematic instead.
+   Both are drawn from lib/itinerary.js, so they cannot disagree. */
+@media print {
+  .gia-print-hide, .gia-itin-layers { display: none !important; }
+  .gia-print-only { display: block !important; }
+  .gia-itin-sheet {
+    position: static !important; inset: auto !important;
+    height: auto !important; max-height: none !important;
+    box-shadow: none !important; border: 0 !important; z-index: auto !important;
+  }
+  .gia-itin-drawer { break-inside: avoid; }
+  body { background: #fff !important; }
+}
+.gia-print-only { display: none; }
