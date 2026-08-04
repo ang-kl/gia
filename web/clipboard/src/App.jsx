@@ -16,6 +16,7 @@ import Shell         from './components/Shell.jsx';
 import CatchAllStrip from './components/CatchAllStrip.jsx';
 import CabinetGrid   from './components/CabinetGrid.jsx';
 import CabinetView   from './components/CabinetView.jsx';
+import CabinetSwitchSheet from './components/CabinetSwitchSheet.jsx';
 import SettingsView  from './components/SettingsView.jsx';
 import SharedView    from './components/SharedView.jsx';
 import {
@@ -30,6 +31,9 @@ export default function App() {
   const { state, reloadState, loadCabinet, setRoute } = useClipboardStore();
   const [sheet, setSheet] = useState(null);   // 'createCab' | 'addDrawer' | { kind:'amend', card } | { kind:'share', url }
   const [busy, setBusy] = useState(false);
+  // v0.62.705 — long-pressing footer tab 2 opens this; picking a cabinet sets
+  // it as the default (the same write ★ makes) and navigates there.
+  const [switchOpen, setSwitchOpen] = useState(false);
   const [tab, setTab] = useState('clipboard'); // root-level tab when not inside a cabinet
   // v0.62.418 — header chips filter the user's OWN saved cards (not new search).
   const [cuisineSel, setCuisineSel] = useState([]);          // v0.62.451 — selected cuisine slugs (multi, ≤5)
@@ -222,6 +226,7 @@ export default function App() {
       lang={lang}
       screen={screen}
       activeCabinetName={activeCabinetName}
+      onSwitchCabinet={() => setSwitchOpen(true)}
       footerCabinetLabel={footerCabinetLabel}
       onNav={onNav}
       onRefresh={refresh}
@@ -397,6 +402,26 @@ export default function App() {
             finally { setBusy(false); }
           }}
           onClose={() => setFileCard(null)}
+        />
+      )}
+
+      {switchOpen && (
+        <CabinetSwitchSheet
+          cabinets={state.cabinets || []}
+          defaultCabinetId={state.defaultCabinetId}
+          lang={lang}
+          onClose={() => setSwitchOpen(false)}
+          onManage={() => { setSwitchOpen(false); setRoute({ kind: 'root' }); setTab('cabinets'); }}
+          onPick={async (cabId) => {
+            setSwitchOpen(false);
+            // Navigate FIRST so the tap feels immediate, then persist. If the
+            // write fails the reload in the catch puts the label back, so the
+            // footer never claims a default the server did not accept.
+            setRoute({ kind: 'cabinet', cabId });
+            try { setBusy(true); await api.setDefaultCabinet(cabId); await reloadState(); }
+            catch (err) { alert(err.message); await reloadState(); }
+            finally { setBusy(false); }
+          }}
         />
       )}
     </Shell>

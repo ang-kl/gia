@@ -10,10 +10,11 @@
 // land in a later phase once wired to a source. Filter chips deep-link to the
 // Cuisine TMA (operator decision).
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useDialog } from '../../../_shared/lib/use-dialog.js';
 import { t } from '../lib/i18n.js';
 import { openMiniApp, haptic } from '../lib/tg.js';
+import { createLongPress } from '../lib/long-press.js';
 import LocaleToggle from './LocaleToggle.jsx';
 import CuisineGroupPicker from './CuisineGroupPicker.jsx';
 import QuickFilters from './QuickFilters.jsx';
@@ -48,13 +49,44 @@ const TAB_ICON = {
   grid:      <svg width="20" height="20" viewBox="0 0 24 24" {...SW}><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>,
   settings:  <svg width="20" height="20" viewBox="0 0 24 24" {...SW}><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>,
 };
-function FooterTab({ iconKey, label, active, onClick }) {
+// v0.62.705 — `onLongPress` is optional and only tab 2 passes it. A plain tap
+// is completely unchanged for every tab; the hold is additive.
+//
+// Three routes into the same action, because a hold is touch-only:
+//   · press and hold 500ms (phone)
+//   · right-click / context menu (desktop, and the semantic equivalent)
+//   · ArrowUp while the tab has focus (keyboard, advertised via
+//     aria-keyshortcuts — a gesture no keyboard can perform is not a feature)
+function FooterTab({ iconKey, label, active, onClick, onLongPress, holdLabel }) {
+  const press = useRef(null);
+  if (onLongPress && !press.current) {
+    press.current = createLongPress({ onLongPress: () => { haptic('medium'); onLongPress(); } });
+  }
+  const lp = press.current;
+
+  const hold = onLongPress ? {
+    onPointerDown: (e) => lp.down(e.clientX, e.clientY),
+    onPointerMove: (e) => lp.move(e.clientX, e.clientY),
+    onPointerUp: () => lp.up(),
+    onPointerCancel: () => lp.up(),
+    onPointerLeave: () => lp.up(),
+    onContextMenu: (e) => { e.preventDefault(); onLongPress(); },
+    onKeyDown: (e) => { if (e.key === 'ArrowUp') { e.preventDefault(); onLongPress(); } },
+    'aria-haspopup': 'dialog',
+    'aria-keyshortcuts': 'ArrowUp'
+  } : null;
+
   return (
     <button
       type="button"
-      onClick={onClick}
+      // A hold that opened the picker must NOT also navigate: the browser still
+      // sends a click on release, and consumeClick() swallows exactly that one.
+      onClick={() => { if (lp && lp.consumeClick()) return; onClick(); }}
+      {...hold}
       className={`flex-1 flex flex-col items-center gap-0.5 py-1 bg-transparent ${active ? 'text-tg-accent' : 'text-tg-hint'}`}
       aria-current={active ? 'page' : undefined}
+      title={holdLabel || undefined}
+      style={onLongPress ? { touchAction: 'manipulation', WebkitTouchCallout: 'none' } : undefined}
     >
       <span aria-hidden>{TAB_ICON[iconKey]}</span>
       <span className="text-[10px] font-semibold max-w-[92px] truncate">{label}</span>
@@ -65,6 +97,8 @@ function FooterTab({ iconKey, label, active, onClick }) {
 export default function Shell({
   lang = 'en', screen, activeCabinetName = '', footerCabinetLabel,
   onNav, onRefresh, children,
+  // v0.62.705 — long-press footer tab 2 to switch which cabinet it points at.
+  onSwitchCabinet,
   // v0.62.440 — the header chip FILTERS the user's saved cards via a FOLIO
   // DROPDOWN (drops down under the chip, like the Cuisine TMA tabs — not a
   // bottom sheet).
@@ -212,7 +246,8 @@ export default function Shell({
       <nav className="flex-shrink-0 fixed bottom-0 inset-x-0 z-20 bg-tg-card/95 backdrop-blur border-t border-tg-border flex flex-col px-1 pt-1 pb-5">
         <div className="flex">
           <FooterTab iconKey="clipboard" label={t('nav.clipboard', lang)} active={screen === 'clipboard'} onClick={() => go('clipboard')} />
-          <FooterTab iconKey="cabinet" label={cabLabel} active={screen === 'cabinet'} onClick={() => go('cabinet')} />
+          <FooterTab iconKey="cabinet" label={cabLabel} active={screen === 'cabinet'} onClick={() => go('cabinet')}
+                     onLongPress={onSwitchCabinet} holdLabel={t('cabinet.switchHold', lang)} />
           <FooterTab iconKey="grid" label={t('nav.cabinets', lang)} active={screen === 'cabinets'} onClick={() => go('cabinets')} />
           <FooterTab iconKey="settings" label={t('nav.settings', lang)} active={screen === 'settings'} onClick={() => go('settings')} />
         </div>

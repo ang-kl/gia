@@ -176,3 +176,12 @@ input, textarea, select { font-size: 16px; }
   body { background: #fff !important; }
 }
 .gia-print-only { display: none; }
+
+/* v0.62.706 — the map control clusters, matching Hawker/Transport/Cuisine.
+   Sketchbook is fixed-light (D-37), so these are the palette's own hexes
+   rather than the Telegram theme vars the other three use. */
+.gia-map-btn {
+  background-color: #ffffff;
+  color: #141a36;
+  border-color: #e4e8f2;
+}

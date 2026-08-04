@@ -17,6 +17,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import BottomSheet from '../../../_shared/components/BottomSheet.jsx';
 import ItineraryLayers from './ItineraryLayers.jsx';
 import ItinerarySvgMap from './ItinerarySvgMap.jsx';
+import MapControls from '../../../_shared/components/MapControls.jsx';
 import { loadGoogleMaps } from '../../../_shared/lib/gmaps-loader.js';
 import { buildItinerary, drawerZone, visibleLegs, dayParts, mappable, mapsUrl, toPlainText } from '../lib/itinerary.js';
 import { t } from '../lib/i18n.js';
@@ -52,6 +53,8 @@ export default function ItineraryMapSheet({ payload, lang, onClose }) {
   const [layers, setLayers] = useState({ zones: true, legs: true, pins: true, anchors: true });
   const [mapState, setMapState] = useState('loading');   // loading | ready | nokey | error
   const [copied, setCopied] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(null);   // drives the cluster's readout button
+  const [expanded, setExpanded] = useState(false);
 
   const hostRef = useRef(null);
   const mapRef = useRef(null);
@@ -59,6 +62,7 @@ export default function ItineraryMapSheet({ payload, lang, onClose }) {
   const markersRef = useRef([]);
   const shapesRef = useRef([]);
   const infoRef = useRef(null);
+  const fitRef = useRef(null);   // the itinerary's own bounds — what Reset returns to
 
   const visible = useMemo(() => drawers.filter((d) => drawerOn[d.idx]), [drawers, drawerOn]);
   const zones = useMemo(
@@ -86,6 +90,7 @@ export default function ItineraryMapSheet({ payload, lang, onClose }) {
           minZoom: 7, maxZoom: 20, gestureHandling: 'greedy', mapId
         });
         infoRef.current = new maps.InfoWindow({ headerDisabled: true, disableAutoPan: false });
+        mapRef.current.addListener('zoom_changed', () => setZoomLevel(mapRef.current.getZoom()));
         setMapState('ready');
       })
       .catch((err) => { if (!dead) setMapState(String(err && err.message) === 'nokey' ? 'nokey' : 'error'); });
@@ -164,6 +169,10 @@ export default function ItineraryMapSheet({ payload, lang, onClose }) {
     });
 
     if (any) {
+      // Remember the fitted view so the cluster's Reset returns HERE — to the
+      // itinerary — rather than to a hardcoded city centroid the way the other
+      // panels do. Their map is "Singapore"; this one is "your day".
+      fitRef.current = bounds;
       map.fitBounds(bounds, 48);
       // Two near-identical pins make fitBounds zoom in absurdly close — the
       // same clamp Cuisine carries.
@@ -190,7 +199,79 @@ export default function ItineraryMapSheet({ payload, lang, onClose }) {
   const btnPrimary = 'flex-1 py-2 rounded-lg bg-tg-accent text-tg-accent-text text-sm font-semibold';
   const btnSecondary = 'flex-1 py-2 rounded-lg border border-tg-border text-sm';
 
+  const mapBtn = 'gia-hit-x gia-map-btn w-7 h-7 rounded-full border shadow-md flex items-center justify-center leading-none active:scale-95';
+  const zoomBy = (d) => mapRef.current?.setZoom((mapRef.current.getZoom() ?? 12) + d);
+  const resetView = () => { if (fitRef.current) mapRef.current?.fitBounds(fitRef.current, 48); };
+
   return (
+    <>
+    {/* ── THE MAP IS FULL-BLEED, BEHIND THE SHEET ──────────────────────────
+        v0.62.706. It used to be a 240px box INSIDE the sheet's scrolling
+        content, which is why the operator found it "block at half": at the
+        half snap the sheet showed buttons and the layer panel, and the map was
+        below the fold. Every other TMA puts the map behind and floats the
+        sheet over it, and the sheet's own snaps only make sense against a map
+        you can still see. `bottom-14` clears the z-20 footer nav. */}
+    <div className={`fixed inset-x-0 top-0 gia-print-hide ${expanded ? 'bottom-0 z-[16]' : 'bottom-14 z-[14]'}`}>
+      <div ref={hostRef} className="w-full h-full" />
+
+      {mapState !== 'ready' && (
+        <div className="absolute inset-0 grid place-items-center text-[12px] text-tg-hint bg-tg-card px-4 text-center">
+          {t(mapState === 'nokey' ? 'itin.map.nokey' : mapState === 'error' ? 'itin.map.error' : 'itin.map.loading', lang)}
+        </div>
+      )}
+
+      {/* The standardised LEFT nav cluster — zoom readout/Reset · ＋ · ↹ · － · ⇲.
+          Same geometry, same glyphs and same order as Hawker/Transport/Cuisine;
+          the operator asked where it was, and the answer was that this map
+          simply never had one. */}
+      {mapState === 'ready' && (
+        <div className="absolute left-2 top-2 flex flex-col gap-1 z-10">
+          <button type="button" onClick={resetView} className={`${mapBtn} text-[11px] font-bold`}
+                  aria-label={t('map.reset', lang)} title={t('map.reset', lang)}>
+            <span aria-hidden>{zoomLevel != null ? Math.round(zoomLevel) : '⟲'}</span>
+          </button>
+          <button type="button" onClick={() => zoomBy(1)} className={`${mapBtn} text-base font-bold`}
+                  aria-label={t('map.zoomIn', lang)}><span aria-hidden>＋</span></button>
+          <button type="button" onClick={resetView} className={`${mapBtn} text-base font-bold`}
+                  aria-label={t('map.centre', lang)} title={t('map.centre', lang)}><span aria-hidden>↹</span></button>
+          <button type="button" onClick={() => zoomBy(-1)} className={`${mapBtn} text-base font-bold`}
+                  aria-label={t('map.zoomOut', lang)}><span aria-hidden>－</span></button>
+          <button type="button" onClick={() => setExpanded((v) => !v)} className={`${mapBtn} text-base font-bold`}
+                  aria-label={t(expanded ? 'map.collapse' : 'map.expand', lang)}
+                  title={t(expanded ? 'map.collapse' : 'map.expand', lang)}>
+            <span aria-hidden>{expanded ? '⇱' : '⇲'}</span>
+          </button>
+        </div>
+      )}
+
+      {/* The floating quick-toggle row + ⋮ overflow, same component the other
+          three use. These are the MAP layers; which DRAWERS are shown stays in
+          the sheet's day panel, because that is itinerary content, not a map
+          rendering option. */}
+      {mapState === 'ready' && (
+        <MapControls
+          layers={layers}
+          onToggleLayer={(k) => setLayers((st) => ({ ...st, [k]: !st[k] }))}
+          menuLabel={t('map.layers', lang)}
+          rowToggles={[
+            { key: 'pins',  icon: '📍', label: t('itin.layer.pins', lang) },
+            { key: 'legs',  icon: '↔',  label: t('itin.layer.legs', lang) }
+          ]}
+          menuToggles={[
+            { key: 'zones',   icon: '◯', label: t('itin.layer.zones', lang) },
+            { key: 'anchors', icon: '◇', label: t('itin.layer.anchors', lang) }
+          ]}
+        />
+      )}
+    </div>
+
+    {/* The print renderer sits outside the sheet so the printed page is not
+        subject to the sheet's height. */}
+    <div className="gia-print-only">
+      <ItinerarySvgMap drawers={visible} zones={zones} legs={legs} layers={layers} />
+    </div>
+
     <BottomSheet
       // Below Clipboard's z-20 footer nav, so the app's primary navigation
       // stays reachable — exactly how this component sits under Hawker's and
@@ -231,21 +312,6 @@ export default function ItineraryMapSheet({ payload, lang, onClose }) {
             const n = { ...s }; p.items.forEach((d) => { n[d.idx] = v; }); return n;
           })}
         />
-
-        {/* Screen: the live Google map. */}
-        <div className="gia-print-hide bg-tg-card border border-tg-border rounded-xl overflow-hidden mb-2 relative" style={{ height: 240 }}>
-          <div ref={hostRef} className="w-full h-full" />
-          {mapState !== 'ready' && (
-            <div className="absolute inset-0 grid place-items-center text-[12px] text-tg-hint bg-tg-card px-4 text-center">
-              {t(mapState === 'nokey' ? 'itin.map.nokey' : mapState === 'error' ? 'itin.map.error' : 'itin.map.loading', lang)}
-            </div>
-          )}
-        </div>
-
-        {/* Print: the SVG. A WebGL canvas of raster tiles prints blank. */}
-        <div className="gia-print-only mb-2">
-          <ItinerarySvgMap drawers={visible} zones={zones} legs={legs} layers={layers} />
-        </div>
 
         {/* The list, separated by drawer, with the travel leg between them. */}
         {visible.map((d) => {
@@ -301,5 +367,6 @@ export default function ItineraryMapSheet({ payload, lang, onClose }) {
         <p className="text-[10px] text-tg-hint mt-2 leading-relaxed">{t('itin.foot', lang)}</p>
       </div>
     </BottomSheet>
+    </>
   );
 }
