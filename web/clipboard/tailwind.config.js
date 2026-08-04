@@ -3,7 +3,19 @@ import { m3Radius } from '../_shared/lib/m3-tokens.js';
 import { typeScale } from '../_shared/lib/type-tokens.js';
 
 export default {
-  content: ['./index.html', './src/**/*.{js,jsx}'],
+  // v0.62.706 — `../_shared/**` was MISSING here and in no other TMA, and it
+  // cost a device bug: the Sketchbook itinerary sheet reuses
+  // web/_shared/components/BottomSheet.jsx, Tailwind never scanned that file,
+  // so every utility it uses that no clipboard/src file happens to also use was
+  // silently dropped from this app's stylesheet. `h-1.5` went missing, which is
+  // the drag pill's HEIGHT — it rendered 48px wide and 0px tall, i.e. the
+  // operator's "doesnt have handle like the other TMA". `touch-none` went with
+  // it, so the drag band never set `touch-action: none` and the WebView ate the
+  // gesture as a page scroll: "block at half".
+  //
+  // Nothing warns about this. The build is green, the JSX is correct, and the
+  // class simply does not exist in the CSS. See __tests__/tailwind-shared-content-guard.test.js.
+  content: ['./index.html', './src/**/*.{js,jsx}', '../_shared/**/*.{js,jsx}'],
   theme: {
     extend: {
       // M3 Tier 1 (v0.62.672) — vocabulary only; see web/_shared/lib/m3-tokens.js.

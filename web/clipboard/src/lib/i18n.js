@@ -256,6 +256,15 @@ const STRINGS = {
   'cabinet.switchEmpty':    { en: 'No cabinets yet.',       fr: 'Aucun meuble pour l’instant.', id: 'Belum ada lemari.', ru: 'Шкафов пока нет.',   de: 'Noch keine Schränke.' , zh: '尚无柜子。', ja: 'まだキャビネットがありません。', es: 'Aun no hay armarios.' },
   'cabinet.switchHold':     { en: 'Hold to switch cabinet', fr: 'Maintenir pour changer de meuble', id: 'Tahan untuk ganti lemari', ru: 'Удерживайте, чтобы сменить шкаф', de: 'Gedrückt halten zum Wechseln' , zh: '长按可切换柜子', ja: '長押しでキャビネットを切替', es: 'Manten pulsado para cambiar de armario' },
 
+  // ── map controls (v0.62.706) — mirror the other three TMAs' clusters ──
+  'map.reset':              { en: 'Reset view',            fr: 'Réinitialiser',        id: 'Atur ulang tampilan', ru: 'Сбросить вид',    de: 'Ansicht zurücksetzen' , zh: '重置视图', ja: '表示をリセット', es: 'Restablecer vista' },
+  'map.zoomIn':             { en: 'Zoom in',               fr: 'Zoom avant',           id: 'Perbesar',          ru: 'Приблизить',      de: 'Vergrößern' , zh: '放大', ja: '拡大', es: 'Acercar' },
+  'map.zoomOut':            { en: 'Zoom out',              fr: 'Zoom arrière',         id: 'Perkecil',          ru: 'Отдалить',        de: 'Verkleinern' , zh: '缩小', ja: '縮小', es: 'Alejar' },
+  'map.centre':             { en: 'Centre map',            fr: 'Centrer la carte',     id: 'Pusatkan peta',     ru: 'Центрировать карту', de: 'Karte zentrieren' , zh: '居中地图', ja: '地図を中央に', es: 'Centrar el mapa' },
+  'map.expand':             { en: 'Expand map',            fr: 'Agrandir la carte',    id: 'Perbesar peta',     ru: 'Развернуть карту', de: 'Karte vergrößern' , zh: '展开地图', ja: '地図を拡大', es: 'Ampliar el mapa' },
+  'map.collapse':           { en: 'Collapse map',          fr: 'Réduire la carte',     id: 'Perkecil peta',     ru: 'Свернуть карту',  de: 'Karte verkleinern' , zh: '收起地图', ja: '地図を縮小', es: 'Reducir el mapa' },
+  'map.layers':             { en: 'Layers',                fr: 'Calques',              id: 'Lapisan',           ru: 'Слои',            de: 'Ebenen' , zh: '图层', ja: 'レイヤー', es: 'Capas' },
+
   // ── itinerary map (v0.62.704) ──────────────────────────────────────
   'itin.open':              { en: 'Itinerary map',      fr: 'Carte de l’itinéraire', id: 'Peta itinerari', ru: 'Карта маршрута', de: 'Reiseroutenkarte' , zh: '行程地图', ja: '旅程マップ', es: 'Mapa del itinerario' },
   'itin.title':             { en: 'Itinerary map',      fr: 'Carte de l’itinéraire', id: 'Peta itinerari', ru: 'Карта маршрута', de: 'Reiseroutenkarte' , zh: '行程地图', ja: '旅程マップ', es: 'Mapa del itinerario' },
