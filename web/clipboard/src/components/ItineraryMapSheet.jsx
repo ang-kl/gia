@@ -43,7 +43,7 @@ function pinNode(label, color) {
 }
 
 export default function ItineraryMapSheet({ payload, lang, onClose }) {
-  const model = useMemo(() => buildItinerary(payload, lang), [payload, lang]);
+  const model = useMemo(() => buildItinerary(payload, lang, t), [payload, lang]);
   const { drawers, totalStops, mappedStops } = model;
 
   const [drawerOn, setDrawerOn] = useState(() => {
@@ -180,7 +180,7 @@ export default function ItineraryMapSheet({ payload, lang, onClose }) {
   const doCopy = async () => {
     // Cuisine's copy UX: the app STAYS OPEN and the button confirms for 3s.
     // Never tg().close() — that was O-95, and it is settled.
-    const text = toPlainText({ cabinet: payload.cabinet, drawers: visible, legs, lang });
+    const text = toPlainText({ cabinet: payload.cabinet, drawers: visible, legs, lang, translate: t });
     try {
       await navigator.clipboard.writeText(text);
       haptic('light'); setCopied(true); setTimeout(() => setCopied(false), 3000);

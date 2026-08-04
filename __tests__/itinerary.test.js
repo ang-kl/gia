@@ -14,6 +14,18 @@ import {
   buildItinerary, drawerZone, visibleLegs, dayParts, toPlainText, GROUP_HEX
 } from '../web/clipboard/src/lib/itinerary.js';
 
+// The translator is injected, never imported. This module must stay loadable
+// with NOTHING installed beyond the repo root — importing the TMA's i18n.js
+// would drag React in behind a name that gives no hint of it, which is exactly
+// what broke CI on the first commit of this feature. A stub here both proves
+// the seam and keeps these tests honest about what the module owns.
+const T = (key) => ({
+  'seg.breakfast': 'Breakfast', 'seg.lunch': 'Lunch', 'seg.teaBreak': 'Tea Break',
+  'seg.dinner': 'Dinner', 'seg.supper': 'Supper', 'seg.wholeDay': 'Whole Day',
+  'seg.earlyDinner': 'Early Dinner',
+  'itin.noCoords': 'Saved before locations were stored — no coordinates.'
+}[key] || key);
+
 const venue = (name, lat, lng, extra = {}) => ({
   name, venue: { name, lat, lng, area: `${name} Road`, ...extra }
 });
@@ -39,7 +51,7 @@ describe('mappable', () => {
   });
 
   it('counts a coordinate-less card out of the map but still into the list', () => {
-    const { drawers, totalStops, mappedStops } = buildItinerary(cabinet);
+    const { drawers, totalStops, mappedStops } = buildItinerary(cabinet, 'en', T);
     expect(totalStops).toBe(7);
     expect(mappedStops).toBe(6);
     // The card is still there — it is real content, not a parse failure.
@@ -73,7 +85,7 @@ describe('drawerColor', () => {
   });
 
   it('keeps every colour in a full cabinet distinct', () => {
-    const { drawers } = buildItinerary(cabinet);
+    const { drawers } = buildItinerary(cabinet, 'en', T);
     expect(new Set(drawers.map((d) => d.color)).size).toBe(drawers.length);
   });
 
@@ -112,7 +124,7 @@ describe('haversineKm', () => {
 
 describe('drawerZone', () => {
   it('centres on the mappable stops and measures their spread', () => {
-    const { drawers } = buildItinerary(cabinet);
+    const { drawers } = buildItinerary(cabinet, 'en', T);
     const z = drawerZone(drawers[0]);
     expect(z.lat).toBeCloseTo((1.2843 + 1.2856) / 2, 5);
     expect(z.spreadKm).toBeGreaterThan(0);
@@ -124,14 +136,14 @@ describe('drawerZone', () => {
   });
 
   it('gives a single-stop drawer zero spread rather than NaN', () => {
-    const { drawers } = buildItinerary(cabinet);
+    const { drawers } = buildItinerary(cabinet, 'en', T);
     expect(drawerZone(drawers[1]).spreadKm).toBe(0);
   });
 });
 
 describe('visibleLegs', () => {
   it('links consecutive drawers, one leg fewer than drawers', () => {
-    const { drawers } = buildItinerary(cabinet);
+    const { drawers } = buildItinerary(cabinet, 'en', T);
     const legs = visibleLegs(drawers);
     expect(legs).toHaveLength(4);
     expect(legs.map((h) => h.from.d.key)).toEqual(['breakfast', 'lunch', 'teaBreak', 'dinner']);
@@ -140,7 +152,7 @@ describe('visibleLegs', () => {
   // The whole point of recomputing rather than hiding a line: unticking a
   // drawer must answer "what if I skip it?" with the leg actually travelled.
   it('re-links across a hidden middle drawer', () => {
-    const { drawers } = buildItinerary(cabinet);
+    const { drawers } = buildItinerary(cabinet, 'en', T);
     const teaIdx = drawers.find((d) => d.key === 'teaBreak').idx;
     const legs = visibleLegs(drawers, (i) => i !== teaIdx);
     expect(legs).toHaveLength(3);
@@ -153,7 +165,7 @@ describe('visibleLegs', () => {
   });
 
   it('flags a tight connection', () => {
-    const { drawers } = buildItinerary(cabinet);
+    const { drawers } = buildItinerary(cabinet, 'en', T);
     const legs = visibleLegs(drawers);
     // Dinner ends 9:00 PM, Supper starts 9:00 PM — zero gap.
     const last = legs[legs.length - 1];
@@ -195,7 +207,7 @@ describe('dayParts', () => {
   });
 
   it('computes each part span from the drawers inside it', () => {
-    const { drawers } = buildItinerary(cabinet);
+    const { drawers } = buildItinerary(cabinet, 'en', T);
     const evening = dayParts(drawers).find((p) => p.key === 'evening');
     // teaBreak 3:00 PM – 5:00 PM, dinner 7:30 PM – 9:00 PM
     expect(evening.items.map((d) => d.key)).toEqual(['teaBreak', 'dinner']);
@@ -219,10 +231,22 @@ describe('dayParts', () => {
   });
 });
 
+describe('translator injection', () => {
+  it('falls back to the key when no translator is supplied — no i18n import', () => {
+    const { drawers } = buildItinerary({ drawers: [{ segment: 'lunch', cards: [] }] });
+    expect(drawers[0].name).toBe('seg.lunch');
+  });
+
+  it('uses the supplied translator when there is one', () => {
+    const { drawers } = buildItinerary({ drawers: [{ segment: 'lunch', cards: [] }] }, 'en', T);
+    expect(drawers[0].name).toBe('Lunch');
+  });
+});
+
 describe('toPlainText', () => {
   it('separates by drawer and names the unmappable stop rather than dropping it', () => {
-    const { drawers } = buildItinerary(cabinet);
-    const text = toPlainText({ cabinet: cabinet.cabinet, drawers, legs: visibleLegs(drawers) });
+    const { drawers } = buildItinerary(cabinet, 'en', T);
+    const text = toPlainText({ cabinet: cabinet.cabinet, drawers, legs: visibleLegs(drawers), translate: T });
     expect(text).toContain('Ya Kun');
     expect(text).toContain('Jumbo Seafood');
     expect(text).toContain('no coordinates');

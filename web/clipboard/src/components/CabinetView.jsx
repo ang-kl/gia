@@ -22,6 +22,8 @@ export default function CabinetView({
   // the structured `venue` object, and copy-all pushes, blank cards and
   // anything filed before v0.62.429 have none — counting all stops would
   // promise pins that cannot exist.
+  // No translator passed: only the COUNT is read here, and drawer names are
+  // the one thing that needs one.
   const mapped = useMemo(() => (payload ? buildItinerary(payload).mappedStops : 0), [payload]);
   if (!payload) {
     return <div className="p-4 text-sm text-tg-hint">{t('chrome.loading', lang)}</div>;

@@ -14,7 +14,21 @@
 // See instr/GIA_Sketchbook_Itinerary_Map_AI_Prompt.md.
 
 import { SEGMENTS, SEGMENT_BY_KEY } from './segments.js';
-import { t } from './i18n.js';
+
+// The translator is INJECTED, not imported.
+//
+// This file's first line claims it has no React. That was false on the first
+// commit: it imported `t` from ./i18n.js, and i18n.js imports React for its
+// `useLocale` hook — so the "pure" module pulled the whole renderer in behind
+// a name that gave no hint of it. Locally that resolved (React sits in
+// web/clipboard/node_modules and Vite walks up from the importer); the
+// root-level unit-test job installs no TMA dependencies, so CI failed with
+// "Failed to load url react … in i18n.js".
+//
+// The import was the defect, not the test. A module that advertises itself as
+// dependency-free has to actually be, and the fix is to take the one thing it
+// needed as an argument.
+const IDENT = (key) => key;
 
 // The four day-part families, matching tailwind.config.js g-morning … g-night.
 export const GROUP_HEX = {
@@ -108,7 +122,7 @@ function toStop(card) {
  * Drawers keep their stored order but are given their clock position, so a
  * cabinet whose drawers were added out of order still reads as a day.
  */
-export function buildItinerary(payload, lang = 'en') {
+export function buildItinerary(payload, lang = 'en', translate = IDENT) {
   const raw = (payload && Array.isArray(payload.drawers)) ? payload.drawers : [];
   const seen = {};
   const drawers = raw.map((d, i) => {
@@ -121,7 +135,7 @@ export function buildItinerary(payload, lang = 'en') {
       key: seg.key,
       emoji: seg.emoji,
       group: seg.group,
-      name: t(`seg.${seg.key}`, lang),
+      name: translate(`seg.${seg.key}`, lang),
       dayTag: d.dayTag || '',
       time: seg.timeEN,
       clock: parseTimeEN(seg.timeEN),
@@ -221,7 +235,7 @@ export function dayParts(drawers) {
 }
 
 /** Straight-line distance disclaimer is the caller's job; this is text only. */
-export function toPlainText({ cabinet, drawers, legs, lang = 'en' }) {
+export function toPlainText({ cabinet, drawers, legs, lang = 'en', translate = IDENT }) {
   const lines = [];
   lines.push(`${cabinet && cabinet.emoji ? cabinet.emoji + ' ' : ''}${(cabinet && cabinet.name) || ''}`.trim());
   if (cabinet && cabinet.location) lines.push(`📍 ${cabinet.location}`);
@@ -244,7 +258,7 @@ export function toPlainText({ cabinet, drawers, legs, lang = 'en' }) {
       if (s.tags.length) lines.push(`        ${s.tags.join(' · ')}`);
       if (s.note) lines.push(`        ✎ ${s.note}`);
       if (mappable(s)) lines.push(`        ${mapsUrl(s)}`);
-      else lines.push(`        ${t('itin.noCoords', lang)}`);
+      else lines.push(`        ${translate('itin.noCoords', lang)}`);
     });
     lines.push('');
   });
