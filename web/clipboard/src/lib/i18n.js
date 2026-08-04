@@ -250,6 +250,12 @@ const STRINGS = {
   'seg.nightSnack':         { en: 'Night Snack',        fr: 'Encas de nuit',    id: 'Camilan malam',  ru: 'Ночной перекус', de: 'Mitternachts­snack' , zh: '夜宵', ja: '深夜の軽食', es: 'Tentempie nocturno' },
   'seg.wholeDay':           { en: 'Whole Day · 24/7',   fr: 'Toute la journée', id: 'Sepanjang hari', ru: 'Целый день',     de: 'Ganztägig' , zh: '全天 · 24/7', ja: '終日 · 24時間', es: 'Todo el dia · 24/7' },
 
+  // ── switch which cabinet footer tab 2 points at (v0.62.705) ────────
+  'cabinet.switchTitle':    { en: 'Switch cabinet',        fr: 'Changer de meuble',    id: 'Ganti lemari',      ru: 'Сменить шкаф',        de: 'Schrank wechseln' , zh: '切换柜子', ja: 'キャビネットを切替', es: 'Cambiar de armario' },
+  'cabinet.switchHint':     { en: 'Sets the ★ default — the footer tab and the header follow it.', fr: 'Définit le ★ par défaut — l’onglet du bas et l’en-tête le suivent.', id: 'Menetapkan ★ default — tab bawah dan header mengikutinya.', ru: 'Задаёт ★ по умолчанию — нижняя вкладка и заголовок следуют за ним.', de: 'Legt den ★ Standard fest — Fußzeilen-Tab und Kopfzeile folgen ihm.' , zh: '设为 ★ 默认 — 底部标签与标题都会跟随。', ja: '★ 既定に設定します — フッタータブとヘッダーが追従します。', es: 'Define el ★ predeterminado: la pestana inferior y el encabezado lo siguen.' },
+  'cabinet.switchEmpty':    { en: 'No cabinets yet.',       fr: 'Aucun meuble pour l’instant.', id: 'Belum ada lemari.', ru: 'Шкафов пока нет.',   de: 'Noch keine Schränke.' , zh: '尚无柜子。', ja: 'まだキャビネットがありません。', es: 'Aun no hay armarios.' },
+  'cabinet.switchHold':     { en: 'Hold to switch cabinet', fr: 'Maintenir pour changer de meuble', id: 'Tahan untuk ganti lemari', ru: 'Удерживайте, чтобы сменить шкаф', de: 'Gedrückt halten zum Wechseln' , zh: '长按可切换柜子', ja: '長押しでキャビネットを切替', es: 'Manten pulsado para cambiar de armario' },
+
   // ── itinerary map (v0.62.704) ──────────────────────────────────────
   'itin.open':              { en: 'Itinerary map',      fr: 'Carte de l’itinéraire', id: 'Peta itinerari', ru: 'Карта маршрута', de: 'Reiseroutenkarte' , zh: '行程地图', ja: '旅程マップ', es: 'Mapa del itinerario' },
   'itin.title':             { en: 'Itinerary map',      fr: 'Carte de l’itinéraire', id: 'Peta itinerari', ru: 'Карта маршрута', de: 'Reiseroutenkarte' , zh: '行程地图', ja: '旅程マップ', es: 'Mapa del itinerario' },
