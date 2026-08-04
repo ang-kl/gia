@@ -1,0 +1,997 @@
+{
+  "since": "2026-08-04T02:08:37Z",
+  "until": "2026-08-04T03:13:37Z",
+  "count": 110,
+  "logs": [
+    {
+      "timestamp": "2026-08-04T02:18:19.747768393Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.747777157Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.747843014Z",
+      "message": "[Cuisine-TMA] D-A1 region resolved: client=<unset> cached=<unset> coords=(1.28,103.85) → SG",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.747852616Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.747859270Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.27605,103.85484],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.747860221Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.747865168Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.2760,103.8548 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.747871254Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.747877607Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.747913336Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":null,\"to\":[1.27605,103.85484],\"moved_m\":null,\"label\":\"Singapore\",\"region\":\"SG\",\"country\":null,\"cap_m\":null,\"ambient\":true,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.747923102Z",
+      "message": "[set-location] chat=313940231 → 1.2760,103.8548 label=\"Singapore\"  SG",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.747929697Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.747935338Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.747940788Z",
+      "message": "[Cuisine-Search] D703 venue-filter (type+name) 60 → 59",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.747951855Z",
+      "message": "[Cuisine-Search] D703s SG-scope 59 → 59 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.749122040Z",
+      "message": "[Cuisine-Search] sliceCap=6 firstBatch=true finalBatch=false range=1-6 seenBefore=0 hash=4a918455",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.749127800Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.749135824Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.749139764Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.749143703Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:19.749147652Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:21.640491590Z",
+      "message": "[country-pref] chat=313940231 → ID",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:21.640498083Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":[1.27605,103.85484],\"to\":[-6.2088,106.8456],\"moved_m\":896056,\"label\":\"Jakarta\",\"region\":\"OTHER\",\"country\":\"ID\",\"cap_m\":40000,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:21.640505566Z",
+      "message": "[set-location] chat=313940231 → -6.2088,106.8456 label=\"Jakarta\" ID OTHER",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:24.829288792Z",
+      "message": "[footfall] besttime resolved=0/6",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:24.829294374Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (6v): crowd=2495ms translate=1ms reviewCache=2ms dishes=4641ms finalise=1ms travel=412ms sanctuary=140ms footfall=4084ms total=11776ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:24.829300645Z",
+      "message": "[Cuisine-Search] D704 returning 6 venues to client (poolCount=6 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:44.713262536Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":[-6.2088,106.8456],\"to\":[3.5952,98.6722],\"moved_m\":1418443,\"label\":\"Medan\",\"region\":\"OTHER\",\"country\":\"ID\",\"cap_m\":40000,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:44.713268888Z",
+      "message": "[set-location] chat=313940231 → 3.5952,98.6722 label=\"Medan\" ID OTHER",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:18:44.713275502Z",
+      "message": "[set-location] search-area notify chat=313940231 area=\"No.6 Jalan Rambutan · No.6 Jalan Rambutan, ID\"",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:20:25.700270966Z",
+      "message": "[country-pref] chat=313940231 → AU",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:20:25.700275527Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":[3.5952,98.6722],\"to\":[-35.2809,149.13],\"moved_m\":6799904,\"label\":\"Canberra\",\"region\":\"OTHER\",\"country\":\"AU\",\"cap_m\":40000,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:20:25.700281170Z",
+      "message": "[set-location] chat=313940231 → -35.2809,149.1300 label=\"Canberra\" AU OTHER",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:20:25.700285857Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":[-35.2809,149.13],\"to\":[-41.4332,147.1441],\"moved_m\":705620,\"label\":\"Launceston\",\"region\":\"OTHER\",\"country\":\"AU\",\"cap_m\":36030,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:20:25.700290649Z",
+      "message": "[set-location] chat=313940231 → -41.4332,147.1441 label=\"Launceston\" AU OTHER",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:20:25.700294737Z",
+      "message": "[set-location] search-area notify chat=313940231 area=\"6 City Plaza · 6 City Plaza, Launceston, AU\"",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:46:58.509413425Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[-41.4332,147.1441],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":36030,\"cap_src\":\"explicit\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:46:58.509423452Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=-41.4332,147.1441 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:46:58.509430765Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:46:58.509443664Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 52 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:46:58.509450443Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 52 → 52 (≤36030m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:46:58.509457714Z",
+      "message": "[Cuisine-Search] sliceCap=6 firstBatch=true finalBatch=false range=1-6 seenBefore=0 hash=38ce880f",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:47:04.506193250Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:47:04.506199818Z",
+      "message": "[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:47:04.506206752Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (6v): crowd=2220ms translate=0ms reviewCache=4ms dishes=6003ms finalise=0ms travel=229ms sanctuary=133ms footfall=0ms total=8590ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:47:04.506213205Z",
+      "message": "[Cuisine-Search] D704 returning 6 venues to client (poolCount=6 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:47:24.552031607Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 37 → 11 (≤36030m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:47:24.552045585Z",
+      "message": "[Cuisine-Search] D790 nearby-widen tier=0 radiusM=5000 satisfied=true from=11 to=11",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:47:24.552053264Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[\"korean\"] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=-41.4332,147.1441 radius=20000 anchored=false skipShuffle=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:47:24.552055100Z",
+      "message": "[Cuisine-Search] sliceCap=10 firstBatch=true finalBatch=false range=1-10 seenBefore=0 hash=f1dd5c89",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:47:24.552062921Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[\"Korean\"] cuisineMetas.length=1 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:47:24.552068693Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/3 returned 55 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:47:24.552074701Z",
+      "message": "[Cuisine-Search] D703e Gemini-label post-filter (korean): 55 → 55  (dropped=0 unrelated, unlabeled=48 passed through)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:47:24.552080365Z",
+      "message": "[Cuisine-Search] D703f online verify-then-cache (korean): batched=30, labels written=30, dropped=18 unrelated (55 → 37)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:47:24.552091174Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[-41.4332,147.1441],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":36030,\"cap_src\":\"explicit\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:47:24.556788424Z",
+      "message": "[Cuisine-Search] D786 curated-try slug=korean country=AU unfamiliar=true filled=0/10 (reviewDishes=3 noVerifiedMention=7)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:47:32.582321159Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:47:33.602785095Z",
+      "message": "[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:47:33.602791494Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (10v): crowd=2008ms translate=2ms reviewCache=5ms dishes=6004ms finalise=0ms travel=233ms sanctuary=211ms footfall=0ms total=8463ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:47:33.602797640Z",
+      "message": "[Cuisine-Search] D704 returning 10 venues to client (poolCount=10 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:23.258701144Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"fb215bddbbbe472e801da853fed295dc\",\"from\":[-41.4332,147.1441],\"to\":[1.2822,103.85268],\"moved_m\":6442957,\"label\":\"1 Marina Boulevard\",\"region\":\"SG\",\"country\":null,\"cap_m\":null,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:23.258713589Z",
+      "message": "[set-location] chat=313940231 → 1.2822,103.8527 label=\"1 Marina Boulevard\"  SG",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:23.258721513Z",
+      "message": "[set-location] search-area notify chat=313940231 area=\"1 Marina Boulevard · 1 Marina Boulevard, Singapore, SG\"",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:23.258728098Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:24.089585956Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:24.089598038Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:24.089603904Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.2822,103.85268],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:24.089646381Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[\"korean\"] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.2822,103.8527 radius=20000 anchored=false skipShuffle=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:24.089651594Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[\"Korean\"] cuisineMetas.length=1 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:24.089656510Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:24.089663969Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:24.089677955Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:26.733628724Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/3 returned 54 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:26.733637565Z",
+      "message": "[Cuisine-Search] D703e Gemini-label post-filter (korean): 54 → 54  (dropped=0 unrelated, unlabeled=13 passed through)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:28.035369826Z",
+      "message": "[Cuisine-Search] sliceCap=10 firstBatch=true finalBatch=false range=1-10 seenBefore=0 hash=510c3428",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:28.035386264Z",
+      "message": "[Cuisine-Search] D786 curated-try slug=korean country=SG unfamiliar=false filled=7/10 (reviewDishes=2 noVerifiedMention=1)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:28.035511774Z",
+      "message": "[Cuisine-Search] D703f online verify-then-cache (korean): batched=13, labels written=13, dropped=1 unrelated (54 → 53)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:28.035518267Z",
+      "message": "[Cuisine-Search] D703s SG-scope 53 → 53 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:28.035524980Z",
+      "message": "[Cuisine-Search] D790 nearby-widen tier=0 radiusM=5000 satisfied=true from=53 to=53",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:35.974942544Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: per-attempt timeout 6s",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:38.180751949Z",
+      "message": "[footfall] besttime resolved=0/10",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:38.180759473Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (10v): crowd=2206ms translate=1ms reviewCache=2ms dishes=6004ms finalise=0ms travel=479ms sanctuary=164ms footfall=1299ms total=10155ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:48:38.180765663Z",
+      "message": "[Cuisine-Search] D704 returning 10 venues to client (poolCount=10 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:49:27.857509140Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:49:27.857513138Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.2822,103.85268],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:49:27.857516757Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[\"korean\"] filters={\"newlyOpened\":true,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.2822,103.8527 radius=20000 anchored=false skipShuffle=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:49:27.857520226Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[\"newly opened Korean\"] cuisineMetas.length=1 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:49:27.857523686Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/3 returned 58 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:49:27.857527567Z",
+      "message": "[Cuisine-Search] D703e Gemini-label post-filter (korean): 58 → 57  (dropped=1 unrelated, unlabeled=16 passed through)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:49:27.857531641Z",
+      "message": "[Cuisine-Search] D703f online verify-then-cache (korean): batched=16, labels written=16, dropped=2 unrelated (57 → 55)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:49:27.857535505Z",
+      "message": "[Cuisine-Search] D703s SG-scope 55 → 55 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:49:27.857539428Z",
+      "message": "[Cuisine-New] newness refute: 55 → 10 kept (≤183d, rated>3, reviews≤400)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:49:27.857543639Z",
+      "message": "[Cuisine-Search] D790 nearby-widen tier=0 radiusM=5000 satisfied=true from=9 to=7",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:49:27.857547719Z",
+      "message": "[Cuisine-Search] sliceCap=10 firstBatch=true finalBatch=false range=1-9 seenBefore=0 hash=29e9e26a",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:49:27.857551361Z",
+      "message": "[Cuisine-Search] D786 curated-try slug=korean country=SG unfamiliar=false filled=3/9 (reviewDishes=4 noVerifiedMention=2)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:49:34.030053095Z",
+      "message": "[footfall] besttime resolved=0/9",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:49:34.030058137Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (9v): crowd=2295ms translate=0ms reviewCache=2ms dishes=4627ms finalise=0ms travel=399ms sanctuary=76ms footfall=1287ms total=8686ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:49:34.030086235Z",
+      "message": "[Cuisine-Search] D704 returning 9 venues to client (poolCount=9 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:52:08.639930389Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:52:08.639946155Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.2822,103.85268],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:52:08.639957636Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[\"set-meal\"] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.2822,103.8527 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:52:08.639966155Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:52:08.639972220Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:52:08.639982697Z",
+      "message": "[Cuisine-Search] D703 venue-filter (type+name) 60 → 58",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:52:08.639991550Z",
+      "message": "[Cuisine-Search] D703s SG-scope 58 → 58 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:52:08.640000378Z",
+      "message": "[Cuisine-Search] sliceCap=10 firstBatch=true finalBatch=false range=1-10 seenBefore=0 hash=9eedb9d2",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:52:08.640010162Z",
+      "message": "[Cuisine-Search] D786 curated-try slug=set-meal country=SG unfamiliar=false filled=0/10 (reviewDishes=3 noVerifiedMention=7)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:52:12.353009650Z",
+      "message": "[footfall] besttime resolved=0/10",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:52:12.353018613Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (10v): crowd=2278ms translate=0ms reviewCache=3ms dishes=5627ms finalise=1ms travel=387ms sanctuary=129ms footfall=902ms total=9327ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-04T02:52:16.746334345Z",
+      "message": "[Cuisine-Search] D704 returning 10 venues to client (poolCount=10 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "7b5c5a20-96b1-432f-9b71-704846e5a346",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
