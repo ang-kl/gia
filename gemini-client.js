@@ -217,6 +217,17 @@ function todaySGT() {
 // gemini-1.5-pro now returns 404 NOT_FOUND. gemini-2.5-flash is the
 // current-generation low-latency model that the legacy SDK 0.24.1 can
 // still reach. GEMINI_MODEL env var still overrides.
+//
+// v0.62.710 — operator: "should follow env.var". Until this version only
+// generateGroundedHiddenGems (/hidden) actually read DEFAULT_MODEL;
+// validateAuthenticity, classifySearchIntent, describeCookingMethod, and
+// extractDishesFromReviews each had their own hardcoded
+// model = 'gemini-flash-latest' default, silently ignoring GEMINI_MODEL.
+// All four now default to DEFAULT_MODEL, so a GEMINI_MODEL override
+// applies to every Gemini call in this file, not just one. Each
+// function's own fallback chain (SEARCH_INTENT_MODEL_CHAIN / FALLBACK_CHAIN)
+// is a deliberate list of concrete models to retry if the primary fails —
+// those stay hardcoded on purpose; only the PRIMARY choice follows the env var.
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
 // v0.58.33 / v0.58.42: Gemini renamed the search-grounding tool
@@ -933,7 +944,7 @@ function canonicalDishPhrase(dishKey) {
 //
 // Failure mode: returns empty object on Gemini error → caller falls
 // back to rating-only ranking (same behaviour as v0.59.59).
-async function validateAuthenticity({ technique, origin, originDish, originIngredients = [], originTool, candidates = [], lang = 'en', model = 'gemini-flash-latest', _genAIFactory }) {
+async function validateAuthenticity({ technique, origin, originDish, originIngredients = [], originTool, candidates = [], lang = 'en', model = DEFAULT_MODEL, _genAIFactory }) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey && !_genAIFactory) return {};
   if (!Array.isArray(candidates) || candidates.length === 0) return {};
@@ -1831,7 +1842,7 @@ const SEARCH_INTENT_MODEL_CHAIN = [
   'gemini-2.5-flash-lite'
 ];
 
-async function classifySearchIntent({ text, history = [], lang = 'en', model = 'gemini-flash-latest', _genAIFactory }) {
+async function classifySearchIntent({ text, history = [], lang = 'en', model = DEFAULT_MODEL, _genAIFactory }) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey && !_genAIFactory) {
     // Caller-side env failure — log and return a graceful ambiguous.
@@ -2039,7 +2050,7 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
 //
 // Best-effort: never throws. Every failure path returns empty strings
 // so the card still renders (just without the explainer / Try line).
-async function describeCookingMethod({ term, cuisineLabel, lang = 'en', model = 'gemini-flash-latest', _genAIFactory } = {}) {
+async function describeCookingMethod({ term, cuisineLabel, lang = 'en', model = DEFAULT_MODEL, _genAIFactory } = {}) {
   const empty = { explainer: '', exampleDish: '' };
   const cleanTerm = String(term || '').trim();
   if (!cleanTerm) return empty;
@@ -2102,7 +2113,7 @@ async function describeCookingMethod({ term, cuisineLabel, lang = 'en', model = 
 //
 // Returns a Map<venueId, string[]> — only venues with at least one
 // extracted dish appear in the Map.
-async function extractDishesFromReviews({ venues = [], model = 'gemini-flash-latest', _genAIFactory } = {}) {
+async function extractDishesFromReviews({ venues = [], model = DEFAULT_MODEL, _genAIFactory } = {}) {
   const out = new Map();
   const usable = (Array.isArray(venues) ? venues : [])
     .filter((v) => v && typeof v.id === 'string' && Array.isArray(v.reviews) && v.reviews.length);
@@ -2147,8 +2158,27 @@ async function extractDishesFromReviews({ venues = [], model = 'gemini-flash-lat
   // could block a search for ~24s). Other errors (model-not-found,
   // parse failure) still fall through to the next model. DEADLINE
   // bounds the total even across that fall-through path.
-  const PER_ATTEMPT_MS = 6000;
-  const DEADLINE = Date.now() + 12_000;
+  //
+  // v0.62.711 — 6000ms was observed timing out in production on an
+  // otherwise-healthy request (dishes=6009ms in the enrichSlow timing
+  // log — the attempt lost the race by ~9ms). Raised to 10000ms for
+  // headroom.
+  //
+  // DEADLINE only went to 14000ms, not further, because this function is
+  // one step inside enrichSlow, which is itself one step inside the
+  // search route's own hard 20s ceiling (index.js's _SEARCH_DEADLINE_MS /
+  // "D706" — see its comments on the operator complaints it exists to
+  // prevent). enrichSlow also runs crowd-signal, translate, review-cache,
+  // travel, sanctuary, and footfall enrichment around this call — a
+  // dish-extraction DEADLINE anywhere near 20000ms would let this ONE
+  // step alone consume the entire route budget and starve everything
+  // else. 14000ms keeps this function's own worst case comfortably under
+  // half the route ceiling. A timeout itself is still terminal (see
+  // comment above) and was never retried at any PER_ATTEMPT_MS value —
+  // this raise buys the single attempt more time to succeed before
+  // giving up; it does not change the give-up behaviour.
+  const PER_ATTEMPT_MS = 10_000;
+  const DEADLINE = Date.now() + 14_000;
   for (const candidate of candidates) {
     if (Date.now() > DEADLINE) break;
     try {

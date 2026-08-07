@@ -13,6 +13,9 @@ import {
   searchToolForModel,
   describeCookingMethod,
   classifySearchIntent,
+  validateAuthenticity,
+  extractDishesFromReviews,
+  DEFAULT_MODEL,
   HIDDEN_GEMS_PROMPT_TEMPLATE
 } from '../gemini-client.js';
 
@@ -625,5 +628,57 @@ describe('classifySearchIntent — venue intent', () => {
       });
       expect(r.intent).toBe(intent);
     }
+  });
+});
+
+// v0.62.710 — operator: "should follow env.var". Before this version,
+// validateAuthenticity / classifySearchIntent / describeCookingMethod /
+// extractDishesFromReviews each had their own hardcoded
+// model = 'gemini-flash-latest' default and silently ignored a GEMINI_MODEL
+// override (only generateGroundedHiddenGems actually read DEFAULT_MODEL).
+// These tests lock in that all four now request DEFAULT_MODEL first when no
+// explicit `model` is passed — mutating any of the 4 defaults back to a
+// hardcoded string must fail the matching test below.
+describe('Gemini functions default to DEFAULT_MODEL (v0.62.710 — GEMINI_MODEL override reaches every call site)', () => {
+  function modelSpyFactory(text) {
+    const seenModels = [];
+    const factory = () => ({
+      getGenerativeModel(opts) {
+        seenModels.push(opts.model);
+        return { async generateContent() { return { response: { text: () => text } }; } };
+      }
+    });
+    return { factory, seenModels };
+  }
+
+  it('classifySearchIntent requests DEFAULT_MODEL first when model is omitted', async () => {
+    const { factory, seenModels } = modelSpyFactory('{"intent":"dish","cuisine":null,"searchTerm":"x","why":"y","clarify":""}');
+    await classifySearchIntent({ text: 'x', _genAIFactory: factory });
+    expect(seenModels[0]).toBe(DEFAULT_MODEL);
+  });
+
+  it('describeCookingMethod requests DEFAULT_MODEL first when model is omitted', async () => {
+    const { factory, seenModels } = modelSpyFactory('{"explainer":"e","exampleDish":"d"}');
+    await describeCookingMethod({ term: 'braising', cuisineLabel: 'French', _genAIFactory: factory });
+    expect(seenModels[0]).toBe(DEFAULT_MODEL);
+  });
+
+  it('validateAuthenticity requests DEFAULT_MODEL first when model is omitted', async () => {
+    const { factory, seenModels } = modelSpyFactory('[{"placeId":"p1","score":80,"signals":["dish"],"reason":"r","orderTip":"t."}]');
+    await validateAuthenticity({
+      technique: 'braising', origin: 'French', originDish: 'coq au vin',
+      candidates: [{ placeId: 'p1', name: 'Bistro', address: '1 Road' }],
+      _genAIFactory: factory
+    });
+    expect(seenModels[0]).toBe(DEFAULT_MODEL);
+  });
+
+  it('extractDishesFromReviews requests DEFAULT_MODEL first when model is omitted', async () => {
+    const { factory, seenModels } = modelSpyFactory('[{"id":"v1","dishes":["Chilli Crab"]}]');
+    await extractDishesFromReviews({
+      venues: [{ id: 'v1', name: 'Atlas', reviews: [{ rating: 5, text: 'Great chilli crab' }] }],
+      _genAIFactory: factory
+    });
+    expect(seenModels[0]).toBe(DEFAULT_MODEL);
   });
 });
