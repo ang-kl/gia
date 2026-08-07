@@ -12959,7 +12959,15 @@ async function cacheBotUsername() {
             // see SG-michelin.js's v0.62.667 header note), so this count
             // must filter to the CURRENT (2026) edition rather than report
             // the raw array length, which would overstate the live total.
-            description: `Singapore Michelin Guide: ${michelin.STARS_THREE.length} three-star, ${michelin.STARS_TWO.length} two-star, ${michelin.STARS_ONE.length} one-star, ${michelin.BIB_GOURMAND.filter((e) => (e.awardYears || []).includes("'26")).length} Bib Gourmand.`
+            //
+            // v0.62.709 — STARS_ONE gained the same shape: 4 dropped 2026
+            // one-star entries (Alma, Chaleur, Esora, Euphoria) are kept as
+            // ["'25"]-only historical rows rather than deleted, so its raw
+            // .length now overstates the current total too. STARS_THREE and
+            // STARS_TWO have no lapsed entries this edition (nothing dropped
+            // out of either tier), so their .length is still exact — filtered
+            // for consistency and to stay correct if that ever changes.
+            description: `Singapore Michelin Guide: ${michelin.STARS_THREE.filter((e) => (e.awardYears || []).includes("'26")).length} three-star, ${michelin.STARS_TWO.filter((e) => (e.awardYears || []).includes("'26")).length} two-star, ${michelin.STARS_ONE.filter((e) => (e.awardYears || []).includes("'26")).length} one-star, ${michelin.BIB_GOURMAND.filter((e) => (e.awardYears || []).includes("'26")).length} Bib Gourmand.`
           }]
         });
         // v0.62.299 / v0.62.301 — "Set Meal (Beta)" synthetic tile beside Michelin.
