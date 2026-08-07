@@ -2158,8 +2158,27 @@ async function extractDishesFromReviews({ venues = [], model = DEFAULT_MODEL, _g
   // could block a search for ~24s). Other errors (model-not-found,
   // parse failure) still fall through to the next model. DEADLINE
   // bounds the total even across that fall-through path.
-  const PER_ATTEMPT_MS = 6000;
-  const DEADLINE = Date.now() + 12_000;
+  //
+  // v0.62.711 — 6000ms was observed timing out in production on an
+  // otherwise-healthy request (dishes=6009ms in the enrichSlow timing
+  // log — the attempt lost the race by ~9ms). Raised to 10000ms for
+  // headroom.
+  //
+  // DEADLINE only went to 14000ms, not further, because this function is
+  // one step inside enrichSlow, which is itself one step inside the
+  // search route's own hard 20s ceiling (index.js's _SEARCH_DEADLINE_MS /
+  // "D706" — see its comments on the operator complaints it exists to
+  // prevent). enrichSlow also runs crowd-signal, translate, review-cache,
+  // travel, sanctuary, and footfall enrichment around this call — a
+  // dish-extraction DEADLINE anywhere near 20000ms would let this ONE
+  // step alone consume the entire route budget and starve everything
+  // else. 14000ms keeps this function's own worst case comfortably under
+  // half the route ceiling. A timeout itself is still terminal (see
+  // comment above) and was never retried at any PER_ATTEMPT_MS value —
+  // this raise buys the single attempt more time to succeed before
+  // giving up; it does not change the give-up behaviour.
+  const PER_ATTEMPT_MS = 10_000;
+  const DEADLINE = Date.now() + 14_000;
   for (const candidate of candidates) {
     if (Date.now() > DEADLINE) break;
     try {
