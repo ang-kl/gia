@@ -6,7 +6,7 @@
 // lazily on first read. Tests assert behavioural contract on top of a
 // fake Redis that implements LIST + HASH + SET + ZSET + TTL ops.
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
@@ -288,6 +288,56 @@ describe('pushClip (HASH schema, v0.62.328)', () => {
     const cardId = redis._lists.get('clip:c')[0];
     expect(await redis.ttl(`card:c:${cardId}`)).toBe(TTL_CATCHALL_S);
     expect(await redis.ttl('clip:c')).toBe(NO_TTL);   // list itself is PERSIST
+  });
+});
+
+// O-144 (v0.62.708) — the old cap sliced the STRINGIFIED venue at 6000 chars,
+// which can cut a JSON string mid-token and write invalid JSON that silently
+// degrades to `undefined` on read with no log trail. Zero coverage existed for
+// the venue field before this block.
+describe('pushClip / getCardById — structured venue (O-144, v0.62.708)', () => {
+  let redis;
+  beforeEach(() => { redis = makeFakeRedis(); });
+
+  it('round-trips a normal-size structured venue', async () => {
+    const venue = { name: 'Atlas Bar', lat: 1.2967, lng: 103.8532, cuisine: 'Bar' };
+    await pushClip(redis, 'c', { body: 'X', venue });
+    const cardId = redis._lists.get('clip:c')[0];
+    expect(redis._hashes.get(`card:c:${cardId}`).get('venue')).toBe(JSON.stringify(venue));
+    const card = await getCardById(redis, 'c', cardId);
+    expect(card.venue).toEqual(venue);
+  });
+
+  it('drops an oversized venue to "" on write and undefined on read, without throwing', async () => {
+    const venue = { name: 'Atlas Bar', signatureDish: 'a'.repeat(12000) };
+    await pushClip(redis, 'c', { body: 'X', venue });
+    const cardId = redis._lists.get('clip:c')[0];
+    expect(redis._hashes.get(`card:c:${cardId}`).get('venue')).toBe('');
+    const card = await getCardById(redis, 'c', cardId);
+    expect(card.venue).toBeUndefined();
+  });
+
+  it('degrades a corrupted venue field to undefined and warns, without throwing', async () => {
+    await pushClip(redis, 'c', { body: 'X' });
+    const cardId = redis._lists.get('clip:c')[0];
+    redis._hashes.get(`card:c:${cardId}`).set('venue', '{"name":"Truncated mid-tok');
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const card = await getCardById(redis, 'c', cardId);
+    expect(card.venue).toBeUndefined();
+    expect(warnSpy).toHaveBeenCalledWith('[Clip-Store] venue JSON.parse failed:', expect.any(String));
+    warnSpy.mockRestore();
+  });
+
+  it('leaves venue undefined when record.venue is absent, null, or non-object', async () => {
+    await pushClip(redis, 'c', { body: 'A' });
+    await pushClip(redis, 'c', { body: 'B', venue: null });
+    await pushClip(redis, 'c', { body: 'C', venue: 'not-an-object' });
+    const list = redis._lists.get('clip:c');
+    for (const cardId of list) {
+      expect(redis._hashes.get(`card:c:${cardId}`).get('venue')).toBe('');
+      const card = await getCardById(redis, 'c', cardId);
+      expect(card.venue).toBeUndefined();
+    }
   });
 });
 
