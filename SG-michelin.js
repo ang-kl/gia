@@ -1,4 +1,4 @@
-// SG-michelin.js — v0.62.667
+// SG-michelin.js — v0.62.709
 //
 // Singapore Michelin Guide — official Stars + Bib Gourmand list, updated
 // in place edition by edition (not a versioned snapshot per year — see
@@ -45,6 +45,26 @@
 // reference a hawker centre (e.g. "Amoy Street Food Centre"). For those
 // entries `address` is the hawker centre name only; the Places API
 // lookup at request-time resolves to the actual stall.
+//
+// v0.62.709 — MICHELIN Guide Singapore 2026 STAR ceremony (04 Aug 2026, 10th
+// edition) results applied: 3 three-star (up from 2), 9 two-star (up from 7),
+// 33 one-star (up from 32). 27 one-star retentions get '26 prepended to their
+// existing awardYears; 4 (Alma, Chaleur, Esora, Euphoria) drop out of the
+// selection and keep their ["'25"] historical row unchanged, per this file's
+// never-delete-lapsed-award pattern; 6 new one-star entrants added (Cherry
+// Garden by Chef Fei, Jin Ting Wan, Loca Niru, Sushi Kimura Plus, Tenshima,
+// Yong Fu). Seroja is PROMOTED one-star → two-star — moved between arrays,
+// carrying only its new-category year (["'26"]) per the header's own rule
+// that awardYears reflects the CURRENT category only; its one-star 2025 year
+// is not re-shown under two-star. 1887 by André debuts directly at two-star.
+// Zén is added to STARS_THREE with ["'26", "'25"] — this was a pre-existing
+// gap in this file (Zén has held 3 stars since 2021) rather than a 2026
+// promotion event, corrected here on operator confirmation rather than
+// silently backfilled. Sourced via WebSearch synthesis cross-referenced
+// against the current file (direct WebFetch of guide.michelin.com and every
+// secondary source attempted returned HTTP 403); two addresses were
+// confirmed directly by the operator (1887 by André, Sushi Kimura Plus)
+// rather than guessed.
 
 'use strict';
 
@@ -65,72 +85,96 @@
 const STARS_THREE = [
   { name: 'Les Amis',
     address: '1 Scotts Road, #01-16 Shaw Centre, Singapore 228208',
-    postal: '228208', category: 'three-star', awardYears: ["'25"], cuisine: 'french' },
+    postal: '228208', category: 'three-star', awardYears: ["'26", "'25"], cuisine: 'french' },
   { name: 'Odette',
     address: '1 St Andrew’s Road, #01-04 National Gallery Singapore, Singapore 178957',
-    postal: '178957', category: 'three-star', awardYears: ["'25"], cuisine: 'french' }
+    postal: '178957', category: 'three-star', awardYears: ["'26", "'25"], cuisine: 'french' },
+  // v0.62.709 — Zén was never listed here even though it has held 3 stars since 2021;
+  // a pre-existing data gap, not a 2026 promotion event, corrected on operator confirmation.
+  { name: 'Zén',
+    address: '41 Bukit Pasoh Road, Singapore 089855',
+    postal: '089855', category: 'three-star', awardYears: ["'26", "'25"], cuisine: 'modern',
+    michelinCuisineLabel: 'Innovative' }
 ];
 
 const STARS_TWO = [
   { name: 'Cloudstreet',
     address: '84 Amoy Street, Singapore 069903',
-    postal: '069903', category: 'two-star', awardYears: ["'25"], cuisine: 'modern' },
+    postal: '069903', category: 'two-star', awardYears: ["'26", "'25"], cuisine: 'modern' },
   { name: 'JAAN by Kirk Westaway',
     address: '2 Stamford Road, Level 70, Swissôtel The Stamford, Singapore 178882',
-    postal: '178882', category: 'two-star', awardYears: ["'25"], cuisine: 'british' },
+    postal: '178882', category: 'two-star', awardYears: ["'26", "'25"], cuisine: 'british' },
   { name: 'Meta',
     address: '9 Mohamed Sultan Road, #01-01, Singapore 238959',
-    postal: '238959', category: 'two-star', awardYears: ["'25"], cuisine: 'korean',
+    postal: '238959', category: 'two-star', awardYears: ["'26", "'25"], cuisine: 'korean',
     michelinCuisineLabel: 'Modern European' },
   { name: 'Saint Pierre',
     address: '1 Fullerton Road, #02-02B One Fullerton, Singapore 049213',
-    postal: '049213', category: 'two-star', awardYears: ["'25"], cuisine: 'french' },
+    postal: '049213', category: 'two-star', awardYears: ["'26", "'25"], cuisine: 'french' },
+  // v0.62.709 — new entrant, debuts straight at two-star.
+  { name: '1887 by André',
+    address: '1 Beach Road, Raffles Hotel, Singapore 189673',
+    postal: '189673', category: 'two-star', awardYears: ["'26"], cuisine: 'french' },
+  // v0.62.709 — promoted from one-star (was in STARS_ONE through 2025). Per this file's
+  // header convention, awardYears shows only the years held at the CURRENT category —
+  // its 2025 year lived under one-star and stays on that historical record, not here.
+  { name: 'Seroja',
+    address: '7 Fraser Street, #01-30 Duo Galleria, Singapore 189356',
+    postal: '189356', category: 'two-star', awardYears: ["'26"], cuisine: 'malaysian' },
   { name: 'Shoukouwa',
     address: '1 Fullerton Road, #02-02A One Fullerton, Singapore 049213',
-    postal: '049213', category: 'two-star', awardYears: ["'25"], cuisine: 'japanese',
+    postal: '049213', category: 'two-star', awardYears: ["'26", "'25"], cuisine: 'japanese',
     michelinCuisineLabel: 'Sushi · Authentic Japanese' },
   { name: 'Sushi Sakuta',
     address: '25A Dempsey Road, Singapore 247691',
-    postal: '247691', category: 'two-star', awardYears: ["'25"], cuisine: 'japanese' },
+    postal: '247691', category: 'two-star', awardYears: ["'26", "'25"], cuisine: 'japanese' },
   { name: 'Thevar',
     address: '9 Keong Saik Road, Singapore 089117',
-    postal: '089117', category: 'two-star', awardYears: ["'25"], cuisine: 'north-indian', vegetarian: true,
+    postal: '089117', category: 'two-star', awardYears: ["'26", "'25"], cuisine: 'north-indian', vegetarian: true,
     michelinCuisineLabel: 'Modern Indian' }
 ];
 
 const STARS_ONE = [
+  // v0.62.709 — dropped from the 2026 star selection; kept as ["'25"]-only historical
+  // rows per this file's never-delete-lapsed-award pattern (see header + Register D-34).
   { name: 'Alma', address: '22 Scotts Road, Goodwood Park Hotel, Singapore 228221', postal: '228221', category: 'one-star', awardYears: ["'25"], cuisine: 'spanish' },
-  { name: 'Araya', address: '10 Gemmill Lane, Singapore 069251', postal: '069251', category: 'one-star', awardYears: ["'25"], cuisine: 'modern', michelinCuisineLabel: 'Chilean' },
-  { name: 'Born', address: '1 Neil Road, #01-01, Singapore 088804', postal: '088804', category: 'one-star', awardYears: ["'25"], cuisine: 'modern', michelinCuisineLabel: 'Fusion · Fine Dining' },
-  { name: 'Buona Terra', address: '29 Scotts Road, Singapore 228224', postal: '228224', category: 'one-star', awardYears: ["'25"], cuisine: 'italian' },
-  { name: 'Burnt Ends', address: '7 Dempsey Road, #01-02, Singapore 249671', postal: '249671', category: 'one-star', awardYears: ["'25"], cuisine: 'australian' },
-  { name: 'Candlenut', address: '17A Dempsey Road, Singapore 249676', postal: '249676', category: 'one-star', awardYears: ["'25"], cuisine: 'peranakan', vegetarian: true },
+  { name: 'Araya', address: '10 Gemmill Lane, Singapore 069251', postal: '069251', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'modern', michelinCuisineLabel: 'Chilean' },
+  { name: 'Born', address: '1 Neil Road, #01-01, Singapore 088804', postal: '088804', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'modern', michelinCuisineLabel: 'Fusion · Fine Dining' },
+  { name: 'Buona Terra', address: '29 Scotts Road, Singapore 228224', postal: '228224', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'italian' },
+  { name: 'Burnt Ends', address: '7 Dempsey Road, #01-02, Singapore 249671', postal: '249671', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'australian' },
+  { name: 'Candlenut', address: '17A Dempsey Road, Singapore 249676', postal: '249676', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'peranakan', vegetarian: true },
   { name: 'Chaleur', address: '77 Tras Street, Singapore 079016', postal: '079016', category: 'one-star', awardYears: ["'25"], cuisine: 'french' },
-  { name: 'CUT', address: '10 Bayfront Avenue, B1-71, Marina Bay Sands, Singapore 018956', postal: '018956', category: 'one-star', awardYears: ["'25"], cuisine: 'american' },
+  { name: 'CUT', address: '10 Bayfront Avenue, B1-71, Marina Bay Sands, Singapore 018956', postal: '018956', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'american' },
   { name: 'Esora', address: '15 Mohamed Sultan Road, Singapore 238964', postal: '238964', category: 'one-star', awardYears: ["'25"], cuisine: 'japanese' },
   { name: 'Euphoria', address: '76 Tras Street, Singapore 079015', postal: '079015', category: 'one-star', awardYears: ["'25"], cuisine: 'modern' },
-  { name: 'Hamamoto', address: '58 Tras Street, Singapore 078997', postal: '078997', category: 'one-star', awardYears: ["'25"], cuisine: 'japanese' },
-  { name: 'Hill Street Tai Hwa Pork Noodle', address: '466 Crawford Lane, #01-12, Singapore 190465', postal: '190465', category: 'one-star', awardYears: ["'25"], cuisine: 'singaporean' },
-  { name: 'Iggy’s', address: '581 Orchard Road, Level 3, voco Orchard Singapore, Singapore 238883', postal: '238883', category: 'one-star', awardYears: ["'25"], cuisine: 'italian' },
-  { name: 'Imperial Treasure Fine Teochew Cuisine (Orchard)', address: '2 Orchard Turn, #03-05 ION Orchard, Singapore 238801', postal: '238801', category: 'one-star', awardYears: ["'25"], cuisine: 'teochew' },
-  { name: 'Jag', address: '76 Duxton Road, Singapore 089535', postal: '089535', category: 'one-star', awardYears: ["'25"], cuisine: 'french' },
-  { name: 'Labyrinth', address: '8 Raffles Avenue, #02-23 Esplanade Mall, Singapore 039802', postal: '039802', category: 'one-star', awardYears: ["'25"], cuisine: 'singaporean' },
-  { name: 'Lei Garden', address: '30 Victoria Street, #01-24 CHIJMES, Singapore 187996', postal: '187996', category: 'one-star', awardYears: ["'25"], cuisine: 'cantonese' },
-  { name: 'Lerouy', address: '7 Mohamed Sultan Road, Singapore 238957', postal: '238957', category: 'one-star', awardYears: ["'25"], cuisine: 'french' },
-  { name: 'Ma Cuisine', address: '38 Craig Road, Singapore 089676', postal: '089676', category: 'one-star', awardYears: ["'25"], cuisine: 'french' },
-  { name: 'Marguerite', address: '18 Marina Gardens Drive, #01-09 Flower Dome, Gardens by the Bay, Singapore 018953', postal: '018953', category: 'one-star', awardYears: ["'25"], cuisine: 'modern' },
-  { name: 'Nae:um', address: '161 Telok Ayer Street, Singapore 068615', postal: '068615', category: 'one-star', awardYears: ["'25"], cuisine: 'korean' },
-  { name: 'Nouri', address: '72 Amoy Street, Singapore 069891', postal: '069891', category: 'one-star', awardYears: ["'25"], cuisine: 'modern' },
-  { name: 'Omakase @ Stevens', address: '30 Stevens Road, Singapore 257840', postal: '257840', category: 'one-star', awardYears: ["'25"], cuisine: 'japanese' },
-  { name: 'Pangium', address: '11 Gallop Road, Singapore 258973', postal: '258973', category: 'one-star', awardYears: ["'25"], cuisine: 'peranakan', vegetarian: true },
-  { name: 'Seroja', address: '7 Fraser Street, #01-30 Duo Galleria, Singapore 189356', postal: '189356', category: 'one-star', awardYears: ["'25"], cuisine: 'malaysian' },
-  { name: 'Shisen Hanten', address: '333 Orchard Road, Level 35, Hilton Singapore Orchard, Singapore 238867', postal: '238867', category: 'one-star', awardYears: ["'25"], cuisine: 'sichuan' },
-  { name: 'Summer Palace', address: '1 Cuscaden Road, Conrad Singapore Orchard, Singapore 249715', postal: '249715', category: 'one-star', awardYears: ["'25"], cuisine: 'cantonese' },
-  { name: 'Summer Pavilion', address: '7 Raffles Avenue, The Ritz-Carlton Millenia Singapore, Singapore 039799', postal: '039799', category: 'one-star', awardYears: ["'25"], cuisine: 'cantonese' },
-  { name: 'Sushi Ichi', address: '1 Nanson Road, #02-07 InterContinental Singapore Robertson Quay, Singapore 238909', postal: '238909', category: 'one-star', awardYears: ["'25"], cuisine: 'japanese' },
-  { name: 'Waku Ghin', address: '10 Bayfront Avenue, L2-03, Marina Bay Sands, Singapore 018956', postal: '018956', category: 'one-star', awardYears: ["'25"], cuisine: 'japanese' },
-  { name: 'Whitegrass', address: '30 Victoria Street, #01-26/27 CHIJMES, Singapore 187996', postal: '187996', category: 'one-star', awardYears: ["'25"], cuisine: 'australian' },
-  { name: 'Willow', address: '39 Hongkong Street, Singapore 059678', postal: '059678', category: 'one-star', awardYears: ["'25"], cuisine: 'japanese' }
+  { name: 'Hamamoto', address: '58 Tras Street, Singapore 078997', postal: '078997', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'japanese' },
+  { name: 'Hill Street Tai Hwa Pork Noodle', address: '466 Crawford Lane, #01-12, Singapore 190465', postal: '190465', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'singaporean' },
+  { name: 'Iggy’s', address: '581 Orchard Road, Level 3, voco Orchard Singapore, Singapore 238883', postal: '238883', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'italian' },
+  { name: 'Imperial Treasure Fine Teochew Cuisine (Orchard)', address: '2 Orchard Turn, #03-05 ION Orchard, Singapore 238801', postal: '238801', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'teochew' },
+  { name: 'Jag', address: '76 Duxton Road, Singapore 089535', postal: '089535', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'french' },
+  { name: 'Labyrinth', address: '8 Raffles Avenue, #02-23 Esplanade Mall, Singapore 039802', postal: '039802', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'singaporean' },
+  { name: 'Lei Garden', address: '30 Victoria Street, #01-24 CHIJMES, Singapore 187996', postal: '187996', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'cantonese' },
+  { name: 'Lerouy', address: '7 Mohamed Sultan Road, Singapore 238957', postal: '238957', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'french' },
+  { name: 'Ma Cuisine', address: '38 Craig Road, Singapore 089676', postal: '089676', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'french' },
+  { name: 'Marguerite', address: '18 Marina Gardens Drive, #01-09 Flower Dome, Gardens by the Bay, Singapore 018953', postal: '018953', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'modern' },
+  { name: 'Nae:um', address: '161 Telok Ayer Street, Singapore 068615', postal: '068615', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'korean' },
+  { name: 'Nouri', address: '72 Amoy Street, Singapore 069891', postal: '069891', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'modern' },
+  { name: 'Omakase @ Stevens', address: '30 Stevens Road, Singapore 257840', postal: '257840', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'japanese' },
+  { name: 'Pangium', address: '11 Gallop Road, Singapore 258973', postal: '258973', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'peranakan', vegetarian: true },
+  { name: 'Shisen Hanten', address: '333 Orchard Road, Level 35, Hilton Singapore Orchard, Singapore 238867', postal: '238867', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'sichuan' },
+  { name: 'Summer Palace', address: '1 Cuscaden Road, Conrad Singapore Orchard, Singapore 249715', postal: '249715', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'cantonese' },
+  { name: 'Summer Pavilion', address: '7 Raffles Avenue, The Ritz-Carlton Millenia Singapore, Singapore 039799', postal: '039799', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'cantonese' },
+  { name: 'Sushi Ichi', address: '1 Nanson Road, #02-07 InterContinental Singapore Robertson Quay, Singapore 238909', postal: '238909', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'japanese' },
+  { name: 'Waku Ghin', address: '10 Bayfront Avenue, L2-03, Marina Bay Sands, Singapore 018956', postal: '018956', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'japanese' },
+  { name: 'Whitegrass', address: '30 Victoria Street, #01-26/27 CHIJMES, Singapore 187996', postal: '187996', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'australian' },
+  { name: 'Willow', address: '39 Hongkong Street, Singapore 059678', postal: '059678', category: 'one-star', awardYears: ["'26", "'25"], cuisine: 'japanese' },
+  // v0.62.709 — the 6 new 2026 one-star entrants.
+  { name: 'Cherry Garden by Chef Fei', address: '5 Raffles Avenue, Level 5, Mandarin Oriental Singapore, Singapore 039797', postal: '039797', category: 'one-star', awardYears: ["'26"], cuisine: 'cantonese' },
+  { name: 'Jin Ting Wan', address: '10 Bayfront Avenue, Tower 1, Level 55, Marina Bay Sands, Singapore 018956', postal: '018956', category: 'one-star', awardYears: ["'26"], cuisine: 'cantonese' },
+  { name: 'Loca Niru', address: '101 Penang Road, #02-01 House of Tan Yeok Nee, Singapore 238466', postal: '238466', category: 'one-star', awardYears: ["'26"], cuisine: 'japanese', michelinCuisineLabel: 'Innovative · Japanese French' },
+  { name: 'Sushi Kimura Plus', address: '1 Cuscaden Road, #01-03 Conrad Singapore Orchard, Singapore 249715', postal: '249715', category: 'one-star', awardYears: ["'26"], cuisine: 'japanese', michelinCuisineLabel: 'Sushi' },
+  { name: 'Tenshima', address: '9 Raffles Boulevard, #01-09 Millenia Walk, Singapore 039596', postal: '039596', category: 'one-star', awardYears: ["'26"], cuisine: 'japanese', michelinCuisineLabel: 'Tempura' },
+  { name: 'Yong Fu', address: '3 Temasek Boulevard, Tower 5, #01-444 Suntec City Mall, Singapore 038983', postal: '038983', category: 'one-star', awardYears: ["'26"], cuisine: 'chinese', michelinCuisineLabel: 'Ningbo' }
 ];
 
 const BIB_GOURMAND = [
