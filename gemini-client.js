@@ -217,6 +217,17 @@ function todaySGT() {
 // gemini-1.5-pro now returns 404 NOT_FOUND. gemini-2.5-flash is the
 // current-generation low-latency model that the legacy SDK 0.24.1 can
 // still reach. GEMINI_MODEL env var still overrides.
+//
+// v0.62.710 — operator: "should follow env.var". Until this version only
+// generateGroundedHiddenGems (/hidden) actually read DEFAULT_MODEL;
+// validateAuthenticity, classifySearchIntent, describeCookingMethod, and
+// extractDishesFromReviews each had their own hardcoded
+// model = 'gemini-flash-latest' default, silently ignoring GEMINI_MODEL.
+// All four now default to DEFAULT_MODEL, so a GEMINI_MODEL override
+// applies to every Gemini call in this file, not just one. Each
+// function's own fallback chain (SEARCH_INTENT_MODEL_CHAIN / FALLBACK_CHAIN)
+// is a deliberate list of concrete models to retry if the primary fails —
+// those stay hardcoded on purpose; only the PRIMARY choice follows the env var.
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
 // v0.58.33 / v0.58.42: Gemini renamed the search-grounding tool
@@ -933,7 +944,7 @@ function canonicalDishPhrase(dishKey) {
 //
 // Failure mode: returns empty object on Gemini error → caller falls
 // back to rating-only ranking (same behaviour as v0.59.59).
-async function validateAuthenticity({ technique, origin, originDish, originIngredients = [], originTool, candidates = [], lang = 'en', model = 'gemini-flash-latest', _genAIFactory }) {
+async function validateAuthenticity({ technique, origin, originDish, originIngredients = [], originTool, candidates = [], lang = 'en', model = DEFAULT_MODEL, _genAIFactory }) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey && !_genAIFactory) return {};
   if (!Array.isArray(candidates) || candidates.length === 0) return {};
@@ -1831,7 +1842,7 @@ const SEARCH_INTENT_MODEL_CHAIN = [
   'gemini-2.5-flash-lite'
 ];
 
-async function classifySearchIntent({ text, history = [], lang = 'en', model = 'gemini-flash-latest', _genAIFactory }) {
+async function classifySearchIntent({ text, history = [], lang = 'en', model = DEFAULT_MODEL, _genAIFactory }) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey && !_genAIFactory) {
     // Caller-side env failure — log and return a graceful ambiguous.
@@ -2039,7 +2050,7 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = '
 //
 // Best-effort: never throws. Every failure path returns empty strings
 // so the card still renders (just without the explainer / Try line).
-async function describeCookingMethod({ term, cuisineLabel, lang = 'en', model = 'gemini-flash-latest', _genAIFactory } = {}) {
+async function describeCookingMethod({ term, cuisineLabel, lang = 'en', model = DEFAULT_MODEL, _genAIFactory } = {}) {
   const empty = { explainer: '', exampleDish: '' };
   const cleanTerm = String(term || '').trim();
   if (!cleanTerm) return empty;
@@ -2102,7 +2113,7 @@ async function describeCookingMethod({ term, cuisineLabel, lang = 'en', model = 
 //
 // Returns a Map<venueId, string[]> — only venues with at least one
 // extracted dish appear in the Map.
-async function extractDishesFromReviews({ venues = [], model = 'gemini-flash-latest', _genAIFactory } = {}) {
+async function extractDishesFromReviews({ venues = [], model = DEFAULT_MODEL, _genAIFactory } = {}) {
   const out = new Map();
   const usable = (Array.isArray(venues) ? venues : [])
     .filter((v) => v && typeof v.id === 'string' && Array.isArray(v.reviews) && v.reviews.length);
