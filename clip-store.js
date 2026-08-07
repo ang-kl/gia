@@ -90,9 +90,25 @@ function normaliseRecord(record) {
   // v0.62.429 — store the STRUCTURED venue (single-copy only) so Sketchbook can
   // render the real Cuisine ResultCard instead of the copied HTML text. Capped
   // JSON; absent on copy-all and on pre-v0.62.429 clips (→ text-only card).
+  //
+  // v0.62.708 (O-144) — the cap used to be `.slice(0, 6000)` applied to the
+  // STRINGIFIED result: truncating a JSON string mid-token produces syntactically
+  // invalid JSON, which then silently failed to parse on read (see the matching
+  // fix in denormaliseRecord below) and was indistinguishable from "no venue was
+  // ever attached." Validate the FULL length before writing anything, and if it's
+  // too big, drop venue entirely — the same '' path already taken when
+  // record.venue is absent — rather than persist a corrupt fragment. Cap raised
+  // 6000 → 10000 for headroom: a fully-populated venue serialises to ~1.5KB, and
+  // the only fields with no explicit length cap upstream (vibe, nameGloss,
+  // nameReading, signatureDish — free-text LLM output) are the realistic way a
+  // future venue could approach the old cap.
+  const VENUE_JSON_CAP = 10000;
   let venue = '';
   if (record.venue && typeof record.venue === 'object') {
-    try { venue = JSON.stringify(record.venue).slice(0, 6000); } catch { venue = ''; }
+    try {
+      const json = JSON.stringify(record.venue);
+      venue = json.length <= VENUE_JSON_CAP ? json : '';
+    } catch { venue = ''; }
   }
   return {
     ts: String(ts),
@@ -131,7 +147,14 @@ function denormaliseRecord(fields) {
     note: fields.note || undefined,
     favourite: fields.favourite === '1',
     // v0.62.429 — parsed structured venue (undefined when absent → text-only card).
-    venue: (() => { try { return fields.venue ? JSON.parse(fields.venue) : undefined; } catch { return undefined; } })()
+    // v0.62.708 (O-144) — log parse failures instead of swallowing them silently,
+    // matching every other catch block in this file (see normaliseRecord above for
+    // why a corrupt venue string can no longer be written in the first place).
+    venue: (() => {
+      if (!fields.venue) return undefined;
+      try { return JSON.parse(fields.venue); }
+      catch (err) { console.warn('[Clip-Store] venue JSON.parse failed:', err.message); return undefined; }
+    })()
   };
 }
 
