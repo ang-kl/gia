@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { placeAutocomplete, placeResolve, reverseGeocode, fetchRecentLocations, clearRecentLocationsRemote } from '../lib/api.js';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../lib/countries.js';
-import { citiesForCountry, cityRadiusCapM } from '../lib/cities.js';
+import { citiesForCountry, cityRadiusCapM, computeGroupedRows, defaultCollapsedRegions, REGION_LABEL_BY_COUNTRY } from '../lib/cities.js';
 // v0.61.277 — shared with App.jsx for the JB region-pill auto-anchor.
 import { JB_FOCUS_POINTS, JB_FOCUS_DEFAULT, JB_FOCUS_KEYS, JB_FOCUS_CHIP_LABELS } from '../lib/jb-focus-points.js';
 import { isJbCoords } from '../lib/coords-to-country.js';
@@ -775,16 +775,27 @@ function CityDropdown({ countryCode, value, onChange, ariaLabel, hideClearOption
   // P1-d — keyboard rows = the optional "— Clear —" row + the city rows;
   // itemRefs indices follow render order (clear row first when present).
   const clearOffset = hideClearOption ? 0 : 1;
-  // v0.62.697 — operator: state groups use the standard disclosure triangles,
-  // "▸ for collapsed states and ▾ for expanded states". Default is EXPANDED for
-  // every group, so a list that previously showed its cities immediately still
-  // does; the triangles are there to fold a long list (AU is 33 cities across 8
-  // groups) down to its headings. The group holding the CURRENT pick is forced
-  // open regardless, so the selected city can never be hidden behind a fold.
-  const [collapsedStates, setCollapsedStates] = useState(() => new Set());
-  const toggleState = (st) => setCollapsedStates((prev) => {
+  // v0.62.697 — operator: region groups use the standard disclosure triangles,
+  // "▸ for collapsed regions and ▾ for expanded regions". Default is EXPANDED
+  // for every group, so a list that previously showed its cities immediately
+  // still does; the triangles are there to fold a long list (AU is 33 cities
+  // across 8 groups) down to its headings. The group holding the CURRENT pick
+  // is forced open regardless, so the selected city can never be hidden
+  // behind a fold.
+  // v0.62.712 — generalized from AU-only `state` to any country's `region`
+  // field (MY/CN/FR now carry one too). China needs a non-default seed (its
+  // non-Popular provinces start collapsed) — defaultCollapsedRegions()
+  // returns that per-country, and the effect below reseeds it whenever
+  // `countryCode` changes, since this component is NOT remounted on a
+  // country switch (same instance, new prop) and a stale Set from the
+  // previous country would otherwise carry over.
+  const [collapsedRegions, setCollapsedRegions] = useState(() => defaultCollapsedRegions(countryCode));
+  useEffect(() => {
+    setCollapsedRegions(defaultCollapsedRegions(countryCode));
+  }, [countryCode]);
+  const toggleRegion = (rg) => setCollapsedRegions((prev) => {
     const next = new Set(prev);
-    if (next.has(st)) next.delete(st); else next.add(st);
+    if (next.has(rg)) next.delete(rg); else next.add(rg);
     return next;
   });
   useEffect(() => {
@@ -854,6 +865,10 @@ function CityDropdown({ countryCode, value, onChange, ariaLabel, hideClearOption
     }
   }
   if (!list.length) return null;
+  // v0.62.712 — the region holding the current pick, so its group is never
+  // folded out of sight; feeds both computeGroupedRows() and the divider's
+  // toggle affordance below.
+  const currentRegion = current ? (list.find((x) => x.name === current.name) || {}).region : null;
   return (
     <div ref={wrapRef} className="relative flex-shrink-0">
       <button
@@ -892,25 +907,50 @@ function CityDropdown({ countryCode, value, onChange, ariaLabel, hideClearOption
               >— Clear —</button>
             </li>
           )}
-          {list.map((c, i) => {
+          {/* v0.62.712 — grouping computed once via the shared pure function
+              (cities.js) instead of inline per-row booleans, so Cuisine and
+              Menu render from the identical descriptor list rather than two
+              hand-maintained copies of the same logic. */}
+          {computeGroupedRows(list, { collapsedRegions, currentRegion }).map((r) => {
+            if (r.type === 'divider') {
+              // v0.62.697 — operator: "lite-thin hollow line separation by state
+              // and the state now in 2 font size smaller in the middle of the
+              // hollow line (1 character spacing before and after the state
+              // name)". Drawn whenever `region` changes between consecutive
+              // rows, so it costs nothing for the countries whose lists carry
+              // no `region` field at all. aria-hidden + role="presentation": it
+              // is a visual grouping cue, and a non-option <li> inside
+              // role="listbox" would otherwise be announced as an empty
+              // option. The divider is also the expand/collapse control: ▸
+              // (U+25B8) collapsed / ▾ (U+25BE) expanded, the same pair
+              // v0.62.684 standardised on the carousel cards. The hairline
+              // runs either side of the label, and the label sits at
+              // text-[11px] against the rows' text-[13px] — two steps
+              // smaller — with a literal \u00A0 before and after, so the "1
+              // character spacing" is one character rather than a padding
+              // value that merely looks like one.
+              return (
+                <li key={r.key} role="presentation" className="select-none">
+                  <button
+                    type="button"
+                    onClick={() => toggleRegion(r.region)}
+                    aria-expanded={r.open}
+                    aria-label={`${REGION_LABEL_BY_COUNTRY[countryCode] || 'Region'}: ${r.region} ${r.open ? '(expanded)' : '(collapsed)'}`}
+                    className="w-full flex items-center px-3 py-1 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none"
+                  >
+                    <span className="flex-1 h-px bg-tg-border/60" />
+                    <span className="text-[11px] leading-none text-tg-hint whitespace-nowrap">
+                      {'\u00A0'}<span aria-hidden>{r.open ? '▾' : '▸'}</span>{' '}{r.region}{'\u00A0'}
+                    </span>
+                    <span className="flex-1 h-px bg-tg-border/60" />
+                  </button>
+                </li>
+              );
+            }
+            if (r.folded) return null;
+            const c = r.city, i = r.index;
             const sel = current && c.name === current.name;
-            // v0.62.697 — operator: "lite-thin hollow line separation by state
-            // and the state now in 2 font size smaller in the middle of the
-            // hollow line (1 character spacing before and after the state
-            // name)". Drawn whenever `state` changes between consecutive rows,
-            // so it costs nothing for the countries whose lists carry no
-            // `state` field at all (every one except AU today).
-            // aria-hidden + role="presentation": it is a visual grouping cue,
-            // and a non-option <li> inside role="listbox" would otherwise be
-            // announced as an empty option. The keyboard index below is still
-            // `i + clearOffset` over `list`, so inserting these rows does not
-            // disturb arrow-key navigation.
-            const groupStart = c.state && (i === 0 || list[i - 1].state !== c.state);
-            // The group holding the current pick stays open no matter what, so
-            // the selected city is never folded out of sight.
-            const currentState = current ? (list.find((x) => x.name === current.name) || {}).state : null;
-            const folded = c.state && collapsedStates.has(c.state) && c.state !== currentState;
-            const row = folded ? null : (
+            return (
               <li key={c.name} role="option" aria-selected={sel}>
                 <button
                   type="button"
@@ -924,36 +964,6 @@ function CityDropdown({ countryCode, value, onChange, ariaLabel, hideClearOption
                   <span className="font-mono text-[11px] text-tg-hint">{c.code}</span>
                 </button>
               </li>
-            );
-            if (!groupStart) return row;
-            const open_ = !collapsedStates.has(c.state) || c.state === currentState;
-            return (
-              <React.Fragment key={`g-${c.state}`}>
-                <li role="presentation" className="select-none">
-                  {/* v0.62.697 — the state divider is also the expand/collapse
-                      control: ▸ (U+25B8) collapsed / ▾ (U+25BE) expanded, the
-                      same pair v0.62.684 standardised on the carousel cards.
-                      The hairline runs either side of the label, and the label
-                      sits at text-[11px] against the rows' text-[13px] — two
-                      steps smaller — with a literal \u00A0 before and after, so
-                      the "1 character spacing" is one character rather than a
-                      padding value that merely looks like one. */}
-                  <button
-                    type="button"
-                    onClick={() => toggleState(c.state)}
-                    aria-expanded={open_}
-                    aria-label={`${c.state} ${open_ ? '(expanded)' : '(collapsed)'}`}
-                    className="w-full flex items-center px-3 py-1 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none"
-                  >
-                    <span className="flex-1 h-px bg-tg-border/60" />
-                    <span className="text-[11px] leading-none text-tg-hint whitespace-nowrap">
-                      {'\u00A0'}<span aria-hidden>{open_ ? '▾' : '▸'}</span>{' '}{c.state}{'\u00A0'}
-                    </span>
-                    <span className="flex-1 h-px bg-tg-border/60" />
-                  </button>
-                </li>
-                {row}
-              </React.Fragment>
             );
           })}
         </ul>

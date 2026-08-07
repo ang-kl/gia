@@ -22,7 +22,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { tg } from '../tg.js';
 import { t } from '../i18n.js';
 import { OTHER_COUNTRIES, DEFAULT_OTHER_COUNTRY, findCountry } from '../countries.js';
-import { citiesForCountry } from '../cities.js';
+import { citiesForCountry, computeGroupedRows, defaultCollapsedRegions, REGION_LABEL_BY_COUNTRY } from '../cities.js';
 import { nearestIataCity } from '../../../_shared/lib/iata-cities.js';
 import { coordsToCountry, isJbCoords } from '../coords-to-country.js';
 import { deviceId } from '../../../_shared/lib/device-id.js';
@@ -91,6 +91,22 @@ function CityDropdownMenu({ countryCode, value, onChange, ariaLabel }) {
   const itemRefs = useRef([]);
   const list = citiesForCountry(countryCode);
   const current = value ? list.find((c) => c.name === value) : null;
+  // v0.62.712 — disclosure-triangle region grouping, ported from Cuisine's
+  // CityDropdown (LocationField.jsx) so both TMAs share one behaviour
+  // instead of Menu staying permanently flat. Every country's groups start
+  // expanded except China (see defaultCollapsedRegions()); reseeded
+  // whenever `countryCode` changes since this component is NOT remounted on
+  // a country switch (same instance, new prop).
+  const [collapsedRegions, setCollapsedRegions] = useState(() => defaultCollapsedRegions(countryCode));
+  useEffect(() => {
+    setCollapsedRegions(defaultCollapsedRegions(countryCode));
+  }, [countryCode]);
+  const toggleRegion = (rg) => setCollapsedRegions((prev) => {
+    const next = new Set(prev);
+    if (next.has(rg)) next.delete(rg); else next.add(rg);
+    return next;
+  });
+  const currentRegion = current ? (list.find((x) => x.name === current.name) || {}).region : null;
   useEffect(() => {
     if (!open) return;
     function onDocClick(e) {
@@ -116,23 +132,43 @@ function CityDropdownMenu({ countryCode, value, onChange, ariaLabel }) {
       return () => clearTimeout(id);
     }
   }, [open]);
+  // v0.62.712 — ported from Cuisine's CityDropdown: a collapsed region group
+  // leaves NULL holes in itemRefs (its rows aren't rendered), so the old
+  // `(idx+1) % len` wraparound would silently no-op and strand focus on a
+  // folded row. step()/edge() walk to the next row that actually exists.
   function onListKey(e) {
     if (!open) return;
     const len = list.length;
     const active = document.activeElement;
     const idx = itemRefs.current.findIndex((el) => el === active);
+    const step = (from, dir) => {
+      for (let n = 1; n <= len; n += 1) {
+        const i = ((from + dir * n) % len + len) % len;
+        if (itemRefs.current[i]) return i;
+      }
+      return -1;
+    };
+    const edge = (dir) => {
+      for (let n = 0; n < len; n += 1) {
+        const i = dir > 0 ? n : len - 1 - n;
+        if (itemRefs.current[i]) return i;
+      }
+      return -1;
+    };
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      itemRefs.current[idx < 0 ? 0 : (idx + 1) % len]?.focus();
+      const next = idx < 0 ? edge(1) : step(idx, 1);
+      if (next >= 0) itemRefs.current[next].focus();
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      itemRefs.current[idx < 0 ? len - 1 : (idx - 1 + len) % len]?.focus();
+      const next = idx < 0 ? edge(-1) : step(idx, -1);
+      if (next >= 0) itemRefs.current[next].focus();
     } else if (e.key === 'Home') {
       e.preventDefault();
-      itemRefs.current[0]?.focus();
+      const i = edge(1); if (i >= 0) itemRefs.current[i].focus();
     } else if (e.key === 'End') {
       e.preventDefault();
-      itemRefs.current[len - 1]?.focus();
+      const i = edge(-1); if (i >= 0) itemRefs.current[i].focus();
     }
   }
   function pick(name) {
@@ -165,7 +201,32 @@ function CityDropdownMenu({ countryCode, value, onChange, ariaLabel }) {
           onKeyDown={onListKey}
           className="absolute left-0 top-full mt-1 z-30 max-h-72 overflow-y-auto rounded-md border border-tg-border bg-tg-card shadow-lg min-w-[12rem] py-0.5"
         >
-          {list.map((c, i) => {
+          {/* v0.62.712 — grouping computed once via the shared pure function
+              (cities.js), mirroring Cuisine's CityDropdown. Menu has no
+              "— Clear —" row, so itemRefs index === the row's position in
+              `list` directly (no offset). */}
+          {computeGroupedRows(list, { collapsedRegions, currentRegion }).map((r) => {
+            if (r.type === 'divider') {
+              return (
+                <li key={r.key} role="presentation" className="select-none">
+                  <button
+                    type="button"
+                    onClick={() => toggleRegion(r.region)}
+                    aria-expanded={r.open}
+                    aria-label={`${REGION_LABEL_BY_COUNTRY[countryCode] || 'Region'}: ${r.region} ${r.open ? '(expanded)' : '(collapsed)'}`}
+                    className="w-full flex items-center px-3 py-1 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none"
+                  >
+                    <span className="flex-1 h-px bg-tg-border/60" />
+                    <span className="text-[11px] leading-none text-tg-hint whitespace-nowrap">
+                      {'\u00A0'}<span aria-hidden>{r.open ? '▾' : '▸'}</span>{' '}{r.region}{'\u00A0'}
+                    </span>
+                    <span className="flex-1 h-px bg-tg-border/60" />
+                  </button>
+                </li>
+              );
+            }
+            if (r.folded) return null;
+            const c = r.city, i = r.index;
             const sel = current && c.name === current.name;
             return (
               <li key={c.name} role="option" aria-selected={sel}>
@@ -175,7 +236,7 @@ function CityDropdownMenu({ countryCode, value, onChange, ariaLabel }) {
                   onClick={() => pick(c.name)}
                   className={`w-full text-left px-3 py-1.5 text-[13px] whitespace-nowrap inline-flex items-center justify-between gap-2 hover:bg-tg-bg focus:bg-tg-bg focus:outline-none ${sel ? 'bg-tg-bg/60 font-semibold' : ''}`}
                 >
-                  <span>{c.name}</span>
+                  <span className={c.code === 'JOHOR' ? 'italic' : ''}>{c.name}</span>
                   <span className="font-mono text-[11px] text-tg-hint">{c.code}</span>
                 </button>
               </li>
