@@ -1,0 +1,826 @@
+{
+  "since": "2026-08-08T09:33:39Z",
+  "until": "2026-08-08T10:38:39Z",
+  "count": 91,
+  "logs": [
+    {
+      "timestamp": "2026-08-08T10:29:34.614624256Z",
+      "message": "[country-pref] chat=313940231 → AU",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.614627706Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 60000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.614631706Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[-41.42808,147.14069],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":60000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.614635006Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=-41.4281,147.1407 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.614638616Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.614645786Z",
+      "message": "[location-cache] D787 label-guard: kept \"Takashimaya Shopping Centre\" over an ambient label-less write",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.614649386Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":[1.3024,103.8347],\"to\":[1.30201,103.83661],\"moved_m\":216,\"label\":\"Singapore\",\"region\":\"SG\",\"country\":null,\"cap_m\":null,\"ambient\":true,\"kept\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.614653296Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 54 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.614656546Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 54 → 53 (≤60000m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.614661146Z",
+      "message": "[Cuisine-Search] rating-floor ≥3.7: 53 → 52",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.614664286Z",
+      "message": "[Cuisine-Search] sliceCap=6 firstBatch=true finalBatch=false range=1-6 seenBefore=0 hash=38ce880f",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.614667466Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.614670546Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.614674776Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.617262854Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.617267064Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.617269894Z",
+      "message": "[Extract-Dishes] gemini-3.1-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.617272594Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.617275414Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.617278064Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.617280624Z",
+      "message": "[travel-times] TRANSIT matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.618187557Z",
+      "message": "[travel-times] DRIVE matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.618190467Z",
+      "message": "[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.618192877Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (6v): crowd=2144ms translate=0ms reviewCache=2ms dishes=621ms finalise=0ms travel=238ms sanctuary=131ms footfall=0ms total=3136ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:29:34.618196087Z",
+      "message": "[Cuisine-Search] D704 returning 6 venues to client (poolCount=6 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735107256Z",
+      "message": "[Cuisine-Search] D786 curated-try slug=australian country=SG unfamiliar=false filled=1/10 (reviewDishes=2 noVerifiedMention=7)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735113046Z",
+      "message": "[Extract-Dishes] gemini-3.1-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735121476Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735125536Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.30201,103.83661],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735129456Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[\"australian\"] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.3020,103.8366 radius=20000 anchored=false skipShuffle=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735134276Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[\"Australian\"] cuisineMetas.length=1 allSelectedAreGated=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735137946Z",
+      "message": "[Cuisine-Search] D703e Gemini-label post-filter (australian): 58 → 58  (dropped=0 unrelated, unlabeled=58 passed through)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735139426Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/3 returned 58 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735150266Z",
+      "message": "[Cuisine-Search] D703f online verify failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are deple",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735156906Z",
+      "message": "[Cuisine-Search] D703s SG-scope 28 → 28 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735163096Z",
+      "message": "[Cuisine-Search] D790 nearby-widen tier=0 radiusM=5000 satisfied=true from=28 to=27",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735167516Z",
+      "message": "[Cuisine-Search] sliceCap=10 firstBatch=true finalBatch=false range=1-10 seenBefore=0 hash=d00f80b6",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735538863Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735541823Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735544793Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735562093Z",
+      "message": "[travel-times] DRIVE matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735566533Z",
+      "message": "[travel-times] TRANSIT matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735570352Z",
+      "message": "[footfall] besttime resolved=0/10",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735574222Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (10v): crowd=2265ms translate=0ms reviewCache=2ms dishes=629ms finalise=0ms travel=76ms sanctuary=155ms footfall=1232ms total=4359ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.735577392Z",
+      "message": "[Cuisine-Search] D704 returning 10 venues to client (poolCount=10 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.736161907Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":[1.3024,103.8347],\"to\":[1.30201,103.83661],\"moved_m\":216,\"label\":\"Singapore\",\"region\":\"SG\",\"country\":null,\"cap_m\":null,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:30:54.736393566Z",
+      "message": "[set-location] chat=313940231 → 1.3020,103.8366 label=\"Singapore\"  SG",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:14.484310710Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":[1.30201,103.83661],\"to\":[-30.2963,153.1135],\"moved_m\":6284355,\"label\":\"Coffs Harbour\",\"region\":\"OTHER\",\"country\":\"AU\",\"cap_m\":40000,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:14.484313670Z",
+      "message": "[set-location] chat=313940231 → -30.2963,153.1135 label=\"Coffs Harbour\" AU OTHER",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:14.484316270Z",
+      "message": "[set-location] search-area notify chat=313940231 area=\"152a West High Street · 152a West High Street, Coffs Harbour\"",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:14.484319160Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":[-30.2963,153.1135],\"to\":[-41.4332,147.1441],\"moved_m\":1349249,\"label\":\"Launceston\",\"region\":\"OTHER\",\"country\":\"AU\",\"cap_m\":36030,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:14.484321910Z",
+      "message": "[set-location] chat=313940231 → -41.4332,147.1441 label=\"Launceston\" AU OTHER",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:14.484325210Z",
+      "message": "[set-location] search-area notify chat=313940231 area=\"6 City Plaza · 6 City Plaza, Launceston, AU\"",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:15.825341885Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":[-41.4332,147.1441],\"to\":[-41.4332,147.1441],\"moved_m\":0,\"label\":\"Launceston\",\"region\":\"OTHER\",\"country\":\"AU\",\"cap_m\":36030,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:15.825350755Z",
+      "message": "[set-location] chat=313940231 → -41.4332,147.1441 label=\"Launceston\" AU OTHER",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:15.836080816Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[-41.4332,147.1441],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":36030,\"cap_src\":\"explicit\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:15.836085676Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[\"australian\"] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=-41.4332,147.1441 radius=20000 anchored=false skipShuffle=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:15.836088546Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[\"Australian\"] cuisineMetas.length=1 allSelectedAreGated=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:16.940729689Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/3 returned 57 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:16.940732679Z",
+      "message": "[Cuisine-Search] D703e Gemini-label post-filter (australian): 57 → 57  (dropped=0 unrelated, unlabeled=57 passed through)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:17.108462851Z",
+      "message": "[Cuisine-Search] D703f online verify failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are deple",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:17.108465421Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 17 → 14 (≤36030m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:17.108468051Z",
+      "message": "[Cuisine-Search] D790 nearby-widen tier=0 radiusM=5000 satisfied=true from=11 to=10",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:17.108470911Z",
+      "message": "[Cuisine-Search] sliceCap=10 firstBatch=true finalBatch=false range=1-10 seenBefore=0 hash=bf3ff871",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:17.108473761Z",
+      "message": "[Cuisine-Search] D786 curated-try slug=australian country=AU unfamiliar=false filled=0/10 (reviewDishes=1 noVerifiedMention=9)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:19.371408651Z",
+      "message": "[Extract-Dishes] gemini-3.1-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:19.640828416Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:19.721733382Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:19.859002677Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:19.932597054Z",
+      "message": "[travel-times] DRIVE matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:19.932601704Z",
+      "message": "[travel-times] TRANSIT matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:20.244036948Z",
+      "message": "[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:20.244041128Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (10v): crowd=2116ms translate=0ms reviewCache=2ms dishes=644ms finalise=0ms travel=81ms sanctuary=215ms footfall=0ms total=3059ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:31:20.244044048Z",
+      "message": "[Cuisine-Search] D704 returning 10 venues to client (poolCount=10 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:32:30.376888580Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[-41.4332,147.1441],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":36030,\"cap_src\":\"explicit\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:32:30.376891110Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[\"vietnamese\"] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=-41.4332,147.1441 radius=20000 anchored=false skipShuffle=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:32:30.376894370Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[\"Vietnamese\"] cuisineMetas.length=1 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:32:30.399511401Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/3 returned 22 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:32:30.399517651Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 22 → 17 (≤36030m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:32:30.399521481Z",
+      "message": "[Cuisine-Search] D790 nearby-widen tier=0 radiusM=5000 satisfied=true from=13 to=13",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:32:30.399524921Z",
+      "message": "[Cuisine-Search] sliceCap=10 firstBatch=true finalBatch=false range=1-10 seenBefore=0 hash=ee216b27",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:32:30.399528381Z",
+      "message": "[Cuisine-Search] D786 curated-try slug=vietnamese country=AU unfamiliar=true filled=1/10 (reviewDishes=1 noVerifiedMention=8)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:32:32.733145345Z",
+      "message": "[Extract-Dishes] gemini-3.1-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:32:32.858463885Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:32:33.157259406Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:32:33.157271846Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:32:33.224563024Z",
+      "message": "[travel-times] TRANSIT matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:32:33.360663675Z",
+      "message": "[travel-times] DRIVE matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:32:33.538676940Z",
+      "message": "[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:32:33.538681900Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (10v): crowd=2103ms translate=0ms reviewCache=4ms dishes=646ms finalise=0ms travel=192ms sanctuary=189ms footfall=0ms total=3134ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T10:32:33.578483557Z",
+      "message": "[Cuisine-Search] D704 returning 10 venues to client (poolCount=10 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
