@@ -1,0 +1,1942 @@
+{
+  "since": "2026-08-08T07:44:07Z",
+  "until": "2026-08-08T08:49:07Z",
+  "count": 215,
+  "logs": [
+    {
+      "timestamp": "2026-08-08T07:45:55.491990270Z",
+      "message": "[menu/set-location] D776 chat=313940231 precinctId=marina-bay region=SG",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:45:55.491994490Z",
+      "message": "[country-pref] chat=313940231 → SG",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.572541757Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.572544577Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.279,103.86],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.572547756Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.2790,103.8600 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.572550316Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.572552876Z",
+      "message": "[location-cache] D787 label-guard: kept \"Marina Bay\" over an ambient label-less write",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.572555286Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"649e385d727e411dba6722c325601b28\",\"from\":[1.279,103.86],\"to\":[1.279,103.86],\"moved_m\":0,\"label\":\"Singapore\",\"region\":\"SG\",\"country\":null,\"cap_m\":null,\"ambient\":true,\"kept\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.572562046Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.572564476Z",
+      "message": "[Cuisine-Search] D703 venue-filter (type+name) 60 → 59",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.572566756Z",
+      "message": "[Cuisine-Search] D703s SG-scope 59 → 59 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.572569216Z",
+      "message": "[Cuisine-Search] sliceCap=6 firstBatch=true finalBatch=false range=1-6 seenBefore=0 hash=4a918455",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.572571796Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.572574916Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.572577646Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.572580046Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.574236512Z",
+      "message": "[travel-times] TRANSIT matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.574245722Z",
+      "message": "[travel-times] DRIVE matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.574380710Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.574384560Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.574389250Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:56.574393960Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:57.515816773Z",
+      "message": "[footfall] besttime resolved=0/6",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:57.515821053Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (6v): crowd=2089ms translate=0ms reviewCache=3ms dishes=515ms finalise=0ms travel=217ms sanctuary=132ms footfall=1035ms total=3991ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:57.515824823Z",
+      "message": "[Cuisine-Search] D704 returning 6 venues to client (poolCount=6 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:58.825150888Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"649e385d727e411dba6722c325601b28\",\"from\":[1.279,103.86],\"to\":[1.279,103.86],\"moved_m\":0,\"label\":\"Singapore\",\"region\":\"SG\",\"country\":null,\"cap_m\":null,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T07:59:58.825156538Z",
+      "message": "[set-location] chat=313940231 → 1.2790,103.8600 label=\"Singapore\"  SG",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:18.261078931Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"649e385d727e411dba6722c325601b28\",\"from\":[1.279,103.86],\"to\":[-41.4332,147.1441],\"moved_m\":6442181,\"label\":\"Launceston\",\"region\":\"OTHER\",\"country\":\"AU\",\"cap_m\":36030,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:18.261082731Z",
+      "message": "[set-location] chat=313940231 → -41.4332,147.1441 label=\"Launceston\" AU OTHER",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:18.261086831Z",
+      "message": "[set-location] search-area notify chat=313940231 area=\"6 City Plaza · 6 City Plaza, Launceston, AU\"",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:19.869604715Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"649e385d727e411dba6722c325601b28\",\"from\":[-41.4332,147.1441],\"to\":[-41.42808,147.14069],\"moved_m\":637,\"label\":\"University of Tasmania, Inveresk Campus\",\"region\":\"OTHER\",\"country\":\"AU\",\"cap_m\":null,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:19.869607245Z",
+      "message": "[set-location] chat=313940231 → -41.4281,147.1407 label=\"University of Tasmania, Inveresk Campus\" AU OTHER",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:20.121520912Z",
+      "message": "[set-location] search-area notify chat=313940231 area=\"2 Invermay Road · 2 Invermay Road, Invermay, AU\"",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:20.850374899Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"649e385d727e411dba6722c325601b28\",\"from\":[-41.42808,147.14069],\"to\":[-41.4332,147.1441],\"moved_m\":637,\"label\":\"Launceston\",\"region\":\"OTHER\",\"country\":\"AU\",\"cap_m\":36030,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:20.850379839Z",
+      "message": "[set-location] chat=313940231 → -41.4332,147.1441 label=\"Launceston\" AU OTHER",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:20.894550188Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[-41.4332,147.1441],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":36030,\"cap_src\":\"explicit\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:20.894556207Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=-41.4332,147.1441 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:20.894560067Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:22.445839172Z",
+      "message": "[set-location] search-area notify chat=313940231 area=\"6 City Plaza · 6 City Plaza, Launceston, AU\"",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:22.457272936Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 53 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:22.457280026Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 53 → 53 (≤36030m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:22.457730722Z",
+      "message": "[Cuisine-Search] rating-floor ≥3.7: 53 → 52",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:22.457738982Z",
+      "message": "[Cuisine-Search] sliceCap=10 firstBatch=true finalBatch=false range=1-10 seenBefore=0 hash=38ce880f",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:25.845840782Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:25.845845422Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:25.845851262Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:25.845856002Z",
+      "message": "[travel-times] TRANSIT matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:25.847739806Z",
+      "message": "[travel-times] DRIVE matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:25.853373049Z",
+      "message": "[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:25.853378149Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (10v): crowd=2126ms translate=0ms reviewCache=2ms dishes=500ms finalise=0ms travel=190ms sanctuary=190ms footfall=0ms total=3009ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:25.855164794Z",
+      "message": "[Cuisine-Search] D704 returning 10 venues to client (poolCount=10 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:45.058925485Z",
+      "message": "[NL-Query] D772 brand-name prepended — \"bubble tea\" + []",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:45.058935185Z",
+      "message": "[NL-Query] D773 discover region=OTHER → regionCode=AU (deep: maxPages=3)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:46.854005782Z",
+      "message": "[travel-times] DRIVE matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:46.854010072Z",
+      "message": "[travel-times] TRANSIT matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:48.911114575Z",
+      "message": "[footfall] besttime resolved=0/24",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:49.824790066Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"649e385d727e411dba6722c325601b28\",\"from\":[-41.4332,147.1441],\"to\":[-41.42808,147.14069],\"moved_m\":637,\"label\":\"University of Tasmania, Inveresk Campus\",\"region\":\"OTHER\",\"country\":\"AU\",\"cap_m\":null,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:00:49.824803336Z",
+      "message": "[set-location] chat=313940231 → -41.4281,147.1407 label=\"University of Tasmania, Inveresk Campus\" AU OTHER",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:07:40.585697840Z",
+      "message": "uncaughtException",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:08:55.627259589Z",
+      "message": "Starting Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:08:56.458831776Z",
+      "message": "npm warn config production Use `--omit=dev` instead.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:08:56.458835526Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:08:56.458838516Z",
+      "message": "> soleat@0.62.712 start",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:08:56.458841386Z",
+      "message": "> node index.js",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:08:56.458844256Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:08:56.458846956Z",
+      "message": "[webhook-domain] fallback not configured — skipping health check",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:08:56.609036372Z",
+      "message": "[Updates] Webhook registered: https://soleat.net/webhook",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:08:56.754275911Z",
+      "message": "[Bot] Identity confirmed: @soleat_bot",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:08:58.014563844Z",
+      "message": "[setMyDescription] failed (non-fatal): ETELEGRAM: 400 Bad Request: BOT_DESC_INVALID",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:08:58.972018828Z",
+      "message": "[Boot] MAP_ID configured: db1201f307409c29…",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:08:58.998988922Z",
+      "message": "[Holidays] 11 SG PH loaded from cache",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:08:59.695582603Z",
+      "message": "[Pulse] Status → 🟢 Healthy at 4:08:59 pm",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:08:59.854916893Z",
+      "message": "[Vibe] Cached 11 live places (Google Maps).",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:08:59.858521975Z",
+      "message": "🚀 soleat is live and sniffing...",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:08:59.867466860Z",
+      "message": "[HTTP] Listening on :8080",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:08:59.867472040Z",
+      "message": "[Transport] Bus stops cache: imported=0, skipped=fresh",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:01.819428365Z",
+      "message": "Stopping Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:10.136863265Z",
+      "message": "npm error path /app",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:10.136873695Z",
+      "message": "npm error command failed",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:10.136879475Z",
+      "message": "npm error signal SIGTERM",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:10.137513689Z",
+      "message": "npm error command sh -c node index.js",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:10.137526689Z",
+      "message": "npm error A complete log of this run can be found in: /root/.npm/_logs/2026-08-08T07_42_45_281Z-debug-0.log",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "19ab352a-3ae5-4e74-bc0e-c6311842c139",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:48.374982452Z",
+      "message": "Starting Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:49.072836011Z",
+      "message": "npm warn config production Use `--omit=dev` instead.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:49.072842551Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:49.072846801Z",
+      "message": "> soleat@0.62.712 start",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:49.072850191Z",
+      "message": "> node index.js",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:49.072853111Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:49.072856501Z",
+      "message": "[webhook-domain] fallback not configured — skipping health check",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:49.465107946Z",
+      "message": "[Updates] Webhook registered: https://soleat.net/webhook",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:49.622006160Z",
+      "message": "[Bot] Identity confirmed: @soleat_bot",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:50.922226992Z",
+      "message": "[setMyDescription] failed (non-fatal): ETELEGRAM: 400 Bad Request: BOT_DESC_INVALID",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:51.892075506Z",
+      "message": "[Boot] MAP_ID configured: db1201f307409c29…",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:51.930444162Z",
+      "message": "[Holidays] 11 SG PH loaded from cache",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:52.613128272Z",
+      "message": "[Pulse] Status → 🟢 Healthy at 4:09:52 pm",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:52.760211079Z",
+      "message": "[Vibe] Cached 11 live places (Google Maps).",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:52.760215938Z",
+      "message": "🚀 soleat is live and sniffing...",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:52.760220878Z",
+      "message": "[HTTP] Listening on :8080",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:52.760225518Z",
+      "message": "[Transport] Bus stops cache: imported=0, skipped=fresh",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:54.831879500Z",
+      "message": "Stopping Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:59.872813702Z",
+      "message": "npm error path /app",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:59.872816492Z",
+      "message": "npm error command failed",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:59.872819092Z",
+      "message": "npm error signal SIGTERM",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:59.872821672Z",
+      "message": "npm error command sh -c node index.js",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:09:59.872824432Z",
+      "message": "npm error A complete log of this run can be found in: /root/.npm/_logs/2026-08-08T08_08_55_415Z-debug-0.log",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "768927c3-d774-49bc-ac0a-f110d67e80c5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.780047153Z",
+      "message": "[location-cache] D787 label-guard: kept \"University of Tasmania, Inveresk Campus\" over an ambient label-less write",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.780050893Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.780053603Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"649e385d727e411dba6722c325601b28\",\"from\":[-41.42808,147.14069],\"to\":[1.279,103.86],\"moved_m\":6441616,\"label\":\"Singapore\",\"region\":\"SG\",\"country\":null,\"cap_m\":null,\"ambient\":true,\"kept\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.780058393Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.780058893Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.780062353Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.279,103.86],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.780068853Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.2790,103.8600 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.780078413Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.780084733Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.780089583Z",
+      "message": "[Cuisine-Search] D703s SG-scope 60 → 60 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.780093973Z",
+      "message": "[Cuisine-Search] sliceCap=10 firstBatch=false finalBatch=false range=7-16 seenBefore=6 hash=4a918455",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.780099133Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.780103703Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.780581529Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.780585029Z",
+      "message": "[Extract-Dishes] gemini-3.1-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: [403 Forbidden] The provided API key has an IP address restriction. The originating IP address of the call (152.55.177.6) violates this restriction. [{\"@type\":\"type.googleapis.com/google.rpc.ErrorInfo\",\"reason\":\"API_KEY_IP_ADDRESS_BLOCKED\",\"domain\":\"googleapis.com\",\"metadata\":{\"service\":\"generativelanguage.googleapis.com\",\"callerIp\":\"152.55.177.6\",\"consumer\":\"projects/140988290937\"}},{\"@type\":\"type.googleapis.com/google.rpc.LocalizedMessage\",\"locale\":\"en-US\",\"message\":\"The provided API key has an IP address restriction. The originating IP address of the call (152.55.177.6) violates this restriction.\"}]",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.780588288Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [403 Forbidden] The provided API key has an IP address restriction. The originating IP address of the call (152.55.177.6) violates this restriction. [{\"@type\":\"type.googleapis.com/google.rpc.ErrorInfo\",\"reason\":\"API_KEY_IP_ADDRESS_BLOCKED\",\"domain\":\"googleapis.com\",\"metadata\":{\"service\":\"generativelanguage.googleapis.com\",\"callerIp\":\"152.55.177.6\",\"consumer\":\"projects/140988290937\"}},{\"@type\":\"type.googleapis.com/google.rpc.LocalizedMessage\",\"locale\":\"en-US\",\"message\":\"The provided API key has an IP address restriction. The originating IP address of the call (152.55.177.6) violates this restriction.\"}]",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.780591018Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] The provided API key has an IP address restriction. The originating IP address of the call (152.55.177.6) violates this restriction. [{\"@type\":\"type.googleapis.com/google.rpc.ErrorInfo\",\"reason\":\"API_KEY_IP_ADDRESS_BLOCKED\",\"domain\":\"googleapis.com\",\"metadata\":{\"service\":\"generativelanguage.googleapis.com\",\"callerIp\":\"152.55.177.6\",\"consumer\":\"projects/140988290937\"}},{\"@type\":\"type.googleapis.com/google.rpc.LocalizedMessage\",\"locale\":\"en-US\",\"message\":\"The provided API key has an IP address restriction. The originating IP address of the call (152.55.177.6) violates this restriction.\"}]",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.782026837Z",
+      "message": "[travel-times] TRANSIT matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.782031027Z",
+      "message": "[travel-times] DRIVE matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:33.782048176Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: [403 Forbidden] The provided API key has an IP address restriction. The originating IP address of the call (152.55.177.6) violates this restriction. [{\"@type\":\"type.googleapis.com/google.rpc.ErrorInfo\",\"reason\":\"API_KEY_IP_ADDRESS_BLOCKED\",\"domain\":\"googleapis.com\",\"metadata\":{\"service\":\"generativelanguage.googleapis.com\",\"consumer\":\"projects/140988290937\",\"callerIp\":\"152.55.177.6\"}},{\"@type\":\"type.googleapis.com/google.rpc.LocalizedMessage\",\"locale\":\"en-US\",\"message\":\"The provided API key has an IP address restriction. The originating IP address of the call (152.55.177.6) violates this restriction.\"}]",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:36.404044247Z",
+      "message": "[footfall] besttime resolved=0/10 (budget 4500ms hit — returned without full footfall)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:36.404049647Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (10v): crowd=2301ms translate=1ms reviewCache=2ms dishes=640ms finalise=0ms travel=216ms sanctuary=152ms footfall=4503ms total=7815ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:36.448850127Z",
+      "message": "[Cuisine-Search] D704 returning 10 venues to client (poolCount=16 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:36.750861170Z",
+      "message": "[NL-Query] D773 discover region=OTHER → regionCode=AU (deep: maxPages=3)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:40.238587640Z",
+      "message": "[travel-times] TRANSIT matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:40.533452123Z",
+      "message": "[travel-times] DRIVE matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:12:44.839737701Z",
+      "message": "[footfall] besttime resolved=0/24 (budget 4500ms hit — returned without full footfall)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:05.264758561Z",
+      "message": "[country-pref] chat=313940231 → AU",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:05.264763791Z",
+      "message": "[location-cache] D787 label-guard: kept \"University of Tasmania, Inveresk Campus\" over an ambient label-less write",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:05.264767091Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"649e385d727e411dba6722c325601b28\",\"from\":[-41.42808,147.14069],\"to\":[-41.42808,147.14069],\"moved_m\":0,\"label\":\"Launceston\",\"region\":\"OTHER\",\"country\":\"AU\",\"cap_m\":null,\"ambient\":true,\"kept\":true}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:05.264769741Z",
+      "message": "[country-pref] chat=313940231 → AU",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:05.264773091Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 60000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:05.264776071Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[-41.42808,147.14069],\"region\":\"OTHER\",\"radius_m\":20000,\"cap_m\":60000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:05.264778511Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=OTHER center=-41.4281,147.1407 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:05.264780901Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:05.829858790Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 52 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:05.829875180Z",
+      "message": "[Cuisine-Search] D703d OTHER-scope 52 → 52 (≤60000m of set location; coordless / out-of-range excluded)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:05.837494676Z",
+      "message": "[Cuisine-Search] rating-floor ≥3.7: 52 → 51",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:05.837499216Z",
+      "message": "[Cuisine-Search] sliceCap=6 firstBatch=true finalBatch=false range=1-6 seenBefore=0 hash=38ce880f",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:08.464970972Z",
+      "message": "[Extract-Dishes] gemini-3.1-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:08.607191416Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:08.776909607Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:08.866016403Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: [403 Forbidden] The provided API key has an IP address restriction. The originating IP address of the call (152.55.177.6) violates this restriction. [{\"@type\":\"type.googleapis.com/google.rpc.ErrorInfo\",\"reason\":\"API_KEY_IP_ADDRESS_BLOCKED\",\"domain\":\"googleapis.com\",\"metadata\":{\"service\":\"generativelanguage.googleapis.com\",\"callerIp\":\"152.55.177.6\",\"consumer\":\"projects/140988290937\"}},{\"@type\":\"type.googleapis.com/google.rpc.LocalizedMessage\",\"locale\":\"en-US\",\"message\":\"The provided API key has an IP address restriction. The originating IP address of the call (152.55.177.6) violates this restriction.\"}]",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:08.942590773Z",
+      "message": "[travel-times] TRANSIT matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:08.961739401Z",
+      "message": "[travel-times] DRIVE matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:09.142254871Z",
+      "message": "[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:09.143010564Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (6v): crowd=2419ms translate=0ms reviewCache=7ms dishes=599ms finalise=0ms travel=96ms sanctuary=181ms footfall=0ms total=3302ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:09.164973998Z",
+      "message": "[Cuisine-Search] D704 returning 6 venues to client (poolCount=6 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:10.452575963Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"649e385d727e411dba6722c325601b28\",\"from\":[-41.42808,147.14069],\"to\":[-41.42808,147.14069],\"moved_m\":0,\"label\":\"Launceston\",\"region\":\"OTHER\",\"country\":\"AU\",\"cap_m\":null,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:15:10.452579263Z",
+      "message": "[set-location] chat=313940231 → -41.4281,147.1407 label=\"Launceston\" AU OTHER",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:10.818366656Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:10.818375006Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.279,103.86],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:10.818380076Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.2790,103.8600 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:10.818384756Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:10.818389276Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:10.818393886Z",
+      "message": "[Cuisine-Search] D703s SG-scope 60 → 60 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:10.818399486Z",
+      "message": "[Cuisine-Search] sliceCap=10 firstBatch=false finalBatch=false range=17-26 seenBefore=16 hash=4a918455",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:10.818403916Z",
+      "message": "[Extract-Dishes] gemini-3.1-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:10.818407576Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:10.818855802Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (10v): crowd=2365ms translate=0ms reviewCache=2ms dishes=640ms finalise=0ms travel=84ms sanctuary=130ms footfall=827ms total=4048ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:10.818863252Z",
+      "message": "[Cuisine-Search] D704 returning 10 venues to client (poolCount=26 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:10.818866612Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:10.818874562Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:10.818879422Z",
+      "message": "[travel-times] DRIVE matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:10.818884662Z",
+      "message": "[travel-times] TRANSIT matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:10.818889792Z",
+      "message": "[footfall] besttime resolved=0/10",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:16.552729858Z",
+      "message": "[LocDrift] set-location {\"chat\":\"313940231\",\"dev\":\"b4e07d5f291145b29f2ddee4818414a9\",\"from\":[1.279,103.86],\"to\":[1.3024,103.8347],\"moved_m\":3832,\"label\":\"Takashimaya Shopping Centre\",\"region\":\"SG\",\"country\":null,\"cap_m\":null,\"ambient\":false,\"kept\":false}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:16.552738878Z",
+      "message": "[set-location] chat=313940231 → 1.3024,103.8347 label=\"Takashimaya Shopping Centre\"  SG",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:17.117003707Z",
+      "message": "[set-location] search-area notify chat=313940231 area=\"391 Orchard Road · 391 Orchard Road, Singapore, SG\"",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:18.014331853Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:18.014361403Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:18.030693738Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:18.040828809Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:18.180199597Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:18.399852877Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:18.399856047Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.3024,103.8347],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:18.399860077Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.3024,103.8347 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:18.399863897Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:19.751788142Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:19.751795242Z",
+      "message": "[Cuisine-Search] D703s SG-scope 60 → 60 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:19.751799352Z",
+      "message": "[Cuisine-Search] sliceCap=10 firstBatch=true finalBatch=false range=1-10 seenBefore=0 hash=0a61554f",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:22.552541791Z",
+      "message": "[Extract-Dishes] gemini-3.1-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:22.557421612Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:22.769960936Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:22.908715178Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:22.997386975Z",
+      "message": "[travel-times] TRANSIT matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:22.997392135Z",
+      "message": "[travel-times] DRIVE matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:24.029944842Z",
+      "message": "[footfall] besttime resolved=0/10",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:24.029951352Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (10v): crowd=2457ms translate=0ms reviewCache=2ms dishes=730ms finalise=0ms travel=95ms sanctuary=147ms footfall=879ms total=4310ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:24.050279906Z",
+      "message": "[Cuisine-Search] D704 returning 10 venues to client (poolCount=10 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.129144187Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.129147537Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.3024,103.8347],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.129151547Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[\"japanese\"] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.3024,103.8347 radius=20000 anchored=false skipShuffle=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.129154737Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[\"Japanese\"] cuisineMetas.length=1 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.129158107Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/3 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.129161487Z",
+      "message": "[Cuisine-Search] D703e Gemini-label post-filter (japanese): 60 → 58  (dropped=2 unrelated, unlabeled=14 passed through)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.129165287Z",
+      "message": "[Cuisine-Search] D703f online verify failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are deple",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.129168957Z",
+      "message": "[Cuisine-Search] D703s SG-scope 58 → 58 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.129172357Z",
+      "message": "[Cuisine-Search] D790 nearby-widen tier=0 radiusM=5000 satisfied=true from=58 to=57",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.129176237Z",
+      "message": "[Cuisine-Search] sliceCap=10 firstBatch=true finalBatch=false range=1-10 seenBefore=0 hash=60d793c7",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.129179397Z",
+      "message": "[Cuisine-Search] D786 curated-try slug=japanese country=SG unfamiliar=false filled=7/10 (reviewDishes=0 noVerifiedMention=3)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.129183067Z",
+      "message": "[Extract-Dishes] gemini-3.1-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.130299428Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.130302268Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.130304538Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: [429 Too Many Requests] Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. ",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.130307368Z",
+      "message": "[travel-times] DRIVE matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.130310058Z",
+      "message": "[travel-times] TRANSIT matrix failed: Request failed with status code 403",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.130312578Z",
+      "message": "[footfall] besttime resolved=0/10",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.130315138Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (10v): crowd=2278ms translate=0ms reviewCache=3ms dishes=608ms finalise=0ms travel=209ms sanctuary=115ms footfall=805ms total=4018ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-08T08:17:44.130318748Z",
+      "message": "[Cuisine-Search] D704 returning 10 venues to client (poolCount=10 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
