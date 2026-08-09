@@ -1,0 +1,16 @@
+{
+  "since": "2026-08-09T16:30:45Z",
+  "until": "2026-08-09T17:35:45Z",
+  "count": 1,
+  "logs": [
+    {
+      "timestamp": "2026-08-09T17:34:59.244410925Z",
+      "message": "[Error] LTA Sniffer failed: Request failed with status code 504",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "c861981f-62f7-4268-b8b2-873307743f42",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
