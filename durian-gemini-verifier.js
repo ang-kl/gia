@@ -362,7 +362,7 @@ function _withTimeout(p, ms, label) {
   });
 }
 
-async function _callGemini({ apiKey, model, prompt, _genAIFactory }) {
+async function _callGemini({ apiKey, model, prompt, redis, _genAIFactory }) {
   const factory = _genAIFactory || (() => {
     const { GoogleGenerativeAI } = require('@google/generative-ai');
     return new GoogleGenerativeAI(apiKey);
@@ -380,17 +380,18 @@ async function _callGemini({ apiKey, model, prompt, _genAIFactory }) {
     PER_CALL_TIMEOUT_MS,
     `gemini ${model}`
   );
+  require('./api-cost').recordGeminiUsage(redis, model, result?.response?.usageMetadata);
   const text = typeof result?.response?.text === 'function'
     ? result.response.text()
     : (result?.response?.text || '');
   return text;
 }
 
-async function _processBatch({ apiKey, model, mode, batch, _genAIFactory }) {
+async function _processBatch({ apiKey, model, mode, batch, redis, _genAIFactory }) {
   const prompt = _buildPrompt(mode, batch);
   let text;
   try {
-    text = await _callGemini({ apiKey, model, prompt, _genAIFactory });
+    text = await _callGemini({ apiKey, model, prompt, redis, _genAIFactory });
   } catch (err) {
     return {
       ok: false,
@@ -438,6 +439,7 @@ async function verifyKeptVenues({
   batchSize = DEFAULT_BATCH_SIZE,
   concurrency = DEFAULT_CONCURRENCY,
   onProgress = null,
+  redis = null,
   _genAIFactory = null
 }) {
   if (!report || !Array.isArray(report.regions)) {
@@ -481,7 +483,7 @@ async function verifyKeptVenues({
       const idx = cursor++;
       if (idx >= batches.length) return;
       const res = await _processBatch({
-        apiKey, model, mode, batch: batches[idx], _genAIFactory
+        apiKey, model, mode, batch: batches[idx], redis, _genAIFactory
       });
       if (res.ok) {
         labelled.push(...res.labelled);

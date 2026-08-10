@@ -11,7 +11,7 @@ import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
-const { extractDishes, reviewText, enrichFast } = require('../cuisine-enrich.js');
+const { extractDishes, reviewText, enrichFast, enrichSlow } = require('../cuisine-enrich.js');
 
 const rev = (text, daysAgo = 10, extra = {}) => ({
   text,
@@ -82,5 +82,60 @@ describe('enrichFast — pure/local phase', () => {
     const bad = { ...ctx, enrichPriceRangeDisplay: async () => { throw new Error('boom'); } };
     const top = [{ placeId: 'C', name: 'C', openNow: true }];
     await expect(enrichFast(top, bad)).resolves.toBeTruthy();
+  });
+});
+
+// v0.62.71x — sanctuary redundant-fetch regression: `delete v.reviews` used to run BEFORE
+// ctx.enrichSanctuaryRead in the SLOW phase, forcing vibe-summary.js's
+// getOrCacheSummary to pay for a redundant Places Details call to re-fetch
+// the exact same reviews field that had just been discarded. `delete
+// v.reviews` is now deferred to the very end of enrichSlow, so
+// enrichSanctuaryRead still sees v.reviews — pinned here so the ordering
+// can't silently regress.
+describe('enrichSlow — v.reviews survives until AFTER enrichSanctuaryRead', () => {
+  // No GOOGLE_MAPS_API_KEY / LTA_ACCOUNT_KEY / BESTTIME_API_KEY / GEMINI_API_KEY
+  // in this sandbox's env, so every real network-bound sub-step (crowd-signal,
+  // travel-times, footfall, Gemini dish extraction) gates itself off
+  // immediately and never attempts a real request — confirmed by reading each
+  // module's own early-exit guard before relying on it here.
+  const makeCtx = (enrichSanctuaryRead) => ({
+    redis: { isOpen: false },
+    csLang: 'en',
+    cuisines: [],          // → cuisine-review-language no-ops (no nationality slug)
+    cuisineQueries: [],
+    searchCenter: { lat: 1.3521, lng: 103.8198 },
+    isSG: true,
+    enrichSanctuaryRead
+  });
+
+  it('enrichSanctuaryRead still sees v.reviews, and it is gone afterwards', async () => {
+    let seenAtSanctuaryTime;
+    const ctx = makeCtx(async (venues) => {
+      seenAtSanctuaryTime = venues[0].reviews;
+    });
+    const top = [{
+      placeId: 'P1', name: 'Quiet Cafe',
+      reviews: [{ text: { text: 'Quiet corner, great for solo diners' }, rating: 5, relative: '2 days ago' }]
+    }];
+    await enrichSlow(top, ctx);
+    expect(Array.isArray(seenAtSanctuaryTime)).toBe(true);
+    expect(seenAtSanctuaryTime.length).toBe(1);
+    expect(top[0].reviews).toBeUndefined();
+  });
+
+  it('a throwing enrichSanctuaryRead does not stop v.reviews from still being deleted', async () => {
+    const ctx = makeCtx(async () => { throw new Error('sanctuary boom'); });
+    const top = [{ placeId: 'P2', name: 'X', reviews: [{ text: { text: 'ok' }, rating: 4 }] }];
+    await expect(enrichSlow(top, ctx)).resolves.toBeUndefined();
+    expect(top[0].reviews).toBeUndefined();
+  });
+
+  it('a venue with no reviews at all is untouched by the reorder', async () => {
+    let seenAtSanctuaryTime;
+    const ctx = makeCtx(async (venues) => { seenAtSanctuaryTime = venues[0].reviews; });
+    const top = [{ placeId: 'P3', name: 'Bare' }];
+    await enrichSlow(top, ctx);
+    expect(seenAtSanctuaryTime).toBeUndefined();
+    expect(top[0].reviews).toBeUndefined();
   });
 });

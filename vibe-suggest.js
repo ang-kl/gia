@@ -270,7 +270,7 @@ const RADIAL_EXPANSION_M = [200, 500, 1000, 2000];
 // the empty-result reports. discover() with locationBias to a 500m
 // circle is still tight enough to be "near you" but wide enough that
 // most SG anchors return results.
-async function pickValidatedInverted(lat, lng, count, opts, meal) {
+async function pickValidatedInverted(lat, lng, count, opts, meal, redis = null) {
   const pipeline = require('./pipeline');
   const category = opts.category || 'food';
 
@@ -282,6 +282,7 @@ async function pickValidatedInverted(lat, lng, count, opts, meal) {
 
   for (const r of [500, 1000, 2000]) {
     const candidates = await pipeline.discover({
+      redis,
       lat,
       lng,
       cuisines,
@@ -310,7 +311,7 @@ async function pickValidatedInverted(lat, lng, count, opts, meal) {
   return { meal, venues: [] };
 }
 
-async function pickValidated(lat, lng, count = 3, _fallbackList = [], opts = {}) {
+async function pickValidated(lat, lng, count = 3, _fallbackList = [], opts = {}, redis = null) {
   const category = opts.category || 'food';
   const override = CATEGORIES[category] ?? CATEGORIES.food;
   let meal;
@@ -331,7 +332,7 @@ async function pickValidated(lat, lng, count = 3, _fallbackList = [], opts = {})
   // EAT_INVERSION_ENABLED=false in Railway env to revert to v0.45.x
   // legacy hallucinate-then-validate behaviour.
   if (process.env.EAT_INVERSION_ENABLED !== 'false') {
-    const inverted = await pickValidatedInverted(lat, lng, count, opts, meal);
+    const inverted = await pickValidatedInverted(lat, lng, count, opts, meal, redis);
     if (inverted.venues.length) return inverted;
     // Defensive: if Places returns nothing at all radii (extremely
     // rural anchor, or Places API outage), fall through to legacy

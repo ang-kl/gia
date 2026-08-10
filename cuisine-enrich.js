@@ -239,7 +239,15 @@ async function enrichSlow(top, ctx) {
         needGemini.push(v);
       }));
     }
-    if (needGemini.length) {
+    // v0.62.715 — Phase C: skip the paid LLM dish pass when the day's spend
+    // is over the hard cap. The regex pass above already ran and the cached
+    // hits above were already applied, so the card keeps whatever dishes it
+    // could get for free.
+    const dishesAllowed = await require('./spend-guard').allows(redis, 'dishes');
+    if (!dishesAllowed && needGemini.length) {
+      console.warn(`[Cuisine-Search] dish extraction skipped for ${needGemini.length} venue(s) — spend guard at hard cap`);
+    }
+    if (needGemini.length && dishesAllowed) {
       const geminiMod = require('./gemini-client');
       const venuesForLlm = needGemini.map((v) => ({
         id: v.placeId,
@@ -250,7 +258,7 @@ async function enrichSlow(top, ctx) {
           .filter((r) => r.text)
       })).filter((v) => v.reviews.length);
       if (venuesForLlm.length) {
-        const llmDishes = await geminiMod.extractDishesFromReviews({ venues: venuesForLlm });
+        const llmDishes = await geminiMod.extractDishesFromReviews({ venues: venuesForLlm, redis });
         const batchIds = new Set(venuesForLlm.map((v) => v.id));
         for (const v of needGemini) {
           if (!batchIds.has(v.placeId)) continue;
@@ -298,17 +306,25 @@ async function enrichSlow(top, ctx) {
     delete v.regularPeriods;
     delete v.currentPeriods;
     delete v.utcOffsetMinutes;
-    delete v.reviews;
+    // v0.62.71x — `delete v.reviews` moved OUT of this loop (see below).
+    // enrichSanctuaryRead (a few lines down) still needs v.reviews to avoid
+    // a redundant Places Details re-fetch for the exact same field.
   }
   _t.finalise = Date.now() - _last; _last = Date.now();
   // v0.58.52 — TRANSIT + DRIVE minutes (Routes API). Best-effort.
   try {
     const { enrichTravelTimes } = require('./travel-times');
-    await enrichTravelTimes(ctx.searchCenter.lat, ctx.searchCenter.lng, top);
+    await enrichTravelTimes(ctx.searchCenter.lat, ctx.searchCenter.lng, top, redis);
   } catch (err) { console.warn('[Cuisine-Search] travel-times failed:', err.message); }
   _t.travel = Date.now() - _last; _last = Date.now();
-  try { await ctx.enrichSanctuaryRead(top, ctx.csLang); } catch (err) {
-    console.warn('[Cuisine-Search] enrichSanctuaryRead failed:', err.message);
+  // v0.62.715 — Phase C: the sanctuary read is an Anthropic Haiku call per
+  // uncached venue. Sheddable at the hard cap; the card just omits the 🌿 block.
+  if (!(await require('./spend-guard').allows(redis, 'sanctuary'))) {
+    console.warn('[Cuisine-Search] sanctuary read skipped — spend guard at hard cap');
+  } else {
+    try { await ctx.enrichSanctuaryRead(top, ctx.csLang); } catch (err) {
+      console.warn('[Cuisine-Search] enrichSanctuaryRead failed:', err.message);
+    }
   }
   _t.sanctuary = Date.now() - _last; _last = Date.now();
   // v0.59.0 — footfall (BestTime). Dormant without key.
@@ -316,8 +332,11 @@ async function enrichSlow(top, ctx) {
   // non-SG coverage (`resolved=0/N` on MY/etc.), so it spends latency for zero
   // result. Skip it entirely for non-SG searches. `isSG === false` is the only
   // skip trigger; absent/undefined ctx keeps the prior (SG-assumed) behaviour.
+  // v0.62.715 — Phase C adds a second skip trigger: the hard spend cap.
   if (ctx.isSG === false) {
     console.log('[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)');
+  } else if (!(await require('./spend-guard').allows(redis, 'footfall'))) {
+    console.warn('[Cuisine-Search] footfall skipped — spend guard at hard cap');
   } else {
     try {
       const { attachFootfallSignals } = require('./footfall-signal');
@@ -325,6 +344,10 @@ async function enrichSlow(top, ctx) {
     } catch (err) { console.warn('[Cuisine-Search] footfall failed:', err.message); }
   }
   _t.footfall = Date.now() - _last;
+  // v0.62.71x — `delete v.reviews` deferred here (was inside the finalise loop
+  // above, before enrichSanctuaryRead existed downstream of it). Nothing past
+  // this point reads v.reviews; the response payload must not carry it.
+  for (const v of top) delete v.reviews;
   // v0.62.x — one-line phase breakdown so the next "Load failed" log pinpoints
   // the dominant cost (Gemini dishes vs Claude sanctuary vs BestTime vs Routes).
   console.log(`[Cuisine-Enrich] D707 enrichSlow timings (${Array.isArray(top) ? top.length : 0}v): `

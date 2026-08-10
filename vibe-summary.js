@@ -17,7 +17,29 @@ function isRecentReview(review, now = Date.now()) {
   return now - t <= REVIEW_RECENCY_DAYS * 24 * 60 * 60 * 1000;
 }
 
-async function fetchReviewText(placeId) {
+// Shared by both the in-memory path and the live-fetch path so "recent-only,
+// fall back to all if empty, cap 8, join" behaves identically either way.
+function formatReviewsForSummary(reviews) {
+  const recent = (reviews ?? []).filter(isRecentReview);
+  const pool = recent.length ? recent : (reviews ?? []); // recent-only, fall back to all if empty
+  return pool
+    .map((r) => r.text?.text ?? r.originalText?.text ?? '')
+    .filter(Boolean)
+    .slice(0, 8)
+    .join('\n---\n');
+}
+
+// v0.62.71x — the sanctuary redundant-fetch fix: `preFetchedReviews` lets a caller that already fetched
+// this venue's reviews this same search (cuisine-enrich.js's enrichSlow
+// requests `places.reviews` on the base search call) hand them straight to
+// the sanctuary read instead of paying for a second, redundant Places
+// Details call for the exact same field. Falls back to the live fetch when
+// absent/empty — every other caller (Michelin, nation-iconic, cooking-method
+// fan-outs) doesn't carry venue.reviews and is unaffected.
+async function fetchReviewText(placeId, redis = null, preFetchedReviews = null) {
+  if (Array.isArray(preFetchedReviews) && preFetchedReviews.length) {
+    return formatReviewsForSummary(preFetchedReviews);
+  }
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!mapsApiKey || !placeId) return '';
   try {
@@ -28,13 +50,8 @@ async function fetchReviewText(placeId) {
       },
       timeout: 8000
     });
-    const recent = (data.reviews ?? []).filter(isRecentReview);
-    const pool = recent.length ? recent : (data.reviews ?? []); // recent-only, fall back to all if empty
-    return pool
-      .map((r) => r.text?.text ?? r.originalText?.text ?? '')
-      .filter(Boolean)
-      .slice(0, 8)
-      .join('\n---\n');
+    require('./api-cost').recordMapsCall(redis, 'placeDetails');
+    return formatReviewsForSummary(data.reviews);
   } catch (err) {
     logger.error({ placeId, err: { message: err.message } }, 'vibe-summary placeDetails failed');
     return '';
@@ -103,7 +120,7 @@ ${reviews}`;
   }
 }
 
-async function getOrCacheSummary(redis, placeId, lang = 'en') {
+async function getOrCacheSummary(redis, placeId, lang = 'en', preFetchedReviews = null) {
   if (!placeId) return null;
   // v0.59.0: lang dimension on the cache key. EN and FR sanctuary
   // reads coexist for the same venue.
@@ -120,7 +137,7 @@ async function getOrCacheSummary(redis, placeId, lang = 'en') {
   const cached = await redis.get(cacheKey);
   if (cached) return cached;
 
-  const reviewText = await fetchReviewText(placeId);
+  const reviewText = await fetchReviewText(placeId, redis, preFetchedReviews);
   if (!reviewText) return null;
   const summary = await summarizeVibe(reviewText, safeLang);
   if (summary) {
@@ -129,4 +146,4 @@ async function getOrCacheSummary(redis, placeId, lang = 'en') {
   return summary;
 }
 
-module.exports = { summarizeVibe, fetchReviewText, getOrCacheSummary, isValidVibe };
+module.exports = { summarizeVibe, fetchReviewText, getOrCacheSummary, isValidVibe, formatReviewsForSummary };

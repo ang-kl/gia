@@ -132,6 +132,7 @@ async function translateName({
     try {
       const m = genAI.getGenerativeModel({ model: candidate });
       const r = await m.generateContent(prompt);
+      require('./api-cost').recordGeminiUsage(redis, candidate, r?.response?.usageMetadata);
       let raw = '';
       try { raw = r?.response?.text?.() || ''; } catch { continue; }
       const cleaned = String(raw).trim()

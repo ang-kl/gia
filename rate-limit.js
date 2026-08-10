@@ -47,47 +47,68 @@
 // chatId to key on and the limiter would fail open on every request. It passes
 // `keyFn: (req) => req.ip` instead. The default is unchanged, so the five
 // existing call sites behave exactly as before.
+// v0.62.716 — Phase D. The Redis-counter core, extracted verbatim from
+// makeRateLimiter's body so a NON-Express caller (the Telegram bot command
+// handlers, which have no req/res/next) can share the exact same mechanism
+// and key shape instead of growing a second, drifting copy of it.
+//
+// Returns { limited, count, cap, retryAfterSec, reason }:
+//   limited === false  → caller proceeds. `reason` says why when the check
+//                        was skipped rather than passed ('bypass' | 'no-key'
+//                        | 'redis-down' | 'redis-error' | 'under-cap').
+//   limited === true   → caller refuses; retryAfterSec is when the fixed
+//                        window rolls over.
+//
+// Fails OPEN on every abnormal path (dev bypass, missing key, Redis down or
+// erroring) — identical to the pre-extraction middleware. Never throws.
+async function checkRateLimit(redis, { endpoint, key, cap, windowSec = 900, now = Date.now() }) {
+  if (!endpoint) throw new Error('rate-limit: endpoint label is required');
+  if (!Number.isFinite(cap) || cap <= 0) throw new Error('rate-limit: cap must be a positive integer');
+
+  const open = (reason, extra = {}) => ({ limited: false, cap, reason, ...extra });
+
+  // Dev bypass — never in prod.
+  if (process.env.SKIP_RATE_LIMIT === 'true') return open('bypass');
+  if (!key) return open('no-key');
+  if (!redis?.isOpen) return open('redis-down');
+
+  try {
+    const bucket = Math.floor(now / (windowSec * 1000));
+    const rlKey = `gia:rl:${endpoint}:${key}:${bucket}`;
+    const count = await redis.incr(rlKey);
+    if (count === 1) await redis.expire(rlKey, windowSec);
+    const retryAfterSec = windowSec - (Math.floor(now / 1000) % windowSec);
+    if (count > cap) return { limited: true, count, cap, retryAfterSec, reason: 'over-cap' };
+    return open('under-cap', { count });
+  } catch (err) {
+    console.warn(`[rate-limit] check failed for ${endpoint}:`, err.message);
+    return open('redis-error');
+  }
+}
+
+// Express middleware wrapper. Behaviour is unchanged from pre-v0.62.716 for
+// all existing /api/cuisine/* call sites — same key shape, same fail-open
+// paths, same 429 body — it just delegates the counter to checkRateLimit.
 function makeRateLimiter(redis, { endpoint, cap, windowSec = 900, keyFn = null }) {
   if (!endpoint) throw new Error('rate-limit: endpoint label is required');
   if (!Number.isFinite(cap) || cap <= 0) throw new Error('rate-limit: cap must be a positive integer');
 
   return async function rateLimiter(req, res, next) {
-    // Dev bypass — never in prod.
-    if (process.env.SKIP_RATE_LIMIT === 'true') return next();
-
-    const chatId = keyFn ? keyFn(req) : req.tg?.user?.id;
     // Auth dev-bypass (SKIP_INIT_DATA_AUTH=true) → no chatId to key on;
     // fail open. Same for any other path where the auth middleware
     // didn't populate req.tg (shouldn't happen on /api/cuisine/* given
     // the chokepoint but defensively no-op).
-    if (!chatId) return next();
-
-    if (!redis?.isOpen) {
-      // Redis transiently down — fail open. The 429 protection is a
-      // belt to a series of braces (auth + per-key budget caps + cache).
-      return next();
-    }
-
-    try {
-      const bucket = Math.floor(Date.now() / (windowSec * 1000));
-      const rlKey = `gia:rl:${endpoint}:${chatId}:${bucket}`;
-      const count = await redis.incr(rlKey);
-      if (count === 1) await redis.expire(rlKey, windowSec);
-      if (count > cap) {
-        const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown';
-        console.warn(`[rate-limit] 429 ${endpoint} chatId=${chatId} ip=${ip} count=${count}/${cap}`);
-        return res.status(429).json({
-          error: 'rate_limited',
-          endpoint,
-          retryAfterSec: windowSec - (Math.floor(Date.now() / 1000) % windowSec)
-        });
-      }
-    } catch (err) {
-      // Redis hiccup mid-call — fail open + log.
-      console.warn(`[rate-limit] check failed for ${endpoint}:`, err.message);
-    }
-    return next();
+    const chatId = keyFn ? keyFn(req) : req.tg?.user?.id;
+    const verdict = await checkRateLimit(redis, { endpoint, key: chatId, cap, windowSec });
+    if (!verdict.limited) return next();
+    const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown';
+    console.warn(`[rate-limit] 429 ${endpoint} chatId=${chatId} ip=${ip} count=${verdict.count}/${cap}`);
+    return res.status(429).json({
+      error: 'rate_limited',
+      endpoint,
+      retryAfterSec: verdict.retryAfterSec
+    });
   };
 }
 
-module.exports = { makeRateLimiter };
+module.exports = { makeRateLimiter, checkRateLimit };

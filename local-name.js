@@ -22,7 +22,7 @@ function localLangForCountry(cc, displayLang) {
   return local;
 }
 
-async function fetchLocalName(placeId, langCode, apiKey) {
+async function fetchLocalName(placeId, langCode, apiKey, redis = null) {
   if (!placeId || !langCode || !apiKey) return null;
   try {
     const { data } = await axios.get(
@@ -30,6 +30,7 @@ async function fetchLocalName(placeId, langCode, apiKey) {
       { headers: { 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'displayName' },
         params: { languageCode: langCode }, timeout: 4000 }
     );
+    require('./api-cost').recordMapsCall(redis, 'placeDetails');
     const t = data && data.displayName && data.displayName.text;
     return (typeof t === 'string' && t.trim()) ? t.trim() : null;
   } catch { return null; }
@@ -39,12 +40,12 @@ async function fetchLocalName(placeId, langCode, apiKey) {
 const HAS_LOCAL_SCRIPT = /[　-鿿가-힯฀-๿]/;
 
 // Attach `nameLocal` to each venue (parallel), gated by country + display lang.
-async function attachLocalNames(venues, cc, displayLang, apiKey) {
+async function attachLocalNames(venues, cc, displayLang, apiKey, redis = null) {
   const local = localLangForCountry(cc, displayLang);
   if (!local || !Array.isArray(venues) || !venues.length || !apiKey) return;
   await Promise.all(venues.map(async (v) => {
     if (!v || !v.placeId || v.nameLocal) return;
-    const ln = await fetchLocalName(v.placeId, local, apiKey);
+    const ln = await fetchLocalName(v.placeId, local, apiKey, redis);
     // RULE A — only when it's a real foreign-script string that adds info.
     if (ln && ln !== v.name && HAS_LOCAL_SCRIPT.test(ln)) v.nameLocal = ln;
   }));

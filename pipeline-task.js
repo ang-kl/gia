@@ -237,6 +237,7 @@ async function runCuisineTaskInverted(redis, reqId) {
     // Tier 1 — Places-first discovery.
     await requestStore.setStage(redis, reqId, 'discovering');
     const candidates = await pipeline.discover({
+      redis,
       lat: payload.lat,
       lng: payload.lng,
       cuisines: payload.cuisines || [],
@@ -403,6 +404,7 @@ async function runSurpriseTask(redis, reqId) {
     // Places-first discover at OUTER radius.
     await requestStore.setStage(redis, reqId, 'discovering');
     const candidates = await pipeline.discover({
+      redis,
       lat: payload.lat,
       lng: payload.lng,
       cuisines: [], // open discovery — surprise is cuisine-agnostic
@@ -464,6 +466,7 @@ async function runSurpriseTask(redis, reqId) {
       outerM = 4000;
       try {
         const expanded = await pipeline.discover({
+          redis,
           lat: payload.lat,
           lng: payload.lng,
           cuisines: [],

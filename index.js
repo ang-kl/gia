@@ -240,6 +240,7 @@ async function nearestLandmark(lat, lng) {
       timeout: 5000,
       headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'places.displayName' }
     });
+    try { require('./api-cost').recordMapsCall(redis, 'searchNearby'); } catch {}
     const p = Array.isArray(data?.places) ? data.places[0] : null;
     return (p && p.displayName && p.displayName.text) || null;
   } catch { return null; }
@@ -568,7 +569,11 @@ async function enrichSanctuaryRead(venues, lang = 'en') {
   await Promise.allSettled(venues.map(async (v) => {
     if (!v || !v.placeId || (typeof v.sanctuaryRead === 'string' && v.sanctuaryRead.trim())) return;
     try {
-      const text = await getOrCacheSummary(redis, v.placeId, lang);
+      // v0.62.71x — the sanctuary redundant-fetch fix: hand over v.reviews when the caller still has it
+      // (cuisine-enrich.js now defers `delete v.reviews` until after this
+      // runs) so getOrCacheSummary can skip a redundant Places Details call
+      // for the exact same field. Callers without v.reviews are unaffected.
+      const text = await getOrCacheSummary(redis, v.placeId, lang, v.reviews);
       if (text && typeof text === 'string' && text.trim()) v.sanctuaryRead = text;
     } catch { /* per-venue failure is non-fatal */ }
   }));
@@ -843,6 +848,7 @@ async function fetchSinglePlaceForPick(placeId, fallbackName, near) {
         timeout: 8000
       }
     );
+    try { require('./api-cost').recordMapsCall(redis, 'placeDetails'); } catch {}
     if (!data?.location) return null;
     return {
       placeId: data.id,
@@ -1356,6 +1362,11 @@ async function runFlow(chatId, lat, lng, category) {
     await safeSend(chatId, '⏳ Soleat is still working on your last request — hold on a moment.');
     return;
   }
+  // v0.62.716 — Phase D: /eat + /drink run Places discover and can fall through
+  // to the consultant's Hidden-Sanctuary path (extra Places + LLM). Cap 40 /
+  // 15 min on its own counter — an /eat spree shouldn't consume /s's budget.
+  // Checked AFTER the processing lock so a rate-limited user isn't left locked.
+  if (await botRateLimited(chatId, 'bot-flow', 40)) return;
   await setProcessing(redis, chatId);
   // v0.60.142 — usage tracking (Oversight): an /eat-style flow search.
   try { usageLog.recordSearch(redis, chatId, { src: 'eat' }).catch(() => {}); } catch { /* noop */ }
@@ -1374,7 +1385,7 @@ async function runFlow(chatId, lat, lng, category) {
       }
     }
     // Fail-fast pickValidated (v0.8.1).
-    const { meal, venues } = await pickValidated(lat, lng, 3, [], { category });
+    const { meal, venues } = await pickValidated(lat, lng, 3, [], { category }, redis);
     if (venues.length) {
       await deliverPicks(chatId, meal.label, venues);
       return;
@@ -1382,7 +1393,7 @@ async function runFlow(chatId, lat, lng, category) {
     // v0.10.0 Consultant Layer: zero results → ask Gemini to surface
     // a Hidden Sanctuary from broader Places searchNearby + reviews.
     try {
-      const hidden = await findHiddenSanctuary(lat, lng);
+      const hidden = await findHiddenSanctuary(lat, lng, redis);
       if (hidden) {
         const approachLine = hidden.approach ? `\nApproach: ${hidden.approach}` : '';
         await safeSend(
@@ -1687,7 +1698,7 @@ async function runCuisineFlow(chatId, lat, lng, cuisineType) {
   }
   await setProcessing(redis, chatId);
   try {
-    const { meal, venues } = await pickValidated(lat, lng, 3, [], { category: 'cuisine', cuisineType });
+    const { meal, venues } = await pickValidated(lat, lng, 3, [], { category: 'cuisine', cuisineType }, redis);
     if (venues.length) {
       // v0.61.154 — translate-enrich for nationality cuisines so the
       // chat /cuisine command matches the TMA + free-text behaviour.
@@ -1727,7 +1738,7 @@ async function runCuisineFlow(chatId, lat, lng, cuisineType) {
       return;
     }
     try {
-      const hidden = await findHiddenSanctuary(lat, lng);
+      const hidden = await findHiddenSanctuary(lat, lng, redis);
       if (hidden) {
         const approachLine = hidden.approach ? `\nApproach: ${hidden.approach}` : '';
         await safeSend(
@@ -2652,6 +2663,7 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
         timeout: 8000
       }
     );
+    try { require('./api-cost').recordMapsCall(redis, 'searchText'); } catch {}
     const places = Array.isArray(r.data?.places) ? r.data.places : [];
     const top = places.find((p) => Number.isFinite(p?.location?.latitude) && Number.isFinite(p?.location?.longitude));
     if (!top) {
@@ -4373,6 +4385,57 @@ function isOwnerChat(chatId) {
   return String(chatId) === String(owner);
 }
 
+// v0.62.716 — Phase D: per-chatId rate limiting for the TELEGRAM BOT commands.
+// The v0.60.173 limiter only ever covered the 12 HTTP /api/cuisine/* endpoints;
+// every bot command (/s, free-text search, /eat, /hidden) was completely
+// uncapped per user. Same Redis counter, same `gia:rl:<endpoint>:<key>:<bucket>`
+// key shape — checkRateLimit is the extracted core, shared verbatim with the
+// Express middleware so the two can't drift.
+//
+// Phase C caps what the SYSTEM spends in a day; this caps what any ONE user can
+// trigger. Neither substitutes for the other — without D, a single user can
+// exhaust the daily budget and degrade the product for everyone else.
+//
+// Returns true when the caller should STOP (a refusal has already been sent).
+// Fails OPEN on every abnormal path, inheriting checkRateLimit's semantics.
+const BOT_RL_WINDOW_SEC = 900;   // 15 min, matching the HTTP limiter's default
+async function botRateLimited(chatId, endpoint, cap, lang = 'en') {
+  try {
+    const { checkRateLimit } = require('./rate-limit');
+    const verdict = await checkRateLimit(redis, { endpoint, key: chatId, cap, windowSec: BOT_RL_WINDOW_SEC });
+    if (!verdict.limited) return false;
+    const mins = Math.max(1, Math.ceil(verdict.retryAfterSec / 60));
+    console.warn(`[rate-limit] bot ${endpoint} chatId=${chatId} count=${verdict.count}/${cap}`);
+    await safeSend(chatId, lang === 'fr'
+      ? `⏳ Vous avez atteint la limite de ${cap} requêtes par ${BOT_RL_WINDOW_SEC / 60} minutes. Réessayez dans ~${mins} min.`
+      : `⏳ You've hit the limit of ${cap} requests per ${BOT_RL_WINDOW_SEC / 60} minutes. Try again in ~${mins} min.`);
+    return true;
+  } catch (err) {
+    // A broken limiter must never block a user.
+    console.warn(`[rate-limit] bot check failed for ${endpoint} (allowing):`, err && err.message);
+    return false;
+  }
+}
+
+// v0.62.715 — Phase C: take a daily-spend reading and, when a threshold is
+// crossed, DM the owner (once per UTC day per level — the latch lives in
+// Redis, see spend-guard.shouldAlert). Deliberately fire-and-forget: called
+// AFTER a search has already been served, never in front of one, and every
+// failure path is swallowed. The alert goes to TELEGRAM_OWNER_CHAT_ID, the
+// same env var that already gates /cost, /ver and /hidden — no new config.
+function spendGuardTick() {
+  const owner = process.env.TELEGRAM_OWNER_CHAT_ID;
+  if (!owner) return;   // nobody to tell
+  try {
+    const guard = require('./spend-guard');
+    const notify = (text) => safeSend(owner, text, { parse_mode: 'Markdown' });
+    Promise.resolve(guard.checkAndAlert(redis, notify))
+      .catch((err) => console.warn('[spend-guard] tick failed:', err && err.message));
+  } catch (err) {
+    console.warn('[spend-guard] tick setup failed:', err && err.message);
+  }
+}
+
 // v0.61.25 — owner-command action bodies, extracted so the /v builder
 // menu (inline-keyboard buttons) and the typed commands share one
 // implementation. Each runs the same work as its /<cmd> handler.
@@ -5110,7 +5173,7 @@ async function ownerDurianGeminiRun(chatId, which) {
   let result;
   try {
     result = await verifyKeptVenues({
-      report, mode: cfg.mode, apiKey, onProgress
+      report, mode: cfg.mode, apiKey, onProgress, redis
     });
   } catch (err) {
     await safeSend(chatId, `❌ Gemini verify failed: ${String(err?.message || err).slice(0, 300)}`);
@@ -5909,7 +5972,7 @@ async function runTransportTrain(chatId, lang = 'en') {
         // broken promise. rankPreference:DISTANCE + slice(0,3) still
         // yields the true nearest 3; the wider circle only guarantees
         // 3 are found.
-        const mrt = await transport.nearestMrtStations(cachedLoc.lat, cachedLoc.lng, 5000, 3);
+        const mrt = await transport.nearestMrtStations(cachedLoc.lat, cachedLoc.lng, 5000, 3, redis);
         if (mrt.length) {
           mrtForMap = mrt;
           // v0.60.81 — prefix the station name with a colored line
@@ -6795,6 +6858,33 @@ async function renderHiddenVenueCards(chatId, lang, verifiedVenues, anchorLat, a
   }
 }
 
+// v0.62.715 — Phase C spend guard for /hidden, the priciest single command
+// (grounded Gemini search + up to 5 Places verifier lookups, uncached, with a
+// retry ladder). Returns true when the caller should STOP. /hidden is
+// owner-only, so the refusal goes straight to the person who can act on it —
+// no end-user ever sees this path.
+async function hiddenBlockedBySpendGuard(chatId) {
+  try {
+    const guard = require('./spend-guard');
+    // checkAndAlert (not readSpend) so a /hidden attempt that finds the day
+    // already over threshold also delivers the once-per-day owner alert —
+    // the operator is the only caller of /hidden, so they see it either way.
+    const notify = (text) => safeSend(chatId, text, { parse_mode: 'Markdown' });
+    const reading = await guard.checkAndAlert(redis, notify);
+    if (reading.level !== 'hard') return false;
+    await safeSend(chatId,
+      `🛑 /hidden paused — today's API spend is ~$${reading.usd.toFixed(2)}, at or over the `
+      + `$${reading.hard} hard cap. Cuisine search still works. Raise SPEND_HARD_USD or wait for `
+      + `the UTC day to roll over. Run /cost for the breakdown.`);
+    console.warn(`[/hidden] blocked by spend guard (usd=${reading.usd.toFixed(2)} hard=${reading.hard})`);
+    return true;
+  } catch (err) {
+    // Guard itself broke — fail OPEN so a monitoring bug can't disable /hidden.
+    console.warn('[/hidden] spend guard check failed (allowing):', err && err.message);
+    return false;
+  }
+}
+
 async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
   // v0.61.312 — operator restricted /hidden to themselves only.
   // Silent no-op for non-owners; same gating pattern as /ver / /cost /
@@ -6805,6 +6895,11 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
     console.log(`[/hidden-freetext] denied chat=${chatId} (not TELEGRAM_OWNER_CHAT_ID)`);
     return;
   }
+  if (await hiddenBlockedBySpendGuard(chatId)) return;
+  // v0.62.716 — Phase D: /hidden is the priciest single command (grounded
+  // Gemini + up to 5 Places verifier lookups, uncached, with a retry ladder).
+  // Tighter cap than search: 8 / 15 min.
+  if (await botRateLimited(chatId, 'bot-hidden', 8, lang)) return;
   const { t, tn } = require('./i18n');
   try {
     if (await isProcessing(redis, chatId)) {
@@ -6895,6 +6990,7 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
           anchor,
           todayIsoSGT: gc.todaySGT(),
           lang,
+          redis,
           // v0.59.31: free-text mode widens the radius band and
           // passes the new bounds as a CONSTRAINT to Gemini.
           radiusBand: '200m to 3km',
@@ -6921,7 +7017,7 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
       const { verifyHiddenGemsOutput, dropBlocksByName } = require('./hidden-verify');
       const transport = require('./transport');
       // v0.60.31 — band ceiling = 3000m for free-text mode (200m–3km).
-      const verifyResult = await verifyHiddenGemsOutput(result.text, { maxDistanceM: 3000 });
+      const verifyResult = await verifyHiddenGemsOutput(result.text, { maxDistanceM: 3000, redis });
       // v0.60.33 — haversine drop on free-text path too. Mirrors the
       // GPS-anchored path: any verified venue whose Places-resolved
       // coords are >3km from anchor is stripped from text + venues.
@@ -7005,6 +7101,11 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     console.log(`[/hidden] denied chat=${chatId} (not TELEGRAM_OWNER_CHAT_ID)`);
     return;
   }
+  if (await hiddenBlockedBySpendGuard(chatId)) return;
+  // v0.62.716 — Phase D: /hidden is the priciest single command (grounded
+  // Gemini + up to 5 Places verifier lookups, uncached, with a retry ladder).
+  // Tighter cap than search: 8 / 15 min.
+  if (await botRateLimited(chatId, 'bot-hidden', 8, lang)) return;
   const { t, tn } = require('./i18n');
   try {
     if (await isProcessing(redis, chatId)) {
@@ -7096,7 +7197,7 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     let result;
     try {
       result = await Promise.race([
-        gc.generateGroundedHiddenGems({ anchor, todayIsoSGT: gc.todaySGT(), lang }),
+        gc.generateGroundedHiddenGems({ anchor, todayIsoSGT: gc.todaySGT(), lang, redis }),
         new Promise((_, reject) => setTimeout(
           () => reject(new Error(`Gemini call exceeded ${HIDDEN_TIMEOUT_MS / 1000}s timeout`)),
           HIDDEN_TIMEOUT_MS
@@ -7182,7 +7283,7 @@ async function runSurpriseCommand(chatId, lang = 'en') {
         // v0.60.31 — pass the band ceiling so the verifier can drop
         // blocks whose claimed distance ("approx 6.3 km east") already
         // exceeds the radius before paying for the Places lookup.
-        verifyResult = await verifyHiddenGemsOutput(text, { maxDistanceM: radiusM });
+        verifyResult = await verifyHiddenGemsOutput(text, { maxDistanceM: radiusM, redis });
       } catch (err) {
         console.warn('[/hidden] verify post-process failed:', err.message);
         return { text, venues: [], allDropped: false, withinRadius: 0 };
@@ -7284,6 +7385,7 @@ async function runSurpriseCommand(chatId, lang = 'en') {
             anchor,
             todayIsoSGT: gc.todaySGT(),
             lang,
+            redis,
             radiusBand: '1.5km to 3km',
             radiusLower: '1.5km',
             radiusUpper: '3km'
@@ -8254,6 +8356,9 @@ const { resolveRegionCode } = require('./region-code');
 //      our intent.searchTerm into garbage) to a direct Places searchText
 //      call with intent.searchTerm as the raw textQuery.
 async function handleSearchTurn(chatId, userText, lang = 'en') {
+  // v0.62.716 — Phase D: /s is Places + Gemini per turn. Cap 40 / 15 min —
+  // far above any real conversational pace, low enough to bound a runaway.
+  if (await botRateLimited(chatId, 'bot-search', 40, lang)) return;
   const sc = require('./search-conversation');
   const gc = require('./gemini-client');
   let conv = await sc.getConversation(redis, chatId);
@@ -8341,7 +8446,7 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   // ── Gemini intent classification (only when R.E.D didn't resolve) ──
   if (!intent) {
     try {
-      intent = await gc.classifySearchIntent({ text: userText, history, lang });
+      intent = await gc.classifySearchIntent({ text: userText, history, lang, redis });
     } catch (err) {
       console.warn('[Search] classifySearchIntent failed:', err.message);
       await safeSend(chatId, lang === 'fr'
@@ -8750,6 +8855,7 @@ async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5,
         timeout: 8000
       }
     );
+    try { require('./api-cost').recordMapsCall(redis, 'searchText'); } catch {}
     const denyTypes = cuisine && CUISINE_TYPE_DENY[cuisine] ? CUISINE_TYPE_DENY[cuisine] : [];
     const PRICE_NUM = { PRICE_LEVEL_INEXPENSIVE: 1, PRICE_LEVEL_MODERATE: 2, PRICE_LEVEL_EXPENSIVE: 3, PRICE_LEVEL_VERY_EXPENSIVE: 4 };
     const mapped = (Array.isArray(data?.places) ? data.places : [])
@@ -9024,7 +9130,8 @@ async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, s
           originIngredients: techEntry.originIngredients || [],
           originTool: techEntry.originTool || '',
           candidates: allCandidates.map((c) => ({ placeId: c.placeId, name: c.name, address: c.address })),
-          lang
+          lang,
+          redis
         });
       } catch (err) {
         console.warn('[Search-FanOut] validateAuthenticity failed (using rating-only fallback):', err.message);
@@ -9352,7 +9459,7 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc,
       searchVenuesByDish(textQuery, hit.cuisineLabel, {
         lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey, regionCode, chatId
       }),
-      gcDescribe.describeCookingMethod({ term: hit.term, cuisineLabel: hit.cuisineLabel, lang })
+      gcDescribe.describeCookingMethod({ term: hit.term, cuisineLabel: hit.cuisineLabel, lang, redis })
         .catch(() => ({ explainer: '', exampleDish: '' }))
     ]);
     if (!venues.length) {
@@ -10070,6 +10177,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
             timeout: 4000
           }
         );
+        try { require('./api-cost').recordMapsCall(redis, 'placeDetails'); } catch {}
         placesData = (data && data.id) ? data : null;
       } else {
         const { data } = await axios.post(
@@ -10089,6 +10197,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
             timeout: 4000
           }
         );
+        try { require('./api-cost').recordMapsCall(redis, 'searchText'); } catch {}
         placesData = (Array.isArray(data?.places) ? data.places : [])[0] || null;
       }
     } catch (err) {
@@ -10810,7 +10919,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   }
   // v0.61.359 — attach native-script names to Michelin results too.
   try {
-    await require('./local-name').attachLocalNames(filteredVenues, michCC, csLang, apiKey);
+    await require('./local-name').attachLocalNames(filteredVenues, michCC, csLang, apiKey, redis);
   } catch (e) { /* non-fatal */ }
   // v0.61.382 — and the readable foreign-name line (Gemini); v0.61.385
   // two-part: place language + device-language gloss in brackets.
@@ -11425,7 +11534,7 @@ bot.on('message', async (msg) => {
       }
       if (!bypassFoodGate) {
         try {
-          const cls = await require('./gemini-client').classifySearchIntent({ text, lang: userLang });
+          const cls = await require('./gemini-client').classifySearchIntent({ text, lang: userLang, redis });
           if (cls && cls.degraded) classifierDegraded = true;
           if (cls && cls.intent === 'ambiguous') {
             try { require('./freetext-log').logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: 'non-food-declined', resultCount: 0 }); } catch { /* best-effort */ }
@@ -11535,6 +11644,11 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
       await safeSend(chatId, '⏳ Soleat is still working on your last request — hold on a moment.');
       return;
     }
+    // v0.62.716 — Phase D: free-text search is the highest-volume uncapped
+    // entry point (every non-command message can reach it). Same 40/15min
+    // budget as /s; they share the 'bot-search' counter deliberately, since
+    // they cost the same and a user can freely alternate between them.
+    if (await botRateLimited(chatId, 'bot-search', 40, ftLang)) return;
     const { t: trBot, tn: trnBot } = require('./i18n');
     const cached = await getUserLocation(redis, chatId);
     if (!cached) {
@@ -11588,6 +11702,7 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         ? Math.min(50000, cached.radiusCapM)
         : 50000;
       const candidates = await pipeline.discover({
+        redis,
         lat: cached.lat,
         lng: cached.lng,
         cuisines: [text],
@@ -11831,6 +11946,7 @@ async function runPlaceAnchoredSearch(chatId, place, opts = {}) {
       wait = createWaitStatus(chatId, lang, place.name);
       const pipeline = require('./pipeline');
       const candidates = await pipeline.discover({
+        redis,
         lat: place.lat,
         lng: place.lng,
         cuisines: ['restaurant'],   // generic seed — we want anything that eats
@@ -11977,6 +12093,7 @@ async function runNearbyAlternatives(chatId, anchor, lang = 'en') {
       const pipeline = require('./pipeline');
       const { NEARBY_RADIUS_M } = require('./place-detector');
       const candidates = await pipeline.discover({
+        redis,
         lat: anchor.lat,
         lng: anchor.lng,
         cuisines: ['restaurant'],
@@ -13783,6 +13900,7 @@ async function cacheBotUsername() {
 
         const pipeline = require('./pipeline');
         const candidates = await pipeline.discover({
+          redis,
           lat: searchCenter.lat, lng: searchCenter.lng,
           radius: searchRadius,
           cuisines: seed.queries,
@@ -13858,6 +13976,7 @@ async function cacheBotUsername() {
         if (top.length < 5 && seed.id !== 'highly-rated-nearby') {
           try {
             const fallback = await pipeline.discover({
+              redis,
               lat: searchCenter.lat, lng: searchCenter.lng,
               radius: searchRadius,
               cuisines: ['highly rated restaurants near me'],
@@ -14172,6 +14291,7 @@ async function cacheBotUsername() {
           const text = await Promise.race([
             (async () => {
               const r = await model.generateContent(prompt);
+              require('./api-cost').recordGeminiUsage(redis, 'gemini-2.5-flash', r?.response?.usageMetadata);
               return (r.response && typeof r.response.text === 'function') ? r.response.text() : '';
             })(),
             new Promise((_, reject) => setTimeout(
@@ -16159,6 +16279,7 @@ async function cacheBotUsername() {
           const andQuery = cuisineQueries.join(' ').replace(/\s+/g, ' ').trim();
           try {
             const andCandidates = await pipeline.discover({
+              redis,
               lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
               cuisines: [andQuery], maxResults: 30, regionCode: searchRegionCode,
               lang: csLang, expandSingaporean: false
@@ -16197,6 +16318,7 @@ async function cacheBotUsername() {
             // Phase B — per-cuisine fan-out + round-robin merge
             const perCuisine = await Promise.all(cuisinesForDiscover.map((q) =>
               pipeline.discover({
+                redis,
                 lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
                 // v0.62.92 — deeper per-cuisine recall on a widen tap (B), same
                 // rationale as the single-cuisine path: 15 → 30 + a 2nd page.
@@ -16278,6 +16400,7 @@ async function cacheBotUsername() {
               }
               if (!pool) {
                 const cand = await pipeline.discover({
+                  redis,
                   lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
                   // v0.62.92 — deeper recall on an explicit widen tap (B): bump
                   // the per-query fetch from 30 (→2 Places pages, ~40 raw) to 60
@@ -16445,7 +16568,8 @@ async function cacheBotUsername() {
                   apiKey,
                   model: 'gemini-2.5-flash-lite',
                   mode: geminiCacheKey,
-                  batch
+                  batch,
+                  redis
                 });
                 if (res.ok && Array.isArray(res.labelled) && res.labelled.length > 0) {
                   const byPlaceId = new Map();
@@ -16525,7 +16649,7 @@ async function cacheBotUsername() {
               lang: csLang,
               startRadius: searchRadius,
               anchorCap,
-              discoverFn: pipeline.discover,
+              discoverFn: (opts) => pipeline.discover({ ...opts, redis }),
               passesVenueFilter: venueFiltersMod.passesVenueFilter,
               filterByMode: sm.filterByMode
             });
@@ -16588,6 +16712,7 @@ async function cacheBotUsername() {
               );
               const perSeed = await Promise.all(fbSeeds.map((q) =>
                 pipeline.discover({
+                  redis,
                   lat: searchCenter.lat, lng: searchCenter.lng,
                   radius: fbRadius, cuisines: [q], maxResults: 15,
                   regionCode: searchRegionCode, lang: csLang, expandSingaporean: false
@@ -16752,6 +16877,7 @@ async function cacheBotUsername() {
                   `https://places.googleapis.com/v1/places/${v.placeId}`,
                   { headers: { 'X-Goog-Api-Key': newApiKey, 'X-Goog-FieldMask': 'reviews' }, timeout: 4000 }
                 );
+                try { require('./api-cost').recordMapsCall(redis, 'placeDetails'); } catch {}
                 v._oldestReviewDays = oldestReviewDays(data?.reviews);
               } catch { v._oldestReviewDays = null; }
             }));
@@ -17063,7 +17189,7 @@ async function cacheBotUsername() {
               // the threshold above still keeps the re-fetch demand-driven.
               target: sliceCap,
               expandSingaporean: !skipExpand,
-              discoverFn: pipeline.discover,
+              discoverFn: (opts) => pipeline.discover({ ...opts, redis }),
               passesVenueFilter: vf.passesVenueFilter
             });
             if (rf.venues.length) {
@@ -17350,6 +17476,10 @@ async function cacheBotUsername() {
           if (typeof res.flush === 'function') res.flush();
         }
         await cuisineEnrich.enrichSlow(top, enrichCtx);
+        // v0.62.715 — Phase C: after the most expensive request type in the
+        // app, take a spend reading and DM the owner if a threshold was
+        // crossed. Fire-and-forget — this must never delay or fail a search.
+        spendGuardTick();
         // v0.60.116 — `top` was already chosen above as the next 12
         // *unseen* venues from the ~3-page-deep pool (see the
         // "exclude what you've seen" block before the enrichments).
@@ -17704,7 +17834,7 @@ async function cacheBotUsername() {
         // country, fetch each venue's local-language name (Places Details) and
         // attach `nameLocal` (skipped when it matches the user's display lang).
         try {
-          await require('./local-name').attachLocalNames(payload?.venues, searchRegionCode, csLang, process.env.GOOGLE_MAPS_API_KEY);
+          await require('./local-name').attachLocalNames(payload?.venues, searchRegionCode, csLang, process.env.GOOGLE_MAPS_API_KEY, redis);
         } catch (e) { /* non-fatal — names just stay English */ }
         // v0.61.382 — readable foreign-name line: when the name is in a
         // script foreign to where the venue IS, attach `nameReading` via
@@ -18000,6 +18130,7 @@ async function cacheBotUsername() {
         else nlRegionCode = (typeof nlCountry === 'string' && /^[A-Z]{2}$/i.test(nlCountry)) ? nlCountry.toUpperCase() : undefined;
         console.log(`[NL-Query] D773 discover region=${nlRegion || '?'} → regionCode=${nlRegionCode || 'none'} (deep: maxPages=3)`);
         const candidates = await pipeline.discover({
+          redis,
           lat: searchLat, lng: searchLng, radius: 50000, cuisines: cuisineQueries,
           maxResults: 60, regionCode: nlRegionCode, lang: nlLang, maxPages: 3
         });
@@ -18519,7 +18650,7 @@ async function cacheBotUsername() {
             const cached = await redis.get(placesKey).catch(() => null);
             if (cached) { res.json(JSON.parse(cached)); return; }
           }
-          const list = await carparkMod.nearestPlaces(qlat, qlng, 20, 5000);
+          const list = await carparkMod.nearestPlaces(qlat, qlng, 20, 5000, redis);
           const payload = {
             carparks: list.map((c) => ({
               name: c.development,
@@ -19499,7 +19630,7 @@ async function cacheBotUsername() {
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           return res.status(400).json({ error: 'lat and lng query params required' });
         }
-        const { meal, venues } = await pickValidated(lat, lng, 3, [], { category });
+        const { meal, venues } = await pickValidated(lat, lng, 3, [], { category }, redis);
         res.json({ category, meal: meal.id, label: meal.label, venues });
       } catch (err) {
         console.error('[Error] /api/sanctuary failed:', err.message);

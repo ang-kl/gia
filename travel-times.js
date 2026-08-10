@@ -20,7 +20,7 @@ const ROUTES_URL = 'https://routes.googleapis.com/distanceMatrix/v2:computeRoute
 
 // One mode at a time — Routes API requires a single travelMode per
 // computeRouteMatrix call. We launch TRANSIT and DRIVE in parallel.
-async function fetchModeMatrix(apiKey, originLat, originLng, candidates, travelMode) {
+async function fetchModeMatrix(apiKey, originLat, originLng, candidates, travelMode, redis = null) {
   const body = {
     origins: [{ waypoint: { location: { latLng: { latitude: originLat, longitude: originLng } } } }],
     destinations: candidates.map((v) => ({
@@ -39,6 +39,9 @@ async function fetchModeMatrix(apiKey, originLat, originLng, candidates, travelM
     },
     timeout: 8000
   });
+  // v0.62.71x — Routes bills per ELEMENT (origins × destinations); this
+  // call is 1 origin × candidates.length destinations.
+  require('./api-cost').recordMapsCall(redis, 'routes', candidates.length);
   // Routes API returns either a flat array of elements or {elements: [...]}
   // depending on which version of the gateway. Handle both.
   return Array.isArray(data) ? data : (Array.isArray(data?.elements) ? data.elements : []);
@@ -47,7 +50,7 @@ async function fetchModeMatrix(apiKey, originLat, originLng, candidates, travelM
 // Entry point. Mutates the venues array in place AND returns it.
 // `userLat` / `userLng` are the search anchor (typically the cached
 // user location for /cuisine and free-text; the override anchor for NL).
-async function enrichTravelTimes(userLat, userLng, venues) {
+async function enrichTravelTimes(userLat, userLng, venues, redis = null) {
   if (!Array.isArray(venues) || !venues.length) return venues;
   if (!Number.isFinite(userLat) || !Number.isFinite(userLng)) return venues;
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
@@ -58,11 +61,11 @@ async function enrichTravelTimes(userLat, userLng, venues) {
   // Fan out both modes in parallel. Routes API is rate-limited but
   // these two parallel requests are well within free tier.
   const [transitElems, driveElems] = await Promise.all([
-    fetchModeMatrix(apiKey, userLat, userLng, candidates, 'TRANSIT').catch((err) => {
+    fetchModeMatrix(apiKey, userLat, userLng, candidates, 'TRANSIT', redis).catch((err) => {
       console.warn('[travel-times] TRANSIT matrix failed:', err.message);
       return [];
     }),
-    fetchModeMatrix(apiKey, userLat, userLng, candidates, 'DRIVE').catch((err) => {
+    fetchModeMatrix(apiKey, userLat, userLng, candidates, 'DRIVE', redis).catch((err) => {
       console.warn('[travel-times] DRIVE matrix failed:', err.message);
       return [];
     })
