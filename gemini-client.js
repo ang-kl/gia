@@ -268,6 +268,9 @@ async function generateGroundedHiddenGems({
   radiusBand,
   radiusLower,
   radiusUpper,
+  // v0.62.71x — optional Redis client for api-cost.js spend tracking.
+  // Undefined is safe (recordGeminiUsage no-ops without a client).
+  redis,
   // Test seam — pass a mock factory to avoid real SDK calls.
   _genAIFactory
 }) {
@@ -361,6 +364,9 @@ async function generateGroundedHiddenGems({
     const text = await Promise.race([
       (async () => {
         const r = await m.generateContent(prompt);
+        // v0.62.71x — record spend regardless of what happens next (an
+        // empty-response throw below still consumed the API call).
+        require('./api-cost').recordGeminiUsage(redis, attempt.model, r?.response?.usageMetadata);
         const t = (r.response && typeof r.response.text === 'function') ? r.response.text() : '';
         if (!t || !t.trim()) throw new Error('empty response from Gemini');
         return t;
@@ -944,7 +950,7 @@ function canonicalDishPhrase(dishKey) {
 //
 // Failure mode: returns empty object on Gemini error → caller falls
 // back to rating-only ranking (same behaviour as v0.59.59).
-async function validateAuthenticity({ technique, origin, originDish, originIngredients = [], originTool, candidates = [], lang = 'en', model = DEFAULT_MODEL, _genAIFactory }) {
+async function validateAuthenticity({ technique, origin, originDish, originIngredients = [], originTool, candidates = [], lang = 'en', model = DEFAULT_MODEL, redis, _genAIFactory }) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey && !_genAIFactory) return {};
   if (!Array.isArray(candidates) || candidates.length === 0) return {};
@@ -992,6 +998,7 @@ async function validateAuthenticity({ technique, origin, originDish, originIngre
       const tool = searchToolForModel(m);
       const gen = genAI.getGenerativeModel({ model: m, tools: [tool] });
       const r = await gen.generateContent(prompt);
+      require('./api-cost').recordGeminiUsage(redis, m, r?.response?.usageMetadata);
       let raw = '';
       try { raw = r?.response?.text?.() || ''; }
       catch (textErr) {
@@ -1842,7 +1849,7 @@ const SEARCH_INTENT_MODEL_CHAIN = [
   'gemini-2.5-flash-lite'
 ];
 
-async function classifySearchIntent({ text, history = [], lang = 'en', model = DEFAULT_MODEL, _genAIFactory }) {
+async function classifySearchIntent({ text, history = [], lang = 'en', model = DEFAULT_MODEL, redis, _genAIFactory }) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey && !_genAIFactory) {
     // Caller-side env failure — log and return a graceful ambiguous.
@@ -1935,6 +1942,7 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = D
     try {
       const m = genAI.getGenerativeModel({ model: candidate });
       const r = await m.generateContent(prompt);
+      require('./api-cost').recordGeminiUsage(redis, candidate, r?.response?.usageMetadata);
       // SDK 0.24.x throws from response.text() if finishReason is
       // SAFETY/RECITATION/OTHER — guard explicitly so a blocked
       // response on one model doesn't kill the whole call.
@@ -2050,7 +2058,7 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = D
 //
 // Best-effort: never throws. Every failure path returns empty strings
 // so the card still renders (just without the explainer / Try line).
-async function describeCookingMethod({ term, cuisineLabel, lang = 'en', model = DEFAULT_MODEL, _genAIFactory } = {}) {
+async function describeCookingMethod({ term, cuisineLabel, lang = 'en', model = DEFAULT_MODEL, redis, _genAIFactory } = {}) {
   const empty = { explainer: '', exampleDish: '' };
   const cleanTerm = String(term || '').trim();
   if (!cleanTerm) return empty;
@@ -2084,6 +2092,7 @@ async function describeCookingMethod({ term, cuisineLabel, lang = 'en', model = 
     try {
       const m = genAI.getGenerativeModel({ model: candidate });
       const r = await m.generateContent(prompt);
+      require('./api-cost').recordGeminiUsage(redis, candidate, r?.response?.usageMetadata);
       let raw = '';
       try { raw = r?.response?.text?.() || ''; } catch { continue; }
       const cleaned = String(raw).trim().replace(/^```json\s*|```$/g, '').trim();
@@ -2113,7 +2122,7 @@ async function describeCookingMethod({ term, cuisineLabel, lang = 'en', model = 
 //
 // Returns a Map<venueId, string[]> — only venues with at least one
 // extracted dish appear in the Map.
-async function extractDishesFromReviews({ venues = [], model = DEFAULT_MODEL, _genAIFactory } = {}) {
+async function extractDishesFromReviews({ venues = [], model = DEFAULT_MODEL, redis, _genAIFactory } = {}) {
   const out = new Map();
   const usable = (Array.isArray(venues) ? venues : [])
     .filter((v) => v && typeof v.id === 'string' && Array.isArray(v.reviews) && v.reviews.length);
@@ -2191,6 +2200,7 @@ async function extractDishesFromReviews({ venues = [], model = DEFAULT_MODEL, _g
           reject(e);
         }, PER_ATTEMPT_MS))
       ]);
+      require('./api-cost').recordGeminiUsage(redis, candidate, r?.response?.usageMetadata);
       let raw = '';
       try { raw = r?.response?.text?.() || ''; } catch { continue; }
       const cleaned = String(raw).trim().replace(/^```json\s*|```$/g, '').trim();

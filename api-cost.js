@@ -36,7 +36,18 @@ const PRICES = Object.freeze({
     placeDetails:      0.017,
     placeResolve:      0.017,
     geocode:           0.005,
-    reverseGeocode:    0.005
+    reverseGeocode:    0.005,
+    // v0.62.71x — Routes API computeRouteMatrix, billed per ELEMENT
+    // (origins × destinations), not per request. travel-times.js calls
+    // it once per mode (TRANSIT, DRIVE) with a 1×N matrix (1 origin ×
+    // N candidate venues) — recordMapsCall(redis, 'routes', N) passes
+    // the element count explicitly. Google's Compute Route Matrix
+    // "Essentials" SKU (the tier a plain DRIVE/TRANSIT-without-
+    // TRAFFIC_AWARE_OPTIMAL matrix falls into) is volume-tiered at
+    // $2-$7 per 1,000 elements; $0.005/element is a mid-range point
+    // estimate pending an exact-tier confirmation from the Cloud
+    // Console billing export — refresh when that's available.
+    routes:            0.005
   }
 });
 
@@ -77,12 +88,13 @@ async function recordGeminiUsage(redis, model, usage) {
   }
 }
 
-async function recordMapsCall(redis, endpoint) {
+async function recordMapsCall(redis, endpoint, count = 1) {
   if (!(await _connect(redis))) return false;
   if (!endpoint || typeof endpoint !== 'string') return false;
+  const n = Number.isFinite(count) && count > 0 ? Math.round(count) : 1;
   const key = `api-cost:${_today()}:maps:${endpoint}`;
   try {
-    await redis.hIncrBy(key, 'count', 1);
+    await redis.hIncrBy(key, 'count', n);
     await redis.expire(key, TTL_S);
     return true;
   } catch (err) {

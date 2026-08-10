@@ -240,6 +240,7 @@ async function nearestLandmark(lat, lng) {
       timeout: 5000,
       headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': 'places.displayName' }
     });
+    try { require('./api-cost').recordMapsCall(redis, 'searchNearby'); } catch {}
     const p = Array.isArray(data?.places) ? data.places[0] : null;
     return (p && p.displayName && p.displayName.text) || null;
   } catch { return null; }
@@ -843,6 +844,7 @@ async function fetchSinglePlaceForPick(placeId, fallbackName, near) {
         timeout: 8000
       }
     );
+    try { require('./api-cost').recordMapsCall(redis, 'placeDetails'); } catch {}
     if (!data?.location) return null;
     return {
       placeId: data.id,
@@ -1374,7 +1376,7 @@ async function runFlow(chatId, lat, lng, category) {
       }
     }
     // Fail-fast pickValidated (v0.8.1).
-    const { meal, venues } = await pickValidated(lat, lng, 3, [], { category });
+    const { meal, venues } = await pickValidated(lat, lng, 3, [], { category }, redis);
     if (venues.length) {
       await deliverPicks(chatId, meal.label, venues);
       return;
@@ -1382,7 +1384,7 @@ async function runFlow(chatId, lat, lng, category) {
     // v0.10.0 Consultant Layer: zero results → ask Gemini to surface
     // a Hidden Sanctuary from broader Places searchNearby + reviews.
     try {
-      const hidden = await findHiddenSanctuary(lat, lng);
+      const hidden = await findHiddenSanctuary(lat, lng, redis);
       if (hidden) {
         const approachLine = hidden.approach ? `\nApproach: ${hidden.approach}` : '';
         await safeSend(
@@ -1687,7 +1689,7 @@ async function runCuisineFlow(chatId, lat, lng, cuisineType) {
   }
   await setProcessing(redis, chatId);
   try {
-    const { meal, venues } = await pickValidated(lat, lng, 3, [], { category: 'cuisine', cuisineType });
+    const { meal, venues } = await pickValidated(lat, lng, 3, [], { category: 'cuisine', cuisineType }, redis);
     if (venues.length) {
       // v0.61.154 — translate-enrich for nationality cuisines so the
       // chat /cuisine command matches the TMA + free-text behaviour.
@@ -1727,7 +1729,7 @@ async function runCuisineFlow(chatId, lat, lng, cuisineType) {
       return;
     }
     try {
-      const hidden = await findHiddenSanctuary(lat, lng);
+      const hidden = await findHiddenSanctuary(lat, lng, redis);
       if (hidden) {
         const approachLine = hidden.approach ? `\nApproach: ${hidden.approach}` : '';
         await safeSend(
@@ -2652,6 +2654,7 @@ bot.onText(/^\/(?:location|l)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
         timeout: 8000
       }
     );
+    try { require('./api-cost').recordMapsCall(redis, 'searchText'); } catch {}
     const places = Array.isArray(r.data?.places) ? r.data.places : [];
     const top = places.find((p) => Number.isFinite(p?.location?.latitude) && Number.isFinite(p?.location?.longitude));
     if (!top) {
@@ -5110,7 +5113,7 @@ async function ownerDurianGeminiRun(chatId, which) {
   let result;
   try {
     result = await verifyKeptVenues({
-      report, mode: cfg.mode, apiKey, onProgress
+      report, mode: cfg.mode, apiKey, onProgress, redis
     });
   } catch (err) {
     await safeSend(chatId, `❌ Gemini verify failed: ${String(err?.message || err).slice(0, 300)}`);
@@ -5909,7 +5912,7 @@ async function runTransportTrain(chatId, lang = 'en') {
         // broken promise. rankPreference:DISTANCE + slice(0,3) still
         // yields the true nearest 3; the wider circle only guarantees
         // 3 are found.
-        const mrt = await transport.nearestMrtStations(cachedLoc.lat, cachedLoc.lng, 5000, 3);
+        const mrt = await transport.nearestMrtStations(cachedLoc.lat, cachedLoc.lng, 5000, 3, redis);
         if (mrt.length) {
           mrtForMap = mrt;
           // v0.60.81 — prefix the station name with a colored line
@@ -6895,6 +6898,7 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
           anchor,
           todayIsoSGT: gc.todaySGT(),
           lang,
+          redis,
           // v0.59.31: free-text mode widens the radius band and
           // passes the new bounds as a CONSTRAINT to Gemini.
           radiusBand: '200m to 3km',
@@ -6921,7 +6925,7 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
       const { verifyHiddenGemsOutput, dropBlocksByName } = require('./hidden-verify');
       const transport = require('./transport');
       // v0.60.31 — band ceiling = 3000m for free-text mode (200m–3km).
-      const verifyResult = await verifyHiddenGemsOutput(result.text, { maxDistanceM: 3000 });
+      const verifyResult = await verifyHiddenGemsOutput(result.text, { maxDistanceM: 3000, redis });
       // v0.60.33 — haversine drop on free-text path too. Mirrors the
       // GPS-anchored path: any verified venue whose Places-resolved
       // coords are >3km from anchor is stripped from text + venues.
@@ -7096,7 +7100,7 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     let result;
     try {
       result = await Promise.race([
-        gc.generateGroundedHiddenGems({ anchor, todayIsoSGT: gc.todaySGT(), lang }),
+        gc.generateGroundedHiddenGems({ anchor, todayIsoSGT: gc.todaySGT(), lang, redis }),
         new Promise((_, reject) => setTimeout(
           () => reject(new Error(`Gemini call exceeded ${HIDDEN_TIMEOUT_MS / 1000}s timeout`)),
           HIDDEN_TIMEOUT_MS
@@ -7182,7 +7186,7 @@ async function runSurpriseCommand(chatId, lang = 'en') {
         // v0.60.31 — pass the band ceiling so the verifier can drop
         // blocks whose claimed distance ("approx 6.3 km east") already
         // exceeds the radius before paying for the Places lookup.
-        verifyResult = await verifyHiddenGemsOutput(text, { maxDistanceM: radiusM });
+        verifyResult = await verifyHiddenGemsOutput(text, { maxDistanceM: radiusM, redis });
       } catch (err) {
         console.warn('[/hidden] verify post-process failed:', err.message);
         return { text, venues: [], allDropped: false, withinRadius: 0 };
@@ -7284,6 +7288,7 @@ async function runSurpriseCommand(chatId, lang = 'en') {
             anchor,
             todayIsoSGT: gc.todaySGT(),
             lang,
+            redis,
             radiusBand: '1.5km to 3km',
             radiusLower: '1.5km',
             radiusUpper: '3km'
@@ -8341,7 +8346,7 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
   // ── Gemini intent classification (only when R.E.D didn't resolve) ──
   if (!intent) {
     try {
-      intent = await gc.classifySearchIntent({ text: userText, history, lang });
+      intent = await gc.classifySearchIntent({ text: userText, history, lang, redis });
     } catch (err) {
       console.warn('[Search] classifySearchIntent failed:', err.message);
       await safeSend(chatId, lang === 'fr'
@@ -8750,6 +8755,7 @@ async function searchVenuesByDish(textQuery, cuisine, { lat, lng, lang, max = 5,
         timeout: 8000
       }
     );
+    try { require('./api-cost').recordMapsCall(redis, 'searchText'); } catch {}
     const denyTypes = cuisine && CUISINE_TYPE_DENY[cuisine] ? CUISINE_TYPE_DENY[cuisine] : [];
     const PRICE_NUM = { PRICE_LEVEL_INEXPENSIVE: 1, PRICE_LEVEL_MODERATE: 2, PRICE_LEVEL_EXPENSIVE: 3, PRICE_LEVEL_VERY_EXPENSIVE: 4 };
     const mapped = (Array.isArray(data?.places) ? data.places : [])
@@ -9024,7 +9030,8 @@ async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, s
           originIngredients: techEntry.originIngredients || [],
           originTool: techEntry.originTool || '',
           candidates: allCandidates.map((c) => ({ placeId: c.placeId, name: c.name, address: c.address })),
-          lang
+          lang,
+          redis
         });
       } catch (err) {
         console.warn('[Search-FanOut] validateAuthenticity failed (using rating-only fallback):', err.message);
@@ -9352,7 +9359,7 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc,
       searchVenuesByDish(textQuery, hit.cuisineLabel, {
         lat: center.lat, lng: center.lng, lang, max: 6, mapsApiKey, regionCode, chatId
       }),
-      gcDescribe.describeCookingMethod({ term: hit.term, cuisineLabel: hit.cuisineLabel, lang })
+      gcDescribe.describeCookingMethod({ term: hit.term, cuisineLabel: hit.cuisineLabel, lang, redis })
         .catch(() => ({ explainer: '', exampleDish: '' }))
     ]);
     if (!venues.length) {
@@ -10070,6 +10077,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
             timeout: 4000
           }
         );
+        try { require('./api-cost').recordMapsCall(redis, 'placeDetails'); } catch {}
         placesData = (data && data.id) ? data : null;
       } else {
         const { data } = await axios.post(
@@ -10089,6 +10097,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
             timeout: 4000
           }
         );
+        try { require('./api-cost').recordMapsCall(redis, 'searchText'); } catch {}
         placesData = (Array.isArray(data?.places) ? data.places : [])[0] || null;
       }
     } catch (err) {
@@ -10810,7 +10819,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   }
   // v0.61.359 — attach native-script names to Michelin results too.
   try {
-    await require('./local-name').attachLocalNames(filteredVenues, michCC, csLang, apiKey);
+    await require('./local-name').attachLocalNames(filteredVenues, michCC, csLang, apiKey, redis);
   } catch (e) { /* non-fatal */ }
   // v0.61.382 — and the readable foreign-name line (Gemini); v0.61.385
   // two-part: place language + device-language gloss in brackets.
@@ -11425,7 +11434,7 @@ bot.on('message', async (msg) => {
       }
       if (!bypassFoodGate) {
         try {
-          const cls = await require('./gemini-client').classifySearchIntent({ text, lang: userLang });
+          const cls = await require('./gemini-client').classifySearchIntent({ text, lang: userLang, redis });
           if (cls && cls.degraded) classifierDegraded = true;
           if (cls && cls.intent === 'ambiguous') {
             try { require('./freetext-log').logFreeTextQuery(redis, text, { src: 'chat', matchedKnownTerm: 'non-food-declined', resultCount: 0 }); } catch { /* best-effort */ }
@@ -11588,6 +11597,7 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
         ? Math.min(50000, cached.radiusCapM)
         : 50000;
       const candidates = await pipeline.discover({
+        redis,
         lat: cached.lat,
         lng: cached.lng,
         cuisines: [text],
@@ -11831,6 +11841,7 @@ async function runPlaceAnchoredSearch(chatId, place, opts = {}) {
       wait = createWaitStatus(chatId, lang, place.name);
       const pipeline = require('./pipeline');
       const candidates = await pipeline.discover({
+        redis,
         lat: place.lat,
         lng: place.lng,
         cuisines: ['restaurant'],   // generic seed — we want anything that eats
@@ -11977,6 +11988,7 @@ async function runNearbyAlternatives(chatId, anchor, lang = 'en') {
       const pipeline = require('./pipeline');
       const { NEARBY_RADIUS_M } = require('./place-detector');
       const candidates = await pipeline.discover({
+        redis,
         lat: anchor.lat,
         lng: anchor.lng,
         cuisines: ['restaurant'],
@@ -13783,6 +13795,7 @@ async function cacheBotUsername() {
 
         const pipeline = require('./pipeline');
         const candidates = await pipeline.discover({
+          redis,
           lat: searchCenter.lat, lng: searchCenter.lng,
           radius: searchRadius,
           cuisines: seed.queries,
@@ -13858,6 +13871,7 @@ async function cacheBotUsername() {
         if (top.length < 5 && seed.id !== 'highly-rated-nearby') {
           try {
             const fallback = await pipeline.discover({
+              redis,
               lat: searchCenter.lat, lng: searchCenter.lng,
               radius: searchRadius,
               cuisines: ['highly rated restaurants near me'],
@@ -14172,6 +14186,7 @@ async function cacheBotUsername() {
           const text = await Promise.race([
             (async () => {
               const r = await model.generateContent(prompt);
+              require('./api-cost').recordGeminiUsage(redis, 'gemini-2.5-flash', r?.response?.usageMetadata);
               return (r.response && typeof r.response.text === 'function') ? r.response.text() : '';
             })(),
             new Promise((_, reject) => setTimeout(
@@ -16159,6 +16174,7 @@ async function cacheBotUsername() {
           const andQuery = cuisineQueries.join(' ').replace(/\s+/g, ' ').trim();
           try {
             const andCandidates = await pipeline.discover({
+              redis,
               lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
               cuisines: [andQuery], maxResults: 30, regionCode: searchRegionCode,
               lang: csLang, expandSingaporean: false
@@ -16197,6 +16213,7 @@ async function cacheBotUsername() {
             // Phase B — per-cuisine fan-out + round-robin merge
             const perCuisine = await Promise.all(cuisinesForDiscover.map((q) =>
               pipeline.discover({
+                redis,
                 lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
                 // v0.62.92 — deeper per-cuisine recall on a widen tap (B), same
                 // rationale as the single-cuisine path: 15 → 30 + a 2nd page.
@@ -16278,6 +16295,7 @@ async function cacheBotUsername() {
               }
               if (!pool) {
                 const cand = await pipeline.discover({
+                  redis,
                   lat: searchCenter.lat, lng: searchCenter.lng, radius: searchRadius,
                   // v0.62.92 — deeper recall on an explicit widen tap (B): bump
                   // the per-query fetch from 30 (→2 Places pages, ~40 raw) to 60
@@ -16445,7 +16463,8 @@ async function cacheBotUsername() {
                   apiKey,
                   model: 'gemini-2.5-flash-lite',
                   mode: geminiCacheKey,
-                  batch
+                  batch,
+                  redis
                 });
                 if (res.ok && Array.isArray(res.labelled) && res.labelled.length > 0) {
                   const byPlaceId = new Map();
@@ -16525,7 +16544,7 @@ async function cacheBotUsername() {
               lang: csLang,
               startRadius: searchRadius,
               anchorCap,
-              discoverFn: pipeline.discover,
+              discoverFn: (opts) => pipeline.discover({ ...opts, redis }),
               passesVenueFilter: venueFiltersMod.passesVenueFilter,
               filterByMode: sm.filterByMode
             });
@@ -16588,6 +16607,7 @@ async function cacheBotUsername() {
               );
               const perSeed = await Promise.all(fbSeeds.map((q) =>
                 pipeline.discover({
+                  redis,
                   lat: searchCenter.lat, lng: searchCenter.lng,
                   radius: fbRadius, cuisines: [q], maxResults: 15,
                   regionCode: searchRegionCode, lang: csLang, expandSingaporean: false
@@ -16752,6 +16772,7 @@ async function cacheBotUsername() {
                   `https://places.googleapis.com/v1/places/${v.placeId}`,
                   { headers: { 'X-Goog-Api-Key': newApiKey, 'X-Goog-FieldMask': 'reviews' }, timeout: 4000 }
                 );
+                try { require('./api-cost').recordMapsCall(redis, 'placeDetails'); } catch {}
                 v._oldestReviewDays = oldestReviewDays(data?.reviews);
               } catch { v._oldestReviewDays = null; }
             }));
@@ -17063,7 +17084,7 @@ async function cacheBotUsername() {
               // the threshold above still keeps the re-fetch demand-driven.
               target: sliceCap,
               expandSingaporean: !skipExpand,
-              discoverFn: pipeline.discover,
+              discoverFn: (opts) => pipeline.discover({ ...opts, redis }),
               passesVenueFilter: vf.passesVenueFilter
             });
             if (rf.venues.length) {
@@ -17704,7 +17725,7 @@ async function cacheBotUsername() {
         // country, fetch each venue's local-language name (Places Details) and
         // attach `nameLocal` (skipped when it matches the user's display lang).
         try {
-          await require('./local-name').attachLocalNames(payload?.venues, searchRegionCode, csLang, process.env.GOOGLE_MAPS_API_KEY);
+          await require('./local-name').attachLocalNames(payload?.venues, searchRegionCode, csLang, process.env.GOOGLE_MAPS_API_KEY, redis);
         } catch (e) { /* non-fatal — names just stay English */ }
         // v0.61.382 — readable foreign-name line: when the name is in a
         // script foreign to where the venue IS, attach `nameReading` via
@@ -18000,6 +18021,7 @@ async function cacheBotUsername() {
         else nlRegionCode = (typeof nlCountry === 'string' && /^[A-Z]{2}$/i.test(nlCountry)) ? nlCountry.toUpperCase() : undefined;
         console.log(`[NL-Query] D773 discover region=${nlRegion || '?'} → regionCode=${nlRegionCode || 'none'} (deep: maxPages=3)`);
         const candidates = await pipeline.discover({
+          redis,
           lat: searchLat, lng: searchLng, radius: 50000, cuisines: cuisineQueries,
           maxResults: 60, regionCode: nlRegionCode, lang: nlLang, maxPages: 3
         });
@@ -18519,7 +18541,7 @@ async function cacheBotUsername() {
             const cached = await redis.get(placesKey).catch(() => null);
             if (cached) { res.json(JSON.parse(cached)); return; }
           }
-          const list = await carparkMod.nearestPlaces(qlat, qlng, 20, 5000);
+          const list = await carparkMod.nearestPlaces(qlat, qlng, 20, 5000, redis);
           const payload = {
             carparks: list.map((c) => ({
               name: c.development,
@@ -19499,7 +19521,7 @@ async function cacheBotUsername() {
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           return res.status(400).json({ error: 'lat and lng query params required' });
         }
-        const { meal, venues } = await pickValidated(lat, lng, 3, [], { category });
+        const { meal, venues } = await pickValidated(lat, lng, 3, [], { category }, redis);
         res.json({ category, meal: meal.id, label: meal.label, venues });
       } catch (err) {
         console.error('[Error] /api/sanctuary failed:', err.message);

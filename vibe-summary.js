@@ -17,7 +17,7 @@ function isRecentReview(review, now = Date.now()) {
   return now - t <= REVIEW_RECENCY_DAYS * 24 * 60 * 60 * 1000;
 }
 
-async function fetchReviewText(placeId) {
+async function fetchReviewText(placeId, redis = null) {
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!mapsApiKey || !placeId) return '';
   try {
@@ -28,6 +28,7 @@ async function fetchReviewText(placeId) {
       },
       timeout: 8000
     });
+    require('./api-cost').recordMapsCall(redis, 'placeDetails');
     const recent = (data.reviews ?? []).filter(isRecentReview);
     const pool = recent.length ? recent : (data.reviews ?? []); // recent-only, fall back to all if empty
     return pool
@@ -120,7 +121,7 @@ async function getOrCacheSummary(redis, placeId, lang = 'en') {
   const cached = await redis.get(cacheKey);
   if (cached) return cached;
 
-  const reviewText = await fetchReviewText(placeId);
+  const reviewText = await fetchReviewText(placeId, redis);
   if (!reviewText) return null;
   const summary = await summarizeVibe(reviewText, safeLang);
   if (summary) {

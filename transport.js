@@ -231,7 +231,7 @@ const CROWD_LABEL = { l: 'low', m: 'medium', h: 'high' };
 
 // Use Google Places (New) to find nearest MRT/subway stations.
 // More reliable than maintaining a hardcoded coord table for ~140 stations.
-async function nearestMrtStations(lat, lng, radiusM = 1500, count = 3) {
+async function nearestMrtStations(lat, lng, radiusM = 1500, count = 3, redis = null) {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey) return [];
   try {
@@ -257,6 +257,7 @@ async function nearestMrtStations(lat, lng, radiusM = 1500, count = 3) {
         timeout: 8000
       }
     );
+    require('./api-cost').recordMapsCall(redis, 'searchNearby');
     return (data.places ?? []).slice(0, count).map((p) => ({
       placeId: p.id,
       name: p.displayName?.text ?? '',

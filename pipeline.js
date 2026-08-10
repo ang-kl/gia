@@ -971,7 +971,7 @@ function pagesForRequest(maxResults, maxPages) {
   return Math.max(1, Math.min(Math.max(Number(maxPages) || 1, neededPages), 3));
 }
 
-async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', lang = 'en', diag = noopDiag(), expandSingaporean = true, applyDishTailThrottle = true, maxPages = 1, queryOverride = null, fanOutSeeds = false }) {
+async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = 'now', maxResults = 20, regionCode = 'SG', lang = 'en', diag = noopDiag(), expandSingaporean = true, applyDishTailThrottle = true, maxPages = 1, queryOverride = null, fanOutSeeds = false, redis = null }) {
   const languageCode = lang === 'fr' ? 'fr' : 'en';
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!mapsApiKey) {
@@ -1095,6 +1095,7 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
               PLACES_TEXT_URL, { ...baseTextBody, textQuery: q },
               { headers: PLACES_PAGE_HEADERS, timeout: 8000 }
             );
+            require('./api-cost').recordMapsCall(redis, 'searchText');
             for (const p of (sd?.places || [])) {
               if (p && p.id && !seenIds.has(p.id)) { seenIds.add(p.id); merged.push(p); }
             }
@@ -1119,6 +1120,7 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
           : `${cuisineQuery} cuisine restaurant`,
       };
       const { data: textData } = await axios.post(PLACES_TEXT_URL, textBody, { headers: PLACES_PAGE_HEADERS, timeout: 8000 });
+      require('./api-cost').recordMapsCall(redis, 'searchText');
       data = textData;
       let pageToken = textData?.nextPageToken || null;
       let pagesFetched = 1;
@@ -1137,6 +1139,7 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
             { ...textBody, pageToken },
             { headers: PLACES_PAGE_HEADERS, timeout: 8000 }
           );
+          require('./api-cost').recordMapsCall(redis, 'searchText');
           if (Array.isArray(pageData?.places) && pageData.places.length) {
             // De-dup by places.id at the concat seam: Google's pages rarely
             // overlap, but the rule is explicit — never append a duplicate id.
@@ -1183,6 +1186,7 @@ async function discover({ lat, lng, cuisines = [], radius = 1000, mealPeriod = '
           timeout: 8000
         }
       );
+      require('./api-cost').recordMapsCall(redis, 'searchNearby');
       data = nearbyData;
     }
     const ms = Date.now() - t0;

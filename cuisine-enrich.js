@@ -250,7 +250,7 @@ async function enrichSlow(top, ctx) {
           .filter((r) => r.text)
       })).filter((v) => v.reviews.length);
       if (venuesForLlm.length) {
-        const llmDishes = await geminiMod.extractDishesFromReviews({ venues: venuesForLlm });
+        const llmDishes = await geminiMod.extractDishesFromReviews({ venues: venuesForLlm, redis });
         const batchIds = new Set(venuesForLlm.map((v) => v.id));
         for (const v of needGemini) {
           if (!batchIds.has(v.placeId)) continue;
@@ -304,7 +304,7 @@ async function enrichSlow(top, ctx) {
   // v0.58.52 — TRANSIT + DRIVE minutes (Routes API). Best-effort.
   try {
     const { enrichTravelTimes } = require('./travel-times');
-    await enrichTravelTimes(ctx.searchCenter.lat, ctx.searchCenter.lng, top);
+    await enrichTravelTimes(ctx.searchCenter.lat, ctx.searchCenter.lng, top, redis);
   } catch (err) { console.warn('[Cuisine-Search] travel-times failed:', err.message); }
   _t.travel = Date.now() - _last; _last = Date.now();
   try { await ctx.enrichSanctuaryRead(top, ctx.csLang); } catch (err) {

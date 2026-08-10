@@ -81,7 +81,7 @@ async function nearest(lat, lng, count = 5) {
 // (Places doesn't expose live occupancy) and `agency` is `'Places'`.
 const PLACES_NEARBY_URL = 'https://places.googleapis.com/v1/places:searchNearby';
 
-async function nearestPlaces(lat, lng, count = 5, radiusM = 5000) {
+async function nearestPlaces(lat, lng, count = 5, radiusM = 5000, redis = null) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return [];
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
@@ -107,6 +107,7 @@ async function nearestPlaces(lat, lng, count = 5, radiusM = 5000) {
       },
       timeout: 8000
     });
+    require('./api-cost').recordMapsCall(redis, 'searchNearby');
     const places = Array.isArray(data?.places) ? data.places : [];
     return places
       .map((p) => {
@@ -143,7 +144,7 @@ async function nearestForMode(mode, lat, lng, count = 5, opts = {}) {
   if (m === 'SG') {
     return nearest(lat, lng, count);
   }
-  return nearestPlaces(lat, lng, count, opts.radiusM || 5000);
+  return nearestPlaces(lat, lng, count, opts.radiusM || 5000, opts.redis);
 }
 
 // v0.63.0 — all carparks as overlay-layer points (every carpark with a

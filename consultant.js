@@ -16,7 +16,7 @@ const PLACES_DETAILS_URL = (id) => `https://places.googleapis.com/v1/places/${id
 const MODEL_NAME = llm.HAIKU_MODEL;
 const RADIUS_M = 2000;
 
-async function nearbyAnyOperational(lat, lng) {
+async function nearbyAnyOperational(lat, lng, redis = null) {
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!mapsApiKey) return [];
   try {
@@ -49,6 +49,7 @@ async function nearbyAnyOperational(lat, lng) {
         timeout: 8000
       }
     );
+    require('./api-cost').recordMapsCall(redis, 'searchNearby');
     return (data.places ?? [])
       .filter((p) => (p.businessStatus ?? 'OPERATIONAL') === 'OPERATIONAL')
       .filter((p) => p.currentOpeningHours?.openNow !== false);
@@ -58,7 +59,7 @@ async function nearbyAnyOperational(lat, lng) {
   }
 }
 
-async function fetchReviews(placeId) {
+async function fetchReviews(placeId, redis = null) {
   const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!mapsApiKey) return [];
   try {
@@ -66,6 +67,7 @@ async function fetchReviews(placeId) {
       headers: { 'X-Goog-Api-Key': mapsApiKey, 'X-Goog-FieldMask': 'reviews' },
       timeout: 8000
     });
+    require('./api-cost').recordMapsCall(redis, 'placeDetails');
     return (data.reviews ?? []).slice(0, 3);
   } catch (err) {
     logger.error({ placeId, err: { message: err.message } }, 'consultant reviews fetch failed');
@@ -107,13 +109,13 @@ ${reviewText}`;
   return null;
 }
 
-async function findHiddenSanctuary(lat, lng) {
-  const candidates = await nearbyAnyOperational(lat, lng);
+async function findHiddenSanctuary(lat, lng, redis = null) {
+  const candidates = await nearbyAnyOperational(lat, lng, redis);
   if (!candidates.length) return null;
   for (const place of candidates) {
     const name = place.displayName?.text ?? '';
     if (!name) continue;
-    const reviews = await fetchReviews(place.id);
+    const reviews = await fetchReviews(place.id, redis);
     if (!reviews.length) continue;
     const verdict = await geminiSanctuaryRead(name, reviews);
     if (verdict?.is_sanctuary) {

@@ -169,7 +169,7 @@ function nameOverlap(claimed, candidate) {
   return hits / a.size; // fraction of claimed tokens present in candidate
 }
 
-async function lookupVenue(name, address = '') {
+async function lookupVenue(name, address = '', redis = null) {
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   // v0.59.40 / Codex review #244 P2: missing API key is a verifier-
   // unavailable state (NOT a hallucination signal). Return the
@@ -192,6 +192,7 @@ async function lookupVenue(name, address = '') {
         timeout: REQUEST_TIMEOUT_MS
       }
     );
+    require('./api-cost').recordMapsCall(redis, 'searchText');
     const places = data?.places || [];
     if (!places.length) return null;
 
@@ -460,7 +461,7 @@ async function verifyHiddenGemsOutput(text, opts = {}) {
   // v0.59.7: optional test seam. Pass `_lookup: async (name, addr) => ({...})`
   // to bypass the real Places API. Production path uses lookupVenue.
   const lookupFn = typeof opts._lookup === 'function' ? opts._lookup : lookupVenue;
-  const lookups = await Promise.all(distanceSurvivors.map((b) => lookupFn(b.name, b.address)));
+  const lookups = await Promise.all(distanceSurvivors.map((b) => lookupFn(b.name, b.address, opts.redis)));
   // v0.59.7: drop blocks whose live businessStatus is non-OPERATIONAL.
   // Closes the gap where Gemini's grounded search misses a closed venue
   // but Places already knows it's closed. Renumbers the surviving picks

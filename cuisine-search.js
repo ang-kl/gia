@@ -188,6 +188,7 @@ async function searchCuisine({
   // populates `v.queueMinEstimate` from a Google-side source.
   const pipeline = require('./pipeline');
   const discoveredVenues = await pipeline.discover({
+    redis,
     lat, lng,
     cuisines,
     radius,

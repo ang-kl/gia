@@ -121,6 +121,36 @@ describe('api-cost — recordMapsCall', () => {
     const s = await apiCost.getCostSummary(r, 1);
     expect(s.maps.totalUsd).toBeCloseTo(0.034, 4);
   });
+
+  // v0.62.71x — Routes API bills per ELEMENT (origins × destinations), not
+  // per request. travel-times.js passes candidates.length as the 3rd arg
+  // so one computeRouteMatrix call can bump the counter by N in one shot.
+  it('bumps count by the given element count, not always 1', async () => {
+    const r = makeRedisStub();
+    await apiCost.recordMapsCall(r, 'routes', 12);
+    const s = await apiCost.getCostSummary(r, 1);
+    expect(s.maps.byEndpoint.routes.count).toBe(12);
+  });
+
+  it('defaults to 1 when count is omitted (back-compat)', async () => {
+    const r = makeRedisStub();
+    await apiCost.recordMapsCall(r, 'routes');
+    const s = await apiCost.getCostSummary(r, 1);
+    expect(s.maps.byEndpoint.routes.count).toBe(1);
+  });
+
+  it('treats a non-finite or non-positive count as 1', async () => {
+    const r = makeRedisStub();
+    await apiCost.recordMapsCall(r, 'routes', NaN);
+    await apiCost.recordMapsCall(r, 'routes', -5);
+    await apiCost.recordMapsCall(r, 'routes', 0);
+    const s = await apiCost.getCostSummary(r, 1);
+    expect(s.maps.byEndpoint.routes.count).toBe(3);
+  });
+
+  it('exposes a routes rate-card entry so Routes spend can be priced', () => {
+    expect(apiCost.PRICES.maps.routes).toBeGreaterThan(0);
+  });
 });
 
 describe('api-cost — formatCostSummary', () => {
