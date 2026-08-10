@@ -1362,6 +1362,11 @@ async function runFlow(chatId, lat, lng, category) {
     await safeSend(chatId, '⏳ Soleat is still working on your last request — hold on a moment.');
     return;
   }
+  // v0.62.716 — Phase D: /eat + /drink run Places discover and can fall through
+  // to the consultant's Hidden-Sanctuary path (extra Places + LLM). Cap 40 /
+  // 15 min on its own counter — an /eat spree shouldn't consume /s's budget.
+  // Checked AFTER the processing lock so a rate-limited user isn't left locked.
+  if (await botRateLimited(chatId, 'bot-flow', 40)) return;
   await setProcessing(redis, chatId);
   // v0.60.142 — usage tracking (Oversight): an /eat-style flow search.
   try { usageLog.recordSearch(redis, chatId, { src: 'eat' }).catch(() => {}); } catch { /* noop */ }
@@ -4380,6 +4385,38 @@ function isOwnerChat(chatId) {
   return String(chatId) === String(owner);
 }
 
+// v0.62.716 — Phase D: per-chatId rate limiting for the TELEGRAM BOT commands.
+// The v0.60.173 limiter only ever covered the 12 HTTP /api/cuisine/* endpoints;
+// every bot command (/s, free-text search, /eat, /hidden) was completely
+// uncapped per user. Same Redis counter, same `gia:rl:<endpoint>:<key>:<bucket>`
+// key shape — checkRateLimit is the extracted core, shared verbatim with the
+// Express middleware so the two can't drift.
+//
+// Phase C caps what the SYSTEM spends in a day; this caps what any ONE user can
+// trigger. Neither substitutes for the other — without D, a single user can
+// exhaust the daily budget and degrade the product for everyone else.
+//
+// Returns true when the caller should STOP (a refusal has already been sent).
+// Fails OPEN on every abnormal path, inheriting checkRateLimit's semantics.
+const BOT_RL_WINDOW_SEC = 900;   // 15 min, matching the HTTP limiter's default
+async function botRateLimited(chatId, endpoint, cap, lang = 'en') {
+  try {
+    const { checkRateLimit } = require('./rate-limit');
+    const verdict = await checkRateLimit(redis, { endpoint, key: chatId, cap, windowSec: BOT_RL_WINDOW_SEC });
+    if (!verdict.limited) return false;
+    const mins = Math.max(1, Math.ceil(verdict.retryAfterSec / 60));
+    console.warn(`[rate-limit] bot ${endpoint} chatId=${chatId} count=${verdict.count}/${cap}`);
+    await safeSend(chatId, lang === 'fr'
+      ? `⏳ Vous avez atteint la limite de ${cap} requêtes par ${BOT_RL_WINDOW_SEC / 60} minutes. Réessayez dans ~${mins} min.`
+      : `⏳ You've hit the limit of ${cap} requests per ${BOT_RL_WINDOW_SEC / 60} minutes. Try again in ~${mins} min.`);
+    return true;
+  } catch (err) {
+    // A broken limiter must never block a user.
+    console.warn(`[rate-limit] bot check failed for ${endpoint} (allowing):`, err && err.message);
+    return false;
+  }
+}
+
 // v0.62.715 — Phase C: take a daily-spend reading and, when a threshold is
 // crossed, DM the owner (once per UTC day per level — the latch lives in
 // Redis, see spend-guard.shouldAlert). Deliberately fire-and-forget: called
@@ -6859,6 +6896,10 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
     return;
   }
   if (await hiddenBlockedBySpendGuard(chatId)) return;
+  // v0.62.716 — Phase D: /hidden is the priciest single command (grounded
+  // Gemini + up to 5 Places verifier lookups, uncached, with a retry ladder).
+  // Tighter cap than search: 8 / 15 min.
+  if (await botRateLimited(chatId, 'bot-hidden', 8, lang)) return;
   const { t, tn } = require('./i18n');
   try {
     if (await isProcessing(redis, chatId)) {
@@ -7061,6 +7102,10 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     return;
   }
   if (await hiddenBlockedBySpendGuard(chatId)) return;
+  // v0.62.716 — Phase D: /hidden is the priciest single command (grounded
+  // Gemini + up to 5 Places verifier lookups, uncached, with a retry ladder).
+  // Tighter cap than search: 8 / 15 min.
+  if (await botRateLimited(chatId, 'bot-hidden', 8, lang)) return;
   const { t, tn } = require('./i18n');
   try {
     if (await isProcessing(redis, chatId)) {
@@ -8311,6 +8356,9 @@ const { resolveRegionCode } = require('./region-code');
 //      our intent.searchTerm into garbage) to a direct Places searchText
 //      call with intent.searchTerm as the raw textQuery.
 async function handleSearchTurn(chatId, userText, lang = 'en') {
+  // v0.62.716 — Phase D: /s is Places + Gemini per turn. Cap 40 / 15 min —
+  // far above any real conversational pace, low enough to bound a runaway.
+  if (await botRateLimited(chatId, 'bot-search', 40, lang)) return;
   const sc = require('./search-conversation');
   const gc = require('./gemini-client');
   let conv = await sc.getConversation(redis, chatId);
@@ -11596,6 +11644,11 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
       await safeSend(chatId, '⏳ Soleat is still working on your last request — hold on a moment.');
       return;
     }
+    // v0.62.716 — Phase D: free-text search is the highest-volume uncapped
+    // entry point (every non-command message can reach it). Same 40/15min
+    // budget as /s; they share the 'bot-search' counter deliberately, since
+    // they cost the same and a user can freely alternate between them.
+    if (await botRateLimited(chatId, 'bot-search', 40, ftLang)) return;
     const { t: trBot, tn: trnBot } = require('./i18n');
     const cached = await getUserLocation(redis, chatId);
     if (!cached) {
