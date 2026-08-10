@@ -298,7 +298,9 @@ async function enrichSlow(top, ctx) {
     delete v.regularPeriods;
     delete v.currentPeriods;
     delete v.utcOffsetMinutes;
-    delete v.reviews;
+    // v0.62.71x — `delete v.reviews` moved OUT of this loop (see below).
+    // enrichSanctuaryRead (a few lines down) still needs v.reviews to avoid
+    // a redundant Places Details re-fetch for the exact same field.
   }
   _t.finalise = Date.now() - _last; _last = Date.now();
   // v0.58.52 — TRANSIT + DRIVE minutes (Routes API). Best-effort.
@@ -325,6 +327,10 @@ async function enrichSlow(top, ctx) {
     } catch (err) { console.warn('[Cuisine-Search] footfall failed:', err.message); }
   }
   _t.footfall = Date.now() - _last;
+  // v0.62.71x — `delete v.reviews` deferred here (was inside the finalise loop
+  // above, before enrichSanctuaryRead existed downstream of it). Nothing past
+  // this point reads v.reviews; the response payload must not carry it.
+  for (const v of top) delete v.reviews;
   // v0.62.x — one-line phase breakdown so the next "Load failed" log pinpoints
   // the dominant cost (Gemini dishes vs Claude sanctuary vs BestTime vs Routes).
   console.log(`[Cuisine-Enrich] D707 enrichSlow timings (${Array.isArray(top) ? top.length : 0}v): `

@@ -569,7 +569,11 @@ async function enrichSanctuaryRead(venues, lang = 'en') {
   await Promise.allSettled(venues.map(async (v) => {
     if (!v || !v.placeId || (typeof v.sanctuaryRead === 'string' && v.sanctuaryRead.trim())) return;
     try {
-      const text = await getOrCacheSummary(redis, v.placeId, lang);
+      // v0.62.71x — the sanctuary redundant-fetch fix: hand over v.reviews when the caller still has it
+      // (cuisine-enrich.js now defers `delete v.reviews` until after this
+      // runs) so getOrCacheSummary can skip a redundant Places Details call
+      // for the exact same field. Callers without v.reviews are unaffected.
+      const text = await getOrCacheSummary(redis, v.placeId, lang, v.reviews);
       if (text && typeof text === 'string' && text.trim()) v.sanctuaryRead = text;
     } catch { /* per-venue failure is non-fatal */ }
   }));
