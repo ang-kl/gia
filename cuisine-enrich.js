@@ -239,7 +239,15 @@ async function enrichSlow(top, ctx) {
         needGemini.push(v);
       }));
     }
-    if (needGemini.length) {
+    // v0.62.715 — Phase C: skip the paid LLM dish pass when the day's spend
+    // is over the hard cap. The regex pass above already ran and the cached
+    // hits above were already applied, so the card keeps whatever dishes it
+    // could get for free.
+    const dishesAllowed = await require('./spend-guard').allows(redis, 'dishes');
+    if (!dishesAllowed && needGemini.length) {
+      console.warn(`[Cuisine-Search] dish extraction skipped for ${needGemini.length} venue(s) — spend guard at hard cap`);
+    }
+    if (needGemini.length && dishesAllowed) {
       const geminiMod = require('./gemini-client');
       const venuesForLlm = needGemini.map((v) => ({
         id: v.placeId,
@@ -309,8 +317,14 @@ async function enrichSlow(top, ctx) {
     await enrichTravelTimes(ctx.searchCenter.lat, ctx.searchCenter.lng, top, redis);
   } catch (err) { console.warn('[Cuisine-Search] travel-times failed:', err.message); }
   _t.travel = Date.now() - _last; _last = Date.now();
-  try { await ctx.enrichSanctuaryRead(top, ctx.csLang); } catch (err) {
-    console.warn('[Cuisine-Search] enrichSanctuaryRead failed:', err.message);
+  // v0.62.715 — Phase C: the sanctuary read is an Anthropic Haiku call per
+  // uncached venue. Sheddable at the hard cap; the card just omits the 🌿 block.
+  if (!(await require('./spend-guard').allows(redis, 'sanctuary'))) {
+    console.warn('[Cuisine-Search] sanctuary read skipped — spend guard at hard cap');
+  } else {
+    try { await ctx.enrichSanctuaryRead(top, ctx.csLang); } catch (err) {
+      console.warn('[Cuisine-Search] enrichSanctuaryRead failed:', err.message);
+    }
   }
   _t.sanctuary = Date.now() - _last; _last = Date.now();
   // v0.59.0 — footfall (BestTime). Dormant without key.
@@ -318,8 +332,11 @@ async function enrichSlow(top, ctx) {
   // non-SG coverage (`resolved=0/N` on MY/etc.), so it spends latency for zero
   // result. Skip it entirely for non-SG searches. `isSG === false` is the only
   // skip trigger; absent/undefined ctx keeps the prior (SG-assumed) behaviour.
+  // v0.62.715 — Phase C adds a second skip trigger: the hard spend cap.
   if (ctx.isSG === false) {
     console.log('[Cuisine-Search] footfall skipped (non-SG region — BestTime has no coverage)');
+  } else if (!(await require('./spend-guard').allows(redis, 'footfall'))) {
+    console.warn('[Cuisine-Search] footfall skipped — spend guard at hard cap');
   } else {
     try {
       const { attachFootfallSignals } = require('./footfall-signal');

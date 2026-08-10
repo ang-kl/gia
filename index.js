@@ -4380,6 +4380,25 @@ function isOwnerChat(chatId) {
   return String(chatId) === String(owner);
 }
 
+// v0.62.715 — Phase C: take a daily-spend reading and, when a threshold is
+// crossed, DM the owner (once per UTC day per level — the latch lives in
+// Redis, see spend-guard.shouldAlert). Deliberately fire-and-forget: called
+// AFTER a search has already been served, never in front of one, and every
+// failure path is swallowed. The alert goes to TELEGRAM_OWNER_CHAT_ID, the
+// same env var that already gates /cost, /ver and /hidden — no new config.
+function spendGuardTick() {
+  const owner = process.env.TELEGRAM_OWNER_CHAT_ID;
+  if (!owner) return;   // nobody to tell
+  try {
+    const guard = require('./spend-guard');
+    const notify = (text) => safeSend(owner, text, { parse_mode: 'Markdown' });
+    Promise.resolve(guard.checkAndAlert(redis, notify))
+      .catch((err) => console.warn('[spend-guard] tick failed:', err && err.message));
+  } catch (err) {
+    console.warn('[spend-guard] tick setup failed:', err && err.message);
+  }
+}
+
 // v0.61.25 — owner-command action bodies, extracted so the /v builder
 // menu (inline-keyboard buttons) and the typed commands share one
 // implementation. Each runs the same work as its /<cmd> handler.
@@ -6802,6 +6821,33 @@ async function renderHiddenVenueCards(chatId, lang, verifiedVenues, anchorLat, a
   }
 }
 
+// v0.62.715 — Phase C spend guard for /hidden, the priciest single command
+// (grounded Gemini search + up to 5 Places verifier lookups, uncached, with a
+// retry ladder). Returns true when the caller should STOP. /hidden is
+// owner-only, so the refusal goes straight to the person who can act on it —
+// no end-user ever sees this path.
+async function hiddenBlockedBySpendGuard(chatId) {
+  try {
+    const guard = require('./spend-guard');
+    // checkAndAlert (not readSpend) so a /hidden attempt that finds the day
+    // already over threshold also delivers the once-per-day owner alert —
+    // the operator is the only caller of /hidden, so they see it either way.
+    const notify = (text) => safeSend(chatId, text, { parse_mode: 'Markdown' });
+    const reading = await guard.checkAndAlert(redis, notify);
+    if (reading.level !== 'hard') return false;
+    await safeSend(chatId,
+      `🛑 /hidden paused — today's API spend is ~$${reading.usd.toFixed(2)}, at or over the `
+      + `$${reading.hard} hard cap. Cuisine search still works. Raise SPEND_HARD_USD or wait for `
+      + `the UTC day to roll over. Run /cost for the breakdown.`);
+    console.warn(`[/hidden] blocked by spend guard (usd=${reading.usd.toFixed(2)} hard=${reading.hard})`);
+    return true;
+  } catch (err) {
+    // Guard itself broke — fail OPEN so a monitoring bug can't disable /hidden.
+    console.warn('[/hidden] spend guard check failed (allowing):', err && err.message);
+    return false;
+  }
+}
+
 async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
   // v0.61.312 — operator restricted /hidden to themselves only.
   // Silent no-op for non-owners; same gating pattern as /ver / /cost /
@@ -6812,6 +6858,7 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
     console.log(`[/hidden-freetext] denied chat=${chatId} (not TELEGRAM_OWNER_CHAT_ID)`);
     return;
   }
+  if (await hiddenBlockedBySpendGuard(chatId)) return;
   const { t, tn } = require('./i18n');
   try {
     if (await isProcessing(redis, chatId)) {
@@ -7013,6 +7060,7 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     console.log(`[/hidden] denied chat=${chatId} (not TELEGRAM_OWNER_CHAT_ID)`);
     return;
   }
+  if (await hiddenBlockedBySpendGuard(chatId)) return;
   const { t, tn } = require('./i18n');
   try {
     if (await isProcessing(redis, chatId)) {
@@ -17375,6 +17423,10 @@ async function cacheBotUsername() {
           if (typeof res.flush === 'function') res.flush();
         }
         await cuisineEnrich.enrichSlow(top, enrichCtx);
+        // v0.62.715 — Phase C: after the most expensive request type in the
+        // app, take a spend reading and DM the owner if a threshold was
+        // crossed. Fire-and-forget — this must never delay or fail a search.
+        spendGuardTick();
         // v0.60.116 — `top` was already chosen above as the next 12
         // *unseen* venues from the ~3-page-deep pool (see the
         // "exclude what you've seen" block before the enrichments).
