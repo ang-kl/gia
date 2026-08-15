@@ -1,0 +1,61 @@
+{
+  "since": "2026-08-15T08:25:01Z",
+  "until": "2026-08-15T09:30:01Z",
+  "count": 6,
+  "logs": [
+    {
+      "timestamp": "2026-08-15T08:44:39.155317998Z",
+      "message": "[twa-auth] 401 POST /user-location ip=66.249.64.110, 89.222.103.193 ua=\"Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KH\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bb8199b4-0156-4f7f-867e-05d533916b87",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T08:44:39.155322688Z",
+      "message": "[twa-auth] 401 GET /rating-pref ip=66.249.64.96, 89.222.103.193 ua=\"Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KH\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bb8199b4-0156-4f7f-867e-05d533916b87",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T08:44:39.155326988Z",
+      "message": "[twa-auth] 401 GET /country-pref ip=66.249.64.109, 89.222.103.194 ua=\"Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KH\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bb8199b4-0156-4f7f-867e-05d533916b87",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T08:44:39.155331598Z",
+      "message": "[twa-auth] 401 GET /user-language ip=66.249.64.96, 89.222.103.193 ua=\"Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KH\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bb8199b4-0156-4f7f-867e-05d533916b87",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T08:44:39.155335818Z",
+      "message": "[twa-auth] 401 POST /search ip=66.249.64.109, 89.222.103.194 ua=\"Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KH\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bb8199b4-0156-4f7f-867e-05d533916b87",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-15T08:44:39.155340268Z",
+      "message": "[twa-auth] 401 POST /set-location ip=66.249.64.109, 89.222.103.194 ua=\"Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KH\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bb8199b4-0156-4f7f-867e-05d533916b87",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
