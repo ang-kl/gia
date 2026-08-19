@@ -1,0 +1,70 @@
+{
+  "since": "2026-08-19T05:47:34Z",
+  "until": "2026-08-19T06:52:34Z",
+  "count": 7,
+  "logs": [
+    {
+      "timestamp": "2026-08-19T06:18:30.947418461Z",
+      "message": "[twa-auth] 401 POST /user-location ip=204.101.161.15, 152.233.40.2 ua=\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/15\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bb8199b4-0156-4f7f-867e-05d533916b87",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T06:18:30.947425171Z",
+      "message": "[twa-auth] 401 GET /country-pref ip=204.101.161.15, 152.233.40.2 ua=\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/15\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bb8199b4-0156-4f7f-867e-05d533916b87",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T06:18:30.947428861Z",
+      "message": "[twa-auth] 401 GET /rating-pref ip=204.101.161.15, 152.233.40.2 ua=\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/15\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bb8199b4-0156-4f7f-867e-05d533916b87",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T06:18:30.947432021Z",
+      "message": "[twa-auth] 401 GET /user-language ip=204.101.161.15, 152.233.40.2 ua=\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/15\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bb8199b4-0156-4f7f-867e-05d533916b87",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T06:18:30.947435681Z",
+      "message": "[twa-auth] 401 POST /user-location ip=204.101.161.15, 152.233.40.2 ua=\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/15\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bb8199b4-0156-4f7f-867e-05d533916b87",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T06:18:30.947441971Z",
+      "message": "[twa-auth] 401 POST /search ip=204.101.161.15, 152.233.40.2 ua=\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/15\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bb8199b4-0156-4f7f-867e-05d533916b87",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-19T06:18:30.947445101Z",
+      "message": "[twa-auth] 401 POST /set-location ip=204.101.161.15, 152.233.40.2 ua=\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/15\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bb8199b4-0156-4f7f-867e-05d533916b87",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
