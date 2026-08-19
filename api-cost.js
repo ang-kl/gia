@@ -47,7 +47,12 @@ const PRICES = Object.freeze({
     // $2-$7 per 1,000 elements; $0.005/element is a mid-range point
     // estimate pending an exact-tier confirmation from the Cloud
     // Console billing export — refresh when that's available.
-    routes:            0.005
+    routes:            0.005,
+    // v0.62.718 — Cloud Translation v2/v3, billed per CHARACTER at $20 per
+    // million (first 500k/month free, which this workload sits inside).
+    // i18n-translate.js passes the character count explicitly, mirroring how
+    // 'routes' passes an element count rather than a request count.
+    translate:         20 / 1e6
   }
 });
 

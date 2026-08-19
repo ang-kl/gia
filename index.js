@@ -18341,6 +18341,50 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.62.718 — TEMPORARY. Fills the `google_translation` field of one i18n
+    // audit job file (scripts/i18n-audit-jobs/) via Cloud Translation and
+    // returns it ready to hand to the Gemini auditor.
+    //
+    // WHY IT EXISTS: the operator has no CLI and cannot mint a service-account
+    // key, so nothing can call Translate locally. The API key already lives in
+    // Railway, so the call has to originate here. Delete this route once the
+    // six languages are filled — it is scaffolding, not a feature.
+    //
+    // GATE: a dedicated I18N_TRANSLATE_TOKEN, and it FAILS CLOSED when that var
+    // is unset. Deliberately not isOwnerChat: that helper returns true for
+    // everyone when TELEGRAM_OWNER_CHAT_ID is missing (Register O-185), which is
+    // the wrong default for a route that spends money on every call.
+    app.get('/api/i18n-translate', async (req, res) => {
+      try {
+        const gate = process.env.I18N_TRANSLATE_TOKEN;
+        if (!gate) return res.status(503).json({ error: 'I18N_TRANSLATE_TOKEN not configured' });
+        if (String(req.query.token || '') !== gate) return res.status(403).json({ error: 'forbidden' });
+
+        const lang = String(req.query.lang || '');
+        const batch = String(req.query.batch || '01').padStart(2, '0');
+        if (!/^(id|ru|de|zh|ja|es)$/.test(lang)) return res.status(400).json({ error: 'lang must be one of id|ru|de|zh|ja|es' });
+        if (!/^0[1-9]$/.test(batch)) return res.status(400).json({ error: 'batch must be 01..09' });
+
+        // Inline require, matching every other fs use in this file — there is
+        // no top-level `const fs`, so a bare `fs.` here is a ReferenceError that
+        // node --check cannot see.
+        const fsMod = require('fs');
+        const file = path.join(__dirname, 'scripts', 'i18n-audit-jobs', `i18n-audit-${lang}-${batch}.json`);
+        if (!fsMod.existsSync(file)) return res.status(404).json({ error: `no job file for ${lang} batch ${batch}` });
+
+        const job = JSON.parse(fsMod.readFileSync(file, 'utf8'));
+        const { fillJob } = require('./i18n-translate');
+        const report = await fillJob(job, { redis });
+        console.log(`[i18n-translate] ${lang}/${batch} filled=${report.filled} chars=${report.chars} damaged=${report.damaged}`);
+
+        res.setHeader('Content-Disposition', `attachment; filename="i18n-audit-${lang}-${batch}.json"`);
+        return res.json(report.job);
+      } catch (err) {
+        console.error('[Error] /api/i18n-translate failed:', err.message);
+        return res.status(500).json({ error: 'internal', detail: err.message });
+      }
+    });
+
     // v0.57.11: SVG endpoint dropped; mrt-system-map.png is served as
     // a Vite-emitted static asset from web/transport/public/.
     // Per-line status feed for the Transport TMA.
