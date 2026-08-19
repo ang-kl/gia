@@ -18361,24 +18361,49 @@ async function cacheBotUsername() {
         if (String(req.query.token || '') !== gate) return res.status(403).json({ error: 'forbidden' });
 
         const lang = String(req.query.lang || '');
-        const batch = String(req.query.batch || '01').padStart(2, '0');
+        // v0.62.719 — `batch` defaults to ALL. Gemini has no write access to the
+        // repo, so the audited JSON travels back by hand; every extra file is a
+        // manual download AND a manual re-upload. One file per language is six
+        // round trips instead of thirty-six. Single batches stay addressable
+        // (?batch=03) because the Gemini step still wants ~50 items at a time —
+        // it is the transport that benefits from merging, not the audit.
+        const batch = String(req.query.batch || 'all').toLowerCase();
         if (!/^(id|ru|de|zh|ja|es)$/.test(lang)) return res.status(400).json({ error: 'lang must be one of id|ru|de|zh|ja|es' });
-        if (!/^0[1-9]$/.test(batch)) return res.status(400).json({ error: 'batch must be 01..09' });
+        if (batch !== 'all' && !/^0?[1-9]$/.test(batch)) return res.status(400).json({ error: "batch must be 1..9 or 'all'" });
 
         // Inline require, matching every other fs use in this file — there is
         // no top-level `const fs`, so a bare `fs.` here is a ReferenceError that
         // node --check cannot see.
         const fsMod = require('fs');
-        const file = path.join(__dirname, 'scripts', 'i18n-audit-jobs', `i18n-audit-${lang}-${batch}.json`);
-        if (!fsMod.existsSync(file)) return res.status(404).json({ error: `no job file for ${lang} batch ${batch}` });
+        const dir = path.join(__dirname, 'scripts', 'i18n-audit-jobs');
+        const names = batch === 'all'
+          ? fsMod.readdirSync(dir).filter((f) => f.startsWith(`i18n-audit-${lang}-`)).sort()
+          : [`i18n-audit-${lang}-${batch.padStart(2, '0')}.json`];
+        if (!names.length || !names.every((n) => fsMod.existsSync(path.join(dir, n)))) {
+          return res.status(404).json({ error: `no job file(s) for ${lang} batch ${batch}` });
+        }
 
-        const job = JSON.parse(fsMod.readFileSync(file, 'utf8'));
         const { fillJob } = require('./i18n-translate');
-        const report = await fillJob(job, { redis });
-        console.log(`[i18n-translate] ${lang}/${batch} filled=${report.filled} chars=${report.chars} damaged=${report.damaged}`);
+        let merged = null;
+        let filled = 0, chars = 0, damaged = 0;
+        for (const name of names) {
+          const job = JSON.parse(fsMod.readFileSync(path.join(dir, name), 'utf8'));
+          const r = await fillJob(job, { redis });
+          filled += r.filled; chars += r.chars; damaged += r.damaged;
+          if (!merged) merged = r.job;
+          else merged.items.push(...r.job.items);
+        }
+        // Re-derive the summary from the merged item list rather than summing the
+        // per-batch ones — a total that is computed, not accumulated, cannot drift
+        // away from what is actually in the file.
+        merged.job.batch = batch === 'all' ? `merged ${names.length} batches` : merged.job.batch;
+        merged.summary.total = merged.items.length;
+        merged.summary.unreviewed = merged.items.filter((i) => i.gemini_audit.verdict === 'unreviewed').length;
+        console.log(`[i18n-translate] ${lang}/${batch} files=${names.length} items=${merged.items.length} filled=${filled} chars=${chars} damaged=${damaged}`);
 
-        res.setHeader('Content-Disposition', `attachment; filename="i18n-audit-${lang}-${batch}.json"`);
-        return res.json(report.job);
+        const fname = batch === 'all' ? `i18n-audit-${lang}-all.json` : names[0];
+        res.setHeader('Content-Disposition', `attachment; filename="${fname}"`);
+        return res.json(merged);
       } catch (err) {
         console.error('[Error] /api/i18n-translate failed:', err.message);
         return res.status(500).json({ error: 'internal', detail: err.message });
