@@ -113,19 +113,45 @@ function _dateKey(daysAgo) {
   return d.toISOString().slice(0, 10);
 }
 
-// Compute the estimated USD for a Gemini hash entry given its model.
+// v0.62.719 — an unpriced model used to return 0, silently. The first real
+// production /cost reading (2026-08-19) showed 1 Gemini call, 2,519 in / 172
+// out, at "~$0.0000". The Redis key was
+// `api-cost:2026-08-19:gemini:gemini-3.1-flash-lite` — a name that appears
+// nowhere in this repo, so it can only have come from GEMINI_MODEL at the
+// moment that call ran. That is a HISTORICAL record, not the current config:
+// the operator reports the var now reads gemini-2.5-flash-lite, which IS in
+// PRICES, so calls made after the change price correctly. Both facts hold.
+//
+// The defect is independent of which model it was: any name outside PRICES
+// costed out at exactly zero, and spend-guard.js:93 sums gemini.totalUsd +
+// maps.totalUsd — so the circuit breaker went blind to Gemini spend the moment
+// anyone set GEMINI_MODEL to something the table had not heard of. That is the
+// exact failure Phase A existed to prevent, and a model rename is a normal
+// operational act, not an edge case.
+//
+// Under-counting is the dangerous direction for a spend brake, so an unknown
+// model is now priced at the most expensive known flash tier and FLAGGED rather
+// than zeroed. Deliberately not inventing a precise gemini-3.x rate: this file
+// cannot verify current Google pricing, and a confident wrong number is worse
+// than a labelled estimate. Add real rates to PRICES when confirmed.
+const FALLBACK_GEMINI_RATE = Object.freeze({ in: 0.30 / 1e6, out: 2.50 / 1e6 });
+
+// Returns { usd, estimated } — estimated true when the model was not in PRICES.
 function _geminiUsd(model, hash) {
-  const rate = PRICES.gemini[model];
-  if (!rate) return 0;
+  const known = PRICES.gemini[model];
+  const rate = known || FALLBACK_GEMINI_RATE;
   const inT = Number(hash.in_tokens) || 0;
   const outT = Number(hash.out_tokens) || 0;
-  return inT * rate.in + outT * rate.out;
+  return { usd: inT * rate.in + outT * rate.out, estimated: !known };
 }
 
+// Same shape, same reasoning: a new Maps endpoint must not read as free.
+const FALLBACK_MAPS_RATE = 0.032;   // the priciest known per-request SKU
+
 function _mapsUsd(endpoint, count) {
-  const rate = PRICES.maps[endpoint];
-  if (!rate) return 0;
-  return Number(count) * rate;
+  const known = PRICES.maps[endpoint];
+  const rate = known != null ? known : FALLBACK_MAPS_RATE;
+  return { usd: Number(count) * rate, estimated: known == null };
 }
 
 // Aggregate the last `days` days into a single summary object.
@@ -142,8 +168,8 @@ async function getCostSummary(redis, days = 1) {
   for (let i = 0; i < d; i++) datesAgo.push(_dateKey(i));
   const dates = datesAgo.slice().reverse();
 
-  const gemini = { totalCalls: 0, totalInTokens: 0, totalOutTokens: 0, totalUsd: 0, byModel: {} };
-  const maps = { totalCalls: 0, totalUsd: 0, byEndpoint: {} };
+  const gemini = { totalCalls: 0, totalInTokens: 0, totalOutTokens: 0, totalUsd: 0, byModel: {}, unpricedModels: new Set() };
+  const maps = { totalCalls: 0, totalUsd: 0, byEndpoint: {}, unpricedEndpoints: new Set() };
 
   for (const date of dates) {
     // Gemini hashes
@@ -153,11 +179,13 @@ async function getCostSummary(redis, days = 1) {
         const model = key.split(':').pop();
         const h = await redis.hGetAll(key).catch(() => null);
         if (!h) continue;
-        const entry = gemini.byModel[model] || { count: 0, in_tokens: 0, out_tokens: 0, usd: 0 };
+        const entry = gemini.byModel[model] || { count: 0, in_tokens: 0, out_tokens: 0, usd: 0, estimated: false };
         entry.count += Number(h.count) || 0;
         entry.in_tokens += Number(h.in_tokens) || 0;
         entry.out_tokens += Number(h.out_tokens) || 0;
-        entry.usd += _geminiUsd(model, h);
+        const g = _geminiUsd(model, h);
+        entry.usd += g.usd;
+        if (g.estimated) { entry.estimated = true; gemini.unpricedModels.add(model); }
         gemini.byModel[model] = entry;
       }
     } catch { /* scan failed — partial summary still useful */ }
@@ -169,9 +197,11 @@ async function getCostSummary(redis, days = 1) {
         const h = await redis.hGetAll(key).catch(() => null);
         if (!h) continue;
         const count = Number(h.count) || 0;
-        const entry = maps.byEndpoint[endpoint] || { count: 0, usd: 0 };
+        const entry = maps.byEndpoint[endpoint] || { count: 0, usd: 0, estimated: false };
         entry.count += count;
-        entry.usd += _mapsUsd(endpoint, count);
+        const mu = _mapsUsd(endpoint, count);
+        entry.usd += mu.usd;
+        if (mu.estimated) { entry.estimated = true; maps.unpricedEndpoints.add(endpoint); }
         maps.byEndpoint[endpoint] = entry;
       }
     } catch { /* same */ }
@@ -187,6 +217,10 @@ async function getCostSummary(redis, days = 1) {
     maps.totalCalls += e.count;
     maps.totalUsd += e.usd;
   }
+
+  // Sets do not survive JSON, and this object is passed around as data.
+  gemini.unpricedModels = [...gemini.unpricedModels];
+  maps.unpricedEndpoints = [...maps.unpricedEndpoints];
 
   return { days: d, since: dates[0], until: dates[dates.length - 1], gemini, maps };
 }
@@ -206,15 +240,24 @@ function formatCostSummary(summary) {
     lines.push(`*Gemini* — ${gemini.totalCalls.toLocaleString()} calls · ~$${gemini.totalUsd.toFixed(4)}`);
     lines.push(`  in: ${gemini.totalInTokens.toLocaleString()} tok · out: ${gemini.totalOutTokens.toLocaleString()} tok`);
     for (const [model, e] of Object.entries(gemini.byModel)) {
-      lines.push(`  • \`${model}\` — ${e.count} · ${e.in_tokens.toLocaleString()} in · ${e.out_tokens.toLocaleString()} out · ~$${e.usd.toFixed(4)}`);
+      lines.push(`  • \`${model}\` — ${e.count} · ${e.in_tokens.toLocaleString()} in · ${e.out_tokens.toLocaleString()} out · ~$${e.usd.toFixed(4)}${e.estimated ? ' ⚠️ est.' : ''}`);
     }
     lines.push('');
   }
   if (maps.totalCalls > 0) {
     lines.push(`*Maps* — ${maps.totalCalls.toLocaleString()} req · ~$${maps.totalUsd.toFixed(4)}`);
     for (const [ep, e] of Object.entries(maps.byEndpoint)) {
-      lines.push(`  • \`${ep}\` — ${e.count} · ~$${e.usd.toFixed(4)}`);
+      lines.push(`  • \`${ep}\` — ${e.count} · ~$${e.usd.toFixed(4)}${e.estimated ? ' ⚠️ est.' : ''}`);
     }
+    lines.push('');
+  }
+  // An unpriced model or endpoint used to read as $0.0000, which made the
+  // spend guard blind to it. Say so loudly instead — a silent zero in a spend
+  // report is the one number nobody questions.
+  const unpriced = [...(gemini.unpricedModels || []), ...(maps.unpricedEndpoints || [])];
+  if (unpriced.length) {
+    lines.push(`⚠️ *Not in the rate card:* ${unpriced.map((u) => `\`${u}\``).join(', ')}`);
+    lines.push(`  Costed at a fallback rate, so the total is an over-estimate, not $0. Add real rates to \`PRICES\` in \`api-cost.js\`.`);
     lines.push('');
   }
   lines.push(`_Static rate card; actual spend on Google Cloud / AI Studio dashboards._`);
