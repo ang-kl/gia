@@ -2853,7 +2853,21 @@ bot.onText(/^\/(?:rating|ra)(?:@\w+)?(?:\s+(.+))?$/i, async (msg, match) => {
 //   - Cuisine TMA client-side telemetry (`fetch` timing, window errors)
 //     POSTed to /api/vlog and surfaced as `[VLOG-CLIENT <chatId>] {…}`
 // One Redis key (`verbose:<chatId>`, 24-h TTL) drives all three surfaces.
+//
+// v0.62.717 — owner-gated. `/log` was ALREADY treated as an admin command
+// everywhere else: it is absent from setMyCommands, the `/v` builder hub
+// lists it beside /ver / /oversight / /ftlog, and that hub's own comment
+// (see the `/v` handler) calls it one of "the hidden owner commands". Only
+// the typed command was missing the check, so any user could switch on NL
+// step-traces in their chat and `[VLOG]` volume in Railway. The `/v` menu
+// buttons (`v:logon` / `v:logoff`) were already covered by the `v:` callback
+// family's own gate — this closes the one remaining way in. Same
+// silent-no-op-plus-log shape as every other owner command.
 bot.onText(/^\/log(?:@\w+)?(?:\s+(on|off|status))?$/i, async (msg, match) => {
+  if (!isOwnerChat(msg.chat.id)) {
+    console.log(`[/log] denied chat=${msg.chat.id} (not TELEGRAM_OWNER_CHAT_ID)`);
+    return;
+  }
   try {
     await setVerboseMode(msg.chat.id, (match?.[1] || 'status').toLowerCase());
   } catch (err) {
