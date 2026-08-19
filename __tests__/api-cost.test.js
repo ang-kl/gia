@@ -189,3 +189,71 @@ describe('api-cost — formatCostSummary', () => {
     expect(apiCost.formatCostSummary(null)).toContain('redis offline');
   });
 });
+
+// v0.62.719 — regression tests for the silent-zero defect found by the first
+// real production /cost reading (2026-08-19): GEMINI_MODEL was deployed as
+// gemini-3.1-flash-lite, which is not in PRICES, so 2,519 input tokens costed
+// out at exactly $0.0000. spend-guard.js sums gemini.totalUsd, so the circuit
+// breaker could never see Gemini spend at all.
+describe('api-cost — unpriced models and endpoints must not read as free', () => {
+  const day = new Date().toISOString().slice(0, 10);
+
+  function replay(entries) {
+    return {
+      isOpen: true,
+      async *scanIterator({ MATCH }) {
+        const re = new RegExp('^' + MATCH.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\\\*/g, '.*') + '$');
+        for (const k of Object.keys(entries)) if (re.test(k)) yield k;
+      },
+      async hGetAll(k) { return entries[k]; }
+    };
+  }
+
+  it('prices an unknown Gemini model above zero and flags it', async () => {
+    const r = replay({ [`api-cost:${day}:gemini:gemini-3.1-flash-lite`]: { count: '1', in_tokens: '2519', out_tokens: '172' } });
+    const s = await apiCost.getCostSummary(r, 1);
+    expect(s.gemini.totalUsd).toBeGreaterThan(0);
+    expect(s.gemini.byModel['gemini-3.1-flash-lite'].estimated).toBe(true);
+    expect(s.gemini.unpricedModels).toContain('gemini-3.1-flash-lite');
+  });
+
+  it('still prices a KNOWN model exactly, with no estimate flag', async () => {
+    const r = replay({ [`api-cost:${day}:gemini:gemini-2.5-flash-lite`]: { count: '1', in_tokens: '1000000', out_tokens: '0' } });
+    const s = await apiCost.getCostSummary(r, 1);
+    expect(s.gemini.totalUsd).toBeCloseTo(0.10, 6);      // $0.10 per 1M in
+    expect(s.gemini.byModel['gemini-2.5-flash-lite'].estimated).toBe(false);
+    expect(s.gemini.unpricedModels).toHaveLength(0);
+  });
+
+  it('prices an unknown Maps endpoint above zero and flags it', async () => {
+    const r = replay({ [`api-cost:${day}:maps:someNewSku`]: { count: '10' } });
+    const s = await apiCost.getCostSummary(r, 1);
+    expect(s.maps.totalUsd).toBeGreaterThan(0);
+    expect(s.maps.unpricedEndpoints).toContain('someNewSku');
+  });
+
+  it('reproduces the operator reading: Maps unchanged, Gemini no longer zero', async () => {
+    const r = replay({
+      [`api-cost:${day}:gemini:gemini-3.1-flash-lite`]: { count: '1', in_tokens: '2519', out_tokens: '172' },
+      [`api-cost:${day}:maps:routes`]: { count: '24' },
+      [`api-cost:${day}:maps:searchText`]: { count: '6' }
+    });
+    const s = await apiCost.getCostSummary(r, 1);
+    expect(s.maps.totalUsd).toBeCloseTo(0.312, 4);   // matches the live /cost exactly
+    expect(s.gemini.totalUsd).toBeGreaterThan(0);    // the defect: this was 0
+  });
+
+  it('surfaces the unpriced name in the rendered /cost text', async () => {
+    const r = replay({ [`api-cost:${day}:gemini:gemini-3.1-flash-lite`]: { count: '1', in_tokens: '2519', out_tokens: '172' } });
+    const text = apiCost.formatCostSummary(await apiCost.getCostSummary(r, 1));
+    expect(text).toContain('Not in the rate card');
+    expect(text).toContain('gemini-3.1-flash-lite');
+    expect(text).toContain('⚠️ est.');
+  });
+
+  it('serialises — unpriced lists survive JSON, so callers can read them', async () => {
+    const r = replay({ [`api-cost:${day}:gemini:gemini-3.1-flash-lite`]: { count: '1', in_tokens: '10', out_tokens: '1' } });
+    const s = JSON.parse(JSON.stringify(await apiCost.getCostSummary(r, 1)));
+    expect(s.gemini.unpricedModels).toEqual(['gemini-3.1-flash-lite']);
+  });
+});
