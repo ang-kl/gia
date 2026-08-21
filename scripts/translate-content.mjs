@@ -53,7 +53,9 @@ const LANG_NAME = {
 // Model chain. We cascade across models on a 503 (overload is PER-model — a
 // sibling is likely free) or 404 (model gone), but NOT on a 429: all models
 // share the project quota bucket, so falling through them just burns it faster.
-const MODEL_CHAIN = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
+// v0.62.722 — the two 2.5 names 404 at Google now; the chain lives in
+// gemini-models.js so it is fixed in one place, not four.
+const MODEL_CHAIN = require('../gemini-models').MODEL_CHAIN.slice();
 
 const BATCH_SIZE = 14;         // larger batches → far fewer calls
 const BATCH_PAUSE_MS = 8000;   // gap between batches

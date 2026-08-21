@@ -27,7 +27,7 @@
 
 const DEFAULT_BATCH_SIZE = 10;
 const DEFAULT_CONCURRENCY = 5;
-const DEFAULT_MODEL = 'gemini-2.5-flash-lite';
+const DEFAULT_MODEL = require('./gemini-models').LITE;   // v0.62.722 — was gemini-2.5-flash-lite (retired)
 const PER_CALL_TIMEOUT_MS = 30_000;
 const MAX_REVIEW_SNIPPETS_PER_VENUE = 3;
 const MAX_REVIEW_CHARS = 240;

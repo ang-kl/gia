@@ -28,10 +28,12 @@ const axios = require('axios');
 const API = 'https://generativelanguage.googleapis.com/v1beta';
 const PROMPT_FILE = path.join(__dirname, 'scripts', 'i18n-translation-audit-prompt.md');
 
-// gemini-2.5-flash-lite is the only candidate with evidence in this repo rather
-// than from memory: present in api-cost.js PRICES, present in gemini-client.js
-// FALLBACK_CHAIN, and recorded there as GA and verified at v0.58.44.
-const DEFAULT_MODEL = 'gemini-2.5-flash-lite';
+// v0.62.722 — this used to read: "gemini-2.5-flash-lite is the only candidate
+// with evidence in this repo rather than from memory". That was true and still
+// wrong: evidence in the repo is a record of a past state. Google's live 404
+// names gemini-3.5-flash-lite as its replacement, which is what the operator
+// asked for in the first place. See gemini-models.js.
+const DEFAULT_MODEL = require('./gemini-models').LITE;
 const DEFAULT_CHUNK = 25;
 const CALL_TIMEOUT_MS = 180_000;
 

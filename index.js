@@ -7243,7 +7243,7 @@ async function runSurpriseCommand(chatId, lang = 'en') {
         `Attempts:\n${detail}\n\n` +
         `Common fixes:\n` +
         `• Check GEMINI_API_KEY is set in Railway env vars.\n` +
-        `• If the model says "not found" / "404": the SDK (legacy 0.24.1) doesn't know it. Try gemini-2.5-flash, gemini-flash-latest, or unset GEMINI_MODEL.\n` +
+        `• If the model says "not found" / "404": Google may have retired it. Try ${require('./gemini-models').MODEL_CHAIN.join(', ')}, or unset GEMINI_MODEL.\n` +
         `• If "quota" / "429": Google AI Studio quota is tripped — retry in a few minutes.`
       );
       return;
@@ -14327,7 +14327,7 @@ async function cacheBotUsername() {
           const { GoogleGenerativeAI } = require('@google/generative-ai');
           const genAI = new GoogleGenerativeAI(apiKey);
           const model = genAI.getGenerativeModel({
-            model: 'gemini-2.5-flash',
+            model: require('./gemini-models').FLASH,   // v0.62.722 — 2.5 retired by Google
             generationConfig: {
               temperature: 0.1,
               topP: 0.8,
@@ -14340,7 +14340,7 @@ async function cacheBotUsername() {
           const text = await Promise.race([
             (async () => {
               const r = await model.generateContent(prompt);
-              require('./api-cost').recordGeminiUsage(redis, 'gemini-2.5-flash', r?.response?.usageMetadata);
+              require('./api-cost').recordGeminiUsage(redis, require('./gemini-models').FLASH, r?.response?.usageMetadata);
               return (r.response && typeof r.response.text === 'function') ? r.response.text() : '';
             })(),
             new Promise((_, reject) => setTimeout(
@@ -16615,7 +16615,7 @@ async function cacheBotUsername() {
                 const beforeOnline = venues.length;
                 const res = await _processBatch({
                   apiKey,
-                  model: 'gemini-2.5-flash-lite',
+                  model: require('./gemini-models').LITE,   // v0.62.722 — 2.5 retired by Google
                   mode: geminiCacheKey,
                   batch,
                   redis

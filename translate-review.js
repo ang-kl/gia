@@ -36,11 +36,8 @@
 
 'use strict';
 
-const SEARCH_INTENT_MODEL_CHAIN = [
-  'gemini-flash-latest',
-  'gemini-2.5-flash',
-  'gemini-1.5-flash'
-];
+// v0.62.722 — see gemini-models.js. Was pinned to two retired model names.
+const SEARCH_INTENT_MODEL_CHAIN = require('./gemini-models').MODEL_CHAIN.slice();
 
 const CACHE_TTL_S = 30 * 24 * 60 * 60;    // 30 days
 const MAX_INPUT_CHARS = 1000;

@@ -195,6 +195,14 @@ describe('api-cost — formatCostSummary', () => {
 // gemini-3.1-flash-lite, which is not in PRICES, so 2,519 input tokens costed
 // out at exactly $0.0000. spend-guard.js sums gemini.totalUsd, so the circuit
 // breaker could never see Gemini spend at all.
+//
+// v0.62.722 — gemini-3.1-flash-lite is now IN PRICES (rate verified against
+// Google's published pricing page), so it can no longer stand in for "a model
+// the table has not heard of". The unpriced property is exercised with a
+// deliberately fictional name instead, and the operator's real receipt now
+// asserts the OPPOSITE: that it prices exactly, with no estimate flag. Using a
+// real model name as the permanent stand-in for "unknown" was always going to
+// expire the moment the table caught up with reality.
 describe('api-cost — unpriced models and endpoints must not read as free', () => {
   const day = new Date().toISOString().slice(0, 10);
 
@@ -209,12 +217,28 @@ describe('api-cost — unpriced models and endpoints must not read as free', () 
     };
   }
 
+  const UNKNOWN = 'gemini-0.0-does-not-exist';   // not a real model, and must never become one
+
   it('prices an unknown Gemini model above zero and flags it', async () => {
-    const r = replay({ [`api-cost:${day}:gemini:gemini-3.1-flash-lite`]: { count: '1', in_tokens: '2519', out_tokens: '172' } });
+    const r = replay({ [`api-cost:${day}:gemini:${UNKNOWN}`]: { count: '1', in_tokens: '2519', out_tokens: '172' } });
     const s = await apiCost.getCostSummary(r, 1);
     expect(s.gemini.totalUsd).toBeGreaterThan(0);
-    expect(s.gemini.byModel['gemini-3.1-flash-lite'].estimated).toBe(true);
-    expect(s.gemini.unpricedModels).toContain('gemini-3.1-flash-lite');
+    expect(s.gemini.byModel[UNKNOWN].estimated).toBe(true);
+    expect(s.gemini.unpricedModels).toContain(UNKNOWN);
+  });
+
+  it('prices the once-unknown gemini-3.1-flash-lite exactly, now that it is in the table', async () => {
+    const r = replay({ [`api-cost:${day}:gemini:gemini-3.1-flash-lite`]: { count: '1', in_tokens: '1000000', out_tokens: '0' } });
+    const s = await apiCost.getCostSummary(r, 1);
+    expect(s.gemini.totalUsd).toBeCloseTo(0.25, 6);      // $0.25 per 1M in
+    expect(s.gemini.byModel['gemini-3.1-flash-lite'].estimated).toBe(false);
+  });
+
+  it('prices every model the code can actually select — no chain entry is an estimate', async () => {
+    const { MODEL_CHAIN, FLASH, LITE } = require('../gemini-models');
+    for (const m of new Set([...MODEL_CHAIN, FLASH, LITE])) {
+      expect(apiCost.PRICES.gemini[m], `${m} missing from PRICES`).toBeTruthy();
+    }
   });
 
   it('still prices a KNOWN model exactly, with no estimate flag', async () => {
@@ -234,7 +258,7 @@ describe('api-cost — unpriced models and endpoints must not read as free', () 
 
   it('reproduces the operator reading: Maps unchanged, Gemini no longer zero', async () => {
     const r = replay({
-      [`api-cost:${day}:gemini:gemini-3.1-flash-lite`]: { count: '1', in_tokens: '2519', out_tokens: '172' },
+      [`api-cost:${day}:gemini:${UNKNOWN}`]: { count: '1', in_tokens: '2519', out_tokens: '172' },
       [`api-cost:${day}:maps:routes`]: { count: '24' },
       [`api-cost:${day}:maps:searchText`]: { count: '6' }
     });
@@ -244,16 +268,16 @@ describe('api-cost — unpriced models and endpoints must not read as free', () 
   });
 
   it('surfaces the unpriced name in the rendered /cost text', async () => {
-    const r = replay({ [`api-cost:${day}:gemini:gemini-3.1-flash-lite`]: { count: '1', in_tokens: '2519', out_tokens: '172' } });
+    const r = replay({ [`api-cost:${day}:gemini:${UNKNOWN}`]: { count: '1', in_tokens: '2519', out_tokens: '172' } });
     const text = apiCost.formatCostSummary(await apiCost.getCostSummary(r, 1));
     expect(text).toContain('Not in the rate card');
-    expect(text).toContain('gemini-3.1-flash-lite');
+    expect(text).toContain(UNKNOWN);
     expect(text).toContain('⚠️ est.');
   });
 
   it('serialises — unpriced lists survive JSON, so callers can read them', async () => {
-    const r = replay({ [`api-cost:${day}:gemini:gemini-3.1-flash-lite`]: { count: '1', in_tokens: '10', out_tokens: '1' } });
+    const r = replay({ [`api-cost:${day}:gemini:${UNKNOWN}`]: { count: '1', in_tokens: '10', out_tokens: '1' } });
     const s = JSON.parse(JSON.stringify(await apiCost.getCostSummary(r, 1)));
-    expect(s.gemini.unpricedModels).toEqual(['gemini-3.1-flash-lite']);
+    expect(s.gemini.unpricedModels).toEqual([UNKNOWN]);
   });
 });

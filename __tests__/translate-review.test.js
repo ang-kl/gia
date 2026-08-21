@@ -7,6 +7,9 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { translateReview, primaryTag, langName } from '../translate-review.js';
+// v0.62.722 — model names come from the shared table, so a Google retirement is
+// a one-line edit rather than a grep across eleven files plus their tests.
+import { MODEL_CHAIN, FLASH } from '../gemini-models.js';
 
 function makeFakeRedis({ initial = {}, isOpen = true } = {}) {
   const store = { ...initial };
@@ -128,7 +131,7 @@ describe('translateReview — Gemini path', () => {
     expect(out).toBe('Fresh pasta');
   });
   it('falls back to original on all-model failure', async () => {
-    const fake = makeFakeGenAI({ throwsOn: ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-1.5-flash'] });
+    const fake = makeFakeGenAI({ throwsOn: [...MODEL_CHAIN] });
     const out = await translateReview({
       text: 'Pasta fresca',
       sourceLang: 'it',
@@ -138,7 +141,7 @@ describe('translateReview — Gemini path', () => {
     expect(out).toBe('Pasta fresca');
   });
   it('falls back to original on empty Gemini response', async () => {
-    const fake = makeFakeGenAI({ emptyOn: ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-1.5-flash'] });
+    const fake = makeFakeGenAI({ emptyOn: [...MODEL_CHAIN] });
     const out = await translateReview({
       text: 'Pasta fresca',
       sourceLang: 'it',
