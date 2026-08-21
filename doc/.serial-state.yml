@@ -1,8 +1,8 @@
 counters:
-  commit: 1236
+  commit: 1237
   build: 837
   documents:
-    journal: 1064
+    journal: 1065
     builder: 3
     persona: 4
     feature: 68
@@ -11,12 +11,12 @@ counters:
     register: 196
 sessions:
   current_chat_id: 2026-08-22
-  current_chat_counter: 5   # per §3.2 the CHAT counter resets per session and starts at 1;
+  current_chat_counter: 10  # per §3.2 the CHAT counter resets per session and starts at 1;
                             # replies 1-4 of this session mistakenly carried commit-counter
                             # values (1,236-1,239) in their headers. See chat-0_62_723 turn 5.
-last_anchor_time: 22-08 '26 07:30 SGT
+last_anchor_time: 22-08 '26 07:50 SGT
 last_anchor_source: nea_data_gov_sg
-last_anchor_note: TF-6_live_fetch_TF-7_drift_27min_from_07_03_reanchored_S1_T1_violation_surfaced
+last_anchor_note: TF-6_live_fetch_TF-7_drift_20min_from_07_30_reanchored_o201_operator_confirmed_o200_dropped
 last_anchor_source_prior000000000000000000000000000000000000000000000000000000000000000: pr_1713_squash_merge_2106c07_2026-08-22T07:03:00+08:00_TF9_merge_evidence_gemini_2_5_retired_eleven_files_repinned_content_verified_on_main_d123_invariant_test_rerun_against_merged_tree_v0_62_722
 last_anchor_source_prior00000000000000000000000000000000000000000000000000000000000000: data_gov_sg_air_temperature_2026-08-22T06:20:00+08:00_TF6_live_fetch_gemini_2_5_line_retired_by_google_404_eleven_files_repinned_gemini_models_js_d124_x6_maps_js_api_blocked_by_key_api_restrictions_no_code_delta_v0_62_722
 last_anchor_source_prior0000000000000000000000000000000000000000000000000000000000000: pr_1712_squash_merge_293afcd_copy_all_fixed_o192_content_verified_d123_codex_resume_fix_v0_62_721_2026-08-21_2015_TF9_merge_evidence
@@ -185,8 +185,8 @@ last_anchor_source_prior: strips_no_overlap_optionB_2026-07-03_1217
 # Also: `last_anchor_iso8601_current` was itself STALE by a month (2026-07-17) while
 # `last_anchor_time` above was being re-anchored repeatedly — the authoritative field
 # was the one nobody updated. Superseded value preserved in the log below.
-last_anchor_iso8601_current: 2026-08-22T07:30:00+08:00
-last_anchor_utc_current: 2026-08-21T23:30:00Z
+last_anchor_iso8601_current: 2026-08-22T07:50:00+08:00
+last_anchor_utc_current: 2026-08-21T23:50:00Z
 last_anchor_iso8601: 2026-07-17T09:36:00+08:00   # superseded 22-08 '26 07:30 SGT; was _current
 last_anchor_iso8601: 2026-07-06T13:34:00+08:00
 last_anchor_iso8601: 2026-07-06T07:26:00+08:00
