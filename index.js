@@ -13415,9 +13415,15 @@ async function cacheBotUsername() {
           if (current.length > 0) chunks.push(current);
           return chunks;
         }
-        async function sendBodyOrChunks(htmlBody, htmlOpts, blockArr, headerText) {
+        // v0.62.721 — `progress.delivered` counts BLOCKS the user has actually
+        // received, so a retry can resume instead of replaying. Counting blocks
+        // rather than chunk indices matters: the plain-text retry re-chunks
+        // shorter strings, so its chunk boundaries do not line up with the HTML
+        // attempt's and an index would resume in the wrong place.
+        async function sendBodyOrChunks(htmlBody, htmlOpts, blockArr, headerText, progress = { delivered: 0 }) {
           if (htmlBody.length <= MAX_CHARS) {
             await bot.sendMessage(chatId, htmlBody, htmlOpts);
+            progress.delivered = blockArr.length;
             return;
           }
           const chunkBlocks = packBlocksIntoChunks(blockArr);
@@ -13430,21 +13436,36 @@ async function cacheBotUsername() {
               ? htmlOpts
               : { parse_mode: 'HTML', disable_web_page_preview: true };
             await bot.sendMessage(chatId, chunkBody, chunkOpts);
+            // Only after the await resolves — a throw must not count as delivered.
+            progress.delivered += chunkBlocks[i].length;
           }
         }
+        const progress = { delivered: 0 };
         try {
-          await sendBodyOrChunks(body, sendOpts, blocks, header);
+          await sendBodyOrChunks(body, sendOpts, blocks, header, progress);
         } catch (err) {
           console.warn('[Cuisine] copy-all sendMessage failed (HTML mode):', err?.response?.body?.description || err.message);
           const stripHtml = (s) => s.replace(/<\/?b>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-          const plain = stripHtml(body);
-          const plainBlocks = blocks.map(stripHtml);
+          // v0.62.721 — resume, do not replay. When the body exceeded MAX_CHARS
+          // the earlier chunks are already in the user's chat; only the failing
+          // one and anything after it are missing. Retrying from block zero
+          // would deliver every earlier venue a second time — and this became a
+          // live risk the moment the retry stopped re-attaching the rejected
+          // markup, because it now SUCCEEDS where it used to fail identically.
+          // Caught in review by Codex on PR #1712.
+          const remaining = blocks.slice(progress.delivered);
+          const plainBlocks = remaining.map(stripHtml);
           const plainHeader = stripHtml(header);
-          // v0.62.721 — the retry used to re-attach the SAME reply_markup. That
-          // made it useless against the one failure it could actually have
-          // rescued: a button Telegram refuses. The retry then failed
-          // identically and the user got nothing at all. Drop the markup —
-          // picks without a map button beat no picks.
+          const plain = progress.delivered === 0
+            ? stripHtml(body)
+            : `${plainHeader}\n\n${plainBlocks.join(blockSep)}`;
+          if (progress.delivered > 0) {
+            console.warn(`[Cuisine] copy-all resuming retry after ${progress.delivered}/${blocks.length} block(s) already delivered`);
+          }
+          // The retry drops reply_markup entirely. It was written for
+          // parse-mode and length failures and re-attaching the same markup
+          // made it useless against the one failure it could have rescued: a
+          // button Telegram refuses. Picks without a map button beat no picks.
           const plainOpts = { disable_web_page_preview: true };
           try {
             await sendBodyOrChunks(plain, plainOpts, plainBlocks, plainHeader);
