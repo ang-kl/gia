@@ -13352,6 +13352,16 @@ async function cacheBotUsername() {
         let mapUrl = null;
         if (slim.length > 1) {
           mapUrl = buildMapHashUrl(slim, { webhookDomain });
+          // v0.62.721 — buildMapHashUrl falls back to a RELATIVE url
+          // ("/app/map#venues=…") when webhookDomain is empty. Telegram requires
+          // absolute https for both web_app.url and url and rejects the whole
+          // sendMessage otherwise — which, combined with the retry below
+          // re-attaching the same markup, turned into "Copy all delivers
+          // nothing". Treat a non-absolute url as no url at all.
+          if (mapUrl && !/^https:\/\//i.test(mapUrl)) {
+            console.warn(`[Cuisine] copy-all map url is not absolute https (${mapUrl.slice(0, 40)}…); dropping map button`);
+            mapUrl = null;
+          }
           if (!mapUrl) {
             console.warn('[Cuisine] copy-all buildMapHashUrl returned null; sending without map button');
             body += `\n\n${trn('pick.mapUnavailable', reqLang)}`;
@@ -13430,8 +13440,12 @@ async function cacheBotUsername() {
           const plain = stripHtml(body);
           const plainBlocks = blocks.map(stripHtml);
           const plainHeader = stripHtml(header);
+          // v0.62.721 — the retry used to re-attach the SAME reply_markup. That
+          // made it useless against the one failure it could actually have
+          // rescued: a button Telegram refuses. The retry then failed
+          // identically and the user got nothing at all. Drop the markup —
+          // picks without a map button beat no picks.
           const plainOpts = { disable_web_page_preview: true };
-          if (sendOpts.reply_markup) plainOpts.reply_markup = sendOpts.reply_markup;
           try {
             await sendBodyOrChunks(plain, plainOpts, plainBlocks, plainHeader);
           } catch (err2) {

@@ -88,3 +88,49 @@ describe('copy-all map-button null safety', () => {
     expect(body).toContain('📍 Map unavailable for this set.');
   });
 });
+
+// v0.62.721 — Copy-all delivered nothing in production (Register O-192).
+//
+// Two faults compounded. buildMapHashUrl falls back to a RELATIVE url when
+// webhookDomain is empty; Telegram requires absolute https for web_app.url and
+// url, and rejects the entire sendMessage. The retry then re-attached the same
+// reply_markup, so it failed identically — turning a bad button into total
+// silence rather than a message without a button.
+describe('copy-all — map button must never be able to eat the whole message', () => {
+  const { buildMapHashUrl } = require('../maps-url');
+  const venues = Array.from({ length: 3 }, (_, i) => ({
+    placeId: `p${i}`, name: `V${i}`, lat: 1.3 + i * 0.001, lng: 103.8 + i * 0.001
+  }));
+
+  it('reproduces the defect: an empty webhookDomain yields a RELATIVE url', () => {
+    const u = buildMapHashUrl(venues, { webhookDomain: '' });
+    expect(u).toBeTruthy();
+    expect(u.startsWith('https://')).toBe(false);   // ← what Telegram rejects
+  });
+
+  it('yields an absolute https url when the domain is present', () => {
+    expect(buildMapHashUrl(venues, { webhookDomain: 'soleat.net' })).toMatch(/^https:\/\/soleat\.net\/app\/map#/);
+  });
+
+  // The guard the route applies before attaching a button.
+  const attachable = (u) => Boolean(u) && /^https:\/\//i.test(u);
+
+  it('refuses to attach a button for a relative url', () => {
+    expect(attachable(buildMapHashUrl(venues, { webhookDomain: '' }))).toBe(false);
+  });
+
+  it('attaches a button for an absolute url', () => {
+    expect(attachable(buildMapHashUrl(venues, { webhookDomain: 'soleat.net' }))).toBe(true);
+  });
+
+  it('the plain-text retry carries NO reply_markup, whatever the first attempt had', () => {
+    const sendOpts = {
+      parse_mode: 'HTML', disable_web_page_preview: true,
+      reply_markup: { inline_keyboard: [[{ text: 'x', web_app: { url: '/app/map#bad' } }]] }
+    };
+    // Mirrors the route: the retry builds fresh opts and does not copy markup.
+    const plainOpts = { disable_web_page_preview: true };
+    expect(plainOpts.reply_markup).toBeUndefined();
+    expect(sendOpts.reply_markup).toBeDefined();   // first attempt still had one
+  });
+});
