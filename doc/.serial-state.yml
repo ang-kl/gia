@@ -1,8 +1,8 @@
 counters:
-  commit: 1234
+  commit: 1235
   build: 837
   documents:
-    journal: 1062
+    journal: 1063
     builder: 3
     persona: 4
     feature: 68
@@ -10,10 +10,14 @@ counters:
     legal: 9
     register: 196
 sessions:
-  current_chat_id: 2026-06-04
-  current_chat_counter: 1
-last_anchor_time: 22-08 '26 07:03 SGT
-last_anchor_source: pr_1713_squash_merge_2106c07_2026-08-22T07:03:00+08:00_TF9_merge_evidence_gemini_2_5_retired_eleven_files_repinned_content_verified_on_main_d123_invariant_test_rerun_against_merged_tree_v0_62_722
+  current_chat_id: 2026-08-22
+  current_chat_counter: 1   # reopened 22-08 '26 07:30 SGT after S-1/T-1 violation; see chat-0_62_723
+last_anchor_time: 22-08 '26 07:30 SGT
+last_anchor_source: nea_data_gov_sg
+last_anchor_iso8601: 2026-08-22T07:30:00+08:00
+last_anchor_utc: 2026-08-21T23:30:00Z
+last_anchor_note: TF-6_live_fetch_TF-7_drift_27min_from_07_03_reanchored_S1_T1_violation_surfaced
+last_anchor_source_prior000000000000000000000000000000000000000000000000000000000000000: pr_1713_squash_merge_2106c07_2026-08-22T07:03:00+08:00_TF9_merge_evidence_gemini_2_5_retired_eleven_files_repinned_content_verified_on_main_d123_invariant_test_rerun_against_merged_tree_v0_62_722
 last_anchor_source_prior00000000000000000000000000000000000000000000000000000000000000: data_gov_sg_air_temperature_2026-08-22T06:20:00+08:00_TF6_live_fetch_gemini_2_5_line_retired_by_google_404_eleven_files_repinned_gemini_models_js_d124_x6_maps_js_api_blocked_by_key_api_restrictions_no_code_delta_v0_62_722
 last_anchor_source_prior0000000000000000000000000000000000000000000000000000000000000: pr_1712_squash_merge_293afcd_copy_all_fixed_o192_content_verified_d123_codex_resume_fix_v0_62_721_2026-08-21_2015_TF9_merge_evidence
 last_anchor_source_prior000000000000000000000000000000000000000000000000000000000000: copy_all_relative_map_url_button_killed_message_retry_kept_markup_o192_d122_v0_62_721_2026-08-21_2000_TF9
