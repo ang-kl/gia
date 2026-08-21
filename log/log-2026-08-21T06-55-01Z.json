@@ -1,0 +1,259 @@
+{
+  "since": "2026-08-21T05:50:01Z",
+  "until": "2026-08-21T06:55:01Z",
+  "count": 28,
+  "logs": [
+    {
+      "timestamp": "2026-08-21T06:04:39.796419506Z",
+      "message": "[Weather] v2 wind-dir returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:39.796428483Z",
+      "message": "[Cuisine-Search] sliceCap=6 firstBatch=true finalBatch=false range=1-6 seenBefore=0 hash=0a61554f",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:39.796435912Z",
+      "message": "[Weather] v2 wind-speed returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:39.796442558Z",
+      "message": "[Weather] v2 air-temp returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:39.796451801Z",
+      "message": "[Weather] v2 humidity returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:39.796461380Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash-lite failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent: [401 Unauthorized] The bound service account is deleted or disabled. The service account bound to the API key must be active. [{\"@type\":\"type.googleapis.com/google.rpc.ErrorInfo\",\"reason\":\"ACCOUNT_STATE_INVALID\",\"metadata\":{\"method\":\"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\",\"service\":\"generativelanguage.googleapis.com\"}}]",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:39.796566442Z",
+      "message": "[Cuisine-TMA] D777b anchorCap city-default 30000m (nearest-city radiusM, no explicit cap)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:39.796572615Z",
+      "message": "[LocDrift] search-anchor {\"chat\":\"313940231\",\"center\":[1.27063,103.8099],\"region\":\"SG\",\"radius_m\":20000,\"cap_m\":30000,\"cap_src\":\"city-default\"}",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:39.796578949Z",
+      "message": "[Cuisine-Search] D700 incoming cuisines=[] filters={\"newlyOpened\":false,\"openNow\":false,\"halal\":false,\"vegetarian\":false,\"homeBased\":false,\"petFriendly\":false,\"recommend\":false,\"prices\":[]} region=SG center=1.2706,103.8099 radius=20000 anchored=false skipShuffle=true",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:39.796584570Z",
+      "message": "[Cuisine-Search] D701 cuisineQueries=[] cuisineMetas.length=0 allSelectedAreGated=false",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:39.796589922Z",
+      "message": "[Weather] v2 rainfall returned empty; trying v1 fallback",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:39.796596272Z",
+      "message": "[Cuisine-Search] D702 discover variantIdx=0/0 returned 60 candidates",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:39.796601945Z",
+      "message": "[Cuisine-Search] D703s SG-scope 60 → 60 (≤30000m of set location; coordless kept only if SG-addressed, no johor; floor ≤120000m)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:40.787580505Z",
+      "message": "[Extract-Dishes] gemini-flash-latest failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [401 Unauthorized] The bound service account is deleted or disabled. The service account bound to the API key must be active. [{\"@type\":\"type.googleapis.com/google.rpc.ErrorInfo\",\"reason\":\"ACCOUNT_STATE_INVALID\",\"metadata\":{\"method\":\"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\",\"service\":\"generativelanguage.googleapis.com\"}}]",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:40.787609425Z",
+      "message": "[Extract-Dishes] gemini-2.5-flash failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [401 Unauthorized] The bound service account is deleted or disabled. The service account bound to the API key must be active. [{\"@type\":\"type.googleapis.com/google.rpc.ErrorInfo\",\"reason\":\"ACCOUNT_STATE_INVALID\",\"metadata\":{\"method\":\"google.ai.generativelanguage.v1beta.GenerativeService.GenerateContent\",\"service\":\"generativelanguage.googleapis.com\"}}]",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:40.787620651Z",
+      "message": "[footfall] besttime resolved=0/6",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:40.787629638Z",
+      "message": "[Cuisine-Enrich] D707 enrichSlow timings (6v): crowd=2029ms translate=2ms reviewCache=3ms dishes=977ms finalise=0ms travel=376ms sanctuary=3ms footfall=624ms total=4014ms",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:40.787636186Z",
+      "message": "[Cuisine-Search] D704 returning 6 venues to client (poolCount=6 exhausted=false)",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:40.787647955Z",
+      "message": "BadRequestError: request aborted",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:40.787679081Z",
+      "message": "    at IncomingMessage.onAborted (/app/node_modules/raw-body/index.js:245:10)",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:40.787686464Z",
+      "message": "    at IncomingMessage.emit (node:events:524:28)",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:40.787692301Z",
+      "message": "    at IncomingMessage._destroy (node:_http_incoming:221:10)",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:40.787699117Z",
+      "message": "    at _destroy (node:internal/streams/destroy:121:10)",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:40.792030776Z",
+      "message": "    at Socket.emit (node:events:536:35)",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:40.792034093Z",
+      "message": "    at IncomingMessage.destroy (node:internal/streams/destroy:83:5)",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:40.792040534Z",
+      "message": "    at TCP.<anonymous> (node:net:343:12)",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:40.792044419Z",
+      "message": "    at abortIncoming (node:_http_server:796:9)",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-21T06:04:40.792052243Z",
+      "message": "    at socketOnClose (node:_http_server:790:3)",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "cd4339a2-1747-4228-bee7-cc3f51d0732b",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
