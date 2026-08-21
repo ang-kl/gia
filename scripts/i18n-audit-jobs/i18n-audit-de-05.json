@@ -79,7 +79,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "{total} Vorfälle inselweit; keiner im Umkreis von 20 km um Ihren Standort.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -101,7 +101,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚦 Datenstrom offline (LTA-Schlüssel nicht konfiguriert).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -123,7 +123,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "· {type} {dist}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -145,7 +145,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Leider ist der Verkehrsdaten-Feed ausgefallen.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -167,7 +167,7 @@
       "max_chars": 28,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Alle {n} Bushaltestellen anzeigen",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -189,7 +189,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🗺 {n} Bushaltestellen auf einer Karte anzeigen:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -211,7 +211,7 @@
       "max_chars": 37,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "{n} Vorfälle auf der Karte anzeigen",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -233,7 +233,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🗺 {n} Vorfälle auf einer Karte anzeigen:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -255,7 +255,7 @@
       "max_chars": 29,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "{n} anzeigen",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -277,7 +277,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🗺 {n} Stationen auf einer Karte anzeigen:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -299,7 +299,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚌 Bus",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -321,7 +321,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚗 Fahren",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -343,7 +343,7 @@
       "max_chars": 17,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚦 Vorfälle",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -365,7 +365,7 @@
       "max_chars": 27,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Standort aktualisieren",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -387,7 +387,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚇 Zug",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -409,7 +409,7 @@
       "max_chars": 23,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🇸🇬 *Transport*",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -431,7 +431,7 @@
       "max_chars": 26,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ Betroffene Linien:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -453,7 +453,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔴 hoch",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -475,7 +475,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🟢 niedrig",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -497,7 +497,7 @@
       "max_chars": 13,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🟡 mittel",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -519,7 +519,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔧 Kommende technische Projekte (nächste 7 Tage):",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -541,7 +541,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚇 Zug (MRT)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -563,7 +563,7 @@
       "max_chars": 146,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⏱️ Frequenz: {peakMin} – {peakMax} min peak · {offMin} – {offMax} min off peak (LTA veröffentlicht)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -585,7 +585,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚇 Die 3 nächstgelegenen Bahnhöfe {wx}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -607,7 +607,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔴 {high} hoch · {medium} mittel (von {total} ) — Zeilen: {lines}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -629,7 +629,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🟢 Das Netzwerk ist nicht überlastet — 0 von {total} Plattformen weisen eine geringe Dichte auf.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -651,7 +651,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🟡 {medium} moderat · {high} hoch (von {total} ) — Zeilen: {lines}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -673,7 +673,7 @@
       "max_chars": 125,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚇 Teilen Sie Ihren Standort einmalig mit, und Soleat listet Ihnen auch die nächstgelegenen MRT-Stationen auf.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -695,7 +695,7 @@
       "max_chars": 19,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Anmerkungen: {note}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -717,7 +717,7 @@
       "max_chars": 32,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🇸🇬 Zugnetzplan und Status",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -739,7 +739,7 @@
       "max_chars": 21,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Aktualisiert: {at}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -761,7 +761,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "{name} · {dist} {crowd} <a href=\"<span translate=\"no\">{gmapsUrl} \">↗</a>",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -783,7 +783,7 @@
       "max_chars": 23,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Status: {status}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -805,7 +805,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Tut mir leid, ich kann den MRT-Feed im Moment nicht erreichen.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -827,7 +827,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Status: 🟡 Aufwärmen; versuchen Sie es in 30 Sekunden erneut.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -849,7 +849,7 @@
       "max_chars": 172,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👋 Willkommen zurück bei Soleat. Teilen Sie Ihren aktuellen Standort, damit Soleat ihn mit Ihrem gespeicherten Suchanker vergleichen kann.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -871,7 +871,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Hier bleiben",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -893,7 +893,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👍 Dein gespeicherter Standort bleibt erhalten.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -915,7 +915,7 @@
       "max_chars": 205,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👋 Willkommen zurück! Soleat verwendet immer noch den Standort, den Sie vorhin angegeben haben. Sind Sie noch dort oder möchten Sie einen neuen Standort festlegen?",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -937,7 +937,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Neuer Standort",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -959,7 +959,7 @@
       "max_chars": 213,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Geben Sie /l<place> Um einen neuen Ankerpunkt festzulegen – zum Beispiel /l Orchard Road oder /l IOI City Mall. Oder tippen Sie unten auf 📍, um einen aktuellen GPS-Standort zu teilen.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -981,7 +981,7 @@
       "max_chars": 535,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👋<b> Willkommen zurück bei Soleat. Ihr Gerät befindet sich nun in der Nähe:<i> {deviceStreet} Soleat verwendet weiterhin Ihren gespeicherten Suchanker:<b> {anchor} Die Suche vom Ankerpunkt aus fortsetzen oder zu Ihrem aktuellen Standort wechseln?<i> Sie können auch /l eingeben, um von einem anderen Ort aus zu suchen, zum Beispiel: /l Orchard Road /l IOI City Mall",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -992,7 +992,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -1003,7 +1003,7 @@
       "max_chars": 33,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🗺 Einen anderen Standort festlegen",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1025,7 +1025,7 @@
       "max_chars": 33,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Aktuellen Standort verwenden",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1047,7 +1047,7 @@
       "max_chars": 33,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Früheren Standort beibehalten",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1069,7 +1069,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👍 Anchor aktualisiert auf<i> {street} .",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1080,7 +1080,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -1091,7 +1091,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👍 Ihre gespeicherte Suchanfrage bleibt erhalten.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1113,7 +1113,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⏱ Diese Freigabe ist abgelaufen. Tippen Sie auf /l , um einen neuen Anker festzulegen.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1135,7 +1135,7 @@
       "max_chars": 154,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Ich kenne diese Gegend nicht – versuchen Sie es mit einem Ortsnamen wie Tampines oder geben Sie einfach /weather ein, um Ihre geteilte PIN zu verwenden.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1157,7 +1157,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "— für {area} —",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,

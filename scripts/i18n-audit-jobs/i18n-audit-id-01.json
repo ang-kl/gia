@@ -88,7 +88,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⏳ Soleat masih memproses permintaan terakhir Anda — mohon tunggu sebentar.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -110,7 +110,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Maaf, pencarian teks bebas mengalami kesalahan. Coba /cuisine atau /hidden .",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -132,7 +132,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Sprache auf Deutsch eingestellt (untuk Aplikasi Mini).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -154,7 +154,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Bahasa diatur ke Bahasa Inggris.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -176,7 +176,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Konfigurasi idiom dalam bahasa Spanyol (untuk Aplikasi Mini).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -198,7 +198,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Bahasa réglée sur français.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -220,7 +220,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Bahasa disetel ke Indonesia (untuk Aplikasi Mini).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -242,7 +242,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ 言語を日本語に設定しました（ミニアプリ用）。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -264,7 +264,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Язык переключён на русский (длячи-приложений).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -286,7 +286,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ 语言已设置为中文（用于小程序）。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -308,7 +308,7 @@
       "max_chars": 175,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Bagikan lokasi Anda sekali agar Soleat menggunakan kode area Anda (atau ketik `/location<place name> ` untuk mengaturnya secara manual).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -319,7 +319,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -330,7 +330,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Ketuk untuk membagikan lokasi Anda saat ini.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -352,7 +352,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Ketuk untuk membagikan lokasi Anda, atau ketik nama tempat. Saya akan mencarinya nanti.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -374,7 +374,7 @@
       "max_chars": 197,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Tidak ada hasil Google Places untuk \" {q} \" di dekat Anda. Coba /cuisine untuk pemilih makanan, /hidden untuk tempat makan favorit di dekat Anda, atau ubah frasa pencarian Anda.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -396,7 +396,7 @@
       "max_chars": 141,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⏳ Anda telah mencapai batas {cap} permintaan per {window} menit. Coba lagi dalam ~ {mins} menit.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -418,7 +418,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Tidak dapat memblokir (maksimal 50 blok tercapai).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -440,7 +440,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚫 {target} diblokir. Mereka tidak akan pernah dipasangkan dengan Anda.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -462,7 +462,7 @@
       "max_chars": 124,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Penggunaan: `/buddy block<chat_id> ` ID obrolan dari penawaran perjodohan sebelumnya.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -473,7 +473,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -484,7 +484,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Maaf, /buddy mengalami kesalahan.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -506,7 +506,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👥 Mode teman MATI.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -528,7 +528,7 @@
       "max_chars": 728,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👥 *Mode Teman AKTIF.* Saat Anda menerima pilihan Sanctuary, tombol 👥 _Hubungkan_ akan muncul di sebelah tempat-tempat yang juga akan dikunjungi oleh pengguna soleat lain yang telah mendaftar dalam 60 menit berikutnya. Anda berdua harus mengkonfirmasi sebelum nama depan + nama pengguna Telegram ditampilkan. Batas harian: 5 koneksi / 24 jam. `/buddy block<chat_id> ` untuk memblokir. `/buddy report<chat_id><reason> ` untuk menandai. `/buddy off` untuk menonaktifkan. ⚠ _Pilot — hanya bertemu di tempat umum, perlakukan sebagai orang asing, percayai insting Anda._",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -539,7 +539,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -550,7 +550,7 @@
       "max_chars": 128,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📝 Laporan telah dicatat. {target} juga diblokir secara otomatis dari kecocokan Anda. Kami akan meninjaunya.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -572,7 +572,7 @@
       "max_chars": 120,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Penggunaan: `/buddy report<chat_id><reason> ` .",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -583,7 +583,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -594,7 +594,7 @@
       "max_chars": 244,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👥 Mode teman saat ini adalah * {state} *. Koneksi hari ini: {n} / {cap} . Gunakan `/buddy on` , `/buddy off` , `/buddy block<id> ` , `/buddy report<id><reason> ` .",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -605,7 +605,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -616,7 +616,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "MATI",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -638,7 +638,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "PADA",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -660,7 +660,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": "Kembali",
-      "google_translation": null,
+      "google_translation": "⬅️ Kembali",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -682,7 +682,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔄 Segarkan",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -704,7 +704,7 @@
       "max_chars": 33,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🅿️ Lokasi parkir terdekat di peta",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -726,7 +726,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🗺 Buka kelima tempat parkir dalam satu kontainer Google Maps:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -748,7 +748,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🅿️ Tempat parkir terdekat dengan lahan parkir yang tersedia",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -770,7 +770,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🅿️ Mencari lokasi parkir terdekat…",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -792,7 +792,7 @@
       "max_chars": 30,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Bandingkan semua {n} tempat parkir",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -814,7 +814,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Menampilkan lokasi terdekat:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -836,7 +836,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Tidak ada tempat parkir dengan lahan kosong di dekat sini.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -858,7 +858,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Pencarian tempat parkir sedang offline (kunci LTA belum dikonfigurasi).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -880,7 +880,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "{i} . {name} · {lots} banyak · {dist}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -902,7 +902,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Maaf, saya tidak bisa mengakses feed parkir LTA saat ini.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -924,7 +924,7 @@
       "max_chars": 25,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🗺 Lihat semua tempat parkir",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -946,7 +946,7 @@
       "max_chars": 148,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🙂<i> Apakah Anda mungkin mencari metode memasak? Ketuk masakan di bawah ini, atau cari secara harfiah.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -957,7 +957,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -968,7 +968,7 @@
       "max_chars": 24,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔍 Cari secara harfiah",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -990,7 +990,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": "🔴 ramai",
-      "google_translation": null,
+      "google_translation": "🔴 sibuk",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1012,7 +1012,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": "🟢 sepi",
-      "google_translation": null,
+      "google_translation": "🟢 tenang",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1034,7 +1034,7 @@
       "max_chars": 16,
       "parse_mode": "none",
       "repo_translation": "🟡 sedang",
-      "google_translation": null,
+      "google_translation": "🟡 sedang",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1056,7 +1056,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Terhubung ke lokasi terakhir yang Anda bagikan.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1078,7 +1078,7 @@
       "max_chars": 28,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🍴 Pemilih Masakan Terbuka",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1100,7 +1100,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Maaf, saya tidak bisa membuka Pemilih Masakan saat ini.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1122,7 +1122,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "↓",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1144,7 +1144,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Untuk pilihan yang akurat, bagikan lokasi Anda terlebih dahulu.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1166,7 +1166,7 @@
       "max_chars": 33,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Bagikan lokasi dengan bot",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,

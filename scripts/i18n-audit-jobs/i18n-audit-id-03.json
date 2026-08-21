@@ -88,7 +88,7 @@
       "max_chars": 17,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Bahasa Inggris 🇬🇧",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -110,7 +110,7 @@
       "max_chars": 17,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🇪🇸 Español",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -132,7 +132,7 @@
       "max_chars": 19,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🇫🇷 Français",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -154,7 +154,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🇮🇩 Indonesia",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -176,7 +176,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🇯ppa 日本語",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -198,7 +198,7 @@
       "max_chars": 17,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🇷🇺 Русский",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -220,7 +220,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "CNY 中文",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -242,7 +242,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Pengaturan preferensi telah dihapus. Soleat akan mengikuti bahasa Telegram Anda.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -264,7 +264,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🌐 Bahasa saat ini: Inggris {fromTg} . Pilih bahasa:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -286,7 +286,7 @@
       "max_chars": 30,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "(dari Telegram Anda)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -308,7 +308,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Maaf, /legal mengalami kesalahan. Coba lagi sebentar lagi.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -330,7 +330,7 @@
       "max_chars": 244,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 *Lokasi diatur ke:* {place} 💻 Di desktop, Telegram membagikan *titik yang ditandai di peta*, bukan GPS langsung — bisa saja berada di lokasi yang salah. Apakah ini lokasi Anda?",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -352,7 +352,7 @@
       "max_chars": 181,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Ketik area Anda — misalnya `/l Orchard Road` atau `/l Bugis` . Di desktop, mengetik lebih andal daripada tombol berbagi.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -374,7 +374,7 @@
       "max_chars": 27,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✏️ Tidak, atur secara manual",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -396,7 +396,7 @@
       "max_chars": 33,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 *Dikonfirmasi:* {place}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -418,7 +418,7 @@
       "max_chars": 19,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Ya, gunakanlah",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -440,7 +440,7 @@
       "max_chars": 144,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "💻 Di desktop? Telegram menampilkan peta, bukan GPS. Jika ini salah, ketik /l<your area> .",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -462,7 +462,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Pilih kota di bawah ini, atau lokasi yang tersimpan",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -484,7 +484,7 @@
       "max_chars": 156,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Set Area: {area} Gunakan<code> /lokasi atau<code> /l <tempat> · ubah alamat",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -495,7 +495,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -506,7 +506,7 @@
       "max_chars": 25,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔍 Lihat tempat makan di sini",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -528,7 +528,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "<i>Ingin melihat tempat makan di<b> {place} ?",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -539,7 +539,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -550,7 +550,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Pencarian yang berpusat di sini dibatasi hingga {km} km.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -572,7 +572,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Lokasi diatur ke<b> {label} . {cap}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -583,7 +583,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -594,7 +594,7 @@
       "max_chars": 122,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ Saya tidak mengenali pilihan cepat itu. Ketuk salah satu tombol atau bagikan PIN.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -616,7 +616,7 @@
       "max_chars": 28,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "( {h} h {m} menit yang lalu)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -638,7 +638,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "(baru saja dibagikan)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -660,7 +660,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "( {n} menit yang lalu)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -682,7 +682,7 @@
       "max_chars": 33,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Alamat saat ini: {addr} {age}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -704,7 +704,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Lokasi Anda sudah diketahui.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -726,7 +726,7 @@
       "max_chars": 176,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Bagikan lokasi Anda sekali agar {label} menggunakan lokal Anda (atau ketik `/location<place name> ` untuk mengaturnya secara manual).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -737,7 +737,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -748,7 +748,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Ketuk untuk membagikan lokasi Anda saat ini.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -770,7 +770,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "ℹ️<b> {name} — {note}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -781,7 +781,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -792,7 +792,7 @@
       "max_chars": 19,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📋 {n} tempat",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -814,7 +814,7 @@
       "max_chars": 14,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📋 Tempat ke-1",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -836,7 +836,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Peta tidak tersedia untuk set ini.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -858,7 +858,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔎 Hasil untuk",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -880,7 +880,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Pilihan yang terbatas di<b> {place} — berikut adalah tempat makan dengan peringkat teratas di dekatnya:_",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -891,7 +891,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -902,7 +902,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⏱ Saran tersebut telah kedaluwarsa. Ketik nama tempat lagi untuk menyegarkan halaman.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -924,7 +924,7 @@
       "max_chars": 132,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍<b> {place} — tidak ditemukan tempat makan di sini. Sebagai gantinya, menampilkan tempat makan dengan peringkat teratas di dekatnya.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -935,7 +935,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -946,7 +946,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍<b> {place} — menemukan {n} tempat makan di sini",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -957,7 +957,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -968,7 +968,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍<b> {place} — menampilkan {shown} dari {total} tempat makan di sini",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -979,7 +979,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -990,7 +990,7 @@
       "max_chars": 27,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✨ Restoran-restoran terbaik di sekitar sini",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1012,7 +1012,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🤷 Tidak ada tempat makan unggulan dalam radius {km} km dari {place} saat ini.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1034,7 +1034,7 @@
       "max_chars": 162,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✨<b> Restoran terbaik {n} di dekat {place} (dalam radius {km} km, diurutkan berdasarkan peringkat · Michelin · kelangkaan · keramaian)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1045,7 +1045,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -1056,7 +1056,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🤷 Tidak ada tempat makan unggulan di luar {place} (dalam radius {km} km) saat ini.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1078,7 +1078,7 @@
       "max_chars": 167,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✨<b> Restoran terbaik {n} di luar {place} (dalam radius {km} km, diurutkan berdasarkan peringkat · Michelin · kelangkaan · keramaian)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1089,7 +1089,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -1100,7 +1100,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Maaf, /privacy mengalami kesalahan. Silakan coba lagi sebentar lagi.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1122,7 +1122,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🌏 50 Restoran Terbaik di Asia",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1144,7 +1144,7 @@
       "max_chars": 34,
       "parse_mode": "none",
       "repo_translation": "Michelin · Bib Gourmand",
-      "google_translation": null,
+      "google_translation": "🍜 MICHELIN Bib Gourmand",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1166,7 +1166,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🌱 Restoran yang menggunakan Produk Lokal",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,

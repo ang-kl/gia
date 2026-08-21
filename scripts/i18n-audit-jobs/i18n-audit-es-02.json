@@ -87,7 +87,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🍴 Guía de cocina: de Singapur a Johor Bahru",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -109,7 +109,7 @@
       "max_chars": 231,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "El selector de cocina necesita el TMA en modo webhook. Prueba con /hidden para selecciones basadas en chat, o simplemente escribe 'find me ramen' o similar y lo buscaré.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -131,7 +131,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ Eso tardó demasiado en procesarse; por favor, inténtelo de nuevo en un momento.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -153,7 +153,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ La búsqueda ha superado su cuota diaria; inténtelo de nuevo más tarde.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -175,7 +175,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ Los detalles del lugar se actualizan lentamente en este momento; mostramos lo que tenemos.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -197,7 +197,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ Las últimas reseñas no están disponibles en este momento.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -219,7 +219,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ No se pudieron calcular las rutas; se muestran los resultados sin los tiempos de viaje.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -241,7 +241,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ Las estimaciones de tiempo de viaje no están disponibles en este momento.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -263,7 +263,7 @@
       "max_chars": 19,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "…y {n} más",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -285,7 +285,7 @@
       "max_chars": 120,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Eliminada * {n} * Entrada de Redis para tu chat.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -307,7 +307,7 @@
       "max_chars": 120,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Se borraron * {n} * entradas de Redis para tu chat.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -329,7 +329,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Lo sentimos, /forgetme ha dado un error. Inténtalo de nuevo en un momento o envía un mensaje directo al operador.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -351,7 +351,7 @@
       "max_chars": 136,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Envía cualquier comando para empezar de cero. Tus selecciones recientes y tu última ubicación compartida se han eliminado.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -373,7 +373,7 @@
       "max_chars": 221,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ No hay nada que borrar: no tenía datos almacenados para usted. (Las cachés y las filas de solicitudes caducan automáticamente; todos los espacios persistentes estaban vacíos).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -395,7 +395,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Borrado:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -417,7 +417,7 @@
       "max_chars": 148,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️<i> Ningún restaurante de Singapur sirve claramente {dish} ; estos coinciden con tus palabras de búsqueda:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -428,7 +428,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -439,7 +439,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⇩─ Restaurantes con platos o cocina similares ─ ⇩ ⇩─ no exactamente {dish} ─ ⇩",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -461,7 +461,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⌛ Esa búsqueda ha caducado. Por favor, vuelva a escribir su consulta.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -483,7 +483,7 @@
       "max_chars": 23,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔍 Buscar más",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -505,7 +505,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "💡 ¿Quieres diferentes opciones para la misma búsqueda?",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -527,7 +527,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔚 No hay más resultados coincidentes · Cambia los criterios o toca ↺ para empezar de nuevo.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -549,7 +549,7 @@
       "max_chars": 173,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🍛 Por favor, prueba con el nombre de un plato, un método de cocción o un término culinario, por ejemplo: Mee Soto, char kway teow o goulash dumpling.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -571,7 +571,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": "↺ empezar de nuevo.",
-      "google_translation": null,
+      "google_translation": "↺ Volver a empezar",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -593,7 +593,7 @@
       "max_chars": 175,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚆 Para trenes, autobuses y cómo moverse por Singapur, pulsa /transport . Este chat busca restaurantes y establecimientos de comida.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -615,7 +615,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Mapa de Google ↗",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -637,7 +637,7 @@
       "max_chars": 27,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🍚 Centro de comida ambulante abierto",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -659,7 +659,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🍚 Centros de comida callejera y centros gastronómicos de Singapur (2025). Por NEA",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -681,7 +681,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": "Cerrado",
-      "google_translation": null,
+      "google_translation": "Cerrado",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -703,7 +703,7 @@
       "max_chars": 17,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Cerrado hoy",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -725,7 +725,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": "Abierto",
-      "google_translation": null,
+      "google_translation": "Abierto ahora",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -747,7 +747,7 @@
       "max_chars": 24,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Abre en {n} días",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -769,7 +769,7 @@
       "max_chars": 30,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Abre hoy a las {time}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -791,7 +791,7 @@
       "max_chars": 34,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Abre mañana a las {time}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -813,7 +813,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Accidente",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -835,7 +835,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Animales",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -857,7 +857,7 @@
       "max_chars": 13,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Desviación",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -879,7 +879,7 @@
       "max_chars": 19,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Tránsito pesado",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -901,7 +901,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Incidente",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -923,7 +923,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Accidente grave",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -945,7 +945,7 @@
       "max_chars": 21,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Disrupción masiva",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -967,7 +967,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Varios.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -989,7 +989,7 @@
       "max_chars": 19,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Misceláneas",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1011,7 +1011,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Obstáculo",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1033,7 +1033,7 @@
       "max_chars": 14,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Bloqueo de carretera",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1055,7 +1055,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Obras viales",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1077,7 +1077,7 @@
       "max_chars": 14,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Obras viales",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1099,7 +1099,7 @@
       "max_chars": 26,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Vehículo desatendido",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1121,7 +1121,7 @@
       "max_chars": 24,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Avería del vehículo",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1143,7 +1143,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Clima",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1165,7 +1165,7 @@
       "max_chars": 17,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🇩🇪 Alemán",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,

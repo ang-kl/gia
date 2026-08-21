@@ -87,7 +87,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🍴 料理選び — シンガポールからジョホールバルへ",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -109,7 +109,7 @@
       "max_chars": 231,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Cuisine PickerにはWebhookモードのTMAが必要です。チャットベースの選択には/hiddenお試しください。または、「ラーメンを探して」などと入力していただければ検索いたします。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -131,7 +131,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ 計算に時間がかかりすぎました。しばらくしてからもう一度お試しください。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -153,7 +153,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ 検索回数が1日の上限を超えました。しばらくしてからもう一度お試しください。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -175,7 +175,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ 会場の詳細情報は現在表示が遅れています。現在利用可能な情報のみを表示しています。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -197,7 +197,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ 最新のレビューは現在ご利用いただけません。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -219,7 +219,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ ルートを計算できませんでした。移動時間を含まない結果を表示しています。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -241,7 +241,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ 現在、移動時間の目安は表示できません。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -263,7 +263,7 @@
       "max_chars": 19,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "…そしてさらに{n}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -285,7 +285,7 @@
       "max_chars": 120,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ チャット用の * {n} * Redis エントリを削除しました。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -307,7 +307,7 @@
       "max_chars": 120,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ チャットの Redis エントリを * {n} * 削除しました。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -329,7 +329,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "申し訳ありません、 /forgetmeエラーが発生しました。しばらくしてからもう一度お試しいただくか、オペレーターにダイレクトメッセージを送ってください。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -351,7 +351,7 @@
       "max_chars": 136,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "最初からやり直すには、任意のコマンドを送信してください。最近撮影した写真と最後に共有した場所の情報はすべて削除されます。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -373,7 +373,7 @@
       "max_chars": 221,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ 消去するものはありません — お客様のために保存されたデータはありませんでした。（キャッシュとリクエスト行は自動的に期限切れになります。永続スロットはすべて空でした。）",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -395,7 +395,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "消去済み:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -417,7 +417,7 @@
       "max_chars": 148,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️<i>シンガポールの飲食店で{dish}を提供しているところは見つかりませんでした。以下は検索語句に一致したものです。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -428,7 +428,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -439,7 +439,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⇩─ 似たような料理や料理を提供する飲食店 ─ ⇩ ⇩─ 厳密には{dish}ではない ─ ⇩",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -461,7 +461,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⌛ その検索は期限切れです。もう一度検索語を入力してください。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -483,7 +483,7 @@
       "max_chars": 23,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔍さらに検索する",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -505,7 +505,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "💡 同じ検索で別の候補を表示したいですか？",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -527,7 +527,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔚 一致する結果はありません · 条件を変更するか、↺ をタップして最初からやり直してください。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -549,7 +549,7 @@
       "max_chars": 173,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🍛 料理名、調理法、または食品用語を試してみてください。例：ミーソト、チャークイティオ、グーラッシュ餃子",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -571,7 +571,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": "↺ 最初からやり直す。",
-      "google_translation": null,
+      "google_translation": "↺ 最初からやり直す",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -593,7 +593,7 @@
       "max_chars": 175,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚆 電車、バス、シンガポール国内の移動手段については、 /transportタップしてください。このチャットでは、食べ物や飲食店を検索できます。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -615,7 +615,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Googleマップ↗",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -637,7 +637,7 @@
       "max_chars": 27,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🍚 オープンホーカーセンター",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -659,7 +659,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🍚 シンガポールのホーカーセンターとフードセンター（2025年）。NEAによる",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -681,7 +681,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": "閉店",
-      "google_translation": null,
+      "google_translation": "閉店",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -703,7 +703,7 @@
       "max_chars": 17,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "本日休業",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -725,7 +725,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": "営業中",
-      "google_translation": null,
+      "google_translation": "営業中",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -747,7 +747,7 @@
       "max_chars": 24,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "{n}日後にオープン",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -769,7 +769,7 @@
       "max_chars": 30,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "本日{time}にオープンします。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -791,7 +791,7 @@
       "max_chars": 34,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "明日{time}にオープンします",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -813,7 +813,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "事故",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -835,7 +835,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "動物",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -857,7 +857,7 @@
       "max_chars": 13,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "気晴らし",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -879,7 +879,7 @@
       "max_chars": 19,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "交通渋滞",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -901,7 +901,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "事件",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -923,7 +923,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "重大事故",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -945,7 +945,7 @@
       "max_chars": 21,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "大規模な混乱",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -967,7 +967,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "その他",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -989,7 +989,7 @@
       "max_chars": 19,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "その他",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1011,7 +1011,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "障害",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1033,7 +1033,7 @@
       "max_chars": 14,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "道路封鎖",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1055,7 +1055,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "道路工事",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1077,7 +1077,7 @@
       "max_chars": 14,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "道路工事",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1099,7 +1099,7 @@
       "max_chars": 26,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "無人車両",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1121,7 +1121,7 @@
       "max_chars": 24,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "車両故障",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1143,7 +1143,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "天気",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1165,7 +1165,7 @@
       "max_chars": 17,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🇩🇪 ドイツ語",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,

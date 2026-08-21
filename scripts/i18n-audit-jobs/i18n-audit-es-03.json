@@ -87,7 +87,7 @@
       "max_chars": 17,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Inglés 🇬🇧",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -109,7 +109,7 @@
       "max_chars": 17,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🇪🇸 Español",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -131,7 +131,7 @@
       "max_chars": 19,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🇫🇷 Français",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -153,7 +153,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🇮🇩 Indonesia",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -175,7 +175,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🇯🇵 日本語",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -197,7 +197,7 @@
       "max_chars": 17,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🇷🇺 Русский",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -219,7 +219,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🇨🇳 中文",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -241,7 +241,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Preferencia resuelta. Soleat utilizará el idioma de Telegram que hayas configurado.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -263,7 +263,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🌐 Idioma actual: Inglés {fromTg} . Elige un idioma:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -285,7 +285,7 @@
       "max_chars": 30,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "(de tu Telegram)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -307,7 +307,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Lo sentimos, /legal ha dado un error. Inténtalo de nuevo en un momento.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -329,7 +329,7 @@
       "max_chars": 244,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 *Ubicación establecida en:* {place} 💻 En la versión de escritorio, Telegram comparte un *punto marcado en el mapa*, no una ubicación GPS en tiempo real; puede ubicarse en un lugar incorrecto. ¿Estás aquí?",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -351,7 +351,7 @@
       "max_chars": 181,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Escribe tu zona; por ejemplo `/l Orchard Road` o `/l Bugis` . En ordenadores de sobremesa, escribir es más fiable que usar el botón de compartir.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -373,7 +373,7 @@
       "max_chars": 27,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✏️ No, configurar manualmente",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -395,7 +395,7 @@
       "max_chars": 33,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 *Confirmado:* {place}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -417,7 +417,7 @@
       "max_chars": 19,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Sí, úsalo",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -439,7 +439,7 @@
       "max_chars": 144,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "💻 ¿Estás en un ordenador? Telegram comparte una selección de mapa, no GPS. Si esto es incorrecto, escribe /l<your area> .",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -461,7 +461,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Elige una ciudad a continuación o una ubicación guardada.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -483,7 +483,7 @@
       "max_chars": 156,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Área establecida: {area} Usar<code> /ubicación o<code> /l <lugar> · cambiar dirección",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -494,7 +494,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -505,7 +505,7 @@
       "max_chars": 25,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔍 Vea los restaurantes aquí",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -527,7 +527,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "<i>¿Quieres ver restaurantes en<b> {place} ?",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -538,7 +538,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -549,7 +549,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Las búsquedas ancladas aquí están limitadas a {km} km.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -571,7 +571,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Ubicación establecida en<b> {label} . {cap}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -582,7 +582,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -593,7 +593,7 @@
       "max_chars": 122,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ No reconozco esa selección rápida. Toca uno de los botones o comparte un pin.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -615,7 +615,7 @@
       "max_chars": 28,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "( {h} h {m} minutos)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -637,7 +637,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "(recién compartido)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -659,7 +659,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "(hace {n} minutos)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -681,7 +681,7 @@
       "max_chars": 33,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Actual: {addr} {age}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -703,7 +703,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Tenemos tu ubicación.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -725,7 +725,7 @@
       "max_chars": 176,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Comparte tu ubicación una vez para que {label} use tu configuración regional (o escribe `/location<place name> ` . `/location<place name> ` para configurarlo manualmente).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -736,7 +736,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -747,7 +747,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Toca para compartir tu ubicación actual.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -769,7 +769,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "ℹ️<b> {name} — {note}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -780,7 +780,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -791,7 +791,7 @@
       "max_chars": 19,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📋 {n} lugares",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -813,7 +813,7 @@
       "max_chars": 14,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📋 1 lugar",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -835,7 +835,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Mapa no disponible para este conjunto.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -857,7 +857,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔎 Resultados para",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -879,7 +879,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "_Escasas opciones en<b> {place} — aquí están los restaurantes mejor valorados de la zona:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -890,7 +890,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -901,7 +901,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⏱ Esa sugerencia ha caducado. Escribe de nuevo el nombre del lugar para actualizar.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -923,7 +923,7 @@
       "max_chars": 132,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍<b> {place} — No se encontraron restaurantes aquí. En su lugar, se muestran los mejor valorados en las cercanías.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -934,7 +934,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -945,7 +945,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍<b> {place} — se encontraron {n} restaurantes aquí",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -956,7 +956,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -967,7 +967,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍<b> {place} — mostrando {shown} de {total} restaurantes aquí",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -978,7 +978,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -989,7 +989,7 @@
       "max_chars": 27,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✨ Los mejores restaurantes cercanos",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1011,7 +1011,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🤷 No hay restaurantes destacados en un radio de {km} km de {place} en este momento.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1033,7 +1033,7 @@
       "max_chars": 162,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✨<b> Los mejores restaurantes cerca de {place} {n} en un radio de {km} km, clasificados por puntuación · Michelin · rareza · clientela)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1044,7 +1044,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -1055,7 +1055,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🤷 No hay restaurantes destacados fuera de {place} (dentro de {km} km) en este momento.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1077,7 +1077,7 @@
       "max_chars": 167,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✨<b> Los mejores restaurantes fuera de {place} {n} en un radio de {km} km, clasificados por puntuación · Michelin · rareza · clientela)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1088,7 +1088,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -1099,7 +1099,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Lo sentimos, se ha producido un error /privacy . Inténtalo de nuevo en un momento.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1121,7 +1121,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🌏 Los 50 mejores restaurantes de Asia",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1143,7 +1143,7 @@
       "max_chars": 34,
       "parse_mode": "none",
       "repo_translation": "Michelin · Bib Gourmand",
-      "google_translation": null,
+      "google_translation": "🍜 MICHELIN Bib Gourmand",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1165,7 +1165,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🌱 Restaurantes que utilizan productos locales",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,

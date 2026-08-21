@@ -79,7 +79,7 @@
       "max_chars": 21,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⭐ Звезда Мишлен",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -101,7 +101,7 @@
       "max_chars": 120,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🏆 *Сингапур — признанный ресторан*",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -123,7 +123,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Нажмите на пункт списка, чтобы открыть исходную страницу:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -145,7 +145,7 @@
       "max_chars": 140,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Пока нет недавних подборок. Сначала запустите /cuisine или /hidden , затем /share , чтобы переслать другу.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -167,7 +167,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Извините, при выполнении /share возникла ошибка.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -189,7 +189,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Извините, сейчас я не могу поделиться ссылками.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -211,7 +211,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Выберите место, куда переслать сообщение вашему другу ( {n} ):",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -233,7 +233,7 @@
       "max_chars": 1626,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Хотите чего-то необычного? Soleat — «Еда в одиночку» / «Давайте поедим» — поможет вам исследовать кулинарный плавильный котел сингапурской {cuisines} кухни, а также кухни других городов, предлагая тщательно отобранные {кулинарные-торговые площадки} заведения, уличную еду, блюда, отмеченные звездами Мишлен, фавориты Bib Gourmand по цене до 45 сингапурских долларов, информацию о погоде и транспорте в одном Telegram-гиде. Начните с /c /cuisine или /m /menu /cuisine — полный выбор кухонь (более {cuisines} кухонь, {cuisine-venues} отобранных заведений, Сингапур, Джохор-Бару и другие города, 6 быстрых фильтров) /hawker — > {hawker} центров уличной еды (2025) /recognised — Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table /l /location — поделиться или установить ваше текущее местоположение /weather — сейчас + 2-часовой прогноз погоды от NEA /transport — автобус, метро, пешком, на машине /carpark — 5 ближайших парковок со свободными местами /language — язык приложения · 8 вариантов (чат остается на английском/французском) /privacy — данные, хранение и источники /legal — отказ от ответственности и примечания о юрисдикции /forgetme — удалить сохраненные данные Или нажмите кнопку меню (🍴 Выбор кухни), чтобы сразу перейти к меню.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -255,7 +255,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Повторить поиск можно в любое время, просто нажав или вставив текст:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -277,7 +277,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⏱ Следующие прибытия — 3 ближайшие остановки",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -299,7 +299,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "(из {n} сервисов с данными о текущей нагрузке)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -321,7 +321,7 @@
       "max_chars": 30,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Ограниченный статус: {n}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -343,7 +343,7 @@
       "max_chars": 28,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Свободные места: {n}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -365,7 +365,7 @@
       "max_chars": 33,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Доступно для стояния: {n}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -387,7 +387,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👥 Загруженность автобуса — выборка произведена на 3 ближайших остановках",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -409,7 +409,7 @@
       "max_chars": 24,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Ближайшие автобусные остановки",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -431,7 +431,7 @@
       "max_chars": 21,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🗺 Составьте маршрут",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -453,7 +453,7 @@
       "max_chars": 26,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚌 Информация об автобусах",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -475,7 +475,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚏 Ближайшие {count} автобусные остановки",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -497,7 +497,7 @@
       "max_chars": 33,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "нет данных о прибытии в режиме реального времени",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -519,7 +519,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Данные о текущей нагрузке в данный момент отсутствуют — попробуйте еще раз через 30 секунд.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -541,7 +541,7 @@
       "max_chars": 143,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚌 Сначала мне нужно ваше местоположение — укажите его один раз через меню (📍), и Soleat запомнит его.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -563,7 +563,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⏱ В радиусе 800 м от сохраненного вами местоположения нет автобусных остановок.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -585,7 +585,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👥 В радиусе 800 м нет автобусных остановок, где можно взять образцы.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -607,7 +607,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚏 В радиусе 800 м от вашего сохраненного местоположения нет автобусных остановок.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -629,7 +629,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚌 Поиск автобусов недоступен (ключ LTA не настроен).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -651,7 +651,7 @@
       "max_chars": 37,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🗺 Откройте Google Maps (транспорт)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -673,7 +673,7 @@
       "max_chars": 168,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🗺 Нажмите ниже, чтобы открыть Google Maps в режиме движения из сохраненного местоположения. Введите пункт назначения в Карты.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -695,7 +695,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Код: {code}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -717,7 +717,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Автобусная остановка № {code} находится 📍 {dist} от текущего местоположения.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -739,7 +739,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚏 Автобусная остановка № {code} · 📍 {dist}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -761,7 +761,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "· {desc} ( {road} ) — {dist}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -783,7 +783,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "К сожалению, трансляция из автобуса в данный момент недоступна.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -805,7 +805,7 @@
       "max_chars": 120,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "_ {n} камеры в прямом эфире ( {breakdown} )_",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -827,7 +827,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "На данный момент LTA не обнаружила ни одной записи с камер видеонаблюдения — попробуйте еще раз через минуту.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -849,7 +849,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🛂 SG ⟷ Камеры на контрольно-пропускном пункте JB",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -871,7 +871,7 @@
       "max_chars": 24,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Обновлено: {at}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -893,7 +893,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🛂 Не удалось связаться с LTA по поводу камер на контрольно-пропускных пунктах — попробуйте еще раз через минуту.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -915,7 +915,7 @@
       "max_chars": 16,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Парковка 🅿️",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -937,7 +937,7 @@
       "max_chars": 130,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Укажите свое местоположение один раз, и Soleat предложит вам ссылку для построения маршрута одним касанием.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -959,7 +959,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Карта Google ↗",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -981,7 +981,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚗 Вождение",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1003,7 +1003,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚦 Трафик (верхний {n} из {total} по всему острову):",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1025,7 +1025,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚦 Информация о дорожно-транспортных происшествиях отсутствует.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1047,7 +1047,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚦 Дорожная ситуация: {total} инцидентов по всему острову; ни одного в радиусе 5 км.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1069,7 +1069,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Извините, отображение диска не удалось.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1091,7 +1091,7 @@
       "max_chars": 120,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚦 *Информация о дорожно-транспортных происшествиях в режиме реального времени*",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1113,7 +1113,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Последние {n} дорожно-транспортные происшествия по всему острову:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1135,7 +1135,7 @@
       "max_chars": 124,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "{total} инцидентов по всему острову. Укажите ваше местоположение для сортировки по ближайшему списку.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1157,7 +1157,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Сообщений о происшествиях в режиме реального времени не поступало.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,

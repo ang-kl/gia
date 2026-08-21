@@ -79,7 +79,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⏳ Soleat arbeitet noch an Ihrer letzten Anfrage – bitte haben Sie einen Moment Geduld.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -101,7 +101,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Leider ist bei der Freitextsuche ein Fehler aufgetreten. Versuchen Sie es mit /cuisine oder /hidden .",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -123,7 +123,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Sprache auf Deutsch eingestellt (für die Mini-Apps).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -145,7 +145,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Sprache auf Englisch eingestellt.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -167,7 +167,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Auf Spanisch konfigurierte Sprache (für Mini-Apps).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -189,7 +189,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Geregelte Sprache auf Französisch.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -211,7 +211,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Bahasa Indonesia (für die Mini-App).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -233,7 +233,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ 言語を日本語に設定しました（ミニアプリ用）.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -255,7 +255,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Язык переключён на russisch (nur Minianwendung).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -277,7 +277,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ 语言已设置为中文（用于小程序）.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -299,7 +299,7 @@
       "max_chars": 175,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Teilen Sie Ihren Standort einmalig, damit Soleat Ihre Region verwendet (oder geben Sie `/location<place name> ` ein). `/location<place name> ` es manuell einzustellen).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -310,7 +310,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -321,7 +321,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Tippe hier, um deinen aktuellen Standort zu teilen.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -343,7 +343,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Tippe, um deinen Standort zu teilen, oder gib einen Ortsnamen ein. Ich suche anschließend.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -365,7 +365,7 @@
       "max_chars": 197,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Für \" {q} \" in deiner Nähe wurden keine Google Places-Ergebnisse gefunden. Versuche es mit /cuisine für die Restaurantauswahl, /hidden für weitere Restaurants in der Nähe oder formuliere deine Suche um.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -387,7 +387,7 @@
       "max_chars": 141,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⏳ Sie haben das Limit von {cap} Anfragen pro {window} Minuten erreicht. Versuchen Sie es in ca. {mins} Minuten erneut.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -409,7 +409,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Blockierung fehlgeschlagen (maximal 50 Blöcke erreicht).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -431,7 +431,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚫 Blockiert {target} . Diese Person wird Ihnen niemals zugeordnet werden.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -453,7 +453,7 @@
       "max_chars": 124,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Verwendung: `/buddy block<chat_id> ` Holen Sie sich die Chat-ID aus einem vorherigen Spielangebot.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -464,7 +464,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -475,7 +475,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Entschuldigung, /buddy ist auf einen Fehler gestoßen.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -497,7 +497,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👥 Buddy-Modus AUS.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -519,7 +519,7 @@
       "max_chars": 728,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👥 *Buddy-Modus aktiviert.* Wenn du Sanctuary-Tipps erhältst, erscheint neben Orten, die ein anderer Soleat-Nutzer mit aktiviertem Buddy-Modus innerhalb der nächsten 60 Minuten besucht, ein 👥 _Verbinden_-Button. Ihr müsst beide bestätigen, bevor eure Vornamen und Telegram-Handles angezeigt werden. Tägliches Limit: 5 Verbindungen / 24 Stunden. `/buddy block<chat_id> ` zum Blockieren. `/buddy report<chat_id><reason> ` zum Melden. `/buddy off` zum Deaktivieren. ⚠ _Pilot — Treffen Sie sich nur an öffentlichen Orten, behandeln Sie die Person wie einen Fremden, vertrauen Sie Ihrem Bauchgefühl._",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -530,7 +530,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -541,7 +541,7 @@
       "max_chars": 128,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📝 Bericht protokolliert. {target} wurde automatisch für deine Matches blockiert. Wir prüfen den Vorgang.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -563,7 +563,7 @@
       "max_chars": 120,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Verwendung: `/buddy report<chat_id><reason> ` .",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -574,7 +574,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -585,7 +585,7 @@
       "max_chars": 244,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👥 Der Buddy-Modus ist aktuell * {state} *. Heutige Verbindungen: {n} / {cap} . Verwenden Sie `/buddy on` , `/buddy off` , `/buddy block<id> ` , `/buddy report<id><reason> ` .",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -596,7 +596,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -607,7 +607,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "AUS",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -629,7 +629,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "AN",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -651,7 +651,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⬅️ Zurück",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -673,7 +673,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔄 Aktualisieren",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -695,7 +695,7 @@
       "max_chars": 33,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🅿️ Parkplätze in der Nähe auf der Karte",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -717,7 +717,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🗺 Alle 5 Parkplätze in einem Google Maps-Container öffnen:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -739,7 +739,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🅿️ Nächstgelegene Parkplätze mit freien Stellplätzen",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -761,7 +761,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🅿️ Suche nach den nächstgelegenen Parkplätzen…",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -783,7 +783,7 @@
       "max_chars": 30,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Vergleiche alle {n} Parkplätze",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -805,7 +805,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Nächstgelegene Standorte werden angezeigt:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -827,7 +827,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "In der Nähe gibt es keine Parkplätze.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -849,7 +849,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Parkplatzsuche offline (LTA-Schlüssel nicht konfiguriert).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -871,7 +871,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "{i} . {name} · {lots} lots · {dist}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -893,7 +893,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Tut mir leid, ich kann den LTA-Parkplatz-Feed im Moment nicht erreichen.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -915,7 +915,7 @@
       "max_chars": 25,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🗺 Alle Parkplätze anzeigen",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -937,7 +937,7 @@
       "max_chars": 148,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🙂<i> Waren Sie vielleicht auf der Suche nach einer Kochmethode? Tippen Sie unten auf eine Küche oder suchen Sie wörtlich.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -948,7 +948,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -959,7 +959,7 @@
       "max_chars": 24,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔍 Suche buchstäblich",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -981,7 +981,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔴 beschäftigt",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1003,7 +1003,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🟢 ruhig",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1025,7 +1025,7 @@
       "max_chars": 16,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🟡 mäßig",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1047,7 +1047,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 An Ihrem zuletzt geteilten Standort verankert.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1069,7 +1069,7 @@
       "max_chars": 28,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🍴 Küchenauswahl öffnen",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1091,7 +1091,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Tut mir leid, ich kann den Küchenauswahl-Assistenten gerade nicht öffnen.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1113,7 +1113,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "↓",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1135,7 +1135,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Für präzise Vorhersagen teilen Sie bitte zuerst Ihren Standort mit.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1157,7 +1157,7 @@
       "max_chars": 33,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Standort mit dem Bot teilen",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,

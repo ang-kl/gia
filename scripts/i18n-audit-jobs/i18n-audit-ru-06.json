@@ -79,7 +79,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Следующие 2 часа в {area} : {desc} {valid}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -101,7 +101,7 @@
       "max_chars": 21,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "(до {time} )",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -123,7 +123,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Окно в хорошем состоянии — {area} будет выглядеть сухой в течение следующих 2 часов.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -145,7 +145,7 @@
       "max_chars": 125,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "☔ Сейчас в районе {area} идёт дождь — подождите 20-30 минут или выберите место, защищенное от дождя.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -167,7 +167,7 @@
       "max_chars": 164,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🌦️ Сейчас сухо, но прогноз погоды на 2 часа для {desc} {area} — отправляйтесь на улицу как можно скорее, если планируете куда-то на открытом воздухе.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -189,7 +189,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🥵 На улице жарко — в помещении с кондиционером было бы приятнее.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -211,7 +211,7 @@
       "max_chars": 23,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Влажность: {pct} %",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -233,7 +233,7 @@
       "max_chars": 28,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Осадки: {mm} мм @ {at}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -255,7 +255,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🌧️ Сейчас в районе {area} идёт дождь — крытые места для сидения очень помогают.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -277,7 +277,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🌧️ {desc} в {area} с прогнозом погоды на 2 часа — наличие мест под навесом поможет.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -299,7 +299,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Температура: {c} °C · {f} °F",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -321,7 +321,7 @@
       "max_chars": 28,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "☀️ Погода в Сингапуре",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -343,7 +343,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🌙 Сегодня вечером в {zone} : {desc} .",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -365,7 +365,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Извините, сейчас я не могу получить доступ к прогнозу погоды NEA.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -387,7 +387,7 @@
       "max_chars": 26,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Ветер: {kt} кт {dir}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,

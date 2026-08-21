@@ -88,7 +88,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "2 jam berikutnya di {area} : {desc} {valid}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -110,7 +110,7 @@
       "max_chars": 21,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "(hingga {time} )",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -132,7 +132,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Jendela yang bagus — {area} terlihat kering selama 2 jam ke depan.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -154,7 +154,7 @@
       "max_chars": 125,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "☔ Saat ini sedang hujan di sekitar {area} — tunggu sekitar 20-30 menit atau pilih tempat yang terlindung.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -176,7 +176,7 @@
       "max_chars": 164,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🌦️ Saat ini kering, tetapi prakiraan cuaca 2 jam ke depan untuk {area} adalah {desc} — segera berangkat jika Anda akan pergi ke tempat terbuka.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -198,7 +198,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🥵 Cuacanya panas sekali — tempat ber-AC mungkin lebih nyaman.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -220,7 +220,7 @@
       "max_chars": 23,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Kelembapan: {pct} %",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -242,7 +242,7 @@
       "max_chars": 28,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Hujan: {mm} mm @ {at}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -264,7 +264,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🌧️ Hujan turun di sekitar {area} saat ini — tempat duduk yang terlindungi sangat membantu.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -286,7 +286,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🌧️ {desc} dalam prospek 2 jam di {area} — tempat duduk beratap sangat membantu.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -308,7 +308,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Suhu: {c} °C · {f} °F",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -330,7 +330,7 @@
       "max_chars": 28,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "☀️ Cuaca Singapura",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -352,7 +352,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🌙 Malam ini di {zone} : {desc} .",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -374,7 +374,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Maaf, saya tidak bisa mengakses siaran cuaca NEA saat ini.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -396,7 +396,7 @@
       "max_chars": 26,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Angin: {kt} kt {dir}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
