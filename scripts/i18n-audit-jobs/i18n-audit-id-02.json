@@ -88,7 +88,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🍴 Pencari Kuliner — Singapura hingga Johor Bahru",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -110,7 +110,7 @@
       "max_chars": 231,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Pemilih Masakan membutuhkan TMA mode webhook. Coba /hidden untuk pilihan berbasis obrolan, atau ketik saja 'cari ramen untukku' / serupa dan saya akan mencarinya.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -132,7 +132,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ Proses ini memakan waktu terlalu lama — silakan coba lagi sebentar lagi.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -154,7 +154,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ Pencarian telah melampaui kuota harian — silakan coba lagi nanti.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -176,7 +176,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ Detail tempat acara masih belum sepenuhnya tersedia — kami hanya menampilkan yang sudah ada.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -198,7 +198,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ Ulasan terbaru saat ini belum tersedia.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -220,7 +220,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ Tidak dapat menentukan rute — menampilkan hasil tanpa perkiraan waktu tempuh.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -242,7 +242,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ Perkiraan waktu tempuh saat ini belum tersedia.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -264,7 +264,7 @@
       "max_chars": 19,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "…dan {n} lainnya",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -286,7 +286,7 @@
       "max_chars": 120,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Entri Redis * {n} * dihapus untuk obrolan Anda.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -308,7 +308,7 @@
       "max_chars": 120,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Entri Redis * {n} * dihapus untuk obrolan Anda.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -330,7 +330,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Maaf, /forgetme mengalami kesalahan. Coba lagi sebentar lagi, atau kirim pesan pribadi ke operator.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -352,7 +352,7 @@
       "max_chars": 136,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Kirim perintah apa pun untuk memulai dari awal. Pilihan terbaru dan lokasi terakhir yang Anda bagikan akan hilang.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -374,7 +374,7 @@
       "max_chars": 221,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Tidak ada yang perlu dihapus — Saya tidak memiliki data yang tersimpan untuk Anda. (Cache dan baris permintaan akan kedaluwarsa secara otomatis; semua slot persisten kosong.)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -396,7 +396,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Dihapus:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -418,7 +418,7 @@
       "max_chars": 148,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️<i> Tidak ada tempat makan di Singapura yang secara jelas menyajikan {dish} — ini hanya sesuai dengan kata kunci pencarian Anda:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -429,7 +429,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -440,7 +440,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⇩─ Tempat makan dengan hidangan atau masakan serupa ─ ⇩ ⇩─ tidak persis {dish} ─ ⇩",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -462,7 +462,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⌛ Pencarian tersebut telah kedaluwarsa. Silakan ketik ulang kueri Anda.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -484,7 +484,7 @@
       "max_chars": 23,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔍 Cari selengkapnya",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -506,7 +506,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "💡 Ingin pilihan berbeda untuk pencarian yang sama?",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -528,7 +528,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔚 Tidak ada lagi hasil yang cocok · Ubah kriteria atau ketuk ↺ untuk memulai dari awal.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -550,7 +550,7 @@
       "max_chars": 173,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🍛 Silakan coba sebutkan nama hidangan, metode memasak, atau istilah makanan - misalnya Mee Soto, char kway teow, atau goulash dumpling.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -572,7 +572,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": "↺ mulai ulang.",
-      "google_translation": null,
+      "google_translation": "↺ Mulai lagi",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -594,7 +594,7 @@
       "max_chars": 175,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚆 Untuk kereta api, bus, dan berkeliling Singapura, ketuk /transport . Obrolan ini mencari makanan dan tempat makan.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -616,7 +616,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Peta Google ↗",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -638,7 +638,7 @@
       "max_chars": 27,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🍚 Pusat Kuliner Buka",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -660,7 +660,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🍚 Pusat Jajanan & Pusat Makanan Singapura (2025). Oleh NEA",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -682,7 +682,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": "Tutup",
-      "google_translation": null,
+      "google_translation": "Tertutup",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -704,7 +704,7 @@
       "max_chars": 17,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Tutup hari ini",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -726,7 +726,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": "Buka sekarang",
-      "google_translation": null,
+      "google_translation": "Buka sekarang",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -748,7 +748,7 @@
       "max_chars": 24,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Buka dalam {n} hari",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -770,7 +770,7 @@
       "max_chars": 30,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Buka hari ini pukul {time}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -792,7 +792,7 @@
       "max_chars": 34,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Buka besok pukul {time}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -814,7 +814,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Kecelakaan",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -836,7 +836,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Hewan",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -858,7 +858,7 @@
       "max_chars": 13,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Pengalihan",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -880,7 +880,7 @@
       "max_chars": 19,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Lalu Lintas Padat",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -902,7 +902,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Insiden",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -924,7 +924,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Kecelakaan Besar",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -946,7 +946,7 @@
       "max_chars": 21,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Gangguan Massal",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -968,7 +968,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Lain-lain.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -990,7 +990,7 @@
       "max_chars": 19,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Aneka ragam",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1012,7 +1012,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Rintangan",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1034,7 +1034,7 @@
       "max_chars": 14,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Penghalang Jalan",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1056,7 +1056,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Perbaikan jalan",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1078,7 +1078,7 @@
       "max_chars": 14,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Pekerjaan Jalan",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1100,7 +1100,7 @@
       "max_chars": 26,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Kendaraan Tanpa Pengawasan",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1122,7 +1122,7 @@
       "max_chars": 24,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Kerusakan Kendaraan",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1144,7 +1144,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Cuaca",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1166,7 +1166,7 @@
       "max_chars": 17,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🇩🇪 Jerman",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,

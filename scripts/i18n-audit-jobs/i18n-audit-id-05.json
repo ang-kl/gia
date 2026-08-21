@@ -88,7 +88,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "{total} insiden di seluruh pulau; tidak ada dalam radius 20 km dari lokasi Anda.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -110,7 +110,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚦 Umpan lalu lintas offline (kunci LTA belum dikonfigurasi).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -132,7 +132,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "· {type} {dist}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -154,7 +154,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Maaf, umpan lalu lintas mengalami kegagalan.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -176,7 +176,7 @@
       "max_chars": 28,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Tampilkan semua {n} halte bus",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -198,7 +198,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🗺 Lihat {n} halte bus dalam satu peta:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -220,7 +220,7 @@
       "max_chars": 37,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Tampilkan {n} insiden pada Peta",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -242,7 +242,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🗺 Lihat {n} insiden di satu peta:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -264,7 +264,7 @@
       "max_chars": 29,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Lihat Stasiun Kereta Api {n}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -286,7 +286,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🗺 Lihat {n} stasiun dalam satu peta:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -308,7 +308,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚌 Bus",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -330,7 +330,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚗 Mengemudi",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -352,7 +352,7 @@
       "max_chars": 17,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚦 Insiden",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -374,7 +374,7 @@
       "max_chars": 27,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Segarkan lokasi",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -396,7 +396,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": "Kereta",
-      "google_translation": null,
+      "google_translation": "🚇 Kereta",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -418,7 +418,7 @@
       "max_chars": 23,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🇸🇬 *Transportasi*",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -440,7 +440,7 @@
       "max_chars": 26,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⚠️ Jalur yang terpengaruh:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -462,7 +462,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔴 tinggi",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -484,7 +484,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🟢 rendah",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -506,7 +506,7 @@
       "max_chars": 13,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🟡 sedang",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -528,7 +528,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔧 Kegiatan teknik mendatang (7 hari ke depan):",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -550,7 +550,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚇 Kereta (MRT)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -572,7 +572,7 @@
       "max_chars": 146,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⏱️ Frekuensi: {peakMin} – {peakMax} min puncak · {offMin} – {offMax} min di luar jam sibuk (LTA diterbitkan)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -594,7 +594,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚇 3 Stasiun Kereta Terdekat {wx}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -616,7 +616,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🔴 {high} tinggi · {medium} moderat (dari {total} ) — Baris: {lines}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -638,7 +638,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🟢 Jaringan tidak padat — 0 dari {total} platform di atas kepadatan rendah.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -660,7 +660,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🟡 {medium} sedang · {high} tinggi (dari {total} ) — Baris: {lines}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -682,7 +682,7 @@
       "max_chars": 125,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚇 Bagikan lokasi Anda sekali saja dan Soleat akan menampilkan stasiun MRT terdekat juga.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -704,7 +704,7 @@
       "max_chars": 19,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Catatan: {note}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -726,7 +726,7 @@
       "max_chars": 32,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Peta dan Status Kereta Api 🇸🇬",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -748,7 +748,7 @@
       "max_chars": 21,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Diperbarui: {at}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -770,7 +770,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "{name} · {dist} {crowd} <a href=\"<span translate=\"no\">{gmapsUrl} \">↗</a>",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -792,7 +792,7 @@
       "max_chars": 23,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Status: {status}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -814,7 +814,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Maaf, saya tidak bisa mengakses siaran MRT saat ini.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -836,7 +836,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Status: 🟡 sedang pemanasan; coba lagi dalam 30 detik.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -858,7 +858,7 @@
       "max_chars": 172,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👋 Selamat datang kembali di Soleat. Bagikan lokasi Anda saat ini agar Soleat dapat membandingkannya dengan lokasi pencarian yang telah Anda simpan.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -880,7 +880,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Tetap di sini",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -902,7 +902,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👍 Menyimpan lokasi Anda.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -924,7 +924,7 @@
       "max_chars": 205,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👋 Selamat datang kembali! Soleat masih menggunakan lokasi yang Anda bagikan sebelumnya. Apakah Anda masih di sana, atau ingin mengatur lokasi baru?",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -946,7 +946,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Lokasi baru",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -968,7 +968,7 @@
       "max_chars": 213,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Ketik /l<place> untuk menetapkan anchor baru — misalnya /l Orchard Road atau /l IOI City Mall. Atau ketuk 📍 di bawah untuk membagikan lokasi GPS baru.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -990,7 +990,7 @@
       "max_chars": 535,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👋<b> Selamat datang kembali di Soleat. Perangkat Anda sekarang tampaknya berada di dekat:<i> {deviceStreet} Soleat masih menggunakan jangkar pencarian tersimpan Anda:<b> {anchor} Lanjutkan pencarian dari jangkar, atau perbarui ke lokasi Anda saat ini?<i> Anda juga dapat mengetik /l untuk mencari dari tempat lain, misalnya: /l Orchard Road /l IOI City Mall",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1001,7 +1001,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -1012,7 +1012,7 @@
       "max_chars": 33,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🗺 Tetapkan lokasi lain",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1034,7 +1034,7 @@
       "max_chars": 33,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "📍 Gunakan lokasi saat ini",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1056,7 +1056,7 @@
       "max_chars": 33,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "✅ Pertahankan lokasi sebelumnya",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1078,7 +1078,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👍 Jangkar diperbarui menjadi<i> {street} .",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1089,7 +1089,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
       }
     },
     {
@@ -1100,7 +1100,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👍 Mempertahankan tautan pencarian tersimpan Anda.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1122,7 +1122,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⏱ Share tersebut telah kedaluwarsa. Ketuk /l untuk mengatur anchor baru.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1144,7 +1144,7 @@
       "max_chars": 154,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Saya tidak mengenal daerah itu — coba nama kota seperti Tampines, atau cukup ketik /weather untuk menggunakan pin yang Anda bagikan.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1166,7 +1166,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "— untuk {area} —",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,

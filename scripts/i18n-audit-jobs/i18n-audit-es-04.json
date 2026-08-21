@@ -87,7 +87,7 @@
       "max_chars": 21,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⭐ Estrella MICHELIN",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -109,7 +109,7 @@
       "max_chars": 120,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🏆 *Singapur — restaurantes reconocidos*",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -131,7 +131,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Pulsa una lista para abrir la página de origen:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -153,7 +153,7 @@
       "max_chars": 140,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Aún no hay selecciones recientes. Ejecuta primero /cuisine o /hidden , luego /share para reenviarlo a un amigo.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -175,7 +175,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Lo sentimos, /share ha dado un error.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -197,7 +197,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Lo siento, no puedo generar enlaces para compartir en este momento.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -219,7 +219,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Elige un lugar para reenviar a tu amigo ( {n} reciente):",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -241,7 +241,7 @@
       "max_chars": 1626,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "¿Te apetece algo más allá de lo habitual? Soleat — “Solo eats” / “So let's eat” — te ayuda a explorar el crisol {cuisines} de Singapur — y otras ciudades — con locales seleccionados, puestos callejeros, restaurantes con estrellas Michelin, favoritos Bib Gourmand por menos de 45 dólares singapurenses, información meteorológica y transporte, todo en una guía de Telegram. Comienza con /c /cuisine o /m /menu /cuisine — selector de cocina completo (más de {cuisines} cocinas, {cuisine-venues} lugares seleccionados, SG, Johor Bahru + otras ciudades, 6 filtros rápidos) /hawker — > {hawker} centros de comida callejera (2025) /recognised — Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table /l /location — comparte o establece tu ubicación actual /weather — ahora + pronóstico NEA de 2 horas /transport — autobús, MRT, caminar, conducir /carpark — los 5 más cercanos con plazas disponibles /language — idioma de la aplicación · 8 opciones (el chat permanece en EN/FR) /privacy — datos, retención y fuentes /legal — descargo de responsabilidad y notas sobre jurisdicción /forgetme — borra tus datos almacenados O toca el botón de menú (🍴 Selector de cocina) para ir directamente.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -263,7 +263,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Vuelva a ejecutar esta búsqueda en cualquier momento tocando o pegando:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -285,7 +285,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⏱ Próximas llegadas: las 3 paradas más cercanas",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -307,7 +307,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "(de {n} servicios con datos de carga en tiempo real)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -329,7 +329,7 @@
       "max_chars": 30,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Reputación limitada: {n}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -351,7 +351,7 @@
       "max_chars": 28,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Plazas disponibles: {n}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -373,7 +373,7 @@
       "max_chars": 33,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Disponibilidad de pie: {n}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -395,7 +395,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👥 Ocupación del autobús: muestra tomada en las 3 paradas más cercanas.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -417,7 +417,7 @@
       "max_chars": 24,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Paradas de autobús más cercanas",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -439,7 +439,7 @@
       "max_chars": 21,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🗺 Planifica una ruta",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -461,7 +461,7 @@
       "max_chars": 26,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚌 Información sobre autobuses",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -483,7 +483,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚏 Paradas de autobús más cercanas: {count}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -505,7 +505,7 @@
       "max_chars": 33,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "No hay llegadas en tiempo real.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -527,7 +527,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "No hay datos de carga en tiempo real en este momento; inténtelo de nuevo en 30 segundos.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -549,7 +549,7 @@
       "max_chars": 143,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚌 Primero necesito tu ubicación; compártela una vez a través del menú (📍) y Soleat lo recordará.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -571,7 +571,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "⏱ No hay paradas de autobús a menos de 800 m de tu ubicación guardada.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -593,7 +593,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "👥 No hay paradas de autobús a menos de 800 m para tomar muestras.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -615,7 +615,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚏 No hay paradas de autobús a menos de 800 m de tu ubicación guardada.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -637,7 +637,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚌 La búsqueda de autobuses no está disponible (la clave LTA no está configurada).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -659,7 +659,7 @@
       "max_chars": 37,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🗺 Abre Google Maps (transporte público)",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -681,7 +681,7 @@
       "max_chars": 168,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🗺 Pulsa abajo para abrir Google Maps en modo transporte desde tu ubicación guardada. Escribe tu destino en Maps.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -703,7 +703,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Código: {code}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -725,7 +725,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚏 La parada de autobús nº {code} está a 📍 {dist} de distancia de la ubicación actual.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -747,7 +747,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚏 Parada de autobús nº {code} · 📍 {dist}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -769,7 +769,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "· {desc} ( {road} ) — {dist}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -791,7 +791,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Lo sentimos, la señal del autobús no está disponible en este momento.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -813,7 +813,7 @@
       "max_chars": 120,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "_ {n} cámaras en directo ( {breakdown} )_",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -835,7 +835,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "La LTA no ha detectado ninguna cámara en los puntos de control en este momento; inténtelo de nuevo en un minuto.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -857,7 +857,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🛂 Cámaras de control en SG ⟷ JB",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -879,7 +879,7 @@
       "max_chars": 24,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "_Actualizado: {at} _",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -901,7 +901,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🛂 No se pudo contactar con LTA para obtener información sobre las cámaras de control; inténtelo de nuevo en un minuto.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -923,7 +923,7 @@
       "max_chars": 16,
       "parse_mode": "none",
       "repo_translation": "Estacionamiento",
-      "google_translation": null,
+      "google_translation": "Aparcamiento 🅿️",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -945,7 +945,7 @@
       "max_chars": 130,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Comparte tu ubicación una sola vez y Soleat te ofrecerá un enlace con indicaciones para llegar en coche con un solo toque.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -967,7 +967,7 @@
       "max_chars": 20,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Mapa de Google ↗",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -989,7 +989,7 @@
       "max_chars": 12,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚗 Conducir",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1011,7 +1011,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚦 Tráfico (los {n} principales del total de {total} en toda la isla):",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1033,7 +1033,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚦 Tráfico: no se han reportado incidentes en directo.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1055,7 +1055,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚦 Tráfico: {total} incidentes en toda la isla; ninguno en un radio de 5 km.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1077,7 +1077,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Lo sentimos, la vista de la unidad falló.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1099,7 +1099,7 @@
       "max_chars": 120,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "🚦 *Incidentes de tráfico en directo*",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1121,7 +1121,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "Últimos {n} incidentes de tráfico en toda la isla:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1143,7 +1143,7 @@
       "max_chars": 124,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "{total} incidentes en toda la isla. Comparta su ubicación para que se ordene por proximidad.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1165,7 +1165,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": null,
+      "google_translation": "No se han reportado incidentes en directo.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
