@@ -26,11 +26,10 @@
 const { primaryTag, langName } = require('./translate-review');
 const { LOCAL_LANG_BY_CC, HAS_LOCAL_SCRIPT } = require('./local-name');
 
-const NAME_MODEL_CHAIN = [
-  'gemini-flash-latest',
-  'gemini-2.5-flash',
-  'gemini-1.5-flash'
-];
+// v0.62.722 — was ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-1.5-flash'].
+// The last two are 404 at Google ("no longer available to new users"), so two of
+// the three fallbacks were dead weight. Names now come from gemini-models.js.
+const NAME_MODEL_CHAIN = require('./gemini-models').MODEL_CHAIN.slice();
 
 const CACHE_TTL_S = 30 * 24 * 60 * 60; // 30 days
 const MAX_INPUT_CHARS = 200;

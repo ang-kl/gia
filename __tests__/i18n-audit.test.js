@@ -83,7 +83,7 @@ describe('auditJob', () => {
     vi.spyOn(require('axios'), 'post').mockResolvedValue(reply([]));
     const r = await auditJob(job(item('a')), { apiKey: 'k', model: 'gemini-x' });
     expect(r.model).toBe('gemini-x');
-    expect(DEFAULT_MODEL).toBe('gemini-2.5-flash-lite');
+    expect(DEFAULT_MODEL).toBe(require('../gemini-models').LITE);
   });
 
   it('throws a legible error when the model returns non-JSON', async () => {
@@ -112,10 +112,10 @@ describe('listModels', () => {
   it('returns only models that support generateContent', async () => {
     vi.spyOn(require('axios'), 'get').mockResolvedValue({
       data: { models: [
-        { name: 'models/gemini-2.5-flash-lite', supportedGenerationMethods: ['generateContent'] },
+        { name: 'models/gemini-3.5-flash-lite', supportedGenerationMethods: ['generateContent'] },
         { name: 'models/text-embedding-004', supportedGenerationMethods: ['embedContent'] }
       ] }
     });
-    expect(await listModels('k')).toEqual(['gemini-2.5-flash-lite']);
+    expect(await listModels('k')).toEqual(['gemini-3.5-flash-lite']);
   });
 });

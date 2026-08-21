@@ -228,7 +228,12 @@ function todaySGT() {
 // function's own fallback chain (SEARCH_INTENT_MODEL_CHAIN / FALLBACK_CHAIN)
 // is a deliberate list of concrete models to retry if the primary fails —
 // those stay hardcoded on purpose; only the PRIMARY choice follows the env var.
-const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+//
+// v0.62.722 — the concrete names moved to gemini-models.js. Google retired the
+// whole 2.5 line ("no longer available to new users", 404) and named the
+// replacements in its own error body; eleven files carried the dead names.
+const GEMINI_MODELS = require('./gemini-models');
+const DEFAULT_MODEL = GEMINI_MODELS.defaultModel();
 
 // v0.58.33 / v0.58.42: Gemini renamed the search-grounding tool
 // between major versions. 1.x uses `googleSearchRetrieval`; 2.x+
@@ -253,11 +258,11 @@ function searchToolForModel(model) {
 // (TTFT 60-120s for grounded queries — too slow under load) for
 // gemini-2.5-flash-lite (TTFT ~0.46s, GA, supports grounding). Now
 // every fallback model is in the flash family; no slow stragglers.
-const FALLBACK_CHAIN = [
-  { model: 'gemini-flash-latest',     tool: { googleSearch: {} } },
-  { model: 'gemini-2.5-flash',        tool: { googleSearch: {} } },
-  { model: 'gemini-2.5-flash-lite',   tool: { googleSearch: {} } }
-];
+// v0.62.722 — names now come from gemini-models.js. The SHAPE is unchanged:
+// still three entries, still all flash-family, still ordered cheapest-safe-last.
+const FALLBACK_CHAIN = GEMINI_MODELS.MODEL_CHAIN.map(
+  (model) => ({ model, tool: { googleSearch: {} } })
+);
 
 async function generateGroundedHiddenGems({
   anchor,
@@ -1843,11 +1848,9 @@ function buildDisclosure({ entry, chosen, alternatives, confidence, lang }) {
   return { en: text, fr: text };
 }
 
-const SEARCH_INTENT_MODEL_CHAIN = [
-  'gemini-flash-latest',
-  'gemini-2.5-flash',
-  'gemini-2.5-flash-lite'
-];
+// v0.62.722 — same list as FALLBACK_CHAIN, minus the grounding-tool wrapper
+// these callers do not use. Shared so the two cannot drift apart again.
+const SEARCH_INTENT_MODEL_CHAIN = GEMINI_MODELS.MODEL_CHAIN.slice();
 
 async function classifySearchIntent({ text, history = [], lang = 'en', model = DEFAULT_MODEL, redis, _genAIFactory }) {
   const apiKey = process.env.GEMINI_API_KEY;

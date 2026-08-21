@@ -31,7 +31,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
 const OVERLAY_PATH = join(ROOT, 'nation-overlay-dishnotes.generated.js');
-const MODEL_CHAIN = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
+// v0.62.722 — the two 2.5 names 404 at Google now; the chain lives in
+// gemini-models.js so it is fixed in one place, not four.
+const MODEL_CHAIN = require('../gemini-models').MODEL_CHAIN.slice();
 
 const BATCH_SIZE = Number(process.env.DRAFT_BATCH_SIZE || 6);   // dishes per grounded call
 const MAX_BATCHES = Number(process.env.DRAFT_MAX_BATCHES || 8); // cap per dispatch (reviewable)

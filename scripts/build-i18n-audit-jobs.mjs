@@ -24,6 +24,9 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const BOT_I18N = path.join(ROOT, 'i18n.js');
@@ -372,7 +375,7 @@ for (const lang of LANGS) {
         domain: 'Singapore F&B discovery — Telegram bot replies, inline-keyboard buttons, and Mini-App UI chrome',
         product: 'Soleat / Gia4lunch',
         created_at: `${STAMP}T00:00:00Z`,
-        engines: { translate: 'google-translate-v3', audit: 'gemini-2.5-pro' },
+        engines: { translate: 'google-translate-v3', audit: require('../gemini-models').LITE },
         _comment: 'google_translation MUST be filled by a real Cloud Translation v3 call before Gemini sees this file. One model doing both translate and audit only catches the errors it does not itself share.'
       },
       glossary: { _comment: 'do_not_translate is a hard mechanical rule. preferred is grounded in shipped Mini-App strings.', do_not_translate: DO_NOT_TRANSLATE, preferred },

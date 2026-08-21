@@ -18,6 +18,9 @@ import {
   DEFAULT_MODEL,
   HIDDEN_GEMS_PROMPT_TEMPLATE
 } from '../gemini-client.js';
+// v0.62.722 — model names come from the shared table, so a Google retirement is
+// a one-line edit rather than a grep across eleven files plus their tests.
+import { MODEL_CHAIN, FLASH } from '../gemini-models.js';
 
 describe('buildHiddenGemsPrompt', () => {
   it('substitutes anchor name, maps URL, and SGT date', () => {
@@ -160,10 +163,13 @@ describe('generateGroundedHiddenGems', () => {
     expect(r.text).toContain('1. Some Gem');
     expect(capturedPrompt).toContain('Tiong Bahru');
     expect(capturedPrompt).toContain('Today = 2026-05-05.');
-    // v0.58.35: default is now gemini-2.5-flash, which uses
-    // googleSearch (not googleSearchRetrieval — that's the 1.x name).
+    // v0.58.35: the default is a 2.x+ model, which uses googleSearch (not
+    // googleSearchRetrieval — that's the 1.x name).
+    // v0.62.722: pinned to the shared constant instead of a /gemini-2\.5/
+    // regex. The regex was the reason this test passed for months after Google
+    // retired the 2.5 line: it asserted a family, not the model the code picks.
     expect(capturedModelOpts.tools).toEqual([{ googleSearch: {} }]);
-    expect(capturedModelOpts.model).toMatch(/gemini-2\.5/);
+    expect(capturedModelOpts.model).toBe(FLASH);
     // v0.58.44: latency hardening — thinkingBudget=0 + tightened
     // generationConfig must be passed through on every call.
     expect(capturedModelOpts.generationConfig).toBeDefined();
@@ -270,7 +276,7 @@ describe('generateGroundedHiddenGems', () => {
     expect(seenModels[2]).toBe('gemini-flash-latest');
   });
 
-  it('cascades through flash-latest → 2.5-flash → 2.5-flash-lite (v0.58.44)', async () => {
+  it('cascades through the whole shared MODEL_CHAIN after the user model fails', async () => {
     const seenModels = [];
     const fakeFactory = () => ({
       getGenerativeModel(opts) {
@@ -294,13 +300,12 @@ describe('generateGroundedHiddenGems', () => {
     } catch (err) { captured = err; }
     expect(captured).not.toBeNull();
     // user's model x 2 (different tool) + 3 fallbacks = 5 attempts.
-    // v0.58.44: dropped slow gemini-2.5-pro for fast gemini-2.5-flash-lite.
+    // v0.58.44: dropped slow gemini-2.5-pro for a fast flash-lite.
+    // v0.62.722: the concrete tail comes from gemini-models.MODEL_CHAIN.
     expect(seenModels).toEqual([
       'gemini-3-flash',
       'gemini-3-flash',
-      'gemini-flash-latest',
-      'gemini-2.5-flash',
-      'gemini-2.5-flash-lite'
+      ...MODEL_CHAIN
     ]);
   });
 

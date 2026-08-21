@@ -69,7 +69,7 @@ async function recognizeSetMenu({ base64, mimeType, type, geminiKey }, _modelFac
       model = _modelFactory();
     } else {
       const { GoogleGenerativeAI } = require('@google/generative-ai');
-      model = new GoogleGenerativeAI(geminiKey).getGenerativeModel({ model: process.env.GEMINI_MODEL || 'gemini-2.5-flash' });
+      model = new GoogleGenerativeAI(geminiKey).getGenerativeModel({ model: require('./gemini-models').defaultModel() });
     }
     const r = await Promise.race([
       model.generateContent([prompt, { inlineData: { data: base64, mimeType: mimeType || 'image/jpeg' } }]),

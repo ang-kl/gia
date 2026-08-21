@@ -23,10 +23,22 @@ const TTL_S = 60 * 24 * 60 * 60;
 // USD per 1,000 tokens (Gemini) and USD per request (Maps).
 const PRICES = Object.freeze({
   gemini: {
+    // v0.62.722 — rates read off https://ai.google.dev/gemini-api/docs/pricing
+    // on 21-08 '26 (paid tier, text input). The 2.5 rows are RETAINED even
+    // though Google now 404s those models for new callers: Redis still holds
+    // per-day receipts stamped with those names, and /cost must keep pricing
+    // history correctly rather than re-label it as an estimate.
+    'gemini-3.7-flash':      { in: 0.75 / 1e6, out: 3.75 / 1e6 },
+    'gemini-3.6-flash':      { in: 0.75 / 1e6, out: 3.75 / 1e6 },
+    'gemini-3.5-flash':      { in: 1.50 / 1e6, out: 9.00 / 1e6 },
+    'gemini-3.5-flash-lite': { in: 0.30 / 1e6, out: 2.50 / 1e6 },
+    'gemini-3.1-flash-lite': { in: 0.25 / 1e6, out: 1.50 / 1e6 },
     'gemini-2.5-pro':        { in: 1.25 / 1e6, out: 5.00 / 1e6 },
     'gemini-2.5-flash':      { in: 0.30 / 1e6, out: 2.50 / 1e6 },
     'gemini-2.5-flash-lite': { in: 0.10 / 1e6, out: 0.40 / 1e6 },
-    'gemini-flash-latest':   { in: 0.30 / 1e6, out: 2.50 / 1e6 }
+    // Alias: routes to whatever Google calls current-gen flash, so it is
+    // priced at the current flash tier rather than at a frozen number.
+    'gemini-flash-latest':   { in: 0.75 / 1e6, out: 3.75 / 1e6 }
   },
   maps: {
     // USD per request — Google Maps Platform 2026 pricing.
@@ -121,6 +133,10 @@ function _dateKey(daysAgo) {
 // moment that call ran. That is a HISTORICAL record, not the current config:
 // the operator reports the var now reads gemini-2.5-flash-lite, which IS in
 // PRICES, so calls made after the change price correctly. Both facts hold.
+// v0.62.722 postscript: gemini-3.1-flash-lite turned out to be a real, current,
+// and CHEAPER model ($0.25/$1.50) — it is now in PRICES. The 2026-08-19 receipt
+// was not an anomaly to be explained away; it was the only direct evidence in
+// the system of a model that actually worked in this project.
 //
 // The defect is independent of which model it was: any name outside PRICES
 // costed out at exactly zero, and spend-guard.js:93 sums gemini.totalUsd +
@@ -130,11 +146,18 @@ function _dateKey(daysAgo) {
 // operational act, not an edge case.
 //
 // Under-counting is the dangerous direction for a spend brake, so an unknown
-// model is now priced at the most expensive known flash tier and FLAGGED rather
-// than zeroed. Deliberately not inventing a precise gemini-3.x rate: this file
-// cannot verify current Google pricing, and a confident wrong number is worse
-// than a labelled estimate. Add real rates to PRICES when confirmed.
-const FALLBACK_GEMINI_RATE = Object.freeze({ in: 0.30 / 1e6, out: 2.50 / 1e6 });
+// model is priced at a known-expensive flash tier and FLAGGED rather than
+// zeroed. v0.62.719 declined to invent gemini-3.x rates on the grounds that
+// this file could not verify them; v0.62.722 verified them against Google's
+// published pricing page and added the real numbers above, so the fallback is
+// once again reserved for genuinely unknown names. It is raised to the 3.x
+// flash tier because that is now the expensive end of the table.
+//
+// KNOWN EXPIRY: gemini-3.6/3.7-flash are $0.75/$3.75 "through December 31,
+// 2026" and $1.50/$7.50 from January 1, 2027. This table has no notion of a
+// dated rate, so from 2027 those two rows UNDER-count by half until edited —
+// the dangerous direction. Register item; revisit before year end.
+const FALLBACK_GEMINI_RATE = Object.freeze({ in: 1.50 / 1e6, out: 9.00 / 1e6 });
 
 // Returns { usd, estimated } — estimated true when the model was not in PRICES.
 function _geminiUsd(model, hash) {
