@@ -18410,6 +18410,67 @@ async function cacheBotUsername() {
       }
     });
 
+    // v0.62.720 — TEMPORARY, and a sibling of /api/i18n-translate above.
+    // Runs the Gemini audit over ONE batch file and returns it with every
+    // gemini_audit filled.
+    //
+    // WHY A ROUTE AND NOT THE LOCAL CLI: the operator declined to paste
+    // GEMINI_API_KEY into chat — "wire it behind a Railway route" — so the key
+    // never leaves the environment that already holds it. The cost is the return
+    // path: results come back through a browser and must be re-uploaded before
+    // they can be applied. That is the operator's trade to make.
+    //
+    // WHY PER-BATCH: a full language is 265 items ≈ 11 model calls, which will
+    // outlive any sensible HTTP timeout. One batch is 50 items ≈ 2 calls. There
+    // is deliberately no ?batch=all here — offering it would just hand back a
+    // gateway timeout half the time, and a half-finished audit is worse than an
+    // honest 36 requests.
+    //
+    // Gate: same I18N_TRANSLATE_TOKEN, same fail-closed-when-unset posture
+    // (D-118). Not isOwnerChat — that returns true for everyone when
+    // TELEGRAM_OWNER_CHAT_ID is missing (O-185), which is wrong for a route
+    // that spends money per call.
+    app.get('/api/i18n-audit', async (req, res) => {
+      try {
+        const gate = process.env.I18N_TRANSLATE_TOKEN;
+        if (!gate) return res.status(503).json({ error: 'I18N_TRANSLATE_TOKEN not configured' });
+        if (String(req.query.token || '') !== gate) return res.status(403).json({ error: 'forbidden' });
+        if (!process.env.GEMINI_API_KEY) return res.status(503).json({ error: 'GEMINI_API_KEY not configured' });
+
+        const audit = require('./i18n-audit');
+
+        // ?models=1 — list what this key can actually reach, before spending
+        // anything. Cheap, and it is the only way to know whether a model name
+        // is real rather than remembered.
+        if (String(req.query.models || '') === '1') {
+          return res.json({ models: await audit.listModels(process.env.GEMINI_API_KEY) });
+        }
+
+        const lang = String(req.query.lang || '');
+        const batch = String(req.query.batch || '01').padStart(2, '0');
+        if (!/^(id|ru|de|zh|ja|es)$/.test(lang)) return res.status(400).json({ error: 'lang must be one of id|ru|de|zh|ja|es' });
+        if (!/^0[1-9]$/.test(batch)) return res.status(400).json({ error: 'batch must be 01..09' });
+
+        const fsMod = require('fs');
+        const file = path.join(__dirname, 'scripts', 'i18n-audit-jobs', `i18n-audit-${lang}-${batch}.json`);
+        if (!fsMod.existsSync(file)) return res.status(404).json({ error: `no job file for ${lang} batch ${batch}` });
+
+        const job = JSON.parse(fsMod.readFileSync(file, 'utf8'));
+        const model = String(req.query.model || '') || undefined;
+        const r = await audit.auditJob(job, { model, chunk: Number(req.query.chunk) || undefined });
+        console.log(`[i18n-audit] ${lang}/${batch} model=${r.model} audited=${r.audited} missing=${r.missing} calls=${r.calls} in=${r.inTok} out=${r.outTok} → ${JSON.stringify(r.counts)}`);
+
+        try { require('./api-cost').recordGeminiUsage(redis, r.model, { promptTokenCount: r.inTok, candidatesTokenCount: r.outTok }); } catch { /* instrumentation must never fail the call */ }
+
+        res.setHeader('Content-Disposition', `attachment; filename="i18n-audit-${lang}-${batch}.json"`);
+        return res.json(r.job);
+      } catch (err) {
+        console.error('[Error] /api/i18n-audit failed:', err.message);
+        const d = err.response?.data?.error;
+        return res.status(500).json({ error: 'internal', detail: d?.message || err.message, reason: d?.details?.[0]?.reason || null });
+      }
+    });
+
     // v0.57.11: SVG endpoint dropped; mrt-system-map.png is served as
     // a Vite-emitted static asset from web/transport/public/.
     // Per-line status feed for the Transport TMA.
