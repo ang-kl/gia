@@ -12374,9 +12374,27 @@ async function registerCommandsMenu() {
     // and were silently failing on the upstream Telegram API, which is
     // why the description never updated despite the deploy. Same bug
     // applied to setMyShortDescription. Both fixed below.
+    // v0.62.723 — enforce Telegram's 512-char cap HERE rather than discovering
+    // it as `400 BOT_DESC_INVALID`. Both strings above have been 520-524 chars
+    // at every count value since v0.60.37, so this call has been rejected on
+    // every boot and the panel has never shown this text. See
+    // bot-description-fit.js for what gets sacrificed and in what order.
     try {
-      await bot.setMyDescription({ description: enDescription });
-      await bot.setMyDescription({ description: frDescription, language_code: 'fr' });
+      const { fitDescription } = require('./bot-description-fit');
+      for (const [code, raw] of [[null, enDescription], ['fr', frDescription]]) {
+        const fit = fitDescription(raw);
+        if (fit.trimmed) {
+          console.warn(
+            `[setMyDescription] ${code || 'en'} description exceeded Telegram's ` +
+            `512-char cap — trimmed by dropping the ` +
+            `${fit.trimmed === 'hint' ? 'trailing hint line' : fit.trimmed === 'lines' ? 'last command line(s)' : 'tail (hard cut)'}` +
+            `; now ${fit.length}. Shorten the copy in index.js to control what goes.`
+          );
+        }
+        await bot.setMyDescription(code
+          ? { description: fit.text, language_code: code }
+          : { description: fit.text });
+      }
     } catch (err) {
       console.warn('[setMyDescription] failed (non-fatal):', err.message);
     }
@@ -12523,6 +12541,32 @@ async function cacheBotUsername() {
     console.warn('[Boot] MAP_ID env var unset — Sanctuary Map TMA will render with default Google Maps styling (no vector branding). Register a Map ID at https://console.cloud.google.com/google/maps-apis/studio/maps and set MAP_ID in Railway. Steps in setup-cloud-map-id.md.');
   } else {
     console.log(`[Boot] MAP_ID configured: ${process.env.MAP_ID.slice(0, 16)}…`);
+  }
+
+  // v0.62.723 — report the Gemini model choice at BOOT.
+  //
+  // v0.62.722 added a retired-name warning inside gemini-models.defaultModel(),
+  // and this session told the operator it would "name it at boot". It does not:
+  // gemini-client.js is require()d lazily inside handlers, so defaultModel()
+  // does not run until the first Gemini call, and the warning lands in the
+  // middle of a user request rather than in the boot log they actually read.
+  // A configuration error you only discover in front of a user is one you
+  // discover too late. This runs the same check eagerly, next to the MAP_ID
+  // check that already exists for the same reason.
+  try {
+    const gm = require('./gemini-models');
+    const chosen = process.env.GEMINI_MODEL;
+    if (!process.env.GEMINI_API_KEY) {
+      console.warn('[Boot] GEMINI_API_KEY unset — every Gemini path will fall back to dictionaries.');
+    } else if (!chosen) {
+      console.log(`[Boot] GEMINI_MODEL unset — defaulting to ${gm.FLASH}. Fallbacks: ${gm.MODEL_CHAIN.join(' → ')}.`);
+    } else if (gm.RETIRED[chosen]) {
+      console.warn(`[Boot] GEMINI_MODEL="${chosen}" was retired by Google — every Gemini call will 404. Set it to "${gm.RETIRED[chosen]}" in Railway.`);
+    } else {
+      console.log(`[Boot] GEMINI_MODEL configured: ${chosen}. Fallbacks: ${gm.MODEL_CHAIN.join(' → ')}.`);
+    }
+  } catch (err) {
+    console.warn('[Boot] Gemini model check failed (non-fatal):', err.message);
   }
 
   // Warm SG public-holiday cache so the holiday-special preset can
