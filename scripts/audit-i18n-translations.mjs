@@ -32,12 +32,14 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const axios = require('axios');
+// Shared core — the SAME module the /api/i18n-audit route uses. There is
+// deliberately no second copy of the prompt-loading, chunking or verdict-merge
+// logic here: two implementations of an audit would eventually disagree, and
+// the disagreement would be invisible in the output.
+const { auditJob, listModels, DEFAULT_MODEL } = require('../i18n-audit');
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const DIR = path.join(ROOT, 'scripts/i18n-audit-jobs');
-const PROMPT_FILE = path.join(ROOT, 'scripts/i18n-translation-audit-prompt.md');
-const API = 'https://generativelanguage.googleapis.com/v1beta';
 
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(n);
@@ -53,56 +55,9 @@ const LANG = val('--lang');
 // could not be confirmed to exist (ListModels was 403'd), so it is not the
 // default. Override with --model or GEMINI_MODEL; either way the name is checked
 // against ListModels before any work starts.
-const MODEL = val('--model', process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite');
+const MODEL = val('--model', process.env.GEMINI_MODEL || DEFAULT_MODEL);
 const CHUNK = Number(val('--chunk', '25'));
 const KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-
-// The instruction block, read from the shared prompt file so the API path and
-// the chat path stay identical by construction.
-function systemInstruction() {
-  const md = fs.readFileSync(PROMPT_FILE, 'utf8');
-  const i = md.indexOf('\n---\n');
-  if (i < 0) throw new Error('prompt file has no --- separator; cannot split operator notes from instructions');
-  return md.slice(i + 5).trim();
-}
-
-async function listModels() {
-  const r = await axios.get(`${API}/models?key=${encodeURIComponent(KEY)}&pageSize=100`, { timeout: 30_000 });
-  return (r.data?.models || [])
-    .filter((m) => (m.supportedGenerationMethods || []).includes('generateContent'))
-    .map((m) => m.name.replace(/^models\//, ''));
-}
-
-// Audit one chunk. Returns a Map of id -> gemini_audit object.
-async function auditChunk(items, sys) {
-  const payload = {
-    system_instruction: { parts: [{ text: sys }] },
-    contents: [{
-      role: 'user',
-      parts: [{
-        text: 'Audit every item below. Return ONLY a JSON array, one object per item, '
-            + 'each shaped { "id": <the item id>, "gemini_audit": { …all required fields… } }. '
-            + 'One entry per input item, same ids, no extras, no commentary.\n\n'
-            + JSON.stringify(items, null, 2)
-      }]
-    }],
-    generationConfig: { responseMimeType: 'application/json', temperature: 0 }
-  };
-  const r = await axios.post(
-    `${API}/models/${encodeURIComponent(MODEL)}:generateContent?key=${encodeURIComponent(KEY)}`,
-    payload, { timeout: 180_000, headers: { 'Content-Type': 'application/json' } }
-  );
-  const text = r.data?.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') || '';
-  let parsed;
-  try { parsed = JSON.parse(text); } catch {
-    throw new Error(`model returned non-JSON (${text.slice(0, 120)}…)`);
-  }
-  const arr = Array.isArray(parsed) ? parsed : (parsed.items || parsed.results || []);
-  const out = new Map();
-  for (const e of arr) if (e && e.id && e.gemini_audit) out.set(e.id, e.gemini_audit);
-  const usage = r.data?.usageMetadata || {};
-  return { verdicts: out, inTok: usage.promptTokenCount || 0, outTok: usage.candidatesTokenCount || 0 };
-}
 
 // ------------------------------------------------------------------- main
 
@@ -133,7 +88,7 @@ if (!KEY) {
 
 let available;
 try {
-  available = await listModels();
+  available = await listModels(KEY);   // shared core takes the key explicitly
 } catch (err) {
   const d = err.response?.data?.error;
   console.error(`✗ cannot reach the Gemini API: ${d?.status || err.message}`);
@@ -164,50 +119,28 @@ if (!available.includes(MODEL)) {
 }
 
 console.log(`Auditing with ${MODEL} · chunk ${CHUNK} · ${files.length} file(s)\n`);
-const sys = systemInstruction();
 let audited = 0, skipped = 0, inTok = 0, outTok = 0, missing = 0;
 
 for (const name of files) {
   const file = path.join(DIR, name);
   const job = JSON.parse(fs.readFileSync(file, 'utf8'));
-  const todo = job.items.filter((i) => i.gemini_audit.verdict === 'unreviewed');
-  skipped += job.items.length - todo.length;
-  if (!todo.length) { console.log(`  – ${name.padEnd(28)} already audited`); continue; }
-
-  for (let i = 0; i < todo.length; i += CHUNK) {
-    const slice = todo.slice(i, i + CHUNK);
-    // Send only what the auditor needs to judge — not the whole record.
-    const payload = slice.map((it) => ({
-      id: it.id, source: it.source, context: it.context, kind: it.kind,
-      max_chars: it.max_chars, parse_mode: it.parse_mode,
-      repo_translation: it.repo_translation, google_translation: it.google_translation,
-      prior_note: it.gemini_audit.notes || ''
-    }));
-    try {
-      const { verdicts, inTok: it2, outTok: ot } = await auditChunk(payload, sys);
-      inTok += it2; outTok += ot;
-      for (const item of slice) {
-        const v = verdicts.get(item.id);
-        // No verdict returned = the item stays visibly unreviewed. Never
-        // upgrade silence into a pass.
-        if (!v) { missing++; continue; }
-        item.gemini_audit = { ...item.gemini_audit, ...v };
-        audited++;
-      }
-    } catch (err) {
-      console.error(`  ✗ ${name} chunk ${i / CHUNK + 1}: ${err.message}`);
-      console.error('    Writing what succeeded so far; re-run to resume.');
-      fs.writeFileSync(file, JSON.stringify(job, null, 2) + '\n');
-      process.exit(1);
-    }
+  if (!job.items.some((i) => i.gemini_audit.verdict === 'unreviewed')) {
+    console.log(`  – ${name.padEnd(28)} already audited`);
+    skipped += job.items.length;
+    continue;
   }
-
-  // Recount from the items, never accumulate — a computed total cannot drift.
-  const c = { pass: 0, warn: 0, fail: 0, unreviewed: 0 };
-  for (const it of job.items) c[it.gemini_audit.verdict] = (c[it.gemini_audit.verdict] || 0) + 1;
-  job.summary = { ...job.summary, total: job.items.length, ...c };
-  fs.writeFileSync(file, JSON.stringify(job, null, 2) + '\n');
-  console.log(`  ✓ ${name.padEnd(28)} pass ${c.pass} · warn ${c.warn} · fail ${c.fail} · unreviewed ${c.unreviewed}`);
+  try {
+    const r = await auditJob(job, { apiKey: KEY, model: MODEL, chunk: CHUNK });
+    fs.writeFileSync(file, JSON.stringify(r.job, null, 2) + '\n');
+    audited += r.audited; missing += r.missing; skipped += r.alreadyAudited;
+    inTok += r.inTok; outTok += r.outTok;
+    const c = r.counts;
+    console.log(`  ✓ ${name.padEnd(28)} pass ${c.pass} · warn ${c.warn} · fail ${c.fail} · unreviewed ${c.unreviewed}`);
+  } catch (err) {
+    console.error(`  ✗ ${name}: ${err.response?.data?.error?.message || err.message}`);
+    console.error('    Stopping. Files written so far keep their verdicts; re-run to resume.');
+    process.exit(1);
+  }
 }
 
 console.log(`\n${audited} audited · ${skipped} already done · ${missing} returned no verdict (left unreviewed)`);
