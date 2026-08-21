@@ -46,7 +46,14 @@ const val = (n, d = null) => { const i = args.indexOf(n); return i >= 0 ? args[i
 const DRY = flag('--dry-run');
 const LIST = flag('--list-models');
 const LANG = val('--lang');
-const MODEL = val('--model', process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite');
+// Default is gemini-2.5-flash-lite: the only candidate with evidence behind it
+// in this repo — it is in api-cost.js's PRICES, it is in gemini-client.js's
+// FALLBACK_CHAIN, and that chain's comment records it as GA and verified at
+// v0.58.44. A briefly-defaulted gemini-3.5-flash-lite was operator-requested but
+// could not be confirmed to exist (ListModels was 403'd), so it is not the
+// default. Override with --model or GEMINI_MODEL; either way the name is checked
+// against ListModels before any work starts.
+const MODEL = val('--model', process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite');
 const CHUNK = Number(val('--chunk', '25'));
 const KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 
