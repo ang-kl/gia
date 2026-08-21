@@ -39,6 +39,51 @@ See `doc/VibeCodingRecord/VibeCodingRecord.md`.
 This rule was set by the operator: *"Update the Journal every time a new PR is created and done."*
 (Recorded as decision-gate G3 in `journal-0_60_144-13_05_26-0900.md`.)
 
+## Standing rules — operator, 22-08 '26 (PINNED)
+
+Set by the operator verbatim: *"use this Mental model for building this project"* and
+*"Pin this request"*. These apply to every session, not just the one they were set in.
+
+### Mental model
+
+**Intent → Interpretation → Assumptions → Invariants → Execution → Evidence.**
+
+Execution is the fifth step, not the first. The four before it are what make the fifth
+correctable, and the sixth is what makes it trustworthy. Skipping to Execution is how this
+project has repeatedly shipped work that was competent and wrong.
+
+### Custom commands
+
+| Command | Question it answers |
+|---|---|
+| `/UNDERSTANDING` | What do you think I mean, including what you are treating as given? |
+| `/GAPS` | Which unresolved interpretations could materially change the outcome? |
+| `/DELTA` | What has changed from your earlier understanding? |
+
+Defined in `.claude/commands/{understanding,gaps,delta}.md`.
+
+### Reporting protocol — important or consequential work
+
+1. **Lead with the final answer or recommendation.** Not the reasoning that produced it.
+2. **Identify the authoritative sources used, and separate verified fact from inference.**
+3. **State the material invariants**, each reported as **Passed / Failed / Not Verifiable**.
+   *Not Verifiable* is a first-class result — never dress it as Passed.
+4. **Disclose any material search, retrieval, calculation, or external tool used.** If that
+   information is unavailable, say so rather than guessing.
+5. **Use deterministic tools for exact calculations** wherever one exists. Do not do
+   arithmetic in prose when a command can do it.
+6. **Flag missing evidence, conflicting sources, and assumptions needing confirmation.**
+7. **Ask for approval before any external, destructive, financial, legal, personnel-related
+   or otherwise consequential action.** This subsumes gates G2 and G4, and is wider than
+   both.
+8. **Never infer or invent the model, reasoning setting, hidden routing, or unavailable
+   system metadata.**
+
+Rule 3 has teeth here specifically because of D-199: repo state is evidence about the past,
+not the present. An invariant checked against a comment, a stored chain, or a prior journal
+entry is **Not Verifiable**, not Passed. When an external API is the authority on a fact,
+only its live response verifies it.
+
 ## Pre-PR safety
 
 Run the `gia-preflight` checklist (`.claude/skills/gia-preflight/SKILL.md`, `/gia-preflight`)
