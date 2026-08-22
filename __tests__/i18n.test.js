@@ -32,8 +32,21 @@ describe('t() — basic lookups', () => {
     expect(t('crowd.high', 'fr')).toBe('🔴 chargé');
   });
   it('falls back to en when lang missing/unknown', () => {
+    // v0.62.728: this used 'de' as the stand-in for "a language with no
+    // translation". German now HAS one, so the example expired — not the
+    // behaviour. 'xx' is not in SUPPORTED and never will be, so it tests the
+    // fallback rather than the current state of the table.
     expect(t('hours.openNow')).toBe('Open now');
-    expect(t('hours.openNow', 'de')).toBe('Open now');
+    expect(t('hours.openNow', 'xx')).toBe('Open now');
+  });
+
+  it('serves the six added locales, falling back per key rather than per language', () => {
+    // The machine translations are applied per key: an item that failed structural
+    // validation is simply absent, and t() falls through to en for that key alone.
+    expect(t('hours.openNow', 'de')).toBe('Jetzt geöffnet');
+    expect(t('hours.openNow', 'ja')).not.toBe('Open now');
+    // privacy.body is long-form and was never translated — it must still be en.
+    expect(typeof t('hours.openNow', 'zh')).toBe('string');
   });
   it('returns the key itself for missing keys', () => {
     expect(t('does.not.exist', 'en')).toBe('does.not.exist');

@@ -484,7 +484,7 @@
       "max_chars": 156,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "📍 Set Area: {area} Gunakan<code> /lokasi atau<code> /l <tempat> · ubah alamat",
+      "google_translation": "📍 Set Area: {area} Gunakan <code>/lokasi atau <code>/l &lt;tempat&gt; · ubah alamat</code></code>",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -495,7 +495,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
       }
     },
     {
@@ -528,7 +528,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "<i>Ingin melihat tempat makan di<b> {place} ?",
+      "google_translation": "<i>Ingin melihat tempat makan di <b>{place}</b> ?</i>",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -539,7 +539,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
       }
     },
     {
@@ -572,7 +572,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "📍 Lokasi diatur ke<b> {label} . {cap}",
+      "google_translation": "📍 Lokasi diatur ke <b>{label}</b> . {cap}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -583,7 +583,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
       }
     },
     {
@@ -770,7 +770,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "ℹ️<b> {name} — {note}",
+      "google_translation": "ℹ️ <b>{name}</b> — {note}",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -781,7 +781,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
       }
     },
     {
@@ -880,7 +880,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "Pilihan yang terbatas di<b> {place} — berikut adalah tempat makan dengan peringkat teratas di dekatnya:_",
+      "google_translation": "Pilihan yang terbatas di <b>{place}</b> — berikut adalah tempat makan dengan peringkat teratas di dekatnya:_",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -891,7 +891,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
       }
     },
     {
@@ -924,7 +924,7 @@
       "max_chars": 132,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "📍<b> {place} — tidak ditemukan tempat makan di sini. Sebagai gantinya, menampilkan tempat makan dengan peringkat teratas di dekatnya.",
+      "google_translation": "📍 <b>{place}</b> — tidak ditemukan tempat makan di sini. Sebagai gantinya, menampilkan tempat makan dengan peringkat teratas di dekatnya.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -935,7 +935,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
       }
     },
     {
@@ -946,7 +946,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "📍<b> {place} — menemukan {n} tempat makan di sini",
+      "google_translation": "📍 <b>{place}</b> — menemukan {n} tempat makan di sini",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -957,7 +957,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
       }
     },
     {
@@ -968,7 +968,7 @@
       "max_chars": 120,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "📍<b> {place} — menampilkan {shown} dari {total} tempat makan di sini",
+      "google_translation": "📍 <b>{place}</b> — menampilkan {shown} dari {total} tempat makan di sini",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -979,7 +979,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
       }
     },
     {
@@ -1034,7 +1034,7 @@
       "max_chars": 162,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "✨<b> Restoran terbaik {n} di dekat {place} (dalam radius {km} km, diurutkan berdasarkan peringkat · Michelin · kelangkaan · keramaian)",
+      "google_translation": "✨ <b>Restoran terbaik {n} di dekat {place} (dalam radius {km} km, diurutkan berdasarkan peringkat · Michelin · kelangkaan · keramaian)</b>",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1045,7 +1045,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
       }
     },
     {
@@ -1078,7 +1078,7 @@
       "max_chars": 167,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "✨<b> Restoran terbaik {n} di luar {place} (dalam radius {km} km, diurutkan berdasarkan peringkat · Michelin · kelangkaan · keramaian)",
+      "google_translation": "✨ <b>Restoran terbaik {n} di luar {place} (dalam radius {km} km, diurutkan berdasarkan peringkat · Michelin · kelangkaan · keramaian)</b>",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1089,7 +1089,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
       }
     },
     {

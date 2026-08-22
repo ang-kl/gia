@@ -42,10 +42,40 @@ const SHOW_FAILURES = args.includes('--failures');
 // Each check returns a stable key when the translation diverges from the source in
 // a way that changes behaviour. Comparing against the SOURCE rather than asserting
 // a shape means a string with no tags is not expected to grow any.
+// Telegram's HTML parse_mode accepts exactly this tag set. Anything else between
+// angle brackets is an unknown tag and Telegram rejects the WHOLE message.
+const TG_TAGS = 'b|strong|i|em|u|ins|s|strike|del|code|pre|a|tg-spoiler|blockquote';
+const TAG_RE = new RegExp(`</?(?:${TG_TAGS})(?:\\s[^>]*)?>`, 'g');
+
+// v0.62.728 — the first cut of this file checked only <b> and <i>. That missed
+// <code> damage entirely, and missed the worse case: `&lt;place&gt;` came back as
+// a literal `<Ort>`, which Telegram parses as an unknown tag and rejects the whole
+// send. A validator that overlooks the failure it exists to prevent is the same
+// class of defect as the artefact that overstated its own rigour (X-10, P2 on
+// #1721) — found here by reading a failing item's full text rather than its
+// summary.
+function strayAngles(s) {
+  return (String(s || '').replace(TAG_RE, '').match(/[<>]/g) || []).length;
+}
+
 const CHECKS = [
-  ['html-tags',    (s) => (s.match(/<\/?[bi]>/g) || []).join(',')],
+  ['html-tags',    (s) => (s.match(TAG_RE) || []).join(',')],
+  ['stray-angles', (s) => String(strayAngles(s))],
   ['placeholders', (s) => (s.match(/\{\w+\}/g) || []).sort().join(',')],
   ['commands',     (s) => (s.match(/\/[a-z]{2,15}\b/g) || []).sort().join(',')],
+  // A Telegram command is only tappable when it ends at a boundary. Cloud
+  // Translation butted commands straight against Japanese and Chinese text —
+  // `/cuisineで` — which reads as one long token and stops being a command. The
+  // check counts undelimited commands rather than asserting zero, so a source that
+  // legitimately has one is not failed for it.
+  ['cmd-delimited', (s) => {
+    let n = 0;
+    for (const m of String(s || '').matchAll(/\/[a-z]{2,15}/g)) {
+      const nxt = String(s)[m.index + m[0].length];
+      if (nxt && !/\s/.test(nxt) && !(nxt.charCodeAt(0) < 128 && /[^\w]/.test(nxt))) n++;
+    }
+    return String(n);
+  }],
   ['backticks',    (s) => String((s.match(/`/g) || []).length)],
   ['newlines',     (s) => String((s.match(/\n/g) || []).length)]
 ];
@@ -65,6 +95,11 @@ function load() {
     .map((f) => ({ file: f, job: JSON.parse(fs.readFileSync(path.join(DIR, f), 'utf8')) }));
 }
 
+// Importable without side effects: apply-i18n-translations.mjs uses validateItem()
+// as its gate, and a gate that prints a report every time it is loaded buries the
+// caller's own output.
+const RUN_AS_CLI = process.argv[1] && process.argv[1].endsWith('validate-i18n-translations.mjs');
+
 const byLang = {}, reasons = {}, failing = [];
 let total = 0, safe = 0;
 
@@ -81,6 +116,7 @@ for (const { job } of load()) {
   }
 }
 
+if (RUN_AS_CLI) {
 console.log(`${total} items · ${safe} structurally safe · ${total - safe} failing\n`);
 console.log('by language:');
 for (const [l, c] of Object.entries(byLang)) {
@@ -102,3 +138,4 @@ if (SHOW_FAILURES) {
 
 console.log(`\nStructural only. It does not check whether a translation MEANS the right thing —`);
 console.log(`that is the Gemini audit's job, and the audit has not run (0 / ${total}).`);
+}
