@@ -66,9 +66,29 @@ const COUNTRY_TABLES = [
   require('./TW-michelin'),
 ];
 
+const { assertCityManifest } = require('./michelin-city-manifest');
+
 const CATEGORIES = new Set(['three-star', 'two-star', 'one-star', 'bib-gourmand']);
 const STATUSES = new Set(['open', 'closed']);
 const VALID_YEARS = new Set([2025, 2026]);
+
+// ── MICHELIN Green Star ──────────────────────────────────────────────
+// The Green Star is a SUSTAINABILITY distinction, not a rung on the star
+// ladder: a restaurant may hold three Stars and a Green Star in the same
+// edition, or a Green Star and nothing else. That is why it is a PARALLEL
+// field (`greenStarYears: [2026]`) rather than another `awards[].category`.
+//
+// Modelling it as a category was the obvious first move and is wrong twice
+// over. `_venueToFlatRows` emits one flat row PER AWARD, so a one-starred
+// venue that also held a Green Star would appear TWICE in every flat view
+// (`michelinForCity`, `getAll`) — once as a star, once as a green star —
+// and the manifest `total`, which counts award rows, would silently grow by
+// the number of Green Stars without any tier changing. Neither failure
+// throws; both just quietly misreport. A parallel field cannot do either.
+//
+// Per-edition history is kept for the same reason the awards carry a year:
+// a Green Star can be gained or lost between editions like any other.
+const GREEN_STAR_KEY = 'greenStarYears';
 
 // ── city table ───────────────────────────────────────────────────────
 // `michelin-data.js` is CommonJS at the repo root; the curated cities
@@ -167,12 +187,14 @@ const COUNTRY_MANIFEST = Object.freeze({
   HK: {
     // 2025 PARTIAL — source captured upper tiers only (no Bib Gourmand).
     2025: { 'three-star': 7, 'two-star': 11, 'one-star': 1, total: 19 },
-    2026: { 'three-star': 7, 'two-star': 13, 'one-star': 57, 'bib-gourmand': 70, total: 147 },
+    // 'green-star' is asserted separately and is NOT part of `total` — see the
+    // Green Star note above CATEGORIES for why it is not an award row.
+    2026: { 'three-star': 7, 'two-star': 13, 'one-star': 57, 'bib-gourmand': 70, total: 147, 'green-star': 4 },
   },
   MO: {
     // 2025 PARTIAL — source captured the stars only (no one-star, no Bib).
     2025: { 'three-star': 2, 'two-star': 6, total: 8 },
-    2026: { 'three-star': 2, 'two-star': 6, 'one-star': 13, 'bib-gourmand': 13, total: 34 },
+    2026: { 'three-star': 2, 'two-star': 6, 'one-star': 13, 'bib-gourmand': 13, total: 34, 'green-star': 1 },
   },
   PH: {
     // 2026-ONLY — the Philippines guide launched with the 2026 edition.
@@ -271,6 +293,22 @@ function validateVenue(v, source = 'unknown', requireCuratedCity = true) {
       throw new Error(`${where}: award "year" must be 2025 or 2026 on "${v.name}", got ${JSON.stringify(a.year)}`);
     }
   }
+  // Green Star: optional, but when present must be an array of valid edition
+  // years with no duplicates. Absent and empty are both "no Green Star".
+  if (v[GREEN_STAR_KEY] !== undefined) {
+    const gs = v[GREEN_STAR_KEY];
+    if (!Array.isArray(gs)) {
+      throw new Error(`${where}: "${GREEN_STAR_KEY}" must be an array when present on "${v.name}"`);
+    }
+    for (const y of gs) {
+      if (!VALID_YEARS.has(y)) {
+        throw new Error(`${where}: "${GREEN_STAR_KEY}" entries must be a valid edition year on "${v.name}", got ${JSON.stringify(y)}`);
+      }
+    }
+    if (new Set(gs).size !== gs.length) {
+      throw new Error(`${where}: "${GREEN_STAR_KEY}" has duplicate years on "${v.name}"`);
+    }
+  }
   return true;
 }
 
@@ -292,6 +330,9 @@ function venueToVenue(entry) {
   };
   if (entry.postal !== undefined) v.postal = entry.postal;
   if (entry.formerNames !== undefined) v.formerNames = entry.formerNames;
+  // Copied, not referenced — the country tables are module-level literals and
+  // a shared array would let one consumer's mutation reach every other.
+  if (Array.isArray(entry[GREEN_STAR_KEY])) v[GREEN_STAR_KEY] = entry[GREEN_STAR_KEY].slice();
   return v;
 }
 
@@ -356,7 +397,7 @@ function assertManifest(cc, venues, source = 'unknown', manifestOverride) {
     }
     let yearTotal = 0;
     for (const [tier, want] of Object.entries(expected)) {
-      if (tier === 'total') continue;
+      if (tier === 'total' || tier === 'green-star') continue;   // green-star handled below
       const got = counts[tier] || 0;
       manifestTotalAwards += want;
       if (got !== want) {
@@ -365,6 +406,21 @@ function assertManifest(cc, venues, source = 'unknown', manifestOverride) {
         );
       }
       yearTotal += got;
+    }
+    // Green Star is asserted per year but deliberately EXCLUDED from
+    // `yearTotal`: `total` counts award rows, and a Green Star is not one.
+    // Folding it in would make `total` disagree with `awards.length` summed
+    // across the country, which is the number every other check derives from.
+    if (expected['green-star'] !== undefined) {
+      let gs = 0;
+      for (const v of venues) {
+        if (Array.isArray(v[GREEN_STAR_KEY]) && v[GREEN_STAR_KEY].includes(year)) gs++;
+      }
+      if (gs !== expected['green-star']) {
+        throw new Error(
+          `[michelin-data] ${source}: ${cc} ${year} manifest mismatch for "green-star" — expected ${expected['green-star']}, got ${gs}`
+        );
+      }
     }
     if (expected.total !== undefined && yearTotal !== expected.total) {
       throw new Error(
@@ -389,6 +445,10 @@ for (const tbl of COUNTRY_TABLES) {
   _ingestVenues(tbl.ENTRIES, source);
   const ccVenues = VENUES.filter((v) => String(v.country).toUpperCase() === cc);
   assertManifest(cc, ccVenues, source);
+  // Per-city assertion. A national total cannot see per-city drift: JP 2026
+  // passes its country manifest while Tokyo is one one-star short of the
+  // published figure, and CN passes while Guangzhou sits on the 2025 edition.
+  assertCityManifest(cc, ccVenues, source);
 }
 
 // ── back-compat flat view ────────────────────────────────────────────
@@ -527,6 +587,24 @@ function editionVenues(year) {
 // venue is closed (or absent from the latest edition year), droppedAfter is
 // the last year it held an award.
 const TIER_RANK = { 'bib-gourmand': 0, 'one-star': 1, 'two-star': 2, 'three-star': 3 };
+// Venues holding a MICHELIN Green Star. `year` omitted → any edition.
+// Returns venues, not flat rows: a Green Star is a property of the venue, and
+// flattening it per award is exactly the double-listing the schema note above
+// exists to prevent.
+function greenStarVenues(year) {
+  return VENUES.filter((v) => {
+    const gs = v[GREEN_STAR_KEY];
+    if (!Array.isArray(gs) || !gs.length) return false;
+    return year === undefined ? true : gs.includes(year);
+  });
+}
+
+// Edition years in which this venue held a Green Star (always an array).
+function greenStarYears(venue) {
+  const gs = venue && venue[GREEN_STAR_KEY];
+  return Array.isArray(gs) ? gs.slice() : [];
+}
+
 const MAX_EDITION_YEAR = Math.max(...VALID_YEARS);
 
 function awardsDiff(venue) {
@@ -584,6 +662,9 @@ function retainedAwardYears(venue) {
 module.exports = {
   // schema constants
   CATEGORIES,
+  GREEN_STAR_KEY,
+  greenStarVenues,
+  greenStarYears,
   STATUSES,
   VALID_YEARS,
   COUNTRY_MANIFEST,
