@@ -1,0 +1,2816 @@
+[
+ {
+  "key": "pick.header.one",
+  "lang": "de",
+  "before": "📋 1 Platz",
+  "after": "📋 1 Ort",
+  "why": "\"Platz\" is a seat or a public square, not a venue; the plural key already says \"Orte\"."
+ },
+ {
+  "key": "crowd.high",
+  "lang": "de",
+  "before": "🔴 beschäftigt",
+  "after": "🔴 voll",
+  "why": "\"beschäftigt\" is busy as in a person is occupied. A venue is \"voll\"."
+ },
+ {
+  "key": "cookmethod.literalBtn",
+  "lang": "de",
+  "before": "🔍 Suche buchstäblich",
+  "after": "🔍 Wörtlich suchen",
+  "why": "\"buchstäblich\" is the intensifier; the prompt above it already says \"wörtlich\"."
+ },
+ {
+  "key": "freetext.moreBtn",
+  "lang": "de",
+  "before": "🔍 Suche nach mehr",
+  "after": "🔍 Weitere Treffer suchen",
+  "why": "\"Suche nach mehr\" is not idiomatic German for a button label."
+ },
+ {
+  "key": "loc.searchPick.btn",
+  "lang": "de",
+  "before": "🔍 Restaurants und Cafés finden Sie hier",
+  "after": "🔍 Lokale hier anzeigen",
+  "why": "Rendered a button as a statement — \"you will find restaurants and cafés here\"."
+ },
+ {
+  "key": "loc.set.unknown",
+  "lang": "de",
+  "before": "⚠️ Diese Schnellauswahl ist mir unbekannt. Tippe auf eine der Schaltflächen oder teile einen Pin.",
+  "after": "⚠️ Diese Schnellauswahl ist mir unbekannt. Tippe auf eine der Schaltflächen oder teile einen Standort.",
+  "why": "A German \"Pin\" reads as a PIN code; Telegram's map pin is a \"Standort\"."
+ },
+ {
+  "key": "weather.areaUnknown",
+  "lang": "de",
+  "before": "Ich kenne diese Gegend nicht – versuchen Sie es mit einem Ortsnamen wie Tampines oder geben Sie einfach /weather ein, um Ihre geteilte PIN zu verwenden.",
+  "after": "Ich kenne diese Gegend nicht – versuchen Sie es mit einem Ortsnamen wie Tampines oder geben Sie einfach /weather ein, um Ihren geteilten Standort zu verwenden.",
+  "why": "\"Ihre geteilte PIN\" reads as a shared PIN code, not a shared map pin."
+ },
+ {
+  "key": "weather.rainSoonNear",
+  "lang": "de",
+  "before": "🌧️ {desc} in {area} 2-Stunden-Aussicht — überdachte Sitzplätze helfen.",
+  "after": "🌧️ {desc} in der 2-Stunden-Vorhersage für {area} — überdachte Sitzplätze helfen.",
+  "why": "\"{area} 2-Stunden-Aussicht\" drops the genitive and reads as two nouns collided."
+ },
+ {
+  "key": "carpark.none",
+  "lang": "de",
+  "before": "In der Nähe gibt es keine Parkplätze.",
+  "after": "In der Nähe gibt es keine Parkplätze mit freien Stellplätzen.",
+  "why": "Dropped \"with available lots\" — said there are no carparks at all, which is a different and wrong claim."
+ },
+ {
+  "key": "carpark.row",
+  "lang": "de",
+  "before": "{i}. {name} · {lots} lots · {dist}",
+  "after": "{i}. {name} · {lots} Plätze · {dist}",
+  "why": "\"lots\" was left in English inside an otherwise German row."
+ },
+ {
+  "key": "hawker.openTmaBtn",
+  "lang": "de",
+  "before": "🍚 Offenes Hawker-Zentrum",
+  "after": "🍚 Hawker-Zentrum öffnen",
+  "why": "\"Offenes Hawker-Zentrum\" is the adjective (an open centre); the button is an imperative."
+ },
+ {
+  "key": "transport.menu.title",
+  "lang": "de",
+  "before": "🇸🇬 *Transport*",
+  "after": "🇸🇬 *Verkehr*",
+  "why": "German \"Transport\" is freight haulage; the menu is public transport and traffic."
+ },
+ {
+  "key": "transport.menu.btn.train",
+  "lang": "de",
+  "before": "🚇 Zug",
+  "after": "🚇 Bahn",
+  "why": "\"Zug\" is a mainline train; the MRT is a metro, and the rest of the file says MRT."
+ },
+ {
+  "key": "transport.train.heading",
+  "lang": "de",
+  "before": "🚇 Zug (MRT)",
+  "after": "🚇 Bahn (MRT)",
+  "why": "Same as the menu button — consistency with \"MRT-Stationen\" elsewhere."
+ },
+ {
+  "key": "transport.train.nearestHeader",
+  "lang": "de",
+  "before": "🚇 Die 3 nächstgelegenen Bahnhöfe {wx}",
+  "after": "🚇 Die 3 nächstgelegenen MRT-Stationen{wx}",
+  "why": "\"Bahnhöfe\" are mainline stations, and a stray space split the {wx} suffix off its noun."
+ },
+ {
+  "key": "transport.train.network.low",
+  "lang": "de",
+  "before": "🟢 Das Netzwerk ist nicht überlastet — 0 von {total} Plattformen weisen eine geringe Dichte auf.",
+  "after": "🟢 Das Netz ist nicht überlastet — 0 von {total} Bahnsteigen liegen über geringer Dichte.",
+  "why": "MEANING INVERTED: said 0 platforms show low density; the source says 0 are ABOVE low density."
+ },
+ {
+  "key": "transport.train.network.medium",
+  "lang": "de",
+  "before": "🟡 {medium} moderat · {high} hoch (von {total}) — Zeilen: {lines}",
+  "after": "🟡 {medium} moderat · {high} hoch (von {total}) — Linien: {lines}",
+  "why": "\"Zeilen\" is lines of text; railway lines are \"Linien\", as the affected-lines key already says."
+ },
+ {
+  "key": "transport.train.network.high",
+  "lang": "de",
+  "before": "🔴 {high} hoch · {medium} mittel (von {total}) — Zeilen: {lines}",
+  "after": "🔴 {high} hoch · {medium} mittel (von {total}) — Linien: {lines}",
+  "why": "Same \"Zeilen\"/\"Linien\" error."
+ },
+ {
+  "key": "transport.train.headway",
+  "lang": "de",
+  "before": "⏱️ Frequenz: {peakMin}–{peakMax} min peak · {offMin}–{offMax} min off peak (LTA veröffentlicht)",
+  "after": "⏱️ Frequenz: {peakMin}–{peakMax} Min. Hauptverkehrszeit · {offMin}–{offMax} Min. Nebenverkehrszeit (LTA veröffentlicht)",
+  "why": "\"min peak\" / \"min off peak\" were left untranslated."
+ },
+ {
+  "key": "transport.train.engineering",
+  "lang": "de",
+  "before": "🔧 Kommende technische Projekte (nächste 7 Tage):",
+  "after": "🔧 Anstehende Bauarbeiten (nächste 7 Tage):",
+  "why": "\"technische Projekte\" is engineering projects in general; rail \"engineering works\" are Bauarbeiten."
+ },
+ {
+  "key": "transport.bus.noStopsCrowd",
+  "lang": "de",
+  "before": "👥 Keine Bushaltestellen im Umkreis von 800 m, um Proben zu entnehmen.",
+  "after": "👥 Keine Bushaltestellen im Umkreis von 800 m für eine Stichprobe.",
+  "why": "\"um Proben zu entnehmen\" is taking laboratory samples."
+ },
+ {
+  "key": "transport.bus.load.seats",
+  "lang": "de",
+  "before": "Verfügbare Plätze: {n}",
+  "after": "Verfügbare Sitzplätze: {n}",
+  "why": "\"Verfügbare Plätze\" does not distinguish seated from standing, which is the whole point of the pair."
+ },
+ {
+  "key": "transport.bus.load.limited",
+  "lang": "de",
+  "before": "Beschränkte Berechtigung: {n}",
+  "after": "Begrenzte Stehplätze: {n}",
+  "why": "\"Beschränkte Berechtigung\" means limited authorisation — read \"Standing\" as legal standing."
+ },
+ {
+  "key": "transport.bus.load.footer",
+  "lang": "de",
+  "before": "(von {n} Diensten mit Live-Lastdaten)",
+  "after": "(von {n} Diensten mit Live-Auslastungsdaten)",
+  "why": "\"Last\" is electrical or freight load; bus occupancy is \"Auslastung\", as the header already says."
+ },
+ {
+  "key": "transport.bus.noLoad",
+  "lang": "de",
+  "before": "Derzeit liegen keine Live-Lastdaten vor – versuchen Sie es in 30 Sekunden erneut.",
+  "after": "Derzeit liegen keine Live-Auslastungsdaten vor – versuchen Sie es in 30 Sekunden erneut.",
+  "why": "Same \"Last\"/\"Auslastung\" error."
+ },
+ {
+  "key": "transport.incidents.offline",
+  "lang": "de",
+  "before": "🚦 Datenstrom offline (LTA-Schlüssel nicht konfiguriert).",
+  "after": "🚦 Verkehrsdaten-Feed offline (LTA-Schlüssel nicht konfiguriert).",
+  "why": "\"Datenstrom\" dropped \"traffic\" — the user cannot tell which feed is down."
+ },
+ {
+  "key": "transport.incidents.none",
+  "lang": "de",
+  "before": "Es wurden keine Zwischenfälle gemeldet.",
+  "after": "Es wurden keine aktuellen Vorfälle gemeldet.",
+  "why": "\"Zwischenfälle\" competes with \"Vorfälle\" used for the same word elsewhere; also restores \"live\"."
+ },
+ {
+  "key": "transport.drive.trafficNone",
+  "lang": "de",
+  "before": "🚦 Verkehr: Keine aktuellen Zwischenfälle gemeldet.",
+  "after": "🚦 Verkehr: Keine aktuellen Vorfälle gemeldet.",
+  "why": "Same \"Zwischenfälle\"/\"Vorfälle\" inconsistency."
+ },
+ {
+  "key": "transport.drive.unreachable",
+  "lang": "de",
+  "before": "Die Laufwerksansicht konnte leider nicht aufgerufen werden.",
+  "after": "Die Fahransicht konnte leider nicht geladen werden.",
+  "why": "\"Laufwerksansicht\" is a disk-drive view — read \"drive\" as storage."
+ },
+ {
+  "key": "forgetme.eraseHeader",
+  "lang": "de",
+  "before": "✅ Gelöschter *{n}* Redis-Eintrag für Ihren Chat.",
+  "after": "✅ *{n}* Redis-Eintrag für Ihren Chat gelöscht.",
+  "why": "\"Gelöschter … Eintrag\" is an adjectival fragment with no verb; the source is a completed action."
+ },
+ {
+  "key": "forgetme.eraseHeaderMany",
+  "lang": "de",
+  "before": "✅ Gelöschte *{n}* Redis-Einträge für Ihren Chat.",
+  "after": "✅ *{n}* Redis-Einträge für Ihren Chat gelöscht.",
+  "why": "Same fragment."
+ },
+ {
+  "key": "forgetme.followup",
+  "lang": "de",
+  "before": "Senden Sie einen beliebigen Befehl, um von vorne zu beginnen. Ihre letzten Auswahlen und Ihr zuletzt geteilter Standort gehen verloren.",
+  "after": "Senden Sie einen beliebigen Befehl, um von vorne zu beginnen. Ihre letzten Auswahlen und Ihr zuletzt geteilter Standort sind gelöscht.",
+  "why": "\"gehen verloren\" is future tense; the deletion has already happened."
+ },
+ {
+  "key": "loc.confirm.yes",
+  "lang": "de",
+  "before": "✅ Ja, benutze es.",
+  "after": "✅ Ja, verwenden",
+  "why": "\"Ja, benutze es.\" addresses the bot and adds a full stop to a button label."
+ },
+ {
+  "key": "location.age.hourAgo",
+  "lang": "de",
+  "before": " ({h} h {m} min ago)",
+  "after": " (vor {h} Std. {m} Min.)",
+  "why": "\"h {m} min ago\" was left entirely in English."
+ },
+ {
+  "key": "wake2.currentApplied",
+  "lang": "de",
+  "before": "👍 Anchor aktualisiert auf <i>{street}</i>.",
+  "after": "👍 Anker aktualisiert auf <i>{street}</i>.",
+  "why": "\"Anchor\" left in English; the rest of the file says Anker / Suchanker."
+ },
+ {
+  "key": "wake2.kept",
+  "lang": "de",
+  "before": "👍 Ihre gespeicherte Suchanfrage bleibt erhalten.",
+  "after": "👍 Ihr gespeicherter Suchanker bleibt erhalten.",
+  "why": "\"Suchanfrage\" is the search query, not the anchor point it is run from."
+ },
+ {
+  "key": "transport.map.stationsBtn",
+  "lang": "de",
+  "before": "{n} anzeigen",
+  "after": "{n} MRT-Stationen anzeigen",
+  "why": "Dropped \"Train Stations\" — the button read \"show {n}\" with no noun."
+ },
+ {
+  "key": "transport.train.stationRow",
+  "lang": "de",
+  "before": "{name} · {dist}{crowd}  <a href=\"{gmapsUrl}\">↗</a>",
+  "after": "{name} · {dist}{crowd} <a href=\"{gmapsUrl}\">↗</a>",
+  "why": "Double space before the link, from the translator's slot padding."
+ },
+ {
+  "key": "share.empty",
+  "lang": "de",
+  "before": "Noch keine aktuellen Empfehlungen. Führe zuerst /cuisine oder /hidden, dann /share, um die Anfrage an einen Freund weiterzuleiten.",
+  "after": "Noch keine aktuellen Empfehlungen. Nutze zuerst /cuisine oder /hidden, dann /share, um eine Empfehlung an einen Freund weiterzuleiten.",
+  "why": "\"Führe … dann /share , um …\" had no finite verb for the second clause and read as a fragment."
+ },
+ {
+  "key": "share.prompt",
+  "lang": "de",
+  "before": "Wählen Sie einen Veranstaltungsort aus, den Sie an Ihren Freund weiterleiten möchten ({n} kürzlich):",
+  "after": "Wählen Sie ein Lokal aus, das Sie an Ihren Freund weiterleiten möchten ({n} zuletzt):",
+  "why": "\"Veranstaltungsort\" is an event venue — a concert hall, not an eatery."
+ },
+ {
+  "key": "buddy.block.usage",
+  "lang": "de",
+  "before": "Verwendung: `/buddy block <chat_id>` Holen Sie sich die Chat-ID aus einem vorherigen Spielangebot.",
+  "after": "Verwendung: `/buddy block <chat_id>`. Die Chat-ID stammt aus einem früheren Match-Angebot.",
+  "why": "\"Spielangebot\" is a sports fixture; also the sentence boundary after the code span was missing."
+ },
+ {
+  "key": "incident.type.MassDisruption",
+  "lang": "de",
+  "before": "Massenzerstörung",
+  "after": "Großflächige Störung",
+  "why": "\"Massenzerstörung\" is MASS DESTRUCTION. The source is a transport disruption."
+ },
+ {
+  "key": "cuisine.chat.shareForAccurate",
+  "lang": "de",
+  "before": "Für präzise Vorhersagen teilen Sie bitte zuerst Ihren Standort mit.",
+  "after": "Für passende Empfehlungen teilen Sie bitte zuerst Ihren Standort mit.",
+  "why": "\"präzise Vorhersagen\" is accurate forecasts; the source is accurate picks."
+ },
+ {
+  "key": "cuisine.chat.webhookOnly",
+  "lang": "de",
+  "before": "Der Menü-Auswahldienst benötigt den TMA im Webhook-Modus. Verwenden Sie stattdessen /hidden für Chat-basierte Auswahlmöglichkeiten oder geben Sie einfach „find me ramen“ oder Ähnliches ein, und ich suche für Sie.",
+  "after": "Der Cuisine Picker benötigt den TMA im Webhook-Modus. Verwenden Sie stattdessen /hidden für Chat-basierte Auswahlmöglichkeiten oder geben Sie einfach „find me ramen“ oder Ähnliches ein, und ich suche für Sie.",
+  "why": "Called the feature \"Menü-Auswahldienst\" while two neighbouring keys call it \"Küchenauswahl\" — three names for one feature."
+ },
+ {
+  "key": "buddy.on.body",
+  "lang": "de",
+  "before": "👥 *Buddy-Modus EIN.*\n\nWenn du Sanctuary-Tipps erhältst, erscheint neben Orten, die ein anderer Soleat-Nutzer innerhalb der nächsten 60 Minuten besucht, ein 👥 „Verbinden“-Button. Ihr müsst beide bestätigen, bevor eure Vornamen und Telegram-Namen angezeigt werden. Tägliches Limit: 5 Verbindungen / 24 Stunden. `/buddy block <chat_id>` zum Blockieren. `/buddy report <chat_id> <reason>` zum Flaggen. `/buddy off` zum Deaktivieren.\n\n⚠ _Pilot — Treffen Sie sich nur an öffentlichen Orten, behandeln Sie die Person wie einen Fremden, vertrauen Sie Ihrem Bauchgefühl._",
+  "after": "👥 *Buddy-Modus EIN.*\n\nWenn du Sanctuary-Tipps erhältst, erscheint neben Orten, die ein anderer Soleat-Nutzer innerhalb der nächsten 60 Minuten besucht, ein 👥 „Verbinden“-Button. Ihr müsst beide bestätigen, bevor eure Vornamen und Telegram-Namen angezeigt werden. Tägliches Limit: 5 Verbindungen / 24 Stunden. `/buddy block <chat_id>` zum Blockieren. `/buddy report <chat_id> <reason>` zum Melden. `/buddy off` zum Deaktivieren.\n\n⚠ _Pilot — triff dich nur an öffentlichen Orten, behandle die Person wie eine fremde Person, vertraue deinem Bauchgefühl._",
+  "why": "\"zum Flaggen\" is not German for reporting a user; the closing warning also switched from du to Sie inside one message."
+ },
+ {
+  "key": "place.outsideHeader",
+  "lang": "de",
+  "before": "✨ <b>Top {n} Restaurants außerhalb von {place} (im Umkreis von {km} km, sortiert nach Bewertung · Michelin · Seltenheit · Besucheraufkommen)</b>",
+  "after": "✨ <b>Top {n} Restaurants außerhalb von {place}</b> (im Umkreis von {km} km, sortiert nach Bewertung · Michelin · Seltenheit · Besucheraufkommen)",
+  "why": "The bold run swallowed the parenthetical the source deliberately left unbolded."
+ },
+ {
+  "key": "place.nearbyHeader",
+  "lang": "de",
+  "before": "✨ <b>Top {n} Restaurants in der Nähe von {place} (im Umkreis von {km} km, sortiert nach Bewertung · Michelin · Seltenheit · Publikumsandrang)</b>",
+  "after": "✨ <b>Top {n} Restaurants in der Nähe von {place}</b> (im Umkreis von {km} km, sortiert nach Bewertung · Michelin · Seltenheit · Publikumsandrang)",
+  "why": "Same bold-run overreach."
+ },
+ {
+  "key": "loc.searchArea.set",
+  "lang": "de",
+  "before": "📍 Bereichseinstellung: {area}\n\nVerwenden Sie <code>/location</code> oder <code>/l &lt;place&gt;</code> · Adresse ändern",
+  "after": "📍 Suchgebiet festgelegt: {area}\n\nVerwenden Sie <code>/location</code> oder <code>/l &lt;place&gt;</code> · Adresse ändern",
+  "why": "\"Bereichseinstellung\" is a noun compound (\"area setting\"); the source reports a completed action."
+ },
+ {
+  "key": "loc.desktopNudge",
+  "lang": "de",
+  "before": "💻 Auf dem Desktop? Telegram teilt eine Kartenposition, nicht GPS. Falls dies nicht zutrifft, gib /l ein. <your area> Die",
+  "after": "💻 Auf dem Desktop? Telegram teilt eine Kartenposition, nicht GPS. Falls das falsch ist, gib /l <your area> ein.",
+  "why": "BROKEN: the placeholder was moved behind the full stop and a stray \"Die\" was appended — the sentence gave no usable instruction."
+ },
+ {
+  "key": "pick.header.one",
+  "lang": "id",
+  "before": "📋 Tempat ke-1",
+  "after": "📋 1 tempat",
+  "why": "\"Tempat ke-1\" is an ordinal — \"the 1st place\" — where the source is a count."
+ },
+ {
+  "key": "hours.closed",
+  "lang": "id",
+  "before": "Tertutup",
+  "after": "Tutup",
+  "why": "\"Tertutup\" is physically covered/shut off; a business that is closed is \"tutup\", as the next key already says."
+ },
+ {
+  "key": "loc.searchArea.set",
+  "lang": "id",
+  "before": "📍 Area set: {area}\n\nGunakan <code>/location</code> atau <code>/l &lt;place&gt;</code> · ubah alamat",
+  "after": "📍 Area diatur: {area}\n\nGunakan <code>/location</code> atau <code>/l &lt;place&gt;</code> · ubah alamat",
+  "why": "\"Area set:\" was left in English inside an otherwise Indonesian string."
+ },
+ {
+  "key": "loc.set.unknown",
+  "lang": "id",
+  "before": "⚠️ Saya tidak mengenali pilihan cepat itu. Ketuk salah satu tombol atau bagikan PIN.",
+  "after": "⚠️ Saya tidak mengenali pilihan cepat itu. Ketuk salah satu tombol atau bagikan lokasi.",
+  "why": "An uppercase \"PIN\" reads as a PIN code, not a map pin."
+ },
+ {
+  "key": "place.autoNearbyIntro",
+  "lang": "id",
+  "before": "Pilihan yang terbatas di <b>{place}</b> — berikut adalah tempat makan dengan peringkat teratas di dekatnya:_",
+  "after": "_Pilihan yang terbatas di <b>{place}</b> — berikut adalah tempat makan dengan peringkat teratas di dekatnya:_",
+  "why": "The opening italic marker was dropped while the closing one survived, so Telegram rendered a stray underscore."
+ },
+ {
+  "key": "place.outsideHeader",
+  "lang": "id",
+  "before": "✨ <b>Restoran terbaik {n} di luar {place} (dalam radius {km} km, diurutkan berdasarkan peringkat · Michelin · kelangkaan · keramaian)</b>",
+  "after": "✨ <b>{n} tempat makan terbaik di luar {place}</b> (dalam radius {km} km, diurutkan berdasarkan peringkat · Michelin · kelangkaan · keramaian)",
+  "why": "\"Restoran terbaik {n}\" reads as \"best restaurant number {n}\"; the bold run also swallowed the parenthetical."
+ },
+ {
+  "key": "place.nearbyHeader",
+  "lang": "id",
+  "before": "✨ <b>Restoran terbaik {n} di dekat {place} (dalam radius {km} km, diurutkan berdasarkan peringkat · Michelin · kelangkaan · keramaian)</b>",
+  "after": "✨ <b>{n} tempat makan terbaik di dekat {place}</b> (dalam radius {km} km, diurutkan berdasarkan peringkat · Michelin · kelangkaan · keramaian)",
+  "why": "Same ordinal misreading and bold overreach."
+ },
+ {
+  "key": "place.nearbyBtn",
+  "lang": "id",
+  "before": "✨ Restoran-restoran terbaik di sekitar sini",
+  "after": "✨ Tempat makan terbaik di sekitar sini",
+  "why": "Used \"Restoran\" where every neighbouring key says \"tempat makan\"."
+ },
+ {
+  "key": "place.expired",
+  "lang": "id",
+  "before": "⏱ Saran tersebut telah kedaluwarsa. Ketik nama tempat lagi untuk menyegarkan halaman.",
+  "after": "⏱ Saran tersebut telah kedaluwarsa. Ketik nama tempat lagi untuk memuat ulang.",
+  "why": "\"menyegarkan halaman\" refreshes a web page; there is no page in a chat."
+ },
+ {
+  "key": "weather.headOutGood",
+  "lang": "id",
+  "before": "✅ Jendela yang bagus — {area} terlihat kering selama 2 jam ke depan.",
+  "after": "✅ Waktu yang tepat — {area} terlihat kering selama 2 jam ke depan.",
+  "why": "\"Jendela yang bagus\" is a good window in a wall."
+ },
+ {
+  "key": "weather.rainSoonNear",
+  "lang": "id",
+  "before": "🌧️ {desc} dalam prospek 2 jam di {area} — tempat duduk beratap sangat membantu.",
+  "after": "🌧️ {desc} dalam prakiraan 2 jam untuk {area} — tempat duduk beratap sangat membantu.",
+  "why": "\"prospek 2 jam\" is a business prospect; the neighbouring key already says \"prakiraan\"."
+ },
+ {
+  "key": "carpark.none",
+  "lang": "id",
+  "before": "Tidak ada tempat parkir dengan lahan kosong di dekat sini.",
+  "after": "Tidak ada tempat parkir dengan slot kosong di dekat sini.",
+  "why": "\"lahan kosong\" is vacant land, not an available parking bay."
+ },
+ {
+  "key": "carpark.header",
+  "lang": "id",
+  "before": "🅿️ Tempat parkir terdekat dengan lahan parkir yang tersedia",
+  "after": "🅿️ Tempat parkir terdekat dengan slot yang tersedia",
+  "why": "Same \"lahan\" (land) misreading of \"lots\"."
+ },
+ {
+  "key": "carpark.row",
+  "lang": "id",
+  "before": "{i}. {name} · {lots} banyak · {dist}",
+  "after": "{i}. {name} · {lots} slot · {dist}",
+  "why": "\"{lots} banyak\" reads as \"{lots} many\" — the noun was translated as the adverb."
+ },
+ {
+  "key": "hawker.openTmaBtn",
+  "lang": "id",
+  "before": "🍚 Pusat Kuliner Buka",
+  "after": "🍚 Buka Pusat Jajanan",
+  "why": "\"Pusat Kuliner Buka\" states that the centre is open; the button is an imperative. Also aligns with the title's \"Pusat Jajanan\"."
+ },
+ {
+  "key": "transport.train.nearestHeader",
+  "lang": "id",
+  "before": "🚇 3 Stasiun Kereta Terdekat {wx}",
+  "after": "🚇 3 Stasiun Kereta Terdekat{wx}",
+  "why": "A stray space split the {wx} suffix off the phrase it attaches to."
+ },
+ {
+  "key": "transport.train.network.medium",
+  "lang": "id",
+  "before": "🟡 {medium} sedang · {high} tinggi (dari {total}) — Baris: {lines}",
+  "after": "🟡 {medium} sedang · {high} tinggi (dari {total}) — Jalur: {lines}",
+  "why": "\"Baris\" is a row of text; railway lines are \"jalur\", as the affected-lines key says."
+ },
+ {
+  "key": "transport.train.network.high",
+  "lang": "id",
+  "before": "🔴 {high} tinggi · {medium} moderat (dari {total}) — Baris: {lines}",
+  "after": "🔴 {high} tinggi · {medium} moderat (dari {total}) — Jalur: {lines}",
+  "why": "Same \"Baris\"/\"Jalur\" error."
+ },
+ {
+  "key": "transport.train.headway",
+  "lang": "id",
+  "before": "⏱️ Frekuensi: {peakMin}–{peakMax} min puncak · {offMin}–{offMax} min di luar jam sibuk (LTA diterbitkan)",
+  "after": "⏱️ Frekuensi: {peakMin}–{peakMax} mnt jam sibuk · {offMin}–{offMax} mnt di luar jam sibuk (diterbitkan LTA)",
+  "why": "\"min puncak\" left the English abbreviation, and \"(LTA diterbitkan)\" says LTA itself was published."
+ },
+ {
+  "key": "transport.train.engineering",
+  "lang": "id",
+  "before": "🔧 Kegiatan teknik mendatang (7 hari ke depan):",
+  "after": "🔧 Pekerjaan perawatan mendatang (7 hari ke depan):",
+  "why": "\"Kegiatan teknik\" is engineering activity in general; rail engineering works are maintenance."
+ },
+ {
+  "key": "transport.train.openMapBtn",
+  "lang": "id",
+  "before": "Peta dan Status Kereta Api 🇸🇬",
+  "after": "🇸🇬 Peta dan Status Kereta",
+  "why": "The flag was moved to the end of the label, unlike every other flagged string."
+ },
+ {
+  "key": "transport.bus.nearestHeader",
+  "lang": "id",
+  "before": "🚏 Halte bus terdekat {count}",
+  "after": "🚏 {count} halte bus terdekat",
+  "why": "\"Halte bus terdekat {count}\" reads as \"nearest bus stop number {count}\"."
+ },
+ {
+  "key": "transport.bus.noStopsCrowd",
+  "lang": "id",
+  "before": "👥 Tidak ada halte bus dalam radius 800 m untuk pengambilan sampel.",
+  "after": "👥 Tidak ada halte bus dalam radius 800 m untuk disurvei.",
+  "why": "\"pengambilan sampel\" is laboratory sampling."
+ },
+ {
+  "key": "transport.bus.load.limited",
+  "lang": "id",
+  "before": "Tempat Terbatas: {n}",
+  "after": "Tempat Berdiri Terbatas: {n}",
+  "why": "\"Tempat Terbatas\" drops \"standing\", which is the only thing distinguishing it from the seats line."
+ },
+ {
+  "key": "transport.bus.load.footer",
+  "lang": "id",
+  "before": "(dari {n} layanan dengan data beban langsung)",
+  "after": "(dari {n} layanan dengan data okupansi langsung)",
+  "why": "\"beban\" is a physical load; bus crowding is occupancy."
+ },
+ {
+  "key": "transport.bus.noLoad",
+  "lang": "id",
+  "before": "Saat ini tidak ada data beban langsung — coba lagi dalam 30 detik.",
+  "after": "Saat ini tidak ada data okupansi langsung — coba lagi dalam 30 detik.",
+  "why": "Same \"beban\"/\"okupansi\" error."
+ },
+ {
+  "key": "transport.causeway.heading",
+  "lang": "id",
+  "before": "🛂 SG ⟷ Kamera pos pemeriksaan JB",
+  "after": "🛂 Kamera pos pemeriksaan SG ⟷ JB",
+  "why": "The arrow ended up between \"SG\" and \"Kamera\", breaking the SG ⟷ JB pair the symbol exists to express."
+ },
+ {
+  "key": "transport.incidents.nearHeader",
+  "lang": "id",
+  "before": "Insiden lalu lintas {n} di seluruh pulau:",
+  "after": "{n} insiden lalu lintas terbaru di seluruh pulau:",
+  "why": "Dropped \"Latest\"."
+ },
+ {
+  "key": "transport.drive.trafficNear",
+  "lang": "id",
+  "before": "🚦 Lalu lintas (tertinggi {n} dari {total} di seluruh pulau):",
+  "after": "🚦 Lalu lintas ({n} teratas dari {total} di seluruh pulau):",
+  "why": "\"tertinggi {n}\" is \"the highest {n}\"; \"top {n}\" here means the first {n}."
+ },
+ {
+  "key": "transport.drive.openMapsBtn",
+  "lang": "id",
+  "before": "Peta Google ↗",
+  "after": "Google Maps ↗",
+  "why": "\"Peta Google\" translates a product name."
+ },
+ {
+  "key": "gmaps.openBtn",
+  "lang": "id",
+  "before": "Peta Google ↗",
+  "after": "Google Maps ↗",
+  "why": "\"Peta Google\" translates a product name."
+ },
+ {
+  "key": "transport.drive.unreachable",
+  "lang": "id",
+  "before": "Maaf, tampilan drive gagal.",
+  "after": "Maaf, tampilan mengemudi gagal dimuat.",
+  "why": "\"tampilan drive\" left \"drive\" in English, where it can also read as a disk drive."
+ },
+ {
+  "key": "forgetme.followup",
+  "lang": "id",
+  "before": "Kirim perintah apa pun untuk memulai dari awal. Pilihan terbaru dan lokasi terakhir yang Anda bagikan akan hilang.",
+  "after": "Kirim perintah apa pun untuk memulai dari awal. Pilihan terbaru dan lokasi terakhir yang Anda bagikan sudah hilang.",
+  "why": "\"akan hilang\" is future tense; the deletion has already happened."
+ },
+ {
+  "key": "location.age.hourAgo",
+  "lang": "id",
+  "before": " ({h} h {m} menit yang lalu)",
+  "after": " ({h} jam {m} menit yang lalu)",
+  "why": "The \"h\" unit was left in English."
+ },
+ {
+  "key": "wake.kept",
+  "lang": "id",
+  "before": "👍 Menyimpan lokasi Anda.",
+  "after": "👍 Lokasi tersimpan Anda dipertahankan.",
+  "why": "\"Menyimpan lokasi Anda\" says it is saving the location now; the source says it is keeping the one already saved."
+ },
+ {
+  "key": "wake2.currentApplied",
+  "lang": "id",
+  "before": "👍 Jangkar diperbarui menjadi <i>{street}</i>.",
+  "after": "👍 Titik acuan pencarian diperbarui ke <i>{street}</i>.",
+  "why": "\"Jangkar\" is a ship's anchor; three neighbouring keys each used a different word for this one concept."
+ },
+ {
+  "key": "wake2.kept",
+  "lang": "id",
+  "before": "👍 Mempertahankan tautan pencarian tersimpan Anda.",
+  "after": "👍 Titik acuan pencarian tersimpan Anda dipertahankan.",
+  "why": "\"tautan pencarian\" is a search LINK — a different object entirely."
+ },
+ {
+  "key": "wake2.offerExpired",
+  "lang": "id",
+  "before": "⏱ Share tersebut telah kedaluwarsa. Ketuk /l untuk mengatur anchor baru.",
+  "after": "⏱ Berbagi lokasi tersebut telah kedaluwarsa. Ketuk /l untuk mengatur titik acuan baru.",
+  "why": "Left \"Share\" and \"anchor\" in English."
+ },
+ {
+  "key": "transport.map.stationsBtn",
+  "lang": "id",
+  "before": "Lihat Stasiun Kereta Api {n}",
+  "after": "Lihat {n} Stasiun Kereta",
+  "why": "\"Stasiun Kereta Api {n}\" reads as station number {n}."
+ },
+ {
+  "key": "transport.train.stationRow",
+  "lang": "id",
+  "before": "{name} · {dist}{crowd}  <a href=\"{gmapsUrl}\">↗</a>",
+  "after": "{name} · {dist}{crowd} <a href=\"{gmapsUrl}\">↗</a>",
+  "why": "Double space before the link, from the translator's slot padding."
+ },
+ {
+  "key": "buddy.on.body",
+  "lang": "id",
+  "before": "👥 *Mode Teman AKTIF.*\n\nSaat Anda menerima pilihan Sanctuary, tombol 👥 _Hubungkan_ akan muncul di sebelah tempat-tempat yang juga akan dikunjungi oleh pengguna soleat lain yang telah mendaftar dalam 60 menit berikutnya. Anda berdua harus mengkonfirmasi sebelum nama depan + nama pengguna Telegram ditampilkan. Batas harian: 5 koneksi / 24 jam. `/buddy block <chat_id>` untuk memblokir. `/buddy report <chat_id> <reason>` untuk menandai. `/buddy off` untuk menonaktifkan.\n\n⚠ _Pilot — hanya bertemu di tempat umum, perlakukan seperti orang asing, percayai insting Anda._",
+  "after": "👥 *Mode Teman AKTIF.*\n\nSaat Anda menerima pilihan Sanctuary, tombol 👥 _Hubungkan_ akan muncul di sebelah tempat-tempat yang juga akan dikunjungi oleh pengguna soleat lain yang telah mendaftar dalam 60 menit berikutnya. Anda berdua harus mengkonfirmasi sebelum nama depan + nama pengguna Telegram ditampilkan. Batas harian: 5 koneksi / 24 jam. `/buddy block <chat_id>` untuk memblokir. `/buddy report <chat_id> <reason>` untuk melaporkan. `/buddy off` untuk menonaktifkan.\n\n⚠ _Pilot — temui hanya di tempat umum, perlakukan seperti orang asing, percayai insting Anda._",
+  "why": "\"menandai\" is to mark or bookmark, not to report a user; the closing warning also had no imperative verb."
+ },
+ {
+  "key": "buddy.block.usage",
+  "lang": "id",
+  "before": "Penggunaan: `/buddy block <chat_id>` ID obrolan dari penawaran perjodohan sebelumnya.",
+  "after": "Penggunaan: `/buddy block <chat_id>`. Dapatkan ID obrolan dari penawaran kecocokan sebelumnya.",
+  "why": "\"perjodohan\" is arranged marriage; the sentence also had no verb after the code span."
+ },
+ {
+  "key": "buddy.block.cap",
+  "lang": "id",
+  "before": "Tidak dapat memblokir (maksimal 50 blok tercapai).",
+  "after": "Tidak dapat memblokir (maksimal 50 pemblokiran tercapai).",
+  "why": "\"50 blok\" counts city blocks."
+ },
+ {
+  "key": "buddy.status.on",
+  "lang": "id",
+  "before": "PADA",
+  "after": "AKTIF",
+  "why": "\"PADA\" is the preposition \"at/on\", not the state ON. The buddy-mode body already says AKTIF."
+ },
+ {
+  "key": "cuisine.chat.title",
+  "lang": "id",
+  "before": "🍴 Pencari Kuliner — Singapura hingga Johor Bahru",
+  "after": "🍴 Pemilih Kuliner — Singapura hingga Johor Bahru",
+  "why": "Called the feature \"Pencari Kuliner\" while other keys call it \"Pemilih Masakan\" — two names for one feature."
+ },
+ {
+  "key": "cuisine.chat.anchored",
+  "lang": "id",
+  "before": "📍 Terhubung ke lokasi terakhir yang Anda bagikan.",
+  "after": "📍 Ditambatkan ke lokasi terakhir yang Anda bagikan.",
+  "why": "\"Terhubung\" means connected; the source says anchored."
+ },
+ {
+  "key": "cuisine.chat.openBtn",
+  "lang": "id",
+  "before": "🍴 Pemilih Masakan Terbuka",
+  "after": "🍴 Buka Pemilih Kuliner",
+  "why": "\"Pemilih Masakan Terbuka\" states that the picker is open; the button is an imperative."
+ },
+ {
+  "key": "cuisine.chat.openError",
+  "lang": "id",
+  "before": "Maaf, saya tidak bisa membuka Pemilih Masakan saat ini.",
+  "after": "Maaf, saya tidak bisa membuka Pemilih Kuliner saat ini.",
+  "why": "Name harmonised with the title and button."
+ },
+ {
+  "key": "cuisine.chat.webhookOnly",
+  "lang": "id",
+  "before": "Pemilih Masakan membutuhkan TMA mode webhook. Coba /hidden untuk pilihan berbasis obrolan, atau ketik saja 'cari ramen untukku' / serupa dan saya akan mencarinya.",
+  "after": "Pemilih Kuliner membutuhkan TMA mode webhook. Coba /hidden untuk pilihan berbasis obrolan, atau ketik saja 'cari ramen untukku' / serupa dan saya akan mencarinya.",
+  "why": "Name harmonised with the title and button."
+ },
+ {
+  "key": "crowd.high",
+  "lang": "ru",
+  "before": "🔴 занят",
+  "after": "🔴 многолюдно",
+  "why": "\"занят\" is a person being busy or a seat being taken, not a crowded venue; the set also mixed adjectives with no agreeing noun."
+ },
+ {
+  "key": "crowd.medium",
+  "lang": "ru",
+  "before": "🟡 умеренный",
+  "after": "🟡 умеренно",
+  "why": "Adverb, to agree with the other two states of the same set."
+ },
+ {
+  "key": "crowd.low",
+  "lang": "ru",
+  "before": "🟢 тихий",
+  "after": "🟢 спокойно",
+  "why": "Adverb, to agree with the other two states of the same set."
+ },
+ {
+  "key": "cookmethod.literalBtn",
+  "lang": "ru",
+  "before": "🔍 Поиск буквально",
+  "after": "🔍 Искать буквально",
+  "why": "\"Поиск буквально\" is a noun phrase where the button needs a verb."
+ },
+ {
+  "key": "loc.searchArea.set",
+  "lang": "ru",
+  "before": "📍 Площадь: {area}\n\nИспользуйте <code>/location</code> или <code>/l &lt;place&gt;</code> · изменить адрес",
+  "after": "📍 Район поиска: {area}\n\nИспользуйте <code>/location</code> или <code>/l &lt;place&gt;</code> · изменить адрес",
+  "why": "\"Площадь\" is area as in square metres (or a town square) — the wrong sense of \"area\" entirely."
+ },
+ {
+  "key": "loc.set.unknown",
+  "lang": "ru",
+  "before": "⚠️ Я не узнаю этот быстрый выбор. Нажмите одну из кнопок или поделитесь пин-кодом.",
+  "after": "⚠️ Не удалось распознать этот быстрый выбор. Нажмите одну из кнопок или отправьте геометку.",
+  "why": "\"поделитесь пин-кодом\" asks the user to share a PIN code."
+ },
+ {
+  "key": "loc.searchPick.btn",
+  "lang": "ru",
+  "before": "🔍 Список заведений общественного питания здесь",
+  "after": "🔍 Показать заведения здесь",
+  "why": "Rendered a button as a statement, in eleven words of catering-ministry register."
+ },
+ {
+  "key": "place.autoNearbyIntro",
+  "lang": "ru",
+  "before": "_Выбор невелик. <b>{place}</b> — вот лучшие рестораны поблизости:_",
+  "after": "_Выбор в <b>{place}</b> невелик — вот лучшие заведения поблизости:_",
+  "why": "Split one sentence into two and left {place} stranded after a full stop."
+ },
+ {
+  "key": "place.outsideHeader",
+  "lang": "ru",
+  "before": "✨ <b>Лучшие {n} заведения общественного питания за пределами {place} (в пределах {km} км, ранжированные по рейтингу · Michelin · редкости · количеству посетителей)</b>",
+  "after": "✨ <b>Топ-{n} заведений за пределами {place}</b> (в пределах {km} км, по рейтингу · Michelin · редкости · заполненности)",
+  "why": "\"Лучшие {n} заведения\" mismatches case after a numeral, and the bold run swallowed the parenthetical."
+ },
+ {
+  "key": "place.nearbyHeader",
+  "lang": "ru",
+  "before": "✨ <b>Лучшие {n} рестораны рядом с {place} (в пределах {km} км, ранжированные по рейтингу · Michelin · редкости · количеству посетителей)</b>",
+  "after": "✨ <b>Топ-{n} заведений рядом с {place}</b> (в пределах {km} км, по рейтингу · Michelin · редкости · заполненности)",
+  "why": "Same numeral-case mismatch and bold overreach."
+ },
+ {
+  "key": "weather.wind",
+  "lang": "ru",
+  "before": "Ветер: {kt} кт {dir}",
+  "after": "Ветер: {kt} кт{dir}",
+  "why": "A space was inserted before {dir}, which already carries its own leading separator."
+ },
+ {
+  "key": "weather.headOutShowery",
+  "lang": "ru",
+  "before": "🌦️ Сейчас сухо, но прогноз погоды на 2 часа для {desc} {area} — отправляйтесь на улицу как можно скорее, если планируете куда-то на открытом воздухе.",
+  "after": "🌦️ Сейчас сухо, но прогноз на 2 часа для {area} — {desc}. Выходите пораньше, если собираетесь на открытый воздух.",
+  "why": "BROKEN: the two placeholders were reordered into \"forecast for {desc} {area}\", so the description was read as part of the place name."
+ },
+ {
+  "key": "weather.headOutGood",
+  "lang": "ru",
+  "before": "✅ Окно в хорошем состоянии — {area} будет выглядеть сухой в течение следующих 2 часов.",
+  "after": "✅ Хорошее окно — в {area} сухо ближайшие 2 часа.",
+  "why": "\"Окно в хорошем состоянии\" describes a window in good repair."
+ },
+ {
+  "key": "weather.rainSoonNear",
+  "lang": "ru",
+  "before": "🌧️ {desc} в {area} с прогнозом погоды на 2 часа — наличие мест под навесом поможет.",
+  "after": "🌧️ {desc} в прогнозе на 2 часа для {area} — места под навесом помогут.",
+  "why": "\"в {area} с прогнозом погоды на 2 часа\" attached the forecast to the district as an attribute."
+ },
+ {
+  "key": "carpark.header",
+  "lang": "ru",
+  "before": "Ближайшие парковки со свободными местами",
+  "after": "🅿️ Ближайшие парковки со свободными местами",
+  "why": "Lost the 🅿️ that every other carpark string carries."
+ },
+ {
+  "key": "carpark.row",
+  "lang": "ru",
+  "before": "{i}. {name} · {lots} lots · {dist}",
+  "after": "{i}. {name} · {lots} мест · {dist}",
+  "why": "\"lots\" was left in English inside an otherwise Russian row."
+ },
+ {
+  "key": "carpark.mapAllBtn",
+  "lang": "ru",
+  "before": "Сравните все {n} парковок",
+  "after": "Сравнить все парковки ({n})",
+  "why": "\"Сравните все {n} парковок\" mixes an imperative with a numeral case the phrase cannot take."
+ },
+ {
+  "key": "hawker.openTmaBtn",
+  "lang": "ru",
+  "before": "🍚 Открытый центр уличной еды",
+  "after": "🍚 Открыть центр уличной еды",
+  "why": "\"Открытый центр\" is an open (adjective) centre; the button is an imperative."
+ },
+ {
+  "key": "transport.menu.btn.train",
+  "lang": "ru",
+  "before": "🚇 Поезд",
+  "after": "🚇 Метро",
+  "why": "\"Поезд\" is a mainline train; the MRT is a metro, and the neighbouring key already says \"станции метро\"."
+ },
+ {
+  "key": "transport.train.heading",
+  "lang": "ru",
+  "before": "🚇 Поезд (MRT)",
+  "after": "🚇 Метро (MRT)",
+  "why": "Same mainline/metro confusion."
+ },
+ {
+  "key": "transport.train.nearestHeader",
+  "lang": "ru",
+  "before": "🚇 Ближайшие 3 железнодорожные станции {wx}",
+  "after": "🚇 3 ближайшие станции метро{wx}",
+  "why": "\"железнодорожные станции\" are mainline stations, and a stray space split the {wx} suffix off."
+ },
+ {
+  "key": "transport.train.network.low",
+  "lang": "ru",
+  "before": "🟢 Сеть не перегружена — 0 из {total} платформ расположены выше низкой плотности.",
+  "after": "🟢 Сеть не перегружена — 0 из {total} платформ превышают низкую плотность.",
+  "why": "\"расположены выше низкой плотности\" reads as physically located above something."
+ },
+ {
+  "key": "transport.train.network.medium",
+  "lang": "ru",
+  "before": "🟡 {medium} умеренный · {high} высокий (из {total}) — Строки: {lines}",
+  "after": "🟡 {medium} умеренно · {high} высоко (из {total}) — Линии: {lines}",
+  "why": "\"Строки\" are lines of text; metro lines are \"линии\"."
+ },
+ {
+  "key": "transport.train.network.high",
+  "lang": "ru",
+  "before": "🔴 {high} высокий · {medium} умеренный (из {total}) — Строки: {lines}",
+  "after": "🔴 {high} высоко · {medium} умеренно (из {total}) — Линии: {lines}",
+  "why": "Same \"Строки\"/\"Линии\" error."
+ },
+ {
+  "key": "transport.train.affectedLines",
+  "lang": "ru",
+  "before": "⚠️ Затронутые строки:",
+  "after": "⚠️ Затронутые линии:",
+  "why": "\"Затронутые строки\" are affected rows of text."
+ },
+ {
+  "key": "transport.train.openMapBtn",
+  "lang": "ru",
+  "before": "🇸🇬 Карта и статус поездов",
+  "after": "🇸🇬 Карта и статус метро",
+  "why": "\"поездов\" again reads as mainline trains."
+ },
+ {
+  "key": "transport.train.unreachable",
+  "lang": "ru",
+  "before": "Извините, сейчас я не могу получить доступ к трансляции MRT.",
+  "after": "Извините, сейчас не удаётся получить данные MRT.",
+  "why": "\"трансляции MRT\" is an MRT broadcast."
+ },
+ {
+  "key": "transport.bus.nearestHeader",
+  "lang": "ru",
+  "before": "🚏 Ближайшие {count} автобусные остановки",
+  "after": "🚏 {count} ближайших автобусных остановок",
+  "why": "Numeral case: \"Ближайшие {count} автобусные остановки\" cannot agree for most values of {count}."
+ },
+ {
+  "key": "transport.bus.stopMetaFirst",
+  "lang": "ru",
+  "before": "Автобусная остановка № {code} находится 📍 {dist} от текущего местоположения.",
+  "after": "🚏 Автобусная остановка № {code} — 📍 {dist} от текущего местоположения.",
+  "why": "Lost the 🚏 the sibling key keeps, and \"находится {dist} от\" is missing its preposition."
+ },
+ {
+  "key": "transport.bus.noStopsCrowd",
+  "lang": "ru",
+  "before": "👥 В радиусе 800 м нет автобусных остановок, где можно взять образцы.",
+  "after": "👥 В радиусе 800 м нет автобусных остановок для выборки.",
+  "why": "\"где можно взять образцы\" is taking laboratory samples."
+ },
+ {
+  "key": "transport.bus.load.seats",
+  "lang": "ru",
+  "before": "Свободные места: {n}",
+  "after": "Сидячих мест: {n}",
+  "why": "\"Свободные места\" does not distinguish seated from standing, which is the point of the pair."
+ },
+ {
+  "key": "transport.bus.load.standing",
+  "lang": "ru",
+  "before": "Доступно для стояния: {n}",
+  "after": "Стоячих мест: {n}",
+  "why": "\"Доступно для стояния\" is not a Russian noun phrase for standing room."
+ },
+ {
+  "key": "transport.bus.load.limited",
+  "lang": "ru",
+  "before": "Ограниченный статус: {n}",
+  "after": "Мало стоячих мест: {n}",
+  "why": "\"Ограниченный статус\" means limited STATUS — read \"Standing\" as legal standing."
+ },
+ {
+  "key": "transport.bus.unreachable",
+  "lang": "ru",
+  "before": "К сожалению, трансляция из автобуса в данный момент недоступна.",
+  "after": "Извините, данные об автобусах сейчас недоступны.",
+  "why": "\"трансляция из автобуса\" is a broadcast FROM inside a bus."
+ },
+ {
+  "key": "transport.incidents.offline",
+  "lang": "ru",
+  "before": "🚦 Поток трафика отключен (ключ LTA не настроен).",
+  "after": "🚦 Данные о дорожной обстановке недоступны (ключ LTA не настроен).",
+  "why": "\"Поток трафика\" is network traffic throughput."
+ },
+ {
+  "key": "transport.causeway.heading",
+  "lang": "ru",
+  "before": "🛂 SG ⟷ Камеры на контрольно-пропускном пункте JB",
+  "after": "🛂 Камеры на КПП SG ⟷ JB",
+  "why": "The arrow ended up between \"SG\" and \"Камеры\", breaking the SG ⟷ JB pair."
+ },
+ {
+  "key": "transport.incidents.nearHeader",
+  "lang": "ru",
+  "before": "Последние {n} дорожно-транспортные происшествия по всему острову:",
+  "after": "Последние {n} дорожных происшествий по всему острову:",
+  "why": "Case did not agree after the numeral."
+ },
+ {
+  "key": "transport.incidents.noLoc",
+  "lang": "ru",
+  "before": "{total} инцидентов по всему острову. Укажите ваше местоположение для сортировки по ближайшему списку.",
+  "after": "{total} инцидентов по всему острову. Укажите местоположение, чтобы отсортировать по близости.",
+  "why": "\"сортировки по ближайшему списку\" is sorting by the nearest list."
+ },
+ {
+  "key": "transport.drive.trafficNear",
+  "lang": "ru",
+  "before": "🚦 Трафик (верхний {n} из {total} по всему острову):",
+  "after": "🚦 Дорожная обстановка (топ-{n} из {total} по всему острову):",
+  "why": "\"верхний {n}\" is the upper one; \"трафик\" reads as network traffic."
+ },
+ {
+  "key": "transport.drive.trafficNone",
+  "lang": "ru",
+  "before": "🚦 Информация о дорожно-транспортных происшествиях отсутствует.",
+  "after": "🚦 Дорожная обстановка: происшествий не зарегистрировано.",
+  "why": "Dropped the \"Traffic:\" label that the two sibling keys keep."
+ },
+ {
+  "key": "transport.drive.openMapsBtn",
+  "lang": "ru",
+  "before": "Карта Google ↗",
+  "after": "Google Maps ↗",
+  "why": "\"Карта Google\" translates a product name."
+ },
+ {
+  "key": "gmaps.openBtn",
+  "lang": "ru",
+  "before": "Карта Google ↗",
+  "after": "Google Maps ↗",
+  "why": "\"Карта Google\" translates a product name."
+ },
+ {
+  "key": "transport.drive.btn.carpark",
+  "lang": "ru",
+  "before": "Парковка 🅿️",
+  "after": "🅿️ Парковка",
+  "why": "The emoji was moved to the end, unlike every other button in the set."
+ },
+ {
+  "key": "transport.drive.unreachable",
+  "lang": "ru",
+  "before": "Извините, отображение диска не удалось.",
+  "after": "Извините, не удалось загрузить раздел «Вождение».",
+  "why": "\"отображение диска\" is a DISK display — read \"drive\" as storage."
+ },
+ {
+  "key": "forgetme.eraseHeader",
+  "lang": "ru",
+  "before": "✅ Удалена запись *{n}* в Redis для вашего чата.",
+  "after": "✅ Удалена *{n}* запись Redis для вашего чата.",
+  "why": "\"запись *{n}* в Redis\" reads {n} as the record's name rather than the count."
+ },
+ {
+  "key": "forgetme.eraseHeaderMany",
+  "lang": "ru",
+  "before": "✅ Удалены *{n}* записи Redis для вашего чата.",
+  "after": "✅ Удалено *{n}* записей Redis для вашего чата.",
+  "why": "Same, plus the plural needs the genitive after a count."
+ },
+ {
+  "key": "forgetme.followup",
+  "lang": "ru",
+  "before": "Отправьте любую команду, чтобы начать заново. Недавние выбранные вами объекты и последнее совместно использованное местоположение будут удалены.",
+  "after": "Отправьте любую команду, чтобы начать заново. Недавние подборки и последнее местоположение, которым вы делились, удалены.",
+  "why": "\"будут удалены\" is future tense; the deletion has already happened."
+ },
+ {
+  "key": "loc.confirm.yes",
+  "lang": "ru",
+  "before": "✅ Да, используйте его",
+  "after": "✅ Да, использовать",
+  "why": "\"Да, используйте его\" instructs the bot rather than confirming the user's own choice."
+ },
+ {
+  "key": "location.age.justShared",
+  "lang": "ru",
+  "before": " (Только что поделились)",
+  "after": " (только что)",
+  "why": "\"(Только что поделились)\" capitalises mid-sentence and repeats the verb the surrounding line already carries."
+ },
+ {
+  "key": "wake.keepBtn",
+  "lang": "ru",
+  "before": "✅ Оставайтесь здесь",
+  "after": "✅ Остаться здесь",
+  "why": "Button labels for the user's own choice take the infinitive, not a command addressed at them."
+ },
+ {
+  "key": "wake.kept",
+  "lang": "ru",
+  "before": "👍 Сохранение вашего местоположения.",
+  "after": "👍 Сохранённое местоположение оставлено.",
+  "why": "\"Сохранение вашего местоположения\" says it is saving now; the source says it is keeping what was saved."
+ },
+ {
+  "key": "wake2.btnCurrent",
+  "lang": "ru",
+  "before": "📍 Укажите текущее местоположение",
+  "after": "📍 Использовать текущее местоположение",
+  "why": "Imperative addressed at the user where the button states the action."
+ },
+ {
+  "key": "wake2.btnKeep",
+  "lang": "ru",
+  "before": "✅ Сохраните предыдущее местоположение",
+  "after": "✅ Оставить прежнее местоположение",
+  "why": "Imperative addressed at the user where the button states the action."
+ },
+ {
+  "key": "wake2.btnAnother",
+  "lang": "ru",
+  "before": "🗺 Укажите другое местоположение",
+  "after": "🗺 Указать другое местоположение",
+  "why": "Imperative addressed at the user where the button states the action."
+ },
+ {
+  "key": "wake2.kept",
+  "lang": "ru",
+  "before": "👍 Сохранение сохраненного якоря поиска.",
+  "after": "👍 Сохранённый якорь поиска оставлен.",
+  "why": "\"Сохранение сохраненного якоря\" repeats the same root twice and turns the statement into a gerund."
+ },
+ {
+  "key": "transport.map.busStopsBtn",
+  "lang": "ru",
+  "before": "Показать все {n} автобусные остановки",
+  "after": "Показать все {n} автобусных остановок",
+  "why": "Case did not agree after the numeral."
+ },
+ {
+  "key": "transport.map.stationsBtn",
+  "lang": "ru",
+  "before": "Посмотреть {n} Железнодорожные станции",
+  "after": "Показать {n} станций метро",
+  "why": "Mid-phrase capitals, wrong case, and mainline \"железнодорожные\" for a metro."
+ },
+ {
+  "key": "transport.train.stationRow",
+  "lang": "ru",
+  "before": "{name} · {dist}{crowd}  <a href=\"{gmapsUrl}\">↗</a>",
+  "after": "{name} · {dist}{crowd} <a href=\"{gmapsUrl}\">↗</a>",
+  "why": "Double space before the link, from the translator's slot padding."
+ },
+ {
+  "key": "card.carparkMapBtn",
+  "lang": "ru",
+  "before": "🅿️ Ближайшие парковки отмечены на карте",
+  "after": "🅿️ Ближайшие парковки на карте",
+  "why": "\"отмечены на карте\" turns a button into a statement about what has already happened."
+ },
+ {
+  "key": "privacy.error",
+  "lang": "ru",
+  "before": "Извините, /privacy произошла ошибка. Пожалуйста, попробуйте еще раз через минуту.",
+  "after": "Извините, в /privacy произошла ошибка. Пожалуйста, попробуйте ещё раз через минуту.",
+  "why": "Missing preposition — the command name was left dangling in the nominative."
+ },
+ {
+  "key": "recognised.heading",
+  "lang": "ru",
+  "before": "🏆 *Сингапур — признанный ресторан*",
+  "after": "🏆 *Сингапур — признанные рестораны*",
+  "why": "Singular \"признанный ресторан\" describes one restaurant; the section lists many."
+ },
+ {
+  "key": "share.prompt",
+  "lang": "ru",
+  "before": "Выберите место, куда переслать сообщение вашему другу ({n} ):",
+  "after": "Выберите заведение, чтобы отправить его другу (последние {n}):",
+  "why": "\"recent\" was dropped, leaving a bare \"({n} )\", and \"куда переслать сообщение\" asks where to forward a message to."
+ },
+ {
+  "key": "share.mintFailed",
+  "lang": "ru",
+  "before": "Извините, сейчас я не могу поделиться ссылками.",
+  "after": "Извините, сейчас не удалось создать ссылки для отправки.",
+  "why": "\"я не могу поделиться ссылками\" says the bot declines to share; the source says link creation failed."
+ },
+ {
+  "key": "buddy.on.body",
+  "lang": "ru",
+  "before": "👥 *Режим \"Друг в команде\" включен.*\n\nКогда вы получаете предложения от Sanctuary, рядом с местами, куда другой пользователь Soleat, также подписавшийся на рассылку, направляется в течение следующих 60 минут, появляется кнопка 👥 _Подключиться_. Оба пользователя должны подтвердить свое согласие, прежде чем будут отображены их имена и ники в Telegram. Дневной лимит: 5 подключений / 24 часа. `/buddy block <chat_id>` для блокировки. `/buddy report <chat_id> <reason>` для установки флага. `/buddy off` для отключения.\n\n⚠ _Пилот — встречайтесь только на публике, относитесь к людям как к незнакомцам, доверяйте своей интуиции._",
+  "after": "👥 *Режим «Друг» включён.*\n\nКогда вы получаете предложения от Sanctuary, рядом с местами, куда в ближайшие 60 минут направляется другой пользователь Soleat, также включивший этот режим, появляется кнопка 👥 _Подключиться_. Оба должны подтвердить, прежде чем будут показаны имена и ники в Telegram. Дневной лимит: 5 подключений / 24 часа. `/buddy block <chat_id>` для блокировки. `/buddy report <chat_id> <reason>` для жалобы. `/buddy off` для отключения.\n\n⚠ _Пилот — встречайтесь только в общественных местах, относитесь к человеку как к незнакомцу, доверяйте своей интуиции._",
+  "why": "\"подписавшийся на рассылку\" means subscribed to a newsletter, \"для установки флага\" is setting a flag bit, and the mode was named differently here than in the two sibling keys."
+ },
+ {
+  "key": "buddy.off",
+  "lang": "ru",
+  "before": "👥 Режим \"Друг\" выключен.",
+  "after": "👥 Режим «Друг» выключен.",
+  "why": "Quote style harmonised with the other buddy keys."
+ },
+ {
+  "key": "buddy.block.ok",
+  "lang": "ru",
+  "before": "🚫 Заблокирован {target}. Они никогда не будут сопоставлены с вами.",
+  "after": "🚫 {target} заблокирован. Этот пользователь больше не будет вам предложен.",
+  "why": "\"Они\" is a plural pronoun for one person, and \"сопоставлены\" means collated."
+ },
+ {
+  "key": "buddy.block.cap",
+  "lang": "ru",
+  "before": "Не удалось заблокировать (достигнуто максимальное количество блоков — 50).",
+  "after": "Не удалось заблокировать (достигнут максимум — 50 блокировок).",
+  "why": "\"блоков\" counts blocks of material, not blocking actions."
+ },
+ {
+  "key": "buddy.report.ok",
+  "lang": "ru",
+  "before": "📝 Сообщение зарегистрировано. {target} также автоматически заблокирован для ваших матчей. Мы рассмотрим его.",
+  "after": "📝 Жалоба зарегистрирована. {target} также автоматически исключён из ваших подборок. Мы всё проверим.",
+  "why": "\"Мы рассмотрим его\" leaves it unclear who or what is reviewed, and \"матчей\" is a sports fixture."
+ },
+ {
+  "key": "buddy.status.on",
+  "lang": "ru",
+  "before": "НА",
+  "after": "ВКЛ",
+  "why": "\"НА\" is the preposition \"on(to)\", not the state ON."
+ },
+ {
+  "key": "buddy.status.off",
+  "lang": "ru",
+  "before": "ВЫКЛЮЧЕННЫЙ",
+  "after": "ВЫКЛ",
+  "why": "\"ВЫКЛЮЧЕННЫЙ\" is a masculine adjective agreeing with nothing."
+ },
+ {
+  "key": "buddy.block.usage",
+  "lang": "ru",
+  "before": "Использование: `/buddy block <chat_id>`. Получите идентификатор чата из предыдущего предложения о матче.",
+  "after": "Использование: `/buddy block <chat_id>`. Идентификатор чата возьмите из предыдущего предложения о встрече.",
+  "why": "\"предложения о матче\" is a sports fixture offer."
+ },
+ {
+  "key": "incident.type.Accident",
+  "lang": "ru",
+  "before": "Несчастный случай",
+  "after": "Авария",
+  "why": "\"Несчастный случай\" is a personal-injury mishap, not a road traffic accident."
+ },
+ {
+  "key": "incident.type.MiscIncident",
+  "lang": "ru",
+  "before": "Разнообразный",
+  "after": "Прочее",
+  "why": "\"Разнообразный\" is the adjective \"varied\"."
+ },
+ {
+  "key": "incident.type.Diversion",
+  "lang": "ru",
+  "before": "Отвлечение",
+  "after": "Объезд",
+  "why": "\"Отвлечение\" is a distraction; a traffic diversion is a detour."
+ },
+ {
+  "key": "incident.type.RoadBlock",
+  "lang": "ru",
+  "before": "Дорожный блокпост",
+  "after": "Перекрытие дороги",
+  "why": "\"Дорожный блокпост\" is a military checkpoint."
+ },
+ {
+  "key": "incident.type.MassDisruption",
+  "lang": "ru",
+  "before": "Массовое нарушение",
+  "after": "Массовый сбой",
+  "why": "\"Массовое нарушение\" reads as a mass violation of the law."
+ },
+ {
+  "key": "cuisine.chat.anchored",
+  "lang": "ru",
+  "before": "📍 Привязано к вашему последнему месту совместного использования.",
+  "after": "📍 Привязано к последнему местоположению, которым вы поделились.",
+  "why": "\"месту совместного использования\" is a place of shared use — misread \"shared location\" as a compound noun."
+ },
+ {
+  "key": "cuisine.chat.shareForAccurate",
+  "lang": "ru",
+  "before": "Для точного выбора, сначала сообщите свое местоположение.",
+  "after": "Для точного выбора сначала укажите своё местоположение.",
+  "why": "Comma splice, and \"сообщите\" reports rather than sets."
+ },
+ {
+  "key": "cuisine.chat.openBtn",
+  "lang": "ru",
+  "before": "🍴 Открытый выбор блюд",
+  "after": "🍴 Открыть «Выбор кухни»",
+  "why": "\"Открытый выбор блюд\" is an open selection of dishes; the button is an imperative, and the feature is named \"Выбор кухни\" in its title."
+ },
+ {
+  "key": "cuisine.chat.openError",
+  "lang": "ru",
+  "before": "Извините, я не могу сейчас открыть меню выбора блюд.",
+  "after": "Извините, сейчас не удаётся открыть «Выбор кухни».",
+  "why": "Called the feature \"меню выбора блюд\" where the title calls it \"Выбор кухни\"."
+ },
+ {
+  "key": "cuisine.chat.shareLocBtn",
+  "lang": "ru",
+  "before": "📍 Делитесь местоположением с ботом",
+  "after": "📍 Поделиться местоположением с ботом",
+  "why": "\"Делитесь\" is a repeated-action imperative; the button names a single action."
+ },
+ {
+  "key": "cuisine.chat.webhookOnly",
+  "lang": "ru",
+  "before": "Для работы Cuisine Picker требуется режим веб-хука TMA. Попробуйте /hidden для выбора блюд через чат или просто введите 'find me ramen' / similar, и я выполню поиск.",
+  "after": "Для «Выбора кухни» нужен TMA в режиме веб-хука. Попробуйте /hidden для выбора прямо в чате или просто напишите «find me ramen» или похожее, и я поищу.",
+  "why": "Left \"Cuisine Picker\" and \"similar\" in English, the latter inside the quoted example as if the user should type it."
+ },
+ {
+  "key": "pick.results.for",
+  "lang": "zh",
+  "before": "🔎 结果",
+  "after": "🔎 搜索结果：",
+  "why": "Dropped \"for\" — this key is a prefix that the query is appended to, so it read as a bare \"Results\"."
+ },
+ {
+  "key": "hours.closed",
+  "lang": "zh",
+  "before": "关闭",
+  "after": "已打烊",
+  "why": "\"关闭\" is a switch or a system being shut down; a shop that is closed is 已打烊."
+ },
+ {
+  "key": "bot.noresults",
+  "lang": "zh",
+  "before": "您附近没有与“{q}”相关的 Google Places 结果。请尝试使用 /cuisine 查找附近的景点，或尝试使用 /hidden 查找附近的宝藏，或者重新措辞您的搜索。",
+  "after": "您附近没有与“{q}”相关的 Google Places 结果。可以试试 /cuisine 使用菜系选择器，或 /hidden 查找附近的宝藏餐馆，或者换个说法再搜索。",
+  "why": "\"/cuisine 查找附近的景点\" sends the user to TOURIST ATTRACTIONS; the picker chooses cuisines."
+ },
+ {
+  "key": "freetext.questionDeclined",
+  "lang": "zh",
+  "before": "🍛 请尝试提供菜名、烹饪方法或食物相关词汇——例如：面条汤、炒粿条或炖牛肉饺子",
+  "after": "🍛 请尝试提供菜名、烹饪方法或食物相关词汇——例如：Mee Soto、char kway teow 或 goulash dumpling",
+  "why": "The three examples are search terms the user is meant to type; translating Mee Soto to 面条汤 (noodle soup) turns a searchable name into a description."
+ },
+ {
+  "key": "loc.set.success",
+  "lang": "zh",
+  "before": "📍 位置已设置<b>{label}</b>.{cap}",
+  "after": "📍 位置已设置为 <b>{label}</b>。{cap}",
+  "why": "\"位置已设置<b>{label}</b>\" is missing the 为 that makes it \"set TO\"."
+ },
+ {
+  "key": "loc.searchArea.set",
+  "lang": "zh",
+  "before": "📍 区域设置：{area}\n\n使用 <code>/location</code> 或 <code>/l &lt;place&gt;</code> · 更改地址",
+  "after": "📍 搜索区域已设为：{area}\n\n使用 <code>/location</code> 或 <code>/l &lt;place&gt;</code> · 更改地址",
+  "why": "区域设置 is the standard Chinese term for LOCALE — a different setting entirely from the search area."
+ },
+ {
+  "key": "loc.set.unknown",
+  "lang": "zh",
+  "before": "⚠️ 我不认识这个快捷选择。请点击其中一个按钮或分享一个图钉。",
+  "after": "⚠️ 我不认识这个快捷选择。请点击其中一个按钮或分享位置。",
+  "why": "\"分享一个图钉\" asks the user to share a thumbtack."
+ },
+ {
+  "key": "loc.searchPick.prompt",
+  "lang": "zh",
+  "before": "<i>想看看附近的餐馆<b>{place}</b>？</i>",
+  "after": "<i>想查看 <b>{place}</b> 的餐馆吗？</i>",
+  "why": "\"想看看附近的餐馆<b>{place}</b>？\" left the place name dangling after the noun it is meant to qualify."
+ },
+ {
+  "key": "place.foundShownOfTotal",
+  "lang": "zh",
+  "before": "📍 <b>{place}</b> — 此处显示{shown}家餐厅，{total}家。",
+  "after": "📍 <b>{place}</b> — 此处显示 {total} 家餐馆中的 {shown} 家",
+  "why": "\"显示{shown}家餐厅，{total}家。\" dropped the \"of\" relation and left {total} as a second, unexplained count."
+ },
+ {
+  "key": "place.autoNearbyIntro",
+  "lang": "zh",
+  "before": "_选择寥寥无几<b>{place}</b> — 以下是附近评分最高的餐厅：",
+  "after": "_<b>{place}</b> 的选择不多 — 以下是附近评分最高的餐馆：_",
+  "why": "The closing italic marker was missing and \"选择寥寥无几<b>{place}</b>\" put the place name after the comment about it."
+ },
+ {
+  "key": "place.outsideHeader",
+  "lang": "zh",
+  "before": "✨<b>在{place}以外{km}公里范围内，按评分、米其林星级、稀有度、客流量排名的{n}家顶级餐厅</b>",
+  "after": "✨ <b>{place} 以外的前 {n} 家餐馆</b>（{km} 公里内，按评分 · 米其林 · 稀有度 · 客流量排序）",
+  "why": "A single 40-character bold run swallowed the parenthetical the source leaves unbolded."
+ },
+ {
+  "key": "place.nearbyHeader",
+  "lang": "zh",
+  "before": "✨<b>距离{place}地点{km}公里内，按评分、米其林星级、稀有度、客流量排名的{n}家顶级餐厅</b>",
+  "after": "✨ <b>{place} 附近的前 {n} 家餐馆</b>（{km} 公里内，按评分 · 米其林 · 稀有度 · 客流量排序）",
+  "why": "Same bold overreach, plus a stray 地点 after {place}."
+ },
+ {
+  "key": "place.outsideEmpty",
+  "lang": "zh",
+  "before": "🤷 目前在{place}以外（{km}公里范围内）没有特别出色的餐馆。",
+  "after": "🤷 目前在 {place} 以外（{km} 公里范围内）没有特别出色的餐馆。",
+  "why": "Spacing around the placeholders left a gap inside the bracket."
+ },
+ {
+  "key": "weather.wind",
+  "lang": "zh",
+  "before": "风速：{kt} kt{dir}",
+  "after": "风速：{kt} 节{dir}",
+  "why": "\"kt\" was left in English; the Chinese unit for knots is 节."
+ },
+ {
+  "key": "weather.areaUnknown",
+  "lang": "zh",
+  "before": "我不熟悉那个地区——试试淡滨尼之类的城镇名称，或者直接输入 /weather 来使用你共享的图钉。",
+  "after": "我不熟悉那个地区——试试淡滨尼之类的城镇名称，或者直接输入 /weather 来使用您共享的位置。",
+  "why": "\"你共享的图钉\" is a shared thumbtack, and 你 breaks the 您 register the rest of the file uses."
+ },
+ {
+  "key": "weather.forArea",
+  "lang": "zh",
+  "before": "— 适用于{area} —",
+  "after": "— {area} —",
+  "why": "\"适用于\" (applicable to) turns a section divider into a legal qualifier."
+ },
+ {
+  "key": "weather.rainSoonNear",
+  "lang": "zh",
+  "before": "🌧️ {desc}在{area}的 2 小时展望中 — 有遮挡的座位有所帮助。",
+  "after": "🌧️ 未来 2 小时 {area} 预计{desc} — 有遮挡的座位会更好。",
+  "why": "\"在{area}的 2 小时展望中\" uses 展望, the word for a business outlook."
+ },
+ {
+  "key": "carpark.row",
+  "lang": "zh",
+  "before": "{i}. {name} · {lots} lots · {dist}",
+  "after": "{i}. {name} · {lots} 个空位 · {dist}",
+  "why": "\"lots\" was left in English inside an otherwise Chinese row."
+ },
+ {
+  "key": "carpark.mapAllBtn",
+  "lang": "zh",
+  "before": "比较所有{n}停车场",
+  "after": "比较全部 {n} 个停车场",
+  "why": "Missing the measure word 个 after the numeral."
+ },
+ {
+  "key": "hawker.openTmaBtn",
+  "lang": "zh",
+  "before": "🍚 开放式小贩中心",
+  "after": "🍚 打开小贩中心",
+  "why": "\"开放式小贩中心\" describes an open-plan centre; the button is an imperative."
+ },
+ {
+  "key": "transport.menu.btn.train",
+  "lang": "zh",
+  "before": "🚇 火车",
+  "after": "🚇 地铁",
+  "why": "\"火车\" is a mainline train; the neighbouring heading already says 地铁."
+ },
+ {
+  "key": "transport.menu.btn.incidents",
+  "lang": "zh",
+  "before": "🚦 事件",
+  "after": "🚦 路况事件",
+  "why": "Bare \"事件\" is any event at all; these are traffic incidents."
+ },
+ {
+  "key": "transport.train.nearestHeader",
+  "lang": "zh",
+  "before": "🚇 最近的 3 个火车站{wx}",
+  "after": "🚇 最近的 3 个地铁站{wx}",
+  "why": "\"火车站\" are mainline railway stations."
+ },
+ {
+  "key": "transport.train.network.low",
+  "lang": "zh",
+  "before": "🟢 网络不拥挤 — 0 个{total}高于低密度。",
+  "after": "🟢 线网不拥挤 — {total} 个站台中有 0 个超过低密度。",
+  "why": "BROKEN: \"0 个{total}高于低密度\" lost the noun entirely, leaving two numbers with no relation between them."
+ },
+ {
+  "key": "transport.train.network.medium",
+  "lang": "zh",
+  "before": "🟡 {medium}中等 · {high}高（占{total}的百分比）— 行数：{lines}",
+  "after": "🟡 {medium} 个中等 · {high} 个高（共 {total} 个）— 线路：{lines}",
+  "why": "\"（占{total}的百分比）\" claims the figures are percentages, and 行数 is a count of text rows."
+ },
+ {
+  "key": "transport.train.network.high",
+  "lang": "zh",
+  "before": "🔴 {high} · {medium}（{total}）— 行数：{lines}",
+  "after": "🔴 {high} 个高 · {medium} 个中等（共 {total} 个）— 线路：{lines}",
+  "why": "BROKEN: the words \"high\" and \"moderate\" were both dropped, leaving bare numbers; 行数 is a count of text rows."
+ },
+ {
+  "key": "transport.train.headway",
+  "lang": "zh",
+  "before": "⏱️ 频率：{peakMin}–{peakMax}最小峰值 · {offMin}–{offMax}最小非峰值（LTA 发布）",
+  "after": "⏱️ 班次间隔：高峰 {peakMin}–{peakMax} 分钟 · 平峰 {offMin}–{offMax} 分钟（LTA 公布）",
+  "why": "\"最小峰值\" reads \"min\" as MINIMUM — it reported a minimum peak value rather than minutes."
+ },
+ {
+  "key": "transport.train.openMapBtn",
+  "lang": "zh",
+  "before": "🇸🇬 列车地图和状态",
+  "after": "🇸🇬 地铁线路图和状态",
+  "why": "\"列车地图\" again reads as mainline trains."
+ },
+ {
+  "key": "transport.train.unreachable",
+  "lang": "zh",
+  "before": "抱歉，我现在无法访问地铁信号。",
+  "after": "抱歉，我现在无法获取地铁数据。",
+  "why": "\"无法访问地铁信号\" is the MRT's signalling system."
+ },
+ {
+  "key": "transport.bus.stopCode",
+  "lang": "zh",
+  "before": "  代码：{code}",
+  "after": "  编号：{code}",
+  "why": "代码 is source code; a bus stop's code is its 编号."
+ },
+ {
+  "key": "transport.bus.arrivalsHeader",
+  "lang": "zh",
+  "before": "⏱ 下一班列车 — 距离最近的 3 个站点",
+  "after": "⏱ 下一班公交 — 最近的 3 个站点",
+  "why": "\"下一班列车\" says next TRAIN, in the bus arrivals header."
+ },
+ {
+  "key": "transport.bus.noStopsCrowd",
+  "lang": "zh",
+  "before": "👥 采样点附近 800 米内没有公交车站。",
+  "after": "👥 800 米内没有可供采样的公交车站。",
+  "why": "REVERSED: \"采样点附近 800 米内没有公交车站\" measures from a sampling point instead of stating there is nothing to sample."
+ },
+ {
+  "key": "transport.bus.load.standing",
+  "lang": "zh",
+  "before": "现有可用名额：{n}",
+  "after": "可站立空位：{n}",
+  "why": "\"现有可用名额\" is an available quota or enrolment place."
+ },
+ {
+  "key": "transport.bus.load.limited",
+  "lang": "zh",
+  "before": "有限资格：{n}",
+  "after": "站立空位不多：{n}",
+  "why": "\"有限资格\" means limited ELIGIBILITY — read \"Standing\" as legal standing."
+ },
+ {
+  "key": "transport.bus.load.footer",
+  "lang": "zh",
+  "before": "（包含{n}具有实时负载数据的服务）",
+  "after": "（共 {n} 个班次有实时载客数据）",
+  "why": "负载 is electrical or server load; a bus's load is 载客量, as the header already says."
+ },
+ {
+  "key": "transport.bus.noLoad",
+  "lang": "zh",
+  "before": "目前没有实时负载数据——30 秒后再试。",
+  "after": "目前没有实时载客数据——30 秒后再试。",
+  "why": "Same 负载/载客 error."
+ },
+ {
+  "key": "transport.incidents.offline",
+  "lang": "zh",
+  "before": "🚦 流量数据离线（LTA 密钥未配置）。",
+  "after": "🚦 路况数据离线（LTA 密钥未配置）。",
+  "why": "\"流量数据\" is network bandwidth data."
+ },
+ {
+  "key": "transport.incidents.none",
+  "lang": "zh",
+  "before": "未报告任何现场事故。",
+  "after": "暂无实时路况事件报告。",
+  "why": "\"现场事故\" is an on-site accident; the source means live traffic incidents."
+ },
+ {
+  "key": "transport.causeway.count",
+  "lang": "zh",
+  "before": "_{n}个摄像头实时（{breakdown}）_",
+  "after": "_{n} 个摄像头实时在线（{breakdown}）_",
+  "why": "\"{n}个摄像头实时\" ends on an adverb with nothing to modify."
+ },
+ {
+  "key": "transport.drive.trafficNear",
+  "lang": "zh",
+  "before": "🚦 交通流量（全岛前{n}条，共{total}条）：",
+  "after": "🚦 路况（全岛 {total} 起中的前 {n} 起）：",
+  "why": "交通流量 is traffic volume as a measurement; the line lists incidents."
+ },
+ {
+  "key": "transport.drive.trafficNoNear",
+  "lang": "zh",
+  "before": "🚦 交通：全岛共发生{total}起事件；5 公里范围内无事件发生。",
+  "after": "🚦 路况：全岛共 {total} 起事件；5 公里范围内无事件。",
+  "why": "Label harmonised with the two sibling keys."
+ },
+ {
+  "key": "transport.drive.trafficNone",
+  "lang": "zh",
+  "before": "🚦 交通：未报告任何实时事件。",
+  "after": "🚦 路况：暂无实时事件报告。",
+  "why": "Label harmonised with the two sibling keys."
+ },
+ {
+  "key": "transport.drive.btn.carpark",
+  "lang": "zh",
+  "before": "停车场",
+  "after": "🅿️ 停车场",
+  "why": "Lost the 🅿️ that every other carpark string carries."
+ },
+ {
+  "key": "transport.drive.unreachable",
+  "lang": "zh",
+  "before": "抱歉，驱动器视图失败。",
+  "after": "抱歉，驾车信息加载失败。",
+  "why": "\"驱动器视图\" is a DISK DRIVE view — read \"drive\" as storage."
+ },
+ {
+  "key": "forgetme.eraseHeader",
+  "lang": "zh",
+  "before": "✅ 已删除您的聊天记录的{n}条目。",
+  "after": "✅ 已删除您聊天的 *{n}* 条 Redis 记录。",
+  "why": "Lost both the emphasis markers and the word Redis, and the remaining phrase had no measure word."
+ },
+ {
+  "key": "forgetme.eraseHeaderMany",
+  "lang": "zh",
+  "before": "✅ 已删除 *{n}* 条 Redis 聊天记录。",
+  "after": "✅ 已删除您聊天的 *{n}* 条 Redis 记录。",
+  "why": "\"Redis 聊天记录\" reverses the relation — these are Redis entries belonging to the chat, not chat logs belonging to Redis."
+ },
+ {
+  "key": "forgetme.andMore",
+  "lang": "zh",
+  "before": "……以及{n}",
+  "after": "……以及另外 {n} 条",
+  "why": "Dropped \"more\", leaving a trailing bare number."
+ },
+ {
+  "key": "forgetme.followup",
+  "lang": "zh",
+  "before": "发送任意命令即可重新开始。最近的选择和上次分享的位置都将被清除。",
+  "after": "发送任意命令即可重新开始。最近的选择和上次分享的位置都已清除。",
+  "why": "\"都将被清除\" is future tense; the deletion has already happened."
+ },
+ {
+  "key": "forgetme.error",
+  "lang": "zh",
+  "before": "抱歉，/forgetme 出错了。请稍后再试，或私信客服。",
+  "after": "抱歉，/forgetme 出错了。请稍后再试，或私信运营者。",
+  "why": "\"客服\" is a customer service desk; the source says the operator."
+ },
+ {
+  "key": "wake.kept",
+  "lang": "zh",
+  "before": "👍 保存您的位置。",
+  "after": "👍 已保留您保存的位置。",
+  "why": "\"保存您的位置\" says it is saving now; the source says it is keeping what was saved."
+ },
+ {
+  "key": "wake2.body",
+  "lang": "zh",
+  "before": "👋 <b>欢迎回到索莱特</b>\n\n您的设备现在似乎位于：<i>{deviceStreet}</i>\n\nSoleat 仍在使用您保存的搜索锚点：\n<b>{anchor}</b>\n\n继续从锚点搜索，还是更新到您当前的位置？\n\n<i>您也可以输入 /l 从其他位置进行搜索，例如：\n/l 乌节路\n/l IOI城市购物中心</i>",
+  "after": "👋 <b>欢迎回到 Soleat</b>\n\n您的设备现在似乎位于：<i>{deviceStreet}</i>\n\nSoleat 仍在使用您保存的搜索锚点：\n<b>{anchor}</b>\n\n继续从锚点搜索，还是更新到您当前的位置？\n\n<i>您也可以输入 /l 从其他位置进行搜索，例如：\n/l 乌节路\n/l IOI City Mall</i>",
+  "why": "Transliterated the product name to 索莱特 in one line while the next line keeps \"Soleat\"; also transliterated a mall name the user is meant to be able to type back."
+ },
+ {
+  "key": "wake2.currentApplied",
+  "lang": "zh",
+  "before": "👍 锚点已更新<i>{street}</i>。",
+  "after": "👍 锚点已更新为 <i>{street}</i>。",
+  "why": "Missing the 为 that makes it \"updated TO\"."
+ },
+ {
+  "key": "transport.map.busStopsBtn",
+  "lang": "zh",
+  "before": "显示所有{n}公交车站",
+  "after": "显示全部 {n} 个公交车站",
+  "why": "Missing the measure word 个 after the numeral."
+ },
+ {
+  "key": "transport.map.stationsBtn",
+  "lang": "zh",
+  "before": "查看{n}火车站",
+  "after": "查看 {n} 个地铁站",
+  "why": "\"火车站\" are mainline railway stations, and the measure word was missing."
+ },
+ {
+  "key": "transport.train.stationRow",
+  "lang": "zh",
+  "before": "{name} · {dist}{crowd}  <a href=\"{gmapsUrl}\">↗</a>",
+  "after": "{name} · {dist}{crowd} <a href=\"{gmapsUrl}\">↗</a>",
+  "why": "Double space before the link, from the translator's slot padding."
+ },
+ {
+  "key": "share.prompt",
+  "lang": "zh",
+  "before": "选择要转发给朋友的地点（{n}最近的）：",
+  "after": "选择要转发给朋友的地点（最近 {n} 个）：",
+  "why": "\"（{n}最近的）\" left the modifier trailing the number with no measure word."
+ },
+ {
+  "key": "share.mintFailed",
+  "lang": "zh",
+  "before": "抱歉，我现在无法分享链接。",
+  "after": "抱歉，我现在无法生成分享链接。",
+  "why": "\"无法分享链接\" says the bot declines to share; the source says link creation failed."
+ },
+ {
+  "key": "buddy.on.body",
+  "lang": "zh",
+  "before": "👥 *好友模式开启*\n\n当您收到“避难所”推荐时，如果其他已选择加入“避难所”的用户也将在接下来的 60 分钟内前往某个地点，该地点旁边会出现一个 👥 _Connect_ 按钮。双方必须确认后，才能显示彼此的名字和 Telegram 用户名。每日上限：5 个连接/24 小时。`/buddy block <chat_id>` 屏蔽。`/buddy report <chat_id> <reason>` 举报。`/buddy off` 禁用。\n\n⚠ _飞行员——只在公共场所见面，像对待陌生人一样对待对方，相信你的直觉。_",
+  "after": "👥 *好友模式开启*\n\n当您收到 Sanctuary 推荐时，如果另一位已加入的 Soleat 用户也将在接下来的 60 分钟内前往某个地点，该地点旁边会出现一个 👥 _连接_ 按钮。双方必须确认后，才能显示彼此的名字和 Telegram 用户名。每日上限：5 个连接/24 小时。`/buddy block <chat_id>` 屏蔽。`/buddy report <chat_id> <reason>` 举报。`/buddy off` 禁用。\n\n⚠ _试运行功能——只在公共场所见面，像对待陌生人一样对待对方，相信您的直觉。_",
+  "why": "\"飞行员\" is an AIRPLANE PILOT, for \"Pilot\" meaning a trial feature; \"避难所\" translates the feature name Sanctuary into air-raid shelter; and _Connect_ was left in English."
+ },
+ {
+  "key": "buddy.block.cap",
+  "lang": "zh",
+  "before": "无法进行封锁（已达到最大封锁数量 50 个）。",
+  "after": "无法屏蔽（已达上限 50 个）。",
+  "why": "封锁 is a blockade; the sibling key already uses 屏蔽."
+ },
+ {
+  "key": "buddy.status.on",
+  "lang": "zh",
+  "before": "在",
+  "after": "开启",
+  "why": "\"在\" is the verb \"to be at\", not the state ON."
+ },
+ {
+  "key": "buddy.status.off",
+  "lang": "zh",
+  "before": "离开",
+  "after": "关闭",
+  "why": "\"离开\" means to leave or be away."
+ },
+ {
+  "key": "buddy.block.usage",
+  "lang": "zh",
+  "before": "用法：`/buddy block <chat_id>`. 从之前的匹配邀请中获取聊天 ID。",
+  "after": "用法：`/buddy block <chat_id>`。从之前的匹配邀请中获取聊天 ID。",
+  "why": "An ASCII full stop was left between two Chinese sentences."
+ },
+ {
+  "key": "incident.type.MiscIncident",
+  "lang": "zh",
+  "before": "各种各样的",
+  "after": "其他事件",
+  "why": "\"各种各样的\" is the adjective \"various\", with no noun."
+ },
+ {
+  "key": "incident.type.Diversion",
+  "lang": "zh",
+  "before": "导流",
+  "after": "改道",
+  "why": "导流 is fluid or network flow diversion; a traffic diversion is 改道."
+ },
+ {
+  "key": "incident.type.MassDisruption",
+  "lang": "zh",
+  "before": "大规模破坏",
+  "after": "大面积中断",
+  "why": "\"大规模破坏\" is LARGE-SCALE DESTRUCTION. The source is a transport disruption."
+ },
+ {
+  "key": "cuisine.chat.title",
+  "lang": "zh",
+  "before": "🍴 美食精选 — 新加坡到新山",
+  "after": "🍴 美食选择器 — 新加坡到新山",
+  "why": "Called the feature 美食精选 while three other keys call it 美食选择器 or 菜系选择器."
+ },
+ {
+  "key": "cuisine.chat.shareForAccurate",
+  "lang": "zh",
+  "before": "为了获得准确的选座结果，请先分享您的位置。",
+  "after": "为了获得准确的推荐，请先分享您的位置。",
+  "why": "\"选座结果\" is SEAT SELECTION — read \"picks\" as choosing a seat."
+ },
+ {
+  "key": "cuisine.chat.openBtn",
+  "lang": "zh",
+  "before": "🍴 开放式美食选择器",
+  "after": "🍴 打开美食选择器",
+  "why": "\"开放式美食选择器\" describes an open-plan selector; the button is an imperative."
+ },
+ {
+  "key": "cuisine.chat.openError",
+  "lang": "zh",
+  "before": "抱歉，我现在无法打开菜系选择器。",
+  "after": "抱歉，我现在无法打开美食选择器。",
+  "why": "Name harmonised with the title and button."
+ },
+ {
+  "key": "buddy.off",
+  "lang": "zh",
+  "before": "👥好友模式已关闭。",
+  "after": "👥 好友模式已关闭。",
+  "why": "Missing the space after the emoji that every sibling key has."
+ },
+ {
+  "key": "pick.results.for",
+  "lang": "ja",
+  "before": "🔎 検索結果",
+  "after": "🔎 検索結果：",
+  "why": "Dropped \"for\" — this key is a prefix the query is appended to."
+ },
+ {
+  "key": "crowd.high",
+  "lang": "ja",
+  "before": "🔴 忙しい",
+  "after": "🔴 混雑",
+  "why": "\"忙しい\" is a person being busy, not a crowded venue."
+ },
+ {
+  "key": "crowd.medium",
+  "lang": "ja",
+  "before": "🟡 中程度",
+  "after": "🟡 やや混雑",
+  "why": "Aligned with the other two states of the same set."
+ },
+ {
+  "key": "crowd.low",
+  "lang": "ja",
+  "before": "🟢 静か",
+  "after": "🟢 空いている",
+  "why": "\"静か\" is quiet as in not noisy; the source means uncrowded."
+ },
+ {
+  "key": "freetext.divider",
+  "lang": "ja",
+  "before": "⇩─ 似たような料理や料理を提供する飲食店 ─ ⇩\n⇩─ 正確には{dish}ではない ─ ⇩",
+  "after": "⇩─ 似た料理やジャンルを提供する飲食店 ─ ⇩\n⇩─ 正確には{dish}ではない ─ ⇩",
+  "why": "\"似たような料理や料理\" renders \"dishes or cuisine\" as \"dishes or dishes\"."
+ },
+ {
+  "key": "freetext.questionDeclined",
+  "lang": "ja",
+  "before": "🍛 料理名、調理法、または食品用語を試してみてください。例：ミーソト、チャークイティオ、グーラッシュ餃子",
+  "after": "🍛 料理名、調理法、または食品用語を試してみてください。例：Mee Soto、char kway teow、goulash dumpling",
+  "why": "The three examples are search terms the user types; transliterating them to ミーソト leaves nothing the matcher can find."
+ },
+ {
+  "key": "loc.set.success",
+  "lang": "ja",
+  "before": "📍 場所設定<b>{label}</b>.{cap}",
+  "after": "📍 場所を <b>{label}</b> に設定しました。{cap}",
+  "why": "\"場所設定<b>{label}</b>\" is a bare noun compound with no verb, closed by an ASCII full stop."
+ },
+ {
+  "key": "loc.searchPick.prompt",
+  "lang": "ja",
+  "before": "<i>飲食店を見たい<b>{place}</b>？</i>",
+  "after": "<i><b>{place}</b> の飲食店を見ますか？</i>",
+  "why": "\"飲食店を見たい<b>{place}</b>？\" leaves the place name stranded after the verb."
+ },
+ {
+  "key": "place.foundShownOfTotal",
+  "lang": "ja",
+  "before": "📍 <b>{place}</b> — ここには{shown}軒の飲食店{total}軒）が表示されています",
+  "after": "📍 <b>{place}</b> — {total}軒中{shown}軒の飲食店を表示しています",
+  "why": "BROKEN: \"{shown}軒の飲食店{total}軒）\" dropped the \"of\" relation and left an unmatched closing bracket."
+ },
+ {
+  "key": "place.autoNearbyIntro",
+  "lang": "ja",
+  "before": "_選択肢が少ない<b>{place}</b> — 近隣のおすすめ飲食店はこちらです:_",
+  "after": "_<b>{place}</b> は選択肢が少なめです — 近隣のおすすめ飲食店はこちらです:_",
+  "why": "\"選択肢が少ない<b>{place}</b>\" puts the place name after the comment about it."
+ },
+ {
+  "key": "place.outsideHeader",
+  "lang": "ja",
+  "before": "✨ <b>{place}周辺（{km} km以内）のおすすめ飲食店トップ{n}軒（評価・ミシュラン・希少性・混雑度順）</b>",
+  "after": "✨ <b>{place} 以外のおすすめ飲食店トップ{n}軒</b>（{km} km以内、評価・ミシュラン・希少性・混雑度順）",
+  "why": "MEANING REVERSED: \"{place}周辺\" says AROUND {place}, where the source says OUTSIDE it — this is the key that exists to contrast with the nearby one. The bold run also swallowed the parenthetical."
+ },
+ {
+  "key": "place.outsideEmpty",
+  "lang": "ja",
+  "before": "🤷 現在、{place}周辺 ( {km} km 以内) には特におすすめの飲食店はありません。",
+  "after": "🤷 現在、{place} 以外（{km} km 以内）には特におすすめの飲食店はありません。",
+  "why": "Same 周辺/以外 reversal."
+ },
+ {
+  "key": "place.nearbyHeader",
+  "lang": "ja",
+  "before": "✨ <b>{place}周辺のおすすめ飲食店{n}軒（{km} km以内、評価順・ミシュラン評価順・希少性順・混雑順）</b>",
+  "after": "✨ <b>{place}周辺のおすすめ飲食店トップ{n}軒</b>（{km} km以内、評価・ミシュラン・希少性・混雑度順）",
+  "why": "The bold run swallowed the parenthetical the source leaves unbolded."
+ },
+ {
+  "key": "weather.wind",
+  "lang": "ja",
+  "before": "風速: {kt} kt{dir}",
+  "after": "風速：{kt} ノット{dir}",
+  "why": "\"kt\" was left in English, and the colon was half-width where the three sibling keys use a full-width one."
+ },
+ {
+  "key": "weather.rainSoonNear",
+  "lang": "ja",
+  "before": "🌧️ {desc}の{area}の 2 時間予報 — 屋根付きの座席が役立ちます。",
+  "after": "🌧️ {area}の2時間予報は{desc} — 屋根付きの座席が役立ちます。",
+  "why": "\"{desc}の{area}の 2 時間予報\" chains two possessive の and reads as a forecast belonging to the description."
+ },
+ {
+  "key": "carpark.row",
+  "lang": "ja",
+  "before": "{i}. {name} · {lots} lots · {dist}",
+  "after": "{i}. {name} · {lots} 台分 · {dist}",
+  "why": "\"lots\" was left in English inside an otherwise Japanese row."
+ },
+ {
+  "key": "carpark.mapAllBtn",
+  "lang": "ja",
+  "before": "{n}駐車場すべてを比較する",
+  "after": "{n}箇所の駐車場をすべて比較",
+  "why": "Missing the counter after the numeral."
+ },
+ {
+  "key": "hawker.openTmaBtn",
+  "lang": "ja",
+  "before": "🍚 オープンホーカーセンター",
+  "after": "🍚 ホーカーセンターを開く",
+  "why": "\"オープンホーカーセンター\" reads \"Open\" as an adjective on the name; the button is an imperative."
+ },
+ {
+  "key": "transport.menu.btn.train",
+  "lang": "ja",
+  "before": "🚇電車",
+  "after": "🚇 電車",
+  "why": "Missing the space after the emoji that every sibling button has."
+ },
+ {
+  "key": "transport.menu.btn.incidents",
+  "lang": "ja",
+  "before": "🚦 事件",
+  "after": "🚦 交通障害",
+  "why": "\"事件\" is a criminal case; these are traffic incidents."
+ },
+ {
+  "key": "transport.train.network.medium",
+  "lang": "ja",
+  "before": "🟡 {medium}中程度 · {high}高 ( {total}のうち) — 行数: {lines}",
+  "after": "🟡 {medium}中程度 · {high}高（{total}件中）— 路線: {lines}",
+  "why": "\"行数\" is a count of text rows; railway lines are 路線."
+ },
+ {
+  "key": "transport.train.network.high",
+  "lang": "ja",
+  "before": "🔴 {high}高 · {medium}中程度 ( {total}のうち) — 行数: {lines}",
+  "after": "🔴 {high}高 · {medium}中程度（{total}件中）— 路線: {lines}",
+  "why": "Same 行数/路線 error."
+ },
+ {
+  "key": "transport.train.affectedLines",
+  "lang": "ja",
+  "before": "⚠️ 影響を受ける行:",
+  "after": "⚠️ 影響を受ける路線:",
+  "why": "\"影響を受ける行\" is affected ROWS of text."
+ },
+ {
+  "key": "transport.train.headway",
+  "lang": "ja",
+  "before": "⏱️ 周波数: {peakMin}–{peakMax}最小ピーク時 · {offMin}–{offMax}最小オフピーク時 (LTA 公開)",
+  "after": "⏱️ 運行間隔: ピーク時 {peakMin}–{peakMax} 分 · オフピーク時 {offMin}–{offMax} 分（LTA 公表）",
+  "why": "\"周波数\" is RADIO FREQUENCY, and \"最小ピーク時\" reads \"min\" as MINIMUM rather than minutes."
+ },
+ {
+  "key": "transport.train.engineering",
+  "lang": "ja",
+  "before": "🔧 今後のエンジニアリング（今後7日間）：",
+  "after": "🔧 今後の保守工事（今後7日間）：",
+  "why": "\"エンジニアリング\" in Japanese reads as software or systems engineering; rail engineering works are 保守工事."
+ },
+ {
+  "key": "transport.bus.nearestHeader",
+  "lang": "ja",
+  "before": "🚏 最寄りのバス停は{count}です",
+  "after": "🚏 最寄りのバス停 {count} 件",
+  "why": "\"最寄りのバス停は{count}です\" says the nearest bus stop IS {count}."
+ },
+ {
+  "key": "transport.bus.stopCode",
+  "lang": "ja",
+  "before": "  コード: {code}",
+  "after": "  番号: {code}",
+  "why": "\"コード\" is source code; the two sibling keys already say バス停番号."
+ },
+ {
+  "key": "transport.bus.arrivalsHeader",
+  "lang": "ja",
+  "before": "⏱ 次に到着する駅 — 最も近い上位3駅",
+  "after": "⏱ 次のバス到着 — 最寄りの3停留所",
+  "why": "\"次に到着する駅 — 最も近い上位3駅\" says STATIONS twice, in the bus arrivals header."
+ },
+ {
+  "key": "transport.bus.noStopsCrowd",
+  "lang": "ja",
+  "before": "👥 800m以内に試飲できるバス停はありません。",
+  "after": "👥 800m以内にサンプリングできるバス停はありません。",
+  "why": "\"試飲できるバス停\" says bus stops where you can TASTE-TEST."
+ },
+ {
+  "key": "transport.bus.load.seats",
+  "lang": "ja",
+  "before": "空席状況：{n}",
+  "after": "空席：{n}",
+  "why": "\"空席状況\" is the availability status, not the count the placeholder carries."
+ },
+ {
+  "key": "transport.bus.load.standing",
+  "lang": "ja",
+  "before": "立ち見席あり：{n}",
+  "after": "立席：{n}",
+  "why": "\"立ち見席\" is theatre standing room."
+ },
+ {
+  "key": "transport.bus.load.limited",
+  "lang": "ja",
+  "before": "限定的な立ち入り：{n}",
+  "after": "立席わずか：{n}",
+  "why": "\"限定的な立ち入り\" means limited ENTRY — read \"Standing\" as access rights."
+ },
+ {
+  "key": "transport.bus.load.footer",
+  "lang": "ja",
+  "before": "（ライブ負荷データを持つ{n}個のサービスのうち）",
+  "after": "（リアルタイム乗車率データのある{n}便のうち）",
+  "why": "\"負荷データ\" is server or electrical load; a bus's load is 乗車率, as the header already says."
+ },
+ {
+  "key": "transport.bus.noLoad",
+  "lang": "ja",
+  "before": "現在、リアルタイムの負荷データはありません。30秒後にもう一度お試しください。",
+  "after": "現在、リアルタイムの乗車率データはありません。30秒後にもう一度お試しください。",
+  "why": "Same 負荷/乗車率 error."
+ },
+ {
+  "key": "transport.incidents.heading",
+  "lang": "ja",
+  "before": "🚦 *交通事故速報*",
+  "after": "🚦 *リアルタイム交通情報*",
+  "why": "\"交通事故速報\" narrows every incident type to an accident bulletin."
+ },
+ {
+  "key": "transport.incidents.none",
+  "lang": "ja",
+  "before": "現在発生している事件は報告されていません。",
+  "after": "現在発生中の交通障害の報告はありません。",
+  "why": "\"事件\" is a criminal case."
+ },
+ {
+  "key": "transport.incidents.nearHeader",
+  "lang": "ja",
+  "before": "島全体で発生した最新の{n}の交通事故：",
+  "after": "島内で最新の交通障害{n}件：",
+  "why": "\"最新の{n}の交通事故\" is missing its counter and narrows incidents to accidents."
+ },
+ {
+  "key": "transport.incidents.noNear",
+  "lang": "ja",
+  "before": "島全体で{total}の事件が発生しました。あなたの現在地から20km圏内では発生していません。",
+  "after": "島内で{total}件の交通障害。現在地から20km圏内では発生していません。",
+  "why": "\"{total}の事件\" is missing its counter and reads as criminal cases."
+ },
+ {
+  "key": "transport.incidents.noLoc",
+  "lang": "ja",
+  "before": "島全体で{total}件の事件が発生しました。現在地を共有していただくと、最寄りの事件を優先的に表示します。",
+  "after": "島内で{total}件の交通障害。現在地を共有していただくと、最寄りのものを優先的に表示します。",
+  "why": "Same 事件/交通障害 error."
+ },
+ {
+  "key": "transport.causeway.count",
+  "lang": "ja",
+  "before": "_{n}のカメラがライブ配信中（{breakdown}）_",
+  "after": "_{n}台のカメラがライブ配信中（{breakdown}）_",
+  "why": "Missing the counter 台 after the numeral."
+ },
+ {
+  "key": "transport.causeway.empty",
+  "lang": "ja",
+  "before": "LTAは現在、検問所のカメラを検出していません。1分後にもう一度お試しください。",
+  "after": "LTAは現在、検問所のカメラを返していません。1分後にもう一度お試しください。",
+  "why": "\"検出していません\" says LTA failed to detect the cameras, rather than returning none."
+ },
+ {
+  "key": "transport.drive.trafficNear",
+  "lang": "ja",
+  "before": "🚦 交通量（島全体の{total}のうち上位{n}件）：",
+  "after": "🚦 交通障害（島内{total}件のうち上位{n}件）：",
+  "why": "\"交通量\" is traffic volume as a measurement; the line lists incidents."
+ },
+ {
+  "key": "transport.drive.trafficNoNear",
+  "lang": "ja",
+  "before": "🚦 交通: 島全体で{total}の事故。5km圏内ではなし。",
+  "after": "🚦 交通障害：島内{total}件。5km圏内はなし。",
+  "why": "Label harmonised with the two sibling keys, and 事故 narrowed every incident to an accident."
+ },
+ {
+  "key": "transport.drive.trafficNone",
+  "lang": "ja",
+  "before": "🚦 交通情報：現在発生している事故は報告されていません。",
+  "after": "🚦 交通障害：現在発生中の報告はありません。",
+  "why": "Label harmonised with the two sibling keys."
+ },
+ {
+  "key": "transport.drive.btn.carpark",
+  "lang": "ja",
+  "before": "駐車場",
+  "after": "🅿️ 駐車場",
+  "why": "Lost the 🅿️ that every other carpark string carries."
+ },
+ {
+  "key": "transport.drive.unreachable",
+  "lang": "ja",
+  "before": "申し訳ありませんが、ドライブビューに失敗しました。",
+  "after": "申し訳ありませんが、ドライブ情報の取得に失敗しました。",
+  "why": "\"ドライブビュー\" reads as a Google Drive view."
+ },
+ {
+  "key": "forgetme.eraseHeader",
+  "lang": "ja",
+  "before": "✅ チャット用の *{n}* Redis エントリを削除しました。",
+  "after": "✅ チャットの Redis エントリを *{n}* 件削除しました。",
+  "why": "Missing the counter, and worded differently from its own plural sibling."
+ },
+ {
+  "key": "forgetme.eraseHeaderMany",
+  "lang": "ja",
+  "before": "✅ チャットの Redis エントリを *{n}* 削除しました。",
+  "after": "✅ チャットの Redis エントリを *{n}* 件削除しました。",
+  "why": "Missing the counter after the number."
+ },
+ {
+  "key": "forgetme.andMore",
+  "lang": "ja",
+  "before": "…そしてさらに{n}",
+  "after": "…ほか{n}件",
+  "why": "\"そしてさらに{n}\" ends on a bare number with no counter and no noun."
+ },
+ {
+  "key": "forgetme.followup",
+  "lang": "ja",
+  "before": "最初からやり直すには、任意のコマンドを送信してください。最近撮影した写真と最後に共有した場所の情報はすべて削除されます。",
+  "after": "最初からやり直すには、任意のコマンドを送信してください。最近のおすすめと最後に共有した場所は削除済みです。",
+  "why": "\"最近撮影した写真\" says RECENTLY TAKEN PHOTOS — read \"picks\" as camera shots. Also future tense for an action already done."
+ },
+ {
+  "key": "loc.confirm.firstShare",
+  "lang": "ja",
+  "before": "📍 *位置情報設定:*\n{place}\n\n💻 デスクトップ版の Telegram では、リアルタイムの GPS ではなく、*地図上にピン留めされた地点* が共有されます。そのため、間違った場所に表示される可能性があります。ここがあなたの現在地ですか?",
+  "after": "📍 *位置情報を次に設定しました:*\n{place}\n\n💻 デスクトップ版の Telegram では、リアルタイムの GPS ではなく、*地図上にピン留めされた地点* が共有されます。そのため、間違った場所に表示される可能性があります。ここがあなたの現在地ですか?",
+  "why": "\"*位置情報設定:*\" dropped the \"set to\" that makes the following line the value."
+ },
+ {
+  "key": "loc.confirm.yes",
+  "lang": "ja",
+  "before": "✅ はい、使ってください",
+  "after": "✅ はい、これを使う",
+  "why": "\"使ってください\" instructs the bot rather than confirming the user's own choice."
+ },
+ {
+  "key": "loc.confirm.no",
+  "lang": "ja",
+  "before": "✏️ いいえ、手動で設定してください",
+  "after": "✏️ いいえ、手動で設定",
+  "why": "Same — a request form where the button names the action."
+ },
+ {
+  "key": "wake.keepBtn",
+  "lang": "ja",
+  "before": "✅ ここに滞在してください",
+  "after": "✅ ここのままにする",
+  "why": "\"ここに滞在してください\" tells the user to stay at the place; the button keeps the stored location."
+ },
+ {
+  "key": "wake.newBtn",
+  "lang": "ja",
+  "before": "📍新店舗",
+  "after": "📍 新しい場所",
+  "why": "\"新店舗\" means a NEW STORE BRANCH."
+ },
+ {
+  "key": "wake2.body",
+  "lang": "ja",
+  "before": "👋 <b>ソリアットへようこそ</b>\n\nお使いのデバイスは現在、<i>{deviceStreet}</i>付近にあります。\n\nSoleatは、保存済みの検索アンカーをまだ使用しています。\n<b>{anchor}</b>\n\nアンカー地点から検索を続けるか、現在地へ更新するか？\n\n<i>また、/l と入力して別の場所から検索することもできます。例:\n/l オーチャードロード\n/l IOIシティモール</i>",
+  "after": "👋 <b>Soleatへようこそ</b>\n\nお使いのデバイスは現在、<i>{deviceStreet}</i>付近にあります。\n\nSoleatは、保存済みの検索アンカーをまだ使用しています。\n<b>{anchor}</b>\n\nアンカー地点から検索を続けるか、現在地へ更新するか？\n\n<i>また、/l と入力して別の場所から検索することもできます。例:\n/l Orchard Road\n/l IOI City Mall</i>",
+  "why": "Transliterated the product name to ソリアット in the first line while the third line keeps \"Soleat\", and transliterated two place names the user is meant to type back verbatim."
+ },
+ {
+  "key": "wake2.btnAnother",
+  "lang": "ja",
+  "before": "🗺別の場所を設定する",
+  "after": "🗺 別の場所を設定する",
+  "why": "Missing the space after the emoji that the sibling buttons have."
+ },
+ {
+  "key": "wake2.currentApplied",
+  "lang": "ja",
+  "before": "👍 アンカーが更新されました<i>{street}</i>。",
+  "after": "👍 アンカーを <i>{street}</i> に更新しました。",
+  "why": "\"更新されました<i>{street}</i>\" leaves the street with no particle attaching it to the verb."
+ },
+ {
+  "key": "transport.map.incidentsCaption",
+  "lang": "ja",
+  "before": "🗺 1つの地図で{n}の事件を表示：",
+  "after": "🗺 1つの地図で{n}件の交通障害を表示：",
+  "why": "Missing counter, and 事件 reads as criminal cases."
+ },
+ {
+  "key": "transport.map.incidentsBtn",
+  "lang": "ja",
+  "before": "地図上に{n}の事件を表示する",
+  "after": "地図上に{n}件の交通障害を表示",
+  "why": "Missing counter, and 事件 reads as criminal cases."
+ },
+ {
+  "key": "transport.map.busStopsBtn",
+  "lang": "ja",
+  "before": "すべての{n}バス停を表示する",
+  "after": "{n}件のバス停をすべて表示",
+  "why": "\"すべての{n}バス停\" is missing its counter."
+ },
+ {
+  "key": "transport.map.stationsBtn",
+  "lang": "ja",
+  "before": "{n}駅を表示する",
+  "after": "{n}件の駅を表示",
+  "why": "\"{n}駅を表示する\" reads as \"display station number {n}\"."
+ },
+ {
+  "key": "transport.train.stationRow",
+  "lang": "ja",
+  "before": "{name} · {dist}{crowd}  <a href=\"{gmapsUrl}\">↗</a>",
+  "after": "{name} · {dist}{crowd} <a href=\"{gmapsUrl}\">↗</a>",
+  "why": "Double space before the link, from the translator's slot padding."
+ },
+ {
+  "key": "share.prompt",
+  "lang": "ja",
+  "before": "友達に転送する場所を選択してください（最近の投稿数：{n}）：",
+  "after": "友達に転送する場所を選択してください（最近の{n}件）：",
+  "why": "\"最近の投稿数：{n}\" says NUMBER OF RECENT POSTS."
+ },
+ {
+  "key": "share.mintFailed",
+  "lang": "ja",
+  "before": "申し訳ありませんが、今はリンクを共有できません。",
+  "after": "申し訳ありませんが、現在、共有リンクを作成できません。",
+  "why": "\"リンクを共有できません\" says the bot declines to share; the source says link creation failed."
+ },
+ {
+  "key": "buddy.on.body",
+  "lang": "ja",
+  "before": "👥 *バディモードON。*\n\nSanctuaryのおすすめを受け取ると、次の60分以内に別のオプトイン済みのSoleatユーザーが向かう予定の場所の横に👥 _接続_ボタンが表示されます。お互いに確認しないと、名前とTelegramのハンドル名が表示されません。1日あたりの上限: 5接続 / 24時間。`/buddy block <chat_id>` でブロック。`/buddy report <chat_id> <reason>` で報告。`/buddy off` で無効にします。\n\n⚠ _パイロット ― 必ず公共の場所で会い、見知らぬ人のように扱い、自分の直感を信じること。_",
+  "after": "👥 *バディモードON。*\n\nSanctuaryのおすすめを受け取ると、次の60分以内に別のオプトイン済みのSoleatユーザーが向かう予定の場所の横に👥 _接続_ボタンが表示されます。お互いに確認しないと、名前とTelegramのハンドル名が表示されません。1日あたりの上限: 5接続 / 24時間。`/buddy block <chat_id>` でブロック。`/buddy report <chat_id> <reason>` で報告。`/buddy off` で無効にします。\n\n⚠ _試験運用 ― 必ず公共の場所で会い、見知らぬ人のように扱い、自分の直感を信じること。_",
+  "why": "\"パイロット\" is an AIRPLANE PILOT, for \"Pilot\" meaning a trial feature."
+ },
+ {
+  "key": "buddy.block.usage",
+  "lang": "ja",
+  "before": "使用方法: `/buddy block <chat_id>`. 以前のマッチングオファーからチャットIDを取得します。",
+  "after": "使用方法: `/buddy block <chat_id>`。以前のマッチングオファーからチャットIDを取得します。",
+  "why": "An ASCII full stop was left between two Japanese sentences."
+ },
+ {
+  "key": "buddy.report.usage",
+  "lang": "ja",
+  "before": "使用方法: `/buddy report <chat_id> <reason>`.",
+  "after": "使用方法: `/buddy report <chat_id> <reason>`。",
+  "why": "An ASCII full stop closing a Japanese sentence."
+ },
+ {
+  "key": "buddy.status.on",
+  "lang": "ja",
+  "before": "の上",
+  "after": "ON",
+  "why": "\"の上\" is the postposition \"on top of\", not the state ON — and the sibling body already writes バディモードON."
+ },
+ {
+  "key": "buddy.status.off",
+  "lang": "ja",
+  "before": "オフ",
+  "after": "OFF",
+  "why": "Paired with ON above; the sibling body writes バディモードOFF."
+ },
+ {
+  "key": "incident.type.Diversion",
+  "lang": "ja",
+  "before": "気晴らし",
+  "after": "迂回",
+  "why": "\"気晴らし\" means amusement or distraction."
+ },
+ {
+  "key": "incident.type.Obstacle",
+  "lang": "ja",
+  "before": "障害",
+  "after": "障害物",
+  "why": "Bare 障害 is an impairment or a fault; a physical obstacle is 障害物."
+ },
+ {
+  "key": "incident.type.Incident",
+  "lang": "ja",
+  "before": "事件",
+  "after": "交通障害",
+  "why": "\"事件\" is a criminal case; every other type in this set is a road event."
+ },
+ {
+  "key": "cuisine.chat.title",
+  "lang": "ja",
+  "before": "🍴 料理選び — シンガポールからジョホールバルへ",
+  "after": "🍴 料理選択ツール — シンガポールからジョホールバルへ",
+  "why": "Called the feature 料理選び where two other keys call it 料理選択ツール."
+ },
+ {
+  "key": "cuisine.chat.anchored",
+  "lang": "ja",
+  "before": "📍最後に共有した場所に固定されています。",
+  "after": "📍 最後に共有した場所に固定されています。",
+  "why": "Missing the space after the emoji that the sibling keys have."
+ },
+ {
+  "key": "cuisine.chat.webhookOnly",
+  "lang": "ja",
+  "before": "Cuisine PickerにはWebhookモードのTMAが必要です。チャットベースの選択には /hidden をお試しください。または、「ラーメンを探して」などと入力していただければ検索します。",
+  "after": "料理選択ツールにはWebhookモードのTMAが必要です。チャットベースの選択には /hidden をお試しください。または、「ラーメンを探して」などと入力していただければ検索します。",
+  "why": "Left \"Cuisine Picker\" in English where the title and button name it 料理選択ツール."
+ },
+ {
+  "key": "location.got",
+  "lang": "ja",
+  "before": "📍現在地を取得しました。",
+  "after": "📍 現在地を取得しました。",
+  "why": "Missing the space after the emoji that the sibling keys have."
+ },
+ {
+  "key": "transport.drive.openMapsBtn",
+  "lang": "ja",
+  "before": "Googleマップ↗",
+  "after": "Googleマップ ↗",
+  "why": "Missing the space before the arrow that the source has."
+ },
+ {
+  "key": "gmaps.openBtn",
+  "lang": "ja",
+  "before": "Googleマップ↗",
+  "after": "Googleマップ ↗",
+  "why": "Missing the space before the arrow that the source has."
+ },
+ {
+  "key": "recognised.btn.bib",
+  "lang": "ja",
+  "before": "🍜ミシュラン・ビブグルマン",
+  "after": "🍜 ミシュラン・ビブグルマン",
+  "why": "Missing the space after the emoji that the sibling buttons have."
+ },
+ {
+  "key": "recognised.btn.star",
+  "lang": "ja",
+  "before": "⭐ミシュラン星付き",
+  "after": "⭐ ミシュラン星付き",
+  "why": "Missing the space after the emoji that the sibling buttons have."
+ },
+ {
+  "key": "cookmethod.literalBtn",
+  "lang": "ja",
+  "before": "🔍文字通り検索",
+  "after": "🔍 文字通り検索",
+  "why": "Missing the space after the emoji that the sibling buttons have."
+ },
+ {
+  "key": "freetext.moreBtn",
+  "lang": "ja",
+  "before": "🔍さらに検索する",
+  "after": "🔍 さらに検索する",
+  "why": "Missing the space after the emoji that the sibling buttons have."
+ },
+ {
+  "key": "crowd.high",
+  "lang": "es",
+  "before": "🔴 ocupado",
+  "after": "🔴 concurrido",
+  "why": "\"ocupado\" is a seat being taken or a person being busy, not a crowded venue."
+ },
+ {
+  "key": "crowd.low",
+  "lang": "es",
+  "before": "🟢 silencio",
+  "after": "🟢 tranquilo",
+  "why": "\"silencio\" is the noun \"silence\", not the adjective the set needs."
+ },
+ {
+  "key": "syntax.wrapper",
+  "lang": "es",
+  "before": "Vuelva a ejecutar esta búsqueda en cualquier momento tocando o pegando:",
+  "after": "Vuelve a ejecutar esta búsqueda en cualquier momento tocando o pegando:",
+  "why": "usted form in a file that addresses the user as tú everywhere around it."
+ },
+ {
+  "key": "cookmethod.didYouMean",
+  "lang": "es",
+  "before": "🙂 <i>¿Quizás buscabas un método de cocción? Toca una cocina a continuación o realiza una búsqueda.</i>",
+  "after": "🙂 <i>¿Quizás buscabas un método de cocción? Toca una cocina a continuación o busca literalmente.</i>",
+  "why": "\"realiza una búsqueda\" dropped \"literally\", which is the whole distinction the sentence draws."
+ },
+ {
+  "key": "freetext.expired",
+  "lang": "es",
+  "before": "⌛ Esa búsqueda ha caducado. Por favor, vuelva a escribir su consulta.",
+  "after": "⌛ Esa búsqueda ha caducado. Vuelve a escribir tu consulta.",
+  "why": "usted form amid tú."
+ },
+ {
+  "key": "loc.searchArea.set",
+  "lang": "es",
+  "before": "📍 Área configurada: {area}\n\nUtilice <code>/location</code> o <code>/l &lt;place&gt;</code> · cambiar dirección",
+  "after": "📍 Área configurada: {area}\n\nUsa <code>/location</code> o <code>/l &lt;place&gt;</code> · cambiar dirección",
+  "why": "usted form amid tú."
+ },
+ {
+  "key": "loc.searchPick.btn",
+  "lang": "es",
+  "before": "🔍 Vea los restaurantes aquí",
+  "after": "🔍 Ver restaurantes aquí",
+  "why": "\"Vea los restaurantes aquí\" is an usted statement where the button names an action."
+ },
+ {
+  "key": "place.autoNearbyIntro",
+  "lang": "es",
+  "before": "_Escasas opciones en <b>{place}</b> — aquí están los restaurantes mejor valorados de la zona:",
+  "after": "_Escasas opciones en <b>{place}</b> — aquí están los restaurantes mejor valorados de la zona:_",
+  "why": "The closing italic marker was dropped, leaving an unbalanced emphasis run."
+ },
+ {
+  "key": "place.outsideHeader",
+  "lang": "es",
+  "before": "✨ <b>Los mejores restaurantes fuera de {place} {n} en un radio de {km} km, clasificados por puntuación · Michelin · rareza · clientela)</b>",
+  "after": "✨ <b>Los {n} mejores restaurantes fuera de {place}</b> (en un radio de {km} km, ordenados por puntuación · Michelin · rareza · afluencia)",
+  "why": "BROKEN: the opening bracket vanished and {n} was stranded mid-sentence — \"fuera de {place} {n} en un radio\" — so the count read as part of the place name."
+ },
+ {
+  "key": "place.nearbyHeader",
+  "lang": "es",
+  "before": "✨ <b>Los mejores restaurantes cerca de {place} {n} en un radio de {km} km, clasificados por puntuación · Michelin · rareza · clientela)</b>",
+  "after": "✨ <b>Los {n} mejores restaurantes cerca de {place}</b> (en un radio de {km} km, ordenados por puntuación · Michelin · rareza · afluencia)",
+  "why": "Same lost bracket and stranded {n}."
+ },
+ {
+  "key": "weather.headOutRaining",
+  "lang": "es",
+  "before": "☔ Está lloviendo en los alrededores {area} ahora mismo; espere entre 20 y 30 minutos o elija un lugar cubierto.",
+  "after": "☔ Está lloviendo en los alrededores de {area} ahora mismo; espera entre 20 y 30 minutos o elige un lugar cubierto.",
+  "why": "\"en los alrededores {area}\" is missing its preposition, and the imperatives were usted amid tú."
+ },
+ {
+  "key": "weather.headOutGood",
+  "lang": "es",
+  "before": "✅ Buena ventana: {area} parece seca durante las próximas 2 horas.",
+  "after": "✅ Buen momento: {area} parece seco durante las próximas 2 horas.",
+  "why": "\"Buena ventana\" is a window in a wall, and \"seca\" agreed with it rather than with the place."
+ },
+ {
+  "key": "weather.rainSoonNear",
+  "lang": "es",
+  "before": "🌧️ {desc} en {area} Pronóstico de 2 horas: los asientos cubiertos ayudan.",
+  "after": "🌧️ {desc} en el pronóstico de 2 horas de {area}; los asientos cubiertos ayudan.",
+  "why": "BROKEN: \"{desc} en {area} Pronóstico de 2 horas:\" ran two fragments together with a capital mid-line."
+ },
+ {
+  "key": "weather.headOutShowery",
+  "lang": "es",
+  "before": "🌦️ Ahora está seco, pero el pronóstico para las próximas 2 horas en {area} es {desc}; salga pronto si va a algún lugar al aire libre.",
+  "after": "🌦️ Ahora está seco, pero el pronóstico para las próximas 2 horas en {area} es {desc}; sal pronto si vas a algún lugar al aire libre.",
+  "why": "usted imperatives amid tú."
+ },
+ {
+  "key": "carpark.row",
+  "lang": "es",
+  "before": "{i}. {name} · {lots} lotes · {dist}",
+  "after": "{i}. {name} · {lots} plazas · {dist}",
+  "why": "\"lotes\" are batches of goods; a parking bay is a plaza."
+ },
+ {
+  "key": "carpark.mapAllBtn",
+  "lang": "es",
+  "before": "Comparar todos {n} aparcamientos",
+  "after": "Comparar los {n} aparcamientos",
+  "why": "\"todos {n} aparcamientos\" is missing the article the construction requires."
+ },
+ {
+  "key": "hawker.openTmaBtn",
+  "lang": "es",
+  "before": "🍚 Centro de comida ambulante abierto",
+  "after": "🍚 Abrir centro de comida callejera",
+  "why": "\"Centro de comida ambulante abierto\" says the centre is open; the button is an imperative. Name aligned with the title's \"comida callejera\"."
+ },
+ {
+  "key": "transport.train.crowd.m",
+  "lang": "es",
+  "before": "🟡 mediano",
+  "after": "🟡 medio",
+  "why": "\"mediano\" is medium-SIZED."
+ },
+ {
+  "key": "transport.train.headway",
+  "lang": "es",
+  "before": "⏱️ Frecuencia: {peakMin}–{peakMax} min pico · {offMin}–{offMax} min fuera de pico (publicado por LTA)",
+  "after": "⏱️ Frecuencia: {peakMin}–{peakMax} min hora punta · {offMin}–{offMax} min fuera de hora punta (publicado por LTA)",
+  "why": "\"pico\" alone does not name the rush hour in Spanish."
+ },
+ {
+  "key": "transport.train.engineering",
+  "lang": "es",
+  "before": "🔧 Próximas actividades de ingeniería (próximos 7 días):",
+  "after": "🔧 Próximas obras de mantenimiento (próximos 7 días):",
+  "why": "\"actividades de ingeniería\" is engineering work in general; rail engineering works are obras."
+ },
+ {
+  "key": "transport.train.unreachable",
+  "lang": "es",
+  "before": "Lo siento, no puedo acceder a la transmisión del MRT en este momento.",
+  "after": "Lo siento, no puedo acceder a los datos del MRT en este momento.",
+  "why": "\"la transmisión del MRT\" is an MRT broadcast."
+ },
+ {
+  "key": "transport.bus.nearestHeader",
+  "lang": "es",
+  "before": "🚏 Paradas de autobús más cercanas: {count}",
+  "after": "🚏 Las {count} paradas de autobús más cercanas",
+  "why": "\"Paradas más cercanas: {count}\" reads the count as a label value rather than as how many are listed."
+ },
+ {
+  "key": "transport.bus.noLive",
+  "lang": "es",
+  "before": "  No hay llegadas en tiempo real.",
+  "after": "  sin llegadas en tiempo real",
+  "why": "This fragment is appended inline to a preceding run; it was capitalised and closed with a full stop as if it were its own sentence."
+ },
+ {
+  "key": "transport.bus.noStopsCrowd",
+  "lang": "es",
+  "before": "👥 No hay paradas de autobús a menos de 800 m para tomar muestras.",
+  "after": "👥 No hay paradas de autobús a menos de 800 m para muestrear.",
+  "why": "\"para tomar muestras\" is taking laboratory samples."
+ },
+ {
+  "key": "transport.bus.load.seats",
+  "lang": "es",
+  "before": "Plazas disponibles: {n}",
+  "after": "Asientos disponibles: {n}",
+  "why": "\"Plazas disponibles\" does not distinguish seated from standing, which is the point of the pair."
+ },
+ {
+  "key": "transport.bus.load.standing",
+  "lang": "es",
+  "before": "Disponibilidad de pie: {n}",
+  "after": "Plazas de pie disponibles: {n}",
+  "why": "\"Disponibilidad de pie\" reads as availability that is itself standing up."
+ },
+ {
+  "key": "transport.bus.load.limited",
+  "lang": "es",
+  "before": "Reputación limitada: {n}",
+  "after": "Plazas de pie limitadas: {n}",
+  "why": "\"Reputación limitada\" means limited REPUTATION — read \"Standing\" as social standing."
+ },
+ {
+  "key": "transport.bus.load.footer",
+  "lang": "es",
+  "before": "(de {n} servicios con datos de carga en tiempo real)",
+  "after": "(de {n} servicios con datos de ocupación en tiempo real)",
+  "why": "\"datos de carga\" is cargo or electrical load; the header already says ocupación."
+ },
+ {
+  "key": "transport.bus.noLoad",
+  "lang": "es",
+  "before": "No hay datos de carga en tiempo real en este momento; inténtelo de nuevo en 30 segundos.",
+  "after": "No hay datos de ocupación en tiempo real en este momento; inténtalo de nuevo en 30 segundos.",
+  "why": "Same carga/ocupación error, plus an usted imperative amid tú."
+ },
+ {
+  "key": "transport.bus.unreachable",
+  "lang": "es",
+  "before": "Lo sentimos, la señal del autobús no está disponible en este momento.",
+  "after": "Lo sentimos, el servicio de datos de autobuses no está disponible en este momento.",
+  "why": "\"la señal del autobús\" is the bus's own signal."
+ },
+ {
+  "key": "transport.incidents.offline",
+  "lang": "es",
+  "before": "🚦 El flujo de tráfico está fuera de línea (la clave LTA no está configurada).",
+  "after": "🚦 Los datos de tráfico están fuera de línea (la clave LTA no está configurada).",
+  "why": "\"El flujo de tráfico\" is traffic FLOW as a measurement."
+ },
+ {
+  "key": "transport.incidents.none",
+  "lang": "es",
+  "before": "No se han reportado incidentes en directo.",
+  "after": "No se han registrado incidentes activos.",
+  "why": "\"en directo\" describes a live broadcast."
+ },
+ {
+  "key": "transport.drive.trafficNone",
+  "lang": "es",
+  "before": "🚦 Tráfico: no se han reportado incidentes en directo.",
+  "after": "🚦 Tráfico: no se han registrado incidentes activos.",
+  "why": "Same \"en directo\" misreading."
+ },
+ {
+  "key": "transport.causeway.empty",
+  "lang": "es",
+  "before": "La LTA no ha detectado ninguna cámara en los puntos de control en este momento; inténtelo de nuevo en un minuto.",
+  "after": "La LTA no ha devuelto ninguna cámara de control en este momento; inténtalo de nuevo en un minuto.",
+  "why": "\"no ha detectado\" says LTA failed to detect the cameras, plus an usted imperative amid tú."
+ },
+ {
+  "key": "transport.causeway.unreachable",
+  "lang": "es",
+  "before": "🛂 No se pudo contactar con LTA para obtener información sobre las cámaras de control; inténtelo de nuevo en un minuto.",
+  "after": "🛂 No se pudo contactar con LTA para obtener las cámaras de control; inténtalo de nuevo en un minuto.",
+  "why": "usted imperative amid tú."
+ },
+ {
+  "key": "transport.incidents.noNear",
+  "lang": "es",
+  "before": "{total} incidentes en toda la isla; ninguno en un radio de 20 km de su ubicación.",
+  "after": "{total} incidentes en toda la isla; ninguno en un radio de 20 km de tu ubicación.",
+  "why": "usted possessive amid tú."
+ },
+ {
+  "key": "transport.incidents.noLoc",
+  "lang": "es",
+  "before": "{total} incidentes en toda la isla. Comparta su ubicación para que se ordene por proximidad.",
+  "after": "{total} incidentes en toda la isla. Comparte tu ubicación para ordenarlos por proximidad.",
+  "why": "usted imperative and possessive amid tú."
+ },
+ {
+  "key": "transport.incidents.unreachable",
+  "lang": "es",
+  "before": "Lo sentimos, la transmisión de tráfico falló.",
+  "after": "Lo sentimos, no se han podido obtener los datos de tráfico.",
+  "why": "\"la transmisión de tráfico falló\" describes a broadcast failing."
+ },
+ {
+  "key": "transport.drive.trafficNear",
+  "lang": "es",
+  "before": "🚦 Tráfico (los {n} principales del total de {total} en toda la isla):",
+  "after": "🚦 Tráfico (los {n} principales de {total} en toda la isla):",
+  "why": "\"del total de {total}\" doubles the word total."
+ },
+ {
+  "key": "transport.drive.openMapsBtn",
+  "lang": "es",
+  "before": "Mapa de Google ↗",
+  "after": "Google Maps ↗",
+  "why": "\"Mapa de Google\" translates a product name."
+ },
+ {
+  "key": "gmaps.openBtn",
+  "lang": "es",
+  "before": "Mapa de Google ↗",
+  "after": "Google Maps ↗",
+  "why": "\"Mapa de Google\" translates a product name."
+ },
+ {
+  "key": "transport.drive.btn.carpark",
+  "lang": "es",
+  "before": "Aparcamiento 🅿️",
+  "after": "🅿️ Aparcamiento",
+  "why": "The emoji was moved to the end, unlike every other button in the set."
+ },
+ {
+  "key": "transport.drive.unreachable",
+  "lang": "es",
+  "before": "Lo sentimos, la vista de la unidad falló.",
+  "after": "Lo sentimos, no se ha podido cargar la vista de conducción.",
+  "why": "\"la vista de la unidad\" is a DISK DRIVE view — read \"drive\" as storage."
+ },
+ {
+  "key": "forgetme.nothing",
+  "lang": "es",
+  "before": "✅ No hay nada que borrar: no tenía datos almacenados para usted. (Las cachés y las filas de solicitudes caducan automáticamente; todos los espacios persistentes estaban vacíos).",
+  "after": "✅ No hay nada que borrar: no tenía datos almacenados sobre ti. (Las cachés y las filas de solicitudes caducan automáticamente; todos los espacios persistentes estaban vacíos).",
+  "why": "usted form amid tú."
+ },
+ {
+  "key": "forgetme.eraseHeader",
+  "lang": "es",
+  "before": "✅ Eliminada *{n}* Entrada de Redis para tu chat.",
+  "after": "✅ Se borró *{n}* entrada de Redis de tu chat.",
+  "why": "\"Eliminada *{n}* Entrada\" capitalises mid-sentence and leaves the participle agreeing with nothing."
+ },
+ {
+  "key": "forgetme.eraseHeaderMany",
+  "lang": "es",
+  "before": "✅ Se borraron *{n}* entradas de Redis para tu chat.",
+  "after": "✅ Se borraron *{n}* entradas de Redis de tu chat.",
+  "why": "\"para tu chat\" reads as entries created for the chat; these belong to it."
+ },
+ {
+  "key": "loc.confirm.firstShare",
+  "lang": "es",
+  "before": "📍 *Ubicación establecida en:*\n{place}\n\n💻 En la versión de escritorio, Telegram comparte un *punto marcado en el mapa*, no un GPS en tiempo real; puede ubicarse en un lugar incorrecto. ¿Estás ahí?",
+  "after": "📍 *Ubicación establecida en:*\n{place}\n\n💻 En la versión de escritorio, Telegram comparte un *punto marcado en el mapa*, no un GPS en tiempo real; puede ubicarse en un lugar incorrecto. ¿Es aquí donde estás?",
+  "why": "\"¿Estás ahí?\" asks whether the user is present at all, not whether the pin is right."
+ },
+ {
+  "key": "location.age.hourAgo",
+  "lang": "es",
+  "before": " ({h} h {m} minutos)",
+  "after": " (hace {h} h {m} min)",
+  "why": "Dropped \"ago\", leaving a bare duration that reads as a time of day."
+ },
+ {
+  "key": "wake.keepBtn",
+  "lang": "es",
+  "before": "✅ Quédate aquí",
+  "after": "✅ Quedarme aquí",
+  "why": "\"Quédate aquí\" is a command to the user; the button states the user's own choice."
+ },
+ {
+  "key": "wake2.btnKeep",
+  "lang": "es",
+  "before": "✅ Mantén la ubicación anterior",
+  "after": "✅ Mantener la ubicación anterior",
+  "why": "Same imperative-for-choice mismatch as its sibling buttons."
+ },
+ {
+  "key": "wake2.currentApplied",
+  "lang": "es",
+  "before": "👍 Anchor actualizado a <i>{street}</i>.",
+  "after": "👍 Ancla actualizada a <i>{street}</i>.",
+  "why": "\"Anchor\" was left in English while the two neighbouring keys say \"ancla\"."
+ },
+ {
+  "key": "wake2.offerExpired",
+  "lang": "es",
+  "before": "⏱ Esa acción compartida ha caducado. Pulsa /l para establecer un nuevo enlace.",
+  "after": "⏱ Esa ubicación compartida ha caducado. Pulsa /l para establecer una nueva ancla.",
+  "why": "\"un nuevo enlace\" sets a new LINK; the source sets a new anchor."
+ },
+ {
+  "key": "wake2.body",
+  "lang": "es",
+  "before": "👋 <b>Bienvenido de nuevo a Soleat</b>\n\nTu dispositivo ahora parece estar cerca de: <i>{deviceStreet}</i>\n\nSoleat sigue utilizando el ancla de búsqueda guardada:\n<b>{anchor}</b>\n\n¿Continuar la búsqueda desde el ancla o actualizar a su ubicación actual?\n\n<i>También puedes escribir /l para buscar desde otro lugar, por ejemplo:\n/l Orchard Road\n/l IOI City Mall</i>",
+  "after": "👋 <b>Bienvenido de nuevo a Soleat</b>\n\nTu dispositivo ahora parece estar cerca de: <i>{deviceStreet}</i>\n\nSoleat sigue utilizando el ancla de búsqueda guardada:\n<b>{anchor}</b>\n\n¿Continuar la búsqueda desde el ancla o actualizar a tu ubicación actual?\n\n<i>También puedes escribir /l para buscar desde otro lugar, por ejemplo:\n/l Orchard Road\n/l IOI City Mall</i>",
+  "why": "One usted possessive (\"su ubicación\") inside a message that is otherwise tú throughout."
+ },
+ {
+  "key": "transport.map.busStopsCaption",
+  "lang": "es",
+  "before": "🗺 Vea {n} paradas de autobús en un solo mapa:",
+  "after": "🗺 Visualiza {n} paradas de autobús en un solo mapa:",
+  "why": "usted imperative where the two sibling captions use tú."
+ },
+ {
+  "key": "transport.train.stationRow",
+  "lang": "es",
+  "before": "{name} · {dist}{crowd}  <a href=\"{gmapsUrl}\">↗</a>",
+  "after": "{name} · {dist}{crowd} <a href=\"{gmapsUrl}\">↗</a>",
+  "why": "Double space before the link, from the translator's slot padding."
+ },
+ {
+  "key": "privacy.error",
+  "lang": "es",
+  "before": "Lo sentimos, se ha producido un error /privacy. Inténtalo de nuevo en un momento.",
+  "after": "Lo sentimos, se ha producido un error en /privacy. Inténtalo de nuevo en un momento.",
+  "why": "Missing preposition — the command name was left dangling after \"error\"."
+ },
+ {
+  "key": "share.prompt",
+  "lang": "es",
+  "before": "Elige un lugar para reenviar a tu amigo ({n} reciente):",
+  "after": "Elige un lugar para reenviar a tu amigo ({n} recientes):",
+  "why": "\"reciente\" agreed in the singular with a count that is normally plural."
+ },
+ {
+  "key": "buddy.on.body",
+  "lang": "es",
+  "before": "👥 *Modo compañero activado.*\n\nCuando recibas recomendaciones de Sanctuary, aparecerá un botón 👥 _Conectar_ junto a los lugares a los que otro usuario de soleat que haya optado por participar también se dirigirá en los próximos 60 minutos. Ambos debéis confirmar antes de que se muestren los nombres y los nombres de usuario de Telegram. Límite diario: 5 conexiones / 24 h. `/buddy block <chat_id>` para bloquear. `/buddy report <chat_id> <reason>` para marcar. `/buddy off` para desactivar.\n\n⚠ _Piloto: queda solo en público, trata como a un desconocido, confía en tu instinto._",
+  "after": "👥 *Modo compañero activado.*\n\nCuando recibas recomendaciones de Sanctuary, aparecerá un botón 👥 _Conectar_ junto a los lugares a los que otro usuario de soleat que haya optado por participar también se dirigirá en los próximos 60 minutos. Los dos tenéis que confirmar antes de que se muestren los nombres y los usuarios de Telegram. Límite diario: 5 conexiones / 24 h. `/buddy block <chat_id>` para bloquear. `/buddy report <chat_id> <reason>` para denunciar. `/buddy off` para desactivar.\n\n⚠ _Piloto: queda únicamente en lugares públicos, trata a la otra persona como a un desconocido, confía en tu instinto._",
+  "why": "\"queda solo en público\" reads as \"stay alone in public\" rather than \"meet only in public\", and \"para marcar\" is to mark, not to report."
+ },
+ {
+  "key": "buddy.block.cap",
+  "lang": "es",
+  "before": "No se pudo bloquear (se alcanzó el máximo de 50 bloques).",
+  "after": "No se pudo bloquear (se alcanzó el máximo de 50 bloqueos).",
+  "why": "\"50 bloques\" counts blocks of material, not blocking actions."
+ },
+ {
+  "key": "buddy.block.ok",
+  "lang": "es",
+  "before": "🚫 Bloqueado {target}. Nunca se le pondrá en contacto contigo.",
+  "after": "🚫 {target} bloqueado. Nunca se le emparejará contigo.",
+  "why": "\"Nunca se le pondrá en contacto contigo\" promises no contact at all; the source only rules out matching."
+ },
+ {
+  "key": "buddy.report.ok",
+  "lang": "es",
+  "before": "📝 Se ha registrado un informe. {target} también ha sido bloqueado automáticamente de tus coincidencias. Lo revisaremos.",
+  "after": "📝 Denuncia registrada. {target} también ha sido bloqueado automáticamente de tus coincidencias. Lo revisaremos.",
+  "why": "\"Se ha registrado un informe\" is a filed report document, not a user report."
+ },
+ {
+  "key": "buddy.status.on",
+  "lang": "es",
+  "before": "EN",
+  "after": "ACTIVADO",
+  "why": "\"EN\" is the preposition \"in\", not the state ON."
+ },
+ {
+  "key": "buddy.status.off",
+  "lang": "es",
+  "before": "APAGADO",
+  "after": "DESACTIVADO",
+  "why": "\"APAGADO\" is a device being powered off; the sibling key already says DESACTIVADO."
+ },
+ {
+  "key": "incident.type.HeavyTraffic",
+  "lang": "es",
+  "before": "Tránsito pesado",
+  "after": "Tráfico denso",
+  "why": "\"Tránsito pesado\" is a regional variant that clashes with \"Tráfico\" used in every neighbouring key."
+ },
+ {
+  "key": "incident.type.MiscIncident",
+  "lang": "es",
+  "before": "Misceláneas",
+  "after": "Varios",
+  "why": "\"Misceláneas\" is a feminine plural noun agreeing with nothing."
+ },
+ {
+  "key": "incident.type.MassDisruption",
+  "lang": "es",
+  "before": "Disrupción masiva",
+  "after": "Interrupción generalizada",
+  "why": "\"Disrupción masiva\" is an anglicism that reads as mass destruction rather than a service interruption."
+ },
+ {
+  "key": "cuisine.chat.title",
+  "lang": "es",
+  "before": "🍴 Guía de cocina: de Singapur a Johor Bahru",
+  "after": "🍴 Selector de cocina: de Singapur a Johor Bahru",
+  "why": "Called the feature \"Guía de cocina\" while three other keys call it \"selector de cocina\"."
+ },
+ {
+  "key": "cuisine.chat.shareForAccurate",
+  "lang": "es",
+  "before": "Para obtener predicciones precisas, primero comparte tu ubicación.",
+  "after": "Para obtener recomendaciones precisas, primero comparte tu ubicación.",
+  "why": "\"predicciones precisas\" is accurate FORECASTS; the source is accurate picks."
+ },
+ {
+  "key": "cuisine.chat.openBtn",
+  "lang": "es",
+  "before": "🍴 Selector de cocina abierto",
+  "after": "🍴 Abrir el selector de cocina",
+  "why": "\"Selector de cocina abierto\" says the selector is open; the button is an imperative."
+ }
+]

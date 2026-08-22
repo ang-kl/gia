@@ -21,9 +21,9 @@ const SUPPORTED = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
 const STRINGS = {
   // Pick-list headers
   'pick.header.one':           { en: '📋 1 place', fr: '📋 1 lieu' ,
-                      id: '📋 Tempat ke-1',
+                      id: '📋 1 tempat',
                       ru: '📋 1 место',
-                      de: '📋 1 Platz',
+                      de: '📋 1 Ort',
                       zh: '📋 1 个地点',
                       ja: '📋 1件',
                       es: '📋 1 lugar'
@@ -40,8 +40,8 @@ const STRINGS = {
                        id: '🔎 Hasil untuk',
                        ru: '🔎 Результаты для',
                        de: '🔎 Ergebnisse für',
-                       zh: '🔎 结果',
-                       ja: '🔎 検索結果',
+                       zh: '🔎 搜索结果：',
+                       ja: '🔎 検索結果：',
                        es: '🔎 Resultados para'
                      },
   // v0.60.145 — surfaced when /api/cuisine/copy-all has venues that
@@ -66,10 +66,10 @@ const STRINGS = {
                     es: 'Abierto ahora'
                   },
   'hours.closed':              { en: 'Closed',   fr: 'Fermé' ,
-                   id: 'Tertutup',
+                   id: 'Tutup',
                    ru: 'Закрыто',
                    de: 'Geschlossen',
-                   zh: '关闭',
+                   zh: '已打烊',
                    ja: '閉店',
                    es: 'Cerrado'
                  },
@@ -112,27 +112,27 @@ const STRINGS = {
   // ResultCard so the pasted message + on-screen card match)
   'crowd.high':                { en: '🔴 busy',     fr: '🔴 chargé' ,
                  id: '🔴 sibuk',
-                 ru: '🔴 занят',
-                 de: '🔴 beschäftigt',
+                 ru: '🔴 многолюдно',
+                 de: '🔴 voll',
                  zh: '🔴 忙碌',
-                 ja: '🔴 忙しい',
-                 es: '🔴 ocupado'
+                 ja: '🔴 混雑',
+                 es: '🔴 concurrido'
                },
   'crowd.medium':              { en: '🟡 moderate', fr: '🟡 modéré' ,
                    id: '🟡 sedang',
-                   ru: '🟡 умеренный',
+                   ru: '🟡 умеренно',
                    de: '🟡 mäßig',
                    zh: '🟡 适中',
-                   ja: '🟡 中程度',
+                   ja: '🟡 やや混雑',
                    es: '🟡 moderado'
                  },
   'crowd.low':                 { en: '🟢 quiet',    fr: '🟢 calme' ,
                 id: '🟢 tenang',
-                ru: '🟢 тихий',
+                ru: '🟢 спокойно',
                 de: '🟢 ruhig',
                 zh: '🟢安静',
-                ja: '🟢 静か',
-                es: '🟢 silencio'
+                ja: '🟢 空いている',
+                es: '🟢 tranquilo'
               },
 
   // copy-syntax — wrapper line above the /cuisine command
@@ -142,7 +142,7 @@ const STRINGS = {
                      de: 'Sie können diese Suche jederzeit durch Antippen oder Einfügen erneut ausführen:',
                      zh: '您可随时点击或粘贴以下命令重新运行此搜索：',
                      ja: 'タップまたは貼り付けることで、いつでもこの検索を再実行できます。',
-                     es: 'Vuelva a ejecutar esta búsqueda en cualquier momento tocando o pegando:'
+                     es: 'Vuelve a ejecutar esta búsqueda en cualquier momento tocando o pegando:'
                    },
 
   // v0.59.0 — bot chrome (most-trafficked chat replies)
@@ -168,17 +168,17 @@ const STRINGS = {
                           fr: '📍 Partagez votre position une fois pour que Soleat utilise votre lieu (ou tapez `/location <nom du lieu>` pour le définir manuellement).',
                           de: '📍 Teile deinen Standort einmalig, damit Soleat deine Regionseinstellung verwendet (oder gib `/location <place name>` ein, um ihn manuell festzulegen).',
                           zh: '📍 分享一次您的位置，以便 Soleat 使用您的语言环境（或输入 `/location <place name>` 手动设置）。',
-                          ja: '📍 一度位置情報を共有すると、Soleat があなたの地域設定を使用します (または、 `/location <place name>` と入力して手動で設定します)。',
+                          ja: '📍 一度位置情報を共有すると、Soleat があなたの地域設定を使用します (または、`/location <place name>` と入力して手動で設定します)。',
                           es: '📍 Comparte tu ubicación una sola vez para que Soleat use tu configuración regional (o escribe `/location <place name>` para configurarla manualmente).' },
   'bot.noresults':             { en: 'No Google Places results for "{q}" near you. Try /cuisine for the picker, /hidden for nearby gems, or rephrase your search.',
                                  fr: 'Aucun résultat Google Places pour "{q}" près de vous. Essayez /cuisine pour le sélecteur, /hidden pour les trouvailles, ou reformulez votre recherche.' ,
-                    id: 'Tidak ada hasil Google Places untuk " {q} " di dekat Anda. Coba /cuisine untuk pemilih makanan, /hidden untuk tempat makan favorit di dekat Anda, atau ubah frasa pencarian Anda.',
-                    ru: 'В Google Places нет результатов поиска по запросу " {q} " рядом с вами. Попробуйте использовать /cuisine для выбора заведения, /hidden для поиска интересных мест поблизости или измените формулировку запроса.',
-                    de: 'Für " {q} " in deiner Nähe wurden keine Google Places-Ergebnisse gefunden. Versuche es mit /cuisine für die Restaurantauswahl, /hidden für weitere Restaurants in der Nähe oder formuliere deine Suche um.',
-                    es: 'No hay resultados de Google Places para " {q} " cerca de ti. Prueba con /cuisine para el selector, /hidden para joyas cercanas o reformula tu búsqueda.'
+                    id: 'Tidak ada hasil Google Places untuk "{q}" di dekat Anda. Coba /cuisine untuk pemilih makanan, /hidden untuk tempat makan favorit di dekat Anda, atau ubah frasa pencarian Anda.',
+                    ru: 'В Google Places нет результатов поиска по запросу "{q}" рядом с вами. Попробуйте использовать /cuisine для выбора заведения, /hidden для поиска интересных мест поблизости или измените формулировку запроса.',
+                    de: 'Für "{q}" in deiner Nähe wurden keine Google Places-Ergebnisse gefunden. Versuche es mit /cuisine für die Restaurantauswahl, /hidden für weitere Restaurants in der Nähe oder formuliere deine Suche um.',
+                    es: 'No hay resultados de Google Places para "{q}" cerca de ti. Prueba con /cuisine para el selector, /hidden para joyas cercanas o reformula tu búsqueda.'
                   ,
-                    zh: '您附近没有与“{q}”相关的 Google Places 结果。请尝试使用 /cuisine 查找附近的景点，或尝试使用 /hidden 查找附近的宝藏，或者重新措辞您的搜索。',
-                    ja: '「{q}」で検索しても、お近くのGoogleプレイスの結果は見つかりませんでした。ピッカーで /cuisine 、近くのおすすめスポットで /hidden を試すか、検索語句を変更してください。'
+                    zh: '您附近没有与“{q}”相关的 Google Places 结果。可以试试 /cuisine 使用菜系选择器，或 /hidden 查找附近的宝藏餐馆，或者换个说法再搜索。',
+                    ja: '「{q}」で検索しても、お近くのGoogleプレイスの結果は見つかりませんでした。ピッカーで /cuisine、近くのおすすめスポットで /hidden を試すか、検索語句を変更してください。'
                   },
   'bot.error.freetext':        { en: 'Sorry, free-text search hit an error. Try /cuisine or /hidden.',
                          fr: 'Désolé, la recherche libre a rencontré une erreur. Essayez /cuisine ou /hidden.' },
@@ -195,7 +195,7 @@ const STRINGS = {
                        ru: '⇩─ Заведения общественного питания со схожими блюдами или кухней ─ ⇩\n⇩─ не совсем {dish} ─ ⇩',
                        de: '⇩─ Lokale mit ähnlichen Gerichten oder ähnlicher Küche ─ ⇩\n⇩─ nicht genau {dish} ─ ⇩',
                        zh: '⇩─ 提供类似菜肴或菜系的餐馆 ─ ⇩\n⇩─ 不完全是{dish} ─ ⇩',
-                       ja: '⇩─ 似たような料理や料理を提供する飲食店 ─ ⇩\n⇩─ 正確には{dish}ではない ─ ⇩',
+                       ja: '⇩─ 似た料理やジャンルを提供する飲食店 ─ ⇩\n⇩─ 正確には{dish}ではない ─ ⇩',
                        es: '⇩─ Restaurantes con platos o cocina similares ─ ⇩\n⇩─ no exactamente {dish} ─ ⇩'
                      },
   // v0.60.135 — shown above a free-text / /s dish-search result list
@@ -208,7 +208,7 @@ const STRINGS = {
                         de: '⚠️ <i>Kein Restaurant in Singapur serviert eindeutig {dish} – diese entsprachen lediglich Ihren Suchbegriffen:</i>',
                         zh: '⚠️<i>没有新加坡餐馆明确供应{dish} ——以下这些只是与您的搜索词匹配：</i>',
                         ja: '⚠️<i>シンガポールの飲食店で{dish}を提供しているところは見つかりませんでした。以下は検索語句に一致したものです。</i>',
-                        es: '⚠️ <i>Ningún restaurante de Singapur sirve claramente {dish} ; estos coinciden con tus palabras de búsqueda:</i>'
+                        es: '⚠️ <i>Ningún restaurante de Singapur sirve claramente {dish}; estos coinciden con tus palabras de búsqueda:</i>'
                       },
   // v0.60.128 — "misrepresented dish" note. Surfaced on the free-text
   // dish-search paths (chat + Cuisine TMA "Tell me" box) when the typed
@@ -237,7 +237,7 @@ const STRINGS = {
                             de: '🙂 <i>Waren Sie vielleicht auf der Suche nach einer Kochmethode? Tippen Sie unten auf eine Küche oder suchen Sie wörtlich.</i>',
                             zh: '🙂<i>您是不是在寻找某种烹饪方法？点击下方菜系，或直接搜索。</i>',
                             ja: '🙂<i>もしかして、調理方法をお探しですか？下の料理名をタップするか、直接検索してみてください。</i>',
-                            es: '🙂 <i>¿Quizás buscabas un método de cocción? Toca una cocina a continuación o realiza una búsqueda.</i>'
+                            es: '🙂 <i>¿Quizás buscabas un método de cocción? Toca una cocina a continuación o busca literalmente.</i>'
                           },
   // v0.60.131 — free-text "looks like a question" decline. Shown when
   // someone types a sentence ("does Beach Road curry rice sell chiffon
@@ -247,8 +247,8 @@ const STRINGS = {
                                 id: '🍛 Silakan coba sebutkan nama hidangan, metode memasak, atau istilah makanan - misalnya Mee Soto, char kway teow, atau goulash dumpling.',
                                 ru: '🍛 Пожалуйста, попробуйте назвать название блюда, способ приготовления или кулинарный термин — например, Mee Soto, char kway teow или goulash dumpling.',
                                 de: '🍛 Bitte versuchen Sie es mit einem Gerichtnamen, einer Zubereitungsmethode oder einem Fachbegriff aus der Küche – z. B. Mee Soto, Char Kway Teow oder Gulaschknödel.',
-                                zh: '🍛 请尝试提供菜名、烹饪方法或食物相关词汇——例如：面条汤、炒粿条或炖牛肉饺子',
-                                ja: '🍛 料理名、調理法、または食品用語を試してみてください。例：ミーソト、チャークイティオ、グーラッシュ餃子',
+                                zh: '🍛 请尝试提供菜名、烹饪方法或食物相关词汇——例如：Mee Soto、char kway teow 或 goulash dumpling',
+                                ja: '🍛 料理名、調理法、または食品用語を試してみてください。例：Mee Soto、char kway teow、goulash dumpling',
                                 es: '🍛 Por favor, prueba con el nombre de un plato, un método de cocción o un término culinario, por ejemplo: Mee Soto, char kway teow o goulash dumpling.'
                               },
   // v0.60.228 — transport queries (MRT / bus / "how to get to X")
@@ -258,10 +258,10 @@ const STRINGS = {
   'cookmethod.literalBtn':     { en: '🔍 Search literally',
                                  fr: '🔍 Rechercher tel quel' ,
                             id: '🔍 Cari secara harfiah',
-                            ru: '🔍 Поиск буквально',
-                            de: '🔍 Suche buchstäblich',
+                            ru: '🔍 Искать буквально',
+                            de: '🔍 Wörtlich suchen',
                             zh: '🔍 逐字搜索',
-                            ja: '🔍文字通り検索',
+                            ja: '🔍 文字通り検索',
                             es: '🔍 Buscar literalmente'
                           },
   // v0.61.171 — chat free-text "Search 🔍 for more" follow-up after a
@@ -285,9 +285,9 @@ const STRINGS = {
                                  fr: '🔍 Voir d\'autres résultats' ,
                        id: '🔍 Cari selengkapnya',
                        ru: '🔍 Искать больше',
-                       de: '🔍 Suche nach mehr',
+                       de: '🔍 Weitere Treffer suchen',
                        zh: '🔍 搜索更多',
-                       ja: '🔍さらに検索する',
+                       ja: '🔍 さらに検索する',
                        es: '🔍 Buscar más'
                      },
   'freetext.recycleBtn':       { en: '↺ Start over',
@@ -315,7 +315,7 @@ const STRINGS = {
                        de: '⌛ Diese Suche ist abgelaufen. Bitte geben Sie Ihre Suchanfrage erneut ein.',
                        zh: '⌛ 该搜索已过期。请重新输入您的查询。',
                        ja: '⌛ その検索は期限切れです。もう一度検索語を入力してください。',
-                       es: '⌛ Esa búsqueda ha caducado. Por favor, vuelva a escribir su consulta.'
+                       es: '⌛ Esa búsqueda ha caducado. Vuelve a escribir tu consulta.'
                      },
   // v0.61.122 — /location quick-pick buttons (10 STB precincts + Johor
   // Bahru + IOI Resort City Putrajaya). Header for the inline-keyboard
@@ -335,40 +335,40 @@ const STRINGS = {
                         },
   'loc.set.success':           { en: '📍 Location set to <b>{label}</b>.{cap}',
                                  fr: '📍 Position définie sur <b>{label}</b>.{cap}' ,
-                      id: '📍 Lokasi diatur ke <b>{label}</b> . {cap}',
-                      ru: '📍 Местоположение установлено на <b>{label}</b> . {cap}',
-                      de: '📍 Standort eingestellt auf <b>{label}</b> . {cap}',
-                      zh: '📍 位置已设置<b>{label}</b> . {cap}',
-                      ja: '📍 場所設定<b>{label}</b> . {cap}',
-                      es: '📍 Ubicación establecida en <b>{label}</b> . {cap}'
+                      id: '📍 Lokasi diatur ke <b>{label}</b>.{cap}',
+                      ru: '📍 Местоположение установлено на <b>{label}</b>.{cap}',
+                      de: '📍 Standort eingestellt auf <b>{label}</b>.{cap}',
+                      zh: '📍 位置已设置为 <b>{label}</b>。{cap}',
+                      ja: '📍 場所を <b>{label}</b> に設定しました。{cap}',
+                      es: '📍 Ubicación establecida en <b>{label}</b>.{cap}'
                     },
   // v0.61.412 — operator: when the user PICKS a new search area in a TMA and
   // returns to chat, confirm it. Fires only on a deliberate pick AND an actual
   // area change (never on app-open / auto-detect). {label} is HTML-escaped.
   'loc.searchArea.set':        { en: '📍 Area set: {area}\n\nUse <code>/location</code> or <code>/l &lt;place&gt;</code> · change address',
                                  fr: '📍 Zone définie : {area}\n\nUtilisez <code>/location</code> ou <code>/l &lt;lieu&gt;</code> · changer d’adresse' ,
-                         id: '📍 Area set: {area}\n\nGunakan <code>/location</code> atau <code>/l &lt;place&gt;</code> · ubah alamat',
-                         ru: '📍 Площадь: {area}\n\nИспользуйте <code>/location</code> или <code>/l &lt;place&gt;</code> · изменить адрес',
-                         de: '📍 Bereichseinstellung: {area}\n\nVerwenden Sie <code>/location</code> oder <code>/l &lt;place&gt;</code> · Adresse ändern',
-                         zh: '📍 区域设置： {area}\n\n使用 <code>/location</code> 或 <code>/l &lt;place&gt;</code> · 更改地址',
+                         id: '📍 Area diatur: {area}\n\nGunakan <code>/location</code> atau <code>/l &lt;place&gt;</code> · ubah alamat',
+                         ru: '📍 Район поиска: {area}\n\nИспользуйте <code>/location</code> или <code>/l &lt;place&gt;</code> · изменить адрес',
+                         de: '📍 Suchgebiet festgelegt: {area}\n\nVerwenden Sie <code>/location</code> oder <code>/l &lt;place&gt;</code> · Adresse ändern',
+                         zh: '📍 搜索区域已设为：{area}\n\n使用 <code>/location</code> 或 <code>/l &lt;place&gt;</code> · 更改地址',
                          ja: '📍 エリア設定: {area}\n\n <code>/location</code> または <code>/l &lt;place&gt;</code> を使用して住所を変更します',
-                         es: '📍 Área configurada: {area}\n\nUtilice <code>/location</code> o <code>/l &lt;place&gt;</code> · cambiar dirección'
+                         es: '📍 Área configurada: {area}\n\nUsa <code>/location</code> o <code>/l &lt;place&gt;</code> · cambiar dirección'
                        },
   'loc.set.capNote':           { en: ' Searches anchored here are capped to {km} km.',
                                  fr: ' Les recherches sont limitées à {km} km autour de ce point.' ,
-                      id: 'Pencarian yang berpusat di sini dibatasi hingga {km} km.',
-                      ru: 'Поиск, привязанный к этому месту, ограничен диапазоном {km} км.',
-                      de: 'Hier verankerte Suchanfragen sind auf {km} km begrenzt.',
-                      zh: '此处的搜索范围上限为{km}公里。',
-                      ja: 'ここを基準とした検索範囲は{km} kmに制限されます。',
-                      es: 'Las búsquedas ancladas aquí están limitadas a {km} km.'
+                      id: ' Pencarian yang berpusat di sini dibatasi hingga {km} km.',
+                      ru: ' Поиск, привязанный к этому месту, ограничен диапазоном {km} км.',
+                      de: ' Hier verankerte Suchanfragen sind auf {km} km begrenzt.',
+                      zh: ' 此处的搜索范围上限为{km}公里。',
+                      ja: ' ここを基準とした検索範囲は{km} kmに制限されます。',
+                      es: ' Las búsquedas ancladas aquí están limitadas a {km} km.'
                     },
   'loc.set.unknown':           { en: "⚠️ I don't recognise that quick-pick. Tap one of the buttons or share a pin.",
                                  fr: "⚠️ Je ne reconnais pas cette sélection. Touchez l'un des boutons ou partagez une position." ,
-                      id: '⚠️ Saya tidak mengenali pilihan cepat itu. Ketuk salah satu tombol atau bagikan PIN.',
-                      ru: '⚠️ Я не узнаю этот быстрый выбор. Нажмите одну из кнопок или поделитесь пин-кодом.',
-                      de: '⚠️ Diese Schnellauswahl ist mir unbekannt. Tippe auf eine der Schaltflächen oder teile einen Pin.',
-                      zh: '⚠️ 我不认识这个快捷选择。请点击其中一个按钮或分享一个图钉。',
+                      id: '⚠️ Saya tidak mengenali pilihan cepat itu. Ketuk salah satu tombol atau bagikan lokasi.',
+                      ru: '⚠️ Не удалось распознать этот быстрый выбор. Нажмите одну из кнопок или отправьте геометку.',
+                      de: '⚠️ Diese Schnellauswahl ist mir unbekannt. Tippe auf eine der Schaltflächen oder teile einen Standort.',
+                      zh: '⚠️ 我不认识这个快捷选择。请点击其中一个按钮或分享位置。',
                       ja: '⚠️ このクイックピックは認識できません。いずれかのボタンをタップするか、ピンを共有してください。',
                       es: '⚠️ No reconozco esa selección rápida. Toca uno de los botones o comparte un pin.'
                     },
@@ -383,21 +383,21 @@ const STRINGS = {
   // not a curated top-list — so don't promise "top".
   'loc.searchPick.prompt':     { en: '<i>Want to see eateries at <b>{place}</b>?</i>',
                                  fr: '<i>Voulez-vous voir les établissements à <b>{place}</b> ?</i>' ,
-                            id: '<i>Ingin melihat tempat makan di <b>{place}</b> ?</i>',
-                            ru: '<i>Хотите посмотреть заведения общественного питания в <b>{place}</b> ?</i>',
-                            de: '<i>Möchten Sie Restaurants sehen bei <b>{place}</b> ?</i>',
-                            zh: '<i>想看看附近的餐馆<b>{place}</b> ？</i>',
-                            ja: '<i>飲食店を見たい<b>{place}</b> ？</i>',
-                            es: '<i>¿Quieres ver restaurantes en <b>{place}</b> ?</i>'
+                            id: '<i>Ingin melihat tempat makan di <b>{place}</b>?</i>',
+                            ru: '<i>Хотите посмотреть заведения общественного питания в <b>{place}</b>?</i>',
+                            de: '<i>Möchten Sie Restaurants sehen bei <b>{place}</b>?</i>',
+                            zh: '<i>想查看 <b>{place}</b> 的餐馆吗？</i>',
+                            ja: '<i><b>{place}</b> の飲食店を見ますか？</i>',
+                            es: '<i>¿Quieres ver restaurantes en <b>{place}</b>?</i>'
                           },
   'loc.searchPick.btn':        { en: '🔍 See eateries here',
                                  fr: '🔍 Voir les établissements ici' ,
                          id: '🔍 Lihat tempat makan di sini',
-                         ru: '🔍 Список заведений общественного питания здесь',
-                         de: '🔍 Restaurants und Cafés finden Sie hier',
+                         ru: '🔍 Показать заведения здесь',
+                         de: '🔍 Lokale hier anzeigen',
                          zh: '🔍 点击此处查看餐厅',
                          ja: '🔍 飲食店一覧はこちら',
-                         es: '🔍 Vea los restaurantes aquí'
+                         es: '🔍 Ver restaurantes aquí'
                        },
   // v0.61.119 — place-anchored search (hawker centre / MRT / mall /
   // building / address typed in chat free-text). Header above the
@@ -420,8 +420,8 @@ const STRINGS = {
                               id: '📍 <b>{place}</b> — menampilkan {shown} dari {total} tempat makan di sini',
                               ru: '📍 <b>{place}</b> — показано {shown} из {total} заведений общественного питания здесь',
                               de: '📍 <b>{place}</b> — zeigt {shown} von {total} Restaurants hier an',
-                              zh: '📍 <b>{place}</b> — 此处显示{shown}家餐厅， {total}家。',
-                              ja: '📍 <b>{place}</b> — ここには{shown}軒の飲食店{total}軒）が表示されています',
+                              zh: '📍 <b>{place}</b> — 此处显示 {total} 家餐馆中的 {shown} 家',
+                              ja: '📍 <b>{place}</b> — {total}軒中{shown}軒の飲食店を表示しています',
                               es: '📍 <b>{place}</b> — mostrando {shown} de {total} restaurantes aquí'
                             },
   // v0.61.124 — auto-suggest intro when the place itself is weak
@@ -430,32 +430,32 @@ const STRINGS = {
   // showing extras without them tapping the button.
   'place.autoNearbyIntro':     { en: '_Slim pickings at <b>{place}</b> — here are the top-rated eateries nearby:_',
                                  fr: '_Peu d’options à <b>{place}</b> — voici les mieux notés à proximité :_' ,
-                            id: 'Pilihan yang terbatas di <b>{place}</b> — berikut adalah tempat makan dengan peringkat teratas di dekatnya:_',
-                            ru: 'Выбор невелик. <b>{place}</b> — вот лучшие рестораны поблизости:',
+                            id: '_Pilihan yang terbatas di <b>{place}</b> — berikut adalah tempat makan dengan peringkat teratas di dekatnya:_',
+                            ru: '_Выбор в <b>{place}</b> невелик — вот лучшие заведения поблизости:_',
                             de: '_Magere Auswahl bei <b>{place}</b> — hier sind die bestbewerteten Restaurants in der Nähe:_',
-                            zh: '_选择寥寥无几<b>{place}</b> — 以下是附近评分最高的餐厅：',
-                            ja: '_選択肢が少ない<b>{place}</b> — 近隣のおすすめ飲食店はこちらです:_',
-                            es: '_Escasas opciones en <b>{place}</b> — aquí están los restaurantes mejor valorados de la zona:'
+                            zh: '_<b>{place}</b> 的选择不多 — 以下是附近评分最高的餐馆：_',
+                            ja: '_<b>{place}</b> は選択肢が少なめです — 近隣のおすすめ飲食店はこちらです:_',
+                            es: '_Escasas opciones en <b>{place}</b> — aquí están los restaurantes mejor valorados de la zona:_'
                           },
   // v0.61.124 — "outside the zone" header for precinct anchors
   // (Marina Bay, Chinatown, etc.) where the polygon exclusion filters
   // out venues inside the precinct itself.
   'place.outsideHeader':       { en: '✨ <b>Top {n} eateries outside {place}</b> (within {km} km, ranked by rating · Michelin · rarity · crowd)',
                                  fr: '✨ <b>Top {n} établissements hors de {place}</b> (dans un rayon de {km} km, classés par note · Michelin · rareté · affluence)' ,
-                          id: '✨ <b>Restoran terbaik {n} di luar {place} (dalam radius {km} km, diurutkan berdasarkan peringkat · Michelin · kelangkaan · keramaian)</b>',
-                          ru: '✨ <b>Лучшие {n} заведения общественного питания за пределами {place} (в пределах {km} км, ранжированные по рейтингу · Michelin · редкости · количеству посетителей)</b>',
-                          de: '✨ <b>Top {n} Restaurants außerhalb von {place} (im Umkreis von {km} km, sortiert nach Bewertung · Michelin · Seltenheit · Besucheraufkommen)</b>',
-                          zh: '✨<b>在{place}以外{km}公里范围内，按评分、米其林星级、稀有度、客流量排名的{n}家顶级餐厅</b>',
-                          ja: '✨ <b>{place}周辺（ {km} km以内）のおすすめ飲食店トップ{n}軒（評価・ミシュラン・希少性・混雑度順）</b>',
-                          es: '✨ <b>Los mejores restaurantes fuera de {place} {n} en un radio de {km} km, clasificados por puntuación · Michelin · rareza · clientela)</b>'
+                          id: '✨ <b>{n} tempat makan terbaik di luar {place}</b> (dalam radius {km} km, diurutkan berdasarkan peringkat · Michelin · kelangkaan · keramaian)',
+                          ru: '✨ <b>Топ-{n} заведений за пределами {place}</b> (в пределах {km} км, по рейтингу · Michelin · редкости · заполненности)',
+                          de: '✨ <b>Top {n} Restaurants außerhalb von {place}</b> (im Umkreis von {km} km, sortiert nach Bewertung · Michelin · Seltenheit · Besucheraufkommen)',
+                          zh: '✨ <b>{place} 以外的前 {n} 家餐馆</b>（{km} 公里内，按评分 · 米其林 · 稀有度 · 客流量排序）',
+                          ja: '✨ <b>{place} 以外のおすすめ飲食店トップ{n}軒</b>（{km} km以内、評価・ミシュラン・希少性・混雑度順）',
+                          es: '✨ <b>Los {n} mejores restaurantes fuera de {place}</b> (en un radio de {km} km, ordenados por puntuación · Michelin · rareza · afluencia)'
                         },
   'place.outsideEmpty':        { en: '🤷 No standout eateries outside {place} (within {km} km) right now.',
                                  fr: '🤷 Aucun établissement marquant hors de {place} (dans un rayon de {km} km) en ce moment.' ,
                          id: '🤷 Tidak ada tempat makan unggulan di luar {place} (dalam radius {km} km) saat ini.',
                          ru: '🤷 В настоящее время за пределами {place} (в пределах {km} км) нет выдающихся заведений общественного питания.',
                          de: '🤷 Derzeit gibt es außerhalb von {place} (im Umkreis von {km} km) keine herausragenden Restaurants.',
-                         zh: '🤷 目前在{place}以外（ {km}公里范围内）没有特别出色的餐馆。',
-                         ja: '🤷 現在、 {place}周辺 ( {km} km 以内) には特におすすめの飲食店はありません。',
+                         zh: '🤷 目前在 {place} 以外（{km} 公里范围内）没有特别出色的餐馆。',
+                         ja: '🤷 現在、{place} 以外（{km} km 以内）には特におすすめの飲食店はありません。',
                          es: '🤷 No hay restaurantes destacados fuera de {place} (dentro de {km} km) en este momento.'
                        },
   'place.foundEmpty':          { en: "📍 <b>{place}</b> — couldn't find eateries here. Showing top-rated nearby instead.",
@@ -469,7 +469,7 @@ const STRINGS = {
                      },
   'place.nearbyBtn':           { en: '✨ Top eateries nearby',
                                  fr: '✨ Meilleurs établissements à proximité' ,
-                      id: '✨ Restoran-restoran terbaik di sekitar sini',
+                      id: '✨ Tempat makan terbaik di sekitar sini',
                       ru: '✨ Лучшие рестораны поблизости',
                       de: '✨ Top-Restaurants in der Nähe',
                       zh: '✨附近热门餐厅',
@@ -478,12 +478,12 @@ const STRINGS = {
                     },
   'place.nearbyHeader':        { en: '✨ <b>Top {n} eateries near {place}</b> (within {km} km, ranked by rating · Michelin · rarity · crowd)',
                                  fr: '✨ <b>Top {n} établissements près de {place}</b> (dans un rayon de {km} km, classés par note · Michelin · rareté · affluence)' ,
-                         id: '✨ <b>Restoran terbaik {n} di dekat {place} (dalam radius {km} km, diurutkan berdasarkan peringkat · Michelin · kelangkaan · keramaian)</b>',
-                         ru: '✨ <b>Лучшие {n} рестораны рядом с {place} (в пределах {km} км, ранжированные по рейтингу · Michelin · редкости · количеству посетителей)</b>',
-                         de: '✨ <b>Top {n} Restaurants in der Nähe von {place} (im Umkreis von {km} km, sortiert nach Bewertung · Michelin · Seltenheit · Publikumsandrang)</b>',
-                         zh: '✨<b>距离{place}地点{km}公里内，按评分、米其林星级、稀有度、客流量排名的{n}家顶级餐厅</b>',
-                         ja: '✨ <b>{place}周辺のおすすめ飲食店{n}軒（ {km} km以内、評価順・ミシュラン評価順・希少性順・混雑順）</b>',
-                         es: '✨ <b>Los mejores restaurantes cerca de {place} {n} en un radio de {km} km, clasificados por puntuación · Michelin · rareza · clientela)</b>'
+                         id: '✨ <b>{n} tempat makan terbaik di dekat {place}</b> (dalam radius {km} km, diurutkan berdasarkan peringkat · Michelin · kelangkaan · keramaian)',
+                         ru: '✨ <b>Топ-{n} заведений рядом с {place}</b> (в пределах {km} км, по рейтингу · Michelin · редкости · заполненности)',
+                         de: '✨ <b>Top {n} Restaurants in der Nähe von {place}</b> (im Umkreis von {km} km, sortiert nach Bewertung · Michelin · Seltenheit · Publikumsandrang)',
+                         zh: '✨ <b>{place} 附近的前 {n} 家餐馆</b>（{km} 公里内，按评分 · 米其林 · 稀有度 · 客流量排序）',
+                         ja: '✨ <b>{place}周辺のおすすめ飲食店トップ{n}軒</b>（{km} km以内、評価・ミシュラン・希少性・混雑度順）',
+                         es: '✨ <b>Los {n} mejores restaurantes cerca de {place}</b> (en un radio de {km} km, ordenados por puntuación · Michelin · rareza · afluencia)'
                        },
   'place.nearbyEmpty':         { en: '🤷 No standout eateries within {km} km of {place} right now.',
                                  fr: '🤷 Aucun établissement marquant dans un rayon de {km} km de {place} en ce moment.' ,
@@ -496,7 +496,7 @@ const STRINGS = {
                       },
   'place.expired':             { en: '⏱ That suggestion expired. Type the place name again to refresh.',
                                  fr: '⏱ Cette suggestion a expiré. Tapez à nouveau le nom du lieu pour actualiser.' ,
-                    id: '⏱ Saran tersebut telah kedaluwarsa. Ketik nama tempat lagi untuk menyegarkan halaman.',
+                    id: '⏱ Saran tersebut telah kedaluwarsa. Ketik nama tempat lagi untuk memuat ulang.',
                     ru: '⏱ Это предложение устарело. Введите название места еще раз для обновления.',
                     de: '⏱ Dieser Vorschlag ist abgelaufen. Geben Sie den Ortsnamen erneut ein, um die Liste zu aktualisieren.',
                     zh: '⏱ 该建议已过期。请再次输入地名以刷新。',
@@ -513,72 +513,24 @@ const STRINGS = {
                          es: '📍 Toca para compartir tu ubicación o escribe el nombre de un lugar. Yo lo buscaré después.'
                        },
   'bot.lang.set.en':           { en: '✅ Language set to English.', fr: '✅ Language set to English.' ,
-                      id: '✅ Bahasa diatur ke Bahasa Inggris.',
-                      ru: '✅ Язык установлен на английский.',
-                      de: '✅ Sprache auf Englisch eingestellt.',
-                      zh: '✅ 语言已设置为英语。',
-                      ja: '✅ 言語設定は英語です。',
-                      es: '✅ Idioma configurado en inglés.'
                     },
   'bot.lang.set.fr':           { en: '✅ Langue réglée sur français.', fr: '✅ Langue réglée sur français.' ,
-                      id: '✅ Bahasa réglée sur français.',
-                      ru: '✅ Правовой язык по-французски.',
-                      de: '✅ Geregelte Sprache auf Französisch.',
-                      zh: '✅ 法语语言。',
-                      ja: '✅ ラング・レグレ・シュル・フランセ。',
-                      es: '✅ Idioma réglee sur français.'
                     },
   // v0.62.480 — acks for the extended /language set. Each shows in the
   // chosen tongue (en+fr keys carry the same native string) so the user
   // gets confirmation in the language they just picked. The line notes
   // that the confirmation applies to the Mini-App surfaces.
   'bot.lang.set.id':           { en: '✅ Bahasa disetel ke Indonesia (untuk Mini App).', fr: '✅ Bahasa disetel ke Indonesia (untuk Mini App).' ,
-                      id: '✅ Bahasa disetel ke Indonesia (untuk Aplikasi Mini).',
-                      ru: '✅ Доставка в Индонезию (без мини-приложения).',
-                      de: '✅ Bahasa Indonesia (für die Mini-App).',
-                      zh: '✅ 印度尼西亚语（untuk 迷你应用程序）。',
-                      ja: '✅ インドネシア語 (untuk ミニアプリ)。',
-                      es: '✅ Bahasa disetel ke Indonesia (para la mini aplicación).'
                     },
   'bot.lang.set.ru':           { en: '✅ Язык переключён на русский (для мини-приложений).', fr: '✅ Язык переключён на русский (для мини-приложений).' ,
-                      id: '✅ Язык переключён на русский (длячи-приложений).',
-                      ru: '✅ Язык переведен на русский (для мини-приложений).',
-                      de: '✅ Язык переключён на russisch (nur Minianwendung).',
-                      zh: '✅ Язык переключён на русский (для мини-приложений)。',
-                      ja: '✅ Язык переключён на русский (для мини-приложений)。',
-                      es: '✅ Язык переключён на русский (для minи-приложений).'
                     },
   'bot.lang.set.de':           { en: '✅ Sprache auf Deutsch eingestellt (für die Mini-Apps).', fr: '✅ Sprache auf Deutsch eingestellt (für die Mini-Apps).' ,
-                      id: '✅ Sprache auf Deutsch eingestellt (untuk Aplikasi Mini).',
-                      ru: '✅ Sprache auf Deutsch eingestellt (для мини-приложений).',
-                      de: '✅ Sprache auf Deutsch eingestellt (für die Mini-Apps).',
-                      zh: '✅ Sprache auf Deutsch eingestellt（用于迷你应用程序）。',
-                      ja: '✅ Deutsch eingestellt (ミニアプリについて) を読み上げます。',
-                      es: '✅ Sprache auf Deutsch eingestellt (para las miniaplicaciones).'
                     },
   'bot.lang.set.zh':           { en: '✅ 语言已设置为中文（用于小程序）。', fr: '✅ 语言已设置为中文（用于小程序）。' ,
-                      id: '✅ 语言已设置为中文（用于小程序）。',
-                      ru: '✅ 语言已设置为中文（用于小程序）。',
-                      de: '✅ 语言已设置为中文（用于小程序）.',
-                      zh: '✅ 语言已设置为中文（用于小程序）。',
-                      ja: '✅ 説明文は中国語（小プログラム用）として設定されています。',
-                      es: '✅ 语言已设置为中文（用于小程序）。'
                     },
   'bot.lang.set.ja':           { en: '✅ 言語を日本語に設定しました（ミニアプリ用）。', fr: '✅ 言語を日本語に設定しました（ミニアプリ用）。' ,
-                      id: '✅ 言語を日本語に設定しました（ミニアプリ用）。',
-                      ru: '✅ 言語を日本語に設定しました（ミニアプリ用）。',
-                      de: '✅ 言語を日本語に設定しました（ミニアプリ用）.',
-                      zh: '✅ 言语を日本语に设定しました（ミniaapuri用）。',
-                      ja: '✅ 言語を日本語に設定しました（ミニアプリ用）。',
-                      es: '✅ 言語を日本語に設定しました（ミニアプリ用）.'
                     },
   'bot.lang.set.es':           { en: '✅ Idioma configurado en español (para las Mini Apps).', fr: '✅ Idioma configurado en español (para las Mini Apps).' ,
-                      id: '✅ Konfigurasi idiom dalam bahasa Spanyol (untuk Aplikasi Mini).',
-                      ru: '✅ Идиома, настроенная на испанском языке (для мини-приложений).',
-                      de: '✅ Auf Spanisch konfigurierte Sprache (für Mini-Apps).',
-                      zh: '✅ Idioma configurado en español（迷你应用程序）。',
-                      ja: '✅ スペイン語での設定 (ミニアプリなど)。',
-                      es: '✅ Idioma configurado en español (para las Mini Apps).'
                     },
 
   // v0.59.1 — chat chrome localisation. Covers /weather, /transport (+ all
@@ -611,52 +563,52 @@ const STRINGS = {
                     es: '☀️ Clima de Singapur'
                   },
   'weather.temp':              { en: 'Temperature: {c}°C · {f}°F', fr: 'Température : {c} °C · {f} °F' ,
-                   id: 'Suhu: {c} °C · {f} °F',
-                   ru: 'Температура: {c} °C · {f} °F',
-                   de: 'Temperatur: {c} °C · {f} °F',
-                   zh: '温度： {c} °C · {f} °F',
-                   ja: '温度： {c} °C · {f} °F',
-                   es: 'Temperatura: {c} °C · {f} °F'
+                   id: 'Suhu: {c}°C · {f}°F',
+                   ru: 'Температура: {c}°C · {f}°F',
+                   de: 'Temperatur: {c}°C · {f}°F',
+                   zh: '温度：{c}°C · {f}°F',
+                   ja: '温度：{c}°C · {f}°F',
+                   es: 'Temperatura: {c}°C · {f}°F'
                  },
   'weather.humidity':          { en: 'Humidity: {pct}%', fr: 'Humidité : {pct} %' ,
-                       id: 'Kelembapan: {pct} %',
-                       ru: 'Влажность: {pct} %',
-                       de: 'Luftfeuchtigkeit: {pct} %',
-                       zh: '湿度： {pct} %',
-                       ja: '湿度： {pct} %',
-                       es: 'Humedad: {pct} %'
+                       id: 'Kelembapan: {pct}%',
+                       ru: 'Влажность: {pct}%',
+                       de: 'Luftfeuchtigkeit: {pct}%',
+                       zh: '湿度：{pct}%',
+                       ja: '湿度：{pct}%',
+                       es: 'Humedad: {pct}%'
                      },
   'weather.rain':              { en: 'Rain: {mm} mm @ {at}', fr: 'Pluie : {mm} mm @ {at}' ,
                    id: 'Hujan: {mm} mm @ {at}',
                    ru: 'Осадки: {mm} мм @ {at}',
                    de: 'Regen: {mm} mm @ {at}',
-                   zh: '降雨量： {mm}毫米 @ {at}',
-                   ja: '降水量： {mm} mm @ {at}',
+                   zh: '降雨量：{mm}毫米 @ {at}',
+                   ja: '降水量：{mm} mm @ {at}',
                    es: 'Lluvia: {mm} mm a {at}'
                  },
   'weather.wind':              { en: 'Wind: {kt} kt{dir}', fr: 'Vent : {kt} kt{dir}' ,
-                   id: 'Angin: {kt} kt {dir}',
-                   ru: 'Ветер: {kt} кт {dir}',
-                   de: 'Wind: {kt} kt {dir}',
-                   zh: '风速： {kt} kt {dir}',
-                   ja: '風速: {kt} kt {dir}',
-                   es: 'Viento: {kt} kt {dir}'
+                   id: 'Angin: {kt} kt{dir}',
+                   ru: 'Ветер: {kt} кт{dir}',
+                   de: 'Wind: {kt} kt{dir}',
+                   zh: '风速：{kt} 节{dir}',
+                   ja: '風速：{kt} ノット{dir}',
+                   es: 'Viento: {kt} kt{dir}'
                  },
   'weather.forecastNext2h':    { en: 'Next 2 hours in {area}: {desc}{valid}', fr: 'Prochaines 2 h à {area} : {desc}{valid}' ,
-                             id: '2 jam berikutnya di {area} : {desc} {valid}',
-                             ru: 'Следующие 2 часа в {area} : {desc} {valid}',
-                             de: 'Nächste 2 Stunden in {area} : {desc} {valid}',
-                             zh: '接下来两小时在{area} ： {desc} {valid}',
-                             ja: '{area}の今後 2 時間: {desc} {valid}',
-                             es: 'Próximas 2 horas en {area} : {desc} {valid}'
+                             id: '2 jam berikutnya di {area}: {desc}{valid}',
+                             ru: 'Следующие 2 часа в {area}: {desc}{valid}',
+                             de: 'Nächste 2 Stunden in {area}: {desc}{valid}',
+                             zh: '接下来两小时在{area}：{desc}{valid}',
+                             ja: '{area}の今後 2 時間: {desc}{valid}',
+                             es: 'Próximas 2 horas en {area}: {desc}{valid}'
                            },
   'weather.forecastUntil':     { en: ' (until {time})', fr: ' (jusqu’à {time})' ,
-                            id: '(hingga {time} )',
-                            ru: '(до {time} )',
-                            de: '(bis {time} )',
-                            zh: '（直到{time} ）',
-                            ja: '（ {time}まで）',
-                            es: '(hasta {time} )'
+                            id: ' (hingga {time})',
+                            ru: ' (до {time})',
+                            de: ' (bis {time})',
+                            zh: '（直到{time}）',
+                            ja: '（{time}まで）',
+                            es: ' (hasta {time})'
                           },
   'weather.unreachable':       { en: "Sorry, I can't reach the NEA weather feed right now.", fr: "Désolé, le flux météo NEA est inaccessible pour le moment." ,
                           id: 'Maaf, saya tidak bisa mengakses siaran cuaca NEA saat ini.',
@@ -669,18 +621,18 @@ const STRINGS = {
   // v0.60.118 — /weather expansion
   'weather.areaUnknown':       { en: "I don't know that area — try a town name like Tampines, or just /weather to use your shared pin.", fr: "Je ne connais pas cette zone — essayez un nom de quartier comme Tampines, ou simplement /weather pour utiliser votre position partagée." ,
                           id: 'Saya tidak mengenal daerah itu — coba nama kota seperti Tampines, atau cukup ketik /weather untuk menggunakan pin yang Anda bagikan.',
-                          ru: 'Я не знаю этот район — попробуйте ввести название города, например, Тампинес, или просто /weather , чтобы использовать свою метку.',
-                          de: 'Ich kenne diese Gegend nicht – versuchen Sie es mit einem Ortsnamen wie Tampines oder geben Sie einfach /weather ein, um Ihre geteilte PIN zu verwenden.',
+                          ru: 'Я не знаю этот район — попробуйте ввести название города, например, Тампинес, или просто /weather, чтобы использовать свою метку.',
+                          de: 'Ich kenne diese Gegend nicht – versuchen Sie es mit einem Ortsnamen wie Tampines oder geben Sie einfach /weather ein, um Ihren geteilten Standort zu verwenden.',
                           es: 'No conozco esa zona; prueba con el nombre de una ciudad como Tampines, o simplemente /weather para usar el marcador que has compartido.'
                         ,
-                          zh: '我不熟悉那个地区——试试淡滨尼之类的城镇名称，或者直接输入 /weather 来使用你共享的图钉。',
-                          ja: 'その地域はよく知らないので、タンピネスのような町名を試してみるか、 /weather と入力して共有ピンを使ってみてください。'
+                          zh: '我不熟悉那个地区——试试淡滨尼之类的城镇名称，或者直接输入 /weather 来使用您共享的位置。',
+                          ja: 'その地域はよく知らないので、タンピネスのような町名を試してみるか、/weather と入力して共有ピンを使ってみてください。'
                         },
   'weather.forArea':           { en: '— for {area} —', fr: '— pour {area} —' ,
                       id: '— untuk {area} —',
                       ru: '— для {area} —',
                       de: '— für {area} —',
-                      zh: '— 适用于{area} —',
+                      zh: '— {area} —',
                       ja: '— {area}向け —',
                       es: '— para {area} —'
                     },
@@ -689,24 +641,24 @@ const STRINGS = {
                              ru: '☔ Сейчас в районе {area} идёт дождь — подождите 20-30 минут или выберите место, защищенное от дождя.',
                              de: '☔ Es regnet gerade in der Gegend um {area} — warten Sie ~20–30 Minuten oder suchen Sie sich einen überdachten Ort.',
                              zh: '☔ 现在{area}附近正在下雨——请等待约20-30分钟或找个有遮挡的地方。',
-                             ja: '☔ 現在、 {area}周辺では雨が降っています。20～30分ほどお待ちいただくか、屋根のある場所へお進みください。',
-                             es: '☔ Está lloviendo en los alrededores {area} ahora mismo; espere entre 20 y 30 minutos o elija un lugar cubierto.'
+                             ja: '☔ 現在、{area}周辺では雨が降っています。20～30分ほどお待ちいただくか、屋根のある場所へお進みください。',
+                             es: '☔ Está lloviendo en los alrededores de {area} ahora mismo; espera entre 20 y 30 minutos o elige un lugar cubierto.'
                            },
   'weather.headOutShowery':    { en: "🌦️ Dry now, but {area}'s 2-hour outlook is {desc} — head out soon if you're going somewhere open-air.", fr: "🌦️ Sec pour l’instant, mais les prévisions 2 h à {area} sont : {desc} — sortez bientôt si vous allez en plein air." ,
                              id: '🌦️ Saat ini kering, tetapi prakiraan cuaca 2 jam ke depan untuk {area} adalah {desc} — segera berangkat jika Anda akan pergi ke tempat terbuka.',
-                             ru: '🌦️ Сейчас сухо, но прогноз погоды на 2 часа для {desc} {area} — отправляйтесь на улицу как можно скорее, если планируете куда-то на открытом воздухе.',
+                             ru: '🌦️ Сейчас сухо, но прогноз на 2 часа для {area} — {desc}. Выходите пораньше, если собираетесь на открытый воздух.',
                              de: '🌦️ Im Moment ist es trocken, aber die 2-Stunden-Vorhersage für {area} lautet {desc} – wenn Sie irgendwo im Freien unterwegs sind, sollten Sie bald losziehen.',
                              zh: '🌦️ 现在天气干燥，但{area}的 2 小时天气预报为{desc} — 如果你要去户外场所，请尽快出发。',
-                             ja: '🌦️ 今は乾燥していますが、 {area}の 2 時間後の予報は{desc}です。屋外に出かける予定の方は、早めに出発してください。',
-                             es: '🌦️ Ahora está seco, pero el pronóstico para las próximas 2 horas en {area} es {desc} ; salga pronto si va a algún lugar al aire libre.'
+                             ja: '🌦️ 今は乾燥していますが、{area}の 2 時間後の予報は{desc}です。屋外に出かける予定の方は、早めに出発してください。',
+                             es: '🌦️ Ahora está seco, pero el pronóstico para las próximas 2 horas en {area} es {desc}; sal pronto si vas a algún lugar al aire libre.'
                            },
   'weather.headOutGood':       { en: "✅ Good window — {area} looks dry for the next 2 hours.", fr: "✅ Bon créneau — {area} devrait rester au sec pendant 2 h." ,
-                          id: '✅ Jendela yang bagus — {area} terlihat kering selama 2 jam ke depan.',
-                          ru: '✅ Окно в хорошем состоянии — {area} будет выглядеть сухой в течение следующих 2 часов.',
+                          id: '✅ Waktu yang tepat — {area} terlihat kering selama 2 jam ke depan.',
+                          ru: '✅ Хорошее окно — в {area} сухо ближайшие 2 часа.',
                           de: '✅ Gutes Wetterfenster — {area} sieht für die nächsten 2 Stunden trocken aus.',
                           zh: '✅ 天气晴好—— {area}未来2小时内看起来会很干燥。',
                           ja: '✅ 良い見通しです — {area}は今後 2 時間ほど乾燥した状態が続くようです。',
-                          es: '✅ Buena ventana: {area} parece seca durante las próximas 2 horas.'
+                          es: '✅ Buen momento: {area} parece seco durante las próximas 2 horas.'
                         },
   'weather.hotNudge':          { en: "🥵 Feels hot out — an air-conditioned spot might be nicer.", fr: "🥵 Il fait chaud dehors — un endroit climatisé serait peut-être plus agréable." ,
                        id: '🥵 Cuacanya panas sekali — tempat ber-AC mungkin lebih nyaman.',
@@ -717,12 +669,12 @@ const STRINGS = {
                        es: '🥵 Hace calor afuera; un lugar con aire acondicionado sería más agradable.'
                      },
   'weather.tonight':           { en: "🌙 Tonight in the {zone}: {desc}.", fr: "🌙 Ce soir dans le {zone} : {desc}." ,
-                      id: '🌙 Malam ini di {zone} : {desc} .',
-                      ru: '🌙 Сегодня вечером в {zone} : {desc} .',
-                      de: '🌙 Heute Abend in der {zone} : {desc} .',
-                      zh: '🌙 今晚在{zone} : {desc} 。',
-                      ja: '🌙 今夜の{zone} ： {desc} 。',
-                      es: '🌙 Esta noche en la {zone} : {desc} .'
+                      id: '🌙 Malam ini di {zone}: {desc}.',
+                      ru: '🌙 Сегодня вечером в {zone}: {desc}.',
+                      de: '🌙 Heute Abend in der {zone}: {desc}.',
+                      zh: '🌙 今晚在{zone}: {desc}。',
+                      ja: '🌙 今夜の{zone}：{desc}。',
+                      es: '🌙 Esta noche en la {zone}: {desc}.'
                     },
   // per-pick rain caveat (rendered on open-air venue cards)
   'weather.rainNowNear':       { en: "🌧️ Raining around {area} right now — covered seating helps.", fr: "🌧️ Il pleut autour de {area} en ce moment — un coin couvert est préférable." ,
@@ -730,16 +682,16 @@ const STRINGS = {
                           ru: '🌧️ Сейчас в районе {area} идёт дождь — крытые места для сидения очень помогают.',
                           de: '🌧️ Es regnet gerade in der Gegend um {area} – überdachte Sitzgelegenheiten helfen.',
                           zh: '🌧️现在{area}附近正在下雨——有遮雨棚的座位很有帮助。',
-                          ja: '🌧️ 現在、 {area}周辺では雨が降っています。屋根付きの座席があると便利です。',
+                          ja: '🌧️ 現在、{area}周辺では雨が降っています。屋根付きの座席があると便利です。',
                           es: '🌧️ Está lloviendo en {area} ahora mismo; sentarse bajo techo ayuda.'
                         },
   'weather.rainSoonNear':      { en: "🌧️ {desc} in {area}'s 2-hour outlook — covered seating helps.", fr: "🌧️ Prévisions 2 h à {area} : {desc} — un coin couvert est préférable." ,
-                           id: '🌧️ {desc} dalam prospek 2 jam di {area} — tempat duduk beratap sangat membantu.',
-                           ru: '🌧️ {desc} в {area} с прогнозом погоды на 2 часа — наличие мест под навесом поможет.',
-                           de: '🌧️ {desc} in {area} 2-Stunden-Aussicht — überdachte Sitzplätze helfen.',
-                           zh: '🌧️ {desc}在{area}的 2 小时展望中 — 有遮挡的座位有所帮助。',
-                           ja: '🌧️ {desc}の{area}の 2 時間予報 — 屋根付きの座席が役立ちます。',
-                           es: '🌧️ {desc} en {area} Pronóstico de 2 horas: los asientos cubiertos ayudan.'
+                           id: '🌧️ {desc} dalam prakiraan 2 jam untuk {area} — tempat duduk beratap sangat membantu.',
+                           ru: '🌧️ {desc} в прогнозе на 2 часа для {area} — места под навесом помогут.',
+                           de: '🌧️ {desc} in der 2-Stunden-Vorhersage für {area} — überdachte Sitzplätze helfen.',
+                           zh: '🌧️ 未来 2 小时 {area} 预计{desc} — 有遮挡的座位会更好。',
+                           ja: '🌧️ {area}の2時間予報は{desc} — 屋根付きの座席が役立ちます。',
+                           es: '🌧️ {desc} en el pronóstico de 2 horas de {area}; los asientos cubiertos ayudan.'
                          },
 
   // /carpark
@@ -760,28 +712,28 @@ const STRINGS = {
                         es: '🅿️ Buscando aparcamientos cercanos…'
                       },
   'carpark.none':              { en: 'No carparks with available lots near here.', fr: 'Aucun parking avec places disponibles à proximité.' ,
-                   id: 'Tidak ada tempat parkir dengan lahan kosong di dekat sini.',
+                   id: 'Tidak ada tempat parkir dengan slot kosong di dekat sini.',
                    ru: 'Поблизости нет свободных парковочных мест.',
-                   de: 'In der Nähe gibt es keine Parkplätze.',
+                   de: 'In der Nähe gibt es keine Parkplätze mit freien Stellplätzen.',
                    zh: '附近没有空余车位的停车场。',
                    ja: 'この付近には空き駐車場がありません。',
                    es: 'No hay aparcamientos con plazas disponibles cerca de aquí.'
                  },
   'carpark.header':            { en: '🅿️ Nearest carparks with available lots', fr: '🅿️ Parkings les plus proches avec places disponibles' ,
-                     id: '🅿️ Tempat parkir terdekat dengan lahan parkir yang tersedia',
-                     ru: 'Ближайшие парковки со свободными местами',
+                     id: '🅿️ Tempat parkir terdekat dengan slot yang tersedia',
+                     ru: '🅿️ Ближайшие парковки со свободными местами',
                      de: '🅿️ Nächstgelegene Parkplätze mit freien Stellplätzen',
                      zh: '🅿️ 附近有空位的停车场',
                      ja: '🅿️ 空きのある最寄りの駐車場',
                      es: '🅿️ Aparcamientos más cercanos con plazas disponibles'
                    },
   'carpark.row':               { en: '{i}. {name}  ·  {lots} lots  ·  {dist}', fr: '{i}. {name}  ·  {lots} places  ·  {dist}' ,
-                  id: '{i} . {name} · {lots} banyak · {dist}',
-                  ru: '{i} . {name} · {lots} lots · {dist}',
-                  de: '{i} . {name} · {lots} lots · {dist}',
-                  zh: '{i} . {name} · {lots} lots · {dist}',
-                  ja: '{i} . {name} · {lots} lots · {dist}',
-                  es: '{i} . {name} · {lots} lotes · {dist}'
+                  id: '{i}. {name} · {lots} slot · {dist}',
+                  ru: '{i}. {name} · {lots} мест · {dist}',
+                  de: '{i}. {name} · {lots} Plätze · {dist}',
+                  zh: '{i}. {name} · {lots} 个空位 · {dist}',
+                  ja: '{i}. {name} · {lots} 台分 · {dist}',
+                  es: '{i}. {name} · {lots} plazas · {dist}'
                 },
   'carpark.mapAllCaption':     { en: 'Showing closest locations:', fr: 'Emplacements les plus proches :' ,
                             id: 'Menampilkan lokasi terdekat:',
@@ -793,11 +745,11 @@ const STRINGS = {
                           },
   'carpark.mapAllBtn':         { en: 'Compare all {n} carparks', fr: 'Comparer les {n} parkings' ,
                         id: 'Bandingkan semua {n} tempat parkir',
-                        ru: 'Сравните все {n} парковок',
+                        ru: 'Сравнить все парковки ({n})',
                         de: 'Vergleiche alle {n} Parkplätze',
-                        zh: '比较所有{n}停车场',
-                        ja: '{n}駐車場すべてを比較する',
-                        es: 'Comparar todos {n} aparcamientos'
+                        zh: '比较全部 {n} 个停车场',
+                        ja: '{n}箇所の駐車場をすべて比較',
+                        es: 'Comparar los {n} aparcamientos'
                       },
   'carpark.containerCaption':  { en: '🗺 Open all 5 carparks in one Google Maps container:', fr: '🗺 Ouvrir les 5 parkings dans un conteneur Google Maps :' ,
                                id: '🗺 Buka kelima tempat parkir dalam satu kontainer Google Maps:',
@@ -834,29 +786,29 @@ const STRINGS = {
                    es: '🍚 Centros de comida callejera y centros gastronómicos de Singapur (2025). Por NEA'
                  },
   'hawker.openTmaBtn':         { en: '🍚 Open Hawker Centre', fr: '🍚 Ouvrir l’app Hawker' ,
-                        id: '🍚 Pusat Kuliner Buka',
-                        ru: '🍚 Открытый центр уличной еды',
-                        de: '🍚 Offenes Hawker-Zentrum',
-                        zh: '🍚 开放式小贩中心',
-                        ja: '🍚 オープンホーカーセンター',
-                        es: '🍚 Centro de comida ambulante abierto'
+                        id: '🍚 Buka Pusat Jajanan',
+                        ru: '🍚 Открыть центр уличной еды',
+                        de: '🍚 Hawker-Zentrum öffnen',
+                        zh: '🍚 打开小贩中心',
+                        ja: '🍚 ホーカーセンターを開く',
+                        es: '🍚 Abrir centro de comida callejera'
                       },
 
   // /transport top menu
   'transport.menu.title':      { en: '🇸🇬 *Transport*', fr: '🇸🇬 *Transports*' ,
                            id: '🇸🇬 *Transportasi*',
                            ru: '🇸🇬 *Транспорт*',
-                           de: '🇸🇬 *Transport*',
+                           de: '🇸🇬 *Verkehr*',
                            zh: '🇸🇬 *交通*',
                            ja: '🇸🇬 *交通機関*',
                            es: '🇸🇬 *Transporte*'
                          },
   'transport.menu.btn.train':       { en: '🚇 Train', fr: '🚇 Métro' ,
                                id: '🚇 Kereta',
-                               ru: '🚇 Поезд',
-                               de: '🚇 Zug',
-                               zh: '🚇 火车',
-                               ja: '🚇電車',
+                               ru: '🚇 Метро',
+                               de: '🚇 Bahn',
+                               zh: '🚇 地铁',
+                               ja: '🚇 電車',
                                es: '🚇 Tren'
                              },
   'transport.menu.btn.bus':         { en: '🚌 Bus', fr: '🚌 Bus' ,
@@ -871,8 +823,8 @@ const STRINGS = {
                                    id: '🚦 Insiden',
                                    ru: '🚦 Инциденты',
                                    de: '🚦 Vorfälle',
-                                   zh: '🚦 事件',
-                                   ja: '🚦 事件',
+                                   zh: '🚦 路况事件',
+                                   ja: '🚦 交通障害',
                                    es: '🚦 Incidentes'
                                  },
   'transport.menu.btn.drive':       { en: '🚗 Drive', fr: '🚗 Voiture' ,
@@ -921,8 +873,8 @@ const STRINGS = {
   // /transport train view
   'transport.train.heading':        { en: '🚇 Train (MRT)', fr: '🚇 Métro (MRT)' ,
                               id: '🚇 Kereta (MRT)',
-                              ru: '🚇 Поезд (MRT)',
-                              de: '🚇 Zug (MRT)',
+                              ru: '🚇 Метро (MRT)',
+                              de: '🚇 Bahn (MRT)',
                               zh: '🚇 地铁（MRT）',
                               ja: '🚇 電車（MRT）',
                               es: '🚇 Tren (MRT)'
@@ -931,7 +883,7 @@ const STRINGS = {
                              id: 'Status: {status}',
                              ru: 'Статус: {status}',
                              de: 'Status: {status}',
-                             zh: '状态： {status}',
+                             zh: '状态：{status}',
                              ja: 'ステータス: {status}',
                              es: 'Estado: {status}'
                            },
@@ -939,7 +891,7 @@ const STRINGS = {
                             id: 'Catatan: {note}',
                             ru: 'Примечания: {note}',
                             de: 'Anmerkungen: {note}',
-                            zh: '备注： {note}',
+                            zh: '备注：{note}',
                             ja: '注記: {note}',
                             es: 'Notas: {note}'
                           },
@@ -947,7 +899,7 @@ const STRINGS = {
                                 id: 'Diperbarui: {at}',
                                 ru: 'Обновлено: {at}',
                                 de: 'Aktualisiert: {at}',
-                                zh: '已刷新： {at}',
+                                zh: '已刷新：{at}',
                                 ja: '更新日時: {at}',
                                 es: 'Actualizado: {at}'
                               },
@@ -973,7 +925,7 @@ const STRINGS = {
                               de: '🟡 mittel',
                               zh: '🟡 中等',
                               ja: '🟡 中',
-                              es: '🟡 mediano'
+                              es: '🟡 medio'
                             },
   'transport.train.crowd.h':        { en: '🔴 high', fr: '🔴 élevé' ,
                               id: '🔴 tinggi',
@@ -984,12 +936,12 @@ const STRINGS = {
                               es: '🔴 alto'
                             },
   'transport.train.nearestHeader':  { en: '🚇 Nearest 3 Train stations{wx}', fr: '🚇 3 stations de train les plus proches{wx}' ,
-                                    id: '🚇 3 Stasiun Kereta Terdekat {wx}',
-                                    ru: '🚇 Ближайшие 3 железнодорожные станции {wx}',
-                                    de: '🚇 Die 3 nächstgelegenen Bahnhöfe {wx}',
-                                    zh: '🚇 最近的 3 个火车站{wx}',
+                                    id: '🚇 3 Stasiun Kereta Terdekat{wx}',
+                                    ru: '🚇 3 ближайшие станции метро{wx}',
+                                    de: '🚇 Die 3 nächstgelegenen MRT-Stationen{wx}',
+                                    zh: '🚇 最近的 3 个地铁站{wx}',
                                     ja: '🚇 最寄りの3つの駅{wx}',
-                                    es: '🚇 Las 3 estaciones de tren más cercanas {wx}'
+                                    es: '🚇 Las 3 estaciones de tren más cercanas{wx}'
                                   },
   'transport.train.noLocation':     { en: '🚇 Share your location once and Soleat will list the nearest MRT stations too.', fr: '🚇 Partagez votre position une fois et Soleat listera aussi les stations MRT les plus proches.' ,
                                  id: '🚇 Bagikan lokasi Anda sekali saja dan Soleat akan menampilkan stasiun MRT terdekat juga.',
@@ -1006,36 +958,36 @@ const STRINGS = {
   'transport.train.network.low':    { en: '🟢 Network is uncrowded — 0 of {total} platforms above low density.',
                                       fr: '🟢 Réseau peu chargé — 0 quai sur {total} au-dessus de la faible densité.' ,
                                   id: '🟢 Jaringan tidak padat — 0 dari {total} platform di atas kepadatan rendah.',
-                                  ru: '🟢 Сеть не перегружена — 0 из {total} платформ расположены выше низкой плотности.',
-                                  de: '🟢 Das Netzwerk ist nicht überlastet — 0 von {total} Plattformen weisen eine geringe Dichte auf.',
-                                  zh: '🟢 网络不拥挤 — 0 个{total}高于低密度。',
+                                  ru: '🟢 Сеть не перегружена — 0 из {total} платформ превышают низкую плотность.',
+                                  de: '🟢 Das Netz ist nicht überlastet — 0 von {total} Bahnsteigen liegen über geringer Dichte.',
+                                  zh: '🟢 线网不拥挤 — {total} 个站台中有 0 个超过低密度。',
                                   ja: '🟢 ネットワークは混雑していません — 低密度以上のプラットフォームは{total}個中 0 個です。',
                                   es: '🟢 La red no está saturada: 0 de {total} plataformas superan la baja densidad.'
                                 },
   'transport.train.network.medium': { en: '🟡 {medium} moderate · {high} high (of {total}) — Lines: {lines}',
                                       fr: '🟡 {medium} modéré · {high} élevé (sur {total}) — Lignes : {lines}' ,
-                                     id: '🟡 {medium} sedang · {high} tinggi (dari {total} ) — Baris: {lines}',
-                                     ru: '🟡 {medium} умеренный · {high} высокий (из {total} ) — Строки: {lines}',
-                                     de: '🟡 {medium} moderat · {high} hoch (von {total} ) — Zeilen: {lines}',
-                                     zh: '🟡 {medium}中等 · {high}高（占{total}的百分比）— 行数： {lines}',
-                                     ja: '🟡 {medium}中程度 · {high}高 ( {total}のうち) — 行数: {lines}',
-                                     es: '🟡 {medium} moderado · {high} alto (de {total} ) — Líneas: {lines}'
+                                     id: '🟡 {medium} sedang · {high} tinggi (dari {total}) — Jalur: {lines}',
+                                     ru: '🟡 {medium} умеренно · {high} высоко (из {total}) — Линии: {lines}',
+                                     de: '🟡 {medium} moderat · {high} hoch (von {total}) — Linien: {lines}',
+                                     zh: '🟡 {medium} 个中等 · {high} 个高（共 {total} 个）— 线路：{lines}',
+                                     ja: '🟡 {medium}中程度 · {high}高（{total}件中）— 路線: {lines}',
+                                     es: '🟡 {medium} moderado · {high} alto (de {total}) — Líneas: {lines}'
                                    },
   'transport.train.network.high':   { en: '🔴 {high} high · {medium} moderate (of {total}) — Lines: {lines}',
                                       fr: '🔴 {high} élevé · {medium} modéré (sur {total}) — Lignes : {lines}' ,
-                                   id: '🔴 {high} tinggi · {medium} moderat (dari {total} ) — Baris: {lines}',
-                                   ru: '🔴 {high} высокий · {medium} умеренный (из {total} ) — Строки: {lines}',
-                                   de: '🔴 {high} hoch · {medium} mittel (von {total} ) — Zeilen: {lines}',
-                                   zh: '🔴 {high} · {medium} （ {total} ）— 行数： {lines}',
-                                   ja: '🔴 {high}高 · {medium}中程度 ( {total}のうち) — 行数: {lines}',
-                                   es: '🔴 {high} alto · {medium} moderado (de {total} ) — Líneas: {lines}'
+                                   id: '🔴 {high} tinggi · {medium} moderat (dari {total}) — Jalur: {lines}',
+                                   ru: '🔴 {high} высоко · {medium} умеренно (из {total}) — Линии: {lines}',
+                                   de: '🔴 {high} hoch · {medium} mittel (von {total}) — Linien: {lines}',
+                                   zh: '🔴 {high} 个高 · {medium} 个中等（共 {total} 个）— 线路：{lines}',
+                                   ja: '🔴 {high}高 · {medium}中程度（{total}件中）— 路線: {lines}',
+                                   es: '🔴 {high} alto · {medium} moderado (de {total}) — Líneas: {lines}'
                                  },
   'transport.train.affectedLines':  { en: '⚠️ Affected lines:', fr: '⚠️ Lignes affectées :' ,
                                     id: '⚠️ Jalur yang terpengaruh:',
-                                    ru: '⚠️ Затронутые строки:',
+                                    ru: '⚠️ Затронутые линии:',
                                     de: '⚠️ Betroffene Linien:',
                                     zh: '⚠️受影响的线路：',
-                                    ja: '⚠️ 影響を受ける行:',
+                                    ja: '⚠️ 影響を受ける路線:',
                                     es: '⚠️ Líneas afectadas:'
                                   },
   // v0.60.75 — static MRT network frequency footer (LTA published).
@@ -1045,39 +997,39 @@ const STRINGS = {
   // about timing, not trains.
   'transport.train.headway':        { en: '⏱️ Frequency: {peakMin}–{peakMax} min peak · {offMin}–{offMax} min off-peak (LTA published)',
                                       fr: '⏱️ Fréquence : {peakMin}–{peakMax} min en heure de pointe · {offMin}–{offMax} min hors pointe (LTA publié)' ,
-                              id: '⏱️ Frekuensi: {peakMin} – {peakMax} min puncak · {offMin} – {offMax} min di luar jam sibuk (LTA diterbitkan)',
-                              ru: '⏱️ Частота: {peakMin} – {peakMax} мин пик · {offMin} – {offMax} мин вне пика (опубликовано LTA)',
-                              de: '⏱️ Frequenz: {peakMin} – {peakMax} min peak · {offMin} – {offMax} min off peak (LTA veröffentlicht)',
-                              zh: '⏱️ 频率： {peakMin} – {peakMax}最小峰值 · {offMin} – {offMax}最小非峰值（LTA 发布）',
-                              ja: '⏱️ 周波数: {peakMin} – {peakMax}最小ピーク時 · {offMin} – {offMax}最小オフピーク時 (LTA 公開)',
-                              es: '⏱️ Frecuencia: {peakMin} – {peakMax} min pico · {offMin} – {offMax} min fuera de pico (publicado por LTA)'
+                              id: '⏱️ Frekuensi: {peakMin}–{peakMax} mnt jam sibuk · {offMin}–{offMax} mnt di luar jam sibuk (diterbitkan LTA)',
+                              ru: '⏱️ Частота: {peakMin}–{peakMax} мин пик · {offMin}–{offMax} мин вне пика (опубликовано LTA)',
+                              de: '⏱️ Frequenz: {peakMin}–{peakMax} Min. Hauptverkehrszeit · {offMin}–{offMax} Min. Nebenverkehrszeit (LTA veröffentlicht)',
+                              zh: '⏱️ 班次间隔：高峰 {peakMin}–{peakMax} 分钟 · 平峰 {offMin}–{offMax} 分钟（LTA 公布）',
+                              ja: '⏱️ 運行間隔: ピーク時 {peakMin}–{peakMax} 分 · オフピーク時 {offMin}–{offMax} 分（LTA 公表）',
+                              es: '⏱️ Frecuencia: {peakMin}–{peakMax} min hora punta · {offMin}–{offMax} min fuera de hora punta (publicado por LTA)'
                             },
   // v0.60.97 — operator: spell "d" as "days" / "jours".
   'transport.train.engineering':    { en: '🔧 Upcoming engineering (next 7 days):', fr: '🔧 Travaux à venir (sous 7 jours) :' ,
-                                  id: '🔧 Kegiatan teknik mendatang (7 hari ke depan):',
+                                  id: '🔧 Pekerjaan perawatan mendatang (7 hari ke depan):',
                                   ru: '🔧 Предстоящие инженерные работы (в течение следующих 7 дней):',
-                                  de: '🔧 Kommende technische Projekte (nächste 7 Tage):',
+                                  de: '🔧 Anstehende Bauarbeiten (nächste 7 Tage):',
                                   zh: '🔧 即将进行的工程（未来7天）：',
-                                  ja: '🔧 今後のエンジニアリング（今後7日間）：',
-                                  es: '🔧 Próximas actividades de ingeniería (próximos 7 días):'
+                                  ja: '🔧 今後の保守工事（今後7日間）：',
+                                  es: '🔧 Próximas obras de mantenimiento (próximos 7 días):'
                                 },
   // v0.60.98 — operator: rename to '🇸🇬 Train Map and Status' so
   // the chat CTA reads as a destination, not an action verb.
   'transport.train.openMapBtn':     { en: '🇸🇬 Train Map and Status', fr: '🇸🇬 Carte et état des trains' ,
-                                 id: 'Peta dan Status Kereta Api 🇸🇬',
-                                 ru: '🇸🇬 Карта и статус поездов',
+                                 id: '🇸🇬 Peta dan Status Kereta',
+                                 ru: '🇸🇬 Карта и статус метро',
                                  de: '🇸🇬 Zugnetzplan und Status',
-                                 zh: '🇸🇬 列车地图和状态',
+                                 zh: '🇸🇬 地铁线路图和状态',
                                  ja: '🇸🇬 列車の路線図と運行状況',
                                  es: '🇸🇬 Mapa y estado de los trenes'
                                },
   'transport.train.unreachable':    { en: "Sorry, I can't reach the MRT feed right now.", fr: "Désolé, le flux MRT est inaccessible pour le moment." ,
                                   id: 'Maaf, saya tidak bisa mengakses siaran MRT saat ini.',
-                                  ru: 'Извините, сейчас я не могу получить доступ к трансляции MRT.',
+                                  ru: 'Извините, сейчас не удаётся получить данные MRT.',
                                   de: 'Tut mir leid, ich kann den MRT-Feed im Moment nicht erreichen.',
-                                  zh: '抱歉，我现在无法访问地铁信号。',
+                                  zh: '抱歉，我现在无法获取地铁数据。',
                                   ja: '申し訳ありませんが、現在MRTのフィードにアクセスできません。',
-                                  es: 'Lo siento, no puedo acceder a la transmisión del MRT en este momento.'
+                                  es: 'Lo siento, no puedo acceder a los datos del MRT en este momento.'
                                 },
 
   // /transport bus
@@ -1106,18 +1058,18 @@ const STRINGS = {
                                    es: '🚏 No hay paradas de autobús a menos de 800 m de tu ubicación guardada.'
                                  },
   'transport.bus.nearestHeader':    { en: '🚏 Nearest {count} bus stops', fr: '🚏 {count} arrêts de bus les plus proches' ,
-                                  id: '🚏 Halte bus terdekat {count}',
-                                  ru: '🚏 Ближайшие {count} автобусные остановки',
+                                  id: '🚏 {count} halte bus terdekat',
+                                  ru: '🚏 {count} ближайших автобусных остановок',
                                   de: '🚏 Nächstgelegene {count} Bushaltestellen',
                                   zh: '🚏 最近的{count}个公交车站',
-                                  ja: '🚏 最寄りのバス停は{count}です',
-                                  es: '🚏 Paradas de autobús más cercanas: {count}'
+                                  ja: '🚏 最寄りのバス停 {count} 件',
+                                  es: '🚏 Las {count} paradas de autobús más cercanas'
                                 },
   'transport.bus.stopMetaFirst':    { en: '🚏 Bus Stop № {code} is 📍 {dist} away from current location.', fr: '🚏 Arrêt de bus № {code} à 📍 {dist} de votre position actuelle.' ,
                                   id: '🚏 Halte Bus No. {code} berjarak 📍 {dist} dari lokasi Anda saat ini.',
-                                  ru: 'Автобусная остановка № {code} находится 📍 {dist} от текущего местоположения.',
+                                  ru: '🚏 Автобусная остановка № {code} — 📍 {dist} от текущего местоположения.',
                                   de: '🚏 Bushaltestelle Nr. {code} ist 📍 {dist} von Ihrem aktuellen Standort entfernt.',
-                                  zh: '🚏 公交车站 № {code}距离当前位置 📍 {dist} 。',
+                                  zh: '🚏 公交车站 № {code}距离当前位置 📍 {dist}。',
                                   ja: '🚏 バス停番号{code}は現在地から 📍 {dist}離れています。',
                                   es: '🚏 La parada de autobús nº {code} está a 📍 {dist} de distancia de la ubicación actual.'
                                 },
@@ -1130,20 +1082,20 @@ const STRINGS = {
                                  es: '🚏 Parada de autobús nº {code} · 📍 {dist}'
                                },
   'transport.bus.stopRow':          { en: '· {desc} ({road}) — {dist}', fr: '· {desc} ({road}) — {dist}' ,
-                            id: '· {desc} ( {road} ) — {dist}',
-                            ru: '· {desc} ( {road} ) — {dist}',
-                            de: '· {desc} ( {road} ) — {dist}',
-                            zh: '· {desc} ( {road} ) — {dist}',
-                            ja: '・{desc} （ {road} ）— {dist}',
-                            es: '· {desc} ( {road} ) — {dist}'
+                            id: '· {desc} ({road}) — {dist}',
+                            ru: '· {desc} ({road}) — {dist}',
+                            de: '· {desc} ({road}) — {dist}',
+                            zh: '· {desc} ({road}) — {dist}',
+                            ja: '・{desc}（{road}）— {dist}',
+                            es: '· {desc} ({road}) — {dist}'
                           },
   'transport.bus.stopCode':         { en: '  Code: {code}', fr: '  Code : {code}' ,
-                             id: 'Kode: {code}',
-                             ru: 'Код: {code}',
-                             de: 'Code: {code}',
-                             zh: '代码： {code}',
-                             ja: 'コード: {code}',
-                             es: 'Código: {code}'
+                             id: '  Kode: {code}',
+                             ru: '  Код: {code}',
+                             de: '  Code: {code}',
+                             zh: '  编号：{code}',
+                             ja: '  番号: {code}',
+                             es: '  Código: {code}'
                            },
   'transport.bus.noStopsArrivals':  { en: '⏱ No bus stops within 800 m of your saved location.', fr: '⏱ Aucun arrêt de bus à moins de 800 m de votre position enregistrée.' ,
                                     id: '⏱ Tidak ada halte bus dalam radius 800 m dari lokasi yang Anda simpan.',
@@ -1157,25 +1109,25 @@ const STRINGS = {
                                    id: '⏱ Kedatangan berikutnya — 3 halte terdekat',
                                    ru: '⏱ Следующие прибытия — 3 ближайшие остановки',
                                    de: '⏱ Nächste Ankünfte – die 3 nächstgelegenen Haltestellen',
-                                   zh: '⏱ 下一班列车 — 距离最近的 3 个站点',
-                                   ja: '⏱ 次に到着する駅 — 最も近い上位3駅',
+                                   zh: '⏱ 下一班公交 — 最近的 3 个站点',
+                                   ja: '⏱ 次のバス到着 — 最寄りの3停留所',
                                    es: '⏱ Próximas llegadas: las 3 paradas más cercanas'
                                  },
   'transport.bus.noLive':           { en: '  no real-time arrivals', fr: '  aucun passage en temps réel' ,
-                           id: 'tidak ada kedatangan secara real-time',
-                           ru: 'нет данных о прибытии в режиме реального времени',
-                           de: 'keine Echtzeit-Ankünfte',
-                           zh: '没有实时到达信息',
-                           ja: 'リアルタイムの到着情報はありません',
-                           es: 'No hay llegadas en tiempo real.'
+                           id: '  tidak ada kedatangan secara real-time',
+                           ru: '  нет данных о прибытии в режиме реального времени',
+                           de: '  keine Echtzeit-Ankünfte',
+                           zh: '  没有实时到达信息',
+                           ja: '  リアルタイムの到着情報はありません',
+                           es: '  sin llegadas en tiempo real'
                          },
   'transport.bus.noStopsCrowd':     { en: '👥 No bus stops within 800 m to sample.', fr: '👥 Aucun arrêt de bus à moins de 800 m à échantillonner.' ,
-                                 id: '👥 Tidak ada halte bus dalam radius 800 m untuk pengambilan sampel.',
-                                 ru: '👥 В радиусе 800 м нет автобусных остановок, где можно взять образцы.',
-                                 de: '👥 Keine Bushaltestellen im Umkreis von 800 m, um Proben zu entnehmen.',
-                                 zh: '👥 采样点附近 800 米内没有公交车站。',
-                                 ja: '👥 800m以内に試飲できるバス停はありません。',
-                                 es: '👥 No hay paradas de autobús a menos de 800 m para tomar muestras.'
+                                 id: '👥 Tidak ada halte bus dalam radius 800 m untuk disurvei.',
+                                 ru: '👥 В радиусе 800 м нет автобусных остановок для выборки.',
+                                 de: '👥 Keine Bushaltestellen im Umkreis von 800 m für eine Stichprobe.',
+                                 zh: '👥 800 米内没有可供采样的公交车站。',
+                                 ja: '👥 800m以内にサンプリングできるバス停はありません。',
+                                 es: '👥 No hay paradas de autobús a menos de 800 m para muestrear.'
                                },
   'transport.bus.loadHeader':       { en: '👥 Bus load — sampled across nearest 3 stops', fr: '👥 Charge des bus — échantillon des 3 arrêts proches' ,
                                id: '👥 Jumlah penumpang bus — diambil sampel dari 3 halte terdekat',
@@ -1187,43 +1139,43 @@ const STRINGS = {
                              },
   'transport.bus.load.seats':       { en: 'Seats Available: {n}', fr: 'Places assises : {n}' ,
                                id: 'Kursi Tersedia: {n}',
-                               ru: 'Свободные места: {n}',
-                               de: 'Verfügbare Plätze: {n}',
-                               zh: '剩余座位： {n}',
-                               ja: '空席状況： {n}',
-                               es: 'Plazas disponibles: {n}'
+                               ru: 'Сидячих мест: {n}',
+                               de: 'Verfügbare Sitzplätze: {n}',
+                               zh: '剩余座位：{n}',
+                               ja: '空席：{n}',
+                               es: 'Asientos disponibles: {n}'
                              },
   'transport.bus.load.standing':    { en: 'Standing Available: {n}', fr: 'Places debout : {n}' ,
                                   id: 'Tersedia tempat berdiri: {n}',
-                                  ru: 'Доступно для стояния: {n}',
+                                  ru: 'Стоячих мест: {n}',
                                   de: 'Stehplätze verfügbar: {n}',
-                                  zh: '现有可用名额： {n}',
-                                  ja: '立ち見席あり： {n}',
-                                  es: 'Disponibilidad de pie: {n}'
+                                  zh: '可站立空位：{n}',
+                                  ja: '立席：{n}',
+                                  es: 'Plazas de pie disponibles: {n}'
                                 },
   'transport.bus.load.limited':     { en: 'Limited Standing: {n}', fr: 'Debout limité : {n}' ,
-                                 id: 'Tempat Terbatas: {n}',
-                                 ru: 'Ограниченный статус: {n}',
-                                 de: 'Beschränkte Berechtigung: {n}',
-                                 zh: '有限资格： {n}',
-                                 ja: '限定的な立ち入り： {n}',
-                                 es: 'Reputación limitada: {n}'
+                                 id: 'Tempat Berdiri Terbatas: {n}',
+                                 ru: 'Мало стоячих мест: {n}',
+                                 de: 'Begrenzte Stehplätze: {n}',
+                                 zh: '站立空位不多：{n}',
+                                 ja: '立席わずか：{n}',
+                                 es: 'Plazas de pie limitadas: {n}'
                                },
   'transport.bus.load.footer':      { en: '(of {n} services with live load data)', fr: '(sur {n} services avec données de charge en direct)' ,
-                                id: '(dari {n} layanan dengan data beban langsung)',
+                                id: '(dari {n} layanan dengan data okupansi langsung)',
                                 ru: '(из {n} сервисов с данными о текущей нагрузке)',
-                                de: '(von {n} Diensten mit Live-Lastdaten)',
-                                zh: '（包含{n}具有实时负载数据的服务）',
-                                ja: '（ライブ負荷データを持つ{n}個のサービスのうち）',
-                                es: '(de {n} servicios con datos de carga en tiempo real)'
+                                de: '(von {n} Diensten mit Live-Auslastungsdaten)',
+                                zh: '（共 {n} 个班次有实时载客数据）',
+                                ja: '（リアルタイム乗車率データのある{n}便のうち）',
+                                es: '(de {n} servicios con datos de ocupación en tiempo real)'
                               },
   'transport.bus.noLoad':           { en: 'No live load data right now — try again in 30 s.', fr: 'Aucune donnée de charge en direct — réessayez dans 30 s.' ,
-                           id: 'Saat ini tidak ada data beban langsung — coba lagi dalam 30 detik.',
+                           id: 'Saat ini tidak ada data okupansi langsung — coba lagi dalam 30 detik.',
                            ru: 'Данные о текущей нагрузке в данный момент отсутствуют — попробуйте еще раз через 30 секунд.',
-                           de: 'Derzeit liegen keine Live-Lastdaten vor – versuchen Sie es in 30 Sekunden erneut.',
-                           zh: '目前没有实时负载数据——30 秒后再试。',
-                           ja: '現在、リアルタイムの負荷データはありません。30秒後にもう一度お試しください。',
-                           es: 'No hay datos de carga en tiempo real en este momento; inténtelo de nuevo en 30 segundos.'
+                           de: 'Derzeit liegen keine Live-Auslastungsdaten vor – versuchen Sie es in 30 Sekunden erneut.',
+                           zh: '目前没有实时载客数据——30 秒后再试。',
+                           ja: '現在、リアルタイムの乗車率データはありません。30秒後にもう一度お試しください。',
+                           es: 'No hay datos de ocupación en tiempo real en este momento; inténtalo de nuevo en 30 segundos.'
                          },
   'transport.bus.routeCaption':     { en: '🗺 Tap below to open Google Maps in transit mode from your saved location. Type your destination in Maps.', fr: '🗺 Touchez ci-dessous pour ouvrir Google Maps en mode transports depuis votre position enregistrée. Tapez votre destination dans Maps.' ,
                                  id: '🗺 Ketuk di bawah untuk membuka Google Maps dalam mode transit dari lokasi yang Anda simpan. Ketik tujuan Anda di Maps.',
@@ -1243,55 +1195,55 @@ const STRINGS = {
                            },
   'transport.bus.unreachable':      { en: 'Sorry, the bus feed is unavailable right now.', fr: 'Désolé, le flux des bus est indisponible pour le moment.' ,
                                 id: 'Maaf, siaran bus saat ini tidak tersedia.',
-                                ru: 'К сожалению, трансляция из автобуса в данный момент недоступна.',
+                                ru: 'Извините, данные об автобусах сейчас недоступны.',
                                 de: 'Leider ist der Bus-Feed momentan nicht verfügbar.',
                                 zh: '抱歉，目前公交信息暂不可用。',
                                 ja: '申し訳ありませんが、現在バスの運行状況に関する情報はご利用いただけません。',
-                                es: 'Lo sentimos, la señal del autobús no está disponible en este momento.'
+                                es: 'Lo sentimos, el servicio de datos de autobuses no está disponible en este momento.'
                               },
 
   // /transport incidents
   'transport.incidents.offline':    { en: '🚦 Traffic feed offline (LTA key not configured).', fr: '🚦 Flux de circulation hors-ligne (clé LTA non configurée).' ,
                                   id: '🚦 Umpan lalu lintas offline (kunci LTA belum dikonfigurasi).',
-                                  ru: '🚦 Поток трафика отключен (ключ LTA не настроен).',
-                                  de: '🚦 Datenstrom offline (LTA-Schlüssel nicht konfiguriert).',
-                                  zh: '🚦 流量数据离线（LTA 密钥未配置）。',
+                                  ru: '🚦 Данные о дорожной обстановке недоступны (ключ LTA не настроен).',
+                                  de: '🚦 Verkehrsdaten-Feed offline (LTA-Schlüssel nicht konfiguriert).',
+                                  zh: '🚦 路况数据离线（LTA 密钥未配置）。',
                                   ja: '🚦 交通情報フィードがオフラインです（LTAキーが設定されていません）。',
-                                  es: '🚦 El flujo de tráfico está fuera de línea (la clave LTA no está configurada).'
+                                  es: '🚦 Los datos de tráfico están fuera de línea (la clave LTA no está configurada).'
                                 },
   'transport.incidents.heading':    { en: '🚦 *Live traffic incidents*', fr: '🚦 *Incidents de circulation en direct*' ,
                                   id: '🚦 *Insiden lalu lintas langsung*',
                                   ru: '🚦 *Информация о дорожно-транспортных происшествиях в режиме реального времени*',
                                   de: '🚦 *Aktuelle Verkehrsmeldungen*',
                                   zh: '🚦 *实时交通事件*',
-                                  ja: '🚦 *交通事故速報*',
+                                  ja: '🚦 *リアルタイム交通情報*',
                                   es: '🚦 *Incidentes de tráfico en directo*'
                                 },
   // v0.60.72 — /causeway live SG ⟷ JB border camera stills.
   'transport.causeway.heading':     { en: '🛂 SG ⟷ JB checkpoint cameras', fr: '🛂 Caméras du poste-frontière SG ⟷ JB' ,
-                                 id: '🛂 SG ⟷ Kamera pos pemeriksaan JB',
-                                 ru: '🛂 SG ⟷ Камеры на контрольно-пропускном пункте JB',
+                                 id: '🛂 Kamera pos pemeriksaan SG ⟷ JB',
+                                 ru: '🛂 Камеры на КПП SG ⟷ JB',
                                  de: '🛂 SG ⟷ JB Kontrollpunktkameras',
                                  zh: '🛂 新加坡 ⟷ 新山检查站摄像头',
                                  ja: '🛂 シンガポール ⟷ ジョホールバル 検問所カメラ',
                                  es: '🛂 Cámaras de control en SG ⟷ JB'
                                },
   'transport.causeway.refreshed':   { en: '_Refreshed: {at}_', fr: '_Actualisé : {at}_' ,
-                                   id: '_Diperbarui: {at} _',
-                                   ru: 'Обновлено: {at}',
-                                   de: 'Aktualisiert: {at}',
-                                   zh: '_刷新时间： {at} _',
-                                   ja: '更新日時: {at}',
-                                   es: '_Actualizado: {at} _'
+                                   id: '_Diperbarui: {at}_',
+                                   ru: '_Обновлено: {at}_',
+                                   de: '_Aktualisiert: {at}_',
+                                   zh: '_刷新时间：{at}_',
+                                   ja: '_更新日時: {at}_',
+                                   es: '_Actualizado: {at}_'
                                  },
   // v0.60.103 — live camera count + per-checkpoint breakdown.
   'transport.causeway.count':       { en: '_{n} cameras live ({breakdown})_', fr: '_{n} caméras en direct ({breakdown})_' ,
-                               id: '_ {n} kamera siaran langsung ( {breakdown} )_',
-                               ru: '_ {n} камеры в прямом эфире ( {breakdown} )_',
-                               de: '_ {n} Kameras live ( {breakdown} )_',
-                               zh: '_ {n}个摄像头实时（ {breakdown} ）_',
-                               ja: '_ {n}のカメラがライブ配信中（ {breakdown} ）_',
-                               es: '_ {n} cámaras en directo ( {breakdown} )_'
+                               id: '_{n} kamera siaran langsung ({breakdown})_',
+                               ru: '_{n} камеры в прямом эфире ({breakdown})_',
+                               de: '_{n} Kameras live ({breakdown})_',
+                               zh: '_{n} 个摄像头实时在线（{breakdown}）_',
+                               ja: '_{n}台のカメラがライブ配信中（{breakdown}）_',
+                               es: '_{n} cámaras en directo ({breakdown})_'
                              },
   'transport.causeway.empty':       { en: 'LTA returned no checkpoint cameras right now — try again in a minute.',
                                       fr: 'LTA n’a renvoyé aucune caméra de poste-frontière — réessayez dans une minute.' ,
@@ -1299,8 +1251,8 @@ const STRINGS = {
                                ru: 'На данный момент LTA не обнаружила ни одной записи с камер видеонаблюдения — попробуйте еще раз через минуту.',
                                de: 'Die LTA hat im Moment keine Kontrollpunktkameras gemeldet – versuchen Sie es in einer Minute erneut.',
                                zh: 'LTA目前没有返回任何检查站摄像头画面——请稍后再试。',
-                               ja: 'LTAは現在、検問所のカメラを検出していません。1分後にもう一度お試しください。',
-                               es: 'La LTA no ha detectado ninguna cámara en los puntos de control en este momento; inténtelo de nuevo en un minuto.'
+                               ja: 'LTAは現在、検問所のカメラを返していません。1分後にもう一度お試しください。',
+                               es: 'La LTA no ha devuelto ninguna cámara de control en este momento; inténtalo de nuevo en un minuto.'
                              },
   'transport.causeway.unreachable': { en: '🛂 Couldn’t reach LTA for checkpoint cameras — try again in a minute.',
                                       fr: '🛂 Impossible de joindre LTA pour les caméras de poste-frontière — réessayez dans une minute.' ,
@@ -1309,49 +1261,49 @@ const STRINGS = {
                                      de: '🛂 LTA konnte bezüglich der Kontrollpunktkameras nicht erreicht werden – bitte versuchen Sie es in einer Minute erneut.',
                                      zh: '🛂 无法联系陆路交通管理局获取检查站摄像头信息——请稍后再试。',
                                      ja: '🛂 チェックポイントカメラについてLTAに接続できませんでした。1分後にもう一度お試しください。',
-                                     es: '🛂 No se pudo contactar con LTA para obtener información sobre las cámaras de control; inténtelo de nuevo en un minuto.'
+                                     es: '🛂 No se pudo contactar con LTA para obtener las cámaras de control; inténtalo de nuevo en un minuto.'
                                    },
   'transport.incidents.none':       { en: 'No live incidents reported.', fr: 'Aucun incident en direct signalé.' ,
                                id: 'Tidak ada insiden langsung yang dilaporkan.',
                                ru: 'Сообщений о происшествиях в режиме реального времени не поступало.',
-                               de: 'Es wurden keine Zwischenfälle gemeldet.',
-                               zh: '未报告任何现场事故。',
-                               ja: '現在発生している事件は報告されていません。',
-                               es: 'No se han reportado incidentes en directo.'
+                               de: 'Es wurden keine aktuellen Vorfälle gemeldet.',
+                               zh: '暂无实时路况事件报告。',
+                               ja: '現在発生中の交通障害の報告はありません。',
+                               es: 'No se han registrado incidentes activos.'
                              },
   // v0.60.103 — uncapped: show every island-wide incident, sorted
   // nearest-first when location is shared.
   'transport.incidents.nearHeader': { en: 'Latest {n} traffic incidents island-wide:', fr: 'Derniers {n} incidents de circulation à l’échelle de l’île :' ,
-                                     id: 'Insiden lalu lintas {n} di seluruh pulau:',
-                                     ru: 'Последние {n} дорожно-транспортные происшествия по всему острову:',
+                                     id: '{n} insiden lalu lintas terbaru di seluruh pulau:',
+                                     ru: 'Последние {n} дорожных происшествий по всему острову:',
                                      de: 'Aktuelle {n} Verkehrsvorfälle inselweit:',
                                      zh: '全岛最新{n}起交通事故：',
-                                     ja: '島全体で発生した最新の{n}の交通事故：',
+                                     ja: '島内で最新の交通障害{n}件：',
                                      es: 'Últimos {n} incidentes de tráfico en toda la isla:'
                                    },
   'transport.incidents.row':        { en: '· {type}{dist}', fr: '· {type}{dist}' ,
-                              id: '· {type} {dist}',
-                              ru: '· {type} {dist}',
-                              de: '· {type} {dist}',
-                              zh: '· {type} {dist}',
-                              ja: '・{type} {dist}',
-                              es: '· {type} {dist}'
+                              id: '· {type}{dist}',
+                              ru: '· {type}{dist}',
+                              de: '· {type}{dist}',
+                              zh: '· {type}{dist}',
+                              ja: '・{type}{dist}',
+                              es: '· {type}{dist}'
                             },
   'transport.incidents.noNear':     { en: '{total} incidents island-wide; none within 20 km of your location.', fr: '{total} incidents dans tout le pays ; aucun à moins de 20 km de votre position.' ,
                                  id: '{total} insiden di seluruh pulau; tidak ada dalam radius 20 km dari lokasi Anda.',
                                  ru: '{total} инцидентов по всему острову; ни одного в радиусе 20 км от вашего местоположения.',
                                  de: '{total} Vorfälle inselweit; keiner im Umkreis von 20 km um Ihren Standort.',
                                  zh: '全岛共发生{total}起事件；您所在位置 20 公里范围内没有发生事件。',
-                                 ja: '島全体で{total}の事件が発生しました。あなたの現在地から20km圏内では発生していません。',
-                                 es: '{total} incidentes en toda la isla; ninguno en un radio de 20 km de su ubicación.'
+                                 ja: '島内で{total}件の交通障害。現在地から20km圏内では発生していません。',
+                                 es: '{total} incidentes en toda la isla; ninguno en un radio de 20 km de tu ubicación.'
                                },
   'transport.incidents.noLoc':      { en: '{total} incidents island-wide. Share your location for nearest-first sorting.', fr: '{total} incidents dans tout le pays. Partagez votre position pour un tri par proximité.' ,
                                 id: '{total} insiden di seluruh pulau. Bagikan lokasi Anda untuk pengurutan terdekat terlebih dahulu.',
-                                ru: '{total} инцидентов по всему острову. Укажите ваше местоположение для сортировки по ближайшему списку.',
+                                ru: '{total} инцидентов по всему острову. Укажите местоположение, чтобы отсортировать по близости.',
                                 de: '{total} Vorfälle inselweit. Teilen Sie Ihren Standort, damit die Ergebnisse nach Nähe sortiert werden können.',
                                 zh: '全岛共发生{total}起事件。请分享您的位置，以便我们优先显示距离最近的事件。',
-                                ja: '島全体で{total}件の事件が発生しました。現在地を共有していただくと、最寄りの事件を優先的に表示します。',
-                                es: '{total} incidentes en toda la isla. Comparta su ubicación para que se ordene por proximidad.'
+                                ja: '島内で{total}件の交通障害。現在地を共有していただくと、最寄りのものを優先的に表示します。',
+                                es: '{total} incidentes en toda la isla. Comparte tu ubicación para ordenarlos por proximidad.'
                               },
   'transport.incidents.unreachable':{ en: 'Sorry, the traffic feed failed.', fr: 'Désolé, le flux de circulation a échoué.' ,
                                       id: 'Maaf, umpan lalu lintas mengalami kegagalan.',
@@ -1359,7 +1311,7 @@ const STRINGS = {
                                       de: 'Leider ist der Verkehrsdaten-Feed ausgefallen.',
                                       zh: '抱歉，交通信息流传输失败。',
                                       ja: '申し訳ありませんが、交通情報フィードの取得に失敗しました。',
-                                      es: 'Lo sentimos, la transmisión de tráfico falló.'
+                                      es: 'Lo sentimos, no se han podido obtener los datos de tráfico.'
                                     },
 
   // /transport drive
@@ -1372,36 +1324,36 @@ const STRINGS = {
                             es: '🚗 Conducir'
                           },
   'transport.drive.trafficNear':    { en: '🚦 Traffic (top {n} of {total} island-wide):', fr: '🚦 Circulation (top {n} sur {total} dans tout le pays) :' ,
-                                  id: '🚦 Lalu lintas (tertinggi {n} dari {total} di seluruh pulau):',
-                                  ru: '🚦 Трафик (верхний {n} из {total} по всему острову):',
+                                  id: '🚦 Lalu lintas ({n} teratas dari {total} di seluruh pulau):',
+                                  ru: '🚦 Дорожная обстановка (топ-{n} из {total} по всему острову):',
                                   de: '🚦 Verkehr (Top {n} von {total} inselweit):',
-                                  zh: '🚦 交通流量（全岛前{n}条，共{total}条）：',
-                                  ja: '🚦 交通量（島全体の{total}のうち上位{n}件）：',
-                                  es: '🚦 Tráfico (los {n} principales del total de {total} en toda la isla):'
+                                  zh: '🚦 路况（全岛 {total} 起中的前 {n} 起）：',
+                                  ja: '🚦 交通障害（島内{total}件のうち上位{n}件）：',
+                                  es: '🚦 Tráfico (los {n} principales de {total} en toda la isla):'
                                 },
   'transport.drive.trafficNoNear':  { en: '🚦 Traffic: {total} incidents island-wide; none within 5 km.', fr: '🚦 Circulation : {total} incidents dans tout le pays ; aucun à moins de 5 km.' ,
                                     id: '🚦 Lalu lintas: {total} insiden di seluruh pulau; tidak ada dalam radius 5 km.',
                                     ru: '🚦 Дорожная ситуация: {total} инцидентов по всему острову; ни одного в радиусе 5 км.',
                                     de: '🚦 Verkehr: {total} Vorfälle inselweit; keine im Umkreis von 5 km.',
-                                    zh: '🚦 交通：全岛共发生{total}起事件；5 公里范围内无事件发生。',
-                                    ja: '🚦 交通: 島全体で{total}の事故。5km圏内ではなし。',
+                                    zh: '🚦 路况：全岛共 {total} 起事件；5 公里范围内无事件。',
+                                    ja: '🚦 交通障害：島内{total}件。5km圏内はなし。',
                                     es: '🚦 Tráfico: {total} incidentes en toda la isla; ninguno en un radio de 5 km.'
                                   },
   'transport.drive.trafficNone':    { en: '🚦 Traffic: no live incidents reported.', fr: '🚦 Circulation : aucun incident en direct signalé.' ,
                                   id: '🚦 Lalu lintas: tidak ada insiden langsung yang dilaporkan.',
-                                  ru: '🚦 Информация о дорожно-транспортных происшествиях отсутствует.',
-                                  de: '🚦 Verkehr: Keine aktuellen Zwischenfälle gemeldet.',
-                                  zh: '🚦 交通：未报告任何实时事件。',
-                                  ja: '🚦 交通情報：現在発生している事故は報告されていません。',
-                                  es: '🚦 Tráfico: no se han reportado incidentes en directo.'
+                                  ru: '🚦 Дорожная обстановка: происшествий не зарегистрировано.',
+                                  de: '🚦 Verkehr: Keine aktuellen Vorfälle gemeldet.',
+                                  zh: '🚦 路况：暂无实时事件报告。',
+                                  ja: '🚦 交通障害：現在発生中の報告はありません。',
+                                  es: '🚦 Tráfico: no se han registrado incidentes activos.'
                                 },
   'transport.drive.openMapsBtn':    { en: 'Google Map ↗', fr: 'Google Map ↗' ,
-                                  id: 'Peta Google ↗',
-                                  ru: 'Карта Google ↗',
+                                  id: 'Google Maps ↗',
+                                  ru: 'Google Maps ↗',
                                   de: 'Google Maps ↗',
                                   zh: '谷歌地图 ↗',
-                                  ja: 'Googleマップ↗',
-                                  es: 'Mapa de Google ↗'
+                                  ja: 'Googleマップ ↗',
+                                  es: 'Google Maps ↗'
                                 },
   'transport.drive.noLocation':     { en: 'Share your location once and Soleat will offer a one-tap driving directions link.', fr: 'Partagez votre position une fois et Soleat proposera un lien d’itinéraire en voiture en un clic.' ,
                                  id: 'Bagikan lokasi Anda sekali saja dan Soleat akan menawarkan tautan petunjuk arah berkendara hanya dengan sekali klik.',
@@ -1413,19 +1365,19 @@ const STRINGS = {
                                },
   'transport.drive.btn.carpark':    { en: '🅿️ Carpark', fr: '🅿️ Parking' ,
                                   id: '🅿️ Parkir Mobil',
-                                  ru: 'Парковка 🅿️',
+                                  ru: '🅿️ Парковка',
                                   de: '🅿️ Parkplatz',
-                                  zh: '停车场',
-                                  ja: '駐車場',
-                                  es: 'Aparcamiento 🅿️'
+                                  zh: '🅿️ 停车场',
+                                  ja: '🅿️ 駐車場',
+                                  es: '🅿️ Aparcamiento'
                                 },
   'transport.drive.unreachable':    { en: 'Sorry, the drive view failed.', fr: 'Désolé, la vue voiture a échoué.' ,
-                                  id: 'Maaf, tampilan drive gagal.',
-                                  ru: 'Извините, отображение диска не удалось.',
-                                  de: 'Die Laufwerksansicht konnte leider nicht aufgerufen werden.',
-                                  zh: '抱歉，驱动器视图失败。',
-                                  ja: '申し訳ありませんが、ドライブビューに失敗しました。',
-                                  es: 'Lo sentimos, la vista de la unidad falló.'
+                                  id: 'Maaf, tampilan mengemudi gagal dimuat.',
+                                  ru: 'Извините, не удалось загрузить раздел «Вождение».',
+                                  de: 'Die Fahransicht konnte leider nicht geladen werden.',
+                                  zh: '抱歉，驾车信息加载失败。',
+                                  ja: '申し訳ありませんが、ドライブ情報の取得に失敗しました。',
+                                  es: 'Lo sentimos, no se ha podido cargar la vista de conducción.'
                                 },
 
   // /forgetme
@@ -1435,23 +1387,23 @@ const STRINGS = {
                        de: '✅ Nichts zu löschen – ich hatte keine gespeicherten Daten für Sie. (Caches und Anforderungszeilen laufen automatisch ab; die persistenten Speicherplätze waren alle leer.)',
                        zh: '✅ 无需删除任何数据——我没有存储任何关于您的数据。（缓存和请求行会自动过期；持久化存储槽均为空。）',
                        ja: '✅ 消去するものはありません — お客様のために保存されたデータはありませんでした。（キャッシュとリクエスト行は自動的に期限切れになります。永続スロットはすべて空でした。）',
-                       es: '✅ No hay nada que borrar: no tenía datos almacenados para usted. (Las cachés y las filas de solicitudes caducan automáticamente; todos los espacios persistentes estaban vacíos).'
+                       es: '✅ No hay nada que borrar: no tenía datos almacenados sobre ti. (Las cachés y las filas de solicitudes caducan automáticamente; todos los espacios persistentes estaban vacíos).'
                      },
   'forgetme.eraseHeader':      { en: '✅ Erased *{n}* Redis entry for your chat.', fr: '✅ {n} entrée Redis effacée pour votre conversation.' ,
-                           id: '✅ Entri Redis * {n} * dihapus untuk obrolan Anda.',
-                           ru: '✅ Удалена запись * {n} * в Redis для вашего чата.',
-                           de: '✅ Gelöschter * {n} * Redis-Eintrag für Ihren Chat.',
-                           zh: '✅ 已删除您的聊天记录的{n}条目。',
-                           ja: '✅ チャット用の * {n} * Redis エントリを削除しました。',
-                           es: '✅ Eliminada * {n} * Entrada de Redis para tu chat.'
+                           id: '✅ Entri Redis *{n}* dihapus untuk obrolan Anda.',
+                           ru: '✅ Удалена *{n}* запись Redis для вашего чата.',
+                           de: '✅ *{n}* Redis-Eintrag für Ihren Chat gelöscht.',
+                           zh: '✅ 已删除您聊天的 *{n}* 条 Redis 记录。',
+                           ja: '✅ チャットの Redis エントリを *{n}* 件削除しました。',
+                           es: '✅ Se borró *{n}* entrada de Redis de tu chat.'
                          },
   'forgetme.eraseHeaderMany':  { en: '✅ Erased *{n}* Redis entries for your chat.', fr: '✅ {n} entrées Redis effacées pour votre conversation.' ,
-                               id: '✅ Entri Redis * {n} * dihapus untuk obrolan Anda.',
-                               ru: '✅ Удалены * {n} * записи Redis для вашего чата.',
-                               de: '✅ Gelöschte * {n} * Redis-Einträge für Ihren Chat.',
-                               zh: '✅ 已删除 * {n} * 条 Redis 聊天记录。',
-                               ja: '✅ チャットの Redis エントリを * {n} * 削除しました。',
-                               es: '✅ Se borraron * {n} * entradas de Redis para tu chat.'
+                               id: '✅ Entri Redis *{n}* dihapus untuk obrolan Anda.',
+                               ru: '✅ Удалено *{n}* записей Redis для вашего чата.',
+                               de: '✅ *{n}* Redis-Einträge für Ihren Chat gelöscht.',
+                               zh: '✅ 已删除您聊天的 *{n}* 条 Redis 记录。',
+                               ja: '✅ チャットの Redis エントリを *{n}* 件削除しました。',
+                               es: '✅ Se borraron *{n}* entradas de Redis de tu chat.'
                              },
   'forgetme.wiped':            { en: 'Wiped:', fr: 'Effacé :' ,
                      id: 'Dihapus:',
@@ -1465,16 +1417,16 @@ const STRINGS = {
                        id: '…dan {n} lainnya',
                        ru: '…и {n} ещё',
                        de: '…und {n} weitere',
-                       zh: '……以及{n}',
-                       ja: '…そしてさらに{n}',
+                       zh: '……以及另外 {n} 条',
+                       ja: '…ほか{n}件',
                        es: '…y {n} más'
                      },
   'forgetme.followup':         { en: 'Send any command to start fresh. Recent picks and your last shared location are gone.', fr: 'Envoyez n’importe quelle commande pour repartir à neuf. Vos choix récents et votre dernière position partagée ont été effacés.' ,
-                        id: 'Kirim perintah apa pun untuk memulai dari awal. Pilihan terbaru dan lokasi terakhir yang Anda bagikan akan hilang.',
-                        ru: 'Отправьте любую команду, чтобы начать заново. Недавние выбранные вами объекты и последнее совместно использованное местоположение будут удалены.',
-                        de: 'Senden Sie einen beliebigen Befehl, um von vorne zu beginnen. Ihre letzten Auswahlen und Ihr zuletzt geteilter Standort gehen verloren.',
-                        zh: '发送任意命令即可重新开始。最近的选择和上次分享的位置都将被清除。',
-                        ja: '最初からやり直すには、任意のコマンドを送信してください。最近撮影した写真と最後に共有した場所の情報はすべて削除されます。',
+                        id: 'Kirim perintah apa pun untuk memulai dari awal. Pilihan terbaru dan lokasi terakhir yang Anda bagikan sudah hilang.',
+                        ru: 'Отправьте любую команду, чтобы начать заново. Недавние подборки и последнее местоположение, которым вы делились, удалены.',
+                        de: 'Senden Sie einen beliebigen Befehl, um von vorne zu beginnen. Ihre letzten Auswahlen und Ihr zuletzt geteilter Standort sind gelöscht.',
+                        zh: '发送任意命令即可重新开始。最近的选择和上次分享的位置都已清除。',
+                        ja: '最初からやり直すには、任意のコマンドを送信してください。最近のおすすめと最後に共有した場所は削除済みです。',
                         es: 'Envía cualquier comando para empezar de cero. Tus selecciones recientes y tu última ubicación compartida se han eliminado.'
                       },
   'forgetme.error':            { en: 'Sorry, /forgetme hit an error. Try again in a moment, or DM the operator.', fr: 'Désolé, /forgetme a rencontré une erreur. Réessayez dans un instant, ou contactez l’opérateur.' ,
@@ -1483,8 +1435,8 @@ const STRINGS = {
                      de: 'Entschuldigung, /forgetme ist auf einen Fehler gestoßen. Versuchen Sie es gleich erneut oder kontaktieren Sie den Betreiber per Direktnachricht.',
                      es: 'Lo sentimos, /forgetme ha dado un error. Inténtalo de nuevo en un momento o envía un mensaje directo al operador.'
                    ,
-                     zh: '抱歉， /forgetme 出错了。请稍后再试，或私信客服。',
-                     ja: '申し訳ありません、 /forgetme でエラーが発生しました。しばらくしてからもう一度お試しいただくか、オペレーターにDMを送ってください。'
+                     zh: '抱歉，/forgetme 出错了。请稍后再试，或私信运营者。',
+                     ja: '申し訳ありません、/forgetme でエラーが発生しました。しばらくしてからもう一度お試しいただくか、オペレーターにDMを送ってください。'
                    },
 
   // /language internal text (cleanup of v0.59.0 hardcoded pairs)
@@ -1515,70 +1467,22 @@ const STRINGS = {
                                   ja: '（Telegramより）',
                                   es: ' (de tu Telegram)' },
   'language.btn.en':           { en: '🇬🇧 English', fr: '🇬🇧 English' ,
-                      id: 'Bahasa Inggris 🇬🇧',
-                      ru: '🇬🇧 Английский',
-                      de: '🇬🇧 Englisch',
-                      zh: '🇬🇧 英语',
-                      ja: '🇬🇧 英語',
-                      es: 'Inglés 🇬🇧'
                     },
   'language.btn.fr':           { en: '🇫🇷 Français', fr: '🇫🇷 Français' ,
-                      id: '🇫🇷 Français',
-                      ru: '🇫🇷 Français',
-                      de: '🇫🇷 Französisch',
-                      zh: '🇫🇷 法语',
-                      ja: '🇫🇷 Français',
-                      es: '🇫🇷 Français'
                     },
   // v0.62.480 — flag + endonym (native name) so a speaker recognises their
   // own language whatever the prompt locale. Same string in both en/fr keys.
   'language.btn.id':           { en: '🇮🇩 Indonesia', fr: '🇮🇩 Indonesia' ,
-                      id: '🇮🇩 Indonesia',
-                      ru: '🇮🇩 Индонезия',
-                      de: '🇮🇩 Indonesien',
-                      zh: '🇮🇩 印度尼西亚',
-                      ja: '🇮🇩 インドネシア',
-                      es: '🇮🇩 Indonesia'
                     },
   'language.btn.ru':           { en: '🇷🇺 Русский', fr: '🇷🇺 Русский' ,
-                      id: '🇷🇺 Русский',
-                      ru: '🇷🇺 Русский',
-                      de: '🇷🇺 Русский',
-                      zh: '🇷🇺 Русский',
-                      ja: '🇷🇺 Русский',
-                      es: '🇷🇺 Русский'
                     },
   'language.btn.de':           { en: '🇩🇪 Deutsch', fr: '🇩🇪 Deutsch' ,
-                      id: '🇩🇪 Jerman',
-                      ru: '🇩🇪 Deutsch',
-                      de: '🇩🇪 Deutsch',
-                      zh: '🇩🇪 德语',
-                      ja: '🇩🇪 ドイツ語',
-                      es: '🇩🇪 Alemán'
                     },
   'language.btn.zh':           { en: '🇨🇳 中文', fr: '🇨🇳 中文' ,
-                      id: 'CNY 中文',
-                      ru: '🇨🇳 中文',
-                      de: '🇨🇳 中文',
-                      zh: '🇨🇳 中文',
-                      ja: '🇨🇳 中文',
-                      es: '🇨🇳 中文'
                     },
   'language.btn.ja':           { en: '🇯🇵 日本語', fr: '🇯🇵 日本語' ,
-                      id: '🇯ppa 日本語',
-                      ru: '🇯🇵 日本語',
-                      de: '🇯🇵 日本語',
-                      zh: '🇯🇵 日本语',
-                      ja: '🇯🇵 日本語',
-                      es: '🇯🇵 日本語'
                     },
   'language.btn.es':           { en: '🇪🇸 Español', fr: '🇪🇸 Español' ,
-                      id: '🇪🇸 Español',
-                      ru: '🇪🇸 Español',
-                      de: '🇪🇸 Español',
-                      zh: '🇪🇸 西班牙语',
-                      ja: '🇪🇸 スペイン語',
-                      es: '🇪🇸 Español'
                     },
 
   // /start intro body — v0.60.67: leading paragraph replaced per
@@ -1616,7 +1520,7 @@ const STRINGS = {
                    ru: '📍 Ваше местоположение определено.',
                    de: '📍 Wir haben Ihren Standort ermittelt.',
                    zh: '📍已获取您的位置。',
-                   ja: '📍現在地を取得しました。',
+                   ja: '📍 現在地を取得しました。',
                    es: '📍 Tenemos tu ubicación.'
                  },
   // v0.62.3 — first-share confirmation + desktop nudge. Telegram Desktop has
@@ -1629,15 +1533,15 @@ const STRINGS = {
                              ru: '📍 *Местоположение установлено следующим образом:*\n{place}\n\n💻 На компьютере Telegram отображает *отмеченную на карте точку*, а не данные GPS в реальном времени — она может оказаться не в том месте. Вы находитесь в этом месте?',
                              de: '📍 *Standort eingestellt auf:*\n{place}\n\n💻 Auf dem Desktop zeigt Telegram einen *gepinnten Punkt* auf einer Karte an, nicht das Live-GPS – es kann also vorkommen, dass der falsche Ort angezeigt wird. Befindest du dich hier?',
                              zh: '📍 *位置已设置为：*\n{place}\n\n💻 在电脑端，Telegram 分享的是地图上的标记点，而不是实时 GPS 定位——因此可能会定位到错误的位置。这是你所在的位置吗？',
-                             ja: '📍 *位置情報設定:*\n{place}\n\n💻 デスクトップ版の Telegram では、リアルタイムの GPS ではなく、*地図上にピン留めされた地点* が共有されます。そのため、間違った場所に表示される可能性があります。ここがあなたの現在地ですか?',
-                             es: '📍 *Ubicación establecida en:*\n{place}\n\n💻 En la versión de escritorio, Telegram comparte un *punto marcado en el mapa*, no un GPS en tiempo real; puede ubicarse en un lugar incorrecto. ¿Estás ahí?'
+                             ja: '📍 *位置情報を次に設定しました:*\n{place}\n\n💻 デスクトップ版の Telegram では、リアルタイムの GPS ではなく、*地図上にピン留めされた地点* が共有されます。そのため、間違った場所に表示される可能性があります。ここがあなたの現在地ですか?',
+                             es: '📍 *Ubicación establecida en:*\n{place}\n\n💻 En la versión de escritorio, Telegram comparte un *punto marcado en el mapa*, no un GPS en tiempo real; puede ubicarse en un lugar incorrecto. ¿Es aquí donde estás?'
                            },
   'loc.confirm.yes':           { en: '✅ Yes, use it', fr: '✅ Oui, utiliser' ,
                       id: '✅ Ya, gunakanlah',
-                      ru: '✅ Да, используйте его',
-                      de: '✅ Ja, benutze es.',
+                      ru: '✅ Да, использовать',
+                      de: '✅ Ja, verwenden',
                       zh: '✅ 是的，请使用它',
-                      ja: '✅ はい、使ってください',
+                      ja: '✅ はい、これを使う',
                       es: '✅ Sí, úsalo'
                     },
   'loc.confirm.no':            { en: '✏️ No, set manually', fr: '✏️ Non, saisir manuellement' ,
@@ -1645,7 +1549,7 @@ const STRINGS = {
                      ru: '✏️ Нет, установить вручную',
                      de: '✏️ Nein, manuell einstellen',
                      zh: '✏️ 不，手动设置',
-                     ja: '✏️ いいえ、手動で設定してください',
+                     ja: '✏️ いいえ、手動で設定',
                      es: '✏️ No, configurar manualmente'
                    },
   'loc.confirm.okAck':         { en: '📍 *Confirmed:* {place}', fr: '📍 *Confirmé :* {place}' ,
@@ -1658,53 +1562,53 @@ const STRINGS = {
                       },
   'loc.confirm.fixPrompt':     { en: 'Type your area — e.g. `/l Orchard Road` or `/l Bugis`. On desktop, typing is more reliable than the share button.',
                                  fr: 'Saisissez votre lieu — p. ex. `/l Orchard Road` ou `/l Bugis`. Sur ordinateur, taper est plus fiable que le bouton de partage.' ,
-                            id: 'Ketik area Anda — misalnya `/l Orchard Road` atau `/l Bugis` . Di desktop, mengetik lebih andal daripada tombol berbagi.',
-                            ru: 'Введите название вашего района — например `/l Orchard Road` или `/l Bugis` . На компьютере ввод текста более надежен, чем использование кнопки «Поделиться».',
-                            de: 'Geben Sie Ihren Ort ein – z. B. `/l Orchard Road` oder `/l Bugis` . Auf dem Desktop ist die Eingabe zuverlässiger als die Teilen-Schaltfläche.',
-                            zh: '输入您的区域，例如`/l Orchard Road`或`/l Bugis` 。在电脑上，打字比使用分享按钮更可靠。',
-                            ja: '地域名を入力してください（例： `/l Orchard Road`または`/l Bugis` ）。デスクトップでは、共有ボタンよりも入力の方が確実です。',
-                            es: 'Escribe tu zona; por ejemplo `/l Orchard Road` o `/l Bugis` . En ordenadores de sobremesa, escribir es más fiable que usar el botón de compartir.'
+                            id: 'Ketik area Anda — misalnya `/l Orchard Road` atau `/l Bugis`. Di desktop, mengetik lebih andal daripada tombol berbagi.',
+                            ru: 'Введите название вашего района — например `/l Orchard Road` или `/l Bugis`. На компьютере ввод текста более надежен, чем использование кнопки «Поделиться».',
+                            de: 'Geben Sie Ihren Ort ein – z. B. `/l Orchard Road` oder `/l Bugis`. Auf dem Desktop ist die Eingabe zuverlässiger als die Teilen-Schaltfläche.',
+                            zh: '输入您的区域，例如`/l Orchard Road`或`/l Bugis`。在电脑上，打字比使用分享按钮更可靠。',
+                            ja: '地域名を入力してください（例：`/l Orchard Road`または`/l Bugis`）。デスクトップでは、共有ボタンよりも入力の方が確実です。',
+                            es: 'Escribe tu zona; por ejemplo `/l Orchard Road` o `/l Bugis`. En ordenadores de sobremesa, escribir es más fiable que usar el botón de compartir.'
                           },
   'loc.desktopNudge':          { en: '💻 On desktop? Telegram shares a map-pick, not GPS. If this is wrong, type /l <your area>.',
                        fr: '💻 Sur ordinateur ? Telegram partage un point sur carte, pas le GPS. Si c’est faux, tapez /l <votre lieu>.',
-                       de: '💻 Auf dem Desktop? Telegram teilt eine Kartenposition, nicht GPS. Falls dies nicht zutrifft, gib /l ein.<your area> Die' },
+                       de: '💻 Auf dem Desktop? Telegram teilt eine Kartenposition, nicht GPS. Falls das falsch ist, gib /l <your area> ein.' },
   // v0.59.6: ensureLocation prompts (the "two messages" /hidden bug).
   'location.shareLabel':       { en: '📍 Share your location once so {label} uses your locale (or type `/location <place name>` to set it manually).',
                           fr: '📍 Partagez votre position une fois pour que {label} utilise votre lieu (ou tapez `/location <nom du lieu>` pour le définir manuellement).',
                           de: '📍 Teile deinen Standort einmalig, damit {label} deine Region verwendet (oder gib `/location <place name>` ein, um ihn manuell festzulegen).',
                           zh: '📍 分享一次您的位置，以便 {label} 使用您的语言环境（或输入 `/location <place name>` 手动设置）。',
-                          ja: '📍 一度位置情報を共有すると、 {label} であなたの地域設定が使用されます（または、 `/location <place name>` を入力して手動で設定します）。' },
+                          ja: '📍 一度位置情報を共有すると、{label} であなたの地域設定が使用されます（または、`/location <place name>` を入力して手動で設定します）。' },
   'location.current':          { en: '📍 Current: {addr}{age}', fr: '📍 Actuel : {addr}{age}' ,
-                       id: '📍 Alamat saat ini: {addr} {age}',
-                       ru: '📍 Текущий адрес: {addr} {age}',
-                       de: '📍 Aktuell: {addr} {age}',
-                       zh: '📍 当前地址： {addr} {age}',
-                       ja: '📍 現在地: {addr} {age}',
-                       es: '📍 Actual: {addr} {age}'
+                       id: '📍 Alamat saat ini: {addr}{age}',
+                       ru: '📍 Текущий адрес: {addr}{age}',
+                       de: '📍 Aktuell: {addr}{age}',
+                       zh: '📍 当前地址：{addr}{age}',
+                       ja: '📍 現在地: {addr}{age}',
+                       es: '📍 Actual: {addr}{age}'
                      },
   'location.age.justShared':   { en: ' (just shared)', fr: ' (à l’instant)' ,
-                              id: '(baru saja dibagikan)',
-                              ru: '(Только что поделились)',
-                              de: '(gerade geteilt)',
+                              id: ' (baru saja dibagikan)',
+                              ru: ' (только что)',
+                              de: ' (gerade geteilt)',
                               zh: '（刚刚分享）',
                               ja: '（共有したばかり）',
-                              es: '(recién compartido)'
+                              es: ' (recién compartido)'
                             },
   'location.age.minAgo':       { en: ' ({n} min ago)', fr: ' (il y a {n} min)' ,
-                          id: '( {n} menit yang lalu)',
-                          ru: '( {n} минут назад)',
-                          de: '(vor {n} Minuten)',
-                          zh: '（ {n}分钟前）',
-                          ja: '( {n}分前)',
-                          es: '(hace {n} minutos)'
+                          id: ' ({n} menit yang lalu)',
+                          ru: ' ({n} минут назад)',
+                          de: ' (vor {n} Minuten)',
+                          zh: '（{n}分钟前）',
+                          ja: ' ({n}分前)',
+                          es: ' (hace {n} minutos)'
                         },
   'location.age.hourAgo':      { en: ' ({h} h {m} min ago)', fr: ' (il y a {h} h {m} min)' ,
-                           id: '( {h} h {m} menit yang lalu)',
-                           ru: '( {h} ч {m} мин назад)',
-                           de: '( {h} h {m} min ago)',
-                           zh: '（ {h}小时{m}分钟前）',
-                           ja: '( {h}時間{m}分前)',
-                           es: '( {h} h {m} minutos)'
+                           id: ' ({h} jam {m} menit yang lalu)',
+                           ru: ' ({h} ч {m} мин назад)',
+                           de: ' (vor {h} Std. {m} Min.)',
+                           zh: '（{h}小时{m}分钟前）',
+                           ja: ' ({h}時間{m}分前)',
+                           es: ' (hace {h} h {m} min)'
                          },
 
   // v0.61.84 — wake-from-idle location re-confirmation prompt. Fired on
@@ -1728,25 +1632,25 @@ const STRINGS = {
                        },
   'wake.keepBtn':              { en: '✅ Stay here', fr: '✅ Rester ici' ,
                    id: '✅ Tetap di sini',
-                   ru: '✅ Оставайтесь здесь',
+                   ru: '✅ Остаться здесь',
                    de: '✅ Hier bleiben',
                    zh: '✅ 留在这里',
-                   ja: '✅ ここに滞在してください',
-                   es: '✅ Quédate aquí'
+                   ja: '✅ ここのままにする',
+                   es: '✅ Quedarme aquí'
                  },
   'wake.newBtn':               { en: '📍 New location', fr: '📍 Nouvelle position' ,
                   id: '📍 Lokasi baru',
                   ru: '📍 Новое местоположение',
                   de: '📍 Neuer Standort',
                   zh: '📍 新地点',
-                  ja: '📍新店舗',
+                  ja: '📍 新しい場所',
                   es: '📍 Nueva ubicación'
                 },
   'wake.kept':                 { en: '👍 Keeping your saved location.', fr: '👍 Position enregistrée conservée.' ,
-                id: '👍 Menyimpan lokasi Anda.',
-                ru: '👍 Сохранение вашего местоположения.',
+                id: '👍 Lokasi tersimpan Anda dipertahankan.',
+                ru: '👍 Сохранённое местоположение оставлено.',
                 de: '👍 Dein gespeicherter Standort bleibt erhalten.',
-                zh: '👍 保存您的位置。',
+                zh: '👍 已保留您保存的位置。',
                 ja: '👍 保存した位置情報を保持します。',
                 es: '👍 Conservando tu ubicación guardada.'
               },
@@ -1769,15 +1673,15 @@ const STRINGS = {
                },
   'wake2.body':                { en: '👋 <b>Welcome back to Soleat</b>\n\nYour device now appears to be near: <i>{deviceStreet}</i>\n\nSoleat is still using your saved search anchor:\n<b>{anchor}</b>\n\nContinue searching from the anchor, or update to your current location?\n\n<i>You can also type /l to search from another place, for example:\n/l Orchard Road\n/l IOI City Mall</i>',
                                  fr: '👋 <b>Content de vous revoir sur Soleat</b>\n\nVotre appareil semble être près de : <i>{deviceStreet}</i>\n\nSoleat utilise toujours votre point de recherche enregistré :\n<b>{anchor}</b>\n\nContinuer depuis ce point, ou utiliser votre position actuelle ?\n\n<i>Vous pouvez aussi taper /l pour chercher depuis un autre lieu, par exemple :\n/l Orchard Road\n/l IOI City Mall</i>' ,
-                 ru: '👋 <b>Добро пожаловать обратно в Soleat</b>\n\nВаше устройство, похоже, находится рядом с: <i> {deviceStreet} </i>\n\nSoleat по-прежнему использует сохраненный вами якорь поиска:\n<b> {anchor} </b>\n\nПродолжить поиск с указанной точки или обновить данные, указав текущее местоположение?\n\n<i>Вы также можете ввести /l для поиска из другого места, например:\n/l Орчард Роуд\n/l Торговый центр IOI City Mall</i>',
-                 de: '👋 <b>Willkommen zurück bei Soleat</b>\n\nIhr Gerät befindet sich nun in der Nähe von: <i> {deviceStreet} </i>\n\nSoleat verwendet weiterhin Ihren gespeicherten Suchanker:\n<b> {anchor} </b>\n\nSuche vom Ausgangspunkt aus fortsetzen oder zu Ihrem aktuellen Standort wechseln?\n\n<i>Sie können auch /l eingeben, um von einem anderen Ort aus zu suchen, zum Beispiel:\n/l Orchard Road\n/l IOI City Mall</i>',
-                 zh: '👋 <b>欢迎回到索莱特</b>\n\n您的设备现在似乎位于： <i> {deviceStreet} </i>\n\nSoleat 仍在使用您保存的搜索锚点：\n<b> {anchor} </b>\n\n继续从锚点搜索，还是更新到您当前的位置？\n\n<i>您也可以输入 /l 从其他位置进行搜索，例如：\n/l 乌节路\n/l IOI城市购物中心</i>',
-                 ja: '👋 <b>ソリアットへようこそ</b>\n\nお使いのデバイスは現在、 <i> {deviceStreet} </i>付近にあります。\n\nSoleatは、保存済みの検索アンカーをまだ使用しています。\n<b> {anchor} </b>\n\nアンカー地点から検索を続けるか、現在地へ更新するか？\n\n<i>また、 /l と入力して別の場所から検索することもできます。例:\n/l オーチャードロード\n/l IOIシティモール</i>',
-                 es: '👋 <b>Bienvenido de nuevo a Soleat</b>\n\nTu dispositivo ahora parece estar cerca de: <i> {deviceStreet} </i>\n\nSoleat sigue utilizando el ancla de búsqueda guardada:\n<b> {anchor} </b>\n\n¿Continuar la búsqueda desde el ancla o actualizar a su ubicación actual?\n\n<i>También puedes escribir /l para buscar desde otro lugar, por ejemplo:\n/l Orchard Road\n/l IOI City Mall</i>'
+                 ru: '👋 <b>Добро пожаловать обратно в Soleat</b>\n\nВаше устройство, похоже, находится рядом с: <i>{deviceStreet}</i>\n\nSoleat по-прежнему использует сохраненный вами якорь поиска:\n<b>{anchor}</b>\n\nПродолжить поиск с указанной точки или обновить данные, указав текущее местоположение?\n\n<i>Вы также можете ввести /l для поиска из другого места, например:\n/l Орчард Роуд\n/l Торговый центр IOI City Mall</i>',
+                 de: '👋 <b>Willkommen zurück bei Soleat</b>\n\nIhr Gerät befindet sich nun in der Nähe von: <i>{deviceStreet}</i>\n\nSoleat verwendet weiterhin Ihren gespeicherten Suchanker:\n<b>{anchor}</b>\n\nSuche vom Ausgangspunkt aus fortsetzen oder zu Ihrem aktuellen Standort wechseln?\n\n<i>Sie können auch /l eingeben, um von einem anderen Ort aus zu suchen, zum Beispiel:\n/l Orchard Road\n/l IOI City Mall</i>',
+                 zh: '👋 <b>欢迎回到 Soleat</b>\n\n您的设备现在似乎位于：<i>{deviceStreet}</i>\n\nSoleat 仍在使用您保存的搜索锚点：\n<b>{anchor}</b>\n\n继续从锚点搜索，还是更新到您当前的位置？\n\n<i>您也可以输入 /l 从其他位置进行搜索，例如：\n/l 乌节路\n/l IOI City Mall</i>',
+                 ja: '👋 <b>Soleatへようこそ</b>\n\nお使いのデバイスは現在、<i>{deviceStreet}</i>付近にあります。\n\nSoleatは、保存済みの検索アンカーをまだ使用しています。\n<b>{anchor}</b>\n\nアンカー地点から検索を続けるか、現在地へ更新するか？\n\n<i>また、/l と入力して別の場所から検索することもできます。例:\n/l Orchard Road\n/l IOI City Mall</i>',
+                 es: '👋 <b>Bienvenido de nuevo a Soleat</b>\n\nTu dispositivo ahora parece estar cerca de: <i>{deviceStreet}</i>\n\nSoleat sigue utilizando el ancla de búsqueda guardada:\n<b>{anchor}</b>\n\n¿Continuar la búsqueda desde el ancla o actualizar a tu ubicación actual?\n\n<i>También puedes escribir /l para buscar desde otro lugar, por ejemplo:\n/l Orchard Road\n/l IOI City Mall</i>'
                },
   'wake2.btnCurrent':          { en: '📍 Use current location', fr: '📍 Position actuelle' ,
                        id: '📍 Gunakan lokasi saat ini',
-                       ru: '📍 Укажите текущее местоположение',
+                       ru: '📍 Использовать текущее местоположение',
                        de: '📍 Aktuellen Standort verwenden',
                        zh: '📍 使用当前位置',
                        ja: '📍 現在地を使用',
@@ -1785,32 +1689,32 @@ const STRINGS = {
                      },
   'wake2.btnKeep':             { en: '✅ Keep earlier location', fr: '✅ Garder le précédent' ,
                     id: '✅ Pertahankan lokasi sebelumnya',
-                    ru: '✅ Сохраните предыдущее местоположение',
+                    ru: '✅ Оставить прежнее местоположение',
                     de: '✅ Früheren Standort beibehalten',
                     zh: '✅ 保留先前的位置',
                     ja: '✅ 以前の場所を保持する',
-                    es: '✅ Mantén la ubicación anterior'
+                    es: '✅ Mantener la ubicación anterior'
                   },
   'wake2.btnAnother':          { en: '🗺 Set another location', fr: '🗺 Définir un autre lieu' ,
                        id: '🗺 Tetapkan lokasi lain',
-                       ru: '🗺 Укажите другое местоположение',
+                       ru: '🗺 Указать другое местоположение',
                        de: '🗺 Einen anderen Standort festlegen',
                        zh: '🗺 设置其他位置',
-                       ja: '🗺別の場所を設定する',
+                       ja: '🗺 別の場所を設定する',
                        es: '🗺 Establecer otra ubicación'
                      },
   'wake2.currentApplied':      { en: '👍 Anchor updated to <i>{street}</i>.', fr: '👍 Point mis à jour vers <i>{street}</i>.' ,
-                           id: '👍 Jangkar diperbarui menjadi <i>{street}</i> .',
-                           ru: '👍 Якорь обновлен до <i>{street}</i> .',
-                           de: '👍 Anchor aktualisiert auf <i>{street}</i> .',
-                           zh: '👍 锚点已更新<i>{street}</i> 。',
-                           ja: '👍 アンカーが更新されました<i>{street}</i> 。',
-                           es: '👍 Anchor actualizado a <i>{street}</i> .'
+                           id: '👍 Titik acuan pencarian diperbarui ke <i>{street}</i>.',
+                           ru: '👍 Якорь обновлен до <i>{street}</i>.',
+                           de: '👍 Anker aktualisiert auf <i>{street}</i>.',
+                           zh: '👍 锚点已更新为 <i>{street}</i>。',
+                           ja: '👍 アンカーを <i>{street}</i> に更新しました。',
+                           es: '👍 Ancla actualizada a <i>{street}</i>.'
                          },
   'wake2.kept':                { en: '👍 Keeping your saved search anchor.', fr: '👍 Point de recherche conservé.' ,
-                 id: '👍 Mempertahankan tautan pencarian tersimpan Anda.',
-                 ru: '👍 Сохранение сохраненного якоря поиска.',
-                 de: '👍 Ihre gespeicherte Suchanfrage bleibt erhalten.',
+                 id: '👍 Titik acuan pencarian tersimpan Anda dipertahankan.',
+                 ru: '👍 Сохранённый якорь поиска оставлен.',
+                 de: '👍 Ihr gespeicherter Suchanker bleibt erhalten.',
                  zh: '👍 保留您保存的搜索锚点。',
                  ja: '👍 保存した検索アンカーを保持します。',
                  es: '👍 Conservando tu ancla de búsqueda guardada.'
@@ -1819,10 +1723,10 @@ const STRINGS = {
                         fr: 'Tapez /l <lieu> pour définir un nouveau point — par exemple /l Orchard Road ou /l IOI City Mall. Ou touchez 📍 ci-dessous pour partager une position GPS fraîche.' },
   'wake2.offerExpired':        { en: '⏱ That share expired. Tap /l to set a new anchor.',
                          fr: '⏱ Ce partage a expiré. Tapez /l pour définir un nouveau point.',
-                         id: '⏱ Share tersebut telah kedaluwarsa. Ketuk /l untuk mengatur anchor baru.',
-                         ru: '⏱ Срок действия этой публикации истек. Нажмите /l , чтобы установить новый якорь.',
-                         de: '⏱ Diese Freigabe ist abgelaufen. Tippen Sie auf /l , um einen neuen Anker festzulegen.',
-                         es: '⏱ Esa acción compartida ha caducado. Pulsa /l para establecer un nuevo enlace.' },
+                         id: '⏱ Berbagi lokasi tersebut telah kedaluwarsa. Ketuk /l untuk mengatur titik acuan baru.',
+                         ru: '⏱ Срок действия этой публикации истек. Нажмите /l, чтобы установить новый якорь.',
+                         de: '⏱ Diese Freigabe ist abgelaufen. Tippen Sie auf /l, um einen neuen Anker festzulegen.',
+                         es: '⏱ Esa ubicación compartida ha caducado. Pulsa /l para establecer una nueva ancla.' },
 
   // v0.59.3 — one-map buttons for transport sub-views.
   'transport.map.incidentsCaption': { en: '🗺 View {n} incidents on one map:', fr: '🗺 Voir les {n} incidents sur une carte :' ,
@@ -1830,7 +1734,7 @@ const STRINGS = {
                                      ru: '🗺 Отобразить {n} инцидентов на одной карте:',
                                      de: '🗺 {n} Vorfälle auf einer Karte anzeigen:',
                                      zh: '🗺 在一张地图上查看{n}起事件：',
-                                     ja: '🗺 1つの地図で{n}の事件を表示：',
+                                     ja: '🗺 1つの地図で{n}件の交通障害を表示：',
                                      es: '🗺 Visualiza {n} incidentes en un solo mapa:'
                                    },
   'transport.map.incidentsBtn':     { en: 'Show {n} incidents on the Map', fr: 'Afficher {n} incidents sur la carte' ,
@@ -1838,7 +1742,7 @@ const STRINGS = {
                                  ru: 'Показать {n} инцидентов на карте',
                                  de: '{n} Vorfälle auf der Karte anzeigen',
                                  zh: '在地图上显示{n}起事件',
-                                 ja: '地図上に{n}の事件を表示する',
+                                 ja: '地図上に{n}件の交通障害を表示',
                                  es: 'Mostrar {n} incidentes en el mapa'
                                },
   'transport.map.busStopsCaption':  { en: '🗺 View {n} bus stops on one map:', fr: '🗺 Voir les {n} arrêts sur une carte :' ,
@@ -1847,17 +1751,17 @@ const STRINGS = {
                                     de: '🗺 {n} Bushaltestellen auf einer Karte anzeigen:',
                                     zh: '🗺 在一张地图上查看{n}个公交车站：',
                                     ja: '🗺 1つの地図上に{n}個のバス停を表示：',
-                                    es: '🗺 Vea {n} paradas de autobús en un solo mapa:'
+                                    es: '🗺 Visualiza {n} paradas de autobús en un solo mapa:'
                                   },
   // v0.60.61 — relabelled per Human Lead. Standardise on the 🚏
   // bus-stop emoji + drop the literal "on map" suffix (it's
   // implied by the button context).
   'transport.map.busStopsBtn':      { en: 'Show all {n} bus stops', fr: 'Voir les {n} arrêts de bus' ,
                                 id: 'Tampilkan semua {n} halte bus',
-                                ru: 'Показать все {n} автобусные остановки',
+                                ru: 'Показать все {n} автобусных остановок',
                                 de: 'Alle {n} Bushaltestellen anzeigen',
-                                zh: '显示所有{n}公交车站',
-                                ja: 'すべての{n}バス停を表示する',
+                                zh: '显示全部 {n} 个公交车站',
+                                ja: '{n}件のバス停をすべて表示',
                                 es: 'Mostrar todas las {n} paradas de autobús'
                               },
   'transport.map.stationsCaption':  { en: '🗺 View {n} stations on one map:', fr: '🗺 Voir les {n} stations sur une carte :' ,
@@ -1872,11 +1776,11 @@ const STRINGS = {
   // "stations on map". Call site (index.js runTransportTrain)
   // interpolates {n} from the slim list length.
   'transport.map.stationsBtn':      { en: 'View {n} Train Stations', fr: 'Voir {n} stations de train' ,
-                                id: 'Lihat Stasiun Kereta Api {n}',
-                                ru: 'Посмотреть {n} Железнодорожные станции',
-                                de: '{n} anzeigen',
-                                zh: '查看{n}火车站',
-                                ja: '{n}駅を表示する',
+                                id: 'Lihat {n} Stasiun Kereta',
+                                ru: 'Показать {n} станций метро',
+                                de: '{n} MRT-Stationen anzeigen',
+                                zh: '查看 {n} 个地铁站',
+                                ja: '{n}件の駅を表示',
                                 es: 'Ver {n} estaciones de tren'
                               },
 
@@ -1887,12 +1791,12 @@ const STRINGS = {
   // on the station's place sheet with live arrival times. The chat
   // send is HTML parse_mode (see runTransportTrain in index.js).
   'transport.train.stationRow':     { en: '{name} · {dist}{crowd} <a href="{gmapsUrl}">↗</a>', fr: '{name} · {dist}{crowd} <a href="{gmapsUrl}">↗</a>' ,
-                                 id: '{name} · {dist}{crowd}  <a href="{gmapsUrl}">↗</a>',
-                                 ru: '{name} · {dist}{crowd}  <a href="{gmapsUrl}">↗</a>',
-                                 de: '{name} · {dist}{crowd}  <a href="{gmapsUrl}">↗</a>',
-                                 zh: '{name} · {dist}{crowd}  <a href="{gmapsUrl}">↗</a>',
-                                 ja: '{name} · {dist}{crowd}  <a href="{gmapsUrl}">↗</a>',
-                                 es: '{name} · {dist}{crowd}  <a href="{gmapsUrl}">↗</a>'
+                                 id: '{name} · {dist}{crowd} <a href="{gmapsUrl}">↗</a>',
+                                 ru: '{name} · {dist}{crowd} <a href="{gmapsUrl}">↗</a>',
+                                 de: '{name} · {dist}{crowd} <a href="{gmapsUrl}">↗</a>',
+                                 zh: '{name} · {dist}{crowd} <a href="{gmapsUrl}">↗</a>',
+                                 ja: '{name} · {dist}{crowd} <a href="{gmapsUrl}">↗</a>',
+                                 es: '{name} · {dist}{crowd} <a href="{gmapsUrl}">↗</a>'
                                },
 
   // v0.59.4 — /hidden chrome localisation.
@@ -1931,7 +1835,7 @@ const STRINGS = {
   // v0.59.4 — single-pick result-card "Nearby carparks" map button.
   'card.carparkMapBtn':           { en: '🅿️ Nearby carparks on map', fr: '🅿️ Parkings proches sur la carte' ,
                          id: '🅿️ Lokasi parkir terdekat di peta',
-                         ru: '🅿️ Ближайшие парковки отмечены на карте',
+                         ru: '🅿️ Ближайшие парковки на карте',
                          de: '🅿️ Parkplätze in der Nähe auf der Karte',
                          zh: '🅿️ 地图上的附近停车场',
                          ja: '🅿️ 地図上の近隣駐車場',
@@ -1992,11 +1896,11 @@ const STRINGS = {
   'privacy.error':                { en: 'Sorry, /privacy hit an error. Please try again in a moment.',
                                     fr: 'Désolé, /privacy a rencontré une erreur. Veuillez réessayer dans un instant.' ,
                     id: 'Maaf, /privacy mengalami kesalahan. Silakan coba lagi sebentar lagi.',
-                    ru: 'Извините, /privacy произошла ошибка. Пожалуйста, попробуйте еще раз через минуту.',
+                    ru: 'Извините, в /privacy произошла ошибка. Пожалуйста, попробуйте ещё раз через минуту.',
                     de: 'Entschuldigung, beim Aufruf /privacy ist ein Fehler aufgetreten. Bitte versuchen Sie es in Kürze erneut.',
-                    es: 'Lo sentimos, se ha producido un error /privacy . Inténtalo de nuevo en un momento.'
+                    es: 'Lo sentimos, se ha producido un error en /privacy. Inténtalo de nuevo en un momento.'
                   ,
-                    zh: '抱歉， /privacy 出错了。请稍后再试。'
+                    zh: '抱歉，/privacy 出错了。请稍后再试。'
                   },
 
   // v0.60.169 — /legal body migrated from a hard-coded English string
@@ -2073,13 +1977,13 @@ const STRINGS = {
                   de: 'Entschuldigung, /legal ist auf einen Fehler gestoßen. Bitte versuchen Sie es in Kürze erneut.',
                   es: 'Lo sentimos, /legal ha dado un error. Inténtalo de nuevo en un momento.'
                 ,
-                  zh: '抱歉， /legal 出错了。请稍后再试。'
+                  zh: '抱歉，/legal 出错了。请稍后再试。'
                 },
 
   // v0.59.13 — /recognised localisation
   'recognised.heading':           { en: '🏆 *Singapore — recognised dining*', fr: '🏆 *Singapour — restaurants reconnus*' ,
                          id: '🏆 *Singapura — restoran ternama*',
-                         ru: '🏆 *Сингапур — признанный ресторан*',
+                         ru: '🏆 *Сингапур — признанные рестораны*',
                          de: '🏆 *Singapur – anerkannte Gastronomie*',
                          zh: '🏆 *新加坡 — 认可的餐饮*',
                          ja: '🏆 *シンガポール - 認定レストラン*',
@@ -2098,7 +2002,7 @@ const STRINGS = {
                          ru: '🍜 MICHELIN Bib Gourmand',
                          de: '🍜 MICHELIN Bib Gourmand',
                          zh: '🍜 米其林必比登推介',
-                         ja: '🍜ミシュラン・ビブグルマン',
+                         ja: '🍜 ミシュラン・ビブグルマン',
                          es: '🍜 MICHELIN Bib Gourmand'
                        },
   'recognised.btn.star':          { en: '⭐ MICHELIN Star', fr: '⭐ MICHELIN Étoile' ,
@@ -2106,7 +2010,7 @@ const STRINGS = {
                           ru: '⭐ Звезда Мишлен',
                           de: '⭐ MICHELIN Stern',
                           zh: '⭐米其林星级',
-                          ja: '⭐ミシュラン星付き',
+                          ja: '⭐ ミシュラン星付き',
                           es: '⭐ Estrella MICHELIN'
                         },
   'recognised.btn.asia50':        { en: "🌏 Asia's 50 Best Restaurants", fr: '🌏 Asia\'s 50 Best Restaurants' ,
@@ -2130,29 +2034,29 @@ const STRINGS = {
   'share.empty':                  { en: 'No recent picks yet. Run /cuisine or /hidden first, then /share to forward to a friend.',
                                     fr: 'Aucun choix récent. Lancez /cuisine ou /hidden d\'abord, puis /share pour partager avec un ami.' ,
                   id: 'Belum ada pilihan terbaru. Jalankan /cuisine atau /hidden terlebih dahulu, lalu /share untuk meneruskan ke teman.',
-                  ru: 'Пока нет недавних подборок. Сначала запустите /cuisine или /hidden , затем /share , чтобы переслать другу.',
-                  de: 'Noch keine aktuellen Empfehlungen. Führe zuerst /cuisine oder /hidden , dann /share , um die Anfrage an einen Freund weiterzuleiten.',
-                  es: 'Aún no hay selecciones recientes. Ejecuta primero /cuisine o /hidden , luego /share para reenviarlo a un amigo.'
+                  ru: 'Пока нет недавних подборок. Сначала запустите /cuisine или /hidden, затем /share, чтобы переслать другу.',
+                  de: 'Noch keine aktuellen Empfehlungen. Nutze zuerst /cuisine oder /hidden, dann /share, um eine Empfehlung an einen Freund weiterzuleiten.',
+                  es: 'Aún no hay selecciones recientes. Ejecuta primero /cuisine o /hidden, luego /share para reenviarlo a un amigo.'
                 ,
-                  zh: '目前还没有精选内容。先运行 /cuisine 或 /hidden ，再运行 /share 转发给朋友。',
+                  zh: '目前还没有精选内容。先运行 /cuisine 或 /hidden，再运行 /share 转发给朋友。',
                   ja: '最近のおすすめはまだありません。まず /cuisine または /hidden を実行し、次に /share を実行して友達に転送してください。'
                 },
   'share.prompt':                 { en: 'Pick a venue to forward to your friend ({n} recent):',
                                     fr: 'Choisissez un lieu à partager avec votre ami ({n} récents) :' ,
-                   id: 'Pilih tempat untuk diteruskan ke teman Anda ( {n} baru-baru ini):',
-                   ru: 'Выберите место, куда переслать сообщение вашему другу ( {n} ):',
-                   de: 'Wählen Sie einen Veranstaltungsort aus, den Sie an Ihren Freund weiterleiten möchten ( {n} kürzlich):',
-                   zh: '选择要转发给朋友的地点（ {n}最近的）：',
-                   ja: '友達に転送する場所を選択してください（最近の投稿数： {n} ）：',
-                   es: 'Elige un lugar para reenviar a tu amigo ( {n} reciente):'
+                   id: 'Pilih tempat untuk diteruskan ke teman Anda ({n} baru-baru ini):',
+                   ru: 'Выберите заведение, чтобы отправить его другу (последние {n}):',
+                   de: 'Wählen Sie ein Lokal aus, das Sie an Ihren Freund weiterleiten möchten ({n} zuletzt):',
+                   zh: '选择要转发给朋友的地点（最近 {n} 个）：',
+                   ja: '友達に転送する場所を選択してください（最近の{n}件）：',
+                   es: 'Elige un lugar para reenviar a tu amigo ({n} recientes):'
                  },
   'share.mintFailed':             { en: "Sorry, I couldn't mint share links right now.",
                                     fr: 'Désolé, impossible de générer les liens de partage pour le moment.' ,
                        id: 'Maaf, saya tidak bisa membuat tautan berbagi saat ini.',
-                       ru: 'Извините, сейчас я не могу поделиться ссылками.',
+                       ru: 'Извините, сейчас не удалось создать ссылки для отправки.',
                        de: 'Tut mir leid, ich konnte im Moment keine Links zum Teilen erstellen.',
-                       zh: '抱歉，我现在无法分享链接。',
-                       ja: '申し訳ありませんが、今はリンクを共有できません。',
+                       zh: '抱歉，我现在无法生成分享链接。',
+                       ja: '申し訳ありませんが、現在、共有リンクを作成できません。',
                        es: 'Lo siento, no puedo generar enlaces para compartir en este momento.'
                      },
   'share.error':                  { en: 'Sorry, /share hit an error.',
@@ -2162,98 +2066,98 @@ const STRINGS = {
                   de: 'Entschuldigung, /share ist auf einen Fehler gestoßen.',
                   es: 'Lo sentimos, /share ha dado un error.'
                 ,
-                  zh: '抱歉， /share 发生错误。',
-                  ja: '申し訳ありません、 /share エラーが発生しました。'
+                  zh: '抱歉，/share 发生错误。',
+                  ja: '申し訳ありません、/share エラーが発生しました。'
                 },
 
   // v0.59.13 — /buddy localisation
   'buddy.on.body':                { en: '👥 *Buddy mode ON.*\n\nWhen you receive Sanctuary picks, a 👥 _Connect_ button appears next to venues where another opted-in soleat user is also heading in the next 60 min. Both of you must confirm before first names + Telegram handles are revealed. Daily cap: 5 connections / 24 h. `/buddy block <chat_id>` to block. `/buddy report <chat_id> <reason>` to flag. `/buddy off` to disable.\n\n⚠ _Pilot — meet only in public, treat as a stranger, trust your gut._',
                                     fr: '👥 *Mode buddy ACTIVÉ.*\n\nLorsque vous recevez des sélections sanctuaires, un bouton 👥 _Connecter_ apparaît à côté des lieux où un autre utilisateur soleat opté-in se rend dans les 60 prochaines minutes. Vous devez tous deux confirmer avant que les prénoms et identifiants Telegram soient révélés. Limite quotidienne : 5 connexions / 24 h. `/buddy block <chat_id>` pour bloquer. `/buddy report <chat_id> <raison>` pour signaler. `/buddy off` pour désactiver.\n\n⚠ _Pilote — rencontrez uniquement en public, traitez comme un inconnu, faites confiance à votre instinct._' ,
-                    id: '👥 *Mode Teman AKTIF.*\n\nSaat Anda menerima pilihan Sanctuary, tombol 👥 _Hubungkan_ akan muncul di sebelah tempat-tempat yang juga akan dikunjungi oleh pengguna soleat lain yang telah mendaftar dalam 60 menit berikutnya. Anda berdua harus mengkonfirmasi sebelum nama depan + nama pengguna Telegram ditampilkan. Batas harian: 5 koneksi / 24 jam. `/buddy block<chat_id> ` untuk memblokir. `/buddy report<chat_id><reason> ` untuk menandai. `/buddy off` untuk menonaktifkan.\n\n⚠ _Pilot — hanya bertemu di tempat umum, perlakukan seperti orang asing, percayai insting Anda._',
-                    ru: '👥 *Режим "Друг в команде" включен.*\n\nКогда вы получаете предложения от Sanctuary, рядом с местами, куда другой пользователь Soleat, также подписавшийся на рассылку, направляется в течение следующих 60 минут, появляется кнопка 👥 _Подключиться_. Оба пользователя должны подтвердить свое согласие, прежде чем будут отображены их имена и ники в Telegram. Дневной лимит: 5 подключений / 24 часа. `/buddy block<chat_id> ` для блокировки. `/buddy report<chat_id><reason> ` для установки флага. `/buddy off` для отключения.\n\n⚠ _Пилот — встречайтесь только на публике, относитесь к людям как к незнакомцам, доверяйте своей интуиции._',
-                    de: '👥 *Buddy-Modus EIN.*\n\nWenn du Sanctuary-Tipps erhältst, erscheint neben Orten, die ein anderer Soleat-Nutzer innerhalb der nächsten 60 Minuten besucht, ein 👥 „Verbinden“-Button. Ihr müsst beide bestätigen, bevor eure Vornamen und Telegram-Namen angezeigt werden. Tägliches Limit: 5 Verbindungen / 24 Stunden. `/buddy block<chat_id> ` zum Blockieren. `/buddy report<chat_id><reason> ` zum Flaggen. `/buddy off` zum Deaktivieren.\n\n⚠ _Pilot — Treffen Sie sich nur an öffentlichen Orten, behandeln Sie die Person wie einen Fremden, vertrauen Sie Ihrem Bauchgefühl._',
-                    zh: '👥 *好友模式开启*\n\n当您收到“避难所”推荐时，如果其他已选择加入“避难所”的用户也将在接下来的 60 分钟内前往某个地点，该地点旁边会出现一个 👥 _Connect_ 按钮。双方必须确认后，才能显示彼此的名字和 Telegram 用户名。每日上限：5 个连接/24 小时。 `/buddy block <chat_id>` 屏蔽。 `/buddy report <chat_id> <reason>` 举报。 `/buddy off` 禁用。\n\n⚠ _飞行员——只在公共场所见面，像对待陌生人一样对待对方，相信你的直觉。_',
-                    ja: '👥 *バディモードON。*\n\nSanctuaryのおすすめを受け取ると、次の60分以内に別のオプトイン済みのSoleatユーザーが向かう予定の場所の横に👥 _接続_ボタンが表示されます。お互いに確認しないと、名前とTelegramのハンドル名が表示されません。1日あたりの上限: 5接続 / 24時間。 `/buddy block <chat_id>` でブロック。 `/buddy report <chat_id> <reason>` で報告。 `/buddy off` で無効にします。\n\n⚠ _パイロット ― 必ず公共の場所で会い、見知らぬ人のように扱い、自分の直感を信じること。_',
-                    es: '👥 *Modo compañero activado.*\n\nCuando recibas recomendaciones de Sanctuary, aparecerá un botón 👥 _Conectar_ junto a los lugares a los que otro usuario de soleat que haya optado por participar también se dirigirá en los próximos 60 minutos. Ambos debéis confirmar antes de que se muestren los nombres y los nombres de usuario de Telegram. Límite diario: 5 conexiones / 24 h. `/buddy block<chat_id> ` para bloquear. `/buddy report<chat_id><reason> ` para marcar. `/buddy off` para desactivar.\n\n⚠ _Piloto: queda solo en público, trata como a un desconocido, confía en tu instinto._'
+                    id: '👥 *Mode Teman AKTIF.*\n\nSaat Anda menerima pilihan Sanctuary, tombol 👥 _Hubungkan_ akan muncul di sebelah tempat-tempat yang juga akan dikunjungi oleh pengguna soleat lain yang telah mendaftar dalam 60 menit berikutnya. Anda berdua harus mengkonfirmasi sebelum nama depan + nama pengguna Telegram ditampilkan. Batas harian: 5 koneksi / 24 jam. `/buddy block <chat_id>` untuk memblokir. `/buddy report <chat_id> <reason>` untuk melaporkan. `/buddy off` untuk menonaktifkan.\n\n⚠ _Pilot — temui hanya di tempat umum, perlakukan seperti orang asing, percayai insting Anda._',
+                    ru: '👥 *Режим «Друг» включён.*\n\nКогда вы получаете предложения от Sanctuary, рядом с местами, куда в ближайшие 60 минут направляется другой пользователь Soleat, также включивший этот режим, появляется кнопка 👥 _Подключиться_. Оба должны подтвердить, прежде чем будут показаны имена и ники в Telegram. Дневной лимит: 5 подключений / 24 часа. `/buddy block <chat_id>` для блокировки. `/buddy report <chat_id> <reason>` для жалобы. `/buddy off` для отключения.\n\n⚠ _Пилот — встречайтесь только в общественных местах, относитесь к человеку как к незнакомцу, доверяйте своей интуиции._',
+                    de: '👥 *Buddy-Modus EIN.*\n\nWenn du Sanctuary-Tipps erhältst, erscheint neben Orten, die ein anderer Soleat-Nutzer innerhalb der nächsten 60 Minuten besucht, ein 👥 „Verbinden“-Button. Ihr müsst beide bestätigen, bevor eure Vornamen und Telegram-Namen angezeigt werden. Tägliches Limit: 5 Verbindungen / 24 Stunden. `/buddy block <chat_id>` zum Blockieren. `/buddy report <chat_id> <reason>` zum Melden. `/buddy off` zum Deaktivieren.\n\n⚠ _Pilot — triff dich nur an öffentlichen Orten, behandle die Person wie eine fremde Person, vertraue deinem Bauchgefühl._',
+                    zh: '👥 *好友模式开启*\n\n当您收到 Sanctuary 推荐时，如果另一位已加入的 Soleat 用户也将在接下来的 60 分钟内前往某个地点，该地点旁边会出现一个 👥 _连接_ 按钮。双方必须确认后，才能显示彼此的名字和 Telegram 用户名。每日上限：5 个连接/24 小时。`/buddy block <chat_id>` 屏蔽。`/buddy report <chat_id> <reason>` 举报。`/buddy off` 禁用。\n\n⚠ _试运行功能——只在公共场所见面，像对待陌生人一样对待对方，相信您的直觉。_',
+                    ja: '👥 *バディモードON。*\n\nSanctuaryのおすすめを受け取ると、次の60分以内に別のオプトイン済みのSoleatユーザーが向かう予定の場所の横に👥 _接続_ボタンが表示されます。お互いに確認しないと、名前とTelegramのハンドル名が表示されません。1日あたりの上限: 5接続 / 24時間。`/buddy block <chat_id>` でブロック。`/buddy report <chat_id> <reason>` で報告。`/buddy off` で無効にします。\n\n⚠ _試験運用 ― 必ず公共の場所で会い、見知らぬ人のように扱い、自分の直感を信じること。_',
+                    es: '👥 *Modo compañero activado.*\n\nCuando recibas recomendaciones de Sanctuary, aparecerá un botón 👥 _Conectar_ junto a los lugares a los que otro usuario de soleat que haya optado por participar también se dirigirá en los próximos 60 minutos. Los dos tenéis que confirmar antes de que se muestren los nombres y los usuarios de Telegram. Límite diario: 5 conexiones / 24 h. `/buddy block <chat_id>` para bloquear. `/buddy report <chat_id> <reason>` para denunciar. `/buddy off` para desactivar.\n\n⚠ _Piloto: queda únicamente en lugares públicos, trata a la otra persona como a un desconocido, confía en tu instinto._'
                   },
   'buddy.off':                    { en: '👥 Buddy mode OFF.', fr: '👥 Mode buddy DÉSACTIVÉ.' ,
                 id: '👥 Mode teman MATI.',
-                ru: '👥 Режим "Друг" выключен.',
+                ru: '👥 Режим «Друг» выключен.',
                 de: '👥 Buddy-Modus AUS.',
-                zh: '👥好友模式已关闭。',
+                zh: '👥 好友模式已关闭。',
                 ja: '👥 バディモードOFF。',
                 es: '👥 Modo compañero DESACTIVADO.'
               },
   'buddy.block.usage':            { en: 'Usage: `/buddy block <chat_id>`. Get the chat ID from a previous match offer.',
                                     fr: 'Usage : `/buddy block <chat_id>`. Récupérez l\'ID de chat depuis une offre de match précédente.' ,
-                        id: 'Penggunaan: `/buddy block<chat_id> ` ID obrolan dari penawaran perjodohan sebelumnya.',
-                        ru: 'Использование: `/buddy block<chat_id> ` . Получите идентификатор чата из предыдущего предложения о матче.',
-                        de: 'Verwendung: `/buddy block<chat_id> ` Holen Sie sich die Chat-ID aus einem vorherigen Spielangebot.',
-                        zh: '用法： `/buddy block<chat_id> ` . 从之前的匹配邀请中获取聊天 ID。',
-                        ja: '使用方法: `/buddy block<chat_id> ` . 以前のマッチングオファーからチャットIDを取得します。',
-                        es: 'Uso: `/buddy block<chat_id> ` . Obtén el ID de chat de una oferta de coincidencia anterior.'
+                        id: 'Penggunaan: `/buddy block <chat_id>`. Dapatkan ID obrolan dari penawaran kecocokan sebelumnya.',
+                        ru: 'Использование: `/buddy block <chat_id>`. Идентификатор чата возьмите из предыдущего предложения о встрече.',
+                        de: 'Verwendung: `/buddy block <chat_id>`. Die Chat-ID stammt aus einem früheren Match-Angebot.',
+                        zh: '用法：`/buddy block <chat_id>`。从之前的匹配邀请中获取聊天 ID。',
+                        ja: '使用方法: `/buddy block <chat_id>`。以前のマッチングオファーからチャットIDを取得します。',
+                        es: 'Uso: `/buddy block <chat_id>`. Obtén el ID de chat de una oferta de coincidencia anterior.'
                       },
   'buddy.block.ok':               { en: '🚫 Blocked {target}. They will never be matched with you.',
                                     fr: '🚫 {target} bloqué. Vous ne serez plus jamais associé.' ,
                      id: '🚫 {target} diblokir. Mereka tidak akan pernah dipasangkan dengan Anda.',
-                     ru: '🚫 Заблокирован {target} . Они никогда не будут сопоставлены с вами.',
-                     de: '🚫 Blockiert {target} . Diese Person wird Ihnen niemals zugeordnet werden.',
-                     zh: '🚫 已屏蔽{target} 。他们永远不会与您匹配。',
+                     ru: '🚫 {target} заблокирован. Этот пользователь больше не будет вам предложен.',
+                     de: '🚫 Blockiert {target}. Diese Person wird Ihnen niemals zugeordnet werden.',
+                     zh: '🚫 已屏蔽{target}。他们永远不会与您匹配。',
                      ja: '🚫 {target}をブロックしました。今後、このユーザーとマッチングされることはありません。',
-                     es: '🚫 Bloqueado {target} . Nunca se le pondrá en contacto contigo.'
+                     es: '🚫 {target} bloqueado. Nunca se le emparejará contigo.'
                    },
   'buddy.block.cap':              { en: 'Could not block (max 50 blocks reached).',
                                     fr: 'Impossible de bloquer (limite de 50 atteinte).' ,
-                      id: 'Tidak dapat memblokir (maksimal 50 blok tercapai).',
-                      ru: 'Не удалось заблокировать (достигнуто максимальное количество блоков — 50).',
+                      id: 'Tidak dapat memblokir (maksimal 50 pemblokiran tercapai).',
+                      ru: 'Не удалось заблокировать (достигнут максимум — 50 блокировок).',
                       de: 'Blockierung fehlgeschlagen (maximal 50 Blöcke erreicht).',
-                      zh: '无法进行封锁（已达到最大封锁数量 50 个）。',
+                      zh: '无法屏蔽（已达上限 50 个）。',
                       ja: 'ブロックできませんでした（最大ブロック数50に達しました）。',
-                      es: 'No se pudo bloquear (se alcanzó el máximo de 50 bloques).'
+                      es: 'No se pudo bloquear (se alcanzó el máximo de 50 bloqueos).'
                     },
   'buddy.report.usage':           { en: 'Usage: `/buddy report <chat_id> <reason>`.',
                                     fr: 'Usage : `/buddy report <chat_id> <raison>`.' ,
-                         id: 'Penggunaan: `/buddy report<chat_id><reason> ` .',
-                         ru: 'Использование: `/buddy report<chat_id><reason> ` .',
-                         de: 'Verwendung: `/buddy report<chat_id><reason> ` .',
-                         zh: '用法： `/buddy report<chat_id><reason> ` 。',
-                         ja: '使用方法: `/buddy report<chat_id><reason> ` .',
-                         es: 'Uso: `/buddy report<chat_id><reason> ` .'
+                         id: 'Penggunaan: `/buddy report <chat_id> <reason>`.',
+                         ru: 'Использование: `/buddy report <chat_id> <reason>`.',
+                         de: 'Verwendung: `/buddy report <chat_id> <reason>`.',
+                         zh: '用法：`/buddy report <chat_id> <reason>`。',
+                         ja: '使用方法: `/buddy report <chat_id> <reason>`。',
+                         es: 'Uso: `/buddy report <chat_id> <reason>`.'
                        },
   'buddy.report.ok':              { en: "📝 Report logged. {target} is also auto-blocked from your matches. We'll review.",
                                     fr: '📝 Signalement enregistré. {target} est aussi auto-bloqué de vos matches. Nous examinerons.' ,
                       id: '📝 Laporan telah dicatat. {target} juga diblokir secara otomatis dari kecocokan Anda. Kami akan meninjaunya.',
-                      ru: '📝 Сообщение зарегистрировано. {target} также автоматически заблокирован для ваших матчей. Мы рассмотрим его.',
+                      ru: '📝 Жалоба зарегистрирована. {target} также автоматически исключён из ваших подборок. Мы всё проверим.',
                       de: '📝 Bericht protokolliert. {target} wurde automatisch für deine Matches blockiert. Wir prüfen den Vorgang.',
-                      zh: '📝 已记录举报。 {target}已被自动屏蔽，无法匹配。我们将进行审核。',
-                      ja: '📝 報告が記録されました。 {target}はマッチング対象から自動的にブロックされます。確認いたします。',
-                      es: '📝 Se ha registrado un informe. {target} también ha sido bloqueado automáticamente de tus coincidencias. Lo revisaremos.'
+                      zh: '📝 已记录举报。{target}已被自动屏蔽，无法匹配。我们将进行审核。',
+                      ja: '📝 報告が記録されました。{target}はマッチング対象から自動的にブロックされます。確認いたします。',
+                      es: '📝 Denuncia registrada. {target} también ha sido bloqueado automáticamente de tus coincidencias. Lo revisaremos.'
                     },
   'buddy.status':                 { en: '👥 Buddy mode is currently *{state}*. Today\'s connections: {n}/{cap}. Use `/buddy on`, `/buddy off`, `/buddy block <id>`, `/buddy report <id> <reason>`.',
                                     fr: '👥 Le mode buddy est actuellement *{state}*. Connexions aujourd\'hui : {n}/{cap}. Utilisez `/buddy on`, `/buddy off`, `/buddy block <id>`, `/buddy report <id> <raison>`.' ,
-                   id: '👥 Mode teman saat ini adalah * {state} *. Koneksi hari ini: {n} / {cap} . Gunakan `/buddy on` , `/buddy off` , `/buddy block<id> ` , `/buddy report<id><reason> ` .',
-                   ru: '👥 Режим "Друг" в данный момент * {state} *. Количество подключений за сегодня: {n} / {cap} . Используйте `/buddy on` , `/buddy off` , `/buddy block<id> ` , `/buddy report<id><reason> ` .',
-                   de: '👥 Der Buddy-Modus ist aktuell * {state} *. Heutige Verbindungen: {n} / {cap} . Verwenden Sie `/buddy on` , `/buddy off` , `/buddy block<id> ` , `/buddy report<id><reason> ` .',
-                   zh: '👥 好友模式当前处于 * {state} * 状态。今日连接数： {n} / {cap} 。使用`/buddy on` 、 `/buddy off`或`/buddy block<id> ` ， `/buddy report<id><reason> ` 。',
-                   es: '👥 El modo compañero está actualmente en * {state} *. Conexiones de hoy: {n} / {cap} . Usa `/buddy on` , `/buddy off` , `/buddy block<id> ` , `/buddy report<id><reason> ` .'
+                   id: '👥 Mode teman saat ini adalah *{state}*. Koneksi hari ini: {n}/{cap}. Gunakan `/buddy on`, `/buddy off`, `/buddy block <id>`, `/buddy report <id> <reason>`.',
+                   ru: '👥 Режим "Друг" в данный момент *{state}*. Количество подключений за сегодня: {n}/{cap}. Используйте `/buddy on`, `/buddy off`, `/buddy block <id>`, `/buddy report <id> <reason>`.',
+                   de: '👥 Der Buddy-Modus ist aktuell *{state}*. Heutige Verbindungen: {n}/{cap}. Verwenden Sie `/buddy on`, `/buddy off`, `/buddy block <id>`, `/buddy report <id> <reason>`.',
+                   zh: '👥 好友模式当前处于 *{state}* 状态。今日连接数：{n}/{cap}。使用`/buddy on`、`/buddy off`或`/buddy block <id>`，`/buddy report <id> <reason>`。',
+                   es: '👥 El modo compañero está actualmente en *{state}*. Conexiones de hoy: {n}/{cap}. Usa `/buddy on`, `/buddy off`, `/buddy block <id>`, `/buddy report <id> <reason>`.'
                  ,
-                   ja: '👥 バディモードは現在 *{state}* です。今日の接続: {n}/{cap}。 `/buddy on`、 `/buddy off`、 `/buddy block <id>`、 `/buddy report <id> <reason>`を使用してください。'
+                   ja: '👥 バディモードは現在 *{state}* です。今日の接続: {n}/{cap}。`/buddy on`、`/buddy off`、`/buddy block <id>`、`/buddy report <id> <reason>`を使用してください。'
                  },
   'buddy.status.on':              { en: 'ON', fr: 'ACTIVÉ' ,
-                      id: 'PADA',
-                      ru: 'НА',
+                      id: 'AKTIF',
+                      ru: 'ВКЛ',
                       de: 'AN',
-                      zh: '在',
-                      ja: 'の上',
-                      es: 'EN'
+                      zh: '开启',
+                      ja: 'ON',
+                      es: 'ACTIVADO'
                     },
   'buddy.status.off':             { en: 'OFF', fr: 'DÉSACTIVÉ' ,
                        id: 'MATI',
-                       ru: 'ВЫКЛЮЧЕННЫЙ',
+                       ru: 'ВЫКЛ',
                        de: 'AUS',
-                       zh: '离开',
-                       ja: 'オフ',
-                       es: 'APAGADO'
+                       zh: '关闭',
+                       ja: 'OFF',
+                       es: 'DESACTIVADO'
                      },
   'buddy.error':                  { en: 'Sorry, /buddy hit an error.', fr: 'Désolé, /buddy a rencontré une erreur.' ,
                   id: 'Maaf, /buddy mengalami kesalahan.',
@@ -2261,20 +2165,20 @@ const STRINGS = {
                   de: 'Entschuldigung, /buddy ist auf einen Fehler gestoßen.',
                   es: 'Lo siento, /buddy ha dado un error.'
                 ,
-                  zh: '抱歉， /buddy 发生错误。',
-                  ja: '申し訳ありません、 /buddy エラーが発生しました。'
+                  zh: '抱歉，/buddy 发生错误。',
+                  ja: '申し訳ありません、/buddy エラーが発生しました。'
                 },
 
   // v0.59.13 — "Open in Google Maps" buttons added to /carpark,
   // /transport train (nearest stations), /transport bus (nearest stops).
   // Caption + button label for the multi-stop Google Maps directions URL.
   'gmaps.openBtn':                { en: 'Google Map ↗', fr: 'Google Maps ↗' ,
-                    id: 'Peta Google ↗',
-                    ru: 'Карта Google ↗',
+                    id: 'Google Maps ↗',
+                    ru: 'Google Maps ↗',
                     de: 'Google Maps ↗',
                     zh: '谷歌地图 ↗',
-                    ja: 'Googleマップ↗',
-                    es: 'Mapa de Google ↗'
+                    ja: 'Googleマップ ↗',
+                    es: 'Google Maps ↗'
                   },
 
   // v0.59.14 — LTA traffic-incident TYPE label translation. Mapped from
@@ -2290,7 +2194,7 @@ const STRINGS = {
   // are aliased below alongside the prior shorter forms.
   'incident.type.Accident':            { en: 'Accident', fr: 'Accident' ,
                              id: 'Kecelakaan',
-                             ru: 'Несчастный случай',
+                             ru: 'Авария',
                              de: 'Unfall',
                              zh: '事故',
                              ja: '事故',
@@ -2334,7 +2238,7 @@ const STRINGS = {
                                  de: 'Starker Verkehr',
                                  zh: '交通拥堵',
                                  ja: '交通渋滞',
-                                 es: 'Tránsito pesado'
+                                 es: 'Tráfico denso'
                                },
   'incident.type.Misc':                { en: 'Misc.', fr: 'Incident divers' ,
                          id: 'Lain-lain.',
@@ -2346,18 +2250,18 @@ const STRINGS = {
                        },
   'incident.type.MiscIncident':        { en: 'Miscellaneous', fr: 'Incident divers' ,
                                  id: 'Aneka ragam',
-                                 ru: 'Разнообразный',
+                                 ru: 'Прочее',
                                  de: 'Verschiedenes',
-                                 zh: '各种各样的',
+                                 zh: '其他事件',
                                  ja: 'その他',
-                                 es: 'Misceláneas'
+                                 es: 'Varios'
                                },
   'incident.type.Diversion':           { en: 'Diversion', fr: 'Déviation' ,
                               id: 'Pengalihan',
-                              ru: 'Отвлечение',
+                              ru: 'Объезд',
                               de: 'Umleitung',
-                              zh: '导流',
-                              ja: '気晴らし',
+                              zh: '改道',
+                              ja: '迂回',
                               es: 'Desviación'
                             },
   'incident.type.UnattendedVehicle':   { en: 'Unattended Vehicle', fr: 'Véhicule abandonné' ,
@@ -2373,12 +2277,12 @@ const STRINGS = {
                              ru: 'Препятствие',
                              de: 'Hindernis',
                              zh: '障碍',
-                             ja: '障害',
+                             ja: '障害物',
                              es: 'Obstáculo'
                            },
   'incident.type.RoadBlock':           { en: 'Road Block', fr: 'Route bloquée' ,
                               id: 'Penghalang Jalan',
-                              ru: 'Дорожный блокпост',
+                              ru: 'Перекрытие дороги',
                               de: 'Straßensperre',
                               zh: '路障',
                               ja: '道路封鎖',
@@ -2386,11 +2290,11 @@ const STRINGS = {
                             },
   'incident.type.MassDisruption':      { en: 'Mass Disruption', fr: 'Perturbation majeure' ,
                                    id: 'Gangguan Massal',
-                                   ru: 'Массовое нарушение',
-                                   de: 'Massenzerstörung',
-                                   zh: '大规模破坏',
+                                   ru: 'Массовый сбой',
+                                   de: 'Großflächige Störung',
+                                   zh: '大面积中断',
                                    ja: '大規模な混乱',
-                                   es: 'Disrupción masiva'
+                                   es: 'Interrupción generalizada'
                                  },
   'incident.type.Weather':             { en: 'Weather', fr: 'Météo' ,
                             id: 'Cuaca',
@@ -2413,7 +2317,7 @@ const STRINGS = {
                              ru: 'Инцидент',
                              de: 'Vorfall',
                              zh: '事件',
-                             ja: '事件',
+                             ja: '交通障害',
                              es: 'Incidente'
                            },
 
@@ -2423,20 +2327,20 @@ const STRINGS = {
   // the /cuisine chat message + buttons should be French.
   'cuisine.chat.title':           { en: '🍴 Cuisine Picker — Singapore to Johor Bahru',
                                     fr: '🍴 Sélecteur de cuisine — Singapour à Johor Bahru' ,
-                         id: '🍴 Pencari Kuliner — Singapura hingga Johor Bahru',
+                         id: '🍴 Pemilih Kuliner — Singapura hingga Johor Bahru',
                          ru: '🍴 Выбор кухни — из Сингапура в Джохор-Бару',
                          de: '🍴 Kulinarische Auswahl – von Singapur nach Johor Bahru',
-                         zh: '🍴 美食精选 — 新加坡到新山',
-                         ja: '🍴 料理選び — シンガポールからジョホールバルへ',
-                         es: '🍴 Guía de cocina: de Singapur a Johor Bahru'
+                         zh: '🍴 美食选择器 — 新加坡到新山',
+                         ja: '🍴 料理選択ツール — シンガポールからジョホールバルへ',
+                         es: '🍴 Selector de cocina: de Singapur a Johor Bahru'
                        },
   'cuisine.chat.anchored':        { en: '📍 Anchored to your last shared location.',
                                     fr: '📍 Ancré sur votre dernière position partagée.' ,
-                            id: '📍 Terhubung ke lokasi terakhir yang Anda bagikan.',
-                            ru: '📍 Привязано к вашему последнему месту совместного использования.',
+                            id: '📍 Ditambatkan ke lokasi terakhir yang Anda bagikan.',
+                            ru: '📍 Привязано к последнему местоположению, которым вы поделились.',
                             de: '📍 An Ihrem zuletzt geteilten Standort verankert.',
                             zh: '📍 锚定于您上次共享的位置。',
-                            ja: '📍最後に共有した場所に固定されています。',
+                            ja: '📍 最後に共有した場所に固定されています。',
                             es: '📍 Anclado a tu última ubicación compartida.'
                           },
   // v0.59.22 — both strings trimmed per Human Lead 2026-05-07. The
@@ -2447,11 +2351,11 @@ const STRINGS = {
   'cuisine.chat.shareForAccurate':{ en: 'For accurate picks, share your location first.',
                                     fr: 'Pour des choix précis, partagez d’abord votre position.' ,
                                     id: 'Untuk pilihan yang akurat, bagikan lokasi Anda terlebih dahulu.',
-                                    ru: 'Для точного выбора, сначала сообщите свое местоположение.',
-                                    de: 'Für präzise Vorhersagen teilen Sie bitte zuerst Ihren Standort mit.',
-                                    zh: '为了获得准确的选座结果，请先分享您的位置。',
+                                    ru: 'Для точного выбора сначала укажите своё местоположение.',
+                                    de: 'Für passende Empfehlungen teilen Sie bitte zuerst Ihren Standort mit.',
+                                    zh: '为了获得准确的推荐，请先分享您的位置。',
                                     ja: 'より正確な検索結果を得るには、まず現在地を共有してください。',
-                                    es: 'Para obtener predicciones precisas, primero comparte tu ubicación.'
+                                    es: 'Para obtener recomendaciones precisas, primero comparte tu ubicación.'
                                   },
   'cuisine.chat.openWithGps':     { en: '↓',
                                     fr: '↓' ,
@@ -2463,16 +2367,16 @@ const STRINGS = {
                                es: '↓'
                              },
   'cuisine.chat.openBtn':         { en: '🍴 Open Cuisine Picker', fr: '🍴 Ouvrir le sélecteur' ,
-                           id: '🍴 Pemilih Masakan Terbuka',
-                           ru: '🍴 Открытый выбор блюд',
+                           id: '🍴 Buka Pemilih Kuliner',
+                           ru: '🍴 Открыть «Выбор кухни»',
                            de: '🍴 Küchenauswahl öffnen',
-                           zh: '🍴 开放式美食选择器',
+                           zh: '🍴 打开美食选择器',
                            ja: '🍴 料理選択ツールを開く',
-                           es: '🍴 Selector de cocina abierto'
+                           es: '🍴 Abrir el selector de cocina'
                          },
   'cuisine.chat.shareLocBtn':     { en: '📍 Share location with bot', fr: '📍 Partager la position avec le bot' ,
                                id: '📍 Bagikan lokasi dengan bot',
-                               ru: '📍 Делитесь местоположением с ботом',
+                               ru: '📍 Поделиться местоположением с ботом',
                                de: '📍 Standort mit dem Bot teilen',
                                zh: '📍 与机器人分享位置',
                                ja: '📍 ボットと位置情報を共有',
@@ -2480,22 +2384,22 @@ const STRINGS = {
                              },
   'cuisine.chat.openError':       { en: "Sorry, I can't open the Cuisine Picker right now.",
                                     fr: 'Désolé, impossible d’ouvrir le sélecteur de cuisine pour le moment.' ,
-                             id: 'Maaf, saya tidak bisa membuka Pemilih Masakan saat ini.',
-                             ru: 'Извините, я не могу сейчас открыть меню выбора блюд.',
+                             id: 'Maaf, saya tidak bisa membuka Pemilih Kuliner saat ini.',
+                             ru: 'Извините, сейчас не удаётся открыть «Выбор кухни».',
                              de: 'Tut mir leid, ich kann den Küchenauswahl-Assistenten gerade nicht öffnen.',
-                             zh: '抱歉，我现在无法打开菜系选择器。',
+                             zh: '抱歉，我现在无法打开美食选择器。',
                              ja: '申し訳ありませんが、現在、料理選択ツールを開くことができません。',
                              es: 'Lo siento, no puedo abrir el selector de cocina ahora mismo.'
                            },
   'cuisine.chat.webhookOnly':     { en: "The Cuisine Picker needs the webhook-mode TMA. Try /hidden for chat-based picks instead, or just type 'find me ramen' / similar and I'll search.",
                                     fr: 'Le Sélecteur de cuisine nécessite la TMA en mode webhook. Essayez /hidden pour des choix en chat, ou tapez « trouve-moi des ramen » / similaire et je cherche.' ,
-                               id: 'Pemilih Masakan membutuhkan TMA mode webhook. Coba /hidden untuk pilihan berbasis obrolan, atau ketik saja \'cari ramen untukku\' / serupa dan saya akan mencarinya.',
-                               ru: 'Для работы Cuisine Picker требуется режим веб-хука TMA. Попробуйте /hidden для выбора блюд через чат или просто введите \'find me ramen\' / similar, и я выполню поиск.',
-                               de: 'Der Menü-Auswahldienst benötigt den TMA im Webhook-Modus. Verwenden Sie stattdessen /hidden für Chat-basierte Auswahlmöglichkeiten oder geben Sie einfach „find me ramen“ oder Ähnliches ein, und ich suche für Sie.',
-                               zh: '美食选择器需要 webhook 模式的 TMA。如果想通过聊天进行选择，请尝试/hidden ，或者直接输入“找拉面”/类似内容，我会帮你搜索。',
+                               id: 'Pemilih Kuliner membutuhkan TMA mode webhook. Coba /hidden untuk pilihan berbasis obrolan, atau ketik saja \'cari ramen untukku\' / serupa dan saya akan mencarinya.',
+                               ru: 'Для «Выбора кухни» нужен TMA в режиме веб-хука. Попробуйте /hidden для выбора прямо в чате или просто напишите «find me ramen» или похожее, и я поищу.',
+                               de: 'Der Cuisine Picker benötigt den TMA im Webhook-Modus. Verwenden Sie stattdessen /hidden für Chat-basierte Auswahlmöglichkeiten oder geben Sie einfach „find me ramen“ oder Ähnliches ein, und ich suche für Sie.',
+                               zh: '美食选择器需要 webhook 模式的 TMA。如果想通过聊天进行选择，请尝试/hidden，或者直接输入“找拉面”/类似内容，我会帮你搜索。',
                                es: 'El selector de cocina necesita el TMA en modo webhook. Prueba con /hidden para selecciones basadas en chat, o simplemente escribe \'find me ramen\' o similar y lo buscaré.'
                              ,
-                               ja: 'Cuisine PickerにはWebhookモードのTMAが必要です。チャットベースの選択には /hidden をお試しください。または、「ラーメンを探して」などと入力していただければ検索します。'
+                               ja: '料理選択ツールにはWebhookモードのTMAが必要です。チャットベースの選択には /hidden をお試しください。または、「ラーメンを探して」などと入力していただければ検索します。'
                              }
 };
 
