@@ -1,9 +1,16 @@
-// privacy-html.js — v0.59.10
+// privacy-html.js — v0.62.735
 //
-// Renders the i18n privacy.body string (EN or FR) as a self-contained
-// HTML page. Used by the /privacy HTTP route so a single source of
-// truth (i18n.js) drives both the chat-side /privacy command and the
-// hosted policy URL pasted into BotFather's "Privacy Policy URL" field.
+// Renders the i18n privacy.body / legal.body string as a self-contained HTML
+// page. Used by the /privacy and /legal HTTP routes so a single source of
+// truth (i18n.js) drives both the chat-side commands and the hosted URLs —
+// the privacy one is what BotFather's "Privacy Policy URL" field points at.
+//
+// v0.62.735 — the page used to offer a TWO-WAY toggle between EN and FR while
+// the underlying strings carried eight languages. `?lang=ja` already rendered
+// Japanese content, but the only link on the page said "Français" and no route
+// from the page reached the other six. The switcher now lists every supported
+// locale by its ENDONYM, for the same reason `language.btn.*` does: a reader
+// who cannot read the current language still has to be able to find their own.
 //
 // The privacy.body string uses Telegram-flavoured Markdown:
 //   *bold*  for headings / emphasis
@@ -21,7 +28,12 @@ function renderPrivacyHtml(body, lang = 'en') {
     if (inList) { out.push('</ul>'); inList = false; }
   }
   for (const line of lines) {
-    const bolded = line.replace(/\*([^*\n]+)\*/g, '<strong>$1</strong>');
+    // legal.body carries a markdown link for takedown requests. Without this the
+    // page rendered the literal `[text](url)` and the contact route was unusable.
+    const bolded = line
+      .replace(/\*([^*\n]+)\*/g, '<strong>$1</strong>')
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+        '<a href="$2" rel="noopener noreferrer">$1</a>');
     if (bolded.startsWith('• ')) {
       if (!inList) { out.push('<ul>'); inList = true; }
       out.push(`<li>${bolded.slice(2)}</li>`);
@@ -37,14 +49,44 @@ function renderPrivacyHtml(body, lang = 'en') {
 
 // Wraps the rendered body in a minimal mobile-friendly HTML document.
 // Includes a language toggle to the alternate locale.
-function renderPrivacyPage(body, lang = 'en') {
-  const altLang = lang === 'fr' ? 'en' : 'fr';
-  const altLabel = lang === 'fr' ? 'English' : 'Français';
-  const title = lang === 'fr' ? 'Confidentialité — Soleat' : 'Privacy — Soleat';
-  const inner = renderPrivacyHtml(body, lang);
+// Endonyms, not exonyms: the switcher has to be readable to someone who cannot
+// read the page they are currently on.
+const LOCALE_NAMES = {
+  en: 'English', fr: 'Français', id: 'Bahasa Indonesia', ru: 'Русский',
+  de: 'Deutsch', zh: '中文', ja: '日本語', es: 'Español'
+};
+
+const TITLES = {
+  privacy: {
+    en: 'Privacy', fr: 'Confidentialité', id: 'Privasi', ru: 'Конфиденциальность',
+    de: 'Datenschutz', zh: '隐私', ja: 'プライバシー', es: 'Privacidad'
+  },
+  legal: {
+    en: 'Legal', fr: 'Mentions légales', id: 'Hukum', ru: 'Правовая информация',
+    de: 'Rechtliches', zh: '法律声明', ja: '法的事項', es: 'Aviso legal'
+  }
+};
+
+/**
+ * @param {string} body   the resolved i18n string for this page and locale
+ * @param {string} lang   the locale being rendered
+ * @param {object} [opts] { kind: 'privacy' | 'legal', locales: string[] }
+ */
+function renderPrivacyPage(body, lang = 'en', opts = {}) {
+  const kind = TITLES[opts.kind] ? opts.kind : 'privacy';
+  const locales = (opts.locales && opts.locales.length)
+    ? opts.locales
+    : Object.keys(LOCALE_NAMES);
+  const l = LOCALE_NAMES[lang] ? lang : 'en';
+  const title = `${TITLES[kind][l] || TITLES[kind].en} — Soleat`;
+  const inner = renderPrivacyHtml(body, l);
+  const links = locales
+    .filter((x) => x !== l && LOCALE_NAMES[x])
+    .map((x) => `<a href="?lang=${x}" hreflang="${x}">${LOCALE_NAMES[x]}</a>`)
+    .join(' · ');
   return [
     '<!doctype html>',
-    `<html lang="${lang}">`,
+    `<html lang="${l}">`,
     '<head>',
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
@@ -57,8 +99,8 @@ function renderPrivacyPage(body, lang = 'en') {
     'li { margin: 0.25em 0; }',
     'a { color: #0078e7; }',
     'strong { color: #000; }',
-    '.lang-toggle { margin-top: 2em; padding-top: 1em; border-top: 1px solid #e5e5e5; font-size: 0.9em; color: #666; }',
-    '.lang-toggle a { margin-right: 0.5em; }',
+    '.lang-toggle { margin-top: 2em; padding-top: 1em; border-top: 1px solid #e5e5e5; font-size: 0.9em; color: #666; line-height: 2; }',
+    '.lang-toggle a { margin-right: 0.35em; white-space: nowrap; }',
     '@media (prefers-color-scheme: dark) {',
     '  body { color: #e5e5e5; background: #181818; }',
     '  strong { color: #fff; }',
@@ -69,10 +111,10 @@ function renderPrivacyPage(body, lang = 'en') {
     '</head>',
     '<body>',
     inner,
-    `<div class="lang-toggle"><a href="?lang=${altLang}">${altLabel}</a></div>`,
+    `<div class="lang-toggle">${links}</div>`,
     '</body>',
     '</html>'
   ].join('\n');
 }
 
-module.exports = { renderPrivacyHtml, renderPrivacyPage };
+module.exports = { renderPrivacyHtml, renderPrivacyPage, LOCALE_NAMES, TITLES };

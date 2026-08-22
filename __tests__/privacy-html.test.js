@@ -92,3 +92,60 @@ describe('renderPrivacyPage', () => {
     expect(page).toContain('English');
   });
 });
+
+// v0.62.735 — the hosted page offered a two-way EN/FR toggle while the strings
+// behind it carried eight languages. `?lang=ja` already rendered Japanese, but
+// the only link on the page said "Français" and six locales were unreachable
+// from it. These assertions pin the switcher and the localised titles, and cover
+// legal.body — which had no hosted page at all until this version.
+describe('renderPrivacyPage — all eight locales', () => {
+  const { SUPPORTED } = require('../i18n.js');
+
+  it('offers every supported locale except the one being shown', () => {
+    for (const lang of SUPPORTED) {
+      const html = renderPrivacyPage(tn('privacy.body', lang, {}), lang, {
+        kind: 'privacy', locales: SUPPORTED
+      });
+      const toggle = html.slice(html.lastIndexOf('<div class="lang-toggle">'));
+      const offered = [...toggle.matchAll(/\?lang=([a-z]{2})/g)].map((m) => m[1]);
+      expect(offered.sort()).toEqual(SUPPORTED.filter((x) => x !== lang).sort());
+      expect(offered).not.toContain(lang);
+    }
+  });
+
+  it('names each locale by its endonym, not by an exonym', () => {
+    // A reader who cannot read the current page still has to find their own
+    // language — the same reason language.btn.* is left untranslated.
+    const html = renderPrivacyPage(tn('privacy.body', 'en', {}), 'en', {
+      kind: 'privacy', locales: SUPPORTED
+    });
+    for (const name of ['Français', 'Bahasa Indonesia', 'Русский', 'Deutsch', '中文', '日本語', 'Español']) {
+      expect(html).toContain(name);
+    }
+  });
+
+  it('localises the <title> per language and per page kind', () => {
+    const ja = renderPrivacyPage(tn('privacy.body', 'ja', {}), 'ja', { kind: 'privacy' });
+    expect(ja).toContain('<title>プライバシー — Soleat</title>');
+    expect(ja).toContain('<html lang="ja">');
+    const ruLegal = renderPrivacyPage(tn('legal.body', 'ru', {}), 'ru', { kind: 'legal' });
+    expect(ruLegal).toContain('<title>Правовая информация — Soleat</title>');
+  });
+
+  it('renders legal.body in every locale, with its markdown link as an anchor', () => {
+    for (const lang of SUPPORTED) {
+      const html = renderPrivacyPage(tn('legal.body', lang, {}), lang, {
+        kind: 'legal', locales: SUPPORTED
+      });
+      expect(html).toContain('<a href="https://linkedin.com/in/angadrian"');
+      expect(html).not.toContain('](https://linkedin.com/in/angadrian)');
+      expect(html).toContain('2026');
+    }
+  });
+
+  it('falls back to English chrome for an unknown locale rather than throwing', () => {
+    const html = renderPrivacyPage('*Hello*', 'xx', { kind: 'privacy', locales: SUPPORTED });
+    expect(html).toContain('<title>Privacy — Soleat</title>');
+    expect(html).toContain('<html lang="en">');
+  });
+});
