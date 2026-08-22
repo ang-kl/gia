@@ -91,22 +91,31 @@ If a usage block is absent, report "unavailable" — never estimate. The
 §1 corpus caveat applies here too: these figures cover the transcripts
 this machine can see, not necessarily every session ever run.
 
-## 6. Reply footer — conditional on §4 and §5 being real
+## 6. Reply footer — off until it can be measured
 
-Where the counting script actually implements `--agents` and `--tokens`,
-append one line to every substantive reply:
+The intended line is:
 
 ```
 [agents: {n} turn | {total} session] [tokens: {in}/{out} turn | {cum_in}/{cum_out} session]
 ```
 
-**Where those flags do not exist in this repo's script, omit the footer.**
-Do not print a line of "unavailable" on every reply, and never fill it
-with an estimate — §5 forbids the estimate and a permanent placeholder is
-noise that trains the reader to skip the line. Check once per session:
-`node scripts/count-interactions.js --agents`; a script without the flag
-treats it as a directory name and reports "No .jsonl files found under:
---agents", which is the signal to omit.
+**OMIT IT unless the counting script emits PER-TURN figures.** Flag
+existence is not the test, and the first draft of this section got that
+wrong: it said to omit while `--agents` was unimplemented, so the footer
+would unlock the moment the flag was added — while the format still needs
+four per-turn numbers (`{n} turn`, `{in}/{out} turn`) that no
+implementation produces. `--agents` and `--tokens` report per-SESSION
+totals (`agents_latest_session`, `latest_session_in/out`); there is no
+per-turn accounting anywhere, and §5 forbids estimating one. A mandatory
+line with two unmeasurable fields is a rule that is on, configured, and
+out of reach of what it guards — the same shape as a guard whose trigger
+never fires.
+
+So the footer stays OFF until a script emits per-turn figures — e.g. a
+`--turn` mode reading the last assistant entry of the newest transcript.
+Until then do not print it, do not print "unavailable" in its place, and
+do not estimate. Whoever adds per-turn accounting turns this section on in
+the same change, and not before.
 
 ## 7. On-demand dashboards (prompts, not native CLI)
 
