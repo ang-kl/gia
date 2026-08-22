@@ -215,6 +215,29 @@ function triggerIntentOf(title, category) {
 
 // ── load inputs ─────────────────────────────────────────────────────────────
 
+// v0.62.725 — session reply log. Operator ruling 22-08 '26: *"vibe-journal 359
+// unlogged replies"*. Rules S-1/T-1 require every chat reply to carry a serial
+// number and [§X.Y] paragraph tags, logged in doc/Chat/; for an entire session
+// neither happened. Back-filling doc/Chat/ was refused — AU-4 forbids condensation
+// and the protocol forbids invention, so retrospective serials would fabricate
+// compliance. This folder is the right home precisely because it is NOT one of the
+// eight authenticity templates and NOT under the AU Recipe: a derived, regenerable
+// cross-section can record the replies as what they are — unnumbered, untagged.
+// Optional: absent file ⇒ the panel is simply not emitted.
+let sessionReplies = [];
+try {
+  sessionReplies = readFileSync(join(HERE, 'data', 'session-replies.ndjson'), 'utf8')
+    .split('\n').filter(Boolean).map((l) => JSON.parse(l));
+} catch { /* no reply log committed — panel omitted */ }
+const replyStats = {
+  total: sessionReplies.length,
+  unlogged: sessionReplies.filter((r) => r.era === 'pre-detection').length,
+  numbered: sessionReplies.filter((r) => r.kind === 'numbered-reply').length,
+  narration: sessionReplies.filter((r) => r.kind === 'inline-narration').length,
+  chars: sessionReplies.reduce((a, r) => a + (r.chars || 0), 0),
+  redactions: sessionReplies.reduce((a, r) => a + (r.redactions || 0), 0)
+};
+
 const prs = readFileSync(join(HERE, 'data', 'prs.ndjson'), 'utf8')
   .split('\n').filter(Boolean).map((l) => JSON.parse(l)).sort((a, b) => a.n - b.n);
 
@@ -373,7 +396,7 @@ writeFileSync(join(HERE, 'vibe-coding-record.md'), md.join('\n'));
 
 const PUBLIC_DOC = join(HERE, '..', '..', 'public', 'doc');
 mkdirSync(PUBLIC_DOC, { recursive: true });
-writeFileSync(join(PUBLIC_DOC, 'vibe-journal.json'), JSON.stringify({ generated: GEN_DATE, count: records.length, records }, null, 2) + '\n');
+writeFileSync(join(PUBLIC_DOC, 'vibe-journal.json'), JSON.stringify({ generated: GEN_DATE, count: records.length, records, sessionReplies, replyStats }, null, 2) + '\n');
 
 const reworkCount = records.filter((r) => r.reworkOf).length;
 const cueCount = records.filter((r) => r.reworkCue).length;
@@ -479,6 +502,7 @@ tr.row:hover{background:#1d2632}.detrow td{background:#1a1f26}.tag{background:#2
 <details><summary>🪶 Small / low-effort PRs — batching candidates</summary><div class="note" id="smallNote"></div><div class="barlist" id="smallByArea"></div><div class="scrollbox"><table class="mini"><thead><tr><th>PR</th><th>Ver</th><th>Cat</th><th>Area</th><th>Title</th></tr></thead><tbody id="smallList"></tbody></table></div></details>
 <details><summary>🔁 Indecision — reverts, re-enables, flip-flops</summary><div class="note" id="indecNote"></div><div class="scrollbox"><table class="mini"><thead><tr><th>PR</th><th>Ver</th><th>Area</th><th>Title</th><th>Signal</th></tr></thead><tbody id="indecList"></tbody></table></div></details>
 <details><summary>🧠 Behavioural patterns</summary><div class="kpis" id="behav"></div><div class="note" id="behavNote"></div></details>
+<details id="replyPanel" style="display:none"><summary>🗒️ Session reply log — the replies that were never serial-numbered</summary><div class="note" id="replyNote"></div><div class="barlist" id="replyMix"></div><div class="note">Filter the log:</div><div class="controls"><input type="search" id="rq" placeholder="search reply text…"><select id="rEra"><option value="">all</option><option value="pre-detection">unlogged (pre-detection)</option><option value="post-detection">after the rule was surfaced</option></select><label><input type="checkbox" id="rNum"> numbered only</label></div><div class="count" id="rCount"></div><div class="scrollbox"><table class="mini"><thead><tr><th>#</th><th>When (UTC)</th><th>S-1</th><th>T-1</th><th>Kind</th><th>Reply</th></tr></thead><tbody id="replyList"></tbody></table></div></details>
 <details><summary>🧩 Hard parts &amp; recurring failure modes</summary><div class="note">Fix-density per area — the share of an area's PRs that are <code>fix</code>; high = the tricky bits (areas with ≥3 PRs).</div><div class="barlist" id="fixDensity"></div><div class="note">PRs whose title / intent / approach matches a known failure mode (keyword heuristic, from the lessons below):</div><div class="barlist" id="failModes"></div><div class="scrollbox" id="failBox" style="display:none"><table class="mini"><thead><tr><th>Mode</th><th>PR</th><th>Title</th></tr></thead><tbody id="failList"></tbody></table></div></details>
 
 <h2>Lessons to reduce rework <span class="note">(distilled from <code>.claude/skills/gia-preflight/SKILL.md</code>)</span></h2>
@@ -507,9 +531,56 @@ ${LESSONS.map(([t, d]) => `<li><b>${htmlEsc(t)}.</b> ${htmlEsc(d)}</li>`).join('
 <script>
 const META = ${jsonForScript(HTML_META)};
 const RECORDS = ${jsonForScript(records)};
+const REPLIES = ${jsonForScript(sessionReplies)};
+const RSTATS  = ${jsonForScript(replyStats)};
 for (const r of RECORDS){ r.tmasStr = (r.tmas||[]).join('+'); r.impactStr = (r.impactTags||[]).join('; '); }
 const $ = (s)=>document.querySelector(s);
 const esc = (s)=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// ---- Session reply log (S-1 / T-1) ------------------------------------------
+// Shown only when a reply log is committed. The panel exists to make an omission
+// legible, so it leads with the count of replies that carry NO serial number.
+if (REPLIES.length) {
+  $('#replyPanel').style.display = '';
+  $('#replyNote').innerHTML =
+    '<b>' + RSTATS.unlogged + '</b> replies were made before rules S-1 (serial number on every reply) '
+  + 'and T-1 (<code>[§X.Y]</code> on every paragraph) were being followed at all — none numbered, none tagged. '
+  + 'They are <b>not</b> back-filled into <code>doc/Chat/</code>: AU-4 forbids condensation and the protocol '
+  + 'forbids invention, so retrospective serials would fabricate a compliance that did not happen. '
+  + 'They are recorded here instead, because this folder is a derived, regenerable view and explicitly not '
+  + 'one of the eight authenticity templates. Secrets are redacted unconditionally on extract ('
+  + RSTATS.redactions + ' redacted in this snapshot). ' + (RSTATS.chars/1024).toFixed(0) + ' KB of reply text.';
+
+  const mix = [
+    ['unlogged — no serial, no tags', RSTATS.unlogged],
+    ['numbered per S-1', RSTATS.numbered],
+    ['inline narration beside a tool call', RSTATS.narration]
+  ];
+  const mx = Math.max(1, ...mix.map((m) => m[1]));
+  $('#replyMix').innerHTML = mix.map(([k, v]) =>
+    '<div class="bar"><span>' + esc(k) + '</span><i style="width:' + (v / mx * 100) + '%"></i><b>' + v + '</b></div>').join('');
+
+  const rq = $('#rq'), rEra = $('#rEra'), rNum = $('#rNum');
+  function drawReplies() {
+    const q = rq.value.trim().toLowerCase();
+    const era = rEra.value;
+    const rows = REPLIES.filter((r) =>
+      (!q || (r.text || '').toLowerCase().includes(q)) &&
+      (!era || r.era === era) &&
+      (!rNum.checked || r.serialled));
+    $('#rCount').textContent = rows.length + ' of ' + REPLIES.length + ' replies';
+    $('#replyList').innerHTML = rows.map((r) =>
+      '<tr><td>' + r.i + '</td><td>' + esc((r.ts || '').replace('T', ' ').slice(0, 16))
+      + '</td><td>' + (r.serialled ? '✓' : '—') + '</td><td>' + (r.tagged ? '✓' : '—')
+      + '</td><td>' + esc(r.kind) + '</td><td><details><summary>'
+      + esc((r.text || '').slice(0, 110).replace(/\s+/g, ' ')) + '…</summary><pre>'
+      + esc(r.text) + '</pre></details></td></tr>').join('');
+  }
+  rq.addEventListener('input', drawReplies);
+  rEra.addEventListener('change', drawReplies);
+  rNum.addEventListener('change', drawReplies);
+  drawReplies();
+}
 
 // KPIs
 $('#kpis').innerHTML = [
