@@ -150,20 +150,33 @@ const PUBLISHED_2026 = Object.freeze({
 const KNOWN_DELTAS = Object.freeze([
   {
     cc: 'JP', city: 'Tokyo', year: 2026, tier: 'one-star', have: 121, published: 122,
-    note: 'One Tokyo one-star venue is missing. Tokyo 2026 is 12/26/122 = 160 starred in two '
-        + 'independent sources; the repo holds 159. Which venue is absent cannot be determined '
-        + 'from here — guide.michelin.com is JS-rendered and does not fetch.',
+    // CORRECTED v0.62.743. The first version of this note said "one Tokyo one-star venue is
+    // missing", which implied a dropped row and was wrong. instruction/Japan.js — the source
+    // of record — itself holds 121, and source and table are row-for-row identical (589 = 589,
+    // now gated by __tests__/michelin-source-parity.test.js). Nothing was lost in migration.
+    note: 'NOT a missing row — a methodology difference, and the distinction matters because the '
+        + 'first reading sent the investigation the wrong way. instruction/Japan.js is the LIVE '
+        + 'INDEX verified 06-06-2026; 122 is the ANNOUNCEMENT roster of 25-09-2025. The gap is '
+        + 'attrition over those eight months. The source proves it knows the difference: it '
+        + 'hand-enters SEZANNE and Pierre Gagnaire, both "delisted, not in live index", to hold '
+        + 'the announced tiers — SEZANNE is why Tokyo three-star still reads 12. A third '
+        + 'one-star left the index and was not hand-entered back. Closing this means deciding '
+        + 'WHICH roster the volume tracks; it is a policy question, not a data error.',
   },
   {
     cc: 'CN', city: 'Guangzhou', year: 2026, tier: '*', have: 0, published: 72,
-    note: 'Guangzhou is STALE at the 2025 edition (3 two-star, 17 one-star, 44 Bib). The '
+    note: 'Stale in the SOURCE too, not just the table — instruction/China.js carries Guangzhou '
+        + 'at 2025 only and has no Shenzhen at all, so this is curation pending, not migration '
+        + 'drift. Guangzhou is STALE at the 2025 edition (3 two-star, 17 one-star, 44 Bib). The '
         + 'Guangzhou & Shenzhen 2026 edition landed 18 Aug 2026 — after this repo\'s last data '
         + 'update on 7 Aug — retaining 20 stars (3 two-star, 17 one-star) with Bib Gourmand '
         + 'rising to 52. Every other Chinese city in the table is already on 2026.',
   },
   {
     cc: 'FR', city: 'Paris', year: 2026, tier: 'two-star', have: 17, published: 20,
-    note: 'FR-michelin.js is a self-declared "scaffold v1: STAR TIERS ONLY" covering Paris and '
+    note: 'There is NO instruction/France.js — France is the one country with no source of '
+        + 'record at all, which is why the table is a scaffold. FR-michelin.js is a '
+        + 'self-declared "scaffold v1: STAR TIERS ONLY" covering Paris and '
         + 'Lyon. Paris three-star is complete and correct at 9; two-star is three short of 20.',
   },
   {
@@ -176,7 +189,8 @@ const KNOWN_DELTAS = Object.freeze([
   },
   {
     cc: 'CN', city: 'Shenzhen', year: 2026, tier: '*', have: 0, published: 28,
-    note: 'Shenzhen is ABSENT. It debuted in the MICHELIN Guide on 18 Aug 2026 with 2 two-star, '
+    note: 'Absent from instruction/China.js as well as from the table. Shenzhen is ABSENT. It '
+        + 'debuted in the MICHELIN Guide on 18 Aug 2026 with 2 two-star, '
         + '5 one-star and 21 Bib Gourmand. It is a new city for the dataset AND for cities.js.',
   },
 ]);
