@@ -409,7 +409,7 @@
       "max_chars": 148,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "⚠️<i> Kein Restaurant in Singapur serviert eindeutig {dish} – diese entsprachen lediglich Ihren Suchbegriffen:",
+      "google_translation": "⚠️ <i>Kein Restaurant in Singapur serviert eindeutig {dish} – diese entsprachen lediglich Ihren Suchbegriffen:</i>",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -420,7 +420,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
       }
     },
     {
