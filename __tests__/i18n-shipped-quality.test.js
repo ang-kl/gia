@@ -132,6 +132,26 @@ describe('shipped i18n translations', () => {
     expect(leftovers).toEqual([]);
   });
 
+  it('carries privacy.body and legal.body in every language, structurally matched', () => {
+    // These two are `[ 'line', … ].join('\n')` rather than quoted strings, so the
+    // parsers that matched only quoted literals skipped them entirely — the two
+    // longest and most sensitive strings in the file were outside every check.
+    const SRC = fs.readFileSync(path.join(ROOT, 'i18n.js'), 'utf8');
+    const LANGS = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+    const problems = [];
+    for (const key of ['privacy.body', 'legal.body']) {
+      const at = SRC.indexOf(`  '${key}': {`);
+      expect(at, `${key} should exist`).toBeGreaterThan(-1);
+      const block = SRC.slice(at, SRC.indexOf('\n  },', at));
+      const enLines = (block.match(/^      '/gm) || []).length;
+      expect(enLines, `${key} should hold line arrays`).toBeGreaterThan(0);
+      for (const lang of LANGS) {
+        if (!new RegExp(`\\b${lang}:\\s*\\[`).test(block)) problems.push(`${key}: no ${lang}`);
+      }
+    }
+    expect(problems).toEqual([]);
+  });
+
   it('applies the recorded meaning fixes idempotently', () => {
     // Every fix carries the string it replaced. If i18n.js drifts away from both
     // `before` and `after`, the fix list is stale and silently no longer describes
