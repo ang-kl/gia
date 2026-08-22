@@ -23,6 +23,24 @@ text block. Tool calls and subagent chatter are excluded. Never restart at
 1; re-measure rather than guess if the thread is lost. Any rebase of the
 count is recorded in the project's own `CLAUDE.md`, not here.
 
+**IF THIS REPO HAS NO COUNTING SCRIPT, §1 IS NOT SATISFIABLE — SAY SO.**
+`scripts/count-interactions.js` is the reference implementation and it lives
+in ONE repo; the command above fails with `MODULE_NOT_FOUND` everywhere it
+has not been ported. Unlike §6, §1 has no off switch, so a repo without the
+script inherits a mandatory instruction it cannot execute — which is the
+whole shape this document exists to refuse. Until the script is ported:
+
+- carry the serial forward from the last one visible in the conversation,
+- state, once per session, that it is carried and not measured, and
+- do not present it as a measurement in any reply.
+
+The same holds where the script EXISTS but the project's `CLAUDE.md` records
+no rebase baseline: the partial-corpus rule below compares a measurement
+against that baseline, and with nothing to compare against it cannot fire.
+A project adopting this protocol should record its starting count in its own
+`CLAUDE.md` at adoption, or accept that §1 runs in carried-forward mode.
+Porting the script and writing down a baseline are what turn §1 on.
+
 **WHICH DISK. The script measures the corpus it can see, and that is not
 always the whole corpus.** A remote or web session runs in a fresh container
 holding only the transcripts of sessions that ran there; a local machine
