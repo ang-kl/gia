@@ -1,8 +1,8 @@
 counters:
-  commit: 1250
+  commit: 1251
   build: 837
   documents:
-    journal: 1072
+    journal: 1073
     builder: 3
     persona: 4
     feature: 68
@@ -11,12 +11,12 @@ counters:
     register: 196
 sessions:
   current_chat_id: 2026-08-22
-  current_chat_counter: 42  # per §3.2 the CHAT counter resets per session and starts at 1;
+  current_chat_counter: 46  # per §3.2 the CHAT counter resets per session and starts at 1;
                             # replies 1-4 of this session mistakenly carried commit-counter
                             # values (1,236-1,239) in their headers. See chat-0_62_723 turn 5.
-last_anchor_time: 22-08 '26 09:16 SGT
-last_anchor_source: nea_data_gov_sg
-last_anchor_note: d203_APPROVED_G3_operator_proceed_with_proposed_d203_max_over_sensor_08_20_and_all_known_commits_49ab320_bf5b4f2_f7f8473_vibe_journal_session_reply_log_351_unlogged
+last_anchor_time: 22-08 '26 11:08 SGT
+last_anchor_source: nea_data_gov_sg_air_temperature_plus_system_clock_d203_max
+last_anchor_note: d203_max_of_nea_11_05_sgt_system_clock_11_08_sgt_and_latest_known_event_commit_8cec0d7_09_40_sgt_meaning_pass_six_languages_402_fixes_96_pruned_v0_62_732
 last_anchor_source_prior00000000000000000000000000000000000000000000000000000000000000000: nea_data_gov_sg_08_00_SGT_max_omitted_pr1718_merge_superseded_x12_recurrence
 last_anchor_source_prior0000000000000000000000000000000000000000000000000000000000000000: nea_data_gov_sg_07_50_SGT_o201_operator_confirmed_o200_dropped_superseded_by_tf10_max_rule
 last_anchor_source_prior000000000000000000000000000000000000000000000000000000000000000: pr_1713_squash_merge_2106c07_2026-08-22T07:03:00+08:00_TF9_merge_evidence_gemini_2_5_retired_eleven_files_repinned_content_verified_on_main_d123_invariant_test_rerun_against_merged_tree_v0_62_722

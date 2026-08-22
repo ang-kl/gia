@@ -81,21 +81,33 @@ const CHECKS = [
     let n = 0;
     for (const m of String(s || '').matchAll(/\/[a-z]{1,15}/g)) {
       const nxt = String(s)[m.index + m[0].length];
-      if (nxt && !/\s/.test(nxt) && !(nxt.charCodeAt(0) < 128 && /[^\w]/.test(nxt))) n++;
+      // v0.62.732 — CJK punctuation delimits a command exactly as ASCII punctuation
+      // does: Telegram ends the bot_command entity at the first character outside
+      // [A-Za-z0-9_], and `请尝试 /hidden，` reads as cleanly as `try /hidden,`. Kana
+      // and hanzi are still not delimiters, so `/cuisineで` — the case this check was
+      // written for — still counts as undelimited.
+      const cjkPunct = /[，。、；：！？（）【】「」『』〜・]/.test(nxt || '');
+      if (nxt && !/\s/.test(nxt) && !cjkPunct && !(nxt.charCodeAt(0) < 128 && /[^\w]/.test(nxt))) n++;
     }
     return String(n);
   }],
-  // Count commands FOLLOWED BY WHITESPACE, and compare against the source. The
-  // delimiter check above treats any ASCII punctuation as a valid boundary, so
+  // Count commands FOLLOWED BY A CLOSING BOUNDARY, and compare against the source.
+  // The delimiter check above treats any ASCII punctuation as a valid boundary, so
   // `/l<place>` passed it — `<` is punctuation. But the source wrote `/l <place>`,
   // and losing that space is the damage: it reads wrong and the argument fuses to
-  // the command. Comparing the count against the source catches exactly the loss,
-  // without failing a source that legitimately writes `/cuisine.`
+  // the command.
+  //
+  // v0.62.732 — whitespace alone was too narrow. Every language here punctuates
+  // differently from English, and `просто /weather, чтобы …` renders a command that
+  // Telegram still makes tappable; failing it taught the gate to reject correct
+  // Russian. Sentence punctuation counts as a closing boundary; `<`, backtick, `{`
+  // and word characters do not, so `/l<place>` — the case this check was written
+  // for — still fails.
   ['cmd-spacing',  (s) => {
     let n = 0;
     for (const m of String(s || '').matchAll(/\/[a-z]{1,15}/g)) {
       const nxt = String(s)[m.index + m[0].length];
-      if (nxt && /\s/.test(nxt)) n++;
+      if (nxt && (/\s/.test(nxt) || /[,.;:!?)\]—–]/.test(nxt) || /[，。、；：！？）】」』]/.test(nxt))) n++;
     }
     return String(n);
   }],
