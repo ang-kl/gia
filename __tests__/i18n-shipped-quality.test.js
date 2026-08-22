@@ -214,6 +214,73 @@ describe('shipped Mini App translations', () => {
   }, 30000);
 });
 
+// v0.62.736 — German addressed the reader as both du and Sie, 67 strings to 19, and one
+// string used both inside a single message. The file is now Sie throughout; this keeps it
+// that way. Spanish was swept at the same time and turned out to be already consistent —
+// every usted had been converted during the meaning pass — so it is pinned rather than fixed.
+describe('form of address stays consistent per language', () => {
+  // Strip placeholders, tags, code spans and commands BEFORE looking for pronouns.
+  // Without this `{dir}` matches \bdir\b and a wind-speed row reads as informal German.
+  const prose = (s) => s
+    .replace(/\{[\w-]+\}/g, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/`[^`]*`/g, ' ')
+    .replace(/\/[a-z]{1,15}/g, ' ')
+    .replace(/https?:\/\/\S+/g, ' ');
+
+  const DE_INFORMAL = /\b[Dd]u\b|\b[Dd]ich\b|\b[Dd]ir\b|\b[Dd]eine?[nmrs]?\b/;
+  const ES_FORMAL = /\busted(es)?\b/;
+
+  const shipped = (lang) => {
+    const out = [];
+    for (const e of ENTRIES) {
+      const v = e.pick(lang);
+      if (typeof v === 'string' && v) out.push([e.key, v]);
+    }
+    return out;
+  };
+
+  it('addresses German readers as Sie everywhere, never du', () => {
+    const offenders = shipped('de')
+      .filter(([, v]) => DE_INFORMAL.test(prose(v)))
+      .map(([k]) => k);
+    expect(offenders).toEqual([]);
+  });
+
+  it('addresses Spanish readers as tú everywhere, never usted', () => {
+    const offenders = shipped('es')
+      .filter(([, v]) => ES_FORMAL.test(prose(v)))
+      .map(([k]) => k);
+    expect(offenders).toEqual([]);
+  });
+
+  it('holds the same line across the five Mini Apps', async () => {
+    // Two of the offenders lived here, not in i18n.js — menu's tile.sketchbook.sub and
+    // clipboard's set.privacyNote. A guard over the bot file alone would have missed both.
+    const offenders = [];
+    for (const [name, rel] of TMA_FILES) {
+      const S = await loadStrings(path.join(ROOT, rel));
+      for (const [key, entry] of Object.entries(S)) {
+        if (!entry || typeof entry.en !== 'string') continue;
+        if (typeof entry.de === 'string' && DE_INFORMAL.test(prose(entry.de))) {
+          offenders.push(`${name} de ${key}`);
+        }
+        if (typeof entry.es === 'string' && ES_FORMAL.test(prose(entry.es))) {
+          offenders.push(`${name} es ${key}`);
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
+  }, 30000);
+
+  it('the German check can actually fire', () => {
+    // A guard that cannot fail is not a guard.
+    expect(DE_INFORMAL.test(prose('Teile deinen Standort'))).toBe(true);
+    expect(DE_INFORMAL.test(prose('Teilen Sie Ihren Standort'))).toBe(false);
+    expect(DE_INFORMAL.test(prose('Wind: {kt} kt{dir}'))).toBe(false);
+  });
+});
+
 // The command checks decide what counts as a Telegram command at all, so they are
 // pinned in both directions: the cases they exist for must still fail, and the correct
 // target-language forms they used to reject must pass.
