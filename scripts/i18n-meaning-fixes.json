@@ -2278,8 +2278,8 @@
   "key": "cuisine.chat.webhookOnly",
   "lang": "ja",
   "before": "Cuisine PickerにはWebhookモードのTMAが必要です。チャットベースの選択には /hidden をお試しください。または、「ラーメンを探して」などと入力していただければ検索します。",
-  "after": "料理選択ツールにはWebhookモードのTMAが必要です。チャットベースの選択には /hidden をお試しください。または、「ラーメンを探して」などと入力していただければ検索します。",
-  "why": "Left \"Cuisine Picker\" in English where the title and button name it 料理選択ツール."
+  "after": "料理選択ツールにはWebhookモードのTMAが必要です。チャットベースの選択には /hidden をお試しください。または「find me ramen」のように入力していただければ検索します。",
+  "why": "Left \"Cuisine Picker\" in English where the title and button name it 料理選択ツール. v0.62.737 — `after` updated because the typed example was restored to Latin: the free-text classifier's tokenize() collapses a CJK query to a single token and every whitelist it checks is English, so a translated \"type this\" example cannot reach the path it advertises. The ledger is rewritten rather than the test relaxed."
  },
  {
   "key": "location.got",

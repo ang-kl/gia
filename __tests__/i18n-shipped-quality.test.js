@@ -214,6 +214,41 @@ describe('shipped Mini App translations', () => {
   }, 30000);
 });
 
+// v0.62.737 — a string that shows the user WHAT TO TYPE has to stay typeable. The
+// free-text classifier's tokenize() splits on non-letter/number, so a Chinese or
+// Japanese query collapses to a SINGLE token — `找拉面` and `ラーメンを探して` each
+// tokenize to one item — and every whitelist it checks against is English. No CJK
+// query can reach the cuisine-browse path at all. Whether Google Places would still
+// resolve it is Not Verifiable here (no API call), which is exactly why the example
+// is pinned to the form that demonstrably works rather than the one that might.
+describe('typed examples stay typeable', () => {
+  const TYPEABLE = [
+    ['cuisine.chat.webhookOnly', 'find me ramen', ['zh', 'ja']],
+    ['freetext.questionDeclined', 'char kway teow', ['zh', 'ja']],
+    ['hidden.anchorAmbiguous', 'Holland Village', ['zh', 'ja']],
+  ];
+
+  for (const [key, example, langs] of TYPEABLE) {
+    it(`keeps "${example}" in Latin script for ${langs.join('/')} in ${key}`, () => {
+      const e = ENTRIES.find((x) => x.key === key);
+      expect(e, `${key} should exist`).toBeTruthy();
+      for (const lang of langs) {
+        const v = e.pick(lang);
+        if (v === null) continue;
+        expect(v, `${lang} ${key}`).toContain(example);
+      }
+    });
+  }
+
+  it('the CJK tokenisation this guards against is real', () => {
+    // Not an assumption about the classifier — the classifier itself, run here.
+    const { _tokenize } = require('../freetext-classify.js');
+    expect(_tokenize('find me ramen')).toEqual(['find', 'me', 'ramen']);
+    expect(_tokenize('找拉面')).toHaveLength(1);
+    expect(_tokenize('ラーメンを探して')).toHaveLength(1);
+  });
+});
+
 // v0.62.736 — German addressed the reader as both du and Sie, 67 strings to 19, and one
 // string used both inside a single message. The file is now Sie throughout; this keeps it
 // that way. Spanish was swept at the same time and turned out to be already consistent —

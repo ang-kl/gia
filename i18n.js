@@ -2750,10 +2750,10 @@ const STRINGS = {
                                id: 'Pemilih Kuliner membutuhkan TMA mode webhook. Coba /hidden untuk pilihan berbasis obrolan, atau ketik saja \'cari ramen untukku\' / serupa dan saya akan mencarinya.',
                                ru: 'Для «Выбора кухни» нужен TMA в режиме веб-хука. Попробуйте /hidden для выбора прямо в чате или просто напишите «find me ramen» или похожее, и я поищу.',
                                de: 'Der Cuisine Picker benötigt den TMA im Webhook-Modus. Verwenden Sie stattdessen /hidden für Chat-basierte Auswahlmöglichkeiten oder geben Sie einfach „find me ramen“ oder Ähnliches ein, und ich suche für Sie.',
-                               zh: '美食选择器需要 webhook 模式的 TMA。如果想通过聊天进行选择，请尝试/hidden，或者直接输入“找拉面”/类似内容，我会帮你搜索。',
+                               zh: '美食选择器需要 webhook 模式的 TMA。如果想通过聊天进行选择，请尝试/hidden，或者直接输入“find me ramen”之类的内容，我会帮你搜索。',
                                es: 'El selector de cocina necesita el TMA en modo webhook. Prueba con /hidden para selecciones basadas en chat, o simplemente escribe \'find me ramen\' o similar y lo buscaré.'
                              ,
-                               ja: '料理選択ツールにはWebhookモードのTMAが必要です。チャットベースの選択には /hidden をお試しください。または、「ラーメンを探して」などと入力していただければ検索します。'
+                               ja: '料理選択ツールにはWebhookモードのTMAが必要です。チャットベースの選択には /hidden をお試しください。または「find me ramen」のように入力していただければ検索します。'
                              }
 };
 
