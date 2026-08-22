@@ -390,7 +390,7 @@ const DE_STRINGS = {
   'rating.resetTitle': 'Bewertung zurückgesetzt: Gut+ ≥ 3,7⭐',
   'rating.resetBody': 'Zeigt Lokale mit allgemein guten Google-Bewertungen.',
   'hero.title': 'Soleat Menü',
-  'tile.sketchbook.sub': 'Speichere und ordne deine Lokale in Schränken',
+  'tile.sketchbook.sub': 'Speichern und ordnen Sie Ihre Lokale in Schränken',
 };
 for (const k in RU_STRINGS) { if (STRINGS[k] && STRINGS[k].ru == null) STRINGS[k].ru = RU_STRINGS[k]; }
 for (const k in DE_STRINGS) { if (STRINGS[k] && STRINGS[k].de == null) STRINGS[k].de = DE_STRINGS[k]; }

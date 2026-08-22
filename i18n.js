@@ -159,7 +159,7 @@ const STRINGS = {
                                  fr: '📍 Touchez pour partager votre position actuelle.' ,
                           id: '📍 Ketuk untuk membagikan lokasi Anda saat ini.',
                           ru: '📍 Нажмите, чтобы поделиться своим текущим местоположением.',
-                          de: '📍 Tippe hier, um deinen aktuellen Standort zu teilen.',
+                          de: '📍 Tippen Sie hier, um Ihren aktuellen Standort zu teilen.',
                           zh: '📍点击分享您的当前位置。',
                           ja: '📍 現在地を共有するにはタップしてください。',
                           es: '📍 Toca para compartir tu ubicación actual.'
@@ -169,7 +169,7 @@ const STRINGS = {
     fr: '📍 Partagez votre position une fois pour que Soleat utilise votre lieu (ou tapez `/location <nom du lieu>` pour le définir manuellement).',
     id: '📍 Bagikan lokasi Anda sekali agar Soleat memakai wilayah Anda (atau ketik `/location <place name>` untuk mengaturnya manual).',
     ru: '📍 Поделитесь местоположением один раз, чтобы Soleat использовал ваш регион (или введите `/location <place name>`, чтобы задать вручную).',
-    de: '📍 Teile deinen Standort einmalig, damit Soleat deine Regionseinstellung verwendet (oder gib `/location <place name>` ein, um ihn manuell festzulegen).',
+    de: '📍 Teilen Sie Ihren Standort einmalig, damit Soleat Ihre Regionseinstellung verwendet (oder geben Sie `/location <place name>` ein, um ihn manuell festzulegen).',
     zh: '📍 分享一次您的位置，以便 Soleat 使用您的语言环境（或输入 `/location <place name>` 手动设置）。',
     ja: '📍 一度位置情報を共有すると、Soleat があなたの地域設定を使用します (または、`/location <place name>` と入力して手動で設定します)。',
     es: '📍 Comparte tu ubicación una sola vez para que Soleat use tu configuración regional (o escribe `/location <place name>` para configurarla manualmente).'
@@ -178,7 +178,7 @@ const STRINGS = {
                                  fr: 'Aucun résultat Google Places pour "{q}" près de vous. Essayez /cuisine pour le sélecteur, /hidden pour les trouvailles, ou reformulez votre recherche.' ,
                     id: 'Tidak ada hasil Google Places untuk "{q}" di dekat Anda. Coba /cuisine untuk pemilih makanan, /hidden untuk tempat makan favorit di dekat Anda, atau ubah frasa pencarian Anda.',
                     ru: 'В Google Places нет результатов поиска по запросу "{q}" рядом с вами. Попробуйте использовать /cuisine для выбора заведения, /hidden для поиска интересных мест поблизости или измените формулировку запроса.',
-                    de: 'Für "{q}" in deiner Nähe wurden keine Google Places-Ergebnisse gefunden. Versuche es mit /cuisine für die Restaurantauswahl, /hidden für weitere Restaurants in der Nähe oder formuliere deine Suche um.',
+                    de: 'Für "{q}" in Ihrer Nähe wurden keine Google Places-Ergebnisse gefunden. Versuchen Sie es mit /cuisine für die Restaurantauswahl, /hidden für weitere Restaurants in der Nähe oder formulieren Sie Ihre Suche um.',
                     es: 'No hay resultados de Google Places para "{q}" cerca de ti. Prueba con /cuisine para el selector, /hidden para joyas cercanas o reformula tu búsqueda.'
                   ,
                     zh: '您附近没有与“{q}”相关的 Google Places 结果。可以试试 /cuisine 使用菜系选择器，或 /hidden 查找附近的宝藏餐馆，或者换个说法再搜索。',
@@ -527,7 +527,7 @@ const STRINGS = {
                                  fr: '📍 Touchez pour partager votre position, ou tapez un nom de lieu. Je chercherai ensuite.' ,
                          id: '📍 Ketuk untuk membagikan lokasi Anda, atau ketik nama tempat. Saya akan mencarinya nanti.',
                          ru: '📍 Нажмите, чтобы поделиться своим местоположением, или введите название места. Я выполню поиск позже.',
-                         de: '📍 Tippe, um deinen Standort zu teilen, oder gib einen Ortsnamen ein. Ich suche anschließend.',
+                         de: '📍 Tippen Sie, um Ihren Standort zu teilen, oder geben Sie einen Ortsnamen ein. Ich suche anschließend.',
                          zh: '📍 点击分享您的位置，或输入地点名称。我稍后会搜索。',
                          ja: '📍 タップして現在地を共有するか、場所の名前を入力してください。後で検索します。',
                          es: '📍 Toca para compartir tu ubicación o escribe el nombre de un lugar. Yo lo buscaré después.'
@@ -1528,7 +1528,7 @@ const STRINGS = {
     fr: 'Envie de sortir des plats habituels ? Soleat — « Solo eats » / « So let’s eat » — vous aide à explorer plus de {cuisines} cuisines à Singapour — et d’autres villes — avec {cuisine-venues} adresses sélectionnées, hawkers, adresses Michelin, Bib Gourmand à moins de 45 S$, météo et transport dans Telegram. Commencez avec /c /cuisine ou /m /menu\n\n/cuisine   — Sélecteur Cuisine complet (plus de {cuisines} cuisines, {cuisine-venues} adresses sélectionnées, SG, Johor Bahru + autres villes, 6 filtres rapides)\n/hawker    — plus de {hawker} centres hawkers (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Producteurs locaux\n/l /location — partager ou définir votre position actuelle\n/weather   — maintenant + prévisions 2 h NEA\n/transport — bus, MRT, marche, voiture\n/carpark   — 5 parkings proches avec places\n/language  — langue de l’app · 8 options (chat en FR/EN)\n/privacy   — données, conservation et sources\n/legal     — clauses et juridiction\n/forgetme  — effacer vos données enregistrées\n\nOu touchez le bouton menu (🍴 Sélecteur Cuisine) pour démarrer directement.',
     id: 'Ingin sesuatu di luar yang biasa? Soleat — “Solo eats” / “So let’s eat” — membantu Anda menjelajahi peleburan {cuisines} masakan Singapura — dan kota lain — dengan {cuisine-venues} tempat pilihan, hawker, rekomendasi Michelin Star, favorit Bib Gourmand di bawah S$45, cuaca, dan transportasi dalam satu panduan Telegram. Mulai dengan /c /cuisine atau /m /menu\n\n/cuisine — Cuisine Picker lengkap (lebih dari {cuisines} masakan, {cuisine-venues} tempat pilihan, SG, Johor Bahru + kota lain, 6 filter cepat)\n/hawker — >{hawker} pusat jajanan (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Produk Lokal ke Meja\n/l /location — bagikan atau atur lokasi Anda saat ini\n/weather — sekarang + prakiraan NEA 2 jam\n/transport — bus, MRT, jalan kaki, berkendara\n/carpark — 5 terdekat dengan slot kosong\n/language — bahasa aplikasi · 8 pilihan (obrolan tetap EN/FR)\n/privacy — data, retensi & sumber\n/legal — penafian & catatan yurisdiksi\n/forgetme — hapus data tersimpan Anda\n\nAtau ketuk tombol menu (🍴 Cuisine Picker) untuk langsung mulai.',
     ru: 'Хочется чего-то за пределами привычного? Soleat — «Solo eats» / «So let’s eat» — помогает исследовать кулинарный плавильный котёл Сингапура из {cuisines} кухонь — и другие города — с {cuisine-venues} отобранными заведениями, хокерами, местами со звездой Michelin, фаворитами Bib Gourmand дешевле S$45, погодой и транспортом в одном гиде Telegram. Начните с /c /cuisine или /m /menu\n\n/cuisine — полный Cuisine Picker (более {cuisines} кухонь, {cuisine-venues} отобранных заведений, SG, Джохор-Бару и другие города, 6 быстрых фильтров)\n/hawker — >{hawker} хокер-центров (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, местные продукты\n/l /location — поделиться или задать текущее местоположение\n/weather — сейчас + прогноз NEA на 2 часа\n/transport — автобус, MRT, пешком, за рулём\n/carpark — 5 ближайших парковок со свободными местами\n/language — язык приложения · 8 вариантов (чат остаётся EN/FR)\n/privacy — данные, хранение и источники\n/legal — оговорки и юрисдикция\n/forgetme — удалить сохранённые данные\n\nИли нажмите кнопку меню (🍴 Cuisine Picker), чтобы начать сразу.',
-    de: 'Lust auf etwas jenseits des Üblichen? Soleat — „Solo eats“ / „So let’s eat“ — hilft dir, Singapurs Schmelztiegel aus {cuisines} Küchen zu erkunden — und andere Städte — mit {cuisine-venues} kuratierten Adressen, Hawkern, Michelin-Stern-Tipps, Bib-Gourmand-Favoriten unter S$45, Wetter und Verkehr in einem Telegram-Guide. Starte mit /c /cuisine oder /m /menu\n\n/cuisine — vollständiger Cuisine Picker (über {cuisines} Küchen, {cuisine-venues} kuratierte Adressen, SG, Johor Bahru + weitere Städte, 6 Schnellfilter)\n/hawker — >{hawker} Hawker-Zentren (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, regionale Produkte\n/l /location — Standort teilen oder festlegen\n/weather — jetzt + 2-Stunden-Prognose der NEA\n/transport — Bus, MRT, zu Fuß, Auto\n/carpark — die 5 nächsten mit freien Plätzen\n/language — App-Sprache · 8 Optionen (Chat bleibt EN/FR)\n/privacy — Daten, Speicherdauer & Quellen\n/legal — Haftungsausschluss & Gerichtsstand\n/forgetme — gespeicherte Daten löschen\n\nOder tippe auf die Menü-Schaltfläche (🍴 Cuisine Picker), um direkt loszulegen.',
+    de: 'Lust auf etwas jenseits des Üblichen? Soleat — „Solo eats“ / „So let’s eat“ — hilft Ihnen, Singapurs Schmelztiegel aus {cuisines} Küchen zu erkunden — und andere Städte — mit {cuisine-venues} kuratierten Adressen, Hawkern, Michelin-Stern-Tipps, Bib-Gourmand-Favoriten unter S$45, Wetter und Verkehr in einem Telegram-Guide. Starten Sie mit /c /cuisine oder /m /menu\n\n/cuisine — vollständiger Cuisine Picker (über {cuisines} Küchen, {cuisine-venues} kuratierte Adressen, SG, Johor Bahru + weitere Städte, 6 Schnellfilter)\n/hawker — >{hawker} Hawker-Zentren (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, regionale Produkte\n/l /location — Standort teilen oder festlegen\n/weather — jetzt + 2-Stunden-Prognose der NEA\n/transport — Bus, MRT, zu Fuß, Auto\n/carpark — die 5 nächsten mit freien Plätzen\n/language — App-Sprache · 8 Optionen (Chat bleibt EN/FR)\n/privacy — Daten, Speicherdauer & Quellen\n/legal — Haftungsausschluss & Gerichtsstand\n/forgetme — gespeicherte Daten löschen\n\nOder tippen Sie auf die Menü-Schaltfläche (🍴 Cuisine Picker), um direkt loszulegen.',
     zh: '想吃点不一样的？Soleat —— “Solo eats” / “So let’s eat” —— 带您探索新加坡 {cuisines} 种菜系交融的美食版图，以及其他城市，收录 {cuisine-venues} 家精选餐馆、小贩中心、米其林星级推荐、45 新元以下的必比登推介，还有天气与交通，全在一个 Telegram 指南里。从 /c /cuisine 或 /m /menu 开始\n\n/cuisine — 完整的 Cuisine Picker（超过 {cuisines} 种菜系、{cuisine-venues} 家精选餐馆，新加坡、新山及其他城市，6 个快捷筛选）\n/hawker — >{hawker} 家小贩中心（2025）\n/recognised — 米其林、必比登推介、亚洲 50/100 佳、本地食材上桌\n/l /location — 分享或设置您当前的位置\n/weather — 当前天气 + NEA 未来 2 小时预报\n/transport — 公交、地铁、步行、驾车\n/carpark — 最近的 5 个有空位的停车场\n/language — 应用语言 · 8 种选择（聊天仍为 EN/FR）\n/privacy — 数据、保存期限与来源\n/legal — 免责声明与司法管辖说明\n/forgetme — 删除您已保存的数据\n\n或点击菜单按钮（🍴 Cuisine Picker）直接开始。',
     ja: 'いつもと違うものを食べたいですか？Soleat ——「Solo eats」/「So let’s eat」—— は、シンガポールの {cuisines} 種類の料理が交わる食の坩堝、そして他都市を、{cuisine-venues} 軒の厳選店、ホーカー、ミシュラン星付き、S$45 以下のビブグルマン、天気、交通とともに 1 つの Telegram ガイドで案内します。/c /cuisine または /m /menu から始めましょう\n\n/cuisine — フル機能の Cuisine Picker（{cuisines} 種類以上の料理、{cuisine-venues} 軒の厳選店、シンガポール、ジョホールバル＋他都市、6 つのクイックフィルター）\n/hawker — >{hawker} 軒のホーカーセンター（2025）\n/recognised — ミシュラン、ビブグルマン、アジア 50/100、地元産食材\n/l /location — 現在地を共有または設定\n/weather — 現在 + NEA の 2 時間予報\n/transport — バス、MRT、徒歩、車\n/carpark — 空きのある最寄り 5 か所\n/language — アプリの言語 · 8 種類（チャットは EN/FR のまま）\n/privacy — データ、保存期間、出典\n/legal — 免責事項と管轄について\n/forgetme — 保存データを削除\n\nまたはメニューボタン（🍴 Cuisine Picker）をタップしてすぐに始められます。',
     es: '¿Te apetece algo más allá de lo habitual? Soleat — «Solo eats» / «So let’s eat» — te ayuda a explorar el crisol de {cuisines} cocinas de Singapur — y otras ciudades — con {cuisine-venues} locales seleccionados, hawkers, recomendaciones con estrella Michelin, favoritos Bib Gourmand por menos de S$45, el tiempo y el transporte en una sola guía de Telegram. Empieza con /c /cuisine o /m /menu\n\n/cuisine — Cuisine Picker completo (más de {cuisines} cocinas, {cuisine-venues} locales seleccionados, SG, Johor Bahru + otras ciudades, 6 filtros rápidos)\n/hawker — >{hawker} centros de comida callejera (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, producto local en mesa\n/l /location — comparte o fija tu ubicación actual\n/weather — ahora + previsión NEA a 2 horas\n/transport — autobús, MRT, a pie, en coche\n/carpark — los 5 más cercanos con plazas libres\n/language — idioma de la app · 8 opciones (el chat sigue en EN/FR)\n/privacy — datos, conservación y fuentes\n/legal — aviso legal y jurisdicción\n/forgetme — borra tus datos guardados\n\nO toca el botón de menú (🍴 Cuisine Picker) para empezar directamente.'
@@ -1538,7 +1538,7 @@ const STRINGS = {
   'location.shareTap':         { en: '📍 Tap to share your current location.', fr: '📍 Touchez pour partager votre position actuelle.' ,
                         id: '📍 Ketuk untuk membagikan lokasi Anda saat ini.',
                         ru: '📍 Нажмите, чтобы поделиться своим текущим местоположением.',
-                        de: '📍 Tippe hier, um deinen aktuellen Standort zu teilen.',
+                        de: '📍 Tippen Sie hier, um Ihren aktuellen Standort zu teilen.',
                         zh: '📍点击分享您的当前位置。',
                         ja: '📍 現在地を共有するにはタップしてください。',
                         es: '📍 Toca para compartir tu ubicación actual.'
@@ -1559,7 +1559,7 @@ const STRINGS = {
                                  fr: '📍 *Position définie sur :*\n{place}\n\n💻 Sur ordinateur, Telegram partage un *point sur la carte*, pas le GPS — cela peut tomber au mauvais endroit. Est-ce bien là que vous êtes ?' ,
                              id: '📍 *Lokasi diatur ke:*\n{place}\n\n💻 Di desktop, Telegram membagikan *titik yang ditandai di peta*, bukan GPS langsung — bisa saja menunjukkan lokasi yang salah. Apakah ini lokasi Anda?',
                              ru: '📍 *Местоположение установлено следующим образом:*\n{place}\n\n💻 На компьютере Telegram отображает *отмеченную на карте точку*, а не данные GPS в реальном времени — она может оказаться не в том месте. Вы находитесь в этом месте?',
-                             de: '📍 *Standort eingestellt auf:*\n{place}\n\n💻 Auf dem Desktop zeigt Telegram einen *gepinnten Punkt* auf einer Karte an, nicht das Live-GPS – es kann also vorkommen, dass der falsche Ort angezeigt wird. Befindest du dich hier?',
+                             de: '📍 *Standort eingestellt auf:*\n{place}\n\n💻 Auf dem Desktop zeigt Telegram einen *gepinnten Punkt* auf einer Karte an, nicht das Live-GPS – es kann also vorkommen, dass der falsche Ort angezeigt wird. Befinden Sie sich hier?',
                              zh: '📍 *位置已设置为：*\n{place}\n\n💻 在电脑端，Telegram 分享的是地图上的标记点，而不是实时 GPS 定位——因此可能会定位到错误的位置。这是你所在的位置吗？',
                              ja: '📍 *位置情報を次に設定しました:*\n{place}\n\n💻 デスクトップ版の Telegram では、リアルタイムの GPS ではなく、*地図上にピン留めされた地点* が共有されます。そのため、間違った場所に表示される可能性があります。ここがあなたの現在地ですか?',
                              es: '📍 *Ubicación establecida en:*\n{place}\n\n💻 En la versión de escritorio, Telegram comparte un *punto marcado en el mapa*, no un GPS en tiempo real; puede ubicarse en un lugar incorrecto. ¿Es aquí donde estás?'
@@ -1613,7 +1613,7 @@ const STRINGS = {
     fr: '📍 Partagez votre position une fois pour que {label} utilise votre lieu (ou tapez `/location <nom du lieu>` pour le définir manuellement).',
     id: '📍 Bagikan lokasi Anda sekali agar {label} memakai wilayah Anda (atau ketik `/location <place name>` untuk mengaturnya manual).',
     ru: '📍 Поделитесь местоположением один раз, чтобы {label} использовал ваш регион (или введите `/location <place name>`, чтобы задать вручную).',
-    de: '📍 Teile deinen Standort einmalig, damit {label} deine Region verwendet (oder gib `/location <place name>` ein, um ihn manuell festzulegen).',
+    de: '📍 Teilen Sie Ihren Standort einmalig, damit {label} Ihre Region verwendet (oder geben Sie `/location <place name>` ein, um ihn manuell festzulegen).',
     zh: '📍 分享一次您的位置，以便 {label} 使用您的语言环境（或输入 `/location <place name>` 手动设置）。',
     ja: '📍 一度位置情報を共有すると、{label} であなたの地域設定が使用されます（または、`/location <place name>` を入力して手動で設定します）。',
     es: '📍 Comparte tu ubicación una vez para que {label} use tu región (o escribe `/location <place name>` para fijarla manualmente).'
@@ -1689,7 +1689,7 @@ const STRINGS = {
   'wake.kept':                 { en: '👍 Keeping your saved location.', fr: '👍 Position enregistrée conservée.' ,
                 id: '👍 Lokasi tersimpan Anda dipertahankan.',
                 ru: '👍 Сохранённое местоположение оставлено.',
-                de: '👍 Dein gespeicherter Standort bleibt erhalten.',
+                de: '👍 Ihr gespeicherter Standort bleibt erhalten.',
                 zh: '👍 已保留您保存的位置。',
                 ja: '👍 保存した位置情報を保持します。',
                 es: '👍 Conservando tu ubicación guardada.'
@@ -1859,7 +1859,7 @@ const STRINGS = {
     fr: '⏳ Soleat traite encore votre dernière demande — un instant.',
     id: '⏳ Soleat masih memproses permintaan terakhir Anda — mohon tunggu sebentar.',
     ru: '⏳ Soleat всё ещё обрабатывает ваш последний запрос — подождите немного.',
-    de: '⏳ Soleat arbeitet noch an deiner letzten Anfrage – einen Moment bitte.',
+    de: '⏳ Soleat arbeitet noch an Ihrer letzten Anfrage – einen Moment bitte.',
     zh: '⏳ Soleat 仍在处理您的上一个请求——请稍等片刻。',
     ja: '⏳ Soleat は前回のリクエストをまだ処理中です。少々お待ちください。',
     es: '⏳ Soleat sigue trabajando en tu última solicitud; espera un momento.'
@@ -1879,7 +1879,7 @@ const STRINGS = {
     fr: 'Soleat n’a pas trouvé de trésor dans votre zone. Essayez ailleurs ou ouvrez /cuisine.',
     id: 'Soleat tidak menemukan permata tersembunyi di radius itu. Coba pindah area atau buka /cuisine.',
     ru: 'Soleat не нашёл скрытых жемчужин в этом кольце. Попробуйте другой район или откройте /cuisine.',
-    de: 'Soleat hat in deinem Umkreis kein verstecktes Juwel gefunden. Versuche eine andere Gegend oder öffne /cuisine.',
+    de: 'Soleat hat in Ihrem Umkreis kein verstecktes Juwel gefunden. Versuchen Sie eine andere Gegend oder öffnen Sie /cuisine.',
     zh: 'Soleat 在该范围内没有找到隐藏宝藏。换个区域试试，或打开 /cuisine。',
     ja: 'Soleat はこの範囲で隠れた名店を見つけられませんでした。エリアを変えるか /cuisine を開いてください。',
     es: 'Soleat no encontró ninguna joya escondida en esa franja. Prueba en otra zona o abre /cuisine.'
@@ -1889,7 +1889,7 @@ const STRINGS = {
     fr: 'Je n’ai pas pu cerner votre zone{anchor}. Tapez le bâtiment ou le quartier où vous êtes — par exemple « Raffles Place MRT Exit A » ou « Holland Village » — et je ré-ancrerai /hidden.',
     id: 'Saya tidak bisa memastikan area Anda{anchor}. Ketik nama gedung atau kawasan tempat Anda berada — misalnya \'Raffles Place MRT Exit A\' atau \'Holland Village\' — dan saya akan menetapkan ulang acuan /hidden.',
     ru: 'Не удалось точно определить ваш район{anchor}. Введите здание или район, где вы находитесь — например «Raffles Place MRT Exit A» или «Holland Village» — и я перенастрою /hidden.',
-    de: 'Ich konnte deine Gegend nicht genau bestimmen{anchor}. Tippe das Gebäude oder Viertel ein, in dem du bist — zum Beispiel „Raffles Place MRT Exit A“ oder „Holland Village“ — und ich verankere /hidden neu.',
+    de: 'Ich konnte Ihre Gegend nicht genau bestimmen{anchor}. Tippen Sie das Gebäude oder Viertel ein, in dem Sie sich befinden — zum Beispiel „Raffles Place MRT Exit A“ oder „Holland Village“ — und ich verankere /hidden neu.',
     zh: '我无法确定您所在的区域{anchor}。请输入您所在的建筑或地区 — 例如“Raffles Place MRT Exit A”或“Holland Village” — 我会重新锚定 /hidden。',
     ja: 'エリアを特定できませんでした{anchor}。今いる建物または地区を入力してください — 例:「Raffles Place MRT Exit A」や「Holland Village」 — /hidden を再設定します。',
     es: 'No pude precisar tu zona{anchor}. Escribe el edificio o barrio en el que estás — por ejemplo «Raffles Place MRT Exit A» u «Holland Village» — y volveré a anclar /hidden.'
@@ -1979,7 +1979,7 @@ const STRINGS = {
     fr: '⚠️ Gemini est actuellement saturé (erreur 503 « high demand » sur tous les modèles de repli).\n\nRéessayez /hidden dans une minute ou deux — votre position est en cache, le réessai sera rapide.',
     id: '⚠️ Gemini sedang kelebihan beban (503 permintaan tinggi di semua model cadangan).\n\nCoba /hidden lagi satu dua menit — lokasi Anda masih tersimpan, jadi percobaan ulang akan cepat.',
     ru: '⚠️ Gemini сейчас перегружен (503, высокий спрос на всех запасных моделях).\n\nПопробуйте /hidden через минуту-две — ваше местоположение в кэше, повтор будет быстрым.',
-    de: '⚠️ Gemini ist derzeit überlastet (503, hohe Nachfrage auf allen Ersatzmodellen).\n\nVersuche /hidden in ein bis zwei Minuten erneut — dein Standort ist noch zwischengespeichert, der Neuversuch geht schnell.',
+    de: '⚠️ Gemini ist derzeit überlastet (503, hohe Nachfrage auf allen Ersatzmodellen).\n\nVersuchen Sie /hidden in ein bis zwei Minuten erneut — Ihr Standort ist noch zwischengespeichert, der Neuversuch geht schnell.',
     zh: '⚠️ Gemini 当前过载（所有备用模型均返回 503 高需求）。\n\n请一两分钟后重试 /hidden — 您的位置仍在缓存中，重试会很快。',
     ja: '⚠️ Gemini は現在混雑しています（すべてのフォールバックモデルで 503 の高負荷）。\n\n1〜2 分後にもう一度 /hidden をお試しください — 位置情報はキャッシュ済みなので再試行は高速です。',
     es: '⚠️ Gemini está saturado ahora mismo (error 503 por alta demanda en todos los modelos de reserva).\n\nVuelve a probar /hidden en un minuto o dos — tu ubicación sigue en caché, así que el reintento será rápido.'
@@ -2103,11 +2103,11 @@ const STRINGS = {
       '',
       'Soleat speichert nur, was für den Betrieb des Bots nötig ist.',
       '',
-      'Dein Standort kann bis zu 24 Stunden gemerkt werden, um Ergebnisse in der Nähe zu verbessern. Eine einfache Zwischenablage kann die von dir gespeicherten Orte und Standorte halten — wie ein kleines Tagebuch oder Album kulinarischer Reisen.',
+      'Ihr Standort kann bis zu 24 Stunden gemerkt werden, um Ergebnisse in der Nähe zu verbessern. Eine einfache Zwischenablage kann die von Ihnen gespeicherten Orte und Standorte halten — wie ein kleines Tagebuch oder Album kulinarischer Reisen.',
       '',
       'Es wird kein persönliches Profil angelegt. Soleat nutzt keine Tracker, verkauft keine Daten und erstellt keine bot-übergreifenden Profile.',
       '',
-      'Du kannst deine gespeicherten Daten jederzeit löschen, indem du /forgetme eingibst.'
+      'Sie können Ihre gespeicherten Daten jederzeit löschen, indem Sie /forgetme eingeben.'
     ].join('\n'),
     zh: [
       '🔒 *隐私与数据*',
@@ -2259,13 +2259,13 @@ const STRINGS = {
       '',
       'Soleat wird „wie besehen“ zur allgemeinen Bequemlichkeit und zum Entdecken von Essen bereitgestellt. Es kann KI, automatisierte Werkzeuge, Google Places, öffentliche Daten Singapurs und weitere Live-Quellen nutzen.',
       '',
-      'Informationen können ungenau, verzögert, unvollständig oder veraltet sein. Bitte prüfe direkt beim Lokal nach, insbesondere 🟢 Öffnungszeiten, 🕌 Halal-Status, 🥗 vegetarische Optionen, 🐾 Zutritt mit Tieren, 🏠 Angebote aus Privatküchen, Fahrpläne und Reisen nach Malaysia.',
+      'Informationen können ungenau, verzögert, unvollständig oder veraltet sein. Bitte prüfen Sie direkt beim Lokal nach, insbesondere 🟢 Öffnungszeiten, 🕌 Halal-Status, 🥗 vegetarische Optionen, 🐾 Zutritt mit Tieren, 🏠 Angebote aus Privatküchen, Fahrpläne und Reisen nach Malaysia.',
       '',
       'Soleat deckt hauptsächlich Singapur ab. Wenn Johor Bahru gewählt ist, können die Ergebnisse Johor, Malaysia, umfassen; die Datenqualität hängt dabei vor allem von den verfügbaren Google-Places-Informationen ab.',
       '',
-      'Soleat ist keine professionelle Beratung. Du bist dafür verantwortlich, wie du die Ergebnisse nutzt. Der Ersteller haftet nicht für Verluste, Ansprüche, Unterbrechungen oder Vertrauen, die aus der Nutzung entstehen, soweit dies nach singapurischem Recht zulässig ist.',
+      'Soleat ist keine professionelle Beratung. Sie sind dafür verantwortlich, wie Sie die Ergebnisse nutzen. Der Ersteller haftet nicht für Verluste, Ansprüche, Unterbrechungen oder Vertrauen, die aus der Nutzung entstehen, soweit dies nach singapurischem Recht zulässig ist.',
       '',
-      'Der Ersteller beabsichtigt keine Rechtsverletzung. Für Anliegen oder Löschanfragen wende dich bitte an [linkedin.com/in/angadrian](https://linkedin.com/in/angadrian)',
+      'Der Ersteller beabsichtigt keine Rechtsverletzung. Für Anliegen oder Löschanfragen wenden Sie sich bitte an [linkedin.com/in/angadrian](https://linkedin.com/in/angadrian)',
       '',
       'Zum Umgang mit Daten siehe /privacy.',
       '',
@@ -2429,7 +2429,7 @@ const STRINGS = {
                                     fr: '👥 *Mode buddy ACTIVÉ.*\n\nLorsque vous recevez des sélections sanctuaires, un bouton 👥 _Connecter_ apparaît à côté des lieux où un autre utilisateur soleat opté-in se rend dans les 60 prochaines minutes. Vous devez tous deux confirmer avant que les prénoms et identifiants Telegram soient révélés. Limite quotidienne : 5 connexions / 24 h. `/buddy block <chat_id>` pour bloquer. `/buddy report <chat_id> <raison>` pour signaler. `/buddy off` pour désactiver.\n\n⚠ _Pilote — rencontrez uniquement en public, traitez comme un inconnu, faites confiance à votre instinct._' ,
                     id: '👥 *Mode Teman AKTIF.*\n\nSaat Anda menerima pilihan Sanctuary, tombol 👥 _Hubungkan_ akan muncul di sebelah tempat-tempat yang juga akan dikunjungi oleh pengguna soleat lain yang telah mendaftar dalam 60 menit berikutnya. Anda berdua harus mengkonfirmasi sebelum nama depan + nama pengguna Telegram ditampilkan. Batas harian: 5 koneksi / 24 jam. `/buddy block <chat_id>` untuk memblokir. `/buddy report <chat_id> <reason>` untuk melaporkan. `/buddy off` untuk menonaktifkan.\n\n⚠ _Pilot — temui hanya di tempat umum, perlakukan seperti orang asing, percayai insting Anda._',
                     ru: '👥 *Режим «Друг» включён.*\n\nКогда вы получаете предложения от Sanctuary, рядом с местами, куда в ближайшие 60 минут направляется другой пользователь Soleat, также включивший этот режим, появляется кнопка 👥 _Подключиться_. Оба должны подтвердить, прежде чем будут показаны имена и ники в Telegram. Дневной лимит: 5 подключений / 24 часа. `/buddy block <chat_id>` для блокировки. `/buddy report <chat_id> <reason>` для жалобы. `/buddy off` для отключения.\n\n⚠ _Пилот — встречайтесь только в общественных местах, относитесь к человеку как к незнакомцу, доверяйте своей интуиции._',
-                    de: '👥 *Buddy-Modus EIN.*\n\nWenn du Sanctuary-Tipps erhältst, erscheint neben Orten, die ein anderer Soleat-Nutzer innerhalb der nächsten 60 Minuten besucht, ein 👥 „Verbinden“-Button. Ihr müsst beide bestätigen, bevor eure Vornamen und Telegram-Namen angezeigt werden. Tägliches Limit: 5 Verbindungen / 24 Stunden. `/buddy block <chat_id>` zum Blockieren. `/buddy report <chat_id> <reason>` zum Melden. `/buddy off` zum Deaktivieren.\n\n⚠ _Pilot — triff dich nur an öffentlichen Orten, behandle die Person wie eine fremde Person, vertraue deinem Bauchgefühl._',
+                    de: '👥 *Buddy-Modus EIN.*\n\nWenn Sie Sanctuary-Tipps erhalten, erscheint neben Orten, die ein anderer Soleat-Nutzer innerhalb der nächsten 60 Minuten besucht, ein 👥 „Verbinden“-Button. Sie müssen beide bestätigen, bevor Ihre Vornamen und Telegram-Namen angezeigt werden. Tägliches Limit: 5 Verbindungen / 24 Stunden. `/buddy block <chat_id>` zum Blockieren. `/buddy report <chat_id> <reason>` zum Melden. `/buddy off` zum Deaktivieren.\n\n⚠ _Pilot — treffen Sie sich nur an öffentlichen Orten, behandeln Sie die Person wie eine fremde Person, vertrauen Sie Ihrem Bauchgefühl._',
                     zh: '👥 *好友模式开启*\n\n当您收到 Sanctuary 推荐时，如果另一位已加入的 Soleat 用户也将在接下来的 60 分钟内前往某个地点，该地点旁边会出现一个 👥 _连接_ 按钮。双方必须确认后，才能显示彼此的名字和 Telegram 用户名。每日上限：5 个连接/24 小时。`/buddy block <chat_id>` 屏蔽。`/buddy report <chat_id> <reason>` 举报。`/buddy off` 禁用。\n\n⚠ _试运行功能——只在公共场所见面，像对待陌生人一样对待对方，相信您的直觉。_',
                     ja: '👥 *バディモードON。*\n\nSanctuaryのおすすめを受け取ると、次の60分以内に別のオプトイン済みのSoleatユーザーが向かう予定の場所の横に👥 _接続_ボタンが表示されます。お互いに確認しないと、名前とTelegramのハンドル名が表示されません。1日あたりの上限: 5接続 / 24時間。`/buddy block <chat_id>` でブロック。`/buddy report <chat_id> <reason>` で報告。`/buddy off` で無効にします。\n\n⚠ _試験運用 ― 必ず公共の場所で会い、見知らぬ人のように扱い、自分の直感を信じること。_',
                     es: '👥 *Modo compañero activado.*\n\nCuando recibas recomendaciones de Sanctuary, aparecerá un botón 👥 _Conectar_ junto a los lugares a los que otro usuario de soleat que haya optado por participar también se dirigirá en los próximos 60 minutos. Los dos tenéis que confirmar antes de que se muestren los nombres y los usuarios de Telegram. Límite diario: 5 conexiones / 24 h. `/buddy block <chat_id>` para bloquear. `/buddy report <chat_id> <reason>` para denunciar. `/buddy off` para desactivar.\n\n⚠ _Piloto: queda únicamente en lugares públicos, trata a la otra persona como a un desconocido, confía en tu instinto._'
@@ -2482,7 +2482,7 @@ const STRINGS = {
                                     fr: '📝 Signalement enregistré. {target} est aussi auto-bloqué de vos matches. Nous examinerons.' ,
                       id: '📝 Laporan telah dicatat. {target} juga diblokir secara otomatis dari kecocokan Anda. Kami akan meninjaunya.',
                       ru: '📝 Жалоба зарегистрирована. {target} также автоматически исключён из ваших подборок. Мы всё проверим.',
-                      de: '📝 Bericht protokolliert. {target} wurde automatisch für deine Matches blockiert. Wir prüfen den Vorgang.',
+                      de: '📝 Bericht protokolliert. {target} wurde automatisch für Ihre Matches blockiert. Wir prüfen den Vorgang.',
                       zh: '📝 已记录举报。{target}已被自动屏蔽，无法匹配。我们将进行审核。',
                       ja: '📝 報告が記録されました。{target}はマッチング対象から自動的にブロックされます。確認いたします。',
                       es: '📝 Denuncia registrada. {target} también ha sido bloqueado automáticamente de tus coincidencias. Lo revisaremos.'
@@ -2750,10 +2750,10 @@ const STRINGS = {
                                id: 'Pemilih Kuliner membutuhkan TMA mode webhook. Coba /hidden untuk pilihan berbasis obrolan, atau ketik saja \'cari ramen untukku\' / serupa dan saya akan mencarinya.',
                                ru: 'Для «Выбора кухни» нужен TMA в режиме веб-хука. Попробуйте /hidden для выбора прямо в чате или просто напишите «find me ramen» или похожее, и я поищу.',
                                de: 'Der Cuisine Picker benötigt den TMA im Webhook-Modus. Verwenden Sie stattdessen /hidden für Chat-basierte Auswahlmöglichkeiten oder geben Sie einfach „find me ramen“ oder Ähnliches ein, und ich suche für Sie.',
-                               zh: '美食选择器需要 webhook 模式的 TMA。如果想通过聊天进行选择，请尝试/hidden，或者直接输入“找拉面”/类似内容，我会帮你搜索。',
+                               zh: '美食选择器需要 webhook 模式的 TMA。如果想通过聊天进行选择，请尝试/hidden，或者直接输入“find me ramen”之类的内容，我会帮你搜索。',
                                es: 'El selector de cocina necesita el TMA en modo webhook. Prueba con /hidden para selecciones basadas en chat, o simplemente escribe \'find me ramen\' o similar y lo buscaré.'
                              ,
-                               ja: '料理選択ツールにはWebhookモードのTMAが必要です。チャットベースの選択には /hidden をお試しください。または、「ラーメンを探して」などと入力していただければ検索します。'
+                               ja: '料理選択ツールにはWebhookモードのTMAが必要です。チャットベースの選択には /hidden をお試しください。または「find me ramen」のように入力していただければ検索します。'
                              }
 };
 
