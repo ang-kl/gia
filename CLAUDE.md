@@ -47,6 +47,32 @@ See `doc/VibeCodingRecord/VibeCodingRecord.md`.
 This rule was set by the operator: *"Update the Journal every time a new PR is created and done."*
 (Recorded as decision-gate G3 in `journal-0_60_144-13_05_26-0900.md`.)
 
+### Amendment D-205 — merge records fold forward · ✅ APPROVED (G3), 22-08 '26
+
+> **In force.** SR-1 (`CLAUDE-FULL.md` §17.6) requires a standing rule to carry the operator's
+> verbatim approval and a journal reference. Both hold.
+> **Operator, 22-08 '26, verbatim: *"fold merge records into the next substantive PR"*.**
+> Journal reference: `journal-0_62_732-22_08_26-1108.md` `[AMD-12]`.
+
+**Do not open a PR whose only content is a merge record.** Write the record when the merge
+happens — that part is unchanged, and rule 1 above still governs what the entry must contain —
+but hold it in the working tree and ship it with the next substantive PR.
+
+The rule as written above recursed: a docs-only PR recording a merge is itself a PR, so it needs
+its own record, which needs its own PR. On 22-08 '26 that chain produced **nine of the day's
+twenty-four PRs** — #1728 recorded #1727, #1732 recorded #1731, #1735 recorded #1734, and #1737
+would have recorded #1735 and #1736. The rule's purpose is that the Journal stays current, and
+folding forward serves that; opening the PR was never the point.
+
+Two things this does **not** relax:
+
+- **The record is still written at merge time**, from the merged tree, verified by content
+  (D-123) — not reconstructed later from memory. Delay the *PR*, never the *verification*.
+- **If no substantive PR follows**, the record is still owed. Log it as "still due" in the
+  Journal's `[KNOWN GAPS]` and in `doc/Register/`, per rule 3 above — the same treatment a
+  pending `doc/Feature/` or `vault/` update already gets. A record folded forward into a PR
+  that never arrives is a record that was dropped.
+
 ### Anchor time — D-203 · ✅ APPROVED (G3), 22-08 '26
 
 > **In force.** SR-1 (`CLAUDE-FULL.md` §17.6) requires a standing rule to carry the
