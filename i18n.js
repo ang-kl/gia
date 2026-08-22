@@ -164,12 +164,16 @@ const STRINGS = {
                           ja: '📍 現在地を共有するにはタップしてください。',
                           es: '📍 Toca para compartir tu ubicación actual.'
                         },
-  'bot.location.locale':       { en: '📍 Share your location once so Soleat uses your locale (or type `/location <place name>` to set it manually).',
-                          fr: '📍 Partagez votre position une fois pour que Soleat utilise votre lieu (ou tapez `/location <nom du lieu>` pour le définir manuellement).',
-                          de: '📍 Teile deinen Standort einmalig, damit Soleat deine Regionseinstellung verwendet (oder gib `/location <place name>` ein, um ihn manuell festzulegen).',
-                          zh: '📍 分享一次您的位置，以便 Soleat 使用您的语言环境（或输入 `/location <place name>` 手动设置）。',
-                          ja: '📍 一度位置情報を共有すると、Soleat があなたの地域設定を使用します (または、`/location <place name>` と入力して手動で設定します)。',
-                          es: '📍 Comparte tu ubicación una sola vez para que Soleat use tu configuración regional (o escribe `/location <place name>` para configurarla manualmente).' },
+  'bot.location.locale':       {
+    en: '📍 Share your location once so Soleat uses your locale (or type `/location <place name>` to set it manually).',
+    fr: '📍 Partagez votre position une fois pour que Soleat utilise votre lieu (ou tapez `/location <nom du lieu>` pour le définir manuellement).',
+    id: '📍 Bagikan lokasi Anda sekali agar Soleat memakai wilayah Anda (atau ketik `/location <place name>` untuk mengaturnya manual).',
+    ru: '📍 Поделитесь местоположением один раз, чтобы Soleat использовал ваш регион (или введите `/location <place name>`, чтобы задать вручную).',
+    de: '📍 Teile deinen Standort einmalig, damit Soleat deine Regionseinstellung verwendet (oder gib `/location <place name>` ein, um ihn manuell festzulegen).',
+    zh: '📍 分享一次您的位置，以便 Soleat 使用您的语言环境（或输入 `/location <place name>` 手动设置）。',
+    ja: '📍 一度位置情報を共有すると、Soleat があなたの地域設定を使用します (または、`/location <place name>` と入力して手動で設定します)。',
+    es: '📍 Comparte tu ubicación una sola vez para que Soleat use tu configuración regional (o escribe `/location <place name>` para configurarla manualmente).'
+  },
   'bot.noresults':             { en: 'No Google Places results for "{q}" near you. Try /cuisine for the picker, /hidden for nearby gems, or rephrase your search.',
                                  fr: 'Aucun résultat Google Places pour "{q}" près de vous. Essayez /cuisine pour le sélecteur, /hidden pour les trouvailles, ou reformulez votre recherche.' ,
                     id: 'Tidak ada hasil Google Places untuk "{q}" di dekat Anda. Coba /cuisine untuk pemilih makanan, /hidden untuk tempat makan favorit di dekat Anda, atau ubah frasa pencarian Anda.',
@@ -180,8 +184,16 @@ const STRINGS = {
                     zh: '您附近没有与“{q}”相关的 Google Places 结果。可以试试 /cuisine 使用菜系选择器，或 /hidden 查找附近的宝藏餐馆，或者换个说法再搜索。',
                     ja: '「{q}」で検索しても、お近くのGoogleプレイスの結果は見つかりませんでした。ピッカーで /cuisine、近くのおすすめスポットで /hidden を試すか、検索語句を変更してください。'
                   },
-  'bot.error.freetext':        { en: 'Sorry, free-text search hit an error. Try /cuisine or /hidden.',
-                         fr: 'Désolé, la recherche libre a rencontré une erreur. Essayez /cuisine ou /hidden.' },
+  'bot.error.freetext':        {
+    en: 'Sorry, free-text search hit an error. Try /cuisine or /hidden.',
+    fr: 'Désolé, la recherche libre a rencontré une erreur. Essayez /cuisine ou /hidden.',
+    id: 'Maaf, pencarian teks bebas mengalami kesalahan. Coba /cuisine atau /hidden.',
+    ru: 'Извините, свободный поиск завершился ошибкой. Попробуйте /cuisine или /hidden.',
+    de: 'Entschuldigung, die Freitextsuche ist auf einen Fehler gestoßen. Versuche /cuisine oder /hidden.',
+    zh: '抱歉，自由文本搜索出错了。请试试 /cuisine 或 /hidden。',
+    ja: '申し訳ありません、フリーテキスト検索でエラーが発生しました。/cuisine または /hidden をお試しください。',
+    es: 'Lo sentimos, la búsqueda libre ha dado un error. Prueba con /cuisine o /hidden.'
+  },
   // v0.60.123/127/130 — two-line divider in a free-text dish search
   // reply: above = venues that self-identify as the cuisine/dish;
   // below = eateries with similar dishes or cuisine (e.g. a 灌汤包 place
@@ -253,8 +265,16 @@ const STRINGS = {
                               },
   // v0.60.228 — transport queries (MRT / bus / "how to get to X")
   // aren't food searches; point the user at the /transport tool.
-  'freetext.transportRedirect': { en: "🚆 For trains, buses, and getting around Singapore, tap /transport. This chat searches for food and eateries.",
-                                 fr: "🚆 Pour les trains, bus et déplacements à Singapour, tapez /transport. Ce chat recherche des plats et des restaurants." },
+  'freetext.transportRedirect': {
+    en: '🚆 For trains, buses, and getting around Singapore, tap /transport. This chat searches for food and eateries.',
+    fr: '🚆 Pour les trains, bus et déplacements à Singapour, tapez /transport. Ce chat recherche des plats et des restaurants.',
+    id: '🚆 Untuk kereta, bus, dan perjalanan di Singapura, ketuk /transport. Obrolan ini mencari makanan dan tempat makan.',
+    ru: '🚆 Для поездов, автобусов и передвижения по Сингапуру нажмите /transport. Этот чат ищет еду и заведения.',
+    de: '🚆 Für Bahn, Bus und Wege durch Singapur tippe auf /transport. Dieser Chat sucht nach Essen und Lokalen.',
+    zh: '🚆 关于地铁、公交和在新加坡出行，请点击 /transport。此聊天用于搜索美食和餐馆。',
+    ja: '🚆 電車・バス・シンガポール市内の移動は /transport をタップしてください。このチャットでは食べ物と飲食店を検索します。',
+    es: '🚆 Para trenes, autobuses y moverte por Singapur, toca /transport. Este chat busca comida y locales.'
+  },
   'cookmethod.literalBtn':     { en: '🔍 Search literally',
                                  fr: '🔍 Rechercher tel quel' ,
                             id: '🔍 Cari secara harfiah',
@@ -1503,8 +1523,16 @@ const STRINGS = {
   // subset (e.g. "over 600+ curated venues"). Replaced by
   // count-display.substituteCounts at /start render time. Falls
   // back to 600+ when the Redis key is empty.
-  'start.intro':               { en: "Hungry for something beyond the usual? Soleat — “Solo eats” / “So let’s eat” — helps you explore Singapore’s {cuisines} cuisine melting pot — and other cities — with {cuisine-venues} curated venues, hawkers, Michelin Star picks, Bib Gourmand favourites under S$45, weather, and transport in one Telegram guide. Start with /c /cuisine or /m /menu\n\n/cuisine   — full Cuisine Picker (over {cuisines} cuisines, {cuisine-venues} curated venues, SG, Johor Bahru + other cities, 6 quick filters)\n/hawker    — >{hawker} hawker centres (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table\n/l /location — share or set your current location\n/weather   — now + 2-hour NEA forecast\n/transport — bus, MRT, walk, drive\n/carpark   — nearest 5 with available lots\n/language  — app language · 8 options (chat stays EN/FR)\n/privacy   — data, retention & sources\n/legal     — disclaimer & jurisdiction notes\n/forgetme  — erase your stored data\n\nOr tap the menu button (🍴 Cuisine Picker) to jump straight in.",
-                  fr: "Envie de sortir des plats habituels ? Soleat — « Solo eats » / « So let’s eat » — vous aide à explorer plus de {cuisines} cuisines à Singapour — et d’autres villes — avec {cuisine-venues} adresses sélectionnées, hawkers, adresses Michelin, Bib Gourmand à moins de 45 S$, météo et transport dans Telegram. Commencez avec /c /cuisine ou /m /menu\n\n/cuisine   — Sélecteur Cuisine complet (plus de {cuisines} cuisines, {cuisine-venues} adresses sélectionnées, SG, Johor Bahru + autres villes, 6 filtres rapides)\n/hawker    — plus de {hawker} centres hawkers (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Producteurs locaux\n/l /location — partager ou définir votre position actuelle\n/weather   — maintenant + prévisions 2 h NEA\n/transport — bus, MRT, marche, voiture\n/carpark   — 5 parkings proches avec places\n/language  — langue de l’app · 8 options (chat en FR/EN)\n/privacy   — données, conservation et sources\n/legal     — clauses et juridiction\n/forgetme  — effacer vos données enregistrées\n\nOu touchez le bouton menu (🍴 Sélecteur Cuisine) pour démarrer directement." },
+  'start.intro':               {
+    en: 'Hungry for something beyond the usual? Soleat — “Solo eats” / “So let’s eat” — helps you explore Singapore’s {cuisines} cuisine melting pot — and other cities — with {cuisine-venues} curated venues, hawkers, Michelin Star picks, Bib Gourmand favourites under S$45, weather, and transport in one Telegram guide. Start with /c /cuisine or /m /menu\n\n/cuisine   — full Cuisine Picker (over {cuisines} cuisines, {cuisine-venues} curated venues, SG, Johor Bahru + other cities, 6 quick filters)\n/hawker    — >{hawker} hawker centres (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table\n/l /location — share or set your current location\n/weather   — now + 2-hour NEA forecast\n/transport — bus, MRT, walk, drive\n/carpark   — nearest 5 with available lots\n/language  — app language · 8 options (chat stays EN/FR)\n/privacy   — data, retention & sources\n/legal     — disclaimer & jurisdiction notes\n/forgetme  — erase your stored data\n\nOr tap the menu button (🍴 Cuisine Picker) to jump straight in.',
+    fr: 'Envie de sortir des plats habituels ? Soleat — « Solo eats » / « So let’s eat » — vous aide à explorer plus de {cuisines} cuisines à Singapour — et d’autres villes — avec {cuisine-venues} adresses sélectionnées, hawkers, adresses Michelin, Bib Gourmand à moins de 45 S$, météo et transport dans Telegram. Commencez avec /c /cuisine ou /m /menu\n\n/cuisine   — Sélecteur Cuisine complet (plus de {cuisines} cuisines, {cuisine-venues} adresses sélectionnées, SG, Johor Bahru + autres villes, 6 filtres rapides)\n/hawker    — plus de {hawker} centres hawkers (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Producteurs locaux\n/l /location — partager ou définir votre position actuelle\n/weather   — maintenant + prévisions 2 h NEA\n/transport — bus, MRT, marche, voiture\n/carpark   — 5 parkings proches avec places\n/language  — langue de l’app · 8 options (chat en FR/EN)\n/privacy   — données, conservation et sources\n/legal     — clauses et juridiction\n/forgetme  — effacer vos données enregistrées\n\nOu touchez le bouton menu (🍴 Sélecteur Cuisine) pour démarrer directement.',
+    id: 'Ingin sesuatu di luar yang biasa? Soleat — “Solo eats” / “So let’s eat” — membantu Anda menjelajahi peleburan {cuisines} masakan Singapura — dan kota lain — dengan {cuisine-venues} tempat pilihan, hawker, rekomendasi Michelin Star, favorit Bib Gourmand di bawah S$45, cuaca, dan transportasi dalam satu panduan Telegram. Mulai dengan /c /cuisine atau /m /menu\n\n/cuisine — Cuisine Picker lengkap (lebih dari {cuisines} masakan, {cuisine-venues} tempat pilihan, SG, Johor Bahru + kota lain, 6 filter cepat)\n/hawker — >{hawker} pusat jajanan (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Produk Lokal ke Meja\n/l /location — bagikan atau atur lokasi Anda saat ini\n/weather — sekarang + prakiraan NEA 2 jam\n/transport — bus, MRT, jalan kaki, berkendara\n/carpark — 5 terdekat dengan slot kosong\n/language — bahasa aplikasi · 8 pilihan (obrolan tetap EN/FR)\n/privacy — data, retensi & sumber\n/legal — penafian & catatan yurisdiksi\n/forgetme — hapus data tersimpan Anda\n\nAtau ketuk tombol menu (🍴 Cuisine Picker) untuk langsung mulai.',
+    ru: 'Хочется чего-то за пределами привычного? Soleat — «Solo eats» / «So let’s eat» — помогает исследовать кулинарный плавильный котёл Сингапура из {cuisines} кухонь — и другие города — с {cuisine-venues} отобранными заведениями, хокерами, местами со звездой Michelin, фаворитами Bib Gourmand дешевле S$45, погодой и транспортом в одном гиде Telegram. Начните с /c /cuisine или /m /menu\n\n/cuisine — полный Cuisine Picker (более {cuisines} кухонь, {cuisine-venues} отобранных заведений, SG, Джохор-Бару и другие города, 6 быстрых фильтров)\n/hawker — >{hawker} хокер-центров (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, местные продукты\n/l /location — поделиться или задать текущее местоположение\n/weather — сейчас + прогноз NEA на 2 часа\n/transport — автобус, MRT, пешком, за рулём\n/carpark — 5 ближайших парковок со свободными местами\n/language — язык приложения · 8 вариантов (чат остаётся EN/FR)\n/privacy — данные, хранение и источники\n/legal — оговорки и юрисдикция\n/forgetme — удалить сохранённые данные\n\nИли нажмите кнопку меню (🍴 Cuisine Picker), чтобы начать сразу.',
+    de: 'Lust auf etwas jenseits des Üblichen? Soleat — „Solo eats“ / „So let’s eat“ — hilft dir, Singapurs Schmelztiegel aus {cuisines} Küchen zu erkunden — und andere Städte — mit {cuisine-venues} kuratierten Adressen, Hawkern, Michelin-Stern-Tipps, Bib-Gourmand-Favoriten unter S$45, Wetter und Verkehr in einem Telegram-Guide. Starte mit /c /cuisine oder /m /menu\n\n/cuisine — vollständiger Cuisine Picker (über {cuisines} Küchen, {cuisine-venues} kuratierte Adressen, SG, Johor Bahru + weitere Städte, 6 Schnellfilter)\n/hawker — >{hawker} Hawker-Zentren (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, regionale Produkte\n/l /location — Standort teilen oder festlegen\n/weather — jetzt + 2-Stunden-Prognose der NEA\n/transport — Bus, MRT, zu Fuß, Auto\n/carpark — die 5 nächsten mit freien Plätzen\n/language — App-Sprache · 8 Optionen (Chat bleibt EN/FR)\n/privacy — Daten, Speicherdauer & Quellen\n/legal — Haftungsausschluss & Gerichtsstand\n/forgetme — gespeicherte Daten löschen\n\nOder tippe auf die Menü-Schaltfläche (🍴 Cuisine Picker), um direkt loszulegen.',
+    zh: '想吃点不一样的？Soleat —— “Solo eats” / “So let’s eat” —— 带您探索新加坡 {cuisines} 种菜系交融的美食版图，以及其他城市，收录 {cuisine-venues} 家精选餐馆、小贩中心、米其林星级推荐、45 新元以下的必比登推介，还有天气与交通，全在一个 Telegram 指南里。从 /c /cuisine 或 /m /menu 开始\n\n/cuisine — 完整的 Cuisine Picker（超过 {cuisines} 种菜系、{cuisine-venues} 家精选餐馆，新加坡、新山及其他城市，6 个快捷筛选）\n/hawker — >{hawker} 家小贩中心（2025）\n/recognised — 米其林、必比登推介、亚洲 50/100 佳、本地食材上桌\n/l /location — 分享或设置您当前的位置\n/weather — 当前天气 + NEA 未来 2 小时预报\n/transport — 公交、地铁、步行、驾车\n/carpark — 最近的 5 个有空位的停车场\n/language — 应用语言 · 8 种选择（聊天仍为 EN/FR）\n/privacy — 数据、保存期限与来源\n/legal — 免责声明与司法管辖说明\n/forgetme — 删除您已保存的数据\n\n或点击菜单按钮（🍴 Cuisine Picker）直接开始。',
+    ja: 'いつもと違うものを食べたいですか？Soleat ——「Solo eats」/「So let’s eat」—— は、シンガポールの {cuisines} 種類の料理が交わる食の坩堝、そして他都市を、{cuisine-venues} 軒の厳選店、ホーカー、ミシュラン星付き、S$45 以下のビブグルマン、天気、交通とともに 1 つの Telegram ガイドで案内します。/c /cuisine または /m /menu から始めましょう\n\n/cuisine — フル機能の Cuisine Picker（{cuisines} 種類以上の料理、{cuisine-venues} 軒の厳選店、シンガポール、ジョホールバル＋他都市、6 つのクイックフィルター）\n/hawker — >{hawker} 軒のホーカーセンター（2025）\n/recognised — ミシュラン、ビブグルマン、アジア 50/100、地元産食材\n/l /location — 現在地を共有または設定\n/weather — 現在 + NEA の 2 時間予報\n/transport — バス、MRT、徒歩、車\n/carpark — 空きのある最寄り 5 か所\n/language — アプリの言語 · 8 種類（チャットは EN/FR のまま）\n/privacy — データ、保存期間、出典\n/legal — 免責事項と管轄について\n/forgetme — 保存データを削除\n\nまたはメニューボタン（🍴 Cuisine Picker）をタップしてすぐに始められます。',
+    es: '¿Te apetece algo más allá de lo habitual? Soleat — «Solo eats» / «So let’s eat» — te ayuda a explorar el crisol de {cuisines} cocinas de Singapur — y otras ciudades — con {cuisine-venues} locales seleccionados, hawkers, recomendaciones con estrella Michelin, favoritos Bib Gourmand por menos de S$45, el tiempo y el transporte en una sola guía de Telegram. Empieza con /c /cuisine o /m /menu\n\n/cuisine — Cuisine Picker completo (más de {cuisines} cocinas, {cuisine-venues} locales seleccionados, SG, Johor Bahru + otras ciudades, 6 filtros rápidos)\n/hawker — >{hawker} centros de comida callejera (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, producto local en mesa\n/l /location — comparte o fija tu ubicación actual\n/weather — ahora + previsión NEA a 2 horas\n/transport — autobús, MRT, a pie, en coche\n/carpark — los 5 más cercanos con plazas libres\n/language — idioma de la app · 8 opciones (el chat sigue en EN/FR)\n/privacy — datos, conservación y fuentes\n/legal — aviso legal y jurisdicción\n/forgetme — borra tus datos guardados\n\nO toca el botón de menú (🍴 Cuisine Picker) para empezar directamente.'
+  },
 
   // location flow
   'location.shareTap':         { en: '📍 Tap to share your current location.', fr: '📍 Touchez pour partager votre position actuelle.' ,
@@ -1569,15 +1597,27 @@ const STRINGS = {
                             ja: '地域名を入力してください（例：`/l Orchard Road`または`/l Bugis`）。デスクトップでは、共有ボタンよりも入力の方が確実です。',
                             es: 'Escribe tu zona; por ejemplo `/l Orchard Road` o `/l Bugis`. En ordenadores de sobremesa, escribir es más fiable que usar el botón de compartir.'
                           },
-  'loc.desktopNudge':          { en: '💻 On desktop? Telegram shares a map-pick, not GPS. If this is wrong, type /l <your area>.',
-                       fr: '💻 Sur ordinateur ? Telegram partage un point sur carte, pas le GPS. Si c’est faux, tapez /l <votre lieu>.',
-                       de: '💻 Auf dem Desktop? Telegram teilt eine Kartenposition, nicht GPS. Falls das falsch ist, gib /l <your area> ein.' },
+  'loc.desktopNudge':          {
+    en: '💻 On desktop? Telegram shares a map-pick, not GPS. If this is wrong, type /l <your area>.',
+    fr: '💻 Sur ordinateur ? Telegram partage un point sur carte, pas le GPS. Si c’est faux, tapez /l <votre lieu>.',
+    id: '💻 Di desktop? Telegram membagikan titik peta, bukan GPS. Kalau ini salah, ketik /l <your area>.',
+    ru: '💻 На компьютере? Telegram делится точкой на карте, а не GPS. Если это неверно, введите /l <your area>.',
+    de: '💻 Auf dem Desktop? Telegram teilt eine Kartenposition, nicht GPS. Falls das falsch ist, gib /l <your area> ein.',
+    zh: '💻 在电脑上？Telegram 分享的是地图上的点，不是 GPS。如果不对，请输入 /l <your area>。',
+    ja: '💻 デスクトップですか？Telegram が共有するのは地図上の地点で、GPS ではありません。違う場合は /l <your area> と入力してください。',
+    es: '💻 ¿En ordenador? Telegram comparte un punto del mapa, no el GPS. Si no es correcto, escribe /l <your area>.'
+  },
   // v0.59.6: ensureLocation prompts (the "two messages" /hidden bug).
-  'location.shareLabel':       { en: '📍 Share your location once so {label} uses your locale (or type `/location <place name>` to set it manually).',
-                          fr: '📍 Partagez votre position une fois pour que {label} utilise votre lieu (ou tapez `/location <nom du lieu>` pour le définir manuellement).',
-                          de: '📍 Teile deinen Standort einmalig, damit {label} deine Region verwendet (oder gib `/location <place name>` ein, um ihn manuell festzulegen).',
-                          zh: '📍 分享一次您的位置，以便 {label} 使用您的语言环境（或输入 `/location <place name>` 手动设置）。',
-                          ja: '📍 一度位置情報を共有すると、{label} であなたの地域設定が使用されます（または、`/location <place name>` を入力して手動で設定します）。' },
+  'location.shareLabel':       {
+    en: '📍 Share your location once so {label} uses your locale (or type `/location <place name>` to set it manually).',
+    fr: '📍 Partagez votre position une fois pour que {label} utilise votre lieu (ou tapez `/location <nom du lieu>` pour le définir manuellement).',
+    id: '📍 Bagikan lokasi Anda sekali agar {label} memakai wilayah Anda (atau ketik `/location <place name>` untuk mengaturnya manual).',
+    ru: '📍 Поделитесь местоположением один раз, чтобы {label} использовал ваш регион (или введите `/location <place name>`, чтобы задать вручную).',
+    de: '📍 Teile deinen Standort einmalig, damit {label} deine Region verwendet (oder gib `/location <place name>` ein, um ihn manuell festzulegen).',
+    zh: '📍 分享一次您的位置，以便 {label} 使用您的语言环境（或输入 `/location <place name>` 手动设置）。',
+    ja: '📍 一度位置情報を共有すると、{label} であなたの地域設定が使用されます（または、`/location <place name>` を入力して手動で設定します）。',
+    es: '📍 Comparte tu ubicación una vez para que {label} use tu región (o escribe `/location <place name>` para fijarla manualmente).'
+  },
   'location.current':          { en: '📍 Current: {addr}{age}', fr: '📍 Actuel : {addr}{age}' ,
                        id: '📍 Alamat saat ini: {addr}{age}',
                        ru: '📍 Текущий адрес: {addr}{age}',
@@ -1671,14 +1711,16 @@ const STRINGS = {
                  ja: '👋 Soleatへようこそ。現在地を共有していただくと、Soleatが保存済みの検索アンカーと比較できます。',
                  es: '👋 Bienvenido de nuevo a Soleat. Comparte tu ubicación actual para que Soleat pueda compararla con tu ancla de búsqueda guardada.'
                },
-  'wake2.body':                { en: '👋 <b>Welcome back to Soleat</b>\n\nYour device now appears to be near: <i>{deviceStreet}</i>\n\nSoleat is still using your saved search anchor:\n<b>{anchor}</b>\n\nContinue searching from the anchor, or update to your current location?\n\n<i>You can also type /l to search from another place, for example:\n/l Orchard Road\n/l IOI City Mall</i>',
-                                 fr: '👋 <b>Content de vous revoir sur Soleat</b>\n\nVotre appareil semble être près de : <i>{deviceStreet}</i>\n\nSoleat utilise toujours votre point de recherche enregistré :\n<b>{anchor}</b>\n\nContinuer depuis ce point, ou utiliser votre position actuelle ?\n\n<i>Vous pouvez aussi taper /l pour chercher depuis un autre lieu, par exemple :\n/l Orchard Road\n/l IOI City Mall</i>' ,
-                 ru: '👋 <b>Добро пожаловать обратно в Soleat</b>\n\nВаше устройство, похоже, находится рядом с: <i>{deviceStreet}</i>\n\nSoleat по-прежнему использует сохраненный вами якорь поиска:\n<b>{anchor}</b>\n\nПродолжить поиск с указанной точки или обновить данные, указав текущее местоположение?\n\n<i>Вы также можете ввести /l для поиска из другого места, например:\n/l Орчард Роуд\n/l Торговый центр IOI City Mall</i>',
-                 de: '👋 <b>Willkommen zurück bei Soleat</b>\n\nIhr Gerät befindet sich nun in der Nähe von: <i>{deviceStreet}</i>\n\nSoleat verwendet weiterhin Ihren gespeicherten Suchanker:\n<b>{anchor}</b>\n\nSuche vom Ausgangspunkt aus fortsetzen oder zu Ihrem aktuellen Standort wechseln?\n\n<i>Sie können auch /l eingeben, um von einem anderen Ort aus zu suchen, zum Beispiel:\n/l Orchard Road\n/l IOI City Mall</i>',
-                 zh: '👋 <b>欢迎回到 Soleat</b>\n\n您的设备现在似乎位于：<i>{deviceStreet}</i>\n\nSoleat 仍在使用您保存的搜索锚点：\n<b>{anchor}</b>\n\n继续从锚点搜索，还是更新到您当前的位置？\n\n<i>您也可以输入 /l 从其他位置进行搜索，例如：\n/l 乌节路\n/l IOI City Mall</i>',
-                 ja: '👋 <b>Soleatへようこそ</b>\n\nお使いのデバイスは現在、<i>{deviceStreet}</i>付近にあります。\n\nSoleatは、保存済みの検索アンカーをまだ使用しています。\n<b>{anchor}</b>\n\nアンカー地点から検索を続けるか、現在地へ更新するか？\n\n<i>また、/l と入力して別の場所から検索することもできます。例:\n/l Orchard Road\n/l IOI City Mall</i>',
-                 es: '👋 <b>Bienvenido de nuevo a Soleat</b>\n\nTu dispositivo ahora parece estar cerca de: <i>{deviceStreet}</i>\n\nSoleat sigue utilizando el ancla de búsqueda guardada:\n<b>{anchor}</b>\n\n¿Continuar la búsqueda desde el ancla o actualizar a tu ubicación actual?\n\n<i>También puedes escribir /l para buscar desde otro lugar, por ejemplo:\n/l Orchard Road\n/l IOI City Mall</i>'
-               },
+  'wake2.body':                {
+    en: '👋 <b>Welcome back to Soleat</b>\n\nYour device now appears to be near: <i>{deviceStreet}</i>\n\nSoleat is still using your saved search anchor:\n<b>{anchor}</b>\n\nContinue searching from the anchor, or update to your current location?\n\n<i>You can also type /l to search from another place, for example:\n/l Orchard Road\n/l IOI City Mall</i>',
+    fr: '👋 <b>Content de vous revoir sur Soleat</b>\n\nVotre appareil semble être près de : <i>{deviceStreet}</i>\n\nSoleat utilise toujours votre point de recherche enregistré :\n<b>{anchor}</b>\n\nContinuer depuis ce point, ou utiliser votre position actuelle ?\n\n<i>Vous pouvez aussi taper /l pour chercher depuis un autre lieu, par exemple :\n/l Orchard Road\n/l IOI City Mall</i>',
+    id: '👋 <b>Selamat datang kembali di Soleat</b>\n\nPerangkat Anda tampaknya berada di dekat: <i>{deviceStreet}</i>\n\nSoleat masih memakai titik acuan pencarian tersimpan Anda:\n<b>{anchor}</b>\n\nLanjutkan mencari dari titik acuan, atau perbarui ke lokasi Anda saat ini?\n\n<i>Anda juga bisa mengetik /l untuk mencari dari tempat lain, misalnya:\n/l Orchard Road\n/l IOI City Mall</i>',
+    ru: '👋 <b>Добро пожаловать обратно в Soleat</b>\n\nВаше устройство, похоже, находится рядом с: <i>{deviceStreet}</i>\n\nSoleat по-прежнему использует сохраненный вами якорь поиска:\n<b>{anchor}</b>\n\nПродолжить поиск с указанной точки или обновить данные, указав текущее местоположение?\n\n<i>Вы также можете ввести /l для поиска из другого места, например:\n/l Орчард Роуд\n/l Торговый центр IOI City Mall</i>',
+    de: '👋 <b>Willkommen zurück bei Soleat</b>\n\nIhr Gerät befindet sich nun in der Nähe von: <i>{deviceStreet}</i>\n\nSoleat verwendet weiterhin Ihren gespeicherten Suchanker:\n<b>{anchor}</b>\n\nSuche vom Ausgangspunkt aus fortsetzen oder zu Ihrem aktuellen Standort wechseln?\n\n<i>Sie können auch /l eingeben, um von einem anderen Ort aus zu suchen, zum Beispiel:\n/l Orchard Road\n/l IOI City Mall</i>',
+    zh: '👋 <b>欢迎回到 Soleat</b>\n\n您的设备现在似乎位于：<i>{deviceStreet}</i>\n\nSoleat 仍在使用您保存的搜索锚点：\n<b>{anchor}</b>\n\n继续从锚点搜索，还是更新到您当前的位置？\n\n<i>您也可以输入 /l 从其他位置进行搜索，例如：\n/l 乌节路\n/l IOI City Mall</i>',
+    ja: '👋 <b>Soleatへようこそ</b>\n\nお使いのデバイスは現在、<i>{deviceStreet}</i>付近にあります。\n\nSoleatは、保存済みの検索アンカーをまだ使用しています。\n<b>{anchor}</b>\n\nアンカー地点から検索を続けるか、現在地へ更新するか？\n\n<i>また、/l と入力して別の場所から検索することもできます。例:\n/l Orchard Road\n/l IOI City Mall</i>',
+    es: '👋 <b>Bienvenido de nuevo a Soleat</b>\n\nTu dispositivo ahora parece estar cerca de: <i>{deviceStreet}</i>\n\nSoleat sigue utilizando el ancla de búsqueda guardada:\n<b>{anchor}</b>\n\n¿Continuar la búsqueda desde el ancla o actualizar a tu ubicación actual?\n\n<i>También puedes escribir /l para buscar desde otro lugar, por ejemplo:\n/l Orchard Road\n/l IOI City Mall</i>'
+  },
   'wake2.btnCurrent':          { en: '📍 Use current location', fr: '📍 Position actuelle' ,
                        id: '📍 Gunakan lokasi saat ini',
                        ru: '📍 Использовать текущее местоположение',
@@ -1719,14 +1761,26 @@ const STRINGS = {
                  ja: '👍 保存した検索アンカーを保持します。',
                  es: '👍 Conservando tu ancla de búsqueda guardada.'
                },
-  'wake2.anotherHint':         { en: 'Type /l <place> to set a new anchor — for example /l Orchard Road or /l IOI City Mall. Or tap 📍 below to share a fresh GPS location.',
-                        fr: 'Tapez /l <lieu> pour définir un nouveau point — par exemple /l Orchard Road ou /l IOI City Mall. Ou touchez 📍 ci-dessous pour partager une position GPS fraîche.' },
-  'wake2.offerExpired':        { en: '⏱ That share expired. Tap /l to set a new anchor.',
-                         fr: '⏱ Ce partage a expiré. Tapez /l pour définir un nouveau point.',
-                         id: '⏱ Berbagi lokasi tersebut telah kedaluwarsa. Ketuk /l untuk mengatur titik acuan baru.',
-                         ru: '⏱ Срок действия этой публикации истек. Нажмите /l, чтобы установить новый якорь.',
-                         de: '⏱ Diese Freigabe ist abgelaufen. Tippen Sie auf /l, um einen neuen Anker festzulegen.',
-                         es: '⏱ Esa ubicación compartida ha caducado. Pulsa /l para establecer una nueva ancla.' },
+  'wake2.anotherHint':         {
+    en: 'Type /l <place> to set a new anchor — for example /l Orchard Road or /l IOI City Mall. Or tap 📍 below to share a fresh GPS location.',
+    fr: 'Tapez /l <lieu> pour définir un nouveau point — par exemple /l Orchard Road ou /l IOI City Mall. Ou touchez 📍 ci-dessous pour partager une position GPS fraîche.',
+    id: 'Ketik /l <place> untuk menetapkan titik acuan baru — misalnya /l Orchard Road atau /l IOI City Mall. Atau ketuk 📍 di bawah untuk membagikan lokasi GPS terbaru.',
+    ru: 'Введите /l <place>, чтобы задать новый якорь — например /l Orchard Road или /l IOI City Mall. Либо нажмите 📍 ниже, чтобы отправить свежие GPS-координаты.',
+    de: 'Tippe /l <place>, um einen neuen Anker zu setzen — zum Beispiel /l Orchard Road oder /l IOI City Mall. Oder tippe unten auf 📍, um einen frischen GPS-Standort zu teilen.',
+    zh: '输入 /l <place> 即可设置新的锚点 — 例如 /l Orchard Road 或 /l IOI City Mall。也可以点击下方的 📍 分享最新的 GPS 位置。',
+    ja: '/l <place> と入力すると新しいアンカーを設定できます — 例: /l Orchard Road や /l IOI City Mall。または下の 📍 をタップして最新の GPS 位置を共有してください。',
+    es: 'Escribe /l <place> para fijar una nueva ancla — por ejemplo /l Orchard Road o /l IOI City Mall. O toca 📍 abajo para compartir una ubicación GPS nueva.'
+  },
+  'wake2.offerExpired':        {
+    en: '⏱ That share expired. Tap /l to set a new anchor.',
+    fr: '⏱ Ce partage a expiré. Tapez /l pour définir un nouveau point.',
+    id: '⏱ Berbagi lokasi tersebut telah kedaluwarsa. Ketuk /l untuk mengatur titik acuan baru.',
+    ru: '⏱ Срок действия этой публикации истек. Нажмите /l, чтобы установить новый якорь.',
+    de: '⏱ Diese Freigabe ist abgelaufen. Tippen Sie auf /l, um einen neuen Anker festzulegen.',
+    zh: '⏱ 该共享已过期。点击 /l 设置新的锚点。',
+    ja: '⏱ その共有は期限切れです。/l をタップして新しいアンカーを設定してください。',
+    es: '⏱ Esa ubicación compartida ha caducado. Pulsa /l para establecer una nueva ancla.'
+  },
 
   // v0.59.3 — one-map buttons for transport sub-views.
   'transport.map.incidentsCaption': { en: '🗺 View {n} incidents on one map:', fr: '🗺 Voir les {n} incidents sur une carte :' ,
@@ -1800,37 +1854,167 @@ const STRINGS = {
                                },
 
   // v0.59.4 — /hidden chrome localisation.
-  'hidden.busy':                  { en: '⏳ Soleat is still working on your last request — hold on a moment.',
-                                    fr: '⏳ Soleat traite encore votre dernière demande — un instant.' },
-  'hidden.huntingLegacy':         { en: '🎲 Hunting for one hidden gem 1.5–3 km away…',
-                                    fr: '🎲 À la recherche d’un trésor caché à 1,5–3 km…' },
-  'hidden.legacyNotFound':        { en: "Soleat couldn't find a hidden gem in your annulus. Try moving area or open /cuisine.",
-                                    fr: 'Soleat n’a pas trouvé de trésor dans votre zone. Essayez ailleurs ou ouvrez /cuisine.' },
-  'hidden.anchorAmbiguous':       { en: "I couldn't pinpoint your area{anchor}. Type the building or area you're at — for example 'Raffles Place MRT Exit A' or 'Holland Village' — and I'll re-anchor /hidden.",
-                                    fr: 'Je n’ai pas pu cerner votre zone{anchor}. Tapez le bâtiment ou le quartier où vous êtes — par exemple « Raffles Place MRT Exit A » ou « Holland Village » — et je ré-ancrerai /hidden.' },
-  'hidden.anchorAmbiguous.got':   { en: ' (got "{name}")', fr: ' (reçu : « {name} »)' },
-  'hidden.searching':             { en: '🔍 Searching hidden gems near {anchor}… please wait.',
-                                    fr: '🔍 Recherche de trésors près de {anchor}… veuillez patienter.' },
-  'hidden.progress.1':            { en: '⏳ Still searching… cross-referencing recent food blogs and IG posts.',
-                                    fr: '⏳ Recherche en cours… recoupement des blogs et posts IG récents.' },
-  'hidden.progress.2':            { en: '⏳ Verifying source quality…',
-                                    fr: '⏳ Vérification de la qualité des sources…' },
-  'hidden.progress.3':            { en: '⏳ Checking opening dates and review counts against Google…',
-                                    fr: '⏳ Vérification des dates d’ouverture et du nombre d’avis sur Google…' },
-  'hidden.progress.4':            { en: '⏳ Almost there — drafting the picks.',
-                                    fr: '⏳ Presque fini — rédaction des choix.' },
-  'hidden.progress.5':            { en: "⏳ Hang tight — Gemini is being thorough so the picks aren't fluff.",
-                                    fr: '⏳ Patientez — Gemini fait ça soigneusement pour éviter les choix bidons.' },
-  'hidden.timeout':               { en: '⏱ /hidden timed out after 4 minutes — Gemini was unresponsive on every fallback model.\n\nThis usually clears in a few minutes. Try again, or check Google AI Studio status if it persists.',
-                                    fr: '⏱ /hidden a dépassé le délai de 4 minutes — Gemini n’a pas répondu sur aucun modèle de repli.\n\nCela se résout en général en quelques minutes. Réessayez, ou vérifiez l’état de Google AI Studio si le problème persiste.' },
-  'hidden.overload':              { en: '⚠️ Gemini is currently overloaded (503 high demand on every fallback model).\n\nTry /hidden again in a minute or two — your location is still cached so retry will be fast.',
-                                    fr: '⚠️ Gemini est actuellement saturé (erreur 503 « high demand » sur tous les modèles de repli).\n\nRéessayez /hidden dans une minute ou deux — votre position est en cache, le réessai sera rapide.' },
-  'hidden.outerError':            { en: "Sorry, /hidden hit an unexpected error. The team's been notified — please retry shortly.",
-                                    fr: 'Désolé, /hidden a rencontré une erreur inattendue. L’équipe a été notifiée — veuillez réessayer bientôt.' },
-  'hidden.allClosed':             { en: 'All picks Gemini found turned out to be temporarily or permanently closed. Try again in a minute — Gemini may surface different gems on retry.',
-                                    fr: 'Toutes les trouvailles proposées par Gemini se sont révélées temporairement ou définitivement fermées. Réessayez dans une minute — Gemini peut proposer d’autres trésors.' },
+  'hidden.busy':                  {
+    en: '⏳ Soleat is still working on your last request — hold on a moment.',
+    fr: '⏳ Soleat traite encore votre dernière demande — un instant.',
+    id: '⏳ Soleat masih memproses permintaan terakhir Anda — mohon tunggu sebentar.',
+    ru: '⏳ Soleat всё ещё обрабатывает ваш последний запрос — подождите немного.',
+    de: '⏳ Soleat arbeitet noch an deiner letzten Anfrage – einen Moment bitte.',
+    zh: '⏳ Soleat 仍在处理您的上一个请求——请稍等片刻。',
+    ja: '⏳ Soleat は前回のリクエストをまだ処理中です。少々お待ちください。',
+    es: '⏳ Soleat sigue trabajando en tu última solicitud; espera un momento.'
+  },
+  'hidden.huntingLegacy':         {
+    en: '🎲 Hunting for one hidden gem 1.5–3 km away…',
+    fr: '🎲 À la recherche d’un trésor caché à 1,5–3 km…',
+    id: '🎲 Mencari satu permata tersembunyi berjarak 1,5–3 km…',
+    ru: '🎲 Ищу одну скрытую жемчужину в 1,5–3 км отсюда…',
+    de: '🎲 Suche nach einem versteckten Juwel in 1,5–3 km Entfernung…',
+    zh: '🎲 正在寻找 1.5–3 公里外的一处隐藏宝藏…',
+    ja: '🎲 1.5〜3 km 先の隠れた名店を探しています…',
+    es: '🎲 Buscando una joya escondida a 1,5–3 km…'
+  },
+  'hidden.legacyNotFound':        {
+    en: 'Soleat couldn\'t find a hidden gem in your annulus. Try moving area or open /cuisine.',
+    fr: 'Soleat n’a pas trouvé de trésor dans votre zone. Essayez ailleurs ou ouvrez /cuisine.',
+    id: 'Soleat tidak menemukan permata tersembunyi di radius itu. Coba pindah area atau buka /cuisine.',
+    ru: 'Soleat не нашёл скрытых жемчужин в этом кольце. Попробуйте другой район или откройте /cuisine.',
+    de: 'Soleat hat in deinem Umkreis kein verstecktes Juwel gefunden. Versuche eine andere Gegend oder öffne /cuisine.',
+    zh: 'Soleat 在该范围内没有找到隐藏宝藏。换个区域试试，或打开 /cuisine。',
+    ja: 'Soleat はこの範囲で隠れた名店を見つけられませんでした。エリアを変えるか /cuisine を開いてください。',
+    es: 'Soleat no encontró ninguna joya escondida en esa franja. Prueba en otra zona o abre /cuisine.'
+  },
+  'hidden.anchorAmbiguous':       {
+    en: 'I couldn\'t pinpoint your area{anchor}. Type the building or area you\'re at — for example \'Raffles Place MRT Exit A\' or \'Holland Village\' — and I\'ll re-anchor /hidden.',
+    fr: 'Je n’ai pas pu cerner votre zone{anchor}. Tapez le bâtiment ou le quartier où vous êtes — par exemple « Raffles Place MRT Exit A » ou « Holland Village » — et je ré-ancrerai /hidden.',
+    id: 'Saya tidak bisa memastikan area Anda{anchor}. Ketik nama gedung atau kawasan tempat Anda berada — misalnya \'Raffles Place MRT Exit A\' atau \'Holland Village\' — dan saya akan menetapkan ulang acuan /hidden.',
+    ru: 'Не удалось точно определить ваш район{anchor}. Введите здание или район, где вы находитесь — например «Raffles Place MRT Exit A» или «Holland Village» — и я перенастрою /hidden.',
+    de: 'Ich konnte deine Gegend nicht genau bestimmen{anchor}. Tippe das Gebäude oder Viertel ein, in dem du bist — zum Beispiel „Raffles Place MRT Exit A“ oder „Holland Village“ — und ich verankere /hidden neu.',
+    zh: '我无法确定您所在的区域{anchor}。请输入您所在的建筑或地区 — 例如“Raffles Place MRT Exit A”或“Holland Village” — 我会重新锚定 /hidden。',
+    ja: 'エリアを特定できませんでした{anchor}。今いる建物または地区を入力してください — 例:「Raffles Place MRT Exit A」や「Holland Village」 — /hidden を再設定します。',
+    es: 'No pude precisar tu zona{anchor}. Escribe el edificio o barrio en el que estás — por ejemplo «Raffles Place MRT Exit A» u «Holland Village» — y volveré a anclar /hidden.'
+  },
+  'hidden.anchorAmbiguous.got':   {
+    en: ' (got "{name}")',
+    fr: ' (reçu : « {name} »)',
+    id: ' (diterima "{name}")',
+    ru: ' (получено «{name}»)',
+    de: ' (erhalten: „{name}“)',
+    zh: '（收到“{name}”）',
+    ja: '（「{name}」を受信）',
+    es: ' (recibido «{name}»)'
+  },
+  'hidden.searching':             {
+    en: '🔍 Searching hidden gems near {anchor}… please wait.',
+    fr: '🔍 Recherche de trésors près de {anchor}… veuillez patienter.',
+    id: '🔍 Mencari permata tersembunyi di dekat {anchor}… mohon tunggu.',
+    ru: '🔍 Ищу скрытые жемчужины рядом с {anchor}… пожалуйста, подождите.',
+    de: '🔍 Suche versteckte Juwelen in der Nähe von {anchor}… bitte warten.',
+    zh: '🔍 正在 {anchor} 附近寻找隐藏宝藏…请稍候。',
+    ja: '🔍 {anchor} 周辺の隠れた名店を検索中…お待ちください。',
+    es: '🔍 Buscando joyas escondidas cerca de {anchor}… espera un momento.'
+  },
+  'hidden.progress.1':            {
+    en: '⏳ Still searching… cross-referencing recent food blogs and IG posts.',
+    fr: '⏳ Recherche en cours… recoupement des blogs et posts IG récents.',
+    id: '⏳ Masih mencari… menyilangkan blog kuliner dan unggahan IG terbaru.',
+    ru: '⏳ Всё ещё ищу… сверяю свежие фуд-блоги и посты в IG.',
+    de: '⏳ Suche läuft… gleiche aktuelle Food-Blogs und IG-Posts ab.',
+    zh: '⏳ 仍在搜索…正在比对近期美食博客与 IG 帖子。',
+    ja: '⏳ まだ検索中…最近のフードブログと IG 投稿を照合しています。',
+    es: '⏳ Sigo buscando… cruzando blogs gastronómicos y publicaciones de IG recientes.'
+  },
+  'hidden.progress.2':            {
+    en: '⏳ Verifying source quality…',
+    fr: '⏳ Vérification de la qualité des sources…',
+    id: '⏳ Memverifikasi kualitas sumber…',
+    ru: '⏳ Проверяю качество источников…',
+    de: '⏳ Prüfe die Qualität der Quellen…',
+    zh: '⏳ 正在核验来源质量…',
+    ja: '⏳ 情報源の信頼性を確認中…',
+    es: '⏳ Verificando la calidad de las fuentes…'
+  },
+  'hidden.progress.3':            {
+    en: '⏳ Checking opening dates and review counts against Google…',
+    fr: '⏳ Vérification des dates d’ouverture et du nombre d’avis sur Google…',
+    id: '⏳ Mencocokkan tanggal buka dan jumlah ulasan dengan Google…',
+    ru: '⏳ Сверяю даты открытия и количество отзывов с Google…',
+    de: '⏳ Gleiche Eröffnungsdaten und Bewertungszahlen mit Google ab…',
+    zh: '⏳ 正在与 Google 核对开业日期和评价数量…',
+    ja: '⏳ 開店日とレビュー数を Google と照合中…',
+    es: '⏳ Comprobando fechas de apertura y número de reseñas en Google…'
+  },
+  'hidden.progress.4':            {
+    en: '⏳ Almost there — drafting the picks.',
+    fr: '⏳ Presque fini — rédaction des choix.',
+    id: '⏳ Hampir selesai — sedang menyusun pilihannya.',
+    ru: '⏳ Почти готово — составляю подборку.',
+    de: '⏳ Fast fertig — die Auswahl wird zusammengestellt.',
+    zh: '⏳ 快好了 — 正在整理推荐。',
+    ja: '⏳ もう少しです — おすすめをまとめています。',
+    es: '⏳ Casi listo — preparando las recomendaciones.'
+  },
+  'hidden.progress.5':            {
+    en: '⏳ Hang tight — Gemini is being thorough so the picks aren\'t fluff.',
+    fr: '⏳ Patientez — Gemini fait ça soigneusement pour éviter les choix bidons.',
+    id: '⏳ Sabar sebentar — Gemini sedang teliti agar pilihannya bukan asal-asalan.',
+    ru: '⏳ Немного терпения — Gemini работает тщательно, чтобы подборка не была пустой.',
+    de: '⏳ Einen Moment — Gemini arbeitet gründlich, damit die Auswahl kein Füllmaterial ist.',
+    zh: '⏳ 请稍候 — Gemini 正在仔细筛选，避免敷衍的推荐。',
+    ja: '⏳ もう少しお待ちください — Gemini が丁寧に選んでいるので、中身のない推薦にはなりません。',
+    es: '⏳ Un momento — Gemini está siendo minucioso para que las recomendaciones no sean relleno.'
+  },
+  'hidden.timeout':               {
+    en: '⏱ /hidden timed out after 4 minutes — Gemini was unresponsive on every fallback model.\n\nThis usually clears in a few minutes. Try again, or check Google AI Studio status if it persists.',
+    fr: '⏱ /hidden a dépassé le délai de 4 minutes — Gemini n’a pas répondu sur aucun modèle de repli.\n\nCela se résout en général en quelques minutes. Réessayez, ou vérifiez l’état de Google AI Studio si le problème persiste.',
+    id: '⏱ /hidden habis waktu setelah 4 menit — Gemini tidak merespons di semua model cadangan.\n\nBiasanya pulih dalam beberapa menit. Coba lagi, atau periksa status Google AI Studio jika terus terjadi.',
+    ru: '⏱ /hidden прервался по тайм-ауту через 4 минуты — Gemini не ответил ни на одной запасной модели.\n\nОбычно это проходит за несколько минут. Попробуйте снова или проверьте статус Google AI Studio, если повторяется.',
+    de: '⏱ /hidden ist nach 4 Minuten abgelaufen — Gemini hat auf keinem Ersatzmodell geantwortet.\n\nDas löst sich meist in wenigen Minuten. Versuche es erneut oder prüfe den Status von Google AI Studio, wenn es anhält.',
+    zh: '⏱ /hidden 在 4 分钟后超时 — 所有备用模型上 Gemini 均无响应。\n\n通常几分钟后就会恢复。请重试，若持续出现请查看 Google AI Studio 状态。',
+    ja: '⏱ /hidden は 4 分でタイムアウトしました — すべてのフォールバックモデルで Gemini が無応答でした。\n\n通常は数分で解消します。再試行するか、続く場合は Google AI Studio のステータスをご確認ください。',
+    es: '⏱ /hidden ha expirado tras 4 minutos — Gemini no respondió en ningún modelo de reserva.\n\nSuele resolverse en unos minutos. Inténtalo de nuevo o revisa el estado de Google AI Studio si persiste.'
+  },
+  'hidden.overload':              {
+    en: '⚠️ Gemini is currently overloaded (503 high demand on every fallback model).\n\nTry /hidden again in a minute or two — your location is still cached so retry will be fast.',
+    fr: '⚠️ Gemini est actuellement saturé (erreur 503 « high demand » sur tous les modèles de repli).\n\nRéessayez /hidden dans une minute ou deux — votre position est en cache, le réessai sera rapide.',
+    id: '⚠️ Gemini sedang kelebihan beban (503 permintaan tinggi di semua model cadangan).\n\nCoba /hidden lagi satu dua menit — lokasi Anda masih tersimpan, jadi percobaan ulang akan cepat.',
+    ru: '⚠️ Gemini сейчас перегружен (503, высокий спрос на всех запасных моделях).\n\nПопробуйте /hidden через минуту-две — ваше местоположение в кэше, повтор будет быстрым.',
+    de: '⚠️ Gemini ist derzeit überlastet (503, hohe Nachfrage auf allen Ersatzmodellen).\n\nVersuche /hidden in ein bis zwei Minuten erneut — dein Standort ist noch zwischengespeichert, der Neuversuch geht schnell.',
+    zh: '⚠️ Gemini 当前过载（所有备用模型均返回 503 高需求）。\n\n请一两分钟后重试 /hidden — 您的位置仍在缓存中，重试会很快。',
+    ja: '⚠️ Gemini は現在混雑しています（すべてのフォールバックモデルで 503 の高負荷）。\n\n1〜2 分後にもう一度 /hidden をお試しください — 位置情報はキャッシュ済みなので再試行は高速です。',
+    es: '⚠️ Gemini está saturado ahora mismo (error 503 por alta demanda en todos los modelos de reserva).\n\nVuelve a probar /hidden en un minuto o dos — tu ubicación sigue en caché, así que el reintento será rápido.'
+  },
+  'hidden.outerError':            {
+    en: 'Sorry, /hidden hit an unexpected error. The team\'s been notified — please retry shortly.',
+    fr: 'Désolé, /hidden a rencontré une erreur inattendue. L’équipe a été notifiée — veuillez réessayer bientôt.',
+    id: 'Maaf, /hidden mengalami kesalahan tak terduga. Tim sudah diberi tahu — silakan coba lagi sebentar lagi.',
+    ru: 'Извините, в /hidden произошла непредвиденная ошибка. Команда уведомлена — повторите попытку чуть позже.',
+    de: 'Entschuldigung, /hidden ist auf einen unerwarteten Fehler gestoßen. Das Team ist informiert — bitte versuche es gleich noch einmal.',
+    zh: '抱歉，/hidden 遇到意外错误。团队已收到通知 — 请稍后重试。',
+    ja: '申し訳ありません、/hidden で予期しないエラーが発生しました。チームに通知済みです — 少し後にもう一度お試しください。',
+    es: 'Lo sentimos, /hidden ha dado un error inesperado. El equipo ha sido avisado — inténtalo de nuevo en breve.'
+  },
+  'hidden.allClosed':             {
+    en: 'All picks Gemini found turned out to be temporarily or permanently closed. Try again in a minute — Gemini may surface different gems on retry.',
+    fr: 'Toutes les trouvailles proposées par Gemini se sont révélées temporairement ou définitivement fermées. Réessayez dans une minute — Gemini peut proposer d’autres trésors.',
+    id: 'Semua pilihan yang ditemukan Gemini ternyata tutup sementara atau permanen. Coba lagi sebentar lagi — Gemini mungkin memunculkan permata lain.',
+    ru: 'Все найденные Gemini места оказались временно или окончательно закрыты. Попробуйте через минуту — Gemini может предложить другие жемчужины.',
+    de: 'Alle von Gemini gefundenen Tipps waren vorübergehend oder dauerhaft geschlossen. Versuche es in einer Minute erneut — Gemini findet beim nächsten Mal vielleicht andere Juwelen.',
+    zh: 'Gemini 找到的推荐都已暂时或永久停业。请一分钟后重试 — Gemini 可能会给出别的宝藏。',
+    ja: 'Gemini が見つけた候補はすべて一時休業または閉店でした。1 分ほど後にもう一度お試しください — 別の名店が出てくるかもしれません。',
+    es: 'Todas las recomendaciones que encontró Gemini resultaron estar cerradas temporal o definitivamente. Inténtalo en un minuto — Gemini puede sacar otras joyas.'
+  },
   // v0.61.319 — "Latest review" card line on /hidden rich venue cards.
-  'hidden.latestReviewLabel':     { en: '📝 Latest review ·', fr: '📝 Dernier avis ·' },
+  'hidden.latestReviewLabel':     {
+    en: '📝 Latest review ·',
+    fr: '📝 Dernier avis ·',
+    id: '📝 Ulasan terbaru ·',
+    ru: '📝 Последний отзыв ·',
+    de: '📝 Neueste Bewertung ·',
+    zh: '📝 最新评价 ·',
+    ja: '📝 最新のレビュー ·',
+    es: '📝 Última reseña ·'
+  },
 
   // v0.59.4 — single-pick result-card "Nearby carparks" map button.
   'card.carparkMapBtn':           { en: '🅿️ Nearby carparks on map', fr: '🅿️ Parkings proches sur la carte' ,
@@ -1893,15 +2077,16 @@ const STRINGS = {
       'Vous pouvez effacer vos données enregistrées à tout moment en tapant /forgetme.'
     ].join('\n')
   },
-  'privacy.error':                { en: 'Sorry, /privacy hit an error. Please try again in a moment.',
-                                    fr: 'Désolé, /privacy a rencontré une erreur. Veuillez réessayer dans un instant.' ,
-                    id: 'Maaf, /privacy mengalami kesalahan. Silakan coba lagi sebentar lagi.',
-                    ru: 'Извините, в /privacy произошла ошибка. Пожалуйста, попробуйте ещё раз через минуту.',
-                    de: 'Entschuldigung, beim Aufruf /privacy ist ein Fehler aufgetreten. Bitte versuchen Sie es in Kürze erneut.',
-                    es: 'Lo sentimos, se ha producido un error en /privacy. Inténtalo de nuevo en un momento.'
-                  ,
-                    zh: '抱歉，/privacy 出错了。请稍后再试。'
-                  },
+  'privacy.error':                {
+    en: 'Sorry, /privacy hit an error. Please try again in a moment.',
+    fr: 'Désolé, /privacy a rencontré une erreur. Veuillez réessayer dans un instant.',
+    id: 'Maaf, /privacy mengalami kesalahan. Silakan coba lagi sebentar lagi.',
+    ru: 'Извините, в /privacy произошла ошибка. Пожалуйста, попробуйте ещё раз через минуту.',
+    de: 'Entschuldigung, beim Aufruf /privacy ist ein Fehler aufgetreten. Bitte versuchen Sie es in Kürze erneut.',
+    zh: '抱歉，/privacy 出错了。请稍后再试。',
+    ja: '申し訳ありません、/privacy でエラーが発生しました。しばらくしてからもう一度お試しください。',
+    es: 'Lo sentimos, se ha producido un error en /privacy. Inténtalo de nuevo en un momento.'
+  },
 
   // v0.60.169 — /legal body migrated from a hard-coded English string
   // in index.js runLegalCommand to a localised i18n key (EN + FR),
@@ -1970,15 +2155,16 @@ const STRINGS = {
       '2026'
     ].join('\n')
   },
-  'legal.error':                  { en: 'Sorry, /legal hit an error. Try again in a moment.',
-                                    fr: 'Désolé, /legal a rencontré une erreur. Veuillez réessayer dans un instant.' ,
-                  id: 'Maaf, /legal mengalami kesalahan. Coba lagi sebentar lagi.',
-                  ru: 'Извините, в /legal произошла ошибка. Попробуйте еще раз через минуту.',
-                  de: 'Entschuldigung, /legal ist auf einen Fehler gestoßen. Bitte versuchen Sie es in Kürze erneut.',
-                  es: 'Lo sentimos, /legal ha dado un error. Inténtalo de nuevo en un momento.'
-                ,
-                  zh: '抱歉，/legal 出错了。请稍后再试。'
-                },
+  'legal.error':                  {
+    en: 'Sorry, /legal hit an error. Try again in a moment.',
+    fr: 'Désolé, /legal a rencontré une erreur. Veuillez réessayer dans un instant.',
+    id: 'Maaf, /legal mengalami kesalahan. Coba lagi sebentar lagi.',
+    ru: 'Извините, в /legal произошла ошибка. Попробуйте еще раз через минуту.',
+    de: 'Entschuldigung, /legal ist auf einen Fehler gestoßen. Bitte versuchen Sie es in Kürze erneut.',
+    zh: '抱歉，/legal 出错了。请稍后再试。',
+    ja: '申し訳ありません、/legal でエラーが発生しました。しばらくしてからもう一度お試しください。',
+    es: 'Lo sentimos, /legal ha dado un error. Inténtalo de nuevo en un momento.'
+  },
 
   // v0.59.13 — /recognised localisation
   'recognised.heading':           { en: '🏆 *Singapore — recognised dining*', fr: '🏆 *Singapour — restaurants reconnus*' ,

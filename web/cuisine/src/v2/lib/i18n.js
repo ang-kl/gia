@@ -762,6 +762,10 @@ const ID_STRINGS = {
   "sheet.dragHandle": "Seret untuk mengubah ukuran daftar",
   "localeToggle.language": "Bahasa",
   "localeToggle.close": "Tutup",
+  'michelin.yearUnavailable': 'belum dipublikasikan untuk negara ini',
+  'michelin.yearUnavailableNote': 'Tahun yang diredupkan belum memiliki entri untuk negara ini.',
+  'michelin.lastTick': 'setidaknya satu harus tetap aktif',
+  'michelin.lastTickNote': 'Setidaknya satu filter harus tetap aktif — aktifkan kembali filter lain terlebih dahulu.',
 };
 for (const [k, v] of Object.entries(ID_STRINGS)) {
   if (STRINGS[k] && STRINGS[k].id == null) STRINGS[k].id = v;
@@ -999,6 +1003,11 @@ const RU_STRINGS = {
   "sheet.dragHandle": "Перетащите, чтобы изменить размер списка",
   "localeToggle.language": "Язык",
   "localeToggle.close": "Закрыть",
+  'michelin.yearUnavailable': 'для этой страны ещё не опубликовано',
+  'michelin.yearUnavailableNote': 'Для затемнённых годов записей по этой стране пока нет.',
+  'michelin.lastTick': 'хотя бы один должен остаться включённым',
+  'michelin.lastTickNote': 'Хотя бы один фильтр должен остаться включённым — сначала включите другой.',
+  'card.distAway': ' от вас',
 };
 // ----- German (de) overlay — v0.62.313. Compounds abbreviated where tight; agent-verified. -----
 const DE_STRINGS = {
@@ -1232,6 +1241,10 @@ const DE_STRINGS = {
   "sheet.dragHandle": "Liste durch Ziehen vergrößern oder verkleinern",
   "localeToggle.language": "Sprache",
   "localeToggle.close": "Schließen",
+  'michelin.yearUnavailable': 'für dieses Land noch nicht veröffentlicht',
+  'michelin.yearUnavailableNote': 'Ausgegraute Jahre haben für dieses Land noch keine Einträge.',
+  'michelin.lastTick': 'mindestens einer muss aktiv bleiben',
+  'michelin.lastTickNote': 'Mindestens ein Filter muss aktiv bleiben — schalte zuerst einen anderen wieder ein.',
 };
 // ----- Chinese (zh, Simplified) overlay — v0.62.x, Phase 3. Curated; controls
 // kept compact (Chinese is dense) so pills don't overflow. -----
@@ -1464,6 +1477,11 @@ const ZH_STRINGS = {
   "sheet.dragHandle": "拖动以调整列表大小",
   "localeToggle.language": "语言",
   "localeToggle.close": "关闭",
+  'special.durian-pastry.blocked': '🥐 榴莲糕点搜索仅在新加坡、马来西亚、印度尼西亚、泰国、菲律宾、文莱和越南提供。',
+  'michelin.yearUnavailable': '该国家尚未发布',
+  'michelin.yearUnavailableNote': '灰显的年份在该国家尚无条目。',
+  'michelin.lastTick': '至少需保留一项',
+  'michelin.lastTickNote': '至少需保留一个筛选条件 — 请先重新启用另一个。',
 };
 for (const [k, v] of Object.entries(RU_STRINGS)) { if (STRINGS[k] && STRINGS[k].ru == null) STRINGS[k].ru = v; }
 for (const [k, v] of Object.entries(DE_STRINGS)) { if (STRINGS[k] && STRINGS[k].de == null) STRINGS[k].de = v; }
@@ -1698,6 +1716,11 @@ const JA_STRINGS = {
   "sheet.dragHandle": "ドラッグしてリストのサイズを変更",
   "localeToggle.language": "言語",
   "localeToggle.close": "閉じる",
+  'special.durian-pastry.blocked': '🥐 ドリアンペストリーの検索は、シンガポール、マレーシア、インドネシア、タイ、フィリピン、ブルネイ、ベトナムでのみご利用いただけます。',
+  'michelin.yearUnavailable': 'この国ではまだ公開されていません',
+  'michelin.yearUnavailableNote': 'グレー表示の年は、この国の掲載がまだありません。',
+  'michelin.lastTick': '少なくとも1つは有効のままにしてください',
+  'michelin.lastTickNote': '少なくとも1つのフィルターは有効のままにしてください — 先に別のフィルターをオンに戻してください。',
 };
 // ----- Spanish (es) overlay — v0.62.x, Phase 3. -----
 const ES_STRINGS = {
@@ -1929,6 +1952,11 @@ const ES_STRINGS = {
   "sheet.dragHandle": "Arrastra para cambiar el tamaño de la lista",
   "localeToggle.language": "Idioma",
   "localeToggle.close": "Cerrar",
+  'special.durian-pastry.blocked': '🥐 La búsqueda de repostería de durián solo está disponible en Singapur, Malasia, Indonesia, Tailandia, Filipinas, Brunéi y Vietnam.',
+  'michelin.yearUnavailable': 'aún no publicado para este país',
+  'michelin.yearUnavailableNote': 'Los años en gris aún no tienen entradas para este país.',
+  'michelin.lastTick': 'al menos uno debe seguir activo',
+  'michelin.lastTickNote': 'Al menos un filtro debe seguir activo — vuelve a activar otro primero.',
 };
 for (const [k, v] of Object.entries(JA_STRINGS)) { if (STRINGS[k] && STRINGS[k].ja == null) STRINGS[k].ja = v; }
 for (const [k, v] of Object.entries(ES_STRINGS)) { if (STRINGS[k] && STRINGS[k].es == null) STRINGS[k].es = v; }

@@ -240,6 +240,8 @@ const ID_STRINGS = {
   'loc.other.cancel': '✕ Batal · ketik lagi',
   'rating.resetTitle': 'Rating disetel ulang: Bagus+ ≥ 3,7⭐',
   'rating.resetBody': 'Menampilkan tempat makan dengan rating Google yang umumnya bagus.',
+  'hero.title': 'Menu Soleat',
+  'tile.sketchbook.sub': 'Simpan & atur tempat makan Anda ke dalam lemari',
 };
 for (const k in ID_STRINGS) {
   if (STRINGS[k] && STRINGS[k].id == null) STRINGS[k].id = ID_STRINGS[k];
@@ -314,6 +316,8 @@ const RU_STRINGS = {
   'loc.other.cancel': '✕ Отмена · ввести снова',
   'rating.resetTitle': 'Рейтинг сброшен: Хорошо+ ≥ 3,7⭐',
   'rating.resetBody': 'Показаны заведения с в целом хорошими оценками Google.',
+  'hero.title': 'Меню Soleat',
+  'tile.sketchbook.sub': 'Сохраняйте и раскладывайте заведения по шкафчикам',
 };
 
 // ----- German (de) overlay — v0.62.311. Compounds abbreviated where tight. -----
@@ -385,6 +389,8 @@ const DE_STRINGS = {
   'loc.other.cancel': '✕ Abbrechen · erneut',
   'rating.resetTitle': 'Bewertung zurückgesetzt: Gut+ ≥ 3,7⭐',
   'rating.resetBody': 'Zeigt Lokale mit allgemein guten Google-Bewertungen.',
+  'hero.title': 'Soleat Menü',
+  'tile.sketchbook.sub': 'Speichere und ordne deine Lokale in Schränken',
 };
 for (const k in RU_STRINGS) { if (STRINGS[k] && STRINGS[k].ru == null) STRINGS[k].ru = RU_STRINGS[k]; }
 for (const k in DE_STRINGS) { if (STRINGS[k] && STRINGS[k].de == null) STRINGS[k].de = DE_STRINGS[k]; }
@@ -459,6 +465,8 @@ const ZH_STRINGS = {
   'loc.other.cancel': '✕ 取消 · 重新输入',
   'rating.resetTitle': '评分已重置：优良+ ≥ 3.7⭐',
   'rating.resetBody': '显示 Google 评分总体良好的餐馆。',
+  'hero.title': 'Soleat 菜单',
+  'tile.sketchbook.sub': '把你收藏的餐馆整理到柜子里',
 };
 for (const k in ZH_STRINGS) { if (STRINGS[k] && STRINGS[k].zh == null) STRINGS[k].zh = ZH_STRINGS[k]; }
 
@@ -532,6 +540,8 @@ const JA_STRINGS = {
   'loc.other.cancel': '✕ キャンセル · 再入力',
   'rating.resetTitle': '評価をリセット: 高評価+ ≥ 3.7⭐',
   'rating.resetBody': 'Googleで概ね高評価の飲食店を表示します。',
+  'hero.title': 'Soleat メニュー',
+  'tile.sketchbook.sub': 'お気に入りの飲食店を保存してキャビネットに整理',
 };
 for (const k in JA_STRINGS) { if (STRINGS[k] && STRINGS[k].ja == null) STRINGS[k].ja = JA_STRINGS[k]; }
 
@@ -605,6 +615,8 @@ const ES_STRINGS = {
   'loc.other.cancel': '✕ Cancelar · reintentar',
   'rating.resetTitle': 'Valoración reajustada: Bueno+ ≥ 3.7⭐',
   'rating.resetBody': 'Muestra restaurantes con valoraciones de Google generalmente buenas.',
+  'hero.title': 'Menú Soleat',
+  'tile.sketchbook.sub': 'Guarda y organiza tus locales en armarios',
 };
 for (const k in ES_STRINGS) { if (STRINGS[k] && STRINGS[k].es == null) STRINGS[k].es = ES_STRINGS[k]; }
 

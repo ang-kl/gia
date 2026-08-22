@@ -44,6 +44,17 @@ const SHOW_FAILURES = args.includes('--failures');
 // a shape means a string with no tags is not expected to grow any.
 // Telegram's HTML parse_mode accepts exactly this tag set. Anything else between
 // angle brackets is an unknown tag and Telegram rejects the WHOLE message.
+// A command is only a command where Telegram would parse one: the `/` must not follow
+// a word character. That is the actual entity rule, and it is what separates a command
+// from a slash used as "or" inside a word — French `Dim/fériés` and Spanish
+// `Dom/feriados` (for EN "Sun/PH") both matched `/f` under the old unanchored pattern
+// and failed a check about Telegram syntax they never used. Anything non-word opens a
+// command, including the full-width punctuation Chinese and Japanese put in front of
+// one: `抱歉，/forgetme` and `申し訳ありません、/forgetme` are both real commands.
+const CMD_SRC = '(?:^|[^A-Za-z0-9_])(/[a-z]{1,15})';
+const CMD_RE = new RegExp(CMD_SRC, 'g');
+const CMD_RE_G = new RegExp(CMD_SRC, 'g');
+
 const TG_TAGS = 'b|strong|i|em|u|ins|s|strike|del|code|pre|a|tg-spoiler|blockquote';
 const TAG_RE = new RegExp(`</?(?:${TG_TAGS})(?:\\s[^>]*)?>`, 'g');
 
@@ -71,7 +82,15 @@ const CHECKS = [
   // minimum meant neither command check ever looked at it. Six `wake2.anotherHint`
   // translations shipped with `/l<place>` — the delimiter gone, the command dead —
   // and passed the gate cleanly. Found by Codex on PR #1724.
-  ['commands',     (s) => (s.match(/\/[a-z]{1,15}\b/g) || []).sort().join(',')],
+  // v0.62.733 — a Telegram command starts at a word boundary: the beginning of the
+  // string, whitespace, or an opening delimiter such as a backtick or bracket. Without
+  // that anchor a slash used as "or" inside a word registers as a command: French
+  // `Dim/fériés` and Spanish `Dom/feriados` (for EN "Sun/PH") both matched `/f`, so a
+  // correct translation failed a check about Telegram syntax it never used.
+  // Take the CAPTURE, not the whole match: the pattern deliberately consumes the
+  // character before the slash, and `.trim()` only strips whitespace — so a command
+  // after a full-width comma compared as `，/forgetme` against English `/forgetme`.
+  ['commands',     (s) => [...String(s || '').matchAll(CMD_RE)].map((m) => m[1]).sort().join(',')],
   // A Telegram command is only tappable when it ends at a boundary. Cloud
   // Translation butted commands straight against Japanese and Chinese text —
   // `/cuisineで` — which reads as one long token and stops being a command. The
@@ -79,7 +98,7 @@ const CHECKS = [
   // legitimately has one is not failed for it.
   ['cmd-delimited', (s) => {
     let n = 0;
-    for (const m of String(s || '').matchAll(/\/[a-z]{1,15}/g)) {
+    for (const m of String(s || '').matchAll(CMD_RE_G)) {
       const nxt = String(s)[m.index + m[0].length];
       // v0.62.732 — CJK punctuation delimits a command exactly as ASCII punctuation
       // does: Telegram ends the bot_command entity at the first character outside
@@ -105,9 +124,13 @@ const CHECKS = [
   // for — still fails.
   ['cmd-spacing',  (s) => {
     let n = 0;
-    for (const m of String(s || '').matchAll(/\/[a-z]{1,15}/g)) {
+    for (const m of String(s || '').matchAll(CMD_RE_G)) {
       const nxt = String(s)[m.index + m[0].length];
-      if (nxt && (/\s/.test(nxt) || /[,.;:!?)\]—–]/.test(nxt) || /[，。、；：！？）】」』]/.test(nxt))) n++;
+      // End of string is the cleanest boundary there is. Requiring a following
+      // character failed every translation that ends on the command — French
+      // "Copier la commande /cuisine" for EN "Copy /cuisine command".
+      if (nxt === undefined) { n++; continue; }
+      if (/\s/.test(nxt) || /[,.;:!?)\]—–]/.test(nxt) || /[，。、；：！？）】」』]/.test(nxt)) n++;
     }
     return String(n);
   }],

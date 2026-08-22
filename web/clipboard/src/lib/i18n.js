@@ -68,7 +68,16 @@ const STRINGS = {
   'card.try':               { en: 'Try',                fr: 'Essayez',          id: 'Coba',           ru: 'Попробуйте',     de: 'Probier' , zh: '试试', ja: 'おすすめ', es: 'Prueba' },
   'card.open':              { en: 'Open',               fr: 'Ouvert',           id: 'Buka',           ru: 'Открыто',        de: 'Offen' , zh: '营业中', ja: '営業中', es: 'Abierto' },
   'card.closed':            { en: 'Closed',             fr: 'Fermé',            id: 'Tutup',          ru: 'Закрыто',        de: 'Geschlossen' , zh: '已打烊', ja: '閉店', es: 'Cerrado' },
-  'card.distAway':          { en: ' away',              fr: '',                 id: '',               ru: '',               de: '' , zh: ' 外', ja: ' 先', es: ' de distancia' },
+  'card.distAway':          {
+    en: ' away',
+    fr: '',
+    id: ' dari sini',
+    ru: ' от вас',
+    de: ' entfernt',
+    zh: ' 外',
+    ja: ' 先',
+    es: ' de distancia'
+  },
   'card.crowdLow':          { en: 'quiet',              fr: 'calme',            id: 'sepi',           ru: 'тихо',           de: 'ruhig' , zh: '清静', ja: '空いている', es: 'tranquilo' },
   'card.crowdMedium':       { en: 'moderate',           fr: 'modéré',           id: 'sedang',         ru: 'умеренно',       de: 'mäßig' , zh: '适中', ja: 'やや混雑', es: 'moderado' },
   'card.crowdHigh':         { en: 'busy',               fr: 'animé',            id: 'ramai',          ru: 'занято',         de: 'voll' , zh: '繁忙', ja: '混雑', es: 'concurrido' },
@@ -103,31 +112,256 @@ const STRINGS = {
   // to the Cuisine TMA. Missing langs fall back to en via t() — mirroring
   // the Cuisine source, where zh/ja/es carry filter.* but fall back to en
   // for rating.*, and recommend is en/fr/id only.
-  'filter.newlyOpened':     { en: 'Newly opened',       fr: 'Récemment ouvert', id: 'Baru buka',      zh: '新开张', ja: '新規開店', es: 'Nuevo' },
-  'filter.halal':           { en: 'Halal',              fr: 'Halal',            id: 'Halal',          zh: '清真', ja: 'ハラール', es: 'Halal' },
-  'filter.petFriendly':     { en: 'Pet',                fr: 'Animaux',          id: 'Hewan',          zh: '宠物', ja: 'ペット可', es: 'Mascotas' },
-  'filter.openNow':         { en: 'Open now',           fr: 'Ouvert',           id: 'Buka sekarang',  zh: '正在营业', ja: '営業中', es: 'Abierto' },
-  'filter.vegetarian':      { en: 'Vegetarian',         fr: 'Végétarien',       id: 'Vegetarian',     zh: '素食', ja: 'ベジタリアン', es: 'Vegetariano' },
-  'filter.recommend':       { en: 'Recommend',          fr: 'Recommander',      id: 'Rekomendasi' },
-  'filter.homeBased':       { en: 'Home-based',         fr: 'À domicile',       id: 'Rumahan',        zh: '家庭厨房', ja: '自宅営業', es: 'Casero' },
-  'filter.price':           { en: 'Price',              fr: 'Prix',             id: 'Harga',          zh: '价格', ja: '価格', es: 'Precio' },
-  'filter.openMore':        { en: 'Open more filters',  fr: 'Ouvrir plus de filtres', id: 'Buka filter lainnya', zh: '打开更多筛选', ja: 'フィルターを増やす', es: 'Abrir más filtros' },
-  'filter.closeMore':       { en: 'Close more filters', fr: 'Fermer plus de filtres', id: 'Tutup filter lainnya', zh: '关闭更多筛选', ja: 'フィルターを閉じる', es: 'Cerrar más filtros' },
-  'rating.title':           { en: 'Minimum rating',     fr: 'Note minimale',    id: 'Rating minimum' },
-  'rating.refineHeader':    { en: 'Refine Google Rating', fr: 'Affiner la note Google', id: 'Saring Rating Google' },
-  'rating.openPanel':       { en: 'Open rating options', fr: 'Ouvrir les options de note', id: 'Buka opsi rating' },
-  'rating.closePanel':      { en: 'Close rating options', fr: 'Fermer les options de note', id: 'Tutup opsi rating' },
-  'rating.noRating':        { en: 'Unrated',            fr: 'Non noté',         id: 'Tanpa rating' },
-  'rating.noRatingHint':    { en: 'New or no reviews yet', fr: 'Nouveau ou sans avis', id: 'Baru atau belum ada ulasan' },
-  'rating.anyRating':       { en: 'Any rating',         fr: 'Toutes les notes', id: 'Semua rating' },
-  'rating.anyRatingHint':   { en: 'No minimum',         fr: 'Aucun minimum',    id: 'Tanpa minimum' },
-  'rating.goodPlus':        { en: 'Good+',              fr: 'Bien+',            id: 'Bagus+' },
-  'rating.setRating':       { en: 'Set as',             fr: 'Définir',          id: 'Tetapkan' },
-  'rating.customHint':      { en: '1.0 to 5.0',         fr: '1.0 à 5.0',        id: '1,0 hingga 5,0' },
-  'rating.save':            { en: 'Save',               fr: 'Valider',          id: 'Simpan' },
-  'rating.saved':           { en: 'Saved',              fr: 'Validé',           id: 'Tersimpan' },
-  'rating.pillNoRating':    { en: 'Unrated',            fr: 'Non noté',         id: 'Tanpa rating' },
-  'rating.pillAny':         { en: 'Any',                fr: 'Toutes',           id: 'Semua' },
+  'filter.newlyOpened':     {
+    en: 'Newly opened',
+    fr: 'Récemment ouvert',
+    id: 'Baru buka',
+    ru: 'Недавно открылось',
+    de: 'Neu eröffnet',
+    zh: '新开张',
+    ja: '新規開店',
+    es: 'Nuevo'
+  },
+  'filter.halal':           {
+    en: 'Halal',
+    fr: 'Halal',
+    id: 'Halal',
+    ru: 'Халяль',
+    de: 'Halal',
+    zh: '清真',
+    ja: 'ハラール',
+    es: 'Halal'
+  },
+  'filter.petFriendly':     {
+    en: 'Pet',
+    fr: 'Animaux',
+    id: 'Hewan',
+    ru: 'С питомцем',
+    de: 'Haustiere',
+    zh: '宠物',
+    ja: 'ペット可',
+    es: 'Mascotas'
+  },
+  'filter.openNow':         {
+    en: 'Open now',
+    fr: 'Ouvert',
+    id: 'Buka sekarang',
+    ru: 'Открыто',
+    de: 'Geöffnet',
+    zh: '正在营业',
+    ja: '営業中',
+    es: 'Abierto'
+  },
+  'filter.vegetarian':      {
+    en: 'Vegetarian',
+    fr: 'Végétarien',
+    id: 'Vegetarian',
+    ru: 'Вегетарианское',
+    de: 'Vegetarisch',
+    zh: '素食',
+    ja: 'ベジタリアン',
+    es: 'Vegetariano'
+  },
+  'filter.recommend':       {
+    en: 'Recommend',
+    fr: 'Recommander',
+    id: 'Rekomendasi',
+    ru: 'Рекомендовать',
+    de: 'Empfehlen',
+    zh: '推荐',
+    ja: 'おすすめ',
+    es: 'Recomendar'
+  },
+  'filter.homeBased':       {
+    en: 'Home-based',
+    fr: 'À domicile',
+    id: 'Rumahan',
+    ru: 'Домашняя кухня',
+    de: 'Hausküche',
+    zh: '家庭厨房',
+    ja: '自宅営業',
+    es: 'Casero'
+  },
+  'filter.price':           {
+    en: 'Price',
+    fr: 'Prix',
+    id: 'Harga',
+    ru: 'Цена',
+    de: 'Preis',
+    zh: '价格',
+    ja: '価格',
+    es: 'Precio'
+  },
+  'filter.openMore':        {
+    en: 'Open more filters',
+    fr: 'Ouvrir plus de filtres',
+    id: 'Buka filter lainnya',
+    ru: 'Больше фильтров',
+    de: 'Mehr Filter',
+    zh: '打开更多筛选',
+    ja: 'フィルターを増やす',
+    es: 'Abrir más filtros'
+  },
+  'filter.closeMore':       {
+    en: 'Close more filters',
+    fr: 'Fermer plus de filtres',
+    id: 'Tutup filter lainnya',
+    ru: 'Скрыть фильтры',
+    de: 'Filter ausblenden',
+    zh: '关闭更多筛选',
+    ja: 'フィルターを閉じる',
+    es: 'Cerrar más filtros'
+  },
+  'rating.title':           {
+    en: 'Minimum rating',
+    fr: 'Note minimale',
+    id: 'Rating minimum',
+    ru: 'Минимальный рейтинг',
+    de: 'Mindestbewertung',
+    zh: '最低评分',
+    ja: '最低評価',
+    es: 'Valoración mínima'
+  },
+  'rating.refineHeader':    {
+    en: 'Refine Google Rating',
+    fr: 'Affiner la note Google',
+    id: 'Saring Rating Google',
+    ru: 'Уточнить рейтинг Google',
+    de: 'Google-Bewertung eingrenzen',
+    zh: '细化 Google 评分',
+    ja: 'Google評価を絞り込む',
+    es: 'Filtrar la valoración de Google'
+  },
+  'rating.openPanel':       {
+    en: 'Open rating options',
+    fr: 'Ouvrir les options de note',
+    id: 'Buka opsi rating',
+    ru: 'Открыть настройки рейтинга',
+    de: 'Bewertungsoptionen öffnen',
+    zh: '打开评分选项',
+    ja: '評価オプションを開く',
+    es: 'Abrir opciones de valoración'
+  },
+  'rating.closePanel':      {
+    en: 'Close rating options',
+    fr: 'Fermer les options de note',
+    id: 'Tutup opsi rating',
+    ru: 'Закрыть настройки рейтинга',
+    de: 'Bewertungsoptionen schließen',
+    zh: '关闭评分选项',
+    ja: '評価オプションを閉じる',
+    es: 'Cerrar opciones de valoración'
+  },
+  'rating.noRating':        {
+    en: 'Unrated',
+    fr: 'Non noté',
+    id: 'Tanpa rating',
+    ru: 'Без оценки',
+    de: 'Ohne Bewertung',
+    zh: '无评分',
+    ja: '評価なし',
+    es: 'Sin valorar'
+  },
+  'rating.noRatingHint':    {
+    en: 'New or no reviews yet',
+    fr: 'Nouveau ou sans avis',
+    id: 'Baru atau belum ada ulasan',
+    ru: 'Новое или пока без отзывов',
+    de: 'Neu oder noch ohne Bewertungen',
+    zh: '新店或暂无评价',
+    ja: '新規、またはレビューなし',
+    es: 'Nuevo o aún sin reseñas'
+  },
+  'rating.anyRating':       {
+    en: 'Any rating',
+    fr: 'Toutes les notes',
+    id: 'Semua rating',
+    ru: 'Любой рейтинг',
+    de: 'Jede Bewertung',
+    zh: '任意评分',
+    ja: 'すべての評価',
+    es: 'Cualquier valoración'
+  },
+  'rating.anyRatingHint':   {
+    en: 'No minimum',
+    fr: 'Aucun minimum',
+    id: 'Tanpa minimum',
+    ru: 'Без минимума',
+    de: 'Kein Minimum',
+    zh: '无下限',
+    ja: '下限なし',
+    es: 'Sin mínimo'
+  },
+  'rating.goodPlus':        {
+    en: 'Good+',
+    fr: 'Bien+',
+    id: 'Bagus+',
+    ru: 'Хорошо+',
+    de: 'Gut+',
+    zh: '良好+',
+    ja: '良い+',
+    es: 'Bien+'
+  },
+  'rating.setRating':       {
+    en: 'Set as',
+    fr: 'Définir',
+    id: 'Tetapkan',
+    ru: 'Задать',
+    de: 'Festlegen',
+    zh: '设为',
+    ja: '設定',
+    es: 'Definir'
+  },
+  'rating.customHint':      {
+    en: '1.0 to 5.0',
+    fr: '1.0 à 5.0',
+    id: '1,0 hingga 5,0',
+    ru: 'от 1,0 до 5,0',
+    de: '1,0 bis 5,0',
+    zh: '1.0 至 5.0',
+    ja: '1.0〜5.0',
+    es: 'de 1,0 a 5,0'
+  },
+  'rating.save':            {
+    en: 'Save',
+    fr: 'Valider',
+    id: 'Simpan',
+    ru: 'Сохранить',
+    de: 'Speichern',
+    zh: '保存',
+    ja: '保存',
+    es: 'Guardar'
+  },
+  'rating.saved':           {
+    en: 'Saved',
+    fr: 'Validé',
+    id: 'Tersimpan',
+    ru: 'Сохранено',
+    de: 'Gespeichert',
+    zh: '已保存',
+    ja: '保存しました',
+    es: 'Guardado'
+  },
+  'rating.pillNoRating':    {
+    en: 'Unrated',
+    fr: 'Non noté',
+    id: 'Tanpa rating',
+    ru: 'Без оценки',
+    de: 'Ohne Bewertung',
+    zh: '无评分',
+    ja: '評価なし',
+    es: 'Sin valorar'
+  },
+  'rating.pillAny':         {
+    en: 'Any',
+    fr: 'Toutes',
+    id: 'Semua',
+    ru: 'Любые',
+    de: 'Alle',
+    zh: '全部',
+    ja: 'すべて',
+    es: 'Todas'
+  },
 
   // ── Free-text search composer (TellMePanel port, v0.62.517) ───────
   // The component is a VERBATIM port of the Cuisine TMA's TellMePanel, but the
