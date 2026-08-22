@@ -137,14 +137,23 @@ for (const [key, langs] of byKey) {
   written++;
 }
 
-// A key that does not exist in i18n.js cannot be applied, and counting its six
-// translations among the "passing" ones overstates the rollout. `bot.ratelimit` is
-// the live example: it is one of the seven proposed NEW keys, botRateLimited() is
-// still hard-coded to English/French, and every locale still gets English. Reported
-// separately rather than folded into the success number. Found by Codex on #1724.
-const applied = passed - (notFound * 6);
+// COUNT THE ARTEFACT, do not compute the number.
+//
+// Three successive "applied" figures were reported to the operator and all three
+// were wrong — 1,581 (counted keys that do not exist in i18n.js), 1,512 (arithmetic
+// over a stale `passed`), 1,551 (the validation-pass count, not the applied count).
+// Each was DERIVED from this script's own bookkeeping, and each derivation had a
+// different flaw. The file is the authority on what is in the file, so the number
+// is now read back out of it after writing. Found by Codex on #1726, having already
+// been corrected once for the same class of error on #1724.
+function countApplied(text) {
+  let n = 0;
+  for (const l of ORDER) n += (text.match(new RegExp(`\\n\\s*${l}:\\s*'`, 'g')) || []).length;
+  return n;
+}
 console.log(`${DRY ? 'DRY RUN — ' : ''}items passing the gate: ${passed}  ·  gated out: ${gated}`);
-console.log(`of those, ACTUALLY APPLIED: ${applied}  ·  skipped, key absent from i18n.js: ${notFound * 6} (${notFound} keys × 6)`);
+console.log(`skipped, key absent from i18n.js: ${notFound * 6} (${notFound} keys × 6)`);
+console.log(`ACTUALLY IN i18n.js (counted, not derived): ${countApplied(src)}`);
 console.log(`pruned (now-failing entries removed): ${pruned}`);
 console.log(`keys updated in i18n.js: ${written}  ·  already had all six: ${skippedExisting}  ·  key not found: ${notFound}`);
 if (!DRY) { fs.writeFileSync(I18N, src); console.log('i18n.js written.'); }
