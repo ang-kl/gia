@@ -189,7 +189,7 @@ const STRINGS = {
     fr: 'Désolé, la recherche libre a rencontré une erreur. Essayez /cuisine ou /hidden.',
     id: 'Maaf, pencarian teks bebas mengalami kesalahan. Coba /cuisine atau /hidden.',
     ru: 'Извините, свободный поиск завершился ошибкой. Попробуйте /cuisine или /hidden.',
-    de: 'Entschuldigung, die Freitextsuche ist auf einen Fehler gestoßen. Versuche /cuisine oder /hidden.',
+    de: 'Entschuldigung, die Freitextsuche ist auf einen Fehler gestoßen. Versuchen Sie /cuisine oder /hidden.',
     zh: '抱歉，自由文本搜索出错了。请试试 /cuisine 或 /hidden。',
     ja: '申し訳ありません、フリーテキスト検索でエラーが発生しました。/cuisine または /hidden をお試しください。',
     es: 'Lo sentimos, la búsqueda libre ha dado un error. Prueba con /cuisine o /hidden.'
@@ -387,7 +387,7 @@ const STRINGS = {
                                  fr: "⚠️ Je ne reconnais pas cette sélection. Touchez l'un des boutons ou partagez une position." ,
                       id: '⚠️ Saya tidak mengenali pilihan cepat itu. Ketuk salah satu tombol atau bagikan lokasi.',
                       ru: '⚠️ Не удалось распознать этот быстрый выбор. Нажмите одну из кнопок или отправьте геометку.',
-                      de: '⚠️ Diese Schnellauswahl ist mir unbekannt. Tippe auf eine der Schaltflächen oder teile einen Standort.',
+                      de: '⚠️ Diese Schnellauswahl ist mir unbekannt. Tippen Sie auf eine der Schaltflächen oder teilen Sie einen Standort.',
                       zh: '⚠️ 我不认识这个快捷选择。请点击其中一个按钮或分享位置。',
                       ja: '⚠️ このクイックピックは認識できません。いずれかのボタンをタップするか、ピンを共有してください。',
                       es: '⚠️ No reconozco esa selección rápida. Toca uno de los botones o comparte un pin.'
@@ -1766,7 +1766,7 @@ const STRINGS = {
     fr: 'Tapez /l <lieu> pour définir un nouveau point — par exemple /l Orchard Road ou /l IOI City Mall. Ou touchez 📍 ci-dessous pour partager une position GPS fraîche.',
     id: 'Ketik /l <place> untuk menetapkan titik acuan baru — misalnya /l Orchard Road atau /l IOI City Mall. Atau ketuk 📍 di bawah untuk membagikan lokasi GPS terbaru.',
     ru: 'Введите /l <place>, чтобы задать новый якорь — например /l Orchard Road или /l IOI City Mall. Либо нажмите 📍 ниже, чтобы отправить свежие GPS-координаты.',
-    de: 'Tippe /l <place>, um einen neuen Anker zu setzen — zum Beispiel /l Orchard Road oder /l IOI City Mall. Oder tippe unten auf 📍, um einen frischen GPS-Standort zu teilen.',
+    de: 'Tippen Sie /l <place>, um einen neuen Anker zu setzen — zum Beispiel /l Orchard Road oder /l IOI City Mall. Oder tippen Sie unten auf 📍, um einen frischen GPS-Standort zu teilen.',
     zh: '输入 /l <place> 即可设置新的锚点 — 例如 /l Orchard Road 或 /l IOI City Mall。也可以点击下方的 📍 分享最新的 GPS 位置。',
     ja: '/l <place> と入力すると新しいアンカーを設定できます — 例: /l Orchard Road や /l IOI City Mall。または下の 📍 をタップして最新の GPS 位置を共有してください。',
     es: 'Escribe /l <place> para fijar una nueva ancla — por ejemplo /l Orchard Road o /l IOI City Mall. O toca 📍 abajo para compartir una ubicación GPS nueva.'
@@ -1969,7 +1969,7 @@ const STRINGS = {
     fr: '⏱ /hidden a dépassé le délai de 4 minutes — Gemini n’a pas répondu sur aucun modèle de repli.\n\nCela se résout en général en quelques minutes. Réessayez, ou vérifiez l’état de Google AI Studio si le problème persiste.',
     id: '⏱ /hidden habis waktu setelah 4 menit — Gemini tidak merespons di semua model cadangan.\n\nBiasanya pulih dalam beberapa menit. Coba lagi, atau periksa status Google AI Studio jika terus terjadi.',
     ru: '⏱ /hidden прервался по тайм-ауту через 4 минуты — Gemini не ответил ни на одной запасной модели.\n\nОбычно это проходит за несколько минут. Попробуйте снова или проверьте статус Google AI Studio, если повторяется.',
-    de: '⏱ /hidden ist nach 4 Minuten abgelaufen — Gemini hat auf keinem Ersatzmodell geantwortet.\n\nDas löst sich meist in wenigen Minuten. Versuche es erneut oder prüfe den Status von Google AI Studio, wenn es anhält.',
+    de: '⏱ /hidden ist nach 4 Minuten abgelaufen — Gemini hat auf keinem Ersatzmodell geantwortet.\n\nDas löst sich meist in wenigen Minuten. Versuchen Sie es erneut oder prüfen Sie den Status von Google AI Studio, wenn es anhält.',
     zh: '⏱ /hidden 在 4 分钟后超时 — 所有备用模型上 Gemini 均无响应。\n\n通常几分钟后就会恢复。请重试，若持续出现请查看 Google AI Studio 状态。',
     ja: '⏱ /hidden は 4 分でタイムアウトしました — すべてのフォールバックモデルで Gemini が無応答でした。\n\n通常は数分で解消します。再試行するか、続く場合は Google AI Studio のステータスをご確認ください。',
     es: '⏱ /hidden ha expirado tras 4 minutos — Gemini no respondió en ningún modelo de reserva.\n\nSuele resolverse en unos minutos. Inténtalo de nuevo o revisa el estado de Google AI Studio si persiste.'
@@ -1999,7 +1999,7 @@ const STRINGS = {
     fr: 'Toutes les trouvailles proposées par Gemini se sont révélées temporairement ou définitivement fermées. Réessayez dans une minute — Gemini peut proposer d’autres trésors.',
     id: 'Semua pilihan yang ditemukan Gemini ternyata tutup sementara atau permanen. Coba lagi sebentar lagi — Gemini mungkin memunculkan permata lain.',
     ru: 'Все найденные Gemini места оказались временно или окончательно закрыты. Попробуйте через минуту — Gemini может предложить другие жемчужины.',
-    de: 'Alle von Gemini gefundenen Tipps waren vorübergehend oder dauerhaft geschlossen. Versuche es in einer Minute erneut — Gemini findet beim nächsten Mal vielleicht andere Juwelen.',
+    de: 'Alle von Gemini gefundenen Tipps waren vorübergehend oder dauerhaft geschlossen. Versuchen Sie es in einer Minute erneut — Gemini findet beim nächsten Mal vielleicht andere Juwelen.',
     zh: 'Gemini 找到的推荐都已暂时或永久停业。请一分钟后重试 — Gemini 可能会给出别的宝藏。',
     ja: 'Gemini が見つけた候補はすべて一時休業または閉店でした。1 分ほど後にもう一度お試しください — 別の名店が出てくるかもしれません。',
     es: 'Todas las recomendaciones que encontró Gemini resultaron estar cerradas temporal o definitivamente. Inténtalo en un minuto — Gemini puede sacar otras joyas.'
@@ -2389,7 +2389,7 @@ const STRINGS = {
                                     fr: 'Aucun choix récent. Lancez /cuisine ou /hidden d\'abord, puis /share pour partager avec un ami.' ,
                   id: 'Belum ada pilihan terbaru. Jalankan /cuisine atau /hidden terlebih dahulu, lalu /share untuk meneruskan ke teman.',
                   ru: 'Пока нет недавних подборок. Сначала запустите /cuisine или /hidden, затем /share, чтобы переслать другу.',
-                  de: 'Noch keine aktuellen Empfehlungen. Nutze zuerst /cuisine oder /hidden, dann /share, um eine Empfehlung an einen Freund weiterzuleiten.',
+                  de: 'Noch keine aktuellen Empfehlungen. Nutzen Sie zuerst /cuisine oder /hidden, dann /share, um eine Empfehlung an einen Freund weiterzuleiten.',
                   es: 'Aún no hay selecciones recientes. Ejecuta primero /cuisine o /hidden, luego /share para reenviarlo a un amigo.'
                 ,
                   zh: '目前还没有精选内容。先运行 /cuisine 或 /hidden，再运行 /share 转发给朋友。',

@@ -463,7 +463,7 @@ const DE_STRINGS = {
   'header.allNormal': '✓ Alle Linien normal',
   'header.linesAffected': '⚠️ {n} Linie betroffen',
   'header.linesAffectedPlural': '⚠️ {n} Linien betroffen',
-  'view.tipToGmap': 'Tippe "Google Map", um jede Station zu erkunden →',
+  'view.tipToGmap': 'Tippen Sie "Google Map", um jede Station zu erkunden →',
   'view.tipZoomIn': 'Tipp: heranzoomen, um die Pins zu lesen (Zentrum SG ist dicht)',
   'view.btnSchematic': '🗺 Schema',
   'view.btnGoogleMap': '📍 Google Map',
@@ -511,7 +511,7 @@ const DE_STRINGS = {
 
   "status.popupTitle": "Servicestatus",
   "pickline.title": "Linie auswählen",
-  "pickline.body": "Tippe auf eine Linie, um ihre Stationen zu sehen.",
+  "pickline.body": "Tippen Sie auf eine Linie, um ihre Stationen zu sehen.",
   "src.title": "Über die Daten",
   "src.body": "Quelle: LTA TrainServiceAlerts (live) + kuratierter Wartungsplan",
   "layout.list": "⊿ Liste",
