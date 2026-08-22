@@ -73,7 +73,7 @@ A subagent is spawned per `Task` tool invocation.
 
 ```
 node scripts/count-interactions.js --agents
-# prints: agents_total, breakdown by subagent_type, agents in latest turn
+# prints: agents_total, breakdown by subagent_type, agents in the latest SESSION
 ```
 
 Counting rule: assistant entries whose content includes a `tool_use`
@@ -84,8 +84,13 @@ block with `name == "Task"`; group by `input.subagent_type`.
 ```
 node scripts/count-interactions.js --tokens
 # sums usage.input_tokens, usage.output_tokens, usage.cache_read_input_tokens
-# across assistant entries; prints per-session and latest-turn figures
+# across assistant entries; prints per-SESSION figures only
 ```
+
+There is no per-turn accounting here, and §6 depends on there being some —
+which is why §6 stays off. Do not read `agents_latest_session` or
+`latest_session_*` as turn figures: a session routinely runs to thousands of
+replies, so the two differ by three orders of magnitude.
 
 If a usage block is absent, report "unavailable" — never estimate. The
 §1 corpus caveat applies here too: these figures cover the transcripts
