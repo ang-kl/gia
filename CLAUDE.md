@@ -119,6 +119,38 @@ not the present. An invariant checked against a comment, a stored chain, or a pr
 entry is **Not Verifiable**, not Passed. When an external API is the authority on a fact,
 only its live response verifies it.
 
+## Serial rebase records
+
+`CLAUDE-protocol.md` §1 requires that any session running on a partial transcript corpus append
+a rebase line here recording the count reached and where it was measured. **Until 22-08 '26 that
+had never been done**, which is why the serial had nothing to continue from and drifted onto the
+per-session chat counter instead (§3.2's counter is a different number for a different purpose —
+see X-11). The ledger is this file; a container is not.
+
+| Measured | Where | `serial_measured` | Note |
+| :--- | :--- | ---: | :--- |
+| 16-08 '26 | owner's local corpus | 6,253 | The figure already cited in `CLAUDE-protocol.md` §1. |
+| 22-08 '26 | owner's local corpus, **all** `gia*` project folders | **6,822** | The rebase base. See the derivation below. |
+| 22-08 '26 | remote container (`claude/handover-july-11-49uzvf`) | 711 | Partial — this container was cloned fresh on 09-08 '26 and holds one transcript. **Not** a correction to the above; added to it. |
+
+**Derivation, because "which folders" is a real question and the wrong answer resets the count.**
+`~/.claude/projects/` holds three `gia`-matching folders, because Claude Code keys transcripts on
+the working-directory path and this repo has been opened at more than one:
+
+- `…-Github-gia` — 4,090 replies
+- `…-Github-gia-web` — 2,732 replies (sessions started inside `web/`; same repo, same work)
+- `…-Github-Gia-WA` — 0 replies
+
+Counting only the first gives **4,090, which is BELOW the 6,253 already recorded** — and §1 is
+explicit that a measurement below the last recorded rebase is evidence of a partial corpus, not a
+correction. Silently adopting it would reset the count by thousands while looking like diligence.
+Including `gia-web` gives **6,822**, which is above the precedent and grows from it by 569 over
+six days. So the web subtree counts, and the total is the sum.
+
+**Serial from here** = **6,822** + replies measured in the current session's own corpus. Once the
+local machine next runs a measurement it will include everything except replies made in remote
+containers, which is why each such session appends its own row above rather than overwriting one.
+
 ## Pre-PR safety
 
 Run the `gia-preflight` checklist (`.claude/skills/gia-preflight/SKILL.md`, `/gia-preflight`)
