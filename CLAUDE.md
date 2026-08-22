@@ -39,16 +39,17 @@ See `doc/VibeCodingRecord/VibeCodingRecord.md`.
 This rule was set by the operator: *"Update the Journal every time a new PR is created and done."*
 (Recorded as decision-gate G3 in `journal-0_60_144-13_05_26-0900.md`.)
 
-### Anchor time — D-203 · ⚠️ PROPOSED, AWAITING OPERATOR APPROVAL (G3)
+### Anchor time — D-203 · ✅ APPROVED (G3), 22-08 '26
 
-> **Not in force.** SR-1 (`CLAUDE-FULL.md` §17.6) requires a standing rule to carry the
-> operator's verbatim approval and a journal reference. This one has neither: it was
-> proposed by Claude Code in `journal-0_62_723` `[AMD-4]`, and installing it here as an
-> active rule was itself a rule violation, caught by Codex on PR #1719 and recorded as
-> **X-13**. It stays visible so the reasoning is not lost, and stays labelled so no
-> future session enforces a policy the operator never approved.
+> **In force.** SR-1 (`CLAUDE-FULL.md` §17.6) requires a standing rule to carry the
+> operator's verbatim approval and a journal reference. Both now hold.
+> **Operator, 22-08 '26, verbatim: *"proceed with proposed D-203"*.**
+> Journal reference: `journal-0_62_723-22_08_26-0730.md` `[AMD-4]` (proposal) and
+> `[AMD-6]` (this approval). It was proposed by Claude Code and briefly installed here
+> *before* approval — that was itself a rule violation, caught by Codex on PR #1719 and
+> recorded as **X-13**; the history is kept rather than tidied away.
 
-Proposed: an anchor is **`max(sensor reading, latest known event time)`**, never the
+An anchor is **`max(sensor reading, latest known event time)`**, never the
 sensor reading alone. TF-10 already says a payload timestamp from `api.data.gov.sg` is a *lower bound on
 now*, not the current time; D-203 says what to do with that bound. If a git commit, a PR
 merge, or any other event with a trustworthy timestamp is already known to have happened,
