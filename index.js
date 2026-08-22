@@ -12681,20 +12681,40 @@ async function cacheBotUsername() {
     // BotFather's "Privacy Policy URL" field accepts this URL.
     app.get('/privacy', (req, res) => {
       try {
-        const { tn, pickLang } = require('./i18n');
+        const { tn, pickLang, SUPPORTED } = require('./i18n');
         const { renderPrivacyPage } = require('./privacy-html');
         const lang = pickLang(req.query?.lang);
         const operator = process.env.OPERATOR_LINKEDIN
           ? `\n\nOperator: ${process.env.OPERATOR_LINKEDIN}`
           : '';
         const body = tn('privacy.body', lang, { operator });
-        const html = renderPrivacyPage(body, lang);
+        const html = renderPrivacyPage(body, lang, { kind: 'privacy', locales: SUPPORTED });
         res.set('Content-Type', 'text/html; charset=utf-8');
         res.set('Cache-Control', 'public, max-age=300'); // 5 min — flips with i18n updates on next deploy
         res.send(html);
       } catch (err) {
         console.error('[/privacy http] failed:', err.message);
         res.status(500).send('Privacy page failed to render.');
+      }
+    });
+
+    // v0.62.735: hosted legal / disclaimer page, mirroring /privacy exactly.
+    // legal.body has carried eight languages since v0.62.734 but had no URL at
+    // all — it was reachable only as a chat command, so a link to the terms
+    // could not be shared, cited in a takedown reply, or opened outside Telegram.
+    app.get('/legal', (req, res) => {
+      try {
+        const { tn, pickLang, SUPPORTED } = require('./i18n');
+        const { renderPrivacyPage } = require('./privacy-html');
+        const lang = pickLang(req.query?.lang);
+        const body = tn('legal.body', lang, {});
+        const html = renderPrivacyPage(body, lang, { kind: 'legal', locales: SUPPORTED });
+        res.set('Content-Type', 'text/html; charset=utf-8');
+        res.set('Cache-Control', 'public, max-age=300');
+        res.send(html);
+      } catch (err) {
+        console.error('[/legal http] failed:', err.message);
+        res.status(500).send('Legal page failed to render.');
       }
     });
 
