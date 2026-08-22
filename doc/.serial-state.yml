@@ -11,7 +11,7 @@ counters:
     register: 196
 sessions:
   current_chat_id: 2026-08-22
-  current_chat_counter: 42  # per §3.2 the CHAT counter resets per session and starts at 1;
+  current_chat_counter: 46  # per §3.2 the CHAT counter resets per session and starts at 1;
                             # replies 1-4 of this session mistakenly carried commit-counter
                             # values (1,236-1,239) in their headers. See chat-0_62_723 turn 5.
 last_anchor_time: 22-08 '26 11:08 SGT
