@@ -242,7 +242,7 @@
       "max_chars": 1626,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "Ingin mencoba sesuatu yang berbeda dari biasanya? Soleat — “Makan Sendirian” / “Ayo Makan” — membantu Anda menjelajahi perpaduan {cuisines} Singapura — dan kota-kota lainnya — dengan panduan Telegram yang berisi tempat-tempat pilihan, pedagang kaki lima, restoran berbintang Michelin, restoran favorit Bib Gourmand di bawah S$45, informasi cuaca, dan transportasi. Mulailah dengan /c /cuisine atau /m /menu /cuisine — Pemilih Masakan lengkap (lebih dari {cuisines} masakan, {cuisine-venues} tempat pilihan, SG, Johor Bahru + kota lain, 6 filter cepat) /hawker — > {hawker} pusat jajanan (2025) /recognised — Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table /l /location — bagikan atau atur lokasi Anda saat ini /weather — sekarang + prakiraan cuaca NEA 2 jam ke depan /transport — bus, MRT, jalan kaki, berkendara /carpark — 5 terdekat dengan tempat parkir yang tersedia /language — bahasa aplikasi · 8 pilihan (obrolan tetap EN/FR) /privacy — data, retensi & sumber /legal — penafian & catatan yurisdiksi /forgetme — hapus data Anda yang tersimpan Atau ketuk tombol menu (🍴 Pemilih Masakan) untuk langsung masuk.",
+      "google_translation": "Ingin mencoba sesuatu yang berbeda dari biasanya? Soleat — “Makan Sendirian” / “Ayo Makan” — membantu Anda menjelajahi perpaduan {cuisines} Singapura — dan kota-kota lain — dengan tempat-tempat pilihan, pedagang kaki lima, pilihan restoran berbintang Michelin, favorit Bib Gourmand di bawah S$45, cuaca, dan transportasi dalam satu panduan Telegram. Mulai dengan /c /cuisine atau /m /menu\n\n/cuisine — Pemilih Masakan lengkap (lebih dari {cuisines} masakan, {cuisine-venues} tempat pilihan, SG, Johor Bahru + kota-kota lain, 6 filter cepat)\n/hawker — > {hawker} pusat jajanan kaki lima (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table\n/l /location — bagikan atau atur lokasi Anda saat ini\n/weather — sekarang + prakiraan cuaca NEA 2 jam ke depan\n/transport — bus, MRT, jalan kaki, berkendara\n/carpark — 5 tempat parkir terdekat dengan lahan parkir yang tersedia\n/language — bahasa aplikasi · 8 pilihan (obrolan tetap EN/FR)\n/privacy — data, penyimpanan & sumber\n/legal — penafian & catatan yurisdiksi\n/forgetme — hapus data yang tersimpan\n\nAtau ketuk tombol menu (🍴 Pemilih Masakan) untuk langsung masuk.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -253,7 +253,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

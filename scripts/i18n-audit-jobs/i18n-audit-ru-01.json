@@ -519,7 +519,7 @@
       "max_chars": 728,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": "👥 *Режим \"Друг в команде\" включен.* Когда вы получаете предложения от Sanctuary, рядом с местами, куда другой пользователь Soleat, также подключившийся к сервису, в течение следующих 60 минут, появляется кнопка 👥 \"Подключиться\". Оба пользователя должны подтвердить подключение, прежде чем будут отображены их имена и ники в Telegram. Дневной лимит: 5 подключений / 24 часа. `/buddy block<chat_id> ` для блокировки. `/buddy report<chat_id><reason> ` для пометки. `/buddy off` для отключения. ⚠ _Pilot — встречайтесь только в общественных местах, относитесь к другим как к незнакомцам, доверяйте своей интуиции._",
+      "google_translation": "👥 *Режим \"Друг в команде\" включен.*\n\nКогда вы получаете предложения от Sanctuary, рядом с местами, куда другой пользователь Soleat, также подписавшийся на рассылку, направляется в течение следующих 60 минут, появляется кнопка 👥 _Подключиться_. Оба пользователя должны подтвердить свое согласие, прежде чем будут отображены их имена и ники в Telegram. Дневной лимит: 5 подключений / 24 часа. `/buddy block<chat_id> ` для блокировки. `/buddy report<chat_id><reason> ` для установки флага. `/buddy off` для отключения.\n\n⚠ _Пилот — встречайтесь только на публике, относитесь к людям как к незнакомцам, доверяйте своей интуиции._",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -530,7 +530,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

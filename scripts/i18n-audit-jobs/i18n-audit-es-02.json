@@ -439,7 +439,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "⇩─ Restaurantes con platos o cocina similares ─ ⇩ ⇩─ no exactamente {dish} ─ ⇩",
+      "google_translation": "⇩─ Restaurantes con platos o cocina similares ─ ⇩\n⇩─ no exactamente {dish} ─ ⇩",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -450,7 +450,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

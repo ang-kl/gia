@@ -24,8 +24,8 @@ const STRINGS = {
                       id: '📋 Tempat ke-1',
                       ru: '📋 1 место',
                       de: '📋 1 Platz',
-                      zh: '📋 第一名',
-                      ja: '📋 1位',
+                      zh: '📋 1 个地点',
+                      ja: '📋 1件',
                       es: '📋 1 lugar'
                     },
   'pick.header.many':          { en: '📋 {n} places', fr: '📋 {n} lieux' ,
@@ -85,7 +85,7 @@ const STRINGS = {
                       },
   'hours.opensTomorrowAt':     { en: 'Opens tomorrow at {time}', fr: 'Ouvre demain à {time}' ,
                             id: 'Buka besok pukul {time}',
-                            ru: 'Премьера завтра в {time}',
+                            ru: 'Откроется завтра в {time}',
                             de: 'Öffnet morgen um {time}',
                             zh: '明天{time}开门',
                             ja: '明日{time}にオープンします',
@@ -101,7 +101,7 @@ const STRINGS = {
                       },
   'hours.opensTodayAt':        { en: 'Opens today at {time}', fr: 'Ouvre aujourd’hui à {time}' ,
                          id: 'Buka hari ini pukul {time}',
-                         ru: 'Премьера сегодня в {time}',
+                         ru: 'Откроется сегодня в {time}',
                          de: 'Öffnet heute um {time}',
                          zh: '今天{time}开门营业',
                          ja: '本日{time}にオープンします。',
@@ -165,24 +165,23 @@ const STRINGS = {
                           es: '📍 Toca para compartir tu ubicación actual.'
                         },
   'bot.location.locale':       { en: '📍 Share your location once so Soleat uses your locale (or type `/location <place name>` to set it manually).',
-                                 fr: '📍 Partagez votre position une fois pour que Soleat utilise votre lieu (ou tapez `/location <nom du lieu>` pour le définir manuellement).' ,
-                          id: '📍 Bagikan lokasi Anda sekali agar Soleat menggunakan kode area Anda (atau ketik `/location<place name> ` untuk mengaturnya secara manual).',
-                          ru: '📍 Укажите свое местоположение один раз, чтобы Soleat использовал ваши региональные настройки (или введите `/location<place name> ` для ручной настройки).'
-                        },
+                          fr: '📍 Partagez votre position une fois pour que Soleat utilise votre lieu (ou tapez `/location <nom du lieu>` pour le définir manuellement).',
+                          de: '📍 Teile deinen Standort einmalig, damit Soleat deine Regionseinstellung verwendet (oder gib `/location <place name>` ein, um ihn manuell festzulegen).',
+                          zh: '📍 分享一次您的位置，以便 Soleat 使用您的语言环境（或输入 `/location <place name>` 手动设置）。',
+                          ja: '📍 一度位置情報を共有すると、Soleat があなたの地域設定を使用します (または、 `/location <place name>` と入力して手動で設定します)。',
+                          es: '📍 Comparte tu ubicación una sola vez para que Soleat use tu configuración regional (o escribe `/location <place name>` para configurarla manualmente).' },
   'bot.noresults':             { en: 'No Google Places results for "{q}" near you. Try /cuisine for the picker, /hidden for nearby gems, or rephrase your search.',
                                  fr: 'Aucun résultat Google Places pour "{q}" près de vous. Essayez /cuisine pour le sélecteur, /hidden pour les trouvailles, ou reformulez votre recherche.' ,
                     id: 'Tidak ada hasil Google Places untuk " {q} " di dekat Anda. Coba /cuisine untuk pemilih makanan, /hidden untuk tempat makan favorit di dekat Anda, atau ubah frasa pencarian Anda.',
                     ru: 'В Google Places нет результатов поиска по запросу " {q} " рядом с вами. Попробуйте использовать /cuisine для выбора заведения, /hidden для поиска интересных мест поблизости или измените формулировку запроса.',
                     de: 'Für " {q} " in deiner Nähe wurden keine Google Places-Ergebnisse gefunden. Versuche es mit /cuisine für die Restaurantauswahl, /hidden für weitere Restaurants in der Nähe oder formuliere deine Suche um.',
                     es: 'No hay resultados de Google Places para " {q} " cerca de ti. Prueba con /cuisine para el selector, /hidden para joyas cercanas o reformula tu búsqueda.'
+                  ,
+                    zh: '您附近没有与“{q}”相关的 Google Places 结果。请尝试使用 /cuisine 查找附近的景点，或尝试使用 /hidden 查找附近的宝藏，或者重新措辞您的搜索。',
+                    ja: '「{q}」で検索しても、お近くのGoogleプレイスの結果は見つかりませんでした。ピッカーで /cuisine 、近くのおすすめスポットで /hidden を試すか、検索語句を変更してください。'
                   },
   'bot.error.freetext':        { en: 'Sorry, free-text search hit an error. Try /cuisine or /hidden.',
-                                 fr: 'Désolé, la recherche libre a rencontré une erreur. Essayez /cuisine ou /hidden.' ,
-                         id: 'Maaf, pencarian teks bebas mengalami kesalahan. Coba /cuisine atau /hidden .',
-                         ru: 'Извините, поиск по свободному тексту выдал ошибку. Попробуйте /cuisine или /hidden .',
-                         de: 'Leider ist bei der Freitextsuche ein Fehler aufgetreten. Versuchen Sie es mit /cuisine oder /hidden .',
-                         es: 'Lo sentimos, la búsqueda de texto libre ha dado un error. Prueba con /cuisine o /hidden .'
-                       },
+                         fr: 'Désolé, la recherche libre a rencontré une erreur. Essayez /cuisine ou /hidden.' },
   // v0.60.123/127/130 — two-line divider in a free-text dish search
   // reply: above = venues that self-identify as the cuisine/dish;
   // below = eateries with similar dishes or cuisine (e.g. a 灌汤包 place
@@ -191,7 +190,14 @@ const STRINGS = {
   // v0.60.133 — dash runs trimmed from `──` to `─` each side (operator:
   // the doubled box-drawing dashes wrapped/looked ugly).
   'freetext.divider':          { en: '⇩─ Eateries with similar dishes or cuisine ─ ⇩\n⇩─ not exactly {dish} ─ ⇩',
-                                 fr: '⇩─ Établissements aux plats ou cuisine similaires ─ ⇩\n⇩─ pas exactement {dish} ─ ⇩' },
+                                 fr: '⇩─ Établissements aux plats ou cuisine similaires ─ ⇩\n⇩─ pas exactement {dish} ─ ⇩' ,
+                       id: '⇩─ Tempat makan dengan hidangan atau masakan serupa ─ ⇩\n⇩─ bukan persisnya {dish} ─ ⇩',
+                       ru: '⇩─ Заведения общественного питания со схожими блюдами или кухней ─ ⇩\n⇩─ не совсем {dish} ─ ⇩',
+                       de: '⇩─ Lokale mit ähnlichen Gerichten oder ähnlicher Küche ─ ⇩\n⇩─ nicht genau {dish} ─ ⇩',
+                       zh: '⇩─ 提供类似菜肴或菜系的餐馆 ─ ⇩\n⇩─ 不完全是{dish} ─ ⇩',
+                       ja: '⇩─ 似たような料理や料理を提供する飲食店 ─ ⇩\n⇩─ 正確には{dish}ではない ─ ⇩',
+                       es: '⇩─ Restaurantes con platos o cocina similares ─ ⇩\n⇩─ no exactamente {dish} ─ ⇩'
+                     },
   // v0.60.135 — shown above a free-text / /s dish-search result list
   // when EVERY returned venue is an obvious cuisine mismatch (Google
   // text-matched the words but nothing actually serves the dish).
@@ -248,13 +254,7 @@ const STRINGS = {
   // v0.60.228 — transport queries (MRT / bus / "how to get to X")
   // aren't food searches; point the user at the /transport tool.
   'freetext.transportRedirect': { en: "🚆 For trains, buses, and getting around Singapore, tap /transport. This chat searches for food and eateries.",
-                                  fr: "🚆 Pour les trains, bus et déplacements à Singapour, tapez /transport. Ce chat recherche des plats et des restaurants." ,
-                                 id: '🚆 Untuk kereta api, bus, dan berkeliling Singapura, ketuk /transport . Obrolan ini mencari makanan dan tempat makan.',
-                                 ru: '🚆 Чтобы узнать о поездах, автобусах и передвижении по Сингапуру, нажмите /transport . Этот чат ищет еду и рестораны.',
-                                 de: '🚆 Für Züge, Busse und die Fortbewegung in Singapur tippen Sie auf /transport . Dieser Chat sucht nach Essen und Restaurants.',
-                                 zh: '🚆 如需查询新加坡的火车、巴士及其他交通信息，请点击/transport 。此聊天窗口用于搜索美食和餐馆。',
-                                 es: '🚆 Para trenes, autobuses y cómo moverse por Singapur, pulsa /transport . Este chat busca restaurantes y establecimientos de comida.'
-                               },
+                                 fr: "🚆 Pour les trains, bus et déplacements à Singapour, tapez /transport. Ce chat recherche des plats et des restaurants." },
   'cookmethod.literalBtn':     { en: '🔍 Search literally',
                                  fr: '🔍 Rechercher tel quel' ,
                             id: '🔍 Cari secara harfiah',
@@ -346,7 +346,14 @@ const STRINGS = {
   // returns to chat, confirm it. Fires only on a deliberate pick AND an actual
   // area change (never on app-open / auto-detect). {label} is HTML-escaped.
   'loc.searchArea.set':        { en: '📍 Area set: {area}\n\nUse <code>/location</code> or <code>/l &lt;place&gt;</code> · change address',
-                                 fr: '📍 Zone définie : {area}\n\nUtilisez <code>/location</code> ou <code>/l &lt;lieu&gt;</code> · changer d’adresse' },
+                                 fr: '📍 Zone définie : {area}\n\nUtilisez <code>/location</code> ou <code>/l &lt;lieu&gt;</code> · changer d’adresse' ,
+                         id: '📍 Area set: {area}\n\nGunakan <code>/location</code> atau <code>/l &lt;place&gt;</code> · ubah alamat',
+                         ru: '📍 Площадь: {area}\n\nИспользуйте <code>/location</code> или <code>/l &lt;place&gt;</code> · изменить адрес',
+                         de: '📍 Bereichseinstellung: {area}\n\nVerwenden Sie <code>/location</code> oder <code>/l &lt;place&gt;</code> · Adresse ändern',
+                         zh: '📍 区域设置： {area}\n\n使用 <code>/location</code> 或 <code>/l &lt;place&gt;</code> · 更改地址',
+                         ja: '📍 エリア設定: {area}\n\n <code>/location</code> または <code>/l &lt;place&gt;</code> を使用して住所を変更します',
+                         es: '📍 Área configurada: {area}\n\nUtilice <code>/location</code> o <code>/l &lt;place&gt;</code> · cambiar dirección'
+                       },
   'loc.set.capNote':           { en: ' Searches anchored here are capped to {km} km.',
                                  fr: ' Les recherches sont limitées à {km} km autour de ce point.' ,
                       id: 'Pencarian yang berpusat di sini dibatasi hingga {km} km.',
@@ -665,6 +672,9 @@ const STRINGS = {
                           ru: 'Я не знаю этот район — попробуйте ввести название города, например, Тампинес, или просто /weather , чтобы использовать свою метку.',
                           de: 'Ich kenne diese Gegend nicht – versuchen Sie es mit einem Ortsnamen wie Tampines oder geben Sie einfach /weather ein, um Ihre geteilte PIN zu verwenden.',
                           es: 'No conozco esa zona; prueba con el nombre de una ciudad como Tampines, o simplemente /weather para usar el marcador que has compartido.'
+                        ,
+                          zh: '我不熟悉那个地区——试试淡滨尼之类的城镇名称，或者直接输入 /weather 来使用你共享的图钉。',
+                          ja: 'その地域はよく知らないので、タンピネスのような町名を試してみるか、 /weather と入力して共有ピンを使ってみてください。'
                         },
   'weather.forArea':           { en: '— for {area} —', fr: '— pour {area} —' ,
                       id: '— untuk {area} —',
@@ -1472,6 +1482,9 @@ const STRINGS = {
                      ru: 'Извините, команда /forgetme выдала ошибку. Попробуйте еще раз через минуту или напишите оператору в личные сообщения.',
                      de: 'Entschuldigung, /forgetme ist auf einen Fehler gestoßen. Versuchen Sie es gleich erneut oder kontaktieren Sie den Betreiber per Direktnachricht.',
                      es: 'Lo sentimos, /forgetme ha dado un error. Inténtalo de nuevo en un momento o envía un mensaje directo al operador.'
+                   ,
+                     zh: '抱歉， /forgetme 出错了。请稍后再试，或私信客服。',
+                     ja: '申し訳ありません、 /forgetme でエラーが発生しました。しばらくしてからもう一度お試しいただくか、オペレーターにDMを送ってください。'
                    },
 
   // /language internal text (cleanup of v0.59.0 hardcoded pairs)
@@ -1587,7 +1600,7 @@ const STRINGS = {
   // count-display.substituteCounts at /start render time. Falls
   // back to 600+ when the Redis key is empty.
   'start.intro':               { en: "Hungry for something beyond the usual? Soleat — “Solo eats” / “So let’s eat” — helps you explore Singapore’s {cuisines} cuisine melting pot — and other cities — with {cuisine-venues} curated venues, hawkers, Michelin Star picks, Bib Gourmand favourites under S$45, weather, and transport in one Telegram guide. Start with /c /cuisine or /m /menu\n\n/cuisine   — full Cuisine Picker (over {cuisines} cuisines, {cuisine-venues} curated venues, SG, Johor Bahru + other cities, 6 quick filters)\n/hawker    — >{hawker} hawker centres (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table\n/l /location — share or set your current location\n/weather   — now + 2-hour NEA forecast\n/transport — bus, MRT, walk, drive\n/carpark   — nearest 5 with available lots\n/language  — app language · 8 options (chat stays EN/FR)\n/privacy   — data, retention & sources\n/legal     — disclaimer & jurisdiction notes\n/forgetme  — erase your stored data\n\nOr tap the menu button (🍴 Cuisine Picker) to jump straight in.",
-                                 fr: "Envie de sortir des plats habituels ? Soleat — « Solo eats » / « So let’s eat » — vous aide à explorer plus de {cuisines} cuisines à Singapour — et d’autres villes — avec {cuisine-venues} adresses sélectionnées, hawkers, adresses Michelin, Bib Gourmand à moins de 45 S$, météo et transport dans Telegram. Commencez avec /c /cuisine ou /m /menu\n\n/cuisine   — Sélecteur Cuisine complet (plus de {cuisines} cuisines, {cuisine-venues} adresses sélectionnées, SG, Johor Bahru + autres villes, 6 filtres rapides)\n/hawker    — plus de {hawker} centres hawkers (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Producteurs locaux\n/l /location — partager ou définir votre position actuelle\n/weather   — maintenant + prévisions 2 h NEA\n/transport — bus, MRT, marche, voiture\n/carpark   — 5 parkings proches avec places\n/language  — langue de l’app · 8 options (chat en FR/EN)\n/privacy   — données, conservation et sources\n/legal     — clauses et juridiction\n/forgetme  — effacer vos données enregistrées\n\nOu touchez le bouton menu (🍴 Sélecteur Cuisine) pour démarrer directement." },
+                  fr: "Envie de sortir des plats habituels ? Soleat — « Solo eats » / « So let’s eat » — vous aide à explorer plus de {cuisines} cuisines à Singapour — et d’autres villes — avec {cuisine-venues} adresses sélectionnées, hawkers, adresses Michelin, Bib Gourmand à moins de 45 S$, météo et transport dans Telegram. Commencez avec /c /cuisine ou /m /menu\n\n/cuisine   — Sélecteur Cuisine complet (plus de {cuisines} cuisines, {cuisine-venues} adresses sélectionnées, SG, Johor Bahru + autres villes, 6 filtres rapides)\n/hawker    — plus de {hawker} centres hawkers (2025)\n/recognised — Michelin, Bib Gourmand, Asia 50/100, Producteurs locaux\n/l /location — partager ou définir votre position actuelle\n/weather   — maintenant + prévisions 2 h NEA\n/transport — bus, MRT, marche, voiture\n/carpark   — 5 parkings proches avec places\n/language  — langue de l’app · 8 options (chat en FR/EN)\n/privacy   — données, conservation et sources\n/legal     — clauses et juridiction\n/forgetme  — effacer vos données enregistrées\n\nOu touchez le bouton menu (🍴 Sélecteur Cuisine) pour démarrer directement." },
 
   // location flow
   'location.shareTap':         { en: '📍 Tap to share your current location.', fr: '📍 Touchez pour partager votre position actuelle.' ,
@@ -1611,7 +1624,14 @@ const STRINGS = {
   // (operator: a first-load share on Mac stuck to "Muzium Negara, KL"). On the
   // FIRST ever share we confirm the resolved place + offer a manual-set path.
   'loc.confirm.firstShare':    { en: '📍 *Location set to:*\n{place}\n\n💻 On desktop, Telegram shares a *map-pinned point*, not live GPS — it can land on the wrong spot. Is this where you are?',
-                                 fr: '📍 *Position définie sur :*\n{place}\n\n💻 Sur ordinateur, Telegram partage un *point sur la carte*, pas le GPS — cela peut tomber au mauvais endroit. Est-ce bien là que vous êtes ?' },
+                                 fr: '📍 *Position définie sur :*\n{place}\n\n💻 Sur ordinateur, Telegram partage un *point sur la carte*, pas le GPS — cela peut tomber au mauvais endroit. Est-ce bien là que vous êtes ?' ,
+                             id: '📍 *Lokasi diatur ke:*\n{place}\n\n💻 Di desktop, Telegram membagikan *titik yang ditandai di peta*, bukan GPS langsung — bisa saja menunjukkan lokasi yang salah. Apakah ini lokasi Anda?',
+                             ru: '📍 *Местоположение установлено следующим образом:*\n{place}\n\n💻 На компьютере Telegram отображает *отмеченную на карте точку*, а не данные GPS в реальном времени — она может оказаться не в том месте. Вы находитесь в этом месте?',
+                             de: '📍 *Standort eingestellt auf:*\n{place}\n\n💻 Auf dem Desktop zeigt Telegram einen *gepinnten Punkt* auf einer Karte an, nicht das Live-GPS – es kann also vorkommen, dass der falsche Ort angezeigt wird. Befindest du dich hier?',
+                             zh: '📍 *位置已设置为：*\n{place}\n\n💻 在电脑端，Telegram 分享的是地图上的标记点，而不是实时 GPS 定位——因此可能会定位到错误的位置。这是你所在的位置吗？',
+                             ja: '📍 *位置情報設定:*\n{place}\n\n💻 デスクトップ版の Telegram では、リアルタイムの GPS ではなく、*地図上にピン留めされた地点* が共有されます。そのため、間違った場所に表示される可能性があります。ここがあなたの現在地ですか?',
+                             es: '📍 *Ubicación establecida en:*\n{place}\n\n💻 En la versión de escritorio, Telegram comparte un *punto marcado en el mapa*, no un GPS en tiempo real; puede ubicarse en un lugar incorrecto. ¿Estás ahí?'
+                           },
   'loc.confirm.yes':           { en: '✅ Yes, use it', fr: '✅ Oui, utiliser' ,
                       id: '✅ Ya, gunakanlah',
                       ru: '✅ Да, используйте его',
@@ -1646,20 +1666,14 @@ const STRINGS = {
                             es: 'Escribe tu zona; por ejemplo `/l Orchard Road` o `/l Bugis` . En ordenadores de sobremesa, escribir es más fiable que usar el botón de compartir.'
                           },
   'loc.desktopNudge':          { en: '💻 On desktop? Telegram shares a map-pick, not GPS. If this is wrong, type /l <your area>.',
-                                 fr: '💻 Sur ordinateur ? Telegram partage un point sur carte, pas le GPS. Si c’est faux, tapez /l <votre lieu>.' ,
-                       id: '💻 Di desktop? Telegram menampilkan peta, bukan GPS. Jika ini salah, ketik /l<your area> .',
-                       ru: '💻 На компьютере? Telegram показывает карту, а не GPS. Если это неправильно, введите /l<your area> .',
-                       de: '💻 Auf dem Desktop? Telegram teilt eine Kartenposition, nicht GPS. Falls dies nicht zutrifft, gib /l ein.<your area> Die',
-                       zh: '💻 使用电脑？Telegram 分享的是地图截图，而不是 GPS 定位。如果信息有误，请输入/l<your area> 。',
-                       ja: '💻 デスクトップ版ですか？ Telegram は GPS ではなく、地図画像を共有します。これが間違っている場合は、 /lと入力してください。<your area> 。',
-                       es: '💻 ¿Estás en un ordenador? Telegram comparte una selección de mapa, no GPS. Si esto es incorrecto, escribe /l<your area> .'
-                     },
+                       fr: '💻 Sur ordinateur ? Telegram partage un point sur carte, pas le GPS. Si c’est faux, tapez /l <votre lieu>.',
+                       de: '💻 Auf dem Desktop? Telegram teilt eine Kartenposition, nicht GPS. Falls dies nicht zutrifft, gib /l ein.<your area> Die' },
   // v0.59.6: ensureLocation prompts (the "two messages" /hidden bug).
   'location.shareLabel':       { en: '📍 Share your location once so {label} uses your locale (or type `/location <place name>` to set it manually).',
-                                 fr: '📍 Partagez votre position une fois pour que {label} utilise votre lieu (ou tapez `/location <nom du lieu>` pour le définir manuellement).' ,
-                          id: '📍 Bagikan lokasi Anda sekali agar {label} menggunakan lokal Anda (atau ketik `/location<place name> ` untuk mengaturnya secara manual).',
-                          ru: '📍 Укажите свое местоположение один раз, чтобы {label} использовал ваш регион (или введите `/location<place name> ` для ручной настройки).'
-                        },
+                          fr: '📍 Partagez votre position une fois pour que {label} utilise votre lieu (ou tapez `/location <nom du lieu>` pour le définir manuellement).',
+                          de: '📍 Teile deinen Standort einmalig, damit {label} deine Region verwendet (oder gib `/location <place name>` ein, um ihn manuell festzulegen).',
+                          zh: '📍 分享一次您的位置，以便 {label} 使用您的语言环境（或输入 `/location <place name>` 手动设置）。',
+                          ja: '📍 一度位置情報を共有すると、 {label} であなたの地域設定が使用されます（または、 `/location <place name>` を入力して手動で設定します）。' },
   'location.current':          { en: '📍 Current: {addr}{age}', fr: '📍 Actuel : {addr}{age}' ,
                        id: '📍 Alamat saat ini: {addr} {age}',
                        ru: '📍 Текущий адрес: {addr} {age}',
@@ -1754,7 +1768,13 @@ const STRINGS = {
                  es: '👋 Bienvenido de nuevo a Soleat. Comparte tu ubicación actual para que Soleat pueda compararla con tu ancla de búsqueda guardada.'
                },
   'wake2.body':                { en: '👋 <b>Welcome back to Soleat</b>\n\nYour device now appears to be near: <i>{deviceStreet}</i>\n\nSoleat is still using your saved search anchor:\n<b>{anchor}</b>\n\nContinue searching from the anchor, or update to your current location?\n\n<i>You can also type /l to search from another place, for example:\n/l Orchard Road\n/l IOI City Mall</i>',
-                                 fr: '👋 <b>Content de vous revoir sur Soleat</b>\n\nVotre appareil semble être près de : <i>{deviceStreet}</i>\n\nSoleat utilise toujours votre point de recherche enregistré :\n<b>{anchor}</b>\n\nContinuer depuis ce point, ou utiliser votre position actuelle ?\n\n<i>Vous pouvez aussi taper /l pour chercher depuis un autre lieu, par exemple :\n/l Orchard Road\n/l IOI City Mall</i>' },
+                                 fr: '👋 <b>Content de vous revoir sur Soleat</b>\n\nVotre appareil semble être près de : <i>{deviceStreet}</i>\n\nSoleat utilise toujours votre point de recherche enregistré :\n<b>{anchor}</b>\n\nContinuer depuis ce point, ou utiliser votre position actuelle ?\n\n<i>Vous pouvez aussi taper /l pour chercher depuis un autre lieu, par exemple :\n/l Orchard Road\n/l IOI City Mall</i>' ,
+                 ru: '👋 <b>Добро пожаловать обратно в Soleat</b>\n\nВаше устройство, похоже, находится рядом с: <i> {deviceStreet} </i>\n\nSoleat по-прежнему использует сохраненный вами якорь поиска:\n<b> {anchor} </b>\n\nПродолжить поиск с указанной точки или обновить данные, указав текущее местоположение?\n\n<i>Вы также можете ввести /l для поиска из другого места, например:\n/l Орчард Роуд\n/l Торговый центр IOI City Mall</i>',
+                 de: '👋 <b>Willkommen zurück bei Soleat</b>\n\nIhr Gerät befindet sich nun in der Nähe von: <i> {deviceStreet} </i>\n\nSoleat verwendet weiterhin Ihren gespeicherten Suchanker:\n<b> {anchor} </b>\n\nSuche vom Ausgangspunkt aus fortsetzen oder zu Ihrem aktuellen Standort wechseln?\n\n<i>Sie können auch /l eingeben, um von einem anderen Ort aus zu suchen, zum Beispiel:\n/l Orchard Road\n/l IOI City Mall</i>',
+                 zh: '👋 <b>欢迎回到索莱特</b>\n\n您的设备现在似乎位于： <i> {deviceStreet} </i>\n\nSoleat 仍在使用您保存的搜索锚点：\n<b> {anchor} </b>\n\n继续从锚点搜索，还是更新到您当前的位置？\n\n<i>您也可以输入 /l 从其他位置进行搜索，例如：\n/l 乌节路\n/l IOI城市购物中心</i>',
+                 ja: '👋 <b>ソリアットへようこそ</b>\n\nお使いのデバイスは現在、 <i> {deviceStreet} </i>付近にあります。\n\nSoleatは、保存済みの検索アンカーをまだ使用しています。\n<b> {anchor} </b>\n\nアンカー地点から検索を続けるか、現在地へ更新するか？\n\n<i>また、 /l と入力して別の場所から検索することもできます。例:\n/l オーチャードロード\n/l IOIシティモール</i>',
+                 es: '👋 <b>Bienvenido de nuevo a Soleat</b>\n\nTu dispositivo ahora parece estar cerca de: <i> {deviceStreet} </i>\n\nSoleat sigue utilizando el ancla de búsqueda guardada:\n<b> {anchor} </b>\n\n¿Continuar la búsqueda desde el ancla o actualizar a su ubicación actual?\n\n<i>También puedes escribir /l para buscar desde otro lugar, por ejemplo:\n/l Orchard Road\n/l IOI City Mall</i>'
+               },
   'wake2.btnCurrent':          { en: '📍 Use current location', fr: '📍 Position actuelle' ,
                        id: '📍 Gunakan lokasi saat ini',
                        ru: '📍 Укажите текущее местоположение',
@@ -1796,22 +1816,13 @@ const STRINGS = {
                  es: '👍 Conservando tu ancla de búsqueda guardada.'
                },
   'wake2.anotherHint':         { en: 'Type /l <place> to set a new anchor — for example /l Orchard Road or /l IOI City Mall. Or tap 📍 below to share a fresh GPS location.',
-                                 fr: 'Tapez /l <lieu> pour définir un nouveau point — par exemple /l Orchard Road ou /l IOI City Mall. Ou touchez 📍 ci-dessous pour partager une position GPS fraîche.' ,
-                        id: 'Ketik /l<place> untuk menetapkan anchor baru — misalnya /l Orchard Road atau /l IOI City Mall. Atau ketuk 📍 di bawah untuk membagikan lokasi GPS baru.',
-                        ru: 'Тип /l<place> Чтобы установить новую точку привязки — например /l Orchard Road или /l IOI City Mall. Или нажмите 📍 ниже, чтобы поделиться новым местоположением по GPS.',
-                        de: 'Geben Sie /l<place> Um einen neuen Ankerpunkt festzulegen – zum Beispiel /l Orchard Road oder /l IOI City Mall. Oder tippen Sie unten auf 📍, um einen aktuellen GPS-Standort zu teilen.',
-                        zh: '输入/l<place>设置新的锚点——例如/l乌节路 或/l IOI City Mall。或者点击下方的📍分享最新的 GPS 位置。',
-                        ja: '/lと入力してください<place>新しいアンカーを設定するには、例えば/l Orchard Road や/l IOI City Mall と入力します。または、下の 📍 をタップして、新しい GPS 位置情報を共有します。',
-                        es: 'Tipo /l<place> Para establecer un nuevo punto de referencia, por ejemplo /l Orchard Road o /l IOI City Mall. O pulsa 📍 abajo para compartir una nueva ubicación GPS.'
-                      },
-  'wake2.offerExpired':        { en: '⏱ That share expired. Tap /l to set a new anchor.', fr: '⏱ Ce partage a expiré. Tapez /l pour définir un nouveau point.' ,
+                        fr: 'Tapez /l <lieu> pour définir un nouveau point — par exemple /l Orchard Road ou /l IOI City Mall. Ou touchez 📍 ci-dessous pour partager une position GPS fraîche.' },
+  'wake2.offerExpired':        { en: '⏱ That share expired. Tap /l to set a new anchor.',
+                         fr: '⏱ Ce partage a expiré. Tapez /l pour définir un nouveau point.',
                          id: '⏱ Share tersebut telah kedaluwarsa. Ketuk /l untuk mengatur anchor baru.',
                          ru: '⏱ Срок действия этой публикации истек. Нажмите /l , чтобы установить новый якорь.',
                          de: '⏱ Diese Freigabe ist abgelaufen. Tippen Sie auf /l , um einen neuen Anker festzulegen.',
-                         zh: '⏱ 该分享已过期。点击/l设置新的锚点。',
-                         ja: '⏱ その共有は期限切れです。/l /lタップして新しいアンカーを設定してください。',
-                         es: '⏱ Esa acción compartida ha caducado. Pulsa /l para establecer un nuevo enlace.'
-                       },
+                         es: '⏱ Esa acción compartida ha caducado. Pulsa /l para establecer un nuevo enlace.' },
 
   // v0.59.3 — one-map buttons for transport sub-views.
   'transport.map.incidentsCaption': { en: '🗺 View {n} incidents on one map:', fr: '🗺 Voir les {n} incidents sur une carte :' ,
@@ -1875,7 +1886,14 @@ const STRINGS = {
   // (the operator's "incorporate" ask 2026-05-10): tapping it lands
   // on the station's place sheet with live arrival times. The chat
   // send is HTML parse_mode (see runTransportTrain in index.js).
-  'transport.train.stationRow':     { en: '{name} · {dist}{crowd} <a href="{gmapsUrl}">↗</a>', fr: '{name} · {dist}{crowd} <a href="{gmapsUrl}">↗</a>' },
+  'transport.train.stationRow':     { en: '{name} · {dist}{crowd} <a href="{gmapsUrl}">↗</a>', fr: '{name} · {dist}{crowd} <a href="{gmapsUrl}">↗</a>' ,
+                                 id: '{name} · {dist}{crowd}  <a href="{gmapsUrl}">↗</a>',
+                                 ru: '{name} · {dist}{crowd}  <a href="{gmapsUrl}">↗</a>',
+                                 de: '{name} · {dist}{crowd}  <a href="{gmapsUrl}">↗</a>',
+                                 zh: '{name} · {dist}{crowd}  <a href="{gmapsUrl}">↗</a>',
+                                 ja: '{name} · {dist}{crowd}  <a href="{gmapsUrl}">↗</a>',
+                                 es: '{name} · {dist}{crowd}  <a href="{gmapsUrl}">↗</a>'
+                               },
 
   // v0.59.4 — /hidden chrome localisation.
   'hidden.busy':                  { en: '⏳ Soleat is still working on your last request — hold on a moment.',
@@ -1977,6 +1995,8 @@ const STRINGS = {
                     ru: 'Извините, /privacy произошла ошибка. Пожалуйста, попробуйте еще раз через минуту.',
                     de: 'Entschuldigung, beim Aufruf /privacy ist ein Fehler aufgetreten. Bitte versuchen Sie es in Kürze erneut.',
                     es: 'Lo sentimos, se ha producido un error /privacy . Inténtalo de nuevo en un momento.'
+                  ,
+                    zh: '抱歉， /privacy 出错了。请稍后再试。'
                   },
 
   // v0.60.169 — /legal body migrated from a hard-coded English string
@@ -2052,6 +2072,8 @@ const STRINGS = {
                   ru: 'Извините, в /legal произошла ошибка. Попробуйте еще раз через минуту.',
                   de: 'Entschuldigung, /legal ist auf einen Fehler gestoßen. Bitte versuchen Sie es in Kürze erneut.',
                   es: 'Lo sentimos, /legal ha dado un error. Inténtalo de nuevo en un momento.'
+                ,
+                  zh: '抱歉， /legal 出错了。请稍后再试。'
                 },
 
   // v0.59.13 — /recognised localisation
@@ -2111,6 +2133,9 @@ const STRINGS = {
                   ru: 'Пока нет недавних подборок. Сначала запустите /cuisine или /hidden , затем /share , чтобы переслать другу.',
                   de: 'Noch keine aktuellen Empfehlungen. Führe zuerst /cuisine oder /hidden , dann /share , um die Anfrage an einen Freund weiterzuleiten.',
                   es: 'Aún no hay selecciones recientes. Ejecuta primero /cuisine o /hidden , luego /share para reenviarlo a un amigo.'
+                ,
+                  zh: '目前还没有精选内容。先运行 /cuisine 或 /hidden ，再运行 /share 转发给朋友。',
+                  ja: '最近のおすすめはまだありません。まず /cuisine または /hidden を実行し、次に /share を実行して友達に転送してください。'
                 },
   'share.prompt':                 { en: 'Pick a venue to forward to your friend ({n} recent):',
                                     fr: 'Choisissez un lieu à partager avec votre ami ({n} récents) :' ,
@@ -2136,11 +2161,21 @@ const STRINGS = {
                   ru: 'Извините, при выполнении /share возникла ошибка.',
                   de: 'Entschuldigung, /share ist auf einen Fehler gestoßen.',
                   es: 'Lo sentimos, /share ha dado un error.'
+                ,
+                  zh: '抱歉， /share 发生错误。',
+                  ja: '申し訳ありません、 /share エラーが発生しました。'
                 },
 
   // v0.59.13 — /buddy localisation
   'buddy.on.body':                { en: '👥 *Buddy mode ON.*\n\nWhen you receive Sanctuary picks, a 👥 _Connect_ button appears next to venues where another opted-in soleat user is also heading in the next 60 min. Both of you must confirm before first names + Telegram handles are revealed. Daily cap: 5 connections / 24 h. `/buddy block <chat_id>` to block. `/buddy report <chat_id> <reason>` to flag. `/buddy off` to disable.\n\n⚠ _Pilot — meet only in public, treat as a stranger, trust your gut._',
-                                    fr: '👥 *Mode buddy ACTIVÉ.*\n\nLorsque vous recevez des sélections sanctuaires, un bouton 👥 _Connecter_ apparaît à côté des lieux où un autre utilisateur soleat opté-in se rend dans les 60 prochaines minutes. Vous devez tous deux confirmer avant que les prénoms et identifiants Telegram soient révélés. Limite quotidienne : 5 connexions / 24 h. `/buddy block <chat_id>` pour bloquer. `/buddy report <chat_id> <raison>` pour signaler. `/buddy off` pour désactiver.\n\n⚠ _Pilote — rencontrez uniquement en public, traitez comme un inconnu, faites confiance à votre instinct._' },
+                                    fr: '👥 *Mode buddy ACTIVÉ.*\n\nLorsque vous recevez des sélections sanctuaires, un bouton 👥 _Connecter_ apparaît à côté des lieux où un autre utilisateur soleat opté-in se rend dans les 60 prochaines minutes. Vous devez tous deux confirmer avant que les prénoms et identifiants Telegram soient révélés. Limite quotidienne : 5 connexions / 24 h. `/buddy block <chat_id>` pour bloquer. `/buddy report <chat_id> <raison>` pour signaler. `/buddy off` pour désactiver.\n\n⚠ _Pilote — rencontrez uniquement en public, traitez comme un inconnu, faites confiance à votre instinct._' ,
+                    id: '👥 *Mode Teman AKTIF.*\n\nSaat Anda menerima pilihan Sanctuary, tombol 👥 _Hubungkan_ akan muncul di sebelah tempat-tempat yang juga akan dikunjungi oleh pengguna soleat lain yang telah mendaftar dalam 60 menit berikutnya. Anda berdua harus mengkonfirmasi sebelum nama depan + nama pengguna Telegram ditampilkan. Batas harian: 5 koneksi / 24 jam. `/buddy block<chat_id> ` untuk memblokir. `/buddy report<chat_id><reason> ` untuk menandai. `/buddy off` untuk menonaktifkan.\n\n⚠ _Pilot — hanya bertemu di tempat umum, perlakukan seperti orang asing, percayai insting Anda._',
+                    ru: '👥 *Режим "Друг в команде" включен.*\n\nКогда вы получаете предложения от Sanctuary, рядом с местами, куда другой пользователь Soleat, также подписавшийся на рассылку, направляется в течение следующих 60 минут, появляется кнопка 👥 _Подключиться_. Оба пользователя должны подтвердить свое согласие, прежде чем будут отображены их имена и ники в Telegram. Дневной лимит: 5 подключений / 24 часа. `/buddy block<chat_id> ` для блокировки. `/buddy report<chat_id><reason> ` для установки флага. `/buddy off` для отключения.\n\n⚠ _Пилот — встречайтесь только на публике, относитесь к людям как к незнакомцам, доверяйте своей интуиции._',
+                    de: '👥 *Buddy-Modus EIN.*\n\nWenn du Sanctuary-Tipps erhältst, erscheint neben Orten, die ein anderer Soleat-Nutzer innerhalb der nächsten 60 Minuten besucht, ein 👥 „Verbinden“-Button. Ihr müsst beide bestätigen, bevor eure Vornamen und Telegram-Namen angezeigt werden. Tägliches Limit: 5 Verbindungen / 24 Stunden. `/buddy block<chat_id> ` zum Blockieren. `/buddy report<chat_id><reason> ` zum Flaggen. `/buddy off` zum Deaktivieren.\n\n⚠ _Pilot — Treffen Sie sich nur an öffentlichen Orten, behandeln Sie die Person wie einen Fremden, vertrauen Sie Ihrem Bauchgefühl._',
+                    zh: '👥 *好友模式开启*\n\n当您收到“避难所”推荐时，如果其他已选择加入“避难所”的用户也将在接下来的 60 分钟内前往某个地点，该地点旁边会出现一个 👥 _Connect_ 按钮。双方必须确认后，才能显示彼此的名字和 Telegram 用户名。每日上限：5 个连接/24 小时。 `/buddy block <chat_id>` 屏蔽。 `/buddy report <chat_id> <reason>` 举报。 `/buddy off` 禁用。\n\n⚠ _飞行员——只在公共场所见面，像对待陌生人一样对待对方，相信你的直觉。_',
+                    ja: '👥 *バディモードON。*\n\nSanctuaryのおすすめを受け取ると、次の60分以内に別のオプトイン済みのSoleatユーザーが向かう予定の場所の横に👥 _接続_ボタンが表示されます。お互いに確認しないと、名前とTelegramのハンドル名が表示されません。1日あたりの上限: 5接続 / 24時間。 `/buddy block <chat_id>` でブロック。 `/buddy report <chat_id> <reason>` で報告。 `/buddy off` で無効にします。\n\n⚠ _パイロット ― 必ず公共の場所で会い、見知らぬ人のように扱い、自分の直感を信じること。_',
+                    es: '👥 *Modo compañero activado.*\n\nCuando recibas recomendaciones de Sanctuary, aparecerá un botón 👥 _Conectar_ junto a los lugares a los que otro usuario de soleat que haya optado por participar también se dirigirá en los próximos 60 minutos. Ambos debéis confirmar antes de que se muestren los nombres y los nombres de usuario de Telegram. Límite diario: 5 conexiones / 24 h. `/buddy block<chat_id> ` para bloquear. `/buddy report<chat_id><reason> ` para marcar. `/buddy off` para desactivar.\n\n⚠ _Piloto: queda solo en público, trata como a un desconocido, confía en tu instinto._'
+                  },
   'buddy.off':                    { en: '👥 Buddy mode OFF.', fr: '👥 Mode buddy DÉSACTIVÉ.' ,
                 id: '👥 Mode teman MATI.',
                 ru: '👥 Режим "Друг" выключен.',
@@ -2201,6 +2236,8 @@ const STRINGS = {
                    de: '👥 Der Buddy-Modus ist aktuell * {state} *. Heutige Verbindungen: {n} / {cap} . Verwenden Sie `/buddy on` , `/buddy off` , `/buddy block<id> ` , `/buddy report<id><reason> ` .',
                    zh: '👥 好友模式当前处于 * {state} * 状态。今日连接数： {n} / {cap} 。使用`/buddy on` 、 `/buddy off`或`/buddy block<id> ` ， `/buddy report<id><reason> ` 。',
                    es: '👥 El modo compañero está actualmente en * {state} *. Conexiones de hoy: {n} / {cap} . Usa `/buddy on` , `/buddy off` , `/buddy block<id> ` , `/buddy report<id><reason> ` .'
+                 ,
+                   ja: '👥 バディモードは現在 *{state}* です。今日の接続: {n}/{cap}。 `/buddy on`、 `/buddy off`、 `/buddy block <id>`、 `/buddy report <id> <reason>`を使用してください。'
                  },
   'buddy.status.on':              { en: 'ON', fr: 'ACTIVÉ' ,
                       id: 'PADA',
@@ -2223,6 +2260,9 @@ const STRINGS = {
                   ru: 'Извините, /buddy выдал ошибку.',
                   de: 'Entschuldigung, /buddy ist auf einen Fehler gestoßen.',
                   es: 'Lo siento, /buddy ha dado un error.'
+                ,
+                  zh: '抱歉， /buddy 发生错误。',
+                  ja: '申し訳ありません、 /buddy エラーが発生しました。'
                 },
 
   // v0.59.13 — "Open in Google Maps" buttons added to /carpark,
@@ -2454,6 +2494,8 @@ const STRINGS = {
                                de: 'Der Menü-Auswahldienst benötigt den TMA im Webhook-Modus. Verwenden Sie stattdessen /hidden für Chat-basierte Auswahlmöglichkeiten oder geben Sie einfach „find me ramen“ oder Ähnliches ein, und ich suche für Sie.',
                                zh: '美食选择器需要 webhook 模式的 TMA。如果想通过聊天进行选择，请尝试/hidden ，或者直接输入“找拉面”/类似内容，我会帮你搜索。',
                                es: 'El selector de cocina necesita el TMA en modo webhook. Prueba con /hidden para selecciones basadas en chat, o simplemente escribe \'find me ramen\' o similar y lo buscaré.'
+                             ,
+                               ja: 'Cuisine PickerにはWebhookモードのTMAが必要です。チャットベースの選択には /hidden をお試しください。または、「ラーメンを探して」などと入力していただければ検索します。'
                              }
 };
 

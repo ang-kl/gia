@@ -263,7 +263,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "🌐 当前语言：英语{fromTg} 。请选择一种语言：",
+      "google_translation": "🌐 当前语言：英语{fromTg} 。\n选择一种语言：",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -274,7 +274,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -307,7 +307,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "抱歉， /legal命令出错。请稍后再试。",
+      "google_translation": "抱歉， /legal 出错了。请稍后再试。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -318,7 +318,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -329,7 +329,7 @@
       "max_chars": 244,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": "📍 *位置已设置为：* {place} 💻 在电脑端，Telegram 分享的是*地图标记点*，而非实时 GPS 定位——因此可能会定位到错误的位置。这是您当前的位置吗？",
+      "google_translation": "📍 *位置已设置为：*\n{place}\n\n💻 在电脑端，Telegram 分享的是地图上的标记点，而不是实时 GPS 定位——因此可能会定位到错误的位置。这是你所在的位置吗？",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -340,7 +340,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -483,7 +483,7 @@
       "max_chars": 156,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "📍 区域设置： {area}使用<code>/位置或<code>/l &lt;地点&gt; · 更改地址</code></code>",
+      "google_translation": "📍 区域设置： {area}\n\n使用 <code>/location</code> 或 <code>/l &lt;place&gt;</code> · 更改地址",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -494,7 +494,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.] [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -725,7 +725,7 @@
       "max_chars": 176,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": "📍 分享一次您的位置，即可让{label}使用您的语言环境（或输入`/location<place name> ` 。 `/location<place name> `手动设置）。",
+      "google_translation": "📍 分享一次您的位置，以便 {label} 使用您的语言环境（或输入 `/location <place name>` 手动设置）。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -736,7 +736,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -1099,7 +1099,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "抱歉， /privacy出现错误。请稍后再试。",
+      "google_translation": "抱歉， /privacy 出错了。请稍后再试。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1110,7 +1110,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

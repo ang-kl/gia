@@ -18420,135 +18420,17 @@ async function cacheBotUsername() {
       }
     });
 
-    // v0.62.718 — TEMPORARY. Fills the `google_translation` field of one i18n
-    // audit job file (scripts/i18n-audit-jobs/) via Cloud Translation and
-    // returns it ready to hand to the Gemini auditor.
+    // v0.62.730 — the /api/i18n-translate and /api/i18n-audit routes were DELETED
+    // here (O-197). They were scaffolding, and their own comments said so: the
+    // operator had no CLI and could not mint a service-account key, so a Cloud
+    // Translation call had to originate from the process that already held the
+    // key. That is done — 1,581 of 1,590 strings are applied — and the work now
+    // runs from scripts/ with a key passed per-invocation.
     //
-    // WHY IT EXISTS: the operator has no CLI and cannot mint a service-account
-    // key, so nothing can call Translate locally. The API key already lives in
-    // Railway, so the call has to originate here. Delete this route once the
-    // six languages are filled — it is scaffolding, not a feature.
-    //
-    // GATE: a dedicated I18N_TRANSLATE_TOKEN, and it FAILS CLOSED when that var
-    // is unset. Deliberately not isOwnerChat: that helper returns true for
-    // everyone when TELEGRAM_OWNER_CHAT_ID is missing (Register O-185), which is
-    // the wrong default for a route that spends money on every call.
-    app.get('/api/i18n-translate', async (req, res) => {
-      try {
-        const gate = process.env.I18N_TRANSLATE_TOKEN;
-        if (!gate) return res.status(503).json({ error: 'I18N_TRANSLATE_TOKEN not configured' });
-        if (String(req.query.token || '') !== gate) return res.status(403).json({ error: 'forbidden' });
-
-        const lang = String(req.query.lang || '');
-        // v0.62.719 — `batch` defaults to ALL. Gemini has no write access to the
-        // repo, so the audited JSON travels back by hand; every extra file is a
-        // manual download AND a manual re-upload. One file per language is six
-        // round trips instead of thirty-six. Single batches stay addressable
-        // (?batch=03) because the Gemini step still wants ~50 items at a time —
-        // it is the transport that benefits from merging, not the audit.
-        const batch = String(req.query.batch || 'all').toLowerCase();
-        if (!/^(id|ru|de|zh|ja|es)$/.test(lang)) return res.status(400).json({ error: 'lang must be one of id|ru|de|zh|ja|es' });
-        if (batch !== 'all' && !/^0?[1-9]$/.test(batch)) return res.status(400).json({ error: "batch must be 1..9 or 'all'" });
-
-        // Inline require, matching every other fs use in this file — there is
-        // no top-level `const fs`, so a bare `fs.` here is a ReferenceError that
-        // node --check cannot see.
-        const fsMod = require('fs');
-        const dir = path.join(__dirname, 'scripts', 'i18n-audit-jobs');
-        const names = batch === 'all'
-          ? fsMod.readdirSync(dir).filter((f) => f.startsWith(`i18n-audit-${lang}-`)).sort()
-          : [`i18n-audit-${lang}-${batch.padStart(2, '0')}.json`];
-        if (!names.length || !names.every((n) => fsMod.existsSync(path.join(dir, n)))) {
-          return res.status(404).json({ error: `no job file(s) for ${lang} batch ${batch}` });
-        }
-
-        const { fillJob } = require('./i18n-translate');
-        let merged = null;
-        let filled = 0, chars = 0, damaged = 0;
-        for (const name of names) {
-          const job = JSON.parse(fsMod.readFileSync(path.join(dir, name), 'utf8'));
-          const r = await fillJob(job, { redis });
-          filled += r.filled; chars += r.chars; damaged += r.damaged;
-          if (!merged) merged = r.job;
-          else merged.items.push(...r.job.items);
-        }
-        // Re-derive the summary from the merged item list rather than summing the
-        // per-batch ones — a total that is computed, not accumulated, cannot drift
-        // away from what is actually in the file.
-        merged.job.batch = batch === 'all' ? `merged ${names.length} batches` : merged.job.batch;
-        merged.summary.total = merged.items.length;
-        merged.summary.unreviewed = merged.items.filter((i) => i.gemini_audit.verdict === 'unreviewed').length;
-        console.log(`[i18n-translate] ${lang}/${batch} files=${names.length} items=${merged.items.length} filled=${filled} chars=${chars} damaged=${damaged}`);
-
-        const fname = batch === 'all' ? `i18n-audit-${lang}-all.json` : names[0];
-        res.setHeader('Content-Disposition', `attachment; filename="${fname}"`);
-        return res.json(merged);
-      } catch (err) {
-        console.error('[Error] /api/i18n-translate failed:', err.message);
-        return res.status(500).json({ error: 'internal', detail: err.message });
-      }
-    });
-
-    // v0.62.720 — TEMPORARY, and a sibling of /api/i18n-translate above.
-    // Runs the Gemini audit over ONE batch file and returns it with every
-    // gemini_audit filled.
-    //
-    // WHY A ROUTE AND NOT THE LOCAL CLI: the operator declined to paste
-    // GEMINI_API_KEY into chat — "wire it behind a Railway route" — so the key
-    // never leaves the environment that already holds it. The cost is the return
-    // path: results come back through a browser and must be re-uploaded before
-    // they can be applied. That is the operator's trade to make.
-    //
-    // WHY PER-BATCH: a full language is 265 items ≈ 11 model calls, which will
-    // outlive any sensible HTTP timeout. One batch is 50 items ≈ 2 calls. There
-    // is deliberately no ?batch=all here — offering it would just hand back a
-    // gateway timeout half the time, and a half-finished audit is worse than an
-    // honest 36 requests.
-    //
-    // Gate: same I18N_TRANSLATE_TOKEN, same fail-closed-when-unset posture
-    // (D-118). Not isOwnerChat — that returns true for everyone when
-    // TELEGRAM_OWNER_CHAT_ID is missing (O-185), which is wrong for a route
-    // that spends money per call.
-    app.get('/api/i18n-audit', async (req, res) => {
-      try {
-        const gate = process.env.I18N_TRANSLATE_TOKEN;
-        if (!gate) return res.status(503).json({ error: 'I18N_TRANSLATE_TOKEN not configured' });
-        if (String(req.query.token || '') !== gate) return res.status(403).json({ error: 'forbidden' });
-        if (!process.env.GEMINI_API_KEY) return res.status(503).json({ error: 'GEMINI_API_KEY not configured' });
-
-        const audit = require('./i18n-audit');
-
-        // ?models=1 — list what this key can actually reach, before spending
-        // anything. Cheap, and it is the only way to know whether a model name
-        // is real rather than remembered.
-        if (String(req.query.models || '') === '1') {
-          return res.json({ models: await audit.listModels(process.env.GEMINI_API_KEY) });
-        }
-
-        const lang = String(req.query.lang || '');
-        const batch = String(req.query.batch || '01').padStart(2, '0');
-        if (!/^(id|ru|de|zh|ja|es)$/.test(lang)) return res.status(400).json({ error: 'lang must be one of id|ru|de|zh|ja|es' });
-        if (!/^0[1-9]$/.test(batch)) return res.status(400).json({ error: 'batch must be 01..09' });
-
-        const fsMod = require('fs');
-        const file = path.join(__dirname, 'scripts', 'i18n-audit-jobs', `i18n-audit-${lang}-${batch}.json`);
-        if (!fsMod.existsSync(file)) return res.status(404).json({ error: `no job file for ${lang} batch ${batch}` });
-
-        const job = JSON.parse(fsMod.readFileSync(file, 'utf8'));
-        const model = String(req.query.model || '') || undefined;
-        const r = await audit.auditJob(job, { model, chunk: Number(req.query.chunk) || undefined });
-        console.log(`[i18n-audit] ${lang}/${batch} model=${r.model} audited=${r.audited} missing=${r.missing} calls=${r.calls} in=${r.inTok} out=${r.outTok} → ${JSON.stringify(r.counts)}`);
-
-        try { require('./api-cost').recordGeminiUsage(redis, r.model, { promptTokenCount: r.inTok, candidatesTokenCount: r.outTok }); } catch { /* instrumentation must never fail the call */ }
-
-        res.setHeader('Content-Disposition', `attachment; filename="i18n-audit-${lang}-${batch}.json"`);
-        return res.json(r.job);
-      } catch (err) {
-        console.error('[Error] /api/i18n-audit failed:', err.message);
-        const d = err.response?.data?.error;
-        return res.status(500).json({ error: 'internal', detail: d?.message || err.message, reason: d?.details?.[0]?.reason || null });
-      }
-    });
+    // Deleted rather than left disabled: both spent money on every call, and a
+    // dormant paid route with a token gate is a standing liability once nothing
+    // needs it. The Gemini audit route goes with it — the operator dropped the
+    // audit, so it has no future caller either.
 
     // v0.57.11: SVG endpoint dropped; mrt-system-map.png is served as
     // a Vite-emitted static asset from web/transport/public/.

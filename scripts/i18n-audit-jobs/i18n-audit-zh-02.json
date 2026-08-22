@@ -329,7 +329,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "抱歉， /forgetme命令出错。请稍后再试，或私信客服。",
+      "google_translation": "抱歉， /forgetme 出错了。请稍后再试，或私信客服。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -340,7 +340,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -439,7 +439,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "⇩─ 提供类似菜肴或菜系的餐厅 ─ ⇩ ⇩─ 并非完全相同的{dish} ─ ⇩",
+      "google_translation": "⇩─ 提供类似菜肴或菜系的餐馆 ─ ⇩\n⇩─ 不完全是{dish} ─ ⇩",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -450,7 +450,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

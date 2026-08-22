@@ -31,13 +31,19 @@ const ORDER = ['id', 'ru', 'de', 'zh', 'ja', 'es'];   // matches SUPPORTED's ord
 
 // Collect id -> { lang: translation } for everything that passes the gate.
 const byKey = new Map();
+const failing = new Map();          // key -> [langs whose current translation fails]
 let passed = 0, gated = 0;
 for (const f of fs.readdirSync(JOBS).filter((x) => x.endsWith('.json') && !x.startsWith('_')).sort()) {
   const job = JSON.parse(fs.readFileSync(path.join(JOBS, f), 'utf8'));
   const lang = LANG_MAP[job.job.target_lang];
   if (!lang) continue;
   for (const it of job.items) {
-    if (validateItem(it.source || '', it.google_translation || '').length) { gated++; continue; }
+    if (validateItem(it.source || '', it.google_translation || '').length) {
+      gated++;
+      if (!failing.has(it.id)) failing.set(it.id, []);
+      failing.get(it.id).push(lang);
+      continue;
+    }
     if (!byKey.has(it.id)) byKey.set(it.id, {});
     byKey.get(it.id)[lang] = it.google_translation;
     passed++;
@@ -50,7 +56,58 @@ const lit = (s) => "'" + String(s)
   .replace(/\n/g, '\\n').replace(/\r/g, '\\r') + "'";
 
 let src = fs.readFileSync(I18N, 'utf8');
-let written = 0, skippedExisting = 0, notFound = 0;
+let written = 0, skippedExisting = 0, notFound = 0, pruned = 0;
+
+// PRUNE FIRST, by REWRITING each affected entry rather than splicing regexes.
+//
+// The gate tightened three times after strings were already applied — <code> and
+// stray angles, one-character commands, then command spacing — and an applier that
+// only ADDS cannot withdraw what a looser gate let through. `Ketik /l<place>` was
+// live because {2,15} never examined `/l`.
+//
+// Two regex attempts at surgical removal both produced a file that would not
+// parse: the first orphaned the leading comma (entries are written `,\n  id: '…'`
+// with the comma FIRST), the second ate the separator the NEXT entry needed.
+// Comma bookkeeping inside a hand-rolled splice is the wrong tool. This parses the
+// entry's language map, drops the failing languages, and re-emits the whole block
+// with separators generated fresh — so there is no comma to get wrong.
+function entryBounds(text, key) {
+  const head = new RegExp(`^(\\s*)('${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}':\\s*\\{)`, 'm');
+  const m = text.match(head);
+  if (!m) return null;
+  const open = text.indexOf('{', m.index + m[1].length);
+  let depth = 0, inStr = null;
+  for (let i = open; i < text.length; i++) {
+    const ch = text[i], prev = text[i - 1];
+    if (inStr) { if (ch === inStr && prev !== '\\') inStr = null; continue; }
+    if (ch === "'" || ch === '"') { inStr = ch; continue; }
+    if (ch === '{') depth++;
+    else if (ch === '}') { depth--; if (depth === 0) return { open, close: i, indent: m[1].length, keyLen: key.length }; }
+  }
+  return null;
+}
+
+// Split `a: '…', b: '…'` into ordered [lang, literal] pairs, respecting escapes.
+function parseLangs(body) {
+  const out = [];
+  const re = /(\w[\w-]*)\s*:\s*('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|\[[\s\S]*?\])/g;
+  let m;
+  while ((m = re.exec(body))) out.push([m[1], m[2]]);
+  return out;
+}
+
+for (const [key, failedLangs] of failing) {
+  const b = entryBounds(src, key);
+  if (!b) continue;
+  const body = src.slice(b.open + 1, b.close);
+  const pairs = parseLangs(body);
+  const keep = pairs.filter(([l]) => !failedLangs.includes(l));
+  if (keep.length === pairs.length) continue;
+  pruned += pairs.length - keep.length;
+  const ind = ' '.repeat(b.indent + b.keyLen + 5);
+  const rebuilt = ' ' + keep.map(([l, v]) => `${l}: ${v}`).join(`,\n${ind}`) + ' ';
+  src = src.slice(0, b.open + 1) + rebuilt + src.slice(b.close);
+}
 
 for (const [key, langs] of byKey) {
   // Find this key's object literal: `  'key': { … },` possibly spanning lines.
@@ -80,7 +137,15 @@ for (const [key, langs] of byKey) {
   written++;
 }
 
+// A key that does not exist in i18n.js cannot be applied, and counting its six
+// translations among the "passing" ones overstates the rollout. `bot.ratelimit` is
+// the live example: it is one of the seven proposed NEW keys, botRateLimited() is
+// still hard-coded to English/French, and every locale still gets English. Reported
+// separately rather than folded into the success number. Found by Codex on #1724.
+const applied = passed - (notFound * 6);
 console.log(`${DRY ? 'DRY RUN — ' : ''}items passing the gate: ${passed}  ·  gated out: ${gated}`);
+console.log(`of those, ACTUALLY APPLIED: ${applied}  ·  skipped, key absent from i18n.js: ${notFound * 6} (${notFound} keys × 6)`);
+console.log(`pruned (now-failing entries removed): ${pruned}`);
 console.log(`keys updated in i18n.js: ${written}  ·  already had all six: ${skippedExisting}  ·  key not found: ${notFound}`);
 if (!DRY) { fs.writeFileSync(I18N, src); console.log('i18n.js written.'); }
 else console.log('\nNothing written. Drop --dry-run to apply.');

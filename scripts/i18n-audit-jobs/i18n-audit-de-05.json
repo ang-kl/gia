@@ -761,7 +761,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "{name} · {dist} {crowd} <a href=\"<span translate=\"no\">{gmapsUrl} \"&gt;↗</a>",
+      "google_translation": "{name} · {dist}{crowd}  <a href=\"{gmapsUrl}\">↗</a>",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -772,7 +772,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.] [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -981,7 +981,7 @@
       "max_chars": 535,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "👋 <b>Willkommen zurück bei Soleat. Ihr Gerät befindet sich nun in der Nähe: <i>{deviceStreet}</i></i> Soleat verwendet weiterhin Ihren gespeicherten Suchanker: <b>{anchor}</b></b> Die Suche vom Ankerpunkt aus fortsetzen oder zu Ihrem aktuellen Standort wechseln? <i>Sie können auch /l eingeben, um von einem anderen Ort aus zu suchen, zum Beispiel: /l Orchard Road /l IOI City Mall",
+      "google_translation": "👋 <b>Willkommen zurück bei Soleat</b>\n\nIhr Gerät befindet sich nun in der Nähe von: <i> {deviceStreet} </i>\n\nSoleat verwendet weiterhin Ihren gespeicherten Suchanker:\n<b> {anchor} </b>\n\nSuche vom Ausgangspunkt aus fortsetzen oder zu Ihrem aktuellen Standort wechseln?\n\n<i>Sie können auch /l eingeben, um von einem anderen Ort aus zu suchen, zum Beispiel:\n/l Orchard Road\n/l IOI City Mall</i>",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -992,7 +992,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.] [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

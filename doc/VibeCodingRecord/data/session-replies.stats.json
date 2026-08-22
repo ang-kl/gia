@@ -1,13 +1,13 @@
 {
-  "total": 438,
+  "total": 499,
   "boundaryReply": 362,
   "boundaryTs": "2026-08-21T23:39:49.840Z",
   "unlogged": 361,
-  "numbered": 26,
-  "narration": 51,
-  "taggedFully": 24,
+  "numbered": 33,
+  "narration": 104,
+  "taggedFully": 31,
   "partiallyTagged": 2,
-  "chars": 244076,
-  "redactions": 1,
-  "operatorSecretsFound": 11
+  "chars": 265065,
+  "redactions": 5,
+  "operatorSecretsFound": 30
 }

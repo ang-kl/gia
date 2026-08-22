@@ -528,7 +528,7 @@
       "max_chars": 728,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": "👥 *Mode Teman AKTIF.* Saat Anda menerima pilihan Sanctuary, tombol 👥 _Hubungkan_ akan muncul di sebelah tempat-tempat yang juga akan dikunjungi oleh pengguna soleat lain yang telah mendaftar dalam 60 menit berikutnya. Anda berdua harus mengkonfirmasi sebelum nama depan + nama pengguna Telegram ditampilkan. Batas harian: 5 koneksi / 24 jam. `/buddy block<chat_id> ` untuk memblokir. `/buddy report<chat_id><reason> ` untuk menandai. `/buddy off` untuk menonaktifkan. ⚠ _Pilot — hanya bertemu di tempat umum, perlakukan sebagai orang asing, percayai insting Anda._",
+      "google_translation": "👥 *Mode Teman AKTIF.*\n\nSaat Anda menerima pilihan Sanctuary, tombol 👥 _Hubungkan_ akan muncul di sebelah tempat-tempat yang juga akan dikunjungi oleh pengguna soleat lain yang telah mendaftar dalam 60 menit berikutnya. Anda berdua harus mengkonfirmasi sebelum nama depan + nama pengguna Telegram ditampilkan. Batas harian: 5 koneksi / 24 jam. `/buddy block<chat_id> ` untuk memblokir. `/buddy report<chat_id><reason> ` untuk menandai. `/buddy off` untuk menonaktifkan.\n\n⚠ _Pilot — hanya bertemu di tempat umum, perlakukan seperti orang asing, percayai insting Anda._",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -539,7 +539,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

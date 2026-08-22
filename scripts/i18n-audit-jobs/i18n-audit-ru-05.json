@@ -761,7 +761,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "{name} · {dist} {crowd} <a href=\"<span translate=\"no\">{gmapsUrl} \"&gt;↗</a>",
+      "google_translation": "{name} · {dist}{crowd}  <a href=\"{gmapsUrl}\">↗</a>",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -772,7 +772,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.] [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -981,7 +981,7 @@
       "max_chars": 535,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "👋 <b>Добро пожаловать обратно в Soleat! Ваше устройство, похоже, находится рядом: <i>{deviceStreet}</i></i> Soleat по-прежнему использует сохраненный вами якорь поиска: <b>{anchor}</b></b> Продолжить поиск с указанной точки или обновить данные до текущего местоположения? <i>Также можно ввести /l для поиска из другого места, например: /l Orchard Road /l IOI City Mall",
+      "google_translation": "👋 <b>Добро пожаловать обратно в Soleat</b>\n\nВаше устройство, похоже, находится рядом с: <i> {deviceStreet} </i>\n\nSoleat по-прежнему использует сохраненный вами якорь поиска:\n<b> {anchor} </b>\n\nПродолжить поиск с указанной точки или обновить данные, указав текущее местоположение?\n\n<i>Вы также можете ввести /l для поиска из другого места, например:\n/l Орчард Роуд\n/l Торговый центр IOI City Mall</i>",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -992,7 +992,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.] [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

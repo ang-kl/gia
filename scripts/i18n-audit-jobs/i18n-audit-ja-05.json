@@ -769,7 +769,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "{name} · {dist} {crowd} <a href=\"<span translate=\"no\">{gmapsUrl} \"&gt;↗</a>",
+      "google_translation": "{name} · {dist}{crowd}  <a href=\"{gmapsUrl}\">↗</a>",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -780,7 +780,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.] [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -989,7 +989,7 @@
       "max_chars": 535,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "👋 <b>Soleatへようこそ。お使いのデバイスは現在、以下の場所にあります。 <i>{deviceStreet}</i></i> Soleat は、保存済みの検索アンカーをまだ使用しています。 <b>{anchor}</b></b>アンカーから検索を続けるか、現在地まで検索を更新しますか？<i>別の場所から検索するには、 /lと入力することもできます。例: /l Orchard Road /l IOI City Mall",
+      "google_translation": "👋 <b>ソリアットへようこそ</b>\n\nお使いのデバイスは現在、 <i> {deviceStreet} </i>付近にあります。\n\nSoleatは、保存済みの検索アンカーをまだ使用しています。\n<b> {anchor} </b>\n\nアンカー地点から検索を続けるか、現在地へ更新するか？\n\n<i>また、 /l と入力して別の場所から検索することもできます。例:\n/l オーチャードロード\n/l IOIシティモール</i>",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1000,7 +1000,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.] [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -1143,7 +1143,7 @@
       "max_chars": 154,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "その地域はよく知らないので、タンピネスのような町名で検索するか、共有ピンを使用するために/weatherと入力してみてください。",
+      "google_translation": "その地域はよく知らないので、タンピネスのような町名を試してみるか、 /weather と入力して共有ピンを使ってみてください。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1154,7 +1154,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
