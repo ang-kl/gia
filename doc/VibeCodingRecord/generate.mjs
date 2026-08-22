@@ -231,7 +231,10 @@ try {
 } catch { /* no reply log committed — panel omitted */ }
 const replyStats = {
   total: sessionReplies.length,
-  unlogged: sessionReplies.filter((r) => r.era === 'pre-detection').length,
+  unlogged: sessionReplies.filter((r) => r.era === 'pre-compliance').length,
+  boundaryReply: (sessionReplies.find((r) => r.serialled) || {}).i || null,
+  taggedFully: sessionReplies.filter((r) => r.tagged).length,
+  partiallyTagged: sessionReplies.filter((r) => !r.tagged && r.untaggedUnits < r.units).length,
   numbered: sessionReplies.filter((r) => r.kind === 'numbered-reply').length,
   narration: sessionReplies.filter((r) => r.kind === 'inline-narration').length,
   chars: sessionReplies.reduce((a, r) => a + (r.chars || 0), 0),
@@ -502,7 +505,7 @@ tr.row:hover{background:#1d2632}.detrow td{background:#1a1f26}.tag{background:#2
 <details><summary>🪶 Small / low-effort PRs — batching candidates</summary><div class="note" id="smallNote"></div><div class="barlist" id="smallByArea"></div><div class="scrollbox"><table class="mini"><thead><tr><th>PR</th><th>Ver</th><th>Cat</th><th>Area</th><th>Title</th></tr></thead><tbody id="smallList"></tbody></table></div></details>
 <details><summary>🔁 Indecision — reverts, re-enables, flip-flops</summary><div class="note" id="indecNote"></div><div class="scrollbox"><table class="mini"><thead><tr><th>PR</th><th>Ver</th><th>Area</th><th>Title</th><th>Signal</th></tr></thead><tbody id="indecList"></tbody></table></div></details>
 <details><summary>🧠 Behavioural patterns</summary><div class="kpis" id="behav"></div><div class="note" id="behavNote"></div></details>
-<details id="replyPanel" style="display:none"><summary>🗒️ Session reply log — the replies that were never serial-numbered</summary><div class="note" id="replyNote"></div><div class="barlist" id="replyMix"></div><div class="note">Filter the log:</div><div class="controls"><input type="search" id="rq" placeholder="search reply text…"><select id="rEra"><option value="">all</option><option value="pre-detection">unlogged (pre-detection)</option><option value="post-detection">after the rule was surfaced</option></select><label><input type="checkbox" id="rNum"> numbered only</label></div><div class="count" id="rCount"></div><div class="scrollbox"><table class="mini"><thead><tr><th>#</th><th>When (UTC)</th><th>S-1</th><th>T-1</th><th>Kind</th><th>Reply</th></tr></thead><tbody id="replyList"></tbody></table></div></details>
+<details id="replyPanel" style="display:none"><summary>🗒️ Session reply log — the replies that were never serial-numbered</summary><div class="note" id="replyNote"></div><div class="barlist" id="replyMix"></div><div class="note">Filter the log:</div><div class="controls"><input type="search" id="rq" placeholder="search reply text…"><select id="rEra"><option value="">all</option><option value="pre-compliance">unlogged (before the first numbered reply)</option><option value="post-compliance">after compliance began</option></select><label><input type="checkbox" id="rNum"> numbered only</label></div><div class="count" id="rCount"></div><div class="scrollbox"><table class="mini"><thead><tr><th>#</th><th>When (UTC)</th><th>S-1</th><th>T-1</th><th>Kind</th><th>Reply</th></tr></thead><tbody id="replyList"></tbody></table></div></details>
 <details><summary>🧩 Hard parts &amp; recurring failure modes</summary><div class="note">Fix-density per area — the share of an area's PRs that are <code>fix</code>; high = the tricky bits (areas with ≥3 PRs).</div><div class="barlist" id="fixDensity"></div><div class="note">PRs whose title / intent / approach matches a known failure mode (keyword heuristic, from the lessons below):</div><div class="barlist" id="failModes"></div><div class="scrollbox" id="failBox" style="display:none"><table class="mini"><thead><tr><th>Mode</th><th>PR</th><th>Title</th></tr></thead><tbody id="failList"></tbody></table></div></details>
 
 <h2>Lessons to reduce rework <span class="note">(distilled from <code>.claude/skills/gia-preflight/SKILL.md</code>)</span></h2>
@@ -545,6 +548,13 @@ if (REPLIES.length) {
   $('#replyNote').innerHTML =
     '<b>' + RSTATS.unlogged + '</b> replies were made before rules S-1 (serial number on every reply) '
   + 'and T-1 (<code>[§X.Y]</code> on every paragraph) were being followed at all — none numbered, none tagged. '
+  + 'The boundary is <b>measured, not chosen</b>: it is reply #' + RSTATS.boundaryReply + ', the first one that '
+  + 'actually carries a serial number. An earlier version of this artefact used a rounded wall-clock cutoff, '
+  + 'which understated the count. '
+  + 'Of the replies after it, <b>' + RSTATS.taggedFully + '</b> are fully T-1 compliant (every substantive '
+  + 'paragraph, point and bullet tagged) and <b>' + RSTATS.partiallyTagged + '</b> are only partly tagged — '
+  + 'shown as <code>partial</code> rather than a tick, because a green tick on a partly-tagged reply is the '
+  + 'same overstatement this record exists to avoid. '
   + 'They are <b>not</b> back-filled into <code>doc/Chat/</code>: AU-4 forbids condensation and the protocol '
   + 'forbids invention, so retrospective serials would fabricate a compliance that did not happen. '
   + 'They are recorded here instead, because this folder is a derived, regenerable view and explicitly not '
@@ -554,7 +564,9 @@ if (REPLIES.length) {
   const mix = [
     ['unlogged — no serial, no tags', RSTATS.unlogged],
     ['numbered per S-1', RSTATS.numbered],
-    ['inline narration beside a tool call', RSTATS.narration]
+    ['inline narration beside a tool call', RSTATS.narration],
+    ['fully T-1 tagged', RSTATS.taggedFully],
+    ['partly tagged only', RSTATS.partiallyTagged]
   ];
   const mx = Math.max(1, ...mix.map((m) => m[1]));
   $('#replyMix').innerHTML = mix.map(([k, v]) =>
@@ -571,7 +583,8 @@ if (REPLIES.length) {
     $('#rCount').textContent = rows.length + ' of ' + REPLIES.length + ' replies';
     $('#replyList').innerHTML = rows.map((r) =>
       '<tr><td>' + r.i + '</td><td>' + esc((r.ts || '').replace('T', ' ').slice(0, 16))
-      + '</td><td>' + (r.serialled ? '✓' : '—') + '</td><td>' + (r.tagged ? '✓' : '—')
+      + '</td><td>' + (r.serialled ? '✓' : '—') + '</td><td>'
+      + (r.tagged ? '✓' : (r.units && r.untaggedUnits < r.units ? 'partial (' + (r.units - r.untaggedUnits) + '/' + r.units + ')' : '—'))
       + '</td><td>' + esc(r.kind) + '</td><td><details><summary>'
       + esc((r.text || '').slice(0, 110).replace(/\s+/g, ' ')) + '…</summary><pre>'
       + esc(r.text) + '</pre></details></td></tr>').join('');
