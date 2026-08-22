@@ -233,7 +233,7 @@
       "max_chars": 1626,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "Lust auf etwas Außergewöhnliches? Soleat – „Solo essen“ / „Also lasst uns essen“ – hilft Ihnen, Singapurs {cuisines} Schmelztiegel – und andere Städte – zu entdecken – mit sorgfältig ausgewählten Restaurants, Imbissständen, Michelin-Sterne-Empfehlungen, Bib-Gourmand-Favoriten unter 45 S$, Wetterinformationen und Transportmöglichkeiten in einem Telegram-Guide. Beginnen Sie mit /c /cuisine oder /m /menu /cuisine – vollständige Küchenauswahl (über {cuisines} Küchen, {cuisine-venues} kuratierte Lokale, Singapur, Johor Bahru + andere Städte, 6 Schnellfilter) /hawker – > {hawker} Hawker-Zentren (2025) /recognised – Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table /l /location – teilen oder Ihren aktuellen Standort festlegen /weather – aktuelle + 2-Stunden-Vorhersage der NEA /transport – Bus, MRT, zu Fuß, mit dem Auto /carpark – die 5 nächstgelegenen Parkplätze mit freien Plätzen /language – App-Sprache · 8 Optionen (Chat bleibt EN/FR) /privacy – Daten, Speicherung & Quellen /legal – Haftungsausschluss & Hinweise zur Gerichtsbarkeit /forgetme – Ihre gespeicherten Daten löschen Oder tippen Sie auf die Menü-Schaltfläche (🍴 Küchenauswahl), um direkt loszulegen.",
+      "google_translation": "Lust auf etwas Außergewöhnliches? Soleat – „Allein essen“ / „Lasst uns essen“ – hilft dir, Singapurs {cuisines} Schmelztiegel (und den anderer Städte) zu entdecken. Mit sorgfältig ausgewählten Restaurants, Imbissständen, Michelin-Sterne-Empfehlungen, Bib-Gourmand-Favoriten unter 45 S$, Wetterinformationen und Transportmöglichkeiten in einem Telegram-Guide. Starte mit /c /cuisine oder /m /menu\n\n/cuisine — vollständiger Küchenfinder (über {cuisines} Küchen, {cuisine-venues} kuratierte Lokale, Singapur, Johor Bahru + andere Städte, 6 Schnellfilter)\n/hawker — > {hawker} Hawker-Zentren (2025)\n/recognised – Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table\n/l /location — Teilen oder legen Sie Ihren aktuellen Standort fest\n/weather — jetzt + 2-Stunden-Vorhersage für Nordostasien\n/transport — Bus, U-Bahn, zu Fuß, mit dem Auto\n/carpark — die 5 nächstgelegenen Parkplätze mit freien Stellplätzen\n/language — App-Sprache · 8 Optionen (Chat bleibt EN/FR)\n/privacy – Daten, Aufbewahrung und Quellen\n/legal — Haftungsausschluss und Hinweise zur Gerichtsbarkeit\n/forgetme — Ihre gespeicherten Daten löschen\n\nOder tippen Sie auf die Menü-Schaltfläche (🍴 Küchenauswahl), um direkt loszulegen.",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -244,7 +244,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

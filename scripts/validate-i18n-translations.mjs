@@ -61,8 +61,17 @@ function strayAngles(s) {
 const CHECKS = [
   ['html-tags',    (s) => (s.match(TAG_RE) || []).join(',')],
   ['stray-angles', (s) => String(strayAngles(s))],
-  ['placeholders', (s) => (s.match(/\{\w+\}/g) || []).sort().join(',')],
-  ['commands',     (s) => (s.match(/\/[a-z]{2,15}\b/g) || []).sort().join(',')],
+  // [\w-]+, not \w+: `{cuisine-venues}` is a live placeholder in start.intro, and
+  // \w+ never matched it. The Russian translation replaced it with
+  // `{кулинарные-торговые площадки}` — a translated placeholder NAME, which can
+  // never substitute, so /start would render the literal to users. Found by Codex
+  // on PR #1725.
+  ['placeholders', (s) => (s.match(/\{[\w-]+\}/g) || []).sort().join(',')],
+  // {1,15}, not {2,15}: `/l` is a real, supported command and the two-character
+  // minimum meant neither command check ever looked at it. Six `wake2.anotherHint`
+  // translations shipped with `/l<place>` — the delimiter gone, the command dead —
+  // and passed the gate cleanly. Found by Codex on PR #1724.
+  ['commands',     (s) => (s.match(/\/[a-z]{1,15}\b/g) || []).sort().join(',')],
   // A Telegram command is only tappable when it ends at a boundary. Cloud
   // Translation butted commands straight against Japanese and Chinese text —
   // `/cuisineで` — which reads as one long token and stops being a command. The
@@ -70,9 +79,23 @@ const CHECKS = [
   // legitimately has one is not failed for it.
   ['cmd-delimited', (s) => {
     let n = 0;
-    for (const m of String(s || '').matchAll(/\/[a-z]{2,15}/g)) {
+    for (const m of String(s || '').matchAll(/\/[a-z]{1,15}/g)) {
       const nxt = String(s)[m.index + m[0].length];
       if (nxt && !/\s/.test(nxt) && !(nxt.charCodeAt(0) < 128 && /[^\w]/.test(nxt))) n++;
+    }
+    return String(n);
+  }],
+  // Count commands FOLLOWED BY WHITESPACE, and compare against the source. The
+  // delimiter check above treats any ASCII punctuation as a valid boundary, so
+  // `/l<place>` passed it — `<` is punctuation. But the source wrote `/l <place>`,
+  // and losing that space is the damage: it reads wrong and the argument fuses to
+  // the command. Comparing the count against the source catches exactly the loss,
+  // without failing a source that legitimately writes `/cuisine.`
+  ['cmd-spacing',  (s) => {
+    let n = 0;
+    for (const m of String(s || '').matchAll(/\/[a-z]{1,15}/g)) {
+      const nxt = String(s)[m.index + m[0].length];
+      if (nxt && /\s/.test(nxt)) n++;
     }
     return String(n);
   }],

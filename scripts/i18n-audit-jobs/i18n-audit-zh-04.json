@@ -153,7 +153,7 @@
       "max_chars": 140,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "暂无最新精选。请先运行/cuisine或/hidden命令，然后再运行/share转发给朋友。",
+      "google_translation": "目前还没有精选内容。先运行 /cuisine 或 /hidden ，再运行 /share 转发给朋友。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -164,7 +164,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -175,7 +175,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "抱歉， /share命令出错。",
+      "google_translation": "抱歉， /share 发生错误。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -186,7 +186,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

@@ -307,7 +307,7 @@
       "max_chars": 175,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": "📍 只需分享一次您的位置，Soleat 即可使用您的语言环境（或输入`/location<place name> ` 。 `/location<place name> `手动设置）。",
+      "google_translation": "📍 分享一次您的位置，以便 Soleat 使用您的语言环境（或输入 `/location <place name>` 手动设置）。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -318,7 +318,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -373,7 +373,7 @@
       "max_chars": 197,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "您附近没有与“ {q} ”相关的 Google Places 结果。请尝试使用/cuisine搜索美食， /hidden查找附近的特色餐厅，或重新措辞搜索。",
+      "google_translation": "您附近没有与“{q}”相关的 Google Places 结果。请尝试使用 /cuisine 查找附近的景点，或尝试使用 /hidden 查找附近的宝藏，或者重新措辞您的搜索。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -384,7 +384,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -483,7 +483,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "抱歉， /buddy出错了。",
+      "google_translation": "抱歉， /buddy 发生错误。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -494,7 +494,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -527,7 +527,7 @@
       "max_chars": 728,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": "👥 *好友模式已开启* 当您收到避难所推荐时，如果其他已开启好友模式的用户也将在接下来的 60 分钟内前往某个地点，则该地点旁边会出现一个 👥 _连接_ 按钮。双方必须确认后，才能显示彼此的名字和 Telegram 用户名。每日上限：5 个连接/24 小时。/ `/buddy block<chat_id> ` 。/ `/buddy report<chat_id><reason> `标记。` `/buddy off`禁用。⚠ _Pilot — 仅限公共场所见面，视对方为陌生人，相信你的直觉。_",
+      "google_translation": "👥 *好友模式开启*\n\n当您收到“避难所”推荐时，如果其他已选择加入“避难所”的用户也将在接下来的 60 分钟内前往某个地点，该地点旁边会出现一个 👥 _Connect_ 按钮。双方必须确认后，才能显示彼此的名字和 Telegram 用户名。每日上限：5 个连接/24 小时。 `/buddy block <chat_id>` 屏蔽。 `/buddy report <chat_id> <reason>` 举报。 `/buddy off` 禁用。\n\n⚠ _飞行员——只在公共场所见面，像对待陌生人一样对待对方，相信你的直觉。_",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -538,7 +538,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

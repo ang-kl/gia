@@ -255,7 +255,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "🌐 Aktuelle Sprache: Englisch {fromTg} . Sprache auswählen:",
+      "google_translation": "🌐 Aktuelle Sprache: Englisch {fromTg} .\nWählen Sie eine Sprache:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -266,7 +266,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -321,7 +321,7 @@
       "max_chars": 244,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": "📍 *Standort eingestellt auf:* {place} 💻 Auf dem Desktop zeigt Telegram einen *auf der Karte markierten Punkt* an, nicht die Live-GPS-Daten – es kann also vorkommen, dass der falsche Ort angezeigt wird. Befindest du dich hier?",
+      "google_translation": "📍 *Standort eingestellt auf:*\n{place}\n\n💻 Auf dem Desktop zeigt Telegram einen *gepinnten Punkt* auf einer Karte an, nicht das Live-GPS – es kann also vorkommen, dass der falsche Ort angezeigt wird. Befindest du dich hier?",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -332,7 +332,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -475,7 +475,7 @@
       "max_chars": 156,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "📍 Bereichseinstellung: {area} Verwenden <code>/location oder <code>/l &lt;Ort&gt; · Adresse ändern</code></code>",
+      "google_translation": "📍 Bereichseinstellung: {area}\n\nVerwenden Sie <code>/location</code> oder <code>/l &lt;place&gt;</code> · Adresse ändern",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -486,7 +486,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.] [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -717,7 +717,7 @@
       "max_chars": 176,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": "📍 Teilen Sie Ihren Standort einmalig, damit {label} Ihre Region verwendet (oder geben Sie `/location<place name> ` ein). `/location<place name> ` es manuell einzustellen).",
+      "google_translation": "📍 Teile deinen Standort einmalig, damit {label} deine Region verwendet (oder gib `/location <place name>` ein, um ihn manuell festzulegen).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -728,7 +728,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

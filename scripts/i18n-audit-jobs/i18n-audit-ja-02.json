@@ -109,7 +109,7 @@
       "max_chars": 231,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "Cuisine PickerにはWebhookモードのTMAが必要です。チャットベースの選択には/hiddenお試しください。または、「ラーメンを探して」などと入力していただければ検索いたします。",
+      "google_translation": "Cuisine PickerにはWebhookモードのTMAが必要です。チャットベースの選択には /hidden をお試しください。または、「ラーメンを探して」などと入力していただければ検索します。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -120,7 +120,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -329,7 +329,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "申し訳ありません、 /forgetmeエラーが発生しました。しばらくしてからもう一度お試しいただくか、オペレーターにダイレクトメッセージを送ってください。",
+      "google_translation": "申し訳ありません、 /forgetme でエラーが発生しました。しばらくしてからもう一度お試しいただくか、オペレーターにDMを送ってください。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -340,7 +340,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -439,7 +439,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "⇩─ 似たような料理や料理を提供する飲食店 ─ ⇩ ⇩─ 厳密には{dish}ではない ─ ⇩",
+      "google_translation": "⇩─ 似たような料理や料理を提供する飲食店 ─ ⇩\n⇩─ 正確には{dish}ではない ─ ⇩",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -450,7 +450,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

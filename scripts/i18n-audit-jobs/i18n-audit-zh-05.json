@@ -769,7 +769,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "{name} · {dist} {crowd} <a href=\"<span translate=\"no\">{gmapsUrl} \"&gt;↗</a>",
+      "google_translation": "{name} · {dist}{crowd}  <a href=\"{gmapsUrl}\">↗</a>",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -780,7 +780,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.] [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -989,7 +989,7 @@
       "max_chars": 535,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "👋<b>欢迎回到索利特。您的设备现在似乎位于附近： <i>{deviceStreet}</i></i> Soleat 仍在使用您保存的搜索锚点： <b>{anchor}</b></b>继续从锚点搜索，还是更新到您当前的位置？<i>您也可以输入/l来搜索其他地点，例如： /l乌节路/l IOI 城市购物中心",
+      "google_translation": "👋 <b>欢迎回到索莱特</b>\n\n您的设备现在似乎位于： <i> {deviceStreet} </i>\n\nSoleat 仍在使用您保存的搜索锚点：\n<b> {anchor} </b>\n\n继续从锚点搜索，还是更新到您当前的位置？\n\n<i>您也可以输入 /l 从其他位置进行搜索，例如：\n/l 乌节路\n/l IOI城市购物中心</i>",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1000,7 +1000,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.] [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -1143,7 +1143,7 @@
       "max_chars": 154,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "我不熟悉那个地区——你可以试试淡滨尼之类的城镇名称，或者直接用/weather来使用你分享的图钉。",
+      "google_translation": "我不熟悉那个地区——试试淡滨尼之类的城镇名称，或者直接输入 /weather 来使用你共享的图钉。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -1154,7 +1154,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

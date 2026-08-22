@@ -307,7 +307,7 @@
       "max_chars": 175,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": "📍 一度位置情報を共有して、Soleat があなたの地域設定を使用するようにしてください (または`/location<place name> `と入力してください) `/location<place name> `手動で設定する場合）。",
+      "google_translation": "📍 一度位置情報を共有すると、Soleat があなたの地域設定を使用します (または、 `/location <place name>` と入力して手動で設定します)。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -318,7 +318,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -373,7 +373,7 @@
       "max_chars": 197,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "「 {q} 」のGoogleプレイス検索結果は、お近くに見つかりませんでした。/cuisineで/cuisineのおすすめ、 /hiddenで近くの隠れた名店を探すか、検索語句を変更してみてください。",
+      "google_translation": "「{q}」で検索しても、お近くのGoogleプレイスの結果は見つかりませんでした。ピッカーで /cuisine 、近くのおすすめスポットで /hidden を試すか、検索語句を変更してください。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -384,7 +384,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -483,7 +483,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "申し訳ありません、 /buddyエラーが発生しました。",
+      "google_translation": "申し訳ありません、 /buddy エラーが発生しました。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -494,7 +494,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -527,7 +527,7 @@
       "max_chars": 728,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": "👥 *バディモードON。* Sanctuaryのおすすめを受け取ると、次の60分以内に別のオプトイン済みのSoleatユーザーが向かう予定の場所の横に👥 _接続_ボタンが表示されます。お互いの名前とTelegramのハンドル名が表示される前に、両者が確認する必要があります。1日の接続上限：5件/24時間。` `/buddy block<chat_id> `ブロックする。` `/buddy report<chat_id><reason> `でフラグを立てる。` `/buddy off`で無効にする。⚠ _パイロット — 公共の場所でのみ会い、見知らぬ人として扱い、自分の直感を信じる。_",
+      "google_translation": "👥 *バディモードON。*\n\nSanctuaryのおすすめを受け取ると、次の60分以内に別のオプトイン済みのSoleatユーザーが向かう予定の場所の横に👥 _接続_ボタンが表示されます。お互いに確認しないと、名前とTelegramのハンドル名が表示されません。1日あたりの上限: 5接続 / 24時間。 `/buddy block <chat_id>` でブロック。 `/buddy report <chat_id> <reason>` で報告。 `/buddy off` で無効にします。\n\n⚠ _パイロット ― 必ず公共の場所で会い、見知らぬ人のように扱い、自分の直感を信じること。_",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -538,7 +538,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -593,7 +593,7 @@
       "max_chars": 244,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": "👥 バディモードは現在 * {state} * です。今日の接続数: {n} / {cap} 。` `/buddy on` 、 `/buddy off` 、 `/buddy block<id> `を使用してください。 `/buddy block<id> ` 、 `/buddy report<id><reason> ` .",
+      "google_translation": "👥 バディモードは現在 *{state}* です。今日の接続: {n}/{cap}。 `/buddy on`、 `/buddy off`、 `/buddy block <id>`、 `/buddy report <id> <reason>`を使用してください。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -604,7 +604,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

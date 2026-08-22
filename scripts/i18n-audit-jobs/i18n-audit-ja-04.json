@@ -153,7 +153,7 @@
       "max_chars": 140,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "最近のおすすめはまだありません。まず/cuisineまたは/hiddenを実行し、次に/share実行して友達に転送してください。",
+      "google_translation": "最近のおすすめはまだありません。まず /cuisine または /hidden を実行し、次に /share を実行して友達に転送してください。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -164,7 +164,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -175,7 +175,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "申し訳ありませんが、 /shareエラーが発生しました。",
+      "google_translation": "申し訳ありません、 /share エラーが発生しました。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -186,7 +186,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

@@ -307,7 +307,7 @@
       "max_chars": 175,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": "📍 Comparte tu ubicación una sola vez para que Soleat use tu configuración regional (o escribe `/location<place name> ` . `/location<place name> ` para configurarlo manualmente).",
+      "google_translation": "📍 Comparte tu ubicación una sola vez para que Soleat use tu configuración regional (o escribe `/location <place name>` para configurarla manualmente).",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -318,7 +318,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -527,7 +527,7 @@
       "max_chars": 728,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": "👥 *Modo compañero ACTIVADO.* Cuando recibas recomendaciones de Sanctuary, aparecerá un botón 👥 _Conectar_ junto a los lugares a los que otro usuario de soleat que también haya optado por participar se dirigirá en los próximos 60 minutos. Ambos debéis confirmar antes de que se muestren los nombres y los nombres de usuario de Telegram. Límite diario: 5 conexiones / 24 h. `/buddy block<chat_id> ` para bloquear. `/buddy report<chat_id><reason> ` para marcar. `/buddy off` para desactivar. ⚠ _Piloto: reúnase solo en público, trate como a un extraño, confíe en su instinto._",
+      "google_translation": "👥 *Modo compañero activado.*\n\nCuando recibas recomendaciones de Sanctuary, aparecerá un botón 👥 _Conectar_ junto a los lugares a los que otro usuario de soleat que haya optado por participar también se dirigirá en los próximos 60 minutos. Ambos debéis confirmar antes de que se muestren los nombres y los nombres de usuario de Telegram. Límite diario: 5 conexiones / 24 h. `/buddy block<chat_id> ` para bloquear. `/buddy report<chat_id><reason> ` para marcar. `/buddy off` para desactivar.\n\n⚠ _Piloto: queda solo en público, trata como a un desconocido, confía en tu instinto._",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -538,7 +538,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

@@ -770,7 +770,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "{name} · {dist} {crowd} <a href=\"<span translate=\"no\">{gmapsUrl} \"&gt;↗</a>",
+      "google_translation": "{name} · {dist}{crowd}  <a href=\"{gmapsUrl}\">↗</a>",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -781,7 +781,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.] [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

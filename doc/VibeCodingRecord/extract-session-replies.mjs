@@ -115,7 +115,13 @@ function looksRandom(s) {
 // operator turn mentions a credential word, every substantial literal in that turn
 // is treated as sensitive — except env-var NAMES, which are ALL_CAPS and must stay
 // legible or the record becomes unreadable.
-const SECRET_CONTEXT = /\b(key|token|secret|password|passphrase|credential|api[_\s-]?key|bearer)\b/i;
+// `\b` is the wrong boundary here: `_` is a word character, so /\btoken\b/ does
+// NOT match `API_TOKEN` or `I18N_TRANSLATE_TOKEN` — the exact names this is meant
+// to key on. Every env-var-shaped credential slipped past. Underscore-separated
+// segments are what a credential variable looks like, so the boundary has to treat
+// `_` as a separator. Found while testing the PR #1724 P1 fix and discovering it
+// did not fire.
+const SECRET_CONTEXT = /(?:^|[^A-Za-z])(key|token|secret|password|passphrase|credential|apikey|bearer|auth)(?![A-Za-z])/i;
 const ENV_VAR_NAME = /^[A-Z][A-Z0-9_]{2,}$/;
 const PATHY = /[/\\]|\.(?:js|mjs|json|md|yml|yaml|html|tsv|ndjson|txt|png|jpg)$/i;
 
@@ -125,12 +131,31 @@ const PATHY = /[/\\]|\.(?:js|mjs|json|md|yml|yaml|html|tsv|ndjson|txt|png|jpg)$/
 // over-masking prose and destroying the record, which is the same failure as the
 // entropy-only cut, in the other direction. A secret arrives as a value, not inside
 // a sentence, and that positional fact is the discriminator.
-function contextCandidates(text) {
+function contextCandidates(text, opts = {}) {
+  // bareLines:false — used for TOOL OUTPUT. Codex found on PR #1724 that
+  // restricting ALL positional matching to operator-typed text left a hole: a
+  // command or file read printing `I18N_TRANSLATE_TOKEN=MyWordShapedToken` puts an
+  // arbitrary-shaped secret in the tool stream, where only KNOWN_SHAPES apply — so
+  // it is neither redacted nor caught by the fail-closed scan. The ASSIGNMENT
+  // branch is safe to run over code, because it already requires the NAME to be
+  // credential-ish: `GEMINI_MODEL=…` is configuration and does not match. Only the
+  // bare-standalone-line branch has to stay operator-only, since in source code
+  // every line is a value.
+  // proximity:true — used for TOOL OUTPUT. A bare standalone line only counts when
+  // the PRECEDING non-empty line names a credential, which is what
+  // `printenv I18N_TRANSLATE_TOKEN` followed by its value looks like. Without that,
+  // enabling bare lines over tool output collected 48 strings, nearly all of them
+  // camelCase function names dumped by a file read (`recordGeminiUsage`,
+  // `getOrCacheSummary`) — they pass the uppercase test and carry no digit, so no
+  // shape rule separates them from a word-shaped token. Proximity does.
+  const { bareLines = true, proximity = false } = opts;
   if (!SECRET_CONTEXT.test(text)) return [];
   const out = [];
+  let prevNonEmpty = '';
   for (const raw of text.split('\n')) {
     const line = raw.trim();
     if (!line) continue;
+    const prev = prevNonEmpty; prevNonEmpty = line;
     // `export NAME=…` / `NAME="…"` / `NAME: '…'` all reach here. Quotes must be
     // stripped BEFORE storing: Codex found on PR #1722 that capturing them meant a
     // later bare echo of the same value never matched, and a word-shaped token
@@ -139,7 +164,8 @@ function contextCandidates(text) {
     // `I18N_TRANSLATE_TOKEN=…` is not.
     const assigned = line.match(/^(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*[=:]\s*(.+)$/);
     if (assigned && !SECRET_CONTEXT.test(assigned[1])) continue;
-    const bare = /^\S+$/.test(line) ? line : null;
+    const bareOk = bareLines && (!proximity || SECRET_CONTEXT.test(prev));
+    const bare = bareOk && /^\S+$/.test(line) ? line : null;
     let value = (assigned ? assigned[2] : bare) || '';
     value = value.trim().replace(/[;,]$/, '');
     const quoted = value.match(/^(['"`])([\s\S]*)\1$/);
@@ -240,6 +266,16 @@ function collectOperatorSecrets(records) {
   // Randomness + position: operator-typed only.
   for (const m of typed.match(CANDIDATE) || []) if (looksRandom(m)) found.add(m);
   for (const m of contextCandidates(typed)) found.add(m);
+  // Assignment-shaped credentials in tool output — see contextCandidates().
+  // bareLines is now ON for tool output too. Codex, PR #1725: `printenv
+  // I18N_TRANSLATE_TOKEN` prints an arbitrary word-shaped credential ALONE on a
+  // line, which matches no vendor pattern and no entropy rule, so disabling bare
+  // lines here left it uncollected — and the fail-closed scan misses it for the
+  // same reason. It is safe to enable because the bare-line branch already requires
+  // an uppercase letter: `gemini-2.5-flash-lite` and every other lowercase-kebab
+  // config identifier stays out, which is what the earlier over-masking rounds were
+  // about.
+  for (const m of contextCandidates(tool, { proximity: true })) found.add(m);
   // Longest first, so a secret containing another is masked whole.
   return [...found].sort((a, b) => b.length - a.length);
 }

@@ -263,7 +263,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "🌐 現在の言語: 英語{fromTg} 。言語を選択してください:",
+      "google_translation": "🌐 現在の言語: 英語{fromTg} 。\n言語を選択してください：",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -274,7 +274,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -329,7 +329,7 @@
       "max_chars": 244,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": "📍 *位置情報設定:* {place} 💻 デスクトップ版の Telegram では、リアルタイムの GPS ではなく *地図上にピン留めされた地点* が共有されるため、間違った場所が表示されることがあります。ここがあなたの現在地ですか?",
+      "google_translation": "📍 *位置情報設定:*\n{place}\n\n💻 デスクトップ版の Telegram では、リアルタイムの GPS ではなく、*地図上にピン留めされた地点* が共有されます。そのため、間違った場所に表示される可能性があります。ここがあなたの現在地ですか?",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -340,7 +340,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -483,7 +483,7 @@
       "max_chars": 156,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "📍 エリア設定: {area}使用<code>/場所または<code>/l &lt;場所&gt; · 住所変更</code></code>",
+      "google_translation": "📍 エリア設定: {area}\n\n <code>/location</code> または <code>/l &lt;place&gt;</code> を使用して住所を変更します",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -494,7 +494,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.] [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -725,7 +725,7 @@
       "max_chars": 176,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": "📍 一度位置情報を共有すれば、 {label}あなたの地域を使用します（または`/location<place name> `と入力してください）。 `/location<place name> `手動で設定する場合）。",
+      "google_translation": "📍 一度位置情報を共有すると、 {label} であなたの地域設定が使用されます（または、 `/location <place name>` を入力して手動で設定します）。",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -736,7 +736,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {

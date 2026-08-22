@@ -264,7 +264,7 @@
       "max_chars": 120,
       "parse_mode": "none",
       "repo_translation": null,
-      "google_translation": "🌐 Bahasa saat ini: Inggris {fromTg} . Pilih bahasa:",
+      "google_translation": "🌐 Bahasa saat ini: Inggris {fromTg} .\nPilih bahasa:",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -275,7 +275,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -330,7 +330,7 @@
       "max_chars": 244,
       "parse_mode": "Markdown",
       "repo_translation": null,
-      "google_translation": "📍 *Lokasi diatur ke:* {place} 💻 Di desktop, Telegram membagikan *titik yang ditandai di peta*, bukan GPS langsung — bisa saja berada di lokasi yang salah. Apakah ini lokasi Anda?",
+      "google_translation": "📍 *Lokasi diatur ke:*\n{place}\n\n💻 Di desktop, Telegram membagikan *titik yang ditandai di peta*, bukan GPS langsung — bisa saja menunjukkan lokasi yang salah. Apakah ini lokasi Anda?",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -341,7 +341,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit."
+        "notes": "Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
@@ -484,7 +484,7 @@
       "max_chars": 156,
       "parse_mode": "HTML",
       "repo_translation": null,
-      "google_translation": "📍 Set Area: {area} Gunakan <code>/lokasi atau <code>/l &lt;tempat&gt; · ubah alamat</code></code>",
+      "google_translation": "📍 Area set: {area}\n\nGunakan <code>/location</code> atau <code>/l &lt;place&gt;</code> · ubah alamat",
       "gemini_audit": {
         "verdict": "unreviewed",
         "severity": null,
@@ -495,7 +495,7 @@
         "glossary_violations": [],
         "fits_max_chars": null,
         "confidence": null,
-        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.]"
+        "notes": "Masking did not fully survive translation — a placeholder, command or tag is missing. Treat as placeholder_damaged unless the back-translation shows otherwise. Seeded unreviewed. Fill google_translation via Cloud Translation v3, then audit. [repaired v0.62.728: markup restored from the English source — closing tags re-inserted, opening-tag space shift undone, stray angle brackets re-escaped. Wording untouched.] [re-translated v0.62.729: segmented on newlines, command boundaries masked.]"
       }
     },
     {
