@@ -39,10 +39,30 @@ while ((m = KEY_RE.exec(src))) {
   }
   if (end < 0) continue;
   const body = src.slice(open + 1, end);
+  // Two entries — `privacy.body` and `legal.body` — are not quoted strings but
+  // `[ 'line', … ].join('\n')`. Matching only quoted literals silently excluded the
+  // two longest and most sensitive strings in the file from every structural check,
+  // and made a companion script report them as having no French when they always had.
   const pick = (l) => {
-    const g = body.match(new RegExp(`\\b${l}:\\s*('(?:[^'\\\\]|\\\\.)*'|"(?:[^"\\\\]|\\\\.)*")`));
-    if (!g) return null;
-    try { return (0, eval)(g[1]); } catch { return null; }
+    const str = body.match(new RegExp(`\\b${l}:\\s*('(?:[^'\\\\]|\\\\.)*'|"(?:[^"\\\\]|\\\\.)*")`));
+    if (str) { try { return (0, eval)(str[1]); } catch { return null; } }
+    const at = body.search(new RegExp(`\\b${l}:\\s*\\[`));
+    if (at < 0) return null;
+    const open = body.indexOf('[', at);
+    let depth = 0, end = -1, inStr = null;
+    for (let i = open; i < body.length; i++) {
+      const ch = body[i], prev = body[i - 1];
+      if (inStr) { if (ch === inStr && prev !== '\\') inStr = null; continue; }
+      if (ch === "'" || ch === '"' || ch === '`') { inStr = ch; continue; }
+      if (ch === '[') depth++;
+      else if (ch === ']') { depth--; if (!depth) { end = i; break; } }
+    }
+    if (end < 0) return null;
+    const join = body.slice(end + 1).match(/^\s*\.join\(\s*('(?:[^'\\\\]|\\\\.)*'|"(?:[^"\\\\]|\\\\.)*")\s*\)/);
+    try {
+      const arr = (0, eval)(body.slice(open, end + 1));
+      return join ? arr.join((0, eval)(join[1])) : arr.join('');
+    } catch { return null; }
   };
   const en = pick('en');
   if (en === null) continue;
