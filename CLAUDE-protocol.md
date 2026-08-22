@@ -38,6 +38,16 @@ full transcript set is present. Silently adopting the smaller number is the
 exact failure this section exists to prevent — it resets the count by
 thousands while looking like diligence.
 
+AND THE RATCHET NEEDS A WRITE-BACK, or it drifts through the other door.
+Replies made in a container the local corpus never sees are correctly refused
+as a reading, but nothing records that they happened — so a later local
+re-measure legitimately reads below the running count, gets discarded as
+"partial corpus", and from then on the serial advances only by context-carried
+increments. That is the drift this section exists to stop, arriving from the
+opposite direction. So: at the end of any session whose corpus was partial,
+append a rebase line to the project's own `CLAUDE.md` recording the count
+reached and where it was measured. The file is the ledger; a container is not.
+
 Prefix every substantive reply, on its own line:
 
 ```
@@ -69,7 +79,8 @@ This enables references like "expand §1,774·B ¶B·2".
 
 ## 4. Agent count — measured from the same transcript
 
-A subagent is spawned per `Task` tool invocation.
+A subagent is spawned per subagent-tool invocation (`Task` on older CLI
+builds, `Agent` on newer ones).
 
 ```
 node scripts/count-interactions.js --agents
@@ -77,15 +88,28 @@ node scripts/count-interactions.js --agents
 ```
 
 Counting rule: assistant entries whose content includes a `tool_use`
-block with `name == "Task"`; group by `input.subagent_type`.
+block named `Task` (older CLI builds) OR `Agent` (newer ones); group by
+`input.subagent_type`. MATCH BOTH — matching one name reported a confident
+`agents_total: 0` on a corpus that really contained subagent calls, and
+fixing it moved bot-trade's own count from 0 to 2. The output also prints
+`tool_use_blocks_seen`, because 0 agents out of 0 tool calls and 0 out of
+4,263 are different facts and a bare zero cannot tell them apart.
 
 ## 5. Token count — measured from the same transcript
 
 ```
 node scripts/count-interactions.js --tokens
-# sums usage.input_tokens, usage.output_tokens, usage.cache_read_input_tokens
-# across assistant entries; prints per-SESSION figures only
+# sums input_tokens, cache_creation_input_tokens, cache_read_input_tokens
+# (these three reconcile into tokens_in_total) and output_tokens;
+# prints per-SESSION figures only
 ```
+
+USAGE IS PER MESSAGE, NOT PER TRANSCRIPT LINE. The transcript writes one line
+per content block and repeats the identical usage object on each, so summing
+per entry inflates every figure by blocks-per-message — measured at 1.91x.
+Dedupe on `message.id`. And with prompt caching on, `input_tokens` is often 2
+while the real input sits in the two cache fields: reporting it alone is a
+confident wrong number, not a partial one.
 
 There is no per-turn accounting here, and §6 depends on there being some —
 which is why §6 stays off. Do not read `agents_latest_session` or
@@ -166,6 +190,10 @@ slash-commands:
 - `/GAPS` — Which unresolved interpretations could materially change the
   outcome?
 - `/DELTA` — What has changed from your earlier understanding?
+- `/INVARIANTS` — What must hold for this to be correct, and does it? Each
+  reported Passed, Failed or Not Verifiable. This is the handle on P3, added
+  2026-08-22 at the owner's request; until then P3 was the only protocol
+  point with no command.
 
 ## 11. Protocol for important or consequential work
 
