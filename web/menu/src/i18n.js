@@ -324,7 +324,7 @@ const RU_STRINGS = {
 const DE_STRINGS = {
   'hero.tagline.line1': 'Allein essen',
   'hero.tagline.line2': 'Also, essen wir',
-  'hero.subtagline': 'Entdecke Singapurs 50+ Küchen jenseits der üblichen Favoriten',
+  'hero.subtagline': 'Entdecken Sie Singapurs 50+ Küchen jenseits der üblichen Favoriten',
   'section.eat': 'Essen',
   'section.discover': 'Entdecken',
   'section.plan': 'Planen',
@@ -353,7 +353,7 @@ const DE_STRINGS = {
   'tile.train.live.warmup': 'Aufwärmen…',
   'chip.language': 'Sprache',
   'chip.privacy': 'Datenschutz',
-  'chip.forgetme': 'Vergiss mich',
+  'chip.forgetme': 'Mich vergessen',
   'loc.farFromPick': '📍 Sie scheinen weit von {label} entfernt — tippen Sie auf das Ortsfeld zum Aktualisieren.',
   'footer.tag': 'Experimentell · Singapur',
   'btn.fabBack': 'zurück',

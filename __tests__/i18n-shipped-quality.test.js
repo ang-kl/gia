@@ -263,7 +263,30 @@ describe('form of address stays consistent per language', () => {
     .replace(/\/[a-z]{1,15}/g, ' ')
     .replace(/https?:\/\/\S+/g, ' ');
 
-  const DE_INFORMAL = /\b[Dd]u\b|\b[Dd]ich\b|\b[Dd]ir\b|\b[Dd]eine?[nmrs]?\b/;
+  const DE_INFORMAL_PRONOUN = /\b[Dd]u\b|\b[Dd]ich\b|\b[Dd]ir\b|\b[Dd]eine?[nmrs]?\b/;
+
+  // v0.62.738 — the pronoun regex above was the WHOLE guard, and it let a second, larger
+  // class of informal German ship: the pronounless imperative. "Tippe auf eine Linie" and
+  // "Entdecke Singapurs Küchen" address the reader as du without ever writing "du", so the
+  // sweep counted 0 offenders while 18 such strings were live. Flagged by review on #1733.
+  //
+  // German cannot separate a du-imperative from a first-person narration by shape alone —
+  // "Suche Lokale" is the SYSTEM saying "searching venues", not a command to the reader,
+  // and the same is true of "Zeige die nächsten Ergebnisse" and "Prüfe Google Maps". Those
+  // three lemmas are therefore excluded by name rather than by a per-key allow-list, which
+  // would have to grow with every new loading string. Residual limit, stated not hidden: a
+  // genuine "Suche jetzt" aimed at the reader would not be caught.
+  const DE_IMPERATIVE_STEMS = [
+    'Tippe', 'Entdecke', 'Lösche', 'Vergiss', 'Probier', 'Probiere', 'Klicke', 'Drücke',
+    'Wähle', 'Öffne', 'Sende', 'Teile', 'Nutze', 'Verwende', 'Versuche', 'Schau', 'Scrolle',
+    'Wechsle', 'Speichere', 'Erstelle', 'Setze', 'Füge', 'Ändere', 'Beginne', 'Starte',
+    'Schreibe', 'Warte', 'Halte', 'Nimm', 'Frag', 'Frage', 'Sag', 'Zeig',
+  ];
+  const DE_INFORMAL_IMP = new RegExp(
+    `(?:^|[^\\p{L}])(?:${DE_IMPERATIVE_STEMS.join('|')})(?![\\p{L}])`,
+    'u',
+  );
+  const DE_INFORMAL = (s) => DE_INFORMAL_PRONOUN.test(s) || DE_INFORMAL_IMP.test(s);
   const ES_FORMAL = /\busted(es)?\b/;
 
   const shipped = (lang) => {
@@ -277,7 +300,7 @@ describe('form of address stays consistent per language', () => {
 
   it('addresses German readers as Sie everywhere, never du', () => {
     const offenders = shipped('de')
-      .filter(([, v]) => DE_INFORMAL.test(prose(v)))
+      .filter(([, v]) => DE_INFORMAL(prose(v)))
       .map(([k]) => k);
     expect(offenders).toEqual([]);
   });
@@ -297,7 +320,7 @@ describe('form of address stays consistent per language', () => {
       const S = await loadStrings(path.join(ROOT, rel));
       for (const [key, entry] of Object.entries(S)) {
         if (!entry || typeof entry.en !== 'string') continue;
-        if (typeof entry.de === 'string' && DE_INFORMAL.test(prose(entry.de))) {
+        if (typeof entry.de === 'string' && DE_INFORMAL(prose(entry.de))) {
           offenders.push(`${name} de ${key}`);
         }
         if (typeof entry.es === 'string' && ES_FORMAL.test(prose(entry.es))) {
@@ -310,9 +333,31 @@ describe('form of address stays consistent per language', () => {
 
   it('the German check can actually fire', () => {
     // A guard that cannot fail is not a guard.
-    expect(DE_INFORMAL.test(prose('Teile deinen Standort'))).toBe(true);
-    expect(DE_INFORMAL.test(prose('Teilen Sie Ihren Standort'))).toBe(false);
-    expect(DE_INFORMAL.test(prose('Wind: {kt} kt{dir}'))).toBe(false);
+    expect(DE_INFORMAL(prose('Teile deinen Standort'))).toBe(true);
+    expect(DE_INFORMAL(prose('Teilen Sie Ihren Standort'))).toBe(false);
+    expect(DE_INFORMAL(prose('Wind: {kt} kt{dir}'))).toBe(false);
+
+    // The pronounless class the pronoun regex could not see — the actual strings that
+    // shipped, and the Sie forms that replaced them.
+    expect(DE_INFORMAL(prose('Tippe auf eine Linie, um ihre Stationen zu sehen.'))).toBe(true);
+    expect(DE_INFORMAL(prose('Tippen Sie auf eine Linie, um ihre Stationen zu sehen.'))).toBe(false);
+    expect(DE_INFORMAL(prose('Entdecke Singapurs 50+ Küchen'))).toBe(true);
+    expect(DE_INFORMAL(prose('Entdecken Sie Singapurs 50+ Küchen'))).toBe(false);
+    expect(DE_INFORMAL(prose('Lösche zuerst eines.'))).toBe(true);
+    expect(DE_INFORMAL(prose('Löschen Sie zuerst eines.'))).toBe(false);
+
+    // …and the first-person narration it must NOT touch, or every loading string breaks.
+    expect(DE_INFORMAL(prose('Suche Lokale…'))).toBe(false);
+    expect(DE_INFORMAL(prose('🔎 Prüfe Google Maps auf passende Lokale…'))).toBe(false);
+    expect(DE_INFORMAL(prose('Zeige die nächsten Frucht-Ergebnisse.'))).toBe(false);
+    // 'die Suche' is a noun here, not a verb of any person.
+    expect(DE_INFORMAL(prose('Ort eingeben + Suche'))).toBe(false);
+
+    // Neutral infinitive labels are register-free by construction (operator's call on the
+    // four user-voice buttons) and must stay clear of the guard.
+    expect(DE_INFORMAL(prose('Mich vergessen'))).toBe(false);
+    expect(DE_INFORMAL(prose('Lokale zeigen'))).toBe(false);
+    expect(DE_INFORMAL(prose('Mir sagen'))).toBe(false);
   });
 });
 

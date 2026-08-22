@@ -38,8 +38,8 @@
   "key": "loc.set.unknown",
   "lang": "de",
   "before": "⚠️ Diese Schnellauswahl ist mir unbekannt. Tippe auf eine der Schaltflächen oder teile einen Pin.",
-  "after": "⚠️ Diese Schnellauswahl ist mir unbekannt. Tippe auf eine der Schaltflächen oder teile einen Standort.",
-  "why": "A German \"Pin\" reads as a PIN code; Telegram's map pin is a \"Standort\"."
+  "after": "⚠️ Diese Schnellauswahl ist mir unbekannt. Tippen Sie auf eine der Schaltflächen oder teilen Sie einen Standort.",
+  "why": "A German \"Pin\" reads as a PIN code; Telegram's map pin is a \"Standort\". The imperative was converted to Sie in v0.62.738, after review on #1733 showed the pronounless imperative had escaped the v0.62.736 register sweep."
  },
  {
   "key": "weather.areaUnknown",
@@ -269,8 +269,8 @@
   "key": "share.empty",
   "lang": "de",
   "before": "Noch keine aktuellen Empfehlungen. Führe zuerst /cuisine oder /hidden, dann /share, um die Anfrage an einen Freund weiterzuleiten.",
-  "after": "Noch keine aktuellen Empfehlungen. Nutze zuerst /cuisine oder /hidden, dann /share, um eine Empfehlung an einen Freund weiterzuleiten.",
-  "why": "\"Führe … dann /share , um …\" had no finite verb for the second clause and read as a fragment."
+  "after": "Noch keine aktuellen Empfehlungen. Nutzen Sie zuerst /cuisine oder /hidden, dann /share, um eine Empfehlung an einen Freund weiterzuleiten.",
+  "why": "\"Führe … dann /share , um …\" had no finite verb for the second clause and read as a fragment. The imperative was converted to Sie in v0.62.738, after review on #1733 showed the pronounless imperative had escaped the v0.62.736 register sweep."
  },
  {
   "key": "share.prompt",
