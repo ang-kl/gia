@@ -39,6 +39,23 @@ See `doc/VibeCodingRecord/VibeCodingRecord.md`.
 This rule was set by the operator: *"Update the Journal every time a new PR is created and done."*
 (Recorded as decision-gate G3 in `journal-0_60_144-13_05_26-0900.md`.)
 
+### Anchor time — D-203
+
+An anchor is **`max(sensor reading, latest known event time)`**, never the sensor reading
+alone. TF-10 already says a payload timestamp from `api.data.gov.sg` is a *lower bound on
+now*, not the current time; D-203 says what to do with that bound. If a git commit, a PR
+merge, or any other event with a trustworthy timestamp is already known to have happened,
+the anchor cannot predate it.
+
+This exists because `journal-0_62_723` `[AMD-3]` was stamped `07:55` while reporting a merge
+that git records at `07:59:45` — a verification dated before the event it verified. The
+entry had first been stamped `08:00` and was then "corrected" to the fetched value, moving
+it away from the truth while announcing increased rigour. Compute the `max()` with a
+deterministic tool, per reporting-protocol rule 5.
+
+Counters and anchors move together: bumping `journal`/`commit` in `doc/.serial-state.yml`
+without re-anchoring `last_anchor_*` leaves serial generation pointing at a stale event.
+
 ## Standing rules — operator, 22-08 '26 (PINNED)
 
 Set by the operator verbatim: *"use this Mental model for building this project"* and
