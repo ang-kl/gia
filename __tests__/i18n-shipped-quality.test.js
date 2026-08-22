@@ -18,6 +18,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateItem } from '../scripts/validate-i18n-translations.mjs';
+import { TMA_FILES, BRAND_ONLY, loadStrings } from '../scripts/validate-i18n-tma.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = fs.readFileSync(path.join(ROOT, 'i18n.js'), 'utf8');
@@ -148,4 +149,67 @@ describe('shipped i18n translations', () => {
     }
     expect(stale).toEqual([]);
   });
+});
+
+// The five Mini Apps are a second shipping surface with the same failure modes and,
+// until v0.62.733, no gate at all. They are measured by EVALUATING each module: three
+// of them merge a per-language overlay (`ID_STRINGS`, `RU_STRINGS`, …) into STRINGS at
+// load, so a regex that looks for `id:` inside the entry literal reports a fully
+// translated app as zero-covered. That mistake is the reason this block exists.
+describe('shipped Mini App translations', () => {
+  const LANGS = ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+
+  it('has every language for every key, except pure brand names', async () => {
+    const gaps = [];
+    for (const [name, rel] of TMA_FILES) {
+      const S = await loadStrings(path.join(ROOT, rel));
+      for (const [key, entry] of Object.entries(S)) {
+        if (!entry || typeof entry.en !== 'string') continue;
+        if (BRAND_ONLY.has(key)) continue;
+        for (const lang of LANGS) {
+          if (typeof entry[lang] !== 'string') gaps.push(`${name} ${lang} ${key}`);
+        }
+      }
+    }
+    expect(gaps).toEqual([]);
+  }, 30000);
+
+  it('is structurally safe against its own English source', async () => {
+    const failures = [];
+    for (const [name, rel] of TMA_FILES) {
+      const S = await loadStrings(path.join(ROOT, rel));
+      for (const [key, entry] of Object.entries(S)) {
+        if (!entry || typeof entry.en !== 'string') continue;
+        for (const lang of LANGS) {
+          const v = entry[lang];
+          // Present but empty is deliberate — `card.distAway` is `fr: ''` because
+          // French renders the distance with no trailing suffix.
+          if (typeof v !== 'string' || v === '') continue;
+          const reasons = validateItem(entry.en, v);
+          if (reasons.length) failures.push(`${name} ${lang} ${key}: ${reasons.join(', ')}`);
+        }
+      }
+    }
+    expect(failures).toEqual([]);
+  }, 30000);
+});
+
+// The command checks decide what counts as a Telegram command at all, so they are
+// pinned in both directions: the cases they exist for must still fail, and the correct
+// target-language forms they used to reject must pass.
+describe('command detection boundaries', () => {
+  const cases = [
+    ['🔗 Copy /cuisine command', '🔗 Copier la commande /cuisine', [], 'command at end of string'],
+    ['Sun/PH', 'Dim/fériés', [], 'slash meaning "or" inside a word'],
+    ['Sorry, /forgetme hit an error.', '抱歉，/forgetme 出错了。', [], 'full-width comma before a command'],
+    ['Sorry, /forgetme hit an error.', '申し訳ありません、/forgetme でエラー。', [], 'ideographic comma before a command'],
+    ['Tap /l to set', 'Нажмите /l, чтобы', [], 'ASCII comma after a command'],
+    ['/l <place> here', '/l<place> here', ['cmd-spacing'], 'argument fused to the command'],
+    ['use /cuisine now', '/cuisineで探す', ['cmd-delimited', 'cmd-spacing'], 'command glued to kana'],
+  ];
+  for (const [en, translated, expected, why] of cases) {
+    it(why, () => {
+      expect(validateItem(en, translated)).toEqual(expected);
+    });
+  }
 });

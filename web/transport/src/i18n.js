@@ -304,6 +304,8 @@ const ID_STRINGS = {
   "mrt.dir.anticlockwise": "Berlawanan arah jarum jam",
   "mrt.dir.loop": "Melingkar",
   "sheet.dragHandle": "Seret untuk mengubah ukuran daftar",
+  'mrt.close': 'Tutup',
+  'locale.language': 'Bahasa',
 };
 for (const k in ID_STRINGS) {
   if (STRINGS[k] && STRINGS[k].id == null) STRINGS[k].id = ID_STRINGS[k];
@@ -428,6 +430,8 @@ const RU_STRINGS = {
   "mrt.dir.anticlockwise": "Против часовой стрелки",
   "mrt.dir.loop": "Кольцевая",
   "sheet.dragHandle": "Перетащите, чтобы изменить размер списка",
+  'mrt.close': 'Закрыть',
+  'locale.language': 'Язык',
 };
 
 // ----- German (de) overlay — v0.62.311. Compounds abbreviated where chips are tight. -----
@@ -549,6 +553,8 @@ const DE_STRINGS = {
   "mrt.dir.anticlockwise": "Gegen den Uhrzeigersinn",
   "mrt.dir.loop": "Ringlinie",
   "sheet.dragHandle": "Liste durch Ziehen vergrößern oder verkleinern",
+  'mrt.close': 'Schließen',
+  'locale.language': 'Sprache',
 };
 for (const k in RU_STRINGS) { if (STRINGS[k] && STRINGS[k].ru == null) STRINGS[k].ru = RU_STRINGS[k]; }
 for (const k in DE_STRINGS) { if (STRINGS[k] && STRINGS[k].de == null) STRINGS[k].de = DE_STRINGS[k]; }
@@ -671,6 +677,8 @@ const ZH_STRINGS = {
   "mrt.dir.anticlockwise": "逆时针",
   "mrt.dir.loop": "环线",
   "sheet.dragHandle": "拖动以调整列表大小",
+  'mrt.close': '关闭',
+  'locale.language': '语言',
 };
 
 const JA_STRINGS = {
@@ -791,6 +799,8 @@ const JA_STRINGS = {
   "mrt.dir.anticlockwise": "反時計回り",
   "mrt.dir.loop": "循環",
   "sheet.dragHandle": "ドラッグしてリストのサイズを変更",
+  'mrt.close': '閉じる',
+  'locale.language': '言語',
 };
 
 const ES_STRINGS = {
@@ -911,6 +921,8 @@ const ES_STRINGS = {
   "mrt.dir.anticlockwise": "Sentido antihorario",
   "mrt.dir.loop": "Circular",
   "sheet.dragHandle": "Arrastra para cambiar el tamaño de la lista",
+  'mrt.close': 'Cerrar',
+  'locale.language': 'Idioma',
 };
 
 for (const k in ZH_STRINGS) { if (STRINGS[k] && STRINGS[k].zh == null) STRINGS[k].zh = ZH_STRINGS[k]; }
