@@ -1,0 +1,16 @@
+{
+  "since": "2026-08-23T14:22:23Z",
+  "until": "2026-08-23T15:27:23Z",
+  "count": 1,
+  "logs": [
+    {
+      "timestamp": "2026-08-23T14:46:57.045690580Z",
+      "message": "[Vibe] Cached 9 live places (Google Maps).",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "1d6336a1-f5ea-48ef-8054-86c4233156ac",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
