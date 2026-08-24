@@ -59,36 +59,85 @@ const allSessions = has('--sessions');
 const explicitFile = val('--file');
 const base = parseInt(val('--base') || '0', 10) || 0;
 
-if (!wantAny && !allSessions) {
+const RUN_AS_CLI = typeof require !== 'undefined' && require.main === module;
+
+if (RUN_AS_CLI && !wantAny && !allSessions) {
   console.log('Usage: count-interactions.js [--serial|--agents|--tokens|--all] [--file <session.jsonl>] [--sessions] [--base <n>]');
   process.exit(0);
 }
 
 // ---------- Locate transcript(s) ----------
-// Claude Code stores transcripts under ~/.claude/projects/<munged-cwd>/*.jsonl
-// where <munged-cwd> is the absolute project path with '/', '.', '_' and
-// spaces replaced by '-'. We munge defensively and fall back to a scan.
+// Claude Code stores transcripts under ~/.claude/projects/<munged-cwd>/*.jsonl,
+// keyed on the WORKING DIRECTORY the session ran in. One repo therefore has
+// SEVERAL folders if it has ever been opened at more than one path — notably
+// from a subdirectory.
+//
+// O-215. This function had two defects, and BOTH were needed to produce the
+// undercount that prompted the fix (4,090 replies reported against a true
+// 6,822 — 40% low, and it looked like a clean answer):
+//
+//   1. The munge replaced only / \ . _ and space. A real path contained '~'
+//      (`com~apple~CloudDocs`, an iCloud Drive path), which Claude Code had
+//      replaced with '-'. The exact match therefore MISSED, silently, and
+//      fell through to a loose `endsWith(basename)` scan.
+//   2. Even on a hit, it returned ONLY the exactly-matching folder. A repo
+//      opened both at `…/gia` and `…/gia/web` has two folders; the second
+//      holds real replies and was discarded. `endsWith('gia')` did not save
+//      it either — `…-gia-web` does not end in 'gia'.
+//
+// Fixed by munging every non-alphanumeric character, and by treating the
+// repo's own folder AND any folder for a subdirectory of it as in scope.
+// Verified against both observed cases:
+//   /home/user/gia                       -> -home-user-gia
+//   /Users/…/com~apple~CloudDocs/…/gia   -> -Users-…-com-apple-CloudDocs-…-gia
 function mungePath(p) {
-  return p.replace(/[\/\\._ ]/g, '-');
+  return p.replace(/[^A-Za-z0-9-]/g, '-');
 }
 
-function projectDirCandidates() {
+// A folder belongs to this project if it IS the repo's own munged path, or is
+// a subdirectory of it (munged path + '-' + something). Deliberately
+// case-SENSITIVE: a sibling like `…-Github-Gia-WA` is a different project, and
+// case-folding would swallow it. Near-misses are reported rather than silently
+// dropped, so a wrongly-excluded folder is visible instead of invisible.
+function matchesProject(dirName, cwdMunged) {
+  return dirName === cwdMunged || dirName.startsWith(cwdMunged + '-');
+}
+
+function projectDirCandidates(reportExcluded) {
   const root = path.join(os.homedir(), '.claude', 'projects');
   if (!fs.existsSync(root)) return [];
   const cwdMunged = mungePath(process.cwd());
-  const dirs = fs.readdirSync(root)
-    .map((d) => path.join(root, d))
-    .filter((d) => fs.statSync(d).isDirectory());
-  const exact = dirs.filter((d) => path.basename(d) === cwdMunged);
-  if (exact.length) return exact;
-  // Fallback: any project dir whose munged name ends with this folder's name
-  const tail = mungePath(path.basename(process.cwd()));
-  return dirs.filter((d) => path.basename(d).endsWith(tail));
+  const names = fs.readdirSync(root)
+    .filter((d) => fs.statSync(path.join(root, d)).isDirectory());
+
+  const hits = names.filter((d) => matchesProject(d, cwdMunged));
+  if (hits.length) {
+    if (reportExcluded) {
+      // Anything sharing the repo's folder name but not matching the rule —
+      // a different casing, a sibling project. Named, never silently cut.
+      const base = mungePath(path.basename(process.cwd()));
+      const near = names.filter((d) => !hits.includes(d) && d.toLowerCase().includes(base.toLowerCase()));
+      for (const d of near) console.log(`# note: NOT counted (different project path): ${d}`);
+    }
+    return hits.map((d) => path.join(root, d));
+  }
+
+  // Last resort only: nothing matched the repo's path at all, so fall back to
+  // folder-name similarity and SAY SO, because this can over-match.
+  const base = mungePath(path.basename(process.cwd()));
+  const loose = names.filter((d) => d.toLowerCase().includes(base.toLowerCase()));
+  if (loose.length) {
+    console.log(`# warning: no folder matched this repo's path (${cwdMunged}).`);
+    console.log(`# falling back to name similarity on "${base}" — verify these are yours:`);
+    for (const d of loose) console.log(`#   ${d}`);
+  }
+  return loose.map((d) => path.join(root, d));
 }
 
 function sessionFiles() {
   if (explicitFile) return [path.resolve(explicitFile)];
-  const dirs = projectDirCandidates();
+  const dirs = projectDirCandidates(allSessions);
+  if (allSessions) for (const d of dirs) console.log(`# scanning: ${path.basename(d)}`);
   const files = [];
   for (const d of dirs) {
     for (const f of fs.readdirSync(d)) {
@@ -174,7 +223,18 @@ function measureFile(file, t) {
   return t;
 }
 
+// Exported for tests. The CLI below still runs on direct invocation; requiring
+// this file for a unit test must not execute it, or the test suite inherits a
+// process.exit on a machine with no transcripts.
+if (typeof module !== 'undefined') module.exports = { mungePath, matchesProject };
+
 // ---------- Run ----------
+// Guarded so a unit test can require this file for its pure helpers without
+// the CLI measuring, printing, or calling process.exit — which it does on a
+// machine with no transcripts, and which turns an import into a suite failure.
+if (RUN_AS_CLI) main();
+
+function main() {
 const files = sessionFiles();
 const t = freshTally();
 for (const f of files) measureFile(f, t);
@@ -213,4 +273,5 @@ if (wantTokens || allSessions) {
   if (t.usageMissing) {
     console.log(`tokens_note       : ${fmt(t.usageMissing)} reply(ies) had no usage block - reported, not estimated`);
   }
+}
 }
