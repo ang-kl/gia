@@ -154,14 +154,22 @@ const KNOWN_DELTAS = Object.freeze([
     // missing", which implied a dropped row and was wrong. instruction/Japan.js — the source
     // of record — itself holds 121, and source and table are row-for-row identical (589 = 589,
     // now gated by __tests__/michelin-source-parity.test.js). Nothing was lost in migration.
-    note: 'NOT a missing row — a methodology difference, and the distinction matters because the '
-        + 'first reading sent the investigation the wrong way. instruction/Japan.js is the LIVE '
-        + 'INDEX verified 06-06-2026; 122 is the ANNOUNCEMENT roster of 25-09-2025. The gap is '
-        + 'attrition over those eight months. The source proves it knows the difference: it '
-        + 'hand-enters SEZANNE and Pierre Gagnaire, both "delisted, not in live index", to hold '
-        + 'the announced tiers — SEZANNE is why Tokyo three-star still reads 12. A third '
-        + 'one-star left the index and was not hand-entered back. Closing this means deciding '
-        + 'WHICH roster the volume tracks; it is a policy question, not a data error.',
+    // CORRECTED AGAIN, v0.62.747 (O-208 resolved). The previous note called this "a policy
+    // question, not a data error" and said closing it meant deciding which roster the volume
+    // tracks. That was wrong: the volume ALREADY tracks both, in two layers, and has all along
+    // — records (VENUES/awards/manifests/editionVenues) keep status:'closed'; display
+    // (visitableVenues, used on every user-facing path in index.js) drops them. The policy was
+    // implicit rather than absent, and is now asserted in __tests__/michelin-roster-policy.js.
+    // With the policy settled, this IS a data gap after all — in the records layer.
+    note: 'A genuine one-row gap in the RECORDS layer. The records layer is the ANNOUNCEMENT '
+        + 'roster (it deliberately keeps closed venues — SEZANNE is closed, three-starred, and '
+        + 'is exactly why Tokyo three-star reads 12 rather than 11). That roster says 122 '
+        + 'one-stars; the data holds 121. The source hand-enters SEZANNE and Pierre Gagnaire as '
+        + '"delisted, not in live index" precisely to preserve announced tiers, so the pattern '
+        + 'is correct and simply was not applied to a third one-star that left the live index '
+        + 'between 25-09-2025 and the 06-06-2026 verification. Fix: one curated row with '
+        + "status: 'closed' and a 2026 one-star award. Which venue cannot be determined here — "
+        + 'guide.michelin.com is JS-rendered and does not fetch.',
   },
   {
     cc: 'CN', city: 'Guangzhou', year: 2026, tier: '*', have: 0, published: 72,
