@@ -35,7 +35,7 @@ const CITY_MANIFEST = Object.freeze({
     "Beijing": { 2026: { "three-star": 2, "two-star": 6, "one-star": 24, "bib-gourmand": 26 } },
     "Shanghai": { 2026: { "three-star": 1, "two-star": 12, "one-star": 38, "bib-gourmand": 34 } },
     "Chengdu": { 2026: { "two-star": 2, "one-star": 11, "bib-gourmand": 27 } },
-    "Guangzhou": { 2025: { "two-star": 3, "one-star": 17, "bib-gourmand": 44 } },
+    "Guangzhou": { 2025: { "two-star": 3, "one-star": 17, "bib-gourmand": 44 }, 2026: { "two-star": 3, "one-star": 17 } },
     "Hangzhou": { 2026: { "two-star": 2, "one-star": 11, "bib-gourmand": 34 } },
     "Fuzhou": { 2026: { "one-star": 3, "bib-gourmand": 17 } },
     "Nanjing": { 2026: { "one-star": 4, "bib-gourmand": 21 } },
@@ -172,13 +172,29 @@ const KNOWN_DELTAS = Object.freeze([
         + 'guide.michelin.com is JS-rendered and does not fetch.',
   },
   {
-    cc: 'CN', city: 'Guangzhou', year: 2026, tier: '*', have: 0, published: 72,
+    cc: 'CN', city: 'Guangzhou', year: 2026, tier: 'bib-gourmand', have: 0, published: 52,
     note: 'Stale in the SOURCE too, not just the table — instruction/China.js carries Guangzhou '
         + 'at 2025 only and has no Shenzhen at all, so this is curation pending, not migration '
         + 'drift. Guangzhou is STALE at the 2025 edition (3 two-star, 17 one-star, 44 Bib). The '
         + 'Guangzhou & Shenzhen 2026 edition landed 18 Aug 2026 — after this repo\'s last data '
         + 'update on 7 Aug — retaining 20 stars (3 two-star, 17 one-star) with Bib Gourmand '
         + 'rising to 52. Every other Chinese city in the table is already on 2026.',
+
+    // NARROWED v0.62.755. The STARS are now in: MICHELIN states Guangzhou
+    // "retained 20 MICHELIN-Starred restaurants" for 2026, and all 20 matched
+    // by name, 20/20, against rows already curated for 2025 — so the 2026
+    // award was applied to existing venues and nothing was invented.
+    //
+    // What remains is Bib Gourmand: 0 held for 2026 against a published 52.
+    // NOT applied, and the reason is worth stating because the arithmetic is
+    // seductive: the repo holds 44 Bib rows for 2025, the press release names
+    // 8 NEW ones, none of which appear among the 44, and 44 + 8 = 52 exactly.
+    // Two independent facts agreeing — and still only inference. A
+    // simultaneous drop-and-add of equal size produces the identical total,
+    // and unlike the stars, retention is nowhere STATED for Bib. Applying it
+    // would put "Bib Gourmand 2026" in front of users for venues that may have
+    // lost it. The full 52-name list is not on any fetchable source; the
+    // official site is JS-rendered.
   },
   {
     cc: 'FR', city: 'Paris', year: 2026, tier: 'two-star', have: 17, published: 20,

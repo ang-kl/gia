@@ -660,17 +660,22 @@ describe('michelin-data — Philippines (PH-michelin.js) load', () => {
 describe('michelin-data — Mainland China (CN-michelin.js) load', () => {
   const CN_CITIES = ['Shanghai', 'Guangzhou', 'Beijing', 'Hangzhou', 'Chengdu', 'Xiamen', 'Nanjing', 'Taizhou', 'Suzhou', 'Fuzhou', 'Wenzhou', 'Quanzhou', 'Yangzhou', 'Changzhou', 'Ningde'];
 
-  it('loads 475 venues with sum(awards) === 475', () => {
+  // v0.62.755: Guangzhou's 2026 stars were added — the 20 venues MICHELIN
+  // states it "retained" on 18 Aug 2026, matched 20/20 by name against rows
+  // that already existed. So 20 venues now carry TWO awards, and awards no
+  // longer equal venues. The venue count is unchanged; only the award count
+  // moved, which is the distinction this assertion now makes explicit.
+  it('loads 475 venues with sum(awards) === 495 (20 Guangzhou rows hold 2025 + 2026)', () => {
     const cn = data.venuesForCountry('CN');
     expect(cn.length).toBe(475);
-    expect(cn.reduce((n, v) => n + v.awards.length, 0)).toBe(475);
+    expect(cn.reduce((n, v) => n + v.awards.length, 0)).toBe(495);
   });
 
-  it('64 venues hold a 2025 award, 411 hold a 2026 award (2025 is partial)', () => {
+  it('64 venues hold a 2025 award, 431 hold a 2026 award (2025 is partial)', () => {
     const y25 = data.venuesForYear(2025).filter((v) => v.country === 'CN');
     const y26 = data.venuesForYear(2026).filter((v) => v.country === 'CN');
     expect(y25.length).toBe(64);
-    expect(y26.length).toBe(411);
+    expect(y26.length).toBe(431);
   });
 
   it('matches the per-tier manifest for both editions (2025 has no three-star)', () => {
@@ -684,7 +689,7 @@ describe('michelin-data — Mainland China (CN-michelin.js) load', () => {
       return t;
     }
     expect(tiers(2025)).toEqual({ 'two-star': 3, 'one-star': 17, 'bib-gourmand': 44 });
-    expect(tiers(2026)).toEqual({ 'three-star': 3, 'two-star': 22, 'one-star': 104, 'bib-gourmand': 282 });
+    expect(tiers(2026)).toEqual({ 'three-star': 3, 'two-star': 25, 'one-star': 121, 'bib-gourmand': 282 });
   });
 
   it('every CN venue has a unique id, a curated city, and the full venue shape', () => {
