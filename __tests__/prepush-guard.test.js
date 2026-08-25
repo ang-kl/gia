@@ -84,10 +84,31 @@ describe('prepush-guard against the real X-31 history', () => {
     },
   );
 
-  it('does not flag the current unmerged branch', () => {
+  // X-35. This assertion used to read `expect(facts.remoteTipMergedIntoMain)
+  // .toBe(false)` — it assumed the branch always carries unmerged work. It does
+  // not: immediately after a squash-merge the branch is restarted from
+  // origin/main and is content-IDENTICAL to it, so the flag flips to true and
+  // the test failed. It would have failed after EVERY merge, and it failed on
+  // the first one after it shipped (#1747, 25-08 '26). The same lesson as the
+  // fixture-repo comment below, arriving through the other door: a test that
+  // reads the live repo must assert something true in every state the repo can
+  // legitimately be in, not the state it happened to be in when written.
+  //
+  // What IS invariant: the guard never blocks the repo's own HEAD against
+  // origin/main. Blocking needs content-identical AND fast-forward AND NOT an
+  // ancestor of main — and a tip identical to main IS an ancestor of it. So
+  // both legitimate positions are allowed, and the test names which one it saw
+  // rather than hard-coding one of them.
+  it('never blocks the repo\'s own HEAD, wherever the branch currently sits', () => {
     const facts = inspect('HEAD', 'HEAD', 'origin/main');
-    expect(facts.remoteTipMergedIntoMain).toBe(false);
     expect(decide(facts).action).toBe('allow');
+    if (facts.remoteTipMergedIntoMain) {
+      // restarted from main after a merge — allowed via the ancestor escape
+      expect(facts.remoteTipIsAncestorOfMain).toBe(true);
+    } else {
+      // carrying unmerged work — allowed because nothing has landed yet
+      expect(facts.remoteTipMergedIntoMain).toBe(false);
+    }
   });
 });
 
