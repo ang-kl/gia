@@ -1,5 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -94,34 +96,76 @@ describe('prepush-guard against the real X-31 history', () => {
 // The first implementation read stdin via `require('node:fs')` inside an ESM
 // module. `require` is undefined there, it threw, a catch swallowed it, stdin
 // came back '' and the hook exited 0 on EVERY push. Installed, executable, and
-// completely inert. Every test above still passed, because they call decide()
-// and inspect() directly. Only driving the real hook exposed it.
+// completely inert. Every assertion above still passed, because they call
+// decide() and inspect() directly. Only driving the real hook exposed it.
+//
+// These build a THROWAWAY REPO rather than leaning on this one's refs. The
+// first version used `origin/main` and passed locally while failing in CI with
+// `unknown revision` three times over — GitHub checks out detached with no
+// origin/main, and a shallow clone has none of the historical SHAs either, so
+// the X-31 replay merely SKIPPED. A test that skips in CI protects nothing.
+// A fixture repo reproduces the squash-merge exactly and depends on nothing.
 describe('prepush-guard hook invocation (end to end)', () => {
   const GUARD = path.join(ROOT, 'scripts', 'prepush-guard.mjs');
+  let repo;
+
+  const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8' }).trim();
+
+  beforeAll(() => {
+    repo = fs.mkdtempSync(path.join(os.tmpdir(), 'prepush-'));
+    git(repo, 'init', '-q', '-b', 'main');
+    git(repo, 'config', 'user.email', 't@t');
+    git(repo, 'config', 'user.name', 't');
+
+    fs.writeFileSync(path.join(repo, 'a.txt'), 'base\n');
+    git(repo, 'add', '-A'); git(repo, 'commit', '-qm', 'base');
+
+    // feature branch with work
+    git(repo, 'checkout', '-q', '-b', 'feature');
+    fs.writeFileSync(path.join(repo, 'a.txt'), 'work\n');
+    git(repo, 'add', '-A'); git(repo, 'commit', '-qm', 'work');
+    featureTip = git(repo, 'rev-parse', 'HEAD');
+
+    // one more commit on the branch — what a later push would carry
+    fs.writeFileSync(path.join(repo, 'b.txt'), 'more\n');
+    git(repo, 'add', '-A'); git(repo, 'commit', '-qm', 'more');
+    featureNext = git(repo, 'rev-parse', 'HEAD');
+
+    // SQUASH-MERGE it into main: a NEW commit carrying the same content, which
+    // is why ancestry misses it and content does not.
+    git(repo, 'checkout', '-q', 'main');
+    fs.writeFileSync(path.join(repo, 'a.txt'), 'work\n');
+    git(repo, 'add', '-A'); git(repo, 'commit', '-qm', 'squash of feature');
+    git(repo, 'update-ref', 'refs/remotes/origin/main', git(repo, 'rev-parse', 'main'));
+  });
+
+  afterAll(() => { if (repo) fs.rmSync(repo, { recursive: true, force: true }); });
+
+  let featureTip; let featureNext;
 
   const run = (stdin) => {
     try {
-      execFileSync('node', [GUARD], { cwd: ROOT, input: stdin, encoding: 'utf8', stdio: 'pipe' });
+      execFileSync('node', [GUARD], { cwd: repo, input: stdin, encoding: 'utf8', stdio: 'pipe' });
       return 0;
     } catch (e) {
       return e.status ?? 1;
     }
   };
 
-  const sha = (rev) => execFileSync('git', ['rev-parse', rev], { cwd: ROOT, encoding: 'utf8' }).trim();
-
-  it('exits non-zero on the real X-31 push', () => {
-    // local 19f3132e onto remote tip b2b0c4a2, which main had already squashed.
-    const line = 'refs/heads/x 19f3132e refs/heads/claude/handover-july-11-49uzvf b2b0c4a2\n';
-    expect(run(line)).toBe(1);
+  it('BLOCKS a fast-forward onto a squash-merged tip — the X-31 shape', () => {
+    // featureTip content == main content, but is NOT an ancestor of main.
+    expect(run(`refs/heads/f ${featureNext} refs/heads/feature ${featureTip}\n`)).toBe(1);
   });
 
-  it('exits zero on a healthy push', () => {
-    const line = `refs/heads/x ${sha('HEAD')} refs/heads/feature ${sha('origin/main')}\n`;
-    // origin/main content vs itself IS identical, but this is not a
-    // fast-forward onto a merged tip unless HEAD descends from it — and even
-    // then, a push to main is skipped outright. Use a non-main ref.
-    expect(run(line)).toBe(0);
+  it('allows a force push onto that same merged tip — the recovery', () => {
+    // localSha unrelated to featureTip => not a fast-forward.
+    const mainSha = git(repo, 'rev-parse', 'main');
+    expect(run(`refs/heads/f ${mainSha} refs/heads/feature ${featureTip}\n`)).toBe(0);
+  });
+
+  it('allows a push to a branch sitting AT main — the false positive that was caught', () => {
+    const mainSha = git(repo, 'rev-parse', 'main');
+    expect(run(`refs/heads/f ${featureNext} refs/heads/other ${mainSha}\n`)).toBe(0);
   });
 
   it('skips pushes to main entirely', () => {
@@ -129,7 +173,7 @@ describe('prepush-guard hook invocation (end to end)', () => {
   });
 
   it('ignores a branch deletion', () => {
-    expect(run(`refs/heads/x ${'0'.repeat(40)} refs/heads/y ${sha('origin/main')}\n`)).toBe(0);
+    expect(run(`refs/heads/f ${'0'.repeat(40)} refs/heads/y ${featureTip}\n`)).toBe(0);
   });
 
   it('passes an empty ref list', () => {
