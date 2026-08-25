@@ -434,10 +434,36 @@ describe('michelin-data — Taiwan (TW-michelin.js) load', () => {
 describe('michelin-data — Vietnam (VN-michelin.js) load', () => {
   const VN_CITIES = ['Ho Chi Minh City', 'Hanoi', 'Da Nang'];
 
-  it('loads 83 venues with sum(awards) === 92', () => {
+  // v0.62.764: venues (86) and award-holders (83) diverge for the first time.
+  // The three Green Star holders carry no award at all, so every count that
+  // derives from awards[] is unchanged — the property the schema change was
+  // designed to preserve, asserted rather than assumed.
+  it('loads 86 venues but only 83 award-holders, sum(awards) still 92', () => {
     const vn = data.venuesForCountry('VN');
-    expect(vn.length).toBe(83);
+    expect(vn.length).toBe(86);
+    expect(vn.filter((v) => v.awards.length).length).toBe(83);
     expect(vn.reduce((n, v) => n + v.awards.length, 0)).toBe(92);
+  });
+
+  it('the 3 Green Star holders are award-less, and nothing else is', () => {
+    const vn = data.venuesForCountry('VN');
+    const awardless = vn.filter((v) => !v.awards.length);
+    expect(awardless.map((v) => v.id).sort()).toEqual([
+      'vn-dad-nen-danang', 'vn-han-lamai-garden', 'vn-sgn-tales-by-chapter',
+    ]);
+    for (const v of awardless) expect(v.greenStarYears).toEqual([2026]);
+  });
+
+  it('editionVenues(2026) includes them; venuesForYear(2026) does not', () => {
+    // The two answer different questions and must not converge: every manifest
+    // count derives from venuesForYear.
+    const ed = data.editionVenues(2026).filter((v) => v.country === 'VN');
+    const yr = data.venuesForYear(2026).filter((v) => v.country === 'VN');
+    expect(ed.length).toBe(86);
+    expect(yr.length).toBe(83);
+    expect(ed.map((v) => v.id)).toContain('vn-dad-nen-danang');
+    expect(yr.map((v) => v.id)).not.toContain('vn-dad-nen-danang');
+    expect(new Set(ed.map((v) => v.id)).size).toBe(ed.length);   // no double-listing
   });
 
   it('9 venues hold a 2025 award, 83 hold a 2026 award (2025 is partial)', () => {
@@ -474,7 +500,8 @@ describe('michelin-data — Vietnam (VN-michelin.js) load', () => {
       expect(typeof v.vegetarian).toBe('boolean');
       expect(typeof v.halal).toBe('boolean');
       expect(['open', 'closed']).toContain(v.status);
-      expect(v.awards.length).toBeGreaterThanOrEqual(1);
+      // v0.62.764 — award-less is legal, but only for a Green Star holder.
+      if (!v.awards.length) expect(v.greenStarYears?.length).toBeGreaterThanOrEqual(1);
     }
   });
 
@@ -484,7 +511,12 @@ describe('michelin-data — Vietnam (VN-michelin.js) load', () => {
     expect(lm.name).toBe('La Maison 1888');
     expect(data.categoryForYear(lm, 2025)).toBe('one-star');
     expect(data.categoryForYear(lm, 2026)).toBe('one-star');
-    expect(data.venuesForCountry('VN').filter((v) => v.city === 'Da Nang').length).toBe(24);
+    // 25 venues in Da Nang, but 24 award-holders — Nen Danang is the Green
+    // Star holder. Both are asserted so the divergence is deliberate, not a
+    // number quietly bumped to make the suite pass.
+    const daNang = data.venuesForCountry('VN').filter((v) => v.city === 'Da Nang');
+    expect(daNang.length).toBe(25);
+    expect(daNang.filter((v) => v.awards.length).length).toBe(24);
   });
 });
 
@@ -902,11 +934,11 @@ describe('michelin-data — country tables', () => {
     expect(hk.ENTRIES.length).toBe(147);
   });
 
-  it('VN-michelin.js is venue-centric with 83 curated rows', () => {
+  it('VN-michelin.js is venue-centric with 86 curated rows', () => {
     const vn = require('../VN-michelin.js');
     expect(vn.COUNTRY).toBe('VN');
     expect(Array.isArray(vn.ENTRIES)).toBe(true);
-    expect(vn.ENTRIES.length).toBe(83);
+    expect(vn.ENTRIES.length).toBe(86);
   });
 
   it('TW-michelin.js is venue-centric with 219 curated rows', () => {
@@ -947,12 +979,31 @@ describe('michelin-data — venue validation rejects bad rows', () => {
     }, 'test')).toThrow(/invalid award category/);
   });
 
-  it('rejects a missing required field (no awards)', () => {
+  it('rejects an award-less venue that has no Green Star either', () => {
+    // v0.62.764 narrowed this rule rather than dropping it: empty awards used
+    // to be rejected outright, and is now rejected only when there is no Green
+    // Star to justify the row — the check the old rule was really making.
     expect(() => data.validateVenue({
       id: 'jp-tokyo-no-awards', city: 'Tokyo', country: 'JP', name: 'No Awards',
       address: '1 Foo St', vegetarian: false, halal: false, status: 'open',
       awards: [],
-    }, 'test')).toThrow(/"awards" must be a non-empty array/);
+    }, 'test')).toThrow(/may only be empty on a Green Star holder/);
+  });
+
+  it('ACCEPTS an award-less venue that holds a Green Star', () => {
+    expect(() => data.validateVenue({
+      id: 'jp-tokyo-green-only', city: 'Tokyo', country: 'JP', name: 'Green Only',
+      address: '1 Foo St', vegetarian: true, halal: false, status: 'open',
+      awards: [], greenStarYears: [2026],
+    }, 'test')).not.toThrow();
+  });
+
+  it('still rejects a non-array awards field', () => {
+    expect(() => data.validateVenue({
+      id: 'jp-tokyo-bad-awards', city: 'Tokyo', country: 'JP', name: 'Bad Awards',
+      address: '1 Foo St', vegetarian: false, halal: false, status: 'open',
+      awards: null, greenStarYears: [2026],
+    }, 'test')).toThrow(/"awards" must be an array/);
   });
 
   it('rejects a non-ISO-2 country', () => {

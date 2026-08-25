@@ -1,22 +1,23 @@
 counters:
-  commit: 1292
+  commit: 1293
   build: 837
   documents:
-    journal: 1080
+    journal: 1081
     builder: 3
     persona: 4
     feature: 68
     technical: 70
     legal: 9
-    register: 201
+    register: 202
 sessions:
   current_chat_id: 2026-08-22
   current_chat_counter: 126  # per §3.2 the CHAT counter resets per session and starts at 1;
                             # replies 1-4 of this session mistakenly carried commit-counter
                             # values (1,236-1,239) in their headers. See chat-0_62_723 turn 5.
-last_anchor_time: 26-08 '26 07:39 SGT
+last_anchor_time: 26-08 '26 07:48 SGT
 last_anchor_source: nea_data_gov_sg_air_temperature_plus_system_clock_d203_max
-last_anchor_note: d203_amd41_pr1749_squash_merge_56e878d9_2026-08-26T07:38:13+08:00_d123_verified_by_content_seven_reads_now_counting_cn_szx_in_both_the_derived_table_and_the_source_of_record_rather_than_leaning_on_the_parity_gate_shenzhen_13_of_28_stars_complete_register_placeholder_expanded_71_open_13_resolved_o222_closed_o223_opened_anchor_crosses_into_a_new_day_v0_62_763
+last_anchor_note: d203_amd42_operator_do_the_schema_change_for_green_star_awards_may_now_be_empty_only_on_a_green_star_holder_narrowed_not_dropped_vn_three_holders_nen_danang_lamai_garden_tales_by_chapter_added_to_both_files_all_addresses_found_no_new_debt_editionvenues_widened_but_venuesforyear_deliberately_not_because_every_manifest_count_derives_from_it_lone_green_star_city_guard_stops_hasmicheindata_lying_o163_narrowed_not_closed_selected_still_unmodelled_v0_62_764
+last_anchor_note_prior32: d203_amd41_pr1749_squash_merge_56e878d9_2026-08-26T07:38:13+08:00_d123_verified_by_content_seven_reads_now_counting_cn_szx_in_both_the_derived_table_and_the_source_of_record_rather_than_leaning_on_the_parity_gate_shenzhen_13_of_28_stars_complete_register_placeholder_expanded_71_open_13_resolved_o222_closed_o223_opened_anchor_crosses_into_a_new_day_v0_62_763
 last_anchor_note_prior31: d203_amd40_operator_asked_if_i_am_repairing_in_circles_seven_of_last_eight_prs_were_tooling_redirect_taken_shenzhen_0_to_13_of_28_stars_complete_7_of_7_blocker_was_names_not_scaffolding_cities_js_and_city_iata_already_had_szx_order_guard_stopped_an_id_sort_that_would_have_reshuffled_hundreds_of_rows_silently_register_placeholder_of_84_ids_expanded_71_open_13_resolved_v0_62_762
 last_anchor_note_prior30: d203_amd39_pr1748_squash_merge_1222e425_2026-08-25T19:51:14+08:00_d123_verified_by_content_six_reads_including_grep_mainrefresolved_in_the_guard_itself_because_a_merge_record_that_verifies_its_paperwork_and_not_the_code_is_the_x33_shape_o221_closed_by_the_arrival_it_watched_for_o222_opened_record_held_per_d205_v0_62_761
 last_anchor_note_prior29: d203_amd38_operator_fix_inspect_properly_to_report_mainrefresolved_root_defect_was_gitok_returning_false_both_for_the_answer_is_no_and_the_question_could_not_be_asked_now_measured_as_its_own_fact_decide_blocks_when_blind_did_not_run_hook_fetches_first_13_to_18_tests_ci_shape_reproduced_against_working_tree_not_a_clone_v0_62_760
@@ -227,8 +228,8 @@ last_anchor_source_prior: strips_no_overlap_optionB_2026-07-03_1217
 # on which representation a reader trusted. Flagged by review on #1735. The durable fix is not
 # this edit but the gate in __tests__/serial-state-anchor.test.js, which fails when the three
 # representations disagree — a comment asking to keep them in sync has now failed twice.
-last_anchor_iso8601_current: 2026-08-26T07:39:00+08:00
-last_anchor_utc_current: 2026-08-25T23:39:00Z
+last_anchor_iso8601_current: 2026-08-26T07:48:00+08:00
+last_anchor_utc_current: 2026-08-25T23:48:00Z
 last_anchor_iso8601: 2026-08-22T17:00:00+08:00   # superseded 22-08 '26 17:09 SGT; was _current
 last_anchor_utc: 2026-08-22T09:00:00Z            # superseded 22-08 '26 17:09 SGT; was _current
 last_anchor_iso8601: 2026-08-22T16:40:00+08:00   # superseded 22-08 '26 17:00 SGT; was _current
