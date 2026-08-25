@@ -35,7 +35,7 @@ const CITY_MANIFEST = Object.freeze({
     "Beijing": { 2026: { "three-star": 2, "two-star": 6, "one-star": 24, "bib-gourmand": 26 } },
     "Shanghai": { 2026: { "three-star": 1, "two-star": 12, "one-star": 38, "bib-gourmand": 34 } },
     "Chengdu": { 2026: { "two-star": 2, "one-star": 11, "bib-gourmand": 27 } },
-    "Guangzhou": { 2025: { "two-star": 3, "one-star": 17, "bib-gourmand": 44 }, 2026: { "two-star": 3, "one-star": 17 } },
+    "Guangzhou": { 2025: { "two-star": 3, "one-star": 17, "bib-gourmand": 44 }, 2026: { "two-star": 3, "one-star": 17, "bib-gourmand": 44 } },
     "Hangzhou": { 2026: { "two-star": 2, "one-star": 11, "bib-gourmand": 34 } },
     "Fuzhou": { 2026: { "one-star": 3, "bib-gourmand": 17 } },
     "Nanjing": { 2026: { "one-star": 4, "bib-gourmand": 21 } },
@@ -172,7 +172,7 @@ const KNOWN_DELTAS = Object.freeze([
         + 'guide.michelin.com is JS-rendered and does not fetch.',
   },
   {
-    cc: 'CN', city: 'Guangzhou', year: 2026, tier: 'bib-gourmand', have: 0, published: 52,
+    cc: 'CN', city: 'Guangzhou', year: 2026, tier: 'bib-gourmand', have: 44, published: 52,
     note: 'Stale in the SOURCE too, not just the table — instruction/China.js carries Guangzhou '
         + 'at 2025 only and has no Shenzhen at all, so this is curation pending, not migration '
         + 'drift. Guangzhou is STALE at the 2025 edition (3 two-star, 17 one-star, 44 Bib). The '
@@ -180,6 +180,20 @@ const KNOWN_DELTAS = Object.freeze([
         + 'update on 7 Aug — retaining 20 stars (3 two-star, 17 one-star) with Bib Gourmand '
         + 'rising to 52. Every other Chinese city in the table is already on 2026.',
 
+    // NARROWED AGAIN v0.62.756 — 44 of 52. On the operator's instruction
+    // ("apply the Guangzhou Bib") the 44 rows carrying a 2025 Bib now carry a
+    // 2026 one. The evidence for retention was, and remains, INFERENCE: 44
+    // existing + 8 named-new, zero overlap, 44 + 8 = 52 exactly. It is applied
+    // because the operator ruled on it, not because the inference hardened.
+    //
+    // The remaining 8 are the NEW venues, and they are NOT added. They would
+    // need rows, and a row needs an address: all 1,977 venues in this dataset
+    // have one, 0 have an empty one, so an address-less row would break an
+    // invariant that currently holds universally. Only 1 of the 8 addresses
+    // was findable (Mei Lu Xiao Chu), and from a search summary rather than a
+    // curated source — mixing provenance silently is what the country tables'
+    // "DO NOT auto-generate" headers exist to prevent.
+    //
     // NARROWED v0.62.755. The STARS are now in: MICHELIN states Guangzhou
     // "retained 20 MICHELIN-Starred restaurants" for 2026, and all 20 matched
     // by name, 20/20, against rows already curated for 2025 — so the 2026
