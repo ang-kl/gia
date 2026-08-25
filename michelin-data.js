@@ -203,7 +203,7 @@ const COUNTRY_MANIFEST = Object.freeze({
   CN: {
     // 2025 PARTIAL — source captured upper tiers + some Bib (no three-star).
     2025: { 'two-star': 3, 'one-star': 17, 'bib-gourmand': 44, total: 64 },
-    2026: { 'three-star': 3, 'two-star': 22, 'one-star': 104, 'bib-gourmand': 282, total: 411 },
+    2026: { 'three-star': 3, 'two-star': 25, 'one-star': 121, 'bib-gourmand': 334, total: 483 },
   },
 });
 

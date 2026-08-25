@@ -35,7 +35,7 @@ const CITY_MANIFEST = Object.freeze({
     "Beijing": { 2026: { "three-star": 2, "two-star": 6, "one-star": 24, "bib-gourmand": 26 } },
     "Shanghai": { 2026: { "three-star": 1, "two-star": 12, "one-star": 38, "bib-gourmand": 34 } },
     "Chengdu": { 2026: { "two-star": 2, "one-star": 11, "bib-gourmand": 27 } },
-    "Guangzhou": { 2025: { "two-star": 3, "one-star": 17, "bib-gourmand": 44 } },
+    "Guangzhou": { 2025: { "two-star": 3, "one-star": 17, "bib-gourmand": 44 }, 2026: { "two-star": 3, "one-star": 17, "bib-gourmand": 52 } },
     "Hangzhou": { 2026: { "two-star": 2, "one-star": 11, "bib-gourmand": 34 } },
     "Fuzhou": { 2026: { "one-star": 3, "bib-gourmand": 17 } },
     "Nanjing": { 2026: { "one-star": 4, "bib-gourmand": 21 } },
@@ -171,15 +171,32 @@ const KNOWN_DELTAS = Object.freeze([
         + "status: 'closed' and a 2026 one-star award. Which venue cannot be determined here — "
         + 'guide.michelin.com is JS-rendered and does not fetch.',
   },
-  {
-    cc: 'CN', city: 'Guangzhou', year: 2026, tier: '*', have: 0, published: 72,
-    note: 'Stale in the SOURCE too, not just the table — instruction/China.js carries Guangzhou '
-        + 'at 2025 only and has no Shenzhen at all, so this is curation pending, not migration '
-        + 'drift. Guangzhou is STALE at the 2025 edition (3 two-star, 17 one-star, 44 Bib). The '
-        + 'Guangzhou & Shenzhen 2026 edition landed 18 Aug 2026 — after this repo\'s last data '
-        + 'update on 7 Aug — retaining 20 stars (3 two-star, 17 one-star) with Bib Gourmand '
-        + 'rising to 52. Every other Chinese city in the table is already on 2026.',
-  },
+  // CLOSED v0.62.757 — CN/Guangzhou reconciles at 52/52, so it is no longer a
+  // delta and is not listed as one. Kept as a comment because the way it closed
+  // is the thing a future reader needs, and a cleared entry leaves no trace.
+  //
+  // The 44 retained rows moved to a 2026 Bib on the operator's instruction
+  // ("apply the Guangzhou Bib"). The evidence was, and remains, INFERENCE: 44
+  // existing + 8 named-new, zero overlap, 44 + 8 = 52 exactly. A simultaneous
+  // drop-and-add of equal size produces the identical total, and retention is
+  // nowhere STATED for Bib the way it is for the stars. It is applied because
+  // the operator ruled on it, not because the inference hardened.
+  //
+  // The 8 new rows were then added on the operator's instruction to "lower the
+  // provenance standard temporary". They carry the DEBT below.
+  //
+  // ── CURATION DEBT: 7 address-less rows ──────────────────────────────────
+  // Before this change, 0 of 1,977 venues had an empty address. Now 7 do, all
+  // of them Guangzhou 2026 Bib Gourmand. Only Mei Lu Xiao Chu's address was
+  // findable, and from a search summary rather than a curated source —
+  // guide.michelin.com is JS-rendered and does not fetch, restaurant pages
+  // included, so the constraint is availability, not the bar. None carries a
+  // nameZh either, for the same reason.
+  //
+  // The invariant is not abandoned, it is NARROWED: it now reads "no venue has
+  // an empty address EXCEPT these 7", asserted in michelin-city-manifest.test.js
+  // so that an eighth address-less row anywhere in the dataset fails the suite.
+  // Fill them and the assertion tightens back on its own.
   {
     cc: 'FR', city: 'Paris', year: 2026, tier: 'two-star', have: 17, published: 20,
     note: 'There is NO instruction/France.js — France is the one country with no source of '
