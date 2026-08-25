@@ -39,7 +39,9 @@
 //     - status    : 'open' | 'closed' (default 'open'). Closed venues are
 //                   EXCLUDED from visitableVenues() but INCLUDED in
 //                   editionVenues(Y) (the year/edition view).
-//     - awards    : Array<{ year:2025|2026, category:<enum> }>, length ≥ 1.
+//     - awards    : Array<{ year:2025|2026, category:<enum> }>. Length ≥ 1
+//                   EXCEPT on a Green Star holder, which may hold none —
+//                   see greenStarYears below and the note in validateVenue.
 //
 // Validation runs at load and FAILS LOUD: a bad category, a missing
 // required field, a bad country/year, a city not in the curated table, or
@@ -77,6 +79,17 @@ const VALID_YEARS = new Set([2025, 2026]);
 // ladder: a restaurant may hold three Stars and a Green Star in the same
 // edition, or a Green Star and nothing else. That is why it is a PARALLEL
 // field (`greenStarYears: [2026]`) rather than another `awards[].category`.
+// v0.62.764: a Green Star can now stand ALONE. Vietnam's three 2026 holders
+// carry no star and no Bib, so `awards: []` is legal for them and illegal for
+// anything else. Two consequences worth knowing before adding more:
+//   - they appear in `editionVenues(Y)` and `greenStarVenues(Y)`, but NOT in
+//     `venuesForYear(Y)`, which stays strictly award-based because every
+//     manifest count derives from it;
+//   - they produce NO flat rows, since the flat contract is one row per award
+//     and a Green Star is not one. They are therefore invisible to `getAll` /
+//     `michelinForCity` / `michelinForCountry` until someone decides how a
+//     Green Star should render. A load-time guard below stops that from
+//     turning into `hasMichelinData()` lying about a city.
 //
 // Modelling it as a category was the obvious first move and is wrong twice
 // over. `_venueToFlatRows` emits one flat row PER AWARD, so a one-starred
@@ -182,7 +195,10 @@ const COUNTRY_MANIFEST = Object.freeze({
     // 2025 PARTIAL — source captured one-stars only (no Bib Gourmand).
     // Vietnam has no two-/three-star venues in either edition.
     2025: { 'one-star': 9, total: 9 },
-    2026: { 'one-star': 11, 'bib-gourmand': 72, total: 83 },
+    // 'green-star' is asserted separately and is NOT part of `total` — the
+    // three 2026 holders carry no award at all, so `total` (which counts
+    // award rows) stays 83 while venuesForCountry('VN') reads 86.
+    2026: { 'one-star': 11, 'bib-gourmand': 72, total: 83, 'green-star': 3 },
   },
   HK: {
     // 2025 PARTIAL — source captured upper tiers only (no Bib Gourmand).
@@ -279,8 +295,26 @@ function validateVenue(v, source = 'unknown', requireCuratedCity = true) {
       throw new Error(`${where}: "${flag}" must be a boolean on "${v.name}"`);
     }
   }
-  if (!Array.isArray(v.awards) || v.awards.length < 1) {
-    throw new Error(`${where}: "awards" must be a non-empty array on "${v.name}"`);
+  // O-163 / v0.62.764. `awards` was required to be NON-EMPTY. That made a
+  // MICHELIN Green Star unrepresentable on its own: the three Vietnam 2026
+  // holders — Nen Danang, Lamai Garden, Tales by Chapter — carry no star and
+  // no Bib, so there was no legal row for them and the gap sat open as "needs
+  // a schema decision" rather than as missing data.
+  //
+  // The rule is NARROWED, not dropped: a venue may have zero awards ONLY if it
+  // holds a Green Star. An award-less venue with no Green Star is still an
+  // error, because it is a row with no reason to exist — which is the check
+  // the old rule was really making.
+  if (!Array.isArray(v.awards)) {
+    throw new Error(`${where}: "awards" must be an array on "${v.name}"`);
+  }
+  if (v.awards.length < 1) {
+    const gs = v[GREEN_STAR_KEY];
+    if (!Array.isArray(gs) || !gs.length) {
+      throw new Error(
+        `${where}: "awards" may only be empty on a Green Star holder — "${v.name}" has neither`
+      );
+    }
   }
   for (const a of v.awards) {
     if (!a || typeof a !== 'object') {
@@ -479,6 +513,29 @@ for (const v of VENUES) {
   for (const row of _venueToFlatRows(v)) ALL.push(row);
 }
 
+// v0.62.764. A Green-Star-only venue produces NO flat rows, because the flat
+// contract is one row per award and a Green Star is not one. That is deliberate
+// — injecting a pseudo-tier into `category` would reach every consumer that
+// switches on it — but it creates a trap: such a venue still marks its city
+// "populated", so `hasMichelinData(city)` could answer true for a city whose
+// flat getters return nothing at all.
+//
+// Fail closed rather than document it. Every Green-Star-only venue must sit in
+// a city that also holds a real award; today all three (Hanoi, Da Nang, Ho Chi
+// Minh City) do, so this costs nothing and stops the day it would start lying.
+for (const v of VENUES) {
+  if (Array.isArray(v.awards) && v.awards.length) continue;
+  const cityHasAward = VENUES.some(
+    (o) => o.city === v.city && Array.isArray(o.awards) && o.awards.length,
+  );
+  if (!cityHasAward) {
+    throw new Error(
+      `[michelin-data] "${v.name}" holds only a Green Star and is the sole venue in ${v.city} — `
+      + 'hasMichelinData() would report the city as populated while every flat getter returns [].',
+    );
+  }
+}
+
 // Set of cities + countries that currently have ≥1 curated venue.
 const _populated = new Set();
 for (const v of VENUES) {
@@ -572,10 +629,20 @@ function visitableVenues(pool) {
   return src.filter((v) => v.status !== 'closed');
 }
 
-// Year/edition view: every venue with an award in year Y, INCLUDING
+// Year/edition view: every venue MICHELIN published for year Y, INCLUDING
 // closed venues (the edition is a historical snapshot).
+//
+// v0.62.764: this is award-holders UNION Green Star holders for that year. A
+// Green Star is part of what the guide published, so a venue holding only one
+// belongs to the edition. `venuesForYear` deliberately does NOT widen — it is
+// documented as "holding an AWARD in year Y" and every award count in the
+// manifests derives from it, so blurring the two would silently move numbers
+// that other assertions depend on. Two names for two questions.
 function editionVenues(year) {
-  return venuesForYear(year);
+  const out = venuesForYear(year);
+  const seen = new Set(out.map((v) => v.id));
+  for (const v of greenStarVenues(year)) if (!seen.has(v.id)) { seen.add(v.id); out.push(v); }
+  return out;
 }
 
 // ── awards history diff (for the future "new for 2026" UI) ───────────

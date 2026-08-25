@@ -107,7 +107,15 @@ const ENTRIES = [
   { id: 'vn-sgn-pho-phuong', city: 'Ho Chi Minh City', country: 'VN', name: 'Phở Phượng', address: '25 Hoang Sa Street, Saigon Ward', postal: '71007', cuisine: 'street-food', vegetarian: false, halal: false, awards: [ { year: 2026, category: 'bib-gourmand' } ] },
   { id: 'vn-sgn-sol-kitchen-bar-ben-thanh', city: 'Ho Chi Minh City', country: 'VN', name: 'Sol Kitchen & Bar (Ben Thanh)', address: '112 Ly Tu Trong Street, Ben Thanh Ward', postal: '700000', cuisine: 'latin-american', vegetarian: true, halal: false, awards: [ { year: 2026, category: 'bib-gourmand' } ] },
   { id: 'vn-sgn-tiem-com-tho-chuyen-ky', city: 'Ho Chi Minh City', country: 'VN', name: 'Tiệm Cơm Thố Chuyên Ký', address: '67 Ton That Dam Street, Saigon Ward', postal: '70000', cuisine: 'cantonese', vegetarian: false, halal: false, awards: [ { year: 2026, category: 'bib-gourmand' } ] },
-  { id: 'vn-sgn-vi-que-kitchen', city: 'Ho Chi Minh City', country: 'VN', name: 'Vị Quê Kitchen', address: '110 Suong Nguyet Anh Street, Ben Thanh Ward', postal: '710000', cuisine: 'vegan-90', vegetarian: true, halal: false, awards: [ { year: 2026, category: 'bib-gourmand' } ] }
+  { id: 'vn-sgn-vi-que-kitchen', city: 'Ho Chi Minh City', country: 'VN', name: 'Vị Quê Kitchen', address: '110 Suong Nguyet Anh Street, Ben Thanh Ward', postal: '710000', cuisine: 'vegan-90', vegetarian: true, halal: false, awards: [ { year: 2026, category: 'bib-gourmand' } ] },
+  // ── MICHELIN Green Star 2026, no star and no Bib ────────────────────
+  // Three holders, and the reason they arrive late: until v0.62.764 the
+  // schema required awards.length >= 1, so a venue whose only distinction is
+  // a Green Star had no legal row. `awards: []` is now permitted for exactly
+  // this case and rejected for any other.
+  { id: 'vn-dad-nen-danang', city: 'Da Nang', country: 'VN', name: 'Nén Danang', address: '16 My Da Tay 2, Ngu Hanh Son', cuisine: 'vietnamese-contemporary', vegetarian: false, halal: false, awards: [], greenStarYears: [2026] },
+  { id: 'vn-han-lamai-garden', city: 'Hanoi', country: 'VN', name: 'Lamai Garden', address: '36B De Quai Street, Tu Lien, Tay Ho', cuisine: 'vietnamese-contemporary', vegetarian: true, halal: false, awards: [], greenStarYears: [2026] },
+  { id: 'vn-sgn-tales-by-chapter', city: 'Ho Chi Minh City', country: 'VN', name: 'Tales by Chapter', address: '10 Nguyen Thanh Y Street, Da Kao, District 1', cuisine: 'vegetarian', vegetarian: true, halal: false, awards: [], greenStarYears: [2026] },
 ]
 // manifest: VN country-wide { 2026 live-verified: one:11, bib:72, total:83 (HCMC 32, Hanoi 27, Da Nang 24); no 3/2-star tier } { 2025 one-star tier attached: 9 (all retained into 2026, zero drops); 2025 Bib layer deferred }
 // source: guide.michelin.com 2026 live (announced 04-06-2026) + official VN 2025/2026 rosters, verified 06-06-2026. Star tier CLOSED both years: 9 retained one-stars carry 2025+2026; 2 new 2026 one-stars (ONVIT, Upstairs) carry 2026 only. Cities/IATA: Hanoi (han), Ho Chi Minh City (sgn), Da Nang (dad). NATIVE SCRIPT: Vietnamese is Latin-with-diacritics and already present verbatim in name/address (e.g. Tầm Vị) - no separate native field needed. 2025 Bib (63) deferred.;
