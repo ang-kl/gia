@@ -34,6 +34,7 @@ const CITY_MANIFEST = Object.freeze({
   CN: {
     "Beijing": { 2026: { "three-star": 2, "two-star": 6, "one-star": 24, "bib-gourmand": 26 } },
     "Shanghai": { 2026: { "three-star": 1, "two-star": 12, "one-star": 38, "bib-gourmand": 34 } },
+    "Shenzhen": { 2026: { "two-star": 2, "one-star": 5, "bib-gourmand": 6 } },
     "Chengdu": { 2026: { "two-star": 2, "one-star": 11, "bib-gourmand": 27 } },
     "Guangzhou": { 2025: { "two-star": 3, "one-star": 17, "bib-gourmand": 44 }, 2026: { "two-star": 3, "one-star": 17, "bib-gourmand": 52 } },
     "Hangzhou": { 2026: { "two-star": 2, "one-star": 11, "bib-gourmand": 34 } },
@@ -213,10 +214,17 @@ const KNOWN_DELTAS = Object.freeze([
         + 'is precisely what the country tables forbid.',
   },
   {
-    cc: 'CN', city: 'Shenzhen', year: 2026, tier: '*', have: 0, published: 28,
-    note: 'Absent from instruction/China.js as well as from the table. Shenzhen is ABSENT. It '
-        + 'debuted in the MICHELIN Guide on 18 Aug 2026 with 2 two-star, '
-        + '5 one-star and 21 Bib Gourmand. It is a new city for the dataset AND for cities.js.',
+    cc: 'CN', city: 'Shenzhen', year: 2026, tier: 'bib-gourmand', have: 6, published: 21,
+    note: 'NARROWED v0.62.762, from "absent entirely" (0 of 28) to a Bib-only gap. Two claims in '
+        + 'the entry this replaces were WRONG and are corrected rather than quietly dropped: '
+        + 'Shenzhen was said to need adding "to cities.js" — it was already there '
+        + '(web/cuisine/src/v2/lib/cities.js, code SZX) and already in CITY_IATA, so the blocker '
+        + 'was never scaffolding, only names. The STARS are now complete, 7 of 7: The Bay by Chef '
+        + 'Fei and Yun Jing at two, Chao Shang Chao, Ensue, Fumee, Opus 388 and Xin Rong Ji at '
+        + 'one, from the official joint press release. Bib stands at 6 of 21 — the release names '
+        + 'only six individually and aggregates the rest by cuisine style, and '
+        + 'guide.michelin.com is JS-rendered and does not fetch. The 15 unnamed rows are not '
+        + 'invented. See also the address debt below: 9 of these 13 rows carry no address.',
   },
 ]);
 

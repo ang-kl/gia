@@ -84,7 +84,7 @@ describe('published-figure deltas', () => {
     // enforces the other direction.
     const keys = KNOWN_DELTAS.map((d) => `${d.cc}/${d.city}`);
     expect(keys).toContain('JP/Tokyo');       // one one-star short of 122
-    expect(keys).toContain('CN/Shenzhen');    // absent; debuted 18 Aug 2026
+    expect(keys).toContain('CN/Shenzhen');    // Bib 6 of 21; stars complete since v0.62.762
     expect(keys).not.toContain('CN/Guangzhou');
     for (const d of KNOWN_DELTAS) expect(d.note.length).toBeGreaterThan(40);
   });
@@ -111,6 +111,7 @@ describe('published-figure deltas', () => {
   // than lose the invariant, it is narrowed and PINNED: exactly these ids may
   // have an empty address, and an eighth address-less row anywhere fails here.
   const ADDRESS_DEBT = [
+    // Guangzhou, v0.62.757
     'cn-can-baode-dunhe-road',
     'cn-can-e-qian-ya-hou',
     'cn-can-ru-yi-chuan-tong-zhu-sheng-mian',
@@ -118,9 +119,22 @@ describe('published-figure deltas', () => {
     'cn-can-tai-shan-lao-biao-xian-tang-yuan-xihua-road',
     'cn-can-wuchuan-hao-wei-lai',
     'cn-can-yu-yuen',
+    // Shenzhen debut, v0.62.762. 4 of the 13 new rows DID get an address —
+    // the hotel restaurants, which the press covers in detail. The 9 here are
+    // the ones no fetchable source gives a street for. The split is the point:
+    // the standard was applied per row, not waived for the batch.
+    'cn-szx-chao-shang-chao',
+    'cn-szx-fumee',
+    'cn-szx-gao-san-jie-dou-hua-dian',
+    'cn-szx-jie-yang-lao-er-guo-tiao-tang',
+    'cn-szx-jiu-jiu-noodle',
+    'cn-szx-xiao-long-niu-rou-mian-futian',
+    'cn-szx-xin-hu-cun-cu-rou-longhua-jianshe-road',
+    'cn-szx-xin-ji-ke-jia-wei-dao',
+    'cn-szx-xin-rong-ji',
   ];
 
-  it('no venue has an empty address except the 7 pinned Guangzhou rows', () => {
+  it('no venue has an empty address except the 16 pinned rows', () => {
     const empty = md.VENUES.filter((v) => !v.address || !v.address.trim()).map((v) => v.id).sort();
     expect(empty).toEqual([...ADDRESS_DEBT].sort());
   });
@@ -134,7 +148,7 @@ describe('published-figure deltas', () => {
       const v = byId.get(id);
       expect(v, `${id} is pinned as address-less but no longer exists`).toBeTruthy();
       expect(v.address, `${id} now HAS an address — remove it from ADDRESS_DEBT`).toBe('');
-      expect(v.city).toBe('Guangzhou');
+      expect(['Guangzhou', 'Shenzhen']).toContain(v.city);
     }
   });
 });
