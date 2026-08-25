@@ -33,9 +33,42 @@ const gitOk = (...args) => {
 
 // Pure decision, kept separate from git so it can be tested without a repo.
 // Returns { action: 'allow' | 'block', reason }.
-export function decide({ isNewBranch, remoteTipMergedIntoMain, isFastForward, remoteTipIsAncestorOfMain }) {
+//
+// `mainRefResolved` defaults to true because that is the ordinary case and
+// every inspect() call supplies it explicitly; the default exists so a caller
+// testing one of the OTHER axes need not restate it.
+export function decide({
+  isNewBranch,
+  remoteTipMergedIntoMain,
+  isFastForward,
+  remoteTipIsAncestorOfMain,
+  mainRefResolved = true,
+}) {
   if (isNewBranch) {
     return { action: 'allow', reason: 'new branch — no remote tip to be stale' };
+  }
+  // X-35b. Without this the guard is INERT and says so in the language of a
+  // performed check. `git diff --quiet <missing-ref> <sha>` errors, gitOk
+  // catches, remoteTipMergedIntoMain reads false, and the guard reports
+  // "remote tip still carries unmerged content" — a claim about a comparison
+  // it never made. That is the exact fault this guard exists to prevent,
+  // committed by the guard itself.
+  //
+  // It BLOCKS rather than warning, on the same principle already applied to an
+  // unreadable stdin below: a guard that cannot perform its check must fail
+  // loudly, not pass quietly. The cost is bounded — a brand-new branch never
+  // reaches here (isNewBranch short-circuits above), hook mode fetches the ref
+  // first so a merely-stale one self-heals, and the message names the one-line
+  // remedy plus the deliberate override.
+  if (!mainRefResolved) {
+    return {
+      action: 'block',
+      reason:
+        'the main ref could not be resolved, so the merged-by-content check DID NOT RUN. '
+        + 'This is not evidence that the branch is unmerged — it is the absence of evidence '
+        + 'either way. Run `git fetch origin main` and push again, or override deliberately '
+        + 'with `git push --no-verify`.',
+    };
   }
   if (!remoteTipMergedIntoMain) {
     return { action: 'allow', reason: 'remote tip still carries unmerged content' };
@@ -73,13 +106,22 @@ export function decide({ isNewBranch, remoteTipMergedIntoMain, isFastForward, re
 // Gather the facts this repo can answer locally.
 export function inspect(remoteSha, localSha, mainRef = 'origin/main') {
   const isNewBranch = /^0{40}$/.test(remoteSha || '');
-  if (isNewBranch) return { isNewBranch: true, remoteTipMergedIntoMain: false, isFastForward: false };
+  if (isNewBranch) {
+    return { isNewBranch: true, remoteTipMergedIntoMain: false, isFastForward: false, mainRefResolved: true };
+  }
+  // X-35b. Resolve the ref FIRST and report it as its own fact. Every check
+  // below runs through gitOk, which cannot distinguish "the answer is no" from
+  // "the question could not be asked" — both come back false. A missing
+  // origin/main therefore produced remoteTipMergedIntoMain === false, which
+  // reads as a healthy unmerged branch and is indistinguishable from one.
+  // Callers need the difference, so it is measured rather than inferred.
+  const mainRefResolved = gitOk('rev-parse', '--verify', `${mainRef}^{commit}`);
   // Content comparison, not ancestry: a squash-merge produces a new commit
   // object, so `--is-ancestor` returns false even though the work landed.
-  const remoteTipMergedIntoMain = gitOk('diff', '--quiet', mainRef, remoteSha);
+  const remoteTipMergedIntoMain = mainRefResolved && gitOk('diff', '--quiet', mainRef, remoteSha);
   const isFastForward = gitOk('merge-base', '--is-ancestor', remoteSha, localSha);
-  const remoteTipIsAncestorOfMain = gitOk('merge-base', '--is-ancestor', remoteSha, mainRef);
-  return { isNewBranch: false, remoteTipMergedIntoMain, isFastForward, remoteTipIsAncestorOfMain };
+  const remoteTipIsAncestorOfMain = mainRefResolved && gitOk('merge-base', '--is-ancestor', remoteSha, mainRef);
+  return { isNewBranch: false, mainRefResolved, remoteTipMergedIntoMain, isFastForward, remoteTipIsAncestorOfMain };
 }
 
 function main() {
@@ -105,6 +147,7 @@ function main() {
     const { action, reason } = decide(facts);
     console.log(`branch=${branch}`);
     console.log(`remote_tip=${remoteSha.slice(0, 8)}  local=${localSha.slice(0, 8)}`);
+    console.log(`main_ref_resolved=${facts.mainRefResolved}`);
     console.log(`remote_tip_merged_into_main=${facts.remoteTipMergedIntoMain}  ancestor_of_main=${facts.remoteTipIsAncestorOfMain}  fast_forward=${facts.isFastForward}`);
     console.log(`verdict=${action.toUpperCase()} — ${reason}`);
     process.exitCode = action === 'block' ? 1 : 0;
@@ -131,6 +174,13 @@ function main() {
     console.error('[prepush-guard] refusing to pass a push it could not inspect.');
     process.exit(1);
   }
+  // X-35b. Give the check a chance to be possible before refusing on its
+  // absence: a stale or never-fetched origin/main self-heals here, so the
+  // block below is reserved for the case where the ref genuinely cannot be
+  // obtained. `git push` has just contacted the remote, so this rarely costs
+  // anything; offline, it fails quietly and decide() refuses loudly.
+  try { execFileSync('git', ['fetch', 'origin', 'main', '--quiet'], { stdio: 'ignore' }); } catch { /* offline */ }
+
   let bad = 0;
   for (const line of stdin.split('\n')) {
     const [, localSha, remoteRef, remoteSha] = line.trim().split(/\s+/);
