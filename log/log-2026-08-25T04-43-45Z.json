@@ -1,0 +1,52 @@
+{
+  "since": "2026-08-25T03:38:45Z",
+  "until": "2026-08-25T04:43:45Z",
+  "count": 5,
+  "logs": [
+    {
+      "timestamp": "2026-08-25T03:57:26.878503451Z",
+      "message": "[twa-auth] 401 GET /user-language ip=66.249.70.198, 152.233.30.101 ua=\"Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KH\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bcf0c4ed-c98c-4222-8bc1-ebe4973b82a5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T03:57:26.878506531Z",
+      "message": "[twa-auth] 401 POST /user-location ip=66.249.70.197, 152.233.30.104 ua=\"Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KH\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bcf0c4ed-c98c-4222-8bc1-ebe4973b82a5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T03:57:26.878509791Z",
+      "message": "[twa-auth] 401 GET /rating-pref ip=66.249.70.198, 152.233.30.101 ua=\"Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KH\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bcf0c4ed-c98c-4222-8bc1-ebe4973b82a5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T03:57:26.878512921Z",
+      "message": "[twa-auth] 401 POST /search ip=66.249.70.197, 152.233.30.104 ua=\"Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KH\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bcf0c4ed-c98c-4222-8bc1-ebe4973b82a5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T03:57:28.021969969Z",
+      "message": "[twa-auth] 401 POST /set-location ip=66.249.70.197, 152.233.30.104 ua=\"Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KH\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "bcf0c4ed-c98c-4222-8bc1-ebe4973b82a5",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
