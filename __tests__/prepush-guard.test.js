@@ -36,7 +36,24 @@ describe('prepush-guard decision', () => {
     expect(decide({ isNewBranch: true }).action).toBe('allow');
   });
 
-  it('blocks in exactly one of five states — it is not a blanket refusal', () => {
+  it('BLOCKS when the main ref did not resolve — the check did not run', () => {
+    // X-35b. A guard that cannot perform its check must fail loudly, not pass
+    // quietly — the principle already applied to an unreadable stdin. The
+    // reason must not read as a finding about the branch, because it is not one.
+    const d = decide({ isNewBranch: false, mainRefResolved: false, remoteTipMergedIntoMain: false, isFastForward: true });
+    expect(d.action).toBe('block');
+    expect(d.reason).toMatch(/DID NOT RUN/);
+    expect(d.reason).toMatch(/absence of evidence/);
+    expect(d.reason).not.toMatch(/still carries unmerged content/);
+  });
+
+  it('lets a NEW branch through even with no main ref — nothing to be stale', () => {
+    // The blind-block must not swallow the one case that is unconditionally
+    // safe, or a first push from a fresh clone would be refused.
+    expect(decide({ isNewBranch: true, mainRefResolved: false }).action).toBe('allow');
+  });
+
+  it('blocks in exactly two of six states — it is not a blanket refusal', () => {
     const states = [
       { isNewBranch: true },
       { isNewBranch: false, remoteTipMergedIntoMain: false, isFastForward: true },
@@ -45,8 +62,18 @@ describe('prepush-guard decision', () => {
       // the false positive a test caught before it shipped: branch sitting AT
       // main, then given work. Content-identical, fast-forward — but fine.
       { isNewBranch: false, remoteTipMergedIntoMain: true, isFastForward: true, remoteTipIsAncestorOfMain: true },
+      // X-35b: blind. Looks identical to row 2 on every other field.
+      { isNewBranch: false, mainRefResolved: false, remoteTipMergedIntoMain: false, isFastForward: true },
     ];
-    expect(states.map((s) => decide(s).action)).toEqual(['allow', 'allow', 'allow', 'block', 'allow']);
+    expect(states.map((s) => decide(s).action))
+      .toEqual(['allow', 'allow', 'allow', 'block', 'allow', 'block']);
+  });
+
+  it('omitting mainRefResolved keeps the pre-X-35b behaviour — the default is the ordinary case', () => {
+    // The field defaults to true so callers testing another axis need not
+    // restate it. Asserted rather than assumed, because a permissive default is
+    // exactly the kind of thing that silently un-guards a check.
+    expect(decide({ isNewBranch: false, remoteTipMergedIntoMain: false, isFastForward: true }).action).toBe('allow');
   });
 });
 
@@ -99,44 +126,54 @@ describe('prepush-guard against the real X-31 history', () => {
   // ancestor of main — and a tip identical to main IS an ancestor of it. So
   // both legitimate positions are allowed, and the test names which one it saw
   // rather than hard-coding one of them.
+  // X-35b is FIXED IN inspect() NOW, not compensated for here. It used to
+  // report a missing ref and an unmerged branch identically — both arrive as
+  // remoteTipMergedIntoMain === false, because gitOk cannot tell "the answer is
+  // no" from "the question could not be asked". CI runs actions/checkout@v5 at
+  // the default fetch-depth of 1, which is shallow, detached and has no
+  // origin/main, so this test asserted false === false against a ref that does
+  // not exist: green, and asserting nothing. That is X-32's silent skip wearing
+  // a passing badge.
   //
-  // X-35b, found while writing up X-35. `inspect` reports a MISSING ref exactly
-  // as it reports an unmerged branch: `git diff --quiet origin/main HEAD` errors
-  // on `unknown revision`, gitOk returns false, and merged reads false. CI uses
-  // actions/checkout@v5 at the default fetch-depth of 1 — shallow and detached,
-  // with no `origin/main` — so this test would take the "unmerged" branch and
-  // assert false === false on a ref that does not exist. Green, and asserting
-  // nothing. That is X-32's `it.runIf` silent skip wearing a passing badge.
-  //
-  // The BEHAVIOUR is already covered deterministically by the fixture repo
-  // below, including the branch-sitting-at-main case, so this test's only job is
-  // to catch a surprise in THIS repo. It therefore resolves the ref first and
-  // says which of three situations it is in, rather than folding the third into
-  // one of the other two.
-  it('never blocks the repo\'s own HEAD, wherever the branch currently sits', () => {
-    let mainResolves = true;
-    try { execFileSync('git', ['rev-parse', '--verify', 'origin/main'], { cwd: ROOT, stdio: 'ignore' }); }
-    catch { mainResolves = false; }
-
+  // inspect() now measures mainRefResolved as its own fact, so the test asks
+  // for it instead of guessing from a value that means two things.
+  it('reports which situation the repo is in, and never blocks its own HEAD when main resolves', () => {
     const facts = inspect('HEAD', 'HEAD', 'origin/main');
-    expect(decide(facts).action).toBe('allow');
 
-    if (!mainResolves) {
-      // Shallow/detached checkout. Assert the degradation is SAFE — the guard
-      // must fall open, never closed — and assert nothing about this branch.
+    if (!facts.mainRefResolved) {
+      // Shallow/detached checkout. The guard is BLIND, and must now say so
+      // rather than claim the branch is unmerged.
       expect(facts.remoteTipMergedIntoMain).toBe(false);
-      expect(decide(facts).action).toBe('allow');
+      expect(decide(facts).action).toBe('block');
+      expect(decide(facts).reason).toMatch(/DID NOT RUN/);
       return;
     }
+
+    // Main resolves, so the guard can actually answer. Blocking needs
+    // content-identical AND fast-forward AND not-an-ancestor — and a tip
+    // identical to main IS an ancestor of it, so both legitimate branch
+    // positions are allowed. The test names which one it saw.
+    expect(decide(facts).action).toBe('allow');
     if (facts.remoteTipMergedIntoMain) {
-      // restarted from main after a merge — allowed via the ancestor escape
-      expect(facts.remoteTipIsAncestorOfMain).toBe(true);
+      expect(facts.remoteTipIsAncestorOfMain).toBe(true);   // restarted from main after a merge
     } else {
-      // carrying unmerged work — allowed because nothing has landed yet
-      expect(facts.remoteTipIsAncestorOfMain).toBe(false);
+      expect(facts.remoteTipIsAncestorOfMain).toBe(false);  // carrying unmerged work
     }
   });
-});
+
+  it('distinguishes a missing ref from an unmerged branch — the X-35b fix itself', () => {
+    const blind = inspect('HEAD', 'HEAD', 'origin/definitely-not-a-ref');
+    const seeing = inspect('HEAD', 'HEAD', 'HEAD');
+
+    // The two used to be indistinguishable on this field alone...
+    expect(blind.remoteTipMergedIntoMain).toBe(false);
+    // ...and are now separated by one that is measured, not inferred.
+    expect(blind.mainRefResolved).toBe(false);
+    expect(seeing.mainRefResolved).toBe(true);
+    expect(decide(blind).action).toBe('block');
+  });
+
+  });
 
 // The hook's stdin path — the one the assertions above do NOT reach.
 //
@@ -225,5 +262,44 @@ describe('prepush-guard hook invocation (end to end)', () => {
 
   it('passes an empty ref list', () => {
     expect(run('')).toBe(0);
+  });
+
+  // X-35b, driven through the REAL hook rather than through decide(). This is
+  // the path every assertion above the fixture block misses — the same blind
+  // spot that let the first implementation ship inert (require() in ESM,
+  // swallowed, stdin '' , exit 0 on every push).
+  it('BLOCKS through the hook when origin/main is absent, and says the check did not run', () => {
+    const blind = fs.mkdtempSync(path.join(os.tmpdir(), 'prepush-blind-'));
+    try {
+      git(blind, 'init', '-q', '-b', 'main');
+      git(blind, 'config', 'user.email', 't@t');
+      git(blind, 'config', 'user.name', 't');
+      fs.writeFileSync(path.join(blind, 'a.txt'), 'base\n');
+      git(blind, 'add', '-A'); git(blind, 'commit', '-qm', 'base');
+      const sha = git(blind, 'rev-parse', 'HEAD');
+
+      // No origin remote at all, so the hook's self-healing fetch fails and the
+      // ref stays unresolvable — the CI checkout shape.
+      expect(() => execFileSync('git', ['rev-parse', '--verify', 'origin/main'], { cwd: blind, stdio: 'ignore' }))
+        .toThrow();
+
+      let status = 0; let stderr = '';
+      try {
+        execFileSync('node', [GUARD], {
+          cwd: blind,
+          input: `refs/heads/f ${sha} refs/heads/feature ${sha}\n`,
+          encoding: 'utf8',
+          stdio: 'pipe',
+        });
+      } catch (e) { status = e.status ?? 1; stderr = e.stderr ?? ''; }
+
+      expect(status).toBe(1);
+      expect(stderr).toMatch(/DID NOT RUN/);
+      // Before the fix this same input exited 0 with "still carries unmerged
+      // content" — a claim about a comparison that never happened.
+      expect(stderr).not.toMatch(/still carries unmerged content/);
+    } finally {
+      fs.rmSync(blind, { recursive: true, force: true });
+    }
   });
 });
