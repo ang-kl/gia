@@ -99,15 +99,41 @@ describe('prepush-guard against the real X-31 history', () => {
   // ancestor of main — and a tip identical to main IS an ancestor of it. So
   // both legitimate positions are allowed, and the test names which one it saw
   // rather than hard-coding one of them.
+  //
+  // X-35b, found while writing up X-35. `inspect` reports a MISSING ref exactly
+  // as it reports an unmerged branch: `git diff --quiet origin/main HEAD` errors
+  // on `unknown revision`, gitOk returns false, and merged reads false. CI uses
+  // actions/checkout@v5 at the default fetch-depth of 1 — shallow and detached,
+  // with no `origin/main` — so this test would take the "unmerged" branch and
+  // assert false === false on a ref that does not exist. Green, and asserting
+  // nothing. That is X-32's `it.runIf` silent skip wearing a passing badge.
+  //
+  // The BEHAVIOUR is already covered deterministically by the fixture repo
+  // below, including the branch-sitting-at-main case, so this test's only job is
+  // to catch a surprise in THIS repo. It therefore resolves the ref first and
+  // says which of three situations it is in, rather than folding the third into
+  // one of the other two.
   it('never blocks the repo\'s own HEAD, wherever the branch currently sits', () => {
+    let mainResolves = true;
+    try { execFileSync('git', ['rev-parse', '--verify', 'origin/main'], { cwd: ROOT, stdio: 'ignore' }); }
+    catch { mainResolves = false; }
+
     const facts = inspect('HEAD', 'HEAD', 'origin/main');
     expect(decide(facts).action).toBe('allow');
+
+    if (!mainResolves) {
+      // Shallow/detached checkout. Assert the degradation is SAFE — the guard
+      // must fall open, never closed — and assert nothing about this branch.
+      expect(facts.remoteTipMergedIntoMain).toBe(false);
+      expect(decide(facts).action).toBe('allow');
+      return;
+    }
     if (facts.remoteTipMergedIntoMain) {
       // restarted from main after a merge — allowed via the ancestor escape
       expect(facts.remoteTipIsAncestorOfMain).toBe(true);
     } else {
       // carrying unmerged work — allowed because nothing has landed yet
-      expect(facts.remoteTipMergedIntoMain).toBe(false);
+      expect(facts.remoteTipIsAncestorOfMain).toBe(false);
     }
   });
 });
