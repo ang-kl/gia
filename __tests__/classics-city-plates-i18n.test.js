@@ -112,7 +112,7 @@ const MIXED_WORD = /[A-Za-zÀ-ÿ]+[Ѐ-ӿ]|[Ѐ-ӿ]+[A-Za-zÀ-ÿ]/;
 // The mixed-script rule is blind to it: "claims" is a well-formed Latin word, and
 // Latin proper nouns are legitimate in ru/zh/ja. Caught after a Russian sentence
 // shipped as "Батангас ... claims рождение" past every other rule.
-const ENGLISH_STOPWORD = /(?<![A-Za-z])(?:the|and|or|of|in|on|at|to|for|with|from|by|as|is|are|was|were|be|been|has|have|had|not|but|its|it|this|that|these|those|claims|claim|said|says|made|make|born|now|then|which|who|where|when|while|after|before|until|during|between|among|both|each|every|also|still|only|often|typically|traditionally|usually|commonly)(?![A-Za-z])/i;
+const ENGLISH_STOPWORD = /(?<![A-Za-zÀ-ÿ])(?:the|and|or|of|in|on|at|to|for|with|from|by|as|is|are|was|were|be|been|has|have|had|not|but|its|it|this|that|these|those|claims|claim|said|says|made|make|born|now|then|which|who|where|when|while|after|before|until|during|between|among|both|each|every|also|still|only|often|typically|traditionally|usually|commonly)(?![A-Za-zÀ-ÿ])/i;
 // NOT A RULE, and the reason is worth keeping. 「乡village沙拉」 shipped past every check
 // above — an English noun wedged inside a Chinese word, which ENGLISH_STOPWORD cannot see
 // (it knows only function words) and MIXED_WORD cannot see (it pairs Latin with Cyrillic
