@@ -1,4 +1,4 @@
-// __tests__/dish-notes-i18n.test.js — v0.62.778
+// __tests__/dish-notes-i18n.test.js — v0.62.779
 //
 // THE 📜 DISH NOTES ARE THE LARGEST BODY OF USER-FACING PROSE IN THIS REPO AND
 // NOTHING ASSERTED ANYTHING ABOUT THEM. 1,681 notes reach the reader through the
@@ -70,5 +70,29 @@ describe('dish notes — merged locale coverage', () => {
     expect(m, 'TARGET_LANGS declaration').toBeTruthy();
     const langs = [...m[1].matchAll(/'([a-z]{2})'/g)].map((x) => x[1]).sort();
     expect(langs).toEqual(LANGS.filter((l) => l !== 'en').sort());
+  });
+});
+
+// The v0.62.779 direction: COVERAGE IS NOT FIDELITY. The 1,653 French notes shipped
+// in v0.62.778 were written by hand in one pass with no second reader, and a
+// measured 160 of them dropped the English sentence's hedge — "often served with",
+// "typically made from", "traditionally eaten at" — turning a qualified claim into
+// a flat one. Every locale was present and every gate was green while that was true.
+const EN_HEDGE = /\b(often|typically|traditionally|usually|sometimes|generally|commonly|frequently|occasionally)\b/i;
+// Any French device that keeps the claim non-absolute counts: adverb, adjective or
+// turn of phrase. WHEN THIS FAILS ON A LEGITIMATE PARAPHRASE, ADD THE FORM HERE —
+// that is the intended fix, not deleting the note's hedge to match.
+const FR_HEDGE = /(souvent|en g[ée]n[ée]ral|g[ée]n[ée]ralement|traditionnellement|traditionnel|habituellement|parfois|couramment|courant|courante|typiquement|typique|fr[ée]quemment|d'ordinaire|ordinairement|classiquement|le plus souvent|la plupart|volontiers|d'usage|de coutume|en r[èe]gle g[ée]n[ée]rale|bien souvent|r[ée]pandu|incontournable|la tradition|de pr[ée]f[ée]rence)/i;
+
+describe('dish notes — French fidelity, not just presence', () => {
+  it('a hedge in the English note survives into the French', () => {
+    const seen = new Set();
+    const dropped = [];
+    for (const [key, note] of mergedNotes()) {
+      if (!note.en || !note.fr || seen.has(note.fr)) continue;
+      seen.add(note.fr);
+      if (EN_HEDGE.test(note.en) && !FR_HEDGE.test(note.fr)) dropped.push(key);
+    }
+    expect(dropped).toEqual([]);
   });
 });
