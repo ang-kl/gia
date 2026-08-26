@@ -50,7 +50,7 @@ const CITY_MANIFEST = Object.freeze({
     "Wenzhou": { 2026: { "bib-gourmand": 19 } },
   },
   FR: {
-    "Paris": { 2025: { "three-star": 10 }, 2026: { "three-star": 9, "two-star": 17 } },
+    "Paris": { 2025: { "three-star": 10 }, 2026: { "three-star": 9, "two-star": 20, "one-star": 98 } },
     "Lyon": { 2025: { "two-star": 3 }, 2026: { "two-star": 3 } },
   },
   HK: {
@@ -198,21 +198,34 @@ const KNOWN_DELTAS = Object.freeze([
   // an empty address EXCEPT these 7", asserted in michelin-city-manifest.test.js
   // so that an eighth address-less row anywhere in the dataset fails the suite.
   // Fill them and the assertion tightens back on its own.
-  {
-    cc: 'FR', city: 'Paris', year: 2026, tier: 'two-star', have: 17, published: 20,
-    note: 'There is NO instruction/France.js — France is the one country with no source of '
-        + 'record at all, which is why the table is a scaffold. FR-michelin.js is a '
-        + 'self-declared "scaffold v1: STAR TIERS ONLY" covering Paris and '
-        + 'Lyon. Paris three-star is complete and correct at 9; two-star is three short of 20.',
-  },
-  {
-    cc: 'FR', city: 'Paris', year: 2026, tier: 'one-star', have: 0, published: 98,
-    note: 'Paris holds NO one-star rows at all against a published 98, and no Bib Gourmand. This '
-        + 'is the largest gap in the volume — France 2026 is 31/84/553 = 668 starred nationally, '
-        + 'of which the repo carries 29 rows. Closing it is a curation job, not a scrape: '
-        + 'guide.michelin.com is JS-rendered and will not fetch, and inventing 98 Paris addresses '
-        + 'is precisely what the country tables forbid.',
-  },
+  // CLOSED v0.62.770 — FR/Paris reconciles at 9 / 20 / 98 = 127, the published
+  // total, and both entries (two-star 17 of 20, one-star 0 of 98) are gone.
+  //
+  // The v1 scaffold deferred these because "guide.michelin.com list pages
+  // return HTTP 403 to server-side fetch". That is STILL TRUE; what changed is
+  // that the search was run in French. A French outlet (Affiches Parisiennes /
+  // mesinfos.fr) carries the enumerated 127, and it holds up:
+  //   - it totals 9 + 20 + 98, matching the published figures exactly;
+  //   - its 3-star and 2-star sections agree row-for-row with what was already
+  //     curated here — the three "missing" two-stars were Le Meurice Alain
+  //     Ducasse, Sushi Yoshinaga and Table, and nothing already present was
+  //     contradicted;
+  //   - its per-arrondissement subtotals sum to 98 independently of its own
+  //     running numbering, which is a self-check the source did not intend;
+  //   - an INDEPENDENT outlet's list of 2026's eleven new Paris one-stars is
+  //     fully contained in it (9 of 11 named there, all present).
+  //
+  // WHAT THESE ROWS DO NOT HAVE, stated because the count reconciling can hide
+  // it: no `address` and no `cuisine`. The source gives neither. The
+  // arrondissement it does give is recorded as `postal` (750NN), a derivation
+  // rather than a guess. Three obvious source typos were corrected and are
+  // named in the journal (Augsute, II Carpaccio, Constrate).
+  //
+  // FR remains OUTSIDE the source-of-record parity gate, deliberately. There
+  // is no instruction/France.js, and manufacturing one from the same input
+  // used to build the table would make the gate assert nothing — it exists to
+  // catch drift between a hand-curated source and its migration, not to
+  // compare a file with its own copy.
   // CLOSED v0.62.768 — CN/Shenzhen reconciles at 28/28 (2 two-star, 5 one-star,
   // 21 Bib) and is no longer a delta. Kept as a comment because how it closed
   // is what a future reader needs.

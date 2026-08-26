@@ -153,9 +153,137 @@ describe('published-figure deltas', () => {
     'cn-szx-yuan-sheng-tai',
   ];
 
-  it('no venue has an empty address except the 27 pinned rows', () => {
+  // v0.62.770 — the FR debt is kept SEPARATE from the CN one, because the two
+  // are different in kind and a single flat list of 128 ids would hide that:
+  //   CN — individual venues whose street address was not findable. No postal
+  //        either. Each one is a distinct piece of missing curation.
+  //   FR — the whole Paris 2026 star roster, curated from a source that gives
+  //        the arrondissement and nothing finer. Every row carries a 
+  //        (750NN) instead, and that is ASSERTED below, so "no address" here
+  //        means something different from "no address" above.
+  const ADDRESS_DEBT_FR = [
+    'fr-par-114-faubourg',
+    'fr-par-accents-table-bourse',
+    'fr-par-agape',
+    'fr-par-aida',
+    'fr-par-akrame',
+    'fr-par-alan-geaam',
+    'fr-par-aldehyde',
+    'fr-par-amalia',
+    'fr-par-anne',
+    'fr-par-anona',
+    'fr-par-apicius',
+    'fr-par-armani-ristorante',
+    'fr-par-astrance',
+    'fr-par-at',
+    'fr-par-auguste',
+    'fr-par-automne',
+    'fr-par-baieta',
+    'fr-par-bellefeuille-saint-james-paris',
+    'fr-par-chakaiseki-akiyoshi',
+    'fr-par-comice',
+    'fr-par-contraste',
+    'fr-par-datil',
+    'fr-par-divellec',
+    'fr-par-don-juan-ii',
+    'fr-par-episodes',
+    'fr-par-es',
+    'fr-par-espadon',
+    'fr-par-fief',
+    'fr-par-fleur-de-pave',
+    'fr-par-frederic-simonin',
+    'fr-par-frenchie',
+    'fr-par-galanga',
+    'fr-par-gaya',
+    'fr-par-geoelia',
+    'fr-par-geosmine',
+    'fr-par-granite',
+    'fr-par-hanada',
+    'fr-par-heritages',
+    'fr-par-il-carpaccio',
+    'fr-par-imperial-treasure',
+    'fr-par-irwin',
+    'fr-par-jacques-faussat',
+    'fr-par-jean-imbert-au-plaza-athenee',
+    'fr-par-jin',
+    'fr-par-l-archeste',
+    'fr-par-l-arome',
+    'fr-par-l-atelier-de-joel-robuchon-etoile',
+    'fr-par-la-grande-cascade',
+    'fr-par-la-scene-theleme',
+    'fr-par-lasserre',
+    'fr-par-le-baudelaire',
+    'fr-par-le-faham',
+    'fr-par-le-george',
+    'fr-par-le-sergent-recruteur',
+    'fr-par-le-tout-paris',
+    'fr-par-le-violon-d-ingres',
+    'fr-par-lucas-carton',
+    'fr-par-maison-dubois',
+    'fr-par-maison-ruggieri-palais-royal',
+    'fr-par-mallory-gabsi',
+    'fr-par-mavrommatis',
+    'fr-par-monsieur-dior-by-yannick-alleno',
+    'fr-par-mosuke',
+    'fr-par-nakatani',
+    'fr-par-neige-d-ete',
+    'fr-par-neso',
+    'fr-par-nhome',
+    'fr-par-nomicos',
+    'fr-par-omar-dhiab',
+    'fr-par-onor',
+    'fr-par-origines-restaurant',
+    'fr-par-ortensia',
+    'fr-par-oxte',
+    'fr-par-pages',
+    'fr-par-pantagruel',
+    'fr-par-pavyllon',
+    'fr-par-pertinence',
+    'fr-par-pilgrim',
+    'fr-par-prevelle',
+    'fr-par-pur',
+    'fr-par-qui-plume-la-lune',
+    'fr-par-quinsou',
+    'fr-par-relais-louis-xiii',
+    'fr-par-restaurant-h',
+    'fr-par-restaurant-le-meurice-alain-ducasse',
+    'fr-par-septime',
+    'fr-par-shabour',
+    'fr-par-sola',
+    'fr-par-solstice',
+    'fr-par-substance',
+    'fr-par-sushi-b',
+    'fr-par-sushi-shunei',
+    'fr-par-sushi-yoshinaga',
+    'fr-par-table',
+    'fr-par-tomy-co',
+    'fr-par-tour-d-argent',
+    'fr-par-trente-trois',
+    'fr-par-vaisseau',
+    'fr-par-yoshinori',
+    'fr-par-ze-kitchen-galerie',
+    'fr-par-zostera',
+  ];
+
+  it('every FR debt row carries a postal instead — the distinction is real', () => {
+    // Without this the FR list would just be a bigger version of the CN one.
+    const byId = new Map(md.VENUES.map((v) => [v.id, v]));
+    for (const id of ADDRESS_DEBT_FR) {
+      const v = byId.get(id);
+      expect(v, `${id} is pinned but missing`).toBeTruthy();
+      expect(v.country).toBe('FR');
+      expect(v.postal, `${id} has neither address nor postal`).toMatch(/^750\d{2}$/);
+    }
+  });
+
+  it('no CN debt row has a postal — the two lists do not blur', () => {
+    const byId = new Map(md.VENUES.map((v) => [v.id, v]));
+    for (const id of ADDRESS_DEBT) expect(byId.get(id).postal).toBeFalsy();
+  });
+
+  it('no venue has an empty address except the 128 pinned rows', () => {
     const empty = md.VENUES.filter((v) => !v.address || !v.address.trim()).map((v) => v.id).sort();
-    expect(empty).toEqual([...ADDRESS_DEBT].sort());
+    expect(empty).toEqual([...ADDRESS_DEBT, ...ADDRESS_DEBT_FR].sort());
   });
 
   it('the debt shrinks only downward — filling an address needs this list edited', () => {
@@ -163,11 +291,11 @@ describe('published-figure deltas', () => {
     // address-less row appears; this one fails if a pinned row is FILLED and
     // the list is not trimmed, so the debt cannot quietly outlive the problem.
     const byId = new Map(md.VENUES.map((v) => [v.id, v]));
-    for (const id of ADDRESS_DEBT) {
+    for (const id of [...ADDRESS_DEBT, ...ADDRESS_DEBT_FR]) {
       const v = byId.get(id);
       expect(v, `${id} is pinned as address-less but no longer exists`).toBeTruthy();
-      expect(v.address, `${id} now HAS an address — remove it from ADDRESS_DEBT`).toBe('');
-      expect(['Guangzhou', 'Shenzhen']).toContain(v.city);
+      expect(v.address, `${id} now HAS an address — remove it from the debt list`).toBe('');
+      expect(['Guangzhou', 'Shenzhen', 'Paris']).toContain(v.city);
     }
   });
 });
