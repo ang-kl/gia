@@ -89,7 +89,7 @@ module.exports = {
     es: "Doro wat es un estofado de pollo etíope y eritreo cocinado a fuego lento, profundamente especiado con berbere y niter kibbeh, a menudo incluyendo huevos duros.",
   },
   "african::egusi soup": {
-    fr: "L'egusi est une soupe ouest-africaine, très répandue au Nigeria, épaissie et parfumée par des graines de melon moulues, avec viande, poisson et légumes-feuilles.",
+    fr: "L'egusi est une soupe ouest-africaine, très répandue au Nigeria, épaissie et parfumée par des graines de melon moulues, souvent avec viande, poisson et légumes-feuilles.",
     id: "Egusi soup adalah sup Afrika Barat, populer di Nigeria, dikentalkan dan dibumbui dengan biji egusi (melon) giling, seringkali termasuk daging, ikan, dan sayuran berdaun.",
     ru: "Egusi soup — это западноафриканский суп, популярный в Нигерии, загущенный и приправленный молотыми семенами egusi (дыни), часто включающий мясо, рыбу и листовые овощи.",
     de: "Egusi soup ist eine westafrikanische Suppe, beliebt in Nigeria, die mit gemahlenen Egusi-Samen (Melone) angedickt und gewürzt wird und oft Fleisch, Fisch und Blattgemüse enthält.",
@@ -530,7 +530,7 @@ module.exports = {
     es: "Dulce de leche es una crema espesa y suave hecha de leche y azúcar, cocinada lentamente hasta que se carameliza a un color marrón claro.",
   },
   "argentinian::empanada argentina": {
-    fr: "L'empanada argentine est un chausson de pâte de blé garni d'une farce salée — bœuf, poulet ou fromage — puis généralement cuit au four ou frit.",
+    fr: "L'empanada argentine est un chausson de pâte de blé généralement garni d'une farce salée — bœuf, poulet ou fromage — puis cuit au four ou frit.",
     id: "Empanada argentina adalah pastri isi dengan adonan tepung terigu, biasanya diisi dengan bahan gurih seperti daging sapi, ayam, atau keju, lalu dipanggang atau digoreng.",
     ru: "Empanada argentina — это пирожок из пшеничного теста, обычно с начинкой из пикантных ингредиентов, таких как говядина, курица или сыр, затем запеченный или жареный.",
     de: "Empanada argentina ist eine gefüllte Teigtasche aus Weizenmehlteig, typischerweise mit herzhaften Zutaten wie Rindfleisch, Huhn oder Käse gefüllt und dann gebacken oder frittiert.",
@@ -575,7 +575,7 @@ module.exports = {
     es: "Locro es un guiso sustancioso y nutritivo de origen precolombino, típicamente hecho con granos de maíz blanco seco, carne y verduras como la calabaza.",
   },
   "argentinian::matambre": {
-    fr: "Le matambre est une bavette argentine traditionnelle roulée, farcie de légumes et d'œufs durs, puis pochée ou rôtie.",
+    fr: "Le matambre est une bavette argentine traditionnelle roulée, généralement farcie de légumes et d'œufs durs, puis pochée ou rôtie.",
     id: "Matambre adalah steak perut gulung tradisional Argentina, biasanya diisi dengan sayuran dan telur rebus, lalu direbus atau dipanggang.",
     ru: "Matambre — это традиционный аргентинский рулет из пашины, обычно фаршированный овощами и вареными яйцами, затем отваренный или запеченный.",
     de: "Matambre ist ein traditioneller argentinischer gerollter Flanksteak, typischerweise gefüllt mit Gemüse und hartgekochten Eiern, dann gekocht oder gebraten.",
@@ -746,7 +746,7 @@ module.exports = {
     es: "Kokoda es un plato fiyiano de pescado crudo, similar al ceviche, tradicionalmente marinado en jugos cítricos y leche de coco cremosa.",
   },
   "australasia::lovo": {
-    fr: "Le lovo est une méthode de cuisson fidjienne traditionnelle où viandes et légumes cuisent lentement sur des pierres chaudes dans un four enterré.",
+    fr: "Le lovo est une méthode de cuisson fidjienne traditionnelle où les aliments — généralement viandes et légumes — cuisent lentement sur des pierres chaudes dans un four enterré.",
     id: "Lovo adalah metode memasak tradisional Fiji di mana makanan, biasanya daging dan sayuran, dimasak perlahan dalam oven bawah tanah di atas batu panas.",
     ru: "Lovo — это традиционный фиджийский метод приготовления пищи, при котором еда, обычно мясо и овощи, медленно готовится в подземной печи на горячих камнях.",
     de: "Lovo ist eine traditionelle fidschianische Kochmethode, bei der Speisen, typischerweise Fleisch und Gemüse, in einem Erdofen auf heißen Steinen langsam gegart werden.",
@@ -1412,7 +1412,7 @@ module.exports = {
     es: "Un açaí bowl es un tazón de batido espeso y rico en nutrientes hecho de bayas de açaí congeladas mezcladas con fruta, a menudo cubierto con granola y fruta fresca.",
   },
   "brazilian::brigadeiro": {
-    fr: "Le brigadeiro est un dessert brésilien traditionnel de lait concentré, de cacao et de beurre, roulé en boules et enrobé de vermicelles en chocolat.",
+    fr: "Le brigadeiro est un dessert brésilien traditionnel de lait concentré, de cacao et de beurre, généralement roulé en boules et enrobé de vermicelles en chocolat.",
     id: "Brigadeiro adalah hidangan penutup tradisional Brasil yang terbuat dari susu kental manis, bubuk kakao, dan mentega, biasanya dibentuk menjadi bola-bola dan dilapisi meses.",
     ru: "Brigadeiro — это традиционный бразильский десерт, приготовленный из сгущённого молока, какао-порошка и сливочного масла, обычно скатанный в шарики и покрытый посыпкой.",
     de: "Brigadeiro ist ein traditionelles brasilianisches Dessert aus Kondensmilch, Kakaopulver und Butter, das typischerweise zu Kugeln gerollt und mit Streuseln überzogen wird.",
@@ -1799,7 +1799,7 @@ module.exports = {
     es: "Sticky toffee pudding es un bizcocho húmedo con dátiles picados y una dulce salsa de toffee, probablemente inventado en el Distrito de los Lagos de Inglaterra.",
   },
   "british::sunday roast": {
-    fr: "Le Sunday roast est un repas britannique traditionnel de viande rôtie, pommes de terre, légumes et Yorkshire pudding, servi le dimanche.",
+    fr: "Le Sunday roast est un repas britannique traditionnel de viande rôtie, pommes de terre, légumes et Yorkshire pudding, généralement servi le dimanche.",
     id: "Sunday roast adalah hidangan tradisional Inggris berupa daging panggang, kentang, sayuran, dan Yorkshire pudding, biasanya dimakan pada hari Minggu.",
     ru: "Sunday roast — это традиционная британская трапеза из жареного мяса, картофеля, овощей и Yorkshire pudding, обычно употребляемая по воскресеньям.",
     de: "Sunday roast ist eine traditionelle britische Mahlzeit aus Braten, Kartoffeln, Gemüse und Yorkshire pudding, die typischerweise sonntags gegessen wird.",
@@ -1808,7 +1808,7 @@ module.exports = {
     es: "Sunday roast es una comida tradicional británica de carne asada, patatas, verduras y Yorkshire pudding, típicamente consumida los domingos.",
   },
   "british::toad in the hole": {
-    fr: "Le toad in the hole est un plat britannique traditionnel de saucisses cuites dans une pâte à Yorkshire pudding, servi avec une sauce à l'oignon.",
+    fr: "Le toad in the hole est un plat britannique traditionnel de saucisses cuites dans une pâte à Yorkshire pudding, souvent servi avec une sauce à l'oignon.",
     id: "Toad in the hole adalah hidangan tradisional Inggris yang menampilkan sosis yang dipanggang dalam adonan Yorkshire pudding, sering disajikan dengan saus bawang.",
     ru: "Toad in the hole — это традиционное британское блюдо, представляющее собой колбаски, запеченные в тесте Yorkshire pudding, часто подаваемое с луковой подливкой.",
     de: "Toad in the hole ist ein traditionelles britisches Gericht mit Würstchen, die in einem Yorkshire pudding-Teig gebacken werden, oft serviert mit Zwiebelsoße.",
@@ -1871,7 +1871,7 @@ module.exports = {
     es: "El curry birmano se refiere a diversos platos de carne o verduras cocidos a fuego lento en una base de curry aromática, a menudo más suave que otros curries del sudeste asiático.",
   },
   "burmese::burmese fish curry": {
-    fr: "Le curry de poisson birman est un plat traditionnel où le poisson mijote dans une sauce à la tomate relevée d'ail et d'échalotes.",
+    fr: "Le curry de poisson birman est un plat traditionnel où le poisson mijote souvent dans une sauce à la tomate relevée d'ail et d'échalotes.",
     id: "Kari ikan Myanmar adalah hidangan tradisional yang sering menampilkan ikan yang direbus dalam saus berbasis tomat dengan bumbu aromatik seperti bawang putih dan bawang merah.",
     ru: "Бирманское рыбное карри — это традиционное блюдо, часто включающее рыбу, тушеную в томатном соусе с ароматными специями, такими как чеснок и лук-шалот.",
     de: "Burmesisches Fischcurry ist ein traditionelles Gericht, das oft Fisch enthält, der in einer Tomatensauce mit Aromaten wie Knoblauch und Schalotten geschmort wird.",
@@ -1907,7 +1907,7 @@ module.exports = {
     es: "Falooda es una bebida de postre fría que presenta fideos finos, semillas de albahaca, gelatina y leche, a menudo cubierta con helado, que se encuentra en la cocina birmana.",
   },
   "burmese::htamin gyaw": {
-    fr: "Le htamin gyaw est un riz sauté birman traditionnel, préparé avec un riz rond parfumé, des pois cuits, des oignons, de l'ail et de la sauce soja foncée.",
+    fr: "Le htamin gyaw est un riz sauté birman traditionnel, souvent préparé avec un riz rond parfumé, des pois cuits, des oignons, de l'ail et de la sauce soja foncée.",
     id: "Htamin gyaw adalah hidangan nasi goreng tradisional Myanmar, sering dibuat dengan nasi butir pendek yang harum, kacang polong rebus, bawang bombay, bawang putih, dan kecap hitam.",
     ru: "Htamin gyaw — это традиционное бирманское блюдо из жареного риса, часто приготовленное из ароматного короткозерного риса, вареного гороха, лука, чеснока и темного соевого соуса.",
     de: "Htamin gyaw ist ein traditionelles burmesisches gebratenes Reisgericht, oft zubereitet mit duftendem Kurzkornreis, gekochten Erbsen, Zwiebeln, Knoblauch und dunkler Sojasauce.",
@@ -2771,7 +2771,7 @@ module.exports = {
     es: "Fattah es un plato festivo egipcio con capas de pan crujiente, arroz, carne y una salsa de tomate con ajo y vinagre.",
   },
   "egyptian::feteer meshaltet": {
-    fr: "Le feteer meshaltet est une pâtisserie feuilletée égyptienne traditionnelle, faite de nombreuses couches très fines et servie avec du miel ou du fromage.",
+    fr: "Le feteer meshaltet est une pâtisserie feuilletée égyptienne traditionnelle, faite de nombreuses couches très fines et souvent servie avec du miel ou du fromage.",
     id: "Feteer meshaltet adalah pastry lapis renyah tradisional Mesir, dibuat dengan banyak lapisan adonan tipis dan sering disajikan dengan madu atau keju.",
     ru: "Feteer meshaltet — это традиционная египетская слоеная выпечка, изготовленная из множества тонких слоев теста и часто подается с медом или сыром.",
     de: "Feteer meshaltet ist ein traditionelles ägyptisches Blätterteiggebäck, das aus vielen dünnen Teigschichten hergestellt und oft mit Honig oder Käse serviert wird.",
@@ -2780,7 +2780,7 @@ module.exports = {
     es: "Feteer meshaltet es un hojaldre tradicional egipcio, hecho con muchas capas finas de masa y a menudo se sirve con miel o queso.",
   },
   "egyptian::ful medames": {
-    fr: "Le ful medames est un ragoût égyptien traditionnel de fèves longuement cuites, assaisonné de cumin, d'huile d'olive et de jus de citron.",
+    fr: "Le ful medames est un ragoût égyptien traditionnel de fèves longuement cuites, généralement assaisonné de cumin, d'huile d'olive et de jus de citron.",
     id: "Ful medames adalah rebusan tradisional Mesir dari kacang fava yang dimasak perlahan, biasanya dibumbui dengan jintan, minyak zaitun, dan jus lemon.",
     ru: "Ful medames — это традиционное египетское рагу из медленно приготовленных бобов фава, обычно приправленное кумином, оливковым маслом и лимонным соком.",
     de: "Ful medames ist ein traditioneller ägyptischer Eintopf aus langsam gegarten Favabohnen, typischerweise mit Kreuzkümmel, Olivenöl und Zitronensaft gewürzt.",
@@ -3320,7 +3320,7 @@ module.exports = {
     es: "El Boeuf bourguignon es un estofado de ternera francés estofado en vino tinto de Borgoña, típicamente con zanahorias, cebollas y ajo.",
   },
   "french::bouillabaisse": {
-    fr: "La bouillabaisse est une soupe de poissons provençale traditionnelle née à Marseille, préparée avec plusieurs espèces de poissons.",
+    fr: "La bouillabaisse est une soupe de poissons provençale traditionnelle née à Marseille, généralement préparée avec plusieurs espèces de poissons.",
     id: "Bouillabaisse adalah sup ikan Provençal tradisional yang berasal dari Marseille, biasanya dibuat dengan beberapa jenis ikan.",
     ru: "Bouillabaisse — традиционное провансальское рыбное рагу, родом из Марселя, обычно готовится из нескольких видов рыбы.",
     de: "Bouillabaisse ist ein traditioneller provenzalischer Fischeintopf, ursprünglich aus Marseille, typischerweise mit verschiedenen Fischsorten zubereitet.",
@@ -3994,7 +3994,7 @@ module.exports = {
     es: "El Döner Kebab alemán es un plato turco de carne especiada cocinada al asador, servida en pan plano con verduras, popularizado en el Berlín Occidental de los años 70.",
   },
   "german::eisbein": {
-    fr: "L'Eisbein est un plat allemand traditionnel de jarret de porc salé ou saumuré, bouilli jusqu'à devenir fondant, spécialité berlinoise.",
+    fr: "L'Eisbein est un plat allemand traditionnel de jarret de porc salé ou saumuré, généralement bouilli jusqu'à devenir fondant, spécialité berlinoise.",
     id: "Eisbein adalah hidangan tradisional Jerman yang menampilkan buku jari babi yang diawetkan atau diasinkan, biasanya direbus hingga empuk, sering disajikan di Berlin.",
     ru: "Eisbein — это традиционное немецкое блюдо с вяленой или маринованной свиной рулькой, обычно отвариваемой до мягкости, часто подается в Берлине.",
     de: "Eisbein ist ein traditionelles deutsches Gericht mit einer gepökelten oder eingelegten Schweinshaxe, typischerweise zart gekocht, oft in Berlin serviert.",
@@ -4039,7 +4039,7 @@ module.exports = {
     es: "Kartoffelpuffer son tortitas de patata alemanas finas y fritas en sartén, hechas de patatas crudas finamente ralladas, huevo y condimentos.",
   },
   "german::knödel": {
-    fr: "Les Knödel sont des quenelles pochées, incontournables de la cuisine d'Europe centrale, à base de farine, de pain ou de pomme de terre.",
+    fr: "Les Knödel sont des quenelles pochées, incontournables de la cuisine d'Europe centrale, généralement à base de farine, de pain ou de pomme de terre.",
     id: "Knödel adalah pangsit rebus, makanan pokok dalam masakan Eropa Tengah, biasanya terbuat dari tepung, roti, atau kentang.",
     ru: "Knödel — это вареные клецки, основной продукт центральноевропейской кухни, обычно изготавливаемые из муки, хлеба или картофеля.",
     de: "Knödel sind gekochte Knödel, ein Grundnahrungsmittel der mitteleuropäischen Küche, typischerweise aus Mehl, Brot oder Kartoffeln hergestellt.",
@@ -5389,7 +5389,7 @@ module.exports = {
     es: "Horlicks estilo Hong Kong es una bebida dulce de leche malteada, una invención británica popular en los cha chaan teng de Hong Kong, servida caliente o fría.",
   },
   "hong-kong::macaroni soup": {
-    fr: "La soupe de macaronis est un petit-déjeuner incontournable des char chaan teng hongkongais : des macaronis dans un bouillon de poulet léger, avec jambon et œuf au plat.",
+    fr: "La soupe de macaronis est un petit-déjeuner incontournable des char chaan teng hongkongais : des macaronis dans un bouillon de poulet léger, souvent avec du jambon et un œuf au plat.",
     id: "Sup makaroni adalah hidangan sarapan pokok di cha chaan teng Hong Kong, menampilkan makaroni dalam kaldu ayam ringan, seringkali dengan ham dan telur goreng.",
     ru: "Суп с макаронами — это основной завтрак в гонконгских cha chaan teng, состоящий из макарон в легком курином бульоне, часто с ветчиной и жареным яйцом.",
     de: "Makkaroni-Suppe ist ein Frühstücks-Grundnahrungsmittel in Hongkongs cha chaan teng, bestehend aus Makkaroni in einer leichten Hühnerbrühe, oft mit Schinken und einem Spiegelei.",
@@ -7023,7 +7023,7 @@ module.exports = {
     es: "Soju es una bebida alcohólica coreana clara y destilada, tradicionalmente elaborada con arroz u otros cereales, con orígenes en el Goryeo del siglo XIII.",
   },
   "korean::sundubu jjigae": {
-    fr: "Le sundubu jjigae est un ragoût coréen au tofu extra-soyeux fraîchement caillé, servi bouillonnant dans un pot de pierre traditionnel.",
+    fr: "Le sundubu jjigae est un ragoût coréen au tofu extra-soyeux fraîchement caillé, souvent servi bouillonnant dans un pot de pierre traditionnel.",
     id: "Sundubu jjigae adalah sup Korea yang menampilkan tahu segar yang baru dadih, sangat lembut, sering disajikan mendidih panas dalam pot batu tradisional.",
     ru: "Sundubu jjigae — это корейское рагу с только что свернувшимся, очень мягким тофу, часто подаваемое кипящим горячим в традиционном каменном горшке.",
     de: "Sundubu jjigae ist ein koreanischer Eintopf mit frisch geronnenem, extra-weichem Tofu, der oft sprudelnd heiß in einem traditionellen Steintopf serviert wird.",
@@ -7167,7 +7167,7 @@ module.exports = {
     es: "Lebanese coffee es un café finamente molido y tostado oscuro, a menudo especiado con cardamomo, preparado sin filtrar en un rakweh y servido con los posos asentados.",
   },
   "lebanese::maamoul": {
-    fr: "Les maamoul sont des biscuits au beurre moyen-orientaux traditionnels, à la semoule ou à la farine, fourrés de dattes ou de fruits secs et façonnés dans des moules décoratifs.",
+    fr: "Les maamoul sont des biscuits au beurre moyen-orientaux traditionnels, à la semoule ou à la farine, souvent fourrés de dattes ou de fruits secs et façonnés dans des moules décoratifs.",
     id: "Maamoul adalah kue mentega tradisional Timur Tengah berbahan dasar semolina atau tepung, seringkali diisi dengan kurma atau kacang dan dibentuk dengan cetakan dekoratif.",
     ru: "Maamoul — это традиционное ближневосточное печенье на основе манной крупы или муки, часто начиненные финиками или орехами и формируются с помощью декоративных форм.",
     de: "Maamoul sind traditionelle nahöstliche Butterkekse auf Grieß- oder Mehlbasis, oft mit Datteln oder Nüssen gefüllt und mit dekorativen Formen geformt.",
@@ -7275,7 +7275,7 @@ module.exports = {
     es: "African chicken es un plato macaense de pollo a la parrilla o asado cubierto con una salsa piri-piri picante con coco, cacahuetes y otras especias.",
   },
   "macau::almond cookies": {
-    fr: "Les biscuits aux amandes de Macao sont des pâtisseries chinoises traditionnelles friables, à l'amande et à la farine de haricot mungo, façonnées dans des moules en bois.",
+    fr: "Les biscuits aux amandes de Macao sont des pâtisseries chinoises traditionnelles friables, à l'amande et à la farine de haricot mungo, souvent façonnées dans des moules en bois.",
     id: "Kue almond Makau adalah kue kering tradisional Tiongkok yang renyah, dibuat dengan almond dan tepung kacang hijau, seringkali dibentuk dalam cetakan kayu.",
     ru: "Миндальное печенье Макао — это рассыпчатая традиционная китайская выпечка, приготовленная из миндаля и муки из маша, часто формируемая в деревянных формах.",
     de: "Macau-Mandelkekse sind bröselige traditionelle chinesische Gebäckstücke, hergestellt aus Mandeln und Mungbohnenmehl, oft in Holzformen geformt.",
@@ -8157,7 +8157,7 @@ module.exports = {
     es: "Aloo Tama es un plato de sopa o curry nepalí hecho con patatas, brotes de bambú fermentados (tama) y, a menudo, guisantes de ojo negro.",
   },
   "nepalese::bara": {
-    fr: "Le bara est une galette ou un beignet salé néwar traditionnel, préparé à partir d'une pâte de lentilles noires assaisonnée au gingembre, à l'ail et au cumin.",
+    fr: "Le bara est une galette ou un beignet salé néwar traditionnel, préparé à partir d'une pâte de lentilles noires souvent assaisonnée au gingembre, à l'ail et au cumin.",
     id: "Bara adalah panekuk gurih atau gorengan tradisional Newari yang terbuat dari adonan lentil hitam, sering dibumbui dengan jahe, bawang putih, dan jintan.",
     ru: "Bara — традиционный ньюарский пикантный блин или оладья, приготовленный из теста из черной чечевицы, часто приправленный имбирем, чесноком и тмином.",
     de: "Bara ist ein traditioneller Newari-herzhafter Pfannkuchen oder Krapfen aus schwarzem Linsenteig, oft gewürzt mit Ingwer, Knoblauch und Kreuzkümmel.",
@@ -8364,7 +8364,7 @@ module.exports = {
     es: "Blue cod tempura presenta el bacalao azul indígena de Nueva Zelanda, conocido por su carne blanca y hojaldrada, preparado utilizando el método de fritura tempura japonés.",
   },
   "new-zealand::boil-up": {
-    fr: "Le boil-up est une soupe māori traditionnelle de Nouvelle-Zélande, à base de bouillon, de viande, de légumes féculents comme le kūmara, de verdure et de quenelles.",
+    fr: "Le boil-up est une soupe māori traditionnelle de Nouvelle-Zélande, à base de bouillon, généralement avec de la viande, des légumes féculents comme le kūmara, de la verdure et des quenelles.",
     id: "Boil-up adalah sup berbasis kaldu Māori tradisional dari Selandia Baru, biasanya menampilkan daging, sayuran bertepung seperti kūmara, sayuran hijau, dan pangsit tepung.",
     ru: "Boil-up — это традиционный маорийский суп на основе бульона из Новой Зеландии, обычно содержащий мясо, крахмалистые овощи, такие как kūmara, зелень и мучные клецки.",
     de: "Boil-up ist eine traditionelle Māori-Brühensuppe aus Neuseeland, die typischerweise Fleisch, stärkehaltiges Gemüse wie kūmara, Grünzeug und Mehlknödel enthält.",
@@ -10083,7 +10083,7 @@ module.exports = {
     es: "Cataplana es un estofado portugués de marisco y/o carne del Algarve, cocinado y servido en una distintiva olla de cobre con bisagras en forma de almeja.",
   },
   "portuguese::chouriço": {
-    fr: "Le chouriço est une saucisse de porc portugaise traditionnelle fumée et séchée, distincte du chorizo espagnol, assaisonnée au paprika, à l'ail et au vin.",
+    fr: "Le chouriço est une saucisse de porc portugaise traditionnelle fumée et séchée, distincte du chorizo espagnol, généralement assaisonnée au paprika, à l'ail et au vin.",
     id: "Chouriço adalah sosis babi asap dan diawetkan tradisional Portugis, berbeda dari chorizo Spanyol, biasanya dibumbui dengan paprika, bawang putih, dan anggur.",
     ru: "Chouriço — это традиционная португальская копченая и вяленая свиная колбаса, отличающаяся от испанского chorizo, обычно приправленная паприкой, чесноком и вином.",
     de: "Chouriço ist eine traditionelle portugiesische geräucherte und gepökelte Schweinswurst, unterscheidet sich von spanischer Chorizo, typischerweise gewürzt mit Paprika, Knoblauch und Wein.",
@@ -10407,7 +10407,7 @@ module.exports = {
     es: "Aquavit es una bebida espirituosa destilada escandinava, hecha de grano o patatas, con su sabor distintivo derivado principalmente del alcaravea y/o la semilla de eneldo.",
   },
   "scandinavian::blodpudding": {
-    fr: "Le blodpudding est un boudin noir suédois traditionnel, préparé avec du sang de porc, de la farine, de la bière, du beurre et des assaisonnements, puis cuit au four.",
+    fr: "Le blodpudding est un boudin noir suédois traditionnel, généralement préparé avec du sang de porc, de la farine, de la bière, du beurre et des assaisonnements, puis cuit au four.",
     id: "Blodpudding adalah puding hitam tradisional Swedia, biasanya disiapkan dengan darah babi, tepung, bir, mentega, dan bumbu, kemudian dipanggang.",
     ru: "Blodpudding — это традиционный шведский кровяной пудинг, обычно готовится из свиной крови, муки, пива, масла и приправ, затем запекается.",
     de: "Blodpudding ist ein traditioneller schwedischer Blutpudding, typischerweise zubereitet mit Schweineblut, Mehl, Bier, Butter und Gewürzen, dann gebacken.",
@@ -10542,7 +10542,7 @@ module.exports = {
     es: "Rugbrød es un pan de centeno danés denso y oscuro de masa madre, a menudo repleto de granos enteros y semillas, comúnmente utilizado para sándwiches abiertos.",
   },
   "scandinavian::semla": {
-    fr: "La semla est une brioche sucrée suédoise traditionnelle, consommée autour de Mardi gras, fourrée de pâte d'amande et de crème fouettée puis saupoudrée de sucre.",
+    fr: "La semla est une brioche sucrée suédoise traditionnelle, souvent consommée autour de Mardi gras, fourrée de pâte d'amande et de crème fouettée puis saupoudrée de sucre.",
     id: "Semla adalah roti manis tradisional Swedia, sering dimakan sekitar Hari Selasa Gemuk, diisi dengan pasta almond dan krim kocok, kemudian ditaburi gula.",
     ru: "Semla — это традиционная шведская сладкая булочка, часто едят около Масленицы, наполненная миндальной пастой и взбитыми сливками, затем посыпается сахаром.",
     de: "Semla ist ein traditionelles schwedisches süßes Brötchen, oft um den Faschingsdienstag herum gegessen, gefüllt mit Mandelpaste und Schlagsahne, dann mit Zucker bestäubt.",
@@ -11073,7 +11073,7 @@ module.exports = {
     es: "Babi pongteh es un plato Peranakan de cerdo estofado, típicamente hecho con pasta de soja fermentada (taucheo), champiñones y patatas.",
   },
   "singaporean::bak chang (rice dumpling)": {
-    fr: "Le bak chang est une papillote chinoise traditionnelle de riz gluant, garnie d'ingrédients salés et enveloppée dans des feuilles de bambou.",
+    fr: "Le bak chang est une papillote chinoise traditionnelle de riz gluant, généralement garnie d'ingrédients salés et enveloppée dans des feuilles de bambou.",
     id: "Bak chang adalah bakcang tradisional Tiongkok, biasanya diisi dengan bahan-bahan gurih dan dibungkus daun bambu.",
     ru: "Bak chang — это традиционный китайский клейкий рисовый пельмень, обычно наполненный пикантными ингредиентами и завернутый в бамбуковые листья.",
     de: "Bak chang ist ein traditioneller chinesischer Klebreisknödel, typischerweise mit herzhaften Zutaten gefüllt und in Bambusblätter gewickelt.",
@@ -11253,7 +11253,7 @@ module.exports = {
     es: "Char siu rice presenta cerdo a la barbacoa estilo cantonés, marinado con un glaseado dulce y asado, servido sobre arroz blanco.",
   },
   "singaporean::cheng tng": {
-    fr: "Le cheng tng est une soupe sucrée traditionnelle — littéralement « soupe claire » — aux longanes séchés, aux noix de ginkgo et aux graines de lotus.",
+    fr: "Le cheng tng est une soupe sucrée traditionnelle — littéralement « soupe claire » — généralement aux longanes séchés, aux noix de ginkgo et aux graines de lotus.",
     id: "Cheng tng adalah sup hidangan penutup manis tradisional, secara harfiah berarti \"sup bening,\" biasanya menampilkan bahan-bahan seperti longan kering, kacang gingko, dan biji teratai.",
     ru: "Cheng tng — это традиционный сладкий десертный суп, буквально означающий «прозрачный суп», обычно содержащий такие ингредиенты, как сушеный лонган, орехи гинкго и семена лотоса.",
     de: "Cheng tng ist eine traditionelle süße Dessertsuppe, die wörtlich „klare Suppe“ bedeutet und typischerweise Zutaten wie getrocknete Longan, Gingko-Nüsse und Lotussamen enthält.",
@@ -12144,7 +12144,7 @@ module.exports = {
     es: "Soft-boiled eggs with kaya toast es un desayuno clásico de Singapur donde huevos pasados por agua sazonados acompañan a las tostadas kaya, a menudo para mojar.",
   },
   "singaporean::soon kueh": {
-    fr: "Le soon kueh est une papillote teochew vapeur traditionnelle à la pâte translucide, garnie de jicama en julienne, de pousses de bambou et de crevettes séchées.",
+    fr: "Le soon kueh est une papillote teochew vapeur traditionnelle à la pâte translucide, généralement garnie de jicama en julienne, de pousses de bambou et de crevettes séchées.",
     id: "Soon kueh adalah pangsit kukus Teochew tradisional dengan kulit transparan, biasanya diisi dengan bengkuang yang diiris tipis, rebung, dan udang kering.",
     ru: "Soon kueh — это традиционный Teochew паровой пельмень с полупрозрачной оболочкой, обычно наполненный нарезанной соломкой хикамой, побегами бамбука и сушеными креветками.",
     de: "Soon kueh ist ein traditioneller Teochew-Dampfknödel mit einer durchscheinenden Hülle, typischerweise gefüllt mit Julienne-Jicama, Bambussprossen und getrockneten Garnelen.",
@@ -12234,7 +12234,7 @@ module.exports = {
     es: "Tau huay, también conocido como douhua, es un aperitivo chino dulce o salado hecho de tofu sedoso muy tierno o pudín de soja.",
   },
   "singaporean::tau sar piah": {
-    fr: "Le tau sar piah est une pâtisserie chinoise traditionnelle à la croûte feuilletée, garnie d'une pâte de haricot mungo sucrée ou salée.",
+    fr: "Le tau sar piah est une pâtisserie chinoise traditionnelle à la croûte feuilletée, généralement garnie d'une pâte de haricot mungo sucrée ou salée.",
     id: "Tau sar piah adalah kue tradisional Tiongkok dengan kulit renyah, biasanya diisi dengan pasta kacang hijau manis atau gurih.",
     ru: "Tau sar piah — это традиционная китайская выпечка с рассыпчатой корочкой, обычно наполненная сладкой или пикантной пастой из маша.",
     de: "Tau sar piah ist ein traditionelles chinesisches Gebäck mit einer blättrigen Kruste, typischerweise gefüllt mit süßer oder herzhafter Mungbohnenpaste.",
@@ -12972,7 +12972,7 @@ module.exports = {
     es: "Chorizo es una salchicha de cerdo española fermentada, curada y ahumada, caracterizada por su color rojo intenso del pimentón.",
   },
   "spanish::churros con chocolate": {
-    fr: "Les churros con chocolate sont un en-cas sucré espagnol traditionnel de bâtonnets de pâte frite, servis avec un chocolat chaud épais.",
+    fr: "Les churros con chocolate sont un en-cas sucré espagnol traditionnel de bâtonnets de pâte frite, souvent servis avec un chocolat chaud épais.",
     id: "Churros con chocolate adalah camilan manis tradisional Spanyol berupa stik adonan goreng, sering disajikan dengan cokelat celup panas kental.",
     ru: "Churros con chocolate — это традиционная испанская сладкая закуска из жареных палочек теста, часто подаваемая с густым горячим шоколадом для макания.",
     de: "Churros con chocolate ist ein traditioneller spanischer süßer Snack aus frittierten Teigstangen, der oft mit einer dicken, heißen Schokoladensoße zum Dippen serviert wird.",
@@ -13080,7 +13080,7 @@ module.exports = {
     es: "Jamón serrano es un jamón español curado en seco, elaborado a partir de razas de cerdo blanco, envejecido en aire de montaña durante 9 a más de 15 meses.",
   },
   "spanish::migas": {
-    fr: "Les migas sont un plat espagnol traditionnel de chapelure de pain rassis cuite dans de la graisse, décliné en régions avec du chorizo ou du lard.",
+    fr: "Les migas sont un plat espagnol traditionnel de chapelure de pain rassis cuite dans de la graisse, décliné en régions, souvent avec du chorizo ou du lard.",
     id: "Migas adalah hidangan tradisional Spanyol yang terbuat dari remah roti basi yang dimasak dalam lemak, dengan variasi regional yang seringkali termasuk chorizo atau bacon.",
     ru: "Migas — это традиционное испанское блюдо из черствых хлебных крошек, приготовленных в жире, с региональными вариациями, часто включающими chorizo или бекон.",
     de: "Migas ist ein traditionelles spanisches Gericht aus altbackenen Brotkrümeln, die in Fett gekocht werden, wobei regionale Variationen oft Chorizo oder Speck enthalten.",
@@ -13458,7 +13458,7 @@ module.exports = {
     es: "Emmentaler es un queso suizo amarillo, semiduro, del Valle del Emme, conocido por su sabor suave y a nuez, y sus distintivos agujeros grandes.",
   },
   "swiss::engadiner nusstorte": {
-    fr: "L'Engadiner Nusstorte est une tarte traditionnelle des Grisons aux noix caramélisées, créée en 1926, dans une pâte sablée beurrée.",
+    fr: "L'Engadiner Nusstorte est une tarte traditionnelle des Grisons aux noix caramélisées, créée en 1926, généralement dans une pâte sablée beurrée.",
     id: "Engadiner Nusstorte adalah kue manis tradisional berisi kacang karamel dari Graubünden, dibuat pada tahun 1926, biasanya dengan kenari dalam kue renyah bermentega.",
     ru: "Engadiner Nusstorte — это традиционный сладкий пирог с карамелизированными орехами из Граубюндена, созданный в 1926 году, обычно с грецкими орехами в масляном песочном тесте.",
     de: "Engadiner Nusstorte ist ein traditionelles süßes, karamellisiertes Nussgebäck aus Graubünden, 1926 kreiert, typischerweise mit Walnüssen in einem buttrigen Mürbeteig.",
@@ -13539,7 +13539,7 @@ module.exports = {
     es: "Toblerone es una marca de chocolate suiza, creada en 1908, que presenta chocolate con leche, miel y turrón de almendras en una distintiva forma triangular.",
   },
   "swiss::zopf": {
-    fr: "Le zopf est un pain tressé suisse traditionnel, moelleux et beurré, enrichi de lait et de beurre, servi le week-end.",
+    fr: "Le zopf est un pain tressé suisse traditionnel, moelleux et beurré, enrichi de lait et de beurre, généralement servi le week-end.",
     id: "Zopf adalah roti kepang tradisional Swiss, roti lembut dan bermentega yang diperkaya dengan susu dan mentega, biasanya disajikan pada akhir pekan.",
     ru: "Zopf — это традиционный швейцарский плетеный хлеб, мягкий и маслянистый батон, обогащенный молоком и сливочным маслом, обычно подаваемый по выходным.",
     de: "Zopf ist ein traditionelles Schweizer Zopfbrot, ein weiches und buttriges Brot, angereichert mit Milch und Butter, das typischerweise am Wochenende serviert wird.",
