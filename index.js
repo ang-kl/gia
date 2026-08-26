@@ -77,6 +77,7 @@ const { requireInitData, verifyInitData, requireInitDataFromBodyOrHeader } = req
 const { makeRateLimiter } = require('./rate-limit');
 const { yearsOffFromFilter, yearUniverse, makeMichelinYearMatcher } = require('./michelin-year-filter');
 const usageLog = require('./usage-log');
+const ownerGate = require('./owner-gate');   // O-185 — admin gate, fails CLOSED
 const cuisineSession = require('./cuisine-session');
 const { gatekeep } = require('./gatekeeper');
 const { fetchOpenVaultPicks } = require('./vault');
@@ -4389,14 +4390,23 @@ bot.on('location', async (msg) => {
 
 // v0.60.69 — /ver is owner-only when TELEGRAM_OWNER_CHAT_ID is set.
 // The health-check report leaks deploy hashes, dependency status, and
-// upstream API health that's only useful to the operator. When the
-// env var is unset (dev / fork installs) /ver stays open so the bot
-// still self-reports for any caller. Silent no-op rather than an
-// error so non-owners can't probe for the command's existence.
+// upstream API health that's only useful to the operator. Silent no-op
+// rather than an error so non-owners can't probe for the command's
+// existence.
+//
+// v0.62.774 — the sentence that used to sit here, "When the env var is
+// unset (dev / fork installs) /ver stays open so the bot still
+// self-reports for any caller", is CORRECTED rather than deleted: it
+// described the behaviour accurately and that behaviour was the bug
+// (O-185). Unset now means CLOSED unless GIA_ALLOW_UNOWNED_ADMIN='1'.
+// v0.62.774 (O-185) — this used to be four lines that ended `if (!owner)
+// return true`, i.e. with TELEGRAM_OWNER_CHAT_ID unset every one of the 17
+// call sites below — /cost, /ver, /log, the Recount commands, and the
+// /api/oversight/stats 403 — answered YES to every user. Closed is now the
+// default and open is an explicit opt-in; the decision and the reasoning live
+// in owner-gate.js so they can be tested without booting the server.
 function isOwnerChat(chatId) {
-  const owner = process.env.TELEGRAM_OWNER_CHAT_ID;
-  if (!owner) return true;
-  return String(chatId) === String(owner);
+  return ownerGate.isOwnerChat(chatId);
 }
 
 // v0.62.716 — Phase D: per-chatId rate limiting for the TELEGRAM BOT commands.
