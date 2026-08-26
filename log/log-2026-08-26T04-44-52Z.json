@@ -1,0 +1,232 @@
+{
+  "since": "2026-08-26T03:39:52Z",
+  "until": "2026-08-26T04:44:52Z",
+  "count": 25,
+  "logs": [
+    {
+      "timestamp": "2026-08-26T04:35:34.091229184Z",
+      "message": "Starting Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:34.883766267Z",
+      "message": "npm warn config production Use `--omit=dev` instead.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:34.883773337Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:34.883779117Z",
+      "message": "> soleat@0.62.771 start",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:34.883784187Z",
+      "message": "> node index.js",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:34.883789797Z",
+      "message": "",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:34.883795547Z",
+      "message": "[webhook-domain] fallback not configured — skipping health check",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:35.225232323Z",
+      "message": "[Updates] Webhook registered: https://soleat.net/webhook",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:35.360657468Z",
+      "message": "[Bot] Identity confirmed: @soleat_bot",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:36.303360293Z",
+      "message": "[setMyDescription] en description exceeded Telegram's 512-char cap — trimmed by dropping the trailing hint line; now 487. Shorten the copy in index.js to control what goes.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:36.865136166Z",
+      "message": "[setMyDescription] fr description exceeded Telegram's 512-char cap — trimmed by dropping the trailing hint line; now 496. Shorten the copy in index.js to control what goes.",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:38.073885469Z",
+      "message": "[Boot] MAP_ID configured: db1201f307409c29…",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:38.073889629Z",
+      "message": "[Boot] GEMINI_MODEL configured: gemini-3.5-flash-lite. Fallbacks: gemini-flash-latest → gemini-3.6-flash → gemini-3.5-flash-lite.",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:38.110930346Z",
+      "message": "[Holidays] 11 SG PH loaded from cache",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:38.876761584Z",
+      "message": "[Pulse] Status → 🟢 Healthy at 12:35:38 pm",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:38.877121369Z",
+      "message": "[Vibe] Cached 17 live places (Google Maps).",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:38.886814040Z",
+      "message": "🚀 soleat is live and sniffing...",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:38.886817450Z",
+      "message": "[HTTP] Listening on :8080",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:40.455016834Z",
+      "message": "Stopping Container",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "8440f9db-babd-4fd9-90ee-4cd13d118241",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:46.206630532Z",
+      "message": "npm error path /app",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8440f9db-babd-4fd9-90ee-4cd13d118241",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:46.206634631Z",
+      "message": "npm error command failed",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8440f9db-babd-4fd9-90ee-4cd13d118241",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:46.206638261Z",
+      "message": "npm error signal SIGTERM",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8440f9db-babd-4fd9-90ee-4cd13d118241",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:46.206641791Z",
+      "message": "npm error command sh -c node index.js",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8440f9db-babd-4fd9-90ee-4cd13d118241",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:35:46.206653731Z",
+      "message": "npm error A complete log of this run can be found in: /root/.npm/_logs/2026-08-26T00_57_35_543Z-debug-0.log",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8440f9db-babd-4fd9-90ee-4cd13d118241",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T04:36:08.620310634Z",
+      "message": "[Transport] Bus stops cache: imported=5208, skipped=-",
+      "severity": "info",
+      "tags": {
+        "deploymentId": "63d8ab6b-a28e-4ca9-94cb-b83e69da961f",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
