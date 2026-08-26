@@ -42,16 +42,22 @@ for (const f of Array.isArray(facts) ? facts : []) {
 
 const LS_KEY = 'gia.funfact.lastSeen';
 const LS_MAX = 10;
-// v0.61.383 — fact bodies are now localised beyond the app's en/fr UI:
-// the global facts carry zh/ms/ta/ja/ko/th too. `factBody` resolves the
-// requested language against this set and falls back to en (the SG facts
-// only carry en/fr, so they degrade to en for other languages — fine,
-// they're SG-tagged and mostly shown to SG users).
+// v0.61.383 — fact bodies are localised beyond the app's en/fr UI. The comment
+// here used to say "the global facts carry zh/ms/ta/ja/ko/th too". MEASURED
+// v0.62.777: they carry NONE of them — zero flat zh/ms/ta/ja/ko/th/es keys in
+// fun-facts.js. Every one of those languages took the `fact[safeLang]` branch,
+// found nothing, and fell back to English, so listing them here bought nothing
+// and read as coverage. The set is kept because it is the honest statement of
+// which languages MAY appear as a flat key; today only en and fr do.
 const SUPPORTED_LANGS = new Set(['en', 'fr', 'zh', 'ms', 'ta', 'ja', 'ko', 'th']);
-// v0.62.x — languages whose fact body comes from the generated `_i18n` overlay
-// (curated-5 additions: Indonesian/Russian/German). Kept separate from
-// SUPPORTED_LANGS because `id` can't be a flat key (identifier collision).
-const OVERLAY_LANGS = new Set(['id', 'ru', 'de']);
+// v0.62.777 — languages whose fact body comes from a generated `_i18n` overlay.
+// Was ['id','ru','de'] while BOTH overlays already carried six: the fun-facts
+// overlay has de/es/id/ja/ru/zh and the dish-note overlay has all of
+// id/ru/de/zh/ja/es. zh and ja were therefore translated and then discarded at
+// render time, and es was in neither set so deviceFactLang() never even asked
+// for it — roughly 5,300 written strings that no user could reach. Kept separate
+// from SUPPORTED_LANGS because `id` cannot be a flat key (identifier collision).
+const OVERLAY_LANGS = new Set(['id', 'ru', 'de', 'zh', 'ja', 'es']);
 
 // v0.61.383 — the DEVICE language for the fact body. The app UI locale
 // (useLocale) is only en|fr, but the operator wants the fact in the user's
@@ -153,9 +159,10 @@ export function dishFactsFromPlate(plate) {
     if (seen.has(key)) continue;
     seen.add(key);
     const name = (d.local && d.local !== d.dish) ? `${d.dish} · ${d.local}` : d.dish;
-    // id/ru/de dish-note bodies (when the plate carries them) go on `_i18n`,
-    // mirroring the fun-fact overlay shape so factBody resolves them the same
-    // way. Forward-compatible: absent → factBody falls back to en.
+    // Translated dish-note bodies go on `_i18n`, mirroring the fun-fact overlay
+    // shape so factBody resolves them the same way. This iterates OVERLAY_LANGS,
+    // so widening that set to the six the overlay actually carries is what makes
+    // zh/ja/es reach the reader. Absent → factBody falls back to en.
     const note = d.note;
     const loc = {};
     for (const l of OVERLAY_LANGS) {
@@ -205,11 +212,20 @@ export function pickFunFact(ctx, extraFacts = []) {
 // other languages read the flat hand-authored body. Falls back to EN.
 export function factBody(fact, lang) {
   if (!fact) return '';
-  if (OVERLAY_LANGS.has(lang)) {
-    return (fact._i18n && fact._i18n[lang]) || fact.en || '';
-  }
-  const safeLang = SUPPORTED_LANGS.has(lang) ? lang : 'en';
-  return fact[safeLang] || fact.en || '';
+  // CURATED FLAT KEY FIRST, then the generated `_i18n` overlay, then English.
+  // The old shape branched on OVERLAY_LANGS and could only ever read ONE of the
+  // two, so a language in that set never saw its flat key and a language outside
+  // it never saw the overlay — which is how zh/ja/es stayed English.
+  //
+  // The order matters and this file's own tests pin it: a hand-authored `ja`
+  // body must beat the machine-drafted overlay row for the same fact. That is
+  // the same precedence nation-overlay.js states for dish notes — "hand-authored
+  // notes ALWAYS win" — and my first draft had it backwards, which the ramen
+  // fixture caught.
+  if (SUPPORTED_LANGS.has(lang) && fact[lang]) return fact[lang];
+  const fromOverlay = fact._i18n && fact._i18n[lang];
+  if (fromOverlay) return fromOverlay;
+  return fact.en || '';
 }
 
 // Public: total fact count (used by tests, also handy for telemetry).

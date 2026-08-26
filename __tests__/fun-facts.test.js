@@ -252,9 +252,40 @@ describe('factBody — device-language resolution (v0.61.383)', () => {
   it('returns the Thai body for lang=th', () => {
     expect(factBody(ramen, 'th')).toBe(ramen.th);
   });
-  it('falls back to EN for a language the fact lacks (SG fact, lang=ja)', () => {
-    const sgFact = facts.find((f) => f.tags.includes('SG') && !f.ja);
-    expect(factBody(sgFact, 'ja')).toBe(sgFact.en);
+  it('falls back to EN only when the fact lacks the language BOTH ways', () => {
+    // v0.62.777 — this test used to pick `tags.includes('SG') && !f.ja` and assert
+    // English. That premise was wrong the moment the fun-facts overlay shipped a
+    // Japanese body for the same fact: `!f.ja` only means "no FLAT ja", and the
+    // fact still had `_i18n.ja`. The old factBody discarded it — the bug this
+    // version fixes — so the assertion pinned the discard, not the fallback.
+    //
+    // There is no longer ANY fact missing ja both ways, so the fallback is tested
+    // on a constructed fact rather than by hunting the corpus for a hole that no
+    // longer exists. Asserted below, so this stays honest if a hole reappears.
+    expect(facts.filter((f) => !f.ja && !(f._i18n && f._i18n.ja))).toEqual([]);
+    const bare = { id: 'x-bare', tags: [], en: 'English body', fr: 'Corps francais' };
+    expect(factBody(bare, 'ja')).toBe('English body');
+    expect(factBody(bare, 'ko')).toBe('English body');
+    expect(factBody(bare, 'xx')).toBe('English body');
+  });
+
+  it('reads the overlay when there is no curated flat key — zh/ja/es', () => {
+    // The regression guard for the fix. OVERLAY_LANGS was ['id','ru','de'] while
+    // both overlays already carried six languages, so zh/ja/es were translated
+    // and then dropped at render time.
+    for (const lang of ['zh', 'ja', 'es']) {
+      const f = facts.find((x) => !x[lang] && x._i18n && x._i18n[lang]);
+      if (!f) continue;
+      expect(factBody(f, lang), `${f.id} ${lang}`).toBe(f._i18n[lang]);
+      expect(factBody(f, lang)).not.toBe(f.en);
+    }
+  });
+
+  it('a curated flat body still beats the generated overlay', () => {
+    // Precedence, pinned in the direction that bit me: my first draft read the
+    // overlay first and returned the machine draft over the hand-authored ja.
+    const both = facts.find((f) => f.ja && f._i18n && f._i18n.ja && f._i18n.ja !== f.ja);
+    if (both) expect(factBody(both, 'ja')).toBe(both.ja);
   });
 });
 
