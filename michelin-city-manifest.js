@@ -59,7 +59,7 @@ const CITY_MANIFEST = Object.freeze({
   JP: {
     "Kyoto": { 2025: { "three-star": 5, "two-star": 16, "one-star": 4 }, 2026: { "three-star": 6, "two-star": 19, "one-star": 73, "bib-gourmand": 47 } },
     "Osaka": { 2025: { "three-star": 3, "two-star": 11, "one-star": 1 }, 2026: { "three-star": 3, "two-star": 12, "one-star": 66, "bib-gourmand": 59 } },
-    "Tokyo": { 2025: { "three-star": 12, "two-star": 26, "one-star": 3 }, 2026: { "three-star": 12, "two-star": 26, "one-star": 121, "bib-gourmand": 111 } },
+    "Tokyo": { 2025: { "three-star": 12, "two-star": 26, "one-star": 3 }, 2026: { "three-star": 12, "two-star": 26, "one-star": 122, "bib-gourmand": 111 } },
     "Nara": { 2025: { "two-star": 4 }, 2026: { "two-star": 4, "one-star": 18, "bib-gourmand": 11 } },
   },
   KR: {
@@ -149,29 +149,31 @@ const PUBLISHED_2026 = Object.freeze({
 // record — the country tables carry "DO NOT auto-generate or AI-fabricate",
 // so these are reported here rather than invented into the datasets.
 const KNOWN_DELTAS = Object.freeze([
-  {
-    cc: 'JP', city: 'Tokyo', year: 2026, tier: 'one-star', have: 121, published: 122,
-    // CORRECTED v0.62.743. The first version of this note said "one Tokyo one-star venue is
-    // missing", which implied a dropped row and was wrong. instruction/Japan.js — the source
-    // of record — itself holds 121, and source and table are row-for-row identical (589 = 589,
-    // now gated by __tests__/michelin-source-parity.test.js). Nothing was lost in migration.
-    // CORRECTED AGAIN, v0.62.747 (O-208 resolved). The previous note called this "a policy
-    // question, not a data error" and said closing it meant deciding which roster the volume
-    // tracks. That was wrong: the volume ALREADY tracks both, in two layers, and has all along
-    // — records (VENUES/awards/manifests/editionVenues) keep status:'closed'; display
-    // (visitableVenues, used on every user-facing path in index.js) drops them. The policy was
-    // implicit rather than absent, and is now asserted in __tests__/michelin-roster-policy.js.
-    // With the policy settled, this IS a data gap after all — in the records layer.
-    note: 'A genuine one-row gap in the RECORDS layer. The records layer is the ANNOUNCEMENT '
-        + 'roster (it deliberately keeps closed venues — SEZANNE is closed, three-starred, and '
-        + 'is exactly why Tokyo three-star reads 12 rather than 11). That roster says 122 '
-        + 'one-stars; the data holds 121. The source hand-enters SEZANNE and Pierre Gagnaire as '
-        + '"delisted, not in live index" precisely to preserve announced tiers, so the pattern '
-        + 'is correct and simply was not applied to a third one-star that left the live index '
-        + 'between 25-09-2025 and the 06-06-2026 verification. Fix: one curated row with '
-        + "status: 'closed' and a 2026 one-star award. Which venue cannot be determined here — "
-        + 'guide.michelin.com is JS-rendered and does not fetch.',
-  },
+  // CLOSED v0.62.771 — and this list is now EMPTY. Every curated country
+  // reconciles against every published 2026 figure it has one for.
+  //
+  // THE NOTE THIS REPLACES PRESCRIBED THE WRONG FIX, which matters more than
+  // the row itself. It reasoned by analogy from SEZANNE and Pierre Gagnaire —
+  // both hand-entered as "delisted, not in live index" — and concluded: "Fix:
+  // one curated row with status: 'closed' and a 2026 one-star award."
+  //
+  // The missing venue is 氣分 (Kibun), Nishiazabu, Minato — and it is OPEN.
+  // It has a live MICHELIN Guide page with online booking. It was never a
+  // delisting; it was an omission from the curation pass.
+  //
+  // Had the prescribed fix been applied, the count would have reconciled at
+  // 122 and `visitableVenues()` — which drops status:'closed' and backs every
+  // user-facing path — would have kept hiding an operating one-star. The gate
+  // would have gone green while the product got quietly worse. A note that
+  // names a fix is not the same as a note that diagnosed the cause, and this
+  // one had only ever seen the symptom.
+  //
+  // Found the same way Shenzhen and Paris were: search in the local language.
+  // A Japanese aggregator enumerates all 122 by ward; its ward subtotals sum
+  // to 122 (9+31+49+9+2+7+1+14), and diffing it against the repo's 121 left
+  // exactly one name once romanisation variants were matched up — BEIGE Alain
+  // Ducasse / Beige Alain Ducasse Tokyo, mærge / marge, TEN-MASA / Tenma, and
+  // sixteen others. Kibun matched nothing.
   // CLOSED v0.62.757 — CN/Guangzhou reconciles at 52/52, so it is no longer a
   // delta and is not listed as one. Kept as a comment because the way it closed
   // is the thing a future reader needs, and a cleared entry leaves no trace.

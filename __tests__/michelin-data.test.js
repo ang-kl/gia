@@ -155,18 +155,33 @@ describe('michelin-data — Thailand (TH-michelin.js) load', () => {
 describe('michelin-data — Japan (JP-michelin.js) load', () => {
   const JP_CITIES = ['Tokyo', 'Kyoto', 'Osaka', 'Nara'];
 
-  it('loads 589 venues with sum(awards) === 673', () => {
+  it('loads 590 venues with sum(awards) === 674', () => {
+    // v0.62.771 — 589 -> 590: Kibun (氣分), Nishiazabu, the 122nd Tokyo
+    // one-star. It is status:'open', not the closed row KNOWN_DELTAS had
+    // prescribed — see the note in michelin-city-manifest.js.
     const jp = data.venuesForCountry('JP');
-    expect(jp.length).toBe(589);
+    expect(jp.length).toBe(590);
     const sum = jp.reduce((n, v) => n + v.awards.length, 0);
-    expect(sum).toBe(673);
+    expect(sum).toBe(674);
   });
 
-  it('85 venues hold a 2025 award, 588 hold a 2026 award (2025 is partial)', () => {
+  it('Kibun is the 122nd Tokyo one-star, and it is OPEN', () => {
+    // The distinction is the whole finding: adding it as status:'closed' would
+    // have reconciled the count while visitableVenues() kept hiding an
+    // operating one-star from every user-facing path.
+    const k = data.venueById('jp-tyo-kibun');
+    expect(k).not.toBeNull();
+    expect(k.status).toBe('open');
+    expect(k.city).toBe('Tokyo');
+    expect(k.awards).toEqual([{ year: 2026, category: 'one-star' }]);
+    expect(data.visitableVenues().some((v) => v.id === 'jp-tyo-kibun')).toBe(true);
+  });
+
+  it('85 venues hold a 2025 award, 589 hold a 2026 award (2025 is partial)', () => {
     const y25 = data.venuesForYear(2025).filter((v) => v.country === 'JP');
     const y26 = data.venuesForYear(2026).filter((v) => v.country === 'JP');
     expect(y25.length).toBe(85);
-    expect(y26.length).toBe(588);
+    expect(y26.length).toBe(589);
   });
 
   it('matches the per-tier manifest for both editions (2025 has no Bib Gourmand)', () => {
@@ -180,7 +195,7 @@ describe('michelin-data — Japan (JP-michelin.js) load', () => {
       return t;
     }
     expect(tiers(2025)).toEqual({ 'three-star': 20, 'two-star': 57, 'one-star': 8 });
-    expect(tiers(2026)).toEqual({ 'three-star': 21, 'two-star': 61, 'one-star': 278, 'bib-gourmand': 228 });
+    expect(tiers(2026)).toEqual({ 'three-star': 21, 'two-star': 61, 'one-star': 279, 'bib-gourmand': 228 });
   });
 
   it('every JP venue has a unique id, a curated city, and the full venue shape', () => {
@@ -217,7 +232,7 @@ describe('michelin-data — Japan (JP-michelin.js) load', () => {
     // venueToVenue projects nameJa/addressJa OUT (store-now, display-later) —
     // assert preservation against the source table, not the loaded Venue.
     const src = require('../JP-michelin.js').ENTRIES;
-    expect(src.length).toBe(589);
+    expect(src.length).toBe(590);
     const sasaki = src.find((e) => e.id === 'jp-uky-gion-sasaki');
     expect(sasaki.nameJa).toBe('祇園 さゝ木');
     expect(sasaki.addressJa).toContain('京都市東山区');
@@ -973,11 +988,11 @@ describe('michelin-data — country tables', () => {
     expect(kr.ENTRIES.length).toBe(117);
   });
 
-  it('JP-michelin.js is venue-centric with 589 curated rows', () => {
+  it('JP-michelin.js is venue-centric with 590 curated rows', () => {
     const jp = require('../JP-michelin.js');
     expect(jp.COUNTRY).toBe('JP');
     expect(Array.isArray(jp.ENTRIES)).toBe(true);
-    expect(jp.ENTRIES.length).toBe(589);
+    expect(jp.ENTRIES.length).toBe(590);
   });
 
   it('TH-michelin.js is venue-centric with 180 curated rows', () => {

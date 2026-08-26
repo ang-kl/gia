@@ -28,7 +28,7 @@ describe('per-city manifest', () => {
     const jp = md.VENUES.filter((v) => v.country === 'JP');
     expect(() =>
       assertCityManifest('JP', jp, 'negative-control', { Tokyo: { 2026: { 'one-star': 999 } } }),
-    ).toThrow(/Tokyo 2026 "one-star" — expected 999, got 121/);
+    ).toThrow(/Tokyo 2026 "one-star" — expected 999, got 122/);
   });
 
   it('fires when a city appears with no manifest entry', () => {
@@ -77,19 +77,28 @@ describe('published-figure deltas', () => {
     }
   });
 
-  it('names the known gaps', () => {
-    // CN/Guangzhou WAS here and is deliberately gone: it reconciled at 52/52 in
-    // v0.62.757. Removing it from the assertion is the point — a delta that has
-    // closed must stop being listed, and the 'no stale excuses' test above
-    // enforces the other direction.
+  it('KNOWN_DELTAS is EMPTY, and empty because the data reconciles', () => {
+    // v0.62.771 — the last entry (JP/Tokyo one-star) closed. This test used to
+    // name the gaps; naming none of them is now the assertion.
+    //
+    // The danger in an empty list is that it can be emptied two ways: by the
+    // data reconciling, or by someone deleting rows from the list. Those look
+    // identical from here, so BOTH are asserted — `computed`, built above by
+    // walking every published figure against the repo, must also be empty.
+    // Without that second line this test would pass on a file whose
+    // KNOWN_DELTAS array had simply been truncated.
+    expect(KNOWN_DELTAS).toEqual([]);
+    expect([...new Set(computed)]).toEqual([]);
+  });
+
+  it('the cities that closed stay closed', () => {
     const keys = KNOWN_DELTAS.map((d) => `${d.cc}/${d.city}`);
-    // Both CN cities have now closed and are asserted ABSENT. Guangzhou went
-    // first (v0.62.757), Shenzhen followed (v0.62.768) — a delta that has
-    // closed must stop being listed, and the 'no stale excuses' test above
-    // enforces the other direction.
-    expect(keys).toContain('JP/Tokyo');       // one one-star short of 122
+    expect(keys).not.toContain('JP/Tokyo');
+    expect(keys).not.toContain('FR/Paris');
     expect(keys).not.toContain('CN/Shenzhen');
     expect(keys).not.toContain('CN/Guangzhou');
+    // Kept for the day a delta returns: any future entry still needs a note
+    // that says something.
     for (const d of KNOWN_DELTAS) expect(d.note.length).toBeGreaterThan(40);
   });
 
