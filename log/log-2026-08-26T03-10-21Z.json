@@ -1,0 +1,34 @@
+{
+  "since": "2026-08-26T02:05:21Z",
+  "until": "2026-08-26T03:10:21Z",
+  "count": 3,
+  "logs": [
+    {
+      "timestamp": "2026-08-26T02:35:02.497178147Z",
+      "message": "[twa-auth] 401 POST /user-location ip=66.249.70.200, 89.222.103.194 ua=\"Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KH\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8440f9db-babd-4fd9-90ee-4cd13d118241",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T02:35:02.497182117Z",
+      "message": "[twa-auth] 401 POST /search ip=66.249.70.201, 89.222.103.193 ua=\"Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KH\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8440f9db-babd-4fd9-90ee-4cd13d118241",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T02:35:04.488150238Z",
+      "message": "[twa-auth] 401 POST /set-location ip=66.249.70.200, 89.222.103.194 ua=\"Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KH\"",
+      "severity": "error",
+      "tags": {
+        "deploymentId": "8440f9db-babd-4fd9-90ee-4cd13d118241",
+        "serviceId": "f9a39516-757d-4698-a32e-dc9de7b6e5a0"
+      }
+    }
+  ]
+}
