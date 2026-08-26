@@ -1,4 +1,4 @@
-// __tests__/classics-city-plates-i18n.test.js — v0.62.787
+// __tests__/classics-city-plates-i18n.test.js — v0.62.792
 //
 // THE MERGE SITE IS THE THING UNDER TEST, not the size of the corpus.
 //
@@ -108,6 +108,12 @@ const FORBIDDEN = [
 // A single WORD mixing Cyrillic and Latin letters is a typing slip, never a loanword —
 // a Latin proper noun standing alone in a Russian sentence is fine and stays allowed.
 const MIXED_WORD = /[A-Za-zÀ-ÿ]+[Ѐ-ӿ]|[Ѐ-ӿ]+[A-Za-zÀ-ÿ]/;
+// An untranslated ENGLISH word left standing inside a non-Latin-script string.
+// The mixed-script rule is blind to it: "claims" is a well-formed Latin word, and
+// Latin proper nouns are legitimate in ru/zh/ja. Caught after a Russian sentence
+// shipped as "Батангас ... claims рождение" past every other rule.
+const ENGLISH_STOPWORD = /(?<![A-Za-z])(?:the|and|or|of|in|on|at|to|for|with|from|by|as|is|are|was|were|be|been|has|have|had|not|but|its|it|this|that|these|those|claims|claim|said|says|made|make|born|now|then|which|who|where|when|while|after|before|until|during|between|among|both|each|every|also|still|only|often|typically|traditionally|usually|commonly)(?![A-Za-z])/i;
+const NON_LATIN_LANGS = new Set(['ru', 'zh', 'ja']);
 
 describe('translation overlays — script contamination', () => {
   for (const [name, path] of [
@@ -123,6 +129,7 @@ describe('translation overlays — script contamination', () => {
           if (!s.trim()) bad.push(`${key}/${lang}: empty`);
           if (/\s\s/.test(s) || s !== s.trim() || /\n/.test(s)) bad.push(`${key}/${lang}: whitespace`);
           if (MIXED_WORD.test(s)) bad.push(`${key}/${lang}: mixed-script word`);
+          if (NON_LATIN_LANGS.has(lang) && ENGLISH_STOPWORD.test(s)) bad.push(`${key}/${lang}: untranslated English`);
           for (const f of FORBIDDEN) {
             if (!f.allowed.has(lang) && f.script.test(s)) bad.push(`${key}/${lang}: ${f.label} leak`);
           }
