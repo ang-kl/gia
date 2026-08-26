@@ -8,7 +8,7 @@ counters:
     feature: 68
     technical: 70
     legal: 9
-    register: 210
+    register: 211
 sessions:
   current_chat_id: 2026-08-22
   current_chat_counter: 126  # per §3.2 the CHAT counter resets per session and starts at 1;
