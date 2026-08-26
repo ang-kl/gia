@@ -1,10 +1,18 @@
 // nation-overlay-dishnotes-i18n.generated.js — GENERATED, do not hand-edit.
 //
+// EXCEPTION, v0.62.777: 28 rows (1 argentinian, 13 brazilian, 14 french) were written
+// BY HAND. scripts/translate-content.mjs needs GEMINI_API_KEY and the operator's
+// standing instruction is not to spend on external APIs, so the dishes added to
+// nation-overlay-dishnotes.generated.js after the last generator run had no
+// translation row and rendered English to id/ru/de/zh/ja/es readers. Each hand row
+// carries all six languages, so a future generator run skips them (it only fills
+// rows missing a target language) and they persist rather than being overwritten.
+//
 // id/ru/de per-dish 📜 note bodies, keyed by `${slug}::${dish}`. Folded onto
 // iconicDishes note.{id,ru,de} by nation-overlay.js at load; surfaced in the
 // loading-modal fun-fact rotation via dishFactsFromPlate. Proper nouns preserved.
 //
-// Keys: 1647 · langs: id/ru/de/zh/ja/es
+// Keys: 1685 · langs: id/ru/de/zh/ja/es
 'use strict';
 
 module.exports = {
@@ -583,6 +591,14 @@ module.exports = {
     zh: "Vacio steak 是一种美味的阿根廷牛肉切块，取自腹部周围的侧腹肌肉，也称为 flap meat，常被慢煮。",
     ja: "Vacio steak は、腹部の周りの脇腹の筋肉から取れる風味豊かなアルゼンチン産牛肉の切り身で、flap meat とも呼ばれ、しばしば時間をかけて調理されます。",
     es: "Vacio steak es un sabroso corte de carne de res argentino del músculo del flanco alrededor del vientre, también conocido como flap meat, a menudo cocinado a fuego lento.",
+  },
+  "argentinian::asado": {
+    id: "Asado adalah barbekyu dan acara sosial khas Amerika Selatan, terutama di Argentina, dengan aneka daging yang dipanggang di atas api terbuka atau parrilla.",
+    ru: "Asado — традиционное южноамериканское барбекю и общественное событие, особенно в Аргентине: разные виды мяса жарят на открытом огне или на parrilla.",
+    de: "Asado ist ein traditionelles südamerikanisches Barbecue und geselliges Ereignis, vor allem in Argentinien, bei dem verschiedene Fleischsorten über offenem Feuer oder auf der Parrilla gegrillt werden.",
+    zh: "Asado 是南美洲传统烧烤，也是一种社交聚会，尤其盛行于阿根廷，将各种肉类置于明火或 parrilla 烤架上炙烤。",
+    ja: "Asado は南米、とりわけアルゼンチンの伝統的なバーベキューであり社交の場でもある。さまざまな肉を直火や parrilla で焼く。",
+    es: "El asado es una barbacoa tradicional sudamericana y un acontecimiento social, sobre todo en Argentina, con distintas carnes asadas a fuego abierto o en parrilla.",
   },
   "australasia::breadfruit roasted": {
     id: "Sukun panggang adalah lauk pokok Kepulauan Pasifik, seringkali disiapkan dengan memanggang seluruh buah dalam oven atau api terbuka hingga empuk.",
@@ -1303,6 +1319,110 @@ module.exports = {
     zh: "Pão de queijo 是一种巴西奶酪面包，用木薯淀粉制成的小烤面包卷，具有独特的嚼劲和弹性。",
     ja: "Pão de queijo はブラジルのチーズパンで、タピオカ澱粉を使って作られた小さな焼きパンです。独特の噛み応えと弾力のある食感が特徴です。",
     es: "Pão de queijo es un pan de queso brasileño, pequeños panecillos horneados hechos con almidón de tapioca para una textura masticable y elástica distintiva.",
+  },
+  "brazilian::acarajé": {
+    id: "Acarajé adalah gorengan Afro-Brasil dari kacang tunggak, secara tradisional digoreng dalam minyak sawit dendê dan sering diisi.",
+    ru: "Acarajé — афробразильский жареный пирожок из черноглазого гороха, который традиционно готовят на пальмовом масле dendê и часто начиняют.",
+    de: "Acarajé ist ein afrobrasilianischer frittierter Krapfen aus Schwarzaugenbohnen, traditionell in Dendê-Palmöl gebacken und oft gefüllt.",
+    zh: "Acarajé 是非洲裔巴西人的油炸豆饼，以黑眼豆制成，传统上用 dendê 棕榈油炸制，常夹入馅料。",
+    ja: "Acarajé はアフロ・ブラジル系の揚げ菓子で、黒目豆を使い、伝統的に dendê というパーム油で揚げ、具を詰めることが多い。",
+    es: "El acarajé es un buñuelo frito afrobrasileño hecho de frijoles carita, cocinado tradicionalmente en aceite de palma dendê y a menudo relleno.",
+  },
+  "brazilian::arroz com feijão": {
+    id: "Arroz com feijão adalah hidangan pokok Brasil berupa nasi dan kacang, menjadi dasar gizi dan disantap setiap hari di seluruh negeri.",
+    ru: "Arroz com feijão — основное блюдо Бразилии из риса и фасоли; питательная база рациона, которую едят ежедневно по всей стране.",
+    de: "Arroz com feijão ist ein brasilianisches Grundgericht aus Reis und Bohnen, das die Ernährungsbasis bildet und landesweit täglich gegessen wird.",
+    zh: "Arroz com feijão 是巴西的主食，由米饭和豆子组成，构成营养基础，全国民众每日食用。",
+    ja: "Arroz com feijão は米と豆を合わせたブラジルの主食で、栄養の土台として全国で毎日食べられている。",
+    es: "El arroz com feijão es un plato básico brasileño de arroz y frijoles que aporta la base nutricional y se come a diario en todo el país.",
+  },
+  "brazilian::barreado": {
+    id: "Barreado adalah semur daging sapi Brasil dari Paraná, dimasak perlahan dalam periuk tanah liat yang ditutup rapat dengan adonan tepung singkong.",
+    ru: "Barreado — бразильское рагу из говядины из штата Парана, которое долго томят в глиняном горшке, герметично запечатанном пастой из маниоковой муки.",
+    de: "Barreado ist ein brasilianischer Rindfleischeintopf aus Paraná, langsam in einem Tontopf gegart, der mit einer Paste aus Maniokmehl luftdicht versiegelt wird.",
+    zh: "Barreado 是巴西巴拉那州的炖牛肉，置于陶罐中慢炖，罐口以木薯粉糊密封。",
+    ja: "Barreado はブラジル・パラナ州の牛肉の煮込みで、キャッサバ粉のペーストで密閉した土鍋でじっくり煮込む。",
+    es: "El barreado es un guiso de ternera brasileño de Paraná, cocinado a fuego lento en una olla de barro sellada herméticamente con una pasta de harina de mandioca.",
+  },
+  "brazilian::beijinho": {
+    id: "Beijinho adalah permen pesta ulang tahun khas Brasil dari susu kental manis dan kelapa parut, sering diberi hiasan cengkih di atasnya.",
+    ru: "Beijinho — типичная бразильская конфета для дней рождения из сгущённого молока и тёртого кокоса, часто украшенная гвоздикой.",
+    de: "Beijinho ist eine typische brasilianische Geburtstagssüßigkeit aus Kondensmilch und geraspelter Kokosnuss, oft mit einer Gewürznelke garniert.",
+    zh: "Beijinho 是巴西生日派对上的经典糖果，以炼乳和椰丝制成，顶端常插一颗丁香。",
+    ja: "Beijinho はブラジルの誕生日パーティー定番の菓子で、コンデンスミルクとココナッツを使い、上にクローブを飾ることが多い。",
+    es: "El beijinho es un dulce típico de los cumpleaños brasileños hecho con leche condensada y coco rallado, a menudo coronado con un clavo de olor.",
+  },
+  "brazilian::bolinho de bacalhau brasil": {
+    id: "Bolinho de bacalhau adalah gorengan tradisional Portugis-Brasil dari campuran ikan kod asin dan kentang tumbuk, biasanya digoreng rendam.",
+    ru: "Bolinho de bacalhau — традиционная португальско-бразильская котлетка из смеси солёной трески и картофельного пюре, обычно обжаренная во фритюре.",
+    de: "Bolinho de bacalhau ist ein traditioneller portugiesisch-brasilianischer Krapfen aus einer Mischung von Stockfisch und Kartoffelpüree, meist frittiert.",
+    zh: "Bolinho de bacalhau 是葡萄牙裔巴西人的传统炸丸，以咸鳕鱼与土豆泥混合后油炸而成。",
+    ja: "Bolinho de bacalhau はポルトガル系ブラジルの伝統的な揚げ物で、塩ダラとマッシュポテトを混ぜて揚げる。",
+    es: "El bolinho de bacalhau es un buñuelo tradicional luso-brasileño hecho con una mezcla de bacalao salado y puré de patata, normalmente frito.",
+  },
+  "brazilian::caipirinha": {
+    id: "Caipirinha adalah koktail Brasil dari cachaça, gula, dan jeruk nipis, ditetapkan sebagai Warisan Budaya Brasil pada 2003.",
+    ru: "Caipirinha — бразильский коктейль из кашасы, сахара и лайма, признанный культурным наследием Бразилии в 2003 году.",
+    de: "Caipirinha ist ein brasilianischer Cocktail aus Cachaça, Zucker und Limette, 2003 zum brasilianischen Kulturerbe erklärt.",
+    zh: "Caipirinha 是以卡莎萨酒、糖和青柠调制的巴西鸡尾酒，2003 年被列为巴西文化遗产。",
+    ja: "Caipirinha はカシャッサ、砂糖、ライムでつくるブラジルのカクテルで、2003年にブラジルの文化遺産に指定された。",
+    es: "La caipirinha es un cóctel brasileño hecho con cachaça, azúcar y lima, declarado Patrimonio Cultural de Brasil en 2003.",
+  },
+  "brazilian::farofa": {
+    id: "Farofa adalah hidangan pendamping tradisional Brasil dari tepung singkong sangrai, sering ditumis dengan lemak, berakar pada masyarakat asli Tupi-Guarani.",
+    ru: "Farofa — традиционный бразильский гарнир из обжаренной маниоковой муки, часто пассерованной на жире; истоки — у коренных народов тупи-гуарани.",
+    de: "Farofa ist eine traditionelle brasilianische Beilage aus geröstetem Maniokmehl, oft in Fett angeschwitzt, mit Ursprüngen bei den indigenen Tupí-Guaraní.",
+    zh: "Farofa 是巴西传统配菜，以烘炒的木薯粉制成，常用油脂翻炒，源自图皮–瓜拉尼原住民。",
+    ja: "Farofa は炒ったキャッサバ粉でつくるブラジルの伝統的な付け合わせで、油脂で炒めることが多く、先住民トゥピ・グアラニに起源をもつ。",
+    es: "La farofa es una guarnición tradicional brasileña de harina de mandioca tostada, a menudo salteada en grasa, con origen entre los pueblos indígenas tupí-guaraníes.",
+  },
+  "brazilian::picanha": {
+    id: "Picanha adalah potongan daging sapi Brasil dari bagian tanjung sirloin, dikenal karena lapisan lemaknya yang tebal dan biasanya dipanggang ala churrasco.",
+    ru: "Picanha — бразильский отруб говядины из верхней части огузка, отличающийся щедрой жировой шапкой; чаще всего готовится на гриле в стиле churrasco.",
+    de: "Picanha ist ein brasilianischer Rindfleischschnitt aus der Hüfte, erkennbar an seiner großzügigen Fettauflage, meist im Churrasco-Stil gegrillt.",
+    zh: "Picanha 是巴西的牛臀盖肉，以肥厚的脂肪层著称，多以 churrasco 炭烤方式料理。",
+    ja: "Picanha は牛のランプ上部を使うブラジルの部位で、たっぷりの脂肪層が特徴。churrasco 式に炭火で焼くことが多い。",
+    es: "La picanha es un corte de ternera brasileño de la tapa de cuadril, reconocible por su generosa capa de grasa y asada normalmente al estilo churrasco.",
+  },
+  "brazilian::pão de mel": {
+    id: "Pão de mel adalah manisan Brasil berbahan dasar madu dengan bagian dalam seperti kue berempah dan lapisan tipis cokelat hitam temper.",
+    ru: "Pão de mel — бразильская сладость на меду с пряной кексовой серединой и тонкой глазурью из темперированного тёмного шоколада.",
+    de: "Pão de mel ist eine brasilianische Honigsüßigkeit mit würzigem, kuchenartigem Inneren und einem dünnen Überzug aus temperierter dunkler Schokolade.",
+    zh: "Pão de mel 是巴西的蜂蜜点心，内里如加了香料的蛋糕，外覆一层薄薄的调温黑巧克力。",
+    ja: "Pão de mel は蜂蜜を使ったブラジルの菓子で、スパイスの効いたケーキ状の生地を薄いテンパリング済みダークチョコレートで覆う。",
+    es: "El pão de mel es un dulce brasileño a base de miel, con un interior especiado tipo bizcocho y una fina cobertura de chocolate negro atemperado.",
+  },
+  "brazilian::quindim": {
+    id: "Quindim adalah kue puding kelapa tradisional Brasil dari gula, kuning telur, dan kelapa parut, berasal dari Bahia.",
+    ru: "Quindim — традиционный бразильский кокосовый заварной десерт из сахара, яичных желтков и молотого кокоса, родом из штата Баия.",
+    de: "Quindim ist eine traditionelle brasilianische Kokos-Pudding-Torte aus Zucker, Eigelb und gemahlener Kokosnuss mit Ursprung in Bahia.",
+    zh: "Quindim 是巴西传统的椰子蛋奶糕，以砂糖、蛋黄和椰蓉制成，源自巴伊亚州。",
+    ja: "Quindim は砂糖・卵黄・ココナッツでつくるブラジル伝統のカスタード菓子で、バイーア州が発祥。",
+    es: "El quindim es un flan de coco tradicional brasileño hecho con azúcar, yemas de huevo y coco rallado, originario de Bahía.",
+  },
+  "brazilian::sopa de palmito": {
+    id: "Sopa de palmito adalah sup Brasil yang terutama dibuat dari umbut kelapa, sering dihaluskan hingga bertekstur krim.",
+    ru: "Sopa de palmito — бразильский суп, приготовленный главным образом из пальмовых сердцевин, часто взбитый до кремовой консистенции.",
+    de: "Sopa de palmito ist eine brasilianische Suppe hauptsächlich aus Palmherzen, oft zu einer cremigen Konsistenz püriert.",
+    zh: "Sopa de palmito 是以棕榈心为主料的巴西汤品，常打成绵滑的浓汤。",
+    ja: "Sopa de palmito はパームハート（椰子の新芽）を主役にしたブラジルのスープで、なめらかなポタージュ状にすることが多い。",
+    es: "La sopa de palmito es una sopa brasileña elaborada principalmente con palmitos, a menudo triturada hasta lograr una textura cremosa.",
+  },
+  "brazilian::tapioca": {
+    id: "Tapioca di Brasil merujuk pada panekuk atau krep bebas gluten dari pati singkong yang dilembapkan, umumnya disajikan dengan isian manis atau gurih.",
+    ru: "Tapioca в Бразилии — это безглютеновый блинчик из увлажнённого маниокового крахмала, который обычно подают со сладкой или солёной начинкой.",
+    de: "Tapioca bezeichnet in Brasilien einen glutenfreien Pfannkuchen aus angefeuchteter Maniokstärke, meist mit süßer oder herzhafter Füllung serviert.",
+    zh: "在巴西，Tapioca 指以润湿的木薯淀粉制成的无麸质薄饼，通常搭配甜味或咸味馅料。",
+    ja: "ブラジルで Tapioca といえば、湿らせたキャッサバでんぷんでつくるグルテンフリーのクレープで、甘い具にも塩気のある具にも合わせる。",
+    es: "En Brasil, la tapioca es una crepe sin gluten hecha con almidón de mandioca hidratado, servida habitualmente con rellenos dulces o salados.",
+  },
+  "brazilian::vatapá": {
+    id: "Vatapá adalah hidangan Afro-Brasil dari Bahia, pasta lembut dari roti, udang, santan, kacang tanah giling, dan minyak sawit.",
+    ru: "Vatapá — афробразильское блюдо из Баии: кремовая паста из хлеба, креветок, кокосового молока, молотого арахиса и пальмового масла.",
+    de: "Vatapá ist ein afrobrasilianisches Gericht aus Bahia, eine cremige Paste aus Brot, Garnelen, Kokosmilch, gemahlenen Erdnüssen und Palmöl.",
+    zh: "Vatapá 是巴伊亚州的非洲裔巴西菜，用面包、虾、椰奶、花生碎和棕榈油调成绵密的酱糊。",
+    ja: "Vatapá はバイーア州のアフロ・ブラジル料理で、パン・エビ・ココナッツミルク・すり潰した落花生・パーム油からつくるクリーミーなペースト。",
+    es: "El vatapá es un plato afrobrasileño de Bahía, una pasta cremosa hecha con pan, gambas, leche de coco, cacahuetes molidos y aceite de palma.",
   },
   "british::balti curry": {
     id: "Balti curry adalah kari dengan bumbu ringan yang dimasak dan disajikan dalam hidangan balti berbentuk wajan, dikembangkan di Birmingham, Inggris, pada tahun 1970-an.",
@@ -2943,6 +3063,118 @@ module.exports = {
     zh: "Steak tartare 是一道法国菜，由生牛肉末制成，通常用刺山柑和洋葱调味，上面常放一个生蛋黄。",
     ja: "Steak tartare は、生の牛肉のタルタルで、通常ケッパーと玉ねぎで味付けされ、しばしば生の卵黄が乗せられるフランス料理です。",
     es: "Steak tartare es un plato francés de carne de res cruda picada, típicamente sazonado con alcaparras y cebolla, a menudo cubierto con una yema de huevo cruda.",
+  },
+  "french::baguette": {
+    id: "Baguette adalah roti Prancis yang panjang dan ramping, dikenali dari kulitnya yang renyah dan bagian dalam yang lembut, dibuat dari adonan sederhana tanpa lemak.",
+    ru: "Baguette — длинный тонкий французский хлеб, узнаваемый по хрустящей корке и мягкому мякишу, из простого постного теста.",
+    de: "Die Baguette ist ein langes, schmales französisches Brot, erkennbar an seiner knusprigen Kruste und weichen Krume, aus einfachem magerem Teig.",
+    zh: "Baguette 是细长的法式面包，以酥脆的外壳与柔软的内里著称，用简单的无油面团制成。",
+    ja: "Baguette は細長いフランスパンで、パリッとしたクラストとやわらかい中身が特徴。油脂を加えないシンプルな生地でつくる。",
+    es: "La baguette es un pan francés largo y estrecho, reconocible por su corteza crujiente y su miga tierna, hecho con una masa magra básica.",
+  },
+  "french::choucroute alsacienne": {
+    id: "Choucroute alsacienne adalah hidangan Alsace berupa asinan kubis fermentasi yang disajikan dengan aneka daging asin, sosis, dan kentang.",
+    ru: "Choucroute alsacienne — эльзасское блюдо из квашеной капусты, подаваемое с разными солёными мясными изделиями, колбасками и картофелем.",
+    de: "Choucroute alsacienne ist ein elsässisches Gericht aus Sauerkraut, serviert mit verschiedenen Pökelfleischsorten, Würsten und Kartoffeln.",
+    zh: "Choucroute alsacienne 是阿尔萨斯名菜，以发酵酸菜搭配各式腌肉、香肠与马铃薯。",
+    ja: "Choucroute alsacienne はアルザス地方の料理で、発酵させたザワークラウトに各種の塩漬け肉・ソーセージ・じゃがいもを添える。",
+    es: "La choucroute alsacienne es un plato alsaciano de chucrut (col fermentada) servido con distintas carnes saladas, salchichas y patatas.",
+  },
+  "french::croissant": {
+    id: "Croissant adalah viennoiserie berbentuk bulan sabit dari adonan ragi berlapis, terkenal karena teksturnya yang berlapis dan bermentega.",
+    ru: "Croissant — венская выпечка в форме полумесяца из слоёного дрожжевого теста, известная своей хрустящей слоистой и маслянистой текстурой.",
+    de: "Das Croissant ist eine halbmondförmige Viennoiserie aus tourierter Hefeteigmasse, bekannt für seine blättrige, buttrige Textur.",
+    zh: "Croissant 是新月形的维也纳酥皮点心，用层层折叠的酵母面团制成，以酥松奶香著称。",
+    ja: "Croissant は三日月形のヴィエノワズリーで、折り込んだ発酵生地からつくり、サクサクとしたバターの層が持ち味。",
+    es: "El croissant es una viennoiserie en forma de media luna hecha con masa de levadura laminada, conocida por su textura hojaldrada y mantecosa.",
+  },
+  "french::crème brûlée": {
+    id: "Crème brûlée adalah hidangan penutup Prancis dengan dasar custard lembut dan lapisan gula karamel yang keras; namanya berarti \"krim terbakar\".",
+    ru: "Crème brûlée — французский десерт с нежной заварной основой и твёрдой карамельной сахарной корочкой; название означает «обожжённые сливки».",
+    de: "Crème brûlée ist ein französisches Dessert mit cremiger Puddingbasis und harter, karamellisierter Zuckerschicht; der Name bedeutet „gebrannte Creme“.",
+    zh: "Crème brûlée 是法式甜点，底层为绵滑蛋奶冻，表面覆一层焦糖脆壳，名字意为「烧焦的奶油」。",
+    ja: "Crème brûlée はなめらかなカスタードの上に硬いカラメルの層をつくるフランスのデザートで、名は「焦がしたクリーム」を意味する。",
+    es: "La crème brûlée es un postre francés con una base cremosa de natillas y una capa dura de azúcar caramelizado; su nombre significa «crema quemada».",
+  },
+  "french::macarons": {
+    id: "Macarons adalah manisan berbasis meringue dari tepung almond, putih telur, dan gula, umumnya berbentuk kue sandwich.",
+    ru: "Macarons — сладости на основе безе из миндальной муки, яичных белков и сахара, обычно собранные попарно с начинкой.",
+    de: "Macarons sind süße Baisergebäcke aus Mandelmehl, Eiweiß und Zucker, meist als gefüllte Doppelkekse.",
+    zh: "Macarons 是以杏仁粉、蛋白和糖制成的蛋白霜甜点，通常做成夹心小圆饼。",
+    ja: "Macarons はアーモンドパウダー・卵白・砂糖でつくるメレンゲ菓子で、通常はクリームを挟んだサンド仕立てにする。",
+    es: "Los macarons son dulces de merengue elaborados con harina de almendra, claras de huevo y azúcar, presentados normalmente como galletas rellenas.",
+  },
+  "french::mille-feuille": {
+    id: "Mille-feuille adalah hidangan penutup Prancis yang secara tradisional terdiri dari tiga lapis puff pastry berselang-seling dengan dua lapis krim patisserie.",
+    ru: "Mille-feuille — французский десерт, традиционно составленный из трёх слоёв слоёного теста, чередующихся с двумя слоями заварного крема.",
+    de: "Mille-feuille ist ein französisches Dessert, traditionell aus drei Schichten Blätterteig im Wechsel mit zwei Schichten Konditorcreme.",
+    zh: "Mille-feuille 是法式甜点，传统上由三层酥皮与两层卡士达奶油交替叠成。",
+    ja: "Mille-feuille は3枚のパイ生地と2層のカスタードクリームを交互に重ねる、フランスの伝統的なデザート。",
+    es: "El mille-feuille es un postre francés compuesto tradicionalmente por tres capas de hojaldre alternadas con dos capas de crema pastelera.",
+  },
+  "french::pain au chocolat": {
+    id: "Pain au chocolat adalah viennoiserie dari adonan ragi berlapis, biasanya membungkus satu atau dua batang cokelat hitam.",
+    ru: "Pain au chocolat — венская выпечка из слоёного дрожжевого теста, обычно с одной или двумя палочками тёмного шоколада внутри.",
+    de: "Pain au chocolat ist eine Viennoiserie aus touriertem Hefeteig, die meist ein oder zwei Stücke dunkle Schokolade umschließt.",
+    zh: "Pain au chocolat 是以层层折叠的酵母面团制成的维也纳点心，内里通常包裹一到两条黑巧克力。",
+    ja: "Pain au chocolat は折り込み発酵生地でつくるヴィエノワズリーで、ふつうダークチョコレートを1〜2本包み込む。",
+    es: "El pain au chocolat es una viennoiserie de masa de levadura laminada que suele envolver una o dos barritas de chocolate negro.",
+  },
+  "french::paris-brest": {
+    id: "Paris-Brest adalah hidangan penutup Prancis dari adonan sus berbentuk roda sepeda, diisi krim rasa praline.",
+    ru: "Paris-Brest — французский десерт из заварного теста в форме велосипедного колеса, наполненный кремом со вкусом пралине.",
+    de: "Paris-Brest ist ein französisches Brandteigdessert in Form eines Fahrradrads, gefüllt mit Praliné-Creme.",
+    zh: "Paris-Brest 是法式泡芙甜点，造型如自行车轮，内填帕林内榛果奶油。",
+    ja: "Paris-Brest は自転車の車輪をかたどったフランスのシュー菓子で、プラリネ風味のクリームを詰める。",
+    es: "El Paris-Brest es un postre francés de pasta choux con forma de rueda de bicicleta, relleno de crema de praliné.",
+  },
+  "french::pot-au-feu": {
+    id: "Pot-au-feu adalah hidangan Prancis berupa daging dan sayuran yang direbus perlahan, secara tradisional disajikan dalam dua tahap: kuah, lalu daging dan sayuran.",
+    ru: "Pot-au-feu — французское блюдо из медленно отваренных мяса и овощей, традиционно подаваемое в два захода: сначала бульон, затем мясо с овощами.",
+    de: "Pot-au-feu ist ein französisches Gericht aus langsam gekochtem Fleisch und Gemüse, traditionell in zwei Gängen serviert: zuerst die Brühe, dann Fleisch und Gemüse.",
+    zh: "Pot-au-feu 是法式慢炖肉与蔬菜的料理，传统上分两道上桌：先喝清汤，再吃肉与蔬菜。",
+    ja: "Pot-au-feu は肉と野菜をゆっくり煮込むフランス料理で、伝統的にまずスープ、次に肉と野菜という二段構えで供される。",
+    es: "El pot-au-feu es un plato francés de carne y verduras hervidas lentamente, servido tradicionalmente en dos tiempos: primero el caldo y después la carne con las verduras.",
+  },
+  "french::quiche lorraine": {
+    id: "Quiche Lorraine adalah pai gurih Prancis dari wilayah Lorraine, secara tradisional diisi krim, telur, dan daging asap.",
+    ru: "Quiche Lorraine — французский несладкий пирог из региона Лотарингия, традиционно с начинкой из сливок, яиц и бекона.",
+    de: "Quiche Lorraine ist eine herzhafte französische Tarte aus der Region Lothringen, traditionell gefüllt mit Sahne, Eiern und Speck.",
+    zh: "Quiche Lorraine 是源自法国洛林地区的咸味挞，传统内馅为鲜奶油、鸡蛋与培根。",
+    ja: "Quiche Lorraine はフランス・ロレーヌ地方の塩味のタルトで、伝統的に生クリーム・卵・ベーコンを詰める。",
+    es: "La quiche lorraine es una tarta salada francesa de la región de Lorena, rellena tradicionalmente de nata, huevos y bacon.",
+  },
+  "french::soufflé au fromage": {
+    id: "Soufflé au fromage adalah sufle keju Prancis dari dasar keju dan putih telur kocok yang mengembang saat dipanggang.",
+    ru: "Soufflé au fromage — французское сырное суфле на сырной основе со взбитыми белками, которое поднимается при запекании.",
+    de: "Soufflé au fromage ist ein französisches Käsesoufflé aus einer Käsebasis und geschlagenem Eiweiß, das beim Backen aufgeht.",
+    zh: "Soufflé au fromage 是法式芝士舒芙蕾，以芝士基底与打发蛋白制成，入炉后膨发隆起。",
+    ja: "Soufflé au fromage はチーズのベースにメレンゲを合わせたフランスのスフレで、焼くとふっくら膨らむ。",
+    es: "El soufflé au fromage es un soufflé de queso francés hecho con una base de queso y claras montadas que sube al hornearse.",
+  },
+  "french::tarte flambée alsacienne": {
+    id: "Tarte flambée alsacienne adalah roti pipih Alsace berkulit tipis, diberi crème fraîche, bawang bombai, dan lardon, secara tradisional dipanggang di tungku kayu.",
+    ru: "Tarte flambée alsacienne — эльзасская тонкая лепёшка с crème fraîche, луком и шпиком, традиционно выпекаемая в дровяной печи.",
+    de: "Tarte flambée alsacienne (Flammkuchen) ist ein elsässisches Fladenbrot mit dünnem Boden, belegt mit Crème fraîche, Zwiebeln und Speckwürfeln, traditionell im Holzofen gebacken.",
+    zh: "Tarte flambée alsacienne 是阿尔萨斯的薄底烤饼，铺上法式酸奶油、洋葱与培根丁，传统上以柴火烤炉烘烤。",
+    ja: "Tarte flambée alsacienne は薄い生地のアルザス風フラットブレッドで、クレーム・フレーシュ、玉ねぎ、ラルドンをのせ、伝統的に薪窯で焼く。",
+    es: "La tarte flambée alsacienne es una torta plana alsaciana de masa fina, cubierta con crème fraîche, cebolla y torreznos, horneada tradicionalmente en horno de leña.",
+  },
+  "french::tarte tatin": {
+    id: "Tarte Tatin adalah pai Prancis terbalik dengan buah karamel, biasanya apel, diciptakan oleh kakak-beradik Tatin pada 1880-an.",
+    ru: "Tarte Tatin — французский перевёрнутый пирог с карамелизованными фруктами, обычно яблоками, придуманный сёстрами Татен в 1880-х годах.",
+    de: "Tarte Tatin ist eine französische gestürzte Tarte mit karamellisierten Früchten, meist Äpfeln, erfunden von den Schwestern Tatin in den 1880er-Jahren.",
+    zh: "Tarte Tatin 是法式翻转水果挞，通常用苹果焦糖化制成，由塔坦姐妹于 1880 年代创制。",
+    ja: "Tarte Tatin はキャラメリゼした果実（多くはりんご）を使うフランスの逆さタルトで、1880年代にタタン姉妹が考案したとされる。",
+    es: "La tarta Tatin es una tarta francesa invertida con fruta caramelizada, normalmente manzana, inventada por las hermanas Tatin en la década de 1880.",
+  },
+  "french::éclair": {
+    id: "Éclair adalah kue sus Prancis berbentuk memanjang, diisi krim dan dilapisi glasir, diyakini diciptakan oleh Marie-Antoine Carême.",
+    ru: "Éclair — вытянутое французское пирожное из заварного теста с кремовой начинкой и глазурью; считается, что его придумал Мари-Антуан Карем.",
+    de: "Éclair ist ein längliches französisches Brandteiggebäck, gefüllt mit Creme und mit Glasur überzogen; die Erfindung wird Marie-Antoine Carême zugeschrieben.",
+    zh: "Éclair 是细长的法式泡芙点心，内填奶油、表面覆糖霜，一般认为由 Marie-Antoine Carême 所创。",
+    ja: "Éclair は細長いフランスのシュー菓子で、クリームを詰めてフォンダンをかける。マリー＝アントワーヌ・カレームの考案と伝えられる。",
+    es: "El éclair es un pastel francés alargado de pasta choux, relleno de crema y cubierto de glaseado, cuya invención se atribuye a Marie-Antoine Carême.",
   },
   "fusion::asian-french degustation": {
     id: "Degustasi Asia-Prancis adalah hidangan multi-kursus yang memadukan tradisi kuliner, rasa, dan teknik dari masakan Asia dan Prancis.",
