@@ -9819,7 +9819,23 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // edition merged across years (operator: "both years merged") — each
   // venue is shown once at its LATEST award standing.
   const mdMich = isSGMich ? null : require('./michelin-data');
-  const latestMichCat = (v) => { let best = null; for (const a of v.awards) { if (!best || a.year > best.year) best = a; } return best ? best.category : null; };
+  // v0.62.766 — a Green Star holder with no star and no Bib has no tier, so
+  // this returned null and the venue was then dropped by the year matcher
+  // (awardYears was [] too). It loaded, passed every assertion, and was
+  // invisible: the quietest possible failure. It now falls back to the
+  // 'green-star' pseudo-tier, which the TMA card knows how to label.
+  const latestMichCat = (v) => {
+    let best = null;
+    for (const a of v.awards) { if (!best || a.year > best.year) best = a; }
+    if (best) return best.category;
+    return mdMich.retainedGreenStarYears(v).length ? 'green-star' : null;
+  };
+  // Same fallback for the year tokens the ticks filter on: a Green-Star-only
+  // venue's editions are its Green Star editions.
+  const michAwardYears = (v) => {
+    const years = mdMich.retainedAwardYears(v);
+    return years.length ? years : mdMich.retainedGreenStarYears(v);
+  };
   // v0.62.676 — operator: independent ticks under the Michelin chip
   // (CuisineDrawer) for 2026 / 2025 / Bib Gourmand, all default ON (today's
   // all-inclusive behaviour when every tick stays checked). A year tick
@@ -9844,7 +9860,11 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
         // v0.62.665 — carry the compact "'26"-style retained-years array
         // through so the TMA card shows the real edition(s), not a
         // hardcoded fallback (see ResultCard.jsx michelinAnnotation).
-        awardYears: mdMich.retainedAwardYears(v),
+        awardYears: michAwardYears(v),
+        // v0.62.766 — carried so a venue holding BOTH an award and a Green
+        // Star can show the Green Star without losing its tier. Always a
+        // boolean, never undefined.
+        greenStar: mdMich.retainedGreenStarYears(v).length > 0,
         city: v.city, country: v.country
       }));
   // The matcher derives its year universe from THESE entries, so the
@@ -10273,6 +10293,13 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
         : null,
       // Michelin annotations attached for the TMA card render.
       michelinCategory: entry.category,
+      // v0.62.766 — a Green Star travels alongside the tier, never instead of
+      // it: a three-star that also holds one keeps michelinCategory
+      // 'three-star' and gains this flag. `entry.greenStar` is undefined on the
+      // SG fast path (SG-michelin.js has no Green Star field), so it is
+      // coerced rather than passed through — the TMA reads a boolean or
+      // nothing, never undefined-as-falsy-by-luck.
+      michelinGreenStar: entry.greenStar === true,
       michelinName: entry.name,
       // v0.62.665 — compact "'26"-style retained-years array (SG entries
       // carry it directly; non-SG entries had it derived by
@@ -10324,6 +10351,13 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       websiteUri: '', phone: '', priceLevel: null, primaryType: '',
       url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(entry.name)}`,
       michelinCategory: entry.category,
+      // v0.62.766 — a Green Star travels alongside the tier, never instead of
+      // it: a three-star that also holds one keeps michelinCategory
+      // 'three-star' and gains this flag. `entry.greenStar` is undefined on the
+      // SG fast path (SG-michelin.js has no Green Star field), so it is
+      // coerced rather than passed through — the TMA reads a boolean or
+      // nothing, never undefined-as-falsy-by-luck.
+      michelinGreenStar: entry.greenStar === true,
       michelinName: entry.name,
       // v0.62.665 — parity with the success branch above.
       michelinAwardYears: entry.awardYears || [],
@@ -11000,7 +11034,13 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
       threeStar: allEntries.filter((e) => e.category === 'three-star').length,
       twoStar: allEntries.filter((e) => e.category === 'two-star').length,
       oneStar: allEntries.filter((e) => e.category === 'one-star').length,
-      bibGourmand: allEntries.filter((e) => e.category === 'bib-gourmand').length
+      bibGourmand: allEntries.filter((e) => e.category === 'bib-gourmand').length,
+      // v0.62.766 — counts every venue carrying a Green Star, INCLUDING the
+      // starred ones. It deliberately overlaps the four tier counts rather
+      // than partitioning with them: a Green Star is a parallel distinction,
+      // so a summary that subtracted it from a tier would misreport both.
+      greenStar: allEntries.filter((e) => e.greenStar === true
+        || e.category === 'green-star').length
     },
     // v0.61.134 — surface the v0.61.129 place anchor on Michelin responses
     // too (the non-Michelin path's payload.placeAnchor write at the bottom

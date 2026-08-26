@@ -588,7 +588,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               in WORDS (✳️ / ⭐), never colour. */}
           {!isShort && venue.michelinCategory && (
             <div className={`text-[12px] text-tg-text font-semibold ${horizontal ? 'mt-0.5' : 'mt-1'}`}>
-              {michelinAnnotation(venue.michelinCategory, venue.michelinAwardYears)}
+              {michelinAnnotation(venue.michelinCategory, venue.michelinAwardYears, venue.michelinGreenStar)}
             </div>
           )}
 
@@ -704,14 +704,23 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
 // ("⭐⭐ · '26, '25") without ever implying it held a DIFFERENT category in
 // an earlier year (a promoted/demoted venue only ever gets the years
 // matching its CURRENT category — see index.js's retainedAwardYears()).
-function michelinAnnotation(category, awardYears) {
+// v0.62.766 — the Green Star reaches the card. Two shapes, because a Green
+// Star is a sustainability distinction and not a rung on the star ladder:
+//   holds a tier too  → the tier label, then a 🌱 suffix. The tier never moves
+//                       aside; Amber stays "⭐⭐⭐" and gains the leaf.
+//   holds only one    → category arrives as 'green-star' and gets its own
+//                       label. Without this it fell to the generic
+//                       '✳️ Michelin', which reads as an unspecified star.
+function michelinAnnotation(category, awardYears, greenStar) {
   const labels = {
     'three-star':   '✳️ Michelin · ⭐⭐⭐',
     'two-star':     '✳️ Michelin · ⭐⭐',
     'one-star':     '✳️ Michelin · ⭐',
-    'bib-gourmand': '✳️ Bib Gourmand'
+    'bib-gourmand': '✳️ Bib Gourmand',
+    'green-star':   '🌱 Michelin Green Star'
   };
   const prefix = labels[category] || '✳️ Michelin';
   const years = Array.isArray(awardYears) && awardYears.length ? awardYears : ["'25"];
-  return `${prefix} · ${years.join(', ')}`;
+  const leaf = greenStar === true && category !== 'green-star' ? ' · 🌱' : '';
+  return `${prefix}${leaf} · ${years.join(', ')}`;
 }

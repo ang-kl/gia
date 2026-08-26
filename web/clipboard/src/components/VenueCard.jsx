@@ -29,6 +29,10 @@ const MICHELIN = {
   'two-star':     '✳️ Michelin · ⭐⭐',
   'one-star':     '✳️ Michelin · ⭐',
   'bib-gourmand': '✳️ Bib Gourmand',
+  // v0.62.766 — kept in step with ResultCard's michelinAnnotation(). A saved
+  // card that lost its label the moment the source card gained one would be
+  // the drift this duplicated map invites.
+  'green-star':   '🌱 Michelin Green Star',
 };
 
 function plainText(s) {
@@ -90,7 +94,8 @@ export default function VenueCard({
     const michYears = Array.isArray(v.michelinAwardYears) && v.michelinAwardYears.length
       ? v.michelinAwardYears.join(', ')
       : (v.michelinYear ? String(v.michelinYear) : "'25");
-    michelin = v.michelinCategory ? `${MICHELIN[v.michelinCategory] || '✳️ Michelin'} · ${michYears}` : '';
+    const michLeaf = v.michelinGreenStar === true && v.michelinCategory !== 'green-star' ? ' · 🌱' : '';
+    michelin = v.michelinCategory ? `${MICHELIN[v.michelinCategory] || '✳️ Michelin'}${michLeaf} · ${michYears}` : '';
   }
 
   // ── Filed placements (item 10) + side-strip colour + date (item 12a) ──

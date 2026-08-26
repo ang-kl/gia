@@ -37,12 +37,25 @@ describe('MICHELIN Green Star', () => {
     expect(tiers.size).toBeGreaterThan(1);
   });
 
+  // v0.62.766 — this assertion CHANGED because the design did, not to go green.
+  // It used to read `rows.length === awards2026` for every Green Star holder,
+  // which was right while a Green Star could not stand alone: an award-less
+  // holder scored 0 rows and the test agreed with a venue being invisible.
+  // Now a Green-Star-only venue is meant to produce exactly one row per Green
+  // Star year. The guarantee it was really protecting — a holder that ALSO has
+  // awards gains no extra row — is unchanged and still asserted, in the branch
+  // that covers it.
   it('does NOT double-list a Green Star venue in the flat view', () => {
     for (const v of md.greenStarVenues(2026)) {
       const rows = md.ALL.filter((r) => r.name === v.name && r.year === 2026);
-      // one flat row per AWARD in that year — never an extra one for the star
       const awards2026 = v.awards.filter((a) => a.year === 2026).length;
-      expect(rows.length).toBe(awards2026);
+      if (awards2026) {
+        expect(rows.length).toBe(awards2026);          // no extra row for the star
+        expect(rows.some((r) => r.greenStar === true)).toBe(true);
+      } else {
+        expect(rows.length).toBe(1);                   // the Green Star IS the row
+        expect(rows[0].category).toBe('green-star');
+      }
     }
   });
 

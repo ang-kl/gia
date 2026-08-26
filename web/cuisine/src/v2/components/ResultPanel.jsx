@@ -196,6 +196,10 @@ export default function ResultPanel({
         allowsDogs: v.allowsDogs,
         priceRangeDisplay: v.priceRangeDisplay,
         michelinCategory: v.michelinCategory,
+        // v0.62.766 — without this the leaf reaches the on-screen card and
+        // vanishes from the copied one, which is the worst of both: visible
+        // when you look, gone when you share.
+        michelinGreenStar: v.michelinGreenStar === true,
         michelinName: v.michelinName
       }));
       // v0.58.55: pass active TMA locale so the server's

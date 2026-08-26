@@ -13,7 +13,12 @@
 // deterministic order — every entry (star or bib) now sorts by the same
 // three-key comparator, so the same criteria always produce the same order.
 
-const MICHELIN_RANK = { 'three-star': 4, 'two-star': 3, 'one-star': 2, 'bib-gourmand': 1 };
+// v0.62.766 — 'green-star' is listed EXPLICITLY at 0 rather than left to the
+// `?? 0` fallback. The behaviour is identical; the point is that it is now a
+// decision on the page (a Green Star is not a rung on the star ladder, so a
+// Green-Star-only venue sorts below Bib and then alphabetically) instead of an
+// accident of a missing key that reads like an oversight.
+const MICHELIN_RANK = { 'three-star': 4, 'two-star': 3, 'one-star': 2, 'bib-gourmand': 1, 'green-star': 0 };
 // v0.62.700 (Register O-124) — was a literal `{ "'26": 2, "'25": 1 }`, so any
 // token outside that pair scored 0 and a '27 entry would have sorted BELOW a
 // '25 one. "Newest first" is a property of the year, not of a lookup table:
