@@ -27971,4 +27971,29 @@ const CUISINE_NOTES = {
   }
 };
 
+// v0.62.781 — fold the translation overlay onto every note at load.
+//
+// The loop is LANGUAGE-AGNOSTIC on purpose: it copies whatever languages the
+// overlay row carries, so adding a locale is a data change and never a code
+// change. This mirrors nation-overlay.js, and it is why `fr` could be added to
+// 1,653 dish notes in v0.62.778 with no product code touched.
+//
+// A HAND-AUTHORED body always wins — the merge only fills a language the note
+// does not already have. Fail-open: a missing or broken overlay leaves the
+// curated data exactly as it is.
+try {
+  const OVERLAY = require('./classics-notes-i18n.generated.js');
+  const fold = (scope, dishes) => {
+    for (const [name, entry] of Object.entries(dishes || {})) {
+      const loc = OVERLAY[`${scope}::${name}`];
+      if (!loc || !entry || !entry.note) continue;
+      for (const [lang, text] of Object.entries(loc)) {
+        if (entry.note[lang] == null && text) entry.note[lang] = text;
+      }
+    }
+  };
+  for (const [cc, dishes] of Object.entries(CLASSIC_NOTES)) fold(cc, dishes);
+  for (const [slug, dishes] of Object.entries(CUISINE_NOTES)) fold(slug, dishes);
+} catch { /* overlay optional — curated data stands on its own */ }
+
 module.exports = { CLASSIC_NOTES, CUISINE_NOTES };

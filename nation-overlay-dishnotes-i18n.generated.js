@@ -89,7 +89,7 @@ module.exports = {
     es: "Doro wat es un estofado de pollo etíope y eritreo cocinado a fuego lento, profundamente especiado con berbere y niter kibbeh, a menudo incluyendo huevos duros.",
   },
   "african::egusi soup": {
-    fr: "L'egusi est une soupe ouest-africaine, très répandue au Nigeria, épaissie et parfumée par des graines de melon moulues, avec viande, poisson et légumes-feuilles.",
+    fr: "L'egusi est une soupe ouest-africaine, très répandue au Nigeria, épaissie et parfumée par des graines de melon moulues, souvent avec viande, poisson et légumes-feuilles.",
     id: "Egusi soup adalah sup Afrika Barat, populer di Nigeria, dikentalkan dan dibumbui dengan biji egusi (melon) giling, seringkali termasuk daging, ikan, dan sayuran berdaun.",
     ru: "Egusi soup — это западноафриканский суп, популярный в Нигерии, загущенный и приправленный молотыми семенами egusi (дыни), часто включающий мясо, рыбу и листовые овощи.",
     de: "Egusi soup ist eine westafrikanische Suppe, beliebt in Nigeria, die mit gemahlenen Egusi-Samen (Melone) angedickt und gewürzt wird und oft Fleisch, Fisch und Blattgemüse enthält.",
@@ -98,7 +98,7 @@ module.exports = {
     es: "Egusi soup es una sopa de África Occidental, popular en Nigeria, espesada y aromatizada con semillas de egusi (melón) molidas, a menudo incluyendo carne, pescado y verduras de hoja.",
   },
   "african::fufu": {
-    fr: "Le fufu est une préparation ouest-africaine pilée, une pâte féculente obtenue à partir de manioc, de plantain ou d'igname bouillis puis pilés.",
+    fr: "Le fufu est une préparation ouest-africaine pilée, une pâte féculente obtenue à partir de manioc, de plantain ou d'igname généralement bouillis puis pilés.",
     id: "Fufu adalah makanan tumbuk Afrika Barat, makanan bertepung seperti adonan yang biasanya terbuat dari singkong, pisang raja, atau ubi yang direbus dan ditumbuk.",
     ru: "Fufu — это западноафриканское толченое блюдо, крахмалистая, тестообразная пища, обычно приготовленная из вареной и толченой маниоки, плантанов или ямса.",
     de: "Fufu ist ein westafrikanisches gestampftes Gericht, ein stärkehaltiges, teigartiges Lebensmittel, das typischerweise aus gekochter und gestampfter Maniok, Kochbananen oder Yams hergestellt wird.",
@@ -107,7 +107,7 @@ module.exports = {
     es: "Fufu es una comida machacada de África Occidental, un alimento con almidón similar a una masa, típicamente hecho de yuca, plátanos o ñames hervidos y machacados.",
   },
   "african::ful medames african": {
-    fr: "Le ful medames est un ragoût de fèves cuites né en Égypte et devenu un pilier de l'Afrique du Nord, servi avec de l'huile d'olive et du cumin.",
+    fr: "Le ful medames est un ragoût de fèves cuites né en Égypte et devenu un pilier de l'Afrique du Nord, généralement servi avec de l'huile d'olive et du cumin.",
     id: "Ful medames adalah rebusan kacang fava yang dimasak, berasal dari Mesir dan menjadi makanan pokok di seluruh Afrika Utara, biasanya disajikan dengan minyak zaitun dan jintan.",
     ru: "Ful medames — это рагу из вареных бобов фава, родом из Египта и являющееся основным блюдом по всей Северной Африке, обычно подается с оливковым маслом и тмином.",
     de: "Ful medames ist ein Eintopf aus gekochten Saubohnen, der aus Ägypten stammt und ein Grundnahrungsmittel in ganz Nordafrika ist, typischerweise mit Olivenöl und Kreuzkümmel serviert.",
@@ -125,7 +125,7 @@ module.exports = {
     es: "Injera es un pan plano agrio, fermentado y esponjoso hecho de harina de teff, que sirve como alimento básico y utensilio en la cocina etíope y eritrea.",
   },
   "african::jollof rice": {
-    fr: "Le jollof rice est un riz assaisonné d'Afrique de l'Ouest, à base de riz long, de tomates et d'épices, originaire de la région sénégambienne.",
+    fr: "Le jollof rice est un riz assaisonné d'Afrique de l'Ouest, généralement à base de riz long, de tomates et d'épices, originaire de la région sénégambienne.",
     id: "Jollof rice adalah hidangan nasi berbumbu dari Afrika Barat, biasanya dibuat dengan nasi berbutir panjang, tomat, dan rempah-rempah, berasal dari wilayah Senegambia.",
     ru: "Jollof rice — это приправленное рисовое блюдо из Западной Африки, обычно приготовленное из длиннозерного риса, помидоров и специй, родом из региона Сенегамбия.",
     de: "Jollof rice ist ein gewürztes Reisgericht aus Westafrika, typischerweise zubereitet mit Langkornreis, Tomaten und Gewürzen, das seinen Ursprung in der Region Senegambia hat.",
@@ -251,7 +251,7 @@ module.exports = {
     es: "BBQ pulled pork es un plato de paleta de cerdo cocinada a fuego lento, desmenuzada y a menudo mezclada con barbecue sauce.",
   },
   "american::bbq ribs": {
-    fr: "Les ribs au barbecue sont des travers de porc ou de bœuf cuits lentement jusqu'à devenir tendres, servis avec une sauce barbecue.",
+    fr: "Les ribs au barbecue sont des travers de porc ou de bœuf cuits lentement jusqu'à devenir tendres, généralement servis avec une sauce barbecue.",
     id: "BBQ ribs adalah iga babi atau sapi, dimasak perlahan hingga empuk dan biasanya disajikan dengan saus barbecue.",
     ru: "BBQ ribs — это свиные или говяжьи ребрышки, медленно приготовленные до нежности и обычно подаваемые с barbecue sauce.",
     de: "BBQ ribs sind Schweine- oder Rinderrippchen, langsam gegart, bis sie zart sind und typischerweise mit barbecue sauce serviert werden.",
@@ -359,7 +359,7 @@ module.exports = {
     es: "Fried chicken consiste en trozos de pollo rebozados con harina sazonada o rebozado, luego fritos para crear una capa crujiente.",
   },
   "american::gumbo": {
-    fr: "Le gumbo est un ragoût du sud de la Louisiane mêlant influences africaine, française, espagnole et amérindienne, épaissi au gombo ou à la poudre de filé.",
+    fr: "Le gumbo est un ragoût du sud de la Louisiane mêlant influences africaine, française, espagnole et amérindienne, souvent épaissi au gombo ou à la poudre de filé.",
     id: "Gumbo adalah rebusan dari Louisiana selatan, memadukan pengaruh Afrika, Prancis, Spanyol, dan Penduduk Asli Amerika, sering dikentalkan dengan okra atau bubuk filé.",
     ru: "Gumbo — это рагу из южной Луизианы, сочетающее африканские, французские, испанские и индейские влияния, часто загущается бамией или порошком филе.",
     de: "Gumbo ist ein Eintopf aus dem südlichen Louisiana, der afrikanische, französische, spanische und indianische Einflüsse vereint und oft mit Okra oder Filé-Pulver angedickt wird.",
@@ -386,7 +386,7 @@ module.exports = {
     es: "Un Hot dog es una salchicha, típicamente una frankfurter o wiener, servida en un panecillo, con sus orígenes rastreados a inmigrantes alemanes.",
   },
   "american::jambalaya": {
-    fr: "Le jambalaya est un plat de riz savoureux de Louisiane, fusion d'influences africaine, espagnole et française, avec viande, fruits de mer et légumes.",
+    fr: "Le jambalaya est un plat de riz savoureux de Louisiane, fusion d'influences africaine, espagnole et française, généralement avec viande, fruits de mer et légumes.",
     id: "Jambalaya adalah hidangan nasi gurih dari Louisiana, memadukan pengaruh Afrika, Spanyol, dan Prancis, biasanya mengandung daging, makanan laut, dan sayuran.",
     ru: "Jambalaya — это пикантное рисовое блюдо из Луизианы, сочетающее африканские, испанские и французские влияния, обычно содержащее мясо, морепродукты и овощи.",
     de: "Jambalaya ist ein herzhaftes Reisgericht aus Louisiana, das afrikanische, spanische und französische Einflüsse vereint und typischerweise Fleisch, Meeresfrüchte und Gemüse enthält.",
@@ -395,7 +395,7 @@ module.exports = {
     es: "Jambalaya es un sabroso plato de arroz de Luisiana, que fusiona influencias africanas, españolas y francesas, típicamente conteniendo carne, mariscos y verduras.",
   },
   "american::lobster roll": {
-    fr: "Le lobster roll est un plat nord-américain de chair de homard servie dans un pain à hot-dog grillé, chaude au beurre ou froide à la mayonnaise.",
+    fr: "Le lobster roll est un plat nord-américain de chair de homard servie dans un pain à hot-dog grillé, souvent chaude au beurre ou froide à la mayonnaise.",
     id: "Lobster roll adalah hidangan Amerika Utara berupa daging lobster yang disajikan di atas roti bun gaya hot dog panggang, sering disiapkan hangat dengan mentega atau dingin dengan mayones.",
     ru: "Lobster roll — это североамериканское блюдо из мяса лобстера, подаваемое на жареной булочке в стиле хот-дога, часто готовится теплым с маслом или холодным с майонезом.",
     de: "Ein Lobster roll ist ein nordamerikanisches Gericht aus Hummerfleisch, das auf einem gegrillten Hotdog-Brötchen serviert wird, oft warm mit Butter oder kalt mit Mayonnaise zubereitet.",
@@ -413,7 +413,7 @@ module.exports = {
     es: "Mac and cheese es un plato de pasta de macarrones cubiertos con salsa de queso, más comúnmente cheddar, con orígenes en la Inglaterra medieval.",
   },
   "american::new york pizza": {
-    fr: "La pizza new-yorkaise se reconnaît à sa grande pâte fine étirée à la main, assez souple pour être pliée, garnie de sauce tomate et de mozzarella.",
+    fr: "La pizza new-yorkaise se reconnaît à sa grande pâte fine étirée à la main, assez souple pour être pliée, généralement garnie de sauce tomate et de mozzarella.",
     id: "New York pizza menampilkan kerak tipis besar yang dilempar tangan, cukup lentur untuk dilipat, biasanya diberi saus tomat dan mozzarella.",
     ru: "New York pizza отличается большой, тонкой корочкой, раскатанной вручную, достаточно податливой, чтобы ее можно было сложить, обычно с томатным соусом и моцареллой.",
     de: "New York pizza zeichnet sich durch eine große, handgeworfene dünne Kruste aus, die biegsam genug ist, um gefaltet zu werden, und typischerweise mit Tomatensauce und Mozzarella belegt ist.",
@@ -422,7 +422,7 @@ module.exports = {
     es: "New York pizza presenta una masa fina grande y estirada a mano, lo suficientemente flexible como para ser doblada, típicamente cubierta con salsa de tomate y mozzarella.",
   },
   "american::pancakes": {
-    fr: "Les pancakes sont de petites galettes rondes à base d'une pâte épaisse et levée aux œufs, au lait et à la farine, cuites sur une plaque.",
+    fr: "Les pancakes sont de petites galettes souvent rondes à base d'une pâte épaisse et levée aux œufs, au lait et à la farine, généralement cuites sur une plaque.",
     id: "Panekuk adalah kue pipih, seringkali bulat, yang terbuat dari adonan kental beragi yang mengandung telur, susu, dan tepung, biasanya dimasak di atas wajan datar.",
     ru: "Блины — это плоские, часто круглые лепешки, приготовленные из густого дрожжевого теста, содержащего яйца, молоко и муку, обычно жарятся на сковороде.",
     de: "Pfannkuchen sind flache, oft runde Kuchen aus einem dicken, gesäuerten Teig, der Eier, Milch und Mehl enthält und typischerweise auf einer Grillplatte gebacken wird.",
@@ -431,7 +431,7 @@ module.exports = {
     es: "Los panqueques son tortas planas, a menudo redondas, hechas de una masa espesa y leudada que contiene huevos, leche y harina, típicamente cocinadas en una plancha.",
   },
   "american::pastrami sandwich": {
-    fr: "Le sandwich au pastrami associe des tranches de poitrine de bœuf saumurée, épicée, fumée et cuite à la vapeur, servies sur du pain de seigle avec de la moutarde.",
+    fr: "Le sandwich au pastrami associe des tranches de poitrine de bœuf généralement saumurée, épicée, fumée et cuite à la vapeur, servies sur du pain de seigle, souvent avec de la moutarde.",
     id: "Roti lapis pastrami menampilkan pastrami iris, biasanya sandung lamur sapi yang diawetkan, dibumbui, diasap, dan dikukus, disajikan di atas roti gandum hitam, seringkali dengan moster.",
     ru: "Сэндвич с pastrami состоит из нарезанной pastrami, обычно вяленой, приправленной, копченой и приготовленной на пару говяжьей грудинки, подается на ржаном хлебе, часто с горчицей.",
     de: "Ein Pastrami-Sandwich enthält geschnittenes Pastrami, typischerweise gepökeltes, gewürztes, geräuchertes und gedämpftes Rinderbruststück, serviert auf Roggenbrot, oft mit Senf.",
@@ -503,7 +503,7 @@ module.exports = {
     es: "Cazuela criolla es un guiso latinoamericano sustancioso, típicamente con carne (como res o pollo), verduras, y a menudo espesado con ingredientes como plátanos o papas.",
   },
   "argentinian::chimichurri": {
-    fr: "Le chimichurri est une sauce crue aux herbes, façon pesto, au persil, à l'ail, à l'origan, à l'huile et au vinaigre, servie avec les viandes grillées.",
+    fr: "Le chimichurri est une sauce crue aux herbes, façon pesto, au persil, à l'ail, à l'origan, à l'huile et au vinaigre, souvent servie avec les viandes grillées.",
     id: "Chimichurri adalah saus herba mentah mirip pesto yang terbuat dari peterseli, bawang putih, oregano, minyak, dan cuka, sering disajikan dengan daging panggang.",
     ru: "Chimichurri — это сырой травяной соус, похожий на песто, приготовленный из петрушки, чеснока, орегано, масла и уксуса, часто подается к жареному мясу.",
     de: "Chimichurri ist eine ungekochte, pesto-ähnliche Kräutersauce aus Petersilie, Knoblauch, Oregano, Öl und Essig, die oft zu gegrilltem Fleisch serviert wird.",
@@ -530,7 +530,7 @@ module.exports = {
     es: "Dulce de leche es una crema espesa y suave hecha de leche y azúcar, cocinada lentamente hasta que se carameliza a un color marrón claro.",
   },
   "argentinian::empanada argentina": {
-    fr: "L'empanada argentine est un chausson de pâte de blé garni d'une farce salée — bœuf, poulet ou fromage — puis cuit au four ou frit.",
+    fr: "L'empanada argentine est un chausson de pâte de blé généralement garni d'une farce salée — bœuf, poulet ou fromage — puis cuit au four ou frit.",
     id: "Empanada argentina adalah pastri isi dengan adonan tepung terigu, biasanya diisi dengan bahan gurih seperti daging sapi, ayam, atau keju, lalu dipanggang atau digoreng.",
     ru: "Empanada argentina — это пирожок из пшеничного теста, обычно с начинкой из пикантных ингредиентов, таких как говядина, курица или сыр, затем запеченный или жареный.",
     de: "Empanada argentina ist eine gefüllte Teigtasche aus Weizenmehlteig, typischerweise mit herzhaften Zutaten wie Rindfleisch, Huhn oder Käse gefüllt und dann gebacken oder frittiert.",
@@ -539,7 +539,7 @@ module.exports = {
     es: "Empanada argentina es una empanadilla con masa de harina de trigo, típicamente rellena de ingredientes salados como carne de res, pollo o queso, luego horneada o frita.",
   },
   "argentinian::flan con dulce de leche": {
-    fr: "Le flan con dulce de leche est un dessert argentin classique de crème caramel servie fraîche et généreusement nappée de dulce de leche.",
+    fr: "Le flan con dulce de leche est un dessert argentin classique de crème caramel généralement servie fraîche et généreusement nappée de dulce de leche.",
     id: "Flan con dulce de leche adalah hidangan penutup puding karamel klasik Argentina, biasanya disajikan dingin dan diberi taburan dulce de leche yang melimpah.",
     ru: "Flan con dulce de leche — это классический аргентинский карамельный заварной десерт, обычно подаваемый охлаждённым и политый щедрой порцией dulce de leche.",
     de: "Flan con dulce de leche ist ein klassisches argentinisches Karamellpudding-Dessert, typischerweise gekühlt serviert und mit einem großzügigen Schuss dulce de leche übergossen.",
@@ -566,7 +566,7 @@ module.exports = {
     es: "Humita es un plato andino tradicional de maíz fresco machacado hasta formar una pasta, envuelto en una hoja de maíz, luego cocido al vapor o hervido.",
   },
   "argentinian::locro": {
-    fr: "Le locro est un ragoût nourrissant d'origine précolombienne, à base de grains de maïs blanc secs, de viande et de légumes comme la courge.",
+    fr: "Le locro est un ragoût nourrissant d'origine précolombienne, généralement à base de grains de maïs blanc secs, de viande et de légumes comme la courge.",
     id: "Locro adalah sup kental bergizi asal pra-Kolombia, biasanya dibuat dengan biji jagung putih kering, daging, dan sayuran seperti labu.",
     ru: "Locro — это сытное, питательное рагу доколумбового происхождения, обычно приготовленное из сухих зерен белой кукурузы, мяса и овощей, таких как тыква.",
     de: "Locro ist ein herzhafter, nahrhafter Eintopf präkolumbianischen Ursprungs, typischerweise zubereitet mit trockenen weißen Maiskörnern, Fleisch und Gemüse wie Kürbis.",
@@ -575,7 +575,7 @@ module.exports = {
     es: "Locro es un guiso sustancioso y nutritivo de origen precolombino, típicamente hecho con granos de maíz blanco seco, carne y verduras como la calabaza.",
   },
   "argentinian::matambre": {
-    fr: "Le matambre est une bavette argentine traditionnelle roulée, farcie de légumes et d'œufs durs, puis pochée ou rôtie.",
+    fr: "Le matambre est une bavette argentine traditionnelle roulée, généralement farcie de légumes et d'œufs durs, puis pochée ou rôtie.",
     id: "Matambre adalah steak perut gulung tradisional Argentina, biasanya diisi dengan sayuran dan telur rebus, lalu direbus atau dipanggang.",
     ru: "Matambre — это традиционный аргентинский рулет из пашины, обычно фаршированный овощами и вареными яйцами, затем отваренный или запеченный.",
     de: "Matambre ist ein traditioneller argentinischer gerollter Flanksteak, typischerweise gefüllt mit Gemüse und hartgekochten Eiern, dann gekocht oder gebraten.",
@@ -647,7 +647,7 @@ module.exports = {
     es: "Provoleta es queso provolone argentino a la parrilla, sellado para desarrollar una corteza crujiente y dorada mientras se derrite por dentro.",
   },
   "argentinian::tira de asado": {
-    fr: "La tira de asado se compose de longues bandes de côtes de bœuf coupées en travers, salées puis grillées lentement à feu doux.",
+    fr: "La tira de asado se compose de longues bandes de côtes de bœuf coupées en travers, généralement salées puis grillées lentement à feu doux.",
     id: "Tira de asado terdiri dari potongan panjang iga sapi, dipotong melintang dan biasanya dibumbui garam, lalu dipanggang perlahan di atas api kecil.",
     ru: "Tira de asado состоит из длинных полосок говяжьих рёбер, нарезанных поперёк и обычно приправленных солью, затем медленно приготовленных на гриле на слабом огне.",
     de: "Tira de asado besteht aus langen Streifen von Rinderrippen, quer geschnitten und typischerweise mit Salz gewürzt, dann langsam bei niedriger Hitze gegrillt.",
@@ -674,7 +674,7 @@ module.exports = {
     es: "El asado es una barbacoa tradicional sudamericana y un acontecimiento social, sobre todo en Argentina, con distintas carnes asadas a fuego abierto o en parrilla.",
   },
   "australasia::breadfruit roasted": {
-    fr: "Le fruit à pain rôti est un accompagnement de base des îles du Pacifique, cuit entier au four ou sur un feu ouvert jusqu'à ce qu'il soit fondant.",
+    fr: "Le fruit à pain rôti est un accompagnement de base des îles du Pacifique, souvent cuit entier au four ou sur un feu ouvert jusqu'à ce qu'il soit fondant.",
     id: "Sukun panggang adalah lauk pokok Kepulauan Pasifik, seringkali disiapkan dengan memanggang seluruh buah dalam oven atau api terbuka hingga empuk.",
     ru: "Жареный хлебный фрукт — это основное гарнирное блюдо тихоокеанских островов, часто приготовляемое путем запекания целого фрукта в духовке или на открытом огне до мягкости.",
     de: "Geröstete Brotfrucht ist eine Grundbeilage der pazifischen Inseln, die oft zubereitet wird, indem die ganze Frucht in einem Ofen oder über offenem Feuer geröstet wird, bis sie weich ist.",
@@ -683,7 +683,7 @@ module.exports = {
     es: "La fruta del pan asada es una guarnición básica de las Islas del Pacífico, a menudo preparada asando la fruta entera en un horno o fuego abierto hasta que esté suave.",
   },
   "australasia::cassava cake pacific": {
-    fr: "Le gâteau de manioc est un dessert des îles du Pacifique, cuit au four à partir de manioc râpé, de lait de coco et de sucre.",
+    fr: "Le gâteau de manioc est un dessert des îles du Pacifique, généralement cuit au four à partir de manioc râpé, de lait de coco et de sucre.",
     id: "Kue singkong adalah hidangan penutup panggang dari Kepulauan Pasifik, biasanya dibuat dengan singkong parut, santan, dan gula.",
     ru: "Пирог из маниока — это запеченный десерт с тихоокеанских островов, обычно приготовленный из тертого маниока, кокосового молока и сахара.",
     de: "Maniokkuchen ist ein gebackenes Dessert von den pazifischen Inseln, typischerweise hergestellt aus geriebenem Maniok, Kokosmilch und Zucker.",
@@ -692,7 +692,7 @@ module.exports = {
     es: "El pastel de yuca es un postre horneado de las Islas del Pacífico, típicamente hecho con yuca rallada, leche de coco y azúcar.",
   },
   "australasia::chop suey samoan": {
-    fr: "Le chop suey samoan est un sauté de nouilles adapté de la cuisine chinoise, aux vermicelles, à la viande et à une sauce soja-huître.",
+    fr: "Le chop suey samoan est un sauté de nouilles adapté de la cuisine chinoise, généralement aux vermicelles, à la viande et à une sauce soja-huître.",
     id: "Samoan chop suey adalah mi tumis, diadaptasi dari masakan Tiongkok, biasanya menampilkan mi bihun, daging, dan saus kedelai-tiram gurih.",
     ru: "Samoan chop suey — это жареная лапша, адаптированная из китайской кухни, обычно с вермишелью, мясом и пикантным соево-устричным соусом.",
     de: "Samoan chop suey ist eine Nudelpfanne, adaptiert aus der chinesischen Küche, typischerweise mit Fadennudeln, Fleisch und einer herzhaften Soja-Austern-Sauce.",
@@ -737,7 +737,7 @@ module.exports = {
     es: "Island lobster se refiere a varias langostas que se encuentran en Australasia, como la langosta de roca australiana, apreciada por su carne dulce y tierna.",
   },
   "australasia::kokoda": {
-    fr: "Le kokoda est un plat fidjien de poisson cru proche du ceviche, mariné dans du jus d'agrumes et du lait de coco onctueux.",
+    fr: "Le kokoda est un plat fidjien de poisson cru proche du ceviche, traditionnellement mariné dans du jus d'agrumes et du lait de coco onctueux.",
     id: "Kokoda adalah hidangan ikan mentah Fiji, mirip dengan ceviche, yang secara tradisional direndam dalam jus jeruk dan santan kental krim.",
     ru: "Kokoda — это фиджийское блюдо из сырой рыбы, похожее на ceviche, традиционно маринованное в цитрусовых соках и сливочном кокосовом молоке.",
     de: "Kokoda ist ein fidschianisches Rohfischgericht, ähnlich wie ceviche, das traditionell in Zitrussäften und cremiger Kokosmilch mariniert wird.",
@@ -746,7 +746,7 @@ module.exports = {
     es: "Kokoda es un plato fiyiano de pescado crudo, similar al ceviche, tradicionalmente marinado en jugos cítricos y leche de coco cremosa.",
   },
   "australasia::lovo": {
-    fr: "Le lovo est une méthode de cuisson fidjienne traditionnelle où viandes et légumes cuisent lentement sur des pierres chaudes dans un four enterré.",
+    fr: "Le lovo est une méthode de cuisson fidjienne traditionnelle où les aliments — généralement viandes et légumes — cuisent lentement sur des pierres chaudes dans un four enterré.",
     id: "Lovo adalah metode memasak tradisional Fiji di mana makanan, biasanya daging dan sayuran, dimasak perlahan dalam oven bawah tanah di atas batu panas.",
     ru: "Lovo — это традиционный фиджийский метод приготовления пищи, при котором еда, обычно мясо и овощи, медленно готовится в подземной печи на горячих камнях.",
     de: "Lovo ist eine traditionelle fidschianische Kochmethode, bei der Speisen, typischerweise Fleisch und Gemüse, in einem Erdofen auf heißen Steinen langsam gegart werden.",
@@ -962,7 +962,7 @@ module.exports = {
     es: "Un long black es una bebida a base de espresso de Australia y Nueva Zelanda, hecha vertiendo espresso sobre agua caliente para preservar la crema.",
   },
   "australian::meat pie": {
-    fr: "La meat pie australienne est une petite tourte individuelle garnie de bœuf haché ou en dés et de sauce, enveloppée d'une pâte.",
+    fr: "La meat pie australienne est une petite tourte individuelle généralement garnie de bœuf haché ou en dés et de sauce, enveloppée d'une pâte.",
     id: "Pai daging Australia adalah pai tangan kecil yang biasanya diisi dengan daging sapi cincang atau potong dadu dan kuah kental, dibungkus dalam kulit pastri.",
     ru: "Австралийский мясной пирог — это небольшой пирожок, обычно наполненный рубленым или нарезанным кубиками говядиной и подливкой, заключенный в кондитерскую корочку.",
     de: "Der australische Fleischkuchen ist ein kleiner Handkuchen, der typischerweise mit Hackfleisch oder gewürfeltem Rindfleisch und Soße gefüllt und in einer Teighülle gebacken wird.",
@@ -1052,7 +1052,7 @@ module.exports = {
     es: "Gulaschsuppe es una rica sopa de ternera austriaca, originaria de Hungría, caracterizada por pimentón, carne tierna, cebollas y otras verduras.",
   },
   "austrian::kaiserschmarrn": {
-    fr: "Le kaiserschmarrn est une crêpe épaisse déchirée en morceaux et légèrement caramélisée, servie avec du sucre glace et une compote ; c'était le dessert favori de l'empereur François-Joseph Ier.",
+    fr: "Le kaiserschmarrn est une crêpe épaisse déchirée en morceaux et légèrement caramélisée, souvent servie avec du sucre glace et une compote ; c'était le dessert favori de l'empereur François-Joseph Ier.",
     id: "Kaiserschmarrn adalah panekuk yang lembut, sedikit karamel, dan disobek-sobek, sering disajikan dengan gula bubuk dan kompot buah; itu adalah favorit Kaisar Franz Joseph I.",
     ru: "Kaiserschmarrn — это пышный, слегка карамелизированный, рваный блин, часто подаваемый с сахарной пудрой и фруктовым компотом; это было любимое блюдо императора Франца Иосифа I.",
     de: "Kaiserschmarrn ist ein fluffiger, leicht karamellisierter, zerrissener Pfannkuchen, oft mit Puderzucker und Fruchtkompott serviert; er war ein Lieblingsgericht von Kaiser Franz Joseph I.",
@@ -1115,7 +1115,7 @@ module.exports = {
     es: "Palatschinken son panqueques finos, similares a los crepes, de origen grecorromano, típicamente rellenos de ingredientes dulces como mermelada o chocolate, y luego enrollados.",
   },
   "austrian::powidltascherl": {
-    fr: "Les powidltascherl sont des raviolis autrichiens de pâte à la pomme de terre fourrés au powidl, une confiture de prunes épaisse, servis avec de la chapelure au beurre.",
+    fr: "Les powidltascherl sont des raviolis autrichiens de pâte à la pomme de terre fourrés au powidl, une confiture de prunes épaisse, souvent servis avec de la chapelure au beurre.",
     id: "Powidltascherl adalah pangsit adonan kentang Austria yang diisi dengan Powidl, selai plum kental, dan sering disajikan dengan remah roti mentega.",
     ru: "Powidltascherl — это австрийские клецки из картофельного теста, наполненные Powidl, густым сливовым джемом, и часто подаваемые с хлебными крошками, обжаренными в масле.",
     de: "Powidltascherl sind österreichische Kartoffelteigtaschen, gefüllt mit Powidl, einer dicken Pflaumenmarmelade, und oft mit Butterbröseln serviert.",
@@ -1151,7 +1151,7 @@ module.exports = {
     es: "Selchfleisch se refiere a carne ahumada, típicamente cerdo, que se cura y a menudo se ahúma en caliente, luego se cocina antes de servir en la cocina austriaca.",
   },
   "austrian::tafelspitz": {
-    fr: "Le tafelspitz est un classique viennois de bœuf bouilli, pris dans le rumsteck, servi avec son bouillon et des légumes racines ; c'était le plat préféré de l'empereur François-Joseph Ier.",
+    fr: "Le tafelspitz est un classique viennois de bœuf bouilli, généralement pris dans le rumsteck, servi avec son bouillon et des légumes racines ; c'était le plat préféré de l'empereur François-Joseph Ier.",
     id: "Tafelspitz adalah hidangan klasik Wina berupa daging sapi rebus, biasanya dari bagian punggung, disajikan dengan kaldu dan sayuran akar; itu adalah favorit Kaisar Franz Joseph I.",
     ru: "Tafelspitz — это классическое венское блюдо из отварной говядины, обычно из огузка, подаваемое с бульоном и корнеплодами; это было любимое блюдо императора Франца Иосифа I.",
     de: "Tafelspitz ist ein klassisches Wiener Gericht aus gekochtem Rindfleisch, typischerweise aus dem Hüftdeckel, serviert mit Brühe und Wurzelgemüse; es war das Lieblingsgericht von Kaiser Franz Joseph I.",
@@ -1178,7 +1178,7 @@ module.exports = {
     es: "Topfenstrudel es un pastel austriaco con un relleno cremoso hecho de Topfen (queso quark), envuelto en masa de strudel hojaldrada y horneado.",
   },
   "austrian::vanillekipferl": {
-    fr: "Les vanillekipferl sont des biscuits autrichiens en croissant, à la farine, au beurre, au sucre et aux noix moulues, saupoudrés de sucre vanillé.",
+    fr: "Les vanillekipferl sont des biscuits autrichiens en croissant, à la farine, au beurre, au sucre et aux noix moulues, généralement saupoudrés de sucre vanillé.",
     id: "Vanillekipferl adalah kue-kue Austria berbentuk bulan sabit yang terbuat dari tepung, mentega, gula, dan kacang tanah giling, biasanya ditaburi gula vanila.",
     ru: "Vanillekipferl — это австрийское печенье в форме полумесяца, приготовленное из муки, сливочного масла, сахара и молотых орехов, обычно посыпанное ванильным сахаром.",
     de: "Vanillekipferl sind halbmondförmige österreichische Kekse aus Mehl, Butter, Zucker und gemahlenen Nüssen, die typischerweise mit Vanillezucker bestäubt werden.",
@@ -1223,7 +1223,7 @@ module.exports = {
     es: "Begun bhaja es un plato bengalí clásico de berenjena en rodajas finas, ligeramente sazonada y frita en sartén, a menudo en aceite de mostaza.",
   },
   "bengali::bhuna khichuri": {
-    fr: "Le bhuna khichuri est un plat bengali sec et épicé de riz et de lentilles cuits ensemble, préparé pour les grandes occasions ou comme plat réconfortant.",
+    fr: "Le bhuna khichuri est un plat bengali sec et épicé de riz et de lentilles cuits ensemble, souvent préparé pour les grandes occasions ou comme plat réconfortant.",
     id: "Bhuna khichuri adalah hidangan Bengali satu panci yang kering dan berbumbu, terbuat dari nasi dan lentil, sering disiapkan untuk acara-acara khusus atau sebagai makanan penghibur.",
     ru: "Bhuna khichuri — это сухое, пряное бенгальское блюдо из риса и чечевицы, приготовленное в одной кастрюле, часто готовится для особых случаев или как комфортная еда.",
     de: "Bhuna khichuri ist ein trockenes, gewürztes bengalisches Eintopfgericht aus Reis und Linsen, oft für besondere Anlässe oder als Soul Food zubereitet.",
@@ -1304,7 +1304,7 @@ module.exports = {
     es: "Luchi alur dom es un plato bengalí de pan plano blanco inflado frito (luchi) servido con un curry de patata ligeramente especiado (alur dom).",
   },
   "bengali::macher jhol": {
-    fr: "Le macher jhol est un ragoût de poisson épicé bengali et odia : des morceaux de poisson mijotés dans un bouillon à l'huile de moutarde, avec épices et pommes de terre.",
+    fr: "Le macher jhol est un ragoût de poisson épicé bengali et odia : des morceaux de poisson mijotés dans un bouillon à l'huile de moutarde, avec épices et, souvent, pommes de terre.",
     id: "Macher jhol adalah sup ikan pedas Bengali dan Odia, menampilkan potongan ikan yang direbus dalam kaldu berbasis minyak mustard dengan rempah-rempah dan seringkali kentang.",
     ru: "Macher jhol — это бенгальское и одийское острое рыбное рагу, состоящее из кусочков рыбы, тушенных в бульоне на основе горчичного масла со специями и часто с картофелем.",
     de: "Macher jhol ist ein bengalischer und Odia-würziger Fischeintopf mit Fischstücken, die in einer Brühe auf Senfölbasis mit Gewürzen und oft Kartoffeln geschmort werden.",
@@ -1394,7 +1394,7 @@ module.exports = {
     es: "Shorshe Ilish es una delicia tradicional bengalí que presenta pescado Hilsa cocinado en una salsa picante a base de mostaza.",
   },
   "bengali::shukto": {
-    fr: "Le shukto est un ragoût de légumes bengali légèrement amer, préparé avec plusieurs légumes et servi en entrée.",
+    fr: "Le shukto est un ragoût de légumes bengali légèrement amer, généralement préparé avec plusieurs légumes et servi en entrée.",
     id: "Shukto adalah sup sayuran Bengali dengan rasa sedikit pahit, biasanya dibuat dengan berbagai sayuran dan disajikan sebagai hidangan pembuka.",
     ru: "Shukto — это бенгальское овощное рагу со слегка горьковатым вкусом, обычно приготовленное из различных овощей и подаваемое в качестве закуски.",
     de: "Shukto ist ein bengalischer Gemüseeintopf mit leicht bitterem Geschmack, typischerweise mit verschiedenen Gemüsesorten zubereitet und als Vorspeise serviert.",
@@ -1403,7 +1403,7 @@ module.exports = {
     es: "Shukto es un guiso de verduras bengalí con un sabor ligeramente amargo, típicamente hecho con varias verduras y servido como entrante.",
   },
   "brazilian::açai bowl": {
-    fr: "L'açaí bowl est un smoothie épais et nourrissant à base de baies d'açaï surgelées mixées avec des fruits, garni de granola et de fruits frais.",
+    fr: "L'açaí bowl est un smoothie épais et nourrissant à base de baies d'açaï surgelées mixées avec des fruits, souvent garni de granola et de fruits frais.",
     id: "Açaí bowl adalah mangkuk smoothie kental kaya nutrisi yang terbuat dari buah açaí beku yang diblender dengan buah-buahan, seringkali diberi topping granola dan buah segar.",
     ru: "Açaí bowl — это густая, богатая питательными веществами смузи-миска, приготовленная из замороженных ягод açaí, смешанных с фруктами, часто украшенная гранолой и свежими фруктами.",
     de: "Eine açaí bowl ist eine dicke, nährstoffreiche Smoothie-Schale, hergestellt aus gefrorenen açaí-Beeren, gemischt mit Früchten, oft garniert mit Granola und frischen Früchten.",
@@ -1412,7 +1412,7 @@ module.exports = {
     es: "Un açaí bowl es un tazón de batido espeso y rico en nutrientes hecho de bayas de açaí congeladas mezcladas con fruta, a menudo cubierto con granola y fruta fresca.",
   },
   "brazilian::brigadeiro": {
-    fr: "Le brigadeiro est un dessert brésilien traditionnel de lait concentré, de cacao et de beurre, roulé en boules et enrobé de vermicelles en chocolat.",
+    fr: "Le brigadeiro est un dessert brésilien traditionnel de lait concentré, de cacao et de beurre, généralement roulé en boules et enrobé de vermicelles en chocolat.",
     id: "Brigadeiro adalah hidangan penutup tradisional Brasil yang terbuat dari susu kental manis, bubuk kakao, dan mentega, biasanya dibentuk menjadi bola-bola dan dilapisi meses.",
     ru: "Brigadeiro — это традиционный бразильский десерт, приготовленный из сгущённого молока, какао-порошка и сливочного масла, обычно скатанный в шарики и покрытый посыпкой.",
     de: "Brigadeiro ist ein traditionelles brasilianisches Dessert aus Kondensmilch, Kakaopulver und Butter, das typischerweise zu Kugeln gerollt und mit Streuseln überzogen wird.",
@@ -1547,7 +1547,7 @@ module.exports = {
     es: "La farofa es una guarnición tradicional brasileña de harina de mandioca tostada, a menudo salteada en grasa, con origen entre los pueblos indígenas tupí-guaraníes.",
   },
   "brazilian::picanha": {
-    fr: "La picanha est une pièce de bœuf brésilienne prise dans la tête de rumsteck, reconnaissable à sa généreuse couche de gras et grillée façon churrasco.",
+    fr: "La picanha est une pièce de bœuf brésilienne prise dans la tête de rumsteck, reconnaissable à sa généreuse couche de gras et souvent grillée façon churrasco.",
     id: "Picanha adalah potongan daging sapi Brasil dari bagian tanjung sirloin, dikenal karena lapisan lemaknya yang tebal dan biasanya dipanggang ala churrasco.",
     ru: "Picanha — бразильский отруб говядины из верхней части огузка, отличающийся щедрой жировой шапкой; чаще всего готовится на гриле в стиле churrasco.",
     de: "Picanha ist ein brasilianischer Rindfleischschnitt aus der Hüfte, erkennbar an seiner großzügigen Fettauflage, meist im Churrasco-Stil gegrillt.",
@@ -1583,7 +1583,7 @@ module.exports = {
     es: "La sopa de palmito es una sopa brasileña elaborada principalmente con palmitos, a menudo triturada hasta lograr una textura cremosa.",
   },
   "brazilian::tapioca": {
-    fr: "Au Brésil, la tapioca désigne une crêpe sans gluten à base d'amidon de manioc humidifié, servie avec des garnitures sucrées ou salées.",
+    fr: "Au Brésil, la tapioca désigne une crêpe sans gluten à base d'amidon de manioc humidifié, couramment servie avec des garnitures sucrées ou salées.",
     id: "Tapioca di Brasil merujuk pada panekuk atau krep bebas gluten dari pati singkong yang dilembapkan, umumnya disajikan dengan isian manis atau gurih.",
     ru: "Tapioca в Бразилии — это безглютеновый блинчик из увлажнённого маниокового крахмала, который обычно подают со сладкой или солёной начинкой.",
     de: "Tapioca bezeichnet in Brasilien einen glutenfreien Pfannkuchen aus angefeuchteter Maniokstärke, meist mit süßer oder herzhafter Füllung serviert.",
@@ -1628,7 +1628,7 @@ module.exports = {
     es: "Beef Wellington es un plato horneado que presenta solomillo de ternera y duxelles envueltos en hojaldre, a menudo incluyendo prosciutto o paté.",
   },
   "british::black pudding": {
-    fr: "Le black pudding est un boudin noir britannique et irlandais fait de sang de porc ou de bœuf, de gras et de céréales, servi au petit-déjeuner complet.",
+    fr: "Le black pudding est un boudin noir britannique et irlandais fait de sang de porc ou de bœuf, de gras et de céréales, couramment servi au petit-déjeuner complet.",
     id: "Black pudding adalah sosis darah Inggris dan Irlandia yang terbuat dari darah babi atau sapi, lemak, dan sereal, umumnya disajikan sebagai bagian dari sarapan lengkap.",
     ru: "Black pudding — это британская и ирландская кровяная колбаса, приготовленная из свиной или говяжьей крови, жира и злаков, обычно подаваемая как часть полного завтрака.",
     de: "Black pudding ist eine britische und irische Blutwurst aus Schweine- oder Rinderblut, Fett und Getreide, die häufig als Teil eines vollständigen Frühstücks serviert wird.",
@@ -1655,7 +1655,7 @@ module.exports = {
     es: "Chicken tikka masala es un curry británico con trozos de pollo marinado asado en una salsa cremosa especiada, posiblemente creado en Glasgow.",
   },
   "british::cornish pasty": {
-    fr: "Le cornish pasty est un chausson cuit au four originaire de Cornouailles, garni de bœuf, pomme de terre, rutabaga et oignon, à la bordure torsadée.",
+    fr: "Le cornish pasty est un chausson cuit au four originaire de Cornouailles, traditionnellement garni de bœuf, pomme de terre, rutabaga et oignon, à la bordure torsadée.",
     id: "The Cornish pasty adalah pastri panggang Inggris berbentuk turnover dari Cornwall, secara tradisional diisi dengan daging sapi, kentang, lobak Swedia, dan bawang, dengan tepi berkerut.",
     ru: "The Cornish pasty — это британский запеченный пирожок-перевертыш из Cornwall, традиционно начиненный говядиной, картофелем, брюквой и луком, с обжатым краем.",
     de: "Das Cornish pasty ist ein britisches gebackenes Teigtaschengebäck aus Cornwall, traditionell gefüllt mit Rindfleisch, Kartoffeln, Steckrüben und Zwiebeln, mit einem gekräuselten Rand.",
@@ -1727,7 +1727,7 @@ module.exports = {
     es: "El pescado con patatas fritas es un plato caliente de pescado rebozado y frito servido con patatas fritas gruesas, originario de Inglaterra en el siglo XIX.",
   },
   "british::full english breakfast": {
-    fr: "Le full English breakfast est un petit-déjeuner copieux réunissant bacon, saucisses, œufs, tomates, champignons et pain frit.",
+    fr: "Le full English breakfast est un petit-déjeuner copieux réunissant généralement bacon, saucisses, œufs, tomates, champignons et pain frit.",
     id: "Sarapan lengkap Inggris adalah hidangan matang yang substansial, biasanya termasuk bacon, sosis, telur, tomat, jamur, dan roti goreng.",
     ru: "Полный английский завтрак — это сытное приготовленное блюдо, обычно включающее бекон, колбаски, яйца, помидоры, грибы и жареный хлеб.",
     de: "Ein vollständiges englisches Frühstück ist eine reichhaltige warme Mahlzeit, die typischerweise Speck, Würstchen, Eier, Tomaten, Pilze und gebratenes Brot umfasst.",
@@ -1799,7 +1799,7 @@ module.exports = {
     es: "Sticky toffee pudding es un bizcocho húmedo con dátiles picados y una dulce salsa de toffee, probablemente inventado en el Distrito de los Lagos de Inglaterra.",
   },
   "british::sunday roast": {
-    fr: "Le Sunday roast est un repas britannique traditionnel de viande rôtie, pommes de terre, légumes et Yorkshire pudding, servi le dimanche.",
+    fr: "Le Sunday roast est un repas britannique traditionnel de viande rôtie, pommes de terre, légumes et Yorkshire pudding, généralement servi le dimanche.",
     id: "Sunday roast adalah hidangan tradisional Inggris berupa daging panggang, kentang, sayuran, dan Yorkshire pudding, biasanya dimakan pada hari Minggu.",
     ru: "Sunday roast — это традиционная британская трапеза из жареного мяса, картофеля, овощей и Yorkshire pudding, обычно употребляемая по воскресеньям.",
     de: "Sunday roast ist eine traditionelle britische Mahlzeit aus Braten, Kartoffeln, Gemüse und Yorkshire pudding, die typischerweise sonntags gegessen wird.",
@@ -1808,7 +1808,7 @@ module.exports = {
     es: "Sunday roast es una comida tradicional británica de carne asada, patatas, verduras y Yorkshire pudding, típicamente consumida los domingos.",
   },
   "british::toad in the hole": {
-    fr: "Le toad in the hole est un plat britannique traditionnel de saucisses cuites dans une pâte à Yorkshire pudding, servi avec une sauce à l'oignon.",
+    fr: "Le toad in the hole est un plat britannique traditionnel de saucisses cuites dans une pâte à Yorkshire pudding, souvent servi avec une sauce à l'oignon.",
     id: "Toad in the hole adalah hidangan tradisional Inggris yang menampilkan sosis yang dipanggang dalam adonan Yorkshire pudding, sering disajikan dengan saus bawang.",
     ru: "Toad in the hole — это традиционное британское блюдо, представляющее собой колбаски, запеченные в тесте Yorkshire pudding, часто подаваемое с луковой подливкой.",
     de: "Toad in the hole ist ein traditionelles britisches Gericht mit Würstchen, die in einem Yorkshire pudding-Teig gebacken werden, oft serviert mit Zwiebelsoße.",
@@ -1817,7 +1817,7 @@ module.exports = {
     es: "Toad in the hole es un plato tradicional británico que presenta salchichas horneadas en una masa de Yorkshire pudding, a menudo servido con salsa de cebolla.",
   },
   "british::trifle": {
-    fr: "Le trifle est un dessert anglais en couches : génoise imbibée de xérès, fruits, crème anglaise et crème fouettée, servi dans un compotier en verre.",
+    fr: "Le trifle est un dessert anglais en couches : génoise imbibée de xérès, fruits, crème anglaise et crème fouettée, souvent servi dans un compotier en verre.",
     id: "Trifle adalah hidangan penutup berlapis Inggris dengan kue bolu yang direndam sherry, buah, kustar, dan krim kocok, sering disajikan dalam piring kaca.",
     ru: "Trifle — это слоеный английский десерт с бисквитом, пропитанным хересом, фруктами, заварным кремом и взбитыми сливками, часто подаваемый в стеклянной посуде.",
     de: "Trifle ist ein geschichtetes englisches Dessert mit in Sherry getränktem Biskuitkuchen, Früchten, Vanillecreme und Schlagsahne, oft in einer Glasschale serviert.",
@@ -1826,7 +1826,7 @@ module.exports = {
     es: "Trifle es un postre inglés en capas con bizcocho empapado en jerez, fruta, natillas y nata montada, a menudo servido en un recipiente de cristal.",
   },
   "british::victoria sponge": {
-    fr: "Le Victoria sponge est un gâteau britannique fait de deux génoises légères garnies de confiture et de crème, nommé d'après la reine Victoria.",
+    fr: "Le Victoria sponge est un gâteau britannique fait de deux génoises légères traditionnellement garnies de confiture et de crème, nommé d'après la reine Victoria.",
     id: "Victoria sponge adalah kue lapis Inggris dengan dua lapisan bolu ringan, secara tradisional diisi dengan selai dan krim, dinamai dari Ratu Victoria.",
     ru: "Victoria sponge — это британский бисквитный торт с двумя легкими бисквитными слоями, традиционно наполненный джемом и кремом, названный в честь королевы Виктории.",
     de: "Victoria sponge ist ein britischer Schichtkuchen mit zwei leichten Biskuitböden, traditionell gefüllt mit Marmelade und Sahne, benannt nach Königin Victoria.",
@@ -1835,7 +1835,7 @@ module.exports = {
     es: "Victoria sponge es un pastel sándwich británico con dos capas ligeras de bizcocho, tradicionalmente relleno de mermelada y crema, llamado así por la Reina Victoria.",
   },
   "british::yorkshire pudding": {
-    fr: "Le Yorkshire pudding est une préparation britannique cuite au four à partir d'une pâte aux œufs, à la farine et au lait, servie avec le rôti de bœuf.",
+    fr: "Le Yorkshire pudding est une préparation britannique cuite au four à partir d'une pâte aux œufs, à la farine et au lait, traditionnellement servie avec le rôti de bœuf.",
     id: "Yorkshire pudding adalah puding panggang Inggris yang terbuat dari adonan telur, tepung, dan susu, secara tradisional disajikan dengan roast beef.",
     ru: "Yorkshire pudding — это запеченный британский пудинг, приготовленный из теста из яиц, муки и молока, традиционно подаваемый с roast beef.",
     de: "Yorkshire pudding ist ein gebackener britischer Pudding aus einem Teig aus Eiern, Mehl und Milch, der traditionell zu Roast beef serviert wird.",
@@ -1871,7 +1871,7 @@ module.exports = {
     es: "El curry birmano se refiere a diversos platos de carne o verduras cocidos a fuego lento en una base de curry aromática, a menudo más suave que otros curries del sudeste asiático.",
   },
   "burmese::burmese fish curry": {
-    fr: "Le curry de poisson birman est un plat traditionnel où le poisson mijote dans une sauce à la tomate relevée d'ail et d'échalotes.",
+    fr: "Le curry de poisson birman est un plat traditionnel où le poisson mijote souvent dans une sauce à la tomate relevée d'ail et d'échalotes.",
     id: "Kari ikan Myanmar adalah hidangan tradisional yang sering menampilkan ikan yang direbus dalam saus berbasis tomat dengan bumbu aromatik seperti bawang putih dan bawang merah.",
     ru: "Бирманское рыбное карри — это традиционное блюдо, часто включающее рыбу, тушеную в томатном соусе с ароматными специями, такими как чеснок и лук-шалот.",
     de: "Burmesisches Fischcurry ist ein traditionelles Gericht, das oft Fisch enthält, der in einer Tomatensauce mit Aromaten wie Knoblauch und Schalotten geschmort wird.",
@@ -1889,7 +1889,7 @@ module.exports = {
     es: "El tofu de garbanzo, también conocido como Shan tofu, es un plato tradicional birmano hecho de harina de garbanzo, agua y sal.",
   },
   "burmese::e kya kway": {
-    fr: "Les e kya kway sont des beignets birmans allongés de pâte frite, proches du youtiao chinois, que l'on mange avec du café ou du congee.",
+    fr: "Les e kya kway sont des beignets birmans allongés de pâte frite, proches du youtiao chinois, que l'on mange couramment avec du café ou du congee.",
     id: "E kya kway adalah stik adonan goreng Myanmar, mirip dengan youtiao Cina, umumnya dimakan dengan kopi atau bubur.",
     ru: "E kya kway — это бирманские жареные палочки из теста, похожие на китайские youtiao, обычно едят с кофе или кашей.",
     de: "E kya kway sind burmesische frittierte Teigstangen, ähnlich den chinesischen youtiao, die üblicherweise mit Kaffee oder Congee gegessen werden.",
@@ -1907,7 +1907,7 @@ module.exports = {
     es: "Falooda es una bebida de postre fría que presenta fideos finos, semillas de albahaca, gelatina y leche, a menudo cubierta con helado, que se encuentra en la cocina birmana.",
   },
   "burmese::htamin gyaw": {
-    fr: "Le htamin gyaw est un riz sauté birman traditionnel, préparé avec un riz rond parfumé, des pois cuits, des oignons, de l'ail et de la sauce soja foncée.",
+    fr: "Le htamin gyaw est un riz sauté birman traditionnel, souvent préparé avec un riz rond parfumé, des pois cuits, des oignons, de l'ail et de la sauce soja foncée.",
     id: "Htamin gyaw adalah hidangan nasi goreng tradisional Myanmar, sering dibuat dengan nasi butir pendek yang harum, kacang polong rebus, bawang bombay, bawang putih, dan kecap hitam.",
     ru: "Htamin gyaw — это традиционное бирманское блюдо из жареного риса, часто приготовленное из ароматного короткозерного риса, вареного гороха, лука, чеснока и темного соевого соуса.",
     de: "Htamin gyaw ist ein traditionelles burmesisches gebratenes Reisgericht, oft zubereitet mit duftendem Kurzkornreis, gekochten Erbsen, Zwiebeln, Knoblauch und dunkler Sojasauce.",
@@ -1961,7 +1961,7 @@ module.exports = {
     es: "Ohn no khao swe es un plato birmano de fideos de trigo en un caldo de pollo al curry y leche de coco, espesado con harina de garbanzo.",
   },
   "burmese::paratha burmese style": {
-    fr: "Le paratha birman, ou palata, est un pain plat feuilleté à la texture légère et croustillante, obtenu en étirant puis en poêlant la pâte, servi avec des currys.",
+    fr: "Le paratha birman, ou palata, est un pain plat feuilleté à la texture légère et croustillante, obtenu en étirant puis en poêlant la pâte, souvent servi avec des currys.",
     id: "Paratha Myanmar, atau palata, adalah roti pipih berlapis dengan tekstur ringan dan renyah, dibuat dengan meregangkan dan menggoreng adonan, sering disajikan dengan kari.",
     ru: "Бирманская paratha, или palata, — это слоеный пресный хлеб с легкой, слоистой текстурой, приготовленный путем растягивания и жарки теста, часто подается с карри.",
     de: "Burmesisches Paratha, oder palata, ist ein geschichtetes Fladenbrot mit einer leichten, blättrigen Textur, das durch Dehnen und Braten des Teigs hergestellt und oft mit Currys serviert wird.",
@@ -2042,7 +2042,7 @@ module.exports = {
     es: "La sopa cantonesa de doble cocción (lou foh tong) es un caldo tradicional cocinado a fuego lento durante horas en una olla sellada sumergida en agua hirviendo, extrayendo sabores profundos.",
   },
   "cantonese::cantonese seafood platter": {
-    fr: "Le plateau de fruits de mer cantonais met en valeur des produits très frais, cuits à la vapeur ou brièvement sautés, avec peu d'assaisonnement.",
+    fr: "Le plateau de fruits de mer cantonais met en valeur des produits très frais, souvent cuits à la vapeur ou brièvement sautés, avec peu d'assaisonnement.",
     id: "Piring hidangan laut Kanton menampilkan berbagai hidangan laut segar, sering dikukus atau ditumis ringan dengan bumbu minimal untuk menonjolkan rasa alaminya.",
     ru: "Кантонское плато из морепродуктов демонстрирует разнообразные свежие морепродукты, часто приготовленные на пару или слегка обжаренные с минимальным количеством приправ, чтобы подчеркнуть их естественные вкусы.",
     de: "Eine kantonesische Meeresfrüchteplatte präsentiert verschiedene frische Meeresfrüchte, oft gedämpft oder leicht gebraten mit minimaler Würzung, um ihre natürlichen Aromen hervorzuheben.",
@@ -2132,7 +2132,7 @@ module.exports = {
     es: "La tarta de huevo (dan tat) es un pastel cantonés con una corteza hojaldrada y un dulce relleno de crema de huevo, originario de Guangzhou a principios del siglo XX.",
   },
   "cantonese::fish maw soup": {
-    fr: "La soupe de vessie natatoire est un mets chinois raffiné préparé à partir de vessies séchées de gros poissons, prisées pour leur texture gélatineuse, mijotées dans un bouillon riche.",
+    fr: "La soupe de vessie natatoire est un mets chinois raffiné préparé à partir de vessies séchées de gros poissons, prisées pour leur texture gélatineuse, souvent mijotées dans un bouillon riche.",
     id: "Sup perut ikan adalah hidangan lezat Tiongkok yang terbuat dari gelembung renang ikan besar yang dikeringkan, dihargai karena teksturnya yang kenyal dan sering direbus dalam kaldu kaya.",
     ru: "Суп из рыбьего плавательного пузыря — китайский деликатес, приготовленный из сушеного плавательного пузыря крупной рыбы, ценится за свою желатиновую текстуру и часто тушится в насыщенном бульоне.",
     de: "Fischmaulsuppe ist eine chinesische Delikatesse, hergestellt aus der getrockneten Schwimmblase großer Fische, geschätzt für ihre gelatinöse Textur und oft in einer reichhaltigen Brühe gekocht.",
@@ -2168,7 +2168,7 @@ module.exports = {
     es: "La gelatina de hierbas (gui ling gao) es un postre chino similar a la gelatina, tradicionalmente hecho de plastrón de tortuga y hierbas, a menudo servido frío con sirope.",
   },
   "cantonese::lo mai gai": {
-    fr: "Le lo mai gai est un dim sum de riz gluant garni de poulet, de saucisse chinoise et de champignons, enveloppé dans une feuille de lotus et cuit à la vapeur.",
+    fr: "Le lo mai gai est un dim sum de riz gluant garni de poulet, de saucisse chinoise et de champignons, généralement enveloppé dans une feuille de lotus et cuit à la vapeur.",
     id: "Lo mai gai adalah hidangan dim sum berupa nasi ketan yang diisi dengan ayam, sosis Tiongkok, dan jamur, biasanya dibungkus daun teratai dan dikukus.",
     ru: "Lo mai gai — это блюдо dim sum из клейкого риса, наполненного курицей, китайской колбасой и грибами, обычно завернутое в лист лотоса и приготовленное на пару.",
     de: "Lo mai gai ist ein Dim Sum-Gericht aus Klebreis, gefüllt mit Hähnchen, chinesischer Wurst und Pilzen, typischerweise in einem Lotusblatt eingewickelt und gedämpft.",
@@ -2195,7 +2195,7 @@ module.exports = {
     es: "El pato asado cantonés es un pato entero asado hasta que su piel está crujiente, a menudo relleno de aromáticos como anís estrellado y jengibre.",
   },
   "cantonese::roast goose": {
-    fr: "L'oie rôtie cantonaise est une oie entière assaisonnée et rôtie, à la peau croustillante et à la chair tendre, servie avec une sauce aux prunes.",
+    fr: "L'oie rôtie cantonaise est une oie entière assaisonnée et rôtie, à la peau croustillante et à la chair tendre, souvent servie avec une sauce aux prunes.",
     id: "Angsa panggang Kanton adalah angsa utuh yang dipanggang dengan bumbu, menghasilkan kulit renyah dan daging empuk, sering disajikan dengan saus prem.",
     ru: "Кантонский жареный гусь — это целый гусь, запеченный с приправами, в результате чего получается хрустящая корочка и нежное мясо, часто подается со сливовым соусом.",
     de: "Kantonesische Gänsebraten ist eine ganze Gans, die mit Gewürzen gebraten wird, was zu knuspriger Haut und zartem Fleisch führt, oft mit Pflaumensauce serviert.",
@@ -2249,7 +2249,7 @@ module.exports = {
     es: "El cerdo agridulce (gu lou yuk) es un plato cantonés de trozos de cerdo fritos rebozados en una salsa agridulce picante, a menudo con piña y pimientos.",
   },
   "cantonese::tau huay (douhua)": {
-    fr: "Le tau huay (douhua) est un dessert ou en-cas soyeux à base de lait de soja coagulé, servi avec un sirop sucré.",
+    fr: "Le tau huay (douhua) est un dessert ou en-cas soyeux à base de lait de soja coagulé, souvent servi avec un sirop sucré.",
     id: "Tau huay (douhua) adalah hidangan penutup atau camilan berbahan dasar tahu yang lembut, terbuat dari susu kedelai yang dikoagulasi, sering disajikan dengan sirup manis.",
     ru: "Tau huay (douhua) — это шелковистый десерт или закуска на основе тофу, приготовленная из свернувшегося соевого молока, часто подается со сладким сиропом.",
     de: "Tau huay (douhua) ist ein seidiges Dessert oder Snack auf Tofu-Basis, hergestellt aus geronnener Sojamilch, oft mit süßem Sirup serviert.",
@@ -2348,7 +2348,7 @@ module.exports = {
     es: "Egg drop soup es una sopa china que presenta finas hebras de huevo sedosas flotando en un caldo de pollo claro, a menudo espesada con maicena.",
   },
   "chinese::hot and sour soup": {
-    fr: "La soupe aigre-piquante est une soupe chinoise au profil salé, relevé et acidulé, avec champignons, tofu et rubans d'œuf.",
+    fr: "La soupe aigre-piquante est une soupe chinoise au profil salé, relevé et acidulé, souvent avec champignons, tofu et rubans d'œuf.",
     id: "Hot and sour soup adalah sup Tiongkok yang dicirikan oleh profil rasa gurih, pedas, dan asamnya, seringkali dengan jamur, tahu, dan pita telur.",
     ru: "Hot and sour soup — это китайский суп, характеризующийся пикантным, острым и терпким вкусовым профилем, часто с грибами, тофу и яичными лентами.",
     de: "Hot and sour soup ist eine chinesische Suppe, die sich durch ihr herzhaftes, scharfes und würziges Geschmacksprofil auszeichnet, oft mit Pilzen, Tofu und Eierfäden.",
@@ -2429,7 +2429,7 @@ module.exports = {
     es: "Mapo tofu es un plato chino picante de la provincia de Sichuan, con tofu en una salsa picante con pasta de habas fermentada y carne picada.",
   },
   "chinese::moon cake": {
-    fr: "Le gâteau de lune est une pâtisserie chinoise dense à la garniture sucrée, souvent avec des jaunes d'œufs salés, mangée à la fête de la mi-automne.",
+    fr: "Le gâteau de lune est une pâtisserie chinoise dense à la garniture sucrée, souvent avec des jaunes d'œufs salés, traditionnellement mangée à la fête de la mi-automne.",
     id: "Mooncake adalah kue kering Tiongkok padat dengan isian manis, seringkali mengandung kuning telur asin, secara tradisional dimakan selama Festival Pertengahan Musim Gugur.",
     ru: "Mooncake — это плотная китайская выпечка со сладкой начинкой, часто содержащая соленые яичные желтки, традиционно употребляемая во время Праздника середины осени.",
     de: "Mooncake ist ein dichtes chinesisches Gebäck mit einer süßen Füllung, oft mit gesalzenen Eigelb, das traditionell während des Mittherbstfestes gegessen wird.",
@@ -2438,7 +2438,7 @@ module.exports = {
     es: "Mooncake es un pastel chino denso con un relleno dulce, a menudo contiene yemas de huevo saladas, tradicionalmente comido durante el Festival de Medio Otoño.",
   },
   "chinese::mooncake": {
-    fr: "Le gâteau de lune est une pâtisserie chinoise dense à la garniture sucrée, souvent avec des jaunes d'œufs salés, mangée à la fête de la mi-automne.",
+    fr: "Le gâteau de lune est une pâtisserie chinoise dense à la garniture sucrée, souvent avec des jaunes d'œufs salés, traditionnellement mangée à la fête de la mi-automne.",
     id: "Mooncake adalah kue kering Tiongkok padat dengan isian manis, seringkali mengandung kuning telur asin, secara tradisional dimakan selama Festival Pertengahan Musim Gugur.",
     ru: "Mooncake — это плотная китайская выпечка со сладкой начинкой, часто содержащая соленые яичные желтки, традиционно употребляемая во время Праздника середины осени.",
     de: "Mooncake ist ein dichtes chinesisches Gebäck mit einer süßen Füllung, oft mit gesalzenen Eigelb, das traditionell während des Mittherbstfestes gegessen wird.",
@@ -2447,7 +2447,7 @@ module.exports = {
     es: "Mooncake es un pastel chino denso con un relleno dulce, a menudo contiene yemas de huevo saladas, tradicionalmente comido durante el Festival de Medio Otoño.",
   },
   "chinese::peking duck": {
-    fr: "Le canard laqué de Pékin est un plat pékinois préparé depuis l'époque impériale, réputé pour sa peau fine et croustillante, servi avec des galettes et une sauce de haricots sucrée.",
+    fr: "Le canard laqué de Pékin est un plat pékinois préparé depuis l'époque impériale, réputé pour sa peau fine et croustillante, souvent servi avec des galettes et une sauce de haricots sucrée.",
     id: "Peking duck adalah hidangan Beijing, disiapkan sejak era Kekaisaran, dikenal karena kulitnya yang tipis, renyah dan sering disajikan dengan panekuk dan saus kacang manis.",
     ru: "Peking duck — это пекинское блюдо, приготовленное с имперской эпохи, известное своей тонкой, хрустящей корочкой и часто подаваемое с блинчиками и сладким бобовым соусом.",
     de: "Peking duck ist ein Pekinger Gericht, das seit der Kaiserzeit zubereitet wird, bekannt für seine dünne, knusprige Haut und oft mit Pfannkuchen und süßer Bohnensauce serviert.",
@@ -2492,7 +2492,7 @@ module.exports = {
     es: "West Lake fish es un plato de Hangzhou, Zhejiang, que presenta pescado de agua dulce al vapor, a menudo carpa, cubierto con una salsa agridulce.",
   },
   "chinese::xiao long bao": {
-    fr: "Les xiao long bao sont des raviolis chinois remplis de bouillon, cuits à la vapeur dans un petit panier de bambou, originaires de Changzhou, dans le Jiangsu.",
+    fr: "Les xiao long bao sont des raviolis chinois remplis de bouillon, traditionnellement cuits à la vapeur dans un petit panier de bambou, originaires de Changzhou, dans le Jiangsu.",
     id: "Xiao long bao adalah pangsit isi sup Tiongkok, secara tradisional dikukus dalam keranjang bambu kecil, berasal dari Changzhou, provinsi Jiangsu.",
     ru: "Xiao long bao — это китайские пельмени с супом, традиционно приготовленные на пару в маленькой бамбуковой корзине, происходящие из Чанчжоу, провинция Цзянсу.",
     de: "Xiao long bao sind chinesische Suppenknödel, traditionell in einem kleinen Bambuskorb gedämpft, ursprünglich aus Changzhou, Provinz Jiangsu.",
@@ -2501,7 +2501,7 @@ module.exports = {
     es: "Xiao long bao son dumplings chinos rellenos de sopa, tradicionalmente cocidos al vapor en una pequeña cesta de bambú, originarios de Changzhou, provincia de Jiangsu.",
   },
   "chinese::yangzhou fried rice": {
-    fr: "Le riz sauté de Yangzhou est un classique du wok originaire du Jiangsu, associant plusieurs protéines comme les crevettes et le char siu.",
+    fr: "Le riz sauté de Yangzhou est un classique du wok originaire du Jiangsu, associant généralement plusieurs protéines comme les crevettes et le char siu.",
     id: "Yangzhou fried rice adalah hidangan nasi goreng wajan klasik dari Yangzhou, Jiangsu, biasanya menampilkan campuran protein seperti udang dan char siu.",
     ru: "Yangzhou fried rice — это классическое блюдо из риса, жаренного в воке, из Янчжоу, Цзянсу, обычно включающее смесь белков, таких как креветки и char siu.",
     de: "Yangzhou fried rice ist ein klassisches Wok-Reisgericht aus Yangzhou, Jiangsu, das typischerweise eine Mischung aus Proteinen wie Garnelen und char siu enthält.",
@@ -2627,7 +2627,7 @@ module.exports = {
     es: "Lava cake, o molten chocolate cake, es un postre francés caracterizado por su centro de chocolate cálido y líquido.",
   },
   "dessert::macarons": {
-    fr: "Les macarons sont de délicats biscuits français à la meringue, faits de blancs d'œufs, de poudre d'amande et de sucre, garnis de ganache ou de crème au beurre.",
+    fr: "Les macarons sont de délicats biscuits français à la meringue, faits de blancs d'œufs, de poudre d'amande et de sucre, généralement garnis de ganache ou de crème au beurre.",
     id: "Macarons adalah kue sandwich berbasis meringue Prancis yang lembut, dibuat dengan putih telur, tepung almond, dan gula, biasanya diisi dengan ganache atau buttercream.",
     ru: "Macarons — это нежные французские печенья-сэндвичи на основе безе, приготовленные из яичных белков, миндальной муки и сахара, обычно наполненные ganache или buttercream.",
     de: "Macarons sind zarte französische Baiser-Sandwich-Kekse, hergestellt aus Eiweiß, Mandelmehl und Zucker, typischerweise gefüllt mit ganache oder buttercream.",
@@ -2690,7 +2690,7 @@ module.exports = {
     es: "Un profiterole es una bola de pasta choux francesa, típicamente rellena de nata montada, crema pastelera o helado, y a menudo cubierta con chocolate.",
   },
   "dessert::religieuse": {
-    fr: "La religieuse est une pâtisserie française composée de deux choux superposés, le plus petit au sommet, garnis de crème pâtissière et glacés à la ganache.",
+    fr: "La religieuse est une pâtisserie française composée de deux choux superposés, le plus petit au sommet, garnis de crème pâtissière et souvent glacés à la ganache.",
     id: "Religieuse adalah hidangan penutup Prancis yang menampilkan dua wadah kue choux, yang lebih kecil di atas yang lebih besar, diisi dengan crème pâtissière dan sering dilapisi ganache.",
     ru: "Religieuse — это французский десерт, состоящий из двух пирожных choux, меньшее из которых расположено поверх большего, наполненных crème pâtissière и часто покрытых глазурью из ганаша.",
     de: "Religieuse ist ein französisches Dessert mit zwei Brandteigschalen, einer kleineren auf einer größeren, gefüllt mit Crème Pâtissière und oft mit Ganache glasiert.",
@@ -2735,7 +2735,7 @@ module.exports = {
     es: "Tiramisu es un postre italiano hecho con ladyfingers empapados en café, mascarpone cheese, huevos y cacao en polvo, popularizado a partir de finales de los años 60.",
   },
   "egyptian::basbousa": {
-    fr: "La basbousa est un gâteau de semoule égyptien imbibé, arrosé d'un sirop de sucre sucré à la sortie du four.",
+    fr: "La basbousa est un gâteau de semoule égyptien, généralement imbibé d'un sirop de sucre à la sortie du four.",
     id: "Basbousa adalah kue semolina bersirup Mesir, biasanya disiram dengan sirup gula manis setelah dipanggang.",
     ru: "Basbousa — это египетский сиропный манник, обычно пропитанный сладким сахарным сиропом после выпечки.",
     de: "Basbousa ist ein ägyptischer Sirup-Grießkuchen, typischerweise nach dem Backen in süßem Zuckersirup getränkt.",
@@ -2744,7 +2744,7 @@ module.exports = {
     es: "Basbousa es un pastel de sémola almibarado egipcio, típicamente empapado en un jarabe de azúcar dulce después de hornear.",
   },
   "egyptian::bessara": {
-    fr: "La bessara est une purée ou soupe égyptienne de fèves et d'herbes fraîches, servie avec du pain.",
+    fr: "La bessara est une purée ou soupe égyptienne de fèves et d'herbes fraîches, souvent servie avec du pain.",
     id: "Bessara adalah saus cocol atau sup Mesir yang terbuat dari kacang fava yang dihaluskan dan rempah segar, sering disajikan dengan roti.",
     ru: "Bessara — это египетский дип или суп из пюре из бобов фава и свежих трав, часто подается с хлебом.",
     de: "Bessara ist ein ägyptischer Dip oder eine Suppe aus pürierten Favabohnen und frischen Kräutern, oft mit Brot serviert.",
@@ -2771,7 +2771,7 @@ module.exports = {
     es: "Fattah es un plato festivo egipcio con capas de pan crujiente, arroz, carne y una salsa de tomate con ajo y vinagre.",
   },
   "egyptian::feteer meshaltet": {
-    fr: "Le feteer meshaltet est une pâtisserie feuilletée égyptienne traditionnelle, faite de nombreuses couches très fines et servie avec du miel ou du fromage.",
+    fr: "Le feteer meshaltet est une pâtisserie feuilletée égyptienne traditionnelle, faite de nombreuses couches très fines et souvent servie avec du miel ou du fromage.",
     id: "Feteer meshaltet adalah pastry lapis renyah tradisional Mesir, dibuat dengan banyak lapisan adonan tipis dan sering disajikan dengan madu atau keju.",
     ru: "Feteer meshaltet — это традиционная египетская слоеная выпечка, изготовленная из множества тонких слоев теста и часто подается с медом или сыром.",
     de: "Feteer meshaltet ist ein traditionelles ägyptisches Blätterteiggebäck, das aus vielen dünnen Teigschichten hergestellt und oft mit Honig oder Käse serviert wird.",
@@ -2780,7 +2780,7 @@ module.exports = {
     es: "Feteer meshaltet es un hojaldre tradicional egipcio, hecho con muchas capas finas de masa y a menudo se sirve con miel o queso.",
   },
   "egyptian::ful medames": {
-    fr: "Le ful medames est un ragoût égyptien traditionnel de fèves longuement cuites, assaisonné de cumin, d'huile d'olive et de jus de citron.",
+    fr: "Le ful medames est un ragoût égyptien traditionnel de fèves longuement cuites, généralement assaisonné de cumin, d'huile d'olive et de jus de citron.",
     id: "Ful medames adalah rebusan tradisional Mesir dari kacang fava yang dimasak perlahan, biasanya dibumbui dengan jintan, minyak zaitun, dan jus lemon.",
     ru: "Ful medames — это традиционное египетское рагу из медленно приготовленных бобов фава, обычно приправленное кумином, оливковым маслом и лимонным соком.",
     de: "Ful medames ist ein traditioneller ägyptischer Eintopf aus langsam gegarten Favabohnen, typischerweise mit Kreuzkümmel, Olivenöl und Zitronensaft gewürzt.",
@@ -2843,7 +2843,7 @@ module.exports = {
     es: "Mahshi es un plato egipcio de verduras como calabacín, pimientos o hojas de parra, rellenas de una mezcla de arroz especiado y hierbas.",
   },
   "egyptian::molokhia": {
-    fr: "La molokhia est une soupe égyptienne à base de corète potagère, préparée avec de l'ail, de la coriandre et du poulet ou du lapin.",
+    fr: "La molokhia est une soupe égyptienne à base de corète potagère, souvent préparée avec de l'ail, de la coriandre et du poulet ou du lapin.",
     id: "Molokhia adalah sup Mesir yang terbuat dari tanaman molokhia, sering disiapkan dengan bawang putih, ketumbar, dan ayam atau kelinci.",
     ru: "Molokhia — это египетский суп, приготовленный из растения джутовой мальвы, часто с чесноком, кинзой и курицей или кроликом.",
     de: "Molokhia ist eine ägyptische Suppe aus der Jute-Malve-Pflanze, oft mit Knoblauch, Koriander und Huhn oder Kaninchen zubereitet.",
@@ -2897,7 +2897,7 @@ module.exports = {
     es: "El tahini egipcio es un condimento o salsa cremosa hecha de semillas de sésamo molidas, a menudo mezclada con zumo de limón, ajo y comino.",
   },
   "egyptian::umm ali": {
-    fr: "L'umm Ali est un pain perdu égyptien préparé avec de la pâte feuilletée déchirée, du lait, des fruits secs et de la noix de coco, servi tiède.",
+    fr: "L'umm Ali est un pain perdu égyptien préparé avec de la pâte feuilletée déchirée, du lait, des fruits secs et de la noix de coco, souvent servi tiède.",
     id: "Umm Ali adalah puding roti Mesir yang terbuat dari puff pastry yang disobek, susu, kacang-kacangan, dan kelapa, sering disajikan hangat.",
     ru: "Umm Ali — это египетский хлебный пудинг, приготовленный из рваного слоеного теста, молока, орехов и кокоса, часто подается теплым.",
     de: "Umm Ali ist ein ägyptischer Brotpudding, der aus zerrissenem Blätterteig, Milch, Nüssen und Kokosnuss zubereitet und oft warm serviert wird.",
@@ -3131,7 +3131,7 @@ module.exports = {
     es: "Chicken Inasal es un plato de pollo a la parrilla de la región de Visayas Occidentales, marinado en vinagre, calamansi, hierba limón y annatto.",
   },
   "filipino::crispy pata": {
-    fr: "Le crispy pata est un plat philippin de pieds ou de jarrets de porc frits, servi avec une sauce soja-vinaigre.",
+    fr: "Le crispy pata est un plat philippin de pieds ou de jarrets de porc frits, généralement servi avec une sauce soja-vinaigre.",
     id: "Crispy pata adalah hidangan Filipina berupa kaki atau buku jari babi goreng, biasanya disajikan dengan saus celup kedelai-cuka.",
     ru: "Crispy pata — филиппинское блюдо из жареных во фритюре свиных ножек или рулек, обычно подаваемое с соево-уксусным соусом для макания.",
     de: "Crispy pata ist ein philippinisches Gericht aus frittierten Schweinshaxen oder -pfoten, das typischerweise mit einer Soja-Essig-Dip-Sauce serviert wird.",
@@ -3140,7 +3140,7 @@ module.exports = {
     es: "Crispy pata es un plato filipino de manitas o codillos de cerdo fritos, típicamente servido con una salsa para mojar de soja y vinagre.",
   },
   "filipino::ensaymada": {
-    fr: "L'ensaymada est une brioche philippine moelleuse et sucrée, adaptée de l'ensaïmada espagnole, garnie de beurre, de sucre et de fromage râpé.",
+    fr: "L'ensaymada est une brioche philippine moelleuse et sucrée, adaptée de l'ensaïmada espagnole, généralement garnie de beurre, de sucre et de fromage râpé.",
     id: "Ensaymada adalah kue kering Filipina yang lembut dan manis bergaya brioche, diadaptasi dari ensaïmada Spanyol, biasanya diberi mentega, gula, dan keju parut.",
     ru: "Ensaymada — филиппинская мягкая, сладкая выпечка в стиле бриоши, адаптированная из испанской ensaïmada, обычно украшенная маслом, сахаром и тертым сыром.",
     de: "Ensaymada ist ein philippinisches weiches, süßes Gebäck im Brioche-Stil, adaptiert von der spanischen ensaïmada, typischerweise mit Butter, Zucker und geriebenem Käse belegt.",
@@ -3149,7 +3149,7 @@ module.exports = {
     es: "Ensaymada es un pastel filipino suave y dulce estilo brioche, adaptado de la ensaïmada española, típicamente cubierto con mantequilla, azúcar y queso rallado.",
   },
   "filipino::halo-halo": {
-    fr: "Le halo-halo est un dessert froid philippin de glace pilée et de lait évaporé, garni de douceurs variées dont la confiture d'ube et le leche flan.",
+    fr: "Le halo-halo est un dessert froid philippin de glace pilée et de lait évaporé, souvent garni de douceurs variées dont la confiture d'ube et le leche flan.",
     id: "Halo-halo adalah hidangan penutup dingin Filipina yang terbuat dari es serut, susu evaporasi, dan berbagai topping manis, seringkali termasuk ube jam dan leche flan.",
     ru: "Halo-halo — филиппинский холодный десерт из колотого льда, сгущенного молока и различных сладких начинок, часто включающих ube jam и leche flan.",
     de: "Halo-halo ist ein philippinisches kaltes Dessert aus zerstoßenem Eis, Kondensmilch und verschiedenen süßen Toppings, oft einschließlich ube jam und leche flan.",
@@ -3158,7 +3158,7 @@ module.exports = {
     es: "Halo-halo es un postre frío filipino hecho con hielo picado, leche evaporada y varios aderezos dulces, a menudo incluyendo ube jam y leche flan.",
   },
   "filipino::kare-kare": {
-    fr: "Le kare-kare est un ragoût philippin à l'épaisse sauce savoureuse à la cacahuète, préparé avec de la queue de bœuf ou des tripes et divers légumes.",
+    fr: "Le kare-kare est un ragoût philippin à l'épaisse sauce savoureuse à la cacahuète, généralement préparé avec de la queue de bœuf ou des tripes et divers légumes.",
     id: "Kare-kare adalah semur Filipina yang menampilkan saus kacang kental dan gurih, biasanya dibuat dengan buntut sapi atau babat sapi dan berbagai sayuran.",
     ru: "Kare-kare — филиппинское рагу с густым, пикантным арахисовым соусом, обычно приготовленное из бычьего хвоста или говяжьего рубца и различных овощей.",
     de: "Kare-kare ist ein philippinischer Eintopf mit einer dicken, herzhaften Erdnusssauce, typischerweise zubereitet mit Ochsenschwanz oder Rinderkutteln und verschiedenen Gemüsesorten.",
@@ -3167,7 +3167,7 @@ module.exports = {
     es: "Kare-kare es un estofado filipino que presenta una salsa de cacahuete espesa y sabrosa, típicamente hecha con rabo de buey o callos de ternera y varias verduras.",
   },
   "filipino::leche flan": {
-    fr: "Le leche flan est une crème caramel philippine, plus riche et plus dense que la crème caramel classique, cuite à la vapeur avec jaunes d'œufs et lait concentré.",
+    fr: "Le leche flan est une crème caramel philippine, plus riche et plus dense que la crème caramel classique, traditionnellement cuite à la vapeur avec jaunes d'œufs et lait concentré.",
     id: "Leche flan adalah hidangan penutup puding karamel Filipina, lebih kaya dan padat daripada crème caramel, secara tradisional dikukus dengan kuning telur dan susu kental manis.",
     ru: "Leche flan — филиппинский карамельный заварной десерт, более насыщенный и плотный, чем крем-карамель, традиционно приготовленный на пару с яичными желтками и сгущенным молоком.",
     de: "Leche flan ist ein philippinisches Karamellpudding-Dessert, reicher und dichter als Crème Caramel, traditionell mit Eigelb und Kondensmilch gedämpft.",
@@ -3194,7 +3194,7 @@ module.exports = {
     es: "Lechon kawali es un plato filipino de panceta de cerdo frita, preparada hirviéndola y luego friéndola hasta que quede crujiente.",
   },
   "filipino::longganisa": {
-    fr: "La longganisa est une saucisse philippine adaptée du chorizo espagnol, faite de porc haché et d'épices, avec de nombreuses variantes régionales.",
+    fr: "La longganisa est une saucisse philippine adaptée du chorizo espagnol, généralement faite de porc haché et d'épices, avec de nombreuses variantes régionales.",
     id: "Longganisa adalah sosis Filipina, adaptasi dari Spanish chorizo, biasanya dibuat dengan daging babi giling dan rempah-rempah, dengan banyak varian regional.",
     ru: "Longganisa — филиппинская колбаса, адаптация Spanish chorizo, обычно изготавливаемая из свиного фарша и специй, со множеством региональных вариантов.",
     de: "Longganisa ist eine philippinische Wurst, eine Adaption der Spanish chorizo, typischerweise hergestellt aus Hackfleisch und Gewürzen, mit vielen regionalen Varianten.",
@@ -3203,7 +3203,7 @@ module.exports = {
     es: "Longganisa es una salchicha filipina, una adaptación del Spanish chorizo, típicamente hecha con carne de cerdo picada y especias, con muchas variantes regionales.",
   },
   "filipino::lumpia": {
-    fr: "Les lumpia sont les rouleaux de printemps philippins : une fine pâte enveloppant des garnitures salées ou sucrées, servis frits ou frais.",
+    fr: "Les lumpia sont les rouleaux de printemps philippins : une fine pâte enveloppant des garnitures salées ou sucrées, souvent servis frits ou frais.",
     id: "Lumpia adalah lumpia Filipina yang terbuat dari kulit pastry tipis yang membungkus isian gurih atau manis, sering disajikan digoreng atau segar.",
     ru: "Lumpia — филиппинские блинчики с начинкой, сделанные из тонкого теста, обволакивающего пикантные или сладкие начинки, часто подаются жареными или свежими.",
     de: "Lumpia sind philippinische Frühlingsrollen, die aus dünnem Teig bestehen, der herzhafte oder süße Füllungen umhüllt und oft frittiert oder frisch serviert wird.",
@@ -3248,7 +3248,7 @@ module.exports = {
     es: "Pancit canton es un plato filipino de fideos salteados hecho con fideos de huevo de trigo, a menudo con carne y verduras.",
   },
   "filipino::pork adobo": {
-    fr: "L'adobo de porc est un plat philippin de porc — poitrine ou épaule — braisé dans une sauce acidulée au vinaigre, à la sauce soja et à l'ail.",
+    fr: "L'adobo de porc est un plat philippin de porc — généralement poitrine ou épaule — braisé dans une sauce acidulée au vinaigre, à la sauce soja et à l'ail.",
     id: "Pork adobo adalah hidangan Filipina yang menampilkan daging babi, biasanya perut atau bahu, direbus dalam saus asam dan gurih dari cuka, kecap, dan bawang putih.",
     ru: "Pork adobo — это филиппинское блюдо из свинины, обычно грудинки или лопатки, тушеной в пикантном и соленом соусе из уксуса, соевого соуса и чеснока.",
     de: "Pork adobo ist ein philippinisches Gericht mit Schweinefleisch, typischerweise Bauch oder Schulter, das in einer würzigen und herzhaften Sauce aus Essig, Sojasauce und Knoblauch geschmort wird.",
@@ -3293,7 +3293,7 @@ module.exports = {
     es: "Sisig es un plato filipino de Pampanga hecho de papada y orejas de cerdo picadas, sazonado con calamansi, cebolla y chiles.",
   },
   "filipino::ube halaya": {
-    fr: "L'ube halaya est un dessert philippin d'igname pourpre bouillie et écrasée, cuite avec du lait de coco et du lait concentré jusqu'à obtenir une pâte épaisse.",
+    fr: "L'ube halaya est un dessert philippin d'igname pourpre bouillie et écrasée, souvent cuite avec du lait de coco et du lait concentré jusqu'à obtenir une pâte épaisse.",
     id: "Ube halaya adalah hidangan penutup Filipina yang terbuat dari ubi ungu yang direbus dan dihaluskan, sering dimasak dengan santan dan susu kental manis menjadi selai kental.",
     ru: "Ube halaya — филиппинский десерт из вареного и пюрированного фиолетового ямса, часто приготовленный с кокосовым молоком и сгущенным молоком в густое варенье.",
     de: "Ube halaya ist ein philippinisches Dessert aus gekochter und pürierter violetter Yamswurzel, oft mit Kokosmilch und Kondensmilch zu einer dicker Marmelade gekocht.",
@@ -3311,7 +3311,7 @@ module.exports = {
     es: "Blanquette de veau es un estofado de ternera francés donde la carne se cuece a fuego lento en un caldo blanco y se sirve en una cremosa velouté sauce.",
   },
   "french::boeuf bourguignon": {
-    fr: "Le bœuf bourguignon est un ragoût français braisé au vin rouge de Bourgogne, avec carottes, oignons et ail.",
+    fr: "Le bœuf bourguignon est un ragoût français braisé au vin rouge de Bourgogne, généralement avec carottes, oignons et ail.",
     id: "Boeuf bourguignon adalah semur daging sapi Prancis yang direbus dalam anggur merah Burgundy, biasanya dengan wortel, bawang, dan bawang putih.",
     ru: "Boeuf bourguignon — это французское тушеное мясо говядины, томленое в красном бургундском вине, обычно с морковью, луком и чесноком.",
     de: "Boeuf bourguignon ist ein französischer Rindereintopf, der in rotem Burgunderwein geschmort wird, typischerweise mit Karotten, Zwiebeln und Knoblauch.",
@@ -3320,7 +3320,7 @@ module.exports = {
     es: "El Boeuf bourguignon es un estofado de ternera francés estofado en vino tinto de Borgoña, típicamente con zanahorias, cebollas y ajo.",
   },
   "french::bouillabaisse": {
-    fr: "La bouillabaisse est une soupe de poissons provençale traditionnelle née à Marseille, préparée avec plusieurs espèces de poissons.",
+    fr: "La bouillabaisse est une soupe de poissons provençale traditionnelle née à Marseille, généralement préparée avec plusieurs espèces de poissons.",
     id: "Bouillabaisse adalah sup ikan Provençal tradisional yang berasal dari Marseille, biasanya dibuat dengan beberapa jenis ikan.",
     ru: "Bouillabaisse — традиционное провансальское рыбное рагу, родом из Марселя, обычно готовится из нескольких видов рыбы.",
     de: "Bouillabaisse ist ein traditioneller provenzalischer Fischeintopf, ursprünglich aus Marseille, typischerweise mit verschiedenen Fischsorten zubereitet.",
@@ -3347,7 +3347,7 @@ module.exports = {
     es: "Coq au vin es un plato francés de pollo estofado en vino tinto, a menudo Borgoña, con lardons y champiñones.",
   },
   "french::croque madame": {
-    fr: "Le croque-madame est un croque-monsieur coiffé d'un œuf au plat ou poché.",
+    fr: "Le croque-madame est un sandwich chaud français au jambon et au fromage, proche du croque-monsieur, mais coiffé d'un œuf au plat ou poché.",
     id: "Croque madame adalah roti lapis ham dan keju Prancis panas, mirip dengan croque monsieur, tetapi diberi telur goreng atau telur rebus.",
     ru: "Croque madame — горячий французский сэндвич с ветчиной и сыром, похожий на croque monsieur, но сверху с жареным или пашотным яйцом.",
     de: "Croque madame ist ein heißes französisches Schinken-Käse-Sandwich, ähnlich einem croque monsieur, aber mit einem Spiegelei oder pochierten Ei belegt.",
@@ -3392,7 +3392,7 @@ module.exports = {
     es: "Foie gras es un manjar francés elaborado con el hígado graso de pato u oca, producido utilizando la técnica gavage.",
   },
   "french::pissaladière niçoise": {
-    fr: "La pissaladière niçoise est une tarte salée de Nice, garnie d'oignons confits, d'anchois et d'olives noires.",
+    fr: "La pissaladière niçoise est une tarte salée de Nice, traditionnellement garnie d'oignons confits, d'anchois et d'olives noires.",
     id: "Pissaladière niçoise adalah roti pipih gurih dari Nice, secara tradisional diberi topping bawang karamel, ikan teri, dan zaitun hitam.",
     ru: "Pissaladière niçoise — это пикантная лепёшка из Ниццы, традиционно украшенная карамелизированным луком, анчоусами и чёрными оливками.",
     de: "Pissaladière niçoise ist ein herzhaftes Fladenbrot aus Nizza, das traditionell mit karamellisierten Zwiebeln, Sardellen und schwarzen Oliven belegt wird.",
@@ -3482,7 +3482,7 @@ module.exports = {
     es: "La crème brûlée es un postre francés con una base cremosa de natillas y una capa dura de azúcar caramelizado; su nombre significa «crema quemada».",
   },
   "french::macarons": {
-    fr: "Les macarons sont des confiseries sucrées à base de meringue, de poudre d'amande, de blancs d'œufs et de sucre, assemblées deux à deux.",
+    fr: "Les macarons sont des confiseries sucrées à base de meringue, de poudre d'amande, de blancs d'œufs et de sucre, généralement assemblées deux à deux.",
     id: "Macarons adalah manisan berbasis meringue dari tepung almond, putih telur, dan gula, umumnya berbentuk kue sandwich.",
     ru: "Macarons — сладости на основе безе из миндальной муки, яичных белков и сахара, обычно собранные попарно с начинкой.",
     de: "Macarons sind süße Baisergebäcke aus Mandelmehl, Eiweiß und Zucker, meist als gefüllte Doppelkekse.",
@@ -3500,7 +3500,7 @@ module.exports = {
     es: "El mille-feuille es un postre francés compuesto tradicionalmente por tres capas de hojaldre alternadas con dos capas de crema pastelera.",
   },
   "french::pain au chocolat": {
-    fr: "Le pain au chocolat est une viennoiserie de pâte levée feuilletée renfermant une ou deux barres de chocolat noir.",
+    fr: "Le pain au chocolat est une viennoiserie de pâte levée feuilletée renfermant généralement une ou deux barres de chocolat noir.",
     id: "Pain au chocolat adalah viennoiserie dari adonan ragi berlapis, biasanya membungkus satu atau dua batang cokelat hitam.",
     ru: "Pain au chocolat — венская выпечка из слоёного дрожжевого теста, обычно с одной или двумя палочками тёмного шоколада внутри.",
     de: "Pain au chocolat ist eine Viennoiserie aus touriertem Hefeteig, die meist ein oder zwei Stücke dunkle Schokolade umschließt.",
@@ -3734,7 +3734,7 @@ module.exports = {
     es: "Sambal pizza es un plato de fusión que presenta masa de pizza cubierta con sambal, una pasta de chile picante, a menudo con mariscos u otros ingredientes.",
   },
   "fusion::soy-sauce gelato": {
-    fr: "Le gelato à la sauce soja est un dessert glacé qui mêle la douceur du gelato aux notes salées et umami de la sauce soja, proche d'un caramel salé.",
+    fr: "Le gelato à la sauce soja est un dessert glacé qui mêle la douceur du gelato aux notes salées et umami de la sauce soja, souvent proche d'un caramel salé.",
     id: "Soy-sauce gelato adalah hidangan penutup beku yang memadukan gelato manis dengan sentuhan umami gurih dari soy sauce, seringkali menciptakan profil karamel-asin.",
     ru: "Soy-sauce gelato — это замороженный десерт, который сочетает сладкое gelato с пикантными, умами нотками soy sauce, часто создавая солено-карамельный профиль.",
     de: "Soy-sauce gelato ist ein gefrorenes Dessert, das süßes Gelato mit den herzhaften Umami-Noten von Soy sauce verbindet und oft ein salzig-karamelliges Profil erzeugt.",
@@ -3761,7 +3761,7 @@ module.exports = {
     es: "El Uni linguine es un plato de pasta italiana que presenta linguine mezclado en una rica salsa hecha principalmente con huevas de erizo de mar.",
   },
   "fusion::xo sauce burger": {
-    fr: "Le burger à la sauce XO est rehaussé de cette sauce chinoise savoureuse née à Hong Kong, préparée à partir de fruits de mer séchés.",
+    fr: "Le burger à la sauce XO est rehaussé de cette sauce chinoise savoureuse née à Hong Kong, généralement préparée à partir de fruits de mer séchés.",
     id: "XO sauce burger menampilkan patty burger yang diperkaya dengan XO sauce, bumbu Tiongkok gurih yang berasal dari Hong Kong, biasanya terbuat dari makanan laut kering.",
     ru: "XO sauce burger представляет собой бургерную котлету, приправленную XO sauce — пикантной китайской приправой родом из Гонконга, обычно изготавливаемой из сушеных морепродуктов.",
     de: "Ein XO sauce burger bietet ein Burger-Patty, das mit XO sauce verfeinert ist, einem herzhaften chinesischen Gewürz aus Hongkong, das typischerweise aus getrockneten Meeresfrüchten hergestellt wird.",
@@ -3994,7 +3994,7 @@ module.exports = {
     es: "El Döner Kebab alemán es un plato turco de carne especiada cocinada al asador, servida en pan plano con verduras, popularizado en el Berlín Occidental de los años 70.",
   },
   "german::eisbein": {
-    fr: "L'Eisbein est un plat allemand traditionnel de jarret de porc salé ou saumuré, bouilli jusqu'à devenir fondant, spécialité berlinoise.",
+    fr: "L'Eisbein est un plat allemand traditionnel de jarret de porc salé ou saumuré, généralement bouilli jusqu'à devenir fondant, spécialité berlinoise.",
     id: "Eisbein adalah hidangan tradisional Jerman yang menampilkan buku jari babi yang diawetkan atau diasinkan, biasanya direbus hingga empuk, sering disajikan di Berlin.",
     ru: "Eisbein — это традиционное немецкое блюдо с вяленой или маринованной свиной рулькой, обычно отвариваемой до мягкости, часто подается в Берлине.",
     de: "Eisbein ist ein traditionelles deutsches Gericht mit einer gepökelten oder eingelegten Schweinshaxe, typischerweise zart gekocht, oft in Berlin serviert.",
@@ -4039,7 +4039,7 @@ module.exports = {
     es: "Kartoffelpuffer son tortitas de patata alemanas finas y fritas en sartén, hechas de patatas crudas finamente ralladas, huevo y condimentos.",
   },
   "german::knödel": {
-    fr: "Les Knödel sont des quenelles pochées, incontournables de la cuisine d'Europe centrale, à base de farine, de pain ou de pomme de terre.",
+    fr: "Les Knödel sont des quenelles pochées, incontournables de la cuisine d'Europe centrale, généralement à base de farine, de pain ou de pomme de terre.",
     id: "Knödel adalah pangsit rebus, makanan pokok dalam masakan Eropa Tengah, biasanya terbuat dari tepung, roti, atau kentang.",
     ru: "Knödel — это вареные клецки, основной продукт центральноевропейской кухни, обычно изготавливаемые из муки, хлеба или картофеля.",
     de: "Knödel sind gekochte Knödel, ein Grundnahrungsmittel der mitteleuropäischen Küche, typischerweise aus Mehl, Brot oder Kartoffeln hergestellt.",
@@ -4147,7 +4147,7 @@ module.exports = {
     es: "Schweinshaxe es un codillo de cerdo asado tradicional alemán, especialmente asociado con la cocina bávara y a menudo se sirve con cerveza.",
   },
   "german::spätzle": {
-    fr: "Les Spätzle sont des pâtes ou quenelles allemandes aux œufs, faites d'une pâte simple d'œufs, de farine et de sel, raclée dans l'eau bouillante.",
+    fr: "Les Spätzle sont des pâtes ou quenelles allemandes aux œufs, traditionnellement faites d'une pâte simple d'œufs, de farine et de sel, raclée dans l'eau bouillante.",
     id: "Spätzle adalah sejenis pasta telur atau pangsit Jerman, secara tradisional terbuat dari adonan sederhana telur, tepung, dan garam, lalu dikerok ke dalam air mendidih.",
     ru: "Spätzle — это вид немецкой яичной лапши или клецок, традиционно изготавливаемые из простого теста из яиц, муки и соли, затем соскобленные в кипящую воду.",
     de: "Spätzle sind eine Art deutscher Eiernudeln oder Knödel, traditionell aus einem einfachen Teig aus Eiern, Mehl und Salz hergestellt, dann in kochendes Wasser geschabt.",
@@ -4291,7 +4291,7 @@ module.exports = {
     es: "Feni es una bebida alcohólica potente producida exclusivamente en Goa, destilada de manzanas de anacardo o savia de coco.",
   },
   "goan::fish curry rice goan": {
-    fr: "Le fish curry rice goanais est un repas de base : du poisson cuit dans un curry relevé et acidulé à la noix de coco, servi avec du riz.",
+    fr: "Le fish curry rice goanais est un repas de base : du poisson cuit dans un curry relevé et acidulé à la noix de coco, traditionnellement servi avec du riz.",
     id: "Nasi Kari Ikan Goa adalah hidangan pokok yang menampilkan ikan yang dimasak dalam kari pedas, asam berbasis kelapa, secara tradisional disajikan dengan nasi.",
     ru: "Goan Fish Curry Rice — это основное блюдо, представляющее собой рыбу, приготовленную в остром, кислом карри на основе кокоса, традиционно подаваемое с рисом.",
     de: "Goan Fish Curry Rice ist eine Hauptmahlzeit mit Fisch, der in einem scharfen, würzigen Curry auf Kokosbasis gekocht und traditionell mit Reis serviert wird.",
@@ -4408,7 +4408,7 @@ module.exports = {
     es: "Galaktoboureko es un postre griego hecho de crema pastelera de sémola horneada en capas de masa phyllo y empapada en almíbar.",
   },
   "greek::greek coffee": {
-    fr: "Le café grec est un café corsé et non filtré, préparé à partir de grains finement moulus que l'on porte à ébullition dans un petit récipient, le briki.",
+    fr: "Le café grec est un café corsé et non filtré, traditionnellement préparé à partir de grains finement moulus que l'on porte à ébullition dans un petit récipient, le briki.",
     id: "Kopi Yunani adalah kopi kental tanpa saring yang terbuat dari biji kopi yang digiling halus, secara tradisional disiapkan dengan merebusnya dalam panci kecil yang disebut briki.",
     ru: "Греческий кофе — это крепкий, нефильтрованный кофе из мелкомолотых зерен, традиционно приготовляемый путем кипячения в небольшой кастрюле под названием briki.",
     de: "Griechischer Kaffee ist ein starker, ungefilterter Kaffee aus fein gemahlenen Bohnen, der traditionell durch Kochen in einem kleinen Topf namens briki zubereitet wird.",
@@ -4426,7 +4426,7 @@ module.exports = {
     es: "El pulpo griego a menudo se asa a la parrilla o se estofa, cocinado suavemente con vino tinto, aceite de oliva y hierbas, un elemento básico en la cocina mediterránea.",
   },
   "greek::greek yogurt with honey": {
-    fr: "Le yaourt grec au miel est un yaourt épais et onctueux servi en dessert simple ou au petit-déjeuner, arrosé d'un filet de miel.",
+    fr: "Le yaourt grec au miel est un yaourt épais et onctueux couramment servi en dessert simple ou au petit-déjeuner, arrosé d'un filet de miel.",
     id: "Yogurt Yunani dengan madu adalah yogurt kental dan lembut yang umumnya disajikan sebagai hidangan penutup sederhana atau sarapan dengan sedikit madu.",
     ru: "Греческий йогурт с медом — это густой, сливочный йогурт, который обычно подается как простой десерт или завтрак с небольшим количеством меда.",
     de: "Griechischer Joghurt mit Honig ist ein dicker, cremiger Joghurt, der häufig als einfaches Dessert oder Frühstück mit einem Schuss Honig serviert wird.",
@@ -4597,7 +4597,7 @@ module.exports = {
     es: "Basundi es un postre a base de leche del oeste de la India, hecho hirviendo a fuego lento leche entera hasta que espese, luego endulzado y especiado.",
   },
   "gujarati::bhakri": {
-    fr: "Le bhakri est un pain plat gujarati sans levain, plus épais que le roti, à la farine complète grossière ou au millet.",
+    fr: "Le bhakri est un pain plat gujarati sans levain, plus épais que le roti, généralement à la farine complète grossière ou au millet.",
     id: "Bhakri adalah roti pipih tanpa ragi khas Gujarat, lebih tebal dari roti, biasanya terbuat dari tepung gandum utuh kasar atau millet.",
     ru: "Bhakri — это гуджаратская пресная лепешка, толще, чем roti, обычно изготавливаемая из грубой цельнозерновой пшеничной муки или проса.",
     de: "Bhakri ist ein gujaratisches ungesäuertes Fladenbrot, dicker als roti, typischerweise aus grobem Vollkornmehl oder Hirse hergestellt.",
@@ -4615,7 +4615,7 @@ module.exports = {
     es: "Dal dhokli es una comida gujarati de una sola olla donde trozos de masa de trigo integral especiada se cocinan directamente en una salsa de lentejas agridulce a fuego lento.",
   },
   "gujarati::dhokla": {
-    fr: "Le dhokla est un gâteau salé et spongieux du Gujarat, cuit à la vapeur à partir d'une pâte fermentée de riz et de pois chiches concassés.",
+    fr: "Le dhokla est un gâteau salé et spongieux du Gujarat, traditionnellement cuit à la vapeur à partir d'une pâte fermentée de riz et de pois chiches concassés.",
     id: "Dhokla adalah kue spons gurih kukus dari Gujarat, secara tradisional dibuat dengan adonan fermentasi dari nasi dan Bengal gram.",
     ru: "Dhokla — это пикантный паровой бисквит из Гуджарата, традиционно приготовленный из ферментированного теста из риса и Bengal gram.",
     de: "Dhokla ist ein herzhafter gedämpfter Biskuitkuchen aus Gujarat, traditionell aus einem fermentierten Teig aus Reis und Bengal gram hergestellt.",
@@ -4759,7 +4759,7 @@ module.exports = {
     es: "Shrikhand es un postre dulce tradicional indio hecho de yogur colado, endulzado con azúcar y aromatizado con cardamomo y azafrán.",
   },
   "gujarati::thepla": {
-    fr: "Le thepla est un pain plat moelleux de la cuisine gujarati, préparé avec de la farine complète, des épices et des feuilles de fenugrec.",
+    fr: "Le thepla est un pain plat moelleux de la cuisine gujarati, généralement préparé avec de la farine complète, des épices et des feuilles de fenugrec.",
     id: "Thepla adalah roti pipih India yang lembut dari masakan Gujarat, biasanya dibuat dengan tepung gandum utuh, rempah-rempah, dan daun fenugreek.",
     ru: "Thepla — это мягкая индийская лепешка из гуджаратской кухни, обычно приготовленная из цельнозерновой муки, специй и листьев пажитника.",
     de: "Thepla ist ein weiches indisches Fladenbrot aus der gujaratischen Küche, das typischerweise aus Vollkornmehl, Gewürzen und Bockshornklee-Blättern hergestellt wird.",
@@ -4786,7 +4786,7 @@ module.exports = {
     es: "Coconut chicken (estilo Hainan) es un plato de olla caliente con pollo tierno cocido a fuego lento en un caldo ligero, claro y ligeramente dulce hecho de agua de coco.",
   },
   "hainanese::dongshan goat": {
-    fr: "La chèvre de Dongshan est une spécialité hainanaise du mont Dongshan, à Wanning, appréciée pour sa chair tendre et sans goût de gibier, mijotée ou braisée.",
+    fr: "La chèvre de Dongshan est une spécialité hainanaise du mont Dongshan, à Wanning, appréciée pour sa chair tendre et sans goût de gibier, souvent mijotée ou braisée.",
     id: "Dongshan goat adalah spesialisasi Hainan dari Puncak Dongshan Wanning, dihargai karena dagingnya yang empuk, tidak berbau prengus, seringkali direbus atau disemur.",
     ru: "Dongshan goat — хайнаньский деликатес с пика Дуншань в Ваньнине, ценится за нежное, не имеющее дикого привкуса мясо, часто тушится или запекается.",
     de: "Dongshan goat ist eine hainanesische Spezialität vom Dongshan Peak in Wanning, geschätzt für sein zartes, nicht wild schmeckendes Fleisch, oft geschmort oder gedünstet.",
@@ -4849,7 +4849,7 @@ module.exports = {
     es: "La sopa de cordero hainanesa es una sopa de hierbas tradicionalmente hecha con carne de cabra, sazonada con más de diez tipos de hierbas y tofu fermentado.",
   },
   "hainanese::hainanese pork chop": {
-    fr: "La côte de porc hainanaise est une escalope panée de crackers écrasés, servie avec une sauce acidulée à la tomate et à l'oignon.",
+    fr: "La côte de porc hainanaise est une escalope panée de crackers écrasés, généralement servie avec une sauce acidulée à la tomate et à l'oignon.",
     id: "Potongan daging babi Hainan adalah potongan daging babi goreng yang dilapisi remah biskuit krim, biasanya disajikan dengan saus tomat-bawang yang tajam.",
     ru: "Хайнаньская свиная отбивная — это жареная свиная отбивная, покрытая крошкой крекеров, обычно подается с острым томатно-луковым соусом.",
     de: "Hainanesisches Schweinekotelett ist ein gebratenes Schweinekotelett, das mit zerstoßenen Sahnecrackern ummantelt und typischerweise mit einer würzigen Tomaten-Zwiebel-Sauce serviert wird.",
@@ -4876,7 +4876,7 @@ module.exports = {
     es: "El arroz con ñame hainanés es una comida aromática de una sola olla de arroz cocinado con taro (ñame), a menudo incluyendo panceta de cerdo, camarones secos y champiñones.",
   },
   "hainanese::hele crab": {
-    fr: "Le crabe de Hele est un mets hainanais de la ville de Hele, à Wanning, réputé pour son corps charnu, sa chair tendre et son corail abondant, cuit à la vapeur.",
+    fr: "Le crabe de Hele est un mets hainanais de la ville de Hele, à Wanning, réputé pour son corps charnu, sa chair tendre et son corail abondant, habituellement cuit à la vapeur.",
     id: "Hele crab adalah hidangan lezat Hainan dari Kota Hele Wanning, ditandai dengan tubuhnya yang gemuk, dagingnya yang empuk, dan telurnya yang kaya, biasanya dikukus.",
     ru: "Hele crab — хайнаньский деликатес из города Хэле в Ваньнине, характеризуется пышным телом, нежным мясом и богатой икрой, обычно готовится на пару.",
     de: "Hele crab ist eine hainanesische Delikatesse aus Hele Town in Wanning, gekennzeichnet durch seinen prallen Körper, zartes Fleisch und reichen Rogen, normalerweise gedämpft.",
@@ -4939,7 +4939,7 @@ module.exports = {
     es: "Hakka pork belly with taro es un reconfortante plato de panceta de cerdo frita en capas con taro, cocido lentamente al vapor para absorber una salsa rica y llena de umami.",
   },
   "hakka::hakka pork lard noodles": {
-    fr: "Les nouilles au saindoux hakka sont des nouilles de blé enrobées de graisse de porc fondue, servies avec du porc haché et des lardons croustillants.",
+    fr: "Les nouilles au saindoux hakka sont des nouilles de blé enrobées de graisse de porc fondue, généralement servies avec du porc haché et des lardons croustillants.",
     id: "Hakka pork lard noodles adalah mi gandum yang diaduk dengan lemak babi cair, biasanya disajikan dengan daging babi cincang dan kerupuk lemak babi renyah.",
     ru: "Hakka pork lard noodles — это пшеничная лапша, обжаренная в топленом свином сале, обычно подаваемая с рубленым свиным фаршем и хрустящими шкварками.",
     de: "Hakka pork lard noodles sind Weizennudeln, die in ausgelassenem Schweineschmalz geschwenkt werden, typischerweise serviert mit Hackfleisch und knusprigen Grieben.",
@@ -5128,7 +5128,7 @@ module.exports = {
     es: "Hokkien fried rice es un plato de estilo cantonés que presenta arroz frito con huevo cubierto con una salsa rica y brillante de mariscos, carne y verduras.",
   },
   "hokkien::hokkien lor bak": {
-    fr: "Le lor bak hokkien est un rouleau de porc aux cinq-épices, garni de porc haché assaisonné et de légumes, enveloppé de feuille de soja et frit.",
+    fr: "Le lor bak hokkien est un rouleau de porc aux cinq-épices, généralement garni de porc haché assaisonné et de légumes, enveloppé de feuille de soja et frit.",
     id: "Hokkien lor bak adalah gulungan daging babi lima bumbu, biasanya dibuat dengan daging babi cincang yang dibumbui dan sayuran, dibungkus kulit tahu dan digoreng.",
     ru: "Hokkien lor bak — это рулет из свинины с пятью специями, обычно приготовленный из приправленного мясного фарша и овощей, завёрнутый в тофу и обжаренный во фритюре.",
     de: "Hokkien lor bak ist eine Fünf-Gewürze-Schweinefleischrolle, typischerweise hergestellt aus gewürztem Hackfleisch und Gemüse, in Tofuhaut gewickelt und frittiert.",
@@ -5182,7 +5182,7 @@ module.exports = {
     es: "Kong bak pau consiste en rodajas gruesas de panceta de cerdo, estofadas en salsa de soja y especias, servidas en suaves bollos de hoja al vapor.",
   },
   "hokkien::kueh chang (savoury rice dumpling)": {
-    fr: "Le kueh chang est une papillote de riz salée hokkien au riz gluant, garnie de poitrine de porc, de champignons et de jaune d'œuf salé, enveloppée de feuilles de bambou.",
+    fr: "Le kueh chang est une papillote de riz salée hokkien au riz gluant, souvent garnie de poitrine de porc, de champignons et de jaune d'œuf salé, enveloppée de feuilles de bambou.",
     id: "Kueh chang adalah pangsit nasi gurih Hokkien yang terbuat dari ketan, sering diisi dengan perut babi, jamur, dan kuning telur asin, dibungkus daun bambu.",
     ru: "Kueh chang — это хоккиенская пикантная рисовая клёцка из клейкого риса, часто с начинкой из свиной грудинки, грибов и солёного яичного желтка, завёрнутая в бамбуковые листья.",
     de: "Kueh chang ist ein herzhafter Hokkien-Reisknödel aus Klebreis, oft gefüllt mit Schweinebauch, Pilzen und gesalzenem Eigelb, eingewickelt in Bambusblätter.",
@@ -5200,7 +5200,7 @@ module.exports = {
     es: "Lor ark hokkien es un plato de pato estofado, cocinado a fuego lento con especias como anís estrellado y canela, a menudo servido con tau kwa y huevos duros.",
   },
   "hokkien::lor mee": {
-    fr: "Le lor mee est un plat de nouilles hokkien d'épaisses nouilles jaunes servies dans une sauce amidonnée savoureuse, parfumée aux cinq-épices et à la sauce soja foncée.",
+    fr: "Le lor mee est un plat de nouilles hokkien d'épaisses nouilles jaunes servies dans une sauce amidonnée savoureuse, souvent parfumée aux cinq-épices et à la sauce soja foncée.",
     id: "Lor mee adalah hidangan mi Hokkien yang menampilkan mi kuning tebal yang disajikan dalam kuah kental gurih yang sering dibumbui dengan bubuk lima rempah dan kecap hitam.",
     ru: "Lor mee — это Hokkien блюдо из лапши, состоящее из толстой жёлтой лапши, подаваемой в пикантном, крахмалистом соусе, часто приправленном порошком пяти специй и тёмным соевым соусом.",
     de: "Lor mee ist ein Hokkien-Nudelgericht mit dicken gelben Nudeln, die in einer herzhaften, stärkehaltigen Soße serviert werden, oft gewürzt mit Fünf-Gewürze-Pulver und dunkler Sojasauce.",
@@ -5389,7 +5389,7 @@ module.exports = {
     es: "Horlicks estilo Hong Kong es una bebida dulce de leche malteada, una invención británica popular en los cha chaan teng de Hong Kong, servida caliente o fría.",
   },
   "hong-kong::macaroni soup": {
-    fr: "La soupe de macaronis est un petit-déjeuner incontournable des char chaan teng hongkongais : des macaronis dans un bouillon de poulet léger, avec jambon et œuf au plat.",
+    fr: "La soupe de macaronis est un petit-déjeuner incontournable des char chaan teng hongkongais : des macaronis dans un bouillon de poulet léger, souvent avec du jambon et un œuf au plat.",
     id: "Sup makaroni adalah hidangan sarapan pokok di cha chaan teng Hong Kong, menampilkan makaroni dalam kaldu ayam ringan, seringkali dengan ham dan telur goreng.",
     ru: "Суп с макаронами — это основной завтрак в гонконгских cha chaan teng, состоящий из макарон в легком курином бульоне, часто с ветчиной и жареным яйцом.",
     de: "Makkaroni-Suppe ist ein Frühstücks-Grundnahrungsmittel in Hongkongs cha chaan teng, bestehend aus Makkaroni in einer leichten Hühnerbrühe, oft mit Schinken und einem Spiegelei.",
@@ -5470,7 +5470,7 @@ module.exports = {
     es: "El Typhoon shelter crab es un plato de mariscos de Hong Kong de cangrejo salteado con ajo, frijoles negros y chiles secos, originario de las comunidades de barcos.",
   },
   "hong-kong::yuan yang": {
-    fr: "Le yuan yang est une boisson hongkongaise qui mêle café et thé au lait noir, servie chaude ou glacée.",
+    fr: "Le yuan yang est une boisson hongkongaise qui mêle café et thé au lait noir, souvent servie chaude ou glacée.",
     id: "Yuan yang adalah minuman Hong Kong yang memadukan kopi dan teh susu hitam, sering disajikan panas atau dingin.",
     ru: "Yuan yang — это гонконгский напиток, который смешивает кофе и черный молочный чай, часто подается горячим или со льдом.",
     de: "Yuan yang ist ein Hongkonger Getränk, das Kaffee und schwarzen Milchtee mischt und oft heiß oder eisgekühlt serviert wird.",
@@ -5515,7 +5515,7 @@ module.exports = {
     es: "El Gan Guo Ji es un plato de olla seca de Hunan que presenta pollo y verduras salteados con especias y chile en una olla de hierro pesada.",
   },
   "hunan::hunan beef noodles": {
-    fr: "Les nouilles au bœuf du Hunan sont des nouilles de riz servies dans un bouillon savoureux et piquant, garnies de généreux morceaux de bœuf.",
+    fr: "Les nouilles au bœuf du Hunan sont des nouilles de riz servies dans un bouillon savoureux et piquant, le plus souvent garnies de généreux morceaux de bœuf.",
     id: "Mi daging sapi Hunan menggunakan mi beras yang disajikan dalam kaldu gurih dan pedas, biasanya diberi potongan daging sapi yang melimpah.",
     ru: "Хунаньская говяжья лапша содержит рисовую лапшу, подаваемую в пикантном и остром бульоне, обычно с крупными кусками говядины сверху.",
     de: "Hunan-Rindfleischnudeln zeichnen sich durch Reisnudeln aus, die in einer herzhaften und pikanten Brühe serviert und typischerweise mit herzhaften Rindfleischstücken belegt werden.",
@@ -5542,7 +5542,7 @@ module.exports = {
     es: "Las verduras encurtidas Hunan son verduras fermentadas o marinadas, a menudo con rábano blanco y chiles para un sabor audaz, picante y aromático.",
   },
   "hunan::hunan pumpkin cake": {
-    fr: "Le gâteau de potiron du Hunan, ou nan gua bing, est un en-cas sucré chinois de purée de potiron et de farine de riz gluant, frit jusqu'à devenir croustillant et moelleux.",
+    fr: "Le gâteau de potiron du Hunan, ou nan gua bing, est un en-cas sucré chinois de purée de potiron et de farine de riz gluant, souvent frit jusqu'à devenir croustillant et moelleux.",
     id: "Kue labu Hunan, atau Nan Gua Bing, adalah camilan manis Tiongkok yang terbuat dari pure labu dan tepung beras ketan, sering digoreng hingga renyah dan kenyal.",
     ru: "Хунаньский тыквенный пирог, или Nan Gua Bing, — это сладкая китайская закуска, приготовленная из тыквенного пюре и клейкой рисовой муки, часто обжаривается до хрустящей и жевательной консистенции.",
     de: "Hunan-Kürbiskuchen, oder Nan Gua Bing, ist ein süßer chinesischer Snack aus Kürbispüree und Klebreismehl, oft knusprig und zäh gebraten.",
@@ -5668,7 +5668,7 @@ module.exports = {
     es: "Bakso es una albóndiga indonesia, a menudo hecha de surimi de res, típicamente servida en una sopa caliente con fideos y varios acompañamientos.",
   },
   "indonesian::batagor": {
-    fr: "Le batagor, contraction de bakso tahu goreng, est un plat soundanais de quenelles de poisson et de tofu frits, servi avec une sauce cacahuète.",
+    fr: "Le batagor, contraction de bakso tahu goreng, est un plat soundanais de quenelles de poisson et de tofu frits, généralement servi avec une sauce cacahuète.",
     id: "Batagor, singkatan dari bakso tahu goreng, adalah hidangan Sunda berupa pangsit ikan goreng dan tahu, biasanya disajikan dengan saus kacang.",
     ru: "Batagor, сокращение от bakso tahu goreng, — это сунданское блюдо из жареных рыбных пельменей и тофу, обычно подаваемое с арахисовым соусом.",
     de: "Batagor, kurz für bakso tahu goreng, ist ein sundanesisches Gericht aus frittierten Fischknödeln und Tofu, typischerweise serviert mit Erdnusssauce.",
@@ -5731,7 +5731,7 @@ module.exports = {
     es: "Lontong sayur es un plato indonesio de pasteles de arroz comprimidos servidos en un guiso de verduras a base de leche de coco, a menudo con chayote.",
   },
   "indonesian::martabak manis": {
-    fr: "Le martabak manis est une épaisse crêpe sucrée indonésienne cuite d'un seul côté, garnie de chocolat, de cacahuètes et de lait concentré.",
+    fr: "Le martabak manis est une épaisse crêpe sucrée indonésienne cuite d'un seul côté, souvent garnie de chocolat, de cacahuètes et de lait concentré.",
     id: "Martabak manis adalah panekuk tebal dan manis khas Indonesia yang dimasak di satu sisi, sering diisi dengan topping seperti cokelat, kacang, dan susu kental manis.",
     ru: "Martabak manis — это толстый, сладкий индонезийский блин, приготовленный с одной стороны, часто с начинкой, такой как шоколад, арахис и сгущенное молоко.",
     de: "Martabak manis ist ein dicker, süßer indonesischer Pfannkuchen, der auf einer Seite gebacken wird und oft mit Belägen wie Schokolade, Erdnüssen und Kondensmilch gefüllt ist.",
@@ -5812,7 +5812,7 @@ module.exports = {
     es: "Rendang es un plato indonesio de carne cocinada a fuego lento, típicamente de res, cocida a fuego lento en leche de coco y una rica pasta de especias hasta que esté tierna y seca.",
   },
   "indonesian::rujak": {
-    fr: "Le rujak est une salade javanaise de fruits et de légumes, servie avec une sauce relevée au sucre de palme, attestée dès 901 de notre ère.",
+    fr: "Le rujak est une salade javanaise de fruits et de légumes, couramment servie avec une sauce relevée au sucre de palme, attestée dès 901 de notre ère.",
     id: "Rujak adalah salad buah dan sayuran Jawa, umumnya disajikan dengan saus gula aren pedas, yang berasal dari tahun 901 Masehi.",
     ru: "Rujak — это яванский фруктово-овощной салат, обычно подаваемый с острым соусом из пальмового сахара, датируемый 901 годом нашей эры.",
     de: "Rujak ist ein javanischer Obst- und Gemüsesalat, der üblicherweise mit einem scharfen Palmzuckerdressing serviert wird und bis ins Jahr 901 n. Chr. zurückreicht.",
@@ -5830,7 +5830,7 @@ module.exports = {
     es: "Siomay es un plato indonesio de empanadillas de pescado al vapor, a menudo servido con salsa de cacahuete, tofu y varias verduras al vapor.",
   },
   "indonesian::soto betawi": {
-    fr: "Le soto betawi est une soupe originaire de Jakarta, réputée pour son bouillon riche et onctueux au lait de coco et au lait de vache, avec du bœuf ou des abats.",
+    fr: "Le soto betawi est une soupe originaire de Jakarta, réputée pour son bouillon riche et onctueux au lait de coco et au lait de vache, souvent avec du bœuf ou des abats.",
     id: "Soto Betawi adalah sup asal Jakarta yang dikenal dengan kuahnya yang kaya, kental, terbuat dari santan dan susu sapi, seringkali berisi daging sapi atau jeroan.",
     ru: "Soto Betawi — это суп родом из Джакарты, известный своим насыщенным, сливочным бульоном из кокосового и коровьего молока, часто содержащий говядину или субпродукты.",
     de: "Soto Betawi ist eine aus Jakarta stammende Suppe, bekannt für ihre reichhaltige, cremige Brühe aus Kokosmilch und Kuhmilch, die oft Rindfleisch oder Innereien enthält.",
@@ -5911,7 +5911,7 @@ module.exports = {
     es: "El Cholent es un guiso tradicional de Shabat de cocción lenta en la cocina judía, cocinado durante la noche para cumplir con las leyes del Shabat.",
   },
   "israeli::falafel israeli": {
-    fr: "Le falafel israélien se compose de boulettes frites de pois chiches moulus et d'herbes fraîches, servies dans un pain pita avec une sauce tahini.",
+    fr: "Le falafel israélien se compose de boulettes frites de pois chiches moulus et d'herbes fraîches, généralement servies dans un pain pita avec une sauce tahini.",
     id: "Falafel Israel adalah bola-bola yang digoreng terbuat dari buncis giling dan rempah segar, biasanya disajikan dalam roti pita dengan saus tahini.",
     ru: "Израильский falafel — это обжаренные во фритюре шарики из молотого нута и свежих трав, обычно подаваемые в хлебе pita с соусом tahini.",
     de: "Israelische falafel sind frittierte Bällchen aus gemahlenen Kichererbsen und frischen Kräutern, typischerweise in Fladenbrot (pita) mit tahini-Sauce serviert.",
@@ -5920,7 +5920,7 @@ module.exports = {
     es: "El falafel israelí son bolas fritas hechas de garbanzos molidos y hierbas frescas, típicamente servidas en pan pita con salsa tahini.",
   },
   "israeli::halva israeli": {
-    fr: "Le halva israélien est une confiserie dense et friable à base de tahini de sésame et de sucre, vendue en pavés et appréciée comme dessert pareve.",
+    fr: "Le halva israélien est une confiserie dense et friable à base de tahini de sésame et de sucre, souvent vendue en pavés et appréciée comme dessert pareve.",
     id: "Halva Israel adalah penganan padat dan remah yang terbuat dari tahini wijen dan gula, sering dijual dalam bentuk lempengan dan populer sebagai hidangan penutup pareve.",
     ru: "Израильская halva — это плотное, рассыпчатое кондитерское изделие из кунжутной тахини и сахара, часто продается в брикетах и популярно как десерт pareve.",
     de: "Israelische halva ist eine dichte, krümelige Süßigkeit aus Sesamtahini und Zucker, oft in Blöcken verkauft und beliebt als pareve-Dessert.",
@@ -6556,7 +6556,7 @@ module.exports = {
     es: "Tsukemen es un plato de ramen japonés donde los fideos fríos se sirven por separado y se mojan en un caldo caliente concentrado.",
   },
   "japanese::udon": {
-    fr: "Les udon sont d'épaisses nouilles japonaises de farine de blé, à la texture élastique, servies en bouillon chaud ou froides.",
+    fr: "Les udon sont d'épaisses nouilles japonaises de farine de blé, à la texture élastique, couramment servies en bouillon chaud ou froides.",
     id: "Udon adalah mie Jepang tebal dan kenyal yang terbuat dari tepung terigu, umumnya disajikan dalam kaldu panas atau dingin.",
     ru: "Udon — это толстая, жевательная японская лапша из пшеничной муки, обычно подаваемая в горячем бульоне или охлажденной.",
     de: "Udon sind dicke, zähe japanische Nudeln aus Weizenmehl, die üblicherweise in einer heißen Brühe oder gekühlt serviert werden.",
@@ -6609,7 +6609,7 @@ module.exports = {
     es: "Galayet Bandora es un plato tradicional jordano y palestino de tomates fritos en sartén salteados con aceite de oliva, cebolla y ajo.",
   },
   "jordanian::hummus jordanian": {
-    fr: "Le houmous jordanien est une purée levantine de pois chiches, de tahini et de jus de citron, marquée par le tahini et l'acidité de l'agrume.",
+    fr: "Le houmous jordanien est une purée levantine de pois chiches, de tahini et de jus de citron, souvent marquée par le tahini et l'acidité de l'agrume.",
     id: "Hummus Jordanian adalah saus Levantine yang terbuat dari buncis tumbuk, tahini, dan jus lemon, seringkali dicirikan oleh rasa tahini dan jeruknya yang kuat.",
     ru: "Hummus Jordanian — это левантийский соус, приготовленный из пюре из нута, тахини и лимонного сока, часто характеризующийся выраженным вкусом тахини и цитрусовых.",
     de: "Hummus Jordanian ist ein levantinischer Dip aus pürierten Kichererbsen, Tahini und Zitronensaft, oft gekennzeichnet durch seinen ausgeprägten Tahini- und Zitrusgeschmack.",
@@ -6744,7 +6744,7 @@ module.exports = {
     es: "Tabbouleh Jordanian es una refrescante ensalada levantina hecha con perejil finamente picado, menta, tomates, cebolla y bulgur, aderezada con aceite de oliva y zumo de limón.",
   },
   "jordanian::warak enab jordanian": {
-    fr: "Le warak enab jordanien se compose de feuilles de vigne farcies d'un mélange épicé de riz et de viande hachée, cuites dans un bouillon acidulé au citron.",
+    fr: "Le warak enab jordanien se compose de feuilles de vigne farcies d'un mélange épicé de riz et de viande hachée, généralement cuites dans un bouillon acidulé au citron.",
     id: "Warak enab Jordanian terdiri dari daun anggur yang diisi dengan campuran nasi berbumbu dan daging cincang, biasanya dimasak dalam kaldu lemon yang asam.",
     ru: "Warak enab Jordanian состоит из виноградных листьев, фаршированных приправленной смесью риса и мясного фарша, обычно приготовленных в остром лимонном бульоне.",
     de: "Warak enab Jordanian besteht aus Weinblättern, gefüllt mit einer gewürzten Mischung aus Reis und Hackfleisch, typischerweise in einer würzigen Zitronenbrühe gekocht.",
@@ -6789,7 +6789,7 @@ module.exports = {
     es: "Bibimbap es un plato de arroz coreano que se sirve como un tazón de arroz blanco caliente cubierto con verduras sazonadas (namul) y gochujang.",
   },
   "korean::bingsu": {
-    fr: "Le bingsu est un dessert coréen de glace de lait finement râpée, garni de haricots rouges sucrés, de lait concentré et de fruits.",
+    fr: "Le bingsu est un dessert coréen de glace de lait finement râpée, souvent garni de haricots rouges sucrés, de lait concentré et de fruits.",
     id: "Bingsu adalah hidangan penutup es serut Korea yang terbuat dari es susu yang dihaluskan, seringkali diberi topping kacang merah manis, susu kental manis, dan buah-buahan.",
     ru: "Bingsu — это корейский десерт из колотого льда, приготовленный из мелко наструганного молочного льда, часто украшенный сладкими красными бобами, сгущенным молоком и фруктами.",
     de: "Bingsu ist ein koreanisches Rasier-Eis-Dessert aus fein gehobeltem Milcheis, oft belegt mit süßen roten Bohnen, Kondensmilch und Früchten.",
@@ -7023,7 +7023,7 @@ module.exports = {
     es: "Soju es una bebida alcohólica coreana clara y destilada, tradicionalmente elaborada con arroz u otros cereales, con orígenes en el Goryeo del siglo XIII.",
   },
   "korean::sundubu jjigae": {
-    fr: "Le sundubu jjigae est un ragoût coréen au tofu extra-soyeux fraîchement caillé, servi bouillonnant dans un pot de pierre traditionnel.",
+    fr: "Le sundubu jjigae est un ragoût coréen au tofu extra-soyeux fraîchement caillé, souvent servi bouillonnant dans un pot de pierre traditionnel.",
     id: "Sundubu jjigae adalah sup Korea yang menampilkan tahu segar yang baru dadih, sangat lembut, sering disajikan mendidih panas dalam pot batu tradisional.",
     ru: "Sundubu jjigae — это корейское рагу с только что свернувшимся, очень мягким тофу, часто подаваемое кипящим горячим в традиционном каменном горшке.",
     de: "Sundubu jjigae ist ein koreanischer Eintopf mit frisch geronnenem, extra-weichem Tofu, der oft sprudelnd heiß in einem traditionellen Steintopf serviert wird.",
@@ -7167,7 +7167,7 @@ module.exports = {
     es: "Lebanese coffee es un café finamente molido y tostado oscuro, a menudo especiado con cardamomo, preparado sin filtrar en un rakweh y servido con los posos asentados.",
   },
   "lebanese::maamoul": {
-    fr: "Les maamoul sont des biscuits au beurre moyen-orientaux traditionnels, à la semoule ou à la farine, fourrés de dattes ou de fruits secs et façonnés dans des moules décoratifs.",
+    fr: "Les maamoul sont des biscuits au beurre moyen-orientaux traditionnels, à la semoule ou à la farine, souvent fourrés de dattes ou de fruits secs et façonnés dans des moules décoratifs.",
     id: "Maamoul adalah kue mentega tradisional Timur Tengah berbahan dasar semolina atau tepung, seringkali diisi dengan kurma atau kacang dan dibentuk dengan cetakan dekoratif.",
     ru: "Maamoul — это традиционное ближневосточное печенье на основе манной крупы или муки, часто начиненные финиками или орехами и формируются с помощью декоративных форм.",
     de: "Maamoul sind traditionelle nahöstliche Butterkekse auf Grieß- oder Mehlbasis, oft mit Datteln oder Nüssen gefüllt und mit dekorativen Formen geformt.",
@@ -7203,7 +7203,7 @@ module.exports = {
     es: "Manakish jibneh es un pan plano libanés específicamente cubierto con queso, a menudo Akkawi, y horneado hasta dorarse.",
   },
   "lebanese::mezze platter": {
-    fr: "Le plateau de meze est un assortiment de petits plats libanais, avec des purées comme le houmous et le labneh, des légumes frais et du pain pita.",
+    fr: "Le plateau de meze est un assortiment de petits plats libanais, généralement avec des purées comme le houmous et le labneh, des légumes frais et du pain pita.",
     id: "Sebuah mezze platter adalah berbagai macam hidangan Lebanon kecil, biasanya menampilkan saus cocol seperti hummus dan labneh, sayuran segar, dan roti pita.",
     ru: "mezze platter — это ассортимент небольших ливанских блюд, обычно включающий соусы, такие как hummus и labneh, свежие овощи и лаваш.",
     de: "Eine mezze platter ist eine Auswahl kleiner libanesischer Gerichte, typischerweise mit Dips wie hummus und labneh, frischem Gemüse und Pitabrot.",
@@ -7257,7 +7257,7 @@ module.exports = {
     es: "El Tabbouleh es una ensalada levantina de Líbano y Siria, que lleva perejil finamente picado, bulgur, tomates, menta y cebolla.",
   },
   "lebanese::warak enab": {
-    fr: "Les warak enab sont des feuilles de vigne farcies libanaises, garnies de riz épicé et de viande hachée ou de légumes, puis longuement cuites.",
+    fr: "Les warak enab sont des feuilles de vigne farcies libanaises, généralement garnies de riz épicé et de viande hachée ou de légumes, puis longuement cuites.",
     id: "Warak enab adalah daun anggur isi Lebanon, biasanya diisi dengan nasi berbumbu dan daging giling atau sayuran, kemudian dimasak perlahan.",
     ru: "Warak enab — это ливанские фаршированные виноградные листья, обычно начиненные пряным рисом и мясным фаршем или овощами, затем медленно готовятся.",
     de: "Warak enab sind libanesische gefüllte Weinblätter, typischerweise gefüllt mit gewürztem Reis und Hackfleisch oder Gemüse, dann langsam gegart.",
@@ -7275,7 +7275,7 @@ module.exports = {
     es: "African chicken es un plato macaense de pollo a la parrilla o asado cubierto con una salsa piri-piri picante con coco, cacahuetes y otras especias.",
   },
   "macau::almond cookies": {
-    fr: "Les biscuits aux amandes de Macao sont des pâtisseries chinoises traditionnelles friables, à l'amande et à la farine de haricot mungo, façonnées dans des moules en bois.",
+    fr: "Les biscuits aux amandes de Macao sont des pâtisseries chinoises traditionnelles friables, à l'amande et à la farine de haricot mungo, souvent façonnées dans des moules en bois.",
     id: "Kue almond Makau adalah kue kering tradisional Tiongkok yang renyah, dibuat dengan almond dan tepung kacang hijau, seringkali dibentuk dalam cetakan kayu.",
     ru: "Миндальное печенье Макао — это рассыпчатая традиционная китайская выпечка, приготовленная из миндаля и муки из маша, часто формируемая в деревянных формах.",
     de: "Macau-Mandelkekse sind bröselige traditionelle chinesische Gebäckstücke, hergestellt aus Mandeln und Mungbohnenmehl, oft in Holzformen geformt.",
@@ -7293,7 +7293,7 @@ module.exports = {
     es: "Arroz de Pato es arroz de pato horneado portugués, un plato sustancioso que combina tierna carne de pato con arroz ricamente sazonado, a menudo horneado para formar una costra.",
   },
   "macau::bacalhau macau": {
-    fr: "Le bacalhau est une morue séchée et salée, ingrédient emblématique des cuisines portugaise et macanaise, servi en beignets ou au four.",
+    fr: "Le bacalhau est une morue séchée et salée, ingrédient emblématique des cuisines portugaise et macanaise, souvent servi en beignets ou au four.",
     id: "Bacalhau adalah ikan kod asin kering, bahan utama dalam masakan Portugis dan Makau, sering disajikan sebagai gorengan atau dipanggang.",
     ru: "Bacalhau — это сушеная соленая треска, определяющий ингредиент в португальской и макаоской кухне, часто подается в виде оладий или запеченным.",
     de: "Bacalhau ist getrockneter gesalzener Kabeljau, eine prägende Zutat in der portugiesischen und macaensischen Küche, oft als Krapfen oder gebacken serviert.",
@@ -7365,7 +7365,7 @@ module.exports = {
     es: "La tarta de huevo macaense es un pastel con una corteza de hojaldre escamosa y un relleno dulce de crema de huevo, a menudo con una parte superior caramelizada.",
   },
   "macau::minchi": {
-    fr: "Le minchi est un plat macanais de bœuf ou de porc haché sauté avec des pommes de terre en dés, assaisonné à la sauce soja et servi avec un œuf au plat.",
+    fr: "Le minchi est un plat macanais de bœuf ou de porc haché sauté avec des pommes de terre en dés, assaisonné à la sauce soja et souvent servi avec un œuf au plat.",
     id: "Minchi adalah hidangan Makau berupa daging sapi atau babi cincang tumis dengan kentang dadu, dibumbui dengan kecap, sering disajikan dengan telur goreng.",
     ru: "Minchi — это макаоское блюдо из жареного рубленого мяса говядины или свинины с нарезанным кубиками картофелем, приправленное соевым соусом, часто подается с жареным яйцом.",
     de: "Minchi ist ein macaensisches Gericht aus gebratenem Hackfleisch (Rind oder Schwein) mit gewürfelten Kartoffeln, gewürzt mit Sojasauce, oft serviert mit einem Spiegelei.",
@@ -7428,7 +7428,7 @@ module.exports = {
     es: "Ais kacang, o ABC, es un postre malayo de hielo raspado tradicionalmente cubierto con frijoles rojos, maíz dulce y jarabes de colores.",
   },
   "malaysian::apam": {
-    fr: "L'apam est une fine crêpe de la cuisine sud-indienne, à base de pâte de riz fermentée et de lait de coco, cuite dans un appachatti.",
+    fr: "L'apam est une fine crêpe de la cuisine sud-indienne, à base de pâte de riz fermentée et de lait de coco, traditionnellement cuite dans un appachatti.",
     id: "Apam adalah panekuk tipis dari masakan India Selatan, terbuat dari adonan beras fermentasi dan santan, secara tradisional dimasak dalam appachatti.",
     ru: "Apam — это тонкий блинчик из южноиндийской кухни, приготовленный из ферментированного рисового теста и кокосового молока, традиционно готовится в appachatti.",
     de: "Apam ist ein dünner Pfannkuchen aus der südindischen Küche, hergestellt aus fermentiertem Reis-Teig und Kokosmilch, traditionell in einem appachatti gekocht.",
@@ -7491,7 +7491,7 @@ module.exports = {
     es: "Cendol es un postre dulce y helado con jaleas verdes en forma de gusano hechas de harina de arroz, servido con leche de coco y sirope de azúcar de palma.",
   },
   "malaysian::cucur udang": {
-    fr: "Les cucur udang sont des beignets de crevettes malaisiens à base d'une pâte de farine de riz et de blé, frits avec des légumes comme les pousses de soja et la ciboulette.",
+    fr: "Les cucur udang sont des beignets de crevettes malaisiens à base d'une pâte de farine de riz et de blé, souvent frits avec des légumes comme les pousses de soja et la ciboulette.",
     id: "Cucur udang adalah gorengan udang Malaysia yang terbuat dari adonan tepung beras dan serbaguna, sering digoreng dengan sayuran seperti tauge dan kucai.",
     ru: "Cucur udang — это малайзийские оладьи с креветками, приготовленные из теста из рисовой и универсальной муки, часто обжариваемые во фритюре с овощами, такими как ростки фасоли и шнитт-лук.",
     de: "Cucur udang sind malaysische Garnelenfritter aus einem Teig aus Reis- und Allzweckmehl, oft frittiert mit Gemüse wie Bohnensprossen und Schnittlauch.",
@@ -7500,7 +7500,7 @@ module.exports = {
     es: "Cucur udang son buñuelos de gambas malasios hechos con una masa de harina de arroz y harina de trigo, a menudo fritos con verduras como brotes de soja y cebollino.",
   },
   "malaysian::curry laksa kl": {
-    fr: "Le curry laksa est une soupe de nouilles relevée au lait de coco, originaire de Kuala Lumpur, servie avec nouilles jaunes, vermicelles de riz, poulet et crevettes.",
+    fr: "Le curry laksa est une soupe de nouilles relevée au lait de coco, originaire de Kuala Lumpur, généralement servie avec nouilles jaunes, vermicelles de riz, poulet et crevettes.",
     id: "Curry laksa adalah sup mi pedas berbasis santan dari Kuala Lumpur, biasanya disajikan dengan mi kuning, bihun, ayam, dan udang.",
     ru: "Curry laksa — это острый суп с лапшой на кокосовом молоке из Куала-Лумпура, обычно подается с желтой лапшой, рисовой вермишелью, курицей и креветками.",
     de: "Curry laksa ist eine scharfe Nudelsuppe auf Kokosmilchbasis aus Kuala Lumpur, die typischerweise mit gelben Nudeln, Reisnudeln, Hühnchen und Garnelen serviert wird.",
@@ -7707,7 +7707,7 @@ module.exports = {
     es: "La Birria es un guiso tradicional mexicano de Jalisco, hecho con carne de cabra u otra carne cocinada a fuego lento y marinada en un adobo de chiles secos.",
   },
   "mexican::ceviche mexicano": {
-    fr: "Le ceviche mexicain est un plat de poisson ou de fruits de mer frais « cuits » dans un jus d'agrumes acide, mêlés de légumes et d'herbes hachés.",
+    fr: "Le ceviche mexicain est un plat de poisson ou de fruits de mer frais « cuits » dans un jus d'agrumes acide, généralement mêlés de légumes et d'herbes hachés.",
     id: "Ceviche mexicano adalah hidangan ikan atau makanan laut segar yang \"dimasak\" dalam jus jeruk asam, biasanya dicampur dengan sayuran dan rempah-rempah cincang.",
     ru: "Ceviche mexicano — это блюдо из свежей рыбы или морепродуктов, «приготовленных» в кислом цитрусовом соке, обычно смешанных с нарезанными овощами и зеленью.",
     de: "Ceviche mexicano ist ein Gericht aus frischem Fisch oder Meeresfrüchten, das in saurem Zitrusfruchtsaft „gekocht“ wird, typischerweise gemischt mit gehacktem Gemüse und Kräutern.",
@@ -7743,7 +7743,7 @@ module.exports = {
     es: "Churros es un pastel de masa frita, originario de España, a menudo cubierto de azúcar y canela, y en México, frecuentemente rellenos de dulces.",
   },
   "mexican::cochinita pibil": {
-    fr: "La cochinita pibil est un plat de porc du Yucatán longuement rôti, mariné aux agrumes et au rocou, puis cuit dans une fosse souterraine.",
+    fr: "La cochinita pibil est un plat de porc du Yucatán longuement rôti, traditionnellement mariné aux agrumes et au rocou, puis cuit dans une fosse souterraine.",
     id: "Cochinita pibil adalah hidangan babi panggang perlahan dari Yucatán, secara tradisional diasinkan dalam jeruk dan achiote, kemudian dimasak dalam lubang bawah tanah.",
     ru: "Cochinita pibil — это медленно запеченное блюдо из свинины из Юкатана, традиционно маринованное в цитрусовых и achiote, затем приготовленное в подземной яме.",
     de: "Cochinita pibil ist ein langsam gebratenes Schweinefleischgericht aus Yucatán, traditionell in Zitrusfrüchten und achiote mariniert und dann in einer unterirdischen Grube gegart.",
@@ -7752,7 +7752,7 @@ module.exports = {
     es: "La Cochinita pibil es un plato de cerdo asado lentamente de Yucatán, tradicionalmente marinado en cítricos y achiote, luego cocinado en un horno de tierra.",
   },
   "mexican::elote": {
-    fr: "L'elote est une street food mexicaine d'épi de maïs grillé ou bouilli, généreusement enduit de mayonnaise, de fromage, de piment en poudre et de citron vert.",
+    fr: "L'elote est une street food mexicaine d'épi de maïs grillé ou bouilli, le plus souvent généreusement enduit de mayonnaise, de fromage, de piment en poudre et de citron vert.",
     id: "Elote adalah jajanan kaki lima Meksiko berupa jagung bakar atau rebus, biasanya diolesi mayones, keju, bubuk cabai, dan jeruk nipis.",
     ru: "Elote — это мексиканская уличная еда из кукурузы в початках, приготовленной на гриле или отварной, обычно намазанной майонезом, сыром, порошком чили и лаймом.",
     de: "Elote ist ein mexikanisches Streetfood aus gegrilltem oder gekochtem Maiskolben, typischerweise bestrichen mit Mayonnaise, Käse, Chilipulver und Limette.",
@@ -7950,7 +7950,7 @@ module.exports = {
     es: "Tequila reposado es un espíritu mexicano añejado en barricas de roble durante 2 a 12 meses, desarrollando un color dorado y un sabor más suave y meloso.",
   },
   "mexican::tostadas": {
-    fr: "Les tostadas sont des plats mexicains sur une base de tortilla de maïs plate et croustillante, frite ou grillée, garnie d'ingrédients variés.",
+    fr: "Les tostadas sont des plats mexicains sur une base de tortilla de maïs plate et croustillante, souvent frite ou grillée, garnie d'ingrédients variés.",
     id: "Tostadas adalah hidangan Meksiko yang menampilkan dasar tortilla jagung pipih yang renyah, sering digoreng atau dipanggang, dan ditaburi dengan berbagai bahan.",
     ru: "Tostadas — это мексиканские блюда, представляющие собой хрустящую, плоскую кукурузную тортилью в качестве основы, часто обжаренную во фритюре или поджаренную, и посыпанную различными ингредиентами.",
     de: "Tostadas sind mexikanische Gerichte mit einer knusprigen, flachen Maistortilla-Basis, oft frittiert oder geröstet und mit verschiedenen Zutaten belegt.",
@@ -8004,7 +8004,7 @@ module.exports = {
     es: "Chermoula es una marinada o salsa del norte de África hecha con hierbas frescas como perejil y cilantro, ajo, cítricos y especias cálidas.",
   },
   "moroccan::chicken tagine preserved lemon": {
-    fr: "Le tajine de poulet aux citrons confits est un plat marocain de poulet, de citrons confits et d'olives, longuement mijoté dans un tajine.",
+    fr: "Le tajine de poulet aux citrons confits est un plat marocain de poulet, de citrons confits et d'olives, traditionnellement mijoté longuement dans un tajine.",
     id: "Chicken tagine preserved lemon adalah semur Maroko yang menampilkan ayam, lemon yang diawetkan, dan zaitun, secara tradisional dimasak perlahan dalam pot tagine.",
     ru: "Chicken tagine preserved lemon — это марокканское рагу с курицей, консервированными лимонами и оливками, традиционно медленно приготовленное в горшке tagine.",
     de: "Chicken tagine preserved lemon ist ein marokkanischer Eintopf mit Hähnchen, eingelegten Zitronen und Oliven, der traditionell langsam in einem tagine-Topf gegart wird.",
@@ -8013,7 +8013,7 @@ module.exports = {
     es: "Chicken tagine preserved lemon es un estofado marroquí que presenta pollo, limones encurtidos y aceitunas, tradicionalmente cocinado a fuego lento en una olla tagine.",
   },
   "moroccan::couscous moroccan": {
-    fr: "Le couscous marocain est un plat de base nord-africain de fines granules de semoule de blé cuites à la vapeur, servi avec des légumes et de la viande.",
+    fr: "Le couscous marocain est un plat de base nord-africain de fines granules de semoule de blé cuites à la vapeur, souvent servi avec des légumes et de la viande.",
     id: "Couscous Maroko adalah hidangan pokok Afrika Utara yang terbuat dari butiran kecil gandum semolina kukus, sering disajikan dengan sayuran dan daging.",
     ru: "Moroccan couscous — это основное североафриканское блюдо, приготовленное из мелких гранул пропаренной манной крупы, часто подается с овощами и мясом.",
     de: "Moroccan couscous ist ein nordafrikanisches Grundnahrungsmittel aus winzigen Körnchen gedämpften Hartweizengrießes, oft serviert mit Gemüse und Fleisch.",
@@ -8157,7 +8157,7 @@ module.exports = {
     es: "Aloo Tama es un plato de sopa o curry nepalí hecho con patatas, brotes de bambú fermentados (tama) y, a menudo, guisantes de ojo negro.",
   },
   "nepalese::bara": {
-    fr: "Le bara est une galette ou un beignet salé néwar traditionnel, préparé à partir d'une pâte de lentilles noires assaisonnée au gingembre, à l'ail et au cumin.",
+    fr: "Le bara est une galette ou un beignet salé néwar traditionnel, préparé à partir d'une pâte de lentilles noires souvent assaisonnée au gingembre, à l'ail et au cumin.",
     id: "Bara adalah panekuk gurih atau gorengan tradisional Newari yang terbuat dari adonan lentil hitam, sering dibumbui dengan jahe, bawang putih, dan jintan.",
     ru: "Bara — традиционный ньюарский пикантный блин или оладья, приготовленный из теста из черной чечевицы, часто приправленный имбирем, чесноком и тмином.",
     de: "Bara ist ein traditioneller Newari-herzhafter Pfannkuchen oder Krapfen aus schwarzem Linsenteig, oft gewürzt mit Ingwer, Knoblauch und Kreuzkümmel.",
@@ -8364,7 +8364,7 @@ module.exports = {
     es: "Blue cod tempura presenta el bacalao azul indígena de Nueva Zelanda, conocido por su carne blanca y hojaldrada, preparado utilizando el método de fritura tempura japonés.",
   },
   "new-zealand::boil-up": {
-    fr: "Le boil-up est une soupe māori traditionnelle de Nouvelle-Zélande, à base de bouillon, de viande, de légumes féculents comme le kūmara, de verdure et de quenelles.",
+    fr: "Le boil-up est une soupe māori traditionnelle de Nouvelle-Zélande, à base de bouillon, généralement avec de la viande, des légumes féculents comme le kūmara, de la verdure et des quenelles.",
     id: "Boil-up adalah sup berbasis kaldu Māori tradisional dari Selandia Baru, biasanya menampilkan daging, sayuran bertepung seperti kūmara, sayuran hijau, dan pangsit tepung.",
     ru: "Boil-up — это традиционный маорийский суп на основе бульона из Новой Зеландии, обычно содержащий мясо, крахмалистые овощи, такие как kūmara, зелень и мучные клецки.",
     de: "Boil-up ist eine traditionelle Māori-Brühensuppe aus Neuseeland, die typischerweise Fleisch, stärkehaltiges Gemüse wie kūmara, Grünzeug und Mehlknödel enthält.",
@@ -8526,7 +8526,7 @@ module.exports = {
     es: "Whitebait fritter es una delicia de Nueva Zelanda hecha de pequeños peces whitebait enteros mezclados en una masa de huevo y harina, luego fritos en sartén.",
   },
   "north-indian::aloo paratha": {
-    fr: "L'aloo paratha est un pain plat nord-indien sans levain à la farine complète, farci de purée de pommes de terre épicée et poêlé au ghee.",
+    fr: "L'aloo paratha est un pain plat nord-indien sans levain à la farine complète, farci de purée de pommes de terre épicée et souvent poêlé au ghee.",
     id: "Aloo paratha adalah roti pipih gandum utuh tanpa ragi khas India Utara yang diisi dengan isian kentang tumbuk berbumbu, sering digoreng di wajan dengan ghee.",
     ru: "Aloo paratha — это североиндийская пресная цельнозерновая лепёшка, начинённая пряной картофельной начинкой, часто обжариваемая на сковороде с ghee.",
     de: "Aloo paratha ist ein nordindisches ungesäuertes Vollkorn-Fladenbrot, gefüllt mit einer gewürzten Kartoffelpüreefüllung, oft in ghee gebraten.",
@@ -8814,7 +8814,7 @@ module.exports = {
     es: "Cong you bing dongbei es un panqueque de cebolleta salado y en capas, un pan plano común en la cocina china del noreste.",
   },
   "northeastern::da pai dang chinese bbq": {
-    fr: "Le barbecue da pai dang désigne les viandes et brochettes grillées servies dans les échoppes en plein air du nord-est de la Chine.",
+    fr: "Le barbecue da pai dang désigne les viandes et brochettes grillées généralement servies dans les échoppes en plein air du nord-est de la Chine.",
     id: "Da pai dang Chinese BBQ mengacu pada daging panggang dan sate yang biasanya disajikan di warung makan terbuka di Tiongkok Timur Laut.",
     ru: "Da pai dang Chinese BBQ относится к жареному мясу и шашлыкам, обычно подаваемым в уличных киосках на открытом воздухе в Северо-Восточном Китае.",
     de: "Da pai dang Chinese BBQ bezieht sich auf gegrilltes Fleisch und Spieße, die typischerweise an Open-Air-Essensständen in Nordostchina serviert werden.",
@@ -9102,7 +9102,7 @@ module.exports = {
     es: "Los Xibei lamb skewers son un plato distintivo del noroeste de China, particularmente de Xinjiang, que consiste en cordero fuertemente sazonado con comino y chile, asado al fuego.",
   },
   "northwestern::xinjiang big plate chicken": {
-    fr: "Le poulet au grand plat du Xinjiang (dapanji) est un ragoût de poulet relevé aux pommes de terre et aux poivrons, servi à partager avec des nouilles étirées à la main.",
+    fr: "Le poulet au grand plat du Xinjiang (dapanji) est un ragoût de poulet relevé aux pommes de terre et aux poivrons, généralement servi à partager avec des nouilles étirées à la main.",
     id: "Xinjiang big plate chicken (Dapanji) adalah semur ayam pedas dengan kentang dan paprika, biasanya disajikan secara komunal dengan mi tarik.",
     ru: "Xinjiang big plate chicken (Dapanji) — это острое куриное рагу с картофелем и болгарским перцем, обычно подаваемое в общей тарелке с лапшой ручной вытяжки.",
     de: "Xinjiang big plate chicken (Dapanji) ist ein scharfes Hühnereintopfgericht mit Kartoffeln und Paprika, das typischerweise gemeinsam mit handgezogenen Nudeln serviert wird.",
@@ -9111,7 +9111,7 @@ module.exports = {
     es: "El Xinjiang big plate chicken (Dapanji) es un estofado de pollo picante con patatas y pimientos, típicamente servido de forma comunitaria con fideos estirados a mano.",
   },
   "northwestern::xinjiang da pan ji": {
-    fr: "Le da pan ji du Xinjiang est un ragoût de poulet relevé, servi sur un grand plat avec pommes de terre, poivrons et nouilles étirées à la main, né au Xinjiang dans les années 1980.",
+    fr: "Le da pan ji du Xinjiang est un ragoût de poulet relevé, souvent servi sur un grand plat avec pommes de terre, poivrons et nouilles étirées à la main, né au Xinjiang dans les années 1980.",
     id: "Xinjiang da pan ji adalah semur ayam pedas, sering disajikan di piring besar dengan kentang, paprika, dan mi tarik tangan, berasal dari Xinjiang pada tahun 1980-an.",
     ru: "Xinjiang da pan ji — это острое куриное рагу, часто подаваемое на большом блюде с картофелем, болгарским перцем и лапшой ручной вытяжки, появившееся в Синьцзяне в 1980-х годах.",
     de: "Xinjiang da pan ji ist ein scharfes Hühnereintopfgericht, oft auf einem großen Teller mit Kartoffeln, Paprika und handgezogenen Nudeln serviert, das in den 1980er Jahren in Xinjiang entstand.",
@@ -9768,7 +9768,7 @@ module.exports = {
     es: "Persian Saffron Rice es un plato vibrante de arroz blanco cocinado con azafrán, que le confiere un color amarillo brillante y sutiles notas florales.",
   },
   "persian::shirazi salad": {
-    fr: "La salade chirazi est une salade persane de Chiraz, en Iran, de concombre, de tomate et d'oignon finement coupés, assaisonnée au verjus ou au citron vert.",
+    fr: "La salade chirazi est une salade persane de Chiraz, en Iran, de concombre, de tomate et d'oignon finement coupés, généralement assaisonnée au verjus ou au citron vert.",
     id: "Shirazi salad adalah salad Persia dari Shiraz, Iran, yang terbuat dari mentimun, tomat, dan bawang bombay yang dipotong dadu halus, biasanya dibumbui dengan verjuice atau jus jeruk nipis.",
     ru: "Shirazi salad — это персидский салат из Шираза, Иран, приготовленный из мелко нарезанных огурцов, помидоров и лука, обычно заправленный верджусом или соком лайма.",
     de: "Shirazi salad ist ein persischer Salat aus Schiras, Iran, der aus fein gewürfelten Gurken, Tomaten und Zwiebeln besteht und typischerweise mit Verjus oder Limettensaft angemacht wird.",
@@ -9930,7 +9930,7 @@ module.exports = {
     es: "Pierogi ruskie son empanadillas polacas rellenas de una sabrosa mezcla de puré de patatas, queso quark y cebolla caramelizada.",
   },
   "polish::placki ziemniaczane": {
-    fr: "Les placki ziemniaczane sont des galettes de pomme de terre polonaises poêlées, faites de pommes de terre râpées, d'oignons et d'œufs.",
+    fr: "Les placki ziemniaczane sont des galettes de pomme de terre polonaises poêlées, généralement faites de pommes de terre râpées, d'oignons et d'œufs.",
     id: "Placki ziemniaczane adalah panekuk kentang Polandia, digoreng dangkal dan biasanya terbuat dari kentang parut, bawang, dan telur.",
     ru: "Placki ziemniaczane — это польские картофельные оладьи, обжаренные на сковороде и обычно приготовленные из тертого картофеля, лука и яиц.",
     de: "Placki ziemniaczane sind polnische Kartoffelpuffer, flach gebraten und typischerweise aus geriebenen Kartoffeln, Zwiebeln und Eiern hergestellt.",
@@ -10083,7 +10083,7 @@ module.exports = {
     es: "Cataplana es un estofado portugués de marisco y/o carne del Algarve, cocinado y servido en una distintiva olla de cobre con bisagras en forma de almeja.",
   },
   "portuguese::chouriço": {
-    fr: "Le chouriço est une saucisse de porc portugaise traditionnelle fumée et séchée, distincte du chorizo espagnol, assaisonnée au paprika, à l'ail et au vin.",
+    fr: "Le chouriço est une saucisse de porc portugaise traditionnelle fumée et séchée, distincte du chorizo espagnol, généralement assaisonnée au paprika, à l'ail et au vin.",
     id: "Chouriço adalah sosis babi asap dan diawetkan tradisional Portugis, berbeda dari chorizo Spanyol, biasanya dibumbui dengan paprika, bawang putih, dan anggur.",
     ru: "Chouriço — это традиционная португальская копченая и вяленая свиная колбаса, отличающаяся от испанского chorizo, обычно приправленная паприкой, чесноком и вином.",
     de: "Chouriço ist eine traditionelle portugiesische geräucherte und gepökelte Schweinswurst, unterscheidet sich von spanischer Chorizo, typischerweise gewürzt mit Paprika, Knoblauch und Wein.",
@@ -10092,7 +10092,7 @@ module.exports = {
     es: "Chouriço es una salchicha de cerdo ahumada y curada tradicional portuguesa, distinto del chorizo español, típicamente sazonado con pimentón, ajo y vino.",
   },
   "portuguese::feijoada portuguesa": {
-    fr: "La feijoada portugaise est un ragoût de haricots généreux né dans le nord du Portugal, préparé avec des haricots blancs ou rouges et divers morceaux de porc.",
+    fr: "La feijoada portugaise est un ragoût de haricots généreux né dans le nord du Portugal, généralement préparé avec des haricots blancs ou rouges et divers morceaux de porc.",
     id: "Feijoada portuguesa adalah rebusan kacang Portugis yang mengenyangkan, berasal dari Portugal utara, biasanya disiapkan dengan kacang putih atau merah dan berbagai potongan daging babi.",
     ru: "Feijoada portuguesa — это сытное португальское рагу из фасоли, происходящее из северной Португалии, обычно готовится с белой или красной фасолью и различными кусками свинины.",
     de: "Feijoada portuguesa ist ein herzhafter portugiesischer Bohneneintopf, ursprünglich aus Nordportugal, typischerweise zubereitet mit weißen oder roten Bohnen und verschiedenen Schweinefleischstücken.",
@@ -10353,7 +10353,7 @@ module.exports = {
     es: "Solyanka es una sopa rusa espesa, agria y picante, caracterizada por pepinillos encurtidos y salmuera, con variaciones que incluyen carne, pescado o champiñones.",
   },
   "russian::syrniki": {
-    fr: "Les syrniki sont des galettes slaves poêlées à base de tvorog, un fromage caillé, servies sucrées au petit-déjeuner ou en dessert.",
+    fr: "Les syrniki sont des galettes slaves poêlées à base de tvorog, un fromage caillé, généralement servies sucrées au petit-déjeuner ou en dessert.",
     id: "Syrniki adalah panekuk Slavia Timur goreng yang terbuat dari tvorog, sejenis keju dadih, biasanya disajikan manis untuk sarapan atau hidangan penutup.",
     ru: "Syrniki — это жареные восточнославянские оладьи, приготовленные из tvorog, вида творожного сыра, обычно подаваемые сладкими на завтрак или десерт.",
     de: "Syrniki sind gebratene ostslawische Pfannkuchen aus tvorog, einer Art Quarkkäse, die typischerweise süß zum Frühstück oder Dessert serviert werden.",
@@ -10407,7 +10407,7 @@ module.exports = {
     es: "Aquavit es una bebida espirituosa destilada escandinava, hecha de grano o patatas, con su sabor distintivo derivado principalmente del alcaravea y/o la semilla de eneldo.",
   },
   "scandinavian::blodpudding": {
-    fr: "Le blodpudding est un boudin noir suédois traditionnel, préparé avec du sang de porc, de la farine, de la bière, du beurre et des assaisonnements, puis cuit au four.",
+    fr: "Le blodpudding est un boudin noir suédois traditionnel, généralement préparé avec du sang de porc, de la farine, de la bière, du beurre et des assaisonnements, puis cuit au four.",
     id: "Blodpudding adalah puding hitam tradisional Swedia, biasanya disiapkan dengan darah babi, tepung, bir, mentega, dan bumbu, kemudian dipanggang.",
     ru: "Blodpudding — это традиционный шведский кровяной пудинг, обычно готовится из свиной крови, муки, пива, масла и приправ, затем запекается.",
     de: "Blodpudding ist ein traditioneller schwedischer Blutpudding, typischerweise zubereitet mit Schweineblut, Mehl, Bier, Butter und Gewürzen, dann gebacken.",
@@ -10542,7 +10542,7 @@ module.exports = {
     es: "Rugbrød es un pan de centeno danés denso y oscuro de masa madre, a menudo repleto de granos enteros y semillas, comúnmente utilizado para sándwiches abiertos.",
   },
   "scandinavian::semla": {
-    fr: "La semla est une brioche sucrée suédoise traditionnelle, consommée autour de Mardi gras, fourrée de pâte d'amande et de crème fouettée puis saupoudrée de sucre.",
+    fr: "La semla est une brioche sucrée suédoise traditionnelle, souvent consommée autour de Mardi gras, fourrée de pâte d'amande et de crème fouettée puis saupoudrée de sucre.",
     id: "Semla adalah roti manis tradisional Swedia, sering dimakan sekitar Hari Selasa Gemuk, diisi dengan pasta almond dan krim kocok, kemudian ditaburi gula.",
     ru: "Semla — это традиционная шведская сладкая булочка, часто едят около Масленицы, наполненная миндальной пастой и взбитыми сливками, затем посыпается сахаром.",
     de: "Semla ist ein traditionelles schwedisches süßes Brötchen, oft um den Faschingsdienstag herum gegessen, gefüllt mit Mandelpaste und Schlagsahne, dann mit Zucker bestäubt.",
@@ -10560,7 +10560,7 @@ module.exports = {
     es: "Sill (pickled herring) es una delicia sueca de pescado en conserva, curada en una mezcla de vinagre, sal, azúcar y especias.",
   },
   "scandinavian::smörgåstårta": {
-    fr: "Le smörgåstårta est un gâteau-sandwich salé suédois en couches, façon tourte, garni d'œufs, de mayonnaise, de fruits de mer ou de charcuterie.",
+    fr: "Le smörgåstårta est un gâteau-sandwich salé suédois en couches, façon tourte, généralement garni d'œufs, de mayonnaise, de fruits de mer ou de charcuterie.",
     id: "Smörgåstårta adalah kue lapis roti lapis gurih Swedia, menyerupai torte, biasanya diisi dengan bahan-bahan seperti telur, mayones, makanan laut, atau daging dingin.",
     ru: "Smörgåstårta — это шведский пикантный слоеный сэндвич-торт, напоминающий торт, обычно наполненный такими ингредиентами, как яйцо, майонез, морепродукты или мясные нарезки.",
     de: "Smörgåstårta ist eine schwedische herzhafte Schicht-Sandwich-Torte, einer Torte ähnelnd, typischerweise gefüllt mit Zutaten wie Ei, Mayonnaise, Meeresfrüchten oder Aufschnitt.",
@@ -10767,7 +10767,7 @@ module.exports = {
     es: "Xiao long bao son dumplings de sopa chinos al vapor, tradicionalmente rellenos de carne de cerdo picada y un caldo sabroso, originarios de Changzhou.",
   },
   "shanghainese::youtiao": {
-    fr: "Le youtiao est un long beignet doré de pâte de blé frite, d'origine chinoise, que l'on mange au petit-déjeuner avec un congee ou du lait de soja.",
+    fr: "Le youtiao est un long beignet doré de pâte de blé frite, d'origine chinoise, que l'on mange couramment au petit-déjeuner avec un congee ou du lait de soja.",
     id: "Youtiao adalah potongan adonan tepung terigu goreng berwarna cokelat keemasan panjang asal Tiongkok, yang umum dimakan untuk sarapan dengan bubur atau susu kedelai.",
     ru: "Youtiao — это длинная золотисто-коричневая жареная полоска теста из пшеничной муки китайского происхождения, которую обычно едят на завтрак с рисовой кашей или соевым молоком.",
     de: "Youtiao ist ein langer, goldbrauner, frittierter Streifen aus Weizenmehlteig chinesischen Ursprungs, der üblicherweise zum Frühstück mit Congee oder Sojamilch gegessen wird.",
@@ -11028,7 +11028,7 @@ module.exports = {
     es: "Ang ku kueh es una pequeña empanadilla china de forma ovalada con una suave piel de harina de arroz glutinoso, típicamente roja y moldeada como un caparazón de tortuga.",
   },
   "singaporean::apam balik sg": {
-    fr: "L'apam balik est une crêpe sucrée repliée d'origine hokkien, garnie de cacahuètes concassées, de sucre et de beurre.",
+    fr: "L'apam balik est une crêpe sucrée repliée d'origine hokkien, généralement garnie de cacahuètes concassées, de sucre et de beurre.",
     id: "Apam balik adalah panekuk lipat manis asal Fujian, biasanya diisi dengan kacang tanah tumbuk, gula, dan mentega.",
     ru: "Apam balik — это сладкий закрытый блинчик фуцзяньского происхождения, обычно наполненный дробленым арахисом, сахаром и маслом.",
     de: "Apam balik ist ein süßer gefüllter Pfannkuchen fujianischen Ursprungs, typischerweise gefüllt mit zerstoßenen Erdnüssen, Zucker und Butter.",
@@ -11037,7 +11037,7 @@ module.exports = {
     es: "Apam balik es una tortita dulce rellena de origen fujianés, típicamente rellena de cacahuetes triturados, azúcar y mantequilla.",
   },
   "singaporean::assam pedas": {
-    fr: "L'asam pedas est un ragoût de poisson malais et peranakan, aigre et épicé, préparé au tamarin et au piment.",
+    fr: "L'asam pedas est un ragoût de poisson malais et peranakan, aigre et épicé, généralement préparé au tamarin et au piment.",
     id: "Asam pedas adalah sup ikan asam pedas tradisional Melayu dan Peranakan, biasanya dibuat dengan asam jawa dan cabai.",
     ru: "Asam pedas — это традиционное малайское и перанаканское кисло-острое рыбное рагу, обычно приготовленное с тамариндом и перцем чили.",
     de: "Asam pedas ist ein traditioneller malaiischer und Peranakan-Fischeintopf, sauer und scharf, typischerweise mit Tamarinde und Chilis zubereitet.",
@@ -11064,7 +11064,7 @@ module.exports = {
     es: "Ayam penyet es un plato indonesio de pollo frito de Java Oriental, donde el pollo se \"aplasta\" para ablandarlo y se sirve con sambal picante.",
   },
   "singaporean::babi pongteh": {
-    fr: "Le babi pongteh est un plat peranakan de porc braisé, préparé avec de la pâte de soja fermentée (taucheo), des champignons et des pommes de terre.",
+    fr: "Le babi pongteh est un plat peranakan de porc braisé, généralement préparé avec de la pâte de soja fermentée (taucheo), des champignons et des pommes de terre.",
     id: "Babi pongteh adalah hidangan babi rebus Peranakan, biasanya dibuat dengan pasta kedelai fermentasi (taucheo), jamur, dan kentang.",
     ru: "Babi pongteh — это перанаканское тушеное блюдо из свинины, обычно приготовленное с ферментированной соевой пастой (taucheo), грибами и картофелем.",
     de: "Babi pongteh ist ein Peranakan-Schmorgericht mit Schweinefleisch, das typischerweise mit fermentierter Sojabohnenpaste (taucheo), Pilzen und Kartoffeln zubereitet wird.",
@@ -11073,7 +11073,7 @@ module.exports = {
     es: "Babi pongteh es un plato Peranakan de cerdo estofado, típicamente hecho con pasta de soja fermentada (taucheo), champiñones y patatas.",
   },
   "singaporean::bak chang (rice dumpling)": {
-    fr: "Le bak chang est une papillote chinoise traditionnelle de riz gluant, garnie d'ingrédients salés et enveloppée dans des feuilles de bambou.",
+    fr: "Le bak chang est une papillote chinoise traditionnelle de riz gluant, généralement garnie d'ingrédients salés et enveloppée dans des feuilles de bambou.",
     id: "Bak chang adalah bakcang tradisional Tiongkok, biasanya diisi dengan bahan-bahan gurih dan dibungkus daun bambu.",
     ru: "Bak chang — это традиционный китайский клейкий рисовый пельмень, обычно наполненный пикантными ингредиентами и завернутый в бамбуковые листья.",
     de: "Bak chang ist ein traditioneller chinesischer Klebreisknödel, typischerweise mit herzhaften Zutaten gefüllt und in Bambusblätter gewickelt.",
@@ -11181,7 +11181,7 @@ module.exports = {
     es: "Bobo cha cha es un postre Nyonya, una sopa dulce y cremosa hecha con leche de coco, pandan, batatas, ñame, taro y perlas de sagú.",
   },
   "singaporean::butter chicken with naan": {
-    fr: "Le butter chicken est un curry indien de poulet mijoté dans une sauce épicée à la tomate et au beurre, servi avec du pain naan.",
+    fr: "Le butter chicken est un curry indien de poulet mijoté dans une sauce épicée à la tomate et au beurre, couramment servi avec du pain naan.",
     id: "Butter chicken adalah kari India yang menampilkan ayam yang dimasak dalam saus tomat dan mentega berbumbu, umumnya disajikan dengan roti pipih naan.",
     ru: "Butter chicken — это индийское карри с курицей, приготовленной в пряном томатном и масляном соусе, обычно подается с лепешкой naan.",
     de: "Butter chicken ist ein indisches Curry mit Hühnchen, das in einer gewürzten Tomaten- und Buttersoße gekocht wird, üblicherweise mit naan-Fladenbrot serviert.",
@@ -11253,7 +11253,7 @@ module.exports = {
     es: "Char siu rice presenta cerdo a la barbacoa estilo cantonés, marinado con un glaseado dulce y asado, servido sobre arroz blanco.",
   },
   "singaporean::cheng tng": {
-    fr: "Le cheng tng est une soupe sucrée traditionnelle — littéralement « soupe claire » — aux longanes séchés, aux noix de ginkgo et aux graines de lotus.",
+    fr: "Le cheng tng est une soupe sucrée traditionnelle — littéralement « soupe claire » — généralement aux longanes séchés, aux noix de ginkgo et aux graines de lotus.",
     id: "Cheng tng adalah sup hidangan penutup manis tradisional, secara harfiah berarti \"sup bening,\" biasanya menampilkan bahan-bahan seperti longan kering, kacang gingko, dan biji teratai.",
     ru: "Cheng tng — это традиционный сладкий десертный суп, буквально означающий «прозрачный суп», обычно содержащий такие ингредиенты, как сушеный лонган, орехи гинкго и семена лотоса.",
     de: "Cheng tng ist eine traditionelle süße Dessertsuppe, die wörtlich „klare Suppe“ bedeutet und typischerweise Zutaten wie getrocknete Longan, Gingko-Nüsse und Lotussamen enthält.",
@@ -11280,7 +11280,7 @@ module.exports = {
     es: "Chilli crab es un plato de mariscos singapurense de cangrejos de fango salteados en una salsa de tomate y chile dulce, sabrosa y picante, inventado por Cher Yam Tian en la década de 1950.",
   },
   "singaporean::chrysanthemum tea": {
-    fr: "Le thé au chrysanthème est une infusion sans caféine préparée à partir de fleurs de chrysanthème, réputée rafraîchissante en médecine chinoise.",
+    fr: "Le thé au chrysanthème est une infusion sans caféine préparée à partir de fleurs de chrysanthème, traditionnellement réputée rafraîchissante en médecine chinoise.",
     id: "Teh krisan adalah minuman herbal bebas kafein yang diseduh dari bunga krisan, secara tradisional digunakan dalam pengobatan Tiongkok karena sifat mendinginkannya.",
     ru: "Хризантемовый чай — это травяной напиток без кофеина, завариваемый из цветов хризантемы, традиционно используемый в китайской медицине за его охлаждающие свойства.",
     de: "Chrysanthemen-Tee ist ein koffeinfreies Kräutergetränk, das aus Chrysanthemenblüten gebrüht wird und traditionell in der chinesischen Medizin für seine kühlenden Eigenschaften verwendet wird.",
@@ -11379,7 +11379,7 @@ module.exports = {
     es: "Durian pengat es un postre malayo rico y cremoso hecho de pulpa de durián cocinada con leche de coco y azúcar de palma, a menudo servido frío.",
   },
   "singaporean::epok-epok": {
-    fr: "L'epok-epok est un chausson salé frit à la malaise, proche du curry puff, garni de pommes de terre au curry, de poulet ou de sardines.",
+    fr: "L'epok-epok est un chausson salé frit à la malaise, proche du curry puff, souvent garni de pommes de terre au curry, de poulet ou de sardines.",
     id: "Epok-epok adalah kue gurih goreng ala Melayu, mirip dengan karipap, sering diisi dengan kentang kari, ayam, atau sarden.",
     ru: "Epok-epok — это жареная пикантная выпечка в малайском стиле, похожая на карри-пафф, часто наполненная картофелем карри, курицей или сардинами.",
     de: "Epok-epok ist ein frittiertes herzhaftes Gebäck nach malaiischer Art, ähnlich einem Curry-Puff, oft gefüllt mit Curry-Kartoffeln, Hühnchen oder Sardinen.",
@@ -11559,7 +11559,7 @@ module.exports = {
     es: "El Milo helado con pan es un desayuno o merienda popular de Singapur, comúnmente combinado con kaya toast o roti prata.",
   },
   "singaporean::idli with sambar": {
-    fr: "L'idli au sambar associe de moelleux gâteaux de riz vapeur, faits d'une pâte fermentée de riz et de lentilles, à un ragoût épicé de lentilles et de légumes.",
+    fr: "L'idli au sambar, de moelleux gâteaux de riz cuits à la vapeur faits d'une pâte fermentée de riz et de lentilles, se sert généralement avec un ragoût épicé de lentilles et de légumes.",
     id: "Idli with sambar menampilkan kue beras kukus yang lembut terbuat dari adonan nasi fermentasi dan lentil, biasanya disajikan dengan sup lentil dan sayuran pedas.",
     ru: "Idli with sambar представляет собой мягкие, приготовленные на пару рисовые лепешки, сделанные из ферментированного риса и чечевичного теста, обычно подается с острым рагу из чечевицы и овощей.",
     de: "Idli with sambar besteht aus weichen, gedämpften Reiskuchen, hergestellt aus fermentiertem Reis- und Linsen-Teig, typischerweise mit einem würzigen Linsen- und Gemüseeintopf serviert.",
@@ -11586,7 +11586,7 @@ module.exports = {
     es: "Itek tim es una sopa Peranakan de pato con verduras encurtidas, que tradicionalmente incluye pato, mostaza encurtida y ciruela agria.",
   },
   "singaporean::kaya": {
-    fr: "Le kaya est une pâte à tartiner sucrée et crémeuse, faite de crème de coco, d'œufs, de sucre et de feuilles de pandan, que l'on étale sur du pain grillé.",
+    fr: "Le kaya est une pâte à tartiner sucrée et crémeuse, faite de crème de coco, d'œufs, de sucre et de feuilles de pandan, que l'on étale couramment sur du pain grillé.",
     id: "Kaya adalah selai atau kustar manis dan lembut yang terbuat dari krim kelapa, telur, gula, dan daun pandan, umumnya dimakan dengan roti panggang.",
     ru: "Kaya — это сладкий, сливочный спред или заварной крем, приготовленный из кокосовых сливок, яиц, сахара и листьев пандана, обычно едят с тостами.",
     de: "Kaya ist ein süßer, cremiger Aufstrich oder Pudding aus Kokoscreme, Eiern, Zucker und Pandanblättern, der häufig auf Toast gegessen wird.",
@@ -11766,7 +11766,7 @@ module.exports = {
     es: "El zumo de lima con ciruela agria es una refrescante bebida asiática que combina lima ácida con el sabor agridulce de las ciruelas en conserva.",
   },
   "singaporean::lo mai gai": {
-    fr: "Le lo mai gai est un classique du dim sum : du riz gluant garni de poulet et d'autres ingrédients salés, cuit à la vapeur dans une feuille de lotus.",
+    fr: "Le lo mai gai est un classique du dim sum : du riz gluant généralement garni de poulet et d'autres ingrédients salés, souvent cuit à la vapeur dans une feuille de lotus.",
     id: "Lo mai gai adalah hidangan dim sum klasik berupa nasi ketan lengket, biasanya diisi dengan ayam dan bahan gurih lainnya, sering dikukus dalam daun teratai.",
     ru: "Lo mai gai — это классическое блюдо dim sum из клейкого риса, обычно фаршированного курицей и другими пикантными ингредиентами, часто приготовленного на пару в листе лотоса.",
     de: "Lo mai gai ist ein klassisches dim sum Gericht aus klebrigem Reis, typischerweise gefüllt mit Hühnchen und anderen herzhaften Zutaten, oft in einem Lotusblatt gedämpft.",
@@ -11802,7 +11802,7 @@ module.exports = {
     es: "Love letters, o kuih kapit, son crepes finísimos y crujientes, hechos con una masa de huevos, azúcar y leche de coco, tradicionalmente horneados a fuego abierto.",
   },
   "singaporean::mango pomelo sago": {
-    fr: "Le mango pomelo sago est un dessert hongkongais contemporain à la mangue en dés, au pomelo, au sagou, au lait de coco et au lait, servi frais.",
+    fr: "Le mango pomelo sago est un dessert hongkongais contemporain à la mangue en dés, au pomelo, au sagou, au lait de coco et au lait, généralement servi frais.",
     id: "Mango pomelo sago adalah hidangan penutup kontemporer Hong Kong yang menampilkan mangga potong dadu, pomelo, sagu, santan, dan susu, biasanya disajikan dingin.",
     ru: "Mango pomelo sago — это современный гонконгский десерт, состоящий из нарезанного кубиками манго, помело, саго, кокосового молока и молока, обычно подается охлажденным.",
     de: "Mango pomelo sago ist ein zeitgenössisches Hongkonger Dessert mit gewürfeltem Mango, Pomelo, Sago, Kokosmilch und Milch, das typischerweise gekühlt serviert wird.",
@@ -11919,7 +11919,7 @@ module.exports = {
     es: "Sup tulang es un plato indio musulmán de Singapur de huesos de cordero o carnero estofados en una sopa roja picante, valorado por su médula ósea.",
   },
   "singaporean::nasi lemak sg": {
-    fr: "Le nasi lemak est un plat d'origine malaise de riz cuit au lait de coco et au pandan, servi avec du sambal, des anchois, des cacahuètes et un œuf.",
+    fr: "Le nasi lemak est un plat d'origine malaise de riz cuit au lait de coco et au pandan, traditionnellement servi avec du sambal, des anchois, des cacahuètes et un œuf.",
     id: "Nasi lemak adalah hidangan asal Melayu berupa nasi yang dimasak dalam santan dan daun pandan, secara tradisional disajikan dengan sambal, ikan teri, kacang, dan telur.",
     ru: "Nasi lemak — это блюдо малайского происхождения из риса, приготовленного на кокосовом молоке и листьях пандана, традиционно подается с sambal, анчоусами, арахисом и яйцом.",
     de: "Nasi lemak ist ein Gericht malaiischen Ursprungs aus Reis, der in Kokosmilch und Pandanblatt gekocht wird, traditionell mit sambal, Sardellen, Erdnüssen und Ei serviert.",
@@ -11955,7 +11955,7 @@ module.exports = {
     es: "ngoh hiang es un plato Hokkien y Teochew de cerdo picado y gambas sazonados con five-spice powder, envueltos en piel de tofu y fritos.",
   },
   "singaporean::ngoh hiang platter": {
-    fr: "Les ngoh hiang sont des rouleaux de viande aux cinq-épices frits, garnis de porc haché, de crevettes et de châtaignes d'eau, enveloppés de feuille de soja.",
+    fr: "Les ngoh hiang sont des rouleaux de viande aux cinq-épices frits, généralement garnis de porc haché, de crevettes et de châtaignes d'eau, enveloppés de feuille de soja.",
     id: "Ngoh hiang adalah gulungan daging lima bumbu goreng, biasanya diisi dengan daging babi cincang, udang, dan singkong air, dibungkus dalam kulit tahu.",
     ru: "Ngoh hiang — это обжаренные во фритюре мясные рулеты с пятью специями, обычно наполненные свиным фаршем, креветками и водяными каштанами, завернутые в тофу-кожу.",
     de: "Ngoh hiang sind frittierte Fünf-Gewürze-Fleischröllchen, typischerweise gefüllt mit Hackfleisch vom Schwein, Garnelen und Wasserkastanien, in Tofuhaut gewickelt.",
@@ -11982,7 +11982,7 @@ module.exports = {
     es: "Orh nee es un postre Teochew clásico hecho de taro (ñame) al vapor y machacado, azúcar y grasa, conocido por su textura sedosa.",
   },
   "singaporean::pineapple tart": {
-    fr: "La tartelette à l'ananas est une petite pâtisserie garnie ou nappée de confiture d'ananas, sur une pâte beurrée et fondante.",
+    fr: "La tartelette à l'ananas est une petite pâtisserie garnie ou nappée de confiture d'ananas, souvent sur une pâte beurrée et fondante.",
     id: "Pineapple tart adalah kue kecil sekali makan yang diisi atau diberi selai nanas di atasnya, sering dibuat dengan kulit kue yang lembut dan bermentega.",
     ru: "Pineapple tart — это маленькое пирожное на один укус, наполненное или покрытое ананасовым джемом, часто с маслянистой, нежной корочкой.",
     de: "Pineapple tart ist ein kleines, mundgerechtes Gebäck, gefüllt oder belegt mit Ananasmarmelade, oft mit einem buttrigen, zarten Teig.",
@@ -12000,7 +12000,7 @@ module.exports = {
     es: "Png kueh es una empanadilla de arroz glutinoso Teochew, típicamente con forma de melocotón y de color rosa, rellena de arroz glutinoso salado salteado.",
   },
   "singaporean::putu mayam": {
-    fr: "Le putu mayam est un en-cas sud-indien de vermicelles de farine de riz cuits à la vapeur, servis avec de la noix de coco râpée et du sucre de palme.",
+    fr: "Le putu mayam est un en-cas sud-indien de vermicelles de farine de riz cuits à la vapeur, généralement servis avec de la noix de coco râpée et du sucre de palme.",
     id: "Putu mayam adalah camilan India Selatan berupa mi tepung beras kukus, biasanya disajikan dengan kelapa parut dan gula aren.",
     ru: "Putu mayam — это южноиндийская закуска из лапши из рисовой муки, приготовленной на пару, обычно подается с тертым кокосом и пальмовым сахаром.",
     de: "Putu mayam ist ein südindischer Snack aus gedämpften Reismehlnudeln, typischerweise mit geriebener Kokosnuss und Palmzucker serviert.",
@@ -12009,7 +12009,7 @@ module.exports = {
     es: "Putu mayam es un aperitivo del sur de la India de fideos de harina de arroz al vapor, típicamente servido con coco rallado y azúcar de palma.",
   },
   "singaporean::red bean ice": {
-    fr: "La glace aux haricots rouges est une boisson-dessert rafraîchissante de Hong Kong, aux haricots rouges sucrés, à la glace pilée et au lait évaporé.",
+    fr: "La glace aux haricots rouges est une boisson-dessert rafraîchissante de Hong Kong, généralement aux haricots rouges sucrés, à la glace pilée et au lait évaporé.",
     id: "Red bean ice adalah minuman penutup menyegarkan dari Hong Kong, biasanya dibuat dengan kacang merah manis, es serut, dan susu evaporasi.",
     ru: "Red bean ice — это освежающий десертный напиток из Гонконга, обычно приготовленный из подслащенной красной фасоли, колотого льда и сгущенного молока.",
     de: "Red bean ice ist ein erfrischendes Dessertgetränk aus Hongkong, typischerweise hergestellt aus gesüßten roten Bohnen, zerstoßenem Eis und Kondensmilch.",
@@ -12018,7 +12018,7 @@ module.exports = {
     es: "Red bean ice es una bebida de postre refrescante de Hong Kong, típicamente hecha con frijoles rojos endulzados, hielo raspado y leche evaporada.",
   },
   "singaporean::roast duck": {
-    fr: "Le canard rôti est cuit à chaleur sèche, de manière à obtenir une peau croustillante et une chair tendre et juteuse.",
+    fr: "Le canard rôti est cuit à chaleur sèche, souvent de manière à obtenir une peau croustillante et une chair tendre et juteuse.",
     id: "Bebek panggang adalah hidangan daging bebek yang dimasak menggunakan panas kering, seringkali untuk mendapatkan kulit renyah dan daging yang empuk, berair.",
     ru: "Жареная утка — это блюдо из утиного мяса, приготовленное сухим жаром, часто для достижения хрустящей кожицы и нежного, сочного мяса.",
     de: "Gebratene Ente ist ein Gericht aus Entenfleisch, das mit trockener Hitze gegart wird, oft um eine knusprige Haut und zartes, saftiges Fleisch zu erzielen.",
@@ -12036,7 +12036,7 @@ module.exports = {
     es: "Ganso asado es un plato de carne de ganso cocinado con calor seco, a menudo en un horno de carbón para una piel crujiente.",
   },
   "singaporean::roast meat rice (siu mei)": {
-    fr: "Le riz aux viandes rôties, ou siu mei, est un plat cantonais de viandes rôties à la broche, servies sur du riz avec une sauce parfumée.",
+    fr: "Le riz aux viandes rôties, ou siu mei, est un plat cantonais de viandes rôties à la broche, servies sur du riz avec, souvent, une sauce parfumée.",
     id: "Roast meat rice, atau siu mei, adalah hidangan Kanton berupa berbagai daging panggang di tusuk sate, disajikan dengan nasi dan seringkali saus yang beraroma.",
     ru: "Roast meat rice, или siu mei, — это кантонское блюдо из различного мяса, запеченного на вертелах, подается с рисом и часто с ароматным соусом.",
     de: "Roast meat rice, oder siu mei, ist ein kantonesisches Gericht aus verschiedenen Fleischsorten, am Spieß gebraten, serviert mit Reis und oft einer geschmackvollen Sauce.",
@@ -12135,7 +12135,7 @@ module.exports = {
     es: "Sliced fish soup es un plato singapurense que presenta rodajas de pescado blanco fresco en un caldo limpio y sabroso, a menudo con verduras y tofu.",
   },
   "singaporean::soft-boiled eggs with kaya toast": {
-    fr: "Les œufs mollets avec kaya toast forment un petit-déjeuner singapourien classique : des œufs coulants assaisonnés, dans lesquels on trempe le pain grillé au kaya.",
+    fr: "Les œufs mollets avec kaya toast forment un petit-déjeuner singapourien classique : des œufs coulants assaisonnés, dans lesquels on trempe souvent le pain grillé au kaya.",
     id: "Soft-boiled eggs with kaya toast adalah sarapan klasik Singapura di mana telur setengah matang yang dibumbui menemani kaya toast, seringkali untuk dicocol.",
     ru: "Soft-boiled eggs with kaya toast — это классический сингапурский завтрак, где приправленные жидкие яйца подаются с kaya toast, часто для обмакивания.",
     de: "Soft-boiled eggs with kaya toast ist ein klassisches singapurisches Frühstück, bei dem gewürzte, weichgekochte Eier zu kaya toast serviert werden, oft zum Dippen.",
@@ -12144,7 +12144,7 @@ module.exports = {
     es: "Soft-boiled eggs with kaya toast es un desayuno clásico de Singapur donde huevos pasados por agua sazonados acompañan a las tostadas kaya, a menudo para mojar.",
   },
   "singaporean::soon kueh": {
-    fr: "Le soon kueh est une papillote teochew vapeur traditionnelle à la pâte translucide, garnie de jicama en julienne, de pousses de bambou et de crevettes séchées.",
+    fr: "Le soon kueh est une papillote teochew vapeur traditionnelle à la pâte translucide, généralement garnie de jicama en julienne, de pousses de bambou et de crevettes séchées.",
     id: "Soon kueh adalah pangsit kukus Teochew tradisional dengan kulit transparan, biasanya diisi dengan bengkuang yang diiris tipis, rebung, dan udang kering.",
     ru: "Soon kueh — это традиционный Teochew паровой пельмень с полупрозрачной оболочкой, обычно наполненный нарезанной соломкой хикамой, побегами бамбука и сушеными креветками.",
     de: "Soon kueh ist ein traditioneller Teochew-Dampfknödel mit einer durchscheinenden Hülle, typischerweise gefüllt mit Julienne-Jicama, Bambussprossen und getrockneten Garnelen.",
@@ -12180,7 +12180,7 @@ module.exports = {
     es: "Soya sauce chicken es un plato cantonés de pollo estofado en un líquido a base de salsa de soja con aromáticos y especias.",
   },
   "singaporean::sugarcane juice": {
-    fr: "Le jus de canne à sucre s'obtient en pressant des tiges fraîches ; il se boit glacé dans les hawker centres de Singapour.",
+    fr: "Le jus de canne à sucre s'obtient en pressant des tiges fraîches ; il se boit souvent glacé dans les hawker centres de Singapour.",
     id: "Jus tebu adalah minuman menyegarkan yang diekstraksi dengan memeras batang tebu segar, sering disajikan dingin dengan es di pusat jajanan Singapura.",
     ru: "Сок сахарного тростника — это освежающий напиток, получаемый путем прессования свежих стеблей сахарного тростника, часто подается охлажденным со льдом в центрах уличной еды Сингапура.",
     de: "Zuckerrohrsaft ist ein erfrischendes Getränk, das durch Pressen frischer Zuckerrohrstängel gewonnen wird und in Singapurs hawker centres oft gekühlt mit Eis serviert wird.",
@@ -12198,7 +12198,7 @@ module.exports = {
     es: "Sup kambing es una sopa de cordero del sudeste asiático, un caldo picante de carne de cabra estofada con varias especias, a menudo de color amarillento.",
   },
   "singaporean::tahu goreng": {
-    fr: "Le tahu goreng est un plat d'Asie du Sud-Est de tofu frit, servi avec une sauce sucrée-acidulée à la cacahuète ou une sauce soja sucrée.",
+    fr: "Le tahu goreng est un plat d'Asie du Sud-Est de tofu frit, souvent servi avec une sauce sucrée-acidulée à la cacahuète ou une sauce soja sucrée.",
     id: "Tahu goreng adalah hidangan tahu goreng Asia Tenggara, sering disajikan dengan saus kacang manis-asam atau kecap manis.",
     ru: "Tahu goreng — это блюдо Юго-Восточной Азии из жареного тофу, часто подается со сладко-острым соусом на основе арахиса или сладким соевым соусом.",
     de: "Tahu goreng ist ein südostasiatisches Gericht aus gebratenem Tofu, oft mit einer süß-sauren Erdnusssoße oder süßer Sojasoße serviert.",
@@ -12234,7 +12234,7 @@ module.exports = {
     es: "Tau huay, también conocido como douhua, es un aperitivo chino dulce o salado hecho de tofu sedoso muy tierno o pudín de soja.",
   },
   "singaporean::tau sar piah": {
-    fr: "Le tau sar piah est une pâtisserie chinoise traditionnelle à la croûte feuilletée, garnie d'une pâte de haricot mungo sucrée ou salée.",
+    fr: "Le tau sar piah est une pâtisserie chinoise traditionnelle à la croûte feuilletée, généralement garnie d'une pâte de haricot mungo sucrée ou salée.",
     id: "Tau sar piah adalah kue tradisional Tiongkok dengan kulit renyah, biasanya diisi dengan pasta kacang hijau manis atau gurih.",
     ru: "Tau sar piah — это традиционная китайская выпечка с рассыпчатой корочкой, обычно наполненная сладкой или пикантной пастой из маша.",
     de: "Tau sar piah ist ein traditionelles chinesisches Gebäck mit einer blättrigen Kruste, typischerweise gefüllt mit süßer oder herzhafter Mungbohnenpaste.",
@@ -12369,7 +12369,7 @@ module.exports = {
     es: "El pámpano Teochew al vapor es un pescado pámpano entero cocinado al vapor con ciruelas saladas y verduras saladas, creando un caldo ligero y picante.",
   },
   "singaporean::thosai sambal": {
-    fr: "Le thosai est une fine crêpe sud-indienne salée à base de pâte fermentée de riz et de haricot urd, servie avec un sambal de piment relevé.",
+    fr: "Le thosai est une fine crêpe sud-indienne salée à base de pâte fermentée de riz et de haricot urd, souvent servie avec un sambal de piment relevé.",
     id: "Thosai adalah panekuk gurih tipis dari India Selatan yang terbuat dari adonan nasi fermentasi dan kacang hitam, sering disajikan dengan sambal cabai pedas.",
     ru: "Thosai — это тонкий, пикантный южноиндийский блин, приготовленный из ферментированного риса и теста из черного маша, часто подается с острым чили sambal.",
     de: "Thosai ist ein dünner, herzhafter südindischer Crêpe aus fermentiertem Reis- und Urdbohnen-Teig, oft mit einem scharfen Chili-sambal serviert.",
@@ -12459,7 +12459,7 @@ module.exports = {
     es: "yong tau foo es un plato chino Hakka de tofu y verduras rellenas de pasta de pescado o carne picada, servido en caldo o en seco.",
   },
   "singaporean::youtiao sg breakfast": {
-    fr: "Le youtiao est un long beignet doré de pâte de blé frite, d'origine chinoise, que l'on mange au petit-déjeuner avec un congee ou du lait de soja.",
+    fr: "Le youtiao est un long beignet doré de pâte de blé frite, d'origine chinoise, que l'on mange couramment au petit-déjeuner avec un congee ou du lait de soja.",
     id: "Youtiao adalah potongan adonan tepung terigu goreng celup panjang berwarna cokelat keemasan asal Tiongkok, biasa dimakan untuk sarapan dengan bubur atau susu kedelai.",
     ru: "Youtiao — это длинная, золотисто-коричневая полоска жареного во фритюре пшеничного теста китайского происхождения, обычно употребляемая на завтрак с рисовой кашей или соевым молоком.",
     de: "Youtiao ist ein langer, goldbrauner, frittierter Streifen Weizenmehlteig chinesischen Ursprungs, der üblicherweise zum Frühstück mit Congee oder Sojamilch gegessen wird.",
@@ -12558,7 +12558,7 @@ module.exports = {
     es: "Chakalaka es un condimento picante de verduras sudafricano, típicamente hecho con cebollas, tomates, zanahorias, pimientos y frijoles horneados.",
   },
   "south-african::chakalaka with pap": {
-    fr: "Le chakalaka au pap est un plat sud-africain de condiment de légumes relevé, aux carottes et aux haricots, servi avec une bouillie de maïs.",
+    fr: "Le chakalaka au pap est un plat sud-africain de condiment de légumes relevé, aux carottes et aux haricots, généralement servi avec une bouillie de maïs.",
     id: "Chakalaka with pap adalah hidangan Afrika Selatan yang menampilkan sambal sayuran pedas, biasanya dengan wortel dan kacang-kacangan, disajikan bersama bubur jagung.",
     ru: "Chakalaka with pap — это южноафриканское блюдо, представляющее собой острую овощную приправу, обычно с морковью и фасолью, подаваемую вместе с кукурузной кашей.",
     de: "Chakalaka with pap ist ein südafrikanisches Gericht mit einem würzigen Gemüse-Relish, typischerweise mit Karotten und Bohnen, serviert mit Maisbrei.",
@@ -12684,7 +12684,7 @@ module.exports = {
     es: "Andhra mutton curry es un plato picante de Andhra Pradesh, que presenta cordero cocinado con una generosa cantidad de chiles rojos y cilantro.",
   },
   "south-indian::appam": {
-    fr: "L'appam est une fine crêpe sud-indienne en forme de coupelle, à base de pâte de riz fermentée et de lait de coco, cuite dans un appachatti.",
+    fr: "L'appam est une fine crêpe sud-indienne en forme de coupelle, à base de pâte de riz fermentée et de lait de coco, traditionnellement cuite dans un appachatti.",
     id: "Appam adalah panekuk India Selatan tipis berbentuk mangkuk yang terbuat dari adonan nasi fermentasi dan santan, secara tradisional dimasak dalam appachatti.",
     ru: "Appam — это тонкий, чашеобразный южноиндийский блинчик, приготовленный из ферментированного рисового теста и кокосового молока, традиционно выпекаемый в appachatti.",
     de: "Appam ist ein dünner, schalenförmiger südindischer Pfannkuchen aus fermentiertem Reisbatter und Kokosmilch, traditionell in einem appachatti gekocht.",
@@ -12693,7 +12693,7 @@ module.exports = {
     es: "Appam es un panqueque del sur de la India, delgado y con forma de cuenco, hecho de masa de arroz fermentada y leche de coco, tradicionalmente cocinado en un appachatti.",
   },
   "south-indian::avial": {
-    fr: "L'avial est un ragoût épais du Kerala, aux légumes variés et à la noix de coco, assaisonné d'huile de coco, de feuilles de curry et de yaourt.",
+    fr: "L'avial est un ragoût épais du Kerala, aux légumes variés et à la noix de coco, souvent assaisonné d'huile de coco, de feuilles de curry et de yaourt.",
     id: "Avial adalah sup kental dari Kerala, dibuat dengan campuran sayuran dan kelapa, sering dibumbui dengan minyak kelapa, daun kari, dan yogurt.",
     ru: "Avial — это густое рагу из Кералы, приготовленное из смешанных овощей и кокоса, часто приправленное кокосовым маслом, листьями карри и йогуртом.",
     de: "Avial ist ein dickflüssiger Eintopf aus Kerala, zubereitet mit gemischtem Gemüse und Kokosnuss, oft gewürzt mit Kokosöl, Curryblättern und Joghurt.",
@@ -12972,7 +12972,7 @@ module.exports = {
     es: "Chorizo es una salchicha de cerdo española fermentada, curada y ahumada, caracterizada por su color rojo intenso del pimentón.",
   },
   "spanish::churros con chocolate": {
-    fr: "Les churros con chocolate sont un en-cas sucré espagnol traditionnel de bâtonnets de pâte frite, servis avec un chocolat chaud épais.",
+    fr: "Les churros con chocolate sont un en-cas sucré espagnol traditionnel de bâtonnets de pâte frite, souvent servis avec un chocolat chaud épais.",
     id: "Churros con chocolate adalah camilan manis tradisional Spanyol berupa stik adonan goreng, sering disajikan dengan cokelat celup panas kental.",
     ru: "Churros con chocolate — это традиционная испанская сладкая закуска из жареных палочек теста, часто подаваемая с густым горячим шоколадом для макания.",
     de: "Churros con chocolate ist ein traditioneller spanischer süßer Snack aus frittierten Teigstangen, der oft mit einer dicken, heißen Schokoladensoße zum Dippen serviert wird.",
@@ -13026,7 +13026,7 @@ module.exports = {
     es: "Fideuà es un plato de mariscos de Valencia, similar a la paella pero hecho con fideos en lugar de arroz.",
   },
   "spanish::flan": {
-    fr: "Le flan est une crème cuite au four aux œufs, au lait et au sucre, nappée d'un caramel clair.",
+    fr: "Le flan est une crème cuite au four aux œufs, au lait et au sucre, souvent nappée d'un caramel clair.",
     id: "Flan adalah puding panggang, sering dibuat dengan telur, susu, dan gula, di atasnya diberi saus karamel bening.",
     ru: "Flan — это запеченный десерт из заварного крема, часто приготовленный из яиц, молока и сахара, политый прозрачным карамельным соусом.",
     de: "Flan ist ein gebackener Pudding-Dessert, oft aus Eiern, Milch und Zucker hergestellt und mit einer klaren Karamellsauce übergossen.",
@@ -13080,7 +13080,7 @@ module.exports = {
     es: "Jamón serrano es un jamón español curado en seco, elaborado a partir de razas de cerdo blanco, envejecido en aire de montaña durante 9 a más de 15 meses.",
   },
   "spanish::migas": {
-    fr: "Les migas sont un plat espagnol traditionnel de chapelure de pain rassis cuite dans de la graisse, décliné en régions avec du chorizo ou du lard.",
+    fr: "Les migas sont un plat espagnol traditionnel de chapelure de pain rassis cuite dans de la graisse, décliné en régions, souvent avec du chorizo ou du lard.",
     id: "Migas adalah hidangan tradisional Spanyol yang terbuat dari remah roti basi yang dimasak dalam lemak, dengan variasi regional yang seringkali termasuk chorizo atau bacon.",
     ru: "Migas — это традиционное испанское блюдо из черствых хлебных крошек, приготовленных в жире, с региональными вариациями, часто включающими chorizo или бекон.",
     de: "Migas ist ein traditionelles spanisches Gericht aus altbackenen Brotkrümeln, die in Fett gekocht werden, wobei regionale Variationen oft Chorizo oder Speck enthalten.",
@@ -13188,7 +13188,7 @@ module.exports = {
     es: "Tortilla española es una tortilla española hecha con huevos y patatas, a menudo incluyendo cebolla, y típicamente servida a temperatura ambiente.",
   },
   "spanish::txangurro": {
-    fr: "Le txangurro est une araignée de mer, ainsi qu'un mets basque où la chair du crabe est farcie et gratinée dans sa propre carapace.",
+    fr: "Le txangurro est une araignée de mer, ainsi qu'un mets basque où la chair du crabe est souvent farcie et gratinée dans sa propre carapace.",
     id: "Txangurro adalah spesies kepiting laba-laba, juga hidangan laut lezat Basque di mana daging kepiting sering diisi dan dipanggang dalam cangkangnya sendiri.",
     ru: "Txangurro — это вид краба-паука, а также баскский морской деликатес, где крабовое мясо часто фаршируют и запекают в его собственном панцире.",
     de: "Txangurro ist eine Spinnenkrabbenart, auch eine baskische Meeresfrüchtespezialität, bei der das Krabbenfleisch oft gefüllt und in der eigenen Schale gebacken wird.",
@@ -13458,7 +13458,7 @@ module.exports = {
     es: "Emmentaler es un queso suizo amarillo, semiduro, del Valle del Emme, conocido por su sabor suave y a nuez, y sus distintivos agujeros grandes.",
   },
   "swiss::engadiner nusstorte": {
-    fr: "L'Engadiner Nusstorte est une tarte traditionnelle des Grisons aux noix caramélisées, créée en 1926, dans une pâte sablée beurrée.",
+    fr: "L'Engadiner Nusstorte est une tarte traditionnelle des Grisons aux noix caramélisées, créée en 1926, généralement dans une pâte sablée beurrée.",
     id: "Engadiner Nusstorte adalah kue manis tradisional berisi kacang karamel dari Graubünden, dibuat pada tahun 1926, biasanya dengan kenari dalam kue renyah bermentega.",
     ru: "Engadiner Nusstorte — это традиционный сладкий пирог с карамелизированными орехами из Граубюндена, созданный в 1926 году, обычно с грецкими орехами в масляном песочном тесте.",
     de: "Engadiner Nusstorte ist ein traditionelles süßes, karamellisiertes Nussgebäck aus Graubünden, 1926 kreiert, typischerweise mit Walnüssen in einem buttrigen Mürbeteig.",
@@ -13539,7 +13539,7 @@ module.exports = {
     es: "Toblerone es una marca de chocolate suiza, creada en 1908, que presenta chocolate con leche, miel y turrón de almendras en una distintiva forma triangular.",
   },
   "swiss::zopf": {
-    fr: "Le zopf est un pain tressé suisse traditionnel, moelleux et beurré, enrichi de lait et de beurre, servi le week-end.",
+    fr: "Le zopf est un pain tressé suisse traditionnel, moelleux et beurré, enrichi de lait et de beurre, généralement servi le week-end.",
     id: "Zopf adalah roti kepang tradisional Swiss, roti lembut dan bermentega yang diperkaya dengan susu dan mentega, biasanya disajikan pada akhir pekan.",
     ru: "Zopf — это традиционный швейцарский плетеный хлеб, мягкий и маслянистый батон, обогащенный молоком и сливочным маслом, обычно подаваемый по выходным.",
     de: "Zopf ist ein traditionelles Schweizer Zopfbrot, ein weiches und buttriges Brot, angereichert mit Milch und Butter, das typischerweise am Wochenende serviert wird.",
@@ -13674,7 +13674,7 @@ module.exports = {
     es: "Pineapple cake es un pastel dulce taiwanés con una corteza mantecosa y un relleno de piña en mermelada, a menudo incluyendo melón de invierno.",
   },
   "taiwanese::popcorn chicken taiwan": {
-    fr: "Le popcorn chicken taïwanais se compose de bouchées de poulet doublement frites, assaisonnées aux cinq-épices et au poivre blanc, servies avec du basilic frit.",
+    fr: "Le popcorn chicken taïwanais se compose de bouchées de poulet doublement frites, assaisonnées aux cinq-épices et au poivre blanc, souvent servies avec du basilic frit.",
     id: "Ayam popcorn Taiwan adalah potongan ayam seukuran gigitan yang digoreng dua kali, dibumbui dengan bubuk lima rempah dan lada putih, sering disajikan dengan daun kemangi goreng.",
     ru: "Тайваньская курица попкорн — это кусочки курицы размером с укус, дважды обжаренные, приправленные порошком пяти специй и белым перцем, часто подаваемые с жареным базиликом.",
     de: "Taiwanesisches Popcorn-Hähnchen sind mundgerechte, doppelt frittierte Hähnchenstücke, gewürzt mit Fünf-Gewürze-Pulver und weißem Pfeffer, oft mit gebratenem Basilikum serviert.",
@@ -13746,7 +13746,7 @@ module.exports = {
     es: "Xiao long bao son empanadillas chinas de sopa tradicionalmente preparadas en una pequeña cesta de bambú para cocinar al vapor, conocidas por su sabroso relleno de caldo.",
   },
   "teochew::bak chor mee": {
-    fr: "Le bak chor mee est un plat teochew singapourien de nouilles aux œufs enrobées d'une sauce vinaigrée, avec porc haché, tranches de porc et champignons.",
+    fr: "Le bak chor mee est un plat teochew singapourien de nouilles aux œufs enrobées d'une sauce vinaigrée, avec porc haché, tranches de porc et, souvent, champignons.",
     id: "Bak chor mee adalah hidangan Teochew Singapura berupa mi telur yang dicampur saus cuka dengan daging babi cincang, irisan daging babi, dan seringkali jamur.",
     ru: "Bak chor mee — это сингапурское теочу блюдо из яичной лапши, заправленной уксусным соусом с рубленым свиным фаршем, ломтиками свинины и часто грибами.",
     de: "Bak chor mee ist ein singapurisches Teochew-Gericht aus Eiernudeln, die in einer Essigsauce mit Hackfleisch, Schweinefleischscheiben und oft Pilzen geschwenkt werden.",
@@ -13764,7 +13764,7 @@ module.exports = {
     es: "La sopa de kway teow de ternera Teochew es una sopa de fideos de arroz planos que presenta tiernas rodajas de ternera, despojos y un caldo claro y sabroso a menudo realzado con verduras encurtidas.",
   },
   "teochew::cheng tng": {
-    fr: "Le cheng tng est une soupe-dessert teochew légère et rafraîchissante, servie chaude ou froide, aux longanes séchés, aux noix de ginkgo et au champignon blanc.",
+    fr: "Le cheng tng est une soupe-dessert teochew légère et rafraîchissante, souvent servie chaude ou froide, aux longanes séchés, aux noix de ginkgo et au champignon blanc.",
     id: "Cheng tng adalah sup penutup Teochew yang ringan dan menyegarkan, sering disajikan panas atau dingin, mengandung bahan-bahan seperti lengkeng kering, biji ginkgo, dan jamur putih.",
     ru: "Cheng tng — это легкий и освежающий десертный суп по-теочевски, часто подаваемый горячим или холодным, содержащий такие ингредиенты, как сушеный лонган, орехи гинкго и белый гриб.",
     de: "Cheng tng ist eine leichte und erfrischende Teochew-Dessertsuppe, die oft heiß oder kalt serviert wird und Zutaten wie getrocknete Longan, Ginkgonüsse und weißen Pilz enthält.",
@@ -13845,7 +13845,7 @@ module.exports = {
     es: "Mua chee es un snack masticable de arroz glutinoso, típicamente cubierto con una mezcla de cacahuetes tostados molidos, azúcar y semillas de sésamo.",
   },
   "teochew::orh luak (oyster omelette teochew)": {
-    fr: "L'orh luak est l'omelette aux huîtres teochew, poêlée avec une pâte amidonnée et des œufs, aux bords croustillants et au cœur fondant.",
+    fr: "L'orh luak est l'omelette aux huîtres teochew, généralement poêlée avec une pâte amidonnée et des œufs, aux bords croustillants et au cœur fondant.",
     id: "Orh luak adalah omelet tiram Teochew, biasanya digoreng dengan adonan bertepung dan telur, menghasilkan hidangan dengan tepi renyah dan tekstur lengket.",
     ru: "Orh luak — это теочевский устричный омлет, обычно обжаренный на сковороде с крахмальным кляром и яйцами, в результате чего получается блюдо с хрустящими краями и тягучей текстурой.",
     de: "Orh luak ist ein Teochew-Austernomelett, das typischerweise mit einem stärkehaltigen Teig und Eiern in der Pfanne gebraten wird, was zu einem Gericht mit knusprigen Rändern und einer klebrigen Textur führt.",
@@ -13854,7 +13854,7 @@ module.exports = {
     es: "Orh luak es una tortilla de ostras Teochew, típicamente frita en sartén con una masa almidonada y huevos, lo que resulta en un plato con bordes crujientes y una textura pegajosa.",
   },
   "teochew::orh nee": {
-    fr: "L'orh nee est un dessert teochew classique, une pâte soyeuse et sucrée de taro cuit à la vapeur, enrichie de saindoux ou de lait de coco et de noix de ginkgo.",
+    fr: "L'orh nee est un dessert teochew classique, une pâte soyeuse et sucrée de taro cuit à la vapeur, souvent enrichie de saindoux ou de lait de coco et de noix de ginkgo.",
     id: "Orh nee adalah hidangan penutup klasik Teochew, pasta manis lembut yang terbuat dari talas kukus, sering diperkaya dengan lemak babi atau santan dan kacang ginkgo.",
     ru: "Orh nee — это классический теочу десерт, шелковистая, сладкая паста из приготовленного на пару таро, часто обогащенная свиным жиром или кокосовым молоком и орехами гинкго.",
     de: "Orh nee ist ein klassisches Teochew-Dessert, eine seidige, süße Paste aus gedämpftem Taro, oft angereichert mit Schweineschmalz oder Kokosmilch und Ginkgonüssen.",
@@ -13863,7 +13863,7 @@ module.exports = {
     es: "Orh nee es un postre clásico Teochew, una pasta sedosa y dulce hecha de taro al vapor, a menudo enriquecida con manteca de cerdo o leche de coco y nueces de ginkgo.",
   },
   "teochew::png kueh": {
-    fr: "Le png kueh est une papillote teochew en forme de pêche, à la peau souple et élastique, garnie de riz gluant salé, de champignons et de crevettes séchées.",
+    fr: "Le png kueh est une papillote teochew en forme de pêche, à la peau souple et élastique, généralement garnie de riz gluant salé, de champignons et de crevettes séchées.",
     id: "Png kueh adalah pangsit berbentuk persik Teochew dengan kulit lembut dan kenyal, biasanya diisi dengan nasi ketan gurih, jamur, dan udang kering.",
     ru: "Png kueh — это теочу пельмень в форме персика с мягкой, жевательной оболочкой, обычно наполненный пикантным клейким рисом, грибами и сушеными креветками.",
     de: "Png kueh ist ein Teochew-Pfirsich-förmiger Knödel mit einer weichen, zähen Haut, typischerweise gefüllt mit herzhaftem Klebreis, Pilzen und getrockneten Garnelen.",
@@ -14034,7 +14034,7 @@ module.exports = {
     es: "Khao pad sapparod es arroz frito tailandés con piña, a menudo servido en una piña ahuecada con camarones, curry en polvo y trozos de piña.",
   },
   "thai::khao soi": {
-    fr: "Le khao soi est une soupe de nouilles du nord de la Thaïlande, aux nouilles de blé aux œufs dans un bouillon curry au lait de coco, garnie de nouilles frites croustillantes.",
+    fr: "Le khao soi est une soupe de nouilles du nord de la Thaïlande, aux nouilles de blé aux œufs dans un bouillon curry au lait de coco, souvent garnie de nouilles frites croustillantes.",
     id: "Khao soi adalah sup mi Thailand Utara dengan mi telur berbahan dasar gandum dalam kuah kari santan, seringkali diberi topping mi goreng renyah.",
     ru: "Khao soi — суп с лапшой из Северного Таиланда с пшеничной яичной лапшой в кокосовом карри-бульоне, часто украшенный хрустящей жареной лапшой.",
     de: "Khao soi ist eine nordthailändische Nudelsuppe mit Weizen-Eiernudeln in einer Kokosmilch-Currybrühe, oft mit knusprig gebratenen Nudeln belegt.",
@@ -14205,7 +14205,7 @@ module.exports = {
     es: "Tod Mun Pla son tortitas de pescado tailandesas fritas doradas, hechas de pasta de pescado, pasta de curry rojo y hojas de lima kaffir.",
   },
   "thai::thai milk tea (cha yen)": {
-    fr: "Le cha yen est un thé au lait thaï rafraîchissant, préparé avec du thé noir, du lait concentré sucré et du lait évaporé, servi glacé.",
+    fr: "Le cha yen est un thé au lait thaï rafraîchissant, préparé avec du thé noir, du lait concentré sucré et du lait évaporé, généralement servi glacé.",
     id: "Cha yen adalah teh susu Thailand yang menyegarkan, terbuat dari teh hitam, susu kental manis, dan susu evaporasi, biasanya disajikan dingin.",
     ru: "Cha yen — это освежающий тайский молочный чай, приготовленный из черного чая, сгущенного молока с сахаром и сгущенного молока без сахара, обычно подается со льдом.",
     de: "Cha yen ist ein erfrischender thailändischer Milchtee, hergestellt aus Schwarztee, gezuckerter Kondensmilch und Kondensmilch, typischerweise eisgekühlt serviert.",
@@ -14268,7 +14268,7 @@ module.exports = {
     es: "Börek es un hojaldre turco escamoso y salado, hecho con finas capas de yufka (masa filo) y varios rellenos, que puede ser horneado o frito.",
   },
   "turkish::cacık": {
-    fr: "Le cacık est une préparation turque rafraîchissante de yaourt et de concombre, servie en purée épaisse ou en soupe froide avec de la menthe séchée et de l'ail.",
+    fr: "Le cacık est une préparation turque rafraîchissante de yaourt et de concombre, souvent servie en purée épaisse ou en soupe froide avec de la menthe séchée et de l'ail.",
     id: "Cacık adalah hidangan yogurt dan mentimun Turki yang menyegarkan, sering disajikan sebagai saus cocol kental atau sup dingin dengan mint kering dan bawang putih.",
     ru: "Cacık — освежающее турецкое блюдо из йогурта и огурцов, часто подаваемое как густой соус или холодный суп с сушеной мятой и чесноком.",
     de: "Cacık ist ein erfrischendes türkisches Joghurt- und Gurkengericht, das oft als dicker Dip oder kalte Suppe mit getrockneter Minze und Knoblauch serviert wird.",
@@ -14385,7 +14385,7 @@ module.exports = {
     es: "Mantı son pequeños dumplings turcos rellenos de carne picada especiada, típicamente servidos con yogur de ajo y una salsa de mantequilla especiada.",
   },
   "turkish::meze platter turkish": {
-    fr: "Le plateau de meze turc est un assortiment de petits plats — purées, salades, fromages et légumes farcis — servis en entrée.",
+    fr: "Le plateau de meze turc est un assortiment de petits plats — souvent purées, salades, fromages et légumes farcis — servis en entrée.",
     id: "Meze platter Turki adalah berbagai hidangan kecil, seringkali termasuk saus cocol, salad, keju, dan sayuran isi, yang disajikan sebagai hidangan pembuka.",
     ru: "Турецкое meze platter — это ассорти из небольших блюд, часто включающее соусы, салаты, сыры и фаршированные овощи, подаваемые в качестве закусок.",
     de: "Eine türkische meze platter ist eine Auswahl kleiner Gerichte, oft mit Dips, Salaten, Käse und gefülltem Gemüse, die als Vorspeise serviert werden.",
@@ -14538,7 +14538,7 @@ module.exports = {
     es: "Kapusta es una sopa de col tradicional ucraniana, a menudo hecha con caldo de cerdo, col fresca, chucrut y a veces tomates.",
   },
   "ukrainian::kotleta po kyivsky": {
-    fr: "La kotleta po kyivsky est une escalope de blanc de poulet panée, aplatie et roulée autour d'un beurre aux herbes, puis frite ou cuite au four.",
+    fr: "La kotleta po kyivsky est une escalope de blanc de poulet panée, aplatie et généralement roulée autour d'un beurre aux herbes, puis frite ou cuite au four.",
     id: "Kotleta po kyivsky adalah potongan dada ayam berlapis tepung roti, biasanya dipukul, digulung di sekitar mentega herba, lalu digoreng atau dipanggang.",
     ru: "Kotleta po kyivsky — это панированная котлета из куриной грудки, обычно отбитая, свернутая вокруг травяного масла, а затем обжаренная или запеченная.",
     de: "Kotleta po kyivsky ist ein paniertes Hähnchenbrustschnitzel, typischerweise geklopft, um Kräuterbutter gerollt und dann gebraten oder gebacken.",
@@ -14583,7 +14583,7 @@ module.exports = {
     es: "Forshmak de Odesa es un aperitivo o paté judío hecho de arenque picado, a menudo con manzana, cebolla y huevo.",
   },
   "ukrainian::pampushky": {
-    fr: "Les pampouchky sont de petits pains ukrainiens levés ; les versions salées sont assaisonnées d'une sauce à l'ail et servies avec le bortsch.",
+    fr: "Les pampouchky sont de petits pains ukrainiens levés ; les versions salées sont souvent assaisonnées d'une sauce à l'ail et servies avec le bortsch.",
     id: "Pampushky adalah roti kecil beragi Ukraina; versi gurih sering dibumbui dengan saus bawang putih dan disajikan dengan borscht.",
     ru: "Pampushky — это небольшие украинские дрожжевые булочки; соленые версии часто приправляются чесночным соусом и подаются с borscht.",
     de: "Pampushky sind kleine ukrainische Hefeteigbrötchen; herzhafte Varianten werden oft mit Knoblauchsauce gewürzt und mit borscht serviert.",
@@ -14736,7 +14736,7 @@ module.exports = {
     es: "Honim es un rollo de masa uzbeko al vapor, a menudo relleno con una mezcla de carne, patatas, cebollas y zanahorias.",
   },
   "uzbek::katyk": {
-    fr: "Le katyk est un lait fermenté ouzbek proche du yaourt, consommé en boisson ou utilisé en cuisine.",
+    fr: "Le katyk est un lait fermenté ouzbek proche du yaourt, souvent consommé en boisson ou utilisé en cuisine.",
     id: "Katyk adalah produk susu fermentasi Uzbekistan, mirip dengan yogurt, sering dikonsumsi sebagai minuman atau digunakan dalam hidangan.",
     ru: "Katyk — это узбекский кисломолочный продукт, похожий на йогурт, часто употребляемый как напиток или используемый в блюдах.",
     de: "Katyk ist ein usbekisches fermentiertes Milchprodukt, ähnlich wie Joghurt, das oft als Getränk konsumiert oder in Gerichten verwendet wird.",
@@ -14862,7 +14862,7 @@ module.exports = {
     es: "Banh mi es un sándwich vietnamita, desarrollado en Saigón en la década de 1950, que presenta una baguette crujiente rellena de varias carnes, verduras encurtidas y hierbas.",
   },
   "vietnamese::banh xeo": {
-    fr: "Le bánh xèo est une crêpe salée vietnamienne croustillante, à la farine de riz et au curcuma, garnie notamment de porc et de crevettes.",
+    fr: "Le bánh xèo est une crêpe salée vietnamienne croustillante, généralement à la farine de riz et au curcuma, garnie notamment de porc et de crevettes.",
     id: "Bánh xèo adalah crepe gurih renyah khas Vietnam, biasanya terbuat dari tepung beras dan kunyit, diisi dengan bahan-bahan seperti daging babi dan udang.",
     ru: "Bánh xèo — это хрустящий вьетнамский пикантный блинчик, обычно приготовленный из рисовой муки и куркумы, с начинкой из свинины и креветок.",
     de: "Bánh xèo ist ein knuspriger vietnamesischer herzhafter Crêpe, typischerweise aus Reismehl und Kurkuma, gefüllt mit Zutaten wie Schweinefleisch und Garnelen.",
@@ -14979,7 +14979,7 @@ module.exports = {
     es: "Cơm tấm es un plato vietnamita que presenta granos de arroz partidos, tradicionalmente servido con cerdo a la parrilla y varios acompañamientos.",
   },
   "vietnamese::goi cuon": {
-    fr: "Les gỏi cuốn sont les rouleaux de printemps frais vietnamiens, garnis de porc, de crevettes, de vermicelles et d'herbes fraîches dans une galette de riz translucide.",
+    fr: "Les gỏi cuốn sont les rouleaux de printemps frais vietnamiens, généralement garnis de porc, de crevettes, de vermicelles et d'herbes fraîches dans une galette de riz translucide.",
     id: "Goi cuon adalah lumpia segar Vietnam, biasanya diisi dengan babi, udang, mi bihun, dan rempah segar, semuanya dibungkus dalam kertas beras transparan.",
     ru: "Goi cuon — это вьетнамские свежие блинчики с начинкой, обычно наполненные свининой, креветками, вермишелью и свежей зеленью, все завернуто в полупрозрачную рисовую бумагу.",
     de: "Goi cuon sind vietnamesische frische Frühlingsrollen, typischerweise gefüllt mit Schweinefleisch, Garnelen, Fadennudeln und frischen Kräutern, alles in durchscheinendes Reispapier gewickelt.",
@@ -15006,7 +15006,7 @@ module.exports = {
     es: "Nem nuong es una salchicha o paty de cerdo a la parrilla vietnamita, hecha de carne de cerdo picada sazonada y a menudo servida con papel de arroz o fideos.",
   },
   "vietnamese::pho bo": {
-    fr: "Le phở bò est la soupe de nouilles au bœuf vietnamienne, aux nouilles de riz plates dans un bouillon riche et parfumé mijoté avec des os de bœuf et des épices.",
+    fr: "Le phở bò est la soupe de nouilles au bœuf vietnamienne, aux nouilles de riz plates dans un bouillon riche et parfumé, traditionnellement mijoté avec des os de bœuf et des épices.",
     id: "Pho bo adalah sup mi daging sapi Vietnam dengan mi beras pipih dalam kaldu yang kaya dan aromatik, secara tradisional direbus dengan tulang sapi dan rempah-rempah.",
     ru: "Pho bo — это вьетнамский суп с говяжьей лапшой, с плоской рисовой лапшой в насыщенном, ароматном бульоне, традиционно тушеный с говяжьими костями и специями.",
     de: "Pho bo ist eine vietnamesische Rindernudelsuppe mit flachen Reisnudeln in einer reichhaltigen, aromatischen Brühe, traditionell mit Rinderknochen und Gewürzen geköchelt.",

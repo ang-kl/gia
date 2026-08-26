@@ -2586,7 +2586,7 @@ const NATION_OVERLAY = {
         fr: 'Ragoût de haricots rouges épicés, souvent servi dans un pot d’argile avec du pain de maïs (mchadi) et des pickles — le plat réconfort géorgien du quotidien.' } }),
       F('mtsvadi', [], { local: 'მწვადი', note: {
         en: 'Georgian shashlik: chunks of pork or veal skewered and grilled over smouldering grapevine cuttings, then often rested under raw onion and pomegranate.',
-        fr: 'Le chachlik géorgien : morceaux de porc ou de veau grillés en brochette sur des sarments de vigne, puis reposés sous oignon cru et grenade.' } }),
+        fr: 'Le chachlik géorgien : morceaux de porc ou de veau grillés en brochette sur des sarments de vigne, puis souvent reposés sous oignon cru et grenade.' } }),
       F('chakapuli', [], { local: 'ჩაქაფული', note: {
         en: 'A bright spring stew of lamb or veal simmered with tarragon, sour green plums (tkemali) and white wine — the taste of the Georgian Easter table.',
         fr: 'Ragoût printanier d’agneau ou de veau mijoté à l’estragon, aux prunes vertes acides (tkemali) et au vin blanc — le goût de la table de Pâques géorgienne.' } }),

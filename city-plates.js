@@ -5524,4 +5524,20 @@ function allPlateDishNames() {
   return out;
 }
 
+// v0.62.781 — fold the 📜 history translation overlay on at load. Same contract
+// as classics-notes.js: language-agnostic (a new locale is a data change, never
+// a code change), hand-authored wins, fail-open.
+try {
+  const HIST = require('./city-plates-i18n.generated.js');
+  for (const [city, entry] of Object.entries(CITY_PLATES)) {
+    for (const d of (entry.dishes || [])) {
+      const loc = d && d.dish && d.history ? HIST[`${city}::${d.dish}`] : null;
+      if (!loc) continue;
+      for (const [lang, text] of Object.entries(loc)) {
+        if (d.history[lang] == null && text) d.history[lang] = text;
+      }
+    }
+  }
+} catch { /* overlay optional — curated data stands on its own */ }
+
 module.exports = { CITY_PLATES, PLATE_MATCH_KM, platesForCity, platesNear, allPlateDishNames, classicsForCountry };
