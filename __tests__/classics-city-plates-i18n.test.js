@@ -1,4 +1,4 @@
-// __tests__/classics-city-plates-i18n.test.js — v0.62.792
+// __tests__/classics-city-plates-i18n.test.js — v0.62.795
 //
 // THE MERGE SITE IS THE THING UNDER TEST, not the size of the corpus.
 //
@@ -143,4 +143,34 @@ describe('translation overlays — script contamination', () => {
       expect(bad).toEqual([]);
     });
   }
+});
+
+// v0.62.795 — city-plates.js is COMPLETE: 279 of 279 histories in all eight locales.
+//
+// The v0.62.781 header said a coverage count would "fail on every tranche and teach
+// whoever hits it to weaken the check". That was true WHILE the corpus was being
+// filled. It is finished now, so the count becomes the opposite of brittle: the only
+// way to break it is to add a dish without translating it, which is exactly the
+// failure this corpus suffered for its whole existence before v0.62.781.
+//
+// classics-notes.js is deliberately NOT pinned here — it is still en+fr only, and
+// O-307 tracks it. Pinning an unfinished corpus is how a gate gets switched off.
+describe('city-plates histories — complete locale coverage', () => {
+  it('every 📜 history carries all 8 locales', () => {
+    const { CITY_PLATES } = require('../city-plates.js');
+    const LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+    const gaps = [];
+    let rows = 0;
+    for (const [city, entry] of Object.entries(CITY_PLATES)) {
+      for (const d of (entry.dishes || [])) {
+        if (!d || !d.history) continue;
+        rows += 1;
+        for (const l of LOCALES) {
+          if (typeof d.history[l] !== 'string' || !d.history[l].trim()) gaps.push(`${city}::${d.dish}/${l}`);
+        }
+      }
+    }
+    expect(rows).toBeGreaterThanOrEqual(279);
+    expect(gaps).toEqual([]);
+  });
 });
