@@ -1,4 +1,4 @@
-// __tests__/classics-city-plates-i18n.test.js — v0.62.785
+// __tests__/classics-city-plates-i18n.test.js — v0.62.787
 //
 // THE MERGE SITE IS THE THING UNDER TEST, not the size of the corpus.
 //
@@ -100,6 +100,10 @@ const FORBIDDEN = [
   { script: /[Ѐ-ӿ]/, label: 'Cyrillic', allowed: new Set(['ru']) },
   { script: /[぀-ヿ]/, label: 'kana', allowed: new Set(['ja']) },
   { script: /[一-鿿]/, label: 'Han', allowed: new Set(['zh', 'ja']) },
+  // Hangul belongs to NO target language: id/ru/de/zh/ja/es. A Korean word left in
+  // its own script is a leak wherever it lands — caught in a Chinese string naming
+  // Daegu's Seongdangmot pond, where 못 had been carried over verbatim.
+  { script: /[가-힣ᄀ-ᇿ]/, label: 'Hangul', allowed: new Set() },
 ];
 // A single WORD mixing Cyrillic and Latin letters is a typing slip, never a loanword —
 // a Latin proper noun standing alone in a Russian sentence is fine and stays allowed.
