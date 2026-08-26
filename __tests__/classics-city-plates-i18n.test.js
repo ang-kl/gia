@@ -1,4 +1,4 @@
-// __tests__/classics-city-plates-i18n.test.js — v0.62.781
+// __tests__/classics-city-plates-i18n.test.js — v0.62.785
 //
 // THE MERGE SITE IS THE THING UNDER TEST, not the size of the corpus.
 //
@@ -81,4 +81,55 @@ describe('classics-notes / city-plates — translation merge site', () => {
     expect(src).toMatch(/return obj\[lang\] \|\| obj\.en \|\| obj\.fr \|\| '';/);
     expect((src.match(/localisedBody\(d\.(note|history), lang\)/g) || []).length).toBe(4);
   });
+});
+
+// v0.62.785 — SCRIPT CONTAMINATION. These overlays are written by one author across
+// six scripts, and eight errors got in that reading could not catch: the Russian word
+// "официально" inside a CHINESE string, Japanese kana inside four Chinese strings
+// (shop names left in their source script), the Han characters 日月 mid-sentence in
+// two RUSSIAN strings, and one word — "лua" — spelling Russian with Latin letters.
+//
+// The check lived in a scratch file while the batches were written. That is a check
+// that dies with the container, so it lives here now and runs in CI.
+const SCRIPT_RULES = [
+  { lang: 'ru', must: /[Ѐ-ӿ]/, mustLabel: 'Cyrillic' },
+  { lang: 'zh', must: /[一-鿿]/, mustLabel: 'Han' },
+  { lang: 'ja', must: /[぀-ヿ]/, mustLabel: 'kana' },
+];
+const FORBIDDEN = [
+  { script: /[Ѐ-ӿ]/, label: 'Cyrillic', allowed: new Set(['ru']) },
+  { script: /[぀-ヿ]/, label: 'kana', allowed: new Set(['ja']) },
+  { script: /[一-鿿]/, label: 'Han', allowed: new Set(['zh', 'ja']) },
+];
+// A single WORD mixing Cyrillic and Latin letters is a typing slip, never a loanword —
+// a Latin proper noun standing alone in a Russian sentence is fine and stays allowed.
+const MIXED_WORD = /[A-Za-zÀ-ÿ]+[Ѐ-ӿ]|[Ѐ-ӿ]+[A-Za-zÀ-ÿ]/;
+
+describe('translation overlays — script contamination', () => {
+  for (const [name, path] of [
+    ['city-plates', '../city-plates-i18n.generated.js'],
+    ['classics-notes', '../classics-notes-i18n.generated.js'],
+  ]) {
+    it(`${name}: every value is written in its own script`, () => {
+      const overlay = require(path);
+      const bad = [];
+      for (const [key, langs] of Object.entries(overlay)) {
+        for (const [lang, text] of Object.entries(langs)) {
+          const s = String(text);
+          if (!s.trim()) bad.push(`${key}/${lang}: empty`);
+          if (/\s\s/.test(s) || s !== s.trim() || /\n/.test(s)) bad.push(`${key}/${lang}: whitespace`);
+          if (MIXED_WORD.test(s)) bad.push(`${key}/${lang}: mixed-script word`);
+          for (const f of FORBIDDEN) {
+            if (!f.allowed.has(lang) && f.script.test(s)) bad.push(`${key}/${lang}: ${f.label} leak`);
+          }
+          const rule = SCRIPT_RULES.find((r) => r.lang === lang);
+          if (rule && !rule.must.test(s)) bad.push(`${key}/${lang}: no ${rule.mustLabel}`);
+          for (const [other, otherText] of Object.entries(langs)) {
+            if (other !== lang && otherText === text) bad.push(`${key}/${lang}: identical to ${other}`);
+          }
+        }
+      }
+      expect(bad).toEqual([]);
+    });
+  }
 });
