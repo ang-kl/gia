@@ -37,7 +37,12 @@ const require = createRequire(import.meta.url);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
-const TARGET_LANGS = ['id', 'ru', 'de', 'zh', 'ja', 'es']; // Indonesian, Russian, German, Chinese, Japanese, Spanish
+// v0.62.778 — 'fr' added. It was absent from this list since the script was written,
+// so the dish-note overlay filled six languages and skipped French entirely: 1,649 of
+// 1,681 merged notes rendered English to fr readers while id/ru/de/zh/ja/es read their
+// own. Those 1,649 were written by hand (no API spend); this keeps a future run from
+// re-opening the same hole on newly added dishes.
+const TARGET_LANGS = ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es']; // French, Indonesian, Russian, German, Chinese, Japanese, Spanish
 const LANG_NAME = {
   id: 'Indonesian',
   ru: 'Russian',
