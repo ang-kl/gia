@@ -34,7 +34,7 @@ const CITY_MANIFEST = Object.freeze({
   CN: {
     "Beijing": { 2026: { "three-star": 2, "two-star": 6, "one-star": 24, "bib-gourmand": 26 } },
     "Shanghai": { 2026: { "three-star": 1, "two-star": 12, "one-star": 38, "bib-gourmand": 34 } },
-    "Shenzhen": { 2026: { "two-star": 2, "one-star": 5, "bib-gourmand": 6 } },
+    "Shenzhen": { 2026: { "two-star": 2, "one-star": 5, "bib-gourmand": 21 } },
     "Chengdu": { 2026: { "two-star": 2, "one-star": 11, "bib-gourmand": 27 } },
     "Guangzhou": { 2025: { "two-star": 3, "one-star": 17, "bib-gourmand": 44 }, 2026: { "two-star": 3, "one-star": 17, "bib-gourmand": 52 } },
     "Hangzhou": { 2026: { "two-star": 2, "one-star": 11, "bib-gourmand": 34 } },
@@ -213,19 +213,35 @@ const KNOWN_DELTAS = Object.freeze([
         + 'guide.michelin.com is JS-rendered and will not fetch, and inventing 98 Paris addresses '
         + 'is precisely what the country tables forbid.',
   },
-  {
-    cc: 'CN', city: 'Shenzhen', year: 2026, tier: 'bib-gourmand', have: 6, published: 21,
-    note: 'NARROWED v0.62.762, from "absent entirely" (0 of 28) to a Bib-only gap. Two claims in '
-        + 'the entry this replaces were WRONG and are corrected rather than quietly dropped: '
-        + 'Shenzhen was said to need adding "to cities.js" — it was already there '
-        + '(web/cuisine/src/v2/lib/cities.js, code SZX) and already in CITY_IATA, so the blocker '
-        + 'was never scaffolding, only names. The STARS are now complete, 7 of 7: The Bay by Chef '
-        + 'Fei and Yun Jing at two, Chao Shang Chao, Ensue, Fumee, Opus 388 and Xin Rong Ji at '
-        + 'one, from the official joint press release. Bib stands at 6 of 21 — the release names '
-        + 'only six individually and aggregates the rest by cuisine style, and '
-        + 'guide.michelin.com is JS-rendered and does not fetch. The 15 unnamed rows are not '
-        + 'invented. See also the address debt below: 9 of these 13 rows carry no address.',
-  },
+  // CLOSED v0.62.768 — CN/Shenzhen reconciles at 28/28 (2 two-star, 5 one-star,
+  // 21 Bib) and is no longer a delta. Kept as a comment because how it closed
+  // is what a future reader needs.
+  //
+  // The stars came from the official joint press release. The Bib did NOT: the
+  // release names six of the twenty-one individually and aggregates the rest by
+  // cuisine style, and guide.michelin.com is JS-rendered and does not fetch.
+  // The remaining fifteen come from a SINGLE named outlet's enumerated list
+  // (Sing Tao Headline, 深圳米芝蓮2026「平價名單」, 21 entries by district).
+  //
+  // Why that was accepted, stated so it can be re-judged rather than trusted:
+  //   - all SIX officially-named venues appear in it, unchanged;
+  //   - its district spread (Futian, Nanshan, Luohu, Longhua, Yantian) and its
+  //     cuisine mix match what the official release describes;
+  //   - it totals exactly 21, the published figure;
+  //   - one entry (卖鱼佬砂锅粥) was independently corroborated in a separate
+  //     search result as a 2026 Shenzhen Bib.
+  //
+  // ONE THING DOES NOT RECONCILE, and is recorded rather than smoothed over:
+  // the official release lists **Indonesian** among the Bib cuisine styles, and
+  // no venue in the enumerated list reads as Indonesian. Either the release is
+  // describing the whole selection rather than the Bib tier, or the list has a
+  // misattributed cuisine. It does not change the count — 21 names for 21
+  // slots — but it means one cuisine label somewhere is probably wrong.
+  //
+  // A second discrepancy, smaller: two sources disagree on one Chinese name —
+  // 新湖村促肉 (guokr) vs 新湖村腊肉 (Sing Tao). That row's `nameZh` is
+  // deliberately LEFT UNSET rather than guessed; its English name and id are
+  // from the official release and are unaffected.
 ]);
 
 // Assert the repo matches CITY_MANIFEST. Same fail-closed contract as

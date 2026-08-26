@@ -83,8 +83,12 @@ describe('published-figure deltas', () => {
     // closed must stop being listed, and the 'no stale excuses' test above
     // enforces the other direction.
     const keys = KNOWN_DELTAS.map((d) => `${d.cc}/${d.city}`);
+    // Both CN cities have now closed and are asserted ABSENT. Guangzhou went
+    // first (v0.62.757), Shenzhen followed (v0.62.768) — a delta that has
+    // closed must stop being listed, and the 'no stale excuses' test above
+    // enforces the other direction.
     expect(keys).toContain('JP/Tokyo');       // one one-star short of 122
-    expect(keys).toContain('CN/Shenzhen');    // Bib 6 of 21; stars complete since v0.62.762
+    expect(keys).not.toContain('CN/Shenzhen');
     expect(keys).not.toContain('CN/Guangzhou');
     for (const d of KNOWN_DELTAS) expect(d.note.length).toBeGreaterThan(40);
   });
@@ -93,8 +97,8 @@ describe('published-figure deltas', () => {
     // Kyoto and Osaka match their published 2026 figures exactly; if a future
     // edit broke them, the first test would catch it — this asserts they are
     // clean today so that test is not passing vacuously. Guangzhou joined them
-    // in v0.62.757: 3 two-star, 17 one-star, 52 Bib, all three tiers exact.
-    for (const [cc, city] of [['JP', 'Kyoto'], ['JP', 'Osaka'], ['CN', 'Guangzhou']]) {
+    // in v0.62.757 (3 / 17 / 52) and Shenzhen in v0.62.768 (2 / 5 / 21).
+    for (const [cc, city] of [['JP', 'Kyoto'], ['JP', 'Osaka'], ['CN', 'Guangzhou'], ['CN', 'Shenzhen']]) {
       const have = repoCounts(cc, city, 2026);
       const pub = PUBLISHED_2026[cc][city];
       for (const tier of TIERS) {
@@ -110,8 +114,16 @@ describe('published-figure deltas', () => {
   // Adding 7 Guangzhou Bib rows with no findable address broke that. Rather
   // than lose the invariant, it is narrowed and PINNED: exactly these ids may
   // have an empty address, and an eighth address-less row anywhere fails here.
+  // v0.62.768 — rebuilt, and it moved in BOTH directions, which is the whole
+  // reason it is pinned by id rather than counted.
+  //   OUT: cn-szx-jie-yang-lao-er-guo-tiao-tang and
+  //        cn-szx-xiao-long-niu-rou-mian-futian gained real addresses from the
+  //        Shenzhen Bib source. The "shrinks only downward" test below FAILED
+  //        on them until they were un-pinned — the assertion doing its job, not
+  //        a nuisance to route around.
+  //   IN:  13 of the 15 new Shenzhen Bib rows, which have no fetchable address.
+  // Net 16 → 27. Guangzhou's 7 are unchanged.
   const ADDRESS_DEBT = [
-    // Guangzhou, v0.62.757
     'cn-can-baode-dunhe-road',
     'cn-can-e-qian-ya-hou',
     'cn-can-ru-yi-chuan-tong-zhu-sheng-mian',
@@ -119,22 +131,29 @@ describe('published-figure deltas', () => {
     'cn-can-tai-shan-lao-biao-xian-tang-yuan-xihua-road',
     'cn-can-wuchuan-hao-wei-lai',
     'cn-can-yu-yuen',
-    // Shenzhen debut, v0.62.762. 4 of the 13 new rows DID get an address —
-    // the hotel restaurants, which the press covers in detail. The 9 here are
-    // the ones no fetchable source gives a street for. The split is the point:
-    // the standard was applied per row, not waived for the batch.
+    'cn-szx-3-hao-ma-tou',
     'cn-szx-chao-shang-chao',
+    'cn-szx-cui-hu',
+    'cn-szx-da-tang-liang-tang',
+    'cn-szx-fa-ji-shao-e-mei-shi',
     'cn-szx-fumee',
     'cn-szx-gao-san-jie-dou-hua-dian',
-    'cn-szx-jie-yang-lao-er-guo-tiao-tang',
+    'cn-szx-ge-ji-mei-ji-xian',
+    'cn-szx-hua-zhou-b-ji-fan-dian',
+    'cn-szx-hui-chao-zhou',
     'cn-szx-jiu-jiu-noodle',
-    'cn-szx-xiao-long-niu-rou-mian-futian',
+    'cn-szx-lu-liang-shou',
+    'cn-szx-tai-shan-lao-huang-shan-fan',
+    'cn-szx-xiao-fu-rong-can-ting',
+    'cn-szx-xiao-zhuo-yan',
     'cn-szx-xin-hu-cun-cu-rou-longhua-jianshe-road',
     'cn-szx-xin-ji-ke-jia-wei-dao',
     'cn-szx-xin-rong-ji',
+    'cn-szx-xing-ning-ke-jia-cai-guan',
+    'cn-szx-yuan-sheng-tai',
   ];
 
-  it('no venue has an empty address except the 16 pinned rows', () => {
+  it('no venue has an empty address except the 27 pinned rows', () => {
     const empty = md.VENUES.filter((v) => !v.address || !v.address.trim()).map((v) => v.id).sort();
     expect(empty).toEqual([...ADDRESS_DEBT].sort());
   });

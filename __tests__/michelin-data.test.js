@@ -697,27 +697,28 @@ describe('michelin-data — Mainland China (CN-michelin.js) load', () => {
   // the 44 retained Bib on the operator's instruction. So all 64 Guangzhou
   // rows now carry TWO awards, and awards no longer equal venues. The venue count is unchanged; only the award count
   // moved, which is the distinction this assertion now makes explicit.
-  it('loads 496 venues with sum(awards) === 560 (64 Guangzhou rows hold 2025 + 2026)', () => {
+  it('loads 511 venues with sum(awards) === 575 (64 Guangzhou rows hold 2025 + 2026)', () => {
     const cn = data.venuesForCountry('CN');
-    expect(cn.length).toBe(496);
-    expect(cn.reduce((n, v) => n + v.awards.length, 0)).toBe(560);
+    expect(cn.length).toBe(511);
+    expect(cn.reduce((n, v) => n + v.awards.length, 0)).toBe(575);
   });
 
-  it('64 venues hold a 2025 award, 496 hold a 2026 award (2025 is partial)', () => {
+  it('64 venues hold a 2025 award, 511 hold a 2026 award (2025 is partial)', () => {
     const y25 = data.venuesForYear(2025).filter((v) => v.country === 'CN');
     const y26 = data.venuesForYear(2026).filter((v) => v.country === 'CN');
     expect(y25.length).toBe(64);
-    expect(y26.length).toBe(496);
+    expect(y26.length).toBe(511);
   });
 
-  it('Shenzhen debuts with 13 of its 28 published awards, stars complete', () => {
-    // v0.62.762. The city was absent entirely; the 7 stars are now all present
-    // and the Bib stands at 6 of 21, which KNOWN_DELTAS carries as the open gap.
+  it('Shenzhen is COMPLETE at 28 of 28 published awards', () => {
+    // v0.62.762 brought the city in at 13 of 28 (stars complete, Bib 6 of 21);
+    // v0.62.768 closed the Bib. Shenzhen is no longer a KNOWN_DELTAS entry,
+    // and michelin-city-manifest.test.js asserts its ABSENCE from that list.
     const szx = data.venuesForCountry('CN').filter((v) => v.city === 'Shenzhen');
-    expect(szx.length).toBe(13);
+    expect(szx.length).toBe(28);
     const t = {};
     for (const v of szx) for (const a of v.awards) t[a.category] = (t[a.category] || 0) + 1;
-    expect(t).toEqual({ 'two-star': 2, 'one-star': 5, 'bib-gourmand': 6 });
+    expect(t).toEqual({ 'two-star': 2, 'one-star': 5, 'bib-gourmand': 21 });
     expect(szx.every((v) => v.awards.every((a) => a.year === 2026))).toBe(true);
   });
 
@@ -732,7 +733,7 @@ describe('michelin-data — Mainland China (CN-michelin.js) load', () => {
       return t;
     }
     expect(tiers(2025)).toEqual({ 'two-star': 3, 'one-star': 17, 'bib-gourmand': 44 });
-    expect(tiers(2026)).toEqual({ 'three-star': 3, 'two-star': 27, 'one-star': 126, 'bib-gourmand': 340 });
+    expect(tiers(2026)).toEqual({ 'three-star': 3, 'two-star': 27, 'one-star': 126, 'bib-gourmand': 355 });
   });
 
   it('every CN venue has a unique id, a curated city, and the full venue shape', () => {
@@ -754,7 +755,7 @@ describe('michelin-data — Mainland China (CN-michelin.js) load', () => {
 
   it('stores native Chinese name + address verbatim; resolves the freshly-added cities', () => {
     const src = require('../CN-michelin.js').ENTRIES;
-    expect(src.length).toBe(496);
+    expect(src.length).toBe(511);
     const chao = src.find((e) => e.id === 'cn-bjs-chao-shang-chao-chaoyang');
     expect(chao.nameZh).toBe('潮上潮 (朝阳)');
     expect(chao.addressZh).toContain('朝阳区');
@@ -763,6 +764,13 @@ describe('michelin-data — Mainland China (CN-michelin.js) load', () => {
     // obtainable for them (guide.michelin.com is JS-rendered and does not
     // fetch), and writing nameZh: '' would have satisfied this assertion while
     // asserting nothing. Fill them and this list shrinks with them.
+    // v0.62.768 — rebuilt. The predicate below requires BOTH nameZh and
+    // addressZh, so a row that gained a Chinese name but still has no Chinese
+    // address stays listed; five Shenzhen Bib rows are in exactly that state.
+    // One entry is deliberate rather than merely missing:
+    // cn-szx-xin-hu-cun-cu-rou-longhua-jianshe-road has NO nameZh because two
+    // sources disagree on it (新湖村促肉 vs 新湖村腊肉) and guessing between
+    // them would look identical to knowing.
     const NO_ZH = [
       'cn-can-baode-dunhe-road',
       'cn-can-e-qian-ya-hou',
@@ -772,19 +780,29 @@ describe('michelin-data — Mainland China (CN-michelin.js) load', () => {
       'cn-can-tai-shan-lao-biao-xian-tang-yuan-xihua-road',
       'cn-can-wuchuan-hao-wei-lai',
       'cn-can-yu-yuen',
-      // v0.62.762 — the 13 Shenzhen debut rows, same reason.
+      'cn-szx-3-hao-ma-tou',
       'cn-szx-chao-shang-chao',
+      'cn-szx-cui-hu',
+      'cn-szx-da-tang-liang-tang',
       'cn-szx-ensue',
+      'cn-szx-fa-ji-shao-e-mei-shi',
       'cn-szx-fumee',
       'cn-szx-gao-san-jie-dou-hua-dian',
-      'cn-szx-jie-yang-lao-er-guo-tiao-tang',
+      'cn-szx-ge-ji-mei-ji-xian',
+      'cn-szx-hua-zhou-b-ji-fan-dian',
+      'cn-szx-hui-chao-zhou',
       'cn-szx-jiu-jiu-noodle',
+      'cn-szx-lu-liang-shou',
       'cn-szx-opus-388',
+      'cn-szx-tai-shan-lao-huang-shan-fan',
       'cn-szx-the-bay-by-chef-fei',
-      'cn-szx-xiao-long-niu-rou-mian-futian',
+      'cn-szx-xiao-fu-rong-can-ting',
+      'cn-szx-xiao-zhuo-yan',
       'cn-szx-xin-hu-cun-cu-rou-longhua-jianshe-road',
       'cn-szx-xin-ji-ke-jia-wei-dao',
       'cn-szx-xin-rong-ji',
+      'cn-szx-xing-ning-ke-jia-cai-guan',
+      'cn-szx-yuan-sheng-tai',
       'cn-szx-yun-jing',
     ];
     const zh = src.filter((e) => !NO_ZH.includes(e.id));
@@ -906,11 +924,11 @@ describe('michelin-data — country tables', () => {
     expect(my.ENTRIES.length).toBe(70);
   });
 
-  it('CN-michelin.js is venue-centric with 496 curated rows', () => {
+  it('CN-michelin.js is venue-centric with 511 curated rows', () => {
     const cn = require('../CN-michelin.js');
     expect(cn.COUNTRY).toBe('CN');
     expect(Array.isArray(cn.ENTRIES)).toBe(true);
-    expect(cn.ENTRIES.length).toBe(496);
+    expect(cn.ENTRIES.length).toBe(511);
   });
 
   it('PH-michelin.js is venue-centric with 34 curated rows', () => {
