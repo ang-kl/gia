@@ -85,11 +85,13 @@ const VALID_YEARS = new Set([2025, 2026]);
 //   - they appear in `editionVenues(Y)` and `greenStarVenues(Y)`, but NOT in
 //     `venuesForYear(Y)`, which stays strictly award-based because every
 //     manifest count derives from it;
-//   - they produce NO flat rows, since the flat contract is one row per award
-//     and a Green Star is not one. They are therefore invisible to `getAll` /
-//     `michelinForCity` / `michelinForCountry` until someone decides how a
-//     Green Star should render. A load-time guard below stops that from
-//     turning into `hasMichelinData()` lying about a city.
+//   - v0.62.766: they DO produce flat rows now — one per Green Star year,
+//     carrying `category: 'green-star'`. A venue holding both an award and a
+//     Green Star still emits exactly one row per award, flagged
+//     `greenStar: true`, so nothing is double-listed. Every flat row carries
+//     a boolean `greenStar`. The load-time guard below predates this and is
+//     kept: it costs nothing and still catches a city whose only venue is
+//     award-less, which remains a thin surface even now.
 //
 // Modelling it as a category was the obvious first move and is wrong twice
 // over. `_venueToFlatRows` emits one flat row PER AWARD, so a one-starred
@@ -491,21 +493,46 @@ for (const tbl of COUNTRY_TABLES) {
 // row PER AWARD from the venue pool so `getAll` / `michelinForCity` /
 // `michelinForCountry` keep a flat contract over the country venues.
 function _venueToFlatRows(v) {
-  return v.awards.map((a) => {
+  const gs = Array.isArray(v[GREEN_STAR_KEY]) ? v[GREEN_STAR_KEY] : [];
+  const base = () => {
     const row = {
       city: v.city,
       country: v.country,
       name: v.name,
       address: v.address,
-      category: a.category,
-      year: a.year,
       vegetarian: v.vegetarian,
       halal: v.halal,
     };
     if (v.postal !== undefined) row.postal = v.postal;
     if (v.cuisine !== undefined) row.cuisine = v.cuisine;
     return row;
-  });
+  };
+
+  // v0.62.766 — the Green Star reaches the flat surface, in the ONE shape that
+  // does not double-list. The schema note above rejected `green-star` as an
+  // awards[] category precisely because a starred venue holding one would then
+  // emit two rows and appear twice in `michelinForCity` / `getAll`. That
+  // objection is about venues holding BOTH, and it still stands, so:
+  //
+  //   holds awards  → one row per award, unchanged, plus `greenStar: true` on
+  //                   the rows whose year the Green Star covers. No extra row.
+  //   holds only a  → one row per Green Star year, `category: 'green-star'`.
+  //   Green Star      Its tier slot was empty, so nothing is displaced.
+  //
+  // `greenStar` is a boolean on every row, never undefined, so a consumer can
+  // test it without knowing which branch produced the row.
+  if (v.awards.length) {
+    return v.awards.map((a) => Object.assign(base(), {
+      category: a.category,
+      year: a.year,
+      greenStar: gs.includes(a.year),
+    }));
+  }
+  return gs.map((y) => Object.assign(base(), {
+    category: 'green-star',
+    year: y,
+    greenStar: true,
+  }));
 }
 
 const ALL = [];
@@ -726,6 +753,16 @@ function retainedAwardYears(venue) {
   return years;
 }
 
+// v0.62.766 — the Green Star analogue of retainedAwardYears(), in the same
+// compact "'26" token form the year ticks and the TMA card already speak. It
+// exists so the search path can answer "which editions is this Green Star
+// good for?" without every caller reaching into greenStarYears and
+// reformatting it — which is how two call sites drift into two conventions.
+function retainedGreenStarYears(venue) {
+  const gs = venue && Array.isArray(venue[GREEN_STAR_KEY]) ? venue[GREEN_STAR_KEY] : [];
+  return [...gs].sort((a, b) => b - a).map((y) => `'${String(y).slice(-2)}`);
+}
+
 module.exports = {
   // schema constants
   CATEGORIES,
@@ -764,4 +801,5 @@ module.exports = {
   editionVenues,
   awardsDiff,
   retainedAwardYears,
+  retainedGreenStarYears,
 };
