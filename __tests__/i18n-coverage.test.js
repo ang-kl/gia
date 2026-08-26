@@ -98,8 +98,92 @@ for (const [key, langs, reason] of IDENTICAL_BY_DESIGN) {
   for (const l of langs) pinned.add(key + '|' + l);
 }
 
+// ── raw locale PRESENCE, read from the source ──────────────────────────────
+// EVERYTHING ABOVE GOES THROUGH t(), AND t() IS `entry[l] || entry.en || key`.
+// So every assertion in this file measures what RENDERS, not what EXISTS.
+// Delete the `fr` property from language.btn.fr and t('language.btn.fr','fr')
+// still returns the English value: the pair is still identical, the pin above
+// still passes it, and "every key resolves in all 8 locales" still passes too.
+// A gate that cannot tell a missing translation from an intended one is not a
+// gate. Caught by Codex on #1754 — its P2 comment on this file.
+//
+// Measured when fixing it, the hole was not hypothetical: 96 locale entries
+// are ALREADY absent (16 keys x 6 locales), and every check in this file
+// passed anyway. They are absent correctly — an endonym and a switch
+// confirmation must arrive in their own language, which is what the English
+// fallback already delivers — but "correct" was never recorded anywhere, and
+// an unrecorded absence is indistinguishable from a deletion.
+//
+// STRINGS is not exported, so the table is brace-matched out of the source:
+// the same "read the source, not an export" approach the KEYS list uses.
+const RAW = (() => {
+  const src = fs.readFileSync(path.join(ROOT, 'i18n.js'), 'utf8');
+  const out = {};
+  const re = /^\s*'([a-zA-Z0-9_.\-]+)':\s*\{/gm;
+  let m;
+  while ((m = re.exec(src))) {
+    let i = src.indexOf('{', m.index);
+    let depth = 0, quote = null, esc = false, top = '';
+    for (; i < src.length; i++) {
+      const c = src[i];
+      if (esc) { esc = false; continue; }
+      if (quote) { if (c === '\\') esc = true; else if (c === quote) quote = null; continue; }
+      if (c === "'" || c === '"' || c === '`') { quote = c; continue; }
+      if (c === '{') { depth++; continue; }
+      if (c === '}') { depth--; if (depth === 0) break; continue; }
+      if (depth === 1) top += c;
+    }
+    out[m[1]] = [...top.matchAll(/([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g)]
+      .map((x) => x[1])
+      .filter((prop) => i18n.SUPPORTED.includes(prop));
+  }
+  return out;
+})();
+
+// ── absent BY DESIGN ───────────────────────────────────────────────────────
+// [key, locales, reason] — the entry does not exist and should not.
+//
+//   endonym             language.btn.* is a language's own name in the picker.
+//                       "Deutsch" is Deutsch on every row of every locale's
+//                       keyboard; one entry serves all eight.
+//   confirms-in-target  bot.lang.set.* must arrive in the language just
+//                       chosen, not the one being left. The English slot holds
+//                       the target-language text, so the fallback is the
+//                       feature, not a gap.
+//
+// Written out one key at a time, not generated from a loop over SUPPORTED. A
+// loop would be the category rule this file already refuses above: it would
+// silently absorb a future language.btn.* key that genuinely needed eight
+// entries.
+const ABSENT_BY_DESIGN = [
+  ['bot.lang.set.en', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
+  ['bot.lang.set.fr', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
+  ['bot.lang.set.id', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
+  ['bot.lang.set.ru', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
+  ['bot.lang.set.de', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
+  ['bot.lang.set.zh', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
+  ['bot.lang.set.ja', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
+  ['bot.lang.set.es', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
+  ['language.btn.en', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
+  ['language.btn.fr', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
+  ['language.btn.id', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
+  ['language.btn.ru', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
+  ['language.btn.de', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
+  ['language.btn.zh', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
+  ['language.btn.ja', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
+  ['language.btn.es', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
+];
+
+const absentPinned = new Set();
+for (const [key, langs] of ABSENT_BY_DESIGN) {
+  for (const l of langs) absentPinned.add(key + '|' + l);
+}
+
 describe('i18n coverage', () => {
-  it('every key resolves in all 8 supported locales', () => {
+  it('every key RESOLVES in all 8 locales — resolution only, NOT presence', () => {
+    // Names what it actually proves. t() falls back to English, so this
+    // passes for a locale whose entry was deleted; presence is asserted
+    // separately below, against the raw table.
     const broken = [];
     for (const k of KEYS) {
       for (const l of i18n.SUPPORTED) {
@@ -141,6 +225,62 @@ describe('i18n coverage', () => {
       expect(langs.length).toBeGreaterThan(0);
       expect(KEYS).toContain(key);
     }
+  });
+
+  it('every key has an English entry — the fallback root must exist', () => {
+    // If `en` is missing too, t() returns the KEY and the user sees
+    // "bot.lang.set.de" on screen. Nothing else in this file catches that.
+    expect(KEYS.filter((k) => !RAW[k] || !RAW[k].includes('en'))).toEqual([]);
+  });
+
+  it('raw locale entries are pinned at 2,112 of a possible 2,208', () => {
+    const have = KEYS.reduce((n, k) => n + RAW[k].length, 0);
+    expect(KEYS.length * i18n.SUPPORTED.length).toBe(2208);
+    expect(have).toBe(2112);
+    expect(absentPinned.size).toBe(2208 - 2112);
+  });
+
+  it('no locale entry is MISSING except the pinned ones', () => {
+    // The direction that catches a DELETION — the case t() hides entirely.
+    const missing = [];
+    for (const k of KEYS) {
+      for (const l of i18n.SUPPORTED) if (!RAW[k].includes(l)) missing.push(k + '|' + l);
+    }
+    expect(missing.filter((p) => !absentPinned.has(p)).sort()).toEqual([]);
+  });
+
+  it('every pinned absence is STILL absent — no stale absence pins', () => {
+    // The direction that catches a pin left behind after the entry was really
+    // added. Without it the exemption list would only ever grow.
+    const filled = [];
+    for (const [key, langs] of ABSENT_BY_DESIGN) {
+      for (const l of langs) if ((RAW[key] || []).includes(l)) filled.push(key + '|' + l);
+    }
+    expect(filled).toEqual([]);
+  });
+
+  it('every absence exemption carries a reason from the known set', () => {
+    for (const [key, langs, reason] of ABSENT_BY_DESIGN) {
+      expect(REASONS.has(reason), key + ' has reason "' + reason + '"').toBe(true);
+      expect(langs.length).toBeGreaterThan(0);
+      expect(KEYS).toContain(key);
+    }
+  });
+
+  it('a deleted entry is caught by presence even though t() hides it', () => {
+    // Codex's exact case, run rather than described. `language.btn.fr` is one
+    // of the 165 pinned-identical pairs, so the identical-pair gate cannot see
+    // its deletion: t() falls back to English and the strings still match.
+    expect(RAW['language.btn.fr']).toContain('fr');
+    expect(i18n.t('language.btn.fr', 'fr')).toBe(i18n.t('language.btn.fr', 'en'));
+    expect(pinned.has('language.btn.fr|fr')).toBe(true);
+
+    const mutated = { ...RAW, 'language.btn.fr': RAW['language.btn.fr'].filter((l) => l !== 'fr') };
+    const missing = [];
+    for (const k of KEYS) {
+      for (const l of i18n.SUPPORTED) if (!mutated[k].includes(l)) missing.push(k + '|' + l);
+    }
+    expect(missing.filter((p) => !absentPinned.has(p))).toEqual(['language.btn.fr|fr']);
   });
 
   it('the long-form legal text is translated in every locale', () => {
