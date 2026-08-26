@@ -177,7 +177,7 @@ const COUNTRY_MANIFEST = Object.freeze({
   JP: {
     // 2025 PARTIAL — source captured only upper tiers (no Bib Gourmand).
     2025: { 'three-star': 20, 'two-star': 57, 'one-star': 8, total: 85 },
-    2026: { 'three-star': 21, 'two-star': 61, 'one-star': 278, 'bib-gourmand': 228, total: 588 },
+    2026: { 'three-star': 21, 'two-star': 61, 'one-star': 279, 'bib-gourmand': 228, total: 589 },
   },
   KR: {
     // 2025 PARTIAL — source captured only upper tiers (no Bib Gourmand).
