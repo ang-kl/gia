@@ -4,7 +4,7 @@
 // BANNER under the location pill, collapsed to one line, expanding on tap to
 // tier-labelled dish rows. Each row: tap → fires the dish search at the set
 // location; 📜 → a dismissible fact-card bubble whose text is CURATED
-// (city-plates.js history.{en,fr} — never LLM-generated at runtime).
+// (city-plates.js history — never LLM-generated at runtime).
 //
 // Accessibility: tier + claim are WORDS, never colour; blue/amber accents
 // only (colour-blind safe); rows are ≥44px touch targets; aria labels set.
@@ -16,6 +16,21 @@ import { openDishPicture } from '../lib/dish-picture.js';
 import { t } from '../lib/i18n.js';
 // P1-d — shared dialog behaviour (focus trap / initial focus / Escape / restore).
 import { useDialog } from '../../../../_shared/lib/use-dialog.js';
+
+// v0.62.781 — READ THE READER'S LANGUAGE, not just French.
+//
+// These curated bodies were rendered as `fr ? x.fr : x.en` at four sites, so a
+// German, Russian, Indonesian, Chinese, Japanese or Spanish reader got ENGLISH
+// however many locales the datum carried. That is the same defect class as
+// v0.62.777, where ~5,300 translated strings existed and no reader could reach
+// them — found by measuring the DATA and not the render. Measure the render.
+//
+// Order: the reader's language, then English, then French. The last step matters
+// because city-plates.js permits a note with `fr` and no `en`.
+export function localisedBody(obj, lang) {
+  if (!obj || typeof obj !== 'object') return '';
+  return obj[lang] || obj.en || obj.fr || '';
+}
 
 const TIER_LABEL = {
   'city-icon':        { en: 'city icon',        fr: 'icône de la ville' },
@@ -277,7 +292,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                   <div className="mb-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
                     <div id="gia-dishmodal-title" className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                     {d.note
-                      ? <div className="mt-1">{(fr ? d.note.fr : d.note.en) || d.note.en || ''}</div>
+                      ? <div className="mt-1">{localisedBody(d.note, lang)}</div>
                       : <div className="mt-1 text-tg-hint italic">{fr ? 'Description bientôt — touchez « Trouver des adresses ».' : 'Write-up coming soon — tap “Find eateries”.'}</div>}
                     <div className="mt-2 flex items-center justify-between gap-2">
                       {/* v0.62.407 — pill font -1 (10→9); the glass background +
@@ -354,7 +369,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                           <div className="my-2 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2 whitespace-normal">
                             <div id="gia-dishmodal-title" className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                             {d.note
-                              ? <div className="mt-1">{(fr ? d.note.fr : d.note.en) || d.note.en || ''}</div>
+                              ? <div className="mt-1">{localisedBody(d.note, lang)}</div>
                               : <div className="mt-1 text-tg-hint italic">{fr ? 'Description bientôt — touchez « Trouver des adresses ».' : 'Write-up coming soon — tap “Find eateries”.'}</div>}
                             {/* v0.62.182 — show the curated source (A3 rule). */}
                             {Array.isArray(d.sources) && d.sources.length > 0 && (
@@ -483,7 +498,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
               <DishModal onClose={() => setFactIdx(null)}>
               <div className="mt-1.5 mb-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
                 <div id="gia-dishmodal-title" className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
-                <div className="mt-1">{(d.history && (fr ? d.history.fr : d.history.en)) || ''}</div>
+                <div className="mt-1">{localisedBody(d.history, lang)}</div>
                 <div className="mt-1 text-tg-hint">
                   {(TIER_LABEL[d.tier] || {})[fr ? 'fr' : 'en'] || d.tier} · {d.claim}
                   {d.differsFrom ? <> · {fr ? 'diffère de' : 'differs from'} {d.differsFrom}</> : null}
@@ -564,7 +579,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                     <div className="my-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2 whitespace-normal">
                       <div id="gia-dishmodal-title" className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                       {d.note && (d.note.en || d.note.fr)
-                        ? <div className="mt-1">{(fr ? d.note.fr : d.note.en) || d.note.en || ''}</div>
+                        ? <div className="mt-1">{localisedBody(d.note, lang)}</div>
                         : <div className="mt-1 text-tg-hint">{fr ? 'Fiche en cours de rédaction.' : 'Write-up coming soon.'}</div>
                       }
                       {/* v0.62.174 — show the curated source when present (A3 rule). */}
