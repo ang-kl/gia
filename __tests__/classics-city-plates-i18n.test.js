@@ -1,4 +1,4 @@
-// __tests__/classics-city-plates-i18n.test.js — v0.62.795
+// __tests__/classics-city-plates-i18n.test.js — v0.62.798
 //
 // THE MERGE SITE IS THE THING UNDER TEST, not the size of the corpus.
 //
@@ -172,5 +172,39 @@ describe('city-plates histories — complete locale coverage', () => {
     }
     expect(rows).toBeGreaterThanOrEqual(279);
     expect(gaps).toEqual([]);
+  });
+});
+
+// v0.62.798 — THE 140-CHARACTER CAP APPLIES TO EVERY LOCALE, NOT JUST en/fr.
+//
+// classics-notes.js line 11 states the contract: each note is "trimmed to <=140
+// chars". All 1,677 curated notes obey it in BOTH en and fr — 0 violations. The only
+// test enforcing it (city-plates.test.js) checked `en` and `fr`, on ONE dish.
+//
+// So the first 50 translated rows shipped 154 of 300 strings over the cap, up to 188
+// characters — a 34% overflow on a curated UI card. Codex found it on PR #1760 and
+// measured 79 of 150; the true figure across both tranches was 154 of 300.
+//
+// Note WHICH languages: id/ru/de/es overflow, zh/ja never do. A character cap is not
+// script-neutral — 140 Han characters carry far more than 140 Latin ones — but the
+// contract is a LAYOUT budget, and the layout counts characters. Translating to the
+// cap is the discipline the curated English already keeps.
+describe('classics-notes — the 140-character cap holds in every locale', () => {
+  it('no translated note exceeds the cap the curated notes obey', () => {
+    const { CLASSIC_NOTES, CUISINE_NOTES } = require('../classics-notes.js');
+    const LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+    const over = [];
+    for (const table of [CLASSIC_NOTES, CUISINE_NOTES]) {
+      for (const [scope, dishes] of Object.entries(table)) {
+        for (const [dish, entry] of Object.entries(dishes)) {
+          if (!entry || !entry.note) continue;
+          for (const l of LOCALES) {
+            const s = entry.note[l];
+            if (typeof s === 'string' && s.length > 140) over.push(`${scope}::${dish}/${l} (${s.length})`);
+          }
+        }
+      }
+    }
+    expect(over).toEqual([]);
   });
 });
