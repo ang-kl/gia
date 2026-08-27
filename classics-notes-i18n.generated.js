@@ -9153,14 +9153,6 @@ module.exports = {
     ja: "葱油餅は、無発酵の小麦生地に油と刻みねぎをはさんで層に折り、鉄鍋で焼く中国の塩味の平パン。",
     es: "El cong you bing es un pan plano salado chino a la sartén, de masa sin levadura plegada en capas con aceite y cebolleta picada.",
   },
-  "northeastern::da pai dang chinese bbq": {
-    id: "Kedai jajanan jalanan Kanton di ruang terbuka, dilisensikan di Hong Kong pascaperang; menyajikan hidangan wajan dan panggangan murah.",
-    ru: "Кантонский уличный ларёк под открытым небом, лицензированный в послевоенном Гонконге; там подают дешёвые блюда с вока и гриля.",
-    de: "Kantonesischer Straßenstand unter freiem Himmel, im Nachkriegs-Hongkong lizenziert; er serviert günstige Wok- und Grillgerichte.",
-    zh: "露天的粤式街头熟食档，战后香港开始发牌；供应廉价的镬气小菜与烧烤。",
-    ja: "屋外の広東式の屋台。戦後の香港で免許制になり、安価な炒め物や焼き物を出す。",
-    es: "Puesto callejero cantonés al aire libre, con licencia en el Hong Kong de posguerra; sirve platos baratos de wok y a la parrilla.",
-  },
   "northeastern::di san xian": {
     id: "Hidangan klasik Dongbei di Tiongkok Timur Laut: terung, kentang, dan paprika hijau digoreng lalu dibalut saus bawang putih dan kecap.",
     ru: "Классическое дунбэйское блюдо северо-востока Китая: обжаренные баклажаны, картофель и зелёный перец в чесночно-соевом соусе.",

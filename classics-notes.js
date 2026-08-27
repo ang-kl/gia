@@ -9041,40 +9041,6 @@ const CUISINE_NOTES = {
         }
       ]
     },
-    "eurasian fishball curry": {
-      "local": "咖哩魚蛋",
-      "note": {
-        "en": "Teochew-rooted fish balls in spicy curry sauce, a Hong Kong street-food staple popularised by post-war 1950s hawker carts.",
-        "fr": "Boulettes de poisson d'origine teochew en sauce curry épicée, en-cas de rue hongkongais popularise par les marchands ambulants des annees"
-      },
-      "sources": [
-        {
-          "name": "Wikipedia — Curry fish ball",
-          "url": "https://en.wikipedia.org/wiki/Curry_fish_ball"
-        },
-        {
-          "name": "MICHELIN Guide — The Journey of Hong Kong's Iconic Fish Ball",
-          "url": "https://guide.michelin.com/hk/en/article/features/bouncing-through-time-the-journey-iconic-fish-ball-hong-kong"
-        }
-      ]
-    },
-    "roast suckling pig": {
-      "local": "feng",
-      "note": {
-        "en": "A rich Eurasian curry of diced pork and pig's offal slow-cooked in a blend of spices.",
-        "fr": "Un riche curry eurasien de porc et d'abats de porc en dés, mijoté dans un mélange d'épices."
-      },
-      "sources": [
-        {
-          "name": "Roots.gov.sg - Eurasian Cuisine in Singapore",
-          "url": "https://www.roots.gov.sg/ich-landing/ich/eurasian-cuisine-in-singapore"
-        },
-        {
-          "name": "Wikipedia - Eurasian cuisine of Singapore and Malaysia",
-          "url": "https://en.wikipedia.org/wiki/Eurasian_cuisine_of_Singapore_and_Malaysia"
-        }
-      ]
-    },
     "eurasian smoore": {
       "local": "Smore",
       "note": {
@@ -25755,40 +25721,6 @@ const CUISINE_NOTES = {
         {
           "name": "Suan cai (Wikipedia/Kiddle)",
           "url": "https://kids.kiddle.co/Suan_cai"
-        }
-      ]
-    },
-    "da pai dang chinese bbq": {
-      "local": "大排檔",
-      "note": {
-        "en": "Open-air Cantonese street-food stall, licensed in postwar Hong Kong, serving cheap wok and grilled \"chinese BBQ\" dishes.",
-        "fr": "Échoppe cantonaise de rue en plein air, autorisée à Hong Kong d'après-guerre, servant des plats bon marché au wok et grillés."
-      },
-      "sources": [
-        {
-          "name": "Wikipedia — Dai pai dong",
-          "url": "https://en.wikipedia.org/wiki/Dai_pai_dong"
-        },
-        {
-          "name": "Oxford English Dictionary — dai pai dong",
-          "url": "https://www.oed.com/dictionary/dai-pai-dong_n"
-        }
-      ]
-    },
-    "changchun braised duck": {
-      "local": "清蒸白鱼",
-      "note": {
-        "en": "A steamed freshwater white fish (from the Songhua River/Lake) that is a signature dish of Jilin (Dongbei)",
-        "fr": "Un poisson blanc d'eau douce cuit à la vapeur (de la rivière/du lac Songhua), plat emblématique de la cuisine du Jilin (Dongbei)"
-      },
-      "sources": [
-        {
-          "name": "Jilin cuisine — Wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Jilin_cuisine"
-        },
-        {
-          "name": "Steamed White Fish — Jilin, China (provincial government)",
-          "url": "https://www.gojilin.gov.cn/2020/03/06/c_6636.htm"
         }
       ]
     },

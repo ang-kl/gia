@@ -259,26 +259,51 @@ describe('classics-notes — the 140-character cap holds in every locale', () =>
 // decision that changes what the app offers, so it is the operator's, not the translator's,
 // and the rows stay in English until it is made. Listing them here means the exception is
 // visible in CI rather than remembered — and the moment one is resolved, this list shrinks.
-const O315_HELD = [
-  'northeastern::changchun braised duck',
-  'eurasian::roast suckling pig',
-  'eurasian::eurasian fishball curry',
-];
+// v0.62.806 — O-315 IS CLOSED, AND THE EXCEPTION REGISTER ABOVE IS NOW EMPTY. The block
+// above is kept rather than rewritten, because what it got wrong is the point.
+//
+// It called this "a key-versus-note decision". It is not, and the evidence was one field
+// away the whole time: every one of these rows carries a `local` endonym, and in all four
+// the `local`, the `note` and the `sources` agree WITH EACH OTHER and disagree with the KEY.
+// `roast suckling pig` had local "feng"; `eurasian fishball curry` had 咖哩魚蛋;
+// `changchun braised duck` had 清蒸白鱼. The rest of the repo corroborates the key, not the
+// note: `eurasian::feng (curry of pork offal)` and `hong-kong::curry fish balls` ALREADY
+// EXIST as their own correct rows, and `nation-overlay-local` gives changchun's endonym as
+// 酱鸭. So these were never ambiguous — they were four contaminated rows duplicating content
+// that the corpus already held correctly elsewhere. The fix is removal, not authorship, and
+// it invents no prose.
+//
+// A FOURTH was found by scanning rather than reading: `northeastern::da pai dang chinese
+// bbq`, whose note reads "Open-air CANTONESE street-food stall, licensed in postwar HONG
+// KONG" while the nation overlay's own note for the same key says "open-air food stalls in
+// NORTHEASTERN China". O-315 was opened at three because three is what one pass of reading
+// happened to surface.
+//
+// WHY REMOVAL RESTORES RATHER THAN LOSES: `index.js` merges these as `{ ...d, ...m }`, so a
+// classics-notes row OVERWRITES the nation overlay's own note. Deleting the four lets the
+// overlay's correct, sourced notes through — verified at the render site, not assumed. The
+// removed rows are preserved verbatim in the journal, per AU-1.
+//
+// One correction the earlier block also carries: it says all three "render the wrong dish".
+// Three did. `changchun braised duck` did not — it is absent from the overlay's iconicDishes,
+// and the other consumer (`city-plates.js`) reads only CLASSIC_NOTES keyed by country code.
+// It was wrong data that never reached a reader. Wrong is still worth removing; overstating
+// its reach is not.
 describe('classics-notes — complete locale coverage', () => {
-  it('every note but the three held O-315 mismatches carries all eight locales', () => {
+  it('every note carries all eight locales, with no exceptions', () => {
     const { CLASSIC_NOTES, CUISINE_NOTES } = require('../classics-notes.js');
     const overlay = require('../classics-notes-i18n.generated.js');
     const LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
-    const held = new Set(O315_HELD);
     const gaps = [];
+    const keys = new Set();
     let rows = 0;
     for (const table of [CLASSIC_NOTES, CUISINE_NOTES]) {
       for (const [scope, dishes] of Object.entries(table)) {
         for (const [dish, entry] of Object.entries(dishes)) {
-          if (!entry || !entry.note || !entry.note.en) continue;
           const key = `${scope}::${dish}`;
+          keys.add(key);
+          if (!entry || !entry.note || !entry.note.en) continue;
           rows += 1;
-          if (held.has(key)) continue;
           for (const l of LOCALES) {
             const s = entry.note[l] || (overlay[key] && overlay[key][l]);
             if (typeof s !== 'string' || !s.trim()) gaps.push(`${key}/${l}`);
@@ -286,9 +311,169 @@ describe('classics-notes — complete locale coverage', () => {
         }
       }
     }
-    expect(rows).toBeGreaterThanOrEqual(1677);
+    expect(rows).toBeGreaterThanOrEqual(1673);
     expect(gaps).toEqual([]);
-    // The held list is an exception register, not a dumping ground: it may shrink, never grow.
-    expect(O315_HELD.length).toBeLessThanOrEqual(3);
+    // Removing a base note must remove its translations too. Six strings for a dish that no
+    // longer exists are not harmless leftovers — they are what a later coverage count reads
+    // as work already done. The da pai dang row was exactly this, caught by measuring.
+    expect(Object.keys(overlay).filter((k) => !keys.has(k))).toEqual([]);
+  });
+
+  // The scan that found the fourth row, kept as a gate. It compares the protein a KEY claims
+  // against the protein the row's OWN CJK `local` names — the one check that needs no outside
+  // knowledge, because both fields are already in the row. It found exactly one contradiction
+  // across 1,675 rows carrying a local, and that one is now removed.
+  //
+  // Its blind spots are stated rather than implied, because a gate read as wider than it is
+  // becomes the reason nobody looks again: it cannot see a Latin-script local ("feng"), and it
+  // cannot see a row where key and local agree on protein but not provenance (the fishball
+  // curry, where both said fish). Two of the four rows this closes are invisible to it.
+  it('no row\'s key claims a protein its own endonym contradicts', () => {
+    const { CLASSIC_NOTES, CUISINE_NOTES } = require('../classics-notes.js');
+    const PROTEINS = [
+      { label: 'duck', en: /\bduck\b/i, cjk: /[鸭鴨]/ },
+      { label: 'fish', en: /\b(fish|fishballs?|fish balls?)\b/i, cjk: /[鱼魚]/ },
+      { label: 'pork', en: /\b(pork|pig|suckling)\b/i, cjk: /[猪豬]/ },
+      { label: 'chicken', en: /\bchicken\b/i, cjk: /[鸡鷄雞]/ },
+      { label: 'beef', en: /\b(beef|ox)\b/i, cjk: /牛/ },
+      { label: 'lamb', en: /\b(lamb|mutton|goat)\b/i, cjk: /羊/ },
+      { label: 'crab', en: /\bcrab\b/i, cjk: /蟹/ },
+      { label: 'prawn', en: /\b(prawn|shrimp)\b/i, cjk: /[虾蝦]/ },
+    ];
+    const bad = [];
+    for (const table of [CLASSIC_NOTES, CUISINE_NOTES]) {
+      for (const [scope, dishes] of Object.entries(table)) {
+        for (const [dish, entry] of Object.entries(dishes)) {
+          const local = String((entry && entry.local) || '');
+          if (!/[一-鿿]/.test(local)) continue;
+          const claimed = PROTEINS.filter((p) => p.en.test(dish));
+          const present = PROTEINS.filter((p) => p.cjk.test(local));
+          if (!claimed.length || !present.length) continue;
+          if (!claimed.some((c) => present.some((p) => p.label === c.label))) {
+            bad.push(`${scope}::${dish} — key says ${claimed.map((c) => c.label).join('/')}, ${local} says ${present.map((p) => p.label).join('/')}`);
+          }
+        }
+      }
+    }
+    expect(bad).toEqual([]);
+  });
+});
+
+// v0.62.807 — O-317: A NOTE NOTHING ASKS FOR IS NOT A NOTE. Coverage tests count what
+// EXISTS; nothing counted what could be REACHED, and the two numbers had drifted apart by
+// 27 rows before anyone looked.
+//
+// `index.js` enriches the cuisine plate by iterating the overlay's `iconicDishes` and
+// looking each up in CUISINE_NOTES. It is the ONLY production consumer of that table —
+// `city-plates.js`, the other classics path, reads CLASSIC_NOTES keyed by country code. So
+// a note whose key is absent from its cuisine's dish list is never consulted by anything.
+//
+// FOUR of the 27 were a CASE-SENSITIVITY BUG, not a data gap: `escargots de Bourgogne`,
+// `tarta de Santiago`, `coconut chicken (Hainan style)` and `Taiwan night market dishes`
+// are capitalised in the overlay and lower-cased in the notes. city-plates.js had folded
+// since v0.62.175; the cuisine path never did. Fixed at the call site, and the fold was
+// measured before it was written: 1,484 matches before, 1,488 after, exactly those four
+// recovered, ZERO existing matches redirected, and zero folded-name collisions anywhere.
+//
+// THE OTHER 23 ARE NOT A BUG AND ARE NOT FIXED HERE. They are notes for dishes the app's
+// cuisine plates do not offer. Three things were checked before saying so, because each
+// would have made this someone else's fix:
+//   · Are they duplicates served elsewhere? NO — 0 of 23 appear in another cuisine's dish
+//     list or in CLASSIC_NOTES. Retiring them would destroy unique sourced content.
+//   · Were they ever in the overlay, so re-adding is a restoration? NO — `git log -S` finds
+//     `hainanese chicken rice`, `german beer` and `yuzu cheesecake` in ZERO commits touching
+//     nation-overlay.js. They were authored independently of the dish list.
+//   · Is there a hidden array the enrichment misses? NO — `iconicDishes` is the only
+//     dish-bearing array on the overlay; the beer/ale/wine cluster is genuinely absent.
+// So making them reachable means ADDING DISHES TO WHAT THE APP OFFERS, which is a product
+// decision and the operator's, not a test's. The list is pinned here so it can shrink but
+// never grow silently — the failure mode being that note #24 joins them unnoticed.
+//
+// The sharpest of the 23, stated plainly: `hainanese::hainanese chicken rice` — Singapore's
+// national dish — is curated, sourced, translated into eight locales, and unreachable. There
+// is no chicken rice in SG's CLASSIC_NOTES at all, and the only one any reader can reach is
+// `thai::thai chicken rice (khao man gai)`.
+const O317_UNREACHABLE = [
+  'hainanese::hainan rice noodles',
+  'hainanese::hainanese chicken rice',
+  'hakka::thunder tea rice',
+  'hakka::cukiok (hakka braised pork trotter)',
+  'hakka::steamed minced pork with mui choy',
+  'hakka::hakka duck stuffed with glutinous rice',
+  'hakka::hakka beef meatball soup',
+  'hakka::hakka steamed glutinous rice cake (ci ba)',
+  "hunan::dong'an chicken",
+  'hunan::changde beef rice noodle',
+  'german::german beer',
+  'british::british ale',
+  'american::american craft beer',
+  'australian::australian wine',
+  'australian::barramundi pie',
+  'australasia::kaipake plate',
+  'australasia::fish suckling pacific',
+  'australasia::antipodean cafe brunch',
+  'australasia::pasifika fusion plate',
+  'macau::caca-mato',
+  'northeastern::three rice porridge',
+  'fusion::satay beef burger',
+  'fusion::yuzu cheesecake',
+];
+describe('classics-notes — CUISINE_NOTES reachability (O-317)', () => {
+  // The fold under test is a COPY of the one in index.js, deliberately. A test that
+  // imported the helper would pass if both drifted together; this one fails if the call
+  // site stops folding, which is the regression it exists to catch.
+  const foldDish = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+
+  it('every note resolves to a dish the reader can reach, except the pinned 23', () => {
+    const { CUISINE_NOTES } = require('../classics-notes.js');
+    const { getNationOverlay } = require('../nation-overlay');
+    const pinned = new Set(O317_UNREACHABLE);
+    const unreachable = [];
+    for (const slug of Object.keys(CUISINE_NOTES)) {
+      let ov = null;
+      try { ov = getNationOverlay(slug); } catch { /* no overlay for this slug */ }
+      const names = ((ov && ov.iconicDishes) || []).map((d) => d && d.name).filter(Boolean);
+      if (!names.length) continue;
+      const folded = new Set(names.map(foldDish));
+      for (const dish of Object.keys(CUISINE_NOTES[slug])) {
+        const key = `${slug}::${dish}`;
+        if (folded.has(foldDish(dish))) continue;
+        if (pinned.has(key)) continue;
+        unreachable.push(key);
+      }
+    }
+    expect(unreachable).toEqual([]);
+    // Shrink, never grow. A 24th unreachable note is a regression, not a new normal.
+    expect(O317_UNREACHABLE.length).toBeLessThanOrEqual(23);
+  });
+
+  it('the fold recovers the four case-only misses and redirects nothing', () => {
+    const { CUISINE_NOTES } = require('../classics-notes.js');
+    const { getNationOverlay } = require('../nation-overlay');
+    const recovered = [];
+    const redirected = [];
+    for (const slug of Object.keys(CUISINE_NOTES)) {
+      let ov = null;
+      try { ov = getNationOverlay(slug); } catch { /* none */ }
+      const cnotes = CUISINE_NOTES[slug];
+      const byFold = new Map();
+      for (const [k, v] of Object.entries(cnotes)) byFold.set(foldDish(k), v);
+      for (const d of ((ov && ov.iconicDishes) || [])) {
+        if (!d || !d.name) continue;
+        const exact = cnotes[d.name];
+        const viaFold = byFold.get(foldDish(d.name));
+        if (!exact && viaFold) recovered.push(`${slug}::${d.name}`);
+        if (exact && viaFold && exact !== viaFold) redirected.push(`${slug}::${d.name}`);
+      }
+    }
+    expect(recovered.sort()).toEqual([
+      'french::escargots de Bourgogne',
+      'hainanese::coconut chicken (Hainan style)',
+      'spanish::tarta de Santiago',
+      'taiwanese::Taiwan night market dishes',
+    ]);
+    // The fold may only ADD a match. If it ever replaces an exact hit with a different
+    // note, two dishes have folded together and the enrichment is now lying about one.
+    expect(redirected).toEqual([]);
   });
 });
