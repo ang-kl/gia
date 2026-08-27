@@ -25197,23 +25197,6 @@ const CUISINE_NOTES = {
         }
       ]
     },
-    "fish suckling pacific": {
-      "local": "ʻOta ʻika",
-      "note": {
-        "en": "Tongan national dish of raw fish marinated in citrus juice and coconut milk with diced vegetables; eaten across Polynesia.",
-        "fr": "Plat national tongien de poisson cru mariné au jus d'agrumes et au lait de coco avec legumes en des, repandu en Polynesie."
-      },
-      "sources": [
-        {
-          "name": "Wikipedia — ʻOta ʻika",
-          "url": "https://en.wikipedia.org/wiki/%27Ota_%27ika"
-        },
-        {
-          "name": "TasteAtlas — Best Fish Dishes in Australia and Oceania",
-          "url": "https://www.tasteatlas.com/best-rated-fish-dishes-in-australia-and-oceania"
-        }
-      ]
-    },
     "antipodean cafe brunch": {
       "local": "Antipodean café brunch",
       "note": {

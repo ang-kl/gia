@@ -311,7 +311,13 @@ describe('classics-notes — complete locale coverage', () => {
         }
       }
     }
-    expect(rows).toBeGreaterThanOrEqual(1673);
+    // A FLOOR, and it only moves on an explicit ruling. 1,677 at v0.62.804 → 1,673 when
+    // O-315 removed four contaminated rows → 1,672 at v0.62.812 when the operator retired
+    // `fish suckling pacific` as a duplicate. Each step down is a decision someone made and
+    // can point at; the floor exists to catch the step down nobody decided — a row lost to
+    // a bad edit or a bad merge. Lowering it to match reality without saying why is how a
+    // guard becomes a rubber stamp, so the number and the reason move together or not at all.
+    expect(rows).toBeGreaterThanOrEqual(1672);
     expect(gaps).toEqual([]);
     // Removing a base note must remove its translations too. Six strings for a dish that no
     // longer exists are not harmless leftovers — they are what a later coverage count reads
@@ -437,13 +443,25 @@ describe('classics-notes — complete locale coverage', () => {
 //     display room all along. Recorded in the Register as a candidate refinement rather
 //     than acted on unasked.
 //
-//   · `australasia::fish suckling pacific` — the note and `local` (ʻOta ʻika) describe a
-//     real Tongan dish; the KEY is garbled English that is not a dish name. Adding it
-//     verbatim ships gibberish to a reader. It also looks like a near-duplicate of
-//     `F("oka i'a")`, already on the Australasia plate — oka iʻa is the Samoan cognate of
-//     ʻota ʻika. This is an O-315-shaped key-versus-note question, so it is the operator's,
-//     not a translator's. As of v0.62.811 this is the ONLY row here still awaiting a ruling
-//     — the other two have one, and American's was resolved by raising the cap.
+//   · `australasia::fish suckling pacific` — RETIRED at v0.62.812. Operator, verbatim:
+//     "retire fish suckling pacific as a duplicate". The duplicate claim was confirmed
+//     before the row was touched, not assumed from the name: both rows carry the SAME
+//     Wikipedia article, and the survivor's own source is titled "'Ota 'ika (Samoan oka
+//     i'a)". One dish, its Tongan and Samoan names. `oka i'a` is properly keyed, on the
+//     plate, and complete at eight locales; `fish suckling pacific` was a garbled key no
+//     reader could reach. The base row AND its overlay row were removed together — deleting
+//     only the base leaves an orphan a later coverage count reads as work already done,
+//     which is the mistake `da pai dang` taught at v0.62.806.
+//
+//     ONE FACT WAS LOST AND IS RECORDED RATHER THAN GLOSSED: the retired note called this
+//     the TONGAN national dish "eaten across Polynesia", where the survivor describes it as
+//     Samoan. Widening `oka i'a`'s prose to carry that would be authoring, not retiring, so
+//     it was not done — the full removed row is preserved verbatim in the journal.
+//
+// AS OF v0.62.812 NOTHING HERE IS PENDING. Both remaining rows are settled by an explicit
+// operator ruling and are expected to stay forever. This list is now a record of decisions,
+// not a queue of work — and if a future session finds it and feels an urge to empty it, that
+// urge is the thing this paragraph exists to stop.
 //
 // One thing checked and NOT acted on: 180 notes in the corpus end at a semicolon, which
 // looked at first like a truncation class covering `british ale` and `barramundi pie`. It
@@ -452,7 +470,6 @@ describe('classics-notes — complete locale coverage', () => {
 // terse, not broken, and were added.
 const O317_UNREACHABLE = [
   'australasia::kaipake plate',
-  'australasia::fish suckling pacific',
   'macau::caca-mato',
 ];
 describe('classics-notes — CUISINE_NOTES reachability (O-317)', () => {
@@ -483,16 +500,15 @@ describe('classics-notes — CUISINE_NOTES reachability (O-317)', () => {
     // Shrink, never grow. A new unreachable note is a regression, not a new normal —
     // and the bound ratchets DOWN as rows are resolved, so a resolved row cannot be
     // quietly refilled by a different one. 23 at v0.62.807, 22 at v0.62.808, 4 at
-    // v0.62.809, 3 since v0.62.810.
-    expect(O317_UNREACHABLE.length).toBeLessThanOrEqual(3);
+    // v0.62.809, 3 at v0.62.810, 2 since v0.62.812.
+    expect(O317_UNREACHABLE.length).toBeLessThanOrEqual(2);
     // Naming them individually is the assertion that stops this list becoming a parking
     // space again: a note may stay unreachable only because the dish cannot be confirmed,
     // or its key is not a dish name — never because adding it was work, and no longer
-    // because a policy cap blocks it. Two of the three are now settled by an explicit
-    // operator ruling and are expected to stay here permanently; only
-    // `fish suckling pacific` is still an open question.
+    // because a policy cap blocks it. BOTH remaining rows are settled by an explicit
+    // operator ruling — "leave kaipake and caca-mato as is" — and are expected to stay
+    // here permanently. Nothing in this list is pending.
     expect([...O317_UNREACHABLE].sort()).toEqual([
-      'australasia::fish suckling pacific',
       'australasia::kaipake plate',
       'macau::caca-mato',
     ]);
