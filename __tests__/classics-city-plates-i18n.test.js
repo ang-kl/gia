@@ -418,6 +418,16 @@ describe('classics-notes — complete locale coverage', () => {
 // than inventing a dish; adding them to the product would undo that decision. Unreachable
 // is the correct outcome for a dish nobody could document.
 //
+// v0.62.811 — THOSE TWO ARE NOW SETTLED, NOT PENDING. Operator, verbatim:
+// "leave kaipake and caca-mato as is". They are no longer awaiting a ruling; they HAVE one.
+//
+// That distinction is the whole point of this paragraph. A row sitting in an exceptions
+// list with "the operator's call" next to it reads, to the next person through, as unfinished
+// business — something to be tidied up. Two of the three are finished business, and the
+// finished state is that they stay exactly where they are. Anyone who "fixes" them by adding
+// the dishes to a plate will be undoing a decision, not completing one, so the instruction
+// is quoted here rather than summarised.
+//
 //   · `american::american craft beer` — RESOLVED at v0.62.810, and left described here
 //     because the shape is worth keeping. It was never in doubt; it was blocked by the
 //     30-dish cap, which American sat exactly at. The operator raised the cap to 31 rather
@@ -432,7 +442,8 @@ describe('classics-notes — complete locale coverage', () => {
 //     verbatim ships gibberish to a reader. It also looks like a near-duplicate of
 //     `F("oka i'a")`, already on the Australasia plate — oka iʻa is the Samoan cognate of
 //     ʻota ʻika. This is an O-315-shaped key-versus-note question, so it is the operator's,
-//     not a translator's.
+//     not a translator's. As of v0.62.811 this is the ONLY row here still awaiting a ruling
+//     — the other two have one, and American's was resolved by raising the cap.
 //
 // One thing checked and NOT acted on: 180 notes in the corpus end at a semicolon, which
 // looked at first like a truncation class covering `british ale` and `barramundi pie`. It
@@ -477,7 +488,9 @@ describe('classics-notes — CUISINE_NOTES reachability (O-317)', () => {
     // Naming them individually is the assertion that stops this list becoming a parking
     // space again: a note may stay unreachable only because the dish cannot be confirmed,
     // or its key is not a dish name — never because adding it was work, and no longer
-    // because a policy cap blocks it.
+    // because a policy cap blocks it. Two of the three are now settled by an explicit
+    // operator ruling and are expected to stay here permanently; only
+    // `fish suckling pacific` is still an open question.
     expect([...O317_UNREACHABLE].sort()).toEqual([
       'australasia::fish suckling pacific',
       'australasia::kaipake plate',
