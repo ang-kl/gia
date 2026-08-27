@@ -160,10 +160,26 @@ function StationCarousel({ items, render, activeIndex = -1, isWide = false }) {
           rather than showing more of the line. It now keeps stepping to 2000 px+.
           `min-w-[9rem]` is the floor: at the top of the ladder a percentage basis
           could squeeze a card below readable width, and the track should scroll
-          rather than render something illegible. */}
+          rather than render something illegible.
+
+          v0.62.816 — THE TOP TWO RUNGS REVERSE, and the paragraph above is why that
+          needs saying rather than doing quietly. That change existed because a 1920 px
+          desktop showed the same ~4.5 cards as a 768 px tablet, so the ladder was made
+          to keep ADDING cards: 13.5 % at 1600 px, 11 % at 2000 px — about nine cards on
+          a 2048 px notebook. Operator, looking at that screen: "16%, 5 + drop ml-auto."
+
+          Both numbers land as the two top rungs — 16 % from 1600 px (~6 cards), 20 %
+          from 2000 px (5 cards) — so neither reading of that instruction is contradicted.
+
+          WHAT CHANGED SINCE THE EARLIER DECISION, because it was not wrong then: the
+          station name TRUNCATES (`truncate` in StationCard), and at 11 % a 2048 px screen
+          renders "Yio Chu K…" and "Ang M…" in English. v0.62.815 made the names longer —
+          "Stesen MRT Ang Mo Kio", 宏茂桥地铁站 — so at the old width the localised names
+          this repo just spent two versions fetching would have shipped as ellipsis. More
+          cards stopped being worth more than legible ones. */}
       {items.map((c, i) => (
         <div key={i} data-idx={i}
-          className="snap-center shrink-0 basis-[60%] sm:basis-[31%] md:basis-[22%] xl:basis-[17%] min-[1600px]:basis-[13.5%] min-[2000px]:basis-[11%] min-w-[9rem] max-h-[52vh] overflow-y-auto rounded-lg shadow-lg">
+          className="snap-center shrink-0 basis-[60%] sm:basis-[31%] md:basis-[22%] xl:basis-[17%] min-[1600px]:basis-[16%] min-[2000px]:basis-[20%] min-w-[9rem] max-h-[52vh] overflow-y-auto rounded-lg shadow-lg">
           {render(c, i, glassFor(i))}
         </div>
       ))}

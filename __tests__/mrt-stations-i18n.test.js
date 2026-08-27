@@ -186,3 +186,50 @@ describe('transport TMA — Indonesian reads the Malay column (O-321)', () => {
     expect(i18n).toMatch(/SUPPORTED_LOCALES = \['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'\]/);
   });
 });
+
+// v0.62.816 — CARD WIDTH, which is now part of the i18n work rather than styling.
+//
+// The names this repo spent v0.62.813–815 fetching are LONGER than the English they
+// replace — "Stesen MRT Ang Mo Kio" against "Ang Mo Kio", 宏茂桥地铁站 against the same.
+// StationCard truncates. So at the previous 11 % basis a 2048 px notebook would have
+// rendered the localised names as ellipsis, and the whole chain — register, join,
+// renderer — would have ended in "Stesen MRT Ang…". Width is the last link.
+describe('transport TMA — the card is wide enough for the names it now shows', () => {
+  const app = readFileSync(join(ROOT, 'web/transport/src/App.jsx'), 'utf8');
+  const card = readFileSync(join(ROOT, 'web/transport/src/components/StationCard.jsx'), 'utf8');
+
+  it('the top two rungs widen instead of narrowing', () => {
+    expect(app).toMatch(/min-\[1600px\]:basis-\[16%\] min-\[2000px\]:basis-\[20%\]/);
+    // The old values are gone, not merely overridden by a later class.
+    expect(app).not.toMatch(/basis-\[13\.5%\]/);
+    expect(app).not.toMatch(/min-\[2000px\]:basis-\[11%\]/);
+  });
+
+  it('the collapsed row no longer strands content at both edges', () => {
+    // `ml-auto` pushed the clock to the far right. At ~225 px that read as snug; at the
+    // ~410 px a 20 % basis gives on a 2048 px screen it opens the gap the operator did
+    // not want. Dropping it left-packs the row, so the extra width goes to the NAME.
+    expect(card).toMatch(/<span className="shrink-0 text-tg-hint tabular-nums">🕑/);
+    expect(card).not.toMatch(/ml-auto shrink-0 text-tg-hint tabular-nums/);
+    expect(card).not.toMatch(/ml-auto shrink-0 text-\[10px\] text-tg-link/);
+  });
+
+  it('the wide end of the ladder widens rather than narrowing', () => {
+    // WRITTEN WRONG THE FIRST TIME, and the correction is the useful part. The first
+    // version asserted the ladder never narrows from `md` upward — and it fails, because
+    // the ladder is a V, not a ramp: 60 % → 31 % → 22 % → 17 % narrows deliberately so a
+    // wide screen shows MORE of the line, which is exactly what the v0.6x comment in
+    // App.jsx argues for. Only the top two rungs reverse that, and only because the
+    // localised names need the room. So the invariant is not "never narrows" — it is
+    // "the widest screens get the widest cards", which is a claim about the top rungs.
+    const cls = app.match(/className="snap-center shrink-0 ([^"]+)"/)[1];
+    const pct = (bp) => parseFloat(cls.match(new RegExp(`${bp}:basis-\\[([\\d.]+)%\\]`))[1]);
+    const xl = pct('xl');
+    const w1600 = pct('min-\\[1600px\\]');
+    const w2000 = pct('min-\\[2000px\\]');
+    expect(w2000).toBeGreaterThan(w1600);
+    expect(w2000).toBeGreaterThan(xl);
+    expect(w2000).toBe(20);
+    expect(w1600).toBe(16);
+  });
+});

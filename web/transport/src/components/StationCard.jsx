@@ -238,7 +238,7 @@ function LineSubCard({ line, station, coarseStations, statusByLine, lang, onFocu
             {line.more_info_url && (
               <a href={line.more_info_url} target="_blank" rel="noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="ml-auto shrink-0 text-[10px] text-tg-link no-underline">{t('mrt.stationInfo', lang)}</a>
+                className="shrink-0 text-[10px] text-tg-link no-underline">{t('mrt.stationInfo', lang)}</a>
             )}
           </div>
         )
@@ -510,7 +510,7 @@ export default function StationCard({
           )}
           {crowdLevel && <span className="shrink-0" title={t(`mrt.crowd.${crowdLevel}`, lang)}>{CROWD_DOT[crowdLevel]}</span>}
           {hours && (hours.first || hours.last) && (
-            <span className="ml-auto shrink-0 text-tg-hint tabular-nums">🕑 {hours.first || '—'}–{hours.last || '—'}</span>
+            <span className="shrink-0 text-tg-hint tabular-nums">🕑 {hours.first || '—'}–{hours.last || '—'}</span>
           )}
         </div>
       )}
