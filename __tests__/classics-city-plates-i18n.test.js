@@ -402,29 +402,44 @@ describe('classics-notes — complete locale coverage', () => {
 // `sharedWithNeighbors: S('chicken rice', …)` — the AMBIGUOUS_DISHES alias pin, a
 // different role from a plate list — so the disjoint invariant in nation-overlay.test.js
 // still holds on exact names, and the bare alias stays where it is for interpretation.
+//
+// v0.62.809 — TWENTY-TWO BECOMES FOUR. Operator: "add the remaining 22 to their cuisine
+// plates". 18 were added and their existing eight-locale notes now attach. FOUR WERE NOT,
+// and none of the four is a matter of effort:
+//
+//   · `australasia::kaipake plate` — its own `local` reads "[UNVERIFIED: no such dish
+//     found]" and the note says the nearest real Maori word, "kaipuke", means SHIP.
+//   · `macau::caca-mato` — "[UNVERIFIED] No dish or drink named 'caca-mato' could be
+//     confirmed in Macanese cuisine sources".
+//
+// Putting those on a plate would offer a searcher a dish that does not exist. An earlier
+// pass deliberately translated them AS WRITTEN, preserving the unverified marker rather
+// than inventing a dish; adding them to the product would undo that decision. Unreachable
+// is the correct outcome for a dish nobody could document.
+//
+//   · `american::american craft beer` — BLOCKED BY POLICY, not by doubt. Every non-SG
+//     cuisine is capped at 30 iconic dishes (`nation-overlay.test.js`, "HL 2026-05-08
+//     ceiling") and American is already AT 30. Adding it made the suite fail 31 > 30, three
+//     runs out of three. Raising the cap or dropping an existing American dish is the
+//     operator's call; weakening a test to make room is not an option.
+//
+//   · `australasia::fish suckling pacific` — the note and `local` (ʻOta ʻika) describe a
+//     real Tongan dish; the KEY is garbled English that is not a dish name. Adding it
+//     verbatim ships gibberish to a reader. It also looks like a near-duplicate of
+//     `F("oka i'a")`, already on the Australasia plate — oka iʻa is the Samoan cognate of
+//     ʻota ʻika. This is an O-315-shaped key-versus-note question, so it is the operator's,
+//     not a translator's.
+//
+// One thing checked and NOT acted on: 180 notes in the corpus end at a semicolon, which
+// looked at first like a truncation class covering `british ale` and `barramundi pie`. It
+// is not — `korean::kimchi`, `italian::cannoli` and `french::pot-au-feu` end the same way.
+// A trailing semicolon is this corpus's house style for closing a note. Those two rows are
+// terse, not broken, and were added.
 const O317_UNREACHABLE = [
-  'hainanese::hainan rice noodles',
-  'hakka::thunder tea rice',
-  'hakka::cukiok (hakka braised pork trotter)',
-  'hakka::steamed minced pork with mui choy',
-  'hakka::hakka duck stuffed with glutinous rice',
-  'hakka::hakka beef meatball soup',
-  'hakka::hakka steamed glutinous rice cake (ci ba)',
-  "hunan::dong'an chicken",
-  'hunan::changde beef rice noodle',
-  'german::german beer',
-  'british::british ale',
   'american::american craft beer',
-  'australian::australian wine',
-  'australian::barramundi pie',
   'australasia::kaipake plate',
   'australasia::fish suckling pacific',
-  'australasia::antipodean cafe brunch',
-  'australasia::pasifika fusion plate',
   'macau::caca-mato',
-  'northeastern::three rice porridge',
-  'fusion::satay beef burger',
-  'fusion::yuzu cheesecake',
 ];
 describe('classics-notes — CUISINE_NOTES reachability (O-317)', () => {
   // The fold under test is a COPY of the one in index.js, deliberately. A test that
@@ -453,11 +468,19 @@ describe('classics-notes — CUISINE_NOTES reachability (O-317)', () => {
     expect(unreachable).toEqual([]);
     // Shrink, never grow. A new unreachable note is a regression, not a new normal —
     // and the bound ratchets DOWN as rows are resolved, so a resolved row cannot be
-    // quietly refilled by a different one. 23 at v0.62.807, 22 since v0.62.808.
-    expect(O317_UNREACHABLE.length).toBeLessThanOrEqual(22);
-    // The row the operator resolved must be reachable, not merely absent from the pin.
-    // Deleting a name from a list is not the same as putting the dish on the plate.
-    expect(O317_UNREACHABLE).not.toContain('hainanese::hainanese chicken rice');
+    // quietly refilled by a different one. 23 at v0.62.807, 22 at v0.62.808, 4 since
+    // v0.62.809.
+    expect(O317_UNREACHABLE.length).toBeLessThanOrEqual(4);
+    // Naming them individually is the assertion that stops this list becoming a parking
+    // space again: a note may stay unreachable only because the dish cannot be confirmed,
+    // its key is not a dish name, or a stated policy cap blocks it — never because adding
+    // it was work.
+    expect([...O317_UNREACHABLE].sort()).toEqual([
+      'american::american craft beer',
+      'australasia::fish suckling pacific',
+      'australasia::kaipake plate',
+      'macau::caca-mato',
+    ]);
   });
 
   it('the fold recovers the four case-only misses and redirects nothing', () => {

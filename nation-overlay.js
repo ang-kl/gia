@@ -570,7 +570,9 @@ const NATION_OVERLAY = {
       F('dongshan goat'),                                         // Hainan island specialty
       F('hele crab'),                                             // Hainan coastal
       F('hainanese fried noodles'),
-      F('qingbuliang (cooling dessert)')                          // Hainan summer dessert
+      F('qingbuliang (cooling dessert)'),                          // Hainan summer dessert
+      // v0.62.809 — O-317: curated notes that had no way to reach a reader
+      F('hainan rice noodles')
     ],
 
     sharedWithNeighbors: [
@@ -1734,7 +1736,10 @@ const NATION_OVERLAY = {
       F('hunan pickled vegetables'),
       F('hunan pumpkin cake'),
       F('mao family dishes'),                                     // Chairman Mao's home-cooking style
-      F('hunan dry-fried green beans')
+      F('hunan dry-fried green beans'),
+      // v0.62.809 — O-317: curated notes that had no way to reach a reader
+      F("dong'an chicken"),
+      F('changde beef rice noodle')
     ],
     sharedWithNeighbors: [],
     neighboringCuisines: [
@@ -1766,7 +1771,14 @@ const NATION_OVERLAY = {
       F('hakka stuffed bitter gourd'),
       F('hakka pork lard noodles'),
       F('hakka rice wine chicken'),
-      F('preserved vegetable braised pork')
+      F('preserved vegetable braised pork'),
+      // v0.62.809 — O-317: curated notes that had no way to reach a reader
+      F('thunder tea rice'),
+      F('cukiok (hakka braised pork trotter)'),
+      F('steamed minced pork with mui choy'),
+      F('hakka duck stuffed with glutinous rice'),
+      F('hakka beef meatball soup'),
+      F('hakka steamed glutinous rice cake (ci ba)')
     ],
     sharedWithNeighbors: [
       S('ban mian',          'ban mian',         ['singaporean'])
@@ -2023,7 +2035,9 @@ const NATION_OVERLAY = {
       F('rye bread'),                                             // roggenbrot
       D('hefeweizen', [], { local: 'Hefeweizen' }),
       D('riesling wine'),
-      D('apfelschorle')                                           // apple-juice spritzer
+      D('apfelschorle'),                                           // apple-juice spritzer
+      // v0.62.809 — O-317: curated notes that had no way to reach a reader
+      D('german beer')
     ],
     sharedWithNeighbors: [],
     neighboringCuisines: [
@@ -2069,7 +2083,9 @@ const NATION_OVERLAY = {
       D('english breakfast tea'),
       D('earl grey tea'),
       D('pimm\'s'),                                               // gin-based summer drink
-      D('cask ale')
+      D('cask ale'),
+      // v0.62.809 — O-317: curated notes that had no way to reach a reader
+      D('british ale')
     ],
     sharedWithNeighbors: [],
     neighboringCuisines: [
@@ -2206,7 +2222,10 @@ const NATION_OVERLAY = {
       F('bush tucker'),                                           // umbrella — wattle, bunya, finger lime
       D('flat white australian'),
       D('long black'),                                            // Australian espresso style
-      D('shiraz')                                        // Barossa, Hunter, Margaret River
+      D('shiraz'),                                        // Barossa, Hunter, Margaret River
+      // v0.62.809 — O-317: curated notes that had no way to reach a reader
+      D('australian wine'),
+      F('barramundi pie')
     ],
     sharedWithNeighbors: [],
     neighboringCuisines: [
@@ -2740,7 +2759,10 @@ const NATION_OVERLAY = {
       F('breadfruit roasted'), F('taro leaves coconut'), F('island lobster'),
       F('hangi style cooking'), F('faiakai chop'),
       F('cassava cake pacific'), F('coconut crab samoan'),
-          ],
+      // v0.62.809 — O-317: curated notes that had no way to reach a reader
+      F('antipodean cafe brunch'),
+      F('pasifika fusion plate')
+    ],
     sharedWithNeighbors: [],
     neighboringCuisines: [
       { slug: 'australian',  reason: 'Modern Australian "Mod-Oz" includes Pasifika influences from Melanesian / Polynesian diasporas' },
@@ -2788,7 +2810,9 @@ const NATION_OVERLAY = {
       F('zha jiang mian'), F('dongbei xiang chang'), F('shao mai dongbei'),
       F('cold dongbei dishes'), F('fermented soybean dongbei'),
       F('lamb dumpling soup'), F('fried glutinous rice cakes'),
-      F('elm seed dumpling'), F('northeastern chao fan')
+      F('elm seed dumpling'), F('northeastern chao fan'),
+      // v0.62.809 — O-317: curated notes that had no way to reach a reader
+      F('three rice porridge')
     ],
     sharedWithNeighbors: [],
     neighboringCuisines: [
@@ -2931,7 +2955,10 @@ const NATION_OVERLAY = {
       F('kombu butter steak'), F('bak kut teh ramen'), F('peranakan tasting menu'),
       F('asian-french degustation'), F('mod-asian small plates'), F('uni linguine'),
       F('foie gras char siu'), F('xo sauce burger'), F('sake brûlée'), F('matcha tiramisu'),
-      F('soy-sauce gelato'), F('curry leaf risotto')
+      F('soy-sauce gelato'), F('curry leaf risotto'),
+      // v0.62.809 — O-317: curated notes that had no way to reach a reader
+      F('satay beef burger'),
+      F('yuzu cheesecake')
     ],
     sharedWithNeighbors: [],
     neighboringCuisines: [
