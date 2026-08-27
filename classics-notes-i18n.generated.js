@@ -1953,14 +1953,6 @@ module.exports = {
     ja: "ファイカカイはトンガの伝統的なデザート。団子をココナッツのキャラメルシロップ（ロロ）に浸し、祝宴のときだけ作る。",
     es: "El faikakai es un postre tradicional tongano: bolas de masa servidas en un almíbar dulce de coco y caramelo (lolo), propio de fiestas.",
   },
-  "australasia::fish suckling pacific": {
-    id: "Hidangan nasional Tonga: ikan mentah yang direndam air jeruk dan santan bersama sayuran dadu; disantap di seluruh Polinesia.",
-    ru: "Национальное блюдо Тонга: сырая рыба, маринованная в цитрусовом соке и кокосовом молоке с кубиками овощей; её едят по всей Полинезии.",
-    de: "Tongas Nationalgericht: roher Fisch, in Zitrussaft und Kokosmilch mariniert, mit gewürfeltem Gemüse; in ganz Polynesien gegessen.",
-    zh: "汤加的国菜：生鱼以柑橘汁与椰奶腌渍，拌入切丁的蔬菜；波利尼西亚各地皆食。",
-    ja: "トンガの国民料理。生魚を柑橘の汁とココナッツミルクに漬け、角切りの野菜を合わせる。ポリネシア全域で食べられる。",
-    es: "Plato nacional de Tonga: pescado crudo marinado en zumo de cítricos y leche de coco con verduras en dados; se come en toda Polinesia.",
-  },
   "australasia::hangi style cooking": {
     id: "Cara memasak tradisional Māori: daging, kūmara, dan sayuran dimatangkan oleh uap dan panas batu di lubang tanah yang ditutup.",
     ru: "Традиционный маорийский способ готовки: мясо, кумару и овощи доводят паром и жаром раскалённых камней в закрытой земляной яме.",
