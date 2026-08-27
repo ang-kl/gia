@@ -393,9 +393,17 @@ describe('classics-notes — complete locale coverage', () => {
 // national dish — is curated, sourced, translated into eight locales, and unreachable. There
 // is no chicken rice in SG's CLASSIC_NOTES at all, and the only one any reader can reach is
 // `thai::thai chicken rice (khao man gai)`.
+//
+// v0.62.808 — ONE IS OFF THIS LIST. Operator: "add hainanese chicken rice to the cuisine
+// plate", so `hainanese chicken rice` was added to the Hainanese `iconicDishes` and its
+// existing eight-locale note now attaches. 23 → 22. This is what "shrink, never grow"
+// looks like when it happens: the row leaves by the dish becoming reachable, not by the
+// pin being widened. The overlay already carried chicken rice as
+// `sharedWithNeighbors: S('chicken rice', …)` — the AMBIGUOUS_DISHES alias pin, a
+// different role from a plate list — so the disjoint invariant in nation-overlay.test.js
+// still holds on exact names, and the bare alias stays where it is for interpretation.
 const O317_UNREACHABLE = [
   'hainanese::hainan rice noodles',
-  'hainanese::hainanese chicken rice',
   'hakka::thunder tea rice',
   'hakka::cukiok (hakka braised pork trotter)',
   'hakka::steamed minced pork with mui choy',
@@ -443,8 +451,13 @@ describe('classics-notes — CUISINE_NOTES reachability (O-317)', () => {
       }
     }
     expect(unreachable).toEqual([]);
-    // Shrink, never grow. A 24th unreachable note is a regression, not a new normal.
-    expect(O317_UNREACHABLE.length).toBeLessThanOrEqual(23);
+    // Shrink, never grow. A new unreachable note is a regression, not a new normal —
+    // and the bound ratchets DOWN as rows are resolved, so a resolved row cannot be
+    // quietly refilled by a different one. 23 at v0.62.807, 22 since v0.62.808.
+    expect(O317_UNREACHABLE.length).toBeLessThanOrEqual(22);
+    // The row the operator resolved must be reachable, not merely absent from the pin.
+    // Deleting a name from a list is not the same as putting the dish on the plate.
+    expect(O317_UNREACHABLE).not.toContain('hainanese::hainanese chicken rice');
   });
 
   it('the fold recovers the four case-only misses and redirects nothing', () => {

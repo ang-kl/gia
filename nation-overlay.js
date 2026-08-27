@@ -541,6 +541,21 @@ const NATION_OVERLAY = {
     populationInSG: 'high',
 
     iconicDishes: [
+      // v0.62.808 — O-317, operator: "add hainanese chicken rice to the cuisine plate".
+      // It had a curated, sourced, eight-locale note and NO way to reach a reader: the
+      // enrichment in index.js iterates iconicDishes, and chicken rice was not in it.
+      // The overlay did carry it — as sharedWithNeighbors S('chicken rice', …), which is
+      // the AMBIGUOUS_DISHES alias pin, not a plate list. Those are different roles, so
+      // the disjoint invariant below still holds: it compares exact names, and the bare
+      // alias 'chicken rice' stays where it is for interpretation while the full name is
+      // what the plate offers. sharedWith mirrors what that S() entry already declares —
+      // carried across, not invented.
+      // PLACED FIRST DELIBERATELY, and it is a visible change: groupCuisineDishes takes
+      // headliners = dishes.slice(0, 3), so this promotes chicken rice into the headliner
+      // row and moves `hainanese mutton soup` down into its food group. There is no
+      // neutral position — last would have buried Singapore's national dish in a bucket
+      // beneath the pork chop — so the choice is made here where it can be seen.
+      F('hainanese chicken rice', ['singaporean', 'cantonese']),  // 海南鸡饭 — SG's unofficial national dish, from Wenchang chicken
       F('hainanese pork chop'),                                   // SG-Hainanese signature — crackers + tomato sauce + fries
       F('hainanese curry rice'),                                  // SG plate — pork chop + curry + chap chye
       F('hainanese mutton soup'),
