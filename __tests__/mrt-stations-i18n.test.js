@@ -142,3 +142,47 @@ describe('transport TMA — station names render in the reader\'s language (O-32
     expect(panel).toMatch(/stationPillNode\(s\.codes, s\.name, bg\)/);
   });
 });
+
+// v0.62.815 — INDONESIAN, AND THE CARD THE FIRST PASS MISSED.
+//
+// The operator switched a live session to Indonesian and saw English station names on
+// the card strip. Two separate faults behind one symptom: `id` had no column to read
+// (the register has no Indonesian), and StationCard — the most visible station name in
+// the whole app — was not among the three sites v0.62.814 wired.
+describe('transport TMA — Indonesian reads the Malay column (O-321)', () => {
+  const card = readFileSync(join(ROOT, 'web/transport/src/components/StationCard.jsx'), 'utf8');
+
+  it('id resolves to the official Malay name, and other locales are unchanged', () => {
+    expect(stationName('Ang Mo Kio', 'id')).toBe('Stesen MRT Ang Mo Kio');
+    expect(stationName('Ang Mo Kio', 'zh')).toBe('宏茂桥地铁站');
+    expect(stationName('Ang Mo Kio', 'en')).toBe('Ang Mo Kio');
+    // fr has no column in this register and must fall back, not throw or blank.
+    expect(stationName('Ang Mo Kio', 'fr')).toBe('Ang Mo Kio');
+  });
+
+  it('the station card renders a SEPARATE display value, never the key', () => {
+    // This is the assertion that protects user data. `name` keys readSaved(), the
+    // saved-station toggle, the `data-station-card` selector the carousel scrolls by,
+    // the Google Maps query and the share URL. Had the localised string replaced `name`
+    // itself, every user's saved stations would orphan the moment they changed language:
+    // the stored list still says "Ang Mo Kio" while every card calls itself "Stesen MRT
+    // Ang Mo Kio". So the display value is its own variable, used in exactly one place.
+    expect(card).toMatch(/const displayName = stationName\(name, lang\);/);
+    expect(card).toMatch(/title=\{displayName\}>\{displayName\}<\/span>/);
+    // …and the key sites still read `name`.
+    expect(card).toMatch(/readSaved\(\)\.includes\(name\)/);
+    expect(card).toMatch(/data-station-card=\{name\}/);
+    expect(card).toMatch(/mapsQ\(`\$\{name\} MRT Station Singapore`\)/);
+    expect(card).toMatch(/shareUrl\(lat, lng, name\)/);
+  });
+
+  it('the Malay column is reachable at all, which it was not before', () => {
+    // SUPPORTED_LOCALES in the transport TMA has no `ms`. Without the id→ms mapping the
+    // Malay third of this table could never render for anyone. This asserts the mapping
+    // exists rather than trusting the comment above it.
+    const gen = readFileSync(join(ROOT, 'web/_shared/lib/mrt-stations-i18n.generated.js'), 'utf8');
+    expect(gen).toMatch(/const LANG_COLUMN = \{ id: 'ms' \};/);
+    const i18n = readFileSync(join(ROOT, 'web/transport/src/i18n.js'), 'utf8');
+    expect(i18n).toMatch(/SUPPORTED_LOCALES = \['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'\]/);
+  });
+});

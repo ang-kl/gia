@@ -255,11 +255,33 @@ export const SG_STATION_NAMES_BY_NAME = new Map(
 const foldName = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
 const BY_FOLD = new Map(SG_STATION_NAMES_I18N.map((s) => [foldName(s.n), s]));
 
-/** Official name in `lang` (zh|ms|ta), or the English `name` when unknown. */
+// v0.62.815 — INDONESIAN READS THE MALAY COLUMN. Operator, seeing an `id` session
+// render English station names: "i change to indonesian, it should show the Malay
+// station name."
+//
+// The register has no Indonesian column — Singapore's four official languages are
+// English, Chinese, Malay and Tamil. But `id` IS a locale this app supports and `ms`
+// is not, so without this mapping the Malay column can never reach a reader at all,
+// and an Indonesian speaker gets English.
+//
+// THE CAVEAT, STATED RATHER THAN BURIED: Malay is not Indonesian. The station NAME is
+// identical — these are proper nouns — but the category word differs: the register says
+// "Stesen MRT Ang Mo Kio" where Indonesian would say "Stasiun MRT Ang Mo Kio", and this
+// app's own `id` strings already use "stasiun" (see i18n.js). So an Indonesian reader
+// sees a correct, official, immediately intelligible name with one Malay word in it.
+// That is a deliberate trade: the alternative is English, which is neither.
+//
+// The data is NOT edited to suit — rewriting "Stesen" to "Stasiun" would make this a
+// derived table rather than a copy of an official register, which the header forbids.
+// The mapping lives here, at the display boundary, where it is visible and reversible.
+const LANG_COLUMN = { id: 'ms' };
+
+/** Official name in `lang`, or the English `name` when unknown. `id` reads `ms`. */
 export function stationName(name, lang) {
   if (lang === 'en') return name;
+  const col = LANG_COLUMN[lang] || lang;
   const row = SG_STATION_NAMES_BY_NAME.get(name) || BY_FOLD.get(foldName(name));
-  const v = row && row[lang];
+  const v = row && row[col];
   return (typeof v === 'string' && v.trim()) ? v : name;
 }
 

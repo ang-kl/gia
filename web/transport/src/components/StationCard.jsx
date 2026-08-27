@@ -34,6 +34,10 @@ import { t, tn } from '../i18n.js';
 // (Changi branch)") can show the label the line CHIP uses ("Changi Airport
 // Branch") rather than the feed's shorthand.
 import { LINES_BY_CODE } from '../data/lines.js';
+// v0.62.815 — O-321. The station-card name strip is the most visible station name in
+// the app, and it was the one site the v0.62.814 wiring missed — the operator found it
+// by switching to Indonesian and seeing English cards.
+import { stationName } from '../../../_shared/lib/mrt-stations-i18n.generated.js';
 import {
   CROWD_DOT, STATUS_HEX, mapsQ, mapsLatLng, textOn, hexForLineCode,
   worstCrowd, trainTimes, noteIsTerminal, directionLabel, terminusForDirection,
@@ -271,6 +275,14 @@ export default function StationCard({
   seq = null, seqTotal = null, isCompact = false
 }) {
   const name = station?.station_name || coarse?.name || '';
+  // v0.62.815 — DISPLAY ONLY, and the separation is not cosmetic here. `name` keys the
+  // SAVED-STATIONS list (readSaved/toggle below), the `data-station-card` selector the
+  // carousel scrolls by, the Google Maps query, and the share URL. Translating `name`
+  // itself would orphan every user's saved stations the moment they changed language —
+  // their list would still hold "Ang Mo Kio" while every card announced itself as
+  // "Stesen MRT Ang Mo Kio". So the localised string gets its own variable and is used
+  // in exactly one place: the name strip a reader looks at.
+  const displayName = stationName(name, lang);
   // v0.62.621/632 — hooks must precede the early return (Rules of Hooks).
   // `bodyOpen` drives the card-level collapse (TILE mode): a collapsible card
   // starts closed (uniform tile height) unless it is the active/selected one; a
@@ -438,7 +450,7 @@ export default function StationCard({
             Cuisine's category card 12px" — was a flat text-[14px]; now the
             same isCompact-responsive rule Phase C applied to Cuisine's
             category-grid label (11px compact phone / 12px everywhere else). */}
-        <span className={`font-google ${isCompact ? 'text-type-meta' : 'text-type-body'} font-bold leading-tight flex-1 min-w-0 truncate`}>{name}</span>
+        <span className={`font-google ${isCompact ? 'text-type-meta' : 'text-type-body'} font-bold leading-tight flex-1 min-w-0 truncate`} title={displayName}>{displayName}</span>
         {/* v0.62.646 — the inline "(future)" marker is retired: the folder TAB
             above the card now carries it (Cuisine parity). */}
         {/* v0.62.644 — the card-level disclosure moved OFF the name strip to a
