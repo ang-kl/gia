@@ -124,6 +124,30 @@ const ENGLISH_STOPWORD = /(?<![A-Za-zÀ-ÿ])(?:the|and|or|of|in|on|at|to|for|wit
 // than papered over with a rule that would have to be switched off on half the corpus.
 const NON_LATIN_LANGS = new Set(['ru', 'zh', 'ja']);
 
+// v0.62.805 — THE LATIN-SCRIPT BLIND SPOT. ENGLISH_STOPWORD runs on ru/zh/ja only, so
+// id/de/es shipped unchecked: "bercita rasa nutty" reached the corpus and was caught by
+// reading, not by CI. Three widenings were measured against the live overlays before one
+// was kept, and the two that failed are recorded because each looked obviously right:
+//
+//   1. ENGLISH_STOPWORD on id/de/es — 1,096 hits, 100 % false positive. German "in" alone
+//      accounts for 1,075; "was", "also" and "still" are German, "has" is Spanish (no has
+//      llegado) AND Indonesian (has luar = sirloin), and "AS" is Indonesian for the US.
+//      The rest are proper nouns the rule cannot see past: The Halia, Duke of Wellington,
+//      Black or White, Taiwan Tobacco and Liquor Corporation.
+//   2. An English food-NOUN list (sauce, pastry, noodles, cream, fish …) — 21 hits, again
+//      100 % false positive, because a culinary loanword is not a leak: puff pastry,
+//      clotted cream, cream cracker, corned beef, baked Alaska, fish and chips, and
+//      "topping", which is simply an Indonesian word now.
+//   3. English DESCRIPTIVE ADJECTIVES, lowercase only — 0 hits across 11,718 overlay
+//      values, while still flagging "rasa nutty". Kept.
+//
+// Two constraints do the work. Adjectives, not nouns: a dish NAME may legitimately stay in
+// English, an adjective describing it may not. And lowercase only, case-SENSITIVELY, which
+// is what separates "Mango Sticky Rice" (a Thai dish, named) from "sticky" (a description
+// left untranslated). "herbal" was dropped from the list on the same evidence — it is a
+// real word in both Indonesian and Spanish, with 9 legitimate uses in the corpus.
+const ENGLISH_DESCRIPTOR = /(?<![A-Za-zÀ-ÿ-])(?:nutty|crispy|crunchy|chewy|savoury|savory|spicy|smoky|creamy|fluffy|juicy|sticky|tangy|hearty|fragrant|silky|salty|bitter|zesty|buttery|cheesy|meaty|fishy|garlicky|gingery|peppery|oily|greasy|syrupy|flaky|crumbly|springy|bouncy|velvety|starchy|earthy|fiery|sourish|sweetish|tender|bland|moist|ripe)(?![A-Za-zÀ-ÿ-])/;
+
 describe('translation overlays — script contamination', () => {
   for (const [name, path] of [
     ['city-plates', '../city-plates-i18n.generated.js'],
@@ -139,6 +163,7 @@ describe('translation overlays — script contamination', () => {
           if (/\s\s/.test(s) || s !== s.trim() || /\n/.test(s)) bad.push(`${key}/${lang}: whitespace`);
           if (MIXED_WORD.test(s)) bad.push(`${key}/${lang}: mixed-script word`);
           if (NON_LATIN_LANGS.has(lang) && ENGLISH_STOPWORD.test(s)) bad.push(`${key}/${lang}: untranslated English`);
+          if (lang !== 'en' && ENGLISH_DESCRIPTOR.test(s)) bad.push(`${key}/${lang}: untranslated English descriptor`);
           for (const f of FORBIDDEN) {
             if (!f.allowed.has(lang) && f.script.test(s)) bad.push(`${key}/${lang}: ${f.label} leak`);
           }
@@ -215,5 +240,55 @@ describe('classics-notes — the 140-character cap holds in every locale', () =>
       }
     }
     expect(over).toEqual([]);
+  });
+});
+
+// v0.62.805 — classics-notes.js reaches eight-locale coverage, and O-307 closes with it.
+//
+// 1,674 of 1,677 notes now carry all eight locales: 10,044 strings written by hand across
+// the tranches, no external-API spend. This assertion pins that, the way v0.62.795 pinned
+// city-plates at 279 / 279 — a corpus that is finished stops being a target and starts
+// being an invariant.
+//
+// THREE KEYS ARE EXCLUDED, BY NAME, AND THE REASON IS NOT "TOO HARD". Each is an O-315
+// mismatch where the note describes a DIFFERENT DISH from the key it hangs on:
+// changchun braised duck is described as a steamed Songhua white fish; roast suckling pig
+// is described as a curry of diced pork and offal; eurasian fishball curry is described as
+// Hong Kong post-war street food. Translating them faithfully would render the wrong dish
+// into six more languages and multiply the error by six. Fixing them is a key-versus-note
+// decision that changes what the app offers, so it is the operator's, not the translator's,
+// and the rows stay in English until it is made. Listing them here means the exception is
+// visible in CI rather than remembered — and the moment one is resolved, this list shrinks.
+const O315_HELD = [
+  'northeastern::changchun braised duck',
+  'eurasian::roast suckling pig',
+  'eurasian::eurasian fishball curry',
+];
+describe('classics-notes — complete locale coverage', () => {
+  it('every note but the three held O-315 mismatches carries all eight locales', () => {
+    const { CLASSIC_NOTES, CUISINE_NOTES } = require('../classics-notes.js');
+    const overlay = require('../classics-notes-i18n.generated.js');
+    const LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+    const held = new Set(O315_HELD);
+    const gaps = [];
+    let rows = 0;
+    for (const table of [CLASSIC_NOTES, CUISINE_NOTES]) {
+      for (const [scope, dishes] of Object.entries(table)) {
+        for (const [dish, entry] of Object.entries(dishes)) {
+          if (!entry || !entry.note || !entry.note.en) continue;
+          const key = `${scope}::${dish}`;
+          rows += 1;
+          if (held.has(key)) continue;
+          for (const l of LOCALES) {
+            const s = entry.note[l] || (overlay[key] && overlay[key][l]);
+            if (typeof s !== 'string' || !s.trim()) gaps.push(`${key}/${l}`);
+          }
+        }
+      }
+    }
+    expect(rows).toBeGreaterThanOrEqual(1677);
+    expect(gaps).toEqual([]);
+    // The held list is an exception register, not a dumping ground: it may shrink, never grow.
+    expect(O315_HELD.length).toBeLessThanOrEqual(3);
   });
 });
