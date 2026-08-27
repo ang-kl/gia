@@ -8,6 +8,8 @@
 // (O-317: 27 curated notes that nothing could reach), so the first assertion here is
 // that every station the app actually knows about resolves.
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { SG_STATIONS } from '../web/_shared/lib/mrt-stations.generated.js';
 import {
   SG_STATION_NAMES_I18N,
@@ -16,6 +18,7 @@ import {
 } from '../web/_shared/lib/mrt-stations-i18n.generated.js';
 
 const LANGS = ['zh', 'ms', 'ta'];
+const ROOT = join(__dirname, '..');
 
 describe('MRT station names — official gov.sg renderings', () => {
   it('every station in SG_STATIONS resolves to a row', () => {
@@ -88,5 +91,54 @@ describe('MRT station names — official gov.sg renderings', () => {
     // mis-assigned one of them.
     const bad = SG_STATION_NAMES_I18N.filter((r) => !r.ms.startsWith(`Stesen ${r.k} `));
     expect(bad.map((r) => `${r.n} (k=${r.k}, ms=${r.ms})`)).toEqual([]);
+  });
+});
+
+// v0.62.814 — O-320: THE RENDERER, WHICH IS THE PART THAT WAS MISSING.
+//
+// The table above joined at 183/183 and rendered nowhere. That is this repo's most
+// expensive recurring defect — v0.62.777 (~5,300 strings unreachable), v0.62.778 (1,649
+// notes English to French readers), v0.62.781 (four ArrivalPlate sites), O-317 (27 notes
+// nothing asked for) — so these assertions read the CALL SITES, not the data.
+//
+// THE DISTINCTION THAT MATTERS HERE IS DISPLAY vs KEY. `s.name` appears all over
+// MrtMapPanel.jsx, and most occurrences are keys: `stationCtxRef.current[s.name]`,
+// `modeByName.get(s.name)`, `s.name === detail.station.name`, and a Google Maps query
+// built as `s.name + ' MRT Station Singapore'`. Translating any of those breaks the app
+// SILENTLY — a cache that never hits, a comparison that never matches, a map search for a
+// Chinese string. So the tests below assert both directions: the display sites resolve,
+// and the key sites are still English.
+describe('transport TMA — station names render in the reader\'s language (O-320)', () => {
+  const panel = readFileSync(join(ROOT, 'web/transport/src/components/MrtMapPanel.jsx'), 'utf8');
+  const card = readFileSync(join(ROOT, 'web/transport/src/components/LocationCard.jsx'), 'utf8');
+  const app = readFileSync(join(ROOT, 'web/transport/src/App.jsx'), 'utf8');
+
+  it('the map popup heading and marker title resolve through stationName', () => {
+    expect(panel).toMatch(/import \{ stationName \} from '\.\.\/\.\.\/\.\.\/_shared\/lib\/mrt-stations-i18n\.generated\.js'/);
+    expect(panel).toMatch(/<strong>\$\{escapeHtml\(stationName\(s\.name, lang\)\)\}<\/strong>/);
+    expect(panel).toMatch(/title: stationName\(s\.name, lang\),/);
+  });
+
+  it('the nearest-MRT list resolves, and App threads the locale into it', () => {
+    expect(card).toMatch(/import \{ stationName \}/);
+    expect(card).toMatch(/\{stationName\(s\.name, lang\)\}/);
+    expect(app).toMatch(/<LocationCard[^>]*lang=\{lang\}/);
+  });
+
+  it('the KEY sites are still English — translating one breaks the app silently', () => {
+    // A Google Maps query for 海军部地铁站 finds nothing useful; a cache keyed on the
+    // translated name never hits the entry written under the English one.
+    expect(panel).toMatch(/s\.name \+ ' MRT Station Singapore'/);
+    expect(panel).toMatch(/stationCtxRef\.current\[s\.name\]/);
+    expect(panel).toMatch(/modeByName\.get\(s\.name\)/);
+    expect(panel).toMatch(/s\.name === detail\.station\.name/);
+  });
+
+  it('the map pill is deliberately NOT translated, and this records why', () => {
+    // stationPillNode draws a dense map label sized for short Latin text, and this
+    // environment cannot render the map to check the result. Changing a size-sensitive
+    // visual on faith is how an unverifiable regression ships, so the pill keeps the
+    // English name until someone can look at it. Reversible in one line.
+    expect(panel).toMatch(/stationPillNode\(s\.codes, s\.name, bg\)/);
   });
 });

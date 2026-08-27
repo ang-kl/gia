@@ -49,6 +49,11 @@ import MapControls from '../../../_shared/components/MapControls.jsx';
 import { createRingLayer } from '../../../_shared/lib/distance-rings.js';
 import { createInspectLayer, loadAllHawkerCentres } from '../../../_shared/lib/temp-pin.js';
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE } from '../../../_shared/lib/map-interaction.js';
+// v0.62.814 — O-320. Official gov.sg station names in the reader's language.
+// DISPLAY ONLY. Every other `s.name` in this file is a KEY — a Map lookup, an
+// identity comparison, or a Google Maps query string — and translating one of those
+// breaks the app silently. The three call sites below are the ones a reader sees.
+import { stationName } from '../../../_shared/lib/mrt-stations-i18n.generated.js';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
 // through Telegram WebApp's openLink when available so Telegram opens
@@ -688,7 +693,9 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       return h;
     };
     // v0.61.22 — themed rounded card (infoCard) with an in-card ✕.
-    const compose = (ctx) => infoCard(`<strong>${escapeHtml(s.name)}</strong><br>${codes || ''}${statusHtml}${crowdHtml}${contextHtml(ctx)}${futureLine}${linkHtml}`);
+    // v0.62.814 — the popup heading is the reader's language; `s.name` stays English
+    // one line below, where it keys the context cache.
+    const compose = (ctx) => infoCard(`<strong>${escapeHtml(stationName(s.name, lang))}</strong><br>${codes || ''}${statusHtml}${crowdHtml}${contextHtml(ctx)}${futureLine}${linkHtml}`);
     const cachedCtx = stationCtxRef.current[s.name] || null;
     infoWindowRef.current?.setContent(compose(cachedCtx));
     // v0.61.98 — anchor the InfoWindow to the station POSITION, not the
@@ -791,7 +798,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
       const marker = new AdvancedMarkerElement({
         map: mapRef.current,
         position: { lat: s.lat, lng: s.lng },
-        title: s.name,
+        title: stationName(s.name, lang),  // v0.62.814 — shown on hover; not a key
         content: transportStationContent(s, bg, modeByName.get(s.name),
           isFuture, crowdLevel === 'h', isCentre),
         // v0.61.119 — operator: station markers render in front of bus
