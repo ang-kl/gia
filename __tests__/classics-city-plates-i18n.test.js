@@ -403,9 +403,10 @@ describe('classics-notes — complete locale coverage', () => {
 // different role from a plate list — so the disjoint invariant in nation-overlay.test.js
 // still holds on exact names, and the bare alias stays where it is for interpretation.
 //
-// v0.62.809 — TWENTY-TWO BECOMES FOUR. Operator: "add the remaining 22 to their cuisine
-// plates". 18 were added and their existing eight-locale notes now attach. FOUR WERE NOT,
-// and none of the four is a matter of effort:
+// v0.62.809 — TWENTY-TWO BECOMES FOUR, then v0.62.810 — FOUR BECOMES THREE. Operator:
+// "add the remaining 22 to their cuisine plates", then "raise the cap to 31 and add
+// american craft beer". 18 added at v0.62.809 and a 19th once the cap moved. THREE REMAIN,
+// and none of the three is a matter of effort:
 //
 //   · `australasia::kaipake plate` — its own `local` reads "[UNVERIFIED: no such dish
 //     found]" and the note says the nearest real Maori word, "kaipuke", means SHIP.
@@ -417,11 +418,14 @@ describe('classics-notes — complete locale coverage', () => {
 // than inventing a dish; adding them to the product would undo that decision. Unreachable
 // is the correct outcome for a dish nobody could document.
 //
-//   · `american::american craft beer` — BLOCKED BY POLICY, not by doubt. Every non-SG
-//     cuisine is capped at 30 iconic dishes (`nation-overlay.test.js`, "HL 2026-05-08
-//     ceiling") and American is already AT 30. Adding it made the suite fail 31 > 30, three
-//     runs out of three. Raising the cap or dropping an existing American dish is the
-//     operator's call; weakening a test to make room is not an option.
+//   · `american::american craft beer` — RESOLVED at v0.62.810, and left described here
+//     because the shape is worth keeping. It was never in doubt; it was blocked by the
+//     30-dish cap, which American sat exactly at. The operator raised the cap to 31 rather
+//     than dropping a dish, so the row is now on the plate. Note what the cap actually was:
+//     a COMBINED food+drink count, while the renderer budgets the two separately (food to
+//     maxItems, drinks to maxItems/2). American is 27 food + 4 drinks — the blocked row had
+//     display room all along. Recorded in the Register as a candidate refinement rather
+//     than acted on unasked.
 //
 //   · `australasia::fish suckling pacific` — the note and `local` (ʻOta ʻika) describe a
 //     real Tongan dish; the KEY is garbled English that is not a dish name. Adding it
@@ -436,7 +440,6 @@ describe('classics-notes — complete locale coverage', () => {
 // A trailing semicolon is this corpus's house style for closing a note. Those two rows are
 // terse, not broken, and were added.
 const O317_UNREACHABLE = [
-  'american::american craft beer',
   'australasia::kaipake plate',
   'australasia::fish suckling pacific',
   'macau::caca-mato',
@@ -468,15 +471,14 @@ describe('classics-notes — CUISINE_NOTES reachability (O-317)', () => {
     expect(unreachable).toEqual([]);
     // Shrink, never grow. A new unreachable note is a regression, not a new normal —
     // and the bound ratchets DOWN as rows are resolved, so a resolved row cannot be
-    // quietly refilled by a different one. 23 at v0.62.807, 22 at v0.62.808, 4 since
-    // v0.62.809.
-    expect(O317_UNREACHABLE.length).toBeLessThanOrEqual(4);
+    // quietly refilled by a different one. 23 at v0.62.807, 22 at v0.62.808, 4 at
+    // v0.62.809, 3 since v0.62.810.
+    expect(O317_UNREACHABLE.length).toBeLessThanOrEqual(3);
     // Naming them individually is the assertion that stops this list becoming a parking
     // space again: a note may stay unreachable only because the dish cannot be confirmed,
-    // its key is not a dish name, or a stated policy cap blocks it — never because adding
-    // it was work.
+    // or its key is not a dish name — never because adding it was work, and no longer
+    // because a policy cap blocks it.
     expect([...O317_UNREACHABLE].sort()).toEqual([
-      'american::american craft beer',
       'australasia::fish suckling pacific',
       'australasia::kaipake plate',
       'macau::caca-mato',

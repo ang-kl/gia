@@ -5,7 +5,7 @@
 //
 //   1. Singaporean iconicDishes ≤ 200 (cap policy from Human Lead 2026-05-08)
 //      and includes drinks (kopi/teh culture).
-//   2. Other cuisines: iconicDishes ≤ 30.
+//   2. Other cuisines: iconicDishes ≤ 31 (was 30 until v0.62.810).
 //   3. A dish CAN appear in iconicDishes[] of multiple cuisines (rendang
 //      in MY+ID is the canonical example) but every appearance must list
 //      the other claimant(s) in `sharedWith[]`.
@@ -26,7 +26,18 @@ const cv = require('../cuisines-vault.js');
 const gc = require('../gemini-client.js');
 
 const SG_CAP = 200;
-const DEFAULT_CAP = 30;
+// v0.62.810 — operator: "raise the cap to 31 and add american craft beer". Was 30, the
+// HL 2026-05-08 ceiling; American sat exactly at it and a curated, sourced, eight-locale
+// note for `american craft beer` could not reach a reader because of the last slot.
+//
+// WORTH KNOWING WHEN THIS NUMBER NEXT COMES UP: this cap counts food and drinks TOGETHER,
+// while the renderer budgets them SEPARATELY — formatIconicList slices food to maxItems
+// and drinks to maxItems/2, so expert mode shows up to 30 food AND up to 15 drinks.
+// American is 27 food + 3 drinks, nowhere near either bucket. So the thing that blocked a
+// drink was a combined count the display never applies. Raising to 31 is what was asked
+// and is done; splitting the cap to mirror the renderer would be the more precise fix and
+// is recorded in the Register rather than done unasked.
+const DEFAULT_CAP = 31;
 const REQUIRED_SLUGS = [
   // v0.60.5a — SG-anchor
   'singaporean', 'peranakan', 'eurasian',
@@ -89,7 +100,7 @@ describe('NATION_OVERLAY — caps', () => {
   });
 
   it.each(REQUIRED_SLUGS.filter((s) => s !== 'singaporean'))(
-    '%s iconicDishes ≤ 30',
+    '%s iconicDishes ≤ 31',
     (slug) => {
       const o = overlay.getNationOverlay(slug);
       expect(o.iconicDishes.length).toBeLessThanOrEqual(DEFAULT_CAP);
