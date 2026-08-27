@@ -662,7 +662,7 @@ export default function App() {
           hideStationDetail={!!focusedStation}
         />
       )}
-      <LocationCard address={data.address} nearest={data.nearestMrt} />
+      <LocationCard address={data.address} nearest={data.nearestMrt} lang={lang} />
     </>
   );
 
