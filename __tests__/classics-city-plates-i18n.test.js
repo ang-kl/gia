@@ -358,3 +358,122 @@ describe('classics-notes — complete locale coverage', () => {
     expect(bad).toEqual([]);
   });
 });
+
+// v0.62.807 — O-317: A NOTE NOTHING ASKS FOR IS NOT A NOTE. Coverage tests count what
+// EXISTS; nothing counted what could be REACHED, and the two numbers had drifted apart by
+// 27 rows before anyone looked.
+//
+// `index.js` enriches the cuisine plate by iterating the overlay's `iconicDishes` and
+// looking each up in CUISINE_NOTES. It is the ONLY production consumer of that table —
+// `city-plates.js`, the other classics path, reads CLASSIC_NOTES keyed by country code. So
+// a note whose key is absent from its cuisine's dish list is never consulted by anything.
+//
+// FOUR of the 27 were a CASE-SENSITIVITY BUG, not a data gap: `escargots de Bourgogne`,
+// `tarta de Santiago`, `coconut chicken (Hainan style)` and `Taiwan night market dishes`
+// are capitalised in the overlay and lower-cased in the notes. city-plates.js had folded
+// since v0.62.175; the cuisine path never did. Fixed at the call site, and the fold was
+// measured before it was written: 1,484 matches before, 1,488 after, exactly those four
+// recovered, ZERO existing matches redirected, and zero folded-name collisions anywhere.
+//
+// THE OTHER 23 ARE NOT A BUG AND ARE NOT FIXED HERE. They are notes for dishes the app's
+// cuisine plates do not offer. Three things were checked before saying so, because each
+// would have made this someone else's fix:
+//   · Are they duplicates served elsewhere? NO — 0 of 23 appear in another cuisine's dish
+//     list or in CLASSIC_NOTES. Retiring them would destroy unique sourced content.
+//   · Were they ever in the overlay, so re-adding is a restoration? NO — `git log -S` finds
+//     `hainanese chicken rice`, `german beer` and `yuzu cheesecake` in ZERO commits touching
+//     nation-overlay.js. They were authored independently of the dish list.
+//   · Is there a hidden array the enrichment misses? NO — `iconicDishes` is the only
+//     dish-bearing array on the overlay; the beer/ale/wine cluster is genuinely absent.
+// So making them reachable means ADDING DISHES TO WHAT THE APP OFFERS, which is a product
+// decision and the operator's, not a test's. The list is pinned here so it can shrink but
+// never grow silently — the failure mode being that note #24 joins them unnoticed.
+//
+// The sharpest of the 23, stated plainly: `hainanese::hainanese chicken rice` — Singapore's
+// national dish — is curated, sourced, translated into eight locales, and unreachable. There
+// is no chicken rice in SG's CLASSIC_NOTES at all, and the only one any reader can reach is
+// `thai::thai chicken rice (khao man gai)`.
+const O317_UNREACHABLE = [
+  'hainanese::hainan rice noodles',
+  'hainanese::hainanese chicken rice',
+  'hakka::thunder tea rice',
+  'hakka::cukiok (hakka braised pork trotter)',
+  'hakka::steamed minced pork with mui choy',
+  'hakka::hakka duck stuffed with glutinous rice',
+  'hakka::hakka beef meatball soup',
+  'hakka::hakka steamed glutinous rice cake (ci ba)',
+  "hunan::dong'an chicken",
+  'hunan::changde beef rice noodle',
+  'german::german beer',
+  'british::british ale',
+  'american::american craft beer',
+  'australian::australian wine',
+  'australian::barramundi pie',
+  'australasia::kaipake plate',
+  'australasia::fish suckling pacific',
+  'australasia::antipodean cafe brunch',
+  'australasia::pasifika fusion plate',
+  'macau::caca-mato',
+  'northeastern::three rice porridge',
+  'fusion::satay beef burger',
+  'fusion::yuzu cheesecake',
+];
+describe('classics-notes — CUISINE_NOTES reachability (O-317)', () => {
+  // The fold under test is a COPY of the one in index.js, deliberately. A test that
+  // imported the helper would pass if both drifted together; this one fails if the call
+  // site stops folding, which is the regression it exists to catch.
+  const foldDish = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+
+  it('every note resolves to a dish the reader can reach, except the pinned 23', () => {
+    const { CUISINE_NOTES } = require('../classics-notes.js');
+    const { getNationOverlay } = require('../nation-overlay');
+    const pinned = new Set(O317_UNREACHABLE);
+    const unreachable = [];
+    for (const slug of Object.keys(CUISINE_NOTES)) {
+      let ov = null;
+      try { ov = getNationOverlay(slug); } catch { /* no overlay for this slug */ }
+      const names = ((ov && ov.iconicDishes) || []).map((d) => d && d.name).filter(Boolean);
+      if (!names.length) continue;
+      const folded = new Set(names.map(foldDish));
+      for (const dish of Object.keys(CUISINE_NOTES[slug])) {
+        const key = `${slug}::${dish}`;
+        if (folded.has(foldDish(dish))) continue;
+        if (pinned.has(key)) continue;
+        unreachable.push(key);
+      }
+    }
+    expect(unreachable).toEqual([]);
+    // Shrink, never grow. A 24th unreachable note is a regression, not a new normal.
+    expect(O317_UNREACHABLE.length).toBeLessThanOrEqual(23);
+  });
+
+  it('the fold recovers the four case-only misses and redirects nothing', () => {
+    const { CUISINE_NOTES } = require('../classics-notes.js');
+    const { getNationOverlay } = require('../nation-overlay');
+    const recovered = [];
+    const redirected = [];
+    for (const slug of Object.keys(CUISINE_NOTES)) {
+      let ov = null;
+      try { ov = getNationOverlay(slug); } catch { /* none */ }
+      const cnotes = CUISINE_NOTES[slug];
+      const byFold = new Map();
+      for (const [k, v] of Object.entries(cnotes)) byFold.set(foldDish(k), v);
+      for (const d of ((ov && ov.iconicDishes) || [])) {
+        if (!d || !d.name) continue;
+        const exact = cnotes[d.name];
+        const viaFold = byFold.get(foldDish(d.name));
+        if (!exact && viaFold) recovered.push(`${slug}::${d.name}`);
+        if (exact && viaFold && exact !== viaFold) redirected.push(`${slug}::${d.name}`);
+      }
+    }
+    expect(recovered.sort()).toEqual([
+      'french::escargots de Bourgogne',
+      'hainanese::coconut chicken (Hainan style)',
+      'spanish::tarta de Santiago',
+      'taiwanese::Taiwan night market dishes',
+    ]);
+    // The fold may only ADD a match. If it ever replaces an exact hit with a different
+    // note, two dishes have folded together and the enrichment is now lying about one.
+    expect(redirected).toEqual([]);
+  });
+});

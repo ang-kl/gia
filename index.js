@@ -17841,10 +17841,31 @@ async function cacheBotUsername() {
               try {
                 const { CUISINE_NOTES } = require('./classics-notes');
                 const cnotes = CUISINE_NOTES && CUISINE_NOTES[slug];
-                if (cnotes) _iconic = ov.iconicDishes.map((d) => {
-                  const m = d && cnotes[d.name];
-                  return m ? { ...d, ...m } : d;
-                });
+                // v0.62.807 — O-317: this lookup was CASE-SENSITIVE, and the two tables
+                // do not agree on case. `escargots de Bourgogne`, `tarta de Santiago`,
+                // `coconut chicken (Hainan style)` and `Taiwan night market dishes` are
+                // capitalised in the overlay and lower-cased in the notes, so four
+                // curated, sourced, eight-locale notes silently failed to attach — the
+                // dish rendered bare and nothing anywhere reported a miss.
+                //
+                // city-plates.js has always folded (`_fold`, line ~5348) for exactly this
+                // reason. The same datum was reachable through one code path and not the
+                // other, which is the shape of O-305 and of the v0.62.778 French bug: the
+                // defect is never in the data, it is in the one call site that forgot.
+                //
+                // Fold is case + diacritics, matching `_fold`, and it is safe because it
+                // was MEASURED before it was written: zero folded-name collisions across
+                // every cuisine, in both the overlay lists and the note tables. An exact
+                // hit still wins, so a fold can only add a match, never redirect one.
+                const _foldDish = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+                if (cnotes) {
+                  const _byFold = new Map();
+                  for (const [k, v] of Object.entries(cnotes)) _byFold.set(_foldDish(k), v);
+                  _iconic = ov.iconicDishes.map((d) => {
+                    const m = d && (cnotes[d.name] || _byFold.get(_foldDish(d.name)));
+                    return m ? { ...d, ...m } : d;
+                  });
+                }
               } catch { /* classics-notes optional */ }
               const grouped = groupCuisineDishes(_iconic);
               const label = slug.split('-').map((w) => w ? w[0].toUpperCase() + w.slice(1) : w).join(' ');
