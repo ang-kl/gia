@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const GEN_DATE = '2026-08-01';   // v0.62.655 three-TMA convergence catch-up: PRs #1638-#1665 (one interaction model across Cuisine/Hawker/Train: carousel default, one list toggle, over-the-map drawer; three silent-drop Tailwind failures found and fixed; viewport-width columns to ultrawide) + backfill of #1456/#1487 missed earlier; 2026-07-30 catch-up: PRs #1666-#1671 (first vault + doc catch-up, Cuisine drawer device-check fixes, Train onboarding + station-search row, urgent desktop TMA close fix, MICHELIN Guide 2026 SG Bib Gourmand + Taiwan updates, Material-alignment Phase 1 invisible a11y across all TMAs); 2026-08-01 catch-up: PRs #1672-#1685 (Material-alignment Phase 2a/2b token bridge, M3 audit Tier 0/1, Michelin footer pagination + year/Bib filters, typography + screen-size audit, O-95/96/97 Hawker parity + glass-effect fix, O-89/91/92 Register items, carousel card spec D-51 one-width/two-height-tiers with the Hawker/Train audit, footer grid-placement bug, liquid-glass-focus, four-corner ring labels, the station-pick inspection overlay, and road/address search via OneMap closing O-110)
+const GEN_DATE = '2026-08-28';   // v0.62.655 three-TMA convergence catch-up: PRs #1638-#1665 (one interaction model across Cuisine/Hawker/Train: carousel default, one list toggle, over-the-map drawer; three silent-drop Tailwind failures found and fixed; viewport-width columns to ultrawide) + backfill of #1456/#1487 missed earlier; 2026-07-30 catch-up: PRs #1666-#1671 (first vault + doc catch-up, Cuisine drawer device-check fixes, Train onboarding + station-search row, urgent desktop TMA close fix, MICHELIN Guide 2026 SG Bib Gourmand + Taiwan updates, Material-alignment Phase 1 invisible a11y across all TMAs); 2026-08-01 catch-up: PRs #1672-#1685 (Material-alignment Phase 2a/2b token bridge, M3 audit Tier 0/1, Michelin footer pagination + year/Bib filters, typography + screen-size audit, O-95/96/97 Hawker parity + glass-effect fix, O-89/91/92 Register items, carousel card spec D-51 one-width/two-height-tiers with the Hawker/Train audit, footer grid-placement bug, liquid-glass-focus, four-corner ring labels, the station-pick inspection overlay, and road/address search via OneMap closing O-110); 2026-08-28 catch-up: PRs #1686-#1771 — the largest single catch-up so far, 85 PRs across 27 days (the Michelin 2026 city expansions and their data-quality fallout, the eight-locale dish-note corpus and its translation-audit gates, the provenance-contamination sweep that removed four fabricated rows, O-317's case-folding fix and the 18 dishes it reached, the cap 30 to 31 ruling, and the transport station-name arc that put the government register's Chinese/Malay names on the card strip). #1707 is absent because that number was never a PR in this repo — the fetch returned 90 PRs across the contiguous span 1681-1771, one short of 91
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
@@ -318,6 +318,12 @@ for (let i = 0; i < records.length; i++) {
   r.burst = sameArea >= 3 && r.area !== 'Core / misc';
 }
 
+// The highest PR NUMBER, which is not the row COUNT: the numbering has gaps (numbers
+// consumed by issues, and PRs that were never opened), so `records.length` understates
+// the top of the range. Both banners used to print the count on both sides of `#1–#N`,
+// which read as a claim about the range and was wrong by 27 at the 2026-08-28 catch-up.
+const maxPr = records.reduce((m, r) => Math.max(m, Number(r.pr) || 0), 0);
+
 // keep the old `rows` shape (capitalised keys) for the TSV + MD writers
 const rows = records.map((r) => ({
   PR: r.pr,
@@ -356,7 +362,7 @@ const unmergedCount = rows.length - mergedCount;
 const md = [];
 md.push('# Vibe-Coding Record — `ang-kl/gia` (Soleat)');
 md.push('');
-md.push(`> **Auto-generated** by \`doc/VibeCodingRecord/generate.mjs\` on ${GEN_DATE} from a snapshot of all ${rows.length} pull requests (#1–#${rows.length}).`);
+md.push(`> **Auto-generated** by \`doc/VibeCodingRecord/generate.mjs\` on ${GEN_DATE} from a snapshot of all ${rows.length} pull requests (#1–#${maxPr}).`);
 md.push('> Do not hand-edit this file — change \`data/prs.ndjson\` / \`data/pr-files.tsv\` and re-run the generator. See \`VibeCodingRecord.md\` for the schema, the column legend, the category taxonomy, and how to refresh it.');
 md.push('');
 md.push('## At a glance');
@@ -404,7 +410,7 @@ writeFileSync(join(PUBLIC_DOC, 'vibe-journal.json'), JSON.stringify({ generated:
 const reworkCount = records.filter((r) => r.reworkOf).length;
 const cueCount = records.filter((r) => r.reworkCue).length;
 const minorCount = new Set(records.map((r) => r.minor).filter(Boolean)).size;
-const HTML_META = { generated: GEN_DATE, count: records.length, merged: mergedCount, unmerged: unmergedCount, minors: minorCount, rework: reworkCount, cues: cueCount };
+const HTML_META = { generated: GEN_DATE, count: records.length, maxPr, merged: mergedCount, unmerged: unmergedCount, minors: minorCount, rework: reworkCount, cues: cueCount };
 
 const htmlEsc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const jsonForScript = (o) => JSON.stringify(o)
@@ -488,7 +494,7 @@ tr.row:hover{background:#1d2632}.detrow td{background:#1a1f26}.tag{background:#2
 <body>
 <div class="wrap">
 <h1>Soleat — Vibe Journal</h1>
-<p class="sub">A queryable record of every pull request (#1–#${records.length}) in <code>ang-kl/gia</code>, built to learn from each interaction and cut the rework. Auto-generated ${GEN_DATE}. &nbsp;<a href="/doc/vibe-journal.json">raw JSON</a></p>
+<p class="sub">A queryable record of every pull request (#1–#${HTML_META.maxPr}) in <code>ang-kl/gia</code>, built to learn from each interaction and cut the rework. Auto-generated ${GEN_DATE}. &nbsp;<a href="/doc/vibe-journal.json">raw JSON</a></p>
 
 <div class="kpis" id="kpis"></div>
 
