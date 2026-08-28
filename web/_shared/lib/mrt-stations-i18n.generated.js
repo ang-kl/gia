@@ -26,10 +26,17 @@
 // which row was which.
 //
 // COVERAGE, measured rather than assumed: all 183 stations in SG_STATIONS have a row,
-// and `__tests__/mrt-stations-i18n.test.js` asserts it. This file carries 193 —
-// the extra 10 are stations announced but not yet in SG_STATIONS
-// (Bedok South, Hume, Marina South, Mount Pleasant, Sungei Bedok, Xilin), kept so they
-// resolve on the day they open.
+// and `__tests__/mrt-stations-i18n.test.js` asserts it. This file carries 193 rows for
+// 189 distinct names, and the arithmetic is worth spelling out because the first version
+// of this comment got it wrong — it said "the extra 10" and then listed six:
+//
+//     183 live stations + 6 announced but not yet open + 4 duplicate names = 193 rows
+//
+// The 6 are Bedok South, Hume, Marina South, Mount Pleasant, Sungei Bedok and Xilin, kept
+// so they resolve on the day they open. The 4 are Bukit Panjang, Choa Chu Kang, Punggol
+// and Sengkang, which appear twice each because they are MRT/LRT interchanges — see the
+// O-329 note beside the lookup below. Subtracting 183 from 193 and listing whichever
+// names came to mind is how a comment ends up off by four and still reads as measured.
 //
 // TWO SOURCE-SIDE THINGS LEFT AS FOUND, NOT CORRECTED:
 //   · The category also returns two LINE names — "East-West Line (EWL)" and
@@ -239,10 +246,6 @@ export const SG_STATION_NAMES_I18N = [
   { n: "Yishun", k: "MRT", zh: "义顺地铁站", ms: "Stesen MRT Yishun", ta: "யீஷூன் பெருவிரைவு ரயில் நிலையம்" },
 ];
 
-export const SG_STATION_NAMES_BY_NAME = new Map(
-  SG_STATION_NAMES_I18N.map((s) => [s.n, s])
-);
-
 // THE LOOKUP FOLDS, AND IT DOES SO BECAUSE THE EXACT VERSION MISSED ON THE FIRST TRY.
 // The government register writes "One-North"; this repo writes "one-north", which is the
 // station's own lower-case branding. An exact-keyed Map resolved 182 of 183 stations and
@@ -253,7 +256,32 @@ export const SG_STATION_NAMES_BY_NAME = new Map(
 // new file within hours. Recorded here because the lesson clearly did not travel on its
 // own. Exact hit still wins, so folding can only add a match, never redirect one.
 const foldName = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
-const BY_FOLD = new Map(SG_STATION_NAMES_I18N.map((s) => [foldName(s.n), s]));
+// v0.62.820 — O-329. FOUR NAMES CARRY TWO ROWS EACH, AND THE RIGHT ONE USED TO WIN BY LUCK.
+// Bukit Panjang, Choa Chu Kang, Punggol and Sengkang are genuine MRT/LRT interchanges, so
+// the register lists each twice — once `k: 'MRT'`, once `k: 'LRT'` — and it is right to.
+// `new Map(rows.map(...))` keeps the LAST write, so which row a reader saw depended on the
+// order of the generated array. All four happened to land on MRT, because these rows sort
+// 'LRT' before 'MRT' and the file is sorted by name. Re-sort it, or let the register add a
+// third row for one of these names, and `stationName('Punggol', 'ms')` silently becomes
+// "Stesen LRT Punggol" — no error, no failing test, just a wrong word on a card.
+//
+// This is an MRT app, so the MRT row is now preferred EXPLICITLY. The point is not that the
+// answer changes today — it does not, and the test pins all four to prove it — but that it
+// stops depending on sort order. Correct output produced by accident is the failure mode
+// this repo keeps meeting: O-317's case-sensitive join and O-323's silently dropped overlay
+// key are the same shape, and both were found only after they had already shipped.
+const _indexBy = (keyOf) => {
+  const m = new Map();
+  for (const s of SG_STATION_NAMES_I18N) {
+    const k = keyOf(s);
+    const prev = m.get(k);
+    if (!prev || (prev.k !== 'MRT' && s.k === 'MRT')) m.set(k, s);
+  }
+  return m;
+};
+
+export const SG_STATION_NAMES_BY_NAME = _indexBy((s) => s.n);
+const BY_FOLD = _indexBy((s) => foldName(s.n));
 
 // v0.62.815 — INDONESIAN READS THE MALAY COLUMN. Operator, seeing an `id` session
 // render English station names: "i change to indonesian, it should show the Malay

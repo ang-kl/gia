@@ -233,3 +233,48 @@ describe('transport TMA — the card is wide enough for the names it now shows',
     expect(w1600).toBe(16);
   });
 });
+
+// v0.62.820 — O-329. THE RIGHT ROW USED TO WIN BY SORT ORDER.
+//
+// Four names carry two rows each: Bukit Panjang, Choa Chu Kang, Punggol and Sengkang are
+// genuine MRT/LRT interchanges, and the government register lists each twice — once
+// `k: 'MRT'`, once `k: 'LRT'`. The lookup was `new Map(rows.map((s) => [s.n, s]))`, which
+// keeps the LAST write, so which row a reader saw depended on how the generated array
+// happened to be ordered. It happened to land on MRT.
+//
+// Nothing about that was stated and nothing tested it. Re-sort the generated file — a
+// regeneration is one command — or let the register add a third row for one of these names,
+// and `stationName('Punggol', 'ms')` becomes "Stesen LRT Punggol": no error, no failing
+// test, one wrong word on a card. The module now prefers MRT explicitly; this pins it.
+describe('mrt station names — duplicate interchange rows (O-329)', () => {
+  const DOUBLE = ['Bukit Panjang', 'Choa Chu Kang', 'Punggol', 'Sengkang'];
+
+  it('those four names really do carry two rows each — the premise, not an assumption', () => {
+    for (const n of DOUBLE) {
+      const rows = SG_STATION_NAMES_I18N.filter((r) => r.n === n);
+      expect(rows.map((r) => r.k).sort(), `${n} rows`).toEqual(['LRT', 'MRT']);
+    }
+    // and nothing else is doubled, so the pin above is the complete list
+    const seen = new Map();
+    for (const r of SG_STATION_NAMES_I18N) seen.set(r.n, (seen.get(r.n) || 0) + 1);
+    expect([...seen].filter(([, c]) => c > 1).map(([n]) => n).sort()).toEqual([...DOUBLE].sort());
+  });
+
+  it.each(DOUBLE)('%s resolves to the MRT row, not the LRT one', (n) => {
+    expect(stationRow(n).k).toBe('MRT');
+    expect(stationName(n, 'ms')).toBe(`Stesen MRT ${n}`);
+    expect(stationName(n, 'ms')).not.toContain('LRT');
+  });
+
+  it('the folded lookup prefers MRT too — both indexes, or only one is fixed', () => {
+    for (const n of DOUBLE) {
+      expect(stationRow(n.toLowerCase()).k, `${n} via fold`).toBe('MRT');
+      expect(stationName(n.toUpperCase(), 'ms')).toBe(`Stesen MRT ${n}`);
+    }
+  });
+
+  it('the four doubles are the only gap between row count and distinct names', () => {
+    const distinct = new Set(SG_STATION_NAMES_I18N.map((r) => r.n)).size;
+    expect(SG_STATION_NAMES_I18N.length - distinct).toBe(DOUBLE.length);
+  });
+});
