@@ -313,11 +313,14 @@ describe('classics-notes — complete locale coverage', () => {
     }
     // A FLOOR, and it only moves on an explicit ruling. 1,677 at v0.62.804 → 1,673 when
     // O-315 removed four contaminated rows → 1,672 at v0.62.812 when the operator retired
-    // `fish suckling pacific` as a duplicate. Each step down is a decision someone made and
-    // can point at; the floor exists to catch the step down nobody decided — a row lost to
-    // a bad edit or a bad merge. Lowering it to match reality without saying why is how a
-    // guard becomes a rubber stamp, so the number and the reason move together or not at all.
-    expect(rows).toBeGreaterThanOrEqual(1672);
+    // `fish suckling pacific` as a duplicate → 1,671 at v0.62.822, O-330, when the operator
+    // retired `eurasian::soyok`: three sources in this repo described it three different ways
+    // (a Malay architectural term, a pork-offal salad, "Eurasian soya pork"), so the corpus
+    // could not say what it was. Each step down is a decision someone made and can point at;
+    // the floor exists to catch the step down nobody decided — a row lost to a bad edit or a
+    // bad merge. Lowering it to match reality without saying why is how a guard becomes a
+    // rubber stamp, so the number and the reason move together or not at all.
+    expect(rows).toBeGreaterThanOrEqual(1671);
     expect(gaps).toEqual([]);
     // Removing a base note must remove its translations too. Six strings for a dish that no
     // longer exists are not harmless leftovers — they are what a later coverage count reads

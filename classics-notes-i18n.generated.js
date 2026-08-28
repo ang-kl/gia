@@ -4025,14 +4025,6 @@ module.exports = {
     ja: "ジャワの鶏の煮込み。ケチャップマニスと香辛料で煮ます。オランダ語の煮込み技法 smoor に由来します。",
     es: "Estofado javanés de pollo guisado en soja dulce y especias; deriva de la técnica neerlandesa de estofado «smoor».",
   },
-  "eurasian::soyok": {
-    id: "Bukan makanan atau minuman yang terverifikasi; dalam bahasa Melayu \"soyok\" adalah istilah arsitektur untuk serambi beratap rumah adat.",
-    ru: "Не подтверждённое блюдо или напиток; по-малайски «сойок» — архитектурный термин для крытой пристройки или веранды традиционного дома.",
-    de: "Kein bestätigtes Gericht und kein Getränk; auf Malaiisch ist „soyok“ ein Architekturbegriff für einen überdachten Anbau am Traditionshaus.",
-    zh: "并非经证实的食物或饮料；在马来语里，「soyok」是建筑用语，指传统屋舍带顶的披屋或外廊。",
-    ja: "食べ物とも飲み物とも確認されていません。マレー語の「ソヨッ」は、伝統家屋の屋根つきの差し掛けや縁側を指す建築用語です。",
-    es: "No es un alimento ni una bebida verificados; en malayo «soyok» es un término arquitectónico para el cobertizo o galería techada de una casa.",
-  },
   "eurasian::sugee cake": {
     id: "Kue semolina dan almond yang padat dan penuh mentega, milik komunitas Kristang Portugis-Eurasia di Melaka dan Singapura.",
     ru: "Плотный сливочный пирог из семолины и миндаля, принадлежащий кристангской португальско-евразийской общине Малакки и Сингапура.",

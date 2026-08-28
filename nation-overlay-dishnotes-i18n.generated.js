@@ -3049,15 +3049,6 @@ module.exports = {
     ja: "Semur ayam は、ナツメグ、ショウガ、ニンニクなどのスパイスとともに甘い醤油（kecap manis）で煮込んだインドネシアの鶏肉料理です。",
     es: "Semur ayam es un plato de pollo indonesio estofado en salsa de soja dulce (kecap manis) con especias como nuez moscada, jengibre y ajo.",
   },
-  "eurasian::soyok": {
-    fr: "Le soyok est une salade eurasienne d'abats de porc, de concombres frais et d'herbes comme le galanga et la citronnelle.",
-    id: "Soyok adalah salad Eurasia yang terbuat dari jeroan babi, mentimun segar, dan rempah-rempah seperti lengkuas dan serai.",
-    ru: "Soyok — это евразийский салат, приготовленный из свиных субпродуктов, свежих огурцов и таких трав, как галангал и лемонграсс.",
-    de: "Soyok ist ein eurasischer Salat aus Schweineinnereien, frischen Gurken und Kräutern wie Galgant und Zitronengras.",
-    zh: "Soyok 是一种欧亚沙拉，由猪内脏、新鲜黄瓜以及高良姜和柠檬草等香草制成。",
-    ja: "Soyok は、豚の内臓、新鮮なキュウリ、ガランガルやレモングラスなどのハーブで作られたユーラシア風サラダです。",
-    es: "Soyok es una ensalada euroasiática elaborada con despojos de cerdo, pepinos frescos y hierbas como galanga y hierba limón.",
-  },
   "eurasian::sugee cake": {
     fr: "Le sugee cake est un gâteau de fête eurasien classique, à la semoule (sugee), au beurre, aux œufs et aux amandes en poudre.",
     id: "Sugee cake adalah kue perayaan Eurasia klasik yang dibuat dengan semolina (sugee), mentega, telur, dan almond bubuk.",
