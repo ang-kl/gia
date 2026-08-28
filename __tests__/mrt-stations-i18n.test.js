@@ -142,3 +142,94 @@ describe('transport TMA — station names render in the reader\'s language (O-32
     expect(panel).toMatch(/stationPillNode\(s\.codes, s\.name, bg\)/);
   });
 });
+
+// v0.62.815 — INDONESIAN, AND THE CARD THE FIRST PASS MISSED.
+//
+// The operator switched a live session to Indonesian and saw English station names on
+// the card strip. Two separate faults behind one symptom: `id` had no column to read
+// (the register has no Indonesian), and StationCard — the most visible station name in
+// the whole app — was not among the three sites v0.62.814 wired.
+describe('transport TMA — Indonesian reads the Malay column (O-321)', () => {
+  const card = readFileSync(join(ROOT, 'web/transport/src/components/StationCard.jsx'), 'utf8');
+
+  it('id resolves to the official Malay name, and other locales are unchanged', () => {
+    expect(stationName('Ang Mo Kio', 'id')).toBe('Stesen MRT Ang Mo Kio');
+    expect(stationName('Ang Mo Kio', 'zh')).toBe('宏茂桥地铁站');
+    expect(stationName('Ang Mo Kio', 'en')).toBe('Ang Mo Kio');
+    // fr has no column in this register and must fall back, not throw or blank.
+    expect(stationName('Ang Mo Kio', 'fr')).toBe('Ang Mo Kio');
+  });
+
+  it('the station card renders a SEPARATE display value, never the key', () => {
+    // This is the assertion that protects user data. `name` keys readSaved(), the
+    // saved-station toggle, the `data-station-card` selector the carousel scrolls by,
+    // the Google Maps query and the share URL. Had the localised string replaced `name`
+    // itself, every user's saved stations would orphan the moment they changed language:
+    // the stored list still says "Ang Mo Kio" while every card calls itself "Stesen MRT
+    // Ang Mo Kio". So the display value is its own variable, used in exactly one place.
+    expect(card).toMatch(/const displayName = stationName\(name, lang\);/);
+    expect(card).toMatch(/title=\{displayName\}>\{displayName\}<\/span>/);
+    // …and the key sites still read `name`.
+    expect(card).toMatch(/readSaved\(\)\.includes\(name\)/);
+    expect(card).toMatch(/data-station-card=\{name\}/);
+    expect(card).toMatch(/mapsQ\(`\$\{name\} MRT Station Singapore`\)/);
+    expect(card).toMatch(/shareUrl\(lat, lng, name\)/);
+  });
+
+  it('the Malay column is reachable at all, which it was not before', () => {
+    // SUPPORTED_LOCALES in the transport TMA has no `ms`. Without the id→ms mapping the
+    // Malay third of this table could never render for anyone. This asserts the mapping
+    // exists rather than trusting the comment above it.
+    const gen = readFileSync(join(ROOT, 'web/_shared/lib/mrt-stations-i18n.generated.js'), 'utf8');
+    expect(gen).toMatch(/const LANG_COLUMN = \{ id: 'ms' \};/);
+    const i18n = readFileSync(join(ROOT, 'web/transport/src/i18n.js'), 'utf8');
+    expect(i18n).toMatch(/SUPPORTED_LOCALES = \['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'\]/);
+  });
+});
+
+// v0.62.816 — CARD WIDTH, which is now part of the i18n work rather than styling.
+//
+// The names this repo spent v0.62.813–815 fetching are LONGER than the English they
+// replace — "Stesen MRT Ang Mo Kio" against "Ang Mo Kio", 宏茂桥地铁站 against the same.
+// StationCard truncates. So at the previous 11 % basis a 2048 px notebook would have
+// rendered the localised names as ellipsis, and the whole chain — register, join,
+// renderer — would have ended in "Stesen MRT Ang…". Width is the last link.
+describe('transport TMA — the card is wide enough for the names it now shows', () => {
+  const app = readFileSync(join(ROOT, 'web/transport/src/App.jsx'), 'utf8');
+  const card = readFileSync(join(ROOT, 'web/transport/src/components/StationCard.jsx'), 'utf8');
+
+  it('the top two rungs widen instead of narrowing', () => {
+    expect(app).toMatch(/min-\[1600px\]:basis-\[16%\] min-\[2000px\]:basis-\[20%\]/);
+    // The old values are gone, not merely overridden by a later class.
+    expect(app).not.toMatch(/basis-\[13\.5%\]/);
+    expect(app).not.toMatch(/min-\[2000px\]:basis-\[11%\]/);
+  });
+
+  it('the collapsed row no longer strands content at both edges', () => {
+    // `ml-auto` pushed the clock to the far right. At ~225 px that read as snug; at the
+    // ~410 px a 20 % basis gives on a 2048 px screen it opens the gap the operator did
+    // not want. Dropping it left-packs the row, so the extra width goes to the NAME.
+    expect(card).toMatch(/<span className="shrink-0 text-tg-hint tabular-nums">🕑/);
+    expect(card).not.toMatch(/ml-auto shrink-0 text-tg-hint tabular-nums/);
+    expect(card).not.toMatch(/ml-auto shrink-0 text-\[10px\] text-tg-link/);
+  });
+
+  it('the wide end of the ladder widens rather than narrowing', () => {
+    // WRITTEN WRONG THE FIRST TIME, and the correction is the useful part. The first
+    // version asserted the ladder never narrows from `md` upward — and it fails, because
+    // the ladder is a V, not a ramp: 60 % → 31 % → 22 % → 17 % narrows deliberately so a
+    // wide screen shows MORE of the line, which is exactly what the v0.6x comment in
+    // App.jsx argues for. Only the top two rungs reverse that, and only because the
+    // localised names need the room. So the invariant is not "never narrows" — it is
+    // "the widest screens get the widest cards", which is a claim about the top rungs.
+    const cls = app.match(/className="snap-center shrink-0 ([^"]+)"/)[1];
+    const pct = (bp) => parseFloat(cls.match(new RegExp(`${bp}:basis-\\[([\\d.]+)%\\]`))[1]);
+    const xl = pct('xl');
+    const w1600 = pct('min-\\[1600px\\]');
+    const w2000 = pct('min-\\[2000px\\]');
+    expect(w2000).toBeGreaterThan(w1600);
+    expect(w2000).toBeGreaterThan(xl);
+    expect(w2000).toBe(20);
+    expect(w1600).toBe(16);
+  });
+});

@@ -140,6 +140,12 @@ const STRINGS = {
   // so a visitor can see the grid is a whole line in travel order.
   'mrt.stopsCount':            { en: '{n} stops', fr: '{n} arrêts' },
   'mrt.nearestHawker':         { en: 'Nearest hawker', fr: 'Hawker le plus proche' },
+  // v0.62.817 — O-321. These two were hardcoded English inside LocationCard.jsx, so a
+  // reader who had switched language saw a localised STATION NAME under an English
+  // heading. Phrasing follows `mrt.nearestHawker` directly above in every locale, so the
+  // two "nearest X" labels read as a pair rather than as two separate translations.
+  'mrt.youAreHere':            { en: 'You are here', fr: 'Vous êtes ici' },
+  'mrt.nearestMrt':            { en: 'Nearest MRT', fr: 'Station MRT la plus proche' },
   // v0.62.634 — operator: the card should state whether the station is open now
   // + its operating (first/last train) hours, above the amenities.
   // v0.62.644 — Cuisine-style bottom collapse pill on the station card.
@@ -287,6 +293,8 @@ const ID_STRINGS = {
   "mrt.around": "Sekitar stasiun",
   "mrt.stopsCount": "{n} perhentian",
   "mrt.nearestHawker": "Hawker terdekat",
+  "mrt.youAreHere": "Anda di sini",
+  "mrt.nearestMrt": "MRT terdekat",
   "mrt.detailsMore": "detail",
   "mrt.detailsLess": "lebih sedikit",
   "mrt.exitsN": "{n} pintu keluar",
@@ -413,6 +421,8 @@ const RU_STRINGS = {
   "mrt.around": "Рядом со станцией",
   "mrt.stopsCount": "{n} остановок",
   "mrt.nearestHawker": "Ближайший хокер-центр",
+  "mrt.youAreHere": "Вы здесь",
+  "mrt.nearestMrt": "Ближайшая станция MRT",
   "mrt.detailsMore": "детали",
   "mrt.detailsLess": "меньше",
   "mrt.exitsN": "{n} выходов",
@@ -536,6 +546,8 @@ const DE_STRINGS = {
   "mrt.around": "Rund um die Station",
   "mrt.stopsCount": "{n} Stationen",
   "mrt.nearestHawker": "Nächster Hawker",
+  "mrt.youAreHere": "Sie sind hier",
+  "mrt.nearestMrt": "Nächste MRT-Station",
   "mrt.detailsMore": "Details",
   "mrt.detailsLess": "weniger",
   "mrt.exitsN": "{n} Ausgänge",
@@ -660,6 +672,8 @@ const ZH_STRINGS = {
   "mrt.around": "车站周边",
   "mrt.stopsCount": "{n} 站",
   "mrt.nearestHawker": "最近的小贩中心",
+  "mrt.youAreHere": "您在这里",
+  "mrt.nearestMrt": "最近的地铁站",
   "mrt.detailsMore": "详情",
   "mrt.detailsLess": "收起",
   "mrt.exitsN": "{n} 个出口",
@@ -782,6 +796,8 @@ const JA_STRINGS = {
   "mrt.around": "駅周辺",
   "mrt.stopsCount": "{n}駅",
   "mrt.nearestHawker": "最寄りのホーカー",
+  "mrt.youAreHere": "現在地",
+  "mrt.nearestMrt": "最寄りのMRT駅",
   "mrt.detailsMore": "詳細",
   "mrt.detailsLess": "閉じる",
   "mrt.exitsN": "出口{n}か所",
@@ -904,6 +920,8 @@ const ES_STRINGS = {
   "mrt.around": "Alrededor de la estación",
   "mrt.stopsCount": "{n} paradas",
   "mrt.nearestHawker": "Hawker más cercano",
+  "mrt.youAreHere": "Estás aquí",
+  "mrt.nearestMrt": "Estación de MRT más cercana",
   "mrt.detailsMore": "detalles",
   "mrt.detailsLess": "menos",
   "mrt.exitsN": "{n} salidas",
