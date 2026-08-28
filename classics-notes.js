@@ -9058,19 +9058,6 @@ const CUISINE_NOTES = {
         }
       ]
     },
-    "soyok": {
-      "local": "soyok",
-      "note": {
-        "en": "Not a verified food or drink; in Malay \"soyok\" is an architectural term for a roofed lean-to or verandah extension of a traditional house.",
-        "fr": "Ni un plat ni une boisson attesté ; en malais, « soyok » désigne un appentis ou véranda couverte annexé à une maison traditionnelle."
-      },
-      "sources": [
-        {
-          "name": "Kamus Bahasa Melayu — soyok",
-          "url": "https://kamusbm.com/soyok/"
-        }
-      ]
-    },
     "curry debal alt": {
       "local": "Kari Debal",
       "note": {

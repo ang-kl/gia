@@ -348,7 +348,6 @@ module.exports = {
   "eurasian::roast suckling pig": { en: "Roast suckling pig is a whole roasted piglet, fed on its mother's milk, prized for its delicate meat and crisp skin.", source: "https://en.wikipedia.org/wiki/Suckling_pig" },
   "eurasian::salted vegetable duck soup": { en: "Salted vegetable duck soup, or \"kiam chye ark,\" is a savory Chinese soup featuring duck, salted mustard greens, tomatoes, and sour plums.", source: "https://en.wikipedia.org/wiki/Teochew_cuisine" },
   "eurasian::semur ayam": { en: "Semur ayam is an Indonesian chicken dish braised in sweet soy sauce (kecap manis) with spices like nutmeg, ginger, and garlic.", source: "https://www.tasteatlas.com/semur-ayam" },
-  "eurasian::soyok": { en: "Soyok is a Eurasian salad made with pork offal, fresh cucumbers, and herbs like galangal and lemongrass.", source: "Wonderwall.sg" },
   "eurasian::sugee cake": { en: "Sugee cake is a classic Eurasian celebration cake made with semolina (sugee), butter, eggs, and ground almonds.", source: "https://www.visitsingapore.com/see-do-singapore/culture-heritage/heritage-areas/eurasian-heritage-gallery/" },
   "filipino::adobo": { en: "Adobo is a Filipino cooking process and dish where meat, seafood, or vegetables are simmered in vinegar, soy sauce, garlic, and spices.", source: "https://www.tasteatlas.com/adobo" },
   "filipino::bangus": { en: "Bangus, or milkfish, is widely regarded as the national fish of the Philippines, known for its delicate white flesh.", source: "https://www.tasteatlas.com/bangus" },

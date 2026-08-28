@@ -392,7 +392,6 @@ const NATION_OVERLAY = {
       F('eurasian fishball curry'),
       F('roast suckling pig'),                                    // Christmas Eurasian centerpiece
       F('eurasian smoore'),                                       // beef + spice slow stew
-      F('soyok'),                                                 // Eurasian soya pork
       F('curry debal alt')                                        // alternate spelling of devil curry
     ],
 

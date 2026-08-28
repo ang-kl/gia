@@ -30,11 +30,11 @@
 //                                                → Vietnamese, "baba ghanoush" → Peranakan,
 //                                                "New England" → British)
 //   homonyms fixed                               10 flags
-//   + the scope arbitrates                        8 flags
+//   + the scope arbitrates                        8 flags (7 after O-330 removed one)
 //
-// Eight is not zero, so this is NOT a rule that stands alone — it is a rule plus a pinned
+// Seven is not zero, so this is NOT a rule that stands alone — it is a rule plus a pinned
 // register, the same contract the bot's 96 i18n absences use. Each of the eight is listed
-// with a reason; a NINTH fails this test. That is what turns O-318's triage list into a gate:
+// with a reason; an EIGHTH fails this test. That is what turns O-318's triage list into a gate:
 // it cannot judge the eight, and it does not have to — it has to notice the ninth.
 //
 // WHAT IT WOULD HAVE CAUGHT: 2 of O-315's 4 rows (`eurasian::eurasian fishball curry`,
@@ -106,10 +106,11 @@ const SCOPE_REGION = {
 };
 
 // ── the pinned register ─────────────────────────────────────────────────────
-// Eight flags today. Seven are correct notes whose foreign region is an ORIGIN, an
+// Seven flags today, all of them correct notes whose foreign region is an ORIGIN, an
 // ETYMOLOGY, an INGREDIENT or a METHOD rather than the dish's identity — the exact
-// distinction no regex drew, written down once instead. The eighth is a real defect the
-// scan found on its first run and is pinned as OPEN, not as legitimate.
+// distinction no regex drew, written down once instead. An eighth stood here for one
+// version: `eurasian::soyok`, the real defect the scan found on its first run, pinned as
+// OPEN rather than as legitimate until the operator retired the row in v0.62.822 (O-330).
 const REASONS = new Set(['origin-stated', 'etymology', 'ingredient-origin', 'method-origin', 'regional-variant', 'open-defect']);
 const PINNED = {
   'peranakan::kueh bahulu':                     'etymology',        // "the name traces to the Kristang/Portuguese 'bolu'"
@@ -119,12 +120,10 @@ const PINNED = {
   'lebanese::lebanese coffee':                  'method-origin',    // "brewed Turkish-style in a rakwa pot"
   'british::english breakfast tea':             'ingredient-origin',// "typically Assam, Ceylon and Kenyan"
   "american::po' boy":                          'ingredient-origin',// "on French bread"
-  // NOT legitimate. Its own note reads "Not a verified food or drink; in Malay 'soyok' is an
-  // architectural term for a roofed lean-to". It is translated into all eight locales AND it
-  // is in the eurasian plate's iconicDishes, so a reader can reach it. Removing a dish from a
-  // cuisine plate is a product decision, so it is the operator's — Register O-330. Pinned as
-  // open so CI stays honest rather than green-by-omission.
-  'eurasian::soyok':                            'open-defect',
+  // `eurasian::soyok` stood here for one version as 'open-defect'. v0.62.822 removed the row
+  // on the operator's ruling (O-330), so the pin is gone rather than kept as a comment: a
+  // resolved defect that keeps its exemption is the stale pin this file's own test catches.
+  // The 'open-defect' REASON stays in the vocabulary, because the next one will need it.
 };
 
 const regionsIn = (s) => new Set(REGIONS.filter(([, re]) => re.test(String(s || ''))).map(([l]) => l));
@@ -188,10 +187,16 @@ describe('classics-notes — provenance contradiction against the sibling corpus
     for (const [k, reason] of Object.entries(PINNED)) expect(REASONS.has(reason), `${k} → ${reason}`).toBe(true);
   });
 
-  it('the one pin that is a DEFECT, not an exemption, is named as such', () => {
+  // v0.62.822, O-330. This slot held `eurasian::soyok` for exactly one version — a row whose
+  // own note read "Not a verified food or drink" while sitting on a plate a reader could
+  // open. The operator retired it, so the assertion inverts: an `open-defect` pin is a defect
+  // parked in CI, and parking one is only ever a way to keep a decision visible until it is
+  // made. If a future row needs the reason, it is still in the vocabulary — but it should not
+  // survive a release, and this fails when one does.
+  it('no pin is an open defect — a defect gets fixed, not exempted', () => {
     const open = Object.entries(PINNED).filter(([, r]) => r === 'open-defect').map(([k]) => k);
-    expect(open).toEqual(['eurasian::soyok']);
+    expect(open, 'an open-defect pin outlived its version — resolve it or reopen its item').toEqual([]);
     const { CUISINE_NOTES } = require('../classics-notes.js');
-    expect(CUISINE_NOTES.eurasian.soyok.note.en).toMatch(/not a verified food/i);
+    expect(CUISINE_NOTES.eurasian.soyok, 'soyok was retired in v0.62.822').toBeUndefined();
   });
 });
