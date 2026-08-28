@@ -133,6 +133,7 @@ see X-11). The ledger is this file; a container is not.
 | 22-08 '26 | owner's local corpus, **all** `gia*` project folders | **6,822** | The rebase base. See the derivation below. |
 | 22-08 '26 | remote container (`claude/handover-july-11-49uzvf`) | 711 | Partial — this container was cloned fresh on 09-08 '26 and holds one transcript. **Not** a correction to the above; added to it. |
 | 27-08 '26 | remote container (`claude/handover-july-11-49uzvf`), same transcript | **1,077** | Partial, and the successor to the row above rather than a second measurement of it — the same container, 366 replies later. Running serial from here = 6,822 + 1,077 = **7,899**. Appended per `CLAUDE-protocol.md` §1: replies made in a container the local corpus never sees have to be written down, or a later local re-measure legitimately reads low and the count drifts through the other door. |
+| 28-08 '26 | remote container (`claude/handover-july-11-49uzvf`), same transcript | **1,313** | Partial, and the successor to the row above — same container, 236 replies later, written down on the day #1771 merged rather than at some later session's convenience. Running serial from here = 6,822 + 1,313 = **8,135**. The 27-08 row was already stale by the time it was read back: §1's write-back is only a ratchet if it is appended while the container is still alive, and this one is ephemeral. |
 
 **Derivation, because "which folders" is a real question and the wrong answer resets the count.**
 `~/.claude/projects/` holds three `gia`-matching folders, because Claude Code keys transcripts on

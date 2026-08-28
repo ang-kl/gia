@@ -156,6 +156,23 @@ When new PRs land:
 1. **Append PR metadata** to `data/prs.ndjson` — one line per new PR:
    `{"n":380,"title":"…","state":"closed","merged":"2026-…Z","body":"<first ~360 chars of the PR description, single line>"}`
    (the existing lines were produced from the GitHub PR-list API; any equivalent dump works).
+
+   **Redact before you write the file — this step is not optional and it is not a one-off.**
+   PR bodies are prose written during live sessions, and they quote things: an env-var
+   *value* pasted into chat, a Railway log line carrying the operator's `chat <id>`. The
+   repo is public, so those bodies are already public on GitHub — but this snapshot is
+   *also* served from `soleat.net/doc/vibe-journal.html`, and copying a value into the repo
+   is a separate act from GitHub having it. Two were found and removed on 2026-08-28:
+   the `ASIA6languages.*` i18n token in #1722's body, and the operator's Telegram chat id
+   in #265 and #1021 (both pre-existing rows, public in this dataset since those PRs were
+   logged). They are stored as `«OPERATOR-SECRET-REDACTED»` / `«OPERATOR-CHAT-ID-REDACTED»`.
+
+   A **wholesale re-dump from the GitHub API will reintroduce both**, because GitHub still
+   holds the original bodies — redaction here is the only thing standing between them and
+   the hosted page. Sweep every new or re-fetched row for credential shapes and personal
+   identifiers before writing, the same unconditional posture `extract-session-replies.mjs`
+   already takes for transcripts, and for the same reason: *"I checked and it was clean"*
+   is not a safeguard a future run can inherit.
 2. **Append the squash-commit file list** to `data/pr-files.tsv`:
    `380<TAB>fileA,fileB,…` — get it from
    `git log origin/main --name-only --pretty='@@@%s'` (find the commit whose subject ends `(#380)`; its file lines are the value).
@@ -179,6 +196,20 @@ for `data/pr-files.tsv`.
   `(pre-squash convention — not tracked)` (with a title-derived guess) in column 9.
 - **Coarse buckets.** Categories and feature areas are keyword heuristics; a PR
   spanning several areas is filed under the first matching rule.
+- **Redacted values.** Three rows carry `«OPERATOR-SECRET-REDACTED»` / `«OPERATOR-CHAT-ID-REDACTED»`
+  in place of a credential or a personal identifier that appeared in the original PR body
+  (#1722, #265, #1021). The bodies on GitHub are unchanged; only this snapshot is redacted.
+- **`#1–#N` is a range, not a count.** The banners print the highest PR *number*, not the row
+  count — the numbering has gaps (numbers consumed by issues, PRs never opened). Until
+  2026-08-28 both banners printed the count on both sides, which read as a claim about the
+  range and was wrong by 27 at that day's catch-up (1,743 rows, highest #1771).
+- **Feature areas are matched against the body, first rule wins, and it mis-files.** Measured
+  on the 2026-08-28 catch-up: of the 8 new rows filed under `Hawker NEA`, **7 are not about
+  hawker centres** — a transport i18n PR matched on the string `mrt.nearestHawker` in its
+  body, two docs PRs on a passing mention. `'hawker'` is a bare substring at rule 6, above
+  both `Transport / carpark` and `Language / i18n`. Not retuned: the rules apply to all 1,743
+  rows, so a change would silently rewrite the historical churn-by-area insights. Register
+  **O-324**.
 - **Snapshot, not live.** `data/` is a point-in-time export; the ledger is only as
   fresh as the last refresh (see `GEN_DATE` in `generate.mjs` and the banner at the
   top of `vibe-coding-record.md`).
