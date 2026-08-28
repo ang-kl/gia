@@ -98,9 +98,70 @@ const FEATURE_RULES = [
   ['Pipeline / discovery', ['pipeline', 'discover', 'google places', 'places api', 'validation', 'footfall', 'enrichment', 'narrate step', 'request-store', 'response-cache', 'consultant layer']],
   ['Commands / chat UX', ['/ver', '/ftlog', '/start', '/status', 'onboarding', 'help text', 'command list', 'setmycommands', 'inline keyboard', 'callback query', 'keyboard']],
 ];
-function featureAreaOf(title, body) {
-  const txt = (stripVersionPrefix(title) + ' || ' + title + ' || ' + body).toLowerCase();
-  for (const [label, keys] of FEATURE_RULES) if (has(txt, ...keys)) return label;
+// FILE_RULES — the signal the row already carried and nothing was reading (O-324).
+// Only paths that name a surface unambiguously; anything shared or ambiguous abstains and
+// lets the next stage decide. Deliberately NOT a mirror of TMA_DIRS below: that answers
+// "which app was touched", this answers "what is this change about", and doc/ or vault/
+// paths are meaningful here in a way they are not there.
+const FILE_RULES = [
+  ['Oversight / usage stats', [/^web\/oversight\//]],
+  // The dish-content corpora live at the repo root and render in the picker. They were
+  // briefly routed to Language / i18n — the translation programme works ON them — and that
+  // measured WORSE (62 % → 66 % on the labelled sample when moved here), because a change to
+  // the dish data is a change to what the picker shows. Genuine i18n work on them lands in
+  // their `-i18n.generated.js` siblings, which still match /i18n/ below.
+  ['Cuisine Picker',          [/^web\/cuisine\//, /^classics-notes/, /^city-plates/, /^nation-overlay/, /^dish-aliases/]],
+  ['Hawker NEA',              [/^web\/hawker\//, /^nea-/]],
+  ['Transport / carpark',     [/^web\/transport\//, /^mrt-/, /^lta-/, /^carpark/, /station-info/, /^data\/train/]],
+  ['Menu hub',                [/^web\/menu\//]],
+  ['Buddy / sharing',         [/^web\/clipboard\//, /^clip-store/]],
+  ['Language / i18n',         [/i18n/]],
+  ['Weather',                 [/^weather/]],
+  ['Maps / geo / location',   [/^onemap/, /^geo/, /^maps-/, /^data\/geo-/]],
+  ['Privacy / legal',         [/^doc\/Legal\//, /^privacy/]],
+  ['Docs / vault',            [/^doc\//, /^docs\//, /^vault\//, /^public\/doc\//]],
+  ['Infra / setup',           [/^\.github\//, /^railway/, /^\.claude\//]],
+];
+function areaFromFiles(files) {
+  if (!files || !files.length) return null;
+  const score = new Map();
+  for (const f of files) {
+    for (const [label, pats] of FILE_RULES) if (pats.some((p) => p.test(f))) { score.set(label, (score.get(label) || 0) + 1); break; }
+  }
+  if (!score.size) return null;
+  // doc/.serial-state.yml and doc/Journal ride along on nearly every PR in this repo, so
+  // Docs / vault and Infra / setup only win when they are the ONLY thing that scored —
+  // otherwise every feature PR would file itself as documentation.
+  const specific = [...score].filter(([l]) => l !== 'Docs / vault' && l !== 'Infra / setup');
+  return (specific.length ? specific : [...score]).sort((a, b) => b[1] - a[1])[0][0];
+}
+
+// O-324. This used to pour title and body into one bag and take the first rule that hit
+// anywhere. Bodies in this repo are long narrative documents that mention every surface in
+// passing, so a bare substring like 'hawker' at rule 6 captured whatever it touched: of the
+// 8 rows the 2026-08-28 catch-up filed under Hawker NEA, 7 were not about hawker centres —
+// including a transport i18n PR that matched on `mrt.nearestHawker` appearing in its prose.
+//
+// Three stages, strongest evidence first:
+//   1. the TITLE — the PR's own statement of what it is;
+//   2. the FILES — what it actually changed, which cannot be mentioned in passing;
+//   3. the BODY — the old behaviour, kept as the last resort rather than removed, because
+//      338 rows have no file list at all (pre-squash PRs, and a handful since).
+//
+// Measured on a seeded 50-PR sample labelled from title + file list BEFORE any strategy was
+// run against it: 38 % → 66 % overall, 38 % → 71 % on the 42 rows whose area was not
+// genuinely arguable. Two rejected alternatives, both measured on the same sample:
+// title-then-body 46 %, and scoring areas by body keyword FREQUENCY 48 % — the latter also
+// moved 433 rows and stripped 219 off Cuisine Picker, i.e. it failed differently rather than
+// less. Most of the residual 17 misses are one taxonomy question the rules cannot settle:
+// whether a map fix inside the Cuisine TMA is `Maps / geo / location` or `Cuisine Picker`.
+function featureAreaOf(title, body, files) {
+  const t = (stripVersionPrefix(title) + ' || ' + title).toLowerCase();
+  for (const [label, keys] of FEATURE_RULES) if (has(t, ...keys)) return label;
+  const fromFiles = areaFromFiles(files);
+  if (fromFiles) return fromFiles;
+  const b = String(body).toLowerCase();
+  for (const [label, keys] of FEATURE_RULES) if (has(b, ...keys)) return label;
   return 'Core / misc';
 }
 
@@ -241,8 +302,15 @@ const replyStats = {
   redactions: sessionReplies.reduce((a, r) => a + (r.redactions || 0), 0)
 };
 
+// `n` is coerced because 116 rows (#1552-#1665) carried it as a STRING — a quirk of
+// whichever dump produced them, invisible until a lookup keyed on a number missed them.
+// Nothing here broke (every internal use already wrapped it in Number()), but the published
+// vibe-journal.json shipped a mixed-type `pr` field to anyone reading it with jq or pandas.
+// Coerced at READ as well as normalised in the data, so a future dump that quotes the
+// number cannot reintroduce the mix.
 const prs = readFileSync(join(HERE, 'data', 'prs.ndjson'), 'utf8')
-  .split('\n').filter(Boolean).map((l) => JSON.parse(l)).sort((a, b) => a.n - b.n);
+  .split('\n').filter(Boolean).map((l) => { const p = JSON.parse(l); p.n = Number(p.n); return p; })
+  .sort((a, b) => a.n - b.n);
 
 const fileMap = new Map();
 for (const line of readFileSync(join(HERE, 'data', 'pr-files.tsv'), 'utf8').split('\n')) {
@@ -268,7 +336,7 @@ const records = prs.map((p) => {
   const status = p.merged ? 'merged' : (p.state === 'closed' ? 'closed (unmerged)' : p.state);
   const files = fileMap.get(Number(p.n)) || null;
   const category = categoryOf(title, bodyRaw);
-  const area = featureAreaOf(title, bodyRaw);
+  const area = featureAreaOf(title, bodyRaw, files);
   const impactStr = dataPrivacyLegalTestOf(files, title, bodyRaw);
   return {
     pr: p.n,

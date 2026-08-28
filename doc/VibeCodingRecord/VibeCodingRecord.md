@@ -110,7 +110,7 @@ Each PR is one row. Columns (in `records.tsv` order):
 | 3 | `Merged (UTC)` | Merge timestamp (UTC), or blank if never merged. | GitHub |
 | 4 | `Version` | Release version this PR cut, parsed from the title (`v0.60.142` → `0.60.142`); blank if the title carries no version. | title regex |
 | 5 | `Category` | One of the categories below — what *kind* of change it was. | heuristic on title + body |
-| 6 | `Feature & UX area` | Which user-facing surface / flow it primarily affected (see list below). | keyword map on title + body |
+| 6 | `Feature & UX area` | Which user-facing surface / flow it primarily affected (see list below). | **title → files → body**, in that order (O-324) — `FEATURE_RULES` keywords against the title first, then `FILE_RULES` paths against the file list, then the keywords against the body as a last resort |
 | 7 | `Triggering intent (paraphrased from PR title)` | A short imperative restatement of what was asked for. **The verbatim chat prompt is not retained in repo history** (`doc/Chat/` was never populated), so this is reconstructed from the PR title — treat it as a paraphrase, not a quote. | title |
 | 8 | `AI approach / solution (from PR description)` | The first line / first bullet of the PR description — the one-line "what was done". | PR body |
 | 9 | `Code / module / TMA impact` | Summary of files changed on the squash commit, bucketed: `index.js`, root modules by name, `TMA:<cuisine\|menu\|hawker\|transport\|oversight>`, `tests`, `doc`, `vault`, `ci`, `data`, `package`, `config`, other top-level dirs. `"(pre-squash convention — not tracked)"` for PRs before the squash-with-PR-number practice; for those, a best-effort guess from the title is shown and labelled `(inferred — pre-squash)`. | `pr-files.tsv` |
@@ -145,7 +145,18 @@ The `records.tsv` keeps the raw `Title` so a human can reclassify if needed.
 `Maps / geo / location` · `Docs / vault` · `Infra / setup` · `Pipeline / discovery` ·
 `Commands / chat UX` · `Core / misc` (fallback).
 
-First match wins (the rule order in `generate.mjs` `FEATURE_RULES` is the priority).
+First match wins within each stage, and the stages run title → files → body (**O-324**).
+`FEATURE_RULES` (keywords) drives the title and body stages; `FILE_RULES` (path patterns)
+drives the file stage. Two things about `FILE_RULES` are deliberate and easy to undo by
+accident:
+
+- **`Docs / vault` and `Infra / setup` only win when nothing else scored.** `doc/.serial-state.yml`
+  and a `doc/Journal/` entry ride along on nearly every PR in this repo, so without that rule
+  every feature PR would file itself as documentation.
+- **The dish corpora (`classics-notes`, `city-plates`, `nation-overlay`, `dish-aliases`) count
+  as `Cuisine Picker`, not `Language / i18n`.** The translation programme works *on* them, which
+  makes the other reading tempting; it measured worse (66 % → 62 % on the labelled sample).
+  Genuine i18n work lands in their `-i18n.generated.js` siblings, which still match `/i18n/`.
 
 ---
 
@@ -203,13 +214,32 @@ for `data/pr-files.tsv`.
   count — the numbering has gaps (numbers consumed by issues, PRs never opened). Until
   2026-08-28 both banners printed the count on both sides, which read as a claim about the
   range and was wrong by 27 at that day's catch-up (1,743 rows, highest #1771).
-- **Feature areas are matched against the body, first rule wins, and it mis-files.** Measured
-  on the 2026-08-28 catch-up: of the 8 new rows filed under `Hawker NEA`, **7 are not about
-  hawker centres** — a transport i18n PR matched on the string `mrt.nearestHawker` in its
-  body, two docs PRs on a passing mention. `'hawker'` is a bare substring at rule 6, above
-  both `Transport / carpark` and `Language / i18n`. Not retuned: the rules apply to all 1,743
-  rows, so a change would silently rewrite the historical churn-by-area insights. Register
-  **O-324**.
+- **Feature areas resolve TITLE → FILES → BODY** (changed 2026-08-28, Register **O-324**).
+  The column used to pour title and body into one string and take the first `FEATURE_RULES`
+  keyword that hit anywhere in it. Bodies here are long narrative documents that mention every
+  surface in passing, so a bare substring like `'hawker'` at rule 6 captured whatever it
+  touched: of the 8 rows the 2026-08-28 catch-up filed under `Hawker NEA`, **6 were not about
+  hawker centres**, including a transport i18n PR that matched on `mrt.nearestHawker` in its
+  prose. Resolution now takes the PR's **title** (its own statement of intent) first, then its
+  **file list** (`FILE_RULES` — what it actually changed, which cannot be mentioned in
+  passing), and only then falls back to the body, which is still needed because 338 rows have
+  no file list at all.
+
+  **Measured, on a seeded 50-PR sample labelled from title + file list *before* any strategy
+  was run against it: 38 % → 66 % overall, and 38 % → 71 % on the 42 rows whose area was not
+  genuinely arguable.** Two alternatives were rejected on the same sample: title-then-body
+  (46 %) and scoring areas by body keyword *frequency* (48 %, and it stripped 219 rows off
+  `Cuisine Picker` — it failed differently, not less).
+
+  **It moved 799 rows, 45.8 % of the ledger**, so the *churn by feature area* and *fix-density*
+  insights are not comparable with any earlier snapshot. That is the point of the change and
+  the cost of it, stated here rather than left to be discovered.
+
+- **The residual error is one taxonomy question, not a bug.** 10 of the 17 remaining sample
+  misses are the same disagreement: is a map fix inside the Cuisine TMA `Maps / geo / location`
+  or `Cuisine Picker`? The rules cannot settle that; the taxonomy has to. `records.tsv` keeps
+  the raw `Title` so a human can reclassify.
+
 - **Snapshot, not live.** `data/` is a point-in-time export; the ledger is only as
   fresh as the last refresh (see `GEN_DATE` in `generate.mjs` and the banner at the
   top of `vibe-coding-record.md`).
