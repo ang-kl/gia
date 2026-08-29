@@ -361,9 +361,51 @@ function minutesUntilClose(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN
   return null;
 }
 
+// ── v0.62.827 — every locale at once, for the client to pick from ─────────
+//
+// TIER 1 of the on-the-fly re-localisation plan. The Mini App's language toggle
+// is React state: `useLocale()` re-renders the whole tree, so every `t(key, lang)`
+// string switches the instant it is tapped. What did NOT switch was anything the
+// server had already rendered into a string — and the hours line is the one such
+// field that is pure computation over data we already hold.
+//
+// WHAT WAS TRIED FIRST AND FAILED, recorded so nobody repeats it. The plan put to
+// the operator was to ship the INPUTS (`periods` + `utcOffsetMinutes`, which the
+// server currently deletes) and import this module into the TMA from
+// `web/_shared/lib/`. Measured: Rollup refuses it —
+//   "ohLang" is not exported by "../../open-hours.js"
+// because the root package is CommonJS and `web/cuisine` is `"type": "module"`.
+// Making this file ESM would move the break to the four CJS server call sites and
+// its own test; keeping two implementations is the drift O-335 was about.
+//
+// So the labels are rendered here, once per locale, and the client picks. It costs
+// 374 bytes a venue, measured on a real label set — LESS than the 561 bytes the
+// periods would have cost. It needs no module sharing and duplicates no logic, and
+// the locales come from OH_LANGS, so this cannot be a fifth hand-copied list.
+//
+// WHAT THIS DOES NOT FIX, stated rather than implied: the labels are still computed
+// at SEARCH time, so they age as the evening passes exactly as today's single label
+// does. Client-side formatting would have fixed that too; the bundler decided.
+function _byLang(fn, periods, now, offsetMin) {
+  const out = {};
+  for (const l of OH_LANGS) {
+    const s = fn(periods, now, offsetMin, l);
+    if (s) out[l] = s;
+  }
+  return out;
+}
+function closedTodayByLang(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN) {
+  return _byLang(closedTodayString, periods, now, offsetMin);
+}
+function currentOpenByLang(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN) {
+  return _byLang(currentOpenString, periods, now, offsetMin);
+}
+
 module.exports = {
   OH_LANGS,
   ohLang,
+  closedTodayByLang,
+  currentOpenByLang,
   nextOpenString,
   closedTodayString,
   currentOpenString,

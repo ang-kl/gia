@@ -95,7 +95,7 @@ async function enrichFast(top, ctx) {
   // v0.57.20 / v0.61.246 — open-hours labels; v0.60.140 — restaurantType.
   // (The review-dependent finalise — recentReview fallback, "ago", deletes —
   // runs at the END of enrichSlow; see the module header.)
-  const { closedTodayString, currentOpenString, minutesUntilClose, reopenTodayInfo } = require('./open-hours');
+  const { closedTodayString, currentOpenString, minutesUntilClose, reopenTodayInfo, closedTodayByLang, currentOpenByLang } = require('./open-hours');
   // v0.62.305 — localise the open-hours label to the user's locale (id/fr/en).
   const ohLang = ctx.csLang || 'en';
   for (const v of top) {
@@ -109,12 +109,19 @@ async function enrichFast(top, ctx) {
       ? v.currentPeriods
       : v.regularPeriods;
     const offset = Number.isFinite(v.utcOffsetMinutes) ? v.utcOffsetMinutes : undefined;
+    // v0.62.827 — Tier 1: every locale, so the Mini App's language toggle can
+    // re-render the hours line WITHOUT a re-search (which would return a different
+    // set of eateries — the operator's objection, and a correct one). The scalar
+    // label stays: the chat card and every non-TMA consumer still read it.
+    const now = new Date();
     if (v.openNow === false) {
+      v.closedTodayByLang = closedTodayByLang(periods, now, offset);
       v.closedTodayLabel = closedTodayString(periods, new Date(), offset, ohLang);
       // v0.62.467 — closed-now-but-reopens-today: minutes-until-open + open~close range.
       const ri = reopenTodayInfo(periods, new Date(), offset, ohLang);
       if (ri) { v.reopenMinutes = ri.minutesUntilOpen; v.reopenStart = ri.openStart; v.reopenEnd = ri.openEnd; }
     } else if (v.openNow === true) {
+      v.openClosingByLang = currentOpenByLang(periods, now, offset);
       v.openClosingLabel = currentOpenString(periods, new Date(), offset, ohLang);
       // v0.62.466 — operator: flag "Closing in ## minutes" on the result card
       // when a currently-open venue closes within the hour.
@@ -128,10 +135,15 @@ async function enrichFast(top, ctx) {
       // corner-tab + open-now filters gate on openNow === false, so leaving it
       // null keeps them untouched; this only fills the informational label).
       const openLbl = currentOpenString(periods, new Date(), offset, ohLang);
-      if (openLbl) v.openClosingLabel = openLbl;
-      else {
+      if (openLbl) {
+        v.openClosingLabel = openLbl;
+        v.openClosingByLang = currentOpenByLang(periods, now, offset);
+      } else {
         const closedLbl = closedTodayString(periods, new Date(), offset, ohLang);
-        if (closedLbl) v.closedTodayLabel = closedLbl;
+        if (closedLbl) {
+          v.closedTodayLabel = closedLbl;
+          v.closedTodayByLang = closedTodayByLang(periods, now, offset);
+        }
       }
     }
     if (!v.restaurantType) {

@@ -64,15 +64,23 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
   // bare "Open now" string — the operator wants to see the closing
   // time AND the next reopen at a glance, especially for lunch/
   // dinner-split restaurants.
+  // v0.62.827 — Tier 1 of the on-the-fly re-localisation plan. The server now ships
+  // the hours line in ALL EIGHT locales (`*ByLang`), so tapping the language toggle
+  // re-renders it immediately — no re-search, which would return a different set of
+  // eateries. The scalar labels remain as the fallback, so a card served by an older
+  // deploy, a cached payload, or any path that has not been taught the map still
+  // renders exactly as before. Nothing here changes when the maps are absent.
+  const ohOpen = (venue.openClosingByLang && venue.openClosingByLang[lang]) || venue.openClosingLabel;
+  const ohClosed = (venue.closedTodayByLang && venue.closedTodayByLang[lang]) || venue.closedTodayLabel;
   let open = venue.openNow === true
-    ? (venue.openClosingLabel || tr('card.open', lang))
+    ? (ohOpen || tr('card.open', lang))
     : venue.openNow === false
-      ? (venue.closedTodayLabel || tr('card.closed', lang))
+      ? (ohClosed || tr('card.closed', lang))
       // v0.62.x — openNow UNKNOWN (Google omitted currentOpeningHours.openNow):
       // the 🕛 row rendered blank. Show the schedule-derived label the server now
       // attaches; still no bare "Open"/"Closed" word when there's genuinely no
       // data, and no status corner-tab (that gates on openNow === false).
-      : (venue.openClosingLabel || venue.closedTodayLabel || '');
+      : (ohOpen || ohClosed || '');
   // v0.62.472 — the top status strip already states "Closed", so drop the
   // redundant leading "Closed now · " prefix from the clock-row label, keeping
   // just the reopen info ("Opens today 11:30 AM"). Locale-safe: split on the
