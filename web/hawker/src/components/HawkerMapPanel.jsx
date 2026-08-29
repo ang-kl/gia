@@ -27,6 +27,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { openLink } from '../tg.js';
 import { t, tn, useLocale } from '../i18n.js';
+import { hawkerNameLocal } from '../../../_shared/lib/hawker-names-i18n.js';
 import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
 import { activeClosure, CLOSURE_PIN_COLOR } from '../closure.js';
 import { createRingLayer } from '../../../_shared/lib/distance-rings.js';
@@ -451,6 +452,10 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
     // secondary text uses the theme palette so nothing washes out.
     const p = infoPalette();
     let h = `<div style="font-weight:600;font-size:13px;">${escapeHtml(c.displayName || c.name)}${c.isNew ? ' 🆕' : ''}</div>`;
+    // v0.62.829 — O-344, same second-line shape as the card. escapeHtml because this is
+    // an innerHTML info window and the string is authored data, not a literal.
+    const hLocal = hawkerNameLocal(c.displayName || c.name, lang);
+    if (hLocal) h += `<div style="font-size:12px;opacity:.7;">(${escapeHtml(hLocal)})</div>`;
     if (c.status) {
       h += `<div style="color:${p.sub};margin-top:2px;">🕒 ${escapeHtml(c.status)}</div>`;
     } else if (Number.isFinite(c.stalls) && c.stalls > 0) {

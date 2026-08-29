@@ -4,6 +4,7 @@ import { m, useReducedMotion } from 'motion/react';
 import { openLink, initData, tg } from './tg.js';
 import { withViewTransition } from './lib/view-transition.js';
 import { t, tn, useLocale } from './i18n.js';
+import { hawkerNameLocal } from '../../_shared/lib/hawker-names-i18n.js';
 import HawkerMapPanel from './components/HawkerMapPanel.jsx';
 import BottomSheet from '../../_shared/components/BottomSheet.jsx';
 import { codeHex } from './lib/mapOverlays.js';
@@ -604,6 +605,13 @@ export default function App() {
             label (11px compact phone / 12px everywhere else). */}
         <div className={`font-semibold ${vp.isCompact ? 'text-type-meta' : 'text-type-body'} leading-tight text-tg-text`}>
           <span className="text-tg-hint font-semibold tabular-nums">{i + 1} · </span>{c.name}{c.isNew ? ' 🆕' : ''}
+          {/* v0.62.829 — O-344: the curated name in the reader's language, on its own line
+              under the English, never in place of it. `c.name` stays the card key
+              (data-centre-card, activePill) and `displayName` stays the Maps query, so a
+              wrong string here costs a hint and not the ability to find the place. */}
+          {hawkerNameLocal(c.displayName || c.name, lang) && (
+            <div className="text-[11px] text-tg-hint leading-tight">({hawkerNameLocal(c.displayName || c.name, lang)})</div>
+          )}
         </div>
         {c.address && <div className="text-[11px] text-tg-hint leading-snug">📇 {c.address}</div>}
         {!isShort && (Number.isFinite(c.stalls) || c.status) && (
