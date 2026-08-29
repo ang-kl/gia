@@ -10402,8 +10402,15 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // cuisine-enrich open-hours block (cuisine-enrich.js ~100) — then drop the
   // transient period fields from the payload (as enrichSlow does).
   {
-    const { closedTodayString, currentOpenString, minutesUntilClose } = require('./open-hours');
-    const ohLang = csLang === 'fr' ? 'fr' : 'en';
+    const { closedTodayString, currentOpenString, minutesUntilClose, ohLang: ohLangFor } = require('./open-hours');
+    // v0.62.825 — was `csLang === 'fr' ? 'fr' : 'en'`, which spoke two of the
+    // eight locales open-hours.js has written. The Japanese was not missing: a
+    // reader on the Michelin path got "Closed today · Opens Sun 11:30 AM" while
+    // the module could already return 本日休業 · 日 11:30 開店. cuisine-enrich.js
+    // — the OTHER search path — passed `ctx.csLang` straight through and was
+    // right all along, which is O-305's shape exactly: one datum, two call
+    // sites, and only one of them forgot. Now asked for, never re-listed.
+    const ohLang = ohLangFor(csLang);
     for (const v of venues) {
       // v0.62.486 — [] is truthy, so `current || regular` wrongly kept an EMPTY
       // currentOpeningHours.periods and starved the helpers (bare "Open"/"Closed").
@@ -14864,10 +14871,18 @@ async function cacheBotUsername() {
         // v0.62.315 — accept the full UI locale set so a TMA language pick
         // PERSISTS server-side and syncs across TMAs + chat (was en/fr only,
         // which silently dropped id/ru/de and let hydration revert the choice).
-        if (!['en', 'fr', 'id', 'ru', 'de'].includes(reqLang)) {
+        // v0.62.825 — and it was still three short. This gate sat in FRONT of
+        // setUserLang, which validates against user-prefs' SUPPORTED (all eight)
+        // — a guard in front of a guard, where only the outer one had gone
+        // stale. A reader picking Japanese in the Mini App got 400 "unsupported
+        // lang", the choice never persisted, and hydration reverted it, so every
+        // SERVER-rendered string stayed English while the client chrome was
+        // Japanese. That is the mismatch in the operator's screenshot. Ask the
+        // module that owns the list.
+        const { setUserLang, SUPPORTED: PREF_LANGS } = require('./user-prefs');
+        if (!PREF_LANGS.includes(reqLang)) {
           return res.status(400).json({ error: 'unsupported lang' });
         }
-        const { setUserLang } = require('./user-prefs');
         const saved = await setUserLang(redis, String(userId), reqLang);
         if (!saved) return res.status(500).json({ error: 'redis write failed' });
         res.json({ lang: saved });
@@ -15530,7 +15545,14 @@ async function cacheBotUsername() {
         // (open-hours label) render in Indonesian. csLang threads on to many
         // `csLang === 'fr' ? fr : en` sites where 'id' degrades safely to en;
         // chat-side gates (deliverPicks) stay en/fr until the chat id pass.
-        const csBodyLang = (typeof langIn === 'string' && ['en','fr','id','ru','de'].includes(langIn)) ? langIn : null;
+        // v0.62.825 — was a hand-copied ['en','fr','id','ru','de'], three short of
+        // user-prefs' own SUPPORTED. A reader who toggled the Mini App to ja, zh
+        // or es had their choice dropped here and fell back to the CHAT language
+        // pref, so the in-app toggle silently did nothing for three of eight
+        // locales. Read the list from the module that owns it; a second copy of a
+        // list is a copy that drifts, and this one had.
+        const { SUPPORTED: CS_LANGS } = require('./user-prefs');
+        const csBodyLang = (typeof langIn === 'string' && CS_LANGS.includes(langIn)) ? langIn : null;
         const csLang = csBodyLang || (csChatId ? await resolveLangSearch(redis, csChatId, null) : 'en');
         // v0.60.161 — verbose-log instrumentation. Capture request start
         // time + incoming payload shape. The vlogIf gate is in-process-
@@ -18299,7 +18321,11 @@ async function cacheBotUsername() {
         const { resolveLang: resolveLangNL } = require('./user-prefs');
         // v0.62.305 — accept 'id' so the Tell-me path's open-hours label renders
         // in Indonesian (mirrors the cuisine-search csBodyLang gate).
-        const nlBodyLang = (typeof nlLangIn === 'string' && ['en','fr','id','ru','de'].includes(nlLangIn)) ? nlLangIn : null;
+        // v0.62.825 — the same hand-copied five as the cuisine route had; the
+        // free-text path's open-hours labels already pass `nlLang` straight
+        // through, so this list was the only thing keeping them English.
+        const { SUPPORTED: NL_LANGS } = require('./user-prefs');
+        const nlBodyLang = (typeof nlLangIn === 'string' && NL_LANGS.includes(nlLangIn)) ? nlLangIn : null;
         const nlLang = nlBodyLang || await resolveLangNL(redis, chatId, null);
         // v0.62.94 — operator ("dai lok mee kl … results so narrowed vs Google
         // Maps"): the NL path under-fetched. Two fixes here + a wider slice

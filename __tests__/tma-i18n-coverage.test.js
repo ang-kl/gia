@@ -165,8 +165,12 @@ describe('TMA i18n coverage (O-327)', () => {
     expect(holes).toEqual([]);
   });
 
+  // v0.62.825 — cuisine 232 -> 233: `header.appTitle` added, because the <h1> was
+  // the bare literal `Cuisine` and this table had no key for the app's own name.
+  // The number moves WITH its reason, per the corpus-floor convention — a count
+  // that drifts up silently stops being a gate against deletion.
   it('the counts are asserted, so a silent deletion shows up as a failure', () => {
     expect(Object.fromEntries(Object.keys(APPS).map((a) => [a, parsed[a].baseKeys.length])))
-      .toEqual({ clipboard: 243, cuisine: 232, hawker: 75, menu: 71, transport: 120 });
+      .toEqual({ clipboard: 243, cuisine: 233, hawker: 75, menu: 71, transport: 120 });
   });
 });

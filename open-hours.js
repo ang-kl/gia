@@ -134,6 +134,18 @@ const OH_PHRASES = {
 };
 function phrases(lang) { return OH_PHRASES[lang] || OH_PHRASES.en; }
 
+// v0.62.825 — the locales these helpers can actually speak, DERIVED from the
+// phrase table rather than hand-listed. Every caller that used to write its own
+// `lang === 'fr' ? 'fr' : 'en'` was a second copy of this list, and every copy
+// drifted: index.js's Michelin path spoke two of the eight while this table held
+// all eight, so a Japanese reader got "Closed today · Opens Sun 11:30 AM" from a
+// module that had 本日休業 written in it. Callers now ask; nobody re-lists.
+const OH_LANGS = Object.keys(OH_PHRASES);
+function ohLang(lang) {
+  const two = String(lang || '').slice(0, 2).toLowerCase();
+  return OH_LANGS.includes(two) ? two : 'en';
+}
+
 // v0.62.305 — internal: returns { delta, time, day, text } so callers can
 // branch on `delta` (e.g. "Closed now" vs "Closed today") WITHOUT re-parsing
 // a now-localised string. `nextOpenString` wraps this for back-compat.
@@ -350,6 +362,8 @@ function minutesUntilClose(periods, now = new Date(), offsetMin = SGT_OFFSET_MIN
 }
 
 module.exports = {
+  OH_LANGS,
+  ohLang,
   nextOpenString,
   closedTodayString,
   currentOpenString,

@@ -25,6 +25,13 @@ const LOCALE_EVENT = 'gia:locale';
 
 const STRINGS = {
   // ----- TMA chrome -----
+  // v0.62.825 — the <h1> was the literal string `Cuisine`, with no key at all:
+  // 970 keys in this table and the app's own name was not one of them. Every
+  // rendering below is LIFTED from the 'Cuisine & filters' empty-state already
+  // in App.jsx (id 'Masakan & filter', ru 'Кухня и фильтры', de 'Küche & Filter',
+  // zh '菜系与筛选', ja '料理とフィルター', es 'Cocina y filtros') rather than
+  // translated fresh — the word was already decided per locale, just not reused.
+  'header.appTitle':           { en: 'Cuisine', fr: 'Cuisine' },
   'header.tagline':            { en: '💬 Tell me or 🔍 Search', fr: '💬 Dis-moi ou 🔍 Rechercher' },
   'region.singapore':          { en: 'Singapore', fr: 'Singapour' },
   'region.johor':              { en: 'Johor Bahru', fr: 'Johor Bahru' },
@@ -532,6 +539,7 @@ const STRINGS = {
 // inline `id:` (the locale.switch* keys) — the merge only fills gaps, so those
 // are left as-is.
 const ID_STRINGS = {
+  'header.appTitle': 'Masakan',
   'cat.sweetsFusion': 'Manis & Fusion',
   'cat.michelinBib': 'Michelin · Bib Gourmand',
   'michelin.filterHeader': 'Termasuk:',
@@ -773,6 +781,7 @@ for (const [k, v] of Object.entries(ID_STRINGS)) {
 
 // ----- Russian (ru) overlay — v0.62.313. Controls kept tight to fit EN; agent-verified. -----
 const RU_STRINGS = {
+  'header.appTitle': 'Кухня',
   'cat.sweetsFusion': 'Десерты и фьюжн',
   'cat.michelinBib': 'Мишлен · Биб Гурман',
   'michelin.filterHeader': 'Включить:',
@@ -1011,6 +1020,7 @@ const RU_STRINGS = {
 };
 // ----- German (de) overlay — v0.62.313. Compounds abbreviated where tight; agent-verified. -----
 const DE_STRINGS = {
+  'header.appTitle': 'Küche',
   'cat.sweetsFusion': 'Süßes & Fusion',
   'cat.michelinBib': 'Michelin · Bib Gourmand',
   'michelin.filterHeader': 'Einschließen:',
@@ -1249,6 +1259,7 @@ const DE_STRINGS = {
 // ----- Chinese (zh, Simplified) overlay — v0.62.x, Phase 3. Curated; controls
 // kept compact (Chinese is dense) so pills don't overflow. -----
 const ZH_STRINGS = {
+  'header.appTitle': '菜系',
   'cat.sweetsFusion': '甜点与融合菜',
   'cat.michelinBib': '米其林 · 必比登',
   'michelin.filterHeader': '包含：',
@@ -1488,6 +1499,7 @@ for (const [k, v] of Object.entries(DE_STRINGS)) { if (STRINGS[k] && STRINGS[k].
 for (const [k, v] of Object.entries(ZH_STRINGS)) { if (STRINGS[k] && STRINGS[k].zh == null) STRINGS[k].zh = v; }
 // ----- Japanese (ja) overlay — v0.62.x, Phase 3. -----
 const JA_STRINGS = {
+  'header.appTitle': '料理',
   'cat.sweetsFusion': 'スイーツ & フュージョン',
   'cat.michelinBib': 'ミシュラン · ビブグルマン',
   'michelin.filterHeader': '含める：',
@@ -1724,6 +1736,7 @@ const JA_STRINGS = {
 };
 // ----- Spanish (es) overlay — v0.62.x, Phase 3. -----
 const ES_STRINGS = {
+  'header.appTitle': 'Cocina',
   'cat.sweetsFusion': 'Dulces y Fusión',
   'cat.michelinBib': 'Michelin · Bib Gourmand',
   'michelin.filterHeader': 'Incluir:',
