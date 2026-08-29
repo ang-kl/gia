@@ -26,6 +26,36 @@ describe('translate-name — nameScriptLang', () => {
     expect(nameScriptLang('ทิปปลิง')).toBe('th'); // Thai
     expect(nameScriptLang('Tippling Club')).toBeNull(); // Latin → readable
   });
+
+  // v0.62.824. The kana class used to be the span ぀-ヿ, which contains U+30FB
+  // KATAKANA MIDDLE DOT — punctuation, not kana. A romanised name separated by it
+  // read as Japanese, and in a CN search that bought an LLM call and a 🔤 line for a
+  // name the reader could already read. The row is real: cn-can-suyab-courtyard…
+  it('a Latin name separated by ・ (U+30FB) is not Japanese', () => {
+    expect(nameScriptLang('Suyab Courtyard・Pickmoon Gourmet')).toBeNull();
+    expect(nameScriptLang('A・B')).toBeNull();
+  });
+
+  it('and the kana that matter still read as kana', () => {
+    expect(nameScriptLang('ヴィーガン')).toBe('ja');
+    expect(nameScriptLang('祇園 さゝ木')).toBe('ja');
+    expect(nameScriptLang('ラーメン・一蘭')).toBe('ja');    // ・ beside real kana
+  });
+
+  // The two marks are asserted BESIDE Han and nothing else, because beside kana they
+  // prove nothing: 'ヴィーガン' stays 'ja' on ヴ alone and '祇園 さゝ木' on さ alone, so
+  // dropping either mark from the class leaves both those cases passing. Han-only
+  // falls through to 'zh', which is what makes the mark load-bearing here.
+  it('the iteration and prolonged marks are inside the class, tested where it shows', () => {
+    expect(nameScriptLang('木ゝ')).toBe('ja');   // U+309D beside Han only
+    expect(nameScriptLang('一蘭ー')).toBe('ja');  // U+30FC beside Han only
+    expect(nameScriptLang('木・木')).toBe('zh'); // U+30FB beside Han only → Chinese
+  });
+
+  it('the middle dot does not disqualify a romanised reading either', () => {
+    // RE_CJK_THAI gates "a Latin target must be romanised". ・ is not a script.
+    expect(isValidReading('Suyab Courtyard・Pickmoon Gourmet', '岁集院子·拾月', 'en')).toBe(true);
+  });
 });
 
 describe('translate-name — isValidReading (target-aware)', () => {
