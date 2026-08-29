@@ -364,6 +364,29 @@ function venueToVenue(entry) {
     status: entry.status === 'closed' ? 'closed' : 'open',
     awards: Array.isArray(entry.awards) ? entry.awards.map((a) => ({ year: a.year, category: a.category })) : entry.awards,
   };
+  // v0.62.824 — THE NATIVE NAME THE COUNTRY TABLES ALREADY CARRY.
+  //
+  // JP/CN/KR store `nameJa`/`nameZh`/`nameKo` (+ the address twin) verbatim from the
+  // operator's curated source — 1,202 rows of them. This function rebuilds every venue
+  // from a whitelist, and for three versions those fields were simply not on it: read
+  // from disk and dropped in the same breath. `JP-michelin.js`'s own header said
+  // "stored now; surfaced on the card in a later follow-up"; this is that follow-up.
+  //
+  // NORMALISED TO ONE FIELD, not passed through under three names, because every
+  // renderer downstream already reads `nameLocal` — the chat card's `(nameLocal)` line
+  // (venue-templates.js) and ResultCard's `({venue.nameLocal})` row both shipped in
+  // v0.61.359 and have been waiting on a value ever since. Which language it is stays
+  // derivable from `country` via LOCAL_LANG_BY_CC.
+  //
+  // NOTHING IS TRANSLATED HERE. These are copies of a curated register, moved one field
+  // to the left. And `name` is untouched on purpose: it is the Google Maps query, the
+  // `detailsId` DOM selector and the clipboard/share payload, so a localised string in
+  // that slot would break a key rather than a label — the failure the station work
+  // (O-329) came within one field of shipping.
+  const nativeName = entry.nameJa || entry.nameZh || entry.nameKo;
+  const nativeAddr = entry.addressJa || entry.addressZh || entry.addressKo;
+  if (nativeName) v.nameLocal = nativeName;
+  if (nativeAddr) v.addressLocal = nativeAddr;
   if (entry.postal !== undefined) v.postal = entry.postal;
   if (entry.formerNames !== undefined) v.formerNames = entry.formerNames;
   // Copied, not referenced — the country tables are module-level literals and

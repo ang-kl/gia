@@ -36,9 +36,18 @@ const MAX_INPUT_CHARS = 200;
 
 const RE_HANGUL = /[가-힯]/;   // Korean
 const RE_THAI   = /[฀-๿]/;   // Thai
-const RE_KANA   = /[぀-ヿ]/;   // Japanese kana → Japanese
+// v0.62.824 — the kana range is written out rather than spanned ぀-ヿ, because that
+// span contains U+30FB KATAKANA MIDDLE DOT (・), which is punctuation, not kana. A
+// Latin restaurant name that uses it as a separator was therefore read as Japanese:
+// "Suyab Courtyard・Pickmoon Gourmet" is a romanised Guangzhou name, and
+// nameScriptLang returned 'ja' for it. In a CN search that is 'ja' !== 'zh', so it
+// went to the LLM for a reading of a name the reader can already read — a paid call
+// and a 🔤 line, both wrong. Measured at 1 row in the static corpus; the live Places
+// path is not bounded by that, and ・ is common in JP/TW/HK listings.
+// U+309D/U+309E (ゝゞ, iteration marks) are kept — 祇園 さゝ木 needs them.
+const RE_KANA   = /[\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF]/;   // Japanese kana → Japanese
 const RE_HAN    = /[一-鿿]/;   // CJK ideographs
-const RE_CJK_THAI = /[぀-ヿ一-鿿가-힯฀-๿]/;
+const RE_CJK_THAI = /[\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF一-鿿가-힯฀-๿]/;
 
 // Coarse "what language is this name's script?" — decides whether a name is
 // foreign relative to where the venue is. Kana → Japanese; Hangul → Korean;
