@@ -19,6 +19,12 @@
 // /language pick localises every Mini-App surface. NB: the bot's own chat
 // replies still resolve to en/fr (i18n.js carries en/fr strings only) — the
 // extra locales drive the TMA UI, not the chat text.
+// v0.62.825 — THE TWO LINES ABOVE ARE NO LONGER TRUE and are kept rather than
+// rewritten, because they are why three copies of this list were written short.
+// i18n.js expanded SUPPORTED to all eight at v0.62.511 and now carries ~258 keys
+// in each of en/fr/id/ru/de/zh/ja/es — measured, not assumed. Chat text is not
+// en/fr-only any more, so nothing downstream needs to clip this list; callers
+// import SUPPORTED instead of re-listing it.
 const SUPPORTED = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
 const TTL_SECONDS = 365 * 24 * 60 * 60;
 

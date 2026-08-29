@@ -10402,8 +10402,15 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // cuisine-enrich open-hours block (cuisine-enrich.js ~100) — then drop the
   // transient period fields from the payload (as enrichSlow does).
   {
-    const { closedTodayString, currentOpenString, minutesUntilClose } = require('./open-hours');
-    const ohLang = csLang === 'fr' ? 'fr' : 'en';
+    const { closedTodayString, currentOpenString, minutesUntilClose, ohLang: ohLangFor } = require('./open-hours');
+    // v0.62.825 — was `csLang === 'fr' ? 'fr' : 'en'`, which spoke two of the
+    // eight locales open-hours.js has written. The Japanese was not missing: a
+    // reader on the Michelin path got "Closed today · Opens Sun 11:30 AM" while
+    // the module could already return 本日休業 · 日 11:30 開店. cuisine-enrich.js
+    // — the OTHER search path — passed `ctx.csLang` straight through and was
+    // right all along, which is O-305's shape exactly: one datum, two call
+    // sites, and only one of them forgot. Now asked for, never re-listed.
+    const ohLang = ohLangFor(csLang);
     for (const v of venues) {
       // v0.62.486 — [] is truthy, so `current || regular` wrongly kept an EMPTY
       // currentOpeningHours.periods and starved the helpers (bare "Open"/"Closed").
@@ -10749,7 +10756,14 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     // Step 5 (moved into the deferred warm in v0.62.485): enrichment-cache
     // WRITE now runs post-narrate in the background, so the cache stores the
     // REAL narrated dishes/vibe (not the fast-path boilerplate) and warms the
-    // next tap. `sourceReview[i]` is the pre-translate English review snapshot
+    // next tap.
+    // v0.62.826 — THE THREE LINES ABOVE WERE TRUE ONLY WHEN THE NARRATE
+    // SUCCEEDED, and are kept rather than rewritten because the gap between what
+    // a comment claims and what the code does is the thing worth seeing. This
+    // write reads `v.dishes` at FIRE time, and the v0.60.153 force-fill mutated
+    // it BEFORE the fire; on a narrate miss the boilerplate was what got stored,
+    // for 7 days, and read back as real. O-338 removed the boilerplate at source,
+    // so the claim is now true by construction rather than by luck. `sourceReview[i]` is the pre-translate English review snapshot
     // taken in the fast path (below) — this preserves the v0.61.154 "cache the
     // source language, not the translated text" invariant even though the
     // translate-enrich step now runs before this write. 7-day TTL.
@@ -10771,22 +10785,54 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     }
   };
 
-  // v0.60.153 — Step 4: force-fill. Operator's "guarantee 2+ dishes
-  // and a review" — any venue still short gets a Michelin-tier-aware
-  // boilerplate so cards never ship empty. The TMA's ResultCard treats
-  // these as the same shape as live data.
+  // v0.60.153 — Step 4: force-fill. Operator's "guarantee 2+ dishes and a
+  // review" — any venue still short got a Michelin-tier-aware boilerplate so
+  // cards never ship empty. The TMA's ResultCard treats these as the same shape
+  // as live data.
+  //
+  // v0.62.826 — O-338: THE DISH HALF OF THAT IS REMOVED. Operator: "do o-338".
+  // The removed code, kept verbatim per AU-1 so this is reversible by anyone who
+  // disagrees:
+  //
+  //     const dishesArr = Array.isArray(v.dishes) ? v.dishes.filter(...) : [];
+  //     if (dishesArr.length < 2) {
+  //       const label = (v.michelinCuisineLabel || v.restaurantType || '').toLowerCase().trim();
+  //       if (label) {
+  //         if (!dishesArr.length) dishesArr.push(`${label} signature plate`);
+  //         dishesArr.push(`${label} chef's recommendation`);
+  //       }
+  //       while (dishesArr.length < 2) dishesArr.push("Chef's choice");
+  //       v.dishes = dishesArr.slice(0, 3);
+  //     }
+  //
+  // WHAT IT PRODUCED was `french signature plate` — a cuisine SLUG used as prose,
+  // naming a dish nobody recorded, on a card that presents it as what to order.
+  // Found on a Japanese card, where it read worse still: an English fabrication
+  // inside a localised sentence.
+  //
+  // THIS REVERSES PART OF AN OPERATOR INSTRUCTION AND SAYS SO. v0.60.153 asked
+  // that cards never ship empty. The trade is stated rather than hidden: some
+  // Michelin cards will now show NO "🍲 What to order" row. That is the correct
+  // empty state — ResultCard.jsx already returns null when there is no primary
+  // dish (`return primaryDish ? (...) : null`), and the chat card already emits
+  // '' for an empty list, so nothing renders broken and no empty brackets appear.
+  // An absent row says "we don't know"; the boilerplate said something false.
+  // The REVIEW half of v0.60.153 is untouched — "★★★ Michelin Guide 2025 ·
+  // curated recommendation" describes where the row came from, which is true.
+  //
+  // AND IT WAS NOT ONLY A RENDER PROBLEM. `needsNarrate` is computed ABOVE this
+  // block, so it correctly saw the real (short) dish list — but the force-fill
+  // then wrote boilerplate into `v.dishes`, and warmMichelinEnrich's cache WRITE
+  // reads `v.dishes` at FIRE time. On a narrate miss the fabricated names were
+  // persisted for 7 days and read back as real. `filterDishNames` does not stop
+  // them: measured, it accepts all four ("french signature plate",
+  // "french chef's recommendation", "Chef's choice", "japanese signature plate")
+  // as valid dish names. So the comment on that write — "the cache stores the
+  // REAL narrated dishes (not the fast-path boilerplate)" — was true only when
+  // the narrate succeeded. Removing the boilerplate at source removes that too:
+  // there is now nothing fabricated for the cache to keep.
   const TIER_LABEL = { 'three-star': '★★★ Michelin', 'two-star': '★★ Michelin', 'one-star': '★ Michelin', 'bib-gourmand': 'Bib Gourmand' };
   for (const v of filteredVenues) {
-    const dishesArr = Array.isArray(v.dishes) ? v.dishes.filter((d) => typeof d === 'string' && d.trim()) : [];
-    if (dishesArr.length < 2) {
-      const label = (v.michelinCuisineLabel || v.restaurantType || '').toLowerCase().trim();
-      if (label) {
-        if (!dishesArr.length) dishesArr.push(`${label} signature plate`);
-        dishesArr.push(`${label} chef's recommendation`);
-      }
-      while (dishesArr.length < 2) dishesArr.push("Chef's choice");
-      v.dishes = dishesArr.slice(0, 3);
-    }
     // v0.60.155 — also force-fill when v.recentReview is a non-string
     // (e.g. an object leaked from an upstream path); without the typeof
     // guard, an object value passes `!v.recentReview` (truthy) AND
@@ -14864,10 +14910,18 @@ async function cacheBotUsername() {
         // v0.62.315 — accept the full UI locale set so a TMA language pick
         // PERSISTS server-side and syncs across TMAs + chat (was en/fr only,
         // which silently dropped id/ru/de and let hydration revert the choice).
-        if (!['en', 'fr', 'id', 'ru', 'de'].includes(reqLang)) {
+        // v0.62.825 — and it was still three short. This gate sat in FRONT of
+        // setUserLang, which validates against user-prefs' SUPPORTED (all eight)
+        // — a guard in front of a guard, where only the outer one had gone
+        // stale. A reader picking Japanese in the Mini App got 400 "unsupported
+        // lang", the choice never persisted, and hydration reverted it, so every
+        // SERVER-rendered string stayed English while the client chrome was
+        // Japanese. That is the mismatch in the operator's screenshot. Ask the
+        // module that owns the list.
+        const { setUserLang, SUPPORTED: PREF_LANGS } = require('./user-prefs');
+        if (!PREF_LANGS.includes(reqLang)) {
           return res.status(400).json({ error: 'unsupported lang' });
         }
-        const { setUserLang } = require('./user-prefs');
         const saved = await setUserLang(redis, String(userId), reqLang);
         if (!saved) return res.status(500).json({ error: 'redis write failed' });
         res.json({ lang: saved });
@@ -15530,7 +15584,14 @@ async function cacheBotUsername() {
         // (open-hours label) render in Indonesian. csLang threads on to many
         // `csLang === 'fr' ? fr : en` sites where 'id' degrades safely to en;
         // chat-side gates (deliverPicks) stay en/fr until the chat id pass.
-        const csBodyLang = (typeof langIn === 'string' && ['en','fr','id','ru','de'].includes(langIn)) ? langIn : null;
+        // v0.62.825 — was a hand-copied ['en','fr','id','ru','de'], three short of
+        // user-prefs' own SUPPORTED. A reader who toggled the Mini App to ja, zh
+        // or es had their choice dropped here and fell back to the CHAT language
+        // pref, so the in-app toggle silently did nothing for three of eight
+        // locales. Read the list from the module that owns it; a second copy of a
+        // list is a copy that drifts, and this one had.
+        const { SUPPORTED: CS_LANGS } = require('./user-prefs');
+        const csBodyLang = (typeof langIn === 'string' && CS_LANGS.includes(langIn)) ? langIn : null;
         const csLang = csBodyLang || (csChatId ? await resolveLangSearch(redis, csChatId, null) : 'en');
         // v0.60.161 — verbose-log instrumentation. Capture request start
         // time + incoming payload shape. The vlogIf gate is in-process-
@@ -18299,7 +18360,11 @@ async function cacheBotUsername() {
         const { resolveLang: resolveLangNL } = require('./user-prefs');
         // v0.62.305 — accept 'id' so the Tell-me path's open-hours label renders
         // in Indonesian (mirrors the cuisine-search csBodyLang gate).
-        const nlBodyLang = (typeof nlLangIn === 'string' && ['en','fr','id','ru','de'].includes(nlLangIn)) ? nlLangIn : null;
+        // v0.62.825 — the same hand-copied five as the cuisine route had; the
+        // free-text path's open-hours labels already pass `nlLang` straight
+        // through, so this list was the only thing keeping them English.
+        const { SUPPORTED: NL_LANGS } = require('./user-prefs');
+        const nlBodyLang = (typeof nlLangIn === 'string' && NL_LANGS.includes(nlLangIn)) ? nlLangIn : null;
         const nlLang = nlBodyLang || await resolveLangNL(redis, chatId, null);
         // v0.62.94 — operator ("dai lok mee kl … results so narrowed vs Google
         // Maps"): the NL path under-fetched. Two fixes here + a wider slice

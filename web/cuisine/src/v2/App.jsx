@@ -4022,7 +4022,7 @@ export default function App() {
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <img src="soleat-icon.png" alt="soleat" width="24" height="24" className="rounded-full flex-shrink-0" />
-            <h1 className="text-base font-bold leading-tight truncate">Cuisine</h1>
+            <h1 className="text-base font-bold leading-tight truncate">{t('header.appTitle', lang)}</h1>
           </div>
           {/* v0.58.55: discreet EN/FR locale toggle, top-right per
               Human Lead. Slim flag-pair to the left of the count badge. */}
@@ -4427,7 +4427,17 @@ export default function App() {
         {!regionExpanded && (() => {
           const picked = state.cuisines || [];
           const names = picked.map((slug) => {
-            if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
+            // v0.62.825 — was `return michelinRemaining.label`, the SERVER's
+            // english edition label ("Michelin Japan"), which made this the one
+            // pill that skipped localisation while every other slug went through
+            // cuisineName() below. `cat.michelinBib` already carries ミシュラン ·
+            // ビブグルマン / 米其林 · 必比登 / Мишлен · Биб Гурман and is what
+            // CuisineDrawer prints for the SAME chip, so the two now agree.
+            // TRADE-OFF, STATED: the pill loses the country word the server put
+            // there ("Japan"). The flag and the location line above it both name
+            // the country already; localising `michelinEditionLabel` server-side
+            // would need 11 country names in 8 locales and is a separate call.
+            if (slug === 'michelin') return t('cat.michelinBib', lang);
             const en = cuisineNameBySlug.get(slug) || slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
             return cuisineName(slug, en, lang);   // v0.62.x — localise folio-tab cuisine names
           });
@@ -5788,8 +5798,17 @@ export default function App() {
                           onRemoveFilter={removeFilter}
                           onResetAll={clearAll}
                           nameForCuisine={(slug) => {
-                            if (slug === 'michelin' && michelinRemaining?.label) return michelinRemaining.label;
-                            return cuisineNameBySlug.get(slug) || null;
+                            // v0.62.825 — the criteria popup was the LAST place still
+                            // naming cuisines in English. It read the catalogue map raw
+                            // while the pill two components up passed the same value
+                            // through cuisineName(); NAMES carries all 69 catalogue
+                            // cuisines in fr/zh/ja/es, so a Japanese reader had 69
+                            // translations sitting unused one function call away.
+                            // (id/ru/de are absent from NAMES and still fall back to
+                            // English here — the same as everywhere else that calls it.)
+                            if (slug === 'michelin') return t('cat.michelinBib', lang);
+                            const en = cuisineNameBySlug.get(slug);
+                            return en ? cuisineName(slug, en, lang) : null;
                           }}
                         />
                       </div>
