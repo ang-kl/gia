@@ -10402,7 +10402,8 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // cuisine-enrich open-hours block (cuisine-enrich.js ~100) — then drop the
   // transient period fields from the payload (as enrichSlow does).
   {
-    const { closedTodayString, currentOpenString, minutesUntilClose, ohLang: ohLangFor } = require('./open-hours');
+    const { closedTodayString, currentOpenString, minutesUntilClose, ohLang: ohLangFor,
+      closedTodayByLang, currentOpenByLang } = require('./open-hours');
     // v0.62.825 — was `csLang === 'fr' ? 'fr' : 'en'`, which spoke two of the
     // eight locales open-hours.js has written. The Japanese was not missing: a
     // reader on the Michelin path got "Closed today · Opens Sun 11:30 AM" while
@@ -10418,9 +10419,15 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
         ? v.currentPeriods
         : v.regularPeriods;
       const offset = Number.isFinite(v.utcOffsetMinutes) ? v.utcOffsetMinutes : undefined;
+      // v0.62.827 — Tier 1: every locale, so the Mini App's language toggle can
+      // re-render the hours line WITHOUT a re-search. The scalar label stays for
+      // the chat card and every other consumer.
+      const nowTL = new Date();
       if (v.openNow === false) {
+        v.closedTodayByLang = closedTodayByLang(periods, nowTL, offset);
         v.closedTodayLabel = closedTodayString(periods, new Date(), offset, ohLang);
       } else if (v.openNow === true) {
+        v.openClosingByLang = currentOpenByLang(periods, nowTL, offset);
         v.openClosingLabel = currentOpenString(periods, new Date(), offset, ohLang);
         const mins = minutesUntilClose(periods, new Date(), offset);
         if (Number.isFinite(mins) && mins >= 0 && mins <= 60) v.closingSoonMinutes = mins;
@@ -18466,7 +18473,8 @@ async function cacheBotUsername() {
         }
         // v0.57.20: closed-today label (mirrors /api/cuisine/search).
         // v0.61.246: open-now label too (mirrors /api/cuisine/search).
-        const { closedTodayString: closedTodayStringNL, currentOpenString: currentOpenStringNL, minutesUntilClose: minutesUntilCloseNL, reopenTodayInfo: reopenTodayInfoNL } = require('./open-hours');
+        const { closedTodayString: closedTodayStringNL, currentOpenString: currentOpenStringNL, minutesUntilClose: minutesUntilCloseNL, reopenTodayInfo: reopenTodayInfoNL,
+          closedTodayByLang: closedTodayByLangNL, currentOpenByLang: currentOpenByLangNL } = require('./open-hours');
         // v0.60.35 — match /api/cuisine/search reverted cap of 12.
         // v0.61.436 — per-chat guarded rating floor (code review: the
         // Tell-me NL path ignored the rating pill).
@@ -18485,11 +18493,15 @@ async function cacheBotUsername() {
             ? v.currentPeriods
             : v.regularPeriods;
           const offsetNL = Number.isFinite(v.utcOffsetMinutes) ? v.utcOffsetMinutes : undefined;
+          // v0.62.827 — Tier 1, third and last of the sites that build this label.
+          const nowNL = new Date();
           if (v.openNow === false) {
+            v.closedTodayByLang = closedTodayByLangNL(periodsNL, nowNL, offsetNL);
             v.closedTodayLabel = closedTodayStringNL(periodsNL, new Date(), offsetNL, nlLang);
             const riNL = reopenTodayInfoNL(periodsNL, new Date(), offsetNL, nlLang);
             if (riNL) { v.reopenMinutes = riNL.minutesUntilOpen; v.reopenStart = riNL.openStart; v.reopenEnd = riNL.openEnd; }
           } else if (v.openNow === true) {
+            v.openClosingByLang = currentOpenByLangNL(periodsNL, nowNL, offsetNL);
             v.openClosingLabel = currentOpenStringNL(periodsNL, new Date(), offsetNL, nlLang);
             // v0.62.466 — mirrors cuisine-enrich.js's closingSoonMinutes.
             const minsNL = minutesUntilCloseNL(periodsNL, new Date(), offsetNL);
