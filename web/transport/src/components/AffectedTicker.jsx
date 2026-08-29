@@ -1,6 +1,7 @@
 import React from 'react';
 import LineBadge from './LineBadge.jsx';
 import { LINES_BY_CODE } from '../data/lines.js';
+import { lineName } from '../../../_shared/lib/mrt-lines-i18n.generated.js';
 import { t, useLocale } from '../i18n.js';
 
 // v0.60.99 — operator follow-ups:
@@ -66,11 +67,11 @@ export default function AffectedTicker({ affectedCodes, focusedCode, onFocus, st
                 key={code}
                 onClick={() => onFocus?.(code)}
                 aria-pressed={focused}
-                aria-label={icon ? `${line.name} · ${t(`mrt.status.${status}`, lang)}` : undefined}
+                aria-label={icon ? `${lineName(line.code, line.name, lang)} · ${t(`mrt.status.${status}`, lang)}` : undefined}
                 className={`inline-flex items-center gap-1.5 px-2 py-1 rounded border whitespace-nowrap ${focused ? 'border-tg-text' : 'border-tg-border'} bg-tg-bg ${blinking ? 'line-flash' : ''}`}
               >
                 <LineBadge code={code} hex={line.hex} size="sm" />
-                <span className="text-xs">{line.name}</span>
+                <span className="text-xs">{lineName(line.code, line.name, lang)}</span>
                 {icon && <span className="text-[10px]" aria-hidden="true">{icon}</span>}
               </button>
             );

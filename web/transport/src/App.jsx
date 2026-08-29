@@ -9,6 +9,7 @@ import { withViewTransition } from './lib/view-transition.js';
 import LoadingSkeleton from './components/LoadingSkeleton.jsx';
 import { initData } from './tg.js';
 import { t, tn, useLocale } from './i18n.js';
+import { lineName } from '../../_shared/lib/mrt-lines-i18n.generated.js';
 import LineStatusPanel from './components/LineStatusPanel.jsx';
 import StationCard from './components/StationCard.jsx';
 import SystemMap from './components/SystemMap.jsx';
@@ -610,7 +611,7 @@ export default function App() {
     <div className="rounded-lg border border-tg-border bg-tg-card px-2 py-1.5 flex items-center gap-2 text-[10px] leading-tight">
       <span style={{ background: focusedLine.hex, color: '#fff' }}
         className="font-bold rounded px-1.5 py-0.5 text-[10px] leading-none shrink-0">{focusedCode}</span>
-      <span className="font-semibold text-tg-text shrink-0">{focusedLine.name}</span>
+      <span className="font-semibold text-tg-text shrink-0">{lineName(focusedCode, focusedLine.name, lang)}</span>
       <span className="text-tg-hint min-w-0 truncate">
         {lineStations[0].name} → {lineStations[lineStations.length - 1].name}
       </span>
@@ -708,7 +709,7 @@ export default function App() {
                 className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg border border-tg-border bg-tg-bg text-left active:scale-95"
               >
                 <span className="inline-block w-3 h-3 rounded shrink-0" style={{ background: line.hex }} />
-                <span className="text-xs font-medium truncate">{line.name}</span>
+                <span className="text-xs font-medium truncate">{lineName(line.code, line.name, lang)}</span>
               </button>
             ))}
           </div>

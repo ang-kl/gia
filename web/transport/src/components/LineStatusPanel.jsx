@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import LineBadge from './LineBadge.jsx';
 import { lineStationsFull, parseCode, PREFIX_TO_LINE } from '../data/line-paths.js';
 import { LINES_BY_CODE } from '../data/lines.js';
+import { lineName } from '../../../_shared/lib/mrt-lines-i18n.generated.js';
 import { t, tn } from '../i18n.js';
 
 // Hitachi-style left panel — line code badge + name (English),
@@ -86,7 +87,7 @@ export default function LineStatusPanel({ line, status, statusByLine = null, sel
       <div className="flex items-start gap-3">
         <LineBadge code={line.code} hex={line.hex} size="lg" />
         <div className="min-w-0 flex-1">
-          <div className="text-base font-semibold leading-tight truncate">{line.name}</div>
+          <div className="text-base font-semibold leading-tight truncate">{lineName(line.code, line.name, lang)}</div>
           <div className="text-xs text-tg-hint truncate">For {line.endpoints?.[1] || '?'}</div>
           <div className="text-xs text-tg-hint truncate">{line.endpoints?.[0]} ↔ {line.endpoints?.[1]}</div>
         </div>
