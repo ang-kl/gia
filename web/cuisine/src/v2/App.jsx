@@ -48,7 +48,7 @@ import ResultDrawer from './components/ResultDrawer.jsx';
 import ArrivalPlate from './components/ArrivalPlate.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
-import { useLocale, t, tn } from './lib/i18n.js';
+import { useLocale, useLocaleHydrated, t, tn } from './lib/i18n.js';
 import { tg, hasInitData, getTelegramLocation, openTelegramLocationSettings } from '../api/tg.js';
 import { giaToggleStyle } from './lib/mapOverlays.js';
 
@@ -178,6 +178,13 @@ export default function App() {
   // localStorage and re-renders on the 'gia:locale' CustomEvent
   // dispatched by LocaleToggle.
   const [lang] = useLocale();
+  // v0.62.831 — O-345 (b), the operator's choice: the loading overlay paints before any
+  // interaction, so it is the one surface that can show the PREVIOUS device locale's
+  // sentence. Until the server's preference has settled it renders its shell and the
+  // blinking dots with no words. The trade is stated because it is real: a wordless
+  // moment instead of a wrong language. Repeat mounts settle synchronously, so this
+  // costs nothing after the first load of a session.
+  const localeReady = useLocaleHydrated();
   // v0.62.561 — O-54 responsive port: device/orientation (drives the result
   // strip's card-count on tablet/desktop + the footer cue). `isWide` = tablet
   // or desktop; phones stay `false` so their layout is provably unchanged.
@@ -4932,7 +4939,15 @@ export default function App() {
             {/* v0.62.89 — operator: the 🛑 Stop pill is flushed to the BOTTOM-RIGHT
                 corner (own row below the text, near the bottom + right borders) for
                 EVERY wait state — the centred/mid-card pill looked off. */}
-            {loadingReason === 'rotating' ? (
+            {!localeReady ? (
+              /* v0.62.831 — O-345 (b). Words withheld until the locale settles; the dots
+                 keep the card the same height, so nothing jumps when they arrive. */
+              <div aria-live="polite"><span aria-hidden className="inline-flex">
+                <span className="animate-blink">.</span>
+                <span className="animate-blink" style={{ animationDelay: '0.25s' }}>.</span>
+                <span className="animate-blink" style={{ animationDelay: '0.5s' }}>.</span>
+              </span></div>
+            ) : loadingReason === 'rotating' ? (
               <>
                 <div className="font-semibold">{t('loading.head', lang)}</div>
                 <div className="mt-1">{t('loading.rotating.' + (rotatingIndex + 1), lang)}</div>
@@ -4965,8 +4980,12 @@ export default function App() {
             <div className="mt-1 -mb-0.5 flex justify-end">
               {/* v0.62.90 — liquid-glass pill (frosted + soft 3D highlight). */}
               <button type="button" onClick={stopLoading}
-                className="gia-hit glass-pill shrink-0 px-2 py-0.5 rounded-full border-[0.5px] border-tg-warn/70 text-[8px] text-tg-text whitespace-nowrap">
-                {t('loading.stop', lang)}
+                className="gia-hit glass-pill shrink-0 px-2 py-0.5 rounded-full border-[0.5px] border-tg-warn/70 text-[8px] text-tg-text whitespace-nowrap"
+                aria-label={localeReady ? undefined : 'Stop'}>
+                {/* v0.62.831 — 🛑 alone until the locale settles: the glyph carries the
+                    meaning in every language, so the button stays usable and does not
+                    momentarily label itself in the wrong one. */}
+                {localeReady ? t('loading.stop', lang) : '🛑'}
               </button>
             </div>
           </div>
