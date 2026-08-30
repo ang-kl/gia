@@ -8,6 +8,7 @@ import SocialButtons from './SocialButtons.jsx';
 import { OTHER_COUNTRIES } from '../lib/countries.js';
 import { abbrevAddress } from '../../../../_shared/lib/abbrev-address.js';
 import PronounceIcon from '../../../../_shared/components/PronounceIcon.jsx';
+import { cachedPronunciation } from '../../../../_shared/lib/pronounce-client.js';
 
 const PRICE_LABEL = { 1: '$', 2: '$$', 3: '$$$', 4: '$$$$' };
 
@@ -46,6 +47,24 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
   // opaque, every other card is glass — so phones are unchanged.
   const glassEff = glass == null ? !focused : glass;
   const [lang] = useLocale();
+
+  // v0.62.846 — the guide for the locale being read RIGHT NOW. Operator: "the second
+  // line translation as I change the language".
+  //
+  // `venue.namePronounce` is baked into the search payload, so it is the answer for the
+  // locale that was active WHEN THE SEARCH RAN. Toggling the language does not re-run the
+  // search, so on its own that field goes stale the moment the operator switches — the
+  // reported bug.
+  //
+  // App batches one `/api/pronounce` call for the whole page (see the note there — a hook
+  // per card would be a request per card), which fills this module cache; reading it here
+  // is synchronous and costs nothing. Three states matter and are kept distinct:
+  //   a string  → the answer for THIS locale, and it wins over the payload
+  //   null      → asked, and this locale needs no guide: show nothing, do NOT fall back
+  //               to the payload's answer for some other locale
+  //   undefined → not asked yet, so the payload's value is the best thing we have
+  const said = cachedPronunciation(venue.name, lang);
+  const sayNow = said !== undefined ? said : venue.namePronounce;
   if (!venue) return null;
   const rating = venue.rating ? `★${venue.rating.toFixed(1)}` : '';
   const price = PRICE_LABEL[venue.priceLevel] || '';
@@ -462,10 +481,10 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               or french speaker who searching Malaysia eateries". Distinct icon from
               the 🔤 reading line above, because they are distinct features and
               sharing a marker would make them look like one. */}
-          {venue.namePronounce && (
+          {sayNow && (
             <div className="text-[12px] text-tg-hint leading-tight truncate flex items-center gap-1">
               <PronounceIcon className="shrink-0 opacity-80" />
-              <span className="truncate">{venue.namePronounce}</span>
+              <span className="truncate">{sayNow}</span>
             </div>
           )}
           {/* v0.62.x item 7 — device-language MEANING of a foreign-language

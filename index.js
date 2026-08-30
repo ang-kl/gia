@@ -11035,7 +11035,12 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
   // v0.61.382 — and the readable foreign-name line (Gemini); v0.61.385
   // two-part: place language + device-language gloss in brackets.
   try {
-    await require('./translate-name').attachNameReadings(filteredVenues, michCC, michDeviceLang, redis);
+    // v0.62.845 — same fix as the main search path: `michDeviceLang` is
+    // `navigator.language`, the PHONE's language, not the locale the reader chose in
+    // the app. `csLang` is already this function's resolved reader language (it is a
+    // parameter, and `enrichSanctuaryRead` above uses it), so the toggle reaches the
+    // name bracket here too. The device language stays as the fallback.
+    await require('./translate-name').attachNameReadings(filteredVenues, michCC, csLang || michDeviceLang, redis);
   } catch (e) { /* non-fatal */ }
   // v0.62.x — the name-enrichment above is network-bound and can push a slow
   // tap past the 20s deadline. If it fired in that window the degraded empty
@@ -18151,8 +18156,32 @@ async function cacheBotUsername() {
         // v0.61.385 — two-part "<place language> (<device language>)": the
         // first part is the venue COUNTRY's language (searchRegionCode), the
         // bracket the user's DEVICE language (deviceLang, ← en/fr/…).
+        // v0.62.845 — READER LANGUAGE, and the bug this replaces was invisible.
+        //
+        // Operator, with screenshots in ru/de/ja: *"i still dont see the translations.
+        // i change to japanese, french, russian"*. Every one of the three showed a fully
+        // translated CHROME and an untranslated CARD — because the two are decided by
+        // different variables, and only one of them was right.
+        //
+        // `deviceLang` is `navigator.language`: the PHONE's language. The operator's
+        // phone is English, so the app locale toggle — which is what they actually
+        // changed — never reached these three enrichers. The server dutifully wrote a
+        // pronunciation guide for an ENGLISH reader of "The Canteen by Enjoy", correctly
+        // concluded one was not needed, cached the NONE, and rendered nothing. Nothing
+        // failed; the wrong question was answered perfectly.
+        //
+        // `csLang` (computed ~2,500 lines above) is the language the response is being
+        // RENDERED in — body `lang` from the toggle, else the stored per-user pref, else
+        // 'en' — and v0.62.825 already fixed it to cover all eight locales. It was in
+        // scope the whole time. The handler computed the right value and handed these
+        // three the wrong one.
+        //
+        // `deviceLang` is kept as the MIDDLE fallback rather than deleted: when a client
+        // sends no `lang` at all, the phone's language is still a better guess than
+        // csLang's final 'en'.
+        const readerLang = csBodyLang || deviceLang || csLang;
         try {
-          await require('./translate-name').attachNameReadings(payload?.venues, searchRegionCode, deviceLang, redis);
+          await require('./translate-name').attachNameReadings(payload?.venues, searchRegionCode, readerLang, redis);
         } catch (e) { /* non-fatal — names just stay in native script */ }
         // v0.62.840 — HOW TO SAY IT, a different question from what it MEANS.
         // Operator: "the restaurant name's second line should have the japanese way
@@ -18165,14 +18194,14 @@ async function cacheBotUsername() {
         // (name, locale) cached 30 days, and NONE cached too — re-asking whether
         // "Pizza Hut" needs a guide is exactly the spend to avoid.
         try {
-          await require('./pronounce-name').attachPronunciations(payload?.venues, deviceLang, { redis });
+          await require('./pronounce-name').attachPronunciations(payload?.venues, readerLang, { redis });
         } catch (e) { /* non-fatal — the card simply omits the line */ }
         // v0.62.x item 7 — device-language MEANING gloss for a foreign-LANGUAGE
         // Latin-script name (e.g. Vietnamese "Tầm vị" → "(seeking flavour)").
         // Gemini, cached; attaches `nameGloss`, fail-open. Operator-authorised
         // paid call (G4) for this feature.
         try {
-          await require('./name-gloss').attachNameGloss(payload?.venues, searchRegionCode, deviceLang, redis);
+          await require('./name-gloss').attachNameGloss(payload?.venues, searchRegionCode, readerLang, redis);
         } catch (e) { /* non-fatal — names just stay un-glossed */ }
         clearTimeout(_searchDeadline);
         // v0.62.x — Stage 2: finish the NDJSON stream. The base event already

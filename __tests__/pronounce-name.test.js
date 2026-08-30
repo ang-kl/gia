@@ -180,8 +180,24 @@ describe('guards', () => {
 
 describe('it is wired to the surfaces the operator asked for', () => {
   it('the search path attaches pronunciations in the READER’s language', () => {
+    // v0.62.845 — THIS ASSERTION USED TO PIN `deviceLang`, AND THAT WAS THE BUG.
+    //
+    // The title said "the READER's language" and the expectation said `deviceLang` —
+    // `navigator.language`, the PHONE's language. The two are different whenever a user
+    // changes the in-app locale toggle, which is exactly the case the feature exists for.
+    // So this test named the right requirement, pinned the value that violates it, went
+    // green for five versions, and reported Passed on the one thing that was broken.
+    //
+    // The operator found it instead, with three screenshots: "i still dont see the
+    // translations. i change to japanese, french, russian."
+    //
+    // A test that restates the implementation cannot fail with it. The lesson is the same
+    // one v0.62.843 recorded from the other direction: an assertion has to encode the
+    // REQUIREMENT, not the line of code that happens to be there.
     const src = read('index.js');
-    expect(src).toContain("require('./pronounce-name').attachPronunciations(payload?.venues, deviceLang");
+    expect(src).toContain("require('./pronounce-name').attachPronunciations(payload?.venues, readerLang");
+    expect(src, 'the phone language is back on the pronunciation path')
+      .not.toContain('attachPronunciations(payload?.venues, deviceLang');
   });
 
   it('the card renders it with its own icon, distinct from the 🔤 reading line', () => {
