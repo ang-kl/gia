@@ -26,6 +26,8 @@
 // broke hash-links opened outside Telegram. That is what lets a SHARED
 // Sketchbook itinerary render a map for its recipient.
 
+import { mapsLanguageParam } from './gmaps-language.js';
+
 const CALLBACK = '__giaMapsReady';
 const DEMO_MAP_ID = 'DEMO_MAP_ID';
 
@@ -67,7 +69,8 @@ export function loadGoogleMaps({ fetchImpl = null } = {}) {
         tag.dataset.gmaps = '1';
         tag.async = true;
         tag.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(d.key) +
-          '&libraries=marker&v=quarterly&loading=async&callback=' + CALLBACK;
+          '&libraries=marker&v=quarterly&loading=async' + mapsLanguageParam() +
+          '&callback=' + CALLBACK;
         tag.onerror = () => reject(new Error('script'));
         document.head.appendChild(tag);
       });

@@ -33,31 +33,39 @@ export function localisedBody(obj, lang) {
 }
 
 const TIER_LABEL = {
-  'city-icon':        { en: 'city icon',        fr: 'icône de la ville' },
-  'regional':         { en: 'regional',         fr: 'régional' },
-  'national-classic': { en: 'national classic', fr: 'classique national' }
+  'city-icon':        { en: 'city icon',        fr: 'icône de la ville',   id: 'ikon kota',        ru: 'символ города',    de: 'Wahrzeichen der Stadt', zh: '城市代表',   ja: '街の名物',   es: 'icono de la ciudad' },
+  'regional':         { en: 'regional',         fr: 'régional',            id: 'regional',         ru: 'региональное',     de: 'regional',              zh: '地方风味',   ja: '地方の味',   es: 'regional' },
+  'national-classic': { en: 'national classic', fr: 'classique national',  id: 'klasik nasional',  ru: 'национальная классика', de: 'nationaler Klassiker', zh: '全国经典', ja: '全国の定番', es: 'clásico nacional' }
 };
 
 // v0.62.37 — country label for the "More local classics" section (the
 // overlay-fed list is national-level, so it's labelled by COUNTRY, honestly —
 // never passed off as city-unique).
+// v0.62.836 — SIX MORE LOCALES, and the heading became a template to hold them.
+// English and French inflect this as an ADJECTIVE inside the sentence ("More
+// Japanese classics" / "Autres classiques japonais"); Japanese and Chinese do not
+// inflect at all and want a plain country noun in a slot ("その他の日本の定番").
+// So the country word stays a noun per locale and `plate.moreClassics` carries the
+// sentence — which is why this is a key with a {country} placeholder rather than
+// eight more string concatenations. fr keeps its adjectival plural, since its
+// template puts the word after the noun it agrees with.
 const COUNTRY_LABEL = {
-  SG: { en: 'Singapore',   fr: 'singapouriens' },
-  MY: { en: 'Malaysian',   fr: 'malaisiens' },
-  TH: { en: 'Thai',        fr: 'thaïlandais' },
-  JP: { en: 'Japanese',    fr: 'japonais' },
-  VN: { en: 'Vietnamese',  fr: 'vietnamiens' },
-  AU: { en: 'Australian',  fr: 'australiens' },
-  NZ: { en: 'New Zealand', fr: 'néo-zélandais' },
+  SG: { en: 'Singapore',   fr: 'singapouriens',  id: 'Singapura',    ru: 'Сингапура',      de: 'Singapur',      zh: '新加坡',   ja: 'シンガポール', es: 'Singapur' },
+  MY: { en: 'Malaysian',   fr: 'malaisiens',     id: 'Malaysia',     ru: 'Малайзии',       de: 'Malaysia',      zh: '马来西亚', ja: 'マレーシア',   es: 'Malasia' },
+  TH: { en: 'Thai',        fr: 'thaïlandais',    id: 'Thailand',     ru: 'Таиланда',       de: 'Thailand',      zh: '泰国',     ja: 'タイ',         es: 'Tailandia' },
+  JP: { en: 'Japanese',    fr: 'japonais',       id: 'Jepang',       ru: 'Японии',         de: 'Japan',         zh: '日本',     ja: '日本',         es: 'Japón' },
+  VN: { en: 'Vietnamese',  fr: 'vietnamiens',    id: 'Vietnam',      ru: 'Вьетнама',       de: 'Vietnam',       zh: '越南',     ja: 'ベトナム',     es: 'Vietnam' },
+  AU: { en: 'Australian',  fr: 'australiens',    id: 'Australia',    ru: 'Австралии',      de: 'Australien',    zh: '澳大利亚', ja: 'オーストラリア', es: 'Australia' },
+  NZ: { en: 'New Zealand', fr: 'néo-zélandais',  id: 'Selandia Baru', ru: 'Новой Зеландии', de: 'Neuseeland',   zh: '新西兰',   ja: 'ニュージーランド', es: 'Nueva Zelanda' },
   // v0.62.38 — the 8 markets lit up by the full curation pass.
-  ID: { en: 'Indonesian',  fr: 'indonésiens' },
-  PH: { en: 'Filipino',    fr: 'philippins' },
-  KR: { en: 'Korean',      fr: 'coréens' },
-  CN: { en: 'Chinese',     fr: 'chinois' },
-  TW: { en: 'Taiwanese',   fr: 'taïwanais' },
-  HK: { en: 'Hong Kong',   fr: 'hongkongais' },
-  MO: { en: 'Macanese',    fr: 'macanais' },
-  BN: { en: 'Bruneian',    fr: 'brunéiens' }
+  ID: { en: 'Indonesian',  fr: 'indonésiens',    id: 'Indonesia',    ru: 'Индонезии',      de: 'Indonesien',    zh: '印尼',     ja: 'インドネシア', es: 'Indonesia' },
+  PH: { en: 'Filipino',    fr: 'philippins',     id: 'Filipina',     ru: 'Филиппин',       de: 'Philippinen',   zh: '菲律宾',   ja: 'フィリピン',   es: 'Filipinas' },
+  KR: { en: 'Korean',      fr: 'coréens',        id: 'Korea',        ru: 'Кореи',          de: 'Korea',         zh: '韩国',     ja: '韓国',         es: 'Corea' },
+  CN: { en: 'Chinese',     fr: 'chinois',        id: 'Tiongkok',     ru: 'Китая',          de: 'China',         zh: '中国',     ja: '中国',         es: 'China' },
+  TW: { en: 'Taiwanese',   fr: 'taïwanais',      id: 'Taiwan',       ru: 'Тайваня',        de: 'Taiwan',        zh: '台湾',     ja: '台湾',         es: 'Taiwán' },
+  HK: { en: 'Hong Kong',   fr: 'hongkongais',    id: 'Hong Kong',    ru: 'Гонконга',       de: 'Hongkong',      zh: '香港',     ja: '香港',         es: 'Hong Kong' },
+  MO: { en: 'Macanese',    fr: 'macanais',       id: 'Makau',        ru: 'Макао',          de: 'Macau',         zh: '澳门',     ja: 'マカオ',       es: 'Macao' },
+  BN: { en: 'Bruneian',    fr: 'brunéiens',      id: 'Brunei',       ru: 'Брунея',         de: 'Brunei',        zh: '文莱',     ja: 'ブルネイ',     es: 'Brunéi' }
 };
 
 // v0.62.113 — operator: dish names must read as a proper Title (each word
@@ -99,12 +107,18 @@ function leadWithQualifier(s) {
 // FIVE buckets: Breakfast / Lunch & Dinner / Snacks & sides / Desserts / Drinks.
 // Keyword-based; conservative to avoid mis-bucketing. Default bucket = 'main'.
 // "coffee" excluded from DRINK_RE so "Coffee Pork Ribs" stays a main meal.
+// v0.62.836 — EIGHT LOCALES, not two. Operator, from a Japanese session over
+// Tokyo: "some components are still not translated" — this panel's section
+// headings read "Lunch & Dinner", "Snacks & sides", "Desserts" in English under
+// Japanese chrome, because these bodies carried `en` and `fr` only and the render
+// asked `fr ? x.fr : x.en`. Exactly the class v0.62.781 named directly above and
+// fixed at four sites; these were the sites it did not reach.
 const MEAL_BUCKETS = [
-  { key: 'breakfast', icon: '☕', en: 'Breakfast',        fr: 'Petit-déjeuner' },
-  { key: 'main',      icon: '🍽', en: 'Lunch & Dinner',   fr: 'Déjeuner & Dîner' },
-  { key: 'snack',     icon: '🥢', en: 'Snacks & sides',   fr: 'Encas & accompagnements' },
-  { key: 'dessert',   icon: '🧁', en: 'Desserts',          fr: 'Desserts' },
-  { key: 'drink',     icon: '🥤', en: 'Drinks',            fr: 'Boissons' },
+  { key: 'breakfast', icon: '☕', en: 'Breakfast',      fr: 'Petit-déjeuner',           id: 'Sarapan',              ru: 'Завтрак',        de: 'Frühstück',            zh: '早餐',      ja: '朝食',        es: 'Desayuno' },
+  { key: 'main',      icon: '🍽', en: 'Lunch & Dinner', fr: 'Déjeuner & Dîner',         id: 'Makan siang & malam',  ru: 'Обед и ужин',    de: 'Mittag- & Abendessen', zh: '午餐与晚餐', ja: '昼食・夕食',  es: 'Almuerzo y cena' },
+  { key: 'snack',     icon: '🥢', en: 'Snacks & sides', fr: 'Encas & accompagnements',  id: 'Camilan & pendamping', ru: 'Закуски и гарниры', de: 'Snacks & Beilagen', zh: '小吃与配菜', ja: '軽食・サイド', es: 'Aperitivos y guarniciones' },
+  { key: 'dessert',   icon: '🧁', en: 'Desserts',       fr: 'Desserts',                 id: 'Hidangan penutup',     ru: 'Десерты',        de: 'Desserts',             zh: '甜点',      ja: 'デザート',    es: 'Postres' },
+  { key: 'drink',     icon: '🥤', en: 'Drinks',         fr: 'Boissons',                 id: 'Minuman',              ru: 'Напитки',        de: 'Getränke',             zh: '饮品',      ja: 'ドリンク',    es: 'Bebidas' },
 ];
 // v0.62.586 — the meal-bucket keyword sets were Asian-tuned, so Western/Australian
 // classics (tim tam, lamington, pavlova, flat white, …) all fell through to 'main'
@@ -215,7 +229,6 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
   // New city / cuisine → collapse + close any bubble.
   useEffect(() => { setOpen(false); setGeoStage(expanded ? 2 : 0); setCuisineStage(expanded ? 2 : 0); setFactIdx(null); setClassicsOpen(false); setActiveGroup(0); }, [plate?.city, plate?.cuisineSlug, expanded]);
 
-  const fr = lang === 'fr';
 
   // v0.62.x — CUISINE "What to order" mode (operator: select Georgian in SG →
   // the unique Georgian dishes to discover BEFORE picking an eatery). Driven
@@ -230,7 +243,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
     const groups = Array.isArray(plate.groups) ? plate.groups : [];
     if (!headliners.length && !groups.length) return null;
     const title = `${plate.flag ? plate.flag + ' ' : ''}${plate.cuisineLabel || plate.cuisineSlug}`;
-    const explainer = plate.explainer && (fr ? plate.explainer.fr : plate.explainer.en);
+    const explainer = plate.explainer && localisedBody(plate.explainer, lang);
     return (
       <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
         <button
@@ -242,7 +255,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
         >
           <span aria-hidden>🍽</span>
           <span className="flex-1">
-            <b>{fr ? 'Cuisine :' : 'Cuisine:'} {title}</b>
+            <b>{t('plate.cuisineLabel', lang)} {title}</b>
             {cuisineStage === 1 && (
               <>{' '}{headliners.map((h) => titleCaseDish(h.dish)).join(', ') + (groups.length ? '…' : '')}</>
             )}
@@ -258,7 +271,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
             {explainer && <div className="text-tg-hint pb-1.5">📜 {explainer}</div>}
             {plate.populationLow && (
               <div className="text-tg-hint pb-1.5">
-                {fr ? 'Peu d’adresses ici — voici les classiques à connaître.' : 'Few spots here — these are the classics to know.'}
+                {t('plate.fewSpots', lang)}
               </div>
             )}
             {/* headliners — full tappable rows (+ native name & 📜 history card) */}
@@ -268,7 +281,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                   <button
                     type="button"
                     className="flex-1 text-left py-2.5 min-h-[44px]"
-                    aria-label={(fr ? 'Expliquer ' : 'Explain ') + d.dish}
+                    aria-label={t('plate.explainAria', lang).replace('{dish}', d.dish)}
                     /* v0.62.199 — operator (RECURRING no-auto-fire): tapping a dish
                        must NOT fire a search — it ALWAYS opens the card; only the
                        card's "Find eateries" runs the search. Uncurated dishes get a
@@ -282,7 +295,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                     <button
                       type="button"
                       className="px-2 py-2.5 min-h-[44px] min-w-[44px] text-[14px]"
-                      aria-label={(fr ? 'Histoire de ' : 'History of ') + d.dish}
+                      aria-label={t('plate.historyAria', lang).replace('{dish}', d.dish)}
                       onClick={() => setFactIdx(factIdx === 'h' + i ? null : 'h' + i)}
                     >📜</button>
                   )}
@@ -293,7 +306,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                     <div id="gia-dishmodal-title" className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                     {d.note
                       ? <div className="mt-1">{localisedBody(d.note, lang)}</div>
-                      : <div className="mt-1 text-tg-hint italic">{fr ? 'Description bientôt — touchez « Trouver des adresses ».' : 'Write-up coming soon — tap “Find eateries”.'}</div>}
+                      : <div className="mt-1 text-tg-hint italic">{t('plate.writeupSoonTap', lang)}</div>}
                     <div className="mt-2 flex items-center justify-between gap-2">
                       {/* v0.62.407 — pill font -1 (10→9); the glass background +
                           border now wrap ONLY the 🔍 icon (a circular chip), the
@@ -302,21 +315,21 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                         type="button"
                         className="shrink-0 flex items-center gap-1 text-[9px] font-semibold text-tg-text active:scale-95"
                         onClick={() => { setFactIdx(null); if (onTryDish) onTryDish(d.dish); }}
-                      ><span aria-hidden className="glass-pill inline-flex items-center justify-center w-[18px] h-[18px] rounded-full border-[0.5px] border-tg-accent/70">🔍</span>{fr ? 'Trouver des adresses' : 'Find eateries'}</button>
+                      ><span aria-hidden className="glass-pill inline-flex items-center justify-center w-[18px] h-[18px] rounded-full border-[0.5px] border-tg-accent/70">🔍</span>{t('plate.findEateries', lang)}</button>
                       <div className="flex items-center gap-3">
                         {/* v0.62.407 — open the dish's authentic photo source (Commons File: page). */}
                         <button
                           type="button"
                           className="text-tg-link text-[12px]"
-                          aria-label={fr ? 'Voir la photo' : 'View picture'}
+                          aria-label={t('plate.viewPicture', lang)}
                           onClick={() => openDishPicture(d.dish)}
-                        >{fr ? '🧆 photo' : '🧆 picture'}</button>
+                        >{t('plate.pictureBtn', lang)}</button>
                         <button
                           type="button"
                           className="text-tg-hint text-[12px]"
-                          aria-label={fr ? 'Fermer' : 'Close'}
+                          aria-label={t('plate.closeAria', lang)}
                           onClick={() => setFactIdx(null)}
-                        >{fr ? 'fermer' : 'close'}</button>
+                        >{t('plate.closeBtn', lang)}</button>
                       </div>
                     </div>
                   </div>
@@ -341,7 +354,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                         aria-selected={i === gi}
                         onClick={() => { setActiveGroup(i); setFactIdx(null); }}
                         className={`folio-tab shrink-0 active:scale-95 ${i === gi ? 'folio-tab--active' : ''}`}
-                      >{(fr ? gg.label.fr : gg.label.en)} <span className="opacity-70">({gg.dishes.length})</span></button>
+                      >{localisedBody(gg.label, lang)} <span className="opacity-70">({gg.dishes.length})</span></button>
                     ))}
                   </div>
                   {/* v0.62.199 — operator: the "More" list read CRAMMED. Looser line
@@ -361,7 +374,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                         <button
                           type="button"
                           className="inline-block text-tg-link no-underline active:scale-95 whitespace-nowrap py-0.5"
-                          aria-label={(fr ? 'Expliquer ' : 'Explain ') + d.dish}
+                          aria-label={t('plate.explainAria', lang).replace('{dish}', d.dish)}
                           onClick={() => setFactIdx(factIdx === g.group + ':' + d.dish ? null : g.group + ':' + d.dish)}
                         >{titleCaseDish(d.dish)}{d.local && d.local !== d.dish && <span className="text-tg-hint whitespace-nowrap"> {d.local}</span>}</button>
                         {isOpen && (
@@ -370,11 +383,11 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                             <div id="gia-dishmodal-title" className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                             {d.note
                               ? <div className="mt-1">{localisedBody(d.note, lang)}</div>
-                              : <div className="mt-1 text-tg-hint italic">{fr ? 'Description bientôt — touchez « Trouver des adresses ».' : 'Write-up coming soon — tap “Find eateries”.'}</div>}
+                              : <div className="mt-1 text-tg-hint italic">{t('plate.writeupSoonTap', lang)}</div>}
                             {/* v0.62.182 — show the curated source (A3 rule). */}
                             {Array.isArray(d.sources) && d.sources.length > 0 && (
                               <div className="mt-0.5 text-tg-hint">
-                                {(fr ? 'source : ' : 'source: ') + d.sources.map((s) => s.name).join(' · ')}
+                                {t('plate.sourcePrefix', lang) + d.sources.map((s) => s.name).join(' · ')}
                               </div>
                             )}
                             <div className="mt-2 flex items-center justify-between gap-2">
@@ -384,21 +397,21 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                                 type="button"
                                 className="shrink-0 flex items-center gap-1 text-[9px] font-semibold text-tg-text active:scale-95"
                                 onClick={() => { const dish = d.dish; setFactIdx(null); if (onTryDish) onTryDish(dish); }}
-                              ><span aria-hidden className="glass-pill inline-flex items-center justify-center w-[18px] h-[18px] rounded-full border-[0.5px] border-tg-accent/70">🔍</span>{fr ? 'Trouver des adresses' : 'Find eateries'}</button>
+                              ><span aria-hidden className="glass-pill inline-flex items-center justify-center w-[18px] h-[18px] rounded-full border-[0.5px] border-tg-accent/70">🔍</span>{t('plate.findEateries', lang)}</button>
                               <div className="flex items-center gap-3">
                                 {/* v0.62.407 — open the dish's authentic photo source (Commons File: page). */}
                                 <button
                                   type="button"
                                   className="text-tg-link text-[12px]"
-                                  aria-label={fr ? 'Voir la photo' : 'View picture'}
+                                  aria-label={t('plate.viewPicture', lang)}
                                   onClick={() => openDishPicture(d.dish)}
-                                >{fr ? '🧆 photo' : '🧆 picture'}</button>
+                                >{t('plate.pictureBtn', lang)}</button>
                                 <button
                                   type="button"
                                   className="text-tg-hint text-[12px]"
-                                  aria-label={fr ? 'Fermer' : 'Close'}
+                                  aria-label={t('plate.closeAria', lang)}
                                   onClick={() => setFactIdx(null)}
-                                >{fr ? 'fermer' : 'close'}</button>
+                                >{t('plate.closeBtn', lang)}</button>
                               </div>
                             </div>
                           </div>
@@ -432,7 +445,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
         type="button"
         className="w-full text-left flex items-start gap-1 min-h-[28px]"
         aria-expanded={geoStage > 0}
-        aria-label={fr ? `Classiques locaux à ${plate.city}` : `Local Food Classic in ${plate.city}`}
+        aria-label={t('plate.localClassicAria', lang).replace('{city}', plate.city)}
         onClick={() => { setGeoStage((geoStage + 1) % 3); setFactIdx(null); }}
       >
         <span aria-hidden>📍</span>
@@ -478,7 +491,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                    cell. `flex items-start justify-start` TOP-aligns every cell and
                    the wrapper span keeps the name+native+gloss flowing flush-left. */
                 className="flex items-start justify-start text-left py-2 min-h-[44px] border-b border-tg-border/30"
-                aria-label={(fr ? 'Expliquer ' : 'Explain ') + d.dish}
+                aria-label={t('plate.explainAria', lang).replace('{dish}', d.dish)}
                 aria-expanded={factIdx === i}
                 onClick={() => setFactIdx(factIdx === i ? null : i)}
               >
@@ -486,7 +499,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                   <span className="font-medium">{titleCaseDish(d.dish)}</span>
                   {d.local && d.local !== d.dish && <span className="text-tg-hint whitespace-nowrap"> {d.local}</span>}
                   {d.gloss && (d.gloss.en || d.gloss.fr) && (
-                    <span className="text-tg-hint"> · {(fr ? d.gloss.fr : d.gloss.en) || d.gloss.en}</span>
+                    <span className="text-tg-hint"> · {localisedBody(d.gloss, lang)}</span>
                   )}
                 </span>
               </button>
@@ -500,12 +513,12 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                 <div id="gia-dishmodal-title" className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                 <div className="mt-1">{localisedBody(d.history, lang)}</div>
                 <div className="mt-1 text-tg-hint">
-                  {(TIER_LABEL[d.tier] || {})[fr ? 'fr' : 'en'] || d.tier} · {d.claim}
-                  {d.differsFrom ? <> · {fr ? 'diffère de' : 'differs from'} {d.differsFrom}</> : null}
+                  {localisedBody(TIER_LABEL[d.tier], lang) || d.tier} · {d.claim}
+                  {d.differsFrom ? <> · {t('plate.differsFrom', lang)} {d.differsFrom}</> : null}
                 </div>
                 {Array.isArray(d.sources) && d.sources.length > 0 && (
                   <div className="mt-0.5 text-tg-hint">
-                    {(fr ? 'source : ' : 'source: ') + d.sources.map((s) => s.name).join(' · ')}
+                    {t('plate.sourcePrefix', lang) + d.sources.map((s) => s.name).join(' · ')}
                   </div>
                 )}
                 {/* v0.62.162 — explain-first: search runs only on "Find eateries". */}
@@ -516,20 +529,20 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                     type="button"
                     className="shrink-0 flex items-center gap-1 text-[9px] font-semibold text-tg-text active:scale-95"
                     onClick={() => { setFactIdx(null); if (onTryDish) onTryDish(d.dish); }}
-                  ><span aria-hidden className="glass-pill inline-flex items-center justify-center w-[18px] h-[18px] rounded-full border-[0.5px] border-tg-accent/70">🔍</span>{fr ? 'Trouver des adresses' : 'Find eateries'}</button>
+                  ><span aria-hidden className="glass-pill inline-flex items-center justify-center w-[18px] h-[18px] rounded-full border-[0.5px] border-tg-accent/70">🔍</span>{t('plate.findEateries', lang)}</button>
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
                       className="text-tg-link text-[12px]"
-                      aria-label={fr ? 'Voir la photo' : 'View picture'}
+                      aria-label={t('plate.viewPicture', lang)}
                       onClick={() => openDishPicture(d.dish)}
-                    >{fr ? '🧆 photo' : '🧆 picture'}</button>
+                    >{t('plate.pictureBtn', lang)}</button>
                     <button
                       type="button"
                       className="text-tg-hint text-[12px]"
-                      aria-label={fr ? 'Fermer' : 'Close'}
+                      aria-label={t('plate.closeAria', lang)}
                       onClick={() => setFactIdx(null)}
-                    >{fr ? 'fermer' : 'close'}</button>
+                    >{t('plate.closeBtn', lang)}</button>
                   </div>
                 </div>
               </div>
@@ -544,7 +557,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
               v0.62.x — grouped into ascending food-group sections server-side
               (plate.classicGroups) so a long list reads organised, not a wall. */}
           {Array.isArray(plate.classics) && plate.classics.length > 0 && (() => {
-            const cl = (COUNTRY_LABEL[plate.country] || {})[fr ? 'fr' : 'en'] || plate.country;
+            const cl = localisedBody(COUNTRY_LABEL[plate.country], lang) || plate.country;
             return (
               <div className="border-t border-tg-border/40">
                 <button
@@ -555,7 +568,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                 >
                   <span aria-hidden className="text-tg-hint">{classicsOpen ? '▾' : '▸'}</span>
                   <span className="flex-1">
-                    {fr ? `Autres classiques ${cl}` : `More ${cl} classics`}
+                    {t('plate.moreClassics', lang).replace('{country}', cl)}
                     <span className="text-tg-hint"> ({plate.classics.length})</span>
                   </span>
                 </button>
@@ -580,12 +593,12 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                       <div id="gia-dishmodal-title" className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
                       {d.note && (d.note.en || d.note.fr)
                         ? <div className="mt-1">{localisedBody(d.note, lang)}</div>
-                        : <div className="mt-1 text-tg-hint">{fr ? 'Fiche en cours de rédaction.' : 'Write-up coming soon.'}</div>
+                        : <div className="mt-1 text-tg-hint">{t('plate.writeupSoon', lang)}</div>
                       }
                       {/* v0.62.174 — show the curated source when present (A3 rule). */}
                       {Array.isArray(d.sources) && d.sources.length > 0 && (
                         <div className="mt-0.5 text-tg-hint">
-                          {(fr ? 'source : ' : 'source: ') + d.sources.map((s) => s.name).join(' · ')}
+                          {t('plate.sourcePrefix', lang) + d.sources.map((s) => s.name).join(' · ')}
                         </div>
                       )}
                       {/* v0.62.411 — pill font -1; glass bg+border on 🔍 chip only; + [ picture ]. */}
@@ -594,20 +607,20 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                           type="button"
                           className="shrink-0 flex items-center gap-1 text-[9px] font-semibold text-tg-text active:scale-95"
                           onClick={() => { const dish = d.dish; setFactIdx(null); if (onTryDish) onTryDish(dish); }}
-                        ><span aria-hidden className="glass-pill inline-flex items-center justify-center w-[18px] h-[18px] rounded-full border-[0.5px] border-tg-accent/70">🔍</span>{fr ? 'Trouver des adresses' : 'Find eateries'}</button>
+                        ><span aria-hidden className="glass-pill inline-flex items-center justify-center w-[18px] h-[18px] rounded-full border-[0.5px] border-tg-accent/70">🔍</span>{t('plate.findEateries', lang)}</button>
                         <div className="flex items-center gap-3">
                           <button
                             type="button"
                             className="text-tg-link text-[12px]"
-                            aria-label={fr ? 'Voir la photo' : 'View picture'}
+                            aria-label={t('plate.viewPicture', lang)}
                             onClick={() => openDishPicture(d.dish)}
-                          >{fr ? '🧆 photo' : '🧆 picture'}</button>
+                          >{t('plate.pictureBtn', lang)}</button>
                           <button
                             type="button"
                             className="text-tg-hint text-[12px]"
-                            aria-label={fr ? 'Fermer' : 'Close'}
+                            aria-label={t('plate.closeAria', lang)}
                             onClick={() => setFactIdx(null)}
-                          >{fr ? 'fermer' : 'close'}</button>
+                          >{t('plate.closeBtn', lang)}</button>
                         </div>
                       </div>
                     </div>
@@ -623,7 +636,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                         <button
                           type="button"
                           className="text-tg-link no-underline active:scale-95 whitespace-nowrap"
-                          aria-label={(fr ? 'Expliquer ' : 'Explain ') + d.dish}
+                          aria-label={t('plate.explainAria', lang).replace('{dish}', d.dish)}
                           onClick={() => setFactIdx(factIdx === 'cl:' + d.dish ? null : 'cl:' + d.dish)}
                         >{/* P1-e — the 🌶 marker is decorative for AT: a span with
                             aria-label and no role is ignored/invalid, and the parent
@@ -645,12 +658,12 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                         return (
                           <div key={sec.key} className="pt-1.5 first:pt-0">
                             <div className="text-[11px] font-semibold text-tg-text/70 pb-0.5">
-                              {sec.icon} {fr ? sec.fr : sec.en}<span className="text-tg-hint font-normal"> ({sec.dishes.length})</span>
+                              {sec.icon} {localisedBody(sec, lang)}<span className="text-tg-hint font-normal"> ({sec.dishes.length})</span>
                             </div>
                             {subs
                               ? subs.map((sub) => (
                                   <div key={sub.key} className="pt-1 pl-1">
-                                    <div className="text-[10px] text-tg-hint pb-0.5">— {fr ? sub.label.fr : sub.label.en} —</div>
+                                    <div className="text-[10px] text-tg-hint pb-0.5">— {localisedBody(sub.label, lang)} —</div>
                                     <div>{sub.dishes.map((d, idx) => dishLink(d, idx))}</div>
                                   </div>
                                 ))

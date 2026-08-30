@@ -87,3 +87,84 @@ export function cuisineName(slug, fallback, lang) {
   const e = slug && NAMES[slug];
   return (e && e[lang]) || fallback || slug || '';
 }
+
+// ── v0.62.836 — the SAME names, on the card, where they were never applied ──────
+//
+// Operator, from a Japanese session over Tokyo: the result card read "Italian ·
+// ★4.7 · $$" under otherwise-Japanese chrome. Not a missing translation —
+// `NAMES` above has had Japanese for all 69 slugs for some time. `cuisineName()`
+// was simply never called from ResultCard: the card renders `venue.restaurantType`,
+// which is Google's `primaryTypeDisplayName` with the trailing "restaurant" word
+// stripped server-side, and that arrives as an English string with no slug on it.
+// So the translation existed and the card had no way to reach it.
+//
+// THE JOIN IS THE SLUG, AND THE SLUG IS JUST THE SLUGIFIED NAME. Every catalogue
+// entry's slug is `slugify(name)` — "South Indian" → "south-indian" — and all 69
+// catalogue slugs are present in `NAMES` above (asserted in the tests, not assumed).
+// So an English type can be slugified and looked up directly. The catalogue itself
+// cannot be imported here: `cuisines-vault.js` is CommonJS at the repo root and
+// Rollup refuses named imports from it into an ESM bundle — the constraint that
+// killed the client-side open-hours plan earlier in this arc. Deriving the slug
+// needs no import at all, which is why this shape was chosen over re-exporting one.
+//
+// WHAT IT DOES NOT COVER, SAID PLAINLY. Google returns venue types that are not
+// cuisines — Cafe, Bar, Bakery — and one, "Indian", that the catalogue splits into
+// north- and south-Indian and so has no plain slug for. Those are listed below by
+// hand. Anything not in either table keeps its English word rather than guessing,
+// and `id`/`ru`/`de` fall through to English throughout, exactly as `NAMES` already
+// does — that is O-336, not something this change closes.
+const VENUE_TYPES = {
+  cafe:          { fr: 'Café',                zh: '咖啡馆',   ja: 'カフェ',           es: 'Cafetería' },
+  'coffee-shop': { fr: 'Café',                zh: '咖啡店',   ja: '喫茶店',           es: 'Cafetería' },
+  bar:           { fr: 'Bar',                 zh: '酒吧',     ja: 'バー',             es: 'Bar' },
+  pub:           { fr: 'Pub',                 zh: '酒馆',     ja: 'パブ',             es: 'Pub' },
+  bakery:        { fr: 'Boulangerie',         zh: '面包店',   ja: 'ベーカリー',       es: 'Panadería' },
+  indian:        { fr: 'Indienne',            zh: '印度',     ja: 'インド',           es: 'India' },
+  pizza:         { fr: 'Pizzeria',            zh: '披萨',     ja: 'ピザ',             es: 'Pizzería' },
+  seafood:       { fr: 'Fruits de mer',       zh: '海鲜',     ja: 'シーフード',       es: 'Marisquería' },
+  sushi:         { fr: 'Sushi',               zh: '寿司',     ja: '寿司',             es: 'Sushi' },
+  ramen:         { fr: 'Ramen',               zh: '拉面',     ja: 'ラーメン',         es: 'Ramen' },
+  barbecue:      { fr: 'Barbecue',            zh: '烧烤',     ja: 'バーベキュー',     es: 'Barbacoa' },
+  buffet:        { fr: 'Buffet',              zh: '自助餐',   ja: 'ビュッフェ',       es: 'Bufé' },
+  dessert:       { fr: 'Desserts',            zh: '甜品',     ja: 'デザート',         es: 'Postres' },
+  'ice-cream':   { fr: 'Glacier',             zh: '冰淇淋',   ja: 'アイスクリーム',   es: 'Heladería' },
+  'tea-house':   { fr: 'Salon de thé',        zh: '茶馆',     ja: '茶館',             es: 'Casa de té' },
+  'steak-house': { fr: 'Steakhouse',          zh: '牛排馆',   ja: 'ステーキハウス',   es: 'Asador' },
+  hamburger:     { fr: 'Burgers',             zh: '汉堡',     ja: 'ハンバーガー',     es: 'Hamburguesería' },
+  vegetarian:    { fr: 'Végétarienne',        zh: '素食',     ja: 'ベジタリアン',     es: 'Vegetariana' },
+  vegan:         { fr: 'Végane',              zh: '纯素',     ja: 'ヴィーガン',       es: 'Vegana' },
+  'fast-food':   { fr: 'Restauration rapide', zh: '快餐',     ja: 'ファストフード',   es: 'Comida rápida' },
+  bistro:        { fr: 'Bistrot',             zh: '小酒馆',   ja: 'ビストロ',         es: 'Bistró' },
+  deli:          { fr: 'Traiteur',            zh: '熟食店',   ja: 'デリ',             es: 'Delicatessen' },
+  noodle:        { fr: 'Nouilles',            zh: '面食',     ja: '麺類',             es: 'Fideos' },
+  sandwich:      { fr: 'Sandwicherie',        zh: '三明治',   ja: 'サンドイッチ',     es: 'Bocadillos' },
+  breakfast:     { fr: 'Petit-déjeuner',      zh: '早餐',     ja: '朝食',             es: 'Desayunos' },
+  brunch:        { fr: 'Brunch',              zh: '早午餐',   ja: 'ブランチ',         es: 'Brunch' },
+};
+
+/**
+ * Slugify an English display name the way the catalogue does.
+ * "South Indian" → "south-indian", "Ice Cream" → "ice-cream".
+ */
+function typeSlug(name) {
+  return String(name || '')
+    .toLowerCase()
+    .replace(/&/g, ' ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/**
+ * Localise Google's venue-type word for the result card.
+ * Returns the original string unchanged when there is nothing better to say —
+ * never an empty string, and never a guess.
+ * @param {string} type  e.g. 'Italian', 'Cafe'
+ * @param {string} lang
+ * @returns {string}
+ */
+export function restaurantTypeName(type, lang) {
+  if (!type) return '';
+  const slug = typeSlug(type);
+  const hit = NAMES[slug] || VENUE_TYPES[slug];
+  return (hit && hit[lang]) || type;
+}

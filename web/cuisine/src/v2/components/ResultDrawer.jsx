@@ -15,7 +15,7 @@
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import ResultCard from './ResultCard.jsx';
-import { useLocale } from '../lib/i18n.js';
+import { useLocale, t } from '../lib/i18n.js';
 
 // v0.62.561 — O-54 responsive port: `basisClass` controls how many cards sit in
 // focus. Phones keep the single-card `basis-[82%]` (unchanged); tablet/desktop
@@ -321,9 +321,9 @@ export default function ResultDrawer({ venues, focusedPlaceId, onSelect, special
         {/* v0.62.151 — operator: a terminal card after the last result. Scroll to
             the right end → "Last card" + how to refine. */}
         <div className={`snap-center shrink-0 ${basisClass} max-h-[60vh] rounded-lg shadow-xl bg-tg-card border border-tg-border flex flex-col items-center justify-center text-center gap-1 px-3 py-4`}>
-          <div className="text-[13px] font-semibold text-tg-text">{lang === 'fr' ? 'Dernière carte' : 'Last card'}</div>
-          <div className="text-[12px] text-tg-hint leading-snug">📍 {lang === 'fr' ? 'saisir un lieu' : 'enter location'} · 💬 {lang === 'fr' ? 'tapez un plat' : 'Type dish'}</div>
-          <div className="text-[12px] text-tg-hint leading-snug">{lang === 'fr' ? 'Touchez 🔍 pour rechercher' : 'Tap 🔍 to search'}</div>
+          <div className="text-[13px] font-semibold text-tg-text">{t('lastCard.title', lang)}</div>
+          <div className="text-[12px] text-tg-hint leading-snug">📍 {t('lastCard.enterLocation', lang)} · 💬 {t('lastCard.typeDish', lang)}</div>
+          <div className="text-[12px] text-tg-hint leading-snug">{t('lastCard.tapSearch', lang)}</div>
         </div>
         {/* v0.62.155 — loop clone of the FIRST card (jumps back to the real one
             on reach, see the scroll effect above). */}
