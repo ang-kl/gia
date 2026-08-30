@@ -51,6 +51,8 @@ async function fetchReviewText(placeId, redis = null, preFetchedReviews = null) 
       timeout: 8000
     });
     require('./api-cost').recordMapsCall(redis, 'placeDetails');
+const { needsLocalisation } = require('./prompt-locale');
+const { langName } = require('./translate-review');
     return formatReviewsForSummary(data.reviews);
   } catch (err) {
     logger.error({ placeId, err: { message: err.message } }, 'vibe-summary placeDetails failed');
@@ -83,24 +85,25 @@ function isValidVibe(text) {
   return true;
 }
 
+const SUMMARY_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+
 async function summarizeVibe(reviews, lang = 'en') {
   if (!llm.isReady() || !reviews) return null;
-  const prompt = lang === 'fr'
-    ? `Lisez ces avis Google d’un restaurant. Le lecteur dîne seul et cherche un "Sanctuaire" — calme, places confortables, ambiance accueillante. Voix : polie, utile, ancrée.
-
-Renvoyez EXACTEMENT deux lignes courtes, sans préambule ni conclusion :
-🌿 Calme : <une phrase courte>
-🌿 Places : <une phrase courte sur le bar/places solo/communales>
-
-IMPORTANT : conservez les noms de plats SG iconiques tels quels ${SG_ICONIC_DISHES} ; ne les traduisez pas en français.
-
-Avis :
-${reviews}`
-    : `Read these Google reviews of a restaurant. The reader is a solo diner looking for a "Sanctuary" — quiet, comfortable seating, welcoming vibe. Voice: polite, helpful, grounded.
+  // v0.62.839 — EIGHT LOCALES, not two. This prompt existed in French and English
+  // only, so a Japanese, Chinese, Spanish, German, Russian or Indonesian reader got
+  // an English sanctuary line under otherwise-translated chrome. Rather than write
+  // the whole prompt out six more times, the English prompt stays the single source
+  // and a localisation instruction is appended — the same structure the French
+  // version encoded by hand, including its carve-out for iconic SG dish names.
+  const localise = needsLocalisation(lang)
+    ? `\n\nLOCALISATION: write BOTH lines in ${langName(lang)}, including the labels after 🌿. `
+      + `Keep iconic Singapore dish names as-is (${SG_ICONIC_DISHES}) — do not translate them.`
+    : '';
+  const prompt = `Read these Google reviews of a restaurant. The reader is a solo diner looking for a "Sanctuary" — quiet, comfortable seating, welcoming vibe. Voice: polite, helpful, grounded.
 
 Return EXACTLY two short lines, no preamble, no closing line:
 🌿 Quiet: <one short phrase>
-🌿 Seating: <one short phrase about bar/single/communal options>
+🌿 Seating: <one short phrase about bar/single/communal options>${localise}
 
 Reviews:
 ${reviews}`;
@@ -124,7 +127,11 @@ async function getOrCacheSummary(redis, placeId, lang = 'en', preFetchedReviews 
   if (!placeId) return null;
   // v0.59.0: lang dimension on the cache key. EN and FR sanctuary
   // reads coexist for the same venue.
-  const safeLang = lang === 'fr' ? 'fr' : 'en';
+  // v0.62.839 — the cache key must widen with the prompt. While this clamped to
+  // fr/en, a Japanese reader was served the ENGLISH cached summary — so localising
+  // the prompt alone would have changed nothing for them. Six locales now get their
+  // own key; existing `:en` and `:fr` entries stay valid and are still served.
+  const safeLang = SUMMARY_LOCALES.includes(lang) ? lang : 'en';
   // v0.60.209 — `v2` key namespace: the prompt changed from the
   // 4-bullet `• Quiet/Seating/Vibe/Approach` shape to the 2-line
   // `🌿 Quiet/Seating` shape. Bumping the key avoids serving stale

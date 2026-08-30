@@ -184,6 +184,27 @@ const HIDDEN_GEMS_LOCALISATION_FR = [
   '- The "place qualifies if…" criteria gate, EXCLUDE list, RANKING, and OUTPUT FORMAT instructions stay in English internally — they are for your reasoning, not for the user. Only the final output text (one block per result) is in French.'
 ].join('\n');
 
+// v0.62.839 — the same block for the other six locales, built from the language
+// name rather than written out six more times. The FR constant above stays the
+// reference implementation; this asks the model to reach the same result. The
+// French decimal-comma rule generalises to "the target language's own conventions",
+// because it was never a French rule — it is a don't-use-English-conventions rule
+// that only French had been given.
+function hiddenGemsLocalisationFor(lang) {
+  const name = langName(lang);
+  return [
+    '',
+    'LOCALISATION:',
+    `Render the entire user-facing output in ${name}, with these rules:`,
+    '- Translate the fixed labels: "Address", "🕒 Opening hours", "🌟 Google rating ·", "📝 Latest rating/review ·", "💎 Why a gem ·", "🍲 Try ·". For the Google Map URL line, keep the 📍 emoji prefix and the raw URL only — no label.',
+    `- Keep iconic Singapore dish names in their original form (${ICONIC_SG_DISHES}). Translate the surrounding prose.`,
+    '- Keep proper nouns (venue names, neighbourhoods, MRT stations) untranslated.',
+    '- Keep URLs verbatim — do not translate or modify the Google Maps URL.',
+    `- Use ${name}'s own number, date and punctuation conventions.`,
+    `- The "place qualifies if…" criteria gate, EXCLUDE list, RANKING, and OUTPUT FORMAT instructions stay in English internally — they are for your reasoning, not for the user. Only the final output text (one block per result) is in ${name}.`,
+  ].join('\n');
+}
+
 // v0.59.31 — radiusBand opt. Default '100m to 2km' (per Human Lead
 // 2026-05-08 — was '1km to 3km' in v0.59.31). Free-text /hidden mode
 // can pass a wider band ('200m to 3km') for user-specified anchor.
@@ -200,7 +221,14 @@ function buildHiddenGemsPrompt({ anchorName, googleMapsUrl, todayIsoSGT, lang = 
     .replace(/\{\{RADIUS_BAND\}\}/g, radiusBand)
     .replace(/\{\{RADIUS_LOWER\}\}/g, radiusLower)
     .replace(/\{\{RADIUS_UPPER\}\}/g, radiusUpper);
-  return lang === 'fr' ? `${base}\n${HIDDEN_GEMS_LOCALISATION_FR}` : base;
+  // v0.62.839 — French keeps its HAND-TUNED block above; every other locale gets a
+  // generic one. Not uniformity for its own sake: the French block specifies exact
+  // label wordings ("Address" → "Adresse") and French typographic rules. Folding
+  // French into the generic version to tidy the code would REGRESS a locale that
+  // works today in order to fix six that do not.
+  if (lang === 'fr') return `${base}\n${HIDDEN_GEMS_LOCALISATION_FR}`;
+  if (!needsLocalisation(lang)) return base;
+  return `${base}\n${hiddenGemsLocalisationFor(lang)}`;
 }
 
 // Today's date in SGT (UTC+8) as ISO YYYY-MM-DD. Used in the
@@ -232,6 +260,8 @@ function todaySGT() {
 // v0.62.722 — the concrete names moved to gemini-models.js. Google retired the
 // whole 2.5 line ("no longer available to new users", 404) and named the
 // replacements in its own error body; eleven files carried the dead names.
+const { replyLanguageLine, proseLanguageLine, needsLocalisation, ICONIC_SG_DISHES } = require('./prompt-locale');
+const { langName } = require('./translate-review');
 const GEMINI_MODELS = require('./gemini-models');
 const DEFAULT_MODEL = GEMINI_MODELS.defaultModel();
 
@@ -1896,9 +1926,7 @@ async function classifySearchIntent({ text, history = [], lang = 'en', model = D
     .slice(-12)
     .map((h) => `${h.role === 'user' ? 'USER' : 'BOT'}: ${String(h.text || '').slice(0, 400)}`)
     .join('\n');
-  const langInstruction = lang === 'fr'
-    ? 'Reply in French (fr) — clarifying questions and "why" prose. Keep dish names, cuisine labels, and Places searchTerm in English.'
-    : 'Reply in English (en).';
+  const langInstruction = replyLanguageLine(lang);
   const prompt = [
     'You are a Singapore F&B research assistant. The user has typed a free-text query about food, drinks, ingredients, or kitchen tools. Classify the user\'s intent and return a single-line JSON object.',
     '',
@@ -2067,9 +2095,7 @@ async function describeCookingMethod({ term, cuisineLabel, lang = 'en', model = 
   if (!cleanTerm) return empty;
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey && !_genAIFactory) return empty;
-  const langInstruction = lang === 'fr'
-    ? 'Write the "explainer" in French. Keep the dish name in "exampleDish" in its common English / original form.'
-    : 'Write the "explainer" in English.';
+  const langInstruction = proseLanguageLine(lang, 'explainer', 'exampleDish');
   const prompt = [
     'You are a Singapore F&B research assistant. The user searched for a cooking method / cooking technique / food category.',
     `METHOD: "${cleanTerm}"`,
