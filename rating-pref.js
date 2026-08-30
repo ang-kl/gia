@@ -21,6 +21,7 @@
 // to unrated-only.
 
 'use strict';
+const { t } = require('./i18n');   // v0.62.859 — item 6: two-locale ternaries keyed
 
 const DEFAULT_RATING = '3.7';      // guarded default floor (pill default-ON)
 const MIN_FLOOR = 1.0;             // operator: align TMA custom field + /rating to 1.0–5.0
@@ -128,8 +129,8 @@ async function setUserRatingPref(redis, chatId, value) {
 // The bot resolves lang via user-prefs.resolveLang; default 'en'.
 
 function _humanFloor(v, lang) {
-  if (v === 'unrated') return lang === 'fr' ? 'sans note (nouveaux lieux uniquement)' : 'unrated only (brand-new places)';
-  if (v === 'any') return lang === 'fr' ? "toutes les notes (aucun minimum)" : 'any rating (no minimum)';
+  if (v === 'unrated') return t('bot.ratingpref.unratedOnlyBrandNewPlaces', lang);
+  if (v === 'any') return t('bot.ratingpref.anyRating', lang);
   return `≥ ${v}`;
 }
 

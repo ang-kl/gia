@@ -126,7 +126,7 @@ function formatPriceAndPetLine(p, opts = {}) {
   // confirms an accessible entrance (parity with the TMA ResultCard).
   if (p && p.wheelchairAccessible === true) segments.push('♿️');
   if (p && p.allowsDogs === true) {
-    segments.push(lang === 'fr' ? '🐾 Animaux autorisés' : '🐾 Pet allowed');
+    segments.push(tr('bot.venuetemplates.petAllowed', lang));
   }
   return segments.length ? segments.join(' · ') : null;
 }
@@ -155,7 +155,7 @@ function formatOrderLine(p, lang = 'en') {
     })
     .slice(0, 3);
   if (!dishes.length) return '';
-  return `🍲 ${lang === 'fr' ? 'Essayez' : 'Try'} · ${escapeHtml(dishes.join(' · '))}`;
+  return `🍲 ${tr('bot.venuetemplates.try', lang)} · ${escapeHtml(dishes.join(' · '))}`;
 }
 
 // Format the 📍 Maps URL line. Prefers the canonical googleMapsUrl(p)

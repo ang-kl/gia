@@ -51,6 +51,7 @@ import WeatherBadge from './components/WeatherBadge.jsx';
 import { useLocale, useLocaleHydrated, t, tn } from './lib/i18n.js';
 import { usePronunciations } from '../../../_shared/lib/use-pronounce.js';
 import { streetOf } from '../../../_shared/lib/pronounce-client.js';
+import { takeStash, stashAndReload, mapsLanguageIsStale } from '../../../_shared/lib/locale-reload.js';
 import { initData } from '../api/tg.js';
 import { tg, hasInitData, getTelegramLocation, openTelegramLocationSettings } from '../api/tg.js';
 import { giaToggleStyle } from './lib/mapOverlays.js';
@@ -788,6 +789,58 @@ export default function App() {
   // panel compares this against its current viewport centre to
   // decide when to surface "Search this area".
   const [searchCenter, setSearchCenter] = useState(null);
+
+  // v0.62.858 — RE-LANGUAGE THE MAP BY RELOADING, AND PUT THE RESULTS BACK.
+  //
+  // Operator: "can you first keep the search results and then reload the map and present it
+  // back?" Google fixes the Maps SDK's `language` at injection and offers no way to change
+  // it afterwards, so "reload the map" means a new page. The results are stashed first and
+  // restored below, which is the half that makes the reload acceptable.
+  //
+  // POSITION IS LOAD-BEARING, from both sides — the rule this file learned the hard way at
+  // v0.62.841 (TDZ white-screen) and v0.62.843 (React #310). It sits BELOW every `useState`
+  // it reads, and ABOVE any early return.
+  //
+  // IT ONLY RELOADS WHEN A MAP IS ACTUALLY STALE. Most locale switches happen before a map
+  // exists, and then the next injection is already correct — `mapsLanguageIsStale` asks the
+  // script tag in the page rather than inferring it from the fact that the locale changed.
+  useEffect(() => {
+    const restored = takeStash();
+    if (!restored) return;
+    if (Array.isArray(restored.venues)) setVenues(restored.venues);
+    if (restored.searchCenter) setSearchCenter(restored.searchCenter);
+    if (restored.userLoc) setUserLoc(restored.userLoc);
+    if (restored.selectedCityLocation) setSelectedCityLocation(restored.selectedCityLocation);
+    if (typeof restored.scrollY === 'number' && typeof window !== 'undefined') {
+      // After paint, or the list has no height yet and the scroll lands at 0.
+      window.requestAnimationFrame(() => window.scrollTo(0, restored.scrollY));
+    }
+  }, []);   // once, on mount — takeStash CLEARS, so a re-run could not repeat it anyway
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const onLocale = (e) => {
+      const next = e && e.detail && e.detail.lang;
+      if (!next || !mapsLanguageIsStale(next)) return;
+      const payload = {
+        venues, searchCenter, userLoc, selectedCityLocation,
+        scrollY: window.scrollY || 0,
+      };
+      // DEFERRED ON PURPOSE. `setActiveLocale` writes localStorage, dispatches this event,
+      // and only THEN dynamically imports api.js to POST the preference to the server, which
+      // is what makes bot chat replies follow the toggle. Reloading synchronously here would
+      // race that import and could drop the POST. The map's own language is safe either way
+      // — it is read back out of localStorage, which was written before the dispatch — so
+      // the delay protects the server-side half only. It is a mitigation, not a guarantee:
+      // if the import is slower than this, the preference is simply re-sent the next time
+      // the toggle is used, which is why the reload is not gated on the POST completing.
+      window.setTimeout(() => stashAndReload(payload), 400);
+    };
+    window.addEventListener('gia:locale', onLocale);
+    return () => window.removeEventListener('gia:locale', onLocale);
+    // Re-subscribed as the results change, so the stash is never a stale closure over an
+    // older venue list — the exact failure `use-pronounce.js` had at v0.62.849.
+  }, [venues, searchCenter, userLoc, selectedCityLocation]);
   // v0.58.4: id of the rotating warm-start seed that produced the
   // initial venue list (e.g. 'open-now-cheap'). Cleared once the user
   // runs a real search via the 🔍 Search button.

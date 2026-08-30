@@ -21,12 +21,20 @@
 // WHAT THIS CANNOT DO, STATED RATHER THAN DISCOVERED LATER
 // --------------------------------------------------------
 // The Maps SDK is injected ONCE per webview and its `language` is fixed at that
-// moment — Google offers no way to re-language a loaded map. So switching locale
-// mid-session re-renders every string the app owns and leaves the map's own tile
-// labels in the language the session started in, until the next launch. That is a
-// real seam, not a rounding error, and it is asserted in the tests rather than
-// left for a screenshot to find. Reloading the SDK to fix it would blank and
-// re-tile the map under the reader's finger, which is worse than the seam.
+// moment — Google offers no way to re-language a loaded map. This module cannot
+// change that and does not try.
+//
+// v0.62.858 — WHAT USED TO BE HERE, AND WHY IT IS GONE. This comment previously
+// ended: "Reloading the SDK to fix it would blank and re-tile the map under the
+// reader's finger, which is worse than the seam." That was a fair reading of
+// reloading ALONE, and it is no longer the design. The operator supplied the
+// missing half — "keep the search results and then reload the map and present it
+// back" — and with the results preserved the trade inverts: a one-second reload
+// that returns you to the same list beats a map permanently labelled in the
+// language you just left. `locale-reload.js` does it, and only when a map is
+// actually present and actually stale. The sentence is rewritten rather than
+// left standing, because a file that argues against what the codebase now does
+// is worse than no comment: the next reader believes it.
 
 /** Shared across all five TMAs on one origin. */
 export const LOCALE_KEY = 'gia.locale';
