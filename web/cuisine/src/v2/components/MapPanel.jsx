@@ -137,7 +137,7 @@ function distanceUnit(region, countryPref) {
   return MILES_COUNTRIES.has(String(countryPref || '').toUpperCase()) ? 'mi' : 'km';
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, flyTo, fitPins, onDeselect, onInfoClose, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, children }) {
+export default function MapPanel({ venues, pronunciations = null, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, flyTo, fitPins, onDeselect, onInfoClose, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, children }) {
   // v0.62.125 — onDeselect (tap empty map → exit the result carousel) kept in a
   // ref so the long-lived map-click handler always calls the current prop.
   const onDeselectRef = useRef(null);
@@ -547,7 +547,12 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // the map re-centred and the just-tapped marker was destroyed before
   // its popup could open (the "tap twice to open a pin" bug). Focus
   // panning now lives in its own effect below.
-  useEffect(() => { syncMarkers(); }, [venues, userLoc, searchCenter?.lat, searchCenter?.lng]); // eslint-disable-line
+  // v0.62.851 — `pronunciations` is in the deps because the popup HTML embeds the guides.
+  // Without it the markers were built once from a cold cache and never rebuilt when the
+  // answers arrived, so the guides showed up only on a second visit (Codex, #1792 P2).
+  // The Map's identity changes exactly when the answers change, so this re-syncs once and
+  // not on every render.
+  useEffect(() => { syncMarkers(); }, [venues, userLoc, searchCenter?.lat, searchCenter?.lng, pronunciations]); // eslint-disable-line
 
   // v0.62.106 — operator (#3/#4, SG only): on a venue tap, surface the nearest
   // 3 bus stops + 2 stations on the MAP (toggle-independent) and append them to
@@ -846,12 +851,16 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // nothing on the marker they had just tapped. Read straight from the client cache
       // (App batches one /api/pronounce call for the page), so this costs no request and
       // renders nothing when there is nothing to show.
-      const nameSay = cachedPronunciation(v.name || '', lang);
+      // Read from the SAME projection the cards use, so the marker and the card below it
+      // can never disagree; the module cache is the fallback for a marker built before
+      // App's first render (e.g. the shared-link path, which has no venue list).
+      const sayOf = (n) => (pronunciations && pronunciations.get(n)) || cachedPronunciation(n, lang);
+      const nameSay = sayOf(v.name || '');
       const sayHtml = nameSay
         ? `<div style="font-size:12px;color:${p.sub};margin-top:2px;">🌐 ${escapeHtml(nameSay)}</div>`
         : '';
       const vStreet = streetOf(v.area || '');
-      const vStreetSay = vStreet ? cachedPronunciation(vStreet, lang) : null;
+      const vStreetSay = vStreet ? sayOf(vStreet) : null;
       const streetSayHtml = (vStreetSay && vStreetSay !== vStreet)
         ? `<div style="font-size:12px;color:${p.sub};margin-top:2px;">🌐 ${escapeHtml(vStreetSay)}</div>`
         : '';

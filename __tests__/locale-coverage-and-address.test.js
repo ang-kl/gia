@@ -163,8 +163,13 @@ describe('the address guide is ADDITIVE — the English line must survive', () =
 
   it('the map popup carries both lines too', () => {
     const src = read('web/cuisine/src/v2/components/MapPanel.jsx');
-    expect(src).toMatch(/const nameSay = cachedPronunciation\(v\.name \|\| '', lang\)/);
-    expect(src).toMatch(/const vStreetSay = vStreet \? cachedPronunciation\(vStreet, lang\) : null/);
+    // v0.62.851 — both lookups moved behind `sayOf`, which prefers the shared projection
+    // and falls back to the module cache (Codex #1792 P2-1: the markers were built from a
+    // cold cache and never rebuilt). The REQUIREMENT is unchanged and is what is asserted —
+    // the popup resolves a guide for the name and for the street. Pinning the expression
+    // has now broken on refactor four times; this pins the behaviour instead.
+    expect(src).toMatch(/const nameSay = sayOf\(v\.name \|\| ''\)/);
+    expect(src).toMatch(/const vStreetSay = vStreet \? sayOf\(vStreet\) : null/);
     expect(src).toMatch(/\$\{sayHtml\}\$\{addressHtml\}\$\{streetSayHtml\}/);
   });
 });

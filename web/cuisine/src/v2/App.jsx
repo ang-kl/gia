@@ -417,7 +417,16 @@ export default function App() {
     () => [...new Set([...venueNamesRaw, ...venueStreetsRaw])],
     [venueSayKey]   // eslint-disable-line react-hooks/exhaustive-deps
   );
-  usePronunciations(venueSayNames, lang, { initData });
+  // v0.62.851 — the returned projection is now KEPT and passed to MapPanel. Codex (PR
+  // #1792 P2): the marker-sync effect depends on [venues, userLoc, searchCenter], none of
+  // which change when the pronunciation fetch lands — so the popup HTML was built from an
+  // empty cache and never rebuilt. The new map guides therefore appeared only when
+  // localStorage happened to be warm, which is the worst kind of bug: it works on the
+  // machine of whoever tests it twice.
+  //
+  // `usePronunciations` returns a useMemo'd Map whose IDENTITY changes exactly when the
+  // answers change, so it is a correct dependency as-is — no separate version counter.
+  const venueSay = usePronunciations(venueSayNames, lang, { initData });
   // v0.62.205 — operator: when the "New" filter found nothing provably new nearby
   // and fell back to established spots, the server flags noProvenNew so we can say
   // "no new <cuisine> nearby" instead of passing established off as new.
@@ -4698,6 +4707,7 @@ export default function App() {
           ? { top: headerBottom } : undefined}
       >
       <MapPanel
+        pronunciations={venueSay}
         /* v0.62.574 — O-54 (operator: "the map blacks out on the fullscreen
            tablet … Look into your codes and think why are cuisine TMA behaving
            this way"). ROOT CAUSE: the `fill` prop toggles ONE live map container
