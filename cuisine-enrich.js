@@ -341,10 +341,21 @@ async function enrichSlow(top, ctx) {
   // does not. It sits inside the operator's stated envelope — "minimum token Gemini model
   // call per venue per locale" — and nowhere beyond it.
   //
-  // Skipped entirely when the review is ALREADY in the reader's language: `languageCode`
-  // comes from Places on the review itself, so the common case (English review, English
-  // reader) costs nothing and never reaches the model.
-  if (ctx.csLang && ctx.csLang !== 'en') {
+  // THE RULE, IN THE OPERATOR'S WORDS: *"translation only applies if the device language
+  // isn't the same"*. That is one condition — source language ≠ reader's language — and
+  // v0.62.852 shipped it with a second one bolted on: `ctx.csLang !== 'en'`, added as a
+  // cost optimisation on the assumption that reviews are English and only non-English
+  // readers need anything.
+  //
+  // That assumption fails in exactly one direction, and the operator's sentence is what
+  // exposed it: a JAPANESE review shown to an ENGLISH reader was left in Japanese, because
+  // the reader's own locale short-circuited the whole block. Reviews are written by
+  // visitors, so a foreign-language review on a Singapore venue is ordinary, not exotic.
+  //
+  // So the gate is now the rule and nothing else. The common case still costs nothing —
+  // an English review for an English reader is caught by the same-language skip below,
+  // one line further in, using the review's own Places `languageCode`.
+  if (ctx.csLang) {
     try {
       const { reviewLanguagePrimary } = require('./cuisine-review-language');
       const { translateReview } = require('./translate-review');

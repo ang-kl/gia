@@ -37,10 +37,40 @@ describe('① the quoted review is localised on the main search path', () => {
     expect(src()).toMatch(/if \(srcLang === ctx\.csLang\) return;/);
   });
 
-  it('never fires for an English reader — the no-op path must cost nothing', () => {
-    // The gate is `ctx.csLang && ctx.csLang !== 'en'`. Without it every English search
-    // would pay a model call to translate English into English.
-    expect(src()).toMatch(/if \(ctx\.csLang && ctx\.csLang !== 'en'\) \{/);
+  it('the ONLY condition is that the languages differ — the operator stated the rule', () => {
+    // Operator: "translation only applies if the device language isn't the same."
+    //
+    // v0.62.852 shipped an extra clause, `ctx.csLang !== 'en'`, as a cost optimisation on
+    // the assumption that reviews are English and only non-English readers need anything.
+    // That assumption fails in one direction: a JAPANESE review shown to an ENGLISH reader
+    // was left in Japanese, because the reader's own locale short-circuited the block
+    // before the source language was ever consulted. Reviews are written by visitors, so a
+    // foreign-language review on a Singapore venue is ordinary.
+    //
+    // This assertion previously pinned that extra clause — a test encoding an optimisation
+    // as if it were the requirement, which is how the hole survived review.
+    expect(src()).toMatch(/if \(ctx\.csLang\) \{/);
+    expect(src(), "the reader's own locale must not short-circuit the whole block")
+      .not.toMatch(/if \(ctx\.csLang && ctx\.csLang !== 'en'\)/);
+  });
+
+  it('and an English reader with a foreign review IS translated', () => {
+    // The case the old gate silently dropped. Asserted on the gate's shape because the
+    // decision is `srcLang === csLang`, with no locale privileged over any other.
+    const s = src();
+    const i = s.indexOf('if (ctx.csLang) {');
+    const block = s.slice(i, i + 1800);
+    expect(block).toMatch(/if \(srcLang === ctx\.csLang\) return;/);
+    expect(block, 'a locale is still being special-cased inside the block')
+      .not.toMatch(/csLang !== 'en'|csLang === 'en'/);
+  });
+
+  it('the common case still costs nothing, via the source language rather than the reader', () => {
+    // English review + English reader is caught one line further in, by the review's own
+    // Places languageCode — so removing the outer clause did not turn every English search
+    // into a model call.
+    expect(src()).toMatch(/const srcLang = reviewLanguagePrimary\(/);
+    expect(src()).toMatch(/if \(srcLang === ctx\.csLang\) return;/);
   });
 
   it('does not re-translate what the nationality helper already handled', () => {
