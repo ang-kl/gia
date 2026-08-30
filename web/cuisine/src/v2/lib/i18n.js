@@ -2038,9 +2038,42 @@ export function setActiveLocale(lang) {
 // preference. Module-level latch so multiple useLocale() calls in
 // different components don't each fire a redundant fetch.
 let serverHydrated = false;
+
+// ── v0.62.831 — O-345 (b): "settled", which is NOT the same as "started" ────────
+//
+// THE BUG. `useLocale()` reads localStorage synchronously; this function runs in a
+// useEffect. So the first paint shows whatever locale THAT DEVICE last stored, and the
+// server's real preference lands one async hop later. The operator saw the Cuisine
+// loading overlay in Indonesian under Japanese chrome — one device, two truths, a few
+// hundred milliseconds apart.
+//
+// AND v0.62.825 IS WHY IT BECAME VISIBLE. Before it, POST /api/cuisine/user-language
+// rejected `ja` with a 400, so the server could never HOLD ja — there was nothing for
+// hydration to correct to. The flash existed and could not be seen. Fixing the
+// persistence made the mismatch real, which is worth saying plainly.
+//
+// `serverHydrated` above cannot answer "has it settled?": it is set to true BEFORE the
+// await, precisely so a second caller does not re-fetch. Reusing it would report settled
+// while the request is still in flight — the exact wrong answer, from a flag one line
+// away from the right one.
+const LOCALE_HYDRATED_EVENT = 'gia:locale-hydrated';
+let localeSettled = false;
+// A ceiling, because the failure mode of gating UI on a promise is UI that never renders.
+// Offline, a 401, a hung proxy: the `finally` covers the first two and this covers the
+// third. 1500 ms is long enough for a normal round trip and short enough that a wordless
+// card is never what a reader is left looking at.
+const HYDRATE_CEILING_MS = 1500;
+function markLocaleSettled() {
+  if (localeSettled) return;
+  localeSettled = true;
+  try { window.dispatchEvent(new CustomEvent(LOCALE_HYDRATED_EVENT)); } catch { /* noop */ }
+}
+export function localeIsSettled() { return localeSettled; }
+
 async function hydrateFromServerOnce() {
   if (serverHydrated) return;
   serverHydrated = true;
+  setTimeout(markLocaleSettled, HYDRATE_CEILING_MS);
   try {
     const m = await import('./api.js');
     const remote = await m.fetchUserLanguage?.();
@@ -2053,6 +2086,25 @@ async function hydrateFromServerOnce() {
       window.dispatchEvent(new CustomEvent(LOCALE_EVENT, { detail: { lang: remote } }));
     }
   } catch { /* offline / 401 / 404 — keep local fallback */ }
+  finally { markLocaleSettled(); }
+}
+
+/**
+ * True once the server's stored locale has been applied, or once we have stopped
+ * waiting for it. Components that paint BEFORE any interaction — the loading overlay —
+ * withhold their words until this is true, so a reader never sees the previous
+ * device locale's sentence. Repeat mounts return true synchronously: the latch is
+ * module-level, so there is no blank frame after the first load of a session.
+ */
+export function useLocaleHydrated() {
+  const [settled, setSettled] = useState(() => localeSettled);
+  useEffect(() => {
+    if (localeSettled) { setSettled(true); return undefined; }
+    const on = () => setSettled(true);
+    window.addEventListener(LOCALE_HYDRATED_EVENT, on);
+    return () => window.removeEventListener(LOCALE_HYDRATED_EVENT, on);
+  }, []);
+  return settled;
 }
 
 // React hook: returns [lang, setLang]. Re-renders on locale change
