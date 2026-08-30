@@ -140,6 +140,17 @@ describe('the overlay withholds words, not itself', () => {
 // `environment: 'node'`), so the handful of browser globals the module touches are stubbed
 // by hand and the clock is faked; that is enough, because the module's only DOM contact on
 // this path is localStorage + dispatchEvent.
+// CI runs `npm ci` at the ROOT ONLY — `web/cuisine/node_modules` does not exist there, and
+// i18n.js imports `react` for its two hooks. So the module is unresolvable in CI while it
+// resolves fine in a sandbox that has built the TMAs, which is a green that means something
+// other than it looks like. Stubbed here rather than aliased globally, and the stub THROWS if
+// anything actually calls it: none of the four scenarios below render a hook, so a future
+// test that does must fail loudly instead of silently receiving a fake React.
+vi.mock('react', () => {
+  const nope = (name) => () => { throw new Error(`react.${name} called — this suite stubs react and does not render hooks`); };
+  return { useEffect: nope('useEffect'), useState: nope('useState'), default: {} };
+});
+
 const I18N_PATH = new URL('../web/cuisine/src/v2/lib/i18n.js', import.meta.url).pathname;
 const API_PATH = new URL('../web/cuisine/src/v2/lib/api.js', import.meta.url).pathname;
 
