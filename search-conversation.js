@@ -1,4 +1,5 @@
 // search-conversation.js — v0.59.54
+const { t } = require('./i18n');   // v0.62.859 — item 6: two-locale ternaries keyed
 //
 // Per-chatId state for /search (alias /s) — the new conversational
 // dish / ingredient / kitchen-tool finder. State shape:
@@ -116,9 +117,7 @@ function shouldNudgeEnd(conv) {
 }
 
 function endNudge(lang = 'en') {
-  return lang === 'fr'
-    ? '\n\n_Astuce : tapez `/s end` pour terminer cette conversation, ou n\'importe quelle autre commande `/...` pour passer à autre chose._'
-    : '\n\n_Tip: type `/s end` to finish this conversation, or any other `/...` command to switch._';
+  return t('bot.searchconversation.tipTypeSEndTo', lang);
 }
 
 // v0.60.4 — R.E.D disambiguation sticky. The conversation cache

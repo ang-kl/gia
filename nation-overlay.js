@@ -30,6 +30,7 @@
 // v0.60.5c finishes the remaining ~47 cuisines in cuisines-vault.
 
 'use strict';
+const { t } = require('./i18n');   // v0.62.859 — item 6: two-locale ternaries keyed
 
 // Convenience helpers — most iconicDishes entries are food with no
 // shared claimants. Reduce object-literal noise.
@@ -3129,15 +3130,13 @@ function formatNationOverlay(slug, ctx = {}) {
   const cuisineLabel = slug.charAt(0).toUpperCase() + slug.slice(1);
   const headLine = `${o.flag} <b>${cuisineLabel}</b>`;
 
-  const iconicHeader = lang === 'fr' ? '🍽 <b>Plats emblématiques:</b>' : '🍽 <b>Iconic dishes:</b>';
+  const iconicHeader = t('bot.nationoverlay.bIconicDishesB', lang);
   const iconic = formatIconicList(o.iconicDishes, {
     maxItems: expert ? 30 : 12
   });
 
   const sharedSection = (ctx.includeShared && o.sharedWithNeighbors && o.sharedWithNeighbors.length)
-    ? (lang === 'fr'
-        ? '\n\n🔄 <b>Aussi revendiqué par:</b>\n'
-        : '\n\n🔄 <b>Also claimed by:</b>\n') +
+    ? (t('bot.nationoverlay.bAlsoClaimedByB', lang)) +
       o.sharedWithNeighbors.slice(0, 6).map((s) => {
         const others = (s.sharedWith || []).join(', ');
         return `  · <i>${s.dish}</i> — ${others}`;

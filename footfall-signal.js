@@ -27,6 +27,7 @@
 //   placeId+lang.
 
 const axios = require('axios');
+const { t } = require('./i18n');   // v0.62.859 — item 6: two-locale ternaries keyed
 
 const FORECAST_URL = 'https://besttime.app/api/v1/forecasts';
 const LIVE_URL     = 'https://besttime.app/api/v1/forecasts/live';
@@ -154,7 +155,7 @@ function footfallChip(footfall, lang = 'en') {
   const fc   = footfall.forecastNext;
   const value = Number.isFinite(live) ? live : (Number.isFinite(fc) ? fc : null);
   if (value == null) return null;
-  const peak = footfall.peakHour ? ` · ${lang === 'fr' ? 'pic' : 'peaks'} ${footfall.peakHour}` : '';
+  const peak = footfall.peakHour ? ` · ${t('bot.footfallsignal.peaks', lang)} ${footfall.peakHour}` : '';
   const verb = lang === 'fr'
     ? (Number.isFinite(live) ? 'occupé maintenant' : 'prévu')
     : (Number.isFinite(live) ? 'busy now' : 'forecast');

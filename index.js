@@ -25,6 +25,12 @@ process.on('unhandledRejection', (reason) => {
 const { refreshVibeListings } = require('./vibe');
 const { getOrCacheSummary } = require('./vibe-summary');
 const { mealPeriodSGT, pickValidated, geocodeQuery } = require('./vibe-suggest');
+const { t, tn } = require('./i18n');   // v0.62.859 — item 6: module-scope, because the
+                                       // 106 keyed sites span scopes whose own requires are local.
+// v0.62.859 — item 6. `toLocaleDateString` was given `fr-FR` or `en-GB` and nothing else, so
+// six locales formatted dates in British English under their own chrome. Data, not a ternary,
+// so a ninth locale is one line rather than a hunt.
+const DATE_LOCALE = { en: 'en-GB', fr: 'fr-FR', id: 'id-ID', ru: 'ru-RU', de: 'de-DE', zh: 'zh-CN', ja: 'ja-JP', es: 'es-ES' };
 const {
   setUserLocation,
   getUserLocation,
@@ -703,9 +709,7 @@ async function ensureLocation(chatId, label, lang = 'en', opts = {}) {
     const ageStr = ageMin < 60
       ? tn('location.age.minAgo', lang, { n: ageMin })
       : tn('location.age.hourAgo', lang, { h: Math.floor(ageMin / 60), m: ageMin % 60 });
-    const stalePrompt = lang === 'fr'
-      ? `📍 Votre position partagée date de ${ageStr}. ${label} a besoin d'un point GPS plus frais (≤ ${maxAgeMin} min). Touchez le bouton ci-dessous pour partager une nouvelle position, ou tapez \`/location <lieu>\`.`
-      : `📍 Your shared location is ${ageStr} old. ${label} needs a fresher GPS pin (≤ ${maxAgeMin} min). Tap the button below to share a new pin, or run \`/location <place>\`.`;
+    const stalePrompt = tn('bot.index.yourSharedLocationIsOld', lang, { age: ageStr, label: label, maxAge: maxAgeMin });
     await bot.sendMessage(chatId, stalePrompt, LOCATION_REQUEST_KEYBOARD);
     return null;
   }
@@ -759,10 +763,7 @@ async function isSgOnlyCommandAllowed(chatId, command, lang) {
     if (!locale || locale.mode === 'SG') return true;
     const label = String(command || '').toLowerCase();
     const place = (typeof locale.placeName === 'string' && locale.placeName) || locale.country || locale.mode;
-    const isFr = lang === 'fr';
-    const msg = isFr
-      ? `🇸🇬 La commande <code>/${label}</code> n'est disponible qu'à Singapour (dépend des données LTA / NEA / HPB). Votre lieu enregistré est <b>${place}</b>. Réenregistrez un lieu à Singapour pour réactiver cette commande.`
-      : `🇸🇬 The <code>/${label}</code> command is only available in Singapore (it pulls from LTA / NEA / HPB feeds). Your registered location is <b>${place}</b>. Re-register a Singapore location to re-enable.`;
+    const msg = tn('bot.index.commandSingaporeOnly', lang, { label, place });
     await safeSend(chatId, msg, { parse_mode: 'HTML', disable_web_page_preview: true });
     console.log(`[Feature-Gate] gated /${label} mode=${locale.mode} chat=${chatId}`);
     return false;
@@ -1144,9 +1145,7 @@ async function deliverPicks(chatId, mealLabel, picks, opts = {}) {
   // "Gia's" (the persona name was retired in the rebrand).
   // v0.60.130 — operator: drop "sanctuary picks" from the result-template
   // header; just "Soleat's <label> picks".
-  const headerLine = dpLang === 'fr'
-    ? `Sélections de Soleat · ${mealLabel}`
-    : `Soleat's ${mealLabel} picks`;
+  const headerLine = tn('bot.index.soleatSPicks', dpLang, { meal: mealLabel });
   await safeSend(chatId, `${headerLine}\n\n${t3Body}`, {
     parse_mode: 'HTML',
     disable_web_page_preview: true
@@ -2026,7 +2025,7 @@ async function handleWakeLocationResponse(chatId, lat, lng, msg) {
         anchorLabel = `${cached.lat.toFixed(4)}, ${cached.lng.toFixed(4)}`;
       }
     } else {
-      anchorLabel = lang === 'fr' ? 'aucun lieu enregistré' : 'no saved location';
+      anchorLabel = t('bot.index.noSavedLocation', lang);
     }
 
     // Stash the device GPS so the wake2:current button can apply it
@@ -2769,14 +2768,11 @@ bot.onText(/^\/(?:menu|m)(?:@\w+)?$/, async (msg) => {
   refreshChatMenuButton(msg.chat.id);
   if (!webhookDomain) {
     await safeSend(msg.chat.id,
-      lang === 'fr' ? '⚠️ Menu indisponible (hôte non configuré).'
-                    : '⚠️ Menu unavailable (host not configured).');
+      t('bot.index.menuUnavailableHostNotConfigured', lang));
     return;
   }
-  const text = lang === 'fr'
-    ? '🍚 *Soleat Menu* — touchez pour ouvrir.'
-    : '🍚 *Soleat Menu* — tap to open.';
-  const buttonText = lang === 'fr' ? 'Ouvrir le menu' : 'Open menu';
+  const text = t('bot.index.soleatMenuTapToOpen', lang);
+  const buttonText = t('bot.index.openMenu', lang);
   await safeSend(msg.chat.id, text, {
     parse_mode: 'Markdown',
     reply_markup: {
@@ -3126,21 +3122,16 @@ bot.on('callback_query', async (q) => {
         const pendingRaw = await redis.get(`drift-pending:${chatId}`).catch(() => null);
         await redis.del(`drift-pending:${chatId}`).catch(() => {});
         if (!pendingRaw) {
-          await safeSend(chatId, cbLang === 'fr'
-            ? '⌛ Cette invite est expirée. Réessayez en partageant à nouveau votre position.'
-            : '⌛ That prompt has expired. Share your location again to retry.');
+          await safeSend(chatId, t('bot.index.thatPromptHasExpiredShare', cbLang));
           return;
         }
         const candidate = JSON.parse(pendingRaw);
-        const isFr = cbLang === 'fr';
         const placeLabel = candidate.placeName || candidate.country || candidate.mode || '—';
         if (data === 'drift:accept') {
           const { setUserLocale, clearDriftSuppress } = require('./location-locale');
           await setUserLocale(redis, chatId, candidate);
           await clearDriftSuppress(redis, chatId);
-          await safeSend(chatId, isFr
-            ? `✅ Lieu mis à jour vers <b>${escapeHtmlForTelegram(placeLabel)}</b>.`
-            : `✅ Location updated to <b>${escapeHtmlForTelegram(placeLabel)}</b>.`,
+          await safeSend(chatId, tn('bot.index.locationUpdatedTo', cbLang, { place: escapeHtmlForTelegram(placeLabel) }),
             { parse_mode: 'HTML' });
           console.log(`[Drift] accepted mode=${candidate.mode} matchKey=${candidate.boundary?.matchKey} chat=${chatId}`);
         } else {
@@ -3148,9 +3139,7 @@ bot.on('callback_query', async (q) => {
           const { deriveMatchKey } = require('./location-boundary');
           const matchKey = deriveMatchKey({ mode: candidate.mode, adminAreaLevel1: candidate.adminAreaLevel1 });
           await addDriftSuppress(redis, chatId, matchKey);
-          await safeSend(chatId, isFr
-            ? '🚫 Lieu enregistré conservé. Aucune nouvelle invite pendant 24 h pour cette destination.'
-            : '🚫 Kept your registered location. No further prompt for this destination in the next 24 h.');
+          await safeSend(chatId, t('bot.index.keptRegisteredLocation', cbLang));
           console.log(`[Drift] declined matchKey=${matchKey} chat=${chatId}`);
         }
       } catch (err) {
@@ -4093,9 +4082,7 @@ bot.on('callback_query', async (q) => {
             if (redis.isOpen) await redis.setEx(`clip:rename-pending:${chatId}`, 300, String(idx));
           } catch { /* best-effort */ }
           await bot.sendMessage(chatId,
-            cbLang === 'fr'
-              ? `✏️ Quel nom pour le clip ${idx + 1} ? (Répondez à ce message — 60 caractères max.)`
-              : `✏️ What name for clip ${idx + 1}? (Reply to this message — 60 chars max.)`,
+            tn('bot.index.whatNameForClipReply', cbLang, { n: idx + 1 }),
             { reply_markup: { force_reply: true, selective: true } }
           );
         }
@@ -4109,46 +4096,42 @@ bot.on('callback_query', async (q) => {
         if (!Number.isFinite(idx)) return;
         if (action === 'ask') {
           await bot.sendMessage(chatId,
-            cbLang === 'fr'
-              ? `🗑 Supprimer le clip ${idx + 1} ?`
-              : `🗑 Remove clip ${idx + 1}?`,
+            tn('bot.index.removeClip', cbLang, { n: idx + 1 }),
             { reply_markup: { inline_keyboard: [[
-              { text: cbLang === 'fr' ? 'Oui, supprimer' : 'Yes, remove', callback_data: `clip:remove:${idx}:yes` },
-              { text: cbLang === 'fr' ? 'Annuler' : 'Cancel', callback_data: `clip:remove:${idx}:no` }
+              { text: t('bot.index.yesRemove', cbLang), callback_data: `clip:remove:${idx}:yes` },
+              { text: t('bot.index.cancel', cbLang), callback_data: `clip:remove:${idx}:no` }
             ]] } });
           return;
         }
         if (action === 'yes') {
           const ok = await removeClip(redis, chatId, idx);
           await bot.sendMessage(chatId, ok
-            ? (cbLang === 'fr' ? `✅ Clip ${idx + 1} supprimé.` : `✅ Clip ${idx + 1} removed.`)
-            : (cbLang === 'fr' ? `❌ Échec — le clip n'existe peut-être plus.` : `❌ Couldn't remove — the clip may no longer exist.`));
+            ? (tn('bot.index.clipRemoved', cbLang, { n: idx + 1 }))
+            : (t('bot.index.couldnTRemoveTheClip', cbLang)));
           return;
         }
         if (action === 'no') {
-          await bot.sendMessage(chatId, cbLang === 'fr' ? 'Annulé.' : 'Cancelled.');
+          await bot.sendMessage(chatId, t('bot.index.cancelled', cbLang));
           return;
         }
         return;
       }
       if (data === 'clip:clear:ask') {
         await bot.sendMessage(chatId,
-          cbLang === 'fr' ? '🗑 Effacer tous vos clips ?' : '🗑 Clear all your clips?',
+          t('bot.index.clearAllYourClips', cbLang),
           { reply_markup: { inline_keyboard: [[
-            { text: cbLang === 'fr' ? 'Oui, effacer' : 'Yes, clear', callback_data: 'clip:clear:yes' },
-            { text: cbLang === 'fr' ? 'Annuler' : 'Cancel', callback_data: 'clip:clear:no' }
+            { text: t('bot.index.yesClear', cbLang), callback_data: 'clip:clear:yes' },
+            { text: t('bot.index.cancel', cbLang), callback_data: 'clip:clear:no' }
           ]] } });
         return;
       }
       if (data === 'clip:clear:yes') {
         await clearClips(redis, chatId);
-        await bot.sendMessage(chatId, cbLang === 'fr'
-          ? '✅ Tous vos clips ont été effacés.'
-          : '✅ All your clips have been cleared.');
+        await bot.sendMessage(chatId, t('bot.index.allYourClipsHaveBeen', cbLang));
         return;
       }
       if (data === 'clip:clear:no') {
-        await bot.sendMessage(chatId, cbLang === 'fr' ? 'Annulé.' : 'Cancelled.');
+        await bot.sendMessage(chatId, t('bot.index.cancelled', cbLang));
         return;
       }
       return;
@@ -4260,19 +4243,16 @@ bot.on('location', async (msg) => {
           try {
             const { resolveLang: rl } = require('./user-prefs');
             const dpLang = await rl(redis, msg.chat.id, msg);
-            const isFr = dpLang === 'fr';
             const prevName = (result.prev && result.prev.placeName) || (result.prev && result.prev.country) || (result.prev && result.prev.mode) || '—';
             const newName = result.candidate.placeName || result.candidate.country || result.candidate.mode || '—';
             await redis.setEx(`drift-pending:${msg.chat.id}`, 10 * 60, JSON.stringify(result.candidate)).catch(() => {});
-            const promptText = isFr
-              ? `🌐 Vous êtes maintenant près de <b>${escapeHtmlForTelegram(newName)}</b>. Votre lieu enregistré est <b>${escapeHtmlForTelegram(prevName)}</b>. Mettre à jour ?`
-              : `🌐 You're now near <b>${escapeHtmlForTelegram(newName)}</b>. Your registered location is <b>${escapeHtmlForTelegram(prevName)}</b>. Update to the new one?`;
+            const promptText = tn('bot.index.nowNearUpdate', dpLang, { near: escapeHtmlForTelegram(newName), saved: escapeHtmlForTelegram(prevName) });
             await bot.sendMessage(msg.chat.id, promptText, {
               parse_mode: 'HTML',
               reply_markup: {
                 inline_keyboard: [[
-                  { text: isFr ? '✅ Oui, changer' : '✅ Yes, switch', callback_data: 'drift:accept' },
-                  { text: isFr ? '🚫 Non, garder' : '🚫 No, keep', callback_data: 'drift:decline' }
+                  { text: t('bot.index.yesSwitch', dpLang), callback_data: 'drift:accept' },
+                  { text: t('bot.index.noKeep', dpLang), callback_data: 'drift:decline' }
                 ]]
               }
             });
@@ -4334,9 +4314,7 @@ bot.on('location', async (msg) => {
       }
       // Subsequent bare share — keep the saved-confirmation + a desktop nudge so
       // a wrong map-pick stays correctable.
-      const body = (locLang === 'fr'
-        ? `📍 *Position enregistrée*\n${placeLine}\n\n_Prête pour /cuisine, /search, /carpark, /transport._`
-        : `📍 *Location saved*\n${placeLine}\n\n_Ready for /cuisine, /search, /carpark, /transport._`)
+      const body = (tn('bot.index.locationSavedReadyForCuisine', locLang, { place: placeLine }))
         + `\n\n${t('loc.desktopNudge', locLang)}`;
       try {
         await bot.sendMessage(msg.chat.id, body, {
@@ -4430,9 +4408,7 @@ async function botRateLimited(chatId, endpoint, cap, lang = 'en') {
     if (!verdict.limited) return false;
     const mins = Math.max(1, Math.ceil(verdict.retryAfterSec / 60));
     console.warn(`[rate-limit] bot ${endpoint} chatId=${chatId} count=${verdict.count}/${cap}`);
-    await safeSend(chatId, lang === 'fr'
-      ? `⏳ Vous avez atteint la limite de ${cap} requêtes par ${BOT_RL_WINDOW_SEC / 60} minutes. Réessayez dans ~${mins} min.`
-      : `⏳ You've hit the limit of ${cap} requests per ${BOT_RL_WINDOW_SEC / 60} minutes. Try again in ~${mins} min.`);
+    await safeSend(chatId, tn('bot.index.youVeHitTheLimit', lang, { cap: cap, b: BOT_RL_WINDOW_SEC / 60, mins: mins }));
     return true;
   } catch (err) {
     // A broken limiter must never block a user.
@@ -5609,9 +5585,7 @@ bot.onText(/^\/start(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
     const stored = await getUserLang(redis, msg.chat.id);
     const tgLang = String(msg.from?.language_code || '').slice(0, 2).toLowerCase();
     if (stored && ['en','fr'].includes(tgLang) && stored !== tgLang) {
-      const hint = startLang === 'fr'
-        ? `\n\nℹ️ Votre Telegram est en ${tgLang === 'fr' ? 'français' : 'anglais'} mais le bot répond en ${stored === 'fr' ? 'français' : 'anglais'}. Tapez \`/language auto\` pour suivre la langue de votre Telegram automatiquement.`
-        : `\n\nℹ️ Your Telegram client is in ${tgLang === 'fr' ? 'French' : 'English'} but the bot is replying in ${stored === 'fr' ? 'French' : 'English'}. Type \`/language auto\` to follow your Telegram client locale automatically.`;
+      const hint = tn('bot.index.yourTelegramClientIsIn', startLang, { a: t(`bot.langname.${tgLang || 'en'}`, startLang), b: t(`bot.langname.${stored || 'en'}`, startLang) });
       intro = intro + hint;
     }
   } catch { /* drift check is best-effort */ }
@@ -6479,16 +6453,14 @@ async function runTransportTrafficIncidents(chatId, lang = 'en') {
 // control; italic (_x_) is the smallest "subtle" treatment available.
 function formatIcaQueueLine(ica, lang = 'en') {
   if (!ica || (!ica.woodlands && !ica.tuas)) return '';
-  const isFr = lang === 'fr';
   const labels = {
-    title:     isFr ? 'Estimation file d’attente' : 'Queue estimate',
-    source:    isFr ? 'source : ICA · scraping non officiel'
-                    : 'source: ICA · unofficial scrape',
-    woodlands: isFr ? 'Woodlands' : 'Woodlands',
-    tuas:      isFr ? 'Tuas 2nd Link' : 'Tuas 2nd Link',
-    departing: isFr ? 'sortie' : 'depart',
-    arriving:  isFr ? 'entrée' : 'arrive',
-    overall:   isFr ? 'global'   : 'overall'
+    title:     t('bot.index.queueEstimate', lang),
+    source:    t('bot.index.queueSource', lang),
+    woodlands: 'Woodlands',
+    tuas:      'Tuas 2nd Link',
+    departing: t('bot.index.queueDeparting', lang),
+    arriving:  t('bot.index.queueArriving', lang),
+    overall:   t('bot.index.queueOverall', lang)
   };
   const fmtSection = (obj) => {
     if (!obj) return null;
@@ -6843,7 +6815,7 @@ async function renderHiddenVenueCards(chatId, lang, verifiedVenues, anchorLat, a
       if (venue._newestReviewIso) {
         const d = new Date(venue._newestReviewIso);
         if (!Number.isNaN(d.getTime())) {
-          const dateStr = d.toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-GB', {
+          const dateStr = d.toLocaleDateString(DATE_LOCALE[lang] || 'en-GB', {
             day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Singapore'
           });
           const reviewLine = `${reviewLabel} ${dateStr}`;
@@ -6944,17 +6916,13 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
         const probe = gc.disambiguateTerm({ text: freeText, ctx: { lang, locale: 'SG' } });
         if (probe && probe.kind !== 'none') {
           const term = String(freeText).trim();
-          cuisineRedirect = lang === 'fr'
-            ? `🍽 _"${term}"_ semble être une cuisine ou un plat. Pour une recherche culinaire, utilisez \`/s ${term}\`. \`/hidden\` cherche autour d'un *lieu*.\n\n`
-            : `🍽 _"${term}"_ looks like a cuisine or dish. For a food search, use \`/s ${term}\`. \`/hidden\` is for searching around a *place*.\n\n`;
+          cuisineRedirect = tn('bot.index.looksLikeACuisineOr', lang, { term: term });
         }
       } catch (err) {
         console.warn('[/hidden] disambig pre-step failed (continuing):', err.message);
       }
       // Bilingual hint: "give me a street/building/MRT name".
-      const hint = lang === 'fr'
-        ? `${cuisineRedirect}Je n'ai pas trouvé "${freeText}" comme lieu. Indiquez un nom de rue, un bâtiment ou une station MRT — ex. \`/hidden Tanjong Pagar MRT\` ou \`/hidden Orchard Road\`. Johor Bahru est aussi accepté.`
-        : `${cuisineRedirect}I couldn't recognise "${freeText}" as a place. Please give a street name, building, or MRT station — e.g. \`/hidden Tanjong Pagar MRT\` or \`/hidden Orchard Road\`. Johor Bahru is also accepted.`;
+      const hint = tn('bot.index.iCouldnTRecogniseAs', lang, { a: cuisineRedirect, text: freeText });
       await safeSend(chatId, hint, { parse_mode: 'Markdown' });
       return;
     }
@@ -6985,9 +6953,7 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
       googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${geo.lat},${geo.lng}`
     };
 
-    const introMsg = lang === 'fr'
-      ? `🔍 Recherche autour de *${geo.name}* (200 m – 3 km)…`
-      : `🔍 Searching around *${geo.name}* (200 m – 3 km)…`;
+    const introMsg = tn('bot.index.searchingAround200M3', lang, { place: geo.name });
     await safeSend(chatId, introMsg, { parse_mode: 'Markdown' });
 
     const PROGRESS_LINES = [
@@ -7095,12 +7061,8 @@ async function runSurpriseCommandWithFreeText(chatId, lang, freeText) {
         }));
         const mapUrl = buildMapHashUrl(slim, { webhookDomain });
         if (mapUrl) {
-          const caption = lang === 'fr'
-            ? `🗺 Voir les ${plottable.length} trouvailles sur une carte :`
-            : `🗺 View all ${plottable.length} picks on one map:`;
-          const btnText = lang === 'fr'
-            ? `🗺 Voir les ${plottable.length} sur la carte`
-            : `🗺 Open ${plottable.length} on map`;
+          const caption = tn('bot.index.viewAllPicksOnOne', lang, { count: plottable.length });
+          const btnText = tn('bot.index.openOnMap', lang, { count: plottable.length });
           await bot.sendMessage(chatId, caption, {
             reply_markup: { inline_keyboard: [[{ text: btnText, web_app: { url: mapUrl } }]] }
           });
@@ -7276,9 +7238,7 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     // milestones at real phase boundaries so the user sees concrete
     // progress ("Gemini found N candidates · validating", "X verified
     // · ranking by distance"). Best-effort — failure is logged.
-    safeSend(chatId, lang === 'fr'
-      ? `✓ <i>Gemini a trouvé ${result.text.split(/^\s*\d+\.\s+/m).length - 1} candidats · validation en cours via Google Places…</i>`
-      : `✓ <i>Gemini found ${result.text.split(/^\s*\d+\.\s+/m).length - 1} candidates · validating via Google Places…</i>`,
+    safeSend(chatId, tn('bot.index.iGeminiFoundCandidatesValidating', lang, { count: result.text.split(/^\s*\d+\.\s+/m).length - 1 }),
       { parse_mode: 'HTML' }
     ).catch(() => {});
     // v0.59.5: post-process to replace fabricated rating + review counts
@@ -7373,9 +7333,7 @@ async function runSurpriseCommand(chatId, lang = 'en') {
     // v0.60.18 — second stage milestone after Places verification +
     // haversine filter completes.
     if (!allDropped) {
-      safeSend(chatId, lang === 'fr'
-        ? `✓ <i>${primary.withinRadius} candidat${primary.withinRadius === 1 ? '' : 's'} dans le rayon · classement par distance…</i>`
-        : `✓ <i>${primary.withinRadius} venue${primary.withinRadius === 1 ? '' : 's'} verified within radius · ranking by distance…</i>`,
+      safeSend(chatId, tn('bot.index.iVenueVerifiedWithinRadius', lang, { a: primary.withinRadius, b: primary.withinRadius === 1 ? '' : 's' }),
         { parse_mode: 'HTML' }
       ).catch(() => {});
     }
@@ -7398,9 +7356,7 @@ async function runSurpriseCommand(chatId, lang = 'en') {
       // Without this the tier 1 "X verified · ranking by distance…"
       // milestone stays on screen for the full 90s tier 2 + 90s tier 3
       // duration, which feels like a hang.
-      safeSend(chatId, lang === 'fr'
-        ? '↻ <i>Élargissement à 1.5–3 km…</i>'
-        : '↻ <i>Widening to 1.5–3 km…</i>',
+      safeSend(chatId, t('bot.index.iWideningTo15', lang),
         { parse_mode: 'HTML' }
       ).catch(() => {});
       try {
@@ -7456,9 +7412,7 @@ async function runSurpriseCommand(chatId, lang = 'en') {
       } else {
         console.log(`[/hidden] Gemini exhausted (best=${primary.withinRadius}, allDropped=${allDropped}) — trying Claude fallback`);
         // v0.60.26 — interim user-visible progress for the Claude tier.
-        safeSend(chatId, lang === 'fr'
-          ? '↻ <i>Recherche élargie via Claude (jusqu\'à 90 s)…</i>'
-          : '↻ <i>Wider Claude web search (up to 90 s)…</i>',
+        safeSend(chatId, t('bot.index.iWiderClaudeWebSearch', lang),
           { parse_mode: 'HTML' }
         ).catch(() => {});
         try {
@@ -7536,12 +7490,8 @@ async function runSurpriseCommand(chatId, lang = 'en') {
         }));
         const mapUrl = buildMapHashUrl(slim, { webhookDomain });
         if (mapUrl) {
-          const caption = lang === 'fr'
-            ? `🗺 Voir les ${plottable.length} trouvailles sur une carte :`
-            : `🗺 View all ${plottable.length} picks on one map:`;
-          const btnText = lang === 'fr'
-            ? `🗺 Voir les ${plottable.length} sur la carte`
-            : `🗺 Open ${plottable.length} on map`;
+          const caption = tn('bot.index.viewAllPicksOnOne', lang, { count: plottable.length });
+          const btnText = tn('bot.index.openOnMap', lang, { count: plottable.length });
           await bot.sendMessage(chatId, caption, {
             reply_markup: { inline_keyboard: [[{ text: btnText, web_app: { url: mapUrl } }]] }
           });
@@ -7639,9 +7589,7 @@ async function sendDegradedNotice(redis, chatId, lang) {
       const set = await redis.set(`degraded:notice:${chatId}`, '1', { NX: true, EX: 180 });
       if (set === null) return; // already shown within the last 3 min — stay quiet
     }
-    const msg = lang === 'fr'
-      ? '⚡ Les suggestions intelligentes de Soleat sont très sollicitées — voici les correspondances directes. Réessayez dans un instant pour plus.'
-      : "⚡ Soleat's smart suggestions are busy right now — showing direct matches. Try again in a moment for more.";
+    const msg = t('bot.index.smartSuggestionsBusy', lang);
     await safeSend(chatId, msg);
   } catch { /* never block the user-facing flow */ }
 }
@@ -7987,9 +7935,7 @@ async function runClipCommand(chatId, arg, lang = 'en') {
     const idx = Number(arg) - 1;
     const clip = await getClip(redis, chatId, idx);
     if (!clip) {
-      await safeSend(chatId, lang === 'fr'
-        ? '❓ Aucun clip à cet emplacement.'
-        : '❓ No clip at that index.');
+      await safeSend(chatId, t('bot.index.noClipAtThatIndex', lang));
       return;
     }
     await bot.sendMessage(chatId, clip.body, { parse_mode: 'HTML', disable_web_page_preview: true });
@@ -7998,10 +7944,10 @@ async function runClipCommand(chatId, arg, lang = 'en') {
   // Clear path.
   if (/^(clear|wipe|reset|effacer|vider)$/i.test(arg)) {
     await bot.sendMessage(chatId,
-      lang === 'fr' ? '🗑 Effacer tous vos clips ?' : '🗑 Clear all your clips?',
+      t('bot.index.clearAllYourClips', lang),
       { reply_markup: { inline_keyboard: [[
-        { text: lang === 'fr' ? 'Oui, effacer' : 'Yes, clear', callback_data: 'clip:clear:yes' },
-        { text: lang === 'fr' ? 'Annuler' : 'Cancel', callback_data: 'clip:clear:no' }
+        { text: t('bot.index.yesClear', lang), callback_data: 'clip:clear:yes' },
+        { text: t('bot.index.cancel', lang), callback_data: 'clip:clear:no' }
       ]] } });
     return;
   }
@@ -8015,42 +7961,36 @@ async function runClipCommand(chatId, arg, lang = 'en') {
   // inline_keyboard makes Telegram reject the whole message (the "/clipboard shows
   // nothing" bug).
   const sketchbookRows = (useWebhook && webhookDomain)
-    ? [[{ text: lang === 'fr' ? '📋 Ouvrir Sketchbook' : '📋 Open Sketchbook', web_app: { url: `https://${webhookDomain}/app/clipboard` } }]]
+    ? [[{ text: t('bot.index.openSketchbook', lang), web_app: { url: `https://${webhookDomain}/app/clipboard` } }]]
     : [];
   const replyMarkupOpt = sketchbookRows.length ? { reply_markup: { inline_keyboard: sketchbookRows } } : {};
   if (!total) {
     await bot.sendMessage(chatId, cuisineFilter
-      ? (lang === 'fr'
-        ? `📋 Aucun clip pour « ${cuisineFilter} ».`
-        : `📋 No clips matching "${cuisineFilter}".`)
-      : (lang === 'fr'
-        ? '📋 Vous n\'avez pas encore de clips. Touchez « Copier » dans le sélecteur, ou ouvrez Sketchbook.'
-        : '📋 No clips yet. Tap Copy in the cuisine picker, or open Sketchbook.'),
+      ? (tn('bot.index.noClipsMatching', lang, { cuisine: cuisineFilter }))
+      : (t('bot.index.noClipsYetTapCopy', lang)),
       replyMarkupOpt);
     return;
   }
   const header = cuisineFilter
-    ? (lang === 'fr' ? `📋 Vos derniers clips · « ${cuisineFilter} »` : `📋 Your last clips · "${cuisineFilter}"`)
-    : (lang === 'fr' ? '📋 Vos derniers clips' : '📋 Your last clips');
+    ? (tn('bot.index.yourLastClips', lang, { cuisine: cuisineFilter }))
+    : (t('bot.index.yourLastClips2', lang));
   const lines = [header, ''];
   items.forEach((c, i) => {
     // v0.60.151 — prefer a user-supplied name when present; fall back
     // to the auto-cuisines label so legacy clips still read fine.
     const labelMain = (typeof c.name === 'string' && c.name.trim())
       ? escapeHtmlForTelegram(c.name.trim())
-      : ((c.cuisines && c.cuisines.length) ? escapeHtmlForTelegram(c.cuisines.join(', ')) : (lang === 'fr' ? '— pas de cuisine —' : '— no cuisine —'));
+      : ((c.cuisines && c.cuisines.length) ? escapeHtmlForTelegram(c.cuisines.join(', ')) : (t('bot.index.noCuisine', lang)));
     const ago = formatTimeAgo(Date.now() - c.ts, lang);
     const venuesWord = c.venueCount === 1
-      ? (lang === 'fr' ? 'lieu' : 'venue')
-      : (lang === 'fr' ? 'lieux' : 'venues');
+      ? (t('bot.index.venue', lang))
+      : (t('bot.index.venues', lang));
     lines.push(`<b>${i + 1}.</b> 🍽 ${labelMain} · ${c.venueCount} ${venuesWord} · ${ago}`);
     if (c.preview) lines.push(`   <i>${escapeHtmlForTelegram(c.preview.slice(0, 80))}</i>`);
   });
   if (total > items.length) {
     lines.push('');
-    lines.push(lang === 'fr'
-      ? `Voir plus : ${total} clips au total.`
-      : `${total} total · showing first ${items.length}.`);
+    lines.push(tn('bot.index.totalShowingFirst', lang, { total: total, count: items.length }));
   }
   // v0.62.438/439 — just the last-5 list + a single "Open Sketchbook" button
   // (built above as sketchbookRows; per-clip rows + Clear-all moved to the TMA).
@@ -8063,14 +8003,14 @@ async function runClipCommand(chatId, arg, lang = 'en') {
 
 function formatTimeAgo(deltaMs, lang) {
   const m = Math.max(0, Math.floor(deltaMs / 60000));
-  if (m < 1) return lang === 'fr' ? "à l'instant" : 'just now';
-  if (m < 60) return lang === 'fr' ? `il y a ${m} min` : `${m} min ago`;
+  if (m < 1) return t('bot.index.justNow', lang);
+  if (m < 60) return tn('bot.index.minAgo', lang, { n: m });
   const h = Math.floor(m / 60);
-  if (h < 24) return lang === 'fr' ? `il y a ${h} h` : `${h} h ago`;
+  if (h < 24) return tn('bot.index.hAgo', lang, { n: h });
   const d = Math.floor(h / 24);
-  if (d < 7) return lang === 'fr' ? `il y a ${d} j` : `${d} d ago`;
+  if (d < 7) return tn('bot.index.dAgo', lang, { n: d });
   const w = Math.floor(d / 7);
-  return lang === 'fr' ? `il y a ${w} sem` : `${w} w ago`;
+  return tn('bot.index.wAgo', lang, { n: w });
 }
 
 // v0.59.54: /search dispatch.
@@ -8088,9 +8028,7 @@ function formatTimeAgo(deltaMs, lang) {
 // nation-overlay.NATION_OVERLAY) with dish-type tags from dish-types.js
 // (heuristic dictionary; curate-as-you-go per v0.60.181 design rule).
 async function sendSearchAssistMenu(chatId, lang = 'en') {
-  const text = lang === 'fr'
-    ? '🔎 *Assistance recherche*\n\nQue voulez-vous explorer ?'
-    : '🔎 *Search Assistance*\n\nWhat would you like to explore?';
+  const text = t('bot.index.searchAssistanceWhatWouldYou', lang);
   // v0.60.193 — operator: remove the [🥘 Cooking Methods] button from
   // the bare /s sub-menu. Cooking-method lookup remains accessible via
   // free-text /s (e.g. `/s tandoor`, `/s braisage français`) and via
@@ -8102,8 +8040,8 @@ async function sendSearchAssistMenu(chatId, lang = 'en') {
     parse_mode: 'Markdown',
     reply_markup: {
       inline_keyboard: [
-        [{ text: lang === 'fr' ? '🍛 Plats authentiques' : '🍛 Authentic Dishes', callback_data: 's:dishes' }],
-        [{ text: lang === 'fr' ? '💡 Autres (texte libre)' : '💡 Others (free text)',   callback_data: 's:others' }]
+        [{ text: t('bot.index.authenticDishes', lang), callback_data: 's:dishes' }],
+        [{ text: t('bot.index.othersFreeText', lang),   callback_data: 's:others' }]
       ]
     }
   });
@@ -8169,14 +8107,12 @@ function _buildCuisinePicker(source /* 'methods' | 'dishes' */, lang) {
       })));
     }
   }
-  rows.push([{ text: lang === 'fr' ? '↩ Retour' : '↩ Back', callback_data: 's:menu' }]);
+  rows.push([{ text: t('bot.index.back', lang), callback_data: 's:menu' }]);
   return rows;
 }
 
 async function sendSearchMethodsPicker(chatId, lang = 'en') {
-  const text = lang === 'fr'
-    ? '🥘 *Méthodes de cuisson*\n\nChoisissez une cuisine :'
-    : '🥘 *Cooking Methods*\n\nPick a cuisine:';
+  const text = t('bot.index.cookingMethodsPickACuisine', lang);
   await safeSend(chatId, text, {
     parse_mode: 'Markdown',
     reply_markup: { inline_keyboard: _buildCuisinePicker('methods', lang) }
@@ -8184,9 +8120,7 @@ async function sendSearchMethodsPicker(chatId, lang = 'en') {
 }
 
 async function sendSearchDishesPicker(chatId, lang = 'en') {
-  const text = lang === 'fr'
-    ? '🍛 *Plats authentiques*\n\nChoisissez une cuisine :'
-    : '🍛 *Authentic Dishes*\n\nPick a cuisine:';
+  const text = t('bot.index.authenticDishesPickACuisine', lang);
   await safeSend(chatId, text, {
     parse_mode: 'Markdown',
     reply_markup: { inline_keyboard: _buildCuisinePicker('dishes', lang) }
@@ -8201,12 +8135,10 @@ async function sendSearchMethodsFor(chatId, slug, lang = 'en') {
   const flag = nationOverlay.NATION_OVERLAY?.[slug]?.flag || '';
   const methods = (cookingMethods.COOKING_METHODS && cookingMethods.COOKING_METHODS[slug]) || [];
   if (!c || !methods.length) {
-    await safeSend(chatId, lang === 'fr' ? '❌ Cuisine inconnue ou aucune méthode listée.' : '❌ Unknown cuisine or no methods listed.');
+    await safeSend(chatId, t('bot.index.unknownCuisineOrNoMethods', lang));
     return;
   }
-  const header = lang === 'fr'
-    ? `🥘 *${flag} ${c.name} — méthodes de cuisson*\n\n${methods.length} techniques répertoriées. Tapez \`/s <méthode>\` pour rechercher des établissements à Singapour qui en utilisent une.\n`
-    : `🥘 *${flag} ${c.name} — cooking methods*\n\n${methods.length} techniques listed. Type \`/s <method>\` to find Singapore eateries that use one.\n`;
+  const header = tn('bot.index.cookingMethodsTechniquesListedType', lang, { flag: flag, cuisine: c.name, count: methods.length });
   // Display methods as a compact bulleted list, 3-column-ish layout
   // using plain text (Markdown). Operator can add explainers later.
   const body = methods.map((m) => `• \`${m}\``).join('\n');
@@ -8214,15 +8146,13 @@ async function sendSearchMethodsFor(chatId, slug, lang = 'en') {
   // the user to compose richer free-text queries combining a dish + a
   // cooking method + anything else. Mirrors the help in sendSearchOthersPrompt
   // but stays inline so the next move is obvious.
-  const footer = lang === 'fr'
-    ? '\n\n💡 _Astuce — combinez pour des recherches plus riches : tapez_ `/s <plat> <méthode> <autre>`'
-    : '\n\n💡 _Tip — combine for richer searches: type_ `/s <dish> <cooking method> <anything>`';
+  const footer = t('bot.index.tipCombineForRicherSearches', lang);
   await safeSend(chatId, header + '\n' + body + footer, {
     parse_mode: 'Markdown',
     disable_web_page_preview: true,
     reply_markup: { inline_keyboard: [[
-      { text: lang === 'fr' ? '↩ Choisir une autre cuisine' : '↩ Pick another cuisine', callback_data: 's:methods' },
-      { text: lang === 'fr' ? '↩ Menu' : '↩ Menu', callback_data: 's:menu' }
+      { text: t('bot.index.pickAnotherCuisine', lang), callback_data: 's:methods' },
+      { text: t('bot.index.menu', lang), callback_data: 's:menu' }
     ]] }
   });
 }
@@ -8234,7 +8164,7 @@ async function sendSearchDishesFor(chatId, slug, sort = 'nationality', lang = 'e
   const c = cv.findBySlug(slug);
   const overlay = nationOverlay.NATION_OVERLAY?.[slug];
   if (!c || !overlay || !Array.isArray(overlay.iconicDishes)) {
-    await safeSend(chatId, lang === 'fr' ? '❌ Cuisine inconnue ou aucun plat répertorié.' : '❌ Unknown cuisine or no dishes listed.');
+    await safeSend(chatId, t('bot.index.unknownCuisineOrNoDishes', lang));
     return;
   }
   const flag = overlay.flag || '';
@@ -8256,11 +8186,9 @@ async function sendSearchDishesFor(chatId, slug, sort = 'nationality', lang = 'e
     decorated.sort((a, b) => (a.sharedWith.length === 0 ? -1 : 1) - (b.sharedWith.length === 0 ? -1 : 1));
   }
   const sortLabel = sort === 'type'
-    ? (lang === 'fr' ? 'par type de plat' : 'by dish type')
-    : (lang === 'fr' ? 'par nationalité' : 'by nationality');
-  const header = lang === 'fr'
-    ? `🍛 *${flag} ${c.name} — plats authentiques*\n_Tri : ${sortLabel}_\n`
-    : `🍛 *${flag} ${c.name} — authentic dishes*\n_Sort: ${sortLabel}_\n`;
+    ? (t('bot.index.byDishType', lang))
+    : (t('bot.index.byNationality', lang));
+  const header = tn('bot.index.authenticDishesSort', lang, { flag: flag, cuisine: c.name, sort: sortLabel });
   const body = decorated.map((d) => {
     const tags = d.tags.length ? ' · ' + d.tags.join(' · ') : '';
     const shared = d.sharedWith.length ? ` _(also ${d.sharedWith.join(', ')})_` : '';
@@ -8271,17 +8199,15 @@ async function sendSearchDishesFor(chatId, slug, sort = 'nationality', lang = 'e
     ? (otherSort === 'type' ? '🔀 Trier par type' : '🔀 Trier par nationalité')
     : (otherSort === 'type' ? '🔀 Sort by dish type' : '🔀 Sort by nationality');
   // v0.60.182 footer hint — same composition pointer as the methods drill-down.
-  const footer = lang === 'fr'
-    ? '\n\n💡 _Astuce — combinez pour des recherches plus riches : tapez_ `/s <plat> <méthode> <autre>`'
-    : '\n\n💡 _Tip — combine for richer searches: type_ `/s <dish> <cooking method> <anything>`';
+  const footer = t('bot.index.tipCombineForRicherSearches', lang);
   await safeSend(chatId, header + '\n' + body + footer, {
     parse_mode: 'Markdown',
     disable_web_page_preview: true,
     reply_markup: { inline_keyboard: [
       [{ text: otherSortText, callback_data: `s:dishes:${slug}:${otherSort}` }],
       [
-        { text: lang === 'fr' ? '↩ Choisir une autre cuisine' : '↩ Pick another cuisine', callback_data: 's:dishes' },
-        { text: lang === 'fr' ? '↩ Menu' : '↩ Menu', callback_data: 's:menu' }
+        { text: t('bot.index.pickAnotherCuisine', lang), callback_data: 's:dishes' },
+        { text: t('bot.index.menu', lang), callback_data: 's:menu' }
       ]
     ] }
   });
@@ -8290,14 +8216,12 @@ async function sendSearchDishesFor(chatId, slug, sort = 'nationality', lang = 'e
 async function sendSearchOthersPrompt(chatId, lang = 'en') {
   // Keeps the original v0.60.110/111 instruction text accessible — the
   // free-text /s flow lives here.
-  const text = lang === 'fr'
-    ? '💡 *Recherche en texte libre*\n\nUtilisez `/s <texte>` pour rechercher des établissements par plat, ingrédient, style de cuisine, méthode de cuisson ou mots liés à la nourriture.\n\nExemples\n• `/s Goulash dumpling`\n• `/s Braisage French`\n• `/s En Croute`\n• `/s Agemono Japanese`\n\nNote : les résultats peuvent varier et ne sont pas toujours exacts. Veuillez appeler l\'établissement ou ouvrir son lien Google Maps pour confirmer avant de vous déplacer.'
-    : '💡 *Free-text search*\n\nUse `/s <text>` to search for eateries by food, ingredient, cooking style, cooking method, or food-related words.\n\nExamples\n• `/s Goulash dumpling`\n• `/s Braisage French`\n• `/s En Croute`\n• `/s Agemono Japanese`\n\nNote: Search results may vary and may not always be exact. Please call the eatery or open its Google Maps link to confirm before going.';
+  const text = t('bot.index.freeTextSearchUseS', lang);
   await safeSend(chatId, text, {
     parse_mode: 'Markdown',
     disable_web_page_preview: true,
     reply_markup: { inline_keyboard: [[
-      { text: lang === 'fr' ? '↩ Menu' : '↩ Menu', callback_data: 's:menu' }
+      { text: t('bot.index.menu', lang), callback_data: 's:menu' }
     ]] }
   });
 }
@@ -8307,9 +8231,7 @@ async function runSearchCommand(chatId, arg, lang = 'en') {
   // End signal — explicit.
   if (/^(e|end|stop|quit|done|fini|terminer|arr[eê]ter)$/i.test(arg)) {
     await sc.endConversation(redis, chatId);
-    await safeSend(chatId, lang === 'fr'
-      ? '✅ Conversation `/search` terminée. À bientôt.'
-      : '✅ /search conversation ended. See you next time.');
+    await safeSend(chatId, t('bot.index.searchConversationEndedSeeYou', lang));
     return;
   }
   // Empty arg → show the full instruction prompt. v0.60.111 — operator
@@ -8345,16 +8267,12 @@ async function runSearchCommand(chatId, arg, lang = 'en') {
   // multi-second intent-classify + Places + Gemini pipeline runs, so
   // the user sees the bot received their search. Plain text (no
   // parse_mode) so a query containing _ * [ ` ~ can't break rendering.
-  await safeSend(chatId, lang === 'fr'
-    ? `Recherche d'établissements liés à « ${arg} ». Patientez un instant.`
-    : `Searching for eateries related to ${arg}. Please wait a moment.`);
+  await safeSend(chatId, tn('bot.index.searchingForEateriesRelatedTo', lang, { text: arg }));
   try {
     await handleSearchTurn(chatId, arg, lang);
   } catch (err) {
     console.error('[Search] handleSearchTurn fatal:', err.stack || err.message);
-    await safeSend(chatId, lang === 'fr'
-      ? `Désolé, la recherche pour « ${arg} » a échoué. Réessayez dans un instant, ou reformulez avec un nom de plat / d'ingrédient.`
-      : `Sorry, the search for "${arg}" failed. Try again in a moment, or reword it with a dish / ingredient name.`);
+    await safeSend(chatId, tn('bot.index.sorryTheSearchForFailed', lang, { text: arg }));
   }
 }
 
@@ -8428,9 +8346,7 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
     if (disambig.confidence === 'low' && Array.isArray(disambig.alternatives) && disambig.alternatives.length > 0) {
       // LOW confidence — render the interpretations side-by-side, no
       // Places call (each alternative is a one-tap pivot in the disclosure).
-      const reply = (lang === 'fr'
-        ? `🤔 <i>Plusieurs interprétations possibles. Tapez l'une des options ci-dessous:</i>\n\n`
-        : `🤔 <i>This term has multiple meanings — tap one to refine:</i>\n\n`)
+      const reply = (t('bot.index.iThisTermHasMultiple', lang))
         + disambig.disclosure[lang === 'fr' ? 'fr' : 'en'];
       const updated = await sc.appendExchange(redis, chatId, userText, reply, 'ambiguous');
       if (disambig.searchSpec?.stickyKey) {
@@ -8473,16 +8389,12 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
       intent = await gc.classifySearchIntent({ text: userText, history, lang, redis });
     } catch (err) {
       console.warn('[Search] classifySearchIntent failed:', err.message);
-      await safeSend(chatId, lang === 'fr'
-        ? 'Désolé, je n\'ai pas pu interpréter votre requête. Réessayez avec un nom de plat ou d\'ingrédient.'
-        : 'Sorry, I couldn\'t interpret that. Try a dish name or ingredient.');
+      await safeSend(chatId, t('bot.index.sorryICouldnTInterpret', lang));
       return;
     }
     // Ambiguous → polite clarifying question.
     if (intent.intent === 'ambiguous' || !intent.searchTerm) {
-      const reply = intent.clarify || (lang === 'fr'
-        ? 'Pouvez-vous préciser ? Quel plat ou ingrédient cherchez-vous exactement ?'
-        : 'Could you clarify? Which dish or ingredient are you looking for exactly?');
+      const reply = intent.clarify || (t('bot.index.couldYouClarifyWhichDish', lang));
       const updated = await sc.appendExchange(redis, chatId, userText, reply, intent.intent);
       const suffix = sc.shouldNudgeEnd(updated) ? sc.endNudge(lang) : '';
       await safeSend(chatId, esc(reply) + esc(suffix), { parse_mode: 'HTML' });
@@ -8637,27 +8549,21 @@ async function handleSearchTurn(chatId, userText, lang = 'en') {
     // cards render right below). Now matches the v0.60.208 cooking-
     // method fan-out: a country flag (flagFor(cuisine), 🍽 fallback)
     // and the same "verify" caveat.
-    const explainer = intent.why || (lang === 'fr' ? 'technique de cuisson.' : 'cooking technique.');
-    lines.push(lang === 'fr'
-      ? `${flagFor(intent.cuisine)} <b>${esc(explainer)}</b>\n\n<i>Ces lieux peuvent le proposer. Veuillez vérifier.</i>`
-      : `${flagFor(intent.cuisine)} <b>${esc(explainer)}</b>\n\n<i>These places may have it. Please verify.</i>`);
+    const explainer = intent.why || (t('bot.index.cookingTechnique', lang));
+    lines.push(tn('bot.index.bBIThesePlaces', lang, { a: flagFor(intent.cuisine), what: esc(explainer) }));
   } else if (intent.intent === 'ingredient') {
     // v0.60.211 (DF-110) — same misleading-italic fix as the tool
     // branch; the 🌿 glyph stays (apt for an ingredient).
-    const explainer = intent.why || (lang === 'fr' ? 'ingrédient.' : 'ingredient.');
-    lines.push(lang === 'fr'
-      ? `🌿 <b>${esc(explainer)}</b>\n\n<i>Ces lieux peuvent le proposer. Veuillez vérifier.</i>`
-      : `🌿 <b>${esc(explainer)}</b>\n\n<i>These places may have it. Please verify.</i>`);
+    const explainer = intent.why || (t('bot.index.ingredient', lang));
+    lines.push(tn('bot.index.bBIThesePlaces2', lang, { what: esc(explainer) }));
   } else if (intent.cuisine) {
-    const why = intent.why || (lang === 'fr' ? 'recherche en cours.' : 'searching.');
+    const why = intent.why || (t('bot.index.searching', lang));
     lines.push(`🍽 <b>${esc(intent.cuisine)}</b> — ${esc(why)}`);
   } else if (intent.why) {
     lines.push(`🍽 ${esc(intent.why)}`);
   }
   if (!ordered135.length) {
-    lines.push(lang === 'fr'
-      ? `Désolé, aucun lieu correspondant trouvé près de Singapour pour cette requête. Essayez un autre plat ou ingrédient.`
-      : `Sorry, no matching venues found in Singapore for that query. Try another dish or ingredient.`);
+    lines.push(t('bot.index.sorryNoMatchingVenuesFound', lang));
   } else {
     lines.push('');
     const { googleMapsUrl } = require('./maps-url');
@@ -8969,7 +8875,7 @@ function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishP
   // v0.60.222a — operator: standardised glyph 🍽️ → 🍲, "·" separator.
   if (dishPhrase && isDishName(dishPhrase)) {
     const tip = orderTip ? ` — ${vt.escapeHtmlForTelegram(orderTip)}` : '';
-    lines.push(`🍲 ${lang === 'fr' ? 'Essayez' : 'Try'} · <b>${vt.escapeHtmlForTelegram(dishPhrase)}</b>${tip}`);
+    lines.push(`🍲 ${t('bot.venuetemplates.try', lang)} · <b>${vt.escapeHtmlForTelegram(dishPhrase)}</b>${tip}`);
   }
   // v0.61.152 — nationality-language translated review quote. Mirrors
   // venue-templates.js's formatVenueBlock branch. Surfaces only when
@@ -9019,18 +8925,11 @@ function formatTechniqueVenueBlock(venue, { number, lang, googleMapsUrlFn, dishP
 // Also keeps a typing-indicator ticker alive. finish() clears the
 // timers + deletes the message.
 function createWaitStatus(chatId, lang, queryLabel = '') {
-  const isFr = lang === 'fr';
   const escW = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const q = escW(queryLabel);
-  const initial = isFr
-    ? `🔎 <i>Un instant — je cherche des établissements${q ? ` pour <b>${q}</b>` : ''}…</i>`
-    : `🔎 <i>One moment — searching for eateries${q ? ` for <b>${q}</b>` : ''}…</i>`;
-  const reassure = isFr
-    ? ['🔎 <i>Toujours en recherche, merci de patienter…</i>', '🔎 <i>J\'y suis presque…</i>', '🔎 <i>Encore un petit instant…</i>']
-    : ['🔎 <i>Still searching — thanks for your patience…</i>', '🔎 <i>Almost there…</i>', '🔎 <i>Just a moment more…</i>'];
-  const nudge = isFr
-    ? `🕰️ <i>Cela prend plus de temps que d\'habitude.</i>\nVouliez-vous dire autre chose ?${q ? ` Reformulez (par ex. <code>/s ${q} …</code>)` : ''} — ou tapez une autre requête. Je continue la recherche en attendant.`
-    : `🕰️ <i>This is taking longer than usual.</i>\nDid you mean something else?${q ? ` Try rewording (e.g. <code>/s ${q} …</code>)` : ''} — or type another query. I'll keep searching in the meantime.`;
+  const initial = (q ? tn('bot.index.searchingOneMomentFor', lang, { q }) : t('bot.index.searchingOneMoment', lang));
+  const reassure = [t('bot.index.reassure1', lang), t('bot.index.reassure2', lang), t('bot.index.reassure3', lang)];
+  const nudge = (q ? tn('bot.index.takingLongerWithQuery', lang, { q }) : t('bot.index.takingLongerNoQuery', lang));
   let msgId = null;
   let timer = null;
   let typingTimer = null;
@@ -9090,9 +8989,7 @@ async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, s
 
   // Status message — single message, edited at each phase boundary.
   const techLabel = techEntry.match[0];
-  const initialStatus = lang === 'fr'
-    ? `🔍 <i>Cartographie de <b>${esc(techLabel)}</b> à travers les cuisines de Singapour…</i>`
-    : `🔍 <i>Mapping <b>${esc(techLabel)}</b> across Singapore cuisines…</i>`;
+  const initialStatus = tn('bot.index.iMappingBBAcross', lang, { technique: esc(techLabel) });
   let statusMsgId = null;
   try {
     const sent = await bot.sendMessage(chatId, initialStatus, { parse_mode: 'HTML' });
@@ -9139,9 +9036,7 @@ async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, s
     const [variantResults, fusionResults] = await Promise.all([Promise.all(variantSearches), fusionSearch]);
     const allCandidates = variantResults.flat().concat(fusionResults).filter((v) => v.placeId);
 
-    await editStatus(lang === 'fr'
-      ? `✓ <i>${allCandidates.length} établissements possibles trouvés à travers ${variants.length} cuisines · validation de l'authenticité…</i>`
-      : `✓ <i>Found ${allCandidates.length} possible eateries across ${variants.length} cuisines · validating authenticity…</i>`);
+    await editStatus(tn('bot.index.iFoundPossibleEateriesAcross', lang, { count: allCandidates.length, count2: variants.length }));
 
     // Phase 2 — Gemini grounded validation (single batched call).
     let scores = {};
@@ -9206,9 +9101,7 @@ async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, s
     // Phase 3 — enrich the FINAL set (≤6) with travel times + footfall.
     const finalVenues = blocks.flatMap((b) => b.venues);
     if (finalVenues.length) {
-      await editStatus(lang === 'fr'
-        ? `✓ <i>${finalVenues.length} restaurants authentiques · récupération des temps de transport…</i>`
-        : `✓ <i>${finalVenues.length} authentic venues · fetching transit + drive times…</i>`);
+      await editStatus(tn('bot.index.iAuthenticVenuesFetchingTransit', lang, { count: finalVenues.length }));
       try {
         const { enrichTravelTimes } = require('./travel-times');
         await enrichTravelTimes(center.lat, center.lng, finalVenues);
@@ -9246,14 +9139,10 @@ async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, s
     lines.push(`🔧 <b>${esc(techEntry.why || 'Cooking technique.')}</b>`);
     if (!blocks.length) {
       lines.push('');
-      lines.push(lang === 'fr'
-        ? `Désolé, aucun restaurant authentique trouvé à Singapour pour cette technique. Essayez un nom de plat précis (par ex. « beef bourguignon », « osso buco »).`
-        : `Sorry, no authentic Singapore restaurants found for this technique. Try a specific dish name (e.g. "beef bourguignon", "osso buco").`);
+      lines.push(t('bot.index.sorryNoAuthenticSingaporeRestaurants', lang));
     } else {
       lines.push('');
-      lines.push(lang === 'fr'
-        ? `<i>À Singapour, cette technique se décline selon les cuisines:</i>`
-        : `<i>In Singapore, this technique looks different across cuisines:</i>`);
+      lines.push(t('bot.index.iInSingaporeThisTechnique', lang));
       let venueIdx = 1;
       for (const block of blocks) {
         lines.push('');
@@ -9293,9 +9182,7 @@ async function runTechniqueFanOut({ chatId, userText, techEntry, lang, center, s
     await safeSend(chatId, reply + suffix, { parse_mode: 'HTML', disable_web_page_preview: true });
   } catch (err) {
     console.error('[Search-FanOut] fatal:', err.stack || err.message);
-    await safeSend(chatId, lang === 'fr'
-      ? `Désolé, erreur lors de la recherche pour <b>${esc(techEntry.match[0])}</b>. Réessayez ?`
-      : `Sorry, something went wrong while searching for <b>${esc(techEntry.match[0])}</b>. Try again?`,
+    await safeSend(chatId, tn('bot.index.sorrySomethingWentWrongWhile', lang, { a: esc(techEntry.match[0]) }),
       { parse_mode: 'HTML' });
   } finally {
     stopTyping();
@@ -9342,9 +9229,7 @@ async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc, 
       await wait.finish();
       // v0.61.231 — region-neutral copy: locationBias already scopes the
       // search to the user's anchor, so don't hardcode "Singapore".
-      await safeSend(chatId, lang === 'fr'
-        ? `Désolé, aucun lieu trouvé pour <b>${esc(hit.dish)}</b>. Vouliez-vous dire autre chose ? Essayez par ex. <code>/s ${esc(hit.dish)}</code> avec d\'autres mots.`
-        : `Sorry, no venues found for <b>${esc(hit.dish)}</b>. Did you mean something else? Try e.g. <code>/s ${esc(hit.dish)}</code> with different words.`,
+      await safeSend(chatId, tn('bot.index.sorryNoVenuesFoundFor', lang, { dish: esc(hit.dish) }),
         { parse_mode: 'HTML' });
       return;
     }
@@ -9383,8 +9268,8 @@ async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc, 
     const overlayEntry = overlay.getNationOverlay(hit.slug);
     const tourist = overlayEntry?.touristExplainer?.[lang === 'fr' ? 'fr' : 'en'] || '';
     const kindLabel = hit.kind === 'drink'
-      ? (lang === 'fr' ? 'boisson' : 'drink')
-      : (lang === 'fr' ? 'plat' : 'dish');
+      ? (t('bot.index.drink', lang))
+      : (t('bot.index.dish', lang));
     const lines = [];
     lines.push(`${hit.flag} <b>${esc(hit.dish)}</b> · ${esc(cuisineLabel)} ${kindLabel}`);
     if (tourist) {
@@ -9393,9 +9278,7 @@ async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc, 
     }
     if (hit.sharedWith && hit.sharedWith.length) {
       lines.push('');
-      lines.push(lang === 'fr'
-        ? `🔄 <i>Aussi revendiqué par: ${hit.sharedWith.join(', ')}</i>`
-        : `🔄 <i>Also claimed by: ${hit.sharedWith.join(', ')}</i>`);
+      lines.push(tn('bot.index.iAlsoClaimedByI', lang, { others: hit.sharedWith.join(', ') }));
     }
     lines.push('');
     const cards = venues.slice(0, 5).map((venue, i) => formatTechniqueVenueBlock(venue, {
@@ -9420,9 +9303,7 @@ async function runNationIconicFanOut({ chatId, userText, hit, lang, center, sc, 
   } catch (err) {
     console.error('[Nation-Iconic] fatal:', err.stack || err.message);
     await wait.finish();
-    await safeSend(chatId, lang === 'fr'
-      ? `Désolé, la recherche de <b>${esc(hit.dish)}</b> a échoué. Vouliez-vous dire autre chose ? Essayez par ex. <code>/s ${esc(hit.dish)}</code> avec d\'autres mots, ou tapez une autre requête.`
-      : `Sorry, the search for <b>${esc(hit.dish)}</b> failed. Did you mean something else? Try e.g. <code>/s ${esc(hit.dish)}</code> with different words, or type another query.`,
+    await safeSend(chatId, tn('bot.index.sorryTheSearchForB', lang, { dish: esc(hit.dish) }),
       { parse_mode: 'HTML' });
   }
 }
@@ -9490,9 +9371,7 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc,
       await wait.finish();
       // v0.61.231 — region-neutral copy: regionCode + locationBias scope
       // the search to the user's anchor, so don't hardcode "Singapore".
-      await safeSend(chatId, lang === 'fr'
-        ? `Désolé, aucun restaurant <b>${esc(hit.cuisineLabel)}</b> trouvé pour <b>${esc(hit.term)}</b>. Vouliez-vous dire autre chose ? Essayez par ex. <code>/s ${esc(hit.term)}</code> avec d\'autres mots.`
-        : `Sorry, no <b>${esc(hit.cuisineLabel)}</b> venues found for <b>${esc(hit.term)}</b>. Did you mean something else? Try e.g. <code>/s ${esc(hit.term)}</code> with different words.`,
+      await safeSend(chatId, tn('bot.index.sorryNoBBVenues', lang, { cuisine: esc(hit.cuisineLabel), term: esc(hit.term) }),
         { parse_mode: 'HTML' });
       return;
     }
@@ -9527,9 +9406,7 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc,
     // none is known it is omitted entirely.
     lines.push(`${flagFor(hit.cuisineLabel)} · <b>${esc(hit.term)}</b>`);
     if (methodDesc.explainer) lines.push(esc(methodDesc.explainer));
-    lines.push(lang === 'fr'
-      ? '<i>Ces lieux peuvent le proposer. Veuillez vérifier.</i>'
-      : '<i>These places may have it. Please verify.</i>');
+    lines.push(t('bot.index.iThesePlacesMayHave', lang));
     lines.push('');
     // v0.60.112 — render each card defensively: a single malformed
     // venue must not throw the whole reply into the "erreur" path.
@@ -9554,9 +9431,7 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc,
     }).filter(Boolean);
     if (!cards.length) {
       await wait.finish();
-      await safeSend(chatId, lang === 'fr'
-        ? `Désolé, je n\'ai pas pu présenter les résultats pour <b>${esc(hit.term)}</b>. Réessayez dans un instant.`
-        : `Sorry, I couldn't format the results for <b>${esc(hit.term)}</b>. Try again in a moment.`,
+      await safeSend(chatId, tn('bot.index.sorryICouldnTFormat', lang, { term: esc(hit.term) }),
         { parse_mode: 'HTML' });
       return;
     }
@@ -9575,9 +9450,7 @@ async function runCookingMethodFanOut({ chatId, userText, hit, lang, center, sc,
   } catch (err) {
     console.error('[Cooking-Method] fatal:', err.stack || err.message);
     await wait.finish();
-    await safeSend(chatId, lang === 'fr'
-      ? `Désolé, la recherche de <b>${esc(hit.term)}</b> a échoué. Vouliez-vous dire autre chose ? Essayez par ex. <code>/s ${esc(hit.term)}</code> avec d\'autres mots, ou tapez une autre requête.`
-      : `Sorry, the search for <b>${esc(hit.term)}</b> failed. Did you mean something else? Try e.g. <code>/s ${esc(hit.term)}</code> with different words, or type another query.`,
+    await safeSend(chatId, tn('bot.index.sorryTheSearchForB2', lang, { term: esc(hit.term) }),
       { parse_mode: 'HTML' });
   }
 }
@@ -10849,9 +10722,7 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     // this protects against any in-process producer too.
     if (typeof v.recentReview !== 'string' || !v.recentReview.trim()) {
       const tier = TIER_LABEL[v.michelinCategory] || 'Michelin';
-      v.recentReview = csLang === 'fr'
-        ? `${tier} Guide 2025 · recommandation curatée.`
-        : `${tier} Guide 2025 · curated recommendation.`;
+      v.recentReview = tn('bot.index.guide2025CuratedRecommendation', csLang, { tier: tier });
     }
   }
 
@@ -11321,13 +11192,9 @@ bot.on('message', async (msg) => {
           const saved = await renameClip(redis, msg.chat.id, pendingIdx, msg.text);
           try { if (redis.isOpen) await redis.del(pendingKey); } catch { /* best-effort */ }
           if (saved) {
-            await safeSend(msg.chat.id, rnLang === 'fr'
-              ? `✅ Clip ${pendingIdx + 1} renommé : « ${saved} ». Tapez /clipboard pour voir la liste mise à jour.`
-              : `✅ Clip ${pendingIdx + 1} renamed to "${saved}". Type /clipboard to see the updated list.`);
+            await safeSend(msg.chat.id, tn('bot.index.clipRenamedToTypeClipboard', rnLang, { n: pendingIdx + 1, name: saved }));
           } else {
-            await safeSend(msg.chat.id, rnLang === 'fr'
-              ? `❌ Renommage impossible — le clip n'existe peut-être plus.`
-              : `❌ Couldn't rename — the clip may no longer exist.`);
+            await safeSend(msg.chat.id, t('bot.index.couldnTRenameTheClip', rnLang));
           }
           return;
         }
@@ -11397,9 +11264,7 @@ bot.on('message', async (msg) => {
         // path: a free-text reply inside an active /s conversation is
         // functionally a /s query, so it gets the same instant ack
         // before the multi-second pipeline runs.
-        await safeSend(msg.chat.id, scLang === 'fr'
-          ? `Recherche d'établissements liés à « ${text} ». Patientez un instant.`
-          : `Searching for eateries related to ${text}. Please wait a moment.`);
+        await safeSend(msg.chat.id, tn('bot.index.searchingForEateriesRelatedTo', scLang, { text: text }));
         await handleSearchTurn(msg.chat.id, text, scLang);
         return;
       }
@@ -11563,9 +11428,7 @@ bot.on('message', async (msg) => {
       if (disambig.kind !== 'none' && disambig.kind !== 'parent-cuisine') {
         const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         if (disambig.confidence === 'low' && Array.isArray(disambig.alternatives) && disambig.alternatives.length > 0) {
-          const reply = (userLang === 'fr'
-            ? `🤔 <i>Plusieurs interprétations possibles. Tapez l'une des options ci-dessous:</i>\n\n`
-            : `🤔 <i>This term has multiple meanings — tap one to refine:</i>\n\n`)
+          const reply = (t('bot.index.iThisTermHasMultiple', userLang))
             + disambig.disclosure[userLang === 'fr' ? 'fr' : 'en'];
           if (disambig.searchSpec?.stickyKey) {
             try { await sc.setLastDisambig(redis, msg.chat.id, disambig.searchSpec.stickyKey); }
@@ -12000,9 +11863,7 @@ async function runFreeTextSearch(chatId, text, opts = {}) {
       }
       const headerDish = ftDishLabel || String(text).replace(/\s+restaurant\s+singapore\s*$/i, '').trim() || text;
       const headerDishEsc = escapeHtmlForTelegram(headerDish);
-      const headerLabel = ftLang === 'fr'
-        ? `🔎 Résultats pour "${headerDishEsc}"`
-        : `🔎 Results for "${headerDishEsc}"`;
+      const headerLabel = tn('bot.index.resultsFor', ftLang, { dish: headerDishEsc });
       if (wait) { await wait.finish().catch(() => {}); wait = null; }
       // v0.61.436 — capture what deliverPicks ACTUALLY delivered (it floors
       // internally per the chat's rating pref). Code review: marking the
@@ -12193,9 +12054,7 @@ async function runPlaceAnchoredSearch(chatId, place, opts = {}) {
         const { t: trP } = require('./i18n');
         const km = (require('./place-detector').NEARBY_RADIUS_M / 1000).toFixed(1);
         await bot.sendMessage(chatId,
-          lang === 'fr'
-            ? `_Voulez-vous voir les meilleurs établissements à proximité (~${km} km, classés par note · Michelin · rareté · affluence) ?_`
-            : `_Want the top-rated eateries nearby (~${km} km, ranked by rating · Michelin · rarity · crowd)?_`,
+          tn('bot.index.wantTheTopRatedEateries', lang, { km: km }),
           {
             parse_mode: 'Markdown',
             reply_markup: { inline_keyboard: [[{ text: trP('place.nearbyBtn', lang), callback_data: `place:nearby:${key}` }]] }
@@ -15465,9 +15324,7 @@ async function cacheBotUsername() {
         // HTML mode → wrap the command in <code> so Telegram styles it
         // as a tap-to-copy block. Escape only the angle-brackets / amp
         // / quote so accidental HTML in the friendly intro is safe.
-        const intro = synLang === 'fr'
-          ? '🔗 Commande cuisine réutilisable — touchez pour copier, collez dans n’importe quelle discussion avec @soleat_bot pour relancer cette recherche :'
-          : '🔗 Re-runnable cuisine command — tap to copy, paste in any chat with @soleat_bot to relaunch this exact search:';
+        const intro = t('bot.index.reRunnableCuisineCommandTap', synLang);
         const escape = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         await bot.sendMessage(
           chatId,

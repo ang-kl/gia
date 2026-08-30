@@ -52,8 +52,23 @@ describe('O-338 — nothing composes a dish name any more', () => {
     // Scope, asserted. "★★★ Michelin Guide 2025 · curated recommendation" states
     // where the row came from, which is true; the dish line stated a fact that was
     // not. Removing both would be a wider change than the item asked for.
-    expect(CODE).toContain('curated recommendation.');
-    expect(CODE).toContain('recommandation curatée.');
+    //
+    // v0.62.859 — the two literals moved OUT of index.js into i18n.js when item 6 keyed the
+    // bot's two-locale ternaries. ELEVENTH expression pin re-pointed this arc. The
+    // REQUIREMENT is that the review line still exists and still says where the row came
+    // from — not that the sentence sits in index.js. Now asserted by rendering it, which is
+    // stronger than the grep it replaces: it also proves the other six locales exist, which
+    // the literal check could never have told us.
+    const { t } = require('../i18n');
+    expect(CODE, 'the review line was removed rather than keyed')
+      .toContain('bot.index.guide2025CuratedRecommendation');
+    expect(t('bot.index.guide2025CuratedRecommendation', 'en')).toContain('curated recommendation.');
+    expect(t('bot.index.guide2025CuratedRecommendation', 'fr')).toContain('recommandation curatée.');
+    for (const l of ['id', 'ru', 'de', 'zh', 'ja', 'es']) {
+      const v = t('bot.index.guide2025CuratedRecommendation', l);
+      expect(v, `${l} falls back to English`).not.toContain('curated recommendation.');
+      expect(v).toContain('{tier}');
+    }
   });
 });
 
