@@ -469,36 +469,48 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
       <div className="font-semibold text-[12px] leading-tight text-tg-text">
         {Number.isFinite(number) && <span className="text-tg-hint font-semibold tabular-nums">{number} · </span>}{venue.name}
       </div>
-          {/* v0.61.359 — native-script name in "( )" below the name (RULE A/B
-              applied server-side; absent when redundant with the device lang). */}
-          {venue.nameLocal && (
-            <div className="text-[13px] text-tg-hint leading-tight truncate">({venue.nameLocal})</div>
-          )}
-          {/* v0.61.382 — readable foreign-name line: a device-language
-              romanisation + brief gloss (Gemini, server-side) for a name in
-              a script the reader can't read. Shown under the native name,
-              never replacing it. 🔤 marks "how to read it" (icon, not colour). */}
-          {venue.nameReading && (
-            <div className="text-[12px] text-tg-hint leading-tight truncate">🔤 {venue.nameReading}</div>
-          )}
-          {/* v0.62.840 — HOW TO SAY IT, which is a different question from what it
-              MEANS. Operator: "the restaurant name's second line should have the
-              japanese way to pronounce the foreign resturant name … same for English
-              or french speaker who searching Malaysia eateries". Distinct icon from
-              the 🔤 reading line above, because they are distinct features and
-              sharing a marker would make them look like one. */}
-          {sayNow && (
-            <div className="text-[12px] text-tg-hint leading-tight truncate flex items-center gap-1">
-              <PronounceIcon className="shrink-0 opacity-80" />
-              <span className="truncate">{sayNow}</span>
-            </div>
-          )}
-          {/* v0.62.x item 7 — device-language MEANING of a foreign-language
-              (Latin-script) name, e.g. "Tầm vị" → "(seeking flavour)". Gemini,
-              server-side, cached. Next row in brackets, never replacing. */}
-          {venue.nameGloss && (
-            <div className="text-[12px] text-tg-hint leading-tight truncate">({venue.nameGloss})</div>
-          )}
+          {/* v0.62.855 — EXACTLY ONE GUIDE LINE BESIDE THE NAME.
+              Operator: "only address, restaurant names and transport name can show both
+              languages". Both means TWO, and this block could render four.
+
+              `translate-name.js` already skips when `nameLocal` is set, so those two are
+              mutually exclusive — but `nameGloss` and `namePronounce` guard only their own
+              field, so a venue could stack name + nameLocal + nameGloss + namePronounce.
+              Hawker and Transport were already strictly two, by mutually exclusive
+              conditions; the cuisine card was the one place that was not.
+
+              Nothing is deleted: all four remain, in precedence order, and the winner is
+              whichever exists. The order mirrors the rule the hawker card already uses —
+              the CURATED/official answer first, the derived ones after:
+
+                nameLocal      the official native-script name — authoritative, not derived
+                nameReading    a romanisation of a script the reader cannot read
+                namePronounce  how to SAY it (the operator's original request)
+                nameGloss      what it MEANS
+
+              For a Singapore venue read in Japanese — the reported case — the first two are
+              absent, so the pronunciation line still wins and the screenshot is unchanged. */}
+          {(() => {
+            const nameGuide = venue.nameLocal
+              ? { text: `(${venue.nameLocal})`, icon: null, key: 'local' }
+              : venue.nameReading
+                ? { text: `🔤 ${venue.nameReading}`, icon: null, key: 'reading' }
+                : sayNow
+                  ? { text: sayNow, icon: <PronounceIcon className="shrink-0 opacity-80" />, key: 'say' }
+                  : venue.nameGloss
+                    ? { text: `(${venue.nameGloss})`, icon: null, key: 'gloss' }
+                    : null;
+            if (!nameGuide) return null;
+            return (
+              <div
+                className="text-[12px] text-tg-hint leading-tight truncate flex items-center gap-1"
+                data-name-guide={nameGuide.key}
+              >
+                {nameGuide.icon}
+                <span className="truncate">{nameGuide.text}</span>
+              </div>
+            );
+          })()}
           {/* v0.60.45 — restaurant type line. Sourced from
               michelinCuisineLabel (when present) or Places API
               primaryTypeDisplayName, with the trailing "restaurant"
