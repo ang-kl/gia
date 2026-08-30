@@ -4942,7 +4942,15 @@ export default function App() {
             {!localeReady ? (
               /* v0.62.831 — O-345 (b). Words withheld until the locale settles; the dots
                  keep the card the same height, so nothing jumps when they arrive. */
-              <div aria-live="polite"><span aria-hidden className="inline-flex">
+              // v0.62.834 — Codex, P2 on #1783: this placeholder reserved ONE line while the
+              // ready branch can render TWO (loading.head + the rotating line, or
+              // loading.initial + the ratingReminder), and the card is vertically centred —
+              // so it grew and moved on `localeReady`, which is what the previous comment
+              // claimed could not happen. Reserve two lines. Stated rather than over-claimed:
+              // this removes the one- versus two-line jump, NOT a jump from a locale whose
+              // sentence wraps to three; the honest version of the promise is "no jump for
+              // the line counts the ready branch actually emits".
+              <div aria-live="polite" className="min-h-[2.25rem]"><span aria-hidden className="inline-flex">
                 <span className="animate-blink">.</span>
                 <span className="animate-blink" style={{ animationDelay: '0.25s' }}>.</span>
                 <span className="animate-blink" style={{ animationDelay: '0.5s' }}>.</span>

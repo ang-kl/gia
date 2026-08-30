@@ -15,6 +15,25 @@
 //      common use, the kind printed on the centre's own signboard (麦士威熟食中心, 老巴刹,
 //      牛车水大厦). `comp` = composed from a place name plus a generic noun, which is what
 //      a Chinese-reading local would actually say for a neighbourhood market.
+//   1b. v0.62.833 — THE REGISTER REACHES FURTHER THAN ITS STATION CATEGORY. Operator:
+//      "use the Singapore government translation for 4 languages if in doubt". A free-text
+//      search of translatedterms.gov.sg (not just the MRT/LRT category) returns Community
+//      Clubs, libraries, constituencies and heritage trails — which DO carry locality names.
+//      It corrected three rows that had been authored and believed:
+//        Kebun Baru  甘榜峇鲁 -> 哥本峇鲁   (CC + SMC, two independent entries)
+//        Pek Kio     百吉    -> 白桥       (Pek Kio Community Centre)
+//        Taman Jurong 裕廊坊 -> 达曼裕廊   (CC + Our Museum@Taman Jurong)
+//      and confirmed 安谷 (Anchorvale CC) and 加冷 (Kallang CC), which is why those rows
+//      are no longer `low`.
+//
+//      AND IT CAME WITH A TRAP THAT WOULD HAVE ADDED ERRORS WHILE LOOKING LIKE VERIFICATION:
+//      SINGAPORE SCHOOL NAMES ARE NOT LOCALITY EVIDENCE. Alexandra Primary is 雅德小学,
+//      Bukit Merah Secondary 达善中学, Serangoon Garden Secondary 实勤中学, Bendemeer
+//      Primary 明智小学, Boon Lay Garden Primary 文园小学, Dunman High 德明政府中学 — six
+//      cases where the school's Chinese name has nothing to do with its locality's. Only
+//      Community Clubs/Centres, MRT stations, libraries and constituencies track the place
+//      name. Reading the school rows would have "corrected" Dunman to 德明 and Bendemeer to
+//      明智, both wrong, with an official-looking citation attached.
 //   2. The nine composable rows are asserted in __tests__/hawker-names-i18n.test.js to agree
 //      with the station register's own characters. It is a small external check, but it is
 //      a real one, and it is more than this file could otherwise offer.
@@ -55,7 +74,7 @@ export const SG_HAWKER_NAMES_I18N = [
   R('Pasir Panjang Food Centre',          '巴西班让熟食中心',     'Pusat Makanan Pasir Panjang',        'comp'),
   R('Sembawang Hills Food Centre',        '三巴旺山熟食中心',     'Pusat Makanan Sembawang Hills',      'comp'),
   R('Serangoon Garden Market',            '实龙岗花园巴刹',       'Pasar Serangoon Garden',             'est'),
-  R('Taman Jurong Market and Food Centre','裕廊坊巴刹与熟食中心', 'Pasar dan Pusat Makanan Taman Jurong', 'comp'),
+  R('Taman Jurong Market and Food Centre','达曼裕廊巴刹与熟食中心', 'Pasar dan Pusat Makanan Taman Jurong', 'comp'),
   R('Tanglin Halt Market',                '东陵福巴刹',           'Pasar Tanglin Halt',                 'est'),
   R('Tiong Bahru Market',                 '中峇鲁巴刹',           'Pasar Tiong Bahru',                  'est'),
   R('Zion Riverside Food Centre',         '锡安路河畔熟食中心',   'Pusat Makanan Zion Riverside',       'est'),
@@ -128,7 +147,7 @@ export const SG_HAWKER_NAMES_I18N = [
   R('New Upper Changi Road Blk 58',       '新樟宜上段路58座',     'New Upper Changi Road Blok 58',      'comp'),
   R('New Upper Changi Road Blk 208B',     '新樟宜上段路208B座',   'New Upper Changi Road Blok 208B',    'comp'),
   R('51 Old Airport Road Food Centre and Shopping Mall', '旧机场路51熟食中心与购物中心', 'Pusat Makanan dan Pusat Beli-belah 51 Old Airport Road', 'est'),
-  R('Pek Kio Market and Food Centre',     '百吉巴刹与熟食中心',   'Pasar dan Pusat Makanan Pek Kio',    'est'),
+  R('Pek Kio Market and Food Centre',     '白桥巴刹与熟食中心',   'Pasar dan Pusat Makanan Pek Kio',    'est'),
   R("People's Park Food Centre",          '人民公园熟食中心',     'Pusat Makanan People\'s Park',       'est'),
   R('Redhill Market',                     '红山巴刹',             'Pasar Redhill',                      'comp'),
   R('Redhill Food Centre',                '红山熟食中心',         'Pusat Makanan Redhill',              'comp'),
@@ -153,6 +172,30 @@ export const SG_HAWKER_NAMES_I18N = [
   R('Ayer Rajah Food Centre',             '亚逸拉惹熟食中心',     'Pusat Makanan Ayer Rajah',           'est'),
   R('Whampoa Drive Makan Place/Whampoa Food Centre', '黄埔通道美食坊／黄埔熟食中心', 'Makan Place Whampoa Drive/Pusat Makanan Whampoa', 'est'),
   R('Whampoa Drive Makan Place/Whampoa Market', '黄埔通道美食坊／黄埔巴刹', 'Makan Place Whampoa Drive/Pasar Whampoa', 'est'),
+  // ── The last twelve, on the operator's "finish O-344" ─────────────────────────
+  // THESE CARRY src: 'low' AND THAT IS THE POINT. The other 111 rows are either an
+  // established name or a composition whose locality comes from the MRT station register.
+  // These twelve have neither: the register does not name their localities, and I could
+  // not find a printed Chinese name I would vouch for. They were DECLINED in v0.62.829-830
+  // for exactly that reason and are included now because the operator asked to finish the
+  // corpus — so the uncertainty is carried in the data rather than dissolved into it.
+  //
+  // A native reader checking this file should start here, and the test pins the list by
+  // name so it stays a worklist rather than a footnote. The two I would bet against first
+  // are Beo Crescent and Chomp Chomp: both are known locally by names that are not
+  // transliterations of their English, and a phonetic rendering may be recognised by nobody.
+  R('ABC Brickworks Market/Food Centre',  '红山砖厂巴刹与熟食中心', 'Pasar dan Pusat Makanan ABC Brickworks', 'low'),
+  R('Albert Centre',                      '亚伯特中心巴刹与熟食中心', 'Pasar dan Pusat Makanan Albert Centre', 'low'),
+  R('Empress Road Market and Food Centre','女皇路巴刹与熟食中心', 'Pasar dan Pusat Makanan Empress Road', 'low'),
+  R('Blk 4A Jalan Batu Hawker Centre/Market', '峇株路4A座小贩中心与巴刹', 'Pusat Penjaja dan Pasar Blok 4A Jalan Batu', 'low'),
+  R('Kukoh 21 Food Centre',               '古哥21熟食中心',       'Pusat Makanan Kukoh 21',             'low'),
+  R('Mei Chin Road Market',               '美真路巴刹',           'Pasar Mei Chin Road',                'low'),
+  R('Kebun Baru Market and Food Centre',  '哥本峇鲁巴刹与熟食中心', 'Pasar dan Pusat Makanan Kebun Baru', 'comp'),
+  R('Kebun Baru Food Centre',             '哥本峇鲁熟食中心',     'Pusat Makanan Kebun Baru',           'comp'),
+  R('Anchorvale Village Hawker Centre',   '安谷村小贩中心',       'Pusat Penjaja Anchorvale Village',   'comp'),
+  R('Beo Crescent Market',                '美哇弯巴刹',           'Pasar Beo Crescent',                 'low'),
+  R('Chomp Chomp Food Centre',            '昌昌熟食中心',         'Pusat Makanan Chomp Chomp',          'low'),
+  R('Kallang Estate Fresh Market and Food Centre', '加冷巴刹与熟食中心', 'Pasar dan Pusat Makanan Kallang Estate', 'comp'),
 ];
 
 export const SG_HAWKER_NAMES_BY_NAME = new Map(SG_HAWKER_NAMES_I18N.map((r) => [r.n.toLowerCase(), r]));
