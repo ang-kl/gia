@@ -33,12 +33,51 @@ const require = createRequire(join(ROOT, 'package.json'));
 
 const IMPORT_RE = /(?:^|\s)(?:import\s[^'"]*?from\s*|import\s*|export\s[^'"]*?from\s*)['"]([^'"]+)['"]/gm;
 
+// v0.62.836 — DYNAMIC IMPORTS, because this guard did not fire on the very case it
+// was written for, and CI caught it instead.
+//
+// v0.62.834 added `__tests__/locale-hydration-gate.test.js`, which reaches
+// `web/cuisine/src/v2/lib/i18n.js` — a module that imports React. That is precisely
+// this file's founding case, and the error CI printed is the one quoted in the header
+// above, verbatim. The guard stayed silent through it: `IMPORT_RE` matches only STATIC
+// forms with a literal specifier, and the new test used `await import(I18N_PATH)` with
+// a computed path, so nothing was ever queued.
+//
+// The v0.62.835 fix was reported as "nothing guards this class". That was WRONG — this
+// file guards it and had a blind spot. Recorded rather than quietly corrected, because
+// the wrong sentence shipped in a Journal entry, a Register row and a PR body.
+//
+// Two shapes are added, and the second is not hypothetical: `i18n.js` itself reaches
+// `./api.js` via `await import('./api.js')`, so a literal dynamic import is a real edge
+// in the real graph that this guard was also not following.
+const DYNAMIC_LITERAL_RE = /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
+const DYNAMIC_COMPUTED_RE = /\bimport\s*\(\s*([A-Za-z_$][\w$]*)\s*\)/g;
+// `new URL('<spec>', import.meta.url)` — how a test names a file it will later import
+// by path. Captured so a computed `import(VAR)` resolves back to its literal.
+const URL_CONST_RE = /\bconst\s+([A-Za-z_$][\w$]*)\s*=\s*new URL\(\s*['"]([^'"]+)['"]\s*,\s*import\.meta\.url\s*\)/g;
+
 function importsOf(file) {
   const src = readFileSync(file, 'utf8');
   const out = [];
   let m;
   IMPORT_RE.lastIndex = 0;
   while ((m = IMPORT_RE.exec(src)) !== null) out.push(m[1]);
+
+  DYNAMIC_LITERAL_RE.lastIndex = 0;
+  while ((m = DYNAMIC_LITERAL_RE.exec(src)) !== null) out.push(m[1]);
+
+  // Resolve `import(VAR)` when VAR was bound to a `new URL(...)` literal in the same
+  // file. A specifier genuinely built at runtime stays invisible, and that limit is
+  // stated rather than papered over: this widens the guard to the shape that actually
+  // bit, not to every shape imaginable.
+  const bound = new Map();
+  URL_CONST_RE.lastIndex = 0;
+  while ((m = URL_CONST_RE.exec(src)) !== null) bound.set(m[1], m[2]);
+  DYNAMIC_COMPUTED_RE.lastIndex = 0;
+  while ((m = DYNAMIC_COMPUTED_RE.exec(src)) !== null) {
+    const spec = bound.get(m[1]);
+    if (spec) out.push(spec);
+  }
   return out;
 }
 
@@ -66,6 +105,21 @@ describe('root unit tests must not reach modules that need TMA dependencies', ()
     const offences = [];
 
     for (const testFile of testFiles) {
+      // v0.62.836 — a specifier the test MOCKS is not an offence.
+      //
+      // The guard's real subject is "does the root run break on an import it cannot
+      // resolve", not "does a web/ module mention React". `vi.mock('react', factory)`
+      // intercepts before resolution, so the import never reaches the resolver — proved
+      // by CI, which went from red to green on exactly that change with nothing else
+      // touched. Treating it as an offence anyway would forbid the one remedy that
+      // works and push the next author toward a global `resolve.alias`, which is worse:
+      // it would silently hand a fake React to a test that wanted a real one.
+      //
+      // Scoped to the test file that declares the mock, because that is how vitest
+      // scopes it — a mock in one file does nothing for another.
+      const mocked = new Set(
+        [...readFileSync(testFile, 'utf8').matchAll(/\bvi\.mock\(\s*['"]([^'"]+)['"]/g)].map((m) => m[1])
+      );
       // Seed with the web/ modules this test imports directly.
       const queue = importsOf(testFile)
         .filter((s) => s.startsWith('.'))
@@ -84,7 +138,7 @@ describe('root unit tests must not reach modules that need TMA dependencies', ()
             if (next) queue.push(next);
             continue;
           }
-          if (!resolvableFromRoot(spec)) {
+          if (!resolvableFromRoot(spec) && !mocked.has(spec)) {
             offences.push(
               `${relative(ROOT, testFile)} → … → ${relative(ROOT, file)} imports "${spec}", ` +
               `which the repo root cannot resolve (it lives in a TMA's own node_modules).`

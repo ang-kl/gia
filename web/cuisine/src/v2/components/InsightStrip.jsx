@@ -47,12 +47,19 @@ export function insightLineText(venues, lang) {
   return insightParts(venues, lang).join(' · ');
 }
 
-// Small UI words, localised inline (matches App.jsx's inline-ternary pattern).
+// Small UI words, localised inline.
+//
+// v0.62.836 — THESE STOPPED AT FIVE LOCALES WHILE THE APP WENT TO EIGHT. Operator,
+// from a Japanese session: "some components are still not translated" — the strip
+// read "1 gems" under Japanese chrome because zh, ja and es were never added when
+// they shipped in the v0.62.49x arc, and `word()`'s `|| WORD[k].en` fallback turned
+// that omission into plausible-looking English rather than anything that failed.
+// A fallback that cannot be distinguished from a translation is how this hid.
 const WORD = {
-  spots: { en: 'spots', fr: 'lieux', id: 'tempat', ru: 'мест', de: 'Orte' },
-  med: { en: 'med.', fr: 'méd.', id: 'med.', ru: 'медиана', de: 'Median' },
-  pp: { en: 'pp', fr: 'pp', id: 'pp', ru: '/чел', de: 'pP' },
-  gems: { en: 'gems', fr: 'pépites', id: 'permata', ru: 'находок', de: 'Geheimtipps' },
+  spots: { en: 'spots', fr: 'lieux', id: 'tempat', ru: 'мест', de: 'Orte', zh: '家', ja: '件', es: 'sitios' },
+  med: { en: 'med.', fr: 'méd.', id: 'med.', ru: 'медиана', de: 'Median', zh: '中位', ja: '中央値', es: 'med.' },
+  pp: { en: 'pp', fr: 'pp', id: 'pp', ru: '/чел', de: 'pP', zh: '/人', ja: '/人', es: 'pp' },
+  gems: { en: 'gems', fr: 'pépites', id: 'permata', ru: 'находок', de: 'Geheimtipps', zh: '宝藏', ja: '穴場', es: 'joyas' },
 };
 const word = (k, lang) => (WORD[k][lang] || WORD[k].en);
 

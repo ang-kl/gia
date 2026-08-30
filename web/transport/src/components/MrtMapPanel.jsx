@@ -54,6 +54,7 @@ import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE } from '../../../_shared/lib/map-interact
 // identity comparison, or a Google Maps query string — and translating one of those
 // breaks the app silently. The three call sites below are the ones a reader sees.
 import { stationName } from '../../../_shared/lib/mrt-stations-i18n.generated.js';
+import { mapsLanguageParam } from '../../../_shared/lib/gmaps-language.js';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
 // through Telegram WebApp's openLink when available so Telegram opens
@@ -308,7 +309,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
         return;
       }
       const tag = document.createElement('script');
-      tag.src = `https://maps.googleapis.com/maps/api/js?key=${d.key}&libraries=marker&v=quarterly&loading=async&callback=__giaMapsReady`;
+      tag.src = `https://maps.googleapis.com/maps/api/js?key=${d.key}&libraries=marker&v=quarterly&loading=async${mapsLanguageParam()}&callback=__giaMapsReady`;
       tag.async = true;
       tag.dataset.gmaps = '1';
       window.__giaMapsReady = () => { if (!cancelled) { setMapsKeyState('ready'); initMap(); } };
@@ -666,7 +667,7 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
           return `<span style="color:${color}">${emoji} ${escapeHtml(ln)} · ${escapeHtml(label)}</span>`;
         }).join('<br>')
       : '';
-    const linkHtml = `<br><a href="#" onclick="__giaMrtOpenMap('${escapeHtml(s.name)}'); return false;" style="color:${pal.link}">Google Map ↗</a>`;
+    const linkHtml = `<br><a href="#" onclick="__giaMrtOpenMap('${escapeHtml(s.name)}'); return false;" style="color:${pal.link}">${escapeHtml(t('link.googleMap', lang))}</a>`;
     const crowdHtml = (!isFuture && crowdLevel)
       ? `<br><span>${CROWD_DOT[crowdLevel]} ${escapeHtml(t(`mrt.crowd.${crowdLevel}`, lang))}</span>`
       : '';

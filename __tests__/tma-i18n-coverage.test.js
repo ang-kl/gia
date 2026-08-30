@@ -171,6 +171,11 @@ describe('TMA i18n coverage (O-327)', () => {
   // that drifts up silently stops being a gate against deletion.
   it('the counts are asserted, so a silent deletion shows up as a failure', () => {
     expect(Object.fromEntries(Object.keys(APPS).map((a) => [a, parsed[a].baseKeys.length])))
-      .toEqual({ clipboard: 243, cuisine: 233, hawker: 75, menu: 71, transport: 120 });
+      // v0.62.836 — cuisine 233 -> 252 (+19), hawker 75 -> 76, transport 120 -> 121.
+      // Every one is a string that was previously HARDCODED as `lang === 'fr' ? … : …`
+      // and so rendered English to the other six locales. cuisine: 4 `lastCard.*`,
+      // 13 `plate.*`, `plate.moreClassics`, `plate.localClassicAria`. hawker and
+      // transport: `link.googleMap` each, for the infowindow's trailing link.
+      .toEqual({ clipboard: 243, cuisine: 252, hawker: 76, menu: 71, transport: 121 });
   });
 });

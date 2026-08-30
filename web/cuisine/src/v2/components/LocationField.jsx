@@ -700,7 +700,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
         >
           <div className="relative bg-tg-accent text-tg-bg text-[10px] font-semibold rounded-2xl px-2.5 py-1 whitespace-nowrap shadow-md">
             <span className="absolute right-3 -top-1 w-2 h-2 bg-tg-accent rotate-45" />
-            {lang === 'fr' ? 'Touchez 🔍 pour rechercher' : 'Tap 🔍 to search'}
+            {tr('lastCard.tapSearch', lang)}
           </div>
         </div>
       )}

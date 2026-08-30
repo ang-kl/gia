@@ -5,6 +5,7 @@ import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, c
 import { createRingLayer, farthestResultDist } from '../../../../_shared/lib/distance-rings.js';
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS } from '../../../../_shared/lib/map-interaction.js';
 import MapControls from '../../../../_shared/components/MapControls.jsx';
+import { mapsLanguageParam } from '../../../../_shared/lib/gmaps-language.js';
 
 // v0.61.70 — venue pin carrying the venue's 1-based result number (its
 // rank in the current search results / first load). Replaces the emoji-
@@ -260,7 +261,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         mapIdRef.current = d.mapId;
       }
       const tag = document.createElement('script');
-      tag.src = `https://maps.googleapis.com/maps/api/js?key=${d.key}&libraries=marker&v=quarterly&loading=async&callback=__giaMapsReady`;
+      tag.src = `https://maps.googleapis.com/maps/api/js?key=${d.key}&libraries=marker&v=quarterly&loading=async${mapsLanguageParam()}&callback=__giaMapsReady`;
       tag.async = true;
       window.__giaMapsReady = () => { if (!cancelled) initMap(); };
       document.head.appendChild(tag);

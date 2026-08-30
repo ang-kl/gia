@@ -3,6 +3,7 @@ import { tg } from '../../api/tg.js';
 import { copyOneToChat, fetchSocialProfiles } from '../lib/api.js';
 import { useLocale, t as tr, tn } from '../lib/i18n.js';
 import { likelyServesText } from '../lib/dish-category.js';
+import { restaurantTypeName } from '../lib/cuisine-i18n.js';
 import SocialButtons from './SocialButtons.jsx';
 import { OTHER_COUNTRIES } from '../lib/countries.js';
 import { abbrevAddress } from '../../../../_shared/lib/abbrev-address.js';
@@ -473,7 +474,11 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               {[
                 // v0.62.212 — card style A: 🍴 prefixes the cuisine type on the
                 // horizontal card so the type/rating/price row reads at a glance.
-                venue.restaurantType ? (horizontal ? `🍴 ${venue.restaurantType}` : venue.restaurantType) : '',
+                // v0.62.836 — localise Google's type word. The translation has
+                // existed in cuisine-i18n for all 69 slugs; the card never asked.
+                venue.restaurantType
+                  ? (horizontal ? `🍴 ${restaurantTypeName(venue.restaurantType, lang)}` : restaurantTypeName(venue.restaurantType, lang))
+                  : '',
                 horizontal && rating,
                 horizontal && price
               ].filter(Boolean).join(' · ')}

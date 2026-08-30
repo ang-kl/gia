@@ -34,6 +34,7 @@ import { createRingLayer } from '../../../_shared/lib/distance-rings.js';
 import { createInspectLayer, loadAllHawkerCentres } from '../../../_shared/lib/temp-pin.js';
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS, BLINK_MS } from '../../../_shared/lib/map-interaction.js';
 import MapControls from '../../../_shared/components/MapControls.jsx';
+import { mapsLanguageParam } from '../../../_shared/lib/gmaps-language.js';
 
 const SG_CENTROID = { lat: 1.3521, lng: 103.8198 };
 const SG_DEFAULT_ZOOM = 12;   // v0.62.132 — default 11->12
@@ -237,7 +238,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
         return;
       }
       const tag = document.createElement('script');
-      tag.src = `https://maps.googleapis.com/maps/api/js?key=${d.key}&libraries=marker&v=quarterly&loading=async&callback=__giaMapsReady`;
+      tag.src = `https://maps.googleapis.com/maps/api/js?key=${d.key}&libraries=marker&v=quarterly&loading=async${mapsLanguageParam()}&callback=__giaMapsReady`;
       tag.async = true;
       tag.dataset.gmaps = '1';
       window.__giaMapsReady = () => { if (!cancelled) initMap(); };
@@ -500,7 +501,7 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
       h += `<div onclick="window.__giaHawkerFocusStation&&window.__giaHawkerFocusStation('${escapeHtml(first)}');return false;" style="margin-top:3px;cursor:pointer;display:flex;align-items:center;gap:5px;flex-wrap:wrap;"><span aria-hidden>🚉</span>${pills}<span style="color:${p.sub};">${escapeHtml(st.name)}</span></div>`;
     }
     // v0.61.31 — standard trailing "Google Map ↗" hyperlink (every TMA).
-    h += `<div style="margin-top:4px;"><a href="#" onclick="window.__giaHawkerOpenMap('${escapeHtml(key)}'); return false;" style="color:${p.link};text-decoration:underline;cursor:pointer;">Google Map ↗</a></div>`;
+    h += `<div style="margin-top:4px;"><a href="#" onclick="window.__giaHawkerOpenMap('${escapeHtml(key)}'); return false;" style="color:${p.link};text-decoration:underline;cursor:pointer;">${escapeHtml(t('link.googleMap', lang))}</a></div>`;
     return infoCard(h);
   }
 
