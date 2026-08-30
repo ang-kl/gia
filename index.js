@@ -18097,6 +18097,19 @@ async function cacheBotUsername() {
         try {
           await require('./translate-name').attachNameReadings(payload?.venues, searchRegionCode, deviceLang, redis);
         } catch (e) { /* non-fatal — names just stay in native script */ }
+        // v0.62.840 — HOW TO SAY IT, a different question from what it MEANS.
+        // Operator: "the restaurant name's second line should have the japanese way
+        // to pronounce the foreign resturant name … same for English or french
+        // speaker who searching Malaysia eateries, learn to pronounce the restaurant
+        // name". So it is symmetric and NOT script-gated: "Restoran Sri Nirwana Maju"
+        // is already Latin and still unsayable to an English reader.
+        //
+        // Minimum-token per the operator's cap: the lite model first, one call per
+        // (name, locale) cached 30 days, and NONE cached too — re-asking whether
+        // "Pizza Hut" needs a guide is exactly the spend to avoid.
+        try {
+          await require('./pronounce-name').attachPronunciations(payload?.venues, deviceLang, { redis });
+        } catch (e) { /* non-fatal — the card simply omits the line */ }
         // v0.62.x item 7 — device-language MEANING gloss for a foreign-LANGUAGE
         // Latin-script name (e.g. Vietnamese "Tầm vị" → "(seeking flavour)").
         // Gemini, cached; attaches `nameGloss`, fail-open. Operator-authorised

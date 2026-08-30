@@ -7,6 +7,7 @@ import { restaurantTypeName } from '../lib/cuisine-i18n.js';
 import SocialButtons from './SocialButtons.jsx';
 import { OTHER_COUNTRIES } from '../lib/countries.js';
 import { abbrevAddress } from '../../../../_shared/lib/abbrev-address.js';
+import PronounceIcon from '../../../../_shared/components/PronounceIcon.jsx';
 
 const PRICE_LABEL = { 1: '$', 2: '$$', 3: '$$$', 4: '$$$$' };
 
@@ -252,6 +253,7 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
         name: venue.name,
         nameLocal: venue.nameLocal,
         nameReading: venue.nameReading, // v0.61.382 — readable foreign-name line
+        namePronounce: venue.namePronounce, // v0.62.840 — how to say it
         nameGloss: venue.nameGloss,      // v0.62.x item 7 — meaning of a foreign-lang name
         area: venue.area,
         lat: venue.lat,
@@ -453,6 +455,18 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
               never replacing it. 🔤 marks "how to read it" (icon, not colour). */}
           {venue.nameReading && (
             <div className="text-[12px] text-tg-hint leading-tight truncate">🔤 {venue.nameReading}</div>
+          )}
+          {/* v0.62.840 — HOW TO SAY IT, which is a different question from what it
+              MEANS. Operator: "the restaurant name's second line should have the
+              japanese way to pronounce the foreign resturant name … same for English
+              or french speaker who searching Malaysia eateries". Distinct icon from
+              the 🔤 reading line above, because they are distinct features and
+              sharing a marker would make them look like one. */}
+          {venue.namePronounce && (
+            <div className="text-[12px] text-tg-hint leading-tight truncate flex items-center gap-1">
+              <PronounceIcon className="shrink-0 opacity-80" />
+              <span className="truncate">{venue.namePronounce}</span>
+            </div>
           )}
           {/* v0.62.x item 7 — device-language MEANING of a foreign-language
               (Latin-script) name, e.g. "Tầm vị" → "(seeking flavour)". Gemini,
