@@ -60,6 +60,39 @@ describe('serial-state time anchor', () => {
     expect(Date.parse(utc)).toBe(Date.parse(iso));
   });
 
+  // D-203: an anchor is `max(sensor reading, latest known event time)`. Both inputs are in the
+  // past, so their max is too — an anchor in the FUTURE cannot be the result of that rule under
+  // any input, which makes "not ahead of now" a check that needs no knowledge of what the writer
+  // was looking at.
+  //
+  // It is here because the three checks above all passed on a wrong anchor. AMD-87 stamped
+  // 20:30 SGT while the sensor read 19:45 and the only event it cited — the #1795 merge — was at
+  // 19:41: 45 minutes ahead of both values D-203 takes the max of, with a `last_anchor_source`
+  // reading `system_clock_d203_max_sensor_wins`, a computation asserted but never performed.
+  // Comparing the three representations to each other cannot catch that, because all three were
+  // written together and agreed with each other perfectly.
+  it('the anchor does not lie in the future', () => {
+    const a = parseAnchorTime(plain);
+    expect(a).not.toBeNull();
+    // Tolerance, not slack: the file is written on one machine and read on another, and CI's
+    // clock is its own. Five minutes is far below the 45 that got through, and far above any
+    // honest skew.
+    const SKEW_MS = 5 * 60_000;
+    expect(a - Date.now(), `anchor ${plain} is ahead of now`).toBeLessThan(SKEW_MS);
+    expect(Date.parse(iso) - Date.now()).toBeLessThan(SKEW_MS);
+    expect(Date.parse(utc) - Date.now()).toBeLessThan(SKEW_MS);
+  });
+
+  it('the future check can actually fire', () => {
+    // The real defect, replayed: 20:30 stamped when the sensor said 19:45.
+    const stamped = parseAnchorTime("30-08 '26 20:30 SGT");
+    const sensor = Date.parse('2026-08-30T19:45:57+08:00');
+    const event = Date.parse('2026-08-30T19:41:22+08:00');   // the #1795 squash merge
+    expect(stamped).toBeGreaterThan(Math.max(sensor, event));
+    // …and D-203's own max() over the two real inputs lands on the sensor, not on 20:30.
+    expect(Math.max(sensor, event)).toBe(sensor);
+  });
+
   it('the check can actually fire', () => {
     // A guard that cannot fail is not a guard. These are the real stale values from the two
     // recorded incidents, against the anchor that was live while they sat unchanged.
