@@ -296,6 +296,27 @@ async function enrichSlow(top, ctx) {
     console.warn('[Cuisine-Search] Gemini dish extraction failed:', err.message);
   }
   _t.dishes = Date.now() - _last; _last = Date.now();
+  // v0.62.854 — the dish list in the reader's language, REPLACING the English rather than
+  // sitting beside it. Operator: *"i am concerns about having both english and japanese
+  // (translated) for dishes, can we show dishes in translated rather than both to save line
+  // spacing"* — on a card whose dish line had wrapped to three.
+  //
+  // Replacing is safe here in a way it is NOT for the name or the address. Those keep their
+  // English because something downstream depends on it: matching the real venue, showing a
+  // driver, typing into Maps. A dish list is descriptive prose that nothing depends on, so
+  // the second line would cost height and buy nothing.
+  //
+  // Runs AFTER all four `v.dishes = filtered` assignments above, so it localises the list
+  // that is actually shown. Iconic names ("laksa", "char kway teow") never reach the model,
+  // the cache is keyed per DISH so venues sharing one share the answer, and an English
+  // reader short-circuits before any of it.
+  try {
+    const { localiseVenueDishes } = require('./translate-dishes');
+    await localiseVenueDishes(top, ctx.csLang, { redis: redis && redis.isOpen ? redis : null });
+  } catch (err) {
+    console.warn('[Cuisine-Search] dish localisation failed:', err.message);
+  }
+  _t.dishLocalise = Date.now() - _last; _last = Date.now();
   // Review finalise — MUST run after translate/fallback/Gemini (they read
   // v.reviews; the "ago" label must match the FINAL recentReview).
   for (const v of top) {
