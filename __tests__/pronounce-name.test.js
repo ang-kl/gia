@@ -208,7 +208,11 @@ describe('it is wired to the surfaces the operator asked for', () => {
     expect(src).toContain('venue.namePronounce');
     expect(src).toContain('<PronounceIcon');
     expect(src).toContain("import PronounceIcon from '../../../../_shared/components/PronounceIcon.jsx'");
-    expect(src).toContain('🔤 {venue.nameReading}');   // the older line still stands
+    // v0.62.855 — the reading line moved INTO the single-guide precedence chain, because
+    // the operator capped an allowed field at "both languages" = two. The REQUIREMENT is
+    // that the 🔤 reading is still offered and still distinct from the say-it line, not
+    // that it sits in its own JSX block.
+    expect(src).toContain('🔤 ${venue.nameReading}');   // the older line still stands
   });
 
   it('the bot uses 🗣, because Telegram HTML cannot render an SVG', () => {
