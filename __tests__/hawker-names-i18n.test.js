@@ -29,7 +29,7 @@ describe('the English stays the key, and the curated name is only ever a second 
   it('the localiser returns null rather than English, so the line can be omitted', () => {
     // Returning the English would render "(Maxwell Food Centre)" under "Maxwell Food
     // Centre" for every unlisted centre in every locale.
-    expect(hawkerNameLocal('Circuit Road Blk 89', 'zh')).toBeNull();
+    expect(hawkerNameLocal('Chomp Chomp Food Centre', 'zh')).toBeNull();   // one of the deliberate twelve
     expect(hawkerNameLocal('Maxwell Food Centre', 'en')).toBeNull();
     expect(hawkerNameLocal('', 'zh')).toBeNull();
   });
@@ -63,6 +63,29 @@ describe('the one external check this corpus can have', () => {
     ['Pasir Ris Central Hawker Centre', 'Pasir Ris'],
     ['Bukit Batok West Hawker Centre', 'Bukit Batok'],
     ['Serangoon Garden Market', 'Serangoon'],
+    // second tranche
+    ['Blk 117 Aljunied Market and Food Centre', 'Aljunied'],
+    ['Ang Mo Kio 628 Market', 'Ang Mo Kio'],
+    ['Mayflower Market', 'Mayflower'],
+    ['Kaki Bukit 511 Market and Food Centre', 'Kaki Bukit'],
+    ['Bendemeer Market and Food Centre', 'Bendemeer'],
+    ['Boon Lay Place Market and Food Village', 'Boon Lay'],
+    ['Chinatown Complex Market', 'Chinatown'],
+    ['Clementi Ave 3 Blk 448', 'Clementi'],
+    ['Eunos Crescent Blk 4A', 'Eunos'],
+    ['Blk 69 Geylang Bahru Market and Food Centre', 'Geylang Bahru'],
+    ['Havelock Road Cooked Food Centre', 'Havelock'],
+    ['Hougang 105 Hainanese Village Centre', 'Hougang'],
+    ['Kovan Hougang Market and Food Centre', 'Kovan'],
+    ['84 Marine Parade Central Market and Food Centre', 'Marine Parade'],
+    ['50A Marine Terrace', 'Marine Terrace'],
+    ['Redhill Market', 'Redhill'],
+    ['Tampines Round Market and Food Centre', 'Tampines'],
+    ['Blk 6 Tanjong Pagar Plaza Market and Food Centre', 'Tanjong Pagar'],
+    ['Telok Blangah Market', 'Telok Blangah'],
+    ['Toa Payoh Vista Market', 'Toa Payoh'],
+    ['Blk 17 Upper Boon Keng Market and Food Centre', 'Boon Keng'],
+    ['Bedok North Street 1 Blk 216', 'Bedok North'],
   ])('%s carries the register spelling of %s', (centre, station) => {
     const zh = hawkerNameLocal(centre, 'zh');
     const official = zhOf(station);
@@ -73,11 +96,17 @@ describe('the one external check this corpus can have', () => {
 });
 
 describe('coverage — the number is the honest part', () => {
-  it('39 of the 123 centres are curated; the rest render English only', () => {
-    expect(SG_HAWKER_NAMES_I18N.length).toBe(39);
+  // v0.62.830 — 39 -> 111 on the operator's "do the remaining 84 hawker centres". The
+  // number moves WITH its reason, per the corpus-floor convention. TWELVE ARE STILL
+  // UNCURATED AND THAT IS DELIBERATE: ABC Brickworks, Albert Centre, Empress Road, Jalan
+  // Batu, Kukoh 21, Mei Chin, Kebun Baru ×2, Anchorvale Village, Beo Crescent, Chomp Chomp
+  // and Kallang Estate are names this author could not stand behind. They render English
+  // only. A count of 123 here would mean the twelve had been guessed.
+  it('111 of the 123 centres are curated; twelve are deliberately not', () => {
+    expect(SG_HAWKER_NAMES_I18N.length).toBe(111);
     expect(CENTRES.length).toBe(123);
     const done = CENTRES.filter((c) => hawkerNameLocal(c.displayName || c.name, 'zh'));
-    expect(done.length).toBe(39);
+    expect(done.length).toBe(111);
   });
 
   it('every row carries zh and ms, and none carries ta', () => {
@@ -95,11 +124,18 @@ describe('coverage — the number is the honest part', () => {
     expect(bad.map((r) => r.n)).toEqual([]);
   });
 
-  it('no Latin letters survive inside a Chinese string', () => {
-    // The first draft shipped '安谷village小贩中心'. It was withdrawn, but the class of
-    // error — an English word left inside an authored CJK string — is O-316's, and it is
-    // cheap to make impossible.
-    const leaked = SG_HAWKER_NAMES_I18N.filter((r) => /[A-Za-z]/.test(r.zh)).map((r) => r.n);
+  it('no Latin WORD survives inside a Chinese string, though block suffixes may', () => {
+    // The first draft shipped '安谷village小贩中心'. That class — an English word left in an
+    // authored CJK string — is O-316's, and is made impossible here.
+    //
+    // NARROWED ON EVIDENCE, not loosened for convenience: a bare /[A-Za-z]/ flagged four
+    // correct rows on the second tranche — 沈氏通道79／79A座, 友诺士弯4A座, 马林台50A座,
+    // 新樟宜上段路208B座. Singapore block numbers carry a letter suffix and are written that
+    // way in Chinese too. So a Latin letter is allowed ONLY when it directly follows a
+    // digit. '安谷village' and 'Punggol Coast小贩中心' both still fail.
+    const leaked = SG_HAWKER_NAMES_I18N
+      .filter((r) => /(^|[^0-9])[A-Za-z]/.test(r.zh))
+      .map((r) => `${r.n}: ${r.zh}`);
     expect(leaked).toEqual([]);
   });
 
@@ -121,8 +157,9 @@ describe('the matcher handles both NEA name shapes', () => {
   });
 
   it('and the parenthetical is used when the leading half is an address', () => {
-    // No curated row for these yet; the point is that the lookup TRIES the parenthetical.
-    expect(hawkerNameLocal('Smith Street Blk 335 (Chinatown Complex Market)', 'zh')).toBeNull();
+    // "Smith Street Blk 335" is an address and matches nothing; the name is in the bracket.
+    expect(hawkerNameLocal('Smith Street Blk 335 (Chinatown Complex Market)', 'zh')).toBe('牛车水大厦巴刹');
+    expect(hawkerNameLocal('Buffalo Road Blk 665 (Tekka Centre/Zhu Jiao Market)', 'zh')).toBe('竹脚中心／竹脚巴刹');
   });
 
   it('id reads the ms column, as the station and line tables both do', () => {
