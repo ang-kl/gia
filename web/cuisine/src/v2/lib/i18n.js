@@ -2070,20 +2070,44 @@ function markLocaleSettled() {
 }
 export function localeIsSettled() { return localeSettled; }
 
-async function hydrateFromServerOnce() {
+// v0.62.834 — the ceiling has to STOP the race, not just start the clock. Codex, P2 on
+// #1783: "when /api/cuisine/user-language takes longer than 1.5 s but eventually succeeds,
+// this timer marks the locale ready and exposes the locally stored language while the
+// request is still pending … lines 2085-2086 subsequently replace that language and
+// recreate the exact wrong-language flash this gate is intended to prevent."
+//
+// Correct, and confirmed against the source: nothing cancelled or ignored the late
+// response, so the ceiling did not remove the flash — it MOVED it, from the first paint to
+// roughly a second and a half in, where it is more startling rather than less. A guard whose
+// failure mode is the thing it guards against.
+//
+// SO: a response that arrives after the ceiling is STORED but NOT DISPATCHED. The session
+// runs on the locale this device last held — which the reader themselves chose here — and
+// the next launch opens in the server's, from a fetch that will usually be warm. The
+// alternative, applying it late, keeps a promise about correctness by breaking the one this
+// gate was built to make. Deciding which promise wins is the whole point of the item.
+let hydrateCeilingFired = false;
+// Exported for the test seam only — nothing else imports it; useLocale() calls it from its
+// own effect. A grep can assert that `if (!hydrateCeilingFired)` exists; only running the
+// function can assert it is checked at the right MOMENT, which is the whole finding.
+export async function hydrateFromServerOnce() {
   if (serverHydrated) return;
   serverHydrated = true;
-  setTimeout(markLocaleSettled, HYDRATE_CEILING_MS);
+  setTimeout(() => { hydrateCeilingFired = true; markLocaleSettled(); }, HYDRATE_CEILING_MS);
   try {
     const m = await import('./api.js');
     const remote = await m.fetchUserLanguage?.();
     if (SUPPORTED_LOCALES.includes(remote)) {
-      // Quietly write to localStorage + fire the locale event so
-      // every subscribed component re-renders. Skip the POST that
-      // setActiveLocale would otherwise make (the value just came
-      // from the server — round-tripping is wasteful).
+      // Quietly write to localStorage. Skip the POST that setActiveLocale would
+      // otherwise make (the value just came FROM the server — round-tripping is
+      // wasteful). Stored either way, on time or late: a late answer is still the
+      // right answer for the NEXT launch, and storing it is what makes the next
+      // launch open in the server's locale without waiting on the network at all.
       try { window.localStorage.setItem(LOCALE_KEY, remote); } catch { /* noop */ }
-      window.dispatchEvent(new CustomEvent(LOCALE_EVENT, { detail: { lang: remote } }));
+      // Dispatch only if we are still inside the window we promised to wait.
+      if (!hydrateCeilingFired) {
+        window.dispatchEvent(new CustomEvent(LOCALE_EVENT, { detail: { lang: remote } }));
+      }
     }
   } catch { /* offline / 401 / 404 — keep local fallback */ }
   finally { markLocaleSettled(); }
