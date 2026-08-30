@@ -12,8 +12,8 @@
 // land, and never ask twice — so both get the same hook rather than two copies that
 // drift.
 
-import { useEffect, useState } from 'react';
-import { fetchPronunciations, cachedPronunciation } from './pronounce-client.js';
+import { useEffect, useMemo, useState } from 'react';
+import { fetchPronunciations, projectPronunciations } from './pronounce-client.js';
 
 /**
  * Pronunciations for `names` in `lang`.
@@ -27,39 +27,47 @@ import { fetchPronunciations, cachedPronunciation } from './pronounce-client.js'
  *          worth showing, so callers can render conditionally without a null check)
  */
 export function usePronunciations(names, lang, { initData, curatedFor = null } = {}) {
-  // Seeded synchronously from what is already known, so a remount or a second
-  // component showing the same names paints the line immediately rather than
-  // flashing it in one tick later.
-  const [map, setMap] = useState(() => {
-    const seed = new Map();
-    for (const n of Array.isArray(names) ? names : []) {
-      const c = typeof curatedFor === 'function' ? curatedFor(n) : null;
-      if (c) { seed.set(n, c); continue; }
-      const known = cachedPronunciation(n, lang);
-      if (known) seed.set(n, known);
-    }
-    return seed;
-  });
-
-  // The dependency is the name LIST and the locale, joined — not the array
-  // identity. A parent re-rendering with an equal-but-new array would otherwise
-  // re-run this effect on every render and re-ask the server each time.
+  // The dependency is the name LIST and the locale, joined — not the array identity. A
+  // parent re-rendering with an equal-but-new array would otherwise re-run the effect on
+  // every render and re-ask the server each time.
   const dep = Array.isArray(names) ? names.filter(Boolean).join('|') : '';
+
+  // v0.62.847 — bumped when a fetch lands, so the projection below recomputes. Codex
+  // caught what this replaces (PR #1790, P1) and it was the operator's own complaint
+  // living one layer down.
+  const [version, setVersion] = useState(0);
+
+  // THE MAP IS A PROJECTION, NOT AN ACCUMULATOR — and that is the fix.
+  //
+  // It used to be `useState(() => seed)` plus an effect that MERGED each fetch into the
+  // previous map. Two things followed, and both were wrong on a locale change:
+  //   1. a `useState` initializer runs ONCE, so the seed never re-ran for the new locale;
+  //   2. the merge only ever added keys, and the effect returned early when a fetch came
+  //      back empty — so switching from a locale with guides (ja) to one that needs none
+  //      (en) left every Japanese guide on screen under the English UI, indefinitely.
+  //
+  // Recomputing from `pronounce-client`'s cache instead makes staleness structurally
+  // impossible: that cache is keyed by (name, locale), so a projection of it cannot carry
+  // another locale's answer. `cachedPronunciation` is synchronous and allocation-cheap,
+  // and the recompute is gated on [dep, lang, version].
+  // The projection itself lives in `pronounce-client.js`, which imports nothing — so the
+  // behaviour is unit-tested for real rather than asserted by grepping this file.
+  const map = useMemo(
+    () => projectPronunciations(dep ? dep.split('|') : [], lang, curatedFor),
+    [dep, lang, version],   // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   useEffect(() => {
     let cancelled = false;
     const list = dep ? dep.split('|') : [];
     if (!list.length || !lang) return undefined;
     fetchPronunciations(list, lang, { initData: initData && initData(), curatedFor })
-      .then((got) => {
-        if (cancelled || !got.size) return;
-        // Merge rather than replace: a curated answer seeded above must not be
-        // dropped just because the server had nothing to add for it.
-        setMap((prev) => {
-          const next = new Map(prev);
-          for (const [k, v] of got) if (v) next.set(k, v);
-          return next;
-        });
+      .then(() => {
+        // Bump unconditionally — NOT `if (got.size)`. An all-null answer is a real
+        // result: it means this locale needs no guides, and the projection must re-run to
+        // drop whatever the previous locale had shown. Skipping the bump there is exactly
+        // how the stale line survived.
+        if (!cancelled) setVersion((v) => v + 1);
       })
       .catch(() => { /* offline / 401 — the line simply does not appear */ });
     return () => { cancelled = true; };

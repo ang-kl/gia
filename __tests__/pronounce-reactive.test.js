@@ -100,7 +100,11 @@ describe('one request per page, not one per card', () => {
   it('App batches, and the card holds no hook', () => {
     const app = read('web/cuisine/src/v2/App.jsx');
     expect(app).toMatch(/usePronunciations\(venueSayNames, lang, \{ initData \}\)/);
-    expect(app).toMatch(/new Set\(\(venues \|\| \[\]\)\.map\(\(v\) => v && v\.name\)/);
+    // v0.62.847 — the batch key moved out of the memo (Codex P2 on #1790: a placeId-based
+    // key is identical across Michelin fallback pages). The REQUIREMENT is unchanged —
+    // App batches the visible venue NAMES — so this asserts that, not the expression.
+    expect(app).toMatch(/const venueSayKey = \(venues \|\| \[\]\)\.map\(\(v\) => \(v && v\.name\) \|\| ''\)/);
+    expect(app).toMatch(/venueSayKey \? venueSayKey\.split\('\|'\) : \[\]/);
     expect(card(), 'a hook in the card is one request per card')
       .not.toContain('usePronunciations');
     function card() { return read('web/cuisine/src/v2/components/ResultCard.jsx'); }
