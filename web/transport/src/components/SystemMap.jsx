@@ -1,5 +1,7 @@
 import React from 'react';
+import { useLocale } from '../i18n.js';
 import { LINES_BY_CODE } from '../data/lines.js';
+import { lineName } from '../../../_shared/lib/mrt-lines-i18n.generated.js';
 
 // v0.57.11: PNG-based system map (replaces hand-authored SVG). Uses
 // the official Singapore MRT system map committed at
@@ -12,6 +14,9 @@ import { LINES_BY_CODE } from '../data/lines.js';
 // boxes that depend on the specific image. The pills give the same
 // information ("which line is affected") with the polished real map.
 export default function SystemMap({ focusedCode, affectedCodes = [] }) {
+  // v0.62.828 — the hover title follows the locale; see EngineeringList for why every
+  // site is wired rather than the convenient ones.
+  const lang = useLocale();
   const codes = Array.from(new Set([
     ...(focusedCode ? [focusedCode] : []),
     ...affectedCodes
@@ -40,7 +45,7 @@ export default function SystemMap({ focusedCode, affectedCodes = [] }) {
                   color: '#fff',
                   borderColor: isFocused ? '#fff' : meta.hex
                 }}
-                title={meta.name}
+                title={lineName(meta.code, meta.name, lang)}
               >
                 {c}
               </span>
