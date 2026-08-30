@@ -38,6 +38,7 @@ import { LINES_BY_CODE } from '../data/lines.js';
 // the app, and it was the one site the v0.62.814 wiring missed — the operator found it
 // by switching to Indonesian and seeing English cards.
 import { stationName } from '../../../_shared/lib/mrt-stations-i18n.generated.js';
+import PronounceIcon from '../../../_shared/components/PronounceIcon.jsx';
 import {
   CROWD_DOT, STATUS_HEX, mapsQ, mapsLatLng, textOn, hexForLineCode,
   worstCrowd, trainTimes, noteIsTerminal, directionLabel, terminusForDirection,
@@ -272,7 +273,7 @@ export default function StationCard({
   station = null, coarse = null, context = null, crowd = null, statusByLine = null,
   coarseStations = null, lang = 'en', onClose = null, onFocusStationCode = null,
   onTap = null, active = false, glass = false, compact = false, collapsible = false, userLoc = null,
-  seq = null, seqTotal = null, isCompact = false
+  seq = null, seqTotal = null, isCompact = false, say = null
 }) {
   const name = station?.station_name || coarse?.name || '';
   // v0.62.815 — DISPLAY ONLY, and the separation is not cosmetic here. `name` keys the
@@ -450,7 +451,21 @@ export default function StationCard({
             Cuisine's category card 12px" — was a flat text-[14px]; now the
             same isCompact-responsive rule Phase C applied to Cuisine's
             category-grid label (11px compact phone / 12px everywhere else). */}
-        <span className={`font-google ${isCompact ? 'text-type-meta' : 'text-type-body'} font-bold leading-tight flex-1 min-w-0 truncate`} title={displayName}>{displayName}</span>
+        {/* v0.62.843 — the name, and under it HOW TO SAY it. Operator: "do the mrt
+            stations". The guide is a plain string prop, resolved and BATCHED by App for
+            the whole focused line: a hook here would make each of 20-35 cards its own
+            single-name request. Rendered only when `displayName === name`, i.e. the
+            government register had nothing for this locale — where it does, that official
+            name IS the answer and a second line under it would be noise. */}
+        <span className="flex-1 min-w-0">
+          <span className={`font-google ${isCompact ? 'text-type-meta' : 'text-type-body'} font-bold leading-tight block truncate`} title={displayName}>{displayName}</span>
+          {displayName === name && say && (
+            <span className="text-[11px] text-tg-hint leading-tight flex items-center gap-1 min-w-0">
+              <PronounceIcon className="shrink-0 opacity-80" />
+              <span className="truncate">{say}</span>
+            </span>
+          )}
+        </span>
         {/* v0.62.646 — the inline "(future)" marker is retired: the folder TAB
             above the card now carries it (Cuisine parity). */}
         {/* v0.62.644 — the card-level disclosure moved OFF the name strip to a

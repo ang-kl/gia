@@ -10,6 +10,8 @@ import LoadingSkeleton from './components/LoadingSkeleton.jsx';
 import { initData } from './tg.js';
 import { t, tn, useLocale } from './i18n.js';
 import { lineName } from '../../_shared/lib/mrt-lines-i18n.generated.js';
+import { stationName } from '../../_shared/lib/mrt-stations-i18n.generated.js';
+import { usePronunciations } from '../../_shared/lib/use-pronounce.js';
 import LineStatusPanel from './components/LineStatusPanel.jsx';
 import StationCard from './components/StationCard.jsx';
 import SystemMap from './components/SystemMap.jsx';
@@ -410,6 +412,45 @@ export default function App() {
   // longer raises a location permission prompt it cannot justify. `userLoc` stays
   // wired (always null) so StationCard's prop contract is unchanged.
 
+  // v0.62.843 — HOW TO SAY the station's name. Operator: "do the mrt stations".
+  //
+  // HOISTED TO THE PARENT, AND THAT IS THE COST DECISION. The line panel asks for ONE
+  // name, so `LineStatusPanel` owns its own hook. Stations are different: a focused line
+  // renders 20-35 `StationCard`s at once, and a hook inside the card would make each one
+  // its own single-name request — the client keys `inFlight` on the batch, so 30 cards
+  // are 30 round trips, not one. Asking here batches the whole line into a single call
+  // (the server caps at 60; no MRT line is close), and the card just receives a string.
+  //
+  // ITS POSITION IS PINNED FROM BOTH SIDES, and getting either wrong is a crash this
+  // session has now shipped once and caught once:
+  //   BELOW its dependencies — `lang`, `focusedCode`, `coarseStations`, `focusedStation`
+  //   are all declared above. v0.62.842 white-screened Hawker by reading a const above
+  //   its own declaration; `active?.centres` looked defensive, but optional chaining does
+  //   not guard the temporal dead zone.
+  //   ABOVE the `error` / `!data` early returns below. The first draft of THIS block sat
+  //   under them, so the hook was skipped on the loading render and ran once data
+  //   arrived — React #310, "rendered more hooks than during the previous render", and a
+  //   blank Transport app. `npm run test:render` caught it; 4,709 unit tests and a clean
+  //   build did not.
+  //
+  // So it derives the line's stations itself rather than reading `lineStations`, which is
+  // computed after the early returns. Same expression, evaluated where a hook may run.
+  const stationSayNames = React.useMemo(() => {
+    const list = (focusedCode && Array.isArray(coarseStations))
+      ? lineStationsFull(coarseStations, focusedCode) : [];
+    return [...new Set([...list.map((s) => s.name), focusedStation?.name].filter(Boolean))];
+  }, [focusedCode, coarseStations, focusedStation?.name]);
+  // The register covers zh and ms for all 193 stations, so `curatedFor` answers those
+  // outright and a zh or id reader never reaches the network. Only ja/es/de/ru/fr, which
+  // the register does not cover, cost anything.
+  const stationSay = usePronunciations(stationSayNames, lang, {
+    initData,
+    curatedFor: (n) => {
+      const local = stationName(n, lang);
+      return local === n ? null : local;
+    },
+  });
+
   if (error) return <div className="p-4 text-tg-text">{t('error.unreachable', lang)} {error}</div>;
   // v0.62.636 (C1) — skeleton screen instead of a bare "Loading…" line.
   if (!data) return <LoadingSkeleton />;
@@ -448,6 +489,7 @@ export default function App() {
   // "listing" / carousel items). Empty when no line is focused.
   const lineStations = (focusedCode && Array.isArray(coarseStations))
     ? lineStationsFull(coarseStations, focusedCode) : [];
+
 
   // v0.62.639 — operator (iPad mini): at 4/6 CSS-columns the station NAME
   // truncated to one letter ("EW1 P.."). Use a REAL grid with FEWER, wider
@@ -634,6 +676,7 @@ export default function App() {
         statusByLine={statusByLine}
         coarseStations={coarseStations}
         lang={lang}
+        say={stationSay.get(st.name)}
         active={active}
         glass={glass}
         compact={compact}
@@ -658,6 +701,7 @@ export default function App() {
       statusByLine={statusByLine}
       coarseStations={coarseStations}
       lang={lang}
+      say={stationSay.get(focusedStation.name)}
       userLoc={userLoc}
       isCompact={vp.isCompact}
       onClose={() => handleSelectStation(null)}

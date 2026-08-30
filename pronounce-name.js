@@ -133,7 +133,13 @@ async function pronounceName({
 
   const readerLang = langName(loc) || 'English';
   const prompt = [
-    `Restaurant name: "${original.slice(0, MAX_INPUT_CHARS)}"`,
+    // "Place name", not "Restaurant name". v0.62.840 wrote the latter because venues
+    // were the only caller; since then hawker centres, MRT lines and now stations use
+    // the same path, and telling the model that "Bras Basah" is a restaurant is a false
+    // premise it has to work around. The CACHE KEY is deliberately NOT bumped to v2:
+    // the answer to "how is this said aloud" does not depend on the category word, and
+    // a version bump would discard every guide already paid for to fix a label.
+    `Place name: "${original.slice(0, MAX_INPUT_CHARS)}"`,
     `Reader's language: ${readerLang}.`,
     `Write ONLY how a ${readerLang} speaker should SAY this name aloud, in ${readerLang}'s own script.`,
     `If a ${readerLang} speaker would already say it correctly on sight, output exactly: ${NONE}`,
