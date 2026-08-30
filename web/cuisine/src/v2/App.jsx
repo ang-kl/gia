@@ -1046,7 +1046,7 @@ export default function App() {
       const name = labelOf(sel[0]);
       if (!name) return null;
       const accent = REGION_ACCENT[catOf(sel[0])] || '#b45309';
-      return { single: { label: lang === 'fr' ? `${name} et saveurs voisines` : lang === 'id' ? `${name} & Cita Rasa Terdekat` : lang === 'ru' ? `${name} и близкие вкусы` : lang === 'de' ? `${name} & ähnliche Küchen` : lang === 'zh' ? `${name} 及邻近风味` : lang === 'ja' ? `${name} と近隣の味` : lang === 'es' ? `${name} y sabores cercanos` : `${name} & Nearby Flavours`, accent }, strips: null };
+      return { single: { label: tn('app.nearbyFlavours', lang, { p1: name }), accent }, strips: null };
     }
     const strips = {};
     sel.forEach((slug, i) => { const n = nameOf(slug); if (n) strips[n] = { label: labelOf(slug), accent: PALETTE[i % PALETTE.length] }; });
@@ -2123,21 +2123,9 @@ export default function App() {
         // v0.61.404 — message that the location moved to the device spot
         // (the OLD saved spot stays in the 📍 recents drawer to return to).
         setLocMoveNote({
-          text: (lang === 'fr'
-            ? `Position déplacée vers ${anchorMismatch.deviceLabel}`
-            : lang === 'ru'
-            ? `Местоположение перемещено на ${anchorMismatch.deviceLabel}`
-            : lang === 'de'
-            ? `Standort verschoben nach ${anchorMismatch.deviceLabel}`
-            : lang === 'zh'
-            ? `位置已移至 ${anchorMismatch.deviceLabel}`
-            : lang === 'ja'
-            ? `位置を ${anchorMismatch.deviceLabel} に移動しました`
-            : lang === 'es'
-            ? `Ubicacion movida a ${anchorMismatch.deviceLabel}`
-            : `Location moved to ${anchorMismatch.deviceLabel}`)
+          text: (tn('app.locationMovedTo', lang, { p1: anchorMismatch.deviceLabel }))
             + (anchorMismatch.anchorLabel
-              ? (lang === 'fr' ? ` · 📍 pour revenir à ${anchorMismatch.anchorLabel}` : lang === 'id' ? ` · 📍 untuk kembali ke ${anchorMismatch.anchorLabel}` : lang === 'ru' ? ` · 📍 чтобы вернуться к ${anchorMismatch.anchorLabel}` : lang === 'de' ? ` · 📍 zurück zu ${anchorMismatch.anchorLabel}` : lang === 'zh' ? ` · 📍 返回 ${anchorMismatch.anchorLabel}` : lang === 'ja' ? ` · 📍 ${anchorMismatch.anchorLabel} に戻る` : lang === 'es' ? ` · 📍 volver a ${anchorMismatch.anchorLabel}` : ` · 📍 to return to ${anchorMismatch.anchorLabel}`)
+              ? (tn('app.toReturnTo', lang, { p1: anchorMismatch.anchorLabel }))
               : ''),
         });
         // v0.61.404 — device == set here, so DO load — but pause ~1 s so the
@@ -2196,19 +2184,7 @@ export default function App() {
       setFirstLoadPending(false);
       setLoading(false);
       setLocMoveNote({
-        text: lang === 'fr'
-          ? `Conservé ${anchorMismatch.anchorLabel}. Vous êtes à ${anchorMismatch.deviceLabel} — touchez 🔍 pour rechercher ici.`
-          : lang === 'ru'
-          ? `Сохранено: ${anchorMismatch.anchorLabel}. Вы в ${anchorMismatch.deviceLabel} — нажмите 🔍, чтобы искать здесь.`
-          : lang === 'de'
-          ? `${anchorMismatch.anchorLabel} behalten. Sie sind in ${anchorMismatch.deviceLabel} — 🔍 tippen, um hier zu suchen.`
-          : lang === 'zh'
-          ? `已保留 ${anchorMismatch.anchorLabel}。您位于 ${anchorMismatch.deviceLabel} — 点击 🔍 在此搜索。`
-          : lang === 'ja'
-          ? `${anchorMismatch.anchorLabel} を保持しました。現在地は ${anchorMismatch.deviceLabel} です — 🔍 をタップしてここで検索。`
-          : lang === 'es'
-          ? `Se mantuvo ${anchorMismatch.anchorLabel}. Estas en ${anchorMismatch.deviceLabel} — toca 🔍 para buscar aqui.`
-          : `Kept ${anchorMismatch.anchorLabel}. You're at ${anchorMismatch.deviceLabel} — tap 🔍 to search here.`,
+        text: tn('app.keptYouRe', lang, { p1: anchorMismatch.anchorLabel, p2: anchorMismatch.deviceLabel }),
       });
     }
     modalPendingRef.current = false;  // v0.61.322 — release the splash gate
@@ -3666,23 +3642,11 @@ export default function App() {
             <div className="px-4 py-3 border-b border-tg-border bg-tg-card flex items-center gap-2">
               <span aria-hidden>📍</span>
               <h2 id="gia-dlg-coherence-title" className="text-sm font-semibold flex-1">
-                {lang === 'fr' ? 'Conflit de localisation' : lang === 'id' ? 'Lokasi tidak cocok' : lang === 'ru' ? 'Несовпадение местоположения' : lang === 'de' ? 'Standortkonflikt' : lang === 'zh' ? '位置不一致' : lang === 'ja' ? '位置の不一致' : lang === 'es' ? 'Ubicacion no coincide' : 'Location mismatch'}
+                {t('app.locationMismatch', lang)}
               </h2>
             </div>
             <div className="px-4 py-3 text-[13px] leading-snug text-tg-text">
-              {lang === 'fr'
-                ? `Vous aviez choisi ${coherenceMismatch.saved} précédemment, mais votre appareil est actuellement en ${coherenceMismatch.coords === 'SG' ? 'Singapour' : 'Malaisie'}.`
-                : lang === 'ru'
-                ? `Ранее вы выбрали ${coherenceMismatch.saved}, но сейчас ваше устройство в ${coherenceMismatch.coords === 'SG' ? 'Сингапуре' : 'Малайзии'}.`
-                : lang === 'de'
-                ? `Sie hatten zuvor ${coherenceMismatch.saved} gewählt, aber Ihr Gerät ist jetzt in ${coherenceMismatch.coords === 'SG' ? 'Singapur' : 'Malaysia'}.`
-                : lang === 'zh'
-                ? `您之前将位置设为 ${coherenceMismatch.saved}，但您的设备现在位于 ${coherenceMismatch.coords === 'SG' ? '新加坡' : '马来西亚'}。`
-                : lang === 'ja'
-                ? `以前に位置を ${coherenceMismatch.saved} に設定しましたが、デバイスは現在 ${coherenceMismatch.coords === 'SG' ? 'シンガポール' : 'マレーシア'} にあります。`
-                : lang === 'es'
-                ? `Antes fijaste tu ubicacion en ${coherenceMismatch.saved}, pero tu dispositivo esta ahora en ${coherenceMismatch.coords === 'SG' ? 'Singapur' : 'Malasia'}.`
-                : `You set your location to ${coherenceMismatch.saved} previously, but your device is now in ${coherenceMismatch.coords === 'SG' ? 'Singapore' : 'Malaysia'}.`}
+              {tn('app.cohBody', lang, { saved: t(`country.${coherenceMismatch.saved}`, lang), device: t(`country.${coherenceMismatch.coords}`, lang) })}
             </div>
             <div className="flex flex-col gap-2 px-4 pb-4">
               <button
@@ -3690,38 +3654,14 @@ export default function App() {
                 onClick={() => applyCoherenceChoice(true)}
                 className="w-full px-3 py-2 rounded-xl bg-tg-accent text-tg-accent-text text-sm font-semibold"
               >
-                {lang === 'fr'
-                  ? `Utiliser ${coherenceMismatch.coords === 'SG' ? 'Singapour' : 'Malaisie'}`
-                  : lang === 'ru'
-                  ? `Использовать ${coherenceMismatch.coords === 'SG' ? 'Сингапур' : 'Малайзию'}`
-                  : lang === 'de'
-                  ? `${coherenceMismatch.coords === 'SG' ? 'Singapur' : 'Malaysia'} verwenden`
-                  : lang === 'zh'
-                  ? `使用 ${coherenceMismatch.coords === 'SG' ? '新加坡' : '马来西亚'}`
-                  : lang === 'ja'
-                  ? `${coherenceMismatch.coords === 'SG' ? 'シンガポール' : 'マレーシア'} を使う`
-                  : lang === 'es'
-                  ? `Usar ${coherenceMismatch.coords === 'SG' ? 'Singapur' : 'Malasia'}`
-                  : `Use ${coherenceMismatch.coords === 'SG' ? 'Singapore' : 'Malaysia'}`}
+                {tn('app.cohUse', lang, { country: t(`country.${coherenceMismatch.coords}`, lang) })}
               </button>
               <button
                 type="button"
                 onClick={() => applyCoherenceChoice(false)}
                 className="w-full px-3 py-2 rounded-xl bg-tg-card border border-tg-border text-tg-text text-sm"
               >
-                {lang === 'fr'
-                  ? `Garder ${coherenceMismatch.saved}`
-                  : lang === 'ru'
-                  ? `Оставить ${coherenceMismatch.saved}`
-                  : lang === 'de'
-                  ? `${coherenceMismatch.saved} behalten`
-                  : lang === 'zh'
-                  ? `保留 ${coherenceMismatch.saved}`
-                  : lang === 'ja'
-                  ? `${coherenceMismatch.saved} を保持`
-                  : lang === 'es'
-                  ? `Mantener ${coherenceMismatch.saved}`
-                  : `Keep ${coherenceMismatch.saved}`}
+                {tn('app.keep', lang, { p1: coherenceMismatch.saved })}
               </button>
             </div>
           </div>
@@ -3743,23 +3683,11 @@ export default function App() {
             <div className="px-4 py-3 border-b border-tg-border bg-tg-card flex items-center gap-2">
               <span aria-hidden>📍</span>
               <h2 id="gia-dlg-region-title" className="text-sm font-semibold flex-1">
-                {lang === 'fr' ? 'Conflit de région' : lang === 'id' ? 'Wilayah tidak cocok' : lang === 'ru' ? 'Несовпадение региона' : lang === 'de' ? 'Regionskonflikt' : lang === 'zh' ? '区域不一致' : lang === 'ja' ? '地域の不一致' : lang === 'es' ? 'Region no coincide' : 'Region mismatch'}
+                {t('app.regionMismatch', lang)}
               </h2>
             </div>
             <div className="px-4 py-3 text-[13px] leading-snug text-tg-text">
-              {lang === 'fr'
-                ? "La région Johor Bahru est sélectionnée, mais vous n'êtes pas à Johor. Les résultats de cuisine seront filtrés à vide."
-                : lang === 'ru'
-                ? 'Выбран регион Джохор-Бару, но вы не в Джохоре — результаты по кухне окажутся пустыми.'
-                : lang === 'de'
-                ? 'Region Johor Bahru ist gewählt, aber Sie sind nicht in Johor — die Küchen-Ergebnisse werden leer gefiltert.'
-                : lang === 'zh'
-                ? '已选择新山区域，但您不在柔佛 — 美食结果将被筛选为空。'
-                : lang === 'ja'
-                ? '新山（JB）地域が選択されていますが、ジョホールにいません — 料理の結果は空になります。'
-                : lang === 'es'
-                ? 'La region de Johor Bahru esta seleccionada, pero no estas en Johor — los resultados quedaran vacios.'
-                : "Johor Bahru region is selected, but you're not in Johor — cuisine results will filter to empty."}
+              {t('app.johorBahruRegion', lang)}
             </div>
             <div className="flex flex-col gap-2 px-4 pb-4">
               <button
@@ -3767,26 +3695,14 @@ export default function App() {
                 onClick={() => applyRegionCoherenceChoice(true)}
                 className="w-full px-3 py-2 rounded-xl bg-tg-accent text-tg-accent-text text-sm font-semibold"
               >
-                {lang === 'fr'
-                  ? (regionMismatch.coordsCountry === 'SG' ? 'Passer à Singapour' : 'Passer à Autres')
-                  : lang === 'ru'
-                  ? (regionMismatch.coordsCountry === 'SG' ? 'Перейти к Сингапуру' : 'Перейти к другим')
-                  : lang === 'de'
-                  ? (regionMismatch.coordsCountry === 'SG' ? 'Zu Singapur wechseln' : 'Zu Andere wechseln')
-                  : lang === 'zh'
-                  ? (regionMismatch.coordsCountry === 'SG' ? '切换到新加坡' : '切换到其他')
-                  : lang === 'ja'
-                  ? (regionMismatch.coordsCountry === 'SG' ? 'シンガポールに切替' : 'その他に切替')
-                  : lang === 'es'
-                  ? (regionMismatch.coordsCountry === 'SG' ? 'Cambiar a Singapur' : 'Cambiar a Otros')
-                  : (regionMismatch.coordsCountry === 'SG' ? 'Switch to Singapore' : 'Switch to Others')}
+                {tn('app.regionSwitchTo', lang, { country: t(regionMismatch.coordsCountry === 'SG' ? 'country.SG' : 'country.OTHERS', lang) })}
               </button>
               <button
                 type="button"
                 onClick={() => applyRegionCoherenceChoice(false)}
                 className="w-full px-3 py-2 rounded-xl bg-tg-card border border-tg-border text-tg-text text-sm"
               >
-                {lang === 'fr' ? 'Rester sur JB' : lang === 'id' ? 'Tetap di JB' : lang === 'ru' ? 'Остаться в JB' : lang === 'de' ? 'Bei JB bleiben' : lang === 'zh' ? '留在新山' : lang === 'ja' ? 'JBのまま' : lang === 'es' ? 'Seguir en JB' : 'Stay on JB'}
+                {t('app.stayOnJb', lang)}
               </button>
             </div>
           </div>
@@ -3855,23 +3771,11 @@ export default function App() {
             <div className="px-4 py-3 border-b border-tg-border bg-tg-card flex items-center gap-2">
               <span aria-hidden>📍</span>
               <h2 id="gia-dlg-anchor-title" className="text-sm font-semibold flex-1">
-                {lang === 'fr' ? 'Conflit de localisation' : lang === 'id' ? 'Lokasi tidak cocok' : lang === 'ru' ? 'Несовпадение местоположения' : lang === 'de' ? 'Standortkonflikt' : lang === 'zh' ? '位置不一致' : lang === 'ja' ? '位置の不一致' : lang === 'es' ? 'Ubicacion no coincide' : 'Location mismatch'}
+                {t('app.locationMismatch2', lang)}
               </h2>
             </div>
             <div className="px-4 py-3 text-[13px] leading-snug text-tg-text break-words">
-              {lang === 'fr'
-                ? `Votre lieu enregistré est ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}, mais vous semblez vous trouver à ${anchorMismatch.deviceLabel}.`
-                : lang === 'ru'
-                ? `Сохранённое место — ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}, но вы, похоже, находитесь в ${anchorMismatch.deviceLabel}.`
-                : lang === 'de'
-                ? `Ihr gespeicherter Ort ist ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}, aber Sie scheinen in ${anchorMismatch.deviceLabel} zu sein.`
-                : lang === 'zh'
-                ? `您保存的地点是 ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}，但您似乎位于 ${anchorMismatch.deviceLabel}。`
-                : lang === 'ja'
-                ? `保存された地点は ${anchorMismatch.anchorLabel || anchorMismatch.anchorName} ですが、現在地は ${anchorMismatch.deviceLabel} のようです。`
-                : lang === 'es'
-                ? `Tu lugar guardado es ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}, pero pareces estar en ${anchorMismatch.deviceLabel}.`
-                : `Your saved spot is ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}, but you appear to be at ${anchorMismatch.deviceLabel}.`}
+              {tn('app.yourSavedSpot', lang, { p1: anchorMismatch.anchorLabel || anchorMismatch.anchorName, p2: anchorMismatch.deviceLabel })}
             </div>
             <div className="flex flex-col gap-2 px-4 pb-4">
               <button
@@ -3879,14 +3783,14 @@ export default function App() {
                 onClick={() => applyAnchorCoherenceChoice(true)}
                 className="w-full px-3 py-2 rounded-xl bg-tg-accent text-tg-accent-text text-sm font-semibold break-words line-clamp-2"
               >
-                {lang === 'fr' ? `Utiliser ${anchorMismatch.deviceLabel}` : lang === 'id' ? `Pakai ${anchorMismatch.deviceLabel}` : lang === 'ru' ? `Использовать ${anchorMismatch.deviceLabel}` : lang === 'de' ? `${anchorMismatch.deviceLabel} verwenden` : lang === 'zh' ? `使用 ${anchorMismatch.deviceLabel}` : lang === 'ja' ? `${anchorMismatch.deviceLabel} を使う` : lang === 'es' ? `Usar ${anchorMismatch.deviceLabel}` : `Use ${anchorMismatch.deviceLabel}`}
+                {tn('app.use', lang, { p1: anchorMismatch.deviceLabel })}
               </button>
               <button
                 type="button"
                 onClick={() => applyAnchorCoherenceChoice(false)}
                 className="w-full px-3 py-2 rounded-xl bg-tg-card border border-tg-border text-tg-text text-sm break-words line-clamp-2"
               >
-                {lang === 'fr' ? `Garder ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}` : lang === 'id' ? `Simpan ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}` : lang === 'ru' ? `Оставить ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}` : lang === 'de' ? `${anchorMismatch.anchorLabel || anchorMismatch.anchorName} behalten` : lang === 'zh' ? `保留 ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}` : lang === 'ja' ? `${anchorMismatch.anchorLabel || anchorMismatch.anchorName} を保持` : lang === 'es' ? `Mantener ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}` : `Keep ${anchorMismatch.anchorLabel || anchorMismatch.anchorName}`}
+                {tn('app.keep2', lang, { p1: anchorMismatch.anchorLabel || anchorMismatch.anchorName })}
               </button>
             </div>
           </div>
@@ -3914,7 +3818,7 @@ export default function App() {
         {locationModals}
         <div className="flex flex-col items-center justify-center gap-3 py-24 text-center" role="status" aria-live="polite">
           <div className="h-8 w-8 rounded-full border-2 border-tg-hint/30 border-t-tg-accent animate-spin" aria-hidden />
-          <div className="text-sm text-tg-hint">{lang === 'fr' ? 'Confirmation de votre position…' : lang === 'id' ? 'Mengonfirmasi lokasi Anda…' : lang === 'ru' ? 'Подтверждаем ваше местоположение…' : lang === 'de' ? 'Standort wird bestätigt…' : lang === 'zh' ? '正在确认您的位置…' : lang === 'ja' ? '位置を確認しています…' : lang === 'es' ? 'Confirmando tu ubicacion…' : 'Confirming your location…'}</div>
+          <div className="text-sm text-tg-hint">{t('app.confirmingYourLocation', lang)}</div>
         </div>
       </div>
     );
@@ -4050,8 +3954,8 @@ export default function App() {
             <button
               type="button"
               onClick={() => window.location.reload()}
-              aria-label={lang === 'fr' ? 'Actualiser' : lang === 'zh' ? '刷新' : lang === 'ja' ? '更新' : lang === 'es' ? 'Actualizar' : 'Refresh'}
-              title={lang === 'fr' ? 'Actualiser' : lang === 'zh' ? '刷新' : lang === 'ja' ? '更新' : lang === 'es' ? 'Actualizar' : 'Refresh'}
+              aria-label={t('app.refresh', lang)}
+              title={t('app.refresh2', lang)}
               className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
             >↻</button>
           </div>
@@ -4074,7 +3978,7 @@ export default function App() {
         {venues.length > 0 && !regionExpanded && (
           <div className="text-[11px] text-tg-hint text-left leading-tight px-0.5">
             {/* v0.62.176 — operator: "Click to change" on a SECOND line. */}
-            <div>📍 {lang === 'fr' ? 'Lieu défini : ' : lang === 'id' ? 'Lokasi ditetapkan: ' : lang === 'ru' ? 'Заданное место: ' : lang === 'de' ? 'Festgelegter Ort: ' : lang === 'zh' ? '已设位置：' : lang === 'ja' ? '設定中の位置：' : lang === 'es' ? 'Ubicacion fijada: ' : 'Set location is: '}<span className="text-tg-text font-medium">{(() => {
+            <div>📍 {t('app.setLocationIs', lang)}<span className="text-tg-text font-medium">{(() => {
               // v0.62.180 — operator (RECURRING, do not regress): this must be a
               // specific street / building / precinct — NEVER a country or region
               // name. Reject the generic names + the old "Singapore" fallback;
@@ -4089,7 +3993,7 @@ export default function App() {
               const _sln = (searchLocName || '').trim();
               const _ln = (locationName || '').trim();
               const nm = (_sln && (!_ln || !_ln.toLowerCase().includes(_sln.toLowerCase()))) ? _sln : _ln;
-              return (nm && !generic.has(nm.toLowerCase())) ? nm : (lang === 'fr' ? 'localisation…' : lang === 'id' ? 'menentukan titik…' : lang === 'ru' ? 'определяем точку…' : lang === 'de' ? 'wird lokalisiert…' : lang === 'zh' ? '定位中…' : lang === 'ja' ? '位置特定中…' : lang === 'es' ? 'localizando…' : 'pinpointing…');
+              return (nm && !generic.has(nm.toLowerCase())) ? nm : (t('app.pinpointing', lang));
             })()}</span></div>
             {/* v0.62.194 — operator: "Click to change" + "↩ Back to last search area"
                 sit on ONE line, highlighted in BRIGHT RED. The ↩ glyph + underline are
@@ -4110,9 +4014,9 @@ export default function App() {
                   setCuisinePickOpen(false); setClassicOpen(false);
                   setRegionExpanded(true); setModePeek(true);
                 }}
-                aria-label={lang === 'fr' ? 'Changer le lieu' : lang === 'id' ? 'Ubah lokasi' : lang === 'ru' ? 'Изменить место' : lang === 'de' ? 'Ort ändern' : lang === 'zh' ? '更改位置' : lang === 'ja' ? '位置を変更' : lang === 'es' ? 'Cambiar ubicacion' : 'Change location'}
+                aria-label={t('app.changeLocation', lang)}
                 className="underline font-semibold text-[#ef4444] active:scale-95"
-              >{lang === 'fr' ? 'Changer' : lang === 'id' ? 'Ketuk untuk mengubah' : lang === 'ru' ? 'Изменить' : lang === 'de' ? 'Ändern' : lang === 'zh' ? '点击更改' : lang === 'ja' ? 'タップで変更' : lang === 'es' ? 'Toca para cambiar' : 'Click to change'}</button>
+              >{t('app.clickToChange', lang)}</button>
               {(() => {
                 // v0.61.353 — "↩ Back to last search area": shows when the map view
                 // has drifted >600 m from the confirmed anchor; flies the map back
@@ -4131,9 +4035,9 @@ export default function App() {
                     type="button"
                     onClick={() => { setFlyTarget({ lat: anchor.lat, lng: anchor.lng, zoom: 14, _k: Date.now() }); setSelectedCityLocation(null); }}
                     className="underline font-semibold text-[#ef4444] leading-tight whitespace-nowrap active:scale-95"
-                    title={lang === 'fr' ? 'Recentrer la carte sur la dernière zone de recherche' : lang === 'id' ? 'Pusatkan peta ke area pencarian terakhir' : lang === 'ru' ? 'Вернуть карту к последней зоне поиска' : lang === 'de' ? 'Karte auf letzten Suchbereich zentrieren' : lang === 'zh' ? '将地图重新居中到上次搜索区域' : lang === 'ja' ? '地図を前回の検索エリアに戻す' : lang === 'es' ? 'Centrar el mapa en tu ultima zona de busqueda' : 'Recentre the map on your last search area'}
-                    aria-label={lang === 'fr' ? 'Recentrer la carte sur la dernière zone de recherche' : lang === 'id' ? 'Pusatkan peta ke area pencarian terakhir' : lang === 'ru' ? 'Вернуть карту к последней зоне поиска' : lang === 'de' ? 'Karte auf letzten Suchbereich zentrieren' : lang === 'zh' ? '将地图重新居中到上次搜索区域' : lang === 'ja' ? '地図を前回の検索エリアに戻す' : lang === 'es' ? 'Centrar el mapa en tu ultima zona de busqueda' : 'Recentre the map on your last search area'}
-                  >↩ {lang === 'fr' ? 'Retour à la dernière zone' : lang === 'id' ? 'Kembali ke area terakhir' : lang === 'ru' ? 'К последней зоне' : lang === 'de' ? 'Zum letzten Bereich' : lang === 'zh' ? '返回上次搜索区域' : lang === 'ja' ? '前回の検索エリアへ' : lang === 'es' ? 'Volver a la ultima zona' : 'Back to last search area'}</button>
+                    title={t('app.recentreTheMap', lang)}
+                    aria-label={t('app.recentreTheMap2', lang)}
+                  >↩ {t('app.backToLast', lang)}</button>
                 );
               })()}
             </div>
@@ -4143,7 +4047,7 @@ export default function App() {
             nothing auto-fires — the user must tap 🔍 to search. */}
         {venues.length > 0 && regionExpanded && (
           <div className="text-[10px] text-tg-accent italic px-1 -mb-0.5">
-            {lang === 'fr' ? 'Choisissez un lieu, puis touchez 🔍 pour rechercher — rien ne se lance avant.' : lang === 'id' ? 'Pilih lokasi, lalu ketuk 🔍 untuk mencari — tidak ada yang berjalan sebelum Anda mengetuknya.' : lang === 'ru' ? 'Выберите место, затем нажмите 🔍 для поиска — ничего не запустится раньше.' : lang === 'de' ? 'Ort wählen, dann 🔍 tippen — nichts startet vorher.' : lang === 'zh' ? '选择一个地点，然后点击 🔍 搜索 — 点击前不会执行。' : lang === 'ja' ? '場所を選んで 🔍 をタップして検索 — タップするまで何も実行されません。' : lang === 'es' ? 'Elige un lugar y toca 🔍 para buscar — no pasa nada hasta que lo toques.' : 'Pick a spot, then tap 🔍 to search — nothing fires until you tap it.'}
+            {t('app.pickASpot', lang)}
           </div>
         )}
         {/* v0.62.176 — operator: when "Click to change" is tapped (regionExpanded),
@@ -4347,7 +4251,7 @@ export default function App() {
             <div className="folio-panel px-2.5 py-2">
             {!userLoc ? (
             <div className="text-[11px] text-tg-hint italic px-1 py-1">
-              📍 {lang === 'fr' ? 'Localisation en cours…' : lang === 'id' ? 'Mencari lokasi Anda…' : lang === 'ru' ? 'Определяем ваше местоположение…' : lang === 'de' ? 'Sie werden geortet…' : lang === 'zh' ? '正在定位…' : lang === 'ja' ? '現在地を取得中…' : lang === 'es' ? 'Localizandote…' : 'Locating you…'}
+              📍 {t('app.locatingYou', lang)}
             </div>
           ) : (
             <LocationField
@@ -4451,7 +4355,7 @@ export default function App() {
           // v0.62.265 — operator: "Choose your cuisine" truncated in Telegram;
           // the tab holds the cuisine grid AND the filter chips, so the empty
           // state now reads "Cuisine & filters" (shorter + names the filters).
-          const cuisineLabel = names.length ? names.join(' · ') : (lang === 'fr' ? 'Cuisine & filtres' : lang === 'id' ? 'Masakan & filter' : lang === 'ru' ? 'Кухня и фильтры' : lang === 'de' ? 'Küche & Filter' : lang === 'zh' ? '菜系与筛选' : lang === 'ja' ? '料理とフィルター' : lang === 'es' ? 'Cocina y filtros' : 'Cuisine & filters');
+          const cuisineLabel = names.length ? names.join(' · ') : (t('app.cuisineFilters', lang));
           const hasPlate = !!(cuisinePlate || arrivalPlate) && venues.length > 0;
           // v0.62.187 — operator (IMG_2509): Cuisine + Local-classic render as
           // FOLIO FOLDER-TABS. The open picker is .folio-tab--active; the
@@ -4466,8 +4370,8 @@ export default function App() {
                 onClick={() => { setClassicOpen(false); setCuisinePickOpen((o) => !o); }}
                 aria-expanded={cuisinePickOpen}
                 aria-label={names.length
-                  ? (lang === 'fr' ? `Cuisines : ${names.join(', ')}` : lang === 'id' ? `Masakan: ${names.join(', ')}` : lang === 'ru' ? `Кухни: ${names.join(', ')}` : lang === 'de' ? `Küchen: ${names.join(', ')}` : lang === 'zh' ? `菜系：${names.join(', ')}` : lang === 'ja' ? `料理：${names.join(', ')}` : lang === 'es' ? `Cocinas: ${names.join(', ')}` : `Cuisines: ${names.join(', ')}`)
-                  : (lang === 'fr' ? 'Cuisine & filtres' : lang === 'id' ? 'Masakan & filter' : lang === 'ru' ? 'Кухня и фильтры' : lang === 'de' ? 'Küche & Filter' : lang === 'zh' ? '菜系与筛选' : lang === 'ja' ? '料理とフィルター' : lang === 'es' ? 'Cocina y filtros' : 'Cuisine & filters')}
+                  ? (tn('app.cuisines', lang, { p1: names.join(', ') }))
+                  : (t('app.cuisineFilters2', lang))}
                 // v0.62.259 — operator: the accent-blue CTA on an empty cuisine
                 // tab made it MISMATCH the grey "Pick local classic" tab once both
                 // showed. Apply the blue CTA only BEFORE results (no plate yet);
@@ -4495,15 +4399,15 @@ export default function App() {
                 onClick={() => { if (!hasPlate) return; setCuisinePickOpen(false); setClassicOpen((o) => !o); }}
                 aria-expanded={hasPlate ? classicOpen : undefined}
                 aria-disabled={!hasPlate || undefined}
-                title={!hasPlate ? (lang === 'fr' ? 'Disponible une fois les résultats chargés' : lang === 'id' ? 'Tersedia setelah hasil dimuat' : lang === 'ru' ? 'Доступно после загрузки результатов' : lang === 'de' ? 'Verfügbar nach dem Laden der Ergebnisse' : lang === 'zh' ? '结果加载后可用' : lang === 'ja' ? '結果の読み込み後に利用可能' : lang === 'es' ? 'Disponible al cargar resultados' : 'Available once results load') : undefined}
-                aria-label={lang === 'fr' ? 'Plats classiques locaux' : lang === 'id' ? 'Pilih klasik lokal' : lang === 'ru' ? 'Местная классика' : lang === 'de' ? 'Lokale Klassiker' : lang === 'zh' ? '选择本地经典' : lang === 'ja' ? '地元の定番を選ぶ' : lang === 'es' ? 'Elegir clasico local' : 'Pick local classic'}
+                title={!hasPlate ? (t('app.availableOnceResults', lang)) : undefined}
+                aria-label={t('app.pickLocalClassic', lang)}
                 // v0.62.678 — same dead text-[12px] removal as the tab above (see its comment).
                 className={`folio-tab flex-1 min-w-0 flex items-center gap-1.5 ${hasPlate ? 'active:scale-95' : 'opacity-50 cursor-not-allowed'} ${hasPlate && classicOpen ? 'folio-tab--active' : ''}`}
               >
                 {/* v0.62.228 — operator: the Magnify (cooking-method) icon marks
                     Local Food Pick + search. */}
                 <img src="/app/cuisine/magnify-cooking.png" alt="" aria-hidden className="shrink-0 w-4 h-4 object-contain" />
-                <span className="flex-1 text-left truncate">{lang === 'fr' ? 'Plats classiques locaux' : lang === 'id' ? 'Pilih klasik lokal' : lang === 'ru' ? 'Местная классика' : lang === 'de' ? 'Lokale Klassiker' : lang === 'zh' ? '选择本地经典' : lang === 'ja' ? '地元の定番を選ぶ' : lang === 'es' ? 'Elegir clasico local' : 'Pick local classic'}</span>
+                <span className="flex-1 text-left truncate">{t('app.pickLocalClassic2', lang)}</span>
                 <span aria-hidden className="shrink-0 opacity-70">{hasPlate ? (classicOpen ? '▴' : '▾') : ''}</span>
               </button>
             </div>
@@ -4523,7 +4427,7 @@ export default function App() {
             ↩-free amber note is colour-blind safe (orange + ℹ️, never red/green). */}
         {noProvenNew && venues.length > 0 && (state.filters?.newlyOpened) && (
           <div className="text-[11px] text-[#b45309] bg-[#fef3c7] border border-[#f59e0b]/50 rounded-lg px-2.5 py-1 leading-snug">
-            ℹ️ {lang === 'fr' ? 'Aucune adresse récemment ouverte à proximité — voici les établies.' : lang === 'id' ? 'Tidak ada tempat yang baru buka di sekitar — menampilkan yang sudah lama.' : lang === 'ru' ? 'Поблизости нет недавно открытых мест — показываем проверенные.' : lang === 'de' ? 'Keine neu eröffneten Orte in der Nähe — etablierte werden angezeigt.' : lang === 'zh' ? '附近没有新开的店 — 显示老字号。' : lang === 'ja' ? '近くに新店はありません — 老舗を表示します。' : lang === 'es' ? 'No hay sitios recien abiertos cerca — mostrando los establecidos.' : 'No newly-opened spots nearby — showing established ones.'}
+            ℹ️ {t('app.noNewlyOpened', lang)}
           </div>
         )}
       </header>
@@ -4576,7 +4480,7 @@ export default function App() {
           {/* v0.62.246 — operator: the folio TAB already reads "Choose your
               cuisine"; drop the duplicate body title, keep only the × close. */}
           <div className="flex items-center justify-end">
-            <button type="button" onClick={() => setCuisinePickOpen(false)} aria-label={lang === 'fr' ? 'Fermer' : lang === 'id' ? 'Tutup' : lang === 'ru' ? 'Закрыть' : lang === 'de' ? 'Schließen' : lang === 'zh' ? '关闭' : lang === 'ja' ? '閉じる' : lang === 'es' ? 'Cerrar' : 'Close'} className="text-tg-hint hover:text-tg-text text-sm leading-none px-1">✕</button>
+            <button type="button" onClick={() => setCuisinePickOpen(false)} aria-label={t('app.close', lang)} className="text-tg-hint hover:text-tg-text text-sm leading-none px-1">✕</button>
           </div>
           {recommendHint && (
             <div className="rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2 text-[12px] leading-snug text-tg-text">
@@ -4696,7 +4600,7 @@ export default function App() {
               classic"; drop the duplicate body title, keep only the × close.
               (The plate below still shows the city name, e.g. "📍 Singapore".) */}
           <div className="flex items-center justify-end pb-1">
-            <button type="button" onClick={() => setClassicOpen(false)} aria-label={lang === 'fr' ? 'Fermer' : lang === 'id' ? 'Tutup' : lang === 'ru' ? 'Закрыть' : lang === 'de' ? 'Schließen' : lang === 'zh' ? '关闭' : lang === 'ja' ? '閉じる' : lang === 'es' ? 'Cerrar' : 'Close'} className="text-tg-hint hover:text-tg-text text-sm leading-none px-1">✕</button>
+            <button type="button" onClick={() => setClassicOpen(false)} aria-label={t('app.close2', lang)} className="text-tg-hint hover:text-tg-text text-sm leading-none px-1">✕</button>
           </div>
           <ArrivalPlate
             plate={(() => {
@@ -5004,19 +4908,7 @@ export default function App() {
           decline note, no result list. */}
       {questionDeclined && !loading && (
         <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[11px] leading-snug text-tg-text">
-          🙂 <span className="italic">{lang === 'fr'
-            ? 'Je ne réponds pas encore aux questions dans la case « Tell me ». Tapez un plat ou une cuisine (ex. chiffon cake, laksa, ramen), ou choisissez une cuisine ci-dessous.'
-            : lang === 'ru'
-            ? 'Я пока не отвечаю на вопросы в поле «Tell me». Введите блюдо или кухню (напр. chiffon cake, laksa, ramen) или выберите кухню ниже.'
-            : lang === 'de'
-            ? 'Fragen im „Tell me“-Feld kann ich noch nicht beantworten. Geben Sie ein Gericht oder eine Küche ein (z. B. chiffon cake, laksa, ramen) oder wählen Sie unten eine Küche.'
-            : lang === 'zh'
-            ? '“Tell me”框暂时无法回答问题。请输入菜名或菜系（如戚风蛋糕、叻沙、拉面），或在下方选择菜系。'
-            : lang === 'ja'
-            ? '「Tell me」欄ではまだ質問に答えられません。料理名や料理ジャンルを入力するか（例：シフォンケーキ、ラクサ、ラーメン）、下から料理を選んでください。'
-            : lang === 'es'
-            ? 'Aun no puedo responder preguntas en el campo "Tell me". Escribe un plato o cocina (p. ej. chiffon cake, laksa, ramen), o elige una cocina abajo.'
-            : "I can't answer questions in the “Tell me” box yet. Type a dish or cuisine (e.g. chiffon cake, laksa, ramen), or pick a cuisine below."}</span>
+          🙂 <span className="italic">{t('app.iCanT', lang)}</span>
         </div>
       )}
 
@@ -5058,19 +4950,7 @@ export default function App() {
           dirty so the messaging never contradicts itself. */}
       {dirty && !loading && venues.length === 0 && (
         <div className="rounded-2xl border border-tg-accent/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
-          {lang === 'fr'
-            ? 'Vos critères ont changé — touchez 🔍 pour relancer la recherche.'
-            : lang === 'ru'
-            ? 'Ваши критерии изменились — нажмите 🔍, чтобы искать снова.'
-            : lang === 'de'
-            ? 'Ihre Kriterien haben sich geändert — 🔍 tippen, um erneut zu suchen.'
-            : lang === 'zh'
-            ? '您的条件已更改 — 点击 🔍 重新搜索。'
-            : lang === 'ja'
-            ? '条件が変更されました — 🔍 をタップして再検索。'
-            : lang === 'es'
-            ? 'Tus criterios cambiaron — toca 🔍 para buscar de nuevo.'
-            : 'Your criteria changed — tap 🔍 to search again.'}
+          {t('app.yourCriteriaChanged', lang)}
         </div>
       )}
       {zeroReasonKey && !loading && venues.length === 0 && !dirty && (
@@ -5098,23 +4978,11 @@ export default function App() {
                 tap still shows a different window of that pool. When widen is on but
                 the pool isn't exhausted yet, show the plain "wider search on" state. */}
             {allSeenInRange
-              ? (lang === 'fr'
-                  ? `Vous avez vu les ${allSeenInRange.count} adresses dans un rayon de ~${allSeenInRange.capKm} km.`
-                  : lang === 'ru'
-                  ? `Вы просмотрели все ${allSeenInRange.count} в радиусе ~${allSeenInRange.capKm} км.`
-                  : lang === 'de'
-                  ? `Sie haben alle ${allSeenInRange.count} im Umkreis von ~${allSeenInRange.capKm} km gesehen.`
-                  : lang === 'zh'
-                  ? `您已查看 ~${allSeenInRange.capKm} 公里内的全部 ${allSeenInRange.count} 家。`
-                  : lang === 'ja'
-                  ? `~${allSeenInRange.capKm} km 圏内の ${allSeenInRange.count} 件すべてを表示しました。`
-                  : lang === 'es'
-                  ? `Has visto las ${allSeenInRange.count} dentro de ~${allSeenInRange.capKm} km.`
-                  : `You've seen all ${allSeenInRange.count} within ~${allSeenInRange.capKm} km.`)
-              : (lang === 'fr' ? 'Recherche élargie (~40 km).' : lang === 'id' ? 'Pencarian diperluas (~40 km).' : lang === 'ru' ? 'Расширенный поиск (~40 км).' : lang === 'de' ? 'Erweiterte Suche (~40 km).' : lang === 'zh' ? '已开启更大范围搜索（~40 公里）。' : lang === 'ja' ? '広域検索オン（~40 km）。' : lang === 'es' ? 'Busqueda ampliada activada (~40 km).' : 'Wider search on (~40 km).')}
+              ? (tn('app.allSeenInRange', lang, { count: allSeenInRange.count, km: allSeenInRange.capKm }))
+              : (t('app.widerSearchOn', lang))}
           </span>
           <span className="shrink-0 inline-flex items-center gap-1.5">
-            <span id="gia-widen-label" className="text-[10px] text-tg-hint">{lang === 'fr' ? 'Élargir' : lang === 'id' ? 'Perluas' : lang === 'ru' ? 'Шире' : lang === 'de' ? 'Erweitern' : lang === 'zh' ? '扩大' : lang === 'ja' ? '拡大' : lang === 'es' ? 'Ampliar' : 'Widen'}</span>
+            <span id="gia-widen-label" className="text-[10px] text-tg-hint">{t('app.widen', lang)}</span>
             {/* glass switch (track + thumb) */}
             <button type="button" role="switch" aria-checked={widenActive} aria-labelledby="gia-widen-label"
               onClick={() => { const next = !widenActive; setWidenActive(next); runSearch(state, null, { widen: next }); }}
@@ -5157,19 +5025,7 @@ export default function App() {
       {degradedNotice && !loading && (
         <div className="rounded-2xl border border-tg-warn/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
           <span aria-hidden="true">↻ </span>
-          {lang === 'fr'
-            ? 'Petit hic réseau lors de la recherche — réappuyez sur 🔍 pour réessayer.'
-            : lang === 'ru'
-            ? 'Сбой при поиске — нажмите 🔍, чтобы повторить.'
-            : lang === 'de'
-            ? 'Suchproblem — 🔍 tippen, um erneut zu versuchen.'
-            : lang === 'zh'
-            ? '搜索出现小故障 — 点击 🔍 重试。'
-            : lang === 'ja'
-            ? '検索で小さな問題が発生 — 🔍 をタップして再試行。'
-            : lang === 'es'
-            ? 'Fallo de busqueda — toca 🔍 para reintentar.'
-            : 'Search hiccup — tap 🔍 to try again.'}
+          {t('app.searchHiccupTap', lang)}
         </div>
       )}
 
@@ -5179,19 +5035,7 @@ export default function App() {
           short result list as a bug. */}
       {sparseNotice && !loading && (
         <div className="rounded-2xl border border-tg-warn/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
-          {lang === 'fr'
-            ? `Cuisine peu représentée à Singapour — Google Maps répertorie peu d'établissements ${sparseNotice}. Affichage de toutes les correspondances.`
-            : lang === 'ru'
-            ? `Кухня слабо представлена в Сингапуре — в Google Maps мало заведений ${sparseNotice}. Показаны все совпадения.`
-            : lang === 'de'
-            ? `Geringe Abdeckung in Singapur — Google Maps listet wenige ${sparseNotice} Restaurants. Alle Treffer werden angezeigt.`
-            : lang === 'zh'
-            ? `新加坡覆盖有限 — Google 地图收录的 ${sparseNotice} 餐厅较少。显示所有匹配结果。`
-            : lang === 'ja'
-            ? `シンガポールでは収録が限られています — Google マップに ${sparseNotice} のレストランは少数です。すべての該当を表示します。`
-            : lang === 'es'
-            ? `Cobertura limitada en Singapur — Google Maps tiene pocos restaurantes ${sparseNotice}. Mostrando todas las coincidencias.`
-            : `Limited coverage in Singapore — Google Maps has few ${sparseNotice} restaurants listed. Showing all matches.`}
+          {tn('app.limitedCoverageIn', lang, { p1: sparseNotice })}
         </div>
       )}
 
@@ -5211,19 +5055,7 @@ export default function App() {
       {cookMethodPivot && !loading && cookMethodPivot.matches.length > 0 && (
         <div className="rounded-2xl border border-tg-border bg-tg-card px-3 py-2 text-[11px] leading-snug text-tg-text">
           <div className="mb-1.5">🙂 <span className="italic">
-            {lang === 'fr'
-              ? `Cherchiez-vous peut-être une méthode de cuisson — « ${cookMethodPivot.query} » ?`
-              : lang === 'ru'
-              ? `Возможно, вы искали способ приготовления — «${cookMethodPivot.query}»?`
-              : lang === 'de'
-              ? `Suchten Sie vielleicht eine Garmethode — „${cookMethodPivot.query}“?`
-              : lang === 'zh'
-              ? `您要找的或许是一种烹饪方法 — “${cookMethodPivot.query}”？`
-              : lang === 'ja'
-              ? `お探しなのは調理法かもしれません — 「${cookMethodPivot.query}」？`
-              : lang === 'es'
-              ? `Quizas buscabas un metodo de coccion — "${cookMethodPivot.query}"?`
-              : `Were you perhaps after a cooking method — "${cookMethodPivot.query}"?`}
+            {tn('app.wereYouPerhaps', lang, { p1: cookMethodPivot.query })}
           </span></div>
           <div className="flex flex-wrap gap-1.5">
             {cookMethodPivot.matches.map((m) => (
@@ -5307,13 +5139,13 @@ export default function App() {
               }
             }
             const f = state.filters || {};
-            if (f.halal) parts.push(lang === 'fr' ? 'Halal' : lang === 'ru' ? 'Халяль' : lang === 'de' ? 'Halal' : lang === 'zh' ? '清真' : lang === 'ja' ? 'ハラル' : lang === 'es' ? 'Halal' : 'Halal');
-            if (f.vegetarian) parts.push(lang === 'fr' ? 'Végétarien' : lang === 'id' ? 'Vegetarian' : lang === 'ru' ? 'Вегетарианское' : lang === 'de' ? 'Vegetarisch' : lang === 'zh' ? '素食' : lang === 'ja' ? 'ベジタリアン' : lang === 'es' ? 'Vegetariano' : 'Vegetarian');
-            if (f.recommend) parts.push(lang === 'fr' ? 'Recommander' : lang === 'id' ? 'Rekomendasi' : lang === 'ru' ? 'Рекомендации' : lang === 'de' ? 'Empfehlen' : lang === 'zh' ? '推荐' : lang === 'ja' ? 'おすすめ' : lang === 'es' ? 'Recomendar' : 'Recommend');  // v0.62.37
-            if (f.openNow) parts.push(lang === 'fr' ? 'Ouvert' : lang === 'id' ? 'Buka sekarang' : lang === 'ru' ? 'Открыто' : lang === 'de' ? 'Geöffnet' : lang === 'zh' ? '营业中' : lang === 'ja' ? '営業中' : lang === 'es' ? 'Abierto ahora' : 'Open now');
-            if (f.homeBased) parts.push(lang === 'fr' ? 'À domicile' : lang === 'id' ? 'Rumahan' : lang === 'ru' ? 'На дому' : lang === 'de' ? 'Privatküche' : lang === 'zh' ? '家庭式' : lang === 'ja' ? '自宅型' : lang === 'es' ? 'Casero' : 'Home-based');
-            if (f.petFriendly) parts.push(lang === 'fr' ? 'Animaux acceptés' : lang === 'id' ? 'Ramah hewan' : lang === 'ru' ? 'С питомцами' : lang === 'de' ? 'Tierfreundlich' : lang === 'zh' ? '允许宠物' : lang === 'ja' ? 'ペット可' : lang === 'es' ? 'Admite mascotas' : 'Pet-friendly');
-            if (f.newlyOpened) parts.push(lang === 'fr' ? 'Nouveau' : lang === 'id' ? 'Baru buka' : lang === 'ru' ? 'Новое' : lang === 'de' ? 'Neu' : lang === 'zh' ? '新开业' : lang === 'ja' ? '新規開店' : lang === 'es' ? 'Recien abierto' : 'Newly opened');
+            if (f.halal) parts.push(t('app.halal', lang));
+            if (f.vegetarian) parts.push(t('app.vegetarian', lang));
+            if (f.recommend) parts.push(t('app.recommend', lang));  // v0.62.37
+            if (f.openNow) parts.push(t('app.openNow', lang));
+            if (f.homeBased) parts.push(t('app.homeBased', lang));
+            if (f.petFriendly) parts.push(t('app.petFriendly', lang));
+            if (f.newlyOpened) parts.push(t('app.newlyOpened', lang));
             if (Array.isArray(f.prices) && f.prices.length) {
               const min = Math.min(...f.prices);
               const max = Math.max(...f.prices);
@@ -5333,52 +5165,16 @@ export default function App() {
             // v0.61.351 — city-aware hint: "Explore N more in <City> · M across 🇰🇷 <Country>"
             // when the picked city resolved to a curated Michelin city (multi-city countries).
             if (mr.city && Number.isFinite(mr.cityRemaining)) {
-              return lang === 'fr'
-                ? `📚 Explorez ${mr.cityRemaining} de plus à ${mr.city} · ${mr.total} dans ${fc}`
-                : lang === 'ru'
-                ? `📚 Ещё ${mr.cityRemaining} в ${mr.city} · всего ${mr.total} в ${fc}`
-                : lang === 'de'
-                ? `📚 ${mr.cityRemaining} weitere in ${mr.city} · ${mr.total} in ${fc}`
-                : lang === 'zh'
-                ? `📚 ${mr.city} 还有 ${mr.cityRemaining} 家 · ${fc} 共 ${mr.total} 家`
-                : lang === 'ja'
-                ? `📚 ${mr.city} にあと ${mr.cityRemaining} 件 · ${fc} 全体で ${mr.total} 件`
-                : lang === 'es'
-                ? `📚 Explora ${mr.cityRemaining} mas en ${mr.city} · ${mr.total} en ${fc}`
-                : `📚 Explore ${mr.cityRemaining} more in ${mr.city} · ${mr.total} across ${fc}`;
+              return tn('app.michelinCityMore', lang, { cityRemaining: mr.cityRemaining, city: mr.city, total: mr.total, country: fc });
             }
             // v0.61.374 — country-only NEW format (fix A): used for city-states
             // like Singapore (city == country → no redundant "in <City>"):
             // "📚 Explore 69 more · 117 across 🇸🇬 Singapore".
             if (fc) {
-              return lang === 'fr'
-                ? `📚 Explorez ${mr.remaining} de plus · ${mr.total} dans ${fc}`
-                : lang === 'ru'
-                ? `📚 Ещё ${mr.remaining} · всего ${mr.total} в ${fc}`
-                : lang === 'de'
-                ? `📚 ${mr.remaining} weitere · ${mr.total} in ${fc}`
-                : lang === 'zh'
-                ? `📚 还有 ${mr.remaining} 家 · ${fc} 共 ${mr.total} 家`
-                : lang === 'ja'
-                ? `📚 あと ${mr.remaining} 件 · ${fc} 全体で ${mr.total} 件`
-                : lang === 'es'
-                ? `📚 Explora ${mr.remaining} mas · ${mr.total} en ${fc}`
-                : `📚 Explore ${mr.remaining} more · ${mr.total} across ${fc}`;
+              return tn('app.michelinMore', lang, { remaining: mr.remaining, total: mr.total, country: fc });
             }
             // Legacy fallback only when no country info resolved at all.
-            return lang === 'fr'
-              ? `📚 Liste Michelin organisée — ${mr.remaining} de plus à découvrir (${mr.total} au total). Touchez 🔍 pour le prochain groupe de 12.`
-              : lang === 'ru'
-              ? `📚 Кураторский список Michelin — ещё ${mr.remaining} (всего ${mr.total}). Нажмите 🔍 для следующих 12.`
-              : lang === 'de'
-              ? `📚 Kuratierte Michelin-Liste — ${mr.remaining} weitere (${mr.total} gesamt). 🔍 tippen für die nächsten 12.`
-              : lang === 'zh'
-              ? `📚 精选米其林榜单 — 还有 ${mr.remaining} 家待发现（共 ${mr.total} 家）。点击 🔍 查看下一批 12 家。`
-              : lang === 'ja'
-              ? `📚 厳選ミシュランリスト — あと ${mr.remaining} 件（合計 ${mr.total} 件）。🔍 をタップして次の 12 件へ。`
-              : lang === 'es'
-              ? `📚 Lista Michelin curada — ${mr.remaining} mas por explorar (${mr.total} en total). Toca 🔍 para los siguientes 12.`
-              : `📚 Curated Michelin list — ${mr.remaining} more to explore (${mr.total} in total). Tap 🔍 for the next batch of 12.`;
+            return tn('app.curatedMichelinList', lang, { p1: mr.remaining, p2: mr.total });
           })()}
           // v0.60.153 — Michelin-specific "please wait" copy. The
           // handler runs review-extract + LLM narrate + per-venue
@@ -5393,19 +5189,7 @@ export default function App() {
             // latest Michelin information" → "Fetching Michelin Info" so
             // the hint stays on a single mobile line.
             (state.cuisines || []).some((c) => String(c).toLowerCase() === 'michelin')
-              ? (lang === 'fr'
-                  ? '✳️ Récupération des infos Michelin. Un instant…'
-                  : lang === 'ru'
-                  ? '✳️ Загружаем данные Michelin. Подождите немного.'
-                  : lang === 'de'
-                  ? '✳️ Michelin-Infos werden geladen. Einen Moment.'
-                  : lang === 'zh'
-                  ? '✳️ 正在获取米其林信息，请稍候。'
-                  : lang === 'ja'
-                  ? '✳️ ミシュラン情報を取得中。少々お待ちください。'
-                  : lang === 'es'
-                  ? '✳️ Obteniendo info Michelin. Espera un momento.'
-                  : '✳️ Fetching Michelin Info. Please wait a moment.')
+              ? (t('app.fetchingMichelinInfo', lang))
               : null
           }
           focusedPlaceId={focusedPlaceId}
@@ -5528,19 +5312,7 @@ export default function App() {
         {exhaustedNote && !loading && venues.length > 0 && (
           <div className="text-[11px] text-tg-hint italic text-center mt-2 px-2">
             {sessionFull
-              ? (lang === 'fr'
-                  ? 'Vous avez vu le maximum de 80 lieux pour cette session. Touchez ↻ Recycler pour redémarrer (liste n°1 à nouveau), ou fermez et ré-ouvrez Cuisine.'
-                  : lang === 'ru'
-                  ? 'Вы просмотрели максимум 80 мест за сессию. Нажмите ↻ Обновить, чтобы начать заново (список №1), или закройте и снова откройте Cuisine.'
-                  : lang === 'de'
-                  ? 'Sie haben das Maximum von 80 Orten für diese Sitzung gesehen. Tippen Sie ↻ Neu starten (Liste Nr. 1 erneut) oder schließen und öffnen Sie Cuisine neu.'
-                  : lang === 'zh'
-                  ? '您已查看本次会话上限的 80 个地点。点击 ↻ 回收以重新开始（再次显示第 1 号列表），或关闭并重新打开 Cuisine。'
-                  : lang === 'ja'
-                  ? 'このセッションの上限 80 件を表示しました。↻ 回収をタップして新しいセッションを開始（再び 1 番のリスト）するか、Cuisine を閉じて開き直してください。'
-                  : lang === 'es'
-                  ? 'Has visto el maximo de 80 lugares de esta sesion. Toca ↻ Reciclar para iniciar una nueva sesion (lista n.º 1 de nuevo), o cierra y vuelve a abrir Cuisine.'
-                  : 'You\'ve seen the 80 maximum for this session. Tap ↻ Recycle to start a fresh session (list #1 again), or close and re-open Cuisine.')
+              ? (t('app.youVeSeen', lang))
               : (poolCount > 1
                   ? tn('result.exhausted', lang, { n: poolCount })
                   : poolCount === 1
@@ -5572,9 +5344,9 @@ export default function App() {
                   runSearch(state);
                 }}
                 className="ml-1 not-italic underline text-tg-link"
-                aria-label={lang === 'fr' ? 'Recycler cette session' : lang === 'id' ? 'Daur ulang sesi ini' : lang === 'ru' ? 'Обновить эту сессию' : lang === 'de' ? 'Diese Sitzung neu starten' : lang === 'zh' ? '回收此会话' : lang === 'ja' ? 'このセッションを回収' : lang === 'es' ? 'Reciclar esta sesion' : 'Recycle this session'}
+                aria-label={t('app.recycleThisSession', lang)}
               >
-                {lang === 'fr' ? '↻ Recycler' : lang === 'id' ? '↻ Daur ulang' : lang === 'ru' ? '↻ Обновить' : lang === 'de' ? '↻ Neu' : lang === 'zh' ? '↻ 回收' : lang === 'ja' ? '↻ 回収' : lang === 'es' ? '↻ Reciclar' : '↻ Recycle'}
+                {t('app.recycle', lang)}
               </button>
             ) : (
               <button
@@ -5695,7 +5467,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setComposerOpen(true)}
-                aria-label={lang === 'fr' ? 'Saisir un plat' : lang === 'id' ? 'Ketik yang Anda inginkan' : lang === 'ru' ? 'Введите, что хотите' : lang === 'de' ? 'Gericht eingeben' : lang === 'zh' ? '输入您想吃的' : lang === 'ja' ? '食べたいものを入力' : lang === 'es' ? 'Escribe que se te antoja' : 'Type what you are craving'}
+                aria-label={t('app.typeWhatYou', lang)}
                 className="pointer-events-auto w-10 h-10 rounded-full bg-tg-card/75 liquid-glass border-2 border-tg-hint/60 shadow-lg flex items-center justify-center text-lg active:scale-95"
               >💬</button>
               {/* v0.62.x — operator: the insight strip (centre text) sits BETWEEN
@@ -5716,7 +5488,7 @@ export default function App() {
                 type="button"
                 onClick={triggerSearch}
                 disabled={searchDisabled}
-                aria-label={lang === 'fr' ? 'Rechercher · Trouvez où manger' : lang === 'id' ? 'Cari · Tunjukkan tempat makan' : lang === 'ru' ? 'Поиск · Где поесть' : lang === 'de' ? 'Suchen · Wo essen' : lang === 'zh' ? '搜索 · 显示用餐地点' : lang === 'ja' ? '検索 · 食べる場所を表示' : lang === 'es' ? 'Buscar · Muestra donde comer' : 'Search · Show me places to eat'}
+                aria-label={t('app.searchShowMe', lang)}
                 className={`pointer-events-auto w-10 h-10 rounded-full bg-tg-accent text-tg-accent-text border-2 border-tg-accent-text/40 shadow-lg flex items-center justify-center text-lg disabled:opacity-40 active:scale-95 ${pulse ? 'animate-pulse ring-2 ring-offset-1 ring-tg-accent' : ''}`}
               >🔍</button>
             </div>
@@ -5746,12 +5518,12 @@ export default function App() {
                 type="button"
                 onClick={() => setDrawerDismissed((d) => !d)}
                 aria-label={drawerDismissed
-                  ? (lang === 'fr' ? 'Afficher les résultats' : lang === 'id' ? 'Tampilkan hasil' : lang === 'ru' ? 'Показать результаты' : lang === 'de' ? 'Ergebnisse anzeigen' : lang === 'zh' ? '显示结果' : lang === 'ja' ? '結果を表示' : lang === 'es' ? 'Mostrar resultados' : 'Show results')
-                  : (lang === 'fr' ? 'Masquer les résultats' : lang === 'id' ? 'Sembunyikan hasil' : lang === 'ru' ? 'Скрыть результаты' : lang === 'de' ? 'Ergebnisse ausblenden' : lang === 'zh' ? '隐藏结果' : lang === 'ja' ? '結果を隠す' : lang === 'es' ? 'Ocultar resultados' : 'Hide results')}
+                  ? (t('app.showResults', lang))
+                  : (t('app.hideResults', lang))}
                 className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
               >{drawerDismissed
-                ? `📖 ${lang === 'fr' ? 'afficher résultats' : lang === 'id' ? 'tampilkan hasil' : lang === 'ru' ? 'показать' : lang === 'de' ? 'anzeigen' : lang === 'zh' ? '显示结果' : lang === 'ja' ? '結果を表示' : lang === 'es' ? 'mostrar resultados' : 'show results'}`
-                : `📘 ${lang === 'fr' ? 'masquer résultats' : lang === 'id' ? 'sembunyikan hasil' : lang === 'ru' ? 'скрыть' : lang === 'de' ? 'ausblenden' : lang === 'zh' ? '隐藏结果' : lang === 'ja' ? '結果を隠す' : lang === 'es' ? 'ocultar resultados' : 'hide results'}`}</button>
+                ? `📖 ${t('app.showResults2', lang)}`
+                : `📘 ${t('app.hideResults2', lang)}`}</button>
               {/* v0.62.564 — the manual list/map toggle is hidden only in wide
                   LANDSCAPE (carousel-only there). v0.62.567 (operator): show it in
                   PORTRAIT tablet too so the user can switch the two-panel list ⇄ the
@@ -5777,12 +5549,12 @@ export default function App() {
                     }
                   }}
                   aria-label={drawerMode === 'horizontal'
-                    ? (lang === 'fr' ? 'Affichage vertical' : lang === 'id' ? 'Tampilan vertikal' : lang === 'ru' ? 'Вертикальный вид' : lang === 'de' ? 'Vertikale Ansicht' : lang === 'zh' ? '垂直布局' : lang === 'ja' ? '縦レイアウト' : lang === 'es' ? 'Diseno vertical' : 'Vertical layout')
-                    : (lang === 'fr' ? 'Affichage horizontal' : lang === 'id' ? 'Tampilan horizontal' : lang === 'ru' ? 'Горизонтальный вид' : lang === 'de' ? 'Horizontale Ansicht' : lang === 'zh' ? '水平布局' : lang === 'ja' ? '横レイアウト' : lang === 'es' ? 'Diseno horizontal' : 'Horizontal layout')}
+                    ? (t('app.verticalLayout', lang))
+                    : (t('app.horizontalLayout', lang))}
                   className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
                 >{drawerMode === 'horizontal'
-                  ? `⊿ ${lang === 'fr' ? 'liste' : lang === 'id' ? 'daftar' : lang === 'ru' ? 'список' : lang === 'de' ? 'Liste' : lang === 'zh' ? '列表' : lang === 'ja' ? 'リスト' : lang === 'es' ? 'lista' : 'list'}`
-                  : `◸ ${lang === 'fr' ? 'carte' : lang === 'id' ? 'peta' : lang === 'ru' ? 'карта' : lang === 'de' ? 'Karte' : lang === 'zh' ? '地图' : lang === 'ja' ? '地図' : lang === 'es' ? 'mapa' : 'map'}`}</button>
+                  ? `⊿ ${t('app.list', lang)}`
+                  : `◸ ${t('app.map', lang)}`}</button>
               )}
               {/* v0.62.673 — hidden specifically when the new Michelin footer-centre
                   pager is also showing (isMichelinMode && michelinTotalPages > 1):
@@ -5794,9 +5566,9 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setCursor((c) => Math.min(pages.length - 1, c + 1))}
-                  aria-label={lang === 'fr' ? 'Liste suivante' : lang === 'id' ? 'Daftar berikutnya' : lang === 'ru' ? 'Следующий список' : lang === 'de' ? 'Nächste Liste' : lang === 'zh' ? '下一个列表' : lang === 'ja' ? '次のリスト' : lang === 'es' ? 'Siguiente lista' : 'Next list'}
+                  aria-label={t('app.nextList', lang)}
                   className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap"
-                >⇢ {lang === 'fr' ? 'suivant' : lang === 'id' ? 'berikutnya' : lang === 'ru' ? 'далее' : lang === 'de' ? 'weiter' : lang === 'zh' ? '下一个' : lang === 'ja' ? '次へ' : lang === 'es' ? 'siguiente' : 'next'}</button>
+                >⇢ {t('app.next', lang)}</button>
               )}
             </div>
             {/* v0.62.673 — the footer's centre grid cell. Holds the pre-existing
@@ -5815,7 +5587,7 @@ export default function App() {
                       aria-haspopup="true"
                       aria-expanded={criteriaOpen}
                       className="px-2 py-1.5 rounded-lg active:scale-95 whitespace-nowrap inline-flex items-center gap-0.5"
-                    >{lang === 'fr' ? 'Critères' : lang === 'id' ? 'Kriteria' : lang === 'ru' ? 'Критерии' : lang === 'de' ? 'Kriterien' : lang === 'zh' ? '条件' : lang === 'ja' ? '条件' : lang === 'es' ? 'Criterios' : 'Criteria'} ({criteriaSummary.length}) <span aria-hidden className="text-tg-hint">{criteriaOpen ? '▴' : '▾'}</span></button>
+                    >{t('app.criteria', lang)} ({criteriaSummary.length}) <span aria-hidden className="text-tg-hint">{criteriaOpen ? '▴' : '▾'}</span></button>
                     {criteriaOpen && (
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 z-40 rounded-xl border border-tg-border bg-tg-card shadow-lg max-h-[40vh] overflow-y-auto p-2 min-w-[220px] max-w-[80vw]">
                         <ActiveFilters
@@ -5873,14 +5645,14 @@ export default function App() {
                     unit (disclosed, not silently reconciled). */}
                 {isMichelinMode && michelinTotalPages > 1 && (
                   <nav
-                    aria-label={lang === 'fr' ? 'Pages de résultats Michelin' : lang === 'id' ? 'Halaman hasil Michelin' : lang === 'ru' ? 'Страницы результатов Michelin' : lang === 'de' ? 'Michelin-Ergebnisseiten' : lang === 'zh' ? '米其林结果页面' : lang === 'ja' ? 'ミシュラン結果ページ' : lang === 'es' ? 'Páginas de resultados Michelin' : 'Michelin result pages'}
+                    aria-label={t('app.michelinResultPages', lang)}
                     className="flex items-center gap-0.5 shrink-0"
                   >
                     <button
                       type="button"
                       onClick={() => { if (cursor > 0) setCursor((c) => Math.max(0, c - 1)); }}
                       disabled={cursor === 0}
-                      aria-label={lang === 'fr' ? 'Page précédente des résultats Michelin' : lang === 'id' ? 'Halaman Michelin sebelumnya' : lang === 'ru' ? 'Предыдущая страница Michelin' : lang === 'de' ? 'Vorherige Michelin-Ergebnisseite' : lang === 'zh' ? '上一页米其林结果' : lang === 'ja' ? '前のミシュラン結果ページ' : lang === 'es' ? 'Página anterior de resultados Michelin' : 'Previous Michelin results page'}
+                      aria-label={t('app.previousMichelinResults', lang)}
                       className="gia-hit-y px-1 py-1.5 rounded-lg active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
                     >‹</button>
                     <span className="tabular-nums px-0.5" aria-live="polite">{cursor + 1} / {michelinTotalPages}</span>
@@ -5891,7 +5663,7 @@ export default function App() {
                         if (!exhaustedNote) runSearch(state);
                       }}
                       disabled={exhaustedNote && cursor === pages.length - 1}
-                      aria-label={lang === 'fr' ? 'Page suivante des résultats Michelin' : lang === 'id' ? 'Halaman Michelin berikutnya' : lang === 'ru' ? 'Следующая страница Michelin' : lang === 'de' ? 'Nächste Michelin-Ergebnisseite' : lang === 'zh' ? '下一页米其林结果' : lang === 'ja' ? '次のミシュランページ' : lang === 'es' ? 'Página siguiente de resultados Michelin' : 'Next Michelin results page'}
+                      aria-label={t('app.nextMichelinResults', lang)}
                       className="gia-hit-y px-1 py-1.5 rounded-lg active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
                     >›</button>
                   </nav>

@@ -179,6 +179,8 @@ describe('TMA i18n coverage (O-327)', () => {
       // v0.62.837 — the hardcoded-ternary sweep. clipboard 243->251, cuisine 252->301,
       // hawker 76->82, menu 71->80, transport 121->123. Every one replaces a string that
       // was written as `lang === 'fr' ? … : …` and so rendered English to six locales.
-      .toEqual({ clipboard: 251, cuisine: 301, hawker: 82, menu: 80, transport: 123 });
+      // cuisine 301 -> 379: App.jsx's 75 chains keyed too (69 auto-converted from their
+      // own arms, 6 hand-done), plus country.SG/MY/OTHERS.
+      .toEqual({ clipboard: 251, cuisine: 379, hawker: 82, menu: 80, transport: 123 });
   });
 });

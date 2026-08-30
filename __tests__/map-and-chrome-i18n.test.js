@@ -294,20 +294,27 @@ describe('the hardcoded-ternary sweep holds', () => {
   const COND = /(?:lang === 'fr'|(?<![A-Za-z0-9_.])fr)\s*\?/g;
   const sitesIn = (rel) => (withoutComments(read(rel)).match(COND) || []).length;
 
-  it('21 of the 22 files carry none at all', () => {
-    const remaining = TMA_SOURCES
-      .map((f) => [f, sitesIn(f)])
-      .filter(([, n]) => n > 0);
-    // App.jsx is the single exception, and deliberately so: its chains already carry
-    // seven locales apiece, so converting them is a refactor with no user-visible
-    // change, unlike the 93 two-locale sites this sweep replaced.
-    expect(remaining.map(([f]) => f)).toEqual(['web/cuisine/src/v2/App.jsx']);
+  it('ALL 22 files now carry none — the sweep is complete', () => {
+    // Operator: "do all 75". App.jsx's chains were the last of the 168 and are now
+    // keyed too, so this is an absolute zero rather than a ratchet. Kept as a
+    // whole-tree scan, not a file list, so a NEW file reintroducing the pattern
+    // fails here rather than being quietly out of scope.
+    const remaining = TMA_SOURCES.map((f) => [f, sitesIn(f)]).filter(([, n]) => n > 0);
+    expect(remaining).toEqual([]);
   });
 
-  it('and App.jsx only shrinks from here', () => {
-    // A ratchet, not a target. Pinned so the number cannot quietly grow back while
-    // the file is edited for other reasons.
-    expect(sitesIn('web/cuisine/src/v2/App.jsx')).toBeLessThanOrEqual(75);
+  it('App.jsx round-trips: its keys render what its ternary arms used to', () => {
+    // The 69 auto-converted chains were verified by rendering every key in all eight
+    // locales and diffing against the arm it replaced — 552 comparisons, zero drift.
+    // Three of those keys are spot-checked here so the property has a permanent home.
+    const app = read('web/cuisine/src/v2/App.jsx');
+    expect(app).toContain("tn('app.michelinCityMore', lang");
+    expect(app).toContain("tn('app.cohBody', lang");
+    expect(app).toContain("t('app.halal', lang)");
+    // Named parameters, not positional: four of the six hand-done chains reorder their
+    // slots between locales (zh and ja put the radius before the count), which a
+    // positional {p1}/{p2} scheme would have silently transposed.
+    expect(app).toContain('km: allSeenInRange.capKm');
   });
 
   it('the replaced strings really are keyed now', () => {
