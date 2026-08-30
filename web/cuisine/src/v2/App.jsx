@@ -49,6 +49,8 @@ import ArrivalPlate from './components/ArrivalPlate.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
 import { useLocale, useLocaleHydrated, t, tn } from './lib/i18n.js';
+import { usePronunciations } from '../../../_shared/lib/use-pronounce.js';
+import { initData } from '../api/tg.js';
 import { tg, hasInitData, getTelegramLocation, openTelegramLocationSettings } from '../api/tg.js';
 import { giaToggleStyle } from './lib/mapOverlays.js';
 
@@ -371,6 +373,30 @@ export default function App() {
     return stop;
   }, []); // eslint-disable-line
   const [venues, setVenues] = useState([]);
+
+  // v0.62.846 — THE SECOND LINE HAS TO FOLLOW THE TOGGLE, NOT THE SEARCH.
+  //
+  // Operator: "the second line translation as I change the language". v0.62.845 fixed
+  // WHICH language the server is told; it did not make the answer REACTIVE. The guide is
+  // computed server-side and baked into the search payload, and changing the locale does
+  // not re-run the search — so the chrome re-rendered in the new language while the card's
+  // second line kept the old one, which is exactly what was reported.
+  //
+  // So the client asks for itself, through the same `/api/pronounce` the Hawker and
+  // Transport apps use. `lang` is in the dependency list, so a toggle re-resolves without
+  // a new search.
+  //
+  // BATCHED HERE, NOT IN THE CARD, for the reason v0.62.843 established for stations: the
+  // client keys its in-flight map on the batch, so a hook per card is one request per card.
+  // One call covers the page; `ResultCard` then reads the answer synchronously out of the
+  // module cache. Cost is near zero — the server already wrote these to Redis under the
+  // same key during the search, so this resolves from cache rather than from the model,
+  // and localStorage means any given (name, locale) is asked once, ever.
+  const venueSayNames = React.useMemo(
+    () => [...new Set((venues || []).map((v) => v && v.name).filter(Boolean))],
+    [(venues || []).map((v) => v && v.placeId).join('|')]   // eslint-disable-line react-hooks/exhaustive-deps
+  );
+  usePronunciations(venueSayNames, lang, { initData });
   // v0.62.205 — operator: when the "New" filter found nothing provably new nearby
   // and fell back to established spots, the server flags noProvenNew so we can say
   // "no new <cuisine> nearby" instead of passing established off as new.
