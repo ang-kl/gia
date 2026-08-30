@@ -208,9 +208,31 @@ function reviewLanguagePrimary(review) {
   const raw = (review.text && typeof review.text === 'object' && review.text.languageCode)
     || review.languageCode
     || '';
-  if (typeof raw !== 'string' || !raw) return null;
-  const primary = raw.toLowerCase().split(/[-_]/)[0];
-  return primary || null;
+  if (typeof raw === 'string' && raw) {
+    const primary = raw.toLowerCase().split(/[-_]/)[0];
+    if (primary) return primary;
+  }
+  // v0.62.861 — FALL BACK TO THE SCRIPT. A review cached by `vault-index.js` before that
+  // file learned to keep `languageCode` has none, and returning null here made the caller
+  // default to 'en' — which is how a Japanese review reached a French reader untranslated.
+  //
+  // This heals those entries IMMEDIATELY rather than waiting out their 24-hour TTL, and it
+  // costs nothing: `nameScriptLang` is already the server's authority on this question and
+  // is already CommonJS. Bumping the cache key instead would have re-fetched every venue's
+  // reviews from Places to fix a field we can read off the text.
+  //
+  // It answers only for CJK/Hangul/Thai. A French review with no languageCode still reads
+  // as unknown — stated as a limit rather than papered over, because the alternative is a
+  // language guesser, and a WRONG language is worse than none: it tells the translator to
+  // convert from a language the text is not in.
+  const text = (review.text && typeof review.text === 'object')
+    ? review.text.text
+    : review.text;
+  if (typeof text !== 'string' || !text.trim()) return null;
+  try {
+    const { nameScriptLang } = require('./translate-name');
+    return nameScriptLang(text) || null;
+  } catch { return null; }
 }
 
 // Picks the FIRST review whose primary language matches `language`
