@@ -11042,6 +11042,22 @@ async function handleMichelinSearch({ req, res, csChatId, csLang, searchCenter, 
     // name bracket here too. The device language stays as the fallback.
     await require('./translate-name').attachNameReadings(filteredVenues, michCC, csLang || michDeviceLang, redis);
   } catch (e) { /* non-fatal */ }
+  // v0.62.857 — the Michelin path had `nameLocal` and `nameReading` but NEITHER
+  // `namePronounce` NOR `nameGloss`, so two of the four guides simply did not exist here.
+  // That was survivable while the card showed whichever fields happened to be present; it
+  // stopped being survivable at v0.62.856, when the operator chose "pronunciation wins for
+  // foreign script". On this path a Tokyo venue carries `nameLocal` and no pronunciation, so
+  // `pickNameGuide` falls straight through to the native-script line — the decision looks
+  // implemented and is not delivered. The precedence was never the problem; the field was
+  // never populated.
+  const michReaderLang = csLang || michDeviceLang;
+  const { venuesNeeding: michNeeding } = require('./name-guide-server');
+  try {
+    await require('./pronounce-name').attachPronunciations(michNeeding(filteredVenues, 'say'), michReaderLang, { redis });
+  } catch (e) { /* non-fatal — the card simply omits the line */ }
+  try {
+    await require('./name-gloss').attachNameGloss(michNeeding(filteredVenues, 'gloss'), michCC, michReaderLang, redis);
+  } catch (e) { /* non-fatal — names just stay un-glossed */ }
   // v0.62.x — the name-enrichment above is network-bound and can push a slow
   // tap past the 20s deadline. If it fired in that window the degraded empty
   // payload is already out, so skip the double-send (the walk was recorded
@@ -18193,15 +18209,24 @@ async function cacheBotUsername() {
         // Minimum-token per the operator's cap: the lite model first, one call per
         // (name, locale) cached 30 days, and NONE cached too — re-asking whether
         // "Pizza Hut" needs a guide is exactly the spend to avoid.
+        // v0.62.857 — SPEND GATE. Since v0.62.855 exactly one guide renders, and since
+        // v0.62.856 which one depends on the name's script — so a venue whose guide is
+        // already decided must not buy another. `venuesNeeding` answers that without
+        // reimplementing the precedence (see name-guide-server.js for why it cannot simply
+        // import the client's rule, and for the test that keeps the two agreeing).
+        const { venuesNeeding } = require('./name-guide-server');
         try {
-          await require('./pronounce-name').attachPronunciations(payload?.venues, readerLang, { redis });
+          await require('./pronounce-name').attachPronunciations(venuesNeeding(payload?.venues, 'say'), readerLang, { redis });
         } catch (e) { /* non-fatal — the card simply omits the line */ }
         // v0.62.x item 7 — device-language MEANING gloss for a foreign-LANGUAGE
         // Latin-script name (e.g. Vietnamese "Tầm vị" → "(seeking flavour)").
         // Gemini, cached; attaches `nameGloss`, fail-open. Operator-authorised
         // paid call (G4) for this feature.
+        // Gloss is LAST in both orders, so it is filtered after the pronunciation ran —
+        // a venue that just acquired `namePronounce` drops out here, which is the cascade
+        // doing the work rather than a second rule describing it.
         try {
-          await require('./name-gloss').attachNameGloss(payload?.venues, searchRegionCode, readerLang, redis);
+          await require('./name-gloss').attachNameGloss(venuesNeeding(payload?.venues, 'gloss'), searchRegionCode, readerLang, redis);
         } catch (e) { /* non-fatal — names just stay un-glossed */ }
         clearTimeout(_searchDeadline);
         // v0.62.x — Stage 2: finish the NDJSON stream. The base event already

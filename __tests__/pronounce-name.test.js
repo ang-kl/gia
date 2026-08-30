@@ -195,9 +195,12 @@ describe('it is wired to the surfaces the operator asked for', () => {
     // one v0.62.843 recorded from the other direction: an assertion has to encode the
     // REQUIREMENT, not the line of code that happens to be there.
     const src = read('index.js');
-    expect(src).toContain("require('./pronounce-name').attachPronunciations(payload?.venues, readerLang");
+    // v0.62.857 — the call is now gated by the spend filter, so the argument is
+    // `venuesNeeding(payload?.venues, 'say')`. Ninth expression pin re-pointed this arc;
+    // the requirement — the READER's language, not the phone's — is untouched.
+    expect(src).toContain("attachPronunciations(venuesNeeding(payload?.venues, 'say'), readerLang");
     expect(src, 'the phone language is back on the pronunciation path')
-      .not.toContain('attachPronunciations(payload?.venues, deviceLang');
+      .not.toContain("attachPronunciations(venuesNeeding(payload?.venues, 'say'), deviceLang");
   });
 
   it('the card renders it with its own icon, distinct from the 🔤 reading line', () => {
