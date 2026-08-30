@@ -509,7 +509,7 @@ export default function App() {
   // hawker centres in the currently-selected zone. "centres" reads the same in
   // en/fr; the emoji + localised zone name front it.
   const zoneInfo = active
-    ? `${REGION_EMOJI[activeRegion] || ''} ${regionLabel(activeRegion)} · ${active.centres.length} ${lang === 'fr' ? 'centres' : 'centres'}`.trim()
+    ? `${REGION_EMOJI[activeRegion] || ''} ${regionLabel(activeRegion)} · ${active.centres.length} ${t('hawker.centres', lang)}`.trim()
     : null;
 
   // v0.62.544/590 — responsive layout. The map + cards render one of two shapes,
@@ -743,11 +743,10 @@ export default function App() {
     const till = closureTill(closure.end);
     // v0.62.596 — three kinds: red "Closed for cleaning", grey "Under Renovation",
     // near-black "Redevelopment" (operator: light text on black).
-    const label = closure.kind === 'cleaning'
-      ? (lang === 'fr' ? `Fermé pour nettoyage jusqu'au ${till}` : `Closed for cleaning till ${till}`)
-      : closure.kind === 'redevelopment'
-        ? (lang === 'fr' ? `Réaménagement jusqu'au ${till}` : `Redevelopment till ${till}`)
-        : (lang === 'fr' ? `En rénovation jusqu'au ${till}` : `Under Renovation till ${till}`);
+    const closureKey = closure.kind === 'cleaning' ? 'hawker.closedCleaning'
+      : closure.kind === 'redevelopment' ? 'hawker.redevelopment'
+      : 'hawker.renovation';
+    const label = tn(closureKey, lang, { till });
     return (
       <div className="flex flex-col">
         <div className={`ml-3 -mb-1 self-start relative z-10 px-3 py-0.5 rounded-t-lg text-white text-[10px] font-bold leading-snug ${CLOSURE_TAB_BG[closure.kind] || 'bg-gray-500'}`}>
@@ -816,8 +815,8 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => window.location.reload()}
-                aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
-                title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+                aria-label={t('ui.refresh', lang)}
+                title={t('ui.refresh', lang)}
                 className="text-[10px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
               >↻</button>
             </div>
@@ -884,8 +883,8 @@ export default function App() {
           <button
             type="button"
             onClick={() => window.location.reload()}
-            aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
-            title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+            aria-label={t('ui.refresh', lang)}
+            title={t('ui.refresh', lang)}
             className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
           >↻</button>
         </div>
@@ -980,7 +979,7 @@ export default function App() {
               <LocaleToggle className="flex-shrink-0" />
               <span className="text-[11px] text-tg-hint flex items-center"><WeatherBadge /></span>
               <button type="button" onClick={() => window.location.reload()}
-                aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'} title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+                aria-label={t('ui.refresh', lang)} title={t('ui.refresh', lang)}
                 className="text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90">↻</button>
               </div>
           </div>

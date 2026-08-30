@@ -14,7 +14,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import ResultCard from './ResultCard.jsx';
-import { useLocale } from '../lib/i18n.js';
+import { useLocale, t as tr } from '../lib/i18n.js';
 
 export default function ResultCarousel({ venues, focusedPlaceId, onSelect, onClose, specialMode = null }) {
   const [lang] = useLocale();
@@ -42,9 +42,9 @@ export default function ResultCarousel({ venues, focusedPlaceId, onSelect, onClo
         <button
           type="button"
           onClick={onClose}
-          aria-label={lang === 'fr' ? 'Fermer' : 'Back to list'}
+          aria-label={tr('rc.backToList', lang)}
           className="pointer-events-auto text-[12px] leading-none px-2.5 py-1 rounded-full bg-tg-card/95 border border-tg-border text-tg-text shadow active:scale-95"
-        >✕ {lang === 'fr' ? 'liste' : 'list'}</button>
+        >✕ {tr('rc.list', lang)}</button>
       </div>
       <div
         ref={trackRef}

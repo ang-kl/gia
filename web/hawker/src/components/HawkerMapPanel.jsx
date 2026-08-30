@@ -709,8 +709,8 @@ export default function HawkerMapPanel({ centres, region, overlayLayers, onOverl
           type="button"
           onClick={() => mapRef.current?.panTo(SG_CENTROID)}
           className="gia-hit-x gia-map-btn w-7 h-7 rounded-full border shadow-md flex items-center justify-center text-base font-bold leading-none active:scale-95"
-          aria-label={lang === 'fr' ? 'Centrer la carte' : 'Centre map'}
-          title={lang === 'fr' ? 'Centrer la carte' : 'Centre map'}
+          aria-label={t('ui.centreMap', lang)}
+          title={t('ui.centreMap', lang)}
         ><span aria-hidden>↹</span></button>
         <button
           type="button"

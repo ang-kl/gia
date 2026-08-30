@@ -144,10 +144,10 @@ export default function CuisineDrawer({ catalogue, selected, onChange, onCategor
           }
         }}
         title={regionDisabled
-          ? `${label} — ${lang === 'fr' ? 'pas de liste Michelin ici' : 'no Michelin list here'}`
+          ? `${label} — ${tr('cd.noMichelinList', lang)}`
           : undefined}
         aria-label={regionDisabled
-          ? `${label} — ${lang === 'fr' ? 'pas de liste Michelin ici' : 'no Michelin list here'}`
+          ? `${label} — ${tr('cd.noMichelinList', lang)}`
           : undefined}
         className={`flex items-center gap-2 px-3 py-2 rounded-2xl border text-left transition-colors ${regionDisabled ? 'opacity-50 cursor-not-allowed bg-tg-card border-tg-border' : (selectedInCat > 0 || (isSingle && isOnlySelected) ? 'bg-tg-accent/15 border-tg-accent text-tg-text' : 'bg-tg-card border-tg-border hover:border-tg-accent')}`}
       >

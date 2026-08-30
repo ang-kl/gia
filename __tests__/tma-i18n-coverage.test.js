@@ -176,6 +176,9 @@ describe('TMA i18n coverage (O-327)', () => {
       // and so rendered English to the other six locales. cuisine: 4 `lastCard.*`,
       // 13 `plate.*`, `plate.moreClassics`, `plate.localClassicAria`. hawker and
       // transport: `link.googleMap` each, for the infowindow's trailing link.
-      .toEqual({ clipboard: 243, cuisine: 252, hawker: 76, menu: 71, transport: 121 });
+      // v0.62.837 — the hardcoded-ternary sweep. clipboard 243->251, cuisine 252->301,
+      // hawker 76->82, menu 71->80, transport 121->123. Every one replaces a string that
+      // was written as `lang === 'fr' ? … : …` and so rendered English to six locales.
+      .toEqual({ clipboard: 251, cuisine: 301, hawker: 82, menu: 80, transport: 123 });
   });
 });

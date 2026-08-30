@@ -36,8 +36,8 @@ export default function ActiveFilters({ cuisines = [], filters = {}, onRemoveCui
   const priceChips = filters.prices || [];
   const total = filterChips.length + priceChips.length + cuisines.length;
   if (total === 0) return null;
-  const removePrefix = lang === 'fr' ? 'Retirer' : 'Remove';
-  const resetLabel = lang === 'fr' ? 'Tout réinitialiser' : 'Reset all';
+  const removePrefix = tr('af.remove', lang);
+  const resetLabel = tr('af.resetAll', lang);
 
   return (
     <div className="flex flex-wrap items-center gap-1.5 px-0.5 pt-0.5">

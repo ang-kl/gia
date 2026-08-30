@@ -206,10 +206,22 @@ export function terminusForDirection(coarseStations, lineCode, direction) {
 // "F" for the other two. The card was reading `.label` only, which is why the
 // screenshot showed a bare letter. Normalise both shapes to one prefixed label
 // so the list reads "Exit A / Exit B / …" with no gaps.
+// v0.62.837 — eight locales, held HERE rather than in i18n.js on purpose.
+// This module is deliberately React-free (see the header) so it can be unit-tested
+// from the repo-root vitest context, and `i18n.js` imports react. Injecting a
+// translator would change `exitLabel`'s signature and its existing tests, so the
+// word lives beside its only use. That is one source, not two — the split that
+// produced the "1 gems" bug (a short local table beside a complete keyed one, and
+// only the keyed one extended) is the thing being avoided, not repeated.
+const EXIT_WORD = {
+  en: 'Exit', fr: 'Sortie', id: 'Pintu keluar', ru: 'Выход',
+  de: 'Ausgang', zh: '出口', ja: '出口', es: 'Salida',
+};
+
 export function exitLabel(exit, lang = 'en') {
   const raw = String((exit && (exit.label ?? exit.exit ?? exit.exit_label)) || '').trim();
   if (!raw) return '';
-  const word = lang === 'fr' ? 'Sortie' : 'Exit';
+  const word = EXIT_WORD[lang] || EXIT_WORD.en;
   // Already prefixed in some other casing/language — leave the caller's text be.
   if (/^(exit|sortie)\b/i.test(raw)) return raw.replace(/^(exit|sortie)\b/i, word);
   return `${word} ${raw}`;

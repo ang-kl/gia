@@ -238,7 +238,7 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
   // "Récemment ouvert" — too wide for a chip. We special-case "New" /
   // "Nouv." inline here.
   const labelFor = (key, fallbackI18nKey) => {
-    if (key === 'newlyOpened') return lang === 'fr' ? 'Nouv.' : 'New';
+    if (key === 'newlyOpened') return tr('qf.new', lang);
     return tr(fallbackI18nKey, lang);
   };
 
@@ -284,7 +284,7 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
         })}
         <Chip active={moreOpen || (overflowActiveCount + selectedPrices.length) > 0} onClick={openFilters}
           ariaLabel={moreOpen ? tr('filter.closeMore', lang) : tr('filter.openMore', lang)}>
-          <span className="mr-0.5" aria-hidden>⚙</span>{lang === 'fr' ? 'Filtres' : 'Filters'}
+          <span className="mr-0.5" aria-hidden>⚙</span>{tr('qf.filters', lang)}
           {(overflowActiveCount + selectedPrices.length) > 0 && (
             <span className="ml-1" aria-label={`${overflowActiveCount + selectedPrices.length} more active`}>·{overflowActiveCount + selectedPrices.length}</span>
           )}
@@ -304,7 +304,7 @@ export default function QuickFilters({ filters, onChange, specialModeActive = fa
         </span>
         {onClose && (
           <button type="button" onClick={onClose}
-            aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
+            aria-label={tr('loc.close', lang)}
             className="ml-auto text-tg-hint text-xl leading-none px-1 flex-shrink-0">×</button>
         )}
       </div>

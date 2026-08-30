@@ -988,7 +988,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
       flagEl = <span aria-hidden className="flex-shrink-0">{found?.flag || '🌏'}</span>;
     }
     const metaLeftRaw = capStr || '';
-    const tapStr = lang === 'fr' ? 'touchez pour changer' : 'tap to change';
+    const tapStr = t('loc.tapToChange', lang);
     return (
       <div className="rounded-md border border-tg-border bg-tg-card p-2 flex flex-col gap-1.5">
         <div className="text-[12px] font-semibold text-tg-text">{t('location.fieldLabel', lang)}</div>
@@ -1040,7 +1040,7 @@ export default function LocationFieldMenu({ lang, onAnchorChange, currentAnchor 
           type="button"
           onClick={() => setExpanded(false)}
           className="text-[11px] text-tg-accent underline self-start"
-        >{lang === 'fr' ? '↩︎ Replier' : '↩︎ Collapse'}</button>
+        >{t('loc.collapse', lang)}</button>
       )}
       {/* v0.61.223 — precinct quick-pick is now ALWAYS visible
           regardless of region (operator: "the quick pick dropdown

@@ -239,3 +239,89 @@ describe('the components that hardcoded French now ask t()', () => {
     }
   });
 });
+
+
+// ── v0.62.837 — the hardcoded-ternary sweep, and the bug it produced ──────────
+//
+// Operator: "do the remaining 176 ternaries". The real inventory was 168 sites in
+// 22 files, and measuring it corrected something reported earlier in this arc:
+// `App.jsx`'s 75 are NOT two-locale. They are already CHAINED — `lang === 'fr' ? …
+// : lang === 'id' ? …` — and 48 of its 68 chains carry all seven non-English
+// locales. So "every one renders the English arm for the other six languages",
+// which shipped in a PR body and a Register row, was true of the small files and
+// false of the largest one. The genuinely broken surface was ~93 two-locale sites
+// plus 19 chains with specific gaps (17 missing `id` alone).
+//
+// AND THE SWEEP SHIPPED A RUNTIME ERROR, which is why the first test here exists.
+// v0.62.836 removed `const fr = lang === 'fr'` from ArrivalPlate after converting
+// its ternaries — but one multi-line site still read `{fr\n ? … : …}`. A `//`-style
+// regex written as /fr \? ['"`]/ cannot see a condition split across lines, so the
+// assertion that was meant to prove the shape gone reported success while an
+// undefined identifier stayed in a live render path: `plate.honestEmpty` would
+// have thrown `ReferenceError: fr is not defined` and blanked the panel. esbuild
+// and Rollup both compile it happily — it is only wrong at runtime. So the guard
+// below is not about ternaries at all; it is about identifiers that nothing declares.
+import { execSync } from 'child_process';
+
+const TMA_SOURCES = execSync("find web/*/src -name '*.jsx' -o -name '*.js'", { cwd: ROOT })
+  .toString().trim().split('\n').filter(Boolean);
+
+const withoutComments = (src) => src
+  .split('\n')
+  .map((l) => (l.trim().startsWith('//') || l.trim().startsWith('*') ? '' : l))
+  .join('\n');
+
+describe('no component references an identifier nothing declares', () => {
+  it('`fr` is never used as a bare variable', () => {
+    // Unicode-aware boundaries, because a naive /\bfr\b/ matches inside the German
+    // "früh" and the French "fréquenté" and reports a file full of false alarms —
+    // the first version of this scan did exactly that.
+    const offenders = [];
+    for (const rel of TMA_SOURCES) {
+      const src = withoutComments(read(rel));
+      const uses = [...src.matchAll(/(?<![\p{L}\p{N}_.$'"`])fr(?![\p{L}\p{N}_:'"`])/gu)];
+      if (!uses.length) continue;
+      if (/\b(?:const|let|var)\s+fr\b|\bfr\s*=>/.test(src)) continue;   // declared here
+      offenders.push(`${rel} (${uses.length} use(s))`);
+    }
+    expect(offenders, 'a bare `fr` with no declaration is a runtime ReferenceError that no build catches').toEqual([]);
+  });
+});
+
+describe('the hardcoded-ternary sweep holds', () => {
+  // Counting the CONDITION, multiline and comment-stripped. A line-anchored count
+  // is what missed the ArrivalPlate site; this one would have caught it.
+  const COND = /(?:lang === 'fr'|(?<![A-Za-z0-9_.])fr)\s*\?/g;
+  const sitesIn = (rel) => (withoutComments(read(rel)).match(COND) || []).length;
+
+  it('21 of the 22 files carry none at all', () => {
+    const remaining = TMA_SOURCES
+      .map((f) => [f, sitesIn(f)])
+      .filter(([, n]) => n > 0);
+    // App.jsx is the single exception, and deliberately so: its chains already carry
+    // seven locales apiece, so converting them is a refactor with no user-visible
+    // change, unlike the 93 two-locale sites this sweep replaced.
+    expect(remaining.map(([f]) => f)).toEqual(['web/cuisine/src/v2/App.jsx']);
+  });
+
+  it('and App.jsx only shrinks from here', () => {
+    // A ratchet, not a target. Pinned so the number cannot quietly grow back while
+    // the file is edited for other reasons.
+    expect(sitesIn('web/cuisine/src/v2/App.jsx')).toBeLessThanOrEqual(75);
+  });
+
+  it('the replaced strings really are keyed now', () => {
+    // Spot-checks across four apps, so a revert of any one of them fails here.
+    expect(read('web/cuisine/src/v2/components/ResultPanel.jsx')).toContain("tr('rp.noResults', lang)");
+    expect(read('web/hawker/src/App.jsx')).toContain("t('ui.refresh', lang)");
+    expect(read('web/transport/src/components/MrtMapPanel.jsx')).toContain("t('ui.centreMap', lang)");
+    expect(read('web/clipboard/src/components/QuickFilters.jsx')).toContain("tr('qf.filters', lang)");
+    expect(read('web/menu/src/App.jsx')).toContain("tn('coh.body', lang");
+  });
+
+  it('the ArrivalPlate site that threw is keyed, and its city still interpolates', () => {
+    const src = read('web/cuisine/src/v2/components/ArrivalPlate.jsx');
+    expect(src).toContain("t('plate.honestEmpty', lang).replace('{city}', plate.city)");
+    expect(src).not.toMatch(/\{fr\s*\n/);
+  });
+});

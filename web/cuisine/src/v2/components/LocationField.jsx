@@ -435,7 +435,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
             <div className="flex items-center justify-between py-0.5">
               <span className="text-tg-text text-sm inline-flex items-center gap-1.5">
                 <span aria-hidden className="text-tg-accent">🧭</span>
-                <span>{lang === 'fr' ? 'Récents' : 'Recent'} ({recents.length}/{recentsMax})</span>
+                <span>{tr('loc.recentShort', lang)} ({recents.length}/{recentsMax})</span>
               </span>
               <button
                 type="button"
@@ -449,7 +449,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
                 <div className="text-tg-hint text-xs py-2 text-center">…</div>
               ) : recents.length === 0 ? (
                 <div className="text-tg-hint text-xs py-2 text-center italic">
-                  {lang === 'fr' ? 'Aucun emplacement récent' : 'No recent locations yet'}
+                  {tr('loc.noRecent', lang)}
                 </div>
               ) : (
                 recents.map((e, i) => {
@@ -483,7 +483,7 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
                   type="button"
                   onClick={handleClearRecents}
                   className="text-tg-hint hover:text-tg-text text-xs inline-flex items-center gap-1"
-                >🗑 {lang === 'fr' ? "Tout effacer sauf l'actuel" : 'Clear all except current'}</button>
+                >🗑 {tr('loc.clearAllExceptCurrent', lang)}</button>
               </div>
             )}
           </div>
@@ -603,8 +603,8 @@ export default function LocationField({ userLoc, region, onSelect, anchor = null
                 type="button"
                 onClick={() => setZonesOpen((v) => !v)}
                 aria-label={zonesOpen
-                  ? (lang === 'fr' ? 'Masquer les lieux proches' : 'Hide nearby places')
-                  : (lang === 'fr' ? 'Voir les lieux proches' : 'Browse nearby places')}
+                  ? (tr('loc.hideNearby', lang))
+                  : (tr('loc.browseNearby', lang))}
                 aria-expanded={zonesOpen}
                 className="gia-hit inline-flex items-center justify-center w-4 h-4 rounded-full border border-tg-border text-tg-accent not-italic leading-none"
               >{zonesOpen ? '−' : '+'}</button>
@@ -1463,14 +1463,14 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
           </div>
           {suffix && suffixVisible && (
             <div className="flex items-center justify-end gap-1 text-[10px] text-tg-hint italic leading-tight mt-0.5">
-              <span>{suffix} · {lang === 'fr' ? 'touchez pour changer' : 'tap to change'} 🔝</span>
+              <span>{suffix} · {tr('loc.tapToChange', lang)} 🔝</span>
               {zones.length > 0 && (
                 <button
                   type="button"
                   onClick={() => setZonesOpen((v) => !v)}
                   aria-label={zonesOpen
-                    ? (lang === 'fr' ? 'Masquer les lieux proches' : 'Hide nearby places')
-                    : (lang === 'fr' ? 'Voir les lieux proches' : 'Browse nearby places')}
+                    ? (tr('loc.hideNearby', lang))
+                    : (tr('loc.browseNearby', lang))}
                   aria-expanded={zonesOpen}
                   className="gia-hit inline-flex items-center justify-center w-4 h-4 rounded-full border border-tg-border text-tg-accent not-italic leading-none"
                 >{zonesOpen ? '−' : '+'}</button>
@@ -1614,7 +1614,7 @@ function OtherLocationPicker({ countryPref, onCountryChange, onSelect, anchor, s
           >
             <div className="relative bg-tg-accent text-tg-bg text-[10px] font-semibold rounded-2xl px-2.5 py-1 whitespace-nowrap shadow-md">
               <span className="absolute right-3 -top-1 w-2 h-2 bg-tg-accent rotate-45" />
-              {lang === 'fr' ? 'Tapez pour rechercher' : 'Type to search'}
+              {tr('loc.typeToSearch', lang)}
             </div>
           </div>
         )}

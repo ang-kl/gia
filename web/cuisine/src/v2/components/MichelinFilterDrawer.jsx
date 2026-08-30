@@ -95,7 +95,7 @@ export default function MichelinFilterDrawer({ value, onChange, onClose, availab
           <button
             type="button"
             onClick={onClose}
-            aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
+            aria-label={tr('loc.close', lang)}
             className="text-tg-hint text-sm leading-none px-1 flex-shrink-0"
           >✕</button>
         </div>
