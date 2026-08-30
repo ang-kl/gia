@@ -153,6 +153,30 @@ export const SG_HAWKER_NAMES_I18N = [
   R('Ayer Rajah Food Centre',             '亚逸拉惹熟食中心',     'Pusat Makanan Ayer Rajah',           'est'),
   R('Whampoa Drive Makan Place/Whampoa Food Centre', '黄埔通道美食坊／黄埔熟食中心', 'Makan Place Whampoa Drive/Pusat Makanan Whampoa', 'est'),
   R('Whampoa Drive Makan Place/Whampoa Market', '黄埔通道美食坊／黄埔巴刹', 'Makan Place Whampoa Drive/Pasar Whampoa', 'est'),
+  // ── The last twelve, on the operator's "finish O-344" ─────────────────────────
+  // THESE CARRY src: 'low' AND THAT IS THE POINT. The other 111 rows are either an
+  // established name or a composition whose locality comes from the MRT station register.
+  // These twelve have neither: the register does not name their localities, and I could
+  // not find a printed Chinese name I would vouch for. They were DECLINED in v0.62.829-830
+  // for exactly that reason and are included now because the operator asked to finish the
+  // corpus — so the uncertainty is carried in the data rather than dissolved into it.
+  //
+  // A native reader checking this file should start here, and the test pins the list by
+  // name so it stays a worklist rather than a footnote. The two I would bet against first
+  // are Beo Crescent and Chomp Chomp: both are known locally by names that are not
+  // transliterations of their English, and a phonetic rendering may be recognised by nobody.
+  R('ABC Brickworks Market/Food Centre',  '红山砖厂巴刹与熟食中心', 'Pasar dan Pusat Makanan ABC Brickworks', 'low'),
+  R('Albert Centre',                      '亚伯特中心巴刹与熟食中心', 'Pasar dan Pusat Makanan Albert Centre', 'low'),
+  R('Empress Road Market and Food Centre','女皇路巴刹与熟食中心', 'Pasar dan Pusat Makanan Empress Road', 'low'),
+  R('Blk 4A Jalan Batu Hawker Centre/Market', '峇株路4A座小贩中心与巴刹', 'Pusat Penjaja dan Pasar Blok 4A Jalan Batu', 'low'),
+  R('Kukoh 21 Food Centre',               '古哥21熟食中心',       'Pusat Makanan Kukoh 21',             'low'),
+  R('Mei Chin Road Market',               '美真路巴刹',           'Pasar Mei Chin Road',                'low'),
+  R('Kebun Baru Market and Food Centre',  '甘榜峇鲁巴刹与熟食中心', 'Pasar dan Pusat Makanan Kebun Baru', 'low'),
+  R('Kebun Baru Food Centre',             '甘榜峇鲁熟食中心',     'Pusat Makanan Kebun Baru',           'low'),
+  R('Anchorvale Village Hawker Centre',   '安谷村小贩中心',       'Pusat Penjaja Anchorvale Village',   'low'),
+  R('Beo Crescent Market',                '美哇弯巴刹',           'Pasar Beo Crescent',                 'low'),
+  R('Chomp Chomp Food Centre',            '昌昌熟食中心',         'Pusat Makanan Chomp Chomp',          'low'),
+  R('Kallang Estate Fresh Market and Food Centre', '加冷巴刹与熟食中心', 'Pasar dan Pusat Makanan Kallang Estate', 'low'),
 ];
 
 export const SG_HAWKER_NAMES_BY_NAME = new Map(SG_HAWKER_NAMES_I18N.map((r) => [r.n.toLowerCase(), r]));
