@@ -5,6 +5,8 @@ import { openLink, initData, tg } from './tg.js';
 import { withViewTransition } from './lib/view-transition.js';
 import { t, tn, useLocale } from './i18n.js';
 import { hawkerNameLocal } from '../../_shared/lib/hawker-names-i18n.js';
+import { usePronunciations } from '../../_shared/lib/use-pronounce.js';
+import PronounceIcon from '../../_shared/components/PronounceIcon.jsx';
 import HawkerMapPanel from './components/HawkerMapPanel.jsx';
 import BottomSheet from '../../_shared/components/BottomSheet.jsx';
 import { codeHex } from './lib/mapOverlays.js';
@@ -295,6 +297,19 @@ const REGION_EMOJI = {
 // or cuisine-TMA toggle propagates here without a reload.
 export default function App() {
   const lang = useLocale();
+
+  // v0.62.841 — HOW TO SAY the centre's name. Operator: "do the hawker centre and
+  // train line endpoint". `curatedFor` hands the government register's Chinese /
+  // Malay name straight back, so a zh or id reader never reaches the network — only
+  // ja/es/de/ru/fr, which the register does not cover, cost anything.
+  const centreNames = React.useMemo(
+    () => (active?.centres || []).map((c) => c.displayName || c.name).filter(Boolean),
+    [active?.centres]
+  );
+  const centreSay = usePronunciations(centreNames, lang, {
+    initData,
+    curatedFor: (n) => hawkerNameLocal(n, lang),
+  });
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(true);
   const [err, setErr] = useState(null);
@@ -611,6 +626,15 @@ export default function App() {
               wrong string here costs a hint and not the ability to find the place. */}
           {hawkerNameLocal(c.displayName || c.name, lang) && (
             <div className="text-[11px] text-tg-hint leading-tight">({hawkerNameLocal(c.displayName || c.name, lang)})</div>
+          )}
+          {/* v0.62.841 — and when the register has nothing (ja/es/de/ru/fr), how to
+              SAY it. Same rule as the line above: never in place of the English,
+              which stays the card key and the Maps query. */}
+          {!hawkerNameLocal(c.displayName || c.name, lang) && centreSay.get(c.displayName || c.name) && (
+            <div className="text-[11px] text-tg-hint leading-tight flex items-center gap-1">
+              <PronounceIcon className="shrink-0 opacity-80" />
+              <span className="truncate">{centreSay.get(c.displayName || c.name)}</span>
+            </div>
           )}
         </div>
         {c.address && <div className="text-[11px] text-tg-hint leading-snug">📇 {c.address}</div>}
