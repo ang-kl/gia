@@ -94,7 +94,12 @@ describe('every render site is wired, not just the convenient ones', () => {
   const site = (f) => fs.readFileSync(`web/transport/src/${f}`, 'utf8');
   it.each([
     ['App.jsx', 2],
-    ['components/LineStatusPanel.jsx', 1],
+    // v0.62.841 — 1 -> 4. The pronunciation line added three more CALLS, none of
+    // them a new render: one inside `curatedFor` (does the register already answer
+    // this?), and two in the guard that shows the say-it line ONLY when it does not.
+    // Updated deliberately rather than loosened to a >=, because the point of this
+    // table is that a NEW render site cannot appear unnoticed.
+    ['components/LineStatusPanel.jsx', 4],
     ['components/AffectedTicker.jsx', 2],
     ['components/EngineeringList.jsx', 1],
     ['components/SystemMap.jsx', 1],

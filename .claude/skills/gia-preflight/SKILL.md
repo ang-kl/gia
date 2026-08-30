@@ -28,6 +28,21 @@ non-negotiable.
 - [ ] If you touched anything under `web/` → `cd web/<app> && npm run build`
       (or `npm run build` at root for all four TMAs). Server-only changes
       (`index.js`, `i18n.js`, modules) don't need a build.
+- [ ] **If you touched anything under `web/`, then `npm run test:render`.** A
+      build is not a render: Rollup compiles a reference-before-declaration
+      happily, and `node --check` sees valid syntax. Only this harness actually
+      MOUNTS each app in a headless browser, and it is the only check that
+      fails on one.
+
+      > Regression, twice, same app. v0.62.692: `renderCentreCard` used an
+      > `isShort` it never declared — white-screened Hawker in production after
+      > passing `node --check`, `vite build` and every unit test. Register O-120
+      > created `scripts/render-smoke.mjs` in response. v0.62.841: a new hook
+      > block was placed above the `const active` it read, so every Hawker launch
+      > threw `Cannot access 'active' before initialization`. `active?.centres`
+      > looked defensive but optional chaining does not guard the temporal dead
+      > zone. CI caught it; this checklist did not, because the harness O-120
+      > built was never added here. It is added now.
 - [ ] Bump `package.json` `version` (PATCH for bug fix / copy / prompt tweak).
 - [ ] After a non-trivial edit to a long function, **re-read the whole
       function** start to finish. (The `handleSearchTurn` restructures slipped

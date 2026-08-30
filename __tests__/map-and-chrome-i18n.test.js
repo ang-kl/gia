@@ -267,6 +267,13 @@ const TMA_SOURCES = execSync("find web/*/src -name '*.jsx' -o -name '*.js'", { c
   .toString().trim().split('\n').filter(Boolean);
 
 const withoutComments = (src) => src
+  // v0.62.841 — BLOCK comments too, and this was a real blind spot rather than a
+  // tidy-up. The line-based strip below only removes lines that START with `//` or
+  // `*`, so a JSX `{/* … */}` block whose text happens to contain a locale list —
+  // "(ja/es/de/ru/fr)" — read as a bare `fr` identifier and failed this very test.
+  // A guard that cries wolf on prose gets its output ignored, which is how the next
+  // real one gets missed. Spans are blanked (not deleted) so line numbers survive.
+  .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '))
   .split('\n')
   .map((l) => (l.trim().startsWith('//') || l.trim().startsWith('*') ? '' : l))
   .join('\n');

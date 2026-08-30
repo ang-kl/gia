@@ -13205,6 +13205,63 @@ async function cacheBotUsername() {
       console.warn('[clipboard-routes] mount failed (non-fatal):', err.message);
     }
 
+    // ── v0.62.841 — POST /api/pronounce ──────────────────────────────────────
+    //
+    // Operator: "do the hawker centre and train line endpoint". v0.62.840 gave venue
+    // cards a "how to say it" line, but the Hawker and Transport Mini Apps read their
+    // names from BUNDLED tables with no server round-trip, so there was no path from
+    // them to Gemini and those two surfaces stayed silent for ja/es/de/ru/fr. This is
+    // that path.
+    //
+    // AUTHENTICATED, deliberately. It follows `verifyInitData` exactly as the other
+    // TMA POST routes do rather than joining `/maps-key` on the unauthenticated side:
+    // an open endpoint that spends Gemini per call is a bill anyone could run up.
+    //
+    // THE CLIENT FILTERS FIRST, WHICH IS WHERE THE COST CONTROL LIVES. The government
+    // register already covers Chinese and Malay for all 123 hawker centres, 193
+    // stations and the MRT lines, and those tables are BUNDLED IN THE CLIENT. So the
+    // apps look up their own curated answer and only send what they genuinely lack —
+    // a zh or id reader sends nothing at all. Doing the curated lookup here instead
+    // would also mean requiring ESM `web/_shared` modules from this CommonJS file,
+    // which Rollup/Node will not do cleanly; letting the client filter avoids the
+    // problem and is cheaper besides.
+    app.post('/api/pronounce', async (req, res) => {
+      try {
+        const verified = verifyInitData(req.body?.initData, process.env.TELEGRAM_BOT_TOKEN);
+        if (!verified) return res.status(401).json({ error: 'invalid initData' });
+
+        const { APP_LOCALES, pronounceName } = require('./pronounce-name');
+        const lang = String(req.body?.lang || '').slice(0, 5).toLowerCase().split('-')[0];
+        if (!APP_LOCALES.includes(lang)) return res.status(400).json({ error: 'unsupported lang' });
+
+        // Bounded on purpose: a caller asking for 5,000 names is 5,000 model calls.
+        // The two apps ask for what is on screen, which is tens, not thousands.
+        const raw = Array.isArray(req.body?.names) ? req.body.names : [];
+        const names = [...new Set(
+          raw.filter((n) => typeof n === 'string' && n.trim())
+             .map((n) => n.trim().slice(0, 120))
+        )].slice(0, 60);
+        if (!names.length) return res.json({ readings: {} });
+
+        const readings = {};
+        await Promise.all(names.map(async (name) => {
+          try {
+            const say = await pronounceName({ name, lang, redis });
+            // null is a REAL answer — "no guide needed" — and is returned as such so
+            // the client can cache it and stop asking. Omitting it would make every
+            // already-sayable name look like a failure and be re-requested forever.
+            readings[name] = say || null;
+          } catch { readings[name] = null; }
+        }));
+        return res.json({ readings });
+      } catch (e) {
+        logger.error({ err: { message: e.message } }, 'pronounce endpoint failed');
+        // Fail SOFT: the caller renders no second line, which is the pre-v0.62.841
+        // behaviour. A 500 here must never break a hawker or train list.
+        return res.json({ readings: {} });
+      }
+    });
+
     app.get('/api/cuisine/catalogue', (_req, res) => {
       try {
         const cv = require('./cuisines-vault');

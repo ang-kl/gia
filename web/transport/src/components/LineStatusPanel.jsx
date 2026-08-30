@@ -3,6 +3,9 @@ import LineBadge from './LineBadge.jsx';
 import { lineStationsFull, parseCode, PREFIX_TO_LINE } from '../data/line-paths.js';
 import { LINES_BY_CODE } from '../data/lines.js';
 import { lineName } from '../../../_shared/lib/mrt-lines-i18n.generated.js';
+import { usePronunciations } from '../../../_shared/lib/use-pronounce.js';
+import PronounceIcon from '../../../_shared/components/PronounceIcon.jsx';
+import { initData } from '../tg.js';
 import { t, tn } from '../i18n.js';
 
 // Hitachi-style left panel — line code badge + name (English),
@@ -78,6 +81,18 @@ export default function LineStatusPanel({ line, status, statusByLine = null, sel
   // Dropdown summary: "35 stations · All normal" (or the disruption).
   const aggregate = s === 'normal' ? t('mrt.allNormal', lang) : t(`mrt.status.${s}`, lang);
 
+  // v0.62.841 — HOW TO SAY the line's name. Operator: "do the hawker centre and
+  // train line endpoint". `lineName()` returns the government register's Chinese /
+  // Malay rendering where it has one, so zh and id readers never reach the network;
+  // ja/es/de/ru/fr, which the register does not cover, are the only ones that do.
+  const lineSay = usePronunciations([line.name].filter(Boolean), lang, {
+    initData,
+    curatedFor: (n) => {
+      const local = lineName(line.code, n, lang);
+      return local && local !== n ? local : null;
+    },
+  });
+
   // The currently-selected station's per-line service status + crowd.
   const selCrowd = selectedStation ? worstCrowd(crowd, selectedStation.codes) : null;
 
@@ -88,6 +103,14 @@ export default function LineStatusPanel({ line, status, statusByLine = null, sel
         <LineBadge code={line.code} hex={line.hex} size="lg" />
         <div className="min-w-0 flex-1">
           <div className="text-base font-semibold leading-tight truncate">{lineName(line.code, line.name, lang)}</div>
+          {/* v0.62.841 — the say-it line, only when the register had nothing: with a
+              curated Chinese or Malay name the row above IS the answer. */}
+          {lineName(line.code, line.name, lang) === line.name && lineSay.get(line.name) && (
+            <div className="text-xs text-tg-hint leading-tight truncate flex items-center gap-1">
+              <PronounceIcon className="shrink-0 opacity-80" />
+              <span className="truncate">{lineSay.get(line.name)}</span>
+            </div>
+          )}
           <div className="text-xs text-tg-hint truncate">For {line.endpoints?.[1] || '?'}</div>
           <div className="text-xs text-tg-hint truncate">{line.endpoints?.[0]} ↔ {line.endpoints?.[1]}</div>
         </div>
