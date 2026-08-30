@@ -37,6 +37,7 @@ const transport = require('./transport');
 const carpark = require('./carpark');
 const { logger } = require('./logger');
 const { googleMapsUrl } = require('./maps-url');
+const { narrationLocalisation } = require('./prompt-locale');
 
 const MODEL_NAME = llm.DEFAULT_MODEL;
 
@@ -1319,9 +1320,7 @@ async function narrateMichelinVenues({ candidates, lang = 'en' }) {
       const reviewBlurb = (c.recentReview || '').slice(0, 240);
       return `${i + 1}. [${c.placeId || ('mch-' + i)}] ${c.name} — ${c.area || ''} — Michelin: ${cat}${cuisineLbl ? ' (' + cuisineLbl + ')' : ''}${reviewBlurb ? ' — recent review: "' + reviewBlurb + '"' : ''}`;
     }).join('\n');
-    const langBlock = lang === 'fr'
-      ? '\nLOCALISATION: rédigez "vibe", "dishes" et "signature_dish" en FRANÇAIS. Conservez les noms de plats iconiques de Singapour dans leur forme ORIGINALE (laksa, char kway teow, kaya toast, hokkien mee, satay, rojak, prata).\n'
-      : '';
+    const langBlock = narrationLocalisation(lang);
     const prompt = `You are Gia, a Singapore food concierge. Below are ${candidates.length} REAL Michelin-recognised venues in Singapore (3-star / 2-star / 1-star / Bib Gourmand from the Michelin Guide 2025). Add narration to EVERY one — DO NOT drop any. Reference the Michelin recognition correctly (no hallucination).
 ${langBlock}
 VENUES (each line: index. [placeId] name — area — Michelin tier — recent review snippet if any):
@@ -1442,9 +1441,7 @@ async function rankAndNarrate({ candidates, query, snapshot, count = 5, lang, di
         }`
       : '';
 
-    const langBlock = lang === 'fr'
-      ? '\nLOCALISATION: write all "vibe", "dishes", and "signature_dish" strings in FRENCH. Keep iconic Singapore dish names in their ORIGINAL form, untranslated (laksa, char kway teow, kopi-o, kaya toast, mee siam, satay, hokkien mee, popiah, rojak, prata, roti john, nasi lemak, otah, kueh, chendol, ice kachang, kway teow, char siew, teh tarik). Translate descriptive prose around them ("hawker stall réputé pour son laksa onctueux"). Numbers, prices, placeIds stay raw.\n'
-      : '';
+    const langBlock = narrationLocalisation(lang);
     const prompt = `You are Gia, a Singapore food concierge. Below are ${candidates.length} REAL venues from Google Places near the user. Your job is to pick the BEST ${count} for a solo diner and add narrative.
 
 ${periodLine}
