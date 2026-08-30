@@ -94,9 +94,17 @@ describe('the Google Map label is translated, like its neighbours were', () => {
 describe('station names on the map card use the official register', () => {
   it('the transit block calls stationName rather than printing the raw name', () => {
     const src = read('web/cuisine/src/v2/components/MapPanel.jsx');
+    // v0.62.852 — the call moved into `const shown = stationName(...)` when the station
+    // guide was added. The REQUIREMENT is that the displayed name comes from the register,
+    // not that the call sits inline. Fifth time an expression pin has broken on a refactor
+    // while the behaviour held.
     expect(src).toMatch(/stationName\(s\.name \|\| '', lang\)/);
-    expect(src, 'the raw station name is back').not.toMatch(/\$\{chips\} \$\{escapeHtml\(s\.name \|\| ''\)\}/);
-    expect(src, 'lang is not threaded into the transit block').toMatch(/transitBlockHtml\(transit, lang\)/);
+    expect(src, 'the raw station name is rendered again')
+      .not.toMatch(/\$\{chips\} \$\{escapeHtml\(s\.name \|\| ''\)\}<\/a>/);
+    // v0.62.852 — the call gained a third argument (the station pronunciation lookup).
+    // The requirement is that `lang` reaches the block at all, not the exact arity.
+    expect(src, 'lang is not threaded into the transit block')
+      .toMatch(/transitBlockHtml\(transit, lang[,)]/);
   });
 });
 
@@ -163,8 +171,13 @@ describe('the address guide is ADDITIVE — the English line must survive', () =
 
   it('the map popup carries both lines too', () => {
     const src = read('web/cuisine/src/v2/components/MapPanel.jsx');
-    expect(src).toMatch(/const nameSay = cachedPronunciation\(v\.name \|\| '', lang\)/);
-    expect(src).toMatch(/const vStreetSay = vStreet \? cachedPronunciation\(vStreet, lang\) : null/);
+    // v0.62.851 — both lookups moved behind `sayOf`, which prefers the shared projection
+    // and falls back to the module cache (Codex #1792 P2-1: the markers were built from a
+    // cold cache and never rebuilt). The REQUIREMENT is unchanged and is what is asserted —
+    // the popup resolves a guide for the name and for the street. Pinning the expression
+    // has now broken on refactor four times; this pins the behaviour instead.
+    expect(src).toMatch(/const nameSay = sayOf\(v\.name \|\| ''\)/);
+    expect(src).toMatch(/const vStreetSay = vStreet \? sayOf\(vStreet\) : null/);
     expect(src).toMatch(/\$\{sayHtml\}\$\{addressHtml\}\$\{streetSayHtml\}/);
   });
 });

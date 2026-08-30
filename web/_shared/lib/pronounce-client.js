@@ -113,7 +113,13 @@ export async function fetchPronunciations(names, lang, { initData, curatedFor = 
 
   for (let i = 0; i < ask.length; i += MAX_PER_REQUEST) {
     const batch = ask.slice(i, i + MAX_PER_REQUEST);
-    const batchKey = `${lang}::${batch.join('|')}`;
+    // v0.62.851 — JSON, not a pipe join. v0.62.848 removed the delimiter round-trip from
+    // the HOOK's dependency key and claimed the class was fixed "at the root"; it was not.
+    // This key survived, so ['a|b'] and ['a','b'] still collapsed into ONE in-flight
+    // request and the second caller read the first's response under different names.
+    // Codex, PR #1792 P2. The lesson is about the claim, not the line: "fixed at the root"
+    // needed a grep for every other instance, and it did not get one.
+    const batchKey = `${lang}::${JSON.stringify(batch)}`;
     let p = inFlight.get(batchKey);
     if (!p) {
       p = doFetch(ENDPOINT, {
@@ -194,7 +200,16 @@ export function projectPronunciations(names, lang, curatedFor = null) {
 // "Block 49, Telok Blangah Drive", where the first segment is a block number. The street
 // is found by its TYPE WORD instead, which also covers the Malay forms (Jalan/Lorong)
 // this app sees across the causeway.
-const STREET_TYPE = /\b(rd|road|st|street|ave|avenue|dr|drive|ln|lane|cres|crescent|walk|way|link|terr|terrace|close|blvd|boulevard|hwy|highway|quay|place|pl|park|jalan|jln|lorong|lor|persiaran|lebuh)\b/i;
+// v0.62.851 — WIDENED FROM THE DATA, not from memory. The first list was written from
+// what a street "usually" ends in, and Codex (PR #1792 P2) pointed at real shipped
+// addresses it silently dropped: "925 Yishun Central 1" and "19 Riverina View". Counting
+// the actual corpus found more, and bigger: Wy 476, Central 355, Lp 324, Rise 184 —
+// every one of those venues was getting no address guide at all.
+//
+// This is now close to Singapore's official street-type list plus the Malay forms and the
+// common abbreviations. Building words (Plaza, Mall, Centre, Tower) are deliberately NOT
+// here: they are not streets, and matching them would key the cache on a building.
+const STREET_TYPE = /\b(rd|road|st|street|ave|avenue|dr|drive|ln|lane|cres|crescent|walk|way|wy|link|lk|loop|lp|terr|terrace|ter|close|blvd|boulevard|hwy|highway|quay|place|pl|park|parkway|central|ctrl|view|vw|vista|parade|rise|green|grn|grove|heights|hts|garden|gardens|gdns|gate|gateway|circle|circus|court|crossing|cross|farmway|field|hill|junction|mount|ridge|ring|sector|turn|vale|wood|woods|plain|estate|concourse|jalan|jln|lorong|lor|persiaran|lebuh|taman)\b/i;
 const HOUSE_NUM = /^(?:no\.?\s*)?\d+[a-z]?(?:\s*[-–]\s*\d+[a-z]?)?\s+/i;
 
 /**

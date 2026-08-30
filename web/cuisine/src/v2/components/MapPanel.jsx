@@ -3,7 +3,8 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
 import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
 import { stationName } from '../../../../_shared/lib/mrt-stations-i18n.generated.js';
-import { cachedPronunciation, streetOf } from '../../../../_shared/lib/pronounce-client.js';
+import { cachedPronunciation, streetOf, fetchPronunciations } from '../../../../_shared/lib/pronounce-client.js';
+import { initData } from '../../api/tg.js';
 import { createRingLayer, farthestResultDist } from '../../../../_shared/lib/distance-rings.js';
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS } from '../../../../_shared/lib/map-interaction.js';
 import MapControls from '../../../../_shared/components/MapControls.jsx';
@@ -97,7 +98,7 @@ function escapeHtml(s) {
 // Transport app — from a table already bundled in this build. Free to fix; it was simply
 // never wired. Locales the register does not cover (ja/es/de/ru/fr) fall back to the
 // English name, which is what `stationName` already does.
-function transitBlockHtml(transit, lang = 'en') {
+function transitBlockHtml(transit, lang = 'en', sayStation = null) {
   if (!transit) return '';
   const p = infoPalette();
   const rows = [];
@@ -111,7 +112,18 @@ function transitBlockHtml(transit, lang = 'en') {
       const chips = codes.map((code) =>
         `<span style="display:inline-block;background:${codeHex(code)};color:#fff;border-radius:5px;padding:0 4px;margin:0 1px;font-weight:700;font-size:11px;line-height:1.6;">${escapeHtml(code)}</span>`
       ).join('');
-      return `<a href="#" onclick="window.__giaFocusStation&&window.__giaFocusStation('${escapeHtml(first)}');return false;" style="color:${p.sub};text-decoration:none;cursor:pointer;white-space:nowrap;">${chips} ${escapeHtml(stationName(s.name || '', lang))}</a>`;
+      // v0.62.852 — official register name, and a "how to say it" guide beside it when
+      // the register has nothing. Operator: "the pin card's mrt station name isn't
+      // translated". v0.62.850 wired `stationName()`, which is correct — but the register
+      // is zh/ms only, so a Japanese reader still saw "Jalan Besar". There is no official
+      // Japanese station name to show; what helps is knowing how to SAY it, exactly as
+      // for a venue name or a street.
+      const shown = stationName(s.name || '', lang);
+      const guide = (shown === (s.name || '') && sayStation) ? sayStation(s.name || '') : null;
+      const guideHtml = (guide && guide !== s.name)
+        ? ` <span style="opacity:.75;">· ${escapeHtml(guide)}</span>`
+        : '';
+      return `<a href="#" onclick="window.__giaFocusStation&&window.__giaFocusStation('${escapeHtml(first)}');return false;" style="color:${p.sub};text-decoration:none;cursor:pointer;white-space:nowrap;">${chips} ${escapeHtml(shown)}${guideHtml}</a>`;
     }).join(' · ');
     rows.push(`<div style="font-size:12px;color:${p.sub};margin-top:3px;">🚆 ${links}</div>`);
   }
@@ -137,7 +149,7 @@ function distanceUnit(region, countryPref) {
   return MILES_COUNTRIES.has(String(countryPref || '').toUpperCase()) ? 'mi' : 'km';
 }
 
-export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, flyTo, fitPins, onDeselect, onInfoClose, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, children }) {
+export default function MapPanel({ venues, pronunciations = null, userLoc, focusedPlaceId, onPinTap, searchCenter, anchorName, overlayLayers, onOverlayChange, region, countryPref, onMapMove, flyTo, fitPins, onDeselect, onInfoClose, onLongPress, blinkOnly = false, fill = false, frameHeight = null, onExpandFull = null, onCollapse = null, children }) {
   // v0.62.125 — onDeselect (tap empty map → exit the result carousel) kept in a
   // ref so the long-lived map-click handler always calls the current prop.
   const onDeselectRef = useRef(null);
@@ -547,7 +559,12 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
   // the map re-centred and the just-tapped marker was destroyed before
   // its popup could open (the "tap twice to open a pin" bug). Focus
   // panning now lives in its own effect below.
-  useEffect(() => { syncMarkers(); }, [venues, userLoc, searchCenter?.lat, searchCenter?.lng]); // eslint-disable-line
+  // v0.62.851 — `pronunciations` is in the deps because the popup HTML embeds the guides.
+  // Without it the markers were built once from a cold cache and never rebuilt when the
+  // answers arrived, so the guides showed up only on a second visit (Codex, #1792 P2).
+  // The Map's identity changes exactly when the answers change, so this re-syncs once and
+  // not on every render.
+  useEffect(() => { syncMarkers(); }, [venues, userLoc, searchCenter?.lat, searchCenter?.lng, pronunciations]); // eslint-disable-line
 
   // v0.62.106 — operator (#3/#4, SG only): on a venue tap, surface the nearest
   // 3 bus stops + 2 stations on the MAP (toggle-independent) and append them to
@@ -565,10 +582,25 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     const entry = placeId && markerByIdRef.current.get(placeId);
     if (!ctrl || !ctrl.showVenueTransit || !entry) return;
     if ((region || 'SG') !== 'SG') return;
-    ctrl.showVenueTransit(entry.lat, entry.lng).then((transit) => {
+    ctrl.showVenueTransit(entry.lat, entry.lng).then(async (transit) => {
       if (!transit || (!transit.bus.length && !transit.stations.length)) return;
       if (openInfoIdRef.current !== placeId || !infoWindowRef.current) return;
-      const block = transitBlockHtml(transit, lang);
+      // v0.62.852 — ask for guides for the stations the register does not cover, THEN
+      // render once. Stations recur heavily across venues and the client caches per
+      // (name, locale) in localStorage, so this is one request the first time a station
+      // is seen in a locale and free after that. Failure is silent: the block still
+      // renders with the plain names.
+      const need = (transit.stations || [])
+        .map((s) => s.name || '')
+        .filter((n) => n && stationName(n, lang) === n);
+      if (need.length) {
+        try {
+          await fetchPronunciations(need, lang, { initData: initData(), fetchImpl: null });
+        } catch { /* offline / 401 — render the names alone */ }
+        if (openInfoIdRef.current !== placeId || !infoWindowRef.current) return;
+      }
+      const sayStation = (n) => cachedPronunciation(n, lang) || null;
+      const block = transitBlockHtml(transit, lang, sayStation);
       if (block) infoWindowRef.current.setContent(infoCard(entry.innerHtml + block));
     }).catch(() => {});
   }
@@ -846,12 +878,16 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // nothing on the marker they had just tapped. Read straight from the client cache
       // (App batches one /api/pronounce call for the page), so this costs no request and
       // renders nothing when there is nothing to show.
-      const nameSay = cachedPronunciation(v.name || '', lang);
+      // Read from the SAME projection the cards use, so the marker and the card below it
+      // can never disagree; the module cache is the fallback for a marker built before
+      // App's first render (e.g. the shared-link path, which has no venue list).
+      const sayOf = (n) => (pronunciations && pronunciations.get(n)) || cachedPronunciation(n, lang);
+      const nameSay = sayOf(v.name || '');
       const sayHtml = nameSay
         ? `<div style="font-size:12px;color:${p.sub};margin-top:2px;">🌐 ${escapeHtml(nameSay)}</div>`
         : '';
       const vStreet = streetOf(v.area || '');
-      const vStreetSay = vStreet ? cachedPronunciation(vStreet, lang) : null;
+      const vStreetSay = vStreet ? sayOf(vStreet) : null;
       const streetSayHtml = (vStreetSay && vStreetSay !== vStreet)
         ? `<div style="font-size:12px;color:${p.sub};margin-top:2px;">🌐 ${escapeHtml(vStreetSay)}</div>`
         : '';
