@@ -30,7 +30,27 @@ export function usePronunciations(names, lang, { initData, curatedFor = null } =
   // The dependency is the name LIST and the locale, joined — not the array identity. A
   // parent re-rendering with an equal-but-new array would otherwise re-run the effect on
   // every render and re-ask the server each time.
-  const dep = Array.isArray(names) ? names.filter(Boolean).join('|') : '';
+  // v0.62.848 — THE LIST IS NEVER REBUILT FROM A DELIMITER, and that was a real bug.
+  //
+  // This used to be `names.join('|')` with the consumers below doing `dep.split('|')`.
+  // A venue name containing a pipe therefore became two unrelated names: the cache was
+  // populated under fragments while `ResultCard` looked up the whole name, so the guide
+  // never appeared and the stale payload line survived a locale change — the exact
+  // symptom the last three versions were spent chasing.
+  //
+  // Not hypothetical. `data/durian-variance/…json` carries
+  // "Ji De Chi 记得吃甜品 | Square 2 Novena". Codex raised it on PR #1791 (P1) and the
+  // data was re-read before acting.
+  //
+  // No separator is safe, because any character can occur in a name — so the fix is not a
+  // rarer delimiter, it is to stop round-tripping through one. `JSON.stringify` is used
+  // ONLY as a dependency key (it escapes, so it cannot collide); the array itself is
+  // passed through untouched.
+  const list = Array.isArray(names) ? names.filter((n) => typeof n === 'string' && n) : [];
+  const dep = JSON.stringify(list);
+  // A stable identity for an unchanged list, so the effect does not re-fire on every
+  // render of a parent that rebuilds the array.
+  const stableList = useMemo(() => list, [dep]);   // eslint-disable-line react-hooks/exhaustive-deps
 
   // v0.62.847 — bumped when a fetch lands, so the projection below recomputes. Codex
   // caught what this replaces (PR #1790, P1) and it was the operator's own complaint
@@ -53,15 +73,14 @@ export function usePronunciations(names, lang, { initData, curatedFor = null } =
   // The projection itself lives in `pronounce-client.js`, which imports nothing — so the
   // behaviour is unit-tested for real rather than asserted by grepping this file.
   const map = useMemo(
-    () => projectPronunciations(dep ? dep.split('|') : [], lang, curatedFor),
+    () => projectPronunciations(stableList, lang, curatedFor),
     [dep, lang, version],   // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   useEffect(() => {
     let cancelled = false;
-    const list = dep ? dep.split('|') : [];
-    if (!list.length || !lang) return undefined;
-    fetchPronunciations(list, lang, { initData: initData && initData(), curatedFor })
+    if (!stableList.length || !lang) return undefined;
+    fetchPronunciations(stableList, lang, { initData: initData && initData(), curatedFor })
       .then(() => {
         // Bump unconditionally — NOT `if (got.size)`. An all-null answer is a real
         // result: it means this locale needs no guides, and the projection must re-run to

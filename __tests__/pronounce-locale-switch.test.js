@@ -108,7 +108,11 @@ describe('P2 — the memo key must track the names it returns', () => {
     // every name changed — pinning the memo to the previous page.
     const { readFileSync } = require('fs');
     const src = readFileSync(require('path').join(__dirname, '..', 'web/cuisine/src/v2/App.jsx'), 'utf8');
-    expect(src).toMatch(/const venueSayKey = \(venues \|\| \[\]\)\.map\(\(v\) => \(v && v\.name\) \|\| ''\)/);
+    // Asserted as the REQUIREMENT — the batch key is built from venue NAMES — rather than
+    // as the exact expression, which has now moved twice (v0.62.847 introduced it,
+    // v0.62.848 re-keyed it on JSON after Codex's pipe finding). A test pinned to an
+    // expression fails on every refactor while catching nothing extra.
+    expect(src).toMatch(/venueNamesRaw = \(venues \|\| \[\]\)\.map\(\(v\) => \(v && v\.name\)/);
     expect(src).toMatch(/\[venueSayKey\]/);
     expect(src, 'the dependency is back on placeId, which fallback venues do not have')
       .not.toMatch(/map\(\(v\) => v && v\.placeId\)\.join/);
