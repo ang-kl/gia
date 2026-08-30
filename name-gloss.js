@@ -54,9 +54,24 @@ async function glossVenueName({ name, cc, deviceLang = 'en', placeId, redis = nu
   if (!original || !spec) return null;
 
   const dev = baseLang(deviceLang) || 'en';
-  const devName = dev === 'fr' ? 'French' : 'English';
+  // v0.62.857 — THE GLOSS WAS ONLY EVER WRITTEN IN ENGLISH OR FRENCH. This line read
+  // `dev === 'fr' ? 'French' : 'English'`, written when the app had two locales and never
+  // revisited when it reached eight — so a Japanese reader was told, in English, what a
+  // Vietnamese name means. Exactly the defect class AMD-62 swept out of the narration
+  // prompts (`lang === 'fr' ? … : ''`), surviving here because this file was not one of the
+  // seven it touched. `langName` already maps all eight, and the locale list is imported
+  // rather than retyped so this cannot become a ninth hand-copied copy.
+  const { APP_LOCALES } = require('./prompt-locale');
+  const { langName } = require('./translate-review');
+  const devName = (APP_LOCALES.includes(dev) && langName(dev)) || 'English';
+  // CACHE VERSION, SPLIT DELIBERATELY. The key already carried the locale, so en and fr
+  // entries hold correct answers and stay on v1 — bumping everything would re-buy the two
+  // highest-volume locales to fix six others. The remaining six hold English text under a
+  // non-English key, which is worse than a miss because it looks like a hit, so they move
+  // to v2 and the bad entries are abandoned rather than served.
+  const ver = (dev === 'en' || dev === 'fr') ? 'v1' : 'v2';
   const cacheKey = (typeof placeId === 'string' && placeId)
-    ? `name-gloss:v1:${placeId}:${dev}` : null;
+    ? `name-gloss:${ver}:${placeId}:${dev}` : null;
 
   if (cacheKey && redis && redis.isOpen) {
     try {

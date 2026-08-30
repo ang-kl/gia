@@ -36,8 +36,10 @@ describe('the reader-facing enrichers use the READER’s language', () => {
   it('all three on the search path take readerLang, not deviceLang', () => {
     for (const [what, re] of [
       ['name readings', /attachNameReadings\(payload\?\.venues, searchRegionCode, readerLang, redis\)/],
-      ['pronunciations', /attachPronunciations\(payload\?\.venues, readerLang, \{ redis \}\)/],
-      ['name gloss', /attachNameGloss\(payload\?\.venues, searchRegionCode, readerLang, redis\)/],
+      // v0.62.857 — both now take the spend-gated subset. Tenth expression pin re-pointed
+      // this arc; the requirement is which LANGUAGE they receive, which is unchanged.
+      ['pronunciations', /attachPronunciations\(venuesNeeding\(payload\?\.venues, 'say'\), readerLang, \{ redis \}\)/],
+      ['name gloss', /attachNameGloss\(venuesNeeding\(payload\?\.venues, 'gloss'\), searchRegionCode, readerLang, redis\)/],
     ]) {
       expect(src, `${what} is not using readerLang`).toMatch(re);
     }
@@ -46,8 +48,8 @@ describe('the reader-facing enrichers use the READER’s language', () => {
   it('and NONE of them is still handed the phone’s language', () => {
     // The exact three call shapes that shipped the bug.
     expect(src).not.toMatch(/attachNameReadings\(payload\?\.venues, searchRegionCode, deviceLang/);
-    expect(src).not.toMatch(/attachPronunciations\(payload\?\.venues, deviceLang/);
-    expect(src).not.toMatch(/attachNameGloss\(payload\?\.venues, searchRegionCode, deviceLang/);
+    expect(src).not.toMatch(/attachPronunciations\([^)]*\), deviceLang/);
+    expect(src).not.toMatch(/attachNameGloss\([^)]*\), searchRegionCode, deviceLang/);
   });
 
   it('the Michelin path was the same bug and gets the same fix', () => {
@@ -66,12 +68,24 @@ describe('readerLang prefers the toggle, then the phone, then the stored pref', 
   it('is declared BEFORE it is used — this session shipped two ordering crashes', () => {
     const decl = src.search(/const readerLang = csBodyLang/);
     expect(decl).toBeGreaterThan(-1);
+    // v0.62.857 — the two PAID calls now pass `venuesNeeding(payload?.venues, …)` rather
+    // than the raw array (the spend gate). Eighth expression pin re-pointed this arc. The
+    // requirement is unchanged and is the valuable half: `readerLang` must be DECLARED
+    // above every use. Widened rather than narrowed — instead of three hand-listed call
+    // shapes, every `readerLang` reference in the file is now checked, so a fourth
+    // consumer added later cannot slip past by not being on the list.
     for (const re of [
       /attachNameReadings\(payload\?\.venues, searchRegionCode, readerLang/,
-      /attachPronunciations\(payload\?\.venues, readerLang/,
-      /attachNameGloss\(payload\?\.venues, searchRegionCode, readerLang/,
+      /attachPronunciations\(venuesNeeding\(payload\?\.venues, 'say'\), readerLang/,
+      /attachNameGloss\(venuesNeeding\(payload\?\.venues, 'gloss'\), searchRegionCode, readerLang/,
     ]) {
       expect(src.search(re), 'used above its declaration — temporal dead zone').toBeGreaterThan(decl);
+    }
+    // Every OTHER mention of readerLang, wherever it is, must also sit below the const.
+    const uses = [...src.matchAll(/\breaderLang\b/g)].map((m) => m.index);
+    expect(uses.length, 'readerLang has no uses — the search above is vacuous').toBeGreaterThan(3);
+    for (const i of uses) {
+      expect(i, 'a readerLang use sits above its declaration').toBeGreaterThanOrEqual(decl);
     }
     // And csBodyLang, which it reads, must itself be declared earlier still.
     expect(src.search(/const csBodyLang = /)).toBeLessThan(decl);
