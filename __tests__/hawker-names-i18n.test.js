@@ -110,13 +110,15 @@ describe('coverage — the number is the honest part', () => {
   // A WORKLIST, NOT A FOOTNOTE. Pinned by name so the twelve weakest rows stay findable
   // for a native reader and cannot quietly be re-labelled `est` to make the corpus look
   // uniform. If one is verified, this list SHRINKS and the test says so.
+  // v0.62.833 — twelve -> eight. Anchorvale, Kebun Baru ×2 and Kallang Estate left the
+  // list because translatedterms.gov.sg confirmed their localities by free-text search
+  // (Community Clubs, an SMC, a museum) — the operator's "use the Singapore government
+  // translation ... if in doubt". The list SHRANK, which is what it was built to do.
   const LOW = [
     'ABC Brickworks Market/Food Centre', 'Albert Centre',
     'Empress Road Market and Food Centre', 'Blk 4A Jalan Batu Hawker Centre/Market',
     'Kukoh 21 Food Centre', 'Mei Chin Road Market',
-    'Kebun Baru Market and Food Centre', 'Kebun Baru Food Centre',
-    'Anchorvale Village Hawker Centre', 'Beo Crescent Market',
-    'Chomp Chomp Food Centre', 'Kallang Estate Fresh Market and Food Centre',
+    'Beo Crescent Market', 'Chomp Chomp Food Centre',
   ];
 
   it('the twelve lowest-confidence rows are exactly the ones declined twice before', () => {
@@ -125,9 +127,31 @@ describe('coverage — the number is the honest part', () => {
   });
 
   it('and no row outside that list is marked low, so the tier cannot spread', () => {
-    expect(SG_HAWKER_NAMES_I18N.filter((r) => r.src === 'low').length).toBe(12);
+    expect(SG_HAWKER_NAMES_I18N.filter((r) => r.src === 'low').length).toBe(8);
     expect(SG_HAWKER_NAMES_I18N.filter((r) => r.src === 'est').length).toBe(41);
-    expect(SG_HAWKER_NAMES_I18N.filter((r) => r.src === 'comp').length).toBe(70);
+    expect(SG_HAWKER_NAMES_I18N.filter((r) => r.src === 'comp').length).toBe(74);
+  });
+
+  // The three characters the government register corrected, pinned as VALUES. Each was
+  // authored, believed, and wrong; each is now what translatedterms.gov.sg publishes for
+  // that locality. Pinned so a later "tidy-up" cannot quietly restore the guess.
+  it.each([
+    ['Pek Kio Market and Food Centre', '白桥', '百吉'],
+    ['Taman Jurong Market and Food Centre', '达曼裕廊', '裕廊坊'],
+    ['Kebun Baru Food Centre', '哥本峇鲁', '甘榜峇鲁'],
+  ])('%s uses the register spelling %s, not the authored %s', (centre, right, wrong) => {
+    const zh = hawkerNameLocal(centre, 'zh');
+    expect(zh).toContain(right);
+    expect(zh).not.toContain(wrong);
+  });
+
+  it('school names are NOT treated as locality evidence', () => {
+    // The trap in the operator's instruction, asserted so it cannot be walked into later.
+    // Singapore school names frequently ignore their locality: Alexandra Primary is 雅德,
+    // Bukit Merah Secondary 达善, Bendemeer Primary 明智, Dunman High 德明. Reading those
+    // rows as evidence would "correct" Dunman to 德明 with an official-looking citation.
+    expect(hawkerNameLocal('Dunman Food Centre', 'zh')).toBe('敦满熟食中心');
+    expect(hawkerNameLocal('Bendemeer Market and Food Centre', 'zh')).toContain('明地迷亚');
   });
 
   it('every row carries zh and ms, and none carries ta', () => {
