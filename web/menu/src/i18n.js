@@ -17,6 +17,15 @@ const SUPPORTED_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
 const STRINGS = {
   // ----- Hero -----
   'hero.title':            { en: 'Soleat Menu',     fr: 'Soleat Menu' },
+  'ui.refresh': { en: 'Refresh', fr: 'Actualiser' },
+  'country.SG': { en: 'Singapore', fr: 'Singapour' },
+  'country.MY': { en: 'Malaysia', fr: 'Malaisie' },
+  'coh.title': { en: 'Location mismatch', fr: 'Conflit de localisation' },
+  'coh.body': { en: 'You set your location to {saved} previously, but your device is now in {device}.', fr: 'Vous aviez choisi {saved} précédemment, mais votre appareil est actuellement ici : {device}.' },
+  'coh.use': { en: 'Use {country}', fr: 'Utiliser {country}' },
+  'coh.keep': { en: 'Keep {country}', fr: 'Garder {country}' },
+  'loc.tapToChange': { en: 'tap to change', fr: 'touchez pour changer' },
+  'loc.collapse': { en: '↩︎ Collapse', fr: '↩︎ Replier' },
   'hero.tagline.line1':    { en: 'Solo eat',        fr: 'Manger seul' },
   'hero.tagline.line2':    { en: "So let’s eat", fr: "Alors, mangeons" },
   // v0.60.67 — sub-tagline below the "Solo eat · So let's eat" row.
@@ -241,6 +250,15 @@ const ID_STRINGS = {
   'rating.resetTitle': 'Rating disetel ulang: Bagus+ ≥ 3,7⭐',
   'rating.resetBody': 'Menampilkan tempat makan dengan rating Google yang umumnya bagus.',
   'hero.title': 'Menu Soleat',
+  'ui.refresh': 'Muat ulang',
+  'country.SG': 'Singapura',
+  'country.MY': 'Malaysia',
+  'coh.title': 'Lokasi tidak cocok',
+  'coh.body': 'Sebelumnya Anda menetapkan lokasi ke {saved}, tetapi perangkat Anda sekarang di {device}.',
+  'coh.use': 'Gunakan {country}',
+  'coh.keep': 'Tetap {country}',
+  'loc.tapToChange': 'ketuk untuk mengubah',
+  'loc.collapse': '↩︎ Tutup',
   'tile.sketchbook.sub': 'Simpan & atur tempat makan Anda ke dalam lemari',
 };
 for (const k in ID_STRINGS) {
@@ -317,6 +335,15 @@ const RU_STRINGS = {
   'rating.resetTitle': 'Рейтинг сброшен: Хорошо+ ≥ 3,7⭐',
   'rating.resetBody': 'Показаны заведения с в целом хорошими оценками Google.',
   'hero.title': 'Меню Soleat',
+  'ui.refresh': 'Обновить',
+  'country.SG': 'Сингапур',
+  'country.MY': 'Малайзия',
+  'coh.title': 'Несоответствие местоположения',
+  'coh.body': 'Ранее вы выбрали {saved}, но ваше устройство сейчас здесь: {device}.',
+  'coh.use': 'Использовать: {country}',
+  'coh.keep': 'Оставить: {country}',
+  'loc.tapToChange': 'нажмите, чтобы изменить',
+  'loc.collapse': '↩︎ Свернуть',
   'tile.sketchbook.sub': 'Сохраняйте и раскладывайте заведения по шкафчикам',
 };
 
@@ -390,6 +417,15 @@ const DE_STRINGS = {
   'rating.resetTitle': 'Bewertung zurückgesetzt: Gut+ ≥ 3,7⭐',
   'rating.resetBody': 'Zeigt Lokale mit allgemein guten Google-Bewertungen.',
   'hero.title': 'Soleat Menü',
+  'ui.refresh': 'Aktualisieren',
+  'country.SG': 'Singapur',
+  'country.MY': 'Malaysia',
+  'coh.title': 'Standortkonflikt',
+  'coh.body': 'Sie hatten zuvor {saved} gewählt, aber Ihr Gerät ist jetzt hier: {device}.',
+  'coh.use': '{country} verwenden',
+  'coh.keep': '{country} behalten',
+  'loc.tapToChange': 'zum Ändern tippen',
+  'loc.collapse': '↩︎ Einklappen',
   'tile.sketchbook.sub': 'Speichern und ordnen Sie Ihre Lokale in Schränken',
 };
 for (const k in RU_STRINGS) { if (STRINGS[k] && STRINGS[k].ru == null) STRINGS[k].ru = RU_STRINGS[k]; }
@@ -466,6 +502,15 @@ const ZH_STRINGS = {
   'rating.resetTitle': '评分已重置：优良+ ≥ 3.7⭐',
   'rating.resetBody': '显示 Google 评分总体良好的餐馆。',
   'hero.title': 'Soleat 菜单',
+  'ui.refresh': '刷新',
+  'country.SG': '新加坡',
+  'country.MY': '马来西亚',
+  'coh.title': '位置不一致',
+  'coh.body': '您之前将位置设为{saved}，但您的设备现在位于{device}。',
+  'coh.use': '使用{country}',
+  'coh.keep': '保留{country}',
+  'loc.tapToChange': '点击更改',
+  'loc.collapse': '↩︎ 收起',
   'tile.sketchbook.sub': '把你收藏的餐馆整理到柜子里',
 };
 for (const k in ZH_STRINGS) { if (STRINGS[k] && STRINGS[k].zh == null) STRINGS[k].zh = ZH_STRINGS[k]; }
@@ -541,6 +586,15 @@ const JA_STRINGS = {
   'rating.resetTitle': '評価をリセット: 高評価+ ≥ 3.7⭐',
   'rating.resetBody': 'Googleで概ね高評価の飲食店を表示します。',
   'hero.title': 'Soleat メニュー',
+  'ui.refresh': '更新',
+  'country.SG': 'シンガポール',
+  'country.MY': 'マレーシア',
+  'coh.title': '位置情報の不一致',
+  'coh.body': '以前は{saved}を設定していましたが、現在デバイスは{device}にあります。',
+  'coh.use': '{country}を使う',
+  'coh.keep': '{country}のままにする',
+  'loc.tapToChange': 'タップで変更',
+  'loc.collapse': '↩︎ 折りたたむ',
   'tile.sketchbook.sub': 'お気に入りの飲食店を保存してキャビネットに整理',
 };
 for (const k in JA_STRINGS) { if (STRINGS[k] && STRINGS[k].ja == null) STRINGS[k].ja = JA_STRINGS[k]; }
@@ -616,6 +670,15 @@ const ES_STRINGS = {
   'rating.resetTitle': 'Valoración reajustada: Bueno+ ≥ 3.7⭐',
   'rating.resetBody': 'Muestra restaurantes con valoraciones de Google generalmente buenas.',
   'hero.title': 'Menú Soleat',
+  'ui.refresh': 'Actualizar',
+  'country.SG': 'Singapur',
+  'country.MY': 'Malasia',
+  'coh.title': 'Discrepancia de ubicación',
+  'coh.body': 'Antes fijaste tu ubicación en {saved}, pero tu dispositivo está ahora en {device}.',
+  'coh.use': 'Usar {country}',
+  'coh.keep': 'Mantener {country}',
+  'loc.tapToChange': 'toca para cambiar',
+  'loc.collapse': '↩︎ Contraer',
   'tile.sketchbook.sub': 'Guarda y organiza tus locales en armarios',
 };
 for (const k in ES_STRINGS) { if (STRINGS[k] && STRINGS[k].es == null) STRINGS[k].es = ES_STRINGS[k]; }
@@ -625,6 +688,20 @@ export function t(key, lang) {
   const entry = STRINGS[key];
   if (!entry) return key;
   return entry[l] ?? entry.en ?? key;
+}
+
+// v0.62.837 — interpolating variant, mirroring cuisine/hawker/transport's `tn`.
+// Added because the location-mismatch dialog's strings carry {saved}/{device}
+// slots; before this they were a four-locale ternary chain (en/fr/ru/de), so
+// Indonesian, Chinese, Japanese and Spanish readers got the English arm.
+export function tn(key, lang, vars = null) {
+  let s = t(key, lang);
+  if (vars) {
+    for (const [k, v] of Object.entries(vars)) {
+      s = s.split(`{${k}}`).join(String(v));
+    }
+  }
+  return s;
 }
 
 function detectFromTelegram() {

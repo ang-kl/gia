@@ -15,12 +15,15 @@ import { groupByAwardCity, groupNeedsJumpRow } from '../lib/michelin-city-groups
 // v0.60.47: stripped the leading "✨ " — the warm-start caption now
 // composes as `✨ {n} suggestions · {seedName} · tap 🔍 to refine` so
 // users see the explicit count first.
+// v0.62.837 — eight locales, not two. These captions sit in the warm-start line
+// (`✨ {n} suggestions · {seedName} · tap 🔍 to refine`), so a Japanese reader saw a
+// Japanese sentence with an English clause wedged into the middle of it.
 const SEED_LABEL = {
-  'open-now-cheap':      { en: 'open now & cheap eats',     fr: 'ouvert · pas cher' },
-  'newly-opened-halal':  { en: 'newly opened · halal',      fr: 'nouveaux · halal' },
-  'highly-rated-nearby': { en: 'highly rated nearby',       fr: 'très bien notés à proximité' },
-  'open-now-popular':    { en: 'popular & open now',        fr: 'populaires & ouverts maintenant' },
-  'newly-opened-radius': { en: 'newly opened in your radius', fr: 'nouveaux dans votre zone' }
+  'open-now-cheap':      { en: 'open now & cheap eats',       fr: 'ouvert · pas cher',                 id: 'buka sekarang · murah',        ru: 'открыто · недорого',        de: 'jetzt offen · günstig',        zh: '现在营业 · 平价',   ja: '営業中・安い',       es: 'abierto ahora · barato' },
+  'newly-opened-halal':  { en: 'newly opened · halal',        fr: 'nouveaux · halal',                  id: 'baru buka · halal',            ru: 'новые · халяль',            de: 'neu eröffnet · halal',         zh: '新开 · 清真',       ja: '新規オープン・ハラル', es: 'recién abierto · halal' },
+  'highly-rated-nearby': { en: 'highly rated nearby',         fr: 'très bien notés à proximité',       id: 'nilai tinggi di dekat sini',   ru: 'с высоким рейтингом рядом', de: 'top bewertet in der Nähe',     zh: '附近高分',         ja: '近くの高評価',       es: 'muy valorados cerca' },
+  'open-now-popular':    { en: 'popular & open now',          fr: 'populaires & ouverts maintenant',   id: 'populer & buka sekarang',      ru: 'популярные · открыто',      de: 'beliebt & jetzt offen',        zh: '热门 · 现在营业',   ja: '人気・営業中',       es: 'populares y abiertos ahora' },
+  'newly-opened-radius': { en: 'newly opened in your radius', fr: 'nouveaux dans votre zone',          id: 'baru buka di area Anda',       ru: 'новые в вашем радиусе',     de: 'neu eröffnet in deinem Umkreis', zh: '你附近新开',      ja: '範囲内の新規オープン', es: 'recién abiertos en tu zona' }
 };
 
 // v0.59.0: ResultPanel replaces FlipPanel. The flip-card animation +
@@ -372,7 +375,7 @@ export default function ResultPanel({
             / "· Limit reached". Pre-first-fetch falls back to the
             single-line "Showing N results" string. */}
         <div className="text-xs font-semibold flex-shrink-0 leading-tight">{(() => {
-          if (!venues) return lang === 'fr' ? 'Résultats' : 'Results';
+          if (!venues) return tr('rp.results', lang);
           const visibleStart = (page - 1) * PAGE_SIZE + 1;
           const visibleEnd = Math.min(page * PAGE_SIZE, venues.length);
           // Known total: prefer Michelin's curated pool; else App.jsx's
@@ -430,9 +433,9 @@ export default function ResultPanel({
             <button type="button" onClick={handleCopyAll} disabled={copying}
               className="text-[11px] px-2 py-0.5 rounded-full border border-tg-border bg-tg-card whitespace-nowrap disabled:opacity-50">
               {copying
-                ? (lang === 'fr' ? '📋 Envoi…' : '📋 Sending…')
+                ? (tr('rp.sendingClipboard', lang))
                 : copied
-                  ? (lang === 'fr' ? '✓ Envoyé' : '✓ Sent')
+                  ? (tr('rp.sent', lang))
                   : tr('btn.copyAll', lang)}
             </button>
           )}
@@ -440,10 +443,10 @@ export default function ResultPanel({
             <button type="button" onClick={handleCopyCommand} disabled={copyingCmd}
               className="text-[11px] px-2 py-0.5 rounded-full border border-tg-border bg-tg-card whitespace-nowrap disabled:opacity-50">
               {copyingCmd
-                ? (lang === 'fr' ? '🔗 Envoi…' : '🔗 Sending…')
+                ? (tr('rp.sendingLink', lang))
                 : copiedCmd
-                  ? (lang === 'fr' ? '✓ Envoyé' : '✓ Sent')
-                  : (lang === 'fr' ? '🔗 Copier la syntaxe' : '🔗 Copy syntax')}
+                  ? (tr('rp.sent', lang))
+                  : (tr('rp.copySyntax', lang))}
             </button>
           )}
         </div>
@@ -467,9 +470,7 @@ export default function ResultPanel({
               onClick={() => onMichelinCityJump && onMichelinCityJump(oc.city)}
               className="text-[11px] rounded-full border border-tg-hint/40 px-2.5 py-1 text-tg-text hover:bg-tg-hint/10 active:bg-tg-hint/20"
             >
-              {lang === 'fr'
-                ? `📍 ${oc.count} de plus à ${oc.city} →`
-                : `📍 ${oc.count} more in ${oc.city} →`}
+              {tn('rp.moreInCity', lang, { count: oc.count, city: oc.city })}
             </button>
           ))}
         </div>
@@ -479,9 +480,7 @@ export default function ResultPanel({
           {/* v0.60.47 — explicit count first ("✨ 5 suggestions") so
               the warm-start cap (server pickTopN limit) is obvious.
               Followed by the curated seed flavour and the refine CTA. */}
-          ✨ {lang === 'fr'
-            ? `${venues.length} suggestion${venues.length === 1 ? '' : 's'}`
-            : `${venues.length} suggestion${venues.length === 1 ? '' : 's'}`} · {SEED_LABEL[warmStartSeed][lang] || SEED_LABEL[warmStartSeed].en} · <span className="italic">{lang === 'fr' ? 'touchez 🔍 Rechercher pour affiner' : 'tap 🔍 Search to refine'}</span>
+          ✨ {tn(venues.length === 1 ? 'rp.suggestionsOne' : 'rp.suggestionsMany', lang, { n: venues.length })} · {SEED_LABEL[warmStartSeed][lang] || SEED_LABEL[warmStartSeed].en} · <span className="italic">{tr('rp.tapRefine', lang)}</span>
         </div>
       )}
       {loading ? (
@@ -497,9 +496,7 @@ export default function ResultPanel({
            mismatch). Don't show the "No results / change criteria" copy — the
            user never searched. Tell them to tap 🔍. Amber (no red/green-only). */
         <div className="rounded-2xl border border-tg-warn/40 bg-tg-card px-3 py-2 text-[12px] leading-snug text-tg-text">
-          {lang === 'fr'
-            ? 'Votre lieu enregistré diffère de votre position actuelle. Touchez 🔍 Rechercher pour chercher ici.'
-            : 'Your saved area differs from where you are now. Tap 🔍 Search to look here.'}
+          {tr('rp.savedAreaDiffers', lang)}
         </div>
       ) : !venues?.length ? (
         specialModeBlocked ? (
@@ -519,9 +516,7 @@ export default function ResultPanel({
              format), the message explicitly suggests two paths
              forward: change the criteria, or clear them. */
           <div className="text-xs text-tg-hint px-2 py-4 leading-snug">
-            {lang === 'fr'
-              ? 'Aucun résultat. Modifiez vos critères de recherche ou laissez-les vides.'
-              : 'No results. Suggest changing the search criteria, or leaving it blank.'}
+            {tr('rp.noResults', lang)}
           </div>
         )
       ) : (
@@ -535,9 +530,7 @@ export default function ResultPanel({
               renders black on iOS light, white on dark). */}
           {comboInfo?.attempted && !comboInfo?.matched && (
             <div className={`text-[12px] font-medium text-tg-text px-2 pt-1 pb-1 leading-snug ${spanCls}`}>
-              {lang === 'fr'
-                ? "Aucune combinaison exacte de cuisines trouvée. Affichage d'établissements distincts pour chaque cuisine sélectionnée."
-                : 'No exact cuisine combination found. Showing separate eateries for each selected cuisine.'}
+              {tr('rp.noCombo', lang)}
             </div>
           )}
           {/* v0.62.37 — ⭐ Recommend summary (D792): how many of the visible
@@ -554,13 +547,11 @@ export default function ResultPanel({
             // header instead of the generic "a local classic".
             const dishes = [...new Set(taggedVenues.map((v) => v.cityDish.dish))];
             const dishLabel = dishes.length <= 2
-              ? dishes.join(lang === 'fr' ? ' et ' : ' & ')
+              ? dishes.join(tr('rp.and', lang))
               : `${dishes.slice(0, 2).join(', ')} +${dishes.length - 2}`;
             return (
               <div className={`px-2 pt-1 pb-1 text-[12px] font-semibold text-tg-text leading-snug ${spanCls}`}>
-                {lang === 'fr'
-                  ? `⭐ ${tagged} lieu${tagged > 1 ? 'x' : ''} sur ${cardsToShow.length} ${tagged > 1 ? 'servent' : 'sert'} ${dishLabel}`
-                  : `⭐ ${tagged} of ${cardsToShow.length} places here serve ${dishLabel}`}
+                {tn(tagged > 1 ? 'rp.taggedServeMany' : 'rp.taggedServeOne', lang, { tagged, total: cardsToShow.length, dish: dishLabel })}
               </div>
             );
           })()}
@@ -640,17 +631,17 @@ export default function ResultPanel({
                 <React.Fragment key={v.placeId || i}>
                   {showConfirmedHeader && (
                     <div className={`px-2 pt-2 pb-1 text-[12px] font-semibold text-tg-text leading-snug ${spanCls} ${stickyHeadCls}`}>
-                      {lang === 'fr' ? '✔ Confirmé — les avis le mentionnent' : '✔ Confirmed — reviews mention it'}
+                      {tr('rp.confirmed', lang)}
                     </div>
                   )}
                   {showAskFirstHeader && (
                     <div className={`px-2 pt-2 pb-1 text-[12px] font-semibold text-tg-hint leading-snug border-t border-tg-hint/20 ${spanCls} ${stickyHeadCls}`}>
-                      {lang === 'fr' ? "? À vérifier — demandez s'ils le servent" : '? Ask first — check if they serve it'}
+                      {tr('rp.askFirst', lang)}
                     </div>
                   )}
                   {showFillDivider && (
                     <div className={`px-2 pt-2 pb-1 text-[11px] font-medium text-tg-hint leading-snug border-t border-tg-hint/20 ${spanCls}`}>
-                      {lang === 'fr' ? 'Ouvert il y a 3 à 6 mois' : 'Opened 3–6 months ago'}
+                      {tr('rp.opened36', lang)}
                     </div>
                   )}
                   {showNearbyDivider && (
@@ -681,7 +672,7 @@ export default function ResultPanel({
               in one card at a time (parity with gia-web v0.1.151). */}
           {streamingMore && (
             <div className={`px-2 py-1 text-center text-[11px] leading-snug text-tg-hint animate-pulse ${spanCls}`}>
-              {lang === 'fr' ? 'chargement…' : 'loading more…'}
+              {tr('rp.loadingMore', lang)}
             </div>
           )}
           {/* v0.60.22 — pagination strip. Only renders when the result
@@ -702,13 +693,13 @@ export default function ResultPanel({
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                aria-label={lang === 'fr' ? 'Page précédente' : 'Previous page'}
+                aria-label={tr('rp.prevPage', lang)}
                 className="w-8 h-8 rounded-lg bg-tg-card text-tg-text border border-tg-border text-xs font-semibold flex items-center justify-center disabled:opacity-40 active:scale-95"
               >◀</button>
               <button
                 type="button"
                 onClick={() => setPage((p) => (p >= totalPages ? 1 : p + 1))}
-                aria-label={lang === 'fr' ? `Page ${page} sur ${totalPages}` : `Page ${page} of ${totalPages}`}
+                aria-label={tn('rp.pageOf', lang, { page, total: totalPages })}
                 className="min-w-[80px] h-8 px-2 rounded-lg bg-tg-card text-tg-text border border-tg-border text-[11px] font-semibold flex items-center justify-center active:scale-95"
               >📄 {Math.min(page * PAGE_SIZE, venues.length)} / {venues.length}</button>
               <button
@@ -726,7 +717,7 @@ export default function ResultPanel({
                   }
                 }}
                 disabled={page >= totalPages && (!onLastPageNext || exhausted)}
-                aria-label={lang === 'fr' ? 'Page suivante' : 'Next page'}
+                aria-label={tr('rp.nextPage', lang)}
                 className="w-8 h-8 rounded-lg bg-tg-card text-tg-text border border-tg-border text-xs font-semibold flex items-center justify-center disabled:opacity-40 active:scale-95"
               >▶</button>
             </div>

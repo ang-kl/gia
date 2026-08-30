@@ -472,9 +472,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
         <div className="mt-1.5 flex flex-col">
           {plate.honestEmpty && (
             <div className="text-tg-hint pb-1">
-              {fr
-                ? `Pas de plat propre à ${plate.city} — spécialités régionales et classiques :`
-                : `No ${plate.city}-only dish — regional specialities and classics:`}
+              {t('plate.honestEmpty', lang).replace('{city}', plate.city)}
             </div>
           )}
           {/* v0.62.220 — operator: the headliner dishes render in TWO COLUMNS,

@@ -6,6 +6,8 @@
 // (street + venue), since they have no bundled transit graph yet. Pure client
 // side — uses each venue's lat/lng + formatted address; no backend change.
 
+import { t } from './i18n.js';
+
 import { SG_STATIONS } from './mrt-stations.generated.js';
 
 const ZONE_MAX_M = 1200; // a venue further than this from any station → "Nearby"
@@ -93,7 +95,7 @@ export function groupByZone(venues, region) {
 }
 
 export function zoneHeader(zone, lang) {
-  if (!zone) return lang === 'fr' ? 'À proximité' : 'Nearby';
+  if (!zone) return t('nz.nearby', lang);
   const codes = Array.isArray(zone.codes) && zone.codes.length ? ` · ${zone.codes.join('/')}` : '';
   return `${zone.name}${codes}`;
 }

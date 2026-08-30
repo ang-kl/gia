@@ -812,11 +812,9 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         const fc   = v.footfall.forecastNext;
         const value = Number.isFinite(live) ? live : (Number.isFinite(fc) ? fc : null);
         if (value != null) {
-          const verb = lang === 'fr'
-            ? (Number.isFinite(live) ? 'occupé maintenant' : 'prévu')
-            : (Number.isFinite(live) ? 'busy now' : 'forecast');
+          const verb = tr(Number.isFinite(live) ? 'mp.busyNow' : 'mp.forecast', lang);
           const peak = v.footfall.peakHour
-            ? ` · ${lang === 'fr' ? 'pic' : 'peaks'} ${escapeHtml(v.footfall.peakHour)}`
+            ? ` · ${tr('mp.peaks', lang)} ${escapeHtml(v.footfall.peakHour)}`
             : '';
           footfallHtml = `<div style="font-size:12px;color:${p.sub};margin-top:3px;">🚦 ${value}% ${verb}${peak}</div>`;
         }

@@ -50,13 +50,13 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
           instead of merge" link is removed. */}
       {lastPrompt && !submitting && (
         <div className="text-[11px] text-tg-hint px-1.5 italic">
-          {lang === 'fr' ? 'Dernière demande' : 'Last asked'}:{' '}
+          {tr('tell.lastAsked', lang)}:{' '}
           {onReplace ? (
             <button
               onClick={onReplace}
               className="not-italic underline text-tg-link active:scale-95"
-              aria-label={lang === 'fr' ? `Remplacer la recherche par « ${lastPrompt} »` : `Replace the search with "${lastPrompt}"`}
-              title={lang === 'fr' ? 'Remplacer au lieu de fusionner' : 'Replace instead of merge'}
+              aria-label={tr('tell.replaceWith', lang, { prompt: lastPrompt })}
+              title={tr('tell.replaceNotMerge', lang)}
             >"{lastPrompt}"</button>
           ) : (
             <span>"{lastPrompt}"</span>
@@ -83,7 +83,7 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => onCollapse?.()}
-          aria-label={lang === 'fr' ? 'Réduire' : 'Collapse'}
+          aria-label={tr('tell.collapse', lang)}
           className="flex-shrink-0 active:scale-90 leading-none"
         >
           <Icon name="message" className="w-4 h-4 text-tg-hint" />
@@ -108,7 +108,7 @@ export default function TellMePanel({ value = '', onChange, onSubmit, onReplace,
           onClick={submit}
           disabled={(searchIcon ? (searchDisabled || loading) : (!text.trim() || submitting || loading))}
           aria-label={searchIcon
-            ? (lang === 'fr' ? 'Rechercher · Trouvez où manger' : 'Search · Show me places to eat')
+            ? (tr('tell.searchCta', lang))
             : tr('tellme.submit', lang)}
           className={searchIcon
             ? `w-8 h-8 rounded-full bg-tg-accent text-tg-accent-text border-2 border-white/40 shadow-lg flex items-center justify-center text-base disabled:opacity-40 flex-shrink-0 transition-all active:scale-95 ${

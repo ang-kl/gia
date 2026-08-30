@@ -5,7 +5,7 @@ import FooterNav from '../../_shared/components/FooterNav.jsx';
 import LocaleToggle from './components/LocaleToggle.jsx';
 import LocationFieldMenu from './components/LocationFieldMenu.jsx';
 import { tg, getTelegramLocation } from './tg.js';
-import { t, useLocale } from './i18n.js';
+import { t, tn, useLocale } from './i18n.js';
 import { IATA_CITIES, nearestIataCity } from '../../_shared/lib/iata-cities.js';
 import { OTHER_COUNTRIES } from './countries.js';
 import { CITIES_BY_COUNTRY } from './cities.js';
@@ -714,17 +714,11 @@ export default function App() {
             <div className="px-4 py-3 border-b border-tg-border bg-tg-card flex items-center gap-2">
               <span aria-hidden>📍</span>
               <h2 id="gia-coherence-title" className="text-sm font-semibold flex-1">
-                {lang === 'fr' ? 'Conflit de localisation' : lang === 'ru' ? 'Несоответствие местоположения' : lang === 'de' ? 'Standortkonflikt' : 'Location mismatch'}
+                {t('coh.title', lang)}
               </h2>
             </div>
             <div className="px-4 py-3 text-[13px] leading-snug text-tg-text">
-              {lang === 'fr'
-                ? `Vous aviez choisi ${coherenceMismatch.saved} précédemment, mais votre appareil est actuellement en ${coherenceMismatch.coords === 'SG' ? 'Singapour' : 'Malaisie'}.`
-                : lang === 'ru'
-                ? `Ранее вы выбрали ${coherenceMismatch.saved}, но ваше устройство сейчас находится в ${coherenceMismatch.coords === 'SG' ? 'Сингапуре' : 'Малайзии'}.`
-                : lang === 'de'
-                ? `Sie hatten zuvor ${coherenceMismatch.saved} gewählt, aber Ihr Gerät befindet sich jetzt in ${coherenceMismatch.coords === 'SG' ? 'Singapur' : 'Malaysia'}.`
-                : `You set your location to ${coherenceMismatch.saved} previously, but your device is now in ${coherenceMismatch.coords === 'SG' ? 'Singapore' : 'Malaysia'}.`}
+              {tn('coh.body', lang, { saved: t(`country.${coherenceMismatch.saved}`, lang), device: t(`country.${coherenceMismatch.coords}`, lang) })}
             </div>
             <div className="flex flex-col gap-2 px-4 pb-4">
               <button
@@ -732,26 +726,14 @@ export default function App() {
                 onClick={() => applyCoherenceChoice(true)}
                 className="w-full px-3 py-2 rounded-xl bg-tg-accent text-tg-accent-text text-sm font-semibold"
               >
-                {lang === 'fr'
-                  ? `Utiliser ${coherenceMismatch.coords === 'SG' ? 'Singapour' : 'Malaisie'}`
-                  : lang === 'ru'
-                  ? `Использовать ${coherenceMismatch.coords === 'SG' ? 'Сингапур' : 'Малайзию'}`
-                  : lang === 'de'
-                  ? `${coherenceMismatch.coords === 'SG' ? 'Singapur' : 'Malaysia'} verwenden`
-                  : `Use ${coherenceMismatch.coords === 'SG' ? 'Singapore' : 'Malaysia'}`}
+                {tn('coh.use', lang, { country: t(`country.${coherenceMismatch.coords}`, lang) })}
               </button>
               <button
                 type="button"
                 onClick={() => applyCoherenceChoice(false)}
                 className="w-full px-3 py-2 rounded-xl bg-tg-card border border-tg-border text-tg-text text-sm"
               >
-                {lang === 'fr'
-                  ? `Garder ${coherenceMismatch.saved}`
-                  : lang === 'ru'
-                  ? `Оставить ${coherenceMismatch.saved}`
-                  : lang === 'de'
-                  ? `${coherenceMismatch.saved} behalten`
-                  : `Keep ${coherenceMismatch.saved}`}
+                {tn('coh.keep', lang, { country: t(`country.${coherenceMismatch.saved}`, lang) })}
               </button>
             </div>
           </div>
@@ -777,8 +759,8 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => window.location.reload()}
-                aria-label={lang === 'fr' ? 'Actualiser' : 'Refresh'}
-                title={lang === 'fr' ? 'Actualiser' : 'Refresh'}
+                aria-label={t('ui.refresh', lang)}
+                title={t('ui.refresh', lang)}
                 className="gia-hit text-[11px] text-tg-hint hover:text-tg-text leading-none px-0.5 active:scale-90"
               >↻</button>
               <LocaleToggle />

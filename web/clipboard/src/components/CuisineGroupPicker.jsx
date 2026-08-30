@@ -57,7 +57,7 @@ function CategoryModal({ category, selected, onToggle, onClose, lang, availableS
           <span aria-hidden>{category.emoji}</span>
           <h2 className="text-sm font-semibold flex-1 truncate">{catLabel(category, lang)}</h2>
           {selectedInCat > 0 && <span className="text-tg-accent text-xs font-semibold">[{selectedInCat}]</span>}
-          <button type="button" onClick={onClose} aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
+          <button type="button" onClick={onClose} aria-label={t('chrome.close', lang)}
             className="text-tg-hint text-sm leading-none px-1 flex-shrink-0">✕</button>
         </div>
         <div className="flex-1 overflow-y-auto px-3 py-3">
@@ -72,7 +72,7 @@ function CategoryModal({ category, selected, onToggle, onClose, lang, availableS
                   {cu.dividerBefore && <div className="col-span-2 h-px bg-tg-border/40 my-1.5" aria-hidden />}
                   <button type="button" onClick={() => { if (!disabled) onToggle(cu.slug); }}
                     aria-pressed={sel} aria-disabled={disabled || undefined} disabled={disabled}
-                    title={!avail ? (lang === 'fr' ? 'Aucune carte enregistrée' : 'Not in your saved cards') : undefined}
+                    title={!avail ? (t('cgp.notSaved', lang)) : undefined}
                     className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-xs leading-tight whitespace-normal text-left transition-colors ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : `bg-tg-card text-tg-text border-tg-border ${disabled ? 'opacity-40 cursor-not-allowed' : 'hover:border-tg-accent'}`}`}>
                     <span aria-hidden className="flex-shrink-0 text-base leading-none">{cu.flag || '🍽️'}</span>
                     <span className="flex-1 break-words">{cuisineName(cu.slug, cu.name, lang)}</span>
@@ -115,7 +115,7 @@ export default function CuisineGroupPicker({ catalogue, selected = [], onChange,
           if (disabled) return;
           if (isSingle) toggle(onlySlug); else setOpenCategoryId(cat.id);
         }}
-        title={disabled ? (lang === 'fr' ? 'Aucune carte enregistrée' : 'Not in your saved cards') : undefined}
+        title={disabled ? (t('cgp.notSaved', lang)) : undefined}
         className={`flex items-center gap-2 px-3 py-2 rounded-2xl border text-left transition-colors ${disabled ? 'opacity-50 cursor-not-allowed bg-tg-card border-tg-border' : (selectedInCat > 0 || (isSingle && isOnlySelected) ? 'bg-[#DCEBFF] border-tg-accent text-[#0c2540]' : 'bg-tg-card border-tg-border hover:border-tg-accent')}`}>
         <span aria-hidden className="flex-shrink-0">{cat.emoji}</span>
         <span className="flex-1 min-w-0">

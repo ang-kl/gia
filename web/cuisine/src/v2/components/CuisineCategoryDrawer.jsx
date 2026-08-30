@@ -161,7 +161,7 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
         <button
           type="button"
           onClick={onClose}
-          aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
+          aria-label={tr('loc.close', lang)}
           className="text-tg-hint text-sm leading-none px-1 flex-shrink-0"
         >✕</button>
       </div>
@@ -201,10 +201,10 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
                 aria-disabled={disabled || undefined}
                 disabled={disabled}
                 title={michBlocked
-                  ? (lang === 'fr' ? 'Aucun Michelin pour cette cuisine ici' : 'No Michelin pick for this cuisine here')
+                  ? (tr('ccd.noMichelin', lang))
                   : (beltBlocked ? tr('special.beltOnly', lang) : undefined)}
                 aria-label={michBlocked
-                  ? (lang === 'fr' ? 'Aucun Michelin pour cette cuisine ici' : 'No Michelin pick for this cuisine here')
+                  ? (tr('ccd.noMichelin', lang))
                   : (beltBlocked ? tr('special.beltOnly', lang) : undefined)}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl border text-xs leading-tight whitespace-normal text-left transition-colors ${sel ? 'bg-tg-accent text-tg-accent-text border-tg-accent' : `bg-tg-card text-tg-text border-tg-border ${(dim || beltBlocked || michBlocked) ? 'opacity-40 cursor-not-allowed' : 'hover:border-tg-accent'}`}`}
               >
@@ -263,14 +263,14 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
           <div ref={dishListDialogRef} className="flex flex-col w-full max-w-[420px] max-h-[80vh] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
             <div className="flex items-center gap-2 px-3 py-3 border-b border-tg-border bg-tg-card">
               <h3 id="gia-drawer-dishes-title" className="text-sm font-semibold flex-1 truncate">{tr('cat.dishes', lang)} · {dishModal.flag ? dishModal.flag + ' ' : ''}{dishModal.name}</h3>
-              <button type="button" onClick={() => setDishModal(null)} aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
+              <button type="button" onClick={() => setDishModal(null)} aria-label={tr('loc.close', lang)}
                 className="text-tg-hint text-sm leading-none px-1 flex-shrink-0">✕</button>
             </div>
             <div className="flex-1 overflow-y-auto px-3 py-3">
               {dishLoading ? (
                 <div className="text-center text-xs text-tg-hint py-6">…</div>
               ) : dishList.length === 0 ? (
-                <div className="text-center text-xs text-tg-hint py-6">{lang === 'fr' ? 'Aucun plat' : 'No dishes'}</div>
+                <div className="text-center text-xs text-tg-hint py-6">{tr('ccd.noDishes', lang)}</div>
               ) : (
                 <div className="grid grid-cols-2 gap-x-3">
                   {dishList.map((d, i) => (
@@ -311,7 +311,7 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
           <div ref={dishDetailDialogRef} className="flex flex-col w-full max-w-[380px] max-h-[70vh] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
             <div className="flex items-center gap-2 px-3 py-3 border-b border-tg-border bg-tg-card">
               <h3 id="gia-drawer-dishdetail-title" className="text-sm font-semibold flex-1 truncate capitalize">{dishDetail.name}</h3>
-              <button type="button" onClick={() => setDishDetail(null)} aria-label={lang === 'fr' ? 'Fermer' : 'Close'}
+              <button type="button" onClick={() => setDishDetail(null)} aria-label={tr('loc.close', lang)}
                 className="text-tg-hint text-sm leading-none px-1 flex-shrink-0">✕</button>
             </div>
             <div className="flex-1 overflow-y-auto px-3 py-3">
@@ -343,14 +343,14 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
                 <div className="text-sm text-tg-hint mb-2">{dishDetail.local}</div>
               )}
               <p className="text-[13px] leading-relaxed text-tg-text">
-                {(dishDetail.note && (dishDetail.note[lang] || dishDetail.note.en)) || (lang === 'fr' ? 'Description bientôt.' : 'Description coming soon.')}
+                {(dishDetail.note && (dishDetail.note[lang] || dishDetail.note.en)) || (tr('ccd.descSoon', lang))}
               </p>
             </div>
             <div className="px-3 py-3 border-t border-tg-border bg-tg-card">
               <button type="button"
                 onClick={() => { setDishDetail(null); setDishModal(null); onPickDish?.(dishDetail.name); }}
                 className="w-full flex items-center justify-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-xl bg-tg-accent text-tg-accent-text active:scale-[0.99]">
-                <span aria-hidden>🔍</span>{lang === 'fr' ? 'Trouver des adresses' : 'Find eateries'}
+                <span aria-hidden>🔍</span>{tr('plate.findEateries', lang)}
               </button>
             </div>
           </div>
