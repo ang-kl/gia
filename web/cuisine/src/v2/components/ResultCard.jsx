@@ -8,7 +8,7 @@ import SocialButtons from './SocialButtons.jsx';
 import { OTHER_COUNTRIES } from '../lib/countries.js';
 import { abbrevAddress } from '../../../../_shared/lib/abbrev-address.js';
 import PronounceIcon from '../../../../_shared/components/PronounceIcon.jsx';
-import { cachedPronunciation } from '../../../../_shared/lib/pronounce-client.js';
+import { cachedPronunciation, streetOf } from '../../../../_shared/lib/pronounce-client.js';
 
 const PRICE_LABEL = { 1: '$', 2: '$$', 3: '$$$', 4: '$$$$' };
 
@@ -65,6 +65,12 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
   //   undefined → not asked yet, so the payload's value is the best thing we have
   const said = cachedPronunciation(venue.name, lang);
   const sayNow = said !== undefined ? said : venue.namePronounce;
+  // v0.62.850 — the same treatment for the ADDRESS, keyed on its street so venues sharing
+  // a road share one answer. Additive on purpose: the English line stays, because that is
+  // what a reader shows a driver or types into Maps. A transliteration helps them READ and
+  // SAY it; it does not help them get there.
+  const addrStreet = streetOf(venue.area || '');
+  const streetSay = addrStreet ? cachedPronunciation(addrStreet, lang) : undefined;
   if (!venue) return null;
   const rating = venue.rating ? `★${venue.rating.toFixed(1)}` : '';
   const price = PRICE_LABEL[venue.priceLevel] || '';
@@ -654,6 +660,18 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
           {venue.area && (
             <div className={`text-[12px] text-tg-hint leading-snug ${horizontal ? `mt-0.5 ${isShort ? 'line-clamp-1' : 'line-clamp-2'}` : 'mt-1 break-words'}`}>
               📍 {horizontal ? abbrevAddress(dropCountry(venue.area)) : dropCountry(venue.area)}
+            </div>
+          )}
+          {/* v0.62.850 — how to SAY the street. Operator: "would the foreign address being
+              translated help?" — their own examples were transliterations, and that is what
+              this is: Телок Бланга Драйв, not Проезд Телок Бланга. The English line above
+              STAYS, because that is the one a reader shows a driver or types into Maps;
+              this one only helps them read and pronounce it. Rendered only when the guide
+              differs from the street itself, so an English reader sees nothing. */}
+          {streetSay && streetSay !== addrStreet && (
+            <div className="text-[12px] text-tg-hint leading-snug flex items-center gap-1 min-w-0">
+              <PronounceIcon className="shrink-0 opacity-80" />
+              <span className="truncate">{streetSay}</span>
             </div>
           )}
 

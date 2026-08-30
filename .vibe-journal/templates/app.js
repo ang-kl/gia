@@ -360,7 +360,7 @@
         }
         html += '</tbody></table>';
         const idx = tablePlaceholders.push(html) - 1;
-        return `${lead} TABLE_${idx} `;
+        return `${lead}\u0000TABLE_${idx}\u0000`;
       }
     );
 
@@ -379,12 +379,12 @@
       const t = blk.trim();
       if (!t) return '';
       if (/^<(ul|ol|table|pre|h\d|blockquote|details)/i.test(t)) return t;
-      if (t.startsWith(' TABLE_')) return t;
+      if (t.startsWith('\u0000TABLE_')) return t;
       return `<p>${t}</p>`;
     }).join('\n');
 
     // 5) Re-insert the table HTML.
-    s = s.replace(/ TABLE_(\d+) /g, (_, n) => tablePlaceholders[Number(n)] || '');
+    s = s.replace(/\u0000TABLE_(\d+)\u0000/g, (_, n) => tablePlaceholders[Number(n)] || '');
 
     return s;
   }

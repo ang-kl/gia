@@ -50,6 +50,7 @@ import LocaleToggle from './components/LocaleToggle.jsx';
 import WeatherBadge from './components/WeatherBadge.jsx';
 import { useLocale, useLocaleHydrated, t, tn } from './lib/i18n.js';
 import { usePronunciations } from '../../../_shared/lib/use-pronounce.js';
+import { streetOf } from '../../../_shared/lib/pronounce-client.js';
 import { initData } from '../api/tg.js';
 import { tg, hasInitData, getTelegramLocation, openTelegramLocationSettings } from '../api/tg.js';
 import { giaToggleStyle } from './lib/mapOverlays.js';
@@ -401,10 +402,20 @@ export default function App() {
   //
   // The rule that avoids the whole class: derive the dependency from the same values the
   // memo returns. Here the key IS the content, so the two cannot disagree.
-  const venueSayKey = (venues || []).map((v) => (v && v.name) || '').filter(Boolean).join('|');
+  // v0.62.848 — keyed with JSON, not a pipe. The previous version joined on '|' and split
+  // it back, so a venue whose NAME contains a pipe was silently torn into two — and repo
+  // data has them ("Ji De Chi 记得吃甜品 | Square 2 Novena"). Codex, PR #1791 P1.
+  // The names array is now passed through intact; the JSON string is only a dep key.
+  // v0.62.850 — names AND streets in the same batch. Operator: "would the foreign address
+  // being translated help?" — with transliterated examples, which is what this produces.
+  // `streetOf` keys on the street rather than the full address, so the dozens of venues on
+  // one road collapse to a single cached answer and unit numbers never reach the model.
+  const venueNamesRaw = (venues || []).map((v) => (v && v.name) || '').filter(Boolean);
+  const venueStreetsRaw = (venues || []).map((v) => streetOf((v && v.area) || '')).filter(Boolean);
+  const venueSayKey = JSON.stringify([venueNamesRaw, venueStreetsRaw]);
   const venueSayNames = React.useMemo(
-    () => [...new Set(venueSayKey ? venueSayKey.split('|') : [])],
-    [venueSayKey]
+    () => [...new Set([...venueNamesRaw, ...venueStreetsRaw])],
+    [venueSayKey]   // eslint-disable-line react-hooks/exhaustive-deps
   );
   usePronunciations(venueSayNames, lang, { initData });
   // v0.62.205 — operator: when the "New" filter found nothing provably new nearby

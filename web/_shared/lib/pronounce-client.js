@@ -177,6 +177,47 @@ export function projectPronunciations(names, lang, curatedFor = null) {
   return out;
 }
 
+// v0.62.850 — THE STREET INSIDE AN ADDRESS, for the address "how to say it" line.
+//
+// Operator: *"would the foreign address being translated help?"* — with examples that are
+// TRANSLITERATIONS, not translations: "Telok Blangah Drive" as Телок Бланга Драйв and
+// テロック・ブランガ・ドライブ. That distinction decides the design. A street name is a
+// proper noun: translating "Drive" to "Проезд" would be wrong, and would break the address
+// for navigation and for showing a taxi driver. So the English line stays and the guide is
+// an ADDITIONAL line, exactly as it is for a venue name.
+//
+// WHY KEY ON THE STREET RATHER THAN THE WHOLE ADDRESS. Dozens of venues share one street,
+// so street-keying collapses them into a single cached answer; unit numbers and postcodes
+// are digits that need no guide and would only fragment the key.
+//
+// AND WHY NOT "the first comma-separated segment": the operator's own address is
+// "Block 49, Telok Blangah Drive", where the first segment is a block number. The street
+// is found by its TYPE WORD instead, which also covers the Malay forms (Jalan/Lorong)
+// this app sees across the causeway.
+const STREET_TYPE = /\b(rd|road|st|street|ave|avenue|dr|drive|ln|lane|cres|crescent|walk|way|link|terr|terrace|close|blvd|boulevard|hwy|highway|quay|place|pl|park|jalan|jln|lorong|lor|persiaran|lebuh)\b/i;
+const HOUSE_NUM = /^(?:no\.?\s*)?\d+[a-z]?(?:\s*[-–]\s*\d+[a-z]?)?\s+/i;
+
+/**
+ * The street portion of `address`, or '' when none is recognisable.
+ * @param {string} address
+ * @returns {string}
+ */
+export function streetOf(address) {
+  if (typeof address !== 'string' || !address.trim()) return '';
+  const parts = address.split(',').map((x) => x.trim()).filter(Boolean);
+  if (!parts.length) return '';
+  // STRICT: a segment must carry a street-type word to count. Falling back to parts[0]
+  // returned "Singapore 059291" for a postcode-only address — a paid call for a number.
+  // An unrecognised address gets NO line, which is a silent miss rather than silent spend,
+  // and that is the right way round under the operator's minimum-token cap.
+  const seg = parts.find((x) => STREET_TYPE.test(x));
+  if (!seg) return '';
+  // Drop a leading house or block number: it is digits, and keeping it would make
+  // "35 N Canal Rd" and "37 N Canal Rd" two separate paid answers for one street.
+  const street = seg.replace(/^block\s+\d+[a-z]?\s*/i, '').replace(HOUSE_NUM, '').trim();
+  return street || seg;
+}
+
 /** Test seam — forget everything this module has learned. */
 export function __resetPronounceCache() {
   memory.clear();
