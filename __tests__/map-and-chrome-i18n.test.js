@@ -151,13 +151,18 @@ describe('the card’s cuisine word — the translation existed, the card never 
     expect(restaurantTypeName(null, 'ja')).toBe('');
   });
 
-  it('id / ru / de still fall through to English, and that is O-336, not this change', () => {
-    // Stated as an assertion so nobody reads the fix as wider than it is: the overlay
-    // carries fr/zh/ja/es only. Pinned so that closing O-336 fails HERE and has to
-    // update this line deliberately.
-    expect(restaurantTypeName('Italian', 'de')).toBe('Italian');
-    expect(restaurantTypeName('Italian', 'ru')).toBe('Italian');
-    expect(restaurantTypeName('Italian', 'id')).toBe('Italian');
+  it('id / ru / de are covered now — O-336 CLOSED in v0.62.850', () => {
+    // This assertion used to pin the OPPOSITE, deliberately: "Pinned so that closing
+    // O-336 fails HERE and has to update this line deliberately." It did exactly that,
+    // which is the pin working rather than breaking. The operator's Russian screenshot —
+    // a card reading "Barbecue" under Cyrillic chrome — is what closed it.
+    expect(restaurantTypeName('Italian', 'de')).toBe('Italienisch');
+    expect(restaurantTypeName('Italian', 'ru')).toBe('Итальянская');
+    expect(restaurantTypeName('Italian', 'id')).toBe('Italia');
+    // And the reported case itself.
+    expect(restaurantTypeName('Barbecue', 'ru')).toBe('Барбекю');
+    // Unknown types still keep their English word rather than guessing.
+    expect(restaurantTypeName('Some Unlisted Type', 'ru')).toBe('Some Unlisted Type');
   });
 
   it('cuisineName still behaves — the new export did not disturb the old one', () => {

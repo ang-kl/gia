@@ -112,8 +112,11 @@ describe('the list is never rebuilt from a delimiter', () => {
 
   it('the cuisine App does the same', () => {
     const src = codeOf('web/cuisine/src/v2/App.jsx');
-    expect(src).toMatch(/const venueSayKey = JSON\.stringify\(venueNamesRaw\);/);
-    expect(src).toMatch(/\[\.\.\.new Set\(venueNamesRaw\)\]/);
+    // v0.62.850 — the batch now covers names AND streets, so the key is a two-list JSON.
+    // The REQUIREMENT is unchanged and is what is asserted: the key is JSON (collision-safe)
+    // and the list is not rebuilt by splitting.
+    expect(src).toMatch(/const venueSayKey = JSON\.stringify\(\[venueNamesRaw, venueStreetsRaw\]\);/);
+    expect(src).toMatch(/\[\.\.\.new Set\(\[\.\.\.venueNamesRaw, \.\.\.venueStreetsRaw\]\)\]/);
     expect(src, 'the cuisine key still splits on a pipe').not.toMatch(/venueSayKey\.split\('\|'\)/);
   });
 

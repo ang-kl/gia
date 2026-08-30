@@ -106,7 +106,7 @@ describe('one request per page, not one per card', () => {
     // The REQUIREMENT: App batches the visible venue NAMES. The expression has moved
     // twice; the requirement has not.
     expect(app).toMatch(/venueNamesRaw = \(venues \|\| \[\]\)\.map\(\(v\) => \(v && v\.name\)/);
-    expect(app).toMatch(/\[\.\.\.new Set\(venueNamesRaw\)\]/);
+    expect(app).toMatch(/\[\.\.\.new Set\(\[\.\.\.venueNamesRaw, \.\.\.venueStreetsRaw\]\)\]/);
     expect(card(), 'a hook in the card is one request per card')
       .not.toContain('usePronunciations');
     function card() { return read('web/cuisine/src/v2/components/ResultCard.jsx'); }

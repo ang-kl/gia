@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
 import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
+import { stationName } from '../../../../_shared/lib/mrt-stations-i18n.generated.js';
+import { cachedPronunciation, streetOf } from '../../../../_shared/lib/pronounce-client.js';
 import { createRingLayer, farthestResultDist } from '../../../../_shared/lib/distance-rings.js';
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS } from '../../../../_shared/lib/map-interaction.js';
 import MapControls from '../../../../_shared/components/MapControls.jsx';
@@ -89,7 +91,13 @@ function escapeHtml(s) {
 // nearest 2 stations as "TE12 Napier" (code + name), each deep-linking the
 // Train Mini App, and the nearest 3 bus-stop codes. `transit` is the shape
 // returned by the overlay controller's showVenueTransit().
-function transitBlockHtml(transit) {
+// v0.62.850 — `lang` is threaded in so station names can use the OFFICIAL register
+// rendering. This block used to print `s.name` raw, so a Chinese or Malay reader saw
+// "Clarke Quay" on the map card while the very same station read 克拉码头 in the
+// Transport app — from a table already bundled in this build. Free to fix; it was simply
+// never wired. Locales the register does not cover (ja/es/de/ru/fr) fall back to the
+// English name, which is what `stationName` already does.
+function transitBlockHtml(transit, lang = 'en') {
   if (!transit) return '';
   const p = infoPalette();
   const rows = [];
@@ -103,7 +111,7 @@ function transitBlockHtml(transit) {
       const chips = codes.map((code) =>
         `<span style="display:inline-block;background:${codeHex(code)};color:#fff;border-radius:5px;padding:0 4px;margin:0 1px;font-weight:700;font-size:11px;line-height:1.6;">${escapeHtml(code)}</span>`
       ).join('');
-      return `<a href="#" onclick="window.__giaFocusStation&&window.__giaFocusStation('${escapeHtml(first)}');return false;" style="color:${p.sub};text-decoration:none;cursor:pointer;white-space:nowrap;">${chips} ${escapeHtml(s.name || '')}</a>`;
+      return `<a href="#" onclick="window.__giaFocusStation&&window.__giaFocusStation('${escapeHtml(first)}');return false;" style="color:${p.sub};text-decoration:none;cursor:pointer;white-space:nowrap;">${chips} ${escapeHtml(stationName(s.name || '', lang))}</a>`;
     }).join(' · ');
     rows.push(`<div style="font-size:12px;color:${p.sub};margin-top:3px;">🚆 ${links}</div>`);
   }
@@ -560,7 +568,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
     ctrl.showVenueTransit(entry.lat, entry.lng).then((transit) => {
       if (!transit || (!transit.bus.length && !transit.stations.length)) return;
       if (openInfoIdRef.current !== placeId || !infoWindowRef.current) return;
-      const block = transitBlockHtml(transit);
+      const block = transitBlockHtml(transit, lang);
       if (block) infoWindowRef.current.setContent(infoCard(entry.innerHtml + block));
     }).catch(() => {});
   }
@@ -823,7 +831,7 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
       // "Google Map ↗" text hyperlink (no blue button). The global
       // `window.__giaOpenMap(placeId)` handler routes through
       // openInGoogleMaps for proper Telegram WebApp deep-linking.
-      const ctaHtml = `<div style="margin-top:6px;"><a href="#" onclick="window.__giaOpenMap('${escapeHtml(v.placeId || '')}'); return false;" style="color:${p.link};font-size:12px;font-weight:600;text-decoration:underline;cursor:pointer;">Google Map ↗</a></div>`;
+      const ctaHtml = `<div style="margin-top:6px;"><a href="#" onclick="window.__giaOpenMap('${escapeHtml(v.placeId || '')}'); return false;" style="color:${p.link};font-size:12px;font-weight:600;text-decoration:underline;cursor:pointer;">${escapeHtml(tr('card.googleMap', lang))} ↗</a></div>`;
       // v0.62.0 — HPB Healthier Choice + inside-building rows.
       const healthierHtml = v.healthierChoice
         ? `<div style="font-size:12px;color:${p.good};margin-top:3px;">🥗 ${escapeHtml(tr('card.healthierChoice', lang))}</div>`
@@ -833,9 +841,23 @@ export default function MapPanel({ venues, userLoc, focusedPlaceId, onPinTap, se
         : '';
       // v0.62.106 — keep the inner HTML so the transit block can be appended
       // (SG, zoom ≥ 14) once showVenueTransit resolves.
+      // v0.62.850 — the same two "how to say it" lines the result card carries. The popup
+      // was never wired for them, so a Japanese reader got the guide on the card below and
+      // nothing on the marker they had just tapped. Read straight from the client cache
+      // (App batches one /api/pronounce call for the page), so this costs no request and
+      // renders nothing when there is nothing to show.
+      const nameSay = cachedPronunciation(v.name || '', lang);
+      const sayHtml = nameSay
+        ? `<div style="font-size:12px;color:${p.sub};margin-top:2px;">🌐 ${escapeHtml(nameSay)}</div>`
+        : '';
+      const vStreet = streetOf(v.area || '');
+      const vStreetSay = vStreet ? cachedPronunciation(vStreet, lang) : null;
+      const streetSayHtml = (vStreetSay && vStreetSay !== vStreet)
+        ? `<div style="font-size:12px;color:${p.sub};margin-top:2px;">🌐 ${escapeHtml(vStreetSay)}</div>`
+        : '';
       const innerHtml =
         `<div style="font-weight:600;font-size:13px;">${escapeHtml(v.name || '')}</div>
-         ${addressHtml}${footfallHtml}${travelHtml}${ratingHtml}${healthierHtml}${buildingHtml}${ctaHtml}`;
+         ${sayHtml}${addressHtml}${streetSayHtml}${footfallHtml}${travelHtml}${ratingHtml}${healthierHtml}${buildingHtml}${ctaHtml}`;
       const infoHtml = infoCard(innerHtml);
       const onMouseOver = () => {
         if (!infoWindowRef.current) return;

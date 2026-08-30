@@ -181,6 +181,6 @@ describe('TMA i18n coverage (O-327)', () => {
       // was written as `lang === 'fr' ? … : …` and so rendered English to six locales.
       // cuisine 301 -> 379: App.jsx's 75 chains keyed too (69 auto-converted from their
       // own arms, 6 hand-done), plus country.SG/MY/OTHERS.
-      .toEqual({ clipboard: 251, cuisine: 379, hawker: 82, menu: 80, transport: 123 });
+      .toEqual({ clipboard: 251, cuisine: 380, hawker: 82, menu: 80, transport: 123 });
   });
 });
