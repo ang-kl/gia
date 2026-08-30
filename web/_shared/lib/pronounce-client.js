@@ -144,6 +144,39 @@ export async function fetchPronunciations(names, lang, { initData, curatedFor = 
   return out;
 }
 
+/**
+ * The answers for `names` in `lang`, as a Map — a pure PROJECTION of this module's cache.
+ *
+ * v0.62.847. `use-pronounce.js` used to keep its own accumulating Map and merge each
+ * fetch into it. Codex caught the consequence on PR #1790 (P1): a `useState` initializer
+ * runs once so it never re-seeded for a new locale, and the merge only ever ADDED keys —
+ * so switching from a locale with guides (ja) to one that needs none (en) left the
+ * Japanese guides on screen under an English UI, indefinitely.
+ *
+ * Deriving the map from the cache instead makes that structurally impossible: the cache
+ * is keyed by (name, locale), so a projection of it cannot carry another locale's answer.
+ *
+ * Lives HERE, not in the hook, so it can be tested without React — the root vitest run
+ * has no `web/*\/node_modules` (see `test-import-graph-guard.test.js`). A behaviour this
+ * easy to get wrong should not be reachable only through a source-grep.
+ *
+ * @param {string[]} names
+ * @param {string} lang
+ * @param {function} [curatedFor] (name) => string|null — the caller's own free answer
+ * @returns {Map<string,string>} only names that HAVE something to show
+ */
+export function projectPronunciations(names, lang, curatedFor = null) {
+  const out = new Map();
+  for (const n of Array.isArray(names) ? names : []) {
+    if (typeof n !== 'string' || !n) continue;
+    const c = typeof curatedFor === 'function' ? curatedFor(n) : null;
+    if (typeof c === 'string' && c.trim() && c.trim() !== n) { out.set(n, c.trim()); continue; }
+    const known = cachedPronunciation(n, lang);
+    if (known) out.set(n, known);   // null ("needs none") correctly yields NO entry
+  }
+  return out;
+}
+
 /** Test seam — forget everything this module has learned. */
 export function __resetPronounceCache() {
   memory.clear();

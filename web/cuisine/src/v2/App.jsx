@@ -392,9 +392,19 @@ export default function App() {
   // module cache. Cost is near zero — the server already wrote these to Redis under the
   // same key during the search, so this resolves from cache rather than from the model,
   // and localStorage means any given (name, locale) is asked once, ever.
+  // v0.62.847 — keyed on the NAMES, not the placeIds. Codex caught the original on PR
+  // #1790 (P2): when a Michelin entry's Places lookup fails, the venue is emitted with
+  // `placeId: ''` and a real name (index.js, "Places lookup failed — return curated entry
+  // only"). Two consecutive pages of N such venues therefore produced the SAME
+  // separator-only dependency string while every name changed, so the memo stayed pinned
+  // to the previous page's names.
+  //
+  // The rule that avoids the whole class: derive the dependency from the same values the
+  // memo returns. Here the key IS the content, so the two cannot disagree.
+  const venueSayKey = (venues || []).map((v) => (v && v.name) || '').filter(Boolean).join('|');
   const venueSayNames = React.useMemo(
-    () => [...new Set((venues || []).map((v) => v && v.name).filter(Boolean))],
-    [(venues || []).map((v) => v && v.placeId).join('|')]   // eslint-disable-line react-hooks/exhaustive-deps
+    () => [...new Set(venueSayKey ? venueSayKey.split('|') : [])],
+    [venueSayKey]
   );
   usePronunciations(venueSayNames, lang, { initData });
   // v0.62.205 — operator: when the "New" filter found nothing provably new nearby
