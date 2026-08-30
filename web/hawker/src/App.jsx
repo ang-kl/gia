@@ -297,19 +297,6 @@ const REGION_EMOJI = {
 // or cuisine-TMA toggle propagates here without a reload.
 export default function App() {
   const lang = useLocale();
-
-  // v0.62.841 — HOW TO SAY the centre's name. Operator: "do the hawker centre and
-  // train line endpoint". `curatedFor` hands the government register's Chinese /
-  // Malay name straight back, so a zh or id reader never reaches the network — only
-  // ja/es/de/ru/fr, which the register does not cover, cost anything.
-  const centreNames = React.useMemo(
-    () => (active?.centres || []).map((c) => c.displayName || c.name).filter(Boolean),
-    [active?.centres]
-  );
-  const centreSay = usePronunciations(centreNames, lang, {
-    initData,
-    curatedFor: (n) => hawkerNameLocal(n, lang),
-  });
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(true);
   const [err, setErr] = useState(null);
@@ -483,6 +470,27 @@ export default function App() {
 
   const regionList = data?.regions || [];
   const active = regionList.find((r) => r.region === activeRegion);
+
+  // v0.62.841 — HOW TO SAY the centre's name. Operator: "do the hawker centre and
+  // train line endpoint". `curatedFor` hands the government register's Chinese /
+  // Malay name straight back, so a zh or id reader never reaches the network — only
+  // ja/es/de/ru/fr, which the register does not cover, cost anything.
+  //
+  // PLACED AFTER `active`, AND THAT POSITION IS THE WHOLE POINT. The first draft put
+  // this block at the top of the component, above `active`'s own declaration on the
+  // line above. `active?.centres` reads as defensive, but optional chaining guards
+  // null and undefined — NOT the temporal dead zone — so every hawker launch threw
+  // `ReferenceError: Cannot access 'active' before initialization` and the app never
+  // painted. Rollup compiles it happily and `node --check` sees valid syntax; only
+  // `npm run test:render` actually loads the bundle, which is why that check exists.
+  const centreNames = React.useMemo(
+    () => (active?.centres || []).map((c) => c.displayName || c.name).filter(Boolean),
+    [active?.centres]
+  );
+  const centreSay = usePronunciations(centreNames, lang, {
+    initData,
+    curatedFor: (n) => hawkerNameLocal(n, lang),
+  });
 
   // v0.65.0 — fetch transit (nearest station + bus stops) for every
   // centre of the active region; results merge into transitByName.
