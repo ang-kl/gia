@@ -3,7 +3,8 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 import { tg } from '../../api/tg.js';
 import { createOverlayController, infoCard, infoPalette, ensureGreyscaleStyle, codeHex } from '../lib/mapOverlays.js';
 import { stationName } from '../../../../_shared/lib/mrt-stations-i18n.generated.js';
-import { cachedPronunciation, streetOf } from '../../../../_shared/lib/pronounce-client.js';
+import { cachedPronunciation, streetOf, fetchPronunciations } from '../../../../_shared/lib/pronounce-client.js';
+import { initData } from '../../api/tg.js';
 import { createRingLayer, farthestResultDist } from '../../../../_shared/lib/distance-rings.js';
 import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE, TAP_PAUSE_MS } from '../../../../_shared/lib/map-interaction.js';
 import MapControls from '../../../../_shared/components/MapControls.jsx';
@@ -97,7 +98,7 @@ function escapeHtml(s) {
 // Transport app — from a table already bundled in this build. Free to fix; it was simply
 // never wired. Locales the register does not cover (ja/es/de/ru/fr) fall back to the
 // English name, which is what `stationName` already does.
-function transitBlockHtml(transit, lang = 'en') {
+function transitBlockHtml(transit, lang = 'en', sayStation = null) {
   if (!transit) return '';
   const p = infoPalette();
   const rows = [];
@@ -111,7 +112,18 @@ function transitBlockHtml(transit, lang = 'en') {
       const chips = codes.map((code) =>
         `<span style="display:inline-block;background:${codeHex(code)};color:#fff;border-radius:5px;padding:0 4px;margin:0 1px;font-weight:700;font-size:11px;line-height:1.6;">${escapeHtml(code)}</span>`
       ).join('');
-      return `<a href="#" onclick="window.__giaFocusStation&&window.__giaFocusStation('${escapeHtml(first)}');return false;" style="color:${p.sub};text-decoration:none;cursor:pointer;white-space:nowrap;">${chips} ${escapeHtml(stationName(s.name || '', lang))}</a>`;
+      // v0.62.852 — official register name, and a "how to say it" guide beside it when
+      // the register has nothing. Operator: "the pin card's mrt station name isn't
+      // translated". v0.62.850 wired `stationName()`, which is correct — but the register
+      // is zh/ms only, so a Japanese reader still saw "Jalan Besar". There is no official
+      // Japanese station name to show; what helps is knowing how to SAY it, exactly as
+      // for a venue name or a street.
+      const shown = stationName(s.name || '', lang);
+      const guide = (shown === (s.name || '') && sayStation) ? sayStation(s.name || '') : null;
+      const guideHtml = (guide && guide !== s.name)
+        ? ` <span style="opacity:.75;">· ${escapeHtml(guide)}</span>`
+        : '';
+      return `<a href="#" onclick="window.__giaFocusStation&&window.__giaFocusStation('${escapeHtml(first)}');return false;" style="color:${p.sub};text-decoration:none;cursor:pointer;white-space:nowrap;">${chips} ${escapeHtml(shown)}${guideHtml}</a>`;
     }).join(' · ');
     rows.push(`<div style="font-size:12px;color:${p.sub};margin-top:3px;">🚆 ${links}</div>`);
   }
@@ -570,10 +582,25 @@ export default function MapPanel({ venues, pronunciations = null, userLoc, focus
     const entry = placeId && markerByIdRef.current.get(placeId);
     if (!ctrl || !ctrl.showVenueTransit || !entry) return;
     if ((region || 'SG') !== 'SG') return;
-    ctrl.showVenueTransit(entry.lat, entry.lng).then((transit) => {
+    ctrl.showVenueTransit(entry.lat, entry.lng).then(async (transit) => {
       if (!transit || (!transit.bus.length && !transit.stations.length)) return;
       if (openInfoIdRef.current !== placeId || !infoWindowRef.current) return;
-      const block = transitBlockHtml(transit, lang);
+      // v0.62.852 — ask for guides for the stations the register does not cover, THEN
+      // render once. Stations recur heavily across venues and the client caches per
+      // (name, locale) in localStorage, so this is one request the first time a station
+      // is seen in a locale and free after that. Failure is silent: the block still
+      // renders with the plain names.
+      const need = (transit.stations || [])
+        .map((s) => s.name || '')
+        .filter((n) => n && stationName(n, lang) === n);
+      if (need.length) {
+        try {
+          await fetchPronunciations(need, lang, { initData: initData(), fetchImpl: null });
+        } catch { /* offline / 401 — render the names alone */ }
+        if (openInfoIdRef.current !== placeId || !infoWindowRef.current) return;
+      }
+      const sayStation = (n) => cachedPronunciation(n, lang) || null;
+      const block = transitBlockHtml(transit, lang, sayStation);
       if (block) infoWindowRef.current.setContent(infoCard(entry.innerHtml + block));
     }).catch(() => {});
   }

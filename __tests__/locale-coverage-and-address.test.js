@@ -94,9 +94,17 @@ describe('the Google Map label is translated, like its neighbours were', () => {
 describe('station names on the map card use the official register', () => {
   it('the transit block calls stationName rather than printing the raw name', () => {
     const src = read('web/cuisine/src/v2/components/MapPanel.jsx');
+    // v0.62.852 — the call moved into `const shown = stationName(...)` when the station
+    // guide was added. The REQUIREMENT is that the displayed name comes from the register,
+    // not that the call sits inline. Fifth time an expression pin has broken on a refactor
+    // while the behaviour held.
     expect(src).toMatch(/stationName\(s\.name \|\| '', lang\)/);
-    expect(src, 'the raw station name is back').not.toMatch(/\$\{chips\} \$\{escapeHtml\(s\.name \|\| ''\)\}/);
-    expect(src, 'lang is not threaded into the transit block').toMatch(/transitBlockHtml\(transit, lang\)/);
+    expect(src, 'the raw station name is rendered again')
+      .not.toMatch(/\$\{chips\} \$\{escapeHtml\(s\.name \|\| ''\)\}<\/a>/);
+    // v0.62.852 — the call gained a third argument (the station pronunciation lookup).
+    // The requirement is that `lang` reaches the block at all, not the exact arity.
+    expect(src, 'lang is not threaded into the transit block')
+      .toMatch(/transitBlockHtml\(transit, lang[,)]/);
   });
 });
 

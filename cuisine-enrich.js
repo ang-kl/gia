@@ -322,6 +322,63 @@ async function enrichSlow(top, ctx) {
     // enrichSanctuaryRead (a few lines down) still needs v.reviews to avoid
     // a redundant Places Details re-fetch for the exact same field.
   }
+  // v0.62.852 — THE QUOTED REVIEW IN THE READER'S LANGUAGE.
+  //
+  // Operator, on a Japanese card: *"card's review text isn't taken from japanese version -
+  // still show english"*.
+  //
+  // The path already called `enrichVenuesWithTranslatedReview` above, and I first read that
+  // as "reviews are handled". They are not, and the gate is the reason: that helper returns
+  // immediately unless the SEARCH carries a nationality cuisine slug, and even then it
+  // looks for a review written in that NATIONALITY's language — an Indonesian review on an
+  // Indonesian venue — so it can show "( 🇮🇩 translated)". It is a different feature.
+  // Everything falling through to the plain `reviews[0]` above kept whatever language
+  // Google returned, which for Singapore is almost always English.
+  //
+  // COST, because this is the least dedupable thing in the arc: one call per
+  // (venue review, locale), 30-day Redis cached by `translate-review.js` on
+  // placeId+index+source+target. Venue names and streets collapse across venues; a review
+  // does not. It sits inside the operator's stated envelope — "minimum token Gemini model
+  // call per venue per locale" — and nowhere beyond it.
+  //
+  // Skipped entirely when the review is ALREADY in the reader's language: `languageCode`
+  // comes from Places on the review itself, so the common case (English review, English
+  // reader) costs nothing and never reaches the model.
+  if (ctx.csLang && ctx.csLang !== 'en') {
+    try {
+      const { reviewLanguagePrimary } = require('./cuisine-review-language');
+      const { translateReview } = require('./translate-review');
+      await Promise.all(top.map(async (v) => {
+        if (!v || !v.recentReview || v.recentReviewTranslatedFlag) return;   // already done above
+        const rr = String(v.recentReview);
+        const src = Array.isArray(v.reviews)
+          ? v.reviews.find((r) => {
+            const t = reviewText(r);
+            return t && rr.includes(t.replace(/\s+/g, ' ').trim().slice(0, 40));
+          })
+          : null;
+        const srcLang = reviewLanguagePrimary(src || (v.reviews || [])[0]) || 'en';
+        if (srcLang === ctx.csLang) return;
+        try {
+          const out = await translateReview({
+            text: rr,
+            sourceLang: srcLang,
+            targetLang: ctx.csLang,
+            placeId: v.placeId || null,
+            reviewIdx: 0,
+            redis: redis && redis.isOpen ? redis : null,
+          });
+          if (typeof out === 'string' && out.trim() && out.trim() !== rr) {
+            v.recentReview = out.trim().slice(0, 200);
+            v.recentReviewSourceLang = srcLang;
+          }
+        } catch { /* per-venue best effort — the original text still shows */ }
+      }));
+    } catch (err) {
+      console.warn('[Cuisine-Search] review localisation failed:', err.message);
+    }
+  }
+  _t.reviewLocalise = Date.now() - _last; _last = Date.now();
   _t.finalise = Date.now() - _last; _last = Date.now();
   // v0.58.52 — TRANSIT + DRIVE minutes (Routes API). Best-effort.
   try {
