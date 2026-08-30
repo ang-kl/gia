@@ -9,6 +9,7 @@ import { OTHER_COUNTRIES } from '../lib/countries.js';
 import { abbrevAddress } from '../../../../_shared/lib/abbrev-address.js';
 import PronounceIcon from '../../../../_shared/components/PronounceIcon.jsx';
 import { cachedPronunciation, streetOf } from '../../../../_shared/lib/pronounce-client.js';
+import { pickNameGuide } from '../../../../_shared/lib/name-guide.js';
 
 const PRICE_LABEL = { 1: '$', 2: '$$', 3: '$$$', 4: '$$$$' };
 
@@ -469,44 +470,35 @@ export default function ResultCard({ venue, focused, onTap, copyContext = {}, sp
       <div className="font-semibold text-[12px] leading-tight text-tg-text">
         {Number.isFinite(number) && <span className="text-tg-hint font-semibold tabular-nums">{number} · </span>}{venue.name}
       </div>
-          {/* v0.62.855 — EXACTLY ONE GUIDE LINE BESIDE THE NAME.
-              Operator: "only address, restaurant names and transport name can show both
-              languages". Both means TWO, and this block could render four.
+          {/* v0.62.856 — EXACTLY ONE GUIDE LINE BESIDE THE NAME, and for a foreign-script
+              name that line is the PRONUNCIATION.
 
-              `translate-name.js` already skips when `nameLocal` is set, so those two are
-              mutually exclusive — but `nameGloss` and `namePronounce` guard only their own
-              field, so a venue could stack name + nameLocal + nameGloss + namePronounce.
-              Hawker and Transport were already strictly two, by mutually exclusive
-              conditions; the cuisine card was the one place that was not.
+              v0.62.855 established the "exactly one" rule (operator: "only address,
+              restaurant names and transport name can show both languages" — both means two,
+              and this block could render four) with a curated-first order copied from the
+              hawker card. Codex, PR #1796 P2, found the cost: `nameLocal` and `nameReading`
+              are set only for foreign-script venues in JP/KR/CN/TW/HK/MO/TH, so on that
+              order a pronunciation could never render for exactly the venues the
+              pronunciation line was built for — the operator's own framing when he asked
+              for it was "help foreigner to pronoun … learn to pronounce the restaurant
+              name". Operator, shown the trade: pronunciation wins for foreign script.
 
-              Nothing is deleted: all four remain, in precedence order, and the winner is
-              whichever exists. The order mirrors the rule the hawker card already uses —
-              the CURATED/official answer first, the derived ones after:
+              The precedence now lives in `_shared/lib/name-guide.js` as a pure function.
+              That is not tidying: five tests have asserted this chain by scanning the
+              source, four of which broke on a refactor while the behaviour held. A function
+              can be called, so the rule is now tested by its answers.
 
-                nameLocal      the official native-script name — authoritative, not derived
-                nameReading    a romanisation of a script the reader cannot read
-                namePronounce  how to SAY it (the operator's original request)
-                nameGloss      what it MEANS
-
-              For a Singapore venue read in Japanese — the reported case — the first two are
-              absent, so the pronunciation line still wins and the screenshot is unchanged. */}
+              `sayNow` is passed in, not read off the venue, because it resolves from the
+              live pronunciation projection first — the reactive behaviour from v0.62.849. */}
           {(() => {
-            const nameGuide = venue.nameLocal
-              ? { text: `(${venue.nameLocal})`, icon: null, key: 'local' }
-              : venue.nameReading
-                ? { text: `🔤 ${venue.nameReading}`, icon: null, key: 'reading' }
-                : sayNow
-                  ? { text: sayNow, icon: <PronounceIcon className="shrink-0 opacity-80" />, key: 'say' }
-                  : venue.nameGloss
-                    ? { text: `(${venue.nameGloss})`, icon: null, key: 'gloss' }
-                    : null;
+            const nameGuide = pickNameGuide(venue, sayNow);
             if (!nameGuide) return null;
             return (
               <div
                 className="text-[12px] text-tg-hint leading-tight truncate flex items-center gap-1"
                 data-name-guide={nameGuide.key}
               >
-                {nameGuide.icon}
+                {nameGuide.icon === 'pronounce' && <PronounceIcon className="shrink-0 opacity-80" />}
                 <span className="truncate">{nameGuide.text}</span>
               </div>
             );

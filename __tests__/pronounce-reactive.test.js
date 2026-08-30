@@ -90,10 +90,13 @@ describe('the card’s three-state read — the part that is easy to get wrong',
   });
 
   it('the rendered value is sayNow, not the raw payload field', () => {
-    // v0.62.855 — `sayNow` is now one arm of the single-guide chain rather than its own
-    // block. The requirement is unchanged: the RENDERED value is sayNow, never the raw
-    // payload field. Asserted on the chain arm and on the absence of a direct render.
-    expect(card()).toMatch(/: sayNow\s*\n?\s*\? \{ text: sayNow/);
+    // v0.62.856 — the chain moved into `_shared/lib/name-guide.js`, so the arm this used to
+    // match no longer exists in the card. The requirement is unchanged and is what is now
+    // asserted: the value handed to the guide chooser is the LIVE `sayNow`, never the raw
+    // payload field. Seventh expression pin re-pointed this arc.
+    expect(card()).toMatch(/pickNameGuide\(venue, sayNow\)/);
+    expect(card(), 'the static payload field is being passed instead of the live value')
+      .not.toMatch(/pickNameGuide\(venue, venue\.namePronounce\)/);
     expect(card(), 'the raw payload field is rendered directly again')
       .not.toMatch(/\{venue\.namePronounce && \(/);
     expect(card(), 'the card still renders the payload field directly')

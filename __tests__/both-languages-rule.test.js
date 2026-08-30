@@ -46,22 +46,41 @@ describe('(b) an allowed field shows the original and ONE rendering', () => {
     expect(src, 'the say-it line is rendered on its own again').not.toMatch(/\{sayNow && \(/);
   });
 
-  it('and the precedence is curated-first, matching the rule hawker already used', () => {
-    // Scoped to the CHAIN, not the whole file. The first draft used indexOf over the
-    // source and failed: `sayNow` is declared near the top of the component, so its first
-    // occurrence is the declaration, not its position in the precedence order. The
-    // assertion was measuring the wrong thing while looking authoritative.
-    const src = code('web/cuisine/src/v2/components/ResultCard.jsx');
-    const start = src.indexOf('const nameGuide =');
-    expect(start, 'the guide chain is gone').toBeGreaterThan(-1);
-    const chain = src.slice(start, src.indexOf('if (!nameGuide)', start));
-    const i = (t) => chain.indexOf(t);
-    for (const t of ['venue.nameLocal', 'venue.nameReading', 'sayNow', 'venue.nameGloss']) {
-      expect(i(t), `${t} is not in the precedence chain`).toBeGreaterThan(-1);
+  it('and the precedence is script-dependent — curated first, EXCEPT for a foreign-script name', () => {
+    // v0.62.856. This assertion has now been rewritten twice, and the second time the
+    // REQUIREMENT changed rather than the code:
+    //
+    //   v0.62.855 — curated first, always. Copied from the hawker card.
+    //   v0.62.856 — Codex #1796 P2: on that order a venue carrying `nameLocal` or
+    //               `nameReading` can never show a pronunciation, and those two fields are
+    //               set ONLY for foreign-script venues in seven countries — exactly the
+    //               venues the pronunciation line was built for. Operator: pronunciation
+    //               wins for foreign script.
+    //
+    // The first draft of the v0.62.855 version used indexOf over the whole source and
+    // measured the wrong thing (it found `sayNow`'s declaration, not its rank). The second
+    // scoped to the chain and then broke when the chain became a function. This one calls
+    // the function, which is the only version of this assertion that can survive a refactor
+    // and still mean something.
+    const { pickNameGuide } = require('../web/_shared/lib/name-guide.js');
+    const all = { nameLocal: 'ローカル', nameReading: 'Rōkaru', nameGloss: 'gloss' };
+
+    // Foreign script: say → local → reading → gloss.
+    expect(pickNameGuide({ ...all, name: '銀座 寿司' }, 'say-it').key).toBe('say');
+    expect(pickNameGuide({ ...all, name: '銀座 寿司' }, null).key).toBe('local');
+
+    // Latin script: local → reading → say → gloss, unchanged from v0.62.855.
+    expect(pickNameGuide({ ...all, name: 'Blue Note' }, 'say-it').key).toBe('local');
+    expect(pickNameGuide({ nameReading: 'R', nameGloss: 'g', name: 'Blue Note' }, 'say-it').key)
+      .toBe('reading');
+    expect(pickNameGuide({ nameGloss: 'g', name: 'Blue Note' }, 'say-it').key).toBe('say');
+
+    // In both directions it is ONE line, which is the operator's actual cap.
+    for (const name of ['銀座 寿司', 'Blue Note']) {
+      const g = pickNameGuide({ ...all, name }, 'say-it');
+      expect(g, `no guide for ${name}`).not.toBeNull();
+      expect(Object.keys(g).sort()).toEqual(['icon', 'key', 'text']);
     }
-    expect(i('venue.nameLocal')).toBeLessThan(i('venue.nameReading'));
-    expect(i('venue.nameReading')).toBeLessThan(i('sayNow'));
-    expect(i('sayNow')).toBeLessThan(i('venue.nameGloss'));
   });
 
   it('hawker and transport were already two, and still are', () => {

@@ -208,11 +208,19 @@ describe('it is wired to the surfaces the operator asked for', () => {
     expect(src).toContain('venue.namePronounce');
     expect(src).toContain('<PronounceIcon');
     expect(src).toContain("import PronounceIcon from '../../../../_shared/components/PronounceIcon.jsx'");
-    // v0.62.855 — the reading line moved INTO the single-guide precedence chain, because
-    // the operator capped an allowed field at "both languages" = two. The REQUIREMENT is
-    // that the 🔤 reading is still offered and still distinct from the say-it line, not
-    // that it sits in its own JSX block.
-    expect(src).toContain('🔤 ${venue.nameReading}');   // the older line still stands
+    // v0.62.856 — the whole precedence, reading line included, moved out of the card into
+    // `_shared/lib/name-guide.js`. SIXTH expression pin in this arc to break on a refactor
+    // while the behaviour held; re-pointed at the requirement, which is that the 🔤 reading
+    // is still offered and still visually distinct from the say-it line. Now checked by
+    // calling the function instead of grepping for the markup, which is what the previous
+    // five re-points kept wishing for.
+    const { pickNameGuide } = require('../web/_shared/lib/name-guide.js');
+    const reading = pickNameGuide({ name: 'Gion Karyo', nameReading: '祇園 花霞' }, null);
+    expect(reading.text).toContain('🔤');
+    expect(reading.icon, 'the reading line has acquired the pronunciation icon').toBeNull();
+    const say = pickNameGuide({ name: 'Tian Tian' }, 'tyen-tyen');
+    expect(say.icon).toBe('pronounce');
+    expect(say.text, 'the say-it line is wearing the reading marker').not.toContain('🔤');
   });
 
   it('the bot uses 🗣, because Telegram HTML cannot render an SVG', () => {
