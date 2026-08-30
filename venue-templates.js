@@ -223,6 +223,10 @@ function formatVenueBlock(p, opts = {}) {
   // name in a script the reader can't read (Gemini, resolved server-side).
   // Sits alongside the native name — never replaces it.
   if (p.nameReading) lines.push(`🔤 ${escapeHtml(p.nameReading)}`);
+  // v0.62.840 — the pronunciation line. 🗣 rather than the Mini Apps' SVG:
+  // Telegram HTML cannot render SVG, and degrading the apps to the emoji this
+  // surface can manage would be the wrong way round.
+  if (p.namePronounce) lines.push(`🗣 ${escapeHtml(p.namePronounce)}`);
   // v0.60.45 — restaurant type line below the bold name. Mirrors the
   // TMA result card. Sourced from michelinCuisineLabel (when present)
   // or Places primaryTypeDisplayName, with the trailing "restaurant"
