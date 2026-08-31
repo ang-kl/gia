@@ -49,6 +49,8 @@ const COVERED = [
   // v0.62.871 — batch 6a: the first set with NO home locale at all. Turkish,
   // Arabic, Hebrew and Persian are none of them app locales.
   'turkish', 'lebanese', 'persian', 'moroccan', 'israeli', 'egyptian', 'jordanian',
+  // v0.62.872 — batch 6b closes the Middle-Eastern / African / Central-Asian set.
+  'uzbek', 'georgian', 'african', 'south-african',
 ];
 const distinctDishes = (slug) =>
   [...new Set((NATION_OVERLAY[slug].iconicDishes || []).map((d) => d.name))];
@@ -200,6 +202,12 @@ describe('dish names — zh agrees with the curated local name', () => {
     hainanese: 'zh', teochew: 'zh',
     japanese: 'ja',
     korean: null, thai: null, malaysian: null, indonesian: null,
+    // v0.62.872 — `georgian` is 21/21 curated `local`, all in GEORGIAN script
+    // (ხაჭაპური, ხინკალი). Authoritative about the dish, but it constrains no
+    // column, because no app locale is written in it. Same shape as Korean and
+    // Thai above: mapped so the reader sees the decision, asserted against
+    // nothing because that would be noise dressed as rigour.
+    georgian: null,
   };
 
   it('never invents a name where a curated one exists', () => {
@@ -431,6 +439,67 @@ describe('batch 6a — no home locale at all', () => {
   });
 });
 
+describe('batch 6b — one dish keyed twice inside one cuisine', () => {
+  // Found while planning this batch: 11 pairs across the overlay where ONE cuisine
+  // lists the same dish under two names, identifiable because both carry the
+  // IDENTICAL curated `local`. Georgian's `phali` / `walnut-paste pkhali` (both
+  // ფხალი) is one; ten were already on main.
+  //
+  // ⚠ A blanket "same local ⇒ same translation" rule would be WRONG, and I nearly
+  // wrote one. The two keys are usually a transliteration and an English gloss —
+  // `lei cha` / `pounded tea`, `liang pi` / `cold skin noodles liangpi`. Rule 2
+  // keeps the first, rule 1 translates the second, so `Lei cha` and `Thé pilé` are
+  // BOTH right and a reader searching either term is well served. That guard would
+  // have broken nine correct pairs to catch one bug.
+  //
+  // The rule that IS justified is narrower: where the curated `local` is written
+  // in an app locale, two dishes sharing it must agree IN THAT ONE LOCALE — the
+  // column the curated name actually governs. Measured on the tree this shipped
+  // against: 9 pairs checked, 1 disagreeing (`teochew oyster cake` wrote 蚝饼 while
+  // its own local and its sibling `orh luak` both say 蚝烙), now fixed.
+  const GOVERNED = {
+    singaporean: 'zh', cantonese: 'zh', peranakan: 'zh', chinese: 'zh',
+    sichuan: 'zh', hunan: 'zh', 'hong-kong': 'zh', northwestern: 'zh',
+    hakka: 'zh', shanghainese: 'zh', northeastern: 'zh', macau: 'zh',
+    taiwanese: 'zh', hokkien: 'zh', hainanese: 'zh', teochew: 'zh',
+    japanese: 'ja',
+  };
+
+  it('two names for one dish agree in the locale their curated local governs', () => {
+    const byLocal = new Map();
+    for (const [slug, locale] of Object.entries(GOVERNED)) {
+      for (const d of (NATION_OVERLAY[slug].iconicDishes || [])) {
+        if (!d.local) continue;
+        const k = `${slug}|${locale}|${d.local}`;
+        if (!byLocal.has(k)) byLocal.set(k, new Set());
+        byLocal.get(k).add(d.name);
+      }
+    }
+    let checked = 0;
+    const disagree = [];
+    for (const [k, names] of byLocal) {
+      if (names.size < 2) continue;
+      const [slug, locale] = k.split('|');
+      const vs = [...names].map((n) => [n, namesFor(n, slug)]).filter(([, v]) => v);
+      if (vs.length < 2) continue;
+      checked += 1;
+      const set = new Set(vs.map(([, v]) => v[locale]));
+      if (set.size > 1) {
+        disagree.push(`${k}: ${vs.map(([n, v]) => `${n}=${v[locale]}`).join(' vs ')}`);
+      }
+    }
+    // Non-vacuity: this join is fiddly enough that a silent zero is the real risk.
+    expect(checked, 'the same-local join matched nothing').toBeGreaterThanOrEqual(8);
+    expect(disagree, disagree.join(' | ')).toEqual([]);
+  });
+
+  // The row that motivated the guard, pinned by value so the fix cannot silently
+  // regress even if the join above is ever narrowed.
+  it('teochew oyster cake uses its own curated Chinese name', () => {
+    expect(namesFor('teochew oyster cake', 'teochew').zh).toBe('蚝烙');
+  });
+});
+
 describe('community sub-headers are localised', () => {
   // The operator's screenshot showed "— Chinese —" in English under a Chinese
   // header, because COMMUNITY carried en/fr only.
@@ -506,6 +575,7 @@ describe('the SECOND surface — /api/cuisine/dishes', () => {
     'scandinavian', 'polish',
     'turkish', 'lebanese', 'persian', 'moroccan',              // batch 6a
     'israeli', 'egyptian', 'jordanian',
+    'uzbek', 'georgian', 'african', 'south-african',       // batch 6b
   ];
 
   it.each(DRAWER_SLUGS)('resolves a name for every dish the endpoint serves for %s', (slug) => {
