@@ -32,8 +32,11 @@ const COVERED = [
   'thai', 'malaysian', 'indonesian', 'peranakan',
   // v0.62.864 — batch 2.
   'north-indian', 'south-indian', 'american', 'italian',
-  // v0.62.865 — batch 3, first three. The rest of the Chinese family follows.
+  // v0.62.865 — batch 3, first three.
   'chinese', 'sichuan', 'hunan',
+  // v0.62.866 — batch 3 complete: the rest of the Chinese family.
+  'hong-kong', 'northwestern', 'hakka', 'shanghainese', 'northeastern',
+  'macau', 'taiwanese', 'hokkien', 'hainanese', 'teochew',
 ];
 const distinctDishes = (slug) =>
   [...new Set((NATION_OVERLAY[slug].iconicDishes || []).map((d) => d.name))];
@@ -46,7 +49,11 @@ const CJK = /[぀-ヿ㐀-鿿]/;
 // Brands printed in Latin on the product. A Cyrillic or kana rendering would be
 // wrong, not more localised — "IPA" is "IPA" on a Japanese beer menu too. Listed
 // one by one so the rule itself stays strict.
-const LATIN_BRAND_OK = new Set(['100 plus (isotonic)', 'ipa']);
+const LATIN_BRAND_OK = new Set([
+  '100 plus (isotonic)',      // printed in Latin on the can
+  'ipa',                      // "IPA" on a Japanese beer menu too
+  'din tai fung dumplings',   // the restaurant chain's own name
+]);
 
 describe('dish names — coverage', () => {
   const sgNames = [...new Set(NATION_OVERLAY.singaporean.iconicDishes.map((d) => d.name))];
@@ -80,6 +87,21 @@ describe('dish names — script integrity', () => {
     const bad = Object.entries(DISH_NAMES)
       .filter(([k, v]) => CYRILLIC.test(v.ru) && LATIN.test(v.ru) && !LATIN_BRAND_OK.has(k))
       .map(([k, v]) => `${k} => ${v.ru}`);
+    expect(bad, bad.join(' | ')).toEqual([]);
+  });
+
+  // v0.62.866 — the mirror of the rule above, and it was MISSING. The suite checked
+  // Latin stranded in Cyrillic and CJK stranded in Latin, but never Cyrillic stranded
+  // in Latin — so `de: 'Brataganз'` (a Cyrillic з on the end of a German word) sailed
+  // through, and `de: 'Brathgans'` had already shipped to main at v0.62.862 beside it.
+  // A guard that runs one direction only is a guard with a blind side.
+  it('keeps Cyrillic out of the Latin-script locales', () => {
+    const bad = [];
+    for (const [k, v] of Object.entries(DISH_NAMES)) {
+      for (const l of ['en', 'fr', 'id', 'de', 'es']) {
+        if (v[l] && CYRILLIC.test(v[l])) bad.push(`${k}.${l} => ${v[l]}`);
+      }
+    }
     expect(bad, bad.join(' | ')).toEqual([]);
   });
 
@@ -136,8 +158,13 @@ describe('dish names — zh agrees with the curated local name', () => {
   // dressed as rigour.
   const LOCAL_WRITES = {
     singaporean: 'zh', cantonese: 'zh', peranakan: 'zh',
-    // Batch 3 — the Chinese family, whose `local` IS the Chinese name.
+    // Batch 3 — the Chinese family, whose `local` IS the Chinese name. `macau` is
+    // mapped too and contributes nothing: Macanese food is Portuguese-Chinese and
+    // carries no `local` at all, which is correct rather than an omission.
     chinese: 'zh', sichuan: 'zh', hunan: 'zh',
+    'hong-kong': 'zh', northwestern: 'zh', hakka: 'zh', shanghainese: 'zh',
+    northeastern: 'zh', macau: 'zh', taiwanese: 'zh', hokkien: 'zh',
+    hainanese: 'zh', teochew: 'zh',
     japanese: 'ja',
     korean: null, thai: null, malaysian: null, indonesian: null,
   };
@@ -239,6 +266,7 @@ describe('the SECOND surface — /api/cuisine/dishes', () => {
     'italian', 'north-indian', 'south-indian', 'american',   // reachable ONLY here
     'japanese', 'singaporean',                               // also on the plate
     'chinese', 'sichuan', 'hunan',                           // batch 3
+    'hong-kong', 'macau', 'taiwanese', 'hokkien', 'teochew', // batch 3 completed
   ];
 
   it.each(DRAWER_SLUGS)('resolves a name for every dish the endpoint serves for %s', (slug) => {
