@@ -105,3 +105,84 @@ describe('serial-state time anchor', () => {
     expect(parseAnchorTime('not an anchor')).toBeNull();
   });
 });
+
+// CLAUDE.md's "Serial rebase records" table is a RATCHET, and until now nothing checked it.
+// Protocol §1 says a measurement below the last recorded rebase is evidence of a partial
+// corpus, not a correction — so a row that reads lower than its predecessor IN THE SAME
+// CORPUS is the precise failure the section exists to prevent, and it looks like diligence
+// while it resets the count by thousands.
+//
+// The check has to group by corpus first. A naive monotonic sweep over every row FAILS on
+// the real table (local 6,822 -> container 711) and that drop is correct: they are different
+// disks, which is §1's whole subject. Grouping is the assertion, not an accommodation of it.
+describe('CLAUDE.md serial rebase ratchet', () => {
+  const FILE = path.join(HERE, '..', 'CLAUDE.md');
+  const src = fs.readFileSync(FILE, 'utf8');
+
+  // Rows look like: | 31-08 '26 | remote container (...) | **2,096** | note... |
+  const rows = src
+    .split('\n')
+    .filter((l) => /^\|\s*\d{2}-\d{2}\s/.test(l))
+    .map((l) => {
+      const cells = l.split('|').map((c) => c.trim());
+      // Strip emphasis BEFORE matching. The first draft of this required `**...**`,
+      // because it was written against the row that had just been authored — and the two
+      // oldest rows (6,253 and 711) are written plain, so it read them as absent. A parser
+      // shaped by its newest example, which is this arc's recurring shape of mistake.
+      const count = (cells[3] || '').replace(/\*/g, '').match(/([\d,]+)/);
+      return {
+        line: l,
+        measured: cells[1],
+        where: cells[2] || '',
+        count: count ? Number(count[1].replace(/,/g, '')) : null,
+        note: cells[4] || ''
+      };
+    });
+
+  const corpus = (r) => (/remote container/i.test(r.where) ? 'container' : 'local');
+
+  it('parses every rebase row, with a count', () => {
+    expect(rows.length).toBeGreaterThanOrEqual(6);
+    for (const r of rows) {
+      expect(r.count, `no bolded count in row "${r.measured}"`).toBeTypeOf('number');
+      expect(r.count).toBeGreaterThan(0);
+    }
+  });
+
+  it('never decreases within a corpus', () => {
+    for (const which of ['local', 'container']) {
+      const group = rows.filter((r) => corpus(r) === which);
+      expect(group.length, `no ${which} rows found — the grouping regex has drifted`)
+        .toBeGreaterThan(0);
+      for (let i = 1; i < group.length; i += 1) {
+        expect(
+          group[i].count,
+          `${which} row "${group[i].measured}" reads BELOW its predecessor ` +
+          `(${group[i].count} < ${group[i - 1].count}) — §1 calls that a partial corpus, ` +
+          'not a correction'
+        ).toBeGreaterThanOrEqual(group[i - 1].count);
+      }
+    }
+  });
+
+  // Each container row states its own arithmetic: "6,822 + N = **TOTAL**". A slip there is
+  // invisible to the ratchet above (the counts still rise) but silently moves the running
+  // serial, which is the number every reply is stamped with.
+  it('container rows compute the running serial correctly', () => {
+    const base = 6822;
+    const checked = [];
+    for (const r of rows.filter((x) => corpus(x) === 'container')) {
+      const m = r.note.match(/6,822 \+ ([\d,]+) = \*\*([\d,]+)\*\*/);
+      if (!m) continue;
+      const addend = Number(m[1].replace(/,/g, ''));
+      const total = Number(m[2].replace(/,/g, ''));
+      expect(addend, `row "${r.measured}" adds a figure that is not its own count`)
+        .toBe(r.count);
+      expect(total, `row "${r.measured}" states a running serial that does not add up`)
+        .toBe(base + addend);
+      checked.push(r.measured);
+    }
+    expect(checked.length, 'no container row stated its arithmetic — the format changed')
+      .toBeGreaterThan(0);
+  });
+});
