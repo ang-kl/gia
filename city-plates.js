@@ -5410,7 +5410,9 @@ function _overlayDishMeta(countryCode) {
       // per-locale NAME (dish-names-i18n.js); `local` stays the dish's own-language
       // name and is unrelated to the reader's locale.
       if (!_dishNames) _dishNames = require('./dish-names-i18n');
-      const names = _dishNames.namesFor(d.name);
+      // v0.62.868 — pass the cuisine slug: a dish NAME is not unique across
+      // cuisines (gujarati::lapsi is a pudding, nepalese::lapsi is a fruit).
+      const names = _dishNames.namesFor(d.name, slug);
       if (names) meta.nameI18n = names;
       if (d.note && (d.note.en || d.note.fr)) meta.note = d.note;
       if (Array.isArray(d.sources) && d.sources.length) meta.sources = d.sources;

@@ -894,7 +894,7 @@ const DISH_NAMES = {
   'ohn no khao swe':        { fr: 'Ohn no khao swe',              id: 'Ohn no khao swe',            ru: 'Он но кхао свэ',                  de: 'Ohn No Khao Swe',                 zh: '椰奶鸡汤面', ja: 'オンノ・カウスエ',      es: 'Ohn no khao swe' },
   'shan noodles':           { fr: 'Nouilles shan',                id: 'Mi Shan',                    ru: 'Шанская лапша',                   de: 'Shan-Nudeln',                     zh: '掸邦米线',   ja: 'シャンヌードル',        es: 'Fideos shan' },
   'burmese curry':          { fr: 'Curry birman',                 id: 'Kari Burma',                 ru: 'Бирманское карри',                de: 'Birmanisches Curry',              zh: '缅式咖喱',   ja: 'ミャンマーカレー',      es: 'Curry birmano' },
-  'chickpea tofu':          { fr: 'Tofu de pois chiches',         id: 'Tahu buncis',                ru: 'Тофу из нута',                    de: 'Kichererbsen-Tofu',               zh: '鹰嘴豆豆腐', ja: 'ひよこ豆豆腐',          es: 'Tofu de garbanzo' },
+  'chickpea tofu':          { fr: 'Tofu de pois chiches',         id: 'Tahu kacang arab',                ru: 'Тофу из нута',                    de: 'Kichererbsen-Tofu',               zh: '鹰嘴豆豆腐', ja: 'ひよこ豆豆腐',          es: 'Tofu de garbanzo' },
   'shan-style tofu salad':  { fr: 'Salade de tofu shan',          id: 'Salad tahu Shan',            ru: 'Шанский салат с тофу',            de: 'Shan-Tofusalat',                  zh: '掸邦豆腐沙拉', ja: 'シャン風豆腐サラダ',  es: 'Ensalada de tofu shan' },
   'balachaung':             { fr: 'Balachaung',                   id: 'Balachaung',                 ru: 'Балачаунг',                       de: 'Balachaung',                      zh: '缅式虾米酱', ja: 'バラチャウン',          es: 'Balachaung' },
   'burmese fish curry':     { fr: 'Curry de poisson birman',      id: 'Kari ikan Burma',            ru: 'Бирманское рыбное карри',         de: 'Birmanisches Fischcurry',         zh: '缅式咖喱鱼', ja: 'ミャンマー風フィッシュカレー', es: 'Curry de pescado birmano' },
@@ -989,7 +989,7 @@ const DISH_NAMES = {
   'gujarati thali':         { fr: 'Thali gujarati',               id: 'Thali Gujarat',              ru: 'Гуджаратский тхали',              de: 'Gujarati-Thali',                  zh: '古吉拉特套餐', ja: 'グジャラート・ターリー', es: 'Thali gujarati' },
   'undhiyu':                { fr: 'Undhiyu',                      id: 'Undhiyu',                    ru: 'Ундхию',                          de: 'Undhiyu',                         zh: '什锦蔬菜煲', ja: 'ウンディユ',            es: 'Undhiyu' },
   'dal dhokli':             { fr: 'Dal dhokli',                   id: 'Dal dhokli',                 ru: 'Дал дхокли',                      de: 'Dal Dhokli',                      zh: '扁豆面片汤', ja: 'ダル・ドークリ',        es: 'Dal dhokli' },
-  'khaman':                 { fr: 'Khaman',                       id: 'Khaman',                     ru: 'Кхаман',                          de: 'Khaman',                          zh: '黄豆蒸糕',   ja: 'カマン',                es: 'Khaman' },
+  'khaman':                 { fr: 'Khaman',                       id: 'Khaman',                     ru: 'Кхаман',                          de: 'Khaman',                          zh: '鹰嘴豆蒸糕',   ja: 'カマン',                es: 'Khaman' },
   'fafda':                  { fr: 'Fafda',                        id: 'Fafda',                      ru: 'Фафда',                           de: 'Fafda',                           zh: '豆粉脆条',   ja: 'ファフダ',              es: 'Fafda' },
   'jalebi gujarati':        { fr: 'Jalebi gujarati',              id: 'Jalebi Gujarat',             ru: 'Гуджаратский джалеби',            de: 'Gujarati-Jalebi',                 zh: '古式糖圈',   ja: 'グジャラート・ジャレビ', es: 'Jalebi gujarati' },
   'kachori':                { fr: 'Kachori',                      id: 'Kachori',                    ru: 'Качори',                          de: 'Kachori',                         zh: '印式豆馅酥', ja: 'カチョリ',              es: 'Kachori' },
@@ -1050,6 +1050,12 @@ const DISH_NAMES = {
   'juju dhau':              { fr: 'Juju dhau',                    id: 'Juju dhau',                  ru: 'Джуджу дхау',                     de: 'Juju Dhau',                       zh: '巴德岗酸奶', ja: 'ジュジュ・ダウ',        es: 'Juju dhau' },
   'sinki soup':             { fr: 'Soupe sinki',                  id: 'Sup sinki',                  ru: 'Суп синки',                       de: 'Sinki-Suppe',                     zh: '发酵萝卜汤', ja: 'シンキスープ',          es: 'Sopa sinki' },
   'bhutuwa':                { fr: 'Bhutuwa',                      id: 'Bhutuwa',                    ru: 'Бхутува',                         de: 'Bhutuwa',                         zh: '尼式爆炒肉', ja: 'ブトゥワ',              es: 'Bhutuwa' },
+
+  // ── Cuisine-qualified overrides ────────────────────────────────────────
+  // Only for names that mean DIFFERENT FOODS in different cuisines. The bare key
+  // keeps the commoner reading; these two are the exceptions the data proves.
+  'nepalese::lapsi':        { fr: 'Lapsi (prune de Nepal)',       id: 'Lapsi (kedondong Nepal)',    ru: 'Лапси (непальская слива)',        de: 'Lapsi (nepalesische Mombinpflaume)', zh: '尼泊尔酸橄榄', ja: 'ラプシ（ネパールの酸っぱい果実）', es: 'Lapsi (ciruela de Nepal)' },
+  'hokkien::ti kway / png kueh': { fr: 'Ti kway (nian gao)',      id: 'Ti kway (nian gao)',         ru: 'Ти квэй (нянь гао)',              de: 'Ti Kway (Nian Gao)',              zh: '饭粿',       ja: 'ティクエ（年糕）',      es: 'Ti kway (nian gao)' },
 };
 
 // Case-folded index. The keys above are written as nation-overlay.js writes them
@@ -1058,9 +1064,35 @@ const DISH_NAMES = {
 // Singapore's 162, all of them "… SG …", "kopi-O", "teh-C". Fold BOTH sides.
 const _BY_FOLD = new Map(Object.entries(DISH_NAMES).map(([k, v]) => [k.toLowerCase(), v]));
 
-function namesFor(dish) {
+// v0.62.868 — CUISINE-QUALIFIED LOOKUP. Codex, reviewing #1808: a dish NAME is not
+// unique across cuisines. `lapsi` is a broken-wheat pudding in Gujarat and a sour
+// hog-plum FRUIT in Nepal — two different foods, one key — so a bare-name lookup
+// served the Gujarati translation to readers of the Nepalese list.
+//
+// Chasing the shape found a second instance Codex did not flag: `ti kway / png kueh`
+// is a Teochew peach-shaped glutinous dumpling (红桃粿) in the Singapore overlay and
+// nian gao, a sweet sticky rice cake (饭粿), in the Hokkien one. The repo's own data
+// had said so twice — the curated `local` values disagree, and the notes share almost
+// no content words.
+//
+// `slug::name` is not a new convention: nation-overlay-dishnotes.generated.js has
+// keyed its entries that way all along. The qualified key wins; the bare key is the
+// fallback, so every existing entry keeps its meaning and only the ambiguous ones
+// need an override.
+const _BY_FOLD_Q = new Map(
+  Object.entries(DISH_NAMES)
+    .filter(([k]) => k.includes('::'))
+    .map(([k, v]) => [k.toLowerCase(), v])
+);
+
+function namesFor(dish, slug) {
   if (typeof dish !== 'string' || !dish) return null;
-  return _BY_FOLD.get(dish.toLowerCase()) || null;
+  const bare = dish.toLowerCase();
+  if (typeof slug === 'string' && slug) {
+    const q = _BY_FOLD_Q.get(`${slug.toLowerCase()}::${bare}`);
+    if (q) return q;
+  }
+  return _BY_FOLD.get(bare) || null;
 }
 
 module.exports = { DISH_NAMES, namesFor };

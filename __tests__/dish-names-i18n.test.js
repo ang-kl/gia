@@ -76,9 +76,29 @@ describe('dish names — coverage', () => {
     }
   });
 
+  // A qualified key that names a slug which does not serve that dish is dead weight
+  // that looks like a fix — the exact shape of the bug it was added to solve.
+  it('every cuisine-qualified key names a real slug AND a dish that slug serves', () => {
+    const bad = [];
+    for (const k of Object.keys(DISH_NAMES)) {
+      if (!k.includes('::')) continue;
+      const [slug, name] = k.split('::');
+      const overlay = NATION_OVERLAY[slug];
+      if (!overlay) { bad.push(`${k}: no such cuisine`); continue; }
+      const serves = (overlay.iconicDishes || []).some((d) => d.name.toLowerCase() === name);
+      if (!serves) bad.push(`${k}: ${slug} does not serve that dish`);
+    }
+    expect(bad, bad.join(' | ')).toEqual([]);
+  });
+
   it('has no key that is not a real dish (a typo’d key is silently dead)', () => {
+    // v0.62.868 — a key may now be cuisine-qualified (`slug::name`). Those are
+    // validated harder, just below: the slug must be real AND must actually serve
+    // that dish. Here we only exclude them from the bare-name check.
     const known = new Set(COVERED.flatMap(distinctDishes));
-    const orphans = Object.keys(DISH_NAMES).filter((k) => !known.has(k));
+    const orphans = Object.keys(DISH_NAMES)
+      .filter((k) => !k.includes('::'))
+      .filter((k) => !known.has(k));
     expect(orphans, `keys matching no dish: ${orphans.join(', ')}`).toEqual([]);
   });
 });
@@ -299,7 +319,10 @@ describe('the SECOND surface — /api/cuisine/dishes', () => {
     const src = readFileSync(pathJoin(ROOT, 'index.js'), 'utf8');
     const route = src.slice(src.indexOf("app.get('/api/cuisine/dishes'"));
     const body = route.slice(0, route.indexOf('/api/cuisine/dishes failed'));
-    expect(body, 'the endpoint no longer looks a dish name up').toMatch(/namesFor\(d\.name\)/);
+    // Must pass the SLUG too — without it the lookup is bare-name again and the
+    // lapsi collision returns.
+    expect(body, 'the endpoint no longer looks a dish name up')
+      .toMatch(/namesFor\(d\.name,\s*slug\)/);
     expect(body, 'the endpoint no longer attaches nameI18n').toMatch(/nameI18n:\s*names/);
   });
 
@@ -352,5 +375,114 @@ describe('Vietnamese — a Latin-script `local`, which is a new shape', () => {
       .filter((d) => d.local && bare.test(d.local)).length;
     expect(accented, 'the Vietnamese overlay has no accented locals to check against')
       .toBeGreaterThan(15);
+  });
+});
+
+describe('one name, two foods — the collision Codex found on #1808', () => {
+  // A dish NAME is not unique across cuisines. `lapsi` is a broken-wheat pudding in
+  // Gujarat and a sour hog-plum FRUIT in Nepal, so the bare-name lookup served the
+  // Gujarati translation to readers of the Nepalese list. Codex caught that one.
+  //
+  // Chasing the shape found a SECOND: `ti kway / png kueh` is a Teochew peach-shaped
+  // glutinous dumpling (红桃粿) in the Singapore overlay and nian gao, a sweet sticky
+  // rice cake (饭粿), in the Hokkien one — and the repo had said so twice, in the
+  // disagreeing `local` values and in notes that share almost no words.
+  //
+  // So this is a GUARD, not two spot-fixes: it re-runs the detection over every
+  // shared name, and a future batch that introduces a third collision fails here
+  // instead of shipping the wrong food to a reader.
+  const notesMod = require_('../nation-overlay-dishnotes.generated.js');
+  const NOTES = notesMod.NOTES || notesMod.DISH_NOTES || notesMod;
+
+  const STOP = new Set(('a an the is are and or of in with from for on to it its this that also known as'
+    + ' often made dish traditional popular served usually typically be been which while but their they'
+    + ' them style dishes food cuisine other others most very more some any not no can may').split(/\s+/));
+  const words = (s) => new Set(String(s || '').toLowerCase().replace(/[^a-z\s]/g, ' ')
+    .split(/\s+/).filter((w) => w.length > 3 && !STOP.has(w)));
+  const noteOf = (slug, name) => {
+    const e = NOTES[`${slug}::${name.toLowerCase()}`];
+    return e ? (typeof e === 'string' ? e : e.en) : null;
+  };
+
+  // Pairs that score low but are the SAME dish described regionally. Listed by name
+  // with a reason, so a reader sees a judgement that was made rather than a threshold
+  // that happened to pass.
+  const KNOWN_SAME_DISH = new Set([
+    'hainanese chicken cutlet',  // both a fried cutlet; the notes differ on sauce vs cracker crumb
+    'roast duck',                // both roast duck; one note adds Cantonese aromatics
+    'sliced fish soup',          // both sliced fish in broth; one note adds the milky variant
+  ]);
+
+  const pairs = () => {
+    const byName = new Map();
+    for (const [slug, v] of Object.entries(NATION_OVERLAY)) {
+      for (const d of (v.iconicDishes || [])) {
+        if (!namesFor(d.name)) continue;
+        const k = d.name.toLowerCase();
+        if (!byName.has(k)) byName.set(k, new Set());
+        byName.get(k).add(slug);
+      }
+    }
+    const out = [];
+    for (const [name, slugs] of byName) {
+      if (slugs.size < 2) continue;
+      const notes = [...slugs].map((s) => [s, noteOf(s, name)]).filter(([, n]) => n);
+      const nameWords = words(name);
+      for (let i = 0; i < notes.length; i += 1) {
+        for (let j = i + 1; j < notes.length; j += 1) {
+          const A = words(notes[i][1]); const B = words(notes[j][1]);
+          for (const w of nameWords) { A.delete(w); B.delete(w); }
+          const overlap = [...A].filter((w) => B.has(w)).length
+            / Math.max(1, new Set([...A, ...B]).size);
+          out.push({ name, a: notes[i][0], b: notes[j][0], overlap });
+        }
+      }
+    }
+    return out;
+  };
+
+  it('finds shared names to check — the fixture is not vacuous', () => {
+    const all = pairs();
+    expect(all.length, 'no shared dish names at all — the join broke').toBeGreaterThan(30);
+  });
+
+  it('every near-zero-overlap pair is either qualified or explicitly a same-dish call', () => {
+    const suspect = pairs()
+      .filter((p) => p.overlap < 0.09)
+      .filter((p) => !KNOWN_SAME_DISH.has(p.name))
+      // a collision is resolved once EITHER cuisine has its own qualified entry
+      .filter((p) => !namesFor(p.name, p.a) || !namesFor(p.name, p.b)
+        || namesFor(p.name, p.a) === namesFor(p.name, p.b));
+    const msg = suspect.map((p) => `${p.name} [${p.a} vs ${p.b}] overlap=${p.overlap.toFixed(2)}`);
+    expect(suspect, `unresolved collisions: ${msg.join(' | ')}`).toEqual([]);
+  });
+
+  it('serves the right food to each cuisine for both known collisions', () => {
+    expect(namesFor('lapsi', 'gujarati').zh).toBe('碎麦甜粥');          // broken-wheat pudding
+    expect(namesFor('lapsi', 'nepalese').zh).toBe('尼泊尔酸橄榄');       // hog-plum fruit
+    expect(namesFor('lapsi', 'nepalese')).not.toBe(namesFor('lapsi', 'gujarati'));
+
+    expect(namesFor('ti kway / png kueh', 'singaporean').zh).toBe('红桃粿');
+    expect(namesFor('ti kway / png kueh', 'hokkien').zh).toBe('饭粿');
+  });
+
+  it('falls back to the bare name when no qualified entry exists', () => {
+    expect(namesFor('laksa', 'singaporean')).toBe(namesFor('laksa'));
+    expect(namesFor('lapsi', 'no-such-cuisine')).toBe(namesFor('lapsi'));
+    expect(namesFor('lapsi', null)).toBe(namesFor('lapsi'));
+  });
+});
+
+describe('the two ingredient errors Codex caught', () => {
+  // "Which ingredient" is exactly what a later edit can quietly undo, and the reader
+  // has no way to tell. Both are pinned against the repo's own curated note.
+  it('khaman is gram/chickpea flour, not soybean', () => {
+    expect(namesFor('khaman').zh).toBe('鹰嘴豆蒸糕');
+    expect(namesFor('khaman').zh).not.toMatch(/黄豆/);
+  });
+
+  it('chickpea tofu is chickpea in Indonesian too, not green beans', () => {
+    expect(namesFor('chickpea tofu').id).toBe('Tahu kacang arab');
+    expect(namesFor('chickpea tofu').id).not.toMatch(/buncis/);
   });
 });
