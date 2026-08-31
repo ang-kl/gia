@@ -53,6 +53,9 @@ const COVERED = [
   'uzbek', 'georgian', 'african', 'south-african',
   // v0.62.873 — batch 7a: the Americas and Oceania.
   'mexican', 'argentinian', 'brazilian', 'australian', 'new-zealand', 'australasia',
+  // v0.62.874 — batch 7b, the last. Every slug in the overlay is now covered,
+  // and the global assertion below is the guarantee that outlives this list.
+  'fusion', 'eurasian', 'dessert',
 ];
 const distinctDishes = (slug) =>
   [...new Set((NATION_OVERLAY[slug].iconicDishes || []).map((d) => d.name))];
@@ -76,6 +79,7 @@ const LATIN_BRAND_OK = new Set([
   'ipa',                      // "IPA" on a Japanese beer menu too
   'din tai fung dumplings',   // the restaurant chain's own name
   'san miguel beer',          // the brewery's own name
+  'xo sauce burger',          // "XO" is a cognac grade, printed in Latin as XO醬 / соус XO
 ]);
 
 describe('dish names — coverage', () => {
@@ -436,7 +440,10 @@ describe('batch 6a — no home locale at all', () => {
   // exception: the biáng glyph 𰻞 is absent from most fonts, so pinyin is the
   // standard workaround rather than a lapse. Named, so it reads as a judgement
   // that was made rather than a threshold that happened to pass.
-  const LATIN_IN_ZH_OK = new Set(['biang biang noodles']);
+  const LATIN_IN_ZH_OK = new Set([
+    'biang biang noodles',    // the biáng glyph 𰻞 is absent from most fonts
+    'xo sauce burger',        // XO醬 is how the sauce is written in Chinese
+  ]);
 
   it('no Chinese value carries stray Latin letters', () => {
     const bad = Object.entries(DISH_NAMES)
@@ -569,6 +576,100 @@ describe('batch 7a — Spanish is an app locale, so 5a returns', () => {
   });
 });
 
+describe('batch 7b — the last 52, and the guarantee that outlives COVERED', () => {
+  // ⚠ `fusion` is the ONLY set where rules 1 and 2 split INSIDE one key. Every
+  // earlier batch applied one rule per key; here the proper name must survive
+  // (rule 2) while the dish-form word translates (rule 1). Getting it backwards
+  // is invisible to every other guard in this file, because `Curry de nouilles
+  // carbonara` for `laksa carbonara` is fluent French that has lost the dish.
+  //
+  // `zh` and `ja` are deliberately NOT checked: they render the proper name in
+  // their own script (叻沙, ラクサ), so a Latin-token check there would fail on
+  // correct data — the mistake 6b's guard was narrowed to avoid, in another form.
+  const PROTECTED = {
+    'laksa carbonara': 'laksa',
+    'rendang croissant': 'rendang',
+    'sambal pizza': 'sambal',
+    'hainanese chicken risotto': 'risotto',
+    'kaya french toast': 'kaya',
+    'truffle char kway teow': 'char kway teow',
+    'miso pasta': 'miso',
+    'mod-sin tasting menu': 'mod-sin',
+    'kombu butter steak': 'kombu',
+    'bak kut teh ramen': 'bak kut teh',
+    'peranakan tasting menu': 'peranakan',
+    'mod-asian small plates': 'mod-asian',
+    'uni linguine': 'linguine',
+    'foie gras char siu': 'char siu',
+    'xo sauce burger': 'xo',
+    'sake brûlée': 'sake',
+    'matcha tiramisu': 'tiramisu',
+    'soy-sauce gelato': 'gelato',
+    'curry leaf risotto': 'risotto',
+    'satay beef burger': 'satay',
+    'yuzu cheesecake': 'yuzu',
+    'chilli crab pasta': 'chilli crab',
+  };
+
+  it('never translates away the proper name a fusion dish is built on', () => {
+    const served = new Set(NATION_OVERLAY.fusion.iconicDishes.map((d) => d.name));
+    // Non-vacuity: a token map that drifts out of sync with the overlay stops
+    // checking silently, which is the failure this family has already had once.
+    expect(Object.keys(PROTECTED).length, 'the fusion token map shrank')
+      .toBeGreaterThanOrEqual(18);
+    for (const k of Object.keys(PROTECTED)) {
+      expect(served.has(k), `${k} is in the token map but fusion does not serve it`).toBe(true);
+    }
+    const lost = [];
+    for (const [name, token] of Object.entries(PROTECTED)) {
+      const v = namesFor(name, 'fusion');
+      for (const l of ['fr', 'id', 'de', 'es']) {
+        if (!foldForHomeLocale(v[l]).includes(foldForHomeLocale(token))) {
+          lost.push(`${name}.${l} = "${v[l]}" — lost "${token}"`);
+        }
+      }
+    }
+    expect(lost, lost.join(' | ')).toEqual([]);
+  });
+
+  // `devil curry` and `curry debal alt` are ONE dish — the curated notes say so.
+  // They are deliberately NOT pinned equal, unlike manti/mantı: two NAMES, one
+  // English and one Kristang, so rule 1 translates the first and rule 2 keeps the
+  // second. Pinned as DIFFERENT so a later "tidy-up" cannot collapse them.
+  it('the Kristang and English names for one dish stay distinct', () => {
+    const en = namesFor('devil curry', 'eurasian');
+    const kr = namesFor('curry debal alt', 'eurasian');
+    expect(en.fr).not.toBe(kr.fr);
+    expect(kr.fr.toLowerCase()).toContain('debal');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// The guarantee this whole arc was building toward. COVERED is a per-batch
+// diagnostic — a hand-maintained list, and a dish added to a slug nobody
+// remembered to list would slip past it. This iterates EVERY slug in the
+// overlay instead, so from here the invariant is global and fails the moment
+// anyone adds a dish without a translation.
+describe('every dish in the overlay resolves — all slugs, not a curated list', () => {
+  it('has no untranslated dish anywhere in nation-overlay.js', () => {
+    let slugs = 0;
+    let dishes = 0;
+    const missing = [];
+    for (const [slug, v] of Object.entries(NATION_OVERLAY)) {
+      const names = [...new Set((v.iconicDishes || []).map((d) => d.name))];
+      if (!names.length) continue;
+      slugs += 1;
+      dishes += names.length;
+      for (const n of names) if (!namesFor(n, slug)) missing.push(`${slug}/${n}`);
+    }
+    // Non-vacuity in both dimensions: an overlay that failed to load, or one
+    // whose shape changed, would otherwise pass this by iterating nothing.
+    expect(slugs, 'the overlay yielded no slugs').toBeGreaterThanOrEqual(60);
+    expect(dishes, 'the overlay yielded too few dishes').toBeGreaterThanOrEqual(1500);
+    expect(missing, `untranslated: ${missing.slice(0, 20).join(', ')}`).toEqual([]);
+  });
+});
+
 describe('community sub-headers are localised', () => {
   // The operator's screenshot showed "— Chinese —" in English under a Chinese
   // header, because COMMUNITY carried en/fr only.
@@ -647,6 +748,7 @@ describe('the SECOND surface — /api/cuisine/dishes', () => {
     'uzbek', 'georgian', 'african', 'south-african',       // batch 6b
     'mexican', 'argentinian', 'brazilian', 'australian',   // batch 7a
     'new-zealand', 'australasia',
+    'fusion', 'eurasian', 'dessert',                       // batch 7b
   ];
 
   it.each(DRAWER_SLUGS)('resolves a name for every dish the endpoint serves for %s', (slug) => {

@@ -1847,6 +1847,80 @@ const DISH_NAMES = {
   'coconut crab samoan':    { fr: 'Crabe de cocotier samoan',     id: 'Kepiting kelapa Samoa',      ru: 'Самоанский пальмовый вор',        de: 'Samoanischer Kokosnusskrebs',     zh: '萨摩亚椰子蟹', ja: 'サモア風ヤシガニ',    es: 'Cangrejo de coco samoano' },
   'antipodean cafe brunch': { fr: 'Brunch de café antipodéen',    id: 'Brunch kafe Antipodean',     ru: 'Антиподский кафе-бранч',          de: 'Antipodischer Café-Brunch',       zh: '澳纽咖啡馆早午餐', ja: 'アンティポディアン・カフェブランチ', es: 'Brunch de café antípoda' },
   'pasifika fusion plate':  { fr: 'Assiette fusion pasifika',     id: 'Piring fusion Pasifika',     ru: 'Фьюжн-тарелка пасифика',          de: 'Pasifika-Fusion-Teller',          zh: '太平洋融合拼盘', ja: 'パシフィカ・フュージョンプレート', es: 'Plato fusión pasifika' },
+  // ══ Fusion ═════════════════════════════════════════════════════════════
+  // ⚠ THE ONLY SET WHERE RULES 1 AND 2 SPLIT INSIDE ONE KEY. Every earlier batch
+  // applied one rule per key. Here the PROPER NAME must survive (rule 2) while
+  // the DISH-FORM word translates (rule 1) — and getting it backwards is
+  // invisible to every other guard here, because `Curry de nouilles carbonara`
+  // for `laksa carbonara` is fluent French that has simply lost the dish.
+  'chilli crab pasta':      { fr: 'Pâtes au chilli crab',        id: 'Pasta chilli crab',          ru: 'Паста с чили-крабом',             de: 'Chilli-Crab-Pasta',               zh: '辣椒螃蟹意面', ja: 'チリクラブパスタ',    es: 'Pasta con chilli crab' },
+  'laksa carbonara':        { fr: 'Carbonara au laksa',           id: 'Carbonara laksa',            ru: 'Карбонара с лаксой',              de: 'Laksa-Carbonara',                 zh: '叻沙卡邦尼意面', ja: 'ラクサ・カルボナーラ', es: 'Carbonara de laksa' },
+  'rendang croissant':      { fr: 'Croissant au rendang',         id: 'Croissant rendang',          ru: 'Круассан с ренданг',              de: 'Rendang-Croissant',               zh: '仁当牛肉可颂', ja: 'ルンダン・クロワッサン', es: 'Cruasán de rendang' },
+  'sambal pizza':           { fr: 'Pizza au sambal',              id: 'Pizza sambal',               ru: 'Пицца с самбалом',                de: 'Sambal-Pizza',                    zh: '参巴辣酱披萨', ja: 'サンバル・ピザ',      es: 'Pizza de sambal' },
+  'hainanese chicken risotto': { fr: 'Risotto au poulet hainanais', id: 'Risotto ayam Hainan',     ru: 'Ризотто с хайнаньской курицей',   de: 'Hainanesisches Hühner-Risotto',   zh: '海南鸡烩饭', ja: '海南チキン・リゾット',  es: 'Risotto de pollo hainanés' },
+  'kaya french toast':      { fr: 'Pain perdu au kaya',           id: 'Roti panggang Prancis kaya', ru: 'Французский тост с кайей',        de: 'Kaya-French-Toast',               zh: '咖椰法式吐司', ja: 'カヤ・フレンチトースト', es: 'Torrija de kaya' },
+  'salted egg pasta':       { fr: 'Pâtes au jaune d’œuf salé',    id: 'Pasta telur asin',           ru: 'Паста с солёным желтком',         de: 'Salzeigelb-Pasta',                zh: '咸蛋黄意面', ja: 'ソルテッドエッグパスタ', es: 'Pasta de yema salada' },
+  'truffle char kway teow': { fr: 'Char kway teow à la truffe',   id: 'Char kway teow truffle',     ru: 'Чар квай теоу с трюфелем',        de: 'Trüffel-Char-Kway-Teow',          zh: '松露炒粿条', ja: 'トリュフ・チャークェイティオ', es: 'Char kway teow con trufa' },
+  'miso pasta':             { fr: 'Pâtes au miso',                id: 'Pasta miso',                 ru: 'Паста с мисо',                    de: 'Miso-Pasta',                      zh: '味噌意面',   ja: '味噌パスタ',            es: 'Pasta de miso' },
+  'mod-sin tasting menu':   { fr: 'Menu dégustation mod-sin',     id: 'Menu cicip mod-sin',         ru: 'Дегустационное меню мод-син',     de: 'Mod-Sin-Degustationsmenü',        zh: '新派新加坡品尝菜单', ja: 'モッドシン・テイスティングメニュー', es: 'Menú degustación mod-sin' },
+  'kombu butter steak':     { fr: 'Steak au beurre de kombu',     id: 'Steik mentega kombu',        ru: 'Стейк с маслом комбу',            de: 'Kombu-Butter-Steak',              zh: '昆布黄油牛排', ja: '昆布バターステーキ',  es: 'Filete con mantequilla de kombu' },
+  'bak kut teh ramen':      { fr: 'Ramen au bak kut teh',         id: 'Ramen bak kut teh',          ru: 'Рамэн бак кут тэ',                de: 'Bak-Kut-Teh-Ramen',               zh: '肉骨茶拉面', ja: 'バクテー・ラーメン',    es: 'Ramen de bak kut teh' },
+  'peranakan tasting menu': { fr: 'Menu dégustation peranakan',   id: 'Menu cicip Peranakan',       ru: 'Дегустационное меню перанакан',   de: 'Peranakan-Degustationsmenü',      zh: '娘惹品尝菜单', ja: 'プラナカン・テイスティングメニュー', es: 'Menú degustación peranakan' },
+  'asian-french degustation': { fr: 'Dégustation asiatico-française', id: 'Degustasi Asia-Prancis', ru: 'Азиатско-французская дегустация', de: 'Asiatisch-französische Degustation', zh: '亚法融合品鉴', ja: 'アジアンフレンチ・デギュスタシオン', es: 'Degustación asiático-francesa' },
+  'mod-asian small plates': { fr: 'Petites assiettes mod-asian',  id: 'Piring kecil mod-asian',     ru: 'Малые тарелки мод-эйжн',          de: 'Mod-Asian Small Plates',          zh: '新派亚洲小盘', ja: 'モッドアジアン・スモールプレート', es: 'Platos pequeños mod-asian' },
+  'uni linguine':           { fr: 'Linguine à l’uni',             id: 'Linguine uni',               ru: 'Лингвини с уни',                  de: 'Uni-Linguine',                    zh: '海胆扁意面', ja: 'ウニのリングイネ',      es: 'Linguine de uni' },
+  'foie gras char siu':     { fr: 'Char siu au foie gras',        id: 'Char siu foie gras',         ru: 'Ча сиу с фуа-гра',                de: 'Foie-Gras-Char-Siu',              zh: '鹅肝叉烧',   ja: 'フォアグラ・チャーシュー', es: 'Char siu con foie gras' },
+  'xo sauce burger':        { fr: 'Burger à la sauce XO',         id: 'Burger saus XO',             ru: 'Бургер с соусом XO',              de: 'XO-Sauce-Burger',                 zh: 'XO酱汉堡',   ja: 'XO醤バーガー',          es: 'Hamburguesa con salsa XO' },
+  'sake brûlée':            { fr: 'Crème brûlée au saké',         id: 'Brûlée sake',                ru: 'Крем-брюле с сакэ',               de: 'Sake-Brûlée',                     zh: '清酒焦糖布丁', ja: '日本酒ブリュレ',      es: 'Crema brûlée de sake' },
+  'matcha tiramisu':        { fr: 'Tiramisu au matcha',           id: 'Tiramisu matcha',            ru: 'Тирамису с матчей',               de: 'Matcha-Tiramisu',                 zh: '抹茶提拉米苏', ja: '抹茶ティラミス',      es: 'Tiramisú de matcha' },
+  'soy-sauce gelato':       { fr: 'Gelato à la sauce soja',       id: 'Gelato kecap asin',          ru: 'Джелато с соевым соусом',         de: 'Sojasaucen-Gelato',               zh: '酱油意式冰淇淋', ja: '醤油ジェラート',    es: 'Gelato de salsa de soja' },
+  'curry leaf risotto':     { fr: 'Risotto aux feuilles de curry', id: 'Risotto daun kari',         ru: 'Ризотто с листьями карри',        de: 'Curryblatt-Risotto',              zh: '咖喱叶烩饭', ja: 'カレーリーフ・リゾット', es: 'Risotto de hojas de curry' },
+  'satay beef burger':      { fr: 'Burger de bœuf au satay',      id: 'Burger sapi satay',          ru: 'Бургер с говядиной сатай',        de: 'Satay-Rindfleisch-Burger',        zh: '沙嗲牛肉汉堡', ja: 'サテ・ビーフバーガー', es: 'Hamburguesa de ternera satay' },
+  'yuzu cheesecake':        { fr: 'Cheesecake au yuzu',           id: 'Cheesecake yuzu',            ru: 'Чизкейк с юдзу',                  de: 'Yuzu-Käsekuchen',                 zh: '柚子芝士蛋糕', ja: '柚子チーズケーキ',    es: 'Tarta de queso de yuzu' },
+
+  // ══ Eurasian (Kristang) ════════════════════════════════════════════════
+  // ⚠ `devil curry` and `curry debal alt` are ONE DISH — the curated notes say so
+  // outright. They are deliberately NOT pinned equal, unlike manti/mantı: these
+  // are two NAMES, one English and one Kristang, so rule 1 translates the first
+  // and rule 2 keeps the second. That is the `lei cha` / `pounded tea` shape from
+  // 6b, and pinning them equal would repeat the mistake that guard was narrowed
+  // to avoid.
+  'devil curry':            { fr: 'Curry du diable',              id: 'Kari setan',                 ru: 'Дьявольское карри',               de: 'Teufels-Curry',                   zh: '魔鬼咖喱',   ja: 'デビルカレー',          es: 'Curry del diablo' },
+  'curry debal alt':        { fr: 'Curry debal',                  id: 'Curry debal',                ru: 'Карри дебал',                     de: 'Curry Debal',                     zh: '德巴尔咖喱', ja: 'カリー・デバル',        es: 'Curry debal' },
+  'sugee cake':             { fr: 'Gâteau sugee',                 id: 'Kue sugee',                  ru: 'Пирог суги',                      de: 'Sugee-Kuchen',                    zh: '粗麦杏仁蛋糕', ja: 'スージーケーキ',      es: 'Bizcocho sugee' },
+  'pork vindaloo eurasian': { fr: 'Vindaloo de porc eurasien',    id: 'Vindaloo babi Eurasia',      ru: 'Евразийский свиной виндалу',      de: 'Eurasisches Schweine-Vindaloo',   zh: '欧亚裔猪肉温达卢', ja: 'ユーラシアン・ポークビンダルー', es: 'Vindaloo de cerdo euroasiático' },
+  'eurasian curry chicken': { fr: 'Curry de poulet eurasien',     id: 'Kari ayam Eurasia',          ru: 'Евразийское куриное карри',       de: 'Eurasisches Hühnercurry',         zh: '欧亚裔咖喱鸡', ja: 'ユーラシアン・チキンカレー', es: 'Curry de pollo euroasiático' },
+  'feng (curry of pork offal)': { fr: 'Feng (curry d’abats de porc)', id: 'Feng (kari jeroan babi)', ru: 'Фэн (карри из свиных потрохов)', de: 'Feng (Curry aus Schweineinnereien)', zh: '猪杂咖喱', ja: 'フェン（豚モツのカレー）', es: 'Feng (curry de casquería de cerdo)' },
+  'eurasian beef stew':     { fr: 'Ragoût de bœuf eurasien',      id: 'Semur daging Eurasia',       ru: 'Евразийское тушёное мясо',        de: 'Eurasischer Rindfleischeintopf',  zh: '欧亚裔炖牛肉', ja: 'ユーラシアン・ビーフシチュー', es: 'Estofado de ternera euroasiático' },
+  'semur ayam':             { fr: 'Semur ayam',                   id: 'Semur ayam',                 ru: 'Семур аям',                       de: 'Semur Ayam',                      zh: '甜酱油炖鸡', ja: 'スムール・アヤム',      es: 'Semur ayam' },
+  'salted vegetable duck soup': { fr: 'Soupe de canard aux légumes salés', id: 'Sup bebek sayur asin', ru: 'Утиный суп с солёными овощами', de: 'Entensuppe mit Salzgemüse',   zh: '咸菜鸭汤',   ja: '鴨と塩漬け野菜のスープ', es: 'Sopa de pato con verdura salada' },
+  'ferradura':              { fr: 'Ferradura',                    id: 'Ferradura',                  ru: 'Феррадура',                       de: 'Ferradura',                       zh: '马蹄形酥饼', ja: 'フェラドゥーラ',        es: 'Ferradura' },
+  'eurasian pork chop':     { fr: 'Côtelette de porc eurasienne', id: 'Iga babi Eurasia',           ru: 'Евразийская свиная отбивная',     de: 'Eurasisches Schweinekotelett',    zh: '欧亚裔炸猪排', ja: 'ユーラシアン・ポークチョップ', es: 'Chuleta de cerdo euroasiática' },
+  'portuguese egg tart':    { fr: 'Pastel de nata portugais',     id: 'Tar telur Portugis',         ru: 'Португальский яичный тарт',       de: 'Portugiesisches Eiertörtchen',    zh: '葡式蛋挞',   ja: 'ポルトガル風エッグタルト', es: 'Pastel de nata portugués' },
+  'eurasian fishball curry': { fr: 'Curry de boulettes de poisson eurasien', id: 'Kari bakso ikan Eurasia', ru: 'Евразийское карри с рыбными шариками', de: 'Eurasisches Fischbällchen-Curry', zh: '欧亚裔鱼丸咖喱', ja: 'ユーラシアン・フィッシュボールカレー', es: 'Curry de bolas de pescado euroasiático' },
+  'roast suckling pig':     { fr: 'Cochon de lait rôti',          id: 'Babi guling panggang',       ru: 'Запечённый молочный поросёнок',   de: 'Gebratenes Spanferkel',           zh: '烤乳猪',     ja: '子豚の丸焼き',          es: 'Cochinillo asado' },
+  'eurasian smoore':        { fr: 'Smoore eurasien',              id: 'Smoore Eurasia',             ru: 'Евразийский смур',                de: 'Eurasisches Smoore',              zh: '欧亚裔焖牛肉', ja: 'ユーラシアン・スムーア', es: 'Smoore euroasiático' },
+
+  // ══ Dessert ════════════════════════════════════════════════════════════
+  // French classics, so `fr` LOOKS like a home locale and 5a's rule looks
+  // reusable a third time. Measured before writing it: 8 of 13 would pass and 5
+  // would need exemptions — a 38 % exemption ratio against 5a's 8 % and 7a's 2 %.
+  // At that ratio the exemption list nearly rivals the rule it qualifies, so
+  // `dessert` gets NO home-locale assertion. The decision is recorded rather than
+  // the guard shipped.
+  'cheesecake':             { fr: 'Cheesecake',                   id: 'Cheesecake',                 ru: 'Чизкейк',                         de: 'Käsekuchen',                      zh: '芝士蛋糕',   ja: 'チーズケーキ',          es: 'Tarta de queso' },
+  'chocolate fondant':      { fr: 'Fondant au chocolat',          id: 'Fondant cokelat',            ru: 'Шоколадный фондан',               de: 'Schokoladenfondant',              zh: '巧克力熔岩糕', ja: 'フォンダン・オ・ショコラ', es: 'Coulant de chocolate' },
+  'opera cake':             { fr: 'Opéra',                        id: 'Kue opera',                  ru: 'Торт «Опера»',                    de: 'Opern-Torte',                     zh: '歌剧院蛋糕', ja: 'オペラ',                es: 'Tarta ópera' },
+  'eclair':                 { fr: 'Éclair',                       id: 'Éclair',                     ru: 'Эклер',                           de: 'Éclair',                          zh: '闪电泡芙',   ja: 'エクレア',              es: 'Éclair' },
+  'profiterole':            { fr: 'Profiterole',                  id: 'Profiterole',                ru: 'Профитроль',                      de: 'Profiterole',                     zh: '奶油泡芙',   ja: 'プロフィトロール',      es: 'Profiterol' },
+  'soufflé chocolate':      { fr: 'Soufflé au chocolat',          id: 'Soufflé cokelat',            ru: 'Шоколадное суфле',                de: 'Schokoladensoufflé',              zh: '巧克力舒芙蕾', ja: 'チョコレートスフレ',  es: 'Soufflé de chocolate' },
+  'crepes suzette':         { fr: 'Crêpes Suzette',               id: 'Crêpes Suzette',             ru: 'Блинчики «Сюзетт»',               de: 'Crêpes Suzette',                  zh: '香橙火焰可丽饼', ja: 'クレープ・シュゼット', es: 'Crepes Suzette' },
+  'croquembouche':          { fr: 'Croquembouche',                id: 'Croquembouche',              ru: 'Крокембуш',                       de: 'Croquembouche',                   zh: '泡芙塔',     ja: 'クロカンブッシュ',      es: 'Croquembouche' },
+  'lava cake':              { fr: 'Coulant au chocolat',          id: 'Kue lava',                   ru: 'Лава-кейк',                       de: 'Lavakuchen',                      zh: '熔岩蛋糕',   ja: 'ラバケーキ',            es: 'Pastel de lava' },
+  'baba au rhum':           { fr: 'Baba au rhum',                 id: 'Baba au rhum',               ru: 'Ромовая баба',                    de: 'Rumbaba',                         zh: '朗姆巴巴',   ja: 'ババ・オ・ラム',        es: 'Babá al ron' },
+  'saint honoré':           { fr: 'Saint-Honoré',                 id: 'Saint-Honoré',               ru: 'Сент-Оноре',                      de: 'Saint-Honoré',                    zh: '圣奥诺雷泡芙塔', ja: 'サントノーレ',      es: 'Saint-Honoré' },
+  'religieuse':             { fr: 'Religieuse',                   id: 'Religieuse',                 ru: 'Религьёз',                        de: 'Religieuse',                      zh: '修女泡芙',   ja: 'ルリジューズ',          es: 'Religiosa' },
+  'bombe alaska':           { fr: 'Omelette norvégienne',         id: 'Baked alaska',               ru: 'Аляска-омлет',                    de: 'Baked Alaska',                    zh: '火焰冰淇淋', ja: 'ベイクドアラスカ',      es: 'Tortilla noruega' },
 };
 
 // Case-folded index. The keys above are written as nation-overlay.js writes them
