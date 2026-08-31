@@ -5342,6 +5342,7 @@ const COUNTRY_OVERLAY_SLUG = Object.freeze({
 let _nationOverlay = null;
 let _classicNotes = null;   // v0.62.175 — curated classics-notes.js (lazy)
 let _dishCommunity = null;  // v0.62.413 — dish→community map (lazy)
+let _dishNames = null;      // v0.62.862 — dish→per-locale name map (lazy)
 
 // Diacritic/case fold for the classics-vs-plate dedupe (plate dish names in
 // the comparison are romanised — no CJK handling needed here).
@@ -5405,6 +5406,12 @@ function _overlayDishMeta(countryCode) {
       if (!d || !d.name) continue;
       const meta = {};
       if (d.local) meta.local = d.local;
+      // v0.62.862 — operator: "translate all the dishes into 6 languages". The
+      // per-locale NAME (dish-names-i18n.js); `local` stays the dish's own-language
+      // name and is unrelated to the reader's locale.
+      if (!_dishNames) _dishNames = require('./dish-names-i18n');
+      const names = _dishNames.namesFor(d.name);
+      if (names) meta.nameI18n = names;
       if (d.note && (d.note.en || d.note.fr)) meta.note = d.note;
       if (Array.isArray(d.sources) && d.sources.length) meta.sources = d.sources;
       // v0.62.413 — community sub-grouping: attach the dish's community (SG always

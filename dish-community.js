@@ -14,13 +14,13 @@
 //   3. Genuinely pan-ethnic / unclear dishes → 'shared' (operator-approved bucket).
 
 const COMMUNITY = {
-  chinese:           { en: 'Chinese',          fr: 'Chinoise' },
-  'straits-chinese': { en: 'Straits Chinese',  fr: 'Sino-malaise (Peranakan)' },
-  malay:             { en: 'Malay',            fr: 'Malaise' },
-  indian:            { en: 'Indian',           fr: 'Indienne' },
-  indonesian:        { en: 'Indonesian',       fr: 'Indonésienne' },
-  eurasian:          { en: 'Eurasian',         fr: 'Eurasienne' },
-  shared:            { en: 'Shared',           fr: 'Partagé' },
+  chinese:           { en: 'Chinese',          fr: 'Chinoise',              id: 'Tionghoa',        ru: 'Китайская',        de: 'Chinesisch',       zh: '华族',       ja: '中華系',       es: 'China' },
+  'straits-chinese': { en: 'Straits Chinese',  fr: 'Sino-malaise (Peranakan)', id: 'Peranakan',    ru: 'Перанакан',        de: 'Straits-Chinesisch', zh: '土生华人', ja: 'プラナカン',   es: 'China de los Estrechos' },
+  malay:             { en: 'Malay',            fr: 'Malaise',               id: 'Melayu',          ru: 'Малайская',        de: 'Malaiisch',        zh: '马来族',     ja: 'マレー系',     es: 'Malaya' },
+  indian:            { en: 'Indian',           fr: 'Indienne',              id: 'India',           ru: 'Индийская',        de: 'Indisch',          zh: '印族',       ja: 'インド系',     es: 'India' },
+  indonesian:        { en: 'Indonesian',       fr: 'Indonésienne',          id: 'Indonesia',       ru: 'Индонезийская',    de: 'Indonesisch',      zh: '印尼',       ja: 'インドネシア系', es: 'Indonesia' },
+  eurasian:          { en: 'Eurasian',         fr: 'Eurasienne',            id: 'Eurasia',         ru: 'Евразийская',      de: 'Eurasisch',        zh: '欧亚裔',     ja: 'ユーラシア系', es: 'Euroasiática' },
+  shared:            { en: 'Shared',           fr: 'Partagé',               id: 'Bersama',         ru: 'Общая',            de: 'Gemeinsam',        zh: '共有',       ja: '共通',         es: 'Compartido' },
 };
 
 // Display order for the sub-headers.
