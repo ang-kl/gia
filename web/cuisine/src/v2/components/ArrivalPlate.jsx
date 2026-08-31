@@ -82,6 +82,26 @@ const COUNTRY_LABEL = {
 // Laksa KL", "HK-Style Milk Tea"). Match is case-folded, so source tokens already
 // upper ("SG") pass through unchanged.
 const DISH_ACRONYMS = new Set(['bbq', 'hk', 'kl', 'xo', 'sg', 'nz', 'usa', 'uk', 'ny', 'nyc', 'kfc']);
+// v0.62.862 — operator: "translate all the dishes into 6 languages". The server
+// attaches `d.nameI18n` (dish-names-i18n.js). Falls back to the title-cased
+// English name, so a dish with no entry reads exactly as it did before.
+//
+// The DISPLAY name changes; `d.dish` does not — it is the search term passed to
+// onTryDish(), the explain-card key and the aria-label, so translating it here
+// would break the tap-to-search the row exists for.
+export function dishDisplayName(d, lang) {
+  const n = d && d.nameI18n;
+  if (n && lang && lang !== 'en' && typeof n[lang] === 'string' && n[lang]) return n[lang];
+  return titleCaseDish(d && d.dish);
+}
+
+// Show the dish's own-language name only when it ADDS something: once the
+// display name is already zh, repeating `local` renders 辣椒螃蟹 辣椒螃蟹.
+export function localChip(d, lang) {
+  const shown = dishDisplayName(d, lang);
+  return (d && d.local && d.local !== d.dish && d.local !== shown) ? d.local : null;
+}
+
 function titleCaseDish(s) {
   return String(s || '').replace(/[\p{L}][\p{L}'’]*/gu, (w) =>
     DISH_ACRONYMS.has(w.toLowerCase())
@@ -150,13 +170,13 @@ function categoriseClassics(flat) {
 // dish-community.js). Labels are localised; the 'shared' bucket holds genuinely
 // pan-ethnic dishes (operator-approved — never force-assigned).
 const COMMUNITY_LABEL = {
-  chinese:           { en: 'Chinese',         fr: 'Chinoise' },
-  'straits-chinese': { en: 'Straits Chinese', fr: 'Peranakan' },
-  malay:             { en: 'Malay',           fr: 'Malaise' },
-  indian:            { en: 'Indian',          fr: 'Indienne' },
-  indonesian:        { en: 'Indonesian',      fr: 'Indonésienne' },
-  eurasian:          { en: 'Eurasian',        fr: 'Eurasienne' },
-  shared:            { en: 'Shared',          fr: 'Partagé' },
+  chinese:           { en: 'Chinese',         fr: 'Chinoise',      id: 'Tionghoa',  ru: 'Китайская',     de: 'Chinesisch',         zh: '华族',     ja: '中華系',         es: 'China' },
+  'straits-chinese': { en: 'Straits Chinese', fr: 'Peranakan',     id: 'Peranakan', ru: 'Перанакан',     de: 'Straits-Chinesisch', zh: '土生华人', ja: 'プラナカン',     es: 'China de los Estrechos' },
+  malay:             { en: 'Malay',           fr: 'Malaise',       id: 'Melayu',    ru: 'Малайская',     de: 'Malaiisch',          zh: '马来族',   ja: 'マレー系',       es: 'Malaya' },
+  indian:            { en: 'Indian',          fr: 'Indienne',      id: 'India',     ru: 'Индийская',     de: 'Indisch',            zh: '印族',     ja: 'インド系',       es: 'India' },
+  indonesian:        { en: 'Indonesian',      fr: 'Indonésienne',  id: 'Indonesia', ru: 'Индонезийская', de: 'Indonesisch',        zh: '印尼',     ja: 'インドネシア系', es: 'Indonesia' },
+  eurasian:          { en: 'Eurasian',        fr: 'Eurasienne',    id: 'Eurasia',   ru: 'Евразийская',   de: 'Eurasisch',          zh: '欧亚裔',   ja: 'ユーラシア系',   es: 'Euroasiática' },
+  shared:            { en: 'Shared',          fr: 'Partagé',       id: 'Bersama',   ru: 'Общая',         de: 'Gemeinsam',          zh: '共有',     ja: '共通',           es: 'Compartido' },
 };
 const COMMUNITY_ORDER = ['chinese', 'straits-chinese', 'malay', 'indian', 'indonesian', 'eurasian', 'shared'];
 function groupByCommunity(dishes) {
@@ -257,7 +277,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
           <span className="flex-1">
             <b>{t('plate.cuisineLabel', lang)} {title}</b>
             {cuisineStage === 1 && (
-              <>{' '}{headliners.map((h) => titleCaseDish(h.dish)).join(', ') + (groups.length ? '…' : '')}</>
+              <>{' '}{headliners.map((h) => dishDisplayName(h, lang)).join(', ') + (groups.length ? '…' : '')}</>
             )}
             {cuisineStage === 2 && (
               <>{' '}{t('plate.tapHint', lang)}</>
@@ -288,8 +308,8 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                        "write-up coming soon" card (still no auto-fire). */
                     onClick={() => setFactIdx(factIdx === 'h' + i ? null : 'h' + i)}
                   >
-                    <span className="font-medium">{titleCaseDish(d.dish)}</span>
-                    {d.local && d.local !== d.dish && <span className="text-tg-hint whitespace-nowrap"> {d.local}</span>}
+                    <span className="font-medium">{dishDisplayName(d, lang)}</span>
+                    {localChip(d, lang) && <span className="text-tg-hint whitespace-nowrap"> {localChip(d, lang)}</span>}
                   </button>
                   {d.note && (
                     <button
@@ -303,7 +323,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                 {factIdx === 'h' + i && (
                   <DishModal onClose={() => setFactIdx(null)}>
                   <div className="mb-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
-                    <div id="gia-dishmodal-title" className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
+                    <div id="gia-dishmodal-title" className="font-semibold">📜 {dishDisplayName(d, lang)}{localChip(d, lang) ? ` · ${localChip(d, lang)}` : ''}</div>
                     {d.note
                       ? <div className="mt-1">{localisedBody(d.note, lang)}</div>
                       : <div className="mt-1 text-tg-hint italic">{t('plate.writeupSoonTap', lang)}</div>}
@@ -376,11 +396,11 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                           className="inline-block text-tg-link no-underline active:scale-95 whitespace-nowrap py-0.5"
                           aria-label={t('plate.explainAria', lang).replace('{dish}', d.dish)}
                           onClick={() => setFactIdx(factIdx === g.group + ':' + d.dish ? null : g.group + ':' + d.dish)}
-                        >{titleCaseDish(d.dish)}{d.local && d.local !== d.dish && <span className="text-tg-hint whitespace-nowrap"> {d.local}</span>}</button>
+                        >{dishDisplayName(d, lang)}{localChip(d, lang) && <span className="text-tg-hint whitespace-nowrap"> {localChip(d, lang)}</span>}</button>
                         {isOpen && (
                           <DishModal onClose={() => setFactIdx(null)}>
                           <div className="my-2 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2 whitespace-normal">
-                            <div id="gia-dishmodal-title" className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
+                            <div id="gia-dishmodal-title" className="font-semibold">📜 {dishDisplayName(d, lang)}{localChip(d, lang) ? ` · ${localChip(d, lang)}` : ''}</div>
                             {d.note
                               ? <div className="mt-1">{localisedBody(d.note, lang)}</div>
                               : <div className="mt-1 text-tg-hint italic">{t('plate.writeupSoonTap', lang)}</div>}
@@ -494,8 +514,8 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                 onClick={() => setFactIdx(factIdx === i ? null : i)}
               >
                 <span className="min-w-0">
-                  <span className="font-medium">{titleCaseDish(d.dish)}</span>
-                  {d.local && d.local !== d.dish && <span className="text-tg-hint whitespace-nowrap"> {d.local}</span>}
+                  <span className="font-medium">{dishDisplayName(d, lang)}</span>
+                  {localChip(d, lang) && <span className="text-tg-hint whitespace-nowrap"> {localChip(d, lang)}</span>}
                   {d.gloss && (d.gloss.en || d.gloss.fr) && (
                     <span className="text-tg-hint"> · {localisedBody(d.gloss, lang)}</span>
                   )}
@@ -508,7 +528,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
             return (
               <DishModal onClose={() => setFactIdx(null)}>
               <div className="mt-1.5 mb-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2">
-                <div id="gia-dishmodal-title" className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
+                <div id="gia-dishmodal-title" className="font-semibold">📜 {dishDisplayName(d, lang)}{localChip(d, lang) ? ` · ${localChip(d, lang)}` : ''}</div>
                 <div className="mt-1">{localisedBody(d.history, lang)}</div>
                 <div className="mt-1 text-tg-hint">
                   {localisedBody(TIER_LABEL[d.tier], lang) || d.tier} · {d.claim}
@@ -588,7 +608,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                   const clCard = (d) => (
                     <DishModal onClose={() => setFactIdx(null)}>
                     <div className="my-1.5 rounded-xl border border-tg-accent/40 bg-tg-bg px-3 py-2 whitespace-normal">
-                      <div id="gia-dishmodal-title" className="font-semibold">📜 {titleCaseDish(d.dish)}{d.local && d.local !== d.dish ? ` · ${d.local}` : ''}</div>
+                      <div id="gia-dishmodal-title" className="font-semibold">📜 {dishDisplayName(d, lang)}{localChip(d, lang) ? ` · ${localChip(d, lang)}` : ''}</div>
                       {d.note && (d.note.en || d.note.fr)
                         ? <div className="mt-1">{localisedBody(d.note, lang)}</div>
                         : <div className="mt-1 text-tg-hint">{t('plate.writeupSoon', lang)}</div>
@@ -642,7 +662,7 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                             anyway. The emoji only renders when SPICY_RE matched the
                             dish NAME itself, so the adjacent text already conveys
                             the dish; hide the glyph instead of naming it. */}
-                        {SPICY_RE.test(d.dish) && <span aria-hidden="true">🌶 </span>}{titleCaseDish(d.dish)}</button>
+                        {SPICY_RE.test(d.dish) && <span aria-hidden="true">🌶 </span>}{dishDisplayName(d, lang)}</button>
                         {isOpen && clCard(d)}
                       </React.Fragment>
                     );
