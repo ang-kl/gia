@@ -13336,7 +13336,7 @@ async function cacheBotUsername() {
             // the only place those names reach a reader. Same lookup as
             // city-plates.js:_overlayDishMeta — namesFor() folds case on both
             // sides, which is the bug that cost 17 dishes at v0.62.862.
-            const names = _dishNamesI18n.namesFor(d.name);
+            const names = _dishNamesI18n.namesFor(d.name, slug);
             return {
               name: d.name, local: d.local || '', kind: d.kind || 'food', note: d.note || null,
               ...(names ? { nameI18n: names } : {}),
