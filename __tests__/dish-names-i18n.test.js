@@ -51,6 +51,8 @@ const COVERED = [
   'turkish', 'lebanese', 'persian', 'moroccan', 'israeli', 'egyptian', 'jordanian',
   // v0.62.872 — batch 6b closes the Middle-Eastern / African / Central-Asian set.
   'uzbek', 'georgian', 'african', 'south-african',
+  // v0.62.873 — batch 7a: the Americas and Oceania.
+  'mexican', 'argentinian', 'brazilian', 'australian', 'new-zealand', 'australasia',
 ];
 const distinctDishes = (slug) =>
   [...new Set((NATION_OVERLAY[slug].iconicDishes || []).map((d) => d.name))];
@@ -63,6 +65,12 @@ const CJK = /[぀-ヿ㐀-鿿]/;
 // Brands printed in Latin on the product. A Cyrillic or kana rendering would be
 // wrong, not more localised — "IPA" is "IPA" on a Japanese beer menu too. Listed
 // one by one so the rule itself stays strict.
+// Shared by the two home-locale assertions (batch 5a's European set and batch
+// 7a's Spanish-speaking one). Hoisted rather than copied: a second definition
+// that drifts from the first is how one guard quietly stops matching the other.
+const foldForHomeLocale = (s) => s.toLowerCase().replace(/œ/g, 'oe').replace(/ß/g, 'ss')
+  .normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+
 const LATIN_BRAND_OK = new Set([
   '100 plus (isotonic)',      // printed in Latin on the can
   'ipa',                      // "IPA" on a Japanese beer menu too
@@ -257,8 +265,7 @@ describe('batch 5a — the key already IS the home language', () => {
   // the home-language name, spelled the way nation-overlay.js keys it. Folding
   // passes them while a genuine translation still fails: `Zwiebelsuppe` does not
   // start with `soupeloignon` under any normalisation.
-  const fold = (s) => s.toLowerCase().replace(/œ/g, 'oe').replace(/ß/g, 'ss')
-    .normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
+  // (`foldForHomeLocale` is defined at module scope — batch 7a reuses it.)
 
   // The other THIRTEEN are keys that are genuinely English, correctly translated
   // under rule 1. Each is listed by hand with its reason, so an exemption is a
@@ -287,7 +294,7 @@ describe('batch 5a — the key already IS the home language', () => {
         const v = namesFor(name, slug);
         if (!v || HOME_LOCALE_EXEMPT.has(name.toLowerCase())) continue;
         checked += 1;
-        if (!fold(v[locale]).startsWith(fold(name))) {
+        if (!foldForHomeLocale(v[locale]).startsWith(foldForHomeLocale(name))) {
           wrong.push(`${slug}/${name}: ${locale} is "${v[locale]}", not the dish's own name`);
         }
       }
@@ -500,6 +507,68 @@ describe('batch 6b — one dish keyed twice inside one cuisine', () => {
   });
 });
 
+describe('batch 7a — Spanish is an app locale, so 5a returns', () => {
+  // For `mexican` and `argentinian` the key is already Spanish (`cochinita pibil`,
+  // `bife de chorizo`), and unlike Turkish or Arabic, `es` IS one of the seven
+  // columns. So 5a's rule applies unchanged, and it reuses 5a's `foldForHomeLocale`
+  // rather than a third near-identical helper.
+  const HOME_ES = ['mexican', 'argentinian'];
+
+  // Measured against the real table BEFORE this assertion was written, the
+  // discipline that made 5a's guard correct: 52 checked, exactly ONE failing.
+  // `churros mexican` is not among them — `Churros mexicanos` folds to a string
+  // that does start with the key, so folding earns its keep again here.
+  const HOME_ES_EXEMPT = new Set([
+    'vacio steak',   // the key carries the English word "steak"; the cut is `vacío`
+  ]);
+
+  it('never translates a Spanish dish name out of Spanish', () => {
+    let checked = 0;
+    const wrong = [];
+    for (const slug of HOME_ES) {
+      for (const name of new Set(NATION_OVERLAY[slug].iconicDishes.map((d) => d.name))) {
+        const v = namesFor(name, slug);
+        if (!v || HOME_ES_EXEMPT.has(name.toLowerCase())) continue;
+        checked += 1;
+        if (!foldForHomeLocale(v.es).startsWith(foldForHomeLocale(name))) {
+          wrong.push(`${slug}/${name}: es is "${v.es}", not the dish's own name`);
+        }
+      }
+    }
+    expect(checked, 'the Spanish home-locale join matched nothing').toBeGreaterThan(45);
+    expect(HOME_ES_EXEMPT.size, 'exemptions are outgrowing the rule').toBeLessThanOrEqual(4);
+    expect(wrong, wrong.join(' | ')).toEqual([]);
+  });
+
+  it('every Spanish exemption names a dish one of those two nations serves', () => {
+    const served = new Set(HOME_ES
+      .flatMap((s) => NATION_OVERLAY[s].iconicDishes.map((d) => d.name.toLowerCase())));
+    const dead = [...HOME_ES_EXEMPT].filter((n) => !served.has(n));
+    expect(dead, `exempt but not served: ${dead.join(', ')}`).toEqual([]);
+  });
+
+  // Brazilian Portuguese carries seven diacritic keys, and a wrong one is
+  // invisible to every script check here — still Latin, not Cyrillic, not CJK.
+  // Portuguese is not an app locale, so there is no home-locale claim; what CAN
+  // be asserted is that the Latin columns do not silently ASCII-flatten the name.
+  it('never flattens Brazilian Portuguese diacritics in a Latin locale', () => {
+    const keys = [...new Set(NATION_OVERLAY.brazilian.iconicDishes.map((d) => d.name))]
+      .filter((n) => /[^\x00-\x7F]/.test(n));
+    expect(keys.length, 'the Brazilian diacritic fixture changed size').toBe(7);
+    const strip = (x) => x.normalize('NFD').replace(/[̀-ͯ]/g, '');
+    const flattened = [];
+    for (const name of keys) {
+      const v = namesFor(name, 'brazilian');
+      for (const l of ['fr', 'id', 'de', 'es']) {
+        if (v[l].toLowerCase() === strip(name).toLowerCase()) {
+          flattened.push(`${name}.${l} = "${v[l]}" — the key with its accents stripped`);
+        }
+      }
+    }
+    expect(flattened, flattened.join(' | ')).toEqual([]);
+  });
+});
+
 describe('community sub-headers are localised', () => {
   // The operator's screenshot showed "— Chinese —" in English under a Chinese
   // header, because COMMUNITY carried en/fr only.
@@ -576,6 +645,8 @@ describe('the SECOND surface — /api/cuisine/dishes', () => {
     'turkish', 'lebanese', 'persian', 'moroccan',              // batch 6a
     'israeli', 'egyptian', 'jordanian',
     'uzbek', 'georgian', 'african', 'south-african',       // batch 6b
+    'mexican', 'argentinian', 'brazilian', 'australian',   // batch 7a
+    'new-zealand', 'australasia',
   ];
 
   it.each(DRAWER_SLUGS)('resolves a name for every dish the endpoint serves for %s', (slug) => {
