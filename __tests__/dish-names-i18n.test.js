@@ -32,6 +32,8 @@ const COVERED = [
   'thai', 'malaysian', 'indonesian', 'peranakan',
   // v0.62.864 — batch 2.
   'north-indian', 'south-indian', 'american', 'italian',
+  // v0.62.865 — batch 3, first three. The rest of the Chinese family follows.
+  'chinese', 'sichuan', 'hunan',
 ];
 const distinctDishes = (slug) =>
   [...new Set((NATION_OVERLAY[slug].iconicDishes || []).map((d) => d.name))];
@@ -134,6 +136,8 @@ describe('dish names — zh agrees with the curated local name', () => {
   // dressed as rigour.
   const LOCAL_WRITES = {
     singaporean: 'zh', cantonese: 'zh', peranakan: 'zh',
+    // Batch 3 — the Chinese family, whose `local` IS the Chinese name.
+    chinese: 'zh', sichuan: 'zh', hunan: 'zh',
     japanese: 'ja',
     korean: null, thai: null, malaysian: null, indonesian: null,
   };
@@ -234,6 +238,7 @@ describe('the SECOND surface — /api/cuisine/dishes', () => {
   const DRAWER_SLUGS = [
     'italian', 'north-indian', 'south-indian', 'american',   // reachable ONLY here
     'japanese', 'singaporean',                               // also on the plate
+    'chinese', 'sichuan', 'hunan',                           // batch 3
   ];
 
   it.each(DRAWER_SLUGS)('resolves a name for every dish the endpoint serves for %s', (slug) => {

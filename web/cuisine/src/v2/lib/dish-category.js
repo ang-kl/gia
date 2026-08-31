@@ -14,13 +14,35 @@ export function dishCategory(term) {
 }
 
 const CATEGORY_WORD = {
-  dish: { en: 'dish', fr: 'plat', id: 'hidangan', ru: 'блюдо', de: 'Gericht' },
-  dessert: { en: 'dessert', fr: 'dessert', id: 'pencuci mulut', ru: 'десерт', de: 'Dessert' },
-  drink: { en: 'drink', fr: 'boisson', id: 'minuman', ru: 'напиток', de: 'Getränk' },
+  dish:    { en: 'dish',    fr: 'plat',            id: 'hidangan',       ru: 'блюдо',   de: 'Gericht', zh: '料理',   ja: '料理',   es: 'plato' },
+  dessert: { en: 'dessert', fr: 'dessert',         id: 'pencuci mulut',  ru: 'десерт',  de: 'Dessert', zh: '甜品',   ja: 'デザート', es: 'postre' },
+  drink:   { en: 'drink',   fr: 'boisson',         id: 'minuman',        ru: 'напиток', de: 'Getränk', zh: '饮品',   ja: 'ドリンク', es: 'bebida' },
 };
-const LIKELY = {
-  en: 'Likely serves', fr: 'Sert probablement', id: 'Kemungkinan menyajikan',
-  ru: 'Вероятно подаёт', de: 'Serviert wahrscheinlich',
+
+// v0.62.865 — operator, with a screenshot of the Japanese UI showing
+// "Likely serves salted egg yolk crab dish" in English: *"card strip isn't
+// translated"*. Two faults, not one:
+//
+//   1. `zh`, `ja` and `es` were simply absent, so three of the eight locales fell
+//      through to English.
+//   2. The line was built as `${LIKELY} ${term} ${category}` — ENGLISH WORD ORDER,
+//      hard-coded in the concatenation. Adding the three missing words would have
+//      produced "提供している可能性があります 咸蛋黄螃蟹 料理", which is not a
+//      sentence. Japanese puts the verb last and Chinese needs no spaces, so the
+//      order has to belong to the locale, not to the template.
+//
+// This is AMD-61's lesson in a different costume: a positional template silently
+// mis-renders for zh/ja while looking fine in every Latin locale. Named
+// placeholders, one pattern per locale.
+const LIKELY_PATTERN = {
+  en: 'Likely serves {term} {category}',
+  fr: 'Sert probablement : {term} ({category})',
+  id: 'Kemungkinan menyajikan {term} ({category})',
+  ru: 'Вероятно подаёт: {term} ({category})',
+  de: 'Serviert wahrscheinlich {term} ({category})',
+  zh: '可能供应{term}{category}',
+  ja: '{term}{category}を提供している可能性があります',
+  es: 'Probablemente sirve {term} ({category})',
 };
 
 export function categoryWord(term, lang) {
@@ -29,8 +51,14 @@ export function categoryWord(term, lang) {
 }
 
 // "Likely serves Laksa dish" — the strip / copy line for one searched term.
+//
+// NOTE ON `{term}`: it stays as the reader searched it. Localising the dish NAME
+// here would need `dish-names-i18n.js`, which is CommonJS at the repo root while
+// this bundle is ESM — the boundary Rollup refuses to cross. Flagged rather than
+// bodged; it needs the table generated into `web/_shared/`, which is its own change.
 export function likelyServesText(term, lang) {
   const t = String(term || '').trim();
   if (!t) return '';
-  return `${LIKELY[lang] || LIKELY.en} ${t} ${categoryWord(t, lang)}`;
+  const pattern = LIKELY_PATTERN[lang] || LIKELY_PATTERN.en;
+  return pattern.replace('{term}', t).replace('{category}', categoryWord(t, lang));
 }

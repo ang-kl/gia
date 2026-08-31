@@ -52,6 +52,25 @@ import { useLocale, useLocaleHydrated, t, tn } from './lib/i18n.js';
 import { usePronunciations } from '../../../_shared/lib/use-pronounce.js';
 import { streetOf } from '../../../_shared/lib/pronounce-client.js';
 import { takeStash, stashAndReload, mapsLanguageIsStale } from '../../../_shared/lib/locale-reload.js';
+
+// v0.62.865 — operator: *"When I toggle the language, remove the code to refresh
+// the search, just the refresh the google map."*
+//
+// They were describing a BUG, not asking for a redesign. The locale reload stashes
+// the results and restores them on mount — but `runInitialLoad()` then fired a full
+// `runSearch` anyway and overwrote them, so every language toggle re-ran the search
+// the stash existed to preserve. The reload's only job is to re-language the Maps
+// SDK (Google fixes `language` at injection and offers no way to change it after),
+// and it was doing a second job nobody asked for.
+//
+// MODULE SCOPE, NOT A REF, AND THAT IS DELIBERATE. The restore effect sits ABOVE
+// `const initialSearchDone = useRef(false)` in this file, and its position is
+// load-bearing — reading a `const` declared further down is a temporal dead zone
+// crash, which is exactly the v0.62.841 white-screen the render smoke exists to
+// catch. A module-level binding is initialised at module load, so it is safe to
+// read from anywhere, and it resets on a genuine fresh page load because the
+// module is re-evaluated.
+let localeReloadRestored = false;
 import { initData } from '../api/tg.js';
 import { tg, hasInitData, getTelegramLocation, openTelegramLocationSettings } from '../api/tg.js';
 import { giaToggleStyle } from './lib/mapOverlays.js';
@@ -807,6 +826,9 @@ export default function App() {
   useEffect(() => {
     const restored = takeStash();
     if (!restored) return;
+    // Suppress the boot search: these results ARE the search, carried across the
+    // reload. Set before any setState so it is true by the time runInitialLoad runs.
+    localeReloadRestored = true;
     if (Array.isArray(restored.venues)) setVenues(restored.venues);
     if (restored.searchCenter) setSearchCenter(restored.searchCenter);
     if (restored.userLoc) setUserLoc(restored.userLoc);
@@ -2656,7 +2678,10 @@ export default function App() {
   // braces re-entry guard (the gate-opener also gates on
   // initialLoadFiredRef).
   function runInitialLoad() {
-    if (!userLoc || initialSearchDone.current) return;
+    // v0.62.865 — a locale reload restored the previous results, so re-running the
+    // search here would discard them and show the operator a refresh they did not ask
+    // for. Explicit triggers (🔍 Search, the FAB, "Search this area") still work.
+    if (!userLoc || initialSearchDone.current || localeReloadRestored) return;
     // v0.61.373 — region-aware SINGLE SOURCE OF TRUTH (search-location.js).
     // An explicit anchor / committed searchCenter wins; the device GPS is a
     // valid centre ONLY in SG. In OTHER / JB with no pick yet, `center` is
