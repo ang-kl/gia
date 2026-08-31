@@ -19,6 +19,16 @@ const { namesFor } = require_('../dish-names-i18n.js');
 const { platesForCity } = require_('../city-plates.js');
 
 const LOCALES = ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+
+// v0.62.863 — the suite was Singapore-only; each new batch of nations gets the
+// SAME four guarantees by being listed here, rather than a fresh set of
+// hand-written assertions that quietly omit one.
+const COVERED = [
+  'singaporean', 'cantonese', 'japanese', 'korean',
+  'thai', 'malaysian', 'indonesian', 'peranakan',
+];
+const distinctDishes = (slug) =>
+  [...new Set((NATION_OVERLAY[slug].iconicDishes || []).map((d) => d.name))];
 const CYRILLIC = /[Ѐ-ӿ]/;
 const LATIN = /[A-Za-z]/;
 const CJK = /[぀-ヿ㐀-鿿]/;
@@ -30,8 +40,8 @@ const LATIN_BRAND_OK = new Set(['100 plus (isotonic)']);
 describe('dish names — coverage', () => {
   const sgNames = [...new Set(NATION_OVERLAY.singaporean.iconicDishes.map((d) => d.name))];
 
-  it('covers every distinct Singapore classic', () => {
-    const missing = sgNames.filter((n) => !DISH_NAMES[n]);
+  it.each(COVERED)('covers every distinct classic in %s', (slug) => {
+    const missing = distinctDishes(slug).filter((n) => !namesFor(n));
     expect(missing, `untranslated: ${missing.join(', ')}`).toEqual([]);
   });
 
@@ -45,7 +55,7 @@ describe('dish names — coverage', () => {
   });
 
   it('has no key that is not a real dish (a typo’d key is silently dead)', () => {
-    const known = new Set(sgNames);
+    const known = new Set(COVERED.flatMap(distinctDishes));
     const orphans = Object.keys(DISH_NAMES).filter((k) => !known.has(k));
     expect(orphans, `keys matching no dish: ${orphans.join(', ')}`).toEqual([]);
   });
@@ -72,6 +82,26 @@ describe('dish names — script integrity', () => {
     expect(bad, bad.join(' | ')).toEqual([]);
   });
 
+  // Added after a heredoc mangled one Cyrillic value into "Тве\uFFFD\uFFFDжан ччигэ".
+  // A replacement character renders as a black diamond and is invisible in a diff
+  // scanned by eye, so it is a machine check now.
+  it('has no replacement characters anywhere', () => {
+    const bad = [];
+    for (const [k, v] of Object.entries(DISH_NAMES)) {
+      for (const [l, str] of Object.entries(v)) {
+        if (str.includes('\uFFFD')) bad.push(`${k}.${l} => ${str}`);
+      }
+    }
+    expect(bad, bad.join(' | ')).toEqual([]);
+  });
+
+  it('gives ja kana or kanji', () => {
+    const bad = Object.entries(DISH_NAMES)
+      .filter(([, v]) => !CJK.test(v.ja))
+      .map(([k, v]) => `${k} => ${v.ja}`);
+    expect(bad, bad.join(' | ')).toEqual([]);
+  });
+
   it('gives zh an actual Chinese name', () => {
     const bad = Object.entries(DISH_NAMES)
       .filter(([, v]) => !CJK.test(v.zh))
@@ -84,18 +114,48 @@ describe('dish names — zh agrees with the curated local name', () => {
   // nation-overlay.js already carries `local` for many dishes, authored against
   // the dish's own sources. Inventing a second, competing Chinese name here
   // would be a regression wearing coverage as a disguise.
-  it('never contradicts an existing curated local name', () => {
-    const disagree = [];
-    let checked = 0;
-    for (const d of NATION_OVERLAY.singaporean.iconicDishes) {
-      const mine = DISH_NAMES[d.name] && DISH_NAMES[d.name].zh;
-      if (!d.local || !mine) continue;
-      checked += 1;
-      if (mine !== d.local) disagree.push(`${d.name}: curated ${d.local} vs ${mine}`);
+  // Which locale a curated `local` constrains depends on the NATION, not on the
+  // script. The first draft of this inferred it from the script — "pure Han
+  // therefore Chinese" — and it failed on true data: Japan's 蕎麦, 餅, 日本酒 and
+  // 親子丼 are Japanese words written in kanji, and the Chinese names really are
+  // 荞麦面, 麻糬, 清酒, 亲子丼. The test was wrong, not the table.
+  //
+  // Korean (비빔밥) and Thai (ผัดไทย) `local` values are in scripts no app locale
+  // uses, so they constrain nothing. Asserting against them would be noise
+  // dressed as rigour.
+  const LOCAL_WRITES = {
+    singaporean: 'zh', cantonese: 'zh', peranakan: 'zh',
+    japanese: 'ja',
+    korean: null, thai: null, malaysian: null, indonesian: null,
+  };
+
+  it('never invents a name where a curated one exists', () => {
+    // A dish name is one key here but can be curated by SEVERAL nations, and they
+    // do not always agree: `claypot frog leg porridge` is 砂煲田鸡粥 in the
+    // Singapore overlay and 田鸡粥 in the Cantonese one. One global entry cannot
+    // equal both, so the rule is membership in the curated SET, not equality with
+    // whichever nation was iterated last — which would make the result depend on
+    // key order.
+    const curated = {};   // `${dish}|${locale}` -> Set of curated values
+    for (const [slug, locale] of Object.entries(LOCAL_WRITES)) {
+      if (!locale) continue;
+      for (const d of NATION_OVERLAY[slug].iconicDishes) {
+        if (!d.local || !namesFor(d.name)) continue;
+        const k = `${d.name.toLowerCase()}|${locale}`;
+        (curated[k] = curated[k] || new Set()).add(d.local);
+      }
     }
-    expect(checked, 'no dish had both a curated local name and a zh — the join broke')
-      .toBeGreaterThan(50);
-    expect(disagree, disagree.join(' | ')).toEqual([]);
+    const invented = [];
+    for (const [k, values] of Object.entries(curated)) {
+      const [dish, locale] = k.split('|');
+      const mine = namesFor(dish)[locale];
+      if (!values.has(mine)) {
+        invented.push(`${dish}.${locale}: curated {${[...values].join(', ')}} but wrote ${mine}`);
+      }
+    }
+    expect(Object.keys(curated).length, 'the join broke — no curated pair found')
+      .toBeGreaterThan(100);
+    expect(invented, invented.join(' | ')).toEqual([]);
   });
 });
 
@@ -119,15 +179,19 @@ describe('the names actually reach the payload the app renders', () => {
   // the keys are written as nation-overlay.js writes them, so every dish with a
   // capital missed — "chicken curry SG style", "kopi-O", "teh-C". A green table
   // and a broken feature. Only rendering the real payload showed it.
-  const dishes = (platesForCity('Singapore').classicGroups || []).flatMap((g) => g.dishes || []);
+  // One city per batch nation. A green table proves the file is rectangular; only
+  // this proves it is CONNECTED — and last time the difference was 17 dishes.
+  const CITIES = ['Singapore', 'Kuala Lumpur', 'George Town', 'Bangkok', 'Tokyo', 'Kyoto'];
+  const classicsIn = (city) =>
+    ((platesForCity(city) || {}).classicGroups || []).flatMap((g) => g.dishes || []);
+  const dishes = classicsIn('Singapore');
 
-  it('has the Singapore plate the operator screenshotted', () => {
-    expect(dishes.length).toBe(162);
-  });
-
-  it('attaches nameI18n to EVERY classic in that plate', () => {
-    const missing = dishes.filter((d) => !d.nameI18n).map((d) => d.dish);
-    expect(missing, `still English: ${missing.join(', ')}`).toEqual([]);
+  it.each(CITIES)('attaches nameI18n to EVERY classic served for %s', (city) => {
+    const list = classicsIn(city);
+    expect(list.length, `${city} returned no classics — the plate lookup broke`)
+      .toBeGreaterThan(0);
+    const missing = list.filter((d) => !d.nameI18n).map((d) => d.dish);
+    expect(missing, `${city} still English: ${missing.join(', ')}`).toEqual([]);
   });
 
   it('folds case on both sides of the lookup', () => {
@@ -142,7 +206,7 @@ describe('the names actually reach the payload the app renders', () => {
   it('never lets a translated name displace the search key', () => {
     // `d.dish` is what onTryDish() searches for and what the explain-card keys
     // on. If a translation ever overwrote it, the row would stop finding food.
-    for (const d of dishes) {
+    for (const d of CITIES.flatMap(classicsIn)) {
       expect(typeof d.dish).toBe('string');
       expect(/[぀-ヿ㐀-鿿Ѐ-ӿ]/.test(d.dish), `${d.dish} is no longer a Latin search key`).toBe(false);
     }
