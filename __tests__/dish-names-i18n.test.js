@@ -11,6 +11,10 @@
 import { describe, it, expect } from 'vitest';
 import { createRequire } from 'node:module';
 const require_ = createRequire(import.meta.url);
+import { readFileSync } from 'node:fs';
+import { join as pathJoin, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+const ROOT = pathJoin(dirname(fileURLToPath(import.meta.url)), '..');
 
 const { DISH_NAMES } = require_('../dish-names-i18n.js');
 const { NATION_OVERLAY } = require_('../nation-overlay.js');
@@ -26,6 +30,8 @@ const LOCALES = ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
 const COVERED = [
   'singaporean', 'cantonese', 'japanese', 'korean',
   'thai', 'malaysian', 'indonesian', 'peranakan',
+  // v0.62.864 — batch 2.
+  'north-indian', 'south-indian', 'american', 'italian',
 ];
 const distinctDishes = (slug) =>
   [...new Set((NATION_OVERLAY[slug].iconicDishes || []).map((d) => d.name))];
@@ -35,7 +41,10 @@ const CJK = /[぀-ヿ㐀-鿿]/;
 
 // "100 Plus" is a brand printed in Latin on the can; a Cyrillic rendering would
 // be wrong, not more localised. Listed explicitly so the rule stays strict.
-const LATIN_BRAND_OK = new Set(['100 plus (isotonic)']);
+// Brands printed in Latin on the product. A Cyrillic or kana rendering would be
+// wrong, not more localised — "IPA" is "IPA" on a Japanese beer menu too. Listed
+// one by one so the rule itself stays strict.
+const LATIN_BRAND_OK = new Set(['100 plus (isotonic)', 'ipa']);
 
 describe('dish names — coverage', () => {
   const sgNames = [...new Set(NATION_OVERLAY.singaporean.iconicDishes.map((d) => d.name))];
@@ -97,7 +106,7 @@ describe('dish names — script integrity', () => {
 
   it('gives ja kana or kanji', () => {
     const bad = Object.entries(DISH_NAMES)
-      .filter(([, v]) => !CJK.test(v.ja))
+      .filter(([k, v]) => !CJK.test(v.ja) && !LATIN_BRAND_OK.has(k))
       .map(([k, v]) => `${k} => ${v.ja}`);
     expect(bad, bad.join(' | ')).toEqual([]);
   });
@@ -210,5 +219,59 @@ describe('the names actually reach the payload the app renders', () => {
       expect(typeof d.dish).toBe('string');
       expect(/[぀-ヿ㐀-鿿Ѐ-ӿ]/.test(d.dish), `${d.dish} is no longer a Latin search key`).toBe(false);
     }
+  });
+});
+
+describe('the SECOND surface — /api/cuisine/dishes', () => {
+  // Scoping batch 2 turned up a whole screen that was never wired. CITY_PLATES
+  // covers 15 Asia-Pacific countries only, so `platesForCity` CANNOT reach Indian,
+  // American or Italian cuisine — there is no Delhi, no Rome, no New York. Those
+  // dishes reach a reader through the cuisine-keyed "Dishes" pop-up in
+  // CuisineCategoryDrawer.jsx, fed by /api/cuisine/dishes?slug=…, which serves any
+  // slug. Translating 118 names without wiring that endpoint would have shipped
+  // dead strings — the same rectangular-vs-connected failure as the 17-dish miss at
+  // v0.62.862, one level up.
+  const DRAWER_SLUGS = [
+    'italian', 'north-indian', 'south-indian', 'american',   // reachable ONLY here
+    'japanese', 'singaporean',                               // also on the plate
+  ];
+
+  it.each(DRAWER_SLUGS)('resolves a name for every dish the endpoint serves for %s', (slug) => {
+    const dishes = (NATION_OVERLAY[slug].iconicDishes || []).filter((d) => d && d.name);
+    expect(dishes.length, `${slug} serves no dishes`).toBeGreaterThan(0);
+    const missing = dishes.filter((d) => !namesFor(d.name)).map((d) => d.name);
+    expect(missing, `${slug} would render English: ${missing.join(', ')}`).toEqual([]);
+  });
+
+  it('has no city plate for the batch-2 cuisines — so the check above is the only one', () => {
+    // Pins the reason DRAWER_SLUGS exists. If a plate city is ever added for one of
+    // these countries, this fails and whoever adds it also adds it to CITIES.
+    const { CITY_PLATES } = require_('../city-plates.js');
+    const countries = new Set(Object.values(CITY_PLATES).map((v) => v.country));
+    for (const cc of ['IN', 'US', 'IT']) {
+      expect(countries.has(cc), `${cc} now has a plate city — add it to CITIES too`).toBe(false);
+    }
+  });
+
+  // The endpoint is a route closure inside index.js, not an exported function, so it
+  // cannot be called from here without booting the bot. This reads the source
+  // instead — a weaker check, and named as such — because the alternative is no
+  // check at all on the line that makes 118 translations visible.
+  it('index.js actually wires nameI18n into the endpoint', () => {
+    const src = readFileSync(pathJoin(ROOT, 'index.js'), 'utf8');
+    const route = src.slice(src.indexOf("app.get('/api/cuisine/dishes'"));
+    const body = route.slice(0, route.indexOf('/api/cuisine/dishes failed'));
+    expect(body, 'the endpoint no longer looks a dish name up').toMatch(/namesFor\(d\.name\)/);
+    expect(body, 'the endpoint no longer attaches nameI18n').toMatch(/nameI18n:\s*names/);
+  });
+
+  it('the drawer renders the localised name, not the raw one', () => {
+    const src = readFileSync(
+      pathJoin(ROOT, 'web/cuisine/src/v2/components/CuisineCategoryDrawer.jsx'), 'utf8');
+    expect(src, 'the drawer stopped importing the shared helpers')
+      .toMatch(/import \{ dishDisplayName, localChip \} from '\.\/ArrivalPlate\.jsx'/);
+    // The raw name must still be what the tap searches for.
+    expect(src, 'the search key is no longer the raw English name')
+      .toMatch(/onPickDish\?\.\(dishDetail\.name\)/);
   });
 });

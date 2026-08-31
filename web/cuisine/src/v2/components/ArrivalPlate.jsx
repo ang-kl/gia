@@ -89,17 +89,27 @@ const DISH_ACRONYMS = new Set(['bbq', 'hk', 'kl', 'xo', 'sg', 'nz', 'usa', 'uk',
 // The DISPLAY name changes; `d.dish` does not — it is the search term passed to
 // onTryDish(), the explain-card key and the aria-label, so translating it here
 // would break the tap-to-search the row exists for.
+// v0.62.864 — the plate calls the raw name `dish`; /api/cuisine/dishes calls it
+// `name`. Read either, so the Dishes drawer can reuse these instead of growing a
+// second copy that drifts — two near-identical renderers keyed on different field
+// names is how `local` and `name` diverged in the first place.
+export function rawDishName(d) {
+  if (!d) return '';
+  return typeof d.dish === 'string' && d.dish ? d.dish : (d.name || '');
+}
+
 export function dishDisplayName(d, lang) {
   const n = d && d.nameI18n;
   if (n && lang && lang !== 'en' && typeof n[lang] === 'string' && n[lang]) return n[lang];
-  return titleCaseDish(d && d.dish);
+  return titleCaseDish(rawDishName(d));
 }
 
 // Show the dish's own-language name only when it ADDS something: once the
 // display name is already zh, repeating `local` renders 辣椒螃蟹 辣椒螃蟹.
 export function localChip(d, lang) {
   const shown = dishDisplayName(d, lang);
-  return (d && d.local && d.local !== d.dish && d.local !== shown) ? d.local : null;
+  const raw = rawDishName(d);
+  return (d && d.local && d.local !== raw && d.local !== shown) ? d.local : null;
 }
 
 function titleCaseDish(s) {

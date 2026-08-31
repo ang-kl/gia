@@ -3,6 +3,7 @@ import { useLocale, t as tr } from '../lib/i18n.js';
 // v0.61.411 — durian-belt gate for the special slugs (durian / durian-pastry).
 import { isSlugCountryAllowed, SPECIAL_SLUGS } from '../lib/cuisine-selection.js';
 import { cuisineName } from '../lib/cuisine-i18n.js';
+import { dishDisplayName, localChip } from './ArrivalPlate.jsx';
 import { initData } from '../../api/tg.js';
 // P1-d — shared dialog behaviour (focus trap / initial focus / Escape / restore).
 import { useDialog } from '../../../../_shared/lib/use-dialog.js';
@@ -284,11 +285,15 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
                           {d.groupLabel[lang] || d.groupLabel.en}
                         </span>
                       )}
-                      <span className="text-[12px] font-medium leading-tight capitalize">{d.name}</span>
-                      {d.local && d.local !== d.name && <span className="text-[11px] text-tg-hint leading-tight">{d.local}</span>}
+                      <span className="text-[12px] font-medium leading-tight">{dishDisplayName(d, lang)}</span>
+                      {localChip(d, lang) && <span className="text-[11px] text-tg-hint leading-tight">{localChip(d, lang)}</span>}
                       {/* v0.62.462/463 — one-line curated description preview, device-language
                           when translated; EN fallback; hidden if neither exists. Tap the dish for
-                          the full, un-truncated explanation. Dish NAME stays verbatim (identity). */}
+                          the full, un-truncated explanation. v0.62.864 — the dish NAME is now
+                          localised too (operator: "translate all the dishes into 6 languages"),
+                          superseding the "stays verbatim (identity)" rule that stood here. The
+                          identity that must stay verbatim is `d.name`, which is what onPickDish()
+                          searches for — not what the reader sees. */}
                       {(d.note && (d.note[lang] || d.note.en)) && (
                         <span className="text-[10px] text-tg-hint leading-snug mt-0.5 line-clamp-2">{d.note[lang] || d.note.en}</span>
                       )}
@@ -310,7 +315,7 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
           onClick={(e) => { if (e.target === e.currentTarget) setDishDetail(null); }}>
           <div ref={dishDetailDialogRef} className="flex flex-col w-full max-w-[380px] max-h-[70vh] rounded-2xl border border-tg-border bg-tg-bg shadow-2xl overflow-hidden">
             <div className="flex items-center gap-2 px-3 py-3 border-b border-tg-border bg-tg-card">
-              <h3 id="gia-drawer-dishdetail-title" className="text-sm font-semibold flex-1 truncate capitalize">{dishDetail.name}</h3>
+              <h3 id="gia-drawer-dishdetail-title" className="text-sm font-semibold flex-1 truncate">{dishDisplayName(dishDetail, lang)}</h3>
               <button type="button" onClick={() => setDishDetail(null)} aria-label={tr('loc.close', lang)}
                 className="text-tg-hint text-sm leading-none px-1 flex-shrink-0">✕</button>
             </div>
@@ -339,8 +344,8 @@ export default function CuisineCategoryDrawer({ category, selected, onToggle, on
                   )}
                 </div>
               )}
-              {dishDetail.local && dishDetail.local !== dishDetail.name && (
-                <div className="text-sm text-tg-hint mb-2">{dishDetail.local}</div>
+              {localChip(dishDetail, lang) && (
+                <div className="text-sm text-tg-hint mb-2">{localChip(dishDetail, lang)}</div>
               )}
               <p className="text-[13px] leading-relaxed text-tg-text">
                 {(dishDetail.note && (dishDetail.note[lang] || dishDetail.note.en)) || (tr('ccd.descSoon', lang))}
