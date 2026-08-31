@@ -46,6 +46,9 @@ const COVERED = [
   // v0.62.870 — batch 5b: the European set where the key is a TRANSLITERATION
   // rather than the name. None of these 138 dishes carries a curated `local`.
   'british', 'greek', 'russian', 'ukrainian', 'scandinavian', 'polish',
+  // v0.62.871 — batch 6a: the first set with NO home locale at all. Turkish,
+  // Arabic, Hebrew and Persian are none of them app locales.
+  'turkish', 'lebanese', 'persian', 'moroccan', 'israeli', 'egyptian', 'jordanian',
 ];
 const distinctDishes = (slug) =>
   [...new Set((NATION_OVERLAY[slug].iconicDishes || []).map((d) => d.name))];
@@ -363,6 +366,71 @@ describe('batch 5b — the key is a transliteration, not the name', () => {
   });
 });
 
+describe('batch 6a — no home locale at all', () => {
+  // Turkish, Arabic, Hebrew and Persian are none of them app locales, so there is
+  // no column to assert a prefix on (5a) and no script to require (5b) — and
+  // measured, zero of these 154 dishes carries a curated `local`, so rule 3 gives
+  // nothing either. What Turkish does bring is orthography that must not be
+  // flattened.
+  //
+  // ⚠ 5a's FOLDING comparison would actively HIDE the failure here. Folding maps
+  // ı→i, so `Manti` and `Mantı` compare equal — and ı is a different LETTER in
+  // Turkish, not an accent. So this assertion is the opposite of 5a's: the
+  // ASCII-degraded spelling is forbidden, not tolerated.
+  const TURKISH_LETTERS = /[ışğçöüİ]/;
+  const degrade = (s) => s.replace(/ı/g, 'i').replace(/İ/g, 'I')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '');
+
+  it('never flattens Turkish orthography in a Latin locale', () => {
+    const keys = [...new Set(NATION_OVERLAY.turkish.iconicDishes.map((d) => d.name))]
+      .filter((n) => TURKISH_LETTERS.test(n));
+    // Non-vacuity, pinned to the measured count: an overlay edit that strips the
+    // diacritics empties this guard silently, and that must fail here instead.
+    expect(keys.length, 'the Turkish diacritic fixture changed size').toBe(10);
+
+    const flattened = [];
+    for (const name of keys) {
+      const v = namesFor(name, 'turkish');
+      for (const l of ['fr', 'id', 'de', 'es']) {
+        // The value may legitimately be a real translation ("Loukoum" for turkish
+        // delight). What it may never be is the key with its Turkish letters
+        // stripped — that is a degraded spelling masquerading as the name.
+        if (v[l].toLowerCase() === degrade(name).toLowerCase()) {
+          flattened.push(`${name}.${l} = "${v[l]}" — the key with its Turkish letters stripped`);
+        }
+      }
+    }
+    expect(flattened, flattened.join(' | ')).toEqual([]);
+  });
+
+  // ⚠ The degradation is not hypothetical: `nation-overlay.js` lists BOTH `manti`
+  // and `mantı` as separate Turkish dishes, with notes that are word-for-word
+  // identical apart from that one character. Same dish, keyed twice. Both are
+  // translated because coverage requires it, and they are pinned equal so a later
+  // edit cannot drift them into two spellings of one dish saying different things.
+  // Fixing the overlay is a separate change — it alters what the app serves.
+  it('the duplicated manti/mantı keys say the same thing', () => {
+    const a = namesFor('manti', 'turkish');
+    const b = namesFor('mantı', 'turkish');
+    expect(a, 'manti is missing').toBeTruthy();
+    expect(b, 'mantı is missing').toBeTruthy();
+    expect(a).toEqual(b);
+  });
+
+  // Caught a real slip in this batch's own draft (`水börek千层`). One legitimate
+  // exception: the biáng glyph 𰻞 is absent from most fonts, so pinyin is the
+  // standard workaround rather than a lapse. Named, so it reads as a judgement
+  // that was made rather than a threshold that happened to pass.
+  const LATIN_IN_ZH_OK = new Set(['biang biang noodles']);
+
+  it('no Chinese value carries stray Latin letters', () => {
+    const bad = Object.entries(DISH_NAMES)
+      .filter(([k, v]) => !LATIN_IN_ZH_OK.has(k) && CJK.test(v.zh) && LATIN.test(v.zh))
+      .map(([k, v]) => `${k}.zh = ${v.zh}`);
+    expect(bad, bad.join(' | ')).toEqual([]);
+  });
+});
+
 describe('community sub-headers are localised', () => {
   // The operator's screenshot showed "— Chinese —" in English under a Chinese
   // header, because COMMUNITY carried en/fr only.
@@ -436,6 +504,8 @@ describe('the SECOND surface — /api/cuisine/dishes', () => {
     'portuguese',
     'british', 'greek', 'russian', 'ukrainian',                // batch 5b
     'scandinavian', 'polish',
+    'turkish', 'lebanese', 'persian', 'moroccan',              // batch 6a
+    'israeli', 'egyptian', 'jordanian',
   ];
 
   it.each(DRAWER_SLUGS)('resolves a name for every dish the endpoint serves for %s', (slug) => {
