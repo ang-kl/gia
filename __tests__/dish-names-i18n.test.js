@@ -37,6 +37,9 @@ const COVERED = [
   // v0.62.866 — batch 3 complete: the rest of the Chinese family.
   'hong-kong', 'northwestern', 'hakka', 'shanghainese', 'northeastern',
   'macau', 'taiwanese', 'hokkien', 'hainanese', 'teochew',
+  // v0.62.867 — batch 4: the Southeast & South Asian set.
+  'vietnamese', 'filipino', 'pakistani', 'bengali', 'sri-lankan',
+  'gujarati', 'goan', 'nepalese', 'burmese',
 ];
 const distinctDishes = (slug) =>
   [...new Set((NATION_OVERLAY[slug].iconicDishes || []).map((d) => d.name))];
@@ -53,6 +56,7 @@ const LATIN_BRAND_OK = new Set([
   '100 plus (isotonic)',      // printed in Latin on the can
   'ipa',                      // "IPA" on a Japanese beer menu too
   'din tai fung dumplings',   // the restaurant chain's own name
+  'san miguel beer',          // the brewery's own name
 ]);
 
 describe('dish names — coverage', () => {
@@ -267,6 +271,7 @@ describe('the SECOND surface — /api/cuisine/dishes', () => {
     'japanese', 'singaporean',                               // also on the plate
     'chinese', 'sichuan', 'hunan',                           // batch 3
     'hong-kong', 'macau', 'taiwanese', 'hokkien', 'teochew', // batch 3 completed
+    'vietnamese', 'filipino', 'burmese', 'goan', 'nepalese', // batch 4
   ];
 
   it.each(DRAWER_SLUGS)('resolves a name for every dish the endpoint serves for %s', (slug) => {
@@ -306,5 +311,46 @@ describe('the SECOND surface — /api/cuisine/dishes', () => {
     // The raw name must still be what the tap searches for.
     expect(src, 'the search key is no longer the raw English name')
       .toMatch(/onPickDish\?\.\(dishDetail\.name\)/);
+  });
+});
+
+describe('Vietnamese — a Latin-script `local`, which is a new shape', () => {
+  // Every curated `local` before batch 4 was CJK, and rule 3 said "reuse it for
+  // zh". Vietnamese breaks that: its `local` is Vietnamese — Latin script with full
+  // diacritics — so it is the right spelling for the FOUR LATIN LOCALES, not for zh.
+  //
+  // Measured: for 21 of 24 dishes the `local` is exactly the key with its accents
+  // restored. `pho bo` is a degraded form of `Phở bò`, and a reader in French,
+  // Indonesian, German or Spanish should see the real one.
+  const LATIN = ['fr', 'id', 'de', 'es'];
+
+  it('uses the accented `local`, not the accent-stripped key', () => {
+    const wrong = [];
+    let checked = 0;
+    for (const d of NATION_OVERLAY.vietnamese.iconicDishes) {
+      const mine = namesFor(d.name);
+      if (!d.local || !mine) continue;
+      checked += 1;
+      for (const l of LATIN) {
+        // `startsWith`, not equality: three keys carry a parenthetical gloss the
+        // `local` does not — `cha gio (nem ran)` → `Chả giò` — and dropping
+        // "(nem rán)" would lose the alternate name the key deliberately records.
+        if (!mine[l].startsWith(d.local)) wrong.push(`${d.name}.${l}: ${mine[l]} vs ${d.local}`);
+      }
+    }
+    expect(checked, 'no Vietnamese dish had both a local and an entry — the join broke')
+      .toBeGreaterThan(20);
+    expect(wrong, wrong.join(' | ')).toEqual([]);
+  });
+
+  it('actually carries diacritics — the failure mode unique to this batch', () => {
+    // A wrong Vietnamese accent is invisible to every script check in this file:
+    // it is still Latin, still not Cyrillic, still not CJK. Only the comparison
+    // above catches it, so prove the fixture is not vacuous.
+    const bare = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i;
+    const accented = NATION_OVERLAY.vietnamese.iconicDishes
+      .filter((d) => d.local && bare.test(d.local)).length;
+    expect(accented, 'the Vietnamese overlay has no accented locals to check against')
+      .toBeGreaterThan(15);
   });
 });
