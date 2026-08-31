@@ -1230,6 +1230,185 @@ const DISH_NAMES = {
   // history — Indo-Portuguese — and keep their own rows.
   'chouriço':               { fr: 'Chouriço',                     id: 'Chouriço',                   ru: 'Шоурису',                         de: 'Chouriço',                        zh: '葡式烟熏香肠', ja: 'ショウリソ',          es: 'Chouriço' },
   'arroz doce':             { fr: 'Arroz doce',                   id: 'Arroz doce',                 ru: 'Аррош доси',                      de: 'Arroz Doce',                      zh: '葡式甜米布丁', ja: 'アロス・ドース',      es: 'Arroz doce' },
+  // ══ Russian ════════════════════════════════════════════════════════════
+  // A NEW SHAPE AGAIN, and the third one this project has met. Here the key is a
+  // Latin TRANSLITERATION of a Cyrillic name — `borscht` is how English writes
+  // Борщ — so `ru` is the home language and the key shares no characters with it.
+  // 5a's "the value starts with the key" cannot apply; the rule that can is
+  // SCRIPT: a `ru` value still in Latin letters means the transliteration was
+  // copied through untranslated. None of these dishes carries a curated `local`,
+  // so rule 3 contributes nothing to this batch and nothing here is free.
+  'borscht':                { fr: 'Bortsch',                      id: 'Borscht',                    ru: 'Борщ',                            de: 'Borschtsch',                      zh: '罗宋汤',     ja: 'ボルシチ',              es: 'Borsch' },
+  'pelmeni':                { fr: 'Pelmeni',                      id: 'Pelmeni',                    ru: 'Пельмени',                        de: 'Pelmeni',                         zh: '俄式饺子',   ja: 'ペリメニ',              es: 'Pelmeni' },
+  'beef stroganoff':        { fr: 'Bœuf Stroganoff',              id: 'Bistik Stroganoff',          ru: 'Бефстроганов',                    de: 'Boeuf Stroganoff',                zh: '俄式奶油牛肉', ja: 'ビーフストロガノフ',  es: 'Ternera Stroganoff' },
+  'blini':                  { fr: 'Blinis',                       id: 'Blini',                      ru: 'Блины',                           de: 'Blini',                           zh: '俄式薄煎饼', ja: 'ブリヌイ',              es: 'Blini' },
+  'pirozhki':               { fr: 'Pirojki',                      id: 'Pirozhki',                   ru: 'Пирожки',                         de: 'Piroschki',                       zh: '俄式馅饼',   ja: 'ピロシキ',              es: 'Pirozhki' },
+  'shchi':                  { fr: 'Chtchi',                       id: 'Shchi',                      ru: 'Щи',                              de: 'Schtschi',                        zh: '白菜汤',     ja: 'シチー',                es: 'Shchi' },
+  'solyanka':               { fr: 'Solianka',                     id: 'Solyanka',                   ru: 'Солянка',                         de: 'Soljanka',                        zh: '酸辣杂拌汤', ja: 'ソリャンカ',            es: 'Soliana' },
+  'vinaigrette salad':      { fr: 'Salade vinaigrette russe',     id: 'Salad vinegret',             ru: 'Винегрет',                        de: 'Vinegret-Salat',                  zh: '甜菜沙拉',   ja: 'ヴィネグレットサラダ',  es: 'Ensalada vinagreta rusa' },
+  'olivier salad':          { fr: 'Salade Olivier',               id: 'Salad Olivier',              ru: 'Салат Оливье',                    de: 'Olivier-Salat',                   zh: '俄式土豆沙拉', ja: 'オリヴィエサラダ',    es: 'Ensalada Olivier' },
+  'selyodka pod shuboy':    { fr: 'Hareng en manteau de fourrure', id: 'Herring berbalut bit',      ru: 'Селёдка под шубой',               de: 'Hering im Pelzmantel',            zh: '皮衣鲱鱼',   ja: '毛皮のコートを着たニシン', es: 'Arenque con abrigo' },
+  'kasha':                  { fr: 'Kacha',                        id: 'Kasha',                      ru: 'Каша',                            de: 'Kascha',                          zh: '俄式粥',     ja: 'カーシャ',              es: 'Kasha' },
+  'kvass':                  { fr: 'Kvas',                         id: 'Kvass',                      ru: 'Квас',                            de: 'Kwas',                            zh: '格瓦斯',     ja: 'クワス',                es: 'Kvas' },
+  'medovik':                { fr: 'Medovik',                      id: 'Medovik',                    ru: 'Медовик',                         de: 'Medowik',                         zh: '俄式蜂蜜千层', ja: 'メドヴィーク',        es: 'Medovik' },
+  'syrniki':                { fr: 'Syrniki',                      id: 'Syrniki',                    ru: 'Сырники',                         de: 'Syrniki',                         zh: '俄式奶渣饼', ja: 'スィルニキ',            es: 'Syrniki' },
+  'vatrushka':              { fr: 'Vatrouchka',                   id: 'Vatrushka',                  ru: 'Ватрушка',                        de: 'Watruschka',                      zh: '奶渣馅饼',   ja: 'ヴァトルーシュカ',      es: 'Vatrushka' },
+  'okroshka':               { fr: 'Okrochka',                     id: 'Okroshka',                   ru: 'Окрошка',                         de: 'Okroschka',                       zh: '俄式冷汤',   ja: 'オクローシカ',          es: 'Okroshka' },
+  'ukha':                   { fr: 'Oukha',                        id: 'Ukha',                       ru: 'Уха',                             de: 'Ucha',                            zh: '俄式鱼汤',   ja: 'ウハー',                es: 'Ukha' },
+  'beef stew russian':      { fr: 'Ragoût de bœuf russe',         id: 'Semur daging sapi Rusia',    ru: 'Русское тушёное мясо',            de: 'Russischer Rindergulasch',        zh: '俄式炖牛肉', ja: 'ロシア風ビーフシチュー', es: 'Estofado de ternera ruso' },
+  'vareniki':               { fr: 'Vareniki',                     id: 'Vareniki',                   ru: 'Вареники',                        de: 'Wareniki',                        zh: '俄式甜饺',   ja: 'ヴァレーニキ',          es: 'Vareniki' },
+  'golubtsy':               { fr: 'Goloubtsy',                    id: 'Golubtsy',                   ru: 'Голубцы',                         de: 'Golubzy',                         zh: '俄式白菜卷', ja: 'ガルブツィ',            es: 'Golubtsy' },
+  'kulebyaka':              { fr: 'Koulibiac',                    id: 'Kulebyaka',                  ru: 'Кулебяка',                        de: 'Kulebjaka',                       zh: '俄式大馅饼', ja: 'クレビャーカ',          es: 'Kulebiaka' },
+  'chebureki':              { fr: 'Tchebureki',                   id: 'Chebureki',                  ru: 'Чебуреки',                        de: 'Tschebureki',                     zh: '炸肉馅饼',   ja: 'チェブレキ',            es: 'Chebureki' },
+
+  // ══ Ukrainian ══════════════════════════════════════════════════════════
+  // ⚠ UKRAINIAN IS NOT RUSSIAN, and six near-twin pairs sit across the two
+  // nations because the overlay spells them differently ON PURPOSE: vareniki /
+  // varenyky, syrniki / syrnyky, golubtsy / holubtsi, borscht / borscht
+  // ukrainian, kvass / kvas ukrainian, chebureki / crimean tatar chebureki.
+  // `ru` is the Russian LANGUAGE, so a Russian-language rendering belongs there —
+  // but the LATIN locales follow the Ukrainian original the key already uses
+  // (`Varenyky`, never `Vareniki`). Both forms are Cyrillic, so no script check
+  // can catch a mix-up here; these twelve rows are right by reading, not by guard.
+  'borscht ukrainian':      { fr: 'Bortsch ukrainien',            id: 'Borscht Ukraina',            ru: 'Украинский борщ',                 de: 'Ukrainischer Borschtsch',         zh: '乌克兰红菜汤', ja: 'ウクライナ風ボルシチ', es: 'Borsch ucraniano' },
+  'varenyky':               { fr: 'Varenyky',                     id: 'Varenyky',                   ru: 'Вареники',                        de: 'Warenyky',                        zh: '乌克兰饺子', ja: 'ヴァレヌィキ',          es: 'Varenyky' },
+  'salo':                   { fr: 'Salo',                         id: 'Salo',                       ru: 'Сало',                            de: 'Salo',                            zh: '腌猪脂',     ja: 'サーロ',                es: 'Salo' },
+  'chicken kyiv':           { fr: 'Poulet à la Kyiv',             id: 'Ayam Kyiv',                  ru: 'Котлета по-киевски',              de: 'Chicken Kiew',                    zh: '基辅炸鸡卷', ja: 'チキン・キエフ',        es: 'Pollo a la Kyiv' },
+  'holubtsi':               { fr: 'Holoubtsi',                    id: 'Holubtsi',                   ru: 'Голубцы',                         de: 'Holubtsi',                        zh: '乌克兰菜卷', ja: 'ホルプツィ',            es: 'Holubtsi' },
+  'deruny':                 { fr: 'Derouny',                      id: 'Deruny',                     ru: 'Деруны',                          de: 'Deruny',                          zh: '乌式土豆煎饼', ja: 'デルヌィ',            es: 'Deruny' },
+  'pampushky':              { fr: 'Pampouchky',                   id: 'Pampushky',                  ru: 'Пампушки',                        de: 'Pampuschky',                      zh: '蒜香小面包', ja: 'パンプシュキ',          es: 'Pampushky' },
+  'paska':                  { fr: 'Paska',                        id: 'Paska',                      ru: 'Паска',                           de: 'Paska',                           zh: '乌式复活节面包', ja: 'パスカ',            es: 'Paska' },
+  'syrniky':                { fr: 'Syrnyky',                      id: 'Syrnyky',                    ru: 'Сырники',                         de: 'Syrnyky',                         zh: '乌式奶渣饼', ja: 'スィルヌィキ',          es: 'Syrnyky' },
+  'uzvar':                  { fr: 'Ouzvar',                       id: 'Uzvar',                      ru: 'Узвар',                           de: 'Uswar',                           zh: '干果甜饮',   ja: 'ウズヴァル',            es: 'Uzvar' },
+  'kotleta po kyivsky':     { fr: 'Kotleta po-kyivsky',           id: 'Kotleta po kyivsky',         ru: 'Котлета по-киевски',              de: 'Kotleta po Kyjivsky',             zh: '基辅式肉排', ja: 'コトレータ・ポ・キーウシキ', es: 'Kotleta po kyivsky' },
+  'halushky':               { fr: 'Halouchky',                    id: 'Halushky',                   ru: 'Галушки',                         de: 'Haluschky',                       zh: '乌式面疙瘩', ja: 'ハルシュキ',            es: 'Halushky' },
+  'mlyntsi':                { fr: 'Mlyntsi',                      id: 'Mlyntsi',                    ru: 'Млинцы',                          de: 'Mlynzi',                          zh: '乌式薄饼',   ja: 'ムルィンツィ',          es: 'Mlyntsi' },
+  'kapusta':                { fr: 'Kapusta',                      id: 'Kapusta',                    ru: 'Капуста',                         de: 'Kapusta',                         zh: '炖酸白菜',   ja: 'カプスタ',              es: 'Kapusta' },
+  'kvas ukrainian':         { fr: 'Kvas ukrainien',               id: 'Kvas Ukraina',               ru: 'Украинский квас',                 de: 'Ukrainischer Kwas',               zh: '乌克兰格瓦斯', ja: 'ウクライナ風クワス',  es: 'Kvas ucraniano' },
+  'vushka':                 { fr: 'Vouchka',                      id: 'Vushka',                     ru: 'Ушки',                            de: 'Wuschka',                         zh: '小耳朵饺',   ja: 'ヴシュカ',              es: 'Vushka' },
+  'verhuny':                { fr: 'Verhouny',                     id: 'Verhuny',                    ru: 'Вергуны',                         de: 'Werhuny',                         zh: '乌式脆炸酥条', ja: 'ヴェルフヌィ',        es: 'Verhuny' },
+  'crimean tatar chebureki': { fr: 'Tchebureki tatars de Crimée', id: 'Chebureki Tatar Krimea',     ru: 'Крымскотатарские чебуреки',       de: 'Krimtatarische Tschebureki',      zh: '克里米亚鞑靼炸馅饼', ja: 'クリミア・タタール風チェブレキ', es: 'Chebureki tártaros de Crimea' },
+  'odessan forshmak':       { fr: 'Forschmak d’Odessa',           id: 'Forshmak Odessa',            ru: 'Одесский форшмак',                de: 'Odessaer Forschmak',              zh: '敖德萨鲱鱼酱', ja: 'オデーサ風フォルシュマク', es: 'Forshmak de Odesa' },
+  'lard sandwiches':        { fr: 'Tartines de salo',             id: 'Roti isi salo',              ru: 'Бутерброды с салом',              de: 'Salo-Brote',                      zh: '猪脂抹面包', ja: 'サーロのオープンサンド', es: 'Panes con salo' },
+  'domashnya kovbasa':      { fr: 'Kovbassa maison',              id: 'Sosis rumahan Ukraina',      ru: 'Домашняя колбаса',                de: 'Hausgemachte Kowbasa',            zh: '乌式家常香肠', ja: '自家製コウバサ',      es: 'Kovbasa casera' },
+  // ══ British ════════════════════════════════════════════════════════════
+  // The heaviest rule-1 load in the batch: the key is plain descriptive English
+  // and `en` is not one of the seven columns, so ALL SEVEN do real work and
+  // nothing here comes free. `shepherd's pie` and `pimm's` carry the batch's two
+  // apostrophes — keyed byte-for-byte as nation-overlay.js writes them, because a
+  // typographic apostrophe matched nothing in batch 3.
+  'fish and chips':         { fr: 'Fish and chips',               id: 'Ikan dan kentang goreng',    ru: 'Фиш-энд-чипс',                    de: 'Fish and Chips',                  zh: '炸鱼薯条',   ja: 'フィッシュ・アンド・チップス', es: 'Pescado con patatas' },
+  'full english breakfast': { fr: 'Petit-déjeuner anglais complet', id: 'Sarapan Inggris lengkap',  ru: 'Полный английский завтрак',       de: 'Englisches Frühstück',            zh: '英式早餐',   ja: 'フルイングリッシュブレックファスト', es: 'Desayuno inglés completo' },
+  "shepherd's pie":         { fr: 'Hachis Parmentier à l’agneau', id: 'Pai gembala',                ru: 'Пастуший пирог',                  de: 'Shepherd’s Pie',                  zh: '牧羊人派',   ja: 'シェパーズパイ',        es: 'Pastel de pastor' },
+  'cottage pie':            { fr: 'Hachis Parmentier au bœuf',    id: 'Pai daging sapi',            ru: 'Коттеджный пирог',                de: 'Cottage Pie',                     zh: '农舍牛肉派', ja: 'コテージパイ',          es: 'Pastel de carne' },
+  'beef wellington':        { fr: 'Bœuf Wellington',              id: 'Beef Wellington',            ru: 'Говядина Веллингтон',             de: 'Beef Wellington',                 zh: '威灵顿牛排', ja: 'ビーフ・ウェリントン',  es: 'Solomillo Wellington' },
+  'bangers and mash':       { fr: 'Saucisses purée',              id: 'Sosis dan kentang tumbuk',   ru: 'Сосиски с картофельным пюре',     de: 'Würstchen mit Kartoffelbrei',     zh: '香肠土豆泥', ja: 'ソーセージとマッシュポテト', es: 'Salchichas con puré' },
+  'toad in the hole':       { fr: 'Saucisses en pâte à Yorkshire', id: 'Sosis panggang adonan',     ru: 'Сосиски в тесте',                 de: 'Würstchen im Teigmantel',         zh: '面糊烤香肠', ja: 'トード・イン・ザ・ホール', es: 'Salchichas en masa' },
+  'yorkshire pudding':      { fr: 'Yorkshire pudding',            id: 'Yorkshire pudding',          ru: 'Йоркширский пудинг',              de: 'Yorkshire Pudding',               zh: '约克郡布丁', ja: 'ヨークシャープディング', es: 'Pudin de Yorkshire' },
+  'sunday roast':           { fr: 'Rôti du dimanche',             id: 'Panggang hari Minggu',       ru: 'Воскресное жаркое',               de: 'Sonntagsbraten',                  zh: '周日烤肉餐', ja: 'サンデーロースト',      es: 'Asado dominical' },
+  'roast beef':             { fr: 'Rosbif',                       id: 'Daging sapi panggang',       ru: 'Ростбиф',                         de: 'Roastbeef',                       zh: '烤牛肉',     ja: 'ローストビーフ',        es: 'Rosbif' },
+  'cornish pasty':          { fr: 'Chausson cornouaillais',       id: 'Pastel Cornwall',            ru: 'Корнуоллский пирожок',            de: 'Cornish Pasty',                   zh: '康沃尔肉馅饼', ja: 'コーニッシュ・パスティ', es: 'Empanada de Cornualles' },
+  'scotch egg':            { fr: 'Œuf écossais',                  id: 'Telur Skotlandia',           ru: 'Яйцо по-шотландски',              de: 'Scotch Egg',                      zh: '苏格兰蛋',   ja: 'スコッチエッグ',        es: 'Huevo escocés' },
+  'haggis':                 { fr: 'Haggis',                       id: 'Haggis',                     ru: 'Хаггис',                          de: 'Haggis',                          zh: '苏格兰羊杂', ja: 'ハギス',                es: 'Haggis' },
+  'black pudding':          { fr: 'Boudin noir anglais',          id: 'Sosis darah',                ru: 'Кровяная колбаса',                de: 'Blutwurst (britisch)',            zh: '英式血肠',   ja: 'ブラックプディング',    es: 'Morcilla inglesa' },
+  'balti curry':            { fr: 'Curry balti',                  id: 'Kari balti',                 ru: 'Карри балти',                     de: 'Balti-Curry',                     zh: '巴尔蒂咖喱', ja: 'バルティ・カレー',      es: 'Curry balti' },
+  'cream tea':              { fr: 'Cream tea',                    id: 'Cream tea',                  ru: 'Чай со сконами и сливками',       de: 'Cream Tea',                       zh: '奶油茶点',   ja: 'クリームティー',        es: 'Cream tea' },
+  'victoria sponge':        { fr: 'Gâteau Victoria',              id: 'Bolu Victoria',              ru: 'Бисквит «Виктория»',              de: 'Victoria-Biskuit',                zh: '维多利亚海绵蛋糕', ja: 'ヴィクトリアスポンジ', es: 'Bizcocho Victoria' },
+  'eton mess':              { fr: 'Eton mess',                    id: 'Eton mess',                  ru: 'Итонский беспорядок',             de: 'Eton Mess',                       zh: '伊顿麦斯',   ja: 'イートン・メス',        es: 'Eton mess' },
+  'sticky toffee pudding':  { fr: 'Pudding au caramel',           id: 'Puding toffee',              ru: 'Пудинг с ирисочным соусом',       de: 'Sticky Toffee Pudding',           zh: '太妃糖布丁', ja: 'スティッキー・トフィー・プディング', es: 'Pudin de toffee' },
+  'trifle':                 { fr: 'Trifle',                       id: 'Trifle',                     ru: 'Трайфл',                          de: 'Trifle',                          zh: '英式甜品杯', ja: 'トライフル',            es: 'Trifle' },
+  'crumpets':               { fr: 'Crumpets',                     id: 'Crumpet',                    ru: 'Крампеты',                        de: 'Crumpets',                        zh: '英式松饼',   ja: 'クランペット',          es: 'Crumpets' },
+  'marmite on toast':       { fr: 'Marmite sur toast',            id: 'Marmite di roti panggang',   ru: 'Тост с мармайтом',                de: 'Marmite auf Toast',               zh: '酵母酱吐司', ja: 'マーマイトトースト',    es: 'Marmite en tostada' },
+  'english breakfast tea':  { fr: 'Thé English Breakfast',        id: 'Teh English Breakfast',      ru: 'Чай «Английский завтрак»',        de: 'English Breakfast Tea',           zh: '英式早餐茶', ja: 'イングリッシュブレックファストティー', es: 'Té English Breakfast' },
+  'earl grey tea':          { fr: 'Thé Earl Grey',                id: 'Teh Earl Grey',              ru: 'Чай «Эрл Грей»',                  de: 'Earl-Grey-Tee',                   zh: '伯爵茶',     ja: 'アールグレイ',          es: 'Té Earl Grey' },
+  "pimm's":                 { fr: 'Pimm’s',                       id: "Pimm's",                     ru: 'Пиммс',                           de: 'Pimm’s',                          zh: '皮姆酒',     ja: 'ピムス',                es: 'Pimm’s' },
+  'cask ale':               { fr: 'Ale de fût',                   id: 'Ale tong kayu',              ru: 'Бочковой эль',                    de: 'Fassbier-Ale',                    zh: '桶装艾尔',   ja: 'カスクエール',          es: 'Ale de barril' },
+  'british ale':            { fr: 'Ale britannique',              id: 'Ale Inggris',                ru: 'Британский эль',                  de: 'Britisches Ale',                  zh: '英式艾尔',   ja: 'ブリティッシュエール',  es: 'Ale británica' },
+
+  // ══ Greek ══════════════════════════════════════════════════════════════
+  // Latin transliterations of Greek, and Greek is not an app locale — so rule 2
+  // keeps the name across the Latin columns and `zh`/`ja`/`ru` do the authoring.
+  'moussaka':               { fr: 'Moussaka',                     id: 'Moussaka',                   ru: 'Мусака',                          de: 'Moussaka',                        zh: '希腊茄子肉派', ja: 'ムサカ',              es: 'Musaca' },
+  'souvlaki':               { fr: 'Souvlaki',                     id: 'Souvlaki',                   ru: 'Сувлаки',                         de: 'Souvlaki',                        zh: '希腊烤肉串', ja: 'スブラキ',              es: 'Souvlaki' },
+  'gyros':                  { fr: 'Gyros',                        id: 'Gyros',                      ru: 'Гирос',                           de: 'Gyros',                           zh: '希腊旋转烤肉', ja: 'ギロス',              es: 'Gyros' },
+  'spanakopita':            { fr: 'Spanakopita',                  id: 'Spanakopita',                ru: 'Спанакопита',                     de: 'Spanakopita',                     zh: '菠菜奶酪派', ja: 'スパナコピタ',          es: 'Spanakopita' },
+  'tiropita':               { fr: 'Tiropita',                     id: 'Tiropita',                   ru: 'Тиропита',                        de: 'Tiropita',                        zh: '奶酪酥派',   ja: 'ティロピタ',            es: 'Tiropita' },
+  'pastitsio':              { fr: 'Pastitsio',                    id: 'Pastitsio',                  ru: 'Пастицио',                        de: 'Pastitsio',                       zh: '希腊焗通心粉', ja: 'パスティツィオ',      es: 'Pastitsio' },
+  'dolmades':               { fr: 'Dolmades',                     id: 'Dolmades',                   ru: 'Долмадес',                        de: 'Dolmades',                        zh: '葡萄叶包饭', ja: 'ドルマデス',            es: 'Dolmades' },
+  'horiatiki salad':        { fr: 'Salade horiatiki',             id: 'Salad horiatiki',            ru: 'Греческий салат хориатики',       de: 'Horiatiki-Salat',                 zh: '希腊乡村沙拉', ja: 'ホリアティキサラダ',  es: 'Ensalada horiatiki' },
+  'tzatziki':               { fr: 'Tzatziki',                     id: 'Tzatziki',                   ru: 'Дзадзики',                        de: 'Tzatziki',                        zh: '黄瓜酸奶酱', ja: 'ザジキ',                es: 'Tzatziki' },
+  'hummus greek style':     { fr: 'Houmous à la grecque',         id: 'Hummus ala Yunani',          ru: 'Хумус по-гречески',               de: 'Hummus auf griechische Art',      zh: '希腊风鹰嘴豆泥', ja: 'ギリシャ風フムス',  es: 'Hummus a la griega' },
+  'taramasalata':           { fr: 'Taramasalata',                 id: 'Taramasalata',               ru: 'Тарамасалата',                    de: 'Taramasalata',                    zh: '希腊鱼子酱沙拉', ja: 'タラモサラタ',      es: 'Taramasalata' },
+  'saganaki':               { fr: 'Saganaki',                     id: 'Saganaki',                   ru: 'Саганаки',                        de: 'Saganaki',                        zh: '香煎奶酪',   ja: 'サガナキ',              es: 'Saganaki' },
+  'greek octopus':          { fr: 'Poulpe grillé grec',           id: 'Gurita Yunani',              ru: 'Греческий осьминог',              de: 'Griechischer Oktopus',            zh: '希腊烤章鱼', ja: 'ギリシャ風タコ',        es: 'Pulpo a la griega' },
+  'kleftiko':               { fr: 'Kleftiko',                     id: 'Kleftiko',                   ru: 'Клефтико',                        de: 'Kleftiko',                        zh: '慢烤羊肉',   ja: 'クレフティコ',          es: 'Kleftiko' },
+  'stifado':                { fr: 'Stifado',                      id: 'Stifado',                    ru: 'Стифадо',                         de: 'Stifado',                         zh: '希腊洋葱炖肉', ja: 'スティファド',        es: 'Estofado stifado' },
+  'avgolemono':             { fr: 'Avgolemono',                   id: 'Avgolemono',                 ru: 'Авголемоно',                      de: 'Avgolemono',                      zh: '蛋柠檬汤',   ja: 'アヴゴレモノ',          es: 'Avgolemono' },
+  'baklava greek':          { fr: 'Baklava grec',                 id: 'Baklava Yunani',             ru: 'Греческая пахлава',               de: 'Griechisches Baklava',            zh: '希腊果仁蜜饼', ja: 'ギリシャ風バクラヴァ', es: 'Baklava griega' },
+  'galaktoboureko':         { fr: 'Galaktoboureko',               id: 'Galaktoboureko',             ru: 'Галактобуреко',                   de: 'Galaktoboureko',                  zh: '奶蛋酥派',   ja: 'ガラクトブレコ',        es: 'Galaktoboureko' },
+  'loukoumades':            { fr: 'Loukoumades',                  id: 'Loukoumades',                ru: 'Лукумадес',                       de: 'Loukoumades',                     zh: '希腊蜜球',   ja: 'ルクマデス',            es: 'Loukoumades' },
+  'feta cheese':            { fr: 'Feta',                         id: 'Keju feta',                  ru: 'Фета',                            de: 'Feta',                            zh: '菲达奶酪',   ja: 'フェタチーズ',          es: 'Queso feta' },
+  'halloumi greek style':   { fr: 'Halloumi à la grecque',        id: 'Halloumi ala Yunani',        ru: 'Халуми по-гречески',              de: 'Halloumi auf griechische Art',    zh: '希腊风哈罗米', ja: 'ギリシャ風ハルーミ',  es: 'Halloumi a la griega' },
+  'greek yogurt with honey': { fr: 'Yaourt grec au miel',         id: 'Yogurt Yunani dengan madu',  ru: 'Греческий йогурт с мёдом',        de: 'Griechischer Joghurt mit Honig',  zh: '希腊酸奶配蜂蜜', ja: 'ギリシャヨーグルトの蜂蜜がけ', es: 'Yogur griego con miel' },
+  'ouzo':                   { fr: 'Ouzo',                         id: 'Ouzo',                       ru: 'Узо',                             de: 'Ouzo',                            zh: '茴香酒',     ja: 'ウーゾ',                es: 'Ouzo' },
+  'retsina':                { fr: 'Retsina',                      id: 'Retsina',                    ru: 'Рецина',                          de: 'Retsina',                         zh: '松脂葡萄酒', ja: 'レツィーナ',            es: 'Retsina' },
+  'greek coffee':           { fr: 'Café grec',                    id: 'Kopi Yunani',                ru: 'Греческий кофе',                  de: 'Griechischer Kaffee',             zh: '希腊咖啡',   ja: 'ギリシャコーヒー',      es: 'Café griego' },
+  // ══ Scandinavian ═══════════════════════════════════════════════════════
+  // Five keys carry Nordic diacritics, and a WRONG one is invisible to every
+  // script check here — still Latin, still not Cyrillic, still not CJK. Same
+  // hazard as Vietnamese in batch 4. Keyed byte-for-byte as the overlay writes
+  // them: note `smörrebröd` is the overlay's spelling of Danish smørrebrød, and
+  // correcting the overlay is a separate change, not this one's.
+  'gravlax':                { fr: 'Gravlax',                      id: 'Gravlax',                    ru: 'Гравлакс',                        de: 'Graved Lachs',                    zh: '腌渍三文鱼', ja: 'グラヴラックス',        es: 'Gravlax' },
+  'smörrebröd':             { fr: 'Smørrebrød',                   id: 'Smørrebrød',                 ru: 'Смёрреброд',                      de: 'Smørrebrød',                      zh: '丹麦开放三明治', ja: 'スモーブロー',      es: 'Smørrebrød' },
+  'köttbullar':             { fr: 'Köttbullar',                   id: 'Köttbullar',                 ru: 'Кёттбуллар',                      de: 'Köttbullar',                      zh: '瑞典肉丸',   ja: 'ショットブラール',      es: 'Köttbullar' },
+  'lutefisk':               { fr: 'Lutefisk',                     id: 'Lutefisk',                   ru: 'Лютефиск',                        de: 'Lutefisk',                        zh: '碱渍鳕鱼',   ja: 'ルーテフィスク',        es: 'Lutefisk' },
+  'rakfisk':                { fr: 'Rakfisk',                      id: 'Rakfisk',                    ru: 'Ракфиск',                         de: 'Rakfisk',                         zh: '发酵鳟鱼',   ja: 'ラクフィスク',          es: 'Rakfisk' },
+  'janssons frestelse':     { fr: 'Janssons frestelse',           id: 'Janssons frestelse',         ru: 'Искушение Янссона',               de: 'Janssons Frestelse',              zh: '扬松的诱惑', ja: 'ヤンソンの誘惑',        es: 'Tentación de Jansson' },
+  'sill (pickled herring)': { fr: 'Sill (hareng mariné)',         id: 'Sill (herring acar)',        ru: 'Силль (маринованная сельдь)',     de: 'Sill (eingelegter Hering)',       zh: '腌鲱鱼',     ja: 'シル（ニシンの酢漬け）', es: 'Sill (arenque en escabeche)' },
+  'kanelbullar':            { fr: 'Kanelbullar',                  id: 'Kanelbullar',                ru: 'Канелбуллар',                     de: 'Kanelbullar',                     zh: '瑞典肉桂卷', ja: 'カネルブッレ',          es: 'Kanelbullar' },
+  'lefse':                  { fr: 'Lefse',                        id: 'Lefse',                      ru: 'Лефсе',                           de: 'Lefse',                           zh: '挪威软薄饼', ja: 'レフセ',                es: 'Lefse' },
+  'rye bread danish':       { fr: 'Pain de seigle danois',        id: 'Roti gandum hitam Denmark',  ru: 'Датский ржаной хлеб',             de: 'Dänisches Roggenbrot',            zh: '丹麦黑麦面包', ja: 'デンマーク風ライ麦パン', es: 'Pan de centeno danés' },
+  'smörgåstårta':           { fr: 'Smörgåstårta',                 id: 'Smörgåstårta',               ru: 'Смёргосторта',                    de: 'Smörgåstårta',                    zh: '瑞典三明治蛋糕', ja: 'サンドイッチケーキ', es: 'Smörgåstårta' },
+  'reindeer steak':         { fr: 'Steak de renne',               id: 'Steik rusa kutub',           ru: 'Стейк из оленины',                de: 'Rentiersteak',                    zh: '驯鹿排',     ja: 'トナカイのステーキ',    es: 'Filete de reno' },
+  'aquavit':                { fr: 'Aquavit',                      id: 'Aquavit',                    ru: 'Аквавит',                         de: 'Aquavit',                         zh: '北欧香料烈酒', ja: 'アクアビット',        es: 'Aquavit' },
+  'lingonberry jam':        { fr: 'Confiture d’airelles',         id: 'Selai lingonberry',          ru: 'Брусничный джем',                 de: 'Preiselbeermarmelade',            zh: '越橘果酱',   ja: 'リンゴンベリージャム',  es: 'Mermelada de arándano rojo' },
+  'cloudberry':             { fr: 'Mûre arctique',                id: 'Cloudberry',                 ru: 'Морошка',                         de: 'Moltebeere',                      zh: '云莓',       ja: 'クラウドベリー',        es: 'Mora ártica' },
+  'semla':                  { fr: 'Semla',                        id: 'Semla',                      ru: 'Семла',                           de: 'Semla',                           zh: '瑞典奶油包', ja: 'セムラ',                es: 'Semla' },
+  'kalops':                 { fr: 'Kalops',                       id: 'Kalops',                     ru: 'Калопс',                          de: 'Kalops',                          zh: '瑞典炖牛肉', ja: 'カロプス',              es: 'Kalops' },
+  'blodpudding':            { fr: 'Blodpudding',                  id: 'Blodpudding',                ru: 'Кровяной пудинг',                 de: 'Blodpudding',                     zh: '瑞典血肠糕', ja: 'ブロードプディング',    es: 'Blodpudding' },
+  'frikadeller':            { fr: 'Frikadeller',                  id: 'Frikadeller',                ru: 'Фрикадели',                       de: 'Frikadellen',                     zh: '丹麦煎肉饼', ja: 'フリカデラ',            es: 'Frikadeller' },
+  'flæskesteg':             { fr: 'Flæskesteg',                   id: 'Flæskesteg',                 ru: 'Флескестег',                      de: 'Flæskesteg',                      zh: '丹麦脆皮烤猪', ja: 'フレスケスタイ',      es: 'Flæskesteg' },
+  'æbleskiver':             { fr: 'Æbleskiver',                   id: 'Æbleskiver',                 ru: 'Эблескивер',                      de: 'Æbleskiver',                      zh: '丹麦球形松饼', ja: 'エーブルスキーヴァ',  es: 'Æbleskiver' },
+  'toscakaka':              { fr: 'Toscakaka',                    id: 'Toscakaka',                  ru: 'Тоскакака',                       de: 'Toscakaka',                       zh: '瑞典杏仁焦糖蛋糕', ja: 'トスカケーキ',    es: 'Toscakaka' },
+
+  // ══ Polish ═════════════════════════════════════════════════════════════
+  // ALL 21 keys are accent-stripped Polish — `zurek` for żurek, `golabki` for
+  // gołąbki, `paczki` for pączki. Polish is not an app locale, so rule 2 keeps
+  // the name; and following the batch-4 Vietnamese precedent the Latin columns
+  // RESTORE the diacritics, because the bare key is a degraded rendering of the
+  // real name rather than a different name.
+  'pierogi':                { fr: 'Pierogi',                      id: 'Pierogi',                    ru: 'Пироги (польские)',               de: 'Piroggen',                        zh: '波兰饺子',   ja: 'ピエロギ',              es: 'Pierogi' },
+  'bigos':                  { fr: 'Bigos',                        id: 'Bigos',                      ru: 'Бигос',                           de: 'Bigos',                           zh: '猎人炖菜',   ja: 'ビゴス',                es: 'Bigos' },
+  'kielbasa':               { fr: 'Kiełbasa',                     id: 'Kiełbasa',                   ru: 'Колбаса кельбаса',                de: 'Kiełbasa',                        zh: '波兰香肠',   ja: 'キェウバサ',            es: 'Kiełbasa' },
+  'zurek':                  { fr: 'Żurek',                        id: 'Żurek',                      ru: 'Журек',                           de: 'Żurek',                           zh: '波兰酸汤',   ja: 'ジュレック',            es: 'Żurek' },
+  'rosol':                  { fr: 'Rosół',                        id: 'Rosół',                      ru: 'Росул',                           de: 'Rosół',                           zh: '波兰清鸡汤', ja: 'ロスウ',                es: 'Rosół' },
+  'golabki':                { fr: 'Gołąbki',                      id: 'Gołąbki',                    ru: 'Голомбки',                        de: 'Gołąbki',                         zh: '波兰白菜卷', ja: 'ゴウォンプキ',          es: 'Gołąbki' },
+  'placki ziemniaczane':    { fr: 'Placki ziemniaczane',          id: 'Placki ziemniaczane',        ru: 'Драники по-польски',              de: 'Placki Ziemniaczane',             zh: '波兰土豆煎饼', ja: 'ポーランド風ポテトパンケーキ', es: 'Placki ziemniaczane' },
+  'kotlet schabowy':        { fr: 'Kotlet schabowy',              id: 'Kotlet schabowy',            ru: 'Котлет схабовы',                  de: 'Kotlet Schabowy',                 zh: '波兰炸猪排', ja: 'コトレット・スハボヴィ', es: 'Kotlet schabowy' },
+  'mizeria':                { fr: 'Mizeria',                      id: 'Mizeria',                    ru: 'Мизерия',                         de: 'Mizeria',                         zh: '酸奶黄瓜沙拉', ja: 'ミゼリア',            es: 'Mizeria' },
+  'barszcz polish':         { fr: 'Barszcz polonais',             id: 'Barszcz Polandia',           ru: 'Польский борщ',                   de: 'Polnischer Barszcz',              zh: '波兰红菜汤', ja: 'ポーランド風バルシチ',  es: 'Barszcz polaco' },
+  'oscypek':                { fr: 'Oscypek',                      id: 'Oscypek',                    ru: 'Осцыпек',                         de: 'Oscypek',                         zh: '波兰烟熏羊奶酪', ja: 'オスツィペク',      es: 'Oscypek' },
+  'paczki':                 { fr: 'Pączki',                       id: 'Pączki',                     ru: 'Пончки',                          de: 'Pączki',                          zh: '波兰甜甜圈', ja: 'ポンチキ',              es: 'Pączki' },
+  'makowiec':               { fr: 'Makowiec',                     id: 'Makowiec',                   ru: 'Маковец',                         de: 'Mohnstrudel',                     zh: '罂粟籽卷',   ja: 'マコヴィエツ',          es: 'Makowiec' },
+  'sernik':                 { fr: 'Sernik',                       id: 'Sernik',                     ru: 'Сырник польский',                 de: 'Sernik',                          zh: '波兰奶酪蛋糕', ja: 'セルニク',            es: 'Sernik' },
+  'flaki':                  { fr: 'Flaki',                        id: 'Flaki',                      ru: 'Фляки',                           de: 'Flaki',                           zh: '波兰牛肚汤', ja: 'フラキ',                es: 'Flaki' },
+  'kapusta kiszona':        { fr: 'Kapusta kiszona',              id: 'Kapusta kiszona',            ru: 'Квашеная капуста',                de: 'Kapusta Kiszona',                 zh: '波兰酸菜',   ja: 'カプスタ・キショナ',    es: 'Kapusta kiszona' },
+  'mazurek':                { fr: 'Mazurek',                      id: 'Mazurek',                    ru: 'Мазурек',                         de: 'Mazurek',                         zh: '波兰复活节薄饼', ja: 'マズレック',        es: 'Mazurek' },
+  'pierogi ruskie':         { fr: 'Pierogi ruskie',               id: 'Pierogi ruskie',             ru: 'Пироги руске',                de: 'Pierogi Ruskie',                  zh: '土豆奶酪饺', ja: 'ピエロギ・ルスキエ',    es: 'Pierogi ruskie' },
+  'chlodnik':               { fr: 'Chłodnik',                     id: 'Chłodnik',                   ru: 'Хлодник',                         de: 'Chłodnik',                        zh: '波兰冷甜菜汤', ja: 'フウォドニク',        es: 'Chłodnik' },
+  'pyzy':                   { fr: 'Pyzy',                         id: 'Pyzy',                       ru: 'Пызы',                            de: 'Pyzy',                            zh: '波兰土豆团子', ja: 'プィズィ',            es: 'Pyzy' },
+  'zapiekanka':             { fr: 'Zapiekanka',                   id: 'Zapiekanka',                 ru: 'Запеканка',                       de: 'Zapiekanka',                      zh: '波兰烤面包片', ja: 'ザピエカンカ',        es: 'Zapiekanka' },
 };
 
 // Case-folded index. The keys above are written as nation-overlay.js writes them
