@@ -40,6 +40,9 @@ const COVERED = [
   // v0.62.867 — batch 4: the Southeast & South Asian set.
   'vietnamese', 'filipino', 'pakistani', 'bengali', 'sri-lankan',
   'gujarati', 'goan', 'nepalese', 'burmese',
+  // v0.62.869 — batch 5a: the European set where the key already IS the home
+  // language. `portuguese` is in for coverage but out of HOME_LOCALE below.
+  'french', 'spanish', 'german', 'austrian', 'swiss', 'portuguese',
 ];
 const distinctDishes = (slug) =>
   [...new Set((NATION_OVERLAY[slug].iconicDishes || []).map((d) => d.name))];
@@ -223,6 +226,76 @@ describe('dish names — zh agrees with the curated local name', () => {
   });
 });
 
+describe('batch 5a — the key already IS the home language', () => {
+  // For these five the dish is CALLED the key: `soupe à l'oignon`, `spätzle`,
+  // `sachertorte`. Writing "Zwiebelsuppe" where the dish is `soupe à l'oignon`
+  // would be a regression, not a localisation — so the home locale's value must
+  // still start with the key. `portuguese` is deliberately absent: Portuguese is
+  // not an app locale, so there is no home-locale claim to make about it.
+  const HOME_LOCALE = {
+    french: 'fr', spanish: 'es', german: 'de', austrian: 'de', swiss: 'de',
+  };
+
+  // Compare folded, not raw. Measured against the real table: a raw startsWith
+  // fails 20 of 130, and SEVEN of those are the key flattening orthography the
+  // value restores — `boeuf`→`Bœuf`, `weisswurst`→`Weißwurst`, `sangria`→`Sangría`,
+  // `croque monsieur`→`Croque-monsieur`, `selch fleisch`→`Selchfleisch`. Those are
+  // the home-language name, spelled the way nation-overlay.js keys it. Folding
+  // passes them while a genuine translation still fails: `Zwiebelsuppe` does not
+  // start with `soupeloignon` under any normalisation.
+  const fold = (s) => s.toLowerCase().replace(/œ/g, 'oe').replace(/ß/g, 'ss')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
+
+  // The other THIRTEEN are keys that are genuinely English, correctly translated
+  // under rule 1. Each is listed by hand with its reason, so an exemption is a
+  // deliberate line in a diff rather than a silently widened regex.
+  const HOME_LOCALE_EXEMPT = new Set([
+    'duck confit',                    // English key; the dish is `confit de canard`
+    'black forest cake',              // English key; `Schwarzwälder Kirschtorte`
+    'pretzels',                       // English plural; `Brezeln`
+    'rye bread',                      // English descriptive; `Roggenbrot`
+    'german beer',                    // English descriptive; `Deutsches Bier`
+    'riesling wine',                  // key appends "wine"; the drink is `Riesling`
+    'döner kebab german',             // key carries the nation as a disambiguator
+    'goulash austrian',               // same, and `Österreichisches Gulasch` leads
+    'chocolate swiss',                // same shape; `Schweizer Schokolade`
+    'emmentaler cheese',              // key appends "cheese"; the cheese is `Emmentaler`
+    'appenzeller cheese',             // same
+    'pizzoccheri ticino',             // Ticino is the Italian name, Tessin the German
+    'älplermagronen with apfelmus',   // English "with"; German is `mit`
+  ]);
+
+  it('never translates a home-language dish name into its own language', () => {
+    let checked = 0;
+    const wrong = [];
+    for (const [slug, locale] of Object.entries(HOME_LOCALE)) {
+      for (const name of new Set(NATION_OVERLAY[slug].iconicDishes.map((d) => d.name))) {
+        const v = namesFor(name, slug);
+        if (!v || HOME_LOCALE_EXEMPT.has(name.toLowerCase())) continue;
+        checked += 1;
+        if (!fold(v[locale]).startsWith(fold(name))) {
+          wrong.push(`${slug}/${name}: ${locale} is "${v[locale]}", not the dish's own name`);
+        }
+      }
+    }
+    // Non-vacuity, both directions. A map that silently matches nothing has
+    // already happened once in this suite's history; an exemption list that grows
+    // until it swallows the assertion would be the same failure, slower.
+    expect(checked, 'the home-locale join matched nothing').toBeGreaterThan(100);
+    expect(HOME_LOCALE_EXEMPT.size, 'exemptions are outgrowing the rule')
+      .toBeLessThanOrEqual(15);
+    expect(wrong, wrong.join(' | ')).toEqual([]);
+  });
+
+  it('every exemption names a dish one of these five nations actually serves', () => {
+    // An exemption for a dish nobody serves is dead weight that looks like care.
+    const served = new Set(Object.keys(HOME_LOCALE)
+      .flatMap((s) => NATION_OVERLAY[s].iconicDishes.map((d) => d.name.toLowerCase())));
+    const dead = [...HOME_LOCALE_EXEMPT].filter((n) => !served.has(n));
+    expect(dead, `exempt but not served: ${dead.join(', ')}`).toEqual([]);
+  });
+});
+
 describe('community sub-headers are localised', () => {
   // The operator's screenshot showed "— Chinese —" in English under a Chinese
   // header, because COMMUNITY carried en/fr only.
@@ -292,6 +365,8 @@ describe('the SECOND surface — /api/cuisine/dishes', () => {
     'chinese', 'sichuan', 'hunan',                           // batch 3
     'hong-kong', 'macau', 'taiwanese', 'hokkien', 'teochew', // batch 3 completed
     'vietnamese', 'filipino', 'burmese', 'goan', 'nepalese', // batch 4
+    'french', 'spanish', 'german', 'austrian', 'swiss',      // batch 5a
+    'portuguese',
   ];
 
   it.each(DRAWER_SLUGS)('resolves a name for every dish the endpoint serves for %s', (slug) => {
