@@ -24,3 +24,13 @@ public/clipboard/
 # snapshot via `git show <sha>:vault/<version>/<path>`. Kept ignored so ad-hoc local
 # snapshots are never re-committed.
 vault/
+
+# v0.62.860 — Wrong-Log. NOT committed, by operator instruction: `ang-kl/gia` is a
+# public repo and `data/session-replies.ndjson` is already in it, so committing this
+# would publish 226 paragraphs of defect narrative on GitHub regardless of the
+# soleat.net gate. The durable half is the SCRIPT (extract-wrong-log.mjs), which
+# carries no paragraphs. Consequence, stated in that script's header too: Railway
+# deploys from git, so a gitignored file can never reach /doc/vibe-journal.html.
+doc/VibeCodingRecord/data/wrong-log.ndjson
+doc/VibeCodingRecord/data/wrong-log.stats.json
+doc/VibeCodingRecord/wrong-log.html

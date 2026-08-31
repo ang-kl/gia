@@ -32,6 +32,63 @@ privacy, the Legal docs, or tests.
 
 ---
 
+## The Wrong-Log (`extract-wrong-log.mjs` → `wrong-log.html`) — **not committed**
+
+Every paragraph in which the assistant said something was **wrong**, lifted verbatim out of a
+Claude Code transcript. Operator, 31-08 '26: *"copy those paragraphs into the vibe-coding journal
+with a section called Wrong-Log. These are good learning lessons."*
+
+```
+node doc/VibeCodingRecord/extract-wrong-log.mjs <transcript.jsonl> [--since YYYY-MM-DD]
+node doc/VibeCodingRecord/build-wrong-log.mjs
+open doc/VibeCodingRecord/wrong-log.html
+```
+
+**Verbatim and complete — no curation.** The operator said *copy*, and AU-1 says add, never
+compress. Signal was measured before deciding: of 84 paragraphs in the sample window, **zero**
+were "nothing wrong" false positives, so there is no noise to remove even if removing it were
+permitted. Choosing which of my own mistakes are worth keeping is exactly the judgement that
+should not be mine.
+
+### Why it is gitignored, and what that costs
+
+`ang-kl/gia` is a **public** repository, and `data/session-replies.ndjson` is already committed
+to it. Committing the Wrong-Log would therefore publish 226 paragraphs of defect narrative on
+GitHub whatever the soleat.net gate does. Shown that, the operator chose: **never committed**.
+
+So `data/wrong-log.ndjson`, `data/wrong-log.stats.json` and `wrong-log.html` are in
+`.gitignore`, and `__tests__/wrong-log.test.js` asserts `git check-ignore` agrees — a
+`.gitignore` line is precisely what a later `git add -A` defeats silently.
+
+**The consequence, stated so nobody rediscovers it as a gap: Railway deploys from git, so a
+gitignored file can never reach `/doc/vibe-journal.html`.** The operator separately asked for the
+panel to be gated behind `VIBE_JOURNAL_KEY`; the two requests cannot both hold, and *never
+committed* is the stricter one and was chosen second. Anyone adding the panel later is
+**reversing that decision, not filling a gap** — and would be putting the text on GitHub too.
+
+The durable half is the **script**, which carries no paragraphs. It runs against any transcript,
+including the owner's local corpus (`CLAUDE.md`: 6,822+ replies across `gia` and `gia-web`) —
+far more than an ephemeral container can see.
+
+### Secrets
+
+Uses the same three-layer pipeline as `extract-session-replies.mjs`, imported from
+`redact.mjs` rather than reimplemented — `KNOWN SHAPES → transcript-derived operator literals →
+fail closed`. Being uncommitted does **not** relax this: the file is written to disk and handed
+to a human. On the 226-paragraph run it reported `redactions: 0` from 83 collected operator
+secrets; that zero is only meaningful because the tests prove the pipeline **fires** on planted
+credentials rather than inferring health from the count.
+
+### Measured, 2026-08-31
+
+| | |
+| :--- | ---: |
+| paragraphs | 226 |
+| replies | 181 |
+| distinct days | 12 |
+| text | ~58 KB |
+| busiest days | 22-08 and 30-08, **69 each** |
+
 ## The hosted query page (`/doc/vibe-journal.html`)
 
 The "database to query and learn from" is `public/doc/vibe-journal.html` — a single

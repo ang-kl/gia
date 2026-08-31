@@ -121,8 +121,27 @@ async function cacheReviews(redis, placeId, reviews) {
   if (!placeId || !Array.isArray(reviews) || !reviews.length) return;
   try {
     if (!redis.isOpen) await redis.connect();
+    // v0.62.861 — CARRY THE LANGUAGE. This mapping used to keep only the text, and that
+    // single omission produced the operator's bug: a French session showing a Japanese
+    // review AND Japanese dish names, while the venue name, address and pronunciation
+    // were correctly French.
+    //
+    // The chain: `vibe-suggest.js` fetches reviews with NO `languageCode`, so Google
+    // returns each one in its ORIGINAL language. Cached here without `languageCode`,
+    // `reviewLanguagePrimary()` could not tell what language the text was in, returned
+    // null, and `cuisine-enrich.js` fell back to `'en'` — so the translator was told a
+    // Japanese paragraph was English. It returned it unchanged, the "did it actually
+    // change?" guard rejected the result, and the Japanese survived. The dish names are
+    // extracted from the same cached reviews, which is why they were Japanese too.
+    //
+    // Keeping the code costs 12 bytes a review and no API call. The alternative — asking
+    // Places for each reader's language — would make this cache locale-specific and
+    // multiply the calls by eight, to buy a translation we already do ourselves.
     const trimmed = reviews.slice(0, 5).map((r) => ({
       text: (r.text?.text || r.originalText?.text || '').slice(0, 500),
+      // Prefer the language of whichever field the text came from.
+      languageCode: (r.text?.text ? r.text?.languageCode : r.originalText?.languageCode)
+        || r.text?.languageCode || r.originalText?.languageCode || null,
       rating: r.rating ?? null,
       publishTime: r.publishTime ?? null
     }));
