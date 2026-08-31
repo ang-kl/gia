@@ -43,6 +43,9 @@ const COVERED = [
   // v0.62.869 — batch 5a: the European set where the key already IS the home
   // language. `portuguese` is in for coverage but out of HOME_LOCALE below.
   'french', 'spanish', 'german', 'austrian', 'swiss', 'portuguese',
+  // v0.62.870 — batch 5b: the European set where the key is a TRANSLITERATION
+  // rather than the name. None of these 138 dishes carries a curated `local`.
+  'british', 'greek', 'russian', 'ukrainian', 'scandinavian', 'polish',
 ];
 const distinctDishes = (slug) =>
   [...new Set((NATION_OVERLAY[slug].iconicDishes || []).map((d) => d.name))];
@@ -296,6 +299,70 @@ describe('batch 5a — the key already IS the home language', () => {
   });
 });
 
+describe('batch 5b — the key is a transliteration, not the name', () => {
+  // 5a could assert that the home locale's value STARTS WITH the key, because the
+  // dish was called the key. Here it cannot: `borscht` is how English writes Борщ,
+  // so key and value share no characters at all. The analogue that does hold is
+  // SCRIPT — for these two nations `ru` is the home language, and a `ru` value
+  // still in Latin letters means the transliteration was copied through
+  // untranslated.
+  //
+  // No existing guard catches that. The mixed-script check fires only when
+  // Cyrillic AND Latin both appear in one value, so a purely Latin `ru` sails
+  // through it. And unlike every batch before this one, NONE of these 138 dishes
+  // carries a curated `local` — so there is no fixture to compare against and
+  // script is the only handle there is.
+  const HOME_SCRIPT = { russian: 'ru', ukrainian: 'ru' };
+  const CYRILLIC_RE = /[Ѐ-ӿ]/;
+
+  it('never leaves a transliteration where the home language belongs', () => {
+    let checked = 0;
+    const untranslated = [];
+    for (const [slug, locale] of Object.entries(HOME_SCRIPT)) {
+      for (const name of new Set(NATION_OVERLAY[slug].iconicDishes.map((d) => d.name))) {
+        const v = namesFor(name, slug);
+        if (!v) continue;
+        checked += 1;
+        if (!CYRILLIC_RE.test(v[locale])) {
+          untranslated.push(`${slug}/${name}: ${locale} is "${v[locale]}" — Latin, not Cyrillic`);
+        }
+      }
+    }
+    // Non-vacuity. A map that silently matches nothing has happened here before.
+    expect(checked, 'the home-script join matched nothing').toBeGreaterThanOrEqual(40);
+    expect(untranslated, untranslated.join(' | ')).toEqual([]);
+  });
+
+  // ⚠ Ukrainian is not Russian. The overlay spells six pairs differently ON
+  // PURPOSE, and the careless failure is to write the Russian form into the
+  // Ukrainian rows — invisible to every script check, because both are Cyrillic.
+  // The Latin columns follow the Ukrainian original the key already uses.
+  it('keeps the Ukrainian spelling in the Latin locales, not the Russian one', () => {
+    const pairs = [
+      ['varenyky', 'vareniki', ['fr', 'id', 'de', 'es']],
+      ['syrniky', 'syrniki', ['fr', 'id', 'de', 'es']],
+      ['holubtsi', 'golubtsy', ['fr', 'id', 'de', 'es']],
+    ];
+    for (const [ua, ru, locales] of pairs) {
+      const u = namesFor(ua, 'ukrainian');
+      const r = namesFor(ru, 'russian');
+      expect(u, `${ua} is missing`).toBeTruthy();
+      expect(r, `${ru} is missing`).toBeTruthy();
+      for (const l of locales) {
+        expect(u[l], `${ua}.${l} took the Russian spelling`).not.toBe(r[l]);
+      }
+    }
+  });
+
+  // `pierogi ruskie` is Ruthenian, not Russian — Red Ruthenia, not Russia. Reading
+  // it as "Russian" would repeat, in mirror image, the conflation the rows above
+  // exist to avoid. Pinned because it is exactly the kind of thing a later edit
+  // "corrects" into being wrong.
+  it('pierogi ruskie is Ruthenian, not Russian', () => {
+    expect(namesFor('pierogi ruskie').ru).not.toMatch(/русск/i);
+  });
+});
+
 describe('community sub-headers are localised', () => {
   // The operator's screenshot showed "— Chinese —" in English under a Chinese
   // header, because COMMUNITY carried en/fr only.
@@ -367,6 +434,8 @@ describe('the SECOND surface — /api/cuisine/dishes', () => {
     'vietnamese', 'filipino', 'burmese', 'goan', 'nepalese', // batch 4
     'french', 'spanish', 'german', 'austrian', 'swiss',      // batch 5a
     'portuguese',
+    'british', 'greek', 'russian', 'ukrainian',                // batch 5b
+    'scandinavian', 'polish',
   ];
 
   it.each(DRAWER_SLUGS)('resolves a name for every dish the endpoint serves for %s', (slug) => {
