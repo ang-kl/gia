@@ -125,6 +125,49 @@ describe('the cache stops dropping the language in the first place', () => {
   });
 });
 
+describe('the blast radius I under-reported when shipping this', () => {
+  // v0.62.861 was described as repairing the cuisine-enrich review path. It does — but the
+  // fallback lives inside `reviewLanguagePrimary()`, which is ALSO called by
+  // `pickPreferredReview()` and `pickAndTranslateReview()`: the nationality-review feature
+  // that quotes a review and tags it "( 🇨🇳 translated)". I did not say so. Found by reading
+  // the merged file back off `main` rather than from the diff I had just written.
+  //
+  // Net it is an improvement, and the risk is narrow and real. Both halves are pinned, so a
+  // later "tightening" cannot silently remove the good half, and the limit cannot silently
+  // widen.
+  const { pickPreferredReview } = require('../cuisine-review-language');
+
+  it('THE IMPROVEMENT: a code-less review in the matching language is no longer skipped', () => {
+    // Before the fallback this returned null — the review was invisible to the nationality
+    // picker because its language was unknown, not because it was wrong.
+    const zhReview = { text: ZH, rating: 4.6 };
+    expect(reviewLanguagePrimary(zhReview)).toBe('zh');
+    expect(pickPreferredReview([zhReview], 'zh')).toBe(zhReview);
+  });
+
+  it('KANA BEFORE HAN is what keeps the risk rare, so it is pinned', () => {
+    // Japanese and Chinese share Han characters. `nameScriptLang` checks kana FIRST, and
+    // that ordering is the entire reason a Japanese review is not mistaken for a Chinese one.
+    // Reverse it and this test fails — which is the point.
+    expect(reviewLanguagePrimary({ text: JA })).toBe('ja');
+    expect(pickPreferredReview([{ text: JA, rating: 4.9 }], 'zh'),
+      'a Japanese review was picked for a Chinese-cuisine search').toBeNull();
+  });
+
+  it('THE LIMIT, asserted as a limit: kanji-only text reads as Chinese', () => {
+    // Stated rather than hidden. Japanese prose almost always carries kana particles
+    // (は, を, の), so a kanji-only Japanese review is rare — but it exists, and it would be
+    // quoted under a 🇨🇳 flag. Narrowing this needs a real language detector, which is a
+    // bigger change than the bug being fixed; a WRONG language is the failure v0.62.861
+    // exists to remove, so nothing here should guess harder.
+    const kanjiOnly = '料理最高';                       // no kana at all
+    expect(reviewLanguagePrimary({ text: kanjiOnly })).toBe('zh');
+    // An explicit code still overrides it, which is the mitigation that actually ships:
+    // every review fetched AFTER v0.62.861 carries one.
+    expect(reviewLanguagePrimary({ text: { text: kanjiOnly, languageCode: 'ja' } })).toBe('ja');
+  });
+});
+
 describe('the correction to my own first diagnosis', () => {
   it('reviewText already handled the cached string form — that half was wrong', () => {
     // Asserted so the record holds: I named this line as broken, and it was not. Changing it
