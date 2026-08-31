@@ -15839,23 +15839,6 @@ const CUISINE_NOTES = {
         }
       ]
     },
-    "mantı": {
-      "local": "mantı",
-      "note": {
-        "en": "Small Turkish dumplings filled with spiced ground meat, served with garlic yogurt and butter;",
-        "fr": "Petits raviolis turcs farcis de viande hachée épicée, servis avec yaourt à l'ail et beurre ;"
-      },
-      "sources": [
-        {
-          "name": "Wikipedia — Manti (food)",
-          "url": "https://en.wikipedia.org/wiki/Manti_(food)"
-        },
-        {
-          "name": "TasteAtlas — Mantı",
-          "url": "https://tasteatlas.com/manti"
-        }
-      ]
-    },
     "imam bayildi": {
       "local": "İmam bayıldı",
       "note": {
