@@ -146,3 +146,77 @@ describe('fillJob', () => {
     expect(r.filled).toBe(1);
   });
 });
+
+// ── v0.62.862 — WHY THIS MODULE IS STILL HERE ────────────────────────────────────────────
+//
+// Operator, 31-08 '26: *"i have rotated the I18N_TRANSLATE_TOKEN. And now being deployed"*.
+//
+// Checking what that rotation touched, I reported this module as ORPHANED and proposed
+// deleting it. That was WRONG, and the way it was wrong is the reason this block exists: the
+// check was `require('./i18n-translate')` — with a leading `./` — which cannot match the real
+// call sites, because all three live one directory down and write `'../i18n-translate'`.
+//
+// A grep that can only match one spelling returned 0 and read as proof of absence. Deleting
+// on it would have taken out a live 20-test suite and two operator scripts.
+//
+// So the guard is inverted: instead of asserting the module is unused, this asserts it IS
+// used, and names who by. A future "dead code cleanup" now fails loudly rather than deleting
+// a module whose consumers a narrow grep could not see.
+import { readFileSync, existsSync } from 'fs';
+import { join as pathJoin } from 'path';
+
+describe('i18n-translate.js has live consumers — do not delete it', () => {
+  const ROOT = pathJoin(__dirname, '..');
+  const CONSUMERS = [
+    '__tests__/i18n-translate.test.js',        // this file
+    'scripts/fill-i18n-translations.mjs',
+    'scripts/retranslate-failed-i18n.mjs'
+  ];
+
+  it('the module exists', () => {
+    expect(existsSync(pathJoin(ROOT, 'i18n-translate.js'))).toBe(true);
+  });
+
+  it('and every known consumer still requires it, by its real specifier', () => {
+    for (const c of CONSUMERS) {
+      const src = readFileSync(pathJoin(ROOT, c), 'utf8');
+      expect(src, `${c} no longer requires i18n-translate`).toMatch(/require\(['"]\.\.\/i18n-translate['"]\)/);
+    }
+  });
+
+  it('the search that missed them is pinned, so nobody repeats it', () => {
+    // `./i18n-translate` matches NOTHING in this repo — that spelling is why the orphan check
+    // returned a false zero. Kept as a negative assertion because a reviewer reading
+    // "0 call sites" has no way to tell a real zero from that one.
+    //
+    // COMMENTS STRIPPED FIRST, and the reason is almost too neat: the first version of this
+    // assertion FAILED, because the paragraph above quotes the very specifier it scans for.
+    // That is the FIFTH source scan in this arc to match its own prose — in a test written
+    // about a search that matched the wrong thing.
+    const code = readFileSync(pathJoin(ROOT, '__tests__/i18n-translate.test.js'), 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, ' ')
+      .replace(/^\s*\/\/.*$/gm, ' ');
+    expect(code).not.toMatch(/require\(['"]\.\/i18n-translate['"]\)/);
+    expect(code).toMatch(/require\(['"]\.\.\/i18n-translate['"]\)/);
+  });
+});
+
+describe('the rotated token is safe to remove from Railway', () => {
+  const ROOT = pathJoin(__dirname, '..');
+  const INDEX = readFileSync(pathJoin(ROOT, 'index.js'), 'utf8');
+
+  it('I18N_TRANSLATE_TOKEN is not in the required-env list, so removing it cannot fail startup', () => {
+    // index.js exits(1) on a missing REQUIRED var. This is the claim the "you can delete the
+    // Railway variable" recommendation rests on, so it is asserted rather than stated.
+    const m = INDEX.match(/const required = \[([^\]]*)\]/);
+    expect(m, 'the required-env list moved or changed shape').toBeTruthy();
+    expect(m[1]).not.toMatch(/I18N_TRANSLATE_TOKEN/);
+    expect(m[1], 'the guard is vacuous if the list is empty').toMatch(/TELEGRAM_BOT_TOKEN/);
+  });
+
+  it('and no code reads the token at all — the routes went at v0.62.730', () => {
+    // Comments and test fixtures mention the NAME; nothing reads the VALUE.
+    expect(INDEX).not.toMatch(/process\.env\.I18N_TRANSLATE_TOKEN/);
+    expect(INDEX, 'the deleted route is back').not.toMatch(/app\.(get|post)\(['"]\/api\/i18n-translate/);
+  });
+});
