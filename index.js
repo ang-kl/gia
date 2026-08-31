@@ -13323,14 +13323,23 @@ async function cacheBotUsername() {
         // (noodles/rice/soup/grilled/stew-curry/seafood/veg/snack/sweet/drink/
         // other) so the pop-up can show a dish-type badge without new data.
         const { foodGroupFor, GROUP_LABEL } = require('./dish-food-group');
+        const _dishNamesI18n = require('./dish-names-i18n');
         const dishes = (ov && Array.isArray(ov.iconicDishes) ? ov.iconicDishes : [])
           .map((d) => {
             // v0.62.469 — prefer the grounded Gemini `type` (covers every cuisine)
             // over the SG/Malay-only regex fallback; also surface the new
             // mealTime / dietary / course taxonomy when present.
             const group = d.type || foodGroupFor(d.name, d.kind);
+            // v0.62.864 — the per-locale dish NAME. CITY_PLATES covers 15
+            // Asia-Pacific countries, so the plate list can never render Indian,
+            // American or Italian cuisine; this endpoint serves ANY slug and is
+            // the only place those names reach a reader. Same lookup as
+            // city-plates.js:_overlayDishMeta — namesFor() folds case on both
+            // sides, which is the bug that cost 17 dishes at v0.62.862.
+            const names = _dishNamesI18n.namesFor(d.name);
             return {
               name: d.name, local: d.local || '', kind: d.kind || 'food', note: d.note || null,
+              ...(names ? { nameI18n: names } : {}),
               group, groupLabel: GROUP_LABEL[group] || GROUP_LABEL.other,
               mealTime: Array.isArray(d.mealTime) ? d.mealTime : null,
               dietary: d.dietary || null,
