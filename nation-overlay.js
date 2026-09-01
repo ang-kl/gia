@@ -886,7 +886,7 @@ const NATION_OVERLAY = {
       F('hokkien mee kl',              ['singaporean']),
       F('hokkien mee penang',          ['singaporean']),
       F('mee mamak goreng'),
-      F('teh tarik',                   ['singaporean']),
+      D('teh tarik',                   ['singaporean']),          // operator ruling 01-09 '26: teh tarik is a drink
       F('dim sum kl style'),
       F('bak kut teh klang',           ['hokkien']),               // herbal Hokkien-style
       F('lobak'),                                                 // Penang ngoh hiang
