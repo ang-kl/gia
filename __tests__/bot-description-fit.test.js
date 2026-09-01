@@ -33,25 +33,13 @@ function enDescriptionV0_60_37(cuisines, hawker) {
     + 'Tap 🍴 Cuisine Picker to jump in.';
 }
 
-// v0.62.884's copy — the one index.js actually sends. Mirrors
-// registerCommandsMenu()'s enDescription line for line.
-function enDescription(cuisines, hawker) {
-  return '/menu · every feature, one tap\n'
-    + `/cuisine · ${cuisines} cuisines, SG + Johor Bahru\n`
-    + '/location · change location\n'
-    + `/hawker · >${hawker} hawker centres\n`
-    + '/recognised · Michelin, Bib, Asia 50/100\n'
-    + '/weather · now + 2h NEA forecast\n'
-    + '/transport · bus, MRT, walk, drive\n'
-    + '/carpark · nearest 5, free lots\n'
-    + '/search · dishes, ingredients, tools\n'
-    + '/rating · min rating 0–5\n'
-    + '/clipboard · saved cuisine clips\n'
-    + `/language · ${SUPPORTED.length} languages\n`
-    + '/privacy · data + sources\n'
-    + '/forgetme · erase stored data\n\n'
-    + 'Tap 🍴 Cuisine Picker to jump in.';
-}
+// v0.62.885 — NO LONGER A DUPLICATE. Until now this file re-declared the shipped
+// copy by hand, which is a maintenance hazard of exactly the kind the pane itself
+// fell into: two copies of the same list, drifting. The copy now lives in
+// i18n.js under bot.about.* and is assembled by bot-commands.buildDescription,
+// so the test measures what index.js actually sends.
+const { buildDescription, buildShortDescription, COMMAND_IDS, SHORT_DESCRIPTION_CAP } = require('../bot-commands');
+const enDescription = (cuisines, hawker) => buildDescription('en', { cuisines, hawker });
 
 describe('the shipped description, at real counts', () => {
   // '50+'/'100' is the hardcoded fallback; the others are live-ish figures.
@@ -70,24 +58,44 @@ describe('the shipped description, at real counts', () => {
     }
   });
 
-  it('the shipped copy now fits WITHOUT being trimmed, at every count value', () => {
+  it('every locale fits WITHOUT being trimmed, at every count value', () => {
     // Stronger than "fits after trimming": trimming silently drops the hint or
-    // whole command lines, so a passing trim test is compatible with a menu the
-    // user never sees in full. trimmed === null is the real guarantee.
-    for (const [c, h] of CASES) {
-      const fit = fitDescription(enDescription(c, h));
-      expect(fit.length, `counts ${c}/${h}`).toBeLessThanOrEqual(CAP);
-      expect(fit.trimmed, `counts ${c}/${h} — the shipped copy should not need trimming`).toBe(null);
-      expect(fit.text).toBe(enDescription(c, h));
+    // whole command lines, so a passing trim test is compatible with a pane the
+    // user never sees in full. trimmed === null is the real guarantee — and
+    // v0.62.885 states it over all nine locales, not just English. Russian is
+    // the tightest at 493 of 512; German was 500 before two labels were
+    // shortened, which is the margin this assertion exists to defend.
+    for (const l of SUPPORTED) {
+      for (const [c, h] of CASES) {
+        const raw = buildDescription(l, { cuisines: c, hawker: h });
+        const fit = fitDescription(raw);
+        expect(fit.length, `${l} @ ${c}/${h}`).toBeLessThanOrEqual(CAP);
+        expect(fit.trimmed, `${l} @ ${c}/${h} — the shipped copy should not need trimming`).toBe(null);
+        expect(fit.text).toBe(raw);
+      }
+    }
+  });
+
+  it('and the profile blurb fits its own, much smaller cap', () => {
+    // A different Bot API limit — setMyShortDescription is 0-120, not 0-512 —
+    // and it had no test at all before v0.62.885.
+    expect(SHORT_DESCRIPTION_CAP).toBe(120);
+    for (const l of SUPPORTED) {
+      const short = buildShortDescription(l);
+      expect(short.length, `${l} blurb`).toBeGreaterThan(0);
+      expect(measure(short), `${l} blurb`).toBeLessThanOrEqual(SHORT_DESCRIPTION_CAP);
     }
   });
 
   it('carries all fourteen commands, and no longer advertises the retired /buddy', () => {
-    const { COMMAND_IDS } = require('../bot-commands');
-    const text = enDescription('69', '121');
+    // Asserted in EVERY locale, not just English: the pane is built from
+    // COMMAND_IDS, so a locale that lost a line would have lost it structurally.
     expect(COMMAND_IDS).toHaveLength(14);
-    for (const id of COMMAND_IDS) expect(text, `/${id} missing from the description`).toContain(`/${id}`);
-    expect(text, '/buddy was retired at v0.60.113').not.toContain('/buddy');
+    for (const l of SUPPORTED) {
+      const text = buildDescription(l, { cuisines: '69', hawker: '121' });
+      for (const id of COMMAND_IDS) expect(text, `/${id} missing from the ${l} pane`).toContain(`/${id}`);
+      expect(text, '/buddy was retired at v0.60.113').not.toContain('/buddy');
+    }
   });
 
   it('and the locale count in it is derived, so it cannot go stale the way "English / Français" did', () => {

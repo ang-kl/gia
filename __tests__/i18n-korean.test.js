@@ -56,10 +56,10 @@ const TARGET_KEYED = new Set(SUPPORTED.map((l) => `bot.lang.set.${l}`));
 
 describe('the Korean column is complete for bot i18n.js', () => {
   it('covers every entry in the table, and the table is the size we measured', () => {
-    expect(ENTRIES.length, 'the surface is 422 units — 405 at K1, +2 at K6, +15 at v0.62.884 (14 bot.commands.* and bot.langname.ko)').toBe(422);
+    expect(ENTRIES.length, 'the surface is 438 units — 405 at K1, +2 at K6, +15 at v0.62.884, +16 at v0.62.885 (14 bot.about.* plus the hint and the profile blurb)').toBe(438);
     const missing = ENTRIES.filter(([k, v]) => !TARGET_KEYED.has(k) && (!v.ko || !String(v.ko).trim())).map(([k]) => k);
     expect(missing, 'these entries have no Korean').toEqual([]);
-    expect(ENTRIES.filter(([, v]) => typeof v.ko === 'string').length).toBe(413);
+    expect(ENTRIES.filter(([, v]) => typeof v.ko === 'string').length).toBe(429);
   });
 
   it('and the target-keyed family stays uncolumned, as its six other locales are', () => {
@@ -76,12 +76,12 @@ describe('the Korean column is complete for bot i18n.js', () => {
     // en and fr carry all 405; the other six carry 389 — the 16 that differ are the two
     // language-menu families above, which are correct as they stand.
     const count = (l) => ENTRIES.filter(([, v]) => typeof v[l] === 'string' && v[l].trim()).length;
-    expect({ en: count('en'), fr: count('fr') }).toEqual({ en: 422, fr: 422 });
+    expect({ en: count('en'), fr: count('fr') }).toEqual({ en: 438, fr: 438 });
     // v0.62.884 — 389 + 15. bot.langname.ko is in that fifteen: the family had
     // stood at eight since K6, and widening /start's ['en','fr'] client-language
     // gate is what would have put the literal "bot.langname.ko" in front of a
     // reader. The gate was hiding the gap, not preventing it.
-    for (const l of ['id', 'ru', 'de', 'zh', 'ja', 'es']) expect(count(l), `${l} lost values when ko was inserted`).toBe(404);
+    for (const l of ['id', 'ru', 'de', 'zh', 'ja', 'es']) expect(count(l), `${l} lost values when ko was inserted`).toBe(420);
   });
 });
 
