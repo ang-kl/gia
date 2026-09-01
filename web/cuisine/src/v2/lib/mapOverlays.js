@@ -289,9 +289,10 @@ function codePill(text, bg, big) {
 function exitTemplateHtml({ exitCode, station, codes, nearby }) {
   const list = Array.isArray(codes) ? codes.filter(Boolean) : [];
   const hex = list.length ? codeHex(list[0]) : AMENITY_EXIT_BG;
-  let h = '<div>' + codePill('Exit ' + (exitCode || '?'), hex, true) + '</div>';
+  let h = '<div>' + codePill(scLabel('exit', _lang) + ' ' + (exitCode || '?'), hex, true) + '</div>';
   if (station) {
-    h += '<div style="font-weight:600;margin-top:4px;">' + escapeHtml(station) + ' Station</div>';
+    h += '<div style="font-weight:600;margin-top:4px;">'
+      + escapeHtml(scLabel('station', _lang, { name: station })) + '</div>';
   }
   if (list.length) {
     h += '<div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:4px;">'
@@ -551,7 +552,7 @@ export function stationPillNode(codes, name, fallbackHex) {
 // 🚏 Bus Stop № <code>. White background per operator standardization.
 function busPinNode(code, full) {
   return amenityLabelNode(
-    full ? '🚏 Bus Stop № ' + code : '🚏', '#FFFFFF', '#1c1c1f', true);
+    full ? '🚏 ' + scLabel('busStopNo', _lang, { code }) : '🚏', '#FFFFFF', '#1c1c1f', true);
 }
 
 // v0.61.102 — operator: the bus-stop overlay marker renders by zoom
@@ -570,7 +571,9 @@ function busTier(zoom) {
 function busTierNode(tier, code) {
   const el = document.createElement('div');
   if (tier === 'full' || tier === 'short') {
-    el.textContent = (tier === 'full' ? '🚏 Bus Stop № ' : '🚏 № ') + (code || '');
+    el.textContent = tier === 'full'
+      ? '🚏 ' + scLabel('busStopNo', _lang, { code: code || '' })
+      : '🚏 № ' + (code || '');
     el.style.cssText = 'display:inline-block;padding:1px 5px;border-radius:8px;'
       + 'background:#FFFFFF;color:#1c1c1f;white-space:nowrap;font-weight:700;'
       + 'line-height:1.5;border:1.5px solid #fff;cursor:pointer;'
@@ -823,6 +826,7 @@ function rectPinNode(bg, text) {
 // v0.62.615 — giaToggleStyle moved to web/_shared/lib/gia-toggle-style.js (was
 // byte-identical in cuisine/hawker/transport mapOverlays.js). Re-exported here so
 // existing importers (MapControls, cuisine App.jsx) keep the same import path.
+import { scLabel, dayLabel, dirLabel } from '../../../../_shared/lib/station-card-labels.js';
 export { giaToggleStyle } from '../../../../_shared/lib/gia-toggle-style.js';
 
 // v0.61.22 — popup colour palette.
@@ -949,6 +953,13 @@ export function makeTrainColourOverlay(googleMaps) {
 
 // v0.61.31 — standard Google-Maps deep link. Every map pin info popup
 // ends with this text hyperlink — a TMA-wide convention, never a button.
+// v0.62.886 — module-scoped reader locale. The controller's setLang() writes
+// it. It lives at module scope rather than in the controller closure because
+// gmapsLinkRow and exitTemplateHtml are module-level helpers invoked from info
+// cards that never see the controller. Each app bundles its own copy of this
+// module and creates one controller, so there is exactly one writer.
+let _lang = 'en';
+export function setOverlayLang(l) { _lang = l || 'en'; }
 function gmapsUrl(lat, lng) {
   return 'https://www.google.com/maps/search/?api=1&query=' + lat + ',' + lng;
 }
@@ -956,7 +967,8 @@ function gmapsLinkRow(lat, lng) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return '';
   return '<div style="margin-top:4px;"><a href="' + escapeHtml(gmapsUrl(lat, lng))
     + '" target="_blank" rel="noopener" style="color:' + infoPalette().link
-    + ';font-weight:600;text-decoration:underline;">Google Map ↗</a></div>';
+    + ';font-weight:600;text-decoration:underline;">'
+    + escapeHtml(scLabel('googleMap', _lang)) + '</a></div>';
 }
 
 // v0.61.18 — rounded popup card so content reads on the light Google
@@ -996,55 +1008,53 @@ export function infoCard(inner, gmaps) {
 // renders only once exit street-name data is added to stations.json.
 // v0.61.67 — CR6 Phase 2b: first/last-train rendering helpers. Direction
 // keys → readable labels; timing-field day suffixes → readable labels.
-const FLT_DIR_LABELS = {
-  northbound: 'Northbound', southbound: 'Southbound',
-  eastbound: 'Eastbound', westbound: 'Westbound',
-  clockwise: 'Clockwise', anticlockwise: 'Anticlockwise',
-  loop: 'Loop', airport_branch: 'Airport branch',
-  towards_expo: 'Towards Expo', towards_bukit_panjang: 'Towards Bukit Panjang',
-  towards_harbourfront: 'Towards HarbourFront', towards_punggol_coast: 'Towards Punggol Coast'
-};
-const FLT_DAY_LABELS = {
-  mon_sat: 'Mon–Sat', sun_ph: 'Sun/PH', weekday: 'Weekday',
-  sat: 'Sat', weekend: 'Weekend', weekend_ph: 'Weekend/PH', daily: 'Daily'
-};
-function fltHumanize(s) {
-  return String(s || '').split('_')
-    .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w)).join(' ');
-}
+// v0.62.886 — the two hardcoded English label tables that stood here are gone.
+// They lived beside a function that took no `lang`, so a Spanish reader tapping
+// a station got "Mon–Sat" and "Towards Expo" while the React StationCard beside
+// it rendered "Lun–Sáb" and "Hacia Expo" from keys shipped since v0.62.837. The
+// translations were never missing — this surface simply could not reach them.
+// dirLabel/dayLabel keep the old title-cased English fallback for a bucket
+// stations.json invents, so a new direction degrades to readable English.
 // Collect "5:32am (Mon–Sat), 5:52am (Sun/PH)" for kind = 'first' | 'last'.
-function fltTimes(timings, kind) {
+// The TIMES are verbatim operator strings and stay exactly as stations.json has
+// them; only the day bucket in brackets is translated.
+function fltTimes(timings, kind, lang) {
   const out = [];
   for (const [k, v] of Object.entries(timings || {})) {
     if (v == null || !k.startsWith(kind + '_')) continue;
     const day = k.slice(kind.length + 1);
-    out.push(escapeHtml(String(v)) + ' (' + escapeHtml(FLT_DAY_LABELS[day] || fltHumanize(day)) + ')');
+    out.push(escapeHtml(String(v)) + ' (' + escapeHtml(dayLabel(day, lang)) + ')');
   }
   return out.join(', ');
 }
 // One line's first_last_train entries → a "🚆 First / Last Train" block,
 // one row per direction. Verbatim source strings; null/terminal rows show
 // their source note; an active service adjustment is surfaced once.
-function firstLastTrainHtml(entries, c) {
+function firstLastTrainHtml(entries, c, lang) {
   if (!Array.isArray(entries) || !entries.length) return '';
   let h = '<div style="margin-top:5px;font-weight:700;color:' + c.fg
-    + ';">🚆 First / Last Train</div>';
+    + ';">🚆 ' + escapeHtml(scLabel('firstLastTrain', lang)) + '</div>';
   for (const e of entries) {
-    const dir = FLT_DIR_LABELS[e.direction] || fltHumanize(e.direction);
-    const first = fltTimes(e.timings, 'first');
-    const last = fltTimes(e.timings, 'last');
+    const dir = dirLabel(e.direction, lang);
+    const first = fltTimes(e.timings, 'first', lang);
+    const last = fltTimes(e.timings, 'last', lang);
     let body;
     if (first || last) {
       const parts = [];
-      if (first) parts.push('First ' + first);
-      if (last) parts.push('Last ' + last);
+      if (first) parts.push(escapeHtml(scLabel('firstTrain', lang)) + ' ' + first);
+      if (last) parts.push(escapeHtml(scLabel('lastTrain', lang)) + ' ' + last);
       body = parts.join(' · ');
     } else {
-      body = escapeHtml(e.note || 'no timing data');
+      body = escapeHtml(e.note || scLabel('noTimingData', lang));
     }
     h += '<div style="margin-top:2px;color:' + c.fg + ';"><span style="font-weight:600;">'
       + escapeHtml(dir) + '</span> — ' + body + '</div>';
   }
+  // NOT TRANSLATED, DELIBERATELY. `service_adjustment` is LTA's own service
+  // notice, carried word-for-word from data/stations.json by
+  // scripts/build-station-info.js ("operator-supplied; verbatim source strings,
+  // no invention"). Machine-translating a transit authority's notice is a
+  // different act from filling an i18n key. Only the ⚠️ glyph is ours.
   const adj = entries.find((e) => e.service_adjustment);
   if (adj) {
     h += '<div style="margin-top:3px;color:' + c.sub + ';">⚠️ '
@@ -1065,7 +1075,7 @@ function firstLastTrainHtml(entries, c) {
 //     interchange repeats each line's code pill · name · line above
 //     its block; a single-line station already showed those up top.
 //   • Footer — deduped Operator(s) + Google Map ↗.
-function stationInfoCardHtml(rec) {
+function stationInfoCardHtml(rec, lang) {
   const c = infoPalette();
   const rule = 'border-top:1px solid rgba(0,0,0,0.12);margin-top:8px;padding-top:7px;';
   const lk = 'color:' + c.link + ';font-weight:600;text-decoration:underline;cursor:pointer;';
@@ -1082,7 +1092,7 @@ function stationInfoCardHtml(rec) {
     + pills
     + '<span style="color:' + c.sub + ';">·</span>'
     + '<span style="font-weight:700;font-size:14px;color:' + nameHex + ';">'
-    + escapeHtml(name + ' Station') + '</span></div>';
+    + escapeHtml(scLabel('station', lang, { name })) + '</span></div>';
   const lineRow = (ln) => '<div style="margin-top:3px;color:' + c.fg + ';">'
     + escapeHtml((ln.line_code || '') + ' · ' + (ln.line_name || '')) + '</div>';
 
@@ -1106,12 +1116,13 @@ function stationInfoCardHtml(rec) {
     .sort((a, b) => String(a.label || '').localeCompare(
       String(b.label || ''), undefined, { numeric: true }));
   if (exits.length) {
-    h += '<div style="' + rule + '"><div style="font-weight:700;">Exits</div>';
+    h += '<div style="' + rule + '"><div style="font-weight:700;">'
+      + escapeHtml(scLabel('exits', lang)) + '</div>';
     const labels = [];
     let details = '';
     exits.forEach((ex, i) => {
       const did = 'gia-exit-' + i;
-      const exTxt = 'Exit ' + escapeHtml(ex.label || '?');
+      const exTxt = escapeHtml(scLabel('exit', lang)) + ' ' + escapeHtml(ex.label || '?');
       // Label — tapping it toggles its detail row's visibility.
       const toggle = "var d=document.getElementById('" + did + "');"
         + "if(d)d.style.display=d.style.display==='none'?'block':'none';";
@@ -1129,7 +1140,7 @@ function stationInfoCardHtml(rec) {
       const bs = ex.nearest_bus_stop;
       if (bs && bs.code && Number.isFinite(bs.lat) && Number.isFinite(bs.lng)) {
         dp.push('<span style="' + lk + '" onclick="' + focus(bs.lat, bs.lng, true)
-          + '">Bus Stop № ' + escapeHtml(bs.code) + '</span>');
+          + '">' + escapeHtml(scLabel('busStopNo', lang, { code: bs.code })) + '</span>');
       }
       details += '<div id="' + did + '" style="display:none;margin-top:4px;'
         + 'padding-left:8px;">' + dp.join(' · ') + '</div>';
@@ -1147,12 +1158,13 @@ function stationInfoCardHtml(rec) {
     }
     if (ln.more_info_url) {
       b += '<div style="margin-top:3px;"><a href="' + escapeHtml(ln.more_info_url)
-        + '" target="_blank" rel="noopener" style="' + lk + '">More Info ↗</a></div>';
+        + '" target="_blank" rel="noopener" style="' + lk + '">'
+        + escapeHtml(scLabel('moreInfo', lang)) + '</a></div>';
     }
     // v0.61.67 — CR6 Phase 2b: this line's first/last-train timings.
     b += firstLastTrainHtml(
       (Array.isArray(rec.first_last_train) ? rec.first_last_train : [])
-        .filter((e) => e.line_code === (ln.line_code || '')), c);
+        .filter((e) => e.line_code === (ln.line_code || '')), c, lang);
     return b;
   };
   if (interchange) {
@@ -1171,12 +1183,14 @@ function stationInfoCardHtml(rec) {
   }
   h += '<div style="' + rule + '">';
   if (ops.length) {
-    h += '<div style="color:' + c.sub + ';">Operator: '
-      + escapeHtml(ops.join(' · ')) + '</div>';
+    // The label translates; `ops` are company names (SBS Transit, SMRT) and do not.
+    h += '<div style="color:' + c.sub + ';">' + escapeHtml(scLabel('operator', lang))
+      + ': ' + escapeHtml(ops.join(' · ')) + '</div>';
   }
   if (Number.isFinite(rec.lat) && Number.isFinite(rec.lng)) {
     h += '<div style="margin-top:3px;"><a href="' + escapeHtml(gmapsUrl(rec.lat, rec.lng))
-      + '" target="_blank" rel="noopener" style="' + lk + '">Google Map ↗</a></div>';
+      + '" target="_blank" rel="noopener" style="' + lk + '">'
+      + escapeHtml(scLabel('googleMap', lang)) + '</a></div>';
   }
   h += '</div>';
 
@@ -1214,8 +1228,8 @@ function busInfoHtml(b, services) {
   const c = infoPalette();
   const road = b.roadName || b.description || ('Stop ' + b.code);
   let h = '<div style="color:' + c.fg + ';font-weight:700;">🚏 ' + escapeHtml(road) + '</div>';
-  h += '<div style="color:' + c.fg + ';font-weight:600;margin-top:2px;">🚏 Bus Stop № '
-    + escapeHtml(b.code) + '</div>';
+  h += '<div style="color:' + c.fg + ';font-weight:600;margin-top:2px;">🚏 '
+    + escapeHtml(scLabel('busStopNo', _lang, { code: b.code })) + '</div>';
   if (services == null) {
     h += '<div style="color:' + c.fg + ';margin-top:5px;">Loading arrivals…</div>';
   } else if (!services.length) {
@@ -1392,6 +1406,11 @@ export function createOverlayController(map, googleMaps, opts) {
   //   line   items: { polyline, pts:[{lat,lng}] }
   const layers = Object.create(null);
   let destroyed = false;
+  // v0.62.886 — the reader's locale. Set through setLang() rather than opts
+  // because all three call sites create the controller in a mount-once effect
+  // with [] deps: anything passed at init would freeze at first render and the
+  // popup would keep speaking whatever language the app booted in.
+  let lang = (opts && opts.lang) || 'en';
   let anchor = null;                 // { lat, lng } — map viewport centre
   // v0.61.17 — station-detail view state.
   let detailStation = null;          // selected station record, or null
@@ -1587,7 +1606,7 @@ export function createOverlayController(map, googleMaps, opts) {
       const hex = codes.length ? codeHex(codes[0]) : AMENITY_EXIT_BG;
       const code = f.exitCode || '?';
       const compact = exitTextNode(code, hex);
-      const full = amenityLabelNode('Exit ' + code, '#FFFFFF', '#1c1c1f', true);
+      const full = amenityLabelNode(scLabel('exit', lang) + ' ' + code, '#FFFFFF', '#1c1c1f', true);
       const marker = new AdvancedMarkerElement({
         position: { lat: f.lat, lng: f.lng },
         content: compact,
@@ -1782,7 +1801,7 @@ export function createOverlayController(map, googleMaps, opts) {
       if (!ex || !Number.isFinite(ex.lat) || !Number.isFinite(ex.lng)) continue;
       const marker = new AdvancedMarkerElement({
         position: { lat: ex.lat, lng: ex.lng },
-        content: amenityLabelNode('Exit ' + (ex.label || '?'), '#FFFFFF', '#1c1c1f', false)
+        content: amenityLabelNode(scLabel('exit', lang) + ' ' + (ex.label || '?'), '#FFFFFF', '#1c1c1f', false)
       });
       marker.map = map;
       stationExitPins.push(marker);
@@ -1950,7 +1969,7 @@ export function createOverlayController(map, googleMaps, opts) {
         if (z < 17) map.setZoom(17);
         if (flash) flashPin(lat, lng);
       };
-      info.setContent(stationInfoCardHtml(rec));
+      info.setContent(stationInfoCardHtml(rec, lang));
       info.open(map, item.marker);
       showStationBusStops(rec);
       showStationExits(rec);     // v0.61.82 — CR-6
@@ -2739,6 +2758,11 @@ export function createOverlayController(map, googleMaps, opts) {
     setMonochrome(on) {
       monochrome = !!on;
       if (layers.train) applyVisibility('train');
+    },
+    // v0.62.886 — the reader's locale, pushed in from a useEffect([lang]).
+    setLang(l) {
+      lang = l || 'en';
+      setOverlayLang(lang);
     },
     // v0.61.17 — clear the station-detail view (if any).
     clearStationDetail() {

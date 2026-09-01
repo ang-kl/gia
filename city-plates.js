@@ -5549,4 +5549,63 @@ try {
   }
 } catch { /* overlay optional — curated data stands on its own */ }
 
+// v0.62.886 — the same fold for `differsFrom`. The card renders
+// tn('plate.differsFrom', lang, { x }) — a translated prefix against what was,
+// until now, an always-English object: "se diferencia de KL's dark-soy +
+// pork-lard version". city-plates-i18n.generated.js's header lists what is
+// deliberately never translated (local, claim, tier, sources) and `differsFrom`
+// is not in it — the field was never considered, not excluded.
+try {
+  const DIFF = require('./city-plates-differs-i18n.generated.js');
+  for (const [city, entry] of Object.entries(CITY_PLATES)) {
+    for (const d of (entry.dishes || [])) {
+      const loc = d && d.dish && d.differsFrom ? DIFF[`${city}::${d.dish}`] : null;
+      if (!loc) continue;
+      if (!d.differsFromI18n) d.differsFromI18n = {};
+      for (const [lang, text] of Object.entries(loc)) {
+        if (d.differsFromI18n[lang] == null && text) d.differsFromI18n[lang] = text;
+      }
+    }
+  }
+} catch { /* overlay optional — the English clause stands on its own */ }
+
+// v0.62.886 — attach nameI18n to the plate headliners.
+//
+// THE BUG THIS FIXES. dishDisplayName() reads d.nameI18n and falls through to
+// the English d.dish when it is absent. nameI18n was attached in exactly two
+// places — _overlayDishMeta below, and index.js's /api/cuisine/dishes — and
+// NEITHER of them touches CITY_PLATES[*].dishes. Measured: 279 dishes, `local`
+// present on 279, nameI18n present on ZERO. So every 📜 headliner rendered in
+// English in all eight non-English locales, which is what the operator saw:
+// "Hainanese Chicken Rice", "Laksa (Katong)", "Wanton Mee (SG Style)".
+//
+// Two sources, in this order. namesFor() first — it already holds these names
+// where the dish is also a NATION_OVERLAY classic, and duplicating them into an
+// overlay would be a second copy to drift. It resolves 36 of 279; the other 243
+// are plate-only names (a name like "Laksa (Katong)" appears in no iconicDishes
+// list, which is also why they cannot go into DISH_NAMES — the orphan guard in
+// dish-names-i18n.test.js correctly refuses keys no cuisine serves).
+try {
+  const NAMES = require('./city-plate-names-i18n.generated.js');
+  if (!_dishNames) _dishNames = require('./dish-names-i18n');
+  for (const [city, entry] of Object.entries(CITY_PLATES)) {
+    const slug = COUNTRY_OVERLAY_SLUG[String(entry.country || '').toUpperCase()];
+    for (const d of (entry.dishes || [])) {
+      if (!d || !d.dish) continue;
+      const curated = _dishNames.namesFor(d.dish, slug);
+      const overlay = NAMES[`${city}::${d.dish}`];
+      if (!curated && !overlay) continue;
+      if (!d.nameI18n) d.nameI18n = {};
+      // Curated wins; the overlay fills only what it does not carry — the same
+      // contract as the history fold above.
+      for (const [lang, text] of Object.entries(curated || {})) {
+        if (d.nameI18n[lang] == null && text) d.nameI18n[lang] = text;
+      }
+      for (const [lang, text] of Object.entries(overlay || {})) {
+        if (d.nameI18n[lang] == null && text) d.nameI18n[lang] = text;
+      }
+    }
+  }
+} catch { /* overlay optional — the English dish name stands on its own */ }
+
 module.exports = { CITY_PLATES, PLATE_MATCH_KM, platesForCity, platesNear, allPlateDishNames, classicsForCountry };

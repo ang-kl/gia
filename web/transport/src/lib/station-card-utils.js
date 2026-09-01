@@ -2,6 +2,8 @@
 //
 // Pure helpers behind StationCard.jsx, split out so they can be unit-tested
 // without rendering React. No DOM, no side-effects.
+import { scLabel } from '../../../_shared/lib/station-card-labels.js';
+
 import { LINES_BY_CODE } from '../data/lines.js';
 import { lineStationsFull } from '../data/line-paths.js';
 // NOTE: this module must stay React-free (no i18n import) so it can be unit
@@ -213,15 +215,19 @@ export function terminusForDirection(coarseStations, lineCode, direction) {
 // word lives beside its only use. That is one source, not two — the split that
 // produced the "1 gems" bug (a short local table beside a complete keyed one, and
 // only the keyed one extended) is the thing being avoided, not repeated.
-const EXIT_WORD = {
-  en: 'Exit', fr: 'Sortie', id: 'Pintu keluar', ru: 'Выход',
-  de: 'Ausgang', zh: '出口', ja: '出口', es: 'Salida',
-};
-
+// v0.62.886 — THE TABLE MOVED, and the note above is why the move is the right
+// one rather than a contradiction of it. "One source, not two" was always the
+// principle; when this was written the only alternative was i18n.js, which
+// imports react. web/_shared/lib/station-card-labels.js does not import anything
+// at all, so the word can now live in ONE place that both this module and all
+// three copies of mapOverlays.js reach. The local copy had also gone stale: it
+// carried eight locales and `ko` was never added, so a Korean reader got the
+// English "Exit" — the exact split this comment warned about, arriving in the
+// table the comment was defending.
 export function exitLabel(exit, lang = 'en') {
   const raw = String((exit && (exit.label ?? exit.exit ?? exit.exit_label)) || '').trim();
   if (!raw) return '';
-  const word = EXIT_WORD[lang] || EXIT_WORD.en;
+  const word = scLabel('exit', lang) || scLabel('exit', 'en');
   // Already prefixed in some other casing/language — leave the caller's text be.
   if (/^(exit|sortie)\b/i.test(raw)) return raw.replace(/^(exit|sortie)\b/i, word);
   return `${word} ${raw}`;
