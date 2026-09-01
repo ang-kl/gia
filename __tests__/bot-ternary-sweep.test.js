@@ -57,7 +57,7 @@ describe('every swept key exists in all eight locales', () => {
     // v0.62.884 — floor raised from 126 to 144. A floor that never moves stops
     // being a measurement: 129 keys had been passing a 126 floor for four
     // versions, so a deletion of two would have gone unnoticed.
-    expect(BOT_KEYS.length).toBeGreaterThanOrEqual(144);
+    expect(BOT_KEYS.length).toBeGreaterThanOrEqual(160);
     expect(new Set(BOT_KEYS).size, 'a key is defined twice — the later wins silently').toBe(BOT_KEYS.length);
   });
 
@@ -69,7 +69,16 @@ describe('every swept key exists in all eight locales', () => {
     // English is almost always a cell nobody filled — but "Menu" really is "Menu" in
     // Indonesian. Listing the pair beats relaxing the rule: a NEW accidental identity still
     // fails, which a loosened check would have swallowed.
-    const IDENTICAL_ON_PURPOSE = new Set(['bot.index.menu.id']);
+    // v0.62.885 — two more, both the same shape as the first. The "About" pane
+    // line reads "Michelin, Bib, Asia 50/100": four proper nouns and a number,
+    // and Indonesian and Spanish both write "Asia". The French and Russian arms
+    // DO differ (Asie, Азия) and are not listed — the exemption is per PAIR, so
+    // it cannot quietly cover a locale that simply went unfilled.
+    const IDENTICAL_ON_PURPOSE = new Set([
+      'bot.index.menu.id',
+      'bot.about.recognised.id',
+      'bot.about.recognised.es',
+    ]);
     const gaps = [];
     for (const k of BOT_KEYS) {
       const en = t(k, 'en');

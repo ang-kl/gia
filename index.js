@@ -12399,60 +12399,35 @@ async function registerCommandsMenu() {
     // characters each. Worst case across count values is now 488 of 512.
     // The locale count is interpolated for the same reason the /language regex
     // is now derived: "English / Français" was hardcoded and went stale twice.
-    const _menuLangCount = require('./i18n').SUPPORTED.length;
-    const enDescription =
-      "/menu · every feature, one tap\n" +
-      `/cuisine · ${_periodicalCountsStr.cuisines} cuisines, SG + Johor Bahru\n` +
-      "/location · change location\n" +
-      `/hawker · >${_periodicalCountsStr.hawker} hawker centres\n` +
-      "/recognised · Michelin, Bib, Asia 50/100\n" +
-      "/weather · now + 2h NEA forecast\n" +
-      "/transport · bus, MRT, walk, drive\n" +
-      "/carpark · nearest 5, free lots\n" +
-      "/search · dishes, ingredients, tools\n" +
-      "/rating · min rating 0–5\n" +
-      "/clipboard · saved cuisine clips\n" +
-      `/language · ${_menuLangCount} languages\n` +
-      "/privacy · data + sources\n" +
-      "/forgetme · erase stored data\n\n" +
-      "Tap 🍴 Cuisine Picker to jump in.";
-    const frDescription =
-      "/menu · tout en un tap\n" +
-      `/cuisine · ${_periodicalCountsStr.cuisines} cuisines, SG + Johor Bahru\n` +
-      "/location · changer de lieu\n" +
-      `/hawker · plus de ${_periodicalCountsStr.hawker} hawker centres\n` +
-      "/recognised · Michelin, Bib, Asia 50/100\n" +
-      "/weather · actuel + prévision NEA 2 h\n" +
-      "/transport · bus, MRT, marche, voiture\n" +
-      "/carpark · les 5 plus proches\n" +
-      "/search · plats, ingrédients, outils\n" +
-      "/rating · note minimale 0–5\n" +
-      "/clipboard · clips enregistrés\n" +
-      `/language · ${_menuLangCount} langues\n` +
-      "/privacy · données + sources\n" +
-      "/forgetme · effacer vos données\n\n" +
-      "Appuyez sur 🍴 pour ouvrir.";
-    // v0.59.8 (Codex review #212): node-telegram-bot-api signature is
-    // setMyDescription(form = {}) — a single options object, NOT
-    // (text, options). The v0.59.6 calls passed the text positionally
-    // and were silently failing on the upstream Telegram API, which is
-    // why the description never updated despite the deploy. Same bug
-    // applied to setMyShortDescription. Both fixed below.
-    // v0.62.723 — enforce Telegram's 512-char cap HERE rather than discovering
-    // it as `400 BOT_DESC_INVALID`. Both strings above have been 520-524 chars
-    // at every count value since v0.60.37, so this call has been rejected on
-    // every boot and the panel has never shown this text. See
-    // bot-description-fit.js for what gets sacrificed and in what order.
+    // v0.62.885 — both panes now cover every locale, and both are BUILT rather
+    // than spelled out. Until now they were EN + FR literals, so seven of nine
+    // readers got English on a pane whose whole job is telling them what the bot
+    // does. The body is assembled from COMMAND_IDS and bot.about.*, which is what
+    // stops it drifting out of step with the menu the way it did for three months
+    // after /buddy was retired.
+    //
+    // These panes CANNOT follow the /language toggle, and that is a Bot API
+    // limit rather than an omission: setMyDescription takes a language_code and
+    // no scope, so it can only ever track the reader's Telegram CLIENT language.
+    // The slash menu escapes this through botCommandScopeChat; there is no
+    // equivalent here. Said plainly so it is not later filed as the same bug.
+    const { buildDescription, buildShortDescription } = require('./bot-commands');
+    const { SUPPORTED: PANE_LANGS } = require('./i18n');
     try {
       const { fitDescription } = require('./bot-description-fit');
-      for (const [code, raw] of [[null, enDescription], ['fr', frDescription]]) {
-        const fit = fitDescription(raw);
+      // Default scope (no language_code) carries English, then one per locale.
+      for (const code of [null, ...PANE_LANGS]) {
+        const fit = fitDescription(buildDescription(code || 'en', _periodicalCountsStr));
         if (fit.trimmed) {
+          // v0.62.723 kept this warning because the copy HAD been over the cap on
+          // every boot since v0.60.37. v0.62.884 rewrote it to fit and the guard
+          // now asserts trimmed === null, so reaching this branch means a locale
+          // grew past 512 — name which one, not just that it happened.
           console.warn(
-            `[setMyDescription] ${code || 'en'} description exceeded Telegram's ` +
-            `512-char cap — trimmed by dropping the ` +
-            `${fit.trimmed === 'hint' ? 'trailing hint line' : fit.trimmed === 'lines' ? 'last command line(s)' : 'tail (hard cut)'}` +
-            `; now ${fit.length}. Shorten the copy in index.js to control what goes.`
+            `[setMyDescription] ${code || 'default'} exceeded Telegram's 512-char cap — ` +
+            `trimmed by dropping the ${fit.trimmed === 'hint' ? 'trailing hint line'
+              : fit.trimmed === 'lines' ? 'last command line(s)' : 'tail (hard cut)'}; ` +
+            `now ${fit.length}. Shorten bot.about.* for that locale.`
           );
         }
         await bot.setMyDescription(code
@@ -12468,13 +12443,14 @@ async function registerCommandsMenu() {
     // per Telegram. EN default + FR via language_code='fr'.
     // v0.60.37 — short blurb carries the user-facing tagline
     // (the longer preamble + command list lives in setMyDescription).
-    const enShortDescription =
-      "Soleat — for Solo eats. Singapore dining concierge + a quick simple transport guide.";
-    const frShortDescription =
-      "Soleat — pour repas solo. Conciergerie cuisine + transport simple à Singapour.";
+    // v0.62.885 — all nine locales, same default-plus-per-locale shape as above.
     try {
-      await bot.setMyShortDescription({ short_description: enShortDescription });
-      await bot.setMyShortDescription({ short_description: frShortDescription, language_code: 'fr' });
+      for (const code of [null, ...PANE_LANGS]) {
+        const short = buildShortDescription(code || 'en');
+        await bot.setMyShortDescription(code
+          ? { short_description: short, language_code: code }
+          : { short_description: short });
+      }
     } catch (err) {
       console.warn('[setMyShortDescription] failed (non-fatal):', err.message);
     }

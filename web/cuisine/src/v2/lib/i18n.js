@@ -592,7 +592,13 @@ const STRINGS = {
   'plate.closeAria': { en: 'Close', fr: 'Fermer' },
   'plate.closeBtn': { en: 'close', fr: 'fermer' },
   'plate.sourcePrefix': { en: 'source: ', fr: 'source : ' },
-  'plate.differsFrom': { en: 'differs from', fr: 'diffère de' },
+  // v0.62.886 — a TEMPLATE, not a prefix. Rendered as "${t(key)} ${value}",
+  // this line was ungrammatical in the two locales where the phrase is a
+  // POSTposition: Japanese produced "との違い ○○" (the と particle needs its noun
+  // in front) and Korean "이것과 다릅니다 ○○" — a complete sentence with the
+  // subject dangling after it. No test could see it; the key resolved fine in
+  // all nine locales and only the word ORDER was wrong.
+  'plate.differsFrom': { en: 'differs from {x}', fr: 'diffère de {x}' },
   'plate.moreClassics': { en: 'More {country} classics', fr: 'Autres classiques {country}' },
   'lastCard.title': { en: 'Last card', fr: 'Dernière carte' },
   'lastCard.enterLocation': { en: 'enter location', fr: 'saisir un lieu' },
@@ -835,7 +841,7 @@ const ID_STRINGS = {
   'plate.closeAria': 'Tutup',
   'plate.closeBtn': 'tutup',
   'plate.sourcePrefix': 'sumber: ',
-  'plate.differsFrom': 'berbeda dari',
+  'plate.differsFrom': 'berbeda dari {x}',
   'plate.moreClassics': 'Klasik {country} lainnya',
   'lastCard.title': 'Kartu terakhir',
   'lastCard.enterLocation': 'masukkan lokasi',
@@ -1224,7 +1230,7 @@ const RU_STRINGS = {
   'plate.closeAria': 'Закрыть',
   'plate.closeBtn': 'закрыть',
   'plate.sourcePrefix': 'источник: ',
-  'plate.differsFrom': 'отличается от',
+  'plate.differsFrom': 'отличается от {x}',
   'plate.moreClassics': 'Другие классические блюда {country}',
   'lastCard.title': 'Последняя карточка',
   'lastCard.enterLocation': 'введите место',
@@ -1610,7 +1616,7 @@ const DE_STRINGS = {
   'plate.closeAria': 'Schließen',
   'plate.closeBtn': 'schließen',
   'plate.sourcePrefix': 'Quelle: ',
-  'plate.differsFrom': 'unterscheidet sich von',
+  'plate.differsFrom': 'unterscheidet sich von {x}',
   'plate.moreClassics': 'Weitere Klassiker aus {country}',
   'lastCard.title': 'Letzte Karte',
   'lastCard.enterLocation': 'Ort eingeben',
@@ -1996,7 +2002,7 @@ const ZH_STRINGS = {
   'plate.closeAria': '关闭',
   'plate.closeBtn': '关闭',
   'plate.sourcePrefix': '来源：',
-  'plate.differsFrom': '不同于',
+  'plate.differsFrom': '不同于{x}',
   'plate.moreClassics': '更多{country}经典',
   'lastCard.title': '最后一张卡片',
   'lastCard.enterLocation': '输入地点',
@@ -2383,7 +2389,7 @@ const JA_STRINGS = {
   'plate.closeAria': '閉じる',
   'plate.closeBtn': '閉じる',
   'plate.sourcePrefix': '出典：',
-  'plate.differsFrom': 'との違い',
+  'plate.differsFrom': '{x}との違い',
   'plate.moreClassics': 'その他の{country}の定番',
   'lastCard.title': '最後のカード',
   'lastCard.enterLocation': '場所を入力',
@@ -2767,7 +2773,7 @@ const ES_STRINGS = {
   'plate.closeAria': 'Cerrar',
   'plate.closeBtn': 'cerrar',
   'plate.sourcePrefix': 'fuente: ',
-  'plate.differsFrom': 'se diferencia de',
+  'plate.differsFrom': 'se diferencia de {x}',
   'plate.moreClassics': 'Más clásicos de {country}',
   'lastCard.title': 'Última tarjeta',
   'lastCard.enterLocation': 'ingresa un lugar',
@@ -3346,7 +3352,12 @@ const KO_STRINGS = {
   "plate.closeAria": "닫기",
   "plate.closeBtn": "닫기",
   "plate.sourcePrefix": "출처: ",
-  "plate.differsFrom": "이것과 다릅니다",
+  // The variable goes LAST on purpose. Korean 와/과 agrees with the final
+  // syllable of the noun before it, which a static template cannot compute:
+  // "쿠알라룸푸르식" ends in a consonant and needs 과, "라크사" needs 와. The
+  // usual written workaround is "와(과)", but anchoring the particle to the
+  // fixed word 다음 ("the following") is simply correct instead of hedged.
+  "plate.differsFrom": "다음과 다름: {x}",
   "plate.moreClassics": "{country} 대표 음식 더 보기",
   "lastCard.title": "마지막 카드",
   "lastCard.enterLocation": "위치 입력",

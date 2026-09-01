@@ -81,8 +81,39 @@ function buildCommandList(lang, counts = {}) {
   }));
 }
 
+// v0.62.885 — the "What can this bot do?" pane, built from the same COMMAND_IDS
+// as the menu so the two can never disagree about which commands exist. That
+// disagreement is exactly what went wrong: the pane advertised /buddy for three
+// months after v0.60.113 removed it from the menu, and omitted three commands
+// the menu had. Deriving the list makes it structural rather than remembered.
+//
+// Telegram caps the pane at 512 characters TOTAL and the profile blurb at 120
+// (Bot API setMyDescription / setMyShortDescription). Both are asserted in
+// __tests__/bot-commands.test.js against every locale and every count value.
+const DESCRIPTION_CAP = 512;
+const SHORT_DESCRIPTION_CAP = 120;
+
+function buildDescription(lang, counts = {}) {
+  const { t, tn, SUPPORTED } = require('./i18n');
+  const vars = {
+    cuisines: counts.cuisines != null ? counts.cuisines : '',
+    hawker: counts.hawker != null ? counts.hawker : '',
+    n: SUPPORTED.length,
+  };
+  const lines = COMMAND_IDS.map((id) => `/${id} · ${tn(`bot.about.${id}`, lang, vars)}`);
+  return `${lines.join('\n')}\n\n${t('bot.about.hint', lang)}`;
+}
+
+function buildShortDescription(lang) {
+  return require('./i18n').t('bot.about.short', lang);
+}
+
 module.exports = {
   COMMAND_IDS,
+  DESCRIPTION_CAP,
+  SHORT_DESCRIPTION_CAP,
+  buildDescription,
+  buildShortDescription,
   MAX_COMMANDS,
   NAME_MAX,
   DESCRIPTION_MAX,

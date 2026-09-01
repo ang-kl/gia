@@ -3246,6 +3246,40 @@ const STRINGS = {
   "bot.commands.language": { en: "Switch chat language · {n} languages", fr: "Changer la langue du chat · {n} langues", id: "Ganti bahasa chat · {n} bahasa", ru: "Сменить язык чата · {n} языков", de: "Chat-Sprache wechseln · {n} Sprachen", zh: "切换聊天语言 · {n} 种语言", ja: "チャット言語を切り替え · {n} 言語", es: "Cambiar el idioma del chat · {n} idiomas", ko: "채팅 언어 전환 · {n}개 언어" },
   "bot.commands.privacy": { en: "Data, retention & sources", fr: "Données, conservation et sources", id: "Data, penyimpanan & sumber", ru: "Данные, хранение и источники", de: "Daten, Speicherung & Quellen", zh: "数据、保留期与来源", ja: "データ、保存期間、出典", es: "Datos, conservación y fuentes", ko: "데이터, 보관 기간, 출처" },
   "bot.commands.forgetme": { en: "Erase stored data", fr: "Effacer vos données enregistrées", id: "Hapus data tersimpan", ru: "Удалить сохранённые данные", de: "Gespeicherte Daten löschen", zh: "清除已保存的数据", ja: "保存データを消去", es: "Borrar los datos guardados", ko: "저장된 데이터 삭제" },
+  // v0.62.885 — the "What can this bot do?" pane, as data.
+  //
+  // Companion to bot.commands.* above, and deliberately a SEPARATE family
+  // rather than a reuse of it. The pane is capped at 512 characters TOTAL for
+  // all fourteen lines, which works out to roughly twenty per label; the menu
+  // descriptions get 256 characters EACH. Truncating one to fit the other
+  // produces garbage, so these are their own short forms.
+  //
+  // v0.62.884 corrected the EN and FR copy — it advertised /buddy, retired at
+  // v0.60.113, omitted /menu, /rating and /clipboard, and had been 522 chars
+  // against a 512 cap since v0.60.37, trimmed on every boot. This PR does not
+  // re-argue that; it translates the corrected text into the seven locales that
+  // had none. Measured worst case across all nine and every count value: 493.
+  //
+  // These panes can NEVER follow the /language toggle. The Bot API has no chat
+  // scope for setMyDescription — only language_code, which is the reader's
+  // Telegram CLIENT language. Stated here because the same symptom as the slash
+  // menu has a different ceiling, and a future reader will otherwise file it.
+  "bot.about.menu": { en: "every feature, one tap", fr: "tout en un tap", id: "semua fitur, satu ketuk", ru: "все функции в одно касание", de: "alles mit einem Tipp", zh: "一键直达所有功能", ja: "全機能にワンタップ", es: "todo a un toque", ko: "모든 기능을 한 번에" },
+  "bot.about.cuisine": { en: "{cuisines} cuisines, SG + Johor Bahru", fr: "{cuisines} cuisines à SG + Johor Bahru", id: "{cuisines} masakan, SG + Johor Bahru", ru: "{cuisines} кухонь, Сингапур + Джохор", de: "{cuisines} Küchen, SG + Johor Bahru", zh: "{cuisines} 种菜系，新加坡 + 新山", ja: "{cuisines} 種の料理、SG + ジョホール", es: "{cuisines} cocinas, SG + Johor Bahru", ko: "{cuisines}개 요리, 싱가포르 + 조호르" },
+  "bot.about.location": { en: "change location", fr: "changer de lieu", id: "ubah lokasi", ru: "сменить место", de: "Ort ändern", zh: "更改位置", ja: "場所を変更", es: "cambiar ubicación", ko: "위치 변경" },
+  "bot.about.hawker": { en: ">{hawker} hawker centres", fr: "plus de {hawker} hawker centres", id: ">{hawker} pusat jajan", ru: "более {hawker} фуд-центров", de: "über {hawker} Hawker-Zentren", zh: "超过 {hawker} 个熟食中心", ja: "{hawker} 軒以上のホーカー", es: "más de {hawker} centros hawker", ko: "호커센터 {hawker}곳 이상" },
+  "bot.about.recognised": { en: "Michelin, Bib, Asia 50/100", fr: "Michelin, Bib, Asie 50/100", id: "Michelin, Bib, Asia 50/100", ru: "Michelin, Bib, Азия 50/100", de: "Michelin, Bib, Asien 50/100", zh: "米其林、必比登、亚洲 50/100", ja: "ミシュラン、ビブ、アジア 50/100", es: "Michelin, Bib, Asia 50/100", ko: "미쉐린, 빕, 아시아 50/100" },
+  "bot.about.weather": { en: "now + 2h NEA forecast", fr: "actuel + prévision NEA 2 h", id: "sekarang + prakiraan NEA 2 jam", ru: "сейчас + прогноз NEA 2 ч", de: "jetzt + 2-h-NEA-Prognose", zh: "当前 + NEA 两小时预报", ja: "現在 + NEA 2時間予報", es: "ahora + previsión NEA 2 h", ko: "현재 + NEA 2시간 예보" },
+  "bot.about.transport": { en: "bus, MRT, walk, drive", fr: "bus, MRT, marche, voiture", id: "bus, MRT, jalan kaki, mobil", ru: "автобус, MRT, пешком, авто", de: "Bus, MRT, zu Fuß, Auto", zh: "巴士、地铁、步行、驾车", ja: "バス、MRT、徒歩、車", es: "bus, MRT, a pie, coche", ko: "버스, MRT, 도보, 차" },
+  "bot.about.carpark": { en: "nearest 5, free lots", fr: "les 5 plus proches", id: "5 terdekat, slot kosong", ru: "5 ближайших, есть места", de: "die 5 nächsten, frei", zh: "最近 5 个，有空位", ja: "最寄り 5 件、空きあり", es: "los 5 más cercanos, libres", ko: "가까운 5곳, 빈자리" },
+  "bot.about.search": { en: "dishes, ingredients, tools", fr: "plats, ingrédients, outils", id: "hidangan, bahan, alat", ru: "блюда, ингредиенты, посуда", de: "Gerichte, Zutaten, Geräte", zh: "菜品、食材、器具", ja: "料理、食材、道具", es: "platos, ingredientes, utensilios", ko: "요리, 재료, 도구" },
+  "bot.about.rating": { en: "min rating 0–5", fr: "note minimale 0–5", id: "rating minimum 0–5", ru: "мин. рейтинг 0–5", de: "Mindestbewertung 0–5", zh: "最低评分 0–5", ja: "最低評価 0–5", es: "nota mínima 0–5", ko: "최소 평점 0–5" },
+  "bot.about.clipboard": { en: "saved cuisine clips", fr: "clips enregistrés", id: "klip tersimpan", ru: "сохранённые клипы", de: "gespeicherte Clips", zh: "已保存的剪贴", ja: "保存したクリップ", es: "clips guardados", ko: "저장된 클립" },
+  "bot.about.language": { en: "{n} languages", fr: "{n} langues", id: "{n} bahasa", ru: "{n} языков", de: "{n} Sprachen", zh: "{n} 种语言", ja: "{n} 言語", es: "{n} idiomas", ko: "{n}개 언어" },
+  "bot.about.privacy": { en: "data + sources", fr: "données + sources", id: "data + sumber", ru: "данные + источники", de: "Daten + Quellen", zh: "数据与来源", ja: "データと出典", es: "datos + fuentes", ko: "데이터와 출처" },
+  "bot.about.forgetme": { en: "erase stored data", fr: "effacer vos données", id: "hapus data tersimpan", ru: "удалить свои данные", de: "Daten löschen", zh: "清除已保存的数据", ja: "保存データを消去", es: "borrar tus datos", ko: "저장된 데이터 삭제" },
+  "bot.about.hint": { en: "Tap 🍴 Cuisine Picker to jump in.", fr: "Appuyez sur 🍴 pour ouvrir.", id: "Ketuk 🍴 untuk mulai.", ru: "Нажмите 🍴, чтобы начать.", de: "Tippe auf 🍴, um zu starten.", zh: "点按 🍴 开始。", ja: "🍴 をタップして開始。", es: "Toca 🍴 para empezar.", ko: "🍴 를 눌러 시작하세요." },
+  "bot.about.short": { en: "Soleat — for Solo eats. Singapore dining concierge + a quick simple transport guide.", fr: "Soleat — pour repas solo. Conciergerie cuisine + transport simple à Singapour.", id: "Soleat — untuk makan sendiri. Pemandu kuliner + transportasi Singapura.", ru: "Soleat — еда в одиночку. Гид по ресторанам и транспорту Сингапура.", de: "Soleat — für Solo-Essen. Restaurantführer + einfacher Verkehrsguide für Singapur.", zh: "Soleat — 一人食。新加坡餐饮指南 + 简易交通导览。", ja: "Soleat — ひとりごはん。シンガポールの食と交通のガイド。", es: "Soleat — para comer solo. Guía gastronómica y de transporte de Singapur.", ko: "Soleat — 혼밥을 위해. 싱가포르 미식 가이드 + 간단한 교통 안내." },
 };
 
 // v0.59.14: translate an LTA Type field to the active locale.

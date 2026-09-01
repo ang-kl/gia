@@ -9,6 +9,21 @@
 // VALUES are `history` bodies only. `local`, `claim`, `tier` and `sources` are
 // identity or metadata and are never translated.
 //
+// v0.62.886 — `differsFrom` was in NEITHER list, and that omission was the bug.
+// It is not identity or metadata; it is a descriptive clause rendered straight
+// after a translated prefix, so a Spanish reader saw "se diferencia de KL's
+// dark-soy + pork-lard version". Its 49 rows now live in
+// city-plates-differs-i18n.generated.js. Listed here so the next reader meets a
+// decision rather than a gap — which is the difference this line records.
+//
+// STILL never translated, and now for stated reasons rather than by silence:
+//   local   — the dish's own-language name; locale-independent by design.
+//   tier    — a three-value enum, translated in ArrivalPlate's TIER_LABEL.
+//   sources — citation names ("UNESCO ICH…", "2203/QĐ-BVHTTDL"): identifiers.
+//   claim   — 269 distinct free-prose values, not a tag set. Localising it
+//             properly means first splitting it into a controlled head plus a
+//             free qualifier, which is a schema change. Deferred, not decided.
+//
 // city-plates.js folds these onto each dish's history at load. A HAND-AUTHORED
 // language wins: the merge only fills what the datum does not already carry.
 module.exports = {

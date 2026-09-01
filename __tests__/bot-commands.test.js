@@ -23,7 +23,7 @@ const read = (p) => readFileSync(join(ROOT, p), 'utf8');
 
 const {
   COMMAND_IDS, MAX_COMMANDS, NAME_MAX, DESCRIPTION_MAX, NAME_RE,
-  chatScope, deleteScopeArg, buildCommandList,
+  chatScope, deleteScopeArg, buildCommandList, buildDescription, buildShortDescription,
 } = require('../bot-commands');
 const { t, SUPPORTED } = require('../i18n');
 
@@ -262,6 +262,71 @@ describe('the chat scope — the part that makes the menu follow the toggle', ()
     expect(INDEX_SRC, 'the hardcoded EN/FR arrays are gone').not.toMatch(/const (en|fr)Commands = \[/);
     expect(INDEX_SRC).toMatch(/for \(const lang of MENU_LANGS\)/);
     expect(INDEX_SRC).toMatch(/setMyCommands\(buildCommandList\(lang, _periodicalCountsStr\), \{ language_code: lang \}\)/);
+  });
+});
+
+describe('the "What can this bot do?" pane — v0.62.885', () => {
+  // The pane is a SECOND string family, not a reuse of bot.commands.*: it is
+  // capped at 512 characters TOTAL for all fourteen lines (~20 each), while the
+  // menu descriptions get 256 EACH. Truncating one to fit the other is garbage.
+  // Until v0.62.885 it was EN + FR literals, so seven of nine readers got English
+  // on the one surface whose entire job is telling them what the bot does.
+  it('every command has a pane label in every locale', () => {
+    const gaps = [];
+    for (const id of COMMAND_IDS) {
+      for (const l of SUPPORTED) {
+        const v = t(`bot.about.${id}`, l);
+        if (!v || v === `bot.about.${id}` || !v.trim()) gaps.push(`${id}.${l}`);
+      }
+    }
+    expect(gaps).toEqual([]);
+    for (const l of SUPPORTED) {
+      expect(t('bot.about.hint', l), `hint.${l}`).not.toBe('bot.about.hint');
+      expect(t('bot.about.short', l), `short.${l}`).not.toBe('bot.about.short');
+    }
+  });
+
+  it('and no locale silently serves the English, bar two named proper-noun pairs', () => {
+    // "Michelin, Bib, Asia 50/100" is four proper nouns and a number; Indonesian
+    // and Spanish both write "Asia". French and Russian genuinely differ (Asie,
+    // Азия) and are NOT listed — the exemption is per pair, so it cannot cover a
+    // locale that simply went unfilled.
+    const IDENTICAL_BY_DESIGN = new Set(['bot.about.recognised.id', 'bot.about.recognised.es']);
+    const same = [];
+    for (const key of [...COMMAND_IDS.map((id) => `bot.about.${id}`), 'bot.about.hint', 'bot.about.short']) {
+      const en = t(key, 'en');
+      for (const l of SUPPORTED) {
+        if (l === 'en' || IDENTICAL_BY_DESIGN.has(`${key}.${l}`)) continue;
+        if (t(key, l) === en) same.push(`${key}.${l}`);
+      }
+    }
+    expect(same).toEqual([]);
+  });
+
+  it('the pane is built from COMMAND_IDS, so it cannot disagree with the menu', () => {
+    // It disagreed for three months: /buddy was removed from the menu at
+    // v0.60.113 and stayed in the pane, which also omitted /menu, /rating and
+    // /clipboard. Derivation makes that structural rather than remembered.
+    for (const l of SUPPORTED) {
+      const lines = buildDescription(l, { cuisines: '55+', hawker: '100' }).split('\n');
+      const listed = lines.filter((x) => x.startsWith('/')).map((x) => x.slice(1).split(' ')[0]);
+      expect(listed, `${l} pane`).toEqual(COMMAND_IDS);
+    }
+  });
+
+  it('and it cannot follow the toggle — stated as a fact about the Bot API', () => {
+    // setMyDescription takes a language_code and NO scope, so it can only track
+    // the reader's Telegram client language. The slash menu escapes this through
+    // botCommandScopeChat; there is no equivalent here. Asserted so that the next
+    // report of "the pane is in the wrong language" is read as the limit it is.
+    expect(INDEX_SRC).toMatch(/setMyDescription\(code/);
+    expect(INDEX_SRC, 'no chat scope exists for descriptions').not.toMatch(/setMyDescription\([^)]*scope/);
+    expect(INDEX_SRC, 'no chat scope exists for the profile blurb').not.toMatch(/setMyShortDescription\([^)]*scope/);
+    expect(INDEX_SRC, 'both panes loop every locale, not two').toMatch(/for \(const code of \[null, \.\.\.PANE_LANGS\]\)/);
+  });
+
+  it('the profile blurb names the product in every locale', () => {
+    for (const l of SUPPORTED) expect(buildShortDescription(l), `${l}`).toContain('Soleat');
   });
 });
 

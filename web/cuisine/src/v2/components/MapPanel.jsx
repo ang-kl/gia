@@ -540,6 +540,17 @@ export default function MapPanel({ venues, pronunciations = null, userLoc, focus
       ctrl.setRegionMode(region || 'SG');
     }
   }, [region]);
+  // v0.62.886 — push the reader's locale into the overlay controller. The map's
+  // station info-window is a raw HTML string built inside mapOverlays.js, which
+  // took no lang at all until now; a Spanish reader tapping a station got
+  // "Exits" / "First / Last Train" / "Operator:" in English while the React
+  // StationCard beside it rendered the same data in Spanish. Pushed through a
+  // setter rather than opts because the controller is created in a mount-once
+  // effect — anything passed at init would freeze at first render.
+  useEffect(() => {
+    const ctrl = overlayControllerRef.current;
+    if (ctrl && typeof ctrl.setLang === 'function') ctrl.setLang(lang);
+  }, [lang]);
   useEffect(() => () => { overlayControllerRef.current?.destroy?.(); ringLayerRef.current?.destroy?.(); }, []);
 
   function handleIdle() {

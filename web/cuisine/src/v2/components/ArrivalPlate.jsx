@@ -13,7 +13,7 @@ import React, { useState, useEffect } from 'react';
 // v0.62.407 — [ picture ] affordance: open the dish's authentic photo SOURCE
 // (Wikimedia Commons File: page) via a runtime Wikipedia lookup.
 import { openDishPicture } from '../lib/dish-picture.js';
-import { t } from '../lib/i18n.js';
+import { t, tn } from '../lib/i18n.js';
 // P1-d — shared dialog behaviour (focus trap / initial focus / Escape / restore).
 import { useDialog } from '../../../../_shared/lib/use-dialog.js';
 
@@ -542,7 +542,9 @@ export default function ArrivalPlate({ plate, lang = 'en', onTryDish, expanded =
                 <div className="mt-1">{localisedBody(d.history, lang)}</div>
                 <div className="mt-1 text-tg-hint">
                   {localisedBody(TIER_LABEL[d.tier], lang) || d.tier} · {d.claim}
-                  {d.differsFrom ? <> · {t('plate.differsFrom', lang)} {d.differsFrom}</> : null}
+                  {d.differsFrom
+                    ? <> · {tn('plate.differsFrom', lang, { x: localisedBody(d.differsFromI18n, lang) || d.differsFrom })}</>
+                    : null}
                 </div>
                 {Array.isArray(d.sources) && d.sources.length > 0 && (
                   <div className="mt-0.5 text-tg-hint">
