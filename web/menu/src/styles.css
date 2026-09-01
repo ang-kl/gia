@@ -156,6 +156,20 @@ html:hover::-webkit-scrollbar-thumb { background: var(--tg-border, rgba(140,140,
   outline-offset: 2px;
 }
 
+/* v0.62.890 — the focus ring that read as a DIVIDER. Operator: "the dropdown
+   list for toggled language KR should be together with the rest". There was no
+   divider and Korean was never treated specially: the language menu focuses the
+   ACTIVE language when it opens (the P1-d keyboard model), P1-c above draws a
+   2px accent outline at `outline-offset: 2px`, and the menu container is
+   `overflow-hidden` with rounded corners — so the ring's left, right and bottom
+   edges are clipped and only its TOP edge survives, landing exactly where a
+   divider between two rows would sit. Korean is selected AND last, so it read as
+   "separated below a line"; pick Espanol and the same ring reads as "highlighted".
+   Drawing it INSIDE the row fixes the appearance without weakening the
+   indicator — same colour, same width, still keyboard-only. `outline` above is
+   !important but `outline-offset` is NOT, so this needs no !important of its own. */
+[role="menuitemradio"]:focus-visible { outline-offset: -2px; }
+
 /* P1-f — invisible touch-target extension (see cuisine/hawker/transport
    styles.css for the rationale): visible size unchanged, transparent
    ::after widens the interactive box; directional variants avoid overlap

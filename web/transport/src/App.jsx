@@ -650,11 +650,21 @@ export default function App() {
   //   • an explicit ordinal on every card ("3 / 35"), below
   // Together they make the order readable in ANY column count, which is exactly
   // what a device-independent grid needs.
+  const lineOrderSecond = focusedLine
+    ? secondLine({ primary: lineName(focusedCode, focusedLine.name, lang), english: focusedLine.name, code: focusedCode, lang })
+    : null;
   const lineOrderHeader = (focusedLine && lineStations.length > 1) ? (
     <div className="rounded-lg border border-tg-border bg-tg-card px-2 py-1.5 flex items-center gap-2 text-[10px] leading-tight">
       <span style={{ background: focusedLine.hex, color: '#fff' }}
         className="font-bold rounded px-1.5 py-0.5 text-[10px] leading-none shrink-0">{focusedCode}</span>
-      <span className="font-semibold text-tg-text shrink-0">{lineName(focusedCode, focusedLine.name, lang)}</span>
+      {/* v0.62.890 — the second of the two v0.62.888 carve-outs, retired for the
+          same reason: the operator ran the app in Korean and asked for the line
+          to resolve. Stacked rather than inline so it matches every other
+          surface; the row grows by one 9px line. */}
+      <span className="flex flex-col min-w-0 shrink-0 leading-tight">
+        <span className="font-semibold text-tg-text">{lineName(focusedCode, focusedLine.name, lang)}</span>
+        {lineOrderSecond && <span className="text-[9px] text-tg-hint font-normal">{lineOrderSecond.text}</span>}
+      </span>
       <span className="text-tg-hint min-w-0 truncate">
         {lineStations[0].name} → {lineStations[lineStations.length - 1].name}
       </span>

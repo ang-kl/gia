@@ -170,17 +170,73 @@ describe('the render sites, and the two that were deliberately left alone', () =
     expect(app).toMatch(/text-\[11px\] text-tg-hint leading-tight truncate block/);
   });
 
-  it('AffectedTicker and the line-order header keep ONE line, on purpose', () => {
-    // CARVE-OUT, RECORDED. AffectedTicker is an overflow-x-auto whitespace-nowrap
-    // pill strip and the line-order header is a single row of four siblings at
-    // 10px; a second line in either doubles the height of a header the compact
-    // layout deliberately shrinks. Same reasoning as the map-pill carve-out at
-    // mrt-stations-i18n.test.js:137-144 — a size-sensitive visual this
-    // environment cannot render is not changed on faith. Reversible in one line.
-    expect(read('web/transport/src/components/AffectedTicker.jsx')).not.toContain('secondLine');
+  it('AffectedTicker and the line-order header render it too — the carve-out is RETIRED', () => {
+    // CARVE-OUT RETIRED, v0.62.890, and it was mine to retire. v0.62.888 left
+    // these two English on my reasoning that a second line "doubles the height of
+    // a header the compact layout deliberately shrinks" — a claim about a VISUAL,
+    // argued from a file, in an environment that cannot render one. The operator
+    // then ran the app in Korean, photographed this exact strip, and said: "Have
+    // the train TMA resolve the translated line."
+    //
+    // The carve-out was not wrong about the pixels; it was wrong about who gets to
+    // decide. A judgement made without being able to look does not outrank the
+    // person looking. Kept as a test rather than deleted so the reversal is on the
+    // record next to the reasoning it reversed.
+    // PIN THE RENDER, NOT THE CALL. The first draft of this line asserted only
+    // that the file CONTAINS 'secondLine' — and a mutation that deleted the
+    // rendered span while leaving the call in place passed it clean. A guard that
+    // a revert of the thing it guards survives is not a guard.
+    const ticker = read('web/transport/src/components/AffectedTicker.jsx');
+    expect(ticker).toMatch(/const sl = secondLine\(\{ primary: lineName\(line\.code, line\.name, lang\), english: line\.name, code: line\.code, lang \}\)/);
+    expect(ticker).toMatch(/\{sl && <span className="text-\[10px\] text-tg-hint">\{sl\.text\}<\/span>\}/);
     const app = read('web/transport/src/App.jsx');
-    const header = app.slice(app.indexOf('const lineOrderHeader'), app.indexOf('const lineOrderHeader') + 900);
-    expect(header).not.toContain('secondLine');
+    expect(app).toMatch(/const lineOrderSecond = focusedLine/);
+    expect(app).toMatch(/\{lineOrderSecond && <span className="text-\[9px\] text-tg-hint font-normal">\{lineOrderSecond\.text\}<\/span>\}/);
+  });
+
+  it('the three surfaces that were never wired at all now are', () => {
+    // A DIFFERENT CLASS OF DEFECT from the two carve-outs above. Nobody decided
+    // these; they were missed. And they need a hop the others do not: they render
+    // data/stations.json's baked English `line_name`, not LINES_BY_CODE[...].name,
+    // so a `line_code` lookup has to happen before a locale can be applied. The
+    // tell was in the string itself — the card showed "North East Line" while
+    // lines.js says "North-East Line".
+    const card = read('web/transport/src/components/StationCard.jsx');
+    expect(card, 'LineSubCard main name').toMatch(/const lineMain = lineName\(line\.line_code, nameParts\.main, lang\)/);
+    expect(card, 'LineSubCard second line').toMatch(/const lineSecond = secondLine\(\{ primary: lineMain, english: nameParts\.main, code: line\.line_code, lang \}\)/);
+    expect(card, 'the raw baked name must no longer be rendered').not.toMatch(/>\{nameParts\.main\}</);
+    expect(card, 'the collapsed strip').toMatch(/: lineLabelInline\(l, lang\)/);
+    expect(card, 'the raw fallback must be gone').not.toMatch(/: \(l\.line_name \|\| ''\)/);
+  });
+
+  it('the collapsed strip is the ONE inline exception, and says why', () => {
+    // "Second line everywhere" was the operator's instruction; this single slot
+    // is a ternary producing a STRING inside a 10px strip whose whole job is to
+    // stay one row high. The bracket goes inline there. Naming the exception in
+    // the guard beats letting it look like an oversight — the same treatment the
+    // katakana rows and the cognate collisions got.
+    const card = read('web/transport/src/components/StationCard.jsx');
+    expect(card).toMatch(/THE ONE DOCUMENTED EXCEPTION to "second line/);
+    expect(card).toMatch(/function lineLabelInline\(l, lang\)/);
+    expect(card).toMatch(/return sl \? `\$\{primary\} \$\{sl\.text\}` : primary;/);
+  });
+
+  it('all three mapOverlays copies localise the line row, identically', () => {
+    // It localised NOTHING while scLabel/dirLabel/dayLabel beside it all took
+    // `lang` — the outlier in its own function. And it lives in THREE copies whose
+    // stationInfoCardHtml region is asserted byte-identical by
+    // station-card-labels.test.js, so a fix to one is a fix to all three or a
+    // failure in that test.
+    const copies = [
+      'web/transport/src/lib/mapOverlays.js',
+      'web/hawker/src/lib/mapOverlays.js',
+      'web/cuisine/src/v2/lib/mapOverlays.js',
+    ].map(read);
+    for (const src of copies) {
+      expect(src).toMatch(/const primary = english \? lineName\(ln\.line_code, english, lang\) : '';/);
+      expect(src, 'escaped like every other popup field').toContain("escapeHtml(sl.text)");
+      expect(src).not.toMatch(/escapeHtml\(\(ln\.line_code \|\| ''\) \+ ' · ' \+ \(ln\.line_name \|\| ''\)\)/);
+    }
   });
 
   it('the English name is never displaced — it is still the key everywhere', () => {

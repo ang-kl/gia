@@ -29,6 +29,20 @@
 //   - `coarseStations`  the full station list, for terminus resolution.
 import React, { useEffect, useState } from 'react';
 import { secondLine } from '../../../_shared/lib/name-second-line.js';
+import { lineName } from '../../../_shared/lib/mrt-lines-i18n.generated.js';
+
+// v0.62.890 — the inline form of the second line, for the one slot that cannot
+// stack: a string, not an element. Same source and same precedence as
+// secondLine() everywhere else — it just joins the two parts with a space
+// instead of a line break. Returns the plain localised name when there is
+// nothing to add, so the caller never has to think about it.
+function lineLabelInline(l, lang) {
+  const english = l.line_name || '';
+  if (!english) return '';
+  const primary = lineName(l.line_code, english, lang);
+  const sl = secondLine({ primary, english, code: l.line_code, lang });
+  return sl ? `${primary} ${sl.text}` : primary;
+}
 import { m, useReducedMotion } from 'motion/react';
 import { t, tn } from '../i18n.js';
 // v0.62.653 — the canonical line names, so a qualified line ("East-West Line
@@ -175,6 +189,22 @@ function LineSubCard({ line, station, coarseStations, statusByLine, lang, onFocu
   // v0.62.653 — split "East-West Line (Changi branch)" into two rows, and step the
   // whole ladder down 1 px so both rows fit the card width.
   const nameParts = splitLineName(line.line_name, LINES_BY_CODE[line.line_code]?.name);
+  // v0.62.890 — NEVER WIRED, and not by decision. AffectedTicker and the
+  // line-order header were deliberate carve-outs in v0.62.888; this one was
+  // simply missed, which is why the operator saw "NE12 North East Line" in an
+  // otherwise Korean card. It also needs a hop the others do not: these rows come
+  // from data/stations.json's BAKED English `line_name`, not from LINES_BY_CODE,
+  // so the code has to be looked up before a locale can be applied. (The tell is
+  // in the string itself — the card shows "North East Line" while lines.js says
+  // "North-East Line".)
+  //
+  // CGL is the one row where main and code disagree: its line_name is
+  // "East-West Line (Changi branch)", so main reads "East-West Line" while the
+  // code's own name is the Changi branch. The bracket answers for the CODE, which
+  // is the line this row actually is, and the qualifier above it already says so
+  // in English. Three stations are affected (Tanah Merah, Expo, Changi Airport).
+  const lineMain = lineName(line.line_code, nameParts.main, lang);
+  const lineSecond = secondLine({ primary: lineMain, english: nameParts.main, code: line.line_code, lang });
   const nameSize = lineCount >= 3 ? 'text-[9px]' : lineCount === 2 ? 'text-[10px]' : 'text-[11px]';
   const qualSize = lineCount >= 3 ? 'text-[8px]' : 'text-[9px]';
 
@@ -206,9 +236,12 @@ function LineSubCard({ line, station, coarseStations, statusByLine, lang, onFocu
             what the line chip the user just tapped says ("Changi Airport Branch"),
             rather than echoing the feed's shorthand. */}
         <span className="flex flex-col min-w-0 flex-1 leading-tight">
-          <span className={`${nameSize} font-semibold text-tg-text truncate`}>{nameParts.main}</span>
+          <span className={`${nameSize} font-semibold text-tg-text truncate`}>{lineMain}</span>
           {nameParts.qualifier && (
             <span className={`${qualSize} text-tg-hint truncate`}>({nameParts.qualifier})</span>
+          )}
+          {lineSecond && (
+            <span className={`${qualSize} text-tg-hint truncate`}>{lineSecond.text}</span>
           )}
         </span>
         {/* v0.62.650 — operator: "Remove word 'normal' as the header already shows
@@ -559,8 +592,14 @@ export default function StationCard({
               <div key={i} className="flex items-center gap-1 min-w-0">
                 <span style={{ background: hexForLineCode(l.line_code), color: '#fff' }}
                   className="font-bold rounded px-1 text-[9px] leading-[1.5] shrink-0">{l.station_code}</span>
+                {/* v0.62.890 — THE ONE DOCUMENTED EXCEPTION to "second line
+                    everywhere". This is a single text cell in a 10px collapsed
+                    strip whose whole purpose is to stay one row high, and the slot
+                    is a ternary producing a string, not an element. So the bracket
+                    goes INLINE here rather than stacked. Same content, same
+                    precedence, one row. */}
                 <span className="text-tg-text/80 tabular-nums truncate">
-                  {s ? `🚋 ${s.first || '—'} · ${s.last || '—'}` : (l.line_name || '')}
+                  {s ? `🚋 ${s.first || '—'} · ${s.last || '—'}` : lineLabelInline(l, lang)}
                 </span>
               </div>
             );

@@ -285,8 +285,21 @@ describe('the render sites, and what must not have moved', () => {
     // mrt-stations-i18n.test.js:137-144. A size-sensitive visual this environment
     // cannot render is not changed on faith; reversible in one line when someone
     // can look at it.
+    //
+    // v0.62.890 — THIS ASSERTION WAS TOO COARSE AND BROKE ON A CHANGE IT DID NOT
+    // GUARD. It banned the string `secondLine` from the WHOLE FILE, so when the
+    // line row a few hundred lines below gained a translation the carve-out test
+    // failed — while the carve-out itself was untouched. Same failure name-guide.js
+    // has now recorded twice: a source scan that pins more than the rule it
+    // defends. Scoped to the pill's own function, which is what the carve-out is
+    // actually about.
     const src = read('web/transport/src/lib/mapOverlays.js');
-    expect(src).not.toContain('stationNameLocal');
-    expect(src).not.toContain('secondLine');
+    const pill = src.slice(src.indexOf('export function stationPillNode'));
+    const pillFn = pill.slice(0, pill.indexOf('\nfunction ', 1) + 1 || 2000);
+    expect(pillFn, 'the pill must not localise').not.toContain('stationNameLocal');
+    expect(pillFn, 'nor take a second line').not.toContain('secondLine');
+    // The station NAME is still the English one the pill was always given.
+    expect(src).toMatch(/function trainStationNode\(mode, st\)/);
+    expect(src).toMatch(/stationPillNode\(st\.station\.codes, st\.station\.name \|\| '', st\.hex\)/);
   });
 });
