@@ -5594,11 +5594,30 @@ try {
       if (!d || !d.dish) continue;
       const curated = _dishNames.namesFor(d.dish, slug);
       const overlay = NAMES[`${city}::${d.dish}`];
-      if (!curated && !overlay) continue;
+      // RULE 3 (dish-names-i18n.js:26-29), applied structurally rather than by
+      // copying. Where the dish's own `local` field already holds a Chinese,
+      // Japanese or Korean name, THAT is the name — 63 zh, 22 ja, 22 ko across
+      // these rows. Deriving it here means the overlay never carries a second,
+      // competing spelling that could drift from the curated source. Split by
+      // SCRIPT, not by country: `local` can read "kopi putih Ipoh / 怡保白咖啡"
+      // or "牛杂 / mi sup daging", and 江戸前寿司 on a Tokyo dish is Japanese, not
+      // Chinese — which is why Han falls to `ja` for JP and to `zh` otherwise.
+      const fromLocal = {};
+      for (const part of String(d.local || '').split(/\s*[/;]\s*/)) {
+        const p = part.trim();
+        if (!p) continue;
+        if (/[\uAC00-\uD7A3]/.test(p)) fromLocal.ko = p;
+        else if (/[\u3040-\u30FF]/.test(p)) fromLocal.ja = p;
+        else if (/[\u4E00-\u9FFF]/.test(p)) fromLocal[entry.country === 'JP' ? 'ja' : 'zh'] = p;
+      }
+      if (!curated && !overlay && !Object.keys(fromLocal).length) continue;
       if (!d.nameI18n) d.nameI18n = {};
       // Curated wins; the overlay fills only what it does not carry — the same
       // contract as the history fold above.
       for (const [lang, text] of Object.entries(curated || {})) {
+        if (d.nameI18n[lang] == null && text) d.nameI18n[lang] = text;
+      }
+      for (const [lang, text] of Object.entries(fromLocal)) {
         if (d.nameI18n[lang] == null && text) d.nameI18n[lang] = text;
       }
       for (const [lang, text] of Object.entries(overlay || {})) {
