@@ -28,6 +28,7 @@
 //   - `statusByLine`  live per-line service status.
 //   - `coarseStations`  the full station list, for terminus resolution.
 import React, { useEffect, useState } from 'react';
+import { secondLine } from '../../../_shared/lib/name-second-line.js';
 import { m, useReducedMotion } from 'motion/react';
 import { t, tn } from '../i18n.js';
 // v0.62.653 — the canonical line names, so a qualified line ("East-West Line
@@ -284,6 +285,9 @@ export default function StationCard({
   // "Stesen MRT Ang Mo Kio". So the localised string gets its own variable and is used
   // in exactly one place: the name strip a reader looks at.
   const displayName = stationName(name, lang);
+  // v0.62.889 — the ONE second line, resolved once per render rather than in the
+  // JSX: a translation to bracket, or a reading to sound out, never both.
+  const nameSecond = secondLine({ primary: displayName, english: name, station: name, lang, say });
   // v0.62.621/632 — hooks must precede the early return (Rules of Hooks).
   // `bodyOpen` drives the card-level collapse (TILE mode): a collapsible card
   // starts closed (uniform tile height) unless it is the active/selected one; a
@@ -457,12 +461,24 @@ export default function StationCard({
             single-name request. Rendered only when `displayName === name`, i.e. the
             government register had nothing for this locale — where it does, that official
             name IS the answer and a second line under it would be noise. */}
+        {/* v0.62.889 — the same gate, a fuller shelf. Operator: "MRT stays English
+            or Chinese or Malay or Tamil but second line has the translated words in
+            bracket and one font size smaller". The condition above is UNCHANGED and
+            still right — for zh/id the register answers as the primary and a bracket
+            repeating it is noise. What was missing was CONTENT: for fr/de/es/ru/ja/ko
+            the register publishes nothing, so the gate opened onto a pronunciation
+            guide, which answers a different question. secondLine() now picks one of
+            four sources and returns exactly one — "Both means TWO" (name-guide.js).
+            The icon shows only for a READING, never for a translation: brackets mean
+            translation, the icon means pronunciation, and conflating them makes both
+            useless. `displayName` and `name` are untouched — `name` still keys
+            readSaved, data-station-card, the Maps query and the share URL. */}
         <span className="flex-1 min-w-0">
           <span className={`font-google ${isCompact ? 'text-type-meta' : 'text-type-body'} font-bold leading-tight block truncate`} title={displayName}>{displayName}</span>
-          {displayName === name && say && (
+          {nameSecond && (
             <span className="text-[11px] text-tg-hint leading-tight flex items-center gap-1 min-w-0">
-              <PronounceIcon className="shrink-0 opacity-80" />
-              <span className="truncate">{say}</span>
+              {nameSecond.key === 'say' && <PronounceIcon className="shrink-0 opacity-80" />}
+              <span className="truncate">{nameSecond.text}</span>
             </span>
           )}
         </span>

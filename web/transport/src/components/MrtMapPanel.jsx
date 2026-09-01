@@ -54,6 +54,7 @@ import { TAP_ZOOM_WIDE, TAP_ZOOM_PHONE } from '../../../_shared/lib/map-interact
 // identity comparison, or a Google Maps query string — and translating one of those
 // breaks the app silently. The three call sites below are the ones a reader sees.
 import { stationName } from '../../../_shared/lib/mrt-stations-i18n.generated.js';
+import { secondLine } from '../../../_shared/lib/name-second-line.js';
 import { mapsLanguageParam } from '../../../_shared/lib/gmaps-language.js';
 
 // Local openLink — transport TMA's tg.js doesn't export one. Routes
@@ -707,7 +708,17 @@ export default function MrtMapPanel({ focusedCode = null, focusedStation = null,
     // v0.61.22 — themed rounded card (infoCard) with an in-card ✕.
     // v0.62.814 — the popup heading is the reader's language; `s.name` stays English
     // one line below, where it keys the context cache.
-    const compose = (ctx) => infoCard(`<strong>${escapeHtml(stationName(s.name, lang))}</strong><br>${codes || ''}${statusHtml}${crowdHtml}${contextHtml(ctx)}${futureLine}${linkHtml}`);
+    // v0.62.889 — the second line, one font size smaller, under the heading.
+    // Operator: "MRT stays English or Chinese or Malay or Tamil but second line
+    // has the translated words in bracket and one font size smaller". Same
+    // secondLine() the station card uses, so the popup and the card can never
+    // disagree about which of the four sources wins. No PronounceIcon here — the
+    // InfoWindow is an HTML string with no React in it — so a READING renders
+    // unbracketed and a translation keeps its brackets, which is the distinction
+    // doing the work either way.
+    const popupSecond = secondLine({ primary: stationName(s.name, lang), english: s.name, station: s.name, lang });
+    const secondHtml = popupSecond ? `<br><small style="opacity:.75">${escapeHtml(popupSecond.text)}</small>` : '';
+    const compose = (ctx) => infoCard(`<strong>${escapeHtml(stationName(s.name, lang))}</strong>${secondHtml}<br>${codes || ''}${statusHtml}${crowdHtml}${contextHtml(ctx)}${futureLine}${linkHtml}`);
     const cachedCtx = stationCtxRef.current[s.name] || null;
     infoWindowRef.current?.setContent(compose(cachedCtx));
     // v0.61.98 — anchor the InfoWindow to the station POSITION, not the
