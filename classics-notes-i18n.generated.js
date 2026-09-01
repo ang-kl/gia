@@ -16,6 +16,24 @@
 //
 // classics-notes.js folds these onto each note at load. A HAND-AUTHORED note
 // wins: the merge only fills a language the note does not already carry.
+//
+// v0.62.882 (K5) — the `ko` column, 1,670 rows, HAND-WRITTEN. Same exception as the header
+// above and for the same reason: no paid translation API. Korean is not in any SUPPORTED list
+// yet, so nothing here reaches a reader until K6 flips the lists; the fold in classics-notes.js
+// is language-agnostic and carries `ko` through the moment it is. Rule 2 TRANSLITERATES for
+// Korean rather than keeping the Latin — 락사, not "laksa" — because Hangul is not Latin and
+// `ko` behaves like `zh`/`ja` here.
+//
+// THE 140-CHARACTER CAP APPLIES. __tests__/classics-city-plates-i18n.test.js enforces it over a
+// hardcoded eight-locale list that cannot yet see `ko`, so the K5 guard asserts it directly
+// rather than waiting for K6 to discover a violation. Measured after insertion: longest `ko`
+// value is 85 characters, median 61.
+//
+// 179 of the English bodies end on a dangling semicolon or an unclosed clause — an English-side
+// defect that predates this column. The convention the shipped locales already follow is to
+// render the content that exists and punctuate it normally; `ko` follows them rather than
+// mirroring the truncation. Guarded by __tests__/classics-notes-korean.test.js.
+// No native speaker has read it.
 module.exports = {
   "SG::100 plus (isotonic)": {
     id: "Minuman olahraga isotonik berkarbonasi dari Fraser & Neave, diluncurkan 1983 di Singapura dan Malaysia; namanya menandai 100 tahun F&N.",
@@ -24,6 +42,7 @@ module.exports = {
     zh: "星狮集团的含气等渗运动饮料，一九八三年在新马上市；名字标记的是 F&N 创立一百周年。",
     ja: "フレイザー・アンド・ニーヴの炭酸入りアイソトニック飲料。一九八三年に新馬で発売され、名は同社創立百周年を指します。",
     es: "Bebida isotónica con gas de Fraser & Neave, lanzada en 1983 en Singapur y Malasia; el nombre marca el centenario de F&N.",
+    ko: "프레이저 앤 니브의 탄산 이온 음료로 1983년 싱가포르와 말레이시아에서 출시됐으며, 이름은 회사 창립 100주년을 뜻합니다.",
   },
   "SG::ang ku kueh": {
     id: "Kue kura-kura merah Hokkien: kulit ketan yang kenyal membungkus pasta kacang hijau manis, dicetak menyerupai tempurung demi umur panjang.",
@@ -32,6 +51,7 @@ module.exports = {
     zh: "福建红龟粿：糯米皮软糯，包甜绿豆沙，压成龟壳纹样，取长寿与吉利之意。",
     ja: "福建の紅亀粿。もちもちのもち米の皮で甘い緑豆餡を包み、亀の甲羅の型で押して長寿と吉を願います。",
     es: "Pastel hokkien de la tortuga roja: masa correosa de arroz glutinoso sobre pasta dulce de judía mungo, moldeada como caparazón de longevidad.",
+    ko: "호키엔의 붉은 거북떡. 쫄깃한 찹쌀 피에 달콤한 녹두소를 넣고 거북 등딱지 모양 틀로 찍어 장수와 복을 기원합니다.",
   },
   "SG::apam balik SG": {
     id: "Panekuk lipat yang di sini disebut min jiang kueh; adonannya renyah di tepi, diisi kacang tumbuk, gula, dan jagung manis.",
@@ -40,6 +60,7 @@ module.exports = {
     zh: "对折的煎饼，本地叫「面煎粿」；边缘焦脆，馅是花生碎、砂糖与甜玉米。",
     ja: "二つ折りにするパンケーキで、地元ではミンジャンクエと呼ばれます。縁がカリッとし、砕いた落花生、砂糖、スイートコーンを包みます。",
     es: "Crepe doblado que aquí llaman min jiang kueh; masa de bordes crujientes rellena de cacahuete machacado, azúcar y maíz dulce.",
+    ko: "반으로 접어 내는 팬케이크로 현지에서는 민장꾸에라 부르며, 가장자리가 바삭한 반죽에 으깬 땅콩과 설탕, 옥수수를 채웁니다.",
   },
   "SG::assam pedas": {
     id: "Bahasa Melayu untuk \"asam pedas\": gulai ikan Melayu-Singapura dalam kuah asam jawa bercabai, dengan okra, terung, dan tomat.",
@@ -48,6 +69,7 @@ module.exports = {
     zh: "马来语的「酸辣」：新加坡马来人的招牌鱼煲，亚参酸底加辣椒，配羊角豆、茄子与番茄。",
     ja: "マレー語で「酸っぱくて辛い」。シンガポール・マレー料理を代表する魚の煮込みで、タマリンドの酸と唐辛子に、オクラ、茄子、トマト。",
     es: "Malayo para «agrio y picante»: guiso de pescado malayo-singapurense en salsa avinagrada de tamarindo con chile, okra, berenjena y tomate.",
+    ko: "말레이어로 '새콤하고 매운'. 타마린드로 새콤하게, 고추로 맵게 낸 국물에 오크라와 가지, 토마토를 넣은 싱가포르 말레이의 대표 생선찜입니다.",
   },
   "SG::ayam buah keluak": {
     id: "Andalan Peranakan: ayam dimasak dalam kuah asam pedas bersama buah keluak, biji hitam bercita rasa tanah dari pohon kepayang.",
@@ -56,6 +78,7 @@ module.exports = {
     zh: "娘惹的看家菜：鸡肉与黑果同焖在酸辣的亚参汁里，黑果是 kepayang 树的果仁，带一股泥土般的醇味。",
     ja: "プラナカンの定番。鶏肉を酸味と辛味のタマリンド汁で煮込み、クパヤンの木の黒い実ブア・クルアッの土の香りをまといます。",
     es: "Pilar peranakan: pollo guisado en salsa agripicante de tamarindo con buah keluak, la nuez negra y terrosa del árbol kepayang.",
+    ko: "프라나칸의 대표 요리. 닭고기를 매콤한 타마린드 소스에 조리며, 케파양 나무(Pangium edule)의 검은 열매인 부아 클루악이 흙 내음을 냅니다.",
   },
   "SG::ayam penyet": {
     id: "Ayam goreng Jawa Timur (Surabaya) yang ditekan dengan ulekan, disajikan bersama sambal pedas, tahu, tempe, dan nasi; laris di Singapura.",
@@ -64,6 +87,7 @@ module.exports = {
     zh: "东爪哇（泗水）的炸鸡，用石杵压扁，配辛辣参巴、豆腐、天贝和白饭；在新加坡很吃得开。",
     ja: "東ジャワ（スラバヤ）の揚げ鶏をすりこ木で押しつぶし、辛いサンバル、豆腐、テンペ、ご飯を添えます。シンガポールでも人気。",
     es: "Pollo frito de Java Oriental (Surabaya) aplastado con la mano de mortero; se sirve con sambal ardiente, tofu, tempeh y arroz. Popular aquí.",
+    ko: "동자바 수라바야식 튀긴 닭을 절굿공이로 눌러 납작하게 만든 요리로, 매운 삼발과 두부, 템페, 밥을 곁들이며 싱가포르에서 인기가 많습니다.",
   },
   "SG::babi pongteh": {
     id: "Babi semur Peranakan (Nyonya) dengan taucu dan gula melaka; kuahnya gurih-manis, berbawang merah dan jamur.",
@@ -72,6 +96,7 @@ module.exports = {
     zh: "娘惹焖猪肉：以豆酱与椰糖同烧，酱汁咸中带甜，佐红葱头与香菇。",
     ja: "プラナカン（ニョニャ）の豚の煮込み。発酵大豆ペーストのタウチョとパームシュガーで、甘じょっぱい汁に赤わけぎと椎茸を添えます。",
     es: "Cerdo estofado peranakan (nyonya) en pasta de soja fermentada (taucheo) y azúcar de palma; salsa dulce-salada con chalota y setas.",
+    ko: "발효 콩장(타우체오)과 야자설탕에 조린 프라나칸(뇨냐)식 돼지고기 요리로, 샬롯과 버섯을 넣어 짭짤하고 달큰합니다.",
   },
   "SG::bak chang (rice dumpling)": {
     id: "Bacang ketan berbentuk limas berbungkus daun bambu, disantap saat Peh Cun; gaya Hokkien, Teochew, Kanton, dan Nyonya berbeda di sini.",
@@ -80,6 +105,7 @@ module.exports = {
     zh: "竹叶裹的三角糯米粽，端午时吃；新加坡的福建粽、潮州粽、广东粽与娘惹粽各有各的做法。",
     ja: "笹の葉で包んだ三角のもち米粽。端午の節句に食べ、シンガポールでは福建、潮州、広東、ニョニャで作りが違います。",
     es: "Pirámide de arroz glutinoso en hojas de bambú que se come en la fiesta de Duanwu; aquí difieren los estilos hokkien, teochew y nyonya.",
+    ko: "대나무잎에 삼각으로 싼 찹쌀 만두로 단오에 먹으며, 싱가포르에서는 호키엔·조주·광둥·뇨냐식이 저마다 다릅니다.",
   },
   "SG::bak chor mee": {
     id: "Hokkien untuk \"mi daging cincang\"; asal Teochew: mee pok diaduk cabai, lemak babi, dan cuka hitam dengan babi cincang.",
@@ -88,6 +114,7 @@ module.exports = {
     zh: "福建话里就是「肉脞面」；这是新加坡潮州渊源的吃食：面薄拌上辣椒、猪油与黑醋，配肉碎。",
     ja: "福建語で「肉そぼろ麺」の意。潮州に根をもつシンガポールの一杯で、平打ちのミーポックを唐辛子、ラード、黒酢で和え、豚のそぼろをのせます。",
     es: "Hokkien para «fideos con carne picada»; raíz teochew: mee pok con chile, manteca, vinagre negro y carne picada.",
+    ko: "호키엔어로 '다진 고기 국수'. 조주계 싱가포르 요리로, 미폭을 고추와 라드, 흑식초 소스에 비벼 다진 돼지고기를 올립니다.",
   },
   "SG::bak kwa": {
     id: "Dendeng babi panggang manis-gurih; kelezatan Hokkien Fujian, dulu kemewahan Imlek, di Singapura dipanggang di atas arang.",
@@ -96,6 +123,7 @@ module.exports = {
     zh: "咸甜的烤猪肉干；本是福建的闽南吃食，从前只在农历新年才吃得起，到了新加坡便以炭火烤制成为本地风味。",
     ja: "甘辛く焼いた豚肉の干し肉。福建の閩南に伝わる珍味で、かつては旧正月の贅沢でした。シンガポールでは炭火で焼く形に土地化しました。",
     es: "Cecina de cerdo asada, dulce y salada; delicia hokkien de Fujian, antaño lujo de Año Nuevo, en Singapur asada al carbón.",
+    ko: "달콤짭짤한 돼지고기 육포. 푸젠 호키엔의 별미로 한때는 설에나 먹던 귀한 음식이었고, 싱가포르에서 숯불구이로 자리 잡았습니다.",
   },
   "SG::bandung": {
     id: "Minuman Melayu berwarna merah muda: susu evaporasi atau kental manis dengan sirop mawar; \"bandung\" berarti \"berpasangan\", bukan kota itu.",
@@ -104,6 +132,7 @@ module.exports = {
     zh: "粉红色的马来饮料：淡奶或炼奶兑玫瑰糖浆；「bandung」是「成双」的意思，与印尼那座城无关。",
     ja: "ピンク色のマレーの飲み物。練乳にローズシロップを合わせます。「バンドン」は「対になる」の意で、インドネシアの都市名ではありません。",
     es: "Bebida malaya rosada de leche evaporada o condensada con sirope de rosas; «bandung» significa «en pareja», no la ciudad indonesia.",
+    ko: "무가당 연유나 연유에 장미 시럽을 넣은 분홍빛 말레이 음료로, '반둥'은 인도네시아 도시가 아니라 '짝'을 뜻합니다.",
   },
   "SG::bandung soda": {
     id: "Minuman Melayu merah muda dari sirop mawar dengan susu evaporasi; versi soda menambah air soda. Muncul di Singapura awal 1900-an.",
@@ -112,6 +141,7 @@ module.exports = {
     zh: "粉红的马来饮料：玫瑰糖浆兑淡奶或炼奶，苏打版再加汽水。二十世纪初的殖民地新加坡出现。",
     ja: "ローズシロップに練乳を合わせたピンク色のマレーの飲み物。ソーダ版は炭酸水を足します。一九〇〇年代初頭の植民地シンガポールで生まれました。",
     es: "Bebida malaya rosada de sirope de rosas con leche evaporada o condensada; la versión soda añade agua con gas. Surgió hacia 1900 en Singapur.",
+    ko: "장미 시럽에 무가당 연유나 연유를 넣은 분홍빛 말레이 음료로, 소다수를 더한 버전이며 1900년대 초 식민지 싱가포르에서 생겼습니다.",
   },
   "SG::barley water": {
     id: "Minuman penyejuk Tionghoa dari jelai mutiara yang direbus lunak dengan gula batu, kerap berpandan; konon meredam panas dalam.",
@@ -120,6 +150,7 @@ module.exports = {
     zh: "华人的清凉饮：薏米加冰糖煮到软烂，常添香兰叶；据说能降火气。",
     ja: "中華系の涼飲。押し麦を氷砂糖でやわらかく煮出し、パンダンを添えることも。体の熱を下げるといわれます。",
     es: "Bebida refrescante china de cebada perlada cocida blanda con azúcar cande, a menudo con pandan; se dice que baja el calor interno.",
+    ko: "율무를 얼음설탕과 판단잎에 무르게 끓인 중국식 청량 음료로, 호키엔어로 '이비추이'라 하며 몸의 열을 내린다고 여겨집니다.",
   },
   "SG::beef hor fun": {
     id: "Kuetiau Kanton dengan irisan sapi dalam kuah licin, atau ditumis \"kering\" demi wok hei; andalan zi char.",
@@ -128,6 +159,7 @@ module.exports = {
     zh: "粤式牛肉河粉：可打滑蛋芡湿炒，也可「干炒」求镬气焦香；是煮炒摊的常备。",
     ja: "広東式の牛肉河粉。なめらかなあんをかけるか、鍋の香りを立たせて「乾炒」にします。煮炒の店の定番です。",
     es: "Fideos de arroz cantoneses con ternera en salsa sedosa o salteados «en seco» por el wok hei; un fijo del zi char.",
+    ko: "광둥식 넓적한 쌀국수에 저민 소고기를 올려 매끄러운 소스에 내거나 불맛 나게 볶아 내는 즈차의 단골 메뉴입니다.",
   },
   "SG::beef kway teow soup": {
     id: "Kuetiau dalam kaldu sapi bening dengan sapi iris tipis setengah matang, babat atau bakso, dan saus cabai; Teochew/Hainan.",
@@ -136,6 +168,7 @@ module.exports = {
     zh: "粿条浸在清牛肉汤里，配薄切、只烫至半熟的牛肉，加牛肚或牛肉丸，蘸辣椒酱；潮州／海南风味。",
     ja: "澄んだ牛のスープに平たい米麺を沈め、薄切りにしてさっと湯にくぐらせただけの牛肉、ハチノスや牛団子を添え、チリソースを添えます。潮州・海南の系譜です。",
     es: "Fideos de arroz en caldo claro de ternera con carne muy fina apenas escaldada, callos o albóndigas y salsa de chile; teochew/hainanés.",
+    ko: "넓적한 쌀국수를 맑은 소고기 국물에 넣고 살짝만 데친 소고기와 양, 소고기 완자를 올려 고추 소스를 곁들이는 조주·하이난식 요리입니다.",
   },
   "SG::beef rendang SG": {
     id: "Masakan Melayu asal Minangkabau: daging sapi dimasak lama dalam santan berempah hingga kering; di sini lauk Hari Raya dan nasi padang.",
@@ -144,6 +177,7 @@ module.exports = {
     zh: "源自米南加保的马来菜：牛肉在香料椰浆里久煨成干咖喱；在新加坡既是开斋节的应节菜，也是杂菜饭的常客。",
     ja: "ミナンカバウに発するマレー料理。牛肉を香辛料入りのココナッツミルクで長く煮詰めたドライカレーで、ハリラヤのご馳走でもあります。",
     es: "Plato malayo de origen minangkabau: ternera cocida largamente en leche de coco especiada hasta secarse; aquí, manjar de Hari Raya.",
+    ko: "미낭카바우에서 온 말레이 요리. 소고기를 향신 코코넛밀크에 오래 졸여 국물 없는 커리로 만들며, 싱가포르에서는 하리라야 별미이자 호커 밥반찬입니다.",
   },
   "SG::begedil": {
     id: "Perkedel kentang goreng, kerap diikat dengan daging sapi cincang; namanya dari kata Belanda \"frikadel\", warisan kolonial di dunia Melayu.",
@@ -152,6 +186,7 @@ module.exports = {
     zh: "炸土豆泥饼，常掺牛肉碎黏合；名字来自荷兰语 frikadel，是殖民时期传进马来世界的舶来品。",
     ja: "揚げたマッシュポテトの小判。牛ひき肉でつなぐことも多く、名はオランダ語フリカデルに由来する植民地時代の移入品です。",
     es: "Croqueta frita de puré de patata, a menudo ligada con carne picada; su nombre viene del neerlandés «frikadel», importación colonial.",
+    ko: "으깬 감자에 다진 소고기를 섞어 튀긴 전으로, 이름은 네덜란드어 '프리카델'에서 왔고 말레이 세계에 들어온 식민지 시대의 유산입니다.",
   },
   "SG::black pepper crab": {
     id: "Kepiting cangkang keras ditumis dengan lada hitam tumbuk dan bawang putih; ciptaan Long Beach Seafood, lebih kering dari chilli crab.",
@@ -160,6 +195,7 @@ module.exports = {
     zh: "新加坡菜式：硬壳蟹与碎黑胡椒、蒜头同炒；由长堤海鲜创出，比辣椒螃蟹更干香。",
     ja: "シンガポールの料理で、殻の硬い蟹を粗挽きの黒胡椒とにんにくで炒めます。ロングビーチ・シーフードの創案で、チリクラブより汁気が少ない仕立てです。",
     es: "Cangrejo de caparazón duro con pimienta negra machacada y ajo; creado por Long Beach Seafood, más seco que el chilli crab.",
+    ko: "굵게 빻은 후추와 마늘에 볶아 내는 싱가포르식 게 요리. 롱비치 시푸드가 만들었고 칠리크랩보다 국물이 적습니다.",
   },
   "SG::bobo cha cha": {
     id: "Hidangan penutup Nyonya berisi potongan talas, ubi jalar, dan sagu dalam santan pandan hangat; bubur berarti \"bubur\" dalam bahasa Melayu.",
@@ -168,6 +204,7 @@ module.exports = {
     zh: "娘惹甜品：芋头、番薯与西米粒泡在温热的香兰椰浆里；bubur 在马来语里就是「粥」。",
     ja: "プラナカンの甘味。タロイモ、さつまいも、タピオカを温かいパンダン風味のココナッツミルクに浮かべます。ブブールはマレー語で粥。",
     es: "Postre nyonya de trozos de taro, boniato y tapioca en leche de coco tibia con pandan; «bubur» significa gachas en malayo.",
+    ko: "토란과 고구마, 타피오카를 따뜻한 판단 코코넛밀크에 넣은 뇨냐(프라나칸) 디저트로, '부부르'는 말레이어로 죽을 뜻합니다.",
   },
   "SG::butter chicken with naan": {
     id: "Murgh makhani India Utara: ayam tandoori dalam kuah tomat-mentega yang lembut, lahir di Moti Mahal, Delhi, pada 1950-an; dengan naan.",
@@ -176,6 +213,7 @@ module.exports = {
     zh: "北印度的黄油鸡：坦都里烤鸡浸在奶香的番茄黄油酱汁里，1950年代生于德里的Moti Mahal，配馕同吃。",
     ja: "北インドのムルグ・マカニ。タンドールで焼いた鶏を、クリーミーなトマトとバターのソースで包みます。1950年代のデリー、モティ・マハル発祥で、ナンを添えます。",
     es: "Murgh makhani norteño: pollo tandoori en salsa cremosa de tomate y mantequilla, nacido en el Moti Mahal de Delhi hacia 1950; con naan.",
+    ko: "북인도의 무르그 마카니. 탄두리 치킨을 크리미한 토마토 버터 소스에 넣은 요리로 1950년대 델리 모티 마할에서 태어났고 난을 곁들입니다.",
   },
   "SG::butter prawns": {
     id: "Udang tze char Tionghoa-Malaysia dalam mentega, bawang putih, dan daun kari; ditutup serundeng telur-kelapa atau susu evaporasi.",
@@ -184,6 +222,7 @@ module.exports = {
     zh: "马来西亚华人煮炒的牛油虾：牛油、蒜与咖喱叶同炒，最后撒上酥脆的蛋丝椰丝，或淋上香浓的淡奶。",
     ja: "マレーシア華人の煮炒による海老料理。バター、にんにく、カレーリーフで炒め、香ばしい卵とココナッツのそぼろ、あるいはエバミルクで仕上げます。",
     es: "Langostinos tze char chino-malayos en mantequilla, ajo y hojas de curri; con hebras de huevo y coco o leche evaporada.",
+    ko: "말레이시아 화교식 즈차 새우 요리. 버터와 마늘, 커리잎에 볶아 바삭한 달걀·코코넛 가루나 무가당 연유로 마무리합니다.",
   },
   "SG::calamansi juice": {
     id: "Minuman asam segar di pusat jajan, dari jeruk kecil Citrus x microcarpa atau limau kasturi; sarinya diperas, semacam limun setempat.",
@@ -192,6 +231,7 @@ module.exports = {
     zh: "小贩中心的酸爽饮料，用小青柠 Citrus x microcarpa（马来语 limau kasturi）压出汁，等于本地版的柠檬水。",
     ja: "ホーカーセンターの酸味の効いた飲み物。小さなライム（マレー語でリマウ・カストゥリ）を搾った、この土地のレモネードです。",
     es: "Bebida ácida de los hawker centres, del limero pequeño Citrus x microcarpa (malayo limau kasturi); zumo exprimido, la limonada local.",
+    ko: "작은 라임(말레이어로 리마우 카스투리)으로 만든 새콤한 호커센터 음료로, 열매를 짜낸 즙이 이 지역의 레모네이드인 셈입니다.",
   },
   "SG::cereal butter chicken": {
     id: "Zi char Singapura: ayam goreng renyah diaduk dengan mentega, daun kari, cabai, dan sereal Nestum; variasi cereal butter prawns.",
@@ -200,6 +240,7 @@ module.exports = {
     zh: "新加坡煮炒菜：脆炸鸡块与牛油、咖喱叶、辣椒和烘香的雀巢麦片同炒；是牛油麦片虾的变奏。",
     ja: "シンガポールの煮炒料理。カリッと揚げた鶏肉を、バター、カレーリーフ、唐辛子、炒ったネスタムのシリアルであおります。バターシリアル海老の応用です。",
     es: "Zi char de Singapur: pollo crujiente con mantequilla, hojas de curri, chile y cereal Nestum; variación de los langostinos al cereal.",
+    ko: "싱가포르 즈차 요리. 바삭하게 튀긴 닭고기를 버터와 커리잎, 고추, 볶은 네스텀 시리얼에 버무린 시리얼 버터새우의 변형입니다.",
   },
   "SG::cereal prawns": {
     id: "Zichar Singapura: udang windu bercangkang digoreng, diaduk dengan sereal Nestum renyah, daun kari, cabai rawit, dan mentega.",
@@ -208,6 +249,7 @@ module.exports = {
     zh: "新加坡煮炒菜：带壳虎虾下锅炸过，再与酥脆的雀巢麦片、咖喱叶、指天椒和牛油同炒。",
     ja: "シンガポールの煮炒（ジーチャー）料理。殻付きのタイガー海老を揚げ、香ばしいネスタムのシリアル、カレーリーフ、鷹の爪、バターとあおります。",
     es: "Zichar de Singapur: langostinos tigre con cáscara fritos y salteados con cereal Nestum, hojas de curri, chiles y mantequilla.",
+    ko: "싱가포르 즈차 요리. 껍질째 튀긴 타이거새우를 바삭한 네스텀 시리얼과 커리잎, 쥐똥고추, 버터에 버무립니다.",
   },
   "SG::char siu": {
     id: "Babi panggang ala Kanton («dipanggang bergarpu»); dimarinasi hoisin, kecap, dan lima rempah, berglasir madu dan bersemu merah.",
@@ -216,6 +258,7 @@ module.exports = {
     zh: "粤式叉烧，字面即「叉着烤」；以海鲜酱、酱油与五香腌过，刷蜜糖烤出招牌的红亮色泽。",
     ja: "広東の焼き豚。名は「叉に刺して焼く」の意です。海鮮醤、醤油、五香で漬け込み、蜂蜜を塗って焼き、赤みを帯びた照りに仕上げます。",
     es: "Cerdo asado cantonés («asado en horquilla»): marinado en hoisin, soja y cinco especias, glaseado con miel y de tono rojizo.",
+    ko: "광둥식 구이 돼지고기로 이름은 '꼬챙이 구이'라는 뜻. 해선장과 간장, 오향에 재워 꿀을 발라 굽고 특유의 붉은빛을 띱니다.",
   },
   "SG::char siu bao": {
     id: "Bakpao dim sum Kanton berisi char siu manis-gurih; jenis kukus merekah putih, jenis panggang berlapis glasir mengilap.",
@@ -224,6 +267,7 @@ module.exports = {
     zh: "粤式点心包，内馅是咸甜叉烧；蒸的会白白地绽开，焗的则刷上亮亮的糖浆。",
     ja: "甘辛い叉焼を包んだ広東の点心。蒸したものは白く割れ、焼いたものは艶やかな照りをまといます。",
     es: "Bollo cantonés de dim sum relleno de char siu agridulce; el vapor lo abre en blanco, el horneado sale glaseado y brillante.",
+    ko: "달콤짭짤한 차슈를 채운 광둥식 딤섬 빵으로, 찐 것은 하얗게 벌어지고 구운 것은 겉에 윤기가 돕니다.",
   },
   "SG::char siu rice": {
     id: "Babi \"panggang bergarpu\" ala Kanton, dilapisi maltosa atau madu, diiris di atas nasi dengan timun dan kuah manis.",
@@ -232,6 +276,7 @@ module.exports = {
     zh: "粤式叉烧——字面就是「用叉子烤」——抹上麦芽糖或蜂蜜烤成，切片铺在饭上，配黄瓜、甜芡或黑酱油。",
     ja: "広東の叉焼は、字のとおり「叉（フォーク）に刺して焼いた」豚肉。水飴か蜂蜜を塗って焼き、飯にのせて胡瓜や甘いあん、濃口醤油を添えます。",
     es: "Cerdo cantonés «asado en horquilla», glaseado con maltosa o miel, en lonchas sobre arroz con pepino y salsa dulce.",
+    ko: "광둥식 '차사오' 구이 돼지고기를 물엿이나 꿀로 윤기 내어 밥 위에 저며 올리고 오이와 달콤한 소스나 진간장을 곁들입니다.",
   },
   "SG::cheng tng": {
     id: "\"Sup bening\" Teochew: kuah manis dari kelengkeng kering dengan jamur putih, ginkgo, jelai, dan kundur manisan; disajikan panas atau dingin.",
@@ -240,6 +285,7 @@ module.exports = {
     zh: "潮州的「清汤」：桂圆干熬的甜汤，加雪耳、白果、薏米与冬瓜糖；冷热皆宜。",
     ja: "潮州の「清湯」。干し竜眼の甘い煮汁に、白きくらげ、銀杏、押し麦、冬瓜の砂糖漬けを入れ、温かくも冷たくも供します。",
     es: "«Sopa clara» teochew: caldo dulce de longan seco con hongo blanco, ginkgo, cebada y calabaza de invierno confitada; se toma caliente o frío.",
+    ko: "조주의 '맑은 국물'. 말린 용안을 달게 우린 국물에 흰목이와 은행, 보리, 절인 동과를 넣어 따뜻하게 또는 차갑게 냅니다.",
   },
   "SG::chicken curry SG style": {
     id: "Kari ayam gaya Singapura: kuah rempah dan santan dengan kentang, memadukan bumbu Tionghoa, Melayu, dan India.",
@@ -248,6 +294,7 @@ module.exports = {
     zh: "新加坡式咖喱鸡：香料膏与椰浆熬成的浓香咖喱，配马铃薯，融合华人、马来与印度三家的用料传统。",
     ja: "シンガポール式のチキンカレー。ルンパ（香辛料ペースト）とココナッツミルクの香り高いカレーにじゃがいもを加え、華人、マレー、インドの香辛料の伝統を一つに束ねます。",
     es: "Curri de pollo singapurense: salsa de rempah y coco con patatas, que funde las especias china, malaya e india.",
+    ko: "싱가포르식 치킨 커리. 렘파와 코코넛밀크로 낸 향긋한 소스에 감자를 넣으며, 중국·말레이·인도의 향신료 전통이 어우러집니다.",
   },
   "SG::chilli crab": {
     id: "Ikon Singapura: kepiting lumpur ditumis dalam saus tomat-cabai manis-gurih; dirintis gerobak Cher Yam Tian, pertengahan 1950-an.",
@@ -256,6 +303,7 @@ module.exports = {
     zh: "新加坡的标志名菜：青蟹以甜咸的番茄辣椒酱汁快炒，一般归功于1950年代中期陈粰珍的手推摊。",
     ja: "シンガポールを象徴する一皿。マッドクラブを甘辛いトマトと唐辛子のあんで炒めます。1950年代半ば、チェア・ヤムティエンの屋台が生んだと伝えられます。",
     es: "Icono de Singapur: cangrejo de fango en salsa agridulce de tomate y chile; nació en el carrito de Cher Yam Tian, mediados de los cincuenta.",
+    ko: "싱가포르를 상징하는 요리. 머드크랩을 새콤달콤한 토마토 칠리 소스에 볶으며, 1950년대 중반 체 얌티엔의 노점에서 비롯됐다고 전해집니다.",
   },
   "SG::chrysanthemum tea": {
     id: "Bunga krisan kering diseduh air panas dengan gula batu atau gula tebu; minuman \"penyejuk\" wajib di pusat jajan dan kopitiam Singapura.",
@@ -264,6 +312,7 @@ module.exports = {
     zh: "干菊花用热水泡开，加冰糖或蔗糖；新加坡小贩中心与咖啡店里常见的「清凉」饮料。",
     ja: "干した菊の花を熱湯で淹れ、氷砂糖か甘蔗糖を加えます。ホーカーセンターやコピティアムの「体を冷やす」定番の飲み物。",
     es: "Flores secas de crisantemo infusionadas en agua caliente con azúcar cande o de caña; bebida «refrescante» de hawker centres y kopitiams.",
+    ko: "말린 국화를 얼음설탕이나 사탕수수 설탕과 함께 뜨거운 물에 우린 차로, 싱가포르 호커센터와 코피티암의 '열 내리는' 단골 음료입니다.",
   },
   "SG::claypot frog leg porridge": {
     id: "Hidangan Singapura ala Kanton: paha katak dibraise dalam kecap gelap berjahe di periuk tanah, disantap dengan bubur tawar.",
@@ -272,6 +321,7 @@ module.exports = {
     zh: "新加坡的粤式吃法：田鸡以姜味黑酱油在瓦煲里焖煮，旁边配一碗白粥。",
     ja: "シンガポールの広東風の一品。食用蛙の脚を、生姜を利かせた濃口醤油で土鍋に煮込み、白粥を添えて供します。",
     es: "Plato singapurense de corte cantonés: ancas de rana en salsa de soja oscura con jengibre, en cazuela, con gachas de arroz.",
+    ko: "광둥식 싱가포르 요리. 개구리 뒷다리를 생강과 진간장에 뚝배기째 조려 흰죽과 함께 냅니다.",
   },
   "SG::claypot rice": {
     id: "Nasi satu periuk ala Kanton, dimasak di periuk tanah atas arang dengan ayam, lap cheong, ikan asin; keraknya yang renyah dipuja.",
@@ -280,6 +330,7 @@ module.exports = {
     zh: "粤式一锅菜：瓦煲盛米，炭火上与鸡肉、腊肠、咸鱼同煮，最教人惦记的是锅底那层焦香的饭焦。",
     ja: "広東の一鍋料理。土鍋に米を入れ、炭火で鶏肉、腸詰、塩魚とともに炊きます。鍋肌にできる香ばしいおこげが身上です。",
     es: "Arroz cantonés en cazuela de barro sobre carbón con pollo, lap cheong y pescado salado; su costra tostada es lo apreciado.",
+    ko: "광둥식 한 냄비 요리. 뚝배기에 쌀과 닭고기, 랍청, 소금생선을 넣고 숯불에 지어 바닥의 바삭한 누룽지를 별미로 칩니다.",
   },
   "SG::coconut shake": {
     id: "Minuman kocok dari air kelapa, es krim kelapa, dan daging kelapa segar; lahir di Melaka dan dipopulerkan di Singapura oleh Mr Coconut.",
@@ -288,6 +339,7 @@ module.exports = {
     zh: "椰子沙冰：椰水、椰子冰淇淋与新鲜椰肉打成；源自马六甲，在新加坡由 Mr Coconut 带红。",
     ja: "ココナッツウォーター、ココナッツアイス、生の果肉を撹拌した飲み物。マラッカ生まれで、シンガポールでは Mr Coconut が広めました。",
     es: "Batido de agua de coco, helado de coco y pulpa fresca; nació en Malaca y en Singapur lo popularizó Mr Coconut.",
+    ko: "코코넛 워터와 코코넛 아이스크림, 생코코넛 과육을 갈아 만든 음료로, 믈라카에서 시작해 싱가포르에서는 미스터 코코넛이 널리 알렸습니다.",
   },
   "SG::coconut water": {
     id: "Cairan bening kaya elektrolit dari kelapa muda hijau; minuman penyejuk yang digemari di Singapura, dijual segar atau dalam kemasan.",
@@ -296,6 +348,7 @@ module.exports = {
     zh: "嫩绿椰子里那泓清亮的水，富含电解质；新加坡人爱喝的清凉饮料，现开或盒装都有。",
     ja: "若い緑のココナッツから採れる、電解質に富む澄んだ水。シンガポールで好まれる涼飲で、その場で開けても紙パックでも売られます。",
     es: "Líquido claro y rico en electrolitos de los cocos verdes jóvenes; bebida refrescante muy querida en Singapur, fresca o envasada.",
+    ko: "어린 초록 코코넛에서 나오는 맑고 전해질이 풍부한 물로, 싱가포르에서 인기 있는 청량 음료이며 생과일째나 포장으로 팝니다.",
   },
   "SG::coffee pork ribs": {
     id: "Zi char Singapura: iga babi goreng berlapis saus kopi manis-gurih yang lengket; dipopulerkan koki Sam Leong.",
@@ -304,6 +357,7 @@ module.exports = {
     zh: "新加坡煮炒菜：炸排骨裹上黏稠的咸甜咖啡酱汁；由厨师梁兆基推广开来。",
     ja: "シンガポールの煮炒料理。揚げた豚のスペアリブに、甘辛く粘りのあるコーヒーのたれをからめます。料理人サム・レオンが広めました。",
     es: "Zi char de Singapur: costillas de cerdo fritas glaseadas en salsa de café pegajosa y agridulce; popularizado por el chef Sam Leong.",
+    ko: "튀긴 돼지갈비를 달콤짭짤한 커피 소스에 조려 윤기 나게 입힌 싱가포르 즈차 요리로, 샘 리옹 셰프가 널리 알렸습니다.",
   },
   "SG::cold crab teochew": {
     id: "Hidangan Teochew: kepiting dikukus lalu didinginkan dan disajikan di atas es demi manis alaminya; disantap dengan cocolan cuka-jahe.",
@@ -312,6 +366,7 @@ module.exports = {
     zh: "潮州菜：蟹先蒸熟再冰镇，铺在冰上冷食，只为吃它本身的鲜甜；蘸姜醋。",
     ja: "潮州の料理。蟹を蒸してから冷やし、氷の上に盛って冷たいまま供します。狙いは持ち味の甘み。生姜酢を添えます。",
     es: "Plato teochew: cangrejo al vapor, enfriado y servido sobre hielo para lucir su dulzor natural; con mojo de vinagre y jengibre.",
+    ko: "게를 쪄서 차갑게 식혀 얼음 위에 올려 내는 조주 요리로, 본연의 단맛을 살리며 생강 식초 소스를 곁들입니다.",
   },
   "SG::dim sum brunch": {
     id: "Sarapan siang yum cha ala Kanton: hidangan kukus dan goreng sekali suap (har gow, siew mai, char siew bao) dalam kukusan bambu, dengan teh.",
@@ -320,6 +375,7 @@ module.exports = {
     zh: "粤式饮茶：竹蒸笼里一口大小的蒸点与炸点——虾饺、烧卖、叉烧包——配一壶茶。源自广州。",
     ja: "広東の飲茶。蒸籠に並ぶ一口大の蒸し物と揚げ物——海老餃子、焼売、叉焼包——を茶とともに。広州に由来します。",
     es: "Brunch cantonés de yum cha: bocados al vapor y fritos (har gow, siew mai, char siew bao) en cestas de bambú, con té. De Cantón.",
+    ko: "광저우에서 온 광둥식 얌차 브런치. 대나무 찜통에 하가우와 시우마이, 차슈바오 같은 한입 요리를 담아 차와 함께 냅니다.",
   },
   "SG::drunken prawns": {
     id: "Udang segar dikukus atau direbus dalam arak beras Tiongkok (Shaoxing/Hua Diao); versi Singapura menambah goji dan kurma merah.",
@@ -328,6 +384,7 @@ module.exports = {
     zh: "鲜虾以中国米酒（绍兴／花雕）蒸或浸熟；新加坡流行的做法还会加枸杞、红枣等药材。",
     ja: "新鮮な海老を中国の米酒（紹興酒・花彫酒）で蒸すか、酒に浸して火を通します。シンガポールで好まれる形では、クコの実やなつめなどの薬味も加えます。",
     es: "Langostinos frescos al vapor o escalfados en vino de arroz chino (shaoxing, hua diao); en Singapur se añaden goji y dátiles rojos.",
+    ko: "생새우를 중국 소흥주나 화조주에 쪄내거나 데쳐 낸 요리로, 싱가포르식은 구기자와 대추 같은 약재를 더합니다.",
   },
   "SG::duck rice": {
     id: "Hidangan Teochew: bebek braise atau panggang di atas nasi; versi braise Singapura mengganti angsa lor gor dengan bebek.",
@@ -336,6 +393,7 @@ module.exports = {
     zh: "潮州菜：卤鸭或烧鸭铺在饭上；新加坡的卤味版本，把潮汕原本的卤鹅换成了鸭。",
     ja: "潮州の料理で、煮込みか焼きの鴨を飯にのせます。シンガポールの煮込み版は、潮汕本来の滷鵝の鵝を鴨に置き換えたものです。",
     es: "Plato teochew de pato estofado o asado sobre arroz; la versión de Singapur cambió el ganso del lor gor por pato.",
+    ko: "조리거나 구운 오리를 밥에 올린 조주 요리로, 싱가포르의 조림식은 원래 조산 로고의 거위를 오리로 바꾼 것입니다.",
   },
   "SG::durian pengat": {
     id: "Hidangan penutup Melayu/Peranakan mirip bubur: daging durian dimasak dengan santan, gula melaka, dan pandan; disajikan hangat atau dingin.",
@@ -344,6 +402,7 @@ module.exports = {
     zh: "马来／娘惹的半糊状甜品：榴梿肉与椰浆、椰糖、香兰同煮；温热或冰镇皆可。",
     ja: "マレー／プラナカンの粥に近い甘味。ドリアンの果肉をココナッツミルク、ヤシ砂糖、パンダンで煮て、温かくも冷たくも供します。",
     es: "Postre malayo-peranakan a medio camino de las gachas: pulpa de durián cocida con leche de coco, azúcar de palma y pandan; tibio o frío.",
+    ko: "두리안 과육을 코코넛밀크와 야자설탕(굴라 멜라카), 판단잎에 익힌 말레이·프라나칸식 걸쭉한 디저트로, 따뜻하게나 차갑게 냅니다.",
   },
   "SG::epok-epok": {
     id: "Epok-epok Melayu: kulit sabit yang dijepit tepinya lalu digoreng, berisi sarden atau kentang pedas, kerap dicocol saus cabai.",
@@ -352,6 +411,7 @@ module.exports = {
     zh: "马来咖喱角：半月形面皮捏出花边下锅炸，馅是辣沙丁鱼或土豆，常蘸辣椒酱。",
     ja: "マレー風カレーパフ。縁をひだ状につまんだ半月形の生地を揚げ、辛いイワシかじゃがいもを詰めます。チリソースを添えて。",
     es: "La empanadilla de curry malaya: media luna de masa con el borde rizado, frita, rellena de sardina o patata picante; con salsa de chile.",
+    ko: "말레이식 커리퍼프. 반죽 가장자리를 주름 잡아 초승달 모양으로 튀기며, 매콤한 정어리나 감자 소를 넣고 칠리소스와 함께 먹습니다.",
   },
   "SG::fish head curry": {
     id: "Perpaduan India-Tionghoa di Singapura 1950-an: perantau Kerala M.J. Gomez menaruh kari India Selatan di atas kepala ikan.",
@@ -360,6 +420,7 @@ module.exports = {
     zh: "印中合璧之作，1950年代由喀拉拉移民M.J. Gomez在新加坡创出：他把南印度咖喱浇在鱼头上，端给华人食客。",
     ja: "1950年代のシンガポールで、ケララ出身の移民M・J・ゴメスが生んだ印中折衷の料理。南インドのカレーを魚の頭にかけ、華人の客に供したのが始まりです。",
     es: "Fusión indochina en el Singapur de los cincuenta: el keralita M. J. Gomez sirvió curri del sur de la India sobre una cabeza de pescado.",
+    ko: "1950년대 싱가포르에서 케랄라 출신 이민자 M.J. 고메즈가 화교 손님을 위해 남인도 커리에 생선 머리를 넣어 만든 인도·중국식 퓨전 요리입니다.",
   },
   "SG::fish head curry SG-Indian style": {
     id: "Kari merah India Selatan dari kepala ikan utuh, ciptaan perantau Kerala M.J. Gomez, dijual sejak 1949 di Sophia Road bagi orang Tionghoa.",
@@ -368,6 +429,7 @@ module.exports = {
     zh: "南印度红咖喱炖整个鱼头，由喀拉拉移民 M. J. Gomez 首创，一九四九年起在苏菲雅路摊上卖给华人。",
     ja: "魚の頭を丸ごと煮た南インドの赤いカレー。ケーララ移民 M・J・ゴメスが考案し、一九四九年からソフィア通りの店で華人客に売りました。",
     es: "Curry rojo del sur de la India con una cabeza de pescado entera, creado por el keralés M. J. Gomez y vendido desde 1949 a clientes chinos.",
+    ko: "생선 머리를 통째로 넣은 남인도식 붉은 커리로, 케랄라 이민자 M.J. 고메즈가 만들어 1949년부터 소피아 로드 노점에서 화교 손님에게 팔았습니다.",
   },
   "SG::fishball noodle": {
     id: "Jajanan Tionghoa asal Teochew: bakso ikan kenyal dengan mi telur (kerap mee pok), kering dalam saus cabai-cuka atau bersup.",
@@ -376,6 +438,7 @@ module.exports = {
     zh: "源自潮州的华人小贩吃食：弹牙鱼丸配蛋面（多用扁的面薄），可干捞拌辣椒醋汁，也可连汤上桌。",
     ja: "潮州に由来する華人の屋台料理。弾力のある魚団子を卵麺（多くは平打ちのミーポック）と合わせ、唐辛子と酢のたれで和えるか、汁で供します。",
     es: "Clásico chino de puesto, de origen teochew: bolas de pescado elásticas con fideos de huevo, secas en chile y vinagre o en sopa.",
+    ko: "조주에서 온 중국식 호커 음식. 탱글한 생선완자에 달걀면(주로 납작한 미폭)을 곁들여 고추·식초 소스에 비비거나 국물에 냅니다.",
   },
   "SG::french toast SG-style": {
     id: "Roti panggang gaya Melayu-Singapura: roti dibelah lalu digoreng dengan telur, bawang, dan daging cincang; disajikan dengan saus cabai.",
@@ -384,6 +447,7 @@ module.exports = {
     zh: "新加坡马来式的西多士：面包剖开，与蛋、洋葱、肉碎同煎，配辣椒酱或番茄酱。",
     ja: "シンガポール・マレー風のフレンチトースト。割ったパンを卵、玉ねぎ、挽肉とともに焼き、チリソースかケチャップを添えます。",
     es: "Torrija malayo-singapurense: un panecillo abierto y frito con huevo, cebolla y carne picada; se sirve con salsa de chile o de tomate.",
+    ko: "싱가포르 말레이식 프렌치토스트. 반으로 가른 빵에 달걀과 양파, 다진 고기를 섞어 부치고 칠리소스나 케첩을 곁들입니다.",
   },
   "SG::goreng pisang": {
     id: "Pisang goreng asal Melayu: pisang matang dicelup adonan tepung lalu digoreng; camilan pusat jajan dan pedagang kaki lima.",
@@ -392,6 +456,7 @@ module.exports = {
     zh: "源自马来人的炸香蕉：熟香蕉裹面糊下油锅；小贩中心与街边摊常见的零嘴。",
     ja: "マレー由来のバナナフリッター。熟したバナナを小麦の衣で揚げた、ホーカーセンターや屋台のおやつです。",
     es: "Buñuelos de plátano de origen malayo: plátanos maduros rebozados en harina y fritos; tentempié de hawker centres y puestos callejeros.",
+    ko: "말레이에서 온 바나나 튀김. 잘 익은 바나나에 밀가루 반죽을 입혀 튀기며, 호커센터와 길거리 노점의 단골 간식입니다.",
   },
   "SG::grass jelly drink (chin chow)": {
     id: "Minuman cincau hitam yang menyejukkan, dari rebusan herba Mesona chinensis, disajikan dingin dengan sirop; peredam panas dalam menurut TCM.",
@@ -400,6 +465,7 @@ module.exports = {
     zh: "清凉的黑凉粉饮：仙草熬煮成冻，加冰加糖水；中医说它降火气。",
     ja: "涼をとる黒い仙草ゼリーの飲み物。仙草を煮出して固め、氷とシロップで供します。中医では体の熱を下げるとされます。",
     es: "Bebida refrescante de gelatina negra de hierbas, cocida de Mesona chinensis, con hielo y almíbar; según la MTC calma el calor interno.",
+    ko: "선초를 끓여 만든 검은 그라스젤리 음료로, 시럽을 넣어 얼음과 함께 차게 내며 중의학에서는 열을 내린다고 봅니다.",
   },
   "SG::gula melaka pudding": {
     id: "Puding dingin dari mutiara sagu lembut, disajikan dengan santan dan sirop gula melaka yang kental; digemari di Singapura dan Malaysia.",
@@ -408,6 +474,7 @@ module.exports = {
     zh: "冰镇布丁：软糯的西米珍珠配椰浆与浓稠的椰糖浆；新马两地都爱。",
     ja: "冷たいプディング。やわらかいサゴパールに、ココナッツミルクと糖蜜のようなグラ・ムラカをかけます。シンガポールとマレーシアの定番。",
     es: "Pudin frío de perlas blandas de sagú servido con leche de coco y almíbar espeso de gula melaka; muy querido en Singapur y Malasia.",
+    ko: "부드러운 사고 펄에 코코넛밀크와 진한 굴라 멜라카(야자설탕) 시럽을 끼얹은 차가운 푸딩으로, 싱가포르와 말레이시아에서 사랑받습니다.",
   },
   "SG::hainanese chicken cutlet": {
     id: "Paha ayam tanpa tulang berlapis tepung roti, digoreng dan disiram kuah cokelat; perpaduan kolonial juru masak Hainan.",
@@ -416,6 +483,7 @@ module.exports = {
     zh: "去骨鸡腿裹粉油炸，浇上浓稠的褐色汁；这是殖民时代学过西餐的海南厨师所创的混血菜。",
     ja: "骨を外した鶏もも肉にパン粉をつけて揚げ、濃い茶色のあんをかけます。西洋料理を学んだ海南の料理人が生んだ、植民地時代の折衷料理です。",
     es: "Muslo de pollo deshuesado, empanado y frito bajo salsa marrón espesa; fusión colonial de cocineros hainaneses.",
+    ko: "빵가루를 입혀 튀긴 뼈 없는 닭 넓적다리에 진한 갈색 소스를 끼얹은 요리로, 서양 요리를 익힌 하이난 요리사들이 만든 식민지 시대의 퓨전입니다.",
   },
   "SG::hainanese curry rice": {
     id: "Karya juru masak Hainan di Singapura: nasi bersiram kari kental, kotelet babi ala Inggris, chap chye Peranakan, dan kuah India.",
@@ -424,6 +492,7 @@ module.exports = {
     zh: "海南厨师在新加坡创出的菜：白饭浇上浓稠咖喱，配英式炸猪排、峇峇娘惹的杂菜与印度香料汁。",
     ja: "海南出身の料理人がシンガポールで生んだ一皿。飯に濃いカレーをかけ、英国式のポークチョップ、プラナカンのチャプチャイ、インド風の香辛料あんを添えます。",
     es: "De cocineros hainaneses en Singapur: arroz bajo curri espeso, chuleta de cerdo británica, chap chye peranakan y salsa india.",
+    ko: "하이난 요리사들이 만든 싱가포르 요리. 밥에 진한 커리를 끼얹고 영국식 포크찹과 프라나칸 찹채, 인도식 향신 소스를 곁들입니다.",
   },
   "SG::hainanese mutton soup": {
     id: "Sup kambing Hainan Singapura dalam kuah herbal bening dengan goji, kurma merah, dan dang gui; dimerahkan nam yue.",
@@ -432,6 +501,7 @@ module.exports = {
     zh: "新加坡海南羊肉汤：清澈的药材汤里有枸杞、红枣与当归，靠南乳染出红色。",
     ja: "シンガポールの海南式の羊肉スープ。澄んだ薬膳のスープにクコの実、なつめ、当帰を入れ、発酵豆腐（南乳）で紅く色づけます。",
     es: "Sopa hainanesa de cordero de Singapur: caldo claro de hierbas con goji, dátiles rojos y dang gui, enrojecida con nam yue.",
+    ko: "구기자와 대추, 당귀를 넣은 맑은 약재 국물의 싱가포르 하이난식 양고기 탕으로, 발효 두부(남유)가 붉은빛을 냅니다.",
   },
   "SG::hainanese pork chop": {
     id: "Kotelet babi bertepung roti yang digoreng, dalam saus tomat-Worcestershire, dengan kacang polong dan kentang; \"Barat\" ala Hainan.",
@@ -440,6 +510,7 @@ module.exports = {
     zh: "裹面包糠炸的猪排，浇上酸香的番茄伍斯特酱，配青豆与马铃薯；这是殖民时代海南厨师做的「西餐」。",
     ja: "パン粉をつけて揚げた豚肉に、酸味のあるトマトとウスターソースをかけ、グリンピースとじゃがいもを添えます。植民地時代の海南出身の料理人が作った「洋食」です。",
     es: "Chuleta de cerdo empanada en salsa de tomate y Worcestershire, con guisantes y patatas; la «comida occidental» hainanesa.",
+    ko: "빵가루를 입혀 튀긴 돼지고기 커틀릿에 새콤한 토마토·우스터 소스와 완두콩, 감자를 곁들인, 식민지 시대 하이난 요리사들의 '서양 요리'입니다.",
   },
   "SG::hainanese yam rice": {
     id: "Nasi satu periuk ala Tionghoa dengan talas dadu, ebi, jamur kering, dan lap cheong; populer di Singapura.",
@@ -448,6 +519,7 @@ module.exports = {
     zh: "华人一锅饭：米与芋头丁、虾米、香菇和腊肠或猪肉同煮；在新加坡很受欢迎。",
     ja: "華人の炊き込みご飯。角切りのタロイモ、干し海老、干し椎茸、腸詰や豚肉と一緒に炊きます。シンガポールで親しまれています。",
     es: "Arroz chino de una olla con taro en dados, gamba seca, setas y lap cheong; muy popular en Singapur.",
+    ko: "토란을 깍둑 썰어 건새우와 표고, 랍청이나 돼지고기와 함께 지은 중국식 한 냄비 밥으로, 싱가포르에서 널리 사랑받습니다.",
   },
   "SG::har gow": {
     id: "Pangsit udang kukus Kanton berkulit bening dari tepung gandum dan pati tapioka; tradisi menuntut minimal 7 lipatan, idealnya lebih dari 10.",
@@ -456,6 +528,7 @@ module.exports = {
     zh: "广式蒸虾饺，澄面与木薯粉做的皮半透明；讲究至少七道褶，最好十道以上。",
     ja: "広東の蒸し海老餃子。小麦澱粉とタピオカ澱粉の皮は透きとおります。ひだは最低七本、できれば十本以上が習わしです。",
     es: "Empanadilla cantonesa de gamba al vapor en envoltura translúcida de trigo y tapioca; tradicionalmente al menos 7 pliegues, mejor más de 10.",
+    ko: "반투명한 밀·타피오카 전분 피에 새우를 넣은 광둥식 찐만두로, 주름이 최소 일곱 개, 되도록 열 개 이상이어야 한다고 봅니다.",
   },
   "SG::hokkien fried rice": {
     id: "Nasi goreng telur bersiram kuah kental berisi udang, cumi, jamur, dan sayuran; hidangan gaya Kanton yang bermula di Hong Kong.",
@@ -464,6 +537,7 @@ module.exports = {
     zh: "蛋炒饭上浇一层浓稠的咸鲜芡汁，配虾仁、鱿鱼、蘑菇与蔬菜；这是起于香港的粤式做法。",
     ja: "卵チャーハンに、エビ、イカ、きのこ、野菜のとろみのある塩味のあんをかけたもの。香港で生まれた広東風の料理。",
     es: "Arroz frito con huevo bajo una salsa espesa y sabrosa de gambas, calamar, setas y verduras; plato de estilo cantonés nacido en Hong Kong.",
+    ko: "달걀 볶음밥 위에 새우와 오징어, 버섯, 채소를 넣은 걸쭉한 소스를 끼얹은 요리로, 홍콩에서 시작된 광둥식입니다.",
   },
   "SG::honey pork ribs": {
     id: "Iga babi Kanton dibraise empuk, dilapisi maltosa dan dipanggang panas hingga lengket dan berjelaga; andalan zi char Singapura.",
@@ -472,6 +546,7 @@ module.exports = {
     zh: "粤式排骨先焖至酥软，再抹麦芽糖大火烤到黏亮带焦香；是新加坡煮炒的常备菜。",
     ja: "広東式のスペアリブを柔らかく煮込み、水飴を塗って強火で焼き、粘りと艶と焦げ目をつけます。シンガポールの煮炒の定番です。",
     es: "Costillas cantonesas estofadas hasta tiernas, glaseadas con maltosa y asadas a fuego fuerte; un fijo del zi char singapurense.",
+    ko: "광둥식 돼지갈비를 부드럽게 조린 뒤 물엿을 발라 센 불에 구워 끈적하고 윤기 나게 마무리한, 싱가포르 즈차의 단골 메뉴입니다.",
   },
   "SG::hor fun (san lou)": {
     id: "Zi char Singapura berakar Kanton: kuetiau diaduk (\"san lou\") dengan irisan ikan dan tauge dalam kuah ringan beraroma wok hei.",
@@ -480,6 +555,7 @@ module.exports = {
     zh: "源自广东的新加坡煮炒菜：河粉以「生捞」手法拌上鱼片与豆芽，配镬气十足的清芡。",
     ja: "広東に根をもつシンガポールの煮炒料理。平たい米麺を「生捞（サンロウ）」の手法で魚の切り身ともやしと和え、鍋の香りをまとった軽いあんをかけます。",
     es: "Zi char singapurense de raíz cantonesa: fideos de arroz «san lou» con láminas de pescado y brotes en salsa ligera con aroma de wok.",
+    ko: "광둥에서 온 싱가포르 즈차 요리. 넓적한 쌀국수를 '산로우' 방식으로 볶아 생선살과 숙주를 넣고 묽은 불맛 소스를 끼얹습니다.",
   },
   "SG::horlicks dinosaur": {
     id: "Versi susu malt dari Milo Dinosaur: Horlicks es yang ditumpuki bubuk Horlicks yang belum larut; minuman kopitiam Singapura dan Malaysia.",
@@ -488,6 +564,7 @@ module.exports = {
     zh: "美禄恐龙的麦乳精版：冰好立克上头堆着没化开的好立克粉；新马咖啡店的饮料。",
     ja: "ミロ・ダイナソーの麦芽乳版。氷入りのホーリックスに、溶け残ったホーリックスの粉を山盛りにします。新馬のコピティアムの一杯。",
     es: "La versión de leche malteada del Milo Dinosaur: Horlicks con hielo coronado de polvo sin disolver; bebida de kopitiam en Singapur y Malasia.",
+    ko: "밀로 다이너소어를 맥아유로 바꾼 것. 아이스 홀릭스 위에 녹지 않은 홀릭스 가루를 수북이 올린 싱가포르·말레이시아 코피티암 음료입니다.",
   },
   "SG::ice lemon tea SG-style": {
     id: "Es teh hitam manis dengan lemon; di kopitiam Singapura orang memesannya dengan kata sandi berima \"Clementi\", nama stasiun MRT.",
@@ -496,6 +573,7 @@ module.exports = {
     zh: "加柠檬的冰甜红茶；在新加坡咖啡店，人们用押韵的暗号「Clementi」来点它，那是一个地铁站名。",
     ja: "レモン入りの甘いアイスティー。シンガポールのコピティアムでは、地下鉄の駅名にちなむ韻を踏んだ合言葉「クレメンティ」で注文します。",
     es: "Té negro helado y dulce con limón; en los kopitiams se pide con la clave rimada «Clementi», el nombre de una estación de metro.",
+    ko: "레몬을 넣은 달콤한 아이스 홍차로, 싱가포르 코피티암에서는 지하철역 이름에서 딴 '클레멘티'라는 운율 맞춘 은어로 주문합니다.",
   },
   "SG::iced milo with bread": {
     id: "Padanan sarapan kopitiam: Milo es — minuman cokelat-malt Nestlé yang lahir di Australia pada 1934 — bersama roti panggang.",
@@ -504,6 +582,7 @@ module.exports = {
     zh: "咖啡店的早餐搭配：冰美禄——雀巢一九三四年在澳洲推出的可可麦芽饮——配烤面包。",
     ja: "コピティアムの朝食の組み合わせ。アイス・ミロ（ネスレが一九三四年オーストラリアで生んだ麦芽ココア飲料）にトーストを添えます。",
     es: "Desayuno de kopitiam: Milo con hielo — la bebida de malta y chocolate de Nestlé, nacida en Australia en 1934 — con pan tostado.",
+    ko: "코피티암의 아침 조합. 1934년 호주에서 만들어진 네슬레의 맥아 초코 음료 아이스 밀로에 구운 빵을 곁들입니다.",
   },
   "SG::idli with sambar": {
     id: "Kue kukus India Selatan dari beras dan urad dal yang difermentasi, disajikan dengan sambar; sarapan Tamil yang lazim di Singapura.",
@@ -512,6 +591,7 @@ module.exports = {
     zh: "南印度的蒸米糕，用发酵的米与黑豆糊做成，配桑巴（罗望子扁豆汤）；在新加坡是常见的泰米尔早餐。",
     ja: "米とウラド豆を発酵させて蒸す南インドの餅。タマリンドと豆の汁サンバルを添えます。シンガポールでは定番のタミルの朝食です。",
     es: "Tortitas al vapor del sur de la India de arroz y urad dal fermentados, con sambar; un desayuno tamil habitual en Singapur.",
+    ko: "발효한 쌀과 우라드달로 쪄낸 남인도식 떡. 타마린드 렌즈콩 스튜인 삼바르와 함께 내며 싱가포르 타밀계의 대표 아침 식사입니다.",
   },
   "SG::ikan bakar SG": {
     id: "Bahasa Melayu untuk \"ikan bakar\": makanan laut dipanggang arang setelah dilumuri sambal dan kecap manis, kerap dibungkus daun pisang.",
@@ -520,6 +600,7 @@ module.exports = {
     zh: "马来语的「烤鱼」：海鲜先抹参巴与甜酱油，再上炭火烤，常裹香蕉叶增香。",
     ja: "マレー語で「焼き魚」。サンバルと甘い醤油に漬けた魚介を炭火で焼き、香りづけにバナナの葉で包むこともあります。",
     es: "Malayo para «pescado a la brasa»: marisco marinado en sambal y soja dulce, asado al carbón y a menudo envuelto en hoja de plátano.",
+    ko: "말레이어로 '구운 생선'. 삼발과 케찹 마니스에 재운 해산물을 숯불에 굽고, 향을 살리려 바나나잎에 싸기도 합니다.",
   },
   "SG::itek tim": {
     id: "Sup bebek sayur asin Peranakan; \"itek\" bahasa Melayu untuk bebek, \"tim\" dari Hokkien berarti menanak lama. Diasamkan asam jawa dan asam boi.",
@@ -528,6 +609,7 @@ module.exports = {
     zh: "娘惹咸菜鸭汤；「itek」是马来语的鸭，「tim」来自福建话潮州话的「炖」。以亚参与咸梅取酸。",
     ja: "プラナカンの塩漬け菜と鴨のスープ。「イテッ」はマレー語で鴨、「ティム」は福建語・潮州語の「炖」。タマリンドと塩梅で酸味を出します。",
     es: "Sopa peranakan de pato con verdura salada; «itek» es pato en malayo y «tim» es guisar en hokkien. Se acidula con tamarindo y ciruela salada.",
+    ko: "갓지를 넣은 프라나칸식 오리 수프. '이텍'은 말레이어로 오리, '팀'은 호키엔·조주어로 고아 내다라는 뜻이며 타마린드와 매실로 새콤하게 냅니다.",
   },
   "SG::kaya": {
     id: "Selai santan-telur beraroma pandan; \"kaya\" berarti \"kaya\" dalam bahasa Melayu. Dipopulerkan juru masak Hainan dan kopitiam Singapura.",
@@ -536,6 +618,7 @@ module.exports = {
     zh: "香兰味的椰浆蛋酱；kaya 在马来语里是「浓郁」的意思。在新加坡由海南厨子与咖啡店传开。",
     ja: "パンダンの香りをまとったココナッツと卵の甘いジャム。マレー語で「カヤ」は「濃い」。海南出身の料理人とコピティアムが広めました。",
     es: "Confitura dulce de coco y huevo perfumada con pandan; «kaya» significa «rico» en malayo. La popularizaron cocineros hainaneses y kopitiams.",
+    ko: "판단 향을 입힌 코코넛 달걀 커스터드 잼. '카야'는 말레이어로 '진하다'는 뜻이며, 하이난 요리사와 코피티암이 싱가포르에 퍼뜨렸습니다.",
   },
   "SG::kaya puff": {
     id: "Pastri panggang berlapis berbentuk epok-epok, berisi kaya (selai santan-telur); camilan toko roti gaya Tionghoa yang klasik di Singapura.",
@@ -544,6 +627,7 @@ module.exports = {
     zh: "咖喱角形状的酥皮烘饼，里头包咖椰（椰浆蛋酱）；新加坡传统华人面包店的点心。",
     ja: "カレーパフの形をした層状の焼き菓子で、中身はカヤ（ココナッツと卵のジャム）。シンガポールの中華系ベーカリーの定番です。",
     es: "Hojaldre horneado con forma de empanadilla de curry y relleno de kaya (mermelada de coco y huevo); clásico de las panaderías chinas de aquí.",
+    ko: "커리퍼프 모양으로 구운 겹겹의 페이스트리에 코코넛 달걀잼 카야를 채운, 싱가포르 전통 중국식 빵집의 간식입니다.",
   },
   "SG::kaya toast": {
     id: "Roti panggang beroles kaya (selai kelapa, telur, gula, pandan) dan mentega; andalan kopitiam dari juru masak Hainan yang meniru selai Barat.",
@@ -552,6 +636,7 @@ module.exports = {
     zh: "烤面包抹咖椰（椰浆、蛋、糖、香兰）与牛油；咖啡店的招牌，出自海南厨子对西式果酱的改造。",
     ja: "カヤ（ココナッツ、卵、砂糖、パンダン）とバターを塗ったトースト。西洋のジャムを翻案した海南人の料理人が生んだコピティアムの定番。",
     es: "Pan tostado untado con kaya (coco, huevo, azúcar, pandan) y mantequilla; clásico del kopitiam nacido de cocineros hainaneses.",
+    ko: "구운 빵에 카야(코코넛·달걀·설탕·판단 잼)와 버터를 바른 코피티암의 단골로, 서양 잼을 응용한 하이난 요리사들에게서 왔습니다.",
   },
   "SG::kong bak pau": {
     id: "Hidangan Hokkien: perut babi braise kecap dengan ketumbar, diselipkan ke bakpao kukus terlipat; andalan kopitiam.",
@@ -560,6 +645,7 @@ module.exports = {
     zh: "福建吃食：一片酱油焖五花肉夹进松软的对折蒸包，撒上香菜；咖啡店的常备。",
     ja: "福建の一品。醤油で煮込んだ豚バラ肉を一枚、香菜とともに、やわらかい二つ折りの蒸しパンに挟みます。コピティアムの定番です。",
     es: "Plato hokkien: panceta estofada en soja con cilantro en un bollo al vapor plegado; un fijo de los kopitiams.",
+    ko: "간장에 조린 삼겹살 한 점과 고수를 부드러운 찐빵에 끼워 낸 호키엔 요리로, 코피티암의 단골 메뉴입니다.",
   },
   "SG::kopi": {
     id: "Kopi gaya Nanyang dari kopitiam Hainan: biji robusta disangrai bersama gula dan margarin, diseduh lewat kain, diberi susu kental manis.",
@@ -568,6 +654,7 @@ module.exports = {
     zh: "海南咖啡店的南洋咖啡：罗布斯塔豆连糖与人造牛油下镬炒，用布袋冲滤，加甜炼奶。",
     ja: "海南系コピティアムの南洋コーヒー。ロブスタ豆を砂糖とマーガリンで炒り、布袋で淹れ、加糖練乳を落とします。",
     es: "Café al estilo nanyang de los kopitiams hainaneses: robusta tostado al wok con azúcar y margarina, colado en calcetín, con leche condensada.",
+    ko: "하이난 코피티암의 남양식 커피. 로부스타 원두를 설탕과 마가린과 함께 웍에 볶아 천 필터로 내리고 연유를 넣어 냅니다.",
   },
   "SG::kopi gao": {
     id: "Kopi kopitiam Singapura dengan susu kental manis dan gula, diseduh ekstra pekat; \"gao\" bahasa Hokkien untuk \"kental\", secangkir yang berani.",
@@ -576,6 +663,7 @@ module.exports = {
     zh: "新加坡咖啡店的咖啡，加炼奶与糖，冲得特别浓；「gao」是福建话的「厚」，要的就是这一口重。",
     ja: "シンガポールのコピティアムのコーヒーを、練乳と砂糖入りで濃いめに淹れたもの。「ガオ」は福建語の「厚」で、力強い一杯を指します。",
     es: "Café del kopitiam singapurense con leche condensada y azúcar, hecho extrafuerte; «gao» es «espeso» en hokkien, para una taza más rotunda.",
+    ko: "연유와 설탕을 넣고 유난히 진하게 내린 싱가포르 코피티암 커피로, '가오'는 호키엔어로 '진하다'는 뜻입니다.",
   },
   "SG::kopi kosong": {
     id: "Kopi kopitiam Singapura yang dipesan kosong: kopi sangrai gelap ala Hainan tanpa gula dan tanpa susu kental, disajikan hitam.",
@@ -584,6 +672,7 @@ module.exports = {
     zh: "新加坡咖啡店的「kosong」咖啡——马来语意为「空」：海南式深烘咖啡，不加糖也不加炼奶，纯黑饮用。",
     ja: "シンガポールのコピティアムで「コソン」（マレー語で空）と頼むコーヒー。海南式の深煎りを砂糖も練乳も入れずブラックで飲む。",
     es: "Café de kopitiam singapurense pedido kosong (en malayo, vacío): tueste oscuro hainanés sin azúcar ni leche condensada, servido negro.",
+    ko: "'코송'(말레이어로 '비어 있음')으로 주문한 싱가포르 코피티암 커피로, 하이난식 다크로스트를 설탕도 연유도 없이 블랙으로 냅니다.",
   },
   "SG::kopi peng": {
     id: "Versi es dari kopi kopitiam Singapura — kopi Nanyang dengan susu kental manis dan gula; \"peng\" bahasa Hokkien untuk es.",
@@ -592,6 +681,7 @@ module.exports = {
     zh: "新加坡咖啡店咖啡的冻饮版——南洋咖啡加炼奶与糖；「peng」是福建话的「冰」。",
     ja: "シンガポールのコピティアムのコーヒーの冷たい版。練乳と砂糖入りの南洋コピで、「ペン」は福建語の「冰（氷）」。",
     es: "La versión con hielo del café de kopitiam singapurense: kopi nanyang con leche condensada y azúcar; «peng» es «hielo» en hokkien.",
+    ko: "남양식으로 내린 커피에 연유와 설탕을 넣은 코피티암 커피의 아이스 버전으로, '펭'은 호키엔어로 얼음을 뜻합니다.",
   },
   "SG::kopi siu dai": {
     id: "Kopi kopitiam yang dipesan \"siu dai\", Kanton untuk \"kurangi dasarnya\": kopi biasa dengan gula dan susu kental manis yang dikurangi.",
@@ -600,6 +690,7 @@ module.exports = {
     zh: "点单时说「少底」的咖啡：一般的咖啡，糖与炼奶都减量。",
     ja: "「シウダイ（少底）」と注文するコピ。広東語で「土台を少なく」の意で、普通のコピの砂糖と練乳を控えめにします。",
     es: "Café de kopitiam pedido «siu dai», cantonés para «menos base»: el kopi normal con menos azúcar y leche condensada.",
+    ko: "'시우다이'(광둥어로 '바탕을 적게')로 주문한 코피티암 커피. 기본 코피에서 설탕과 연유의 단맛을 줄인 것입니다.",
   },
   "SG::kopi tarik": {
     id: "Kopi \"tarik\": kopi dengan susu kental manis dan gula, dituang dari ketinggian antar wadah agar berbusa, seperti teh tarik.",
@@ -608,6 +699,7 @@ module.exports = {
     zh: "「拉」出来的咖啡：加炼奶与糖的咖啡，在两个容器间高高对倒，拉出泡沫，跟拉茶一个道理。",
     ja: "「引いた」コーヒー。練乳と砂糖入りのコピを高い位置から器の間で注ぎ合い、泡立てます。テ・タレと同じ手つき。",
     es: "Café «estirado»: kopi con leche condensada y azúcar, vertido en alto entre dos recipientes hasta hacer espuma, como el teh tarik.",
+    ko: "'당긴' 커피. 연유와 설탕을 넣은 코피를 두 그릇 사이로 높이 들어 부어 거품을 내며, 테 타릭과 같은 방식입니다.",
   },
   "SG::kopi-C": {
     id: "Kopi kopitiam Singapura dengan gula dan susu evaporasi; huruf \"C\" konon dari merek susu Carnation atau kata Hainan untuk \"segar\".",
@@ -616,6 +708,7 @@ module.exports = {
     zh: "新加坡咖啡店的咖啡，加糖与淡奶；那个「C」或来自炼奶品牌 Carnation，或来自海南话的「鮮」。",
     ja: "シンガポールのコピティアムのコーヒー。砂糖と無糖練乳入り。「C」は練乳ブランド Carnation か、海南語の「鮮（新鮮）」に由来します。",
     es: "Café del kopitiam singapurense con azúcar y leche evaporada; la «C» viene de la marca Carnation o del hainanés para «fresco».",
+    ko: "설탕과 무가당 연유를 넣은 싱가포르 코피티암 커피로, 'C'는 카네이션 우유 브랜드나 하이난어 '신선하다'에서 왔습니다.",
   },
   "SG::kopi-O": {
     id: "Kopi hitam kopitiam Singapura tanpa susu tapi manis bergula; \"O\" dari kata Hokkien untuk \"hitam\", bijinya robusta sangrai wajan.",
@@ -624,6 +717,7 @@ module.exports = {
     zh: "新加坡咖啡店的黑咖啡，不加奶只加糖；「O」是福建话的「烏」，豆子仍是镬炒罗布斯塔。",
     ja: "シンガポールのコピティアムのブラックコーヒー。ミルクなし、砂糖入り。「O」は福建語の「烏（黒）」で、豆は鍋炒りのロブスタ。",
     es: "Café solo del kopitiam singapurense, sin leche pero azucarado; la «O» es «negro» en hokkien, de robusta tostado al wok.",
+    ko: "우유 없이 설탕만 넣은 싱가포르 코피티암의 블랙커피로, 'O'는 호키엔어로 검다는 뜻이며 웍에 볶은 로부스타로 내립니다.",
   },
   "SG::kopi-O kosong": {
     id: "Kopi hitam gaya Nanyang tanpa susu dan tanpa gula; \"O\" bahasa Hokkien untuk hitam, \"kosong\" bahasa Melayu untuk kosong atau nol.",
@@ -632,6 +726,7 @@ module.exports = {
     zh: "南洋式黑咖啡，不加奶也不加糖；「O」是福建话的「烏」，「kosong」是马来语的「空」。",
     ja: "南洋式のブラックコーヒー。ミルクも砂糖も入れません。「O」は福建語で黒、「コソン」はマレー語で空、つまりゼロ。",
     es: "Café solo al estilo nanyang, sin leche y sin azúcar; «O» es negro en hokkien y «kosong» es vacío o cero en malayo.",
+    ko: "우유도 설탕도 넣지 않은 남양식 블랙커피로, 'O'는 호키엔어로 검다, '코송'은 말레이어로 비어 있다는 뜻입니다.",
   },
   "SG::kueh dadar": {
     id: "Kue Nyonya/Melayu: dadar hijau pandan digulung berisi kelapa parut yang dimasak dengan gula melaka; disebut juga kuih ketayap.",
@@ -640,6 +735,7 @@ module.exports = {
     zh: "娘惹／马来糕点：香兰绿薄饼卷起用椰糖炒过的椰丝；也叫 kuih ketayap 或 dadar gulung。",
     ja: "ニョニャ／マレーの菓子。パンダンで緑に染めたクレープで、ヤシ砂糖で煮た削りココナッツを巻きます。クイ・クタヤプとも呼ばれます。",
     es: "Kueh nyonya-malayo: crepe verde de pandan enrollado sobre coco rallado cocido en gula melaka; también llamado kuih ketayap o dadar gulung.",
+    ko: "판단잎으로 초록빛을 낸 크레프에 굴라 멜라카로 조린 코코넛채를 말아 낸 뇨냐·말레이 떡으로, 쿠이 크타얍이라고도 합니다.",
   },
   "SG::kueh ko swee": {
     id: "Kue kukus Nyonya dari tepung beras dan tapioka, dimaniskan gula melaka atau pandan, dikukus di cawan kecil, lalu digulingkan di kelapa.",
@@ -648,6 +744,7 @@ module.exports = {
     zh: "娘惹蒸糕：米粉与木薯粉调糊，用椰糖或香兰调味，倒进小瓷杯蒸熟，再裹一层椰丝。",
     ja: "ニョニャの蒸し菓子。米粉とタピオカ粉をヤシ砂糖かパンダンで甘くし、小さな器で蒸してから削りココナッツをまぶします。",
     es: "Kueh nyonya al vapor de harina de arroz y tapioca, endulzado con gula melaka o pandan, cocido en tacitas chinas y rebozado en coco rallado.",
+    ko: "쌀과 타피오카 전분으로 만든 뇨냐식 찐 떡. 굴라 멜라카나 판단으로 단맛을 내고 작은 잔에 쪄서 코코넛채에 굴립니다.",
   },
   "SG::kueh pie tee": {
     id: "Mangkuk adonan renyah khas Peranakan berisi bengkuang tumis dan udang; namanya diduga dari cetakan besi \"patty\", dijuluki \"topi tinggi\".",
@@ -656,6 +753,7 @@ module.exports = {
     zh: "娘惹的脆皮小杯，填入焖沙葛与虾仁；名字大概来自铁模「patty」，因形似礼帽而得「top hat」的绰号。",
     ja: "プラナカンのサクサクした小さなカップに、煮たクワイ芋と海老を詰めた品。名は「パティ」の鉄型からとされ、シルクハットの愛称も。",
     es: "Cestitas peranakan de masa crujiente rellenas de jícama guisada y gambas; el nombre vendría de los moldes «patty», apodadas «chistera».",
+    ko: "바삭한 반죽 컵에 조린 히카마와 새우를 채운 프라나칸 음식으로, 이름은 '패티' 틀에서 온 듯하며 '실크해트'라 불리기도 합니다.",
   },
   "SG::kueh salat": {
     id: "Kue Peranakan dua lapis: dasar ketan bersantan di bawah puding pandan-kelapa hijau; disebut juga kuih seri muka.",
@@ -664,6 +762,7 @@ module.exports = {
     zh: "娘惹双层糕：底下是椰浆糯米饭，上头覆一层青绿的香兰椰奶蛋羹；也叫 kuih seri muka。",
     ja: "プラナカンの二層菓子。ココナッツミルクのもち米を土台に、緑のパンダン・ココナッツカスタードを重ねます。クイ・スリムカとも。",
     es: "Kueh peranakan de dos capas: base de arroz glutinoso con leche de coco bajo natilla verde de pandan y coco; también llamado kuih seri muka.",
+    ko: "두 겹으로 된 프라나칸(뇨냐) 떡. 코코넛밀크로 지은 찹쌀 위에 초록빛 판단 코코넛 커스터드를 올리며 쿠이 세리 무카라고도 합니다.",
   },
   "SG::kway chap": {
     id: "Hidangan Teochew: lembaran kuetiau (kway) dalam kuah kecap gelap (chap) dengan jeroan babi braise; dibawa perantau Chaoshan.",
@@ -672,6 +771,7 @@ module.exports = {
     zh: "潮州菜：粿条片（粿）浸在黑酱油汤（汁）里，配卤好的猪杂；由潮汕移民带到新加坡。",
     ja: "潮州の料理。米の平たい皮（粿）を濃口醤油のスープ（汁）に浸し、煮込んだ豚もつを添えます。潮汕からの移民がシンガポールに伝えました。",
     es: "Plato teochew: láminas de fideo de arroz (kway) en caldo de soja oscura (chap) con casquería; de los migrantes de Chaoshan.",
+    ko: "조주 요리. 쌀피(꾸에)를 진간장 국물(짭)에 넣고 조린 돼지 내장을 곁들이며, 조산 이민자들이 싱가포르에 들여왔습니다.",
   },
   "SG::lime juice with sour plum": {
     id: "Pelepas dahaga di pusat jajan: air jeruk kalamansi yang asam dengan sebutir asam boi, buah plum awetan Tionghoa yang asin dan manis.",
@@ -680,6 +780,7 @@ module.exports = {
     zh: "小贩中心的解渴饮料：酸酸的小青柠汁里丢一颗咸甜的酸梅（asam boi）。",
     ja: "ホーカーセンターの喉を潤す一杯。酸っぱいカラマンシー果汁に、塩気と甘みのある中国の干し梅（アサム・ボイ）を落とします。",
     es: "Refresco de los hawker centres: zumo ácido de calamansí con una ciruela china en conserva, salada y dulce (asam boi), dentro.",
+    ko: "새콤한 칼라만시 라임즙에 짭짤달콤한 중국식 절인 매실(아삼 보이)을 하나 넣은 호커센터의 갈증 해소 음료입니다.",
   },
   "SG::lo mai gai": {
     id: "Dim sum Kanton: ketan dengan ayam, jamur, dan lap cheong, dibungkus daun teratai lalu dikukus; di Singapura kerap disajikan dalam mangkuk.",
@@ -688,6 +789,7 @@ module.exports = {
     zh: "粤式点心：糯米配鸡肉、香菇与腊肠，荷叶包好上笼蒸；新加坡多用碗盛。",
     ja: "広東の点心。もち米に鶏肉、椎茸、腸詰を合わせ、蓮の葉に包んで蒸します。シンガポールでは碗仕立てが多く見られます。",
     es: "Dim sum cantonés: arroz glutinoso con pollo, setas y lap cheong, envuelto en hoja de loto y al vapor; en Singapur suele servirse en cuenco.",
+    ko: "찹쌀에 닭고기와 버섯, 랍청을 넣어 연잎에 싸 찐 광둥식 딤섬으로, 싱가포르에서는 그릇에 담아 내는 경우가 많습니다.",
   },
   "SG::lontong sayur lodeh": {
     id: "Masakan Melayu berakar Jawa: lontong daun pisang dalam sayur lodeh, gulai sayur bersantan; lauk Hari Raya yang lekat di Singapura.",
@@ -696,6 +798,7 @@ module.exports = {
     zh: "马来菜，根在爪哇：香蕉叶粽状米糕泡进椰浆蔬菜咖喱 sayur lodeh；新加坡开斋节的常备菜。",
     ja: "ジャワに根をもつマレー料理。バナナの葉で包んだ米餅ロントンを、ココナッツミルクの野菜カレー、サユール・ロデに浸します。",
     es: "Plato malayo de raíz javanesa: pasteles de arroz en hoja de plátano (lontong) en sayur lodeh, curry vegetal de coco; típico de Hari Raya.",
+    ko: "자바에서 온 말레이 요리. 바나나잎에 싼 밥떡 론통을 코코넛밀크 채소 커리 사유르 로데에 넣어 내며 싱가포르 하리라야의 단골입니다.",
   },
   "SG::lor mee": {
     id: "Jajanan Hokkien: mi kuning pipih dalam kuah braise lima rempah yang kental, dengan telur, kue ikan, dan ngoh hiang.",
@@ -704,6 +807,7 @@ module.exports = {
     zh: "福建小贩吃食：扁黄面浸在勾了芡的五香卤汁里，铺上鸡蛋、鱼饼与五香卷。",
     ja: "福建系の屋台料理。平たい黄色い麺を、五香を利かせたとろみのある煮汁に沈め、卵、魚のすり身揚げ、五香巻をのせます。",
     es: "Plato hokkien de puesto: fideos amarillos planos en salsa espesa de cinco especias, con huevo, pastel de pescado y ngoh hiang.",
+    ko: "호키엔 호커 음식. 넓적한 노란 면을 오향으로 조려 걸쭉하게 만든 전분 소스에 넣고 달걀과 어묵, 오향 롤을 올립니다.",
   },
   "SG::love letters (kuih kapit)": {
     id: "Wafer tipis renyah dari santan dan telur, dipanggang dengan menjepit adonan di antara cetakan besi berukir di atas arang; camilan Peranakan.",
@@ -712,6 +816,7 @@ module.exports = {
     zh: "椰浆鸡蛋薄脆饼：面糊夹在雕花铁模里，在炭火上压烤（kapit 就是「夹」）；娘惹年节的零嘴。",
     ja: "ココナッツミルクと卵の薄いパリパリの煎餅。文様のある鉄の型に生地を挟み、炭火で焼きます（kapit は「挟む」）。プラナカンの菓子。",
     es: "Oblea fina y crujiente de leche de coco y huevo, cocida prensando la masa entre moldes de hierro labrados sobre brasas («kapit» = prensar).",
+    ko: "코코넛밀크와 달걀 반죽을 무늬 있는 무쇠 틀에 끼워('카핏') 숯불에 구운 얇고 바삭한 과자로, 프라나칸의 별미입니다.",
   },
   "SG::mango pomelo sago": {
     id: "Hidangan penutup dingin berisi mangga, jeruk bali, sagu, dan santan atau susu evaporasi; ciptaan koki Lei Garden pada 1984 di cabang awal.",
@@ -720,6 +825,7 @@ module.exports = {
     zh: "冰镇的芒果西柚西米捞，加椰浆或淡奶；一九八四年由利苑的厨师在新加坡首家分店创出。",
     ja: "マンゴー、ポメロ、サゴ、ココナッツまたは無糖練乳の冷たい甘味。一九八四年、利苑の料理長が最初の支店で考案しました。",
     es: "Postre frío de mango, pomelo, sagú y leche de coco o evaporada; creado por el chef de Lei Garden en 1984 en su primera sucursal de Singapur.",
+    ko: "망고와 포멜로, 사고, 코코넛이나 무가당 연유를 넣은 차가운 디저트로, 1984년 레이 가든 셰프가 싱가포르 첫 지점에서 만들었습니다.",
   },
   "SG::marmite chicken": {
     id: "Favorit zi char Singapura: ayam goreng renyah berlapis glasir manis-gurih dari Marmite, kecap asin, madu, dan maltosa.",
@@ -728,6 +834,7 @@ module.exports = {
     zh: "新加坡煮炒的人气菜：脆炸鸡块裹上以Marmite酵母酱、酱油、蜂蜜与麦芽糖调成的咸甜芡汁。",
     ja: "シンガポールの煮炒の人気料理。カリッと揚げた鶏肉に、マーマイトの酵母エキス、醤油、蜂蜜、水飴で作る甘辛いたれをからめます。",
     es: "Favorito del zi char singapurense: pollo crujiente en glaseado agridulce de Marmite, soja, miel y maltosa.",
+    ko: "싱가포르 즈차의 인기 요리. 바삭하게 튀긴 닭고기를 마마이트 효모 추출물과 간장, 꿀, 물엿으로 만든 달콤짭짤한 소스에 버무립니다.",
   },
   "SG::mee pok dry": {
     id: "Mi Teochew kuning pipih, diaduk kering (\"tah\") dalam cabai-cuka-kecap alih-alih kuah, dengan babi cincang, hati, dan bakso.",
@@ -736,6 +843,7 @@ module.exports = {
     zh: "扁黄的潮州面薄不下汤，改以「打」的手法干捞辣椒醋酱油汁，铺上肉碎、猪肝与肉丸。",
     ja: "平たい黄色の潮州麺を汁ではなく、唐辛子・酢・醤油のたれで「タ（干し和え）」にし、豚のそぼろ、レバー、肉団子をのせます。",
     es: "Fideos teochew planos, en seco («tah») con chile, vinagre y soja en vez de caldo, con carne picada, hígado y albóndigas.",
+    ko: "납작한 노란 조주식 면을 국물 대신 고추·식초·간장 소스에 '타' 방식으로 비벼 다진 돼지고기와 간, 완자를 올립니다.",
   },
   "SG::mee soto": {
     id: "Sup mi Melayu yang pedas: mi kuning Hokkien dalam kuah soto ayam yang kaya kunyit, ditaburi suwiran ayam dan tauge.",
@@ -744,6 +852,7 @@ module.exports = {
     zh: "辛辣的马来汤面：福建黄面泡在姜黄味浓的 soto ayam 鸡汤里，铺上手撕鸡与豆芽。",
     ja: "辛口のマレー系スープ麺。福建黄麺を、ターメリックの利いた鶏スープ、ソト・アヤムに入れ、裂いた鶏肉ともやしをのせます。",
     es: "Sopa de fideos malaya y picante: fideos amarillos hokkien en caldo de pollo soto ayam cargado de cúrcuma, con pollo deshilachado y brotes.",
+    ko: "매콤한 말레이식 국수. 노란 호키엔면을 강황 향 짙은 소토 아얌 닭 육수에 넣고 닭고기와 숙주를 올립니다.",
   },
   "SG::mee suah": {
     id: "Mi gandum setipis benang asal Hokkien; di Singapura jadi \"mi panjang umur\" ulang tahun, disedot utuh tanpa dipotong.",
@@ -752,6 +861,7 @@ module.exports = {
     zh: "源自福建的细如线的麦面；在新加坡当作生日的「长寿面」，整根不切、一口吸尽，寓意长命。",
     ja: "福建に由来する糸のように細い小麦の麺。シンガポールでは誕生日の「長寿麺」として切らずに供され、長い一本をそのまますすって長寿を願います。",
     es: "Fideo de trigo fino como un hilo, de origen hokkien; en Singapur, el «fideo de la longevidad», sorbido entero sin cortar.",
+    ko: "호키엔에서 온 실처럼 가는 밀면. 싱가포르에서는 자르지 않은 생일 '장수면'으로 먹으며, 통째로 후루룩 넘겨 장수를 기원합니다.",
   },
   "SG::mee tai mak": {
     id: "Mi beras pendek setengah bening (5 cm), dijuluki \"mi tikus\" karena ujungnya meruncing; digoreng atau dalam sup.",
@@ -760,6 +870,7 @@ module.exports = {
     zh: "半透明的短米粉（约五厘米），两端渐尖，因而俗称「老鼠粉」；新加坡小贩摊的常备，可炒可汤。",
     ja: "半透明で短い米の麺（約五センチ）。両端が細くすぼまる形から「ねずみ麺」と呼ばれます。シンガポールの屋台の定番で、炒めても汁にしても供されます。",
     es: "Fideos de arroz cortos y semitransparentes (5 cm), «fideos rata» por sus puntas afiladas; salteados o en sopa.",
+    ko: "5센티미터쯤 되는 반투명한 짧은 쌀국수로, 끝이 뾰족해 '쥐 국수'라 불리며 볶거나 국물에 내는 싱가포르 호커 음식입니다.",
   },
   "SG::michael jackson": {
     id: "Minuman kaki lima Singapura: susu kedelai dicampur cincau hitam; namanya dari kontras dalam lagu Michael Jackson, Black or White.",
@@ -768,6 +879,7 @@ module.exports = {
     zh: "新加坡小贩摊的饮料：豆浆兑黑凉粉；名字取自迈克尔·杰克逊《黑或白》那首歌的黑白对照。",
     ja: "シンガポールの屋台の飲み物。豆乳に黒い仙草ゼリーを混ぜます。名はマイケル・ジャクソンの「ブラック・オア・ホワイト」の対比から。",
     es: "Bebida de puesto callejero singapurense: leche de soja con gelatina negra de hierbas; su nombre viene del contraste de Black or White.",
+    ko: "두유에 검은 그라스젤리를 섞은 싱가포르 호커 음료로, 마이클 잭슨의 노래 '블랙 오어 화이트'의 대비에서 이름을 땄습니다.",
   },
   "SG::milo": {
     id: "Milo es bertumpuk bubuk Milo yang belum larut; nama \"Milo Dinosaur\" muncul di kedai India-Muslim Singapura pada 1990-an.",
@@ -776,6 +888,7 @@ module.exports = {
     zh: "冰美禄上头堆着没化开的美禄粉；「Milo Dinosaur」这名字出自一九九〇年代新加坡的印度穆斯林餐室。",
     ja: "氷入りのミロに、溶け残ったミロの粉を山盛りにした飲み物。「ミロ・ダイナソー」の名は一九九〇年代のインド系ムスリム食堂で生まれました。",
     es: "Milo helado coronado con polvo de Milo sin disolver; el nombre «Milo Dinosaur» surgió en los años noventa en locales indomusulmanes.",
+    ko: "녹지 않은 밀로 가루를 수북이 올린 아이스 밀로 음료로, '밀로 다이너소어'라는 이름은 1990년대 싱가포르에서 생겼습니다.",
   },
   "SG::milo dinosaur": {
     id: "Milo es yang dimahkotai segunung bubuk Milo yang belum larut; namanya lahir di kedai India-Muslim Singapura pada pertengahan 1990-an.",
@@ -784,6 +897,7 @@ module.exports = {
     zh: "冰美禄顶上堆一座没化开的美禄粉小山；这名字是一九九〇年代中期新加坡印度穆斯林餐室起的。",
     ja: "氷入りのミロに、溶け残ったミロの粉を山のようにのせた一杯。名は一九九〇年代半ば、シンガポールのインド系ムスリム食堂で付きました。",
     es: "Milo con hielo coronado por un montón de polvo de Milo sin disolver; lo bautizaron a mediados de los noventa en locales indomusulmanes.",
+    ko: "녹지 않은 밀로 가루를 수북이 얹은 아이스 밀로로, 1990년대 중반 싱가포르의 인도계 무슬림 식당에서 이름 붙었습니다.",
   },
   "SG::milo godzilla": {
     id: "Milo Dinosaur es (Milo bertumpuk bubuk Milo tambahan) yang ditambahi sesendok es krim dan/atau krim kocok.",
@@ -792,6 +906,7 @@ module.exports = {
     zh: "在冰美禄恐龙（已堆满美禄粉的那杯）上再加一球冰淇淋，或再挤一圈鲜奶油。",
     ja: "アイスのミロ・ダイナソー（粉を山盛りにしたミロ）に、アイスクリームを一すくい、あるいはホイップクリームを重ねた一杯。",
     es: "Un Milo Dinosaur con hielo (Milo cubierto de polvo extra) rematado con una bola de helado o nata montada, o ambas.",
+    ko: "밀로 가루를 더 얹은 밀로 다이너소어 위에 아이스크림이나 휘핑크림을 올린 음료입니다.",
   },
   "SG::milo peng": {
     id: "Milo es ala kopitiam — bubuk cokelat-malt Nestlé di atas es; \"peng\" bahasa Hokkien untuk es, minuman dingin wajib di Singapura.",
@@ -800,6 +915,7 @@ module.exports = {
     zh: "咖啡店式的冰美禄——雀巢的可可麦芽粉冲了加冰；「peng」是福建话的「冰」，新加坡最平常的冷饮。",
     ja: "コピティアム式のアイス・ミロ。ネスレのチョコ麦芽の粉を氷で冷やします。「ペン」は福建語で氷。シンガポールの日常の冷たい一杯。",
     es: "Milo con hielo al estilo kopitiam — el polvo de chocolate y malta de Nestlé sobre hielo; «peng» es «hielo» en hokkien. Bebida cotidiana.",
+    ko: "네슬레의 초코 맥아 가루를 얼음에 타 낸 코피티암식 아이스 밀로로, '펭'은 호키엔어로 얼음이며 싱가포르의 대표 찬 음료입니다.",
   },
   "SG::mua chee": {
     id: "Camilan Hokkien/Teochew: adonan ketan lembut digulingkan di kacang tanah tumbuk dan gula; jajanan pasar malam yang ditusuk lidi.",
@@ -808,6 +924,7 @@ module.exports = {
     zh: "福建潮州的小食：软糯的糯米团裹上花生碎与糖；夜市的零嘴，用竹签戳着吃。",
     ja: "福建・潮州の菓子。やわらかいもち米の生地を挽いた落花生と砂糖にまぶします。夜市の楊枝で刺して食べるおやつ。",
     es: "Dulce hokkien-teochew: masa blanda de arroz glutinoso rebozada en cacahuete molido y azúcar; golosina de mercado nocturno, con palillos.",
+    ko: "부드러운 찹쌀 반죽을 볶은 땅콩 가루와 설탕에 굴린 호키엔·조주식 간식으로, 야시장에서 이쑤시개로 집어 먹습니다.",
   },
   "SG::mutton soup (sup tulang)": {
     id: "Hidangan India-Muslim ciptaan Singapura: tulang kambing direbus 12 jam lebih dalam saus tomat-cabai merah menyala, disantap demi sumsumnya.",
@@ -816,6 +933,7 @@ module.exports = {
     zh: "新加坡自创的印度穆斯林菜：羊骨在火红的番茄辣椒参峇酱里炖上十二小时以上，吃的正是骨髓。",
     ja: "シンガポールで生まれた印度系ムスリムの料理。羊の骨を、真っ赤なトマトと唐辛子のサンバルで十二時間以上煮込みます。狙いは骨髄です。",
     es: "Plato indomusulmán inventado en Singapur: huesos de cordero guisados doce horas en salsa ardiente de tomate, chile y sambal, por el tuétano.",
+    ko: "싱가포르에서 만들어진 인도계 무슬림 요리. 양 뼈를 열두 시간 넘게 새빨간 토마토·고추 삼발 소스에 끓여 골수를 빨아 먹습니다.",
   },
   "SG::nasi lemak SG": {
     id: "Nasi wangi asal Melayu yang ditanak dengan santan dan pandan, disajikan bersama sambal, ikan bilis goreng, kacang, telur, dan timun.",
@@ -824,6 +942,7 @@ module.exports = {
     zh: "源自马来人的椰浆饭：米加椰浆与香兰叶同煮，配参巴辣酱、炸江鱼仔、花生、鸡蛋和黄瓜。",
     ja: "マレー由来の香り高いご飯。ココナッツミルクとパンダンで炊き、サンバル、揚げ煮干し、落花生、卵、きゅうりを添えます。",
     es: "Arroz aromático de origen malayo cocido en leche de coco con pandan; se sirve con sambal, boquerones fritos, cacahuete, huevo y pepino.",
+    ko: "코코넛밀크와 판단잎으로 지은 말레이식 향긋한 밥에 삼발과 튀긴 멸치, 땅콩, 달걀, 오이를 곁들여 냅니다.",
   },
   "SG::nasi padang": {
     id: "Nasi putih dengan aneka lauk Minangkabau yang sudah dimasak (misalnya rendang) dari Sumatera Barat; namanya diambil dari kota Padang.",
@@ -832,6 +951,7 @@ module.exports = {
     zh: "白饭配上一整排事先煮好的米南加保菜色（如仁当），来自西苏门答腊，名字取自巴东城。",
     ja: "白飯に、西スマトラのミナンカバウ料理（ルンダンなど）を作り置きの中から選んで添える一皿。名はパダンの町に由来します。",
     es: "Arroz al vapor acompañado de varios platos minangkabau ya cocinados (como el rendang) de Sumatra Occidental; su nombre viene de Padang.",
+    ko: "서수마트라 미낭카바우 요리(른당 등)를 미리 만들어 두고 흰밥에 곁들여 내는 방식으로, 파당이라는 도시 이름에서 왔습니다.",
   },
   "SG::nasi ulam": {
     id: "Nasi herba Melayu/Peranakan: nasi diaduk dengan irisan halus daun jeruk purut, daun kesum, daun kunyit, dan suwiran ikan.",
@@ -840,6 +960,7 @@ module.exports = {
     zh: "马来／娘惹的香草饭：白饭拌进切得极细的青柠叶、叻沙叶与姜黄叶，再加鱼肉碎。",
     ja: "マレー／プラナカンのハーブご飯。こぶみかんの葉、ダウン・クスム、ウコンの葉を細く刻んで飯に混ぜ、ほぐした魚を加えます。",
     es: "Arroz de hierbas malayo-peranakan: arroz mezclado con hojas finamente cortadas de lima kaffir, kesum y cúrcuma, y pescado desmenuzado.",
+    ko: "말레이·프라나칸식 허브 밥. 카피르 라임잎과 다운 크숨, 강황잎 같은 생허브를 곱게 썰어 밥에 버무리고 생선살을 섞습니다.",
   },
   "SG::ngoh hiang": {
     id: "Gulung lima rempah Hokkien/Teochew: babi dan udang cincang berbumbu lima rempah, dibungkus kulit tahu, lalu digoreng.",
@@ -848,6 +969,7 @@ module.exports = {
     zh: "福建／潮州的五香卷：猪肉与虾肉剁碎，以五香粉调味，用豆腐皮包起来炸香。",
     ja: "福建・潮州の五香巻。豚肉と海老のすり身を五香粉で調え、湯葉で巻いて揚げます。",
     es: "Rollo de cinco especias hokkien/teochew: cerdo y gamba picados con cinco especias, en piel de tofu y frito.",
+    ko: "호키엔·조주식 오향 롤. 다진 돼지고기와 새우를 오향 가루로 양념해 두부피에 말아 튀깁니다.",
   },
   "SG::ngoh hiang platter": {
     id: "Gulung kulit tahu goreng yang diiris; \"ngoh hiang\" Hokkien untuk \"lima rempah\", bubuk pembumbu isian babi-udang cincang.",
@@ -856,6 +978,7 @@ module.exports = {
     zh: "炸豆皮卷切片；「五香」是福建话的说法，指的正是给猪肉虾肉馅调味的五香粉。",
     ja: "揚げた湯葉巻きを切り分けた一皿。「五香（ゴヒアン）」は福建語で五香粉のことで、豚肉と海老の餡を調えます。",
     es: "Rollos fritos de piel de tofu en rodajas; «ngoh hiang» es hokkien para «cinco especias», el polvo que sazona el relleno de cerdo y gamba.",
+    ko: "두부피 롤을 튀겨 저며 낸 요리. '오향'은 호키엔어로 다진 돼지고기와 새우 소를 양념하는 오향 가루를 뜻합니다.",
   },
   "SG::nyonya curry chicken": {
     id: "Kari ayam Peranakan (Cina Selat): perpaduan Cina-Melayu yang direbus dalam santan dengan rempah serai, lengkuas, dan belacan.",
@@ -864,6 +987,7 @@ module.exports = {
     zh: "娘惹（海峡华人）咖喱鸡：华马合流的菜，用香茅、南姜、峇拉煎打的香料底与椰浆同煮。",
     ja: "プラナカン（海峡華人）のチキンカレー。華とマレーの混じり合いで、レモングラス、ナンキョウ、ブラチャンの香辛料をココナッツミルクで煮ます。",
     es: "Curry de pollo peranakan (chinos del Estrecho): híbrido chino-malayo cocido en leche de coco con un rempah de citronela, galanga y belacan.",
+    ko: "프라나칸(해협 화교)식 치킨 커리. 레몬그라스와 갈랑갈, 블라찬으로 만든 렘파를 코코넛밀크에 끓인 중국·말레이 혼합 요리입니다.",
   },
   "SG::orh nee (yam paste dessert)": {
     id: "Hidangan penutup Teochew: talas kukus dilumatkan halus dengan gula dan lemak babi, disajikan hangat dengan ginkgo dan labu, penutup jamuan.",
@@ -872,6 +996,7 @@ module.exports = {
     zh: "潮州甜品：芋头蒸熟后加糖与猪油打成细泥，趁热上桌，撒白果与南瓜，用来收席。",
     ja: "潮州の甘味。蒸したタロイモを砂糖とラードでなめらかに練り、温かいうちに銀杏とかぼちゃを添えて、宴の締めに供します。",
     es: "Postre teochew: taro al vapor triturado con azúcar y manteca, servido tibio con ginkgo y calabaza para cerrar el banquete.",
+    ko: "찐 토란을 설탕과 돼지기름으로 곱게 으깬 조주 디저트로, 따뜻하게 은행과 호박을 올려 연회의 마지막을 장식합니다.",
   },
   "SG::pineapple tart": {
     id: "Kue Peranakan sekali suap dengan selai nanas karamel yang dibumbui kayu manis, bunga lawang, dan cengkih; wajib saat Tahun Baru Imlek.",
@@ -880,6 +1005,7 @@ module.exports = {
     zh: "一口大小的娘惹酥饼，面上是慢火熬成的黄梨酱，以肉桂、八角与丁香调味；是农历新年的必备点心。",
     ja: "ひと口サイズのプラナカンの菓子。じっくり煮詰めたパイナップルジャムにシナモン、八角、クローブを効かせる。旧正月の定番。",
     es: "Pastelito peranakan de un bocado cubierto de mermelada de piña caramelizada con canela, anís estrellado y clavo; propio del Año Nuevo lunar.",
+    ko: "천천히 졸인 파인애플 잼에 계피와 팔각, 정향을 넣어 올린 한입 크기 프라나칸 과자로, 설 명절의 단골 간식입니다.",
   },
   "SG::png kueh": {
     id: "Kue ketan Teochew berbentuk persik berwarna merah muda, berisi nasi gurih, udang kering, dan kacang; cetakan persik lambang umur panjang.",
@@ -888,6 +1014,7 @@ module.exports = {
     zh: "潮州的粉红桃形糯米粿，馅是咸香米饭、虾米与花生；桃形模子取长寿的意头。",
     ja: "桃の形に染めた潮州の桃色もち米粿。塩味のご飯、干し海老、落花生を詰め、桃の型は長寿を意味します。",
     es: "Pastel teochew de arroz glutinoso con forma de melocotón rosado, relleno de arroz salado, gamba seca y cacahuete; el molde da longevidad.",
+    ko: "복숭아 모양으로 분홍빛을 낸 조주식 찹쌀떡으로, 짭짤한 찰밥과 건새우, 땅콩을 채우며 복숭아 틀은 장수를 뜻합니다.",
   },
   "SG::putu mayam": {
     id: "Bihun tepung beras kukus khas India Selatan; di Singapura awal dijajakan pedagang India keliling bersama kelapa parut dan gula melaka.",
@@ -896,6 +1023,7 @@ module.exports = {
     zh: "南印度的蒸米粉丝；早年新加坡由印度小贩沿街叫卖，配椰丝与马六甲椰糖。",
     ja: "米粉を蒸して作る南インドの糸状の食べもの。かつてのシンガポールでは、インド系の行商がココナッツとグラ・ムラカを添えて売り歩きました。",
     es: "Fideos de harina de arroz al vapor del sur de la India; en el Singapur temprano los vendían ambulantes indios con coco y gula melaka.",
+    ko: "쌀가루를 실처럼 뽑아 찐 남인도식 국수로, 초기 싱가포르에서는 인도 행상들이 코코넛과 굴라 멜라카와 함께 팔았습니다.",
   },
   "SG::red bean ice": {
     id: "Minuman dingin cha chaan teng Hong Kong: kacang merah manis, sirop gula batu, dan susu evaporasi di atas es serut.",
@@ -904,6 +1032,7 @@ module.exports = {
     zh: "港式茶餐厅的冻饮：甜红豆、冰糖水与淡奶，浇在碎冰上。",
     ja: "香港の茶餐廳の冷たい飲み物。甘く炊いた小豆と氷砂糖のシロップ、無糖練乳をクラッシュアイスに注ぎます。",
     es: "Bebida fría de los cha chaan teng de Hong Kong: judías azuki endulzadas, almíbar de azúcar cande y leche evaporada sobre hielo picado.",
+    ko: "홍콩 차찬텡의 찬 음료. 달게 조린 팥과 얼음설탕 시럽, 무가당 연유를 잘게 부순 얼음 위에 올려 냅니다.",
   },
   "SG::roast duck": {
     id: "Bebek panggang ala Kanton (siu ngap), berkulit renyah dan berdaging empuk; dijual di gerai siu laap Singapura, di atas nasi atau mi.",
@@ -912,6 +1041,7 @@ module.exports = {
     zh: "粤式烧鸭，皮脆肉嫩；新加坡的烧腊摊上与叉烧并排，配饭或配面。",
     ja: "広東の焼鴨（シウアップ）。皮は香ばしく、身はやわらか。シンガポールの焼腊の店で、飯にも麺にも合わせます。",
     es: "Pato asado cantonés (siu ngap), de piel crujiente y carne tierna; en los puestos de siu laap de Singapur, sobre arroz o fideos.",
+    ko: "껍질이 바삭하고 속살이 부드러운 광둥식 구운 오리로, 싱가포르 구이 노점에서 차슈와 나란히 밥이나 면에 올려 팝니다.",
   },
   "SG::roast goose": {
     id: "Siu-mei Kanton: angsa utuh dipanggang arang agar kulitnya renyah dan dagingnya berair; di Singapura memakai angsa impor dari Hungaria.",
@@ -920,6 +1050,7 @@ module.exports = {
     zh: "粤式烧味：整鹅以炭火烤至皮脆肉嫩；在新加坡多用进口的匈牙利鹅。",
     ja: "広東の焼味。鵝鳥を丸ごと炭火で焼き、皮はぱりっと身はしっとりと仕上げる。シンガポールではハンガリー産の輸入鵝を使う。",
     es: "Siu-mei cantonés: ganso entero asado al carbón para lograr piel crujiente y carne jugosa; en Singapur se usa ganso húngaro importado.",
+    ko: "거위를 통째로 숯불에 구워 껍질은 바삭하고 살은 촉촉한 광둥 시우메이 요리로, 싱가포르에서는 헝가리산 거위를 씁니다.",
   },
   "SG::roast meat rice (siu mei)": {
     id: "Daging panggang Kanton (char siew, babi, bebek) di atas nasi; dijual di gerai siu laap tiap pusat jajanan Singapura.",
@@ -928,6 +1059,7 @@ module.exports = {
     zh: "粤式烧腊——叉烧、烧肉、烧鸭——铺在饭上；新加坡每个小贩中心的烧腊摊都有得卖。",
     ja: "広東の焼き物（叉焼、焼肉、焼鴨）を飯にのせた一皿。シンガポールでは、どのホーカーセンターの焼腊（シウラップ）の店でも売られています。",
     es: "Carnes cantonesas al espetón (char siew, cerdo, pato) sobre arroz; en los puestos de siu laap de cada hawker centre.",
+    ko: "광둥식 꼬치구이 고기(차슈·구운 돼지고기·구운 오리)를 밥 위에 올린 요리로, 싱가포르 호커센터의 시우랍 노점에서 팝니다.",
   },
   "SG::roti john": {
     id: "Roti telur khas Singapura dari 1960-an: roti Prancis dibelah memanjang, digoreng sisi telur di bawah bersama daging cincang dan bawang.",
@@ -936,6 +1068,7 @@ module.exports = {
     zh: "一九六〇年代出现的新加坡蛋汉堡：法棍纵向剖开，蛋液那面朝下煎，夹肉碎、洋葱与香料。",
     ja: "一九六〇年代のシンガポール生まれのオムレツサンド。フランスパンを縦に割り、卵の面を下にして挽肉と玉ねぎとともに焼きます。",
     es: "Bocadillo-tortilla singapurense de los años sesenta: una barra abierta a lo largo, frita del lado del huevo con carne picada y cebolla.",
+    ko: "1960년대 싱가포르에서 생긴 오믈렛 샌드위치. 바게트를 길게 갈라 다진 고기와 양파, 향신료를 섞은 달걀물에 엎어 굽습니다.",
   },
   "SG::salted egg fish skin": {
     id: "Camilan zichar Singapura: kulit ikan goreng renyah dalam saus kuning telur asin dengan daun kari dan cabai; kini juga dikemas.",
@@ -944,6 +1077,7 @@ module.exports = {
     zh: "新加坡煮炒小食：炸得酥脆的鱼皮裹上香浓的咸蛋黄酱，配咖喱叶与辣椒；如今也做成袋装零食。",
     ja: "シンガポールの煮炒の軽食。カリッと揚げた魚の皮を、まろやかな塩漬け卵黄のソースにからめ、カレーリーフと唐辛子を添えます。今では袋菓子にもなっています。",
     es: "Aperitivo zichar de Singapur: piel de pescado crujiente en salsa de yema salada con hojas de curri y chile; hoy también en bolsa.",
+    ko: "싱가포르 즈차 간식. 바삭하게 튀긴 생선껍질을 짭짤한 노른자 크림 소스에 커리잎과 고추와 함께 버무리며, 지금은 봉지 과자로도 나옵니다.",
   },
   "SG::salted egg yolk crab": {
     id: "Zi char Singapura: kepiting lumpur goreng dalam saus kuning telur asin bermentega, dengan daun kari dan cabai padi.",
@@ -952,6 +1086,7 @@ module.exports = {
     zh: "新加坡煮炒菜：炸青蟹拌进牛油咸蛋黄酱汁，配咖喱叶与指天椒。",
     ja: "シンガポールの煮炒料理。揚げたマッドクラブを、バターで練った塩漬け卵黄のソースにからめ、カレーリーフとチリパディを添えます。",
     es: "Zi char de Singapur: cangrejo de fango frito en salsa mantecosa de yema salada, con hojas de curri y chile padi.",
+    ko: "싱가포르 즈차 요리. 튀긴 머드크랩을 으깬 소금오리알 노른자와 버터 소스에 커리잎과 고추를 넣어 버무립니다.",
   },
   "SG::sambal kangkong": {
     id: "Kangkung ditumis api besar dengan sambal dan belacan; andalan zi char Singapura yang berasal dari masakan Melayu.",
@@ -960,6 +1095,7 @@ module.exports = {
     zh: "空心菜以猛火配参峇与虾酱（belacan）快炒；源自马来菜，是新加坡煮炒的固定角色。",
     ja: "空心菜をサンバルとブラチャン（エビ味噌）で強火で炒めます。マレー由来で、シンガポールの煮炒に欠かせない一品です。",
     es: "Kangkong salteado a fuego vivo con sambal y belacan; un fijo del zi char en Singapur, de origen malayo.",
+    ko: "공심채를 센 불에서 삼발과 블라찬(새우장)에 볶아 낸, 말레이에서 온 싱가포르 즈차의 대표 채소 요리입니다.",
   },
   "SG::sambal sotong": {
     id: "Cumi ditumis dalam sambal Melayu/Peranakan dari cabai, belacan, dan asam jawa; favorit gerai jajanan dan zi char.",
@@ -968,6 +1104,7 @@ module.exports = {
     zh: "苏东（鱿鱼）以马来／峇峇娘惹风味的辣椒、虾酱与亚参调成的参峇快炒；小贩摊与煮炒摊上都很受欢迎。",
     ja: "イカを、唐辛子とブラチャン、タマリンドで作るマレー／プラナカン風のサンバルで炒めます。屋台にも煮炒の店にも欠かせない人気の一皿です。",
     es: "Calamar salteado en sambal malayo-peranakan de chile, belacan y tamarindo; favorito de puestos y zi char.",
+    ko: "오징어를 고추와 블라찬, 타마린드로 만든 말레이·프라나칸식 삼발에 볶아 낸 호커센터와 즈차의 인기 메뉴입니다.",
   },
   "SG::sambal stingray": {
     id: "Sirip pari berbalut sambal cabai, dibungkus daun pisang dan dipanggang arang; jajanan asal Melayu, disajikan dengan jeruk nipis.",
@@ -976,6 +1113,7 @@ module.exports = {
     zh: "魔鬼鱼鳍抹上辣椒参峇，用香蕉叶包着炭火烤；源自马来菜的小贩名物，配青柠同吃。",
     ja: "エイのひれに唐辛子のサンバルを塗り、バナナの葉に包んで炭火で焼きます。マレー由来の屋台の定番で、ライムを添えて供します。",
     es: "Aletas de raya con sambal de chile, en hoja de plátano al carbón; fijo de los puestos, de origen malayo, con lima.",
+    ko: "가오리 지느러미에 칠리 삼발을 발라 바나나잎에 싸서 숯불에 구운 말레이계 호커 음식으로, 라임을 곁들여 냅니다.",
   },
   "SG::singapore noodles (curry bee hoon)": {
     id: "Bihun ditumis atau disajikan dalam kari mirip laksa; jajanan Singapura, beda dari \"Singapore noodles\" temuan Hong Kong.",
@@ -984,6 +1122,7 @@ module.exports = {
     zh: "米粉或炒或浸在近似叻沙的咖喱汤里；这是新加坡小贩摊的常备，与香港发明的「星洲炒米」并非一回事。",
     ja: "ビーフンを炒めるか、ラクサに近いカレー汁で供します。シンガポールの屋台の定番で、香港発祥の「シンガポール風焼きビーフン」とは別物です。",
     es: "Fideos de arroz salteados o en curri tipo laksa; fijo de los puestos singapurenses, distinto de los «singapore noodles» de Hong Kong.",
+    ko: "쌀국수를 볶거나 락사 같은 커리 국물에 내는 싱가포르 호커 음식으로, 홍콩에서 만들어진 '싱가포르 누들'과는 다릅니다.",
   },
   "SG::siu mai": {
     id: "Dim sum kukus Kanton bermulut terbuka berisi daging babi giling, udang, dan jamur; andalan dim sum Singapura, disajikan bersama har gow.",
@@ -992,6 +1131,7 @@ module.exports = {
     zh: "粤式开口蒸点，馅是猪肉末、虾仁与香菇；新加坡饮茶的常备，总与虾饺一同上桌。",
     ja: "上部を開いた広東の蒸し点心。豚のひき肉、海老、椎茸を詰めます。シンガポールの飲茶の定番で、海老餃子と並んで供されます。",
     es: "Dim sum cantonés al vapor de boca abierta con cerdo picado, gamba y seta; un fijo del dim sum singapurense, servido junto al har gow.",
+    ko: "다진 돼지고기와 새우, 버섯을 넣어 윗면을 열어 찐 광둥식 딤섬으로, 싱가포르에서는 하가우와 나란히 나옵니다.",
   },
   "SG::siu yuk (roast pork belly)": {
     id: "Panggangan siu mei Kanton: perut babi diperam garam dan cuka lalu dipanggang panas hingga kulitnya pecah renyah di atas daging yang empuk.",
@@ -1000,6 +1140,7 @@ module.exports = {
     zh: "粤式烧腊中的烧肉：五花肉以盐和醋腌过，高温烤到皮脆得咔嚓作响，底下的肉仍然软嫩。",
     ja: "広東の焼腊のひとつ、焼肉（シウヨッ）。豚バラ肉を塩と酢で締め、高温で焼いて、やわらかな肉の上に砕けるような皮を立てます。",
     es: "Asado cantonés de siu mei: panceta curada con sal y vinagre y asada a fuego fuerte hasta lograr una corteza quebradiza sobre carne tierna.",
+    ko: "광둥 시우메이 구이. 삼겹살을 소금과 식초로 절인 뒤 센 불에 구워 껍질은 바스러지게, 속살은 부드럽게 만듭니다.",
   },
   "SG::sliced fish soup": {
     id: "Kuah bening asal Teochew dengan ikan iris, sayur, dan tahu; versi keruh Singapura memakai susu evaporasi, sentuhan Kanton.",
@@ -1008,6 +1149,7 @@ module.exports = {
     zh: "源自潮州的清汤，配鱼片、蔬菜与豆腐；新加坡的奶白版本加淡奶，是粤式的手笔。",
     ja: "潮州に由来する澄んだスープで、魚の切り身、野菜、豆腐を合わせます。シンガポールの白濁した仕立てはエバミルクを使う、広東風の工夫です。",
     es: "Caldo claro teochew con láminas de pescado, verduras y tofu; la versión lechosa usa leche evaporada, toque cantonés.",
+    ko: "조주에서 온 맑은 국물에 저민 생선과 채소, 두부를 넣은 요리로, 싱가포르의 뽀얀 버전은 광둥식으로 무가당 연유를 씁니다.",
   },
   "SG::soft-boiled eggs with kaya toast": {
     id: "Sarapan Nanyang dari kopitiam Hainan abad ke-19: roti bakar berolesan kaya pandan, ditemani telur setengah matang dengan kecap dan lada.",
@@ -1016,6 +1158,7 @@ module.exports = {
     zh: "南洋早餐，出自十九世纪的海南咖啡店：烤面包抹香兰咖椰，配半生熟蛋，淋黑酱油、撒白胡椒。",
     ja: "十九世紀の海南系コピティアムに始まる南洋の朝食。パンダン風味のカヤを塗ったトーストに、半熟卵を黒醤油と胡椒で。",
     es: "Desayuno nanyang de los kopitiams hainaneses del siglo XIX: tostada con kaya de pandan y huevos pasados por agua con soja oscura y pimienta.",
+    ko: "19세기 하이난 코피티암에서 온 남양식 아침. 판단 코코넛 잼을 바른 토스트에 진간장과 후추를 뿌린 반숙 달걀을 곁들입니다.",
   },
   "SG::soon kueh": {
     id: "Papillote kukus Teochew berkulit bening dari tepung beras dan tapioka; namanya berarti rebung, tetapi kini biasanya berisi bengkuang.",
@@ -1024,6 +1167,7 @@ module.exports = {
     zh: "潮州的蒸粿，米粉与木薯粉做的皮晶莹透亮；名字取自笋，如今馅料多改用沙葛。",
     ja: "潮州の蒸し餃子。米粉とタピオカ粉の皮は透きとおります。名は筍に由来しますが、今の餡はたいていヒカマです。",
     es: "Empanadilla teochew al vapor de piel translúcida de harina de arroz y tapioca; su nombre alude al brote de bambú, hoy lleva jícama.",
+    ko: "쌀과 타피오카 전분으로 만든 반투명한 피의 조주식 찐만두. 이름은 죽순에서 왔지만 요즘은 대개 히카마를 채웁니다.",
   },
   "SG::sour plum drink": {
     id: "Minuman Tionghoa dingin dari plum asam yang diasap, hawthorn, akar manis, bunga osmanthus, dan gula; rasanya manis, asam, sedikit asin.",
@@ -1032,6 +1176,7 @@ module.exports = {
     zh: "冰镇的酸梅汤：乌梅、山楂、甘草、桂花与糖同熬，喝来又甜又酸，还带一丝咸。",
     ja: "冷たい中国の飲み物。燻した梅、サンザシ、甘草、金木犀、砂糖を煮出し、甘く酸っぱく、わずかに塩気があります。",
     es: "Bebida china fría de ciruelas ácidas ahumadas, espino, regaliz, osmanto y azúcar; sabe dulce, ácida y algo salada.",
+    ko: "훈제한 매실과 산사, 감초 뿌리, 계화, 설탕으로 만든 차가운 중국 음료로, 달고 새콤하며 살짝 짭짤합니다.",
   },
   "SG::soya bean drink": {
     id: "Susu kedelai segar, andalan pedagang Tionghoa; disajikan panas atau dingin, manis atau gurih, kerap bersanding dengan tau huay.",
@@ -1040,6 +1185,7 @@ module.exports = {
     zh: "现磨豆浆，华人小贩的看家饮料；冷热皆宜，甜咸皆有，常与豆花摆在一处。",
     ja: "できたての豆乳。中華系屋台の定番で、温冷どちらでも、甘くも塩味でも供され、豆花と並んで売られます。",
     es: "Leche de soja fresca, clásico de los puestos chinos; se sirve caliente o fría, dulce o salada, a menudo junto al tau huay.",
+    ko: "두유. 갓 짜낸 콩 음료이자 중국식 호커의 단골로, 뜨겁게나 차갑게, 달게나 담백하게 내며 흔히 타우후아이와 함께 냅니다.",
   },
   "SG::soya sauce chicken": {
     id: "Siu mei Kanton: ayam utuh dibraise dalam kecap gelap berempah. Hawker Chan di Singapura meraih bintang Michelin 2016, salah satu pertama.",
@@ -1048,6 +1194,7 @@ module.exports = {
     zh: "粤式烧腊：整鸡以香料黑酱油浸卤。新加坡的了凡在2016年摘下米其林一星，是街边摊获星的先例之一。",
     ja: "広東の焼腊のひとつ。鶏を丸ごと、香辛料を効かせた濃口醤油で煮ます。シンガポールのホーカー・チャンは2016年、屋台として先駆けてミシュランの星を得ました。",
     es: "Siu mei cantonés: pollo entero estofado en soja oscura especiada; el Hawker Chan logró en 2016 una de las primeras estrellas Michelin.",
+    ko: "닭을 통째로 향신 간장에 조린 광둥 시우메이 요리. 싱가포르의 호커 찬은 2016년 노점 최초로 미슐랭 별을 받았습니다.",
   },
   "SG::sugarcane juice": {
     id: "Minuman hijau keruh dari batang tebu segar yang digilas; wajib ada di pusat jajan, kerap diberi lemon atau asam boi agar tak terlalu manis.",
@@ -1056,6 +1203,7 @@ module.exports = {
     zh: "混浊的青绿甘蔗汁，鲜蔗现榨；小贩中心的常客，常挤柠檬或加酸梅解腻。",
     ja: "搾りたてのサトウキビの、濁った緑の汁。ホーカーセンターの定番で、甘さを切るためにレモンや干し梅を加えます。",
     es: "Bebida verdosa y turbia de caña de azúcar recién prensada; clásico de los hawker centres, con limón o ciruela salada para cortar el dulzor.",
+    ko: "사탕수수를 압착기로 짜낸 탁한 초록빛 음료로, 호커센터의 단골이며 단맛을 잡으려 레몬이나 절인 매실을 넣기도 합니다.",
   },
   "SG::sup kambing": {
     id: "Sup kambing India-Muslim, kuahnya direbus berjam-jam dengan ketumbar, adas, jintan, bunga lawang, dan kayu manis; disajikan dengan roti.",
@@ -1064,6 +1212,7 @@ module.exports = {
     zh: "印度穆斯林的羊肉汤，汤底以芫荽籽、茴香、孜然、八角与肉桂久熬；配面包蘸食。",
     ja: "インド系ムスリムの羊肉スープ。コリアンダー、フェンネル、クミン、八角、シナモンで何時間も煮出し、浸して食べるパンを添えます。",
     es: "Sopa indomusulmana de cordero, con el caldo cocido horas con cilantro, hinojo, comino, anís estrellado y canela; se moja pan.",
+    ko: "인도계 무슬림의 양고기 수프. 고수와 회향, 커민, 팔각, 계피를 넣고 오래 끓인 국물에 빵을 찍어 먹습니다.",
   },
   "SG::tahu goreng": {
     id: "Tahu goreng Melayu: tahu digoreng keemasan lalu dipotong serong, diberi tauge dan timun, disiram saus kacang pedas.",
@@ -1072,6 +1221,7 @@ module.exports = {
     zh: "马来炸豆腐：豆腐炸至金黄后斜刀切开，铺上豆芽与黄瓜，淋辣花生酱。",
     ja: "マレー風の揚げ豆腐。きつね色に揚げて斜めに切り、もやしときゅうりをのせ、辛いピーナッツソースをかけます。",
     es: "Tofu frito malayo: piezas doradas cortadas en diagonal, coronadas con brotes de soja y pepino y bañadas en salsa picante de cacahuete.",
+    ko: "말레이식 두부 튀김. 노릇하게 튀긴 두부를 어슷 썰어 숙주와 오이를 올리고 매콤한 땅콩 소스를 끼얹습니다.",
   },
   "SG::tandoori chicken": {
     id: "Ayam dimarinasi yogurt (dahi) dan bumbu tandoori masala, dipanggang dalam tungku tanah liat; hidangan India Utara yang populer di Singapura.",
@@ -1080,6 +1230,7 @@ module.exports = {
     zh: "鸡肉先用酸奶与坦都里马萨拉腌过，再放进泥炉炭烤；这道北印度菜在新加坡很受欢迎。",
     ja: "鶏肉をヨーグルト（ダヒ）とタンドーリ・マサラに漬け、土窯タンドールで焼いた北インド料理。シンガポールでも親しまれています。",
     es: "Pollo marinado en yogur (dahi) y especias tandoori masala, asado en horno de barro tandoor; plato norteño de la India popular en Singapur.",
+    ko: "닭고기를 요구르트(다히)와 탄두리 마살라에 재워 흙 화덕 탄두르에 구운 북인도 요리로, 싱가포르에서도 인기가 많습니다.",
   },
   "SG::tang yuan SG": {
     id: "Bola ketan kenyal dalam kuah jahe atau kacang yang manis; disantap saat Dongzhi, namanya berpelesetan dengan tuan yuan, kumpul keluarga.",
@@ -1088,6 +1239,7 @@ module.exports = {
     zh: "软糯的糯米圆子，泡在甜姜汤或花生汤里；冬至时吃，「汤圆」谐「团圆」。",
     ja: "もちもちの白玉を甘い生姜湯やピーナッツ汁に浮かべた品。冬至に食べ、名は「団円（家族団らん）」に掛けています。",
     es: "Bolitas correosas de arroz glutinoso en caldo dulce de jengibre o cacahuete; se comen en el solsticio y el nombre juega con «reunión».",
+    ko: "쫄깃한 찹쌀 새알을 달콤한 생강이나 땅콩 국물에 넣어 동지에 먹으며, 이름이 '단원'과 소리가 같아 가족의 화합을 뜻합니다.",
   },
   "SG::tau huay (douhua)": {
     id: "Hidangan penutup tahu sutra; di Singapura orang Hokkien menyebutnya tau huay, disiram sirop bening manis, pandan, atau gula melaka.",
@@ -1096,6 +1248,7 @@ module.exports = {
     zh: "丝滑的豆腐花甜品；新加坡福建人叫它 tau huay，配清甜糖水、香兰糖水或椰糖浆。",
     ja: "絹のような豆腐の甘味。シンガポールでは福建語でタウフアイと呼び、澄んだ甘いシロップやパンダン、ヤシ砂糖のシロップをかけます。",
     es: "Postre de cuajada de soja sedosa; en Singapur los hokkien lo llaman tau huay y lo sirven con almíbar claro, de pandan o de gula melaka.",
+    ko: "비단결처럼 부드러운 순두부 디저트로, 싱가포르에서는 호키엔어로 '타우후아이'라 부르며 맑은 설탕물이나 판단, 굴라 멜라카 시럽을 끼얹습니다.",
   },
   "SG::tau sar piah": {
     id: "Pastri berlapis bernama Hokkien, berisi pasta kacang hijau manis atau asin; Jalan Balestier tersohor karenanya, dipimpin Loong Fatt.",
@@ -1104,6 +1257,7 @@ module.exports = {
     zh: "带福建名字的酥皮饼，馅是甜的或咸的绿豆沙；新加坡的马里士他路以此闻名，龙发最有名。",
     ja: "福建語の名をもつ層状の焼き菓子で、餡は甘い、または塩味の緑豆餡。シンガポールではバレスティア通りが名高く、Loong Fatt が筆頭です。",
     es: "Pastel hojaldrado de nombre hokkien relleno de pasta dulce o salada de judía mungo; la Balestier Rd es famosa por él, con Loong Fatt arriba.",
+    ko: "달거나 짭짤한 녹두 소를 채운 겹겹의 호키엔식 과자로, 싱가포르 발레스티어 로드가 유명하며 룽팟이 그 중심입니다.",
   },
   "SG::teh": {
     id: "Bahasa Melayu untuk teh; teh susu panas kopitiam Singapura, diseduh pekat dengan susu kental manis. Ada teh-o dan teh-c.",
@@ -1112,6 +1266,7 @@ module.exports = {
     zh: "马来语的「茶」；新加坡咖啡店的热奶茶，茶要浓，加甜炼奶。另有 teh-o 不加奶、teh-c 用淡奶。",
     ja: "マレー語で「茶」。シンガポールのコピティアムの熱いミルクティーで、濃く淹れて加糖練乳を入れます。ミルクなしのテオ、無糖練乳のテシもあります。",
     es: "«Té» en malayo; el té con leche caliente del kopitiam singapurense, muy cargado y con leche condensada. Variantes: teh-o y teh-c.",
+    ko: "'테'는 말레이어로 차. 싱가포르 코피티암의 뜨거운 밀크티로 진하게 우려 연유를 넣으며, 테오(우유 없음)와 테시(무가당 연유) 등이 있습니다.",
   },
   "SG::teh halia": {
     id: "Bahasa Melayu untuk \"teh jahe\": teh hitam pekat dan manis yang diseduh bersama rimpang jahe dan susu kental manis, andalan kopitiam.",
@@ -1120,6 +1275,7 @@ module.exports = {
     zh: "马来语的「姜茶」：浓甜的红茶与姜块同煮，加甜炼奶；新加坡咖啡店的常备。",
     ja: "マレー語で「生姜茶」。濃く甘い紅茶を生姜の根とともに煮出し、加糖練乳を入れる、コピティアムの定番です。",
     es: "Malayo para «té de jengibre»: té negro fuerte y dulce infusionado con rizoma de jengibre y leche condensada, clásico del kopitiam.",
+    ko: "말레이어로 '생강차'. 진하고 달게 우린 홍차에 생강 뿌리와 연유를 넣은 싱가포르 코피티암의 향신 차입니다.",
   },
   "SG::teh masala": {
     id: "Teh susu berempah kopitiam Singapura: teh hitam diseduh bersama kapulaga, kayu manis, cengkih, dan jahe; sepupu dekat chai masala India.",
@@ -1128,6 +1284,7 @@ module.exports = {
     zh: "新加坡咖啡店的香料奶茶：红茶与豆蔻、肉桂、丁香及姜同煮，与印度的马萨拉茶一脉相通。",
     ja: "シンガポールのコピティアムの香辛料入りミルクティー。紅茶をカルダモン、シナモン、クローブ、生姜とともに煮出す。インドのチャイの近縁。",
     es: "Té con leche especiado de kopitiam singapurense: té negro infusionado con cardamomo, canela, clavo y jengibre, primo del chai masala.",
+    ko: "카르다몸과 계피, 정향, 생강을 넣어 우린 싱가포르 코피티암의 향신 밀크티로, 인도 마살라 차이와 가까운 사이입니다.",
   },
   "SG::teh peng": {
     id: "Es teh kopitiam Singapura; \"peng\" bahasa Hokkien untuk es, jadi teh peng adalah teh hitam dingin dengan susu kental manis dan gula.",
@@ -1136,6 +1293,7 @@ module.exports = {
     zh: "新加坡咖啡店的冻茶；「peng」是福建话的「冰」，teh peng 就是加炼奶与糖的冰红茶。",
     ja: "シンガポールのコピティアムのアイスティー。「ペン」は福建語で氷。加糖練乳と砂糖入りの紅茶を冷たくしたものです。",
     es: "Té helado del kopitiam singapurense; «peng» es «hielo» en hokkien, así que es el té negro con leche condensada y azúcar, pero frío.",
+    ko: "싱가포르 코피티암의 아이스티. '펭'은 호키엔어로 얼음이니 테 펭은 연유와 설탕을 넣은 홍차의 차가운 버전입니다.",
   },
   "SG::teh tarik": {
     id: "«Teh tarik» yang berbusa: teh hitam pekat dengan susu kental manis, dituang bolak-balik antar wadah; asal gerai India-Muslim di Malaya.",
@@ -1144,6 +1302,7 @@ module.exports = {
     zh: "起泡的「拉茶」：浓红茶加炼奶，在两只容器之间反复拉倒起沫；源自马来亚的印度穆斯林摊子。",
     ja: "泡立つ「引き茶」。濃い紅茶に加糖練乳を入れ、容器のあいだで何度も注ぎ分けて泡立てます。マラヤのインド系ムスリムの屋台に由来します。",
     es: "El espumoso «té estirado»: té negro fuerte con leche condensada, trasegado entre recipientes; nació en los puestos indomusulmanes de Malaya.",
+    ko: "거품이 이는 '당긴 차'. 진한 홍차에 연유를 넣고 그릇 사이로 부어 거품을 내며, 말라야의 인도계 무슬림 노점에서 비롯됐습니다.",
   },
   "SG::teh-C": {
     id: "Teh kopitiam dengan susu evaporasi tanpa gula; \"C\" adalah lafal Hainan dari kata yang berarti \"segar\", singkatan untuk susu segar.",
@@ -1152,6 +1311,7 @@ module.exports = {
     zh: "咖啡店的茶，用不加糖的淡奶；「C」是海南话「鲜」的读音，取「鲜奶」之意。",
     ja: "無糖の練乳で作るコピティアムの茶。「C」は海南語の「鮮（新鮮）」の発音で、鮮乳の略です。",
     es: "Té de kopitiam hecho con leche evaporada sin azúcar; la «C» es la pronunciación hainanesa de «fresco», abreviatura de leche fresca.",
+    ko: "무가당 연유를 넣어 만든 코피티암 차로, 'C'는 '신선하다'를 뜻하는 한자의 하이난식 발음에서 온 생우유의 줄임말입니다.",
   },
   "SG::teh-O": {
     id: "Teh kopitiam Singapura yang disaring lewat kain berbentuk kaus kaki, disajikan panas dengan gula tanpa susu; kode \"O\" berarti tanpa susu.",
@@ -1160,6 +1320,7 @@ module.exports = {
     zh: "新加坡咖啡店的茶，用布袋「茶袜」滤过，热饮加糖不加奶；「O」这个暗号就是不要奶。",
     ja: "布の「靴下」で漉したシンガポールのコピティアムの茶。熱く、砂糖入りでミルクなし。合図の「O」がミルク抜きを意味します。",
     es: "Té del kopitiam singapurense filtrado por un «calcetín» de tela, servido caliente con azúcar y sin leche; la clave «O» significa sin leche.",
+    ko: "천 '양말' 필터로 내린 싱가포르 코피티암 차로, 설탕만 넣고 우유는 넣지 않으며 'O'가 바로 우유를 빼라는 표시입니다.",
   },
   "SG::teh-O peng": {
     id: "Pesanan kopitiam: teh hitam dingin, manis tapi tanpa susu — \"teh\" teh, \"O\" hitam dalam Hokkien, \"peng\" es dalam Hokkien.",
@@ -1168,6 +1329,7 @@ module.exports = {
     zh: "咖啡店的点法：冰红茶，加糖不加奶——「teh」是茶，「O」是福建话的黑，「peng」是冰。",
     ja: "コピティアムの注文の型。冷たい紅茶を甘く、ミルクなしで。「テ」は茶、「O」は福建語で黒、「ペン」は氷。",
     es: "Pedido de kopitiam: té negro con hielo, azucarado pero sin leche — «teh» té, «O» negro en hokkien, «peng» hielo.",
+    ko: "코피티암 주문어로 우유 없이 달게 한 아이스 홍차. '테'는 차, 'O'는 호키엔어로 검다, '펭'은 얼음을 뜻합니다.",
   },
   "SG::teochew braised duck": {
     id: "Hidangan Teochew (lor ah); pelokalan Singapura atas angsa braise, memakai bebek yang kurang berbau gibier.",
@@ -1176,6 +1338,7 @@ module.exports = {
     zh: "潮州菜「卤鸭」；这是新加坡对卤鹅的本地化——改用膻味较轻的鸭，从马来西亚或印尼鲜运而来。",
     ja: "潮州料理の滷鴨。新加坡では、獣臭の少ない鴨を用いて滷鵝を作り替えました。鴨はマレーシアやインドネシアから生鮮で運ばれます。",
     es: "Plato teochew (lor ah); la localización singapurense del ganso estofado, con pato de sabor menos montaraz.",
+    ko: "조주식 로아. 조린 거위(로고)를 싱가포르에서 현지화한 것으로, 말레이시아나 인도네시아산 생오리를 써 냄새가 덜합니다.",
   },
   "SG::teochew fish maw soup": {
     id: "Sup jamuan Teochew yang kental dari gelembung renang ikan kering, \"harta laut\" kaya kolagen, direbus dengan iga babi, kerang, dan jamur.",
@@ -1184,6 +1347,7 @@ module.exports = {
     zh: "潮州宴席的浓汤：以干鱼鳔这味富含胶质的「海味」，配排骨、干贝与香菇同炖。",
     ja: "潮州の宴席の濃厚なスープ。コラーゲン豊富な「海の宝」である干し魚の浮き袋を、豚のあばら肉、貝柱、椎茸とともに煮込みます。",
     es: "Sopa espesa de banquete teochew de vejiga natatoria seca, un «tesoro del mar» rico en colágeno, con costilla de cerdo, vieira y setas.",
+    ko: "말린 어표를 쓴 걸쭉한 조주 연회 수프. 콜라겐이 풍부한 '바다의 보물'을 돼지갈비와 관자, 버섯과 함께 끓입니다.",
   },
   "SG::teochew fish soup bee hoon": {
     id: "Teochew Singapura: ikan iris atau goreng dalam kuah bening atau keruh dengan bihun; susu memberi versi gurih lembut.",
@@ -1192,6 +1356,7 @@ module.exports = {
     zh: "新加坡潮州菜：鱼片或炸鱼配米粉，汤可清可奶白；多用生鱼（鳢鱼），加奶便成奶汤版本。",
     ja: "シンガポールの潮州料理。切り身か揚げた魚を、澄んだ、あるいは乳白色のスープでビーフンとともに供します。魚はライギョが多く、牛乳を加えると白濁した仕立てになります。",
     es: "Plato teochew de Singapur: pescado en láminas o frito, en caldo claro o lechoso con fideos de arroz.",
+    ko: "싱가포르 조주 요리. 저미거나 튀긴 생선을 맑거나 뽀얀 국물에 넣고 쌀국수를 더하며, 가물치를 흔히 쓰고 우유로 뽀얗게 냅니다.",
   },
   "SG::teochew oyster cake": {
     id: "Perkedel gaya Fuzhou berbentuk piring kecil: adonan beras penuh tiram, babi cincang, udang, ketumbar, dan kacang, lalu digoreng renyah.",
@@ -1200,6 +1365,7 @@ module.exports = {
     zh: "福州式的碟形炸饼：米浆里塞满蚝、肉碎、虾仁、芫荽与花生，下锅炸到酥脆。",
     ja: "福州式の小皿のような形をした揚げ物。米の生地に牡蠣、豚ひき肉、海老、香菜、落花生をぎっしり詰めてカリッと揚げます。",
     es: "Buñuelo al estilo de Fuzhou con forma de platillo: masa de arroz cargada de ostras, cerdo picado, gambas, cilantro y cacahuete, bien frito.",
+    ko: "접시 모양의 푸저우식 튀김. 쌀 반죽에 굴과 다진 돼지고기, 새우, 고수, 땅콩을 가득 넣어 바삭하게 튀깁니다.",
   },
   "SG::teochew porridge": {
     id: "Bubur nasi Teochew dengan butiran yang utuh dan padat (tidak lembek seperti congee), disajikan bersama banyak lauk kecil berbumbu ringan.",
@@ -1208,6 +1374,7 @@ module.exports = {
     zh: "潮州糜：米粒完整分明，不像广式粥那样绵烂，配上许多调味清淡的小菜。",
     ja: "潮州の粥は、米粒が崩れずにしっかり残り、広東の粥のようにどろりとはしません。味つけの淡い小皿を数多く添えて食べます。",
     es: "Gachas de arroz teochew con el grano entero y firme (no deshecho como el congee), servidas con muchos platillos de sazón suave.",
+    ko: "쌀알이 또렷하게 살아 있는 조주식 죽. 묽은 중국 죽과 달리 되직하며, 담백한 반찬 여러 가지와 함께 냅니다.",
   },
   "SG::teochew steamed pomfret": {
     id: "Klasik Teochew asal Chaoshan: bawal putih utuh dikukus dengan asam boi, sayur asin, tomat, jamur, dan tahu.",
@@ -1216,6 +1383,7 @@ module.exports = {
     zh: "源自潮汕的潮州经典：整条白鲳配酸咸梅、咸菜、番茄、香菇与豆腐清蒸。",
     ja: "潮汕に発する潮州の定番。マナガツオを丸ごと、酸味のある塩漬け梅、漬け菜、トマト、椎茸、豆腐とともに蒸します。",
     es: "Clásico teochew de Chaoshan: palometa blanca entera al vapor con ciruelas saladas ácidas, mostaza encurtida, tomate, setas y tofu.",
+    ko: "조산에서 온 대표적인 조주 요리. 병어 한 마리를 절인 매실과 갓지, 토마토, 버섯, 두부와 함께 쪄냅니다.",
   },
   "SG::thosai sambal": {
     id: "Krep India Selatan dari adonan beras dan lentil terfermentasi, renyah dan sedikit asam; di Singapura disajikan dengan sambar dan chutney.",
@@ -1224,6 +1392,7 @@ module.exports = {
     zh: "南印度薄饼，米与豆的面糊经发酵，煎得酥脆微酸；新加坡多配桑巴汤与各式酸辣酱。",
     ja: "米と豆の生地を発酵させて焼く南インドのクレープ。香ばしく、かすかな酸味があります。シンガポールではサンバルやチャツネを添えます。",
     es: "Crepe del sur de la India de masa fermentada de arroz y lenteja, crujiente y algo ácida; en Singapur se sirve con sambar y chutneys.",
+    ko: "발효한 쌀·렌즈콩 반죽을 얇게 부친 남인도식 전병으로, 바삭하고 살짝 새콤하며 싱가포르에서는 삼바르와 처트니를 곁들입니다.",
   },
   "SG::ti kway / png kueh": {
     id: "Kueh kukus Teochew berbentuk buah persik, kulitnya kenyal dari tepung ketan, berisi nasi ketan gurih, kacang, jamur, dan bawang merah.",
@@ -1232,6 +1401,7 @@ module.exports = {
     zh: "潮州的桃形蒸粿，糯米粉皮软糯，内馅是咸香的糯米饭、花生、香菇与红葱。",
     ja: "桃の形をした潮州の蒸し粿。もち米粉のもっちりした皮に、塩味のもち米、落花生、椎茸、赤わけぎを包みます。",
     es: "Kueh teochew al vapor con forma de melocotón, de piel glutinosa correosa, relleno de arroz glutinoso salado, cacahuete, setas y chalota.",
+    ko: "복숭아 모양으로 빚은 조주식 찐 떡. 쫄깃한 찹쌀가루 피에 찰밥과 땅콩, 버섯, 샬롯을 넣어 짭조름하게 채웁니다.",
   },
   "SG::vadai (SG hawker)": {
     id: "Perkedel lentil goreng India Selatan, renyah di luar dan lembut di dalam; versi gerai Singapura menekan seekor udang utuh ke dalam adonan.",
@@ -1240,6 +1410,7 @@ module.exports = {
     zh: "南印度的炸豆饼，外脆内软；新加坡小贩摊的做法，会在面糊上按进一整只虾。",
     ja: "南インドの豆の揚げ団子。外は香ばしく中はふんわり。シンガポールの屋台版は、生地に海老を一尾まるごと押し込みます。",
     es: "Buñuelo frito de lenteja del sur de la India, crujiente fuera y tierno dentro; en los puestos de Singapur lleva una gamba en la masa.",
+    ko: "겉은 바삭하고 속은 부드러운 남인도식 렌즈콩 튀김으로, 싱가포르 호커식은 반죽에 새우를 통째로 눌러 넣습니다.",
   },
   "SG::wanton mee dry": {
     id: "Mi telur Kanton diaduk kering (kecap lebih sedikit dari Malaysia, kerap cabai/saus tomat), char siu, cai xin; pangsit di sup terpisah.",
@@ -1248,6 +1419,7 @@ module.exports = {
     zh: "广东蛋面干捞拌酱（比马来西亚少放酱油，常加辣椒或番茄酱），配叉烧与菜心；云吞另盛一碗汤。",
     ja: "広東の卵麺をたれで和えた汁なし仕立て。醤油はマレーシア式より控えめで、唐辛子やケチャップを合わせることも。叉焼と青菜を添え、雲吞は別椀のスープに入れます。",
     es: "Fideos de huevo cantoneses en seco (menos soja que en Malasia, con chile o kétchup), char siu y cai xin; wantanes aparte en sopa.",
+    ko: "광둥식 달걀면을 소스에 비벼 낸 요리로, 말레이시아식보다 간장을 적게 쓰고 고추나 케첩을 더하며 차슈와 청경채, 완탕국을 곁들입니다.",
   },
   "SG::wanton mee soup": {
     id: "Sup asal Kanton: mi telur tipis, kaldu babi-ayam, pangsit, char siew, sayur hijau; versi SG memakai kecap lebih sedikit dari HK.",
@@ -1256,6 +1428,7 @@ module.exports = {
     zh: "源自广东的汤面：细蛋面、猪骨鸡汤、云吞、叉烧与青菜；新加坡版本比香港少放酱油。",
     ja: "広東に由来する汁麺。細い卵麺を豚と鶏のスープに沈め、雲吞、叉焼、青菜を添えます。シンガポール版は香港式より醤油を控えます。",
     es: "Sopa de raíz cantonesa: fideos finos de huevo, caldo de cerdo y pollo, wantanes, char siew y verduras; SG usa menos soja que HK.",
+    ko: "광둥에서 온 국수. 가는 달걀면을 돼지·닭 육수에 넣고 완탕과 차슈, 잎채소를 올리며, 싱가포르식은 홍콩식보다 간장을 적게 씁니다.",
   },
   "SG::wat tan hor": {
     id: "Kuetiau goreng Kanton berselimut kuah telur yang licin bersama makanan laut dan daging; \"wat tan\" berarti telur licin.",
@@ -1264,6 +1437,7 @@ module.exports = {
     zh: "粤式炒河粉盖上滑溜的蛋芡，配海鲜与肉片；「滑蛋」正是这道菜名字的由来。",
     ja: "広東式に炒めた平たい米麺に、なめらかな卵あんをかけ、魚介と肉を合わせます。「滑蛋（ワッタン）」とは、そのとろりとした卵のことです。",
     es: "Fideos de arroz salteados al estilo cantonés bajo salsa sedosa de huevo con marisco y carne; «wat tan» es huevo sedoso.",
+    ko: "광둥식으로 볶은 넓적한 쌀국수 위에 해산물과 고기를 넣은 부드러운 달걀 소스를 끼얹은 요리로, '왓탄'은 매끄러운 달걀을 뜻합니다.",
   },
   "SG::winter melon tea": {
     id: "Minuman manis berwarna karamel, dibuat dengan merebus labu lilin bersama gula merah hingga menjadi sirop, lalu disajikan dingin.",
@@ -1272,6 +1446,7 @@ module.exports = {
     zh: "焦糖色的甜饮：冬瓜与红糖慢火熬成糖膏，兑水冰镇后喝。",
     ja: "カラメル色の甘い飲み物。冬瓜を黒糖とじっくり煮詰めてシロップにし、冷やして供します。",
     es: "Bebida dulce de color caramelo: la calabaza de invierno se cuece despacio con azúcar moreno hasta hacer sirope y se sirve fría.",
+    ko: "동과를 흑설탕과 함께 오래 끓여 시럽으로 만든 뒤 차게 내는, 캐러멜빛이 도는 달콤한 음료입니다.",
   },
   "SG::yam ring": {
     id: "Cincin talas tumbuk yang digoreng, diisi tumisan daging atau makanan laut; karya koki Hooi Kok Wai, Dragon Phoenix, Singapura.",
@@ -1280,6 +1455,7 @@ module.exports = {
     zh: "芋泥做成的圆环下锅炸香，中间填入炒好的肉或海鲜；出自新加坡龙凤酒楼厨师许国威之手。",
     ja: "芋（タロイモ）のペーストを輪に成形して揚げ、中に炒めた肉や魚介を盛ります。シンガポールのドラゴン・フェニックス酒楼の料理人ホイ・コックワイの創作です。",
     es: "Aro frito de puré de taro relleno de carne o marisco; obra del chef Hooi Kok Wai, del Dragon Phoenix de Singapur.",
+    ko: "으깬 토란을 고리 모양으로 튀겨 그 안에 볶은 고기나 해산물을 채운 요리로, 싱가포르 드래곤 피닉스의 후이 콕와이 셰프가 만들었습니다.",
   },
   "SG::yang chow fried rice": {
     id: "Nasi goreng Kanton bernama Yangzhou; andalan zi char Singapura, menonjol karena telur, udang, dan char siu-nya.",
@@ -1288,6 +1464,7 @@ module.exports = {
     zh: "以中国扬州命名的粤式炒饭；它是新加坡煮炒的常备菜，特色在于蛋、虾仁与叉烧的组合。",
     ja: "中国の揚州にちなむ広東式の炒飯。シンガポールの煮炒の定番で、卵、海老、叉焼という具の取り合わせが目印です。",
     es: "Arroz frito cantonés bautizado por Yangzhou; fijo del zi char singapurense, con huevo, gambas y char siu.",
+    ko: "중국 양저우에서 이름을 딴 광둥식 볶음밥으로, 달걀과 새우, 차슈를 함께 넣는 점이 싱가포르 즈차의 특징입니다.",
   },
   "SG::yong tau foo": {
     id: "Hidangan Hakka berupa tahu dan sayuran yang diisi pasta ikan atau daging cincang; \"yong\" berarti \"mengisi\". Andalan gerai jajanan Singapura.",
@@ -1296,6 +1473,7 @@ module.exports = {
     zh: "客家菜：豆腐与蔬菜酿入鱼浆或肉碎，「酿」正是塞馅的意思。这是新加坡小贩中心的常备。",
     ja: "客家の料理で、豆腐や野菜に魚のすり身やひき肉を詰めます。「醸（ヨン）」とは詰めることそのもの。シンガポールの屋台の定番です。",
     es: "Plato hakka de tofu y verduras rellenos de pasta de pescado o carne picada; «yong» significa «rellenar». Un fijo de los puestos de Singapur.",
+    ko: "두부와 채소에 생선살이나 다진 고기를 채운 객가 요리로, '용'은 '채워 넣다'라는 뜻이며 싱가포르 호커의 단골 메뉴입니다.",
   },
   "SG::youtiao SG breakfast": {
     id: "Cakwe gandum yang digoreng keemasan, berasal dari Tiongkok; di Singapura orang Hokkien menyebutnya yu char kway, dicelup kopi atau bubur.",
@@ -1304,6 +1482,7 @@ module.exports = {
     zh: "源自中国的金黄炸面棍；新加坡福建人叫它「油炸粿」，蘸咖啡吃，或配粥。",
     ja: "中国由来の黄金色をした揚げパン。シンガポールでは福建語で「ユーチャークエ」と呼び、コーヒーに浸すか粥に添えます。",
     es: "Palito de masa de trigo frito y dorado, de origen chino; en Singapur los hokkien lo llaman yu char kway y lo mojan en café o congee.",
+    ko: "중국에서 온 노릇한 밀반죽 튀김으로, 싱가포르에서는 호키엔어로 '유차꾸에'라 부르며 커피에 찍거나 죽과 함께 먹습니다.",
   },
   "SG::yuan yang": {
     id: "Campuran kopi dan teh susu (3 bagian kopi, 7 bagian teh) asal cha chaan teng Hong Kong; versi kopitiam-nya disebut kopi cham.",
@@ -1312,6 +1491,7 @@ module.exports = {
     zh: "咖啡与奶茶的混合饮品（三份咖啡、七份茶），源自香港茶餐厅；在南洋咖啡店里称作kopi cham。",
     ja: "コーヒーとミルクティーを三対七で混ぜた飲み物。香港の茶餐廳が発祥で、コピティアムではコピ・チャムと呼ばれる。",
     es: "Mezcla de café y té con leche (3 partes de café, 7 de té) nacida en los cha chaan teng de Hong Kong; en el kopitiam se llama kopi cham.",
+    ko: "커피와 밀크티를 3대 7로 섞은 홍콩 차찬텡의 음료로, 코피티암에서는 '코피참'이라 부릅니다.",
   },
   "african::akara": {
     id: "Gorengan Afrika Barat dari kacang tunggak yang dilumat; berasal dari orang Yoruba dan terbawa ke Brasil sebagai acarajé.",
@@ -1320,6 +1500,7 @@ module.exports = {
     zh: "西非的炸豇豆饼，用豆泥炸成；源自约鲁巴人，随人流传到巴西成为acarajé。",
     ja: "ささげ豆をつぶして揚げる西アフリカのコロッケ。ヨルバに由来し、ブラジルへ渡ってアカラジェとなった。",
     es: "Buñuelo frito de África Occidental de frijol carita machacado; nació entre los yoruba y llegó a Brasil como acarajé.",
+    ko: "으깬 동부콩을 튀긴 서아프리카의 음식으로, 요루바에서 비롯돼 브라질에 아카라제로 건너갔습니다.",
   },
   "african::berbere spice": {
     id: "Berbere adalah campuran rempah berbasis cabai dari Etiopia dan Eritrea; namanya dalam bahasa Amhara berarti pedas atau merica.",
@@ -1328,6 +1509,7 @@ module.exports = {
     zh: "Berbere是埃塞俄比亚与厄立特里亚以辣椒为主的混合香料；其阿姆哈拉语名称意为「辣」或「胡椒」。",
     ja: "ベルベレは唐辛子を主体としたエチオピア・エリトリアの混合香辛料。アムハラ語の名は「辛い」「胡椒」を意味する。",
     es: "El berbere es una mezcla de especias etíope y eritrea basada en el chile; su nombre en amárico significa «picante» o «pimienta».",
+    ko: "베르베레는 고추를 바탕으로 한 에티오피아와 에리트레아의 향신료 배합으로, 암하라어 이름은 '맵다' 또는 '고추'를 뜻합니다.",
   },
   "african::biltong": {
     id: "Irisan daging Afrika Selatan yang diawetkan garam dan cuka lalu diangin-anginkan; kerap sapi atau buruan seperti kudu dan burung unta.",
@@ -1336,6 +1518,7 @@ module.exports = {
     zh: "南部非洲的风干肉条，先以盐和醋腌制；多用牛肉或库度羚、鸵鸟等野味。",
     ja: "南部アフリカの、塩と酢で漬けてから風で干す肉の細切り。牛肉のほかクドゥやダチョウなどの野生肉も使う。",
     es: "Tiras de carne del sur de África curadas con sal y vinagre y secadas al aire; a menudo de vacuno o de caza, como kudú o avestruz.",
+    ko: "소금과 식초로 절여 바람에 말린 고기 조각으로, 소고기나 쿠두, 타조 같은 야생 고기를 쓰는 남부 아프리카의 음식입니다.",
   },
   "african::bobotie": {
     id: "Hidangan panggang Afrika Selatan dari daging cincang berbumbu di bawah lapisan telur dan susu; dikembangkan komunitas Cape Malay.",
@@ -1344,6 +1527,7 @@ module.exports = {
     zh: "南非的焗菜：调味肉末上覆一层蛋奶浆烘烤而成；由开普马来社群发展出来。",
     ja: "香辛料を効かせたひき肉に卵と牛乳の生地をかけて焼く南アフリカの料理。ケープ・マレーの人々が育てた。",
     es: "Plato horneado sudafricano de carne picada especiada bajo una cobertura de huevo y leche, creado por la comunidad cabo-malaya.",
+    ko: "향신 다진 고기 위에 달걀과 우유를 부어 구운 남아프리카 요리로, 케이프 말레이 공동체가 발전시켰습니다.",
   },
   "african::bunny chow": {
     id: "Makanan cepat saji India-Afrika Selatan berupa roti tawar yang dikeruk isinya lalu diisi kari.",
@@ -1352,6 +1536,7 @@ module.exports = {
     zh: "南非印度裔的快餐：白面包挖空后填入咖喱。",
     ja: "南アフリカのインド系の軽食。白パンをくり抜き、カレーを詰める。",
     es: "Comida rápida indo-sudafricana: una hogaza de pan blanco ahuecada y rellena de curry.",
+    ko: "속을 파낸 흰 빵 덩어리에 커리를 채운 남아프리카 인도계의 패스트푸드입니다.",
   },
   "african::chakalaka": {
     id: "Sambal sayur Afrika Selatan yang pedas dari tomat, kacang, dan cabai; konon lahir di permukiman tambang emas Johannesburg.",
@@ -1360,6 +1545,7 @@ module.exports = {
     zh: "南非辛辣的蔬菜佐酱，用番茄、豆子与辣椒制成；据说起于约翰内斯堡金矿区的黑人聚居地。",
     ja: "トマト、豆、唐辛子で作る南アフリカの辛い野菜の付け合わせ。ヨハネスブルグの金鉱の集落で生まれたと伝わる。",
     es: "Salsa vegetal picante sudafricana de tomate, alubias y chile; se dice que nació en los townships mineros de Johannesburgo.",
+    ko: "토마토와 콩, 고추로 만든 남아프리카의 매콤한 채소 양념으로, 요하네스버그 금광 지역에서 비롯됐다고 전해집니다.",
   },
   "african::couscous north african": {
     id: "Makanan pokok Berber Maghribi dari butiran semolina gandum durum yang dikukus, disajikan dengan semur daging dan sayuran.",
@@ -1368,6 +1554,7 @@ module.exports = {
     zh: "马格里布柏柏尔人的主食：硬粒小麦粗麦粉蒸成的细粒，配肉与蔬菜的炖汁食用。",
     ja: "マグリブのベルベルの主食。デュラム小麦のセモリナを粒状に蒸し、肉と野菜の煮込みを添える。",
     es: "Alimento básico bereber magrebí de granos de sémola de trigo duro al vapor, servido con un guiso de carne y verduras.",
+    ko: "찐 듀럼밀 세몰리나 알갱이에 고기와 채소 스튜를 곁들이는 마그레브 베르베르의 주식입니다.",
   },
   "african::doro wat": {
     id: "Semur ayam dan telur Etiopia serta Eritrea yang pedas, berdasar berbere dan niter kibbeh; luas dianggap hidangan nasional Etiopia.",
@@ -1376,6 +1563,7 @@ module.exports = {
     zh: "埃塞俄比亚与厄立特里亚的辣味鸡蛋炖菜，以berbere香料与香料酥油为底；普遍被视为埃塞俄比亚的国菜。",
     ja: "ベルベレとニテル・キベを土台にしたエチオピア・エリトリアの辛い鶏肉と卵の煮込み。エチオピアの国民料理とされる。",
     es: "Guiso picante etíope y eritreo de pollo y huevo sobre berbere y niter kibbeh; se tiene por el plato nacional de Etiopía.",
+    ko: "베르베레와 니테르 키베를 바탕으로 한 에티오피아·에리트레아의 매운 닭 달걀 스튜로, 에티오피아의 국민 음식으로 널리 꼽힙니다.",
   },
   "african::egusi soup": {
     id: "Sup Afrika Barat yang kental, dipekatkan biji melon egusi yang kaya protein; berakar pada tradisi kuliner Yoruba.",
@@ -1384,6 +1572,7 @@ module.exports = {
     zh: "西非浓稠的汤品，用富含蛋白质的egusi瓜籽末勾芡；根源在约鲁巴人的饮食传统。",
     ja: "たんぱく質に富むエグシ（瓜の種）を挽いてとろみをつける西アフリカの濃厚なスープ。ヨルバの食の伝統に根を持つ。",
     es: "Sopa espesa de África Occidental ligada con semillas molidas de melón egusi, ricas en proteína; de raíz culinaria yoruba.",
+    ko: "단백질이 풍부한 에구시 멜론 씨를 갈아 걸쭉하게 만든 서아프리카의 수프로, 요루바의 요리 전통에 뿌리를 둡니다.",
   },
   "african::fufu": {
     id: "Makanan pokok Afrika Barat dari singkong atau ubi yang ditumbuk hingga jadi adonan halus dan kenyal; namanya dari kata Akan di Ghana.",
@@ -1392,6 +1581,7 @@ module.exports = {
     zh: "西非的主食：木薯或山药舂捣成光滑而有弹性的面团；名称来自加纳的阿肯语。",
     ja: "キャッサバやヤムイモを搗いて、なめらかで弾力のある生地にする西アフリカの主食。名はガーナのアカン語に由来。",
     es: "Alimento básico de África Occidental de mandioca o ñame majados hasta lograr una masa lisa y elástica; del akan de Ghana.",
+    ko: "카사바나 참마를 찧어 매끄럽고 쫄깃하게 만든 서아프리카의 주식으로, 이름은 가나의 아칸(트위)어에서 왔습니다.",
   },
   "african::ful medames african": {
     id: "Hidangan nasional Mesir dan Sudan dari kacang fava yang ditim lama dengan minyak zaitun, jintan, dan lemon; sejak zaman Lembah Nil kuno.",
@@ -1400,6 +1590,7 @@ module.exports = {
     zh: "埃及与苏丹的国菜：蚕豆慢火煨煮，拌橄榄油、孜然与柠檬；自古尼罗河流域便已食用。",
     ja: "エジプトとスーダンの国民食。ソラマメをじっくり煮て、オリーブオイル、クミン、レモンで和える。古代ナイル以来の食べ物。",
     es: "Plato nacional de Egipto y Sudán: habas cocidas a fuego lento con aceite de oliva, comino y limón; se comen desde el Nilo antiguo.",
+    ko: "잠두를 오래 끓여 올리브유와 커민, 레몬으로 버무린 이집트와 수단의 국민 음식으로, 고대 나일 계곡부터 먹어 왔습니다.",
   },
   "african::injera ethiopian": {
     id: "Roti pipih fermentasi Etiopia dan Eritrea yang masam dan berpori, menurut tradisi dari tepung teff, serealia yang lama dibudidayakan.",
@@ -1408,6 +1599,7 @@ module.exports = {
     zh: "埃塞俄比亚与厄立特里亚的发酵薄饼，带酸味且多孔；传统上以苔麸粉制作，这种谷物在当地驯化已有数千年。",
     ja: "エチオピアとエリトリアの酸味のあるスポンジ状の発酵パン。数千年前に現地で栽培化されたテフの粉で作るのが伝統。",
     es: "Pan plano fermentado, ácido y esponjoso de Etiopía y Eritrea, hecho por tradición con harina de teff, cereal domesticado allí.",
+    ko: "에티오피아와 에리트레아의 새콤하고 폭신한 발효 플랫브레드로, 전통적으로 그곳에서 수천 년 전 재배하기 시작한 테프 가루로 만듭니다.",
   },
   "african::jollof rice": {
     id: "Hidangan nasi Afrika Barat yang dimasak bersama tomat, paprika, dan rempah; berasal dari orang Wolof di kawasan Senegambia.",
@@ -1416,6 +1608,7 @@ module.exports = {
     zh: "西非的米饭菜，与番茄、甜椒及香料同煮；源自塞内冈比亚地区的沃洛夫人。",
     ja: "トマト、ピーマン、香辛料とともに炊く西アフリカの米料理。セネガンビア地域のウォロフの人々に始まる。",
     es: "Plato de arroz de África Occidental cocido con tomate, pimientos y especias; nació entre los wolof de la región de Senegambia.",
+    ko: "토마토와 피망, 향신료를 넣어 지은 서아프리카의 밥 요리로, 세네감비아 지방의 월로프족에게서 비롯됐습니다.",
   },
   "african::mandazi": {
     id: "Adonan goreng manis beraroma kapulaga dari Pesisir Swahili di Afrika Timur, disantap di Kenya, Tanzania, dan Uganda.",
@@ -1424,6 +1617,7 @@ module.exports = {
     zh: "东非斯瓦希里海岸的甜味豆蔻炸面食，肯尼亚、坦桑尼亚与乌干达各地都吃。",
     ja: "東アフリカのスワヒリ海岸の、カルダモンを効かせた甘い揚げパン。ケニア、タンザニア、ウガンダで食べられる。",
     es: "Masa frita dulce con cardamomo de la costa suajili de África Oriental, consumida en Kenia, Tanzania y Uganda.",
+    ko: "카르다몸 향을 넣어 튀긴 동아프리카 스와힐리 해안의 달콤한 반죽으로, 케냐와 탄자니아, 우간다에서 두루 먹습니다.",
   },
   "african::moin moin": {
     id: "Puding kukus Nigeria dari kacang kupas yang dihaluskan bersama cabai dan bawang; berasal dari orang Yoruba di barat daya Nigeria.",
@@ -1432,6 +1626,7 @@ module.exports = {
     zh: "尼日利亚的蒸豆糕：去皮豆子与辣椒、洋葱打成糊后蒸熟；源自尼日利亚西南部的约鲁巴人。",
     ja: "皮をむいた豆を唐辛子や玉ねぎとすりつぶして蒸すナイジェリアのプディング。南西部のヨルバの人々に由来する。",
     es: "Pudin nigeriano al vapor de alubias peladas trituradas con pimientos y cebolla; nació entre los yoruba del suroeste de Nigeria.",
+    ko: "껍질을 벗겨 간 콩과 피망, 양파를 쪄낸 나이지리아의 푸딩으로, 나이지리아 남서부 요루바에서 비롯됐습니다.",
   },
   "african::nyama choma": {
     id: "Bahasa Swahili untuk »daging panggang«: hidangan Afrika Timur dari sapi atau kambing bakar, berakar masakan penggembala Maasai.",
@@ -1440,6 +1635,7 @@ module.exports = {
     zh: "斯瓦希里语意为「烤肉」：东非以牛肉或山羊肉炙烤而成的菜式，根源在马赛牧人的饮食，是肯尼亚的国民美味。",
     ja: "スワヒリ語で「焼いた肉」。牛やヤギを火で焼く東アフリカの料理で、マサイの牧畜民の食に根を持つ。ケニアの国民的な味。",
     es: "«Carne asada» en suajili: plato de África Oriental de vacuno o cabra a la brasa, con raíces en la cocina pastoril masái.",
+    ko: "스와힐리어로 '구운 고기'라는 뜻의 동아프리카 요리로, 마사이 목축민의 조리법에 뿌리를 두며 케냐의 국민 별미입니다.",
   },
   "african::plantain dishes": {
     id: "Hidangan pisang tanduk goreng Afrika Barat: dodo Nigeria adalah pisang tanduk yang digoreng polos.",
@@ -1448,6 +1644,7 @@ module.exports = {
     zh: "西非的炸大蕉菜式：尼日利亚的dodo即是单纯油炸的大蕉。",
     ja: "西アフリカの揚げプランテンの料理。ナイジェリアのドドは、味付けせずに揚げただけのプランテン。",
     es: "Platos de plátano macho frito de África Occidental: el dodo nigeriano es plátano macho simplemente frito.",
+    ko: "서아프리카의 플랜틴 튀김 요리로, 나이지리아에서는 그냥 튀긴 것을 도도라 부릅니다.",
   },
   "african::puff puff": {
     id: "Bola adonan ragi manis Afrika Barat yang digoreng; disebut puff puff di Nigeria, dan buff loaf, beignet, atau botokoin di tempat lain.",
@@ -1456,6 +1653,7 @@ module.exports = {
     zh: "西非的油炸甜发酵面团球；尼日利亚称puff puff，别处叫buff loaf、beignet或botokoin。",
     ja: "西アフリカの甘い発酵生地を丸めて揚げた菓子。ナイジェリアではプフプフ、他所ではベニエやボトコインと呼ばれる。",
     es: "Bolitas fritas de masa dulce fermentada de África Occidental; puff puff en Nigeria, buff loaf, beignet o botokoin en otros países.",
+    ko: "이스트로 부풀린 반죽을 공 모양으로 튀긴 서아프리카의 과자로, 나이지리아에서 이렇게 부르며 지역마다 다른 이름이 있습니다.",
   },
   "african::suya": {
     id: "Daging tusuk panggang berbumbu (biasanya sapi) yang dibalut campuran rempah kacang dan cabai (yaji); dari orang Hausa di Nigeria utara.",
@@ -1464,6 +1662,7 @@ module.exports = {
     zh: "以花生与辣椒调成的yaji香料裹住的烤肉串（多为牛肉）；源自尼日利亚北部的豪萨人。",
     ja: "ピーナッツと唐辛子の香辛料（ヤジ）をまぶした串焼き肉（多くは牛）。ナイジェリア北部のハウサの人々に由来する。",
     es: "Brochetas de carne asada y especiada (casi siempre vacuno) rebozadas en una mezcla de cacahuete y chile (yaji); hausa del norte.",
+    ko: "땅콩과 고추 향신료(야지)를 발라 꼬치에 구운 고기로, 나이지리아 북부 하우사족에게서 비롯됐습니다.",
   },
   "african::tagine north african": {
     id: "Semur Maghribi yang dimasak perlahan dari daging, sayuran, dan rempah; dinamai periuk tanah kerucut berasal Berber tempat memasaknya.",
@@ -1472,6 +1671,7 @@ module.exports = {
     zh: "马格里布的慢炖菜，用肉、蔬菜与香料同焖；名称取自烹煮所用的柏柏尔式锥形陶锅。",
     ja: "肉、野菜、香辛料をじっくり煮込むマグリブの料理。ベルベル起源の円錐形の素焼き鍋にちなむ名。",
     es: "Guiso magrebí de cocción lenta de carne, verduras y especias, llamado así por la cazuela cónica de barro de origen bereber.",
+    ko: "고기와 채소, 향신료를 오래 끓인 마그레브의 스튜로, 베르베르에서 온 원뿔 모양 옹기에서 이름을 땄습니다.",
   },
   "african::ugali": {
     id: "Bubur tepung jagung yang kaku, makanan pokok di seluruh Afrika Timur; muncul setelah jagung sampai ke benua pada abad ke-16-17.",
@@ -1480,6 +1680,7 @@ module.exports = {
     zh: "硬实的玉米面糊，是东非各地的主食；16至17世纪玉米传入非洲之后才出现。",
     ja: "かたく練ったとうもろこし粉の粥。東アフリカ一帯の主食で、16〜17世紀にとうもろこしが伝わってから生まれた。",
     es: "Gachas firmes de harina de maíz, básicas en toda África Oriental; surgieron tras llegar el maíz al continente en los siglos XVI y XVII.",
+    ko: "옥수숫가루를 되직하게 쑨 죽으로 동아프리카 전역의 주식이며, 16~17세기에 옥수수가 대륙에 닿은 뒤 생겨났습니다.",
   },
   "american::american craft beer": {
     id: "Bir dari pabrik kecil yang mandiri di Amerika; gerakannya mulai pada akhir 1970-an, setelah menyeduh sendiri di rumah dilegalkan pada 1978.",
@@ -1488,6 +1689,7 @@ module.exports = {
     zh: "美国小型独立酒厂酿的啤酒；这股风气始于一九七〇年代末，此前一九七八年家酿刚刚合法。",
     ja: "アメリカの小さな独立系醸造所が造るビール。一九七八年に自家醸造が合法化された後、七〇年代末に運動が始まりました。",
     es: "Cerveza de pequeñas fábricas independientes de EE. UU.; el movimiento nació a finales de los setenta, tras legalizarse el homebrewing.",
+    ko: "작고 독립적인 미국 양조장이 빚는 맥주로, 1978년 자가 양조가 합법화된 뒤 1970년대 말부터 흐름이 시작됐습니다.",
   },
   "american::apple pie": {
     id: "Pai panggang berkulit ganda berisi apel berempah; meski ikon Amerika, resep tertuanya berbahasa Inggris, dari akhir tahun 1300-an.",
@@ -1496,6 +1698,7 @@ module.exports = {
     zh: "双层酥皮的烤苹果派：虽是美国的象征，已知最早的方子却是英格兰的，出自十四世纪末。",
     ja: "香辛料を効かせた林檎を二枚の生地で包んで焼くパイ。アメリカの象徴ながら、最古のレシピは英国のもので十四世紀末に遡ります。",
     es: "Tarta de doble masa rellena de manzana especiada; aunque es icono estadounidense, la receta más antigua es inglesa, del siglo XIV.",
+    ko: "향신료를 넣은 사과를 위아래 반죽으로 감싸 구운 파이로, 미국의 상징이지만 가장 오래된 조리법은 1300년대 말 영국의 것입니다.",
   },
   "american::bagel with lox": {
     id: "Hidangan khas deli Yahudi-Amerika: bagel dengan salmon yang diawetkan air garam, lox, dari kata Yiddish laks.",
@@ -1504,6 +1707,7 @@ module.exports = {
     zh: "美国犹太熟食店的招牌：贝果配盐渍三文鱼 lox，那词来自意第绪语的 laks。",
     ja: "アメリカのユダヤ系デリの一品。ベーグルに塩漬けの鮭ロックスを合わせます。名はイディッシュ語の laks から。",
     es: "Plato de las delis judías estadounidenses: un bagel con salmón curado en salmuera (lox, del yidis laks).",
+    ko: "소금물에 절인 연어(록스)를 베이글에 곁들인 미국 유대인 델리 특유의 음식입니다.",
   },
   "american::bbq brisket": {
     id: "Sandung lamur sapi yang diasap perlahan, hidangan barbecue Texas yang ikonis; pengasapannya mula-mula dilakukan di Amerika Serikat.",
@@ -1512,6 +1716,7 @@ module.exports = {
     zh: "慢火烟熏的牛胸肉，是德州烧烤的标志；这样熏它，最早是在美国。",
     ja: "じっくり燻した牛のブリスケット。テキサス・バーベキューを象徴する一皿で、燻す手法は合衆国で始まりました。",
     es: "Falda de ternera ahumada lentamente, plato icónico de la barbacoa de Texas; se empezó a ahumar en Estados Unidos.",
+    ko: "천천히 훈연한 소 양지로, 텍사스 바비큐를 상징하는 요리입니다.",
   },
   "american::bbq pulled pork": {
     id: "Hidangan barbecue Amerika Selatan: bahu babi diasap perlahan hingga empuk, lalu disuwir dan dibalut saus.",
@@ -1520,6 +1725,7 @@ module.exports = {
     zh: "美国南方的烧烤：猪肩肉慢火熏到软烂，撕成丝再拌酱。",
     ja: "アメリカ南部のバーベキュー。豚肩肉をやわらかくなるまでじっくり燻し、ほぐしてソースで和えます。",
     es: "Barbacoa del sur de EE. UU.: paletilla de cerdo ahumada despacio hasta ablandarse, luego deshilachada y aliñada con salsa.",
+    ko: "돼지 목살을 부드러워질 때까지 천천히 훈연한 뒤 결대로 찢어 소스에 버무린 미국 남부의 바비큐입니다.",
   },
   "american::bbq ribs": {
     id: "Iga babi atau sapi yang dimasak perlahan di atas asap dengan bumbu tabur atau saus.",
@@ -1528,6 +1734,7 @@ module.exports = {
     zh: "猪肋排或牛肋排：抹上香料干料或酱汁，在烟里慢火熏烤。",
     ja: "豚や牛のあばら肉を、スパイスをすり込むかソースを塗って、煙の中でじっくり火入れしたもの。",
     es: "Costillas de cerdo o de ternera cocinadas despacio al humo con una mezcla de especias o con salsa.",
+    ko: "돼지나 소의 갈비를 향신료나 소스를 발라 연기에 천천히 익힌 요리입니다.",
   },
   "american::beignet": {
     id: "Adonan ragi berbentuk persegi yang digoreng dan ditaburi gula halus, dibawa ke New Orleans oleh koloni berbahasa Prancis abad ke-18.",
@@ -1536,6 +1743,7 @@ module.exports = {
     zh: "方形的油炸发酵面团，撒上糖粉；18世纪由讲法语的殖民者带到新奥尔良。",
     ja: "四角く切った発酵生地を揚げ、粉砂糖をふる菓子。18世紀にフランス語圏の入植者がニューオーリンズへ伝えた。",
     es: "Cuadrado de masa fermentada frita espolvoreada con azúcar glas, llevado a Nueva Orleans por colonos francófonos en el siglo XVIII.",
+    ko: "발효 반죽을 네모나게 튀겨 슈거파우더를 뿌린 과자로, 18세기 프랑스어권 이주민들이 뉴올리언스에 들여왔습니다.",
   },
   "american::biscuits and gravy": {
     id: "Sarapan Amerika Selatan: biskuit yang lembut disiram kuah putih sosis babi; berakar di Appalachia pada akhir 1800-an.",
@@ -1544,6 +1752,7 @@ module.exports = {
     zh: "美国南方的早餐：松软的司康饼浇上猪肉香肠白酱；根在十九世纪末的阿巴拉契亚。",
     ja: "アメリカ南部の朝食。やわらかいビスケットに、豚ソーセージの白いグレイビーをかけます。十九世紀末のアパラチアに根があります。",
     es: "Desayuno del sur de EE. UU.: bollos blandos bajo una salsa blanca de salchicha de cerdo; arraigado en los Apalaches de finales del XIX.",
+    ko: "부드러운 비스킷에 흰 돼지고기 소시지 그레이비를 끼얹은 미국 남부의 아침 식사로, 1800년대 말 애팔래치아에 뿌리를 둡니다.",
   },
   "american::bourbon": {
     id: "Wiski Amerika yang dimatangkan dalam tong, terutama dari jagung; pada 1964 Kongres mengakuinya sebagai produk khas Amerika Serikat.",
@@ -1552,6 +1761,7 @@ module.exports = {
     zh: "美国的橡木桶陈威士忌，主料是玉米；一九六四年，国会认定它是美国独有的产品。",
     ja: "主にトウモロコシから造り、樽で熟成させるアメリカのウイスキー。一九六四年、議会が合衆国固有の産品と認めました。",
     es: "Whisky estadounidense envejecido en barrica y hecho sobre todo de maíz; en 1964 el Congreso lo reconoció como producto propio de EE. UU.",
+    ko: "주로 옥수수로 빚어 오크통에서 숙성한 미국 위스키로, 1964년 의회가 미국 고유의 산물로 인정했습니다.",
   },
   "american::buffalo wings": {
     id: "Sayap ayam goreng tanpa balutan tepung yang dilumuri saus pedas cayenne-cuka; diciptakan pada 1964 di Anchor Bar, Buffalo, New York.",
@@ -1560,6 +1770,7 @@ module.exports = {
     zh: "水牛城鸡翅：鸡翅不裹粉直接炸，再拌卡宴辣椒与醋调的辣酱；一九六四年生于纽约州水牛城的 Anchor Bar。",
     ja: "衣をつけずに揚げた手羽を、カイエンペッパーと酢の辛いソースで和えた一品。一九六四年、ニューヨーク州バッファローのアンカーバー生まれ。",
     es: "Alitas de pollo fritas sin rebozar bañadas en salsa picante de cayena y vinagre; creadas en 1964 en el Anchor Bar de Buffalo, Nueva York.",
+    ko: "튀김옷 없이 튀긴 닭 날개에 카옌 식초 핫소스를 입힌 요리로, 1964년 뉴욕주 버펄로의 앵커 바에서 만들어졌습니다.",
   },
   "american::cheeseburger": {
     id: "Hamburger yang ditutup selembar keju leleh; konon pertama dibuat pada 1920-an di Pasadena, California, oleh Lionel Sternberger.",
@@ -1568,6 +1779,7 @@ module.exports = {
     zh: "芝士汉堡：肉饼上覆一片融化的奶酪；据说是一九二〇年代加州帕萨迪纳的 Lionel Sternberger 头一个做的。",
     ja: "溶けたチーズを一枚のせたハンバーガー。一九二〇年代、カリフォルニア州パサデナのライオネル・スターンバーガーが最初とされます。",
     es: "Hamburguesa coronada con una loncha de queso fundido; se dice que la hizo primero Lionel Sternberger en Pasadena en los años veinte.",
+    ko: "녹인 치즈 한 장을 올린 햄버거로, 1920년대 캘리포니아 패서디나에서 라이오넬 스턴버거가 처음 만들었다고 전해집니다.",
   },
   "american::cheesecake new york": {
     id: "Kue keju panggang yang padat dan kaya, berbahan dasar krim keju; dipopulerkan di New York pada 1920-an oleh pemilik restoran Arnold Reuben.",
@@ -1576,6 +1788,7 @@ module.exports = {
     zh: "纽约的重乳酪蛋糕：以奶油奶酪为底，扎实浓郁；一九二〇年代由餐馆老板 Arnold Reuben 在纽约带红。",
     ja: "クリームチーズを土台にした、密で濃厚な焼きチーズケーキ。一九二〇年代のニューヨークで、店主アーノルド・ルーベンが広めました。",
     es: "Tarta de queso horneada, densa y rica, con base de queso crema; popularizada en el Nueva York de los años veinte por Arnold Reuben.",
+    ko: "크림치즈를 바탕으로 조밀하고 진하게 구운 치즈케이크로, 1920년대 뉴욕에서 식당 주인 아널드 루번이 널리 알렸습니다.",
   },
   "american::chicago deep dish pizza": {
     id: "Pizza tebal yang dipanggang dalam loyang, berkerak tinggi dan bermentega, dengan keju, isian, dan saus tomat kasar di atasnya.",
@@ -1584,6 +1797,7 @@ module.exports = {
     zh: "芝加哥的深盘披萨：厚身，在模具里烤，饼边高而酥润，奶酪与配料在下，粗粒番茄酱铺在最上。",
     ja: "型で焼く厚いピザ。バターの効いた高い縁に、チーズと具、そして粗く刻んだトマトソースを上から重ねます。",
     es: "Pizza gruesa horneada en molde con borde alto y mantecoso, queso, relleno y salsa de tomate en trozos por encima.",
+    ko: "높고 버터 향 나는 도우에 치즈와 속재료를 넣고 큼직한 토마토소스를 위에 올려 팬에 구운 두툼한 피자입니다.",
   },
   "american::chocolate chip cookie": {
     id: "Kue kering manis yang bertabur keping cokelat; diciptakan Ruth Wakefield di Toll House Inn, Massachusetts, pada akhir 1930-an.",
@@ -1592,6 +1806,7 @@ module.exports = {
     zh: "巧克力豆曲奇：甜饼里嵌满巧克力碎粒；一九三〇年代末由马萨诸塞州 Toll House Inn 的 Ruth Wakefield 创出。",
     ja: "チョコチップを散らした甘い焼き菓子。一九三〇年代末、マサチューセッツのトールハウス・インでルース・ウェイクフィールドが考案しました。",
     es: "Galleta dulce salpicada de pepitas de chocolate; creada por Ruth Wakefield en el Toll House Inn de Massachusetts hacia 1938.",
+    ko: "초콜릿 조각을 박아 구운 달콤한 쿠키로, 1930년대 말 매사추세츠 톨하우스 인에서 루스 웨이크필드가 만들었습니다.",
   },
   "american::clam chowder": {
     id: "Sup New England dari kerang, kentang, babi asin, dan bawang bombai; berasal dari timur laut Amerika pada abad ke-18.",
@@ -1600,6 +1815,7 @@ module.exports = {
     zh: "新英格兰的蛤蜊浓汤：蛤、土豆、咸猪肉与洋葱同煮；十八世纪起于美国东北部。",
     ja: "貝、じゃがいも、塩漬け豚、玉ねぎのニューイングランドのスープ。十八世紀、アメリカ北東部に生まれました。",
     es: "Sopa de Nueva Inglaterra de almejas, patata, cerdo salado y cebolla; nacida en el noreste de EE. UU. en el siglo XVIII.",
+    ko: "조개와 감자, 염장 돼지고기, 양파로 끓인 뉴잉글랜드의 수프로, 18세기 미국 북동부에서 비롯됐습니다.",
   },
   "american::coca-cola": {
     id: "Minuman kola berkarbonasi yang ditemukan pada 1886 oleh apoteker John Pemberton di Atlanta; semula tonik lima sen di air mancur soda.",
@@ -1608,6 +1824,7 @@ module.exports = {
     zh: "含气的可乐汽水：一八八六年由亚特兰大的药剂师 John Pemberton 调出；起初是汽水柜台上五分钱一杯的补剂。",
     ja: "一八八六年、アトランタの薬剤師ジョン・ペンバートンが生んだ炭酸のコーラ飲料。当初はソーダファウンテンの五セントの強壮飲料でした。",
     es: "Refresco de cola con gas inventado en 1886 por el farmacéutico John Pemberton en Atlanta; se vendía como tónico de cinco centavos.",
+    ko: "1886년 애틀랜타의 약사 존 펨버턴이 만든 탄산 콜라 음료로, 본래는 5센트짜리 소다 파운틴 강장제로 팔렸습니다.",
   },
   "american::fried chicken": {
     id: "Hidangan Amerika Selatan: potongan ayam berbalut tepung berbumbu lalu digoreng; lahir dari cara goreng Skotlandia dan bumbu Afrika Barat.",
@@ -1616,6 +1833,7 @@ module.exports = {
     zh: "美国南方的炸鸡：鸡块裹调味面粉，下油锅或平锅煎炸；这道菜生自苏格兰的煎法与西非的调味。",
     ja: "アメリカ南部の料理。味つけした粉をまぶした鶏を揚げるか焼きます。スコットランドの揚げ方と西アフリカの香辛料から生まれました。",
     es: "Plato del sur de EE. UU.: piezas de pollo en harina sazonada, fritas; nació del rebozado escocés y el sazón de África Occidental.",
+    ko: "밀가루를 입혀 튀긴 미국 남부의 닭 요리로, 스코틀랜드의 튀김법과 서아프리카의 양념법이 만나 생겨났습니다.",
   },
   "american::gumbo": {
     id: "Semur Louisiana dari daging atau kerang dengan \"trinitas suci\" dan roux gelap, dikentalkan okra atau file; hidangan resmi negara bagian.",
@@ -1624,6 +1842,7 @@ module.exports = {
     zh: "路易斯安那的浓汤：肉或贝类配上「圣三样」蔬菜与深色油面酱，用秋葵或黄樟粉收稠；二〇〇四年定为州菜。",
     ja: "肉か貝に「聖なる三種」の野菜と黒いルーを合わせるルイジアナの煮込み。オクラかフィレでとろみをつけ、二〇〇四年に州の料理に。",
     es: "Guiso de Luisiana de carne o marisco con la «santa trinidad» y roux oscuro, espesado con okra o filé; plato del estado desde 2004.",
+    ko: "고기나 조개에 '성삼위' 채소와 짙은 루를 넣고 오크라나 필레로 걸쭉하게 끓인 루이지애나 스튜로, 2004년 주 대표 음식이 됐습니다.",
   },
   "american::hamburger": {
     id: "Roti lapis berisi patty daging sapi giling yang dimasak dalam bun belah; merakyat di Amerika dan dinamai dari Hamburg, Jerman.",
@@ -1632,6 +1851,7 @@ module.exports = {
     zh: "汉堡包：煎熟的牛肉饼夹在剖开的圆面包里；在美国流行开来，名字取自德国的汉堡。",
     ja: "焼いた牛挽肉のパティを割ったバンズに挟んだサンド。アメリカで広まり、名はドイツのハンブルクに由来します。",
     es: "Bocadillo de hamburguesa de ternera picada en un panecillo abierto; se popularizó en EE. UU. y toma su nombre de Hamburgo.",
+    ko: "구운 소고기 패티를 반으로 가른 빵에 넣은 샌드위치로, 미국에서 널리 퍼졌고 독일 함부르크에서 이름을 땄습니다.",
   },
   "american::hot dog": {
     id: "Sosis Amerika berasal Jerman, yakni frankfurter atau wiener, disajikan dalam bun belah; namanya muncul di kaki lima AS sekitar 1884.",
@@ -1640,6 +1860,7 @@ module.exports = {
     zh: "热狗：源自德国的法兰克福肠或维也纳肠，夹进剖开的长面包；这名字约一八八四年出自美国街头小贩之口。",
     ja: "ドイツ由来のソーセージ（フランクフルトかウィンナー）を割ったパンに挟んだもの。名は一八八四年ごろ、米国の露天商から広まりました。",
     es: "Salchicha estadounidense de origen alemán en un panecillo abierto; el nombre surgió hacia 1884 entre vendedores callejeros.",
+    ko: "독일에서 온 소시지를 반으로 가른 빵에 넣은 미국 음식으로, 이 이름은 1884년경 미국 길거리 노점에서 비롯됐습니다.",
   },
   "american::jambalaya": {
     id: "Hidangan nasi Louisiana berisi daging, sosis, dan makanan laut bersama aneka sayuran.",
@@ -1648,6 +1869,7 @@ module.exports = {
     zh: "路易斯安那的什锦饭：米与肉、香肠、海鲜及各色蔬菜同煮。",
     ja: "肉、ソーセージ、魚介と野菜を米とともに炊くルイジアナの料理。",
     es: "Plato de arroz de Luisiana con carne, embutido y marisco junto a hortalizas.",
+    ko: "고기와 소시지, 해산물에 채소를 넣어 지은 루이지애나의 쌀 요리입니다.",
   },
   "american::lobster roll": {
     id: "Roti lapis New England berisi daging lobster: dingin dengan mayones di Maine, hangat dengan mentega di Connecticut.",
@@ -1656,6 +1878,7 @@ module.exports = {
     zh: "新英格兰的龙虾卷：缅因州吃冷的、拌蛋黄酱，康涅狄格州吃热的、浇黄油。",
     ja: "ロブスターの身を挟んだニューイングランドのサンド。メイン州では冷たくマヨネーズで、コネチカット州では温かくバターで。",
     es: "Bocadillo de Nueva Inglaterra con carne de bogavante: frío con mayonesa en Maine, caliente con mantequilla en Connecticut.",
+    ko: "랍스터 살을 넣은 뉴잉글랜드 샌드위치로, 메인주에서는 마요네즈에 차갑게, 코네티컷에서는 버터에 따뜻하게 냅니다.",
   },
   "american::mac and cheese": {
     id: "Hidangan penghibur Amerika berupa makaroni dalam saus keju; dipopulerkan James Hemings untuk Jefferson dan oleh kotak Kraft tahun 1937.",
@@ -1664,6 +1887,7 @@ module.exports = {
     zh: "美国的抚慰食物：通心粉裹奶酪酱；先由 James Hemings 为杰斐逊做开，后靠一九三七年卡夫的盒装普及。",
     ja: "マカロニをチーズソースで和えたアメリカの慰めの一皿。ジェファーソンに供したジェームズ・ヘミングスと、一九三七年のクラフトの箱が広めました。",
     es: "Plato reconfortante estadounidense de macarrones en salsa de queso; lo difundieron James Hemings para Jefferson y la caja de Kraft de 1937.",
+    ko: "마카로니를 치즈 소스에 버무린 미국의 위안 음식으로, 제퍼슨을 위해 요리한 제임스 헤밍스와 1937년 크래프트의 상품이 널리 알렸습니다.",
   },
   "american::new york pizza": {
     id: "Pizza berkulit tipis yang besar dan bisa dilipat, dijual per potong; dikembangkan perantau Italia di New York setelah 1905.",
@@ -1672,6 +1896,7 @@ module.exports = {
     zh: "纽约的薄底披萨：大而能对折，论片卖；由意大利移民在纽约做起来，一九〇五年 Lombardi's 开张之后。",
     ja: "折りたためる大きな薄焼きのピザ。一切れずつ売られ、一九〇五年のロンバルディ開店以降、ニューヨークのイタリア移民が育てました。",
     es: "Pizza grande de masa fina que se dobla y se vende por porciones; la desarrollaron inmigrantes italianos en Nueva York tras 1905.",
+    ko: "조각으로 파는 크고 얇아 접어 먹는 피자로, 1905년 롬바르디스가 문을 연 뒤 뉴욕의 이탈리아 이민자들이 발전시켰습니다.",
   },
   "american::pancakes": {
     id: "Panekuk sarapan Amerika yang tebal dan mengembang dari tepung, telur, susu, dan baking powder; ditumpuk, dengan mentega dan sirop mapel.",
@@ -1680,6 +1905,7 @@ module.exports = {
     zh: "美式早餐薄饼：面粉、蛋、牛奶与泡打粉调糊煎成，厚而蓬松；一摞摞叠起，配黄油与枫糖浆。",
     ja: "小麦粉、卵、牛乳、ベーキングパウダーで焼く厚くふんわりしたアメリカの朝食のパンケーキ。重ねて、バターとメープルシロップで。",
     es: "Tortitas americanas gruesas y esponjosas de harina, huevo, leche y levadura; apiladas y servidas con mantequilla y sirope de arce.",
+    ko: "밀가루와 달걀, 우유, 베이킹파우더로 두툼하고 폭신하게 부친 미국식 아침 케이크로, 쌓아서 버터와 메이플 시럽을 곁들입니다.",
   },
   "american::pastrami sandwich": {
     id: "Roti lapis deli Yahudi New York berisi daging sapi awetan berempah di atas roti rai; pertama dijual Sussman Volk sekitar 1887.",
@@ -1688,6 +1914,7 @@ module.exports = {
     zh: "纽约犹太熟食店的三明治：香料腌牛肉夹黑麦面包；约一八八七至八八年，由移民肉贩 Sussman Volk 首卖。",
     ja: "ニューヨークのユダヤ系デリのサンド。香辛料で漬けた牛肉をライ麦パンに挟みます。一八八七〜八八年ごろ、肉屋サスマン・ヴォークが売り始めました。",
     es: "Bocadillo de las delis judías de Nueva York con ternera curada y especiada en pan de centeno; lo vendió primero el carnicero Sussman Volk.",
+    ko: "향신료로 절인 소고기를 호밀빵에 끼운 뉴욕 유대인 델리의 샌드위치로, 1887~88년경 이민자 정육점 주인 서스먼 볼크가 처음 팔았습니다.",
   },
   "american::philly cheesesteak": {
     id: "Roti lapis Philadelphia berisi irisan tipis daging sapi yang dimasak di wajan datar, di atas roti panjang.",
@@ -1696,6 +1923,7 @@ module.exports = {
     zh: "费城的牛肉三明治：薄切牛肉在铁板上煎熟，夹进长面包。",
     ja: "薄切りの牛肉を鉄板で焼き、細長いパンに挟むフィラデルフィアのサンド。",
     es: "Bocadillo de Filadelfia de ternera en lonchas finísimas hecha a la plancha sobre un panecillo alargado.",
+    ko: "얇게 저민 소고기를 철판에 구워 길쭉한 빵에 넣은 필라델피아의 샌드위치입니다.",
   },
   "american::po' boy": {
     id: "Roti lapis panjang New Orleans di atas roti Prancis; konon diciptakan kakak beradik Martin untuk memberi makan pemogok trem pada 1929.",
@@ -1704,6 +1932,7 @@ module.exports = {
     zh: "新奥尔良的长条三明治，用法棍夹馅；相传是马丁兄弟一九二九年为接济罢工的电车工人而做。",
     ja: "フランスパンで作るニューオーリンズのサンド。一九二九年の市電のストで、マーティン兄弟が労働者を養うために生んだと伝えられます。",
     es: "Bocadillo alargado de Nueva Orleans en pan francés; se dice que lo crearon los hermanos Martin para alimentar a los huelguistas de 1929.",
+    ko: "프랑스빵에 속을 채운 뉴올리언스의 샌드위치로, 1929년 전차 파업 때 마틴 형제가 파업 노동자를 먹이려 만들었다고 전해집니다.",
   },
   "american::reuben": {
     id: "Roti lapis panggang Amerika berisi corned beef, sauerkraut, keju Swiss, dan saus Russian di atas roti rai; dikreditkan ke Omaha 1920-an.",
@@ -1712,6 +1941,7 @@ module.exports = {
     zh: "美式的烤三明治：咸牛肉、酸菜、瑞士奶酪与俄式沙拉酱夹黑麦面包；一般归到一九二〇年代的内布拉斯加州奥马哈。",
     ja: "コンビーフ、ザワークラウト、スイスチーズ、ロシアンドレッシングをライ麦パンに挟んで焼くアメリカのサンド。一九二〇年代オマハ発とされます。",
     es: "Sándwich americano a la plancha de carne en conserva, chucrut, queso suizo y aliño ruso en pan de centeno; atribuido a Omaha en los veinte.",
+    ko: "콘비프와 사워크라우트, 스위스 치즈, 러시안 드레싱을 호밀빵에 넣어 구운 미국 샌드위치로, 1920년대 네브래스카 오마하에서 왔다고 봅니다.",
   },
   "american::soul food platter": {
     id: "Masakan Afrika-Amerika dari Selatan yang berakar pada dapur masa perbudakan; sepiringnya biasanya ayam goreng, sawi kolar, dan roti jagung.",
@@ -1720,6 +1950,7 @@ module.exports = {
     zh: "美国南方的非裔菜系，根在奴隶制时期的厨房；一盘里通常有炸鸡、羽衣甘蓝与玉米面包。",
     ja: "奴隷制期の台所に根をもつ、アメリカ南部のアフリカ系の料理。皿にはたいてい、フライドチキン、コラードグリーン、コーンブレッド。",
     es: "Cocina afroamericana del sur de EE. UU. arraigada en los fogones de la esclavitud; el plato suele unir pollo frito, berza y pan de maíz.",
+    ko: "노예제 시대의 요리에 뿌리를 둔 아프리카계 미국인의 남부 음식으로, 프라이드치킨과 콜라드 그린, 콘브레드를 함께 담아 냅니다.",
   },
   "argentinian::alfajores": {
     id: "Dua biskuit lembut yang mengapit dulce de leche, kerap dilapisi gula atau cokelat.",
@@ -1728,6 +1959,7 @@ module.exports = {
     zh: "两片松软的饼干夹住焦糖牛奶酱，外面常裹糖霜或巧克力。",
     ja: "やわらかいビスケット二枚でドゥルセ・デ・レチェを挟んだ菓子。砂糖やチョコレートで覆うことも多い。",
     es: "Dos galletas blandas con dulce de leche entre ellas, a menudo bañadas en azúcar o chocolate.",
+    ko: "부드러운 과자 두 장 사이에 둘세 데 레체를 채운 것으로, 흔히 설탕이나 초콜릿을 겉에 입힙니다.",
   },
   "argentinian::asado": {
     id: "Panggangan api hidup Argentina: daging sapi dan potongan lain dipanggang di atas bara kayu pada parrilla; berakar pada gaucho abad ke-18.",
@@ -1736,6 +1968,7 @@ module.exports = {
     zh: "阿根廷的明火烧烤：牛肉及各式肉块在parrilla铁架上以木炭火烤制；根源在18世纪高乔人的营火。",
     ja: "牛肉をはじめ各部位を薪の熾火の鉄網（パリージャ）で焼くアルゼンチンの直火焼き。18世紀のガウチョの焚き火に始まる。",
     es: "Asado argentino a fuego vivo: carne vacuna y otros cortes sobre brasas de leña en la parrilla; arraigado en el fogón gaucho del XVIII.",
+    ko: "소고기를 비롯한 여러 부위를 파리야에서 장작 숯불에 구운 아르헨티나의 직화 바비큐로, 18세기 가우초의 모닥불 요리에 뿌리를 둡니다.",
   },
   "argentinian::bife de chorizo": {
     id: "Bistik has luar Argentina yang dipotong tebal dengan lapisan lemaknya, dipanggang di atas kayu atau arang untuk asado.",
@@ -1744,6 +1977,7 @@ module.exports = {
     zh: "阿根廷厚切的西冷牛排，带一层脂肪帽；烤肉时置于木柴或炭火上烤制。",
     ja: "脂の層をつけたまま厚く切るアルゼンチンのサーロインステーキ。アサードでは薪や炭の火で焼く。",
     es: "Bife de chorizo argentino, corte grueso del lomo con su tapa de grasa, asado sobre leña o carbón en el asado.",
+    ko: "지방층이 붙은 두툼한 채끝 스테이크로, 아사도에서 장작이나 숯불에 구워 냅니다.",
   },
   "argentinian::cazuela criolla": {
     id: "Semur Amerika Latin dari Kerucut Selatan berbahan daging sapi atau babi.",
@@ -1752,6 +1986,7 @@ module.exports = {
     zh: "拉丁美洲南锥体地区的炖肉菜，用牛肉或猪肉制成。",
     ja: "南米南部（コーノ・スール）の肉の煮込み。牛肉または豚肉を使う。",
     es: "Guiso latinoamericano del Cono Sur elaborado con carne de vacuno o de cerdo.",
+    ko: "소나 돼지고기를 넣어 끓인 라틴아메리카 남부 원뿔 지대의 스튜입니다.",
   },
   "argentinian::chimichurri": {
     id: "Saus herba mentah Argentina dari peterseli, bawang putih, oregano, cuka, dan minyak; dibuat gaucho abad ke-19 untuk daging asado.",
@@ -1760,6 +1995,7 @@ module.exports = {
     zh: "阿根廷不经烹煮的香草酱，用欧芹、大蒜、牛至、醋与油调成；19世纪的高乔人为烤肉而创。",
     ja: "パセリ、ニンニク、オレガノ、酢、油を混ぜるだけのアルゼンチンの生の香草ソース。19世紀のガウチョが焼き肉のために考案。",
     es: "Salsa argentina cruda de perejil, ajo, orégano, vinagre y aceite, creada por los gauchos del siglo XIX para las carnes del asado.",
+    ko: "파슬리와 마늘, 오레가노, 식초, 기름으로 만든 익히지 않은 아르헨티나 허브 소스로, 19세기 가우초가 구운 고기에 곁들이려 만들었습니다.",
   },
   "argentinian::choripán": {
     id: "Roti isi chorizo panggang khas Argentina dan Río de la Plata; namanya menyatukan chorizo dan pan.",
@@ -1768,6 +2004,7 @@ module.exports = {
     zh: "阿根廷及拉普拉塔河一带的烤香肠三明治；名称由chorizo与pan（面包）合成。",
     ja: "焼いたチョリソをパンに挟むアルゼンチン、広くはラプラタ川流域のサンドイッチ。名はchorizoとpanを合わせたもの。",
     es: "Sándwich argentino (y rioplatense) de chorizo a la parrilla; su nombre fusiona chorizo y pan.",
+    ko: "구운 초리소를 빵에 끼운 아르헨티나와 라플라타 지역의 샌드위치로, 이름은 초리소와 빵을 합친 것입니다.",
   },
   "argentinian::dulce de leche": {
     id: "Olesan kental mirip karamel yang dibuat dengan menim susu sapi manis perlahan; ikon Argentina, dirayakan setiap 11 Oktober.",
@@ -1776,6 +2013,7 @@ module.exports = {
     zh: "以加糖牛奶慢火熬煮而成的浓稠焦糖酱；这是阿根廷的标志，每年10月11日为其纪念日。",
     ja: "砂糖を加えた牛乳をじっくり煮詰めて作るキャラメル状の濃厚なスプレッド。アルゼンチンの象徴で、10月11日が記念日。",
     es: "Pasta espesa tipo caramelo obtenida cociendo despacio leche de vaca azucarada; emblema argentino celebrado cada 11 de octubre.",
+    ko: "설탕을 넣은 우유를 천천히 졸여 만든 캐러멜 같은 스프레드로, 아르헨티나의 대표 음식이며 10월 11일을 기념일로 삼습니다.",
   },
   "argentinian::empanada argentina": {
     id: "Pastel adonan gandum yang dipanggang atau digoreng, berisi daging sapi berbumbu, zaitun, dan telur; dibawa penjajah Spanyol ke Argentina.",
@@ -1784,6 +2022,7 @@ module.exports = {
     zh: "以小麦面团烤或炸成的馅饼，内包调味牛肉、橄榄与鸡蛋；由西班牙殖民者带到阿根廷。",
     ja: "小麦生地を焼くか揚げて作るパイ。味付けした牛肉、オリーブ、卵を包む。スペインの入植者がアルゼンチンへ伝えた。",
     es: "Empanada de masa de trigo horneada o frita rellena de carne vacuna especiada, aceitunas y huevo; la trajeron los colonos españoles.",
+    ko: "향신 소고기와 올리브, 달걀을 채워 굽거나 튀긴 밀 반죽 만두로, 스페인 이주민들이 아르헨티나에 들여왔습니다.",
   },
   "argentinian::flan con dulce de leche": {
     id: "Puding karamel panggang Argentina yang dilapisi dulce de leche, kerap dengan krim kocok — lalu disebut flan mixto.",
@@ -1792,6 +2031,7 @@ module.exports = {
     zh: "阿根廷的烤焦糖布丁，面上浇焦糖牛奶酱，常再加打发奶油——这样便称作flan mixto。",
     ja: "焼いたカラメルプリンにドゥルセ・デ・レチェをかけるアルゼンチンの菓子。生クリームも添えると「フラン・ミスト」と呼ぶ。",
     es: "Flan de caramelo horneado argentino cubierto de dulce de leche y, a menudo, crema; entonces se llama flan mixto.",
+    ko: "구운 캐러멜 커스터드 플란에 둘세 데 레체를 올린 아르헨티나 디저트로, 휘핑크림까지 올리면 '플란 믹스토'라 부릅니다.",
   },
   "argentinian::fugazza": {
     id: "Pizza focaccia bawang Argentina tanpa saus tomat, lahir di Buenos Aires dari imigran Genoa; namanya dari kata Liguria »fugassa«.",
@@ -1800,6 +2040,7 @@ module.exports = {
     zh: "阿根廷的洋葱佛卡夏披萨，不用番茄酱；由热那亚移民在布宜诺斯艾利斯创出，名称源自利古里亚方言fugassa。",
     ja: "トマトソースを使わないアルゼンチンの玉ねぎのフォカッチャ・ピザ。ジェノヴァ移民が生み、名はリグーリア語fugassaに由来。",
     es: "Pizza-focaccia argentina de cebolla sin salsa de tomate, nacida en Buenos Aires de inmigrantes genoveses; del ligur «fugassa».",
+    ko: "토마토소스 없이 양파만 올린 아르헨티나의 포카차 피자로, 부에노스아이레스의 제노바 이민자들에게서 왔습니다.",
   },
   "argentinian::humita": {
     id: "Hidangan Andes pra-Hispanik dari pasta jagung segar parut yang dibungkus kelobot lalu dikukus; namanya dari kata Quechua umint'a.",
@@ -1808,6 +2049,7 @@ module.exports = {
     zh: "前西班牙时期的安第斯菜式：新鲜玉米磨成糊，用玉米苞叶包好蒸熟；名称源自克丘亚语umint'a。",
     ja: "すりおろした生のとうもろこしの生地を皮で包んで蒸す、スペイン到来以前のアンデスの料理。名はケチュア語のumint'aに由来。",
     es: "Plato andino prehispánico de pasta de maíz fresco rallado envuelta en chala y cocida al vapor; su nombre viene del quechua umint'a.",
+    ko: "생옥수수를 갈아 옥수수 껍질에 싸서 찐 스페인 이전 안데스 요리로, 이름은 케추아어 우민타에서 왔습니다.",
   },
   "argentinian::locro": {
     id: "Semur kental Andes dari jagung hominy, labu, kacang, dan daging; berasal pra-Kolumbus, di Argentina disantap pada hari raya nasional.",
@@ -1816,6 +2058,7 @@ module.exports = {
     zh: "安第斯的浓稠炖菜，用碱化玉米、南瓜、豆类与肉同煮；源自前哥伦布时期，在阿根廷是国庆日的吃食。",
     ja: "アンデスの濃厚な煮込み。ホミニーのとうもろこし、かぼちゃ、豆、肉を煮る。先コロンブス期に遡り、アルゼンチンでは祝日に食べる。",
     es: "Guiso andino espeso de maíz mote, calabaza, porotos y carne de origen precolombino; en Argentina se come en las fiestas patrias.",
+    ko: "옥수수와 호박, 콩, 고기를 넣은 걸쭉한 안데스 스튜로 콜럼버스 이전에 뿌리를 두며, 아르헨티나에서는 나라의 기념일에 먹습니다.",
   },
   "argentinian::matambre": {
     id: "Potongan daging perut sapi Argentina yang tipis, kerap digulung dengan sayuran dan telur; namanya dari »matar el hambre«.",
@@ -1824,6 +2067,7 @@ module.exports = {
     zh: "阿根廷的薄切腹肉，常卷入蔬菜与鸡蛋做成肉卷；名称由matar（杀）与hambre（饥饿）合成。",
     ja: "薄く切ったアルゼンチンのフランク肉。野菜と卵を巻くことも多く、名はmatar（殺す）とhambre（飢え）の合成。",
     es: "Corte fino argentino de la falda, a menudo arrollado con verduras y huevo; su nombre une «matar» y «hambre».",
+    ko: "아르헨티나의 얇은 채끝 부위로 흔히 채소와 달걀을 넣어 말며, 이름은 '죽이다'와 '배고픔'을 합친 것입니다.",
   },
   "argentinian::mate": {
     id: "Seduhan berkafeina dari daun kering Ilex paraguariensis, diminum dari labu lewat sedotan logam; berakar pada tradisi Guarani.",
@@ -1832,6 +2076,7 @@ module.exports = {
     zh: "以晒干的巴拉圭冬青（Ilex paraguariensis）叶冲泡的含咖啡因饮品，用金属吸管自葫芦壶中吸饮；根源在瓜拉尼人的传统。",
     ja: "乾かしたイェルバマテ（Ilex paraguariensis）の葉を浸すカフェイン飲料。瓢箪の器から金属のストローで飲む、グアラニーの伝統。",
     es: "Infusión con cafeína de hojas secas de Ilex paraguariensis, bebida en calabaza con bombilla de metal; arraigada en la tradición guaraní.",
+    ko: "말린 예르바마테 잎을 우려 호리병에 담아 금속 빨대로 마시는 카페인 음료로, 과라니의 전통에 뿌리를 둡니다.",
   },
   "argentinian::medialunas": {
     id: "Pastri Argentina kecil berbentuk bulan sabit dari keluarga factura, dibuat dengan mentega atau lemak babi; croissant versi Argentina.",
@@ -1840,6 +2085,7 @@ module.exports = {
     zh: "阿根廷factura甜点家族中的小型新月酥，用黄油或猪油制成；是当地对法式可颂的演绎。",
     ja: "アルゼンチンのファクトゥーラ系の小さな三日月形の甘いパン。バターやラードで作る、クロワッサンの現地版。",
     es: "Pequeña factura argentina en forma de media luna, hecha con manteca o grasa; la versión local del cruasán francés.",
+    ko: "버터나 라드로 만든 작고 달콤한 초승달 모양의 아르헨티나 과자로, 프랑스 크루아상을 아르헨티나식으로 풀어낸 것입니다.",
   },
   "argentinian::milanesa": {
     id: "Irisan daging tipis berlapis tepung roti yang digoreng (sapi, ayam, atau babi); dibawa imigran Italia dari cotoletta alla milanese.",
@@ -1848,6 +2094,7 @@ module.exports = {
     zh: "裹面包糠煎炸的薄肉排（牛、鸡或猪）；由意大利移民从米兰的cotoletta alla milanese带来。",
     ja: "薄い肉（牛・鶏・豚）にパン粉をつけて揚げるカツレツ。イタリア移民がミラノのコトレッタから持ち込んだ。",
     es: "Filete fino de carne empanado y frito (vacuno, pollo o cerdo); lo trajeron los inmigrantes italianos de la cotoletta a la milanesa.",
+    ko: "소나 닭, 돼지고기를 얇게 저며 빵가루를 입혀 튀긴 커틀릿으로, 밀라노의 코톨레타에서 이탈리아 이민자들이 아르헨티나에 들여왔습니다.",
   },
   "argentinian::morcilla": {
     id: "Sosis darah Argentina dari darah babi, lemak, dan rempah; berasal dari Spanyol dan menjadi menu tetap panggangan asado.",
@@ -1856,6 +2103,7 @@ module.exports = {
     zh: "阿根廷的血肠，用猪血、脂肪与香料灌制；源自西班牙，是烤肉席上的常客。",
     ja: "豚の血と脂、香辛料で作るアルゼンチンの血のソーセージ。スペイン由来で、アサードには欠かせない。",
     es: "Morcilla argentina de sangre de cerdo, grasa y especias; de origen español y presencia fija en el asado.",
+    ko: "돼지 피와 지방, 향신료로 만든 아르헨티나의 선지 소시지로, 스페인에서 왔으며 아사도의 단골입니다.",
   },
   "argentinian::parrilla mixta": {
     id: "Panggangan campur Argentina (parrillada) berisi aneka potongan asado bersama sosis seperti chorizo dan morcilla, sosis darah.",
@@ -1864,6 +2112,7 @@ module.exports = {
     zh: "阿根廷的什锦烤肉拼盘（parrillada），集各式烤肉部位，另配chorizo香肠与血肠morcilla。",
     ja: "各部位の焼き肉を盛り合わせたアルゼンチンのパリジャーダ。チョリソやモルシージャ（血のソーセージ）も添える。",
     es: "Parrillada argentina con cortes surtidos del asado servidos junto a embutidos como el chorizo y la morcilla.",
+    ko: "여러 아사도 부위를 초리소와 모르시야 같은 소시지와 함께 내는 아르헨티나의 모둠 구이입니다.",
   },
   "argentinian::pizza fugazzeta": {
     id: "Pizza isi Argentina dari dua lembar adonan yang mengapit mozzarella dan ditutupi bawang; lahir di La Boca, Buenos Aires.",
@@ -1872,6 +2121,7 @@ module.exports = {
     zh: "阿根廷的夹馅披萨：两张面饼夹住马苏里拉奶酪，面上铺洋葱；起于布宜诺斯艾利斯的博卡区。",
     ja: "二枚の生地でモッツァレラを挟み、上に玉ねぎをのせるアルゼンチンの詰め物ピザ。ブエノスアイレスのラ・ボカ発祥。",
     es: "Pizza rellena argentina de dos discos de masa con mozzarella dentro y cebolla encima; nacida en La Boca, Buenos Aires.",
+    ko: "반죽 두 장 사이에 모차렐라를 채우고 위에 양파를 올린 아르헨티나의 속을 채운 피자로, 부에노스아이레스 라보카에서 비롯됐습니다.",
   },
   "argentinian::provoleta": {
     id: "Pembuka asado Argentina berupa irisan tebal keju provolone yang dipanggang hingga berkerak dan meleleh.",
@@ -1880,6 +2130,7 @@ module.exports = {
     zh: "阿根廷烤肉的前菜：厚切普罗沃洛内奶酪上火烤至表面结壳、内里流心。",
     ja: "厚切りのプロヴォローネを網で焼き、表面を香ばしく中をとろりとさせるアルゼンチンのアサードの前菜。",
     es: "Entrada del asado argentino: una rodaja gruesa de provolone asada hasta quedar crocante por fuera y fundida por dentro.",
+    ko: "두툼하게 썬 프로볼로네를 겉은 바삭하고 속은 늘어나게 구운 아르헨티나 아사도의 전채입니다.",
   },
   "argentinian::tira de asado": {
     id: "Hidangan asado Argentina dari iga sapi yang dipotong melintang tulang menjadi jalur panjang, digarami lalu dipanggang di atas bara.",
@@ -1888,6 +2139,7 @@ module.exports = {
     zh: "阿根廷烤肉菜式：牛肋排横切过骨切成长条，抹盐后置于炭火上烤。",
     ja: "牛のスペアリブを骨ごと横に切って長い帯状にし、塩をして熾火で焼くアルゼンチンのアサード。",
     es: "Plato del asado argentino de costillas vacunas cortadas a lo ancho del hueso en tiras largas, saladas y asadas sobre las brasas.",
+    ko: "소갈비를 뼈째 가로로 길게 썰어 소금을 뿌려 숯불에 구운 아르헨티나 아사도 요리입니다.",
   },
   "argentinian::vacio steak": {
     id: "Potongan sapi Argentina dari sisi perut antara iga dan pinggul; kesukaan di asado, dipanggang perlahan di bara dengan lemaknya.",
@@ -1896,6 +2148,7 @@ module.exports = {
     zh: "阿根廷取自肋骨与臀部之间腹侧的牛肉；是烤肉的心头好，连脂肪帽一起在炭火上慢烤。",
     ja: "肋骨と腰の間の腹側から取るアルゼンチンの牛肉。アサードで愛され、脂の層をつけたまま炭火でゆっくり焼く。",
     es: "Corte argentino del vacío, entre las costillas y la cadera; favorito del asado, asado despacio sobre brasas con su capa de grasa.",
+    ko: "갈비와 엉덩이 사이 옆구리에서 나오는 아르헨티나의 소고기 부위로, 지방층을 붙인 채 숯불에 천천히 구워 아사도에서 사랑받습니다.",
   },
   "australasia::antipodean cafe brunch": {
     id: "Gaya brunch kafe Australia dan Selandia Baru yang berpusat pada telur rebus setengah, alpukat lumat di atas roti panggang, dan flat white.",
@@ -1904,6 +2157,7 @@ module.exports = {
     zh: "澳大利亚与新西兰的咖啡馆早午餐风格，核心是水波蛋、压碎的牛油果吐司与flat white咖啡。",
     ja: "ポーチドエッグ、つぶしたアボカドのトースト、フラットホワイトを軸にしたオーストラリア・ニュージーランド流のカフェのブランチ。",
     es: "Estilo de brunch de café australiano y neozelandés centrado en huevos escalfados, aguacate machacado sobre tostada y un flat white.",
+    ko: "수란과 으깬 아보카도 토스트, 플랫 화이트를 중심으로 차리는 호주와 뉴질랜드의 카페 브런치 방식입니다.",
   },
   "australasia::breadfruit roasted": {
     id: "Makanan pokok Pasifik yang bertepung, dipanggang utuh di atas api atau dalam oven tanah (umu/imu); tradisi Polinesia ribuan tahun.",
@@ -1912,6 +2166,7 @@ module.exports = {
     zh: "太平洋岛屿富含淀粉的主食：面包果整只置于明火或地炉（umu/imu）中烤熟；这是延续数千年的波利尼西亚传统。",
     ja: "太平洋のでんぷん質の主食。パンノキの実を丸ごと火や土窯（ウム／イム）で焼く、数千年続くポリネシアの習わし。",
     es: "Alimento básico feculento del Pacífico: fruto del pan asado entero al fuego o en horno de tierra (umu/imu); tradición polinesia milenaria.",
+    ko: "빵나무 열매를 통째로 불이나 땅화덕(우무·이무)에 구워 먹는 태평양의 전분 주식으로, 수천 년 이어진 폴리네시아의 전통입니다.",
   },
   "australasia::cassava cake pacific": {
     id: "Vakalolo adalah hidangan penutup tradisional Fiji: singkong parut dicampur kelapa dan gula, lalu dikukus dalam daun pisang.",
@@ -1920,6 +2175,7 @@ module.exports = {
     zh: "Vakalolo是斐济传统的甜点：木薯擦丝拌椰肉与糖，用香蕉叶包好蒸熟。",
     ja: "ヴァカロロはフィジーの伝統的なデザート。すりおろしたキャッサバにココナッツと砂糖を混ぜ、バナナの葉で包んで蒸す。",
     es: "El vakalolo es un postre tradicional fiyiano: mandioca rallada mezclada con coco y azúcar y cocida al vapor en hojas de plátano.",
+    ko: "바칼롤로는 간 카사바에 코코넛과 설탕을 섞어 바나나잎에 싸서 쪄낸 피지의 전통 디저트입니다.",
   },
   "australasia::chop suey samoan": {
     id: "Hidangan nasional Samoa dari mi soun, daging, dan sayuran dalam saus kecap jahe; dibawa buruh Tionghoa pada awal 1900-an.",
@@ -1928,6 +2184,7 @@ module.exports = {
     zh: "萨摩亚的国菜：粉丝、肉与蔬菜以酱油姜汁烹炒；1900年代初由华工带来。",
     ja: "春雨、肉、野菜を醤油と生姜のソースで炒めるサモアの国民料理。1900年代初頭、中国人労働者が持ち込んだ。",
     es: "Plato nacional de Samoa de fideos de soja, carne y verduras en salsa de soja y jengibre; lo trajeron obreros chinos hacia 1900.",
+    ko: "당면과 고기, 채소를 간장 생강 소스에 볶은 사모아의 국민 음식으로, 1900년대 초 중국인 노동자들이 들여왔습니다.",
   },
   "australasia::coconut bread": {
     id: "Roti ragi Samoa yang lembut dan manis, dipanggang dengan santan kelapa yang dimaniskan atau krim kelapa.",
@@ -1936,6 +2193,7 @@ module.exports = {
     zh: "萨摩亚柔软的甜发酵小面包，用加糖的椰奶或椰浆烘焙而成。",
     ja: "甘くしたココナッツミルク、あるいはココナッツクリームで焼くサモアのやわらかい甘い発酵パン。",
     es: "Bollos samoanos dulces y esponjosos de masa fermentada, horneados con leche de coco endulzada o crema de coco.",
+    ko: "달콤한 코코넛밀크나 코코넛크림으로 구운 사모아의 부드러운 발효 빵입니다.",
   },
   "australasia::coconut crab samoan": {
     id: "Ūū adalah ketam kelapa Samoa (Birgus latro), artropoda darat terbesar di dunia dan disantap sebagai santapan istimewa.",
@@ -1944,6 +2202,7 @@ module.exports = {
     zh: "Ūū是萨摩亚人对椰子蟹（Birgus latro）的称呼，这是世上最大的陆生节肢动物，被当作珍馐。",
     ja: "ウーウーはサモアのヤシガニ（Birgus latro）。世界最大の陸生節足動物で、珍味として食される。",
     es: "El ūū es el cangrejo de los cocoteros samoano (Birgus latro), el mayor artrópodo terrestre del mundo y un manjar muy apreciado.",
+    ko: "우우는 사모아의 야자집게로, 세계에서 가장 큰 육상 절지동물이며 귀한 별미로 먹습니다.",
   },
   "australasia::faiakai chop": {
     id: "Faikakai adalah hidangan penutup tradisional Tonga: pangsit disajikan dalam sirop karamel kelapa (lolo), khusus untuk pesta.",
@@ -1952,6 +2211,7 @@ module.exports = {
     zh: "Faikakai是汤加传统的甜点：面团团子浸在椰香焦糖糖浆（lolo）里，只在宴席上才做。",
     ja: "ファイカカイはトンガの伝統的なデザート。団子をココナッツのキャラメルシロップ（ロロ）に浸し、祝宴のときだけ作る。",
     es: "El faikakai es un postre tradicional tongano: bolas de masa servidas en un almíbar dulce de coco y caramelo (lolo), propio de fiestas.",
+    ko: "파이카카이는 달콤한 코코넛 캐러멜 시럽(롤로)에 경단을 넣어 내는 통가의 전통 디저트로, 잔치에만 만듭니다.",
   },
   "australasia::hangi style cooking": {
     id: "Cara memasak tradisional Māori: daging, kūmara, dan sayuran dimatangkan oleh uap dan panas batu di lubang tanah yang ditutup.",
@@ -1960,6 +2220,7 @@ module.exports = {
     zh: "毛利人传统的烹饪法：肉、kūmara甘薯与蔬菜靠热石的蒸汽与余温，在覆盖的土坑中焖熟。",
     ja: "マオリの伝統的な調理法。肉、クマラ、野菜を、覆いをした土の穴の熱した石の蒸気と熱で火を通す。",
     es: "Método de cocción maorí tradicional: carne, kūmara y verduras cocidas al vapor y calor de piedras en un hoyo de tierra tapado.",
+    ko: "달군 돌 위에서 고기와 쿠마라, 채소를 흙 구덩이에 덮어 증기와 열로 익히는 마오리의 전통 조리법입니다.",
   },
   "australasia::island lobster": {
     id: "Lobster batu berduri tanpa capit (Panulirus) dari Indo-Pasifik, dihargai di seluruh kepulauan Pasifik dan kerap dipanggang atau dikari.",
@@ -1968,6 +2229,7 @@ module.exports = {
     zh: "印度洋—太平洋的无螯龙虾（Panulirus属），在太平洋各岛备受珍视，多以炙烤或咖喱烹调。",
     ja: "インド太平洋のはさみを持たないイセエビ（Panulirus属）。太平洋の島々で珍重され、焼くかカレーにして食べる。",
     es: "Langosta espinosa sin pinzas (Panulirus) del Indopacífico, apreciada en las islas del Pacífico y que suele asarse o guisarse al curry.",
+    ko: "집게가 없는 인도태평양의 닭새우로, 태평양 섬 전역에서 귀히 여기며 흔히 굽거나 카레로 냅니다.",
   },
   "australasia::kaipake plate": {
     id: "Tidak ditemukan hidangan Australasia atau Māori bernama »kaipake«; kata Māori terdekat, »kaipuke«, berarti kapal, bukan makanan.",
@@ -1976,6 +2238,7 @@ module.exports = {
     zh: "未见有名为「kaipake」的澳新或毛利菜肴的记载；最接近的真实毛利词「kaipuke」意为船，而非食物。",
     ja: "「kaipake」という名のオーストララシアやマオリの料理は確認できない。最も近い実在のマオリ語「kaipuke」は船を意味し、食べ物ではない。",
     es: "No se halló ningún plato australasiático o maorí llamado «kaipake»; la palabra maorí más próxima, «kaipuke», significa barco, no comida.",
+    ko: "'kaipake'라는 이름의 오세아니아나 마오리 요리는 확인되지 않으며, 가장 가까운 실제 마오리 낱말 'kaipuke'는 음식이 아니라 배를 뜻합니다.",
   },
   "australasia::kokoda": {
     id: "Salad ikan mentah Fiji: ikan putih diawetkan dalam air jeruk lalu dibalut krim kelapa segar (lolo), tomat, dan cabai.",
@@ -1984,6 +2247,7 @@ module.exports = {
     zh: "斐济的生鱼沙拉：白肉鱼以柑橘汁腌熟，再拌新鲜椰浆（lolo）、番茄与辣椒。",
     ja: "白身魚を柑橘の汁で締め、生のココナッツクリーム（ロロ）、トマト、唐辛子で和えるフィジーの生魚のサラダ。",
     es: "Ensalada fiyiana de pescado crudo: pescado blanco curado en zumo de cítricos y aliñado con crema de coco fresca (lolo), tomate y chile.",
+    ko: "흰살생선을 감귤즙에 절여 생코코넛크림(롤로)과 토마토, 고추로 버무린 피지의 생선 샐러드입니다.",
   },
   "australasia::lovo": {
     id: "Pesta Fiji tradisional yang dimasak di oven tanah berisi batu panas; daging, ikan, dan umbi dibungkus daun pisang.",
@@ -1992,6 +2256,7 @@ module.exports = {
     zh: "斐济传统的盛宴，在铺满热石的地炉中烹制；肉、鱼与根茎作物用香蕉叶包裹。",
     ja: "焼け石を敷いた土窯で作るフィジーの伝統的なごちそう。肉、魚、いも類をバナナの葉で包んで蒸し焼きにする。",
     es: "Banquete fiyiano tradicional cocinado en un horno de tierra con piedras calientes; carne, pescado y tubérculos en hojas de plátano.",
+    ko: "달군 돌을 깐 땅화덕에서 고기와 생선, 뿌리작물을 바나나잎에 싸서 익히는 피지의 전통 잔치입니다.",
   },
   "australasia::luau pig": {
     id: "Babi utuh yang dipanggang perlahan dalam imu, oven batu panas bawah tanah.",
@@ -2000,6 +2265,7 @@ module.exports = {
     zh: "整猪在imu（地下热石炉）中慢烤而成。",
     ja: "地下に掘った焼け石の窯（イム）で丸ごとじっくり焼く豚。",
     es: "Cerdo entero asado lentamente en un imu, horno subterráneo de piedras calientes.",
+    ko: "달군 돌을 깐 땅화덕(이무)에서 돼지를 통째로 천천히 구운 요리입니다.",
   },
   "australasia::oka i'a": {
     id: "Hidangan ikan mentah Samoa: ikan dadu diawetkan air jeruk nipis lalu dibalut krim kelapa dengan bawang, tomat, dan mentimun.",
@@ -2008,6 +2274,7 @@ module.exports = {
     zh: "萨摩亚的生鱼菜：鱼切丁以青柠汁腌熟，再拌椰浆与洋葱、番茄及黄瓜。",
     ja: "角切りの魚をライム汁で締め、ココナッツクリームに玉ねぎ、トマト、キュウリとともに和えるサモアの生魚料理。",
     es: "Plato samoano de pescado crudo: dados de pescado curados en zumo de lima y aliñados en crema de coco con cebolla, tomate y pepino.",
+    ko: "생선을 깍둑 썰어 라임즙에 절이고 코코넛크림과 양파, 토마토, 오이로 버무린 사모아의 생선 요리입니다.",
   },
   "australasia::palusami": {
     id: "Bungkusan Samoa berisi krim kelapa yang dibalut daun talas muda, dipanggang atau dikukus dalam umu; disantap di seluruh Polinesia.",
@@ -2016,6 +2283,7 @@ module.exports = {
     zh: "萨摩亚的包裹菜：椰浆裹入嫩芋叶中，在umu土炉里烤或蒸；波利尼西亚各地都吃。",
     ja: "ココナッツクリームを若いタロイモの葉で包み、ウムで焼くか蒸すサモアの料理。ポリネシア各地で食べられる。",
     es: "Paquetitos samoanos de crema de coco envuelta en hojas jóvenes de taro, horneados o al vapor en un umu; se comen en toda Polinesia.",
+    ko: "어린 토란잎에 코코넛크림을 싸서 우무에 굽거나 쪄낸 사모아 요리로, 폴리네시아 전역에서 먹습니다.",
   },
   "australasia::pasifika fusion plate": {
     id: "Gaya masakan Kepulauan Pasifik kontemporer Selandia Baru yang menafsir ulang masakan rumahan dari talas, krim kelapa, dan boga bahari.",
@@ -2024,6 +2292,7 @@ module.exports = {
     zh: "新西兰当代的太平洋岛屿菜风格，把以芋头、椰浆与海产为本的家常菜重新演绎。",
     ja: "タロイモ、ココナッツクリーム、魚介を土台にした家庭料理を読み替える、ニュージーランドの現代的な太平洋諸島料理のスタイル。",
     es: "Estilo neozelandés contemporáneo de cocina de las islas del Pacífico que reinterpreta platos caseros de taro, crema de coco y marisco.",
+    ko: "토란과 코코넛크림, 해산물을 바탕으로 한 태평양 섬의 집밥을 새롭게 풀어낸 오늘날 뉴질랜드의 요리 방식입니다.",
   },
   "australasia::sapasui": {
     id: "Tumisan Samoa dari mi bihun, daging, dan sayuran dalam kecap asin.",
@@ -2032,6 +2301,7 @@ module.exports = {
     zh: "萨摩亚的炒粉丝，与肉、蔬菜及酱油同炒。",
     ja: "春雨に肉と野菜を合わせ、醤油で炒めるサモアの料理。",
     es: "Salteado samoano de fideos finos, carne y verduras en salsa de soja.",
+    ko: "당면과 고기, 채소를 간장에 볶은 사모아 요리입니다.",
   },
   "australasia::taro leaves coconut": {
     id: "Palusami adalah hidangan Samoa: daun talas muda membungkus krim kelapa lalu dipanggang atau dikukus, menurut tradisi di oven tanah umu.",
@@ -2040,6 +2310,7 @@ module.exports = {
     zh: "Palusami是萨摩亚的菜式：嫩芋叶包住椰浆，再烤或蒸熟，传统上在umu土炉中完成。",
     ja: "パルサミはサモアの料理。若いタロイモの葉でココナッツクリームを包み、伝統的には土窯ウムで焼くか蒸す。",
     es: "El palusami es un plato samoano: hojas jóvenes de taro envueltas en crema de coco, horneadas o al vapor, por tradición en un umu.",
+    ko: "팔루사미는 어린 토란잎에 코코넛크림을 싸서 전통적으로 우무 땅화덕에 굽거나 쪄내는 사모아 요리입니다.",
   },
   "australasia::umu": {
     id: "Oven tanah tradisional Samoa dan Polinesia di atas permukaan: batu vulkanik panas memasak talas, babi, dan ikan yang dibungkus daun.",
@@ -2048,6 +2319,7 @@ module.exports = {
     zh: "萨摩亚与波利尼西亚传统的地面石炉：用烧热的火山石烹熟包在叶子里的芋头、猪肉与鱼。",
     ja: "サモアをはじめポリネシアの地上式の石窯。熱した火山石で、葉に包んだタロイモ、豚肉、魚を焼き上げる。",
     es: "Horno de tierra tradicional samoano y polinesio en superficie, con piedras volcánicas calientes para cocer taro, cerdo y pescado en hojas.",
+    ko: "달군 화산암으로 토란과 돼지고기, 생선을 잎에 싸서 익히는 사모아와 폴리네시아의 전통 지상 화덕입니다.",
   },
   "australian::anzac biscuit": {
     id: "Biskuit manis Australia dan Selandia Baru dari oat, kelapa, tepung, mentega, dan sirop emas.",
@@ -2056,6 +2328,7 @@ module.exports = {
     zh: "澳新的甜饼干：燕麦片、椰丝、面粉、黄油与金黄糖浆做成。",
     ja: "オーツ麦、ココナッツ、小麦粉、バター、ゴールデンシロップで焼くオーストラリアとニュージーランドの甘い焼き菓子。",
     es: "Galleta dulce australiana y neozelandesa de copos de avena, coco, harina, mantequilla y sirope dorado.",
+    ko: "귀리와 코코넛, 밀가루, 버터, 골든시럽으로 만든 호주와 뉴질랜드의 달콤한 과자입니다.",
   },
   "australian::aussie burger": {
     id: "Hamburger Australia yang diisi segalanya: daging sapi, telur goreng, bacon, nanas, dan bit kalengan.",
@@ -2064,6 +2337,7 @@ module.exports = {
     zh: "澳式汉堡「全都要」：牛肉饼、煎蛋、培根、菠萝，还有罐头甜菜根。",
     ja: "「全部のせ」のオーストラリアのハンバーガー。牛肉、目玉焼き、ベーコン、パイナップル、缶詰のビーツ。",
     es: "Hamburguesa australiana con todo: ternera, huevo frito, beicon, piña y remolacha en conserva.",
+    ko: "소고기와 달걀 프라이, 베이컨, 파인애플, 통조림 비트를 모두 올린 호주식 햄버거입니다.",
   },
   "australian::australian bbq": {
     id: "Tradisi barbecue Australia di ruang terbuka.",
@@ -2072,6 +2346,7 @@ module.exports = {
     zh: "澳洲的户外烧烤传统。",
     ja: "戸外で焼くオーストラリアのバーベキューの習わし。",
     es: "Tradición australiana de la barbacoa al aire libre.",
+    ko: "야외에서 함께 굽는 호주의 바비큐 전통입니다.",
   },
   "australian::australian wine": {
     id: "Anggur yang dibuat di Australia sejak pokok pertama ditanam di Sydney pada 1788; kini tersohor karena Shiraz.",
@@ -2080,6 +2355,7 @@ module.exports = {
     zh: "澳洲的葡萄酒：自一七八八年悉尼种下第一批藤起就在酿；如今以设拉子最负盛名。",
     ja: "一七八八年、シドニーに最初の葡萄が植えられて以来のオーストラリアのワイン。今日ではシラーズで名高い。",
     es: "Vino elaborado en Australia desde que se plantaron las primeras vides en Sídney en 1788; hoy célebre por su shiraz.",
+    ko: "1788년 시드니에 처음 포도나무를 심은 뒤로 이어진 호주 와인으로, 지금은 시라즈로 이름났습니다.",
   },
   "australian::avocado toast": {
     id: "Alpukat yang dilumatkan atau diiris di atas roti panggang; dipopulerkan pada 1993 di kafe Bills milik Bill Granger di Sydney.",
@@ -2088,6 +2364,7 @@ module.exports = {
     zh: "牛油果吐司：果肉压碎或切片铺在烤面包上；一九九三年由悉尼 Bill Granger 的咖啡馆 Bills 带红。",
     ja: "潰した、あるいは切ったアボカドをトーストにのせた一皿。一九九三年、シドニーのビル・グレンジャーの店 Bills が広めました。",
     es: "Aguacate machacado o en láminas sobre pan tostado; lo popularizó en 1993 el café Bills de Bill Granger, en Sídney.",
+    ko: "으깨거나 저민 아보카도를 토스트에 올린 것으로, 1993년 시드니 빌 그레인저의 카페 빌스가 아침 메뉴로 널리 알렸습니다.",
   },
   "australian::barramundi": {
     id: "Ikan Australia berdaging putih yang rasanya lembut (Lates calcarifer).",
@@ -2096,6 +2373,7 @@ module.exports = {
     zh: "澳洲的白肉鱼，味道清淡（Lates calcarifer）。",
     ja: "身が白く味の穏やかなオーストラリアの魚（Lates calcarifer）。",
     es: "Pescado australiano de carne blanca y sabor suave (Lates calcarifer).",
+    ko: "살이 희고 맛이 담백한 호주 생선입니다.",
   },
   "australian::barramundi pie": {
     id: "Pai gurih Australia berisi barramundi yang berserpih dan kentang.",
@@ -2104,6 +2382,7 @@ module.exports = {
     zh: "澳洲的咸味派：里头是嫩到成片的尖吻鲈与土豆。",
     ja: "ほろりとほぐれるバラマンディとじゃがいもを詰めた、オーストラリアの塩味のパイ。",
     es: "Empanada salada australiana de barramundi desmenuzado y patata.",
+    ko: "부슬부슬한 배러먼디 살과 감자를 넣은 호주의 짭조름한 파이입니다.",
   },
   "australian::bush tucker": {
     id: "Bush tucker adalah segala pangan tumbuhan atau hewan asli Australia, seperti quandong, ulat witchetty, dan kanguru.",
@@ -2112,6 +2391,7 @@ module.exports = {
     zh: "Bush tucker 指澳洲本土的一切可食草木与野味，比如 quandong 果、木蠹蛾幼虫与袋鼠。",
     ja: "ブッシュタッカーとは、クアンドンの実、ウィチェティグラブ、カンガルーなど、オーストラリア固有の動植物の食べ物のこと。",
     es: "El bush tucker es cualquier alimento vegetal o animal autóctono de Australia, como el quandong, las larvas witchetty y el canguro.",
+    ko: "부시 터커는 콴동과 위체티 그럽, 캥거루처럼 호주 자생 식물과 동물로 만든 음식을 두루 이릅니다.",
   },
   "australian::chiko roll": {
     id: "Camilan gurih Australia yang digoreng rendam, berisi kubis, jelai, wortel, dan daging sapi dalam selongsong pastri yang tebal.",
@@ -2120,6 +2400,7 @@ module.exports = {
     zh: "澳洲的咸味炸卷：卷心菜、大麦、胡萝卜与牛肉裹在厚实的面皮筒里下油锅。",
     ja: "キャベツ、大麦、人参、牛肉を厚い生地の筒に詰めて揚げる、オーストラリアの塩味の軽食。",
     es: "Rollo frito salado australiano de col, cebada, zanahoria y ternera en un tubo grueso de masa.",
+    ko: "양배추와 보리, 당근, 소고기를 두툼한 반죽에 말아 튀긴 호주의 짭조름한 간식입니다.",
   },
   "australian::crocodile fillet": {
     id: "Fillet ekor buaya air asin ternak yang lembut dan putih, dipanggang seperti bistik; kelezatan Top End di Australia utara.",
@@ -2128,6 +2409,7 @@ module.exports = {
     zh: "养殖咸水鳄的尾里脊：肉白而嫩，像牛排一样煎烤；这是澳洲北部「顶端地带」的珍味。",
     ja: "養殖のイリエワニの尾のヒレ肉。白くやわらかく、ステーキのように焼きます。北部トップエンドの珍味です。",
     es: "Filete tierno y blanco de cola de cocodrilo marino de granja, asado como un bistec; manjar del Top End, en el norte de Australia.",
+    ko: "양식 바다악어의 부드러운 흰 꼬리살로, 스테이크처럼 구워 내는 호주 북부의 별미입니다.",
   },
   "australian::damper": {
     id: "Roti semak tradisional Australia dari tepung, air, dan garam, diuleni lalu dipanggang di dalam bara api unggun.",
@@ -2136,6 +2418,7 @@ module.exports = {
     zh: "澳洲丛林里的传统面包：面粉、水与盐揉成团，埋进营火的余烬里烤熟。",
     ja: "小麦粉、水、塩をこねて焚き火の熾で焼く、オーストラリアの伝統的なブッシュのパン。",
     es: "Pan tradicional del bush australiano de harina, agua y sal, amasado y cocido entre las brasas de una hoguera.",
+    ko: "밀가루와 물, 소금으로 반죽해 모닥불 잿불에 구운 호주 오지의 전통 빵입니다.",
   },
   "australian::fairy bread": {
     id: "Suguhan pesta anak Australia: roti putih berolesan mentega dipotong segitiga dan ditaburi manik gula; namanya pertama muncul pada 1929.",
@@ -2144,6 +2427,7 @@ module.exports = {
     zh: "澳洲儿童派对的小食：白面包抹黄油，切成三角，撒满彩色糖珠；这名字最早出现在一九二九年。",
     ja: "オーストラリアの子どもの誕生会の菓子。バターを塗った白パンを三角に切り、色とりどりの砂糖粒をまぶします。名は一九二九年から。",
     es: "Golosina de las fiestas infantiles australianas: pan blanco con mantequilla cortado en triángulos y cubierto de grageas; bautizada en 1929.",
+    ko: "버터 바른 흰 식빵을 삼각으로 잘라 색색 스프링클을 뿌린 호주 어린이 잔치의 간식으로, 1929년에 처음 이름이 붙었습니다.",
   },
   "australian::flat white": {
     id: "Kopi berbasis espreso yang ditutup busa mikro susu kukus; lahir di Australia atau Selandia Baru pada 1980-an.",
@@ -2152,6 +2436,7 @@ module.exports = {
     zh: "以浓缩咖啡为底，顶一层细密奶泡；一九八〇年代生于澳洲或新西兰。",
     ja: "エスプレッソにきめ細かなスチームミルクの泡を重ねたコーヒー。一九八〇年代、オーストラリアかニュージーランドで生まれました。",
     es: "Café con base de espresso coronado por microespuma de leche vaporizada; nació en Australia o Nueva Zelanda en los años ochenta.",
+    ko: "에스프레소 위에 곱게 거품 낸 우유를 올린 커피로, 1980년대 호주나 뉴질랜드에서 비롯됐습니다.",
   },
   "australian::flat white australian": {
     id: "Kopi espreso yang ditutup susu kukus dan selapis tipis busa mikro; merakyat di Australia pada pertengahan 1980-an.",
@@ -2160,6 +2445,7 @@ module.exports = {
     zh: "浓缩咖啡兑蒸奶，顶上一层薄薄的细奶泡；一九八〇年代中期在澳洲流行开来。",
     ja: "エスプレッソにスチームミルクと薄いマイクロフォームを重ねたコーヒー。一九八〇年代半ば、オーストラリアで広まりました。",
     es: "Café espresso con leche vaporizada y una capa fina de microespuma; se popularizó en Australia a mediados de los años ochenta.",
+    ko: "에스프레소 위에 데운 우유와 얇은 미세 거품을 올린 커피로, 1980년대 중반 호주에서 널리 퍼졌습니다.",
   },
   "australian::kangaroo steak": {
     id: "Bistik daging buruan Australia yang tanpa lemak dan bercita rasa liar; sudah disantap sejak zaman masyarakat Pribumi.",
@@ -2168,6 +2454,7 @@ module.exports = {
     zh: "澳洲的野味牛排：肉极瘦，带野味；原住民时代就在吃了。",
     ja: "脂の少ない、野趣のあるオーストラリアのジビエのステーキ。先住民の時代から食べられてきました。",
     es: "Filete de caza australiano, magro y con sabor a monte; se come desde tiempos de los pueblos indígenas.",
+    ko: "지방이 적고 야생의 풍미가 나는 호주의 스테이크로, 원주민 시대부터 먹어 왔습니다.",
   },
   "australian::lamington": {
     id: "Hidangan penutup Australia berupa potongan bolu yang dibalut lapisan cokelat dan kelapa kering; dinamai dari Lord Lamington.",
@@ -2176,6 +2463,7 @@ module.exports = {
     zh: "澳洲的甜点：海绵蛋糕切块，裹巧克力糖衣再滚椰丝；名字取自拉明顿勋爵。",
     ja: "スポンジケーキを角切りにし、チョコレートの衣とココナッツをまぶしたオーストラリアの菓子。ラミントン卿にちなみます。",
     es: "Postre australiano de cubos de bizcocho cubiertos de baño de chocolate y coco rallado; llevan el nombre de lord Lamington.",
+    ko: "네모나게 썬 스펀지케이크에 초콜릿 아이싱을 입히고 코코넛 가루를 묻힌 호주 디저트로, 라밍턴 경에게서 이름을 땄습니다.",
   },
   "australian::long black": {
     id: "Kopi Australia dan Selandia Baru yang dibuat dengan menuang dua sloki espreso di atas air panas.",
@@ -2184,6 +2472,7 @@ module.exports = {
     zh: "澳新的黑咖啡：把双份浓缩倒进热水里，而非反过来。",
     ja: "熱湯の上にダブルのエスプレッソを注いで作る、オーストラリア・ニュージーランドのコーヒー。",
     es: "Café australiano y neozelandés hecho vertiendo un espresso doble sobre agua caliente.",
+    ko: "더블 에스프레소를 뜨거운 물 위에 부어 만드는 호주·뉴질랜드식 커피입니다.",
   },
   "australian::meat pie": {
     id: "Pai genggam berisi daging sapi cincang dalam kuah kental, di atas dasar shortcrust yang kokoh dengan tutup puff pastry yang berlapis.",
@@ -2192,6 +2481,7 @@ module.exports = {
     zh: "手持的肉派：牛肉丁泡在浓稠肉汁里，底是结实的酥皮，盖是层层起酥的酥皮。",
     ja: "片手で持てるミートパイ。濃いグレイビーの角切り牛肉を、しっかりしたタルト生地に詰め、パイ生地で蓋をします。",
     es: "Empanada de mano con ternera en salsa espesa sobre una base firme de masa quebrada y tapa de hojaldre.",
+    ko: "깍둑 썰거나 다진 소고기를 진한 그레이비에 넣고 단단한 파이 반죽 위에 겹겹의 퍼프 페이스트리를 덮어 구운 손에 드는 파이입니다.",
   },
   "australian::parmigiana": {
     id: "Andalan pub Australia: schnitzel ayam bertepung roti yang ditutup ham, saus tomat napoli, dan keju leleh.",
@@ -2200,6 +2490,7 @@ module.exports = {
     zh: "澳洲酒馆的常备：面包糠炸鸡排上铺火腿、番茄酱汁与融化的奶酪。",
     ja: "オーストラリアのパブの定番。パン粉をつけた鶏のシュニッツェルに、ハム、トマトソース、溶けたチーズをのせます。",
     es: "Clásico de los pubs australianos: escalope de pollo empanado con jamón, salsa de tomate napolitana y queso fundido.",
+    ko: "빵가루를 입힌 닭 슈니첼에 햄과 나폴리 토마토소스, 녹인 치즈를 올린 호주 펍의 단골 메뉴입니다.",
   },
   "australian::pavlova": {
     id: "Hidangan penutup berbasis meringue dengan kulit renyah dan bagian dalam lembut, ditutup krim dan buah; dinamai balerina Rusia Anna Pavlova.",
@@ -2208,6 +2499,7 @@ module.exports = {
     zh: "以蛋白霜为底的甜点：壳脆芯软，面上覆奶油与水果；名字取自俄国芭蕾舞者安娜·巴甫洛娃。",
     ja: "メレンゲの菓子。外は軽く固く、中はやわらか。クリームと果物をのせ、ロシアのバレリーナ、アンナ・パヴロワにちなみます。",
     es: "Postre de merengue con costra crujiente y centro blando, cubierto de nata y fruta; por la bailarina rusa Anna Pávlova.",
+    ko: "겉은 바삭하고 속은 부드러운 머랭 디저트에 크림과 과일을 올린 것으로, 러시아 발레리나 안나 파블로바에게서 이름을 땄습니다.",
   },
   "australian::snags on bread": {
     id: "Sosis Australia dan Selandia Baru yang dipanggang lalu disajikan di atas selembar roti putih dengan bawang dan saus; wajib di acara amal.",
@@ -2216,6 +2508,7 @@ module.exports = {
     zh: "澳新的烤香肠：架在一片白面包上，配洋葱与酱汁；这是义卖募捐摊上的固定搭配。",
     ja: "焼いたソーセージを白パン一枚にのせ、玉ねぎとソースを添えるオーストラリア・ニュージーランドの一品。募金の屋台の定番。",
     es: "Salchicha a la parrilla australiana y neozelandesa servida sobre una rebanada de pan blanco con cebolla y salsa; clásica de las colectas.",
+    ko: "구운 소시지('스내그')를 흰 식빵 한 장에 올리고 양파와 소스를 곁들인 호주·뉴질랜드 음식으로, 모금 행사의 단골입니다.",
   },
   "australian::tim tam": {
     id: "Biskuit cokelat Australia: dua keping biskuit malt mengapit isian krim cokelat, lalu seluruhnya dibalut cokelat.",
@@ -2224,6 +2517,7 @@ module.exports = {
     zh: "澳洲的巧克力饼干：两片麦芽饼干夹巧克力奶油，整块再裹一层巧克力。",
     ja: "オーストラリアのチョコレート菓子。麦芽のビスケット二枚でチョコクリームを挟み、全体をチョコで覆います。",
     es: "Galleta de chocolate australiana: dos galletas malteadas con relleno de crema de chocolate, todo bañado en chocolate.",
+    ko: "맥아 비스킷 두 장 사이에 초콜릿 크림을 넣고 겉을 초콜릿으로 감싼 호주 과자입니다.",
   },
   "australian::vegemite on toast": {
     id: "Roti panggang Australia yang diolesi tipis Vegemite, pasta ekstrak ragi yang asin, ditemukan Cyril Callister di Melbourne pada 1922.",
@@ -2232,6 +2526,7 @@ module.exports = {
     zh: "澳洲的吐司：薄薄抹一层咸味酵母酱 Vegemite；那酱由 Cyril Callister 一九二二年在墨尔本调出。",
     ja: "ベジマイトを薄く塗ったオーストラリアのトースト。一九二二年、メルボルンでシリル・キャリスターが生んだ塩気の強い酵母エキス。",
     es: "Tostada australiana untada finamente con Vegemite, una pasta salada de extracto de levadura creada por Cyril Callister en Melbourne en 1922.",
+    ko: "1922년 멜버른에서 시릴 캘리스터가 만든 짭짤한 효모 추출물 베지마이트를 토스트에 얇게 바른 호주 음식입니다.",
   },
   "austrian::apfelstrudel": {
     id: "Strudel apel Austria: pastri setipis kertas berisi apel masam, gula, kayu manis, kismis, dan remah roti; resep tertua dari 1696.",
@@ -2240,6 +2535,7 @@ module.exports = {
     zh: "奥地利苹果卷：纸一般薄的面皮包入酸苹果、糖、肉桂、葡萄干和面包糠；现存最早的食谱作于1696年。",
     ja: "紙のように薄い生地に酸味のリンゴ、砂糖、シナモン、レーズン、パン粉を包むオーストリアの菓子。最古のレシピは1696年。",
     es: "Strudel austríaco de manzana: masa finísima rellena de manzanas ácidas, azúcar, canela, pasas y pan rallado; receta más antigua de 1696.",
+    ko: "종잇장처럼 얇은 반죽에 새콤한 사과와 설탕, 계피, 건포도, 빵가루를 넣은 오스트리아 슈트루델로, 가장 오래된 조리법은 1696년의 것입니다.",
   },
   "austrian::beuschel": {
     id: "Ragout Wina dari paru dan jantung anak sapi dalam saus krim asam yang tajam; populer pada abad ke-19, disantap dengan pangsit roti.",
@@ -2248,6 +2544,7 @@ module.exports = {
     zh: "维也纳的小牛肺与心烩菜，配酸奶油酱汁；19世纪在奥地利流行，佐面包团子食用。",
     ja: "子牛の肺と心臓を酸味のあるサワークリームソースで煮たウィーンのラグー。19世紀に広まり、パン団子を添える。",
     es: "Ragú vienés de pulmón y corazón de ternera en salsa agria de nata; se popularizó en el siglo XIX y se sirve con albóndigas de pan.",
+    ko: "송아지 허파와 심장을 새콤한 사워크림 소스에 끓인 빈의 라구로, 19세기 오스트리아에서 퍼졌고 빵 경단을 곁들입니다.",
   },
   "austrian::goulash austrian": {
     id: "Semur sapi dan bawang khas Wina dalam kuah paprika kental, disempurnakan dari gulyás Hungaria setelah tiba di Wina pada abad ke-19.",
@@ -2256,6 +2553,7 @@ module.exports = {
     zh: "维也纳牛肉洋葱炖菜，配浓稠的红椒粉浓汁；由匈牙利的gulyás于19世纪初传入维也纳后改良而成。",
     ja: "ウィーン風の牛肉と玉ねぎの煮込み。濃いパプリカソースで、19世紀初頭にウィーンへ伝わったハンガリーのグヤーシュを洗練させたもの。",
     es: "Estofado vienés de vacuno y cebolla en salsa espesa de pimentón, refinado del gulyás húngaro tras llegar a Viena en el siglo XIX.",
+    ko: "소고기와 양파를 진한 파프리카 소스에 끓인 빈의 스튜로, 19세기 초 빈에 전해진 헝가리 구야시를 다듬은 것입니다.",
   },
   "austrian::gulaschsuppe": {
     id: "Versi encer gulai Hungaria ala Austria: semur sapi kaya paprika yang dijadikan sup di kedai dan kedai kopi Wina.",
@@ -2264,6 +2562,7 @@ module.exports = {
     zh: "奥地利式的匈牙利炖牛肉汤：红椒粉浓郁的牛肉炖菜，在维也纳酒馆与咖啡馆里被调稀成汤。",
     ja: "ハンガリーのグヤーシュをスープ状にしたオーストリア版。パプリカの効いた牛肉煮込みをウィーンの居酒屋やカフェで薄めたもの。",
     es: "Versión austríaca en sopa del gulash húngaro: un guiso de vacuno rico en pimentón, aligerado en tabernas y cafés vieneses.",
+    ko: "헝가리 굴라시를 국물처럼 묽게 낸 오스트리아식 수프로, 파프리카를 넉넉히 넣은 소고기 스튜를 빈의 선술집과 카페가 풀어낸 것입니다.",
   },
   "austrian::kaiserschmarrn": {
     id: "Panekuk manis Austria yang disuwir dan dikaramelkan lalu ditaburi gula, dinamai Kaisar Franz Joseph I; kerap dengan kompot buah.",
@@ -2272,6 +2571,7 @@ module.exports = {
     zh: "奥地利甜点：煎饼撕碎后焦糖化，撒上糖粉，以皇帝弗朗茨·约瑟夫一世命名，常配水果蜜饯。",
     ja: "細かくちぎってカラメル化し、粉砂糖をふるオーストリアのパンケーキ菓子。皇帝フランツ・ヨーゼフ1世にちなむ。",
     es: "Postre austríaco de crepe desgarrada y caramelizada, espolvoreada con azúcar; lleva el nombre del emperador Francisco José I.",
+    ko: "팬케이크를 찢어 캐러멜처럼 익혀 설탕을 뿌린 오스트리아 디저트로, 프란츠 요제프 1세 황제에게서 이름을 땄고 과일 콩포트를 곁들입니다.",
   },
   "austrian::knödel": {
     id: "Pangsit rebus Eropa Tengah dari roti, tepung, atau kentang; disajikan gurih sebagai pendamping atau manis dengan aprikot atau plum.",
@@ -2280,6 +2580,7 @@ module.exports = {
     zh: "中欧的水煮团子，用面包、面粉或马铃薯制成；可作咸味配菜，也可包杏或李子做成甜食。",
     ja: "パン、小麦粉、じゃがいもで作る中欧の茹で団子。塩味は付け合わせに、甘いものは杏やプラムを包む。",
     es: "Albóndiga hervida centroeuropea de pan, harina o patata; salada como guarnición o dulce con albaricoque o ciruela.",
+    ko: "빵이나 밀가루, 감자로 빚어 삶은 중부 유럽의 경단으로, 곁들임으로 짭조름하게 내거나 살구나 자두를 넣어 달게 냅니다.",
   },
   "austrian::käsespätzle": {
     id: "Hidangan mi telur pegunungan Alpen berlapis keju dan bawang goreng, tradisi Vorarlberg dan Tirol di Austria serta Swabia.",
@@ -2288,6 +2589,7 @@ module.exports = {
     zh: "阿尔卑斯地区的鸡蛋面菜肴，层层叠上奶酪与炸洋葱；是奥地利福拉尔贝格、蒂罗尔与士瓦本的传统。",
     ja: "チーズと揚げ玉ねぎを重ねたアルプス地方の卵麺料理。オーストリアのフォアアールベルクとチロル、シュヴァーベンの伝統。",
     es: "Plato alpino de fideos al huevo en capas con queso y cebolla frita, tradicional de Vorarlberg y Tirol en Austria y de Suabia.",
+    ko: "달걀 국수에 치즈와 튀긴 양파를 켜켜이 올린 알프스 요리로, 오스트리아 포어아를베르크와 티롤, 슈바벤의 전통 음식입니다.",
   },
   "austrian::linzer torte": {
     id: "Tart Austria berkisi-kisi dari adonan kacang berempah dengan isian selai buah, dinamai Linz; resepnya tercatat sejak 1653.",
@@ -2296,6 +2598,7 @@ module.exports = {
     zh: "奥地利的格纹馅饼，用带坚果与香料的酥皮包裹果酱，以林茨得名；食谱至少可追溯到1653年。",
     ja: "ナッツと香辛料入りの生地に果物のジャムを詰め、格子を掛けたオーストリアのタルト。リンツにちなみ、レシピは1653年に遡る。",
     es: "Tarta austríaca de celosía con masa quebrada de frutos secos y especias rellena de confitura; toma el nombre de Linz, recetas de 1653.",
+    ko: "고소한 향신 반죽에 과일 잼을 채우고 격자무늬를 얹은 오스트리아 타르트로, 린츠에서 이름을 땄고 조리법이 적어도 1653년까지 거슬러 오릅니다.",
   },
   "austrian::marillenknödel": {
     id: "Pangsit adonan Austria yang membungkus aprikot utuh, direbus lalu digulingkan dalam remah roti bermentega dan gula.",
@@ -2304,6 +2607,7 @@ module.exports = {
     zh: "奥地利的面团团子，内裹整颗杏；煮熟后滚上黄油面包糠与糖。",
     ja: "杏を丸ごと生地で包んだオーストリアの団子。茹でてからバターで炒めたパン粉と砂糖をまぶす。",
     es: "Albóndiga austríaca de masa envuelta en un albaricoque entero, hervida y rebozada en pan rallado con mantequilla y azúcar.",
+    ko: "살구를 통째로 반죽에 싸서 삶은 뒤 버터에 볶은 빵가루와 설탕에 굴린 오스트리아 경단입니다.",
   },
   "austrian::mozartkugel": {
     id: "Cokelat bulat Salzburg berisi marzipan pistachio dan nougat, dibuat pembuat manisan Paul Fürst pada 1890 dan dinamai dari Mozart.",
@@ -2312,6 +2616,7 @@ module.exports = {
     zh: "萨尔茨堡的圆形巧克力，内有开心果杏仁膏与果仁糖，1890年由糖果师保罗·菲尔斯特创制，以莫扎特命名。",
     ja: "ピスタチオのマジパンとヌガーを詰めたザルツブルクの丸いチョコレート。1890年に菓子職人パウル・フュルストが考案。",
     es: "Bombón redondo de Salzburgo con mazapán de pistacho y turrón, creado en 1890 por el confitero Paul Fürst y llamado así por Mozart.",
+    ko: "피스타치오 마지팬과 누가를 넣은 잘츠부르크의 둥근 초콜릿으로, 1890년 제과사 파울 퓌르스트가 만들어 모차르트의 이름을 붙였습니다.",
   },
   "austrian::palatschinken": {
     id: "Panekuk tipis ala crêpe dari Austria, dibuat dari telur, susu, dan tepung; kerap diisi selai aprikot.",
@@ -2320,6 +2625,7 @@ module.exports = {
     zh: "奥地利的薄可丽饼，以鸡蛋、牛奶和面粉调糊煎成，常包入杏子果酱。",
     ja: "卵、牛乳、小麦粉で焼くオーストリアの薄いクレープ。アプリコットジャムを巻くことが多い。",
     es: "Crepe fina austríaca de huevo, leche y harina, a menudo rellena de mermelada de albaricoque.",
+    ko: "달걀과 우유, 밀가루로 얇게 부친 오스트리아식 크레프로, 흔히 살구잼을 채웁니다.",
   },
   "austrian::powidltascherl": {
     id: "Kantong adonan kentang Austria-Bohemia berisi Powidl, selai plum kental tanpa gula, lalu dibalur remah roti bermentega.",
@@ -2328,6 +2634,7 @@ module.exports = {
     zh: "奥地利与波希米亚的马铃薯面团口袋，包入不加糖的浓稠李子酱（Powidl），再裹黄油面包糠。",
     ja: "砂糖を使わない濃厚なプラムジャム（ポヴィドル）を詰めたオーストリア＝ボヘミアのじゃがいも生地の包み。",
     es: "Bolsitas austrobohemias de masa de patata rellenas de Powidl (mermelada espesa de ciruela sin azúcar) y rebozadas en pan rallado.",
+    ko: "설탕을 넣지 않은 되직한 자두잼(포비들)을 감자 반죽에 채워 빚고 버터에 볶은 빵가루에 굴린 오스트리아·보헤미아 요리입니다.",
   },
   "austrian::rindsuppe mit frittaten": {
     id: "Kaldu sapi bening Austria yang disajikan dengan irisan tipis panekuk gulung (Frittaten); sup pembuka klasik Wina.",
@@ -2336,6 +2643,7 @@ module.exports = {
     zh: "奥地利的清炖牛肉汤，佐以卷起切细的煎饼条（Frittaten）；是维也纳经典的开胃汤。",
     ja: "薄く巻いて切ったパンケーキ（フリッタテン）を浮かべたオーストリアの澄んだ牛肉スープ。ウィーンの定番の前菜スープ。",
     es: "Caldo de vacuno claro austríaco servido con tiras finas de crepe enrollada (Frittaten), sopa de entrada clásica vienesa.",
+    ko: "맑은 소고기 국물에 얇게 부쳐 말아 썬 팬케이크(프리타텐)를 넣은 빈의 대표 전채 수프입니다.",
   },
   "austrian::sachertorte": {
     id: "Kue bolu cokelat Wina berlapis selai aprikot di bawah glasir cokelat hitam, diciptakan Franz Sacher pada 1832.",
@@ -2344,6 +2652,7 @@ module.exports = {
     zh: "维也纳巧克力海绵蛋糕，夹一层杏子果酱，外覆黑巧克力糖衣，由弗朗茨·萨赫于1832年创制。",
     ja: "アプリコットジャムを挟み、ダークチョコレートで覆ったウィーンのチョコレートスポンジケーキ。1832年フランツ・ザッハーの創案。",
     es: "Bizcocho vienés de chocolate con mermelada de albaricoque bajo un glaseado de chocolate negro, creado por Franz Sacher en 1832.",
+    ko: "초콜릿 스펀지에 살구잼을 넣고 다크 초콜릿을 씌운 빈의 케이크로, 1832년 프란츠 자허가 만들었습니다.",
   },
   "austrian::selch fleisch": {
     id: "Daging babi Austria dan Jerman Selatan yang diasinkan lalu diasap; namanya dari kata dialek »selchen«, yang berarti mengasap.",
@@ -2352,6 +2661,7 @@ module.exports = {
     zh: "奥地利与德国南部的腌熏猪肉，名称源自方言动词「selchen」，即烟熏之意。",
     ja: "オーストリアおよび南ドイツの塩漬け燻製豚肉。名は方言の動詞「selchen」（燻すこと）に由来する。",
     es: "Cerdo curado y ahumado de Austria y el sur de Alemania; su nombre viene del verbo dialectal «selchen», ahumar.",
+    ko: "소금에 절여 훈연한 오스트리아·남독일의 돼지고기로, 이름은 '훈연하다'라는 방언 동사 젤헨에서 왔습니다.",
   },
   "austrian::tafelspitz": {
     id: "Daging sapi rebus khas Wina (potongan tanjung) yang ditim dalam kaldu bersama umbi-umbian, disajikan dengan lobak pedas apel.",
@@ -2360,6 +2670,7 @@ module.exports = {
     zh: "维也纳水煮牛肉（取臀肉），与根茎蔬菜同煮于清汤中，佐苹果辣根酱食用。",
     ja: "ウィーンの茹で牛肉（もも肉）。根菜とともにブイヨンで煮込み、リンゴ入り西洋わさびを添える。",
     es: "Carne de vacuno hervida a la vienesa (cadera), cocida en caldo con raíces y servida con rábano picante y manzana.",
+    ko: "소 우둔살을 뿌리채소와 함께 육수에 삶은 빈 요리로, 사과 호스래디시를 곁들여 냅니다.",
   },
   "austrian::topfenpalatschinken": {
     id: "Hidangan penutup panggang Austria: crêpe Palatschinken tipis berisi Topfen, yaitu keju dadih yang dimaniskan.",
@@ -2368,6 +2679,7 @@ module.exports = {
     zh: "奥地利的烤制甜点：薄煎饼Palatschinken内包加糖的凝乳干酪Topfen。",
     ja: "薄いパラチンケンに甘いトプフェン（カード）を詰めて焼くオーストリアの菓子。",
     es: "Postre austríaco al horno de crepes Palatschinken finas rellenas de Topfen (requesón) endulzado.",
+    ko: "얇은 팔라친켄 크레프에 달게 만든 쿠아르크(톱펜)를 채워 구운 오스트리아 디저트입니다.",
   },
   "austrian::topfenstrudel": {
     id: "Hidangan penutup Wina dari adonan strudel tipis berisi quark manis (Topfen); masuk ke masakan Wina lewat Hungaria.",
@@ -2376,6 +2688,7 @@ module.exports = {
     zh: "维也纳甜点：薄酥皮包入加糖的凝乳干酪（Topfen）；经由匈牙利进入维也纳菜系。",
     ja: "薄いシュトゥルーデル生地に甘いクワルク（トプフェン）を包むウィーンの菓子。ハンガリー経由でウィーン料理に入った。",
     es: "Postre vienés de masa fina de strudel rellena de requesón endulzado (Topfen); llegó a la cocina vienesa a través de Hungría.",
+    ko: "얇은 슈트루델 반죽에 달게 만든 쿠아르크(톱펜)를 채운 빈의 디저트로, 헝가리를 거쳐 빈 요리에 들어왔습니다.",
   },
   "austrian::vanillekipferl": {
     id: "Kue kering Wina berbentuk bulan sabit dari kacang giling, ditaburi gula vanila; sajian Natal tradisional Austria.",
@@ -2384,6 +2697,7 @@ module.exports = {
     zh: "维也纳的新月形酥饼，掺入坚果粉，裹上香草糖；是奥地利传统的圣诞点心。",
     ja: "挽いたナッツを混ぜた三日月形のウィーン風ショートブレッド。バニラシュガーをまぶす、オーストリアの伝統的なクリスマス菓子。",
     es: "Pastas vienesas en forma de media luna con frutos secos molidos y azúcar de vainilla; dulce navideño tradicional austríaco.",
+    ko: "견과를 갈아 넣어 초승달 모양으로 구운 빈의 쇼트브레드로, 바닐라 설탕을 뿌린 오스트리아의 전통 성탄절 과자입니다.",
   },
   "austrian::wiener schnitzel": {
     id: "Irisan tipis daging sapi muda berlapis tepung roti yang digoreng, hidangan nasional Austria; namanya muncul di buku masak Wina 1831.",
@@ -2392,6 +2706,7 @@ module.exports = {
     zh: "薄切小牛肉裹面包糠煎制，是奥地利的国菜；这一名称最早见于1831年的维也纳食谱。",
     ja: "薄い子牛肉にパン粉をつけて焼いたオーストリアの国民的料理。名称は1831年のウィーンの料理書に初めて現れる。",
     es: "Filete fino de ternera empanado y frito en sartén, plato nacional de Austria; el nombre aparece en un recetario vienés de 1831.",
+    ko: "얇게 저민 송아지고기에 빵가루를 입혀 팬에 지진 오스트리아의 국민 음식으로, 1831년 빈의 요리책에 이름이 처음 나옵니다.",
   },
   "austrian::zwetschgenknödel": {
     id: "Hidangan penutup Austria: plum utuh dibungkus adonan kentang, direbus lalu digulingkan dalam remah roti bermentega.",
@@ -2400,6 +2715,7 @@ module.exports = {
     zh: "奥地利甜点：整颗李子裹上马铃薯面团煮熟，再滚黄油面包糠；根源在奥匈帝国的饮食。",
     ja: "プラムを丸ごとじゃがいも生地で包んで茹で、バターのパン粉をまぶすオーストリアの菓子。オーストリア＝ハンガリー由来。",
     es: "Postre austríaco de ciruela entera envuelta en masa de patata, hervida y rebozada en pan rallado; de raíz austrohúngara.",
+    ko: "자두를 통째로 감자 반죽에 싸서 삶은 뒤 버터에 볶은 빵가루에 굴린 오스트리아 디저트로, 오스트리아·헝가리 요리에 뿌리를 둡니다.",
   },
   "bengali::aloo posto": {
     id: "Hidangan nabati tradisional Benggala Barat: kentang dimasak dalam pasta biji poppy (posto) yang berbumbu ringan dengan minyak sawi.",
@@ -2408,6 +2724,7 @@ module.exports = {
     zh: "西孟加拉的传统素菜：土豆在调味清淡的罂粟籽酱（posto）里烧，用芥末油。",
     ja: "西ベンガルの伝統的な菜食料理。じゃがいもを、軽く味つけしたけしの実のペースト（ポスト）とマスタード油で煮ます。",
     es: "Plato vegetariano tradicional de Bengala Occidental: patatas cocinadas en una pasta de semilla de amapola (posto) con aceite de mostaza.",
+    ko: "감자를 양귀비씨(포스토) 페이스트에 겨자 기름으로 순하게 익힌 서벵골의 전통 채식 요리입니다.",
   },
   "bengali::begun bhaja": {
     id: "Lauk Bengali berupa irisan terung yang dilumuri kunyit dan rempah, lalu digoreng di wajan dengan minyak sawi.",
@@ -2416,6 +2733,7 @@ module.exports = {
     zh: "孟加拉的配菜：茄子切片，抹姜黄与香料，用芥末油煎香。",
     ja: "ベンガルの副菜。茄子の薄切りにウコンと香辛料をまぶし、マスタード油で焼きます。",
     es: "Guarnición bengalí de rodajas de berenjena rebozadas en cúrcuma y especias y fritas en aceite de mostaza.",
+    ko: "가지를 저며 강황과 향신료를 묻혀 겨자 기름에 지진 벵골의 곁들임 요리입니다.",
   },
   "bengali::bhuna khichuri": {
     id: "Hidangan nasi dan lentil Bengali yang kering dan berbutir; berasnya dan moong dal-nya disangrai lebih dulu, itulah arti \"bhuna\".",
@@ -2424,6 +2742,7 @@ module.exports = {
     zh: "孟加拉的干身粒粒分明的豆饭：米与绿豆瓣先下锅焙炒，「bhuna」说的正是这一步。",
     ja: "米と緑豆をあらかじめ炒めてから炊く、ベンガルのぱらりとした豆飯。「ブナ」とはその炒める工程を指します。",
     es: "Plato bengalí seco y suelto de arroz y lentejas en que el arroz y el moong dal se tuestan antes: eso significa «bhuna».",
+    ko: "쌀과 무성 달을 볶아('부나') 만드는 고슬고슬한 벵골의 쌀 콩 요리입니다.",
   },
   "bengali::biryani kolkata": {
     id: "Biryani nasi dan daging yang lembut dan harum, dibedakan oleh kentang dan telur rebus di dalamnya.",
@@ -2432,6 +2751,7 @@ module.exports = {
     zh: "温和而香的米肉手抓饭：认它的记号，是里头的土豆与水煮蛋。",
     ja: "穏やかで香り高い米と肉のビリヤニ。じゃがいもとゆで卵が入るのが目印です。",
     es: "Biryani de arroz y carne, suave y aromático, reconocible por la patata y el huevo duro que lleva.",
+    ko: "감자와 삶은 달걀이 들어가는 것이 특징인 순하고 향긋한 쌀 고기 비리야니입니다.",
   },
   "bengali::chingri malai curry": {
     id: "Kari Bengali berisi udang besar dalam santan berempah; kata \"malai\" berasal dari Melayu, jejak perdagangan Bengal dan Asia Tenggara.",
@@ -2440,6 +2760,7 @@ module.exports = {
     zh: "孟加拉的大虾咖喱：虾在香料椰浆里煨；「malai」一词出自马来语，是孟加拉与南洋通商留下的痕迹。",
     ja: "大ぶりの海老を香辛料入りのココナッツミルクで煮るベンガルのカレー。「マライ」はマレー語由来で、東南アジアとの交易の跡です。",
     es: "Curry bengalí de langostinos en leche de coco especiada; «malai» viene del malayo, huella del comercio de Bengala con el Sudeste Asiático.",
+    ko: "왕새우를 향신 코코넛밀크에 끓인 벵골 커리로, '말라이'는 벵골과 동남아시아의 교역을 보여 주듯 말레이에서 왔습니다.",
   },
   "bengali::cholar dal": {
     id: "Olahan chana dal Bengali yang manis gurih dengan kelapa, kismis, dan ghee, disajikan pada perayaan bersama luchi.",
@@ -2448,6 +2769,7 @@ module.exports = {
     zh: "孟加拉甜咸交织的鹰嘴豆瓣料理，加椰肉、葡萄干与酥油；节庆时配炸饼同食。",
     ja: "ココナッツ、レーズン、ギーを加えた甘塩っぱいベンガルのチャナ・ダール。祝いの日に揚げパンのルチと供する。",
     es: "Preparación bengalí agridulce de chana dal con coco, pasas y ghee, servida en festivales junto con luchi.",
+    ko: "코코넛과 건포도, 기를 넣어 짭짤달콤하게 만든 벵골의 차나 달 요리로, 축제에 루치와 함께 냅니다.",
   },
   "bengali::chomchom": {
     id: "Manisan Bengali tradisional dari chhena yang dibalut kelapa atau mawa; bentuk lonjongnya yang masyhur datang dari Porabari di Tangail.",
@@ -2456,6 +2778,7 @@ module.exports = {
     zh: "孟加拉传统的凝乳甜点，外裹椰蓉或奶渣；最有名的椭圆形出自坦盖尔的波拉巴里。",
     ja: "チェナをココナッツやマワでまとうベンガルの伝統菓子。名高い楕円形はタンガイルのポラバリに由来する。",
     es: "Dulce bengalí tradicional de chhena rebozado en coco o mawa; su célebre forma ovalada procede de Porabari, en Tangail.",
+    ko: "체나에 코코넛이나 마와를 묻힌 벵골의 전통 과자로, 이름난 타원형은 탕가일 포라바리에서 왔습니다.",
   },
   "bengali::jhal muri": {
     id: "Camilan jalanan Bengali dari beras kembung yang diaduk bersama campuran gorengan renyah chanachur.",
@@ -2464,6 +2787,7 @@ module.exports = {
     zh: "孟加拉的街头零嘴：膨化米拌上酥脆的什锦炸物 chanachur。",
     ja: "ポン米に、カリカリの揚げ菓子チャナチュールを混ぜ合わせたベンガルの屋台のおやつ。",
     es: "Aperitivo callejero bengalí de arroz inflado mezclado con chanachur, una mezcla frita y crujiente.",
+    ko: "튀긴 쌀에 차나추르를 섞어 버무린 벵골의 길거리 간식입니다.",
   },
   "bengali::kati roll": {
     id: "Gulung jajanan Kolkata: kebab panggang tusuk dibungkus paratha; konon lahir di restoran Nizam's antara 1930-an dan 1960-an.",
@@ -2472,6 +2796,7 @@ module.exports = {
     zh: "加尔各答的街头卷饼：铁签烤的肉串裹进 paratha 薄饼；据说出自 Nizam's 餐馆，年代在一九三〇至六〇年代之间。",
     ja: "コルカタの屋台のラップ。串焼きのケバブをパラーターで巻きます。一九三〇〜六〇年代、ニザームズ店に生まれたとされます。",
     es: "Wrap callejero de Calcuta: kebab de brocheta envuelto en paratha; se dice nacido en el Nizam's entre los años treinta y sesenta.",
+    ko: "꼬치에 구운 케밥을 파라타에 만 콜카타의 길거리 음식으로, 1930~60년대 니잠 식당에서 비롯됐다고 전해집니다.",
   },
   "bengali::kosha mangsho": {
     id: "Kari kambing kering Bengali yang dimasak lama, dibraise dalam minyak sawi dan rempah; andalan Durga Puja dan jamuan hari Minggu.",
@@ -2480,6 +2805,7 @@ module.exports = {
     zh: "孟加拉的干烧羊肉：山羊肉在芥末油与香料里久煨；杜尔迦节与周日家宴的主菜。",
     ja: "ヤギ肉をマスタード油と香辛料でじっくり煮詰めるベンガルの汁気の少ないカレー。ドゥルガー・プージャと日曜の宴の定番。",
     es: "Curry seco bengalí de cabra guisado largamente en aceite de mostaza y especias; plato central del Durga Puja y de los festines dominicales.",
+    ko: "염소고기를 겨자 기름과 향신료에 오래 조려 국물 없이 만든 벵골 커리로, 두르가 푸자와 일요일 잔치의 단골입니다.",
   },
   "bengali::luchi alur dom": {
     id: "Sarapan Bengali: roti maida goreng luchi, tercatat sejak 1660, berpasangan dengan kari kentang dum yang berempah dan sedikit manis.",
@@ -2488,6 +2814,7 @@ module.exports = {
     zh: "孟加拉的早餐：一六六〇年就有记载的炸白面饼 luchi，配香料味的微甜焖土豆咖喱。",
     ja: "ベンガルの朝食。一六六〇年に記録のある揚げパン、ルチに、香辛料の効いたほのかに甘いじゃがいものドゥムカレーを添えます。",
     es: "Desayuno bengalí: el pan frito de harina refinada luchi, atestiguado en 1660, con un curry de patata al dum, especiado y algo dulce.",
+    ko: "1660년 기록에 나오는 마이다 튀김빵 루치에 향신료를 넣어 살짝 달게 뭉근히 익힌 감자 커리를 곁들인 벵골식 아침 식사입니다.",
   },
   "bengali::macher jhol": {
     id: "Gulai ikan Bengali dan Odia yang ringan dan berempah dengan kentang, direbus dalam kuah kunyit; disantap dengan nasi sehari-hari.",
@@ -2496,6 +2823,7 @@ module.exports = {
     zh: "孟加拉与奥迪沙的清淡香料鱼煲：鱼与土豆在姜黄汤里同煮；配饭，是天天吃的家常。",
     ja: "ベンガルとオディシャの、軽く香辛料を効かせた魚とじゃがいもの煮込み。ウコンのだしで煮て、日々ご飯とともに。",
     es: "Guiso de pescado bengalí y odía, ligero y especiado, con patata en caldo de cúrcuma; se come con arroz a diario.",
+    ko: "감자를 넣어 강황 국물에 끓인 벵골과 오디샤의 담백한 향신 생선 스튜로, 밥과 함께 내는 일상 음식입니다.",
   },
   "bengali::macher kalia": {
     id: "Kari ikan perayaan Bengali: ikan sungai digoreng lalu dimasak dalam kuah bawang berempah; turunan qaliya Mughlai para Nawab Bengal.",
@@ -2504,6 +2832,7 @@ module.exports = {
     zh: "孟加拉节庆的浓味鱼咖喱：河鱼先炸后烧在香料洋葱汁里；源自孟加拉纳瓦布们的莫卧儿式 qaliya。",
     ja: "ベンガルの祝いの濃厚な魚カレー。揚げた川魚を香辛料入りの玉ねぎの汁で煮ます。ベンガル太守のムガル料理カリヤに発します。",
     es: "Curry de pescado festivo bengalí: pescado de río frito en salsa especiada de cebolla; deriva del qaliya mogol de los nawabs de Bengala.",
+    ko: "튀긴 민물고기를 향신 양파 소스에 넣은 벵골의 진한 잔치 커리로, 벵골 나와브의 무굴식 '칼리야'에서 왔습니다.",
   },
   "bengali::mishti doi": {
     id: "Yogurt manis Bengali: susu direbus lalu dipadatkan dengan gula atau gula aren dalam wadah tanah; jejaknya sampai ke Bengal abad ke-19.",
@@ -2512,6 +2841,7 @@ module.exports = {
     zh: "孟加拉的甜酸奶：牛奶煮开后加糖或棕榈糖，在陶罐里发酵凝固；可追到十九世纪的孟加拉。",
     ja: "ベンガルの甘い発酵ヨーグルト。煮た牛乳を砂糖かジャグリーとともに素焼きの器で固めます。十九世紀のベンガルに遡ります。",
     es: "Yogur dulce fermentado bengalí: leche hervida cuajada con azúcar o panela en recipientes de barro; se rastrea a la Bengala del siglo XIX.",
+    ko: "끓인 우유에 설탕이나 재거리를 넣어 옹기에 굳힌 벵골의 달콤한 발효 요구르트로, 19세기 벵골까지 거슬러 올라갑니다.",
   },
   "bengali::panch phoron tempering": {
     id: "Campuran rempah utuh Bengali: jintan, adas, jintan hitam, fenugreek, biji sawi; ditumis dalam minyak panas untuk membumbui dal.",
@@ -2520,6 +2850,7 @@ module.exports = {
     zh: "孟加拉的五香整粒混料：孜然、茴香、黑种草、葫芦巴与芥末籽，在热油里爆香，用来给豆糊与咖喱定味。",
     ja: "クミン、フェンネル、ニゲラ、フェヌグリーク、マスタードの粒を合わせたベンガルの五香。熱した油で香りを立て、豆やカレーに注ぎます。",
     es: "Mezcla bengalí de especias enteras —comino, hinojo, nigella, fenogreco y mostaza— frita en aceite caliente para sofreír dales y curries.",
+    ko: "커민과 회향, 니겔라, 호로파, 겨자씨를 통째로 섞은 벵골의 향신료 배합으로, 뜨거운 기름에 지져 달과 커리에 부어 씁니다.",
   },
   "bengali::panta bhat": {
     id: "Hidangan Bengali dari nasi sisa yang direndam semalam, disantap dengan garam, bawang bombai, dan cabai, terutama saat Pohela Boishakh.",
@@ -2528,6 +2859,7 @@ module.exports = {
     zh: "孟加拉的水泡饭：隔夜饭浸水发酵一晚，配盐、洋葱与辣椒吃；孟加拉新年时尤其常见。",
     ja: "残りご飯を水に浸して一晩発酵させるベンガルの料理。塩、玉ねぎ、唐辛子とともに、とくにポヘラ・ボイシャクに食べます。",
     es: "Plato bengalí de arroz sobrante remojado y fermentado toda la noche, comido con sal, cebolla y chile, sobre todo en Pohela Boishakh.",
+    ko: "남은 밥을 물에 담가 하룻밤 발효시킨 벵골 음식으로, 소금과 양파, 고추와 함께 특히 포헬라 보이샤크에 먹습니다.",
   },
   "bengali::payesh": {
     id: "Puding susu dan beras Bengali, bentuk daerah dari kheer atau payasam, dibuat dengan beras wangi Gobindobhog dan gula nolen gur.",
@@ -2536,6 +2868,7 @@ module.exports = {
     zh: "孟加拉的牛奶米布丁，是kheer的地方形态；用香米Gobindobhog与棕榈糖nolen gur熬成。",
     ja: "ベンガルの牛乳と米のプディング。キールの地方版で、香り高いゴビンドボグ米とヤシ糖ノレン・グルで作る。",
     es: "Pudin bengalí de leche y arroz, forma regional del kheer, elaborado con arroz aromático gobindobhog y azúcar de palma nolen gur.",
+    ko: "우유와 쌀로 만든 벵골 푸딩으로 키르나 파야삼의 지역 형태이며, 전통적으로 향긋한 고빈도복 쌀과 놀렌 구르로 만듭니다.",
   },
   "bengali::phuchka": {
     id: "Camilan jalanan Bengali: cangkang puri berongga yang digoreng, diisi kentang berbumbu dan air asam jawa yang asam.",
@@ -2544,6 +2877,7 @@ module.exports = {
     zh: "孟加拉的街头小食：炸得中空的脆壳里，塞进香料土豆，灌上酸酸的罗望子水。",
     ja: "ベンガルの屋台の軽食。揚げて中空にしたプーリーの殻に、香辛料入りのじゃがいもと酸っぱいタマリンド水を詰めます。",
     es: "Aperitivo callejero bengalí: una corteza hueca de puri frita rellena de patata especiada y agua ácida de tamarindo.",
+    ko: "속이 빈 푸리 껍질을 튀겨 향신 감자와 새콤한 타마린드 물을 채운 벵골의 길거리 간식입니다.",
   },
   "bengali::rosogolla": {
     id: "Bola chhena, keju dadih, yang kenyal dan direbus dalam sirop gula ringan; orang Bengali mengaitkannya dengan Nabin Chandra Das, 1868.",
@@ -2552,6 +2886,7 @@ module.exports = {
     zh: "松弹的乳酪球 chhena，在清甜的糖水里煮成；孟加拉人把它归到一八六八年加尔各答的 Nabin Chandra Das 名下。",
     ja: "弾力のあるチェナ（凝乳チーズ）の団子を、軽い砂糖水で煮た菓子。ベンガルでは一八六八年、コルカタのナビン・チャンドラ・ダスの作とされます。",
     es: "Bolas esponjosas de chhena (queso cuajado) hervidas en almíbar ligero; los bengalíes las atribuyen a Nabin Chandra Das, Calcuta, 1868.",
+    ko: "생치즈(체나) 반죽을 공 모양으로 빚어 묽은 설탕물에 삶은 과자로, 벵골에서는 1868년 콜카타의 나빈 찬드라 다스가 만들었다고 봅니다.",
   },
   "bengali::sandesh": {
     id: "Manisan Bengali yang dibuat dari chhena, dadih susu yang digumpalkan asam, dan gula.",
@@ -2560,6 +2895,7 @@ module.exports = {
     zh: "孟加拉的甜点：用酸凝的牛奶凝乳 chhena 与糖做成。",
     ja: "酸で固めた乳の凝乳チェナと砂糖で作るベンガルの甘味。",
     es: "Dulce bengalí hecho con chhena, cuajada de leche coagulada con ácido, y azúcar.",
+    ko: "산으로 굳힌 우유 커드(체나)와 설탕으로 만든 벵골의 과자입니다.",
   },
   "bengali::shorshe ilish": {
     id: "Hidangan Bengali: ikan hilsa direbus dalam kuah biji sawi giling yang menyengat; luas dianggap hidangan nasional Bangladesh.",
@@ -2568,6 +2904,7 @@ module.exports = {
     zh: "孟加拉的芥末鲥鱼：鲥鱼在冲鼻的芥末籽酱汁里煨熟；普遍被视作孟加拉国的国菜。",
     ja: "ヒルサ魚を、挽いたマスタードの刺激的な汁で煮るベンガルの料理。バングラデシュの国民食と広くみなされます。",
     es: "Plato bengalí de pescado hilsa cocido en una salsa punzante de mostaza molida; se considera el plato nacional de Bangladés.",
+    ko: "밴댕이를 갈아 만든 톡 쏘는 겨자 소스에 끓인 벵골 요리로, 방글라데시의 국민 음식으로 널리 꼽힙니다.",
   },
   "bengali::shukto": {
     id: "Hidangan sayur campur Bengali yang sedikit pahit; menurut tradisi disantap paling awal, adat Ayurweda membuka santapan dengan rasa pahit.",
@@ -2576,6 +2913,7 @@ module.exports = {
     zh: "孟加拉的微苦杂菜：照传统是一餐里最先吃的，阿育吠陀的规矩是以苦味开席。",
     ja: "ほのかに苦いベンガルの野菜の合わせ物。伝統では食事の最初に食べます。苦味で膳を開くアーユルヴェーダの習わしです。",
     es: "Plato bengalí de verduras variadas algo amargo; se come primero, según la costumbre ayurvédica de abrir la comida con amargos.",
+    ko: "살짝 쌉싸름한 벵골의 모둠 채소 요리로, 쓴맛으로 식사를 여는 아유르베다의 관습에 따라 가장 먼저 먹습니다.",
   },
   "brazilian::acarajé": {
     id: "Gorengan kacang tunggak dari Bahia, Brasil, berakar Yoruba Afrika Barat; dibelah lalu diisi vatapá dan udang.",
@@ -2584,6 +2922,7 @@ module.exports = {
     zh: "巴西巴伊亚州的炸豇豆饼，源自西非约鲁巴人；剖开后填入vatapá酱与虾。",
     ja: "ブラジル・バイーア州の、ささげ豆を揚げた団子。西アフリカのヨルバに由来し、割ってヴァタパとエビを詰める。",
     es: "Buñuelo frito de frijol carita de Bahía, Brasil, de origen yoruba de África Occidental; se abre y se rellena de vatapá y camarón.",
+    ko: "동부콩을 튀겨 반으로 갈라 바타파와 새우를 채운 브라질 바이아의 음식으로, 서아프리카 요루바에서 왔습니다.",
   },
   "brazilian::arroz com feijão": {
     id: "Santapan sehari-hari Brasil: nasi putih dengan kacang rebus, memadukan tradisi pribumi, Afrika, dan Eropa jadi protein yang lengkap.",
@@ -2592,6 +2931,7 @@ module.exports = {
     zh: "巴西的日常主食：白米饭配煮豆，将原住民、非洲与欧洲的传统合为一体，蛋白质互补齐全。",
     ja: "白米に煮豆を合わせるブラジルの日々の主食。先住民、アフリカ、ヨーロッパの伝統が交わり、たんぱく質も揃う。",
     es: "Plato cotidiano básico de Brasil: arroz blanco con frijoles cocidos, que une tradiciones indígenas, africanas y europeas.",
+    ko: "흰밥에 삶은 콩을 곁들인 브라질의 일상 주식으로, 원주민과 아프리카, 유럽의 전통이 어우러져 완전 단백질을 이룹니다.",
   },
   "brazilian::açai bowl": {
     id: "Hidangan Brasil dari buah palem açaí yang dibekukan dan dilumat lalu disajikan sebagai smoothie mangkuk; dari Pará dan Amazonas.",
@@ -2600,6 +2940,7 @@ module.exports = {
     zh: "巴西的菜式：巴西莓冷冻后打成泥，盛在碗中当作思慕雪；源自亚马孙地区的帕拉州与亚马孙州。",
     ja: "冷凍したアサイーの実をつぶし、ボウルに盛るブラジルのスムージー。アマゾンのパラ州とアマゾナス州が発祥。",
     es: "Plato brasileño de açaí congelado y triturado servido como batido en bol; nació en Pará y Amazonas, en la Amazonia.",
+    ko: "얼려 으깬 아사이 야자 열매를 그릇에 담아 스무디처럼 내는 브라질 음식으로, 아마존의 파라와 아마조나스에서 비롯됐습니다.",
   },
   "brazilian::barreado": {
     id: "Semur sapi yang dimasak lama dari pesisir Paraná, Brasil, ditim 12-15 jam dalam periuk tanah yang disegel pasta tepung singkong.",
@@ -2608,6 +2949,7 @@ module.exports = {
     zh: "巴西巴拉那州沿海的慢炖牛肉，在陶锅中焖煮12至15小时，锅口以木薯粉糊封死。",
     ja: "ブラジル・パラナ州沿岸の長時間煮込む牛肉料理。素焼きの鍋をキャッサバ粉の練り物で密封し、12〜15時間煮る。",
     es: "Guiso de vacuno de cocción lenta de la costa de Paraná, Brasil, cocido 12 a 15 horas en olla de barro sellada con pasta de mandioca.",
+    ko: "브라질 파라나 해안의 소고기 스튜로, 카사바 반죽으로 봉한 옹기에서 열두 시간에서 열다섯 시간 끓입니다.",
   },
   "brazilian::beijinho": {
     id: "Manisan pesta Brasil dari susu kental manis dan kelapa parut yang dibulatkan lalu diberi cengkih; versi kelapa dari brigadeiro.",
@@ -2616,6 +2958,7 @@ module.exports = {
     zh: "巴西派对上的甜点：炼乳与椰蓉搓成球，顶上插一粒丁香；这是brigadeiro的椰子版本。",
     ja: "コンデンスミルクとココナッツを丸めてクローブを飾るブラジルのパーティー菓子。ブリガデイロのココナッツ版。",
     es: "Dulce de fiesta brasileño de leche condensada y coco rallado en bolitas rematadas con un clavo; la versión de coco del brigadeiro.",
+    ko: "연유와 간 코코넛을 공 모양으로 빚어 정향을 꽂은 브라질의 잔치 과자로, 브리가데이루의 코코넛 버전입니다.",
   },
   "brazilian::bolinho de bacalhau brasil": {
     id: "Bakwan goreng Brasil dari ikan kod asin dan kentang; camilan bar boteco yang digemari, berasal dari Portugal.",
@@ -2624,6 +2967,7 @@ module.exports = {
     zh: "巴西的炸鳕鱼马铃薯球，是小酒馆boteco里受欢迎的下酒菜，源自葡萄牙。",
     ja: "塩ダラとじゃがいものブラジルの揚げコロッケ。ポルトガル由来で、ボテコと呼ばれる酒場の定番のつまみ。",
     es: "Croqueta brasileña frita de bacalao salado y patata, aperitivo muy popular en los bares boteco y de origen portugués.",
+    ko: "소금 대구와 감자를 빚어 튀긴 브라질의 음식으로, 포르투갈에서 왔으며 선술집의 인기 안주입니다.",
   },
   "brazilian::brigadeiro": {
     id: "Bola manis Brasil dari susu kental manis, kakao, dan mentega yang digulingkan dalam meses.",
@@ -2632,6 +2976,7 @@ module.exports = {
     zh: "巴西的软糖球，用炼乳、可可与黄油熬成，外滚巧克力米。",
     ja: "コンデンスミルク、ココア、バターで作り、チョコスプレーをまぶすブラジルの一口菓子。",
     es: "Bolita dulce brasileña de leche condensada, cacao y mantequilla rebozada en fideos de chocolate.",
+    ko: "연유와 코코아, 버터로 만들어 스프링클에 굴린 브라질의 초콜릿 경단입니다.",
   },
   "brazilian::caipirinha": {
     id: "Koktail nasional Brasil dari cachaça, jeruk nipis, dan gula di atas es; lahir di pedalaman São Paulo, jadi warisan budaya pada 2003.",
@@ -2640,6 +2985,7 @@ module.exports = {
     zh: "巴西的国民鸡尾酒：卡莎萨酒、青柠与糖加冰调成；起于圣保罗乡间，2003年被列为文化遗产。",
     ja: "カシャッサ、ライム、砂糖を氷とともに供するブラジルの国民的カクテル。サンパウロの農村で生まれ、2003年に文化遺産となった。",
     es: "Cóctel nacional de Brasil de cachaza, lima y azúcar con hielo; nació en el interior de São Paulo y es patrimonio cultural desde 2003.",
+    ko: "카샤사와 라임, 설탕을 얼음에 넣은 브라질의 국민 칵테일로, 상파울루 시골에서 비롯돼 2003년 문화유산이 됐습니다.",
   },
   "brazilian::churrasco brazilian": {
     id: "Panggangan Brasil: daging yang digarami dipanggang di tusuk (espeto) di atas bara kayu; berasal dari para gaucho di Pampa selatan.",
@@ -2648,6 +2994,7 @@ module.exports = {
     zh: "巴西烤肉：抹盐的肉串在铁扦（espeto）上，架于木炭火上烤制；源自南部潘帕斯草原的高乔人。",
     ja: "塩をした肉を串（エスペート）に刺し、薪の熾火で焼くブラジルのバーベキュー。南部パンパのガウチョに始まる。",
     es: "Asado brasileño de carne salada a la brasa de leña en espadas (espetos); nació entre los gauchos de la Pampa del sur.",
+    ko: "소금에 절인 고기를 꼬치에 꿰어 장작 숯불에 구운 브라질 바비큐로, 남부 팜파스의 가우초에게서 비롯됐습니다.",
   },
   "brazilian::coxinha": {
     id: "Camilan goreng Brasil berbentuk tetesan air mata berisi suwiran ayam; namanya berarti »paha kecil«, seperti bentuk paha ayam.",
@@ -2656,6 +3003,7 @@ module.exports = {
     zh: "巴西的泪滴形炸点心，面团里包鸡丝；名称意为「小腿」，取自鸡腿的形状。",
     ja: "しずく形に成形し、鶏のほぐし肉を生地で包んで揚げるブラジルの軽食。鶏もも肉の形から「小さなもも」を意味する名がついた。",
     es: "Aperitivo brasileño frito con forma de lágrima relleno de pollo desmenuzado; su nombre significa «muslito», por la forma del muslo.",
+    ko: "찢은 닭고기를 반죽으로 감싸 물방울 모양으로 튀긴 브라질 간식으로, 닭다리를 닮아 '작은 넓적다리'라 불립니다.",
   },
   "brazilian::farofa": {
     id: "Tepung singkong sangrai khas Brasil, kerap digoreng dengan mentega, bacon, dan bawang; pendamping feijoada dan churrasco.",
@@ -2664,6 +3012,7 @@ module.exports = {
     zh: "巴西的炒木薯粉，常与黄油、培根及洋葱同炒；是黑豆炖菜与烤肉的配食。",
     ja: "ブラジルの炒ったキャッサバ粉。バター、ベーコン、玉ねぎと炒め、フェイジョアーダやシュラスコの付け合わせにする。",
     es: "Harina de mandioca tostada brasileña, a menudo frita con mantequilla, tocino y cebolla; guarnición de la feijoada y el churrasco.",
+    ko: "볶은 카사바 가루로 흔히 버터와 베이컨, 양파에 볶으며, 페이조아다와 슈하스쿠에 곁들이는 브라질의 반찬입니다.",
   },
   "brazilian::feijoada": {
     id: "Semur Brasil dari kacang hitam bersama potongan babi dan sapi yang diasinkan dan diasap; pertama tercatat di Recife, Pernambuco, 1827.",
@@ -2672,6 +3021,7 @@ module.exports = {
     zh: "巴西的黑豆炖菜，配腌制与烟熏的猪肉、牛肉部位；1827年在伯南布哥州累西腓首次见于记载。",
     ja: "黒豆に塩漬け・燻製の豚肉と牛肉の各部位を合わせるブラジルの煮込み。1827年、ペルナンブコ州レシフェの記録が初出。",
     es: "Guiso brasileño de frijoles negros con cortes de cerdo y vacuno salados y ahumados; documentado en Recife, Pernambuco, en 1827.",
+    ko: "검은콩에 염장하고 훈제한 돼지고기와 소고기를 넣어 끓인 브라질 스튜로, 1827년 페르남부쿠 헤시피 기록에 처음 나옵니다.",
   },
   "brazilian::feijão tropeiro": {
     id: "Hidangan kacang dari Minas Gerais dengan farofa singkong, sosis, dan telur; diciptakan para penggiring ternak yang melintasi pedalaman.",
@@ -2680,6 +3030,7 @@ module.exports = {
     zh: "米纳斯吉拉斯的豆子菜，拌木薯粉、香肠与鸡蛋；相传出自旧时穿越内陆的赶牲人。",
     ja: "ミナスジェライスの豆料理。キャッサバ粉とソーセージ、卵を合わせる。内陸を旅した牛追いが生んだ。",
     es: "Plato de alubias de Minas Gerais con farofa de mandioca, embutido y huevo, creado por los arrieros que cruzaban el interior.",
+    ko: "콩과 카사바 파로파, 소시지, 달걀로 만든 미나스제라이스의 콩 요리로, 내륙 옛길을 오가던 소몰이꾼들이 만들었습니다.",
   },
   "brazilian::moqueca": {
     id: "Semur boga bahari Brasil berakar teknik bungkus pribumi pokeka; ada gaya baiana (dendê, kelapa) dan capixaba (tomat, lebih ringan).",
@@ -2688,6 +3039,7 @@ module.exports = {
     zh: "巴西的海鲜炖菜，源自原住民的「pokeka」包裹技法；有巴伊亚式（棕榈油、椰奶）与卡皮沙巴式（番茄，更清爽）。",
     ja: "先住民の包み蒸し「ポケカ」に由来するブラジルの魚介の煮込み。デンデ油とココナッツのバイーア式と、トマトで軽いカピシャバ式がある。",
     es: "Guiso brasileño de mariscos nacido de la técnica indígena de envoltura pokeka; baiana con aceite de dendê y coco, capixaba con tomate.",
+    ko: "잎에 싸서 익히던 원주민의 '포케카' 기법에 뿌리를 둔 브라질 해산물 찜으로, 바이아식과 카피샤바식이 있습니다.",
   },
   "brazilian::pastel": {
     id: "Pastel goreng Brasil berkulit tipis dengan isian gurih; lahir di São Paulo pada 1940-an dan dijual di pasar-pasar jalanan.",
@@ -2696,6 +3048,7 @@ module.exports = {
     zh: "巴西的薄皮油炸馅饼，内包咸味馅料；1940年代生于圣保罗，在街头市集售卖。",
     ja: "薄い生地に塩味の具を包んで揚げるブラジルのパイ。1940年代のサンパウロで生まれ、青空市で売られる。",
     es: "Empanadilla brasileña frita de masa fina con rellenos salados; nació en São Paulo en los años cuarenta y se vende en mercadillos.",
+    ko: "얇은 반죽에 짭짤한 소를 채워 튀긴 브라질 만두로, 1940년대 상파울루에서 비롯돼 길거리 시장에서 팝니다.",
   },
   "brazilian::picanha": {
     id: "Potongan sapi Brasil yang bernilai tinggi (tudung tanjung dengan lapisan lemaknya), menurut tradisi dipanggang di tusuk di churrascaria.",
@@ -2704,6 +3057,7 @@ module.exports = {
     zh: "巴西珍视的牛肉部位——臀盖肉连同其脂肪帽；在烤肉馆里传统上串在铁扦上炙烤。",
     ja: "ブラジルで珍重される牛肉の部位。イチボの上部を脂の層ごと使い、シュラスカリアでは串に刺して焼く。",
     es: "Corte de vacuno muy apreciado en Brasil (la tapa de cuadril con su capa de grasa), asado en espada en las churrascarías.",
+    ko: "지방층이 붙은 소 우둔살 부위로, 브라질에서 귀히 여기며 전통적으로 슈하스카리아에서 꼬치에 꿰어 굽습니다.",
   },
   "brazilian::pão de mel": {
     id: "Kue madu berempah Brasil yang diisi dulce de leche dan dilapis cokelat; saduran kue madu Eropa yang dibawa para imigran.",
@@ -2712,6 +3066,7 @@ module.exports = {
     zh: "巴西的香料蜂蜜蛋糕，内夹焦糖牛奶酱，外覆巧克力；改自移民带来的欧洲蜂蜜蛋糕。",
     ja: "ドゥルセ・デ・レチェを詰め、チョコレートで覆うブラジルのスパイス入り蜂蜜ケーキ。移民が伝えた欧州の菓子を作り替えたもの。",
     es: "Pastel de miel especiado brasileño relleno de dulce de leche y bañado en chocolate; adaptado de los panes de miel europeos.",
+    ko: "둘세 데 레체를 채우고 초콜릿을 씌운 브라질의 향신 꿀 케이크로, 이주민들이 들여온 유럽 꿀 케이크를 바꾼 것입니다.",
   },
   "brazilian::pão de queijo": {
     id: "Roti kecil panggang dari pati singkong dan keju asal Minas Gerais, Brasil; disantap sebagai camilan atau sarapan.",
@@ -2720,6 +3075,7 @@ module.exports = {
     zh: "巴西米纳斯吉拉斯州的小烤面包，用木薯淀粉与奶酪制成；可作零食，也可当早餐。",
     ja: "ブラジル・ミナスジェライス州の、キャッサバでんぷんとチーズで作る小さな焼きパン。軽食や朝食に食べる。",
     es: "Panecillos horneados de almidón de mandioca y queso de Minas Gerais, Brasil, que se comen como tentempié o desayuno.",
+    ko: "카사바 전분과 치즈로 구운 브라질 미나스제라이스의 작은 빵으로, 간식이나 아침으로 먹습니다.",
   },
   "brazilian::quindim": {
     id: "Puding panggang Brasil berwarna kuning cerah dari kuning telur, gula, dan kelapa parut; keturunan Portugis yang disadur di Bahia.",
@@ -2728,6 +3084,7 @@ module.exports = {
     zh: "巴西鲜黄的烤蛋奶点心，用蛋黄、糖与椰蓉制成；源自葡萄牙，在巴伊亚州改良而成。",
     ja: "卵黄、砂糖、削ったココナッツで焼く鮮やかな黄色のブラジルの菓子。ポルトガル由来で、バイーアで作り替えられた。",
     es: "Flan horneado brasileño de un amarillo intenso hecho con yemas, azúcar y coco rallado; de raíz portuguesa adaptado en Bahía.",
+    ko: "달걀노른자와 설탕, 간 코코넛으로 구운 샛노란 브라질 커스터드로, 포르투갈에서 온 것을 바이아에서 바꾼 것입니다.",
   },
   "brazilian::sopa de palmito": {
     id: "Sup krim Brasil dari umbut palem (palmito), bahan lokal yang melimpah, dimasak dengan bawang, bawang putih, kaldu, dan krim.",
@@ -2736,6 +3093,7 @@ module.exports = {
     zh: "巴西的奶油浓汤，用当地盛产的棕榈心（palmito）与洋葱、大蒜、高汤及奶油同煮。",
     ja: "地元に豊富なヤシの新芽（パルミット）で作るブラジルのクリームスープ。玉ねぎ、ニンニク、ブイヨン、生クリームを合わせる。",
     es: "Crema brasileña de palmitos, ingrediente local abundante, con cebolla, ajo, caldo y nata.",
+    ko: "이 지역에 흔한 야자순(팔미투)에 양파와 마늘, 육수, 크림을 넣어 만든 브라질의 크리미한 수프입니다.",
   },
   "brazilian::tapioca": {
     id: "Roti pipih mirip crêpe dari pati singkong yang dimasak di wajan panas; berasal dari pribumi Tupi dan jadi pokok Brasil timur laut.",
@@ -2744,6 +3102,7 @@ module.exports = {
     zh: "以木薯淀粉在热铁板上摊成的薄饼，形似可丽饼；源自图皮原住民，是巴西东北部的主食。",
     ja: "キャッサバでんぷんを熱した鉄板で焼く、クレープに似た薄いパン。トゥピ系先住民に由来し、ブラジル北東部の主食。",
     es: "Pan plano tipo crepe de almidón de mandioca cocido en plancha caliente; de origen indígena tupí y básico en el nordeste brasileño.",
+    ko: "카사바 전분을 뜨거운 철판에 부쳐 만든 크레프 같은 플랫브레드로, 원주민 투피에서 왔으며 브라질 북동부의 주식입니다.",
   },
   "brazilian::vatapá": {
     id: "Semur Afro-Brasil yang lembut dari roti, santan, kacang giling, udang, dan minyak sawit dendê; berasal dari Bahia.",
@@ -2752,6 +3111,7 @@ module.exports = {
     zh: "非洲裔巴西的浓滑炖菜，用面包、椰奶、坚果末、虾与dendê棕榈油熬成；源自巴伊亚州。",
     ja: "パン、ココナッツミルク、挽いたナッツ、エビ、デンデ椰子油で作るアフロブラジルの濃厚な煮込み。バイーア州発祥。",
     es: "Guiso afrobrasileño cremoso de pan, leche de coco, frutos secos molidos, camarón y aceite de palma dendê; originario de Bahía.",
+    ko: "빵과 코코넛밀크, 간 견과, 새우, 덴데 야자유로 만든 크리미한 아프리카계 브라질 스튜로, 바이아에서 비롯됐습니다.",
   },
   "british::balti curry": {
     id: "Kari Pakistan-Britania yang dikembangkan di Birmingham pada 1970-an, dimasak dan disajikan dalam mangkuk baja tipis bernama balti.",
@@ -2760,6 +3120,7 @@ module.exports = {
     zh: "英巴合流的咖喱：一九七〇年代成形于伯明翰，在薄钢碗 balti 里烧好连碗上桌；那词在乌尔都语里是「桶」。",
     ja: "一九七〇年代のバーミンガムで育った英パキスタンのカレー。薄い鋼の器バルティで調理し、そのまま供します。ウルドゥー語で「バケツ」。",
     es: "Curry británico-pakistaní surgido en el Birmingham de los setenta, cocinado y servido en un cuenco fino de acero (balti, «cubo» en urdu).",
+    ko: "1970년대 버밍엄에서 만들어진 영국 파키스탄식 커리로, 얇은 강철 그릇 '발티'에 조리해 그대로 냅니다.",
   },
   "british::bangers and mash": {
     id: "Hidangan Britania berisi sosis dan kentang tumbuk dengan kuah bawang; \"bangers\" mengingat sosis Perang Dunia I yang suka meletup.",
@@ -2768,6 +3129,7 @@ module.exports = {
     zh: "英国的传统菜：香肠配土豆泥，浇洋葱肉汁；「bangers」这词记着一战时期一煎就爆的香肠。",
     ja: "ソーセージとマッシュポテトに玉ねぎのグレイビーをかける英国の定番。「バンガーズ」は第一次大戦期、焼くと弾けたソーセージの名残。",
     es: "Plato británico tradicional de salchichas y puré de patata con salsa de cebolla; «bangers» recuerda a las que reventaban en la Gran Guerra.",
+    ko: "소시지와 으깬 감자에 양파 그레이비를 곁들인 영국의 전통 요리로, '뱅어'는 익히면 터지던 1차 대전 무렵의 소시지에서 왔습니다.",
   },
   "british::beef wellington": {
     id: "Hidangan Britania: fillet sapi dilapisi pate dan duxelles, dibungkus puff pastry lalu dipanggang; dinamai dari Duke of Wellington.",
@@ -2776,6 +3138,7 @@ module.exports = {
     zh: "英国的惠灵顿牛排：牛柳裹上肝酱与蘑菇碎，再用酥皮包好入炉；名字是为纪念威灵顿公爵。",
     ja: "牛ヒレをパテとデュクセルで覆い、パイ生地で包んで焼く英国の料理。ウェリントン公にちなんで名づけられました。",
     es: "Plato británico de solomillo de ternera cubierto de paté y duxelles, envuelto en hojaldre y horneado; en honor al duque de Wellington.",
+    ko: "소고기 안심에 파테와 뒥셀을 입혀 퍼프 페이스트리에 싸서 구운 영국 요리로, 웰링턴 공작을 기려 이름 붙었습니다.",
   },
   "british::black pudding": {
     id: "Sosis darah Britania dan Irlandia dari darah babi, lemak, dan oat; tercatat sebagai \"blak podyngs\" sejak sekitar 1450.",
@@ -2784,6 +3147,7 @@ module.exports = {
     zh: "英国与爱尔兰的血肠：猪血、脂肪与燕麦灌成；约一四五〇年就以「blak podyngs」之名见于记载。",
     ja: "豚の血、脂、オート麦で作る英国とアイルランドのブラッドソーセージ。一四五〇年ごろから「blak podyngs」の名で記録があります。",
     es: "Morcilla británica e irlandesa de sangre de cerdo, grasa y avena; registrada como «blak podyngs» desde hacia 1450.",
+    ko: "돼지 피와 지방, 귀리로 만든 영국과 아일랜드의 선지 소시지로, 1450년경부터 기록에 나옵니다.",
   },
   "british::british ale": {
     id: "Bir dengan ragi permukaan yang dibuat dari jelai yang dimaltkan.",
@@ -2792,6 +3156,7 @@ module.exports = {
     zh: "用麦芽大麦酿的上层发酵啤酒。",
     ja: "麦芽にした大麦から造る上面発酵のビール。",
     es: "Cerveza de fermentación alta elaborada con cebada malteada.",
+    ko: "맥아 보리로 상면 발효해 빚은 맥주입니다.",
   },
   "british::chicken tikka masala": {
     id: "Potongan ayam panggang berbumbu dalam saus tomat berkrim dan berempah; asal-usulnya diperebutkan Britania dan anak benua India.",
@@ -2800,6 +3165,7 @@ module.exports = {
     zh: "腌过的烤鸡块，浸在带香料的奶油番茄汁中；英国与印度次大陆都自称发明者。",
     ja: "漬け込んで焼いた鶏肉を、香辛料入りのクリームトマトソースで和える。英国と印亜大陸が発祥を争う。",
     es: "Trozos de pollo marinado a la parrilla en salsa cremosa de tomate especiada; Gran Bretaña y el subcontinente indio se disputan su origen.",
+    ko: "양념에 재워 구운 닭고기(티카)를 향신 크림 토마토 소스에 넣은 요리로, 영국과 인도 아대륙이 저마다 원조를 주장합니다.",
   },
   "british::cornish pasty": {
     id: "Pastri panggang berbentuk D berisi sapi, kentang, lobak swede, dan bawang, dari Cornwall; lekat dengan penambang timah abad ke-19.",
@@ -2808,6 +3174,7 @@ module.exports = {
     zh: "康沃尔的 D 形烤馅饼：牛肉、土豆、芜菁甘蓝与洋葱；与十九世纪的锡矿工相连，二〇一一年获地理标志保护。",
     ja: "コーンウォールのD字形の焼き包み。牛肉、じゃがいも、ルタバガ、玉ねぎを詰めます。十九世紀の錫鉱夫に結びつき、二〇一一年に保護。",
     es: "Empanada horneada en forma de D con ternera, patata, nabo sueco y cebolla, de Cornualles; ligada a los mineros y con IGP desde 2011.",
+    ko: "소고기와 감자, 스웨덴순무, 양파를 넣어 D자 모양으로 구운 콘월의 페이스트리로, 19세기 주석 광부와 얽혀 있으며 2011년 지리적 표시를 받았습니다.",
   },
   "british::cottage pie": {
     id: "Panggangan Britania berisi daging sapi cincang dalam kuah di bawah kerak kentang tumbuk; namanya pertama tercatat pada 1791.",
@@ -2816,6 +3183,7 @@ module.exports = {
     zh: "英国的焗菜：牛肉糜浸在肉汁里，上覆一层土豆泥；这名字最早见于一七九一年。",
     ja: "肉汁で煮た牛の挽肉に、マッシュポテトをかぶせて焼く英国の料理。名の初出は一七九一年。",
     es: "Gratén británico de ternera picada en salsa bajo una costra de puré de patata; el nombre se registra por primera vez en 1791.",
+    ko: "그레이비에 익힌 다진 소고기 위에 으깬 감자를 덮어 구운 영국 요리로, 이 이름은 1791년에 처음 기록됐습니다.",
   },
   "british::cream tea": {
     id: "Teh sore Britania berupa scone yang disajikan dengan clotted cream dan selai; lekat dengan Devon dan Cornwall sejak setidaknya abad ke-19.",
@@ -2824,6 +3192,7 @@ module.exports = {
     zh: "英国的下午茶：司康配凝脂奶油与果酱；至迟从十九世纪起就与德文郡、康沃尔相连。",
     ja: "スコーンにクロテッドクリームとジャムを添える英国のアフタヌーンティー。少なくとも十九世紀からデヴォンとコーンウォールに結びつきます。",
     es: "Merienda británica de scones con clotted cream y mermelada; ligada a Devon y Cornualles desde al menos el siglo XIX.",
+    ko: "스콘에 클로티드 크림과 잼을 곁들이는 영국의 애프터눈 티로, 적어도 19세기부터 데번과 콘월과 얽혀 있습니다.",
   },
   "british::crumpets": {
     id: "Roti wajan bundar kecil yang diragikan, permukaannya berlubang; disantap panggang berolesan mentega, andalan waktu teh sejak era Victoria.",
@@ -2832,6 +3201,7 @@ module.exports = {
     zh: "小圆形的发面煎饼，面上布满小孔；烤过抹黄油吃，维多利亚时代起就是下午茶的常客。",
     ja: "表面に穴の空いた小さな丸い発酵パン。焼いてバターを塗って食べる、ヴィクトリア朝以来の茶の時間の定番です。",
     es: "Panecillo redondo con levadura hecho a la plancha, con la cara superior agujereada; tostado y con mantequilla, clásico del té victoriano.",
+    ko: "이스트로 부풀려 철판에 구운 작고 둥근 빵으로 윗면에 구멍이 숭숭 나 있으며, 빅토리아 시대부터 이어진 영국 티타임의 단골입니다.",
   },
   "british::earl grey tea": {
     id: "Teh hitam Britania yang diberi minyak bergamot; menurut tradisi dinamai Charles, Earl Grey kedua, perdana menteri pada 1830-an.",
@@ -2840,6 +3210,7 @@ module.exports = {
     zh: "英国的伯爵红茶：以佛手柑油增香；照传统，名字取自一八三〇年代的首相、第二代格雷伯爵查尔斯。",
     ja: "ベルガモットの精油で香りづけした英国の紅茶。一八三〇年代の首相、第二代グレイ伯チャールズにちなむとされます。",
     es: "Té negro británico aromatizado con aceite de bergamota; por tradición, en honor a Charles, segundo conde Grey, primer ministro en 1830.",
+    ko: "베르가모트 기름으로 향을 낸 영국 홍차로, 1830년대 총리였던 2대 그레이 백작 찰스에게서 이름을 땄습니다.",
   },
   "british::english breakfast tea": {
     id: "Campuran teh hitam yang bertubuh penuh, biasanya Assam, Ceylon, dan Kenya; menurut tradisi diminum dengan susu.",
@@ -2848,6 +3219,7 @@ module.exports = {
     zh: "醇厚的红茶拼配：多半用阿萨姆、锡兰与肯尼亚茶；照传统要兑牛奶喝。",
     ja: "こくのある紅茶のブレンド。多くはアッサム、セイロン、ケニア。伝統ではミルクを入れて飲みます。",
     es: "Mezcla de tés negros con cuerpo, normalmente assam, ceilán y keniano; por tradición se bebe con leche.",
+    ko: "아삼과 실론, 케냐산 홍차를 섞어 만든 진한 블렌드로, 전통적으로 우유를 넣어 마십니다.",
   },
   "british::eton mess": {
     id: "Hidangan penutup Inggris dari stroberi, meringue, dan krim kocok; pertama disebut dalam cetakan pada 1893 dan lekat dengan Eton College.",
@@ -2856,6 +3228,7 @@ module.exports = {
     zh: "英格兰的甜点：草莓、蛋白霜与打发奶油拌在一处；一八九三年首次见于印刷品，与伊顿公学相连。",
     ja: "苺、メレンゲ、ホイップクリームを崩し合わせた英国の甘味。一八九三年に活字に現れ、イートン校と結びつきます。",
     es: "Postre inglés de fresas, merengue y nata montada; mencionado por primera vez en 1893 y ligado al Eton College.",
+    ko: "딸기와 머랭, 휘핑크림으로 만든 영국 디저트로, 1893년 처음 활자로 언급됐고 이튼 칼리지와 얽혀 있습니다.",
   },
   "british::fish and chips": {
     id: "Hidangan nasional Britania: ikan berbalut adonan yang digoreng rendam, biasanya kod atau haddock, disajikan bersama kentang goreng batang.",
@@ -2864,6 +3237,7 @@ module.exports = {
     zh: "英国的国菜：鱼（多半是鳕鱼或黑线鳕）裹面糊炸透，配粗切炸薯条。",
     ja: "英国の国民食。衣をつけて揚げた魚、多くは鱈やハドックに、太切りのフライドポテトを添えます。",
     es: "Plato nacional británico: pescado rebozado y frito, normalmente bacalao o eglefino, servido con patatas fritas gruesas.",
+    ko: "반죽을 입혀 튀긴 생선(보통 대구나 해덕)에 감자튀김을 곁들인 영국의 국민 음식입니다.",
   },
   "british::full english breakfast": {
     id: "Sarapan masak berisi bacon, telur, sosis, kacang panggang, tomat, black pudding, dan roti panggang.",
@@ -2872,6 +3246,7 @@ module.exports = {
     zh: "热早餐：培根、鸡蛋、香肠、焗豆、番茄、黑布丁与烤面包。",
     ja: "焼いた朝食。ベーコン、卵、ソーセージ、ベイクドビーンズ、トマト、ブラックプディング、トーストを一皿に。",
     es: "Desayuno cocinado de beicon, huevos, salchichas, alubias con tomate, tomate, morcilla y tostadas.",
+    ko: "베이컨과 달걀, 소시지, 베이크드빈, 토마토, 블랙푸딩, 토스트를 함께 차린 아침 식사입니다.",
   },
   "british::haggis": {
     id: "Puding gurih nasional Skotlandia dari jeroan domba yang dicincang: jantung, hati, dan paru-paru.",
@@ -2880,6 +3255,7 @@ module.exports = {
     zh: "苏格兰的国菜咸布丁：羊的内脏——心、肝与肺——剁碎做成。",
     ja: "スコットランドの国民的な塩味のプディング。羊の心臓、肝臓、肺を刻んで作ります。",
     es: "Pudin salado nacional de Escocia de asadura de cordero picada: corazón, hígado y pulmones.",
+    ko: "양의 내장(심장·간·허파)을 다져 만든 스코틀랜드의 국민 음식이자 짭조름한 푸딩입니다.",
   },
   "british::marmite on toast": {
     id: "Andalan sarapan Britania: olesan ekstrak ragi, ditemukan pada 1902 di Burton upon Trent, dioleskan tipis di atas roti panggang bermentega.",
@@ -2888,6 +3264,7 @@ module.exports = {
     zh: "英国早餐的常备：酵母提取物酱，一九〇二年生于伯顿；薄薄抹在热烘烘的黄油吐司上。",
     ja: "英国の朝食の定番。一九〇二年バートン・アポン・トレントで生まれた酵母エキスのペーストを、熱いバタートーストに薄く塗ります。",
     es: "Clásico del desayuno británico: crema de extracto de levadura, inventada en 1902 en Burton upon Trent, untada fina sobre tostada.",
+    ko: "1902년 버턴어폰트렌트에서 만들어진 짭짤한 효모 추출물을 버터 바른 뜨거운 토스트에 얇게 발라 먹는 영국의 아침 식사입니다.",
   },
   "british::pimm's": {
     id: "Likuer buah Inggris berbasis gin, diciptakan sekitar 1823-40 oleh James Pimm, pemilik bar tiram London; disajikan sebagai koktail.",
@@ -2896,6 +3273,7 @@ module.exports = {
     zh: "英国的金酒基水果利口酒：约一八二三至四〇年由伦敦生蚝酒吧老板 James Pimm 调出；夏天调成鸡尾酒喝。",
     ja: "ジンを土台にした英国の果実リキュール。一八二三〜四〇年ごろ、ロンドンのオイスターバー主ジェームズ・ピムが生み、夏のカクテルに。",
     es: "Licor de frutas inglés a base de ginebra, creado hacia 1823-40 por James Pimm, ostrero londinense; se toma en cóctel veraniego.",
+    ko: "런던 굴 요릿집 주인 제임스 핌스가 1823~40년경 만든 진 기반의 과일 리큐어로, 여름 칵테일로 냅니다.",
   },
   "british::roast beef": {
     id: "Potongan daging sapi panggang oven khas Britania, pusat santapan Minggu; disajikan dengan Yorkshire pudding dan kentang panggang.",
@@ -2904,6 +3282,7 @@ module.exports = {
     zh: "英国的烤牛肉：一整块下炉烤，是周日餐桌的主角；配约克郡布丁、烤土豆与肉汁。",
     ja: "英国のオーブンで焼く牛の塊肉。日曜の食卓の主役で、ヨークシャープディング、焼きじゃがいも、グレイビーを添えます。",
     es: "Pieza de ternera asada al horno británica, centro del asado dominical; con Yorkshire pudding, patatas asadas y salsa.",
+    ko: "오븐에 구운 영국식 소고기 덩어리로, 요크셔 푸딩과 구운 감자, 그레이비를 곁들이는 일요일 구이의 중심입니다.",
   },
   "british::scotch egg": {
     id: "Camilan Britania berupa telur rebus setengah atau matang yang dibungkus daging sosis, dibalut remah roti, lalu digoreng.",
@@ -2912,6 +3291,7 @@ module.exports = {
     zh: "英国的小食：溏心或全熟的鸡蛋裹上香肠肉馅，滚面包糠下油锅炸。",
     ja: "英国の軽食。半熟か固ゆでの卵をソーセージの肉で包み、パン粉をつけて揚げます。",
     es: "Aperitivo británico de huevo pasado por agua o duro envuelto en carne de salchicha, empanado y frito.",
+    ko: "반숙이나 완숙 달걀을 소시지 고기로 감싸 빵가루를 입혀 튀긴 영국 간식입니다.",
   },
   "british::shepherd's pie": {
     id: "Panggangan Britania berisi daging domba cincang yang ditutup kentang tumbuk; namanya pertama tercatat pada abad ke-19.",
@@ -2920,6 +3300,7 @@ module.exports = {
     zh: "英国的焗菜：羊肉糜上盖一层土豆泥；这名字最早见于十九世纪。",
     ja: "羊の挽肉にマッシュポテトをかぶせて焼く英国の料理。名が記録に現れるのは十九世紀です。",
     es: "Gratén británico de cordero picado cubierto de puré de patata; el nombre se registra por primera vez en el siglo XIX.",
+    ko: "다진 양고기 위에 으깬 감자를 덮어 구운 영국 요리로, 이 이름은 19세기에 처음 기록됐습니다.",
   },
   "british::sticky toffee pudding": {
     id: "Bolu Inggris yang lembap, dibuat dengan cincangan kurma dan diselimuti saus toffee; merakyat dari Lake District Cumbria sejak 1970-an.",
@@ -2928,6 +3309,7 @@ module.exports = {
     zh: "英格兰的太妃布丁：湿润的海枣蛋糕，浇满太妃糖酱；自一九七〇年代起，从坎布里亚的湖区传开。",
     ja: "刻んだデーツを入れたしっとりした英国のケーキに、トフィーソースをたっぷり。一九七〇年代、カンブリアの湖水地方から広まりました。",
     es: "Bizcocho inglés jugoso con dátiles picados cubierto de salsa de toffee; se difundió desde el Distrito de los Lagos en los años setenta.",
+    ko: "잘게 썬 대추야자를 넣어 촉촉하게 구운 영국 스펀지케이크에 토피 소스를 끼얹은 것으로, 1970년대부터 컴브리아 호수 지방에서 퍼졌습니다.",
   },
   "british::sunday roast": {
     id: "Santapan Minggu tradisional Britania: daging panggang, kentang panggang, sayuran, Yorkshire pudding, dan kuah; kebiasaan seusai gereja.",
@@ -2936,6 +3318,7 @@ module.exports = {
     zh: "英国的周日烤肉餐：烤肉、烤土豆、蔬菜、约克郡布丁与肉汁；根在做完礼拜之后的那一顿。",
     ja: "英国の伝統的な日曜の食事。ローストした肉、焼きじゃがいも、野菜、ヨークシャープディング、グレイビー。教会帰りの食卓に根があります。",
     es: "Comida dominical británica tradicional: asado, patatas al horno, verduras, Yorkshire pudding y salsa; nacida de la mesa tras la iglesia.",
+    ko: "고기 구이와 구운 감자, 채소, 요크셔 푸딩, 그레이비를 차리는 영국의 전통 일요일 식사로, 예배 뒤의 식탁에서 이어졌습니다.",
   },
   "british::toad in the hole": {
     id: "Hidangan Britania berisi sosis yang dipanggang dalam adonan Yorkshire pudding; namanya dari abad ke-18, daging yang dimasak dalam adonan.",
@@ -2944,6 +3327,7 @@ module.exports = {
     zh: "英国菜：香肠埋在约克郡布丁的面糊里同烤；这名字出自十八世纪，说的是「裹在面糊里烤的肉」。",
     ja: "ヨークシャープディングの生地にソーセージを埋めて焼く英国の料理。名は十八世紀に遡り、生地の中で焼く肉を指します。",
     es: "Plato británico de salchichas horneadas en masa de Yorkshire pudding; el nombre data del siglo XVIII: carne cocinada dentro de la masa.",
+    ko: "요크셔 푸딩 반죽에 소시지를 넣어 구운 영국 요리로, 이 이름은 18세기까지 거슬러 올라갑니다.",
   },
   "british::trifle": {
     id: "Hidangan penutup Britania berlapis bolu, buah, custard, dan krim.",
@@ -2952,6 +3336,7 @@ module.exports = {
     zh: "英国的层叠甜品：海绵蛋糕、水果、蛋奶酱与奶油一层层堆起。",
     ja: "スポンジ、果物、カスタード、クリームを層に重ねる英国の甘味。",
     es: "Postre británico en capas de bizcocho, fruta, natillas y nata.",
+    ko: "스펀지와 과일, 커스터드, 크림을 켜켜이 쌓은 영국 디저트입니다.",
   },
   "british::victoria sponge": {
     id: "Kue lapis Britania dari dua bolu yang diisi selai dan kerap krim; dinamai Ratu Victoria, yang menikmatinya saat teh sore.",
@@ -2960,6 +3345,7 @@ module.exports = {
     zh: "英国的维多利亚海绵蛋糕：两片海绵中间夹果酱，常再加奶油；名字取自爱在下午茶时吃它的维多利亚女王。",
     ja: "二枚のスポンジにジャム、しばしばクリームを挟む英国のケーキ。午後の茶に好んだヴィクトリア女王にちなみます。",
     es: "Bizcocho británico de dos capas relleno de mermelada y a menudo nata; lleva el nombre de la reina Victoria, que lo tomaba con el té.",
+    ko: "스펀지 두 장 사이에 잼과 흔히 크림을 채운 영국 케이크로, 애프터눈 티에 즐겨 들던 빅토리아 여왕에게서 이름을 땄습니다.",
   },
   "british::yorkshire pudding": {
     id: "Adonan Inggris dari telur, tepung, dan susu yang dipanggang dalam lemak daging; dinamai dalam buku masak Hannah Glasse tahun 1747.",
@@ -2968,6 +3354,7 @@ module.exports = {
     zh: "英国的约克郡布丁：蛋、面粉与牛奶调糊，在烤肉滴下的油里烘；一七四七年由 Hannah Glasse 的食谱定名，配烤肉吃。",
     ja: "卵、小麦粉、牛乳の生地を肉の脂で焼いた英国の一品。一七四七年、ハンナ・グラスの料理書で名づけられ、ローストに添えます。",
     es: "Masa inglesa de huevo, harina y leche horneada en la grasa del asado; bautizada en el recetario de Hannah Glasse de 1747.",
+    ko: "달걀과 밀가루, 우유 반죽을 고기 기름에 구운 영국 음식으로, 1747년 해나 글라스의 요리책에 이름이 올랐고 고기 구이에 곁들입니다.",
   },
   "burmese::aloo paratha burmese": {
     id: "Palata adalah roti pipih goreng berlapis Myanmar, saduran paratha Asia Selatan; disantap dengan kari, telur, atau kentang.",
@@ -2976,6 +3363,7 @@ module.exports = {
     zh: "Palata 是缅甸的层酥煎饼，殖民时期由南亚的 paratha 改造而来；配咖喱、鸡蛋或土豆吃。",
     ja: "パラタはミャンマーの層状の焼きパン。植民地期に南アジアのパラーターを翻案したもので、カレー、卵、じゃがいもと食べます。",
     es: "La palata es el pan plano hojaldrado y frito de Myanmar, adaptado del paratha surasiático en la Colonia; con curry, huevo o patata.",
+    ko: "팔라타는 식민지 시대 남아시아 파라타에서 온 미얀마의 겹겹이 부친 플랫브레드로, 카레나 달걀, 감자와 함께 먹습니다.",
   },
   "burmese::balachaung": {
     id: "Kondimen Burma yang renyah dari udang kering, bawang putih, dan bawang bombai yang digoreng bersama cabai; disantap dengan nasi.",
@@ -2984,6 +3372,7 @@ module.exports = {
     zh: "缅甸的酥香佐料：虾米、蒜与洋葱在油里与辣椒同炸；配白饭吃。",
     ja: "干し海老、にんにく、玉ねぎを唐辛子とともに油で揚げた、ミャンマーのカリカリの薬味。ご飯に添えます。",
     es: "Condimento birmano crujiente de gamba seca, ajo y cebolla fritos en aceite con chile; se come con arroz al vapor.",
+    ko: "말린 새우와 마늘, 양파를 고추와 함께 기름에 볶아 바삭하게 만든 미얀마의 양념으로, 흰밥과 함께 먹습니다.",
   },
   "burmese::burmese curry": {
     id: "Semur daging atau sayur ala Burma yang disebut hin, kerap dimasak gaya sibyan hingga minyaknya memisah dan naik ke permukaan.",
@@ -2992,6 +3381,7 @@ module.exports = {
     zh: "缅甸的肉或菜炖锅，叫 hin；常照 sibyan 的做法煮到油与汁分离、浮在表面。",
     ja: "ミャンマーの肉や野菜の煮込み「ヒン」。しばしばシビャン式に、油が分離して表面に浮くまで煮ます。",
     es: "Guiso birmano de carne o verdura (hin), a menudo cocinado al estilo sibyan hasta que el aceite se separa y sube a la superficie.",
+    ko: "고기나 채소를 끓인 미얀마식 스튜(힌)로, 흔히 기름이 위로 떠오를 때까지 시뱐 방식으로 익힙니다.",
   },
   "burmese::burmese fish curry": {
     id: "Kari ikan berbasis tomat yang sehari-hari di Myanmar; ia termasuk gaya hsibyan, yang berarti \"minyaknya kembali\".",
@@ -3000,6 +3390,7 @@ module.exports = {
     zh: "缅甸日常的番茄鱼咖喱；它属于 hsibyan 一路，那三个字的意思是「油回来了」。",
     ja: "トマトを土台にしたミャンマーの日常の魚カレー。「油が戻る」を意味するシビャンの系統に属します。",
     es: "Curry de pescado cotidiano de Myanmar con base de tomate; pertenece al estilo hsibyan, que significa «el aceite vuelve».",
+    ko: "토마토를 바탕으로 한 미얀마의 일상 생선 카레로, '기름이 돌아온다'는 뜻의 시뱐 계열에 듭니다.",
   },
   "burmese::chickpea tofu": {
     id: "\"Tahu\" Burma tanpa kedelai asal Shan, dipadatkan seperti polenta dari tepung buncis atau kacang polong; disajikan teriris atau digoreng.",
@@ -3008,6 +3399,7 @@ module.exports = {
     zh: "缅甸掸邦的无豆「豆腐」：鹰嘴豆粉或黄豌豆粉像玉米糊那样凝固；切片吃，也可下锅炸。",
     ja: "大豆を使わないシャン由来のミャンマーの「豆腐」。ひよこ豆や黄えんどうの粉をポレンタのように固め、切って、または揚げて供します。",
     es: "«Tofu» birmano sin soja de origen shan, cuajado como polenta con harina de garbanzo o de guisante amarillo; en lonchas o frito.",
+    ko: "샨족에게서 온 콩을 쓰지 않는 미얀마식 '두부'로, 병아리콩이나 노란 완두 가루를 폴렌타처럼 굳혀 저미거나 튀겨 냅니다.",
   },
   "burmese::e kya kway": {
     id: "Cakwe terigu goreng khas Burma, bentuk setempat dari youtiao Tionghoa; disantap saat sarapan, dicelup teh, kopi, atau bubur.",
@@ -3016,6 +3408,7 @@ module.exports = {
     zh: "缅甸的炸油条，是中国油条在当地的样子；早餐时蘸茶、蘸咖啡，或配米粥。",
     ja: "ミャンマーの揚げパン。中国の油条がこの地でとった形で、朝食に茶やコーヒーに浸し、粥に添えます。",
     es: "Palo de masa de trigo frito birmano, forma local del youtiao chino; al desayuno se moja en té, café o gachas de arroz.",
+    ko: "밀 반죽을 튀겨 낸 미얀마식 유탸오로, 아침에 차나 커피, 죽에 찍어 먹습니다.",
   },
   "burmese::falooda": {
     id: "Hidangan penutup Mughlai yang dingin, berasal Persia; phaluda Burma menambahkan biji selasih, cincau, puding telur, dan es krim.",
@@ -3024,6 +3417,7 @@ module.exports = {
     zh: "源自波斯的莫卧儿冷甜品；缅甸版的 phaluda 还要加罗勒籽、凉粉、蛋布丁与冰淇淋。",
     ja: "ペルシアに発するムガルの冷たい甘味。ミャンマーのファルーダは、バジルシード、仙草ゼリー、卵プリン、アイスを加えます。",
     es: "Postre frío mogol de origen persa; la phaluda birmana añade semillas de albahaca, gelatina de hierbas, flan de huevo y helado.",
+    ko: "페르시아에서 온 무굴식 차가운 디저트로, 미얀마식 팔루다는 바질씨와 그라스젤리, 달걀 푸딩, 아이스크림을 더합니다.",
   },
   "burmese::htamin gyaw": {
     id: "Nasi goreng Burma yang menurut tradisi dibuat dengan kacang polong rebus, bawang bombai, dan bawang putih; lazim disantap sebagai sarapan.",
@@ -3032,6 +3426,7 @@ module.exports = {
     zh: "缅甸的炒饭：照传统用煮熟的豌豆、洋葱与蒜同炒；当地人多半拿它当早餐。",
     ja: "ゆでた豆、玉ねぎ、にんにくで作るのが伝統のミャンマーの炒飯。かの地では朝食として食べられます。",
     es: "Arroz frito birmano hecho tradicionalmente con guisantes cocidos, cebolla y ajo; en Myanmar se toma sobre todo de desayuno.",
+    ko: "삶은 완두와 양파, 마늘을 넣어 만드는 미얀마식 볶음밥으로, 미얀마에서 흔히 아침으로 먹습니다.",
   },
   "burmese::kao swe": {
     id: "Kata Burma untuk \"mi\"; yang paling lazim adalah ohn no khao swe, mi terigu dalam kuah kari ayam bersantan.",
@@ -3040,6 +3435,7 @@ module.exports = {
     zh: "缅甸语里的「面」；最常说的是 ohn no khao swè，即椰浆咖喱鸡汤小麦面。",
     ja: "ミャンマー語で「麺」。多くはオンノ・カウスエ、ココナッツのチキンカレースープの小麦麺を指します。",
     es: "«Fideos» en birmano; suele referirse al ohn no khao swè, fideos de trigo en caldo de pollo al curry con leche de coco.",
+    ko: "미얀마어로 '국수'를 뜻하며, 흔히 닭고기 카레와 코코넛밀크 국물에 밀면을 넣은 온노카욱스웨를 가리킵니다.",
   },
   "burmese::lahpet thoke": {
     id: "Salad Burma dari daun teh fermentasi, dicampur kacang goreng, biji-bijian, wijen, dan minyak bawang putih; dulu tanda damai antar kerajaan.",
@@ -3048,6 +3444,7 @@ module.exports = {
     zh: "缅甸的腌茶叶沙拉：发酵茶叶拌炸豆、坚果、芝麻与蒜油；从前，这是王国之间讲和的信物。",
     ja: "発酵させた茶葉に、揚げ豆、木の実、胡麻、にんにく油を和えるミャンマーのサラダ。かつては王国どうしの和睦の印でした。",
     es: "Ensalada birmana de hojas de té fermentadas con legumbres fritas, frutos secos, sésamo y aceite de ajo; antaño, ofrenda de paz.",
+    ko: "발효한 찻잎에 튀긴 콩과 견과, 깨, 마늘 기름을 섞은 미얀마 샐러드로, 한때는 왕국 사이의 화해 선물이었습니다.",
   },
   "burmese::mohinga": {
     id: "Hidangan nasional Myanmar: sup ikan dan mi beras yang disantap saat sarapan; pada abad ke-19 ia sudah jadi makanan murah kaum pekerja.",
@@ -3056,6 +3453,7 @@ module.exports = {
     zh: "缅甸的国菜：鱼汤米粉，是当地人的早餐；到十九世纪，它已是劳工阶层的廉价饭食。",
     ja: "ミャンマーの国民食。魚のスープと米麺の朝食で、十九世紀には労働者の安価な食事になっていました。",
     es: "Plato nacional de Myanmar: sopa de pescado con fideos de arroz que se toma al desayuno; en el siglo XIX era comida barata de obreros.",
+    ko: "생선과 쌀국수로 끓인 미얀마의 국민 음식으로 아침에 먹으며, 19세기에는 노동자들의 값싼 끼니였습니다.",
   },
   "burmese::mont di": {
     id: "Hidangan mi beras halus Burma; versi Rakhine paling tersohor, disajikan sebagai salad atau dalam sup ikan-serai dengan ngapi.",
@@ -3064,6 +3462,7 @@ module.exports = {
     zh: "缅甸的细米粉：最有名的是若开版本，可拌成沙拉，也可泡在鱼与香茅的汤里，加虾酱 ngapi。",
     ja: "細い米麺のミャンマーの料理。最も知られるのはラカイン版で、和え麺にも、魚とレモングラスのスープにもします。",
     es: "Plato birmano de fideos de arroz finos; su versión rakhine es la más conocida, como ensalada o en sopa de pescado y citronela con ngapi.",
+    ko: "미얀마의 가는 쌀국수 요리로, 라카인식이 가장 잘 알려져 있으며 샐러드로 내거나 응아피를 넣은 생선 레몬그라스 국물에 냅니다.",
   },
   "burmese::ohn no khao swe": {
     id: "Sup mi terigu Burma dalam kuah kari ayam bersantan yang dikentalkan tepung buncis.",
@@ -3072,6 +3471,7 @@ module.exports = {
     zh: "缅甸的椰浆咖喱鸡汤面：小麦面泡在椰奶咖喱鸡汤里，用鹰嘴豆粉勾稠。",
     ja: "ココナッツミルクのチキンカレースープに小麦麺を入れたミャンマーの一杯。ひよこ豆粉でとろみをつけます。",
     es: "Sopa birmana de fideos de trigo en caldo de pollo al curry con leche de coco, espesado con harina de garbanzo.",
+    ko: "닭고기 카레와 코코넛밀크 국물에 밀면을 넣고 병아리콩 가루로 걸쭉하게 낸 미얀마 국수입니다.",
   },
   "burmese::paratha burmese style": {
     id: "Palata adalah roti pipih berlapis khas Burma yang digoreng, turunan paratha India pada masa kolonial; disantap dengan kari atau gula.",
@@ -3080,6 +3480,7 @@ module.exports = {
     zh: "Palata 是缅甸的层酥煎饼，由殖民时期的印度 paratha 演变而来；配咖喱或撒糖吃。",
     ja: "パラタは、植民地期のインドのパラーターから生まれたミャンマーの層状の焼きパン。カレーに添えるか、砂糖をかけて食べます。",
     es: "La palata es un pan plano birmano hojaldrado y frito, derivado del paratha indio en la época colonial; se come con curry o azúcar.",
+    ko: "팔라타는 식민지 시대 인도 파라타에서 온 미얀마의 겹겹이 부친 플랫브레드로, 카레나 설탕과 함께 먹습니다.",
   },
   "burmese::shan noodles": {
     id: "Mi beras Burma yang ditutup saus ayam atau babi berbasis tomat; berasal dari Negara Bagian Shan, Myanmar.",
@@ -3088,6 +3489,7 @@ module.exports = {
     zh: "缅甸的掸邦米线：米粉浇番茄底的鸡肉或猪肉酱；出自缅甸掸邦。",
     ja: "トマトを土台にした鶏か豚のあんをかけるミャンマーの米麺。シャン州に発します。",
     es: "Fideos de arroz birmanos con salsa de pollo o cerdo a base de tomate; proceden del estado de Shan, en Myanmar.",
+    ko: "토마토를 바탕으로 한 닭이나 돼지고기 소스를 올린 미얀마 쌀국수로, 미얀마 샨주에서 비롯됐습니다.",
   },
   "burmese::shan-style tofu salad": {
     id: "Salad Burma yang diaduk dengan tangan dari tahu buncis yang lembut; berasal dari orang Shan di Myanmar, yang tak memakai kedelai.",
@@ -3096,6 +3498,7 @@ module.exports = {
     zh: "缅甸的手拌沙拉：主角是滑嫩的鹰嘴豆「豆腐」；出自缅甸掸族，他们并不用大豆。",
     ja: "手で和えるミャンマーのサラダ。なめらかなひよこ豆の豆腐を使います。大豆を用いないシャン族に発します。",
     es: "Ensalada birmana mezclada a mano con tofu sedoso de garbanzo; procede del pueblo shan de Myanmar, que no usa soja.",
+    ko: "부드러운 병아리콩 두부를 손으로 버무린 미얀마 샐러드로, 콩을 쓰지 않는 미얀마 샨족에게서 비롯됐습니다.",
   },
   "burmese::shwe yin aye": {
     id: "Hidangan penutup dingin Burma: santan disiram di atas ketan, sagu, jeli pandan, dan roti; lekat dengan perayaan tahun baru Thingyan.",
@@ -3104,6 +3507,7 @@ module.exports = {
     zh: "缅甸的冰甜品：椰浆浇在糯米、西米、香兰冻与面包上；与泼水节新年 Thingyan 相连。",
     ja: "ミャンマーの冷たい甘味。もち米、サゴ、パンダンゼリー、パンにココナッツミルクをかけます。新年の水祭りティンジャンと結びつきます。",
     es: "Postre frío birmano: leche de coco sobre arroz glutinoso, sagú, gelatina de pandan y pan; ligado a la fiesta de Año Nuevo Thingyan.",
+    ko: "찰밥과 사고, 판단 젤리, 빵 위에 코코넛밀크를 부은 미얀마의 차가운 디저트로, 띤잔 새해 축제와 얽혀 있습니다.",
   },
   "burmese::si jet khauk swe": {
     id: "Mi Burma yang diaduk dalam minyak berbawang putih dan bawang goreng, kerap ditutup bebek; lekat dengan komunitas Tionghoa-Burma.",
@@ -3112,6 +3516,7 @@ module.exports = {
     zh: "缅甸的蒜油拌面：蛋面或麦面拌蒜香油与炸蒜，常配鸭肉；与缅华社群关系密切。",
     ja: "にんにく油と揚げにんにくで和えるミャンマーの卵麺・小麦麺。鴨をのせることが多く、華人系ミャンマー社会と結びつきます。",
     es: "Fideos birmanos al huevo o de trigo salteados en aceite de ajo con ajo frito, a menudo con pato; ligados a la comunidad chino-birmana.",
+    ko: "마늘 기름과 튀긴 마늘에 달걀면이나 밀면을 버무린 미얀마 요리로, 흔히 오리를 올리며 화교 공동체와 얽혀 있습니다.",
   },
   "burmese::tea leaf rice": {
     id: "Hidangan nasi Burma: daun teh fermentasi lahpet dicampur nasi, kacang tanah, bawang putih, dan kacang goreng; biasanya menutup santapan.",
@@ -3120,6 +3525,7 @@ module.exports = {
     zh: "缅甸的茶叶饭：发酵茶叶 lahpet 拌米饭、花生、蒜与炸豆；照传统摆在一餐的末尾。",
     ja: "発酵茶葉ラペットを米、落花生、にんにく、揚げ豆と混ぜるミャンマーの飯。伝統では食事の締めに供されます。",
     es: "Plato de arroz birmano de hojas de té fermentadas (lahpet) con arroz, cacahuete, ajo y legumbres fritas; cierra la comida por tradición.",
+    ko: "발효한 찻잎(라펫)을 밥과 땅콩, 마늘, 튀긴 콩과 섞은 미얀마 요리로, 전통적으로 식사의 마지막에 냅니다.",
   },
   "cantonese::beef hor fun (dry-fried ngau hor)": {
     id: "Tumisan Kanton dari kwetiau shahe, daging sapi, dan tauge; versi kering gon chau adalah tolok ukur wok hei.",
@@ -3128,6 +3534,7 @@ module.exports = {
     zh: "粤式干炒牛河：沙河粉与牛肉、豆芽同炒；干炒的做法正是检验镬气的标尺。",
     ja: "平たい沙河粉と牛肉、もやしを炒める広東料理。汁を使わない乾炒（ゴンチャウ）は鑊気を測る物差しとされる。",
     es: "Salteado cantonés de fideos planos de arroz shahe, ternera y brotes; la versión seca gon chau es la vara de medir del wok hei.",
+    ko: "넓적한 사허 쌀국수와 소고기, 숙주를 볶은 광둥 요리로, 국물 없이 볶는 '곤차우' 방식이 불맛의 기준이 됩니다.",
   },
   "cantonese::cantonese chrysanthemum tea": {
     id: "Seduhan bunga krisan kering; merakyat pada masa Dinasti Song dan kini disajikan sebagai minuman penyejuk saat yum cha Kanton.",
@@ -3136,6 +3543,7 @@ module.exports = {
     zh: "干菊花冲泡的花茶：宋代已流行，如今是广东饮茶时的清凉饮品。",
     ja: "干した菊の花を淹れた茶。宋代に広まり、広東の飲茶では体を冷やす飲み物として供されます。",
     es: "Infusión floral de crisantemos secos; se popularizó en la dinastía Song y se sirve como bebida refrescante en el yum cha cantonés.",
+    ko: "말린 국화를 우린 꽃차로, 송나라 때 널리 퍼졌으며 광둥 얌차에서 열을 내리는 음료로 냅니다.",
   },
   "cantonese::cantonese double-boiled soup (lou foh tong)": {
     id: "\"Sup api tua\" Kanton: kaldu bening dari daging, tulang, dan herba yang direbus perlahan berjam-jam; sudah lazim di Guangzhou akhir Qing.",
@@ -3144,6 +3552,7 @@ module.exports = {
     zh: "广东的老火汤：肉、骨与药材小火慢煨几个钟头，汤色清亮；晚清起就是广州人家的日常。",
     ja: "広東の「老火湯」。肉と骨と薬材を何時間も弱火で煮出した澄んだスープで、清末には広州の日常でした。",
     es: "«Sopa de fuego lento» cantonesa: caldo claro de carne, huesos y hierbas cocido horas; en Cantón, cotidiano ya a finales de los Qing.",
+    ko: "고기와 뼈, 약재를 여러 시간 은근히 고아 낸 광둥의 '노화탕'으로, 청나라 말에는 광저우의 일상 음식이었습니다.",
   },
   "cantonese::cantonese seafood platter": {
     id: "Piring jamuan berisi aneka udang, kerang kipas, dan ikan segar, biasanya dikukus ala Kanton dengan bumbu yang ringan.",
@@ -3152,6 +3561,7 @@ module.exports = {
     zh: "宴席上的海鲜拼盘：鲜虾、带子与鱼，多半照广东做法清蒸，只作淡淡调味。",
     ja: "宴席の海鮮の盛り合わせ。海老、帆立、魚を、広東風に薄味で蒸すのが常です。",
     es: "Fuente de banquete con gambas, vieiras y pescado frescos, por lo común al vapor al estilo cantonés y con aliño ligero.",
+    ko: "신선한 새우와 관자, 생선을 모아 낸 연회용 모둠 요리로, 대개 광둥식으로 담백하게 간해 쪄냅니다.",
   },
   "cantonese::cantonese steamed fish": {
     id: "Ikan utuh dikukus bersama jahe dan daun bawang, disiram kecap asin encer dan minyak panas; wajib ada di jamuan dan Imlek Kanton.",
@@ -3160,6 +3570,7 @@ module.exports = {
     zh: "清蒸全鱼：鱼与姜葱同蒸，淋生抽再泼热油；广东宴席与年夜饭的必备。",
     ja: "生姜と葱を添えて丸ごと蒸した魚に、薄口醤油と熱した油を回しかけます。広東の宴席と旧正月の定番。",
     es: "Pescado entero al vapor con jengibre y cebolleta, regado con soja clara y aceite hirviendo; imprescindible en banquetes cantoneses.",
+    ko: "생선을 통째로 생강과 파와 함께 쪄서 간장과 뜨거운 기름을 끼얹은 요리로, 광둥 연회와 설 명절의 단골입니다.",
   },
   "cantonese::cantonese-style claypot rice": {
     id: "Nasi Kanton yang ditanak dalam belanga tanah di atas arang bersama lauk seperti lap cheong; kerak nasi di dasarnya yang paling dicari.",
@@ -3168,6 +3579,7 @@ module.exports = {
     zh: "广式煲仔饭：米在瓦煲里用炭火煮，配腊肠等腊味；最抢手的是煲底那层饭焦。",
     ja: "土鍋を炭火にかけて炊く広東の飯。中華ソーセージなどを合わせ、鍋底のおこげが何よりの目当てです。",
     es: "Arroz cantonés cocido en cazuela de barro sobre brasas con carnes como el embutido; lo más codiciado es la costra tostada del fondo.",
+    ko: "소시지 같은 고기를 넣어 뚝배기에 숯불로 지은 광둥식 밥으로, 바닥에 생기는 바삭한 누룽지를 별미로 칩니다.",
   },
   "cantonese::cantonese-style steamed prawns": {
     id: "Hidangan Kanton klasik: udang utuh diberi cincangan bawang putih lalu dikukus di atas soun kacang hijau; udang lambang tawa dan sukacita.",
@@ -3176,6 +3588,7 @@ module.exports = {
     zh: "广东名菜蒜蓉蒸虾：整虾铺上蒜蓉，垫粉丝同蒸；粤语「虾」谐「哈」，取笑口常开的好意头。",
     ja: "広東の定番。殻つきの海老ににんにくのみじん切りをのせ、緑豆春雨を敷いて蒸します。広東語で海老は笑い声に通じ、縁起がよいとされます。",
     es: "Clásico cantonés: gambas enteras con ajo picado, al vapor sobre fideos de judía mungo; la gamba augura risas y alegría.",
+    ko: "다진 마늘을 올린 새우를 당면 위에 얹어 쪄낸 광둥의 대표 요리로, '하'라는 소리가 웃음소리와 같아 길하게 여깁니다.",
   },
   "cantonese::char siu": {
     id: "Babi panggang Kanton dari Guangdong, dimarinasi saus manis-gurih lalu dipanggang; namanya berarti \"dipanggang bergarpu\".",
@@ -3184,6 +3597,7 @@ module.exports = {
     zh: "广东的叉烧：猪肉用咸甜酱汁腌透再烤；「叉燒」的意思正是「叉着烤」。",
     ja: "広東の焼き豚。甘じょっぱいたれに漬けて焼きます。「叉焼」とは「フォークに刺して焼く」の意。",
     es: "Cerdo asado cantonés de Guangdong, marinado en salsa dulce-salada y asado; el nombre significa «asado en horquilla».",
+    ko: "광둥성에서 온 구이 돼지고기로, 달콤짭짤한 양념에 재워 굽습니다. 이름은 '꼬챙이 구이'라는 뜻입니다.",
   },
   "cantonese::char siu bao": {
     id: "Bakpau Kanton kukus atau panggang berisi babi panggang char siu; disajikan sebagai dim sum saat yum cha di Tiongkok selatan.",
@@ -3192,6 +3606,7 @@ module.exports = {
     zh: "广式的叉烧包：蒸的或焗的面包裹着叉烧；南方饮茶时当点心上桌。",
     ja: "叉焼を包んだ広東の蒸しパンまたは焼きパン。中国南部の飲茶で点心として供されます。",
     es: "Bollo cantonés al vapor u horneado relleno de cerdo char siu; se sirve como dim sum durante el yum cha en el sur de China.",
+    ko: "구운 차슈를 채워 찌거나 구운 광둥식 빵으로, 중국 남부에서 얌차 때 딤섬으로 냅니다.",
   },
   "cantonese::cheong fun": {
     id: "Dim sum Kanton dari Guangdong: lembaran tepung beras kukus yang tipis digulung, kerap membungkus udang, sapi, atau char siu.",
@@ -3200,6 +3615,7 @@ module.exports = {
     zh: "广东的肠粉：米浆蒸成薄薄一张，卷起来，里头常包虾仁、牛肉或叉烧。",
     ja: "広東の点心。米粉を薄く蒸したシートを巻き、海老や牛肉、叉焼を包むことが多い。",
     es: "Dim sum cantonés de Guangdong: una lámina fina de harina de arroz al vapor enrollada, a menudo con gamba, ternera o char siu.",
+    ko: "광둥성에서 온 딤섬으로, 얇게 쪄낸 쌀가루 피를 새우나 소고기, 차슈를 넣고 말아 냅니다.",
   },
   "cantonese::claypot frog leg porridge": {
     id: "Bubur Kanton-Singapura berisi paha katak lembu Amerika dengan jahe dan daun bawang, ditanak dalam belanga tanah.",
@@ -3208,6 +3624,7 @@ module.exports = {
     zh: "新加坡广式的砂煲田鸡粥：牛蛙腿与姜丝、葱花在瓦煲里慢煮。",
     ja: "シンガポール広東系の土鍋粥。アメリカウシガエルの脚に生姜と葱を合わせ、土鍋で煮ます。",
     es: "Congee cantonés-singapurense de ancas de rana toro americana con jengibre y cebolleta, cocido en cazuela de barro.",
+    ko: "황소개구리 뒷다리를 생강과 파와 함께 뚝배기에 끓인 싱가포르 광둥식 죽입니다.",
   },
   "cantonese::dim sum": {
     id: "Tradisi Kanton berupa hidangan kecil, dikukus atau digoreng, yang menemani teh (yum cha); lahir di kedai teh Guangdong.",
@@ -3216,6 +3633,7 @@ module.exports = {
     zh: "广东的点心：一笼笼蒸的炸的小食，配茶而食（饮茶）；起于广东的茶楼。",
     ja: "茶とともに供する蒸し物や揚げ物の小皿という広東の習わし（飲茶）。広東の茶楼に始まります。",
     es: "Tradición cantonesa de platillos al vapor o fritos servidos con té (yum cha); nació en las casas de té de Cantón.",
+    ko: "차와 함께 작은 찜과 튀김 요리를 즐기는 광둥의 얌차 전통으로, 광둥성 찻집에서 시작됐습니다.",
   },
   "cantonese::egg tart (dan tat)": {
     id: "Tart custard Kanton: isian telur dalam cangkang berlapis atau adonan pastri manis.",
@@ -3224,6 +3642,7 @@ module.exports = {
     zh: "广式蛋挞：蛋浆盛在酥皮或曲奇皮的挞壳里烤成。",
     ja: "広東のエッグタルト。卵液を、パイ皮かクッキー生地の器に流して焼きます。",
     es: "Tarta cantonesa de natillas: relleno de huevo en una base hojaldrada o de masa quebrada.",
+    ko: "바삭하거나 부슬부슬한 파이 껍질에 달걀 커스터드를 채운 광둥식 에그타르트입니다.",
   },
   "cantonese::fish maw soup": {
     id: "Sup jamuan Kanton yang kaya kolagen dari gelembung renang ikan kering, salah satu \"empat harta laut\"; disajikan saat kawinan dan Imlek.",
@@ -3232,6 +3651,7 @@ module.exports = {
     zh: "广式宴席上的花胶汤：干鱼鳔富含胶质，是「海味四宝」之一；婚宴与年节才见。",
     ja: "コラーゲンに富む広東の宴席スープ。干した魚の浮袋は「四大海味」のひとつで、婚礼や正月に供されます。",
     es: "Sopa cantonesa de banquete rica en colágeno de vejiga natatoria seca, uno de los «cuatro tesoros del mar»; para bodas y Año Nuevo.",
+    ko: "말린 어표로 끓인 콜라겐이 풍부한 광둥 연회 수프로, '바다의 네 가지 보물' 가운데 하나이며 혼례와 설에 냅니다.",
   },
   "cantonese::har gow": {
     id: "Pangsit dim sum Kanton berisi udang dalam kulit pati gandum yang tipis dan bening; lahir di kedai teh Guangzhou awal abad ke-20.",
@@ -3240,6 +3660,7 @@ module.exports = {
     zh: "广式点心虾饺：澄面皮薄得透光，里头是整只虾；成于二十世纪初广州的茶楼。",
     ja: "薄く透ける小麦澱粉の皮に海老を包んだ広東の点心。二十世紀初頭、広州の茶楼で生まれました。",
     es: "Empanadilla cantonesa de dim sum rellena de gamba en envoltura translúcida de almidón de trigo; nació en las casas de té de Cantón.",
+    ko: "얇고 반투명한 밀전분 피에 새우를 넣은 광둥 딤섬으로, 20세기 초 광저우 찻집에서 비롯됐습니다.",
   },
   "cantonese::har lok (prawns in shell)": {
     id: "Hidangan Kanton: udang utuh berkulit digoreng kering lalu diaduk dalam saus tomat dan Worcestershire.",
@@ -3248,6 +3669,7 @@ module.exports = {
     zh: "广东的虾碌：连壳的大虾先干煸，再与茄汁和喼汁拌匀。",
     ja: "殻つきの海老を丸ごと乾煎りし、ケチャップとウスターソースのたれで和える広東の料理。",
     es: "Plato cantonés de gambas enteras con cáscara salteadas en seco y luego mezcladas en una salsa de kétchup y Worcestershire.",
+    ko: "껍질째 새우를 국물 없이 볶은 뒤 케첩과 우스터 소스에 버무린 광둥 요리입니다.",
   },
   "cantonese::herbal jelly (gui ling gao)": {
     id: "Jeli gelap yang manis pahit dari Wuzhou, Guangxi; menurut tradisi dibuat dari perisai kura-kura koin emas dan herba seperti Smilax glabra.",
@@ -3256,6 +3678,7 @@ module.exports = {
     zh: "广西梧州的龟苓膏：色深味苦甘；照古法用金钱龟的腹甲与土茯苓等药材熬成。",
     ja: "広西梧州の黒く苦甘いゼリー。伝統では金銭亀の腹甲とサルトリイバラなどの薬材から作ります。",
     es: "Gelatina oscura y agridulce de Wuzhou, Guangxi; tradicionalmente cuajada con plastrón de tortuga dorada y hierbas como Smilax glabra.",
+    ko: "광시 우저우에서 온 쌉싸름한 검은 젤리로, 전통적으로 금전거북 배딱지와 토복령 같은 약재로 굳힙니다.",
   },
   "cantonese::lo mai gai": {
     id: "Dim sum Kanton berisi ketan dengan ayam, jamur, dan lap cheong, dibungkus daun teratai lalu dikukus.",
@@ -3264,6 +3687,7 @@ module.exports = {
     zh: "广式点心糯米鸡：糯米拌鸡肉、香菇与腊肠，用荷叶包好上笼蒸。",
     ja: "もち米に鶏肉、椎茸、中華ソーセージを合わせ、蓮の葉で包んで蒸す広東の点心。",
     es: "Dim sum cantonés de arroz glutinoso con pollo, setas y embutido chino, envuelto en hoja de loto y cocido al vapor.",
+    ko: "찹쌀에 닭고기와 버섯, 중국식 소시지를 넣고 연잎에 싸 찐 광둥 딤섬입니다.",
   },
   "cantonese::mango pomelo sago": {
     id: "Hidangan penutup Kanton yang dingin: mangga, jeruk bali, sagu, dan santan; ciptaan restoran Lei Garden Hong Kong pada 1984.",
@@ -3272,6 +3696,7 @@ module.exports = {
     zh: "广式冻甜品杨枝甘露：芒果、西柚、西米与椰浆；一九八四年由香港利苑酒家创出。",
     ja: "マンゴー、ポメロ、サゴ、ココナッツミルクの冷たい広東の甘味。一九八四年、香港の利苑酒家が考案しました。",
     es: "Postre cantonés frío de mango, pomelo, sagú y leche de coco; creado en 1984 por el restaurante Lei Garden de Hong Kong.",
+    ko: "망고와 포멜로, 사고, 코코넛밀크를 넣은 광둥식 차가운 디저트로, 1984년 홍콩 레이 가든에서 만들었습니다.",
   },
   "cantonese::roast duck": {
     id: "Bebek panggang Kanton: bebek utuh dibumbui lima rempah lalu dipanggang hingga kulitnya renyah.",
@@ -3280,6 +3705,7 @@ module.exports = {
     zh: "广式烧鸭：整鸭抹上五香料，烤到皮脆。",
     ja: "五香粉で味つけした鴨を丸ごと、皮が香ばしくなるまで焼いた広東の一品。",
     es: "Pato asado cantonés: un pato entero sazonado con cinco especias y asado hasta que la piel queda crujiente.",
+    ko: "오향으로 간해 껍질이 바삭하도록 통째로 구운 광둥식 오리구이입니다.",
   },
   "cantonese::roast goose": {
     id: "Angsa panggang siu-mei Kanton: angsa utuh dibumbui lalu dipanggang bersuhu tinggi di tungku arang; kulit renyah, daging tetap berair.",
@@ -3288,6 +3714,7 @@ module.exports = {
     zh: "粤式烧味烧鹅：整鹅腌好后入炭炉高温烤制，皮脆而肉汁丰盈。",
     ja: "広東の焼味の焼き鵝。下味をつけた鵝鳥を炭窯で高温に焼き、皮を香ばしく身をしっとり仕上げる。",
     es: "Ganso asado siu-mei cantonés: ganso entero sazonado y asado a fuego fuerte en horno de carbón, piel crujiente sobre carne jugosa.",
+    ko: "간을 한 거위를 숯 화덕에서 센 불로 구워 껍질은 바삭하고 살은 촉촉하게 만든 광둥 시우메이 요리입니다.",
   },
   "cantonese::san lou hor fun": {
     id: "Hidangan zi char berakar Kanton: kwetiau \"tiga kali aduk\" dengan irisan ikan dan tauge, disiram kuah gurih yang encer.",
@@ -3296,6 +3723,7 @@ module.exports = {
     zh: "煮炒摊的生捞河：河粉「三捞」，配鱼片与豆芽，淋一层清薄的咸鲜芡汁。",
     ja: "広東に根をもつ「煮炒」の一皿。平たい米麺を三度あおり、魚の切り身ともやしを合わせ、薄い塩味の餡をかけます。",
     es: "Plato zi char de raíz cantonesa: fideos de arroz planos «tres veces salteados» con láminas de pescado y brotes, en una salsa ligera.",
+    ko: "넓적한 쌀국수를 '세 번 볶아' 저민 생선과 숙주를 넣고 묽은 소스를 끼얹은, 광둥에 뿌리를 둔 즈차 요리입니다.",
   },
   "cantonese::siu mai": {
     id: "Pangsit dim sum Kanton berujung terbuka, berisi babi dan udang dalam kulit gandum tipis; hidangan ini berasal dari Hohhot, Mongolia Dalam.",
@@ -3304,6 +3732,7 @@ module.exports = {
     zh: "广式点心烧卖：顶上不收口，馅是猪肉与虾，皮薄；这道点心的源头其实在内蒙古呼和浩特。",
     ja: "上を開けたまま蒸す広東の点心。薄い小麦の皮に豚肉と海老を詰めます。料理自体は内モンゴルの呼和浩特に発します。",
     es: "Empanadilla cantonesa de dim sum abierta por arriba, con cerdo y gamba en masa fina de trigo; el plato nació en Hohhot, Mongolia Interior.",
+    ko: "얇은 밀피에 돼지고기와 새우를 넣어 윗면을 열어 찐 광둥 딤섬으로, 원래는 내몽골 후허하오터에서 시작됐습니다.",
   },
   "cantonese::siu yuk (roast pork belly)": {
     id: "Perut babi panggang Kanton, salah satu daging siu mei: babi digosok garam dan cuka lalu dipanggang bersuhu tinggi hingga kulitnya renyah.",
@@ -3312,6 +3741,7 @@ module.exports = {
     zh: "粤式烧肉，属烧味之一：五花肉抹上盐与醋，高温烤至皮起脆卜卜的芝麻眼。",
     ja: "広東の焼味のひとつ、豚バラの丸焼き。塩と酢をすり込み、高温で皮がぱりぱりに弾けるまで焼く。",
     es: "Panceta de cerdo asada cantonesa, una de las carnes siu mei: frotada con sal y vinagre y asada a fuego fuerte hasta quedar crujiente.",
+    ko: "시우메이 구이의 하나인 광둥식 삼겹살 구이로, 소금과 식초를 문질러 센 불에 구워 껍질을 바삭하게 만듭니다.",
   },
   "cantonese::soya sauce chicken": {
     id: "Hidangan siu mei Kanton: ayam utuh direndam atau dibraise dalam kaldu induk kecap asin yang harum, lalu dipotong dan disajikan.",
@@ -3320,6 +3750,7 @@ module.exports = {
     zh: "广式烧味的豉油鸡：整鸡在香浓的卤水里浸熟或焖熟，斩件上碟。",
     ja: "広東の焼味の一品。丸鶏を香り高い醤油の老湯で浸し煮または煮込み、切り分けて供します。",
     es: "Plato cantonés de siu mei: pollo entero escalfado o guisado en un caldo madre aromático de soja, luego troceado y servido.",
+    ko: "향긋한 간장 마스터 스톡에 닭을 통째로 데치거나 조린 뒤 토막 내어 내는 광둥 시우메이 요리입니다.",
   },
   "cantonese::sweet & sour pork (gu lou yuk)": {
     id: "Hidangan Kanton: potongan babi berbalut adonan digoreng rendam lalu diaduk dalam saus asam manis.",
@@ -3328,6 +3759,7 @@ module.exports = {
     zh: "广东的咕噜肉：猪肉块裹粉炸香，再与酸甜汁拌匀。",
     ja: "衣をつけて揚げた豚肉を、甘酢あんで和える広東の料理。",
     es: "Plato cantonés de trozos de cerdo rebozados y fritos, salteados en una salsa agridulce.",
+    ko: "반죽을 입혀 튀긴 돼지고기를 새콤달콤한 소스에 버무린 광둥 요리입니다.",
   },
   "cantonese::tau huay (douhua)": {
     id: "Puding tahu sutra yang lembut, sudah ada sejak Dinasti Han; gaya Kanton menyajikannya manis dengan sirop jahe atau gula.",
@@ -3336,6 +3768,7 @@ module.exports = {
     zh: "滑嫩的豆腐花，可追到汉代；广东做法是加姜汁糖水或糖水，当甜品吃。",
     ja: "漢代に遡る絹ごし豆腐の甘味。広東では生姜や砂糖のシロップをかけて甘く供します。",
     es: "Pudin de tofu sedoso y blando, que se remonta a la dinastía Han; al estilo cantonés se toma dulce, con almíbar de jengibre o azúcar.",
+    ko: "한나라까지 거슬러 올라가는 비단결 순두부 푸딩으로, 광둥식으로는 생강이나 설탕물을 끼얹어 달게 냅니다.",
   },
   "cantonese::wat tan hor (egg gravy hor fun)": {
     id: "Kwetiau goreng wajan khas Kanton yang diselimuti kuah telur lembut bersama babi dan makanan laut; andalan zi char di Malaysia dan Singapura.",
@@ -3344,6 +3777,7 @@ module.exports = {
     zh: "广式的滑蛋河：河粉猛火炒过，浇上滑溜的蛋芡，配猪肉与海鲜；新马煮炒摊的看家菜。",
     ja: "広東の平米麺を強火で炒め、豚肉と魚介入りのなめらかな卵餡をかけた一皿。新馬の「煮炒」の定番です。",
     es: "Fideos de arroz planos al wok cantoneses bañados en una salsa sedosa de huevo con cerdo y marisco; clásico zi char en Malasia y Singapur.",
+    ko: "웍에 볶은 넓적한 쌀국수에 돼지고기와 해산물을 넣은 부드러운 달걀 소스를 끼얹은 광둥 요리로, 말레이시아와 싱가포르 즈차의 단골입니다.",
   },
   "cantonese::xiao long bao": {
     id: "Pangsit kuah kukus khas Shanghai berisi babi dan kaldu beku yang meleleh; lahir di Nanxiang dekat Shanghai pada abad ke-19.",
@@ -3352,6 +3786,7 @@ module.exports = {
     zh: "上海的小笼汤包：馅里的皮冻遇热化成汤汁，配着猪肉；十九世纪起于上海近郊的南翔。",
     ja: "豚肉と溶けた煮こごりを包んだ上海の蒸しスープ餃子。十九世紀、上海近郊の南翔に生まれました。",
     es: "Empanadillas de sopa al vapor de Shanghái con cerdo y gelatina derretida; nacieron en Nanxiang, cerca de Shanghái, en el siglo XIX.",
+    ko: "돼지고기와 녹은 육수 젤리를 채운 상하이식 찐만두로, 19세기 상하이 인근 난샹에서 비롯됐습니다.",
   },
   "cantonese::yang chow fried rice": {
     id: "Nasi goreng wajan dengan aneka protein seperti udang dan char siu; dinamai dari Yangzhou, dipopulerkan pejabat Qing Yi Bingshou.",
@@ -3360,6 +3795,7 @@ module.exports = {
     zh: "扬州炒饭：饭在镬里与虾仁、叉烧等荤料同炒；名字取自扬州，由清朝官员伊秉绶推广开来。",
     ja: "海老や叉焼など複数の具を合わせた炒飯。名は揚州にちなみ、清の官僚、伊秉綬が広めました。",
     es: "Arroz frito al wok con proteínas variadas como gambas y char siu; lleva el nombre de Yangzhou y lo difundió el funcionario Yi Bingshou.",
+    ko: "새우와 차슈 등 여러 재료를 넣어 웍에 볶은 밥으로, 양저우에서 이름을 땄고 청나라 관리 이병수가 널리 알렸습니다.",
   },
   "chinese::baozi": {
     id: "Bakpau Tiongkok kukus dari tepung terigu yang diragikan, berisi bahan gurih seperti daging babi atau sayuran.",
@@ -3368,6 +3804,7 @@ module.exports = {
     zh: "中式的发面蒸包：小麦面团发起来，包上猪肉或蔬菜等咸馅。",
     ja: "小麦粉を酵母で膨らませて蒸す中国の饅頭。豚肉や野菜など塩味の餡を包みます。",
     es: "Bollo chino al vapor de harina de trigo con levadura, relleno de ingredientes salados como cerdo o verduras.",
+    ko: "밀가루를 이스트로 부풀려 쪄낸 중국식 빵으로, 돼지고기나 채소 같은 짭짤한 소를 채웁니다.",
   },
   "chinese::beggar's chicken": {
     id: "Hidangan Tiongkok asal Hangzhou: ayam utuh diisi bumbu, dibungkus daun teratai dan tanah liat, lalu dipanggang perlahan berjam-jam.",
@@ -3376,6 +3813,7 @@ module.exports = {
     zh: "源自杭州的叫化鸡：整鸡填馅，用荷叶与泥巴层层裹住，埋着慢烤上几个钟头。",
     ja: "杭州に発する中国の料理。詰め物をした丸鶏を蓮の葉と粘土で包み、何時間もかけてじっくり焼きます。",
     es: "Plato chino de Hangzhou: pollo entero relleno, envuelto en hojas de loto y arcilla y horneado lentamente durante horas.",
+    ko: "닭에 속을 채우고 연잎과 진흙으로 감싸 여러 시간 천천히 구운 요리로, 항저우에서 비롯됐습니다.",
   },
   "chinese::biang biang noodles": {
     id: "Mi tarik Shaanxi yang tebal seperti sabuk; namanya memakai aksara biang, 58 goresan, salah satu yang paling rumit dalam bahasa Tionghoa.",
@@ -3384,6 +3822,7 @@ module.exports = {
     zh: "陕西的手扯宽面，宽得像腰带；名字用的那个「biáng」字有五十八画，是现代汉语里最繁复的字之一。",
     ja: "帯のように太い陝西の手延べ麺。名に使うビアンの字は五十八画、現代中国語で最も複雑な字のひとつです。",
     es: "Fideos anchos como cinturones estirados a mano de Shaanxi; su nombre usa el carácter biáng, de 58 trazos, de los más complejos del chino.",
+    ko: "허리띠처럼 굵고 넓게 손으로 뽑은 산시 국수로, 이름의 '비앙' 자는 획이 쉰여덟 개나 되는 가장 복잡한 한자에 듭니다.",
   },
   "chinese::chinese new year nian gao": {
     id: "Kue ketan manis yang lengket, disantap saat Imlek; kata \"kue\" berbunyi seperti \"tinggi\", lambang tahun yang lebih makmur.",
@@ -3392,6 +3831,7 @@ module.exports = {
     zh: "过年吃的年糕：黏甜的糯米糕；「糕」谐「高」，取的是一年更比一年高的彩头。",
     ja: "旧正月に食べる、粘りのある甘いもち米の糕。「糕」は「高」と同音で、去年より高く伸びる年を願います。",
     es: "Pastel dulce y pegajoso de arroz glutinoso del Año Nuevo lunar; la palabra «pastel» suena como «alto», augurio de un año más próspero.",
+    ko: "설에 먹는 쫀득하고 달콤한 찹쌀떡으로, '떡 고' 자가 '높을 고' 자와 소리가 같아 더 나아지는 한 해를 뜻합니다.",
   },
   "chinese::chongqing noodles": {
     id: "Mi gandum pedas dari Chongqing, dibumbui minyak cabai dan merica Sichuan; sarapan kaki lima yang wajib di sana.",
@@ -3400,6 +3840,7 @@ module.exports = {
     zh: "重庆的辣小面：小麦面拌红油与花椒；当地街头最寻常的早点。",
     ja: "重慶の辛い小麦麺。辣油と花椒で和えます。あの町ではごく当たり前の屋台の朝食です。",
     es: "Fideos de trigo picantes de Chongqing, aliñados con aceite de chile y pimienta de Sichuan; allí, el desayuno callejero de siempre.",
+    ko: "고추기름과 산초로 버무린 충칭의 매운 밀국수로, 그 지역의 대표적인 길거리 아침 식사입니다.",
   },
   "chinese::chow mein": {
     id: "Hidangan mi goreng Tiongkok dengan daging dan sayuran; namanya, chao mian, berarti sekadar “mi tumis”.",
@@ -3408,6 +3849,7 @@ module.exports = {
     zh: "中式炒面，配肉与蔬菜；「炒麵」二字，字面就是把面炒过的意思。",
     ja: "肉と野菜を合わせる中国の焼きそば。「炒麵」という名は、そのまま「炒めた麺」を意味する。",
     es: "Plato chino de fideos salteados con carne y verduras; el nombre, chao mian, significa simplemente «fideos salteados».",
+    ko: "고기와 채소를 넣어 볶은 중국 국수로, 한자로는 '차오몐', 곧 볶은 국수라는 뜻입니다.",
   },
   "chinese::egg drop soup": {
     id: "Sup Tiongkok: telur kocok dituang tipis ke dalam kaldu ayam berbumbu; namanya berarti \"sup bunga telur\" karena pusarannya mirip kelopak.",
@@ -3416,6 +3858,7 @@ module.exports = {
     zh: "中式的蛋花汤：打散的蛋液细细淋进调好味的鸡汤；那一缕缕蛋絮像花瓣，故名「蛋花」。",
     ja: "溶き卵を味つけした鶏のスープに細く流し入れる中国の汁物。花びらのような筋から「蛋花湯」と呼ばれます。",
     es: "Sopa china de huevo batido vertido en hilo sobre caldo de pollo sazonado; su nombre, «sopa de flor de huevo», alude a los remolinos.",
+    ko: "간을 한 닭 육수에 푼 달걀을 실처럼 흘려 넣은 중국 수프로, 꽃잎처럼 퍼진 모양 때문에 '달걀꽃탕'이라 부릅니다.",
   },
   "chinese::hot and sour soup": {
     id: "Sup Tiongkok yang pedas merica dan asam cuka, berisi tahu, jamur kuping, dan pita telur; turunan dari hulatang Henan.",
@@ -3424,6 +3867,7 @@ module.exports = {
     zh: "中式的酸辣汤：胡椒的辣与醋的酸，配豆腐、木耳与蛋花；源自河南的胡辣汤。",
     ja: "胡椒の辛さと酢の酸味が立つ中国のスープ。豆腐、きくらげ、卵とじを入れます。河南の胡辣湯に由来します。",
     es: "Sopa china picante de pimienta y ácida de vinagre, con tofu, oreja de Judas y cintas de huevo; deriva del hulatang de Henan.",
+    ko: "두부와 목이버섯, 달걀을 넣어 후추 향과 식초 맛이 도는 중국 수프로, 허난의 후라탕(후추탕)에서 이어졌습니다.",
   },
   "chinese::hot pot": {
     id: "Hidangan Tiongkok untuk bersama: kuah mendidih di tengah meja, tempat setiap orang memasak sendiri daging dan sayuran mentahnya.",
@@ -3432,6 +3876,7 @@ module.exports = {
     zh: "中式的围炉：一锅滚汤摆在桌心，各人自己下生肉与蔬菜涮着吃。",
     ja: "食卓の真ん中で煮立つスープに、めいめいが生の肉や野菜を入れて食べる中国の鍋。",
     es: "Plato chino comunal: un caldo hirviendo en la mesa en el que cada comensal cuece él mismo carnes y verduras crudas.",
+    ko: "끓는 국물에 생고기와 채소를 식탁에서 직접 익혀 먹는 중국식 나눔 요리입니다.",
   },
   "chinese::jianbing": {
     id: "Krep sarapan kaki lima Tiongkok yang gurih: adonan biji-bijian, telur, dan kerupuk renyah; asalnya Shandong sekitar 2.000 tahun lalu.",
@@ -3440,6 +3885,7 @@ module.exports = {
     zh: "中国街头的咸味早点煎饼：杂粮面糊摊开，打蛋，卷进脆薄脆；源头在两千年前的山东。",
     ja: "中国の屋台の塩味の朝食クレープ。穀物の生地に卵を落とし、パリパリの薄餅を巻きます。約二千年前の山東に遡ります。",
     es: "Crepe salado del desayuno callejero chino, de masa de cereal, huevo y una galleta crujiente; se remonta a Shandong hace unos 2.000 años.",
+    ko: "밀이나 잡곡 반죽에 달걀과 바삭한 과자를 넣어 부친 중국의 길거리 아침 전병으로, 2천 년 전 산둥까지 거슬러 올라갑니다.",
   },
   "chinese::jiaozi": {
     id: "Pangsit Tiongkok berbentuk sabit berisi daging atau sayuran dalam kulit tipis; menurut tradisi dikaitkan dengan tabib Han, Zhang Zhongjing.",
@@ -3448,6 +3894,7 @@ module.exports = {
     zh: "半月形的中式饺子：薄皮包着肉馅或素馅；相传出自汉代医家张仲景之手。",
     ja: "薄い皮に肉や野菜を包んだ半月形の中国の餃子。伝承では後漢の医師、張仲景に帰されます。",
     es: "Empanadillas chinas en media luna de carne o verduras en masa fina; la tradición las atribuye al médico Zhang Zhongjing, de la era Han.",
+    ko: "얇은 피에 고기나 채소를 넣어 초승달 모양으로 빚은 중국 만두로, 한나라 의원 장중경이 만들었다고 전해집니다.",
   },
   "chinese::kung pao chicken": {
     id: "Tumis Sichuan yang pedas berisi dadu ayam, kacang tanah, dan cabai; namanya dari pejabat Qing Ding Baozhen (1820-1886), bergelar Gongbao.",
@@ -3456,6 +3903,7 @@ module.exports = {
     zh: "四川的辣炒：鸡丁、花生与干辣椒同炒；名字来自清朝官员丁宝桢（一八二〇至一八八六），他的官衔是「宫保」。",
     ja: "鶏のさいの目、落花生、唐辛子を炒める四川の辛い料理。名は清の官僚、丁宝楨（一八二〇〜一八八六）の官職「宮保」に由来します。",
     es: "Salteado picante de Sichuan con pollo en dados, cacahuetes y chiles; lleva el nombre del funcionario qing Ding Baozhen, de título Gongbao.",
+    ko: "깍둑 썬 닭고기와 땅콩, 고추를 볶은 매운 쓰촨 요리로, 궁보 칭호를 받은 청나라 관리 딩바오전에게서 이름을 땄습니다.",
   },
   "chinese::lanzhou lamian": {
     id: "Mi gandum tarik tangan dalam kaldu sapi bening dari Lanzhou, Gansu; dikembangkan Muslim Hui Tiongkok di sepanjang Jalur Sutra.",
@@ -3464,6 +3912,7 @@ module.exports = {
     zh: "甘肃兰州的手工拉面：面在清炖牛肉汤里；由丝路沿线的回族穆斯林发展出来。",
     ja: "甘粛省蘭州の手延べ小麦麺。澄んだ牛肉のスープでいただきます。シルクロード沿いの回族ムスリムが育てました。",
     es: "Fideos de trigo estirados a mano en caldo claro de ternera, de Lanzhou, Gansu; los desarrollaron los musulmanes hui en la Ruta de la Seda.",
+    ko: "간쑤 란저우의 맑은 소고기 국물에 손으로 뽑은 밀면을 넣은 요리로, 실크로드를 따라 중국 후이족 무슬림이 발전시켰습니다.",
   },
   "chinese::lo mein": {
     id: "Hidangan Kanton: mi telur gandum direbus lalu diaduk dengan saus; namanya berarti \"mi yang diaduk\".",
@@ -3472,6 +3921,7 @@ module.exports = {
     zh: "广东的捞面：蛋面煮熟后与酱汁拌匀；「撈麵」的意思正是「拌起来的面」。",
     ja: "茹でた小麦の卵麺をたれで和える広東の料理。「撈麺」とは「和えた麺」の意です。",
     es: "Plato cantonés de fideos de trigo al huevo hervidos y mezclados con salsa; el nombre significa «fideos removidos».",
+    ko: "삶은 달걀 밀면을 소스에 비벼 낸 광둥 요리로, 이름은 '건져 비빈 국수'라는 뜻입니다.",
   },
   "chinese::mantou": {
     id: "Roti kukus gandum yang polos dan empuk, makanan pokok Tiongkok utara; namanya tercatat sejak Dinasti Jin Barat, sekitar 300 M.",
@@ -3480,6 +3930,7 @@ module.exports = {
     zh: "华北的主食馒头：不带馅的松软蒸面食；「馒头」这名字在西晋（约公元三百年）的文字里已经出现。",
     ja: "具のないふっくらした蒸しパン。華北の主食で、「饅頭」の名は西晋（三〇〇年ごろ）の文献に見えます。",
     es: "Panecillo de trigo al vapor, liso y esponjoso, básico en el norte de China; atestiguado como «mantou» en la Jin Occidental, hacia el 300.",
+    ko: "속을 넣지 않고 폭신하게 쪄낸 중국 북부의 주식 밀빵으로, 서진 시대(300년경) 기록에 '만두'라는 이름으로 나옵니다.",
   },
   "chinese::mapo tofu": {
     id: "Hidangan Sichuan yang pedas: tahu dalam saus tauban cabai dengan daging cincang; diciptakan sekitar 1862 di Chengdu oleh Nyonya Chen.",
@@ -3488,6 +3939,7 @@ module.exports = {
     zh: "四川的麻辣名菜：豆腐与肉末同烧在豆瓣酱里；约一八六二年由成都的陈麻婆所创。",
     ja: "豆板醤で豆腐と挽肉を煮る四川の辛い料理。一八六二年ごろ、成都の陳婆さん（あばたの婆さん）が生みました。",
     es: "Plato picante de Sichuan: tofu en salsa de habas y chile con carne picada; creado hacia 1862 en Chengdu por la señora Chen.",
+    ko: "두부를 두반장과 다진 고기에 매콤하게 볶은 쓰촨 요리로, 1862년경 청두의 '곰보 할머니' 천 씨가 만들었습니다.",
   },
   "chinese::moon cake": {
     id: "Pastri Tiongkok bundar berisi pasta biji teratai atau kacang merah yang padat, kerap dengan kuning telur asin; disantap saat Festival Bulan.",
@@ -3496,6 +3948,7 @@ module.exports = {
     zh: "圆形的中式饼点：内馅是紧实的莲蓉或豆沙，常嵌一颗咸蛋黄；中秋时吃。",
     ja: "蓮の実や小豆の餡をぎっしり詰めた丸い中国の菓子。塩漬け卵黄を入れることも多く、中秋節に食べます。",
     es: "Pastelillo chino redondo de pasta densa de loto o judía roja, a menudo con yema salada; se come en la Fiesta del Medio Otoño.",
+    ko: "연밥이나 팥으로 만든 조밀한 소에 흔히 소금 노른자를 넣은 둥근 중국 과자로, 중추절에 먹습니다.",
   },
   "chinese::peking duck": {
     id: "Bebek panggang Beijing yang tersohor karena kulitnya tipis dan renyah, disajikan teriris dengan dadar; kedai Bianyifang buka pada 1416.",
@@ -3504,6 +3957,7 @@ module.exports = {
     zh: "北京烤鸭以皮薄酥脆闻名，片好了配薄饼吃；最早的专门店便宜坊开于一四一六年。",
     ja: "皮の薄さと香ばしさで名高い北京の焼き鴨。切り分けて薄餅で包みます。最初の専門店、便宜坊の開業は一四一六年。",
     es: "Pato asado de Pekín, famoso por su piel fina y crujiente, servido en lonchas con crepes; el primer local especializado abrió en 1416.",
+    ko: "얇고 바삭한 껍질로 이름난 베이징의 오리구이로, 저며서 전병에 싸 먹으며 1416년 문을 연 볜이팡이 첫 전문점입니다.",
   },
   "chinese::shaanxi rou jia mo": {
     id: "Jajanan jalanan Shaanxi: daging berempah yang direbus lama dijejalkan ke dalam roti pipih baijimo; kerap disebut hamburger tertua di dunia.",
@@ -3512,6 +3966,7 @@ module.exports = {
     zh: "陕西街头的肉夹馍：卤了许久的香料肉塞进白吉馍里；常被叫作世界上最早的汉堡。",
     ja: "陝西の屋台料理。長く煮込んだ香辛料の肉を白吉饃という薄焼きパンに挟みます。世界最古のハンバーガーとも呼ばれます。",
     es: "Comida callejera de Shaanxi: carne especiada guisada largamente metida en un pan plano baijimo; suelen llamarla la hamburguesa más antigua.",
+    ko: "오래 조린 향신 고기를 바이지모 빵에 채운 산시의 길거리 음식으로, 세계에서 가장 오래된 햄버거라 불리기도 합니다.",
   },
   "chinese::spring rolls": {
     id: "Gulungan gurih berisi sayuran, kadang daging, dibungkus dadar gandum tipis lalu digoreng dangkal atau digoreng rendam.",
@@ -3520,6 +3975,7 @@ module.exports = {
     zh: "咸味的春卷：蔬菜有时加肉，用薄薄的面皮卷好，煎或炸。",
     ja: "野菜、ときに肉を薄い小麦の皮で巻き、焼くか揚げる塩味の巻き物。",
     es: "Rollitos salados de verduras, a veces con carne, envueltos en crepes finos de trigo y fritos a la sartén o en abundante aceite.",
+    ko: "채소와 때로 고기를 얇은 밀전병에 말아 굽거나 튀긴 짭조름한 롤입니다.",
   },
   "chinese::sweet and sour pork": {
     id: "Hidangan Kanton dari daging babi bertepung yang digoreng dalam saus asam manis; di Guangzhou masa Qing iga diganti dadu tanpa tulang.",
@@ -3528,6 +3984,7 @@ module.exports = {
     zh: "粤菜：猪肉挂糊油炸后拌酸甜芡汁；清代广州将糖醋排骨改为无骨的肉块。",
     ja: "衣をつけて揚げた豚肉を甘酢あんで絡める広東料理。清代の広州で、骨付きの酢排骨から骨なしの角切りへと作り替えられた。",
     es: "Plato cantonés de cerdo rebozado en salsa agridulce, adaptado en el Cantón de la dinastía Qing de costillas a dados sin hueso.",
+    ko: "반죽을 입혀 튀긴 돼지고기를 새콤달콤한 소스에 버무린 광둥 요리로, 청나라 광저우에서 갈비 요리를 뼈 없는 깍둑 모양으로 바꾼 것입니다.",
   },
   "chinese::west lake fish": {
     id: "Kekhasan Hangzhou: ikan mas rumput direbus perlahan lalu disiram saus cuka asam manis; sudah ada sejak Dinasti Song Selatan.",
@@ -3536,6 +3993,7 @@ module.exports = {
     zh: "杭州名菜西湖醋鱼：草鱼汆熟后浇糖醋汁；这道菜可追到南宋。",
     ja: "杭州の名物。草魚をゆで、甘酸っぱい酢のあんをかけます。南宋の時代に遡る一品です。",
     es: "Especialidad de Hangzhou: carpa herbívora escalfada en salsa agridulce de vinagre; se remonta a la dinastía Song del Sur.",
+    ko: "초어를 데쳐 새콤달콤한 식초 소스를 끼얹은 항저우의 명물로, 남송 시대까지 거슬러 올라갑니다.",
   },
   "chinese::xiao long bao": {
     id: "Pangsit kukus gaya Shanghai berisi babi dan kuah panas; lahir di Nanxiang pada abad ke-19, dikukus dalam keranjang bambu kecil.",
@@ -3544,6 +4002,7 @@ module.exports = {
     zh: "上海式的小笼包：皮里裹着猪肉与滚烫的汤汁；十九世纪起于南翔，用小竹笼蒸熟。",
     ja: "豚肉と熱いスープを包んだ上海式の蒸し餃子。十九世紀に南翔で生まれ、小さな竹の蒸籠で蒸します。",
     es: "Empanadilla al vapor de Shanghái rellena de cerdo y caldo caliente; nació en Nanxiang en el siglo XIX, cocida en cestillo de bambú.",
+    ko: "돼지고기와 뜨거운 육즙을 채운 상하이식 찐만두로, 19세기 난샹에서 시작됐고 작은 대나무 찜통에 쪄냅니다.",
   },
   "chinese::yangzhou fried rice": {
     id: "Nasi goreng telur Tiongkok dengan sayuran dan biasanya dua macam protein, yakni udang dan ham.",
@@ -3552,6 +4011,7 @@ module.exports = {
     zh: "中式的蛋炒饭：饭与蛋、蔬菜同炒，通常还有两样荤料——虾仁与火腿。",
     ja: "野菜と、たいていは海老とハムという二種の具を合わせた中国の卵炒飯。",
     es: "Arroz frito chino con huevo, verduras y por lo común dos proteínas: gambas y jamón.",
+    ko: "채소와 대개 두 가지 단백질(새우와 햄)을 넣은 중국식 달걀 볶음밥입니다.",
   },
   "chinese::zhajiangmian": {
     id: "Hidangan Tiongkok utara: mi gandum tebal ditutup zhajiang, saus tauco fermentasi yang ditumis bersama daging babi.",
@@ -3560,6 +4020,7 @@ module.exports = {
     zh: "华北的炸酱面：粗身小麦面拌上用黄豆酱与猪肉炒出的炸酱。",
     ja: "北方中国の一皿。太い小麦麺に、発酵大豆味噌と豚肉を炒めた炸醤をかけます。",
     es: "Plato del norte de China: fideos de trigo gruesos cubiertos de zhajiang, una salsa frita de soja fermentada y cerdo.",
+    ko: "굵은 밀면에 발효 콩장과 돼지고기를 볶은 자장을 얹은 중국 북부 요리입니다.",
   },
   "chinese::zongzi": {
     id: "Ketan berisi bahan manis atau gurih yang dibungkus daun bambu; disantap saat Festival Perahu Naga untuk mengenang penyair Qu Yuan.",
@@ -3568,6 +4029,7 @@ module.exports = {
     zh: "竹叶裹的糯米粽，馅有甜有咸；端午时吃，为的是纪念诗人屈原。",
     ja: "笹の葉で包んだもち米に甘い、または塩味の餡を入れた粽。詩人・屈原を偲び、端午の節句に食べます。",
     es: "Arroz glutinoso con relleno dulce o salado envuelto en hojas de bambú; se come en la Fiesta del Bote del Dragón en honor del poeta Qu Yuan.",
+    ko: "달거나 짭짤한 소를 넣은 찹쌀을 대나무잎에 싼 음식으로, 시인 굴원을 기리며 단오에 먹습니다.",
   },
   "dessert::baba au rhum": {
     id: "Kue ragi kecil yang direndam sirop rum; dipopulerkan di Prancis abad ke-18 oleh Nicolas Stohrer, koki Raja Stanislas Leszczynski.",
@@ -3576,6 +4038,7 @@ module.exports = {
     zh: "浸透朗姆酒糖浆的小发酵蛋糕；18世纪由国王斯坦尼斯瓦夫的厨师尼古拉·斯托雷在法国推广开来。",
     ja: "ラム酒のシロップを含ませた小さな発酵菓子。18世紀のフランスで、スタニスワフ王の料理人ニコラ・ストレールが広めた。",
     es: "Bizcocho pequeño de levadura empapado en almíbar de ron, popularizado en la Francia del XVIII por Nicolas Stohrer, cocinero del rey.",
+    ko: "럼 시럽에 적신 작은 발효 케이크로, 18세기 프랑스에서 스타니스와프 레슈친스키 왕의 요리사 니콜라 스토레르가 널리 알렸습니다.",
   },
   "dessert::bombe alaska": {
     id: "Varian flambir dari baked Alaska: es krim dan kue di bawah meringue yang dipanggang, disiram rum gelap lalu dinyalakan di meja.",
@@ -3584,6 +4047,7 @@ module.exports = {
     zh: "火焰版的烤阿拉斯加：冰淇淋与蛋糕藏在烤成金黄的蛋白霜下，淋上黑朗姆酒，在餐桌旁点燃。",
     ja: "ベイクドアラスカのフランベ版。焼き色をつけたメレンゲの下にアイスとスポンジを隠し、ダークラムを注いで卓上で火をつける。",
     es: "Variante flameada de la tarta Alaska: helado y bizcocho bajo merengue dorado, rociados con ron oscuro y encendidos en la mesa.",
+    ko: "베이크드 알래스카의 변형으로, 아이스크림과 케이크를 머랭으로 덮어 구운 뒤 다크 럼을 부어 식탁에서 불을 붙입니다.",
   },
   "dessert::cannoli": {
     id: "Hidangan penutup Sisilia berupa cangkang pastri goreng berbentuk tabung berisi ricotta manis; dari era Arab pulau itu (827-1091).",
@@ -3592,6 +4056,7 @@ module.exports = {
     zh: "西西里的甜点：油炸的管状酥壳内填加糖的意大利乳清干酪；可上溯到该岛的阿拉伯时期（827至1091年）。",
     ja: "揚げた筒状の生地に甘いリコッタを詰めるシチリアの菓子。島のアラブ時代（827〜1091年）に遡る。",
     es: "Postre siciliano de tubo de masa frita relleno de ricota endulzada; se remonta a la etapa árabe de la isla (827-1091).",
+    ko: "튀긴 관 모양 페이스트리에 달콤한 리코타를 채운 시칠리아 디저트로, 이 섬의 아랍 시대(827~1091년)까지 거슬러 올라갑니다.",
   },
   "dessert::cheesecake": {
     id: "Hidangan penutup panggang atau tanpa panggang dari keju lembut di atas kerak; leluhur Yunani kunonya mencampur keju, madu, dan tepung.",
@@ -3600,6 +4065,7 @@ module.exports = {
     zh: "以软质奶酪铺在饼底上的甜点，可烤可不烤；其古希腊祖先plakous以奶酪、蜂蜜与面粉调制而成。",
     ja: "土台の上にやわらかいチーズを重ねる焼き・非加熱の菓子。古代ギリシャの祖プラクースはチーズ、蜂蜜、小麦粉を混ぜたもの。",
     es: "Postre horneado o sin horno de queso fresco sobre una base; su antepasado griego, el plakous, mezclaba queso, miel y harina.",
+    ko: "부드러운 치즈를 반죽 위에 올려 굽거나 굳힌 디저트로, 고대 그리스의 조상 격인 플라쿠스는 치즈와 꿀, 밀가루를 섞은 것이었습니다.",
   },
   "dessert::chocolate fondant": {
     id: "Kue cokelat Prancis kecil dengan bagian tengah yang meleleh; dikreditkan pada koki Michel Bras, yang membuatnya di Aveyron pada 1981.",
@@ -3608,6 +4074,7 @@ module.exports = {
     zh: "法式小巧克力蛋糕，中心呈流心状；一般归功于厨师米歇尔·布拉斯，他1981年在阿韦龙创制。",
     ja: "中心がとろりと流れるフランスの小さなチョコレートケーキ。1981年にアヴェロンで料理人ミシェル・ブラスが考案したとされる。",
     es: "Pastelito francés de chocolate con el centro fundente, atribuido al cocinero Michel Bras, que lo creó en 1981 en Aveyron.",
+    ko: "속이 부드럽게 녹아내리는 프랑스의 작은 초콜릿 케이크로, 1981년 아베롱에서 미셸 브라 셰프가 만들었습니다.",
   },
   "dessert::crepes suzette": {
     id: "Hidangan penutup Prancis dari crêpe tipis dalam saus jeruk mentega berkaramel, diflambir likur jeruk; populer di Paris sekitar 1900.",
@@ -3616,6 +4083,7 @@ module.exports = {
     zh: "法式甜点：薄可丽饼浸在焦糖橙香黄油酱汁中，以橙酒火焰烧香；约1900年在巴黎流行。",
     ja: "薄いクレープをカラメル化したオレンジバターのソースで温め、オレンジのリキュールでフランベするフランスの菓子。1900年ごろパリで流行。",
     es: "Postre francés de crepes finas en salsa caramelizada de naranja y mantequilla flameadas con licor de naranja; popular en París hacia 1900.",
+    ko: "얇은 크레프에 캐러멜 오렌지 버터 소스를 끼얹고 오렌지 리큐어로 불을 붙인 프랑스 디저트로, 1900년경 파리에서 퍼졌습니다.",
   },
   "dessert::croquembouche": {
     id: "Menara kerucut Prancis dari sus berisi krim yang direkatkan karamel; bentuk modernnya diberikan oleh koki Antonin Carême.",
@@ -3624,6 +4092,7 @@ module.exports = {
     zh: "法式圆锥塔：内填奶油的泡芙以焦糖黏合而成；今日的形态由厨师安东尼·卡雷姆定型。",
     ja: "クリームを詰めたシューをキャラメルで積み上げるフランスの円錐の塔。今の形は料理人アントナン・カレームによる。",
     es: "Torre cónica francesa de profiteroles rellenos de crema unidos con caramelo; el cocinero Antonin Carême le dio su forma moderna.",
+    ko: "크림을 채운 슈를 캐러멜로 붙여 원뿔 탑으로 쌓은 프랑스 과자로, 앙토냉 카렘 셰프가 지금의 모습을 만들었습니다.",
   },
   "dessert::crème brûlée": {
     id: "Custard yang kaya dengan kerak gula karamel yang keras; resep cetak pertamanya muncul di buku masak François Massialot tahun 1691.",
@@ -3632,6 +4101,7 @@ module.exports = {
     zh: "浓郁的蛋奶冻，表面覆一层焦糖硬壳；最早的印刷食谱见于1691年弗朗索瓦·马夏洛的法国食谱。",
     ja: "濃厚なカスタードの上に、硬く焦がした砂糖の層をのせた菓子。印刷された最古のレシピは1691年のマシアロの料理書。",
     es: "Crema rica cubierta por una costra dura de azúcar caramelizado; su primera receta impresa está en el recetario de Massialot de 1691.",
+    ko: "진한 커스터드 위에 캐러멜 설탕을 단단하게 굳힌 디저트로, 첫 인쇄 조리법은 1691년 마시알로의 프랑스 요리책에 실렸습니다.",
   },
   "dessert::eclair": {
     id: "Pastri sus Prancis berisi krim dan berlapis glasir, dinamai dari kata Prancis untuk kilat.",
@@ -3640,6 +4110,7 @@ module.exports = {
     zh: "法式泡芙长条，内填奶油、面覆糖霜；名称取自法语中「闪电」一词。",
     ja: "クリームを詰めて糖衣をかけるフランスのシュー菓子。名はフランス語の「稲妻」に由来する。",
     es: "Pastel francés de pasta choux relleno de crema y cubierto de glaseado, llamado por la palabra francesa para relámpago.",
+    ko: "크림을 채우고 아이싱을 씌운 프랑스의 슈 페이스트리로, '번개'를 뜻하는 프랑스어에서 이름을 땄습니다.",
   },
   "dessert::gelato": {
     id: "Es Italia yang padat dari susu, gula, dan perisa, dengan udara dan lemak lebih sedikit daripada es krim; populer di Firenze abad ke-16.",
@@ -3648,6 +4119,7 @@ module.exports = {
     zh: "意大利浓密的冰品，用牛奶、糖与香料制成，含气与脂肪都比冰淇淋少；16世纪在佛罗伦萨流行开来。",
     ja: "牛乳、砂糖、香りで作るイタリアの密度の高い氷菓。アイスクリームより空気も脂肪も少なく、16世紀のフィレンツェで広まった。",
     es: "Helado italiano denso de leche, azúcar y aromas, con menos aire y grasa que el helado corriente; popular en la Florencia del XVI.",
+    ko: "아이스크림보다 공기와 지방이 적어 조밀한 이탈리아의 얼린 디저트로, 16세기 피렌체에서 널리 퍼졌습니다.",
   },
   "dessert::lava cake": {
     id: "Kue cokelat kecil dengan bagian tengah yang hangat dan mengalir.",
@@ -3656,6 +4128,7 @@ module.exports = {
     zh: "小巧的巧克力蛋糕，中心温热流动。",
     ja: "中心が温かく流れ出す小さなチョコレートケーキ。",
     es: "Pastelito de chocolate con el centro caliente y fluido.",
+    ko: "속이 따뜻하게 흘러내리는 작은 초콜릿 케이크입니다.",
   },
   "dessert::macarons": {
     id: "Kue sandwich meringue almon Prancis dengan isian ganache atau krim mentega.",
@@ -3664,6 +4137,7 @@ module.exports = {
     zh: "法式杏仁蛋白霜夹心饼，中间填甘纳许或奶油霜。",
     ja: "アーモンドのメレンゲ生地でガナッシュやバタークリームを挟むフランスの焼き菓子。",
     es: "Galleta francesa de merengue de almendra rellena de ganache o crema de mantequilla.",
+    ko: "아몬드 머랭 두 장 사이에 가나슈나 버터크림을 채운 프랑스 과자입니다.",
   },
   "dessert::mille-feuille": {
     id: "Hidangan penutup »seribu lembar« Prancis dari tiga lapis pastri puff yang berselang-seling dengan dua lapis krim pastri.",
@@ -3672,6 +4146,7 @@ module.exports = {
     zh: "法式「千层」甜点：三层酥皮与两层卡仕达奶油交替叠成。",
     ja: "三枚のパイ生地と二層のカスタードクリームを交互に重ねるフランスの「千枚の葉」の菓子。",
     es: "Postre francés de «mil hojas» con tres capas de hojaldre alternadas con dos capas de crema pastelera.",
+    ko: "퍼프 페이스트리 세 겹과 커스터드 크림 두 겹을 번갈아 쌓은 프랑스의 '천 겹' 디저트입니다.",
   },
   "dessert::opera cake": {
     id: "Kue Prancis dari bolu almon Joconde yang direndam sirop kopi, berlapis krim mentega kopi dan ganache cokelat.",
@@ -3680,6 +4155,7 @@ module.exports = {
     zh: "法式蛋糕：乔孔达杏仁海绵浸透咖啡糖浆，与咖啡奶油霜及巧克力甘纳许层层相叠。",
     ja: "コーヒーのシロップを含ませたジョコンド生地に、コーヒーバタークリームとチョコレートガナッシュを重ねるフランスのケーキ。",
     es: "Tarta francesa de bizcocho de almendra Joconde empapado en almíbar de café, con capas de crema de café y ganache de chocolate.",
+    ko: "커피 시럽에 적신 아몬드 조콩드 스펀지에 커피 버터크림과 초콜릿 가나슈를 켜켜이 쌓은 프랑스 케이크입니다.",
   },
   "dessert::panna cotta": {
     id: "Hidangan penutup Italia dari krim manis yang dipadatkan gelatin lalu dicetak; berasal dari Piedmont di utara.",
@@ -3688,6 +4164,7 @@ module.exports = {
     zh: "意大利甜点：加糖的奶油以明胶凝固后脱模；源自北部的皮埃蒙特大区。",
     ja: "砂糖を加えた生クリームをゼラチンで固めて型抜きするイタリアの菓子。北部ピエモンテ州が発祥。",
     es: "Postre italiano de nata azucarada cuajada con gelatina y desmoldada, originario del Piamonte, en el norte.",
+    ko: "설탕을 넣은 크림을 젤라틴으로 굳혀 틀에 담아 낸 이탈리아 디저트로, 북부 피에몬테에서 비롯됐습니다.",
   },
   "dessert::paris-brest": {
     id: "Cincin pastri sus Prancis berisi krim mousseline praline, dibuat pada 1910 untuk menghormati lomba sepeda Paris-Brest-Paris.",
@@ -3696,6 +4173,7 @@ module.exports = {
     zh: "法式泡芙圈，内填帕林内慕斯林奶油；1910年为纪念巴黎—布雷斯特—巴黎自行车赛而作。",
     ja: "プラリネのムスリーヌクリームを詰めたフランスのシュー生地のリング。1910年、自転車競技パリ〜ブレスト〜パリを記念して作られた。",
     es: "Corona francesa de pasta choux rellena de crema muselina de praliné, creada en 1910 en honor a la carrera Paris-Brest-Paris.",
+    ko: "프랄린 무슬린 크림을 채운 프랑스의 고리 모양 슈 페이스트리로, 1910년 파리~브레스트~파리 자전거 대회를 기려 만들어졌습니다.",
   },
   "dessert::pavlova": {
     id: "Hidangan penutup berbasis meringue dengan kerak renyah dan bagian tengah yang lembut dan ringan, ditutupi krim kocok dan buah segar.",
@@ -3704,6 +4182,7 @@ module.exports = {
     zh: "以蛋白霜为底的甜点，外壳酥脆、内里轻软，面上堆打发奶油与新鲜水果。",
     ja: "外は軽く固く、中はやわらかく軽いメレンゲの菓子。ホイップクリームと新鮮な果物をのせる。",
     es: "Postre de merengue con costra crujiente y centro tierno y ligero, cubierto de nata montada y fruta fresca.",
+    ko: "겉은 바삭하고 속은 가볍고 부드러운 머랭 디저트에 휘핑크림과 생과일을 올린 것입니다.",
   },
   "dessert::profiterole": {
     id: "Bola pastri sus Prancis berisi krim dan ditutupi cokelat; bentuk manisnya muncul dari para koki Prancis abad ke-17.",
@@ -3712,6 +4191,7 @@ module.exports = {
     zh: "法式泡芙球，内填奶油，面覆巧克力；这一甜点形式出自17世纪的法国厨师。",
     ja: "クリームを詰めてチョコレートをかけるフランスのシュー生地の小球。菓子としての形は17世紀のフランスの料理人から生まれた。",
     es: "Bolita francesa de pasta choux rellena de crema y cubierta de chocolate; su forma dulce surgió con los cocineros franceses del XVII.",
+    ko: "크림을 채우고 초콜릿을 올린 프랑스의 공 모양 슈 페이스트리로, 디저트 형태는 17세기 프랑스 요리사들에게서 나왔습니다.",
   },
   "dessert::religieuse": {
     id: "Pastri Prancis dari dua sus bertumpuk yang diisi krim pâtissière cokelat atau kopi; namanya dari bentuknya yang mirip biarawati.",
@@ -3720,6 +4200,7 @@ module.exports = {
     zh: "法式点心：两枚泡芙上下相叠，内填巧克力或咖啡卡仕达奶油；因形似修女而得名。",
     ja: "二つのシューを重ね、チョコレートやコーヒーのカスタードを詰めるフランスの菓子。修道女に似た形から名がついた。",
     es: "Pastel francés de dos choux apilados rellenos de crema pastelera de chocolate o café; su nombre alude a su forma de monja.",
+    ko: "초콜릿이나 커피 크렘 파티시에르를 채운 슈 두 개를 쌓아 올린 프랑스 과자로, 수녀를 닮은 모양에서 이름을 땄습니다.",
   },
   "dessert::saint honoré": {
     id: "Hidangan penutup Prancis dari pastri puff dan sus dengan kue sus berglasir karamel dan krim Chiboust; dibuat di Paris pada 1840-an.",
@@ -3728,6 +4209,7 @@ module.exports = {
     zh: "法式甜点：酥皮与泡芙搭配焦糖泡芙球及希布斯特奶油；1840年代生于巴黎。",
     ja: "パイ生地とシュー生地に、キャラメルをかけたシューとシブースト・クリームを合わせるフランスの菓子。1840年代のパリで生まれた。",
     es: "Postre francés de hojaldre y choux con profiteroles glaseados en caramelo y crema Chiboust, creado en el París de la década de 1840.",
+    ko: "퍼프와 슈 페이스트리에 캐러멜을 씌운 슈와 시부스트 크림을 올린 프랑스 디저트로, 1840년대 파리에서 만들어졌습니다.",
   },
   "dessert::soufflé chocolate": {
     id: "Hidangan penutup panggang Prancis: cokelat dilipat ke dalam putih telur kocok agar mengembang; muncul di Prancis awal abad ke-19.",
@@ -3736,6 +4218,7 @@ module.exports = {
     zh: "法式烤甜点：巧克力拌入打发的蛋白，入炉后蓬然升起；出现于19世纪初的法国。",
     ja: "泡立てた卵白にチョコレートを合わせ、膨らませて焼くフランスの菓子。19世紀初頭のフランスで生まれた。",
     es: "Postre francés al horno de chocolate incorporado a claras montadas para que suba; surgió en la Francia de principios del siglo XIX.",
+    ko: "거품 낸 흰자에 초콜릿을 섞어 부풀려 구운 프랑스 디저트로, 19세기 초 프랑스에서 나왔습니다.",
   },
   "dessert::tarte tatin": {
     id: "Tart apel terbalik Prancis dengan apel yang dikaramelkan dalam mentega dan gula, dibuat kakak-beradik Tatin di hotel Lamotte-Beuvron.",
@@ -3744,6 +4227,7 @@ module.exports = {
     zh: "法式翻转苹果挞，苹果先用黄油与糖焦糖化；由塔坦姐妹在拉莫特博夫龙的旅馆中创制。",
     ja: "バターと砂糖でカラメル化したリンゴを敷いて焼く、フランスの逆さまのタルト。ラモット・ブーヴロンの宿でタタン姉妹が生んだ。",
     es: "Tarta francesa de manzana volteada con manzanas caramelizadas en mantequilla y azúcar, creada por las hermanas Tatin en su hotel.",
+    ko: "버터와 설탕에 캐러멜로 조린 사과를 뒤집어 구운 프랑스 타르트로, 1880년대 라모트뵈브롱의 타탱 자매가 만들었습니다.",
   },
   "dessert::tiramisu": {
     id: "Hidangan penutup kopi Italia dari savoiardi yang direndam espresso, berlapis krim mascarpone dan kakao; populer di Treviso pada 1970-an.",
@@ -3752,6 +4236,7 @@ module.exports = {
     zh: "意大利的咖啡甜点：手指饼干浸透浓缩咖啡，与马斯卡彭奶油及可可粉层层相叠；1970年代在特雷维索流行开来。",
     ja: "エスプレッソを含ませたサヴォイアルディにマスカルポーネのクリームとココアを重ねるイタリアの菓子。1970年代トレヴィーゾで広まった。",
     es: "Postre italiano de café con savoiardi empapados en espresso, crema de mascarpone y cacao; se popularizó en Treviso en los años setenta.",
+    ko: "에스프레소에 적신 사보이아르디에 마스카르포네 크림과 코코아를 올린 이탈리아의 커피 디저트로, 1970년대 베네토 트레비소에서 퍼졌습니다.",
   },
   "egyptian::basbousa": {
     id: "Kue semolina manis Mesir yang direndam sirop dan dipotong belah ketupat; digemari di seluruh Timur Tengah dan Afrika Utara.",
@@ -3760,6 +4245,7 @@ module.exports = {
     zh: "埃及的甜粗麦粉蛋糕，浸透糖浆后切成菱形；在中东与北非各地都很流行。",
     ja: "シロップをたっぷり吸わせ、ひし形に切るエジプトの甘いセモリナのケーキ。中東と北アフリカ一帯で親しまれる。",
     es: "Bizcocho egipcio dulce de sémola empapado en almíbar y cortado en rombos; muy popular en Oriente Medio y el norte de África.",
+    ko: "시럽에 적신 세몰리나 케이크를 마름모로 썰어 내는 이집트 과자로, 중동과 북아프리카 전역에서 사랑받습니다.",
   },
   "egyptian::bessara": {
     id: "Cocolan nabati Mesir dari kacang fava belah yang dilumat bersama herba hijau segar; namanya dari kata Koptik pisawar, kacang tumbuk.",
@@ -3768,6 +4254,7 @@ module.exports = {
     zh: "埃及的纯素蘸酱，用去皮蚕豆瓣打泥拌新鲜青草香料；名称源自科普特语pisawar，意为捣碎的豆。",
     ja: "割ったソラマメをすりつぶし、生の香草を混ぜたエジプトのヴィーガンのディップ。名はコプト語pisawar（潰した豆）に由来。",
     es: "Dip vegano egipcio de habas partidas trituradas con hierbas verdes frescas; su nombre viene del copto pisawar, habas machacadas.",
+    ko: "잠두를 갈아 신선한 허브와 섞은 이집트의 채식 딥으로, 이름은 '으깬 콩'을 뜻하는 콥트어 피사와르에서 왔습니다.",
   },
   "egyptian::fasolia bil zayt": {
     id: "Hidangan Levant (Palestina, Yordania, Suriah) berupa buncis yang ditim bersama tomat, bawang putih, dan minyak zaitun; hangat atau dingin.",
@@ -3776,6 +4263,7 @@ module.exports = {
     zh: "黎凡特（巴勒斯坦、约旦、叙利亚）的菜式：四季豆与番茄、大蒜及橄榄油同焖，温食或放凉皆可。",
     ja: "レヴァント（パレスチナ、ヨルダン、シリア）の料理。さやいんげんをトマト、ニンニク、オリーブオイルで煮る。温でも常温でも。",
     es: "Plato levantino (palestino, jordano, sirio) de judías verdes estofadas con tomate, ajo y aceite de oliva, tibias o del tiempo.",
+    ko: "줄기콩을 토마토와 마늘, 올리브유에 조린 레반트(팔레스타인·요르단·시리아) 요리로, 따뜻하게나 실온으로 먹습니다.",
   },
   "egyptian::fattah": {
     id: "Hidangan perayaan Mesir dari roti goreng renyah, nasi, daging, dan saus bawang putih-tomat.",
@@ -3784,6 +4272,7 @@ module.exports = {
     zh: "埃及的节庆菜：酥脆的炸面包、米饭、肉与蒜香番茄酱汁同盛。",
     ja: "揚げてかりかりにしたパン、米、肉に、ニンニクとトマトのソースをかけるエジプトの祝いの料理。",
     es: "Plato festivo egipcio de pan frito crujiente, arroz, carne y una salsa de ajo y tomate.",
+    ko: "바삭하게 튀긴 빵과 밥, 고기에 마늘 토마토 소스를 끼얹은 이집트의 잔치 음식입니다.",
   },
   "egyptian::feteer meshaltet": {
     id: "Pastri berlembar Mesir dari banyak lapisan tipis adonan dan ghee; berakar di Mesir kuno, ketika ia dipersembahkan di kuil untuk para dewa.",
@@ -3792,6 +4281,7 @@ module.exports = {
     zh: "埃及的千层酥点，由无数层薄面皮与酥油叠成；可上溯至古埃及，当时用于神庙献神。",
     ja: "薄い生地とギーを何層にも重ねるエジプトの層状の焼き菓子。古代エジプトに遡り、神殿で神々に供えられた。",
     es: "Hojaldre egipcio de muchísimas capas finas de masa y ghee; se remonta al antiguo Egipto, donde se ofrecía a los dioses en los templos.",
+    ko: "얇은 반죽과 기를 여러 겹 쌓아 만든 이집트의 겹겹 페이스트리로, 고대 이집트에서 신전에 바치던 음식까지 거슬러 올라갑니다.",
   },
   "egyptian::ful medames": {
     id: "Hidangan nasional Mesir, terutama untuk sarapan: kacang fava ditim perlahan lalu dibalut minyak zaitun, air lemon, dan bawang putih.",
@@ -3800,6 +4290,7 @@ module.exports = {
     zh: "埃及的国菜，多在早餐食用：蚕豆慢火煨煮，再拌橄榄油、柠檬汁与大蒜。",
     ja: "エジプトの国民食で、とくに朝食に食べる。ソラマメをじっくり煮て、オリーブオイル、レモン汁、ニンニクで和える。",
     es: "Plato nacional egipcio, sobre todo de desayuno: habas cocidas a fuego lento y aliñadas con aceite de oliva, zumo de limón y ajo.",
+    ko: "잠두를 오래 끓여 올리브유와 레몬즙, 마늘로 버무린 이집트의 국민 음식으로, 특히 아침에 먹습니다.",
   },
   "egyptian::hawawshi": {
     id: "Roti panggang Mesir yang diisi daging cincang berbumbu, bawang, dan peterseli; kerap dikaitkan dengan tukang daging Kairo al-Hawawsh.",
@@ -3808,6 +4299,7 @@ module.exports = {
     zh: "埃及的烤夹肉面包，内填调味肉馅、洋葱与欧芹；一般归功于开罗一位名叫al-Hawawsh的肉贩。",
     ja: "香辛料入りのひき肉、玉ねぎ、パセリを詰めて焼くエジプトのパン。カイロの肉屋アル・ハワーシュの考案とされる。",
     es: "Pan egipcio horneado relleno de carne picada especiada, cebolla y perejil; se atribuye a un carnicero de El Cairo llamado al-Hawawsh.",
+    ko: "향신 다진 고기와 양파, 파슬리를 빵에 채워 구운 이집트 요리로, 흔히 카이로의 정육점 주인 알하와시가 만들었다고 봅니다.",
   },
   "egyptian::kebda iskandarani": {
     id: "Hati sapi goreng ala Alexandria yang dibumbui bawang putih, jintan, dan cabai; jajanan jalanan khas kota Alexandria, Mesir.",
@@ -3816,6 +4308,7 @@ module.exports = {
     zh: "亚历山大风味的煎牛肝，以大蒜、孜然与辣椒调味；是埃及亚历山大城的街头名物。",
     ja: "ニンニク、クミン、唐辛子で味付けした牛レバーのアレクサンドリア風の炒め物。エジプト・アレクサンドリアの屋台の名物。",
     es: "Hígado de vacuno frito al estilo de Alejandría con ajo, comino y chile; especialidad callejera de Alejandría, Egipto.",
+    ko: "마늘과 커민, 고추로 간해 볶은 소 간 요리로, 이집트 알렉산드리아를 대표하는 길거리 음식입니다.",
   },
   "egyptian::kofta egyptian": {
     id: "Tusuk sate panggang Mesir dari daging sapi dan domba cincang berbumbu; kata kofta berasal dari Persia dan muncul di buku masak Arab awal.",
@@ -3824,6 +4317,7 @@ module.exports = {
     zh: "埃及的炭烤肉串，用调味的牛肉与羊肉末制成；kofta一词源自波斯语，早期阿拉伯食谱中已有。",
     ja: "香辛料を混ぜた牛と羊のひき肉を串に巻いて焼くエジプトの料理。koftaの語はペルシア語由来で、初期のアラブ料理書にも見える。",
     es: "Brochetas egipcias de carne picada de vacuno y cordero especiada; la palabra kofta viene del persa y figura en recetarios árabes antiguos.",
+    ko: "향신 다진 소고기와 양고기를 꼬치에 붙여 구운 이집트 요리로, 코프타라는 말은 페르시아어에서 왔고 초기 아랍 요리책에 나옵니다.",
   },
   "egyptian::konafa": {
     id: "Hidangan penutup dari pastri suwir (kataifi) yang direndam sirop gula di atas keju atau krim; namanya mungkin dari kata Koptik kenephiten.",
@@ -3832,6 +4326,7 @@ module.exports = {
     zh: "以细丝酥皮（kataifi）覆盖奶酪或奶油、再浸糖浆的甜点；名称或源自科普特埃及语kenephiten。",
     ja: "細い糸状の生地（カタイフィ）でチーズやクリームを覆い、砂糖シロップを染み込ませた菓子。名はコプト語kenephitenに由来か。",
     es: "Postre de pasta en hebras (kataifi) empapada en almíbar sobre queso o crema; su nombre quizá venga del copto kenephiten.",
+    ko: "가늘게 뽑은 반죽에 치즈나 크림을 넣고 설탕 시럽에 적신 디저트로, 이름은 콥트 이집트어 '케네피텐'에서 왔다고 봅니다.",
   },
   "egyptian::koshari": {
     id: "Hidangan nasional Mesir: semangkuk jajanan jalanan berisi nasi, lentil, makaroni, dan buncis, ditutupi saus tomat dan bawang goreng.",
@@ -3840,6 +4335,7 @@ module.exports = {
     zh: "埃及的国菜：街头小吃的一碗，米饭、扁豆、通心粉与鹰嘴豆同盛，浇番茄酱汁并撒炸洋葱。",
     ja: "エジプトの国民食。米、レンズ豆、マカロニ、ひよこ豆を盛り、トマトソースと揚げ玉ねぎをかける屋台の一皿。",
     es: "Plato nacional egipcio: un bol callejero de arroz, lentejas, macarrones y garbanzos cubierto de salsa de tomate y cebolla frita.",
+    ko: "밥과 렌즈콩, 마카로니, 병아리콩에 토마토소스와 튀긴 양파를 올린 이집트의 국민 길거리 음식입니다.",
   },
   "egyptian::lamb sayadia rice": {
     id: "Sayadieh adalah hidangan nasi dan ikan berbumbu yang namanya berarti »nelayan«; dari pesisir Mediterania Mesir, Suriah, dan Lebanon.",
@@ -3848,6 +4344,7 @@ module.exports = {
     zh: "Sayadieh是加香料的米饭鱼菜，名称意为「渔夫的」；源自埃及、叙利亚与黎巴嫩的地中海沿岸。",
     ja: "サヤーディーヤは香辛料を使う米と魚の料理で、名は「漁師の」を意味する。エジプト、シリア、レバノンの地中海沿岸が発祥。",
     es: "La sayadieh es un plato especiado de arroz y pescado cuyo nombre significa «del pescador»; de la costa mediterránea de Egipto y el Levante.",
+    ko: "사야디예는 향신 밥과 생선으로 만드는 요리로 이름은 '어부의'라는 뜻이며, 이집트와 시리아, 레바논의 지중해 연안에서 비롯됐습니다.",
   },
   "egyptian::mahshi": {
     id: "Aneka sayur Mesir — labu, paprika, daun anggur — diisi nasi berbumbu lalu ditim lama dalam kaldu; makanan pokok sejak zaman Utsmaniyah.",
@@ -3856,6 +4353,7 @@ module.exports = {
     zh: "埃及的什锦酿菜：西葫芦、甜椒、葡萄叶等填入调味米饭，在高汤中慢煮；自奥斯曼时期便是家常。",
     ja: "ズッキーニ、ピーマン、ブドウの葉などに味付けした米を詰め、だしでじっくり煮るエジプトの料理。オスマン期からの定番。",
     es: "Surtido egipcio de verduras —calabacín, pimiento, hojas de parra— rellenas de arroz especiado y cocidas en caldo; de época otomana.",
+    ko: "호박과 피망, 포도잎 같은 채소에 양념한 쌀을 채워 육수에 오래 익힌 이집트 요리로, 오스만 시대부터 이어진 단골 음식입니다.",
   },
   "egyptian::molokhia": {
     id: "Sup hijau Mesir dari daun goni (Corchorus olitorius) yang dicincang halus, pertama tercatat pada abad ke-11 Masehi.",
@@ -3864,6 +4362,7 @@ module.exports = {
     zh: "埃及的绿色汤品，用切碎的黄麻叶（Corchorus olitorius）煮成；最早的记载见于公元11世纪。",
     ja: "細かく刻んだシマツナソ（Corchorus olitorius）の葉で作るエジプトの緑のスープ。11世紀の記録が初出。",
     es: "Sopa verde egipcia de hojas de yute (Corchorus olitorius) picadas muy finas, documentada por primera vez en el siglo XI.",
+    ko: "황마잎을 곱게 썰어 끓인 이집트의 초록 수프로, 11세기 기록에 처음 나옵니다.",
   },
   "egyptian::mulukhiyah with rabbit": {
     id: "Sup Mesir yang kental dari daun goni (Corchorus olitorius) yang dicincang sangat halus.",
@@ -3872,6 +4371,7 @@ module.exports = {
     zh: "浓稠的埃及汤品，用切得极碎的黄麻叶（Corchorus olitorius）煮成。",
     ja: "ごく細かく刻んだシマツナソ（Corchorus olitorius）の葉で作る、とろみの強いエジプトのスープ。",
     es: "Sopa egipcia espesa de hojas de yute (Corchorus olitorius) picadas muy finamente.",
+    ko: "황마잎을 곱게 썰어 끓인 이집트의 걸쭉한 수프입니다.",
   },
   "egyptian::roz me'ammar": {
     id: "Hidangan nasi panggang Mesir: beras butir pendek dipanggang perlahan di dalam periuk tanah liat (beram).",
@@ -3880,6 +4380,7 @@ module.exports = {
     zh: "埃及的烤饭：短粒米在陶锅（beram）中慢火烘烤而成。",
     ja: "エジプトの焼き米料理。短粒米を素焼きの壺（ベラム）でじっくり焼き上げる。",
     es: "Plato egipcio de arroz al horno: arroz de grano corto cocido lentamente en una olla de barro (beram).",
+    ko: "단립종 쌀을 옹기(브람)에 넣어 천천히 구운 이집트의 밥 요리입니다.",
   },
   "egyptian::shawarma egyptian": {
     id: "Jajanan jalanan Levant berupa daging panggang di tusuk vertikal yang diiris tipis dari alat pemanggang berputar.",
@@ -3888,6 +4389,7 @@ module.exports = {
     zh: "黎凡特的街头小吃：肉在竖式转炉上烤制，再削成薄片。",
     ja: "縦型の回転串で焼いた肉を薄く削ぎ取るレヴァントの屋台料理。",
     es: "Comida callejera levantina de carne asada en espetón vertical y cortada en lonchas finas.",
+    ko: "세로 회전 꼬치에 구운 고기를 얇게 저며 내는 레반트의 길거리 음식입니다.",
   },
   "egyptian::ta'meya (egyptian falafel)": {
     id: "Gorengan Mesir dari kacang fava giling dan herba yang digoreng renyah; falafel yang asli, konon dibuat umat Koptik untuk masa puasa.",
@@ -3896,6 +4398,7 @@ module.exports = {
     zh: "埃及的炸饼，用蚕豆泥与香草炸至酥脆；这是最早的falafel，据说由科普特基督徒为四旬斋所创。",
     ja: "挽いたソラマメと香草をこねて揚げるエジプトのコロッケ。ファラフェルの原型で、コプト教徒が四旬節のために作ったと伝わる。",
     es: "Buñuelo egipcio de habas molidas y hierbas frito hasta quedar crujiente; el falafel original, creado según se dice por coptos en Cuaresma.",
+    ko: "간 잠두와 허브를 바삭하게 튀긴 이집트 음식으로, 콥트 기독교인이 사순절을 위해 만들었다는 원조 팔라펠입니다.",
   },
   "egyptian::tahini egyptian": {
     id: "Saus wijen giling yang lembut; di Mesir diencerkan dengan lemon, bawang putih, dan jintan lalu disajikan dengan ta'amia dan daging bakar.",
@@ -3904,6 +4407,7 @@ module.exports = {
     zh: "芝麻研磨而成的顺滑酱汁；埃及人以柠檬、大蒜与孜然调稀，佐ta'amia、蚕豆泥与烤肉食用。",
     ja: "すりごまのなめらかなソース。エジプトではレモン、ニンニク、クミンでのばし、ターメイヤやフール、焼き肉に添える。",
     es: "Salsa cremosa de sésamo molido; en Egipto se aligera con limón, ajo y comino y acompaña la ta'amia, el ful y las carnes a la brasa.",
+    ko: "참깨를 갈아 만든 크리미한 소스로, 이집트에서는 레몬과 마늘, 커민을 넣어 묽게 만들어 타메야와 풀, 구운 고기에 곁들입니다.",
   },
   "egyptian::umm ali": {
     id: "Hidangan penutup nasional Mesir: puding roti hangat dipanggang dalam susu manis dengan kacang, kismis, dan kelapa; dari Mesir abad tengah.",
@@ -3912,6 +4416,7 @@ module.exports = {
     zh: "埃及的国民甜点：温热的面包布丁，在加糖的牛奶中与坚果、葡萄干及椰丝同烤；可上溯到中世纪埃及。",
     ja: "エジプトの国民的デザート。パンをナッツ、レーズン、ココナッツとともに甘い牛乳で焼いた温かいプディング。中世エジプトに遡る。",
     es: "Postre nacional egipcio: pudin de pan caliente horneado en leche dulce con frutos secos, pasas y coco; se remonta al Egipto medieval.",
+    ko: "견과와 건포도, 코코넛을 넣고 달콤한 우유에 구운 따뜻한 빵 푸딩으로, 중세 이집트까지 거슬러 오르는 국민 디저트입니다.",
   },
   "eurasian::curry debal alt": {
     id: "Kari Kristang Eurasia yang berapi, asal Melaka Portugis, dibumbui kemiri dan cuka.",
@@ -3920,6 +4425,7 @@ module.exports = {
     zh: "欧亚裔克里斯坦的辣咖喱，源自葡属马六甲，用石栗与醋调味。",
     ja: "ポルトガル領マラッカに発する、ユーラシアン・クリスタンの激辛カレー。キャンドルナッツと酢で味を決めます。",
     es: "Curry ardiente cristang euroasiático de origen portugués-malaqueño, especiado con nuez de la India y vinagre.",
+    ko: "포르투갈령 믈라카에서 온 유라시안 크리스탕식 매운 커리로, 캔들넛과 식초로 맛을 냅니다.",
   },
   "eurasian::devil curry": {
     id: "Kari Kristang (Portugis-Eurasia) dari Melaka yang berapi dan berbasis cuka; menurut tradisi dibuat sesudah Natal dari sisa daging panggang.",
@@ -3928,6 +4434,7 @@ module.exports = {
     zh: "马六甲的克里斯坦（葡萄牙欧亚裔）魔鬼咖喱：醋味打底，辣得凶；照传统是圣诞节后拿剩下的烤肉来做。",
     ja: "マラッカのクリスタン（ポルトガル系ユーラシアン）の激辛カレー。酢が土台で、伝統ではクリスマスの残りのロースト肉から作ります。",
     es: "Curry cristang (portugués-euroasiático) de Malaca, ardiente y con base de vinagre; se hace tras la Navidad con las carnes asadas sobrantes.",
+    ko: "믈라카의 크리스탕(포르투갈계 유라시안)에서 온 식초 기반의 매운 커리로, 전통적으로 성탄절에 남은 구이 고기로 만듭니다.",
   },
   "eurasian::eurasian beef stew": {
     id: "Semur sapi yang gelap dan kaya dari komunitas Eurasia (Kristang) di Singapura dan Malaysia, ditim lama dengan kecap, rempah, dan kentang.",
@@ -3936,6 +4443,7 @@ module.exports = {
     zh: "新加坡与马来西亚欧亚（克里斯坦）社群的深色浓味炖牛肉，以酱油、暖香料与马铃薯慢炖而成。",
     ja: "シンガポールとマレーシアのユーラシアン（クリスタン）社会の、色濃く滋味深い牛肉の煮込み。醤油と温かな香辛料、じゃがいもで煮る。",
     es: "Guiso de vacuno oscuro y sabroso de la comunidad euroasiática (kristang) de Singapur y Malasia, cocido con soja, especias y patata.",
+    ko: "간장과 따뜻한 향신료, 감자를 넣어 오래 끓인 싱가포르·말레이시아 유라시안(크리스탕) 공동체의 짙고 진한 소고기 스튜입니다.",
   },
   "eurasian::eurasian curry chicken": {
     id: "Kari ayam Kristang (Portugis-Eurasia) yang menyengat, dibangun di atas kemiri, kunyit, dan cabai kering; lebih pedas dari kari Melayu.",
@@ -3944,6 +4452,7 @@ module.exports = {
     zh: "炽烈的克里斯坦（葡萄牙裔欧亚）咖喱鸡，以石栗、姜黄与干辣椒为底，比马来咖喱更辣。",
     ja: "キャンドルナッツ、ターメリック、乾燥唐辛子を土台にした、燃えるように辛いクリスタン（ポルトガル系ユーラシアン）の鶏カレー。",
     es: "Ardiente curry de pollo kristang (portugués-euroasiático) construido sobre nuez de la India, cúrcuma y chiles secos; más picante.",
+    ko: "캔들넛과 강황, 말린 고추로 만든 크리스탕(포르투갈계 유라시안)식 매운 치킨 커리로, 이웃한 말레이 커리보다 맵습니다.",
   },
   "eurasian::eurasian pork chop": {
     id: "Kotelet babi goreng bergaya Inggris dalam masakan Eurasia Singapura, dibalut remah biskuit soda, biasanya cream cracker.",
@@ -3952,6 +4461,7 @@ module.exports = {
     zh: "新加坡欧亚裔菜里的炸猪排，路数来自英国：外层裹的是压碎的苏打饼干，多半是 cream cracker。",
     ja: "シンガポールのユーラシアン料理の揚げ豚カツ。英国の影響を受け、衣は砕いたソーダビスケットです。",
     es: "Chuleta de cerdo frita de influencia británica en la cocina euroasiática de Singapur, rebozada en galleta salada machacada.",
+    ko: "싱가포르 유라시안 요리의 영국식 튀김 포크찹으로, 부순 소다 비스킷(주로 크림 크래커)을 옷으로 입힙니다.",
   },
   "eurasian::eurasian smoore": {
     id: "Semur sapi Eurasia yang kental dan gelap dari Singapura dan Malaysia — tafsir setempat atas semur sapi ala Barat.",
@@ -3960,6 +4470,7 @@ module.exports = {
     zh: "新马欧亚裔的浓稠深色牛肉炖菜——西式炖牛肉在这里的本地版本。",
     ja: "シンガポールとマレーシアのユーラシアンの、濃く黒い牛肉の煮込み。西洋のビーフシチューをこの土地で読み替えたもの。",
     es: "Guiso euroasiático de ternera, espeso y oscuro, de Singapur y Malasia — una lectura local del estofado de ternera occidental.",
+    ko: "싱가포르와 말레이시아 유라시안의 짙고 걸쭉한 소고기 스튜로, 서양식 비프 스튜를 현지식으로 풀어낸 것입니다.",
   },
   "eurasian::feng (curry of pork offal)": {
     id: "Kari jeroan babi cincang khas Eurasia-Kristang dari Melaka Portugis; menurut tradisi disajikan saat Natal.",
@@ -3968,6 +4479,7 @@ module.exports = {
     zh: "欧亚裔克里斯坦的猪杂咖喱：内脏切丁，出自葡属马六甲；照传统是圣诞节的菜。",
     ja: "ポルトガル領マラッカに発する、ユーラシアン・クリスタンの豚の内臓のカレー。伝統ではクリスマスに供されます。",
     es: "Curry euroasiático-cristang de casquería de cerdo en dados, de la Malaca portuguesa; tradicionalmente se sirve en Navidad.",
+    ko: "포르투갈령 믈라카에서 온 유라시안 크리스탕식 돼지 내장 커리로, 전통적으로 성탄절에 냅니다.",
   },
   "eurasian::ferradura": {
     id: "Roti perayaan Portugis berbentuk tapal kuda, dibumbui adas manis dan kayu manis; diberikan pengantin kepada tamu demi keberuntungan.",
@@ -3976,6 +4488,7 @@ module.exports = {
     zh: "葡萄牙的马蹄形节庆面包：加茴香与肉桂；新娘把它分给婚宴的宾客，讨个吉利。",
     ja: "馬蹄の形をしたポルトガルの祝いのパン。アニスとシナモンで香りづけし、花嫁が幸運を願って客に配ります。",
     es: "Pan festivo portugués en forma de herradura, especiado con anís y canela; la novia lo regala a los invitados como amuleto de suerte.",
+    ko: "아니스와 계피로 향을 낸 말굽 모양의 포르투갈 전통 명절 빵으로, 신부가 하객에게 복을 빌며 나눠 줍니다.",
   },
   "eurasian::love letters (kuih kapit)": {
     id: "Wafer tipis renyah dari telur, gula, dan santan, dijepit dalam cetakan besi berukir di atas arang; turunan dari wafer gulung telur Belanda.",
@@ -3984,6 +4497,7 @@ module.exports = {
     zh: "薄脆的蛋饼：蛋、糖与椰浆调糊，夹在雕花铁模里在炭火上压烤；源自荷兰的蛋卷薄脆。",
     ja: "卵、砂糖、ココナッツミルクの薄いパリパリした煎餅。文様の鉄型に挟み、炭火で焼きます。オランダの卵ウエハースの流れ。",
     es: "Oblea fina y crujiente de huevo, azúcar y leche de coco prensada en moldes de hierro labrados sobre brasas; deriva del barquillo neerlandés.",
+    ko: "달걀과 설탕, 코코넛밀크 반죽을 무늬 있는 무쇠 틀에 끼워 숯불에 구운 얇고 바삭한 과자로, 네덜란드의 달걀 롤 과자에서 왔습니다.",
   },
   "eurasian::pineapple tart": {
     id: "Tart mungil yang penuh mentega, diisi atau ditutup selai nanas yang dikaramelkan perlahan bersama rempah seperti kayu manis.",
@@ -3992,6 +4506,7 @@ module.exports = {
     zh: "一口大小的黄油小挞：馅或面上是慢火熬到焦香的菠萝酱，还添了肉桂等香料。",
     ja: "一口大のバターの効いたタルト。シナモンなどの香辛料とともにじっくり煮詰めたパイナップルジャムを詰めるか、のせます。",
     es: "Tartaleta mantecosa de un bocado, rellena o cubierta de mermelada de piña caramelizada despacio con especias como la canela.",
+    ko: "계피 같은 향신료를 넣어 천천히 졸인 파인애플 잼을 채우거나 올린 한입 크기의 버터 타르트입니다.",
   },
   "eurasian::pork vindaloo eurasian": {
     id: "Kari babi Kristang Eurasia dalam cuka dan bawang putih, turunan dari carne de vinha d'alhos Portugis lewat Goa dan Melaka.",
@@ -4000,6 +4515,7 @@ module.exports = {
     zh: "欧亚裔克里斯坦的醋蒜猪肉咖喱：源自葡萄牙的 carne de vinha d’alhos，经果阿与马六甲传来。",
     ja: "クリスタン系ユーラシアンの豚肉カレー。酢とにんにくで、ポルトガルの carne de vinha d’alhos がゴアとマラッカを経て伝わったもの。",
     es: "Curry euroasiático cristang de cerdo en vinagre y ajo, derivado de la carne de vinha d'alhos portuguesa vía Goa y Malaca.",
+    ko: "식초와 마늘에 돼지고기를 재운 유라시안(크리스탕) 커리로, 고아와 믈라카를 거쳐 온 포르투갈의 카르네 드 빈야 달류스에서 왔습니다.",
   },
   "eurasian::portuguese egg tart": {
     id: "Tart pastri berlapis dengan isian custard telur berkaramel, dibuat para rahib Katolik di Biara Jeronimos Lisbon sebelum abad ke-18.",
@@ -4008,6 +4524,7 @@ module.exports = {
     zh: "层层起酥的蛋挞，内为焦糖化的蛋奶馅；18世纪之前由里斯本热罗尼莫斯修道院的天主教修士创制。",
     ja: "パイ生地に焦がしたカスタードを詰めたタルト。18世紀より前、リスボンのジェロニモス修道院の修道士が生み出した。",
     es: "Tarta de hojaldre con crema de huevo caramelizada, creada por los monjes católicos del Monasterio de los Jerónimos antes del siglo XVIII.",
+    ko: "캐러멜빛 달걀 커스터드를 담은 겹겹의 퍼프 페이스트리 타르트로, 18세기 이전 리스본 제로니무스 수도원의 수도사들이 만들었습니다.",
   },
   "eurasian::salted vegetable duck soup": {
     id: "Sup bebek yang asam dengan sayur asin kiam chye.",
@@ -4016,6 +4533,7 @@ module.exports = {
     zh: "咸菜鸭汤：鸭肉与咸菜同煮，汤带酸味。",
     ja: "酸味のある鴨のスープ。塩漬けの菜、キャムチャイを入れます。",
     es: "Sopa agria de pato con mostaza salada (kiam chye).",
+    ko: "갓지(끼암차이)를 넣어 새콤하게 낸 오리 수프입니다.",
   },
   "eurasian::semur ayam": {
     id: "Semur ayam Jawa yang dibraise dalam kecap manis dan rempah; turunan dari teknik memasak Belanda \"smoor\".",
@@ -4024,6 +4542,7 @@ module.exports = {
     zh: "爪哇的焖鸡：鸡肉用甜酱油与香料慢焖；做法源自荷兰语的 smoor，也就是「焖」。",
     ja: "ジャワの鶏の煮込み。ケチャップマニスと香辛料で煮ます。オランダ語の煮込み技法 smoor に由来します。",
     es: "Estofado javanés de pollo guisado en soja dulce y especias; deriva de la técnica neerlandesa de estofado «smoor».",
+    ko: "케찹 마니스와 향신료에 닭을 조린 자바 요리로, 네덜란드의 조림 기법 '스모어'에서 왔습니다.",
   },
   "eurasian::sugee cake": {
     id: "Kue semolina dan almond yang padat dan penuh mentega, milik komunitas Kristang Portugis-Eurasia di Melaka dan Singapura.",
@@ -4032,6 +4551,7 @@ module.exports = {
     zh: "马六甲与新加坡克里斯坦（葡萄牙欧亚裔）社群的粗麦杏仁蛋糕：质地扎实，牛油味浓。",
     ja: "マラッカとシンガポールのクリスタン（ポルトガル系ユーラシアン）の菓子。セモリナとアーモンドの、密でバターの効いたケーキです。",
     es: "Bizcocho denso y mantecoso de sémola y almendra de la comunidad cristang portuguesa-euroasiática de Malaca y Singapur.",
+    ko: "믈라카와 싱가포르 포르투갈계 유라시안(크리스탕) 공동체의 조밀하고 버터 향 짙은 세몰리나 아몬드 케이크입니다.",
   },
   "filipino::adobo": {
     id: "Hidangan nasional tak resmi Filipina: daging atau makanan laut direbus dalam cuka, kecap asin, bawang putih, dan daun salam.",
@@ -4040,6 +4560,7 @@ module.exports = {
     zh: "菲律宾不成文的国菜：肉或海鲜在醋、酱油、蒜与月桂叶里慢煨。",
     ja: "フィリピンの事実上の国民食。肉や魚介を酢、醤油、にんにく、月桂樹の葉で煮込みます。",
     es: "Plato nacional oficioso de Filipinas: carne o marisco guisados en vinagre, soja, ajo y hoja de laurel.",
+    ko: "고기나 해산물을 식초와 간장, 마늘, 월계수잎에 조린 필리핀의 사실상 국민 음식입니다.",
   },
   "filipino::bangus": {
     id: "Nama Filipina untuk ikan bandeng (Chanos chanos), ikan budidaya yang digemari dan tak resmi dianggap ikan nasional Filipina.",
@@ -4048,6 +4569,7 @@ module.exports = {
     zh: "菲律宾语里的遮目鱼（Chanos chanos）：养殖极广的一种鱼，被不成文地视作菲律宾的国鱼。",
     ja: "サバヒー（Chanos chanos）のフィリピン語名。養殖が盛んな魚で、事実上の国魚とされています。",
     es: "Nombre filipino del sabalote (Chanos chanos), un pez de cultivo muy popular considerado extraoficialmente pez nacional del país.",
+    ko: "밀크피시를 부르는 필리핀 이름으로, 널리 양식되며 사실상 필리핀의 국민 생선으로 여겨집니다.",
   },
   "filipino::beef tapa": {
     id: "Daging sapi Filipina yang diiris tipis lalu diawetkan atau dikeringkan dengan garam dan rempah; kini biasanya cukup dimarinasi.",
@@ -4056,6 +4578,7 @@ module.exports = {
     zh: "菲律宾的腌牛肉片：薄切牛肉用盐与香料腌渍或晒干，本是保存的法子；如今多半只是腌过就好。",
     ja: "薄切りの牛肉を塩と香辛料で漬けるか干した、フィリピンの保存食。今ではたいてい漬け込むだけです。",
     es: "Ternera filipina en lonchas finas curada o secada con sal y especias como conserva; hoy suele estar simplemente marinada.",
+    ko: "소고기를 얇게 저며 소금과 향신료로 절이거나 말려 보존하던 필리핀 음식으로, 지금은 대개 양념에 재웁니다.",
   },
   "filipino::bibingka": {
     id: "Kue beras Filipina yang dibuat dari galapong, adonan beras yang difermentasi.",
@@ -4064,6 +4587,7 @@ module.exports = {
     zh: "菲律宾的米糕：用发酵米浆 galapong 做成。",
     ja: "発酵させた米の生地ガラポンで作るフィリピンの米の菓子。",
     es: "Pastel de arroz filipino hecho con galapong, una masa de arroz fermentada.",
+    ko: "갈라퐁이라 부르는 쌀 반죽으로 만드는 필리핀 떡입니다.",
   },
   "filipino::calamansi juice filipino": {
     id: "Limun Filipina dari perasan jeruk kalamansi (Citrus x microcarpa).",
@@ -4072,6 +4596,7 @@ module.exports = {
     zh: "菲律宾的柠檬水：用小青柠（Citrus × microcarpa）榨汁调成。",
     ja: "カラマンシー（Citrus × microcarpa）の果汁で作るフィリピンのレモネード。",
     es: "Limonada filipina hecha con el zumo del calamansí (Citrus × microcarpa).",
+    ko: "칼라만시 즙으로 만든 필리핀식 레모네이드입니다.",
   },
   "filipino::chicken adobo": {
     id: "Hidangan Filipina: ayam dibraise dalam cuka, kecap asin, bawang putih, dan merica; cara prakolonial, namanya dari \"adobar\" Spanyol.",
@@ -4080,6 +4605,7 @@ module.exports = {
     zh: "菲律宾菜：鸡肉在醋、酱油、蒜与胡椒里焖透；这做法早于殖民，名字才取自西班牙语的 adobar。",
     ja: "フィリピンの料理。鶏肉を酢、醤油、にんにく、胡椒で煮ます。植民地以前からの手法で、名は後にスペイン語 adobar から。",
     es: "Plato filipino de pollo guisado en vinagre, soja, ajo y pimienta; método precolonial que luego tomó nombre del español «adobar».",
+    ko: "닭고기를 식초와 간장, 마늘, 통후추에 조린 필리핀 요리로, 식민지 이전의 조리법에 스페인어 '아도바르'라는 이름이 나중에 붙었습니다.",
   },
   "filipino::chicken inasal": {
     id: "Ayam bakar Visayas dari Bacolod, dimarinasi kalamansi, cuka kelapa, dan annato; \"inasal\" berarti dipanggang arang dalam bahasa Hiligaynon.",
@@ -4088,6 +4614,7 @@ module.exports = {
     zh: "米沙鄢的烤鸡，出自巴科洛德：用小青柠、椰醋与胭脂树籽腌过再上炭火；「inasal」在希利盖农语里就是「炭烤」。",
     ja: "バコロド発、ビサヤの焼き鶏。カラマンシー、ココナッツ酢、アナトーに漬けます。「イナサル」はヒリガイノン語で炭火焼き。",
     es: "Pollo a la brasa visayo de Bacolod, marinado en calamansí, vinagre de coco y achiote; «inasal» es «asado al carbón» en hiligainón.",
+    ko: "칼라만시와 코코넛 식초, 아나토에 재워 구운 바콜로드의 비사야식 닭구이로, '이나살'은 힐리가이논어로 숯불구이를 뜻합니다.",
   },
   "filipino::crispy pata": {
     id: "Hidangan Filipina: kaki babi utuh direbus bersama rempah lalu digoreng rendam hingga kulitnya meletup; disajikan dengan cocolan kecap-cuka.",
@@ -4096,6 +4623,7 @@ module.exports = {
     zh: "菲律宾的炸猪脚：整只猪脚先与香料同煮，再下油锅炸到皮爆响；蘸酱油醋汁吃。",
     ja: "フィリピンの料理。豚脚を丸ごと香味とともに茹で、皮がはじけるまで揚げます。醤油と酢のたれを添えて。",
     es: "Plato filipino de pata de cerdo entera hervida con aromáticos y luego frita hasta que la piel cruje; con mojo de soja y vinagre.",
+    ko: "돼지 다리를 통째로 향신 재료와 함께 삶은 뒤 껍질이 바삭해지도록 튀긴 필리핀 요리로, 간장 식초 소스를 곁들입니다.",
   },
   "filipino::ensaymada": {
     id: "Roti manis Filipina yang lembut dan penuh mentega, digulung melingkar dan ditaburi gula serta keju parut; saduran ensaimada Mallorca.",
@@ -4104,6 +4632,7 @@ module.exports = {
     zh: "菲律宾的螺旋甜面包：松软而多黄油，面上撒糖与奶酪碎；改自西班牙马略卡的 ensaïmada。",
     ja: "やわらかくバターの効いた渦巻き形のフィリピンの菓子パン。砂糖とすりおろしチーズをのせ、マヨルカのエンサイマダを翻案。",
     es: "Bollo dulce filipino, blando y mantecoso, enrollado en espiral y cubierto de azúcar y queso rallado; adaptado de la ensaïmada mallorquina.",
+    ko: "설탕과 간 치즈를 올린 부드럽고 버터 향 짙은 나선형 필리핀 단빵으로, 스페인 마요르카의 엔사이마다에서 왔습니다.",
   },
   "filipino::halo-halo": {
     id: "Hidangan es serut Filipina yang berlapis kacang manis, buah-buahan, dan susu evaporasi.",
@@ -4112,6 +4641,7 @@ module.exports = {
     zh: "菲律宾的刨冰甜品：甜豆、水果与淡奶层层相叠。",
     ja: "フィリピンのかき氷。甘く煮た豆、果物、無糖練乳を層に重ねます。",
     es: "Postre filipino de hielo raspado en capas de legumbres dulces, fruta y leche evaporada.",
+    ko: "달게 조린 콩과 과일, 무가당 연유를 켜켜이 올린 필리핀의 빙수 디저트입니다.",
   },
   "filipino::kare-kare": {
     id: "Semur Filipina berisi buntut sapi dan sayuran dalam saus kacang kental berwarna annato; disajikan bersama pasta udang bagoong.",
@@ -4120,6 +4650,7 @@ module.exports = {
     zh: "菲律宾的花生炖：牛尾与蔬菜浸在胭脂树籽染色的浓花生酱里；配虾酱 bagoong 同吃。",
     ja: "オックステールと野菜を、アナトーで色づけた濃いピーナッツソースで煮るフィリピンの料理。エビ味噌バゴオンを添えます。",
     es: "Guiso filipino de rabo de buey y verduras en salsa espesa de cacahuete teñida con achiote; se sirve con pasta de gambas bagoong.",
+    ko: "소꼬리와 채소를 아나토로 물들인 진한 땅콩 소스에 끓인 필리핀 스튜로, 바고옹 새우장을 곁들입니다.",
   },
   "filipino::leche flan": {
     id: "Custard karamel Filipina yang kaya, dibuat dari kuning telur, susu, dan gula yang dikaramelkan.",
@@ -4128,6 +4659,7 @@ module.exports = {
     zh: "菲律宾的浓香焦糖布丁：蛋黄、牛奶与焦化的糖同烤。",
     ja: "卵黄、牛乳、焦がした砂糖で作る、こくのあるフィリピンのカラメルプリン。",
     es: "Flan filipino rico de yemas de huevo, leche y azúcar caramelizado.",
+    ko: "달걀노른자와 우유, 캐러멜로 만든 진한 필리핀식 커스터드입니다.",
   },
   "filipino::lechon": {
     id: "Babi utuh dipanggang di atas tusuk arang hingga kulitnya renyah; istilah dari masa kolonial Spanyol, ia pusat setiap pesta Filipina.",
@@ -4136,6 +4668,7 @@ module.exports = {
     zh: "整猪穿在铁杆上架炭火转烤，直到皮脆；这词出自西班牙殖民时期，而这道菜是菲律宾节庆的中心。",
     ja: "豚を丸ごと串に刺し、炭火で皮がぱりっとするまで焼きます。語はスペイン植民地期のもので、フィリピンの祝祭の主役です。",
     es: "Cerdo entero asado al espetón sobre carbón hasta que la piel cruje; término de la época colonial y centro de toda fiesta filipina.",
+    ko: "돼지를 통째로 숯불 꼬치에 구워 껍질을 바삭하게 만든 요리로, 스페인 식민지 시대의 이름이며 필리핀 잔치의 중심입니다.",
   },
   "filipino::lechon kawali": {
     id: "Perut babi goreng renyah khas Filipina: dagingnya direbus dulu dalam air berbumbu, lalu digoreng rendam dalam kawali, wajan atau kuali.",
@@ -4144,6 +4677,7 @@ module.exports = {
     zh: "菲律宾的脆皮炸五花：肉先用调味水煮过，再在 kawali（平底锅或炒锅）里炸透。",
     ja: "フィリピンの皮パリの揚げ豚バラ。まず味つけした湯で茹で、それからカワリ（鍋や中華鍋）で揚げます。",
     es: "Panceta de cerdo filipina frita y crujiente: primero se hierve en agua sazonada y luego se fríe en un kawali, sartén u wok.",
+    ko: "간을 한 물에 삼겹살을 먼저 삶은 뒤 카왈리(팬이나 웍)에 튀겨 바삭하게 만든 필리핀 요리입니다.",
   },
   "filipino::longganisa": {
     id: "Sosis babi Filipina yang dibumbui bawang putih, lada hitam, garam, dan cuka; turunan dari longaniza Spanyol.",
@@ -4152,6 +4686,7 @@ module.exports = {
     zh: "菲律宾的猪肉香肠：调蒜、黑胡椒、盐与醋；源自西班牙的 longaniza。",
     ja: "にんにく、黒胡椒、塩、酢で味つけしたフィリピンの豚肉ソーセージ。スペインのロンガニサに由来します。",
     es: "Salchicha de cerdo filipina sazonada con ajo, pimienta negra, sal y vinagre; derivada de la longaniza española.",
+    ko: "마늘과 후추, 소금, 식초로 간한 필리핀식 돼지고기 소시지로, 스페인의 론가니사에서 왔습니다.",
   },
   "filipino::lumpia": {
     id: "Lumpia Filipina, digoreng atau segar, dibawa perantau Hokkien; namanya dari Hokkien lun-pia, yang berarti kue basah.",
@@ -4160,6 +4695,7 @@ module.exports = {
     zh: "菲律宾的春卷，有炸的也有鲜的，由福建移民带去；名字出自福建话的「润饼」。",
     ja: "揚げても生でも供されるフィリピンの春巻き。福建からの移民が伝え、名は福建語の「潤餅」に由来します。",
     es: "Rollito filipino, frito o fresco, traído por inmigrantes hokkien; su nombre viene del hokkien lun-pia, «pastel húmedo».",
+    ko: "호키엔 이민자들이 들여온 필리핀 스프링롤로 튀기거나 생으로 내며, 이름은 '촉촉한 전병'이라는 뜻의 호키엔어 룬피아에서 왔습니다.",
   },
   "filipino::lumpia shanghai": {
     id: "Lumpia goreng Filipina berisi daging babi giling berbumbu dalam kulit tipis, turunan lumpia Hokkien, dicocol saus cabai manis.",
@@ -4168,6 +4704,7 @@ module.exports = {
     zh: "菲律宾炸春卷，薄皮裹调味猪肉末，源自闽南薄饼，蘸甜辣酱吃。",
     ja: "フィリピンの揚げ春巻き。薄い皮で味付け豚挽き肉を巻き、福建の薄餅を祖とする。甘辛のたれで。",
     es: "Rollito filipino frito de carne de cerdo picada y sazonada en masa fina, heredero del lumpia hokkien, con salsa dulce de guindilla.",
+    ko: "양념한 다진 돼지고기를 얇은 피에 말아 튀긴 필리핀 스프링롤로, 중국(호키엔) 룸피아에서 왔으며 스위트 칠리에 찍어 먹습니다.",
   },
   "filipino::pancit": {
     id: "Hidangan mi goreng Filipina yang dibawa pedagang Tionghoa; namanya bahasa Hokkien untuk makanan yang dimasak dengan mudah atau cepat.",
@@ -4176,6 +4713,7 @@ module.exports = {
     zh: "菲律宾的炒面，由华人商贾带来；名字出自福建话，意思是「便宜煮成的吃食」。",
     ja: "中国の商人が伝えたフィリピンの焼きそば。名は福建語で「手軽に、早く作れる食べ物」の意です。",
     es: "Plato filipino de fideos salteados traído por comerciantes chinos; su nombre es hokkien para comida hecha de forma cómoda o rápida.",
+    ko: "중국 상인들에게서 온 필리핀식 볶음국수로, 이름은 호키엔어로 간편하고 빠르게 지은 음식이라는 뜻입니다.",
   },
   "filipino::pancit bihon": {
     id: "Mi goreng Filipina dari bihun beras; \"pancit\" berasal dari Hokkien \"pian i sit\", makanan yang dimasak dengan mudah.",
@@ -4184,6 +4722,7 @@ module.exports = {
     zh: "菲律宾的炒米粉；「pancit」来自福建话的「便宜食」，意思是省事煮出来的东西。",
     ja: "米ビーフンで作るフィリピンの焼きそば。「パンシット」は福建語の「便宜食」、手軽に作る食べ物の意です。",
     es: "Fideos de arroz (bihon) salteados a la filipina; «pancit» viene del hokkien «pian i sit», comida cocinada con comodidad.",
+    ko: "쌀국수(비혼)를 볶아 낸 필리핀 요리로, '판싯'은 호키엔어 '피안 이 싯', 곧 간편하게 지은 음식에서 왔습니다.",
   },
   "filipino::pancit canton": {
     id: "Mi telur terigu goreng khas Filipina dengan daging dan sayuran.",
@@ -4192,6 +4731,7 @@ module.exports = {
     zh: "菲律宾的炒面：小麦蛋面与肉、蔬菜同炒。",
     ja: "肉と野菜を合わせて炒めるフィリピンの小麦の卵麺。",
     es: "Fideos de trigo al huevo salteados a la filipina con carne y verduras.",
+    ko: "고기와 채소를 넣어 볶은 필리핀식 밀 달걀면 요리입니다.",
   },
   "filipino::pork adobo": {
     id: "Babi Filipina yang dibraise dalam cuka, kecap asin, bawang putih, daun salam, dan merica butiran.",
@@ -4200,6 +4740,7 @@ module.exports = {
     zh: "菲律宾的醋焖猪肉：猪肉在醋、酱油、蒜、月桂叶与胡椒粒里焖熟。",
     ja: "フィリピンの豚肉料理。酢、醤油、にんにく、月桂樹の葉、粒胡椒で煮込みます。",
     es: "Cerdo filipino guisado en vinagre, soja, ajo, laurel y pimienta en grano.",
+    ko: "돼지고기를 식초와 간장, 마늘, 월계수잎, 통후추에 조린 필리핀 요리입니다.",
   },
   "filipino::puto": {
     id: "Kue beras kukus Filipina, menurut tradisi dari adonan beras sedikit terfermentasi; kerap disantap dengan lauk gurih seperti dinuguan.",
@@ -4208,6 +4749,7 @@ module.exports = {
     zh: "菲律宾的蒸米糕：照传统用略微发酵的米浆做；常配 dinuguan 这类咸味菜一起吃。",
     ja: "軽く発酵させた米の生地で作るフィリピンの蒸し菓子。ディヌグアンのような塩味の料理に添えて食べることも多い。",
     es: "Pastel de arroz filipino al vapor, hecho tradicionalmente con masa de arroz algo fermentada; se come con platos salados como el dinuguan.",
+    ko: "살짝 발효시킨 쌀 반죽(갈라퐁)으로 쪄낸 필리핀 떡으로, 디누구안 같은 짭조름한 요리와 함께 먹는 경우가 많습니다.",
   },
   "filipino::san miguel beer": {
     id: "Lager pucat Filipina yang pertama diseduh pada 1890 di San Miguel, Manila — pabrik bir pertama di Asia Tenggara.",
@@ -4216,6 +4758,7 @@ module.exports = {
     zh: "菲律宾的淡色拉格：一八九〇年在马尼拉圣米格尔首酿，那是东南亚第一家啤酒厂。",
     ja: "一八九〇年、マニラのサン・ミゲルで初めて醸造されたフィリピンの淡色ラガー。東南アジア最初のビール工場でした。",
     es: "Lager clara filipina elaborada por primera vez en 1890 en San Miguel, Manila: la primera fábrica de cerveza del Sudeste Asiático.",
+    ko: "1890년 마닐라 산미겔에서 처음 빚은 필리핀 페일 라거로, 동남아시아 최초의 양조장에서 나왔습니다.",
   },
   "filipino::sinigang": {
     id: "Sup atau semur Filipina yang asam dan gurih, paling sering diasamkan dengan asam jawa atau sampalok.",
@@ -4224,6 +4767,7 @@ module.exports = {
     zh: "菲律宾的酸汤：又酸又鲜，最常用罗望子（sampalok）取酸。",
     ja: "フィリピンの酸味と旨みのあるスープ、あるいは煮込み。多くはタマリンド（サンパロック）で酸をつけます。",
     es: "Sopa o guiso filipino agrio y sabroso, acidulado casi siempre con tamarindo (sampalok).",
+    ko: "대개 타마린드(삼팔록)로 신맛을 낸 새콤하고 감칠맛 나는 필리핀의 수프이자 스튜입니다.",
   },
   "filipino::sisig": {
     id: "Hidangan Kapampangan yang disajikan mendesis: wajah, telinga, dan hati babi dipanggang lalu dicincang, dibumbui kalamansi dan cabai.",
@@ -4232,6 +4776,7 @@ module.exports = {
     zh: "邦板牙的铁板菜：猪脸、猪耳与猪肝先烤后剁碎，拌小青柠、洋葱与辣椒，端上时还嗞嗞作响。",
     ja: "音を立てて供されるカパンパンガンの料理。豚の顔、耳、肝を焼いて刻み、カラマンシー、玉ねぎ、唐辛子で和えます。",
     es: "Plato kapampangan servido chisporroteando: careta, orejas e hígado de cerdo asados y picados con calamansí, cebolla y chile.",
+    ko: "구운 돼지 머릿고기와 귀, 간을 잘게 썰어 칼라만시와 양파, 고추와 버무려 뜨겁게 내는 카팜팡안 요리입니다.",
   },
   "filipino::ube halaya": {
     id: "Hidangan penutup Filipina dari ubi ungu yang direbus dan dilumatkan dengan susu dan mentega; \"halaya\" dari jalea Spanyol, selai.",
@@ -4240,6 +4785,7 @@ module.exports = {
     zh: "菲律宾的紫薯泥甜品：紫山药煮软压碎，与牛奶、黄油同炒；「halaya」出自西班牙语的 jalea，「果冻」。",
     ja: "ゆでて潰した紫芋ウベを牛乳とバターで練るフィリピンの甘味。「ハラヤ」はスペイン語の jalea「ゼリー」から。",
     es: "Postre filipino de ñame morado (ube) hervido y triturado, cocido con leche y mantequilla; «halaya» viene del español jalea.",
+    ko: "삶아 으깬 자색 참마(우베)를 우유와 버터에 조린 필리핀 디저트로, '할라야'는 스페인어 '할레아'(젤리)에서 왔습니다.",
   },
   "french::baguette": {
     id: "Roti putih Prancis yang panjang dan ramping dari tepung, air, garam, dan ragi; keahlian membuatnya masuk daftar UNESCO pada 2022.",
@@ -4248,6 +4794,7 @@ module.exports = {
     zh: "细长的法式白面包：面粉、水、盐与酵母；二〇二二年，制作它的手艺列入联合国教科文组织名录。",
     ja: "小麦粉、水、塩、酵母で作る細長いフランスの白パン。その職人技は二〇二二年、ユネスコに登録されました。",
     es: "Pan blanco francés largo y fino de harina, agua, sal y levadura; su saber artesanal entró en la lista de la Unesco en 2022.",
+    ko: "밀가루와 물, 소금, 이스트로 만든 길고 가는 프랑스 흰 빵으로, 그 장인의 기술이 2022년 유네스코에 등재됐습니다.",
   },
   "french::blanquette de veau": {
     id: "Semur putih daging sapi muda ala Prancis: dagingnya direbus perlahan dan tidak pernah dicokelatkan lebih dulu.",
@@ -4256,6 +4803,7 @@ module.exports = {
     zh: "法式白汁炖小牛肉：肉只用汤汆煮，从不先煎上色。",
     ja: "フランスの白い仔牛の煮込み。肉は決して焼き色をつけず、静かに煮ます。",
     es: "Estofado blanco francés de ternera: la carne se escalfa, nunca se dora antes.",
+    ko: "송아지고기를 갈색으로 굽지 않고 데쳐 내는 프랑스의 흰 스튜입니다.",
   },
   "french::boeuf bourguignon": {
     id: "Semur sapi Prancis yang lekat dengan kawasan Burgundy: daging sapi dibraise dalam anggur merah, kerap Burgundy merah.",
@@ -4264,6 +4812,7 @@ module.exports = {
     zh: "与勃艮第相连的法式炖牛肉：牛肉在红葡萄酒里慢炖，用的往往就是勃艮第红酒。",
     ja: "ブルゴーニュと結びつくフランスの牛肉の煮込み。赤ワイン、しばしばブルゴーニュの赤で煮込みます。",
     es: "Estofado francés de ternera ligado a Borgoña: carne braseada en vino tinto, a menudo un borgoña.",
+    ko: "부르고뉴 지방과 얽힌 프랑스식 소고기 스튜로, 소고기를 흔히 부르고뉴산 레드와인에 조려 만듭니다.",
   },
   "french::bouillabaisse": {
     id: "Gulai ikan Provencal tradisional dari Marseille; semula dimasak nelayan dari ikan karang bertulang banyak yang tak laku dijual.",
@@ -4272,6 +4821,7 @@ module.exports = {
     zh: "马赛的传统普罗旺斯鱼汤：本是渔民把卖不掉的多刺礁石鱼下锅煮出来的。",
     ja: "マルセイユの伝統的なプロヴァンスの魚の煮込み。もとは漁師が売れ残りの小骨の多い岩礁魚で作りました。",
     es: "Guiso de pescado provenzal tradicional de Marsella; en origen lo cocinaban los pescadores con pescado de roca sin vender.",
+    ko: "마르세유에서 온 프로방스의 전통 생선 스튜로, 본래는 어부들이 팔지 못한 잔가시 많은 암초 생선으로 끓였습니다.",
   },
   "french::cassoulet": {
     id: "Semur yang dimasak lama dari kacang putih dan aneka daging — babi, sosis, bebek — dari Languedoc; namanya dari belanga tanahnya, cassole.",
@@ -4280,6 +4830,7 @@ module.exports = {
     zh: "朗格多克的慢炖白豆锅：白豆与猪肉、香肠、鸭肉同煨；名字取自那只陶锅 cassole。",
     ja: "ラングドックの、白いんげんと豚肉・ソーセージ・鴨をじっくり煮込む料理。名は土鍋カソールに由来します。",
     es: "Guiso de cocción lenta de alubias blancas y carnes —cerdo, salchicha, pato— del Languedoc; su nombre viene de la cazuela, la cassole.",
+    ko: "흰콩과 돼지고기, 소시지, 오리를 오래 끓인 랑그도크의 스튜로, 이름은 조리에 쓰는 뚝배기 카솔에서 왔습니다.",
   },
   "french::choucroute alsacienne": {
     id: "Hidangan Alsace: sauerkraut fermentasi dimasak dengan anggur putih dan disajikan bersama sosis, daging babi asin, dan charcuterie.",
@@ -4288,6 +4839,7 @@ module.exports = {
     zh: "阿尔萨斯的酸菜锅：发酵酸白菜用白葡萄酒煨，配上香肠、咸猪肉与各式熟肉。",
     ja: "アルザスの料理。発酵させたザワークラウトを白ワインで煮て、ソーセージ、塩漬け豚、シャルキュトリを添えます。",
     es: "Plato alsaciano de chucrut fermentado cocido con vino blanco y guarnecido con salchichas, cerdo salado y charcutería.",
+    ko: "발효 양배추를 화이트와인에 익혀 소시지와 소금에 절인 돼지고기, 샤퀴트리를 곁들인 알자스 요리입니다.",
   },
   "french::coq au vin": {
     id: "Braise Prancis: ayam dimasak dalam anggur merah bersama lardon dan jamur; menurut tradisi dikaitkan dengan Burgundy.",
@@ -4296,6 +4848,7 @@ module.exports = {
     zh: "法式红酒烩鸡：鸡肉与咸猪肉丁、蘑菇在红酒里同焖；向来与勃艮第相连。",
     ja: "フランスの煮込み。鶏肉を赤ワインで、ラルドンときのことともに煮ます。伝統的にブルゴーニュと結びつけられます。",
     es: "Estofado francés: pollo cocido en vino tinto con lardons y setas; tradicionalmente ligado a Borgoña.",
+    ko: "닭을 레드와인에 라르동과 버섯과 함께 조린 프랑스 요리로, 전통적으로 부르고뉴와 얽혀 있습니다.",
   },
   "french::croissant": {
     id: "Viennoiserie Prancis berbentuk bulan sabit dari adonan ragi berlapis yang dilipat bersama mentega.",
@@ -4304,6 +4857,7 @@ module.exports = {
     zh: "法式的新月形维也纳面包：发酵面团与黄油反复折叠成层。",
     ja: "バターを折り込んだ発酵生地で作る、三日月形のフランスのヴィエノワズリー。",
     es: "Bollo francés en forma de media luna de masa de levadura laminada y plegada con mantequilla.",
+    ko: "버터를 접어 넣은 발효 반죽을 겹겹이 밀어 초승달 모양으로 구운 프랑스의 비에누아즈리입니다.",
   },
   "french::croque madame": {
     id: "Roti lapis panggang Prancis berisi ham dan keju, yakni croque-monsieur, yang ditutup telur goreng atau telur rebus setengah matang.",
@@ -4312,6 +4866,7 @@ module.exports = {
     zh: "法式烤火腿奶酪三明治，也就是 croque-monsieur，顶上再加一颗煎蛋或水波蛋。",
     ja: "ハムとチーズのフランスの焼きサンド、つまりクロックムッシュに、目玉焼きかポーチドエッグをのせたもの。",
     es: "Sándwich francés tostado de jamón y queso —un croque-monsieur— coronado con un huevo frito o escalfado.",
+    ko: "크로크 무슈에 달걀 프라이나 수란을 올린 프랑스식 햄 치즈 토스트 샌드위치입니다.",
   },
   "french::croque monsieur": {
     id: "Roti lapis panas Prancis berisi ham dan keju di atas pain de mie, ditutup Gruyere; tercatat sejak 1891, andalan kafe dan brasserie.",
@@ -4320,6 +4875,7 @@ module.exports = {
     zh: "法式热三明治：吐司夹火腿与奶酪，面上覆格鲁耶尔；一八九一年就有记载，咖啡馆与小酒馆的常备。",
     ja: "パン・ド・ミにハムとチーズを挟み、グリュイエールをのせて焼くフランスの熱いサンド。一八九一年の記録があり、カフェの定番です。",
     es: "Sándwich caliente francés de jamón y queso sobre pain de mie con gruyer; registrado en 1891 y clásico de cafés y brasseries.",
+    ko: "팽 드 미에 햄과 치즈를 넣고 그뤼예르를 올려 뜨겁게 구운 프랑스 샌드위치로, 1891년 처음 기록된 카페와 브라스리의 단골입니다.",
   },
   "french::crème brûlée": {
     id: "Custard yang kaya dengan kerak gula karamel yang keras; resep tertua yang diketahui ada dalam buku masak Francois Massialot tahun 1691.",
@@ -4328,6 +4884,7 @@ module.exports = {
     zh: "浓郁的蛋奶冻，面上一层焦糖硬壳；已知最早的配方见于 François Massialot 一六九一年的食谱。",
     ja: "濃厚なカスタードに固いカラメルの殻。知られる最古のレシピはフランソワ・マシアロの一六九一年の料理書にあります。",
     es: "Natilla rica coronada por una costra dura de azúcar caramelizado; la receta más antigua está en el recetario de Massialot de 1691.",
+    ko: "진한 커스터드 위에 캐러멜 설탕을 단단하게 굳힌 디저트로, 가장 오래된 조리법은 마시알로의 1691년 요리책에 있습니다.",
   },
   "french::duck confit": {
     id: "Hidangan Prancis dari Gascogne: paha bebek diawetkan garam lalu dimasak perlahan dan disimpan dalam lemaknya sendiri.",
@@ -4336,6 +4893,7 @@ module.exports = {
     zh: "加斯科涅的法国菜：鸭腿先用盐腌，再低温慢煮，浸在自身炼出的鸭油里保存。",
     ja: "ガスコーニュのフランス料理。鴨の脚を塩でしめ、低温でじっくり火を通し、自身の脂に漬けて保存します。",
     es: "Plato francés de Gascuña: muslos de pato curados en sal, cocidos despacio y conservados en su propia grasa.",
+    ko: "오리 다리를 소금에 절인 뒤 자기 기름에 천천히 익혀 보존하는 가스코뉴의 프랑스 요리입니다.",
   },
   "french::escargots de bourgogne": {
     id: "Siput darat Burgundy (Helix pomatia) dipanggang dalam cangkangnya dengan mentega bawang putih dan peterseli; klasik kawasan Burgundy.",
@@ -4344,6 +4902,7 @@ module.exports = {
     zh: "勃艮第的陆生蜗牛（Helix pomatia）：连壳送进烤箱，填满蒜香欧芹黄油；这是勃艮第的经典。",
     ja: "ブルゴーニュのエスカルゴ（Helix pomatia）を殻ごと、にんにくとパセリのバターで焼きます。ブルゴーニュ地方の定番。",
     es: "Caracoles de Borgoña (Helix pomatia) horneados en su concha con mantequilla de ajo y perejil; clásico de la región de Borgoña.",
+    ko: "부르고뉴 달팽이를 껍데기째 마늘 파슬리 버터와 함께 구운 프랑스 부르고뉴 지방의 고전 요리입니다.",
   },
   "french::foie gras": {
     id: "Hidangan mewah Prancis berupa hati bebek atau angsa yang digemukkan lewat cekokan, teknik yang sudah ada sejak Mesir kuno.",
@@ -4352,6 +4911,7 @@ module.exports = {
     zh: "法国名馔，以填喂增肥的鸭肝或鹅肝制成；这种填饲之法可上溯古埃及。",
     ja: "フランスの珍味。強制給餌で肥大させた鴨や鵞鳥の肝で、その手法は古代エジプトに遡る。",
     es: "Manjar francés de hígado graso de pato u oca obtenido por cebado forzado, técnica que se remonta al antiguo Egipto.",
+    ko: "가바주라는 강제 급이로 살찌운 오리나 거위의 간으로 만든 프랑스의 별미로, 고대 이집트까지 거슬러 올라가는 기법입니다.",
   },
   "french::macarons": {
     id: "Kue sandwich Prancis berbasis meringue dari tepung almond, putih telur, dan gula, dengan isian ganache atau krim mentega.",
@@ -4360,6 +4920,7 @@ module.exports = {
     zh: "法式蛋白霜夹心小饼：杏仁粉、蛋白与糖烤成两片，中间夹甘纳许或奶油霜。",
     ja: "アーモンド粉、卵白、砂糖で焼くフランスのメレンゲ菓子。ガナッシュやバタークリームを挟みます。",
     es: "Galleta francesa de merengue de harina de almendra, clara y azúcar, rellena de ganache o crema de mantequilla.",
+    ko: "아몬드 가루와 흰자, 설탕으로 만든 머랭 과자 두 장 사이에 가나슈나 버터크림을 채운 프랑스 과자입니다.",
   },
   "french::mille-feuille": {
     id: "Pastri Prancis yang menurut tradisi terdiri dari tiga lapis puff pastry dengan dua lapis krim patisserie di antaranya.",
@@ -4368,6 +4929,7 @@ module.exports = {
     zh: "法式千层酥：照传统是三层酥皮，中间夹两层卡仕达奶油。",
     ja: "フランスの菓子。伝統では三枚のパイ生地の間に、二層のカスタードクリームを挟みます。",
     es: "Pastel francés hecho tradicionalmente de tres capas de hojaldre con dos de crema pastelera entre ellas.",
+    ko: "퍼프 페이스트리 세 겹 사이에 커스터드 크림 두 겹을 넣어 만드는 전통 프랑스 페이스트리입니다.",
   },
   "french::pain au chocolat": {
     id: "Viennoiserie Prancis dari adonan ragi berlapis seperti croissant, dibungkus mengelilingi satu atau dua batang cokelat hitam.",
@@ -4376,6 +4938,7 @@ module.exports = {
     zh: "法式巧克力面包：与可颂同样的层压发酵面团，裹住一两条黑巧克力。",
     ja: "クロワッサンと同じ折り込み生地で、ダークチョコレートの棒を一本か二本包んだフランスのヴィエノワズリー。",
     es: "Bollo francés de masa laminada, como el cruasán, enrollado en torno a una o dos barritas de chocolate negro.",
+    ko: "크루아상처럼 겹겹이 민 발효 반죽에 다크 초콜릿 한두 조각을 넣어 구운 프랑스의 비에누아즈리입니다.",
   },
   "french::paris-brest": {
     id: "Cincin pastri choux Prancis berisi krim praline dan irisan almond; diciptakan pada 1910 untuk menghormati balap sepeda Paris-Brest-Paris.",
@@ -4384,6 +4947,7 @@ module.exports = {
     zh: "法式泡芙环：填入榛果杏仁奶油，撒杏仁片；一九一〇年为纪念巴黎－布雷斯特－巴黎自行车赛而作。",
     ja: "プラリネクリームを詰め、アーモンドスライスを散らしたフランスのシュー生地の輪。一九一〇年、自転車レースを記念して生まれました。",
     es: "Corona francesa de pasta choux rellena de crema de praliné y almendra laminada; creada en 1910 en honor a la carrera París-Brest-París.",
+    ko: "프랄린 크림을 채우고 아몬드 조각을 올린 프랑스의 고리 모양 슈 페이스트리로, 1910년 파리~브레스트 자전거 대회를 기려 만들어졌습니다.",
   },
   "french::pissaladière niçoise": {
     id: "Tart adonan roti khas Nice berisi bawang bombai yang dimasak lama, teri, dan zaitun hitam; namanya dari pissalat, pasta teri asin.",
@@ -4392,6 +4956,7 @@ module.exports = {
     zh: "尼斯的面饼挞：铺满久煨的洋葱、凤尾鱼与黑橄榄；名字来自盐渍凤尾鱼酱 pissalat。",
     ja: "ニースのパン生地のタルト。じっくり炒めた玉ねぎ、アンチョビ、黒オリーブをのせます。名は塩漬けアンチョビのペースト、ピサラから。",
     es: "Tarta nizarda de masa de pan con cebolla confitada, anchoas y aceitunas negras; su nombre viene del pissalat, pasta de anchoa salada.",
+    ko: "오래 볶은 양파와 앤초비, 검은 올리브를 올려 구운 니스의 빵 반죽 타르트로, 앤초비 절임 피살라에서 이름을 땄습니다.",
   },
   "french::pot-au-feu": {
     id: "Klasik Prancis: daging sapi dan sayuran akar direbus perlahan dalam kaldu bening.",
@@ -4400,6 +4965,7 @@ module.exports = {
     zh: "法国的家常经典：牛肉与根茎菜在清汤里慢煮。",
     ja: "フランスの定番。牛肉と根菜を澄んだブイヨンでゆっくり煮ます。",
     es: "Clásico francés: ternera y raíces hervidas despacio en un caldo claro.",
+    ko: "소고기와 뿌리채소를 맑은 국물에 오래 끓인 프랑스의 고전 요리입니다.",
   },
   "french::quiche lorraine": {
     id: "Tart terbuka gurih dari Lorraine, Prancis: custard telur dan krim dengan bacon atau lardon asap, dipanggang dalam kulit pastri.",
@@ -4408,6 +4974,7 @@ module.exports = {
     zh: "法国洛林地区的咸味开面挞：鸡蛋与奶油调成的蛋液拌培根或烟熏猪丁，倒入酥皮中烘烤。",
     ja: "フランス・ロレーヌ地方の塩味のオープンタルト。卵と生クリームの生地にベーコンや燻製の脂身を混ぜ、パイ皮で焼く。",
     es: "Tarta salada abierta de la Lorena francesa: una crema de huevo y nata con bacon o lardones ahumados horneada en masa quebrada.",
+    ko: "프랑스 로렌 지방의 짭조름한 오픈 타르트로, 달걀과 크림 커스터드에 베이컨이나 훈제 라르동을 넣어 파이 껍질에 구워 냅니다.",
   },
   "french::ratatouille": {
     id: "Tumis sayur Provencal dari Nice, dibuat dengan tomat, zukini, terung, paprika, dan bawang bombai.",
@@ -4416,6 +4983,7 @@ module.exports = {
     zh: "尼斯的普罗旺斯炖菜：番茄、西葫芦、茄子、彩椒与洋葱同煨。",
     ja: "ニース発のプロヴァンスの野菜の煮込み。トマト、ズッキーニ、茄子、ピーマン、玉ねぎで作ります。",
     es: "Guiso provenzal de verduras de Niza con tomate, calabacín, berenjena, pimiento y cebolla.",
+    ko: "토마토와 애호박, 가지, 피망, 양파로 만든 니스의 프로방스식 채소 조림입니다.",
   },
   "french::sole meunière": {
     id: "Klasik Prancis: ikan lidah dibalur tepung, digoreng dalam mentega, lalu disiram mentega cokelat, perasan lemon, dan peterseli.",
@@ -4424,6 +4992,7 @@ module.exports = {
     zh: "法国经典：龙脷鱼裹薄粉用黄油煎香，再淋焦化黄油、柠檬汁与欧芹。",
     ja: "フランスの定番。舌平目に粉をまぶしてバターで焼き、焦がしバター、レモン汁、パセリをかけます。",
     es: "Clásico francés: lenguado enharinado, frito en mantequilla y servido con mantequilla avellana, zumo de limón y perejil.",
+    ko: "혀가자미에 밀가루를 묻혀 버터에 지지고 갈색 버터와 레몬즙, 파슬리를 곁들인 프랑스의 고전 요리입니다.",
   },
   "french::soufflé au fromage": {
     id: "Hidangan telur panggang Prancis dari keju, bechamel, dan putih telur kocok yang mengembang; jejaknya sampai ke Prancis awal abad ke-18.",
@@ -4432,6 +5001,7 @@ module.exports = {
     zh: "法式焗蛋：奶酪、白酱与打发的蛋白同烤，在炉里蓬然升起；可追到十八世纪初的法国。",
     ja: "チーズ、ベシャメル、泡立てた卵白を焼き、ふくらませるフランスの卵料理。十八世紀初頭のフランスに遡ります。",
     es: "Plato francés de huevo al horno con queso, bechamel y claras montadas que sube y se hincha; se rastrea a la Francia de inicios del XVIII.",
+    ko: "치즈와 베샤멜에 거품 낸 흰자를 섞어 부풀려 구운 프랑스 달걀 요리로, 18세기 초 프랑스까지 거슬러 올라갑니다.",
   },
   "french::soupe à l'oignon": {
     id: "Sup Prancis berisi irisan bawang bombai yang dimasak hingga lunak dan keemasan dalam kaldu sapi.",
@@ -4440,6 +5010,7 @@ module.exports = {
     zh: "法式洋葱汤：洋葱切片在牛肉高汤里煮到软烂金黄。",
     ja: "薄切りの玉ねぎを牛のブイヨンでやわらかく色づくまで煮たフランスのスープ。",
     es: "Sopa francesa de cebolla en láminas cocida hasta ablandarse y dorarse en caldo de ternera.",
+    ko: "저민 양파를 부드럽고 노릇하게 익혀 소고기 육수에 끓인 프랑스 수프입니다.",
   },
   "french::steak frites": {
     id: "Hidangan brasserie Prancis-Belgia: bistik sapi dengan kentang goreng batang, kerap disajikan bersama saus bearnaise.",
@@ -4448,6 +5019,7 @@ module.exports = {
     zh: "法比小酒馆的招牌：牛排配炸薯条，常佐伯纳西酱。",
     ja: "フランス・ベルギーのブラッスリーの一皿。牛のステーキに揚げたポテト、しばしばベアルネーズソースを添えます。",
     es: "Plato de brasserie franco-belga: bistec de ternera con patatas fritas, a menudo con salsa bearnesa.",
+    ko: "소고기 스테이크에 감자튀김을 곁들인 프랑스·벨기에 브라스리 요리로, 흔히 베아르네즈 소스를 함께 냅니다.",
   },
   "french::steak tartare": {
     id: "Hidangan Prancis: daging sapi mentah dicincang dan diikat kuning telur mentah, dibumbui kaper, mustard, dan bawang bombai.",
@@ -4456,6 +5028,7 @@ module.exports = {
     zh: "法国的鞑靼牛肉：生牛肉剁碎，用生蛋黄拌匀，加刺山柑、芥末与洋葱调味。",
     ja: "生の牛肉を刻み、生の卵黄でまとめ、ケッパー、マスタード、玉ねぎで味を調えるフランスの料理。",
     es: "Plato francés de ternera cruda picada ligada con yema cruda y sazonada con alcaparras, mostaza y cebolla.",
+    ko: "다진 생소고기를 생달걀노른자로 버무리고 케이퍼와 머스터드, 양파로 간한 프랑스 요리입니다.",
   },
   "french::tarte flambée alsacienne": {
     id: "Tart adonan roti tipis khas Alsace, ditutup creme fraiche, bawang bombai, dan lardon, lalu dipanggang dalam tungku kayu.",
@@ -4464,6 +5037,7 @@ module.exports = {
     zh: "阿尔萨斯的薄面饼挞：抹上法式酸奶油，铺洋葱与咸猪肉丁，送进柴烧炉。",
     ja: "アルザスの薄いパン生地のタルト。クレーム・フレーシュ、玉ねぎ、ラルドンをのせ、薪窯で焼きます。",
     es: "Tarta alsaciana fina de masa de pan con crema fresca, cebolla y lardons, cocida en horno de leña.",
+    ko: "얇게 민 빵 반죽에 크렘 프레슈와 양파, 라르동을 올려 장작 화덕에 구운 알자스의 타르트입니다.",
   },
   "french::tarte tatin": {
     id: "Tart apel karamel terbalik dari Prancis, dipopulerkan pada 1880-an oleh kakak beradik Tatin di hotel mereka di Lamotte-Beuvron, Sologne.",
@@ -4472,6 +5046,7 @@ module.exports = {
     zh: "法式反转焦糖苹果挞：一八八〇年代由塔坦姐妹在索洛涅拉莫特伯夫龙的旅馆里带红。",
     ja: "焦がした林檎を逆さに焼くフランスのタルト。一八八〇年代、ソローニュのラモット・ブーヴロンでタタン姉妹が広めました。",
     es: "Tarta francesa invertida de manzana caramelizada, popularizada en los años 1880 por las hermanas Tatin en Lamotte-Beuvron, Sologne.",
+    ko: "캐러멜에 조린 사과를 뒤집어 구운 프랑스 타르트로, 1880년대 솔로뉴 라모트뵈브롱의 타탱 자매가 여관에서 널리 알렸습니다.",
   },
   "french::éclair": {
     id: "Pastri choux Prancis berbentuk lonjong, diisi krim yang biasanya creme patissiere dan ditutup lapisan gula fondant.",
@@ -4480,6 +5055,7 @@ module.exports = {
     zh: "法式长条泡芙：里头挤满奶油，多半是卡仕达，面上覆一层翻糖糖霜。",
     ja: "細長いフランスのシュー菓子。多くはカスタードを詰め、フォンダンの糖衣をかけます。",
     es: "Pastel francés alargado de pasta choux relleno de crema, normalmente pastelera, y glaseado con fondant.",
+    ko: "길쭉한 슈 페이스트리에 크렘 파티시에르를 채우고 퐁당 아이싱을 씌운 프랑스 과자입니다.",
   },
   "fusion::asian-french degustation": {
     id: "Menu cicip banyak hidangan yang memadukan teknik Prancis dengan cita rasa Asia; gaya yang muncul dalam nouvelle cuisine 1970-80-an.",
@@ -4488,6 +5064,7 @@ module.exports = {
     zh: "以法式技法融合亚洲风味的多道式品尝菜单；这一路数生于1970至80年代的新派烹调。",
     ja: "フランスの技法とアジアの味を組み合わせる多皿のデギュスタシオン。1970〜80年代のヌーヴェル・キュイジーヌから生まれた流儀。",
     es: "Menú degustación de varios pases que funde técnica francesa con sabores asiáticos; estilo surgido en la nouvelle cuisine de los 70 y 80.",
+    ko: "프랑스 기법에 아시아의 맛을 더한 여러 코스의 시식 메뉴로, 1970~80년대 누벨 퀴진에서 나온 방식입니다.",
   },
   "fusion::chilli crab pasta": {
     id: "Pasta Barat yang dibalut saus kepiting cabai Singapura yang manis pedas; hidangan fusi yang dipopulerkan The Halia sekitar 2005.",
@@ -4496,6 +5073,7 @@ module.exports = {
     zh: "西式意面拌上新加坡甜辣的辣椒螃蟹酱汁；这道融合菜约2005年由餐厅Halia推广开来。",
     ja: "シンガポールの甘辛いチリクラブのソースで和えた西洋のパスタ。2005年ごろ、レストランのハリアが広めた融合料理。",
     es: "Pasta occidental salteada en la salsa dulce y picante del chilli crab de Singapur; fusión popularizada por The Halia hacia 2005.",
+    ko: "싱가포르 칠리크랩 소스에 서양 파스타를 버무린 퓨전 요리로, 2005년경 더 할리아가 널리 알렸습니다.",
   },
   "fusion::hainanese chicken risotto": {
     id: "Hidangan fusi modern yang menerapkan teknik risotto arborio Italia pada cita rasa nasi ayam Hainan khas Singapura.",
@@ -4504,6 +5082,7 @@ module.exports = {
     zh: "现代融合菜：以意大利阿柏里欧米的烩饭技法，演绎新加坡海南鸡饭的风味。",
     ja: "イタリアのアルボリオ米のリゾットの技法で、シンガポールの海南鶏飯の味を仕立てる現代の融合料理。",
     es: "Plato de fusión moderno que aplica la técnica italiana del risotto de arborio a los sabores del arroz con pollo hainanés de Singapur.",
+    ko: "이탈리아 아르보리오 리소토 기법에 싱가포르 하이난 치킨라이스의 맛을 담은 오늘날의 퓨전 요리입니다.",
   },
   "fusion::kaya french toast": {
     id: "Hidangan fusi: roti panggang Prancis ala Barat yang dibuat dengan kaya, selai kelapa, telur, dan pandan khas Singapura dan Malaysia.",
@@ -4512,6 +5091,7 @@ module.exports = {
     zh: "融合菜式：西式法国吐司改用kaya——新加坡与马来西亚的椰浆鸡蛋香兰酱。",
     ja: "西洋のフレンチトーストに、シンガポール・マレーシアのココナッツと卵、パンダンのジャム「カヤ」を使う融合料理。",
     es: "Plato de fusión: torrija occidental hecha con kaya, la mermelada singapurense-malasia de coco, huevo y pandan.",
+    ko: "싱가포르와 말레이시아의 코코넛 달걀 판단 잼 카야로 만든 서양식 프렌치토스트 퓨전 요리입니다.",
   },
   "fusion::kombu butter steak": {
     id: "Bistik fusi Barat-Jepang yang dituntaskan mentega bercampur kombu (rumput laut), menambah umami kaya glutamat pada kerak panggangnya.",
@@ -4520,6 +5100,7 @@ module.exports = {
     zh: "西日融合的牛排，最后抹上拌入昆布的复合黄油，为焦香的表面添上富含谷氨酸的鲜味。",
     ja: "焼き上げに昆布を混ぜたバターを添える西洋と日本の融合ステーキ。グルタミン酸のうまみが香ばしい表面に重なる。",
     es: "Filete de fusión occidental-japonesa terminado con mantequilla compuesta de kombu (alga), que aporta umami rico en glutamato.",
+    ko: "다시마를 섞은 가향 버터로 마무리해 감칠맛을 더한 서양과 일본의 퓨전 스테이크입니다.",
   },
   "fusion::laksa carbonara": {
     id: "Pasta fusi yang menikahkan carbonara Italia — telur, keju keras, daging babi awetan — dengan santan dan pasta rempah laksa Asia Tenggara.",
@@ -4528,6 +5109,7 @@ module.exports = {
     zh: "融合意面：把意式培根蛋面的鸡蛋、硬奶酪与腌肉，嫁接到东南亚叻沙的椰浆与香料酱上。",
     ja: "卵、ハードチーズ、塩漬け豚のイタリアのカルボナーラに、東南アジアのラクサのココナッツミルクと香辛料ペーストを重ねた融合パスタ。",
     es: "Pasta de fusión que casa la carbonara italiana —huevo, queso curado, cerdo curado— con la leche de coco y la pasta de laksa.",
+    ko: "달걀과 경질 치즈, 염장 돼지고기를 쓰는 이탈리아 카르보나라에 동남아 락사의 코코넛밀크와 향신 페이스트를 더한 퓨전 파스타입니다.",
   },
   "fusion::miso pasta": {
     id: "Pasta fusi Jepang-Italia yang disauskan miso kaya umami, kerap dengan mentega; bagian dari tradisi pasta wafū Jepang pascaperang.",
@@ -4536,6 +5118,7 @@ module.exports = {
     zh: "日意融合的意面，以鲜味浓郁的味噌调酱，常加黄油；属于日本战后「和风意面」的传统。",
     ja: "うまみ豊かな味噌をソースにする日伊融合のパスタ。バターを合わせることも多く、戦後の和風パスタの流れに連なる。",
     es: "Pasta de fusión japonesa-italiana con salsa de miso rica en umami, a menudo con mantequilla; parte de la tradición wafū de posguerra.",
+    ko: "감칠맛이 짙은 된장에 흔히 버터를 더해 버무린 일본과 이탈리아의 퓨전 파스타로, 전후 일본의 화풍 파스타 전통에 듭니다.",
   },
   "fusion::mod-sin tasting menu": {
     id: "Menu banyak hidangan bergaya Mod-Sin (Singapura Modern), aliran fusi yang dinamai koki Willin Low di Wild Rocket pada 2005.",
@@ -4544,6 +5127,7 @@ module.exports = {
     zh: "以Mod-Sin（现代新加坡）风格构成的多道式菜单；这一融合流派由主厨刘威霖2005年在Wild Rocket提出。",
     ja: "モッドシン（現代シンガポール料理）によるコース。2005年、ワイルド・ロケットのウィリン・ロウが名づけた融合の潮流。",
     es: "Menú de varios pases de cocina Mod-Sin (singapurense moderna), estilo de fusión bautizado por el chef Willin Low en Wild Rocket en 2005.",
+    ko: "2005년 와일드 로켓의 윌린 로 셰프가 이름 붙인 모던 싱가포르(모드신) 요리를 여러 코스로 내는 상차림입니다.",
   },
   "fusion::rendang croissant": {
     id: "Pastri fusi yang memasangkan croissant Prancis dengan rendang, daging berempah santan Minangkabau yang dimasak lama.",
@@ -4552,6 +5136,7 @@ module.exports = {
     zh: "融合面点：法式可颂搭配仁当——米南加保人以椰浆香料慢炖的肉。",
     ja: "フランスのクロワッサンに、ミナンカバウのココナッツと香辛料で長時間煮込む肉レンダンを合わせた融合の菓子パン。",
     es: "Bollería de fusión que une el cruasán francés con el rendang, la carne minangkabau guisada largamente en coco y especias.",
+    ko: "프랑스 크루아상에 미낭카바우의 향신 코코넛 조림 고기 른당을 넣은 퓨전 페이스트리입니다.",
   },
   "fusion::salted egg pasta": {
     id: "Hidangan fusi Singapura yang membalut pasta Barat dengan saus kuning telur bebek asin yang lembut, ditumis bersama daun kari dan cabai.",
@@ -4560,6 +5145,7 @@ module.exports = {
     zh: "新加坡的融合菜：西式意面裹上咸蛋黄奶油酱汁，酱中炒有咖喱叶与辣椒。",
     ja: "西洋のパスタを塩漬け卵黄のクリーミーなソースで和えるシンガポールの融合料理。ソースはカレーリーフと唐辛子で炒める。",
     es: "Plato de fusión singapurense que envuelve pasta occidental en una salsa cremosa de yema de huevo salado frita con hoja de curry y chile.",
+    ko: "서양 파스타를 커리잎과 고추에 볶은 크리미한 소금오리알 노른자 소스에 버무린 싱가포르의 퓨전 요리입니다.",
   },
   "fusion::sambal pizza": {
     id: "Pizza fusi yang ditaburi sambal, pasta cabai Asia Tenggara, kerap dengan ayam dan mozzarella; digemari di Malaysia dan Singapura.",
@@ -4568,6 +5154,7 @@ module.exports = {
     zh: "融合披萨，面上铺东南亚辣椒酱sambal，常配鸡肉与马苏里拉；在马来西亚与新加坡颇受欢迎。",
     ja: "東南アジアの唐辛子ペースト、サンバルをのせる融合ピザ。鶏肉とモッツァレラを合わせることが多く、マレーシアとシンガポールで人気。",
     es: "Pizza de fusión con sambal, la pasta de chile del Sudeste Asiático, a menudo con pollo y mozzarella; popular en Malasia y Singapur.",
+    ko: "동남아시아의 고추장 삼발을 올린 퓨전 피자로, 흔히 닭고기와 모차렐라를 함께 얹으며 말레이시아와 싱가포르에서 사랑받습니다.",
   },
   "fusion::satay beef burger": {
     id: "Patty sapi dengan saus kacang satay berbumbu, mentimun, dan bawang dalam roti wijen; penghormatan Hari Nasional bagi Satay Club.",
@@ -4576,6 +5163,7 @@ module.exports = {
     zh: "牛肉饼配香料花生沙嗲酱、黄瓜与洋葱，夹在芝麻面包中；这是国庆时向新加坡Satay Club的致敬。",
     ja: "スパイスの効いたサテのピーナッツソース、キュウリ、玉ねぎを牛肉パティとごまのバンズで挟む。建国記念日にサテ・クラブへ捧げた一品。",
     es: "Hamburguesa de vacuno con salsa de cacahuete satay especiada, pepino y cebolla en pan de sésamo; homenaje al Satay Club de Singapur.",
+    ko: "소고기 패티에 향신 땅콩 사테 소스와 오이, 양파를 넣은 참깨빵 버거로, 싱가포르의 사테 클럽을 기린 건국 기념일 메뉴입니다.",
   },
   "fusion::truffle char kway teow": {
     id: "Tafsir fusi modern atas char kway teow, kwetiau goreng wajan khas Singapura dan Malaysia, diperkaya truffle atau minyak truffle.",
@@ -4584,6 +5172,7 @@ module.exports = {
     zh: "对新加坡与马来西亚镬炒粿条的现代融合演绎，加入松露或松露油提香。",
     ja: "シンガポール・マレーシアの平たいライスヌードルの炒め物を現代風に再解釈し、トリュフやトリュフオイルを効かせたもの。",
     es: "Lectura moderna de fusión del char kway teow, los fideos planos de arroz al wok de Singapur y Malasia, enriquecidos con trufa.",
+    ko: "싱가포르와 말레이시아의 볶은 넓적한 쌀국수 차꿰이띠아우에 트러플이나 트러플 오일을 더한 오늘날의 퓨전 요리입니다.",
   },
   "fusion::yuzu cheesecake": {
     id: "Kue keju gaya Jepang yang setengah panggang, berlapis kur yuzu yang tajam; dijual toko kue khusus Singapura seperti Cat and the Fiddle.",
@@ -4592,6 +5181,7 @@ module.exports = {
     zh: "日式半熟芝士蛋糕，夹一层酸香的柚子酱；新加坡的专门蛋糕店有售。",
     ja: "酸味のある柚子カードを重ねた日本風の半熟チーズケーキ。シンガポールのキャット・アンド・ザ・フィドルなど専門店が売る。",
     es: "Tarta de queso japonesa semihorneada con una capa de crema ácida de yuzu; la venden pastelerías de Singapur como Cat and the Fiddle.",
+    ko: "반쯤 구운 일본식 치즈케이크에 새콤한 유자 커드를 켜켜이 넣은 것으로, 캣 앤드 더 피들을 비롯한 싱가포르 전문점에서 팝니다.",
   },
   "georgian::ajika": {
     id: "Pasta pedas dari cabai dan bawang putih asal Abkhazia dan Samegrelo di Georgia; namanya dari kata Abkhaz untuk garam.",
@@ -4600,6 +5190,7 @@ module.exports = {
     zh: "源自格鲁吉亚阿布哈兹与萨梅格列罗的辣椒大蒜辣酱；名称来自阿布哈兹语中「盐」一词。",
     ja: "ジョージアのアブハジアとサメグレロ発祥の、唐辛子とニンニクの辛いペースト。名はアブハズ語の「塩」に由来する。",
     es: "Pasta picante de guindilla y ajo de Abjasia y Samegrelo, en Georgia; su nombre viene de la palabra abjasia para «sal».",
+    ko: "조지아 압하지야와 사메그렐로에서 온 매운 고추 마늘 페이스트로, 이름은 소금을 뜻하는 압하스어에서 왔습니다.",
   },
   "georgian::badrijani nigvzit": {
     id: "Pembuka Georgia dari irisan terung goreng yang digulung mengelilingi pasta kenari dan bawang putih berbumbu, ditaburi biji delima.",
@@ -4608,6 +5199,7 @@ module.exports = {
     zh: "格鲁吉亚的前菜：煎茄片卷起调味的核桃蒜泥，面上撒石榴籽。",
     ja: "焼いたナスの薄切りで、香辛料を利かせたクルミとニンニクのペーストを巻き、ザクロの実を散らすジョージアの前菜。",
     es: "Entrante georgiano de lonchas de berenjena frita enrolladas en una pasta especiada de nuez y ajo, con granos de granada por encima.",
+    ko: "저며 튀긴 가지에 향신 호두 마늘 페이스트를 발라 말고 석류알을 올린 조지아의 전채입니다.",
   },
   "georgian::chakapuli": {
     id: "Semur musim semi Georgia dari domba atau sapi muda yang ditim bersama tarragon, anggur putih kering, plum tkemali masam, dan herba.",
@@ -4616,6 +5208,7 @@ module.exports = {
     zh: "格鲁吉亚的春季炖菜：嫩羊肉或小牛肉与龙蒿、干白葡萄酒、酸味tkemali李子及香草同炖。",
     ja: "若い羊肉か子牛肉を、タラゴン、辛口白ワイン、酸味のあるトケマリの実、香草で煮るジョージアの春の煮込み。",
     es: "Guiso georgiano de primavera de cordero o ternera jóvenes con estragón, vino blanco seco, ciruelas ácidas tkemali y hierbas.",
+    ko: "어린 양이나 송아지고기를 타라곤과 드라이 화이트와인, 새콤한 트케말리 자두, 허브와 함께 끓인 조지아의 봄 스튜입니다.",
   },
   "georgian::chakhokhbili": {
     id: "Semur Georgia berupa ayam yang ditim bersama tomat, bawang, dan herba; namanya dari khokhobi, burung pegar, daging aslinya.",
@@ -4624,6 +5217,7 @@ module.exports = {
     zh: "格鲁吉亚的炖菜：鸡肉与番茄、洋葱及香草同焖；名称来自khokhobi「野雉」，那才是最初所用的肉。",
     ja: "鶏肉をトマト、玉ねぎ、香草で煮るジョージアの煮込み。名は本来の材料だったキジを意味するホホビに由来。",
     es: "Guiso georgiano de pollo estofado con tomate, cebolla y hierbas; el nombre viene de khokhobi, faisán, la carne original.",
+    ko: "닭을 토마토와 양파, 허브와 함께 조린 조지아 스튜로, 이름은 본래 쓰던 꿩을 뜻하는 호호비에서 왔습니다.",
   },
   "georgian::churchkhela": {
     id: "Manisan tradisional Georgia berbentuk lilin: kacang diuntai di benang lalu berulang kali dicelup ke sari anggur kental dan dijemur.",
@@ -4632,6 +5226,7 @@ module.exports = {
     zh: "格鲁吉亚传统的蜡烛形甜点：坚果串在线上，反复浸入熬稠的葡萄汁，再晒干。",
     ja: "糸に通したナッツを、煮詰めたブドウ果汁に何度も浸して天日で干す、ろうそくの形をしたジョージアの伝統菓子。",
     es: "Dulce tradicional georgiano con forma de vela: frutos secos ensartados en un hilo, bañados varias veces en mosto espeso y secados al sol.",
+    ko: "견과를 실에 꿰어 졸인 포도즙에 거듭 담갔다 햇볕에 말린 초 모양의 조지아 전통 과자입니다.",
   },
   "georgian::elarji": {
     id: "Hidangan Georgia dari Samegrelo: bubur tepung jagung (ghomi) diuleni bersama keju sulguni hingga jadi massa panas yang meliat.",
@@ -4640,6 +5235,7 @@ module.exports = {
     zh: "格鲁吉亚萨梅格列罗地区的菜式：玉米糊（ghomi）与sulguni奶酪揉合成热腾腾的拉丝团。",
     ja: "ジョージア・サメグレロ地方の料理。とうもろこし粉の粥（ゴミ）にスルグニチーズを練り込み、熱く伸びる塊にする。",
     es: "Plato georgiano de Samegrelo: gachas de harina de maíz (ghomi) amasadas con queso sulguni hasta formar una masa caliente y elástica.",
+    ko: "사메그렐로에서 온 조지아 요리로, 옥수숫가루 죽(고미)에 술구니 치즈를 치대 뜨겁고 쭉 늘어나게 만듭니다.",
   },
   "georgian::gebzhalia": {
     id: "Hidangan tradisional Megrelia di Georgia barat: keju sulguni segar digulung bersama mint dan disajikan dalam saus susu dan dadih.",
@@ -4648,6 +5244,7 @@ module.exports = {
     zh: "格鲁吉亚西部明格列尔的传统菜：新鲜sulguni奶酪卷入薄荷，浸在带薄荷的牛奶凝乳酱汁中。",
     ja: "西ジョージア・メグレル地方の伝統料理。新鮮なスルグニチーズをミントとともに巻き、ミント風味の牛乳とカードのソースで供する。",
     es: "Plato tradicional megrelio del oeste de Georgia: queso sulguni fresco enrollado con menta y servido en una salsa de leche y cuajada.",
+    ko: "신선한 술구니 치즈를 민트와 함께 말아 민트 우유 커드 소스에 담아 내는 서부 조지아 메그렐리의 전통 요리입니다.",
   },
   "georgian::georgian wine qvevri": {
     id: "Anggur Georgia yang difermentasi dan dituakan dalam bejana tanah liat berbentuk telur yang ditanam di tanah (qvevri).",
@@ -4656,6 +5253,7 @@ module.exports = {
     zh: "在埋入地下的蛋形陶罐（qvevri）中发酵与陈酿的格鲁吉亚葡萄酒。",
     ja: "地中に埋めた卵形の素焼きの甕（クヴェヴリ）で発酵・熟成させるジョージアのワイン。",
     es: "Vino georgiano fermentado y criado en vasijas de barro con forma de huevo enterradas en el suelo (qvevri).",
+    ko: "달걀 모양의 옹기(크베브리)를 땅에 묻어 발효시키고 숙성시키는 조지아 와인입니다.",
   },
   "georgian::imeretian khachapuri": {
     id: "Roti keju Georgia yang bundar dari wilayah Imereti, menurut tradisi diisi keju Imereti yang lembut dan asin.",
@@ -4664,6 +5262,7 @@ module.exports = {
     zh: "格鲁吉亚伊梅列季地区的圆形奶酪面包，传统上填入当地温和带咸的伊梅列季奶酪。",
     ja: "ジョージア・イメレティ地方の丸いチーズパン。塩気のあるやさしい味のイメレティ・チーズを詰める。",
     es: "Pan de queso georgiano redondo de la región de Imereti, relleno por tradición de queso imeretio suave y salado.",
+    ko: "이메레티 지방에서 온 둥근 조지아 치즈빵으로, 전통적으로 순하고 짭짤한 이메레티 치즈를 채웁니다.",
   },
   "georgian::khachapuri adjaruli": {
     id: "Roti keju Georgia berbentuk perahu dari Adjara di tepi Laut Hitam, ditutupi mentega dan kuning telur mentah.",
@@ -4672,6 +5271,7 @@ module.exports = {
     zh: "格鲁吉亚的船形奶酪面包，来自黑海之滨的阿扎尔；面上放黄油与一枚生蛋黄。",
     ja: "黒海沿岸アジャリア地方の、舟形をしたジョージアのチーズパン。バターと生の卵黄をのせる。",
     es: "Pan de queso georgiano con forma de barca de Adjara, junto al mar Negro, coronado con mantequilla y una yema cruda.",
+    ko: "흑해 연안 아자라 지방에서 온 배 모양의 조지아 치즈빵으로, 버터와 날달걀노른자를 올립니다.",
   },
   "georgian::khinkali": {
     id: "Pangsit adonan Georgia yang dipilin puncaknya, berisi daging berbumbu bersama kaldunya.",
@@ -4680,6 +5280,7 @@ module.exports = {
     zh: "格鲁吉亚的褶顶面团饺子，内包调味肉馅与汤汁。",
     ja: "頂点をひねって閉じるジョージアの生地の包み。香辛料入りの肉とスープを閉じ込める。",
     es: "Empanadilla georgiana de masa con el copete retorcido, rellena de carne especiada y su caldo.",
+    ko: "향신 고기와 육즙을 채워 주름 잡아 빚은 조지아의 만두입니다.",
   },
   "georgian::khinkali kalakuri": {
     id: "Pangsit Georgia gaya kota berisi cincangan halus daging babi dan sapi, bawang, ketumbar, dan merica; varian khinkali khas Tbilisi.",
@@ -4688,6 +5289,7 @@ module.exports = {
     zh: "城市风味的格鲁吉亚饺子，馅为剁细的猪肉与牛肉、洋葱、香菜与胡椒；这是第比利斯的khinkali变体。",
     ja: "細かく刻んだ豚肉と牛肉、玉ねぎ、コリアンダー、胡椒を詰めた都会風のジョージアの包み。トビリシ風のヒンカリ。",
     es: "Empanadilla georgiana de estilo urbano con cerdo y vacuno finamente picados, cebolla, cilantro y pimienta; la variante de Tiflis.",
+    ko: "곱게 다진 돼지고기와 소고기, 양파, 고수, 후추를 채운 도시식 조지아 만두로, 트빌리시식 힌칼리입니다.",
   },
   "georgian::kuchmachi": {
     id: "Hidangan tradisional Georgia dari jeroan — hati, jantung, dan ampela ayam atau babi.",
@@ -4696,6 +5298,7 @@ module.exports = {
     zh: "格鲁吉亚的传统内脏菜，用鸡或猪的肝、心与胗制成。",
     ja: "鶏や豚の肝臓、心臓、砂肝など、内臓を使うジョージアの伝統料理。",
     es: "Plato tradicional georgiano de casquería: hígado, corazón y mollejas de pollo o cerdo.",
+    ko: "닭이나 돼지의 간과 심장, 모래주머니 같은 내장으로 만든 조지아의 전통 요리입니다.",
   },
   "georgian::lobio": {
     id: "Hidangan kacang Georgia: kacang direbus atau ditim dengan ketumbar, kenari, bawang putih, dan bawang; namanya berarti kacang.",
@@ -4704,6 +5307,7 @@ module.exports = {
     zh: "格鲁吉亚的豆菜：豆子煮或炖后，以香菜、核桃、大蒜与洋葱调味；名称即「豆」之意。",
     ja: "煮るか蒸し煮にした豆を、コリアンダー、クルミ、ニンニク、玉ねぎで味付けするジョージアの料理。名は「豆」の意。",
     es: "Plato georgiano de alubias cocidas o guisadas con cilantro, nueces, ajo y cebolla; el nombre significa «alubias».",
+    ko: "삶거나 조린 콩을 고수와 호두, 마늘, 양파로 양념한 조지아 요리로, 이름은 '콩'이라는 뜻입니다.",
   },
   "georgian::mchadi": {
     id: "Roti pipih Georgia dari tepung jagung, air, dan garam yang digoreng keemasan; namanya dari milet, yang digantikan jagung abad ke-17.",
@@ -4712,6 +5316,7 @@ module.exports = {
     zh: "格鲁吉亚的玉米粉薄饼，以水与盐调糊煎至金黄；名称源自小米——17世纪被玉米取代的那种谷物。",
     ja: "とうもろこし粉、水、塩で焼くジョージアの平パン。名は17世紀にとうもろこしに取って代わられた雑穀キビに由来する。",
     es: "Pan plano georgiano de harina de maíz, agua y sal frito hasta dorarse; su nombre viene del mijo, al que el maíz sustituyó en el XVII.",
+    ko: "옥수숫가루와 물, 소금으로 반죽해 노릇하게 지진 조지아의 플랫브레드로, 이름은 17세기에 옥수수가 대신하기 전 쓰던 기장에서 왔습니다.",
   },
   "georgian::mtsvadi": {
     id: "Sate Georgia dari dadu daging babi, domba, atau sapi muda yang dipanggang di api terbuka, biasanya kayu anggur; pusat pesta supra.",
@@ -4720,6 +5325,7 @@ module.exports = {
     zh: "格鲁吉亚的肉串：猪肉、羊肉或小牛肉切块，在明火上烤制，传统用葡萄藤木；是supra宴席的中心。",
     ja: "豚・羊・子牛の角切り肉を直火で焼くジョージアの串焼き。ブドウの蔓の薪を使い、スプラという宴の主役となる。",
     es: "Brochetas georgianas de tacos de cerdo, cordero o ternera asados a fuego vivo, sobre sarmiento de vid; eje del banquete supra.",
+    ko: "돼지나 양, 송아지고기를 깍둑 썰어 전통적으로 포도나무 장작 직화에 구운 조지아의 꼬치로, 수프라 잔치의 중심입니다.",
   },
   "georgian::ostri": {
     id: "Semur sapi pedas Georgia yang ditim bersama tomat, bawang, bawang putih, dan herba; kerap hadir di jamuan supra tradisional.",
@@ -4728,6 +5334,7 @@ module.exports = {
     zh: "格鲁吉亚辛辣的炖牛肉，与番茄、洋葱、大蒜及香草同煨；常出现在传统的supra宴席上。",
     ja: "トマト、玉ねぎ、ニンニク、香草で牛肉を煮る辛口のジョージアの煮込み。伝統の宴スプラでよく供される。",
     es: "Guiso georgiano picante de vacuno con tomate, cebolla, ajo y hierbas; se sirve a menudo en el banquete tradicional supra.",
+    ko: "소고기를 토마토와 양파, 마늘, 허브와 함께 끓인 매콤한 조지아 스튜로, 흔히 전통 잔치 수프라에 냅니다.",
   },
   "georgian::phali": {
     id: "Hidangan pembuka dingin Georgia dari sayuran cincang — bayam, bit, kacang — yang diikat kenari giling, bawang putih, cuka, dan herba.",
@@ -4736,6 +5343,7 @@ module.exports = {
     zh: "格鲁吉亚的冷前菜：菠菜、甜菜、豆子等蔬菜切碎，以核桃末、大蒜、醋与香草拌合。",
     ja: "ほうれん草、ビーツ、豆などを刻み、挽いたクルミ、ニンニク、酢、香草でまとめるジョージアの冷たい前菜。",
     es: "Entrante frío georgiano de verduras picadas —espinaca, remolacha, alubias— ligadas con nuez molida, ajo, vinagre y hierbas.",
+    ko: "시금치와 비트, 콩 같은 채소를 다져 간 호두와 마늘, 식초, 허브로 뭉친 조지아의 냉채입니다.",
   },
   "georgian::satsivi": {
     id: "Hidangan Georgia berupa unggas (ayam atau kalkun) dalam saus bawang putih dan kenari, disajikan dingin; wajib saat libur musim dingin.",
@@ -4744,6 +5352,7 @@ module.exports = {
     zh: "格鲁吉亚的禽肉菜（鸡或火鸡），佐蒜香核桃酱汁，冷食；名称意为「冷盘」，是冬节必备。",
     ja: "鶏や七面鳥をニンニクとクルミのソースで和え、冷やして供するジョージアの料理。名は「冷たい料理」の意で、冬の祝祭の定番。",
     es: "Plato georgiano de ave (pollo o pavo) en salsa de ajo y nuez servido frío; su nombre significa «plato frío» y es fijo en las fiestas.",
+    ko: "닭이나 칠면조를 마늘 호두 소스에 넣어 차갑게 내는 조지아 요리로, 이름 그대로 '차가운 요리'이며 겨울 명절의 단골입니다.",
   },
   "georgian::tonis puri": {
     id: "Roti gandum beragi Georgia yang dipanggang di dinding tungku tanah liat bundar bernama tone; namanya sekerabat dengan tandoor.",
@@ -4752,6 +5361,7 @@ module.exports = {
     zh: "格鲁吉亚的发酵小麦面包，贴在名为tone的圆形陶窑内壁烤成；这个词与tandoor同源。",
     ja: "トネと呼ばれる丸い土窯の内壁で焼くジョージアの発酵小麦パン。その名はタンドールと同語源である。",
     es: "Pan de trigo georgiano fermentado, cocido en las paredes de un horno de barro redondo llamado tone; su nombre es afín a tandur.",
+    ko: "토네라 부르는 깊고 둥근 옹기 화덕 벽에 붙여 구운 조지아의 발효 밀빵으로, 그 이름은 탄두르와 뿌리가 같습니다.",
   },
   "georgian::walnut-paste pkhali": {
     id: "Pate sayur Georgia dari sayuran hijau matang yang dicincang lalu dicampur pasta kenari, bawang putih, dan herba; pembuka dingin.",
@@ -4760,6 +5370,7 @@ module.exports = {
     zh: "格鲁吉亚的蔬菜酱：煮熟的绿叶菜切碎，与核桃、大蒜及香草泥拌匀，作冷前菜。",
     ja: "茹でた青菜を刻み、クルミ、ニンニク、香草のペーストと合わせるジョージアの野菜のパテ。冷たい前菜として供する。",
     es: "Paté vegetal georgiano de verduras cocidas picadas mezcladas con una pasta de nuez, ajo y hierbas; se sirve como entrante frío.",
+    ko: "익힌 나물이나 채소를 다져 호두와 마늘, 허브 페이스트에 버무린 조지아의 채소 파테로, 냉채로 냅니다.",
   },
   "german::apfelschorle": {
     id: "Minuman ringan Jerman dari sari apel yang dicampur air mineral berkarbonasi.",
@@ -4768,6 +5379,7 @@ module.exports = {
     zh: "德国的苹果气泡饮：苹果汁兑含气矿泉水。",
     ja: "りんごジュースを炭酸入りのミネラルウォーターで割ったドイツの清涼飲料。",
     es: "Refresco alemán de zumo de manzana mezclado con agua mineral con gas.",
+    ko: "사과주스에 탄산 광천수를 섞은 독일의 청량음료입니다.",
   },
   "german::apfelstrudel": {
     id: "Pastri Wina berisi apel, gula, kismis, dan kayu manis, dibungkus adonan yang ditarik setipis kertas; resep tertua yang diketahui dari 1697.",
@@ -4776,6 +5388,7 @@ module.exports = {
     zh: "维也纳的苹果卷：苹果、糖、葡萄干与肉桂裹在拉得薄如纸的面皮里；已知最早的方子出自一六九七年。",
     ja: "紙のように薄く伸ばした生地で、林檎、砂糖、レーズン、シナモンを包むウィーンの菓子。知られる最古のレシピは一六九七年。",
     es: "Pastel vienés de manzana, azúcar, pasas y canela envuelto en masa estirada finísima; la receta más antigua conocida data de 1697.",
+    ko: "사과와 설탕, 건포도, 계피를 종잇장처럼 얇게 늘인 반죽에 싼 빈의 페이스트리로, 가장 오래된 조리법은 1697년의 것입니다.",
   },
   "german::black forest cake": {
     id: "Kue lapis Jerman dari bolu cokelat dengan ceri asam, brendi ceri Kirsch, dan krim kocok; bentuk modernnya kira-kira dari 1915.",
@@ -4784,6 +5397,7 @@ module.exports = {
     zh: "德国的黑森林蛋糕：巧克力海绵层层夹酸樱桃、樱桃酒与打发奶油；今日的样子约成于一九一五年。",
     ja: "チョコレートのスポンジに酸味のあるチェリー、キルシュ、ホイップクリームを重ねたドイツのケーキ。今の形は一九一五年ごろから。",
     es: "Tarta alemana de capas de bizcocho de chocolate con guindas, aguardiente de cereza Kirsch y nata montada; su forma actual es de hacia 1915.",
+    ko: "초콜릿 스펀지에 사워체리와 키르슈, 휘핑크림을 켜켜이 쌓은 독일 케이크로, 지금의 형태는 1915년 무렵으로 거슬러 올라갑니다.",
   },
   "german::bratwurst": {
     id: "Sosis goreng Jerman dari babi, sapi, atau sapi muda; tercatat di Franken atau Nurnberg sejak 1313, dan ada lebih dari 40 ragam daerah.",
@@ -4792,6 +5406,7 @@ module.exports = {
     zh: "德国的煎香肠：猪肉、牛肉或小牛肉制成；一三一三年就见于弗兰肯（纽伦堡）的记载，地方品种有四十多种。",
     ja: "豚、牛、仔牛で作るドイツの焼きソーセージ。フランケン（ニュルンベルク）で一三一三年から記録があり、地方の型は四十を超えます。",
     es: "Salchicha alemana a la plancha de cerdo, vacuno o ternera; documentada en Franconia (Núremberg) desde 1313, con más de 40 variedades.",
+    ko: "돼지나 소, 송아지고기로 만든 독일식 구이 소시지로, 1313년부터 프랑켄(뉘른베르크) 기록에 나오며 지역별로 마흔 가지가 넘습니다.",
   },
   "german::currywurst": {
     id: "Jajanan jalanan Jerman berupa irisan sosis babi dalam saus tomat berkari; dikreditkan kepada Herta Heuwer di Berlin pada 1949.",
@@ -4800,6 +5415,7 @@ module.exports = {
     zh: "德国的街头小吃：猪肉肠切段，浇咖喱番茄酱；一般归功于一九四九年柏林的 Herta Heuwer。",
     ja: "切ったソーセージにカレー風味のトマトソースをかけるドイツの屋台料理。一九四九年、ベルリンのヘルタ・ホイヴァーの手によります。",
     es: "Comida callejera alemana de salchicha de cerdo en rodajas con salsa de tomate al curry; atribuida a Herta Heuwer, Berlín, 1949.",
+    ko: "저민 돼지고기 소시지에 카레 토마토케첩 소스를 끼얹은 독일 길거리 음식으로, 1949년 베를린의 헤르타 호이버가 만들었습니다.",
   },
   "german::döner kebab german": {
     id: "Roti pipih berisi daging panggang tusuk putar dengan salad dan saus; dipopulerkan di Berlin 1970-an oleh pekerja tamu asal Turki.",
@@ -4808,6 +5424,7 @@ module.exports = {
     zh: "薄饼夹立式转叉烤肉，配生菜与酱汁；一九七〇年代由土耳其客籍工人在柏林带红。",
     ja: "回転串で焼いた肉に野菜とソースを合わせ、薄焼きパンに挟んだもの。一九七〇年代、ベルリンでトルコ人労働者が広めました。",
     es: "Bocadillo de pan plano con carne de espetón vertical, ensalada y salsa; popularizado en el Berlín de los setenta por obreros turcos.",
+    ko: "세로 꼬치에 구운 고기와 샐러드, 소스를 플랫브레드에 넣은 샌드위치로, 1970년대 베를린에서 튀르키예 이주노동자들이 퍼뜨렸습니다.",
   },
   "german::eisbein": {
     id: "Hidangan Jerman berupa kaki babi belakang yang diawetkan lalu direbus; kerap dengan sauerkraut dan pure kacang polong, populer di Berlin.",
@@ -4816,6 +5433,7 @@ module.exports = {
     zh: "德国的咸水煮猪肘：后腿的肘子腌过再煮；常配酸菜与豌豆泥，柏林人尤其爱吃。",
     ja: "塩漬けにして茹でた豚の後脚のすね肉。ザワークラウトとえんどう豆のピュレを添え、ベルリンでとくに好まれます。",
     es: "Plato alemán de codillo trasero de cerdo curado y hervido; suele servirse con chucrut y puré de guisantes, muy popular en Berlín.",
+    ko: "소금에 절여 삶은 독일식 돼지 뒷다리 정강이 요리로, 흔히 사워크라우트와 완두 퓌레를 곁들이며 베를린에서 사랑받습니다.",
   },
   "german::flammkuchen": {
     id: "Roti pipih tipis Alsace atau Jerman yang ditutup creme fraiche, bawang bombai, dan lardon.",
@@ -4824,6 +5442,7 @@ module.exports = {
     zh: "阿尔萨斯与德国的薄饼：抹法式酸奶油，铺洋葱与咸猪肉丁。",
     ja: "アルザス・ドイツの薄い焼き生地に、クレーム・フレーシュ、玉ねぎ、ラルドンをのせたもの。",
     es: "Torta plana y fina alsaciana-alemana con crema fresca, cebolla y lardons.",
+    ko: "크렘 프레슈와 양파, 베이컨을 올려 얇게 구운 알자스·독일의 플랫브레드입니다.",
   },
   "german::frankfurter würstchen": {
     id: "Sosis babi tipis dalam selongsong usus domba, direbus lalu diasap pada suhu rendah; dilindungi untuk kawasan Frankfurt sejak 1860.",
@@ -4832,6 +5451,7 @@ module.exports = {
     zh: "细身的猪肉肠，灌在羊肠衣里，先烫熟再低温烟熏；自一八六〇年起，这名字只归法兰克福一带。",
     ja: "羊腸に詰めた細い豚肉のソーセージ。湯煮してから低温で燻します。一八六〇年以来、フランクフルト周辺に名称が守られています。",
     es: "Salchicha fina de cerdo en tripa de cordero, escaldada y ahumada a baja temperatura; protegida para la zona de Fráncfort desde 1860.",
+    ko: "양의 창자에 채워 낮은 온도로 훈연한 가는 돼지고기 소시지로, 1860년부터 프랑크푸르트 지역에 한정해 보호받고 있습니다.",
   },
   "german::german beer": {
     id: "Bir Jerman yang menurut tradisi dibuat sesuai Reinheitsgebot, hukum kemurnian Bavaria 1516 yang hanya membolehkan air, jelai, dan hop.",
@@ -4840,6 +5460,7 @@ module.exports = {
     zh: "依循《啤酒纯净法》酿造的德国啤酒；这部1516年的巴伐利亚法令只准使用水、大麦与啤酒花。",
     ja: "ビール純粋令に従って造られるドイツのビール。1516年のバイエルンの法は、水と大麦とホップだけを許した。",
     es: "Cerveza alemana elaborada según la Reinheitsgebot, la ley bávara de pureza de 1516 que solo permitía agua, cebada y lúpulo.",
+    ko: "전통적으로 라인하이츠게보트에 따라 빚는 독일 맥주로, 1516년 바이에른 순수령은 물과 보리, 홉만을 허용했습니다.",
   },
   "german::kartoffelpuffer": {
     id: "Panekuk Jerman dari parutan kentang, bawang bombai, dan telur; disebut juga Reibekuchen, gurih atau manis dengan saus apel.",
@@ -4848,6 +5469,7 @@ module.exports = {
     zh: "德国的土豆煎饼：土豆刨丝，拌洋葱与蛋，下锅浅煎；也叫 Reibekuchen，可咸可甜，甜的配苹果泥。",
     ja: "すりおろしたじゃがいも、玉ねぎ、卵を浅く焼いたドイツのパンケーキ。ライベクーヘンとも呼び、塩味でも林檎ソースの甘味でも。",
     es: "Tortitas alemanas fritas de patata rallada, cebolla y huevo, también llamadas Reibekuchen; saladas o dulces con compota de manzana.",
+    ko: "간 감자와 양파, 달걀을 부친 독일식 전으로 라이베쿠헨이라고도 하며, 짭조름하게 내거나 사과 소스와 함께 달게 먹습니다.",
   },
   "german::knödel": {
     id: "Pangsit rebus Eropa Tengah dari roti, tepung, atau kentang; berakar di Bayern, namanya dari kata Jerman Kuno untuk simpul.",
@@ -4856,6 +5478,7 @@ module.exports = {
     zh: "中欧的水煮团子：用面包、面粉或土豆做；根在巴伐利亚，名字出自古高地德语的「结」。",
     ja: "パン、小麦粉、じゃがいもで作る中欧のゆで団子。バイエルンに根をもち、名は古高ドイツ語の「結び目」から。",
     es: "Albóndigas hervidas centroeuropeas de pan, harina o patata; arraigadas en Baviera, del alto alemán antiguo para «nudo».",
+    ko: "빵이나 밀가루, 감자로 빚어 삶은 중부 유럽의 경단으로, 바이에른에 뿌리를 두며 이름은 고대 고지독일어의 '매듭'에서 왔습니다.",
   },
   "german::käsespätzle": {
     id: "Hidangan tradisional Schwaben dan Allgau: spatzle lembut berlapis parutan keju gunung Bergkase.",
@@ -4864,6 +5487,7 @@ module.exports = {
     zh: "施瓦本与阿尔高的传统菜：软面疙瘩与刨碎的山地奶酪 Bergkäse 层层相叠。",
     ja: "シュヴァーベンとアルゴイの伝統料理。やわらかいシュペッツレに、削った山のチーズ、ベルクケーゼを重ねます。",
     es: "Plato tradicional suabo y del Algovia: spätzle blandos en capas con queso de montaña rallado (Bergkäse).",
+    ko: "부드러운 달걀 국수 슈페츨레에 간 산악 치즈(베르크케제)를 켜켜이 올린 슈바벤·알고이의 전통 요리입니다.",
   },
   "german::königsberger klopse": {
     id: "Bakso daging sapi muda dari Prusia Timur yang direbus dalam saus putih berkrim dengan kaper; dinamai kota Konigsberg, kini Kaliningrad.",
@@ -4872,6 +5496,7 @@ module.exports = {
     zh: "东普鲁士的小牛肉丸：在加了刺山柑的奶油白酱里煮；名字取自柯尼斯堡，也就是今天的加里宁格勒。",
     ja: "東プロイセンの仔牛肉の団子を、ケッパー入りの白いクリームソースで煮た料理。ケーニヒスベルク、今のカリーニングラードにちなむ名。",
     es: "Albóndigas de ternera de Prusia Oriental cocidas en salsa blanca cremosa con alcaparras; por la ciudad de Königsberg, hoy Kaliningrado.",
+    ko: "송아지고기 완자를 크리미한 흰 케이퍼 소스에 끓인 동프로이센 요리로, 쾨니히스베르크(지금의 칼리닌그라드)에서 이름을 땄습니다.",
   },
   "german::lebkuchen": {
     id: "Kue rempah Jerman yang dimaniskan madu, mirip roti jahe; diciptakan biarawan Franken pada abad ke-13 dan tersohor dari Nurnberg.",
@@ -4880,6 +5505,7 @@ module.exports = {
     zh: "德国的蜂蜜香料饼，近似姜饼；十三世纪由弗兰肯的修士创出，以纽伦堡最负盛名。",
     ja: "蜂蜜で甘くしたドイツの香辛料菓子。ジンジャーブレッドに近く、十三世紀フランケンの修道士が生み、ニュルンベルクで名を得ました。",
     es: "Pastel especiado alemán con miel, pariente del pan de jengibre; lo idearon monjes franconios en el siglo XIII, célebre en Núremberg.",
+    ko: "꿀로 단맛을 낸 독일의 향신 과자로 진저브레드와 비슷하며, 13세기 프랑켄 수도사들이 만들었고 뉘른베르크가 이름났습니다.",
   },
   "german::pretzels": {
     id: "Roti panggang berbentuk simpul asal Jerman; sejak setidaknya abad ke-12 ia jadi lambang serikat tukang roti di Jerman selatan.",
@@ -4888,6 +5514,7 @@ module.exports = {
     zh: "德国的结形烤面包：至迟从十二世纪起，它就是德国南方面包师行会的徽记。",
     ja: "ドイツ生まれの結び目の形をした焼きパン。少なくとも十二世紀から、南ドイツのパン職人組合の紋章でした。",
     es: "Pan horneado en forma de nudo de origen alemán; desde al menos el siglo XII, emblema del gremio de panaderos del sur de Alemania.",
+    ko: "매듭 모양으로 구운 독일의 빵으로, 적어도 12세기부터 남독일 제빵 길드의 상징으로 쓰였습니다.",
   },
   "german::riesling wine": {
     id: "Anggur putih Jerman yang harum dari varietas Rhein, pertama tercatat 1435; dari kering hingga manis, berasam tinggi dan wangi bunga.",
@@ -4896,6 +5523,7 @@ module.exports = {
     zh: "德国的芳香白葡萄酒：用莱茵河畔的品种酿，最早的记载在一四三五年；干甜皆有，酸度高，带花香。",
     ja: "ライン地方の品種から造る香り高いドイツの白ワイン。記録は一四三五年から。辛口から甘口まであり、酸が高く花の香りをもちます。",
     es: "Vino blanco alemán aromático de una uva renana documentada en 1435; se elabora de seco a dulce, con acidez alta y aromas florales.",
+    ko: "1435년에 처음 기록된 라인 지방 품종으로 빚는 향긋한 독일 화이트와인으로, 드라이부터 스위트까지 산도가 높고 꽃향이 납니다.",
   },
   "german::rouladen": {
     id: "Gulung daging sapi Jerman yang dibraise, diisi bacon, bawang bombai, mustard, dan acar; namanya dari kata Prancis rouler, menggulung.",
@@ -4904,6 +5532,7 @@ module.exports = {
     zh: "德国的炖牛肉卷：卷进培根、洋葱、芥末与酸黄瓜；名字出自法语的 rouler，「卷起」。",
     ja: "ベーコン、玉ねぎ、マスタード、ピクルスを巻き込んで煮込むドイツの牛肉ロール。名はフランス語の rouler「巻く」から。",
     es: "Rollos de ternera alemanes estofados rellenos de tocino, cebolla, mostaza y pepinillos; del francés rouler, «enrollar».",
+    ko: "소고기에 베이컨과 양파, 머스터드, 피클을 말아 조린 독일 요리로, 이름은 '말다'라는 뜻의 프랑스어 룰레에서 왔습니다.",
   },
   "german::rye bread": {
     id: "Roti Jerman tradisional dari tepung rai, diragikan dengan biang asam karena gluten rai rendah; hasilnya padat dan sedikit asam.",
@@ -4912,6 +5541,7 @@ module.exports = {
     zh: "德国的传统黑麦面包：以黑麦粉为主，因黑麦筋力弱而用酸种发酵；面包扎实，带酸香。",
     ja: "ライ麦粉を主とするドイツの伝統的なパン。ライ麦はグルテンが少ないためサワードウで膨らませ、密で酸味のある生地になります。",
     es: "Pan alemán tradicional mayormente de harina de centeno, fermentado con masa madre porque el centeno tiene poco gluten; denso y ácido.",
+    ko: "호밀가루를 주로 쓴 독일 전통 빵으로, 호밀은 글루텐이 적어 이스트가 잘 듣지 않아 사워도로 부풀리며 조밀하고 새콤합니다.",
   },
   "german::sauerbraten": {
     id: "Panggangan panci Jerman: daging sapi dimarinasi beberapa hari dalam cuka dan anggur, lalu dibraise dan disiram kuah asam manis.",
@@ -4920,6 +5550,7 @@ module.exports = {
     zh: "德国的传统焖牛肉：牛肉先在醋与葡萄酒里腌几天，再下锅焖，浇酸甜的酱汁。",
     ja: "ドイツの伝統的な蒸し焼き。牛肉を数日、酢とワインに漬けてから煮込み、甘酸っぱいソースで供します。",
     es: "Asado alemán tradicional a la olla: ternera marinada varios días en vinagre y vino, luego braseada y servida con salsa agridulce.",
+    ko: "소고기를 며칠간 식초와 와인에 재운 뒤 조려 새콤달콤한 소스와 함께 내는 독일의 전통 팟 로스트입니다.",
   },
   "german::sauerkraut": {
     id: "Kubis yang diiris halus lalu difermentasi dalam air garamnya sendiri oleh bakteri asam laktat, yang mengubah gulanya menjadi asam laktat.",
@@ -4928,6 +5559,7 @@ module.exports = {
     zh: "德国酸菜：卷心菜刨成细丝，在自身的盐卤里由乳酸菌发酵，糖分转成乳酸。",
     ja: "細く刻んだキャベツを、自らの塩水の中で乳酸菌に発酵させたもの。糖が乳酸に変わります。",
     es: "Col cortada muy fina y fermentada en su propia salmuera por bacterias lácticas, que convierten sus azúcares en ácido láctico.",
+    ko: "잘게 썬 양배추를 자기 소금물에서 유산균으로 발효시킨 것으로, 당분이 젖산으로 바뀌며 신맛이 납니다.",
   },
   "german::schnitzel": {
     id: "Irisan tipis daging, kerap sapi muda, babi, atau ayam, dibalut remah roti lalu digoreng di wajan; namanya dari kata Jerman sniz, irisan.",
@@ -4936,6 +5568,7 @@ module.exports = {
     zh: "薄切的肉排（多为小牛、猪或鸡），裹面包糠下平锅煎；名字出自德语的 sniz，「切片」。",
     ja: "薄く切った肉（多くは仔牛、豚、鶏）にパン粉をつけて焼いたもの。名はドイツ語の sniz「切り身」に由来します。",
     es: "Loncha fina de carne, a menudo ternera, cerdo o pollo, empanada y frita a la sartén; del alemán sniz, «rebanada».",
+    ko: "송아지나 돼지, 닭고기를 얇게 저며 빵가루를 입혀 팬에 지진 요리로, 이름은 '저민 조각'을 뜻하는 독일어에서 왔습니다.",
   },
   "german::schweinshaxe": {
     id: "Kaki babi panggang khas Bayern; semula makanan petani yang membuat potongan murah dan liat jadi enak, disajikan dengan knodel dan kubis.",
@@ -4944,6 +5577,7 @@ module.exports = {
     zh: "巴伐利亚的烤猪肘：本是农家菜，把便宜又老的部位做得好吃；配面团子与卷心菜。",
     ja: "バイエルンの豚すね肉のロースト。もとは硬く安い部位を美味にする農民の料理で、クヌーデルとキャベツを添えます。",
     es: "Codillo de cerdo asado bávaro; en origen comida campesina para hacer sabrosos los cortes duros y baratos; con knödel y col.",
+    ko: "바이에른식 돼지 정강이 구이로, 본래는 질기고 값싼 부위를 맛있게 먹으려던 서민 음식이며 크뇌델과 양배추를 곁들입니다.",
   },
   "german::spätzle": {
     id: "Mi telur atau pangsit lembut dari Schwaben di Jerman selatan; namanya berasal dari kata Spatz, burung pipit.",
@@ -4952,6 +5586,7 @@ module.exports = {
     zh: "德国南部施瓦本的软蛋面疙瘩；名字出自德语的 Spatz，「麻雀」。",
     ja: "南ドイツ、シュヴァーベンのやわらかい卵の麺、あるいは団子。名はドイツ語の Spatz（雀）から。",
     es: "Fideos-ñoquis blandos de huevo de Suabia, en el sur de Alemania; su nombre viene de «Spatz», gorrión.",
+    ko: "남독일 슈바벤의 부드러운 달걀 국수이자 경단으로, 이름은 '참새'를 뜻하는 슈파츠에서 왔습니다.",
   },
   "german::stollen": {
     id: "Roti buah Natal Jerman yang padat, disebut Christstollen.",
@@ -4960,6 +5595,7 @@ module.exports = {
     zh: "德国的圣诞果子面包 Christstollen：质地紧实，果料满满。",
     ja: "ドライフルーツをぎっしり詰めた、密度のあるドイツのクリスマスの菓子パン、クリストシュトレン。",
     es: "Pan navideño alemán denso y cargado de fruta, el Christstollen.",
+    ko: "말린 과일을 가득 넣은 조밀한 독일의 성탄절 과자빵 크리스트슈톨렌입니다.",
   },
   "german::weisswurst": {
     id: "Sosis Bayern dari daging sapi muda cincang dan lemak punggung babi; lahir di Munchen pada 1857, menurut adat disantap sebelum tengah hari.",
@@ -4968,6 +5604,7 @@ module.exports = {
     zh: "巴伐利亚的白香肠：小牛肉糜与猪背膘灌成；一八五七年生于慕尼黑，照规矩要在正午之前吃完。",
     ja: "刻んだ仔牛肉と豚の背脂で作るバイエルンの白ソーセージ。一八五七年ミュンヘン生まれで、正午前に食べるのが習わしです。",
     es: "Salchicha bávara de ternera picada y tocino de lomo de cerdo; creada en Múnich en 1857 y comida por tradición antes del mediodía.",
+    ko: "다진 송아지고기와 돼지 등지방으로 만든 바이에른 소시지로, 1857년 뮌헨에서 만들어졌고 전통적으로 정오 전에 먹습니다.",
   },
   "german::wiener schnitzel": {
     id: "Kekhasan Wina dan hidangan nasional Austria: kotelet daging sapi muda yang tipis, dibalut remah roti lalu digoreng di wajan.",
@@ -4976,6 +5613,7 @@ module.exports = {
     zh: "维也纳的招牌、奥地利的国菜：小牛肉薄排裹面包糠，下平锅煎透。",
     ja: "ウィーンの名物にしてオーストリアの国民食。薄い仔牛肉にパン粉をつけて焼きます。",
     es: "Especialidad vienesa y plato nacional de Austria: filete fino de ternera empanado y frito a la sartén.",
+    ko: "얇게 저민 송아지고기에 빵가루를 입혀 팬에 지진 빈의 명물이자 오스트리아의 국민 음식입니다.",
   },
   "goan::alle belle": {
     id: "Panekuk lembut ala crêpe dari Goa yang digulung dengan isian kelapa dan gula aren; tradisi keluarga Katolik pada Selasa Karnaval.",
@@ -4984,6 +5622,7 @@ module.exports = {
     zh: "果阿柔软的可丽饼，卷入椰肉与棕榈糖馅；传统上由天主教家庭在忏悔星期二制作。",
     ja: "ココナッツとヤシ砂糖の餡を巻くゴアのやわらかいクレープ。カトリックの家庭が謝肉祭の火曜日に作る習わし。",
     es: "Crepe goana blanda enrollada en un relleno de coco y azúcar de palma; la hacen las familias católicas el Martes de Carnaval.",
+    ko: "코코넛과 야자 재거리 소를 채워 만 고아의 부드러운 크레프로, 전통적으로 가톨릭 가정에서 참회 화요일에 만듭니다.",
   },
   "goan::ambot tik": {
     id: "Kari ikan atau udang Goa yang pedas dan asam tanpa kelapa (Konkani: ambot berarti asam, tik pedas), diasamkan asam jawa dan cuka.",
@@ -4992,6 +5631,7 @@ module.exports = {
     zh: "果阿不加椰奶的酸辣鱼虾咖喱（孔卡尼语ambot为酸、tik为辣），以罗望子与醋提酸。",
     ja: "ココナッツを使わないゴアの酸っぱ辛い魚やエビのカレー（コンカニ語でambotは酸、tikは辛）。タマリンドと酢で酸味をつける。",
     es: "Curry goano agripicante de pescado o gambas sin coco (en konkaní ambot, ácido; tik, picante), acidulado con tamarindo y vinagre.",
+    ko: "코코넛을 넣지 않고 타마린드와 식초로 새콤하게 낸 고아의 맵고 신 생선이나 새우 커리로, 콘칸어로 '암봇'은 시다, '틱'은 맵다는 뜻입니다.",
   },
   "goan::apa de camarao": {
     id: "Pai udang Goa-Portugis.",
@@ -5000,6 +5640,7 @@ module.exports = {
     zh: "果阿葡式的鲜虾馅饼。",
     ja: "ゴア・ポルトガル風のエビのパイ。",
     es: "Pastel de gambas goano-portugués.",
+    ko: "고아·포르투갈식 새우 파이입니다.",
   },
   "goan::arroz doce goan": {
     id: "Puding nasi berasal Portugis yang lembut dengan kuning telur dan kayu manis, masuk ke masakan Goa pada masa kolonial Portugis.",
@@ -5008,6 +5649,7 @@ module.exports = {
     zh: "源自葡萄牙的绵密米布丁，用蛋黄与肉桂调味；在葡萄牙殖民时期进入果阿的饮食。",
     ja: "卵黄とシナモンで仕立てるポルトガル由来のなめらかなライスプディング。植民地時代にゴア料理へ取り入れられた。",
     es: "Arroz con leche cremoso de origen portugués con yema y canela, incorporado a la cocina goana durante el dominio colonial.",
+    ko: "달걀노른자와 계피를 넣은 크리미한 쌀 푸딩으로, 포르투갈에서 왔으며 식민지 시대에 고아 요리에 자리 잡았습니다.",
   },
   "goan::balchao": {
     id: "Kari acar udang (atau ikan atau babi) Goa yang pedas dan bercuka, berdarah Portugis, dimasak hingga tahan berhari-hari tanpa didinginkan.",
@@ -5016,6 +5658,7 @@ module.exports = {
     zh: "果阿辛辣带醋的腌味虾（或鱼、猪肉）咖喱，源自葡萄牙；熬到不必冷藏也能存放多日。",
     ja: "ポルトガルに由来する、酢の効いた辛いゴアのエビ（魚や豚も）のピクルス風カレー。冷やさずとも数日もつまで煮詰める。",
     es: "Curry-encurtido goano de gambas (o pescado o cerdo), picante y avinagrado, de raíz portuguesa, cocido hasta durar días sin frío.",
+    ko: "새우나 생선, 돼지고기를 식초에 맵게 졸인 포르투갈계 고아의 절임 커리로, 냉장 없이도 며칠을 갑니다.",
   },
   "goan::bebinca": {
     id: "Kue berlapis Indo-Portugis dari Goa yang dibuat dengan kuning telur, santan, gula, ghee, dan tepung.",
@@ -5024,6 +5667,7 @@ module.exports = {
     zh: "果阿的印葡千层糕，用蛋黄、椰奶、糖、酥油与面粉一层层烤成。",
     ja: "卵黄、ココナッツミルク、砂糖、ギー、小麦粉で層を重ねるゴアの印葡風のケーキ。",
     es: "Pastel de capas indoportugués de Goa elaborado con yemas, leche de coco, azúcar, ghee y harina.",
+    ko: "달걀노른자와 코코넛밀크, 설탕, 기, 밀가루로 만든 고아의 인도·포르투갈식 층 케이크입니다.",
   },
   "goan::cafreal": {
     id: "Hidangan ayam Goa dengan bumbu perendam hijau dari ketumbar, cabai, bawang putih, dan rempah; dibawa Portugis dari koloni Afrika.",
@@ -5032,6 +5676,7 @@ module.exports = {
     zh: "果阿的绿汁腌鸡：以香菜、辣椒、大蒜与香料调成腌料；由葡萄牙人自其非洲殖民地带来。",
     ja: "コリアンダー、唐辛子、ニンニク、香辛料の緑のマリネで漬ける鶏のゴア料理。ポルトガル人がアフリカの植民地から伝えた。",
     es: "Pollo goano en adobo verde de cilantro, guindilla, ajo y especias; lo trajeron los portugueses de sus colonias africanas.",
+    ko: "고수와 고추, 마늘, 향신료로 만든 초록 양념에 재운 고아의 닭 요리로, 포르투갈이 아프리카 식민지에서 들여왔습니다.",
   },
   "goan::caldine": {
     id: "Kari santan Goa yang lembut dan kuning dari ikan, udang, atau sayuran; namanya dari kata Portugis caldinho, »kuah kecil«.",
@@ -5040,6 +5685,7 @@ module.exports = {
     zh: "果阿温和的黄色椰奶咖喱，可用鱼、虾或蔬菜；名称源自葡萄牙语caldinho，意为「小汤」。",
     ja: "魚やエビ、野菜を使うゴアのやさしい黄色いココナッツミルクのカレー。名はポルトガル語のcaldinho（小さなスープ）から。",
     es: "Curry goano suave y amarillo de leche de coco con pescado, gambas o verduras; su nombre viene del portugués caldinho.",
+    ko: "생선이나 새우, 채소를 넣은 순한 노란빛 고아의 코코넛밀크 커리로, 이름은 '작은 국물'을 뜻하는 포르투갈어 칼디뉴에서 왔습니다.",
   },
   "goan::chouriço goan": {
     id: "Sosis babi Goa yang diawetkan dalam cuka, bawang putih, dan rempah cabai; saduran chorizo Portugis yang masuk setelah 1510.",
@@ -5048,6 +5694,7 @@ module.exports = {
     zh: "果阿的猪肉香肠，用醋、大蒜与辣椒香料腌成；改自1510年后传入的葡萄牙chorizo。",
     ja: "酢、ニンニク、唐辛子の香辛料で漬け込むゴアの豚肉ソーセージ。1510年以降に伝わったポルトガルのチョリソを作り替えたもの。",
     es: "Embutido de cerdo goano curado en vinagre, ajo y especias de guindilla, adaptado del chorizo portugués llegado después de 1510.",
+    ko: "식초와 마늘, 고추 향신료에 절인 고아의 돼지고기 소시지로, 1510년 이후 전해진 포르투갈 초리소를 바꾼 것입니다.",
   },
   "goan::coconut-vinegar curry": {
     id: "Kari babi Goa dari carne de vinha d'alhos Portugis, dengan cuka nira kelapa menggantikan anggur.",
@@ -5056,6 +5703,7 @@ module.exports = {
     zh: "果阿的猪肉咖喱，源自葡萄牙的carne de vinha d'alhos；以椰花酒醋取代葡萄酒。",
     ja: "ポルトガルのカルネ・デ・ヴィーニャ・ダーリョスに由来するゴアの豚肉カレー。ワインの代わりにヤシ酒の酢を使う。",
     es: "Curry goano de cerdo derivado del carne de vinha d'alhos portugués, con vinagre de palma en lugar de vino.",
+    ko: "포르투갈의 카르네 드 빈야 달류스에서 온 고아의 돼지고기 커리로, 와인 대신 야자나 코코넛 수액 식초를 씁니다.",
   },
   "goan::crab xec xec": {
     id: "Kari kepiting Goa dalam kuah kental dari kelapa sangrai dan rempah.",
@@ -5064,6 +5712,7 @@ module.exports = {
     zh: "果阿的螃蟹咖喱，酱汁以焙香的椰肉与香料熬得浓稠。",
     ja: "炒ったココナッツと香辛料で濃厚なソースに仕立てるゴアのカニのカレー。",
     es: "Curry goano de cangrejo en una salsa espesa de coco tostado y especias.",
+    ko: "볶은 코코넛과 향신료로 낸 걸쭉한 소스에 게를 넣은 고아 커리입니다.",
   },
   "goan::dodol": {
     id: "Toffee Goa yang gelap dan kenyal berasal Melayu, dibuat dari santan, tepung beras, dan gula aren; menurut tradisi dibuat saat Natal.",
@@ -5072,6 +5721,7 @@ module.exports = {
     zh: "果阿深色而黏韧的太妃糖，源自马来；用椰奶、米粉与棕榈糖熬成，传统上在圣诞时做。",
     ja: "マレー由来のゴアの黒く粘りのある飴菓子。ココナッツミルク、米粉、ヤシ砂糖で煮上げ、クリスマスに作る習わし。",
     es: "Caramelo goano oscuro y masticable de origen malayo hecho con leche de coco, harina de arroz y azúcar de palma; propio de Navidad.",
+    ko: "코코넛밀크와 쌀가루, 야자 재거리로 만든 짙고 쫄깃한 고아의 토피로, 말레이에서 왔으며 전통적으로 성탄절에 만듭니다.",
   },
   "goan::feni": {
     id: "Minuman keras Goa yang disuling dari sari buah semu jambu mete atau nira kelapa.",
@@ -5080,6 +5730,7 @@ module.exports = {
     zh: "果阿的蒸馏烈酒，用腰果梨的汁液或椰子树的树液酿造。",
     ja: "カシューアップルの果汁やココヤシの樹液から蒸留するゴアの酒。",
     es: "Aguardiente goano destilado del zumo del falso fruto del anacardo o de la savia de la palma de coco.",
+    ko: "캐슈 열매즙이나 야자 수액을 증류해 만든 고아의 술입니다.",
   },
   "goan::fish curry rice goan": {
     id: "Santapan sehari-hari Goa: kari ikan kelapa dan asam jawa yang tajam di atas nasi, dalam bahasa Konkani disebut Xit Kodi, »nasi dan kari«.",
@@ -5088,6 +5739,7 @@ module.exports = {
     zh: "果阿的日常主食：椰香罗望子酸味鱼咖喱浇在米饭上，孔卡尼语称Xit Kodi，即「饭与咖喱」。",
     ja: "ゴアの日々の主食。ココナッツとタマリンドの酸味ある魚のカレーをご飯にかける。コンカニ語でシット・コディ（飯とカレー）。",
     es: "Plato diario de Goa: curry de pescado con coco y tamarindo sobre arroz, llamado en konkaní Xit Kodi, «arroz y curry».",
+    ko: "새콤한 코코넛 타마린드 생선 커리를 밥에 끼얹은 고아의 일상 주식으로, 콘칸어로는 '싯 코디', 곧 밥과 커리라 부릅니다.",
   },
   "goan::goan poi bread": {
     id: "Roti beragi bundar dari Goa dengan kantong lembut di dalamnya, dibuat dari tepung maida dan gandum utuh dalam takaran sama.",
@@ -5096,6 +5748,7 @@ module.exports = {
     zh: "果阿的圆形发酵面包，中间有柔软的空袋；用精白面粉与全麦粉等量调成。",
     ja: "中にやわらかな空洞をもつゴアの丸い発酵パン。精製粉マイダと全粒粉を同量ずつ使う。",
     es: "Pan redondo goano con levadura y un bolsillo blando dentro, hecho a partes iguales de harina refinada (maida) e integral.",
+    ko: "정제 밀가루(마이다)와 통밀을 같은 양으로 섞어 만든 고아의 둥근 발효빵으로, 속에 부드러운 주머니가 있습니다.",
   },
   "goan::pork roast goan": {
     id: "Panggang babi Katolik Goa berasal Portugis, dimarinasi rempah dan cuka nira; disajikan sebagai hidangan utama di jamuan pernikahan.",
@@ -5104,6 +5757,7 @@ module.exports = {
     zh: "果阿天主教徒的烤猪肉，源自葡萄牙；先以香料与棕榈醋腌渍，是婚宴上的主菜。",
     ja: "香辛料とヤシ酢に漬けて焼くゴアのカトリック家庭のローストポーク。ポルトガル由来で、婚礼の宴の主役となる。",
     es: "Asado de cerdo católico goano de origen portugués, marinado en especias y vinagre de palma; pieza central de los banquetes de boda.",
+    ko: "향신료와 야자 식초에 재워 구운 포르투갈계 고아 가톨릭의 돼지고기 구이로, 혼례 잔치의 중심 요리로 냅니다.",
   },
   "goan::prawn balchao": {
     id: "Hidangan Goa berupa udang goreng dalam saus pedas dan bercuka mirip acar; berasal dari olahan kolonial Portugis di Makau dan Malaka.",
@@ -5112,6 +5766,7 @@ module.exports = {
     zh: "果阿的菜式：炸虾浸在辛辣带醋、近似腌菜的酱汁中；源自葡萄牙在澳门与马六甲的殖民做法。",
     ja: "揚げたエビを、酢の効いた辛いピクルス状のソースで和えるゴアの料理。マカオやマラッカのポルトガル植民地の調理に由来する。",
     es: "Plato goano de gambas fritas en una salsa picante y avinagrada tipo encurtido, de la cocina colonial portuguesa de Macao y Malaca.",
+    ko: "새우를 튀겨 맵고 새콤한 절임 소스에 넣은 고아 요리로, 마카오·믈라카와 얽힌 포르투갈 식민지 조리법에서 왔습니다.",
   },
   "goan::rava fried fish": {
     id: "Hidangan pesisir Goa: ikan yang dimarinasi rempah lalu dibalut rava (semolina) dan digoreng dangkal hingga renyah; pokok thali ikan.",
@@ -5120,6 +5775,7 @@ module.exports = {
     zh: "果阿沿海的做法：鱼以香料腌过后裹上粗麦粉（rava），少油煎至酥脆；是鱼定食的主角。",
     ja: "香辛料に漬けた魚にラヴァ（セモリナ）をまぶし、かりっと焼くゴア沿岸の料理。魚のターリーに欠かせない。",
     es: "Plato costero goano: pescado marinado en especias, rebozado en rava (sémola) y frito hasta quedar crujiente; base del thali de pescado.",
+    ko: "향신료에 재운 생선에 세몰리나(라바)를 입혀 바삭하게 지진 고아 해안의 요리로, 생선 탈리의 단골입니다.",
   },
   "goan::sorpotel": {
     id: "Kari babi dan jeroan Goa yang tajam, dimasak bersama cuka dan rempah; saduran dari hidangan Portugis sarapatel.",
@@ -5128,6 +5784,7 @@ module.exports = {
     zh: "果阿酸香的猪肉与内脏咖喱，以醋和香料同煮；改自葡萄牙的sarapatel。",
     ja: "豚肉と内臓を酢と香辛料で煮込むゴアの酸味のあるカレー。ポルトガルのサラパテルを作り替えたもの。",
     es: "Curry goano ácido de cerdo y casquería cocido con vinagre y especias, adaptado del plato portugués sarapatel.",
+    ko: "돼지고기와 내장을 식초와 향신료에 끓인 새콤한 고아 커리로, 포르투갈의 사라파텔을 바꾼 것입니다.",
   },
   "goan::vindaloo goan": {
     id: "Kari Goa yang pedas dari daging yang dimarinasi cuka, bawang putih, dan cabai; saduran dari carne de vinha d'alhos Portugis.",
@@ -5136,6 +5793,7 @@ module.exports = {
     zh: "果阿的辣味咖喱：肉先以醋、大蒜与辣椒腌渍；改自葡萄牙的carne de vinha d'alhos。",
     ja: "酢、ニンニク、唐辛子で肉を漬け込むゴアの辛いカレー。ポルトガルのカルネ・デ・ヴィーニャ・ダーリョスを作り替えたもの。",
     es: "Curry goano picante de carne marinada en vinagre, ajo y guindilla, adaptado del plato portugués carne de vinha d'alhos.",
+    ko: "고기를 식초와 마늘, 고추에 재워 만든 매운 고아 커리로, 포르투갈의 카르네 드 빈야 달류스를 바꾼 것입니다.",
   },
   "goan::xacuti": {
     id: "Kari Goa yang berlapis rasa dari ayam, domba, atau sapi dalam kelapa sangrai, biji poppy, cabai merah kering, dan rempah.",
@@ -5144,6 +5802,7 @@ module.exports = {
     zh: "果阿层次繁复的咖喱：鸡肉、羊肉或牛肉与焙香的椰肉、罂粟籽、干红辣椒及香料同烧。",
     ja: "鶏肉、羊肉、牛肉を、炒ったココナッツ、ケシの実、乾燥赤唐辛子、香辛料で煮込む重層的なゴアのカレー。",
     es: "Curry goano complejo de pollo, cordero o vacuno en coco tostado, semillas de amapola, chiles rojos secos y especias.",
+    ko: "닭이나 양, 소고기를 볶은 코코넛과 양귀비씨, 말린 홍고추, 향신료에 끓인 복합적인 고아 커리입니다.",
   },
   "greek::avgolemono": {
     id: "Keluarga saus atau sup Yunani dari kuning telur dan lemon yang dikocok dengan kaldu lalu dikentalkan; namanya berarti \"telur-lemon\".",
@@ -5152,6 +5811,7 @@ module.exports = {
     zh: "希腊的一族酱汁与汤：蛋黄与柠檬汁打进高汤，加热收稠；名字直译就是「蛋－柠檬」。",
     ja: "卵黄とレモン汁をだしで泡立て、温めてとろみをつけるギリシャのソースとスープの一族。名はそのまま「卵とレモン」。",
     es: "Familia griega de salsas y sopas de yema y zumo de limón batidas con caldo y calentadas para espesar; su nombre significa «huevo-limón».",
+    ko: "달걀노른자와 레몬즙을 육수와 함께 저어 데워 걸쭉하게 만든 그리스의 소스이자 수프 계열로, 이름 그대로 '달걀 레몬'이라는 뜻입니다.",
   },
   "greek::baklava greek": {
     id: "Pastri manis dari lapisan filo, cincangan kacang, dan sirop madu; berakar pada dapur Bizantium dan Utsmaniyah.",
@@ -5160,6 +5820,7 @@ module.exports = {
     zh: "层层酥皮夹碎坚果、浇蜂蜜糖浆的甜点；根在拜占庭与奥斯曼的厨房。",
     ja: "フィロの層に刻んだ木の実を挟み、蜂蜜のシロップをかけた菓子。ビザンツとオスマンの厨房に根があります。",
     es: "Dulce de capas de filo, frutos secos picados y almíbar de miel; enraizado en las cocinas bizantina y otomana.",
+    ko: "필로와 다진 견과를 켜켜이 쌓아 꿀 시럽을 부은 과자로, 비잔틴과 오스만의 주방에 뿌리를 둡니다.",
   },
   "greek::dolmades": {
     id: "Daun anggur Yunani digulung berisi nasi, herba, dan kerap domba, direbus dalam kuah lemon; nama dari kata Turki dolmak, mengisi.",
@@ -5168,6 +5829,7 @@ module.exports = {
     zh: "希腊的酿葡萄叶：叶子卷起米饭、香草，常加羊肉，在柠檬汤里煨；名字来自突厥语的 dolmak，「填满」。",
     ja: "ぶどうの葉で米、香草、しばしば羊肉を巻き、レモンのだしで煮るギリシャの料理。名はチュルク語の dolmak「詰める」から。",
     es: "Hojas de parra griegas enrolladas con arroz, hierbas y a menudo cordero, guisadas en caldo de limón; del turco dolmak, «llenar».",
+    ko: "포도잎에 쌀과 허브, 흔히 양고기를 말아 레몬 국물에 끓인 그리스 요리로, 이름은 '채우다'라는 튀르크어 돌마크에서 왔습니다.",
   },
   "greek::feta cheese": {
     id: "Keju putih Yunani yang diawetkan dalam air garam, dari susu domba dengan tambahan susu kambing hingga tiga puluh persen.",
@@ -5176,6 +5838,7 @@ module.exports = {
     zh: "希腊的盐水白奶酪：以绵羊奶为主，可掺至多三成的山羊奶。",
     ja: "羊乳から作るギリシャの白い塩水漬けチーズ。山羊乳を三割まで混ぜられます。",
     es: "Queso blanco griego en salmuera de leche de oveja, con hasta un treinta por ciento de leche de cabra.",
+    ko: "양젖에 염소젖을 30퍼센트까지 섞어 소금물에 담가 숙성시킨 그리스의 흰 치즈입니다.",
   },
   "greek::galaktoboureko": {
     id: "Hidangan penutup Yunani: custard semolina dipanggang di antara lapisan filo bermentega, lalu direndam sirop dingin beraroma jeruk.",
@@ -5184,6 +5847,7 @@ module.exports = {
     zh: "希腊的甜点：粗麦蛋奶糊夹在抹了黄油的酥皮里烤熟，再浇透放凉的柑橘糖浆。",
     ja: "セモリナのカスタードを、バターを塗ったフィロの層に挟んで焼き、冷ました柑橘のシロップを染み込ませたギリシャの菓子。",
     es: "Postre griego de natilla de sémola horneada entre capas de filo con mantequilla y luego empapada en almíbar frío de cítricos.",
+    ko: "세몰리나 커스터드를 버터 바른 필로 사이에 넣어 구운 뒤 식힌 감귤 향 시럽에 적신 그리스 디저트입니다.",
   },
   "greek::greek coffee": {
     id: "Kopi pekat tanpa saring dari biji yang digiling sangat halus, direbus perlahan dalam kendi briki.",
@@ -5192,6 +5856,7 @@ module.exports = {
     zh: "希腊的浓咖啡：豆子磨得极细，在小铜壶 briki 里慢慢煮，不过滤。",
     ja: "きわめて細かく挽いた豆を、ブリキという小鍋で静かに煮出す、濾さない濃いコーヒー。",
     es: "Café fuerte y sin filtrar de granos molidos muy finos, cocido lentamente en un briki.",
+    ko: "곱게 간 원두를 브리키 주전자에 끓여 거르지 않고 내는 진한 커피입니다.",
   },
   "greek::greek octopus": {
     id: "Gurita, kerap dipanggang di atas arang, adalah meze laut yang paling khas Yunani; disajikan di taverna tepi laut bersama ouzo.",
@@ -5200,6 +5865,7 @@ module.exports = {
     zh: "章鱼多半上炭火烤，是最见希腊本色的海鲜前菜；海边小馆里配茴香酒 ouzo 吃。",
     ja: "多くは炭火で焼く蛸は、ギリシャらしさの極みといえる海のメゼ。海辺のタベルナでウーゾとともに供されます。",
     es: "El pulpo, a menudo a la brasa, es el meze marino más griego; se sirve en tabernas junto al mar acompañado de ouzo.",
+    ko: "흔히 숯불에 구운 문어는 그리스를 대표하는 해산물 메제로, 바닷가 선술집에서 우조와 함께 냅니다.",
   },
   "greek::greek yogurt with honey": {
     id: "Yogurt Yunani saring yang kental, disiram madu dan menurut tradisi ditaburi kenari.",
@@ -5208,6 +5874,7 @@ module.exports = {
     zh: "希腊的浓稠滤乳：淋上蜂蜜，照传统再撒核桃。",
     ja: "水切りした濃厚なギリシャヨーグルトに蜂蜜をかけ、伝統では胡桃を散らします。",
     es: "Yogur griego espeso y colado regado con miel y coronado, por tradición, con nueces.",
+    ko: "물기를 뺀 되직한 그리스 요구르트에 꿀을 뿌린 것으로, 전통적으로 호두를 올립니다.",
   },
   "greek::gyros": {
     id: "Hidangan Yunani berisi daging, biasanya babi atau ayam, dipanggang di tusuk putar; disajikan dalam pita dengan tomat, bawang, dan tzatziki.",
@@ -5216,6 +5883,7 @@ module.exports = {
     zh: "希腊的旋转烤肉：肉（多半是猪肉或鸡肉）架在立式转叉上烤，削下来夹进皮塔饼，配番茄、洋葱与酸奶黄瓜酱。",
     ja: "肉、多くは豚か鶏を回転する串で焼くギリシャの料理。ピタに包み、トマト、玉ねぎ、ザジキを添えます。",
     es: "Plato griego de carne, normalmente cerdo o pollo, asada en espetón vertical y servida en pita con tomate, cebolla y tzatziki.",
+    ko: "대개 돼지고기나 닭고기를 회전 꼬치에 구워 토마토와 양파, 차치키와 함께 피타에 싼 그리스 요리입니다.",
   },
   "greek::halloumi greek style": {
     id: "Keju Siprus setengah keras dalam air garam, menurut tradisi dari susu domba dan kambing, walau resep PDO Uni Eropa juga membolehkan sapi.",
@@ -5224,6 +5892,7 @@ module.exports = {
     zh: "塞浦路斯的半硬质盐水奶酪，传统上以绵羊奶与山羊奶制成，不过欧盟PDO配方也允许使用牛奶。",
     ja: "キプロスの塩水漬けの半硬質チーズ。伝統的には羊と山羊の乳で作るが、EUのPDOの製法は牛乳も認めている。",
     es: "Queso chipriota semiduro en salmuera, tradicionalmente de leche de oveja y cabra, aunque la DOP europea permite también la de vaca.",
+    ko: "전통적으로 양과 염소젖으로 만드는 키프로스의 반경질 염장 치즈로, 유럽연합 원산지 규정은 소젖도 허용합니다.",
   },
   "greek::horiatiki salad": {
     id: "\"Salad desa\" Yunani berisi tomat, mentimun, bawang bombai, zaitun, dan sebongkah feta; merakyat pada pertengahan abad ke-20.",
@@ -5232,6 +5901,7 @@ module.exports = {
     zh: "希腊的「乡村沙拉」：番茄、黄瓜、洋葱、橄榄，再压一大块羊奶酪；二十世纪中叶流行开来，本是为绕过价格管制。",
     ja: "ギリシャの「村のサラダ」。トマト、きゅうり、玉ねぎ、オリーブに、フェタを塊のままのせます。二十世紀半ば、価格統制をかわすために広まりました。",
     es: "«Ensalada del pueblo» griega de tomate, pepino, cebolla, aceitunas y un bloque de feta; se difundió a mediados del XX para sortear precios.",
+    ko: "토마토와 오이, 양파, 올리브에 페타를 통째로 올린 그리스의 '시골 샐러드'로, 20세기 중반 가격 통제를 피하려다 널리 퍼졌습니다.",
   },
   "greek::hummus greek style": {
     id: "Pure buncis, tahini, lemon, dan minyak zaitun yang berasal dari Levant; dalam beberapa dasawarsa terakhir masuk ke meze Yunani.",
@@ -5240,6 +5910,7 @@ module.exports = {
     zh: "鹰嘴豆、芝麻酱、柠檬与橄榄油打成的泥，本出自黎凡特；近几十年才进了希腊的前菜。",
     ja: "ひよこ豆、タヒニ、レモン、オリーブ油のピュレ。レヴァントに発し、ここ数十年でギリシャのメゼに入りました。",
     es: "Puré de garbanzo, tahini, limón y aceite de oliva de origen levantino, incorporado al meze griego en las últimas décadas.",
+    ko: "병아리콩과 타히니, 레몬, 올리브유를 간 레반트의 음식으로, 최근 수십 년 사이 그리스 메제에도 자리 잡았습니다.",
   },
   "greek::kleftiko": {
     id: "Domba Yunani yang dipanggang perlahan dalam lubang tertutup; dinamai kaum klepht yang menyembunyikan \"daging curian\" dari Utsmaniyah.",
@@ -5248,6 +5919,7 @@ module.exports = {
     zh: "希腊的慢烤羊肉：封在土坑里焖熟；名字取自 klepht 游击者，他们把「偷来的肉」藏着不让奥斯曼人发现。",
     ja: "穴に封じてじっくり焼くギリシャの羊肉。オスマンの支配者から「盗んだ肉」を隠したクレフティスにちなむ名です。",
     es: "Cordero griego asado despacio y sellado en un hoyo; por los kleftes, que escondían la «carne robada» de los gobernantes otomanos.",
+    ko: "구덩이에 밀봉해 천천히 구운 그리스식 양고기로, 오스만 지배자에게서 '훔친 고기'를 숨겨 익히던 클레프트에게서 이름을 땄습니다.",
   },
   "greek::loukoumades": {
     id: "Bola adonan goreng Yunani yang direndam sirop madu dan kayu manis; salah satu pencuci mulut tertua, dulu untuk juara Olimpiade.",
@@ -5256,6 +5928,7 @@ module.exports = {
     zh: "希腊的炸面球：泡蜂蜜糖浆、撒肉桂；这是有记载的最古老甜点之一，古时用来款待奥林匹亚的优胜者。",
     ja: "蜂蜜のシロップとシナモンに浸したギリシャの揚げ団子。記録に残る最古の菓子のひとつで、古代五輪の勝者に供されました。",
     es: "Buñuelos griegos fritos empapados en almíbar de miel y canela; de los postres más antiguos registrados, se daban a los vencedores olímpicos.",
+    ko: "꿀 시럽과 계피에 적신 그리스의 튀긴 반죽 경단으로, 가장 오래 기록된 디저트에 들며 고대 올림픽 승자에게 바쳤습니다.",
   },
   "greek::moussaka": {
     id: "Panggangan Yunani berlapis terung, daging cincang berempah, dan bechamel.",
@@ -5264,6 +5937,7 @@ module.exports = {
     zh: "希腊的焗菜：茄子、香料肉糜与白酱层层相叠入炉。",
     ja: "茄子、香辛料入りの挽肉、ベシャメルを重ねて焼くギリシャのグラタン。",
     es: "Gratén griego de capas de berenjena, carne picada especiada y bechamel.",
+    ko: "가지와 향신 다진 고기, 베샤멜을 켜켜이 쌓아 구운 그리스식 오븐 요리입니다.",
   },
   "greek::ouzo": {
     id: "Aperitif kering beraroma adas manis dari Yunani dan Siprus, disuling dari alkohol rektifikasi; dilindungi Uni Eropa sejak 2006.",
@@ -5272,6 +5946,7 @@ module.exports = {
     zh: "希腊与塞浦路斯的干型茴香开胃酒，用精馏酒精蒸馏而成；自二〇〇六年起受欧盟原产地名称保护。",
     ja: "ギリシャとキプロスの辛口のアニス風味の食前酒。精留アルコールから蒸留し、二〇〇六年からEUの原産地呼称保護を受けます。",
     es: "Aperitivo seco anisado de Grecia y Chipre, destilado de alcohol rectificado; con Denominación de Origen Protegida de la UE desde 2006.",
+    ko: "그리스와 키프로스의 아니스 향 식전주로, 정제 증류주로 빚으며 2006년부터 유럽연합 원산지 명칭 보호를 받습니다.",
   },
   "greek::pastitsio": {
     id: "Panggangan pasta Yunani berlapis pasta tabung, saus daging cincang berempah, dan bechamel.",
@@ -5280,6 +5955,7 @@ module.exports = {
     zh: "希腊的焗通心粉：管状面、香料肉酱与白酱层层相叠。",
     ja: "筒状のパスタ、香辛料入りの挽肉ソース、ベシャメルを重ねて焼くギリシャのグラタン。",
     es: "Gratén griego de pasta que alterna pasta tubular, salsa de carne picada especiada y bechamel.",
+    ko: "관 모양 파스타와 향신 다진 고기 소스, 베샤멜을 켜켜이 쌓아 구운 그리스 파스타 요리입니다.",
   },
   "greek::retsina": {
     id: "Anggur putih atau rose Yunani yang diberi damar pinus Aleppo; kebiasaan ini setua zaman kuno, ketika damar menyegel guci anggur.",
@@ -5288,6 +5964,7 @@ module.exports = {
     zh: "希腊的松脂酒：白葡萄酒或桃红酒里加阿勒颇松的树脂；这法子古已有之，当年树脂正是用来封酒瓮的。",
     ja: "アレッポマツの樹脂で香りづけしたギリシャの白またはロゼのワイン。樹脂で酒甕を封じた古代からの習わしです。",
     es: "Vino griego blanco o rosado resinado con resina de pino de Alepo; la práctica viene de la antigüedad, cuando sellaba las ánforas.",
+    ko: "알레포 소나무 수지로 향을 낸 그리스의 화이트와인이나 로제로, 수지로 와인 항아리를 봉하던 고대에서 이어진 방식입니다.",
   },
   "greek::saganaki": {
     id: "Pembuka Yunani berupa keju keras yang dibalur tepung lalu digoreng; dinamai dari wajan kecil bergagang dua, sagani, tempatnya dimasak.",
@@ -5296,6 +5973,7 @@ module.exports = {
     zh: "希腊的开胃菜：硬质奶酪裹面粉下平锅煎；名字取自那口两耳的小煎锅 sagani。",
     ja: "硬質チーズに粉をまぶしてフライパンで焼くギリシャの前菜。両手のついた小鍋サガーニにちなむ名です。",
     es: "Entrante griego de queso firme enharinado y frito a la sartén; su nombre viene del sartencito de dos asas (sagani) en que se cocina.",
+    ko: "단단한 치즈에 밀가루를 묻혀 팬에 지진 그리스식 전채로, 조리에 쓰는 손잡이 두 개짜리 작은 팬 사가니에서 이름을 땄습니다.",
   },
   "greek::souvlaki": {
     id: "Hidangan Yunani berupa potongan kecil daging yang dipanggang di tusuk sate, disajikan di atas atau di dalam pita; nama dari souvla, tusuk.",
@@ -5304,6 +5982,7 @@ module.exports = {
     zh: "希腊的烤肉串：小块肉串起来炙烤，盛在皮塔饼上或夹在饼里；名字出自中古希腊语的 souvla，「叉子」。",
     ja: "小さく切った肉を串で焼き、ピタにのせるか挟むギリシャの料理。名は中世ギリシャ語の souvla「串」から。",
     es: "Plato griego de trozos pequeños de carne a la brocheta servidos sobre o dentro de pan de pita; del griego medieval souvla, «asador».",
+    ko: "작게 썬 고기를 꼬치에 구워 피타에 올리거나 싸서 내는 그리스 요리로, 이름은 꼬챙이를 뜻하는 중세 그리스어 수블라에서 왔습니다.",
   },
   "greek::spanakopita": {
     id: "Pai gurih Yunani berisi bayam dan keju feta di antara lapisan filo; namanya menggabungkan spanaki, bayam, dan pita, pai.",
@@ -5312,6 +5991,7 @@ module.exports = {
     zh: "希腊的咸味派：菠菜与羊奶酪夹在层层酥皮之间；名字由 spanaki（菠菜）与 pita（派）合成。",
     ja: "ほうれん草とフェタをフィロの層に挟んで焼くギリシャの塩味のパイ。名はスパナキ（ほうれん草）とピタ（パイ）から。",
     es: "Empanada salada griega de espinaca y feta entre capas de filo; el nombre une spanaki (espinaca) y pita (empanada).",
+    ko: "시금치와 페타를 필로 반죽에 켜켜이 넣어 구운 그리스의 짭조름한 파이로, 이름은 '시금치'와 '파이'를 합친 것입니다.",
   },
   "greek::stifado": {
     id: "Semur Yunani yang dimasak lama dari kelinci atau sapi dengan bawang bombai kecil dalam anggur merah dan rempah; asalnya Venesia.",
@@ -5320,6 +6000,7 @@ module.exports = {
     zh: "希腊的慢炖：肉（照传统用兔肉或牛肉）与小洋葱在红酒与香料里久煨；源头在威尼斯。",
     ja: "肉（伝統では兎か牛）と小玉ねぎを赤ワインと香辛料で長く煮込むギリシャの料理。ヴェネツィアに発します。",
     es: "Guiso griego de cocción lenta de carne, tradicionalmente conejo o ternera, con cebollitas en vino tinto y especias; de origen veneciano.",
+    ko: "고기(전통적으로 토끼나 소)와 작은 양파를 레드와인과 향신료에 오래 끓인 그리스 스튜로, 베네치아에서 왔습니다.",
   },
   "greek::taramasalata": {
     id: "Meze Yunani dari telur ikan asin, tarama, dikocok bersama roti atau kentang, minyak zaitun, dan lemon; tradisi masa Prapaskah.",
@@ -5328,6 +6009,7 @@ module.exports = {
     zh: "希腊的前菜：盐渍鱼子 tarama 与面包或土豆、橄榄油、柠檬一同打发；是四旬斋的传统吃食。",
     ja: "塩漬けの魚卵タラマを、パンかじゃがいも、オリーブ油、レモンとともに攪拌したギリシャのメゼ。四旬節の伝統の一品です。",
     es: "Meze griego de huevas de pescado saladas (tarama) batidas con pan o patata, aceite de oliva y limón; tradicional de Cuaresma.",
+    ko: "소금에 절인 생선알(타라마)을 빵이나 감자, 올리브유, 레몬과 함께 휘저은 그리스 메제로, 사순절의 전통 음식입니다.",
   },
   "greek::tiropita": {
     id: "Pastri Yunani dari lapisan filo bermentega berisi campuran keju dan telur; para sarjana menelusurinya ke kue placenta kuno, plakous.",
@@ -5336,6 +6018,7 @@ module.exports = {
     zh: "希腊的酥皮点心：抹了黄油的层层酥皮里包奶酪与蛋液；学者把它追到古代的 placenta 饼（plakous）。",
     ja: "バターを塗ったフィロの層にチーズと卵を包むギリシャの菓子。研究者は古代の placenta 菓子プラクースに遡らせます。",
     es: "Hojaldre griego de capas de filo con mantequilla relleno de queso y huevo; los estudiosos lo remontan al antiguo placenta (plakous).",
+    ko: "버터를 바른 필로에 치즈와 달걀 소를 넣어 구운 그리스 페이스트리로, 학자들은 고대의 플라쿠스 과자까지 거슬러 봅니다.",
   },
   "greek::tzatziki": {
     id: "Cocolan Yunani dari yogurt saring, mentimun, dan bawang putih; saduran dari cacik Turki Utsmaniyah.",
@@ -5344,6 +6027,7 @@ module.exports = {
     zh: "希腊的酸奶蘸酱：滤过的酸奶拌黄瓜与蒜；改自奥斯曼土耳其的 cacık。",
     ja: "水切りヨーグルト、きゅうり、にんにくのギリシャのディップ。オスマン・トルコのジャジュクを翻案したものです。",
     es: "Salsa griega de yogur colado, pepino y ajo; adaptada del cacık turco otomano.",
+    ko: "물기를 뺀 요구르트에 오이와 마늘을 섞은 그리스의 딥으로, 오스만 튀르키예의 자즉에서 왔습니다.",
   },
   "gujarati::basundi": {
     id: "Hidangan penutup dari susu yang direbus perlahan hingga tinggal separuh, dibumbui kapulaga dan safron; dibuat saat perayaan Bhai Dooj.",
@@ -5352,6 +6036,7 @@ module.exports = {
     zh: "甜奶羹：牛奶慢火熬到只剩一半，加豆蔻与藏红花调香；兄妹节这类节庆时做。",
     ja: "牛乳を半分になるまで煮詰め、カルダモンとサフランで香りづけした甘味。バイ・ドゥージなどの祝いに作ります。",
     es: "Postre dulce de leche hervida despacio hasta reducirse a la mitad, con cardamomo y azafrán; se hace en fiestas como el Bhai Dooj.",
+    ko: "우유를 절반으로 졸여 카르다몸과 사프란으로 향을 낸 디저트로, 바이 두즈 같은 축제에 만듭니다.",
   },
   "gujarati::bhakri": {
     id: "Roti pipih bundar Gujarat yang bersahaja dan tanpa ragi, dari tepung gandum, sorgum, atau bajra, dengan lapisan luar yang renyah.",
@@ -5360,6 +6045,7 @@ module.exports = {
     zh: "古吉拉特的粗朴无酵圆饼：小麦、高粱或珍珠粟粉揉成，外层烙得酥脆。",
     ja: "小麦、ソルガム、トウジンビエの粉で作るグジャラートの素朴な発酵なしの丸い薄焼き。外側はぱりっとしています。",
     es: "Pan plano redondo y rústico de Guyarat sin levadura, de harina de trigo, sorgo o mijo perla, con una capa exterior crujiente.",
+    ko: "밀이나 수수, 기장 가루로 만든 구자라트의 소박한 둥근 무발효 플랫브레드로, 겉이 바삭합니다.",
   },
   "gujarati::dal dhokli": {
     id: "Santapan penghibur satu belanga dari Gujarat dan Rajasthan: potongan adonan gandum berbentuk wajik direbus dalam toor dal yang asam manis.",
@@ -5368,6 +6054,7 @@ module.exports = {
     zh: "古吉拉特与拉贾斯坦的一锅抚慰餐：菱形的麦面片在酸甜的木豆糊里煮软。",
     ja: "グジャラートとラージャスターンの一鍋の慰めの料理。菱形に切った小麦の生地を、甘酸っぱいトゥールダールで煮ます。",
     es: "Plato reconfortante de una olla de Guyarat y Rajastán: rombos de masa de trigo cocidos en un toor dal agridulce.",
+    ko: "마름모로 썬 밀가루 반죽(도클리)을 새콤달콤한 투르 달에 끓인 구자라트와 라자스탄의 한 냄비 위안 음식입니다.",
   },
   "gujarati::dhokla": {
     id: "Bolu gurih kukus khas Gujarat dari adonan beras dan buncis yang difermentasi; pendahulunya \"dukkia\" muncul dalam teks Jain tahun 1066.",
@@ -5376,6 +6063,7 @@ module.exports = {
     zh: "古吉拉特的咸味蒸糕：米与鹰嘴豆糊发酵后蒸成；一〇六六年的耆那教文献里就有它的前身 dukkia。",
     ja: "発酵させた米とひよこ豆の生地を蒸すグジャラートの塩味の菓子。一〇六六年のジャイナ教文献に前身「ドゥッキア」が見えます。",
     es: "Bizcocho salado al vapor de Guyarat de masa fermentada de arroz y garbanzo; un precursor, «dukkia», aparece en un texto jainista de 1066.",
+    ko: "발효한 쌀과 병아리콩 반죽을 쪄낸 구자라트의 짭조름한 스펀지로, 1066년 자이나교 문헌에 그 선조인 '두키아'가 나옵니다.",
   },
   "gujarati::dudhi muthia": {
     id: "Pangsit kukus Gujarat dari parutan labu botol yang diikat tepung buncis dan terigu; namanya dari kata muthi, yang berarti kepalan.",
@@ -5384,6 +6072,7 @@ module.exports = {
     zh: "古吉拉特的蒸团子：葫芦瓜刨丝，用鹰嘴豆粉与面粉黏合；名字出自 muthi，也就是「拳头」。",
     ja: "すりおろしたひょうたんを、ひよこ豆粉と小麦粉でまとめて蒸すグジャラートの団子。名は「ムティ（拳）」に由来します。",
     es: "Albóndigas guyaratíes al vapor de calabaza botella rallada ligada con harina de garbanzo y trigo; su nombre viene de muthi, «puño».",
+    ko: "간 조롱박을 병아리콩 가루와 밀가루로 뭉쳐 쪄낸 구자라트의 경단으로, '주먹'을 뜻하는 무티에서 이름을 땄습니다.",
   },
   "gujarati::fafda": {
     id: "Camilan Gujarat yang renyah: potongan tepung buncis yang digoreng rendam; kerap disantap bersama jalebi, terutama saat Dussehra.",
@@ -5392,6 +6081,7 @@ module.exports = {
     zh: "Fafda 是古吉拉特的酥脆小食：鹰嘴豆粉切条下油锅炸；常与 jalebi 同吃，十胜节尤其如此。",
     ja: "ファフダは、ひよこ豆粉を細長く揚げたグジャラートのカリカリした軽食。ジャレビと一緒に、とくにダシャラーの日に食べます。",
     es: "El fafda es un aperitivo guyaratí crujiente de tiras de harina de garbanzo fritas; suele comerse con jalebi, sobre todo en Dussehra.",
+    ko: "병아리콩 가루(베산)를 길쭉하게 튀긴 바삭한 구자라트 간식으로, 흔히 잘레비와 함께 특히 두세라에 먹습니다.",
   },
   "gujarati::gujarati thali": {
     id: "Piring nabati dari Gujarat, India, menyajikan shaak, dal, kadhi, nasi, rotli, farsan, dan manisan sekaligus; \"thali\" berarti piring.",
@@ -5400,6 +6090,7 @@ module.exports = {
     zh: "印度古吉拉特的素食拼盘：菜、豆糊、酸奶咖喱、米饭、薄饼、小食与甜点一并上桌；「thali」就是「盘子」。",
     ja: "インド、グジャラートの菜食の盆。シャーク、ダール、カディ、ご飯、ロトリ、ファルサン、甘味を一度に。「ターリー」は皿の意。",
     es: "Bandeja vegetariana de Guyarat, India, con shaak, dal, kadhi, arroz, rotli, farsan y dulces a la vez; «thali» significa «plato».",
+    ko: "인도 구자라트의 채식 상차림으로, 샤크와 달, 카디, 밥, 로틀리, 파르산, 과자를 함께 내며 '탈리'는 접시를 뜻합니다.",
   },
   "gujarati::handvo": {
     id: "Kue gurih Gujarat dari adonan beras dan lentil yang difermentasi, dicampur sayuran seperti labu botol, lalu dipanggang hingga renyah.",
@@ -5408,6 +6099,7 @@ module.exports = {
     zh: "古吉拉特的咸味烤糕：发酵的米豆糊拌进葫芦瓜等蔬菜，烤到表面酥脆。",
     ja: "発酵させた米と豆の生地に、ひょうたんなどの野菜を混ぜて香ばしく焼くグジャラートの塩味の菓子。",
     es: "Pastel salado guyaratí de masa fermentada de arroz y lenteja con verduras como la calabaza botella, horneado hasta quedar crujiente.",
+    ko: "발효한 쌀과 렌즈콩 반죽에 조롱박 같은 채소를 섞어 겉이 바삭하도록 구운 구자라트의 짭조름한 케이크입니다.",
   },
   "gujarati::jalebi gujarati": {
     id: "Manisan adonan berbentuk lingkaran, digoreng lalu direndam sirop gula; di Gujarat menurut tradisi dipasangkan dengan fafda saat Dussehra.",
@@ -5416,6 +6108,7 @@ module.exports = {
     zh: "炸成圈状再泡糖浆的甜点；在古吉拉特，照传统要与 fafda 配着，在十胜节吃。",
     ja: "渦巻き状に揚げて砂糖のシロップに浸した菓子。グジャラートでは伝統的にファフダと組み、ダシャラーに食べます。",
     es: "Dulce de masa frita en espiral empapado en almíbar; en Guyarat se toma por tradición con fafda el día de Dussehra.",
+    ko: "반죽을 소용돌이 모양으로 튀겨 설탕 시럽에 적신 과자로, 구자라트에서는 전통적으로 파프다와 함께 두세라에 먹습니다.",
   },
   "gujarati::kachori": {
     id: "Pastri goreng berlapis, diisi moong dal atau kacang polong berbumbu; berasal dari Marwar di Rajasthan, digemari di seluruh Gujarat.",
@@ -5424,6 +6117,7 @@ module.exports = {
     zh: "酥皮炸饼：里头填香料绿豆瓣或豌豆；源自拉贾斯坦的马尔瓦地区，古吉拉特处处爱吃。",
     ja: "香辛料入りの緑豆やえんどうを詰めた、層のある揚げ菓子。ラージャスターンのマールワール発で、グジャラート中で親しまれます。",
     es: "Empanadilla frita y hojaldrada rellena de moong dal o guisantes especiados; nació en el Marwar rajastaní y gusta en todo Guyarat.",
+    ko: "향신 무성 달이나 완두를 채워 튀긴 겹겹의 페이스트리로, 라자스탄 마르와르에서 비롯돼 구자라트 전역에서 사랑받습니다.",
   },
   "gujarati::kadhi gujarati": {
     id: "Kari yogurt dan tepung buncis dari India barat; yang Gujarat khas manis oleh gula aren atau gula, disajikan dengan khichdi atau nasi.",
@@ -5432,6 +6126,7 @@ module.exports = {
     zh: "印度西部的酸奶鹰嘴豆粉咖喱；古吉拉特的做法特意用棕榈糖调甜，配 khichdi 或米饭。",
     ja: "西インドのヨーグルトとひよこ豆粉のカレー。グジャラート版はジャグリーで甘みをつけ、キチュリやご飯に添えます。",
     es: "Curry de yogur y harina de garbanzo del oeste de la India; el guyaratí se endulza con panela y se sirve con khichdi o arroz.",
+    ko: "요구르트와 병아리콩 가루로 만든 서인도 구자라트의 커리로, 재거리나 설탕으로 달게 내며 키치디나 밥과 함께 냅니다.",
   },
   "gujarati::khaman": {
     id: "Camilan kukus Gujarat yang lembut dan berongga dari chana dal giling atau tepung buncis; kerap ditumis bumbu, manis asam yang ringan.",
@@ -5440,6 +6135,7 @@ module.exports = {
     zh: "古吉拉特的松软蒸糕：鹰嘴豆瓣磨粉蒸成，孔隙细密；常浇爆香的调料，微甜带酸。",
     ja: "挽いたチャナダールかひよこ豆粉で作る、グジャラートのふんわりした蒸し菓子。香りを立てた油を回しかけ、ほのかに甘酸っぱい。",
     es: "Aperitivo guyaratí al vapor, blando y esponjoso, de chana dal molido o harina de garbanzo; suele llevar sofrito y es dulce-ácido suave.",
+    ko: "간 차나 달이나 병아리콩 가루로 쪄낸 부드럽고 폭신한 구자라트 간식(파르산)으로, 흔히 향신료를 지져 올려 달콤새콤합니다.",
   },
   "gujarati::khandvi": {
     id: "Camilan Gujarat yang lembut dan digulung, dari adonan tepung buncis dan susu mentega, dibumbui biji sawi dan daun kari.",
@@ -5448,6 +6144,7 @@ module.exports = {
     zh: "古吉拉特的软卷小食：鹰嘴豆粉与酪乳调糊摊薄卷起，浇爆香的芥末籽与咖喱叶。",
     ja: "ひよこ豆粉とバターミルクの生地を薄く伸ばして巻いたグジャラートのやわらかい軽食。マスタードシードとカレーリーフで香りづけ。",
     es: "Aperitivo guyaratí blando y enrollado de masa de harina de garbanzo y suero, sofrito con mostaza en grano y hojas de curry.",
+    ko: "병아리콩 가루(베산)와 버터밀크 반죽을 얇게 펴 말아 겨자씨와 커리잎을 지져 올린 부드러운 구자라트 간식입니다.",
   },
   "gujarati::khichdi": {
     id: "Hidangan satu belanga dari beras dan lentil, dimasak dengan ghee dan rempah; versi Gujarat lebih ringan dan lebih menyerupai bubur.",
@@ -5456,6 +6153,7 @@ module.exports = {
     zh: "一锅煮的软饭：米与扁豆同炖，加酥油与香料；古吉拉特的做法更清淡，也更近于粥。",
     ja: "米と豆をギーと香辛料で炊く、やわらかな一鍋料理。グジャラート版は味が穏やかで、より粥に近い仕立てです。",
     es: "Plato blando de una olla con arroz y lentejas cocidos con ghee y especias; la versión guyaratí es más suave y más parecida a unas gachas.",
+    ko: "쌀과 렌즈콩을 기와 향신료에 끓인 부드러운 한 냄비 요리로, 구자라트식은 더 순하고 죽에 가깝습니다.",
   },
   "gujarati::lapsi": {
     id: "Manisan Gujarat dari gandum pecah yang disangrai lalu dimasak dalam ghee bersama gula aren dan kapulaga; disajikan pada saat yang baik.",
@@ -5464,6 +6162,7 @@ module.exports = {
     zh: "古吉拉特的甜点：碎小麦先焙香，再用酥油与棕榈糖、豆蔻同煮；逢吉庆的日子才做。",
     ja: "煎った挽き割り小麦を、ギーとジャグリー、カルダモンで炊くグジャラートの甘味。めでたい日に供されます。",
     es: "Dulce guyaratí de trigo partido tostado cocido en ghee con panela o azúcar y cardamomo; se sirve en ocasiones auspiciosas.",
+    ko: "볶은 밀 부스러기(파다)를 기에 재거리나 설탕, 카르다몸과 함께 익힌 구자라트의 과자로, 길한 자리에 냅니다.",
   },
   "gujarati::mohanthal": {
     id: "Fudge padat Gujarat atau Rajasthan dari tepung buncis, ghee, dan gula; kerap dipersembahkan sebagai prasad saat Diwali dan Janmashtami.",
@@ -5472,6 +6171,7 @@ module.exports = {
     zh: "古吉拉特与拉贾斯坦的紧实糖砖：鹰嘴豆粉、酥油与糖熬成；排灯节与黑天诞辰常作供品。",
     ja: "ひよこ豆粉、ギー、砂糖で作るグジャラート・ラージャスターンの密な甘味。ディワリやジャンマーシュタミーに供物として捧げられます。",
     es: "Dulce denso guyaratí y rajastaní de harina de garbanzo, ghee y azúcar; se ofrece como prasad en Diwali y Janmashtami.",
+    ko: "병아리콩 가루와 기, 설탕으로 만든 조밀한 구자라트·라자스탄의 과자로, 디왈리와 잔마슈타미에 공양물로 올립니다.",
   },
   "gujarati::patra": {
     id: "Farsan Gujarat: daun talas diolesi pasta tepung buncis berbumbu, digulung, dikukus, diiris, lalu ditumis bumbu atau digoreng.",
@@ -5480,6 +6180,7 @@ module.exports = {
     zh: "古吉拉特的小食：芋叶抹上香料鹰嘴豆糊，卷起蒸熟，切片后再爆香或油炸。",
     ja: "グジャラートのファルサン。里芋の葉に香辛料入りのひよこ豆粉のペーストを塗って巻き、蒸して切り、炒めるか揚げます。",
     es: "Farsan guyaratí de hojas de colocasia untadas con pasta especiada de harina de garbanzo, enrolladas, al vapor, cortadas y salteadas.",
+    ko: "토란잎에 향신 병아리콩 반죽을 발라 말아 쪄서 썬 뒤 향신료를 지져 올리거나 튀긴 구자라트의 파르산입니다.",
   },
   "gujarati::sev tameta nu shaak": {
     id: "Kari tomat Gujarat yang manis dan asam, ditutup sev tepung buncis yang renyah; berasal dari kawasan Kathiawad atau Saurashtra.",
@@ -5488,6 +6189,7 @@ module.exports = {
     zh: "古吉拉特的酸甜番茄咖喱：面上撒酥脆的鹰嘴豆粉细丝 sev；出自卡提阿瓦（索拉什特拉）地区。",
     ja: "グジャラートの甘酸っぱいトマトのカレー。カリカリのひよこ豆粉の細麺セヴをのせます。カティアワード（サウラーシュトラ）地方の出。",
     es: "Curry guyaratí de tomate agridulce coronado con sev crujiente de harina de garbanzo; originario de la región de Kathiawad (Saurashtra).",
+    ko: "바삭한 병아리콩 가루 세브를 올린 구자라트의 달콤새콤한 토마토 커리로, 카티아와드(사우라슈트라) 지방에서 비롯됐습니다.",
   },
   "gujarati::shrikhand": {
     id: "Pencuci mulut Gujarat dan Maharashtra dari yogurt tiris manis beraroma kapulaga dan safron, disantap dengan puri saat perayaan.",
@@ -5496,6 +6198,7 @@ module.exports = {
     zh: "古吉拉特与马拉地的甜点：滤去乳清的酸奶加糖，以豆蔻、藏红花调味，节庆时配炸饼吃。",
     ja: "グジャラートやマラーティーの甘味。水切りヨーグルトに砂糖とカルダモン、サフランを加え、祭りには揚げパンと。",
     es: "Postre de Guyarat y Maharashtra de yogur escurrido, endulzado y aromatizado con cardamomo y azafrán, que se toma con puri en fiestas.",
+    ko: "물기를 뺀 요구르트에 단맛을 내고 카르다몸과 사프란으로 향을 낸 구자라트와 마라티의 디저트로, 축제에 푸리와 함께 먹습니다.",
   },
   "gujarati::thepla": {
     id: "Roti pipih gandum utuh Gujarat yang lembut dan berbumbu, kerap dengan fenugreek; tahan berhari-hari, klasik untuk bekal perjalanan.",
@@ -5504,6 +6207,7 @@ module.exports = {
     zh: "古吉拉特的软身香料全麦薄饼，常掺葫芦巴叶；能放好几天，是出门带干粮的经典。",
     ja: "しっとりした全粒粉の香辛料入り薄焼き。フェヌグリークを混ぜることが多く、日持ちするので旅の携行食の定番です。",
     es: "Pan plano integral guyaratí, blando y especiado, a menudo con fenogreco; se conserva días y es clásico como comida de viaje.",
+    ko: "흔히 호로파(메티)를 넣어 만드는 구자라트의 부드러운 향신 통밀 플랫브레드로, 며칠을 두어도 상하지 않아 여행 음식으로 꼽힙니다.",
   },
   "gujarati::undhiyu": {
     id: "Panggangan sayur campur Gujarat dari Surat; namanya dari kata \"undhu\", yang berarti terbalik.",
@@ -5512,6 +6216,7 @@ module.exports = {
     zh: "苏拉特的古吉拉特杂菜煲；名字出自「undhu」，意思是「倒着的」。",
     ja: "スーラト発、グジャラートの野菜の蒸し焼き。名は「ウンドゥ（逆さま）」から。",
     es: "Cazuela guyaratí de verduras variadas, de Surat; su nombre viene de «undhu», «boca abajo».",
+    ko: "수라트에서 온 구자라트의 모둠 채소 요리로, '거꾸로'를 뜻하는 '운두'에서 이름을 땄습니다.",
   },
   "hainanese::coconut chicken (hainan style)": {
     id: "Hot pot Hainan: ayam Wenchang dimasak dalam air kelapa muda segar, yang menjadi sebagian besar kuahnya yang bening dan lembut.",
@@ -5520,6 +6225,7 @@ module.exports = {
     zh: "海南的椰子鸡火锅：文昌鸡在新鲜嫩椰水里煮，那清淡的汤底几乎全是椰水。",
     ja: "海南の鍋。文昌鶏を若いココナッツの水で煮ます。澄んだ穏やかなスープのほとんどがその水です。",
     es: "Olla caliente hainanesa: pollo de Wenchang cocido en agua fresca de coco tierno, que constituye casi todo el caldo claro y suave.",
+    ko: "원창 닭을 어린 코코넛 워터에 끓이는 하이난식 전골로, 맑고 순한 국물의 대부분이 코코넛 워터입니다.",
   },
   "hainanese::hainan rice noodles": {
     id: "Bihun tebal yang disajikan pada suhu ruang bersama kacang tanah, acar sayur, suwiran daging, dan saus gurih yang kental.",
@@ -5528,6 +6234,7 @@ module.exports = {
     zh: "海南粗粉：米粉放至常温，配花生、酸菜、肉丝与浓稠的咸香卤汁。",
     ja: "太いビーフンを常温で供し、落花生、漬け野菜、裂いた肉、とろりとした塩味のたれを合わせます。",
     es: "Vermicelli de arroz grueso servido a temperatura ambiente con cacahuete, encurtidos, carne desmenuzada y una salsa espesa y sabrosa.",
+    ko: "굵은 쌀국수를 실온으로 내며 땅콩과 절인 채소, 채 썬 고기에 걸쭉하고 짭짤한 소스를 곁들입니다.",
   },
   "hainanese::hainanese chicken curry": {
     id: "Kari ayam yang lembut, unsur khas dalam nasi kari Hainan di Singapura.",
@@ -5536,6 +6243,7 @@ module.exports = {
     zh: "温和的咖喱鸡：新加坡海南咖喱饭里少不了的一样。",
     ja: "穏やかな味のチキンカレー。シンガポールの海南カレーライスに欠かせない一品です。",
     es: "Curry de pollo suave, componente característico del arroz al curry hainanés de Singapur.",
+    ko: "순한 커리 치킨으로, 싱가포르 하이난식 커리라이스를 이루는 대표 구성입니다.",
   },
   "hainanese::hainanese chicken rice": {
     id: "Ayam rebus dengan nasi wangi yang ditanak memakai kaldu; hidangan nasional tak resmi Singapura, turunan dari ayam Wenchang.",
@@ -5544,6 +6252,7 @@ module.exports = {
     zh: "白斩鸡配鸡汤煮的香饭；这是新加坡不成文的国菜，源头是文昌鸡。",
     ja: "ゆで鶏に、だしで炊いた香り高いご飯を添えた一皿。シンガポールの事実上の国民食で、文昌鶏から育ちました。",
     es: "Pollo escalfado con arroz aromático cocido en caldo; plato nacional oficioso de Singapur, evolucionado del pollo de Wenchang.",
+    ko: "데친 닭과 육수로 지은 향긋한 밥으로, 원창 닭에서 발전한 싱가포르의 사실상 국민 음식입니다.",
   },
   "hainanese::hainanese curry rice": {
     id: "Hidangan Singapura: nasi disiram kuah kari bersama kotelet babi, kari ayam, dan cap chai.",
@@ -5552,6 +6261,7 @@ module.exports = {
     zh: "新加坡的咖喱饭：白饭浇满咖喱汁，配炸猪排、咖喱鸡与杂菜。",
     ja: "シンガポールの料理。ご飯にカレー汁をたっぷりかけ、豚カツ、チキンカレー、雑菜を添えます。",
     es: "Plato singapurense: arroz bañado en salsa de curry con chuleta de cerdo, pollo al curry y chap chye.",
+    ko: "밥에 커리 소스를 듬뿍 끼얹고 포크찹과 커리 치킨, 찹채를 곁들이는 싱가포르 요리입니다.",
   },
   "hainanese::hainanese mutton soup": {
     id: "Sup herbal Hainan: daging kambing direbus perlahan bersama ramuan obat dan tahu fermentasi merah; menurut tradisi memakai kambing Dongshan.",
@@ -5560,6 +6270,7 @@ module.exports = {
     zh: "海南的药膳羊汤：山羊肉与药材、红腐乳同炖；照传统该用东山羊。",
     ja: "海南の薬膳スープ。ヤギ肉を生薬と紅腐乳でじっくり煮込みます。伝統では東山羊を使います。",
     es: "Sopa herbal hainanesa: cabra guisada largamente con hierbas medicinales y tofu fermentado rojo; tradicionalmente cabra de Dongshan.",
+    ko: "염소고기를 약재와 홍국 발효 두부에 오래 끓인 하이난식 약재 탕으로, 전통적으로 하이난 둥산 염소를 씁니다.",
   },
   "hainanese::hainanese pork chop": {
     id: "Iga babi berlapis tepung roti yang digoreng dalam kuah asam manis tomat, dibuat juru masak Hainan di Singapura dan Malaya ala Barat.",
@@ -5568,6 +6279,7 @@ module.exports = {
     zh: "裹面包糠炸的猪排，浇番茄酸甜汁；由海南厨师在殖民时期的新加坡与马来亚仿西餐做成。",
     ja: "パン粉をつけて揚げた豚肉に、トマトの甘酸っぱいソースをかけたもの。植民地期のマラヤで海南出身の料理人が洋食風に仕立てた。",
     es: "Chuleta de cerdo empanada y frita en salsa agridulce de tomate, creada por cocineros hainaneses en la Malaya colonial al estilo occidental.",
+    ko: "빵가루를 입혀 튀긴 돼지고기에 새콤달콤한 토마토 소스를 끼얹은 요리로, 식민지 시대 싱가포르와 말라야의 하이난 요리사들이 서양식으로 만들었습니다.",
   },
   "hainanese::hainanese yam rice": {
     id: "Nasi satu belanga khas Tionghoa Asia Tenggara, ditanak bersama potongan talas.",
@@ -5576,6 +6288,7 @@ module.exports = {
     zh: "南洋华人的一锅芋头饭：米与芋头丁同煮。",
     ja: "東南アジアの華人の一鍋飯。米をさいの目のタロイモとともに炊きます。",
     es: "Arroz chino del Sudeste Asiático cocido en una sola olla con taro en dados.",
+    ko: "토란을 깍둑 썰어 함께 지은 동남아 화교의 짭조름한 한 냄비 밥 요리입니다.",
   },
   "hainanese::hele crab": {
     id: "Kepiting bakau kukus dari Kota Hele, Wanning; tersohor karena telurnya keemasan dan dagingnya manis, salah satu empat hidangan khas Hainan.",
@@ -5584,6 +6297,7 @@ module.exports = {
     zh: "万宁和乐镇的清蒸和乐蟹：蟹膏金黄，肉质清甜；海南四大名菜之一。",
     ja: "万寧市和楽鎮の蒸し泥蟹。黄金色の卵と甘い身で名高く、海南四大名菜のひとつです。",
     es: "Cangrejo de fango al vapor de Hele, Wanning; famoso por su hueva dorada y su carne dulce, uno de los cuatro platos insignia de Hainan.",
+    ko: "완닝 허러진에서 온 찐 머드크랩으로, 황금빛 알과 단맛 나는 살로 이름났으며 하이난 4대 요리의 하나입니다.",
   },
   "hainanese::jiaji duck": {
     id: "Salah satu dari empat hidangan tersohor Hainan: bebek rebus dari kota Jiaji, Qionghai, dari ras yang dibawa pulang perantau Tionghoa.",
@@ -5592,6 +6306,7 @@ module.exports = {
     zh: "海南四大名菜之一：琼海嘉积镇的白斩鸭，鸭种是归国华侨从海外带回来的。",
     ja: "海南四大名菜のひとつ。瓊海市嘉積鎮のゆで鴨で、品種は帰国した華僑が海外から持ち帰ったものです。",
     es: "Uno de los cuatro platos famosos de Hainan: pato escalfado de Jiaji, Qionghai, de una raza traída de ultramar por chinos retornados.",
+    ko: "하이난 4대 요리의 하나로, 충하이 자지진에서 귀국 화교들이 들여온 품종의 오리를 데쳐 냅니다.",
   },
   "hainanese::wenchang chicken": {
     id: "Ayam kampung rebus \"potong putih\" khas Hainan dari Wenchang; ras dan hidangan inilah yang melahirkan nasi ayam Hainan.",
@@ -5600,6 +6315,7 @@ module.exports = {
     zh: "海南文昌的白切鸡：走地鸡白灼后斩件；正是这个鸡种与这道菜，衍生出后来的海南鸡饭。",
     ja: "海南文昌の白切鶏。放し飼いの鶏をゆでて切り分けます。この品種と料理から、海南鶏飯が生まれました。",
     es: "Pollo hainanés «cortado en blanco», escalfado y de corral, de Wenchang; esa raza y ese plato dieron origen al arroz con pollo hainanés.",
+    ko: "하이난 원창의 방목 닭을 데쳐 낸 '백절' 요리로, 이 품종과 요리에서 하이난 치킨라이스가 나왔습니다.",
   },
   "hakka::abacus seeds": {
     id: "Pangsit talas dan tapioka bercekung, ditumis bersama daging babi cincang, udang kering, dan jamur; bentuknya seperti manik sempoa.",
@@ -5608,6 +6324,7 @@ module.exports = {
     zh: "客家的算盘子：芋头与木薯粉搓成中间带凹的小粒，与肉碎、虾米、香菇同炒；形如算珠。",
     ja: "タロイモとタピオカのくぼみのある団子を、豚ひき肉、干し海老、きのこと炒めます。形が算盤の珠に似ています。",
     es: "Bolitas hendidas de taro y tapioca salteadas con cerdo picado, gamba seca y setas; tienen la forma de las cuentas de un ábaco.",
+    ko: "토란과 타피오카로 빚어 가운데를 옴폭하게 누른 경단을 다진 돼지고기와 건새우, 버섯과 볶은 요리로, 주판알을 닮았습니다.",
   },
   "hakka::cukiok (hakka braised pork trotter)": {
     id: "Kaki babi Hakka yang dibraise perlahan dalam kecap asin, tauco hitam, dan rempah hingga bergelatin dan pekat rasanya.",
@@ -5616,6 +6333,7 @@ module.exports = {
     zh: "客家的猪脚：用酱油、豆豉与香料小火慢焖到胶质尽出、味厚。",
     ja: "客家の豚足。醤油、黒豆の味噌、香辛料でじっくり煮込み、ゼラチン質がとろけ、味が深く染みるまで。",
     es: "Manitas de cerdo hakka guisadas despacio en soja, pasta de judía negra y especias hasta quedar gelatinosas y muy sabrosas.",
+    ko: "돼지 족발을 간장과 검은콩장, 향신료에 오래 조려 쫀득하고 깊은 맛이 나게 만든 객가 요리입니다.",
   },
   "hakka::hakka beef meatball soup": {
     id: "Bakso sapi tumbuk tangan yang kenyal dalam kaldu tulang bening; kekhasan Hakka yang mudah ditemui di gerai hawker Singapura.",
@@ -5624,6 +6342,7 @@ module.exports = {
     zh: "客家的牛肉丸汤：手打的牛丸弹牙，泡在清亮的骨汤里；新加坡小贩摊上就有。",
     ja: "手で搗いた弾力のある牛肉団子を、澄んだ骨のスープに浮かべた客家の名物。シンガポールの屋台でも見かけます。",
     es: "Albóndigas de ternera majadas a mano y elásticas en un caldo claro de huesos; especialidad hakka común en los puestos de Singapur.",
+    ko: "손으로 쳐서 탱글한 소고기 완자를 맑은 사골 국물에 넣은 객가의 명물로, 싱가포르 호커 노점에서 볼 수 있습니다.",
   },
   "hakka::hakka duck stuffed with glutinous rice": {
     id: "Bebek utuh yang ditulang lalu diisi ketan berbumbu, jamur, dan udang kering, kemudian dibraise atau dikukus hingga empuk.",
@@ -5632,6 +6351,7 @@ module.exports = {
     zh: "客家的糯米酿鸭：整鸭去骨，填入调味糯米、香菇与虾米，再焖或蒸到酥软。",
     ja: "骨を抜いた丸鴨に、味つけしたもち米、椎茸、干し海老を詰め、やわらかくなるまで煮るか蒸します。",
     es: "Pato entero deshuesado relleno de arroz glutinoso sazonado, setas y gamba seca, luego guisado o al vapor hasta quedar tierno.",
+    ko: "뼈를 발라낸 오리 속에 양념한 찰밥과 버섯, 건새우를 채워 부드러워질 때까지 조리거나 쪄낸 요리입니다.",
   },
   "hakka::hakka noodles": {
     id: "Hidangan Indo-Tionghoa: mi terigu direbus lalu ditumis di wajan bersama sayuran dan kecap asin.",
@@ -5640,6 +6360,7 @@ module.exports = {
     zh: "印度中餐的客家炒面：小麦面煮熟后与蔬菜、酱油一同下镬炒。",
     ja: "印中料理の一皿。ゆでた小麦麺を、野菜と醤油とともに中華鍋で炒めます。",
     es: "Plato indochino: fideos de trigo hervidos y salteados al wok con verduras y salsa de soja.",
+    ko: "삶은 밀면을 채소와 간장과 함께 웍에 볶아 낸 인도 중국식 요리입니다.",
   },
   "hakka::hakka pork belly with taro": {
     id: "Hidangan perayaan Hakka: perut babi goreng berselang dengan irisan talas, dikukus lalu dibalik ke piring; kou rou berarti \"daging terbalik\".",
@@ -5648,6 +6369,7 @@ module.exports = {
     zh: "客家的芋头扣肉：炸过的五花肉与芋片层层相间，蒸透后倒扣上碟；「扣肉」正是「倒扣的肉」。",
     ja: "客家の祝いの料理。揚げた豚バラとタロイモを交互に重ねて蒸し、皿にひっくり返します。「扣肉」とは「伏せた肉」の意。",
     es: "Plato festivo hakka: panceta frita alternada con láminas de taro, cocida al vapor y volcada en un plato; kou rou es «carne invertida».",
+    ko: "튀긴 삼겹살과 토란을 켜켜이 쌓아 쪄서 접시에 뒤집어 내는 객가의 잔치 요리로, '커우러우'는 '뒤집은 고기'라는 뜻입니다.",
   },
   "hakka::hakka pork lard noodles": {
     id: "Mi kering Hakka yang diaduk dengan minyak babi, kecap ikan berbumbu, dan bawang putih goreng, ditaburi irisan daun bawang.",
@@ -5656,6 +6378,7 @@ module.exports = {
     zh: "客家的猪油捞面：面拌猪油、调过味的鱼露与炸蒜，撒上葱花。",
     ja: "客家の油そば。ラード、味つけした魚醤、揚げにんにくで和え、青ねぎを散らします。",
     es: "Fideos hakka salteados en seco con manteca de cerdo, salsa de pescado sazonada y ajo frito, con cebolleta por encima.",
+    ko: "돼지기름과 간을 한 피시소스, 튀긴 마늘에 비벼 파를 올린 객가식 비빔국수입니다.",
   },
   "hakka::hakka rice cake": {
     id: "Kue beras kukus Hakka yang menurut tradisi dibuat dari beras dan gula merah, hingga kenyal dan berwarna kemerahan.",
@@ -5664,6 +6387,7 @@ module.exports = {
     zh: "客家的蒸米粄：照传统用米与红糖做，因而口感软糯、色泽泛红。",
     ja: "客家の蒸し米菓子。伝統では米と黒糖で作り、もっちりとした食感と赤みを帯びた色になります。",
     es: "Pastel hakka de arroz al vapor, hecho tradicionalmente con arroz y azúcar moreno, de textura correosa y color rojizo.",
+    ko: "쌀과 흑설탕으로 쪄낸 객가 떡으로, 쫄깃한 식감과 불그스름한 빛깔이 납니다.",
   },
   "hakka::hakka rice wine chicken": {
     id: "Hidangan musim dingin Hakka: ayam ditumis dengan jahe lalu direbus dalam arak beras ketan, lama disajikan bagi ibu seusai melahirkan.",
@@ -5672,6 +6396,7 @@ module.exports = {
     zh: "客家冬令菜：鸡块与姜同炒，再以糯米酒慢炖，旧时专给产后妇人进补。",
     ja: "客家の冬の料理。鶏を生姜と炒め、もち米の酒で煮込む。産後の女性に供されてきた。",
     es: "Plato hakka de invierno: pollo salteado con jengibre y guisado en vino de arroz glutinoso, servido a las recién paridas.",
+    ko: "닭을 생강과 함께 볶아 찹쌀 술에 끓인 객가의 겨울 요리로, 오랫동안 산후 조리 음식으로 쓰였습니다.",
   },
   "hakka::hakka steamed glutinous rice cake (ci ba)": {
     id: "Ketan ditumbuk menjadi kue lengket, lalu dibentuk dan dibalut bubuk kacang tanah atau wijen; disantap sebagai camilan atau pencuci mulut.",
@@ -5680,6 +6405,7 @@ module.exports = {
     zh: "客家的糍粑：糯米舂成黏糯的团子，捏好后裹花生粉或芝麻；当零嘴或甜点吃。",
     ja: "もち米を搗いて粘りのある餅にし、形を整えて落花生の粉や胡麻をまぶします。間食にも甘味にも。",
     es: "Arroz glutinoso majado hasta formar un pastel pegajoso, moldeado y rebozado en harina de cacahuete o sésamo; como tentempié o postre.",
+    ko: "찹쌀을 찧어 쫀득한 떡으로 빚고 땅콩 가루나 깨를 묻힌 것으로, 간식이나 디저트로 먹습니다.",
   },
   "hakka::hakka stuffed bitter gourd": {
     id: "Hidangan Hakka: pare diisi daging babi cincang atau pasta ikan — varian pare dari yong tau foo, dan \"yong\" memang berarti mengisi.",
@@ -5688,6 +6414,7 @@ module.exports = {
     zh: "客家的酿苦瓜：苦瓜里酿进肉糜或鱼滑——这是酿豆腐的苦瓜版，「釀」字本就是「填进去」。",
     ja: "客家の料理。ゴーヤに豚のひき肉や魚のすり身を詰めます。醸豆腐のゴーヤ版で、「醸」は詰めるという意味です。",
     es: "Plato hakka: melón amargo relleno de cerdo picado o pasta de pescado — la variante de yong tau foo; «yong» significa «rellenar».",
+    ko: "여주에 다진 돼지고기나 생선살을 채운 객가 요리로, 용타우푸의 여주 버전입니다.",
   },
   "hakka::hakka stuffed tofu": {
     id: "Hidangan Hakka: dadu tahu diisi daging babi giling dan atau pasta ikan.",
@@ -5696,6 +6423,7 @@ module.exports = {
     zh: "客家酿豆腐：豆腐块里酿进肉糜或鱼滑。",
     ja: "客家の料理。角切りの豆腐に豚のひき肉や魚のすり身を詰めます。",
     es: "Plato hakka: dados de tofu rellenos de cerdo picado o pasta de pescado, o de ambos.",
+    ko: "깍둑 썬 두부에 다진 돼지고기나 생선살을 채워 넣은 객가 요리입니다.",
   },
   "hakka::mei cai kou rou": {
     id: "Hidangan khas Hakka: perut babi dikukus di atas sayur asin kering mei cai; lauk wajib saat perayaan dan kumpul keluarga.",
@@ -5704,6 +6432,7 @@ module.exports = {
     zh: "客家名菜梅菜扣肉：五花肉铺在干梅菜上蒸透；逢年过节、家族团聚必备。",
     ja: "客家の看板料理。豚バラを干した漬け菜、梅菜の上で蒸します。祝いと一族の集いに欠かせません。",
     es: "Plato insignia hakka: panceta de cerdo al vapor sobre mostaza seca en conserva (mei cai); comida de fiesta y de reunión familiar.",
+    ko: "말린 갓지(메이차이) 위에 삼겹살을 켜켜이 올려 찐 객가의 대표 요리로, 잔치와 가족 모임의 단골입니다.",
   },
   "hakka::pounded tea": {
     id: "Minuman atau bubur Hakka dari daun teh, herba, kacang sangrai, biji-bijian, dan serealia yang ditumbuk bersama dalam mangkuk.",
@@ -5712,6 +6441,7 @@ module.exports = {
     zh: "客家擂茶：茶叶、香草、炒香的坚果、种子与谷物一起在钵里擂碎，可当饮品也可当糊。",
     ja: "客家の擂茶。茶葉、香草、煎った木の実、種、穀物を鉢で一緒に擂りつぶした飲み物、あるいは粥です。",
     es: "Bebida o gachas hakka de hojas de té, hierbas, frutos secos tostados, semillas y cereales majados juntos en un cuenco.",
+    ko: "찻잎과 허브, 볶은 견과, 씨앗, 곡물을 한 그릇에 함께 갈아 만드는 객가의 차 음료이자 죽입니다.",
   },
   "hakka::preserved vegetable braised pork": {
     id: "Hidangan khas Hakka: perut babi dikukus atau dibraise di atas sayur asin kering mei cai dalam kuah kecap gelap.",
@@ -5720,6 +6450,7 @@ module.exports = {
     zh: "客家名菜梅菜扣肉：五花肉铺在盐渍晒干的梅菜上，用老抽汁蒸或焖。",
     ja: "客家の看板料理。豚バラを、塩漬けにして干した梅菜の上で、濃口醤油の汁とともに蒸すか煮ます。",
     es: "Plato insignia hakka: panceta de cerdo al vapor o guisada sobre mostaza salada y seca (mei cai) en una salsa de soja oscura.",
+    ko: "소금에 절여 말린 갓지(메이차이) 위에 삼겹살을 올려 진간장 소스에 찌거나 조린 객가의 대표 요리입니다.",
   },
   "hakka::salt baked chicken": {
     id: "Hidangan khas Hakka: ayam utuh dimasak terbungkus rapat dalam garam panas.",
@@ -5728,6 +6459,7 @@ module.exports = {
     zh: "客家名菜盐焗鸡：整鸡埋进滚烫的盐里焗熟。",
     ja: "客家の看板料理。丸鶏を熱した塩にすっかり埋めて火を通します。",
     es: "Plato insignia hakka: un pollo entero cocido envuelto en sal caliente.",
+    ko: "닭을 통째로 뜨거운 소금에 파묻어 익히는 객가의 대표 요리입니다.",
   },
   "hakka::steamed minced pork with mui choy": {
     id: "Perkedel daging babi cincang yang dicampur sayur asin manis mui choy lalu dikukus hingga berair; makanan rumah Hakka yang lekat.",
@@ -5736,6 +6468,7 @@ module.exports = {
     zh: "客家的梅菜蒸肉饼：肉糜拌进咸中带甜的梅菜，蒸到汁水丰盈；这是客家人家常的一味。",
     ja: "客家の家庭の定番。豚ひき肉に甘じょっぱい漬け菜、梅菜を混ぜ、汁気が出るまで蒸します。",
     es: "Pastel de cerdo picado mezclado con mostaza en conserva dulce y salada (mui choy) y cocido al vapor hasta quedar jugoso; clásico hakka.",
+    ko: "다진 돼지고기에 달고 짭짤한 절인 갓지(무이초이)를 섞어 촉촉하게 쪄낸 객가의 집밥 요리입니다.",
   },
   "hakka::three-cup mushroom hakka": {
     id: "Versi vegetarian metode tiga cangkir Hakka: jamur direbus dalam minyak wijen, arak beras, dan kecap asin sama banyak, plus kemangi.",
@@ -5744,6 +6477,7 @@ module.exports = {
     zh: "客家三杯做法的素食版：香菇以等量麻油、米酒、酱油同焖，起锅前拌入九层塔。",
     ja: "客家由来の三杯の技法を精進で。きのこをごま油・米酒・醤油を等量で煮からめ、バジルを加える。",
     es: "Versión vegetariana del método hakka de tres tazas: setas guisadas en aceite de sésamo, vino de arroz y soja a partes iguales, con albahaca.",
+    ko: "객가에서 온 삼배(산베이) 조리법의 채식 버전으로, 참기름과 청주, 간장을 같은 양으로 넣고 바질과 함께 버섯을 조립니다.",
   },
   "hakka::thunder tea rice": {
     id: "Nasi Hakka yang ditutup cincangan halus sayuran dan tahu, lalu disiram sup teh hijau dan herba yang ditumbuk.",
@@ -5752,6 +6486,7 @@ module.exports = {
     zh: "客家的擂茶饭：饭上铺满切碎的蔬菜与豆腐，再浇一碗擂好的绿茶香草汤。",
     ja: "客家の擂茶飯。細かく刻んだ野菜と豆腐を飯にのせ、擂った緑茶と香草の汁をかけていただきます。",
     es: "Arroz hakka cubierto de verduras y tofu finamente picados, sobre el que se vierte una sopa de té verde y hierbas majadas.",
+    ko: "잘게 썬 채소와 두부를 밥에 올리고 빻은 녹차와 허브 국물을 끼얹어 먹는 객가 요리입니다.",
   },
   "hakka::yong tau foo": {
     id: "Hidangan Hakka: tahu dan sayuran diisi pasta ikan atau daging babi cincang, disajikan berkuah atau kering dengan saus.",
@@ -5760,6 +6495,7 @@ module.exports = {
     zh: "客家的酿豆腐：豆腐与蔬菜里酿进鱼滑或肉糜，可泡汤，也可干捞配酱。",
     ja: "客家の料理。豆腐や野菜に魚のすり身や豚ひき肉を詰め、スープに入れるか、たれをかけて汁なしで供します。",
     es: "Plato hakka: tofu y verduras rellenos de pasta de pescado o cerdo picado, servidos en caldo o en seco con salsa.",
+    ko: "두부와 채소에 생선살이나 다진 돼지고기를 채운 객가 요리로, 국물에 넣거나 소스에 비벼 냅니다.",
   },
   "hokkien::amoy spring roll": {
     id: "Lumpia Hokkien yang segar dan tak digoreng, dari Xiamen atau Amoy.",
@@ -5768,6 +6504,7 @@ module.exports = {
     zh: "厦门的薄饼：福建式的鲜卷，不下油锅。",
     ja: "厦門（アモイ）の福建式の生春巻き。揚げずに供します。",
     es: "Rollito hokkien fresco y sin freír, de Xiamen (Amoy).",
+    ko: "샤먼(아모이)에서 온 튀기지 않은 신선한 호키엔식 스프링롤입니다.",
   },
   "hokkien::ang ku kueh": {
     id: "Kue ketan Hokkien berwarna merah berbentuk kura-kura demi umur panjang, berisi pasta kacang hijau atau kacang tanah, dikukus di daun pisang.",
@@ -5776,6 +6513,7 @@ module.exports = {
     zh: "福建的红龟粿：糯米皮染红，压成龟形以求长寿，馅是绿豆沙或花生，垫香蕉叶上笼蒸。",
     ja: "福建の紅亀粿。長寿を願って赤く亀の形に押し、緑豆や落花生の餡を包み、バナナの葉を敷いて蒸します。",
     es: "Pastel hokkien de arroz glutinoso, rojo y con forma de tortuga por longevidad, relleno de judía mungo o cacahuete, al vapor sobre plátano.",
+    ko: "장수를 뜻해 붉게 거북 모양으로 빚은 호키엔 찹쌀떡으로, 달콤한 녹두나 땅콩 소를 넣어 바나나잎 위에 쪄냅니다.",
   },
   "hokkien::bak chang (rice dumpling)": {
     id: "Bacang ketan Hokkien yang dibungkus daun bambu bersama babi, jamur, dan kastanye; disantap saat Festival Perahu Naga.",
@@ -5784,6 +6522,7 @@ module.exports = {
     zh: "福建的肉粽：糯米裹在竹叶里，馅有猪肉、香菇与栗子；端午时吃。",
     ja: "笹の葉で包む福建のもち米の粽。豚肉、椎茸、栗を入れ、端午の節句に食べます。",
     es: "Bollo hokkien de arroz glutinoso en hojas de bambú con cerdo, setas y castañas; se come en la Fiesta del Bote del Dragón.",
+    ko: "돼지고기와 버섯, 밤을 넣어 대나무잎에 싼 호키엔식 찹쌀 만두로, 단오에 먹습니다.",
   },
   "hokkien::bak kwa": {
     id: "Dendeng babi panggang yang manis gurih, berasal dari Hokkien Fujian; kini hadiah Imlek yang bergengsi di Singapura dan Malaysia.",
@@ -5792,6 +6531,7 @@ module.exports = {
     zh: "咸甜的烤肉干：源自福建闽南；如今在新马是农历新年拿得出手的礼物。",
     ja: "甘じょっぱい干し豚肉を焼いたもの。福建の閩南に発し、今では新馬で旧正月の贈答品として重んじられます。",
     es: "Cecina de cerdo a la brasa, dulce y salada, de origen hokkien de Fujian; hoy un regalo preciado de Año Nuevo en Singapur y Malasia.",
+    ko: "푸젠 호키엔에서 온 달콤짭짤한 말린 돼지고기 구이로, 지금은 싱가포르와 말레이시아에서 귀한 설 선물입니다.",
   },
   "hokkien::ee fu mee": {
     id: "Mi telur Kanton yang pipih, direbus sebentar lalu digoreng hingga keemasan dan berongga; disantap dibraise dan sebagai mi umur panjang.",
@@ -5800,6 +6540,7 @@ module.exports = {
     zh: "广东的伊府面：扁蛋面先烫过再油炸，色金黄而质地蓬松；可焖着吃，也当长寿面。",
     ja: "平たい広東の卵麺を下ゆでしてから揚げ、黄金色でふんわりした食感に。煮込んでも、長寿麺としても食べます。",
     es: "Fideos cantoneses planos al huevo, escaldados y fritos hasta quedar dorados y esponjosos; se comen guisados y como fideos de longevidad.",
+    ko: "납작한 광둥식 달걀면을 살짝 삶아 노릇하고 폭신하게 튀긴 것으로, 조려 먹거나 장수면으로 냅니다.",
   },
   "hokkien::hae bee hiam": {
     id: "Sambal kering Peranakan dari udang kering tumbuk, cabai, kelapa, dan rempah; dipakai sebagai kondimen atau isian rempah udang.",
@@ -5808,6 +6549,7 @@ module.exports = {
     zh: "娘惹的干香虾米辣酱：虾米舂碎，配辣椒、椰丝与香料；既当佐料，也做 rempah udang 的馅。",
     ja: "プラナカンの乾いた辛味ペースト。搗いた干し海老に唐辛子、ココナッツ、香味を合わせ、薬味にも粽の餡にも使います。",
     es: "Sambal seco peranakan de gamba seca majada, chile, coco y aromáticos; se usa como condimento o como relleno de rempah udang.",
+    ko: "말린 새우와 고추, 코코넛, 향신 재료를 빻아 볶은 프라나칸의 마른 삼발로, 양념으로도 렘파 우당 소로도 씁니다.",
   },
   "hokkien::hokkien bee hoon (white)": {
     id: "Bihun putih goreng khas Singapura yang direbus dalam kaldu berpati bersama makanan laut seperti udang dan cumi, telur, dan sayuran.",
@@ -5816,6 +6558,7 @@ module.exports = {
     zh: "新加坡的白米粉：米粉炒过再用浓稠的高汤煨透，配虾、鱿鱼、鸡蛋与蔬菜。",
     ja: "シンガポールの白ビーフン。炒めてから澱粉気のあるだしで煮含め、海老やいか、卵、野菜を合わせます。",
     es: "Vermicelli de arroz blanco salteado singapurense, cocido en un caldo rico y espeso con marisco, huevo y verduras.",
+    ko: "흰 쌀국수를 새우와 오징어, 달걀, 채소와 함께 진하고 걸쭉한 육수에 볶아 낸 싱가포르 요리입니다.",
   },
   "hokkien::hokkien claypot mee": {
     id: "Varian Singapura dari mi udang Hokkien goreng: mi kuning dan bihun dalam kuah kaldu udang, disajikan mendidih dalam belanga tanah.",
@@ -5824,6 +6567,7 @@ module.exports = {
     zh: "新加坡的砂煲福建面：黄面与米粉泡在虾汤芡汁里，连煲滚烫上桌。",
     ja: "シンガポール版の福建海老麺。黄麺とビーフンを海老のだしの餡で、土鍋のまま煮えたぎらせて供します。",
     es: "Variante singapurense del hokkien mee frito: fideos amarillos y vermicelli en caldo de gambas, servidos hirviendo en cazuela de barro.",
+    ko: "노란 면과 쌀국수를 새우 육수 소스에 넣어 뚝배기째 끓여 내는 싱가포르식 호키엔 새우 국수의 변형입니다.",
   },
   "hokkien::hokkien fried rice (with prawn paste)": {
     id: "Nasi goreng telur yang disiram kuah kental udang dan makanan laut; meski namanya begitu, hidangan restoran Kanton ini bukan asal Fujian.",
@@ -5832,6 +6576,7 @@ module.exports = {
     zh: "蛋炒饭上浇一层浓稠的虾与海鲜芡汁；虽叫「福建炒饭」，这道粤菜馆的菜其实并非出自福建。",
     ja: "卵炒飯に、海老と魚介のとろみ餡をかけた一皿。名に反して、この広東料理店の品は福建の生まれではありません。",
     es: "Arroz frito con huevo bañado en una salsa espesa de gambas y marisco; pese al nombre, este plato de restaurante cantonés no nació en Fujian.",
+    ko: "달걀 볶음밥 위에 새우와 해산물로 낸 걸쭉한 소스를 끼얹은 요리로, 이름과 달리 푸젠이 아니라 광둥 식당에서 생겼습니다.",
   },
   "hokkien::hokkien lor bak": {
     id: "Gulung daging lima rempah Hokkien: babi dan udang cincang dibungkus kulit tahu lalu digoreng; dibawa perantau Fujian ke Penang.",
@@ -5840,6 +6585,7 @@ module.exports = {
     zh: "福建的五香卤肉卷：猪肉与虾肉剁碎，豆皮卷起炸香；由福建移民带到槟城。",
     ja: "福建の五香の肉巻き。豚肉と海老のすり身を湯葉で巻いて揚げます。福建からの移民がペナンへ伝えました。",
     es: "Rollo hokkien a las cinco especias de cerdo y gamba picados envuelto en piel de tofu y frito; lo llevaron migrantes de Fujian a Penang.",
+    ko: "다진 돼지고기와 새우를 두부피에 말아 튀긴 호키엔식 오향 고기 롤로, 푸젠 이민자들이 페낭에 들여왔습니다.",
   },
   "hokkien::hokkien yam rice": {
     id: "Nasi satu belanga khas Hokkien: beras ditanak bersama talas, perut babi, udang kering, dan jamur shiitake; makanan rumah yang hemat.",
@@ -5848,6 +6594,7 @@ module.exports = {
     zh: "福建的芋头饭：米与芋头、五花肉、虾米、香菇同煮一锅；是新马人家省俭的家常饭。",
     ja: "福建の一鍋飯。米をタロイモ、豚バラ、干し海老、椎茸とともに炊きます。倹しい家庭の伝統的な食事。",
     es: "Arroz hokkien de una sola olla: arroz cocido con taro, panceta, gamba seca y shiitake; comida casera tradicional y económica.",
+    ko: "쌀에 토란과 삼겹살, 건새우, 표고를 넣어 지은 호키엔식 한 냄비 밥으로, 싱가포르와 말레이시아의 소박한 집밥입니다.",
   },
   "hokkien::hokkien-style braised pig trotter": {
     id: "Kaki babi Fujian atau Hokkien yang dibraise lama dan perlahan dalam kecap gelap dan asin hingga empuk.",
@@ -5856,6 +6603,7 @@ module.exports = {
     zh: "闽南的焖猪脚：猪蹄用老抽与生抽小火慢焖到酥烂。",
     ja: "福建・閩南の豚足。濃口と薄口の醤油でじっくり長く煮込み、ほろりと崩れるまで。",
     es: "Manita de cerdo de Fujian, guisada larga y lentamente en soja clara y oscura hasta quedar tierna.",
+    ko: "푸젠·호키엔식으로 돼지 족발을 진간장과 간장에 오래 은근히 조려 부드럽게 만든 요리입니다.",
   },
   "hokkien::hokkien-style steamed fish": {
     id: "Olahan Fujian (Hokkien) tradisional: ikan utuh dikukus bersama jahe, daun bawang, dan kecap asin ringan agar dagingnya tetap lembut.",
@@ -5864,6 +6612,7 @@ module.exports = {
     zh: "传统闽（福建）做法：整鱼与姜、葱及生抽同蒸，以保鱼肉的细嫩。",
     ja: "福建（ホッキエン）の伝統的な調理法。魚を丸ごと生姜、青ねぎ、薄口醤油とともに蒸し、身の繊細さを保つ。",
     es: "Preparación tradicional de Fujian (hokkien): pescado entero al vapor con jengibre, cebolleta y soja clara para mantenerlo tierno.",
+    ko: "생선을 통째로 생강과 파, 간장과 함께 쪄서 살을 부드럽게 지켜 내는 푸젠(호키엔)의 전통 조리법입니다.",
   },
   "hokkien::hokkien-style steamed prawns": {
     id: "Hidangan jamuan Fujian (Hokkien) yang rumit: udang besar dikukus di atas soun bersama bawang putih agar sarinya meresap ke mi.",
@@ -5872,6 +6621,7 @@ module.exports = {
     zh: "闽（福建）宴席上的讲究菜：大虾铺在粉丝上，与蒜蓉同蒸，虾汁尽数渗进粉丝。",
     ja: "福建（ホッキエン）の手の込んだ宴席料理。大ぶりのエビを春雨の上にのせ、ニンニクとともに蒸して旨みを麺に移す。",
     es: "Elaborado plato de banquete de Fujian (hokkien): gambas grandes al vapor sobre fideos de cristal con ajo, cuyos jugos empapan los fideos.",
+    ko: "큰 새우를 당면 위에 마늘과 함께 쪄서 국물이 면에 배도록 만든 푸젠(호키엔)의 정성 들인 연회 요리입니다.",
   },
   "hokkien::kong bak pau": {
     id: "Hidangan Hokkien: perut babi dibraise dalam kecap asin lalu diselipkan ke dalam bakpau lipat berbentuk daun teratai, ditaburi ketumbar.",
@@ -5880,6 +6630,7 @@ module.exports = {
     zh: "福建的封肉包：酱油焖透的五花肉夹进对折的荷叶饽，撒上芫荽。",
     ja: "福建の料理。醤油で煮た豚バラを、二つ折りの蓮の葉形の蒸しパンに挟み、香菜をのせます。",
     es: "Plato hokkien: panceta de cerdo guisada en soja metida en un bollo al vapor doblado en forma de hoja de loto, con cilantro por encima.",
+    ko: "간장에 조린 삼겹살을 반으로 접은 찐빵에 끼우고 고수를 올린 호키엔 요리입니다.",
   },
   "hokkien::kueh chang (savoury rice dumpling)": {
     id: "Bacang ketan gurih Hokkien yang dibungkus daun bambu, berisi babi, jamur, dan kuning telur asin.",
@@ -5888,6 +6639,7 @@ module.exports = {
     zh: "福建的咸肉粽：糯米用竹叶包好，馅有猪肉、香菇与咸蛋黄。",
     ja: "笹の葉で包む福建の塩味のもち米粽。豚肉、椎茸、塩漬け卵黄を入れます。",
     es: "Bollo hokkien salado de arroz glutinoso en hojas de bambú, relleno de cerdo, setas y yema de huevo salada.",
+    ko: "돼지고기와 버섯, 소금 달걀을 채워 대나무잎에 싼 호키엔식 짭짤한 찹쌀 만두입니다.",
   },
   "hokkien::lor ark hokkien": {
     id: "Lor ark, bebek yang dibraise dalam kaldu induk kecap gelap bersama lima rempah, bunga lawang, cengkeh, kayu manis, dan lengkuas.",
@@ -5896,6 +6648,7 @@ module.exports = {
     zh: "卤鸭：鸭子在深色的卤水里慢煨，料有五香、八角、丁香、桂皮与南姜。",
     ja: "ロー・アッ。鴨を、五香、八角、丁子、桂皮、ナンキョウを入れた濃口醤油の老湯で煮込みます。",
     es: "Lor ark: pato guisado en un caldo madre de soja oscura con cinco especias, anís estrellado, clavo, canela y galanga.",
+    ko: "오향과 팔각, 정향, 계피, 갈랑갈을 넣은 진간장 마스터 스톡에 오리를 조려 낸 요리입니다.",
   },
   "hokkien::lor mee": {
     id: "Mi Hokkien dari Zhangzhou, Fujian: mi kuning tebal dalam kuah kental berpati yang dikentalkan telur; kini andalan hawker Asia Tenggara.",
@@ -5904,6 +6657,7 @@ module.exports = {
     zh: "源自福建漳州的卤面：粗黄面泡在勾了芡、打了蛋花的浓稠卤汁里；如今是南洋小贩摊的常客。",
     ja: "福建漳州の福建麺料理。太い黄麺を、澱粉でとろみをつけ卵でまとめた餡に浸します。今では東南アジアの屋台の定番。",
     es: "Plato de fideos hokkien de Zhangzhou, Fujian: fideos amarillos gruesos en una salsa espesa de almidón ligada con huevo; clásico hawker.",
+    ko: "푸젠 장저우에서 온 호키엔 국수로, 굵은 노란 면을 전분과 달걀로 걸쭉하게 만든 조림 소스에 넣으며 지금은 동남아 호커의 단골입니다.",
   },
   "hokkien::mee sua kueh": {
     id: "Kue gurih Hokkien dari bihun terigu yang dipadatkan, lalu dipotong dan digoreng sampai tepinya renyah.",
@@ -5912,6 +6666,7 @@ module.exports = {
     zh: "闽南咸味粿：将面线蒸凝成块，再切开煎至边缘焦脆。",
     ja: "麺線を蒸し固めて切り、縁が香ばしくなるまで焼く福建の塩味の粿。",
     es: "Pastel salado hokkien de fideos finos de trigo cuajados, cortados y salteados hasta que los bordes quedan crujientes.",
+    ko: "밀 소면(미수아)을 굳혀 썰어 가장자리가 바삭해지도록 팬에 부친 호키엔식 짭짤한 떡입니다.",
   },
   "hokkien::mee suah": {
     id: "Mi terigu asin yang sangat halus dari Fujian; benangnya yang panjang tak putus melambangkan umur panjang saat ulang tahun dan perayaan.",
@@ -5920,6 +6675,7 @@ module.exports = {
     zh: "福建的面线：细如发丝的咸味麦面；长而不断的面条，在寿宴与节庆里取的是长寿的意头。",
     ja: "福建の極細の塩味小麦麺。長く切れない麺の線が、誕生日や祝いの席で長寿を表します。",
     es: "Fideos de trigo salados finísimos de Fujian, China; sus hebras largas e ininterrumpidas simbolizan longevidad en cumpleaños y fiestas.",
+    ko: "중국 푸젠에서 온 아주 가는 소금 밀면으로, 끊기지 않는 긴 가닥이 생일과 명절에 장수를 뜻합니다.",
   },
   "hokkien::ngoh hiang": {
     id: "Gulung Hokkien-Teochew berisi babi dan udang cincang yang dibumbui bubuk lima rempah — sumber namanya — dibungkus kulit tahu lalu digoreng.",
@@ -5928,6 +6684,7 @@ module.exports = {
     zh: "福建潮州的五香卷：猪肉与虾肉剁碎，用五香粉调味（名字正由此来），豆皮卷好下油锅。",
     ja: "福建・潮州の巻き物。豚肉と海老のすり身を五香粉で調え（名の由来）、湯葉で巻いて揚げます。",
     es: "Rollo hokkien-teochew de cerdo y gamba picados sazonados con polvo de cinco especias —de ahí el nombre— envuelto en tofu y frito.",
+    ko: "다진 돼지고기와 새우를 오향 가루로 양념해 두부피에 말아 튀긴 호키엔·조주식 롤로, 이름도 그 오향에서 왔습니다.",
   },
   "hokkien::oyster vermicelli (orh ah mee suah)": {
     id: "Sup mi Taiwan berisi tiram segar dan mi suah terigu halus dalam kuah kental berpati; berakar pada masakan perantau Fujian.",
@@ -5936,6 +6693,7 @@ module.exports = {
     zh: "台湾的蚵仔面线：鲜蚵与细麦面线泡在勾了芡的汤里；根在福建移民的做法。",
     ja: "台湾の蚵仔麺線。生牡蠣と細い小麦の麺線を、澱粉でとろみをつけた汁で。福建移民の料理に根があります。",
     es: "Sopa de fideos taiwanesa de ostras frescas y misua fino de trigo en caldo espesado con almidón; enraizada en la cocina migrante de Fujian.",
+    ko: "생굴과 가는 밀 소면을 전분으로 걸쭉하게 낸 국물에 넣은 대만 국수로, 푸젠 이민자들의 조리법에 뿌리를 둡니다.",
   },
   "hokkien::peng kueh (red rice cake)": {
     id: "Kue beras Teochew (bukan Hokkien) berwarna merah muda berbentuk buah persik, diisi ketan, udang kering, dan jamur, dikukus lalu digoreng.",
@@ -5944,6 +6702,7 @@ module.exports = {
     zh: "粉红桃形的潮州（非闽南）米粿，内馅是糯米、虾米与香菇，先蒸后煎。",
     ja: "桃の形をした桃色の潮州（福建ではない）の米菓子。もち米、干しエビ、しいたけを詰め、蒸してから焼く。",
     es: "Pastel de arroz teochew (no hokkien) rosado con forma de melocotón, relleno de arroz glutinoso, gamba seca y seta, al vapor y frito.",
+    ko: "찰밥과 건새우, 버섯을 채운 복숭아 모양의 분홍빛 조주(호키엔이 아닌) 떡으로, 쪄낸 뒤 팬에 부칩니다.",
   },
   "hokkien::tau sar piah": {
     id: "Kue kering berlapis dengan isian pasta kacang hijau, ada versi asin dan manis; dibawa ke Penang oleh perantau Hokkien.",
@@ -5952,6 +6711,7 @@ module.exports = {
     zh: "酥皮点心，内包绿豆沙，有咸甜两款；由福建移民带到槟城。",
     ja: "緑豆餡を包んだ層状の焼き菓子。塩味と甘口があり、福建移民がペナンへ伝えた。",
     es: "Hojaldre relleno de pasta de judía mungo, en versión salada y dulce; lo llevaron a Penang los emigrantes hokkien.",
+    ko: "녹두 소를 채운 겹겹의 과자로 짭짤한 것과 단 것이 있으며, 푸젠(호키엔) 이민자들이 페낭에 들여왔습니다.",
   },
   "hokkien::ti kway / png kueh": {
     id: "Kue kukus Teochew berbentuk persik dengan kulit tepung ketan berwarna merah muda, membungkus isian nasi ketan yang gurih.",
@@ -5960,6 +6720,7 @@ module.exports = {
     zh: "潮州的桃形蒸粿：糯米粉皮染成粉红，裹住咸香的糯米馅。",
     ja: "桃の形をした潮州の蒸し粿。桃色に染めたもち米粉の皮で、塩味のもち米の餡を包みます。",
     es: "Kueh teochew al vapor con forma de melocotón, de piel rosada de harina glutinosa sobre un relleno salado de arroz glutinoso.",
+    ko: "분홍빛 찹쌀가루 피를 복숭아 모양으로 빚어 짭짤한 찰밥을 채운 조주식 찐 떡입니다.",
   },
   "hong-kong::beef brisket noodle": {
     id: "Andalan Kanton di Hong Kong: sandung lamur sapi dibraise perlahan lalu disajikan di atas mi dalam kuah bening atau kari; berakar Teochew.",
@@ -5968,6 +6729,7 @@ module.exports = {
     zh: "香港的广式常菜：牛腩慢火炆透，铺在面上，配清汤或咖喱汤；根在潮州。",
     ja: "香港の広東の定番。じっくり煮込んだ牛バラを麺にのせ、澄んだ、あるいはカレーのスープで。潮州に根があります。",
     es: "Clásico cantonés de Hong Kong: falda de ternera guisada despacio sobre fideos en caldo claro o de curry; con raíces chiuchow.",
+    ko: "오래 조린 소 양지를 국수에 올려 맑거나 카레 국물에 내는 홍콩 광둥의 대표 음식으로, 조주에 뿌리를 둡니다.",
   },
   "hong-kong::char chaan teng dishes": {
     id: "Sajian kedai teh Hong Kong yang eklektik dan terjangkau, memadukan masakan Kanton dengan hidangan Barat gaya Hong Kong.",
@@ -5976,6 +6738,7 @@ module.exports = {
     zh: "香港茶餐厅的菜式：驳杂而平价，广东做法与港式西餐混在一处。",
     ja: "香港の茶餐廳の献立。広東料理と香港式の洋食が入り混じった、雑多で手頃な品々です。",
     es: "Carta ecléctica y asequible de las casas de té de Hong Kong, que mezcla cocina cantonesa con platos occidentales al estilo hongkonés.",
+    ko: "광둥 요리와 홍콩식 양식을 섞은 홍콩 차찬텡의 다양하고 값싼 음식들입니다.",
   },
   "hong-kong::clay pot rice": {
     id: "Nasi Kanton yang ditanak dan disajikan dalam belanga tanah kecil; kerak nasi di dasarnya yang paling dicari dan lauk seperti lap cheong.",
@@ -5984,6 +6747,7 @@ module.exports = {
     zh: "广式煲仔饭：米在小瓦煲里煮熟，连煲上桌；最抢手的是煲底那层饭焦，配腊肠等腊味。",
     ja: "小さな土鍋で炊いてそのまま供する広東の飯。底のおこげが何よりの目当てで、中華ソーセージなどをのせます。",
     es: "Arroz cantonés cocido y servido en cazuelita de barro; se aprecia por la costra tostada del fondo y guarniciones como el embutido chino.",
+    ko: "작은 뚝배기에 지어 그대로 내는 광둥식 밥으로, 바닥의 바삭한 누룽지와 중국식 소시지 같은 고명을 별미로 칩니다.",
   },
   "hong-kong::curry fish balls": {
     id: "Jajanan jalanan Hong Kong: bakso ikan goreng direbus dalam saus kari; sejak 1950-an lazim ditusuk lidi.",
@@ -5992,6 +6756,7 @@ module.exports = {
     zh: "香港街头的咖喱鱼蛋：鱼丸炸过再在咖喱汁里煨；自一九五〇年代起，多半用竹签串着吃。",
     ja: "香港の屋台の軽食。揚げた魚団子をカレーだれで煮ます。一九五〇年代から串に刺して売られてきました。",
     es: "Aperitivo callejero hongkonés de bolas de pescado fritas cocidas en salsa de curry; popular en brochetas desde los años cincuenta.",
+    ko: "튀긴 어묵을 카레 소스에 끓인 홍콩의 길거리 간식으로, 1950년대부터 꼬치에 꿰어 팔았습니다.",
   },
   "hong-kong::dim sum hong kong": {
     id: "Hidangan kecil Kanton yang dikukus atau digoreng, menurut tradisi disajikan bersama teh; santapannya disebut yum cha, \"minum teh\".",
@@ -6000,6 +6765,7 @@ module.exports = {
     zh: "广式点心：一口大小的蒸品与炸物，照传统佐茶而食；这顿饭就叫「饮茶」。",
     ja: "一口大の広東の点心。蒸し物や揚げ物を、伝統では茶とともに。この食事そのものを「飲茶」と呼びます。",
     es: "Bocados cantoneses al vapor o fritos servidos tradicionalmente con té; la comida en sí se llama yum cha, «beber té».",
+    ko: "차와 함께 내는 광둥의 한입 찜과 튀김 요리로, 이렇게 먹는 자리를 '차를 마신다'는 뜻의 얌차라 부릅니다.",
   },
   "hong-kong::egg tart": {
     id: "Tart pastri Kanton berisi custard telur manis, saduran dari tart custard Inggris yang populer di cha chaan teng Hong Kong.",
@@ -6008,6 +6774,7 @@ module.exports = {
     zh: "粤式酥皮蛋挞，内填甜蛋奶馅；改自英式蛋奶挞，在香港茶餐厅广为流行。",
     ja: "甘い卵のカスタードを詰めた広東の菓子タルト。英国のカスタードタルトを作り替え、香港の茶餐廳で広まった。",
     es: "Tarta cantonesa de masa con crema dulce de huevo, adaptada de la custard tart británica y popular en los cha chaan teng de Hong Kong.",
+    ko: "달콤한 달걀 커스터드를 채운 광둥식 타르트로, 영국 커스터드 타르트를 바탕으로 홍콩 차찬텡에서 널리 퍼졌습니다.",
   },
   "hong-kong::french toast hk-style": {
     id: "Hidangan cha chaan teng Hong Kong: roti berolesan selai kacang dicelup telur lalu digoreng, disajikan dengan mentega dan susu kental manis.",
@@ -6016,6 +6783,7 @@ module.exports = {
     zh: "香港茶餐厅的西多士：面包抹花生酱，蘸蛋液下油锅炸，上桌加牛油与炼奶或糖浆。",
     ja: "香港の茶餐廳の一品。ピーナッツバターを塗ったパンを卵液にくぐらせて揚げ、バターと練乳を添えます。",
     es: "Plato de los cha chaan teng de Hong Kong: pan untado de crema de cacahuete, rebozado en huevo y frito, con mantequilla y leche condensada.",
+    ko: "홍콩 차찬텡 요리로, 빵에 땅콩버터를 발라 달걀물을 입혀 튀긴 뒤 버터와 연유나 시럽을 곁들입니다.",
   },
   "hong-kong::hk-style baked pork chop rice": {
     id: "Hidangan cha chaan teng Hong Kong: nasi goreng telur ditutup kotelet babi goreng, saus tomat, dan keju, lalu dipanggang.",
@@ -6024,6 +6792,7 @@ module.exports = {
     zh: "港式茶餐厅的焗猪扒饭：蛋炒饭上放炸猪扒，浇茄汁、铺芝士，送进焗炉。",
     ja: "香港の茶餐廳の一皿。卵炒飯に揚げた豚カツをのせ、トマトソースとチーズをかけて焼きます。",
     es: "Plato de cha chaan teng hongkonés: arroz frito con huevo cubierto de chuleta de cerdo frita, salsa de tomate y queso, y luego gratinado.",
+    ko: "달걀 볶음밥 위에 튀긴 포크찹과 토마토소스, 치즈를 올려 구운 홍콩 차찬텡 요리입니다.",
   },
   "hong-kong::hk-style baked seafood rice": {
     id: "Hidangan panggang cha chaan teng Hong Kong: nasi goreng telur ditutup makanan laut dalam saus krim putih dan keju.",
@@ -6032,6 +6801,7 @@ module.exports = {
     zh: "港式茶餐厅的焗海鲜饭：蛋炒饭上铺海鲜，浇白汁，撒芝士入炉焗。",
     ja: "香港の茶餐廳の焼き飯。卵炒飯に、ホワイトクリームソースの魚介とチーズをのせて焼き上げます。",
     es: "Plato gratinado de cha chaan teng: arroz frito con huevo cubierto de marisco en salsa blanca de nata y queso.",
+    ko: "달걀 볶음밥 위에 해산물을 흰 크림소스와 치즈로 덮어 구운 홍콩 차찬텡 요리입니다.",
   },
   "hong-kong::hk-style lemon tea": {
     id: "Teh hitam dingin dengan irisan lemon, andalan cha chaan teng; disajikan bersama sendok untuk menekan irisannya agar sarinya keluar.",
@@ -6040,6 +6810,7 @@ module.exports = {
     zh: "冻柠茶：红茶加冰与柠檬片，茶餐厅的常备；配一把匙，好把柠檬压出汁来。",
     ja: "レモンを浮かべたアイスの紅茶。茶餐廳の定番で、スプーンを添え、輪切りを押して果汁を出しながら飲みます。",
     es: "Té negro con hielo y rodajas de limón, básico del cha chaan teng; se sirve con cuchara para aplastarlas y soltar su zumo.",
+    ko: "저민 레몬을 넣은 아이스 홍차로, 숟가락으로 레몬을 눌러 즙을 내도록 함께 내는 차찬텡의 단골입니다.",
   },
   "hong-kong::hk-style milk tea": {
     id: "Teh hitam Hong Kong yang dicampur susu evaporasi dan disaring berulang lewat kantong kain — teknik menarik »stoking sutra«.",
@@ -6048,6 +6819,7 @@ module.exports = {
     zh: "香港的红茶兑淡奶，反复用布袋拉滤——这便是「丝袜奶茶」的拉茶手法。",
     ja: "香港の紅茶にエバミルクを合わせ、布袋で何度も漉す。「シルクストッキング」と呼ばれる引き茶の技法による。",
     es: "Té negro de Hong Kong mezclado con leche evaporada y colado repetidamente por una bolsa de tela: la técnica de la media de seda.",
+    ko: "홍차에 무가당 연유를 섞어 천 자루에 거듭 걸러 내는 홍콩식 밀크티로, '실크 스타킹'이라 불리는 방식입니다.",
   },
   "hong-kong::hk-style wonton noodle": {
     id: "Hidangan Kanton: mi telur tipis ditutup pangsit udang dan babi dalam kuah ringan dari ikan sebelah kering; berasal dari Guangzhou.",
@@ -6056,6 +6828,7 @@ module.exports = {
     zh: "广东的云吞面：细蛋面配鲜虾猪肉云吞，汤底以大地鱼吊出，清而鲜；源自广州。",
     ja: "広東の雲呑麺。細い卵麺に海老と豚のワンタンを合わせ、干し平目の澄んだだしで。広州に発します。",
     es: "Plato cantonés de fideos finos al huevo con wontones de gamba y cerdo en un caldo ligero de platija seca; nació en Cantón.",
+    ko: "가는 달걀면에 새우와 돼지고기 완탕을 올려 말린 넙치로 낸 맑은 국물에 내는 광둥 요리로, 광저우에서 비롯됐습니다.",
   },
   "hong-kong::horlicks hk-style": {
     id: "Minuman susu malt dari jelai, warisan masa kolonial Britania di Hong Kong.",
@@ -6064,6 +6837,7 @@ module.exports = {
     zh: "麦芽大麦奶饮：香港英治时期留下的东西。",
     ja: "大麦麦芽のミルク飲料。香港の英国植民地時代の名残です。",
     es: "Bebida de leche malteada de cebada, legado de la época colonial británica de Hong Kong.",
+    ko: "맥아 보리로 만든 우유 음료로, 홍콩의 영국 식민지 시대가 남긴 유산입니다.",
   },
   "hong-kong::macaroni soup": {
     id: "Sarapan cha chaan teng Hong Kong: makaroni siku yang lembut dalam kaldu ayam ringan dengan ham; lahir di kedai bing sutt tahun 1950-an.",
@@ -6072,6 +6846,7 @@ module.exports = {
     zh: "香港茶餐厅的早餐：软身通心粉泡清鸡汤，配火腿；一九五〇年代的冰室里生出来的。",
     ja: "香港の茶餐廳の朝食。やわらかいマカロニを軽い鶏スープに入れ、ハムを添えます。一九五〇年代の氷室に生まれました。",
     es: "Desayuno de los cha chaan teng de Hong Kong: macarrones blandos en caldo ligero de pollo con jamón; nació en los bing sutt de los cincuenta.",
+    ko: "부드러운 마카로니를 맑은 닭 육수에 넣고 햄을 올린 홍콩 차찬텡의 아침 식사로, 1950년대 빙셧 식당에서 생겼습니다.",
   },
   "hong-kong::mantis shrimp": {
     id: "Udang mantis dari pasar makanan laut Hong Kong; nama Kantonnya berarti \"udang kencing\", karena semburan airnya saat diangkat dari tangki.",
@@ -6080,6 +6855,7 @@ module.exports = {
     zh: "香港海鲜市场的濑尿虾；粤语这名字的意思正是「会撒尿的虾」——从水缸里提起来时它会喷水。",
     ja: "香港の海鮮市場のシャコ。広東語の名は「小便をする海老」の意で、水槽から持ち上げると水を吹くことに由来します。",
     es: "Galera de los mercados de marisco de Hong Kong; su nombre cantonés significa «gamba que orina», por el chorro que lanza al sacarla.",
+    ko: "홍콩 수산시장의 갯가재로, 광둥어 이름은 수조에서 들어 올릴 때 물을 뿜는 모습에서 왔습니다.",
   },
   "hong-kong::pineapple bun": {
     id: "Roti manis Hong Kong dengan kerak gula retak di atasnya yang mirip kulit nanas; di dalamnya tak ada nanas sama sekali.",
@@ -6088,6 +6864,7 @@ module.exports = {
     zh: "香港的菠萝包：面上一层酥糖皮，裂纹像菠萝的表皮；里头其实一点菠萝也没有。",
     ja: "ひび割れた砂糖の皮がパイナップルの表面に似た香港の菓子パン。パイナップルは一切入っていません。",
     es: "Bollo dulce hongkonés con costra de azúcar agrietada que recuerda a la piel de una piña; no lleva piña alguna.",
+    ko: "윗면의 설탕 껍질이 갈라져 파인애플 껍질처럼 보이는 홍콩의 단빵으로, 실제 파인애플은 들어가지 않습니다.",
   },
   "hong-kong::roasted goose": {
     id: "Hidangan siu mei Kanton: angsa berbumbu dipanggang di atas arang hingga kulitnya renyah, biasanya disajikan dengan saus plum.",
@@ -6096,6 +6873,7 @@ module.exports = {
     zh: "广式烧味的烧鹅：调过味的鹅在炭火上烤到皮脆；通常配酸梅酱。",
     ja: "広東の焼味の一品。味つけした鵞鳥を炭火で皮がぱりっとするまで焼き、ふつう梅のたれを添えます。",
     es: "Plato cantonés de siu mei: ganso sazonado asado al carbón hasta que la piel queda crujiente; se sirve con salsa de ciruela.",
+    ko: "간을 한 거위를 숯불에 구워 껍질을 바삭하게 만든 광둥 시우메이 요리로, 보통 매실 소스를 곁들입니다.",
   },
   "hong-kong::shrimp wonton noodle": {
     id: "Hidangan Kanton: pangsit udang, atau udang dan babi, disajikan bersama mi telur tipis dalam kuah ringan dari ikan sebelah kering.",
@@ -6104,6 +6882,7 @@ module.exports = {
     zh: "广东的鲜虾云吞面：云吞包虾，或虾与猪肉，配细蛋面，汤底用大地鱼吊得清亮。",
     ja: "広東の料理。海老、あるいは海老と豚のワンタンを細い卵麺に合わせ、干し平目の澄んだだしで供します。",
     es: "Plato cantonés de wontones de gamba, o de gamba y cerdo, con fideos finos al huevo en un caldo ligero de platija seca.",
+    ko: "새우나 새우와 돼지고기를 넣은 완탕에 가는 달걀면을 곁들여 말린 넙치로 낸 맑은 국물에 내는 광둥 요리입니다.",
   },
   "hong-kong::siu mai street": {
     id: "Camilan jalanan Hong Kong: siu mai pasta ikan berkulit kuning, disajikan di tusuk bambu dengan kecap manis dan saus cabai.",
@@ -6112,6 +6891,7 @@ module.exports = {
     zh: "香港街头的烧卖：黄皮包鱼肉馅，竹签串着，浇甜豉油与辣椒酱。",
     ja: "香港の屋台の焼売。黄色い皮に魚のすり身を包み、竹串に刺して甘い醤油とチリソースをかけます。",
     es: "Aperitivo callejero hongkonés de siu mai de pasta de pescado con envoltura amarilla, en brochetas con soja dulce y salsa de chile.",
+    ko: "노란 피에 생선살을 채운 시우마이를 대나무 꼬치에 꿰어 달콤한 간장과 칠리소스를 곁들이는 홍콩의 길거리 간식입니다.",
   },
   "hong-kong::siu mei platter": {
     id: "Piring Kanton berisi aneka siu mei, daging panggang api seperti char siu, bebek panggang, dan babi berkulit renyah; andalan Hong Kong.",
@@ -6120,6 +6900,7 @@ module.exports = {
     zh: "广式烧味拼盘：叉烧、烧鸭、脆皮烧肉等明火烧腊拼在一碟；香港的家常。",
     ja: "叉焼、焼き鴨、皮パリの焼き豚など、直火で焼いた広東の焼味を盛り合わせた一皿。香港の定番です。",
     es: "Fuente cantonesa de siu mei variados —carnes asadas al fuego como char siu, pato asado y cerdo crujiente—; un básico de Hong Kong.",
+    ko: "차슈와 구운 오리, 바삭한 돼지고기 같은 광둥식 직화 구이를 모아 담은 모둠으로, 홍콩의 대표 음식입니다.",
   },
   "hong-kong::sweet and sour pork hk": {
     id: "Hidangan Kanton: babi berbalut adonan digoreng lalu diaduk dalam saus asam manis dengan paprika dan nanas; asal Guangdong abad ke-18.",
@@ -6128,6 +6909,7 @@ module.exports = {
     zh: "广东的咕噜肉：猪肉裹粉炸香，与甜酸汁、彩椒、菠萝同炒；源自十八世纪的广东。",
     ja: "衣をつけて揚げた豚肉を、ピーマンとパイナップル入りの甘酢あんで和える広東の料理。十八世紀の広東に発します。",
     es: "Plato cantonés de cerdo rebozado y frito en salsa agridulce con pimiento y piña; nacido en la Cantón del siglo XVIII.",
+    ko: "반죽을 입혀 튀긴 돼지고기를 피망과 파인애플과 함께 새콤달콤한 소스에 버무린 광둥 요리로, 18세기 광둥성에서 비롯됐습니다.",
   },
   "hong-kong::typhoon shelter crab": {
     id: "Kepiting tumis khas Hong Kong yang berselimut bawang putih goreng renyah, cabai, dan tauco hitam.",
@@ -6136,6 +6918,7 @@ module.exports = {
     zh: "香港的避风塘炒蟹：蟹上覆满炸得金脆的蒜蓉、辣椒与豆豉。",
     ja: "香港の炒め蟹。カリカリに揚げたにんにく、唐辛子、豆豉をたっぷりまとわせます。",
     es: "Cangrejo salteado hongkonés cubierto de ajo frito crujiente, guindilla y judías negras fermentadas.",
+    ko: "바삭하게 튀긴 마늘과 고추, 발효 검은콩을 게에 잔뜩 입혀 볶은 홍콩 요리입니다.",
   },
   "hong-kong::yuan yang": {
     id: "Minuman cha chaan teng Hong Kong yang mencampur kopi dengan teh susu, kira-kira tiga banding tujuh; dinamai bebek mandarin.",
@@ -6144,6 +6927,7 @@ module.exports = {
     zh: "港式茶餐厅的鸳鸯：咖啡兑奶茶，约三比七；名字取自鸳鸯，成双成对的意思。",
     ja: "香港の茶餐廳の飲み物。コーヒーとミルクティーをおよそ三対七で。名は「鴛鴦」、つがいの象徴からきています。",
     es: "Bebida de cha chaan teng hongkonés que mezcla café con té con leche, unos 3:7; su nombre alude al pato mandarín, símbolo de pareja.",
+    ko: "커피와 밀크티를 대략 3대 7로 섞은 홍콩 차찬텡 음료로, 짝을 상징하는 원앙에서 이름을 땄습니다.",
   },
   "hunan::chairman mao's red braised pork": {
     id: "Dadu perut babi Hunan yang dibraise dalam saus karamel-kecap yang manis gurih bersama cabai kering; dinamai dari Mao Zedong.",
@@ -6152,6 +6936,7 @@ module.exports = {
     zh: "湖南的毛氏红烧肉：五花肉切块，用糖色与酱油烧得咸甜，配干辣椒；名字取自毛泽东。",
     ja: "湖南の豚バラの角煮。カラメルと醤油の甘じょっぱいたれに乾燥唐辛子を加えます。名は毛沢東にちなみます。",
     es: "Dados de panceta de Hunan guisados en salsa de caramelo y soja dulce-salada con chiles secos; llevan el nombre de Mao Zedong.",
+    ko: "삼겹살을 달콤짭짤한 캐러멜 간장 소스에 말린 고추와 함께 조린 후난 요리로, 마오쩌둥의 이름이 붙었습니다.",
   },
   "hunan::changde beef rice noodle": {
     id: "Sandung lamur sapi yang dibraise perlahan di atas mi beras yang licin dalam kaldu tulang berempah; sarapan ikonis kota Changde, Hunan.",
@@ -6160,6 +6945,7 @@ module.exports = {
     zh: "常德的牛肉粉：慢炖的牛腩铺在滑溜的米粉上，汤是香料骨汤；这是常德城的招牌早点。",
     ja: "じっくり煮込んだ牛バラを、なめらかな米麺と香辛料の骨のスープに合わせます。湖南常徳を象徴する朝食です。",
     es: "Falda de ternera guisada despacio sobre fideos de arroz sedosos en caldo de huesos especiado; el desayuno icónico de Changde, Hunan.",
+    ko: "향신 사골 국물에 매끄러운 쌀국수와 오래 조린 소 양지를 올린 요리로, 후난 창더시를 상징하는 아침 식사입니다.",
   },
   "hunan::changsha stinky tofu": {
     id: "Tahu fermentasi goreng khas Changsha, Hunan; direndam air garam rebung musim dingin sampai kulitnya sehitam arang.",
@@ -6168,6 +6954,7 @@ module.exports = {
     zh: "长沙油炸臭豆腐，豆腐以冬笋卤水浸泡，表皮乌黑如炭。",
     ja: "湖南・長沙の揚げ臭豆腐。冬筍の漬け汁に漬け込み、皮が炭のように黒くなる。",
     es: "Tofu fermentado negro y frito de Changsha, en Hunan; se curte en salmuera de brotes de bambú hasta ennegrecer la corteza.",
+    ko: "후난 창사의 검은 발효 두부 튀김으로, 겨울 죽순을 넣은 소금물에 담가 겉이 숯처럼 새까매집니다.",
   },
   "hunan::crispy fried duck hunan": {
     id: "Bebek jamuan khas Changsha, Hunan: dilumuri wijen lalu digoreng dalam minyak kacang hingga keemasan, renyah di luar dan lembut di dalam.",
@@ -6176,6 +6963,7 @@ module.exports = {
     zh: "长沙的宴席鸭：裹上芝麻，用花生油炸到金黄，外酥里嫩。",
     ja: "湖南長沙の宴席の鴨。胡麻をまぶし、落花生油できつね色に揚げます。外は香ばしく中はやわらか。",
     es: "Pato de banquete de Changsha, Hunan: rebozado en sésamo y frito en aceite de cacahuete hasta dorarse, crujiente fuera y tierno dentro.",
+    ko: "오리에 참깨를 입혀 땅콩기름에 노릇하게 튀긴 창사(후난)의 연회 요리로, 겉은 바삭하고 속은 부드럽습니다.",
   },
   "hunan::dong'an chicken": {
     id: "Ayam rebus lalu ditumis bersama cuka, cabai kering, dan merica Sichuan; klasik Hunan sejak Dinasti Tang, dinamai dari Kabupaten Dong'an.",
@@ -6184,6 +6972,7 @@ module.exports = {
     zh: "东安鸡：鸡先白煮，再与醋、干辣椒、花椒同炒；唐代传下的湘菜经典，得名于东安县。",
     ja: "ゆでた鶏を、酢、乾燥唐辛子、花椒とともに炒めます。唐代に遡る湖南の定番で、東安県にちなむ名です。",
     es: "Pollo escalfado y salteado con vinagre, chile seco y pimienta de Sichuan; clásico de Hunan de la era Tang, por el condado de Dong'an.",
+    ko: "데친 닭을 식초와 말린 고추, 산초와 함께 볶은 요리로, 당나라 때부터 이어진 후난의 고전이며 둥안현에서 이름을 땄습니다.",
   },
   "hunan::dry-pot chicken hunan": {
     id: "Hot pot kering berisi ayam yang digoreng cepat dalam minyak bersama cabai dan bawang putih, disajikan tanpa kuah.",
@@ -6192,6 +6981,7 @@ module.exports = {
     zh: "干锅鸡：鸡块在油里与辣椒、蒜快炒，不带汤底上桌。",
     ja: "鶏肉を油で唐辛子とにんにくとともに手早く炒める「乾いた鍋」。スープは入れません。",
     es: "Olla seca de pollo salteado rápidamente en aceite con chile y ajo, servida sin caldo.",
+    ko: "닭고기를 고추와 마늘과 함께 기름에 재빨리 볶아 국물 없이 내는 마른 훠궈 요리입니다.",
   },
   "hunan::hunan beef noodles": {
     id: "Mi beras berkuah sapi khas Changde, Hunan: mi beras bulat dalam kaldu sapi pedas dengan cabai dan merica Sichuan.",
@@ -6200,6 +6990,7 @@ module.exports = {
     zh: "湖南常德的牛肉粉：圆粉泡在辣椒与花椒调的麻辣牛肉汤里。",
     ja: "湖南常徳の牛肉米麺。丸い米麺を、唐辛子と花椒の効いた辛い牛のスープでいただきます。",
     es: "Sopa de fideos de arroz con ternera de Changde, Hunan: fideos redondos en caldo picante de chile y pimienta de Sichuan.",
+    ko: "중국 후난 창더의 소고기 쌀국수로, 둥근 쌀국수를 고추와 산초로 매콤하게 낸 소고기 국물에 넣습니다.",
   },
   "hunan::hunan dry-fried green beans": {
     id: "Buncis digoreng kering sampai berkerut, lalu ditumis dengan babi, cabai, dan merica Sichuan; klasik Sichuan yang lazim di menu Hunan.",
@@ -6208,6 +6999,7 @@ module.exports = {
     zh: "四季豆干煸至起皱，再与肉末、辣椒、花椒同炒；本是川菜，湘菜馆里也常见。",
     ja: "いんげんを乾煎りしてしわが寄るまで炒め、挽き肉と唐辛子、花椒を合わせる。四川の定番だが湖南の店にも並ぶ。",
     es: "Judías verdes salteadas en seco hasta arrugarse y luego con cerdo, guindilla y pimienta de Sichuan; clásico sichuanés en cartas hunanesas.",
+    ko: "줄기콩을 기름에 마르게 볶아 돼지고기와 고추, 산초와 버무린 요리로, 쓰촨의 고전이지만 후난 차림에도 흔히 오릅니다.",
   },
   "hunan::hunan pickled vegetables": {
     id: "Suan cai, sawi atau kubis yang digarami dan difermentasi; gaya Hunan menambahkan jahe dan cabai, berakar pada cara pengawetan kuno.",
@@ -6216,6 +7008,7 @@ module.exports = {
     zh: "酸菜：芥菜或白菜加盐发酵；湖南的做法再添姜与辣椒，源头是古老的贮藏之法。",
     ja: "酸菜。からし菜や白菜を塩で発酵させたもので、湖南風は生姜と唐辛子を加えます。古い保存の術に根があります。",
     es: "Suan cai, mostaza o col saladas y fermentadas; el estilo de Hunan añade jengibre y chile y arraiga en antiguas técnicas de conserva.",
+    ko: "소금에 절여 발효시킨 갓이나 배추인 쏸차이로, 후난식은 생강과 고추를 더하며 오래된 저장법에서 이어졌습니다.",
   },
   "hunan::hunan pumpkin cake": {
     id: "Kue goreng dari labu dan tepung ketan, kenyal di dalam dan renyah di luar; kerap berisi pasta kacang merah dan berbalut wijen.",
@@ -6224,6 +7017,7 @@ module.exports = {
     zh: "南瓜饼：南瓜与糯米粉揉成，煎得外脆内糯；常包豆沙，裹上芝麻。",
     ja: "かぼちゃともち米粉の焼き菓子。中はもっちり、外はカリッと。小豆餡を包み、胡麻をまぶすことも多い。",
     es: "Torta a la sartén de calabaza y harina de arroz glutinoso, correosa por dentro y crujiente fuera; a menudo con pasta de judía y sésamo.",
+    ko: "호박과 찹쌀가루로 부친 떡으로, 속은 쫄깃하고 겉은 바삭하며 흔히 팥소를 넣고 깨를 묻힙니다.",
   },
   "hunan::hunan rice noodles": {
     id: "Mi beras Hunan gaya Changsha: mi beras pipih, yang di sana lebih disukai daripada yang bulat karena lebih menyerap rasa.",
@@ -6232,6 +7026,7 @@ module.exports = {
     zh: "长沙式的湖南米粉：用扁粉，本地人觉得比圆粉更吸味。",
     ja: "長沙風の湖南の米麺。平たい麺で、味をよく吸うため、土地では丸い麺より好まれます。",
     es: "Fideos de arroz de Hunan al estilo de Changsha: planos, preferidos allí a los redondos porque absorben mejor el sabor.",
+    ko: "창사식 후난 쌀국수로, 양념이 잘 배어 이 지방에서는 둥근 면보다 납작한 면을 즐깁니다.",
   },
   "hunan::hunan smoked pork": {
     id: "Perut babi awetan Hunan: digarami dan diangin-anginkan, lalu diasap dingin di atas api kayu agar berasa asap tanpa matang.",
@@ -6240,6 +7035,7 @@ module.exports = {
     zh: "湖南的腊肉：五花肉先腌后风干，再以冷烟熏制，让烟气入味而肉不熟。",
     ja: "湖南の塩漬け豚バラ。塩をして風で干し、冷たい煙で燻して、火を通さずに香りだけを移す。",
     es: "Panceta curada hunanesa: salada y secada al aire, luego ahumada en frío para que el humo la perfume sin llegar a cocinarla.",
+    ko: "삼겹살을 소금에 절여 바람에 말린 뒤 약한 장작불에 차갑게 훈연해, 익히지 않고 훈향만 입힌 후난의 염장육입니다.",
   },
   "hunan::hunan-style steamed fish head": {
     id: "Hidangan Hunan atau Xiang: kepala ikan kepala besar dikukus di bawah cabai merah fermentasi cincang, garam, bawang putih, dan jahe.",
@@ -6248,6 +7044,7 @@ module.exports = {
     zh: "湖南（湘菜）的剁椒鱼头：鳙鱼头铺满剁碎的发酵红椒，加盐、蒜与姜清蒸。",
     ja: "湖南（湘菜）の料理。コクレンの頭に、発酵させて刻んだ赤唐辛子、塩、にんにく、生姜をのせて蒸します。",
     es: "Plato de Hunan (cocina xiang): cabeza de carpa cabezona al vapor bajo chile rojo fermentado picado, sal, ajo y jengibre.",
+    ko: "대두어 머리에 발효한 다진 홍고추(둬자오)와 소금, 마늘, 생강을 얹어 쪄낸 후난(샹) 요리입니다.",
   },
   "hunan::mao family dishes": {
     id: "Masakan rumahan Hunan yang lekat dengan Shaoshan, kampung halaman Mao Zedong; hidangan khasnya adalah babi braise merah ala Mao.",
@@ -6256,6 +7053,7 @@ module.exports = {
     zh: "与毛泽东故里韶山相连的湖南家常菜；招牌一味就是毛氏红烧肉。",
     ja: "毛沢東の故郷、韶山に結びつく湖南の家庭料理。看板は毛氏紅焼肉、毛家風の豚の角煮です。",
     es: "Cocina casera de Hunan ligada a Shaoshan, cuna de Mao Zedong; su plato insignia es el cerdo estofado en rojo al estilo Mao.",
+    ko: "마오쩌둥의 고향 사오산과 얽힌 후난의 가정식으로, 대표 요리는 마오식 훙사오러우입니다.",
   },
   "hunan::orange beef hunan": {
     id: "Hidangan Tionghoa: daging sapi digoreng renyah lalu ditumis bersama kulit jeruk mandarin kering, chenpi, dan cabai kering.",
@@ -6264,6 +7062,7 @@ module.exports = {
     zh: "陈皮牛肉：牛肉炸酥后，与陈皮和干辣椒同炒。",
     ja: "中国の料理。カリッと揚げた牛肉を、干した陳皮と乾燥唐辛子とともに炒めます。",
     es: "Plato chino de ternera frita y crujiente salteada con piel seca de mandarina (chenpi) y chile seco.",
+    ko: "바삭하게 튀긴 소고기를 말린 귤껍질(진피)과 말린 고추와 함께 볶은 중국 요리입니다.",
   },
   "hunan::spicy crayfish hunan": {
     id: "Kekhasan malam hari Changsha, Hunan: lobster air tawar segar ditumis dengan rempah berat, termasuk cabai, merica Sichuan, dan bawang putih.",
@@ -6272,6 +7071,7 @@ module.exports = {
     zh: "长沙的宵夜口味虾：鲜活小龙虾重料爆炒，辣椒、花椒与蒜头都下得足。",
     ja: "湖南長沙の夜の名物。生きたザリガニを、唐辛子、花椒、にんにくをたっぷり効かせて炒めます。",
     es: "Especialidad nocturna de Changsha, Hunan: cangrejos de río frescos salteados con abundantes especias, chile, pimienta de Sichuan y ajo.",
+    ko: "생민물가재를 고추와 산초, 마늘 같은 강한 향신료와 함께 볶아 낸 창사(후난)의 밤참 명물입니다.",
   },
   "hunan::stir-fried pork with chili": {
     id: "Tumis rumahan Hunan berisi irisan babi dan cabai hijau segar; jejaknya sampai ke masa Ming-Qing, disebut sukma masakan Xiang.",
@@ -6280,6 +7080,7 @@ module.exports = {
     zh: "湖南的家常辣椒炒肉：肉片与鲜青椒同炒；可追到明清，被称作湘菜的魂。",
     ja: "豚肉の薄切りと生の青唐辛子を炒める湖南の家庭料理。明清の時代に遡り、湘菜の魂とも呼ばれます。",
     es: "Salteado casero de Hunan de láminas de cerdo y chile verde fresco; se remonta a los Ming-Qing y lo llaman el alma de la cocina xiang.",
+    ko: "저민 돼지고기와 생청양고추를 볶은 후난의 가정식으로, 명청 시대까지 거슬러 오르며 샹 요리의 정수로 불립니다.",
   },
   "indonesian::asinan": {
     id: "Salad Indonesia dari sayur atau buah yang diasinkan atau dicuka; namanya berasal dari kata \"asin\".",
@@ -6288,6 +7089,7 @@ module.exports = {
     zh: "印尼的腌拌盘：蔬菜或水果先用盐水或醋渍过；名字来自「asin」，也就是「咸」。",
     ja: "塩水か酢に漬けた野菜や果物のインドネシアのサラダ。名は「アシン（塩辛い）」に由来します。",
     es: "Ensalada indonesia de verduras o frutas en salmuera o vinagre; el nombre viene de «asin», salado.",
+    ko: "소금물이나 식초에 절인 채소나 과일로 만든 인도네시아 샐러드로, 이름은 '짜다'는 뜻의 '아신'에서 왔습니다.",
   },
   "indonesian::ayam betutu": {
     id: "Ayam utuh khas Bali yang dilumuri dan diisi base genep, bumbu betutu.",
@@ -6296,6 +7098,7 @@ module.exports = {
     zh: "巴厘岛的整鸡：里外抹满并塞进 base genep 香料酱，也就是 bumbu betutu。",
     ja: "バリ島の丸鶏。ブンブ・ブトゥトゥとも呼ばれる香辛料ペースト、バセ・グヌップを擦り込み、詰めて調理します。",
     es: "Pollo entero balinés untado y relleno con base genep, la pasta de especias también llamada bumbu betutu.",
+    ko: "발리식 통닭 요리로, 바세 그늡(붐부 브투투) 향신 반죽을 겉에 바르고 속에도 채워 넣습니다.",
   },
   "indonesian::ayam goreng kalasan": {
     id: "Ayam goreng Indonesia yang ditaburi remah adonan renyah (kremes); berasal dari kawasan Kalasan, Sleman, Yogyakarta.",
@@ -6304,6 +7107,7 @@ module.exports = {
     zh: "印尼炸鸡：顶上撒一层酥脆的面糊碎（kremes）；出自日惹斯勒曼的卡拉桑一带。",
     ja: "カリカリの衣くず（クレメス）をのせたインドネシアの揚げ鶏。ジョグジャカルタ、スレマンのカラサン地方の出です。",
     es: "Pollo frito indonesio coronado con virutas crujientes de masa (kremes); procede de la zona de Kalasan, en Sleman, Yogyakarta.",
+    ko: "바삭한 튀김 부스러기(크르므스)를 올린 인도네시아식 프라이드치킨으로, 욕야카르타 슬레만의 칼라산 지역에서 왔습니다.",
   },
   "indonesian::ayam penyet": {
     id: "Ayam goreng Jawa Timur yang ditekan dengan ulekan agar empuk, disajikan bersama sambal pedas, tahu, tempe, dan lalapan.",
@@ -6312,6 +7116,7 @@ module.exports = {
     zh: "东爪哇的炸鸡：用石杵压扁让肉松软，配辣参巴、豆腐、天贝与生菜。",
     ja: "東ジャワの揚げ鶏を、すりこ木で押しつぶして柔らかくした一皿。辛いサンバル、豆腐、テンペ、生野菜を添えます。",
     es: "Pollo frito de Java Oriental aplastado con la mano de mortero para ablandarlo; con sambal picante, tofu, tempeh y verdura cruda.",
+    ko: "튀긴 닭을 절굿공이로 눌러 부드럽게 만든 동자바 요리로, 매운 삼발과 두부, 템페, 생채소를 곁들입니다.",
   },
   "indonesian::babi guling": {
     id: "Babi guling Bali yang dipanggang di atas tusuk, rongga perutnya diisi bumbu kunyit, bawang putih, jahe, dan rempah lain.",
@@ -6320,6 +7125,7 @@ module.exports = {
     zh: "巴厘岛的烤乳猪：整只穿在铁杆上转烤，腹腔里塞满姜黄、蒜、姜与各色香料打的酱。",
     ja: "バリ島の子豚の丸焼き。腹の中にウコン、にんにく、生姜など香辛料のペーストを詰め、串に刺して焼きます。",
     es: "Cochinillo balinés asado al espetón, con la cavidad rellena de una pasta de cúrcuma, ajo, jengibre y otras especias.",
+    ko: "강황과 마늘, 생강 등을 섞은 향신 반죽을 배 속에 채워 꼬챙이에 꿰어 구운 발리식 새끼돼지 통구이입니다.",
   },
   "indonesian::bakso": {
     id: "Bakso sapi Indonesia yang disajikan dalam kuah bersama mi; namanya berasal dari bahasa Hokkien \"bak-so\", daging yang dilumatkan.",
@@ -6328,6 +7134,7 @@ module.exports = {
     zh: "印尼的牛肉丸：丸子泡在汤里，配面条；名字来自福建话的「肉酥」（bak-so）。",
     ja: "スープに麺とともに供されるインドネシアの牛肉団子。名は福建語の「肉酥（バッソー）」に由来します。",
     es: "Albóndigas indonesias de pasta de ternera servidas en caldo con fideos; el nombre viene del hokkien «bak-so», carne desmenuzada.",
+    ko: "소고기 반죽으로 빚은 인도네시아 완자를 국물에 국수와 함께 내는 요리로, 이름은 호키엔어 '박소'에서 왔습니다.",
   },
   "indonesian::batagor": {
     id: "Hidangan Sunda: pangsit ikan goreng dalam saus kacang, diciptakan di Bandung pada 1968; namanya singkatan \"baso tahu goreng\".",
@@ -6336,6 +7143,7 @@ module.exports = {
     zh: "巽他菜：炸鱼饺配花生酱，一九六八年在万隆问世；名字是「baso tahu goréng」的缩写。",
     ja: "スンダの料理。揚げた魚の団子にピーナッツソースをかけます。一九六八年バンドン生まれで、名は baso tahu goréng の略。",
     es: "Plato sundanés de empanadillas de pescado fritas en salsa de cacahuete, creado en Bandung en 1968; el nombre abrevia «baso tahu goréng».",
+    ko: "땅콩 소스를 끼얹은 순다식 생선 튀김만두로, 1968년 반둥에서 만들어졌으며 이름은 '바소 타후 고렝'의 줄임말입니다.",
   },
   "indonesian::dadar gulung indonesian": {
     id: "Dadar gulung Indonesia yang hijau dari pandan atau daun suji, berisi kelapa parut dan gula aren; digemari di Jawa.",
@@ -6344,6 +7152,7 @@ module.exports = {
     zh: "印尼的卷薄饼：香兰或树蓝叶染绿，包椰丝与椰糖；在爪哇很受欢迎。",
     ja: "パンダンかスジの葉で緑に染めたインドネシアの巻きクレープ。削りココナッツとヤシ砂糖を包み、ジャワで親しまれます。",
     es: "Crepe enrollado indonesio, verde de pandan u hoja de suji, relleno de coco rallado y azúcar de palma; muy popular en Java.",
+    ko: "판단이나 수지잎으로 초록빛을 낸 인도네시아식 말이 전병으로, 코코넛채와 야자설탕을 채우며 자바에서 널리 사랑받습니다.",
   },
   "indonesian::es teler": {
     id: "Hidangan es Indonesia berisi alpukat, nangka, dan kelapa muda dengan es serut dan susu kental manis; juara lomba minuman nasional 1982.",
@@ -6352,6 +7161,7 @@ module.exports = {
     zh: "印尼的冰甜品：牛油果、菠萝蜜与嫩椰肉，加刨冰与炼奶；一九八二年全国饮品比赛的冠军。",
     ja: "アボカド、ジャックフルーツ、若いココナッツにかき氷と練乳を合わせたインドネシアの氷菓。一九八二年の全国飲料コンテスト優勝作。",
     es: "Postre helado indonesio de aguacate, yaca y coco tierno con hielo picado y leche condensada; ganó un concurso nacional en 1982.",
+    ko: "아보카도와 잭프루트, 어린 코코넛에 간 얼음과 연유를 올린 인도네시아 디저트로, 1982년 국민 음료 대회에서 우승했습니다.",
   },
   "indonesian::gulai ikan": {
     id: "Gulai ikan Indonesia yang direbus dalam kuah santan, diwarnai dan dibumbui kunyit.",
@@ -6360,6 +7170,7 @@ module.exports = {
     zh: "印尼的鱼咖喱：鱼在椰浆汁里慢煨，姜黄既上色也提味。",
     ja: "ココナッツミルクの汁で煮込むインドネシアの魚料理。色も香りもウコンによります。",
     es: "Guiso indonesio de pescado cocido en una salsa de leche de coco coloreada y especiada con cúrcuma.",
+    ko: "강황으로 색과 향을 낸 코코넛밀크 소스에 생선을 끓인 인도네시아 찜입니다.",
   },
   "indonesian::gulai kambing": {
     id: "Gulai kambing Indonesia yang direbus dalam santan dan bumbu berbasis kunyit; berakar pada masakan Minangkabau di Sumatera Barat.",
@@ -6368,6 +7179,7 @@ module.exports = {
     zh: "印尼的羊肉咖喱：山羊肉或绵羊肉在椰浆与姜黄底的香料里慢炖；根在西苏门答腊的米南加保菜。",
     ja: "ヤギか羊の肉をココナッツミルクとウコン主体の香辛料で煮込むインドネシアのカレー。西スマトラのミナンカバウ料理に根があります。",
     es: "Curry indonesio de cabra o cordero cocido en leche de coco y especias con base de cúrcuma; enraizado en la cocina minangkabau.",
+    ko: "염소나 양고기를 코코넛밀크와 강황 향신료에 끓인 인도네시아 카레로, 서수마트라 미낭카바우 요리에 뿌리를 둡니다.",
   },
   "indonesian::ikan bakar indonesian": {
     id: "Ikan bakar Indonesia dan Melayu di atas arang, biasanya dibumbui bumbu, kecap manis, dan sambal, kerap dibungkus daun pisang.",
@@ -6376,6 +7188,7 @@ module.exports = {
     zh: "印尼与马来的炭烤鱼：抹上香料酱、甜酱油与参巴，常裹香蕉叶再烤。",
     ja: "インドネシアとマレーの炭火焼きの魚。ブンブ、ケチャップマニス、サンバルで味をつけ、バナナの葉で包むことも多い。",
     es: "Pescado a la brasa indonesio y malayo, sazonado por lo común con bumbu, kecap manis y sambal, a menudo envuelto en hoja de plátano.",
+    ko: "붐부와 케찹 마니스, 삼발로 양념해 숯불에 구운 인도네시아·말레이식 생선으로, 흔히 바나나잎에 싸서 굽습니다.",
   },
   "indonesian::lontong sayur": {
     id: "Sarapan Indonesia: lontong dalam sup sayur bersantan; digemari dalam masakan Betawi dan Minangkabau.",
@@ -6384,6 +7197,7 @@ module.exports = {
     zh: "印尼的早餐：压实的米糕 lontong 泡在椰浆蔬菜汤里；在巴达维亚菜与米南加保菜里都很吃香。",
     ja: "インドネシアの朝食。押し固めた米餅ロントンを、ココナッツミルクの野菜スープに浸します。ブタウィとミナンカバウの料理で人気。",
     es: "Desayuno indonesio: pasteles de arroz prensado (lontong) en sopa de verduras con leche de coco; muy querido entre betawis y minangkabaus.",
+    ko: "눌러 굳힌 밥떡 론통을 코코넛밀크 채소 수프에 넣은 인도네시아식 아침 식사로, 브타위와 미낭카바우 요리에서 사랑받습니다.",
   },
   "indonesian::martabak manis": {
     id: "Panekuk manis Indonesia yang tebal, dilipat menutupi isian; lahir di Kepulauan Bangka Belitung di kalangan Tionghoa sebagai \"Hok Lo Pan\".",
@@ -6392,6 +7206,7 @@ module.exports = {
     zh: "印尼的厚甜煎饼：对折起来把馅裹住；起于邦加勿里洞群岛的华人之间，本名「福佬饼」。",
     ja: "厚みのあるインドネシアの甘い焼き菓子。具をのせて二つ折りにします。バンカ・ブリトゥン諸島の華人の間で「福佬餅」として生まれました。",
     es: "Crepe dulce y grueso indonesio doblado sobre el relleno; nació en las islas Bangka Belitung entre la comunidad china como «Hok Lo Pan».",
+    ko: "소를 넣고 반으로 접는 두툼하고 달콤한 인도네시아 전으로, 방카블리퉁 제도의 화교들이 '혹로판'이라 부르며 만들었습니다.",
   },
   "indonesian::martabak telur": {
     id: "Martabak telur Indonesia: panekuk goreng gurih yang diisi telur, daging cincang berbumbu, dan daun bawang.",
@@ -6400,6 +7215,7 @@ module.exports = {
     zh: "印尼的咸煎饼：面皮下锅煎，里头包鸡蛋、调味肉碎与青葱。",
     ja: "インドネシアの塩味の詰め物入り焼き菓子。卵、味つけした挽肉、青ねぎを包んで焼きます。",
     es: "Crepe frito salado y relleno indonesio, con huevo, carne picada sazonada y cebolleta.",
+    ko: "달걀과 양념한 다진 고기, 파를 채워 부친 인도네시아식 짭짤한 전입니다.",
   },
   "indonesian::nasi goreng": {
     id: "Nasi goreng Indonesia/Melayu yang ditumis dengan kecap manis, bawang merah, bawang putih, dan terasi; kerap memakai nasi sisa.",
@@ -6408,6 +7224,7 @@ module.exports = {
     zh: "印尼／马来炒饭：米饭与甜酱油、红葱头、蒜与虾酱同炒；常用隔夜饭。",
     ja: "ケチャップマニス、赤わけぎ、にんにく、エビ味噌で炒めるインドネシア・マレーの炒飯。残りご飯を使うことも多い。",
     es: "Arroz frito indonesio-malayo salteado con soja dulce (kecap manis), chalota, ajo y pasta de gambas; a menudo con arroz del día antes.",
+    ko: "케찹 마니스와 샬롯, 마늘, 새우장에 볶아 낸 인도네시아·말레이식 볶음밥으로, 흔히 남은 밥으로 만듭니다.",
   },
   "indonesian::nasi padang": {
     id: "Hidangan Minangkabau berupa nasi putih dengan aneka lauk yang sudah dimasak, dari Sumatera Barat; namanya diambil dari kota Padang.",
@@ -6416,6 +7233,7 @@ module.exports = {
     zh: "米南加保的巴东饭：白饭配上西苏门答腊事先煮好的各色菜肴；名字取自巴东城。",
     ja: "西スマトラの作り置きの惣菜を白飯に添えるミナンカバウの料理。名はパダンの町に由来します。",
     es: "Plato minangkabau de arroz al vapor con guarniciones ya cocinadas de Sumatra Occidental; su nombre viene de la ciudad de Padang.",
+    ko: "서수마트라의 미리 만든 반찬을 흰밥에 곁들여 내는 미낭카바우 방식으로, 파당이라는 도시 이름에서 왔습니다.",
   },
   "indonesian::nasi uduk": {
     id: "Nasi Indonesia yang ditanak dengan santan, cengkeh, serai, dan kayu manis; khas Betawi Jakarta, disajikan bersama aneka lauk.",
@@ -6424,6 +7242,7 @@ module.exports = {
     zh: "印尼的椰浆饭：米与椰浆、丁香、香茅、桂皮同蒸；雅加达巴达维亚人的招牌，配各式小菜。",
     ja: "ココナッツミルクにクローブ、レモングラス、シナモンを加えて炊いたインドネシアの飯。ジャカルタのブタウィの名物で、惣菜を添えます。",
     es: "Arroz indonesio cocido al vapor en leche de coco con clavo, citronela y canela; especialidad betawi de Yakarta, servido con guarniciones.",
+    ko: "정향과 레몬그라스, 계피 껍질을 넣어 코코넛밀크로 지은 밥으로, 자카르타 브타위의 명물이며 여러 반찬과 함께 냅니다.",
   },
   "indonesian::pepes ikan": {
     id: "Hidangan Indonesia berupa ikan berbumbu yang dibungkus daun pisang lalu dikukus atau dibakar.",
@@ -6432,6 +7251,7 @@ module.exports = {
     zh: "印尼菜：调好味的鱼裹进香蕉叶，再上锅蒸或上火烤。",
     ja: "味つけした魚をバナナの葉で包み、蒸すか焼くインドネシアの料理。",
     es: "Plato indonesio de pescado especiado envuelto en hoja de plátano y luego cocido al vapor o a la brasa.",
+    ko: "향신료로 양념한 생선을 바나나잎에 싸서 찌거나 구운 인도네시아 요리입니다.",
   },
   "indonesian::pisang goreng": {
     id: "Camilan Indonesia/Melayu berupa pisang goreng, kerap berbalut adonan; menurut tradisi disantap bersama teh atau kopi.",
@@ -6440,6 +7260,7 @@ module.exports = {
     zh: "印尼与马来的零嘴：香蕉下油锅炸，多半裹面糊；照老规矩配茶或咖啡吃。",
     ja: "インドネシア・マレーのおやつ。バナナを、たいていは衣をつけて揚げます。伝統的には茶かコーヒーとともに。",
     es: "Tentempié indonesio-malayo de plátanos fritos, a menudo rebozados; tradicionalmente se comen con té o café.",
+    ko: "잘 익은 바나나에 흔히 반죽을 입혀 튀긴 인도네시아·말레이식 간식으로, 전통적으로 차나 커피와 함께 먹습니다.",
   },
   "indonesian::rawon": {
     id: "Sup daging sapi Jawa Timur yang menghitam dan bercita rasa seperti kacang berkat kluwek tumbuk; sup terbaik dunia versi TasteAtlas 2024.",
@@ -6448,6 +7269,7 @@ module.exports = {
     zh: "东爪哇的黑牛肉汤：黑果磨碎让汤色发黑，带出坚果般的醇味；二〇二四年被 TasteAtlas 评为世界最佳汤品。",
     ja: "東ジャワの牛肉スープ。搗いたクルアッの実で黒く染まり、木の実のようなこくが出ます。二〇二四年、TasteAtlas の世界一のスープ。",
     es: "Sopa de ternera de Java Oriental, ennegrecida y con sabor a fruto seco por las nueces keluak molidas; mejor sopa del mundo por TasteAtlas.",
+    ko: "클루악 열매를 갈아 넣어 검고 고소한 동자바식 소고기 수프로, 2024년 세계 최고의 수프로 꼽혔습니다.",
   },
   "indonesian::rendang": {
     id: "Hidangan Minangkabau dari Sumatera Barat: daging dimasak lama dalam santan berempah hingga kering; mula-mula demi mengawetkan daging.",
@@ -6456,6 +7278,7 @@ module.exports = {
     zh: "西苏门答腊的米南加保菜：肉在香料椰浆里久煨至干；最初的用意是把肉存住。",
     ja: "西スマトラのミナンカバウ料理。肉を香辛料入りのココナッツミルクで水分が飛ぶまで煮込みます。もとは肉を保たせるための技でした。",
     es: "Plato minangkabau de Sumatra Occidental: carne cocida largamente en leche de coco especiada hasta secarse; en origen, para conservarla.",
+    ko: "서수마트라 미낭카바우 요리로, 고기를 코코넛밀크와 향신료에 국물이 없어질 때까지 졸이며 본래는 고기를 오래 두려고 만들었습니다.",
   },
   "indonesian::rujak": {
     id: "Rujak asal Jawa: salad buah dan sayur pedas dalam saus gula aren, asam jawa, cabai, dan terasi.",
@@ -6464,6 +7287,7 @@ module.exports = {
     zh: "源自爪哇的印尼辣拌盘：水果与蔬菜拌进椰糖、亚参、辣椒与虾酱调的汁。",
     ja: "ジャワに発するインドネシアの辛い果物と野菜のサラダ。ヤシ砂糖、タマリンド、唐辛子、エビ味噌のたれで和えます。",
     es: "Ensalada indonesia de origen javanés de fruta y verdura en salsa picante de azúcar de palma, tamarindo, chile y pasta de gambas.",
+    ko: "야자설탕과 타마린드, 고추, 새우장 소스에 버무린 자바에서 온 인도네시아식 매콤한 과일 채소 샐러드입니다.",
   },
   "indonesian::siomay": {
     id: "Siomay Indonesia: pangsit ikan kukus dalam saus kacang, saduran perantau Tionghoa atas shumai Kanton dengan ikan tenggiri.",
@@ -6472,6 +7296,7 @@ module.exports = {
     zh: "印尼的鱼肉烧卖：蒸熟后浇花生酱；华人移民把广式烧卖改用马鲛鱼做成。",
     ja: "落花生のたれをかけたインドネシアの蒸し魚シュウマイ。華人移民が広東の焼売を、サワラを使って翻案しました。",
     es: "Empanadillas indonesias de pescado al vapor en salsa de cacahuete, adaptación china del shumai cantonés hecha con caballa.",
+    ko: "땅콩 소스를 끼얹은 인도네시아식 생선 찐만두로, 화교 이민자들이 광둥 시우마이를 고등어로 바꿔 만들었습니다.",
   },
   "indonesian::soto betawi": {
     id: "Sup daging dan jeroan khas Jakarta, direbus dalam kuah santan yang gurih dan kental, kerap dicampur susu sapi.",
@@ -6480,6 +7305,7 @@ module.exports = {
     zh: "雅加达的牛肉杂碎汤：椰浆熬出浓稠奶白的汤底，常再兑上牛奶。",
     ja: "ジャカルタの牛肉と内臓のスープ。ココナッツミルクのこくのある白い汁で煮込み、牛乳を合わせることもよくあります。",
     es: "Sopa yakartesa de ternera y casquería cocida en un caldo espeso y cremoso de leche de coco, a menudo mezclada con leche de vaca.",
+    ko: "코코넛밀크에 흔히 우유를 섞어 진하게 끓인 국물에 소고기와 내장을 넣은 자카르타 수프입니다.",
   },
   "indonesian::soto kudus": {
     id: "Sup Indonesia yang bening dan harum dari Kudus, Jawa Tengah, dimasak dengan daging ayam atau kerbau.",
@@ -6488,6 +7314,7 @@ module.exports = {
     zh: "中爪哇古突士的印尼清汤：汤色清亮而香，用鸡肉或水牛肉煮成。",
     ja: "中部ジャワのクドゥスに伝わる、澄んで香り高いインドネシアのスープ。鶏肉か水牛の肉で作ります。",
     es: "Sopa indonesia clara y aromática de Kudus, en Java Central, hecha con pollo o carne de búfalo de agua.",
+    ko: "중부 자바 쿠두스에서 온 맑고 향긋한 인도네시아 수프로, 닭고기나 물소고기를 씁니다.",
   },
   "indonesian::soto madura": {
     id: "Varian soto khas Madura: ayam, daging sapi, atau jeroan dalam kuah kunyit kuning yang bening; dari Pulau Madura, Jawa Timur.",
@@ -6496,6 +7323,7 @@ module.exports = {
     zh: "马都拉式的 soto：鸡肉、牛肉或杂碎泡在澄黄的姜黄清汤里；来自东爪哇的马都拉岛。",
     ja: "マドゥラ風のソト。鶏、牛、あるいは内臓を、澄んだ黄色いターメリックのスープで。東ジャワのマドゥラ島から。",
     es: "Variante madurés del soto: pollo, ternera o casquería en un caldo claro y amarillo de cúrcuma; de la isla de Madura, Java Oriental.",
+    ko: "동자바 마두라섬에서 온 소토의 변형으로, 닭이나 소고기, 내장을 맑은 노란 강황 국물에 넣어 냅니다.",
   },
   "indonesian::tahu goreng indonesian": {
     id: "Tahu goreng Indonesia/Melayu; \"tahu\" berarti tahu dan \"goreng\" berarti digoreng, kerap disajikan dengan kecap manis cabai-bawang.",
@@ -6504,6 +7332,7 @@ module.exports = {
     zh: "印尼／马来的炸豆腐；「tahu」是豆腐，「goreng」是炸，常配辣椒红葱甜酱油。",
     ja: "インドネシア・マレーの揚げ豆腐。「タフ」は豆腐、「ゴレン」は揚げるの意で、唐辛子と赤わけぎの甘い醤油を添えます。",
     es: "Tofu frito indonesio-malayo; «tahu» es tofu y «goreng», frito; suele servirse con soja dulce de chile y chalota.",
+    ko: "인도네시아·말레이식 두부 튀김. '타후'는 두부, '고렝'은 튀김을 뜻하며 고추와 샬롯을 넣은 달콤한 간장을 곁들입니다.",
   },
   "indonesian::tempeh goreng": {
     id: "Tempe goreng Indonesia, olahan paling digemari dari kue kedelai fermentasi tradisional Jawa.",
@@ -6512,6 +7341,7 @@ module.exports = {
     zh: "印尼炸天贝：爪哇传统的发酵大豆饼，最受欢迎的做法就是下油锅。",
     ja: "インドネシアの揚げテンペ。ジャワ伝統の発酵大豆の塊から作る料理で、いちばん親しまれている食べ方です。",
     es: "Tempeh frito indonesio, el plato más popular hecho con la torta tradicional javanesa de soja fermentada.",
+    ko: "자바의 전통 발효 콩덩이 템페를 튀긴 요리로, 템페로 만드는 음식 가운데 가장 널리 사랑받습니다.",
   },
   "israeli::amba": {
     id: "Bumbu mangga asinan yang tajam, diberi fenugreek dan kunyit; dibawa ke Israel oleh orang Yahudi Irak pada 1950-an.",
@@ -6520,6 +7350,7 @@ module.exports = {
     zh: "酸香的腌芒果调味酱，以葫芦巴与姜黄调味；1950年代由伊拉克犹太人带入以色列。",
     ja: "フェヌグリークとターメリックで香りづけした酸味の強いマンゴーの漬け調味料。1950年代にイラク系ユダヤ人が伝えた。",
     es: "Condimento agrio de mango encurtido con fenogreco y cúrcuma, llevado a Israel por los judíos iraquíes en los años cincuenta.",
+    ko: "호로파와 강황으로 간한 새콤한 절인 망고 양념으로, 1950년대 이라크계 유대인들이 이스라엘에 들여왔습니다.",
   },
   "israeli::bourekas": {
     id: "Pastri gurih panggang dari adonan puff atau filo berisi keju, kentang, atau bayam.",
@@ -6528,6 +7359,7 @@ module.exports = {
     zh: "烤制的咸味酥点，用起酥皮或薄酥皮包奶酪、马铃薯或菠菜。",
     ja: "パイ生地やフィロ生地でチーズ、じゃがいも、ほうれん草を包んで焼く塩味の菓子パン。",
     es: "Empanadilla salada al horno de hojaldre o pasta filo rellena de queso, patata o espinaca.",
+    ko: "퍼프나 필로 반죽에 치즈나 감자, 시금치를 채워 구운 짭조름한 페이스트리입니다.",
   },
   "israeli::challah": {
     id: "Roti telur berkepang yang disantap saat Sabat dan hari raya Yahudi; tradisi mengepangnya bermula di Austria dan Jerman abad ke-15.",
@@ -6536,6 +7368,7 @@ module.exports = {
     zh: "编成辫子的鸡蛋面包，在安息日与犹太节日食用；编织的传统始于15世纪的奥地利与德国。",
     ja: "安息日やユダヤの祝祭に食べる編み込みの卵パン。編む習わしは15世紀のオーストリアとドイツで始まった。",
     es: "Pan trenzado de huevo que se come en Sabbat y las fiestas judías; la tradición de trenzarlo nació en Austria y Alemania en el siglo XV.",
+    ko: "안식일과 유대 명절에 먹는 땋은 달걀빵으로, 땋는 전통은 15세기 오스트리아와 독일에서 시작됐습니다.",
   },
   "israeli::cholent": {
     id: "Semur Sabat Yahudi yang ditim perlahan dari daging, kacang, kentang, dan jelai; dibuat Yahudi Ashkenazi agar tak memasak saat Sabat.",
@@ -6544,6 +7377,7 @@ module.exports = {
     zh: "犹太安息日的慢炖菜，用肉、豆、马铃薯与大麦同煨；阿什肯纳兹犹太人发明它，以免在安息日动火。",
     ja: "肉、豆、じゃがいも、大麦をとろ火で煮込むユダヤの安息日の煮込み。安息日に調理せずに済むようアシュケナジムが考案した。",
     es: "Guiso judío del Sabbat de carne, alubias, patata y cebada cocido muy lentamente; los asquenazíes lo idearon para no cocinar en Sabbat.",
+    ko: "고기와 콩, 감자, 보리를 오래 끓인 유대인의 안식일 스튜로, 안식일에 불을 쓰지 않으려 아슈케나지 유대인들이 만들었습니다.",
   },
   "israeli::falafel israeli": {
     id: "Jajanan jalanan nasional Israel: bola buncis goreng di dalam pita, saduran dari gorengan kacang fava yang asalnya Mesir.",
@@ -6552,6 +7386,7 @@ module.exports = {
     zh: "以色列的国民街头小吃：炸鹰嘴豆丸夹在皮塔饼里，改自原本用蚕豆的埃及炸饼。",
     ja: "イスラエルの国民的な屋台料理。揚げたひよこ豆の団子をピタに挟む。元はソラマメで作るエジプトの料理を作り替えたもの。",
     es: "Comida callejera nacional de Israel: bolas fritas de garbanzo en pan de pita, adaptadas del buñuelo egipcio de habas.",
+    ko: "병아리콩을 공 모양으로 튀겨 피타에 넣은 이스라엘의 국민 길거리 음식으로, 본래 잠두로 만들던 이집트 음식에서 왔습니다.",
   },
   "israeli::halva israeli": {
     id: "Manisan Israel yang padat dan bebas susu, dibuat dari tahini, yakni pasta wijen.",
@@ -6560,6 +7395,7 @@ module.exports = {
     zh: "以色列浓实的无乳甜食，用芝麻酱（tahini）制成。",
     ja: "乳製品を使わない、みっちりとしたイスラエルの菓子。ごまのペースト（タヒニ）で作る。",
     es: "Dulce israelí denso y sin lácteos elaborado con tahina, es decir, pasta de sésamo.",
+    ko: "타히니(참깨 페이스트)로 만든 조밀하고 유제품이 들어가지 않는 이스라엘 과자입니다.",
   },
   "israeli::hummus israeli": {
     id: "Cocolan Levant dari buncis lumat, tahini, lemon, dan bawang putih; Israel menyebutnya hidangan nasional, walau asalnya diperdebatkan.",
@@ -6568,6 +7404,7 @@ module.exports = {
     zh: "顺滑的黎凡特蘸酱，用鹰嘴豆泥、芝麻酱、柠檬与大蒜制成；以色列称之为国菜，但起源仍有争议。",
     ja: "ひよこ豆、タヒニ、レモン、ニンニクのなめらかなレヴァントのディップ。イスラエルは国民食と称するが、起源には争いがある。",
     es: "Dip levantino cremoso de garbanzo, tahina, limón y ajo; Israel lo declaró plato nacional, aunque su origen sigue en disputa.",
+    ko: "으깬 병아리콩과 타히니, 레몬, 마늘로 만든 크리미한 레반트 딥으로, 이스라엘은 국민 음식으로 삼았으나 유래는 논쟁 중입니다.",
   },
   "israeli::israeli breakfast platter": {
     id: "Hidangan telur, salad segar, keju, roti, dan olahan susu yang lahir di pertanian kibbutz kolektif Israel pada awal abad ke-20.",
@@ -6576,6 +7413,7 @@ module.exports = {
     zh: "鸡蛋、鲜蔬沙拉、奶酪、面包与乳制品的一桌；20世纪初起于以色列的集体农庄基布兹。",
     ja: "卵、生野菜のサラダ、チーズ、パン、乳製品を並べる朝食。20世紀初頭、イスラエルの共同農場キブツで生まれた。",
     es: "Despliegue de huevos, ensalada fresca, quesos, panes y lácteos nacido a principios del siglo XX en los kibutz colectivos de Israel.",
+    ko: "달걀과 신선한 샐러드, 치즈, 빵, 유제품을 차린 상으로, 20세기 초 이스라엘의 집단 농장 키부츠에서 비롯됐습니다.",
   },
   "israeli::israeli salad": {
     id: "Salad cincang halus dari tomat, mentimun, bawang, dan paprika, berakar pada salad Arab Levant yang ditemui imigran Yahudi di era Utsmaniyah.",
@@ -6584,6 +7422,7 @@ module.exports = {
     zh: "切得细碎的番茄、黄瓜、洋葱与甜椒沙拉；源头是犹太移民在奥斯曼时期遇到的黎凡特阿拉伯沙拉。",
     ja: "トマト、キュウリ、玉ねぎ、パプリカを細かく刻むサラダ。オスマン期にユダヤ系移民が出会ったレヴァントのアラブのサラダに根を持つ。",
     es: "Ensalada finamente picada de tomate, pepino, cebolla y pimiento, arraigada en las ensaladas árabes levantinas de época otomana.",
+    ko: "토마토와 오이, 양파, 피망을 잘게 썬 샐러드로, 오스만령에서 유대인 이주민들이 만난 레반트 아랍 샐러드에 뿌리를 둡니다.",
   },
   "israeli::jachnun": {
     id: "Pastri gulung Yahudi Yaman yang dipanggang perlahan semalaman; disajikan Sabat pagi dengan parutan tomat, telur rebus, dan zhug.",
@@ -6592,6 +7431,7 @@ module.exports = {
     zh: "也门犹太人的卷状酥点，通宵慢烤；传统上在安息日早晨佐番茄泥、水煮蛋与zhug辣酱食用。",
     ja: "イエメン系ユダヤの巻いた生地を一晩かけて低温で焼く菓子パン。安息日の朝、すりおろしトマトとゆで卵、ズフグを添える。",
     es: "Rollo de masa judío yemení horneado lentamente toda la noche; se sirve el sábado con tomate rallado, huevo duro y zhug.",
+    ko: "밤새 천천히 구워 내는 예멘계 유대인의 말이 페이스트리로, 전통적으로 안식일 아침에 간 토마토와 삶은 달걀, 주그와 함께 냅니다.",
   },
   "israeli::kibbeh israeli": {
     id: "Pangsit semolina berisi daging cincang berbumbu yang ditim dalam sup — yang paling masyhur kaldu bit merah tua (marak kubbeh selek).",
@@ -6600,6 +7440,7 @@ module.exports = {
     zh: "粗麦粉团子内包调味肉馅，浸在汤中煮；最著名的是深红色的甜菜汤（marak kubbeh selek）。",
     ja: "香辛料入りのひき肉をセモリナの生地で包み、スープで煮る団子。深紅のビーツのスープ（マラク・クッベ・セレク）が名高い。",
     es: "Albóndigas de sémola rellenas de carne picada especiada cocidas en sopa, sobre todo en un caldo carmesí de remolacha (kubbeh selek).",
+    ko: "세몰리나 반죽에 향신 다진 고기를 채워 국물에 끓인 경단으로, 붉은 비트 국물에 낸 것이 가장 이름났습니다.",
   },
   "israeli::kubaneh": {
     id: "Roti ragi kaya khas Yahudi Yaman yang dipanggang perlahan semalam agar hangat saat sarapan Sabat, kerap dengan telur dan parutan tomat.",
@@ -6608,6 +7449,7 @@ module.exports = {
     zh: "也门犹太人的浓香发酵面包，通宵慢烤，安息日早餐时趁热享用，常配鸡蛋与番茄泥。",
     ja: "イエメン系ユダヤの濃厚な発酵パン。一晩かけてゆっくり焼き、安息日の朝に卵やすりおろしトマトとともに温かいまま食べる。",
     es: "Pan judío yemení enriquecido, horneado despacio toda la noche y servido caliente en el desayuno de Sabbat con huevo y tomate rallado.",
+    ko: "밤새 천천히 구워 안식일 아침에 따뜻하게 내는 예멘계 유대인의 발효빵으로, 흔히 달걀과 간 토마토를 곁들입니다.",
   },
   "israeli::labneh": {
     id: "Keju yogurt tiris khas Levant, kental dan asam segar, disiram minyak zaitun dan disantap bersama roti.",
@@ -6616,6 +7458,7 @@ module.exports = {
     zh: "黎凡特阿拉伯人的滤制酸奶奶酪，浓稠带酸，淋上橄榄油配面包吃。",
     ja: "レバントのアラブの水切りヨーグルトチーズ。濃厚で酸味があり、オリーブ油をかけてパンと食べる。",
     es: "Queso levantino de yogur escurrido, espeso y ácido, servido con un chorro de aceite de oliva y comido con pan.",
+    ko: "물기를 뺀 레반트(아랍)의 요구르트 치즈로, 되직하고 새콤하며 올리브유를 뿌려 빵과 함께 먹습니다.",
   },
   "israeli::latkes": {
     id: "Panekuk kentang goreng dari masakan Yahudi Ashkenazi, disantap saat Hanukkah untuk mengenang mukjizat minyak di Bait Suci.",
@@ -6624,6 +7467,7 @@ module.exports = {
     zh: "阿什肯纳兹犹太菜中的煎马铃薯饼，光明节时食用，以纪念圣殿油的神迹。",
     ja: "アシュケナジム系ユダヤ料理のポテトパンケーキ。神殿の油の奇跡を記念してハヌカーに食べる。",
     es: "Tortita de patata frita de la cocina judía asquenazí, comida en Janucá para recordar el milagro del aceite del Templo.",
+    ko: "아슈케나지 유대 요리의 감자전으로, 성전의 기름 기적을 기려 하누카에 먹습니다.",
   },
   "israeli::malabi": {
     id: "Puding susu Israel (bentuk Ibrani dari muhallabia Arab) yang dikentalkan tepung jagung, ditaburi sirop mawar, pistachio, dan kelapa.",
@@ -6632,6 +7476,7 @@ module.exports = {
     zh: "以色列的牛奶布丁（希伯来语借自阿拉伯语muhallabia），以玉米淀粉凝固，浇玫瑰糖浆并撒开心果与椰丝。",
     ja: "コーンスターチで固めるイスラエルのミルクプディング。アラビア語ムハッラビーヤのヘブライ語形で、ローズシロップとピスタチオを飾る。",
     es: "Pudin de leche israelí (forma hebrea del árabe muhallabía), cuajado con maicena y cubierto de sirope de rosas, pistacho y coco.",
+    ko: "옥수수 전분으로 굳힌 이스라엘의 우유 푸딩으로, 장미 시럽과 피스타치오, 코코넛을 올리며 아랍어 무할라비아에서 이름이 왔습니다.",
   },
   "israeli::matzo ball soup": {
     id: "Sup ayam Yahudi dengan pangsit dari tepung matzo (kneydlekh), saduran Knödel Jerman oleh juru masak Yahudi abad pertengahan.",
@@ -6640,6 +7485,7 @@ module.exports = {
     zh: "犹太的鸡汤，配无酵饼粉做的团子（kneydlekh）；中世纪犹太厨师改自德国的Knödel。",
     ja: "マツァ粉の団子（クネイドラハ）を浮かべたユダヤのチキンスープ。中世のユダヤ人料理人がドイツのクヌーデルから作り替えた。",
     es: "Sopa de pollo judía con bolas de harina de matzá (kneydlej), adaptadas del Knödel alemán por cocineros judíos medievales.",
+    ko: "무교병 가루로 빚은 경단을 넣은 유대식 닭 수프로, 중세 유대인 요리사들이 독일의 크뇌델을 바탕으로 만들었습니다.",
   },
   "israeli::rugelach": {
     id: "Pastri Yahudi Ashkenazi berbentuk bulan sabit atau gulungan, berisi kacang, selai, cokelat, atau biji poppy.",
@@ -6648,6 +7494,7 @@ module.exports = {
     zh: "阿什肯纳兹犹太的新月形或卷状酥点，内填坚果、果酱、巧克力或罂粟籽。",
     ja: "三日月形または巻いた形のアシュケナジム系ユダヤの焼き菓子。ナッツ、ジャム、チョコレート、ケシの実を包む。",
     es: "Pastelito judío asquenazí en forma de media luna o enrollado, relleno de frutos secos, mermelada, chocolate o semilla de amapola.",
+    ko: "견과나 잼, 초콜릿, 양귀비씨를 채워 말거나 초승달 모양으로 빚은 아슈케나지 유대의 페이스트리입니다.",
   },
   "israeli::sabich": {
     id: "Roti pita Israel berisi terung goreng, telur rebus, salad, amba, dan tahini; diciptakan para imigran Yahudi asal Irak.",
@@ -6656,6 +7503,7 @@ module.exports = {
     zh: "以色列的皮塔饼三明治，夹煎茄子、水煮蛋、沙拉、amba腌芒果酱与芝麻酱；由伊拉克犹太移民创制。",
     ja: "揚げナス、ゆで卵、サラダ、アンバ、タヒニを挟むイスラエルのピタサンド。イラク系ユダヤ人移民が生み出した。",
     es: "Bocadillo israelí de pan de pita con berenjena frita, huevo duro, ensalada, amba y tahina; lo crearon inmigrantes judíos iraquíes.",
+    ko: "튀긴 가지와 삶은 달걀, 샐러드, 암바, 타히니를 피타에 넣은 이스라엘 샌드위치로, 이라크계 유대인 이주민들이 만들었습니다.",
   },
   "israeli::schug": {
     id: "Saus pedas Yaman dari cabai, bawang putih, dan ketumbar, dibawa ke Israel oleh imigran Yahudi Yaman sekitar 1949-1950.",
@@ -6664,6 +7512,7 @@ module.exports = {
     zh: "也门的火辣辣酱，用辣椒、大蒜与香菜制成；约1949至1950年由也门犹太移民带到以色列。",
     ja: "唐辛子、ニンニク、コリアンダーで作るイエメンの辛いソース。1949〜50年ごろイエメン系ユダヤ人がイスラエルへ持ち込んだ。",
     es: "Salsa picante yemení de chile, ajo y cilantro, llevada a Israel por los judíos yemeníes hacia 1949-1950.",
+    ko: "고추와 마늘, 고수로 만든 매운 예멘식 소스로, 1949~50년경 예멘계 유대인 이주민들이 이스라엘에 들여왔습니다.",
   },
   "israeli::shakshuka": {
     id: "Telur yang direbus dalam saus tomat dan paprika berempah; ciptaan Maghribi yang dipopulerkan di Israel oleh para imigran Yahudi.",
@@ -6672,6 +7521,7 @@ module.exports = {
     zh: "鸡蛋在香料番茄甜椒酱汁中焖熟；本是马格里布的创造，由犹太移民带到以色列并流行开来。",
     ja: "香辛料の効いたトマトとパプリカのソースで卵を落として煮る料理。マグリブ生まれで、ユダヤ系移民がイスラエルに広めた。",
     es: "Huevos escalfados en una salsa especiada de tomate y pimiento; creación magrebí que los inmigrantes judíos popularizaron en Israel.",
+    ko: "향신 토마토 피망 소스에 달걀을 익힌 요리로, 마그레브(북아프리카)에서 만들어져 유대인 이주민들이 이스라엘에 퍼뜨렸습니다.",
   },
   "israeli::shawarma israeli": {
     id: "Gulungan daging panggang tusuk vertikal berasal Levant; versi Israel umumnya memakai paha kalkun dengan tahini, disiapkan kosher.",
@@ -6680,6 +7530,7 @@ module.exports = {
     zh: "源自黎凡特的竖烤肉卷；以色列的版本多用火鸡腿肉配芝麻酱，按洁食规矩制作。",
     ja: "レヴァント起源の縦串焼き肉のラップ。イスラエルでは七面鳥のもも肉にタヒニを合わせ、コーシャーの規定に沿って作る。",
     es: "Wrap de carne asada en espetón vertical de origen levantino; la versión israelí usa muslo de pavo con tahina y se prepara kosher.",
+    ko: "레반트에서 온 회전 꼬치 구이 고기 랩으로, 이스라엘식은 대개 칠면조 다릿살에 타히니를 곁들여 코셔로 만듭니다.",
   },
   "italian::affogato": {
     id: "Hidangan penutup Italia: sesendok gelato vanila atau fior di latte \"ditenggelamkan\" dalam espreso panas; namanya berarti \"tenggelam\".",
@@ -6688,6 +7539,7 @@ module.exports = {
     zh: "意大利的甜点：一球香草或牛奶味的意式冰淇淋，被一份滚烫的浓缩咖啡「淹没」；affogato 就是「淹了」的意思。",
     ja: "イタリアの甘味。バニラやフィオル・ディ・ラッテのジェラートを、熱いエスプレッソで「溺れさせ」ます。名は「溺れた」の意。",
     es: "Postre italiano: una bola de gelato de vainilla o fior di latte «ahogada» en un chorro de espresso caliente; affogato es «ahogado».",
+    ko: "바닐라나 피오르 디 라테 젤라토 한 스쿠프에 뜨거운 에스프레소를 부어 '빠뜨린' 이탈리아 디저트입니다.",
   },
   "italian::arancini": {
     id: "Bola nasi Sisilia berbalut remah roti yang digoreng rendam, berisi ragù, keju, atau kacang polong.",
@@ -6696,6 +7548,7 @@ module.exports = {
     zh: "西西里的炸饭团：裹面包糠下油锅，馅是肉酱、奶酪或青豆。",
     ja: "パン粉をつけて揚げるシチリアのライスコロッケ。中身はラグー、チーズ、グリンピースなど。",
     es: "Bolas de arroz sicilianas empanadas y fritas, rellenas de ragú, queso o guisantes.",
+    ko: "라구와 치즈, 완두콩을 채워 빵가루를 입혀 튀긴 시칠리아의 주먹밥입니다.",
   },
   "italian::bruschetta": {
     id: "Antipasto Italia: roti panggang digosok bawang putih lalu diberi minyak zaitun dan garam.",
@@ -6704,6 +7557,7 @@ module.exports = {
     zh: "意大利的开胃小食：面包烤过，抹上蒜，淋橄榄油、撒盐。",
     ja: "イタリアの前菜。焼いたパンににんにくをこすりつけ、オリーブ油と塩をかけます。",
     es: "Antipasto italiano: pan tostado frotado con ajo y aliñado con aceite de oliva y sal.",
+    ko: "구운 빵에 마늘을 문지르고 올리브유와 소금을 뿌린 이탈리아식 전채입니다.",
   },
   "italian::cacio e pepe": {
     id: "Pasta Roma berupa spageti atau tonnarelli dengan parutan Pecorino Romano dan lada hitam; berakar pada masakan gembala Lazio.",
@@ -6712,6 +7566,7 @@ module.exports = {
     zh: "罗马的奶酪胡椒面：意粉或方面 tonnarelli 拌罗马绵羊奶酪碎与黑胡椒；根在拉齐奥牧人的吃法。",
     ja: "スパゲッティやトンナレッリに、削ったペコリーノ・ロマーノと黒胡椒を絡めるローマのパスタ。ラツィオの羊飼いの料理に根があります。",
     es: "Pasta romana de espaguetis o tonnarelli con pecorino romano rallado y pimienta negra; enraizada en la cocina pastoril del Lacio.",
+    ko: "스파게티나 톤나렐리에 페코리노 로마노 가루와 후추를 넣은 로마 파스타로, 라치오 목동들의 음식에 뿌리를 둡니다.",
   },
   "italian::cannoli": {
     id: "Tabung pastri goreng Sisilia yang diisi krim ricotta manis.",
@@ -6720,6 +7575,7 @@ module.exports = {
     zh: "西西里的炸酥卷：卷成管状炸香，填入加糖的里科塔奶酪馅。",
     ja: "シチリアの揚げた筒状の生地に、甘くしたリコッタのクリームを詰めた菓子。",
     es: "Tubo de masa frita siciliano relleno de crema dulce de ricotta.",
+    ko: "달콤한 리코타 크림을 채운 시칠리아의 튀긴 페이스트리 관입니다.",
   },
   "italian::caponata": {
     id: "Hidangan Sisilia yang asam manis: terung dicincang dan digoreng bersama seledri, zaitun, kaper, dan cuka.",
@@ -6728,6 +7584,7 @@ module.exports = {
     zh: "西西里的酸甜茄子：茄丁炸过，配西芹、橄榄、刺山柑与醋。",
     ja: "シチリアの甘酸っぱい料理。角切りにして揚げた茄子に、セロリ、オリーブ、ケッパー、酢を合わせます。",
     es: "Plato siciliano agridulce de berenjena troceada y frita con apio, aceitunas, alcaparras y vinagre.",
+    ko: "튀긴 가지에 셀러리와 올리브, 케이퍼, 식초를 넣은 시칠리아의 새콤달콤한(아그로돌체) 요리입니다.",
   },
   "italian::caprese salad": {
     id: "Salad Italia berisi irisan mozzarella segar, tomat, dan kemangi dengan minyak zaitun dan garam; berasal dari Pulau Capri.",
@@ -6736,6 +7593,7 @@ module.exports = {
     zh: "意大利的沙拉：新鲜马苏里拉、番茄与罗勒切片，淋橄榄油、撒盐；源自卡普里岛。",
     ja: "生のモッツァレッラ、トマト、バジリコを切って重ね、オリーブ油と塩をかけるイタリアのサラダ。カプリ島に発します。",
     es: "Ensalada italiana de mozzarella fresca en rodajas, tomate y albahaca con aceite de oliva y sal; nacida en la isla de Capri.",
+    ko: "저민 생모차렐라와 토마토, 바질에 올리브유와 소금을 뿌린 이탈리아 샐러드로, 카프리섬에서 비롯됐습니다.",
   },
   "italian::focaccia": {
     id: "Roti ragi Italia yang dipanggang pipih, diolesi minyak zaitun dan garam; dari bahasa Latin panis focacius, roti tungku, andalan Liguria.",
@@ -6744,6 +7602,7 @@ module.exports = {
     zh: "意大利的扁烤发面饼：面上刷橄榄油、撒盐；名字出自拉丁语的 panis focacius，「炉边的面包」，利古里亚人的日常。",
     ja: "オーブンで焼く平たいイタリアの発酵パン。オリーブ油と塩を塗ります。ラテン語のパニス・フォカキウス「炉のパン」から。リグーリアの定番。",
     es: "Pan plano italiano con levadura horneado y pincelado con aceite de oliva y sal; del latín panis focacius, «pan del hogar»; clásico ligur.",
+    ko: "올리브유와 소금을 발라 오븐에 구운 납작한 이탈리아 발효빵으로, 라틴어 '화덕 빵'에서 왔으며 리구리아와 제노바의 주식입니다.",
   },
   "italian::gelato": {
     id: "Hidangan penutup beku Italia; namanya dari kata Latin gelatus, \"beku\".",
@@ -6752,6 +7611,7 @@ module.exports = {
     zh: "意大利的冰品；名字出自拉丁语的 gelatus，也就是「冻住的」。",
     ja: "イタリアの氷菓。名はラテン語の gelatus「凍った」に由来します。",
     es: "Postre helado italiano; su nombre viene del latín gelatus, «congelado».",
+    ko: "이탈리아의 얼린 디저트로, 이름은 '얼었다'는 뜻의 라틴어 젤라투스에서 왔습니다.",
   },
   "italian::gnocchi": {
     id: "Pangsit Italia yang paling sering dibuat dari kentang, tepung, dan telur; namanya dari \"nocchio\", mata kayu, atau \"nocca\", buku jari.",
@@ -6760,6 +7620,7 @@ module.exports = {
     zh: "意大利的小面疙瘩，多半用土豆、面粉与鸡蛋做；名字来自 nocchio（木节）或 nocca（指关节）。",
     ja: "多くはじゃがいも、小麦粉、卵で作るイタリアの団子。名は nocchio（木の節）か nocca（指の関節）から。",
     es: "Ñoquis italianos, casi siempre de patata, harina y huevo; el nombre viene de «nocchio» (nudo de la madera) o «nocca» (nudillo).",
+    ko: "대개 감자와 밀가루, 달걀로 만드는 이탈리아 경단으로, 이름은 나무 옹이 '노키오'나 손가락 마디 '노카'에서 왔습니다.",
   },
   "italian::lasagna alla bolognese": {
     id: "Hidangan panggang Bologna: pasta telur bayam hijau berlapis ragù, béchamel, dan Parmigiano.",
@@ -6768,6 +7629,7 @@ module.exports = {
     zh: "博洛尼亚的焗千层面：绿菠菜蛋皮面与肉酱、白酱、帕玛森层层相叠。",
     ja: "ボローニャの焼き料理。ほうれん草を練り込んだ緑の卵生地に、ラグー、ベシャメル、パルミジャーノを重ねます。",
     es: "Plato boloñés al horno que alterna pasta verde de huevo y espinaca con ragú, bechamel y parmigiano.",
+    ko: "시금치를 넣은 초록 달걀 파스타에 라구와 베샤멜, 파르미자노를 켜켜이 쌓아 구운 볼로냐 요리입니다.",
   },
   "italian::osso buco alla milanese": {
     id: "Betis sapi muda potong lintang ala Milan, dibraise dalam anggur putih dan kaldu, ditutup gremolata; namanya berarti \"tulang berlubang\".",
@@ -6776,6 +7638,7 @@ module.exports = {
     zh: "米兰的炖小牛膝：横切的牛腱用白葡萄酒与高汤焖软，起锅撒 gremolata；名字的意思是「带孔的骨头」。",
     ja: "輪切りの仔牛のすねを白ワインとブロードで煮込み、グレモラータで仕上げるミラノの料理。名は「穴のある骨」の意。",
     es: "Jarretes de ternera cortados al través a la milanesa, guisados en vino blanco y caldo y rematados con gremolata; «hueso con agujero».",
+    ko: "송아지 정강이를 가로로 썰어 화이트와인과 육수에 조리고 그레몰라타로 마무리한 밀라노(롬바르디아) 요리로, 이름은 '구멍 난 뼈'라는 뜻입니다.",
   },
   "italian::panettone": {
     id: "Roti manis beragi yang tinggi dan berkubah, bertabur kismis dan kulit jeruk manisan.",
@@ -6784,6 +7647,7 @@ module.exports = {
     zh: "高高的圆顶甜发面包：里头嵌满葡萄干与糖渍柑橘皮。",
     ja: "背が高くドーム状に膨らんだ甘い発酵パン。レーズンと砂糖漬けの柑橘の皮が入ります。",
     es: "Pan dulce con levadura, alto y abombado, salpicado de pasas y cáscara de cítrico confitada.",
+    ko: "건포도와 설탕에 절인 감귤 껍질을 박아 넣은 높고 둥근 발효 단빵입니다.",
   },
   "italian::panna cotta": {
     id: "Hidangan penutup Italia yang dicetak: krim manis dipadatkan dengan gelatin; namanya berarti \"krim matang\", lekat dengan Piemonte.",
@@ -6792,6 +7656,7 @@ module.exports = {
     zh: "意大利的模具甜品：甜奶油用明胶凝固；名字的意思是「煮过的奶油」，与皮埃蒙特相连。",
     ja: "型で固めるイタリアの菓子。甘くした生クリームをゼラチンで固めます。名は「煮た生クリーム」、ピエモンテと結びつきます。",
     es: "Postre italiano desmoldado: nata endulzada cuajada con gelatina; el nombre significa «nata cocida» y se liga al Piamonte.",
+    ko: "설탕을 넣은 크림을 젤라틴으로 굳혀 틀에 담아 낸 이탈리아 디저트로, 이름은 '익힌 크림'이며 피에몬테와 얽혀 있습니다.",
   },
   "italian::parmigiana di melanzane": {
     id: "Hidangan panggang Italia selatan: irisan terung goreng ditumpuk berlapis saus tomat dan keju.",
@@ -6800,6 +7665,7 @@ module.exports = {
     zh: "意大利南方的焗菜：茄子切片炸过，与番茄酱、奶酪层层相叠再入炉。",
     ja: "南イタリアの焼き料理。揚げた茄子の薄切りを、トマトソースとチーズと交互に重ねます。",
     es: "Plato horneado del sur de Italia: rodajas de berenjena frita en capas con salsa de tomate y queso.",
+    ko: "튀긴 가지를 토마토소스, 치즈와 켜켜이 쌓아 구운 남이탈리아 요리입니다.",
   },
   "italian::pasta alla gricia": {
     id: "Pasta Roma yang dibumbui guanciale, pipi babi yang diawetkan, dengan Pecorino Romano dan lada hitam.",
@@ -6808,6 +7674,7 @@ module.exports = {
     zh: "罗马的意面：拌腌猪颊肉 guanciale、罗马绵羊奶酪与黑胡椒。",
     ja: "塩漬けの豚頬肉グアンチャーレ、ペコリーノ・ロマーノ、黒胡椒で和えるローマのパスタ。",
     es: "Pasta romana aliñada con guanciale (papada de cerdo curada), pecorino romano y pimienta negra.",
+    ko: "관찰레와 페코리노 로마노, 후추로 버무린 로마 파스타입니다.",
   },
   "italian::pasta amatriciana": {
     id: "Pasta Italia dengan guanciale, pecorino, tomat, dan cabai; dinamai dari Amatrice di Lazio, dan tomatnya baru ditambahkan pada abad ke-18.",
@@ -6816,6 +7683,7 @@ module.exports = {
     zh: "意大利面配腌猪颊肉、绵羊奶酪、番茄与辣椒；名字取自拉齐奥的阿马特里切，番茄迟至十八世纪才加进来。",
     ja: "グアンチャーレ、ペコリーノ、トマト、唐辛子のイタリアのパスタ。名はラツィオのアマトリーチェから。トマトが入るのは十八世紀以降。",
     es: "Pasta italiana con guanciale, pecorino, tomate y guindilla; toma su nombre de Amatrice (Lacio) y el tomate se añadió en el siglo XVIII.",
+    ko: "관찰레와 페코리노, 토마토, 고추를 넣은 이탈리아 파스타로, 라치오의 아마트리체에서 이름을 땄고 토마토는 18세기에 더해졌습니다.",
   },
   "italian::pizza margherita": {
     id: "Pizza Napoli dengan tomat, mozzarella, dan kemangi; menurut cerita yang tersebar, dinamai pada 1889 untuk Ratu Margherita dari Savoia.",
@@ -6824,6 +7692,7 @@ module.exports = {
     zh: "那不勒斯的玛格丽特披萨：番茄、马苏里拉与罗勒；流传的说法是一八八九年为萨伏依的玛格丽特王后而命名。",
     ja: "トマト、モッツァレッラ、バジリコのナポリのピッツァ。一八八九年、サヴォイアのマルゲリータ王妃にちなんで名づけられたと広く語られます。",
     es: "Pizza napolitana de tomate, mozzarella y albahaca; se cuenta que en 1889 recibió el nombre de la reina Margarita de Saboya.",
+    ko: "토마토와 모차렐라, 바질을 올린 나폴리 피자로, 1889년 사보이아의 마르게리타 왕비에게서 이름을 땄다고 널리 전해집니다.",
   },
   "italian::pizza marinara": {
     id: "Pizza Napoli dengan tomat, bawang putih, oregano, dan minyak zaitun, tanpa keju; dinamai dari para pelaut yang menyantapnya.",
@@ -6832,6 +7701,7 @@ module.exports = {
     zh: "那不勒斯的水手披萨：番茄、蒜、牛至与橄榄油，不放奶酪；名字来自吃它的水手。",
     ja: "トマト、にんにく、オレガノ、オリーブ油だけでチーズを使わないナポリのピッツァ。名は、これを食べた船乗りに由来します。",
     es: "Pizza napolitana con tomate, ajo, orégano y aceite de oliva, sin queso; lleva el nombre de los marineros que la comían.",
+    ko: "토마토와 마늘, 오레가노, 올리브유를 올리고 치즈는 넣지 않는 나폴리 피자로, 이를 먹던 뱃사람에게서 이름을 땄습니다.",
   },
   "italian::prosciutto e melone": {
     id: "Antipasto musim panas Italia: ham awetan yang tipis dibentangkan di atas melon segar, mengimbangi asin dan manis; dicatat Pellegrino Artusi.",
@@ -6840,6 +7710,7 @@ module.exports = {
     zh: "意大利的夏日前菜：薄薄的腌火腿披在鲜甜的蜜瓜上，咸与甜相衡；Pellegrino Artusi 曾记录。",
     ja: "イタリアの夏の前菜。薄い生ハムを新鮮なメロンに掛け、塩気と甘みを釣り合わせます。アルトゥージが記録しています。",
     es: "Antipasto veraniego italiano: jamón curado en lonchas finas sobre melón fresco, equilibrio de salado y dulce; lo recogió Artusi.",
+    ko: "얇게 저민 생햄을 생멜론에 얹어 짠맛과 단맛을 맞춘 이탈리아의 여름 전채로, 펠레그리노 아르투시가 기록했습니다.",
   },
   "italian::ravioli": {
     id: "Pasta isi Italia: isian dibungkus lembaran adonan pasta yang tipis.",
@@ -6848,6 +7719,7 @@ module.exports = {
     zh: "意大利的馅面：馅料裹在薄薄的面皮里。",
     ja: "薄いパスタ生地で具を包んだイタリアの詰め物入りパスタ。",
     es: "Pasta rellena italiana: un relleno envuelto en una lámina fina de masa.",
+    ko: "얇은 파스타 반죽에 소를 넣어 감싼 이탈리아의 속을 채운 파스타입니다.",
   },
   "italian::risotto ai funghi": {
     id: "Hidangan nasi Italia utara yang lembut: beras arborio atau carnaroli dimasak perlahan bersama jamur, kerap porcini yang berharga.",
@@ -6856,6 +7728,7 @@ module.exports = {
     zh: "意大利北方的奶香烩饭：阿博里奥或卡纳罗利米与蘑菇慢煮，常用珍贵的牛肝菌。",
     ja: "北イタリアのなめらかな米料理。アルボリオかカルナローリを、しばしば珍重されるポルチーニとともにゆっくり炊きます。",
     es: "Plato de arroz cremoso del norte de Italia: arborio o carnaroli cocido despacio con setas, a menudo los preciados boletus.",
+    ko: "아르보리오나 카르나롤리 쌀을 버섯, 흔히 귀한 포르치니와 함께 천천히 익힌 북이탈리아의 크리미한 쌀 요리입니다.",
   },
   "italian::risotto alla milanese": {
     id: "Risotto safron dari Milan, berasnya ditumis dalam mentega dan sumsum tulang sapi; resep yang dapat dikenali muncul pada 1809.",
@@ -6864,6 +7737,7 @@ module.exports = {
     zh: "米兰的藏红花烩饭：米先用黄油与牛骨髓炒香；可辨认的食谱最早见于一八〇九年。",
     ja: "ミラノのサフラン風味のリゾット。米をバターと牛の骨髄で炒めます。それと分かる最初のレシピは一八〇九年。",
     es: "Risotto al azafrán de Milán, con el arroz salteado en mantequilla y tuétano de vacuno; la primera receta identificable data de 1809.",
+    ko: "밀라노의 사프란 리소토로, 쌀을 버터와 사골 골수에 볶아 만들며 알아볼 수 있는 첫 조리법은 1809년으로 거슬러 올라갑니다.",
   },
   "italian::saltimbocca": {
     id: "Kotelet daging sapi muda Roma yang dibalut prosciutto dan sage, dimasak dalam anggur putih; namanya berarti \"melompat ke mulut\".",
@@ -6872,6 +7746,7 @@ module.exports = {
     zh: "罗马的小牛肉薄片：裹上生火腿与鼠尾草，用白葡萄酒煎；名字的意思是「跳进嘴里」。",
     ja: "仔牛の薄切りに生ハムとセージを重ね、白ワインで焼くローマの料理。名は「口に飛び込む」という意味です。",
     es: "Escalopes romanos de ternera envueltos en prosciutto y salvia, cocinados en vino blanco; el nombre significa «salta a la boca».",
+    ko: "송아지 커틀릿에 프로슈토와 세이지를 얹어 화이트와인에 익힌 로마 요리로, 이름은 '입 안으로 뛰어든다'는 뜻입니다.",
   },
   "italian::spaghetti aglio e olio": {
     id: "Pasta Napoli berupa spageti yang diaduk dengan bawang putih dan minyak zaitun; klasik masakan rakyat, dulu vermicelli alla Borbonica.",
@@ -6880,6 +7755,7 @@ module.exports = {
     zh: "那不勒斯的蒜香橄榄油意面：意粉只拌蒜与橄榄油；这是穷人厨房的经典，旧称 vermicelli alla Borbonica。",
     ja: "にんにくとオリーブ油だけで和えるナポリのスパゲッティ。貧しい台所の名品で、かつてはヴェルミチェッリ・アッラ・ボルボニカと呼ばれました。",
     es: "Pasta napolitana de espaguetis salteados con ajo y aceite de oliva; clásico de la cucina povera, antaño vermicelli alla Borbonica.",
+    ko: "스파게티를 마늘과 올리브유에 버무린 나폴리 파스타로, 소박한 요리의 고전이며 한때 베르미첼리 알라 보르보니카로 불렸습니다.",
   },
   "italian::spaghetti carbonara": {
     id: "Pasta Roma: spageti dengan telur mentah, Pecorino Romano, guanciale, dan lada hitam; bentuk modernnya muncul pada pertengahan abad ke-20.",
@@ -6888,6 +7764,7 @@ module.exports = {
     zh: "罗马的意面：意粉拌生蛋液、罗马绵羊奶酪、腌猪颊肉与黑胡椒；今日的做法成形于二十世纪中叶的意大利。",
     ja: "ローマのパスタ。スパゲッティに生卵、ペコリーノ・ロマーノ、グアンチャーレ、黒胡椒。今の形は二十世紀半ばのイタリアで整いました。",
     es: "Pasta romana: espaguetis con huevo crudo, pecorino romano, guanciale y pimienta negra; tomó su forma actual a mediados del siglo XX.",
+    ko: "스파게티에 생달걀과 페코리노 로마노, 관찰레, 후추를 넣은 로마 파스타로, 20세기 중반 이탈리아에서 지금의 형태를 갖췄습니다.",
   },
   "italian::tagliatelle al ragù": {
     id: "Pita pasta telur Bologna yang disajikan dengan ragù daging yang dimasak lama.",
@@ -6896,6 +7773,7 @@ module.exports = {
     zh: "博洛尼亚的宽蛋面：拌上久炖的肉酱 ragù。",
     ja: "ボローニャの卵入り平打ち麺に、長く煮込んだ肉のラグーを合わせます。",
     es: "Cintas de pasta al huevo boloñesas servidas con un ragú de carne cocido a fuego lento.",
+    ko: "볼로냐의 달걀 파스타 면에 오래 끓인 고기 라구를 곁들인 요리입니다.",
   },
   "italian::tiramisu": {
     id: "Hidangan penutup Italia tanpa panggang: savoiardi berendam kopi berlapis krim mascarpone manis; lahir di Treviso, Veneto, sekitar 1969.",
@@ -6904,6 +7782,7 @@ module.exports = {
     zh: "不用烤箱的意大利甜点：手指饼干吸饱咖啡，与加糖的马斯卡彭奶油层层相叠；约一九六九至七二年生于威尼托的特雷维索。",
     ja: "焼かないイタリアの菓子。コーヒーを吸わせたサヴォイアルディに、甘いマスカルポーネクリームを重ねます。一九六九〜七二年、トレヴィーゾ生まれ。",
     es: "Postre italiano sin horno: bizcochos de soletilla empapados en café con crema dulce de mascarpone; nació en Treviso hacia 1969-72.",
+    ko: "커피에 적신 사보이아르디에 달콤한 마스카르포네 크림을 켜켜이 쌓은 이탈리아의 무굽기 디저트로, 1969~72년경 베네토 트레비소에서 만들어졌습니다.",
   },
   "italian::tortellini in brodo": {
     id: "Pasta cincin berisi daging dari Bologna dan Modena, menurut tradisi disajikan dalam kaldu ayam kebiri; resepnya didaftarkan pada 1974.",
@@ -6912,6 +7791,7 @@ module.exports = {
     zh: "博洛尼亚与摩德纳的环形肉馅面饺：照传统泡在阉鸡高汤里；配方于一九七四年在博洛尼亚注册。",
     ja: "ボローニャとモデナの、肉を詰めた輪形のパスタ。伝統では去勢鶏のブロードで供します。一九七四年にボローニャで登録されました。",
     es: "Pasta rellena de carne en forma de anillo de Bolonia y Módena, servida en caldo de capón; la receta se registró en Bolonia en 1974.",
+    ko: "볼로냐와 모데나에서 온 고리 모양의 고기 소 파스타로, 전통적으로 수탉 육수에 내며 조리법이 1974년 볼로냐에 등록됐습니다.",
   },
   "italian::vitello tonnato": {
     id: "Hidangan Piemonte: daging sapi muda diiris tipis dan disajikan dingin di bawah saus tuna-kaper-teri; dicatat Pellegrino Artusi pada 1891.",
@@ -6920,6 +7800,7 @@ module.exports = {
     zh: "皮埃蒙特的冷切小牛肉：薄片上覆一层金枪鱼、刺山柑与凤尾鱼打的酱；一八九一年由 Pellegrino Artusi 记录在案。",
     ja: "ピエモンテの料理。薄切りの仔牛肉を冷たいまま、ツナ、ケッパー、アンチョビのソースで覆います。一八九一年、アルトゥージが記録。",
     es: "Plato piamontés: ternera en lonchas finas servida fría bajo una salsa cremosa de atún, alcaparras y anchoas; lo recogió Artusi en 1891.",
+    ko: "얇게 저민 차가운 송아지고기에 참치와 케이퍼, 앤초비로 만든 크리미한 소스를 끼얹은 피에몬테 요리로, 1891년 아르투시가 기록했습니다.",
   },
   "japanese::chicken katsu": {
     id: "Hidangan yoshoku Jepang berupa kotelet ayam berbalut panko yang digoreng rendam, turunan dari tonkatsu.",
@@ -6928,6 +7809,7 @@ module.exports = {
     zh: "日本的洋食：鸡排裹面包糠炸透，做法脱胎自炸猪排。",
     ja: "パン粉をつけて揚げた鶏のカツ。とんかつから派生した洋食の一品です。",
     es: "Plato japonés de yōshoku: filete de pollo empanado con panko y frito, derivado del tonkatsu.",
+    ko: "빵가루를 입혀 튀긴 닭고기 커틀릿으로, 돈가스에서 파생된 일본 양식 요리입니다.",
   },
   "japanese::chirashi don": {
     id: "\"Sushi tabur\" Jepang: nasi bercuka dalam mangkuk yang ditutup ikan mentah dan pelengkap; bermula pada zaman Edo.",
@@ -6936,6 +7818,7 @@ module.exports = {
     zh: "日本的「散寿司」：醋饭盛在碗里，上头铺生鱼与配料；起于江户时代。",
     ja: "「ちらし寿司」。丼に酢飯を盛り、生魚や具を散らします。江戸時代に始まりました。",
     es: "«Sushi esparcido» japonés: arroz avinagrado en un cuenco cubierto de pescado crudo y guarniciones; nació en el periodo Edo.",
+    ko: "'흩뿌린 초밥'이라는 뜻의 일본 요리로, 그릇에 담은 초밥용 밥 위에 생선회와 고명을 올리며 에도 시대에 생겼습니다.",
   },
   "japanese::gyoza": {
     id: "Pangsit sabit yang digoreng dangkal, berisi daging cincang dan sayur; saduran Jepang atas jiaozi Tionghoa, populer selepas Perang Dunia II.",
@@ -6944,6 +7827,7 @@ module.exports = {
     zh: "半月形的煎饺，馅是肉糜与蔬菜；日本对中国饺子的改造，二战之后才真正流行。",
     ja: "挽肉と野菜を包んだ半月形の焼き餃子。中国の餃子を日本流に翻案したもので、戦後に広く親しまれました。",
     es: "Empanadillas en media luna doradas a la plancha, de carne picada y verduras; versión japonesa del jiaozi chino, popular tras 1945.",
+    ko: "다진 고기와 채소를 넣어 초승달 모양으로 빚어 구운 만두로, 중국 자오쯔를 일본식으로 바꿔 2차 대전 뒤 널리 퍼졌습니다.",
   },
   "japanese::gyudon": {
     id: "Semangkuk nasi Jepang bertutup daging sapi dan bawang yang direbus dalam dashi, kecap asin, dan mirin; tumbuh dari nabe sapi era Meiji.",
@@ -6952,6 +7836,7 @@ module.exports = {
     zh: "日本的牛丼：牛肉与洋葱用出汁、酱油与味醂煮透，盖在饭上；由明治年间的牛锅演变而来。",
     ja: "牛肉と玉ねぎを出汁、醤油、味醂で煮て飯にのせた丼。明治期の牛鍋から育ちました。",
     es: "Cuenco de arroz japonés con ternera y cebolla cocidas en dashi, soja y mirin; nació del gyunabe, la olla de ternera de la era Meiji.",
+    ko: "소고기와 양파를 다시와 간장, 미림에 익혀 밥에 올린 일본 덮밥으로, 메이지 시대의 규나베 전골에서 자라났습니다.",
   },
   "japanese::japanese curry rice": {
     id: "Kari kental yang lembut di atas nasi; masuk lewat Angkatan Laut Kerajaan Inggris dan muncul di buku masak Jepang pada 1872, zaman Meiji.",
@@ -6960,6 +7845,7 @@ module.exports = {
     zh: "浇在白饭上的浓稠温和咖喱；经英国皇家海军传入，一八七二年明治年间首次见于日本食谱。",
     ja: "ご飯にかけるとろりと穏やかなカレー。英国海軍を経て伝わり、明治五年の日本の料理書に初めて現れます。",
     es: "Curry espeso y suave sobre arroz; llegó vía la Marina Real británica y apareció en recetarios japoneses en 1872, era Meiji.",
+    ko: "순하고 걸쭉한 카레를 밥에 끼얹은 요리로, 영국 해군을 통해 전해져 1872년 메이지 시대 일본 요리책에 처음 실렸습니다.",
   },
   "japanese::katsu curry": {
     id: "Hidangan yoshoku Jepang: kotelet tonkatsu bertepung roti yang digoreng, disajikan di atas nasi dengan kari Jepang.",
@@ -6968,6 +7854,7 @@ module.exports = {
     zh: "日本的洋食：炸得金黄的猪排铺在饭上，浇日式咖喱。",
     ja: "衣をつけて揚げたとんかつを、ご飯にのせて日本のカレーをかける洋食。",
     es: "Plato japonés de yōshoku: un filete tonkatsu empanado y frito, normalmente de cerdo, sobre arroz con curry japonés.",
+    ko: "빵가루를 입혀 튀긴 돈가스(보통 돼지고기)를 밥에 올리고 일본식 카레를 끼얹은 양식 요리입니다.",
   },
   "japanese::katsudon": {
     id: "Semangkuk nasi Jepang bertutup kotelet babi goreng bertepung roti, direbus bersama telur dan bawang dalam saus berbasis dashi.",
@@ -6976,6 +7863,7 @@ module.exports = {
     zh: "日本的猪排丼：炸猪排与蛋、洋葱在出汁调的汁里同煮，盖在饭上。",
     ja: "揚げたとんかつを卵と玉ねぎとともに出汁のたれで煮て、飯にのせた丼。",
     es: "Cuenco de arroz japonés cubierto con una chuleta de cerdo empanada (tonkatsu) cocida con huevo y cebolla en salsa de dashi.",
+    ko: "빵가루를 입혀 튀긴 돈가스를 달걀과 양파와 함께 다시 소스에 익혀 밥에 올린 일본 덮밥입니다.",
   },
   "japanese::matcha": {
     id: "Bubuk teh hijau Jepang yang ditanam di bawah naungan lalu digiling batu; dibawa dari Tiongkok oleh biksu Zen Eisai sekitar 1191.",
@@ -6984,6 +7872,7 @@ module.exports = {
     zh: "日本的抹茶：遮阴栽培的绿茶用石磨碾成细粉；约一一九一年由禅僧荣西自中国带回。",
     ja: "覆いをして育てた日本の緑茶を石臼で細かく挽いた粉。一一九一年ごろ、禅僧栄西が中国から持ち帰りました。",
     es: "Polvo finísimo, molido a piedra, de té verde japonés cultivado a la sombra; lo trajo de China el monje zen Eisai hacia 1191.",
+    ko: "차광 재배한 일본 녹차를 맷돌로 곱게 간 가루로, 1191년경 선승 에이사이가 중국에서 들여왔습니다.",
   },
   "japanese::miso ramen": {
     id: "Sup mi Jepang berkuah berbumbu miso; lahir di Sapporo, Hokkaido, pada 1950-an di kedai Aji no Sanpei.",
@@ -6992,6 +7881,7 @@ module.exports = {
     zh: "日本的味噌拉面：汤底以味噌调味；一九五〇年代生于北海道札幌的「味之三平」。",
     ja: "味噌で調えたスープの日本の麺料理。一九五〇年代、北海道札幌の味の三平で生まれました。",
     es: "Sopa de fideos japonesa en caldo sazonado con miso; nació en el Sapporo de los años cincuenta, en el local Aji no Sanpei.",
+    ko: "된장으로 간한 국물의 일본 국수로, 1950년대 홋카이도 삿포로의 아지노산페이에서 시작됐습니다.",
   },
   "japanese::mochi": {
     id: "Kue beras Jepang dari beras ketan mochigome yang dikukus lalu ditumbuk hingga menjadi adonan; makanan tahun baru yang tradisional.",
@@ -7000,6 +7890,7 @@ module.exports = {
     zh: "日本的年糕：糯米蒸熟后舂打成团；这是过年时的传统食物。",
     ja: "もち米を蒸して搗き、粘りのある塊にした日本の餅。正月に欠かせない伝統の食べ物です。",
     es: "Pastel de arroz japonés de arroz glutinoso mochigome cocido al vapor y majado hasta formar una pasta; comida tradicional de Año Nuevo.",
+    ko: "찹쌀을 쪄서 찧어 만든 일본 떡으로, 새해에 먹는 전통 음식입니다.",
   },
   "japanese::okonomiyaki": {
     id: "Panekuk gurih Jepang dari adonan dan kubis cincang yang dipanggang di wajan datar dengan aneka taburan; namanya berarti \"panggang sesukamu\".",
@@ -7008,6 +7899,7 @@ module.exports = {
     zh: "日本的咸味煎饼：面糊拌切碎的卷心菜，在铁板上煎熟，配料随意；名字就是「随你喜欢地烤」。",
     ja: "生地と刻んだキャベツを鉄板で焼く日本の粉物。具は思い思いで、名は「お好みに焼く」の意です。",
     es: "Tortilla salada japonesa de masa y col picada hecha a la plancha con ingredientes variados; su nombre significa «asado a tu gusto».",
+    ko: "반죽에 채 썬 양배추를 섞어 철판에 굽고 갖은 고명을 올리는 일본식 부침으로, 이름은 '좋아하는 대로 구운 것'이라는 뜻입니다.",
   },
   "japanese::omakase": {
     id: "Santap Jepang pilihan koki: tamu menyerahkan seluruh hidangan kepada juru masak; \"omakase\" berarti \"saya serahkan kepada Anda\".",
@@ -7016,6 +7908,7 @@ module.exports = {
     zh: "日式的厨师发办：整席交由厨师安排；「omakase」的意思正是「全交给你」。",
     ja: "献立を料理人にゆだねる日本の食事。「おまかせ」とは、まさに「あなたに任せます」という言葉です。",
     es: "Comida japonesa a elección del chef: el comensal le confía el menú entero; «omakase» significa «se lo dejo a usted».",
+    ko: "손님이 요리사에게 식사를 온전히 맡기는 일본식 코스로, '오마카세'는 '맡기겠습니다'라는 뜻입니다.",
   },
   "japanese::onigiri": {
     id: "Bola nasi Jepang dari nasi putih bergaram, kerap dibungkus nori dan diberi isian; contoh yang hangus berasal dari zaman Yayoi.",
@@ -7024,6 +7917,7 @@ module.exports = {
     zh: "日本的饭团：白饭调盐捏成，常裹海苔并夹馅；碳化的实物可追到弥生时代。",
     ja: "塩をきかせた白飯を握った日本の握り飯。海苔を巻き、具を入れることも多く、炭化した出土例は弥生時代に遡ります。",
     es: "Bola de arroz japonesa de arroz blanco salado, a menudo envuelta en nori y rellena; hay ejemplares carbonizados del periodo Yayoi.",
+    ko: "소금 간을 한 흰밥을 뭉쳐 김에 싸고 속을 채운 일본 주먹밥으로, 탄화된 유물이 야요이 시대까지 거슬러 올라갑니다.",
   },
   "japanese::oyakodon": {
     id: "Semangkuk nasi Jepang berisi ayam dan telur yang direbus dalam dashi; nama \"induk dan anak\" muncul di Tamahide, Tokyo, sekitar 1891.",
@@ -7032,6 +7926,7 @@ module.exports = {
     zh: "日本的亲子丼：鸡肉与鸡蛋用出汁煮软，盖在饭上；「亲子」这名字约一八九一年出自东京的玉秀（Tamahide）。",
     ja: "鶏肉と卵を出汁で煮て飯にのせた丼。「親子」の名は一八九一年ごろ、東京の玉ひでに始まります。",
     es: "Cuenco de arroz japonés con pollo y huevo cocidos en dashi; el nombre «padre e hijo» viene del Tamahide de Tokio, hacia 1891.",
+    ko: "닭고기와 달걀을 다시에 익혀 밥에 올린 일본 덮밥으로, '부모와 자식'이라는 이름은 1891년경 도쿄 다마히데에서 비롯됐습니다.",
   },
   "japanese::sake": {
     id: "Minuman beralkohol Jepang dari beras yang digiling untuk membuang dedaknya, difermentasi dengan kapang koji; sake sejati sejak zaman Nara.",
@@ -7040,6 +7935,7 @@ module.exports = {
     zh: "日本的米酒：稻米先碾去糠层，再以曲霉发酵；真正意义上的清酒可追到奈良时代。",
     ja: "糠を削り落とした米を麹で発酵させた日本の酒。今日いう清酒は奈良時代（七一〇〜七九四）に遡ります。",
     es: "Bebida alcohólica japonesa de arroz pulido para quitarle el salvado y fermentado con moho kōji; el sake verdadero data del periodo Nara.",
+    ko: "쌀겨를 깎아 낸 쌀을 누룩곰팡이로 발효시켜 빚는 일본 술로, 오늘날의 사케는 나라 시대까지 거슬러 올라갑니다.",
   },
   "japanese::sashimi": {
     id: "Ikan mentah atau daging mentah lain yang diiris tipis, disajikan dengan celupan kecap asin dan pelengkap seperti wasabi.",
@@ -7048,6 +7944,7 @@ module.exports = {
     zh: "切成薄片的生鱼或其他生肉，蘸酱油，佐以山葵等调味料。",
     ja: "薄く切った生の魚や肉を、醤油と山葵などの薬味とともに供する料理。",
     es: "Pescado crudo u otra carne cruda cortada en lonchas finas, servido con salsa de soja y condimentos como el wasabi.",
+    ko: "생선이나 고기를 얇게 저며 간장과 고추냉이 같은 양념을 곁들여 내는 요리입니다.",
   },
   "japanese::shabu shabu": {
     id: "Nabemono Jepang: irisan tipis daging dan sayuran yang dikibas-kibaskan dalam air mendidih.",
@@ -7056,6 +7953,7 @@ module.exports = {
     zh: "日本的锅物：把薄切的肉片与蔬菜放进滚水里涮几下就吃。",
     ja: "薄切りの肉と野菜を煮立った湯にくぐらせる日本の鍋物。",
     es: "Olla japonesa nabemono: lonchas finísimas de carne y verduras que se pasan por agua hirviendo.",
+    ko: "얇게 저민 고기와 채소를 끓는 물에 살짝 흔들어 익혀 먹는 일본식 전골입니다.",
   },
   "japanese::shio ramen": {
     id: "Sup mi gandum Jepang berkuah bening yang ringan dan berbumbu garam; gaya ramen tertua, lekat dengan Hakodate, Hokkaido.",
@@ -7064,6 +7962,7 @@ module.exports = {
     zh: "日本的盐味拉面：汤清味淡，以盐调底；这是最古老的拉面路数，向来与北海道函馆相连。",
     ja: "塩で調えた澄んだ軽いスープの小麦麺。ラーメンでは最も古い型で、伝統的に北海道の函館と結びつけられます。",
     es: "Sopa japonesa de fideos de trigo en caldo claro y ligero sazonado con sal; el estilo de ramen más antiguo, ligado a Hakodate, Hokkaido.",
+    ko: "맑고 담백한 소금 국물의 일본 밀면 요리로, 가장 오래된 라멘 방식이며 전통적으로 홋카이도 하코다테와 얽혀 있습니다.",
   },
   "japanese::soba": {
     id: "Mi Jepang yang tipis dari tepung soba; mi potong \"soba-kiri\" merakyat di kalangan rakyat jelata zaman Edo (1603-1868).",
@@ -7072,6 +7971,7 @@ module.exports = {
     zh: "日本的荞麦细面；切制的「荞麦切」在江户时代（一六〇三至一八六八）的平民间流行开来。",
     ja: "そば粉で打つ細い麺。切って作る「蕎麦切り」は江戸時代（一六〇三〜一八六八）の庶民に広まりました。",
     es: "Fideos japoneses finos de harina de trigo sarraceno; los cortados «soba-kiri» se popularizaron entre el pueblo llano del periodo Edo.",
+    ko: "메밀가루로 만든 가는 일본 국수로, 칼로 썬 '소바키리'가 에도 시대 서민들 사이에서 널리 퍼졌습니다.",
   },
   "japanese::sukiyaki": {
     id: "Nabe Jepang berisi irisan tipis daging sapi yang direbus di meja dalam kecap asin, gula, dan mirin; populer di zaman Meiji.",
@@ -7080,6 +7980,7 @@ module.exports = {
     zh: "日本的寿喜烧：薄切牛肉在桌上的锅里以酱油、糖与味醂同煮；明治年间随着吃牛肉的风气流行开来。",
     ja: "薄切りの牛肉を、醤油と砂糖と味醂で卓上の鍋に煮る料理。牛肉食の広まりとともに明治期に定着しました。",
     es: "Olla japonesa de ternera en lonchas finas guisada en la mesa con soja, azúcar y mirin; se popularizó en la era Meiji.",
+    ko: "얇게 저민 소고기를 간장과 설탕, 미림에 식탁에서 끓여 먹는 일본식 전골로, 소고기를 먹기 시작한 메이지 시대에 퍼졌습니다.",
   },
   "japanese::sushi": {
     id: "Hidangan Jepang berupa nasi bercuka dengan makanan laut atau sayuran; bermula sebagai narezushi, cara mengawetkan ikan dari Asia Tenggara.",
@@ -7088,6 +7989,7 @@ module.exports = {
     zh: "日本的醋饭料理，配海鲜或蔬菜；源头是「熟鮨」，一种从东南亚传来的保存鱼的法子。",
     ja: "酢飯に魚介や野菜を合わせた日本の料理。もとは東南アジアに発する魚の保存法、なれずしでした。",
     es: "Plato japonés de arroz avinagrado con marisco o verduras; empezó como narezushi, un método de conservar pescado del Sudeste Asiático.",
+    ko: "식초로 간한 밥에 해산물이나 채소를 올린 일본 요리로, 동남아시아의 생선 보존법인 나레즈시에서 비롯됐습니다.",
   },
   "japanese::takoyaki": {
     id: "Camilan bulat dari adonan gandum berisi potongan gurita; diciptakan di Osaka pada 1935 oleh pedagang Tomekichi Endo di kedai Aizuya.",
@@ -7096,6 +7998,7 @@ module.exports = {
     zh: "小麦面糊做的圆球小吃，里头包着章鱼丁；一九三五年由大阪「会津屋」的远藤留吉所创。",
     ja: "小麦の生地にたこを入れて丸く焼く軽食。一九三五年、大阪の会津屋で遠藤留吉が考案しました。",
     es: "Bocado esférico de masa de trigo relleno de pulpo troceado; creado en Osaka en 1935 por el vendedor Tomekichi Endo en Aizuya.",
+    ko: "잘게 썬 문어를 넣은 공 모양 밀반죽 간식으로, 1935년 오사카 아이즈야의 엔도 도메키치가 만들었습니다.",
   },
   "japanese::tempura": {
     id: "Hidangan Jepang: makanan laut atau sayuran berbalut adonan ringan lalu digoreng; dibawa misionaris Portugis abad ke-16 lewat dagang Nanban.",
@@ -7104,6 +8007,7 @@ module.exports = {
     zh: "日本的天妇罗：海鲜或蔬菜裹上薄衣下锅炸；十六世纪由葡萄牙传教士经南蛮贸易带来。",
     ja: "魚介や野菜に軽い衣をつけて揚げる日本の料理。十六世紀、南蛮貿易を通じてポルトガルの宣教師が伝えました。",
     es: "Plato japonés de marisco o verduras en rebozado ligero y frito; lo trajeron misioneros portugueses del siglo XVI vía el comercio nanban.",
+    ko: "해산물이나 채소에 가벼운 반죽을 입혀 튀긴 일본 요리로, 16세기 남만 무역을 통해 포르투갈 선교사들이 전했습니다.",
   },
   "japanese::tonkatsu": {
     id: "Kotelet babi Jepang bertepung roti yang digoreng rendam; diciptakan pada 1899 di restoran Rengatei, Tokyo, dari côtelette Prancis.",
@@ -7112,6 +8016,7 @@ module.exports = {
     zh: "日本的炸猪排：裹面包糠下油锅；一八九九年由东京炼瓦亭从法国的 côtelette 改造而成。",
     ja: "パン粉をつけて揚げる日本の豚カツ。一八九九年、東京の煉瓦亭がフランスのコートレットから生み出しました。",
     es: "Chuleta de cerdo empanada y frita japonesa; creada en 1899 en el restaurante Rengatei de Tokio a partir de la côtelette francesa.",
+    ko: "빵가루를 입혀 튀긴 일본식 돈가스로, 1899년 도쿄 렌가테이에서 프랑스식 코틀레트를 바탕으로 만들어졌습니다.",
   },
   "japanese::tonkotsu ramen": {
     id: "Ramen Jepang berkuah tulang babi yang keruh; lahir pada 1937 di Kurume, Fukuoka, dan menjadi kekhasan Kyushu.",
@@ -7120,6 +8025,7 @@ module.exports = {
     zh: "日本的豚骨拉面：汤色乳白浑浊；一九三七年生于福冈久留米，如今是九州的招牌。",
     ja: "白濁した豚骨のスープの日本のラーメン。一九三七年、福岡の久留米で生まれ、九州の名物になりました。",
     es: "Ramen japonés en caldo turbio de hueso de cerdo; nació en 1937 en Kurume, Fukuoka, y es especialidad de Kyushu.",
+    ko: "뽀얀 돼지뼈 국물의 일본 라멘으로, 1937년 후쿠오카 구루메에서 시작된 규슈의 명물입니다.",
   },
   "japanese::tsukemen": {
     id: "Gaya ramen Jepang yang mienya didinginkan lalu dicelupkan ke mangkuk terpisah berisi kuah panas yang pekat dan kuat.",
@@ -7128,6 +8034,7 @@ module.exports = {
     zh: "日本的沾面：面条过冷水后，蘸另一碗浓稠而味重的热汤吃。",
     ja: "冷やした麺を、別の器の濃く強い熱いつけ汁につけて食べるラーメンの一様式。",
     es: "Estilo de ramen japonés en que los fideos fríos se mojan en un cuenco aparte de caldo caliente, fuerte y concentrado.",
+    ko: "차게 씻은 면을 진하고 뜨거운 국물에 따로 찍어 먹는 일본 라멘 방식입니다.",
   },
   "japanese::udon": {
     id: "Udon adalah mi gandum Jepang yang tebal dan kenyal, dibuat dari tepung terigu, air, dan garam; biasanya disajikan dalam kuah dashi.",
@@ -7136,6 +8043,7 @@ module.exports = {
     zh: "乌冬是日本的粗身弹牙小麦面，用面粉、水与盐揉成；通常泡在出汁的汤里。",
     ja: "小麦粉と水と塩で打つ、太くこしのある麺。ふつうは出汁のつゆで供されます。",
     es: "El udon es un fideo japonés grueso y elástico de harina de trigo, agua y sal; suele servirse en un caldo de dashi.",
+    ko: "밀가루와 물, 소금으로 만든 굵고 쫄깃한 일본 국수로, 보통 다시 국물에 넣어 냅니다.",
   },
   "japanese::unagi don": {
     id: "Semangkuk nasi bertutup belut panggang gaya kabayaki berglasir tare kecap manis; donburi pertama, lahir di Tokyo era Edo sekitar 1810.",
@@ -7144,6 +8052,7 @@ module.exports = {
     zh: "鳗鱼饭：蒲烧鳗鱼刷上甜酱油汁，铺在白饭上；这是最早的丼物，约一八一〇年生于江户。",
     ja: "甘い醤油だれをかけた蒲焼きの鰻を飯にのせた丼。最初の丼物とされ、一八一〇年ごろの江戸に生まれました。",
     es: "Cuenco de arroz cubierto de anguila kabayaki glaseada en tare de soja dulce; el primer donburi, creado en el Tokio de Edo hacia 1810.",
+    ko: "달콤한 간장 다레를 발라 구운 가바야키 장어를 밥에 올린 덮밥으로, 1810년경 에도에서 만들어진 최초의 덮밥입니다.",
   },
   "japanese::yakiniku": {
     id: "Daging panggang Jepang (harfiah \"daging bakar\"): tamu memanggang sendiri potongan daging sapi dan jeroan di atas bara di meja.",
@@ -7152,6 +8061,7 @@ module.exports = {
     zh: "日本的烧肉（字面就是「烤肉」）：食客自己把切成一口大小的牛肉与内脏放在桌上的火炉烤。",
     ja: "文字どおり「焼いた肉」。一口大の牛肉や内臓を、卓上の火で客が自ら焼いて食べます。",
     es: "Carne a la parrilla japonesa (literalmente «carne asada»): los comensales asan ellos mismos trozos de ternera y casquería en la mesa.",
+    ko: "말 그대로 '구운 고기'라는 뜻으로, 한입 크기 소고기와 내장을 식탁 화로에 직접 구워 먹는 일본식 구이입니다.",
   },
   "japanese::yakitori": {
     id: "Sate ayam Jepang yang dipanggang di atas arang, dibumbui tare, saus manis-gurih berbasis kecap asin, atau cukup garam.",
@@ -7160,6 +8070,7 @@ module.exports = {
     zh: "日本的炭烤鸡串：或刷上以酱油为底的甜咸酱汁 tare，或只撒盐。",
     ja: "炭火で焼く鶏の串。醤油ベースの甘辛いたれ、あるいは塩で味を決めます。",
     es: "Brochetas japonesas de pollo a la brasa, sazonadas con tare —una salsa dulce y salada a base de soja— o simplemente con sal.",
+    ko: "닭고기를 꼬치에 꿰어 숯불에 굽고 달콤짭짤한 간장 소스(다레)나 소금으로 간한 일본 요리입니다.",
   },
   "jordanian::falafel jordanian": {
     id: "Gorengan buncis yang berasal dari Mesir; di Yordania dan Levant buncis menggantikan kacang fava yang asli.",
@@ -7168,6 +8079,7 @@ module.exports = {
     zh: "源自埃及的炸豆丸；在约旦与黎凡特一带，鹰嘴豆取代了原本的蚕豆。",
     ja: "エジプト起源の揚げ豆コロッケ。ヨルダンをはじめレヴァントでは、本来のソラマメに代わってひよこ豆を使う。",
     es: "Buñuelo frito de garbanzo de origen egipcio; en Jordania y el Levante el garbanzo sustituye a las habas originales.",
+    ko: "이집트에서 온 튀긴 병아리콩 완자로, 요르단과 레반트에서는 본래의 잠두 대신 병아리콩을 씁니다.",
   },
   "jordanian::galayet bandora": {
     id: "Tumisan wajan tradisional Yordania: tomat digoreng dengan minyak zaitun, bawang, dan cabai hijau, disantap dengan roti.",
@@ -7176,6 +8088,7 @@ module.exports = {
     zh: "约旦传统的铁锅菜：番茄与橄榄油、洋葱及青辣椒同煎，就着面包吃。",
     ja: "トマトをオリーブオイル、玉ねぎ、青唐辛子とともに炒めるヨルダンの伝統的なフライパン料理。パンとともに食べる。",
     es: "Sartén tradicional jordana de tomates fritos en aceite de oliva con cebolla y guindilla verde, que se come con pan.",
+    ko: "토마토를 올리브유와 양파, 청양고추와 함께 팬에 볶은 요르단의 전통 요리로, 빵과 함께 먹습니다.",
   },
   "jordanian::hummus jordanian": {
     id: "Cocolan Levant dari buncis yang dilumat bersama tahini, lemon, dan bawang putih; menu mezze di Yordania, kerap disantap hangat.",
@@ -7184,6 +8097,7 @@ module.exports = {
     zh: "黎凡特的蘸酱，用鹰嘴豆泥拌芝麻酱、柠檬与大蒜；在约旦是必备的前菜，常趁热吃。",
     ja: "ひよこ豆をつぶし、タヒニ、レモン、ニンニクで和えるレヴァントのディップ。ヨルダンではメゼの定番で、温かいまま供されることも多い。",
     es: "Dip levantino de garbanzos machacados con tahina, limón y ajo; imprescindible en el mezze jordano, donde suele tomarse templado.",
+    ko: "으깬 병아리콩과 타히니, 레몬, 마늘로 만든 레반트의 딥으로, 요르단 메제의 단골이며 흔히 따뜻하게 먹습니다.",
   },
   "jordanian::jameed": {
     id: "Bola keras dan asin dari yoghurt domba atau kambing yang difermentasi lalu dikeringkan; bahan kunci mansaf, hidangan nasional Yordania.",
@@ -7192,6 +8106,7 @@ module.exports = {
     zh: "约旦的坚硬咸味球状物，由绵羊或山羊酸奶发酵后晒干而成；是国菜mansaf的关键用料。",
     ja: "羊やヤギのヨーグルトを発酵させて干し固めた、ヨルダンの硬い塩味の玉。国民料理マンサフに欠かせない。",
     es: "Bolas duras y saladas de yogur de oveja o cabra fermentado y secado, de Jordania; ingrediente clave del plato nacional mansaf.",
+    ko: "양이나 염소의 발효 요구르트를 소금에 절여 단단하게 말린 요르단의 덩어리로, 국민 음식 만사프의 핵심 재료입니다.",
   },
   "jordanian::ka'ak jerusalem": {
     id: "Roti cincin lonjong berkerak wijen dari Yerusalem, renyah di luar dan lembut di dalam; disantap dengan za'atar dan minyak zaitun.",
@@ -7200,6 +8115,7 @@ module.exports = {
     zh: "耶路撒冷的长形芝麻圈面包，外皮酥脆内里柔软；传统上蘸扎阿塔香料与橄榄油食用。",
     ja: "ごまをまとったエルサレムの細長いリング状のパン。外は香ばしく中はやわらかく、ザアタルとオリーブオイルで食べる。",
     es: "Pan de anillo alargado de Jerusalén cubierto de sésamo, crujiente por fuera y tierno por dentro; se come con zaatar y aceite de oliva.",
+    ko: "겉에 참깨를 묻힌 길쭉한 고리 모양의 예루살렘 빵으로, 겉은 바삭하고 속은 부드러우며 자타르와 올리브유를 곁들입니다.",
   },
   "jordanian::kibbeh jordanian": {
     id: "Hidangan Levant dari daging giling berbumbu dan gandum bulgur; di Yordania disantap panggang, digoreng, atau mentah (kibbeh nayyeh).",
@@ -7208,6 +8124,7 @@ module.exports = {
     zh: "黎凡特的调味肉末与布格麦碎料理；在约旦可烤、可炸，也可生食（kibbeh nayyeh）。",
     ja: "香辛料入りのひき肉とブルグルのレヴァント料理。ヨルダンでは焼く、揚げる、生（キッベ・ナイエ）と食べ方が幅広い。",
     es: "Plato levantino de carne picada especiada y trigo bulgur; en Jordania se come al horno, frito o crudo (kibbeh nayyeh).",
+    ko: "향신 다진 고기와 불구르로 만든 레반트 요리로, 요르단 전역에서 굽거나 튀기거나 날로(키베 나이예) 먹는 대표 음식입니다.",
   },
   "jordanian::kunafa nabulsiya": {
     id: "Hidangan penutup pastri pintal berisi keju yang direndam sirop gula; dari kota Nablus di Palestina dengan keju Nabulsi setempat.",
@@ -7216,6 +8133,7 @@ module.exports = {
     zh: "夹奶酪的拉丝酥点甜品，浸透糖浆；源自巴勒斯坦的纳布卢斯城，用当地的Nabulsi奶酪制作。",
     ja: "チーズを挟んだ糸状生地に砂糖シロップを染み込ませた菓子。パレスチナのナーブルス発祥で、地元のナーブルシー・チーズを使う。",
     es: "Postre de pasta en hebras relleno de queso y empapado en almíbar; nació en la ciudad palestina de Nablus con queso nabulsi local.",
+    ko: "치즈를 채워 설탕 시럽에 적신 실 페이스트리 디저트로, 팔레스타인 나블루스에서 비롯됐고 그 지역 나불시 치즈를 씁니다.",
   },
   "jordanian::lamb ouzi": {
     id: "Hidangan nasi perayaan yang disajikan dengan daging domba masak lama, kacang, dan kismis; namanya dari kata Turki kuzu, anak domba.",
@@ -7224,6 +8142,7 @@ module.exports = {
     zh: "节庆的米饭菜，配慢炖羊肉、坚果与葡萄干；名称源自土耳其语kuzu，即羔羊。",
     ja: "じっくり煮込んだ羊肉、ナッツ、レーズンを添える祝いの米料理。名はトルコ語で子羊を意味するkuzuに由来。",
     es: "Plato festivo de arroz servido con cordero cocinado a fuego lento, frutos secos y pasas; el nombre viene del turco kuzu, cordero.",
+    ko: "오래 익힌 양고기와 견과, 건포도를 곁들인 명절 밥 요리로, 이름은 양을 뜻하는 튀르키예어 쿠주에서 왔습니다.",
   },
   "jordanian::mahshi jordanian": {
     id: "Mahshi berarti »diisi« dalam bahasa Arab: hidangan Levant berupa zukini, terung, atau paprika yang diisi nasi dan daging cincang.",
@@ -7232,6 +8151,7 @@ module.exports = {
     zh: "Mahshi在阿拉伯语中意为「填馅」：黎凡特的菜式，将西葫芦、茄子或甜椒填入米饭与肉馅。",
     ja: "マフシーはアラビア語で「詰めた」の意。ズッキーニやナス、ピーマンに米とひき肉を詰めるレヴァントの料理。",
     es: "Mahshi («relleno» en árabe) es un plato levantino de calabacín, berenjena o pimientos rellenos de arroz y carne picada.",
+    ko: "마흐시는 아랍어로 '채운'이라는 뜻으로, 애호박이나 가지, 피망에 쌀과 다진 고기를 채운 레반트 요리입니다.",
   },
   "jordanian::mansaf": {
     id: "Hidangan nasional Yordania: daging domba dimasak dalam yoghurt kering fermentasi (jameed) dan disajikan di atas nasi pada nampan bersama.",
@@ -7240,6 +8160,7 @@ module.exports = {
     zh: "约旦的国菜：羊肉用发酵干酸奶（jameed）烹煮，盛在米饭上，置于共食的大盘中。",
     ja: "ヨルダンの国民料理。発酵させた乾燥ヨーグルト（ジャミード）で羊肉を煮て、米の上に盛り、大皿を囲んで食べる。",
     es: "Plato nacional de Jordania: cordero cocinado en yogur seco fermentado (jameed) y servido sobre arroz en una fuente comunal.",
+    ko: "발효해 말린 요구르트(자미드)에 양고기를 끓여 밥 위에 올려 함께 나눠 먹는 요르단의 국민 음식입니다.",
   },
   "jordanian::maqluba": {
     id: "Hidangan nasi terbalik khas Levant yang disusun berlapis dengan daging dan sayuran goreng.",
@@ -7248,6 +8169,7 @@ module.exports = {
     zh: "黎凡特的「倒扣饭」：米饭与肉及煎过的蔬菜层层相叠，翻转出锅。",
     ja: "肉と揚げ野菜を米と層に重ね、鍋ごとひっくり返して盛るレヴァントの料理。",
     es: "Plato levantino de arroz volteado, montado en capas con carne y verduras fritas.",
+    ko: "고기와 튀긴 채소를 켜켜이 쌓아 뒤집어 내는 레반트의 밥 요리입니다.",
   },
   "jordanian::mezze jordanian": {
     id: "Rangkaian hidangan pembuka Levant dalam porsi kecil — cocolan, salad, acar — yang disajikan sebelum atau bersama hidangan utama.",
@@ -7256,6 +8178,7 @@ module.exports = {
     zh: "黎凡特的小碟前菜组合——蘸酱、沙拉与腌菜——在主菜之前或与主菜同上。",
     ja: "ディップやサラダ、ピクルスなど、レヴァントの小皿の前菜の盛り合わせ。主菜の前や主菜とともに供される。",
     es: "Surtido de pequeños entrantes levantinos —dips, ensaladas, encurtidos— servidos antes del plato principal o junto a él.",
+    ko: "딥과 샐러드, 절임 같은 레반트의 작은 전채를 모아 본 요리에 앞서거나 함께 내는 상차림입니다.",
   },
   "jordanian::mujadara jordanian": {
     id: "Hidangan Levant dari lentil, nasi, dan bawang karamel; resep tertuanya ada di Kitab al-Tabikh dari Irak tahun 1226.",
@@ -7264,6 +8187,7 @@ module.exports = {
     zh: "黎凡特的扁豆米饭配焦糖洋葱；已知最早的食谱见于1226年伊拉克的《烹饪之书》。",
     ja: "レンズ豆と米、飴色玉ねぎのレヴァント料理。最古のレシピは1226年イラクの料理書『キターブ・アッ＝タビーフ』にある。",
     es: "Plato levantino de lentejas, arroz y cebolla caramelizada; la receta más antigua está en el Kitab al-Tabikh iraquí de 1226.",
+    ko: "렌즈콩과 쌀에 캐러멜처럼 볶은 양파를 올린 레반트 요리로, 가장 오래된 조리법은 1226년 이라크의 요리책에 있습니다.",
   },
   "jordanian::musakhan": {
     id: "Hidangan Levant: ayam panggang dengan sumac dan bawang di atas roti taboon; dari sekitar Tulkarm dan Jenin, hidangan nasional Palestina.",
@@ -7272,6 +8196,7 @@ module.exports = {
     zh: "黎凡特菜式：漆树粉与洋葱烤鸡铺在taboon薄饼上；源自图勒凯尔姆与杰宁一带，是巴勒斯坦的国菜。",
     ja: "スマックと玉ねぎで焼いた鶏をタブーンのパンにのせるレヴァント料理。トゥルカルムとジェニン近郊が発祥で、パレスチナの国民料理。",
     es: "Plato levantino de pollo asado con zumaque y cebolla sobre pan taboon; nació cerca de Tulkarm y Yenín y es plato nacional palestino.",
+    ko: "수맥과 양파로 구운 닭고기를 타분 빵에 올린 레반트 요리로, 툴카름과 제닌 일대에서 비롯됐으며 팔레스타인의 국민 음식입니다.",
   },
   "jordanian::shrak bread": {
     id: "Roti pipih tanpa ragi dari Yordania yang tipis nyaris tembus cahaya, dipanggang di atas wajan logam cembung (saj); makanan pokok Badui.",
@@ -7280,6 +8205,7 @@ module.exports = {
     zh: "约旦极薄近乎透明的无酵薄饼，在凸面铁鏊（saj）上烙成；是贝都因人的主食。",
     ja: "ヨルダンの、透けるほど薄い無発酵の平パン。凸型の鉄板（サージュ）で焼く、ベドウィンの主食。",
     es: "Pan plano jordano sin levadura, finísimo y casi translúcido, cocido en una plancha metálica convexa (saj); alimento básico beduino.",
+    ko: "볼록한 무쇠판(사즈)에 구운 요르단의 얇고 거의 비칠 듯한 무발효 플랫브레드로, 베두인의 주식입니다.",
   },
   "jordanian::tabbouleh jordanian": {
     id: "Salad Levant dari peterseli cincang halus, bulgur, tomat, mint, dan bawang dalam lemon dan minyak zaitun; digemari di Yordania.",
@@ -7288,6 +8214,7 @@ module.exports = {
     zh: "黎凡特沙拉：切细的欧芹、布格麦、番茄、薄荷与洋葱，以柠檬与橄榄油拌成；在约旦广受喜爱。",
     ja: "細かく刻んだパセリ、ブルグル、トマト、ミント、玉ねぎをレモンとオリーブオイルで和えるレヴァントのサラダ。ヨルダンでも人気。",
     es: "Ensalada levantina de perejil muy picado, bulgur, tomate, menta y cebolla con limón y aceite de oliva; muy popular en Jordania.",
+    ko: "곱게 썬 파슬리와 불구르, 토마토, 민트, 양파를 레몬과 올리브유에 버무린 레반트 샐러드로, 요르단 전역에서 사랑받습니다.",
   },
   "jordanian::warak enab jordanian": {
     id: "Daun anggur Levant yang digulung mengelilingi nasi dan daging cincang, ditim dalam kaldu berlemon; pokok masakan Yordania dan Arab.",
@@ -7296,6 +8223,7 @@ module.exports = {
     zh: "黎凡特的葡萄叶卷，内包米饭与肉馅，在柠檬味高汤中慢炖；是约旦以至阿拉伯饮食的常菜。",
     ja: "米とひき肉をブドウの葉で巻き、レモン風味のだしで煮るレヴァントの料理。ヨルダンをはじめアラブ各地の定番。",
     es: "Hojas de parra levantinas enrolladas en torno a arroz y carne picada, guisadas en caldo al limón; básicas en la cocina jordana.",
+    ko: "포도잎에 쌀과 다진 고기를 말아 레몬 국물에 끓인 레반트 요리로, 요르단을 비롯한 아랍 요리의 단골입니다.",
   },
   "jordanian::za'atar man'ousheh": {
     id: "Roti pipih Levant bertabur za'atar dan minyak zaitun; namanya dari kata Arab naqasha, mengukir, karena adonan ditekan dengan tangan.",
@@ -7304,6 +8232,7 @@ module.exports = {
     zh: "黎凡特的薄饼，面上撒扎阿塔香料与橄榄油；名称源自阿拉伯语naqasha「刻」，因面团要用手压出凹痕。",
     ja: "ザアタルとオリーブオイルをのせるレヴァントの平パン。生地を手で押してくぼませることから、アラビア語で「彫る」naqashaに由来。",
     es: "Pan plano levantino con zaatar y aceite de oliva; su nombre viene del árabe naqasha, grabar, por la masa presionada a mano.",
+    ko: "자타르와 올리브유를 올려 구운 레반트의 플랫브레드로, 이름은 손으로 반죽을 눌러 새긴다는 뜻의 아랍어 나카샤에서 왔습니다.",
   },
   "jordanian::zarb (bedouin bbq)": {
     id: "Zarb adalah pesta Badui Yordania: daging domba, ayam, atau kambing dan sayuran dimasak perlahan di lubang pasir bawah tanah di atas bara.",
@@ -7312,6 +8241,7 @@ module.exports = {
     zh: "Zarb是约旦贝都因人的传统盛宴：羊肉、鸡肉或山羊肉连同蔬菜，在地下沙坑的炭火上慢烤。",
     ja: "ザルブはヨルダンのベドウィンの伝統的なごちそう。羊、鶏、山羊の肉と野菜を、砂を掘った地下の炉で熾火にかけて焼く。",
     es: "El zarb es un banquete beduino jordano: cordero, pollo o cabra y verduras cocidos despacio en un hoyo de arena sobre brasas.",
+    ko: "자릅은 양이나 닭, 염소와 채소를 뜨거운 숯을 깐 모래 구덩이에 넣어 천천히 익히는 요르단 베두인의 전통 잔치 음식입니다.",
   },
   "korean::banchan platter": {
     id: "Aneka lauk kecil Korea yang menemani nasi; asal-usulnya ditelusuri ke larangan daging Buddhis pada pertengahan era Tiga Kerajaan.",
@@ -7320,6 +8250,7 @@ module.exports = {
     zh: "韩国配饭的各色小菜；来历可追到三国时代中期佛教禁肉的风气。",
     ja: "ご飯に添える韓国の小皿の数々。三国時代中期の仏教による肉食の禁に由来をたどります。",
     es: "Surtido de pequeños acompañamientos coreanos servidos con arroz; su origen se remonta a las prohibiciones budistas de los Tres Reinos.",
+    ko: "밥과 함께 내는 한국의 여러 가지 작은 반찬으로, 삼국시대 중엽 불교의 육식 금지에서 비롯됐다고 봅니다.",
   },
   "korean::bibimbap": {
     id: "Hidangan Korea: nasi hangat ditutup sayuran berbumbu (namul), gochujang, telur, dan daging, lalu diaduk; namanya berarti \"nasi campur\".",
@@ -7328,6 +8259,7 @@ module.exports = {
     zh: "韩国的拌饭：热饭上铺调过味的凉拌菜、辣椒酱、鸡蛋与肉，吃前拌匀；名字就是「拌饭」。",
     ja: "温かいご飯に味つけしたナムル、コチュジャン、卵、肉をのせ、食べる前に混ぜる韓国の料理。名は「混ぜご飯」。",
     es: "Plato coreano de arroz caliente cubierto de verduras sazonadas (namul), gochujang, huevo y carne, mezclado antes de comer: «arroz mezclado».",
+    ko: "따뜻한 밥에 나물과 고추장, 달걀, 고기를 올려 비벼 먹는 한국 요리로, 이름은 '비벼서 먹는 밥'이라는 뜻입니다.",
   },
   "korean::bingsu": {
     id: "Hidangan es serut berbasis susu khas Korea dengan taburan manis: potongan buah, susu kental manis, sirop buah, dan tteok.",
@@ -7336,6 +8268,7 @@ module.exports = {
     zh: "韩国的牛奶刨冰：上头堆着甜料——水果丁、炼奶、果糖浆与年糕。",
     ja: "牛乳のかき氷に甘い具をのせた韓国の氷菓。刻んだ果物、練乳、果実シロップ、トッなど。",
     es: "Postre coreano de hielo raspado con leche y coberturas dulces: fruta troceada, leche condensada, sirope de fruta y pastel de arroz.",
+    ko: "우유를 바탕으로 간 얼음에 과일과 연유, 과일 시럽, 떡 같은 고명을 올린 한국 디저트입니다.",
   },
   "korean::bossam": {
     id: "Hidangan Korea: perut babi rebus diiris tipis lalu dibungkus daun kubis atau selada.",
@@ -7344,6 +8277,7 @@ module.exports = {
     zh: "韩国的菜包肉：白煮的五花肉切薄片，用白菜叶或生菜叶包着吃。",
     ja: "茹でた豚バラを薄く切り、白菜やサンチュの葉で包んで食べる韓国の料理。",
     es: "Plato coreano de panceta de cerdo hervida, cortada fina y envuelta en hojas de col o lechuga.",
+    ko: "삶은 돼지고기 삼겹살을 얇게 저며 배추나 상추에 싸 먹는 한국 요리입니다.",
   },
   "korean::budae jjigae": {
     id: "\"Semur tentara\" Korea: kimchi, kaldu, dan daging sisa militer AS seperti Spam dan sosis; lahir dari kelangkaan pangan seusai perang 1953.",
@@ -7352,6 +8286,7 @@ module.exports = {
     zh: "韩国的部队锅：泡菜、汤底，加上美军剩余物资里的午餐肉与热狗；一九五三年战后粮食短缺的产物。",
     ja: "韓国の「部隊鍋」。キムチとだしに、米軍放出のスパムやソーセージを入れます。一九五三年の戦後、食糧難から生まれました。",
     es: "«Guiso del ejército» coreano: kimchi, caldo y carnes del excedente militar estadounidense: Spam y salchichas; de la escasez de 1953.",
+    ko: "김치와 육수에 스팸과 소시지 같은 미군 물자를 넣은 '부대찌개'로, 한국전쟁 뒤 식량난 속에서 생겨났습니다.",
   },
   "korean::bulgogi": {
     id: "Hidangan panggang Korea dari irisan tipis daging sapi yang dimarinasi; namanya berarti \"daging api\", berpangkal pada masakan Pyongan.",
@@ -7360,6 +8295,7 @@ module.exports = {
     zh: "韩国的烤肉：薄切牛肉先腌后烤；名字的意思是「火肉」，源头可追到平安道的做法。",
     ja: "薄切りの牛肉を漬け込んで焼く韓国の料理。名は「火の肉」を意味し、平安道の調理に遡ります。",
     es: "Plato coreano a la parrilla de lonchas finas de ternera marinada; su nombre significa «carne de fuego» y remite a la cocina de Pyongan.",
+    ko: "얇게 저며 양념한 소고기를 구운 한국 요리로, 이름은 '불에 구운 고기'라는 뜻이며 평안도 조리법에서 이어졌습니다.",
   },
   "korean::dakgalbi": {
     id: "Ayam tumis Korea dalam saus gochujang bersama kubis, tteok, dan ubi jalar; dikembangkan di Chuncheon pada 1960-an sebagai teman minum.",
@@ -7368,6 +8304,7 @@ module.exports = {
     zh: "韩国的辣炒鸡：鸡肉与辣椒酱、卷心菜、年糕、番薯同炒；一九六〇年代在春川作为下酒菜成形。",
     ja: "コチュジャンだれで鶏肉をキャベツ、トッ、さつまいもと炒める韓国の料理。一九六〇年代、春川で酒の肴として育ちました。",
     es: "Pollo salteado coreano en salsa de gochujang con col, pastel de arroz y boniato; nació en Chuncheon en los sesenta como tapa de taberna.",
+    ko: "고추장 양념에 닭고기와 양배추, 떡, 고구마를 볶은 요리로, 1960년대 춘천에서 술안주로 자리 잡았습니다.",
   },
   "korean::doenjang jjigae": {
     id: "Semur pasta kedelai Korea (doenjang) dengan sayuran, tahu, dan kerap daging atau makanan laut; doenjang sudah ada sejak Tiga Kerajaan.",
@@ -7376,6 +8313,7 @@ module.exports = {
     zh: "韩国的大酱汤：黄豆酱（doenjang）打底，加蔬菜、豆腐，常再放肉或海鲜；大酱可追到三国时代。",
     ja: "大豆味噌テンジャンで作る韓国の鍋。野菜、豆腐、肉や魚介を入れます。テンジャン自体は三国時代に遡ります。",
     es: "Guiso coreano de pasta de soja (doenjang) con verduras, tofu y a menudo carne o marisco; el doenjang se remonta a los Tres Reinos.",
+    ko: "된장에 채소와 두부, 흔히 고기나 해산물을 넣어 끓인 찌개로, 된장은 삼국시대까지 거슬러 올라갑니다.",
   },
   "korean::dolsot bibimbap": {
     id: "Nasi campur Korea yang disajikan dalam belanga batu panas (dolsot); nasinya menjadi garing dan telur mentahnya matang di dalamnya.",
@@ -7384,6 +8322,7 @@ module.exports = {
     zh: "韩国的石锅拌饭：滚烫的石锅（dolsot）把底下的饭焙出锅巴，生鸡蛋也在锅里熟成。",
     ja: "熱した石鍋（トルソット）で供する韓国の混ぜご飯。底の飯はおこげになり、落とした生卵も鍋の中で火が通ります。",
     es: "Arroz mezclado coreano servido en un cuenco de piedra ardiendo (dolsot) que tuesta el arroz y cuaja en él un huevo crudo.",
+    ko: "달군 돌솥에 담아 내는 한국의 비빔밥으로, 밥이 눌어붙어 바삭해지고 날달걀도 함께 익습니다.",
   },
   "korean::galbi": {
     id: "Iga sapi panggang Korea yang dimarinasi kecap asin, gula, bawang putih, dan wijen; \"galbi\" berarti \"iga\" dalam bahasa Korea.",
@@ -7392,6 +8331,7 @@ module.exports = {
     zh: "韩国的烤牛小排：先用酱油、糖、蒜与芝麻腌过再上火；「galbi」在韩语里就是「肋」。",
     ja: "醤油、砂糖、にんにく、胡麻に漬けて焼く韓国の牛カルビ。「カルビ」は韓国語で「あばら」の意です。",
     es: "Costillar de ternera a la brasa coreano marinado en soja, azúcar, ajo y sésamo; «galbi» significa «costilla» en coreano.",
+    ko: "간장과 설탕, 마늘, 참기름에 재워 구운 한국의 소갈비로, '갈비'는 한국어로 갈비뼈를 뜻합니다.",
   },
   "korean::galbitang": {
     id: "Sup iga sapi Korea: iga direbus bersama lobak dan bawang; tercatat dalam arsip jamuan istana Joseon pada 1890-an.",
@@ -7400,6 +8340,7 @@ module.exports = {
     zh: "韩国的排骨汤：牛肋排与萝卜、洋葱同炖；一八九〇年代朝鲜王朝的宫廷宴席档案里就有记载。",
     ja: "牛カルビを大根と玉ねぎで煮出した韓国のスープ。一八九〇年代の朝鮮王朝の宮中宴の記録に見えます。",
     es: "Sopa coreana de costilla de ternera cocida con rábano y cebolla; documentada en actas de banquetes de la corte Joseon de los años 1890.",
+    ko: "갈비를 무와 양파와 함께 끓인 한국의 소갈비 국으로, 1890년대 조선 궁중 연회 기록에 남아 있습니다.",
   },
   "korean::gimbap": {
     id: "Hidangan Korea: nasi matang dan isian digulung dalam rumput laut kering (gim) lalu diiris; nama \"gimbap\" berarti \"nasi rumput laut\".",
@@ -7408,6 +8349,7 @@ module.exports = {
     zh: "韩国的紫菜包饭：米饭与配料卷进干紫菜（gim）再切段；「gimbap」的意思正是「紫菜饭」。",
     ja: "炊いた飯と具を干し海苔（キム）で巻いて切る韓国の料理。「キムパプ」とは「海苔ご飯」の意です。",
     es: "Plato coreano de arroz cocido y relleno enrollado en alga seca (gim) y cortado; «gimbap» significa «arroz de alga».",
+    ko: "밥과 속재료를 김에 말아 썰어 낸 한국 음식으로, '김밥'은 김에 싼 밥이라는 뜻입니다.",
   },
   "korean::hotteok": {
     id: "Panekuk isi jajanan jalanan Korea, manis oleh gula merah, kayu manis, dan kacang; dibawa pedagang Tionghoa pada akhir 1800-an.",
@@ -7416,6 +8358,7 @@ module.exports = {
     zh: "韩国街头的糖饼：面皮里包红糖、肉桂与坚果；十九世纪末由中国商人带入。",
     ja: "韓国の屋台の詰め物入り焼き菓子。黒糖、シナモン、木の実で甘く、一八〇〇年代末に中国の商人が伝えました。",
     es: "Torta rellena de la calle coreana, dulce de azúcar moreno, canela y frutos secos; la trajeron comerciantes chinos a finales del XIX.",
+    ko: "흑설탕과 계피, 견과를 넣은 한국의 길거리 호떡으로, 1800년대 말 중국 상인들이 들여왔습니다.",
   },
   "korean::japchae": {
     id: "Hidangan tumis Korea; kini dibuat dengan soun ubi jalar (dangmyeon), sayuran, dan daging.",
@@ -7424,6 +8367,7 @@ module.exports = {
     zh: "韩国的杂菜：如今用红薯粉丝（dangmyeon）与蔬菜、肉同炒。",
     ja: "韓国の炒め物。今日ではさつまいもの春雨タンミョンに、野菜と肉を合わせて作ります。",
     es: "Salteado coreano; hoy se hace con fideos de cristal de boniato (dangmyeon), verduras y carne.",
+    ko: "한국의 볶음 요리로, 오늘날에는 고구마 전분으로 만든 당면에 채소와 고기를 넣어 만듭니다.",
   },
   "korean::jjajangmyeon": {
     id: "Mi gandum Tionghoa-Korea dalam saus chunjang kental berbahan kacang hitam, dengan babi dan sayur; ciptaan perantau Shandong di Incheon.",
@@ -7432,6 +8376,7 @@ module.exports = {
     zh: "韩式中华的炸酱面：小麦面拌上浓稠的春酱（黑豆酱），配猪肉与蔬菜；由仁川的山东移民创出。",
     ja: "韓国式中華の小麦麺。黒い豆味噌チュンジャンの濃いたれに豚肉と野菜を合わせます。仁川の山東出身者が生みました。",
     es: "Fideos de trigo chino-coreanos en salsa espesa de judía negra (chunjang) con cerdo y verduras; creados por migrantes de Shandong en Incheon.",
+    ko: "밀면에 춘장 소스와 돼지고기, 채소를 얹은 한중 요리로, 인천의 산둥 출신 이민자들이 만들었습니다.",
   },
   "korean::jjamppong": {
     id: "Sup mi seafood pedas Tionghoa-Korea dalam kuah merah gochugaru; namanya dari chanpon Jepang pada masa pendudukan.",
@@ -7440,6 +8385,7 @@ module.exports = {
     zh: "韩式中华的辣海鲜汤面：汤色红艳，来自辣椒粉；名字取自日据时期的日式什锦面 chanpon。",
     ja: "韓国式中華の辛い海鮮麺。粉唐辛子で赤く染めたスープで、名は日本統治期のちゃんぽんに由来します。",
     es: "Sopa picante de fideos con marisco chino-coreana en caldo rojo de gochugaru; su nombre viene del chanpon japonés de la ocupación.",
+    ko: "고춧가루로 붉게 낸 국물에 해산물을 넣은 한중식 매운 국수로, 일제강점기에 일본의 찬폰에서 이름을 따왔습니다.",
   },
   "korean::jokbal": {
     id: "Kaki babi Korea yang dibraise dalam kecap asin, jahe, bawang putih, dan arak beras.",
@@ -7448,6 +8394,7 @@ module.exports = {
     zh: "韩国的猪脚：用酱油、姜、蒜与米酒慢火焖透。",
     ja: "醤油、生姜、にんにく、米酒で煮込んだ韓国の豚足。",
     es: "Manitas de cerdo coreanas guisadas en salsa de soja, jengibre, ajo y vino de arroz.",
+    ko: "돼지 족발을 간장과 생강, 마늘, 청주에 조려 낸 한국 요리입니다.",
   },
   "korean::kimchi": {
     id: "Hidangan Korea berupa sayuran yang digarami dan difermentasi, biasanya sawi putih, lalu dibumbui cabai.",
@@ -7456,6 +8403,7 @@ module.exports = {
     zh: "韩国的泡菜：蔬菜（多半是大白菜）先腌后发酵，再以辣椒调味。",
     ja: "塩をして発酵させた野菜、多くは白菜に、唐辛子で味をつけた韓国の食べ物。",
     es: "Plato coreano de verduras saladas y fermentadas, normalmente col china, sazonadas con chile.",
+    ko: "소금에 절여 발효시킨 채소(주로 배추)에 고추로 양념한 한국 음식입니다.",
   },
   "korean::kimchi jjigae": {
     id: "Semur Korea yang lazim: kimchi fermentasi direbus bersama daging babi, tahu, dan daun bawang.",
@@ -7464,6 +8412,7 @@ module.exports = {
     zh: "韩国最常见的锅：发酵好的泡菜与猪肉、豆腐、葱同煮。",
     ja: "韓国のありふれた鍋。熟成したキムチを豚肉、豆腐、青ねぎとともに煮込みます。",
     es: "Guiso coreano cotidiano de kimchi fermentado cocido con cerdo, tofu y cebolleta.",
+    ko: "묵은 김치에 돼지고기와 두부, 파를 넣어 끓인 한국의 대표적인 찌개입니다.",
   },
   "korean::korean fried chicken": {
     id: "Ayam goreng dua kali khas Korea Selatan; menyebar setelah waralaba Seoul 1977, dan gaya pedas yangnyeom muncul di Daegu pada 1982.",
@@ -7472,6 +8421,7 @@ module.exports = {
     zh: "韩国的双炸鸡：一九七七年首尔的连锁店把它带火，辣味的调味（yangnyeom）路数则是一九八二年在大邱出现。",
     ja: "二度揚げする韓国のフライドチキン。一九七七年のソウルのチェーンで広まり、辛いヤンニョム風は一九八二年に大邱で生まれました。",
     es: "Pollo frito dos veces surcoreano; se difundió tras una franquicia de Seúl en 1977, y el estilo picante yangnyeom nació en Daegu en 1982.",
+    ko: "두 번 튀기는 한국식 프라이드치킨으로, 1977년 서울 프랜차이즈로 퍼졌고 매운 양념 방식은 1982년 대구에서 시작됐습니다.",
   },
   "korean::makgeolli": {
     id: "Minuman beralkohol tertua Korea: arak beras 6-9% yang keruh dan sedikit bergas, difermentasi dari beras dan ragi nuruk.",
@@ -7480,6 +8430,7 @@ module.exports = {
     zh: "韩国最古老的传统酒：马格利，乳白微气的米酒，酒精六到九度，用米与酒曲 nuruk 发酵而成。",
     ja: "韓国で最も古い伝統の酒。米と麹ヌルクで醸す、白く濁ってわずかに発泡する六〜九度の濁酒です。",
     es: "La bebida alcohólica tradicional más antigua de Corea: un vino de arroz lechoso y algo espumoso de 6-9%, fermentado con arroz y nuruk.",
+    ko: "쌀과 누룩으로 빚어 뽀얗고 약하게 탄산이 도는 6~9도의 술로, 한국에서 가장 오래된 전통주입니다.",
   },
   "korean::mandu": {
     id: "Pangsit berisi khas Korea, dikukus, direbus, atau digoreng; diduga masuk dari Dinasti Yuan pada masa Goryeo abad ke-14.",
@@ -7488,6 +8439,7 @@ module.exports = {
     zh: "韩国的馒头（饺子）：蒸、煮、煎皆可；一般认为是十四世纪高丽时期自元朝传入。",
     ja: "蒸す、茹でる、焼くのいずれでも作る韓国の包み餃子。十四世紀の高麗期に元から伝わったとされます。",
     es: "Empanadilla rellena coreana, al vapor, hervida o frita; se cree introducida desde la dinastía Yuan en el Goryeo del siglo XIV.",
+    ko: "찌거나 삶거나 튀겨 내는 한국의 만두로, 14세기 고려 시대에 원나라에서 전해졌다고 봅니다.",
   },
   "korean::naengmyeon": {
     id: "Mi soba dingin Korea yang berasal dari utara, dari Pyongyang dan Hamhung.",
@@ -7496,6 +8448,7 @@ module.exports = {
     zh: "韩国的冷面：荞麦面冰镇了吃，源头在北方的平壤与咸兴。",
     ja: "冷たいそば粉の麺。北の平壌や咸興に発する韓国の料理です。",
     es: "Fideos fríos coreanos de trigo sarraceno de origen norcoreano, de Pyongyang y Hamhung.",
+    ko: "북한(평양·함흥)에서 온 한국의 차가운 메밀국수 요리입니다.",
   },
   "korean::samgyeopsal": {
     id: "Perut babi panggang Korea yang dimasak langsung di meja.",
@@ -7504,6 +8457,7 @@ module.exports = {
     zh: "韩式烤五花肉：肉就在桌上的炉子上烤。",
     ja: "食卓の上で焼く韓国の豚バラ肉。",
     es: "Panceta de cerdo coreana asada en la propia mesa.",
+    ko: "식탁에서 직접 구워 먹는 한국의 삼겹살 구이입니다.",
   },
   "korean::samgyetang": {
     id: "Sup Korea berisi ayam muda utuh yang diisi ketan dan ginseng; disantap pada hari-hari terpanas musim panas (sambok).",
@@ -7512,6 +8466,7 @@ module.exports = {
     zh: "韩国的参鸡汤：整只童子鸡腹中塞满糯米与人参；三伏最热的日子里吃。",
     ja: "若鶏を丸ごと使い、腹にもち米と高麗人参を詰めた韓国のスープ。真夏の最も暑い三伏の日に食べます。",
     es: "Sopa coreana de pollo joven entero relleno de arroz glutinoso y ginseng; se toma en los días más calurosos del verano (sambok).",
+    ko: "어린 닭에 찹쌀과 인삼을 채워 끓인 한국의 탕으로, 한여름 삼복에 먹습니다.",
   },
   "korean::seollangtang": {
     id: "Sup tulang sapi Korea dari tulang kaki dan sandung lamur yang direbus berjam-jam hingga putih susu, disajikan dengan nasi.",
@@ -7520,6 +8475,7 @@ module.exports = {
     zh: "韩国的雪浓汤：牛腿骨与胸腩熬上几个钟头，汤色乳白；配白饭同吃。",
     ja: "牛の脚の骨と胸肉を何時間も煮出し、乳白色にした韓国のスープ。ご飯を添えて供します。",
     es: "Sopa coreana de hueso de vacuno: caña y falda cocidas durante horas hasta lograr un caldo lechoso; se sirve con arroz.",
+    ko: "사골과 양지를 여러 시간 고아 뽀얗게 낸 한국의 소뼈 국물 요리로, 밥과 함께 냅니다.",
   },
   "korean::soju": {
     id: "Minuman suling Korea yang bening, namanya berarti \"arak bakar\"; masuk lewat bangsa Mongol pada masa Goryeo abad ke-13.",
@@ -7528,6 +8484,7 @@ module.exports = {
     zh: "韩国的清冽蒸馏酒，名字的意思是「烧酒」；十三世纪高丽时期经蒙古人传入。",
     ja: "「焼いた酒」を意味する名をもつ韓国の澄んだ蒸留酒。十三世紀の高麗期にモンゴルを通じて伝わりました。",
     es: "Aguardiente coreano transparente cuyo nombre significa «licor quemado»; llegó vía los mongoles en el Goryeo del siglo XIII.",
+    ko: "'태운 술'이라는 뜻의 맑은 한국 증류주로, 13세기 고려 시대에 몽골을 통해 전해졌습니다.",
   },
   "korean::sundubu jjigae": {
     id: "Semur pedas Korea berpusat pada sundubu, tahu sangat lembut yang belum dipadatkan, direbus dengan cabai, makanan laut, dan telur.",
@@ -7536,6 +8493,7 @@ module.exports = {
     zh: "韩国的辣豆腐锅：主角是没压过的极嫩豆腐（sundubu），与辣椒、海鲜或肉同煮，临起锅打一颗蛋。",
     ja: "固めていない極やわらかな豆腐スンドゥブを主役に、唐辛子、魚介か肉、卵を落として煮る韓国の辛い鍋。",
     es: "Guiso picante coreano en torno al sundubu, tofu blandísimo sin cuajar, cocido con chile, marisco o carne y un huevo cascado.",
+    ko: "굳히지 않은 아주 부드러운 순두부를 고추와 해산물이나 고기와 함께 끓이고 달걀을 깨 넣는 한국의 매운 찌개입니다.",
   },
   "korean::tteokbokki": {
     id: "Hidangan Korea berupa tteok silinder yang direbus dalam saus gochujang yang pedas.",
@@ -7544,6 +8502,7 @@ module.exports = {
     zh: "韩国的辣炒年糕：圆柱形的年糕在辣椒酱汁里煮软。",
     ja: "円筒形のトッ（餅）を、辛いコチュジャンだれで煮た韓国の料理。",
     es: "Plato coreano de pasteles de arroz cilíndricos cocidos en salsa picante de gochujang.",
+    ko: "가래떡을 매콤한 고추장 양념에 조려 낸 한국 음식입니다.",
   },
   "lebanese::arak": {
     id: "Minuman nasional Lebanon: arak beraroma adas manis yang disuling dari sari anggur fermentasi; namanya berarti \"keringat\" dalam bahasa Arab.",
@@ -7552,6 +8511,7 @@ module.exports = {
     zh: "黎巴嫩的国酒：以发酵葡萄汁蒸馏而成的茴香酒；名字在阿拉伯语里是「汗」的意思。",
     ja: "レバノンの国民酒。発酵させた葡萄果汁から蒸留したアニス風味の酒で、名はアラビア語で「汗」を意味します。",
     es: "Bebida nacional del Líbano: aguardiente anisado destilado de zumo de uva fermentado; su nombre significa «sudor» en árabe.",
+    ko: "발효한 포도즙을 증류해 아니스로 향을 낸 레바논의 국민 술로, 이름은 아랍어로 '땀'을 뜻합니다.",
   },
   "lebanese::baba ghanoush": {
     id: "Cocolan Levant dari terong panggang berasap yang dilumat bersama tahini, minyak zaitun, dan air jeruk lemon.",
@@ -7560,6 +8520,7 @@ module.exports = {
     zh: "黎凡特蘸酱，将烤出烟熏味的茄子捣烂，拌入芝麻酱、橄榄油与柠檬汁。",
     ja: "レバントのディップ。燻したように焼いた茄子を潰し、練り胡麻・オリーブ油・レモン汁と和える。",
     es: "Puré levantino de berenjena asada con sabor ahumado, machacada con tahini, aceite de oliva y zumo de limón.",
+    ko: "불에 구운 가지를 타히니와 올리브유, 레몬즙에 으깬 레반트의 딥으로, 이름은 아랍어 '바바'(아버지)와 '가누시'를 합친 것입니다.",
   },
   "lebanese::baklava lebanese": {
     id: "Pastri berlapis filo dan kacang; baklawa Lebanon direndam sirop gula beraroma air bunga jeruk atau air mawar yang disebut atter.",
@@ -7568,6 +8529,7 @@ module.exports = {
     zh: "千层果仁酥：黎巴嫩的 baklawa 浸在加了橙花水或玫瑰水的糖浆里，那糖浆叫 atter。",
     ja: "フィロと木の実の層になった菓子。レバノンのバクラワは、オレンジフラワーやローズウォーターのシロップ「アッテル」に浸します。",
     es: "Pastel de capas de filo y frutos secos; la baklawa libanesa se empapa en almíbar de agua de azahar o de rosas llamado atter.",
+    ko: "필로와 견과를 켜켜이 쌓은 페이스트리로, 레바논식 바클라와는 오렌지꽃이나 장미수 설탕 시럽 '아테르'에 적십니다.",
   },
   "lebanese::falafel": {
     id: "Gorengan dari buncis giling atau kacang fava, atau keduanya, dengan herba dan rempah.",
@@ -7576,6 +8538,7 @@ module.exports = {
     zh: "炸豆丸：鹰嘴豆或蚕豆磨碎，拌香草与香料下油锅。",
     ja: "挽いたひよこ豆やそら豆に香草と香辛料を混ぜて揚げた団子。",
     es: "Buñuelo frito de garbanzo o haba molidos, o de ambos, con hierbas y especias.",
+    ko: "간 병아리콩이나 잠두에 허브와 향신료를 섞어 튀긴 요리입니다.",
   },
   "lebanese::fatteh": {
     id: "Hidangan berlapis Levant dari roti pipih panggang, buncis, dan yogurt berbawang putih; namanya dari kata Arab \"fatta\", meremukkan roti.",
@@ -7584,6 +8547,7 @@ module.exports = {
     zh: "黎凡特的层叠菜：烤脆的薄饼、鹰嘴豆与蒜味酸奶层层相叠；名字出自阿拉伯语的 fatta，「把面包掰碎」。",
     ja: "焼いた薄焼きパン、ひよこ豆、にんにく風味のヨーグルトを重ねるレヴァントの料理。名はアラビア語のファッタ「パンを砕く」から。",
     es: "Plato levantino en capas de pan plano tostado, garbanzos y yogur con ajo; su nombre viene del árabe «fatta», desmigar pan.",
+    ko: "구운 플랫브레드와 병아리콩, 마늘 요구르트를 켜켜이 쌓은 레반트 요리로, 이름은 '빵을 부수다'라는 아랍어 파타에서 왔습니다.",
   },
   "lebanese::fattoush": {
     id: "Salad roti Levant dari pita panggang atau goreng dengan sayuran hijau dan sayur lain, diasamkan sumac; di Lebanon ia memanfaatkan roti sisa.",
@@ -7592,6 +8556,7 @@ module.exports = {
     zh: "黎凡特的面包沙拉：皮塔饼烤过或炸过，配绿叶菜与时蔬，用漆树粉取酸；在黎巴嫩，它本是消化剩饼的法子。",
     ja: "焼いたり揚げたりしたピタに青菜と野菜を合わせ、スマックで酸味をつけるレヴァントのパンのサラダ。残ったパンを活かす料理でした。",
     es: "Ensalada de pan levantina con pita tostada o frita, verduras y hortalizas, acidulada con zumaque; en Líbano aprovechaba el pan sobrante.",
+    ko: "구운 피타를 채소와 함께 수맥으로 새콤하게 버무린 레반트의 빵 샐러드로, 레바논에서 남은 빵을 활용하려 만들어졌습니다.",
   },
   "lebanese::halva": {
     id: "Manisan padat dan rapuh dari pasta wijen dan gula, disantap di Levant, Balkan, dan sebagian besar Timur Tengah.",
@@ -7600,6 +8565,7 @@ module.exports = {
     zh: "以芝麻酱和糖凝成的甜点，紧实干爽而易碎，通行于黎凡特、巴尔干与中东各地。",
     ja: "練り胡麻と砂糖を固めた、密で乾いた崩れやすい菓子。レバントからバルカン、中東一帯で食べられる。",
     es: "Dulce denso, seco y quebradizo de pasta de sésamo y azúcar, común en el Levante, los Balcanes y buena parte de Oriente Medio.",
+    ko: "참깨 페이스트(타히니)와 설탕으로 만든 조밀하고 부슬부슬한 과자로, 레반트와 발칸, 중동 전역에서 먹습니다.",
   },
   "lebanese::hummus": {
     id: "Cocolan Levant dari buncis yang dilumatkan bersama tahini, lemon, dan bawang putih; \"hummus\" adalah kata Arab untuk buncis.",
@@ -7608,6 +8574,7 @@ module.exports = {
     zh: "黎凡特的蘸酱：鹰嘴豆压成泥，拌芝麻酱、柠檬与蒜；「hummus」在阿拉伯语里就是「鹰嘴豆」。",
     ja: "ひよこ豆を潰し、タヒニ、レモン、にんにくと合わせたレヴァントのディップ。「フムス」はアラビア語でひよこ豆のこと。",
     es: "Untable levantino de garbanzos triturados con tahini, limón y ajo; «hummus» es «garbanzo» en árabe.",
+    ko: "으깬 병아리콩에 타히니와 레몬, 마늘을 섞은 레반트의 딥으로, '후무스'는 아랍어로 병아리콩을 뜻합니다.",
   },
   "lebanese::kafta": {
     id: "Kebab panggang Levant dari daging sapi atau domba giling dengan peterseli, bawang bombai, dan rempah; namanya dari kufta Persia.",
@@ -7616,6 +8583,7 @@ module.exports = {
     zh: "黎凡特的烤肉串：牛肉或羊肉糜拌欧芹、洋葱与香料；名字来自波斯语的 kufta，意思是「碾碎」。",
     ja: "牛か羊の挽肉にパセリ、玉ねぎ、香辛料を混ぜて焼くレヴァントのケバブ。名はペルシア語のクフタ「挽く」から。",
     es: "Kebab levantino a la brasa de ternera o cordero picados con perejil, cebolla y especias; del persa kufta, «moler».",
+    ko: "다진 소고기나 양고기에 파슬리와 양파, 향신료를 섞어 구운 레반트 케밥으로, 이름은 '갈다'라는 뜻의 페르시아어 쿠프타에서 왔습니다.",
   },
   "lebanese::kibbeh": {
     id: "Hidangan Levant dari daging giling tanpa lemak yang dibumbui, dicampur bulgur; dianggap hidangan nasional Lebanon dan Suriah.",
@@ -7624,6 +8592,7 @@ module.exports = {
     zh: "黎凡特的碎麦肉丸：调过味的瘦肉糜拌碎麦；黎巴嫩与叙利亚都视之为国菜。",
     ja: "味つけした赤身の挽肉とブルグルで作るレヴァントの料理。レバノンとシリアの国民食とされます。",
     es: "Plato levantino de carne magra picada y sazonada mezclada con bulgur; se considera plato nacional de Líbano y Siria.",
+    ko: "다진 살코기와 불구르를 향신료로 양념한 레반트 요리로, 레바논과 시리아의 국민 음식으로 꼽힙니다.",
   },
   "lebanese::kibbeh nayyeh": {
     id: "Mezze Levant dari daging domba atau sapi mentah yang ditumbuk bersama bulgur halus dan rempah; konon berasal dari Aleppo, Suriah.",
@@ -7632,6 +8601,7 @@ module.exports = {
     zh: "黎凡特的生肉前菜：生羊肉或牛肉与细碎麦、香料一同舂捣；据说源自叙利亚的阿勒颇。",
     ja: "生の羊肉や牛肉を細かいブルグルと香辛料とともに搗いたレヴァントのメゼ。シリアのアレッポ発祥とされます。",
     es: "Mezze levantino de cordero o ternera crudos majados con bulgur fino y especias; se dice originario de Alepo, Siria.",
+    ko: "다진 생양고기나 소고기를 고운 불구르, 향신료와 함께 찧어 만든 레반트 메제로, 시리아 알레포에서 비롯됐다고 전해집니다.",
   },
   "lebanese::knafeh": {
     id: "Pastri Timur Tengah dari adonan serat atau semolina dengan keju manis, direndam sirop.",
@@ -7640,6 +8610,7 @@ module.exports = {
     zh: "中东的甜点：细丝面或粗麦粉皮裹甜奶酪，浇透糖浆。",
     ja: "中東の菓子。細い糸状の生地かセモリナに甘いチーズを合わせ、シロップを染み込ませます。",
     es: "Dulce de Oriente Medio de masa en hebras o sémola con queso dulce, empapado en almíbar.",
+    ko: "가늘게 뽑은 반죽이나 세몰리나에 달콤한 치즈를 넣고 시럽에 적신 중동 페이스트리입니다.",
   },
   "lebanese::lebanese coffee": {
     id: "Kopi giling halus tanpa saring yang pekat, diseduh gaya Turki dalam kendi bergagang panjang rakwa; kerap diharumkan kapulaga.",
@@ -7648,6 +8619,7 @@ module.exports = {
     zh: "细磨不过滤的浓咖啡：用长柄壶 rakwa 按土耳其法煮；常添豆蔻增香。",
     ja: "細かく挽いた濾さない濃いコーヒー。長柄のラクワでトルコ式に淹れ、しばしばカルダモンで香りをつけます。",
     es: "Café fuerte, de molienda fina y sin filtrar, hecho a la turca en una jarra de mango largo (rakwa); a menudo con cardamomo.",
+    ko: "곱게 간 원두를 거르지 않고 손잡이 긴 라크와 주전자에 튀르키예식으로 끓인 진한 커피로, 흔히 카르다몸 향을 더합니다.",
   },
   "lebanese::maamoul": {
     id: "Kue isi Levant dari semolina dan mentega, diisi kurma, pistachio, atau kenari; menurut tradisi dibuat untuk Idulfitri dan Paskah.",
@@ -7656,6 +8628,7 @@ module.exports = {
     zh: "黎凡特的酥皮小饼：粗麦粉与黄油做皮，馅是枣、开心果或核桃；照传统在开斋节与复活节做。",
     ja: "セモリナとバターの生地に、デーツ、ピスタチオ、胡桃を詰めるレヴァントの菓子。伝統ではイードと復活祭に焼きます。",
     es: "Galleta rellena levantina de sémola y mantequilla con dátil, pistacho o nuez; se hace tradicionalmente para el Eid y la Pascua.",
+    ko: "세몰리나와 버터 반죽에 대추야자나 피스타치오, 호두를 채운 레반트 과자로, 전통적으로 이드와 부활절에 만듭니다.",
   },
   "lebanese::makdous": {
     id: "Terung kecil Levant diisi kenari, bawang putih, dan cabai merah, lalu diawetkan dalam minyak zaitun; tercatat di Suriah abad ke-13.",
@@ -7664,6 +8637,7 @@ module.exports = {
     zh: "黎凡特的腌小茄子：茄子里酿核桃、蒜与红椒，浸在橄榄油里存放；十三世纪的叙利亚就有记载。",
     ja: "小さな茄子に胡桃、にんにく、赤唐辛子を詰め、オリーブ油に漬けるレヴァントの保存食。十三世紀のシリアに記録があります。",
     es: "Berenjenas pequeñas levantinas rellenas de nuez, ajo y pimiento rojo y curadas en aceite de oliva; documentadas en la Siria del siglo XIII.",
+    ko: "작은 가지에 호두와 마늘, 붉은 고추를 채워 올리브유에 절인 레반트 음식으로, 13세기 시리아 기록에 나옵니다.",
   },
   "lebanese::manakish": {
     id: "Roti pipih Levant yang ditaburi zaatar, keju, atau daging cincang.",
@@ -7672,6 +8646,7 @@ module.exports = {
     zh: "黎凡特的薄饼：面上撒扎塔香料、奶酪或肉糜。",
     ja: "ザアタルやチーズ、挽肉をのせて焼くレヴァントの薄焼きパン。",
     es: "Pan plano levantino cubierto de zaatar, queso o carne picada.",
+    ko: "자타르나 치즈, 다진 고기를 올려 구운 레반트의 플랫브레드입니다.",
   },
   "lebanese::manakish jibneh": {
     id: "Roti pipih Levant bertabur keju putih leleh, kerap akkawi; sarapan yang digemari di Lebanon, Suriah, Yordania, dan Palestina.",
@@ -7680,6 +8655,7 @@ module.exports = {
     zh: "黎凡特的芝士薄饼：面上铺融化的白奶酪，多用 akkawi；黎巴嫩、叙利亚、约旦与巴勒斯坦都拿它当早餐。",
     ja: "溶けた白チーズ、多くはアッカウィをのせたレヴァントの薄焼きパン。レバノン、シリア、ヨルダン、パレスチナで好まれる朝食です。",
     es: "Pan plano levantino cubierto de queso blanco fundido, a menudo akkawi; desayuno popular en Líbano, Siria, Jordania y Palestina.",
+    ko: "흰 치즈(흔히 아카위)를 녹여 올린 레반트 플랫브레드로, 레바논과 시리아, 요르단, 팔레스타인에서 인기 있는 아침 식사입니다.",
   },
   "lebanese::mezze platter": {
     id: "Aneka hidangan pembuka kecil Levant dan Mediterania Timur: hummus, tabbouleh, zaitun, dan daun anggur isi.",
@@ -7688,6 +8664,7 @@ module.exports = {
     zh: "黎凡特与东地中海的小前菜拼盘：鹰嘴豆泥、塔布勒沙拉、橄榄与酿葡萄叶。",
     ja: "レヴァントと東地中海の小さな前菜の盛り合わせ。フムス、タブーレ、オリーブ、ぶどうの葉の包み。",
     es: "Surtido de pequeños entrantes levantinos y del Mediterráneo oriental: hummus, tabulé, aceitunas y hojas de parra rellenas.",
+    ko: "후무스와 타불레, 올리브, 포도잎말이 같은 레반트·동지중해의 작은 전채를 모아 담은 상차림입니다.",
   },
   "lebanese::moutabal": {
     id: "Cocolan Levant khas Lebanon dari terung yang dibakar api lalu dihaluskan bersama tahini, bawang putih, dan lemon; tahini yang membedakannya.",
@@ -7696,6 +8673,7 @@ module.exports = {
     zh: "黎巴嫩的黎凡特蘸酱：茄子明火烤过再捣，拌芝麻酱、蒜与柠檬；有没有芝麻酱，正是它的分界。",
     ja: "直火で焼いた茄子を、タヒニ、にんにく、レモンと合わせるレバノンのディップ。タヒニの有無が違いを分けます。",
     es: "Untable levantino libanés de berenjena asada a la llama con tahini, ajo y limón; el tahini es lo que lo distingue.",
+    ko: "불에 구운 가지를 타히니와 마늘, 레몬에 간 레바논의 레반트 딥으로, 타히니가 들어간다는 점이 바바 가누시와 다릅니다.",
   },
   "lebanese::mujadara": {
     id: "Hidangan Levant berisi lentil dan nasi yang ditutup bawang bombai goreng; pertama tercatat dalam buku masak al-Baghdadi tahun 1226.",
@@ -7704,6 +8682,7 @@ module.exports = {
     zh: "黎凡特的扁豆饭：豆与米同煮，面上堆炸洋葱；最早见于一二二六年巴格达迪的伊拉克食谱。",
     ja: "レンズ豆と米を炊き、揚げ玉ねぎをのせるレヴァントの料理。一二二六年、アル＝バグダーディーのイラクの料理書に初めて記されます。",
     es: "Plato levantino de lentejas y arroz coronado con cebolla frita; documentado por primera vez en el recetario iraquí de al-Baghdadi de 1226.",
+    ko: "렌즈콩과 쌀에 튀긴 양파를 올린 레반트 요리로, 1226년 알바그다디의 이라크 요리책에 처음 기록됐습니다.",
   },
   "lebanese::shawarma": {
     id: "Daging Levant yang dimarinasi lalu dipanggang di tusuk putar dan diiris tipis, dibungkus roti pipih; dari kata Turki cevirme, memutar.",
@@ -7712,6 +8691,7 @@ module.exports = {
     zh: "黎凡特的旋转烤肉：肉腌过后架在立式转叉上烤，削成薄片卷进薄饼；名字来自土耳其语的 çevirme，「转」。",
     ja: "漬け込んだ肉を回転する串で焼き、薄く削いで薄焼きパンに巻くレヴァントの料理。名はトルコ語の çevirme「回す」から。",
     es: "Carne levantina marinada asada en espetón giratorio y cortada en lonchas finas, envuelta en pan plano; del turco çevirme, «girar».",
+    ko: "양념한 고기를 회전 꼬치에 구워 얇게 저며 플랫브레드에 싼 레반트 요리로, 이름은 '돌리다'라는 뜻의 튀르키예어 체비르메에서 왔습니다.",
   },
   "lebanese::shish taouk": {
     id: "Sate ayam panggang yang dimarinasi, berasal dari masa Utsmaniyah; kini andalan di seluruh Levant, termasuk Lebanon dan Suriah.",
@@ -7720,6 +8700,7 @@ module.exports = {
     zh: "腌过的烤鸡串，源自奥斯曼时期；如今整个黎凡特都吃，黎巴嫩与叙利亚尤甚。",
     ja: "オスマン期に発する、漬け込んだ鶏の串焼き。今ではレバノンやシリアを含むレヴァント全域の定番です。",
     es: "Brocheta de pollo marinado a la parrilla, de origen otomano; hoy es un básico en todo el Levante, incluidos Líbano y Siria.",
+    ko: "오스만에서 온 양념 닭꼬치 구이로, 지금은 레바논과 시리아를 비롯한 레반트 전역의 대표 음식입니다.",
   },
   "lebanese::tabbouleh": {
     id: "Salad Levant dari peterseli cincang halus, bulgur rendam, tomat, mint, dan bawang bombai dalam lemon dan minyak zaitun.",
@@ -7728,6 +8709,7 @@ module.exports = {
     zh: "黎凡特的沙拉：欧芹切得极碎，配泡软的碎麦、番茄、薄荷与洋葱，用柠檬汁与橄榄油拌。",
     ja: "細かく刻んだパセリ、戻したブルグル、トマト、ミント、玉ねぎを、レモンとオリーブ油で和えるレヴァントのサラダ。",
     es: "Ensalada levantina de perejil muy picado, bulgur remojado, tomate, menta y cebolla con limón y aceite de oliva.",
+    ko: "곱게 썬 파슬리와 불린 불구르, 토마토, 민트, 양파를 레몬과 올리브유에 버무린 레반트 샐러드입니다.",
   },
   "lebanese::warak enab": {
     id: "Daun anggur Lebanon digulung mengelilingi nasi dan daging cincang atau herba, direbus dalam kuah lemon; mezze Levant berakar era Utsmaniyah.",
@@ -7736,6 +8718,7 @@ module.exports = {
     zh: "黎巴嫩的酿葡萄叶：叶子卷起米饭与肉糜或香草，在柠檬汤里煨熟；根在奥斯曼时期的黎凡特前菜。",
     ja: "ぶどうの葉で米と挽肉やハーブを巻き、レモンのだしで煮るレバノンの料理。オスマン期に根をもつレヴァントのメゼです。",
     es: "Hojas de parra libanesas enrolladas con arroz y carne picada o hierbas, guisadas en caldo de limón; mezze levantino de raíz otomana.",
+    ko: "포도잎에 쌀과 다진 고기나 허브를 말아 레몬 국물에 끓인 레바논 요리로, 오스만 시대에 뿌리를 둔 레반트 메제입니다.",
   },
   "macau::african chicken": {
     id: "Ayam panggang Makanese dalam saus paprika, cabai, kacang, dan kelapa, lahir dari jalur rempah Portugis lewat Afrika; pedasnya piri-piri.",
@@ -7744,6 +8727,7 @@ module.exports = {
     zh: "澳门的烤鸡，佐红椒粉、辣椒、花生与椰浆调成的酱汁；生于葡萄牙经非洲的香料航路，辣味来自piri-piri。",
     ja: "パプリカ、唐辛子、ピーナッツ、ココナッツのソースで焼くマカオの鶏。アフリカを経たポルトガルの香辛料の道から生まれた。",
     es: "Pollo asado macaense en salsa de pimentón, chile, cacahuete y coco, nacido de las rutas portuguesas de especias vía África.",
+    ko: "파프리카와 고추, 땅콩, 코코넛 소스에 구운 마카오식 닭 요리로, 아프리카를 거친 포르투갈 향신료 길에서 태어났고 매운맛은 피리피리에서 옵니다.",
   },
   "macau::almond cookies": {
     id: "Biskuit khas Makau yang terutama dibuat dari kacang hijau giling dengan gula dan almon.",
@@ -7752,6 +8736,7 @@ module.exports = {
     zh: "澳门的特色饼食，主要以绿豆粉加糖与杏仁制成。",
     ja: "マカオ名物の焼き菓子。主に緑豆の粉に砂糖とアーモンドを合わせて作る。",
     es: "Galleta típica de Macao elaborada sobre todo con judía mungo molida, azúcar y almendra.",
+    ko: "주로 간 녹두에 설탕과 아몬드를 넣어 만든 마카오의 명물 과자입니다.",
   },
   "macau::arroz de pato macau": {
     id: "Nasi panggang berasal Portugis dengan suwiran bebek dan chouriço, dari Minho; sejak lama menjadi pokok masakan Makanese di Makau.",
@@ -7760,6 +8745,7 @@ module.exports = {
     zh: "源自葡萄牙米尼奥地区的焗饭，拌鸭丝与chouriço香肠；长久以来是澳门土生葡菜的主食。",
     ja: "ポルトガル・ミーニョ地方由来の炊き込みご飯。ほぐした鴨肉とショウリソを合わせ、マカオの土生葡人料理に長く根づく。",
     es: "Arroz al horno de origen portugués con pato desmenuzado y chouriço, del Miño; base antigua de la cocina macaense.",
+    ko: "찢은 오리고기와 쇼리수를 넣어 구운 포르투갈 미뉴에서 온 밥 요리로, 오랫동안 마카오 요리의 단골이었습니다.",
   },
   "macau::bacalhau macau": {
     id: "Ikan kod kering yang digarami ala Portugis (bacalhau).",
@@ -7768,6 +8754,7 @@ module.exports = {
     zh: "葡萄牙式的干腌鳕鱼（bacalhau）。",
     ja: "ポルトガルの塩漬け干しダラ（バカリャウ）。",
     es: "Bacalao seco y salado a la portuguesa.",
+    ko: "말려 소금에 절인 포르투갈의 대구입니다.",
   },
   "macau::caca-mato": {
     id: "[BELUM DIVERIFIKASI] Tidak ada hidangan atau minuman bernama »caca-mato« yang dapat dipastikan dalam sumber masakan Makanese.",
@@ -7776,6 +8763,7 @@ module.exports = {
     zh: "【未经证实】在澳门土生葡菜的资料中，无法确认存在名为「caca-mato」的菜肴或饮品。",
     ja: "【未確認】マカオ料理の資料では、「caca-mato」という名の料理も飲み物も確認できなかった。",
     es: "[SIN VERIFICAR] No se pudo confirmar ningún plato ni bebida llamada «caca-mato» en las fuentes sobre cocina macaense.",
+    ko: "[미확인] 마카오 요리 자료에서는 'caca-mato'라는 이름의 요리도 음료도 확인할 수 없었습니다.",
   },
   "macau::caldo verde macau": {
     id: "Versi Makau dari sup kentang dan sayuran hijau Portugis, kerap memakai bok choy alih-alih kale; disajikan sebagai pembuka Makanese.",
@@ -7784,6 +8772,7 @@ module.exports = {
     zh: "澳门版的葡式马铃薯青菜汤，常以小白菜代替羽衣甘蓝；作为土生葡菜的头盘。",
     ja: "ポルトガルのじゃがいもと青菜のスープのマカオ版。ケールの代わりにチンゲンサイを使うことが多く、前菜として供される。",
     es: "Versión macaense de la sopa portuguesa de patata y verduras, a menudo con pak choi en lugar de berza; se sirve como entrante.",
+    ko: "포르투갈의 감자 나물 수프를 마카오식으로 풀어낸 것으로, 케일 대신 청경채를 흔히 쓰며 마카오식 전채로 냅니다.",
   },
   "macau::capela": {
     id: "Roti daging panggang Makanese dari sapi, babi, chorizo, zaitun, dan roti, ditutupi bacon dan keju; berakar masakan rumah Portugis.",
@@ -7792,6 +8781,7 @@ module.exports = {
     zh: "澳门土生葡人的焗肉批，用牛肉、猪肉、香肠、橄榄与面包做底，面上铺培根与奶酪；根源在葡萄牙的家常菜。",
     ja: "牛肉、豚肉、チョリソ、オリーブ、パンを混ぜ、ベーコンとチーズをのせて焼くマカオのミートローフ。ポルトガルの家庭料理に根を持つ。",
     es: "Pastel de carne macaense al horno de vacuno, cerdo, chorizo, aceitunas y pan cubierto de tocino y queso; de raíz casera portuguesa.",
+    ko: "소고기와 돼지고기, 쇼리수, 올리브, 빵으로 빚어 베이컨과 치즈를 올려 구운 마카오식 미트로프로, 포르투갈 가정식에 뿌리를 둡니다.",
   },
   "macau::chilli crab macanese": {
     id: "Hidangan kepiting fusi Makanese: kepiting cangkang lunak digoreng lalu ditim bersama kunyit, bubuk kari, cabai, jahe, dan bawang putih.",
@@ -7800,6 +8790,7 @@ module.exports = {
     zh: "澳门土生葡菜的融合蟹馔：软壳蟹先炸后与姜黄、咖喱粉、辣椒、姜及蒜同焖。",
     ja: "マカオの融合料理のカニ。ソフトシェルクラブを揚げ、ターメリック、カレー粉、唐辛子、生姜、ニンニクで煮る。",
     es: "Plato macaense de fusión con cangrejo: cangrejo de caparazón blando frito y luego guisado con cúrcuma, curry, chile, jengibre y ajo.",
+    ko: "소프트셸 크랩을 튀겨 강황과 카레 가루, 고추, 생강, 마늘과 함께 끓인 마카오의 퓨전 게 요리입니다.",
   },
   "macau::coconut sweet macau": {
     id: "Kue puding panggang Makanese dari ubi jalar atau talas yang dicampur kelapa, mentega, dan kuning telur; sajian jamuan cha gordo.",
@@ -7808,6 +8799,7 @@ module.exports = {
     zh: "澳门土生葡人的焗布丁蛋糕，用番薯或芋头拌椰子、黄油与蛋黄；在cha gordo的节庆茶会上享用。",
     ja: "さつまいもか山芋にココナッツ、バター、卵黄を混ぜて焼くマカオのプディングケーキ。チャ・ゴルドという祝いの茶会で供される。",
     es: "Pudin macaense al horno de boniato o ñame con coco, mantequilla y yemas; se sirve en las reuniones festivas del cha gordo.",
+    ko: "고구마나 참마를 코코넛과 버터, 달걀노른자와 함께 구운 마카오의 푸딩 케이크로, 차고르 모임에 냅니다.",
   },
   "macau::feijoada macau": {
     id: "Semur kacang dan babi Makanese yang disadur dari feijoada Portugis, memakai kacang merah.",
@@ -7816,6 +8808,7 @@ module.exports = {
     zh: "澳门土生葡人的豆与猪肉炖菜，改自葡萄牙的feijoada，用红芸豆制作。",
     ja: "ポルトガルのフェイジョアーダを作り替えたマカオの豆と豚肉の煮込み。赤いんげん豆を使う。",
     es: "Guiso macaense de alubias y cerdo adaptado de la feijoada portuguesa, elaborado con alubias rojas.",
+    ko: "포르투갈 페이조아다를 마카오식으로 바꾼 콩 돼지고기 스튜로, 강낭콩을 씁니다.",
   },
   "macau::galinha à portuguesa": {
     id: "Ayam panggang Makau dalam saus kari kelapa yang lembut; meski namanya begitu, ia lahir di Makau, bukan di Portugal.",
@@ -7824,6 +8817,7 @@ module.exports = {
     zh: "澳门的焗鸡，佐温和的椰香咖喱汁；虽名为「葡国鸡」，其实源于澳门，而非葡萄牙。",
     ja: "まろやかなココナッツカレーソースで焼くマカオの鶏料理。名に反して、生まれはポルトガルではなくマカオである。",
     es: "Pollo al horno macaense en suave salsa de coco y curry que, pese a su nombre, nació en Macao y no en Portugal.",
+    ko: "순한 코코넛 카레 소스에 구운 마카오식 닭 요리로, 이름과 달리 포르투갈이 아니라 마카오에서 비롯됐습니다.",
   },
   "macau::linguica macau": {
     id: "Sosis babi asap gaya Portugis yang dibumbui bawang putih dan paprika, sampai ke Makau lewat masakan kolonial Portugis.",
@@ -7832,6 +8826,7 @@ module.exports = {
     zh: "葡萄牙式的烟熏猪肉香肠，以大蒜与红椒粉调味；随葡萄牙殖民时期的饮食传入澳门。",
     ja: "ニンニクとパプリカで味付けしたポルトガル式の燻製豚肉ソーセージ。植民地時代の食を通じてマカオへ伝わった。",
     es: "Salchicha de cerdo ahumada al estilo portugués con ajo y pimentón, llegada a Macao por la cocina colonial portuguesa.",
+    ko: "마늘과 파프리카로 간한 포르투갈식 훈제 돼지고기 소시지로, 포르투갈 식민지 요리를 통해 마카오에 전해졌습니다.",
   },
   "macau::macanese egg tart": {
     id: "Tart custard Makau dengan permukaan berkaramel yang hangus, dalam kulit pastri puff berbahan margarin.",
@@ -7840,6 +8835,7 @@ module.exports = {
     zh: "澳门的蛋挞，面上焦糖斑驳，挞皮以人造黄油起酥制成。",
     ja: "表面をカラメル状に焦がしたマカオのエッグタルト。マーガリンで折り込んだパイ皮に流して焼く。",
     es: "Tarta de crema de Macao con la superficie caramelizada y chamuscada, en una base de hojaldre elaborada con margarina.",
+    ko: "마가린으로 만든 퍼프 페이스트리에 커스터드를 담아 윗면을 캐러멜처럼 그을린 마카오의 에그타르트입니다.",
   },
   "macau::minchi": {
     id: "Hidangan nasional Makau: daging sapi dan/atau babi cincang ditumis dengan kentang dadu, kerap ditutupi telur ceplok, disajikan atas nasi.",
@@ -7848,6 +8844,7 @@ module.exports = {
     zh: "澳门的代表菜：牛肉末与／或猪肉末同马铃薯丁爆炒，常盖上一个煎蛋，浇在米饭上。",
     ja: "マカオを代表する料理。牛や豚のひき肉を角切りじゃがいもと炒め、目玉焼きをのせてご飯にかける。",
     es: "Plato nacional de Macao: carne picada de vacuno o cerdo salteada con patata en dados, a menudo con huevo frito, servida sobre arroz.",
+    ko: "다진 소고기나 돼지고기를 깍둑 썬 감자와 함께 볶아 흔히 달걀 프라이를 올려 밥에 곁들이는 마카오의 국민 음식입니다.",
   },
   "macau::pastel de nata macau": {
     id: "Tart custard telur gaya Portugis khas Makau, diciptakan pada 1989 oleh apoteker Inggris Andrew Stow di Lord Stow's Bakery, Coloane.",
@@ -7856,6 +8853,7 @@ module.exports = {
     zh: "澳门的葡式蛋挞，1989年由英国药剂师安德鲁·史督在路环的安德鲁饼店创制。",
     ja: "マカオのポルトガル風エッグタルト。1989年、英国人薬剤師アンドリュー・ストウがコロアネのロード・ストウズ・ベーカリーで考案した。",
     es: "Tarta de crema al estilo portugués de Macao, creada en 1989 por el farmacéutico británico Andrew Stow en Lord Stow's Bakery, Coloane.",
+    ko: "마카오의 포르투갈식 에그타르트로, 1989년 영국인 약사 앤드루 스토가 콜로안의 로드 스토스 베이커리에서 만들었습니다.",
   },
   "macau::porco bafassá": {
     id: "Hidangan Makau klasik: daging babi ditim lalu dipanggang dengan kunyit dan rempah; namanya dalam Patuá berarti »ditim« dan »dipanggang«.",
@@ -7864,6 +8862,7 @@ module.exports = {
     zh: "澳门的经典菜：猪肉先炆后烤，用姜黄与香料调味；土生葡语名称由「炆」（bafa）与「烤」（asá）合成。",
     ja: "マカオの古典的な料理。豚肉を煮込んでからターメリックと香辛料で焼く。パトア語の名は「煮込む」と「焼く」の意。",
     es: "Plato macaense clásico: cerdo estofado y luego asado con cúrcuma y especias; su nombre en patuá significa «estofar» y «asar».",
+    ko: "돼지고기를 강황과 향신료에 조린 뒤 구운 마카오의 고전 요리로, 파투아어 이름은 '조림'과 '구이'를 뜻합니다.",
   },
   "macau::pork chop bun": {
     id: "Roti isi Makau berupa iga babi bertulang yang digoreng atau dipanggang di dalam roti renyah; berakar pada bifana Portugis.",
@@ -7872,6 +8871,7 @@ module.exports = {
     zh: "澳门的猪扒包：带骨猪排煎或烤后夹入酥脆的面包；源自葡萄牙的bifana。",
     ja: "骨付き豚ロースを焼いてかりっとしたパンに挟むマカオのサンドイッチ。ポルトガルのビファナに根を持つ。",
     es: "Bocadillo macaense de chuleta de cerdo con hueso frita o asada en un panecillo crujiente; arraigado en la bifana portuguesa.",
+    ko: "뼈째 튀기거나 구운 돼지고기를 바삭한 빵에 끼운 마카오 샌드위치로, 포르투갈의 비파나에 뿌리를 둡니다.",
   },
   "macau::serradura": {
     id: "Hidangan penutup dingin Makau-Portugis tanpa panggang: krim kocok berlapis remah halus biskuit Marie.",
@@ -7880,6 +8880,7 @@ module.exports = {
     zh: "澳门与葡萄牙风味的免烤冷甜点：打发奶油与磨细的玛丽饼干碎层层相叠。",
     ja: "焼かずに作るマカオ・ポルトガル風の冷たいデザート。ホイップクリームと細かく砕いたマリービスケットを重ねる。",
     es: "Postre frío macaense-portugués sin horno que alterna capas de nata montada y galleta María finamente triturada.",
+    ko: "휘핑크림과 곱게 부순 마리 비스킷을 켜켜이 쌓아 차갑게 굳힌 마카오·포르투갈의 무굽기 디저트입니다.",
   },
   "macau::serradura sago": {
     id: "»Puding serbuk gergaji« Makanese dari krim kocok berlapis remah biskuit Marie; hidangan penutup era kolonial Portugis yang digemari.",
@@ -7888,6 +8889,7 @@ module.exports = {
     zh: "澳门的「木糠布甸」：打发奶油与玛丽饼干碎层层相叠，是葡萄牙殖民时期流传下来的人气甜点。",
     ja: "ホイップクリームとマリービスケットの粉を重ねるマカオの「木くずプディング」。ポルトガル植民地時代から広く親しまれる菓子。",
     es: "«Pudin de serrín» macaense de capas de nata montada y galleta María molida; postre de la época colonial portuguesa muy popular.",
+    ko: "휘핑크림과 부순 마리 비스킷을 켜켜이 쌓은 마카오의 '톱밥 푸딩'으로, 포르투갈 식민지에서 온 마카오의 인기 디저트입니다.",
   },
   "macau::tacho": {
     id: "Semur musim dingin Makanese berisi kubis, aneka potongan babi, ham, dan sosis Tionghoa; saduran cozido à portuguesa.",
@@ -7896,6 +8898,7 @@ module.exports = {
     zh: "澳门土生葡人的冬日炖菜：白菜、各式猪肉部位、火腿与中式腊肠同煮；改自葡萄牙的cozido。",
     ja: "キャベツ、豚肉の各部位、ハム、中国式ソーセージを煮込むマカオの冬の料理。ポルトガルのコジードを作り替えたもの。",
     es: "Guiso macaense de invierno con col, cortes de cerdo, jamón y salchicha china; adaptación del cocido a la portuguesa.",
+    ko: "양배추와 여러 돼지고기 부위, 햄, 중국식 소시지를 넣은 마카오의 겨울 스튜로, 포르투갈의 코지두를 바꾼 것입니다.",
   },
   "malaysian::ais kacang malaysian": {
     id: "Hidangan es serut Malaysia (\"es kacang\"), juga disebut ABC, berlapis kacang merah, jeli, dan aneka sirop.",
@@ -7904,6 +8907,7 @@ module.exports = {
     zh: "马来西亚的红豆冰（「豆冰」），又叫 ABC：刨冰下埋着红豆、凉粉与各色糖浆。",
     ja: "マレーシアのかき氷（「豆の氷」）。ABC とも呼ばれ、小豆、ゼリー、シロップを層に重ねます。",
     es: "Postre malayo de hielo picado («hielo de judías»), también llamado ABC, con capas de judía roja, gelatinas y siropes.",
+    ko: "'콩 얼음'이라는 뜻의 말레이시아 빙수로 ABC라고도 하며, 팥과 젤리, 시럽을 켜켜이 올립니다.",
   },
   "malaysian::apam": {
     id: "Dalam bahasa Melayu, apam berarti kuih berbahan adonan yang mengembang; bentuk paling terdokumentasi adalah apam balik berisi kacang.",
@@ -7912,6 +8916,7 @@ module.exports = {
     zh: "在马来语中，apam泛指以面糊做成的松软糕点；记载最详的是包花生馅的对折煎饼apam balik。",
     ja: "マレー語のapamはふくらんだ生地の菓子全般を指す。最もよく記録されているのは、ピーナッツ餡を折り込むアパム・バリ。",
     es: "En malayo, apam designa cualquier kuih esponjoso de masa; la forma mejor documentada es el apam balik, relleno de cacahuete.",
+    ko: "말레이어로 아팜은 부풀린 반죽으로 만든 떡을 두루 이르며, 가장 잘 알려진 것은 땅콩 소를 넣어 접은 아팜 발릭입니다.",
   },
   "malaysian::apom balik": {
     id: "Panekuk lipat Malaysia dari adonan bersantan, berisi kacang tanah tumbuk, gula, dan jagung manis; berakar pada masakan Fujian.",
@@ -7920,6 +8925,7 @@ module.exports = {
     zh: "马来西亚的对折煎饼：椰浆面糊摊开，包花生碎、糖与甜玉米；根在福建菜。",
     ja: "ココナッツミルクの生地を二つ折りにするマレーシアの焼き菓子。砕いた落花生、砂糖、スイートコーンを包み、福建料理に根があります。",
     es: "Crepe malayo doblado de masa con leche de coco, relleno de cacahuete machacado, azúcar y maíz dulce; con raíces en la cocina de Fujian.",
+    ko: "코코넛밀크 반죽을 부쳐 반으로 접고 으깬 땅콩과 설탕, 옥수수를 채운 말레이시아 전병으로, 푸젠 요리에 뿌리를 둡니다.",
   },
   "malaysian::asam laksa penang": {
     id: "Sup mi beras Penang yang asam oleh asam jawa, berkuah ikan kembung dan ditutup pasta udang hae ko.",
@@ -7928,6 +8934,7 @@ module.exports = {
     zh: "槟城亚参叻沙：亚参取酸的鱼汤米粉，用鲭鱼熬底，上头一勺虾膏 hae ko。",
     ja: "タマリンドで酸味をつけたペナンの米麺スープ。鯖でだしをとり、海老のペースト、ヘーコーをのせます。",
     es: "Sopa de fideos de arroz de Penang, agria de tamarindo, con caldo de caballa y coronada con pasta de gambas hae ko.",
+    ko: "타마린드로 새콤하게 낸 페낭의 생선 쌀국수로, 고등어를 쓰고 새우장 헤코를 올려 냅니다.",
   },
   "malaysian::asam pedas": {
     id: "Gulai ikan Melayu-Minangkabau yang asam dan pedas dalam kuah asam jawa bercabai; erat kaitannya dengan bandar dagang Melaka.",
@@ -7936,6 +8943,7 @@ module.exports = {
     zh: "马来／米南加保的酸辣鱼煲：亚参与辣椒调汤；与马六甲这座商港渊源深厚。",
     ja: "マレー・ミナンカバウの酸辣の魚煮込み。タマリンドと唐辛子の汁で煮ます。交易港マラッカと結びつく料理です。",
     es: "Guiso de pescado malayo-minangkabau, agrio y picante, en caldo de tamarindo y chile; ligado al puerto comercial de Malaca.",
+    ko: "타마린드와 고추로 낸 국물에 생선을 끓인 말레이·미낭카바우식 새콤매콤한 찜으로, 교역항 믈라카와 얽혀 있습니다.",
   },
   "malaysian::ayam masak merah": {
     id: "Hidangan Melayu: ayam goreng lalu dibraise dalam sambal cabai kering, bawang, dan tomat; namanya berarti \"ayam masak merah\".",
@@ -7944,6 +8952,7 @@ module.exports = {
     zh: "马来菜：鸡先炸后焖，酱底是干辣椒、洋葱与番茄打的参巴；名字直译就是「红烧鸡」。",
     ja: "マレー料理。揚げた鶏を、乾燥唐辛子、玉ねぎ、トマトの辛いサンバルで煮ます。名は「赤く調理した鶏」の意。",
     es: "Plato malayo: pollo frito y luego guisado en un sambal de chile seco, cebolla y tomate; su nombre significa «pollo cocinado en rojo».",
+    ko: "튀긴 닭을 말린 고추와 양파, 토마토 삼발에 조린 말레이 요리로, 이름은 '붉게 익힌 닭'이라는 뜻입니다.",
   },
   "malaysian::bak kut teh klang": {
     id: "Iga babi direbus dalam kuah herbal yang digelapkan kecap (Hokkien: \"teh tulang daging\"); populer di Klang, Malaysia, sejak 1930-an.",
@@ -7952,6 +8961,7 @@ module.exports = {
     zh: "肉骨茶：排骨在药材汤里久炖，酱油把汤染得深沉；一九三〇年代在马来西亚巴生一带兴起。",
     ja: "豚のスペアリブを、醤油で色づけた薬膳スープで煮込む料理（福建語で「肉骨茶」）。一九三〇年代、マレーシアのクランで広まりました。",
     es: "Costillas de cerdo cocidas en caldo de hierbas oscurecido con soja (hokkien: «té de hueso y carne»); popular en Klang desde 1930.",
+    ko: "돼지갈비를 약재와 간장으로 짙게 낸 국물에 끓인 요리로, 호키엔어로 '고기뼈차'이며 1930년대 말레이시아 클랑에서 퍼졌습니다.",
   },
   "malaysian::cendol penang": {
     id: "Hidangan es serut Penang: jeli tepung beras pandan hijau, santan, dan gula melaka; Teochew Chendul yang tersohor berdiri sejak 1936.",
@@ -7960,6 +8970,7 @@ module.exports = {
     zh: "槟城的刨冰甜品：绿色香兰米粉冻、椰浆与椰糖；出名的潮州煎蕊自一九三六年就开着。",
     ja: "ペナンのかき氷。緑のパンダン米粉ゼリーにココナッツミルクとグラ・ムラカ。名高い潮州チェンドルは一九三六年から続きます。",
     es: "Postre de hielo picado de Penang: gelatina verde de pandan y harina de arroz, leche de coco y gula melaka; el Teochew Chendul data de 1936.",
+    ko: "판단 쌀가루 젤리와 코코넛밀크, 굴라 멜라카를 얼음에 올린 페낭 디저트로, 유명한 조주 첸돌은 1936년으로 거슬러 올라갑니다.",
   },
   "malaysian::cucur udang": {
     id: "Bakwan udang goreng khas Malaysia dan Singapura, dari udang, bawang bombai, dan kucai yang dibalut adonan.",
@@ -7968,6 +8979,7 @@ module.exports = {
     zh: "马来西亚与新加坡的炸虾饼：虾、洋葱与韭菜裹上面糊下油锅。",
     ja: "マレーシアとシンガポールの海老のかき揚げ。海老、玉ねぎ、ニラを衣にくぐらせて揚げます。",
     es: "Buñuelo frito de gambas de Malasia y Singapur, con gambas, cebolla y cebollino chino rebozados.",
+    ko: "새우와 양파, 부추를 반죽에 섞어 튀긴 말레이시아·싱가포르의 새우 튀김입니다.",
   },
   "malaysian::curry laksa kl": {
     id: "Sup mi kari santan khas Kuala Lumpur berasal Peranakan-Tionghoa, disajikan dengan tahu pok, kerang, kacang panjang, dan daun mint.",
@@ -7976,6 +8988,7 @@ module.exports = {
     zh: "吉隆坡的咖喱叻沙：椰浆咖喱汤面，出自娘惹华人，配豆卜、血蛤、豆角与薄荷。",
     ja: "クアラルンプールのココナッツカレー麺。プラナカン華人に発し、揚げ豆腐、赤貝、長ささげ、ミントを添えます。",
     es: "Sopa de fideos al curry de coco de Kuala Lumpur, de origen peranakan-chino, con tofu frito, berberechos, judía larga y menta.",
+    ko: "프라나칸 화교에서 온 쿠알라룸푸르의 코코넛 카레 국수로, 유부와 꼬막, 줄콩, 민트를 곁들여 냅니다.",
   },
   "malaysian::curry mee penang": {
     id: "Curry mee Penang: sup mi kari santan yang pedas dengan mi Hokkien dan bihun, disajikan dengan darah babi beku sebagai cirinya.",
@@ -7984,6 +8997,7 @@ module.exports = {
     zh: "槟城咖喱面：辛辣的椰浆咖喱汤，福建面与米粉同下，最见特色的是那块猪血糕。",
     ja: "ペナンのカレーミー。ココナッツカレーの辛いスープに福建麺とビーフンを入れ、固めた豚の血を添えるのが特徴です。",
     es: "Curry mee de Penang: sopa picante de fideos en curry de coco con fideos hokkien y vermicelli, servida con sangre de cerdo cuajada.",
+    ko: "호키엔면과 쌀국수를 매운 코코넛 카레 국물에 넣은 페낭 커리 미로, 굳힌 돼지 선지를 곁들이는 것이 특징입니다.",
   },
   "malaysian::dim sum kl style": {
     id: "Aneka hidangan kecil Kanton, dikukus atau digoreng, disantap bersama teh; dibawa perantau Kanton ke Kuala Lumpur pada abad ke-20.",
@@ -7992,6 +9006,7 @@ module.exports = {
     zh: "广式点心：一口大小的蒸品与炸物，佐茶而食；二十世纪由广东移民带到吉隆坡。",
     ja: "一口大の広東の点心。蒸し物や揚げ物を茶とともに。二十世紀、広東からの移民がクアラルンプールにもたらしました。",
     es: "Bocados cantoneses al vapor o fritos que se toman con té; los llevaron a Kuala Lumpur migrantes cantoneses del siglo XX.",
+    ko: "차와 함께 내는 광둥식 한입 요리로, 20세기 광둥계 이민자들이 쿠알라룸푸르에 들여왔습니다.",
   },
   "malaysian::hokkien mee kl": {
     id: "Hidangan Kuala Lumpur: mi kuning tebal dibraise dalam kecap gelap bersama babi, udang, dan lemak babi renyah.",
@@ -8000,6 +9015,7 @@ module.exports = {
     zh: "吉隆坡的福建面：粗黄面用老抽焖透，配猪肉、虾与炸得酥脆的猪油渣。",
     ja: "クアラルンプールの一皿。太い黄麺を濃口醤油で煮からめ、豚肉、海老、カリカリの背脂を合わせます。",
     es: "Plato de Kuala Lumpur: fideos amarillos gruesos guisados en soja oscura con cerdo, gambas y torreznos crujientes.",
+    ko: "굵은 노란 면을 진간장에 돼지고기와 새우, 바삭한 라드와 함께 볶아 낸 쿠알라룸푸르 요리입니다.",
   },
   "malaysian::hokkien mee penang": {
     id: "Sup mi udang dan babi Penang yang pedas, kaldunya pekat dari kepala udang dan tulang babi; turunan masakan Fujian.",
@@ -8008,6 +9024,7 @@ module.exports = {
     zh: "槟城的辣虾面：虾头与猪骨熬出浓汤，配虾与猪肉；这是福建菜的余脉。",
     ja: "ペナンの辛い海老と豚の麺スープ。海老の頭と豚骨で濃いだしをとります。福建料理の流れを汲みます。",
     es: "Sopa picante de fideos con gambas y cerdo de Penang, de caldo intenso de cabezas de gamba y hueso de cerdo; heredera de la cocina de Fujian.",
+    ko: "새우 머리와 돼지뼈로 진하게 낸 국물의 페낭식 매운 새우·돼지고기 국수로, 푸젠(호키엔) 요리에서 이어졌습니다.",
   },
   "malaysian::kuih kapit malaysian": {
     id: "Wafer tipis dan renyah dari santan, tepung beras, dan telur, dijepit di antara cetakan besi panas; dijuluki \"surat cinta\".",
@@ -8016,6 +9033,7 @@ module.exports = {
     zh: "椰浆米粉鸡蛋薄脆饼，夹在烧热的铁模中压烤；俗称「情书」。",
     ja: "ココナッツミルク、米粉、卵の薄くパリパリした煎餅。熱した鉄の型に挟んで焼き、「ラブレター」の愛称で呼ばれます。",
     es: "Oblea fina y crujiente de leche de coco, harina de arroz y huevo, prensada entre moldes de hierro calientes; apodada «cartas de amor».",
+    ko: "코코넛밀크와 쌀가루, 달걀 반죽을 뜨거운 무쇠 틀에 끼워 구운 얇고 바삭한 말레이시아 과자로, '러브 레터'라 불립니다.",
   },
   "malaysian::kuih lapis penang": {
     id: "Kue lapis Peranakan kukus yang lembut dari tepung beras dan tapioka, gula, dan santan; menurut tradisi disusun sembilan lapis warna.",
@@ -8024,6 +9042,7 @@ module.exports = {
     zh: "娘惹的软身蒸千层糕：米粉与木薯粉调糖与椰浆；照传统要叠出九层颜色。",
     ja: "米粉とタピオカ粉、砂糖、ココナッツミルクで作るやわらかいプラナカンの蒸し重ね菓子。伝統では九層の色を重ねます。",
     es: "Pastel peranakan de capas al vapor, blando, de harina de arroz y tapioca, azúcar y leche de coco; tradicionalmente nueve capas de color.",
+    ko: "쌀·타피오카 가루와 설탕, 코코넛밀크로 쪄낸 부드러운 프라나칸 층떡으로, 전통적으로 아홉 겹의 색을 쌓습니다.",
   },
   "malaysian::lobak": {
     id: "Gulung babi lima rempah goreng khas Hokkien Penang, dibungkus kulit tahu; dibawa perantau Fujian ke Asia Tenggara.",
@@ -8032,6 +9051,7 @@ module.exports = {
     zh: "槟城福建人的炸五香卷：猪肉调五香粉，用豆皮卷好下油锅；由福建移民带到南洋。",
     ja: "ペナンの福建系の揚げ物。五香粉で味つけした豚肉を湯葉で巻いて揚げます。福建移民が東南アジアへ伝えました。",
     es: "Rollo frito hokkien de Penang de cerdo a las cinco especias envuelto en piel de tofu; lo trajeron migrantes de Fujian al Sudeste Asiático.",
+    ko: "두부피에 싸서 튀긴 페낭 호키엔식 오향 돼지고기 롤로, 동남아시아로 건너온 푸젠 이민자들에게서 왔습니다.",
   },
   "malaysian::lor mee penang": {
     id: "Mi Hokkien bersaus kental ala Penang, lebih ringan daripada versi Singapura; asal-usulnya di Zhangzhou, Tiongkok.",
@@ -8040,6 +9060,7 @@ module.exports = {
     zh: "槟城式的卤面：福建面泡在稠稠的芡汁里，比新加坡版清淡；源头在中国漳州。",
     ja: "とろみの強い餡をまとったペナン式の福建麺。シンガポール版より軽く、源は中国の漳州にあります。",
     es: "Fideos hokkien guisados al estilo de Penang en salsa espesa de almidón, más ligeros que los de Singapur; con origen en Zhangzhou, China.",
+    ko: "걸쭉한 전분 소스에 조린 페낭식 호키엔 국수로, 싱가포르식보다 담백하며 중국 장저우에서 비롯됐습니다.",
   },
   "malaysian::mee mamak goreng": {
     id: "Mi telur kuning goreng khas Malaysia dalam saus manis pedas, biasanya kecap manis, pasta cabai, dan tomat.",
@@ -8048,6 +9069,7 @@ module.exports = {
     zh: "马来西亚的嘛嘛炒面：黄蛋面炒在甜辣酱汁里，多半是甜酱油、辣椒酱与番茄。",
     ja: "マレーシアの黄色い卵麺の焼きそば。甘辛いたれ、たいていはケチャップマニス、チリペースト、トマトで炒めます。",
     es: "Fideos amarillos al huevo salteados a la malaya en salsa dulce y picante, por lo común kecap manis, pasta de chile y tomate.",
+    ko: "케찹 마니스와 고추장, 토마토로 만든 달고 매운 소스에 노란 달걀면을 볶아 낸 말레이시아 요리입니다.",
   },
   "malaysian::nasi kandar": {
     id: "Hidangan Penang berupa nasi putih dengan aneka kari; namanya dari pikulan (kandar) yang dulu dipakai pedagang India-Muslim membawanya.",
@@ -8056,6 +9078,7 @@ module.exports = {
     zh: "槟城的杂菜饭：白饭配各式咖喱；名字来自扁担（kandar），早年印度穆斯林小贩就是挑着它做生意的。",
     ja: "ペナンの料理。白飯に各種のカレーを添えます。名は、かつてインド系ムスリムの行商が担いだ天秤棒「カンダー」から。",
     es: "Plato de Penang de arroz al vapor con surtido de currys; su nombre viene de la pértiga (kandar) de los primeros vendedores indomusulmanes.",
+    ko: "여러 커리를 흰밥에 곁들여 내는 페낭 요리로, 초기 인도계 무슬림 행상이 음식을 지고 다니던 어깨 멜대(칸다르)에서 이름이 왔습니다.",
   },
   "malaysian::nasi kerabu": {
     id: "Nasi Melayu dari Kelantan dan Terengganu yang dibirukan bunga telang, disajikan bersama aneka herba segar.",
@@ -8064,6 +9087,7 @@ module.exports = {
     zh: "吉兰丹与登嘉楼的马来饭：米用蓝蝶豆花染蓝，配上一把新鲜香草。",
     ja: "クランタンとトレンガヌのマレー料理。バタフライピーで青く染めたご飯に、生のハーブを添えます。",
     es: "Plato malayo de Kelantan y Terengganu cuyo arroz se tiñe de azul con flor de guisante mariposa y se sirve con hierbas frescas.",
+    ko: "클란탄과 트렝가누의 말레이 밥 요리로, 나비완두꽃으로 밥을 파랗게 물들이고 허브를 곁들여 냅니다.",
   },
   "malaysian::nasi lemak": {
     id: "Hidangan nasional Malaysia: nasi ditanak dengan santan dan pandan, disajikan bersama sambal, ikan bilis, kacang, timun, dan telur.",
@@ -8072,6 +9096,7 @@ module.exports = {
     zh: "马来西亚的国菜椰浆饭：米与椰浆、香兰叶同煮，配参巴、江鱼仔、花生、黄瓜与蛋。",
     ja: "マレーシアの国民食。ココナッツミルクとパンダンで炊いたご飯に、サンバル、煮干し、落花生、きゅうり、卵を添えます。",
     es: "Plato nacional de Malasia: arroz cocido en leche de coco y pandan, servido con sambal, boquerones, cacahuete, pepino y huevo.",
+    ko: "코코넛밀크와 판단잎으로 지은 말레이시아의 국민 음식으로, 삼발과 멸치, 땅콩, 오이, 달걀을 곁들입니다.",
   },
   "malaysian::patin tempoyak": {
     id: "Hidangan Melayu: ikan patin dimasak dalam kuah tempoyak, durian fermentasi yang asam; berasal dari Temerloh, Pahang.",
@@ -8080,6 +9105,7 @@ module.exports = {
     zh: "马来菜：淡水鲶鱼 patin 用发酵榴梿酱 tempoyak 煨煮，酸香扑鼻；出自彭亨的淡马鲁。",
     ja: "マレー料理。淡水のナマズ、パティンを、発酵ドリアンの酸っぱい汁トゥンポヤッで煮ます。パハン州トゥメルロー発祥。",
     es: "Plato malayo: bagre de agua dulce (patin) cocido en salsa ácida de durián fermentado (tempoyak); procede de Temerloh, Pahang.",
+    ko: "민물 메기(파틴)를 발효 두리안(템포약) 소스에 끓인 말레이 요리로, 파항주 트메를로에서 왔습니다.",
   },
   "malaysian::penang char kway teow": {
     id: "Kwetiau goreng dengan udang, kerang, lap cheong, dan tauge; asalnya hidangan buruh pelabuhan Teochew di Penang.",
@@ -8088,6 +9114,7 @@ module.exports = {
     zh: "槟城炒粿条：河粉与虾、血蛤、腊肠、豆芽同炒；本是潮州码头工人的吃食。",
     ja: "海老、赤貝、中華ソーセージ、もやしと炒めた平たい米麺。もとはペナンの潮州系港湾労働者の食べ物です。",
     es: "Fideos de arroz planos salteados con gambas, berberechos, embutido chino y brotes; plato de los estibadores teochew de Penang.",
+    ko: "새우와 꼬막, 중국식 소시지, 숙주를 넣어 볶은 넓적한 쌀국수로, 페낭 부두 노동자들이 먹던 조주 음식입니다.",
   },
   "malaysian::rendang": {
     id: "Kari daging kering yang dimasak lama dalam santan dan rempah; berpangkal pada orang Minangkabau di Sumatera Barat.",
@@ -8096,6 +9123,7 @@ module.exports = {
     zh: "久煨成干的肉咖喱：肉在椰浆与香料里慢炖；源自西苏门答腊的米南加保人。",
     ja: "ココナッツミルクと香辛料で長く煮詰めた乾いた肉のカレー。西スマトラのミナンカバウ族に発します。",
     es: "Curry seco de carne cocido largamente en leche de coco y especias; procede del pueblo minangkabau de Sumatra Occidental.",
+    ko: "코코넛밀크와 향신료에 고기를 오래 졸여 국물 없이 만드는 요리로, 서수마트라 미낭카바우에서 고기를 보존하려 만들어졌습니다.",
   },
   "malaysian::roti canai": {
     id: "Roti pipih Malaysia yang berlapis dan tanpa ragi, asal Tamil India Selatan, masuk pada abad ke-19; biasanya disantap dengan kari dal.",
@@ -8104,6 +9132,7 @@ module.exports = {
     zh: "马来西亚的层酥薄饼，不发酵，源自南印度泰米尔人，十九世纪传入；通常配扁豆咖喱吃。",
     ja: "南インド・タミルに由来する、発酵させないマレーシアの層状の薄焼きパン。十九世紀に伝わり、ふつうダールカレーを添えます。",
     es: "Pan plano malayo hojaldrado y sin levadura, de origen tamil del sur de la India, llegado en el siglo XIX; suele servirse con curry de dhal.",
+    ko: "남인도 타밀에서 온 겹겹의 무발효 말레이시아 플랫브레드로, 19세기에 전해졌으며 보통 달 커리와 함께 냅니다.",
   },
   "malaysian::roti john malaysian": {
     id: "Roti telur kaki lima Asia Tenggara: baguette digoreng bersama telur, bawang, dan daging cincang; lahir di Singapura pada 1960-an.",
@@ -8112,6 +9141,7 @@ module.exports = {
     zh: "东南亚街头的蛋汉堡：法棍与蛋、洋葱、肉碎同煎；源自一九六〇年代的新加坡。",
     ja: "東南アジアの屋台のオムレツサンド。バゲットを卵、玉ねぎ、挽肉とともに焼きます。一九六〇年代のシンガポール生まれ。",
     es: "Bocadillo-tortilla callejero del Sudeste Asiático: una barra frita con huevo, cebolla y carne picada; nació en el Singapur de los sesenta.",
+    ko: "바게트를 달걀과 양파, 다진 고기와 함께 구워 낸 동남아시아의 길거리 오믈렛 샌드위치로, 1960년대 싱가포르에서 시작됐습니다.",
   },
   "malaysian::sarawak laksa": {
     id: "Sup mi dari Kuching, Sarawak: bihun beras dalam kuah udang dan sambal belacan; dinobatkan TasteAtlas sebagai hidangan terbaik Asia 2021.",
@@ -8120,6 +9150,7 @@ module.exports = {
     zh: "砂拉越古晋的叻沙：米粉泡在虾汤与峇拉煎参巴的汤底里；二〇二一年被 TasteAtlas 评为亚洲最佳菜肴。",
     ja: "サラワク州クチンの麺スープ。米ビーフンを海老とサンバル・ブラチャンのだしに入れます。二〇二一年、TasteAtlas のアジア一位。",
     es: "Sopa de fideos de Kuching, Sarawak: vermicelli de arroz en caldo de gambas y sambal belacan; mejor plato de Asia según TasteAtlas en 2021.",
+    ko: "사라왁 쿠칭의 국수로, 쌀국수를 새우와 삼발 블라찬 국물에 넣으며 2021년 아시아 최고의 요리로 꼽혔습니다.",
   },
   "malaysian::teh tarik": {
     id: "Teh hitam panas Malaysia dengan susu kental manis, dituang bolak-balik antar wadah demi busanya; ciptaan pedagang India-Muslim.",
@@ -8128,6 +9159,7 @@ module.exports = {
     zh: "马来西亚的热奶茶：红茶加炼奶，在两个容器间反复对倒拉出泡沫；由印度穆斯林小贩创出。",
     ja: "練乳入りの熱い紅茶を、器の間で何度も注ぎ合って泡立てるマレーシアの飲み物。インド系ムスリムの商人が生みました。",
     es: "Té negro caliente malayo con leche condensada, vertido entre dos recipientes para hacer espuma; lo crearon vendedores indomusulmanes.",
+    ko: "연유를 넣은 뜨거운 홍차를 두 그릇 사이로 거듭 '당겨' 부어 거품을 낸 말레이시아 음료로, 인도계 무슬림 상인들이 만들었습니다.",
   },
   "malaysian::wantan mee dry malaysian": {
     id: "Mi telur asal Kanton yang diaduk kering dalam kecap gelap, disajikan dengan char siu dan pangsit.",
@@ -8136,6 +9168,7 @@ module.exports = {
     zh: "源自广东的云吞面干捞：蛋面以老抽拌开，配叉烧与云吞。",
     ja: "広東由来の卵麺を濃口醤油で和えた汁なし。チャーシューとワンタンを添えます。",
     es: "Fideos al huevo de origen cantonés salteados en seco con soja oscura, con char siu y wontones.",
+    ko: "광둥에서 온 달걀면을 진간장에 비벼 차슈와 완탕을 곁들여 내는 요리입니다.",
   },
   "mexican::aguachile": {
     id: "Hidangan laut dari Sinaloa, Meksiko: udang mentah diasamkan air jeruk nipis dengan air cabai chiltepin, bawang bombai, dan mentimun.",
@@ -8144,6 +9177,7 @@ module.exports = {
     zh: "墨西哥锡那罗亚的海鲜：生虾用青柠汁腌，加 chiltepin 辣椒水、洋葱与黄瓜。",
     ja: "メキシコ、シナロアの魚介料理。生の海老をライム果汁で締め、チルテピン唐辛子の水、玉ねぎ、きゅうりを合わせます。",
     es: "Plato marino de Sinaloa, México: camarón crudo curado en lima con agua de chiltepín, cebolla y pepino.",
+    ko: "생새우를 라임즙에 절이고 칠테핀 고추 물과 양파, 오이를 넣은 멕시코 시날로아의 해산물 요리입니다.",
   },
   "mexican::birria": {
     id: "Semur daging yang dimarinasi cabai dan dimasak lama, menurut tradisi daging kambing; dari Jalisco, sejak masa kolonial Spanyol.",
@@ -8152,6 +9186,7 @@ module.exports = {
     zh: "辣椒腌肉的慢炖锅，照传统用山羊肉；出自墨西哥哈利斯科州，可追到西班牙殖民时期。",
     ja: "唐辛子に漬けた肉をじっくり煮込む料理。伝統ではヤギ肉を使い、メキシコのハリスコ州でスペイン植民地時代に遡ります。",
     es: "Guiso de carne marinada en chile y cocida largamente, tradicionalmente de chivo; de Jalisco, México, desde la época colonial española.",
+    ko: "고추 양념에 재운 고기(전통적으로 염소)를 오래 끓인 멕시코 할리스코의 스튜로, 스페인 식민지 시대까지 거슬러 올라갑니다.",
   },
   "mexican::ceviche mexicano": {
     id: "Ceviche ala Meksiko: ikan atau makanan laut mentah diasamkan air jeruk nipis, dicampur tomat, bawang bombai, ketumbar, cabai, kerap alpukat.",
@@ -8160,6 +9195,7 @@ module.exports = {
     zh: "墨西哥式的酸腌生鱼：生鱼或海鲜用青柠汁「腌熟」，拌番茄、洋葱、香菜与辣椒，常加牛油果。",
     ja: "メキシコ風セビーチェ。生の魚介をライム果汁で締め、トマト、玉ねぎ、香菜、唐辛子、しばしばアボカドを合わせます。",
     es: "Ceviche a la mexicana: pescado o marisco crudo curado en zumo de lima con tomate, cebolla, cilantro y chile, a menudo con aguacate.",
+    ko: "생선이나 해산물을 라임즙에 절여 토마토와 양파, 고수, 고추와 버무린 멕시코식 세비체로, 흔히 아보카도를 곁들입니다.",
   },
   "mexican::chilaquiles": {
     id: "Sarapan Meksiko tradisional: potongan tortilla goreng direbus dalam salsa cabai merah atau hijau, biasanya ditutup keju dan krema.",
@@ -8168,6 +9204,7 @@ module.exports = {
     zh: "墨西哥的传统早餐：炸玉米片在红或绿辣酱里煮软，通常撒奶酪、淋酸奶油。",
     ja: "メキシコの伝統的な朝食。揚げたトルティーヤを赤や緑のサルサで煮て、たいていチーズとクレマをのせます。",
     es: "Desayuno mexicano tradicional de trozos de tortilla frita cocidos en salsa roja o verde y coronados con queso y crema.",
+    ko: "튀긴 토르티야 조각을 붉거나 초록 고추 살사에 끓여 대개 치즈와 크림을 올린 멕시코의 전통 아침 식사입니다.",
   },
   "mexican::chiles en nogada": {
     id: "Cabai poblano diisi picadillo daging berbuah, ditutup krim kenari, delima, dan peterseli.",
@@ -8176,6 +9213,7 @@ module.exports = {
     zh: "酿波布拉诺辣椒：里头是掺水果的肉馅，浇核桃奶油酱，撒石榴籽与欧芹。",
     ja: "ポブラーノ唐辛子に果物入りの挽肉を詰め、胡桃のクリーム、ザクロ、パセリをのせた一皿。",
     es: "Chiles poblanos rellenos de picadillo con fruta, cubiertos de crema de nuez, granada y perejil.",
+    ko: "포블라노 고추에 과일을 넣은 다진 고기 소를 채우고 호두 크림과 석류, 파슬리를 올린 요리입니다.",
   },
   "mexican::churros mexican": {
     id: "Batang adonan choux goreng bertabur gula kayu manis, dibawa conquistador Spanyol ke Meksiko pada abad ke-16; kerap diisi cajeta.",
@@ -8184,6 +9222,7 @@ module.exports = {
     zh: "裹肉桂糖的炸面棍：十六世纪由西班牙征服者带到墨西哥；常灌焦糖奶酱 cajeta。",
     ja: "シナモンシュガーをまぶした揚げ菓子の棒。十六世紀、スペインの征服者がメキシコへ持ち込み、しばしばカヘタを詰めます。",
     es: "Palos de masa choux fritos y rebozados en azúcar con canela, traídos a México por los conquistadores en el siglo XVI; a menudo con cajeta.",
+    ko: "계핏가루 설탕을 묻힌 튀긴 슈 반죽 막대로, 16세기 스페인 정복자들이 멕시코에 들여왔고 흔히 카헤타를 채웁니다.",
   },
   "mexican::cochinita pibil": {
     id: "Hidangan Yucatan: babi dimarinasi achiote dan jeruk asam, dibungkus daun pisang, lalu dipanggang perlahan di tungku tanah Maya, piib.",
@@ -8192,6 +9231,7 @@ module.exports = {
     zh: "尤卡坦的菜：猪肉用胭脂树籽与酸橙汁腌透，裹香蕉叶，埋进玛雅土坑炉 píib 慢烤。",
     ja: "ユカタンの料理。豚肉をアチョーテとサワーオレンジに漬け、バナナの葉で包み、マヤの土窯ピブでじっくり焼きます。",
     es: "Plato yucateco de cerdo marinado en achiote y naranja agria, envuelto en hoja de plátano y horneado despacio en el píib maya.",
+    ko: "아치오테와 신 오렌지에 재운 돼지고기를 바나나잎에 싸서 마야식 땅화덕(피브)에 천천히 구운 유카탄 요리입니다.",
   },
   "mexican::elote": {
     id: "Jagung bakar atau rebus jajanan jalanan Meksiko, lalu diberi mayones atau krema dan taburan keju Cotija.",
@@ -8200,6 +9240,7 @@ module.exports = {
     zh: "墨西哥街头的玉米棒：烤过或煮过，抹蛋黄酱或酸奶油，撒 Cotija 奶酪碎。",
     ja: "メキシコの屋台の焼き、あるいはゆでトウモロコシ。マヨネーズかクレマを塗り、コティハチーズを崩してのせます。",
     es: "Mazorca de maíz callejera mexicana, asada o hervida, untada con mayonesa o crema y espolvoreada con queso cotija.",
+    ko: "옥수수를 통째로 굽거나 삶아 마요네즈나 크레마, 부순 코티하 치즈를 올린 멕시코의 길거리 음식입니다.",
   },
   "mexican::enchiladas": {
     id: "Tortilla jagung Meksiko digulung mengelilingi isian lalu disiram saus cabai; namanya dari kata Spanyol enchilar, membumbui dengan cabai.",
@@ -8208,6 +9249,7 @@ module.exports = {
     zh: "墨西哥的玉米饼卷：卷起馅料，再浇满辣椒酱；名字来自西班牙语的 enchilar，「用辣椒调味」。",
     ja: "具を巻いた トウモロコシのトルティーヤに、唐辛子のソースをたっぷりかけた料理。名はスペイン語 enchilar「唐辛子で味つけする」から。",
     es: "Tortillas de maíz enrolladas en torno a un relleno y bañadas en salsa de chile; el nombre viene del español enchilar.",
+    ko: "속을 채워 만 옥수수 토르티야에 고추 소스를 끼얹은 멕시코 요리로, 이름은 '고추로 양념하다'라는 스페인어에서 왔습니다.",
   },
   "mexican::enchiladas verdes": {
     id: "Tortilla jagung Meksiko digulung berisi suwiran ayam lalu disiram salsa verde berbasis tomatillo, saus hijau yang berakar di masa Aztek.",
@@ -8216,6 +9258,7 @@ module.exports = {
     zh: "墨西哥的绿酱玉米卷：饼里卷手撕鸡，再浇绿番茄做的 salsa verde，这绿酱可追到阿兹特克时期。",
     ja: "裂いた鶏肉を巻いたトウモロコシのトルティーヤに、トマティーヨのサルサ・ベルデをかけた料理。緑のソースはアステカ期に遡ります。",
     es: "Tortillas de maíz rellenas de pollo deshebrado y bañadas en salsa verde de tomatillo, una salsa que se remonta a la época azteca.",
+    ko: "찢은 닭고기를 옥수수 토르티야에 말아 토마티요 살사 베르데를 끼얹은 멕시코 요리로, 이 초록 소스는 아스텍 시대까지 거슬러 올라갑니다.",
   },
   "mexican::esquites": {
     id: "Jajanan cup jagung Meksiko: bulir jagung dengan mayones, jeruk nipis, cotija, dan cabai; nama dari Nahuatl \"izquitl\", jagung sangrai.",
@@ -8224,6 +9267,7 @@ module.exports = {
     zh: "墨西哥的玉米杯：玉米粒拌蛋黄酱、青柠、Cotija 奶酪与辣椒；名字出自纳瓦特尔语的 ízquitl，「炒过的玉米」。",
     ja: "メキシコの屋台のコーンカップ。粒にマヨネーズ、ライム、コティハ、唐辛子。名はナワトル語のイスキトル「炒った玉蜀黍」から。",
     es: "Vaso de elote callejero mexicano con mayonesa, lima, cotija y chile; del náhuatl «ízquitl», maíz tostado.",
+    ko: "옥수수 알갱이에 마요네즈와 라임, 코티하, 고추를 넣어 컵에 담은 멕시코 길거리 간식으로, 이름은 나우아틀어로 볶은 옥수수를 뜻합니다.",
   },
   "mexican::flan mexicano": {
     id: "Custard karamel Meksiko dari telur utuh, susu kental manis, dan susu evaporasi di atas karamel; saduran flan Spanyol dari masa kolonial.",
@@ -8232,6 +9276,7 @@ module.exports = {
     zh: "墨西哥的焦糖布丁：全蛋、炼奶与淡奶浇在焦糖上同烤；改自殖民时期传来的西班牙 flan。",
     ja: "全卵、加糖練乳、無糖練乳をカラメルの上で固めるメキシコのプリン。植民地期に伝わったスペインのフランの翻案です。",
     es: "Flan mexicano de huevo entero, leche condensada y evaporada sobre caramelo; adaptación del flan español llegado en la Colonia.",
+    ko: "달걀과 연유, 무가당 연유를 캐러멜 위에 부어 구운 멕시코식 커스터드로, 식민지 시대에 전해진 스페인 플란을 현지식으로 바꾼 것입니다.",
   },
   "mexican::flautas": {
     id: "Tortilla Meksiko digulung berisi daging atau keju lalu digoreng renyah; dinamai \"seruling\" karena bentuknya, lebih besar dari taquito.",
@@ -8240,6 +9285,7 @@ module.exports = {
     zh: "墨西哥的炸卷饼：饼里卷肉或奶酪，下锅炸脆；因形似「笛子」得名，比 taquito 更大。",
     ja: "肉やチーズを巻いて揚げたメキシコのトルティーヤ。形から「笛」と呼ばれ、タキートより大きめです。",
     es: "Tortillas mexicanas enrolladas con carne o queso y fritas hasta quedar crujientes; «flautas» por su forma, mayores que los taquitos.",
+    ko: "고기나 치즈를 채운 토르티야를 말아 바삭하게 튀긴 멕시코 요리로, 모양이 피리를 닮아 이름 붙었으며 타키토스보다 큽니다.",
   },
   "mexican::guacamole": {
     id: "Cocolan Meksiko berbahan alpukat; namanya berasal dari kata Nahuatl Klasik ahuacamolli.",
@@ -8248,6 +9294,7 @@ module.exports = {
     zh: "墨西哥的牛油果蘸酱；名字出自古典纳瓦特尔语的 āhuacamōlli。",
     ja: "アボカドを土台にしたメキシコのディップ。名は古典ナワトル語のアワカモリに由来します。",
     es: "Untable mexicano a base de aguacate; su nombre viene del náhuatl clásico āhuacamōlli.",
+    ko: "아보카도로 만든 멕시코의 딥으로, 이름은 고전 나우아틀어 아우아카몰리에서 왔습니다.",
   },
   "mexican::horchata mexicana": {
     id: "Minuman manis Meksiko dari beras dan kayu manis, saduran dari horchata de chufa Spanyol asal Valencia.",
@@ -8256,6 +9303,7 @@ module.exports = {
     zh: "墨西哥的甜饮：米与肉桂打成；改自瓦伦西亚的西班牙油莎豆饮 horchata de chufa。",
     ja: "米とシナモンで作るメキシコの甘い飲み物。バレンシアのスペインのチュファのオルチャータを翻案したものです。",
     es: "Bebida dulce mexicana de arroz y canela, adaptada de la horchata de chufa valenciana.",
+    ko: "쌀과 계피로 만든 멕시코의 달콤한 음료로, 발렌시아의 타이거너트 오르차타를 바탕으로 바뀐 것입니다.",
   },
   "mexican::mezcal": {
     id: "Arak Meksiko yang disuling dari hati agave yang dipanggang dalam lubang lalu difermentasi; nama dari Nahuatl mexcalli, agave masak tungku.",
@@ -8264,6 +9312,7 @@ module.exports = {
     zh: "墨西哥的蒸馏酒：龙舌兰的心先在土坑里烤熟，再发酵蒸馏；名字出自纳瓦特尔语的 mexcalli，「炉里烤过的龙舌兰」。",
     ja: "穴窯で焼いて発酵させたアガベの芯から蒸留するメキシコの酒。名はナワトル語のメスカリ「窯で焼いたアガベ」から。",
     es: "Destilado mexicano del corazón de agave asado en horno de tierra y fermentado; del náhuatl «mexcalli», agave cocido en horno.",
+    ko: "구덩이에서 구워 발효시킨 아가베의 속대를 증류한 멕시코 술로, 이름은 '화덕에 익힌 아가베'라는 뜻의 나우아틀어 멕스칼리에서 왔습니다.",
   },
   "mexican::mole negro oaxaqueño": {
     id: "Saus gelap dan rumit khas Oaxaca dari cabai chilhuacle, cokelat, dan lebih dari 30 bahan; biasanya disiram di atas ayam atau kalkun.",
@@ -8272,6 +9321,7 @@ module.exports = {
     zh: "瓦哈卡的招牌黑酱：chilhuacle 辣椒、巧克力与三十多样配料熬成；多半浇在鸡肉或火鸡上。",
     ja: "オアハカを代表する黒く複雑なソース。チルワクレ唐辛子、チョコレートなど三十種以上から作り、鶏や七面鳥にかけます。",
     es: "Salsa oscura y compleja insignia de Oaxaca con chiles chilhuacle, chocolate y más de treinta ingredientes; se sirve sobre pollo o guajolote.",
+    ko: "칠우아클레 고추와 초콜릿을 비롯해 서른 가지 넘는 재료로 만든 오악사카의 짙고 복합적인 소스로, 대개 닭이나 칠면조에 끼얹습니다.",
   },
   "mexican::mole poblano": {
     id: "Saus gelap khas Puebla dari cabai, rempah, dan cokelat, disiram di atas kalkun; legenda mengaitkannya dengan biarawati Santa Rosa.",
@@ -8280,6 +9330,7 @@ module.exports = {
     zh: "普埃布拉的深色酱汁：辣椒、香料与巧克力同熬，浇在火鸡上；传说出自十七世纪圣罗莎修道院的修女之手。",
     ja: "唐辛子、香辛料、チョコレートで作るプエブラの黒いソース。七面鳥にかけます。十七世紀サンタ・ロサ修道院の修道女の作という伝説が。",
     es: "Salsa oscura poblana de chiles, especias y chocolate servida sobre guajolote; la leyenda la atribuye a las monjas de Santa Rosa del XVII.",
+    ko: "고추와 향신료, 초콜릿으로 만든 푸에블라의 짙은 소스로 칠면조에 끼얹으며, 17세기 산타로사 수녀원의 수녀들이 만들었다고 전해집니다.",
   },
   "mexican::mole verde": {
     id: "Saus mole hijau Meksiko dari tomatillo, cabai hijau, herba segar, dan biji labu giling; satu dari tujuh mole klasik Oaxaca.",
@@ -8288,6 +9339,7 @@ module.exports = {
     zh: "墨西哥的绿酱：绿番茄、青辣椒、鲜香草与南瓜籽碎同打；瓦哈卡七大经典 mole 之一。",
     ja: "トマティーヨ、青唐辛子、生のハーブ、挽いたかぼちゃの種で作るメキシコの緑のモレ。オアハカの七つの古典モレのひとつ。",
     es: "Mole verde mexicano de tomatillo, chile verde, hierbas frescas y pepita molida; uno de los siete moles clásicos de Oaxaca.",
+    ko: "토마티요와 청고추, 생허브, 간 호박씨로 만든 멕시코의 초록 몰레 소스로, 오악사카의 일곱 가지 고전 몰레 가운데 하나입니다.",
   },
   "mexican::pico de gallo": {
     id: "Salsa Meksiko segar tanpa dimasak dari tomat, bawang bombai, cabai serrano, ketumbar, dan jeruk nipis cincang; namanya berarti \"paruh ayam\".",
@@ -8296,6 +9348,7 @@ module.exports = {
     zh: "墨西哥的鲜切生莎莎：番茄、洋葱、serrano 辣椒、香菜与青柠切碎拌匀；名字的意思是「公鸡的喙」。",
     ja: "火を通さないメキシコの生サルサ。トマト、玉ねぎ、セラーノ唐辛子、香菜、ライムを刻んで和えます。名は「雄鶏のくちばし」。",
     es: "Salsa mexicana fresca y cruda de tomate, cebolla, chile serrano, cilantro y lima picados; su nombre significa «pico de gallo».",
+    ko: "썬 토마토와 양파, 세라노 고추, 고수, 라임으로 만든 익히지 않은 멕시코 살사로, 이름은 '수탉의 부리'라는 뜻입니다.",
   },
   "mexican::pozole": {
     id: "Semur hominy Meksiko tradisional dengan babi atau ayam dan cabai, dikenal di Mesoamerika sejak masa pra-Kolumbus sebagai hidangan upacara.",
@@ -8304,6 +9357,7 @@ module.exports = {
     zh: "墨西哥传统的碱化玉米炖菜，配猪肉或鸡肉与辣椒；前哥伦布时期的中美洲便以其为祭仪之食。",
     ja: "豚肉か鶏肉と唐辛子を合わせるメキシコ伝統のホミニーの煮込み。先コロンブス期のメソアメリカでは儀式の料理だった。",
     es: "Guiso mexicano tradicional de maíz cacahuazintle con cerdo o pollo y chiles, conocido en Mesoamérica como plato ceremonial prehispánico.",
+    ko: "옥수수 낟알에 돼지고기나 닭고기와 고추를 넣어 끓인 멕시코 전통 스튜로, 콜럼버스 이전 메소아메리카부터 의례 음식이었습니다.",
   },
   "mexican::quesadillas": {
     id: "Tortilla jagung atau terigu Meksiko yang dilipat menutupi keju leleh.",
@@ -8312,6 +9366,7 @@ module.exports = {
     zh: "墨西哥的玉米饼或面粉饼，对折起来，里头是融化的奶酪。",
     ja: "溶けたチーズを挟んで二つ折りにした、メキシコのトウモロコシまたは小麦のトルティーヤ。",
     es: "Tortilla mexicana de maíz o de trigo doblada sobre queso fundido.",
+    ko: "옥수수나 밀 토르티야를 반으로 접어 그 안에 치즈를 녹여 낸 멕시코 요리입니다.",
   },
   "mexican::salsa verde": {
     id: "Saus hijau pedas Meksiko dari tomatillo dan cabai hijau, sudah ada sejak Kekaisaran Aztek dan dicatat tabib Francisco Hernández.",
@@ -8320,6 +9375,7 @@ module.exports = {
     zh: "墨西哥的青辣酱，用绿番茄与青辣椒制成；阿兹特克帝国时期便已存在，医师弗朗西斯科·埃尔南德斯曾有记载。",
     ja: "トマティーヨと青唐辛子で作るメキシコの辛い緑のソース。アステカ帝国期に遡り、医師フランシスコ・エルナンデスが記録した。",
     es: "Salsa verde picante mexicana de tomatillo y chiles verdes, que data del Imperio azteca y documentó el médico Francisco Hernández.",
+    ko: "토마티요와 청고추로 만든 멕시코의 초록 소스로, 아스텍 제국까지 거슬러 올라가며 의사 프란시스코 에르난데스가 기록했습니다.",
   },
   "mexican::tacos al pastor": {
     id: "Taco babi Puebla dari daging yang dimarinasi cabai dan achiote lalu dipanggang di tusuk putar; saduran shawarma Lebanon, populer sejak 1960.",
@@ -8328,6 +9384,7 @@ module.exports = {
     zh: "普埃布拉的塔可：猪肉用辣椒与胭脂树籽腌过，架在立式转叉上烤；这是黎巴嫩旋转烤肉的改造，一九六〇年代传开。",
     ja: "唐辛子とアチョーテに漬けた豚肉を回転串で焼く、プエブラのタコス。レバノンのシャワルマを翻案し、一九六〇年代に広まりました。",
     es: "Tacos poblanos de cerdo marinado en chile y achiote asado al trompo; adaptación del shawarma libanés, popularizados en los años sesenta.",
+    ko: "고추와 아치오테에 재운 돼지고기를 회전 꼬치에 구운 멕시코 푸에블라의 타코로, 레바논 샤와르마에서 왔고 1960년대에 널리 퍼졌습니다.",
   },
   "mexican::tacos de barbacoa": {
     id: "Taco Meksiko berisi daging yang dimasak barbacoa, kerap daging domba atau sapi.",
@@ -8336,6 +9393,7 @@ module.exports = {
     zh: "墨西哥的塔可：夹土坑慢烤的肉，多半是羊肉或牛肉。",
     ja: "バルバコアの肉を挟んだメキシコのタコス。多くは羊肉か牛肉です。",
     es: "Tacos mexicanos de barbacoa, con carne que suele ser de borrego o de res.",
+    ko: "흔히 양이나 소고기를 채워 낸 멕시코 타코입니다.",
   },
   "mexican::tacos de carnitas": {
     id: "Taco Meksiko berisi carnitas, daging babi yang dibraise lalu digoreng dalam lemaknya sendiri; berakar di negara bagian Michoacan.",
@@ -8344,6 +9402,7 @@ module.exports = {
     zh: "墨西哥的塔可：夹 carnitas，也就是先炖后在自身猪油里煎香的猪肉；根在米却肯州。",
     ja: "カルニータス（豚肉を煮てから自らの脂で揚げたもの）を挟んだメキシコのタコス。ミチョアカン州に根があります。",
     es: "Tacos mexicanos de carnitas, cerdo guisado y frito en su propia manteca; el plato hunde sus raíces en el estado de Michoacán.",
+    ko: "돼지고기를 자기 기름에 조려 튀긴 카르니타스를 채운 멕시코 타코로, 미초아칸주에 뿌리를 둡니다.",
   },
   "mexican::tacos de pescado": {
     id: "Tortilla jagung Baja California berisi ikan goreng atau bakar, kubis iris, dan krema.",
@@ -8352,6 +9411,7 @@ module.exports = {
     zh: "下加利福尼亚的玉米饼：夹炸鱼或烤鱼、卷心菜丝与酸奶油。",
     ja: "バハ・カリフォルニアのトウモロコシのトルティーヤに、揚げた、または焼いた魚、千切りキャベツ、クレマを挟みます。",
     es: "Tortillas de maíz de Baja California con pescado frito o a la plancha, col rallada y crema.",
+    ko: "튀기거나 구운 생선과 채 썬 양배추, 크레마를 옥수수 토르티야에 채운 바하칼리포르니아 요리입니다.",
   },
   "mexican::tamales": {
     id: "Hidangan Mesoamerika dari masa jagung nikstamal berisi bahan gurih atau manis, dikukus dalam kelobot; nama dari Nahuatl tamalli.",
@@ -8360,6 +9420,7 @@ module.exports = {
     zh: "中美洲的玉米粽：碱化处理的玉米面团包咸馅或甜馅，用玉米皮或香蕉叶裹好蒸熟；名字出自纳瓦特尔语的 tamalli。",
     ja: "石灰処理したトウモロコシの生地に塩味や甘い具を入れ、皮で包んで蒸すメソアメリカの料理。名はナワトル語のタマリから。",
     es: "Plato mesoamericano de masa de maíz nixtamalizado con relleno salado o dulce, al vapor en hoja de maíz; del náhuatl tamalli.",
+    ko: "닉스타말화한 옥수수 반죽에 짭짤하거나 단 소를 넣어 옥수수 껍질이나 바나나잎에 싸 찐 메소아메리카 요리로, 이름은 나우아틀어 타말리에서 왔습니다.",
   },
   "mexican::tequila reposado": {
     id: "Arak agave biru Meksiko yang \"diistirahatkan\" dalam tong ek dua hingga dua belas bulan; warnanya keemasan, rasanya lembut berpadu ek.",
@@ -8368,6 +9429,7 @@ module.exports = {
     zh: "墨西哥的蓝龙舌兰酒：在橡木桶里「歇」上两到十二个月，因而色泽金黄，龙舌兰与橡木的味道都柔和下来。",
     ja: "青いアガベから造るメキシコの蒸留酒を、樫樽で二〜十二か月「休ませた」もの。金色を帯び、アガベと樫の風味がまろやかになります。",
     es: "Destilado mexicano de agave azul «reposado» en roble de dos a doce meses; de ahí su color dorado y su suavidad de agave y roble.",
+    ko: "블루 아가베로 만든 멕시코 술을 오크통에서 두 달에서 열두 달 '쉬게 한' 것으로, 황금빛을 띠고 아가베와 오크 향이 부드럽게 어우러집니다.",
   },
   "mexican::tostadas": {
     id: "Hidangan Meksiko berupa tortilla jagung pipih yang dipanggang atau digoreng renyah, lalu ditutup kacang, daging, selada, dan lainnya.",
@@ -8376,6 +9438,7 @@ module.exports = {
     zh: "墨西哥的脆饼：整张玉米饼烤或炸至酥脆，再铺豆泥、肉、生菜等配料。",
     ja: "平たいトウモロコシのトルティーヤを焼くか揚げてパリッとさせ、豆、肉、レタスなどをのせたメキシコの料理。",
     es: "Plato mexicano de tortilla de maíz plana tostada o frita hasta quedar crujiente y cubierta de frijoles, carne, lechuga y más.",
+    ko: "옥수수 토르티야를 굽거나 튀겨 바삭하게 만든 뒤 콩과 고기, 상추 같은 재료를 올린 멕시코 요리입니다.",
   },
   "moroccan::baghrir": {
     id: "Panekuk semolina Afrika Utara (Maroko) yang diberi ragi dan dimasak satu sisi, penuh lubang kecil; disebut panekuk seribu lubang.",
@@ -8384,6 +9447,7 @@ module.exports = {
     zh: "北非（摩洛哥）的发酵粗麦粉煎饼，只煎一面，布满细小气孔，故称「千孔煎饼」。",
     ja: "モロッコなど北アフリカの発酵セモリナのパンケーキ。片面だけ焼き、無数の小さな穴が開くので「千の穴のパンケーキ」と呼ばれる。",
     es: "Crepe norteafricana (marroquí) de sémola con levadura, cocida por un solo lado y llena de agujeritos: la «crepe de mil agujeros».",
+    ko: "이스트로 부풀린 세몰리나 반죽을 한 면만 부쳐 작은 구멍이 송송 나게 만든 북아프리카(모로코)의 '천 개 구멍 전병'입니다.",
   },
   "moroccan::bissara": {
     id: "Sup atau cocolan Afrika Utara dari kacang fava kering yang dilumat, dibumbui bawang putih, minyak zaitun, dan jintan.",
@@ -8392,6 +9456,7 @@ module.exports = {
     zh: "北非的汤品或蘸酱，用干蚕豆打成泥，以大蒜、橄榄油与孜然调味。",
     ja: "乾燥ソラマメをすりつぶした北アフリカのスープ兼ディップ。ニンニク、オリーブオイル、クミンで味を調える。",
     es: "Sopa o dip norteafricano de habas secas trituradas sazonadas con ajo, aceite de oliva y comino.",
+    ko: "말린 잠두를 갈아 마늘과 올리브유, 커민으로 간한 북아프리카의 수프이자 딥입니다.",
   },
   "moroccan::briouats": {
     id: "Pastel Maroko manis atau gurih yang dibungkus pastri warqa tipis, digoreng atau dipanggang; isinya daging, ikan, pasta almon, atau keju.",
@@ -8400,6 +9465,7 @@ module.exports = {
     zh: "摩洛哥的甜味或咸味小卷，用薄warqa面皮包裹，油炸或烘烤；馅料多为肉、鱼、杏仁膏或奶酪。",
     ja: "薄いワルカ生地で包んで揚げるか焼くモロッコの甘い、または塩味の包み。肉や魚、アーモンドペースト、チーズを詰める。",
     es: "Empanadillas marroquíes dulces o saladas envueltas en masa fina warqa, fritas u horneadas, con carne, pescado, almendra o queso.",
+    ko: "얇은 와르카 반죽에 고기나 생선, 아몬드 페이스트, 치즈를 채워 튀기거나 구운 모로코의 달거나 짭짤한 만두입니다.",
   },
   "moroccan::chebakia": {
     id: "Pastri goreng Maroko berbentuk bunga yang dibalut madu, sirop bunga jeruk, dan wijen; disantap selama bulan Ramadan.",
@@ -8408,6 +9474,7 @@ module.exports = {
     zh: "摩洛哥的花形油炸面点，裹上蜂蜜、橙花糖浆与芝麻；斋月期间食用。",
     ja: "花の形に揚げたモロッコの菓子。蜂蜜とオレンジフラワーのシロップをまとわせ、ごまをまぶす。ラマダーンに食べる。",
     es: "Dulce marroquí frito en forma de flor bañado en miel, almíbar de azahar y sésamo; se come durante el Ramadán.",
+    ko: "꽃 모양으로 빚어 튀긴 뒤 꿀과 오렌지꽃 시럽을 입히고 깨를 묻힌 모로코·마그레브의 과자로, 라마단에 먹습니다.",
   },
   "moroccan::chermoula": {
     id: "Bumbu perendam atau saus herba Afrika Utara dari ketumbar, bawang putih, jintan, dan lemon; menurut tradisi untuk ikan dan boga bahari.",
@@ -8416,6 +9483,7 @@ module.exports = {
     zh: "北非的香草腌料或佐酱，用香菜、大蒜、孜然与柠檬调成；传统上用来调味鱼与海鲜。",
     ja: "コリアンダー、ニンニク、クミン、レモンで作る北アフリカの香草マリネ液兼薬味。伝統的に魚介の味付けに使う。",
     es: "Adobo o salsa de hierbas norteafricana de cilantro, ajo, comino y limón, usada por tradición para pescados y mariscos.",
+    ko: "고수와 마늘, 커민, 레몬으로 만든 북아프리카의 양념장으로, 전통적으로 생선과 해산물에 씁니다.",
   },
   "moroccan::chicken tagine preserved lemon": {
     id: "Tagine ayam Maroko yang dimasak perlahan bersama lemon awetan, zaitun hijau, dan safron.",
@@ -8424,6 +9492,7 @@ module.exports = {
     zh: "摩洛哥的慢炖鸡肉塔吉锅，加腌柠檬、青橄榄与藏红花。",
     ja: "塩漬けレモン、グリーンオリーブ、サフランとともにじっくり煮込むモロッコの鶏のタジン。",
     es: "Tayín marroquí de pollo cocinado lentamente con limón en conserva, aceitunas verdes y azafrán.",
+    ko: "절인 레몬과 초록 올리브, 사프란을 넣어 오래 끓인 모로코의 닭 타진입니다.",
   },
   "moroccan::couscous moroccan": {
     id: "Semolina kukus berasal Berber yang disajikan dengan daging dan sayuran; warisan takbenda UNESCO 2020 dan hidangan nasional Maroko.",
@@ -8432,6 +9501,7 @@ module.exports = {
     zh: "源自柏柏尔的蒸粗麦粉，配肉与蔬菜；2020年列入联合国教科文组织非物质遗产，是摩洛哥的国菜。",
     ja: "ベルベル起源の蒸したセモリナに肉と野菜を添える。2020年ユネスコ無形文化遺産に登録された、モロッコの国民料理。",
     es: "Sémola al vapor de origen bereber servida con carne y verduras; patrimonio inmaterial de la UNESCO en 2020 y plato nacional marroquí.",
+    ko: "베르베르에서 온 찐 세몰리나에 고기와 채소를 곁들인 요리로, 2020년 유네스코 무형유산에 올랐으며 모로코의 국민 음식입니다.",
   },
   "moroccan::ghoriba": {
     id: "Kue kering Maroko yang rapuh dari semolina, almon, atau kelapa, kerap harum bunga jeruk; disajikan bersama teh mint.",
@@ -8440,6 +9510,7 @@ module.exports = {
     zh: "摩洛哥松脆的酥饼，用粗麦粉、杏仁或椰蓉制成，常带橙花香；佐薄荷茶食用。",
     ja: "セモリナ、アーモンド、ココナッツで作るほろほろのモロッコの焼き菓子。オレンジフラワーの香りをつけ、ミントティーに添える。",
     es: "Galleta marroquí quebradiza de sémola, almendra o coco, a menudo perfumada con azahar; se sirve con té a la menta.",
+    ko: "세몰리나나 아몬드, 코코넛으로 만든 부슬부슬한 모로코 쇼트브레드로, 흔히 오렌지꽃 향을 입혀 민트차와 함께 냅니다.",
   },
   "moroccan::harira": {
     id: "Sup Afrika Utara berbahan dasar tomat dengan lentil, buncis, dan daging; paling digemari di Maroko dan disantap saat berbuka Ramadan.",
@@ -8448,6 +9519,7 @@ module.exports = {
     zh: "北非以番茄为底的浓汤，加扁豆、鹰嘴豆与肉；在摩洛哥最为流行，是斋月开斋的汤品。",
     ja: "レンズ豆、ひよこ豆、肉を加えた北アフリカのトマトのスープ。モロッコでとくに好まれ、ラマダーンの断食明けに飲む。",
     es: "Sopa norteafricana a base de tomate con lentejas, garbanzos y carne, muy popular en Marruecos y tomada para romper el ayuno.",
+    ko: "렌즈콩과 병아리콩, 고기를 넣은 토마토 기반의 북아프리카 수프로, 모로코에서 가장 사랑받으며 라마단의 금식을 깰 때 먹습니다.",
   },
   "moroccan::khobz": {
     id: "Roti gandum atau semolina beragi Maghribi yang bundar dan agak pipih, makanan pokok Maroko; namanya berarti roti dalam bahasa Arab.",
@@ -8456,6 +9528,7 @@ module.exports = {
     zh: "马格里布圆形略扁的发酵小麦或粗麦粉面包，是摩洛哥日常餐桌的主食；名称在阿拉伯语中就是「面包」。",
     ja: "小麦やセモリナで作るマグリブの丸く平たい発酵パン。モロッコの食卓の主食で、名はアラビア語で「パン」の意。",
     es: "Pan magrebí redondo y algo plano de trigo o sémola con levadura, base diaria de las comidas marroquíes; su nombre significa «pan».",
+    ko: "둥글고 납작한 마그레브의 발효 밀이나 세몰리나 빵으로 모로코 식탁의 일상 주식이며, 이름은 아랍어로 그저 '빵'을 뜻합니다.",
   },
   "moroccan::lamb tagine prunes": {
     id: "Tagine Maroko dari domba yang ditim lama bersama plum kering berglasir madu dan rempah hangat; sajian pernikahan dan penghormatan tamu.",
@@ -8464,6 +9537,7 @@ module.exports = {
     zh: "摩洛哥羊肉塔吉锅，与蜜渍西梅及温暖香料同炖；传统上用于婚宴与款待贵客。",
     ja: "蜂蜜を絡めたプルーンと温かな香辛料で羊肉をじっくり煮込むモロッコのタジン。結婚式や客人をもてなす席の料理。",
     es: "Tayín marroquí de cordero cocido despacio con ciruelas pasas glaseadas con miel y especias; propio de bodas y de honrar invitados.",
+    ko: "양고기를 꿀에 조린 프룬과 따뜻한 향신료와 함께 오래 끓인 모로코 타진으로, 전통적으로 혼례와 손님상에 냅니다.",
   },
   "moroccan::mechoui": {
     id: "Domba atau biri-biri utuh yang dipanggang perlahan di atas tusuk atau dalam oven lubang; hidangan pesta Maghribi berakar Berber.",
@@ -8472,6 +9546,7 @@ module.exports = {
     zh: "整只羔羊或绵羊在铁叉上或地坑炉中慢烤；这是马格里布（摩洛哥）源自柏柏尔的宴席菜。",
     ja: "子羊や羊を丸ごと串や土窯でじっくり焼く料理。ベルベルに根を持つマグリブ（モロッコ）の祝宴の一品。",
     es: "Cordero u oveja entera asada lentamente en espetón o en horno de foso; plato de fiesta magrebí de raíz bereber.",
+    ko: "양이나 어린 양을 통째로 꼬치나 땅화덕에 천천히 구운 요리로, 베르베르에 뿌리를 둔 마그레브(모로코)의 잔치 음식입니다.",
   },
   "moroccan::moroccan mint tea": {
     id: "Cara Afrika Utara menyeduh teh hijau gunpowder Tiongkok bersama daun mint dan gula.",
@@ -8480,6 +9555,7 @@ module.exports = {
     zh: "北非的沏茶方式：以中国珠茶绿茶配留兰香薄荷与糖同煮。",
     ja: "中国のガンパウダー緑茶をスペアミントと砂糖で淹れる北アフリカの流儀。",
     es: "Preparación norteafricana de té verde chino gunpowder infusionado con hierbabuena y azúcar.",
+    ko: "중국 건파우더 녹차를 스피어민트와 설탕과 함께 우려 내는 북아프리카의 차입니다.",
   },
   "moroccan::msemen": {
     id: "Roti pipih berlapis dari Maghrib berasal Berber, dilipat persegi dengan minyak atau smen lalu digoreng datar hingga berlembar.",
@@ -8488,6 +9564,7 @@ module.exports = {
     zh: "源自柏柏尔的马格里布方形千层薄饼，抹油或smen酥油后折叠，平底煎至层层酥松。",
     ja: "ベルベル起源のマグリブの四角い折り畳み薄焼きパン。油やスメンを塗って折り重ね、鉄板で焼いて層を出す。",
     es: "Pan plano cuadrado y hojaldrado de origen bereber del Magreb, plegado con aceite o smen y frito en plancha hasta laminarse.",
+    ko: "기름이나 스멘을 발라 네모나게 접어 겹겹이 만든 마그레브의 베르베르식 플랫브레드로, 팬에 부쳐 바삭하게 냅니다.",
   },
   "moroccan::pastilla": {
     id: "Pai manis-gurih Maroko dari pastri warqa berisi merpati atau ayam, telur, almon, dan kayu manis; asal-usul Andalusinya diperdebatkan.",
@@ -8496,6 +9573,7 @@ module.exports = {
     zh: "摩洛哥的甜咸馅饼，用warqa薄皮包鸽肉或鸡肉、鸡蛋、杏仁与肉桂；其安达卢斯起源尚有争议。",
     ja: "ワルカ生地に鳩肉や鶏肉、卵、アーモンド、シナモンを包むモロッコの甘塩っぱいパイ。アンダルス起源説には議論がある。",
     es: "Pastel marroquí agridulce de masa warqa relleno de pichón o pollo, huevo, almendra y canela; su origen andalusí se discute.",
+    ko: "와르카 반죽에 비둘기나 닭고기, 달걀, 아몬드, 계피를 채운 모로코의 달콤짭짤한 파이로, 안달루스에서 왔다는 설이 유력합니다.",
   },
   "moroccan::rfissa": {
     id: "Hidangan Maroko berupa ayam yang ditim bersama lentil dan fenugreek, disajikan di atas suwiran roti msemen atau trid.",
@@ -8504,6 +9582,7 @@ module.exports = {
     zh: "摩洛哥菜式：炖鸡配扁豆与葫芦巴，浇在撕碎的msemen或trid薄饼上。",
     ja: "煮込んだ鶏肉にレンズ豆とフェヌグリークを合わせ、ちぎったムスンメンやトリードのパンにのせるモロッコの料理。",
     es: "Plato marroquí de pollo guisado con lentejas y fenogreco servido sobre pan msemen o trid desmenuzado.",
+    ko: "조린 닭고기와 렌즈콩, 호로파를 찢은 므스멘이나 트리드 빵 위에 올려 내는 모로코 요리입니다.",
   },
   "moroccan::seffa": {
     id: "Hidangan Maroko dan Maghrib dari couscous atau bihun kukus yang dimaniskan dengan mentega, kayu manis, dan almon; disajikan saat perayaan.",
@@ -8512,6 +9591,7 @@ module.exports = {
     zh: "摩洛哥与马格里布的菜式：蒸熟的甜味蒸粗麦粉或细面，拌黄油、肉桂与杏仁；在喜庆场合享用。",
     ja: "蒸した甘いクスクスや細麺にバター、シナモン、アーモンドを合わせるモロッコ・マグリブの料理。祝いの席で供される。",
     es: "Plato marroquí y magrebí de cuscús o fideos al vapor endulzados con mantequilla, canela y almendras; se sirve en ocasiones festivas.",
+    ko: "찐 쿠스쿠스나 소면에 버터와 계피, 아몬드를 넣어 달게 만든 모로코·마그레브 요리로, 명절에 냅니다.",
   },
   "moroccan::tagine": {
     id: "Semur Maghribi yang dimasak perlahan, berasal dari Berber; namanya dari periuk tanah liat berbentuk kerucut tempat ia dimasak.",
@@ -8520,6 +9600,7 @@ module.exports = {
     zh: "马格里布的慢炖菜，源自柏柏尔人；名称取自烹煮时所用的锥形陶锅。",
     ja: "ベルベル起源のマグリブの煮込み。調理に使う円錐形の素焼き鍋にちなんで名づけられた。",
     es: "Guiso magrebí de cocción lenta y origen bereber, llamado así por la cazuela cónica de barro en la que se cocina.",
+    ko: "베르베르에서 온 마그레브의 오래 끓인 스튜로, 조리에 쓰는 원뿔 모양 옹기에서 이름을 땄습니다.",
   },
   "moroccan::tagine kefta": {
     id: "Tagine Maroko berisi bola daging sapi atau domba berbumbu (kefta) dalam saus tomat, dituntaskan telur setengah matang; Kefta Mkaouara.",
@@ -8528,6 +9609,7 @@ module.exports = {
     zh: "摩洛哥塔吉锅：调味牛肉或羊肉丸（kefta）在番茄酱汁中炖煮，最后卧上水波蛋；也称Kefta Mkaouara。",
     ja: "香辛料入りの牛肉か羊肉の団子（ケフタ）をトマトソースで煮込み、卵を落とすモロッコのタジン。ケフタ・ムカワラとも呼ぶ。",
     es: "Tayín marroquí de albóndigas especiadas de vacuno o cordero (kefta) en salsa de tomate, rematado con huevos escalfados; Kefta Mkaouara.",
+    ko: "향신 소고기나 양고기 완자(케프타)를 토마토소스에 끓여 달걀을 깨 넣은 모로코 타진으로, 케프타 므카와라라고도 합니다.",
   },
   "moroccan::tanjia marrakchia": {
     id: "Semur daging Marrakesh yang dimasak lama, dinamai kendi tanah tempat memasaknya; dipendam berjam-jam dalam abu tungku hammam.",
@@ -8536,6 +9618,7 @@ module.exports = {
     zh: "马拉喀什的慢炖肉菜，以烹煮所用的陶瓮得名；传统上埋在澡堂炉膛的灰烬里焖上数小时。",
     ja: "マラケシュの長時間煮込む肉料理。調理に使う素焼きの壺にちなむ名で、ハンマームの窯の灰に何時間も埋めて火を通す。",
     es: "Guiso de carne marrakechí de cocción lenta, llamado así por la vasija de barro; se entierra horas en las cenizas del horno del hamán.",
+    ko: "마라케시의 오래 끓인 고기 스튜로, 조리에 쓰는 옹기에서 이름을 땄고 전통적으로 함맘 아궁이의 재에 여러 시간 묻어 익힙니다.",
   },
   "moroccan::zaalouk": {
     id: "Salad matang atau cocolan Maroko dari terung bakar dan tomat, dibumbui bawang putih, jintan, paprika, dan ketumbar; dengan roti khobz.",
@@ -8544,6 +9627,7 @@ module.exports = {
     zh: "摩洛哥的熟沙拉或蘸酱，用烤茄子与番茄拌大蒜、孜然、红椒粉与香菜；佐khobz面包食用。",
     ja: "焼きナスとトマトをニンニク、クミン、パプリカ、コリアンダーで和えるモロッコの温サラダ兼ディップ。ホブズというパンと食べる。",
     es: "Ensalada cocida o dip marroquí de berenjena asada y tomate con ajo, comino, pimentón y cilantro; se toma con pan khobz.",
+    ko: "구운 가지와 토마토를 마늘과 커민, 파프리카, 고수로 양념한 모로코의 익힌 샐러드이자 딥으로, 호브즈 빵과 함께 냅니다.",
   },
   "nepalese::aloo tama": {
     id: "Sup Nepal dari rebung fermentasi, kentang, dan kacang tunggak; dihargai karena rasanya yang asam, digemari komunitas Newar.",
@@ -8552,6 +9636,7 @@ module.exports = {
     zh: "尼泊尔的酸笋汤：发酵竹笋、土豆与豇豆同煮；那股酸味是它的好处，尼瓦尔人尤爱。",
     ja: "発酵させた筍、じゃがいも、ささげのネパールのスープ。酸味が身上で、ネワール社会で好まれます。",
     es: "Sopa nepalí de brotes de bambú fermentados, patata y frijol carilla; se aprecia por su acidez y gusta en las comunidades newar.",
+    ko: "발효한 죽순과 감자, 동부콩으로 끓인 네팔 수프로, 새콤한 맛으로 이름났고 네와르 공동체에서 사랑받습니다.",
   },
   "nepalese::bara": {
     id: "Panekuk gurih Newar dari lentil hitam giling (maas); disajikan sebagai makanan sagun pembawa berkah saat perayaan di Lembah Kathmandu.",
@@ -8560,6 +9645,7 @@ module.exports = {
     zh: "尼瓦尔咸味薄饼，以黑扁豆（maas）磨浆制成；在加德满都谷地的节庆中作为吉祥的沙贡供食。",
     ja: "ニューワール族の塩味パンケーキ。黒レンズ豆を挽いて焼き、カトマンズ盆地の祭りで吉兆の食物サグンとして供される。",
     es: "Panqueque salado newar de lenteja negra molida (maas); se sirve como alimento propicio sagun en las fiestas del valle de Katmandú.",
+    ko: "간 검은 렌즈콩(마스)으로 부친 네와르의 짭조름한 전으로, 카트만두 계곡의 축제에서 길한 사군 음식으로 냅니다.",
   },
   "nepalese::bhutuwa": {
     id: "Tumisan Nepal: potongan daging ayam, babi, atau domba ditumis dalam minyak sawi bersama jintan, kunyit, fenugreek, dan cabai.",
@@ -8568,6 +9654,7 @@ module.exports = {
     zh: "尼泊尔式爆炒：鸡肉、猪肉或羊肉切成小块，用芥末油配孜然、姜黄、葫芦巴与辣椒炒制。",
     ja: "ネパールの炒め物。一口大の鶏肉・豚肉・羊肉をマスタードオイルでクミン、ターメリック、フェヌグリーク、唐辛子と炒める。",
     es: "Salteado nepalí de trozos de pollo, cerdo o cordero en aceite de mostaza con comino, cúrcuma, fenogreco y chile.",
+    ko: "닭이나 돼지, 양고기를 한입 크기로 썰어 겨자 기름에 커민과 강황, 호로파, 고추와 함께 볶은 네팔 요리입니다.",
   },
   "nepalese::chatamari": {
     id: "Krep tepung beras tipis dari masakan Newar di Lembah Kathmandu, Nepal; ditutup daging, telur, atau sayuran, dan disantap saat perayaan.",
@@ -8576,6 +9663,7 @@ module.exports = {
     zh: "尼泊尔加德满都谷地尼瓦尔人的米粉薄饼：面上铺肉、蛋或蔬菜，节庆时吃。",
     ja: "ネパール、カトマンズ盆地のネワール料理の薄い米粉のクレープ。肉、卵、野菜をのせ、祝いの日に食べます。",
     es: "Crepe fino de harina de arroz de la cocina newar del valle de Katmandú; se cubre de carne, huevo o verduras y se come en fiestas.",
+    ko: "네팔 카트만두 계곡 네와르 요리의 얇은 쌀가루 전병으로, 고기나 달걀, 채소를 올려 명절에 먹습니다.",
   },
   "nepalese::chhoyala": {
     id: "Hidangan Newar dari Lembah Kathmandu, Nepal: daging kerbau berbumbu yang dipanggang, menurut tradisi dihanguskan asap (haku chhoyala).",
@@ -8584,6 +9672,7 @@ module.exports = {
     zh: "尼泊尔加德满都谷地的尼瓦尔菜：香料腌过的水牛肉炙烤而成，传统上以烟火熏焦（haku chhoyala）。",
     ja: "ネパール・カトマンズ盆地のニューワール料理。香辛料をきかせた水牛肉を焼き、伝統的に煙で焦がす（ハク・チョエラ）。",
     es: "Plato newar del valle de Katmandú, Nepal: carne de búfalo especiada a la parrilla, tradicionalmente chamuscada al humo (haku chhoyala).",
+    ko: "네팔 카트만두 계곡 네와르의 요리로, 양념한 물소고기를 구우며 전통적으로 연기에 그을려 하쿠 초얄라로 만듭니다.",
   },
   "nepalese::choila": {
     id: "Hidangan Newar dari Lembah Kathmandu: daging panggang berbumbu, menurut tradisi kerbau, dibumbui minyak sawi, bawang putih, dan cabai.",
@@ -8592,6 +9681,7 @@ module.exports = {
     zh: "加德满都谷地尼瓦尔人的菜：烤过的调味肉（照传统用水牛肉），拌芥末油、蒜与辣椒。",
     ja: "カトマンズ盆地のネワール料理。焼いた肉（伝統では水牛）を、マスタード油、にんにく、唐辛子で味つけします。",
     es: "Plato newar del valle de Katmandú: carne asada y especiada, tradicionalmente de búfalo, aliñada con aceite de mostaza, ajo y chiles.",
+    ko: "네팔 카트만두 계곡 네와르의 요리로, 전통적으로 물소고기를 구워 겨자 기름과 마늘, 고추로 양념합니다.",
   },
   "nepalese::dal bhat": {
     id: "Hidangan nasional Nepal berupa nasi kukus dengan sup lentil; disantap tiap hari bersama kari tarkari dan acar achar.",
@@ -8600,6 +9690,7 @@ module.exports = {
     zh: "尼泊尔的国菜：白米饭配扁豆汤；天天吃，佐 tarkari 咖喱与 achar 腌菜。",
     ja: "ネパールの国民食。蒸した米に豆のスープを添え、タルカリのカレーとアチャールの漬物とともに毎日食べます。",
     es: "Plato nacional de Nepal: arroz al vapor con sopa de lentejas; se come a diario con curry tarkari y encurtidos achar.",
+    ko: "흰밥(바트)에 렌즈콩 국(달)을 곁들인 네팔의 국민 음식으로, 타르카리 커리와 아차르 절임과 함께 날마다 먹습니다.",
   },
   "nepalese::dhindo": {
     id: "Bubur Nepal kental dari tepung soba, milet, atau jagung, diaduk ke air mendidih; makanan pokok pegunungan, lama dianggap di bawah nasi.",
@@ -8608,6 +9699,7 @@ module.exports = {
     zh: "尼泊尔的稠糊：荞麦、小米或玉米粉搅进滚水里；山区的主食，长久以来被看作比米饭寒素。",
     ja: "そば粉、雑穀、とうもろこし粉を熱湯に練り込むネパールの濃い粥。丘陵地の主食で、長らく米より質素とみなされてきました。",
     es: "Gachas espesas nepalíes de harina de trigo sarraceno, mijo o maíz batidas en agua hirviendo; básicas en las colinas y tenidas por humildes.",
+    ko: "메밀이나 기장, 옥수수 가루를 끓는 물에 저어 만든 되직한 네팔 죽으로, 오랫동안 밥보다 소박하게 여겨진 산간 지방의 주식입니다.",
   },
   "nepalese::gundruk": {
     id: "Lauk Nepal dari sayuran hijau berdaun: sawi, lobak, dan kembang kol.",
@@ -8616,6 +9708,7 @@ module.exports = {
     zh: "尼泊尔的配菜：用芥菜、萝卜与花椰菜的绿叶做成。",
     ja: "からし菜、大根、カリフラワーの葉で作るネパールの副菜。",
     es: "Guarnición nepalí de hojas verdes: mostaza, rábano y coliflor.",
+    ko: "겨자와 무, 콜리플라워 같은 잎채소로 만든 네팔의 곁들임 요리입니다.",
   },
   "nepalese::jhol momo": {
     id: "Hidangan Nepal berupa momo kukus yang disajikan dalam jhol achar, kuah tomat-wijen yang pedas; kekhasan musim dingin Kathmandu.",
@@ -8624,6 +9717,7 @@ module.exports = {
     zh: "尼泊尔的汤饺：蒸好的 momo 泡进辣味番茄芝麻汤 jhol achar 里；加德满都的冬令招牌。",
     ja: "蒸したモモを、辛いトマトと胡麻のつゆジョル・アチャールに浸すネパールの料理。カトマンズの冬の名物です。",
     es: "Plato nepalí de momos al vapor servidos en jhol achar, un caldo picante de tomate y sésamo; especialidad invernal de Katmandú.",
+    ko: "쪄낸 모모를 매콤한 토마토 참깨 국물 졸 아차르에 담아 내는 네팔 요리로, 카트만두의 겨울 명물입니다.",
   },
   "nepalese::juju dhau": {
     id: "Yoghurt susu kerbau yang kental dan agak manis dari Bhaktapur, Nepal; dibuat orang Newar di dalam periuk tanah liat.",
@@ -8632,6 +9726,7 @@ module.exports = {
     zh: "尼泊尔巴克塔普尔的浓稠微甜水牛奶凝酪，由尼瓦尔人在陶罐中发酵而成。",
     ja: "ネパール・バクタプルの濃厚でほのかに甘い水牛乳ヨーグルト。ニューワール族が素焼きの壺で発酵させる。",
     es: "Yogur cuajado de leche de búfala, espeso y algo dulce, de Bhaktapur, Nepal; los newares lo cuajan en ollas de barro.",
+    ko: "네팔 박타푸르의 되직하고 은은히 달콤한 물소젖 요구르트로, 네와르인이 옹기에 굳혀 만듭니다.",
   },
   "nepalese::kwati": {
     id: "Sup Newar dari sembilan macam kacang yang dikecambahkan; menurut tradisi disantap saat purnama Gun Punhi atau Janai Purnima di Nepal.",
@@ -8640,6 +9735,7 @@ module.exports = {
     zh: "尼瓦尔人的九豆汤：九种发芽的豆子同煮；照传统在尼泊尔的 Gun Punhi（圣线节）满月那天吃。",
     ja: "九種の発芽させた豆で作るネワールのスープ。伝統ではネパールのグン・プンヒ（ジャナイ・プルニマ）の満月に食べます。",
     es: "Sopa newar de nueve legumbres germinadas; se toma por tradición en la luna llena del Gun Punhi (Janai Purnima) en Nepal.",
+    ko: "아홉 가지 콩을 싹 틔워 끓인 네와르의 수프로, 전통적으로 네팔의 자나이 푸르니마 보름 축제에 먹습니다.",
   },
   "nepalese::lapsi": {
     id: "Buah kecil dan masam dari Himalaya, sejenis hog-plum (Choerospondias axillaris).",
@@ -8648,6 +9744,7 @@ module.exports = {
     zh: "喜马拉雅地区一种小而酸的果实，即南酸枣（Choerospondias axillaris）。",
     ja: "ヒマラヤ産の小さく酸味の強い果実（Choerospondias axillaris）。ホッグプラムの仲間。",
     es: "Pequeño fruto ácido del Himalaya, pariente de la ciruela de cerdo (Choerospondias axillaris).",
+    ko: "히말라야에서 나는 작고 신맛 나는 야생 자두 열매입니다.",
   },
   "nepalese::momos": {
     id: "Pangsit kukus berisi daging atau sayuran, andalan masakan Nepal; jejaknya sampai ke perdagangan Tibet melintasi Himalaya.",
@@ -8656,6 +9753,7 @@ module.exports = {
     zh: "蒸饺：包肉或菜，是尼泊尔菜的支柱；来路可追到翻越喜马拉雅的西藏商道。",
     ja: "肉や野菜を包んだ蒸し餃子。ネパール料理の柱で、ヒマラヤを越えるチベット交易に由来をたどります。",
     es: "Empanadillas al vapor rellenas de carne o verdura, pilar de la cocina nepalí; se rastrean al comercio tibetano por el Himalaya.",
+    ko: "고기나 채소를 채워 쪄낸 만두로, 히말라야를 넘나든 티베트 교역에서 이어진 네팔의 대표 음식입니다.",
   },
   "nepalese::newari kachila": {
     id: "Kelezatan Newar dari daging kerbau mentah cincang berbumbu, ditutup minyak sawi panas; namanya berarti \"daging mentah\" dalam Nepal Bhasa.",
@@ -8664,6 +9762,7 @@ module.exports = {
     zh: "尼瓦尔人的珍味：生水牛肉剁碎调味，浇上滚烫的芥末油；名字在尼瓦尔语里就是「生肉」。",
     ja: "ネワールの珍味。味つけした水牛の生の挽肉に、熱したマスタード油を回しかけます。名はネパール・バサ語で「生肉」。",
     es: "Manjar newar de carne cruda de búfalo picada y especiada, rematada con aceite de mostaza caliente; «carne cruda» en nepal bhasa.",
+    ko: "다진 생물소고기를 양념해 뜨거운 겨자 기름으로 마무리한 네와르의 별미로, 이름은 네팔 바사어로 '생고기'를 뜻합니다.",
   },
   "nepalese::sekuwa": {
     id: "Sate Nepal dari daging kambing, ayam, atau kerbau yang dimarinasi rempah lalu dipanggang di api terbuka; lekat dengan Dharan, Nepal timur.",
@@ -8672,6 +9771,7 @@ module.exports = {
     zh: "尼泊尔的烤肉串：山羊、鸡或水牛肉用香料腌透，架在明火上烤；与东部的达兰城相连。",
     ja: "ヤギ、鶏、水牛の肉を香辛料に漬け、直火で焼くネパールの串。東部のダランと結びつきます。",
     es: "Brochetas nepalíes de cabra, pollo o búfalo marinadas en especias y asadas a fuego vivo; asociadas a Dharan, al este de Nepal.",
+    ko: "염소나 닭, 물소고기를 향신료에 재워 직화에 구운 네팔의 꼬치로, 동부 네팔 다란과 얽혀 있습니다.",
   },
   "nepalese::sel roti": {
     id: "Roti manis Nepal tradisional berbentuk cincin, dibuat dari adonan tepung beras yang difermentasi.",
@@ -8680,6 +9780,7 @@ module.exports = {
     zh: "尼泊尔传统的环形甜圈：发酵米浆炸成。",
     ja: "発酵させた米粉の生地で作る、輪の形をしたネパールの伝統的な甘いパン。",
     es: "Pan dulce nepalí tradicional en forma de aro, hecho con masa fermentada de harina de arroz.",
+    ko: "발효한 쌀가루 반죽으로 만든 네팔의 전통 고리 모양 단빵입니다.",
   },
   "nepalese::sinki soup": {
     id: "Sup Nepal tradisional berbahan sinki: akar lobak yang difermentasi bakteri asam laktat, lalu dijemur dan disimpan.",
@@ -8688,6 +9789,7 @@ module.exports = {
     zh: "尼泊尔传统汤品，以辛基为底——萝卜主根经乳酸菌发酵后晒干贮存。",
     ja: "シンキを使うネパールの伝統スープ。大根の主根を乳酸菌で発酵させ、天日で干して保存したもの。",
     es: "Sopa nepalí tradicional a base de sinki: raíces de rábano fermentadas por bacterias lácticas y luego secadas al sol.",
+    ko: "유산균으로 발효시킨 뒤 햇볕에 말려 두는 무 뿌리 신키로 끓이는 네팔의 전통 수프입니다.",
   },
   "nepalese::sukuti": {
     id: "Daging kering Nepal, biasanya kerbau, kambing, atau domba, dimarinasi rempah lalu dijemur atau diangin-anginkan agar tahan musim dingin.",
@@ -8696,6 +9798,7 @@ module.exports = {
     zh: "尼泊尔的肉干：多用水牛、山羊或绵羊肉，香料腌过再晒干或风干，好熬过喜马拉雅的严冬。",
     ja: "ネパールの干し肉。多くは水牛、ヤギ、羊を香辛料に漬け、天日か風で乾かします。ヒマラヤの冬を越すための保存食です。",
     es: "Carne seca nepalí, normalmente de búfalo, cabra o cordero, marinada en especias y secada al sol o al aire para el duro invierno himalayo.",
+    ko: "주로 물소나 염소, 양고기를 향신료에 재워 햇볕이나 바람에 말린 네팔의 육포로, 혹독한 히말라야 겨울을 나려 만들었습니다.",
   },
   "nepalese::thukpa": {
     id: "Sup mi berasal Tibet yang luas disantap di Nepal, dibuat dari mi tarik atau mi potong dalam kaldu bersama sayuran atau daging.",
@@ -8704,6 +9807,7 @@ module.exports = {
     zh: "源自西藏的汤面，在尼泊尔广为人吃：手拉或刀切的面泡在汤里，配蔬菜或肉。",
     ja: "チベットに発し、ネパールで広く食べられる麺スープ。手延べか切った麺を、野菜や肉とともにだしでいただきます。",
     es: "Sopa de fideos de origen tibetano muy común en Nepal, con fideos estirados o cortados en caldo con verduras o carne.",
+    ko: "티베트에서 온 국수로, 손으로 뽑거나 썬 면을 채소나 고기를 넣은 국물에 넣어 네팔에서 널리 먹습니다.",
   },
   "nepalese::yomari": {
     id: "Pangsit tepung beras kukus khas Newar yang diisi chaku, yakni gula aren.",
@@ -8712,6 +9816,7 @@ module.exports = {
     zh: "尼瓦尔人的蒸米粉包：馅是 chaku，也就是棕榈糖。",
     ja: "ネワールの蒸した米粉の包み。中身はチャク、すなわちヤシ砂糖です。",
     es: "Empanadilla newar de harina de arroz al vapor rellena de chaku, es decir, panela.",
+    ko: "재거리(차쿠)를 채워 쪄낸 네와르의 쌀가루 만두입니다.",
   },
   "new-zealand::afghan biscuit": {
     id: "Biskuit Selandia Baru dari tepung, mentega, kornfleks, dan kakao, dilapisi glasir cokelat dan diberi kenari; pertama tercatat 1930-an.",
@@ -8720,6 +9825,7 @@ module.exports = {
     zh: "新西兰的饼干，用面粉、黄油、玉米片与可可制成，覆巧克力糖霜并放一枚核桃；最早见于1930年代。",
     ja: "小麦粉、バター、コーンフレーク、ココアで作るニュージーランドのビスケット。チョコレートを塗りクルミをのせる。1930年代が初出。",
     es: "Galleta neozelandesa de harina, mantequilla, copos de maíz y cacao, glaseada con chocolate y coronada con una nuez; de los años treinta.",
+    ko: "밀가루와 버터, 콘플레이크, 코코아로 구워 초콜릿을 씌우고 호두를 올린 뉴질랜드 과자로, 1930년대에 처음 기록됐습니다.",
   },
   "new-zealand::anzac biscuit nz": {
     id: "Biskuit tanpa telur dari gandum, kelapa, dan sirop emas yang terkait korps ANZAC Perang Dunia I; nama dan resepnya dari sekitar 1919.",
@@ -8728,6 +9834,7 @@ module.exports = {
     zh: "不用鸡蛋的燕麦椰蓉金糖浆饼干，与一战的澳新军团相连；名称与配方约始于1919至1920年。",
     ja: "卵を使わないオート麦、ココナッツ、ゴールデンシロップのビスケット。第一次大戦のアンザック軍団にちなみ、名も製法も1919〜20年ごろ。",
     es: "Galleta sin huevo de avena, coco y sirope dorado ligada al cuerpo ANZAC de la Gran Guerra; nombre y receta datan de 1919-1920.",
+    ko: "달걀 없이 귀리와 코코넛, 골든시럽으로 만든 과자로, 1차 대전의 안작 군단과 얽혀 있으며 이름과 조리법은 1919~20년경의 것입니다.",
   },
   "new-zealand::blue cod tempura": {
     id: "Ikan blue cod (rāwaru) endemik Selandia Baru dalam adonan tempura ringan; ikan putih padat ini pangan berharga bagi Māori Pulau Selatan.",
@@ -8736,6 +9843,7 @@ module.exports = {
     zh: "新西兰特有的蓝鳕（rāwaru）裹上轻盈的天妇罗面衣；这种紧实的白肉鱼是南岛毛利人珍视的传统食物。",
     ja: "ニュージーランド固有のブルーコッド（ラーワル）を軽い天ぷら衣で揚げたもの。締まった白身は南島のマオリの大切な食物だった。",
     es: "Bacalao azul (rāwaru), endémico de Nueva Zelanda, en tempura ligera; este pescado blanco firme fue alimento valioso de los maoríes.",
+    ko: "뉴질랜드 고유종인 블루코드(라와루)를 가벼운 튀김옷에 입힌 것으로, 단단한 흰살은 남섬 마오리에게 귀한 전통 음식이었습니다.",
   },
   "new-zealand::boil-up": {
     id: "Kaldu satu panci tradisional Māori dari tulang babi, kentang, dan sayur pūhā dengan pangsit; dibentuk bahan pascakontak Eropa.",
@@ -8744,6 +9852,7 @@ module.exports = {
     zh: "毛利传统的一锅炖汤，用猪骨、马铃薯与pūhā野菜同煮，加面团团子；用料成形于欧洲人到来之后。",
     ja: "豚の骨、じゃがいも、プーハーという野草を団子とともに一つの鍋で煮るマオリの伝統的なスープ。欧州接触後の食材で形づくられた。",
     es: "Caldo maorí tradicional de una olla con huesos de cerdo, patatas y hojas de pūhā con bolas de masa; formado tras el contacto europeo.",
+    ko: "돼지 뼈와 감자, 푸하 나물에 경단을 넣어 끓인 마오리의 전통 한 냄비 국으로, 유럽인이 온 뒤의 재료가 지금의 모습을 만들었습니다.",
   },
   "new-zealand::cheese roll": {
     id: "Camilan Selandia Baru: roti diolesi isian keju, bawang, dan susu evaporasi, lalu digulung dan dipanggang.",
@@ -8752,6 +9861,7 @@ module.exports = {
     zh: "新西兰的小吃：面包抹上奶酪、洋葱与淡奶做的馅料，卷起后烤香。",
     ja: "チーズ、玉ねぎ、無糖練乳の具をパンに塗って巻き、焼き上げるニュージーランドの軽食。",
     es: "Tentempié neozelandés de pan untado con un relleno de queso, cebolla y leche evaporada, enrollado y tostado.",
+    ko: "빵에 치즈와 양파, 무가당 연유 소를 발라 말아 구운 뉴질랜드의 간식입니다.",
   },
   "new-zealand::crayfish kaikoura": {
     id: "Lobster batu merah dari Kaikōura, yang namanya dalam bahasa Māori berarti »makan lobster«; kini dipanggang dengan mentega bawang putih.",
@@ -8760,6 +9870,7 @@ module.exports = {
     zh: "新西兰凯库拉的红岩龙虾；该地毛利语地名意为「吃龙虾」。它长期是毛利人的重要食物，如今多以蒜香黄油炙烤。",
     ja: "ニュージーランド・カイコウラの赤いイセエビ。地名はマオリ語で「エビを食べる」の意。マオリの重要な食物で、今はガーリックバターで焼く。",
     es: "Langosta roja neozelandesa de Kaikōura, cuyo nombre maorí significa «comer langosta»; alimento maorí clave, hoy asada con mantequilla.",
+    ko: "카이코우라의 뉴질랜드 붉은바닷가재로, 마오리 이름이 '가재를 먹다'라는 뜻이며 오랜 마오리의 음식이자 지금은 마늘 버터에 굽습니다.",
   },
   "new-zealand::fish and chips kiwi": {
     id: "Menu pokok Selandia Baru: ikan putih bertepung yang digoreng (kerap hiu atau lemon fish) dengan kentang goreng; dibawa pemukim Inggris.",
@@ -8768,6 +9879,7 @@ module.exports = {
     zh: "新西兰的家常主食：白肉鱼裹面糊油炸（多用鲨鱼即lemon fish）配薯条；由英国移民在一战前带来。",
     ja: "白身魚（多くはサメ、レモンフィッシュ）に衣をつけて揚げ、フライドポテトを添えるニュージーランドの定番。英国移民が伝えた。",
     es: "Clásico neozelandés de pescado blanco rebozado y frito (a menudo tiburón o lemon fish) con patatas; lo trajeron los colonos británicos.",
+    ko: "반죽을 입혀 튀긴 흰살생선에 감자튀김을 곁들인 뉴질랜드의 주식으로, 1차 대전 전 영국 이주민들이 들여왔습니다.",
   },
   "new-zealand::green-lipped mussel": {
     id: "Kerang bercangkang dua yang besar (Perna canaliculus).",
@@ -8776,6 +9888,7 @@ module.exports = {
     zh: "一种大型双壳贝类（Perna canaliculus）。",
     ja: "大型の二枚貝（Perna canaliculus）。",
     es: "Un bivalvo de gran tamaño (Perna canaliculus).",
+    ko: "뉴질랜드에서 나는 큰 초록입홍합입니다.",
   },
   "new-zealand::hangi": {
     id: "Pesta Maori tradisional: daging dan sayuran dimasak di atas batu panas dalam oven tanah (umu).",
@@ -8784,6 +9897,7 @@ module.exports = {
     zh: "毛利人的传统盛宴：肉与蔬菜置于烧热的石头上，在地炉（umu）中焖熟。",
     ja: "マオリの伝統的なごちそう。焼いた石の上に肉と野菜を並べ、土の窯（ウム）で蒸し焼きにする。",
     es: "Banquete maorí tradicional: carne y verduras cocidas sobre piedras calientes en un horno de tierra (umu).",
+    ko: "달군 돌을 깐 땅화덕(우무)에서 고기와 채소를 익히는 마오리의 전통 잔치입니다.",
   },
   "new-zealand::hokey pokey ice cream": {
     id: "Es krim vanila Selandia Baru bertabur bongkahan toffee sarang lebah; kegemaran nasional yang dipopulerkan Tip Top sejak 1950-an.",
@@ -8792,6 +9906,7 @@ module.exports = {
     zh: "新西兰的香草冰淇淋，拌入蜂窝太妃糖块；这是国民最爱，1950年代起由Tip Top推广开来。",
     ja: "ハニカム状のトフィーの粒を混ぜ込んだニュージーランドのバニラアイス。1950年代からティップトップが広めた国民的な味。",
     es: "Helado de vainilla neozelandés con trozos de caramelo de panal; favorito nacional popularizado por Tip Top desde los años cincuenta.",
+    ko: "벌집 토피 덩어리를 박아 넣은 뉴질랜드의 바닐라 아이스크림으로, 1950년대부터 팁톱이 널리 알린 국민 별미입니다.",
   },
   "new-zealand::kiwi burger": {
     id: "Burger McDonald's Selandia Baru berisi patty daging sapi, telur panggang, dan bit; masuk menu nasional pada 1991.",
@@ -8800,6 +9915,7 @@ module.exports = {
     zh: "新西兰麦当劳的汉堡，夹牛肉饼、煎蛋与甜菜片；1991年列入全国菜单。",
     ja: "牛肉のパティ、鉄板で焼いた卵、ビーツを挟むニュージーランドのマクドナルドのバーガー。1991年に全国メニュー入りした。",
     es: "Hamburguesa de McDonald's Nueva Zelanda con carne de vacuno, huevo a la plancha y remolacha; entró en el menú nacional en 1991.",
+    ko: "소고기 패티에 구운 달걀과 비트를 올린 뉴질랜드 맥도날드 버거로, 1991년 전국 메뉴에 올랐습니다.",
   },
   "new-zealand::kumara": {
     id: "Ubi jalar Selandia Baru (Ipomoea batatas), dibawa dari Polinesia oleh leluhur Māori pada abad ke-13.",
@@ -8808,6 +9924,7 @@ module.exports = {
     zh: "新西兰的甘薯（Ipomoea batatas），13世纪由毛利人的祖先自波利尼西亚带来。",
     ja: "ニュージーランドのサツマイモ（Ipomoea batatas）。13世紀にマオリの祖先がポリネシアから持ち込んだ。",
     es: "El boniato neozelandés (Ipomoea batatas), traído de la Polinesia por los antepasados maoríes en el siglo XIII.",
+    ko: "뉴질랜드의 고구마로, 13세기에 마오리의 조상들이 폴리네시아에서 들여왔습니다.",
   },
   "new-zealand::lamb roast nz": {
     id: "Panggang Minggu warisan Inggris: paha domba dipanggang bersama kentang, ubi kumara, dan labu.",
@@ -8816,6 +9933,7 @@ module.exports = {
     zh: "承自英国的周日烤肉：整只羊腿与马铃薯、kumara甘薯及南瓜同烤。",
     ja: "英国から受け継いだ日曜の焼き料理。ラムのもも肉を、じゃがいも、クマラ、かぼちゃとともに焼く。",
     es: "Asado dominical de herencia británica: pierna de cordero con patatas, kumara y calabaza al horno.",
+    ko: "구운 감자와 쿠마라, 호박을 곁들인 양 다리 구이로, 영국에서 온 일요일 구이 요리입니다.",
   },
   "new-zealand::lolly cake": {
     id: "Camilan Selandia Baru tanpa panggang dari remah biskuit malt, mentega, dan susu kental manis yang diikat permen Eskimo atau Explorer.",
@@ -8824,6 +9942,7 @@ module.exports = {
     zh: "新西兰免烤的甜点：麦芽饼干压碎，与黄油、炼乳拌合，再嵌入Eskimo或Explorer水果软糖。",
     ja: "焼かずに作るニュージーランドの菓子。砕いたモルトビスケットをバターとコンデンスミルクで固め、果物味のグミを混ぜ込む。",
     es: "Dulce neozelandés sin horno de galletas de malta trituradas, mantequilla y leche condensada con caramelos afrutados Eskimo o Explorer.",
+    ko: "부순 맥아 비스킷과 버터, 연유에 과일 맛 사탕을 섞어 굳힌 뉴질랜드의 굽지 않는 별미입니다.",
   },
   "new-zealand::manuka honey": {
     id: "Madu monofloral dari nektar pohon mānuka (Leptospermum scoparium) asli Selandia Baru, dihargai karena daya antimikrobanya.",
@@ -8832,6 +9951,7 @@ module.exports = {
     zh: "取自新西兰原生麦卢卡树（Leptospermum scoparium）花蜜的单花蜜，因抗菌活性而备受珍视。",
     ja: "ニュージーランド固有のマヌカ（Leptospermum scoparium）の花蜜から採る単花蜜。抗菌作用で珍重される。",
     es: "Miel monofloral del néctar del árbol de mānuka (Leptospermum scoparium), nativo de Nueva Zelanda y valorada por su acción antimicrobiana.",
+    ko: "뉴질랜드 토종 마누카 나무의 꿀로, 항균 작용으로 귀하게 여겨집니다.",
   },
   "new-zealand::marlborough sounds mussels": {
     id: "Kerang hijau Selandia Baru (kūtai) yang dibudidayakan di Marlborough Sounds sejak 1960-an.",
@@ -8840,6 +9960,7 @@ module.exports = {
     zh: "新西兰的绿唇贻贝（kūtai），自1960年代起在马尔堡峡湾养殖。",
     ja: "ニュージーランドのミドリイガイ（クータイ）。1960年代からマールボロ・サウンズで養殖されている。",
     es: "Mejillones de labio verde neozelandeses (kūtai), cultivados en los Marlborough Sounds desde los años sesenta.",
+    ko: "1960년대부터 말버러 사운즈에서 양식해 온 뉴질랜드의 초록입홍합(쿠타이)입니다.",
   },
   "new-zealand::paua fritter": {
     id: "Bakwan Selandia Baru dari pāua (abalon asli) cincang yang diikat adonan lalu digoreng; memadukan kerang taonga Māori dengan cara Eropa.",
@@ -8848,6 +9969,7 @@ module.exports = {
     zh: "新西兰的煎饼：本土鲍鱼pāua剁碎后拌入面糊煎成；把毛利人视为珍宝的贝类与欧洲做法融为一体。",
     ja: "在来のアワビ（パーウア）を刻んで衣でまとめ、焼くニュージーランドのフリッター。マオリの宝である貝と欧州の調理法が出会う。",
     es: "Buñuelo neozelandés de pāua (abulón nativo) picado ligado en masa y frito; une un molusco taonga maorí con la cocina europea.",
+    ko: "토종 전복 파우아를 다져 반죽에 섞어 부친 뉴질랜드 음식으로, 마오리에게 귀한 조개와 유럽식 조리법이 만난 것입니다.",
   },
   "new-zealand::pavlova nz": {
     id: "Hidangan penutup berbasis meringue dengan kulit renyah dan bagian tengah lembut, ditutupi krim dan buah.",
@@ -8856,6 +9978,7 @@ module.exports = {
     zh: "以蛋白霜为底的甜点，外壳酥脆、内心绵软，面上铺奶油与水果。",
     ja: "外は軽く固く、中はやわらかいメレンゲの菓子。生クリームと果物を飾る。",
     es: "Postre de merengue con costra crujiente y centro tierno, coronado con nata y fruta.",
+    ko: "겉은 바삭하고 속은 부드러운 머랭 디저트에 크림과 과일을 올린 것입니다.",
   },
   "new-zealand::rewena bread": {
     id: "Roti asam Māori yang diragikan kentang, khas Aotearoa; dibuat dengan biang »bug« hasil fermentasi kentang rebus.",
@@ -8864,6 +9987,7 @@ module.exports = {
     zh: "毛利人以马铃薯发酵的酸面包，为奥特亚罗瓦所独有；引子由煮熟的马铃薯培养而成，当地称之为「bug」。",
     ja: "じゃがいもで発酵させるマオリのサワードウ・パン。アオテアロア独自のもので、茹でたじゃがいもから起こす種を用いる。",
     es: "Pan de masa madre maorí levado con patata, propio de Aotearoa; se hace con un fermento cultivado a partir de patata cocida.",
+    ko: "삶은 감자로 배양한 발효 종자로 부풀린 마오리의 사워도 빵으로, 아오테아로아에만 있는 음식입니다.",
   },
   "new-zealand::venison nz": {
     id: "Daging rusa ternak padang rumput Selandia Baru, dipasarkan sejak 1992 dengan sebutan Cervena yang menjamin daging empuk hasil rumput.",
@@ -8872,6 +9996,7 @@ module.exports = {
     zh: "新西兰草场饲养的鹿肉，自1992年起以Cervena名号销售，保证肉质柔嫩、以草饲养。",
     ja: "ニュージーランドの牧草飼育の養鹿肉。1992年からセルヴェナの名称で流通し、やわらかな牧草飼育の鹿肉であることを保証する。",
     es: "Carne de ciervo de granja criado en pasto de Nueva Zelanda, vendida desde 1992 bajo la marca Cervena, que garantiza carne tierna.",
+    ko: "뉴질랜드의 방목 사육 사슴 고기로, 1992년부터 세르베나라는 이름으로 부드러운 목초 사육 사슴 고기를 보증합니다.",
   },
   "new-zealand::whitebait fritter": {
     id: "Hidangan Selandia Baru dari benih ikan galaxiid mungil utuh (kebanyakan īnanga) yang diikat kocokan telur lalu digoreng; tradisi musim semi.",
@@ -8880,6 +10005,7 @@ module.exports = {
     zh: "新西兰的菜式：整条的银鱼科幼鱼（多为īnanga）拌入打散的蛋液煎成饼；这是备受珍视的春季捕捞传统。",
     ja: "ガラクシアス科の稚魚（主にイナンガ）を丸ごと溶き卵でまとめて焼くニュージーランドの料理。春の風物詩として珍重される。",
     es: "Plato neozelandés de alevines diminutos de galáxidos enteros (sobre todo īnanga) ligados con huevo batido y fritos; tradición de primavera.",
+    ko: "갓 자란 어린 물고기를 통째로 달걀물에 섞어 부친 뉴질랜드 요리로, 봄철 화이트베이트잡이의 귀한 전통입니다.",
   },
   "north-indian::aloo paratha": {
     id: "Roti isi India Utara dari Punjab: adonan gandum tanpa ragi diisi kentang lumat berempah, lalu dimasak di tawa dengan ghee.",
@@ -8888,6 +10014,7 @@ module.exports = {
     zh: "旁遮普的土豆馅饼：无酵麦面团里包香料土豆泥，在铁鏊上抹酥油烙熟。",
     ja: "パンジャブ発、北インドの詰め物入り薄焼き。発酵させない小麦生地に香辛料入りのマッシュポテトを包み、ギーで鉄板焼きに。",
     es: "Pan relleno del norte de la India, del Punyab: masa de trigo sin levadura con puré de patata especiado, hecho al tawa con ghee.",
+    ko: "펀자브에서 온 북인도의 속을 채운 플랫브레드로, 무발효 밀 반죽에 향신 감자를 넣어 기와 함께 구워 냅니다.",
   },
   "north-indian::bhel puri": {
     id: "Chaat India yang gurih dari beras kembung, sayuran, dan saus asam jawa yang asam; populer sebagai jajanan jalanan Mumbai.",
@@ -8896,6 +10023,7 @@ module.exports = {
     zh: "印度的咸味小食：爆米花般的膨化米、蔬菜与酸酸的罗望子酱拌在一处；孟买街头的常见零嘴。",
     ja: "ポン米、野菜、酸味のあるタマリンドソースを和えたインドの塩味の軽食。ムンバイの屋台で親しまれます。",
     es: "Chaat indio salado de arroz inflado, verduras y salsa ácida de tamarindo; muy popular como comida callejera en Bombay.",
+    ko: "튀긴 쌀과 채소에 새콤한 타마린드 소스를 버무린 인도의 차트로, 뭄바이 길거리 음식으로 사랑받습니다.",
   },
   "north-indian::butter chicken": {
     id: "Kari India Utara: ayam tandoori dalam kuah tomat-mentega-krim berempah; lahir sekitar 1950 di Moti Mahal, Delhi.",
@@ -8904,6 +10032,7 @@ module.exports = {
     zh: "北印度的黄油鸡：坦都里烤鸡浸在香料番茄黄油奶油汁里；约一九五〇年生于德里的 Moti Mahal。",
     ja: "北インドのカレー。タンドーリチキンを香辛料入りのトマト・バター・クリームのソースで。一九五〇年ごろ、デリーのモティ・マハル生まれ。",
     es: "Curry del norte de la India: pollo tandoori en salsa especiada de tomate, mantequilla y nata; creado hacia 1950 en Moti Mahal, Delhi.",
+    ko: "탄두리 치킨을 향신 토마토 버터 크림 소스에 넣은 북인도 커리로, 1950년경 델리 모티 마할에서 만들어졌습니다.",
   },
   "north-indian::butter naan": {
     id: "Roti pipih India Utara beragi yang dipanggang di tandoor lalu diolesi mentega; dahulu hidangan dapur istana Mughal sebelum meluas.",
@@ -8912,6 +10041,7 @@ module.exports = {
     zh: "北印度的发酵薄饼，贴在馕坑中烤好后刷上黄油；本是莫卧儿宫廷厨房的吃食，后来才传入民间。",
     ja: "タンドールで焼き、バターを塗る北インドの発酵平パン。かつてはムガル宮廷の料理で、のちに広く行き渡った。",
     es: "Pan plano fermentado del norte de la India horneado en tandoor y untado con mantequilla; antes de las cocinas mogolas, luego popular.",
+    ko: "탄두르에 구워 버터를 바른 북인도 발효 플랫브레드로, 한때는 무굴 궁중의 음식이었다가 널리 퍼졌습니다.",
   },
   "north-indian::chaat": {
     id: "Rumpun camilan jalanan gurih dari Uttar Pradesh yang memadukan asin, pedas, manis, dan asam; namanya berarti \"kelezatan\" atau \"menjilat\".",
@@ -8920,6 +10050,7 @@ module.exports = {
     zh: "北方邦一系的咸味街头小食：咸、辣、甜、酸融于一口；名字的意思是「美味」，也作「舔」。",
     ja: "ウッタル・プラデーシュに発する塩味の屋台菓子の一群。塩、辛、甘、酸が交わります。名は「美味」あるいは「舐める」の意。",
     es: "Familia de aperitivos callejeros salados de Uttar Pradesh que une salado, picante, dulce y ácido; el nombre significa «manjar», «lamer».",
+    ko: "짜고 맵고 달고 신맛이 어우러진 우타르프라데시의 길거리 간식 무리로, 이름은 '별미' 또는 '핥다'라는 뜻입니다.",
   },
   "north-indian::chana masala": {
     id: "Kari buncis India Utara dalam saus tomat-bawang berempah; berasal dari kawasan Punjab di anak benua India.",
@@ -8928,6 +10059,7 @@ module.exports = {
     zh: "北印度的咖喱鹰嘴豆：豆子烧在香料番茄洋葱汁里；源自南亚次大陆的旁遮普地区。",
     ja: "北インドのひよこ豆のカレー。香辛料の効いたトマトと玉ねぎのソースで。インド亜大陸のパンジャブ地方に発します。",
     es: "Curry de garbanzos del norte de la India en salsa especiada de tomate y cebolla; procede de la región del Punyab.",
+    ko: "향신 토마토 양파 소스에 병아리콩을 넣은 북인도 커리로, 인도 아대륙 펀자브 지방에서 비롯됐습니다.",
   },
   "north-indian::chicken tikka": {
     id: "Pembuka India Utara: potongan ayam tanpa tulang dimarinasi yogurt berempah lalu dipanggang di tusuk sate dalam tandoor.",
@@ -8936,6 +10068,7 @@ module.exports = {
     zh: "北印度的开胃菜：去骨鸡块用香料酸奶腌透，串在铁签上送进泥炉炙烤。",
     ja: "北インドの前菜。骨なしの鶏肉を香辛料入りヨーグルトに漬け、串に刺してタンドールで炭火焼きにします。",
     es: "Entrante del norte de la India: trozos de pollo deshuesado marinados en yogur especiado y asados en brochetas dentro del tandoor.",
+    ko: "뼈 없는 닭고기를 향신 요구르트에 재워 꼬치에 꿰어 탄두르에 구워 낸 북인도식 전채입니다.",
   },
   "north-indian::chicken tikka masala": {
     id: "Potongan ayam yang dimarinasi lalu dipanggang, disajikan dalam saus tomat berkrim dan berempah.",
@@ -8944,6 +10077,7 @@ module.exports = {
     zh: "腌过再烤的鸡块，浸在香料番茄奶油汁里。",
     ja: "漬け込んで焼いた鶏肉を、香辛料の効いたクリーミーなトマトソースで供します。",
     es: "Trozos de pollo marinado y asado servidos en una salsa cremosa y especiada de tomate.",
+    ko: "양념에 재워 구운 닭고기(치킨 티카)를 향신 토마토 크림 소스에 넣어 내는 요리입니다.",
   },
   "north-indian::dal fry": {
     id: "Hidangan India Utara dari toor dal, kacang gude belah, yang dimasak hingga lunak.",
@@ -8952,6 +10086,7 @@ module.exports = {
     zh: "北印度的黄豌豆糊：木豆瓣 toor dal 煮到软烂。",
     ja: "北インドの料理。トゥールダール（挽き割りキマメ）をやわらかく煮ます。",
     es: "Plato del norte de la India de toor dal (guandú partido) cocido hasta quedar blando.",
+    ko: "부드럽게 삶은 투르 달(비둘기콩)로 만든 북인도 요리입니다.",
   },
   "north-indian::dal makhani": {
     id: "Hidangan Punjab yang lembut: lentil hitam dan kacang merah dimasak lama bersama mentega dan krim; ciptaan Moti Mahal, Delhi.",
@@ -8960,6 +10095,7 @@ module.exports = {
     zh: "旁遮普的奶油黑扁豆：黑扁豆与芸豆久煮，加黄油与奶油；出自德里的 Moti Mahal。",
     ja: "パンジャブのクリーミーな一皿。黒レンズ豆と赤いんげんをバターと生クリームでじっくり煮ます。デリーのモティ・マハル生まれ。",
     es: "Plato punyabí cremoso de lentejas negras y alubias rojas cocidas despacio con mantequilla y nata; creado en Moti Mahal, Delhi.",
+    ko: "검은 렌즈콩과 강낭콩을 버터와 크림에 오래 끓인 크리미한 펀자브 요리로, 델리 모티 마할에서 만들어졌습니다.",
   },
   "north-indian::dal tadka": {
     id: "Hidangan lentil India Utara: dal dimasak lunak lalu ditutup \"tadka\", tumisan ghee dengan jintan, bawang putih, dan cabai merah kering.",
@@ -8968,6 +10104,7 @@ module.exports = {
     zh: "北印度的扁豆菜：豆子煮到软烂，最后浇一勺「tadka」——酥油爆香孜然、蒜与干红椒。",
     ja: "北インドの豆料理。やわらかく煮たダールに、ギーでクミン、にんにく、乾燥赤唐辛子を熱した「タルカ」を注ぎます。",
     es: "Plato de lentejas del norte de la India: dal cocido blando y rematado con un «tadka» de ghee, comino, ajo y chiles rojos secos.",
+    ko: "부드럽게 삶은 달에 기와 커민, 마늘, 말린 홍고추를 지져 부은 '타드카'로 마무리한 북인도 콩 요리입니다.",
   },
   "north-indian::galouti kebab": {
     id: "Perkedel daging kambing cincang berbumbu dari masakan Awadhi (Lucknow), dilunakkan dengan pepaya mentah hingga lumer di lidah.",
@@ -8976,6 +10113,7 @@ module.exports = {
     zh: "阿瓦德（勒克瑙）宫廷菜：羊肉糜以生木瓜腌软，煎成小饼，入口即化。",
     ja: "アワド（ラクナウ）料理の羊肉のひき肉パティ。青パパイヤで柔らかくし、舌の上でとろける。",
     es: "Hamburguesita especiada de cordero picado de la cocina awadhi de Lucknow, ablandada con papaya verde hasta deshacerse en la boca.",
+    ko: "러크나우 아와드 요리의 향신 양고기 패티로, 생파파야로 연하게 만들어 혀에서 녹듯 부드럽습니다.",
   },
   "north-indian::garlic naan": {
     id: "Roti pipih India Utara yang beragi dan dipanggang tandoor, ditaburi bawang putih; nama naan dari kata Persia nan, disempurnakan era Mughal.",
@@ -8984,6 +10122,7 @@ module.exports = {
     zh: "北印度的蒜香馕：发酵面饼贴在泥炉里烤，面上撒蒜；naan 出自波斯语的 nan，形制精于莫卧儿的厨房。",
     ja: "北インドの発酵させたタンドール焼きの薄焼きパンに、にんにくを散らしたもの。ナンの名はペルシア語 nan、洗練はムガルの厨房で。",
     es: "Pan plano del norte de la India con levadura, cocido en tandoor y cubierto de ajo; naan viene del persa nan, refinado en cocinas mogolas.",
+    ko: "탄두르에 구워 마늘을 올린 북인도 발효 플랫브레드로, '난'은 페르시아어로 빵이며 무굴 시대 주방에서 다듬어졌습니다.",
   },
   "north-indian::gulab jamun": {
     id: "Manisan Asia Selatan: adonan padatan susu digoreng bulat lalu direndam sirup gula beraroma mawar dan kapulaga.",
@@ -8992,6 +10131,7 @@ module.exports = {
     zh: "南亚甜点：以奶渣面团搓丸油炸，再浸入玫瑰与豆蔻香的糖浆。",
     ja: "南アジアの菓子。乳を煮詰めた生地を丸めて揚げ、バラとカルダモンの砂糖蜜に浸す。",
     es: "Dulce del sur de Asia: bolas de masa de sólidos lácteos fritas y empapadas en almíbar perfumado con rosa y cardamomo.",
+    ko: "코야 반죽을 공 모양으로 튀겨 장미와 카르다몸 향 설탕 시럽에 담근 남아시아의 과자(미타이)입니다.",
   },
   "north-indian::jalebi": {
     id: "Lingkaran adonan fermentasi yang digoreng lalu direndam sirop gula; asalnya zalabiya Persia, sampai ke Asia Selatan lewat para pedagang.",
@@ -9000,6 +10140,7 @@ module.exports = {
     zh: "发酵面糊挤成圈下油锅炸，再泡进糖浆；本是波斯的 zalabiya，由商旅带到南亚。",
     ja: "発酵させた生地を渦巻き状に揚げ、砂糖のシロップに浸した菓子。ペルシアのザラビーヤに発し、商人を通じて南アジアへ。",
     es: "Espirales de masa fermentada fritas y empapadas en almíbar; de origen persa (zalabiya), llegaron al sur de Asia con los comerciantes.",
+    ko: "발효 반죽을 소용돌이 모양으로 튀겨 설탕 시럽에 적신 과자로, 페르시아의 잘라비야에서 상인들을 통해 남아시아에 전해졌습니다.",
   },
   "north-indian::kulcha": {
     id: "Roti pipih maida beragi yang lembut dari Punjab, dipanggang dalam tandoor; bentuk paling tersohor adalah kulcha Amritsari berisi kentang.",
@@ -9008,6 +10149,7 @@ module.exports = {
     zh: "旁遮普的松软发酵白面饼，泥炉烤成；最有名的是阿姆利则的土豆馅 kulcha。",
     ja: "パンジャブのやわらかい発酵薄焼き。精白粉で作りタンドールで焼きます。最も知られるのはじゃがいも入りのアムリトサル風。",
     es: "Pan plano blando y con levadura de harina refinada del Punyab, cocido en tandoor; su forma más célebre es el kulcha amritsarí con patata.",
+    ko: "탄두르에 구운 펀자브의 부드러운 발효 밀 플랫브레드로, 감자를 채운 암리차르식 쿨차가 가장 잘 알려져 있습니다.",
   },
   "north-indian::naan": {
     id: "Roti pipih beragi berbentuk tetesan air, dipanggang dalam tandoor; disempurnakan di India era Mughal, namanya dari kata Persia nan, \"roti\".",
@@ -9016,6 +10158,7 @@ module.exports = {
     zh: "泪滴形的发酵薄饼，在泥炉里贴壁烤成；成型于莫卧儿时期的印度，名字来自波斯语的 nan，「面包」。",
     ja: "しずく形の発酵させた薄焼きパン。タンドールで焼き、ムガル期のインドで洗練されました。名はペルシア語のナン「パン」から。",
     es: "Pan plano con levadura en forma de lágrima, cocido en tandoor; se refinó en la India mogol y su nombre viene del persa nan, «pan».",
+    ko: "탄두르에 구운 물방울 모양의 발효 플랫브레드로, 무굴 시대 인도에서 다듬어졌고 이름은 페르시아어 '난'(빵)에서 왔습니다.",
   },
   "north-indian::pakora": {
     id: "Gorengan sayur berbalut adonan tepung buncis berempah; namanya berasal dari kata Sanskerta pakvavata, \"gumpalan matang\".",
@@ -9024,6 +10167,7 @@ module.exports = {
     zh: "香料鹰嘴豆粉糊裹着蔬菜下油锅炸；名字出自梵语的 pakvavaṭa，意思是「熟的团块」。",
     ja: "香辛料入りのひよこ豆粉の衣で野菜を揚げた品。名はサンスクリットの pakvavaṭa「煮えた塊」に由来します。",
     es: "Buñuelo frito de verduras en rebozado especiado de harina de garbanzo; su nombre viene del sánscrito pakvavaṭa, «grumo cocido».",
+    ko: "채소에 향신 병아리콩 가루(베산) 반죽을 입혀 튀긴 것으로, 이름은 산스크리트어 '파크바바타'(익힌 덩어리)에서 왔습니다.",
   },
   "north-indian::palak paneer": {
     id: "Hidangan India Utara atau Punjab: paneer, keju segar yang digumpalkan asam, dalam saus bayam halus; disantap dengan roti atau nasi.",
@@ -9032,6 +10176,7 @@ module.exports = {
     zh: "北印度旁遮普的菠菜芝士：paneer 是用酸凝的新鲜奶酪，浸在菠菜泥汁里；配薄饼或米饭吃。",
     ja: "北インド、パンジャブの料理。酸で固めた生チーズ、パニールをほうれん草のピュレのソースで。ロティかご飯とともに。",
     es: "Plato del norte de la India (Punyab): paneer, queso fresco cuajado con ácido, en salsa de espinacas trituradas; con roti o arroz.",
+    ko: "산으로 굳힌 생치즈 파니르를 시금치 퓌레 소스에 넣은 북인도(펀자브) 요리로, 로티나 밥과 함께 먹습니다.",
   },
   "north-indian::paneer tikka": {
     id: "Hidangan India Utara: dadu paneer dimarinasi yogurt berempah lalu dipanggang dalam tandoor; versi nabati dari chicken tikka.",
@@ -9040,6 +10185,7 @@ module.exports = {
     zh: "北印度的烤芝士：paneer 切块，用香料酸奶腌过，送进泥炉烤；这是坦都里烤鸡的素食版。",
     ja: "北インドの料理。角切りのパニールを香辛料入りヨーグルトに漬け、タンドールで焼きます。チキンティッカの菜食版。",
     es: "Plato del norte de la India: dados de paneer marinados en yogur especiado y asados en tandoor; versión vegetariana del pollo tikka.",
+    ko: "파니르를 향신 요구르트에 재워 탄두르에 구운 북인도 요리로, 치킨 티카의 채식 버전입니다.",
   },
   "north-indian::pani puri": {
     id: "Camilan jalanan India Utara: cangkang puri renyah berongga diisi air berempah, chutney asam jawa, kentang, dan buncis.",
@@ -9048,6 +10194,7 @@ module.exports = {
     zh: "北印度的街头小食：酥脆的空心 puri 里灌进香料水、罗望子酸酱、土豆与鹰嘴豆。",
     ja: "北インドの屋台の軽食。カリッとした中空のプーリーに、香辛料の水、タマリンドのチャツネ、じゃがいも、ひよこ豆を詰めます。",
     es: "Aperitivo callejero norteño: cortezas crujientes y huecas de puri rellenas de agua especiada, chutney de tamarindo, patata y garbanzos.",
+    ko: "속이 빈 바삭한 푸리 껍질에 향신 물과 타마린드 처트니, 감자, 병아리콩을 채운 북인도의 길거리 간식입니다.",
   },
   "north-indian::paratha": {
     id: "Roti pipih gandum utuh berlapis dari anak benua India, dilipat dengan ghee lalu digoreng dangkal; digemari di masa Kekaisaran Mughal.",
@@ -9056,6 +10203,7 @@ module.exports = {
     zh: "南亚次大陆的层酥全麦饼：面皮抹酥油折叠，再下平锅煎；十六至十九世纪的莫卧儿帝国时期就很流行。",
     ja: "インド亜大陸の層になった全粒粉の薄焼き。ギーを塗って折り畳み、平鍋で焼きます。ムガル帝国期に広く親しまれました。",
     es: "Pan plano integral y hojaldrado del subcontinente indio, plegado con ghee y frito a la sartén; popular bajo el Imperio mogol.",
+    ko: "기를 발라 겹겹이 접어 팬에 구운 인도 아대륙의 통밀 플랫브레드로, 16~19세기 무굴 제국에서 널리 사랑받았습니다.",
   },
   "north-indian::rajma": {
     id: "Kari kacang merah India Utara dalam kuah tomat-bawang berempah; kacangnya sampai ke India dari Amerika lewat Pertukaran Kolumbus.",
@@ -9064,6 +10212,7 @@ module.exports = {
     zh: "北印度的红芸豆咖喱：豆子烧在香料番茄洋葱汁里；这豆是经哥伦布大交换从美洲传到印度的。",
     ja: "北インドの赤いんげんのカレー。香辛料入りのトマトと玉ねぎの汁で煮ます。豆自体はコロンブス交換で新大陸から渡りました。",
     es: "Curry norteño de alubias rojas en salsa especiada de tomate y cebolla; la alubia llegó de América vía el intercambio colombino.",
+    ko: "향신 토마토 양파 소스에 강낭콩을 넣은 북인도 커리로, 이 콩은 콜럼버스의 교환을 거쳐 아메리카에서 인도에 닿았습니다.",
   },
   "north-indian::rogan josh": {
     id: "Kari kambing Kashmir yang harum, berasal Persia; dibawa ke India Utara oleh bangsa Mughal pada abad ke-16.",
@@ -9072,6 +10221,7 @@ module.exports = {
     zh: "克什米尔的香浓炖羊肉咖喱，源自波斯；十六世纪由莫卧儿人带进北印度。",
     ja: "ペルシアに発する、香り高いカシミールの羊肉の煮込みカレー。十六世紀、ムガルが北インドへもたらしました。",
     es: "Curry cachemir aromático de cordero o cabra estofado, de origen persa; los mogoles lo llevaron al norte de la India en el siglo XVI.",
+    ko: "페르시아에서 온 향긋한 카슈미르식 양고기 조림 커리로, 16세기 무굴 제국이 북인도에 전했습니다.",
   },
   "north-indian::roti / chapati": {
     id: "Roti pipih gandum tanpa ragi dari anak benua India, dimasak di atas tawa; namanya dari kata Sanskerta carpati, \"kue tipis\".",
@@ -9080,6 +10230,7 @@ module.exports = {
     zh: "南亚次大陆的无酵麦饼，在铁鏊 tawa 上烙熟；名字来自梵语的 carpaṭī，意思是「薄饼」。",
     ja: "インド亜大陸の発酵させない小麦の薄焼き。鉄板タワーで焼きます。名はサンスクリットの carpaṭī「薄い餅」から。",
     es: "Pan plano de trigo sin levadura del subcontinente indio, cocido en un tawa; su nombre viene del sánscrito carpaṭī, «torta fina».",
+    ko: "타와에 구워 내는 인도 아대륙의 무발효 밀 플랫브레드로, 이름은 산스크리트어 '차르파티'(얇은 떡)에서 왔습니다.",
   },
   "north-indian::saag paneer": {
     id: "Hidangan Punjab India Utara: dadu keju paneer dalam pure lembut aneka sayuran hijau seperti bayam, sawi, dan fenugreek.",
@@ -9088,6 +10239,7 @@ module.exports = {
     zh: "北印度旁遮普的杂菜芝士：paneer 奶酪块浸在菠菜、芥菜与葫芦巴等绿叶菜打成的浓泥里。",
     ja: "北インド、パンジャブの料理。パニールの角切りを、ほうれん草、からし菜、フェヌグリークなど青菜のなめらかなピュレで。",
     es: "Plato punyabí del norte de la India: dados de queso paneer en un puré cremoso de hojas verdes como espinaca, mostaza y fenogreco.",
+    ko: "시금치와 겨자잎, 호로파 같은 잎채소를 갈아 만든 크리미한 소스에 파니르를 넣은 북인도 펀자브 요리입니다.",
   },
   "north-indian::samosa": {
     id: "Pastri goreng berbentuk segitiga dengan isian kentang berempah atau daging.",
@@ -9096,6 +10248,7 @@ module.exports = {
     zh: "三角形的炸角：里头包香料土豆或肉馅。",
     ja: "三角形に包んで揚げた生地。中身は香辛料入りのじゃがいもか肉です。",
     es: "Empanadilla frita de forma triangular con relleno especiado de patata o carne.",
+    ko: "향신 감자나 고기로 속을 채워 튀긴 삼각형 페이스트리입니다.",
   },
   "north-indian::seekh kebab": {
     id: "Daging cincang berempah — biasanya domba, sapi, atau ayam — dibentuk silinder di tusuk sate lalu dipanggang, kerap dalam tandoor.",
@@ -9104,6 +10257,7 @@ module.exports = {
     zh: "香料肉糜——多半是羊、牛或鸡——在铁签上捏成圆柱后烤，常用泥炉。",
     ja: "香辛料を利かせた挽肉（多くは羊、牛、鶏）を串に円筒状につけて焼きます。タンドールを使うことが多い。",
     es: "Carne picada especiada —normalmente cordero, ternera o pollo— moldeada en cilindros sobre brochetas y asada, a menudo en tandoor.",
+    ko: "양이나 소, 닭의 다진 고기를 양념해 꼬치에 원통으로 붙여 흔히 탄두르에 구워 낸 요리입니다.",
   },
   "north-indian::shami kebab": {
     id: "Perkedel Asia Selatan yang digoreng dangkal: daging cincang, biasanya sapi atau kambing, digiling bersama chana dal atau buncis.",
@@ -9112,6 +10266,7 @@ module.exports = {
     zh: "南亚的煎肉饼：肉糜（多为牛肉或羊肉）与鹰嘴豆瓣 chana dal 一同磨碎后煎成。",
     ja: "南アジアの浅く揚げ焼きにする肉のパティ。挽肉（多くは牛か羊）をチャナダル（ひよこ豆）とともに挽いて作ります。",
     es: "Hamburguesita surasiática frita en poco aceite: carne picada, por lo común de vacuno o cordero, molida con chana dal (garbanzo).",
+    ko: "다진 고기(주로 소·양)와 병아리콩(차나 달)을 함께 갈아 지져 낸 남아시아의 패티입니다.",
   },
   "north-indian::tandoori chicken": {
     id: "Hidangan Punjab: ayam dimarinasi yogurt dan rempah lalu dipanggang dalam tandoor tanah liat; dipopulerkan Moti Mahal Delhi akhir 1940-an.",
@@ -9120,6 +10275,7 @@ module.exports = {
     zh: "旁遮普菜：鸡肉用酸奶与香料腌过，送进泥炉烤；一九四〇年代末由德里的 Moti Mahal 带红。",
     ja: "パンジャブの料理。鶏肉をヨーグルトと香辛料に漬け、土窯タンドールで焼きます。一九四〇年代末、デリーのモティ・マハルが広めました。",
     es: "Plato punyabí: pollo marinado en yogur y especias asado en tandoor de barro; lo popularizó Moti Mahal, en Delhi, a finales de los cuarenta.",
+    ko: "요구르트와 향신료에 재운 닭을 흙 화덕 탄두르에 구운 펀자브 요리로, 1940년대 말 델리 모티 마할이 널리 알렸습니다.",
   },
   "northeastern::cold dongbei dishes": {
     id: "Liangcai Dongbei adalah hidangan dingin Tiongkok Timur Laut sebagai pembuka, misalnya mentimun tumbuk bawang putih (pai huang gua).",
@@ -9128,6 +10284,7 @@ module.exports = {
     zh: "东北凉菜是中国东北作前菜的冷盘，例如拍黄瓜。",
     ja: "東北涼菜は中国東北の前菜となる冷たい料理。たとえばニンニクを効かせた叩きキュウリ（拍黄瓜）など。",
     es: "Los liangcai dongbei son platos fríos del noreste de China servidos de entrante, como el pepino machacado con ajo (pai huang gua).",
+    ko: "둥베이 량차이는 전채로 내는 중국 동북의 냉채로, 마늘을 넣어 두드린 오이 무침 같은 것이 있습니다.",
   },
   "northeastern::cong you bing dongbei": {
     id: "Cong you bing adalah roti pipih gurih Tiongkok yang digoreng di wajan; adonan gandum tanpa ragi dilipat berlapis minyak dan daun bawang.",
@@ -9136,6 +10293,7 @@ module.exports = {
     zh: "葱油饼是中国的咸味煎饼，用无酵面团抹油、撒葱花后折叠成层，下锅煎香。",
     ja: "葱油餅は、無発酵の小麦生地に油と刻みねぎをはさんで層に折り、鉄鍋で焼く中国の塩味の平パン。",
     es: "El cong you bing es un pan plano salado chino a la sartén, de masa sin levadura plegada en capas con aceite y cebolleta picada.",
+    ko: "총유빙은 무발효 밀 반죽에 기름과 다진 파를 접어 넣어 부친 중국의 짭조름한 플랫브레드입니다.",
   },
   "northeastern::di san xian": {
     id: "Hidangan klasik Dongbei di Tiongkok Timur Laut: terung, kentang, dan paprika hijau digoreng lalu dibalut saus bawang putih dan kecap.",
@@ -9144,6 +10302,7 @@ module.exports = {
     zh: "中国东北的经典家常菜：茄子、马铃薯与青椒过油后，用蒜香酱油汁烧制。",
     ja: "中国東北の定番料理。ナス、じゃがいも、ピーマンを油通しし、ニンニクと醤油のたれで炒め合わせる。",
     es: "Plato clásico del noreste de China (Dongbei): berenjena, patata y pimiento verde fritos en salsa sabrosa de ajo y soja.",
+    ko: "튀긴 가지와 감자, 청피망을 마늘 간장 소스에 버무린 중국 둥베이(동북)의 대표 요리입니다.",
   },
   "northeastern::dongbei pork dumplings": {
     id: "Pangsit rebus Tiongkok Timur Laut (Manchuria) yang isian khasnya memadukan daging babi cincang dengan suancai, kubis asam fermentasi.",
@@ -9152,6 +10311,7 @@ module.exports = {
     zh: "中国东北（满洲）的水饺，招牌馅料是猪肉末拌酸菜。",
     ja: "中国東北（満洲）の水餃子。看板の具は豚のひき肉と発酵させた酸菜の組み合わせ。",
     es: "Empanadillas hervidas del noreste de China (Manchuria) cuyo relleno insignia une carne de cerdo picada con suancai, col fermentada.",
+    ko: "다진 돼지고기에 발효한 신 배추(쏸차이)를 함께 넣는 소가 특징인 중국 동북(만주)의 물만두입니다.",
   },
   "northeastern::dongbei suancai stew": {
     id: "Semur musim dingin Tiongkok Timur Laut dari kubis napa yang difermentasi asam laktat (suancai), babi berlemak, dan soun ubi.",
@@ -9160,6 +10320,7 @@ module.exports = {
     zh: "中国东北的冬季炖菜：乳酸发酵的酸菜、肥猪肉与红薯粉条同煨。",
     ja: "乳酸発酵させた白菜（酸菜）、脂ののった豚肉、さつまいもの春雨を煮込む中国東北の冬の料理。",
     es: "Guiso invernal del noreste de China con col china fermentada en ácido láctico (suancai), cerdo graso y fideos de boniato.",
+    ko: "유산 발효한 배추(쏸차이)와 기름진 돼지고기, 고구마 당면을 넣은 중국 동북의 겨울 스튜입니다.",
   },
   "northeastern::dongbei xiang chang": {
     id: "Sosis merah Tiongkok Timur Laut: sosis babi asap beraroma bawang putih dengan selongsong merah tua, dibawa ke Harbin oleh pemukim Rusia.",
@@ -9168,6 +10329,7 @@ module.exports = {
     zh: "中国东北的红肠：带蒜香的烟熏猪肉肠，外皮呈深红色；由俄国移民带到哈尔滨。",
     ja: "中国東北の赤いソーセージ。ニンニクを効かせた燻製の豚肉腸で、暗い赤の皮をもつ。ロシアからの移住者がハルビンへ伝えた。",
     es: "La salchicha roja del noreste de China: embutido de cerdo ahumado con ajo y tripa rojo oscuro, llevado a Harbin por colonos rusos.",
+    ko: "중국 동북의 붉은 소시지로, 마늘 향이 나는 훈제 돼지고기 소시지이며 러시아 이주민들이 하얼빈에 들여왔습니다.",
   },
   "northeastern::elm seed dumpling": {
     id: "Hidangan musim semi Tiongkok utara: samara elm segar (yuqian) dicampur tepung gandum atau tepung jagung lalu dikukus.",
@@ -9176,6 +10338,7 @@ module.exports = {
     zh: "中国北方的春季吃食：新鲜的榆钱拌上麦面或玉米面，上锅蒸熟。",
     ja: "中国北方の春の料理。新鮮なニレの翼果（楡銭）を小麦粉やとうもろこし粉と混ぜて蒸す。",
     es: "Plato primaveral del norte de China: sámaras frescas de olmo (yuqian) mezcladas con harina de trigo o maíz y cocidas al vapor.",
+    ko: "느릅나무 씨(위첸)를 밀가루나 옥수숫가루에 섞어 쪄낸 중국 북부의 봄 요리입니다.",
   },
   "northeastern::fermented soybean dongbei": {
     id: "Dongbei dajiang adalah pasta kedelai fermentasi tradisional Tiongkok Timur Laut, difermentasi alami oleh kapang dan Bacillus.",
@@ -9184,6 +10347,7 @@ module.exports = {
     zh: "东北大酱是中国东北传统的发酵黄豆酱，由霉菌与芽孢杆菌自然发酵而成。",
     ja: "東北大醤は中国東北の伝統的な発酵大豆味噌。カビや枯草菌の働きで自然に発酵させる。",
     es: "El dongbei dajiang es una pasta de soja fermentada tradicional del noreste de China, fermentada de forma natural por mohos y bacilos.",
+    ko: "둥베이 다장은 곰팡이와 세균으로 자연 발효시킨 중국 동북의 전통 콩장입니다.",
   },
   "northeastern::fried glutinous rice cakes": {
     id: "Jajanan jalanan Tiongkok utara dan timur laut: adonan ketan dan beras kuning membungkus pasta kacang merah dan gula atau wijen.",
@@ -9192,6 +10356,7 @@ module.exports = {
     zh: "中国北方与东北的街头小吃：糯米与黄米面团包住红豆沙与糖（或芝麻）。",
     ja: "中国北方・東北の屋台の菓子。もち米と黄米の生地で、小豆あんと砂糖（またはごま）を包む。",
     es: "Aperitivo callejero del norte y noreste de China: masa de arroz glutinoso y amarillo envuelta en pasta de judía roja con azúcar o sésamo.",
+    ko: "찹쌀과 기장 반죽에 팥소나 설탕, 깨를 넣어 튀긴 중국 북부와 동북의 길거리 간식입니다.",
   },
   "northeastern::guo bao rou": {
     id: "Hidangan Tiongkok Timur Laut: has dalam babi bertepung yang digoreng lalu dibalut glasir asam manis; dibuat koki Harbin Zheng Xingwen.",
@@ -9200,6 +10365,7 @@ module.exports = {
     zh: "中国东北菜：里脊肉挂糊油炸后裹上酸甜芡汁；1907年由哈尔滨厨师郑兴文创制。",
     ja: "中国東北の料理。豚ヒレ肉に衣をつけて揚げ、甘酢のあんを絡める。1907年、ハルビンの料理人・鄭興文の創案。",
     es: "Plato del noreste de China: solomillo de cerdo rebozado y frito en glaseado agridulce, creado en 1907 por el chef de Harbin Zheng Xingwen.",
+    ko: "돼지 안심에 반죽을 입혀 튀겨 새콤달콤한 소스를 입힌 중국 동북 요리로, 1907년 하얼빈의 요리사 정싱원이 만들었습니다.",
   },
   "northeastern::huo guo dongbei": {
     id: "Hotpot Tiongkok Timur Laut yang berdasar kubis napa fermentasi (suancai).",
@@ -9208,6 +10374,7 @@ module.exports = {
     zh: "以发酵酸菜为汤底的中国东北火锅。",
     ja: "発酵させた白菜（酸菜）をだしの土台にする中国東北の火鍋。",
     es: "Olla caliente del noreste de China basada en col china fermentada (suancai).",
+    ko: "발효한 배추(쏸차이)를 바탕으로 한 중국 동북의 훠궈입니다.",
   },
   "northeastern::jianbing northeastern": {
     id: "Panekuk wajan Tiongkok utara; dalam gaya Shandong dibuat dari biji-bijian kasar seperti jagung, sorgum, atau milet.",
@@ -9216,6 +10383,7 @@ module.exports = {
     zh: "中国北方的鏊子煎饼；山东做法用玉米、高粱或小米等粗粮调糊摊成。",
     ja: "中国北方の鉄板で焼く薄餅。山東式ではとうもろこし、こうりゃん、キビなどの雑穀で作る。",
     es: "Crepe de plancha del norte de China; en el estilo de Shandong se hace con granos gruesos como maíz, sorgo o mijo.",
+    ko: "중국 북부의 철판 전병으로, 산둥식은 옥수수나 수수, 기장 같은 잡곡으로 만듭니다.",
   },
   "northeastern::lamb dumpling soup": {
     id: "Jiaozi Tiongkok utara berisi daging kambing yang disajikan dalam kaldu, disantap saat perayaan titik balik musim dingin Dongzhi.",
@@ -9224,6 +10392,7 @@ module.exports = {
     zh: "中国北方以羊肉为馅的饺子，盛在汤中，于冬至时节食用。",
     ja: "羊肉を包んだ中国北方の餃子をスープに入れたもの。冬至の節に食べる。",
     es: "Jiaozi del norte de China rellenos de cordero servidos en caldo, comidos en la fiesta del solsticio de invierno Dongzhi.",
+    ko: "양고기를 채운 중국 북부의 자오쯔를 국물에 넣어 낸 요리로, 동지에 먹습니다.",
   },
   "northeastern::northeastern chao fan": {
     id: "Chao fan adalah nasi goreng Tiongkok dengan telur, sayuran, dan kerap daging; jejaknya sampai ke Tiongkok awal, tercatat di masa Sui.",
@@ -9232,6 +10401,7 @@ module.exports = {
     zh: "炒饭是中国的炒制米饭，配鸡蛋、蔬菜，常加肉；其源头可上溯到早期中国，隋代已有记载。",
     ja: "炒飯は卵や野菜、しばしば肉を加えて炒める中国の米料理。古代中国に遡り、隋代の記録がある。",
     es: "El chao fan es arroz frito chino con huevo, verduras y a menudo carne; se remonta a la China temprana, ya citado en la dinastía Sui.",
+    ko: "차오판은 달걀과 채소, 흔히 고기를 넣어 볶은 중국식 밥으로, 수나라 기록까지 거슬러 올라갑니다.",
   },
   "northeastern::shao mai dongbei": {
     id: "Pangsit kukus berpuncak terbuka berisi babi atau ketan dalam kulit gandum tipis; tercatat sejak akhir Yuan dan menyebar lewat Hohhot.",
@@ -9240,6 +10410,7 @@ module.exports = {
     zh: "顶部开口的蒸饺，薄麦皮包猪肉或糯米馅；元末已有记载，经归化城（呼和浩特）传开。",
     ja: "上部を開いた蒸し餃子。薄い小麦の皮に豚肉やもち米を包む。元末の記録があり、フフホトを経て広まった。",
     es: "Empanadilla al vapor abierta por arriba con relleno de cerdo o arroz glutinoso en masa fina; registrada desde el Yuan tardío.",
+    ko: "얇은 밀피에 돼지고기나 찰밥 소를 넣어 윗면을 열어 찐 만두로, 원나라 말 기록에 나오며 후허하오터를 거쳐 퍼졌습니다.",
   },
   "northeastern::three rice porridge": {
     id: "Bubur nasi Tiongkok (zhōu).",
@@ -9248,6 +10419,7 @@ module.exports = {
     zh: "中国的米粥。",
     ja: "中国の米の粥。",
     es: "Gachas de arroz chinas (zhōu).",
+    ko: "중국의 죽입니다.",
   },
   "northeastern::xiao ji dun mogu": {
     id: "Semur Dongbei di Tiongkok Timur Laut: ayam muda ditim bersama jamur hazel liar dan soun; salah satu semur termasyhur di kawasan itu.",
@@ -9256,6 +10428,7 @@ module.exports = {
     zh: "中国东北的炖菜：小笨鸡与野生榛蘑及粉条同炖，是当地最有名的炖菜之一。",
     ja: "中国東北の煮込み。若鶏を野生のハシバミのきのこと春雨で煮る、この地方を代表する鍋料理のひとつ。",
     es: "Guiso dongbei del noreste de China: pollo joven estofado con setas silvestres de avellano y fideos de cristal; guiso famoso de la zona.",
+    ko: "어린 닭을 야생 개암버섯과 당면과 함께 조린 중국 둥베이의 스튜로, 이 지방의 이름난 조림 가운데 하나입니다.",
   },
   "northeastern::zha jiang mian": {
     id: "Mi gandum Tiongkok yang ditutupi zhajiang, saus kedelai fermentasi yang ditumis; berasal dari Shandong, versi Beijing-nya termasyhur.",
@@ -9264,6 +10437,7 @@ module.exports = {
     zh: "中国的小麦面条浇上炸酱——用发酵黄豆酱炒制的酱料；源自山东，北京做法尤为著名。",
     ja: "発酵大豆の味噌を炒めた炸醤をかける中国の小麦麺。山東発祥で、北京版がとくに名高い。",
     es: "Fideos de trigo chinos cubiertos de zhajiang, salsa frita de soja fermentada; nació en Shandong y su versión pequinesa es célebre.",
+    ko: "발효 콩장을 볶아 만든 자장을 올린 중국 밀국수로, 산둥에서 비롯됐고 베이징식이 이름났습니다.",
   },
   "northwestern::beef noodle lanzhou": {
     id: "Mi tarik tangan dalam kuah sapi bening dari Lanzhou di Gansu, dibakukan oleh juru masak Muslim Hui dan disajikan dengan minyak cabai.",
@@ -9272,6 +10446,7 @@ module.exports = {
     zh: "甘肃兰州的手工拉面，配清亮牛肉汤，由回族厨师定下规矩，上桌淋一勺辣子。",
     ja: "甘粛省蘭州の手延べ麺。澄んだ牛肉のスープに、回族の料理人が型を定めた。辣油を添える。",
     es: "Fideos estirados a mano en caldo claro de ternera, de Lanzhou (Gansu), codificados por cocineros musulmanes hui y con aceite de guindilla.",
+    ko: "간쑤 란저우의 맑은 소고기 국물에 수타면을 넣은 요리로, 이 도시의 후이 무슬림 요리사들이 다듬었고 고추기름을 곁들입니다.",
   },
   "northwestern::biang biang noodles": {
     id: "Mi gandum tarik tangan yang lebar, tebal, dan mirip sabuk dari masakan Shaanxi, lekat dengan kota Xi'an.",
@@ -9280,6 +10455,7 @@ module.exports = {
     zh: "陕西菜中宽厚如腰带的手工扯面，与西安城密不可分。",
     ja: "帯のように幅広く厚い、手で伸ばす陝西料理の小麦麺。西安の町と結びつく。",
     es: "Fideos de trigo anchos y gruesos como cinturones, estirados a mano, de la cocina de Shaanxi y ligados a Xi'an.",
+    ko: "산시 요리의 넓고 두꺼운 허리띠 모양 수타면으로, 시안과 얽혀 있습니다.",
   },
   "northwestern::cold skin noodles liangpi": {
     id: "Liangpi adalah mi lebar dingin dari pati gandum atau beras asal Shaanxi, dibalut minyak cabai, cuka, dan bawang putih; khas Xi'an.",
@@ -9288,6 +10464,7 @@ module.exports = {
     zh: "凉皮是陕西用小麦或米淀粉做的宽身冷面，浇辣椒油、醋与蒜汁，是西安的名吃。",
     ja: "涼皮は陝西の小麦や米のでんぷんで作る幅広の冷たい麺。ラー油、酢、ニンニクで和える西安の名物。",
     es: "El liangpi son fideos anchos y fríos de almidón de trigo o arroz de Shaanxi, aliñados con aceite de chile, vinagre y ajo; de Xi'an.",
+    ko: "량피는 밀이나 쌀 전분으로 만든 산시의 넓적한 찬 국수로, 고추기름과 식초, 마늘에 버무리는 시안의 명물입니다.",
   },
   "northwestern::cumin lamb": {
     id: "Hidangan Xinjiang berasal Uighur: daging kambing ditumis atau ditusuk, dibalut jintan, cabai, dan merica Sichuan; kini populer se-Tiongkok.",
@@ -9296,6 +10473,7 @@ module.exports = {
     zh: "源自维吾尔的新疆菜：羊肉或炒或串，裹上孜然、辣椒与花椒；如今风行全中国。",
     ja: "ウイグル起源の新疆料理。羊肉を炒めるか串に刺し、クミン、唐辛子、花椒をまぶす。今や中国全土で人気。",
     es: "Plato de Xinjiang de origen uigur: cordero salteado o en brocheta cubierto de comino, chile y pimienta de Sichuan; popular en toda China.",
+    ko: "위구르에서 온 신장 요리로, 양고기를 커민과 고추, 산초에 버무려 볶거나 꼬치에 구우며 지금은 중국 전역에서 사랑받습니다.",
   },
   "northwestern::garlic-vinegar dipping": {
     id: "Masakan rumahan Tiongkok barat laut: mi gandum segar, kerap digulung lalu dipotong menjadi lembaran pipih.",
@@ -9304,6 +10482,7 @@ module.exports = {
     zh: "中国西北的家常做法：新鲜麦面，常擀开后切成扁片。",
     ja: "中国西北の家庭料理。打ちたての小麦の生地を伸ばし、平たい薄片に切ることが多い。",
     es: "Cocina casera del noroeste de China: fideos frescos de trigo, a menudo estirados y cortados en láminas planas.",
+    ko: "중국 서북의 가정식으로, 갓 뽑은 밀면을 흔히 밀어 넓적하게 썰어 냅니다.",
   },
   "northwestern::hand-pulled noodles xibei": {
     id: "Youmian, mi gandum oat yang digulung tangan; ini sajian andalan Xibei Youmian Cun, »Kampung Mi Oat Xibei«.",
@@ -9312,6 +10491,7 @@ module.exports = {
     zh: "莜面是手工搓制的燕麦面，是「西贝莜面村」的招牌。",
     ja: "莜麺は手で成形する燕麦の麺。「西貝莜麺村」の看板料理である。",
     es: "El youmian son fideos de avena moldeados a mano, plato insignia de Xibei Youmian Cun, la «aldea del fideo de avena».",
+    ko: "손으로 밀어 만든 귀리면 유몐으로, '시베이 유몐춘'을 대표하는 음식입니다.",
   },
   "northwestern::hui hui style stew": {
     id: "Sup dan semur daging kambing dalam tradisi Huihui, yakni masyarakat Muslim Tionghoa.",
@@ -9320,6 +10500,7 @@ module.exports = {
     zh: "回回（中国穆斯林）传统中的羊肉汤与炖菜。",
     ja: "回回（中国のムスリム）の伝統に連なる羊肉のスープと煮込み。",
     es: "Sopas y guisos de cordero en la tradición huihui, la de los musulmanes chinos.",
+    ko: "후이후이(중국 무슬림) 방식의 양고기 수프와 스튜입니다.",
   },
   "northwestern::hui muslim noodles": {
     id: "Mi tarik tangan halal dalam kaldu sapi, ciptaan orang Hui Muslim di Lanzhou, Gansu, di barat laut Tiongkok.",
@@ -9328,6 +10509,7 @@ module.exports = {
     zh: "清真手工拉面配牛肉汤，由中国西北甘肃兰州的回族穆斯林创制。",
     ja: "牛のだしで供する手延べのハラール麺。中国西北・甘粛省蘭州の回族ムスリムが生み出した。",
     es: "Fideos halal estirados a mano en caldo de ternera, creados por los musulmanes hui de Lanzhou, Gansu, en el noroeste de China.",
+    ko: "중국 서북 간쑤 란저우의 후이 무슬림이 만든 할랄 소고기 국물 수타면입니다.",
   },
   "northwestern::jian bing northwestern": {
     id: "Crêpe wajan Tiongkok yang gurih dari adonan gandum dan kacang hijau, dilipat bersama telur, saus, dan kerupuk renyah; asalnya Shandong.",
@@ -9336,6 +10518,7 @@ module.exports = {
     zh: "中国的咸味鏊子薄饼，用小麦与绿豆调糊，摊上鸡蛋、酱料与酥脆的薄脆折起；源自山东。",
     ja: "小麦と緑豆の生地で焼く中国の塩味のクレープ。卵、たれ、パリパリの揚げ煎餅を包む。山東発祥。",
     es: "Crepe salada china de plancha con masa de trigo y judía mungo, plegada con huevo, salsas y una galleta crujiente; nació en Shandong.",
+    ko: "밀과 녹두 반죽에 달걀과 소스, 바삭한 과자를 넣어 접은 중국의 짭조름한 철판 전병으로, 산둥에서 비롯됐습니다.",
   },
   "northwestern::lanzhou lamian": {
     id: "Sup mi sapi halal dengan mi tarik tangan dari Lanzhou, Gansu.",
@@ -9344,6 +10527,7 @@ module.exports = {
     zh: "甘肃兰州的清真手工拉面牛肉汤。",
     ja: "甘粛省蘭州の、手延べ麺を使うハラールの牛肉スープ麺。",
     es: "Sopa halal de fideos estirados a mano con ternera de Lanzhou, en Gansu.",
+    ko: "간쑤 란저우에서 온 손으로 뽑은 할랄 소고기 국수입니다.",
   },
   "northwestern::liang pi": {
     id: "Liangpi (»kulit dingin«) adalah mi lebar dari gandum atau beras yang disajikan dingin dengan saus cabai dan cuka yang tajam, dari Shaanxi.",
@@ -9352,6 +10536,7 @@ module.exports = {
     zh: "凉皮是陕西宽而凉的麦粉或米粉皮，浇上酸辣的辣椒醋汁食用。",
     ja: "涼皮は陝西の幅広の冷たい小麦または米の麺。酸味と辛味の効いた唐辛子と酢のたれで食べる。",
     es: "El liangpi («piel fría») son fideos anchos y fríos de trigo o arroz de Shaanxi servidos en una salsa ácida y picante de chile y vinagre.",
+    ko: "량피('찬 껍질')는 중국 산시의 넓적한 찬 밀국수나 쌀국수로, 새콤하고 매운 고추 식초 소스에 버무려 냅니다.",
   },
   "northwestern::naang bread northwest": {
     id: "Roti pipih Uighur yang bundar dan beragi dari Xinjiang di barat laut Tiongkok, dipanggang menempel di dinding tungku tanah liat tegak.",
@@ -9360,6 +10545,7 @@ module.exports = {
     zh: "中国西北新疆的维吾尔圆形发面馕，贴在竖式土馕坑内壁烤成。",
     ja: "中国西北・新疆のウイグルの丸い発酵平パン。縦型の土の窯の内壁に貼りつけて焼く。",
     es: "Pan plano redondo y fermentado uigur de Xinjiang, en el noroeste de China, cocido pegado a la pared de un tandyr vertical de barro.",
+    ko: "중국 서북 신장의 둥근 위구르 발효 플랫브레드로, 세로형 옹기 화덕 탄디르 벽에 붙여 굽습니다.",
   },
   "northwestern::rou jia mo": {
     id: "Jajanan jalanan Shaanxi berupa daging berempah yang ditim lama lalu dijejalkan ke roti pipih; kerap disebut hamburger tertua di dunia.",
@@ -9368,6 +10554,7 @@ module.exports = {
     zh: "陕西的街头小吃：慢炖入味的卤肉夹进白吉馍；常被称作世界上最早的汉堡。",
     ja: "陝西の屋台の味。じっくり煮込んだ香辛料入りの肉を焼き餅に挟む。世界最古のハンバーガーとも呼ばれる。",
     es: "Comida callejera de Shaanxi: carne especiada guisada a fuego lento dentro de un panecillo plano; llamada la hamburguesa más antigua.",
+    ko: "오래 조린 향신 고기를 빵에 채운 산시의 길거리 음식으로, 세계에서 가장 오래된 햄버거라 불리기도 합니다.",
   },
   "northwestern::shaanxi qi shan noodles": {
     id: "Mi gandum tipis yang digulung tangan dari Kabupaten Qishan, Shaanxi, disajikan dalam kuah cuka asam pedas dengan topping saozi babi.",
@@ -9376,6 +10563,7 @@ module.exports = {
     zh: "陕西岐山县手工擀制的细面，浇酸辣醋汤并盖上猪肉臊子。",
     ja: "陝西・岐山県の手打ちの細い小麦麺。酸っぱ辛い酢のスープに、豚のひき肉の臊子をのせる。",
     es: "Fideos finos de trigo amasados a mano del condado de Qishan, Shaanxi, en caldo agripicante de vinagre con picadillo de cerdo saozi.",
+    ko: "산시 치산현의 손으로 밀어 가늘게 썬 밀국수로, 다진 돼지고기 사오쯔를 올려 맵고 새콤한 식초 국물에 냅니다.",
   },
   "northwestern::shaanxi sour noodles": {
     id: "Mi saozi Qishan: mi kuah Shaanxi yang pedas dan asam dari kawasan Guanzhong, menurut tradisi disajikan saat pernikahan dan perayaan.",
@@ -9384,6 +10572,7 @@ module.exports = {
     zh: "岐山臊子面：陕西关中地区的酸辣汤面，传统上在婚宴与节庆时享用。",
     ja: "岐山の臊子麺。陝西・関中地方の酸っぱ辛いスープ麺で、婚礼や祭りの席で供される。",
     es: "Fideos saozi de Qishan: sopa de fideos agripicante de la llanura de Guanzhong, en Shaanxi, servida en bodas y fiestas.",
+    ko: "치산 사오쯔 국수는 관중 지방에서 온 산시의 맵고 새콤한 국물 국수로, 전통적으로 혼례와 명절에 냅니다.",
   },
   "northwestern::xibei dumpling soup": {
     id: "Sup pangsit asam pedas dari Shaanxi di barat laut Tiongkok: pangsit babi yang montok dalam kuah cuka bercabai.",
@@ -9392,6 +10581,7 @@ module.exports = {
     zh: "中国西北陕西的酸辣饺子汤：饱满的猪肉水饺浸在带辣油的酸醋汤里。",
     ja: "中国西北・陝西の酸っぱ辛い餃子スープ。ふっくらした豚肉の水餃子を、唐辛子を浮かべた酢のだしに沈める。",
     es: "Sopa agripicante de empanadillas de Shaanxi, en el noroeste de China: gordas empanadillas de cerdo en caldo de vinagre con chile.",
+    ko: "중국 서북 산시의 맵고 새콤한 만둣국으로, 통통한 돼지고기 만두를 고추가 떠 있는 새콤한 식초 국물에 넣습니다.",
   },
   "northwestern::xibei lamb skewer": {
     id: "Sate kambing panggang berbumbu jintan (chuan'r) dari barat laut Tiongkok, berasal dari masyarakat Uighur dan Hui di Xinjiang.",
@@ -9400,6 +10590,7 @@ module.exports = {
     zh: "中国西北的孜然烤羊肉串（串儿），源自新疆的维吾尔与回族社群。",
     ja: "クミンを効かせた中国西北の羊肉の串焼き。新疆のウイグルと回族の人々に始まる。",
     es: "Brochetas de cordero al comino (chuan'r) del noroeste de China, nacidas entre las comunidades uigur y hui de Xinjiang.",
+    ko: "커민으로 양념해 구운 중국 서북의 양꼬치(촨얼)로, 신장의 위구르와 후이 공동체에서 비롯됐습니다.",
   },
   "northwestern::xinjiang big plate chicken": {
     id: "Semur Xinjiang dari ayam, kentang, dan paprika dalam saus berbumbu cabai, kerap disajikan bersama mi sabuk.",
@@ -9408,6 +10599,7 @@ module.exports = {
     zh: "新疆的炖菜：鸡肉、马铃薯与辣椒在辣味酱汁中同烧，常配皮带面。",
     ja: "鶏肉、じゃがいも、唐辛子を辛いたれで煮込む新疆の料理。帯状の麺を添えることが多い。",
     es: "Guiso de Xinjiang de pollo, patata y pimientos en salsa especiada con chile, servido a menudo con fideos anchos.",
+    ko: "닭고기와 감자, 피망을 고추 양념 소스에 끓인 신장의 스튜로, 흔히 허리띠 면을 곁들입니다.",
   },
   "northwestern::xinjiang da pan ji": {
     id: "Semur Xinjiang yang pedas dari ayam, kentang, dan paprika di atas mi sabuk; diciptakan di Shawan pada 1980-an.",
@@ -9416,6 +10608,7 @@ module.exports = {
     zh: "新疆的辣味炖菜：鸡肉、马铃薯与辣椒同烧，浇在皮带面上；1980年代在沙湾创出。",
     ja: "鶏肉、じゃがいも、唐辛子を煮込み、帯状の麺にかける新疆の辛い料理。1980年代に沙湾で生まれた。",
     es: "Guiso picante de Xinjiang de pollo, patata y pimientos sobre fideos anchos; inventado en Shawan en los años ochenta.",
+    ko: "닭고기와 감자, 피망을 매콤하게 끓여 허리띠 면 위에 올린 신장의 요리로, 1980년대 사완에서 만들어졌습니다.",
   },
   "northwestern::xinjiang pilaf": {
     id: "Nasi pilaf Uighur dari daging kambing, wortel, dan bawang yang dimasak perlahan dalam minyak; pokok Jalur Sutra di Xinjiang, Tiongkok.",
@@ -9424,6 +10617,7 @@ module.exports = {
     zh: "维吾尔的手抓饭：羊肉、胡萝卜与洋葱在油中慢焖成饭；是中国新疆丝路一带的主食。",
     ja: "羊肉、にんじん、玉ねぎを油でじっくり炊き込むウイグルのピラフ。中国・新疆のシルクロードの主食。",
     es: "Pilaf uigur de cordero, zanahoria y cebolla cocido despacio en aceite; alimento básico de la Ruta de la Seda en Xinjiang, China.",
+    ko: "양고기와 당근, 양파를 기름에 천천히 익힌 위구르의 밥 요리로, 중국 신장의 실크로드 주식입니다.",
   },
   "northwestern::yangrou paomo": {
     id: "Khas Xi'an di Shaanxi: roti pipih tanpa ragi yang disobek tangan lalu direndam kaldu kambing berempah; berakar pada Dinasti Tang.",
@@ -9432,6 +10626,7 @@ module.exports = {
     zh: "陕西西安的名吃：无酵饼用手掰碎，浸入香料羊肉汤中；渊源可上溯到唐代。",
     ja: "陝西・西安の名物。無発酵の餅を手でちぎり、香辛料の効いた羊肉のスープに浸す。唐代に遡る。",
     es: "Especialidad de Xi'an, en Shaanxi: pan plano sin levadura desmenuzado a mano y empapado en caldo especiado de cordero; de raíz Tang.",
+    ko: "무발효 빵을 손으로 뜯어 향신 양고기 국물에 적셔 먹는 시안 산시의 명물로, 당나라에 뿌리를 둡니다.",
   },
   "pakistani::aloo gosht": {
     id: "Kari daging dan kentang dalam kuah shorba dari Pakistan, India, dan Bangladesh; namanya berarti kentang, aloo, dan daging, gosht.",
@@ -9440,6 +10635,7 @@ module.exports = {
     zh: "巴基斯坦、印度与孟加拉的土豆炖肉咖喱，汤汁叫 shorba；名字就是「土豆」（aloo）加「肉」（gosht）。",
     ja: "パキスタン、インド、バングラデシュの肉とじゃがいものカレー。汁はショルバ。名はそのまま「じゃがいも」と「肉」の意です。",
     es: "Curry de carne y patata en salsa shorba de Pakistán, India y Bangladés; el nombre significa «patata» (aloo) y «carne» (gosht).",
+    ko: "파키스탄과 인도, 방글라데시의 고기 감자 커리로, 이름은 '알루'(감자)와 '고슈트'(고기)를 뜻합니다.",
   },
   "pakistani::balti gosht": {
     id: "Kari daging berempah yang ditumis lalu disajikan dalam wajan baja tipis balti; dikembangkan komunitas Pakistan di Birmingham pada 1970-an.",
@@ -9448,6 +10644,7 @@ module.exports = {
     zh: "香料肉咖喱：在薄钢锅 balti 里爆炒，连锅上桌；一九七〇年代由伯明翰的巴基斯坦社群发展出来。",
     ja: "香辛料の肉カレーを、薄い鋼の鍋バルティで炒めてそのまま供します。一九七〇年代、バーミンガムのパキスタン系社会が育てました。",
     es: "Curry de carne especiada salteado y servido en un wok fino de acero (balti); lo desarrolló la comunidad pakistaní de Birmingham en 1970.",
+    ko: "얇은 강철 웍(발티)에 향신 고기를 볶아 그대로 내는 커리로, 1970년대 버밍엄의 파키스탄 공동체가 만들었습니다.",
   },
   "pakistani::beef pulao": {
     id: "Hidangan satu belanga Pakistan: nasi basmati ditanak dalam kaldu sapi berempah yang disebut yakhni.",
@@ -9456,6 +10653,7 @@ module.exports = {
     zh: "巴基斯坦的一锅饭：巴斯马蒂米在香料牛肉汤 yakhni 里焖熟。",
     ja: "パキスタンの一鍋料理。バスマティ米を、香辛料の効いた牛のだしヤクニで炊きます。",
     es: "Plato pakistaní de una sola olla: arroz basmati cocido en un caldo de ternera especiado (yakhni).",
+    ko: "향신 소고기 육수(야크니)로 바스마티 쌀을 지어 낸 파키스탄의 한 냄비 요리입니다.",
   },
   "pakistani::chana pulao": {
     id: "Nasi pilaf satu belanga Pakistan dari beras basmati dan buncis dengan rempah utuh; buncis putih \"kabuli\" dinamai dari Kabul, Afghanistan.",
@@ -9464,6 +10662,7 @@ module.exports = {
     zh: "巴基斯坦的一锅抓饭：巴斯马蒂米与鹰嘴豆同焖，用整粒香料；白色的「kabuli」豆得名于阿富汗的喀布尔。",
     ja: "バスマティ米とひよこ豆をホールスパイスで炊くパキスタンの一鍋ピラフ。白い「カーブリー」豆はアフガニスタンのカブールにちなむ名です。",
     es: "Pilaf pakistaní de una olla con arroz basmati y garbanzos y especias enteras; el garbanzo blanco «kabuli» toma su nombre de Kabul.",
+    ko: "바스마티 쌀과 병아리콩을 통향신료와 함께 지은 파키스탄의 한 냄비 필라프로, 흰 '카불리' 병아리콩은 아프가니스탄 카불에서 이름을 땄습니다.",
   },
   "pakistani::chapli kebab": {
     id: "Perkedel pipih berbumbu dari daging sapi atau domba cincang dalam masakan Pashtun; konon berasal dari Peshawar, Khyber Pakhtunkhwa.",
@@ -9472,6 +10671,7 @@ module.exports = {
     zh: "普什图菜里的扁形香料肉饼：牛肉或羊肉剁碎压平；据说出自开伯尔－普什图省的白沙瓦。",
     ja: "パシュトゥン料理の平たい香辛料入り肉パティ。牛か羊の挽肉で、ハイバル・パフトゥンハー州のペシャワール発祥とされます。",
     es: "Hamburguesa plana y especiada de ternera o cordero picados de la cocina pastún; se dice originaria de Peshawar, Khyber Pakhtunkhwa.",
+    ko: "파슈툰 요리의 납작한 향신 소고기나 양고기 패티로, 카이베르파크툰크와주 페샤와르에서 시작됐다고 전해집니다.",
   },
   "pakistani::chicken jalfrezi pakistani": {
     id: "Kari tumis pedas berisi ayam, paprika, dan bawang bombai; lahir pada masa Raj Britania sebagai cara memakai sisa daging panggang.",
@@ -9480,6 +10680,7 @@ module.exports = {
     zh: "辣味的快炒咖喱：鸡肉、彩椒与洋葱同炒；成于英属印度时期，本是消化剩下的烤肉。",
     ja: "鶏肉、ピーマン、玉ねぎを炒める辛いカレー。英領インド期に、残りのロースト肉を活かす手として生まれました。",
     es: "Curry salteado picante de pollo, pimientos y cebolla; nació en el Raj británico como forma de aprovechar los asados sobrantes.",
+    ko: "닭고기와 피망, 양파를 볶아 낸 매운 커리로, 영국령 인도에서 남은 구이 고기를 활용하려 생겼습니다.",
   },
   "pakistani::chicken karahi": {
     id: "Kari ayam Pakistan yang menurut tradisi dikaitkan dengan kawasan Punjab dan kota Lahore.",
@@ -9488,6 +10689,7 @@ module.exports = {
     zh: "巴基斯坦的咖喱鸡：向来与旁遮普地区、与拉合尔这座城相连。",
     ja: "パキスタンのチキンカレー。伝統的にパンジャブ地方とラホールの町に結びつけられます。",
     es: "Curry de pollo pakistaní tradicionalmente asociado a la región del Punyab y a la ciudad de Lahore.",
+    ko: "파키스탄의 치킨 커리로, 전통적으로 펀자브 지방과 라호르시와 얽혀 있습니다.",
   },
   "pakistani::gulab jamun pakistani": {
     id: "Bola khoya goreng yang direndam sirop gula beraroma mawar dan kapulaga; manisan era Mughal berasal Persia, digemari di Pakistan.",
@@ -9496,6 +10698,7 @@ module.exports = {
     zh: "炸奶渣球泡在玫瑰豆蔻糖浆里：这是莫卧儿时期的甜点，源头在波斯，巴基斯坦人极爱。",
     ja: "揚げた乳固形分の団子を、バラとカルダモンの砂糖シロップに浸した菓子。ペルシアに発するムガル期の甘味です。",
     es: "Bolitas fritas de khoya empapadas en almíbar de rosa y cardamomo; dulce de la era mogola y origen persa, muy querido en Pakistán.",
+    ko: "코야 반죽을 튀겨 장미와 카르다몸 설탕 시럽에 담근 과자로, 페르시아에서 온 무굴 시대 과자이며 파키스탄에서 사랑받습니다.",
   },
   "pakistani::haleem": {
     id: "Gulai gandum atau jelai, lentil, dan daging yang dimasak lama; turunan dari hidangan Arab harees, digemari selama Ramadan.",
@@ -9504,6 +10707,7 @@ module.exports = {
     zh: "久炖的麦仁或大麦、扁豆与肉的浓羹：源自阿拉伯的 harees，斋月里尤其受欢迎。",
     ja: "小麦か大麦、豆、肉をじっくり煮込んだ料理。アラビアのハリースに由来し、ラマダーンによく食べられます。",
     es: "Guiso de cocción lenta de trigo o cebada, lentejas y carne; deriva del plato árabe harees y es muy popular en Ramadán.",
+    ko: "밀이나 보리와 렌즈콩, 고기를 오래 끓인 스튜로, 아라비아의 하리스에서 왔으며 라마단에 즐겨 먹습니다.",
   },
   "pakistani::keema matar": {
     id: "Kari Asia Selatan yang setengah kering dari daging cincang dan kacang polong hijau; lekat dengan masakan Mughal.",
@@ -9512,6 +10716,7 @@ module.exports = {
     zh: "南亚的半干咖喱：肉糜与青豌豆同烧；与莫卧儿宫廷菜一脉相承。",
     ja: "挽肉とグリンピースの、南アジアの汁気の少ないカレー。ムガル料理に連なる一品です。",
     es: "Curry surasiático semiseco de carne picada y guisantes; se asocia a la cocina mogola.",
+    ko: "다진 고기와 완두콩을 국물 적게 볶아 낸 남아시아 커리로, 무굴 요리와 얽혀 있습니다.",
   },
   "pakistani::kheer pakistani": {
     id: "Puding beras Pakistan dari susu, beras, gula, dan kapulaga; namanya berasal dari kata Sanskerta kshira, yang berarti susu.",
@@ -9520,6 +10725,7 @@ module.exports = {
     zh: "巴基斯坦的米布丁：牛奶、米、糖与豆蔻同熬；名字出自梵语的 kshira，意思是「奶」。",
     ja: "牛乳、米、砂糖、カルダモンで作るパキスタンの米のプディング。名はサンスクリットの「乳」を意味するクシーラから。",
     es: "Arroz con leche pakistaní de leche, arroz, azúcar y cardamomo; su nombre viene del sánscrito kshira, que significa leche.",
+    ko: "우유와 쌀, 설탕, 카르다몸으로 만든 파키스탄식 쌀 푸딩으로, 이름은 우유를 뜻하는 산스크리트어 '크시라'에서 왔습니다.",
   },
   "pakistani::lahori chargha": {
     id: "Hidangan Lahore: ayam utuh dimarinasi rempah, dikukus, lalu digoreng rendam hingga renyah; \"chargha\" berarti ayam dalam bahasa Pashto.",
@@ -9528,6 +10734,7 @@ module.exports = {
     zh: "拉合尔的名菜：整鸡用香料腌透，先蒸后炸至皮脆；「chargha」在普什图语里就是「鸡」。",
     ja: "ラホールの料理。丸鶏を香辛料に漬け、蒸してから揚げてカリッと仕上げます。「チャルガ」はパシュトー語で鶏。",
     es: "Plato de Lahore: pollo entero marinado en especias, cocido al vapor y luego frito hasta quedar crujiente; «chargha» es pollo en pastún.",
+    ko: "닭을 통째로 향신료에 재워 찐 뒤 바삭하게 튀긴 라호르 요리로, '차르가'는 파슈토어로 닭을 뜻합니다.",
   },
   "pakistani::mutton karahi": {
     id: "Kari Pakistan berisi kambing bertulang yang dimasak lama dalam kuah tomat dan jahe di wajan karahi; asal Perbatasan Barat Laut.",
@@ -9536,6 +10743,7 @@ module.exports = {
     zh: "巴基斯坦的咖喱：带骨羊肉在铁锅 karahi 里，用番茄、姜、蒜的汁慢煨；源自西北边境省。",
     ja: "骨つき羊肉を、トマトと生姜とにんにくの汁でカラヒ鍋にじっくり煮込むパキスタンのカレー。北西辺境州の出です。",
     es: "Curry pakistaní de cordero con hueso guisado despacio en salsa de tomate, jengibre y ajo en un karahi; nació en la Frontera del Noroeste.",
+    ko: "뼈 있는 양고기를 토마토와 생강, 마늘 소스에 카라히(웍)로 천천히 익힌 파키스탄 커리로, 북서변경주에서 비롯됐습니다.",
   },
   "pakistani::mutton paya": {
     id: "Gulai Asia Selatan dari kaki kambing yang dimasak lama dalam kaldu berempah; \"paya\" berarti kaki, disantap sebagai sarapan musim dingin.",
@@ -9544,6 +10752,7 @@ module.exports = {
     zh: "南亚的羊蹄浓汤：羊脚在香料汤里久炖；「paya」在乌尔都语里是「脚」，巴基斯坦人冬天拿它当早餐。",
     ja: "ヤギや羊の脚を香辛料のだしで長く煮込む南アジアの料理。「パーヤ」はウルドゥー語で足、パキスタンでは冬の朝食です。",
     es: "Guiso surasiático de manitas de cabra o cordero cocidas despacio en caldo especiado; «paya» es «pies» en urdu, desayuno de invierno.",
+    ko: "염소나 양의 족을 향신 국물에 오래 끓인 남아시아 스튜로, '파야'는 우르두어로 발을 뜻하며 파키스탄에서 겨울 아침으로 먹습니다.",
   },
   "pakistani::nihari": {
     id: "Gulai betis sapi, domba, atau kambing yang dimasak lama, dari Delhi dan Lucknow era Mughal; namanya dari kata Arab \"nahar\", pagi.",
@@ -9552,6 +10761,7 @@ module.exports = {
     zh: "久炖的牛、绵羊或山羊小腿浓汤，出自莫卧儿时期的德里与勒克瑙；名字来自阿拉伯语的「nahar」，意思是「早晨」。",
     ja: "牛、羊、ヤギのすね肉を長く煮込んだ料理。ムガル期のデリーとラクナウに発し、名はアラビア語の「ナハール（朝）」から。",
     es: "Guiso de jarrete de vacuno, cordero o cabra cocido largamente, de la Delhi y Lucknow mogolas; su nombre viene del árabe «nahar», mañana.",
+    ko: "무굴 시대 델리와 러크나우에서 온 소·양·염소 사태 조림으로, 이름은 아랍어 '나하르'(아침)에서 왔습니다.",
   },
   "pakistani::pakistani milk tea (doodh patti)": {
     id: "Teh susu Asia Selatan yang daun teh hitam dan gulanya direbus langsung dalam susu, bukan air; kerap ditambahi kapulaga.",
@@ -9560,6 +10770,7 @@ module.exports = {
     zh: "南亚的奶茶：红茶叶与糖直接下在牛奶里煮，不用水；常添豆蔻。",
     ja: "南アジアのミルクティー。紅茶の葉と砂糖を水ではなく牛乳で直接煮出します。カルダモンを加えることも。",
     es: "Té con leche surasiático en que las hojas de té negro y el azúcar se hierven directamente en leche, no en agua; a menudo con cardamomo.",
+    ko: "물 대신 우유에 홍찻잎과 설탕을 그대로 끓여 내는 남아시아식 밀크티로, 흔히 카르다몸을 넣습니다.",
   },
   "pakistani::palak gosht": {
     id: "Kari Asia Selatan berisi kambing bertulang yang dimasak lama dalam kuah bayam berempah; palak berarti bayam, gosht berarti daging.",
@@ -9568,6 +10779,7 @@ module.exports = {
     zh: "南亚的菠菜炖肉咖喱：带骨的山羊或绵羊肉在香料菠菜汁里久煨；palak 是菠菜，gosht 是肉。",
     ja: "骨つきのヤギや羊の肉を、香辛料入りのほうれん草の汁でじっくり煮込む南アジアのカレー。パラクはほうれん草、ゴーシュトは肉。",
     es: "Curry surasiático de cabra o cordero con hueso guisado despacio en salsa especiada de espinacas; palak es espinaca y gosht, carne.",
+    ko: "뼈 있는 염소나 양고기를 향신 시금치 소스에 오래 끓인 남아시아 커리로, 우르두어로 팔락은 시금치, 고슈트는 고기입니다.",
   },
   "pakistani::peshawari naan": {
     id: "Roti pipih beragi yang dipanggang tandoor dari Peshawar, Pakistan, diisi pasta manis dari almond giling.",
@@ -9576,6 +10788,7 @@ module.exports = {
     zh: "巴基斯坦白沙瓦的发酵泥炉饼：饼里包一层杏仁磨成的甜馅。",
     ja: "パキスタン、ペシャワールの発酵させたタンドール焼きの薄焼きパン。挽いたアーモンドの甘いペーストを包みます。",
     es: "Pan plano con levadura cocido en tandoor, de Peshawar (Pakistán), relleno de una pasta dulce de almendra molida.",
+    ko: "파키스탄 페샤와르에서 온 탄두르 발효 플랫브레드로, 아몬드를 갈아 만든 달콤한 소를 채웁니다.",
   },
   "pakistani::ras malai": {
     id: "Hidangan penutup asal Benggala: cakram chhena, keju segar, direndam susu kental manis beraroma kapulaga dan safron.",
@@ -9584,6 +10797,7 @@ module.exports = {
     zh: "源自孟加拉的甜点：新鲜奶酪 chhena 做成小圆饼，泡在加了豆蔻与藏红花的甜浓奶里。",
     ja: "ベンガルに発する甘味。生チーズ、チェナの円盤を、カルダモンとサフランを効かせた甘い濃縮乳に浸します。",
     es: "Postre de origen bengalí: discos de chhena (queso fresco) empapados en leche condensada aromatizada con cardamomo y azafrán.",
+    ko: "벵골에서 온 디저트로, 부드러운 생치즈(체나) 원반을 카르다몸과 사프란 향의 달콤하게 졸인 우유에 담가 냅니다.",
   },
   "pakistani::saag paneer pakistani": {
     id: "Hidangan musim dingin Punjab dari anak benua India: sawi hijau dimasak lama dengan rempah; menurut tradisi disajikan bersama makki ki roti.",
@@ -9592,6 +10806,7 @@ module.exports = {
     zh: "南亚次大陆旁遮普的冬令菜：芥菜叶与香料久煨；照传统配玉米饼 makki ki roti。",
     ja: "インド亜大陸パンジャブの冬の料理。からし菜を香辛料でじっくり煮込み、伝統ではマキ・キ・ロティを添えます。",
     es: "Plato invernal punyabí del subcontinente indio: hojas de mostaza cocidas despacio con especias; se sirve con makki ki roti.",
+    ko: "겨자잎을 향신료와 함께 오래 끓인 인도 아대륙 펀자브의 겨울 요리로, 전통적으로 마키 키 로티와 함께 냅니다.",
   },
   "pakistani::seekh kebab pakistani": {
     id: "Daging cincang berempah, biasanya domba atau sapi, dibentuk di tusuk sate lalu dipanggang; \"seekh\" berarti tusuk dalam bahasa Urdu.",
@@ -9600,6 +10815,7 @@ module.exports = {
     zh: "香料肉糜（多为羊肉或牛肉）捏在铁签上炙烤；「seekh」在乌尔都语里就是「签子」。",
     ja: "香辛料を利かせた挽肉（多くは羊か牛）を串につけて焼いた料理。「シーク」はウルドゥー語で「串」を意味します。",
     es: "Carne picada especiada, normalmente cordero o ternera, moldeada en brochetas y asada; «seekh» significa «brocheta» en urdu.",
+    ko: "양이나 소의 다진 고기를 양념해 꼬치에 붙여 구운 인도 아대륙 요리로, '시크'는 우르두어로 꼬치를 뜻합니다.",
   },
   "pakistani::shahi tukda": {
     id: "Puding roti era Mughal: roti digoreng ghee lalu direndam sirop safron-kapulaga, ditutup susu manis kental rabri; namanya \"potongan raja\".",
@@ -9608,6 +10824,7 @@ module.exports = {
     zh: "莫卧儿时期的面包布丁：面包用酥油煎过，浸在藏红花豆蔻糖浆里，再淋甜浓奶 rabri；名字的意思是「御赐的一块」。",
     ja: "ムガル期のパンのプディング。ギーで焼いたパンをサフランとカルダモンのシロップに浸し、甘い濃縮乳ラブリをかけます。名は「王のひと切れ」。",
     es: "Pudin de pan de la era mogola: pan frito en ghee en almíbar de azafrán y cardamomo, cubierto de rabri; significa «trozo real».",
+    ko: "기에 지진 빵을 사프란 카르다몸 시럽에 적시고 진하게 졸인 우유(라브리)를 올린 무굴 시대 빵 푸딩으로, '왕의 조각'이라는 뜻입니다.",
   },
   "pakistani::siri paya": {
     id: "Gulai Pakistan yang dimasak lama dari kepala (siri) dan kaki (paya); menurut tradisi disantap sebagai sarapan musim dingin dengan naan.",
@@ -9616,6 +10833,7 @@ module.exports = {
     zh: "巴基斯坦的久炖浓汤：用牲畜的头（siri）与蹄（paya）；照传统是冬日的早餐，配馕吃。",
     ja: "頭（シリ）と脚（パーヤ）をじっくり煮込んだパキスタンの料理。伝統では冬の朝食としてナンとともに食べます。",
     es: "Guiso pakistaní de cocción lenta de cabeza (siri) y manitas (paya); tradicionalmente se toma de desayuno en invierno con naan.",
+    ko: "머리(시리)와 족(파야)을 오래 끓인 파키스탄 스튜로, 전통적으로 난과 함께 겨울 아침으로 먹습니다.",
   },
   "peranakan::acar (pickled vegetables)": {
     id: "Acar campur Nyonya dari timun, kacang panjang, dan kubis dalam pasta kunyit-cabai-serai-belacan, ditaburi kacang tanah tumbuk dan wijen.",
@@ -9624,6 +10842,7 @@ module.exports = {
     zh: "娘惹什锦腌菜：黄瓜、豆角与包菜拌进姜黄、辣椒、香茅、峇拉煎打的酱，撒花生碎与芝麻。",
     ja: "ニョニャの合わせ漬け。きゅうり、長ささげ、キャベツを、ウコン・唐辛子・レモングラス・ブラチャンのペーストで和え、落花生と胡麻を振ります。",
     es: "Encurtido mixto nyonya de pepino, judía larga y col en pasta de cúrcuma, chile, citronela y belacan, con cacahuete molido y sésamo.",
+    ko: "오이와 줄콩, 양배추를 강황·고추·레몬그라스·블라찬 페이스트에 절인 뇨냐식 모둠 피클로, 땅콩 가루와 깨를 뿌립니다.",
   },
   "peranakan::agar agar": {
     id: "Jeli rumput laut merah yang mengeras pada suhu ruang; agar-agar laut Peranakan adalah sajian Imlek, dicetak indah dan diberi brendi.",
@@ -9632,6 +10851,7 @@ module.exports = {
     zh: "红藻做的燕菜冻，室温即凝；娘惹的 agar-agar laut 是农历新年的应节甜点，压成吉利的模样，还掺白兰地。",
     ja: "紅藻から作る寒天。常温で固まります。プラナカンのアガーアガー・ラウは旧正月の菓子で、縁起のよい型に流し、ブランデーを効かせます。",
     es: "Gelatina de alga roja que cuaja a temperatura ambiente; el agar-agar laut peranakan es dulce de Año Nuevo, moldeado con augurio, con brandi.",
+    ko: "홍조류로 만들어 실온에서 굳는 해초 젤리. 프라나칸의 아가아가 라웃은 길한 모양 틀에 굳혀 브랜디를 넣는 설 별미입니다.",
   },
   "peranakan::assam pedas": {
     id: "Bahasa Melayu untuk \"asam pedas\": ikan dalam kuah asam jawa yang pedas dan berempah; versi Peranakan dikenal sebagai gerang asam ikan.",
@@ -9640,6 +10860,7 @@ module.exports = {
     zh: "马来语的「酸辣」：鱼泡在亚参酸辣的香料汤里；娘惹的做法叫 gerang asam ikan。",
     ja: "マレー語で「酸っぱくて辛い」。タマリンドの酸と唐辛子と香辛料の汁で魚を煮ます。プラナカン版はグラン・アサム・イカンと呼ばれます。",
     es: "Malayo para «agrio y picante»: pescado en caldo de tamarindo con chile y especias; la versión peranakan se llama gerang asam ikan.",
+    ko: "말레이어로 '새콤하고 매운'. 타마린드로 새콤하게 낸 고추 향신 국물에 생선을 넣으며, 프라나칸식은 그랑 아삼 이칸이라 부릅니다.",
   },
   "peranakan::ayam buah keluak": {
     id: "Ayam Peranakan yang direbus dalam kuah asam pedas bersama buah keluak (Pangium edule), yang sianida mentahnya perlu berhari-hari perendaman.",
@@ -9648,6 +10869,7 @@ module.exports = {
     zh: "娘惹焖鸡，酸辣亚参汁里下黑果（Pangium edule）；生果含氰化物，须泡上好几天才能用。",
     ja: "プラナカンの鶏の煮込み。酸辣のタマリンド汁にブア・クルアッ（Pangium edule）を加えます。生の実は青酸を含み、何日も水に晒します。",
     es: "Pollo peranakan guisado en salsa agripicante de tamarindo con nueces buah keluak (Pangium edule), cuyo cianuro crudo exige días de remojo.",
+    ko: "닭고기를 매콤한 타마린드 소스에 조린 프라나칸 요리로, 케파양(Pangium edule) 열매는 날것에 청산이 있어 며칠 물에 담가야 합니다.",
   },
   "peranakan::ayam tempra": {
     id: "Ayam semur Nyonya yang dimasak dengan banyak bawang bombai serta kecap asin dan manis, ditutup perasan kalamansi; gurih, manis, asam.",
@@ -9656,6 +10878,7 @@ module.exports = {
     zh: "娘惹焖鸡：大量洋葱与生抽老抽同烧，起锅前挤小青柠；咸、甜、酸三味俱到。",
     ja: "ニョニャの鶏の煮込み。玉ねぎをたっぷり、濃口と薄口の醤油で煮て、最後にカラマンシーを搾ります。旨みと甘みと酸味。",
     es: "Pollo estofado nyonya con mucha cebolla y soja clara y oscura, rematado con calamansí; salado, dulce y ácido a la vez.",
+    ko: "양파를 넉넉히 넣고 진간장과 간장에 조린 뇨냐식 닭 요리로, 칼라만시나 라임으로 마무리해 짭짤달콤새콤합니다.",
   },
   "peranakan::babi pongteh": {
     id: "Babi semur Peranakan (Nyonya) dalam taucu dengan bawang putih, bawang merah, dan gula aren; manis, asin, dan gurih sekaligus.",
@@ -9664,6 +10887,7 @@ module.exports = {
     zh: "娘惹焖猪肉：豆酱底，加蒜、红葱头与椰糖；甜、咸、鲜三味并存。",
     ja: "プラナカン（ニョニャ）の豚の煮込み。タウチョににんにく、赤わけぎ、ヤシ砂糖を合わせ、甘・塩・旨がひとつになります。",
     es: "Cerdo estofado peranakan (nonya) en pasta de soja fermentada (taucheo) con ajo, chalota y azúcar de palma; dulce, salado y sabroso a la vez.",
+    ko: "발효 콩장(타우체오)에 마늘과 샬롯, 야자설탕을 넣어 조린 프라나칸(뇨냐)식 돼지고기 요리로 짭짤달큰합니다.",
   },
   "peranakan::bobo cha cha": {
     id: "Hidangan penutup bersantan Nyonya: ubi jalar, talas, sagu, dan jeli tapioka warna-warni dalam santan pandan; \"bubur\" berarti bubur.",
@@ -9672,6 +10896,7 @@ module.exports = {
     zh: "娘惹椰浆甜品：番薯、芋头、西米与彩色木薯冻泡在香兰椰浆里；bubur 就是「粥」。",
     ja: "ニョニャのココナッツ甘味。さつまいも、タロイモ、サゴ、色とりどりのタピオカ寒天を、パンダンの香るココナッツミルクに。ブブールは粥。",
     es: "Postre nyonya de leche de coco con boniato, taro, sagú y gelatina de tapioca de colores en santan con pandan; «bubur» significa gachas.",
+    ko: "고구마와 토란, 사고, 쫄깃한 색색 타피오카를 판단 향 코코넛밀크에 넣은 뇨냐 디저트로, '부부르'는 죽을 뜻합니다.",
   },
   "peranakan::cap chai": {
     id: "Semur sayur campur Nyonya: kubis, kembang tahu, jamur kuping, dan soun, dibumbui taucu.",
@@ -9680,6 +10905,7 @@ module.exports = {
     zh: "娘惹杂菜煲：包菜、腐竹、木耳与冬粉同焖，用豆酱调味。",
     ja: "ニョニャの野菜煮込み。キャベツ、湯葉、きくらげ、春雨を、発酵大豆ペーストで味つけします。",
     es: "Guiso nyonya de verduras variadas: col, piel de tofu, oreja de Judas y fideos de cristal, sazonado con pasta de soja fermentada.",
+    ko: "양배추와 두부피, 목이버섯, 당면을 발효 콩장으로 맛을 내어 조린 뇨냐식 모둠 채소 요리입니다.",
   },
   "peranakan::chap chye masak titek": {
     id: "Chap chye Peranakan dengan rempah \"titek\" (bawang merah, kemiri, cabai, belacan): kubis, jamur, dan soun dalam kaldu udang.",
@@ -9688,6 +10914,7 @@ module.exports = {
     zh: "娘惹杂菜，底味用 titek 香料（红葱头、石栗、辣椒、峇拉煎）：包菜、香菇与冬粉泡在虾汤里。",
     ja: "プラナカンのチャプチャイを「ティテッ」の香辛料（赤わけぎ、キャンドルナッツ、唐辛子、ブラチャン）で。海老のだしにキャベツ、椎茸、春雨。",
     es: "Chap chye peranakan sobre un rempah «titek» (chalota, nuez de la India, chile, belacan): col, setas y fideos de cristal en caldo de gamba.",
+    ko: "샬롯과 캔들넛, 고추, 블라찬으로 만든 '티텍' 렘파에 양배추와 버섯, 당면을 넣어 새우 육수에 끓인 프라나칸식 찹채입니다.",
   },
   "peranakan::durian pengat": {
     id: "\"Pengat\" berarti memasak buah dalam santan dan gula; versi Nyonya merebus daging durian dengan gula melaka hingga kental seperti puding.",
@@ -9696,6 +10923,7 @@ module.exports = {
     zh: "「pengat」指的是把水果用椰浆与糖煮；娘惹的做法是榴梿肉与椰糖同熬，稠得像蛋奶糊。",
     ja: "「プンガッ」とは果物をココナッツミルクと砂糖で煮ること。ニョニャ版はドリアンの果肉をヤシ砂糖で煮詰め、濃厚な甘味に仕上げます。",
     es: "Un «pengat» cuece fruta en leche de coco y azúcar; la versión nyonya hierve pulpa de durián con gula melaka hasta un postre muy espeso.",
+    ko: "'픙앗'은 과일을 코코넛밀크와 설탕에 익히는 방식으로, 뇨냐식은 두리안 과육을 굴라 멜라카와 함께 졸여 진한 커스터드처럼 만듭니다.",
   },
   "peranakan::garam assam fish": {
     id: "Gulai ikan Peranakan yang pedas dan asam: asam jawa memberi rasa masam, rempah tumbuk cabai-kemiri-belacan-serai, wangi bunga kantan.",
@@ -9704,6 +10932,7 @@ module.exports = {
     zh: "娘惹的酸辣鱼煲：酸来自亚参，香料是辣椒、石栗、峇拉煎与香茅舂成的糊，再以姜花增香。",
     ja: "プラナカンの酸辣の魚煮込み。タマリンドの酸に、唐辛子、キャンドルナッツ、ブラチャン、レモングラスを搗いた香辛料、トーチジンジャーの香り。",
     es: "Guiso peranakan de pescado agripicante: acidez de tamarindo, rempah majado de chile, nuez de la India, belacan y citronela y bunga kantan.",
+    ko: "타마린드로 새콤하게 낸 프라나칸식 생선찜. 고추와 캔들넛, 블라찬, 레몬그라스를 빻은 렘파에 붕아 칸탄으로 향을 더합니다.",
   },
   "peranakan::hee pio soup": {
     id: "Sup perut ikan (hee pio) upacara Peranakan dalam kaldu babi-udang, dengan bakso ikan buatan tangan dan gulungan telur; hidangan Tok Panjang.",
@@ -9712,6 +10941,7 @@ module.exports = {
     zh: "娘惹礼席上的鱼鳔汤：猪肉虾米高汤，配手打鱼丸虾丸与蛋卷；长桌宴（Tok Panjang）的菜。",
     ja: "プラナカンの祝いの魚鰾スープ。豚と海老のだしに、手打ちの魚団子と卵巻きを浮かべ、トク・パンジャンの宴で供します。",
     es: "Sopa ceremonial peranakan de vejiga natatoria (hee pio) en caldo de cerdo y gamba, con bolas de pescado y rollos de huevo; del Tok Panjang.",
+    ko: "돼지·새우 육수에 말린 어표(히피오)와 손으로 빚은 생선·새우 완자, 달걀말이를 넣은 프라나칸의 의례용 수프로, 톡판장 잔치에 냅니다.",
   },
   "peranakan::inchi kabin": {
     id: "Ayam goreng dua kali khas Nyonya (Cina Selat), dimarinasi santan dan rempah, disajikan dengan cocolan asam; klasik Peranakan Penang.",
@@ -9720,6 +10950,7 @@ module.exports = {
     zh: "娘惹（海峡华人）的双炸鸡：先用椰浆与香料腌过，配酸香蘸酱；槟城土生华人的经典。",
     ja: "ニョニャ（海峡華人）の二度揚げ鶏。ココナッツミルクと香辛料に漬け、酸味のあるたれを添えます。ペナンのプラナカンの定番。",
     es: "Pollo nyonya (chinos del Estrecho) frito dos veces, marinado en leche de coco y especias, con un mojo ácido; clásico peranakan de Penang.",
+    ko: "코코넛밀크와 향신료에 재워 두 번 튀긴 뇨냐(해협 화교)식 닭 요리로, 새콤한 소스를 곁들이는 페낭 프라나칸의 대표 음식입니다.",
   },
   "peranakan::itek tim": {
     id: "Sup bebek Nyonya yang asam, dengan sayur asin, asam boi, asam jawa, dan pala; \"itek\" bebek dalam Melayu, \"tim\" menanak dalam Hokkien.",
@@ -9728,6 +10959,7 @@ module.exports = {
     zh: "娘惹酸味鸭汤：咸菜、酸梅、亚参与肉豆蔻同炖；名字是马来语的「itek」（鸭）加福建话的「炖」。",
     ja: "ニョニャの酸味のある鴨のスープ。塩漬け菜、梅、タマリンド、ナツメグ入り。名はマレー語の鴨「イテッ」と福建語の「炖」から。",
     es: "Sopa nyonya de pato con acidez, verdura salada, ciruela agria, tamarindo y nuez moscada; «itek» es pato en malayo y «tim» guisar en hokkien.",
+    ko: "갓지와 매실, 타마린드, 육두구로 새콤하게 낸 뇨냐식 오리 수프. 이름은 말레이어 '이텍'(오리)과 호키엔어 '팀'(고다)에서 왔습니다.",
   },
   "peranakan::kueh ambon": {
     id: "Kue tapioka-santan beragi dengan remah sarang lebah yang kenyal, biasanya beraroma pandan atau jeruk purut; asalnya dari Medan, Sumatra.",
@@ -9736,6 +10968,7 @@ module.exports = {
     zh: "发酵的木薯椰浆糕，内里是有嚼劲的蜂窝状组织，多以香兰或青柠叶增香；来自苏门答腊的棉兰。",
     ja: "酵母で膨らませたタピオカとココナッツミルクの菓子。蜂の巣状の弾力ある生地で、香りはパンダンかこぶみかん。スマトラのメダン発祥。",
     es: "Bizcocho de tapioca y leche de coco fermentado con levadura, de miga correosa y alveolada, con pandan o lima kaffir; nació en Medan.",
+    ko: "이스트로 부풀린 타피오카와 코코넛밀크 떡. 벌집처럼 쫄깃한 속살에 판단이나 카피르 라임 향을 입히며 수마트라 메단에서 왔습니다.",
   },
   "peranakan::kueh bahulu": {
     id: "Bolu telur sekali suap yang dipanggang dalam cetakan kuningan berbentuk bunga atau ikan; namanya berpangkal pada \"bolu\" Kristang-Portugis.",
@@ -9744,6 +10977,7 @@ module.exports = {
     zh: "一口大小的鸡蛋小蛋糕，用花形或鱼形的铜模烤成；名字源自克里斯坦－葡语的 bolu。",
     ja: "一口大の卵のスポンジ菓子。花や魚の形をした真鍮の型で焼き、名はクリスタン＝ポルトガル語の bolu に遡ります。",
     es: "Bizcochito de huevo de un bocado, horneado en moldes de latón con forma de flor o pez; el nombre viene del cristang-portugués «bolu».",
+    ko: "꽃이나 물고기 모양 놋쇠 틀에 구운 한입 크기 달걀 카스텔라로, 이름은 크리스탕·포르투갈어 '볼루'(케이크)에서 왔습니다.",
   },
   "peranakan::kueh bingka ubi": {
     id: "Kue singkong panggang dari parutan ubi kayu, santan, dan gula; padat, kenyal, berkerak karamel di atas; kue Melayu/Nyonya.",
@@ -9752,6 +10986,7 @@ module.exports = {
     zh: "烤木薯糕：木薯刨丝拌椰浆与糖同烤；扎实黏牙，顶上一层焦糖脆壳；马来／娘惹的糕点。",
     ja: "焼いたキャッサバの菓子。すりおろしたタピオカにココナッツミルクと砂糖を合わせ、密度が高くもっちり、表面はカラメルの香ばしい皮。",
     es: "Pastel horneado de mandioca: tapioca rallada, leche de coco y azúcar; denso, correoso y con la superficie caramelizada y crujiente.",
+    ko: "간 카사바에 코코넛밀크와 설탕을 넣어 구운 말레이·뇨냐식 떡으로, 조밀하고 쫄깃하며 윗면이 캐러멜처럼 바삭합니다.",
   },
   "peranakan::kueh dadar": {
     id: "Dadar pandan gulung khas Nyonya, hijau dari pandan atau daun suji, berisi kelapa parut yang dimasak gula melaka; \"gulung\" berarti gulung.",
@@ -9760,6 +10995,7 @@ module.exports = {
     zh: "娘惹的香兰卷饼：饼皮用香兰或树蓝叶染绿，卷起椰糖炒过的椰丝；dadar 是薄饼，gulung 是卷。",
     ja: "ニョニャの巻きクレープ。パンダンやダウン・スジで緑に染めた皮で、ヤシ砂糖で煮た削りココナッツを巻きます。ダダルは薄餅、グルンは巻く。",
     es: "Crepe nyonya enrollado, verde de pandan o daun suji, envolviendo coco rallado cocido en gula melaka; «dadar» es crepe y «gulung», enrollar.",
+    ko: "판단과 다운 수지로 초록빛을 낸 뇨냐식 크레프에 굴라 멜라카로 조린 코코넛채를 말아 낸 떡으로, '다다르'는 전, '굴룽'은 말이를 뜻합니다.",
   },
   "peranakan::kueh pie tee": {
     id: "Camilan \"topi tinggi\" Peranakan: mangkuk adonan goreng yang renyah, diisi bengkuang tumis, udang, dan cabai; nama diduga dari \"patty\".",
@@ -9768,6 +11004,7 @@ module.exports = {
     zh: "娘惹的「礼帽」小食：炸得酥脆的面糊小杯，填入焖沙葛、虾仁与辣椒；名字大概来自英语的 patty。",
     ja: "プラナカンの「シルクハット」。カリッと揚げた生地のカップに、煮たクワイ芋、海老、唐辛子を詰めます。名は英語の patty からとされます。",
     es: "Aperitivo peranakan «chistera»: cestita de masa frita y crujiente rellena de jícama guisada, gambas y chile; el nombre vendría de «patty».",
+    ko: "프라나칸의 '실크해트' 간식. 바삭하게 튀긴 반죽 컵에 조린 히카마와 새우, 고추를 채우며 이름은 영어 '패티'에서 온 듯합니다.",
   },
   "peranakan::kueh salat": {
     id: "Kue Nyonya dua lapis: ketan yang kerap dibirukan bunga telang di bawah puding pandan-kelapa hijau; disebut juga seri muka.",
@@ -9776,6 +11013,7 @@ module.exports = {
     zh: "娘惹双层糕：底层糯米常用蓝蝶豆花染蓝，上覆青绿的香兰椰奶蛋羹；也叫 seri muka。",
     ja: "ニョニャの二層菓子。バタフライピーで青く染めることの多いもち米を土台に、緑のパンダン・ココナッツカスタードを重ねます。スリムカとも。",
     es: "Kueh nyonya de dos capas: arroz glutinoso, a menudo azulado con guisante mariposa, bajo natilla verde de pandan y coco; también seri muka.",
+    ko: "두 겹으로 된 뇨냐 떡. 붕아 틀랑으로 파랗게 물들인 찹쌀 위에 초록빛 판단 코코넛 커스터드를 올리며 세리 무카라고도 합니다.",
   },
   "peranakan::lapis sagu": {
     id: "Kue lapis kukus Melayu-Peranakan dari pati sagu atau tapioka dan santan; lembut, kenyal, berlapis warna yang dikelupas satu per satu.",
@@ -9784,6 +11022,7 @@ module.exports = {
     zh: "马来娘惹的蒸千层糕：西米粉或木薯粉调椰浆蒸成；软而弹牙，彩色的层要一层层撕着吃。",
     ja: "マレー・プラナカンの蒸し重ね菓子。サゴかタピオカの澱粉とココナッツミルクで作り、やわらかく弾力があり、色の層を一枚ずつ剥がして食べます。",
     es: "Kuih malayo-peranakan al vapor de almidón de sagú o tapioca y leche de coco; blando, elástico y de capas de color que se despegan una a una.",
+    ko: "사고·타피오카 전분과 코코넛밀크로 쪄낸 말레이·프라나칸식 층떡으로, 쫀득하게 탱글하며 색색의 층을 한 겹씩 벗겨 먹습니다.",
   },
   "peranakan::nasi ulam": {
     id: "Nasi herba Nyonya: nasi diaduk dengan cincangan halus daun jeruk purut, daun kesum, kemangi, serai, daun kunyit, dan suwiran ikan.",
@@ -9792,6 +11031,7 @@ module.exports = {
     zh: "娘惹香草饭：白饭拌进切碎的青柠叶、叻沙叶、罗勒、香茅与姜黄叶，再加鱼肉碎。",
     ja: "ニョニャのハーブご飯。こぶみかんの葉、ダウン・クスム、バジル、レモングラス、ウコンの葉を細かく刻んで飯に混ぜ、魚をほぐし入れます。",
     es: "Arroz de hierbas nyonya: arroz mezclado con hojas picadas de lima kaffir, kesum, albahaca, citronela y cúrcuma, y pescado desmenuzado.",
+    ko: "뇨냐식 허브 밥. 카피르 라임잎과 다운 크숨, 바질, 레몬그라스, 강황잎을 곱게 썰어 밥에 버무리고 생선살을 섞습니다.",
   },
   "peranakan::nyonya bak chang": {
     id: "Bacang Peranakan: ketan yang sebagian dibirukan bunga telang, berisi daging babi cincang, kundur manisan, kacang tanah, dan rempah.",
@@ -9800,6 +11040,7 @@ module.exports = {
     zh: "娘惹粽：糯米有一部分用蓝蝶豆花染蓝，馅是肉碎、冬瓜糖、花生与香料。",
     ja: "プラナカンの粽。もち米の一部をバタフライピーで青く染め、豚ひき肉、冬瓜の砂糖漬け、落花生、香辛料を包みます。",
     es: "Zongzi peranakan: arroz glutinoso teñido en parte de azul con guisante mariposa, relleno de cerdo picado, calabaza confitada y cacahuete.",
+    ko: "프라나칸식 쫑쯔. 찹쌀 일부를 나비완두꽃으로 파랗게 물들이고 다진 돼지고기와 절인 동과, 땅콩, 향신료를 채웁니다.",
   },
   "peranakan::nyonya curry chicken (kapitan)": {
     id: "Kari ayam Peranakan (Nyonya); lebih pekat, kering, dan kental daripada kari biasa, dengan belacan, kemiri, serai, dan daun jeruk purut.",
@@ -9808,6 +11049,7 @@ module.exports = {
     zh: "娘惹咖喱鸡：比寻常咖喱更浓、更干、更稠，用峇拉煎、石栗、香茅与青柠叶。",
     ja: "ニョニャのチキンカレー。普通のカレーより濃く、汁気が少なく、とろみが強い。ブラチャン、キャンドルナッツ、レモングラス、こぶみかん。",
     es: "Curry de pollo peranakan (nyonya): más rico, más seco y más espeso que el corriente, con belacan, nuez de la India, citronela y lima kaffir.",
+    ko: "프라나칸(뇨냐)식 치킨 커리. 블라찬과 캔들넛, 레몬그라스, 카피르 라임을 넣어 보통 커리보다 진하고 되직합니다.",
   },
   "peranakan::nyonya kueh chang": {
     id: "Bacang Peranakan berbungkus daun pandan dan bambu, berisi babi, kundur manisan, dan ketumbar; sebagian dibirukan bunga telang.",
@@ -9816,6 +11058,7 @@ module.exports = {
     zh: "娘惹粽：香兰叶与竹叶双层包裹，馅有猪肉、冬瓜糖与芫荽；米有一部分用蓝蝶豆花染蓝。",
     ja: "パンダンと笹の葉で包むプラナカンの粽。豚肉、冬瓜の砂糖漬け、香菜を詰め、米の一部はバタフライピーで青く染めます。",
     es: "Bollo de arroz peranakan en hojas de pandan y bambú, con cerdo, calabaza confitada y cilantro; parte del arroz se tiñe de azul.",
+    ko: "판단잎과 대나무잎에 싼 프라나칸식 찹쌀 만두로, 돼지고기와 절인 동과, 고수를 넣고 일부를 나비완두꽃으로 파랗게 물들입니다.",
   },
   "peranakan::nyonya rendang": {
     id: "Tafsir Peranakan atas rendang Minangkabau: daging sapi dimasak lama dalam santan berempah, diperdalam kerisik kelapa sangrai.",
@@ -9824,6 +11067,7 @@ module.exports = {
     zh: "娘惹版的米南加保仁当：牛肉在香料椰浆里久煨，用炒香的椰丝 kerisik 添厚味。",
     ja: "ミナンカバウのルンダンをプラナカン風に。牛肉を香辛料入りのココナッツミルクで長く煮込み、炒りココナッツのクリシで深みを出します。",
     es: "Lectura peranakan del rendang minangkabau: ternera cocida largamente en leche de coco especiada, con kerisik de coco tostado por hondura.",
+    ko: "서수마트라 미낭카바우 른당을 프라나칸식으로 풀어낸 요리. 소고기를 향신 코코넛밀크에 오래 조리고 볶은 코코넛 크리식으로 깊이를 더합니다.",
   },
   "peranakan::perut ikan": {
     id: "Gulai asam pedas Nyonya dari perut ikan yang diawetkan garam bersama banyak herba dan sayur; daun kaduk yang memberinya ciri.",
@@ -9832,6 +11076,7 @@ module.exports = {
     zh: "娘惹的酸辣鱼肚煲：盐渍鱼肚配上大量香草与蔬菜；定味的是假蒟叶（daun kaduk）。",
     ja: "ニョニャの酸辣の煮込み。塩漬けの魚の胃袋に多くの香草と野菜を合わせ、味を決めるのはハイゴショウの葉ダウン・カドゥです。",
     es: "Guiso nyonya agripicante de estómago de pescado en salmuera con muchas hierbas y verduras; lo define la hoja silvestre daun kaduk.",
+    ko: "소금에 절인 생선 위와 여러 허브·채소를 넣은 뇨냐·프라나칸식 새콤매콤한 찜으로, 다운 카둑(야생 후추잎)이 맛을 결정합니다.",
   },
   "peranakan::pulut hitam": {
     id: "Bubur ketan hitam Nyonya yang dimaniskan gula melaka, diharumkan pandan, dan disajikan dengan santan kental.",
@@ -9840,6 +11085,7 @@ module.exports = {
     zh: "娘惹黑糯米粥：椰糖调甜，香兰添香，上桌时浇一勺浓椰浆。",
     ja: "ニョニャの黒もち米の粥。ヤシ砂糖で甘くし、パンダンで香りをつけ、濃いココナッツミルクをかけて供します。",
     es: "Gachas nyonya de arroz glutinoso negro endulzadas con gula melaka, perfumadas con pandan y servidas con leche de coco espesa.",
+    ko: "흑찹쌀을 굴라 멜라카로 달게 끓이고 판단 향을 입혀 진한 코코넛밀크를 끼얹어 내는 뇨냐식 죽 디저트입니다.",
   },
   "peranakan::pulut tai tai": {
     id: "Kue Nyonya dari ketan yang dipadatkan dalam santan, dibirukan bunga telang, dan disajikan bersama selai kaya.",
@@ -9848,6 +11094,7 @@ module.exports = {
     zh: "娘惹糕点：糯米用椰浆压实，蓝蝶豆花染蓝，配咖椰酱吃。",
     ja: "ニョニャの菓子。もち米をココナッツミルクで押し固め、バタフライピーで青く染め、カヤジャムを添えます。",
     es: "Kuih nyonya de arroz glutinoso prensado en leche de coco y teñido de azul con flor de guisante mariposa; se come con mermelada de kaya.",
+    ko: "찹쌀을 코코넛밀크에 눌러 굳힌 뇨냐 떡으로, 나비완두꽃(붕아 틀랑)으로 파랗게 물들이고 카야 잼을 곁들입니다.",
   },
   "persian::ash reshteh": {
     id: "Sup Persia yang kental berisi herba, kacang-kacangan, lentil, dan mi reshteh, dituntaskan dengan kashk.",
@@ -9856,6 +11103,7 @@ module.exports = {
     zh: "浓稠的波斯汤，用香草、豆类、扁豆与reshteh面条同煮，最后淋上发酵乳酱kashk。",
     ja: "香草、豆、レンズ豆、レシュテという麺を煮込んだ濃厚なペルシアのスープ。仕上げにカシュクをかける。",
     es: "Sopa persa espesa de hierbas, alubias, lentejas y fideos reshteh, terminada con kashk.",
+    ko: "허브와 콩, 렌즈콩, 레슈테 국수를 넣어 걸쭉하게 끓인 페르시아 수프로, 카슈크로 마무리합니다.",
   },
   "persian::baklava persian": {
     id: "Baghlava Persia adalah pastri kacang berlapis beraroma kapulaga dan sirop air mawar, menurut tradisi dikaitkan dengan kota Tabriz.",
@@ -9864,6 +11112,7 @@ module.exports = {
     zh: "波斯的baghlava是层叠的坚果酥点，以豆蔻与玫瑰水糖浆调味，传统上与大不里士城相连。",
     ja: "ペルシアのバグラヴァは、カルダモンとローズウォーターのシロップで香りづけした層状のナッツ菓子。タブリーズの町と結びつく。",
     es: "La baghlava persa es un pastel de nueces en capas con cardamomo y almíbar de agua de rosas, ligado por tradición a Tabriz.",
+    ko: "페르시아식 바글라바는 카르다몸과 장미수 시럽으로 향을 낸 겹겹의 견과 페이스트리로, 전통적으로 타브리즈와 얽혀 있습니다.",
   },
   "persian::barberry polo": {
     id: "Hidangan nasi Iran dari basmati harum safron bertabur barberry merah yang masam; sajian perayaan yang kerap dengan ayam.",
@@ -9872,6 +11121,7 @@ module.exports = {
     zh: "伊朗的米饭菜：藏红花香巴斯马蒂饭上撒酸味的红色小檗果；是节庆的吃食，常配鸡肉。",
     ja: "サフランの香るバスマティ米に酸味のある赤いメギの実をのせるイランの米料理。祝いの席で鶏肉と供される。",
     es: "Plato iraní de basmati perfumado con azafrán y coronado de agracejos rojos ácidos; festivo, a menudo con pollo.",
+    ko: "사프란 향 바스마티 위에 새콤한 붉은 매자열매를 올린 이란의 밥 요리로, 명절에 흔히 닭고기와 함께 냅니다.",
   },
   "persian::chelo kabab": {
     id: "Hidangan nasional Iran: nasi kukus bermentega safron (chelow) dengan kebab panggang, dipopulerkan pada masa dinasti Qajar.",
@@ -9880,6 +11130,7 @@ module.exports = {
     zh: "伊朗的国菜：藏红花黄油蒸米饭（chelow）配炭烤肉串，在恺加王朝时期流行开来。",
     ja: "イランの国民料理。サフランバターの蒸し米（チェロウ）に焼いたケバブを添える。ガージャール朝期に広まった。",
     es: "Plato nacional de Irán: arroz al vapor con mantequilla de azafrán (chelow) y kebab a la brasa, popularizado bajo la dinastía Qayar.",
+    ko: "사프란 버터를 넣은 찐 밥(첼로)에 구운 케밥을 곁들인 이란의 국민 음식으로, 카자르 왕조 시대에 널리 퍼졌습니다.",
   },
   "persian::doogh": {
     id: "Minuman Persia yang dingin dan gurih dari yoghurt atau susu mentega yang diencerkan air, diberi garam dan mint; kerap berkarbonasi.",
@@ -9888,6 +11139,7 @@ module.exports = {
     zh: "波斯的冰凉咸味饮品，用酸奶或酪乳兑水，加盐与薄荷调味；常带气泡。",
     ja: "ヨーグルトやバターミルクを水で割り、塩とミントで味付けしたペルシアの冷たい塩味の飲み物。炭酸入りも多い。",
     es: "Bebida persa fría y salada de yogur o suero de leche diluido en agua, con sal y menta; a menudo con gas.",
+    ko: "요구르트나 버터밀크를 물에 타 소금을 넣고 민트로 향을 낸 페르시아의 차갑고 짭짤한 음료로, 흔히 탄산을 넣습니다.",
   },
   "persian::eggplant kashk": {
     id: "Cocolan Iran dari terung panggang yang dilumat dengan kashk, bawang goreng, bawang putih, mint, dan kenari; disantap dengan roti.",
@@ -9896,6 +11148,7 @@ module.exports = {
     zh: "伊朗蘸酱：烤茄子捣泥，拌发酵乳清酱kashk、炸洋葱、大蒜、薄荷与核桃，配面包食用。",
     ja: "焼いてつぶしたナスに、発酵乳清カシュク、揚げ玉ねぎ、ニンニク、ミント、クルミを合わせるイランのディップ。パンとともに。",
     es: "Dip iraní de berenjena asada y machacada con kashk, cebolla frita, ajo, menta y nueces, que se come con pan.",
+    ko: "구워 으깬 가지에 카슈크(물기를 뺀 발효 유청)와 튀긴 양파, 마늘, 민트, 호두를 넣은 이란의 딥으로, 빵과 함께 먹습니다.",
   },
   "persian::faloodeh": {
     id: "Sorbet setengah beku Persia berisi bihun pati halus dalam sirop air mawar dan limau.",
@@ -9904,6 +11157,7 @@ module.exports = {
     zh: "波斯的半冷冻雪酪，用细淀粉粉丝浸在玫瑰水与青柠糖浆中。",
     ja: "細いでんぷんの麺をローズウォーターとライムのシロップに浸したペルシアの半冷凍シャーベット。",
     es: "Sorbete persa semicongelado de finos fideos de almidón en almíbar de agua de rosas y lima.",
+    ko: "가는 전분 국수를 장미수 라임 시럽에 넣어 살짝 얼린 페르시아의 셔벗입니다.",
   },
   "persian::fesenjan": {
     id: "Khoresh Iran: unggas yang ditim dalam kenari giling dan molase delima; berasal dari Gilan, menurut tradisi memakai bebek.",
@@ -9912,6 +11166,7 @@ module.exports = {
     zh: "伊朗的炖菜khoresh：禽肉以核桃碎与石榴糖蜜慢炖；源自吉兰省，传统上用鸭肉。",
     ja: "イランの煮込みホレシュ。鳥肉をクルミのペーストとザクロ糖蜜で煮る。ギーラーン発祥で、伝統的には鴨を使う。",
     es: "Khoresh iraní de ave guisada en nueces molidas y melaza de granada; originario de Gilán, tradicionalmente con pato.",
+    ko: "가금류를 간 호두와 석류 시럽에 끓인 이란의 스튜(호레시)로, 길란에서 비롯됐고 전통적으로 오리를 씁니다.",
   },
   "persian::ghormeh sabzi": {
     id: "Semur herba Iran dari peterseli, ketumbar, dan fenugreek yang ditumis dengan kacang merah, domba, dan limau Persia kering.",
@@ -9920,6 +11175,7 @@ module.exports = {
     zh: "伊朗的香草炖菜：欧芹、香菜与葫芦巴炒香后，加红芸豆、羊肉与干波斯青柠同炖；被视为国菜。",
     ja: "パセリ、コリアンダー、フェヌグリークを炒め、赤いんげん豆、羊肉、干しペルシャライムで煮るイランの香草シチュー。国民料理とされる。",
     es: "Guiso iraní de hierbas con perejil, cilantro y fenogreco fritos, alubias rojas, cordero y lima persa seca; se tiene por plato nacional.",
+    ko: "볶은 파슬리와 고수, 호로파에 강낭콩과 양고기, 말린 페르시아 라임을 넣은 이란의 허브 스튜로, 국민 음식으로 꼽힙니다.",
   },
   "persian::halim": {
     id: "Bubur gandum Persia yang kental, dimasak lama bersama suwiran daging; santapan sarapan, turunan hidangan Arab harees.",
@@ -9928,6 +11184,7 @@ module.exports = {
     zh: "浓稠的波斯小麦粥，与撕碎的肉长时间慢煮；作早餐吃，源自中世纪阿拉伯的harees。",
     ja: "小麦をほぐした肉とじっくり煮込むペルシアの濃厚な粥。朝食に食べ、中世アラブのハリースを起源とする。",
     es: "Gachas persas espesas de trigo cocido largamente con carne deshilachada; se toman de desayuno y descienden del harees árabe.",
+    ko: "밀을 잘게 찢은 고기와 함께 오래 끓인 되직한 페르시아 죽으로 아침에 먹으며, 중세 아랍의 하리스에서 이어졌습니다.",
   },
   "persian::joojeh kabab": {
     id: "Kebab ayam panggang Iran yang digemari, dimarinasi safron, bawang, dan air lemon; »joojeh« berarti ayam muda dalam bahasa Persia.",
@@ -9936,6 +11193,7 @@ module.exports = {
     zh: "伊朗广受欢迎的烤鸡肉串，先以藏红花、洋葱与柠檬汁腌渍；joojeh在波斯语中意为雏鸡。",
     ja: "サフラン、玉ねぎ、レモン汁に漬けて焼くイランで人気の鶏のケバブ。joojehはペルシア語で「ひな鶏」を意味する。",
     es: "Popular kebab iraní de pollo marinado en azafrán, cebolla y zumo de limón; «joojeh» significa pollito en persa.",
+    ko: "사프란과 양파, 레몬즙에 재워 구운 이란의 인기 닭꼬치로, '주제'는 페르시아어로 어린 닭을 뜻합니다.",
   },
   "persian::khoresh bademjan": {
     id: "Semur Iran dari terung goreng dan tomat dengan daging domba atau sapi serta bahan pengasam, disajikan di atas nasi kukus.",
@@ -9944,6 +11202,7 @@ module.exports = {
     zh: "伊朗炖菜：煎茄子与番茄配羊肉或牛肉，加酸味调料同炖，浇在蒸米饭上。",
     ja: "揚げたナスとトマトに羊肉か牛肉、酸味の素材を合わせて煮るイランのシチュー。蒸した米にかけて食べる。",
     es: "Guiso iraní de berenjena frita y tomate con cordero o vacuno y un ingrediente ácido, servido sobre arroz al vapor.",
+    ko: "튀긴 가지와 토마토에 양고기나 소고기, 신맛을 내는 재료를 넣어 끓인 이란 스튜로, 찐 밥에 끼얹어 냅니다.",
   },
   "persian::kuku sabzi": {
     id: "Hidangan telur Iran yang padat herba, semacam frittata tipis.",
@@ -9952,6 +11211,7 @@ module.exports = {
     zh: "伊朗的鸡蛋菜式，塞满香草，形如薄薄的意式煎蛋饼。",
     ja: "香草をたっぷり混ぜ込んだイランの卵料理。薄いフリッタータのようなもの。",
     es: "Plato iraní de huevo repleto de hierbas, a modo de tortilla fina.",
+    ko: "허브를 가득 넣어 얇게 부친 이란의 달걀 요리입니다.",
   },
   "persian::lubia polo": {
     id: "Hidangan nasi berlapis Iran berisi buncis dan daging sapi atau domba giling berbumbu dalam saus tomat, harum safron dan kayu manis.",
@@ -9960,6 +11220,7 @@ module.exports = {
     zh: "伊朗的层叠米饭菜：四季豆与调味牛肉或羊肉末在番茄酱汁中同煮，以藏红花与肉桂增香。",
     ja: "さやいんげんと香辛料入りの牛肉か羊肉のひき肉をトマトソースで煮て米と重ねるイランの料理。サフランとシナモンが香る。",
     es: "Arroz iraní en capas con judías verdes y carne picada de vacuno o cordero especiada en salsa de tomate, con azafrán y canela.",
+    ko: "줄기콩과 향신 다진 소고기나 양고기를 토마토소스에 넣어 밥과 켜켜이 쌓은 이란 요리로, 사프란과 계피로 향을 냅니다.",
   },
   "persian::mirza ghasemi": {
     id: "Cocolan Iran beraroma asap dari Gilan: terung bakar dengan bawang putih, tomat, dan telur.",
@@ -9968,6 +11229,7 @@ module.exports = {
     zh: "伊朗吉兰省的烟熏风味蘸酱：炭烤茄子拌大蒜、番茄与鸡蛋。",
     ja: "イラン・ギーラーン地方の燻香のあるディップ。焼きナスをニンニク、トマト、卵と合わせる。",
     es: "Dip iraní ahumado de Gilán: berenjena asada con ajo, tomate y huevo.",
+    ko: "구운 가지에 마늘과 토마토, 달걀을 넣어 만든 길란의 훈향 나는 이란식 딥입니다.",
   },
   "persian::sabzi polo ba mahi": {
     id: "Nasi herba Persia (peterseli, adas, kucai, ketumbar) dengan ikan goreng, menurut tradisi disantap saat Nowruz, Tahun Baru Persia.",
@@ -9976,6 +11238,7 @@ module.exports = {
     zh: "波斯香草饭（欧芹、莳萝、细香葱、香菜）配煎鱼；传统上在波斯新年诺鲁孜节享用。",
     ja: "パセリ、ディル、チャイブ、コリアンダーを混ぜたペルシアの香草ご飯に揚げ魚を添える。ペルシア新年ノウルーズの料理。",
     es: "Arroz persa de hierbas (perejil, eneldo, cebollino, cilantro) con pescado frito, comido por tradición en Noruz, el Año Nuevo persa.",
+    ko: "파슬리와 딜, 부추, 고수를 넣은 페르시아의 허브 밥에 튀긴 생선을 곁들인 요리로, 전통적으로 페르시아 새해 노루즈에 먹습니다.",
   },
   "persian::saffron rice persian": {
     id: "Nasi putih butir panjang kukus khas Persia (chelow) yang dihias safron mekar hingga keemasan; makanan pokok masakan Iran.",
@@ -9984,6 +11247,7 @@ module.exports = {
     zh: "波斯的长粒白米蒸饭（chelow），拌入泡开的藏红花使其呈金黄色；是伊朗饮食的主食。",
     ja: "蒸したペルシアの長粒白米（チェロウ）。水で開かせたサフランを散らして黄金色に染める、イラン料理の主食。",
     es: "Arroz blanco de grano largo al vapor persa (chelow) coronado con azafrán infusionado que lo tiñe de oro; base de la cocina iraní.",
+    ko: "우린 사프란으로 노랗게 물들인 페르시아의 찐 장립종 흰밥(첼로)으로, 이란 요리의 주식입니다.",
   },
   "persian::shirazi salad": {
     id: "Salad Persia dari Shiraz berisi mentimun, tomat, dan bawang yang didadu, dibalut verjus atau limau.",
@@ -9992,6 +11256,7 @@ module.exports = {
     zh: "设拉子的波斯沙拉：黄瓜、番茄与洋葱切丁，以青葡萄汁或青柠调味。",
     ja: "シーラーズのペルシア風サラダ。キュウリ、トマト、玉ねぎを角切りにし、未熟ブドウ果汁かライムで和える。",
     es: "Ensalada persa de Shiraz con pepino, tomate y cebolla en dados, aliñada con agraz o lima.",
+    ko: "오이와 토마토, 양파를 깍둑 썰어 베르주스나 라임에 버무린 시라즈의 페르시아 샐러드입니다.",
   },
   "persian::tahdig": {
     id: "Kerak nasi keemasan yang renyah di dasar panci dalam masakan Persia; namanya berarti »dasar panci«.",
@@ -10000,6 +11265,7 @@ module.exports = {
     zh: "波斯烹饪中锅底结出的金黄酥脆锅巴，也可用面饼或马铃薯做成；名称意为「锅底」。",
     ja: "ペルシア料理で鍋底にできる黄金色のおこげ。米のほかパンやじゃがいもでも作る。名は「鍋の底」の意。",
     es: "Costra dorada y crujiente de arroz formada en el fondo de la olla en la cocina persa; el nombre significa «fondo de la olla».",
+    ko: "페르시아 요리에서 냄비 바닥에 생기는 노릇하고 바삭한 밥(또는 빵·감자) 껍질로, 이름은 '냄비 바닥'이라는 뜻입니다.",
   },
   "persian::zereshk polo": {
     id: "Pilaf basmati safron Persia bertabur zereshk, buah barberry yang masam manis; hidangan perayaan yang kerap disajikan dengan ayam.",
@@ -10008,6 +11274,7 @@ module.exports = {
     zh: "波斯藏红花巴斯马蒂抓饭，缀以酸甜的小檗果zereshk；是节庆菜，常配鸡肉。",
     ja: "サフランのバスマティ米に甘酸っぱいメギの実（ゼレシュク）を散らすペルシアのピラフ。祝いの席で鶏肉とともに供される。",
     es: "Pilaf persa de basmati con azafrán y agracejos agridulces (zereshk); plato festivo que suele servirse con pollo.",
+    ko: "새콤달콤한 매자열매(제레슈크)를 박아 넣은 사프란 바스마티 필라프로, 명절에 흔히 닭고기와 함께 냅니다.",
   },
   "polish::barszcz polish": {
     id: "Sup bit masam Polandia, kerap berupa kaldu bening dari jus bit fermentasi; menurut tradisi disajikan Malam Natal dengan uszka.",
@@ -10016,6 +11283,7 @@ module.exports = {
     zh: "波兰的酸甜菜汤，常是发酵甜菜汁做成的清汤；传统上在圣诞前夜佐uszka小饺子食用。",
     ja: "ポーランドの酸味のあるビーツのスープ。発酵ビーツ汁の澄んだだしが多く、クリスマスイブに小さな団子ウシュカを添える。",
     es: "Sopa agria polaca de remolacha, a menudo un caldo claro de zumo de remolacha fermentado; en Nochebuena se sirve con uszka.",
+    ko: "폴란드의 새콤한 비트 수프로, 흔히 발효한 비트즙으로 낸 맑은 국물이며 전통적으로 크리스마스이브에 우슈카 만두와 함께 냅니다.",
   },
   "polish::bigos": {
     id: "Hidangan nasional Polandia: semur pemburu dari aneka daging yang ditim lama bersama asinan kubis dan kubis segar; ada sejak abad ke-17.",
@@ -10024,6 +11292,7 @@ module.exports = {
     zh: "波兰的国菜：猎人炖菜，把各种肉切碎与酸白菜及新鲜甘蓝慢炖而成；17世纪起便有记载。",
     ja: "ポーランドの国民料理。刻んださまざまな肉をザワークラウトと生のキャベツでじっくり煮込む猟師の煮込み。17世紀から記録がある。",
     es: "Plato nacional polaco: guiso del cazador con carnes picadas cocidas largamente con chucrut y col fresca; documentado desde el siglo XVII.",
+    ko: "여러 고기를 썰어 사워크라우트와 생양배추에 오래 끓인 사냥꾼의 스튜로, 17세기부터 기록에 나오는 폴란드의 국민 음식입니다.",
   },
   "polish::chlodnik": {
     id: "Sup bit dingin Polandia-Lituania: bit parut dalam kefir atau susu mentega dengan mentimun, adas, dan telur; sejak zaman Persemakmuran.",
@@ -10032,6 +11301,7 @@ module.exports = {
     zh: "波兰—立陶宛的冷甜菜汤：擦丝甜菜浸在克菲尔或酪乳中，配黄瓜、莳萝与鸡蛋；可上溯到波立联邦时期。",
     ja: "ポーランド・リトアニアの冷たいビーツのスープ。すりおろしたビーツをケフィアやバターミルクに入れ、キュウリ、ディル、卵を添える。",
     es: "Sopa fría polaco-lituana de remolacha rallada en kéfir o suero de leche con pepino, eneldo y huevo; data de la Mancomunidad.",
+    ko: "간 비트를 케피어나 버터밀크에 넣고 오이와 딜, 달걀을 더한 폴란드·리투아니아의 차가운 비트 수프로, 연방 시대까지 거슬러 오릅니다.",
   },
   "polish::flaki": {
     id: "Sup babat sapi Polandia yang disantap sejak abad ke-14, konon kegemaran Raja Wladyslaw II Jagiello.",
@@ -10040,6 +11310,7 @@ module.exports = {
     zh: "波兰的牛肚汤，自14世纪起便是餐桌上的吃食；据说是国王瓦迪斯瓦夫二世·雅盖沃的心头好。",
     ja: "14世紀から食べられてきたポーランドの牛のもつスープ。国王ヴワディスワフ2世ヤギェウォの好物だったと伝わる。",
     es: "Sopa polaca de callos de vacuno, consumida desde el siglo XIV y, según se dice, favorita del rey Vladislao II Jagellón.",
+    ko: "14세기부터 먹어 온 폴란드의 소 양 수프로, 국왕 브와디스와프 2세 야기에우워가 즐겼다고 전해집니다.",
   },
   "polish::golabki": {
     id: "Gulungan kubis Polandia berisi daging cincang dan nasi dalam saus tomat; namanya berarti »merpati kecil«.",
@@ -10048,6 +11319,7 @@ module.exports = {
     zh: "波兰白菜卷，以肉馅与米饭为馅，浸在番茄酱汁中；名称意为「小鸽子」。",
     ja: "ひき肉と米を包み、トマトソースで煮るポーランドのロールキャベツ。名は「小さな鳩」の意。",
     es: "Rollos de col polacos con carne picada y arroz en salsa de tomate; el nombre significa «palomitas».",
+    ko: "다진 고기와 쌀을 양배추 잎에 말아 토마토소스에 익힌 폴란드 요리로, 이름은 '작은 비둘기'라는 뜻입니다.",
   },
   "polish::kapusta kiszona": {
     id: "Asinan kubis tradisional Polandia: kubis diawetkan lewat fermentasi asam laktat dengan garam.",
@@ -10056,6 +11328,7 @@ module.exports = {
     zh: "波兰传统的酸白菜：甘蓝加盐经乳酸发酵保存而成。",
     ja: "ポーランドの伝統的なザワークラウト。キャベツを塩とともに乳酸発酵させて保存する。",
     es: "Chucrut tradicional polaco: col conservada por fermentación láctica con sal.",
+    ko: "소금과 함께 유산 발효시켜 저장한 폴란드의 전통 사워크라우트입니다.",
   },
   "polish::kielbasa": {
     id: "Sebutan bagi sosis daging apa pun dari Polandia dan pokok masakannya; menurut tradisi dari babi, ada pula sapi, anak sapi, dan unggas.",
@@ -10064,6 +11337,7 @@ module.exports = {
     zh: "波兰对各式肉肠的统称，也是其饮食的支柱；传统上用猪肉，也有牛肉、小牛肉与禽肉的做法。",
     ja: "ポーランドの肉のソーセージ全般を指す語で、同国の食の柱。伝統的には豚肉だが、牛・子牛・鶏のものもある。",
     es: "Cualquier embutido de carne de Polonia y pilar de su cocina, tradicionalmente de cerdo, aunque hay versiones de vacuno, ternera y ave.",
+    ko: "폴란드의 고기 소시지를 두루 이르는 말로, 전통적으로 돼지고기를 쓰지만 소나 송아지, 가금류로 만든 것도 있습니다.",
   },
   "polish::kotlet schabowy": {
     id: "Potongan daging punggung babi Polandia, atau kotelet, yang dilapisi tepung roti.",
@@ -10072,6 +11346,7 @@ module.exports = {
     zh: "波兰的裹面包糠猪里脊（或带骨猪排）。",
     ja: "パン粉をまとわせたポーランドの豚ロース（または骨付きチョップ）。",
     es: "Lomo de cerdo polaco (o chuleta) rebozado en pan rallado.",
+    ko: "빵가루를 입힌 폴란드의 돼지 등심 커틀릿입니다.",
   },
   "polish::makowiec": {
     id: "Roti gulung manis tradisional Polandia berisi biji poppy giling, madu, dan kacang; terutama disantap saat Natal dan Paskah.",
@@ -10080,6 +11355,7 @@ module.exports = {
     zh: "波兰传统的甜发酵卷，内填罂粟籽泥、蜂蜜与坚果；尤在圣诞与复活节时享用。",
     ja: "挽いたケシの実、蜂蜜、ナッツを巻き込むポーランドの伝統的な甘い発酵パン。クリスマスと復活祭に特に食べる。",
     es: "Rollo dulce tradicional polaco de masa fermentada relleno de semillas de amapola molidas, miel y frutos secos; navideño y pascual.",
+    ko: "간 양귀비씨와 꿀, 견과를 채운 폴란드의 전통 발효 롤케이크로, 특히 성탄절과 부활절에 먹습니다.",
   },
   "polish::mazurek": {
     id: "Kue Paskah Polandia yang datar dari adonan renyah, ditaburi kajmak, kacang, selai, atau cokelat; tradisi sejak abad ke-19.",
@@ -10088,6 +11364,7 @@ module.exports = {
     zh: "波兰扁平的复活节酥皮蛋糕，面上铺焦糖奶酱、坚果、果酱或巧克力；19世纪以来的传统。",
     ja: "カイマク、ナッツ、ジャム、チョコレートを飾るポーランドの平たい復活祭のタルト。19世紀からの伝統。",
     es: "Torta pascual polaca plana de masa quebrada cubierta de kajmak, frutos secos, mermelada o chocolate; tradición desde el siglo XIX.",
+    ko: "카이마크와 견과, 잼이나 초콜릿을 올린 납작한 폴란드의 부활절 파이로, 19세기부터 이어진 전통 과자입니다.",
   },
   "polish::mizeria": {
     id: "Salad Polandia dari mentimun iris tipis dalam krim asam; namanya dari kata Latin »miseria«, kemiskinan.",
@@ -10096,6 +11373,7 @@ module.exports = {
     zh: "波兰的黄瓜沙拉，将黄瓜切成薄片拌酸奶油；名称源自拉丁语miseria，即贫苦。",
     ja: "薄切りキュウリをサワークリームで和えたポーランドのサラダ。名はラテン語のmiseria（貧しさ）に由来。",
     es: "Ensalada polaca de pepino en lonchas finas con nata agria; su nombre viene del latín miseria, pobreza.",
+    ko: "얇게 저민 오이를 사워크림에 버무린 폴란드 샐러드로, 이름은 '가난'을 뜻하는 라틴어 미제리아에서 왔습니다.",
   },
   "polish::oscypek": {
     id: "Keju susu domba asin berbentuk gelendong yang diasap dari Pegunungan Tatra Polandia, dibuat tangan warga dataran tinggi; dilindungi PDO.",
@@ -10104,6 +11382,7 @@ module.exports = {
     zh: "波兰塔特拉山区的烟熏咸味绵羊奶酪，呈纺锤形，由高地牧人手工制作，受欧盟原产地名称保护。",
     ja: "ポーランド・タトラ山地の紡錘形をした燻製の塩味羊乳チーズ。高地の人々が手作りし、EUの原産地呼称保護を受ける。",
     es: "Queso de oveja ahumado y salado con forma de huso de los Tatras polacos, hecho a mano por los montañeses y protegido con DOP.",
+    ko: "폴란드 타트라산맥의 훈제 방추형 염장 양젖 치즈로, 산간 사람들이 손으로 만들며 유럽연합 원산지 명칭 보호를 받습니다.",
   },
   "polish::paczki": {
     id: "Donat goreng Polandia berisi selai, dari adonan kaya telur dan mentega; menurut tradisi disantap pada Kamis Gemuk sebelum Prapaskah.",
@@ -10112,6 +11391,7 @@ module.exports = {
     zh: "波兰的油炸夹馅甜甜圈，面团用大量鸡蛋与黄油制成；传统上在四旬期前的「胖星期四」享用。",
     ja: "卵とバターをたっぷり使う生地で作るポーランドの揚げドーナツ。四旬節前の「太った木曜日」に食べる習わし。",
     es: "Rosquillas polacas fritas y rellenas de masa rica en huevo y mantequilla, comidas por tradición el Jueves Gordo antes de Cuaresma.",
+    ko: "달걀과 버터를 넉넉히 넣은 반죽에 소를 채워 튀긴 폴란드 도넛으로, 전통적으로 사순절 전 '기름진 목요일'에 먹습니다.",
   },
   "polish::pierogi": {
     id: "Pangsit setengah bulan Polandia dari adonan tanpa ragi dengan isian gurih atau manis, tercatat di buku masak Polandia pertama 1682.",
@@ -10120,6 +11400,7 @@ module.exports = {
     zh: "波兰的半月形饺子，用无酵面皮包咸味或甜味馅料；1682年波兰第一部食谱中已有记载。",
     ja: "無発酵の生地で塩味や甘い具を包む半月形のポーランドの団子。1682年のポーランド初の料理書に記載がある。",
     es: "Empanadillas polacas en media luna de masa sin levadura con relleno salado o dulce, citadas en el primer recetario polaco de 1682.",
+    ko: "무발효 반죽에 짭짤하거나 단 소를 채워 반달 모양으로 빚은 폴란드 만두로, 1682년 폴란드 최초의 요리책에 실려 있습니다.",
   },
   "polish::pierogi ruskie": {
     id: "Pangsit rebus Polandia berisi kentang tumbuk dan keju dadih twaróg.",
@@ -10128,6 +11409,7 @@ module.exports = {
     zh: "波兰的水煮饺子，馅为马铃薯泥与凝乳干酪twaróg。",
     ja: "マッシュポテトとカード（トヴァルク）を詰めたポーランドの茹で団子。",
     es: "Empanadillas polacas hervidas rellenas de puré de patata y requesón twaróg.",
+    ko: "으깬 감자와 트바루크 커드 치즈를 채워 삶은 폴란드 만두입니다.",
   },
   "polish::placki ziemniaczane": {
     id: "Panekuk kentang goreng Polandia dari kentang mentah parut, bawang, dan telur.",
@@ -10136,6 +11418,7 @@ module.exports = {
     zh: "波兰的马铃薯煎饼，用擦丝的生马铃薯、洋葱与鸡蛋煎成。",
     ja: "すりおろした生のじゃがいも、玉ねぎ、卵で焼くポーランドのポテトパンケーキ。",
     es: "Tortitas de patata polacas de patata cruda rallada, cebolla y huevo.",
+    ko: "생감자를 갈아 양파와 달걀을 섞어 지진 폴란드의 감자전입니다.",
   },
   "polish::pyzy": {
     id: "Pangsit lonjong besar Polandia dari adonan kentang atau ragi, kerap diisi daging dan disajikan dengan remah bacon atau bawang.",
@@ -10144,6 +11427,7 @@ module.exports = {
     zh: "波兰的大椭圆团子，用马铃薯面团或发酵面团制成，常包肉馅，佐培根碎或洋葱。",
     ja: "じゃがいも生地や発酵生地で作るポーランドの大きな楕円形の団子。肉を詰め、ベーコンの粒や玉ねぎを添えることが多い。",
     es: "Grandes bolas ovaladas polacas de masa de patata o fermentada, a menudo rellenas de carne y servidas con tocino o cebolla.",
+    ko: "감자나 발효 반죽으로 크게 빚은 타원형 폴란드 경단으로, 흔히 고기를 채워 베이컨 조각이나 양파와 함께 냅니다.",
   },
   "polish::rosol": {
     id: "Kaldu daging bening tradisional Polandia, paling sering dari ayam, direbus bersama sayuran dan disajikan dengan mi tipis.",
@@ -10152,6 +11436,7 @@ module.exports = {
     zh: "波兰传统的清炖肉汤，多以鸡肉熬制，与蔬菜同煮，佐细面条食用。",
     ja: "ポーランドの伝統的な澄んだ肉のスープ。多くは鶏を野菜とともに煮出し、細い麺を入れて供する。",
     es: "Caldo de carne claro tradicional polaco, casi siempre de pollo, cocido con verduras y servido con fideos finos.",
+    ko: "폴란드의 전통 맑은 고기 국물로 닭으로 낸 것이 가장 흔하며, 채소와 함께 끓여 가는 국수를 넣어 냅니다.",
   },
   "polish::sernik": {
     id: "Kue keju panggang Polandia dari twaróg (keju dadih), sudah ada sejak abad ke-17, berakar pada tradisi kuliner Kristen dan Yahudi.",
@@ -10160,6 +11445,7 @@ module.exports = {
     zh: "波兰的烤干酪蛋糕，用凝乳干酪twaróg制成；可追溯到17世纪，根源兼含基督教与犹太的饮食传统。",
     ja: "カード（トヴァルク）で作るポーランドの焼きチーズケーキ。17世紀に遡り、キリスト教とユダヤ双方の食の伝統に根を持つ。",
     es: "Tarta de queso horneada polaca de twaróg (requesón), documentada desde el siglo XVII, con raíces cristianas y judías.",
+    ko: "트바루크(커드 치즈)로 구운 폴란드 치즈케이크로, 17세기까지 거슬러 오르며 기독교와 유대의 요리 전통에 뿌리를 둡니다.",
   },
   "polish::zapiekanka": {
     id: "Baguette panggang terbuka khas Polandia dengan jamur tumis, keju, dan saus tomat; jajanan jalanan yang lahir pada 1970-an.",
@@ -10168,6 +11454,7 @@ module.exports = {
     zh: "波兰的开面烤法棍，铺上炒蘑菇、奶酪与番茄酱；这是1970年代兴起的街头小吃。",
     ja: "炒めたきのこ、チーズ、ケチャップをのせて焼くポーランドのオープンサンド。1970年代に生まれた屋台の味。",
     es: "Baguette polaca abierta y gratinada con setas salteadas, queso y kétchup; comida callejera nacida en los años setenta.",
+    ko: "길게 가른 바게트에 볶은 버섯과 치즈, 케첩을 올려 구운 폴란드 음식으로, 1970년대에 생긴 길거리 음식입니다.",
   },
   "polish::zurek": {
     id: "Sup Polandia dari tepung gandum hitam yang diasamkan, memakai biang fermentasi mirip ragi alami yang disebut zakwas.",
@@ -10176,6 +11463,7 @@ module.exports = {
     zh: "波兰的酸黑麦面粉汤，用一种类似酸面种的发酵引子zakwas调酸。",
     ja: "酸味を出したライ麦粉のポーランドのスープ。サワードウに似たzakwasという発酵種を使う。",
     es: "Sopa polaca de harina de centeno agriada con un fermento parecido a la masa madre llamado zakwas.",
+    ko: "호밀가루를 발효시킨 사워도 같은 시큼한 종자(자크바스)로 끓인 폴란드 수프입니다.",
   },
   "portuguese::alheira": {
     id: "Sosis asap Portugal dari unggas atau daging buruan dan roti; ciptaan Yahudi Sefardi selepas 1497 demi meniru babi dan luput dari Inkuisisi.",
@@ -10184,6 +11472,7 @@ module.exports = {
     zh: "葡萄牙的烟熏香肠：用禽肉或野味加面包灌成；一四九七年后由塞法迪犹太人创出，为的是装作猪肉、瞒过宗教裁判所。",
     ja: "家禽や野禽の肉とパンで作るポルトガルの燻製ソーセージ。一四九七年以降、セファルディムが豚肉を装い異端審問を逃れるために生みました。",
     es: "Embutido ahumado portugués de ave o caza y pan; lo idearon los judíos sefardíes tras 1497 para simular cerdo y eludir la Inquisición.",
+    ko: "가금류나 사냥 고기와 빵으로 만든 포르투갈의 훈제 소시지로, 1497년 이후 세파르디 유대인이 돼지고기를 흉내 내 종교재판을 피하려 만들었습니다.",
   },
   "portuguese::arroz de marisco": {
     id: "Hidangan nasi dan boga bahari Portugis yang berkuah, mirip paella; dinobatkan salah satu dari Tujuh Keajaiban Gastronomi Portugal.",
@@ -10192,6 +11481,7 @@ module.exports = {
     zh: "葡萄牙偏汤的海鲜烩饭，与西班牙海鲜饭相近；入选葡萄牙美食七大奇迹。",
     ja: "パエリアに似た、汁気の多いポルトガルの魚介の米料理。ポルトガル美食の七不思議のひとつに選ばれている。",
     es: "Arroz caldoso portugués de marisco, parecido a la paella, nombrado una de las Sete Maravilhas de la gastronomía portuguesa.",
+    ko: "국물이 넉넉한 포르투갈의 조개 쌀 요리로 파에야와 비슷하며, 포르투갈 미식 7대 불가사의에 꼽혔습니다.",
   },
   "portuguese::arroz doce": {
     id: "Puding nasi Portugis yang lembut beraroma lemon dan kayu manis, ditaburi pola kayu manis dan disajikan saat Natal dan perayaan.",
@@ -10200,6 +11490,7 @@ module.exports = {
     zh: "葡萄牙绵密的米布丁，以柠檬与肉桂调味，面上撒出肉桂花纹；圣诞与节庆时享用。",
     ja: "レモンとシナモンで香りづけしたポルトガルのなめらかなライスプディング。シナモンで模様を描き、クリスマスや祝祭に供する。",
     es: "Arroz con leche portugués cremoso al limón y la canela, espolvoreado con dibujos de canela y servido en Navidad y fiestas.",
+    ko: "레몬과 계피로 향을 낸 크리미한 포르투갈식 쌀 푸딩으로, 계핏가루로 무늬를 그려 성탄절과 축제에 냅니다.",
   },
   "portuguese::bacalhau": {
     id: "Ikan kod Portugis yang dikeringkan dan digarami, pokok nasional yang terikat pada perikanan kod abad ke-16 di lepas Newfoundland.",
@@ -10208,6 +11499,7 @@ module.exports = {
     zh: "葡萄牙的干腌鳕鱼，是与16世纪纽芬兰外海鳕鱼渔业相连的国民主食。",
     ja: "ポルトガルの塩漬け干しダラ。16世紀のニューファンドランド沖の鱈漁と結びついた、国を代表する保存食。",
     es: "Bacalao seco y salado portugués, alimento nacional ligado a las pesquerías de bacalao del siglo XVI frente a Terranova.",
+    ko: "말려 소금에 절인 포르투갈의 대구로, 16세기 뉴펀들랜드 앞바다의 대구 어장과 얽힌 국민 주식입니다.",
   },
   "portuguese::bacalhau com natas": {
     id: "Panggangan Portugal berisi kod asin, kentang goreng, dan bawang bombai yang dilapis krim; kerap dibumbui pala.",
@@ -10216,6 +11508,7 @@ module.exports = {
     zh: "葡萄牙的焗菜：咸鳕鱼、炸土豆与洋葱层层叠上奶油；常撒肉豆蔻。",
     ja: "塩鱈、揚げたじゃがいも、玉ねぎを生クリームで重ねて焼くポルトガルのグラタン。ナツメグを効かせることも。",
     es: "Gratén portugués de bacalao, patatas fritas y cebolla en capas con nata; a menudo sazonado con nuez moscada.",
+    ko: "소금 대구와 튀긴 감자, 양파를 크림과 켜켜이 쌓아 구운 포르투갈 요리로, 흔히 육두구로 향을 냅니다.",
   },
   "portuguese::bacalhau à brás": {
     id: "Hidangan Portugal dari suwiran kod asin, bawang bombai, dan kentang korek api yang diikat telur; lahir di Bairro Alto, Lisboa.",
@@ -10224,6 +11517,7 @@ module.exports = {
     zh: "葡萄牙菜：咸鳕鱼撕成丝，与洋葱、细炸薯条同炒，用蛋液收拢；十九世纪生于里斯本的上城区。",
     ja: "塩鱈をほぐし、玉ねぎと細切りのフライドポテトを卵でまとめるポルトガルの料理。十九世紀、リスボンのバイロ・アルト生まれ。",
     es: "Plato portugués de bacalao desmigado, cebolla y patata paja ligados con huevo; nació en el Bairro Alto lisboeta del siglo XIX.",
+    ko: "소금 대구를 찢어 양파와 성냥개비 감자튀김과 함께 달걀로 엮은 포르투갈 요리로, 19세기 리스본 바이루알투에서 비롯됐습니다.",
   },
   "portuguese::bifana": {
     id: "Roti lapis Portugal berisi irisan tipis babi yang direbus dalam bawang putih dan anggur, di atas roti berkerak; khas Vendas Novas.",
@@ -10232,6 +11526,7 @@ module.exports = {
     zh: "葡萄牙的猪扒包：薄切猪肉在蒜与酒里煨过，夹进硬壳小面包；常被追到阿连特茹的 Vendas Novas。",
     ja: "薄切りの豚肉をにんにくとワインで煮て、皮の固いパンに挟むポルトガルのサンド。アレンテージョのヴェンダス・ノヴァス発祥とされます。",
     es: "Bocadillo portugués de lonchas finas de cerdo guisadas en ajo y vino sobre pan crujiente; suele atribuirse a Vendas Novas, en el Alentejo.",
+    ko: "얇게 저민 돼지고기를 마늘과 와인에 익혀 바삭한 빵에 끼운 포르투갈 샌드위치로, 흔히 알렌테주의 벤다스노바스에서 왔다고 봅니다.",
   },
   "portuguese::bolinhos de bacalhau": {
     id: "Gorengan Portugal dari kod asin, kentang, telur, dan peterseli, disajikan sebagai pembuka; di selatan disebut pasteis de bacalhau.",
@@ -10240,6 +11535,7 @@ module.exports = {
     zh: "葡萄牙的炸鳕鱼球：咸鳕鱼、土豆、蛋与欧芹搓成下油锅；南部管它叫 pastéis de bacalhau。",
     ja: "塩鱈、じゃがいも、卵、パセリで作るポルトガルの揚げ団子。前菜として供され、南部ではパステイス・デ・バカリャウと呼ばれます。",
     es: "Buñuelos portugueses fritos de bacalao, patata, huevo y perejil, servidos de entrante; en el sur se llaman pastéis de bacalhau.",
+    ko: "소금 대구와 감자, 달걀, 파슬리로 빚어 튀긴 포르투갈의 전채로, 남부에서는 파스테이스 드 바칼랴우라 부릅니다.",
   },
   "portuguese::caldeirada": {
     id: "Semur nelayan Portugal dan Galisia dari aneka ikan, kerang, dan kentang; dinamai dari periuk masaknya, caldeira.",
@@ -10248,6 +11544,7 @@ module.exports = {
     zh: "葡萄牙与加利西亚渔民的杂鱼煲：各色鱼、贝与土豆同煮；名字取自那口锅 caldeira。",
     ja: "ポルトガルとガリシアの漁師の煮込み。数種の魚、貝、じゃがいもを合わせ、名は鍋カルデイラに由来します。",
     es: "Guiso marinero portugués y gallego de pescados variados, marisco y patatas; su nombre viene de la caldera en que se cuece.",
+    ko: "여러 생선과 조개, 감자를 넣어 끓인 포르투갈과 갈리시아 어부들의 찜으로, 조리에 쓰는 솥 '칼데이라'에서 이름을 땄습니다.",
   },
   "portuguese::caldo verde": {
     id: "Sup Portugal dari kubis kale yang diiris halus, kentang, minyak zaitun, dan bawang bombai; berasal dari kawasan Minho di utara.",
@@ -10256,6 +11553,7 @@ module.exports = {
     zh: "葡萄牙的青菜汤：羽衣甘蓝切成细丝，配土豆、橄榄油与洋葱；出自北部的米尼奥地区。",
     ja: "細く刻んだケールに、じゃがいも、オリーブ油、玉ねぎを合わせたポルトガルのスープ。北部ミーニョ地方の出です。",
     es: "Sopa portuguesa de couve-galega en juliana, patata, aceite de oliva y cebolla; originaria de la región norteña del Miño.",
+    ko: "채 썬 케일과 감자, 올리브유, 양파로 끓인 포르투갈 수프로, 북부 미뉴 지방에서 비롯됐습니다.",
   },
   "portuguese::cataplana": {
     id: "Gulai makanan laut Portugal dari Algarve, dikukus dalam wajan tembaga berengsel yang berakar pada peralatan masak Afrika Utara masa Moor.",
@@ -10264,6 +11562,7 @@ module.exports = {
     zh: "阿尔加维的葡萄牙海鲜煲：在带铰链的铜制贝壳锅里蒸；那锅的形制源自摩尔时期的北非炊具。",
     ja: "アルガルヴェのポルトガルの魚介煮込み。蝶番のついた銅の貝形鍋で蒸します。ムーア期の北アフリカの調理器具に発する道具です。",
     es: "Guiso portugués de marisco del Algarve, cocido al vapor en una cazuela de cobre con bisagra de raíz norteafricana y morisca.",
+    ko: "알가르브에서 온 포르투갈의 해산물 찜으로, 조개 모양 구리 냄비에 쪄내며 무어 시대 북아프리카 조리 도구에 뿌리를 둡니다.",
   },
   "portuguese::chouriço": {
     id: "Sosis babi asap Portugal dengan paprika, bawang putih, dan anggur; paprikanya lebih lembut dan bawangnya lebih kuat dari chorizo Spanyol.",
@@ -10272,6 +11571,7 @@ module.exports = {
     zh: "葡萄牙的烟熏猪肉肠：以红椒粉、蒜与葡萄酒腌制；红椒味比西班牙的 chorizo 淡，蒜味却更冲。",
     ja: "パプリカ、にんにく、ワインで漬けたポルトガルの燻製豚肉ソーセージ。スペインのチョリソよりパプリカは控えめ、にんにくは強め。",
     es: "Embutido de cerdo ahumado portugués curado con pimentón, ajo y vino; menos pimentón y más ajo que el chorizo español.",
+    ko: "파프리카와 마늘, 와인으로 절인 포르투갈의 훈제 돼지고기 소시지로, 스페인 초리소보다 파프리카는 덜하고 마늘이 강합니다.",
   },
   "portuguese::feijoada portuguesa": {
     id: "Semur kacang dan daging Portugal berisi kacang dengan babi, sosis, dan bacon; berasal dari kawasan Tras-os-Montes di utara Portugal.",
@@ -10280,6 +11580,7 @@ module.exports = {
     zh: "葡萄牙的豆焖肉：豆子与猪肉、香肠、培根同炖；出自葡萄牙北部的山后地区。",
     ja: "豆と肉のポルトガルの煮込み。豚肉、ソーセージ、ベーコンを合わせます。北部トラズ・オス・モンテス地方の出です。",
     es: "Guiso portugués de alubias con cerdo, embutidos y tocino; originario de la región de Trás-os-Montes, al norte de Portugal.",
+    ko: "콩에 돼지고기와 소시지, 베이컨을 넣어 끓인 포르투갈 스튜로, 북부 트라스우스몬트스 지방에서 비롯됐습니다.",
   },
   "portuguese::francesinha": {
     id: "Roti lapis khas Porto berisi aneka daging panas dan keju leleh, disiram saus bir-tomat; diciptakan pada 1950-an.",
@@ -10288,6 +11589,7 @@ module.exports = {
     zh: "波尔图的三明治：面包夹几层热肉与融化的奶酪，整份浇上啤酒番茄酱；一九五〇年代创出。",
     ja: "ポルトのサンドイッチ。パンに熱い肉を重ね、溶けたチーズをのせ、ビールとトマトのソースをかけます。一九五〇年代の作。",
     es: "Bocadillo de Oporto de pan, carnes calientes en capas y queso fundido bañado en salsa de cerveza y tomate; creado en los años cincuenta.",
+    ko: "빵 사이에 여러 뜨거운 고기와 녹인 치즈를 넣고 맥주 토마토 소스를 부은 포르투에서 1950년대에 만들어진 샌드위치입니다.",
   },
   "portuguese::madeira wine": {
     id: "Anggur berfortifikasi Portugal dari Pulau Madeira, dimatangkan dengan pemanasan (estufa); cara ini lahir dari pelayaran samudra abad ke-18.",
@@ -10296,6 +11598,7 @@ module.exports = {
     zh: "葡萄牙马德拉岛的加强酒：靠加热（estufa）催熟；这法子是从十八世纪的远洋航行里学来的。",
     ja: "ポルトガル、マデイラ島の酒精強化ワイン。加熱（エストゥファ）で熟成させます。十八世紀の大洋航海から生まれた手法です。",
     es: "Vino fortificado portugués de la isla de Madeira, envejecido con calor (estufa); el método nació de las travesías oceánicas del siglo XVIII.",
+    ko: "마데이라섬의 포르투갈 주정강화 와인으로, 열을 가해 숙성시키는 방식은 18세기 대양 항해에서 생겼습니다.",
   },
   "portuguese::pastel de nata": {
     id: "Tart custard telur Portugal dalam puff pastry berlapis; diciptakan sebelum abad ke-18 oleh biarawan Biara Jeronimos di Belem, Lisboa.",
@@ -10304,6 +11607,7 @@ module.exports = {
     zh: "葡萄牙的蛋挞：蛋奶馅盛在层层酥皮里；十八世纪之前就由里斯本贝伦区热罗尼莫斯修道院的修士创出。",
     ja: "パイ生地に卵のカスタードを流したポルトガルのタルト。十八世紀以前、リスボン・ベレンのジェロニモス修道院の修道士が生みました。",
     es: "Tarta portuguesa de crema de huevo en hojaldre; creada antes del siglo XVIII por los monjes del Monasterio de los Jerónimos, en Belém.",
+    ko: "겹겹의 퍼프 페이스트리에 달걀 커스터드를 담은 포르투갈 타르트로, 18세기 이전 리스본 벨렝의 제로니무스 수도사들이 만들었습니다.",
   },
   "portuguese::pastéis de belém": {
     id: "Tart custard berkulit renyah dari Portugal, dibuat sejak 1837 di Antiga Confeitaria de Belem, Lisboa, dengan resep Biara Jeronimos.",
@@ -10312,6 +11616,7 @@ module.exports = {
     zh: "葡萄牙的酥皮蛋挞：自一八三七年起，里斯本的 Antiga Confeitaria de Belém 就照热罗尼莫斯修道院的方子在做。",
     ja: "サクサクした生地のポルトガルのカスタードタルト。一八三七年から、リスボンのアンティガ・コンフェイタリア・デ・ベレンが修道院の方で焼いています。",
     es: "Pasteles portugueses de crema en hojaldre, elaborados desde 1837 en la Antiga Confeitaria de Belém con receta del monasterio.",
+    ko: "겹겹의 페이스트리에 커스터드를 담은 포르투갈 타르트로, 1837년부터 리스본 벨렝의 옛 제과점이 제로니무스 수도원 조리법으로 만듭니다.",
   },
   "portuguese::piri-piri chicken": {
     id: "Ayam Portugal yang dibelah dan dipanggang, dimarinasi saus cabai-bawang putih piri-piri.",
@@ -10320,6 +11625,7 @@ module.exports = {
     zh: "葡萄牙的烤鸡：整鸡剖开压平，用蒜辣酱 piri-piri 腌过再烤。",
     ja: "背開きにして焼くポルトガルの鶏。にんにくと唐辛子のピリピリソースに漬け込みます。",
     es: "Pollo portugués abierto en mariposa y asado, marinado en salsa de chile y ajo piri-piri.",
+    ko: "닭을 반으로 갈라 고추 마늘 피리피리 소스에 재워 구운 포르투갈 요리입니다.",
   },
   "portuguese::porco preto": {
     id: "Daging babi Iberia hitam dari Alentejo, Portugal, digemukkan biji ek; dihargai karena marmernya dan rasanya yang bernuansa kacang.",
@@ -10328,6 +11634,7 @@ module.exports = {
     zh: "葡萄牙阿连特茹的黑毛伊比利亚猪肉：吃橡果长大，肉里雪花密布，带一股坚果的香。",
     ja: "ポルトガル、アレンテージョの黒いイベリコ豚。どんぐりで肥育され、霜降りと木の実のような風味で重んじられます。",
     es: "Preciada carne de cerdo ibérico negro del Alentejo portugués, cebado con bellota; valorada por su veteado y su sabor a fruto seco.",
+    ko: "도토리를 먹여 키운 포르투갈 알렌테주의 흑돼지로, 마블링이 좋고 고소한 맛으로 귀하게 여겨집니다.",
   },
   "portuguese::port wine": {
     id: "Anggur manis berfortifikasi dari Lembah Douro Portugal; brendi anggur ditambahkan untuk menghentikan fermentasi; dinamai kota Porto.",
@@ -10336,6 +11643,7 @@ module.exports = {
     zh: "葡萄牙杜罗河谷的甜加强酒：加入葡萄蒸馏酒中止发酵；名字取自波尔图城。",
     ja: "ポルトガル、ドウロ渓谷の甘い酒精強化ワイン。葡萄の蒸留酒を加えて発酵を止めます。名はポルトの町から。",
     es: "Vino dulce fortificado del valle del Duero portugués, con aguardiente de uva para detener la fermentación; por la ciudad de Oporto.",
+    ko: "포르투갈 도루 계곡의 달콤한 주정강화 와인으로, 발효 중에 브랜디를 넣어 멈추며 포르투시에서 이름을 땄습니다.",
   },
   "portuguese::pão alentejano": {
     id: "Roti asam dari gandum khas Alentejo di Portugal, dipanggang di tungku kayu dan dilipat agar satu ujungnya lebih tinggi.",
@@ -10344,6 +11652,7 @@ module.exports = {
     zh: "葡萄牙阿连特茹的小麦酸种面包，柴火炉烘烤，折叠成一端翘起的尖角。",
     ja: "ポルトガル・アレンテージョの小麦サワードウ。薪窯で焼き、片端が高く立つように折りたたむ。",
     es: "Pan de trigo con masa madre del Alentejo portugués, cocido en horno de leña y plegado para que un extremo suba más.",
+    ko: "포르투갈 알렌테주의 밀 사워도 빵으로, 장작 화덕에 굽고 한쪽 끝이 솟도록 접어 '부리 빵'이라 불립니다.",
   },
   "portuguese::pão de queijo portuguese style": {
     id: "Roti keju kecil bebas gluten dari tepung tapioka dan keju; berasal dari Minas Gerais pada masa Brasil kolonial Portugal.",
@@ -10352,6 +11661,7 @@ module.exports = {
     zh: "无麸质的小奶酪包：木薯粉与奶酪揉成；出自葡属殖民地时期巴西的米纳斯吉拉斯。",
     ja: "タピオカ粉とチーズで作る小さなグルテンフリーのチーズパン。ポルトガル植民地期ブラジルのミナスジェライスに発します。",
     es: "Panecillo de queso sin gluten de harina de tapioca y queso; nacido en Minas Gerais durante el Brasil colonial portugués.",
+    ko: "타피오카 가루와 치즈로 만든 글루텐 없는 작은 치즈빵으로, 포르투갈 식민지 시대 브라질 미나스제라이스에서 비롯됐습니다.",
   },
   "portuguese::queijo da serra": {
     id: "Keju tertua Portugal, dari susu domba mentah yang lembut bermentega dan digumpalkan bunga kardus; memperoleh PDO Uni Eropa pada 1996.",
@@ -10360,6 +11670,7 @@ module.exports = {
     zh: "葡萄牙最古老的奶酪：生绵羊奶做的软润奶酪，用刺菜蓟的花凝乳；一九九六年获欧盟原产地保护。",
     ja: "ポルトガル最古のチーズ。羊の生乳をカルドンの花で凝固させた、バターのようになめらかな一品。一九九六年にEUの原産地保護。",
     es: "El queso más antiguo de Portugal, mantecoso, de leche cruda de oveja cuajada con flor de cardo; con DOP europea desde 1996.",
+    ko: "엉겅퀴 꽃으로 응고시킨 생양젖 치즈로 포르투갈에서 가장 오래된 치즈이며, 1996년 유럽연합 원산지 명칭 보호를 받았습니다.",
   },
   "portuguese::vinho verde": {
     id: "Anggur DOC Portugal yang muda dari kawasan Minho di utara, dilepas tiga sampai enam bulan setelah panen dan kerap sedikit bergas.",
@@ -10368,6 +11679,7 @@ module.exports = {
     zh: "葡萄牙北部米尼奥的年轻 DOC 酒：采收后三到六个月就上市，常带一点微气泡。",
     ja: "ポルトガル北部ミーニョの若いDOCワイン。収穫の三〜六か月後に出荷され、しばしばわずかに発泡します。",
     es: "Vino portugués DOC joven de la región norteña del Miño, sacado a la venta tres a seis meses tras la vendimia y a menudo algo aguja.",
+    ko: "북부 미뉴 지방의 어린 포르투갈 원산지 와인으로, 수확 뒤 3~6개월 만에 내며 흔히 살짝 탄산이 돕니다.",
   },
   "russian::beef stew russian": {
     id: "Hidangan Rusia abad ke-19: irisan daging sapi yang ditumis dalam saus krim asam (smetana), dinamai keluarga bangsawan Stroganov.",
@@ -10376,6 +11688,7 @@ module.exports = {
     zh: "19世纪的俄罗斯菜式：牛肉丝煎炒后拌酸奶油（smetana）酱汁，以斯特罗加诺夫贵族家族命名。",
     ja: "19世紀のロシア料理。牛肉の細切りを炒め、スメタナ（サワークリーム）のソースで仕上げる。貴族ストロガノフ家にちなむ。",
     es: "Plato ruso del siglo XIX de tiras de vacuno salteadas en salsa de nata agria (smetana), llamado así por los nobles Stroganov.",
+    ko: "소고기를 채 썰어 사워크림(스메타나) 소스에 볶은 19세기 러시아 요리로, 스트로가노프 귀족 가문에서 이름을 땄습니다.",
   },
   "russian::beef stroganoff": {
     id: "Hidangan Rusia berupa irisan daging sapi tumis dalam saus krim asam (smetana), dinamai keluarga bangsawan Stroganov abad ke-19.",
@@ -10384,6 +11697,7 @@ module.exports = {
     zh: "俄罗斯菜式：牛肉丝快炒后拌酸奶油（smetana）酱汁，以19世纪的斯特罗加诺夫贵族家族命名。",
     ja: "牛肉の細切りを炒めてサワークリーム（スメタナ）のソースで和えるロシア料理。19世紀の貴族ストロガノフ家にちなむ。",
     es: "Plato ruso de tiras de vacuno salteadas en salsa de nata agria (smetana), llamado así por la familia noble Stroganov del siglo XIX.",
+    ko: "소고기를 채 썰어 사워크림(스메타나) 소스에 볶은 러시아 요리로, 19세기 스트로가노프 귀족 가문에서 이름을 땄습니다.",
   },
   "russian::blini": {
     id: "Panekuk tipis Rusia dari adonan gandum atau soba beragi; hidangan Slavia kuno yang bundar seperti matahari, disantap saat Maslenitsa.",
@@ -10392,6 +11706,7 @@ module.exports = {
     zh: "俄罗斯的薄煎饼，用酵母发酵的小麦或荞麦面糊制成；这是圆如太阳的古老斯拉夫食物，谢肉节时享用。",
     ja: "小麦粉やそば粉の発酵生地で焼くロシアの薄いパンケーキ。太陽のように丸い古代スラヴの料理で、マースレニツァに食べる。",
     es: "Crepes finas rusas de masa fermentada de trigo o alforfón; plato eslavo antiguo, redondo como el sol, que se come en Máslenitsa.",
+    ko: "이스트로 부풀린 밀이나 메밀 반죽을 얇게 부친 러시아 팬케이크로, 해를 닮은 둥근 고대 슬라브 음식이며 마슬레니차에 먹습니다.",
   },
   "russian::borscht": {
     id: "Sup bit masam Eropa Timur yang berasal dari Ukraina; UNESCO mencatat budaya memasaknya sebagai warisan pada 2022.",
@@ -10400,6 +11715,7 @@ module.exports = {
     zh: "源自乌克兰的东欧酸味甜菜汤；2022年联合国教科文组织将其烹饪文化列入遗产名录。",
     ja: "ウクライナ起源の東欧のビーツを使う酸味のスープ。2022年、ユネスコがその調理文化を遺産に登録した。",
     es: "Sopa agria de remolacha de Europa del Este, de origen ucraniano; la UNESCO inscribió su cultura culinaria como patrimonio en 2022.",
+    ko: "우크라이나에서 온 동유럽의 새콤한 비트 수프로, 유네스코는 2022년 우크라이나의 조리 문화를 유산으로 등재했습니다.",
   },
   "russian::chebureki": {
     id: "Pastel goreng berbentuk bulan sabit berisi daging cincang dan bawang; hidangan Tatar Krimea yang menyebar ke bekas Uni Soviet.",
@@ -10408,6 +11724,7 @@ module.exports = {
     zh: "油炸的新月形肉饼，内包肉馅与洋葱；这是克里米亚鞑靼人的食物，后传遍前苏联各地。",
     ja: "ひき肉と玉ねぎを包んで揚げる三日月形のパイ。クリミア・タタールの料理で、旧ソ連全域に広まった。",
     es: "Empanadillas fritas en forma de media luna con carne picada y cebolla; plato tártaro de Crimea difundido por la antigua URSS.",
+    ko: "다진 고기와 양파를 채워 초승달 모양으로 튀긴 만두로, 크림 타타르 요리이며 옛 소련 전역으로 퍼졌습니다.",
   },
   "russian::golubtsy": {
     id: "Gulungan kubis Rusia berisi daging cincang dan nasi yang ditim dalam saus tomat; namanya dari golub, yang berarti merpati.",
@@ -10416,6 +11733,7 @@ module.exports = {
     zh: "俄式白菜卷，以肉馅与米饭为馅，在番茄酱汁中炖煮；名称来自golub，意为鸽子。",
     ja: "ひき肉と米を包んでトマトソースで煮込むロシアのロールキャベツ。名は「鳩」を意味するgolubに由来する。",
     es: "Rollos de col rusos rellenos de carne picada y arroz guisados en salsa de tomate; el nombre viene de golub, paloma.",
+    ko: "다진 고기와 쌀을 양배추 잎에 말아 토마토소스에 끓인 러시아 요리로, 이름은 '비둘기'를 뜻하는 골룹에서 왔습니다.",
   },
   "russian::kasha": {
     id: "Bubur Slavia yang paling sering dibuat dari menir soba sangrai, lama menjadi makanan pokok petani Rusia.",
@@ -10424,6 +11742,7 @@ module.exports = {
     zh: "斯拉夫粥品，多用炒过的荞麦碎粒熬成，长期是俄罗斯农家的主食。",
     ja: "焙煎したそばの挽き割りで作ることが多いスラヴの粥。ロシアの農民料理の主食として長く親しまれてきた。",
     es: "Gachas eslavas, casi siempre de sémola de alforfón tostada, durante siglos base de la cocina campesina rusa.",
+    ko: "대개 볶은 메밀쌀로 쑤는 슬라브식 죽으로, 오랫동안 러시아 농민 음식의 주식이었습니다.",
   },
   "russian::kulebyaka": {
     id: "Pirog Rusia yang menurut tradisi diisi berlapis salmon atau sturgeon, nasi atau soba, telur, jamur, dan adas.",
@@ -10432,6 +11751,7 @@ module.exports = {
     zh: "俄式大馅饼，传统上层层填入鲑鱼或鲟鱼、米饭或荞麦、鸡蛋、蘑菇与莳萝。",
     ja: "サケやチョウザメ、米またはそばの実、卵、きのこ、ディルを層に重ねて包むロシアのパイ。",
     es: "Pastel ruso (pirog) relleno por capas de salmón o esturión, arroz o alforfón, huevo, setas y eneldo.",
+    ko: "연어나 철갑상어에 쌀이나 메밀, 달걀, 버섯, 딜을 켜켜이 채운 러시아의 전통 파이(피로그)입니다.",
   },
   "russian::kvass": {
     id: "Minuman Slavia beralkohol ringan yang difermentasi dari gandum hitam atau roti hitam.",
@@ -10440,6 +11760,7 @@ module.exports = {
     zh: "斯拉夫地区的低度酒精饮料，由黑麦或黑面包发酵而成。",
     ja: "ライ麦や黒パンを発酵させて作るスラヴの微アルコール飲料。",
     es: "Bebida eslava de baja graduación fermentada a partir de centeno o pan negro.",
+    ko: "호밀이나 검은 빵을 발효시켜 만드는 알코올 도수가 낮은 슬라브 음료입니다.",
   },
   "russian::medovik": {
     id: "Kue madu berlapis Rusia: bolu madu tipis berisi krim asam atau susu kental manis; digemari di seluruh bekas Uni Soviet.",
@@ -10448,6 +11769,7 @@ module.exports = {
     zh: "俄式蜂蜜千层蛋糕，以薄薄的蜂蜜蛋糕层夹酸奶油或炼乳奶油；在前苏联各地都很受欢迎。",
     ja: "薄い蜂蜜生地を重ね、サワークリームや練乳のクリームを挟むロシアのケーキ。旧ソ連各地で親しまれている。",
     es: "Tarta rusa de miel con capas finas de bizcocho y crema de nata agria o leche condensada; muy popular en toda la antigua URSS.",
+    ko: "꿀을 넣어 얇게 구운 스펀지에 사워크림이나 연유 크림을 켜켜이 채운 러시아 케이크로, 옛 소련 전역에서 사랑받습니다.",
   },
   "russian::okroshka": {
     id: "Sup dingin Rusia berisi sayuran mentah, kentang rebus, telur, dan daging dalam kvass atau kefir; biasa disantap saat musim panas.",
@@ -10456,6 +11778,7 @@ module.exports = {
     zh: "俄式冷汤：生蔬菜、水煮马铃薯、鸡蛋与肉浸在克瓦斯或克菲尔中，传统上是夏天的吃食。",
     ja: "生野菜、茹でじゃがいも、卵、肉をクワスやケフィアに浸したロシアの冷たいスープ。夏に食べる習わし。",
     es: "Sopa fría rusa de verduras crudas, patata cocida, huevo y carne en kvas o kéfir, que se toma tradicionalmente en verano.",
+    ko: "생채소와 삶은 감자, 달걀, 고기를 크바스나 케피어에 넣은 러시아의 차가운 수프로, 전통적으로 여름에 먹습니다.",
   },
   "russian::olivier salad": {
     id: "Salad Rusia dari kentang, telur, dan sayuran dadu yang diikat mayones, dibuat pada 1860-an oleh koki Lucien Olivier di Moskwa.",
@@ -10464,6 +11787,7 @@ module.exports = {
     zh: "俄式沙拉，将马铃薯、鸡蛋与蔬菜切丁以蛋黄酱拌匀；1860年代由莫斯科厨师吕西安·奥利维耶创制。",
     ja: "角切りのじゃがいも、卵、野菜をマヨネーズで和えたロシアのサラダ。1860年代にモスクワの料理人リュシアン・オリヴィエが考案。",
     es: "Ensalada rusa de patata, huevo y verduras en dados ligados con mayonesa, creada en los años 1860 por el cocinero Lucien Olivier.",
+    ko: "깍둑 썬 감자와 달걀, 채소를 마요네즈에 버무린 러시아 샐러드로, 1860년대 모스크바에서 요리사 뤼시앵 올리비에가 만들었습니다.",
   },
   "russian::pelmeni": {
     id: "Pangsit Rusia dari adonan tanpa ragi berisi daging cincang; awalnya hidangan Ural-Siberia sebelum menyebar ke seluruh Rusia.",
@@ -10472,6 +11796,7 @@ module.exports = {
     zh: "俄式饺子，以无酵面皮包肉馅；原是乌拉尔与西伯利亚的地方菜，后传遍俄罗斯。",
     ja: "無発酵の生地でひき肉を包むロシアの水餃子。元はウラル・シベリア地方の料理で、のちにロシア全土へ広まった。",
     es: "Empanadillas rusas de masa sin levadura rellenas de carne picada; nacieron en los Urales y Siberia y se extendieron por Rusia.",
+    ko: "무발효 반죽에 다진 고기를 채운 러시아 만두로, 우랄과 시베리아의 지역 음식이었다가 러시아 전역으로 퍼졌습니다.",
   },
   "russian::pirozhki": {
     id: "Roti kecil dari adonan ragi yang dipanggang atau digoreng, berisi bahan gurih atau manis; namanya bentuk kecil dari pirog.",
@@ -10480,6 +11805,7 @@ module.exports = {
     zh: "用发酵面团烤制或油炸的小面包，包咸味或甜味馅料；名称是俄罗斯大馅饼pirog的指小形式。",
     ja: "発酵生地を焼くか揚げた小さなパン。塩味や甘い具を包む。名は大きなパイ「ピログ」の指小形。",
     es: "Panecillos de masa fermentada, horneados o fritos, con relleno salado o dulce; el nombre es el diminutivo del pastel ruso pirog.",
+    ko: "발효 반죽에 짭짤하거나 단 소를 채워 굽거나 튀긴 작은 빵으로, 이름은 큰 러시아 파이 '피로그'의 축소형입니다.",
   },
   "russian::selyodka pod shuboy": {
     id: "Salad berlapis Rusia: haring asin di bawah parutan kentang, wortel, bawang, telur, dan bit yang diikat mayones.",
@@ -10488,6 +11814,7 @@ module.exports = {
     zh: "俄式千层沙拉：盐渍鲱鱼铺底，上覆擦丝的马铃薯、胡萝卜、洋葱、鸡蛋与甜菜，以蛋黄酱黏合。",
     ja: "塩漬けニシンの上に、すりおろしたじゃがいも、にんじん、玉ねぎ、卵、ビーツを重ね、マヨネーズでまとめるロシアの層状サラダ。",
     es: "Ensalada rusa en capas: arenque en salazón bajo patata, zanahoria, cebolla, huevo y remolacha rallados y ligados con mayonesa.",
+    ko: "소금에 절인 청어 위에 간 감자와 당근, 양파, 달걀, 비트를 마요네즈로 켜켜이 쌓은 러시아 샐러드입니다.",
   },
   "russian::shchi": {
     id: "Sup kubis atau asinan kubis tradisional Rusia yang sudah ada sejak sekitar abad ke-9, ketika kubis menyebar di suku Slavia Timur.",
@@ -10496,6 +11823,7 @@ module.exports = {
     zh: "俄罗斯传统的白菜（或酸白菜）汤，约自9世纪起便有，其时甘蓝在东斯拉夫诸部落间传开。",
     ja: "キャベツまたはザワークラウトのロシアの伝統スープ。キャベツが東スラヴ諸族に広まった9世紀ごろに遡る。",
     es: "Sopa rusa tradicional de col o chucrut, documentada hacia el siglo IX, cuando la col se difundió entre los eslavos orientales.",
+    ko: "양배추나 사워크라우트로 끓인 러시아 전통 수프로, 동슬라브 부족에 양배추가 퍼진 9세기 무렵까지 거슬러 올라갑니다.",
   },
   "russian::solyanka": {
     id: "Sup Rusia yang kental dan masam berisi daging, ikan, atau jamur dengan mentimun asin dan kaldu asin masam.",
@@ -10504,6 +11832,7 @@ module.exports = {
     zh: "浓稠而酸的俄式汤，用肉、鱼或蘑菇加腌黄瓜，汤底咸酸。",
     ja: "肉・魚・きのこに塩漬けキュウリを加え、塩気と酸味のあるだしで仕立てる、濃厚で酸っぱいロシアのスープ。",
     es: "Sopa rusa espesa y agria de carne, pescado o setas con pepinillos en salmuera y un caldo salado y ácido.",
+    ko: "고기나 생선, 버섯에 절인 오이를 넣어 짜고 새콤한 국물에 끓인 걸쭉한 러시아 수프입니다.",
   },
   "russian::syrniki": {
     id: "Panekuk goreng Slavia Timur dari tvorog (keju dadih), telur, dan tepung.",
@@ -10512,6 +11841,7 @@ module.exports = {
     zh: "东斯拉夫的煎饼，用凝乳干酪（tvorog）、鸡蛋与面粉制成。",
     ja: "カッテージチーズ（トヴォローグ）、卵、小麦粉で作る東スラヴの焼き菓子。",
     es: "Tortitas fritas eslavas orientales de requesón (tvorog), huevo y harina.",
+    ko: "트보로그(커드 치즈)와 달걀, 밀가루로 부친 동슬라브식 전입니다.",
   },
   "russian::ukha": {
     id: "Sup ikan bening khas Rusia dengan umbi-umbian dan ikan.",
@@ -10520,6 +11850,7 @@ module.exports = {
     zh: "俄式清炖鱼汤，用根茎蔬菜与鱼同煮。",
     ja: "根菜と魚で仕立てるロシアの澄んだ魚のスープ。",
     es: "Sopa de pescado clara rusa con raíces y pescado.",
+    ko: "뿌리채소와 생선으로 끓인 러시아의 맑은 생선 수프입니다.",
   },
   "russian::vareniki": {
     id: "Pangsit setengah bulan rebus dari adonan tanpa ragi berisi kentang, keju, atau buah; ikon masakan Ukraina dan Rusia.",
@@ -10528,6 +11859,7 @@ module.exports = {
     zh: "用无酵面皮包成半月形的水煮饺子，馅料为马铃薯、干酪或水果；是乌克兰与俄罗斯饮食的象征。",
     ja: "無発酵の生地を半月形に包んで茹でる団子。じゃがいも、チーズ、果物を詰め、ウクライナとロシアの食を象徴する。",
     es: "Empanadillas hervidas en media luna de masa sin levadura rellenas de patata, queso o fruta; emblema de la cocina ucraniana y rusa.",
+    ko: "무발효 반죽에 감자나 치즈, 과일을 채워 반달 모양으로 빚어 삶은 만두로, 우크라이나와 러시아 요리를 상징합니다.",
   },
   "russian::vatrushka": {
     id: "Roti bundar manis Slavia Timur dari adonan ragi dengan cekungan tvorog di tengahnya, kerap ditaburi kismis.",
@@ -10536,6 +11868,7 @@ module.exports = {
     zh: "东斯拉夫的圆形甜发酵面包，中央凹处填凝乳干酪，常撒葡萄干。",
     ja: "中央のくぼみにカッテージチーズを詰めた東スラヴの丸い甘い発酵パン。レーズンをのせることが多い。",
     es: "Bollo redondo dulce eslavo oriental de masa fermentada con un hueco central de requesón, a menudo con pasas.",
+    ko: "발효 반죽을 둥글게 빚어 가운데를 오목하게 만들고 트보로그를 채운 동슬라브의 단빵으로, 흔히 건포도를 올립니다.",
   },
   "russian::vinaigrette salad": {
     id: "Salad Rusia dari bit, kentang, dan wortel rebus dadu dengan bawang dan acar berbalut minyak; namanya dari kata Prancis vinaigrette.",
@@ -10544,6 +11877,7 @@ module.exports = {
     zh: "俄式沙拉，用煮熟的甜菜、马铃薯、胡萝卜、洋葱与腌黄瓜切丁拌油；名称源自法语的vinaigrette。",
     ja: "茹でたビーツ、じゃがいも、にんじん、玉ねぎ、ピクルスを角切りにして油で和えるロシアのサラダ。名はフランス語のvinaigretteから。",
     es: "Ensalada rusa de remolacha, patata y zanahoria cocidas en dados con cebolla y pepinillos, aliñada en aceite; del francés vinaigrette.",
+    ko: "삶은 비트와 감자, 당근, 양파, 피클을 깍둑 썰어 기름에 버무린 러시아 샐러드로, 이름은 프랑스어 비네그레트에서 왔습니다.",
   },
   "scandinavian::aquavit": {
     id: "Minuman keras sulingan Skandinavia yang terutama dibumbui jintan atau adas, diproduksi sejak abad ke-15.",
@@ -10552,6 +11886,7 @@ module.exports = {
     zh: "斯堪的纳维亚的蒸馏烈酒，主要以葛缕子或莳萝调味；自15世纪起便有酿造。",
     ja: "キャラウェイやディルで香りをつける北欧の蒸留酒。15世紀から造られてきた。",
     es: "Aguardiente destilado escandinavo aromatizado sobre todo con alcaravea o eneldo, producido desde el siglo XV.",
+    ko: "주로 캐러웨이나 딜로 향을 낸 스칸디나비아의 증류주로, 15세기부터 빚어 왔습니다.",
   },
   "scandinavian::blodpudding": {
     id: "Puding darah panggang Swedia dari darah babi, tepung, dan bir; menurut tradisi digoreng beriris dan disajikan dengan selai lingonberry.",
@@ -10560,6 +11895,7 @@ module.exports = {
     zh: "瑞典的烤血肠布丁，用猪血、面粉与啤酒制成；传统上切片煎香，佐越橘果酱。",
     ja: "豚の血、小麦粉、ビールで作るスウェーデンの焼き血のプディング。薄切りにして焼き、コケモモのジャムを添える。",
     es: "Pudin de sangre horneado sueco de sangre de cerdo, harina y cerveza; se fríe en rodajas y se sirve con mermelada de arándano rojo.",
+    ko: "돼지 피와 밀가루, 맥주로 구운 스웨덴의 선지 푸딩으로, 전통적으로 저며 지져 링곤베리 잼과 함께 냅니다.",
   },
   "scandinavian::cloudberry": {
     id: "Hidangan penutup Norwegia dari cloudberry yang dilipat ke dalam krim kocok manis, menurut tradisi disajikan saat Natal dengan krumkake.",
@@ -10568,6 +11904,7 @@ module.exports = {
     zh: "挪威甜点：云莓拌入加糖的打发奶油；传统上在圣诞节佐krumkake薄脆卷食用。",
     ja: "クラウドベリーを甘く泡立てた生クリームに混ぜるノルウェーのデザート。クリスマスにクルムカーケを添える習わし。",
     es: "Postre noruego de moras árticas mezcladas con nata montada azucarada; en Navidad se sirve con krumkake.",
+    ko: "클라우드베리를 달콤한 휘핑크림에 섞은 노르웨이 디저트로, 전통적으로 성탄절에 크룸카케와 함께 냅니다.",
   },
   "scandinavian::flæskesteg": {
     id: "Panggang babi Denmark yang dimasak dengan kulitnya agar renyah; hidangan nasional yang meluas setelah oven masuk rumah sekitar 1860.",
@@ -10576,6 +11913,7 @@ module.exports = {
     zh: "丹麦的烤猪肉，带皮烤出酥脆的猪皮；这道国菜在1860年前后炉灶普及入户后才广为流行。",
     ja: "皮付きのまま焼いて皮をぱりぱりにするデンマークのローストポーク。1860年ごろ家庭にオーブンが普及して広まった国民料理。",
     es: "Asado de cerdo danés cocinado con la corteza para que quede crujiente; plato nacional extendido tras llegar los hornos hacia 1860.",
+    ko: "껍질을 붙인 채 구워 바삭하게 만든 덴마크의 돼지고기 구이로, 1860년경 가정에 오븐이 퍼지며 널리 자리 잡은 국민 음식입니다.",
   },
   "scandinavian::frikadeller": {
     id: "Bola daging goreng Denmark dari daging babi cincang (kadang dengan anak sapi), bawang, telur, dan susu.",
@@ -10584,6 +11922,7 @@ module.exports = {
     zh: "丹麦的煎肉丸，用猪肉末（有时掺小牛肉）、洋葱、鸡蛋与牛奶制成。",
     ja: "豚のひき肉（子牛肉を混ぜることも）、玉ねぎ、卵、牛乳で作るデンマークの焼きミートボール。",
     es: "Albóndigas danesas hechas a la sartén con carne picada de cerdo (a veces con ternera), cebolla, huevo y leche.",
+    ko: "다진 돼지고기에 때로 송아지고기와 양파, 달걀, 우유를 섞어 팬에 지진 덴마크의 완자입니다.",
   },
   "scandinavian::gravlax": {
     id: "Hidangan Nordik dari salmon mentah yang diawetkan garam, gula, dan adas; nelayan Swedia abad pertengahan menguburnya agar berfermentasi.",
@@ -10592,6 +11931,7 @@ module.exports = {
     zh: "北欧菜式：生鲑鱼用盐、糖与莳萝干腌；中世纪的瑞典渔民曾把鱼埋入土中使其发酵。",
     ja: "生のサーモンを塩、砂糖、ディルで漬ける北欧の料理。中世スウェーデンの漁師が土に埋めて発酵させたことに由来する。",
     es: "Plato nórdico de salmón crudo curado en seco con sal, azúcar y eneldo; los pescadores suecos medievales lo enterraban para fermentar.",
+    ko: "연어를 소금과 설탕, 딜에 절인 북유럽 요리로, 중세 스웨덴 어부들이 땅에 묻어 발효시키던 데서 왔습니다.",
   },
   "scandinavian::janssons frestelse": {
     id: "Casserole Swedia dari kentang, bawang, krim, dan ikan sprat asin; resepnya terbit pada 1940 dan kini menjadi klasik Natal.",
@@ -10600,6 +11940,7 @@ module.exports = {
     zh: "瑞典的焗菜：马铃薯、洋葱、奶油与腌渍黍鲱同烤；食谱1940年首次刊行，如今成了圣诞经典。",
     ja: "じゃがいも、玉ねぎ、クリーム、塩漬けスプラットを焼くスウェーデンのグラタン。1940年に初出、今やクリスマスの定番。",
     es: "Gratinado sueco de patata, cebolla, nata y espadines en salazón; la receta se publicó en 1940 y hoy es un clásico navideño.",
+    ko: "감자와 양파, 크림, 절인 스프랫을 넣어 구운 스웨덴 요리로, 1940년에 조리법이 처음 실렸고 지금은 성탄절의 고전입니다.",
   },
   "scandinavian::kalops": {
     id: "Semur sapi tradisional Swedia dan Finlandia dengan bawang, allspice, dan daun salam; pertama diuraikan di buku masak Cajsa Warg 1755.",
@@ -10608,6 +11949,7 @@ module.exports = {
     zh: "瑞典与芬兰传统的牛肉炖菜，加洋葱、多香果与月桂叶；1755年凯萨·瓦格的食谱首次记载。",
     ja: "玉ねぎ、オールスパイス、月桂樹の葉を使うスウェーデン・フィンランドの伝統的な牛肉煮込み。1755年のカイサ・ヴァルグの料理書が初出。",
     es: "Estofado de vacuno tradicional sueco y finlandés con cebolla, pimienta de Jamaica y laurel; descrito por Cajsa Warg en 1755.",
+    ko: "양파와 올스파이스, 월계수잎을 넣은 스웨덴·핀란드의 전통 소고기 스튜로, 1755년 카이사 바리의 요리책에 처음 실렸습니다.",
   },
   "scandinavian::kanelbullar": {
     id: "Roti kayu manis Swedia beraroma kapulaga, jantung rehat kopi fika; dirayakan pada Hari Kanelbulle setiap 4 Oktober sejak 1999.",
@@ -10616,6 +11958,7 @@ module.exports = {
     zh: "瑞典的豆蔻肉桂卷，是fika咖啡时光的核心；自1999年起，每年10月4日为肉桂卷日。",
     ja: "カルダモンを効かせたスウェーデンのシナモンロール。フィーカの主役で、1999年から10月4日はシナモンロールの日。",
     es: "Bollos suecos de canela con cardamomo, centro de la pausa de café fika; desde 1999 tienen su día cada 4 de octubre.",
+    ko: "카르다몸 향을 넣은 스웨덴의 계피빵으로, 피카 커피 시간의 중심이며 1999년부터 해마다 10월 4일을 기념일로 삼습니다.",
   },
   "scandinavian::köttbullar": {
     id: "Bola daging Swedia dari campuran daging sapi dan babi giling, dibumbui allspice dan merica putih.",
@@ -10624,6 +11967,7 @@ module.exports = {
     zh: "瑞典肉丸，用牛肉末与猪肉末混合制成，以多香果与白胡椒调味。",
     ja: "牛と豚のひき肉を合わせ、オールスパイスと白胡椒で味付けするスウェーデンのミートボール。",
     es: "Albóndigas suecas de una mezcla de carne picada de vacuno y cerdo, sazonadas con pimienta de Jamaica y pimienta blanca.",
+    ko: "다진 소고기와 돼지고기를 섞어 올스파이스와 흰 후추로 간해 빚은 스웨덴의 완자입니다.",
   },
   "scandinavian::lefse": {
     id: "Roti pipih Norwegia yang lembut, menurut tradisi berbahan kentang sejak kentang tiba di Norwegia pada 1750-an; kerap diolesi mentega.",
@@ -10632,6 +11976,7 @@ module.exports = {
     zh: "挪威柔软的薄饼，自1750年代马铃薯传入后多以马铃薯为料；节日里常抹黄油食用。",
     ja: "やわらかいノルウェーの平パン。1750年代にじゃがいもが伝わって以来、じゃがいも生地が定番で、祝日にはバターを塗る。",
     es: "Pan plano noruego y blando, tradicionalmente de patata desde que esta llegó a Noruega en 1750; suele servirse con mantequilla.",
+    ko: "노르웨이의 부드러운 플랫브레드로, 1750년대에 감자가 전해진 뒤로는 감자로 만들며 명절에 흔히 버터를 곁들입니다.",
   },
   "scandinavian::lingonberry jam": {
     id: "Selai lingonberry Swedia yang masam, dahulu dibuat agar tahan musim dingin; disajikan dengan bola daging, panekuk, dan haring goreng.",
@@ -10640,6 +11985,7 @@ module.exports = {
     zh: "瑞典酸味的越橘果酱，旧时熬制以备过冬；佐肉丸、煎饼与煎鲱鱼食用。",
     ja: "酸味の強いスウェーデンのコケモモのジャム。冬を越すために作られ、ミートボールやパンケーキ、ニシンのフライに添える。",
     es: "Confitura sueca ácida de arándano rojo, hecha antaño para pasar el invierno; acompaña albóndigas, tortitas y arenque frito.",
+    ko: "링곤베리로 만든 새콤한 스웨덴 잼으로, 전통적으로 겨울을 나려 만들며 완자와 팬케이크, 구운 청어에 곁들입니다.",
   },
   "scandinavian::lutefisk": {
     id: "Hidangan Natal Nordik tradisional dari ikan putih kering, biasanya kod, yang direndam air dan diawetkan air abu hingga kenyal.",
@@ -10648,6 +11994,7 @@ module.exports = {
     zh: "北欧传统圣诞菜：晒干的白肉鱼（多为鳕鱼）泡发后以碱液处理，质地呈胶冻状。",
     ja: "干した白身魚（多くはタラ）を水で戻し、灰汁で処理する北欧の伝統的なクリスマス料理。ゼリー状の食感になる。",
     es: "Plato navideño nórdico tradicional de pescado blanco seco, casi siempre bacalao, rehidratado y curado en lejía; textura gelatinosa.",
+    ko: "말린 흰살생선(주로 대구)을 물에 불려 잿물에 삭힌 북유럽의 전통 성탄 요리로, 젤리 같은 식감이 납니다.",
   },
   "scandinavian::rakfisk": {
     id: "Hidangan Norwegia dari trout air tawar yang digarami dan difermentasi dalam air garam, disantap mentah; cara awet Abad Pertengahan.",
@@ -10656,6 +12003,7 @@ module.exports = {
     zh: "挪威菜式：淡水鳟鱼加盐后在盐水中发酵，生食；这是源自中世纪内陆的保存方法。",
     ja: "淡水のマスを塩漬けにし、塩水の中で発酵させて生で食べるノルウェーの料理。中世に遡る内陸の保存法。",
     es: "Plato noruego de trucha de agua dulce salada y fermentada en salmuera, comida cruda; método de conserva medieval del interior.",
+    ko: "민물송어를 소금물에 절여 발효시켜 날로 먹는 노르웨이 음식으로, 중세부터 이어진 내륙의 저장법입니다.",
   },
   "scandinavian::reindeer steak": {
     id: "Bistik rusa kutub Norwegia dan Sami, digoreng atau dipanggang dalam lemak rusa dan mentega, dibumbui garam dan merica.",
@@ -10664,6 +12012,7 @@ module.exports = {
     zh: "挪威与萨米人的驯鹿排，用驯鹿油与黄油煎烤，以盐和胡椒调味。",
     ja: "ノルウェー・サーミのトナカイのステーキ。トナカイの脂とバターで焼き、塩と胡椒で味を調える。",
     es: "Filete de reno noruego y sami, frito o asado en grasa de reno y mantequilla, sazonado con sal y pimienta.",
+    ko: "순록 기름과 버터에 굽거나 지져 소금과 후추로 간한 노르웨이·사미의 순록 스테이크입니다.",
   },
   "scandinavian::rye bread danish": {
     id: "Roti gandum hitam Denmark yang padat dan berasam alami, berabad-abad jadi makanan pokok hingga kentang meluas pada akhir abad ke-19.",
@@ -10672,6 +12021,7 @@ module.exports = {
     zh: "丹麦浓实的酸种黑麦面包，数百年来是国民主食，直到19世纪末马铃薯普及为止。",
     ja: "目の詰まったデンマークのサワードウ・ライ麦パン。19世紀末にじゃがいもが広まるまで、何世紀も主食であり続けた。",
     es: "Pan de centeno danés denso de masa madre, alimento básico durante siglos hasta que la patata se difundió a fines del siglo XIX.",
+    ko: "조밀한 덴마크의 사워도 호밀빵으로, 19세기 말 감자가 퍼지기 전까지 수백 년간 국민 주식이었습니다.",
   },
   "scandinavian::semla": {
     id: "Roti gandum Swedia beraroma kapulaga yang diisi pasta almon dan krim kocok.",
@@ -10680,6 +12030,7 @@ module.exports = {
     zh: "瑞典的豆蔻小麦面包，内填杏仁糊与打发奶油。",
     ja: "カルダモンを効かせたスウェーデンの小麦パン。アーモンドペーストとホイップクリームを詰める。",
     es: "Bollo sueco de trigo con cardamomo relleno de pasta de almendra y nata montada.",
+    ko: "카르다몸 향을 넣은 스웨덴의 밀빵에 아몬드 페이스트와 휘핑크림을 채운 과자입니다.",
   },
   "scandinavian::sill (pickled herring)": {
     id: "Hidangan Swedia dari haring asin yang direndam cuka, gula, bawang, dan rempah; tradisi Midsummer, Natal, dan Paskah.",
@@ -10688,6 +12039,7 @@ module.exports = {
     zh: "瑞典的腌鲱鱼：盐渍鲱鱼以醋、糖、洋葱与香料浸渍；传统上在仲夏节、圣诞与复活节享用。",
     ja: "塩漬けニシンを酢、砂糖、玉ねぎ、香辛料で漬けるスウェーデンの料理。夏至祭、クリスマス、復活祭に供される。",
     es: "Plato sueco de arenque en salazón marinado en vinagre, azúcar, cebolla y especias; se sirve en San Juan, Navidad y Pascua.",
+    ko: "소금에 절인 청어를 식초와 설탕, 양파, 향신료에 재운 스웨덴 요리로, 전통적으로 하지와 성탄절, 부활절에 냅니다.",
   },
   "scandinavian::smörgåstårta": {
     id: "Kue roti lapis gurih dari Swedia berisi krim, daging dingin, ikan, dan telur; pertama tercatat di sebuah surat kabar pada 1934.",
@@ -10696,6 +12048,7 @@ module.exports = {
     zh: "瑞典的咸味三明治蛋糕：面包层层夹奶油馅、冷肉、鱼与鸡蛋；1934年首见于报纸报道。",
     ja: "パンにクリームの具、コールドミート、魚、卵を重ねるスウェーデンの塩味のサンドイッチケーキ。1934年の新聞が初出。",
     es: "Pastel salado sueco de sándwich con capas de pan, rellenos cremosos, fiambres, pescado y huevo; citado por primera vez en 1934.",
+    ko: "빵에 크리미한 소와 냉육, 생선, 달걀을 켜켜이 쌓은 스웨덴의 짭조름한 샌드위치 케이크로, 1934년 신문에 처음 실렸습니다.",
   },
   "scandinavian::smörrebröd": {
     id: "Roti lapis terbuka Denmark di atas roti gandum hitam bermentega, dengan topping seperti haring atau daging sapi panggang.",
@@ -10704,6 +12057,7 @@ module.exports = {
     zh: "丹麦的开面三明治，以抹黄油的黑麦面包为底，铺鲱鱼或烤牛肉等配料。",
     ja: "バターを塗ったライ麦パンにニシンやローストビーフなどをのせるデンマークのオープンサンド。",
     es: "Sándwich abierto danés sobre pan de centeno con mantequilla y coberturas como arenque o rosbif.",
+    ko: "버터 바른 호밀빵에 청어나 로스트비프 같은 재료를 올린 덴마크의 오픈 샌드위치입니다.",
   },
   "scandinavian::toscakaka": {
     id: "Bolu almon Swedia yang dilapisi glasir almon berkaramel panggang; klasik dalam rehat kopi fika Nordik.",
@@ -10712,6 +12066,7 @@ module.exports = {
     zh: "瑞典的杏仁海绵蛋糕，面上烤有焦糖杏仁糖衣；是北欧fika咖啡时光的经典。",
     ja: "焼き上げたキャラメルアーモンドの層をのせるスウェーデンのアーモンドスポンジケーキ。北欧のフィーカの定番。",
     es: "Bizcocho sueco de almendra cubierto con un glaseado horneado de almendra caramelizada; clásico de la pausa nórdica fika.",
+    ko: "아몬드 스펀지 위에 캐러멜 아몬드 글레이즈를 올려 구운 스웨덴 케이크로, 북유럽 피카 커피 시간의 고전입니다.",
   },
   "scandinavian::æbleskiver": {
     id: "Kue bulat mirip panekuk dari Denmark yang digoreng dalam wajan besi cor khusus; tradisi Natal, resep cetak tertua dari 1703.",
@@ -10720,6 +12075,7 @@ module.exports = {
     zh: "丹麦的球形煎饼点心，用专门的铸铁锅煎成；是圣诞的传统，最早的印刷食谱见于1703年。",
     ja: "専用の鋳鉄鍋で焼く球形のデンマークのパンケーキ菓子。クリスマスの定番で、最古の印刷レシピは1703年。",
     es: "Bollos daneses esféricos tipo tortita fritos en una sartén de hierro especial; tradición navideña, receta impresa más antigua de 1703.",
+    ko: "전용 무쇠 팬에 부쳐 만드는 덴마크의 공 모양 팬케이크 과자로, 성탄절의 전통 음식이며 가장 오래된 인쇄 조리법은 1703년의 것입니다.",
   },
   "shanghainese::beggar's chicken jiangsu": {
     id: "Ayam utuh dimarinasi, dibungkus daun teratai dan tanah liat, lalu dipanggang perlahan; dikaitkan dengan Changshu, Jiangsu, sejak 300 tahun.",
@@ -10728,6 +12084,7 @@ module.exports = {
     zh: "整鸡腌透，用荷叶与泥土裹住慢烤；这道菜与江苏常熟相连，已有三百多年。",
     ja: "漬け込んだ丸鶏を蓮の葉と粘土で包み、じっくり焼きます。江蘇省常熟と結びつき、三百年を超える歴史があります。",
     es: "Pollo entero marinado, envuelto en hojas de loto y arcilla y horneado despacio; ligado a Changshu, Jiangsu, con más de 300 años.",
+    ko: "닭을 양념해 연잎과 진흙에 싸서 천천히 구운 요리로, 장쑤 창수와 얽혀 있으며 300년 넘는 역사를 지녔습니다.",
   },
   "shanghainese::crab roe noodle": {
     id: "Mi Jiangnan dari Shanghai dan Suzhou yang disiram saus daging dan telur kepiting bulu; disantap pada musim gugur saat kepiting paling gemuk.",
@@ -10736,6 +12093,7 @@ module.exports = {
     zh: "江南（上海、苏州）的蟹粉面：面上浇大闸蟹的蟹肉与蟹黄；秋日蟹最肥时才吃。",
     ja: "上海・蘇州の江南の麺。上海蟹の身と卵のあんをかけ、蟹が最も充実する秋に食べます。",
     es: "Fideos de Jiangnan (Shanghái y Suzhou) con salsa de carne y hueva de cangrejo peludo; se comen en otoño, cuando el cangrejo está en sazón.",
+    ko: "털게의 살과 알로 만든 소스를 올린 장난(상하이·쑤저우) 국수로, 참게가 살오르는 가을에 냅니다.",
   },
   "shanghainese::drunken chicken": {
     id: "Pembuka dingin Jiangnan: ayam rebus direndam arak beras Shaoxing, lalu disajikan dingin dan teriris.",
@@ -10744,6 +12102,7 @@ module.exports = {
     zh: "江南的凉菜醉鸡：白煮鸡浸在绍兴酒里，冰镇后斩件上桌。",
     ja: "江南の冷たい前菜。ゆで鶏を紹興酒に漬け込み、冷やして切り分けて供します。",
     es: "Entrante frío de Jiangnan: pollo escalfado macerado en vino de arroz de Shaoxing, servido frío y en lonchas.",
+    ko: "데친 닭을 소흥주에 담가 차갑게 저며 내는 장난의 냉채입니다.",
   },
   "shanghainese::drunken shrimp": {
     id: "Hidangan Jiangnan: udang air tawar hidup dipingsankan dalam baijiu atau arak Shaoxing, lalu disantap mentah atau dimasak sebentar.",
@@ -10752,6 +12111,7 @@ module.exports = {
     zh: "江南的醉虾：活的河虾泡在白酒或绍兴酒里醉倒，生食或稍烫即吃。",
     ja: "江南の料理。生きた川海老を白酒か紹興酒に漬けて酔わせ、生のまま、あるいはさっと火を通していただきます。",
     es: "Plato de Jiangnan: gambas de río vivas maceradas y aturdidas en baijiu o vino de Shaoxing, comidas crudas o apenas cocinadas.",
+    ko: "살아 있는 민물새우를 바이주나 소흥주에 담가 기절시킨 뒤 날로 먹거나 살짝만 익혀 내는 장난 요리입니다.",
   },
   "shanghainese::eight treasure rice": {
     id: "Puding ketan kukus yang manis, ditutup delapan macam buah kering, kacang, dan pasta kacang merah; terutama disantap saat Imlek.",
@@ -10760,6 +12120,7 @@ module.exports = {
     zh: "八宝饭：甜糯米饭上摆八样干果、坚果与豆沙；过年时尤其要吃。",
     ja: "甘い蒸しもち米の菓子。八種の干し果物、木の実、小豆餡をのせ、とくに旧正月に食べます。",
     es: "Pudin dulce de arroz glutinoso al vapor cubierto de ocho frutos secos y pasta de judía roja; se come sobre todo en Año Nuevo.",
+    ko: "찹쌀을 쪄서 말린 과일과 견과 여덟 가지, 팥소를 올린 달콤한 푸딩으로, 특히 설에 먹습니다.",
   },
   "shanghainese::hairy crab": {
     id: "Kepiting bulu Tiongkok yang dikukus, kelezatan musim gugur masakan Shanghai; disantap demi telurnya, paling tersohor dari Danau Yangcheng.",
@@ -10768,6 +12129,7 @@ module.exports = {
     zh: "清蒸大闸蟹：上海菜里最金贵的秋味，吃的就是那一口膏黄；最有名的产自苏州阳澄湖。",
     ja: "蒸した上海蟹。上海料理の秋の珍味で、濃厚な卵を目当てに食べます。名高いのは蘇州の陽澄湖産。",
     es: "Cangrejo peludo chino al vapor, manjar otoñal de la cocina shanghainesa; se come por su hueva rica, el más célebre del lago Yangcheng.",
+    ko: "쪄낸 중국 참게로, 진한 알을 먹으려 즐기는 가을 상하이 요리의 귀한 별미이며 쑤저우 양청호산이 가장 이름났습니다.",
   },
   "shanghainese::hong shao rou": {
     id: "Dadu perut babi yang dibraise merah dalam kecap asin, gula, dan arak Shaoxing; klasik Jiangnan dan Shanghai dengan saus cokelat kemerahan.",
@@ -10776,6 +12138,7 @@ module.exports = {
     zh: "红烧肉：五花肉切块，用酱油、糖与绍兴酒烧得油亮红褐；江南与上海的看家菜。",
     ja: "豚バラを角切りにし、醤油、砂糖、紹興酒で「紅焼き」に。艶のある赤褐色のたれをまとう、江南・上海の定番です。",
     es: "Dados de panceta guisados «al rojo» en soja, azúcar y vino de Shaoxing; clásico de Jiangnan y Shanghái, de salsa pardorroja y brillante.",
+    ko: "삼겹살을 간장과 설탕, 소흥주에 붉게 조린 요리로, 윤기 나는 적갈색 소스가 특징인 장난·상하이의 고전입니다.",
   },
   "shanghainese::jiangsu duck blood soup": {
     id: "Sup kaki lima Nanjing, Jiangsu, berisi darah bebek, jeroan, dan soun dalam kaldu bebek; lahir dari kehematan lebih dari seabad lalu.",
@@ -10784,6 +12147,7 @@ module.exports = {
     zh: "江苏南京的街头鸭血粉丝汤：鸭血、鸭杂与粉丝泡在鸭汤里；百余年前，本是省俭出来的吃法。",
     ja: "江蘇省南京の屋台のスープ。鴨の血、もつ、春雨を鴨のだしで。百年余り前、倹約から生まれました。",
     es: "Sopa callejera de Nankín con sangre de pato, casquería y fideos de cristal en caldo de pato; nació del ahorro hace más de un siglo.",
+    ko: "오리 선지와 내장, 당면을 오리 육수에 넣은 장쑤 난징의 길거리 수프로, 백 년도 더 전에 알뜰함에서 생겨났습니다.",
   },
   "shanghainese::lion's head meatball": {
     id: "Bakso babi besar yang direbus, dari masakan Huaiyang di Yangzhou dan Zhenjiang; dinamai karena bentuknya seperti kepala singa.",
@@ -10792,6 +12156,7 @@ module.exports = {
     zh: "扬州、镇江淮扬菜里的大肉圆：炖得酥软；因形似狮子的头而得名「狮子头」。",
     ja: "揚州・鎮江の淮揚料理の大きな煮込み肉団子。獅子の頭に似た形から、その名がつきました。",
     es: "Gran albóndiga de cerdo estofada de la cocina huaiyang (Yangzhou y Zhenjiang); su nombre alude a su forma de cabeza de león.",
+    ko: "화이양(양저우·전장) 요리의 큼직한 돼지고기 완자 조림으로, 사자 머리를 닮은 모양에서 이름을 땄습니다.",
   },
   "shanghainese::pan-fried noodles shanghai": {
     id: "Mi goreng Shanghai dan Suzhou yang keemasan dan renyah di kedua sisinya, ditutup tumis daging babi atau udang.",
@@ -10800,6 +12165,7 @@ module.exports = {
     zh: "上海苏州的两面黄：面煎到两面金黄酥脆，上头浇炒好的肉丝或虾仁。",
     ja: "上海・蘇州の焼きそば。両面をきつね色にカリッと焼き、炒めた豚肉や海老をのせます。",
     es: "Fideos a la plancha de Shanghái y Suzhou, dorados y crujientes por ambas caras, cubiertos de cerdo o gambas salteados.",
+    ko: "양면을 노릇하고 바삭하게 지져 '양면황'이라 부르는 상하이·쑤저우 국수로, 볶은 돼지고기나 새우를 올립니다.",
   },
   "shanghainese::rice cake noodles": {
     id: "Niangao tumis khas Shanghai: irisan lonjong kue beras putih non-ketan dimasak bersama daging babi dan sayuran hijau dalam saus kecap-gula.",
@@ -10808,6 +12174,7 @@ module.exports = {
     zh: "上海的炒年糕：椭圆的白年糕片与肉丝、青菜同炒，用酱油与糖调味。",
     ja: "上海の炒め年糕。楕円に切った白いうるち米の餅を、豚肉と青菜、醤油と砂糖のたれで炒めます。",
     es: "Niangao salteado shanghainés: rodajas ovaladas de pastel de arroz blanco con cerdo y verduras en salsa de soja y azúcar.",
+    ko: "타원으로 썬 흰 멥쌀떡을 돼지고기와 잎채소, 간장 설탕 소스에 볶아 낸 상하이식 볶음 떡입니다.",
   },
   "shanghainese::shanghai fried noodles": {
     id: "Tumis Shanghai berupa mi terigu tebal dan kenyal yang diaduk dengan kecap asin dan gelap, daging babi, dan sayuran hijau.",
@@ -10816,6 +12183,7 @@ module.exports = {
     zh: "上海的粗炒面：粗身有嚼劲的小麦面拌生抽老抽，配肉丝与青菜。",
     ja: "上海の焼きそば。太くこしのある小麦麺を、薄口と濃口の醤油、豚肉、青菜とともに炒めます。",
     es: "Salteado shanghainés de fideos de trigo gruesos y elásticos con soja clara y oscura, cerdo y verduras de hoja.",
+    ko: "굵고 쫄깃한 밀면을 간장과 진간장, 돼지고기, 잎채소와 함께 볶아 낸 상하이 요리입니다.",
   },
   "shanghainese::shanghai wontons": {
     id: "Pangsit Shanghai dalam kuah bening: xiao huntun kecil berisi babi saja, atau cai rou huntun besar berisi babi dan sawi putih.",
@@ -10824,6 +12192,7 @@ module.exports = {
     zh: "上海的清汤馄饨：小馄饨只包肉，大的菜肉馄饨则是猪肉配青菜。",
     ja: "澄んだスープの上海のワンタン。豚肉だけの小さな小馄饨と、豚肉とチンゲンサイの大きな菜肉馄饨があります。",
     es: "Wontones shanghaineses en caldo claro: los pequeños xiao huntun solo de cerdo, o los grandes cai rou huntun de cerdo y pak choi.",
+    ko: "맑은 국물에 내는 상하이식 완탕으로, 돼지고기만 넣은 작은 것과 돼지고기와 청경채를 넣은 큰 것이 있습니다.",
   },
   "shanghainese::shanghainese smoked fish": {
     id: "Hidangan pembuka dingin Shanghai dan Jiangnan: ikan digoreng sampai gelap lalu direndam bumbu kecap manis-gurih berrempah.",
@@ -10832,6 +12201,7 @@ module.exports = {
     zh: "上海与江南的冷盘：鱼块炸至深褐，再浸入酱油、糖与香料调成的甜咸卤汁。",
     ja: "上海・江南の前菜。魚を色濃く揚げ、醤油と砂糖、香辛料の甘辛い漬け汁に浸して冷やす。",
     es: "Entrante frío de Shanghái y Jiangnan: pescado frito hasta oscurecer y luego macerado en salsa de soja dulce y especiada.",
+    ko: "생선을 짙게 튀긴 뒤 달콤짭짤한 간장과 설탕, 향신료 양념에 재운 상하이와 장난의 냉채입니다.",
   },
   "shanghainese::shengjianbao": {
     id: "Bakpau babi kecil yang digoreng dangkal, dasarnya renyah dan isinya berkuah; berasal dari Suzhou, sarapan Shanghai sejak awal 1920-an.",
@@ -10840,6 +12210,7 @@ module.exports = {
     zh: "生煎包：底脆汁多的小肉包；源自苏州，一九二〇年代初起就是上海人的早点。",
     ja: "底がカリッとして中に汁を含む小さな焼き豚まん。蘇州に発し、一九二〇年代初頭から上海の朝食です。",
     es: "Bollitos de cerdo a la plancha con base crujiente y relleno jugoso; nacieron en Suzhou y desayuno shanghainés desde los años veinte.",
+    ko: "바닥은 바삭하고 속은 육즙이 가득한 작은 돼지고기 군만두로, 쑤저우에서 시작해 1920년대 초부터 상하이의 아침 식사로 자리 잡았습니다.",
   },
   "shanghainese::soup dumplings": {
     id: "Bakpau kukus Shanghai berisi babi dan kaldu bergelatin yang panas; diciptakan di Nanxiang dekat Shanghai pada 1870-an.",
@@ -10848,6 +12219,7 @@ module.exports = {
     zh: "上海的灌汤包：皮里裹猪肉与滚烫的皮冻汤汁；一八七〇年代在上海近郊的南翔创出。",
     ja: "豚肉と熱いにこごりのスープを包んだ上海の蒸し包子。一八七〇年代、上海近郊の南翔で生まれました。",
     es: "Bollos al vapor shanghaineses rellenos de cerdo y caldo gelatinoso caliente; inventados en Nanxiang, cerca de Shanghái, en 1870.",
+    ko: "돼지고기와 뜨거운 젤리 육수를 채워 쪄낸 상하이식 만두로, 1870년대 상하이 인근 난샹에서 만들어졌습니다.",
   },
   "shanghainese::squirrel fish": {
     id: "Hidangan Suzhou dan Jiangsu: ikan mandarin ditulang lalu dikerat menyerupai tupai, digoreng rendam dan disiram saus asam manis.",
@@ -10856,6 +12228,7 @@ module.exports = {
     zh: "苏州与江苏的松鼠鳜鱼：鳜鱼去骨后剞成松鼠状，下锅炸透，浇糖醋汁。",
     ja: "蘇州・江蘇の料理。骨を抜いた桂魚に栗鼠のような切れ目を入れて揚げ、甘酢あんをかけます。",
     es: "Plato de Suzhou y Jiangsu: pez mandarín deshuesado y tallado en forma de ardilla, frito y bañado en salsa agridulce.",
+    ko: "쏘가리의 뼈를 발라 다람쥐 모양으로 칼집을 내어 튀긴 뒤 새콤달콤한 소스를 끼얹은 쑤저우·장쑤 요리입니다.",
   },
   "shanghainese::sticky rice shumai shanghai": {
     id: "Siomay kukus khas Shanghai berisi ketan, daging babi berbumbu kecap, dan jamur shiitake; disantap sebagai sarapan di kaki lima.",
@@ -10864,6 +12237,7 @@ module.exports = {
     zh: "上海的糯米烧卖：馅是糯米、酱油调味的猪肉与香菇；街头当早点吃。",
     ja: "もち米、醤油で味つけした豚肉、椎茸を詰めた上海の蒸し焼売。屋台の朝食として食べられます。",
     es: "Shaomai al vapor shanghainés relleno de arroz glutinoso, cerdo sazonado con soja y shiitake; se come de desayuno en la calle.",
+    ko: "찹쌀과 간장에 양념한 돼지고기, 표고를 채워 쪄낸 상하이식 사오마이로, 길거리 아침 식사로 먹습니다.",
   },
   "shanghainese::xiao long bao": {
     id: "Pangsit babi kukus berkuah dari kawasan Jiangnan; versi gaya Shanghai berpangkal di Nanxiang pada 1870-an.",
@@ -10872,6 +12246,7 @@ module.exports = {
     zh: "江南一带的灌汤小笼包；上海式的这一路，可追到一八七〇年代的南翔。",
     ja: "江南地方の、スープを含んだ豚肉の蒸し餃子。上海式は一八七〇年代の南翔に遡ります。",
     es: "Empanadilla al vapor de cerdo con sopa de la región de Jiangnan; la versión shanghainesa se remonta al Nanxiang de 1870.",
+    ko: "장난 지방의 육즙을 품은 찐 돼지고기 만두로, 상하이식은 1870년대 난샹까지 거슬러 올라갑니다.",
   },
   "shanghainese::youtiao": {
     id: "Batang panjang adonan beragi bergaram tipis yang digoreng keemasan; sarapan di seluruh Tiongkok, kerap dicelup susu kedelai atau bubur.",
@@ -10880,6 +12255,7 @@ module.exports = {
     zh: "油条：发面加薄盐，拉长下油锅炸至金黄；全中国的早点，蘸豆浆或配粥吃。",
     ja: "軽く塩をした発酵生地を細長く揚げた黄金色の棒。中国じゅうの朝食で、豆乳に浸したり粥に添えたりします。",
     es: "Tira larga y dorada de masa fermentada y ligeramente salada, frita; desayuno en toda China, mojada en leche de soja o con congee.",
+    ko: "가볍게 소금 간한 발효 반죽을 길고 노릇하게 튀긴 것으로, 중국 전역에서 아침에 두유나 죽에 곁들여 먹습니다.",
   },
   "sichuan::beggar's chicken": {
     id: "Hidangan Hangzhou: ayam utuh diisi bumbu, dibungkus daun teratai dan tanah liat, lalu dipanggang perlahan; terkait legenda si pengemis.",
@@ -10888,6 +12264,7 @@ module.exports = {
     zh: "杭州的叫化鸡：整鸡填馅，荷叶与泥土层层裹住慢烤；名字系着乞丐临时起意做菜的传说。",
     ja: "杭州の料理。詰め物をした丸鶏を蓮の葉と粘土で包み、じっくり焼きます。乞食が思いつきで作ったという伝説にちなみます。",
     es: "Plato de Hangzhou: pollo entero relleno, envuelto en hojas de loto y arcilla y horneado despacio; ligado a la leyenda de un mendigo.",
+    ko: "닭에 속을 채우고 연잎과 진흙에 싸서 천천히 구운 항저우 요리로, 거지가 즉석에서 지어 먹었다는 전설과 얽혀 있습니다.",
   },
   "sichuan::boiled beef in chili oil (shui zhu niu rou)": {
     id: "Hidangan Sichuan: irisan tipis sapi dicelup sebentar dalam kuah mala dari doubanjiang, cabai kering, dan merica Sichuan.",
@@ -10896,6 +12273,7 @@ module.exports = {
     zh: "四川的水煮牛肉：薄切牛肉在豆瓣、干辣椒与花椒的麻辣汤里一汆即起。",
     ja: "四川の水煮牛肉。薄切りの牛肉を、豆板醤と乾燥唐辛子と花椒の麻辣のスープでさっと火を通します。",
     es: "Plato de Sichuan: lonchas finas de ternera escaldadas brevemente en un caldo málà de doubanjiang, chiles secos y pimienta de Sichuan.",
+    ko: "얇게 저민 소고기를 두반장과 말린 고추, 산초로 낸 얼얼하고 매운 국물에 살짝 데쳐 낸 쓰촨 요리입니다.",
   },
   "sichuan::boiled fish in chili oil (shui zhu yu)": {
     id: "Hidangan Sichuan: fillet ikan direbus sebentar dalam kuah berapi dari cabai kering dan merica Sichuan.",
@@ -10904,6 +12282,7 @@ module.exports = {
     zh: "四川的水煮鱼：鱼片在干辣椒与花椒煮出的滚烫红汤里烫熟。",
     ja: "四川の水煮魚。魚の切り身を、乾燥唐辛子と花椒の燃えるようなスープでさっと煮ます。",
     es: "Plato de Sichuan: filetes de pescado escalfados en un caldo ardiente de chiles secos y pimienta de Sichuan.",
+    ko: "말린 고추와 산초로 낸 새빨간 국물에 생선살을 데쳐 넣은 쓰촨 요리입니다.",
   },
   "sichuan::chao shou": {
     id: "Pangsit kuah ala Sichuan; namanya berarti \"tangan bersilang\", menirukan lipatannya. Versi minyak cabainya disebut hong you chao shou.",
@@ -10912,6 +12291,7 @@ module.exports = {
     zh: "四川的抄手：名字取自那个像抱臂的折法；浇红油的辣味版本叫红油抄手。",
     ja: "四川式のワンタン。折り方が腕を組む姿に似ることから「抄手」。辣油をかけた辛い版は紅油抄手と呼ばれます。",
     es: "Wontón al estilo de Sichuan; el nombre significa «brazos cruzados», por su pliegue. La versión picante se llama hong you chao shou.",
+    ko: "'팔짱을 낀' 모양으로 접어 이름 붙은 쓰촨식 완탕으로, 고추기름을 끼얹은 것은 훙유 차오서우라 부릅니다.",
   },
   "sichuan::chengdu dan dan noodles": {
     id: "Mi Sichuan dalam saus minyak cabai dan merica Sichuan yang pedas, dengan daging babi cincang dan sayur asin.",
@@ -10920,6 +12300,7 @@ module.exports = {
     zh: "四川的担担面：面拌麻辣红油，配肉末与芽菜。",
     ja: "四川の担担麺。辣油と花椒の辛いたれに、豚ひき肉と漬け菜を合わせます。",
     es: "Fideos de Sichuan en salsa picante de aceite de chile y pimienta de Sichuan, con cerdo picado y verdura en conserva.",
+    ko: "얼얼하고 매운 고추기름과 산초 소스에 다진 돼지고기와 절인 채소를 올린 쓰촨 국수입니다.",
   },
   "sichuan::chongqing chicken (la zi ji)": {
     id: "Hidangan Sichuan dari Chongqing: potongan ayam goreng diaduk bersama tumpukan cabai kering dan merica Sichuan.",
@@ -10928,6 +12309,7 @@ module.exports = {
     zh: "重庆的辣子鸡：炸香的鸡块埋在一堆干辣椒与花椒里翻炒。",
     ja: "重慶の四川料理。揚げた鶏の小片を、山盛りの乾燥唐辛子と花椒とともにあおります。",
     es: "Plato de Sichuan de Chongqing: trozos de pollo frito salteados entre montañas de chiles secos y pimienta de Sichuan.",
+    ko: "튀긴 닭고기를 말린 고추와 산초 더미에 함께 버무려 내는 충칭의 쓰촨 요리입니다.",
   },
   "sichuan::chongqing hot pot": {
     id: "Hotpot pedas dan membuat kebas (mala) dari Chongqing: bahan dimasak di meja dalam kuah lemak sapi, cabai, dan merica Sichuan.",
@@ -10936,6 +12318,7 @@ module.exports = {
     zh: "重庆的麻辣火锅：食材在桌上现涮，汤底以牛油、辣椒与花椒熬成。",
     ja: "重慶の麻辣火鍋。牛脂、唐辛子、花椒のスープで、具材を卓上で煮ながら食べる。",
     es: "Olla caliente picante y adormecedora (mala) de Chongqing: los ingredientes se cuecen en la mesa en caldo de sebo, chile y pimienta.",
+    ko: "충칭에서 온 얼얼하고 매운 마라 훠궈로, 소기름과 고추, 산초로 낸 국물에 재료를 식탁에서 익혀 먹습니다.",
   },
   "sichuan::dan dan noodles": {
     id: "Mi kaki lima Sichuan dari Chengdu: mi gandum tipis dalam minyak cabai yang pedas dan membuat lidah kesemutan.",
@@ -10944,6 +12327,7 @@ module.exports = {
     zh: "成都的担担面：细身小麦面拌上麻辣红油。",
     ja: "成都の屋台麺。細い小麦麺を、しびれる辛さの辣油で和えます。",
     es: "Fideos callejeros de Sichuan, de Chengdu: fideos finos de trigo en aceite de chile picante y adormecedor.",
+    ko: "청두에서 온 쓰촨의 길거리 국수로, 가는 밀면에 얼얼하고 매운 고추기름 소스를 끼얹어 냅니다.",
   },
   "sichuan::fish-fragrant aubergine": {
     id: "Terung tumis Sichuan dalam saus yuxiang: cabai asin, doubanjiang, bawang putih, jahe, gula, dan cuka.",
@@ -10952,6 +12336,7 @@ module.exports = {
     zh: "四川的鱼香茄子：茄子过油，用泡椒、豆瓣、蒜、姜、糖与醋调的鱼香汁烧。",
     ja: "四川の魚香茄子。炒めた茄子を、漬け唐辛子、豆板醤、にんにく、生姜、砂糖、酢のたれで調えます。",
     es: "Berenjena salteada de Sichuan en salsa yuxiang: chile encurtido, doubanjiang, ajo, jengibre, azúcar y vinagre.",
+    ko: "절인 고추와 두반장, 마늘, 생강, 설탕, 식초로 만든 '위샹' 소스에 가지를 볶은 쓰촨 요리입니다.",
   },
   "sichuan::fish-fragrant pork (yu xiang rou si)": {
     id: "Hidangan Sichuan: babi diiris halus dalam saus \"harum ikan\" yang manis, asam, dan pedas.",
@@ -10960,6 +12345,7 @@ module.exports = {
     zh: "四川的鱼香肉丝：猪肉切丝，用甜酸辣的鱼香汁调味。",
     ja: "四川の魚香肉絲。細切りの豚肉を、甘酸っぱく辛い「魚香」のたれで調えます。",
     es: "Plato de Sichuan: cerdo en juliana en salsa «perfume de pescado», dulce, ácida y picante.",
+    ko: "채 썬 돼지고기를 새콤달콤하고 매운 '위샹' 소스에 볶아 낸 쓰촨 요리입니다.",
   },
   "sichuan::husband and wife lung slices (fu qi fei pian)": {
     id: "Hidangan dingin Sichuan: irisan tipis sapi dan jeroan dalam saus mala; dinamai gerai kaki lima sepasang suami istri Chengdu 1930-an.",
@@ -10968,6 +12354,7 @@ module.exports = {
     zh: "四川的夫妻肺片：牛肉与内脏切薄片，浇麻辣红油；名字来自一九三〇年代成都一对夫妻的路边摊。",
     ja: "四川の冷菜。牛肉と内臓を薄く切り、麻辣のたれをかけます。一九三〇年代、成都の夫婦の屋台にちなむ名です。",
     es: "Plato frío de Sichuan: lonchas finas de ternera y casquería en salsa málà; por el puesto de un matrimonio de Chengdu en los años treinta.",
+    ko: "얇게 저민 소고기와 내장을 마라 고추 산초 소스에 버무린 쓰촨의 냉채로, 1930년대 청두 부부의 노점에서 이름을 땄습니다.",
   },
   "sichuan::kung pao chicken (gong bao ji ding)": {
     id: "Tumis Sichuan yang pedas: dadu ayam, kacang tanah, cabai kering, dan merica Sichuan; dinamai gubernur Qing Ding Baozhen (1820-1886).",
@@ -10976,6 +12363,7 @@ module.exports = {
     zh: "四川的宫保鸡丁：鸡丁与花生、干辣椒、花椒同炒；名字取自清朝总督丁宝桢（一八二〇至一八八六）。",
     ja: "鶏のさいの目、落花生、乾燥唐辛子、花椒を炒める四川の辛い料理。清の総督、丁宝楨（一八二〇〜一八八六）にちなみます。",
     es: "Salteado picante de Sichuan con pollo en dados, cacahuete, chile seco y pimienta de Sichuan; por el gobernador qing Ding Baozhen.",
+    ko: "깍둑 썬 닭고기와 땅콩, 말린 고추, 산초를 볶은 매운 쓰촨 요리로, 청나라 총독 딩바오전에게서 이름을 땄습니다.",
   },
   "sichuan::ma la xiang guo": {
     id: "\"Hot pot kering\" tumis ala Sichuan: daging dan sayur pilihan sendiri ditumis dengan cabai dan merica Sichuan, tanpa kuah.",
@@ -10984,6 +12372,7 @@ module.exports = {
     zh: "四川的麻辣香锅：自己挑的荤素料与辣椒、花椒同炒，不带汤。",
     ja: "四川風の「乾いた火鍋」。自分で選んだ肉と野菜を唐辛子と花椒で炒め、汁は入れません。",
     es: "«Olla seca» salteada al estilo de Sichuan: carnes y verduras elegidas por el comensal, con chile y pimienta de Sichuan, sin caldo.",
+    ko: "직접 고른 고기와 채소를 고추와 산초에 볶아 국물 없이 내는 쓰촨식 '마른 훠궈'입니다.",
   },
   "sichuan::mala beef noodle": {
     id: "Sup mi sapi Sichuan; dagingnya ditim lalu disajikan dalam kaldu kaya yang menggigit oleh cabai dan merica Sichuan.",
@@ -10992,6 +12381,7 @@ module.exports = {
     zh: "四川的牛肉面：牛肉先炖入味，浇上麻辣浓郁的红汤。",
     ja: "四川の牛肉麺。牛肉を煮込み、唐辛子と花椒で痺れる濃厚なスープに沈めて供する。",
     es: "Sopa de fideos con ternera de Sichuan: la carne se guisa y se sirve en un caldo intenso, adormecedor de chile y pimienta de Sichuan.",
+    ko: "소고기를 조려 진한 국물에 넣은 쓰촨식 소고기 국수로, 고추와 산초로 얼얼하고 매운 맛을 냅니다.",
   },
   "sichuan::mapo tofu": {
     id: "Hidangan Sichuan yang pedas: tahu lembut dalam saus tauban cabai dan merica Sichuan; lahir di Chengdu 1860-an dari tangan Nyonya Chen.",
@@ -11000,6 +12390,7 @@ module.exports = {
     zh: "四川的麻婆豆腐：嫩豆腐在豆瓣与花椒的酱汁里烧透；一八六〇年代成都的陈麻婆所创。",
     ja: "四川の辛い料理。やわらかい豆腐を豆板醤と花椒のたれで煮ます。一八六〇年代の成都、陳麻婆の手から。",
     es: "Plato picante de Sichuan: tofu blando en salsa de habas, chile y pimienta de Sichuan; nació en el Chengdu de 1860 con la señora Chen.",
+    ko: "부드러운 두부를 두반장과 산초 소스에 매콤하게 볶은 쓰촨 요리로, 1860년대 청두에서 곰보 자국이 있던 '마포' 천 씨가 만들었습니다.",
   },
   "sichuan::mouthwatering chicken (kou shui ji)": {
     id: "Hidangan dingin Sichuan: ayam rebus disiram minyak cabai mala yang pedas dan membuat lidah kesemutan.",
@@ -11008,6 +12399,7 @@ module.exports = {
     zh: "四川的口水鸡：白煮鸡浇上麻辣红油。",
     ja: "四川の冷菜。ゆで鶏に、しびれる辛さの麻辣の辣油をかけます。",
     es: "Plato frío de Sichuan: pollo escalfado bañado en aceite de chile málà, picante y adormecedor.",
+    ko: "데친 닭고기에 얼얼하고 매운 고추기름을 끼얹어 차게 내는 쓰촨 요리입니다.",
   },
   "sichuan::pock-marked old woman tofu (mapo doufu alt)": {
     id: "Hidangan Sichuan yang pedas: tahu lembut dan daging cincang dalam saus tauban cabai mala; dinamai juru masak Chengdu, Chen Mapo, 1862.",
@@ -11016,6 +12408,7 @@ module.exports = {
     zh: "四川的辣味名菜：嫩豆腐与肉末烧在麻辣豆瓣汁里；约一八六二年，得名于成都的厨娘陈麻婆。",
     ja: "四川の辛い料理。やわらかい豆腐と挽肉を麻辣の豆板醤で煮ます。一八六二年ごろ、成都の料理人・陳麻婆にちなむ名です。",
     es: "Plato picante de Sichuan: tofu blando y carne picada en salsa málà de habas y chile; por la cocinera de Chengdu Chen Mapo, hacia 1862.",
+    ko: "부드러운 두부와 다진 고기를 마라 두반장 소스에 볶은 쓰촨 요리로, 1862년경 청두의 곰보 요리사 천마포에게서 이름을 땄습니다.",
   },
   "sichuan::saliva chicken (kou shui ji) alt name": {
     id: "Pembuka dingin Sichuan: ayam rebus dalam minyak cabai yang membuat lidah kesemutan; namanya dikaitkan dengan penyair Guo Moruo.",
@@ -11024,6 +12417,7 @@ module.exports = {
     zh: "四川的凉菜口水鸡：白煮鸡浸在麻辣红油里；这名字与诗人郭沫若有关。",
     ja: "四川の冷たい前菜。ゆで鶏をしびれる辣油に浸します。名は詩人・郭沫若に結びつけられます。",
     es: "Entrante frío de Sichuan: pollo escalfado en aceite de chile adormecedor; el nombre se vincula al poeta Guo Moruo.",
+    ko: "데친 닭고기에 얼얼한 고추기름을 끼얹은 쓰촨의 냉채로, '입에 침이 도는 닭'이라는 이름은 시인 궈모뤄와 얽혀 있습니다.",
   },
   "sichuan::sichuan cold noodle": {
     id: "Mi gandum Sichuan yang disajikan pada suhu ruang dengan bumbu minyak cabai yang asam, manis, dan pedas.",
@@ -11032,6 +12426,7 @@ module.exports = {
     zh: "四川的凉面：小麦面放至常温，拌酸甜辣的红油汁。",
     ja: "常温で供する四川の小麦麺。酸味と甘みと辛みのある辣油だれで和えます。",
     es: "Fideos de trigo de Sichuan servidos a temperatura ambiente en un aliño agrio, dulce y picante de aceite de chile.",
+    ko: "실온으로 내는 쓰촨의 밀국수로, 고추기름을 넣어 새콤달콤하고 매운 양념에 버무립니다.",
   },
   "sichuan::sichuan dry-fried green beans": {
     id: "Klasik Sichuan: buncis digoreng kering hingga keriput, lalu diaduk dengan babi, cabai, merica Sichuan, dan sayur asin yacai.",
@@ -11040,6 +12435,7 @@ module.exports = {
     zh: "四川名菜干煸四季豆：豆角干煸到起皱，再与肉末、辣椒、花椒和芽菜同炒。",
     ja: "四川の定番、乾煸四季豆。いんげんを油少なめでしわが寄るまで煎り、豚肉、唐辛子、花椒、芽菜と合わせます。",
     es: "Clásico de Sichuan: judías verdes salteadas en seco hasta arrugarse y luego mezcladas con cerdo, chile, pimienta de Sichuan y yacai.",
+    ko: "줄기콩을 기름에 마르게 볶아 쭈글쭈글해지면 돼지고기와 고추, 산초, 야차이와 함께 버무린 쓰촨의 대표 요리입니다.",
   },
   "sichuan::sichuan hot pot": {
     id: "Hidangan bersama berupa kuah mendidih yang dibumbui mala, perpaduan merica Sichuan yang membuat kesemutan dengan cabai.",
@@ -11048,6 +12444,7 @@ module.exports = {
     zh: "围炉共食的一锅滚汤，味在「麻辣」——花椒的麻加辣椒的辣。",
     ja: "煮立つスープを囲む共食の料理。味の要は「麻辣」、花椒のしびれと唐辛子の辛さです。",
     es: "Plato comunal de caldo hirviendo sazonado con málà, la unión de la pimienta de Sichuan adormecedora y el chile picante.",
+    ko: "산초와 고추로 얼얼하고 매운 마라 맛을 낸 국물에 재료를 넣어 함께 익혀 먹는 요리입니다.",
   },
   "sichuan::sichuan pickled mustard greens": {
     id: "Batang sawi (Brassica juncea) yang ditekan garam, dilumuri cabai, lalu difermentasi; dari Fuling, Chongqing. Pedas, asam, dan asin.",
@@ -11056,6 +12453,7 @@ module.exports = {
     zh: "重庆涪陵的榨菜：芥菜（Brassica juncea）的茎用盐压出水，抹辣椒再发酵；又辣又酸又咸。",
     ja: "重慶涪陵の漬物。カラシナ（Brassica juncea）の茎を塩で締め、唐辛子をまぶして発酵させます。辛く、酸っぱく、塩気があります。",
     es: "Tallo de mostaza (Brassica juncea) prensado en sal, untado con chile y fermentado; de Fuling, Chongqing. Picante, ácido y salado.",
+    ko: "충칭 푸링에서 소금에 눌러 고추를 문질러 발효시킨 갓 줄기로, 맵고 새콤하며 짭짤합니다.",
   },
   "sichuan::sichuan-style smoked duck (zhang cha ya)": {
     id: "Hidangan Sichuan yang khas: bebek dimarinasi beberapa jam lalu diasap panas di atas daun teh dan kayu kamper.",
@@ -11064,6 +12462,7 @@ module.exports = {
     zh: "四川的樟茶鸭：鸭子腌上几个钟头，再用樟树叶与茶叶熏烤。",
     ja: "四川料理の粋。鴨を数時間漬け込み、茶葉と樟の木で熱燻にします。",
     es: "Quintaesencia de Sichuan: pato marinado varias horas y ahumado en caliente sobre hojas de té y madera de alcanfor.",
+    ko: "쓰촨을 대표하는 요리로, 오리를 여러 시간 양념에 재운 뒤 찻잎과 녹나무로 훈연합니다.",
   },
   "sichuan::sichuan-style spicy crayfish": {
     id: "Lobster air tawar ditumis atau dibraise dalam saus mala Sichuan dari cabai kering dan merica Sichuan.",
@@ -11072,6 +12471,7 @@ module.exports = {
     zh: "四川的麻辣小龙虾：淡水小龙虾下镬爆炒或焖烧，酱底是干辣椒与花椒。",
     ja: "淡水のザリガニを、乾燥唐辛子と花椒の四川の麻辣だれで炒めるか煮込みます。",
     es: "Cangrejos de río salteados al wok o guisados en una salsa málà de Sichuan de chile seco y pimienta de Sichuan.",
+    ko: "민물가재를 말린 고추와 산초로 낸 쓰촨식 마라 소스에 볶거나 조려 낸 요리입니다.",
   },
   "sichuan::twice-cooked pork (hui guo rou)": {
     id: "Hidangan Sichuan: perut babi direbus utuh dulu, lalu diiris dan ditumis dengan tauban cabai — dagingnya \"dikembalikan ke wajan\".",
@@ -11080,6 +12480,7 @@ module.exports = {
     zh: "四川的回锅肉：五花肉先整块煮熟，再切片与豆瓣同炒——所谓「回锅」正是此意。",
     ja: "四川の回鍋肉。豚バラをまず塊のまま茹で、切ってから豆板醤で炒めます。肉が「鍋に戻る」ゆえの名。",
     es: "Plato de Sichuan: la panceta se cuece entera, luego se lonchea y se saltea con pasta de habas y chile — la carne «vuelve al wok».",
+    ko: "삼겹살을 통째로 삶은 뒤 저며 두반장에 볶아 낸 쓰촨 요리로, 고기가 '웍으로 되돌아온다'는 뜻입니다.",
   },
   "sichuan::zhong dumplings": {
     id: "Pangsit babi rebus khas Chengdu yang disiram kecap manis berempah dan minyak cabai; diciptakan pada 1893 oleh Zhong Xiesen.",
@@ -11088,6 +12489,7 @@ module.exports = {
     zh: "成都的钟水饺：猪肉水饺浇上复制甜酱油与红油；一八九三年由钟燮森（字少白）所创。",
     ja: "成都のゆで豚餃子に、甘く香りづけした醤油と辣油をかけた品。一八九三年、鍾燮森が生みました。",
     es: "Empanadillas de cerdo hervidas de Chengdu bañadas en soja dulce especiada y aceite de chile; creadas en 1893 por Zhong Xiesen.",
+    ko: "청두의 삶은 돼지고기 만두로, 달게 간한 향신 간장과 고추기름을 끼얹으며 1893년 중셰선이 만들었습니다.",
   },
   "south-african::amasi": {
     id: "Susu fermentasi yang kental dan masam dari Afrika bagian selatan, menurut tradisi dibuat dengan mengasamkan susu mentah dalam labu.",
@@ -11096,6 +12498,7 @@ module.exports = {
     zh: "南部非洲浓稠的酸发酵乳，传统上将生牛奶装入葫芦容器中酸化而成。",
     ja: "南部アフリカの濃厚な酸味の発酵乳。生乳をひょうたんの器に入れて酸っぱくするのが伝統の作り方。",
     es: "Leche fermentada espesa y ácida del sur de África, cuajada por tradición a partir de leche cruda en una calabaza.",
+    ko: "남부 아프리카의 되직하고 새콤한 발효유로, 전통적으로 조롱박(이굴라)에 생우유를 담아 시게 만듭니다.",
   },
   "south-african::biltong": {
     id: "Irisan daging yang diawetkan cuka dan garam lalu diangin-anginkan, kerap dari sapi atau daging buruan.",
@@ -11104,6 +12507,7 @@ module.exports = {
     zh: "以醋与盐腌渍后风干的肉条，多用牛肉或野味。",
     ja: "酢と塩で漬けてから風で干した肉の細切り。牛肉や野生の肉を使うことが多い。",
     es: "Tiras de carne curadas con vinagre y sal y secadas al aire, a menudo de vacuno o de caza.",
+    ko: "식초와 소금으로 절여 바람에 말린 고기 조각으로, 소고기나 야생 고기를 씁니다.",
   },
   "south-african::bobotie": {
     id: "Hidangan panggang Cape Malay Afrika Selatan: daging cincang berbumbu ditutupi custard telur, kerap disajikan dengan nasi kuning.",
@@ -11112,6 +12516,7 @@ module.exports = {
     zh: "南非开普马来风味的焗菜：调味肉末上覆蛋奶浆烘烤，常配黄姜饭。",
     ja: "南アフリカのケープ・マレー風の焼き料理。香辛料入りのひき肉に卵のカスタードをかけて焼き、黄色いご飯を添える。",
     es: "Plato horneado cabo-malayo de Sudáfrica: carne picada especiada bajo una crema de huevo, servida a menudo con arroz amarillo.",
+    ko: "향신 다진 고기 위에 달걀 커스터드를 올려 구운 남아프리카 케이프 말레이 요리로, 흔히 노란 밥과 함께 냅니다.",
   },
   "south-african::bobotie pie": {
     id: "Hidangan panggang Cape Malay Afrika Selatan: daging cincang berbumbu kari di bawah lapisan custard telur dan susu.",
@@ -11120,6 +12525,7 @@ module.exports = {
     zh: "南非开普马来的焗菜：咖喱调味的肉末上覆一层蛋奶浆烘烤。",
     ja: "南アフリカのケープ・マレー風の焼き料理。カレーで味付けしたひき肉に卵と牛乳のカスタードをかけて焼く。",
     es: "Plato horneado cabo-malayo de Sudáfrica: carne picada al curry bajo una cobertura de crema de huevo y leche.",
+    ko: "향신 커리 다진 고기 위에 달걀과 우유 커스터드를 올려 구운 남아프리카의 케이프 말레이 요리입니다.",
   },
   "south-african::boerewors": {
     id: "Sosis petani Afrika Selatan yang digulung melingkar dari sapi, babi, atau domba; menurut undang-undang isinya minimal 90 persen daging.",
@@ -11128,6 +12534,7 @@ module.exports = {
     zh: "南非盘成一圈的农家香肠，用牛肉、猪肉或羊肉灌制；依法肉含量须至少九成。",
     ja: "渦巻き状に巻く南アフリカの農家のソーセージ。牛・豚・羊で作り、法律で肉が9割以上と定められている。",
     es: "Salchicha campesina sudafricana enrollada en espiral de vacuno, cerdo o cordero; por ley debe llevar al menos un 90 % de carne.",
+    ko: "소나 돼지, 양고기로 만들어 둥글게 말아 낸 남아프리카의 농부 소시지로, 법으로 고기 함량이 90퍼센트 이상이어야 합니다.",
   },
   "south-african::boerewors roll": {
     id: "Jajanan jalanan Afrika Selatan: sosis petani boerewors yang dipanggang di dalam roti dengan sambal tomat dan bawang; lazim di braai.",
@@ -11136,6 +12543,7 @@ module.exports = {
     zh: "南非的街头小吃：烤好的农家香肠boerewors夹在面包里，配番茄洋葱酱；在烧烤聚会与市集上常见。",
     ja: "焼いた農家のソーセージ、ブレヴォルスをパンに挟み、トマトと玉ねぎのレリッシュを添える南アフリカの屋台の味。",
     es: "Comida callejera sudafricana: salchicha campesina boerewors a la parrilla en un panecillo con salsa de tomate y cebolla.",
+    ko: "구운 부르보르스 소시지를 빵에 넣고 토마토 양파 양념을 곁들인 남아프리카의 길거리 음식으로, 브라이와 장터에서 흔합니다.",
   },
   "south-african::bunny chow": {
     id: "Roti tawar yang dikeruk isinya lalu diisi kari; diciptakan orang India-Afrika Selatan di Durban sekitar 1940-an.",
@@ -11144,6 +12552,7 @@ module.exports = {
     zh: "挖空的白面包填入咖喱；约1940年代由德班的南非印度裔创制。",
     ja: "くり抜いた白パンにカレーを詰めたもの。1940年ごろ、ダーバンのインド系南アフリカ人が生み出した。",
     es: "Hogaza de pan blanco ahuecada y rellena de curry, creada por los indo-sudafricanos de Durban hacia los años cuarenta.",
+    ko: "속을 파낸 흰 빵 덩어리에 커리를 채운 음식으로, 1940년대 무렵 더반의 인도계 남아프리카인들이 만들었습니다.",
   },
   "south-african::cape malay curry": {
     id: "Kari Afrika Selatan yang lembut dan harum, dikembangkan komunitas Cape Malay yang berasal dari orang Indonesia yang diperbudak.",
@@ -11152,6 +12561,7 @@ module.exports = {
     zh: "南非温和而馥郁的咖喱，由开普马来社群发展而来；他们是被贩为奴的印尼人的后裔。",
     ja: "穏やかで香り高い南アフリカのカレー。奴隷とされたインドネシアの人々を祖とするケープ・マレーの社会が育てた。",
     es: "Curry sudafricano suave y aromático desarrollado por la comunidad cabo-malaya, descendiente de indonesios esclavizados.",
+    ko: "노예로 끌려온 인도네시아 사람들에게서 케이프 말레이 공동체가 발전시킨 순하고 향긋한 남아프리카 커리입니다.",
   },
   "south-african::chakalaka": {
     id: "Sambal sayur Afrika Selatan yang pedas dari tomat, bawang, dan kacang; konon lahir di kalangan buruh tambang di dekat Johannesburg.",
@@ -11160,6 +12570,7 @@ module.exports = {
     zh: "南非辛辣的蔬菜佐酱，用番茄、洋葱与豆子制成；据说源于约翰内斯堡附近的外来矿工之间。",
     ja: "トマト、玉ねぎ、豆で作る南アフリカの辛い野菜の付け合わせ。ヨハネスブルグ近郊の出稼ぎ鉱夫の間で生まれたと伝わる。",
     es: "Salsa vegetal picante sudafricana de tomate, cebolla y alubias; se dice que nació entre los mineros migrantes cerca de Johannesburgo.",
+    ko: "토마토와 양파, 콩으로 만든 남아프리카의 매콤한 채소 양념으로, 요하네스버그 인근 광산 노동자들 사이에서 비롯됐다고 전해집니다.",
   },
   "south-african::chakalaka with pap": {
     id: "Sambal sayur Afrika Selatan yang pedas dari tomat, kacang, dan cabai, disajikan bersama pap, bubur tepung jagung.",
@@ -11168,6 +12579,7 @@ module.exports = {
     zh: "南非辛辣的番茄豆子辣椒佐酱，配玉米面糊pap一同食用。",
     ja: "トマト、豆、唐辛子で作る南アフリカの辛い野菜の付け合わせ。とうもろこし粉の粥パップとともに供する。",
     es: "Salsa vegetal picante sudafricana de tomate, alubias y chile, servida con pap, unas gachas de harina de maíz.",
+    ko: "토마토와 콩, 고추로 만든 남아프리카의 매콤한 채소 양념으로, 옥수숫가루 죽 팝과 함께 냅니다.",
   },
   "south-african::gatsby (cape town)": {
     id: "Roti lapis panjang khas Cape Town berisi kentang goreng dan daging atau ikan; konon dibuat Rashaad Pandy di Athlone pada 1976.",
@@ -11176,6 +12588,7 @@ module.exports = {
     zh: "开普敦的大号潜艇三明治，夹薯条与肉或鱼；相传1976年由阿斯隆的拉沙德·潘迪创制。",
     ja: "フライドポテトと肉か魚を挟むケープタウンの大きなサンドイッチ。1976年、アスローンのラシャード・パンディの考案と伝わる。",
     es: "Gran bocadillo de Ciudad del Cabo con patatas fritas y carne o pescado; se atribuye a Rashaad Pandy, en Athlone, en 1976.",
+    ko: "감자튀김과 고기나 생선을 채운 케이프타운의 큰 샌드위치로, 1976년 애슬론의 라샤드 팬디가 만들었다고 전해집니다.",
   },
   "south-african::koeksisters": {
     id: "Donat kepang atau pilin tradisional Afrikaner yang digoreng lalu langsung dicelup ke sirop gula dingin.",
@@ -11184,6 +12597,7 @@ module.exports = {
     zh: "传统的阿非利卡编辫或扭花甜甜圈，炸好后立刻浸入冰凉的糖浆。",
     ja: "編むかねじった伝統的なアフリカーナーの揚げ菓子。揚げたてを冷たい砂糖シロップにすぐ浸す。",
     es: "Rosquilla afrikáner tradicional trenzada o retorcida, frita y sumergida de inmediato en almíbar frío.",
+    ko: "땋거나 꼬아 튀긴 뒤 곧바로 차가운 설탕 시럽에 담그는 아프리카너의 전통 도넛입니다.",
   },
   "south-african::mealie meal pap": {
     id: "Bubur tepung jagung Afrika Selatan dari jagung putih giling; makanan pokok yang disantap lembut, berbulir (phutu), atau kaku.",
@@ -11192,6 +12606,7 @@ module.exports = {
     zh: "南非的玉米面糊，用磨碎的白玉米煮成；在南部非洲可煮成软糊、松散的phutu或硬糕。",
     ja: "白とうもろこしを挽いて炊く南アフリカの粥。南部アフリカではやわらかく、ほろほろ（プトゥ）に、あるいは固く仕立てる。",
     es: "Gachas sudafricanas de harina de maíz blanco; en el sur de África se comen blandas, desmenuzadas (phutu) o firmes.",
+    ko: "흰 옥수수를 빻아 쑤는 남아프리카의 죽으로, 부드럽게나 부슬부슬하게, 되직하게 남부 아프리카 전역에서 먹는 주식입니다.",
   },
   "south-african::milk tart (melktert)": {
     id: "Pastri manis Afrika Selatan berisi custard telur dan susu yang lembut, ditaburi kayu manis; turunan mattentaart pemukim Belanda.",
@@ -11200,6 +12615,7 @@ module.exports = {
     zh: "南非的甜点心，内填顺滑的蛋奶馅并撒肉桂粉；源自荷兰移民的mattentaart。",
     ja: "なめらかな卵と牛乳のカスタードを詰め、シナモンをふる南アフリカの菓子。オランダ移民のマッテンタールトに由来する。",
     es: "Pastel dulce sudafricano de crema suave de huevo y leche espolvoreada con canela, derivada del mattentaart de los colonos neerlandeses.",
+    ko: "달걀과 우유로 만든 크리미한 커스터드에 계피를 뿌린 남아프리카의 과자로, 네덜란드 이주민의 마텐타르트에서 왔습니다.",
   },
   "south-african::peri-peri chicken": {
     id: "Ayam panggang yang dimarinasi saus cabai burung Afrika; lahir dari perjumpaan pemukim Portugis dengan Mozambik dan Angola.",
@@ -11208,6 +12624,7 @@ module.exports = {
     zh: "以非洲鸟眼辣椒酱腌渍的烤鸡；源自葡萄牙移民与莫桑比克、安哥拉的相遇。",
     ja: "アフリカン・バーズアイ唐辛子のソースに漬けて焼く鶏。ポルトガル人がモザンビークやアンゴラと出会って生まれた。",
     es: "Pollo a la parrilla marinado en salsa de guindilla piri-piri africana; nació del contacto portugués con Mozambique y Angola.",
+    ko: "아프리카 버즈아이 고추 소스에 재워 구운 닭 요리로, 포르투갈 이주민이 모잠비크와 앙골라에서 만난 데서 태어났습니다.",
   },
   "south-african::pickled fish (cape malay)": {
     id: "Hidangan ikan Cape Malay yang asam manis dalam cuka kari kunyit; dibuat untuk mengawetkan ikan di Tanjung dan disantap saat Paskah.",
@@ -11216,6 +12633,7 @@ module.exports = {
     zh: "开普马来的酸甜鱼，浸在姜黄咖喱醋汁中；本为早期开普保存鱼获而作，如今在复活节食用。",
     ja: "ターメリックとカレーの酢に漬ける甘酸っぱいケープ・マレーの魚料理。魚の保存のために生まれ、復活祭に食べる。",
     es: "Pescado cabo-malayo agridulce en vinagre con cúrcuma y curry; nació para conservar el pescado y se come en Pascua.",
+    ko: "강황 카레 식초에 절인 케이프 말레이의 새콤달콤한 생선 요리로, 초기 케이프에서 생선을 두고 먹으려 만들었고 부활절에 먹습니다.",
   },
   "south-african::potjiekos": {
     id: "Semur Afrika Selatan (Afrikaans) yang dimasak perlahan di atas bara dalam periuk besi cor berkaki tiga, disusun berlapis dan tak diaduk.",
@@ -11224,6 +12642,7 @@ module.exports = {
     zh: "南非（南非荷兰语）的慢炖菜，在三足铸铁锅里以炭火煨成；食材层层码放，全程不搅动。",
     ja: "三本脚の鋳鉄鍋を熾火にかけ、じっくり煮る南アフリカ（アフリカーンス）の煮込み。層に重ね、かき混ぜずに火を通す。",
     es: "Guiso sudafricano (afrikáans) cocido despacio sobre brasas en una olla de hierro de tres patas, dispuesto en capas y sin remover.",
+    ko: "세 발 달린 무쇠 솥에 켜켜이 담아 숯불에 젓지 않고 천천히 끓이는 남아프리카(아프리칸스)의 스튜입니다.",
   },
   "south-african::rooibos tea": {
     id: "Teh herbal tanpa kafein dari semak Aspalathus linearis, endemik kawasan Cederberg Afrika Selatan dan lama dipakai orang Khoisan.",
@@ -11232,6 +12651,7 @@ module.exports = {
     zh: "不含咖啡因的草本茶，取自南非塞德堡特有的Aspalathus linearis灌木；科伊桑人久已饮用。",
     ja: "カフェインを含まないハーブティー。南アフリカのセダルバーグ固有のアスパラトゥス・リネアリスから作り、コイサンの人々が古くから用いた。",
     es: "Infusión sin cafeína del arbusto Aspalathus linearis, endémico del Cederberg sudafricano y usado desde antiguo por los khoisan.",
+    ko: "남아프리카 시더버그에만 자라는 루이보스 덤불로 만든 카페인 없는 허브차로, 코이산 사람들이 오래 마셔 왔습니다.",
   },
   "south-african::snoek braai": {
     id: "Hidangan Afrika Selatan berupa ikan snoek (Thyrsites atun) yang dipanggang di bara dan diolesi selai aprikot, mentega, dan bawang putih.",
@@ -11240,6 +12660,7 @@ module.exports = {
     zh: "南非的菜式：蛇鲭（Thyrsites atun）架在炭火上烤，刷杏子果酱、黄油与蒜；是西开普省的传统。",
     ja: "南アフリカの料理。スヌーク（Thyrsites atun）を炭火で焼き、杏ジャム、バター、ニンニクを塗る。西ケープの定番。",
     es: "Plato sudafricano de snoek (Thyrsites atun) asado a las brasas y untado con mermelada de albaricoque, mantequilla y ajo.",
+    ko: "스눅을 숯불에 구우며 살구잼과 버터, 마늘을 발라 내는 남아프리카 요리로, 웨스턴케이프를 대표하는 음식입니다.",
   },
   "south-african::sosatie": {
     id: "Sate Afrika Selatan berasal Cape Malay dari domba yang dimarinasi bersama aprikot kering, dipanggang braai; namanya dari sate dan saus.",
@@ -11248,6 +12669,7 @@ module.exports = {
     zh: "南非源自开普马来的烤肉串：腌好的羊肉与杏干串起，在braai炭火上烤；名称由马来语的sate与saus合成。",
     ja: "漬け込んだ羊肉と干し杏を串に刺し、ブラーイの炭火で焼く南アフリカの料理。ケープ・マレー由来で、名はサテとソースから。",
     es: "Brochetas sudafricanas de origen cabo-malayo de cordero marinado con orejones, asadas al braai; del malayo sate y saus.",
+    ko: "양고기를 말린 살구와 함께 꿰어 브라이에 구운 남아프리카의 케이프 말레이식 꼬치로, 이름은 말레이어 사테와 소스를 합친 것입니다.",
   },
   "south-african::umngqusho": {
     id: "Hidangan satu panci tradisional Xhosa dari samp (jagung pecah) dan kacang gula; masyhur sebagai santapan kesukaan Nelson Mandela.",
@@ -11256,6 +12678,7 @@ module.exports = {
     zh: "科萨人传统的一锅菜：碎玉米粒（samp）与糖豆同煮；以纳尔逊·曼德拉最爱的饭食而闻名。",
     ja: "砕いたとうもろこし（サンプ）と砂糖豆を一つの鍋で煮るコサ人の伝統料理。ネルソン・マンデラの好物として知られる。",
     es: "Plato tradicional xhosa de una olla con maíz partido (samp) y alubias dulces; célebre por ser el favorito de Nelson Mandela.",
+    ko: "빻은 옥수수와 사탕콩으로 만드는 코사족의 전통 한 냄비 요리로, 넬슨 만델라가 가장 좋아한 음식으로 이름났습니다.",
   },
   "south-african::vetkoek": {
     id: "Roti adonan goreng Afrika Selatan (»kue gemuk« dalam bahasa Afrikaans), diperkirakan lahir bersama pemukim Voortrekker Belanda 1830-an.",
@@ -11264,6 +12687,7 @@ module.exports = {
     zh: "南非的油炸面团面包，南非荷兰语意为「油饼」；一般认为出自1830年代的荷兰裔布尔拓荒者。",
     ja: "南アフリカの揚げパン。アフリカーンス語で「脂の菓子」の意で、1830年代のオランダ系開拓民に始まるとされる。",
     es: "Pan frito de masa sudafricano («torta grasa» en afrikáans), atribuido a los colonos voortrekkers neerlandeses de la década de 1830.",
+    ko: "튀긴 반죽 빵으로 아프리칸스어로 '기름진 케이크'라는 뜻이며, 1830년대 네덜란드계 이주민 포르트레커에게서 비롯됐다고 봅니다.",
   },
   "south-indian::andhra mutton curry": {
     id: "Kari kambing Andhra yang berapi, direbus dalam kuah bawang-jahe-bawang putih, cabai merah, dan asam jawa; disantap dengan nasi.",
@@ -11272,6 +12696,7 @@ module.exports = {
     zh: "安得拉（泰卢固）的辣山羊肉咖喱：洋葱、姜、蒜打底，加红辣椒与罗望子；配米饭吃。",
     ja: "アーンドラ（テルグ）の激辛のヤギ肉カレー。玉ねぎ、生姜、にんにく、赤唐辛子、タマリンドの汁で煮て、ご飯とともに。",
     es: "Curry ardiente de cabra de Andhra (telugu), guisado en salsa de cebolla, jengibre, ajo, chile rojo y tamarindo; se come con arroz.",
+    ko: "양파와 생강, 마늘, 홍고추, 타마린드 소스에 염소고기를 끓인 안드라(텔루구)의 매운 커리로, 밥과 함께 냅니다.",
   },
   "south-indian::appam": {
     id: "Panekuk India Selatan berbentuk mangkuk dari adonan beras fermentasi dan santan; sudah disebut dalam sastra Sangam Tamil kuno.",
@@ -11280,6 +12705,7 @@ module.exports = {
     zh: "南印度的碗状薄饼：发酵米糊调椰浆，在弧形锅里摊成；古老的泰米尔桑伽姆文学里就提到过。",
     ja: "発酵させた米の生地とココナッツミルクで焼く、椀の形をした南インドの薄焼き。古いタミルのサンガム文学に既に見えます。",
     es: "Tortita surindia con forma de cuenco, de masa fermentada de arroz y leche de coco; ya se menciona en la antigua literatura sangam tamil.",
+    ko: "발효 쌀 반죽과 코코넛밀크로 부친 그릇 모양의 남인도 전병으로, 고대 타밀 상감 문학에도 나옵니다.",
   },
   "south-indian::avial": {
     id: "Gulai kental India Selatan asal Kerala dari aneka sayuran dan kelapa, dibumbui minyak kelapa dan daun kari.",
@@ -11288,6 +12714,7 @@ module.exports = {
     zh: "源自喀拉拉的南印度浓菜煲：什锦蔬菜与椰肉同煮，用椰油与咖喱叶调味。",
     ja: "ケーララに発する南インドの濃い煮込み。多種の野菜とココナッツを、ココナッツオイルとカレーリーフで調えます。",
     es: "Guiso espeso surindio de origen keralés de verduras variadas y coco, sazonado con aceite de coco y hojas de curry.",
+    ko: "케랄라에서 온 남인도의 걸쭉한 모둠 채소 코코넛 스튜로, 코코넛 기름과 커리잎으로 향을 냅니다.",
   },
   "south-indian::chettinad chicken": {
     id: "Kari ayam pedas dari kawasan Chettinad di Tamil Nadu, dibangun di atas masala kelapa yang digiling segar.",
@@ -11296,6 +12723,7 @@ module.exports = {
     zh: "泰米尔纳德邦切蒂纳德地区的辣咖喱鸡：底味是现磨的椰子马萨拉。",
     ja: "タミル・ナードゥのチェッティナードゥ地方の辛いチキンカレー。挽きたてのココナッツのマサラを土台にします。",
     es: "Curry de pollo picante de la región de Chettinad, en Tamil Nadu, construido sobre una masala de coco recién molida.",
+    ko: "인도 타밀나두 체티나드 지방의 매운 치킨 커리로, 코코넛을 갓 갈아 만든 마살라를 바탕으로 합니다.",
   },
   "south-indian::chettinad pepper crab": {
     id: "Hidangan kepiting pedas dari komunitas Chettiar di Tamil Nadu, ditumis setengah kering dengan lada hitam giling segar, adas, dan daun kari.",
@@ -11304,6 +12732,7 @@ module.exports = {
     zh: "泰米尔纳德邦切蒂亚尔人的辣炒蟹：半干煸法，用现磨黑胡椒、茴香籽与咖喱叶。",
     ja: "タミル・ナードゥのチェッティヤール社会の辛い蟹料理。挽きたての黒胡椒、フェンネル、カレーリーフで汁気を飛ばしながら炒めます。",
     es: "Plato picante de cangrejo de los chettiar de Tamil Nadu, salteado semiseco con pimienta negra recién molida, hinojo y hojas de curry.",
+    ko: "타밀나두 체티아르 공동체의 매운 게 요리로, 갓 빻은 후추와 회향, 커리잎을 넣어 국물 없이 볶아 냅니다.",
   },
   "south-indian::coconut chutney": {
     id: "Kondimen India Selatan dari kelapa segar yang digiling bersama cabai dan asam jawa; berasal dari pesisir Kepresidenan Madras, teman idli.",
@@ -11312,6 +12741,7 @@ module.exports = {
     zh: "南印度的椰子酱：新鲜椰肉与辣椒、罗望子一同磨碎；出自马德拉斯管辖区的海岸，配 idli 吃。",
     ja: "生のココナッツを唐辛子とタマリンドとともに挽いた南インドの薬味。マドラス管区の海岸に発し、イドリに添えます。",
     es: "Condimento surindio de coco fresco molido con chiles y tamarindo, de la costa de la Presidencia de Madrás; se sirve con idli.",
+    ko: "생코코넛과 고추, 타마린드를 갈아 만든 남인도 양념으로, 해안 마드라스 관구에서 왔으며 이들리에 곁들입니다.",
   },
   "south-indian::dosa": {
     id: "Krep tipis India Selatan dari adonan beras dan kacang urad yang difermentasi, disantap dengan chutney dan sambar.",
@@ -11320,6 +12750,7 @@ module.exports = {
     zh: "南印度薄饼，用大米与黑绿豆发酵成浆摊制，佐酸辣酱与豆汤同食。",
     ja: "南インドの薄いクレープ。米とウラド豆を発酵させた生地を焼き、チャツネとサンバルを添える。",
     es: "Crep fino del sur de la India hecho con masa fermentada de arroz y lenteja urad, que se come con chutney y sambar.",
+    ko: "쌀과 우라드 달을 발효시킨 반죽으로 얇게 부친 남인도 전병으로, 처트니와 삼바르를 곁들여 먹습니다.",
   },
   "south-indian::filter coffee": {
     id: "Kopi India Selatan yang ditiriskan dari bubuk bercampur sawi putih dalam saringan logam, disajikan berbusa dengan susu panas dan gula.",
@@ -11328,6 +12759,7 @@ module.exports = {
     zh: "南印度的滴滤咖啡：掺菊苣的咖啡粉在金属滤壶里慢慢滴出，兑热牛奶与糖，打出泡沫。",
     ja: "菊苣を混ぜた粉を金属のフィルターでゆっくり落とす南インドのコーヒー。熱い牛乳と砂糖を加え、泡立てて供します。",
     es: "Café surindio filtrado lentamente en un filtro metálico con posos mezclados con achicoria, servido espumoso con leche caliente y azúcar.",
+    ko: "치커리를 섞은 원두를 금속 필터로 내려 뜨거운 우유와 설탕을 넣어 거품 나게 내는 남인도 커피로, 필터 카피라고도 합니다.",
   },
   "south-indian::hyderabadi haleem": {
     id: "Gulai kental Hyderabad dari daging, lentil, dan gandum tumbuk, berasal Arab; memperoleh status Indikasi Geografis pada 2010.",
@@ -11336,6 +12768,7 @@ module.exports = {
     zh: "海得拉巴的浓炖：肉、扁豆与舂碎的小麦同煮，源自阿拉伯；二〇一〇年获得地理标志保护。",
     ja: "アラブに発する、肉と豆と搗いた小麦のハイデラバードの濃い煮込み。二〇一〇年に地理的表示の保護を受けました。",
     es: "Guiso espeso de Hyderabad de carne, lentejas y trigo majado, de origen árabe; recibió indicación geográfica protegida en 2010.",
+    ko: "고기와 렌즈콩, 빻은 밀로 만든 걸쭉한 하이데라바드 스튜로, 아랍에서 왔으며 2010년 지리적 표시를 받았습니다.",
   },
   "south-indian::idli": {
     id: "Kue kukus India Selatan dari beras dan lentil hitam yang difermentasi; pertama disebut sebagai \"iddalige\" dalam teks Kannada abad ke-10.",
@@ -11344,6 +12777,7 @@ module.exports = {
     zh: "南印度的蒸米饼：发酵的米与黑豆糊蒸成；十世纪的坎纳达语文献里以「iddalige」之名首次出现。",
     ja: "発酵させた米と黒豆で作る南インドの蒸し餅。十世紀のカンナダ語文献に「イッダリゲ」として初めて記されます。",
     es: "Torta al vapor del sur de la India de arroz y lenteja negra fermentados; citada como «iddalige» en un texto canarés del siglo X.",
+    ko: "발효한 쌀과 검은 렌즈콩으로 쪄낸 남인도 떡으로, 10세기 칸나다어 문헌에 '이달리게'로 처음 언급됩니다.",
   },
   "south-indian::kerala beef fry": {
     id: "Hidangan Kerala: daging sapi dipanggang perlahan bersama rempah, daun kari, dan serpih kelapa dalam minyak kelapa; tradisi Kristen Suriah.",
@@ -11352,6 +12786,7 @@ module.exports = {
     zh: "喀拉拉的干煸牛肉：牛肉与香料、咖喱叶、椰肉片在椰油里慢火煸香；这是叙利亚基督徒的传统菜。",
     ja: "ケーララの料理。牛肉を香辛料、カレーリーフ、削りココナッツとともにココナッツオイルでじっくり炒め焼きに。シリア系キリスト教徒の伝統。",
     es: "Plato de Kerala: ternera asada despacio con especias, hojas de curry y coco en aceite de coco; tradición de los cristianos sirios.",
+    ko: "소고기를 향신료와 커리잎, 코코넛 조각과 함께 코코넛 기름에 천천히 볶아 낸 케랄라 요리로, 시리아 기독교인의 전통 음식입니다.",
   },
   "south-indian::kerala fish curry": {
     id: "Kari ikan Kerala yang asam dan pedas; menurut tradisi diasamkan dengan kudampuli, asam Malabar, dan dimasak dalam belanga tanah manchatti.",
@@ -11360,6 +12795,7 @@ module.exports = {
     zh: "喀拉拉的酸辣鱼咖喱：照传统用马拉巴罗望子 kudampuli 取酸，在陶锅 manchatti 里煮。",
     ja: "ケーララの酸味と辛味の魚カレー。伝統ではマラバルタマリンド、クダンプリで酸をつけ、土鍋マンチャッティで煮ます。",
     es: "Curry de pescado de Kerala, ácido y picante; se acidula con kudampuli (tamarindo de Malabar) y se cuece en cazuela de barro manchatti.",
+    ko: "새콤하고 매운 케랄라 생선 커리로, 전통적으로 쿠담풀리(말라바르 타마린드)로 신맛을 내고 뚝배기(만찻티)에 끓입니다.",
   },
   "south-indian::masala dosa": {
     id: "Krep beras dan lentil yang difermentasi, renyah, berisi kentang berempah; berasal dari kota kuil Udupi di Karnataka.",
@@ -11368,6 +12804,7 @@ module.exports = {
     zh: "发酵米豆糊摊成的脆薄饼，卷进香料土豆；源自卡纳塔卡邦的神庙之城乌杜比。",
     ja: "発酵させた米と豆の生地で焼くパリッとしたクレープ。香辛料入りのじゃがいもを包みます。カルナータカの寺町ウドゥピ発祥。",
     es: "Crepe crujiente de arroz y lenteja fermentados con relleno de patata especiada; nació en la ciudad-templo de Udupi, en Karnataka.",
+    ko: "발효 쌀·렌즈콩 반죽을 바삭하게 부쳐 향신 감자를 채운 전병으로, 카르나타카의 사원 도시 우두피에서 비롯됐습니다.",
   },
   "south-indian::meals (sappadu)": {
     id: "Santapan nasi lengkap Tamil Nadu yang menurut tradisi disajikan di atas daun pisang, nasi kukus disantap bersama sambar dan rasam.",
@@ -11376,6 +12813,7 @@ module.exports = {
     zh: "泰米尔纳德邦的全套米饭餐：照传统摆在香蕉叶上，白饭配 sambar 与 rasam 同吃。",
     ja: "タミル・ナードゥの一汁多菜の米の食事。伝統ではバナナの葉に盛り、蒸した米をサンバルやラサムとともにいただきます。",
     es: "Comida completa de arroz de Tamil Nadu servida tradicionalmente sobre hoja de plátano; el arroz al vapor se come con sambar y rasam.",
+    ko: "바나나잎에 차려 내는 타밀나두의 정식으로, 흰밥에 삼바르와 라삼을 곁들여 먹습니다.",
   },
   "south-indian::medu vada": {
     id: "Gorengan urad dal India Selatan berbentuk donat, renyah di luar dan lembut di dalam; \"medu\" berarti lembut dalam bahasa Tamil dan Kannada.",
@@ -11384,6 +12822,7 @@ module.exports = {
     zh: "南印度的甜甜圈形黑豆饼：外脆内软；「medu」在泰米尔语与坎纳达语里就是「软」。",
     ja: "ドーナツ形をした南インドのウラッドダールの揚げ物。外は香ばしく中はやわらか。「メドゥ」はタミル語・カンナダ語で「やわらかい」。",
     es: "Buñuelo surindio de urad dal con forma de rosquilla, crujiente por fuera y tierno dentro; «medu» es «blando» en tamil y canarés.",
+    ko: "겉은 바삭하고 속은 부드러운 도넛 모양의 남인도 우라드 달 튀김으로, '메두'는 타밀어와 칸나다어로 부드럽다는 뜻입니다.",
   },
   "south-indian::mysore pak": {
     id: "Manisan India Selatan dari tepung buncis, ghee, dan gula; diciptakan di dapur istana Mysore, Karnataka, pada awal 1900-an.",
@@ -11392,6 +12831,7 @@ module.exports = {
     zh: "南印度的甜点：鹰嘴豆粉、酥油与糖同熬；二十世纪初出自卡纳塔卡邦迈索尔的王宫厨房。",
     ja: "ひよこ豆粉、ギー、砂糖で作る南インドの甘味。一九〇〇年代初頭、カルナータカのマイソール王宮の厨房で生まれました。",
     es: "Dulce surindio de harina de garbanzo, ghee y azúcar; creado a principios del siglo XX en las cocinas palaciegas de Mysore, Karnataka.",
+    ko: "병아리콩 가루와 기, 설탕으로 만든 남인도 과자로, 1900년대 초 카르나타카 마이소르 왕실 주방에서 만들어졌습니다.",
   },
   "south-indian::paper dosa": {
     id: "Varian dosa India Selatan yang lebih tipis, lebar, dan renyah: krep beras dan urad dal fermentasi, dimasak keemasan di satu sisi.",
@@ -11400,6 +12840,7 @@ module.exports = {
     zh: "南印度多萨的超薄大脆版：发酵米与黑豆糊摊开，只煎一面到金黄。",
     ja: "南インドのドーサの、極薄で大きく香ばしい版。発酵させた米とウラッドダールの生地を、片面だけきつね色に焼きます。",
     es: "Variante extrafina, grande y crujiente de la dosa surindia: crepe de arroz y urad dal fermentados, dorado por una sola cara.",
+    ko: "남인도 도사의 얇고 크고 바삭한 변형으로, 발효 쌀·우라드 달 반죽을 한 면만 노릇하게 부칩니다.",
   },
   "south-indian::payasam": {
     id: "Puding India Selatan dari susu atau santan yang direbus bersama beras, bihun, atau lentil dan gula aren; namanya dari Sanskerta payasa.",
@@ -11408,6 +12849,7 @@ module.exports = {
     zh: "南印度的甜羹：牛奶或椰浆与米、细面或扁豆同煮，加糖或棕榈糖；名字出自梵语的 pāyasa。",
     ja: "牛乳かココナッツミルクを米、細麺、豆と、砂糖かジャグリーで煮た南インドの甘味。名はサンスクリットのパーヤサから。",
     es: "Pudin surindio de leche o leche de coco hervida con arroz, fideos o lentejas y azúcar o panela; su nombre viene del sánscrito pāyasa.",
+    ko: "우유나 코코넛밀크에 쌀, 소면, 렌즈콩과 설탕이나 재거리를 넣어 끓인 남인도 푸딩으로, 이름은 산스크리트어 '파야사'에서 왔습니다.",
   },
   "south-indian::pongal": {
     id: "Hidangan Tamil berupa nasi yang direbus dalam susu, inti dari perayaan panen bernama sama; namanya berarti \"meluap\".",
@@ -11416,6 +12858,7 @@ module.exports = {
     zh: "泰米尔的牛奶煮饭：同名丰收节的核心；「pongal」的意思正是「溢出来」。",
     ja: "牛乳で炊いた米のタミル料理。同じ名の収穫祭の中心で、名は「吹きこぼれる」を意味します。",
     es: "Plato tamil de arroz hervido en leche, centro de la fiesta de la cosecha homónima; su nombre significa «rebosar».",
+    ko: "쌀을 우유에 끓여 만든 타밀 요리로, 같은 이름의 추수 축제의 중심이며 이름은 '끓어 넘치다'라는 뜻입니다.",
   },
   "south-indian::puttu": {
     id: "Sarapan India Selatan dan Sri Lanka: silinder tepung beras kukus berlapis kelapa parut, disajikan bersama kari kacang hitam kadala.",
@@ -11424,6 +12867,7 @@ module.exports = {
     zh: "南印度与斯里兰卡的早餐：米粉与椰丝层层相间蒸成圆柱，配黑鹰嘴豆咖喱 kadala。",
     ja: "南インドとスリランカの朝食。米粉と削りココナッツを層に重ねて筒状に蒸し、カダラのひよこ豆カレーを添えます。",
     es: "Desayuno del sur de la India y Sri Lanka: cilindros de harina de arroz al vapor en capas con coco rallado, con curry de garbanzo kadala.",
+    ko: "간 쌀을 코코넛채와 켜켜이 쌓아 원통으로 쪄낸 남인도·스리랑카의 아침 식사로, 카달라 커리를 곁들입니다.",
   },
   "south-indian::rasam": {
     id: "Sup India Selatan yang encer dan asam dari asam jawa, tomat, dan rempah, disantap dengan nasi; namanya dari kata Sanskerta rasa.",
@@ -11432,6 +12876,7 @@ module.exports = {
     zh: "南印度的清酸汤：罗望子、番茄与香料同煮，配饭或浇在饭上；名字出自梵语的 rasa。",
     ja: "タマリンド、トマト、香辛料の南インドの薄く酸っぱいスープ。ご飯に添えるか、かけて食べます。名はサンスクリットのラサから。",
     es: "Sopa surindia fina y ácida de tamarindo, tomate y especias, tomada con arroz o sobre él; su nombre viene del sánscrito rasa.",
+    ko: "타마린드와 토마토, 향신료로 만든 묽고 새콤한 남인도 수프로, 밥에 끼얹거나 곁들여 먹으며 이름은 산스크리트어 '라사'에서 왔습니다.",
   },
   "south-indian::rava dosa": {
     id: "Krep India Selatan yang tipis, berenda, dan renyah dari semolina, tepung beras, dan maida; dibuat seketika tanpa digiling atau difermentasi.",
@@ -11440,6 +12885,7 @@ module.exports = {
     zh: "南印度的粗麦薄饼：粗粒小麦粉、米粉与白面调糊，摊得薄如蕾丝，现调现煎，不必磨浆也不必发酵。",
     ja: "セモリナ、米粉、精白粉で作る南インドの薄くレース状の香ばしいクレープ。挽きも発酵もいらず、その場で作れます。",
     es: "Crepe surindio fino, calado y crujiente de sémola, harina de arroz y maida; se hace al momento, sin moler ni fermentar.",
+    ko: "세몰리나(라바)와 쌀가루, 마이다로 만든 얇고 레이스처럼 바삭한 남인도 전병으로, 갈거나 발효하지 않고 바로 부칩니다.",
   },
   "south-indian::sambar": {
     id: "Gulai sayur berbasis lentil dari India Selatan, dibuat dengan toor dal, kaldu asam jawa, dan campuran rempah bernama bubuk sambar.",
@@ -11448,6 +12894,7 @@ module.exports = {
     zh: "南印度的扁豆蔬菜汤：木豆瓣、罗望子酸汤，再加一味叫 sambar 粉的香料。",
     ja: "豆を土台にした南インドの野菜の煮込み。トゥールダール、タマリンドの汁、そしてサンバルパウダーという香辛料で作ります。",
     es: "Guiso surindio de verduras con base de lenteja, hecho con toor dal, caldo de tamarindo y una mezcla llamada polvo de sambar.",
+    ko: "비둘기콩(투르 달)과 타마린드 국물, 삼바르 가루라는 향신료 배합으로 만든 남인도의 콩 채소 스튜입니다.",
   },
   "south-indian::thali": {
     id: "Santapan India berisi beberapa hidangan kecil di atas nampan bundar, mangkuk-mangkuk katori ditata melingkar di tepinya.",
@@ -11456,6 +12903,7 @@ module.exports = {
     zh: "印度的圆盘套餐：几样小菜同上一盘，小碗 katori 沿盘边一圈排开。",
     ja: "いくつもの小皿を丸い盆にまとめて供するインドの食事。小鉢カトリを縁に沿って並べます。",
     es: "Comida india de varios platillos servidos juntos en una bandeja redonda, con los cuencos (katori) dispuestos por el borde.",
+    ko: "여러 작은 요리를 둥근 쟁반에 함께 담아 내는 인도식 상차림으로, 작은 그릇(카토리)을 가장자리에 둘러 놓습니다.",
   },
   "south-indian::tomato chutney": {
     id: "Kondimen tomat India Selatan dari Tamil Nadu, kerap dikentalkan dengan lentil sangrai dan disajikan bersama idli dan dosa.",
@@ -11464,6 +12912,7 @@ module.exports = {
     zh: "泰米尔纳德邦的南印度番茄酱：常用炒过的豆子收稠，配 idli 与多萨吃。",
     ja: "タミル・ナードゥの南インドのトマトの薬味。煎った豆でとろみをつけることが多く、イドリやドーサに添えます。",
     es: "Condimento surindio de tomate de Tamil Nadu, a menudo espesado con lentejas tostadas y servido con idli y dosa.",
+    ko: "타밀나두에서 온 남인도의 토마토 양념으로, 흔히 볶은 렌즈콩으로 농도를 내며 이들리와 도사에 곁들입니다.",
   },
   "south-indian::upma": {
     id: "Bubur sarapan gurih India Selatan dari semolina sangrai; namanya menggabungkan uppu, garam, dan mavu, tepung giling.",
@@ -11472,6 +12921,7 @@ module.exports = {
     zh: "南印度的咸味早粥：粗麦粉先炒香再煮；名字由 uppu（盐）与 mavu（磨粉）合成。",
     ja: "煎ったセモリナで作る南インドの塩味の朝粥。名は「塩」を意味するウップと「挽き粉」を意味するマーヴが合わさったもの。",
     es: "Gachas saladas del desayuno surindio de sémola tostada; su nombre une uppu, «sal», y mavu, «harina molida».",
+    ko: "볶은 세몰리나로 만든 남인도의 짭조름한 아침 죽으로, 이름은 '우푸'(소금)와 '마부'(간 곡물)를 합친 것입니다.",
   },
   "south-indian::uttapam": {
     id: "Panekuk gurih India Selatan yang tebal dan lembut dari adonan beras-lentil fermentasi, dimasak bersama taburan bawang bombai dan tomat.",
@@ -11480,6 +12930,7 @@ module.exports = {
     zh: "南印度的厚软咸煎饼：发酵的米豆糊摊开，直接把洋葱与番茄压进去一同煎熟。",
     ja: "厚みのあるやわらかな南インドの塩味の焼き物。発酵させた米と豆の生地に、玉ねぎやトマトをのせて一緒に焼きます。",
     es: "Tortita salada surindia, gruesa y blanda, de masa fermentada de arroz y lenteja, cocida con cebolla y tomate por encima.",
+    ko: "발효 쌀·렌즈콩 반죽에 양파와 토마토 같은 고명을 올려 두툼하고 부드럽게 부친 남인도식 짭조름한 전입니다.",
   },
   "south-indian::vada": {
     id: "Camilan goreng gurih India Selatan dari lentil atau kacang-kacangan yang digiling; tercatat dalam sastra Sangam Tamil.",
@@ -11488,6 +12939,7 @@ module.exports = {
     zh: "南印度的咸味炸豆饼：豆子磨成糊再下油锅；泰米尔桑伽姆文学里就有记载。",
     ja: "挽いた豆で作る南インドの塩味の揚げ菓子。タミルのサンガム文学にすでに現れます。",
     es: "Fritura salada del sur de la India de lentejas o legumbres molidas; atestiguada en la literatura sangam tamil.",
+    ko: "간 렌즈콩이나 콩으로 만든 남인도의 짭조름한 튀김으로, 기원전 100년~기원후 300년경 타밀 상감 문학에 나옵니다.",
   },
   "spanish::arroz negro": {
     id: "Hidangan nasi Valencia dan Katalonia berisi sotong atau cumi, dihitamkan tinta cumi; mirip paella makanan laut.",
@@ -11496,6 +12948,7 @@ module.exports = {
     zh: "瓦伦西亚与加泰罗尼亚的墨鱼饭：乌贼或鱿鱼与米同煮，墨汁把饭染得漆黑；近似海鲜烩饭。",
     ja: "コウイカやいかを使い、墨で黒く染めたバレンシアとカタルーニャの米料理。海鮮のパエリアに近い一皿です。",
     es: "Arroz valenciano y catalán de sepia o calamar teñido de negro con su tinta, semejante a la paella de marisco.",
+    ko: "갑오징어나 오징어의 먹물로 검게 물들인 발렌시아·카탈루냐의 쌀 요리로, 해산물 파에야와 비슷합니다.",
   },
   "spanish::bacalao al pil pil": {
     id: "Hidangan Basque: kod asin direbus perlahan dalam minyak zaitun dan bawang putih; gelatin ikannya mengemulsi minyak menjadi saus pil pil.",
@@ -11504,6 +12957,7 @@ module.exports = {
     zh: "巴斯克菜：咸鳕鱼在橄榄油里与蒜同浸煮；鱼身的胶质把油乳化成滑腻的 pil pil 酱。",
     ja: "バスクの料理。塩鱈をにんにくとオリーブ油で静かに煮ると、鱈のゼラチンが油を乳化させ、なめらかなピルピルのソースになります。",
     es: "Plato vasco de bacalao salado escalfado en aceite de oliva con ajo; su gelatina emulsiona el aceite en la cremosa salsa pil pil.",
+    ko: "소금에 절인 대구를 마늘과 함께 올리브유에 익힌 바스크 요리로, 대구의 젤라틴이 기름과 어우러져 크리미한 '필필' 소스가 됩니다.",
   },
   "spanish::callos a la madrileña": {
     id: "Semur babat Madrid yang dimasak perlahan bersama chorizo, morcilla, dan paprika; dipopulerkan pada abad ke-19 oleh restoran Lhardy.",
@@ -11512,6 +12966,7 @@ module.exports = {
     zh: "马德里的炖牛肚：与红肠、血肠、红椒粉小火慢炖；十九世纪由 Lhardy 餐厅带红。",
     ja: "マドリードのもつ煮込み。チョリソ、モルシージャ、パプリカとじっくり煮ます。十九世紀、レストラン Lhardy が広めました。",
     es: "Callos madrileños guisados despacio con chorizo, morcilla y pimentón; los popularizó en el siglo XIX el restaurante Lhardy.",
+    ko: "소 양을 초리소와 모르시야, 파프리카와 함께 오래 끓인 마드리드의 스튜로, 19세기 라르디 식당이 널리 알렸습니다.",
   },
   "spanish::cava": {
     id: "Anggur bersoda Spanyol metode tradisional, terutama dari Penedes di Katalonia; pertama dibuat Josep Raventos pada 1872.",
@@ -11520,6 +12975,7 @@ module.exports = {
     zh: "西班牙的传统法气泡酒，多产自加泰罗尼亚的佩内德斯；一八七二年由 Josep Raventós 在圣萨杜尔尼首酿。",
     ja: "伝統的製法によるスペインのスパークリングワイン。多くはカタルーニャのペネデス産で、一八七二年にジュゼップ・ラベントスが初めて造りました。",
     es: "Espumoso español de método tradicional, sobre todo del Penedès catalán; lo elaboró por primera vez Josep Raventós en 1872.",
+    ko: "주로 카탈루냐 페네데스에서 나는 스페인의 전통 방식 스파클링 와인으로, 1872년 산사두르니 다노이아에서 조제프 라벤토스가 처음 만들었습니다.",
   },
   "spanish::chorizo": {
     id: "Sosis babi Iberia yang diawetkan, dibumbui paprika asap atau pimenton.",
@@ -11528,6 +12984,7 @@ module.exports = {
     zh: "伊比利亚的腌猪肉香肠：以烟熏红椒粉 pimentón 调味。",
     ja: "燻製パプリカ（ピメントン）で味つけしたイベリアの豚肉の乾燥ソーセージ。",
     es: "Embutido de cerdo ibérico curado y sazonado con pimentón ahumado.",
+    ko: "훈제 파프리카(피멘톤)로 간한 이베리아반도의 건조 숙성 돼지고기 소시지입니다.",
   },
   "spanish::churros con chocolate": {
     id: "Batang adonan choux beralur yang digoreng rendam, disemprot dari corong bintang dan dicelup cokelat panas kental; sarapan atau kudapan sore.",
@@ -11536,6 +12993,7 @@ module.exports = {
     zh: "西班牙的炸油条：泡芙面糊从星形花嘴挤出下锅炸，蘸浓热巧克力；早餐或午后点心。",
     ja: "星形の口金で絞って揚げる、溝のあるスペインの生地の棒。濃い熱いチョコレートに浸します。朝食にも午後のおやつにも。",
     es: "Churros españoles de masa acanalada fritos, escudillados con boquilla de estrella y mojados en chocolate espeso; desayuno o merienda.",
+    ko: "별 모양 깍지로 짜서 튀긴 스페인의 골 진 슈 반죽 막대로, 진한 핫초콜릿에 찍어 아침이나 간식으로 먹습니다.",
   },
   "spanish::cocido madrileño": {
     id: "Semur buncis dan daging khas Madrid, menurut tradisi disajikan dalam tiga tahap terpisah yang disebut vuelcos.",
@@ -11544,6 +13002,7 @@ module.exports = {
     zh: "马德里的鹰嘴豆炖肉：照传统分三道上桌，这几道叫 vuelcos。",
     ja: "マドリードのひよこ豆と肉の煮込み。伝統では三度に分けて供し、それをブエルコスと呼びます。",
     es: "Cocido madrileño de garbanzos y carnes, servido tradicionalmente en tres vuelcos separados.",
+    ko: "병아리콩과 고기를 끓인 마드리드의 스튜로, 전통적으로 세 차례에 나눠(부엘코스) 냅니다.",
   },
   "spanish::crema catalana": {
     id: "Custard Katalonia beraroma kulit lemon dan kayu manis, ditutup kerak gula karamel yang rapuh.",
@@ -11552,6 +13011,7 @@ module.exports = {
     zh: "加泰罗尼亚的蛋奶冻：以柠檬皮与肉桂增香，面上一层脆焦糖。",
     ja: "レモンの皮とシナモンで香りづけしたカタルーニャのカスタード。表面はぱりっとしたカラメルの殻。",
     es: "Natilla catalana aromatizada con piel de limón y canela y rematada con una costra quebradiza de azúcar caramelizado.",
+    ko: "레몬 껍질과 계피로 향을 내고 위에 캐러멜 설탕을 얇게 굳힌 카탈루냐의 커스터드입니다.",
   },
   "spanish::croquetas": {
     id: "Gorengan berbalut remah roti khas Spanyol dengan isian bechamel yang lembut, kerap berjamon; digoreng rendam sebagai tapa klasik.",
@@ -11560,6 +13020,7 @@ module.exports = {
     zh: "西班牙的炸可乐饼：白酱做的软芯，常掺火腿碎，裹面包糠炸香；经典的小食。",
     ja: "スペインのコロッケ。ベシャメルのなめらかな詰め物に、しばしば生ハムを混ぜ、パン粉をつけて揚げます。定番のタパス。",
     es: "Croquetas españolas empanadas de relleno cremoso de bechamel, a menudo con jamón; fritas y servidas como tapa clásica.",
+    ko: "크리미한 베샤멜 소를 흔히 하몽과 함께 채워 빵가루를 입혀 튀긴 스페인 요리로, 대표적인 타파스입니다.",
   },
   "spanish::fabada asturiana": {
     id: "Semur Asturias yang kaya: fabes, kacang putih yang lembut, bersama compango babi awetan berupa chorizo, morcilla, dan lacon atau tocino.",
@@ -11568,6 +13029,7 @@ module.exports = {
     zh: "阿斯图里亚斯的浓炖：绵软的白豆 fabes 配腌猪肉 compango——红肠、血肠与腌肩肉或肥膘。",
     ja: "アストゥリアスの濃い煮込み。とろりとした白いんげんファベスに、チョリソ、モルシージャ、ラコンなどの塩漬け豚を合わせます。",
     es: "Guiso asturiano contundente de fabes cremosas y compango de cerdo curado: chorizo, morcilla y lacón o tocino.",
+    ko: "부드러운 흰콩(파베스)과 초리소, 모르시야, 라콘 같은 염장 돼지고기를 넣어 끓인 아스투리아스의 진한 스튜입니다.",
   },
   "spanish::fideuà": {
     id: "Hidangan laut Valencia yang mirip paella tetapi memakai mi pendek alih-alih nasi; lahir di pelabuhan Gandia sekitar 1915.",
@@ -11576,6 +13038,7 @@ module.exports = {
     zh: "瓦伦西亚的海鲜面：做法与海鲜饭一样，只是把米换成短面；约一九一五年生于甘迪亚港。",
     ja: "パエリアと同じ作りながら、米の代わりに短いパスタを使うバレンシアの魚介料理。一九一五年ごろ、ガンディア港で生まれました。",
     es: "Plato valenciano de marisco como la paella pero con fideos cortos en lugar de arroz; nació en el puerto de Gandía hacia 1915.",
+    ko: "파에야와 비슷하지만 쌀 대신 짧은 국수를 쓰는 발렌시아의 해산물 요리로, 1915년경 간디아 항구에서 비롯됐습니다.",
   },
   "spanish::flan": {
     id: "Custard karamel panggang dari telur, susu, dan gula.",
@@ -11584,6 +13047,7 @@ module.exports = {
     zh: "烤蛋奶焦糖布丁：鸡蛋、牛奶与糖同烤。",
     ja: "卵と牛乳と砂糖で焼くカラメルのカスタードプディング。",
     es: "Flan al horno de huevo, leche y azúcar con caramelo.",
+    ko: "달걀과 우유, 설탕으로 만들어 캐러멜을 깐 구운 커스터드입니다.",
   },
   "spanish::gambas al ajillo": {
     id: "Tapa Spanyol: udang ditumis dalam minyak zaitun bersama bawang putih dan cabai kering; konon berasal dari Madrid.",
@@ -11592,6 +13056,7 @@ module.exports = {
     zh: "西班牙的小食：虾在橄榄油里与蒜、干辣椒同煎；据说出自马德里。",
     ja: "スペインのタパス。海老をオリーブ油でにんにくと乾燥唐辛子とともに炒めます。マドリード発祥とされます。",
     es: "Tapa española de gambas salteadas en aceite de oliva con ajo y guindilla seca; se dice que nacieron en Madrid.",
+    ko: "새우를 올리브유에 마늘과 말린 고추와 함께 볶은 스페인 타파스로, 마드리드에서 비롯됐다고 전해집니다.",
   },
   "spanish::gazpacho": {
     id: "Sup dingin dari sayuran mentah yang diblender, berasal dari Andalusia di Spanyol selatan.",
@@ -11600,6 +13065,7 @@ module.exports = {
     zh: "生菜蔬打成的冷汤：来自西班牙南部的安达卢西亚。",
     ja: "生の野菜を撹拌して作る冷たいスープ。スペイン南部アンダルシアの料理です。",
     es: "Sopa fría de hortalizas crudas trituradas, de Andalucía, en el sur de España.",
+    ko: "생채소를 갈아 만든 차가운 수프로, 스페인 남부 안달루시아에서 왔습니다.",
   },
   "spanish::horchata de chufa": {
     id: "Minuman manis khas Valencia dari umbi chufa, air, dan gula.",
@@ -11608,6 +13074,7 @@ module.exports = {
     zh: "瓦伦西亚的甜饮：油莎豆（chufa）加水与糖打成。",
     ja: "バレンシアの甘い飲み物。カヤツリグサの塊茎チュファに水と砂糖を合わせます。",
     es: "Bebida dulce valenciana de chufa, agua y azúcar.",
+    ko: "타이거너트(추파)와 물, 설탕으로 만든 발렌시아의 달콤한 음료입니다.",
   },
   "spanish::jamón ibérico": {
     id: "Ham awetan Spanyol dari babi Iberia hitam; mutu bellota yang tertinggi berasal dari babi pemakan biji ek di padang ek dehesa.",
@@ -11616,6 +13083,7 @@ module.exports = {
     zh: "西班牙的黑蹄伊比利亚火腿：最高一级的 bellota，来自在橡树牧场 dehesa 吃橡果长大的猪。",
     ja: "黒いイベリコ豚の生ハム。最上級のベジョータは、デエサの樫の林でどんぐりを食べて育った豚から作られます。",
     es: "Jamón curado español de cerdo ibérico negro (pata negra); el grado bellota procede de cerdos de bellota criados en la dehesa.",
+    ko: "검은 이베리코 돼지(파타 네그라)로 만든 스페인 생햄으로, 최고 등급인 베요타는 데헤사 참나무 숲에서 도토리를 먹인 돼지로 만듭니다.",
   },
   "spanish::jamón serrano": {
     id: "Ham Spanyol yang diawetkan kering dari babi ras putih, digarami lalu diangin-anginkan 6-18 bulan; namanya berarti \"ham gunung\".",
@@ -11624,6 +13092,7 @@ module.exports = {
     zh: "西班牙的风干火腿：白猪种先腌盐，再风干六到十八个月；名字的意思是「山里的火腿」。",
     ja: "白色種の豚から作るスペインの乾塩生ハム。塩をして六〜十八か月風乾します。名は「山のハム」の意。",
     es: "Jamón curado español de cerdo de raza blanca, salado y secado al aire de 6 a 18 meses; su nombre significa «jamón de sierra».",
+    ko: "흰 품종 돼지를 소금에 절여 6~18개월 말린 스페인 생햄으로, 이름은 '산의 햄'이며 유럽연합 전통특산품 인증을 받았습니다.",
   },
   "spanish::migas": {
     id: "Hidangan Spanyol yang bersahaja: roti basi digoreng dengan bawang putih, minyak zaitun, dan paprika; semula bikinan gembala dari sisa.",
@@ -11632,6 +13101,7 @@ module.exports = {
     zh: "西班牙的粗朴吃食：隔夜面包与蒜、橄榄油、红椒粉同炒；本是伊比利亚牧人拿剩料做的。",
     ja: "素朴なスペインの料理。固くなったパンをにんにく、オリーブ油、パプリカで炒めます。もとはイベリアの羊飼いの残り物の料理。",
     es: "Plato rústico español de pan duro frito con ajo, aceite de oliva y pimentón; en origen, comida de pastores hecha con sobras.",
+    ko: "굳은 빵을 마늘과 올리브유, 파프리카에 볶은 스페인의 소박한 요리로, 본래 이베리아 목동들이 남은 빵으로 만들었습니다.",
   },
   "spanish::paella de mariscos": {
     id: "Hidangan nasi laut Valencia berisi udang, kerang biru, kerang, dan cumi dalam kaldu ikan safron, dimasak di wajan lebar bernama paella.",
@@ -11640,6 +13110,7 @@ module.exports = {
     zh: "瓦伦西亚的海鲜饭：虾、青口、蛤蜊与鱿鱼在藏红花鱼汤里同煮，用的是那口宽扁的平底锅 paella。",
     ja: "海老、ムール貝、あさり、いかをサフランの魚のだしで炊くバレンシアの米料理。平たく広い鍋パエリェラで作ります。",
     es: "Arroz valenciano de marisco con gambas, mejillones, almejas y calamar en fumet con azafrán, cocinado en una paella ancha y plana.",
+    ko: "새우와 홍합, 조개, 오징어를 사프란 생선 육수에 넣어 넓고 납작한 팬(파에야)에 지은 발렌시아의 해산물 쌀 요리입니다.",
   },
   "spanish::paella valenciana": {
     id: "Hidangan nasi Valencia yang dimasak di wajan lebar dan datar, menurut tradisi bersama ayam, kelinci, buncis, dan safron di atas api terbuka.",
@@ -11648,6 +13119,7 @@ module.exports = {
     zh: "瓦伦西亚的招牌米饭：在宽扁的平锅里做，照传统配鸡肉、兔肉、扁豆与藏红花，架在明火上烧。",
     ja: "バレンシアの米料理。平たく広い鍋で、伝統では鶏、兎、いんげん、サフランを合わせ、直火で炊きます。",
     es: "Arroz valenciano cocinado en paella ancha y plana, tradicionalmente con pollo, conejo, judías y azafrán sobre fuego vivo.",
+    ko: "넓고 납작한 팬에 짓는 발렌시아의 쌀 요리로, 전통적으로 닭과 토끼, 콩, 사프란을 넣고 장작불에 익힙니다.",
   },
   "spanish::pan con tomate": {
     id: "Roti Katalonia yang digosok tomat matang, minyak zaitun, dan garam, kadang bawang putih; tercatat sejak 1884 untuk menghidupkan roti basi.",
@@ -11656,6 +13128,7 @@ module.exports = {
     zh: "加泰罗尼亚的番茄面包：面包上抹熟透的番茄，淋橄榄油、撒盐，可加蒜；一八八四年就有记载，本是让隔夜面包重新好吃的法子。",
     ja: "熟したトマトを擦りつけ、オリーブ油と塩をかけるカタルーニャのパン。にんにくを足すことも。一八八四年、固くなったパンを蘇らせる術として記録。",
     es: "Pan catalán frotado con tomate maduro, aceite de oliva y sal, y ajo si se quiere; registrado en 1884 para revivir el pan del día antes.",
+    ko: "잘 익은 토마토를 문지르고 올리브유와 소금, 때로 마늘을 더한 카탈루냐 빵으로, 1884년 굳은 빵을 되살리는 방법으로 처음 기록됐습니다.",
   },
   "spanish::patatas bravas": {
     id: "Tapa Spanyol berisi dadu kentang putih goreng, disajikan panas dengan saus brava pedas berbasis paprika, kerap pimenton de la Vera.",
@@ -11664,6 +13137,7 @@ module.exports = {
     zh: "西班牙的小食：土豆切丁炸香，趁热浇上以红椒粉打底的辣酱 brava，常用德拉维拉的烟熏红椒粉。",
     ja: "スペインのタパス。角切りのじゃがいもを揚げ、熱いうちにパプリカ主体の辛いブラバソースをかけます。",
     es: "Tapa española de dados de patata frita servidos calientes con salsa brava picante a base de pimentón, a menudo de la Vera.",
+    ko: "깍둑 썬 감자를 튀겨 파프리카를 넣은 매콤한 브라바 소스와 함께 뜨겁게 내는 스페인 타파스입니다.",
   },
   "spanish::pintxos": {
     id: "Camilan kecil Basque yang biasanya ditusuk tusuk gigi di atas roti; ejaan Basque dari \"pincho\" Spanyol, dipopulerkan di San Sebastian.",
@@ -11672,6 +13146,7 @@ module.exports = {
     zh: "巴斯克的小食：多半用牙签把料串在面包上；这是西班牙语 pincho 的巴斯克写法，由圣塞巴斯蒂安带红。",
     ja: "バスクの小さなつまみ。多くはパンの上に具を楊枝で留めます。スペイン語ピンチョのバスク綴りで、サン・セバスティアンが広めました。",
     es: "Pequeños bocados vascos, normalmente pinchados con palillo sobre pan; grafía vasca del «pincho» y popularizados en San Sebastián.",
+    ko: "빵 위에 이쑤시개로 꽂아 내는 바스크의 작은 안주로, 스페인어 '핀초'의 바스크식 표기이며 산세바스티안에서 널리 퍼졌습니다.",
   },
   "spanish::pisto": {
     id: "Tumis sayur Spanyol dari Castilla-La Mancha: tomat, paprika, bawang bombai, dan zukini dimasak perlahan dalam minyak zaitun.",
@@ -11680,6 +13155,7 @@ module.exports = {
     zh: "卡斯蒂利亚－拉曼恰的西班牙炖菜：番茄、彩椒、洋葱与西葫芦在橄榄油里慢煨。",
     ja: "カスティーリャ・ラ・マンチャのスペインの野菜煮込み。トマト、ピーマン、玉ねぎ、ズッキーニをオリーブ油でゆっくり煮ます。",
     es: "Pisto manchego de tomate, pimiento, cebolla y calabacín cocidos despacio en aceite de oliva.",
+    ko: "토마토와 피망, 양파, 애호박을 올리브유에 천천히 익힌 카스티야라만차의 스페인식 채소 조림입니다.",
   },
   "spanish::pulpo a la gallega": {
     id: "Hidangan gurita rebus khas Galisia dengan minyak zaitun, garam laut, dan paprika; menurut tradisi disajikan di piring kayu saat pasar desa.",
@@ -11688,6 +13164,7 @@ module.exports = {
     zh: "加利西亚的水煮章鱼：淋橄榄油、撒海盐与红椒粉；照传统在乡间集市上用木盘盛着卖。",
     ja: "ガリシアのゆでダコ。オリーブ油、海塩、パプリカで味を調え、伝統では村の市で木の皿に盛って供します。",
     es: "Pulpo cocido a la gallega aliñado con aceite de oliva, sal marina y pimentón; se sirve en plato de madera en las ferias del rural.",
+    ko: "삶은 문어에 올리브유와 굵은소금, 파프리카를 뿌린 갈리시아 요리로, 전통적으로 시골 장터에서 나무 접시에 담아 냅니다.",
   },
   "spanish::salmorejo": {
     id: "Pure dingin yang kental dari tomat, roti, bawang putih, dan minyak zaitun, dari Cordoba; biasanya ditaburi jamon dan telur rebus.",
@@ -11696,6 +13173,7 @@ module.exports = {
     zh: "安达卢西亚科尔多瓦的浓稠冷汤：番茄、面包、蒜与橄榄油打成泥，面上多半撒火腿碎与水煮蛋。",
     ja: "アンダルシア、コルドバの濃厚な冷たいピュレ。トマト、パン、にんにく、オリーブ油で作り、生ハムとゆで卵をのせます。",
     es: "Puré frío y espeso de tomate, pan, ajo y aceite de oliva de Córdoba, Andalucía; suele coronarse con jamón y huevo duro.",
+    ko: "토마토와 빵, 마늘, 올리브유를 갈아 만든 안달루시아 코르도바의 걸쭉한 냉수프로, 보통 하몽과 삶은 달걀을 올립니다.",
   },
   "spanish::sangria": {
     id: "Punch anggur Spanyol dari anggur merah dan potongan buah; namanya berarti \"pertumpahan darah\", merujuk warnanya; tercatat sejak abad ke-18.",
@@ -11704,6 +13182,7 @@ module.exports = {
     zh: "西班牙的水果红酒：红葡萄酒兑切块水果；名字的意思是「放血」，说的是酒的颜色，十八世纪就有记载。",
     ja: "赤ワインに切った果物を入れるスペインのパンチ。名は「瀉血」の意で、ワインの色を指します。十八世紀からの記録があります。",
     es: "Ponche español de vino tinto y fruta troceada; su nombre alude a la sangría por el color del vino y consta desde el siglo XVIII.",
+    ko: "레드와인에 썬 과일을 넣은 스페인의 와인 펀치로, 이름은 와인 빛깔에 빗댄 '방혈'이며 18세기부터 기록에 나옵니다.",
   },
   "spanish::tarta de santiago": {
     id: "Kue almond Galisia berlabel IGP, ditaburi gula lewat cetakan Salib Santo Yakobus; pertama tercatat pada 1577.",
@@ -11712,6 +13191,7 @@ module.exports = {
     zh: "加利西亚的杏仁蛋糕（受地理标志保护）：撒糖时用圣雅各十字的模板留出图案；最早的记载在一五七七年。",
     ja: "ガリシアのアーモンドのケーキ（地理的表示保護）。聖ヤコブ十字の型を当てて砂糖を振ります。記録は一五七七年に遡ります。",
     es: "Tarta de almendra gallega con IGP, espolvoreada de azúcar sobre la plantilla de la Cruz de Santiago; documentada por primera vez en 1577.",
+    ko: "갈리시아의 아몬드 케이크(지리적 표시)로, 산티아고 십자가 모양 본을 대고 설탕을 뿌리며 1577년에 처음 기록됐습니다.",
   },
   "spanish::tortilla española": {
     id: "Omelet Spanyol dari telur dan kentang, kerap dengan bawang bombai, disajikan sebagai tapa; tercatat di Spanyol pada akhir abad ke-18.",
@@ -11720,6 +13200,7 @@ module.exports = {
     zh: "西班牙的土豆蛋饼：鸡蛋与土豆同煎，常加洋葱，当小食吃；十八世纪末的西班牙已有记载。",
     ja: "卵とじゃがいものスペインのオムレツ。玉ねぎを加えることも多く、タパスとして供されます。十八世紀末の記録があります。",
     es: "Tortilla española de huevo y patata, a menudo con cebolla, servida como tapa; documentada en España a finales del siglo XVIII.",
+    ko: "달걀과 감자, 흔히 양파를 넣어 부친 스페인식 오믈렛으로, 타파스로 내며 18세기 말 스페인 기록에 나옵니다.",
   },
   "spanish::txangurro": {
     id: "Kata Basque untuk kepiting laba-laba; dalam txangurro a la donostiarra dagingnya dipanggang di cangkang, ciptaan San Sebastian awal 1900-an.",
@@ -11728,6 +13209,7 @@ module.exports = {
     zh: "巴斯克语里的蜘蛛蟹；在 txangurro a la donostiarra 这道菜里，蟹肉回填蟹壳再焗，成于二十世纪初的圣塞巴斯蒂安。",
     ja: "バスク語でクモガニのこと。チャングーロ・ア・ラ・ドノスティアラでは身を甲羅に戻して焼きます。一九〇〇年代初頭のサン・セバスティアン生まれ。",
     es: "Palabra vasca para el centollo; en el txangurro a la donostiarra la carne se hornea en su caparazón, creado en San Sebastián hacia 1900.",
+    ko: "바스크어로 거미게를 뜻하며, '창구로 아 라 도노스티아라'는 살을 껍데기에 담아 구운 요리로 1900년대 초 산세바스티안에서 만들어졌습니다.",
   },
   "sri-lankan::ceylon tea": {
     id: "Teh hitam yang ditanam di Sri Lanka, dahulu Ceylon; penanaman komersialnya mulai 1867 saat James Taylor membuka kebun Loolecondera.",
@@ -11736,6 +13218,7 @@ module.exports = {
     zh: "斯里兰卡（旧称锡兰）出产的红茶；商业种植始于一八六七年，James Taylor 在康提开辟了 Loolecondera 茶园。",
     ja: "スリランカ（旧セイロン）で育つ紅茶。商業栽培は一八六七年、ジェームズ・テイラーがキャンディにルールコンデラ農園を開いたときに始まりました。",
     es: "Té negro cultivado en Sri Lanka (antes Ceilán); el cultivo comercial empezó en 1867, cuando James Taylor plantó Loolecondera, en Kandy.",
+    ko: "스리랑카(옛 실론)에서 나는 홍차로, 1867년 제임스 테일러가 캔디의 룰레콘데라 농원에 심으면서 상업 재배가 시작됐습니다.",
   },
   "sri-lankan::coconut roti": {
     id: "Roti pipih tanpa ragi khas Sri Lanka dari tepung terigu atau kurakkan yang diuleni bersama kelapa parut, lalu dimasak di wajan datar.",
@@ -11744,6 +13227,7 @@ module.exports = {
     zh: "斯里兰卡的无酵薄饼：小麦粉或穇子粉揉进新鲜椰丝，在铁鏊上烙熟。",
     ja: "スリランカの発酵させない薄焼き。小麦粉かクラッカン粉に削りたてのココナッツを練り込み、鉄板で焼きます。",
     es: "Pan plano esrilanqués sin levadura de harina de trigo o kurakkan amasada con coco fresco rallado y cocido en plancha.",
+    ko: "밀가루나 쿠라칸 가루에 갓 긁은 코코넛을 섞어 반죽해 철판에 구운 스리랑카의 무발효 플랫브레드입니다.",
   },
   "sri-lankan::devilled chicken": {
     id: "Tumis perpaduan Sri Lanka-Tionghoa: ayam goreng renyah dengan bawang bombai, paprika, dan saus yang berapi.",
@@ -11752,6 +13236,7 @@ module.exports = {
     zh: "斯里兰卡与中式的合流小炒：炸酥的鸡块与洋葱、彩椒同炒，酱汁辣得凶。",
     ja: "スリランカと中華が交わる炒め物。カリッと揚げた鶏肉を玉ねぎ、ピーマン、辛いたれで炒めます。",
     es: "Salteado de fusión esrilanquesa-china de pollo frito crujiente con cebolla, pimiento y una salsa ardiente.",
+    ko: "바삭하게 튀긴 닭고기를 양파와 피망, 매운 소스와 함께 볶아 낸 스리랑카 중국식 퓨전 요리입니다.",
   },
   "sri-lankan::devilled prawns": {
     id: "Hidangan udang Sri Lanka yang digoreng kering, panas dan pedas, dimasak bersama bawang bombai, cabai, dan tomat.",
@@ -11760,6 +13245,7 @@ module.exports = {
     zh: "斯里兰卡的辣炒虾：虾干煸，配洋葱、辣椒与番茄，辣得直冲。",
     ja: "スリランカの辛い海老料理。汁気を飛ばして炒め、玉ねぎ、唐辛子、トマトを合わせます。",
     es: "Plato esrilanqués de gambas salteadas en seco, muy picante, con cebolla, chile y tomate.",
+    ko: "양파와 고추, 토마토를 넣어 국물 없이 볶아 낸 스리랑카의 맵고 뜨거운 새우 요리입니다.",
   },
   "sri-lankan::hoppers": {
     id: "Panekuk Sri Lanka berbentuk mangkuk dari tepung beras fermentasi dan santan, turunan appam India Selatan; sarapan yang digemari.",
@@ -11768,6 +13254,7 @@ module.exports = {
     zh: "斯里兰卡的碗状薄饼：发酵米粉调椰浆摊成，源自南印度的 appam；很受欢迎的早餐。",
     ja: "発酵させた米粉とココナッツミルクで焼く、椀形のスリランカの薄焼き。南インドのアッパムに由来し、朝食に好まれます。",
     es: "Tortita esrilanquesa con forma de cuenco de harina de arroz fermentada y leche de coco, derivada del appam surindio; desayuno popular.",
+    ko: "발효 쌀가루와 코코넛밀크로 부친 그릇 모양의 스리랑카 전병으로, 남인도 아팜에서 왔으며 인기 있는 아침 식사입니다.",
   },
   "sri-lankan::jackfruit curry": {
     id: "Kari Sri Lanka dari nangka muda (polos) yang direbus dalam santan dan rempah, diasamkan goraka hingga teksturnya seperti daging.",
@@ -11776,6 +13263,7 @@ module.exports = {
     zh: "斯里兰卡的青菠萝蜜咖喱：未熟的菠萝蜜（polos）在椰浆与香料里慢煨，用 goraka 取酸，口感像肉。",
     ja: "未熟のジャックフルーツ（ポロス）をココナッツミルクと香辛料で煮て、ゴラカで酸味をつけるスリランカのカレー。肉のような歯ごたえ。",
     es: "Curry esrilanqués de yaca verde (polos) guisada en leche de coco y especias y acidulada con goraka; su textura recuerda a la carne.",
+    ko: "덜 익은 초록 잭프루트(폴로스)를 코코넛밀크와 향신료에 끓이고 고라카로 새콤하게 낸 스리랑카 카레로, 고기 같은 식감이 납니다.",
   },
   "sri-lankan::kola kanda": {
     id: "Bubur beras herbal Sri Lanka dengan santan dan sari sayuran hijau; berakar pada tradisi biara Buddha sebagai sarapan pemulih.",
@@ -11784,6 +13272,7 @@ module.exports = {
     zh: "斯里兰卡的草药米粥：椰浆与绿叶菜汁同煮；根在佛教僧院的传统，是补养身子的早餐。",
     ja: "ココナッツミルクと青菜の汁で炊くスリランカの薬草粥。仏教の僧院の伝統に根をもつ、体を養う朝の一杯です。",
     es: "Gachas de arroz con hierbas esrilanquesas con leche de coco y zumo de hojas verdes; arraigadas en la tradición monástica budista.",
+    ko: "코코넛밀크와 잎채소즙을 넣은 스리랑카의 약초 쌀죽으로, 불교 승가의 전통에서 이어진 몸을 돌보는 아침 식사입니다.",
   },
   "sri-lankan::kottu roti": {
     id: "Jajanan jalanan Sri Lanka: roti dicincang di atas wajan datar bersama sayuran, telur, dan kari; lahir di provinsi timur pada 1960-70-an.",
@@ -11792,6 +13281,7 @@ module.exports = {
     zh: "斯里兰卡的街头小吃：薄饼在铁板上与蔬菜、鸡蛋、咖喱一起剁碎翻炒；一九六〇至七〇年代生于东部省。",
     ja: "スリランカの屋台料理。ロティを鉄板の上で野菜、卵、カレーとともに刻みながら炒めます。一九六〇〜七〇年代、東部州で生まれました。",
     es: "Comida callejera esrilanquesa: roti picado en la plancha con verduras, huevo y curry; nació en la provincia oriental en los años 60-70.",
+    ko: "로티를 철판에서 채소와 달걀, 카레와 함께 다져 낸 스리랑카 길거리 음식으로, 1960~70년대 동부주에서 비롯됐습니다.",
   },
   "sri-lankan::lamprais": {
     id: "Hidangan Burgher Belanda di Sri Lanka: nasi yang ditanak dengan kaldu, disertai kari dan sambol, dibungkus daun pisang lalu dipanggang.",
@@ -11800,6 +13290,7 @@ module.exports = {
     zh: "斯里兰卡荷兰裔伯格人的菜：米用高汤煮，配咖喱与 sambol 小菜，裹进香蕉叶再焗。",
     ja: "スリランカのオランダ系バーガーの料理。だしで炊いた米にカレーとサンボルを添え、バナナの葉で包んで焼きます。",
     es: "Plato de los burgueses neerlandeses de Sri Lanka: arroz cocido en caldo con curries y sambols, envuelto en hoja de plátano y horneado.",
+    ko: "육수로 지은 밥에 여러 카레와 삼볼을 곁들여 바나나잎에 싸서 구운 스리랑카 더치 버거의 요리입니다.",
   },
   "sri-lankan::mallum": {
     id: "Lauk Sri Lanka dari sayuran hijau cincang halus yang ditumis bersama kelapa parut, cabai, dan rempah; hadir di hampir tiap santapan.",
@@ -11808,6 +13299,7 @@ module.exports = {
     zh: "斯里兰卡的配菜：绿叶菜切得极碎，与椰丝、辣椒、香料略炒；几乎每餐都有。",
     ja: "細かく刻んだ青菜を、削りココナッツ、唐辛子、香辛料でさっと炒めるスリランカの副菜。ほとんどの食事に添えられます。",
     es: "Guarnición esrilanquesa de hojas verdes muy picadas y salteadas brevemente con coco rallado, chile y especias; está en casi toda comida.",
+    ko: "잎채소를 곱게 썰어 간 코코넛과 고추, 향신료에 살짝 볶은 스리랑카의 곁들임으로, 거의 모든 끼니에 오릅니다.",
   },
   "sri-lankan::milk rice": {
     id: "Kiribath adalah kue nasi Sri Lanka yang ditanak dengan santan; menurut tradisi hidangan pertama Tahun Baru Sinhala dan Tamil.",
@@ -11816,6 +13308,7 @@ module.exports = {
     zh: "Kiribath 是斯里兰卡的椰浆米糕；照传统，它是僧伽罗与泰米尔新年的头一道菜，也用来标记新的开始。",
     ja: "キリバットは、ココナッツミルクで炊いたスリランカの米の餅。伝統ではシンハラ・タミル新年の最初の一皿で、新たな門出の印です。",
     es: "El kiribath es un pastel de arroz esrilanqués cocido en leche de coco; por tradición, el primer plato del Año Nuevo cingalés y tamil.",
+    ko: "키리밧은 코코넛밀크로 지은 스리랑카 밥떡으로, 싱할라와 타밀 새해와 새 출발에 가장 먼저 내는 전통 음식입니다.",
   },
   "sri-lankan::parippu": {
     id: "Kari lentil merah Sri Lanka yang direbus dalam santan lalu ditutup tumisan daun kari dan rempah.",
@@ -11824,6 +13317,7 @@ module.exports = {
     zh: "斯里兰卡的红扁豆咖喱：豆子在椰浆里煮软，最后浇一勺爆香的咖喱叶与香料。",
     ja: "赤レンズ豆をココナッツミルクで煮たスリランカのカレー。最後にカレーリーフと香辛料を熱した油を回しかけます。",
     es: "Curry esrilanqués de lenteja roja cocido en leche de coco y rematado con un sofrito de hojas de curry y especias.",
+    ko: "붉은 렌즈콩을 코코넛밀크에 끓이고 커리잎과 향신료를 지져 부어 마무리한 스리랑카 카레입니다.",
   },
   "sri-lankan::pittu": {
     id: "Silinder tepung beras kukus yang berlapis kelapa parut; sarapan pokok yang berasal dari Sri Lanka dan India Selatan.",
@@ -11832,6 +13326,7 @@ module.exports = {
     zh: "米粉与椰丝层层相间蒸成的圆柱：斯里兰卡与南印度的常备早餐。",
     ja: "挽いた米と削りココナッツを層にして筒状に蒸したもの。スリランカと南インドの朝食の定番です。",
     es: "Cilindros al vapor de arroz molido en capas con coco rallado; desayuno básico propio de Sri Lanka y el sur de la India.",
+    ko: "간 쌀과 간 코코넛을 켜켜이 쌓아 원통으로 쪄낸 것으로, 스리랑카와 남인도의 아침 주식입니다.",
   },
   "sri-lankan::pol sambol": {
     id: "Kondimen Sri Lanka dari kelapa parut, cabai, bawang merah, jeruk nipis, dan ikan Maladewa; disajikan dengan nasi dan hoppers.",
@@ -11840,6 +13335,7 @@ module.exports = {
     zh: "斯里兰卡的椰子辣酱：椰丝、辣椒、红葱、青柠与马尔代夫鱼干同拌；配饭、碗饼与米线窝吃。",
     ja: "削りココナッツ、唐辛子、赤玉ねぎ、ライム、モルディブフィッシュのスリランカの薬味。ご飯やホッパーに添えます。",
     es: "Condimento esrilanqués de coco rallado, chile, cebolla roja, lima y pescado de Maldivas; se sirve con arroz, hoppers y string hoppers.",
+    ko: "간 코코넛과 고추, 적양파, 라임, 몰디브 피시로 만든 스리랑카 양념으로, 밥과 호퍼, 스트링 호퍼에 곁들입니다.",
   },
   "sri-lankan::rice and curry": {
     id: "Hidangan nasional Sri Lanka: segunung nasi kukus disajikan bersama beberapa kari sayur, lentil, dan biasanya satu kari ikan atau daging.",
@@ -11848,6 +13344,7 @@ module.exports = {
     zh: "斯里兰卡的国菜：一堆白饭配上好几样咖喱——蔬菜、扁豆，通常还有一样鱼或肉。",
     ja: "スリランカの国民食。蒸した米を山に盛り、野菜、豆、たいていは魚か肉のカレーを幾種類も添えます。",
     es: "Plato nacional de Sri Lanka: un montón de arroz al vapor con varios curries de verdura, lenteja y por lo común uno de pescado o carne.",
+    ko: "스리랑카의 국민 음식으로, 수북이 담은 흰밥에 채소와 렌즈콩, 대개 생선이나 고기 카레를 여러 가지 곁들여 냅니다.",
   },
   "sri-lankan::roast paan": {
     id: "Roti sobek Sri Lanka yang dipanggang lalu dipanggang lagi untuk kedua kalinya, biasanya dengan minyak kelapa.",
@@ -11856,6 +13353,7 @@ module.exports = {
     zh: "斯里兰卡的手撕面包：烤过之后，通常抹椰油再烤第二遍。",
     ja: "スリランカのちぎりパン。一度焼いたあと、たいていはココナッツオイルを塗って二度目に焼き上げます。",
     es: "Pan esrilanqués de tirar y partir, horneado y luego tostado una segunda vez, normalmente con aceite de coco.",
+    ko: "구운 뒤 대개 코코넛 기름을 발라 한 번 더 굽는 스리랑카의 뜯어 먹는 빵입니다.",
   },
   "sri-lankan::seeni sambol": {
     id: "Kondimen bawang bombai karamel dari Sri Lanka; \"seeni\" berarti manis dalam bahasa Sinhala, diimbangi cabai, asam jawa, dan ikan Maladewa.",
@@ -11864,6 +13362,7 @@ module.exports = {
     zh: "斯里兰卡的焦糖洋葱酱；「seeni」在僧伽罗语里是「甜」，用辣椒、罗望子与马尔代夫鱼干来平衡。",
     ja: "飴色に炒めた玉ねぎのスリランカの薬味。「シーニ」はシンハラ語で甘いの意で、唐辛子、タマリンド、干し魚が甘さを支えます。",
     es: "Condimento esrilanqués de cebolla caramelizada; «seeni» es dulce en cingalés, equilibrado con chile, tamarindo y pescado de Maldivas.",
+    ko: "양파를 캐러멜처럼 볶은 스리랑카 양념으로, '시니'는 싱할라어로 달다는 뜻이며 고추와 타마린드, 몰디브 피시로 균형을 맞춥니다.",
   },
   "sri-lankan::sri lankan crab curry": {
     id: "Kari kepiting yang pedas dari Sri Lanka utara, yakni Jaffna.",
@@ -11872,6 +13371,7 @@ module.exports = {
     zh: "斯里兰卡北部贾夫纳的辣蟹咖喱。",
     ja: "スリランカ北部、ジャフナの辛い蟹カレー。",
     es: "Curry de cangrejo picante del norte de Sri Lanka, de Jaffna.",
+    ko: "스리랑카 북부 자프나에서 온 매운 게 카레입니다.",
   },
   "sri-lankan::sri lankan fish curry": {
     id: "Kari ikan Sri Lanka yang pedas dengan cabai, bawang bombai, dan kunyit; digemari di pesisir tempat ikan jadi makanan pokok, dengan nasi.",
@@ -11880,6 +13380,7 @@ module.exports = {
     zh: "斯里兰卡的辣鱼咖喱：辣椒、洋葱与姜黄同煮；沿海人家以鱼为主食，最爱这一味，配饭吃。",
     ja: "唐辛子、玉ねぎ、ウコンで作るスリランカの辛い魚カレー。魚が主食の海沿いで好まれ、ご飯とともに供されます。",
     es: "Curry de pescado esrilanqués picante con chile, cebolla y cúrcuma; popular en la costa, donde el pescado es básico, servido con arroz.",
+    ko: "고추와 양파, 강황으로 만든 스리랑카의 매운 생선 카레로, 생선이 주식인 해안 지방에서 사랑받으며 밥과 함께 냅니다.",
   },
   "sri-lankan::string hoppers": {
     id: "Sarang mi tepung beras yang dikukus setelah ditekan lewat cetakan; disantap di Sri Lanka dan India Selatan, yakni Tamil Nadu dan Kerala.",
@@ -11888,6 +13389,7 @@ module.exports = {
     zh: "米粉线蒸成的小窝：米浆从压模里挤出后上笼蒸；斯里兰卡与南印度（泰米尔纳德、喀拉拉）都吃。",
     ja: "米粉の生地を型から押し出し、巣状にして蒸したもの。スリランカと南インド（タミル・ナードゥ、ケーララ）で食べられます。",
     es: "Nidos al vapor de fideos de harina de arroz pasados por prensa o molde; se comen en Sri Lanka y el sur de la India (Tamil Nadu y Kerala).",
+    ko: "쌀가루 반죽을 틀로 눌러 실처럼 뽑아 둥지 모양으로 쪄낸 것으로, 스리랑카와 남인도(타밀나두·케랄라)에서 먹습니다.",
   },
   "sri-lankan::watalappan": {
     id: "Custard telur kukus Sri Lanka dari santan dan gula aren; dibawa orang Melayu Sri Lanka dan turunan dari seri kaya Melayu.",
@@ -11896,6 +13398,7 @@ module.exports = {
     zh: "斯里兰卡的蒸蛋羹：椰浆与棕榈糖同蒸；由斯里兰卡马来人带来，源自马来的 seri kaya。",
     ja: "ココナッツミルクとジャグリーで作るスリランカの蒸し卵菓子。スリランカ・マレー人が伝え、マレーのスリカヤに由来します。",
     es: "Natilla de huevo al vapor esrilanquesa de leche de coco y panela; la trajeron los malayos de Sri Lanka y deriva del seri kaya malayo.",
+    ko: "코코넛밀크와 야자설탕으로 쪄낸 스리랑카의 달걀 커스터드로, 스리랑카 말레이인이 들여왔으며 말레이의 세리카야에서 왔습니다.",
   },
   "swiss::appenzeller cheese": {
     id: "Keju susu sapi keras berkulit basuh dari timur laut Swiss, dimatangkan dengan air garam herbal rahasia; tercatat sejak 1282.",
@@ -11904,6 +13407,7 @@ module.exports = {
     zh: "瑞士东北部的洗浸皮硬质牛奶奶酪，用秘方草本盐水擦洗熟成；最早见于1282年的文献。",
     ja: "スイス北東部産の硬質牛乳チーズ。表皮を秘伝の香草塩水で洗って熟成させる。1282年の記録が初出。",
     es: "Queso duro de leche de vaca de corteza lavada del noreste de Suiza, curado con una salmuera de hierbas secreta; citado en 1282.",
+    ko: "비법 약초 소금물로 숙성시킨 스위스 북동부의 단단한 워시드린드 우유 치즈로, 1282년 기록에 처음 나옵니다.",
   },
   "swiss::basler läckerli": {
     id: "Biskuit berempah keras dari Basel, Swiss: madu, hazelnut, almon, kulit jeruk manisan, dan Kirsch; resepnya berumur berabad-abad.",
@@ -11912,6 +13416,7 @@ module.exports = {
     zh: "瑞士巴塞尔的硬质香料饼，用蜂蜜、榛子、杏仁、糖渍果皮与樱桃酒制成；已有数百年历史。",
     ja: "スイス・バーゼルの硬い香辛料入り焼き菓子。蜂蜜、ヘーゼルナッツ、アーモンド、砂糖漬けの果皮、キルシュを使い、数百年の歴史を持つ。",
     es: "Galleta dura y especiada de Basilea, Suiza, con miel, avellanas, almendras, fruta confitada y kirsch; tiene siglos de historia.",
+    ko: "꿀과 헤이즐넛, 아몬드, 설탕에 절인 껍질, 키르슈로 만든 스위스 바젤의 단단한 향신 과자로, 수백 년의 역사를 지녔습니다.",
   },
   "swiss::berner platte": {
     id: "Piring saji khas Bern berisi aneka daging yang direbus terpisah: babi, daging sapi asap, dan sosis.",
@@ -11920,6 +13425,7 @@ module.exports = {
     zh: "伯尔尼的什锦拼盘，各色肉分别水煮：猪肉、烟熏牛肉与香肠。",
     ja: "ベルン風の盛り合わせ。豚肉、燻製牛肉、ソーセージなどをそれぞれ別に茹でて供する。",
     es: "Fuente bernesa de carnes hervidas por separado: cerdo, vacuno ahumado y salchichas.",
+    ko: "돼지고기와 훈제 소고기, 소시지를 따로 삶아 함께 담아 내는 베른의 모둠 요리입니다.",
   },
   "swiss::birchermüesli": {
     id: "Sarapan Swiss dari gandum mentah, buah, dan kacang, dibuat sekitar 1900 oleh dokter Maximilian Bircher-Benner sebagai menu sehat.",
@@ -11928,6 +13434,7 @@ module.exports = {
     zh: "瑞士早餐：生燕麦、水果与坚果同拌，约1900年由医生马克西米利安·比歇尔-本纳作为健康膳食创制。",
     ja: "生のオート麦、果物、ナッツを合わせたスイスの朝食。1900年ごろ医師マクシミリアン・ビルヒャー＝ベナーが健康食として考案。",
     es: "Desayuno suizo de avena cruda, fruta y frutos secos, creado hacia 1900 por el médico Maximilian Bircher-Benner como dieta sana.",
+    ko: "생귀리와 과일, 견과로 만든 스위스의 아침 식사로, 1900년경 의사 막시밀리안 비르허베너가 건강식으로 고안했습니다.",
   },
   "swiss::capuns": {
     id: "Khas Graubünden Swiss: adonan spätzle dengan daging kering dibungkus daun chard, lalu direbus dalam kaldu dan susu.",
@@ -11936,6 +13443,7 @@ module.exports = {
     zh: "瑞士格劳宾登州的特色菜：施佩茨面糊拌风干肉，用甜菜叶包裹后在高汤与牛奶中炖煮。",
     ja: "スイス・グラウビュンデン州の名物。シュペッツレ生地に干し肉を混ぜ、フダンソウの葉で包んでブイヨンと牛乳で煮る。",
     es: "Especialidad de los Grisones suizos: masa de spätzle con carne seca envuelta en hojas de acelga y cocida en caldo y leche.",
+    ko: "슈페츨레 반죽에 말린 고기를 넣어 근대잎에 싸서 육수와 우유에 끓인 스위스 그라우뷘덴의 명물입니다.",
   },
   "swiss::cervelat": {
     id: "Sosis nasional Swiss dari daging sapi, babi, bacon, dan kulit babi dalam bagian hampir sama, diasap ringan lalu direbus.",
@@ -11944,6 +13452,7 @@ module.exports = {
     zh: "瑞士的国民香肠，用大致等量的牛肉、猪肉、培根与猪皮制成，轻度烟熏后水煮。",
     ja: "牛肉、豚肉、ベーコン、豚皮をほぼ等量で作るスイスの国民的ソーセージ。軽く燻してから茹でる。",
     es: "Salchicha nacional de Suiza, de partes casi iguales de vacuno, cerdo, tocino y corteza de cerdo, ahumada suave y luego cocida.",
+    ko: "소고기와 돼지고기, 베이컨, 돼지 껍질을 비슷한 양으로 섞어 가볍게 훈연한 뒤 삶아 내는 스위스의 국민 소시지입니다.",
   },
   "swiss::chocolate swiss": {
     id: "Cokelat buatan Swiss, masyhur berkat cokelat susu temuan Daniel Peter 1875 dan proses conching Lindt yang membuatnya lumer.",
@@ -11952,6 +13461,7 @@ module.exports = {
     zh: "瑞士出产的巧克力，因1875年丹尼尔·彼得发明的牛奶巧克力与莲舍的精炼工艺带来的入口即化质地而闻名。",
     ja: "スイス産チョコレート。1875年ダニエル・ペーターの牛乳チョコレートと、リンツのコンチングによる口溶けで名高い。",
     es: "Chocolate suizo, célebre por el chocolate con leche inventado por Daniel Peter en 1875 y el conchado de Lindt que lo hace fundente.",
+    ko: "스위스에서 만드는 초콜릿으로, 1875년 다니엘 페터가 만든 밀크 초콜릿과 린트의 콘칭 공정이 부드러운 식감으로 이름났습니다.",
   },
   "swiss::emmentaler cheese": {
     id: "Keju susu sapi Swiss yang pucat dan padat dengan lubang khasnya, dinamai lembah Emme di kanton Bern dan dilindungi AOP.",
@@ -11960,6 +13470,7 @@ module.exports = {
     zh: "瑞士色浅质密的牛奶奶酪，带标志性的孔洞；以伯尔尼州的埃梅河谷得名，受AOP保护。",
     ja: "独特の穴をもつ、色の淡い硬めのスイスの牛乳チーズ。ベルン州のエメ渓谷にちなむ名で、AOPに保護されている。",
     es: "Queso suizo de leche de vaca pálido y firme con sus agujeros característicos, llamado por el valle del Emme, en Berna, y con AOP.",
+    ko: "구멍이 뚫린 것으로 이름난 옅은 빛깔의 단단한 스위스 생우유 치즈로, 베른주 엠메 계곡에서 이름을 땄고 원산지 보호를 받습니다.",
   },
   "swiss::engadiner nusstorte": {
     id: "Tart adonan renyah dari Graubünden, Swiss, berisi kenari berkaramel; dipopulerkan pembuat roti Engadin Fausto Pult pada 1920-an.",
@@ -11968,6 +13479,7 @@ module.exports = {
     zh: "瑞士格劳宾登州的酥皮坚果馅饼，内填焦糖核桃；1920年代由恩加丁面包师法乌斯托·普尔特推广开来。",
     ja: "スイス・グラウビュンデン州のクルミのキャラメルを詰めたタルト。1920年代にエンガディンのパン職人ファウスト・プルトが広めた。",
     es: "Tarta de masa quebrada de los Grisones suizos rellena de nueces caramelizadas; la difundió el panadero engadino Fausto Pult.",
+    ko: "캐러멜에 조린 호두를 채운 스위스 그라우뷘덴의 타르트로, 1920년대 엥가딘의 제빵사 파우스토 풀트가 널리 알렸습니다.",
   },
   "swiss::fondue": {
     id: "Hidangan Swiss berupa keju yang dilelehkan dengan anggur dan disantap dengan mencelupkan roti; resep tertua di buku Zurich 1699.",
@@ -11976,6 +13488,7 @@ module.exports = {
     zh: "瑞士菜式：奶酪与葡萄酒共熔，用面包蘸食；已知最早的食谱见于1699年苏黎世的一本食谱书。",
     ja: "チーズをワインで溶かし、パンを浸して食べるスイスの料理。最古のレシピは1699年チューリヒの料理書に見える。",
     es: "Plato suizo de queso fundido con vino en el que se moja pan; la receta más antigua aparece en un recetario de Zúrich de 1699.",
+    ko: "치즈를 와인에 녹여 빵을 찍어 먹는 스위스 요리로, 가장 오래된 조리법은 1699년 취리히 요리책에 실렸습니다.",
   },
   "swiss::gruyère": {
     id: "Keju susu sapi keras dari Swiss, dinamai kota Gruyères di kanton Fribourg; diproduksi di kawasan itu sejak 1115.",
@@ -11984,6 +13497,7 @@ module.exports = {
     zh: "瑞士的硬质牛奶奶酪，以弗里堡州的格吕耶尔镇得名；当地自1115年起便有生产。",
     ja: "フリブール州グリュイエールの町にちなむスイスの硬質牛乳チーズ。この地方では1115年から作られてきた。",
     es: "Queso suizo firme de leche de vaca, llamado así por la villa de Gruyères, en el cantón de Friburgo; se elabora allí desde 1115.",
+    ko: "프리부르주 그뤼예르 마을에서 이름을 딴 스위스의 단단한 우유 치즈로, 1115년부터 이 지방에서 만들어 왔습니다.",
   },
   "swiss::luxemburgerli": {
     id: "Makaron Swiss yang kecil dan ringan: dua cangkang meringue almon dengan isian krim mentega.",
@@ -11992,6 +13506,7 @@ module.exports = {
     zh: "瑞士的小巧轻盈马卡龙，由两片杏仁蛋白霜壳夹奶油霜制成。",
     ja: "アーモンドのメレンゲ生地二枚でバタークリームを挟んだ、小さく軽やかなスイスのマカロン。",
     es: "Macarón suizo pequeño y ligero de dos conchas de merengue de almendra con relleno de crema de mantequilla.",
+    ko: "아몬드 머랭 두 장 사이에 버터크림을 채운 작고 가벼운 스위스 마카롱입니다.",
   },
   "swiss::papet vaudois": {
     id: "Hidangan dari kanton Vaud, Swiss: daun bawang dan kentang direbus bersama anggur putih dan krim.",
@@ -12000,6 +13515,7 @@ module.exports = {
     zh: "瑞士沃州的菜式：韭葱与马铃薯用白葡萄酒和奶油同煮。",
     ja: "スイス・ヴォー州の料理。ポロねぎとじゃがいもを白ワインとクリームで煮込む。",
     es: "Plato del cantón de Vaud, Suiza: puerros y patatas hervidos con vino blanco y nata.",
+    ko: "리크와 감자를 화이트와인과 크림에 끓인 스위스 보주의 요리입니다.",
   },
   "swiss::pizzoccheri ticino": {
     id: "Pasta pita dari soba dan gandum, dipanggang bersama kentang, chard, dan keju; bentuk Swiss-nya ada di Val Poschiavo, Graubünden.",
@@ -12008,6 +13524,7 @@ module.exports = {
     zh: "荞麦与小麦制的扁带面，与马铃薯、甜菜叶及奶酪同烤；瑞士的形式见于格劳宾登州意语区的波斯基亚沃谷。",
     ja: "そば粉と小麦粉の平打ち麺を、じゃがいも、フダンソウ、チーズと重ねて焼く。スイスではグラウビュンデン州ポスキアーヴォ谷の料理。",
     es: "Pasta plana de trigo sarraceno y trigo, horneada con patata, acelga y queso; su forma suiza está en el Val Poschiavo (Grisones).",
+    ko: "메밀과 밀로 만든 납작한 띠 모양 파스타를 감자와 근대, 치즈와 함께 구운 요리로, 스위스에서는 이탈리아어권 포스키아보 계곡의 음식입니다.",
   },
   "swiss::raclette": {
     id: "Hidangan Swiss dari kanton Valais: keju dilelehkan lalu dikerok ke atas kentang rebus.",
@@ -12016,6 +13533,7 @@ module.exports = {
     zh: "瑞士瓦莱州的菜式：奶酪加热熔化后刮到水煮马铃薯上。",
     ja: "スイス・ヴァレー州の料理。チーズを溶かし、茹でたじゃがいもの上へ削ぎ落とす。",
     es: "Plato suizo del cantón del Valais: el queso se funde y se raspa sobre patatas hervidas.",
+    ko: "치즈를 녹여 삶은 감자 위에 긁어 내리는 스위스 발레주의 요리입니다.",
   },
   "swiss::rösti": {
     id: "Kue kentang parut goreng khas Swiss, semula sarapan petani Bern, kini hidangan nasional; namanya dari rösten, menggoreng.",
@@ -12024,6 +13542,7 @@ module.exports = {
     zh: "瑞士的马铃薯丝煎饼，原是伯尔尼农家的早餐，如今成为国菜；名称来自瑞士德语的rösten，即煎。",
     ja: "すりおろしたじゃがいもを焼くスイスの料理。元はベルンの農民の朝食で、今や国民食。名はrösten（焼く）に由来。",
     es: "Torta suiza de patata rallada y frita, antes desayuno campesino de Berna y hoy plato nacional; su nombre viene de rösten, freír.",
+    ko: "간 감자를 부쳐 낸 스위스 요리로, 본래 베른 농부의 아침 식사였다가 국민 음식이 됐으며 이름은 '굽다'라는 스위스 독일어에서 왔습니다.",
   },
   "swiss::toblerone": {
     id: "Cokelat susu Swiss berbentuk segitiga dengan nougat madu dan almon, diciptakan Theodor Tobler di Bern pada 1908.",
@@ -12032,6 +13551,7 @@ module.exports = {
     zh: "三角形的瑞士牛奶巧克力，内含蜂蜜杏仁牛轧糖，1908年由特奥多尔·托布勒在伯尔尼创制。",
     ja: "蜂蜜とアーモンドのヌガーを含む三角形のスイス産ミルクチョコレート。1908年ベルンでテオドール・トブラーが考案。",
     es: "Chocolate con leche suizo de forma triangular con turrón de miel y almendra, creado por Theodor Tobler en Berna en 1908.",
+    ko: "꿀 아몬드 누가를 넣은 삼각형 스위스 밀크 초콜릿으로, 1908년 베른에서 테오도어 토블러가 만들었습니다.",
   },
   "swiss::zopf": {
     id: "Roti kepang Swiss dari tepung putih, susu, telur, dan mentega; menurut tradisi diolesi telur dan disantap pada Minggu pagi.",
@@ -12040,6 +13560,7 @@ module.exports = {
     zh: "瑞士辫子面包，用白面粉、牛奶、鸡蛋与黄油制成；传统上刷蛋液烘烤，在周日早晨享用。",
     ja: "白い小麦粉、牛乳、卵、バターで作るスイスの編みパン。伝統的に卵を塗って焼き、日曜の朝に食べる。",
     es: "Pan trenzado suizo de harina blanca, leche, huevo y mantequilla; se pinta con huevo y se come los domingos por la mañana.",
+    ko: "흰 밀가루와 우유, 달걀, 버터로 땋아 구운 스위스 빵으로, 전통적으로 달걀물을 발라 일요일 아침에 먹습니다.",
   },
   "swiss::zürcher geschnetzeltes": {
     id: "Hidangan Zurich: irisan daging sapi muda (kadang dengan ginjal dan jamur) dalam anggur putih, krim, dan demiglace; tercatat 1947.",
@@ -12048,6 +13569,7 @@ module.exports = {
     zh: "苏黎世菜式：小牛肉丝（有时加腰子与蘑菇）用白葡萄酒、奶油与半釉汁烩制；1947年首见于食谱。",
     ja: "子牛肉の細切りを白ワイン、クリーム、ドミグラスで煮るチューリヒ料理。腎臓やきのこを加えることも。1947年の料理書が初出。",
     es: "Plato de Zúrich con tiras de ternera (a veces con riñón y setas) en vino blanco, nata y demiglás; documentado en un recetario de 1947.",
+    ko: "송아지고기를 채 썰어 때로 콩팥과 버섯과 함께 화이트와인과 크림, 데미글라스에 익힌 취리히 요리로, 1947년 요리책에 처음 실렸습니다.",
   },
   "swiss::älplermagronen": {
     id: "»Makaroni gembala« Alpen Swiss: pasta, kentang, krim, keju, dan bawang; menurut tradisi disajikan dengan saus apel.",
@@ -12056,6 +13578,7 @@ module.exports = {
     zh: "瑞士阿尔卑斯的「牧人通心粉」：意面、马铃薯、奶油、奶酪与洋葱同煮，传统上佐苹果泥。",
     ja: "スイス・アルプスの「牧人のマカロニ」。パスタ、じゃがいも、クリーム、チーズ、玉ねぎを合わせ、林檎のソースを添える。",
     es: "«Macarrones del pastor» de los Alpes suizos: pasta, patata, nata, queso y cebolla; se sirven por tradición con puré de manzana.",
+    ko: "파스타와 감자, 크림, 치즈, 양파로 만든 스위스 알프스의 '목동 마카로니'로, 전통적으로 사과 소스를 곁들입니다.",
   },
   "swiss::älplermagronen with apfelmus": {
     id: "Hidangan gembala Alpen Swiss: makaroni, kentang, krim, keju, dan bawang goreng, disajikan dengan saus apel penyeimbang.",
@@ -12064,6 +13587,7 @@ module.exports = {
     zh: "瑞士高山牧人的菜肴：通心粉、马铃薯、奶油、奶酪与炸洋葱，佐苹果泥以解油腻。",
     ja: "スイス・アルプスの牧夫の料理。マカロニ、じゃがいも、クリーム、チーズ、揚げ玉ねぎに、こってりを和らげる林檎ソースを添える。",
     es: "Plato de los pastores alpinos suizos: macarrones, patata, nata, queso y cebolla frita, con puré de manzana para aligerar.",
+    ko: "마카로니와 감자, 크림, 치즈, 튀긴 양파로 만든 스위스 알프스 목동의 요리로, 느끼함을 눅이려 사과 소스를 곁들입니다.",
   },
   "taiwanese::beef noodle soup": {
     id: "Mi gandum dengan betis dan urat sapi yang dibraise dalam kuah berempah; gaya braise merah berpangkal pada veteran KMT Sichuan selepas 1949.",
@@ -12072,6 +13596,7 @@ module.exports = {
     zh: "小麦面配红烧牛腱与牛筋，汤里透着香料；红烧这一路，源自一九四九年后来台的四川籍老兵。",
     ja: "香辛料のスープに、煮込んだ牛すねと牛すじを合わせた小麦麺。紅焼の系統は一九四九年以降の四川出身の国民党退役兵に遡ります。",
     es: "Fideos de trigo con jarrete y tendón guisados en caldo especiado; el estilo rojo viene de veteranos del KMT sichuaneses tras 1949.",
+    ko: "향신 국물에 조린 소 사태와 힘줄, 밀면을 넣은 요리로, 붉게 조리는 방식은 1949년 이후 쓰촨 출신 국민당 퇴역군인들에게서 왔습니다.",
   },
   "taiwanese::bubble tea": {
     id: "Minuman teh Taiwan berupa teh susu dengan mutiara tapioka yang kenyal; diciptakan di Taichung atau Tainan pada 1980-an.",
@@ -12080,6 +13605,7 @@ module.exports = {
     zh: "台湾的珍珠奶茶：奶茶里加嚼劲十足的粉圆；一九八〇年代在台中或台南问世。",
     ja: "もちもちのタピオカを入れた台湾のミルクティー。一九八〇年代、台中か台南で生まれました。",
     es: "Bebida de té taiwanesa con leche y perlas de tapioca correosas; inventada en Taichung o Tainan en los años ochenta.",
+    ko: "밀크티에 쫄깃한 타피오카 펄을 넣은 대만 차 음료로, 1980년대 타이중과 타이난에서 만들어졌습니다.",
   },
   "taiwanese::danzi noodles": {
     id: "Jajanan Tainan berupa mi terigu tipis dalam kaldu udang dan babi, ditutup daging babi cincang dan seekor udang.",
@@ -12088,6 +13614,7 @@ module.exports = {
     zh: "台南的担仔面：细麦面泡在虾与猪骨熬的汤里，铺肉燥，顶上搁一只虾。",
     ja: "台南の軽食。細い小麦麺を海老と豚のだしに入れ、豚ひき肉と海老を一尾のせます。",
     es: "Bocado de Tainan de fideos finos de trigo en caldo de gamba y cerdo, coronados con carne picada y una gamba.",
+    ko: "새우와 돼지고기로 낸 국물에 가는 밀면을 넣고 다진 돼지고기와 새우를 올린 타이난의 간식입니다.",
   },
   "taiwanese::din tai fung dumplings": {
     id: "Xiaolongbao, pangsit kukus berkuah yang menjadi ciri khas Din Tai Fung di Taipei.",
@@ -12096,6 +13623,7 @@ module.exports = {
     zh: "小笼包：这道灌汤蒸饺，成了台北鼎泰丰的招牌。",
     ja: "小籠包。スープを含んだこの蒸し餃子が、台北の鼎泰豊の看板になりました。",
     es: "Xiaolongbao, la empanadilla al vapor rellena de sopa que se convirtió en la seña de Din Tai Fung, en Taipéi.",
+    ko: "육즙을 품은 찐만두 샤오룽바오로, 타이베이 딘타이펑의 대표 음식이 됐습니다.",
   },
   "taiwanese::gua bao": {
     id: "Bakpau lipat kukus Taiwan berisi perut babi merah, sayur asin, dan kacang tanah; berakar di Fujian, yakni Quanzhou dan Fuzhou.",
@@ -12104,6 +13632,7 @@ module.exports = {
     zh: "台湾的刈包：对折的蒸面皮夹红烧五花肉、酸菜与花生粉；根在福建的泉州与福州。",
     ja: "台湾の折り畳んだ蒸しパンに、紅焼きの豚バラ、漬け菜、落花生粉を挟みます。福建の泉州・福州に根があります。",
     es: "Bollo al vapor plegado taiwanés con panceta guisada en rojo, mostaza encurtida y cacahuete; enraizado en Fujian (Quanzhou y Fuzhou).",
+    ko: "반으로 접은 찐빵에 붉게 조린 삼겹살과 갓지, 땅콩을 넣은 대만 음식으로, 푸젠 취안저우와 푸저우에 뿌리를 둡니다.",
   },
   "taiwanese::iron egg": {
     id: "Camilan Taiwan: telur kecil direbus berulang dalam kecap dan rempah lalu dikeringkan hingga gelap dan kenyal; populer di Tamsui sejak 1980.",
@@ -12112,6 +13641,7 @@ module.exports = {
     zh: "台湾的铁蛋：小鸡蛋在酱油与香料里反复卤煮，再风干到色黑质韧；一九八〇年前后在淡水传开。",
     ja: "台湾の菓子。小さな卵を醤油と香辛料で何度も煮ては干し、黒く歯ごたえのあるものに。一九八〇年ごろ淡水で広まりました。",
     es: "Tentempié taiwanés de huevos pequeños guisados repetidamente en soja y especias y secados al aire hasta quedar oscuros y correosos.",
+    ko: "작은 달걀을 간장과 향신료에 거듭 조려 검고 쫄깃해질 때까지 말린 대만 간식으로, 1980년경 단수이에서 널리 퍼졌습니다.",
   },
   "taiwanese::lu rou fan": {
     id: "Nasi Taiwan yang ditutup daging babi cincang halus, direbus dalam kecap asin.",
@@ -12120,6 +13650,7 @@ module.exports = {
     zh: "台湾的卤肉饭：白饭上浇酱油炖过的细切肉燥。",
     ja: "細かく刻んで醤油で煮た豚肉をご飯にかけた台湾の丼。",
     es: "Cuenco de arroz taiwanés cubierto de cerdo finamente picado y guisado en salsa de soja.",
+    ko: "잘게 썰거나 다진 돼지고기를 간장에 조려 밥에 올린 대만식 덮밥입니다.",
   },
   "taiwanese::mango shaved ice": {
     id: "Hidangan es serut musim panas Taiwan berisi mangga segar, susu kental manis, dan kerap es krim mangga.",
@@ -12128,6 +13659,7 @@ module.exports = {
     zh: "台湾夏天的芒果冰：刨冰上堆新鲜芒果，淋炼奶，常再加一球芒果冰淇淋。",
     ja: "台湾の夏のかき氷。生のマンゴーに練乳をかけ、しばしばマンゴーのアイスをのせます。",
     es: "Postre veraniego taiwanés de hielo raspado con mango fresco, leche condensada y a menudo helado de mango.",
+    ko: "생망고와 연유, 흔히 망고 아이스크림을 올린 대만의 여름 빙수 디저트입니다.",
   },
   "taiwanese::milk tea taiwan style": {
     id: "Minuman teh hitam dan susu khas Taiwan dengan mutiara tapioka kenyal; lahir di kedai teh Taichung atau Tainan pada 1980-an.",
@@ -12136,6 +13668,7 @@ module.exports = {
     zh: "台湾的红茶奶饮：加入弹牙的粉圆；一九八〇年代生于台中或台南的茶铺。",
     ja: "紅茶と牛乳に、もちもちのタピオカを合わせた台湾の飲み物。一九八〇年代、台中や台南の茶店で生まれました。",
     es: "Bebida taiwanesa de té negro con leche y perlas de tapioca correosas; nació en casas de té de Taichung o Tainan en los ochenta.",
+    ko: "홍차와 우유에 쫄깃한 타피오카 펄을 넣은 대만 음료로, 1980년대 타이중과 타이난의 찻집에서 만들어졌습니다.",
   },
   "taiwanese::oyster omelette taiwan": {
     id: "Jajanan pasar malam dari telur, tiram kecil, dan pati ubi jalar; berasal dari orang Hokkien atau Teochew, digemari di seluruh Taiwan.",
@@ -12144,6 +13677,7 @@ module.exports = {
     zh: "夜市的小吃蚵仔煎：鸡蛋、小生蚝与番薯粉同煎；出自闽南潮汕一脉，全台皆爱。",
     ja: "夜市の屋台料理。卵、小ぶりの牡蠣、さつまいも澱粉で作ります。福建・潮州に発し、台湾じゅうで親しまれます。",
     es: "Comida callejera de mercado nocturno con huevo, ostras pequeñas y almidón de boniato; de origen hokkien-teochew, popular en todo Taiwán.",
+    ko: "달걀과 작은 굴, 고구마 전분으로 만든 야시장 음식으로, 호키엔·조주에서 왔으며 대만 전역에서 사랑받습니다.",
   },
   "taiwanese::pineapple cake": {
     id: "Kue Taiwan berisi selai nanas, kerap bercampur labu lilin, dalam cangkang pastri bermentega; kini salah satu oleh-oleh utama pulau itu.",
@@ -12152,6 +13686,7 @@ module.exports = {
     zh: "台湾的凤梨酥：奶油酥皮里包凤梨馅，往往掺冬瓜；如今是全岛头一号的伴手礼。",
     ja: "パイナップル、しばしば冬瓜を混ぜた餡を、バターの効いた生地で包む台湾の菓子。今では島を代表する土産です。",
     es: "Pastel taiwanés de mermelada de piña, a menudo con calabaza de invierno, en masa quebrada mantecosa; hoy el souvenir estrella de la isla.",
+    ko: "파인애플(흔히 동과) 잼을 버터 향 페이스트리에 채운 대만 과자로, 지금은 대표적인 기념품으로 꼽힙니다.",
   },
   "taiwanese::popcorn chicken taiwan": {
     id: "Ayam goreng seukuran gigitan dari pasar malam Taiwan, dimarinasi lima rempah, dibumbui garam-lada, dan ditaburi kemangi goreng.",
@@ -12160,6 +13695,7 @@ module.exports = {
     zh: "台湾夜市的盐酥鸡：鸡块用五香腌过下锅炸，撒椒盐，最后丢一把炸九层塔。",
     ja: "台湾の夜市の一口サイズの唐揚げ。五香粉に漬け、塩胡椒で味を決め、揚げた九層塔を散らします。",
     es: "Pollo frito en bocados de los mercados nocturnos de Taiwán, marinado a las cinco especias, con sal y pimienta y albahaca frita.",
+    ko: "오향 양념에 재운 닭고기를 한입 크기로 튀겨 소금과 후추로 간하고 튀긴 바질을 올린 대만 야시장 음식입니다.",
   },
   "taiwanese::scallion pancake": {
     id: "Roti pipih Tionghoa gurih tanpa ragi: adonan terigu dilipat dengan minyak dan daun bawang cincang, lalu digoreng hingga renyah berlapis.",
@@ -12168,6 +13704,7 @@ module.exports = {
     zh: "中式的葱油饼：面团抹油、撒葱花，折起再擀，下平锅煎到酥脆起层。",
     ja: "発酵させない中国の塩味の薄焼き。小麦生地に油と刻んだ葱を折り込み、層が立つまで香ばしく焼きます。",
     es: "Pan plano chino salado y sin levadura: masa de trigo plegada con aceite y cebolleta picada y frita hasta quedar crujiente y hojaldrada.",
+    ko: "밀 반죽에 기름과 다진 파를 접어 넣고 바삭하게 부친 중국식 무발효 플랫브레드입니다.",
   },
   "taiwanese::stinky tofu": {
     id: "Tahu yang difermentasi dalam air garam berbau tajam lalu digoreng rendam; andalan pasar malam Taiwan, berasal dari Tiongkok masa Qing.",
@@ -12176,6 +13713,7 @@ module.exports = {
     zh: "臭豆腐：豆腐在气味浓烈的卤水里发酵，再下油锅炸；台湾夜市的招牌，源头在清代的中国。",
     ja: "強烈な匂いの漬け汁で発酵させた豆腐を揚げたもの。台湾の夜市の定番で、清代の中国に源をもちます。",
     es: "Tofu fermentado en salmuera de olor penetrante y luego frito; básico de los mercados nocturnos taiwaneses, con origen en la China Qing.",
+    ko: "코를 찌르는 소금물에 담가 발효시킨 두부를 튀긴 것으로, 청나라 중국에서 비롯된 대만 야시장의 단골 음식입니다.",
   },
   "taiwanese::taiwan beer": {
     id: "Bir terlaris di Taiwan, sebuah lager dari Taiwan Tobacco and Liquor Corporation; varian Medali Emasnya berkadar alkohol 5 persen.",
@@ -12184,6 +13722,7 @@ module.exports = {
     zh: "台湾卖得最好的啤酒，由台湾烟酒公司酿造的拉格；金牌那一款酒精度五度。",
     ja: "台湾で最も売れているビール。台湾菸酒公司のラガーで、金牌は度数五パーセントです。",
     es: "La cerveza más vendida de Taiwán, una lager de la Taiwan Tobacco and Liquor Corporation; su estilo Medalla de Oro tiene 5% de alcohol.",
+    ko: "대만에서 가장 많이 팔리는 맥주로, 대만연초주류공사가 빚는 라거이며 진메이 방식은 도수가 5도입니다.",
   },
   "taiwanese::taiwan night market dishes": {
     id: "\"Makanan kecil\" pasar malam Taiwan: hidangan gerai seukuran gigitan seperti dadar tiram dan tahu busuk, untuk dicicipi banyak sekaligus.",
@@ -12192,6 +13731,7 @@ module.exports = {
     zh: "台湾夜市的「小吃」：一口大小的摊食，如蚵仔煎与臭豆腐；本就是要一样样多尝几种的。",
     ja: "台湾の夜市の「小吃」。牡蠣オムレツや臭豆腐など、一口で食べられる屋台の品を、あれこれ少しずつ味わうためのものです。",
     es: "Los «bocados» de los mercados nocturnos taiwaneses: platillos de puesto como la tortilla de ostras o el tofu apestoso, para picar de varios.",
+    ko: "굴전이나 취두부처럼 한입 크기로 파는 대만 야시장의 '샤오츠'로, 여러 가지를 조금씩 맛보도록 만든 음식입니다.",
   },
   "taiwanese::taiwanese sausage": {
     id: "Sosis babi segar dan gemuk dari Taiwan, dari daging dan lemak babi cincang kasar; rasanya manis, kerap dipanggang arang di pasar malam.",
@@ -12200,6 +13740,7 @@ module.exports = {
     zh: "台湾的香肠：粗切的猪肉与肥肉灌成，饱满多汁，味道偏甜；夜市里多是炭火烤。",
     ja: "粗く刻んだ豚肉と脂で作る台湾のふっくらした生ソーセージ。はっきり甘く、夜市ではよく炭火で焼かれます。",
     es: "Salchicha de cerdo taiwanesa, fresca y rolliza, de carne y grasa picadas gruesas; notablemente dulce y asada al carbón en los mercados.",
+    ko: "굵게 다진 돼지고기와 지방으로 만든 통통한 대만 생소시지로, 유난히 달고 흔히 야시장에서 숯불에 굽습니다.",
   },
   "taiwanese::three cup chicken": {
     id: "Ayam braise ikonis Taiwan, dinamai dari tiga \"cangkir\" minyak wijen, arak beras, dan kecap asin; ditutup kemangi Thailand.",
@@ -12208,6 +13749,7 @@ module.exports = {
     zh: "台湾的招牌三杯鸡：名字来自那三「杯」——麻油、米酒与酱油；起锅前撒九层塔。",
     ja: "台湾を代表する鶏の煮込み。ごま油、米酒、醤油の三つの「杯」から名がつき、仕上げに九層塔を加えます。",
     es: "Pollo guisado icónico de Taiwán, llamado por sus tres «tazas» de aceite de sésamo, vino de arroz y soja; se remata con albahaca tailandesa.",
+    ko: "참기름과 청주, 간장을 각각 한 '컵'씩 넣어 이름 붙은 대만의 대표 닭조림으로, 타이바질로 마무리합니다.",
   },
   "taiwanese::xiao long bao": {
     id: "Pangsit kuah kukus berisi babi dan kaldu beku yang meleleh; lahir di Nanxiang dekat Shanghai pada akhir abad ke-19.",
@@ -12216,6 +13758,7 @@ module.exports = {
     zh: "小笼汤包：馅是猪肉与遇热化开的皮冻；十九世纪末生于上海近郊的南翔。",
     ja: "豚肉と溶ける煮こごりを包んだ蒸しスープ餃子。十九世紀末、上海近郊の南翔に生まれました。",
     es: "Empanadillas de sopa al vapor de cerdo y gelatina que se derrite; nacieron en Nanxiang, cerca de Shanghái, a finales del siglo XIX.",
+    ko: "돼지고기와 굳힌 육수 젤리를 넣어 쪄낸 만두로, 19세기 말 상하이 인근 난샹에서 비롯됐습니다.",
   },
   "teochew::bak chor mee": {
     id: "Mi daging babi cincang khas Teochew, dengan mi telur atau mee pok yang pipih.",
@@ -12224,6 +13767,7 @@ module.exports = {
     zh: "潮州的肉脞面：可用蛋面，也可用扁身的面薄。",
     ja: "潮州の豚ひき肉の麺。卵麺でも、平たいミーポックでも作ります。",
     es: "Plato teochew de fideos con cerdo picado, con fideos al huevo o mee pok plano.",
+    ko: "달걀면이나 납작한 미폭을 쓰는 조주식 다진 돼지고기 국수입니다.",
   },
   "teochew::beef kway teow soup": {
     id: "Hidangan kwetiau dengan irisan daging sapi; menurut gaya Teochew disajikan berkuah.",
@@ -12232,6 +13776,7 @@ module.exports = {
     zh: "牛肉粿条：河粉配牛肉片；潮州的做法是连汤上桌。",
     ja: "平たい米麺に牛肉の薄切りを合わせた麺料理。潮州式では汁ありで供します。",
     es: "Plato de fideos de arroz planos con láminas de ternera; al estilo teochew se sirve en sopa.",
+    ko: "넓적한 쌀국수에 저민 소고기를 올린 국수 요리로, 조주식으로는 국물에 넣어 냅니다.",
   },
   "teochew::cheng tng": {
     id: "Hidangan penutup \"sup bening\" yang manis, berasal Teochew, dikenal di Singapura dan Malaysia; disajikan panas atau dingin.",
@@ -12240,6 +13785,7 @@ module.exports = {
     zh: "潮州的清汤：一味甜汤，名字直译就是「清汤」；新马两地都常见，冷热皆宜。",
     ja: "潮州に発する「清湯」という名の甘い汁物。シンガポールとマレーシアで親しまれ、温冷どちらでも供されます。",
     es: "Postre dulce llamado «sopa clara», de origen teochew y extendido en Singapur y Malasia; se toma caliente o frío.",
+    ko: "조주에서 온 '맑은 국물'이라는 뜻의 달콤한 디저트로, 싱가포르와 말레이시아에서 따뜻하게나 차갑게 냅니다.",
   },
   "teochew::cold crab teochew-style": {
     id: "Hidangan Teochew: kepiting dikukus, didinginkan, lalu disantap dingin dengan cocolan cuka lengkuas-gula merah, penyeimbang sifat dinginnya.",
@@ -12248,6 +13794,7 @@ module.exports = {
     zh: "潮州冻蟹：蟹蒸熟后冰镇冷食，蘸南姜红糖醋，以中和蟹的寒性。",
     ja: "潮州の料理。蟹を蒸してから冷やし、冷たいまま供します。蟹の「冷」を和らげるため、ナンキョウと黒糖の酢を添えます。",
     es: "Plato teochew: cangrejo al vapor, enfriado y servido frío, con un mojo de vinagre, galanga y azúcar moreno para contrarrestar su «frío».",
+    ko: "게를 쪄서 차갑게 식혀 내는 조주 요리로, 게의 찬 성질을 눅이려 갈랑갈과 흑설탕 식초 소스를 곁들입니다.",
   },
   "teochew::fish soup bee hoon": {
     id: "Sup Singapura berisi irisan ikan dan bihun beras.",
@@ -12256,6 +13803,7 @@ module.exports = {
     zh: "新加坡的鱼片米粉汤：鱼片配米粉。",
     ja: "魚の切り身とビーフンのシンガポールのスープ。",
     es: "Sopa singapurense de láminas de pescado y vermicelli de arroz (bee hoon).",
+    ko: "저민 생선과 쌀국수를 넣은 싱가포르의 국물 요리입니다.",
   },
   "teochew::fishball noodle": {
     id: "Semangkuk mi Teochew (Chaoshan) berisi bola ikan pukul tangan dalam kaldu babi bening, disajikan kering dengan cabai atau dalam kuah.",
@@ -12264,6 +13812,7 @@ module.exports = {
     zh: "潮州（潮汕）的面食：手打鱼丸浸在清澈的猪骨汤中，可拌辣椒干吃，也可连汤食用。",
     ja: "手で叩いて作る魚のつみれを澄んだ豚だしに浮かべる潮州（潮汕）の麺。汁なしで唐辛子を和えても、汁ごとでも食べる。",
     es: "Bol de fideos teochew (chaoshan) con bolas de pescado batidas a mano en caldo claro de cerdo, seco con chile o en la propia sopa.",
+    ko: "손으로 친 생선완자를 맑은 돼지 육수에 넣은 조주(차오산) 국수로, 고추 소스에 비벼 내거나 국물째 냅니다.",
   },
   "teochew::ku chye kueh": {
     id: "Papillote kukus Teochew berisi kucai dan udang kering; berasal dari kawasan Chaoshan di Guangdong, Tiongkok.",
@@ -12272,6 +13821,7 @@ module.exports = {
     zh: "潮州的韭菜粿：蒸粿里包韭菜与虾米；出自广东的潮汕地区。",
     ja: "潮州の蒸し包み。ニラと干し海老を詰めます。広東省の潮汕地方の出です。",
     es: "Empanadilla teochew al vapor rellena de cebollino chino y gamba seca; procede de la región de Chaoshan, en Guangdong, China.",
+    ko: "부추와 건새우를 채운 조주식 찐만두로, 중국 광둥 차오산 지방에서 비롯됐습니다.",
   },
   "teochew::kway chap": {
     id: "Hidangan Teochew: lembaran kwetiau pipih dalam kuah kecap gelap, disajikan bersama jeroan babi, perut babi, tahu, dan telur braise.",
@@ -12280,6 +13830,7 @@ module.exports = {
     zh: "潮州的粿汁：宽粿片泡在深色的卤汁里，配猪杂、五花肉、豆腐与卤蛋。",
     ja: "潮州の粿汁。平たい米の生地を濃口の煮汁に浸し、豚のもつ、バラ肉、豆腐、煮卵を添えます。",
     es: "Plato teochew: láminas planas de arroz en un guiso de soja oscura con casquería de cerdo, panceta, tofu y huevos guisados.",
+    ko: "넓적한 쌀피를 진간장에 조려 돼지 내장과 삼겹살, 두부, 조림 달걀과 함께 내는 조주 요리입니다.",
   },
   "teochew::lor ark (braised duck rice)": {
     id: "Hidangan Teochew: bebek dibraise dalam kaldu kecap dan lima rempah, lalu diiris di atas nasi; dibawa perantau Chaozhou ke Asia Tenggara.",
@@ -12288,6 +13839,7 @@ module.exports = {
     zh: "潮州的卤鸭饭：鸭子在酱油五香卤水里煨透，斩件铺饭上；由潮州移民带到南洋。",
     ja: "潮州の料理。醤油と五香の老湯で煮た鴨を切り分け、ご飯にのせます。潮州からの移民が東南アジアへ伝えました。",
     es: "Plato teochew: pato guisado en un caldo madre de soja y cinco especias, loncheado sobre arroz; lo trajeron migrantes de Chaozhou.",
+    ko: "간장과 오향 마스터 스톡에 오리를 조려 밥 위에 저며 올린 조주 요리로, 차오저우 이주민들이 동남아시아에 들여왔습니다.",
   },
   "teochew::mee pok dry": {
     id: "Mi telur kuning pipih asal Teochew Chaoshan, diaduk kering dalam saus cabai, cuka, dan kecap asin, bukan disajikan berkuah.",
@@ -12296,6 +13848,7 @@ module.exports = {
     zh: "潮汕来的扁身黄蛋面：以辣椒、醋与酱油干捞，不作汤面。",
     ja: "潮州（潮汕）に発する平たい黄色の卵麺。汁に入れず、唐辛子と酢と醤油で和えて食べます。",
     es: "Fideo amarillo plano al huevo de origen teochew (Chaoshan), salteado en seco con salsa de chile, vinagre y soja, no servido en sopa.",
+    ko: "조주(차오산)에서 온 납작한 노란 달걀면으로, 국물에 넣지 않고 고추·식초·간장 소스에 비벼 냅니다.",
   },
   "teochew::mua chee": {
     id: "Camilan adonan ketan yang kenyal, berbalut kacang tanah tumbuk, wijen, dan gula; dibawa ke Singapura oleh perantau Hokkien dan Teochew.",
@@ -12304,6 +13857,7 @@ module.exports = {
     zh: "麻糍：软糯的糯米团裹上花生碎、芝麻与糖；由福建与潮州的移民带到新加坡。",
     ja: "もちもちしたもち米の生地に、挽いた落花生と胡麻と砂糖をまぶした菓子。福建・潮州の移民がシンガポールへ伝えました。",
     es: "Dulce correoso de masa de arroz glutinoso rebozado en cacahuete molido, sésamo y azúcar; lo trajeron colonos hokkien y teochew a Singapur.",
+    ko: "찹쌀 반죽을 쫄깃하게 빚어 볶은 땅콩과 깨, 설탕을 묻힌 간식으로, 호키엔과 조주 이주민들이 싱가포르에 들여왔습니다.",
   },
   "teochew::orh luak (oyster omelette teochew)": {
     id: "Dadar tiram Teochew yang digoreng dangkal dalam adonan tepung ubi jalar dan telur bebek; berasal dari kawasan Chaoshan di Tiongkok selatan.",
@@ -12312,6 +13866,7 @@ module.exports = {
     zh: "潮州的蚝烙：番薯粉与鸭蛋调糊，裹上生蚝下平锅煎；源自中国南方的潮汕地区。",
     ja: "潮州の牡蠣オムレツ。さつまいも澱粉とアヒルの卵の生地に牡蠣を入れ、平鍋で焼きます。中国南部、潮汕地方の出です。",
     es: "Tortilla de ostras teochew hecha a la sartén en una masa de almidón de boniato y huevo de pato; de la región de Chaoshan, sur de China.",
+    ko: "고구마 전분과 오리알 반죽에 굴을 넣어 팬에 부친 조주식 전으로, 중국 남부 차오산 지방에서 비롯됐습니다.",
   },
   "teochew::orh nee": {
     id: "Hidangan penutup Teochew: talas dilumatkan, dimaniskan, dan diperkaya minyak bawang merah atau lemak babi; penutup jamuan Teochew.",
@@ -12320,6 +13875,7 @@ module.exports = {
     zh: "潮州甜品芋泥：芋头压成泥，加糖，再以葱油或猪油润之；照例是潮州席面的收尾。",
     ja: "潮州の甘味。タロイモを潰して甘くし、わけぎ油かラードでこくを与えます。潮州の宴の締めに供されます。",
     es: "Postre teochew de taro machacado, endulzado y enriquecido con aceite de chalota o manteca; tradicionalmente cierra el banquete teochew.",
+    ko: "으깬 토란에 단맛을 내고 샬롯 기름이나 돼지기름으로 풍미를 더한 조주 디저트로, 전통적으로 연회의 마지막에 냅니다.",
   },
   "teochew::png kueh": {
     id: "Pangsit isi Teochew dengan kulit tepung ketan berwarna merah muda berbentuk persik, berisi nasi ketan berbumbu.",
@@ -12328,6 +13884,7 @@ module.exports = {
     zh: "潮州的饭粿：粉红的糯米粉皮捏成桃形，里头是调过味的糯米饭。",
     ja: "潮州の包み粿。桃の形をした桃色のもち米粉の皮に、味つけしたもち米を詰めます。",
     es: "Empanadilla teochew rellena, de piel rosada de harina glutinosa con forma de melocotón y relleno de arroz glutinoso sazonado.",
+    ko: "분홍빛 찹쌀가루 피를 복숭아 모양으로 빚어 양념한 찰밥을 채운 조주식 만두입니다.",
   },
   "teochew::sliced fish soup": {
     id: "Hidangan Singapura yang digemari dan diyakini berasal dari orang Teochew: irisan ikan dalam kaldu bersama sayuran dan tahu.",
@@ -12336,6 +13893,7 @@ module.exports = {
     zh: "新加坡人爱吃的鱼片汤，一般认为出自潮州人：鱼片在汤里，配蔬菜与豆腐。",
     ja: "潮州人に由来するとされるシンガポールの人気の一品。魚の切り身をだしに入れ、野菜と豆腐を添えます。",
     es: "Plato singapurense muy querido que se atribuye a los teochew: láminas de pescado en caldo con verduras y tofu.",
+    ko: "저민 생선을 채소와 두부와 함께 국물에 넣은 싱가포르의 인기 요리로, 조주에서 비롯됐다고 봅니다.",
   },
   "teochew::soon kueh": {
     id: "Papillote kukus Teochew yang namanya berarti \"kue rebung\"; di Singapura isinya biasanya bengkuang atau lobak.",
@@ -12344,6 +13902,7 @@ module.exports = {
     zh: "潮州的笋粿：名字的意思是「笋做的粿」；在新加坡，馅多半改成沙葛或萝卜。",
     ja: "潮州の蒸し包み。名は「筍の粿」を意味しますが、シンガポールでは中身はたいていクワイ芋か大根です。",
     es: "Empanadilla teochew al vapor cuyo nombre significa «pastel de brote de bambú»; en Singapur el relleno suele ser jícama o nabo.",
+    ko: "이름이 '죽순 떡'이라는 뜻인 조주식 찐만두로, 싱가포르에서는 대개 히카마나 순무를 소로 씁니다.",
   },
   "teochew::teochew bak kut teh peppery": {
     id: "Sup iga babi gaya Teochew: kaldunya bening dan ringan, harum bawang putih dan lada, dibumbui terutama lada putih dan bawang putih.",
@@ -12352,6 +13911,7 @@ module.exports = {
     zh: "潮州式的肉骨茶：汤清而淡，蒜香与胡椒味突出，调味主要就是白胡椒与蒜头。",
     ja: "潮州式の肉骨茶。澄んだ軽いスープで、にんにくと胡椒が香り、味つけは主に白胡椒とにんにくです。",
     es: "Sopa de costilla de cerdo al estilo teochew: caldo claro y ligero, con ajo y pimienta, sazonado sobre todo con pimienta blanca y ajo.",
+    ko: "조주식 돼지갈비탕으로, 흰 후추와 마늘로 주로 간해 맑고 담백하며 마늘 향과 후추 향이 강합니다.",
   },
   "teochew::teochew braised duck": {
     id: "Bebek Teochew yang dibraise perlahan dalam kaldu induk beraroma lengkuas yang dipakai berulang, hingga empuk.",
@@ -12360,6 +13920,7 @@ module.exports = {
     zh: "潮州卤鸭：鸭子在反复使用的南姜卤水里慢火浸煮至软烂。",
     ja: "潮州の煮鴨。何度も使い継ぐナンキョウ香る老湯で、やわらかくなるまで静かに煮ます。",
     es: "Pato teochew guisado despacio hasta quedar tierno en un caldo madre reutilizado y perfumado con galanga.",
+    ko: "갈랑갈 향을 입혀 거듭 쓰는 마스터 스톡에 오리를 부드러워질 때까지 천천히 조린 조주 요리입니다.",
   },
   "teochew::teochew fish maw soup": {
     id: "Sup Teochew dari gelembung renang ikan kering, salah satu dari empat kelezatan laut Tiongkok.",
@@ -12368,6 +13929,7 @@ module.exports = {
     zh: "潮州的鱼鳔汤：干花胶，中国「海味四宝」之一。",
     ja: "潮州の魚の浮袋のスープ。干した浮袋は中国の四大海味のひとつです。",
     es: "Sopa teochew de vejiga natatoria seca, uno de los cuatro manjares marinos de China.",
+    ko: "말린 어표로 끓인 조주의 수프로, 어표는 중국의 네 가지 바다 진미 가운데 하나로 꼽힙니다.",
   },
   "teochew::teochew oyster cake": {
     id: "Perkedel tiram ala Teochew (orh luak): dadar tiram Min Selatan yang gurih, diikat telur bebek dan tepung ubi jalar, lalu digoreng dangkal.",
@@ -12376,6 +13938,7 @@ module.exports = {
     zh: "潮州的蚝烙：闽南一路的咸香蚝煎，用鸭蛋与番薯粉黏合，下平锅煎香。",
     ja: "潮州の牡蠣の焼き物。閩南系の塩味の牡蠣オムレツで、アヒルの卵とさつまいも粉でつなぎ、平鍋で焼きます。",
     es: "Torta de ostras teochew (orh luak): tortilla salada de ostras del Min meridional, ligada con huevo de pato y harina de boniato y frita.",
+    ko: "오리알과 고구마 전분 반죽에 굴을 넣어 부친 조주식 굴전으로, 민난의 짭조름한 부침 요리입니다.",
   },
   "teochew::teochew porridge (mui)": {
     id: "Bubur beras Teochew dari kawasan Chaoshan, Tiongkok, dengan butiran utuh yang melunak, bukan pecah seperti bubur Kanton.",
@@ -12384,6 +13947,7 @@ module.exports = {
     zh: "潮汕的白糜：米粒煮软而不碎，与广式熬到开花的粥不同。",
     ja: "潮汕の粥。米粒は煮崩れず、やわらかいまま残ります。広東式のように崩す粥とは違います。",
     es: "Gachas de arroz teochew de la región china de Chaoshan, con los granos enteros y blandos, no deshechos como en el congee cantonés.",
+    ko: "중국 차오산 지방에서 온 조주식 죽으로, 광둥 죽처럼 퍼지지 않고 쌀알이 통째로 부드럽게 살아 있습니다.",
   },
   "teochew::teochew steamed crab": {
     id: "Kepiting dingin Teochew: kepiting bertelur dari Chaoshan dikukus lalu didinginkan, disajikan dengan cocolan jahe-cuka manis penyeimbang.",
@@ -12392,6 +13956,7 @@ module.exports = {
     zh: "潮州冻蟹：潮汕的膏蟹先蒸后冰，佐甜姜醋同上，以中和其寒性。",
     ja: "潮州の冷やし蟹。潮汕の子持ち蟹を蒸してから冷やし、甘い生姜酢を添えて体を冷やす性質を和らげる。",
     es: "Cangrejo frío teochew: cangrejo con hueva de Chaoshan cocido al vapor y enfriado, servido con salsa dulce de jengibre y vinagre.",
+    ko: "차오산에서 온 알배기 게를 쪄서 차갑게 식혀 내는 조주식 냉게로, 찬 성질을 눅이려 달콤한 생강 식초 소스를 곁들입니다.",
   },
   "teochew::teochew steamed pomfret": {
     id: "Hidangan Teochew: bawal putih atau perak utuh dikukus bersama asam boi, sayur asin, dan jahe, menghasilkan kuah gurih yang asam.",
@@ -12400,6 +13965,7 @@ module.exports = {
     zh: "潮州菜：整条白鲳或银鲳配咸酸梅、咸菜与姜清蒸，汤汁酸中带鲜。",
     ja: "潮州の料理。マナガツオを丸ごと、塩漬けの梅、漬け菜、生姜とともに蒸し、酸味のある旨いだしを引き出します。",
     es: "Plato teochew: palometa entera al vapor con ciruelas saladas ácidas, mostaza encurtida y jengibre, en un caldo agrio y sabroso.",
+    ko: "흰 병어나 은병어를 통째로 절인 매실과 갓지, 생강과 함께 쪄서 새콤하고 감칠맛 나는 국물을 낸 조주 요리입니다.",
   },
   "teochew::teochew-style roast goose": {
     id: "Hidangan Chaoshan: angsa kepala singa dimasak utuh dalam kaldu kecap berempah yang dipakai berulang; disajikan dengan cuka bawang putih.",
@@ -12408,6 +13974,7 @@ module.exports = {
     zh: "潮汕的卤鹅：狮头鹅整只在反复使用的卤水里慢煨；上桌配蒜泥醋。",
     ja: "潮汕の料理。獅頭鵝を丸ごと、使い継ぐ醤油と香辛料の老湯でゆっくり煮ます。にんにく酢を添えて。",
     es: "Plato de Chaoshan: ganso cabeza de león cocido entero y despacio en un caldo madre reutilizado de soja y especias; con vinagre de ajo.",
+    ko: "사자머리 거위를 거듭 쓰는 간장 향신 마스터 스톡에 통째로 천천히 익힌 차오산 요리로, 마늘 식초를 곁들여 냅니다.",
   },
   "teochew::yusheng (lou hei)": {
     id: "Salad ikan mentah dan sayuran serut yang diaduk beramai-ramai saat Imlek demi kemakmuran; bentuk Singapura modernnya lahir pada 1964.",
@@ -12416,6 +13983,7 @@ module.exports = {
     zh: "农历新年时众人合力捞起的鱼生：生鱼片与各色菜丝，寓意步步高升；今日新加坡的形制成于一九六四年。",
     ja: "旧正月に皆で高く箸を上げて混ぜる、生魚と千切り野菜のサラダ。今日のシンガポールの形は一九六四年に生まれました。",
     es: "Ensalada de pescado crudo y verduras en juliana que se lanza en común en Año Nuevo por la prosperidad; su forma singapurense es de 1964.",
+    ko: "생선회와 채 썬 채소를 설에 다 함께 집어 올려 풍요를 기원하는 샐러드로, 오늘날 싱가포르식은 1964년에 만들어졌습니다.",
   },
   "thai::boat noodles (kuay teow rua)": {
     id: "Sup mi babi atau sapi Thailand yang kuat rasanya; kuahnya gelap dan dikentalkan dengan darah.",
@@ -12424,6 +13992,7 @@ module.exports = {
     zh: "味道极重的泰式船面：猪肉或牛肉汤粉，深色的汤底靠血来收稠。",
     ja: "味の濃いタイの豚または牛の麺スープ。黒っぽい汁は血でとろみをつけます。",
     es: "Sopa tailandesa de fideos con cerdo o ternera, de sabor intenso; su caldo oscuro se espesa con sangre.",
+    ko: "돼지나 소로 낸 진한 태국 국수로, 짙은 국물은 피로 농도를 냅니다.",
   },
   "thai::green curry (gaeng keow wan)": {
     id: "Kari santan dari Thailand tengah, tercatat pertama sekitar 1926; kata \"manis\" dalam namanya menunjuk warnanya yang hijau, bukan rasanya.",
@@ -12432,6 +14001,7 @@ module.exports = {
     zh: "泰国中部的椰浆咖喱，最早的记载约在一九二六年；名字里的「甜」说的是那抹绿，不是味道。",
     ja: "タイ中部のココナッツカレー。記録は一九二六年ごろから。名の「甘い」は緑の色を指し、味のことではありません。",
     es: "Curry de leche de coco del centro de Tailandia, documentado hacia 1926; el «dulce» del nombre alude al color verde, no al sabor.",
+    ko: "1926년경 처음 기록된 중부 태국의 코코넛밀크 카레로, 이름의 '단'은 맛이 아니라 초록빛을 가리킵니다.",
   },
   "thai::jungle curry (gaeng pa)": {
     id: "Kari Thailand dari hutan pedalaman yang sangat pedas dan encer, menurut tradisi memakai daging buruan dan sama sekali tanpa santan.",
@@ -12440,6 +14010,7 @@ module.exports = {
     zh: "内陆林间的泰式丛林咖喱：辣得凶，汤水清；照传统用野味，且断然不加椰浆。",
     ja: "内陸の森のタイのカレー。辛烈で汁気が多く、伝統的に野生の肉を使い、ココナッツミルクは一切入れません。",
     es: "Curry tailandés ardiente y aguado de los bosques del interior, hecho tradicionalmente con caza y notablemente sin leche de coco.",
+    ko: "내륙 숲에서 온 맵고 국물이 묽은 태국 카레로, 전통적으로 야생 고기를 쓰고 코코넛밀크를 넣지 않습니다.",
   },
   "thai::kanom buang": {
     id: "Krep renyah Thailand berbentuk taco dari tepung beras dan kacang hijau, diisi meringue dan taburan manis atau gurih; sejak era Ayutthaya.",
@@ -12448,6 +14019,7 @@ module.exports = {
     zh: "泰式脆薄饼，做成塔可的形状：米粉与绿豆粉调糊，抹蛋白霜，配甜或咸的馅；大城王朝就有。",
     ja: "米粉と緑豆粉で焼くタコス形のタイのパリパリしたクレープ。メレンゲに甘い、または塩味の具をのせます。アユタヤ時代から。",
     es: "Crepe tailandés crujiente en forma de taco, de harina de arroz y judía mungo, con merengue y relleno dulce o salado; de la era de Ayutthaya.",
+    ko: "쌀과 녹두 가루로 부친 타코 모양의 바삭한 태국 전병에 머랭과 달거나 짭짤한 고명을 올리며, 아유타야 시대의 음식입니다.",
   },
   "thai::khanom krok": {
     id: "Hidangan penutup Thailand tradisional dari santan, tepung beras, dan gula, dimasak di wajan bercekung; sudah ada sejak masa Ayutthaya.",
@@ -12456,6 +14028,7 @@ module.exports = {
     zh: "传统泰式甜点：椰浆、米粉与糖倒进带凹槽的铁盘里烤；可追到大城王朝时期。",
     ja: "ココナッツミルク、米粉、砂糖をくぼみのある鉄板で焼く、タイの伝統菓子。アユタヤ時代にまで遡ります。",
     es: "Postre tradicional tailandés de leche de coco, harina de arroz y azúcar cocido en una plancha con hoyos; se remonta al periodo de Ayutthaya.",
+    ko: "코코넛밀크와 쌀가루, 설탕을 움푹한 팬에 부어 익힌 태국 전통 디저트로, 아유타야 시대까지 거슬러 올라갑니다.",
   },
   "thai::khao pad": {
     id: "Nasi goreng Thailand (ejaan RTGS: khao phat).",
@@ -12464,6 +14037,7 @@ module.exports = {
     zh: "泰式炒饭（RTGS 拼作 khao phat）。",
     ja: "タイの炒飯（RTGS 表記では khao phat）。",
     es: "Arroz frito tailandés (transcripción RTGS: khao phat).",
+    ko: "태국식 볶음밥으로, 로마자 표기법으로는 카오팟이라 적습니다.",
   },
   "thai::khao pad sapparod": {
     id: "Nasi goreng nanas Thailand dengan udang, kacang mete, dan bubuk kari; kerap disajikan di dalam nanas yang dikeruk.",
@@ -12472,6 +14046,7 @@ module.exports = {
     zh: "泰式菠萝炒饭：虾仁、腰果与咖喱粉同炒，常盛在挖空的菠萝里上桌。",
     ja: "海老とカシューナッツ、カレー粉で炒めるタイのパイナップル炒飯。くり抜いたパイナップルに盛って出すことも多い。",
     es: "Arroz frito tailandés con piña, gambas, anacardos y curry en polvo; a menudo servido dentro de una piña vaciada.",
+    ko: "새우와 캐슈넛, 카레 가루를 넣은 태국식 파인애플 볶음밥으로, 속을 파낸 파인애플에 담아 내는 경우가 많습니다.",
   },
   "thai::khao soi": {
     id: "Sup mi telur berkuah kari santan dari Thailand utara; dibawa lewat pedagang Muslim Yunnan Chin Haw dari Myanmar.",
@@ -12480,6 +14055,7 @@ module.exports = {
     zh: "泰北的椰浆咖喱鸡蛋面：由从缅甸过来的云南回民「秦霍」商人带入。",
     ja: "タイ北部のココナッツカレーの卵麺スープ。ミャンマーを経て、雲南のムスリム商人チンホーがもたらしました。",
     es: "Sopa de fideos al huevo en curry de coco del norte de Tailandia; la trajeron comerciantes musulmanes yunnaneses chin haw desde Myanmar.",
+    ko: "코코넛 카레 국물에 달걀면을 넣은 북부 태국 국수로, 미얀마를 거쳐 온 진하우 윈난계 무슬림 상인들이 전했습니다.",
   },
   "thai::larb gai": {
     id: "Salad ayam cincang Isan berasal Laos, diaduk dengan jeruk nipis, kecap ikan, cabai, herba, dan beras sangrai tumbuk (khao khua).",
@@ -12488,6 +14064,7 @@ module.exports = {
     zh: "源自老挝的伊善鸡肉碎沙拉：青柠、鱼露、辣椒、香草与炒米粉（khao khua）拌匀。",
     ja: "ラオスに発するイサーンの鶏ひき肉サラダ。ライム、ナンプラー、唐辛子、香草、炒り米の粉（カオクア）で和えます。",
     es: "Ensalada isan de pollo picado de origen laosiano, aliñada con lima, salsa de pescado, chile, hierbas y arroz tostado molido (khao khua).",
+    ko: "라오스에서 온 이싼식 다진 닭 샐러드로, 라임과 피시소스, 고추, 허브에 볶은 쌀가루(카오쿠아)를 넣어 버무립니다.",
   },
   "thai::larb moo": {
     id: "Salad babi cincang Thailand/Laos yang pedas dari Isan, dibumbui jeruk nipis, kecap ikan, cabai, herba, dan bubuk beras sangrai.",
@@ -12496,6 +14073,7 @@ module.exports = {
     zh: "伊善的泰老式辣味猪肉碎沙拉：青柠、鱼露、辣椒、香草与炒米粉调味。",
     ja: "イサーン発、タイ・ラオスの辛い豚ひき肉サラダ。ライム、ナンプラー、唐辛子、香草、炒り米粉で味を決めます。",
     es: "Ensalada picante tailandesa-laosiana de cerdo picado, del Isan, aliñada con lima, salsa de pescado, chile, hierbas y arroz tostado molido.",
+    ko: "이싼에서 온 매콤한 태국·라오스식 다진 돼지고기 샐러드로, 라임과 피시소스, 고추, 허브, 볶은 쌀가루로 버무립니다.",
   },
   "thai::mango sticky rice": {
     id: "Hidangan penutup Thailand: ketan yang dimasak dengan santan manis, ditutup irisan mangga matang segar.",
@@ -12504,6 +14082,7 @@ module.exports = {
     zh: "泰式甜点：糯米用甜椰浆煮透，铺上新鲜熟芒果。",
     ja: "タイの甘味。甘いココナッツミルクで炊いたもち米に、熟したマンゴーをのせます。",
     es: "Postre tailandés: arroz glutinoso cocido en leche de coco endulzada y cubierto de mango maduro fresco.",
+    ko: "달콤한 코코넛밀크로 지은 찹쌀에 잘 익은 생망고를 올려 내는 태국 디저트입니다.",
   },
   "thai::massaman curry": {
     id: "Kari santan Thailand yang lembut dan kaya, berasal Persia-Muslim, dibumbui kapulaga, kayu manis, dan cengkeh; nama dari \"mosalmân\".",
@@ -12512,6 +14091,7 @@ module.exports = {
     zh: "泰式马沙文咖喱：温和而醇厚的椰浆咖喱，源自波斯穆斯林，用豆蔻、肉桂与丁香；名字来自波斯语 mosalmân。",
     ja: "ペルシア系ムスリムに発する、まろやかで濃厚なタイのココナッツカレー。カルダモン、シナモン、クローブ。名はペルシア語のモサルマーンから。",
     es: "Curry de coco tailandés suave y rico, de origen persa-musulmán, con cardamomo, canela y clavo; el nombre viene del persa «mosalmân».",
+    ko: "페르시아 무슬림에서 온 순하고 진한 태국 코코넛 카레로, 카르다몸과 계피, 정향을 넣으며 이름은 페르시아어 '무슬림'에서 왔습니다.",
   },
   "thai::moo ping": {
     id: "Sate babi Thailand yang dimarinasi lalu dipanggang arang, disantap dengan ketan; menyebar sejak 1952 lewat gerobak yang dirancang ulang.",
@@ -12520,6 +14100,7 @@ module.exports = {
     zh: "泰式炭烤猪肉串：腌过再上炭火，配糯米饭；一九五二年起靠重新设计的摊车传开。",
     ja: "漬け込んだ豚肉を炭火で焼くタイの串。もち米と一緒に食べます。一九五二年、新しい屋台車とともに広まりました。",
     es: "Brochetas tailandesas de cerdo marinado a la brasa, comidas con arroz glutinoso; se difundieron desde 1952 con carritos rediseñados.",
+    ko: "양념한 돼지고기를 숯불에 구운 태국식 꼬치로 찰밥과 함께 길거리에서 먹으며, 1952년 개량된 노점 수레로 널리 퍼졌습니다.",
   },
   "thai::nam tok": {
     id: "Salad daging panggang Isan/Laos yang pedas (versi babi: moo nam tok, versi sapi: nuea yang nam tok).",
@@ -12528,6 +14109,7 @@ module.exports = {
     zh: "伊善／老挝的辣味烤肉沙拉（猪肉版叫 moo nam tok，牛肉版叫 nuea yang nam tok）。",
     ja: "イサーン／ラオスの辛い焼き肉サラダ（豚はムー・ナムトック、牛はヌア・ヤーン・ナムトック）。",
     es: "Ensalada picante isan-laosiana de carne a la brasa (versión de cerdo: moo nam tok; de ternera: nuea yang nam tok).",
+    ko: "이싼·라오스식 매운 구운 고기 샐러드로, 돼지고기는 무 남똑, 소고기는 느아 양 남똑이라 부릅니다.",
   },
   "thai::pad kee mao": {
     id: "Kwetiau lebar Thailand yang ditumis pedas dengan kemangi suci dan cabai.",
@@ -12536,6 +14118,7 @@ module.exports = {
     zh: "泰式辣炒宽粉：河粉与圣罗勒、辣椒同炒。",
     ja: "ホーリーバジルと唐辛子で辛く炒めた、タイの太い米麺。",
     es: "Fideos de arroz anchos salteados picantes a la tailandesa con albahaca sagrada y chile.",
+    ko: "홀리바질과 고추를 넣어 넓적한 쌀국수를 맵게 볶아 낸 태국 요리입니다.",
   },
   "thai::pad krapow moo": {
     id: "Tumis Thailand dari babi cincang dengan kemangi suci, bawang putih, dan cabai, disiram di atas nasi.",
@@ -12544,6 +14127,7 @@ module.exports = {
     zh: "泰式打抛猪肉：猪肉碎与圣罗勒、蒜、辣椒快炒，浇在白饭上。",
     ja: "豚ひき肉をホーリーバジル、にんにく、唐辛子で炒め、ご飯にかけるタイの一皿。",
     es: "Salteado tailandés de cerdo picado con albahaca sagrada, ajo y chiles, servido sobre arroz.",
+    ko: "다진 돼지고기를 홀리바질과 마늘, 고추에 볶아 밥에 올려 내는 태국 요리입니다.",
   },
   "thai::pad see ew": {
     id: "Kwetiau lebar Thailand yang ditumis dengan kecap asin, kailan, dan telur; dibawa perantau Tionghoa Teochew dari Guangdong.",
@@ -12552,6 +14136,7 @@ module.exports = {
     zh: "泰式炒宽粉：河粉与酱油、芥兰、鸡蛋同炒；由广东来的潮州移民带过去。",
     ja: "醤油でキャベツ状の芥藍と卵とともに炒めるタイの太い米麺。広東から渡った潮州系移民がもたらしました。",
     es: "Fideos de arroz anchos salteados a la tailandesa con salsa de soja, brécol chino y huevo; los trajeron inmigrantes teochew de Cantón.",
+    ko: "간장에 넓적한 쌀국수를 볶아 카이란과 달걀을 넣은 태국 요리로, 광둥에서 온 조주계 화교 이민자들이 전했습니다.",
   },
   "thai::pad thai": {
     id: "Mi beras goreng Thailand dengan telur, tahu, asam jawa, dan kacang tanah; muncul pada 1930-40-an di masa PM Plaek Phibunsongkhram.",
@@ -12560,6 +14145,7 @@ module.exports = {
     zh: "泰式炒河粉：米粉与蛋、豆腐、亚参、花生同炒；一九三〇至四〇年代在銮披汶总理任内成形。",
     ja: "卵、豆腐、タマリンド、落花生を合わせたタイの焼きビーフン。一九三〇〜四〇年代、ピブーンソンクラーム首相の時代に生まれました。",
     es: "Fideos de arroz salteados tailandeses con huevo, tofu, tamarindo y cacahuete; surgieron en los años treinta y cuarenta con Phibunsongkhram.",
+    ko: "달걀과 두부, 타마린드, 땅콩을 넣어 볶은 태국 쌀국수로, 1930~40년대 쁠랙 피분송크람 총리 시절에 만들어졌습니다.",
   },
   "thai::panang curry": {
     id: "Kari santan Thailand tengah yang kental, kaya, dan sedikit manis; sudah tercatat dalam buku masak Tam Raa Kap Khao terbitan 1889.",
@@ -12568,6 +14154,7 @@ module.exports = {
     zh: "泰国中部的椰浆咖喱：稠、厚、略带甜味；早在一八八九年的食谱 Tam Raa Kap Khao 里就有记载。",
     ja: "とろみが強く濃厚で、ほのかに甘いタイ中部のココナッツカレー。一八八九年の料理書 Tam Raa Kap Khao にすでに記されています。",
     es: "Curry de coco espeso, rico y ligeramente dulce del centro de Tailandia; documentado ya en el recetario Tam Raa Kap Khao de 1889.",
+    ko: "중부 태국에서 온 되직하고 진하며 은은히 달콤한 코코넛밀크 카레로, 1889년 요리책 탐라 깝 카오에 이미 기록돼 있습니다.",
   },
   "thai::red curry (gaeng phed)": {
     id: "Kari Thailand dari pasta cabai merah yang direbus dalam santan bersama daging atau tahu; merahnya datang dari cabai rawit merah kering.",
@@ -12576,6 +14163,7 @@ module.exports = {
     zh: "泰式红咖喱：红辣椒酱底，与肉或豆腐同煮在椰浆里；那抹红来自晒干的红指天椒。",
     ja: "赤唐辛子ペーストをココナッツミルクで肉や豆腐とともに煮たタイのカレー。赤い色は乾燥した赤いスパー種の唐辛子から。",
     es: "Curry tailandés de pasta de chile rojo cocido en leche de coco con carne o tofu; el color viene de los chiles rojos secos tipo espolón.",
+    ko: "붉은 커리 페이스트를 코코넛밀크에 끓여 고기나 두부를 넣은 태국 카레로, 붉은빛은 말린 홍고추에서 옵니다.",
   },
   "thai::roti gluay": {
     id: "Panekuk kaki lima Thailand: adonan digoreng setipis kertas, diisi pisang dan susu kental manis; saduran roti pipih India-Muslim.",
@@ -12584,6 +14172,7 @@ module.exports = {
     zh: "泰国街头的煎饼：面团摊得纸一样薄下锅炸，包香蕉与炼奶；改自印度穆斯林的薄饼。",
     ja: "タイの屋台の薄焼き。紙のように薄く伸ばした生地を揚げ、バナナと練乳を包みます。インド系ムスリムのパンを翻案したもの。",
     es: "Crepe callejero tailandés: masa frita finísima rellena de plátano y leche condensada; adaptación del pan plano indomusulmán.",
+    ko: "종잇장처럼 얇게 편 반죽을 튀겨 바나나와 연유를 채운 태국 길거리 전병으로, 인도·무슬림 플랫브레드에서 왔습니다.",
   },
   "thai::som tam": {
     id: "Salad pedas Thailand dari pepaya muda yang diserut lalu ditumbuk dengan cabai, jeruk nipis, dan kecap ikan; namanya berarti \"tumbuk asam\".",
@@ -12592,6 +14181,7 @@ module.exports = {
     zh: "泰式辣木瓜沙拉：青木瓜刨丝，与辣椒、青柠、鱼露一同舂捣；名字的意思是「舂酸」，根在老挝与伊善。",
     ja: "青パパイヤを千切りにし、唐辛子、ライム、ナンプラーと搗いたタイの辛いサラダ。名は「酸っぱく搗く」の意で、ラオス・イサーンに根があります。",
     es: "Ensalada picante tailandesa de papaya verde rallada y majada con chile, lima y salsa de pescado; su nombre significa «majado agrio».",
+    ko: "덜 익은 파파야를 채 썰어 고추와 라임, 피시소스와 함께 빻은 매운 태국 샐러드로, 이름은 '새콤하게 빻다'라는 뜻이며 라오스·이싼에 뿌리를 둡니다.",
   },
   "thai::thai beef noodle": {
     id: "Sup mi beras Thailand dalam kaldu sapi berempah yang direbus lama, dengan irisan daging dan bakso sapi; jajanan jalanan Bangkok.",
@@ -12600,6 +14190,7 @@ module.exports = {
     zh: "泰式牛肉汤粉：久炖的香料牛骨汤，配牛肉片与牛肉丸；曼谷街头的常见吃食。",
     ja: "長時間煮出した香辛料入りの牛スープに米麺を入れ、牛肉のスライスと肉団子をのせたタイの一杯。バンコクの屋台の定番。",
     es: "Sopa tailandesa de fideos de arroz en caldo de ternera especiado y cocido largo, con lonchas y albóndigas; comida callejera de Bangkok.",
+    ko: "오래 끓인 향신 소고기 국물에 쌀국수와 저민 소고기, 소고기 완자를 넣은 방콕의 대표 길거리 음식입니다.",
   },
   "thai::thai chicken rice (khao man gai)": {
     id: "Ayam rebus Thai di atas nasi berlemak ayam dengan saus cocol; bentuk lokal nasi ayam Hainan yang dibawa para perantau Hainan.",
@@ -12608,6 +14199,7 @@ module.exports = {
     zh: "泰式白斩鸡配鸡油饭与蘸酱；这是海南移民带来的海南鸡饭在当地的形态。",
     ja: "茹で鶏を鶏油で炊いた米にのせ、たれを添えるタイの料理。海南出身の移民が伝えた海南鶏飯の現地版。",
     es: "Pollo escalfado tailandés sobre arroz cocido en grasa de pollo con salsa para mojar; forma local del arroz hainanés que trajeron migrantes.",
+    ko: "삶은 닭을 닭기름 밥에 올리고 소스를 곁들이는 태국식으로, 하이난 이민자들이 전한 하이난 치킨라이스의 현지 형태입니다.",
   },
   "thai::thai coconut ice cream": {
     id: "Es krim santan Thai tanpa susu sapi, dijual dari gerobak kaki lima dan disajikan dalam batok kelapa atau roti lembut dengan taburan kacang.",
@@ -12616,6 +14208,7 @@ module.exports = {
     zh: "泰式无乳椰奶冰淇淋，由街头小车售卖，盛在椰壳里或夹进松软的面包，撒上花生等配料。",
     ja: "乳を使わないタイのココナッツミルクのアイス。屋台の車で売られ、ヤシの殻や柔らかいパンに盛り、ピーナッツなどをのせる。",
     es: "Helado tailandés de leche de coco sin lácteos, vendido en carritos y servido en una cáscara de coco o un bollo blando con cacahuetes.",
+    ko: "코코넛밀크로 만든 유제품 없는 태국식 아이스크림으로, 길거리 수레에서 코코넛 껍질이나 부드러운 빵에 담아 땅콩 같은 고명과 함께 팝니다.",
   },
   "thai::thai fishcake (tod mun pla)": {
     id: "Perkedel ikan goreng Thailand dari ikan giling (menurut tradisi ikan belida).",
@@ -12624,6 +14217,7 @@ module.exports = {
     zh: "泰式炸鱼饼，用鱼肉打成的鱼胶（照传统该用七星刀鱼）。",
     ja: "すり身で作るタイの揚げ魚のさつま揚げ（伝統的にはナイフフィッシュを使います）。",
     es: "Pastelillos de pescado fritos tailandeses de pescado picado (tradicionalmente pez cuchillo payaso).",
+    ko: "다진 생선살로 만들어 튀긴 태국식 어묵으로, 전통적으로 나이프피시를 씁니다.",
   },
   "thai::thai milk tea (cha yen)": {
     id: "Minuman es Thailand (\"cha yen\" berarti \"teh dingin\").",
@@ -12632,6 +14226,7 @@ module.exports = {
     zh: "泰式冰饮（「cha yen」就是「冷茶」的意思）。",
     ja: "タイの冷たい飲み物（「チャーイエン」は「冷たい茶」の意）。",
     es: "Bebida tailandesa con hielo («cha yen» significa «té frío»).",
+    ko: "'차옌'은 '찬 차'라는 뜻으로, 얼음을 넣어 내는 태국의 차가운 음료입니다.",
   },
   "thai::tom kha gai": {
     id: "Sup ayam Thailand yang asam pedas dalam santan, diharumkan lengkuas, serai, dan daun jeruk purut.",
@@ -12640,6 +14235,7 @@ module.exports = {
     zh: "泰式酸辣椰浆鸡汤，用南姜、香茅与青柠叶提香。",
     ja: "ココナッツミルク仕立てのタイの酸辣鶏スープ。ナンキョウ、レモングラス、こぶみかんの葉で香りを立てます。",
     es: "Sopa tailandesa agripicante de pollo en leche de coco, aromatizada con galanga, citronela y hojas de lima kaffir.",
+    ko: "코코넛밀크로 낸 태국의 맵고 새콤한 닭 수프로, 갈랑갈과 레몬그라스, 라임잎으로 향을 냅니다.",
   },
   "thai::tom yum goong": {
     id: "Sup udang Thailand yang asam pedas dengan serai, lengkuas, dan jeruk purut; masuk daftar Warisan Budaya Takbenda UNESCO pada 2024.",
@@ -12648,6 +14244,7 @@ module.exports = {
     zh: "泰式酸辣虾汤：香茅、南姜与青柠叶提味；二〇二四年列入联合国教科文组织非物质文化遗产名录。",
     ja: "レモングラス、ナンキョウ、こぶみかんを効かせたタイの酸辣海老スープ。二〇二四年にユネスコ無形文化遺産に登録されました。",
     es: "Sopa tailandesa agripicante de gambas con citronela, galanga y lima kaffir; inscrita en el patrimonio inmaterial de la Unesco en 2024.",
+    ko: "레몬그라스와 갈랑갈, 카피르 라임을 넣은 태국의 맵고 새콤한 새우탕으로, 2024년 유네스코 무형문화유산에 올랐습니다.",
   },
   "turkish::adana kebab": {
     id: "Kebab domba pedas yang dicincang tangan lalu ditusuk dan dipanggang; dinamai dari Adana, Turki, terdaftar sebagai indikasi geografis 2005.",
@@ -12656,6 +14253,7 @@ module.exports = {
     zh: "手工剁馅的辣羊肉串：捏在扁签上炙烤；名字取自土耳其的阿达纳，二〇〇五年注册为地理标志。",
     ja: "手で刻んだ羊肉の辛いケバブを串につけて焼きます。トルコのアダナにちなむ名で、二〇〇五年に地理的表示に登録されました。",
     es: "Kebab picante de cordero picado a mano, ensartado y asado; lleva el nombre de Adana, Turquía, y es indicación geográfica desde 2005.",
+    ko: "손으로 다진 양고기를 매콤하게 양념해 꼬치에 붙여 구운 요리로, 튀르키예 아다나에서 이름을 땄고 2005년 지리적 표시로 등록됐습니다.",
   },
   "turkish::ayran": {
     id: "Minuman Turki yang dingin dan gurih dari yogurt, air, dan garam; tercatat dalam kamus Turki karya al-Kashgari sekitar 1072.",
@@ -12664,6 +14262,7 @@ module.exports = {
     zh: "突厥人的咸味冷饮：酸奶、水与盐调成；约一〇七二年，喀什噶里的突厥语词典里就有记载。",
     ja: "ヨーグルト、水、塩で作るテュルクの冷たい塩味の飲み物。一〇七二年ごろのカーシュガリーのテュルク語辞典に見えます。",
     es: "Bebida túrquica fría y salada de yogur, agua y sal; atestiguada en el diccionario turco de al-Kashgari hacia 1072.",
+    ko: "요구르트와 물, 소금으로 만든 차갑고 짭짤한 튀르크 음료로, 1072년경 카슈가리의 튀르크어 사전에 나옵니다.",
   },
   "turkish::baklava turkish": {
     id: "Pastri kaya dari lapisan filo berisi cincangan kacang dan direndam sirop; disempurnakan di dapur Utsmaniyah.",
@@ -12672,6 +14271,7 @@ module.exports = {
     zh: "层层酥皮夹碎坚果、浸透糖浆的甜点；在奥斯曼的厨房里臻于完善。",
     ja: "フィロの層に刻んだ木の実を挟み、シロップを染み込ませた濃厚な菓子。オスマンの厨房で洗練されました。",
     es: "Dulce rico de capas de filo con frutos secos picados y empapado en almíbar; perfeccionado en las cocinas otomanas.",
+    ko: "필로를 켜켜이 쌓고 다진 견과를 채워 시럽에 적신 진한 페이스트리로, 오스만 주방에서 완성됐습니다.",
   },
   "turkish::borek": {
     id: "Pastri isi dari lembaran yufka tipis berlapis keju, daging, atau sayuran hijau; berakar pada tradisi roti pipih Turki di Asia Tengah.",
@@ -12680,6 +14280,7 @@ module.exports = {
     zh: "薄如纸的 yufka 皮层层相叠，夹奶酪、肉或青菜的烤饼；根在中亚突厥人的薄饼传统。",
     ja: "薄いユフカの生地を重ね、チーズや肉、青菜を包んで焼く詰め物入りの菓子。中央アジアのテュルクの薄焼きに根があります。",
     es: "Empanada de hojas finas de yufka en capas con queso, carne o verduras; enraizada en la tradición túrquica centroasiática del pan plano.",
+    ko: "얇은 유프카 반죽에 치즈와 고기, 나물을 켜켜이 넣어 만든 페이스트리로, 중앙아시아 튀르크의 납작빵 전통에 뿌리를 둡니다.",
   },
   "turkish::cacık": {
     id: "Hidangan Turki dari yogurt saring dengan mentimun, bawang putih, dan herba; kerap diencerkan air dan disajikan sebagai sup dingin.",
@@ -12688,6 +14289,7 @@ module.exports = {
     zh: "土耳其的酸奶菜：滤过的酸奶拌黄瓜、蒜与香草；常兑水稀释，当冷汤喝。",
     ja: "水切りヨーグルトにきゅうり、にんにく、香草を合わせるトルコの一品。水でのばして冷たいスープにすることもよくあります。",
     es: "Plato turco de yogur colado con pepino, ajo y hierbas; a menudo se aligera con agua y se sirve como sopa fría.",
+    ko: "물기를 뺀 요구르트에 오이와 마늘, 허브를 넣은 튀르키예 요리로, 흔히 물을 타 차가운 수프로 냅니다.",
   },
   "turkish::döner kebab": {
     id: "Hidangan Turki: daging berbumbu ditumpuk dan dipanggang di tusuk putar; lahir di Bursa Utsmaniyah pada abad ke-19.",
@@ -12696,6 +14298,7 @@ module.exports = {
     zh: "土耳其的旋转烤肉：调味的肉一层层叠在立式转叉上烤；十九世纪生于奥斯曼的布尔萨。",
     ja: "味つけした肉を積み上げ、回転する串で焼くトルコの料理。十九世紀、オスマンのブルサに生まれました。",
     es: "Plato turco de carne sazonada apilada y asada en espetón vertical; nació en la Bursa otomana del siglo XIX.",
+    ko: "양념한 고기를 층층이 쌓아 세로 회전 꼬치에 구운 튀르키예 요리로, 19세기 오스만의 부르사에서 비롯됐습니다.",
   },
   "turkish::hünkar beğendi": {
     id: "Hidangan Utsmaniyah bernama \"Kesukaan Sultan\": semur domba di atas pure terung bechamel yang lembut, resep istana Turki yang tersohor.",
@@ -12704,6 +14307,7 @@ module.exports = {
     zh: "奥斯曼的「苏丹的欢喜」：炖羊肉铺在白酱茄泥上，是土耳其宫廷里传下的名方。",
     ja: "オスマンの「スルタンの悦び」。羊の煮込みを、ベシャメルを合わせたなめらかな茄子のピュレにのせた、宮廷の名高い一皿です。",
     es: "Plato otomano «Delicia del Sultán»: estofado de cordero sobre puré cremoso de berenjena y bechamel, célebre receta de palacio.",
+    ko: "크리미한 베샤멜 가지 퓌레 위에 양고기 스튜를 올린 오스만 요리로 '술탄의 기쁨'이라 불리며, 튀르키예 궁중 요리로 이름났습니다.",
   },
   "turkish::imam bayildi": {
     id: "Hidangan Utsmaniyah: terung utuh diisi bawang bombai, bawang putih, dan tomat lalu direbus dalam minyak zaitun; \"imam pun pingsan\".",
@@ -12712,6 +14316,7 @@ module.exports = {
     zh: "奥斯曼时期的菜：整只茄子塞进洋葱、蒜与番茄，用橄榄油慢煨；名字的意思是「伊玛目晕倒了」。",
     ja: "オスマン期の料理。丸ごとの茄子に玉ねぎ、にんにく、トマトを詰め、オリーブ油で煮ます。名は「イマームが気を失った」。",
     es: "Plato de época otomana: berenjena entera rellena de cebolla, ajo y tomate y guisada en aceite de oliva; «el imán se desmayó».",
+    ko: "가지를 통째로 양파와 마늘, 토마토로 채워 올리브유에 익힌 오스만 시대 요리로, 이름은 '이맘이 기절했다'는 뜻입니다.",
   },
   "turkish::iskender kebab": {
     id: "Hidangan Turki: irisan daging doner di atas pita dengan saus tomat, yogurt, dan mentega leleh; ciptaan Iskender Efendi di Bursa, 1867.",
@@ -12720,6 +14325,7 @@ module.exports = {
     zh: "土耳其的伊斯坎德尔烤肉：削下的旋转烤肉铺在饼上，浇番茄汁、酸奶与融化的黄油；一八六七年由伊斯坎德尔先生在布尔萨创出。",
     ja: "削いだドネル肉をピタにのせ、トマトソース、ヨーグルト、溶かしバターをかけるトルコの料理。一八六七年、ブルサでイスケンデル氏が考案。",
     es: "Plato turco de lonchas de döner sobre pita con salsa de tomate, yogur y mantequilla fundida; creado por İskender Efendi en Bursa en 1867.",
+    ko: "저민 되네르 고기를 피타에 올리고 토마토소스와 요구르트, 녹인 버터를 끼얹은 튀르키예 요리로, 1867년 부르사의 이스켄데르 에펜디가 만들었습니다.",
   },
   "turkish::iç pilav": {
     id: "Nasi pilaf Turki dengan kacang pinus, kismis, dan rempah; hidangan istana Utsmaniyah yang jadi lauk atau isian unggas dan domba.",
@@ -12728,6 +14334,7 @@ module.exports = {
     zh: "土耳其的抓饭：米与松子、无核小葡萄干、香料同焖；这是奥斯曼宫廷菜，既当配菜，也拿来填禽与羊。",
     ja: "松の実、カラント、香辛料を合わせるトルコのピラフ。オスマン宮廷の料理で、付け合わせにも家禽や仔羊の詰め物にも使います。",
     es: "Pilaf turco con piñones, pasas de Corinto y especias; plato de palacio otomano que sirve de guarnición o relleno de aves y cordero.",
+    ko: "잣과 커런트, 향신료를 넣은 튀르키예식 필라프로, 오스만 궁중 요리이며 곁들임으로 내거나 가금류와 양고기의 소로 씁니다.",
   },
   "turkish::kuru fasulye": {
     id: "Semur Turki dari kacang putih yang direbus bersama bawang bombai, pasta tomat, dan minyak zaitun; kerap disebut hidangan nasional.",
@@ -12736,6 +14343,7 @@ module.exports = {
     zh: "土耳其的白豆炖锅：白豆与洋葱、番茄酱或番茄汁、橄榄油同煨；常被称作土耳其的国菜。",
     ja: "白いんげんを玉ねぎ、トマトペーストかソース、オリーブ油で煮込むトルコの料理。トルコの国民食とも呼ばれます。",
     es: "Guiso turco de alubias blancas con cebolla, concentrado o salsa de tomate y aceite de oliva; suele considerarse plato nacional de Turquía.",
+    ko: "흰콩을 양파와 토마토 페이스트나 소스, 올리브유에 끓인 튀르키예 스튜로, 흔히 튀르키예의 국민 음식으로 꼽힙니다.",
   },
   "turkish::köfte": {
     id: "Bola atau perkedel daging giling Turki yang dibumbui, biasanya domba, sapi, atau campuran keduanya, diberi bawang bombai dan rempah.",
@@ -12744,6 +14352,7 @@ module.exports = {
     zh: "土耳其的肉丸或肉饼：肉糜（多为羊肉、牛肉或两者混合）调洋葱与香料。",
     ja: "味つけした挽肉の団子やパティ。多くは羊肉か牛肉、あるいはその合い挽きで、玉ねぎと香辛料を加えます。",
     es: "Albóndigas o hamburguesitas turcas de carne picada sazonada, normalmente cordero, ternera o ambas, con cebolla y especias.",
+    ko: "대개 양이나 소, 또는 둘을 섞은 다진 고기에 양파와 향신료로 간해 빚은 튀르키예의 완자나 패티입니다.",
   },
   "turkish::künefe": {
     id: "Hidangan penutup Turki yang disajikan hangat: adonan kadayif berserat berlapis keju leleh tawar, dipanggang renyah lalu direndam sirop gula.",
@@ -12752,6 +14361,7 @@ module.exports = {
     zh: "土耳其的热甜点：细丝面 kadayıf 夹一层无盐的融化奶酪，烤到酥脆再浇透糖浆。",
     ja: "温かいトルコの菓子。細い糸状のカダイフ生地に無塩の溶けるチーズを挟み、香ばしく焼いてシロップを注ぎます。",
     es: "Postre turco servido caliente: masa en hebras kadayıf con queso fundente sin sal, horneada crujiente y empapada en almíbar.",
+    ko: "가늘게 뽑은 카다이프 반죽 사이에 무염 치즈를 넣어 바삭하게 굽고 설탕 시럽에 적신 튀르키예의 따뜻한 디저트입니다.",
   },
   "turkish::lahmacun": {
     id: "Roti pipih Turki yang tipis, ditutup daging cincang berempah; namanya berasal dari bahasa Arab \"lahm bi-ajin\", daging dengan adonan.",
@@ -12760,6 +14370,7 @@ module.exports = {
     zh: "土耳其的薄饼：面上铺香料肉糜；名字出自阿拉伯语的 lahm bi-ajin，「肉配面团」。",
     ja: "香辛料入りの挽肉をのせたトルコの薄い焼きパン。名はアラビア語の「ラフム・ビ・アジン（生地の上の肉）」から。",
     es: "Pan plano turco muy fino cubierto de carne picada especiada; su nombre viene del árabe «lahm bi-ajin», carne con masa.",
+    ko: "향신 다진 고기를 올려 구운 얇은 튀르키예 플랫브레드로, 이름은 아랍어 '라흠 비아진'(반죽 위의 고기)에서 왔습니다.",
   },
   "turkish::lokma": {
     id: "Bola adonan beragi yang digoreng lalu direndam sirop atau madu; dari luqmat al-qadi Arab abad pertengahan, diserap istana Utsmaniyah.",
@@ -12768,6 +14379,7 @@ module.exports = {
     zh: "发面小球下油锅炸，再泡进糖浆或蜂蜜；源自中世纪阿拉伯的 luqmat al-qadi，后为奥斯曼宫廷所纳。",
     ja: "発酵生地の団子を揚げ、甘いシロップか蜂蜜に浸した菓子。中世アラブのルクマト・アル＝カーディーに発し、オスマン宮廷が取り入れました。",
     es: "Bolitas de masa con levadura fritas y empapadas en almíbar o miel; del árabe medieval luqmat al-qadi, adoptado por la corte otomana.",
+    ko: "이스트로 부풀린 반죽을 공 모양으로 튀겨 시럽이나 꿀에 적신 과자로, 중세 아랍의 루크마트 알카디에서 오스만 궁정이 받아들였습니다.",
   },
   "turkish::manti": {
     id: "Pangsit Turki kecil berisi daging domba atau sapi berbumbu, disajikan dalam yogurt berbawang putih.",
@@ -12776,6 +14388,7 @@ module.exports = {
     zh: "土耳其的小饺子：馅是调过味的羊肉或牛肉，浇蒜香酸奶。",
     ja: "味つけした羊肉や牛肉を包んだトルコの小さな餃子。にんにく風味のヨーグルトをかけて供します。",
     es: "Pequeñas empanadillas turcas rellenas de cordero o ternera especiados, servidas en yogur con ajo.",
+    ko: "양념한 양이나 소고기를 채운 작은 튀르키예식 만두로, 마늘 요구르트를 곁들여 냅니다.",
   },
   "turkish::meze platter turkish": {
     id: "Pilihan hidangan pembuka kecil Turki yang dibagi bersama sebelum atau saat minum raki; kata meze berasal dari bahasa Persia maze, rasa.",
@@ -12784,6 +14397,7 @@ module.exports = {
     zh: "土耳其的小前菜拼盘：喝拉克酒之前或之间共享；meze 这个词出自波斯语的 maze，「滋味」。",
     ja: "ラクの前や合間に分け合うトルコの小さな前菜の数々。メゼの語はペルシア語のマゼ「味」に由来します。",
     es: "Selección turca de pequeños entrantes para compartir antes o con el rakı; la palabra viene del persa maze, «gusto».",
+    ko: "라크와 함께, 또는 그에 앞서 내는 튀르키예의 작은 나눔 전채 모음으로, 이름은 '맛'을 뜻하는 페르시아어 마제에서 왔습니다.",
   },
   "turkish::pide": {
     id: "Roti pipih Turki berbentuk perahu yang dipanggang bersama taburan seperti keju, daging cincang, atau telur; kerap disebut \"pizza Turki\".",
@@ -12792,6 +14406,7 @@ module.exports = {
     zh: "土耳其的船形烤饼：面上放奶酪、肉糜或鸡蛋一同入炉；常被叫作「土耳其披萨」。",
     ja: "舟形をしたトルコの焼きパン。チーズ、挽肉、卵などをのせて焼き、「トルコのピッツァ」とも呼ばれます。",
     es: "Pan plano turco con forma de barca horneado con ingredientes como queso, carne picada o huevo; suelen llamarlo «pizza turca».",
+    ko: "치즈나 다진 고기, 달걀 같은 고명을 올려 구운 배 모양의 튀르키예 플랫브레드로, '튀르키예식 피자'라 불리기도 합니다.",
   },
   "turkish::rakı": {
     id: "Arak nasional Turki beraroma adas manis, disuling dua kali dari ampas anggur; ia berubah putih susu begitu diberi air.",
@@ -12800,6 +14415,7 @@ module.exports = {
     zh: "土耳其的国酒：以葡萄渣二次蒸馏的茴香酒；一兑水，酒就变作乳白色。",
     ja: "トルコの国民酒。葡萄の搾りかすから二度蒸留したアニス酒で、水を注ぐと乳白色に濁ります。",
     es: "Aguardiente nacional turco anisado, destilado dos veces de orujo de uva; al añadir agua se vuelve blanco lechoso.",
+    ko: "포도 찌꺼기를 두 번 증류해 아니스로 향을 낸 튀르키예의 국민 술로, 물을 부으면 뽀얗게 흐려집니다.",
   },
   "turkish::shish kebab": {
     id: "Hidangan Turki berupa dadu daging, menurut tradisi domba, yang ditusuk lalu dipanggang; sis berarti tusuk dan kebap daging panggang.",
@@ -12808,6 +14424,7 @@ module.exports = {
     zh: "土耳其的串烤：肉切丁（照传统用羊肉）串起来炙烤；名字由 şiş（签子）与 kebap（烤肉）合成。",
     ja: "角切りの肉、伝統では羊肉を串で焼くトルコの料理。名はシシ（串）とケバプ（焼いた肉）から成ります。",
     es: "Plato turco de dados de carne, tradicionalmente cordero, ensartados y asados; el nombre une şiş (brocheta) y kebap (carne asada).",
+    ko: "전통적으로 양고기를 깍둑 썰어 꼬치에 꿰어 구운 튀르키예 요리로, 이름은 '시시'(꼬치)와 '케밥'(구운 고기)을 합친 것입니다.",
   },
   "turkish::simit": {
     id: "Roti Turki berbentuk cincin yang berbalut wijen, berakar Bizantium pada kollikion abad ke-9.",
@@ -12816,6 +14433,7 @@ module.exports = {
     zh: "土耳其的芝麻圈面包：根在拜占庭，可追到九世纪的 kollikion。",
     ja: "胡麻をまぶした輪形のトルコのパン。九世紀のコリキオンに遡るビザンツの系譜をもちます。",
     es: "Pan turco en forma de aro cubierto de sésamo, con raíces bizantinas en el kollikion del siglo IX.",
+    ko: "겉에 참깨를 묻힌 고리 모양의 튀르키예 빵으로, 9세기 콜리키온이라는 비잔틴 빵에 뿌리를 둡니다.",
   },
   "turkish::su böreği": {
     id: "Borek Turki berlapis yang lembaran yufkanya direbus lebih dulu sebelum dipanggang, diisi keju putih dan peterseli.",
@@ -12824,6 +14442,7 @@ module.exports = {
     zh: "土耳其的水馅饼：yufka 皮先下水煮过再入炉，馅是白奶酪与欧芹。",
     ja: "焼く前にユフカの生地を茹でるトルコの重ねボレク。白チーズとパセリを詰めます。",
     es: "Börek turco en capas cuyas hojas de yufka se hierven antes de hornear, relleno de queso blanco y perejil.",
+    ko: "유프카를 삶은 뒤 구워 내는 튀르키예의 층 뵈렉으로, 흰 치즈와 파슬리를 채웁니다.",
   },
   "turkish::turkish coffee": {
     id: "Kopi giling halus tanpa saring yang direbus perlahan dalam cezve; tradisi Utsmaniyah sejak abad ke-16, masuk daftar UNESCO pada 2013.",
@@ -12832,6 +14451,7 @@ module.exports = {
     zh: "细磨不过滤的咖啡，在长柄小壶 cezve 里慢慢煮；这是十六世纪以来的奥斯曼传统，二〇一三年列入教科文组织名录。",
     ja: "細かく挽いた粉をチェズヴェで静かに煮出す濾さないコーヒー。十六世紀からのオスマンの伝統で、二〇一三年にユネスコに登録。",
     es: "Café molido fino y sin filtrar cocido despacio en un cezve; tradición otomana desde el siglo XVI, en la lista de la Unesco desde 2013.",
+    ko: "곱게 간 원두를 제즈베에 끓여 거르지 않고 내는 커피로, 16세기부터 이어진 오스만의 전통이며 2013년 유네스코에 등재됐습니다.",
   },
   "turkish::turkish delight": {
     id: "Manisan Turki yang kenyal dari gel pati dan gula, kerap berisi kacang atau air mawar; bentuk modernnya disempurnakan di Istanbul abad ke-18.",
@@ -12840,6 +14460,7 @@ module.exports = {
     zh: "土耳其软糖：淀粉与糖熬成的胶质，常掺坚果或玫瑰水；今日的样子成于十八世纪的伊斯坦布尔。",
     ja: "澱粉と砂糖で作る弾力のあるトルコの菓子。木の実やローズウォーターを加えます。今の形は十八世紀のイスタンブールで整いました。",
     es: "Confite turco correoso de gel de almidón y azúcar, con frutos secos o agua de rosas; su forma actual nació en el Estambul del XVIII.",
+    ko: "전분과 설탕을 굳혀 흔히 견과나 장미수를 넣은 쫄깃한 튀르키예 과자로, 18세기 이스탄불에서 지금의 형태로 다듬어졌습니다.",
   },
   "turkish::turkish tea (çay)": {
     id: "Teh hitam pekat yang diseduh dalam teko ganda bersusun dan disajikan dalam gelas berbentuk tulip.",
@@ -12848,6 +14469,7 @@ module.exports = {
     zh: "浓红茶：用上下两层的双层壶煮，盛在郁金香形的小玻璃杯里。",
     ja: "二段重ねのポットで淹れる濃い紅茶。チューリップ形のグラスで供されます。",
     es: "Té negro fuerte preparado en una tetera doble apilada y servido en vasos con forma de tulipán.",
+    ko: "이중 주전자에 진하게 우려 튤립 모양 잔에 내는 홍차입니다.",
   },
   "ukrainian::borscht ukrainian": {
     id: "Sup masam Ukraina berbahan dasar bit; budaya memasaknya masuk daftar Warisan Budaya Takbenda UNESCO pada 2022.",
@@ -12856,6 +14478,7 @@ module.exports = {
     zh: "以甜菜为底的乌克兰酸味汤；2022年其烹饪文化被联合国教科文组织列入非物质文化遗产。",
     ja: "ビーツを基にしたウクライナの酸味のスープ。2022年、その調理文化がユネスコ無形文化遺産に登録された。",
     es: "Sopa agria ucraniana a base de remolacha; la UNESCO inscribió su cultura culinaria como patrimonio inmaterial en 2022.",
+    ko: "비트를 바탕으로 한 우크라이나의 새콤한 수프로, 유네스코가 2022년 그 조리 문화를 무형문화유산으로 등재했습니다.",
   },
   "ukrainian::chicken kyiv": {
     id: "Kotlet dari fillet ayam yang digulung mengelilingi mentega dingin, dilapisi tepung roti lalu digoreng; asal-usulnya abad ke-19.",
@@ -12864,6 +14487,7 @@ module.exports = {
     zh: "将拍薄的鸡胸肉卷住冷黄油，裹面包糠后油炸的肉排；其起源存有争议，可追溯到19世纪。",
     ja: "叩いた鶏胸肉で冷たいバターを包み、パン粉をつけて揚げたカツレツ。起源には争いがあり、19世紀に遡る。",
     es: "Filete de pollo aplanado y enrollado en torno a mantequilla fría, empanado y frito; su origen, disputado, data del siglo XIX.",
+    ko: "닭가슴살을 두드려 편 뒤 차가운 버터를 말아 넣고 빵가루를 입혀 튀긴 커틀릿으로, 19세기까지 거슬러 오르나 유래는 논쟁 중입니다.",
   },
   "ukrainian::crimean tatar chebureki": {
     id: "Pastel setengah bulan dari adonan tipis tanpa ragi berisi daging cincang berbumbu dan bawang, digoreng; hidangan nasional Tatar Krimea.",
@@ -12872,6 +14496,7 @@ module.exports = {
     zh: "薄无酵面皮包调味肉馅与洋葱，炸成半月形的馅饼；这是克里米亚鞑靼人的国民菜。",
     ja: "薄い無発酵生地に味付けしたひき肉と玉ねぎを包んで揚げる半月形のパイ。クリミア・タタールの国民食。",
     es: "Empanadilla frita en media luna de masa fina sin levadura con carne picada especiada y cebolla, plato nacional tártaro de Crimea.",
+    ko: "얇은 무발효 반죽에 양념한 다진 고기와 양파를 채워 반달 모양으로 튀긴 크림 타타르의 국민 음식입니다.",
   },
   "ukrainian::deruny": {
     id: "Panekuk Ukraina dari kentang mentah parut, bawang, dan telur yang digoreng dangkal; namanya dari derty, yang berarti memarut.",
@@ -12880,6 +14505,7 @@ module.exports = {
     zh: "乌克兰的马铃薯煎饼，用擦丝的生马铃薯、洋葱与鸡蛋少油煎成；名称来自derty，即擦丝。",
     ja: "すりおろした生のじゃがいも、玉ねぎ、卵を少量の油で焼くウクライナのパンケーキ。名は「すりおろす」dertyに由来。",
     es: "Tortitas ucranianas de patata cruda rallada, cebolla y huevo fritas en poco aceite; el nombre viene de derty, rallar.",
+    ko: "생감자를 갈아 양파와 달걀을 섞어 지진 우크라이나 전으로, 이름은 '갈다'라는 뜻의 데르티에서 왔습니다.",
   },
   "ukrainian::domashnya kovbasa": {
     id: "Sosis babi buatan rumah dari Ukraina; »domashnya« berarti buatan rumah.",
@@ -12888,6 +14514,7 @@ module.exports = {
     zh: "乌克兰的自家灌制猪肉香肠；domashnya即「家做的」之意。",
     ja: "ウクライナの自家製豚肉ソーセージ。domashnyaは「家庭で作った」の意。",
     es: "Salchicha de cerdo casera ucraniana; «domashnya» significa hecha en casa.",
+    ko: "우크라이나의 집에서 만드는 돼지고기 소시지로, '도마시냐'는 집에서 만들었다는 뜻입니다.",
   },
   "ukrainian::halushky": {
     id: "Pangsit Ukraina dari adonan rebus tanpa isi, tercatat di Ukraina tepi kiri pada abad ke-18 dan lekat dengan kota Poltava.",
@@ -12896,6 +14523,7 @@ module.exports = {
     zh: "乌克兰的水煮面团团子，不包馅；18世纪见于第聂伯河左岸，与波尔塔瓦城密不可分。",
     ja: "具を入れずに茹でるウクライナの生地の団子。18世紀の左岸ウクライナに記録があり、ポルタヴァの町と結びつく。",
     es: "Bolitas ucranianas de masa hervida sin relleno, documentadas en la Ucrania de la orilla izquierda del siglo XVIII y ligadas a Poltava.",
+    ko: "속을 넣지 않은 반죽을 빚어 삶은 우크라이나 수제비로, 18세기 좌안 우크라이나 기록에 나오며 폴타바와 얽혀 있습니다.",
   },
   "ukrainian::holubtsi": {
     id: "Gulungan kubis Ukraina: daun kubis membungkus daging dan nasi; namanya dari holub, merpati, karena bentuknya yang gempal.",
@@ -12904,6 +14532,7 @@ module.exports = {
     zh: "乌克兰白菜卷：菜叶裹住肉与米饭；名称来自holub，即鸽子，因其圆鼓的外形而得名。",
     ja: "肉と米をキャベツの葉で包むウクライナの料理。ふっくらした形から「鳩」を意味するholubにちなむ。",
     es: "Rollos de col ucranianos: hojas envueltas en torno a carne y arroz; el nombre viene de holub, paloma, por su forma rechoncha.",
+    ko: "양배추 잎에 고기와 쌀을 말아 낸 우크라이나 요리로, 통통한 모양 때문에 '비둘기'를 뜻하는 홀룹에서 이름이 왔습니다.",
   },
   "ukrainian::kapusta": {
     id: "Hidangan Ukraina berupa kubis atau asinan kubis yang ditim perlahan.",
@@ -12912,6 +14541,7 @@ module.exports = {
     zh: "乌克兰的焖白菜或酸白菜菜式。",
     ja: "キャベツまたはザワークラウトを蒸し煮にするウクライナの料理。",
     es: "Plato ucraniano de col o chucrut estofados.",
+    ko: "양배추나 사워크라우트를 조려 낸 우크라이나 요리입니다.",
   },
   "ukrainian::kotleta po kyivsky": {
     id: "Hidangan Ukraina: dada ayam tanpa tulang digulung mengelilingi mentega herba dingin, dilapisi tepung roti dan digoreng; era Soviet.",
@@ -12920,6 +14550,7 @@ module.exports = {
     zh: "乌克兰菜式：去骨鸡胸卷入冷藏的香草黄油，裹面包糠油炸；在苏联时期广为流行。",
     ja: "骨を外した鶏胸肉で冷たいハーブバターを巻き、パン粉をつけて揚げるウクライナ料理。ソ連時代に広く親しまれた。",
     es: "Plato ucraniano: pechuga de pollo deshuesada enrollada en mantequilla fría de hierbas, empanada y frita; popular en la era soviética.",
+    ko: "뼈를 발라낸 닭가슴살에 차가운 허브 버터를 말아 넣고 빵가루를 입혀 튀긴 우크라이나 요리로, 소련 시대에 널리 퍼졌습니다.",
   },
   "ukrainian::kvas ukrainian": {
     id: "Minuman Slavia beralkohol rendah dari fermentasi roti atau tepung gandum hitam, dikenal di Ukraina sejak setidaknya abad ke-10.",
@@ -12928,6 +14559,7 @@ module.exports = {
     zh: "斯拉夫的低度酒精饮料，由黑麦面包或黑麦粉发酵制成；乌克兰至迟自10世纪起便有。",
     ja: "ライ麦パンやライ麦粉を発酵させて作るスラヴの微アルコール飲料。ウクライナでは遅くとも10世紀から知られる。",
     es: "Bebida eslava de baja graduación hecha fermentando pan o harina de centeno; conocida en Ucrania al menos desde el siglo X.",
+    ko: "호밀빵이나 호밀가루를 발효시켜 만드는 알코올 도수가 낮은 슬라브 음료로, 우크라이나에서는 적어도 10세기부터 알려져 왔습니다.",
   },
   "ukrainian::lard sandwiches": {
     id: "Salo, lemak babi mentah yang diawetkan, diiris tipis di atas roti gandum hitam dengan bawang putih; Lviv punya Museum Salo.",
@@ -12936,6 +14568,7 @@ module.exports = {
     zh: "萨洛：腌制的生猪背脂，薄切铺在黑麦面包上佐大蒜；利沃夫甚至设有一座萨洛博物馆。",
     ja: "サロ（塩漬けの生の背脂）を薄く切り、ライ麦パンにニンニクとともにのせる。リヴィウにはサロ博物館まである。",
     es: "Salo, tocino crudo curado, en lonchas finas sobre pan de centeno con ajo; Leópolis le dedica incluso un Museo del Salo.",
+    ko: "염장한 생돼지 등지방 살로를 얇게 저며 호밀빵에 올리고 마늘을 곁들이는 우크라이나의 국민 음식으로, 리비우에는 살로 박물관도 있습니다.",
   },
   "ukrainian::mlyntsi": {
     id: "Panekuk tipis Ukraina serupa crêpe, disajikan manis atau gurih; namanya dari mlyn, kincir, lewat bentuk kecil mlynets.",
@@ -12944,6 +14577,7 @@ module.exports = {
     zh: "乌克兰的薄煎饼，形似可丽饼，可甜可咸；名称由「磨坊」mlyn经指小形mlynets而来。",
     ja: "クレープに似たウクライナの薄いパンケーキ。甘くも塩味にもする。名は「水車小屋」mlynの指小形mlynetsに由来。",
     es: "Crepes finas ucranianas, dulces o saladas; el nombre viene de mlyn, molino, a través del diminutivo mlynets.",
+    ko: "크레프와 비슷한 얇은 우크라이나 팬케이크로 달거나 짭짤하게 내며, 이름은 '방앗간'을 뜻하는 믈린의 축소형에서 왔습니다.",
   },
   "ukrainian::odessan forshmak": {
     id: "Olesan haring cincang dari haring asin, apel, bawang, dan telur; hidangan Yahudi Ashkenazi yang menjadi ikon masakan Odesa.",
@@ -12952,6 +14586,7 @@ module.exports = {
     zh: "剁碎的盐渍鲱鱼酱，拌苹果、洋葱与鸡蛋；这道阿什肯纳兹犹太菜后来成了敖德萨饮食的标志。",
     ja: "塩漬けニシンをリンゴ、玉ねぎ、卵とともに刻んで作るペースト。アシュケナジム系ユダヤの料理で、オデーサの食を象徴する。",
     es: "Paté de arenque en salazón picado con manzana, cebolla y huevo; plato judío asquenazí convertido en emblema de la cocina de Odesa.",
+    ko: "소금에 절인 청어와 사과, 양파, 달걀을 다져 만든 아슈케나지 유대인의 스프레드로, 오데사 요리를 상징하게 됐습니다.",
   },
   "ukrainian::pampushky": {
     id: "Roti ragi Ukraina yang lembut; yang gurih diolesi saus bawang putih dan disajikan sebagai pendamping borscht.",
@@ -12960,6 +14595,7 @@ module.exports = {
     zh: "乌克兰柔软的发酵小面包；咸味的刷上蒜香酱汁，作为罗宋汤的配食。",
     ja: "ふんわりしたウクライナの発酵パン。塩味のものはニンニクソースを塗り、ボルシチの付け合わせにする。",
     es: "Bollos ucranianos blandos de masa fermentada; los salados se untan con salsa de ajo y acompañan al borsch.",
+    ko: "이스트로 부풀린 부드러운 우크라이나 빵으로, 짭짤한 것은 마늘 소스를 발라 보르시치에 곁들입니다.",
   },
   "ukrainian::paska": {
     id: "Roti Paskah Ukraina yang kaya telur; namanya dari Pesach dan terikat pada ritus Paskah Kristen Timur.",
@@ -12968,6 +14604,7 @@ module.exports = {
     zh: "乌克兰的复活节面包，蛋含量丰富；名称源自逾越节Pesach，与东方基督教的复活节礼仪相连。",
     ja: "卵をたっぷり使うウクライナの復活祭のパン。名はペサハに由来し、東方教会の復活祭の儀礼と結びつく。",
     es: "Pan de Pascua ucraniano enriquecido con huevo; su nombre viene de Pésaj y se liga a los ritos pascuales cristianos orientales.",
+    ko: "달걀을 넉넉히 넣은 우크라이나의 부활절 빵으로, 이름은 유월절 페사흐에서 왔고 동방 기독교의 부활절 예식과 얽혀 있습니다.",
   },
   "ukrainian::salo": {
     id: "Lemak punggung babi yang diawetkan dengan garam atau air garam, disantap mentah tipis-tipis dengan roti gandum hitam dan bawang putih.",
@@ -12976,6 +14613,7 @@ module.exports = {
     zh: "用干盐或盐水腌制的猪背脂，切成薄片生食，佐黑麦面包与大蒜；是乌克兰的国民食物。",
     ja: "塩漬けまたは塩水漬けにした豚の背脂。薄く切って生のままライ麦パンとニンニクとともに食べるウクライナの国民食。",
     es: "Tocino dorsal de cerdo curado en sal o salmuera, comido crudo en lonchas finas con pan de centeno y ajo; plato nacional ucraniano.",
+    ko: "살로는 소금이나 소금물로 절인 돼지 등지방으로, 얇게 저며 호밀빵과 마늘과 함께 날로 먹는 우크라이나의 국민 음식입니다.",
   },
   "ukrainian::syrniky": {
     id: "Panekuk goreng Ukraina dari keju dadih (syr), telur, dan tepung, biasanya disajikan dengan krim asam atau selai.",
@@ -12984,6 +14622,7 @@ module.exports = {
     zh: "乌克兰的煎干酪饼，用凝乳干酪（syr）、鸡蛋与面粉制成，多佐酸奶油或果酱。",
     ja: "カード（シル）、卵、小麦粉で作るウクライナの焼き菓子。サワークリームやジャムを添えるのが普通。",
     es: "Tortitas fritas ucranianas de requesón (syr), huevo y harina, servidas normalmente con nata agria o mermelada.",
+    ko: "쿠아르크나 커드 치즈(시르)와 달걀, 밀가루로 부친 우크라이나 전으로, 대개 사워크림이나 잼과 함께 냅니다.",
   },
   "ukrainian::uzvar": {
     id: "Minuman Ukraina dari buah kering: pir, apel, plum, serta buah dan beri kering lainnya.",
@@ -12992,6 +14631,7 @@ module.exports = {
     zh: "乌克兰的干果饮品，用梨、苹果、李子以及其他干果与浆果煮成。",
     ja: "洋梨、りんご、プラムなど干した果実やベリーで作るウクライナの飲み物。",
     es: "Bebida ucraniana de frutas secas: peras, manzanas, ciruelas y otros frutos y bayas deshidratados.",
+    ko: "말린 배와 사과, 자두를 비롯한 여러 말린 과일로 만드는 우크라이나 음료입니다.",
   },
   "ukrainian::varenyky": {
     id: "Pangsit rebus Ukraina dari adonan tanpa ragi dengan isian gurih atau manis; namanya dari varyty, yang berarti merebus.",
@@ -13000,6 +14640,7 @@ module.exports = {
     zh: "乌克兰的水煮饺子，用无酵面皮包咸味或甜味馅料；名称来自varyty，意为煮。",
     ja: "無発酵の生地に塩味や甘い具を包んで茹でるウクライナの団子。名は「煮る」を意味するvarytyに由来。",
     es: "Empanadillas hervidas ucranianas de masa sin levadura con relleno salado o dulce; el nombre viene de varyty, hervir.",
+    ko: "무발효 반죽에 짭짤하거나 단 소를 채워 삶은 우크라이나 만두로, 이름은 '삶다'라는 뜻의 바리티에서 왔습니다.",
   },
   "ukrainian::verhuny": {
     id: "Verhuny Ukraina, disebut juga verguny: pita adonan tanpa ragi disimpul, digoreng sampai rapuh, lalu ditaburi gula halus.",
@@ -13008,6 +14649,7 @@ module.exports = {
     zh: "乌克兰的维尔胡内，又称赫鲁斯特：无酵面条打结油炸至酥脆，撒上糖粉。",
     ja: "ウクライナのヴェルフニー、別名フルスティ。無発酵の生地を結んで揚げ、粉砂糖を振る。",
     es: "Verhuny ucranianos, también llamados khrusty: tiras de masa sin levadura anudadas, fritas hasta quedar quebradizas y con azúcar glas.",
+    ko: "무발효 반죽을 길게 잘라 매듭지어 바삭하게 튀긴 뒤 슈거파우더를 뿌린 우크라이나 과자로, 베르후니나 흐루스티라고도 합니다.",
   },
   "ukrainian::vushka": {
     id: "Pangsit »kuping kecil« Ukraina berisi jamur kering, menurut tradisi disajikan dalam borscht merah pada Malam Natal.",
@@ -13016,6 +14658,7 @@ module.exports = {
     zh: "乌克兰的「小耳朵」饺子，内包干蘑菇；传统上在圣诞前夜盛入红甜菜汤中。",
     ja: "干しキノコを詰めたウクライナの小さな「耳」の団子。クリスマスイブに赤いボルシチに浮かべる習わし。",
     es: "Diminutas «orejitas» ucranianas rellenas de setas secas, servidas por tradición en el borsch rojo en Nochebuena.",
+    ko: "말린 버섯을 채워 '작은 귀' 모양으로 빚은 아주 작은 우크라이나 만두로, 전통적으로 크리스마스이브의 붉은 보르시치에 넣어 냅니다.",
   },
   "uzbek::atala": {
     id: "Sup atau bubur tepung Uzbek: tepung digoreng mentega lalu diaduk ke dalam susu atau air; menurut tradisi untuk ibu seusai melahirkan.",
@@ -13024,6 +14667,7 @@ module.exports = {
     zh: "乌兹别克的面粉汤或糊：面粉用黄油炒香后拌入牛奶或水；传统上给产后的妇女食用。",
     ja: "バターで炒めた小麦粉を牛乳や水に溶き入れるウズベクの粉のスープ、あるいは粥。産後の女性に供する習わし。",
     es: "Sopa o gachas uzbekas de harina frita en mantequilla y disuelta en leche o agua; se dan por tradición a las mujeres tras el parto.",
+    ko: "버터에 볶은 밀가루를 우유나 물에 풀어 끓인 우즈베크의 수프이자 죽으로, 전통적으로 산후 조리 음식으로 냈습니다.",
   },
   "uzbek::beshbarmak uzbek": {
     id: "Hidangan Asia Tengah berupa daging rebus (domba, sapi, atau kuda) di atas mi pipih dengan kuah bawang, disantap tangan; »lima jari«.",
@@ -13032,6 +14676,7 @@ module.exports = {
     zh: "中亚菜式：煮熟的羊肉、牛肉或马肉铺在扁面片上，浇洋葱肉汤，以手抓食；名称意为「五指」。",
     ja: "茹でた羊・牛・馬の肉を平たい麺にのせ、玉ねぎのだしをかけて手で食べる中央アジアの料理。名は「五本の指」の意。",
     es: "Plato centroasiático de carne hervida (cordero, vacuno o caballo) sobre fideos planos con caldo de cebolla, comido a mano; «cinco dedos».",
+    ko: "양이나 소, 말고기를 삶아 납작한 면 위에 올리고 양파 국물을 부어 손으로 먹는 중앙아시아 요리로, 이름은 '다섯 손가락'이라는 뜻입니다.",
   },
   "uzbek::chak chak": {
     id: "Manisan Asia Tengah dari bola adonan tanpa ragi sebesar hazelnut yang digoreng lalu direkatkan dengan madu.",
@@ -13040,6 +14685,7 @@ module.exports = {
     zh: "中亚的甜食：无酵面团搓成榛子大小的小球油炸后，用蜂蜜黏合成堆。",
     ja: "無発酵の生地をヘーゼルナッツ大の玉にして揚げ、蜂蜜で固める中央アジアの菓子。",
     es: "Dulce centroasiático de bolitas de masa sin levadura del tamaño de una avellana, fritas y unidas con miel.",
+    ko: "헤이즐넛만 한 무발효 반죽을 튀겨 꿀로 뭉친 중앙아시아의 과자입니다.",
   },
   "uzbek::chuchvara": {
     id: "Pangsit kecil Uzbek berisi daging cincang halus (tak pernah babi), direbus atau digoreng dan kerap disajikan dalam kaldu sebagai sup.",
@@ -13048,6 +14694,7 @@ module.exports = {
     zh: "乌兹别克的小饺子，馅为切细的肉（从不用猪肉），可煮可煎，常盛在高汤中作汤食。",
     ja: "細かく刻んだ肉（豚は使わない）を包む小ぶりのウズベクの餃子。茹でるか揚げ、スープに浮かべて供することも多い。",
     es: "Pequeñas empanadillas uzbekas de carne finamente picada (nunca cerdo), hervidas o fritas y servidas a menudo en caldo como sopa.",
+    ko: "잘게 썬 고기(돼지고기는 절대 쓰지 않습니다)를 채워 삶거나 튀긴 작은 우즈베크 만두로, 흔히 육수에 넣어 수프로 냅니다.",
   },
   "uzbek::dimlama": {
     id: "Semur Uzbek yang dimasak perlahan: daging dan sayuran disusun berlapis lalu dikukus dalam sarinya sendiri di panci tertutup; menu panen.",
@@ -13056,6 +14703,7 @@ module.exports = {
     zh: "乌兹别克的慢炖菜：肉与蔬菜层层码放，在密封的锅中以自身汁液焖熟；传统上在收获时节做。",
     ja: "肉と野菜を層に重ね、密閉した鍋で自らの汁だけで蒸し煮にするウズベクの煮込み。収穫期に作る習わし。",
     es: "Guiso uzbeko de cocción lenta: carne y verduras en capas cocidas al vapor en su propio jugo en olla cerrada; propio de la cosecha.",
+    ko: "고기와 채소를 켜켜이 쌓아 밀폐한 냄비에서 제 즙으로 익힌 우즈베크의 스튜로, 전통적으로 수확철에 만듭니다.",
   },
   "uzbek::green tea uzbek": {
     id: "Minuman nasional Uzbekistan, teh hijau (koʻk choy), menguasai sekitar 70% pasar teh dan membuka serta menutup tiap santapan.",
@@ -13064,6 +14712,7 @@ module.exports = {
     zh: "乌兹别克斯坦的国民饮品——绿茶（koʻk choy）占茶叶市场约七成，每餐以茶开场、以茶收尾，是待客之礼。",
     ja: "ウズベキスタンの国民的飲み物である緑茶（コク・チョイ）は茶市場の約7割を占め、もてなしの印として食事の初めと終わりに供される。",
     es: "El té verde (koʻk choy), bebida nacional uzbeka, copa cerca del 70 % del mercado y abre y cierra cada comida en señal de hospitalidad.",
+    ko: "우즈베키스탄의 국민 음료인 녹차(쿡초이)는 차 시장의 약 70퍼센트를 차지하며, 환대의 표시로 끼니를 열고 닫습니다.",
   },
   "uzbek::halim uzbek": {
     id: "Halim Uzbekistan, juga halisa: gandum dimasak lama dengan daging sampai luruh jadi bubur gurih; sajian musim dingin dan Ramadan.",
@@ -13072,6 +14721,7 @@ module.exports = {
     zh: "乌兹别克的哈利姆，又名哈利萨：麦粒与肉久炖至散成咸香浓粥，冬日与斋月常食。",
     ja: "ウズベクのハリム、別名ハリサ。小麦を肉と長く煮て崩し、塩気のある粥にする。冬とラマダンの料理。",
     es: "Halim uzbeko, también halisa: trigo cocido largamente con carne hasta deshacerse en unas gachas saladas de invierno y de Ramadán.",
+    ko: "밀을 고기와 함께 오래 끓여 매끄러운 죽처럼 만든 우즈베크의 할림(할리사)으로, 겨울과 라마단에 먹습니다.",
   },
   "uzbek::hasip": {
     id: "Sosis rumahan Uzbek dari daging domba cincang, hati, dan jeroan yang dicampur nasi lalu dijejalkan ke usus domba yang telah dibersihkan.",
@@ -13080,6 +14730,7 @@ module.exports = {
     zh: "乌兹别克的自制香肠：羊肉末、肝与内脏拌入米饭，灌进洗净的羊肠。",
     ja: "羊のひき肉、レバー、内臓に米を混ぜ、洗った羊の腸に詰めるウズベクの自家製ソーセージ。",
     es: "Embutido casero uzbeko de carne picada de cordero, hígado y asaduras mezclados con arroz y embutidos en tripa de oveja limpia.",
+    ko: "다진 양고기와 간, 내장에 쌀을 섞어 손질한 양 창자에 채운 우즈베크의 수제 소시지입니다.",
   },
   "uzbek::honim": {
     id: "Gulungan kukus Uzbek dari adonan tipis berisi parutan kentang, bawang, dan kadang daging cincang; diiris dan disajikan dengan krim asam.",
@@ -13088,6 +14739,7 @@ module.exports = {
     zh: "乌兹别克的蒸卷，用薄面皮裹马铃薯丝、洋葱，有时加肉馅；切片后佐酸奶油上桌。",
     ja: "薄い生地にすりおろしたじゃがいもと玉ねぎ、時にひき肉を巻いて蒸すウズベクのロール。切り分けてサワークリームを添える。",
     es: "Rollo uzbeko al vapor de masa fina con patata rallada, cebolla y a veces carne picada; se corta en rodajas y se sirve con nata agria.",
+    ko: "얇은 반죽에 간 감자와 양파, 때로 다진 고기를 말아 쪄서 썬 우즈베크 요리로, 사워크림을 곁들여 냅니다.",
   },
   "uzbek::katyk": {
     id: "Produk susu fermentasi Turkik yang kental — yoghurt yang lebih padat daripada ayran — dibuat dengan memfermentasi susu rebus.",
@@ -13096,6 +14748,7 @@ module.exports = {
     zh: "突厥语民族浓稠的发酵乳制品，比ayran更稠厚，由煮沸后的牛奶发酵而成。",
     ja: "テュルク系の濃厚な発酵乳。アイランより固く、煮沸した牛乳を発酵させて作る。",
     es: "Producto lácteo fermentado túrquico espeso, más denso que el ayrán, obtenido fermentando leche hervida.",
+    ko: "끓인 우유를 발효시켜 만드는 되직한 튀르크의 유제품으로, 아이란보다 진한 요구르트에 가깝습니다.",
   },
   "uzbek::kazy": {
     id: "Sosis tradisional dari daging dan lemak kuda yang dijejalkan ke usus kuda; berakar pada masakan nomaden Turkik Asia Tengah.",
@@ -13104,6 +14757,7 @@ module.exports = {
     zh: "传统的马肉与马脂香肠，灌入马肠制成；根源在中亚突厥游牧民族的饮食。",
     ja: "馬肉と馬の脂を馬の腸に詰めた伝統的なソーセージ。中央アジアのテュルク系遊牧民の料理に根を持つ。",
     es: "Embutido tradicional de carne y grasa de caballo embutido en tripa equina; arraigado en la cocina nómada túrquica de Asia Central.",
+    ko: "말고기와 지방을 말 창자에 채운 전통 소시지로, 중앙아시아 튀르크 유목 요리에 뿌리를 둡니다.",
   },
   "uzbek::khanum": {
     id: "Gulungan kukus Uzbek dari adonan tipis yang membungkus kentang, bawang, dan kadang daging cincang; disajikan dengan krim asam dan tomat.",
@@ -13112,6 +14766,7 @@ module.exports = {
     zh: "乌兹别克的蒸卷：薄面皮裹马铃薯、洋葱，有时加肉馅；佐酸奶油与番茄酱汁食用。",
     ja: "薄い生地でじゃがいもと玉ねぎ、時にひき肉を巻いて蒸すウズベクのロール。サワークリームとトマトソースを添える。",
     es: "Rollo uzbeko al vapor de masa fina con patata, cebolla y a veces carne picada; se sirve con nata agria y salsa de tomate.",
+    ko: "얇은 반죽에 감자와 양파, 때로 다진 고기를 말아 쪄낸 우즈베크 요리로, 사워크림과 토마토소스를 곁들입니다.",
   },
   "uzbek::lagman": {
     id: "Hidangan mi tarik tangan Asia Tengah dengan daging dan sayuran, berasal dari Uighur dan Dungan; namanya dari lamian, mi tarik Tionghoa.",
@@ -13120,6 +14775,7 @@ module.exports = {
     zh: "中亚的手拉面菜式，配肉与蔬菜；源自维吾尔与东干人，名称来自汉语的「拉面」。",
     ja: "肉と野菜を合わせる中央アジアの手延べ麺料理。ウイグル・ドンガン起源で、名は中国語の拉麺に由来する。",
     es: "Plato centroasiático de fideos estirados a mano con carne y verduras, de origen uigur y dungano; su nombre viene del chino lamian.",
+    ko: "손으로 뽑은 면에 고기와 채소를 곁들인 중앙아시아 요리로, 위구르·둥간에서 왔으며 이름은 중국어 라몐에서 왔습니다.",
   },
   "uzbek::manty": {
     id: "Pangsit kukus Uzbek yang besar, adonannya tipis berisi domba atau sapi berbumbu dan bawang, dimasak dalam kukusan bertingkat (kaskan).",
@@ -13128,6 +14784,7 @@ module.exports = {
     zh: "乌兹别克的大蒸包，用薄面皮包调味羊肉或牛肉与洋葱，置于多层蒸笼（kaskan）中蒸熟。",
     ja: "薄い生地で味付けした羊肉か牛肉と玉ねぎを包む大きなウズベクの蒸し餃子。段重ねの蒸し器（カスカン）で蒸す。",
     es: "Grandes empanadillas uzbekas al vapor de masa fina con cordero o vacuno especiado y cebolla, cocidas en vaporera de pisos (kaskan).",
+    ko: "얇은 반죽에 양념한 양이나 소고기와 양파를 채워 층층 찜기(카스칸)에 쪄낸 우즈베크의 큰 만두입니다.",
   },
   "uzbek::mastava": {
     id: "Sup nasi dan daging yang mengenyangkan dari Uzbek dan Tajik, kadang disebut plov cair, dituntaskan yoghurt atau susu asam (katyk).",
@@ -13136,6 +14793,7 @@ module.exports = {
     zh: "乌兹别克与塔吉克实在的米肉汤，有时被称作「稀抓饭」，最后拌入酸奶或酸乳katyk。",
     ja: "ウズベクとタジクの米と肉の食べごたえあるスープ。「液体のプロフ」とも呼ばれ、ヨーグルトや酸乳カティクで仕上げる。",
     es: "Sopa contundente uzbeka y tayika de arroz y carne, a veces llamada plov líquido, rematada con yogur o leche agria (katyk).",
+    ko: "쌀과 고기를 넣어 든든하게 끓인 우즈베크와 타지크의 수프로 '묽은 플로프'라 불리기도 하며, 요구르트나 카틱으로 마무리합니다.",
   },
   "uzbek::navat": {
     id: "Gula batu Uzbek dan Asia Tengah dari gula atau sirop jus anggur yang dikristalkan pada benang berhari-hari; disajikan dengan teh.",
@@ -13144,6 +14802,7 @@ module.exports = {
     zh: "乌兹别克与中亚的冰糖，用糖或葡萄汁糖浆在丝线上结晶数日而成；佐茶食用。",
     ja: "砂糖やブドウ果汁のシロップを数日かけて糸に結晶させるウズベク・中央アジアの氷砂糖。お茶に添える。",
     es: "Azúcar cande uzbeko y centroasiático de azúcar o sirope de uva cristalizado en hilos durante días; se sirve con el té.",
+    ko: "설탕이나 포도즙 시럽을 며칠에 걸쳐 실에 결정으로 굳힌 우즈베크·중앙아시아의 사탕으로, 차와 함께 냅니다.",
   },
   "uzbek::non bread": {
     id: "Roti pipih bundar Uzbek yang dipanggang di dinding tungku tanah liat tandir dan dicap chekich di tengahnya; hadir di setiap santapan.",
@@ -13152,6 +14811,7 @@ module.exports = {
     zh: "乌兹别克的圆形烤饼，贴在陶制馕坑内壁烤成，中央用chekich戳出花纹；每餐必备。",
     ja: "土窯タンディルの内壁に貼りつけて焼くウズベクの丸い平パン。中央にチェキチで模様を押す、毎食欠かせない主食。",
     es: "Pan plano redondo uzbeko cocido en la pared de un horno de barro (tandir) y sellado en el centro con un chekich; presente en cada comida.",
+    ko: "옹기 탄디르 화덕 벽에 붙여 구운 우즈베크의 둥근 플랫브레드로, 가운데를 체키치로 찍어 무늬를 내며 끼니마다 오릅니다.",
   },
   "uzbek::plov": {
     id: "Hidangan nasi nasional Uzbekistan: beras, domba, wortel, dan bawang dimasak dalam kazan di atas dasar zirvak; menyebar lewat Jalur Sutra.",
@@ -13160,6 +14820,7 @@ module.exports = {
     zh: "乌兹别克斯坦的国民米饭菜：米、羊肉、胡萝卜与洋葱在铸铁锅中以zirvak为底烹成；沿丝绸之路传播开来。",
     ja: "ウズベキスタンの国民的な米料理。米、羊肉、にんじん、玉ねぎをカザンでジルヴァクを土台に炊く。シルクロードを通じて広まった。",
     es: "Plato nacional uzbeko de arroz, cordero, zanahoria y cebolla cocidos en kazán sobre una base de zirvak; difundido por la Ruta de la Seda.",
+    ko: "쌀과 양고기, 당근, 양파를 지르바크 바탕 위에 얹어 카잔에 지은 우즈베키스탄의 국민 밥 요리로, 실크로드를 따라 퍼졌습니다.",
   },
   "uzbek::samsa": {
     id: "Pastri gurih Asia Tengah berisi domba atau sapi, bawang, dan jintan, menurut tradisi dipanggang di tandoor; turunan sanbosag Persia.",
@@ -13168,6 +14829,7 @@ module.exports = {
     zh: "中亚的咸味烤饼，馅为羊肉或牛肉、洋葱与孜然，传统上贴在馕坑中烤制；源自波斯的sanbosag。",
     ja: "羊肉か牛肉、玉ねぎ、クミンを包み、タンドールで焼く中央アジアの塩味のパイ。ペルシアのサンボーサグに由来する。",
     es: "Empanada salada centroasiática de cordero o vacuno, cebolla y comino, horneada en tandur; desciende del sanbosag persa.",
+    ko: "양이나 소고기와 양파, 커민을 채워 전통적으로 탄두르에 구운 중앙아시아의 짭조름한 페이스트리로, 페르시아의 산보사그에서 이어졌습니다.",
   },
   "uzbek::shashlik": {
     id: "Potongan daging domba atau sapi yang dimarinasi lalu dipanggang di tusuk; namanya dari kata Tatar Krimea şiş, yang berarti tusuk.",
@@ -13176,6 +14838,7 @@ module.exports = {
     zh: "腌好的羊肉或牛肉块串起炭烤；名称源自克里米亚鞑靼语şiş，意为「串」。",
     ja: "羊肉や牛肉を角切りにして漬け込み、串に刺して焼く料理。名はクリミア・タタール語で「串」を意味するşişに由来。",
     es: "Trozos marinados de cordero o vacuno asados en brocheta; el nombre viene del tártaro de Crimea şiş, «espetón».",
+    ko: "양이나 소고기를 깍둑 썰어 양념에 재워 꼬치에 구운 요리로, 이름은 '꼬치'를 뜻하는 크림 타타르어 시시에서 왔습니다.",
   },
   "uzbek::shurpa": {
     id: "Kaldu daging dan sayuran Asia Tengah yang kaya, biasanya dari domba; sejak lama menjadi hidangan pembuka masakan nomaden Uzbek.",
@@ -13184,6 +14847,7 @@ module.exports = {
     zh: "中亚浓郁的肉与蔬菜清汤，多用羊肉熬制；长久以来是乌兹别克游牧饮食的头道菜。",
     ja: "肉と野菜でとる中央アジアの濃厚なスープ。多くは羊肉を使い、古くからウズベクの遊牧料理の一の膳とされる。",
     es: "Caldo centroasiático sustancioso de carne y verduras, casi siempre de cordero; primer plato de la cocina nómada uzbeka desde antiguo.",
+    ko: "전통적으로 양고기를 쓰는 중앙아시아의 진한 고기 채소 국물로, 오랫동안 우즈베크 유목 요리의 첫 상차림이었습니다.",
   },
   "vietnamese::banh khot": {
     id: "Panekuk gurih mungil Vietnam selatan dari adonan beras kunyit-santan, diberi udang dan digarangkan dalam cetakan; khas Vung Tau.",
@@ -13192,6 +14856,7 @@ module.exports = {
     zh: "南越的小咸煎饼：姜黄椰浆米糊倒进小模里煎脆，上头搁只虾；头顿的特产。",
     ja: "南ベトナムの小さな塩味の焼き菓子。ターメリックとココナッツの米生地を型で焼き、海老をのせます。ブンタウの名物。",
     es: "Mini tortitas saladas del sur de Vietnam, de masa de arroz con cúrcuma y coco, con gamba encima y crujidas en moldes; típicas de Vung Tau.",
+    ko: "강황 코코넛 쌀 반죽에 새우를 올려 틀에 바삭하게 부친 남베트남의 작은 부침으로, 붕따우의 명물입니다.",
   },
   "vietnamese::banh mi": {
     id: "Roti lapis Vietnam di atas baguette yang renyah dan berongga — warisan kolonial Prancis — berisi pate, daging, sayur asin, dan herba.",
@@ -13200,6 +14865,7 @@ module.exports = {
     zh: "越南三明治：外脆内松的法棍（法国殖民留下的遗产），夹肝酱、肉类、腌菜与香草。",
     ja: "外は香ばしく中は軽いバゲット（フランス植民地の遺産）に、パテ、肉、漬け野菜、香草を挟んだベトナムのサンドイッチ。",
     es: "Bocadillo vietnamita en baguette crujiente y aireada — herencia colonial francesa — relleno de paté, carnes, encurtidos y hierbas.",
+    ko: "프랑스 식민지의 유산인 바삭하고 가벼운 바게트에 파테와 고기, 절인 채소, 허브를 채운 베트남식 샌드위치입니다.",
   },
   "vietnamese::banh xeo": {
     id: "Panekuk Vietnam yang renyah dari tepung beras, air, dan kunyit, berisi babi, udang, dan tauge; namanya menirukan bunyi desisnya.",
@@ -13208,6 +14874,7 @@ module.exports = {
     zh: "越南脆煎饼：米粉、水与姜黄调糊，裹猪肉、虾与豆芽；名字学的是下锅那一声「嘶」。",
     ja: "米粉と水とターメリックで作るベトナムのパリパリした薄焼き。豚肉、海老、もやしを包み、名は焼くときの音に由来します。",
     es: "Crepe vietnamita crujiente de harina de arroz, agua y cúrcuma, relleno de cerdo, gambas y brotes; su nombre imita el chisporroteo.",
+    ko: "쌀가루와 물, 강황으로 반죽해 돼지고기와 새우, 숙주를 넣고 바삭하게 부친 베트남 전으로, 지글거리는 소리에서 이름이 왔습니다.",
   },
   "vietnamese::bo kho": {
     id: "Semur sapi dan wortel Vietnam selatan dengan serai dan bunga lawang; lahir pada masa kolonial Prancis, yang membawa daging sapi.",
@@ -13216,6 +14883,7 @@ module.exports = {
     zh: "南越的牛肉胡萝卜炖菜，用香茅与八角；成于法国殖民时期——牛肉正是那时进来的。",
     ja: "南ベトナムの牛肉と人参の煮込み。レモングラスと八角で香りづけ。牛肉をもたらしたフランス植民地時代に生まれました。",
     es: "Guiso sureño vietnamita de ternera y zanahoria con citronela y anís estrellado; nació bajo el dominio francés, que trajo la ternera.",
+    ko: "레몬그라스와 팔각을 넣은 남베트남식 소고기 당근 스튜로, 소고기를 들여온 프랑스 식민 시기에 생겼습니다.",
   },
   "vietnamese::bun bo hue": {
     id: "Sup mi beras pedas berisi sapi dan babi dari Huế, Vietnam tengah; serai dan terasi udang menjadi cirinya, warisan zaman panglima Nguyễn.",
@@ -13224,6 +14892,7 @@ module.exports = {
     zh: "中越顺化的辣味牛肉猪肉汤粉：定味的是香茅与虾酱，可追到阮主的年代。",
     ja: "中部フエの辛い牛肉と豚肉の米麺スープ。レモングラスとエビ味噌が味を決め、阮主の時代に遡ります。",
     es: "Sopa picante de fideos de arroz con ternera y cerdo de Huế, en el centro de Vietnam; la definen la citronela y la pasta de gambas.",
+    ko: "중부 베트남 후에의 맵고 진한 소·돼지 쌀국수로, 레몬그라스와 새우젓이 맛을 결정하며 응우옌 영주 시대에서 비롯됐습니다.",
   },
   "vietnamese::bun cha": {
     id: "Babi panggang di atas bihun beras dengan herba dan saus cocol; kekhasan Hanoi yang menurut tradisi disantap saat makan siang.",
@@ -13232,6 +14901,7 @@ module.exports = {
     zh: "炭烤猪肉配米粉、香草与蘸汁；河内的招牌，按老规矩是午饭吃的。",
     ja: "炭火焼きの豚肉を米のビーフンにのせ、香草とつけだれを添えます。ハノイの名物で、伝統的に昼に食べます。",
     es: "Cerdo a la brasa sobre fideos de arroz con hierbas y salsa para mojar; especialidad de Hanói que se come tradicionalmente al mediodía.",
+    ko: "구운 돼지고기를 쌀국수 위에 올리고 허브와 찍어 먹는 소스를 곁들이는 하노이의 명물로, 전통적으로 점심에 먹습니다.",
   },
   "vietnamese::bun rieu": {
     id: "Sup bihun beras Vietnam dalam kuah tomat, dimahkotai pasta dari kepiting sawah air tawar yang ditumbuk (bún riêu cua).",
@@ -13240,6 +14910,7 @@ module.exports = {
     zh: "越南米粉汤：番茄汤底，上头是舂碎的田蟹做成的蟹糊（bún riêu cua）。",
     ja: "トマトのスープに米のビーフンを入れ、搗いた田の淡水蟹のペースト（bún riêu cua）をのせたベトナムの麺料理。",
     es: "Sopa vietnamita de fideos de arroz en caldo de tomate coronada con una pasta de cangrejos de arrozal machacados (bún riêu cua).",
+    ko: "토마토 국물에 논게를 빻아 만든 게살 반죽을 올린 베트남 쌀국수로, 분리에우 꾸아라고 부릅니다.",
   },
   "vietnamese::bun thit nuong": {
     id: "Semangkuk bihun beras dingin khas Vietnam selatan, diberi babi panggang berbumbu, herba segar, kacang tanah, dan nuoc cham.",
@@ -13248,6 +14919,7 @@ module.exports = {
     zh: "南越的凉拌米粉碗：铺上腌过的烤猪肉、新鲜香草与花生，淋鱼露汁 nuoc cham。",
     ja: "南ベトナムの冷たい米ビーフンの丼。漬け込んで焼いた豚肉、生の香草、落花生をのせ、ヌクチャムをかけます。",
     es: "Cuenco del sur de Vietnam con fideos de arroz fríos, cerdo marinado a la brasa, hierbas frescas, cacahuete y salsa de pescado nuoc cham.",
+    ko: "차가운 쌀국수 위에 양념해 구운 돼지고기와 생허브, 땅콩을 올리고 느억짬을 끼얹는 남베트남식 한 그릇입니다.",
   },
   "vietnamese::ca kho to": {
     id: "Hidangan Vietnam selatan: ikan lele atau gabus dibraise (kho) dalam belanga tanah (tộ) bersama kecap ikan dan gula karamel.",
@@ -13256,6 +14928,7 @@ module.exports = {
     zh: "南越菜：鲇鱼或生鱼放进砂锅（tộ），用鱼露与焦糖慢火烧（kho）。",
     ja: "南ベトナムの料理。鯰や雷魚を土鍋（tộ）に入れ、ヌクマムとカラメルで煮込みます（kho）。",
     es: "Plato del sur de Vietnam: bagre o pez cabeza de serpiente guisado (kho) en cazuela de barro (tộ) con salsa de pescado y azúcar caramelizado.",
+    ko: "메기나 가물치를 피시소스와 태운 설탕에 뚝배기(또)째 조려 낸 남베트남 요리입니다.",
   },
   "vietnamese::canh chua": {
     id: "Sup asam Vietnam selatan dari Delta Mekong, dimasak dengan ikan, nanas, dan tomat, lalu diasamkan dengan asam jawa.",
@@ -13264,6 +14937,7 @@ module.exports = {
     zh: "湄公河三角洲的南越酸汤：鱼、菠萝与番茄同煮，用亚参取酸。",
     ja: "メコンデルタの南ベトナムの酸っぱいスープ。魚、パイナップル、トマトを煮て、タマリンドで酸味をつけます。",
     es: "Sopa agria del sur de Vietnam, del delta del Mekong, con pescado, piña y tomate, acidulada con tamarindo.",
+    ko: "메콩 델타에서 온 남베트남의 새콤한 수프로, 생선과 파인애플, 토마토를 넣고 타마린드로 신맛을 냅니다.",
   },
   "vietnamese::cao lau": {
     id: "Mi khas Hội An: mi beras tebal dan kenyal dengan babi char siu dan sayuran hijau; mienya menuntut air abu setempat dan sumur Ba Le.",
@@ -13272,6 +14946,7 @@ module.exports = {
     zh: "会安的面食：粗而弹牙的米面配叉烧与青菜；那面非得用当地的草木灰水与巴勒井的水不可。",
     ja: "ホイアンの麺料理。太くこしのある米麺にチャーシューと青菜を合わせます。麺には土地の灰汁とバーレー井戸の水が要ります。",
     es: "Plato de fideos de Hội An: fideos de arroz gruesos y correosos con cerdo char siu y verduras; exigen lejía de ceniza y agua del pozo Ba Le.",
+    ko: "굵고 쫄깃한 쌀국수에 차슈와 채소를 곁들이는 호이안 국수로, 면에는 이 지역의 잿물과 바레 우물물이 필요합니다.",
   },
   "vietnamese::cha ca la vong": {
     id: "Hidangan Hanoi: ikan lele cá lăng dimarinasi kunyit lalu dipanggang arang bersama adas dan daun bawang, disajikan dengan bún dan mắm tôm.",
@@ -13280,6 +14955,7 @@ module.exports = {
     zh: "河内菜：cá lăng 鲇鱼用姜黄腌过，与莳萝、青葱一同炭烤，配米粉与虾酱 mắm tôm。",
     ja: "ハノイの料理。カーラン鯰をターメリックに漬け、ディルと青ねぎとともに炭火で焼き、ブンとマムトムを添えます。",
     es: "Plato de Hanói: bagre cá lăng marinado en cúrcuma y asado al carbón con eneldo y cebolleta; se sirve con fideos bún y mắm tôm.",
+    ko: "메기를 강황에 재워 딜과 파와 함께 숯불에 구운 하노이 요리로, 분과 맘똠을 곁들여 냅니다.",
   },
   "vietnamese::cha gio (nem ran)": {
     id: "Lumpia goreng Vietnam berisi babi berbumbu, jamur, dan bihun, dibungkus kertas beras.",
@@ -13288,6 +14964,7 @@ module.exports = {
     zh: "越南炸春卷：调过味的猪肉、香菇与米粉，用米纸卷好下油锅。",
     ja: "ベトナムの揚げ春巻き。味つけした豚肉、きのこ、ビーフンをライスペーパーで巻いて揚げます。",
     es: "Rollitos vietnamitas fritos de cerdo sazonado, setas y fideos, envueltos en papel de arroz.",
+    ko: "양념한 돼지고기와 버섯, 당면을 라이스페이퍼에 말아 튀긴 베트남식 스프링롤입니다.",
   },
   "vietnamese::che": {
     id: "Sup atau puding manis Vietnam berbasis air atau santan, berisi kacang, agar, ketan, atau buah; disajikan panas atau dingin.",
@@ -13296,6 +14973,7 @@ module.exports = {
     zh: "越南甜汤或甜羹：水或椰浆打底，加豆子、凉粉、糯米或水果；冷热皆可。",
     ja: "水かココナッツクリームを土台に、豆、ゼリー、もち米、果物を入れたベトナムの甘い汁物。温かくも冷たくも供します。",
     es: "Sopa o pudin dulce vietnamita con base de agua o crema de coco y judías, gelatina, arroz glutinoso o fruta; se toma caliente o frío.",
+    ko: "물이나 코코넛크림을 바탕으로 콩과 젤리, 찰밥, 과일을 넣어 만드는 베트남의 달콤한 죽이자 음료로, 따뜻하게나 차갑게 냅니다.",
   },
   "vietnamese::com tam": {
     id: "Cơm tấm adalah hidangan Vietnam selatan dari beras patah, mulanya makanan murah petani Delta Mekong dari sisa gilingan.",
@@ -13304,6 +14982,7 @@ module.exports = {
     zh: "Cơm tấm 是南越的碎米饭，起初是湄公河三角洲农民拿碾米剩下的碎粒充饥的便宜吃食。",
     ja: "コム・タムは南ベトナムの砕き米の料理。もとはメコンデルタの農民が、精米で砕けた米を使った安価な日々の糧でした。",
     es: "El cơm tấm es un plato del sur de Vietnam de arroz partido, en origen comida barata de los campesinos del delta del Mekong.",
+    ko: "부서진 쌀알로 지은 남베트남 요리로, 원래는 메콩 델타 농민들이 도정 부스러기로 지어 먹던 값싼 음식이었습니다.",
   },
   "vietnamese::goi cuon": {
     id: "Lumpia basah Vietnam berkulit kertas beras, berisi babi, udang, bihun, dan herba; disajikan mentah pada suhu ruang, beda dari chả giò.",
@@ -13312,6 +14991,7 @@ module.exports = {
     zh: "越南米纸鲜卷：包猪肉、虾、米粉与香草，不下锅，常温生食，与炸春卷 chả giò 不同。",
     ja: "ライスペーパーで巻く生春巻き。豚肉、海老、ビーフン、香草を包み、揚げずに常温で供します。揚げ春巻きのチャーゾーとは別物。",
     es: "Rollitos frescos vietnamitas de papel de arroz con cerdo, gamba, fideos y hierbas; se sirven crudos y templados, no como el chả giò.",
+    ko: "돼지고기와 새우, 쌀국수, 허브를 라이스페이퍼에 만 베트남식 생 스프링롤로, 튀긴 짜조와 달리 익히지 않고 실온으로 냅니다.",
   },
   "vietnamese::mi quang": {
     id: "Mi beras berkunyit dari Quảng Nam, Vietnam tengah, berkuah sedikit, dengan kacang tanah dan kerupuk wijen; warisan nasional sejak 2024.",
@@ -13320,6 +15000,7 @@ module.exports = {
     zh: "越南中部广南的姜黄米面：汤汁极少，配花生与芝麻米饼；二〇二四年列为国家遗产。",
     ja: "中部クアンナムのターメリック米麺。汁はごく少なく、落花生と胡麻の煎餅を添えます。二〇二四年に国の遺産に指定されました。",
     es: "Fideos de arroz con cúrcuma de Quảng Nam, centro de Vietnam, con poco caldo, cacahuete y galletas de sésamo; patrimonio nacional desde 2024.",
+    ko: "중부 베트남 꽝남의 강황 쌀국수로, 국물이 적고 땅콩과 깨 과자를 곁들이며 2024년 국가유산으로 지정됐습니다.",
   },
   "vietnamese::nem nuong": {
     id: "Sosis babi cincang berbumbu yang dipanggang, khas Nha Trang (Provinsi Khánh Hòa); disajikan dengan kertas beras, herba, dan nước chấm.",
@@ -13328,6 +15009,7 @@ module.exports = {
     zh: "越南的烤肉肠：调味猪肉糜炭烤，芽庄（庆和省）的招牌；配米纸、香草与蘸汁 nước chấm。",
     ja: "味つけした豚ひき肉を焼いたベトナムのソーセージ。ニャチャン（カインホア省）の名物で、ライスペーパー、香草、ヌクチャムを添えます。",
     es: "Salchicha vietnamita de cerdo picado sazonado a la brasa, típica de Nha Trang (Khánh Hòa); con papel de arroz, hierbas y nước chấm.",
+    ko: "양념한 다진 돼지고기를 구워 만든 베트남식 소시지로, 냐짱(칸호아성)의 명물이며 라이스페이퍼와 허브, 느억짬을 곁들입니다.",
   },
   "vietnamese::pho bo": {
     id: "Sup mi sapi Vietnam: mi beras dalam kaldu tulang berempah yang harum, lahir di Vietnam utara pada awal abad ke-20.",
@@ -13336,6 +15018,7 @@ module.exports = {
     zh: "越南牛肉汤粉：米粉泡在香料熬的骨汤里，二十世纪初诞生于越南北方。",
     ja: "ベトナムの牛肉フォー。米麺を香辛料の効いた骨のスープに浮かべます。二十世紀初頭、北ベトナムで生まれました。",
     es: "Sopa vietnamita de fideos y ternera: fideos de arroz en caldo de huesos aromático y especiado, nacida en el norte a principios del siglo XX.",
+    ko: "향신료와 뼈를 우린 국물에 쌀국수를 넣은 베트남 소고기 국수로, 20세기 초 북베트남에서 시작됐습니다.",
   },
   "vietnamese::pho ga": {
     id: "Versi ayam dari pho Vietnam: mi beras dan suwiran ayam dalam kaldu bening yang direbus perlahan; dipopulerkan di Vietnam utara.",
@@ -13344,6 +15027,7 @@ module.exports = {
     zh: "越南鸡肉河粉：米粉与手撕鸡泡在慢火吊出的清汤里；在越南北方流行开来。",
     ja: "ベトナムのフォーの鶏版。米麺と裂いた鶏肉を、じっくり煮出した澄んだスープに。北ベトナムで広まりました。",
     es: "La versión de pollo del pho vietnamita: fideos de arroz y pollo deshilachado en caldo claro cocido a fuego lento; se popularizó en el norte.",
+    ko: "베트남 퍼의 닭고기 버전. 맑게 끓인 국물에 쌀국수와 찢은 닭고기를 넣으며 북베트남에서 널리 퍼졌습니다.",
   },
   "vietnamese::thit kho trung": {
     id: "Perut babi dan telur rebus Vietnam yang dibraise dalam kecap ikan dan air kelapa; lauk wajib saat Tet, tahun baru Imlek Vietnam.",
@@ -13352,6 +15036,7 @@ module.exports = {
     zh: "越南的红烧肉配水煮蛋：五花肉与蛋用鱼露和椰子水同焖；春节 Tet 的必备菜。",
     ja: "ベトナムの豚バラとゆで卵の煮込み。ヌクマムとココナッツウォーターで煮て、旧正月テトに欠かせない一品です。",
     es: "Panceta de cerdo y huevos duros guisados en salsa de pescado y agua de coco; plato imprescindible del Tet, el Año Nuevo vietnamita.",
+    ko: "삼겹살과 삶은 달걀을 피시소스와 코코넛 워터에 조린 베트남 요리로, 설(뗏)에 빠지지 않는 음식입니다.",
   },
   "vietnamese::vietnamese coffee (ca phe sua da)": {
     id: "Robusta sangrai gelap yang menetes lewat saringan logam phin ke atas susu kental manis dan es; tafsir kolonial Prancis atas café au lait.",
@@ -13360,6 +15045,7 @@ module.exports = {
     zh: "深焙罗布斯塔豆用金属滴滤壶 phin 滴到甜炼奶与冰块上；法国殖民留下的欧蕾咖啡变体。",
     ja: "深煎りのロブスタを金属のフィンで、加糖練乳と氷の上に落とします。カフェオレをフランス植民地風に読み替えた一杯。",
     es: "Robusta de tueste oscuro goteado por un filtro metálico phin sobre leche condensada y hielo; lectura colonial francesa del café au lait.",
+    ko: "다크로스트 로부스타를 금속 핀 필터로 내려 가당 연유와 얼음에 부은 음료로, 카페오레를 프랑스 식민지식으로 바꾼 것입니다.",
   },
   "vietnamese::vietnamese egg coffee (ca phe trung)": {
     id: "Kopi Hanoi bermahkota busa kocokan kuning telur dan susu kental manis; diciptakan pada 1946 di Cafe Giang sebagai pengganti susu.",
@@ -13368,6 +15054,7 @@ module.exports = {
     zh: "河内的蛋咖啡：顶上一层蛋黄与炼奶打成的泡沫；一九四六年由 Cafe Giang 创出，本是牛奶的替代。",
     ja: "卵黄と練乳を泡立てて浮かべたハノイのコーヒー。一九四六年、カフェ・ザンが牛乳の代わりとして考案しました。",
     es: "Café de Hanói coronado por una espuma batida de yema y leche condensada; creado en 1946 en el Cafe Giang como sustituto de la leche.",
+    ko: "달걀노른자와 연유를 휘저은 거품을 올린 하노이 커피로, 우유 대용으로 1946년 카페 지앙에서 만들어졌습니다.",
   },
   "vietnamese::xoi": {
     id: "Hidangan ketan kukus Vietnam, disajikan manis atau gurih; menurut tradisi sarapan yang digemari dan jualan kaki lima.",
@@ -13376,5 +15063,6 @@ module.exports = {
     zh: "越南的蒸糯米饭，甜咸皆有；照老习惯是受欢迎的早餐，也是街头小贩的营生。",
     ja: "ベトナムの蒸したもち米の料理。甘くも塩味でも供され、伝統的に朝食として、また屋台の食べ物として親しまれます。",
     es: "Plato vietnamita de arroz glutinoso al vapor, dulce o salado; tradicionalmente un desayuno muy querido y comida de puesto callejero.",
+    ko: "찹쌀을 쪄서 만드는 베트남 요리로, 달게도 짭짤하게도 내며 아침 식사와 길거리 음식으로 오래 사랑받았습니다.",
   },
 };
