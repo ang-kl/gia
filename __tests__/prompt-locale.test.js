@@ -59,14 +59,17 @@ describe('the model is told the reader’s language, for every locale the app sh
     // Korean is 'ko'. Gating on "langName returned something" would have told the
     // model to write in "KR". Found by exercising the function, not by reading it,
     // and pinned here so the gate cannot quietly widen back to langName's 35 codes.
-    for (const junk of ['kr', 'ko', 'xx', 'en-GB', '', null, undefined, 42]) {
+    // v0.62.883 (K6) — 'ko' was this file's example of an unsupported code and is now
+    // the opposite of one. 'pt' takes its place: a real ISO code the app does not ship,
+    // which tests the same thing 'xx' cannot — that the guard rejects a PLAUSIBLE locale.
+    for (const junk of ['kr', 'pt', 'xx', 'en-GB', '', null, undefined, 42]) {
       expect(needsLocalisation(junk), `${junk} should not be localised`).toBe(false);
       expect(narrationLocalisation(junk)).toBe('');
     }
   });
 
   it('every app locale is covered, and the list is the app’s — not langName’s', () => {
-    expect(APP_LOCALES).toEqual(['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es']);
+    expect(APP_LOCALES).toEqual(['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko']);
     for (const l of APP_LOCALES) expect(langName(l), `langName has no name for ${l}`).toBeTruthy();
   });
 

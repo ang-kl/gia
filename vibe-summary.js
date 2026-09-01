@@ -85,7 +85,7 @@ function isValidVibe(text) {
   return true;
 }
 
-const SUMMARY_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+const SUMMARY_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 
 async function summarizeVibe(reviews, lang = 'en') {
   if (!llm.isReady() || !reviews) return null;

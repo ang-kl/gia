@@ -12,7 +12,7 @@ import { initData } from './tg.js';
 
 const LOCALE_KEY = 'gia.locale';
 const LOCALE_EVENT = 'gia:locale';
-const SUPPORTED_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+const SUPPORTED_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 
 const STRINGS = {
   // Map overlay layers (v0.63.0)

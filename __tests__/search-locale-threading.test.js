@@ -30,7 +30,7 @@ const oh = require('../open-hours.js');
 const { SUPPORTED } = require('../user-prefs.js');
 const INDEX = fs.readFileSync(require.resolve('../index.js'), 'utf8');
 
-const EIGHT = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+const EIGHT = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 
 describe('open-hours speaks every locale the app claims to support', () => {
   it('its phrase table and user-prefs agree on the set, and neither is hand-listed here', () => {
@@ -42,7 +42,11 @@ describe('open-hours speaks every locale the app claims to support', () => {
     expect(oh.ohLang('ja')).toBe('ja');
     expect(oh.ohLang('zh-CN')).toBe('zh');   // Telegram sends region-tagged codes
     expect(oh.ohLang('ES')).toBe('es');
-    expect(oh.ohLang('ko')).toBe('en');      // no Korean phrases — English, not a crash
+    // v0.62.883 (K6) — this line used to read `.toBe('en')` with the comment "no Korean
+    // phrases". The phrase table now has them, so the degrade-to-English case needs a code
+    // the table genuinely lacks; 'pt' is that code, and 'ko' proves the opposite.
+    expect(oh.ohLang('ko')).toBe('ko');      // Korean phrases exist now — K6 added them
+    expect(oh.ohLang('pt')).toBe('en');      // no Portuguese phrases — English, not a crash
     expect(oh.ohLang(undefined)).toBe('en');
   });
 

@@ -32,7 +32,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const FILE = path.join(ROOT, 'i18n.js');
-const LANGS = ['id', 'ru', 'de', 'zh', 'ja', 'es'];
+const LANGS = ['id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 const DRY = process.argv.includes('--dry-run');
 
 /** Key families whose English value is already the reader-facing target text. */

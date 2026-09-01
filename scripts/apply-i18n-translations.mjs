@@ -27,7 +27,7 @@ const DRY = process.argv.includes('--dry-run');
 
 // The job files use BCP-47 (`zh-CN`); i18n.js uses the bare code from SUPPORTED.
 const LANG_MAP = { de: 'de', es: 'es', id: 'id', ja: 'ja', ru: 'ru', 'zh-CN': 'zh' };
-const ORDER = ['id', 'ru', 'de', 'zh', 'ja', 'es'];   // matches SUPPORTED's order
+const ORDER = ['id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];   // matches SUPPORTED's order
 
 // Collect id -> { lang: translation } for everything that passes the gate.
 const byKey = new Map();

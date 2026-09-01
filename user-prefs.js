@@ -25,7 +25,7 @@
 // in each of en/fr/id/ru/de/zh/ja/es — measured, not assumed. Chat text is not
 // en/fr-only any more, so nothing downstream needs to clip this list; callers
 // import SUPPORTED instead of re-listing it.
-const SUPPORTED = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+const SUPPORTED = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 const TTL_SECONDS = 365 * 24 * 60 * 60;
 
 function key(chatId) {

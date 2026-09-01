@@ -29,7 +29,7 @@ import { join } from 'path';
 const ROOT = join(__dirname, '..');
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
 const { t, tn, SUPPORTED } = require('../i18n');
-const LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+const LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 
 const STRINGS_SRC = read('i18n.js');
 const BOT_KEYS = [...STRINGS_SRC.matchAll(/^\s+"(bot\.[a-z]+\.[A-Za-z0-9]+)":/gm)].map((m) => m[1]);

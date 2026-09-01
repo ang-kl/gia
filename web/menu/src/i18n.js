@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 
 const LOCALE_KEY = 'gia.locale';
 const LOCALE_EVENT = 'gia:locale';
-const SUPPORTED_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+const SUPPORTED_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 
 const STRINGS = {
   // ----- Hero -----

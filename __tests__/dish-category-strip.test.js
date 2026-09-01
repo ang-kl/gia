@@ -10,7 +10,7 @@ vi.mock('react', () => {
 });
 import { likelyServesText, categoryWord, dishCategory } from '../web/cuisine/src/v2/lib/dish-category.js';
 
-const LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+const LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 
 describe('the "Likely serves" strip', () => {
   it('renders in every app locale, never falling back to English', () => {

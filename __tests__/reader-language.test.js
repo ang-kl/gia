@@ -101,7 +101,7 @@ describe('readerLang prefers the toggle, then the phone, then the stored pref', 
 
   it('user-prefs really does carry all eight app locales', () => {
     const { SUPPORTED } = require('../user-prefs');
-    for (const l of ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es']) {
+    for (const l of ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko']) {
       expect(SUPPORTED, `${l} would be dropped from the toggle`).toContain(l);
     }
   });

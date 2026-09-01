@@ -49,7 +49,7 @@ const ICONIC_SG_DISHES = [
 // returned something" would tell the model to write in "KR". Caught by exercising
 // this function rather than by reading it. Korean is parked as a ninth locale; when
 // it lands it is one entry here, and `langName` already knows 'ko'.
-const APP_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+const APP_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 
 /**
  * True when the model needs telling. English is the prompts' own language, so it

@@ -154,11 +154,14 @@ describe('it is symmetric — the point of the operator’s third message', () =
 describe('guards', () => {
   it('an unsupported locale costs nothing', async () => {
     const { factory, calls } = stubGemini('x');
-    for (const l of ['kr', 'ko', 'xx', '', null, undefined]) {
+    // v0.62.883 (K6) — 'ko' was this file's example of an unsupported code and is now
+    // the opposite of one. 'pt' takes its place: a real ISO code the app does not ship,
+    // which tests the same thing 'xx' cannot — that the guard rejects a PLAUSIBLE locale.
+    for (const l of ['kr', 'pt', 'xx', '', null, undefined]) {
       expect(await pronounceName({ name: 'X', lang: l, _genAIFactory: factory })).toBeNull();
     }
     expect(calls).toHaveLength(0);
-    expect(APP_LOCALES).toEqual(['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es']);
+    expect(APP_LOCALES).toEqual(['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko']);
   });
 
   it('model meta-talk and echoes are rejected', () => {

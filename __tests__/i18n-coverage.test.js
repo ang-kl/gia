@@ -55,40 +55,45 @@ const NON_EN = i18n.SUPPORTED.filter((l) => l !== 'en');
 //                       Accident / Obstacle / Incident are French; ON/OFF is
 //                       standard in Japanese UI.
 const IDENTICAL_BY_DESIGN = [
-  ['bot.lang.set.de', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
-  ['bot.lang.set.en', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
-  ['bot.lang.set.es', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
-  ['bot.lang.set.fr', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
-  ['bot.lang.set.id', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
-  ['bot.lang.set.ja', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
-  ['bot.lang.set.ru', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
-  ['bot.lang.set.zh', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
+  ['bot.lang.set.de', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
+  ['bot.lang.set.en', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
+  ['bot.lang.set.es', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
+  ['bot.lang.set.fr', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
+  ['bot.lang.set.id', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
+  ['bot.lang.set.ja', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
+  ['bot.lang.set.ru', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
+  ['bot.lang.set.zh', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
   ['buddy.status.off', ['ja'], 'cognate'],
   ['buddy.status.on', ['ja'], 'cognate'],
-  ['cuisine.chat.openWithGps', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'format-only'],
+  ['cuisine.chat.openWithGps', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'format-only'],
   ['incident.type.Accident', ['fr'], 'cognate'],
   ['incident.type.Incident', ['fr'], 'cognate'],
   ['incident.type.Obstacle', ['fr'], 'cognate'],
-  ['language.btn.de', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
-  ['language.btn.en', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
-  ['language.btn.es', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
-  ['language.btn.fr', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
-  ['language.btn.id', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
-  ['language.btn.ja', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
-  ['language.btn.ru', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
-  ['language.btn.zh', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
-  ['misrep.note', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'format-only'],
+  ['language.btn.de', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'endonym'],
+  ['language.btn.en', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'endonym'],
+  ['language.btn.es', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'endonym'],
+  ['language.btn.fr', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'endonym'],
+  ['language.btn.id', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'endonym'],
+  ['language.btn.ja', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'endonym'],
+  ['language.btn.ru', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'endonym'],
+  ['language.btn.zh', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'endonym'],
+  ['misrep.note', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'format-only'],
   ['recognised.btn.asia50', ['fr'], 'proper-noun'],
   ['recognised.btn.bib', ['fr', 'id', 'ru', 'de', 'es'], 'proper-noun'],
   ['transport.bus.stopCode', ['de'], 'cognate'],
-  ['transport.bus.stopRow', ['fr', 'id', 'ru', 'de', 'zh', 'es'], 'format-only'],
+  ['transport.bus.stopRow', ['fr', 'id', 'ru', 'de', 'zh', 'es', 'ko'], 'format-only'],
   ['transport.drive.openMapsBtn', ['fr'], 'proper-noun'],
-  ['transport.incidents.row', ['fr', 'id', 'ru', 'de', 'zh', 'es'], 'format-only'],
+  ['transport.incidents.row', ['fr', 'id', 'ru', 'de', 'zh', 'es', 'ko'], 'format-only'],
   ['transport.menu.btn.bus', ['fr', 'id', 'de'], 'cognate'],
   ['transport.menu.btn.incidents', ['fr'], 'cognate'],
-  ['transport.train.stationRow', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'], 'format-only'],
+  ['transport.train.stationRow', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'format-only'],
   ['transport.train.status', ['id', 'de'], 'cognate'],
   ['weather.wind', ['de'], 'cognate'],
+  // v0.62.883 (K6) — the two keys the flip adds. `bot.lang.set.ko` confirms IN Korean
+  // whatever the previous locale was, so it is identical across every column; and
+  // `language.btn.ko` is an endonym, identical for the same reason its eight siblings are.
+  ['bot.lang.set.ko', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
+  ['language.btn.ko', ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'endonym'],
 ];
 
 const REASONS = new Set(['endonym', 'confirms-in-target', 'format-only', 'proper-noun', 'cognate']);
@@ -156,14 +161,14 @@ const RAW = (() => {
 // silently absorb a future language.btn.* key that genuinely needed eight
 // entries.
 const ABSENT_BY_DESIGN = [
-  ['bot.lang.set.en', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
-  ['bot.lang.set.fr', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
-  ['bot.lang.set.id', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
-  ['bot.lang.set.ru', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
-  ['bot.lang.set.de', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
-  ['bot.lang.set.zh', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
-  ['bot.lang.set.ja', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
-  ['bot.lang.set.es', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'confirms-in-target'],
+  ['bot.lang.set.en', ['id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
+  ['bot.lang.set.fr', ['id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
+  ['bot.lang.set.id', ['id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
+  ['bot.lang.set.ru', ['id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
+  ['bot.lang.set.de', ['id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
+  ['bot.lang.set.zh', ['id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
+  ['bot.lang.set.ja', ['id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
+  ['bot.lang.set.es', ['id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
   ['language.btn.en', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
   ['language.btn.fr', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
   ['language.btn.id', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
@@ -172,6 +177,12 @@ const ABSENT_BY_DESIGN = [
   ['language.btn.zh', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
   ['language.btn.ja', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
   ['language.btn.es', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
+  // v0.62.883 (K6) — the ninth member of the target-keyed family. Its value is written
+  // once in Korean under en/fr; a `ko` column would only be read when display === 'ko',
+  // and display always equals the code in the key.
+  ['bot.lang.set.ko', ['id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'], 'confirms-in-target'],
+  // …and the new endonym, absent from the same six its eight siblings are absent from.
+  ['language.btn.ko', ['id', 'ru', 'de', 'zh', 'ja', 'es'], 'endonym'],
 ];
 
 const absentPinned = new Set();
@@ -195,7 +206,7 @@ describe('i18n coverage', () => {
   });
 
   it('276 keys, and the count is asserted so a silent deletion shows up', () => {
-    expect(KEYS.length).toBe(276);
+    expect(KEYS.length).toBe(278);
   });
 
   it('no key is identical to English except the pinned ones', () => {
@@ -235,9 +246,9 @@ describe('i18n coverage', () => {
 
   it('raw locale entries are pinned at 2,112 of a possible 2,208', () => {
     const have = KEYS.reduce((n, k) => n + RAW[k].length, 0);
-    expect(KEYS.length * i18n.SUPPORTED.length).toBe(2208);
-    expect(have).toBe(2112);
-    expect(absentPinned.size).toBe(2208 - 2112);
+    expect(KEYS.length * i18n.SUPPORTED.length).toBe(2502);
+    expect(have).toBe(2385);
+    expect(absentPinned.size).toBe(2502 - 2385);
   });
 
   it('no locale entry is MISSING except the pinned ones', () => {

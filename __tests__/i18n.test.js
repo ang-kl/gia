@@ -14,7 +14,10 @@ describe('pickLang', () => {
   });
   it('falls back to en for unknown / missing', () => {
     // v0.62.511: SUPPORTED expanded to 8 langs; use a genuinely unsupported code
-    expect(pickLang('ko')).toBe('en');
+    // v0.62.883 (K6) — 'ko' was this file's example of an unsupported code and is now
+    // the opposite of one. 'pt' takes its place: a real ISO code the app does not ship,
+    // which tests the same thing 'xx' cannot — that the guard rejects a PLAUSIBLE locale.
+    expect(pickLang('pt')).toBe('en');
     expect(pickLang('')).toBe('en');
     expect(pickLang(undefined)).toBe('en');
     expect(pickLang(null)).toBe('en');

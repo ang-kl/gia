@@ -117,7 +117,11 @@ describe('nothing runs where it should not', () => {
 
   it('an unsupported locale costs nothing rather than guessing', async () => {
     const { factory, calls } = stubGemini(echoTranslated);
-    for (const l of ['kr', 'ko', 'xx', '', null, undefined]) {
+    // v0.62.883 (K6) — 'ko' left this list when Korean became a supported locale.
+    // It was here as an example of an unsupported code and is now the opposite of
+    // one; 'pt' takes its place. 'kr' stays: it is the COUNTRY code for Korea and
+    // not a language code at all, which is exactly the near-miss worth testing.
+    for (const l of ['kr', 'pt', 'xx', '', null, undefined]) {
       await localiseVenueDishes([{ dishes: ['suckling pig'] }], l, { _genAIFactory: factory });
     }
     expect(calls).toHaveLength(0);

@@ -18,7 +18,7 @@
  */
 import fs from 'node:fs';
 
-const LANGS = ['id', 'ru', 'de', 'zh', 'ja', 'es'];
+const LANGS = ['id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 const [cmd, file, ...rest] = process.argv.slice(2);
 if (!cmd || !file) {
   console.error('usage: tma-i18n-tool.mjs dump|apply <file> [...]');

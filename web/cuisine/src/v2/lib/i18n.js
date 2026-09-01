@@ -3390,7 +3390,7 @@ const KO_STRINGS = {
 };
 for (const [k, v] of Object.entries(KO_STRINGS)) { if (STRINGS[k] && STRINGS[k].ko == null) STRINGS[k].ko = v; }
 
-export const SUPPORTED_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+export const SUPPORTED_LOCALES = ['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 
 export function t(key, lang) {
   const l = SUPPORTED_LOCALES.includes(lang) ? lang : 'en';

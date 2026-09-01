@@ -130,9 +130,26 @@ describe('script integrity, including the direction Korean adds', () => {
 });
 
 describe('K3 changes content only', () => {
-  it('ko is still not an app locale, which is what makes staging safe', () => {
-    expect(require('../i18n').SUPPORTED).not.toContain('ko');
-    expect(require('../user-prefs').SUPPORTED).not.toContain('ko');
+  it('ko IS an app locale now — the inverse of what this said through K2–K5', () => {
+    // This assertion is load-bearing in both directions. While the content was staged it read
+    // `.not.toContain('ko')` and guaranteed nothing here reached a user; K6 removes that
+    // guarantee deliberately, so the line proves the opposite fact rather than being deleted.
+    // A revert of the flip fails here instead of quietly re-hiding 1,612 dish names.
+    expect(require('../i18n').SUPPORTED).toContain('ko');
+    expect(require('../user-prefs').SUPPORTED).toContain('ko');
+  });
+
+  it('and a Korean reader actually reaches these names', () => {
+    // Presence was never the claim worth making — reachability is. `namesFor` is the lookup the
+    // app calls, and `ko` being in SUPPORTED is what lets its result be selected.
+    const { SUPPORTED } = require('../i18n');
+    expect(SUPPORTED.includes('ko')).toBe(true);
+    expect(namesFor('bibimbap', 'korean').ko).toBe('비빔밥');
+    // THE KEY IS THE ENGLISH — there is no `en` column, which is why the comparison is against
+    // the key itself. A first draft of this line compared `.ko` to `.en` and read undefined.
+    expect(namesFor('chilli crab').ko).toBe('칠리 크랩');
+    expect(namesFor('chilli crab').ko).not.toBe('chilli crab');
+    expect(HANGUL.test(namesFor('chilli crab').ko)).toBe(true);
   });
 
   it('and namesFor still prefers a slug-qualified name over the bare one', () => {

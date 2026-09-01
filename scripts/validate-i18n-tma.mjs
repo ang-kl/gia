@@ -30,7 +30,7 @@ import { fileURLToPath } from 'node:url';
 import { validateItem } from './validate-i18n-translations.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const LANGS = ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es'];
+const LANGS = ['fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko'];
 
 export const TMA_FILES = [
   ['cuisine',   'web/cuisine/src/v2/lib/i18n.js'],

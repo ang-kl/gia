@@ -33,9 +33,9 @@ export function localisedBody(obj, lang) {
 }
 
 const TIER_LABEL = {
-  'city-icon':        { en: 'city icon',        fr: 'icône de la ville',   id: 'ikon kota',        ru: 'символ города',    de: 'Wahrzeichen der Stadt', zh: '城市代表',   ja: '街の名物',   es: 'icono de la ciudad' },
-  'regional':         { en: 'regional',         fr: 'régional',            id: 'regional',         ru: 'региональное',     de: 'regional',              zh: '地方风味',   ja: '地方の味',   es: 'regional' },
-  'national-classic': { en: 'national classic', fr: 'classique national',  id: 'klasik nasional',  ru: 'национальная классика', de: 'nationaler Klassiker', zh: '全国经典', ja: '全国の定番', es: 'clásico nacional' }
+  'city-icon':        { en: 'city icon',        fr: 'icône de la ville',   id: 'ikon kota',        ru: 'символ города',    de: 'Wahrzeichen der Stadt', zh: '城市代表',   ja: '街の名物',   es: 'icono de la ciudad', ko: '도시의 상징' },
+  'regional':         { en: 'regional',         fr: 'régional',            id: 'regional',         ru: 'региональное',     de: 'regional',              zh: '地方风味',   ja: '地方の味',   es: 'regional', ko: '지역 별미' },
+  'national-classic': { en: 'national classic', fr: 'classique national',  id: 'klasik nasional',  ru: 'национальная классика', de: 'nationaler Klassiker', zh: '全国经典', ja: '全国の定番', es: 'clásico nacional', ko: '전국의 고전' }
 };
 
 // v0.62.37 — country label for the "More local classics" section (the
@@ -50,22 +50,22 @@ const TIER_LABEL = {
 // eight more string concatenations. fr keeps its adjectival plural, since its
 // template puts the word after the noun it agrees with.
 const COUNTRY_LABEL = {
-  SG: { en: 'Singapore',   fr: 'singapouriens',  id: 'Singapura',    ru: 'Сингапура',      de: 'Singapur',      zh: '新加坡',   ja: 'シンガポール', es: 'Singapur' },
-  MY: { en: 'Malaysian',   fr: 'malaisiens',     id: 'Malaysia',     ru: 'Малайзии',       de: 'Malaysia',      zh: '马来西亚', ja: 'マレーシア',   es: 'Malasia' },
-  TH: { en: 'Thai',        fr: 'thaïlandais',    id: 'Thailand',     ru: 'Таиланда',       de: 'Thailand',      zh: '泰国',     ja: 'タイ',         es: 'Tailandia' },
-  JP: { en: 'Japanese',    fr: 'japonais',       id: 'Jepang',       ru: 'Японии',         de: 'Japan',         zh: '日本',     ja: '日本',         es: 'Japón' },
-  VN: { en: 'Vietnamese',  fr: 'vietnamiens',    id: 'Vietnam',      ru: 'Вьетнама',       de: 'Vietnam',       zh: '越南',     ja: 'ベトナム',     es: 'Vietnam' },
-  AU: { en: 'Australian',  fr: 'australiens',    id: 'Australia',    ru: 'Австралии',      de: 'Australien',    zh: '澳大利亚', ja: 'オーストラリア', es: 'Australia' },
-  NZ: { en: 'New Zealand', fr: 'néo-zélandais',  id: 'Selandia Baru', ru: 'Новой Зеландии', de: 'Neuseeland',   zh: '新西兰',   ja: 'ニュージーランド', es: 'Nueva Zelanda' },
+  SG: { en: 'Singapore',   fr: 'singapouriens',  id: 'Singapura',    ru: 'Сингапура',      de: 'Singapur',      zh: '新加坡',   ja: 'シンガポール', es: 'Singapur', ko: '싱가포르' },
+  MY: { en: 'Malaysian',   fr: 'malaisiens',     id: 'Malaysia',     ru: 'Малайзии',       de: 'Malaysia',      zh: '马来西亚', ja: 'マレーシア',   es: 'Malasia', ko: '말레이시아' },
+  TH: { en: 'Thai',        fr: 'thaïlandais',    id: 'Thailand',     ru: 'Таиланда',       de: 'Thailand',      zh: '泰国',     ja: 'タイ',         es: 'Tailandia', ko: '태국' },
+  JP: { en: 'Japanese',    fr: 'japonais',       id: 'Jepang',       ru: 'Японии',         de: 'Japan',         zh: '日本',     ja: '日本',         es: 'Japón', ko: '일본' },
+  VN: { en: 'Vietnamese',  fr: 'vietnamiens',    id: 'Vietnam',      ru: 'Вьетнама',       de: 'Vietnam',       zh: '越南',     ja: 'ベトナム',     es: 'Vietnam', ko: '베트남' },
+  AU: { en: 'Australian',  fr: 'australiens',    id: 'Australia',    ru: 'Австралии',      de: 'Australien',    zh: '澳大利亚', ja: 'オーストラリア', es: 'Australia', ko: '호주' },
+  NZ: { en: 'New Zealand', fr: 'néo-zélandais',  id: 'Selandia Baru', ru: 'Новой Зеландии', de: 'Neuseeland',   zh: '新西兰',   ja: 'ニュージーランド', es: 'Nueva Zelanda', ko: '뉴질랜드' },
   // v0.62.38 — the 8 markets lit up by the full curation pass.
-  ID: { en: 'Indonesian',  fr: 'indonésiens',    id: 'Indonesia',    ru: 'Индонезии',      de: 'Indonesien',    zh: '印尼',     ja: 'インドネシア', es: 'Indonesia' },
-  PH: { en: 'Filipino',    fr: 'philippins',     id: 'Filipina',     ru: 'Филиппин',       de: 'Philippinen',   zh: '菲律宾',   ja: 'フィリピン',   es: 'Filipinas' },
-  KR: { en: 'Korean',      fr: 'coréens',        id: 'Korea',        ru: 'Кореи',          de: 'Korea',         zh: '韩国',     ja: '韓国',         es: 'Corea' },
-  CN: { en: 'Chinese',     fr: 'chinois',        id: 'Tiongkok',     ru: 'Китая',          de: 'China',         zh: '中国',     ja: '中国',         es: 'China' },
-  TW: { en: 'Taiwanese',   fr: 'taïwanais',      id: 'Taiwan',       ru: 'Тайваня',        de: 'Taiwan',        zh: '台湾',     ja: '台湾',         es: 'Taiwán' },
-  HK: { en: 'Hong Kong',   fr: 'hongkongais',    id: 'Hong Kong',    ru: 'Гонконга',       de: 'Hongkong',      zh: '香港',     ja: '香港',         es: 'Hong Kong' },
-  MO: { en: 'Macanese',    fr: 'macanais',       id: 'Makau',        ru: 'Макао',          de: 'Macau',         zh: '澳门',     ja: 'マカオ',       es: 'Macao' },
-  BN: { en: 'Bruneian',    fr: 'brunéiens',      id: 'Brunei',       ru: 'Брунея',         de: 'Brunei',        zh: '文莱',     ja: 'ブルネイ',     es: 'Brunéi' }
+  ID: { en: 'Indonesian',  fr: 'indonésiens',    id: 'Indonesia',    ru: 'Индонезии',      de: 'Indonesien',    zh: '印尼',     ja: 'インドネシア', es: 'Indonesia', ko: '인도네시아' },
+  PH: { en: 'Filipino',    fr: 'philippins',     id: 'Filipina',     ru: 'Филиппин',       de: 'Philippinen',   zh: '菲律宾',   ja: 'フィリピン',   es: 'Filipinas', ko: '필리핀' },
+  KR: { en: 'Korean',      fr: 'coréens',        id: 'Korea',        ru: 'Кореи',          de: 'Korea',         zh: '韩国',     ja: '韓国',         es: 'Corea', ko: '한국' },
+  CN: { en: 'Chinese',     fr: 'chinois',        id: 'Tiongkok',     ru: 'Китая',          de: 'China',         zh: '中国',     ja: '中国',         es: 'China', ko: '중국' },
+  TW: { en: 'Taiwanese',   fr: 'taïwanais',      id: 'Taiwan',       ru: 'Тайваня',        de: 'Taiwan',        zh: '台湾',     ja: '台湾',         es: 'Taiwán', ko: '대만' },
+  HK: { en: 'Hong Kong',   fr: 'hongkongais',    id: 'Hong Kong',    ru: 'Гонконга',       de: 'Hongkong',      zh: '香港',     ja: '香港',         es: 'Hong Kong', ko: '홍콩' },
+  MO: { en: 'Macanese',    fr: 'macanais',       id: 'Makau',        ru: 'Макао',          de: 'Macau',         zh: '澳门',     ja: 'マカオ',       es: 'Macao', ko: '마카오' },
+  BN: { en: 'Bruneian',    fr: 'brunéiens',      id: 'Brunei',       ru: 'Брунея',         de: 'Brunei',        zh: '文莱',     ja: 'ブルネイ',     es: 'Brunéi', ko: '브루나이' }
 };
 
 // v0.62.113 — operator: dish names must read as a proper Title (each word
@@ -144,11 +144,11 @@ function leadWithQualifier(s) {
 // asked `fr ? x.fr : x.en`. Exactly the class v0.62.781 named directly above and
 // fixed at four sites; these were the sites it did not reach.
 const MEAL_BUCKETS = [
-  { key: 'breakfast', icon: '☕', en: 'Breakfast',      fr: 'Petit-déjeuner',           id: 'Sarapan',              ru: 'Завтрак',        de: 'Frühstück',            zh: '早餐',      ja: '朝食',        es: 'Desayuno' },
-  { key: 'main',      icon: '🍽', en: 'Lunch & Dinner', fr: 'Déjeuner & Dîner',         id: 'Makan siang & malam',  ru: 'Обед и ужин',    de: 'Mittag- & Abendessen', zh: '午餐与晚餐', ja: '昼食・夕食',  es: 'Almuerzo y cena' },
-  { key: 'snack',     icon: '🥢', en: 'Snacks & sides', fr: 'Encas & accompagnements',  id: 'Camilan & pendamping', ru: 'Закуски и гарниры', de: 'Snacks & Beilagen', zh: '小吃与配菜', ja: '軽食・サイド', es: 'Aperitivos y guarniciones' },
-  { key: 'dessert',   icon: '🧁', en: 'Desserts',       fr: 'Desserts',                 id: 'Hidangan penutup',     ru: 'Десерты',        de: 'Desserts',             zh: '甜点',      ja: 'デザート',    es: 'Postres' },
-  { key: 'drink',     icon: '🥤', en: 'Drinks',         fr: 'Boissons',                 id: 'Minuman',              ru: 'Напитки',        de: 'Getränke',             zh: '饮品',      ja: 'ドリンク',    es: 'Bebidas' },
+  { key: 'breakfast', icon: '☕', en: 'Breakfast',      fr: 'Petit-déjeuner',           id: 'Sarapan',              ru: 'Завтрак',        de: 'Frühstück',            zh: '早餐',      ja: '朝食',        es: 'Desayuno', ko: '아침' },
+  { key: 'main',      icon: '🍽', en: 'Lunch & Dinner', fr: 'Déjeuner & Dîner',         id: 'Makan siang & malam',  ru: 'Обед и ужин',    de: 'Mittag- & Abendessen', zh: '午餐与晚餐', ja: '昼食・夕食',  es: 'Almuerzo y cena', ko: '점심·저녁' },
+  { key: 'snack',     icon: '🥢', en: 'Snacks & sides', fr: 'Encas & accompagnements',  id: 'Camilan & pendamping', ru: 'Закуски и гарниры', de: 'Snacks & Beilagen', zh: '小吃与配菜', ja: '軽食・サイド', es: 'Aperitivos y guarniciones', ko: '간식·곁들임' },
+  { key: 'dessert',   icon: '🧁', en: 'Desserts',       fr: 'Desserts',                 id: 'Hidangan penutup',     ru: 'Десерты',        de: 'Desserts',             zh: '甜点',      ja: 'デザート',    es: 'Postres', ko: '디저트' },
+  { key: 'drink',     icon: '🥤', en: 'Drinks',         fr: 'Boissons',                 id: 'Minuman',              ru: 'Напитки',        de: 'Getränke',             zh: '饮品',      ja: 'ドリンク',    es: 'Bebidas', ko: '음료' },
 ];
 // v0.62.586 — the meal-bucket keyword sets were Asian-tuned, so Western/Australian
 // classics (tim tam, lamington, pavlova, flat white, …) all fell through to 'main'
@@ -180,13 +180,13 @@ function categoriseClassics(flat) {
 // dish-community.js). Labels are localised; the 'shared' bucket holds genuinely
 // pan-ethnic dishes (operator-approved — never force-assigned).
 const COMMUNITY_LABEL = {
-  chinese:           { en: 'Chinese',         fr: 'Chinoise',      id: 'Tionghoa',  ru: 'Китайская',     de: 'Chinesisch',         zh: '华族',     ja: '中華系',         es: 'China' },
-  'straits-chinese': { en: 'Straits Chinese', fr: 'Peranakan',     id: 'Peranakan', ru: 'Перанакан',     de: 'Straits-Chinesisch', zh: '土生华人', ja: 'プラナカン',     es: 'China de los Estrechos' },
-  malay:             { en: 'Malay',           fr: 'Malaise',       id: 'Melayu',    ru: 'Малайская',     de: 'Malaiisch',          zh: '马来族',   ja: 'マレー系',       es: 'Malaya' },
-  indian:            { en: 'Indian',          fr: 'Indienne',      id: 'India',     ru: 'Индийская',     de: 'Indisch',            zh: '印族',     ja: 'インド系',       es: 'India' },
-  indonesian:        { en: 'Indonesian',      fr: 'Indonésienne',  id: 'Indonesia', ru: 'Индонезийская', de: 'Indonesisch',        zh: '印尼',     ja: 'インドネシア系', es: 'Indonesia' },
-  eurasian:          { en: 'Eurasian',        fr: 'Eurasienne',    id: 'Eurasia',   ru: 'Евразийская',   de: 'Eurasisch',          zh: '欧亚裔',   ja: 'ユーラシア系',   es: 'Euroasiática' },
-  shared:            { en: 'Shared',          fr: 'Partagé',       id: 'Bersama',   ru: 'Общая',         de: 'Gemeinsam',          zh: '共有',     ja: '共通',           es: 'Compartido' },
+  chinese:           { en: 'Chinese',         fr: 'Chinoise',      id: 'Tionghoa',  ru: 'Китайская',     de: 'Chinesisch',         zh: '华族',     ja: '中華系',         es: 'China', ko: '중국계' },
+  'straits-chinese': { en: 'Straits Chinese', fr: 'Peranakan',     id: 'Peranakan', ru: 'Перанакан',     de: 'Straits-Chinesisch', zh: '土生华人', ja: 'プラナカン',     es: 'China de los Estrechos', ko: '프라나칸' },
+  malay:             { en: 'Malay',           fr: 'Malaise',       id: 'Melayu',    ru: 'Малайская',     de: 'Malaiisch',          zh: '马来族',   ja: 'マレー系',       es: 'Malaya', ko: '말레이계' },
+  indian:            { en: 'Indian',          fr: 'Indienne',      id: 'India',     ru: 'Индийская',     de: 'Indisch',            zh: '印族',     ja: 'インド系',       es: 'India', ko: '인도계' },
+  indonesian:        { en: 'Indonesian',      fr: 'Indonésienne',  id: 'Indonesia', ru: 'Индонезийская', de: 'Indonesisch',        zh: '印尼',     ja: 'インドネシア系', es: 'Indonesia', ko: '인도네시아계' },
+  eurasian:          { en: 'Eurasian',        fr: 'Eurasienne',    id: 'Eurasia',   ru: 'Евразийская',   de: 'Eurasisch',          zh: '欧亚裔',   ja: 'ユーラシア系',   es: 'Euroasiática', ko: '유라시안' },
+  shared:            { en: 'Shared',          fr: 'Partagé',       id: 'Bersama',   ru: 'Общая',         de: 'Gemeinsam',          zh: '共有',     ja: '共通',           es: 'Compartido', ko: '공통' },
 };
 const COMMUNITY_ORDER = ['chinese', 'straits-chinese', 'malay', 'indian', 'indonesian', 'eurasian', 'shared'];
 function groupByCommunity(dishes) {

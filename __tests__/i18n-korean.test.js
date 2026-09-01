@@ -56,10 +56,10 @@ const TARGET_KEYED = new Set(SUPPORTED.map((l) => `bot.lang.set.${l}`));
 
 describe('the Korean column is complete for bot i18n.js', () => {
   it('covers every entry in the table, and the table is the size we measured', () => {
-    expect(ENTRIES.length, 'the surface is 405 units — see the header on why it was reported as 403').toBe(405);
+    expect(ENTRIES.length, 'the surface is 407 units — 405 at K1, plus the two keys K6 adds').toBe(407);
     const missing = ENTRIES.filter(([k, v]) => !TARGET_KEYED.has(k) && (!v.ko || !String(v.ko).trim())).map(([k]) => k);
     expect(missing, 'these entries have no Korean').toEqual([]);
-    expect(ENTRIES.filter(([, v]) => typeof v.ko === 'string').length).toBe(397);
+    expect(ENTRIES.filter(([, v]) => typeof v.ko === 'string').length).toBe(398);
   });
 
   it('and the target-keyed family stays uncolumned, as its six other locales are', () => {
@@ -76,7 +76,7 @@ describe('the Korean column is complete for bot i18n.js', () => {
     // en and fr carry all 405; the other six carry 389 — the 16 that differ are the two
     // language-menu families above, which are correct as they stand.
     const count = (l) => ENTRIES.filter(([, v]) => typeof v[l] === 'string' && v[l].trim()).length;
-    expect({ en: count('en'), fr: count('fr') }).toEqual({ en: 405, fr: 405 });
+    expect({ en: count('en'), fr: count('fr') }).toEqual({ en: 407, fr: 407 });
     for (const l of ['id', 'ru', 'de', 'zh', 'ja', 'es']) expect(count(l), `${l} lost values when ko was inserted`).toBe(389);
   });
 });
@@ -161,21 +161,42 @@ describe('script integrity, including the direction Korean adds', () => {
     // must stay the eight it is — an exemption list that can grow is a guard that can be retired
     // one key at a time.
     expect(checkedWithProse).toBeGreaterThanOrEqual(370);
-    expect(OWN_NAME_KEYS.size).toBe(8);
+    expect(OWN_NAME_KEYS.size).toBe(9);
   });
 });
 
-describe('K1 changes content only — the app still offers eight languages', () => {
-  it('SUPPORTED is untouched, so nothing reaches a user until the flip', () => {
-    expect(SUPPORTED).toEqual(['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es']);
-    expect(SUPPORTED).not.toContain('ko');
+describe('K6 — Korean is OFFERED now, which is what these assertions used to deny', () => {
+  // THIS BLOCK IS THE INVERSE OF WHAT IT SAID THROUGH K1–K5, and the inversion is the point.
+  // While the content was staged it asserted `SUPPORTED` did NOT contain 'ko' and that t()
+  // still served English — the guarantee that 6,277 Korean cells could sit on production
+  // unreachable while every unflipped guard stayed honest. K6 removes that guarantee on
+  // purpose. Deleting these tests would have left the flip unwitnessed; inverting them makes
+  // the same lines prove the opposite fact, and a revert of K6 fails here rather than silently.
+  it('SUPPORTED carries Korean, appended last so the existing order is untouched', () => {
+    expect(SUPPORTED).toEqual(['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es', 'ko']);
+    expect(SUPPORTED).toContain('ko');
+    // Appended, not inserted: the eight that shipped keep their positions, so anything that
+    // indexes into this array — a keyboard row, a column order — is unmoved by the flip.
+    expect(SUPPORTED.slice(0, 8)).toEqual(['en', 'fr', 'id', 'ru', 'de', 'zh', 'ja', 'es']);
+    expect(SUPPORTED[8]).toBe('ko');
   });
 
-  it('and t() still serves English for ko, which is what makes staging safe', () => {
-    // If this ever returns Korean before K11, the content stopped being inert and every guard
-    // that has not been flipped yet is suddenly load-bearing.
-    expect(pickLang('ko')).toBe('en');
-    expect(t('bot.index.cancel', 'ko')).toBe(t('bot.index.cancel', 'en'));
-    expect(STRINGS['bot.index.cancel'].ko).not.toBe(t('bot.index.cancel', 'en'));
+  it('and t() now serves the Korean value rather than falling back to English', () => {
+    // The exact assertion that used to prove the content was inert, read the other way.
+    expect(pickLang('ko')).toBe('ko');
+    expect(t('bot.index.cancel', 'ko')).not.toBe(t('bot.index.cancel', 'en'));
+    expect(t('bot.index.cancel', 'ko')).toBe(STRINGS['bot.index.cancel'].ko);
+  });
+
+  it('and the two keys the flip needed exist and resolve', () => {
+    // `language.btn.ko` is the button a user taps; `bot.lang.set.ko` is the confirmation they
+    // get back. Without both, the flip offers a language it cannot acknowledge.
+    expect(STRINGS['language.btn.ko']).toBeTruthy();
+    expect(STRINGS['bot.lang.set.ko']).toBeTruthy();
+    expect(t('language.btn.ko', 'en')).toContain('한국어');
+    expect(t('bot.lang.set.ko', 'ko')).toMatch(/한국어/);
+    // The confirmation is target-keyed like its eight siblings: written once, in Korean, and
+    // carrying no per-locale columns. A `ko` column here would be unreachable.
+    expect(STRINGS['bot.lang.set.ko'].ko).toBeUndefined();
   });
 });
