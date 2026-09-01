@@ -13,6 +13,8 @@
 // its own single-name request: 30 round trips for one line. The fetch is therefore hoisted
 // to App and the card takes a plain string prop. That is the claim these tests hold.
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { secondLine } from '../web/_shared/lib/name-second-line.js';
+import { stationName } from '../web/_shared/lib/mrt-stations-i18n.generated.js';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -145,8 +147,22 @@ describe('the wiring — hoisted to App, rendered by the card', () => {
   });
 
   it('the card shows it only where the register had nothing', () => {
+    // v0.62.889 — THIS TEST BROKE ON A REFACTOR WHILE THE BEHAVIOUR HELD, which is
+    // the exact failure name-guide.js's header describes: "the precedence has now
+    // been asserted by five separate source-scanning tests, four of which broke on
+    // a refactor while the behaviour held." It pinned the inline expression
+    // `displayName === name && say &&`, and that condition moved into secondLine()
+    // when the stations gained a bracketed translation. The rule it was defending
+    // is unchanged — where the register answers, no second line — so it is now
+    // asserted by CALLING the function rather than by grepping for its old shape.
+    const primary = stationName('Ang Mo Kio', 'zh');
+    expect(primary, 'the register answers in Chinese').not.toBe('Ang Mo Kio');
+    expect(secondLine({ primary, english: 'Ang Mo Kio', station: 'Ang Mo Kio', lang: 'zh', say: 'ANG-mo-KEE-oh' }),
+      'a guide must not appear under a name the register already localised').toBeNull();
+    // …and where it had nothing, the fetched guide is still what shows.
+    expect(secondLine({ primary: 'Ang Mo Kio', english: 'Ang Mo Kio', station: 'Ang Mo Kio', lang: 'en', say: 'ANG-mo-KEE-oh' }))
+      .toEqual({ text: 'ANG-mo-KEE-oh', key: 'say' });
     const card = read('web/transport/src/components/StationCard.jsx');
-    expect(card).toMatch(/displayName === name && say &&/);
     expect(card).toContain('<PronounceIcon');
   });
 
