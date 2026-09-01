@@ -31,6 +31,64 @@ describe('the premise: one key, five apps', () => {
   });
 });
 
+describe('the sync is two-way — v0.62.884', () => {
+  // THE SHARED KEY WAS ONLY HALF THE PREMISE, and this file asserted the half that
+  // happened to hold. Menu, transport and clipboard each had the POST in
+  // setActiveLocale and NO corresponding read, so the sync ran one way: a user who
+  // set /language ko in chat and opened the Menu hub got English, because
+  // getActiveLocale() goes localStorage → navigator.language → Telegram's app
+  // locale and never asks the server that holds the preference. Reported by the
+  // operator against the hub; the other two carried it silently.
+  //
+  // Why the existing tests could not see it: tma-i18n-korean.test.js and
+  // tma-i18n-coverage.test.js both cover web/menu/src/i18n.js and both PASSED —
+  // they check that the Korean strings exist and that LocaleToggle lists Korean.
+  // The strings were never the problem. They test the table, not the resolution.
+  const APPS = [
+    'web/cuisine/src/v2/lib/i18n.js',
+    'web/hawker/src/i18n.js',
+    'web/menu/src/i18n.js',
+    'web/transport/src/i18n.js',
+    'web/clipboard/src/lib/i18n.js',
+  ];
+
+  // Cuisine reaches the endpoint through lib/api.js (fetchUserLanguage / postJson)
+  // rather than naming it inline, so the endpoint check follows the indirection
+  // instead of demanding every app spell the path. Naming the exception beats
+  // dropping the check: a new app that reaches for neither still fails.
+  const ENDPOINT_SRC = {
+    'web/cuisine/src/v2/lib/i18n.js': 'web/cuisine/src/v2/lib/api.js',
+  };
+
+  it.each(APPS)('%s READS the chat-side preference, not just writes it', (f) => {
+    const src = fs.readFileSync(f, 'utf8');
+    const endpointIn = fs.readFileSync(ENDPOINT_SRC[f] || f, 'utf8');
+    expect(endpointIn, 'the shared preference endpoint').toContain('/api/cuisine/user-language');
+    expect(src, 'the read half — hydrateFromServerOnce').toMatch(/async function hydrateFromServerOnce\(\)/);
+    expect(src, 'and it must actually be called from useLocale, not merely defined').toMatch(/hydrateFromServerOnce\(\);/);
+  });
+
+  it.each(APPS)('%s hydration overwrites the stored key, not only the event', (f) => {
+    // Dispatching the event without writing localStorage fixes the current mount and
+    // loses it on the next one — and a stale value pinned by an earlier flag-pill tap
+    // in ANY of the five outranks every other signal, since the key is shared.
+    const src = fs.readFileSync(f, 'utf8');
+    const i = src.indexOf('async function hydrateFromServerOnce()');
+    const body = src.slice(i, i + 1200);
+    expect(body).toMatch(/localStorage\.setItem\(LOCALE_KEY/);
+    expect(body).toMatch(/new CustomEvent\(LOCALE_EVENT/);
+  });
+
+  it.each(APPS.slice(2))('%s does not let a late hydration undo an in-app choice', (f) => {
+    // cuisine solves this with HYDRATE_CEILING_MS and hawker predates the concern;
+    // the three fixed at v0.62.884 use an explicit latch, which is the same
+    // guarantee stated directly rather than as a timeout.
+    const src = fs.readFileSync(f, 'utf8');
+    expect(src).toContain('localeChosenInApp = true;');
+    expect(src).toMatch(/if \(localeChosenInApp\) return;/);
+  });
+});
+
 describe('"settled" is not "started"', () => {
   it('the dedupe latch is set before the await, so it cannot answer "has it settled?"', () => {
     // The premise of needing a SECOND flag, asserted rather than described. serverHydrated

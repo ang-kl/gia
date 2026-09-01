@@ -733,6 +733,59 @@ async function ensureLocation(chatId, label, lang = 'en', opts = {}) {
 // the v0.53.0 name.
 const ensureFreshLocationOrPrompt = ensureLocation;
 
+// v0.62.884 — the per-chat slash menu.
+//
+// THE PROBLEM THESE SOLVE. Telegram picks a command list by the user's CLIENT
+// language, not by our stored /language preference, so registering all nine
+// language_code lists still leaves a Korean speaker whose Telegram app is in
+// English reading an English menu. Bot API §Determining list of commands ranks
+// botCommandScopeChat above botCommandScopeDefault + language_code, so a list
+// written against THIS chat overrides the client language outright. That is the
+// only mechanism that can follow a toggle, and this is where it is applied.
+//
+// Both are fire-and-forget on purpose. A Telegram hiccup here must never delay
+// or break the language acknowledgement the user is waiting to see; a menu that
+// repaints a second late is not worth a failed reply. `_menuCounts` is filled at
+// boot by registerCommandsMenu() and falls back to count-display's FALLBACK, so
+// a toggle costs no Redis round-trip.
+let _menuCounts = { cuisines: '55+', hawker: '100' };
+
+function applyChatCommands(chatId, lang) {
+  try {
+    const { buildCommandList, chatScope } = require('./bot-commands');
+    bot.setMyCommands(buildCommandList(lang, _menuCounts), { scope: chatScope(chatId) })
+      .catch((err) => console.warn(`[setMyCommands] chat ${chatId} → ${lang} failed:`, err.message));
+  } catch (err) {
+    console.warn('[setMyCommands] chat-scope build failed:', err.message);
+  }
+}
+
+// v0.62.884 — the Telegram CLIENT language, but only when we can actually speak
+// it. Three sites derived this by hand and each hardcoded ['en','fr'], so a
+// German user with Telegram in German got an English /language prompt and a
+// Korean one got nothing at all — K6 flipped every locale TABLE and could not
+// see these, because they are a conditional, not a table. Returns '' when the
+// client language is not one of ours, which is the caller's cue to use 'en'.
+function tgClientLang(msg) {
+  const { SUPPORTED } = require('./user-prefs');
+  const code = String(msg?.from?.language_code || '').slice(0, 2).toLowerCase();
+  return SUPPORTED.includes(code) ? code : '';
+}
+
+function clearChatCommands(chatId) {
+  try {
+    // deleteMyCommands does NOT stringify form.scope the way setMyCommands does
+    // (node-telegram-bot-api 0.64.0) — passing the object sends the literal
+    // "[object Object]" and the delete silently misses. deleteScopeArg() is the
+    // one place that difference is handled.
+    const { deleteScopeArg } = require('./bot-commands');
+    bot.deleteMyCommands({ scope: deleteScopeArg(chatId) })
+      .catch((err) => console.warn(`[deleteMyCommands] chat ${chatId} failed:`, err.message));
+  } catch (err) {
+    console.warn('[deleteMyCommands] chat-scope build failed:', err.message);
+  }
+}
+
 async function safeSend(chatId, text, opts = {}) {
   try {
     await bot.sendMessage(chatId, text, opts);
@@ -1947,7 +2000,18 @@ bot.onText(/^\/forgetme(?:@\w+)?$/, async (msg) => {
 //   /language          → inline keyboard, 8 flag+native buttons (2 per row)
 //   /language <code>   → set to that locale + ack (code ∈ user-prefs SUPPORTED)
 //   /language auto     → clear preference; revert to Telegram locale
-bot.onText(/^\/(?:language|la)(?:@\w+)?(?:\s+(en|fr|id|ru|de|zh|ja|es|auto))?$/i, async (msg, match) => {
+// v0.62.884 — BUILT FROM SUPPORTED, NOT SPELLED OUT. The alternation used to be
+// the literal (en|fr|id|ru|de|zh|ja|es|auto), and K6 added 'ko' to SUPPORTED
+// without touching it — so `/language ko` matched nothing, bot.onText never
+// fired, and the user got no acknowledgement AND no picker. Silence, not an
+// error. Korean was reachable only through the inline keyboard. Deriving the
+// pattern makes that class of drift impossible rather than merely fixed; the
+// comment above still claims code ∈ SUPPORTED, and now that is true again.
+const LANGUAGE_CMD_RE = new RegExp(
+  `^\\/(?:language|la)(?:@\\w+)?(?:\\s+(${[...require('./user-prefs').SUPPORTED, 'auto'].join('|')}))?$`,
+  'i',
+);
+bot.onText(LANGUAGE_CMD_RE, async (msg, match) => {
   await runLanguageCommand(msg, match?.[1] ? match[1].toLowerCase() : null);
 });
 
@@ -3602,6 +3666,10 @@ bot.on('callback_query', async (q) => {
       const { setUserLang } = require('./user-prefs');
       const written = await setUserLang(redis, chatId, target);
       if (written) {
+        // v0.62.884 — repaint the slash menu for THIS chat in the chosen locale.
+        // Fire-and-forget: the acknowledgement below is what the user is waiting
+        // for, and a Telegram hiccup on the menu must not hold it up.
+        applyChatCommands(chatId, written);
         await safeSend(chatId, t(`bot.lang.set.${written}`, written));
       }
       return;
@@ -5583,8 +5651,8 @@ bot.onText(/^\/start(?:@\w+)?(?:\s+(\S+))?$/, async (msg, match) => {
   try {
     const { getUserLang } = require('./user-prefs');
     const stored = await getUserLang(redis, msg.chat.id);
-    const tgLang = String(msg.from?.language_code || '').slice(0, 2).toLowerCase();
-    if (stored && ['en','fr'].includes(tgLang) && stored !== tgLang) {
+    const tgLang = tgClientLang(msg);   // v0.62.884 — nine locales, not two
+    if (stored && tgLang && stored !== tgLang) {
       const hint = tn('bot.index.yourTelegramClientIsIn', startLang, { a: t(`bot.langname.${tgLang || 'en'}`, startLang), b: t(`bot.langname.${stored || 'en'}`, startLang) });
       intro = intro + hint;
     }
@@ -7885,8 +7953,11 @@ async function runLanguageCommand(msg, arg) {
     if (redis?.isOpen) {
       try { await redis.del(`user:${chatId}:lang`); } catch { /* noop */ }
     }
-    const tgLang = String(msg.from?.language_code || '').slice(0, 2).toLowerCase();
-    const ackLang = ['en','fr'].includes(tgLang) ? tgLang : 'en';
+    const ackLang = tgClientLang(msg) || 'en';   // v0.62.884 — was ['en','fr'] only
+    // v0.62.884 — the preference is gone, so the per-chat menu must go with it.
+    // Without this the user reverts to their Telegram locale everywhere EXCEPT
+    // the slash menu, which would keep serving the language they just cleared.
+    clearChatCommands(chatId);
     await safeSend(chatId, t('language.cleared', ackLang));
     return;
   }
@@ -7898,14 +7969,14 @@ async function runLanguageCommand(msg, arg) {
   if (arg && arg !== 'auto' && SUPPORTED.includes(arg)) {
     const written = await setUserLang(redis, chatId, arg);
     if (written) {
+      applyChatCommands(chatId, written);   // v0.62.884 — same repaint as the inline keyboard
       await safeSend(chatId, t(`bot.lang.set.${written}`, written));
       return;
     }
   }
   // No arg → inline keyboard. Show current pref alongside.
   const current = await getUserLang(redis, chatId);
-  const tgLang = String(msg.from?.language_code || '').slice(0, 2).toLowerCase();
-  const display = current || (['en','fr'].includes(tgLang) ? tgLang : 'en');
+  const display = current || tgClientLang(msg) || 'en';   // v0.62.884 — was ['en','fr'] only
   const fromTg = current ? '' : t('language.fromTg', display);
   const promptText = tn('language.current', display, { fromTg });
   // v0.62.480 — all 8 locales, two buttons per row so the keyboard stays
@@ -11016,6 +11087,12 @@ async function runForgetMeCommand(chatId, lang = 'en') {
   const { t, tn } = require('./i18n');
   try {
     const { forgetUserData } = require('./user-data');
+    // v0.62.884 — the per-chat slash menu is user state, and it does not live in
+    // Redis: Telegram holds it. A command that promises erasure and leaves a
+    // personalised command list behind on Telegram's servers is not telling the
+    // truth, so it goes with everything else. Cleared unconditionally — the user
+    // may have no Redis keys and still have a menu from an earlier /language.
+    clearChatCommands(chatId);
     const { deleted, keys } = await forgetUserData(redis, chatId);
     if (!deleted) {
       await safeSend(chatId, t('forgetme.nothing', lang));
@@ -12267,54 +12344,39 @@ async function registerCommandsMenu() {
       };
     } catch (err) { console.warn('[setMyCommands] count-display read failed:', err.message); }
 
-    const enCommands = [
-      { command: 'menu',       description: 'Soleat menu hub · one-tap reach to every feature (or /m)' },
-      { command: 'cuisine',    description: `Cuisine Picker · ${_periodicalCountsStr.cuisines} cuisines, SG + Johor Bahru, quick filters (or /c)` },
-      { command: 'location',   description: 'Change location · /location [street] (or /l)' },
-      { command: 'hawker',     description: `>${_periodicalCountsStr.hawker} hawker centres (2026)` },
-      { command: 'recognised', description: 'Michelin, Bib Gourmand, Asia 50/100, Local Produce to Table' },
-      { command: 'weather',    description: 'Now + 2-hour NEA forecast' },
-      { command: 'transport',  description: 'Bus, MRT, walk, drive' },
-      { command: 'carpark',    description: 'Nearest 5 Carpark with available lots' },
-      // v0.60.113 — /buddy removed from the command menu (feature retired).
-      // v0.60.37 — /search (alias /s), the conversational dish /
-      // ingredient / kitchen-tool finder. v0.60.72 keeps the (/s)
-      // alias mention per Human Lead clarification 2026-05-10.
-      { command: 'search',     description: 'Dish / ingredient / technique search · e.g. /search goulash dumpling (or /s)' },
-      { command: 'rating',     description: 'Min rating filter · /rating 0–5 (0 = any), shared with Cuisine (or /ra)' },
-      { command: 'clipboard',  description: '📋 Saved cuisine clips · latest from /cuisine Copy-all / per-card Copy (or /clip)' },
-      { command: 'language',   description: 'Switch chat language (English / Français)' },
-      { command: 'privacy',    description: 'Data, retention & sources' },
-      { command: 'forgetme',   description: 'Erase stored data' }
-    ];
-    const frCommands = [
-      { command: 'menu',       description: 'Hub Soleat · accès rapide à toutes les fonctionnalités (ou /m)' },
-      { command: 'cuisine',    description: `Sélecteur de cuisine · ${_periodicalCountsStr.cuisines} cuisines, SG + Johor Bahru, filtres rapides (ou /c)` },
-      { command: 'location',   description: 'Changer de lieu · /location [rue] (ou /l)' },
-      { command: 'hawker',     description: `Plus de ${_periodicalCountsStr.hawker} hawker centres (2026)` },
-      { command: 'recognised', description: 'Michelin, Bib Gourmand, Asia 50/100, produits locaux' },
-      { command: 'weather',    description: 'Météo NEA — actuelle + prévision 2 h' },
-      { command: 'transport',  description: 'Bus, MRT, marche, voiture' },
-      { command: 'carpark',    description: 'Les 5 parkings les plus proches' },
-      // v0.60.113 — /buddy retiré du menu (fonctionnalité supprimée).
-      { command: 'search',     description: 'Recherche plat / ingrédient / technique · ex. /search goulash quenelles (ou /s)' },
-      { command: 'rating',     description: 'Filtre de note min. · /rating 0–5 (0 = toutes), partagé avec Cuisine (ou /ra)' },
-      { command: 'clipboard',  description: '📋 Clips de cuisine enregistrés · les plus récents depuis /cuisine (ou /clip)' },
-      { command: 'language',   description: 'Changer de langue (English / Français)' },
-      { command: 'privacy',    description: 'Données, conservation et sources' },
-      { command: 'forgetme',   description: 'Effacer vos données enregistrées' }
-    ];
-    await bot.setMyCommands(enCommands);
-    await bot.setMyCommands(frCommands, { language_code: 'fr' });
+    // v0.62.884 — the two hardcoded arrays that used to sit here (an EN one and
+    // an FR one, fourteen entries each) are gone; the descriptions live in
+    // i18n.js under bot.commands.* and are built by bot-commands.js. What that
+    // buys is not tidiness: seven of the nine locales had NO command list at
+    // all, and because index.js exports nothing, no test could ever have said
+    // so. The loop below registers every locale SUPPORTED knows about, so
+    // adding a tenth is one i18n block and nothing here.
+    _menuCounts = _periodicalCountsStr;
+    const { buildCommandList } = require('./bot-commands');
+    const { SUPPORTED: MENU_LANGS } = require('./i18n');
+
+    // Default scope carries English — it is what Telegram falls back to for a
+    // user whose client language matches no dedicated list.
+    await bot.setMyCommands(buildCommandList('en', _periodicalCountsStr));
+    for (const lang of MENU_LANGS) {
+      try {
+        await bot.setMyCommands(buildCommandList(lang, _periodicalCountsStr), { language_code: lang });
+      } catch (err) {
+        // One locale failing must not cost the other eight. Before v0.62.884
+        // the FR call was awaited bare, so a throw there skipped the
+        // descriptions, the short descriptions and setChatMenuButton too.
+        console.warn(`[setMyCommands] ${lang} registration failed:`, err.message);
+      }
+    }
     // v0.59.55: defensive purge of stale scopes. setMyCommands only
     // overwrites the (scope, language_code) pair it targets — any
     // /share entry left behind on a `language_code: 'en'` scope (or
     // other historical scopes) keeps surfacing in the slash-menu.
     // Re-issuing setMyCommands against every default-chat scope
     // explicitly forces Telegram to drop the cached /share row.
-    try {
-      await bot.setMyCommands(enCommands, { language_code: 'en' });
-    } catch (err) { console.warn('[setMyCommands] en-scope re-set failed:', err.message); }
+    // v0.62.884 — the en-scope re-issue is now inside the loop above, so this
+    // block is discharged by it; kept as a comment because the reason it was
+    // added is still true and a future reader will otherwise re-derive it.
 
     // v0.59.6: setMyDescription — the body shown above the command list
     // when a user opens the empty chat with the bot ("What can this bot
@@ -12326,31 +12388,47 @@ async function registerCommandsMenu() {
     // Telegram so the "Soleat for Solo eats…" preamble lives in
     // setMyShortDescription (120-char "About" pane); the body here is
     // the menu list + a tap-to-open hint.
+    // v0.62.884 — REWRITTEN, and it had to be rewritten rather than amended.
+    // The old body advertised /buddy, retired at v0.60.113, and omitted /menu,
+    // /rating and /clipboard. But it was already 522 characters against
+    // Telegram's 512 cap — trimmed on every boot since v0.60.37, exactly as the
+    // note below says — so adding three lines and removing one would have taken
+    // it to 579 and pushed real commands off the bottom instead. Measured, not
+    // guessed: the "(or /c)" aliases are what came out. Nothing is lost — the
+    // aliases still ride the command-menu descriptions, which get 256
+    // characters each. Worst case across count values is now 488 of 512.
+    // The locale count is interpolated for the same reason the /language regex
+    // is now derived: "English / Français" was hardcoded and went stale twice.
+    const _menuLangCount = require('./i18n').SUPPORTED.length;
     const enDescription =
-      `/cuisine (or /c) · ${_periodicalCountsStr.cuisines} cuisines, SG, Johor Bahru + other cities, quick filters\n` +
-      "/location (or /l) · change location [street]\n" +
-      `/hawker · >${_periodicalCountsStr.hawker} hawker centres (2026)\n` +
-      "/recognised · Michelin, Bib Gourmand, Asia 50/100\n" +
-      "/weather · now + 2-hour NEA forecast\n" +
+      "/menu · every feature, one tap\n" +
+      `/cuisine · ${_periodicalCountsStr.cuisines} cuisines, SG + Johor Bahru\n` +
+      "/location · change location\n" +
+      `/hawker · >${_periodicalCountsStr.hawker} hawker centres\n` +
+      "/recognised · Michelin, Bib, Asia 50/100\n" +
+      "/weather · now + 2h NEA forecast\n" +
       "/transport · bus, MRT, walk, drive\n" +
-      "/carpark · nearest 5 with available lots\n" +
-      "/buddy · live solo-dining match\n" +
-      "/search (or /s) · dishes, ingredients, tools\n" +
-      "/language · English / Français\n" +
+      "/carpark · nearest 5, free lots\n" +
+      "/search · dishes, ingredients, tools\n" +
+      "/rating · min rating 0–5\n" +
+      "/clipboard · saved cuisine clips\n" +
+      `/language · ${_menuLangCount} languages\n` +
       "/privacy · data + sources\n" +
       "/forgetme · erase stored data\n\n" +
       "Tap 🍴 Cuisine Picker to jump in.";
     const frDescription =
-      `/cuisine (ou /c) · ${_periodicalCountsStr.cuisines} cuisines, SG, Johor Bahru + autres villes, filtres\n` +
-      "/location (ou /l) · changer de lieu [rue]\n" +
-      `/hawker · plus de ${_periodicalCountsStr.hawker} hawker centres (2026)\n` +
-      "/recognised · Michelin, Bib Gourmand, Asia 50/100\n" +
+      "/menu · tout en un tap\n" +
+      `/cuisine · ${_periodicalCountsStr.cuisines} cuisines, SG + Johor Bahru\n` +
+      "/location · changer de lieu\n" +
+      `/hawker · plus de ${_periodicalCountsStr.hawker} hawker centres\n` +
+      "/recognised · Michelin, Bib, Asia 50/100\n" +
       "/weather · actuel + prévision NEA 2 h\n" +
       "/transport · bus, MRT, marche, voiture\n" +
-      "/carpark · 5 parkings les plus proches\n" +
-      "/buddy · match solo en direct\n" +
-      "/search (ou /s) · plats, ingrédients, ustensiles\n" +
-      "/language · English / Français\n" +
+      "/carpark · les 5 plus proches\n" +
+      "/search · plats, ingrédients, outils\n" +
+      "/rating · note minimale 0–5\n" +
+      "/clipboard · clips enregistrés\n" +
+      `/language · ${_menuLangCount} langues\n` +
       "/privacy · données + sources\n" +
       "/forgetme · effacer vos données\n\n" +
       "Appuyez sur 🍴 pour ouvrir.";
