@@ -10,6 +10,7 @@ import LoadingSkeleton from './components/LoadingSkeleton.jsx';
 import { initData } from './tg.js';
 import { t, tn, useLocale } from './i18n.js';
 import { lineName } from '../../_shared/lib/mrt-lines-i18n.generated.js';
+import { secondLine } from '../../_shared/lib/name-second-line.js';
 import { stationName } from '../../_shared/lib/mrt-stations-i18n.generated.js';
 import { usePronunciations } from '../../_shared/lib/use-pronounce.js';
 import LineStatusPanel from './components/LineStatusPanel.jsx';
@@ -750,10 +751,21 @@ export default function App() {
                     setMapView((prev) => (prev === 'png' ? 'gmap' : prev));
                   }
                 }}
-                className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg border border-tg-border bg-tg-bg text-left active:scale-95"
+                className="flex items-start gap-1.5 px-2 py-1.5 rounded-lg border border-tg-border bg-tg-bg text-left active:scale-95"
               >
-                <span className="inline-block w-3 h-3 rounded shrink-0" style={{ background: line.hex }} />
-                <span className="text-xs font-medium truncate">{lineName(line.code, line.name, lang)}</span>
+                <span className="inline-block w-3 h-3 rounded shrink-0 mt-0.5" style={{ background: line.hex }} />
+                {/* v0.62.888 — the official name, and under it the reader's own.
+                    items-start + a min-w-0 column because the row was centred on
+                    one line; the swatch would otherwise float against a two-line
+                    block. secondLine() returns at most ONE result, brackets
+                    already applied. */}
+                <span className="flex-1 min-w-0">
+                  <span className="text-xs font-medium truncate block">{lineName(line.code, line.name, lang)}</span>
+                  {(() => {
+                    const sl = secondLine({ primary: lineName(line.code, line.name, lang), english: line.name, code: line.code, lang });
+                    return sl ? <span className="text-[11px] text-tg-hint leading-tight truncate block">{sl.text}</span> : null;
+                  })()}
+                </span>
               </button>
             ))}
           </div>

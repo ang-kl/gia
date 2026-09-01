@@ -3,6 +3,7 @@ import LineBadge from './LineBadge.jsx';
 import { lineStationsFull, parseCode, PREFIX_TO_LINE } from '../data/line-paths.js';
 import { LINES_BY_CODE } from '../data/lines.js';
 import { lineName } from '../../../_shared/lib/mrt-lines-i18n.generated.js';
+import { secondLine } from '../../../_shared/lib/name-second-line.js';
 import { usePronunciations } from '../../../_shared/lib/use-pronounce.js';
 import PronounceIcon from '../../../_shared/components/PronounceIcon.jsx';
 import { initData } from '../tg.js';
@@ -104,13 +105,21 @@ export default function LineStatusPanel({ line, status, statusByLine = null, sel
         <div className="min-w-0 flex-1">
           <div className="text-base font-semibold leading-tight truncate">{lineName(line.code, line.name, lang)}</div>
           {/* v0.62.841 — the say-it line, only when the register had nothing: with a
-              curated Chinese or Malay name the row above IS the answer. */}
-          {lineName(line.code, line.name, lang) === line.name && lineSay.get(line.name) && (
-            <div className="text-xs text-tg-hint leading-tight truncate flex items-center gap-1">
-              <PronounceIcon className="shrink-0 opacity-80" />
-              <span className="truncate">{lineSay.get(line.name)}</span>
-            </div>
-          )}
+              curated Chinese or Malay name the row above IS the answer.
+              v0.62.888 — that rule is UNCHANGED and still right; what changed is
+              what fills the slot. secondLine() puts the reader's-language name
+              there when one exists and falls back to the say-it guide when it
+              does not, so this renders one line or none, never both. */}
+          {(() => {
+            const sl = secondLine({ primary: lineName(line.code, line.name, lang), english: line.name, code: line.code, lang, say: lineSay.get(line.name) });
+            if (!sl) return null;
+            return (
+              <div className="text-xs text-tg-hint leading-tight truncate flex items-center gap-1">
+                {sl.key === 'say' && <PronounceIcon className="shrink-0 opacity-80" />}
+                <span className="truncate">{sl.text}</span>
+              </div>
+            );
+          })()}
           <div className="text-xs text-tg-hint truncate">For {line.endpoints?.[1] || '?'}</div>
           <div className="text-xs text-tg-hint truncate">{line.endpoints?.[0]} ↔ {line.endpoints?.[1]}</div>
         </div>

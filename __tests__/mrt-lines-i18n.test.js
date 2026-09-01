@@ -93,7 +93,12 @@ describe('reach — measured, not assumed', () => {
 describe('every render site is wired, not just the convenient ones', () => {
   const site = (f) => fs.readFileSync(`web/transport/src/${f}`, 'utf8');
   it.each([
-    ['App.jsx', 2],
+    // v0.62.888 — 2 -> 3. The picker sheet now renders the official name and,
+    // under it, the reader's own; the extra CALL is the one feeding secondLine()
+    // the primary to compare against. Updated deliberately rather than loosened
+    // to a >=, for the same reason v0.62.841 did: the point of this table is that
+    // a NEW render site cannot appear unnoticed.
+    ['App.jsx', 3],
     // v0.62.841 — 1 -> 4. The pronunciation line added three more CALLS, none of
     // them a new render: one inside `curatedFor` (does the register already answer
     // this?), and two in the guard that shows the say-it line ONLY when it does not.
@@ -101,7 +106,9 @@ describe('every render site is wired, not just the convenient ones', () => {
     // table is that a NEW render site cannot appear unnoticed.
     ['components/LineStatusPanel.jsx', 4],
     ['components/AffectedTicker.jsx', 2],
-    ['components/EngineeringList.jsx', 1],
+    // v0.62.888 — 1 -> 2. Same second line, and the extra call is in the guard
+    // that only fires on the lineName branch (c.direction is already localised).
+    ['components/EngineeringList.jsx', 2],
     ['components/SystemMap.jsx', 1],
   ])('%s calls lineName %i time(s)', (f, n) => {
     // Counts the CALLS: the import reads \`import { lineName } from …\`, with no paren, so

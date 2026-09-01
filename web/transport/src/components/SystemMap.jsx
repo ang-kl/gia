@@ -2,6 +2,7 @@ import React from 'react';
 import { useLocale } from '../i18n.js';
 import { LINES_BY_CODE } from '../data/lines.js';
 import { lineName } from '../../../_shared/lib/mrt-lines-i18n.generated.js';
+import { secondLine } from '../../../_shared/lib/name-second-line.js';
 
 // v0.57.11: PNG-based system map (replaces hand-authored SVG). Uses
 // the official Singapore MRT system map committed at
@@ -45,7 +46,13 @@ export default function SystemMap({ focusedCode, affectedCodes = [] }) {
                   color: '#fff',
                   borderColor: isFocused ? '#fff' : meta.hex
                 }}
-                title={lineName(meta.code, meta.name, lang)}
+                title={(() => {
+                  // v0.62.888 — a tooltip, not a rendered line: no room for a
+                  // second row, so the gloss is appended to the same string.
+                  const p = lineName(meta.code, meta.name, lang);
+                  const sl = secondLine({ primary: p, english: meta.name, code: meta.code, lang });
+                  return sl ? `${p} ${sl.text}` : p;
+                })()}
               >
                 {c}
               </span>
