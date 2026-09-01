@@ -12777,14 +12777,6 @@ module.exports = {
     ja: "味つけした羊肉や牛肉を包んだトルコの小さな餃子。にんにく風味のヨーグルトをかけて供します。",
     es: "Pequeñas empanadillas turcas rellenas de cordero o ternera especiados, servidas en yogur con ajo.",
   },
-  "turkish::mantı": {
-    id: "Pangsit Turki kecil berisi daging giling berbumbu, disajikan bersama yogurt bawang putih dan mentega.",
-    ru: "Маленькие турецкие пельмешки с приправленным фаршем, поданные с чесночным йогуртом и растопленным маслом.",
-    de: "Kleine türkische Teigtaschen mit gewürztem Hackfleisch, serviert mit Knoblauchjoghurt und Butter.",
-    zh: "土耳其的小饺子：包调味肉糜，配蒜香酸奶与融化的黄油。",
-    ja: "味つけした挽肉を包んだトルコの小さな餃子。にんにくヨーグルトと溶かしバターを添えます。",
-    es: "Pequeñas empanadillas turcas de carne picada sazonada, servidas con yogur al ajo y mantequilla.",
-  },
   "turkish::meze platter turkish": {
     id: "Pilihan hidangan pembuka kecil Turki yang dibagi bersama sebelum atau saat minum raki; kata meze berasal dari bahasa Persia maze, rasa.",
     ru: "Турецкий набор маленьких закусок, которые делят перед ракы или под неё; слово «мезе» — от персидского мазе, «вкус».",

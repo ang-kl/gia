@@ -405,7 +405,9 @@ describe('batch 6a — no home locale at all', () => {
       .filter((n) => TURKISH_LETTERS.test(n));
     // Non-vacuity, pinned to the measured count: an overlay edit that strips the
     // diacritics empties this guard silently, and that must fail here instead.
-    expect(keys.length, 'the Turkish diacritic fixture changed size').toBe(10);
+    // 10 before v0.62.876; `mantı` was removed as a duplicate spelling of `manti`,
+    // and this exact-count assert is what forced that consequence to be noticed.
+    expect(keys.length, 'the Turkish diacritic fixture changed size').toBe(9);
 
     const flattened = [];
     for (const name of keys) {
@@ -422,18 +424,14 @@ describe('batch 6a — no home locale at all', () => {
     expect(flattened, flattened.join(' | ')).toEqual([]);
   });
 
-  // ⚠ The degradation is not hypothetical: `nation-overlay.js` lists BOTH `manti`
-  // and `mantı` as separate Turkish dishes, with notes that are word-for-word
-  // identical apart from that one character. Same dish, keyed twice. Both are
-  // translated because coverage requires it, and they are pinned equal so a later
-  // edit cannot drift them into two spellings of one dish saying different things.
-  // Fixing the overlay is a separate change — it alters what the app serves.
-  it('the duplicated manti/mantı keys say the same thing', () => {
-    const a = namesFor('manti', 'turkish');
-    const b = namesFor('mantı', 'turkish');
-    expect(a, 'manti is missing').toBeTruthy();
-    expect(b, 'mantı is missing').toBeTruthy();
-    expect(a).toEqual(b);
+  // ⚠ WAS: a pin that `manti` and `mantı` — the same dish keyed twice — carried
+  // identical values. v0.62.876 removed the duplicate instead, so the pin has no
+  // second key to compare against and is replaced by the guard below, which stops
+  // the whole class rather than the one instance.
+  it('the duplicate spelling is gone and the primary key survives', () => {
+    expect(namesFor('manti', 'turkish'), 'the primary key was removed by mistake').toBeTruthy();
+    const served = NATION_OVERLAY.turkish.iconicDishes.map((d) => d.name);
+    expect(served).not.toContain('mantı');
   });
 
   // Caught a real slip in this batch's own draft (`水börek千层`). One legitimate
@@ -503,6 +501,10 @@ describe('batch 6b — one dish keyed twice inside one cuisine', () => {
       }
     }
     // Non-vacuity: this join is fiddly enough that a silent zero is the real risk.
+    // NOTE: was 9 until v0.62.876 removed `mooncake` as a duplicate spelling, so
+    // this now sits EXACTLY on its floor. If a future change legitimately removes
+    // another pair, re-derive the floor from the data and say why — do not simply
+    // decrement it to get green.
     expect(checked, 'the same-local join matched nothing').toBeGreaterThanOrEqual(8);
     expect(disagree, disagree.join(' | ')).toEqual([]);
   });
@@ -641,6 +643,58 @@ describe('batch 7b — the last 52, and the guarantee that outlives COVERED', ()
     const kr = namesFor('curry debal alt', 'eurasian');
     expect(en.fr).not.toBe(kr.fr);
     expect(kr.fr.toLowerCase()).toContain('debal');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// v0.62.876 — the class of bug, not the instances. `iconicDishes` feeds DISPLAY
+// only (the cuisine drawer, the city plates, the food groups) and the drawer
+// endpoint does not dedupe, so two keys that are the same word spelled two ways
+// render as two near-identical cards to a reader. Three pairs were doing that:
+//
+//   turkish     manti      / mantı        — the same word, one ASCII-flattened
+//   chinese     moon cake  / mooncake     — the same word, one joined
+//   singaporean teh tarik  / teh tarik    — the SAME NAME twice, and the two
+//                                           entries disagreed on `kind`
+//                                           (food vs drink) while the curated
+//                                           note calls it "a hot milk tea
+//                                           beverage", so the drink entry stayed
+//
+// This guard is deliberately narrower than "one dish, two names". Pairs like
+// `phali` / `walnut-paste pkhali` and `devil curry` / `curry debal alt` name one
+// dish two genuinely different ways, each with its own note, and a reader may
+// know either term — those are kept on purpose. Folding is what separates a
+// spelling duplicate from an alternate name.
+describe('no cuisine lists the same dish name twice', () => {
+  const fold = (s) => s.toLowerCase()
+    .replace(/ı/g, 'i')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]/g, '');
+
+  it('has no two keys in one cuisine that fold to the same string', () => {
+    let cuisines = 0;
+    let dishes = 0;
+    const dupes = [];
+    for (const [slug, v] of Object.entries(NATION_OVERLAY)) {
+      const names = (v.iconicDishes || []).map((d) => d.name);
+      if (!names.length) continue;
+      cuisines += 1;
+      dishes += names.length;
+      const by = new Map();
+      for (const n of names) {
+        const f = fold(n);
+        if (!by.has(f)) by.set(f, []);
+        by.get(f).push(n);
+      }
+      for (const [, group] of by) {
+        if (group.length > 1) dupes.push(`${slug}: ${group.join(' || ')}`);
+      }
+    }
+    // Non-vacuity on both dimensions, so a failed import cannot pass this by
+    // iterating nothing — the same shape as the completeness assertion below.
+    expect(cuisines, 'the overlay yielded no cuisines').toBeGreaterThanOrEqual(60);
+    expect(dishes, 'the overlay yielded too few dishes').toBeGreaterThanOrEqual(1500);
+    expect(dupes, dupes.join(' | ')).toEqual([]);
   });
 });
 

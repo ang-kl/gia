@@ -320,7 +320,14 @@ describe('classics-notes — complete locale coverage', () => {
     // the floor exists to catch the step down nobody decided — a row lost to a bad edit or a
     // bad merge. Lowering it to match reality without saying why is how a guard becomes a
     // rubber stamp, so the number and the reason move together or not at all.
-    expect(rows).toBeGreaterThanOrEqual(1671);
+    // → 1,670 at v0.62.876: the operator ruled on three duplicate pairs that rendered as two
+    // near-identical cards each in the cuisine drawer, and retired `turkish::mantı` as a
+    // duplicate SPELLING of `manti` — the same word, one form ASCII-flattened, with notes
+    // identical but for that character. `chinese::mooncake` and the second `singaporean::teh
+    // tarik` went with it but cost no row here (neither carried its own CUISINE_NOTES entry).
+    // The pairs that name one dish two genuinely DIFFERENT ways — `phali` /
+    // `walnut-paste pkhali`, `devil curry` / `curry debal alt` — were kept on the same ruling.
+    expect(rows).toBeGreaterThanOrEqual(1670);
     expect(gaps).toEqual([]);
     // Removing a base note must remove its translations too. Six strings for a dish that no
     // longer exists are not harmless leftovers — they are what a later coverage count reads

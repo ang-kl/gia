@@ -152,7 +152,6 @@ const NATION_OVERLAY = {
       F('idli with sambar'),
       F('vadai (SG hawker)'),
       F('putu mayam'),
-      F('teh tarik',                   ['malaysian']),          // mamak invention, both nations claim
       F('butter chicken with naan'),
       F('tandoori chicken'),
       F('fish head curry SG-Indian style'),
@@ -1576,7 +1575,6 @@ const NATION_OVERLAY = {
       F('chinese new year nian gao'),
       F('moon cake'),
       F('zongzi'),                                                // rice dumpling festival
-      F('mooncake'),                                              // alt spelling
       F('chow mein'),
       F('lo mein'),
       F('egg drop soup'),
@@ -1975,7 +1973,6 @@ const NATION_OVERLAY = {
       F('manti'),                                                 // Turkish dumpling with yogurt
       F('köfte'),                                                 // meatballs
       F('kuru fasulye'),                                          // bean stew
-      F('mantı'),                                                 // alt spelling
       F('imam bayildi'),                                          // stuffed aubergine
       F('hünkar beğendi'),                                        // sultan\'s delight — lamb + smoky aubergine purée
       F('iç pilav'),                                              // pilaf with liver
