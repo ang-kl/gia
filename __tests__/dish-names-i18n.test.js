@@ -665,6 +665,50 @@ describe('batch 7b — the last 52, and the guarantee that outlives COVERED', ()
 // dish two genuinely different ways, each with its own note, and a reader may
 // know either term — those are kept on purpose. Folding is what separates a
 // spelling duplicate from an alternate name.
+// v0.62.878 — the sibling of the folding guard below. That one stops ONE cuisine
+// listing a dish twice; this one stops TWO cuisines disagreeing about what the
+// dish IS. `teh tarik` was `F()` (food) in `malaysian` and `D()` (drink) in
+// `singaporean` while its own curated note calls it "a hot milk tea beverage" —
+// so a reader browsing the two drawers met the same drink filed two ways.
+// Operator ruling, 01-09 '26: *"The teh tarik kind is drink."*
+//
+// Measured at the time of writing: 1,610 distinct names, **0** disagreeing. The
+// guard is therefore clean on arrival, and its job is to keep it that way.
+describe('two cuisines never disagree about what a dish is', () => {
+  it('has no dish name whose kind differs across cuisines', () => {
+    const byName = new Map();
+    let names = 0;
+    for (const [slug, v] of Object.entries(NATION_OVERLAY)) {
+      for (const d of (v.iconicDishes || [])) {
+        const k = d.name.toLowerCase();
+        if (!byName.has(k)) byName.set(k, new Map());
+        const kinds = byName.get(k);
+        if (!kinds.has(d.kind)) kinds.set(d.kind, []);
+        kinds.get(d.kind).push(slug);
+      }
+    }
+    const conflicts = [];
+    for (const [name, kinds] of byName) {
+      names += 1;
+      if (kinds.size > 1) {
+        conflicts.push(`${name}: ${[...kinds].map(([k, ss]) => `${k} in ${ss.join('/')}`).join(' vs ')}`);
+      }
+    }
+    // Non-vacuity: a failed import would otherwise pass this by checking nothing.
+    expect(names, 'the overlay yielded too few names').toBeGreaterThanOrEqual(1500);
+    expect(conflicts, conflicts.join(' | ')).toEqual([]);
+  });
+
+  it('teh tarik is a drink everywhere it is served', () => {
+    const kinds = new Set();
+    for (const v of Object.values(NATION_OVERLAY)) {
+      for (const d of (v.iconicDishes || [])) if (d.name === 'teh tarik') kinds.add(d.kind);
+    }
+    expect(kinds.size, 'teh tarik is served by nobody — the fixture broke').toBeGreaterThan(0);
+    expect([...kinds]).toEqual(['drink']);
+  });
+});
+
 describe('no cuisine lists the same dish name twice', () => {
   const fold = (s) => s.toLowerCase()
     .replace(/ı/g, 'i')
