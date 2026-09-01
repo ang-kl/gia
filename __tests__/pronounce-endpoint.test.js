@@ -25,6 +25,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { secondLine } from '../web/_shared/lib/name-second-line.js';
 
 const ROOT = join(__dirname, '..');
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
@@ -193,7 +194,13 @@ describe('the route and the two surfaces are wired', () => {
   it('the transport line panel does the same for line names', () => {
     const src = read('web/transport/src/components/LineStatusPanel.jsx');
     expect(src).toContain('usePronunciations([line.name]');
-    expect(src).toMatch(/lineName\(line\.code, line\.name, lang\) === line\.name && lineSay\.get/);
+    // v0.62.888 — the guard moved into secondLine(), which still shows the guide
+    // ONLY where the register had nothing. What changed is that a translation now
+    // takes that slot first when one exists; the guide is the fallback, never a
+    // second line beside it. Asserted by calling, not by scanning.
+    expect(src).toMatch(/secondLine\(\{ primary: lineName\(line\.code/);
+    expect(secondLine({ primary: 'Downtown Line', english: 'Downtown Line', code: 'DTL', lang: 'en', say: 'DOWN-town' }).key).toBe('say');
+    expect(secondLine({ primary: '东西线', english: 'East-West Line', code: 'EWL', lang: 'zh', say: 'x' }), 'register answered — no guide').toBeNull();
     expect(src).toContain('<PronounceIcon');
   });
 

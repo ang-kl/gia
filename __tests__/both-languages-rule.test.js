@@ -23,6 +23,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { secondLine } from '../web/_shared/lib/name-second-line.js';
 
 const ROOT = join(__dirname, '..');
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
@@ -88,8 +89,18 @@ describe('(b) an allowed field shows the original and ONE rendering', () => {
     // name the row above IS the answer, so the guide is suppressed.
     const hawker = code('web/hawker/src/App.jsx');
     expect(hawker).toMatch(/!hawkerNameLocal\(c\.displayName \|\| c\.name, lang\) && centreSay\.get/);
+    // v0.62.888 — the transport arm now goes through secondLine(), so the rule is
+    // asserted by CALLING it rather than by scanning for an expression. That is the
+    // whole reason name-guide.js exists as a module, per its own header: "the
+    // precedence has now been asserted by five separate source-scanning tests, four
+    // of which broke on a refactor while the behaviour held." This one broke exactly
+    // that way. The behaviour is unchanged — mutually exclusive, never two — and is
+    // now checked directly.
     const transport = code('web/transport/src/components/LineStatusPanel.jsx');
-    expect(transport).toMatch(/lineName\(line\.code, line\.name, lang\) === line\.name && lineSay\.get/);
+    expect(transport).toMatch(/secondLine\(\{ primary: lineName\(line\.code/);
+    expect(transport).toMatch(/sl\.key === 'say' && <PronounceIcon/);
+    const withBoth = secondLine({ primary: 'Downtown Line', english: 'Downtown Line', code: 'DTL', lang: 'es', say: 'DOWN-town' });
+    expect(withBoth.key, 'a translation outranks the guide — never both').toBe('translated');
   });
 
   it('the map popup shows one guide for the name and one for the street', () => {
