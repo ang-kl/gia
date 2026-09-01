@@ -12,8 +12,12 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const { fitDescription, measure, CAP } = require('../bot-description-fit');
 
-// The shipped copy, with the two interpolated counts as parameters.
-function enDescription(cuisines, hawker) {
+const { SUPPORTED } = require('../i18n');
+
+// v0.62.723's copy, KEPT. It is not the shipped text any more, but it is the
+// text the trimmer was written for, and deleting it would delete the evidence
+// that the defect was real. The block below still asserts it overflows.
+function enDescriptionV0_60_37(cuisines, hawker) {
   return `/cuisine (or /c) · ${cuisines} cuisines, SG, Johor Bahru + other cities, quick filters\n`
     + '/location (or /l) · change location [street]\n'
     + `/hawker · >${hawker} hawker centres (2026)\n`
@@ -29,31 +33,66 @@ function enDescription(cuisines, hawker) {
     + 'Tap 🍴 Cuisine Picker to jump in.';
 }
 
+// v0.62.884's copy — the one index.js actually sends. Mirrors
+// registerCommandsMenu()'s enDescription line for line.
+function enDescription(cuisines, hawker) {
+  return '/menu · every feature, one tap\n'
+    + `/cuisine · ${cuisines} cuisines, SG + Johor Bahru\n`
+    + '/location · change location\n'
+    + `/hawker · >${hawker} hawker centres\n`
+    + '/recognised · Michelin, Bib, Asia 50/100\n'
+    + '/weather · now + 2h NEA forecast\n'
+    + '/transport · bus, MRT, walk, drive\n'
+    + '/carpark · nearest 5, free lots\n'
+    + '/search · dishes, ingredients, tools\n'
+    + '/rating · min rating 0–5\n'
+    + '/clipboard · saved cuisine clips\n'
+    + `/language · ${SUPPORTED.length} languages\n`
+    + '/privacy · data + sources\n'
+    + '/forgetme · erase stored data\n\n'
+    + 'Tap 🍴 Cuisine Picker to jump in.';
+}
+
 describe('the shipped description, at real counts', () => {
   // '50+'/'100' is the hardcoded fallback; the others are live-ish figures.
-  // Counts only grow, so a long pair is the case that matters.
-  const CASES = [['50+', '100'], ['69', '121'], ['120', '127'], ['999+', '999']];
+  // Counts only grow, so a long pair is the case that matters. v0.62.884 adds
+  // an absurd pair, because "fits at today's numbers" is not the guarantee.
+  const CASES = [['50+', '100'], ['69', '121'], ['120', '127'], ['999+', '999'], ['9999+', '9999']];
 
-  it('was over the cap before this fix — the defect is reproduced, not assumed', () => {
+  it('the v0.60.37 copy really was over the cap — the defect stays reproduced', () => {
+    // INVERTED RATHER THAN DELETED, v0.62.884. This assertion used to name the
+    // SHIPPED copy; the rewrite made it fit, so the assertion's premise expired.
+    // Deleting it would delete the reason fitDescription exists. Pointing it at
+    // the old text keeps the history true and frees the shipped copy to be held
+    // to the stronger standard below.
     for (const [c, h] of CASES) {
-      expect(measure(enDescription(c, h)), `counts ${c}/${h}`).toBeGreaterThan(CAP);
+      expect(measure(enDescriptionV0_60_37(c, h)), `counts ${c}/${h}`).toBeGreaterThan(CAP);
     }
   });
 
-  it('fits after fitDescription, at every count value', () => {
+  it('the shipped copy now fits WITHOUT being trimmed, at every count value', () => {
+    // Stronger than "fits after trimming": trimming silently drops the hint or
+    // whole command lines, so a passing trim test is compatible with a menu the
+    // user never sees in full. trimmed === null is the real guarantee.
     for (const [c, h] of CASES) {
       const fit = fitDescription(enDescription(c, h));
       expect(fit.length, `counts ${c}/${h}`).toBeLessThanOrEqual(CAP);
+      expect(fit.trimmed, `counts ${c}/${h} — the shipped copy should not need trimming`).toBe(null);
+      expect(fit.text).toBe(enDescription(c, h));
     }
   });
 
-  it('keeps all twelve commands — only the hint line is sacrificed', () => {
-    const fit = fitDescription(enDescription('69', '121'));
-    expect(fit.trimmed).toBe('hint');
-    for (const cmd of ['/cuisine', '/location', '/hawker', '/recognised', '/weather',
-      '/transport', '/carpark', '/buddy', '/search', '/language', '/privacy', '/forgetme']) {
-      expect(fit.text).toContain(cmd);
-    }
+  it('carries all fourteen commands, and no longer advertises the retired /buddy', () => {
+    const { COMMAND_IDS } = require('../bot-commands');
+    const text = enDescription('69', '121');
+    expect(COMMAND_IDS).toHaveLength(14);
+    for (const id of COMMAND_IDS) expect(text, `/${id} missing from the description`).toContain(`/${id}`);
+    expect(text, '/buddy was retired at v0.60.113').not.toContain('/buddy');
+  });
+
+  it('and the locale count in it is derived, so it cannot go stale the way "English / Français" did', () => {
+    expect(enDescription('69', '121')).toContain(`/language · ${SUPPORTED.length} languages`);
+    expect(enDescription('69', '121')).not.toContain('English / Français');
   });
 });
 

@@ -54,7 +54,10 @@ function maskComments(src) {
 
 describe('every swept key exists in all eight locales', () => {
   it('the sweep produced the number of keys it claims', () => {
-    expect(BOT_KEYS.length).toBeGreaterThanOrEqual(126);
+    // v0.62.884 — floor raised from 126 to 144. A floor that never moves stops
+    // being a measurement: 129 keys had been passing a 126 floor for four
+    // versions, so a deletion of two would have gone unnoticed.
+    expect(BOT_KEYS.length).toBeGreaterThanOrEqual(144);
     expect(new Set(BOT_KEYS).size, 'a key is defined twice — the later wins silently').toBe(BOT_KEYS.length);
   });
 
