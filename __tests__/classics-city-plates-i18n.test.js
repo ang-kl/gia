@@ -95,15 +95,25 @@ const SCRIPT_RULES = [
   { lang: 'ru', must: /[Ѐ-ӿ]/, mustLabel: 'Cyrillic' },
   { lang: 'zh', must: /[一-鿿]/, mustLabel: 'Han' },
   { lang: 'ja', must: /[぀-ヿ]/, mustLabel: 'kana' },
+  // v0.62.882 — `ko` joins them. A rule only fires on rows that carry the key, so this is inert
+  // on city-plates (still eight locales) and live on classics-notes from K5 onward.
+  { lang: 'ko', must: /[가-힣ᄀ-ᇿ]/, mustLabel: 'Hangul' },
 ];
 const FORBIDDEN = [
   { script: /[Ѐ-ӿ]/, label: 'Cyrillic', allowed: new Set(['ru']) },
   { script: /[぀-ヿ]/, label: 'kana', allowed: new Set(['ja']) },
   { script: /[一-鿿]/, label: 'Han', allowed: new Set(['zh', 'ja']) },
-  // Hangul belongs to NO target language: id/ru/de/zh/ja/es. A Korean word left in
-  // its own script is a leak wherever it lands — caught in a Chinese string naming
+  // Hangul belonged to NO target language while the columns were id/ru/de/zh/ja/es. A Korean
+  // word left in its own script is a leak wherever it lands — caught in a Chinese string naming
   // Daegu's Seongdangmot pond, where 못 had been carried over verbatim.
-  { script: /[가-힣ᄀ-ᇿ]/, label: 'Hangul', allowed: new Set() },
+  //
+  // v0.62.882 — that premise expired when classics-notes gained a `ko` column. The empty set is
+  // now `{ko}`: Hangul is still a leak in all six of the others, and the sentence above still
+  // describes why. This is the one place in the arc where a shipped guard could see the new
+  // column before K6 — every completeness guard is presence-based and ignores an extra key, but
+  // this one iterates `Object.entries(langs)` and judges whatever it finds. It caught all 1,670
+  // rows on the first run, which is the guard working, not failing.
+  { script: /[가-힣ᄀ-ᇿ]/, label: 'Hangul', allowed: new Set(['ko']) },
 ];
 // A single WORD mixing Cyrillic and Latin letters is a typing slip, never a loanword —
 // a Latin proper noun standing alone in a Russian sentence is fine and stays allowed.
@@ -122,7 +132,13 @@ const ENGLISH_STOPWORD = /(?<![A-Za-zÀ-ÿ])(?:the|and|or|of|in|on|at|to|for|wit
 // unspaced, so the test separates 'English noun' from 'romanised Malay noun', which no
 // character-class rule can do. The slip was caught by reading and is recorded here rather
 // than papered over with a rule that would have to be switched off on half the corpus.
-const NON_LATIN_LANGS = new Set(['ru', 'zh', 'ja']);
+// v0.62.882 — `ko` added. Measured against the 1,670 Korean values before adding it, not after:
+// ONE hit, and it was real. The rule flagged "Black or White" left in Latin in the michael
+// jackson note, while ja writes 「ブラック・オア・ホワイト」 and zh writes 《黑或白》 — the corpus renders a
+// title in its own script for every non-Latin locale, and the Korean had not. The note was
+// rewritten to match the convention, and the count is now 0. Widening a rule and rewriting the
+// row it catches are the same change here; widening it and exempting the row would not be.
+const NON_LATIN_LANGS = new Set(['ru', 'zh', 'ja', 'ko']);
 
 // v0.62.805 — THE LATIN-SCRIPT BLIND SPOT. ENGLISH_STOPWORD runs on ru/zh/ja only, so
 // id/de/es shipped unchecked: "bercita rasa nutty" reached the corpus and was caught by
