@@ -771,6 +771,8 @@ function rectPinNode(bg, text) {
 // byte-identical in cuisine/hawker/transport mapOverlays.js). Re-exported here so
 // existing importers (MapControls) keep the same import path.
 import { scLabel, dayLabel, dirLabel } from '../../../_shared/lib/station-card-labels.js';
+import { lineName } from '../../../_shared/lib/mrt-lines-i18n.generated.js';
+import { secondLine } from '../../../_shared/lib/name-second-line.js';
 export { giaToggleStyle } from '../../../_shared/lib/gia-toggle-style.js';
 
 // v0.61.22 — popup colour palette.
@@ -1035,8 +1037,20 @@ function stationInfoCardHtml(rec, lang) {
     + '<span style="color:' + c.sub + ';">·</span>'
     + '<span style="font-weight:700;font-size:14px;color:' + nameHex + ';">'
     + escapeHtml(scLabel('station', lang, { name })) + '</span></div>';
-  const lineRow = (ln) => '<div style="margin-top:3px;color:' + c.fg + ';">'
-    + escapeHtml((ln.line_code || '') + ' · ' + (ln.line_name || '')) + '</div>';
+  // v0.62.890 — this row localised NOTHING while every label around it did
+  // (scLabel, dirLabel, dayLabel all take `lang`). It was the outlier, and the
+  // operator saw it: an English line name inside an otherwise Korean popup. Like
+  // the station card's line rows it reads data/stations.json's baked English
+  // `line_name`, so the code has to be looked up before a locale can apply.
+  const lineRow = (ln) => {
+    const english = ln.line_name || '';
+    const primary = english ? lineName(ln.line_code, english, lang) : '';
+    const sl = english ? secondLine({ primary, english, code: ln.line_code, lang }) : null;
+    return '<div style="margin-top:3px;color:' + c.fg + ';">'
+      + escapeHtml((ln.line_code || '') + ' · ' + primary)
+      + (sl ? '<br><small style="opacity:.75">' + escapeHtml(sl.text) + '</small>' : '')
+      + '</div>';
+  };
 
   // 1. Header — combined code pills for an interchange, a single pill +
   //    line code/name otherwise.

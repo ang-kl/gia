@@ -2,6 +2,7 @@ import React from 'react';
 import LineBadge from './LineBadge.jsx';
 import { LINES_BY_CODE } from '../data/lines.js';
 import { lineName } from '../../../_shared/lib/mrt-lines-i18n.generated.js';
+import { secondLine } from '../../../_shared/lib/name-second-line.js';
 import { t, useLocale } from '../i18n.js';
 
 // v0.60.99 — operator follow-ups:
@@ -62,6 +63,7 @@ export default function AffectedTicker({ affectedCodes, focusedCode, onFocus, st
             // chip (shares the schematic's `.line-flash` keyframe, styles.css)
             // until the user taps any chip.
             const blinking = code === blinkCode;
+            const sl = secondLine({ primary: lineName(line.code, line.name, lang), english: line.name, code: line.code, lang });
             return (
               <button
                 key={code}
@@ -71,7 +73,18 @@ export default function AffectedTicker({ affectedCodes, focusedCode, onFocus, st
                 className={`inline-flex items-center gap-1.5 px-2 py-1 rounded border whitespace-nowrap ${focused ? 'border-tg-text' : 'border-tg-border'} bg-tg-bg ${blinking ? 'line-flash' : ''}`}
               >
                 <LineBadge code={code} hex={line.hex} size="sm" />
-                <span className="text-xs">{lineName(line.code, line.name, lang)}</span>
+                {/* v0.62.890 — THE CARVE-OUT IS RETIRED, and it was mine to retire.
+                    v0.62.888 left this strip English on my reasoning that a second
+                    line "doubles the height of a header the compact layout
+                    deliberately shrinks" — a judgement made about a visual this
+                    environment cannot render. The operator then ran the app in
+                    Korean, photographed THIS strip, and said: "Have the train TMA
+                    resolve the translated line." A carve-out argued from a guess
+                    does not outrank the person who can see the screen. */}
+                <span className="flex flex-col min-w-0 leading-tight text-left">
+                  <span className="text-xs">{lineName(line.code, line.name, lang)}</span>
+                  {sl && <span className="text-[10px] text-tg-hint">{sl.text}</span>}
+                </span>
                 {icon && <span className="text-[10px]" aria-hidden="true">{icon}</span>}
               </button>
             );

@@ -94,9 +94,12 @@ export default function LocaleToggle({ className = '' }) {
               role="menuitemradio"
               aria-checked={l.code === lang}
               onClick={() => { setActiveLocale(l.code); setOpen(false); }}
-              className={`w-full flex items-center justify-between gap-3 px-3 py-2 text-sm text-left ${l.code === lang ? 'font-semibold bg-tg-bg' : 'hover:bg-tg-bg'}`}
+              className={`w-full flex items-center justify-between gap-3 px-3 py-2 text-sm text-left ${l.code === lang ? 'font-semibold' : 'hover:bg-tg-bg'}`}
             >
-              <span>{l.name}</span>
+              <span className="flex items-center gap-2 min-w-0">
+                <span aria-hidden="true" className="w-3 shrink-0 text-tg-accent leading-none">{l.code === lang ? '✓' : ''}</span>
+                <span className="truncate">{l.name}</span>
+              </span>
               <span aria-hidden="true">{l.flag}</span>
             </button>
           ))}

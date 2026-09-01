@@ -97,10 +97,11 @@ export default function LocaleToggle({ className = '' }) {
               role="menuitemradio"
               aria-checked={l.code === lang}
               onClick={() => { setActiveLocale(l.code); setOpen(false); }}
-              className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 active:bg-tg-bg ${l.code === lang ? 'bg-tg-accent/10 font-medium' : 'hover:bg-tg-bg'}`}
+              className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 active:bg-tg-bg ${l.code === lang ? 'font-medium' : 'hover:bg-tg-bg'}`}
             >
               <span>{l.flag}</span>
-              <span>{l.name}</span>
+              <span className="truncate">{l.name}</span>
+              <span aria-hidden="true" className="ml-auto w-3 shrink-0 text-tg-accent leading-none">{l.code === lang ? '✓' : ''}</span>
             </button>
           ))}
         </div>

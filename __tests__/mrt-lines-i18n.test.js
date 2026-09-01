@@ -98,18 +98,30 @@ describe('every render site is wired, not just the convenient ones', () => {
     // the primary to compare against. Updated deliberately rather than loosened
     // to a >=, for the same reason v0.62.841 did: the point of this table is that
     // a NEW render site cannot appear unnoticed.
-    ['App.jsx', 3],
+    // v0.62.890 — 3 -> 4. The line-order header's carve-out was retired, and its
+    // secondLine() guard re-reads the primary. Still no new render SITE: the
+    // header was already rendering a name, it just wasn't localised.
+    ['App.jsx', 4],
     // v0.62.841 — 1 -> 4. The pronunciation line added three more CALLS, none of
     // them a new render: one inside `curatedFor` (does the register already answer
     // this?), and two in the guard that shows the say-it line ONLY when it does not.
     // Updated deliberately rather than loosened to a >=, because the point of this
     // table is that a NEW render site cannot appear unnoticed.
     ['components/LineStatusPanel.jsx', 4],
-    ['components/AffectedTicker.jsx', 2],
+    // v0.62.890 — 2 -> 3. Same retirement, same reason. Updated deliberately
+    // rather than loosened to a >=, because the point of this table is that a NEW
+    // render site cannot appear unnoticed.
+    ['components/AffectedTicker.jsx', 3],
     // v0.62.888 — 1 -> 2. Same second line, and the extra call is in the guard
     // that only fires on the lineName branch (c.direction is already localised).
     ['components/EngineeringList.jsx', 2],
     ['components/SystemMap.jsx', 1],
+    // v0.62.890 — NEW ROW. StationCard was never in this table, which is part of
+    // why its line rows went unlocalised for so long: the table that exists to
+    // stop a render site slipping through did not cover the file the operator
+    // photographed. 2 calls = LineSubCard's main name + the inline helper for the
+    // collapsed strip.
+    ['components/StationCard.jsx', 2],
   ])('%s calls lineName %i time(s)', (f, n) => {
     // Counts the CALLS: the import reads \`import { lineName } from …\`, with no paren, so
     // it is not one of these. The first draft added +1 for it and failed on all five.
