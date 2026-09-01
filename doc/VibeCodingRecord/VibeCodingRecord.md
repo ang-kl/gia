@@ -222,7 +222,14 @@ accident:
 When new PRs land:
 
 1. **Append PR metadata** to `data/prs.ndjson` — one line per new PR:
-   `{"n":380,"title":"…","state":"closed","merged":"2026-…Z","body":"<first ~360 chars of the PR description, single line>"}`
+   `{"n":380,"title":"…","state":"MERGED","merged":"2026-…+00:00","body":"<the PR description>"}`
+
+   > **The shape drifted, and this line used to describe the old one.** It said `state: "closed"`,
+   > `merged: "…Z"` and *"first ~360 chars of the PR description, single line"*. Measured 2026-09-01
+   > against the last 30 rows: they carry `"MERGED"`, `…+00:00`, and **full** bodies (1,970–8,116
+   > chars) with newlines intact and HTML entities decoded. The generator reads whatever is there,
+   > so **match the recent rows, not this file's history** — and if you change the shape again,
+   > change this line in the same commit.
    (the existing lines were produced from the GitHub PR-list API; any equivalent dump works).
 
    **Redact before you write the file — this step is not optional and it is not a one-off.**
