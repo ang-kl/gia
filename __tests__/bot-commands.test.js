@@ -234,8 +234,10 @@ describe('the chat scope — the part that makes the menu follow the toggle', ()
     // Rank 2 beats 5 and 6 unconditionally. Adding a language_code would move
     // this to rank 1, which is NARROWER — it would then apply only to users
     // whose client language already matched, i.e. the ones who did not need it.
-    const s = chatScope(313940231);
-    expect(s).toEqual({ type: 'chat', chat_id: 313940231 });
+    // An obviously-synthetic id. A real chat id is user data and a unit test has
+    // no use for one; the first draft of this file pasted the owner's.
+    const s = chatScope(100200300);
+    expect(s).toEqual({ type: 'chat', chat_id: 100200300 });
     expect(Object.keys(s)).not.toContain('language_code');
   });
 

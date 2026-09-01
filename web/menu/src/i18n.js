@@ -7,6 +7,14 @@
 // the active locale and renders. The 'gia.locale' localStorage
 // key is shared across all TMAs, so a user who flipped the
 // cuisine TMA to FR sees a FR menu hub on the next mount.
+//
+// v0.62.884 — THE PARAGRAPH ABOVE WAS WRONG ON BOTH COUNTS, and it is kept
+// rather than rewritten because it is the reason the bug existed. The hub DOES
+// have a live locale UI (LocaleToggle, v0.60.62), and "that's done via the
+// /language chat command" describes exactly the preference this file had no way
+// to read: trimming the hydration path left the sync one-way, so /language ko
+// in chat could not reach the hub at all. hydrateFromServerOnce() below is the
+// missing half, ported from web/hawker/src/i18n.js.
 
 import { useEffect, useState } from 'react';
 
@@ -826,7 +834,14 @@ export function getActiveLocale() {
 // fires the gia:locale CustomEvent (so every subscribed useLocale
 // re-renders), and best-effort POSTs to /api/cuisine/user-language
 // so the chat-side /language preference syncs across sessions.
+// v0.62.884 — module latches for the server-hydration read below. Declared
+// here rather than beside hydrateFromServerOnce() so that setActiveLocale's
+// assignment is not reading a binding declared further down the file.
+let serverHydrated = false;
+let localeChosenInApp = false;
+
 export function setActiveLocale(lang) {
+  localeChosenInApp = true;   // v0.62.884 — outranks a hydration still in flight
   if (!SUPPORTED_LOCALES.includes(lang)) return;
   try { window.localStorage.setItem(LOCALE_KEY, lang); } catch { /* noop */ }
   window.dispatchEvent(new CustomEvent(LOCALE_EVENT, { detail: { lang } }));
@@ -857,6 +872,38 @@ if (typeof window !== 'undefined') {
   window.addEventListener('storage', (e) => { if (e.key === LOCALE_KEY) syncDocumentLang(getActiveLocale()); });
 }
 
+// v0.62.884 — READ the chat-side /language preference, not just write it.
+// This file had only the POST in setActiveLocale, so the sync was one-way:
+// a user who set /language ko in chat and then opened the Menu TMA got
+// English, because getActiveLocale() falls through localStorage →
+// navigator.language → Telegram's app locale and never asks the server that
+// actually holds the preference. Reported by the operator against the Menu
+// hub; transport and clipboard carried the identical defect and are fixed in
+// the same pass rather than left to be reported one at a time.
+//
+// Ported from web/hawker/src/i18n.js, which has had this since v0.59.15.
+// Overwriting localStorage matters as much as the event: a stale 'en' pinned
+// there by an earlier flag-pill tap in ANY TMA (the key is shared across all
+// five) outranks every other signal, and nothing else can dislodge it.
+async function hydrateFromServerOnce() {
+  if (serverHydrated) return;
+  serverHydrated = true;
+  try {
+    const res = await fetch('/api/cuisine/user-language', {
+      headers: { 'X-Telegram-Init-Data': window.Telegram?.WebApp?.initData || '' },
+    });
+    if (!res.ok) return;
+    const remote = (await res.json())?.lang;
+    // If the reader tapped the locale pill while this was in flight, their
+    // choice is newer than the server's answer and must not be undone.
+    if (localeChosenInApp) return;
+    if (SUPPORTED_LOCALES.includes(remote)) {
+      try { window.localStorage.setItem(LOCALE_KEY, remote); } catch { /* private mode */ }
+      window.dispatchEvent(new CustomEvent(LOCALE_EVENT, { detail: { lang: remote } }));
+    }
+  } catch { /* offline / 401 / 404 — keep the local fallback */ }
+}
+
 export function useLocale() {
   const [lang, setLang] = useState(() => getActiveLocale());
   useEffect(() => {
@@ -864,6 +911,7 @@ export function useLocale() {
     function onStorage(e) { if (e.key === LOCALE_KEY) setLang(getActiveLocale()); }
     window.addEventListener(LOCALE_EVENT, onLocale);
     window.addEventListener('storage', onStorage);
+    hydrateFromServerOnce();   // v0.62.884 — the read half of the sync
     return () => {
       window.removeEventListener(LOCALE_EVENT, onLocale);
       window.removeEventListener('storage', onStorage);
